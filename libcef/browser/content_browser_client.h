@@ -41,14 +41,11 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   // ContentBrowserClient implementation.
   std::unique_ptr<content::BrowserMainParts> CreateBrowserMainParts(
       const content::MainFunctionParams& parameters) override;
-  void RenderProcessWillLaunch(
-      content::RenderProcessHost* host,
-      service_manager::mojom::ServiceRequest* service_request) override;
+  void RenderProcessWillLaunch(content::RenderProcessHost* host) override;
   bool ShouldUseProcessPerSite(content::BrowserContext* browser_context,
                                const GURL& effective_url) override;
-  bool DoesSiteRequireDedicatedProcess(
-      content::BrowserOrResourceContext browser_or_resource_contexts,
-      const GURL& effective_site_url) override;
+  bool DoesSiteRequireDedicatedProcess(content::BrowserContext* browser_context,
+                                       const GURL& effective_site_url) override;
   void GetAdditionalWebUISchemes(
       std::vector<std::string>* additional_schemes) override;
   void GetAdditionalViewSourceSchemes(
@@ -59,17 +56,11 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   bool IsHandledURL(const GURL& url) override;
   void SiteInstanceGotProcess(content::SiteInstance* site_instance) override;
   void SiteInstanceDeleting(content::SiteInstance* site_instance) override;
-  void RunServiceInstance(
-      const service_manager::Identity& identity,
-      mojo::PendingReceiver<service_manager::mojom::Service>* receiver)
-      override;
-  void RunServiceInstanceOnIOThread(
-      const service_manager::Identity& identity,
-      mojo::PendingReceiver<service_manager::mojom::Service>* receiver)
-      override;
+  void BindHostReceiverForRenderer(
+      content::RenderProcessHost* render_process_host,
+      mojo::GenericPendingReceiver receiver) override;
   base::Optional<service_manager::Manifest> GetServiceManifestOverlay(
       base::StringPiece name) override;
-  std::vector<service_manager::Manifest> GetExtraServiceManifests() override;
   void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
                                       int child_process_id) override;
   void AdjustUtilityServiceProcessCommandLine(
@@ -98,7 +89,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       const GURL& request_url,
       bool is_main_frame_request,
       bool strict_enforcement,
-      bool expired_previous_decision,
       const base::Callback<void(content::CertificateRequestResultType)>&
           callback) override;
   base::OnceClosure SelectClientCertificate(
@@ -128,10 +118,10 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   std::vector<std::unique_ptr<content::NavigationThrottle>>
   CreateThrottlesForNavigation(
       content::NavigationHandle* navigation_handle) override;
-  std::vector<std::unique_ptr<content::URLLoaderThrottle>>
+  std::vector<std::unique_ptr<blink::URLLoaderThrottle>>
   CreateURLLoaderThrottles(
       const network::ResourceRequest& request,
-      content::BrowserContext* resource_context,
+      content::BrowserContext* browser_context,
       const base::RepeatingCallback<content::WebContents*()>& wc_getter,
       content::NavigationUIData* navigation_ui_data,
       int frame_tree_node_id) override;
@@ -145,7 +135,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
 
 #if defined(OS_WIN)
   const wchar_t* GetResourceDllName();
-  bool PreSpawnRenderer(sandbox::TargetPolicy* policy) override;
+  bool PreSpawnRenderer(sandbox::TargetPolicy* policy,
+                        RendererSpawnFlags flags) override;
 #endif
 
   void ExposeInterfacesToRenderer(
@@ -174,11 +165,11 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       content::BrowserContext* browser_context,
       content::RenderFrameHost* frame,
       int render_process_id,
-      bool is_navigation,
-      bool is_download,
+      URLLoaderFactoryType type,
       const url::Origin& request_initiator,
       mojo::PendingReceiver<network::mojom::URLLoaderFactory>* factory_receiver,
-      network::mojom::TrustedURLLoaderHeaderClientPtrInfo* header_client,
+      mojo::PendingRemote<network::mojom::TrustedURLLoaderHeaderClient>*
+          header_client,
       bool* bypass_redirect_checks) override;
   void OnNetworkServiceCreated(
       network::mojom::NetworkService* network_service) override;
@@ -189,7 +180,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   std::vector<base::FilePath> GetNetworkContextsParentDirectory() override;
   bool HandleExternalProtocol(
       const GURL& url,
-      content::ResourceRequestInfo::WebContentsGetter web_contents_getter,
+      content::WebContents::Getter web_contents_getter,
       int child_id,
       content::NavigationUIData* navigation_data,
       bool is_main_frame,
@@ -197,7 +188,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       bool has_user_gesture,
       network::mojom::URLLoaderFactoryPtr* out_factory) override;
   bool HandleExternalProtocol(
-      content::ResourceRequestInfo::WebContentsGetter web_contents_getter,
+      content::WebContents::Getter web_contents_getter,
       int frame_tree_node_id,
       content::NavigationUIData* navigation_data,
       const network::ResourceRequest& request,
@@ -209,7 +200,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   std::string GetUserAgent() override;
   blink::UserAgentMetadata GetUserAgentMetadata() override;
   base::flat_set<std::string> GetPluginMimeTypesWithExternalHandlers(
-      content::ResourceContext* resource_context) override;
+      content::BrowserContext* browser_context) override;
 
   // Perform browser process registration for the custom scheme.
   void RegisterCustomScheme(const std::string& scheme);

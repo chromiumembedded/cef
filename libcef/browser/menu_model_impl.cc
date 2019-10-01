@@ -104,7 +104,7 @@ class CefSimpleMenuModel : public ui::MenuModel {
     return impl_->GetGroupIdAt(index);
   }
 
-  bool GetIconAt(int index, gfx::Image* icon) override { return false; }
+  bool GetIconAt(int index, gfx::Image* icon) const override { return false; }
 
   ui::ButtonMenuItemModel* GetButtonMenuItemAt(int index) const override {
     return NULL;

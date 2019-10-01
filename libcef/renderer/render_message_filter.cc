@@ -55,10 +55,9 @@ bool CefRenderMessageFilter::Send(IPC::Message* message) {
   }
 
   if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
-    base::PostTaskWithTraits(
-        FROM_HERE, {content::BrowserThread::IO},
-        base::Bind(base::IgnoreResult(&CefRenderMessageFilter::Send), this,
-                   message));
+    base::PostTask(FROM_HERE, {content::BrowserThread::IO},
+                   base::Bind(base::IgnoreResult(&CefRenderMessageFilter::Send),
+                              this, message));
     return true;
   }
 

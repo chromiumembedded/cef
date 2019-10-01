@@ -42,7 +42,8 @@ class CefPrintDialogLinux : public printing::PrintDialogGtkInterface,
 
   // PrintDialogGtkInterface implementation.
   void UseDefaultSettings() override;
-  void UpdateSettings(printing::PrintSettings* settings) override;
+  void UpdateSettings(
+      std::unique_ptr<printing::PrintSettings> settings) override;
   void ShowDialog(
       gfx::NativeView parent_view,
       bool has_selection,
@@ -68,7 +69,8 @@ class CefPrintDialogLinux : public printing::PrintDialogGtkInterface,
   void SetHandler();
   void ReleaseHandler();
 
-  bool UpdateSettings(printing::PrintSettings* settings, bool get_defaults);
+  bool UpdateSettings(std::unique_ptr<printing::PrintSettings> settings,
+                      bool get_defaults);
 
   // Prints document named |document_name|.
   void SendDocumentToPrinter(const base::string16& document_name);

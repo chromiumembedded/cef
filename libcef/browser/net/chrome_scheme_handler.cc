@@ -462,7 +462,7 @@ class CefURLDataSource : public content::URLDataSource {
 
   void StartDataRequest(
       const std::string& path,
-      const content::ResourceRequestInfo::WebContentsGetter& wc_getter,
+      const content::WebContents::Getter& wc_getter,
       const content::URLDataSource::GotDataCallback& callback) override {
     callback.Run(output_);
   }
@@ -638,87 +638,19 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
 
   // From chrome/browser/chrome_content_browser_client.cc
 
-  // Returns a copy of the given url with its host set to given host and path
-  // set to given path. Other parts of the url will be the same.
-  static GURL ReplaceURLHostAndPath(const GURL& url,
-                                    const std::string& host,
-                                    const std::string& path) {
-    url::Replacements<char> replacements;
-    replacements.SetHost(host.c_str(), url::Component(0, host.length()));
-    replacements.SetPath(path.c_str(), url::Component(0, path.length()));
-    return url.ReplaceComponents(replacements);
-  }
-
-  // Maps "foo://bar/baz/" to "foo://chrome/bar/baz/".
-  static GURL AddUberHost(const GURL& url) {
-    const std::string uber_host = chrome::kChromeUIUberHost;
-    std::string new_path;
-    url.host_piece().AppendToString(&new_path);
-    url.path_piece().AppendToString(&new_path);
-
-    return ReplaceURLHostAndPath(url, uber_host, new_path);
-  }
-
-  // If url->host() is "chrome" and url->path() has characters other than the
-  // first slash, changes the url from "foo://chrome/bar/" to "foo://bar/" and
-  // returns true. Otherwise returns false.
-  static bool RemoveUberHost(GURL* url) {
-    if (url->host() != chrome::kChromeUIUberHost)
-      return false;
-
-    if (url->path().empty() || url->path() == "/")
-      return false;
-
-    const std::string old_path = url->path();
-
-    const std::string::size_type separator = old_path.find('/', 1);
-    std::string new_host;
-    std::string new_path;
-    if (separator == std::string::npos) {
-      new_host = old_path.substr(1);
-    } else {
-      new_host = old_path.substr(1, separator - 1);
-      new_path = old_path.substr(separator);
-    }
-
-    // Do not allow URLs with paths empty before the first slash since we can't
-    // have an empty host. (e.g "foo://chrome//")
-    if (new_host.empty())
-      return false;
-
-    *url = ReplaceURLHostAndPath(*url, new_host, new_path);
-
-    DCHECK(url->is_valid());
-
-    return true;
-  }
-
   // Handles rewriting Web UI URLs.
   static bool HandleWebUI(GURL* url, content::BrowserContext* browser_context) {
-    // Do not handle special URLs such as "about:foo"
-    if (!url->host().empty()) {
-      const GURL chrome_url = AddUberHost(*url);
-
-      // Handle valid "chrome://chrome/foo" URLs so the reverse handler will
-      // be called.
-      if (GetInstance()->UseWebUIForURL(browser_context, chrome_url))
-        return true;
-    }
-
     if (!GetInstance()->UseWebUIForURL(browser_context, *url))
       return false;
 
     return true;
   }
 
-  // Reverse URL handler for Web UI. Maps "chrome://chrome/foo/" to
-  // "chrome://foo/".
+  // Reverse URL handler for Web UI.
   static bool HandleWebUIReverse(GURL* url,
                                  content::BrowserContext* browser_context) {
-    if (!url->is_valid() || !url->SchemeIs(content::kChromeUIScheme))
-      return false;
-
-    return RemoveUberHost(url);
+    // No need to actually reverse-rewrite the URL.
+    return false;
   }
 
   DISALLOW_COPY_AND_ASSIGN(CefWebUIControllerFactory);

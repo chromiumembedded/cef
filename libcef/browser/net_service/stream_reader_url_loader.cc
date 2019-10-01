@@ -478,7 +478,7 @@ StreamReaderURLLoader::StreamReaderURLLoader(
 
   // All InputStream work will be performed on this task runner.
   stream_work_task_runner_ =
-      base::CreateSequencedTaskRunnerWithTraits({base::MayBlock()});
+      base::CreateSequencedTaskRunner({base::ThreadPool(), base::MayBlock()});
 }
 
 StreamReaderURLLoader::~StreamReaderURLLoader() {
@@ -536,8 +536,6 @@ void StreamReaderURLLoader::FollowRedirect(
     const base::Optional<GURL>& new_url) {
   NOTREACHED();
 }
-
-void StreamReaderURLLoader::ProceedWithResponse() {}
 
 void StreamReaderURLLoader::SetPriority(net::RequestPriority priority,
                                         int intra_priority_value) {}

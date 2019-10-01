@@ -51,7 +51,6 @@
 #include "base/task/post_task.h"
 #include "build/build_config.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/constants.mojom.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/renderer/chrome_content_renderer_client.h"
 #include "chrome/renderer/extensions/chrome_extensions_renderer_client.h"
@@ -85,6 +84,7 @@
 #include "extensions/renderer/renderer_extension_registry.h"
 #include "ipc/ipc_sync_channel.h"
 #include "media/base/media.h"
+#include "mojo/public/cpp/bindings/generic_pending_receiver.h"
 #include "printing/print_settings.h"
 #include "services/network/public/cpp/is_potentially_trustworthy.h"
 #include "services/service_manager/public/cpp/connector.h"
@@ -346,7 +346,7 @@ void CefContentRendererClient::RunSingleProcessCleanup() {
   if (content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
     RunSingleProcessCleanupOnUIThread();
   } else {
-    base::PostTaskWithTraits(
+    base::PostTask(
         FROM_HERE, {content::BrowserThread::UI},
         base::Bind(&CefContentRendererClient::RunSingleProcessCleanupOnUIThread,
                    base::Unretained(this)));
@@ -382,9 +382,9 @@ void CefContentRendererClient::RenderThreadStarted() {
           : blink::scheduler::WebRendererProcessType::kRenderer);
 
   {
-    startup_metric_utils::mojom::StartupMetricHostPtr startup_metric_host;
-    GetConnector()->BindInterface(chrome::mojom::kServiceName,
-                                  &startup_metric_host);
+    mojo::Remote<startup_metric_utils::mojom::StartupMetricHost>
+        startup_metric_host;
+    thread->BindHostReceiver(startup_metric_host.BindNewPipeAndPassReceiver());
     startup_metric_host->RecordRendererMainEntryTime(main_entry_time_);
   }
 
@@ -678,31 +678,31 @@ void CefContentRendererClient::DevToolsAgentDetached() {
   }
 }
 
-void CefContentRendererClient::CreateRendererService(
-    service_manager::mojom::ServiceRequest service_request) {
-  DCHECK(!service_binding_.is_bound());
-  service_binding_.Bind(std::move(service_request));
-}
-
 std::unique_ptr<content::URLLoaderThrottleProvider>
 CefContentRendererClient::CreateURLLoaderThrottleProvider(
     content::URLLoaderThrottleProviderType provider_type) {
   return std::make_unique<CefURLLoaderThrottleProviderImpl>(provider_type);
 }
 
-void CefContentRendererClient::OnBindInterface(
-    const service_manager::BindSourceInfo& remote_info,
-    const std::string& name,
-    mojo::ScopedMessagePipeHandle handle) {
-  registry_.TryBindInterface(name, &handle);
+void CefContentRendererClient::BindReceiverOnMainThread(
+    mojo::GenericPendingReceiver receiver) {
+  // TODO(crbug.com/977637): Get rid of the use of BinderRegistry here. This is
+  // only used to bind a spellcheck interface.
+  std::string interface_name = *receiver.interface_name();
+  auto pipe = receiver.PassPipe();
+  registry_.TryBindInterface(interface_name, &pipe);
 }
 
 void CefContentRendererClient::GetInterface(
     const std::string& interface_name,
     mojo::ScopedMessagePipeHandle interface_pipe) {
-  service_binding_.GetConnector()->BindInterface(
-      service_manager::ServiceFilter::ByName(chrome::mojom::kServiceName),
-      interface_name, std::move(interface_pipe));
+  // TODO(crbug.com/977637): Get rid of the use of this implementation of
+  // |service_manager::LocalInterfaceProvider|. This was done only to avoid
+  // churning spellcheck code while eliminating the "chrome" and
+  // "chrome_renderer" services. Spellcheck is (and should remain) the only
+  // consumer of this implementation.
+  content::RenderThread::Get()->BindHostReceiver(
+      mojo::GenericPendingReceiver(interface_name, std::move(interface_pipe)));
 }
 
 void CefContentRendererClient::WillDestroyCurrentMessageLoop() {
@@ -806,10 +806,6 @@ void CefContentRendererClient::RunSingleProcessCleanupOnUIThread() {
   // we need to explicitly delete the object when not running in this mode.
   if (!CefContext::Get()->settings().multi_threaded_message_loop)
     delete host;
-}
-
-service_manager::Connector* CefContentRendererClient::GetConnector() {
-  return service_binding_.GetConnector();
 }
 
 // Enable deprecation warnings on Windows. See http://crbug.com/585142.

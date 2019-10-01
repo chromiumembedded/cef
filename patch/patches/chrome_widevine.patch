@@ -1,8 +1,8 @@
 diff --git chrome/common/chrome_content_client.cc chrome/common/chrome_content_client.cc
-index 1e9bc3b924db..eaf4ac0f22f8 100644
+index fb0059b3e652..452f58ab4a0a 100644
 --- chrome/common/chrome_content_client.cc
 +++ chrome/common/chrome_content_client.cc
-@@ -92,7 +92,8 @@
+@@ -93,7 +93,8 @@
  // Registers Widevine CDM if Widevine is enabled, the Widevine CDM is
  // bundled and not a component. When the Widevine CDM is a component, it is
  // registered in widevine_cdm_component_installer.cc.
@@ -13,7 +13,7 @@ index 1e9bc3b924db..eaf4ac0f22f8 100644
  #include "third_party/widevine/cdm/widevine_cdm_common.h"  // nogncheck
  // TODO(crbug.com/663554): Needed for WIDEVINE_CDM_VERSION_STRING. Support
 diff --git third_party/widevine/cdm/BUILD.gn third_party/widevine/cdm/BUILD.gn
-index 27b3e9150832..bf5b96c5f69f 100644
+index 18177ec2e536..dca927a726b9 100644
 --- third_party/widevine/cdm/BUILD.gn
 +++ third_party/widevine/cdm/BUILD.gn
 @@ -5,6 +5,7 @@
@@ -24,3 +24,12 @@ index 27b3e9150832..bf5b96c5f69f 100644
  import("//media/cdm/library_cdm/cdm_paths.gni")
  import("//media/media_options.gni")
  import("//third_party/widevine/cdm/widevine.gni")
+@@ -106,8 +107,6 @@ if (widevine_cdm_manifest_and_license_files != []) {
+     ]
+   }
+ } else {
+-  assert(!enable_widevine_cdm_component,
+-         "Widevine as a component requires a manifest.")
+   group("widevine_cdm_manifest_and_license") {
+     # NOP
+   }

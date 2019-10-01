@@ -7,32 +7,6 @@
 #include "include/cef_print_settings.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
-namespace {
-
-bool IsEqual(CefRefPtr<CefPrintSettings> expected,
-             CefRefPtr<CefPrintSettings> actual) {
-  if (expected->IsLandscape() != actual->IsLandscape() ||
-      expected->GetDeviceName() != actual->GetDeviceName() ||
-      expected->GetDPI() != actual->GetDPI() ||
-      expected->GetPageRangesCount() != actual->GetPageRangesCount() ||
-      expected->IsSelectionOnly() != actual->IsSelectionOnly() ||
-      expected->WillCollate() != actual->WillCollate() ||
-      expected->GetColorModel() != actual->GetColorModel() ||
-      expected->GetCopies() != actual->GetCopies() ||
-      expected->GetDuplexMode() != actual->GetDuplexMode()) {
-    return false;
-  }
-
-  CefPrintSettings::PageRangeList expected_ranges, actual_ranges;
-  expected->GetPageRanges(expected_ranges);
-  actual->GetPageRanges(actual_ranges);
-  return std::equal(expected_ranges.begin(),
-                    expected_ranges.begin() + expected_ranges.size(),
-                    actual_ranges.begin());
-}
-
-}  // namespace
-
 // Verify Set/Get methods for CefPrintSettings.
 TEST(PrintTest, SettingsSetGet) {
   // CefRequest CreateRequest
@@ -92,10 +66,4 @@ TEST(PrintTest, SettingsSetGet) {
   CefPrintSettings::DuplexMode duplex_mode = DUPLEX_MODE_SIMPLEX;
   settings->SetDuplexMode(duplex_mode);
   EXPECT_EQ(duplex_mode, settings->GetDuplexMode());
-
-  CefRefPtr<CefPrintSettings> settings2 = settings->Copy();
-  EXPECT_TRUE(IsEqual(settings, settings2));
-
-  settings2->SetOrientation(!landscape);
-  EXPECT_FALSE(IsEqual(settings, settings2));
 }

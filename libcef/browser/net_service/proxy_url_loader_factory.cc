@@ -16,6 +16,7 @@
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/web_contents.h"
+#include "mojo/public/cpp/base/big_buffer.h"
 #include "net/http/http_status_code.h"
 #include "services/network/public/cpp/cors/cors.h"
 
@@ -37,7 +38,7 @@ class ResourceContextData : public base::SupportsUserData::Data {
 
   static void AddProxyOnUIThread(
       ProxyURLLoaderFactory* proxy,
-      content::ResourceRequestInfo::WebContentsGetter web_contents_getter) {
+      content::WebContents::Getter web_contents_getter) {
     CEF_REQUIRE_UIT();
 
     content::WebContents* web_contents = web_contents_getter.Run();
@@ -130,7 +131,8 @@ class InterceptedRequest : public network::mojom::URLLoader,
   void Restart();
 
   // Called from ProxyURLLoaderFactory::OnLoaderCreated.
-  void OnLoaderCreated(network::mojom::TrustedHeaderClientRequest request);
+  void OnLoaderCreated(
+      mojo::PendingReceiver<network::mojom::TrustedHeaderClient> receiver);
 
   // Called from InterceptDelegate::OnInputStreamOpenFailed.
   void InputStreamFailed(bool restart_needed);
@@ -142,9 +144,9 @@ class InterceptedRequest : public network::mojom::URLLoader,
                          OnHeadersReceivedCallback callback) override;
 
   // mojom::URLLoaderClient methods:
-  void OnReceiveResponse(const network::ResourceResponseHead& head) override;
+  void OnReceiveResponse(network::mojom::URLResponseHeadPtr head) override;
   void OnReceiveRedirect(const net::RedirectInfo& redirect_info,
-                         const network::ResourceResponseHead& head) override;
+                         network::mojom::URLResponseHeadPtr head) override;
   void OnUploadProgress(int64_t current_position,
                         int64_t total_size,
                         OnUploadProgressCallback callback) override;
@@ -158,7 +160,6 @@ class InterceptedRequest : public network::mojom::URLLoader,
   void FollowRedirect(const std::vector<std::string>& removed_headers,
                       const net::HttpRequestHeaders& modified_headers,
                       const base::Optional<GURL>& new_url) override;
-  void ProceedWithResponse() override;
   void SetPriority(net::RequestPriority priority,
                    int32_t intra_priority_value) override;
   void PauseReadingBodyFromNet() override;
@@ -259,7 +260,8 @@ class InterceptedRequest : public network::mojom::URLLoader,
 
   bool current_request_uses_header_client_ = false;
   OnHeadersReceivedCallback on_headers_received_callback_;
-  mojo::Binding<network::mojom::TrustedHeaderClient> header_client_binding_;
+  mojo::Receiver<network::mojom::TrustedHeaderClient> header_client_receiver_{
+      this};
 
   StreamReaderURLLoader* stream_loader_ = nullptr;
 
@@ -321,7 +323,6 @@ InterceptedRequest::InterceptedRequest(
       target_client_(std::move(client)),
       proxied_client_binding_(this),
       target_factory_(std::move(target_factory)),
-      header_client_binding_(this),
       weak_factory_(this) {
   status_ = network::URLLoaderCompletionStatus(net::OK);
 
@@ -354,11 +355,11 @@ void InterceptedRequest::Restart() {
     target_loader_.reset();
   }
 
-  if (header_client_binding_.is_bound())
-    header_client_binding_.Unbind();
+  if (header_client_receiver_.is_bound())
+    ignore_result(header_client_receiver_.Unbind());
 
   current_request_uses_header_client_ =
-      !!factory_->url_loader_header_client_binding_;
+      !!factory_->url_loader_header_client_receiver_;
 
   const GURL original_url = request_.url;
 
@@ -371,11 +372,11 @@ void InterceptedRequest::Restart() {
 }
 
 void InterceptedRequest::OnLoaderCreated(
-    network::mojom::TrustedHeaderClientRequest request) {
+    mojo::PendingReceiver<network::mojom::TrustedHeaderClient> receiver) {
   DCHECK(current_request_uses_header_client_);
 
   // Only called if we're using the default loader.
-  header_client_binding_.Bind(std::move(request));
+  header_client_receiver_.Bind(std::move(receiver));
 }
 
 void InterceptedRequest::InputStreamFailed(bool restart_needed) {
@@ -443,7 +444,7 @@ void InterceptedRequest::OnHeadersReceived(const std::string& headers,
 // URLLoaderClient methods.
 
 void InterceptedRequest::OnReceiveResponse(
-    const network::ResourceResponseHead& head) {
+    network::mojom::URLResponseHeadPtr head) {
   if (current_request_uses_header_client_) {
     // Use the headers we got from OnHeadersReceived as that'll contain
     // Set-Cookie if it existed.
@@ -463,7 +464,7 @@ void InterceptedRequest::OnReceiveResponse(
 
 void InterceptedRequest::OnReceiveRedirect(
     const net::RedirectInfo& redirect_info,
-    const network::ResourceResponseHead& head) {
+    network::mojom::URLResponseHeadPtr head) {
   bool needs_callback = false;
 
   if (current_request_uses_header_client_) {
@@ -573,11 +574,6 @@ void InterceptedRequest::FollowRedirect(
   // begin loading the redirected request. However, the client might want to
   // intercept that request so restart the job instead.
   Restart();
-}
-
-void InterceptedRequest::ProceedWithResponse() {
-  if (target_loader_)
-    target_loader_->ProceedWithResponse();
 }
 
 void InterceptedRequest::SetPriority(net::RequestPriority priority,
@@ -699,7 +695,7 @@ void InterceptedRequest::ContinueAfterInterceptWithOverride(
   // avoid having Set-Cookie headers stripped by the IPC layer.
   current_request_uses_header_client_ = true;
   network::mojom::TrustedHeaderClientPtr header_client;
-  header_client_binding_.Bind(mojo::MakeRequest(&header_client));
+  header_client_receiver_.Bind(mojo::MakeRequest(&header_client));
 
   stream_loader_ = new StreamReaderURLLoader(
       id_, request_, std::move(proxied_client), std::move(header_client),
@@ -951,7 +947,7 @@ void InterceptedRequest::CallOnComplete(
     // Since the original client is gone no need to continue loading the
     // request.
     proxied_client_binding_.Close();
-    header_client_binding_.Close();
+    header_client_receiver_.reset();
     target_loader_.reset();
 
     // In case there are pending checks as to whether this request should be
@@ -1034,13 +1030,12 @@ InterceptedRequestHandler::OnFilterResponseBody(
 //==============================
 
 ProxyURLLoaderFactory::ProxyURLLoaderFactory(
-    network::mojom::URLLoaderFactoryRequest loader_request,
+    mojo::PendingReceiver<network::mojom::URLLoaderFactory> factory_receiver,
     network::mojom::URLLoaderFactoryPtrInfo target_factory_info,
-    network::mojom::TrustedURLLoaderHeaderClientRequest header_client_request,
+    mojo::PendingReceiver<network::mojom::TrustedURLLoaderHeaderClient>
+        header_client_receiver,
     std::unique_ptr<InterceptedRequestHandler> request_handler)
-    : url_loader_header_client_binding_(this),
-      request_handler_(std::move(request_handler)),
-      weak_factory_(this) {
+    : request_handler_(std::move(request_handler)), weak_factory_(this) {
   CEF_REQUIRE_IOT();
   DCHECK(request_handler_);
 
@@ -1050,12 +1045,12 @@ ProxyURLLoaderFactory::ProxyURLLoaderFactory(
     target_factory_.set_connection_error_handler(base::BindOnce(
         &ProxyURLLoaderFactory::OnTargetFactoryError, base::Unretained(this)));
   }
-  proxy_bindings_.AddBinding(this, std::move(loader_request));
+  proxy_bindings_.AddBinding(this, std::move(factory_receiver));
   proxy_bindings_.set_connection_error_handler(base::BindRepeating(
       &ProxyURLLoaderFactory::OnProxyBindingError, base::Unretained(this)));
 
-  if (header_client_request)
-    url_loader_header_client_binding_.Bind(std::move(header_client_request));
+  if (header_client_receiver)
+    url_loader_header_client_receiver_.Bind(std::move(header_client_receiver));
 }
 
 ProxyURLLoaderFactory::~ProxyURLLoaderFactory() {
@@ -1064,15 +1059,16 @@ ProxyURLLoaderFactory::~ProxyURLLoaderFactory() {
 
 // static
 void ProxyURLLoaderFactory::CreateOnIOThread(
-    network::mojom::URLLoaderFactoryRequest loader_request,
+    mojo::PendingReceiver<network::mojom::URLLoaderFactory> factory_receiver,
     network::mojom::URLLoaderFactoryPtrInfo target_factory_info,
-    network::mojom::TrustedURLLoaderHeaderClientRequest header_client_request,
+    mojo::PendingReceiver<network::mojom::TrustedURLLoaderHeaderClient>
+        header_client_receiver,
     content::ResourceContext* resource_context,
     std::unique_ptr<InterceptedRequestHandler> request_handler) {
   CEF_REQUIRE_IOT();
   auto proxy = new ProxyURLLoaderFactory(
-      std::move(loader_request), std::move(target_factory_info),
-      std::move(header_client_request), std::move(request_handler));
+      std::move(factory_receiver), std::move(target_factory_info),
+      std::move(header_client_receiver), std::move(request_handler));
   ResourceContextData::AddProxy(proxy, resource_context);
 }
 
@@ -1087,16 +1083,21 @@ void ProxyURLLoaderFactory::SetDisconnectCallback(
 // static
 void ProxyURLLoaderFactory::CreateProxy(
     content::BrowserContext* browser_context,
-    network::mojom::URLLoaderFactoryRequest loader_request,
-    network::mojom::URLLoaderFactoryPtrInfo target_factory_info,
-    network::mojom::TrustedURLLoaderHeaderClientPtrInfo* header_client,
+    mojo::PendingReceiver<network::mojom::URLLoaderFactory>* factory_receiver,
+    mojo::PendingRemote<network::mojom::TrustedURLLoaderHeaderClient>*
+        header_client,
     std::unique_ptr<InterceptedRequestHandler> request_handler) {
   CEF_REQUIRE_UIT();
   DCHECK(request_handler);
 
-  network::mojom::TrustedURLLoaderHeaderClientRequest header_client_request;
+  auto proxied_receiver = std::move(*factory_receiver);
+  network::mojom::URLLoaderFactoryPtrInfo target_factory_info;
+  *factory_receiver = mojo::MakeRequest(&target_factory_info);
+
+  mojo::PendingReceiver<network::mojom::TrustedURLLoaderHeaderClient>
+      header_client_receiver;
   if (header_client)
-    header_client_request = mojo::MakeRequest(header_client);
+    header_client_receiver = header_client->InitWithNewPipeAndPassReceiver();
 
   content::ResourceContext* resource_context =
       browser_context->GetResourceContext();
@@ -1105,21 +1106,23 @@ void ProxyURLLoaderFactory::CreateProxy(
   CEF_POST_TASK(
       CEF_IOT,
       base::BindOnce(
-          &ProxyURLLoaderFactory::CreateOnIOThread, std::move(loader_request),
-          std::move(target_factory_info), std::move(header_client_request),
+          &ProxyURLLoaderFactory::CreateOnIOThread, std::move(proxied_receiver),
+          std::move(target_factory_info), std::move(header_client_receiver),
           base::Unretained(resource_context), std::move(request_handler)));
 }
 
 // static
 ProxyURLLoaderFactory* ProxyURLLoaderFactory::CreateProxy(
-    content::ResourceRequestInfo::WebContentsGetter web_contents_getter,
+    content::WebContents::Getter web_contents_getter,
     network::mojom::URLLoaderFactoryRequest loader_request,
     std::unique_ptr<InterceptedRequestHandler> request_handler) {
   CEF_REQUIRE_IOT();
   DCHECK(request_handler);
 
-  auto proxy = new ProxyURLLoaderFactory(std::move(loader_request), nullptr,
-                                         nullptr, std::move(request_handler));
+  auto proxy = new ProxyURLLoaderFactory(
+      std::move(loader_request), nullptr,
+      mojo::PendingReceiver<network::mojom::TrustedURLLoaderHeaderClient>(),
+      std::move(request_handler));
   CEF_POST_TASK(CEF_UIT,
                 base::BindOnce(ResourceContextData::AddProxyOnUIThread,
                                base::Unretained(proxy), web_contents_getter));
@@ -1169,11 +1172,11 @@ void ProxyURLLoaderFactory::Clone(
 
 void ProxyURLLoaderFactory::OnLoaderCreated(
     int32_t request_id,
-    network::mojom::TrustedHeaderClientRequest request) {
+    mojo::PendingReceiver<network::mojom::TrustedHeaderClient> receiver) {
   CEF_REQUIRE_IOT();
   auto request_it = requests_.find(request_id);
   if (request_it != requests_.end())
-    request_it->second->OnLoaderCreated(std::move(request));
+    request_it->second->OnLoaderCreated(std::move(receiver));
 }
 
 void ProxyURLLoaderFactory::OnTargetFactoryError() {

@@ -54,7 +54,7 @@ void CefWindowDelegateView::Init(gfx::AcceleratedWidget parent_widget,
                                   : ui::ZOrderLevel::kNormal;
 
   // Results in a call to InitContent().
-  widget->Init(params);
+  widget->Init(std::move(params));
 
   // |widget| should now be associated with |this|.
   DCHECK_EQ(widget, GetWidget());

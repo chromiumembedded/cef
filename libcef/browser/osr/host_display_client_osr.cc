@@ -13,7 +13,7 @@
 #include "components/viz/common/resources/resource_format.h"
 #include "components/viz/common/resources/resource_sizes.h"
 #include "mojo/public/cpp/system/platform_handle.h"
-#include "services/viz/privileged/interfaces/compositing/layered_window_updater.mojom.h"
+#include "services/viz/privileged/mojom/compositing/layered_window_updater.mojom.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/skia/include/core/SkColor.h"
 #include "third_party/skia/include/core/SkRect.h"

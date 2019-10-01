@@ -25,7 +25,6 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
   // exposed to JavaScript via 'navigator.plugins'.
   bool IsPluginAvailable(int render_process_id,
                          int render_frame_id,
-                         const void* context,
                          const GURL& url,
                          bool is_main_frame,
                          const url::Origin& main_frame_origin,
@@ -41,7 +40,6 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
   // See related discussion in issue #2015.
   bool IsPluginAvailable(int render_process_id,
                          int render_frame_id,
-                         content::ResourceContext* resource_context,
                          const GURL& url,
                          bool is_main_frame,
                          const url::Origin& main_frame_origin,

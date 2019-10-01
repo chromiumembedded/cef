@@ -61,8 +61,8 @@ scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
   // Allow the Content embedder to inject itself if it wants to.
   should_proxy |= CefContentBrowserClient::Get()->WillCreateURLLoaderFactory(
       browser_context, render_frame_host, render_process_id,
-      false /* is_navigation */, false /* is_download */, url::Origin(),
-      &maybe_proxy_factory_request, nullptr /* header_client */,
+      content::ContentBrowserClient::URLLoaderFactoryType::kDocumentSubResource,
+      url::Origin(), &maybe_proxy_factory_request, nullptr /* header_client */,
       nullptr /* bypass_redirect_checks */);
 
   // If anyone above indicated that they care about proxying, pass the

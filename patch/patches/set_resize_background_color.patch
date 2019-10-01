@@ -1,8 +1,8 @@
 diff --git ui/views/controls/native/native_view_host.cc ui/views/controls/native/native_view_host.cc
-index d6116fdbdd09..99191c7e46a9 100644
+index bc1cb3a9e6fc..f68bdeb8786c 100644
 --- ui/views/controls/native/native_view_host.cc
 +++ ui/views/controls/native/native_view_host.cc
-@@ -150,7 +150,7 @@ void NativeViewHost::OnPaint(gfx::Canvas* canvas) {
+@@ -151,7 +151,7 @@ void NativeViewHost::OnPaint(gfx::Canvas* canvas) {
    // It would be nice if this used some approximation of the page's
    // current background color.
    if (native_wrapper_->HasInstalledClip())
@@ -39,7 +39,7 @@ index 2a6cfc54d866..48623ab5d672 100644
  };
  
 diff --git ui/views/controls/webview/webview.cc ui/views/controls/webview/webview.cc
-index 805703d5f79a..4f86e1982a8e 100644
+index 982ab4872532..e24c59e4e363 100644
 --- ui/views/controls/webview/webview.cc
 +++ ui/views/controls/webview/webview.cc
 @@ -112,6 +112,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,

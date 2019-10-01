@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=231f2dd6f300c93a38ef8c18e19141691b3337ac$
+// $hash=33f5c103833cb9b4e6555f6a82fcaec06f3ff449$
 //
 
 #include <dlfcn.h>
@@ -153,7 +153,6 @@ typedef int (*cef_register_scheme_handler_factory_ptr)(
     struct _cef_scheme_handler_factory_t*);
 typedef int (*cef_clear_scheme_handler_factories_ptr)();
 typedef int (*cef_is_cert_status_error_ptr)(cef_cert_status_t);
-typedef int (*cef_is_cert_status_minor_error_ptr)(cef_cert_status_t);
 typedef int (*cef_currently_on_ptr)(cef_thread_id_t);
 typedef int (*cef_post_task_ptr)(cef_thread_id_t, struct _cef_task_t*);
 typedef int (*cef_post_delayed_task_ptr)(cef_thread_id_t,
@@ -553,7 +552,6 @@ struct libcef_pointers {
   cef_register_scheme_handler_factory_ptr cef_register_scheme_handler_factory;
   cef_clear_scheme_handler_factories_ptr cef_clear_scheme_handler_factories;
   cef_is_cert_status_error_ptr cef_is_cert_status_error;
-  cef_is_cert_status_minor_error_ptr cef_is_cert_status_minor_error;
   cef_currently_on_ptr cef_currently_on;
   cef_post_task_ptr cef_post_task;
   cef_post_delayed_task_ptr cef_post_delayed_task;
@@ -769,7 +767,6 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_register_scheme_handler_factory);
   INIT_ENTRY(cef_clear_scheme_handler_factories);
   INIT_ENTRY(cef_is_cert_status_error);
-  INIT_ENTRY(cef_is_cert_status_minor_error);
   INIT_ENTRY(cef_currently_on);
   INIT_ENTRY(cef_post_task);
   INIT_ENTRY(cef_post_delayed_task);
@@ -1089,8 +1086,8 @@ int cef_create_url(const struct _cef_urlparts_t* parts, cef_string_t* url) {
 }
 
 NO_SANITIZE("cfi-icall")
-cef_string_userfree_t
-    cef_format_url_for_security_display(const cef_string_t* origin_url) {
+cef_string_userfree_t cef_format_url_for_security_display(
+    const cef_string_t* origin_url) {
   return g_libcef_pointers.cef_format_url_for_security_display(origin_url);
 }
 
@@ -1175,11 +1172,6 @@ NO_SANITIZE("cfi-icall") int cef_clear_scheme_handler_factories() {
 NO_SANITIZE("cfi-icall")
 int cef_is_cert_status_error(cef_cert_status_t status) {
   return g_libcef_pointers.cef_is_cert_status_error(status);
-}
-
-NO_SANITIZE("cfi-icall")
-int cef_is_cert_status_minor_error(cef_cert_status_t status) {
-  return g_libcef_pointers.cef_is_cert_status_minor_error(status);
 }
 
 NO_SANITIZE("cfi-icall") int cef_currently_on(cef_thread_id_t threadId) {
@@ -1569,54 +1561,46 @@ struct _cef_translator_test_t* cef_translator_test_create() {
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_ref_ptr_library_t* cef_translator_test_ref_ptr_library_create(
-        int value) {
+struct _cef_translator_test_ref_ptr_library_t*
+cef_translator_test_ref_ptr_library_create(int value) {
   return g_libcef_pointers.cef_translator_test_ref_ptr_library_create(value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_ref_ptr_library_child_t* cef_translator_test_ref_ptr_library_child_create(
-        int value,
-        int other_value) {
+struct _cef_translator_test_ref_ptr_library_child_t*
+cef_translator_test_ref_ptr_library_child_create(int value, int other_value) {
   return g_libcef_pointers.cef_translator_test_ref_ptr_library_child_create(
       value, other_value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_ref_ptr_library_child_child_t* cef_translator_test_ref_ptr_library_child_child_create(
-        int value,
-        int other_value,
-        int other_other_value) {
+struct _cef_translator_test_ref_ptr_library_child_child_t*
+cef_translator_test_ref_ptr_library_child_child_create(int value,
+                                                       int other_value,
+                                                       int other_other_value) {
   return g_libcef_pointers
       .cef_translator_test_ref_ptr_library_child_child_create(
           value, other_value, other_other_value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_scoped_library_t* cef_translator_test_scoped_library_create(
-        int value) {
+struct _cef_translator_test_scoped_library_t*
+cef_translator_test_scoped_library_create(int value) {
   return g_libcef_pointers.cef_translator_test_scoped_library_create(value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_scoped_library_child_t* cef_translator_test_scoped_library_child_create(
-        int value,
-        int other_value) {
+struct _cef_translator_test_scoped_library_child_t*
+cef_translator_test_scoped_library_child_create(int value, int other_value) {
   return g_libcef_pointers.cef_translator_test_scoped_library_child_create(
       value, other_value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_scoped_library_child_child_t* cef_translator_test_scoped_library_child_child_create(
-        int value,
-        int other_value,
-        int other_other_value) {
+struct _cef_translator_test_scoped_library_child_child_t*
+cef_translator_test_scoped_library_child_child_create(int value,
+                                                      int other_value,
+                                                      int other_other_value) {
   return g_libcef_pointers
       .cef_translator_test_scoped_library_child_child_create(value, other_value,
                                                              other_other_value);

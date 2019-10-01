@@ -120,3 +120,12 @@ Profile::ExitType ChromeProfileStub::GetLastSessionExitType() {
   NOTREACHED();
   return EXIT_NORMAL;
 }
+
+base::Time ChromeProfileStub::GetCreationTime() const {
+  NOTREACHED();
+  return base::Time();
+}
+
+void ChromeProfileStub::SetCreationTimeForTesting(base::Time creation_time) {
+  NOTREACHED();
+}

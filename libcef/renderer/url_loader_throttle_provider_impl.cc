@@ -37,14 +37,14 @@ CefURLLoaderThrottleProviderImpl::Clone() {
   return base::WrapUnique(new CefURLLoaderThrottleProviderImpl(*this));
 }
 
-std::vector<std::unique_ptr<content::URLLoaderThrottle>>
+std::vector<std::unique_ptr<blink::URLLoaderThrottle>>
 CefURLLoaderThrottleProviderImpl::CreateThrottles(
     int render_frame_id,
     const blink::WebURLRequest& request,
     content::ResourceType resource_type) {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
 
-  std::vector<std::unique_ptr<content::URLLoaderThrottle>> throttles;
+  std::vector<std::unique_ptr<blink::URLLoaderThrottle>> throttles;
 
   // Some throttles have already been added in the browser for frame resources.
   // Don't add them for frame requests.

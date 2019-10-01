@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 70856f65e720..649c347a899b 100644
+index b66e15317bb2..79f09da67517 100644
 --- .gn
 +++ .gn
-@@ -670,6 +670,8 @@ exec_script_whitelist =
+@@ -667,6 +667,8 @@ exec_script_whitelist =
  
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
  
@@ -12,10 +12,10 @@ index 70856f65e720..649c347a899b 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 19fd588dfed1..30d3a9774eb3 100644
+index 5e2f6b9b0f41..8ce1c0d77f76 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -204,6 +204,7 @@ group("gn_all") {
+@@ -209,6 +209,7 @@ group("gn_all") {
  
    if (!is_ios && !is_fuchsia) {
      deps += [
@@ -100,7 +100,7 @@ index ef8aeda56458..5b7f057311b9 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 97f503bff408..fe1f0344dd77 100755
+index 3f2506128643..bf3a34778458 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -81,11 +81,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -123,10 +123,10 @@ index 97f503bff408..fe1f0344dd77 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 93af4dcd03bb..e1a8543a5f14 100644
+index 5b58ed59878e..2e45266d21db 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -271,7 +271,7 @@ template("chrome_paks") {
+@@ -277,7 +277,7 @@ template("chrome_paks") {
      }
  
      input_locales = locales
@@ -136,10 +136,10 @@ index 93af4dcd03bb..e1a8543a5f14 100644
      if (is_mac) {
        output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 7a779fc3ce1a..2ba4d85fa276 100644
+index cc2bfe0642d1..688ae4d8be2c 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
-@@ -133,7 +133,7 @@ template("generate_mini_installer") {
+@@ -138,7 +138,7 @@ template("generate_mini_installer") {
      inputs = [
        "$chrome_dll_file",
        "$root_out_dir/chrome.exe",

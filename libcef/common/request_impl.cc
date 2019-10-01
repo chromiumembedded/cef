@@ -74,8 +74,8 @@ class BytesElementReader : public net::UploadBytesElementReader {
 };
 
 scoped_refptr<base::SequencedTaskRunner> GetFileTaskRunner() {
-  return base::CreateSequencedTaskRunnerWithTraits(
-      {base::MayBlock(), base::TaskPriority::USER_VISIBLE});
+  return base::CreateSequencedTaskRunner(
+      {base::ThreadPool(), base::MayBlock(), base::TaskPriority::USER_VISIBLE});
 }
 
 // A subclass of net::UploadFileElementReader that keeps the associated

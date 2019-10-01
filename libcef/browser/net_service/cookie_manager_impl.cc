@@ -38,11 +38,8 @@ void SetCookieCallbackImpl(CefRefPtr<CefSetCookieCallback> callback,
                            net::CanonicalCookie::CookieInclusionStatus status) {
   if (!callback.get())
     return;
-  CEF_POST_TASK(
-      CEF_UIT,
-      base::Bind(
-          &CefSetCookieCallback::OnComplete, callback.get(),
-          status == net::CanonicalCookie::CookieInclusionStatus::INCLUDE));
+  CEF_POST_TASK(CEF_UIT, base::Bind(&CefSetCookieCallback::OnComplete,
+                                    callback.get(), status.IsInclude()));
 }
 
 // Always execute the callback asynchronously.
@@ -79,19 +76,22 @@ void ExecuteVisitor(CefRefPtr<CefCookieVisitor> visitor,
 }
 
 // Always execute the callback asynchronously.
-void GetCookiesCallbackImpl(CefRefPtr<CefCookieVisitor> visitor,
-                            CefRefPtr<CefRequestContextImpl> request_context,
-                            const net::CookieList& cookies,
-                            const net::CookieStatusList&) {
+void GetAllCookiesCallbackImpl(CefRefPtr<CefCookieVisitor> visitor,
+                               CefRefPtr<CefRequestContextImpl> request_context,
+                               const net::CookieList& cookies) {
   CEF_POST_TASK(CEF_UIT,
                 base::Bind(&ExecuteVisitor, visitor, request_context, cookies));
 }
 
-void GetAllCookiesCallbackImpl(CefRefPtr<CefCookieVisitor> visitor,
-                               CefRefPtr<CefRequestContextImpl> request_context,
-                               const net::CookieList& cookies) {
-  GetCookiesCallbackImpl(visitor, request_context, cookies,
-                         net::CookieStatusList());
+void GetCookiesCallbackImpl(CefRefPtr<CefCookieVisitor> visitor,
+                            CefRefPtr<CefRequestContextImpl> request_context,
+                            const net::CookieStatusList& include_cookies,
+                            const net::CookieStatusList&) {
+  net::CookieList cookies;
+  for (const auto& status : include_cookies) {
+    cookies.push_back(status.cookie);
+  }
+  GetAllCookiesCallbackImpl(visitor, request_context, cookies);
 }
 
 }  // namespace
@@ -221,9 +221,10 @@ bool CefCookieManagerImpl::SetCookie(const CefString& url,
       net::CookieSameSite::UNSPECIFIED, net::COOKIE_PRIORITY_DEFAULT);
 
   if (!canonical_cookie) {
-    SetCookieCallbackImpl(
-        callback,
-        net::CanonicalCookie::CookieInclusionStatus::EXCLUDE_UNKNOWN_ERROR);
+    SetCookieCallbackImpl(callback,
+                          net::CanonicalCookie::CookieInclusionStatus(
+                              net::CanonicalCookie::CookieInclusionStatus::
+                                  EXCLUDE_UNKNOWN_ERROR));
     return true;
   }
 

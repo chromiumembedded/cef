@@ -26,8 +26,8 @@ class BrowserMainRunner;
 
 class CefContentBrowserClient;
 class CefContentRendererClient;
-class CefContentUtilityClient;
 class CefUIThread;
+class ChromeContentUtilityClient;
 
 class CefMainDelegate : public content::ContentMainDelegate {
  public:
@@ -65,7 +65,7 @@ class CefMainDelegate : public content::ContentMainDelegate {
 
   std::unique_ptr<CefContentBrowserClient> browser_client_;
   std::unique_ptr<CefContentRendererClient> renderer_client_;
-  std::unique_ptr<CefContentUtilityClient> utility_client_;
+  std::unique_ptr<ChromeContentUtilityClient> utility_client_;
   CefContentClient content_client_;
 
   DISALLOW_COPY_AND_ASSIGN(CefMainDelegate);

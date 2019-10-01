@@ -41,8 +41,8 @@ const char kUTF8String[] = "UTF8_STRING";
   ::Window* children;
   ::Window child_window = x11::None;
   unsigned int nchildren;
-  if (XQueryTree(display, window, &root, &parent, &children, &nchildren)) {
-    DCHECK_EQ(1U, nchildren);
+  if (XQueryTree(display, window, &root, &parent, &children, &nchildren) &&
+      nchildren == 1) {
     child_window = children[0];
     XFree(children);
   }

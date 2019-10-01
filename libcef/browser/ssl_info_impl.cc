@@ -26,7 +26,3 @@ CefRefPtr<CefX509Certificate> CefSSLInfoImpl::GetX509Certificate() {
 bool CefIsCertStatusError(cef_cert_status_t status) {
   return net::IsCertStatusError(status);
 }
-
-bool CefIsCertStatusMinorError(cef_cert_status_t status) {
-  return net::IsCertStatusMinorError(status);
-}

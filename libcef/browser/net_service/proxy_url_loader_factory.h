@@ -12,10 +12,13 @@
 #include "base/containers/unique_ptr_adapters.h"
 #include "base/hash/hash.h"
 #include "base/macros.h"
+#include "base/optional.h"
 #include "base/strings/string_piece.h"
 #include "content/public/browser/content_browser_client.h"
-#include "content/public/browser/resource_request_info.h"
+#include "content/public/browser/web_contents.h"
 #include "mojo/public/cpp/bindings/binding_set.h"
+#include "mojo/public/cpp/bindings/pending_receiver.h"
+#include "services/network/public/cpp/resource_response.h"
 #include "services/network/public/mojom/network_context.mojom.h"
 #include "services/network/public/mojom/url_loader_factory.mojom.h"
 
@@ -137,14 +140,14 @@ class ProxyURLLoaderFactory
   // Create a proxy object on the UI thread.
   static void CreateProxy(
       content::BrowserContext* browser_context,
-      network::mojom::URLLoaderFactoryRequest loader_request,
-      network::mojom::URLLoaderFactoryPtrInfo target_factory_info,
-      network::mojom::TrustedURLLoaderHeaderClientPtrInfo* header_client,
+      mojo::PendingReceiver<network::mojom::URLLoaderFactory>* factory_receiver,
+      mojo::PendingRemote<network::mojom::TrustedURLLoaderHeaderClient>*
+          header_client,
       std::unique_ptr<InterceptedRequestHandler> request_handler);
 
   // Create a proxy object on the IO thread.
   static ProxyURLLoaderFactory* CreateProxy(
-      content::ResourceRequestInfo::WebContentsGetter web_contents_getter,
+      content::WebContents::Getter web_contents_getter,
       network::mojom::URLLoaderFactoryRequest loader_request,
       std::unique_ptr<InterceptedRequestHandler> request_handler);
 
@@ -162,22 +165,25 @@ class ProxyURLLoaderFactory
   // network::mojom::TrustedURLLoaderHeaderClient:
   void OnLoaderCreated(
       int32_t request_id,
-      network::mojom::TrustedHeaderClientRequest request) override;
+      mojo::PendingReceiver<network::mojom::TrustedHeaderClient> receiver)
+      override;
 
  private:
   friend class InterceptedRequest;
   friend class ResourceContextData;
 
   ProxyURLLoaderFactory(
-      network::mojom::URLLoaderFactoryRequest loader_request,
+      mojo::PendingReceiver<network::mojom::URLLoaderFactory> factory_receiver,
       network::mojom::URLLoaderFactoryPtrInfo target_factory_info,
-      network::mojom::TrustedURLLoaderHeaderClientRequest header_client_request,
+      mojo::PendingReceiver<network::mojom::TrustedURLLoaderHeaderClient>
+          header_client_receiver,
       std::unique_ptr<InterceptedRequestHandler> request_handler);
 
   static void CreateOnIOThread(
-      network::mojom::URLLoaderFactoryRequest loader_request,
+      mojo::PendingReceiver<network::mojom::URLLoaderFactory> factory_receiver,
       network::mojom::URLLoaderFactoryPtrInfo target_factory_info,
-      network::mojom::TrustedURLLoaderHeaderClientRequest header_client_request,
+      mojo::PendingReceiver<network::mojom::TrustedURLLoaderHeaderClient>
+          header_client_receiver,
       content::ResourceContext* resource_context,
       std::unique_ptr<InterceptedRequestHandler> request_handler);
 
@@ -192,7 +198,7 @@ class ProxyURLLoaderFactory
   mojo::BindingSet<network::mojom::URLLoaderFactory> proxy_bindings_;
   network::mojom::URLLoaderFactoryPtr target_factory_;
   mojo::Binding<network::mojom::TrustedURLLoaderHeaderClient>
-      url_loader_header_client_binding_;
+      url_loader_header_client_receiver_{this};
 
   std::unique_ptr<InterceptedRequestHandler> request_handler_;
 

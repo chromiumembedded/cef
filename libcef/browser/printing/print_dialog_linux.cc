@@ -173,12 +173,12 @@ CefPrintDialogLinux::~CefPrintDialogLinux() {
 }
 
 void CefPrintDialogLinux::UseDefaultSettings() {
-  PrintSettings settings;
-  UpdateSettings(&settings, true);
+  UpdateSettings(std::make_unique<PrintSettings>(), true);
 }
 
-void CefPrintDialogLinux::UpdateSettings(printing::PrintSettings* settings) {
-  UpdateSettings(settings, false);
+void CefPrintDialogLinux::UpdateSettings(
+    std::unique_ptr<PrintSettings> settings) {
+  UpdateSettings(std::move(settings), false);
 }
 
 void CefPrintDialogLinux::ShowDialog(
@@ -267,8 +267,9 @@ void CefPrintDialogLinux::ReleaseHandler() {
   }
 }
 
-bool CefPrintDialogLinux::UpdateSettings(printing::PrintSettings* settings,
-                                         bool get_defaults) {
+bool CefPrintDialogLinux::UpdateSettings(
+    std::unique_ptr<PrintSettings> settings,
+    bool get_defaults) {
   CEF_REQUIRE_UIT();
 
   SetHandler();
@@ -276,11 +277,10 @@ bool CefPrintDialogLinux::UpdateSettings(printing::PrintSettings* settings,
     return false;
 
   CefRefPtr<CefPrintSettingsImpl> settings_impl(
-      new CefPrintSettingsImpl(settings, false, false));
+      new CefPrintSettingsImpl(std::move(settings), false));
   handler_->OnPrintSettings(browser_.get(), settings_impl.get(), get_defaults);
-  settings_impl->Detach(NULL);
 
-  context_->InitWithSettings(*settings);
+  context_->InitWithSettings(settings_impl->TakeOwnership());
   return true;
 }
 
@@ -305,12 +305,9 @@ void CefPrintDialogLinux::SendDocumentToPrinter(
 
 void CefPrintDialogLinux::OnPrintContinue(
     CefRefPtr<CefPrintSettings> settings) {
-  {
-    CefPrintSettingsImpl* impl =
-        static_cast<CefPrintSettingsImpl*>(settings.get());
-    CefValueController::AutoLock lock_scope(impl->controller());
-    context_->InitWithSettings(impl->print_settings());
-  }
+  CefPrintSettingsImpl* impl =
+      static_cast<CefPrintSettingsImpl*>(settings.get());
+  context_->InitWithSettings(impl->TakeOwnership());
   std::move(callback_).Run(PrintingContextLinux::OK);
 }
 

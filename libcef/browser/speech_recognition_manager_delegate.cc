@@ -76,8 +76,8 @@ void CefSpeechRecognitionManagerDelegate::CheckRecognitionIsAllowed(
   // Make sure that initiators properly set the |render_process_id| field.
   DCHECK_NE(context.render_process_id, 0);
 
-  base::PostTaskWithTraits(FROM_HERE, {content::BrowserThread::IO},
-                           base::BindOnce(std::move(callback), false, true));
+  base::PostTask(FROM_HERE, {content::BrowserThread::IO},
+                 base::BindOnce(std::move(callback), false, true));
 }
 
 content::SpeechRecognitionEventListener*

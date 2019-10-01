@@ -89,24 +89,39 @@ class ImplManager {
     return GetImplPos(impl) != all_.end();
   }
 
+  CefBrowserContext* GetImplForIDs(int render_process_id,
+                                   int render_frame_id,
+                                   int frame_tree_node_id,
+                                   bool require_frame_match) {
+    CEF_REQUIRE_UIT();
+    for (const auto& context : all_) {
+      if (context->IsAssociatedContext(render_process_id, render_frame_id,
+                                       frame_tree_node_id,
+                                       require_frame_match)) {
+        return context;
+      }
+    }
+    return nullptr;
+  }
+
   CefBrowserContext* GetImplForContext(const content::BrowserContext* context) {
     CEF_REQUIRE_UIT();
     if (!context)
-      return NULL;
+      return nullptr;
 
     Vector::iterator it = all_.begin();
     for (; it != all_.end(); ++it) {
       if (*it == context)
         return *it;
     }
-    return NULL;
+    return nullptr;
   }
 
   void SetImplPath(CefBrowserContext* impl, const base::FilePath& path) {
     CEF_REQUIRE_UIT();
     DCHECK(!path.empty());
     DCHECK(IsValidImpl(impl));
-    DCHECK(GetImplForPath(path) == NULL);
+    DCHECK(GetImplForPath(path) == nullptr);
     map_.insert(std::make_pair(path, impl));
   }
 
@@ -116,7 +131,7 @@ class ImplManager {
     PathMap::const_iterator it = map_.find(path);
     if (it != map_.end())
       return it->second;
-    return NULL;
+    return nullptr;
   }
 
   const Vector GetAllImpl() const { return all_; }
@@ -219,8 +234,7 @@ CefBrowserContext::~CefBrowserContext() {
   // Send notifications to clean up objects associated with this Profile.
   MaybeSendDestroyedNotification();
 
-  ChromePluginServiceFilter::GetInstance()->UnregisterResourceContext(
-      resource_context_.get());
+  ChromePluginServiceFilter::GetInstance()->UnregisterProfile(this);
 
   // Remove any BrowserContextKeyedServiceFactory associations. This must be
   // called before the ProxyService owned by CefBrowserContext is destroyed.
@@ -253,7 +267,7 @@ CefBrowserContext::~CefBrowserContext() {
 
   // The FontFamilyCache references the ProxyService so delete it before the
   // ProxyService is deleted.
-  SetUserData(&kFontFamilyCacheKey, NULL);
+  SetUserData(&kFontFamilyCacheKey, nullptr);
 
   pref_proxy_config_tracker_->DetachFromPrefService();
 
@@ -263,7 +277,7 @@ CefBrowserContext::~CefBrowserContext() {
   // Delete the download manager delegate here because otherwise we'll crash
   // when it's accessed from the content::BrowserContext destructor.
   if (download_manager_delegate_)
-    download_manager_delegate_.reset(NULL);
+    download_manager_delegate_.reset(nullptr);
 }
 
 void CefBrowserContext::Initialize() {
@@ -313,7 +327,6 @@ void CefBrowserContext::Initialize() {
     extension_system_ = static_cast<extensions::CefExtensionSystem*>(
         extensions::ExtensionSystem::Get(this));
     extension_system_->InitForRegularProfile(true);
-    resource_context_->set_extensions_info_map(extension_system_->info_map());
 
     // Make sure the ProcessManager is created so that it receives extension
     // load notifications. This is necessary for the proper initialization of
@@ -334,8 +347,7 @@ void CefBrowserContext::Initialize() {
 
   // Initialize proxy configuration tracker.
   pref_proxy_config_tracker_.reset(new PrefProxyConfigTrackerImpl(
-      GetPrefs(),
-      base::CreateSingleThreadTaskRunnerWithTraits({BrowserThread::IO})));
+      GetPrefs(), base::CreateSingleThreadTaskRunner({BrowserThread::IO})));
 
   // Spell checking support and possibly other subsystems retrieve the
   // PrefService associated with a BrowserContext via UserPrefs::Get().
@@ -347,8 +359,7 @@ void CefBrowserContext::Initialize() {
   if (extensions_enabled)
     extension_system_->Init();
 
-  ChromePluginServiceFilter::GetInstance()->RegisterResourceContext(
-      this, resource_context_.get());
+  ChromePluginServiceFilter::GetInstance()->RegisterProfile(this);
 }
 
 void CefBrowserContext::AddCefRequestContext(CefRequestContextImpl* context) {
@@ -378,6 +389,15 @@ CefBrowserContext* CefBrowserContext::GetForCachePath(
 }
 
 // static
+CefBrowserContext* CefBrowserContext::GetForIDs(int render_process_id,
+                                                int render_frame_id,
+                                                int frame_tree_node_id,
+                                                bool require_frame_match) {
+  return g_manager.Get().GetImplForIDs(render_process_id, render_frame_id,
+                                       frame_tree_node_id, require_frame_match);
+}
+
+// static
 CefBrowserContext* CefBrowserContext::GetForContext(
     content::BrowserContext* context) {
   return g_manager.Get().GetImplForContext(context);
@@ -397,15 +417,6 @@ CefBrowserContext::GetClientHintsControllerDelegate() {
   return nullptr;
 }
 
-net::URLRequestContextGetter* CefBrowserContext::GetRequestContext() {
-  NOTREACHED() << "NetworkService is required";
-  return nullptr;
-}
-
-net::URLRequestContextGetter* CefBrowserContext::CreateMediaRequestContext() {
-  return GetRequestContext();
-}
-
 void CefBrowserContext::SetCorsOriginAccessListForOrigin(
     const url::Origin& source_origin,
     std::vector<network::mojom::CorsOriginPatternPtr> allow_patterns,
@@ -417,7 +428,7 @@ void CefBrowserContext::SetCorsOriginAccessListForOrigin(
 
 ChromeZoomLevelPrefs* CefBrowserContext::GetZoomLevelPrefs() {
   return static_cast<ChromeZoomLevelPrefs*>(
-      GetStoragePartition(this, NULL)->GetZoomLevelDelegate());
+      GetStoragePartition(this, nullptr)->GetZoomLevelDelegate());
 }
 
 scoped_refptr<network::SharedURLLoaderFactory>
@@ -467,11 +478,11 @@ content::BrowserPluginGuestManager* CefBrowserContext::GetGuestManager() {
 }
 
 storage::SpecialStoragePolicy* CefBrowserContext::GetSpecialStoragePolicy() {
-  return NULL;
+  return nullptr;
 }
 
 content::PushMessagingService* CefBrowserContext::GetPushMessagingService() {
-  return NULL;
+  return nullptr;
 }
 
 content::SSLHostStateDelegate* CefBrowserContext::GetSSLHostStateDelegate() {
@@ -497,13 +508,6 @@ CefBrowserContext::GetBackgroundSyncController() {
 
 content::BrowsingDataRemoverDelegate*
 CefBrowserContext::GetBrowsingDataRemoverDelegate() {
-  return nullptr;
-}
-
-net::URLRequestContextGetter* CefBrowserContext::CreateRequestContext(
-    content::ProtocolHandlerMap* protocol_handlers,
-    content::URLRequestInterceptorScopedVector request_interceptors) {
-  NOTREACHED() << "NetworkService is required";
   return nullptr;
 }
 
@@ -599,16 +603,24 @@ void CefBrowserContext::OnRenderFrameCreated(
   DCHECK_GE(render_frame_id, 0);
   DCHECK_GE(frame_tree_node_id, 0);
 
+  render_id_set_.insert(std::make_pair(render_process_id, render_frame_id));
+  node_id_set_.insert(frame_tree_node_id);
+
   CefRefPtr<CefRequestContextHandler> handler = request_context->GetHandler();
-  if (handler && resource_context_) {
-    DCHECK_GE(render_process_id, 0);
-    // Using base::Unretained() is safe because both this callback and possible
-    // deletion of |resource_context_| will execute on the IO thread, and this
-    // callback will be executed first.
-    CEF_POST_TASK(CEF_IOT, base::Bind(&CefResourceContext::AddHandler,
-                                      base::Unretained(resource_context_.get()),
-                                      render_process_id, render_frame_id,
-                                      frame_tree_node_id, handler));
+  if (handler) {
+    handler_map_.AddHandler(render_process_id, render_frame_id,
+                            frame_tree_node_id, handler);
+
+    if (resource_context_) {
+      // Using base::Unretained() is safe because both this callback and
+      // possible deletion of |resource_context_| will execute on the IO thread,
+      // and this callback will be executed first.
+      CEF_POST_TASK(CEF_IOT,
+                    base::Bind(&CefResourceContext::AddHandler,
+                               base::Unretained(resource_context_.get()),
+                               render_process_id, render_frame_id,
+                               frame_tree_node_id, handler));
+    }
   }
 }
 
@@ -624,39 +636,126 @@ void CefBrowserContext::OnRenderFrameDeleted(
   DCHECK_GE(render_frame_id, 0);
   DCHECK_GE(frame_tree_node_id, 0);
 
+  auto it1 =
+      render_id_set_.find(std::make_pair(render_process_id, render_frame_id));
+  if (it1 != render_id_set_.end())
+    render_id_set_.erase(it1);
+
+  auto it2 = node_id_set_.find(frame_tree_node_id);
+  if (it2 != node_id_set_.end())
+    node_id_set_.erase(it2);
+
   CefRefPtr<CefRequestContextHandler> handler = request_context->GetHandler();
-  if (handler && resource_context_) {
-    DCHECK_GE(render_process_id, 0);
-    // Using base::Unretained() is safe because both this callback and possible
-    // deletion of |resource_context_| will execute on the IO thread, and this
-    // callback will be executed first.
-    CEF_POST_TASK(CEF_IOT, base::Bind(&CefResourceContext::RemoveHandler,
-                                      base::Unretained(resource_context_.get()),
-                                      render_process_id, render_frame_id,
-                                      frame_tree_node_id));
+  if (handler) {
+    handler_map_.RemoveHandler(render_process_id, render_frame_id,
+                               frame_tree_node_id);
+
+    if (resource_context_) {
+      // Using base::Unretained() is safe because both this callback and
+      // possible deletion of |resource_context_| will execute on the IO thread,
+      // and this callback will be executed first.
+      CEF_POST_TASK(
+          CEF_IOT,
+          base::Bind(&CefResourceContext::RemoveHandler,
+                     base::Unretained(resource_context_.get()),
+                     render_process_id, render_frame_id, frame_tree_node_id));
+    }
   }
 
-  if (resource_context_ && is_main_frame) {
-    DCHECK_GE(render_process_id, 0);
-    // Using base::Unretained() is safe because both this callback and possible
-    // deletion of |resource_context_| will execute on the IO thread, and this
-    // callback will be executed first.
-    CEF_POST_TASK(CEF_IOT,
-                  base::Bind(&CefResourceContext::ClearPluginLoadDecision,
-                             base::Unretained(resource_context_.get()),
-                             render_process_id));
+  if (is_main_frame) {
+    ClearPluginLoadDecision(render_process_id);
   }
 }
 
-void CefBrowserContext::OnPurgePluginListCache() {
+CefRefPtr<CefRequestContextHandler> CefBrowserContext::GetHandler(
+    int render_process_id,
+    int render_frame_id,
+    int frame_tree_node_id,
+    bool require_frame_match) const {
   CEF_REQUIRE_UIT();
-  if (resource_context_) {
-    // Using base::Unretained() is safe because both this callback and possible
-    // deletion of |resource_context_| will execute on the IO thread, and this
-    // callback will be executed first.
-    CEF_POST_TASK(CEF_IOT,
-                  base::Bind(&CefResourceContext::ClearPluginLoadDecision,
-                             base::Unretained(resource_context_.get()), -1));
+  return handler_map_.GetHandler(render_process_id, render_frame_id,
+                                 frame_tree_node_id, require_frame_match);
+}
+
+bool CefBrowserContext::IsAssociatedContext(int render_process_id,
+                                            int render_frame_id,
+                                            int frame_tree_node_id,
+                                            bool require_frame_match) const {
+  CEF_REQUIRE_UIT();
+
+  if (render_process_id >= 0 && render_frame_id >= 0) {
+    const auto it1 =
+        render_id_set_.find(std::make_pair(render_process_id, render_frame_id));
+    if (it1 != render_id_set_.end())
+      return true;
+  }
+
+  if (frame_tree_node_id >= 0) {
+    const auto it2 = node_id_set_.find(frame_tree_node_id);
+    if (it2 != node_id_set_.end())
+      return true;
+  }
+
+  if (render_process_id >= 0 && !require_frame_match) {
+    // Choose an arbitrary handler for the same process.
+    for (const auto& render_ids : render_id_set_) {
+      if (render_ids.first == render_process_id)
+        return true;
+    }
+  }
+
+  return false;
+}
+
+void CefBrowserContext::AddPluginLoadDecision(
+    int render_process_id,
+    const base::FilePath& plugin_path,
+    bool is_main_frame,
+    const url::Origin& main_frame_origin,
+    chrome::mojom::PluginStatus status) {
+  CEF_REQUIRE_UIT();
+  DCHECK_GE(render_process_id, 0);
+  DCHECK(!plugin_path.empty());
+
+  plugin_load_decision_map_.insert(std::make_pair(
+      std::make_pair(std::make_pair(render_process_id, plugin_path),
+                     std::make_pair(is_main_frame, main_frame_origin)),
+      status));
+}
+
+bool CefBrowserContext::HasPluginLoadDecision(
+    int render_process_id,
+    const base::FilePath& plugin_path,
+    bool is_main_frame,
+    const url::Origin& main_frame_origin,
+    chrome::mojom::PluginStatus* status) const {
+  CEF_REQUIRE_UIT();
+  DCHECK_GE(render_process_id, 0);
+  DCHECK(!plugin_path.empty());
+
+  PluginLoadDecisionMap::const_iterator it = plugin_load_decision_map_.find(
+      std::make_pair(std::make_pair(render_process_id, plugin_path),
+                     std::make_pair(is_main_frame, main_frame_origin)));
+  if (it == plugin_load_decision_map_.end())
+    return false;
+
+  *status = it->second;
+  return true;
+}
+
+void CefBrowserContext::ClearPluginLoadDecision(int render_process_id) {
+  CEF_REQUIRE_UIT();
+
+  if (render_process_id == -1) {
+    plugin_load_decision_map_.clear();
+  } else {
+    PluginLoadDecisionMap::iterator it = plugin_load_decision_map_.begin();
+    while (it != plugin_load_decision_map_.end()) {
+      if (it->first.first.first == render_process_id)
+        it = plugin_load_decision_map_.erase(it);
+      else
+        ++it;
+    }
   }
 }
 

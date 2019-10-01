@@ -283,7 +283,7 @@ void CefWindowView::CreateWidget() {
   }
 #endif
 
-  widget->Init(params);
+  widget->Init(std::move(params));
 
   // |widget| should now be associated with |this|.
   DCHECK_EQ(widget, GetWidget());
@@ -519,8 +519,9 @@ void CefWindowView::SetDraggableRegions(
   draggable_region_.reset(new SkRegion);
   for (const CefDraggableRegion& region : regions) {
     draggable_region_->op(
-        region.bounds.x, region.bounds.y, region.bounds.x + region.bounds.width,
-        region.bounds.y + region.bounds.height,
+        {region.bounds.x, region.bounds.y,
+         region.bounds.x + region.bounds.width,
+         region.bounds.y + region.bounds.height},
         region.draggable ? SkRegion::kUnion_Op : SkRegion::kDifference_Op);
   }
 }

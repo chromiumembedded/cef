@@ -279,10 +279,6 @@ base::RefCountedMemory* CefContentClient::GetDataResourceBytes(
   return value;
 }
 
-bool CefContentClient::IsDataResourceGzipped(int resource_id) {
-  return ui::ResourceBundle::GetSharedInstance().IsGzipped(resource_id);
-}
-
 gfx::Image& CefContentClient::GetNativeImageNamed(int resource_id) {
   gfx::Image& value =
       ui::ResourceBundle::GetSharedInstance().GetNativeImageNamed(resource_id);

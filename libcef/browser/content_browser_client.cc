@@ -38,12 +38,8 @@
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/net/scheme_registration.h"
 #include "libcef/common/request_impl.h"
-#include "libcef/common/service_manifests/builtin_service_manifests.h"
 #include "libcef/common/service_manifests/cef_content_browser_overlay_manifest.h"
-#include "libcef/common/service_manifests/cef_content_gpu_overlay_manifest.h"
 #include "libcef/common/service_manifests/cef_content_renderer_overlay_manifest.h"
-#include "libcef/common/service_manifests/cef_content_utility_overlay_manifest.h"
-#include "libcef/common/service_manifests/cef_renderer_manifest.h"
 
 #include "base/base_switches.h"
 #include "base/command_line.h"
@@ -55,27 +51,22 @@
 #include "cef/grit/cef_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_content_browser_client.h"
-#include "chrome/browser/chrome_service.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/plugins/plugin_info_host_impl.h"
 #include "chrome/browser/plugins/plugin_response_interceptor_url_loader_throttle.h"
 #include "chrome/browser/plugins/plugin_utils.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/renderer_host/pepper/chrome_browser_pepper_host_factory.h"
+#include "chrome/browser/spellchecker/spell_check_host_chrome_impl.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/constants.mojom.h"
 #include "chrome/common/webui_url_constants.h"
 #include "chrome/grit/browser_resources.h"
 #include "chrome/grit/generated_resources.h"
 #include "chrome/services/printing/printing_service.h"
-#include "chrome/services/printing/public/mojom/constants.mojom.h"
 #include "components/navigation_interception/intercept_navigation_throttle.h"
 #include "components/navigation_interception/navigation_params.h"
-#include "components/services/heap_profiling/heap_profiling_service.h"
-#include "components/services/heap_profiling/public/mojom/constants.mojom.h"
-#include "components/services/pdf_compositor/public/cpp/pdf_compositor_service_factory.h"
-#include "components/services/pdf_compositor/public/mojom/pdf_compositor.mojom.h"
+#include "components/spellcheck/common/spellcheck.mojom.h"
 #include "components/version_info/version_info.h"
 #include "content/browser/frame_host/navigation_handle_impl.h"
 #include "content/browser/frame_host/render_frame_host_impl.h"
@@ -93,7 +84,6 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/render_widget_host_view.h"
-#include "content/public/browser/resource_dispatcher_host.h"
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_ui_url_loader_factory.h"
 #include "content/public/common/content_switches.h"
@@ -112,6 +102,7 @@
 #include "extensions/common/constants.h"
 #include "extensions/common/switches.h"
 #include "mojo/public/cpp/bindings/remote.h"
+#include "mojo/public/cpp/bindings/strong_associated_binding.h"
 #include "net/base/auth.h"
 #include "net/ssl/ssl_cert_request_info.h"
 #include "ppapi/host/ppapi_host.h"
@@ -147,6 +138,10 @@
 
 #if defined(OS_WIN)
 #include "sandbox/win/src/sandbox_policy.h"
+#endif
+
+#if BUILDFLAG(HAS_SPELLCHECK_PANEL)
+#include "chrome/browser/spellchecker/spell_check_panel_host_impl.h"
 #endif
 
 namespace {
@@ -483,28 +478,20 @@ bool NavigationOnUIThread(
   return ignore_navigation;
 }
 
-const extensions::ExtensionSet* GetEnabledExtensions(
-    content::BrowserContext* context) {
-  auto registry = extensions::ExtensionRegistry::Get(context);
-  return &registry->enabled_extensions();
-}
+// From chrome/browser/plugins/chrome_content_browser_client_plugins_part.cc.
+void BindPluginInfoHost(
+    int render_process_id,
+    chrome::mojom::PluginInfoHostAssociatedRequest request) {
+  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+  content::RenderProcessHost* host =
+      content::RenderProcessHost::FromID(render_process_id);
+  if (!host)
+    return;
 
-const extensions::ExtensionSet* GetEnabledExtensions(
-    content::ResourceContext* context) {
-  auto cef_context = static_cast<CefResourceContext*>(context);
-  if (!cef_context)
-    return nullptr;
-
-  return &cef_context->GetExtensionInfoMap()->extensions();
-}
-
-const extensions::ExtensionSet* GetEnabledExtensions(
-    content::BrowserOrResourceContext context) {
-  if (content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
-    return GetEnabledExtensions(context.ToBrowserContext());
-  }
-  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::IO));
-  return GetEnabledExtensions(context.ToResourceContext());
+  Profile* profile = Profile::FromBrowserContext(host->GetBrowserContext());
+  mojo::MakeStrongAssociatedBinding(
+      std::make_unique<PluginInfoHostImpl>(render_process_id, profile),
+      std::move(request));
 }
 
 }  // namespace
@@ -529,14 +516,11 @@ std::unique_ptr<content::BrowserMainParts>
 CefContentBrowserClient::CreateBrowserMainParts(
     const content::MainFunctionParams& parameters) {
   browser_main_parts_ = new CefBrowserMainParts(parameters);
-  browser_main_parts_->AddParts(
-      ChromeService::GetInstance()->CreateExtraParts());
   return base::WrapUnique(browser_main_parts_);
 }
 
 void CefContentBrowserClient::RenderProcessWillLaunch(
-    content::RenderProcessHost* host,
-    service_manager::mojom::ServiceRequest* service_request) {
+    content::RenderProcessHost* host) {
   const int id = host->GetID();
   Profile* profile = Profile::FromBrowserContext(host->GetBrowserContext());
 
@@ -545,8 +529,7 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
 
   if (extensions::ExtensionsEnabled()) {
     host->AddFilter(new extensions::ExtensionMessageFilter(id, profile));
-    host->AddFilter(
-        new extensions::IOThreadExtensionMessageFilter(id, profile));
+    host->AddFilter(new extensions::IOThreadExtensionMessageFilter());
     host->AddFilter(
         new extensions::ExtensionsGuestViewMessageFilter(id, profile));
   }
@@ -559,17 +542,6 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
 
   host->Send(
       new CefProcessMsg_SetIsIncognitoProcess(profile->IsOffTheRecord()));
-
-  service_manager::mojom::ServicePtrInfo service;
-  *service_request = mojo::MakeRequest(&service);
-  service_manager::Identity renderer_identity = host->GetChildIdentity();
-  mojo::Remote<service_manager::mojom::ProcessMetadata> metadata;
-  ChromeService::GetInstance()->connector()->RegisterServiceInstance(
-      service_manager::Identity(chrome::mojom::kRendererServiceName,
-                                renderer_identity.instance_group(),
-                                renderer_identity.instance_id(),
-                                base::Token::CreateRandom()),
-      std::move(service), metadata.BindNewPipeAndPassReceiver());
 }
 
 bool CefContentBrowserClient::ShouldUseProcessPerSite(
@@ -602,13 +574,15 @@ bool CefContentBrowserClient::ShouldUseProcessPerSite(
 // Based on
 // ChromeContentBrowserClientExtensionsPart::DoesSiteRequireDedicatedProcess.
 bool CefContentBrowserClient::DoesSiteRequireDedicatedProcess(
-    content::BrowserOrResourceContext browser_or_resource_context,
+    content::BrowserContext* browser_context,
     const GURL& effective_site_url) {
   if (!extensions::ExtensionsEnabled())
     return false;
 
-  auto extension = GetEnabledExtensions(browser_or_resource_context)
-                       ->GetExtensionOrAppByURL(effective_site_url);
+  const extensions::Extension* extension =
+      extensions::ExtensionRegistry::Get(browser_context)
+          ->enabled_extensions()
+          .GetExtensionOrAppByURL(effective_site_url);
   // Isolate all extensions.
   return extension != nullptr;
 }
@@ -708,57 +682,34 @@ void CefContentBrowserClient::SiteInstanceDeleting(
                           site_instance->GetId()));
 }
 
-void CefContentBrowserClient::RunServiceInstance(
-    const service_manager::Identity& identity,
-    mojo::PendingReceiver<service_manager::mojom::Service>* receiver) {
-  const std::string& service_name = identity.name();
-  if (service_name == printing::mojom::kServiceName) {
-    service_manager::Service::RunAsyncUntilTermination(
-        printing::CreatePdfCompositorService(std::move(*receiver)));
+void CefContentBrowserClient::BindHostReceiverForRenderer(
+    content::RenderProcessHost* render_process_host,
+    mojo::GenericPendingReceiver receiver) {
+  if (auto host_receiver = receiver.As<spellcheck::mojom::SpellCheckHost>()) {
+    SpellCheckHostChromeImpl::Create(render_process_host->GetID(),
+                                     std::move(host_receiver));
     return;
   }
-  if (service_name == printing::mojom::kChromePrintingServiceName) {
-    service_manager::Service::RunAsyncUntilTermination(
-        std::make_unique<printing::PrintingService>(std::move(*receiver)));
-    return;
-  }
-}
 
-void CefContentBrowserClient::RunServiceInstanceOnIOThread(
-    const service_manager::Identity& identity,
-    mojo::PendingReceiver<service_manager::mojom::Service>* receiver) {
-  if (identity.name() == chrome::mojom::kServiceName) {
-    ChromeService::GetInstance()->CreateChromeServiceRequestHandler().Run(
-        std::move(*receiver));
+#if BUILDFLAG(HAS_SPELLCHECK_PANEL)
+  if (auto panel_host_receiver =
+          receiver.As<spellcheck::mojom::SpellCheckPanelHost>()) {
+    SpellCheckPanelHostImpl::Create(render_process_host->GetID(),
+                                    std::move(panel_host_receiver));
     return;
   }
-  if (identity.name() == heap_profiling::mojom::kServiceName) {
-    heap_profiling::HeapProfilingService::GetServiceFactory().Run(
-        std::move(*receiver));
-    return;
-  }
+#endif  // BUILDFLAG(HAS_SPELLCHECK_PANEL)
 }
 
 base::Optional<service_manager::Manifest>
 CefContentBrowserClient::GetServiceManifestOverlay(base::StringPiece name) {
   if (name == content::mojom::kBrowserServiceName) {
     return GetCefContentBrowserOverlayManifest();
-  } else if (name == content::mojom::kGpuServiceName) {
-    return GetCefContentGpuOverlayManifest();
   } else if (name == content::mojom::kRendererServiceName) {
     return GetCefContentRendererOverlayManifest();
-  } else if (name == content::mojom::kUtilityServiceName) {
-    return GetCefContentUtilityOverlayManifest();
   }
 
   return base::nullopt;
-}
-
-std::vector<service_manager::Manifest>
-CefContentBrowserClient::GetExtraServiceManifests() {
-  auto manifests = GetBuiltinServiceManifests();
-  manifests.push_back(GetCefRendererManifest());
-  return manifests;
 }
 
 void CefContentBrowserClient::AppendExtraCommandLineSwitches(
@@ -976,7 +927,6 @@ void CefContentBrowserClient::AllowCertificateError(
     const GURL& request_url,
     bool is_main_frame_request,
     bool strict_enforcement,
-    bool expired_previous_decision,
     const base::Callback<void(content::CertificateRequestResultType)>&
         callback) {
   CEF_REQUIRE_UIT();
@@ -1144,18 +1094,18 @@ CefContentBrowserClient::CreateThrottlesForNavigation(
   return throttles;
 }
 
-std::vector<std::unique_ptr<content::URLLoaderThrottle>>
+std::vector<std::unique_ptr<blink::URLLoaderThrottle>>
 CefContentBrowserClient::CreateURLLoaderThrottles(
     const network::ResourceRequest& request,
-    content::BrowserContext* resource_context,
+    content::BrowserContext* browser_context,
     const base::RepeatingCallback<content::WebContents*()>& wc_getter,
     content::NavigationUIData* navigation_ui_data,
     int frame_tree_node_id) {
-  std::vector<std::unique_ptr<content::URLLoaderThrottle>> result;
+  std::vector<std::unique_ptr<blink::URLLoaderThrottle>> result;
 
   // Used to substitute View ID for PDF contents when using the PDF plugin.
   result.push_back(std::make_unique<PluginResponseInterceptorURLLoaderThrottle>(
-      resource_context, request.resource_type, frame_tree_node_id));
+      request.resource_type, frame_tree_node_id));
 
   return result;
 }
@@ -1189,7 +1139,8 @@ const wchar_t* CefContentBrowserClient::GetResourceDllName() {
   return file_path;
 }
 
-bool CefContentBrowserClient::PreSpawnRenderer(sandbox::TargetPolicy* policy) {
+bool CefContentBrowserClient::PreSpawnRenderer(sandbox::TargetPolicy* policy,
+                                               RendererSpawnFlags flags) {
   return true;
 }
 #endif  // defined(OS_WIN)
@@ -1198,10 +1149,8 @@ void CefContentBrowserClient::ExposeInterfacesToRenderer(
     service_manager::BinderRegistry* registry,
     blink::AssociatedInterfaceRegistry* associated_registry,
     content::RenderProcessHost* host) {
-  Profile* profile = Profile::FromBrowserContext(host->GetBrowserContext());
-  host->GetChannel()->AddAssociatedInterfaceForIOThread(base::Bind(
-      &PluginInfoHostImpl::OnPluginInfoHostRequest,
-      base::MakeRefCounted<PluginInfoHostImpl>(host->GetID(), profile)));
+  associated_registry->AddInterface(
+      base::BindRepeating(&BindPluginInfoHost, host->GetID()));
 }
 
 std::unique_ptr<net::ClientCertStore>
@@ -1297,23 +1246,19 @@ bool CefContentBrowserClient::WillCreateURLLoaderFactory(
     content::BrowserContext* browser_context,
     content::RenderFrameHost* frame,
     int render_process_id,
-    bool is_navigation,
-    bool is_download,
+    URLLoaderFactoryType type,
     const url::Origin& request_initiator,
     mojo::PendingReceiver<network::mojom::URLLoaderFactory>* factory_receiver,
-    network::mojom::TrustedURLLoaderHeaderClientPtrInfo* header_client,
+    mojo::PendingRemote<network::mojom::TrustedURLLoaderHeaderClient>*
+        header_client,
     bool* bypass_redirect_checks) {
   auto request_handler = net_service::CreateInterceptedRequestHandler(
-      browser_context, frame, render_process_id, is_navigation, is_download,
-      request_initiator);
-
-  auto proxied_receiver = std::move(*factory_receiver);
-  network::mojom::URLLoaderFactoryPtrInfo target_factory_info;
-  *factory_receiver = mojo::MakeRequest(&target_factory_info);
+      browser_context, frame, render_process_id,
+      type == URLLoaderFactoryType::kNavigation,
+      type == URLLoaderFactoryType::kDownload, request_initiator);
 
   net_service::ProxyURLLoaderFactory::CreateProxy(
-      browser_context, std::move(proxied_receiver),
-      std::move(target_factory_info), header_client,
+      browser_context, factory_receiver, header_client,
       std::move(request_handler));
   return true;
 }
@@ -1362,7 +1307,7 @@ CefContentBrowserClient::GetNetworkContextsParentDirectory() {
 
 bool CefContentBrowserClient::HandleExternalProtocol(
     const GURL& url,
-    content::ResourceRequestInfo::WebContentsGetter web_contents_getter,
+    content::WebContents::Getter web_contents_getter,
     int child_id,
     content::NavigationUIData* navigation_data,
     bool is_main_frame,
@@ -1374,7 +1319,7 @@ bool CefContentBrowserClient::HandleExternalProtocol(
 }
 
 bool CefContentBrowserClient::HandleExternalProtocol(
-    content::ResourceRequestInfo::WebContentsGetter web_contents_getter,
+    content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
     const network::ResourceRequest& resource_request,
@@ -1396,8 +1341,7 @@ bool CefContentBrowserClient::HandleExternalProtocol(
                       [](network::mojom::URLLoaderFactoryRequest request,
                          std::unique_ptr<net_service::InterceptedRequestHandler>
                              request_handler,
-                         content::ResourceRequestInfo::WebContentsGetter
-                             web_contents_getter) {
+                         content::WebContents::Getter web_contents_getter) {
                         // Manages its own lifetime.
 
                         net_service::ProxyURLLoaderFactory::CreateProxy(
@@ -1440,9 +1384,9 @@ blink::UserAgentMetadata CefContentBrowserClient::GetUserAgentMetadata() {
 
 base::flat_set<std::string>
 CefContentBrowserClient::GetPluginMimeTypesWithExternalHandlers(
-    content::ResourceContext* resource_context) {
+    content::BrowserContext* browser_context) {
   base::flat_set<std::string> mime_types;
-  auto map = PluginUtils::GetMimeTypeToExtensionIdMap(resource_context);
+  auto map = PluginUtils::GetMimeTypeToExtensionIdMap(browser_context);
   for (const auto& pair : map)
     mime_types.insert(pair.first);
   return mime_types;

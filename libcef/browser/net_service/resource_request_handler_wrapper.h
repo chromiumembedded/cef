@@ -5,7 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_NET_SERVICE_RESOURCE_REQUEST_HANDLER_WRAPPER_H_
 #define CEF_LIBCEF_BROWSER_NET_SERVICE_RESOURCE_REQUEST_HANDLER_WRAPPER_H_
 
-#include "content/public/browser/resource_request_info.h"
+#include "content/public/browser/web_contents.h"
 
 namespace content {
 class BrowserContext;
@@ -39,7 +39,7 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
 // CefResourceRequestHandler. The resulting object should be passed to
 // ProxyURLLoaderFactory::CreateProxy. Called on the IO thread only.
 std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
-    content::ResourceRequestInfo::WebContentsGetter web_contents_getter,
+    content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
     const network::ResourceRequest& request);
 

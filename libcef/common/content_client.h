@@ -42,7 +42,6 @@ class CefContentClient : public content::ContentClient {
   base::StringPiece GetDataResource(int resource_id,
                                     ui::ScaleFactor scale_factor) override;
   base::RefCountedMemory* GetDataResourceBytes(int resource_id) override;
-  bool IsDataResourceGzipped(int resource_id) override;
   gfx::Image& GetNativeImageNamed(int resource_id) override;
 
   // Values are registered with all processes (url/url_util.h) and with Blink

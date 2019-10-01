@@ -1,10 +1,10 @@
 diff --git chrome/browser/ui/prefs/pref_watcher.h chrome/browser/ui/prefs/pref_watcher.h
-index b5ccdc521a36..716117c141cc 100644
+index dd06c6d22b16..1f3a5aa7ac2b 100644
 --- chrome/browser/ui/prefs/pref_watcher.h
 +++ chrome/browser/ui/prefs/pref_watcher.h
 @@ -29,10 +29,10 @@ class PrefWatcher : public KeyedService {
    void RegisterRendererPreferenceWatcher(
-       blink::mojom::RendererPreferenceWatcherPtr watcher);
+       mojo::PendingRemote<blink::mojom::RendererPreferenceWatcher> watcher);
  
 - private:
    // KeyedService overrides:

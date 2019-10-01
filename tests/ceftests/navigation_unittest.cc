@@ -2063,8 +2063,11 @@ class LoadNavTestHandler : public TestHandler {
         // The renderer process should always be reused.
         EXPECT_EQ(2, renderer_load_ct_);
       } else {
-        if (mode_ == LEFT_CLICK) {
+        if (mode_ != LOAD) {
           // For left click on link the renderer process will be reused.
+          // For ctrl + left click or middle click on link the renderer process
+          // will be reused when the ProcessSharingWithDefaultSiteInstances
+          // feature is enabled (see https://crbug.com/958060).
           EXPECT_EQ(2, renderer_load_ct_);
         } else {
           // Each renderer process is only used for a single navigation.

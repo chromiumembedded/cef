@@ -18,6 +18,7 @@
 #include "libcef/browser/osr/motion_event_osr.h"
 
 #include "base/memory/weak_ptr.h"
+#include "base/optional.h"
 #include "build/build_config.h"
 #include "components/viz/common/frame_sinks/begin_frame_source.h"
 #include "components/viz/common/surfaces/parent_local_surface_id_allocator.h"
@@ -125,7 +126,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void SetBackgroundColor(SkColor color) override;
   base::Optional<SkColor> GetBackgroundColor() override;
   void UpdateBackgroundColor() override;
-  bool LockMouse() override;
+  bool LockMouse(bool request_unadjusted_movement) override;
   void UnlockMouse() override;
   void TakeFallbackContentFrom(content::RenderWidgetHostView* view) override;
 
@@ -143,7 +144,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
       const viz::LocalSurfaceId& local_surface_id,
       viz::CompositorFrame frame,
       base::Optional<viz::HitTestRegionList> hit_test_region_list) override;
-  void ClearCompositorFrame() override;
   void ResetFallbackToFirstNavigationSurface() override;
   void InitAsPopup(content::RenderWidgetHostView* parent_host_view,
                    const gfx::Rect& pos) override;

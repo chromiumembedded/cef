@@ -15,7 +15,7 @@
 #include "ui/gfx/native_widget_types.h"
 
 class Profile;
-class UIThreadExtensionFunction;
+class ExtensionFunction;
 
 namespace content {
 class WebContents;
@@ -23,13 +23,13 @@ class WebContents;
 
 namespace extensions {
 
-// Provides CEF-specific details to UIThreadExtensionFunction implementations.
+// Provides CEF-specific details to ExtensionFunction implementations.
 // Based on chrome/browser/extensions/chrome_extension_function_details.h.
 class CefExtensionFunctionDetails {
  public:
   // Constructs a new ChromeExtensionFunctionDetails instance for |function|.
   // This instance does not own |function| and must outlive it.
-  explicit CefExtensionFunctionDetails(UIThreadExtensionFunction* function);
+  explicit CefExtensionFunctionDetails(ExtensionFunction* function);
   ~CefExtensionFunctionDetails();
 
   Profile* GetProfile() const;
@@ -124,9 +124,9 @@ class CefExtensionFunctionDetails {
   static std::unique_ptr<api::tabs::MutedInfo> CreateMutedInfo(
       content::WebContents* contents);
 
-  // Returns a pointer to the associated UIThreadExtensionFunction
-  UIThreadExtensionFunction* function() { return function_; }
-  const UIThreadExtensionFunction* function() const { return function_; }
+  // Returns a pointer to the associated ExtensionFunction
+  ExtensionFunction* function() { return function_; }
+  const ExtensionFunction* function() const { return function_; }
 
  protected:
   CefRefPtr<CefExtension> GetCefExtension() const;
@@ -134,7 +134,7 @@ class CefExtensionFunctionDetails {
  private:
   // The function for which these details have been created. Must outlive the
   // CefExtensionFunctionDetails instance.
-  UIThreadExtensionFunction* function_;
+  ExtensionFunction* function_;
 
   mutable CefRefPtr<CefExtension> cef_extension_;
 

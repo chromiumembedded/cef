@@ -39,12 +39,12 @@ void CefTextfieldImpl::SetReadOnly(bool read_only) {
 
 bool CefTextfieldImpl::IsReadOnly() {
   CEF_REQUIRE_VALID_RETURN(false);
-  return root_view()->read_only();
+  return root_view()->GetReadOnly();
 }
 
 CefString CefTextfieldImpl::GetText() {
   CEF_REQUIRE_VALID_RETURN(CefString());
-  return root_view()->text();
+  return root_view()->GetText();
 }
 
 void CefTextfieldImpl::SetText(const CefString& text) {
@@ -90,7 +90,7 @@ CefRange CefTextfieldImpl::GetSelectedRange() {
 
 void CefTextfieldImpl::SelectRange(const CefRange& range) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  root_view()->SelectRange(gfx::Range(range.from, range.to));
+  root_view()->SetSelectedRange(gfx::Range(range.from, range.to));
 }
 
 size_t CefTextfieldImpl::GetCursorPosition() {
@@ -172,7 +172,7 @@ void CefTextfieldImpl::ClearEditHistory() {
 
 void CefTextfieldImpl::SetPlaceholderText(const CefString& text) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  root_view()->set_placeholder_text(text);
+  root_view()->SetPlaceholderText(text);
 }
 
 CefString CefTextfieldImpl::GetPlaceholderText() {

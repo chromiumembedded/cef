@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index 20bd110babb1..4f5301c77bda 100644
+index db7d7c87686a..a7c6beb6a6f1 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
-@@ -371,6 +371,7 @@ class WebView {
+@@ -366,6 +366,7 @@ class WebView {
  
    // Sets whether select popup menus should be rendered by the browser.
    BLINK_EXPORT static void SetUseExternalPopupMenus(bool);
@@ -11,10 +11,10 @@ index 20bd110babb1..4f5301c77bda 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 414e7de22b08..9db9ea786e27 100644
+index 58e4fbcf6ee2..51f2645e6154 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -217,8 +217,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
+@@ -219,8 +219,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
    g_should_use_external_popup_menus = use_external_popup_menus;
  }
  
@@ -30,7 +30,7 @@ index 414e7de22b08..9db9ea786e27 100644
  }
  
  namespace {
-@@ -276,6 +281,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
+@@ -278,6 +283,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
        chrome_client_(MakeGarbageCollected<ChromeClientImpl>(this)),
        minimum_zoom_level_(ZoomFactorToZoomLevel(kMinTextSizeMultiplier)),
        maximum_zoom_level_(ZoomFactorToZoomLevel(kMaxTextSizeMultiplier)),
@@ -39,10 +39,10 @@ index 414e7de22b08..9db9ea786e27 100644
        fullscreen_controller_(std::make_unique<FullscreenController>(this)) {
    if (!AsView().client) {
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 720ea6fcfb7f..9116fbdcf673 100644
+index 61d54c30b50c..d08ad65454ac 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
-@@ -109,7 +109,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -115,7 +115,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    static HashSet<WebViewImpl*>& AllInstances();
    // Returns true if popup menus should be rendered by the browser, false if
    // they should be rendered by WebKit (which is the default).
@@ -50,9 +50,9 @@ index 720ea6fcfb7f..9116fbdcf673 100644
 +  void SetUseExternalPopupMenusThisInstance(bool) override;
 +  bool UseExternalPopupMenus() const;
  
-   // Returns whether frames under this WebView are backed by a compositor. When
-   // false there may be no WebWidgetClient present. When true, there must be a
-@@ -619,6 +620,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+   // Returns whether frames under this WebView are backed by a compositor.
+   bool does_composite() const { return does_composite_; }
+@@ -617,6 +618,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_ = 0.f;
    bool fake_page_scale_animation_use_anchor_ = false;
  
@@ -62,15 +62,15 @@ index 720ea6fcfb7f..9116fbdcf673 100644
    TransformationMatrix device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index 2df0aefc5764..6ef2dae97acd 100644
+index 6d90e9c8e0be..b9e56a2f48e5 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
-@@ -848,7 +848,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
+@@ -856,7 +856,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
  PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    NotifyPopupOpeningObservers();
 -  if (WebViewImpl::UseExternalPopupMenus())
 +  if (web_view_->UseExternalPopupMenus())
-     return MakeGarbageCollected<ExternalPopupMenu>(frame, select, *web_view_);
+     return MakeGarbageCollected<ExternalPopupMenu>(frame, select);
  
    DCHECK(RuntimeEnabledFeatures::PagePopupEnabled());

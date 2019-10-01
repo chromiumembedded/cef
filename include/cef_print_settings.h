@@ -73,12 +73,6 @@ class CefPrintSettings : public virtual CefBaseRefCounted {
   virtual bool IsReadOnly() = 0;
 
   ///
-  // Returns a writable copy of this object.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefPrintSettings> Copy() = 0;
-
-  ///
   // Set the page orientation.
   ///
   /*--cef()--*/

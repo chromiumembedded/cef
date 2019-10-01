@@ -44,13 +44,11 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
                    uint64_t total_bytes_to_be_sent) override;
   void DidReceiveResponse(const WebURLResponse& response) override;
   void DidReceiveData(const char* data, int dataLength) override;
-  void DidFinishLoading(
-      base::TimeTicks finish_time,
-      int64_t total_encoded_data_length,
-      int64_t total_encoded_body_length,
-      int64_t total_decoded_body_length,
-      bool should_report_corb_blocking,
-      const blink::WebVector<network::cors::PreflightTimingInfo>&) override;
+  void DidFinishLoading(base::TimeTicks finish_time,
+                        int64_t total_encoded_data_length,
+                        int64_t total_encoded_body_length,
+                        int64_t total_decoded_body_length,
+                        bool should_report_corb_blocking) override;
   void DidFail(const WebURLError&,
                int64_t total_encoded_data_length,
                int64_t total_encoded_body_length,
@@ -374,13 +372,11 @@ void CefWebURLLoaderClient::DidReceiveData(const char* data, int dataLength) {
     context_->OnDownloadData(data, dataLength);
 }
 
-void CefWebURLLoaderClient::DidFinishLoading(
-    base::TimeTicks finish_time,
-    int64_t total_encoded_data_length,
-    int64_t total_encoded_body_length,
-    int64_t total_decoded_body_length,
-    bool should_report_corb_blocking,
-    const blink::WebVector<network::cors::PreflightTimingInfo>&) {
+void CefWebURLLoaderClient::DidFinishLoading(base::TimeTicks finish_time,
+                                             int64_t total_encoded_data_length,
+                                             int64_t total_encoded_body_length,
+                                             int64_t total_decoded_body_length,
+                                             bool should_report_corb_blocking) {
   context_->OnComplete();
 }
 

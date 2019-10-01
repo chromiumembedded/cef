@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a24e37a1b0fbff6c8489c8a054bba14c99907cd3$
+// $hash=5d50d3e5c268b1304db14532f6f010286b85b1d1$
 //
 
 #include "libcef_dll/ctocpp/print_settings_ctocpp.h"
@@ -63,23 +63,6 @@ NO_SANITIZE("cfi-icall") bool CefPrintSettingsCToCpp::IsReadOnly() {
 
   // Return type: bool
   return _retval ? true : false;
-}
-
-NO_SANITIZE("cfi-icall")
-CefRefPtr<CefPrintSettings> CefPrintSettingsCToCpp::Copy() {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, copy))
-    return NULL;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_print_settings_t* _retval = _struct->copy(_struct);
-
-  // Return type: refptr_same
-  return CefPrintSettingsCToCpp::Wrap(_retval);
 }
 
 NO_SANITIZE("cfi-icall")

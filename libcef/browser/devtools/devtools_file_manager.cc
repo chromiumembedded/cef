@@ -43,8 +43,8 @@ CefDevToolsFileManager::CefDevToolsFileManager(CefBrowserHostImpl* browser_impl,
                                                PrefService* prefs)
     : browser_impl_(browser_impl),
       prefs_(prefs),
-      file_task_runner_(
-          base::CreateSequencedTaskRunnerWithTraits({base::MayBlock()})),
+      file_task_runner_(base::CreateSequencedTaskRunner(
+          {base::ThreadPool(), base::MayBlock()})),
       weak_factory_(this) {}
 
 void CefDevToolsFileManager::SaveToFile(const std::string& url,

@@ -197,9 +197,9 @@ void CefDevToolsFrontend::InspectElementAt(int x, int y) {
 }
 
 void CefDevToolsFrontend::Close() {
-  base::PostTaskWithTraits(FROM_HERE, {content::BrowserThread::UI},
-                           base::Bind(&CefBrowserHostImpl::CloseBrowser,
-                                      frontend_browser_.get(), true));
+  base::PostTask(FROM_HERE, {content::BrowserThread::UI},
+                 base::Bind(&CefBrowserHostImpl::CloseBrowser,
+                            frontend_browser_.get(), true));
 }
 
 void CefDevToolsFrontend::DisconnectFromTarget() {

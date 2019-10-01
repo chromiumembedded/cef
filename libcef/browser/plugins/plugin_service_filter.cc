@@ -5,8 +5,7 @@
 #include "libcef/browser/plugins/plugin_service_filter.h"
 
 #include "include/cef_request_context_handler.h"
-#include "libcef/browser/browser_host_impl.h"
-#include "libcef/browser/resource_context.h"
+#include "libcef/browser/browser_context.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/web_plugin_impl.h"
 #include "libcef/common/content_client.h"
@@ -18,17 +17,13 @@ CefPluginServiceFilter::CefPluginServiceFilter() {}
 bool CefPluginServiceFilter::IsPluginAvailable(
     int render_process_id,
     int render_frame_id,
-    const void* context,
     const GURL& url,
     bool is_main_frame,
     const url::Origin& main_frame_origin,
     content::WebPluginInfo* plugin) {
-  // With PlzNavigate this can be called before the renderer process exists.
-  if (render_process_id < 0)
-    return true;
+  CEF_REQUIRE_UIT();
+  DCHECK_GT(render_process_id, 0);
 
-  CefResourceContext* resource_context = const_cast<CefResourceContext*>(
-      reinterpret_cast<const CefResourceContext*>(context));
   chrome::mojom::PluginStatus status = chrome::mojom::PluginStatus::kAllowed;
 
   // Perform origin check here because we're passing an empty origin value to
@@ -52,8 +47,8 @@ bool CefPluginServiceFilter::IsPluginAvailable(
   // retrieve the actual load decision with a non-empty origin. That will
   // determine whether the plugin load is allowed or the plugin placeholder is
   // displayed.
-  return IsPluginAvailable(render_process_id, render_frame_id, resource_context,
-                           url, is_main_frame, url::Origin(), plugin, &status);
+  return IsPluginAvailable(render_process_id, render_frame_id, url,
+                           is_main_frame, url::Origin(), plugin, &status);
 }
 
 bool CefPluginServiceFilter::CanLoadPlugin(int render_process_id,
@@ -64,14 +59,13 @@ bool CefPluginServiceFilter::CanLoadPlugin(int render_process_id,
 bool CefPluginServiceFilter::IsPluginAvailable(
     int render_process_id,
     int render_frame_id,
-    content::ResourceContext* content_resource_context,
     const GURL& url,
     bool is_main_frame,
     const url::Origin& main_frame_origin,
     content::WebPluginInfo* plugin,
     chrome::mojom::PluginStatus* status) {
-  CefResourceContext* resource_context =
-      static_cast<CefResourceContext*>(content_resource_context);
+  CEF_REQUIRE_UIT();
+  DCHECK_GT(render_process_id, 0);
 
   if (*status == chrome::mojom::PluginStatus::kNotFound) {
     // The plugin does not exist so no need to query the handler.
@@ -94,19 +88,23 @@ bool CefPluginServiceFilter::IsPluginAvailable(
     return true;
   }
 
-  // The |render_frame_id| value may not be valid, so allow matches with any
-  // handler that shares the same |render_process_id| value.
-  CefRefPtr<CefRequestContextHandler> handler = resource_context->GetHandler(
+  auto browser_context = CefBrowserContext::GetForIDs(
       render_process_id, render_frame_id, -1, false);
+  CefRefPtr<CefRequestContextHandler> handler;
+  if (browser_context) {
+    handler = browser_context->GetHandler(render_process_id, render_frame_id,
+                                          -1, false);
+  }
+
   if (!handler) {
     // No handler so go with the default plugin load decision.
     return *status != chrome::mojom::PluginStatus::kDisabled;
   }
 
   // Check for a cached plugin load decision.
-  if (resource_context->HasPluginLoadDecision(render_process_id, plugin->path,
-                                              is_main_frame, main_frame_origin,
-                                              status)) {
+  if (browser_context->HasPluginLoadDecision(render_process_id, plugin->path,
+                                             is_main_frame, main_frame_origin,
+                                             status)) {
     return *status != chrome::mojom::PluginStatus::kDisabled;
   }
 
@@ -156,9 +154,9 @@ bool CefPluginServiceFilter::IsPluginAvailable(
   }
 
   // Cache the plugin load decision.
-  resource_context->AddPluginLoadDecision(render_process_id, plugin->path,
-                                          is_main_frame, main_frame_origin,
-                                          *status);
+  browser_context->AddPluginLoadDecision(render_process_id, plugin->path,
+                                         is_main_frame, main_frame_origin,
+                                         *status);
 
   return *status != chrome::mojom::PluginStatus::kDisabled;
 }

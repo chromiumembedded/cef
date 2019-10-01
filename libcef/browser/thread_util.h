@@ -41,25 +41,25 @@
 #define CEF_REQUIRE_UIT_RETURN_VOID() CEF_REQUIRE_RETURN_VOID(CEF_UIT)
 #define CEF_REQUIRE_IOT_RETURN_VOID() CEF_REQUIRE_RETURN_VOID(CEF_IOT)
 
-#define CEF_POST_TASK(id, task) base::PostTaskWithTraits(FROM_HERE, {id}, task)
-#define CEF_POST_DELAYED_TASK(id, task, delay_ms)        \
-  base::PostDelayedTaskWithTraits(FROM_HERE, {id}, task, \
-                                  base::TimeDelta::FromMilliseconds(delay_ms))
+#define CEF_POST_TASK(id, task) base::PostTask(FROM_HERE, {id}, task)
+#define CEF_POST_DELAYED_TASK(id, task, delay_ms) \
+  base::PostDelayedTask(FROM_HERE, {id}, task,    \
+                        base::TimeDelta::FromMilliseconds(delay_ms))
 
 // Post a blocking task with the specified |priority|. Tasks that have not
 // started executing at shutdown will never run. However, any task that has
 // already begun executing when shutdown is invoked will be allowed to continue
 // and will block shutdown until completion.
 // Tasks posted with this method are not guaranteed to run sequentially. Use
-// base::CreateSequencedTaskRunnerWithTraits instead if sequence is important.
+// base::CreateSequencedTaskRunner instead if sequence is important.
 // Sequenced runners at various priorities that always execute all pending tasks
 // before shutdown are available via CefContentBrowserClient::*_task_runner()
 // and exposed by the CEF API.
-#define CEF_POST_BLOCKING_TASK(priority, task)                 \
-  base::PostTaskWithTraits(                                    \
-      FROM_HERE,                                               \
-      {priority, base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN, \
-       base::MayBlock()},                                      \
+#define CEF_POST_BLOCKING_TASK(priority, task)                          \
+  base::PostTask(                                                       \
+      FROM_HERE,                                                        \
+      {base::ThreadPool(), priority,                                    \
+       base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN, base::MayBlock()}, \
       task)
 
 // Post a blocking task that affects UI or responsiveness of future user

@@ -338,12 +338,6 @@ ChromeBrowserProcessStub::component_updater() {
   return NULL;
 }
 
-component_updater::SupervisedUserWhitelistInstaller*
-ChromeBrowserProcessStub::supervised_user_whitelist_installer() {
-  NOTREACHED();
-  return NULL;
-}
-
 MediaFileSystemRegistry*
 ChromeBrowserProcessStub::media_file_system_registry() {
   NOTREACHED();
@@ -379,12 +373,6 @@ resource_coordinator::TabManager* ChromeBrowserProcessStub::GetTabManager() {
 
 resource_coordinator::ResourceCoordinatorParts*
 ChromeBrowserProcessStub::resource_coordinator_parts() {
-  NOTREACHED();
-  return NULL;
-}
-
-prefs::InProcessPrefServiceFactory*
-ChromeBrowserProcessStub::pref_service_factory() const {
   NOTREACHED();
   return NULL;
 }

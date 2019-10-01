@@ -1,10 +1,10 @@
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index bd2715738d89..a61a0765301f 100644
+index 5fb5b84258a8..e28db2e984f6 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -375,7 +375,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
-       chrome::NOTIFICATION_BROWSER_CLOSE_CANCELLED,
-       content::NotificationService::AllSources());
+@@ -359,7 +359,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+   registrar_.Add(this, chrome::NOTIFICATION_BROWSER_CLOSE_CANCELLED,
+                  content::NotificationService::AllSources());
  
 -  if (ProfileShortcutManager::IsFeatureEnabled() && !user_data_dir_.empty())
 +  if (!user_data_dir_.empty() && ProfileShortcutManager::IsFeatureEnabled())
@@ -12,10 +12,10 @@ index bd2715738d89..a61a0765301f 100644
  }
  
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index 985c64458bdf..f46ddbb8c05d 100644
+index 87ecf1fc998b..924c24fa42a2 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
-@@ -94,7 +94,7 @@ class ProfileManager : public content::NotificationObserver,
+@@ -99,7 +99,7 @@ class ProfileManager : public content::NotificationObserver,
    // acceptable. Returns null if creation of the new profile fails.
    // TODO(bauerb): Migrate calls from other code to GetProfileByPath(), then
    // make this method private.
@@ -24,7 +24,7 @@ index 985c64458bdf..f46ddbb8c05d 100644
  
    // Returns total number of profiles available on this machine.
    size_t GetNumberOfProfiles();
-@@ -124,7 +124,7 @@ class ProfileManager : public content::NotificationObserver,
+@@ -129,7 +129,7 @@ class ProfileManager : public content::NotificationObserver,
  
    // Returns true if the profile pointer is known to point to an existing
    // profile.
@@ -33,7 +33,7 @@ index 985c64458bdf..f46ddbb8c05d 100644
  
    // Returns the directory where the first created profile is stored,
    // relative to the user data directory currently in use.
-@@ -133,7 +133,7 @@ class ProfileManager : public content::NotificationObserver,
+@@ -138,7 +138,7 @@ class ProfileManager : public content::NotificationObserver,
    // Get the Profile last used (the Profile to which owns the most recently
    // focused window) with this Chrome build. If no signed profile has been
    // stored in Local State, hand back the Default profile.

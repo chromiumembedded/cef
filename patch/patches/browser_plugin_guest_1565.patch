@@ -1,8 +1,8 @@
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index ddb17ac729df..255d2ec9729d 100644
+index 6eb21be63dec..87ccc46f4d43 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
-@@ -307,8 +307,11 @@ void BrowserPluginGuest::InitInternal(
+@@ -306,8 +306,11 @@ void BrowserPluginGuest::InitInternal(
            static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
      }
  
@@ -15,7 +15,7 @@ index ddb17ac729df..255d2ec9729d 100644
  
      // Once a BrowserPluginGuest has an embedder WebContents, it's considered to
      // be attached.
-@@ -821,10 +824,19 @@ void BrowserPluginGuest::OnWillAttachComplete(
+@@ -820,10 +823,19 @@ void BrowserPluginGuest::OnWillAttachComplete(
          static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
      if (!web_contents()->GetRenderViewHost()->GetWidget()->GetView()) {
        web_contents_view->CreateViewForWidget(
@@ -37,10 +37,10 @@ index ddb17ac729df..255d2ec9729d 100644
  
    attached_ = true;
 diff --git content/browser/frame_host/interstitial_page_impl.cc content/browser/frame_host/interstitial_page_impl.cc
-index 875ec8ce299b..a8e1119d4b03 100644
+index be1334c46132..60abcebf7422 100644
 --- content/browser/frame_host/interstitial_page_impl.cc
 +++ content/browser/frame_host/interstitial_page_impl.cc
-@@ -624,7 +624,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {
+@@ -622,7 +622,7 @@ WebContentsView* InterstitialPageImpl::CreateWebContentsView() {
    WebContentsView* wcv =
        static_cast<WebContentsImpl*>(web_contents())->GetView();
    RenderWidgetHostViewBase* view =
@@ -79,10 +79,10 @@ index bfb918a2cba3..a193b5a0fed8 100644
    // Creates a new View that holds a non-top-level widget and receives messages
    // for it.
 diff --git content/browser/web_contents/web_contents_view_aura.cc content/browser/web_contents/web_contents_view_aura.cc
-index ab27502c3509..282985c05c45 100644
+index dda92e4006db..23f86f9f1564 100644
 --- content/browser/web_contents/web_contents_view_aura.cc
 +++ content/browser/web_contents/web_contents_view_aura.cc
-@@ -947,7 +947,8 @@ void WebContentsViewAura::CreateView(const gfx::Size& initial_size,
+@@ -948,7 +948,8 @@ void WebContentsViewAura::CreateView(const gfx::Size& initial_size,
  }
  
  RenderWidgetHostViewBase* WebContentsViewAura::CreateViewForWidget(
@@ -92,7 +92,7 @@ index ab27502c3509..282985c05c45 100644
    if (render_widget_host->GetView()) {
      // During testing, the view will already be set up in most cases to the
      // test view, so we don't want to clobber it with a real one. To verify that
-@@ -959,6 +960,7 @@ RenderWidgetHostViewBase* WebContentsViewAura::CreateViewForWidget(
+@@ -960,6 +961,7 @@ RenderWidgetHostViewBase* WebContentsViewAura::CreateViewForWidget(
          render_widget_host->GetView());
    }
  
@@ -101,7 +101,7 @@ index ab27502c3509..282985c05c45 100644
        g_create_render_widget_host_view
            ? g_create_render_widget_host_view(render_widget_host,
 diff --git content/browser/web_contents/web_contents_view_aura.h content/browser/web_contents/web_contents_view_aura.h
-index 9be20d50ba4b..84c5106d15f2 100644
+index ed3c8d86cacc..70f869da762f 100644
 --- content/browser/web_contents/web_contents_view_aura.h
 +++ content/browser/web_contents/web_contents_view_aura.h
 @@ -122,7 +122,7 @@ class CONTENT_EXPORT WebContentsViewAura
@@ -221,7 +221,7 @@ index 35da7e53b6a6..df938f455be2 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_mac.mm content/browser/web_contents/web_contents_view_mac.mm
-index 1d1f44d6a943..275e928d6bd1 100644
+index b35b9b48b53c..bfa5f5409d5d 100644
 --- content/browser/web_contents/web_contents_view_mac.mm
 +++ content/browser/web_contents/web_contents_view_mac.mm
 @@ -327,7 +327,8 @@ void WebContentsViewMac::CreateView(
@@ -266,7 +266,7 @@ index ea12af6b86b8..f1211f374328 100644
    // a BrowserPlugin even when we are using cross process frames for guests. It
    // should be removed after resolving https://crbug.com/642826).
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index b7cb9fc9df13..a4a81ee1c863 100644
+index 1578ad4f86bd..a07ed1044d60 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 @@ -212,6 +212,8 @@ void MimeHandlerViewGuest::CreateWebContents(

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d4f6d6a06e05d1d0d2938a2aa73c8a25885fc3ef$
+// $hash=989794be6ca669465f6d0ee3c81de8c9a11c8fca$
 //
 
 #include "libcef_dll/cpptoc/print_settings_cpptoc.h"
@@ -65,24 +65,6 @@ print_settings_is_read_only(struct _cef_print_settings_t* self) {
 
   // Return type: bool
   return _retval;
-}
-
-struct _cef_print_settings_t* CEF_CALLBACK
-print_settings_copy(struct _cef_print_settings_t* self) {
-  shutdown_checker::AssertNotShutdown();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return NULL;
-
-  // Execute
-  CefRefPtr<CefPrintSettings> _retval =
-      CefPrintSettingsCppToC::Get(self)->Copy();
-
-  // Return type: refptr_same
-  return CefPrintSettingsCppToC::Wrap(_retval);
 }
 
 void CEF_CALLBACK
@@ -465,7 +447,6 @@ print_settings_get_duplex_mode(struct _cef_print_settings_t* self) {
 CefPrintSettingsCppToC::CefPrintSettingsCppToC() {
   GetStruct()->is_valid = print_settings_is_valid;
   GetStruct()->is_read_only = print_settings_is_read_only;
-  GetStruct()->copy = print_settings_copy;
   GetStruct()->set_orientation = print_settings_set_orientation;
   GetStruct()->is_landscape = print_settings_is_landscape;
   GetStruct()->set_printer_printable_area =

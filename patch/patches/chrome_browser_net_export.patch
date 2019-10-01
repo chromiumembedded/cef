@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 50f7329cca40..c6cae9beda15 100644
+index 3b387d754736..2c537f9c15c1 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -10,6 +10,7 @@ import("//build/config/jumbo.gni")
@@ -10,7 +10,7 @@ index 50f7329cca40..c6cae9beda15 100644
  import("//chrome/common/features.gni")
  import("//chromeos/assistant/assistant.gni")
  import("//components/feature_engagement/features.gni")
-@@ -368,6 +369,10 @@ jumbo_split_static_library("ui") {
+@@ -370,6 +371,10 @@ jumbo_split_static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -21,7 +21,7 @@ index 50f7329cca40..c6cae9beda15 100644
    # Since browser and browser_ui actually depend on each other,
    # we must omit the dependency from browser_ui to browser.
    # However, this means browser_ui and browser should more or less
-@@ -385,6 +390,7 @@ jumbo_split_static_library("ui") {
+@@ -388,6 +393,7 @@ jumbo_split_static_library("ui") {
      "//base:i18n",
      "//base/allocator:buildflags",
      "//cc/paint",
@@ -30,7 +30,7 @@ index 50f7329cca40..c6cae9beda15 100644
      "//chrome:resources",
      "//chrome:strings",
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
-index c50cd8b8f779..31aa7a2a696b 100644
+index 081ef17bf0d9..46b1d1af2baa 100644
 --- chrome/browser/ui/webui/net_export_ui.cc
 +++ chrome/browser/ui/webui/net_export_ui.cc
 @@ -20,13 +20,12 @@

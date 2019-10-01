@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index ae1bcfa7db7d..0ff65dcfe38f 100644
+index a4e4a612d82c..3bf880312d5e 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -2131,21 +2131,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2137,21 +2137,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -45,7 +45,7 @@ index ae1bcfa7db7d..0ff65dcfe38f 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -2844,6 +2853,15 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2852,6 +2861,15 @@ void WebContentsImpl::CreateNewWindow(
    create_params.renderer_initiated_creation =
        main_frame_route_id != MSG_ROUTING_NONE;
  
@@ -61,16 +61,16 @@ index ae1bcfa7db7d..0ff65dcfe38f 100644
    std::unique_ptr<WebContents> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -2876,7 +2894,7 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2884,7 +2902,7 @@ void WebContentsImpl::CreateNewWindow(
        // TODO(brettw): It seems bogus that we have to call this function on the
        // newly created object and give it one of its own member variables.
-       new_view->CreateViewForWidget(
+       RenderWidgetHostView* widget_view = new_view->CreateViewForWidget(
 -          new_contents_impl->GetRenderViewHost()->GetWidget(), false);
 +          new_contents_impl->GetRenderViewHost()->GetWidget(), nullptr);
-     }
-     // Save the created window associated with the route so we can show it
-     // later.
-@@ -6516,7 +6534,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
+       if (!renderer_started_hidden) {
+         // RenderWidgets for frames always initialize as hidden. If the renderer
+         // created this window as visible, then we show it here.
+@@ -6544,7 +6562,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =
@@ -95,10 +95,10 @@ index df508da0aef2..f6f4bf42b108 100644
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
  
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 50236e972100..8c09c1b53d27 100644
+index b5ff1cc5d6f6..f1a2ba836ea1 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
-@@ -76,9 +76,11 @@ class BrowserPluginGuestDelegate;
+@@ -78,9 +78,11 @@ class BrowserPluginGuestDelegate;
  class InterstitialPage;
  class RenderFrameHost;
  class RenderViewHost;
@@ -110,7 +110,7 @@ index 50236e972100..8c09c1b53d27 100644
  struct CustomContextMenuContext;
  struct DropData;
  struct MHTMLGenerationParams;
-@@ -217,6 +219,10 @@ class WebContents : public PageNavigator,
+@@ -219,6 +221,10 @@ class WebContents : public PageNavigator,
      // Sandboxing flags set on the new WebContents.
      blink::WebSandboxFlags starting_sandbox_flags;
  
@@ -122,10 +122,10 @@ index 50236e972100..8c09c1b53d27 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 23c2a2bdaa77..67fd2a66cab4 100644
+index 70afb5357631..d78b15c3a83b 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
-@@ -59,10 +59,12 @@ class FileSelectListener;
+@@ -58,10 +58,12 @@ class FileSelectListener;
  class JavaScriptDialogManager;
  class RenderFrameHost;
  class RenderProcessHost;
@@ -138,7 +138,7 @@ index 23c2a2bdaa77..67fd2a66cab4 100644
  struct ContextMenuParams;
  struct DropData;
  struct NativeWebKeyboardEvent;
-@@ -334,6 +336,14 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -333,6 +335,14 @@ class CONTENT_EXPORT WebContentsDelegate {
        const std::string& partition_id,
        SessionStorageNamespace* session_storage_namespace);
  

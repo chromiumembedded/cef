@@ -83,9 +83,10 @@ class CefGetExtensionLoadFileCallbackImpl
       return;
     }
 
-    base::PostTaskWithTraitsAndReplyWithResult(
+    base::PostTaskAndReplyWithResult(
         FROM_HERE,
-        {base::MayBlock(), base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN},
+        {base::ThreadPool(), base::MayBlock(),
+         base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN},
         base::BindOnce(LoadFileFromStream, file, stream), std::move(callback));
   }
 
@@ -135,7 +136,7 @@ class CefGetExtensionLoadFileCallbackImpl
 }  // namespace
 
 CefExtensionFunctionDetails::CefExtensionFunctionDetails(
-    UIThreadExtensionFunction* function)
+    ExtensionFunction* function)
     : function_(function) {}
 
 CefExtensionFunctionDetails::~CefExtensionFunctionDetails() {}
@@ -401,9 +402,17 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
     return nullptr;
 
   // Return data about the newly created tab.
+  auto extension = function()->extension();
+  auto web_contents = new_browser->web_contents();
   auto result = CreateTabObject(new_browser, opener_browser_id, active, index);
-  ExtensionTabUtil::ScrubTabForExtension(
-      function()->extension(), new_browser->web_contents(), result.get());
+  auto scrub_tab_behavior = ExtensionTabUtil::GetScrubTabBehavior(
+      extension, extensions::Feature::Context::UNSPECIFIED_CONTEXT,
+      web_contents);
+  if (scrub_tab_behavior != ExtensionTabUtil::kDontScrubTab) {
+    ExtensionTabUtil::ScrubTabForExtension(extension, web_contents,
+                                           result.get(), scrub_tab_behavior);
+  }
+
   return result->ToValue().release();
 }
 

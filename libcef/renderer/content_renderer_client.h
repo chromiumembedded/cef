@@ -16,16 +16,14 @@
 #include "libcef/renderer/browser_impl.h"
 
 #include "base/compiler_specific.h"
-#include "base/message_loop/message_loop.h"
+#include "base/message_loop/message_loop_current.h"
 #include "base/sequenced_task_runner.h"
 #include "chrome/common/plugin.mojom.h"
 #include "content/public/renderer/content_renderer_client.h"
 #include "content/public/renderer/render_thread.h"
+#include "mojo/public/cpp/bindings/generic_pending_receiver.h"
 #include "services/service_manager/public/cpp/binder_registry.h"
-#include "services/service_manager/public/cpp/connector.h"
 #include "services/service_manager/public/cpp/local_interface_provider.h"
-#include "services/service_manager/public/cpp/service.h"
-#include "services/service_manager/public/cpp/service_binding.h"
 
 namespace blink {
 class WebURLLoaderFactory;
@@ -53,7 +51,6 @@ class SpellCheck;
 
 class CefContentRendererClient
     : public content::ContentRendererClient,
-      public service_manager::Service,
       public service_manager::LocalInterfaceProvider,
       public base::MessageLoopCurrent::DestructionObserver {
  public:
@@ -140,16 +137,10 @@ class CefContentRendererClient
   void RunScriptsAtDocumentIdle(content::RenderFrame* render_frame) override;
   void DevToolsAgentAttached() override;
   void DevToolsAgentDetached() override;
-  void CreateRendererService(
-      service_manager::mojom::ServiceRequest service_request) override;
   std::unique_ptr<content::URLLoaderThrottleProvider>
   CreateURLLoaderThrottleProvider(
       content::URLLoaderThrottleProviderType provider_type) override;
-
-  // service_manager::Service implementation.
-  void OnBindInterface(const service_manager::BindSourceInfo& remote_info,
-                       const std::string& name,
-                       mojo::ScopedMessagePipeHandle handle) override;
+  void BindReceiverOnMainThread(mojo::GenericPendingReceiver receiver) override;
 
   // service_manager::LocalInterfaceProvider implementation.
   void GetInterface(const std::string& name,
@@ -167,8 +158,6 @@ class CefContentRendererClient
 
   // Perform cleanup work for single-process mode.
   void RunSingleProcessCleanupOnUIThread();
-
-  service_manager::Connector* GetConnector();
 
   // Time at which this object was created. This is very close to the time at
   // which the RendererMain function was entered.
@@ -208,7 +197,6 @@ class CefContentRendererClient
   bool single_process_cleanup_complete_;
   base::Lock single_process_cleanup_lock_;
 
-  service_manager::ServiceBinding service_binding_{this};
   service_manager::BinderRegistry registry_;
 
   DISALLOW_COPY_AND_ASSIGN(CefContentRendererClient);

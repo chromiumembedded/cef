@@ -1,8 +1,8 @@
 diff --git content/browser/scheduler/browser_task_executor.cc content/browser/scheduler/browser_task_executor.cc
-index 3025bd308a4a..f7fb156a75d8 100644
+index f2ddb987a4de..a309caf4c670 100644
 --- content/browser/scheduler/browser_task_executor.cc
 +++ content/browser/scheduler/browser_task_executor.cc
-@@ -135,10 +135,11 @@ void BrowserTaskExecutor::PostFeatureListSetup() {
+@@ -136,10 +136,11 @@ void BrowserTaskExecutor::PostFeatureListSetup() {
  
  // static
  void BrowserTaskExecutor::Shutdown() {

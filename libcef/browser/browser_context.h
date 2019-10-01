@@ -6,18 +6,23 @@
 #define CEF_LIBCEF_BROWSER_BROWSER_CONTEXT_IMPL_H_
 #pragma once
 
+#include <set>
+
 #include "include/cef_request_context_handler.h"
 #include "libcef/browser/chrome_profile_stub.h"
+#include "libcef/browser/request_context_handler_map.h"
 #include "libcef/browser/resource_context.h"
 
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "chrome/browser/download/download_prefs.h"
+#include "chrome/common/plugin.mojom.h"
 #include "components/proxy_config/pref_proxy_config_tracker.h"
 #include "components/visitedlink/browser/visitedlink_delegate.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/content_browser_client.h"
+#include "url/origin.h"
 
 /*
 // Classes used in request processing (network, storage, service, etc.):
@@ -105,6 +110,13 @@ class CefBrowserContext : public ChromeProfileStub,
   // |cache_path|.
   static CefBrowserContext* GetForCachePath(const base::FilePath& cache_path);
 
+  // Returns the existing instance, if any, associated with the specified IDs.
+  // See comments on IsAssociatedContext() for usage.
+  static CefBrowserContext* GetForIDs(int render_process_id,
+                                      int render_frame_id,
+                                      int frame_tree_node_id,
+                                      bool require_frame_match);
+
   // Returns the underlying CefBrowserContext if any.
   static CefBrowserContext* GetForContext(content::BrowserContext* context);
 
@@ -123,8 +135,6 @@ class CefBrowserContext : public ChromeProfileStub,
   content::ResourceContext* GetResourceContext() override;
   content::ClientHintsControllerDelegate* GetClientHintsControllerDelegate()
       override;
-  net::URLRequestContextGetter* GetRequestContext() override;
-  net::URLRequestContextGetter* CreateMediaRequestContext() override;
   void SetCorsOriginAccessListForOrigin(
       const url::Origin& source_origin,
       std::vector<network::mojom::CorsOriginPatternPtr> allow_patterns,
@@ -146,9 +156,6 @@ class CefBrowserContext : public ChromeProfileStub,
   content::BackgroundSyncController* GetBackgroundSyncController() override;
   content::BrowsingDataRemoverDelegate* GetBrowsingDataRemoverDelegate()
       override;
-  net::URLRequestContextGetter* CreateRequestContext(
-      content::ProtocolHandlerMap* protocol_handlers,
-      content::URLRequestInterceptorScopedVector request_interceptors) override;
 
   // Profile methods.
   ChromeZoomLevelPrefs* GetZoomLevelPrefs() override;
@@ -205,9 +212,42 @@ class CefBrowserContext : public ChromeProfileStub,
                             bool is_main_frame,
                             bool is_guest_view);
 
-  // Called from CefRequestContextImpl::PurgePluginListCacheInternal when the
-  // plugin list cache should be purged.
-  void OnPurgePluginListCache();
+  // Returns the handler that matches the specified IDs. Pass -1 for unknown
+  // values. If |require_frame_match| is true only exact matches will be
+  // returned. If |require_frame_match| is false, and there is not an exact
+  // match, then the first handler for the same |render_process_id| will be
+  // returned.
+  CefRefPtr<CefRequestContextHandler> GetHandler(
+      int render_process_id,
+      int render_frame_id,
+      int frame_tree_node_id,
+      bool require_frame_match) const;
+
+  // Returns true if this context is associated with the specified IDs. Pass -1
+  // for unknown values. If |require_frame_match| is true only exact matches
+  // will qualify. If |require_frame_match| is false, and there is not an exact
+  // match, then any match for |render_process_id| will qualify.
+  bool IsAssociatedContext(int render_process_id,
+                           int render_frame_id,
+                           int frame_tree_node_id,
+                           bool require_frame_match) const;
+
+  // Remember the plugin load decision for plugin status requests that arrive
+  // via CefPluginServiceFilter::IsPluginAvailable.
+  void AddPluginLoadDecision(int render_process_id,
+                             const base::FilePath& plugin_path,
+                             bool is_main_frame,
+                             const url::Origin& main_frame_origin,
+                             chrome::mojom::PluginStatus status);
+  bool HasPluginLoadDecision(int render_process_id,
+                             const base::FilePath& plugin_path,
+                             bool is_main_frame,
+                             const url::Origin& main_frame_origin,
+                             chrome::mojom::PluginStatus* status) const;
+
+  // Clear the plugin load decisions associated with |render_process_id|, or all
+  // plugin load decisions if |render_process_id| is -1.
+  void ClearPluginLoadDecision(int render_process_id);
 
   // Called from CefRequestContextImpl methods of the same name.
   void RegisterSchemeHandlerFactory(const std::string& scheme_name,
@@ -273,6 +313,29 @@ class CefBrowserContext : public ChromeProfileStub,
   std::unique_ptr<ProfileKey> key_;
 
   std::unique_ptr<DownloadPrefs> download_prefs_;
+
+  // Map IDs to CefRequestContextHandler objects.
+  CefRequestContextHandlerMap handler_map_;
+
+  // Map (render_process_id, plugin_path, is_main_frame, main_frame_origin) to
+  // plugin load decision.
+  typedef std::map<
+      std::pair<std::pair<int, base::FilePath>, std::pair<bool, url::Origin>>,
+      chrome::mojom::PluginStatus>
+      PluginLoadDecisionMap;
+  PluginLoadDecisionMap plugin_load_decision_map_;
+
+  // Set of (render_process_id, render_frame_id) associated with this context.
+  typedef std::set<std::pair<int, int>> RenderIdSet;
+  RenderIdSet render_id_set_;
+
+  // Set of frame_tree_node_id associated with this context. Keeping this list
+  // is necessary because, when navigating the main frame, a new (pre-commit)
+  // network request will be created before the RenderFrameHost. Consequently we
+  // can't rely on valid render IDs. See https://crbug.com/776884 for
+  // background.
+  typedef std::set<int> NodeIdSet;
+  NodeIdSet node_id_set_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserContext);
 };

@@ -340,7 +340,7 @@ class V8TrackArrayBuffer : public CefTrackNode {
     return release_callback_;
   }
 
-  void Neuter() { buffer_ = nullptr; }
+  void Detach() { buffer_ = nullptr; }
 
   // Attach this track object to the specified V8 object.
   void AttachTo(v8::Local<v8::Context> context,
@@ -2283,12 +2283,12 @@ bool CefV8ValueImpl::NeuterArrayBuffer() {
   }
   v8::Local<v8::Object> obj = value->ToObject(context).ToLocalChecked();
   v8::Local<v8::ArrayBuffer> arr = v8::Local<v8::ArrayBuffer>::Cast(obj);
-  if (!arr->IsNeuterable()) {
+  if (!arr->IsDetachable()) {
     return false;
   }
-  arr->Neuter();
+  arr->Detach();
   V8TrackArrayBuffer* tracker = V8TrackArrayBuffer::Unwrap(context, obj);
-  tracker->Neuter();
+  tracker->Detach();
 
   return true;
 }

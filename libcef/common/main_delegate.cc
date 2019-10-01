@@ -16,7 +16,6 @@
 #include "libcef/common/crash_reporting.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/renderer/content_renderer_client.h"
-#include "libcef/utility/content_utility_client.h"
 
 #include "base/at_exit.h"
 #include "base/base_switches.h"
@@ -35,6 +34,7 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_paths_internal.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/utility/chrome_content_utility_client.h"
 #include "components/content_settings/core/common/content_settings_pattern.h"
 #include "components/viz/common/features.h"
 #include "content/browser/browser_process_sub_thread.h"
@@ -321,7 +321,7 @@ class CefUIThread : public base::PlatformThread::Delegate {
 
     if (!stopping_) {
       stopping_ = true;
-      base::PostTaskWithTraits(
+      base::PostTask(
           FROM_HERE, {content::BrowserThread::UI},
           base::BindOnce(&CefUIThread::ThreadQuitHelper, Unretained(this)));
     }
@@ -628,7 +628,7 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
   const base::FilePath& log_file =
       command_line->GetSwitchValuePath(switches::kLogFile);
   DCHECK(!log_file.empty());
-  log_settings.log_file = log_file.value().c_str();
+  log_settings.log_file_path = log_file.value().c_str();
 
   log_settings.lock_log = logging::DONT_LOCK_LOG_FILE;
   log_settings.delete_old = logging::APPEND_TO_OLD_LOG_FILE;
@@ -802,7 +802,7 @@ content::ContentRendererClient* CefMainDelegate::CreateContentRendererClient() {
 }
 
 content::ContentUtilityClient* CefMainDelegate::CreateContentUtilityClient() {
-  utility_client_.reset(new CefContentUtilityClient);
+  utility_client_.reset(new ChromeContentUtilityClient);
   return utility_client_.get();
 }
 

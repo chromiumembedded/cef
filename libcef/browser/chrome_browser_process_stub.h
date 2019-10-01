@@ -91,8 +91,6 @@ class ChromeBrowserProcessStub : public BrowserProcess {
 #endif
 
   component_updater::ComponentUpdateService* component_updater() override;
-  component_updater::SupervisedUserWhitelistInstaller*
-  supervised_user_whitelist_installer() override;
   MediaFileSystemRegistry* media_file_system_registry() override;
   WebRtcLogUploader* webrtc_log_uploader() override;
   network_time::NetworkTimeTracker* network_time_tracker() override;
@@ -102,7 +100,6 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   resource_coordinator::TabManager* GetTabManager() override;
   resource_coordinator::ResourceCoordinatorParts* resource_coordinator_parts()
       override;
-  prefs::InProcessPrefServiceFactory* pref_service_factory() const override;
 
  private:
   bool initialized_;

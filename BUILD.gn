@@ -93,7 +93,7 @@
 # https://chromium.googlesource.com/chromium/src/+/master/tools/gn/docs/language.md
 #
 
-import("//build/config/allocator.gni")
+import("//base/allocator/allocator.gni")
 import("//build/config/features.gni")
 import("//build/config/locales.gni")
 import("//build/config/sanitizers/sanitizers.gni")
@@ -544,6 +544,8 @@ static_library("libcef_static") {
     "libcef/browser/process_util_impl.cc",
     "libcef/browser/resource_context.cc",
     "libcef/browser/resource_context.h",
+    "libcef/browser/request_context_handler_map.cc",
+    "libcef/browser/request_context_handler_map.h",
     "libcef/browser/request_context_impl.cc",
     "libcef/browser/request_context_impl.h",
     "libcef/browser/scheme_impl.cc",
@@ -687,8 +689,6 @@ static_library("libcef_static") {
     "libcef/renderer/url_loader_throttle_provider_impl.h",
     "libcef/renderer/v8_impl.cc",
     "libcef/renderer/v8_impl.h",
-    "libcef/utility/content_utility_client.cc",
-    "libcef/utility/content_utility_client.h",
 
     "//chrome/browser/local_discovery/service_discovery_device_lister.cc",
     "//chrome/browser/local_discovery/service_discovery_device_lister.h",
@@ -750,7 +750,7 @@ static_library("libcef_static") {
     "//components/content_settings/core/common",
     "//components/crx_file",
     "//components/data_use_measurement/core",
-    "//components/google/core/browser",
+    "//components/google/core/common",
     "//components/keyed_service/content:content",
     "//components/keyed_service/core:core",
     "//components/navigation_interception",
@@ -764,7 +764,7 @@ static_library("libcef_static") {
     "//components/printing/renderer",
     "//components/proxy_config",
     "//components/safe_browsing/db:test_database_manager",
-    "//components/services/pdf_compositor/public/cpp:factory",
+    "//components/services/pdf_compositor/public/cpp",
     "//components/services/pdf_compositor/public/mojom",
     "//components/tracing",
     "//components/update_client",
@@ -1169,29 +1169,11 @@ source_set("cef_content_browser_overlay_manifest") {
 
   deps = [
     "//base",
-    "//components/services/heap_profiling/public/mojom",
     "//extensions/buildflags",
     "//extensions/common:mojom",
     "//extensions/common/api:mojom",
     "//services/service_manager/public/cpp",
     "//third_party/blink/public/common",
-  ]
-}
-
-source_set("cef_content_gpu_overlay_manifest") {
-  sources = [
-    "libcef/common/service_manifests/cef_content_gpu_overlay_manifest.cc",
-    "libcef/common/service_manifests/cef_content_gpu_overlay_manifest.h",
-  ]
-
-  configs += [
-    "libcef/features:config"
-  ]
-
-  deps = [
-    "//base",
-    "//components/services/heap_profiling/public/mojom",
-    "//services/service_manager/public/cpp",
   ]
 }
 
@@ -1207,85 +1189,18 @@ source_set("cef_content_renderer_overlay_manifest") {
 
   deps = [
     "//base",
-    "//components/services/heap_profiling/public/mojom",
     "//components/subresource_filter/content/mojom",
     "//extensions/buildflags",
     "//extensions/common:mojom",
     "//services/service_manager/public/cpp",
     "//third_party/blink/public/common",
   ]
-
-  if (is_mac) {
-    deps += [ "//components/spellcheck/common:interfaces" ]
-  }
-}
-
-source_set("cef_content_utility_overlay_manifest") {
-  sources = [
-    "libcef/common/service_manifests/cef_content_utility_overlay_manifest.cc",
-    "libcef/common/service_manifests/cef_content_utility_overlay_manifest.h",
-  ]
-
-  configs += [
-    "libcef/features:config"
-  ]
-
-  deps = [
-    "//base",
-    "//components/services/heap_profiling/public/mojom",
-    "//services/service_manager/public/cpp",
-  ]
-}
-
-source_set("builtin_service_manifests") {
-  sources = [
-    "libcef/common/service_manifests/builtin_service_manifests.cc",
-    "libcef/common/service_manifests/builtin_service_manifests.h",
-  ]
-
-  configs += [
-    "libcef/features:config"
-  ]
-
-  deps = [
-    "//base",
-    "//chrome/common:mojo_bindings",
-    "//chrome/services/printing/public/cpp:manifest",
-    "//components/services/pdf_compositor/public/cpp:manifest",
-    "//components/spellcheck/common:interfaces",
-    "//components/startup_metric_utils/common:interfaces",
-    "//extensions/buildflags",
-    "//printing/buildflags",
-    "//services/service_manager/public/cpp",
-  ]
-}
-
-source_set("cef_renderer_manifest") {
-  sources = [
-    "libcef/common/service_manifests/cef_renderer_manifest.cc",
-    "libcef/common/service_manifests/cef_renderer_manifest.h",
-  ]
-
-  configs += [
-    "libcef/features:config"
-  ]
-
-  deps = [
-    "//base",
-    "//chrome/common:mojo_bindings",
-    "//components/spellcheck/common:interfaces",
-    "//services/service_manager/public/cpp",
-  ]
 }
 
 source_set("cef_service_manifests") {
   public_deps = [
     ":cef_content_browser_overlay_manifest",
-    ":cef_content_gpu_overlay_manifest",
     ":cef_content_renderer_overlay_manifest",
-    ":cef_content_utility_overlay_manifest",
-    ":builtin_service_manifests",
-    ":cef_renderer_manifest",
   ]
 }
 

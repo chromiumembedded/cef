@@ -419,7 +419,7 @@ void CefExtensionSystem::RegisterExtensionWithRequestContexts(
     const base::Closure& callback) {
   // TODO(extensions): The |incognito_enabled| value should be set based on
   // manifest settings.
-  base::PostTaskWithTraitsAndReply(
+  base::PostTaskAndReply(
       FROM_HERE, {BrowserThread::IO},
       base::Bind(&InfoMap::AddExtension, info_map(),
                  base::RetainedRef(extension), base::Time::Now(),
@@ -433,7 +433,7 @@ void CefExtensionSystem::RegisterExtensionWithRequestContexts(
 void CefExtensionSystem::UnregisterExtensionWithRequestContexts(
     const std::string& extension_id,
     const UnloadedExtensionReason reason) {
-  base::PostTaskWithTraits(
+  base::PostTask(
       FROM_HERE, {BrowserThread::IO},
       base::Bind(&InfoMap::RemoveExtension, info_map(), extension_id, reason));
 }

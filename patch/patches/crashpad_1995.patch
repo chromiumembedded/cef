@@ -1,5 +1,5 @@
 diff --git chrome/chrome_elf/BUILD.gn chrome/chrome_elf/BUILD.gn
-index 9c59c4b5e7a6..e470635e88d2 100644
+index 99ef45605fb5..2e16fc44a242 100644
 --- chrome/chrome_elf/BUILD.gn
 +++ chrome/chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -10,7 +10,7 @@ index 9c59c4b5e7a6..e470635e88d2 100644
  import("//chrome/process_version_rc_template.gni")
  import("//testing/test.gni")
  
-@@ -132,9 +133,6 @@ source_set("constants") {
+@@ -110,9 +111,6 @@ source_set("constants") {
  
  static_library("crash") {
    sources = [
@@ -20,7 +20,7 @@ index 9c59c4b5e7a6..e470635e88d2 100644
      "crash/crash_helper.cc",
      "crash/crash_helper.h",
    ]
-@@ -142,6 +140,7 @@ static_library("crash") {
+@@ -120,6 +118,7 @@ static_library("crash") {
      ":hook_util",
      "//base",  # This needs to go.  DEP of app, crash_keys, client.
      "//base:base_static",  # pe_image
@@ -28,7 +28,7 @@ index 9c59c4b5e7a6..e470635e88d2 100644
      "//chrome/install_static:install_static_util",
      "//components/crash/content/app",
      "//components/crash/core/common",  # crash_keys
-@@ -149,6 +148,17 @@ static_library("crash") {
+@@ -127,6 +126,17 @@ static_library("crash") {
      "//content/public/common:result_codes",
      "//third_party/crashpad/crashpad/client",  # DumpWithoutCrash
    ]
@@ -127,7 +127,7 @@ index bcf172e645a2..f879aa745adf 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index bb5ee46d3f2b..639958e189ad 100644
+index 505156ada2d8..34ad815d20c6 100644
 --- components/crash/content/app/breakpad_linux.cc
 +++ components/crash/content/app/breakpad_linux.cc
 @@ -28,6 +28,7 @@
@@ -138,7 +138,7 @@ index bb5ee46d3f2b..639958e189ad 100644
  #include "base/files/file_path.h"
  #include "base/lazy_instance.h"
  #include "base/linux_util.h"
-@@ -101,6 +102,7 @@ namespace {
+@@ -104,6 +105,7 @@ namespace {
  uint64_t g_crash_loop_before_time = 0;
  #else
  const char kUploadURL[] = "https://clients2.google.com/cr/report";
@@ -146,7 +146,7 @@ index bb5ee46d3f2b..639958e189ad 100644
  #endif
  
  bool g_is_crash_reporter_enabled = false;
-@@ -714,7 +716,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
+@@ -717,7 +719,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
    info.process_type_length = 7;
    info.distro = base::g_linux_distro;
    info.distro_length = my_strlen(base::g_linux_distro);
@@ -155,7 +155,7 @@ index bb5ee46d3f2b..639958e189ad 100644
    info.process_start_time = g_process_start_time;
    info.oom_size = base::g_oom_size;
    info.pid = g_pid;
-@@ -1400,7 +1402,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
+@@ -1404,7 +1406,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
      header_content_encoding,
      header_content_type,
      post_file,
@@ -164,7 +164,7 @@ index bb5ee46d3f2b..639958e189ad 100644
      "--timeout=10",  // Set a timeout so we don't hang forever.
      "--tries=1",     // Don't retry if the upload fails.
      "-O",  // Output reply to the file descriptor path.
-@@ -1740,10 +1742,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1744,10 +1746,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
      GetCrashReporterClient()->GetProductNameAndVersion(&product_name, &version);
  
      writer.AddBoundary();
@@ -186,7 +186,7 @@ index bb5ee46d3f2b..639958e189ad 100644
      if (info.pid > 0) {
        char pid_value_buf[kUint64StringSize];
        uint64_t pid_value_len = my_uint64_len(info.pid);
-@@ -1860,10 +1871,20 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1864,10 +1875,20 @@ void HandleCrashDump(const BreakpadInfo& info) {
          crash_reporter::internal::TransitionalCrashKeyStorage;
      CrashKeyStorage::Iterator crash_key_iterator(*info.crash_keys);
      const CrashKeyStorage::Entry* entry;
@@ -208,7 +208,7 @@ index bb5ee46d3f2b..639958e189ad 100644
        writer.AddBoundary();
        writer.Flush();
      }
-@@ -2075,6 +2096,17 @@ void SetChannelCrashKey(const std::string& channel) {
+@@ -2079,6 +2100,17 @@ void SetChannelCrashKey(const std::string& channel) {
    channel_key.Set(channel);
  }
  
@@ -227,7 +227,7 @@ index bb5ee46d3f2b..639958e189ad 100644
  void InitNonBrowserCrashReporterForAndroid(const std::string& process_type) {
    SanitizationInfo sanitization_info;
 diff --git components/crash/content/app/breakpad_linux.h components/crash/content/app/breakpad_linux.h
-index fb7f0a8af261..0d25d227fb8a 100644
+index 6e95af6ca7f5..061fb189d60f 100644
 --- components/crash/content/app/breakpad_linux.h
 +++ components/crash/content/app/breakpad_linux.h
 @@ -20,6 +20,9 @@ extern void InitCrashReporter(const std::string& process_type);
@@ -402,10 +402,10 @@ index 5eba3742684b..9bc66b0dbfb9 100644
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/content/app/crashpad_mac.mm components/crash/content/app/crashpad_mac.mm
-index a76d264648d2..ff9a19e259fb 100644
+index c2de9fe867c5..29cda67a1f72 100644
 --- components/crash/content/app/crashpad_mac.mm
 +++ components/crash/content/app/crashpad_mac.mm
-@@ -16,11 +16,14 @@
+@@ -16,12 +16,15 @@
  #include "base/logging.h"
  #include "base/mac/bundle_locations.h"
  #include "base/mac/foundation_util.h"
@@ -414,13 +414,14 @@ index a76d264648d2..ff9a19e259fb 100644
  #include "base/strings/string_piece.h"
  #include "base/strings/stringprintf.h"
  #include "base/strings/sys_string_conversions.h"
+ #include "build/branding_buildflags.h"
  #include "components/crash/content/app/crash_reporter_client.h"
 +#include "components/crash/content/app/crash_switches.h"
 +#include "content/public/common/content_paths.h"
  #include "third_party/crashpad/crashpad/client/crash_report_database.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -36,12 +39,25 @@ namespace {
+@@ -37,12 +40,25 @@ namespace {
  std::map<std::string, std::string> GetProcessSimpleAnnotations() {
    static std::map<std::string, std::string> annotations = []() -> auto {
      std::map<std::string, std::string> process_annotations;
@@ -448,9 +449,9 @@ index a76d264648d2..ff9a19e259fb 100644
 +        process_annotations["product"] = product_name;
 +      }
  
- #if defined(GOOGLE_CHROME_BUILD)
+ #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
        // Empty means stable.
-@@ -57,12 +73,16 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
+@@ -58,12 +74,16 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
          process_annotations["channel"] = "";
        }
  
@@ -472,7 +473,7 @@ index a76d264648d2..ff9a19e259fb 100644
      }  // @autoreleasepool
      return process_annotations;
    }();
-@@ -122,10 +142,10 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -123,10 +143,10 @@ base::FilePath PlatformCrashpadInitialization(
  
    if (initial_client) {
      @autoreleasepool {
@@ -487,7 +488,7 @@ index a76d264648d2..ff9a19e259fb 100644
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -137,7 +157,7 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -138,7 +158,7 @@ base::FilePath PlatformCrashpadInitialization(
        // crash server won't have symbols for any other build types.
        std::string url = "https://clients2.google.com/cr/report";
  #else
@@ -496,7 +497,7 @@ index a76d264648d2..ff9a19e259fb 100644
  #endif
  
        std::vector<std::string> arguments;
-@@ -160,6 +180,12 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -161,6 +181,12 @@ base::FilePath PlatformCrashpadInitialization(
              "--reset-own-crash-exception-port-to-system-default");
        }
  
@@ -510,10 +511,10 @@ index a76d264648d2..ff9a19e259fb 100644
            handler_path, database_path, metrics_path, url,
            GetProcessSimpleAnnotations(), arguments, true, false);
 diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
-index 8f55759a6f4a..5d60fc3f84eb 100644
+index d13ae5cf7e40..f87f84d3121c 100644
 --- components/crash/content/app/crashpad_win.cc
 +++ components/crash/content/app/crashpad_win.cc
-@@ -35,8 +35,8 @@ void GetPlatformCrashpadAnnotations(
+@@ -36,8 +36,8 @@ void GetPlatformCrashpadAnnotations(
    base::string16 product_name, version, special_build, channel_name;
    crash_reporter_client->GetProductNameAndVersion(
        exe_file, &product_name, &version, &special_build, &channel_name);
@@ -521,10 +522,10 @@ index 8f55759a6f4a..5d60fc3f84eb 100644
 -  (*annotations)["ver"] = base::UTF16ToUTF8(version);
 +  (*annotations)["product"] = base::UTF16ToUTF8(product_name);
 +  (*annotations)["version"] = base::UTF16ToUTF8(version);
- #if defined(GOOGLE_CHROME_BUILD)
+ #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
    // Empty means stable.
    const bool allow_empty_channel = true;
-@@ -48,9 +48,9 @@ void GetPlatformCrashpadAnnotations(
+@@ -49,9 +49,9 @@ void GetPlatformCrashpadAnnotations(
    if (!special_build.empty())
      (*annotations)["special"] = base::UTF16ToUTF8(special_build);
  #if defined(ARCH_CPU_X86)
@@ -536,7 +537,7 @@ index 8f55759a6f4a..5d60fc3f84eb 100644
  #endif
  }
  
-@@ -65,7 +65,9 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -66,7 +66,9 @@ base::FilePath PlatformCrashpadInitialization(
    base::FilePath metrics_path;  // Only valid in the browser process.
  
    const char kPipeNameVar[] = "CHROME_CRASHPAD_PIPE_NAME";
@@ -546,9 +547,9 @@ index 8f55759a6f4a..5d60fc3f84eb 100644
    std::unique_ptr<base::Environment> env(base::Environment::Create());
    if (initial_client) {
      CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -85,13 +87,13 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -86,13 +88,13 @@ base::FilePath PlatformCrashpadInitialization(
  
- #if defined(GOOGLE_CHROME_BUILD)
+ #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
      std::string url = "https://clients2.google.com/cr/report";
 -#else
 -    std::string url;
@@ -563,7 +564,7 @@ index 8f55759a6f4a..5d60fc3f84eb 100644
  
      base::FilePath exe_file(exe_path);
      if (exe_file.empty()) {
-@@ -109,13 +111,14 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -110,13 +112,14 @@ base::FilePath PlatformCrashpadInitialization(
                crashpad::TriState::kEnabled, kIndirectMemoryLimit);
      }
  
@@ -583,7 +584,7 @@ index 8f55759a6f4a..5d60fc3f84eb 100644
        if (!user_data_dir.empty()) {
          start_arguments.push_back(std::string("--user-data-dir=") +
                                    user_data_dir);
-@@ -126,9 +129,12 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -127,9 +130,12 @@ base::FilePath PlatformCrashpadInitialization(
        start_arguments.push_back("/prefetch:7");
      } else {
        base::FilePath exe_dir = exe_file.DirName();

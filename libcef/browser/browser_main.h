@@ -30,33 +30,20 @@ class WMState;
 #endif
 
 class CefDevToolsDelegate;
-class ChromeBrowserMainExtraParts;
 
 class CefBrowserMainParts : public content::BrowserMainParts {
  public:
   explicit CefBrowserMainParts(const content::MainFunctionParams& parameters);
   ~CefBrowserMainParts() override;
 
-  // Add additional ChromeBrowserMainExtraParts.
-  void AddParts(ChromeBrowserMainExtraParts* parts);
-
   int PreEarlyInitialization() override;
-  void PostEarlyInitialization() override;
   void ToolkitInitialized() override;
   void PreMainMessageLoopStart() override;
   void PostMainMessageLoopStart() override;
   int PreCreateThreads() override;
-  void PostCreateThreads() override;
   void PreMainMessageLoopRun() override;
   void PostMainMessageLoopRun() override;
   void PostDestroyThreads() override;
-
-  // Additional stages for ChromeBrowserMainExtraParts. These stages are called
-  // in order from PreMainMessageLoopRun(). See implementation for details.
-  void PreProfileInit();
-  void PostProfileInit();
-  void PreBrowserStart();
-  void PostBrowserStart();
 
   CefRefPtr<CefRequestContextImpl> request_context() const {
     return global_request_context_;
@@ -97,10 +84,6 @@ class CefBrowserMainParts : public content::BrowserMainParts {
 #if defined(USE_AURA)
   std::unique_ptr<wm::WMState> wm_state_;
 #endif
-
-  // Vector of additional ChromeBrowserMainExtraParts.
-  // Parts are deleted in the inverse order they are added.
-  std::vector<ChromeBrowserMainExtraParts*> chrome_extra_parts_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserMainParts);
 };

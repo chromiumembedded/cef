@@ -28,7 +28,6 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/task/post_task.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/chrome_browser_main_extra_parts.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/plugins/plugin_finder.h"
 #include "components/constrained_window/constrained_window_views.h"
@@ -75,13 +74,6 @@ CefBrowserMainParts::CefBrowserMainParts(
 
 CefBrowserMainParts::~CefBrowserMainParts() {
   constrained_window::SetConstrainedWindowViewsClient(nullptr);
-  for (int i = static_cast<int>(chrome_extra_parts_.size()) - 1; i >= 0; --i)
-    delete chrome_extra_parts_[i];
-  chrome_extra_parts_.clear();
-}
-
-void CefBrowserMainParts::AddParts(ChromeBrowserMainExtraParts* parts) {
-  chrome_extra_parts_.push_back(parts);
 }
 
 int CefBrowserMainParts::PreEarlyInitialization() {
@@ -91,15 +83,7 @@ int CefBrowserMainParts::PreEarlyInitialization() {
   ui::InitializeInputMethodForTesting();
 #endif
 
-  for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
-    chrome_extra_parts_[i]->PreEarlyInitialization();
-
   return service_manager::RESULT_CODE_NORMAL_EXIT;
-}
-
-void CefBrowserMainParts::PostEarlyInitialization() {
-  for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
-    chrome_extra_parts_[i]->PostEarlyInitialization();
 }
 
 void CefBrowserMainParts::ToolkitInitialized() {
@@ -116,9 +100,6 @@ void CefBrowserMainParts::ToolkitInitialized() {
       CefContentBrowserClient::Get()->GetResourceDllName());
 #endif
 #endif  // defined(USE_AURA)
-
-  for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
-    chrome_extra_parts_[i]->ToolkitInitialized();
 }
 
 void CefBrowserMainParts::PreMainMessageLoopStart() {
@@ -132,9 +113,6 @@ void CefBrowserMainParts::PreMainMessageLoopStart() {
   DCHECK(local_state);
   OSCrypt::Init(local_state);
 #endif
-
-  for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
-    chrome_extra_parts_[i]->PreMainMessageLoopStart();
 }
 
 void CefBrowserMainParts::PostMainMessageLoopStart() {
@@ -144,9 +122,6 @@ void CefBrowserMainParts::PostMainMessageLoopStart() {
   printing::PrintingContextLinux::SetPdfPaperSizeFunction(
       &CefPrintDialogLinux::GetPdfPaperSize);
 #endif
-
-  for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
-    chrome_extra_parts_[i]->PostMainMessageLoopStart();
 }
 
 int CefBrowserMainParts::PreCreateThreads() {
@@ -161,15 +136,7 @@ int CefBrowserMainParts::PreCreateThreads() {
   content::GpuDataManager::GetInstance();
   SystemNetworkContextManager::CreateInstance(g_browser_process->local_state());
 
-  for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
-    chrome_extra_parts_[i]->PreCreateThreads();
-
   return 0;
-}
-
-void CefBrowserMainParts::PostCreateThreads() {
-  for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
-    chrome_extra_parts_[i]->PostCreateThreads();
 }
 
 void CefBrowserMainParts::PreMainMessageLoopRun() {
@@ -178,9 +145,6 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
 #endif
 
   ui::MaterialDesignController::Initialize();
-
-  // CEF's profile is a BrowserContext.
-  PreProfileInit();
 
   if (extensions::ExtensionsEnabled()) {
     // Initialize extension global objects before creating the global
@@ -200,14 +164,14 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
 
   printing::CefPrintingMessageFilter::EnsureShutdownNotifierFactoryBuilt();
 
-  background_task_runner_ = base::CreateSingleThreadTaskRunnerWithTraits(
-      {base::TaskPriority::BEST_EFFORT,
+  background_task_runner_ = base::CreateSingleThreadTaskRunner(
+      {base::ThreadPool(), base::TaskPriority::BEST_EFFORT,
        base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()});
-  user_visible_task_runner_ = base::CreateSingleThreadTaskRunnerWithTraits(
-      {base::TaskPriority::USER_VISIBLE,
+  user_visible_task_runner_ = base::CreateSingleThreadTaskRunner(
+      {base::ThreadPool(), base::TaskPriority::USER_VISIBLE,
        base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()});
-  user_blocking_task_runner_ = base::CreateSingleThreadTaskRunnerWithTraits(
-      {base::TaskPriority::USER_BLOCKING,
+  user_blocking_task_runner_ = base::CreateSingleThreadTaskRunner(
+      {base::ThreadPool(), base::TaskPriority::USER_BLOCKING,
        base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()});
 
   CefRequestContextSettings settings;
@@ -219,21 +183,12 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
   CefBrowserContext* browser_context = static_cast<CefBrowserContext*>(
       global_request_context_->GetBrowserContext());
 
-  PostProfileInit();
-
   CefDevToolsManagerDelegate::StartHttpHandler(browser_context);
 
   // Triggers initialization of the singleton instance on UI thread.
   PluginFinder::GetInstance()->Init();
 
   scheme::RegisterWebUIControllerFactory();
-
-  // These have no equivalent in CEF.
-  PreBrowserStart();
-  PostBrowserStart();
-
-  for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
-    chrome_extra_parts_[i]->PreMainMessageLoopRun();
 }
 
 void CefBrowserMainParts::PostMainMessageLoopRun() {
@@ -244,9 +199,6 @@ void CefBrowserMainParts::PostMainMessageLoopRun() {
   // during shutdown. Did you forget to release a CefBrowser reference?
   DCHECK(global_request_context_->HasOneRef());
   global_request_context_ = NULL;
-
-  for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
-    chrome_extra_parts_[i]->PostMainMessageLoopRun();
 }
 
 void CefBrowserMainParts::PostDestroyThreads() {
@@ -259,24 +211,4 @@ void CefBrowserMainParts::PostDestroyThreads() {
   // Delete the DesktopTestViewsDelegate.
   delete views::ViewsDelegate::GetInstance();
 #endif
-}
-
-void CefBrowserMainParts::PreProfileInit() {
-  for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
-    chrome_extra_parts_[i]->PreProfileInit();
-}
-
-void CefBrowserMainParts::PostProfileInit() {
-  for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
-    chrome_extra_parts_[i]->PostProfileInit();
-}
-
-void CefBrowserMainParts::PreBrowserStart() {
-  for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
-    chrome_extra_parts_[i]->PreBrowserStart();
-}
-
-void CefBrowserMainParts::PostBrowserStart() {
-  for (size_t i = 0; i < chrome_extra_parts_.size(); ++i)
-    chrome_extra_parts_[i]->PostBrowserStart();
 }

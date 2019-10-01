@@ -13,6 +13,7 @@
 #include "mojo/public/cpp/system/simple_watcher.h"
 #include "net/http/http_byte_range.h"
 #include "services/network/public/cpp/net_adapters.h"
+#include "services/network/public/cpp/resource_response.h"
 #include "services/network/public/mojom/network_context.mojom.h"
 #include "services/network/public/mojom/url_loader.mojom.h"
 
@@ -173,7 +174,6 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
   void FollowRedirect(const std::vector<std::string>& removed_headers,
                       const net::HttpRequestHeaders& modified_headers,
                       const base::Optional<GURL>& new_url) override;
-  void ProceedWithResponse() override;
   void SetPriority(net::RequestPriority priority,
                    int intra_priority_value) override;
   void PauseReadingBodyFromNet() override;

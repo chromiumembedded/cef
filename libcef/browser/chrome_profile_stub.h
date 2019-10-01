@@ -44,6 +44,8 @@ class ChromeProfileStub : public Profile {
   bool IsIndependentOffTheRecordProfile() override;
   void SetExitType(ExitType exit_type) override;
   ExitType GetLastSessionExitType() override;
+  base::Time GetCreationTime() const override;
+  void SetCreationTimeForTesting(base::Time creation_time) override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(ChromeProfileStub);

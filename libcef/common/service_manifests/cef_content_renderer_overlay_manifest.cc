@@ -6,7 +6,6 @@
 
 #include "base/no_destructor.h"
 #include "build/build_config.h"
-#include "components/services/heap_profiling/public/mojom/heap_profiling_client.mojom.h"
 #include "components/subresource_filter/content/mojom/subresource_filter_agent.mojom.h"
 #include "extensions/buildflags/buildflags.h"
 #include "services/service_manager/public/cpp/manifest_builder.h"
@@ -18,9 +17,6 @@
 const service_manager::Manifest& GetCefContentRendererOverlayManifest() {
   static base::NoDestructor<service_manager::Manifest> manifest {
     service_manager::ManifestBuilder()
-        .ExposeCapability("browser",
-                          service_manager::Manifest::InterfaceList<
-                              heap_profiling::mojom::ProfilingClient>())
 #if defined(OS_MACOSX)
         .ExposeInterfaceFilterCapability_Deprecated(
             "navigation:frame", "browser",

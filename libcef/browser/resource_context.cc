@@ -12,7 +12,6 @@
 #include "base/logging.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
-#include "content/browser/loader/resource_dispatcher_host_impl.h"
 #include "content/browser/resource_context_impl.h"
 #include "content/public/browser/browser_thread.h"
 
@@ -58,127 +57,32 @@ CefResourceContext::CreateClientCertStore() {
 #endif
 }
 
-void CefResourceContext::set_extensions_info_map(
-    extensions::InfoMap* extensions_info_map) {
-  DCHECK(!extension_info_map_);
-  extension_info_map_ = extensions_info_map;
-}
-
 void CefResourceContext::AddHandler(
     int render_process_id,
     int render_frame_id,
     int frame_tree_node_id,
     CefRefPtr<CefRequestContextHandler> handler) {
   CEF_REQUIRE_IOT();
-  DCHECK_GE(render_process_id, 0);
-  DCHECK_GE(render_frame_id, 0);
-  DCHECK_GE(frame_tree_node_id, 0);
-  DCHECK(handler);
-
-  render_id_handler_map_.insert(std::make_pair(
-      std::make_pair(render_process_id, render_frame_id), handler));
-  node_id_handler_map_.insert(std::make_pair(frame_tree_node_id, handler));
+  handler_map_.AddHandler(render_process_id, render_frame_id,
+                          frame_tree_node_id, handler);
 }
 
 void CefResourceContext::RemoveHandler(int render_process_id,
                                        int render_frame_id,
                                        int frame_tree_node_id) {
   CEF_REQUIRE_IOT();
-  DCHECK_GE(render_process_id, 0);
-  DCHECK_GE(render_frame_id, 0);
-  DCHECK_GE(frame_tree_node_id, 0);
-
-  auto it1 = render_id_handler_map_.find(
-      std::make_pair(render_process_id, render_frame_id));
-  if (it1 != render_id_handler_map_.end())
-    render_id_handler_map_.erase(it1);
-
-  auto it2 = node_id_handler_map_.find(frame_tree_node_id);
-  if (it2 != node_id_handler_map_.end())
-    node_id_handler_map_.erase(it2);
+  handler_map_.RemoveHandler(render_process_id, render_frame_id,
+                             frame_tree_node_id);
 }
 
 CefRefPtr<CefRequestContextHandler> CefResourceContext::GetHandler(
     int render_process_id,
     int render_frame_id,
     int frame_tree_node_id,
-    bool require_frame_match) {
+    bool require_frame_match) const {
   CEF_REQUIRE_IOT();
-
-  if (render_process_id >= 0 && render_frame_id >= 0) {
-    const auto it1 = render_id_handler_map_.find(
-        std::make_pair(render_process_id, render_frame_id));
-    if (it1 != render_id_handler_map_.end())
-      return it1->second;
-  }
-
-  if (frame_tree_node_id >= 0) {
-    const auto it2 = node_id_handler_map_.find(frame_tree_node_id);
-    if (it2 != node_id_handler_map_.end())
-      return it2->second;
-  }
-
-  if (render_process_id >= 0 && !require_frame_match) {
-    // Choose an arbitrary handler for the same process.
-    for (auto& kv : render_id_handler_map_) {
-      if (kv.first.first == render_process_id)
-        return kv.second;
-    }
-  }
-
-  return nullptr;
-}
-
-void CefResourceContext::AddPluginLoadDecision(
-    int render_process_id,
-    const base::FilePath& plugin_path,
-    bool is_main_frame,
-    const url::Origin& main_frame_origin,
-    chrome::mojom::PluginStatus status) {
-  CEF_REQUIRE_IOT();
-  DCHECK_GE(render_process_id, 0);
-  DCHECK(!plugin_path.empty());
-
-  plugin_load_decision_map_.insert(std::make_pair(
-      std::make_pair(std::make_pair(render_process_id, plugin_path),
-                     std::make_pair(is_main_frame, main_frame_origin)),
-      status));
-}
-
-bool CefResourceContext::HasPluginLoadDecision(
-    int render_process_id,
-    const base::FilePath& plugin_path,
-    bool is_main_frame,
-    const url::Origin& main_frame_origin,
-    chrome::mojom::PluginStatus* status) const {
-  CEF_REQUIRE_IOT();
-  DCHECK_GE(render_process_id, 0);
-  DCHECK(!plugin_path.empty());
-
-  PluginLoadDecisionMap::const_iterator it = plugin_load_decision_map_.find(
-      std::make_pair(std::make_pair(render_process_id, plugin_path),
-                     std::make_pair(is_main_frame, main_frame_origin)));
-  if (it == plugin_load_decision_map_.end())
-    return false;
-
-  *status = it->second;
-  return true;
-}
-
-void CefResourceContext::ClearPluginLoadDecision(int render_process_id) {
-  CEF_REQUIRE_IOT();
-
-  if (render_process_id == -1) {
-    plugin_load_decision_map_.clear();
-  } else {
-    PluginLoadDecisionMap::iterator it = plugin_load_decision_map_.begin();
-    while (it != plugin_load_decision_map_.end()) {
-      if (it->first.first.first == render_process_id)
-        it = plugin_load_decision_map_.erase(it);
-      else
-        ++it;
-    }
-  }
+  return handler_map_.GetHandler(render_process_id, render_frame_id,
+                                 frame_tree_node_id, require_frame_match);
 }
 
 void CefResourceContext::RegisterSchemeHandlerFactory(

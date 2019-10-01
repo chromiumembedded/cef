@@ -1175,7 +1175,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
 void InitOnUIThread(
     scoped_refptr<InterceptedRequestHandlerWrapper::InitHelper> init_helper,
-    content::ResourceRequestInfo::WebContentsGetter web_contents_getter,
+    content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
     const network::ResourceRequest& request) {
   CEF_REQUIRE_UIT();
@@ -1300,7 +1300,7 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
 }
 
 std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
-    content::ResourceRequestInfo::WebContentsGetter web_contents_getter,
+    content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
     const network::ResourceRequest& request) {
   auto wrapper = std::make_unique<InterceptedRequestHandlerWrapper>();

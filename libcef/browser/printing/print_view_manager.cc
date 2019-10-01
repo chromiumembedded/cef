@@ -137,7 +137,7 @@ void StopWorker(int document_cookie) {
   std::unique_ptr<PrinterQuery> printer_query =
       queue->PopPrinterQuery(document_cookie);
   if (printer_query.get()) {
-    base::PostTaskWithTraits(
+    base::PostTask(
         FROM_HERE, {BrowserThread::IO},
         base::BindOnce(&PrinterQuery::StopWorker, std::move(printer_query)));
   }
@@ -158,8 +158,7 @@ void SavePdfFile(scoped_refptr<base::RefCountedSharedMemoryMapping> data,
   bool ok = file.IsValid() && metafile.SaveTo(&file);
 
   if (!callback.is_null()) {
-    base::PostTaskWithTraits(FROM_HERE, {BrowserThread::UI},
-                             base::Bind(callback, ok));
+    base::PostTask(FROM_HERE, {BrowserThread::UI}, base::Bind(callback, ok));
   }
 }
 
@@ -330,8 +329,8 @@ void CefPrintViewManager::TerminatePdfPrintJob() {
 
   if (!pdf_print_state_->callback_.is_null()) {
     // Execute the callback.
-    base::PostTaskWithTraits(FROM_HERE, {BrowserThread::UI},
-                             base::Bind(pdf_print_state_->callback_, false));
+    base::PostTask(FROM_HERE, {BrowserThread::UI},
+                   base::Bind(pdf_print_state_->callback_, false));
   }
 
   // Reset state information.

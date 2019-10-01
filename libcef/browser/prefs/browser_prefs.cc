@@ -25,18 +25,16 @@
 #include "chrome/browser/prefs/chrome_command_line_pref_store.h"
 #include "chrome/browser/renderer_host/pepper/device_id_fetcher.h"
 #include "chrome/browser/ssl/ssl_config_service_manager.h"
-#include "chrome/browser/supervised_user/supervised_user_pref_store.h"
-#include "chrome/browser/supervised_user/supervised_user_settings_service.h"
-#include "chrome/browser/supervised_user/supervised_user_settings_service_factory.h"
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/ui/webui/print_preview/sticky_settings.h"
+#include "chrome/common/buildflags.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/grit/locale_settings.h"
 #include "components/certificate_transparency/pref_names.h"
 #include "components/content_settings/core/browser/cookie_settings.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
-#include "components/google/core/browser/google_url_tracker.h"
+#include "components/flags_ui/pref_service_flags_storage.h"
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "components/language/core/browser/language_prefs.h"
 #include "components/language/core/browser/pref_names.h"
@@ -59,6 +57,12 @@
 
 #if defined(OS_MACOSX)
 #include "components/os_crypt/os_crypt.h"
+#endif
+
+#if BUILDFLAG(ENABLE_SUPERVISED_USERS)
+#include "chrome/browser/supervised_user/supervised_user_pref_store.h"
+#include "chrome/browser/supervised_user/supervised_user_settings_service.h"
+#include "chrome/browser/supervised_user/supervised_user_settings_service_factory.h"
 #endif
 
 namespace browser_prefs {
@@ -104,8 +108,9 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     // Get sequenced task runner for making sure that file operations are
     // executed in expected order (what was previously assured by the FILE
     // thread).
-    sequenced_task_runner = base::CreateSequencedTaskRunnerWithTraits(
-        {base::MayBlock(), base::TaskShutdownBehavior::BLOCK_SHUTDOWN});
+    sequenced_task_runner = base::CreateSequencedTaskRunner(
+        {base::ThreadPool(), base::MayBlock(),
+         base::TaskShutdownBehavior::BLOCK_SHUTDOWN});
   }
 
   // Used to store user preferences.
@@ -170,6 +175,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   // Default preferences.
   CefMediaCaptureDevicesDispatcher::RegisterPrefs(registry.get());
   certificate_transparency::prefs::RegisterPrefs(registry.get());
+  flags_ui::PrefServiceFlagsStorage::RegisterPrefs(registry.get());
   PluginInfoHostImpl::RegisterUserPrefs(registry.get());
   PrefProxyConfigTrackerImpl::RegisterPrefs(registry.get());
   SSLConfigServiceManager::RegisterPrefs(registry.get());
@@ -215,7 +221,6 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     chrome_browser_net::RegisterPredictionOptionsProfilePrefs(registry.get());
     DeviceIDFetcher::RegisterProfilePrefs(registry.get());
     extensions::ExtensionPrefs::RegisterProfilePrefs(registry.get());
-    GoogleURLTracker::RegisterProfilePrefs(registry.get());
     HostContentSettingsMap::RegisterProfilePrefs(registry.get());
     language::LanguagePrefs::RegisterProfilePrefs(registry.get());
     ProfileNetworkContextService::RegisterProfilePrefs(registry.get());

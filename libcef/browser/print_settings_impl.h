@@ -15,14 +15,12 @@
 class CefPrintSettingsImpl
     : public CefValueBase<CefPrintSettings, printing::PrintSettings> {
  public:
-  CefPrintSettingsImpl(printing::PrintSettings* value,
-                       bool will_delete,
+  CefPrintSettingsImpl(std::unique_ptr<printing::PrintSettings> settings,
                        bool read_only);
 
   // CefPrintSettings methods.
   bool IsValid() override;
   bool IsReadOnly() override;
-  CefRefPtr<CefPrintSettings> Copy() override;
   void SetOrientation(bool landscape) override;
   bool IsLandscape() override;
   void SetPrinterPrintableArea(const CefSize& physical_size_device_units,
@@ -46,8 +44,10 @@ class CefPrintSettingsImpl
   void SetDuplexMode(DuplexMode mode) override;
   DuplexMode GetDuplexMode() override;
 
-  // Must hold the controller lock while using this value.
-  const printing::PrintSettings& print_settings() { return const_value(); }
+  std::unique_ptr<printing::PrintSettings> TakeOwnership() WARN_UNUSED_RESULT;
+
+ private:
+  std::unique_ptr<printing::PrintSettings> settings_;
 
   DISALLOW_COPY_AND_ASSIGN(CefPrintSettingsImpl);
 };

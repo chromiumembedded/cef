@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d75ab7306d1e7f3633403c15b38edda291a2077e$
+// $hash=1f856cdb27fed708d944b6188812799e9e27c67d$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -712,16 +712,6 @@ CEF_EXPORT int cef_is_cert_status_error(cef_cert_status_t status) {
 
   // Execute
   bool _retval = CefIsCertStatusError(status);
-
-  // Return type: bool
-  return _retval;
-}
-
-CEF_EXPORT int cef_is_cert_status_minor_error(cef_cert_status_t status) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  bool _retval = CefIsCertStatusMinorError(status);
 
   // Return type: bool
   return _retval;

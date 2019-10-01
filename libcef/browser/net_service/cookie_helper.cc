@@ -35,26 +35,26 @@ network::mojom::CookieManager* GetCookieManager(
 
 void ContinueWithLoadedCookies(const AllowCookieCallback& allow_cookie_callback,
                                DoneCookieCallback done_callback,
-                               const net::CookieList& cookies) {
+                               const net::CookieStatusList& cookies) {
   CEF_REQUIRE_IOT();
   net::CookieList allowed_cookies;
-  for (const auto& cookie : cookies) {
+  for (const auto& status : cookies) {
     bool allow = false;
-    allow_cookie_callback.Run(cookie, &allow);
+    allow_cookie_callback.Run(status.cookie, &allow);
     if (allow)
-      allowed_cookies.push_back(cookie);
+      allowed_cookies.push_back(status.cookie);
   }
   std::move(done_callback).Run(cookies.size(), std::move(allowed_cookies));
 }
 
 void GetCookieListCallback(const AllowCookieCallback& allow_cookie_callback,
                            DoneCookieCallback done_callback,
-                           const net::CookieList& cookies,
+                           const net::CookieStatusList& included_cookies,
                            const net::CookieStatusList&) {
   CEF_REQUIRE_UIT();
   CEF_POST_TASK(CEF_IOT,
                 base::BindOnce(ContinueWithLoadedCookies, allow_cookie_callback,
-                               std::move(done_callback), cookies));
+                               std::move(done_callback), included_cookies));
 }
 
 void LoadCookiesOnUIThread(content::BrowserContext* browser_context,
@@ -87,7 +87,7 @@ void SetCanonicalCookieCallback(
     net::CanonicalCookie::CookieInclusionStatus status) {
   CEF_REQUIRE_UIT();
   progress->num_cookie_lines_left_--;
-  if (status == net::CanonicalCookie::CookieInclusionStatus::INCLUDE) {
+  if (status.IsInclude()) {
     progress->allowed_cookies_.push_back(cookie);
   }
 
@@ -133,7 +133,8 @@ void SaveCookiesOnUIThread(content::BrowserContext* browser_context,
 
   SetCanonicalCookieCallback(
       progress, net::CanonicalCookie(),
-      net::CanonicalCookie::CookieInclusionStatus::EXCLUDE_UNKNOWN_ERROR);
+      net::CanonicalCookie::CookieInclusionStatus(
+          net::CanonicalCookie::CookieInclusionStatus::EXCLUDE_UNKNOWN_ERROR));
 }
 
 }  // namespace
@@ -145,7 +146,7 @@ void LoadCookies(content::BrowserContext* browser_context,
   CEF_REQUIRE_IOT();
 
   if ((request.load_flags & net::LOAD_DO_NOT_SEND_COOKIES) ||
-      !request.allow_credentials) {
+      request.credentials_mode == network::mojom::CredentialsMode::kOmit) {
     // Continue immediately without loading cookies.
     std::move(done_callback).Run(0, {});
     return;
@@ -172,7 +173,7 @@ void SaveCookies(content::BrowserContext* browser_context,
                  DoneCookieCallback done_callback) {
   CEF_REQUIRE_IOT();
 
-  if (!request.allow_credentials ||
+  if (request.credentials_mode == network::mojom::CredentialsMode::kOmit ||
       !head.headers->HasHeader(net_service::kHTTPSetCookieHeaderName)) {
     // Continue immediately without saving cookies.
     std::move(done_callback).Run(0, {});
@@ -187,7 +188,6 @@ void SaveCookies(content::BrowserContext* browser_context,
 
   net::CookieOptions options;
   options.set_include_httponly();
-  options.set_server_time(response_date);
   options.set_same_site_cookie_context(
       net::cookie_util::ComputeSameSiteContextForRequest(
           request.method, request.url, request.site_for_cookies,
@@ -204,10 +204,9 @@ void SaveCookies(content::BrowserContext* browser_context,
 
     net::CanonicalCookie::CookieInclusionStatus returned_status;
     std::unique_ptr<net::CanonicalCookie> cookie = net::CanonicalCookie::Create(
-        request.url, cookie_string, base::Time::Now(), options,
-        &returned_status);
-    if (returned_status !=
-        net::CanonicalCookie::CookieInclusionStatus::INCLUDE) {
+        request.url, cookie_string, base::Time::Now(),
+        base::make_optional(response_date), &returned_status);
+    if (!returned_status.IsInclude()) {
       continue;
     }
 

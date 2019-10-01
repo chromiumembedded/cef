@@ -29,6 +29,7 @@
 #include "content/browser/bad_message.h"
 #include "content/browser/compositor/image_transport_factory.h"
 #include "content/browser/frame_host/render_widget_host_view_guest.h"
+#include "content/browser/gpu/gpu_data_manager_impl.h"
 #include "content/browser/renderer_host/cursor_manager.h"
 #include "content/browser/renderer_host/delegated_frame_host.h"
 #include "content/browser/renderer_host/dip_util.h"
@@ -247,7 +248,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     Show();
   }
 
-  if (!factory->IsGpuCompositingDisabled()) {
+  if (!content::GpuDataManagerImpl::GetInstance()->IsGpuCompositingDisabled()) {
     video_consumer_.reset(new CefVideoConsumerOSR(this));
     video_consumer_->SetActive(true);
     video_consumer_->SetFrameRate(
@@ -258,8 +259,10 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
   // Marking the DelegatedFrameHost as removed from the window hierarchy is
   // necessary to remove all connections to its old ui::Compositor.
-  if (is_showing_)
-    delegated_frame_host_->WasHidden();
+  if (is_showing_) {
+    delegated_frame_host_->WasHidden(
+        content::DelegatedFrameHost::HiddenCause::kOther);
+  }
   delegated_frame_host_->DetachFromCompositor();
 
   delegated_frame_host_.reset(nullptr);
@@ -347,7 +350,8 @@ void CefRenderWidgetHostViewOSR::Hide() {
   if (render_widget_host_)
     render_widget_host_->WasHidden();
 
-  GetDelegatedFrameHost()->WasHidden();
+  GetDelegatedFrameHost()->WasHidden(
+      content::DelegatedFrameHost::HiddenCause::kOther);
   GetDelegatedFrameHost()->DetachFromCompositor();
 }
 
@@ -395,7 +399,7 @@ base::Optional<SkColor> CefRenderWidgetHostViewOSR::GetBackgroundColor() {
 
 void CefRenderWidgetHostViewOSR::UpdateBackgroundColor() {}
 
-bool CefRenderWidgetHostViewOSR::LockMouse() {
+bool CefRenderWidgetHostViewOSR::LockMouse(bool request_unadjusted_movement) {
   return false;
 }
 
@@ -444,10 +448,6 @@ void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
     const viz::LocalSurfaceId& local_surface_id,
     viz::CompositorFrame frame,
     base::Optional<viz::HitTestRegionList> hit_test_region_list) {
-  NOTREACHED();
-}
-
-void CefRenderWidgetHostViewOSR::ClearCompositorFrame() {
   NOTREACHED();
 }
 

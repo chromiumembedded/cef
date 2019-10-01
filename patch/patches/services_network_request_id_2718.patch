@@ -1,8 +1,8 @@
-diff --git content/browser/network_service_client.cc content/browser/network_service_client.cc
-index b89e764feb03..0bb056852db2 100644
---- content/browser/network_service_client.cc
-+++ content/browser/network_service_client.cc
-@@ -207,10 +207,6 @@ class LoginHandlerDelegate {
+diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
+index c626801963af..9d05b869101b 100644
+--- content/browser/storage_partition_impl.cc
++++ content/browser/storage_partition_impl.cc
+@@ -583,10 +583,6 @@ class LoginHandlerDelegate {
      }
  
      WebContents* web_contents = web_contents_getter_.Run();
@@ -13,20 +13,21 @@ index b89e764feb03..0bb056852db2 100644
  
      // WeakPtr is not strictly necessary here due to OnRequestCancelled.
      creating_login_delegate_ = true;
-@@ -332,10 +328,7 @@ void OnAuthRequiredContinuation(
+@@ -643,12 +639,6 @@ void OnAuthRequiredContinuation(
      web_contents_getter =
          base::BindRepeating(GetWebContents, process_id, routing_id);
    }
 -  if (!web_contents_getter.Run()) {
--    std::move(auth_challenge_responder)->OnAuthCredentials(base::nullopt);
+-    mojo::Remote<network::mojom::AuthChallengeResponder>
+-        auth_challenge_responder_remote(std::move(auth_challenge_responder));
+-    auth_challenge_responder_remote->OnAuthCredentials(base::nullopt);
 -    return;
 -  }
-+
    new LoginHandlerDelegate(std::move(auth_challenge_responder),
                             std::move(web_contents_getter), auth_info,
                             is_request_for_main_frame, process_id, routing_id,
 diff --git services/network/public/cpp/simple_url_loader.cc services/network/public/cpp/simple_url_loader.cc
-index b575b0bb3a35..a04e74d5896f 100644
+index 1ab5688d10d6..7e8d8242a06f 100644
 --- services/network/public/cpp/simple_url_loader.cc
 +++ services/network/public/cpp/simple_url_loader.cc
 @@ -227,6 +227,7 @@ class SimpleURLLoaderImpl : public SimpleURLLoader,
@@ -69,10 +70,10 @@ index b575b0bb3a35..a04e74d5896f 100644
        net::MutableNetworkTrafficAnnotationTag(annotation_tag_));
  
 diff --git services/network/public/cpp/simple_url_loader.h services/network/public/cpp/simple_url_loader.h
-index f81788d25fda..ba8948be5ebf 100644
+index 255cb1830c5c..bd89d66d2520 100644
 --- services/network/public/cpp/simple_url_loader.h
 +++ services/network/public/cpp/simple_url_loader.h
-@@ -324,6 +324,9 @@ class COMPONENT_EXPORT(NETWORK_CPP) SimpleURLLoader {
+@@ -327,6 +327,9 @@ class COMPONENT_EXPORT(NETWORK_CPP) SimpleURLLoader {
    // as much time as it wants.
    virtual void SetTimeoutDuration(base::TimeDelta timeout_duration) = 0;
  

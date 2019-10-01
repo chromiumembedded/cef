@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=32eea715f2566d1b6a4e3d263e35400cf7c53869$
+// $hash=b12081eab77cac5baf1134e9fba8a23c6aef770a$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -664,17 +664,6 @@ CEF_GLOBAL bool CefIsCertStatusError(cef_cert_status_t status) {
 
   // Execute
   int _retval = cef_is_cert_status_error(status);
-
-  // Return type: bool
-  return _retval ? true : false;
-}
-
-NO_SANITIZE("cfi-icall")
-CEF_GLOBAL bool CefIsCertStatusMinorError(cef_cert_status_t status) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  int _retval = cef_is_cert_status_minor_error(status);
 
   // Return type: bool
   return _retval ? true : false;
