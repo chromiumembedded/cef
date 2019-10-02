@@ -1063,8 +1063,8 @@ if use_gn:
       sys.exit()
 
   if options.arm64build:
-    if platform != 'linux':
-      print 'The ARM64 build option is only supported on Linux.'
+    if platform != 'linux' and platform != 'windows':
+      print 'The ARM64 build option is only supported on Linux and Windows.'
       sys.exit()
 
     if not branch_is_newer_than_2840:

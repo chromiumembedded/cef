@@ -38,7 +38,8 @@
 // In the x64 architecture in Windows, __fastcall, __stdcall, etc, are all
 // the same as __cdecl which would turn the following specializations into
 // multiple definitions.
-#if !defined(ARCH_CPU_X86_64)
+#if defined(ARCH_CPU_X86_FAMILY)
+#if defined(ARCH_CPU_32_BITS)
 
 namespace base {
 namespace cef_internal {
@@ -391,6 +392,7 @@ class RunnableAdapter<R(__fastcall*)(A1, A2, A3, A4, A5, A6, A7)> {
 }  // namespace cef_internal
 }  // namespace base
 
-#endif  // !defined(ARCH_CPU_X86_64)
+#endif  // defined(ARCH_CPU_32_BITS)
+#endif  // defined(ARCH_CPU_X86_FAMILY)
 
 #endif  // CEF_INCLUDE_BASE_INTERNAL_CEF_BIND_INTERNAL_WIN_H_

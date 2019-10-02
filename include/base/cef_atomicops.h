@@ -178,6 +178,8 @@ Atomic64 Release_Load(volatile const Atomic64* ptr);
 // Include our platform specific implementation.
 #if defined(OS_WIN) && defined(COMPILER_MSVC) && defined(ARCH_CPU_X86_FAMILY)
 #include "include/base/internal/cef_atomicops_x86_msvc.h"
+#elif defined(OS_WIN) && defined(__ARM_ARCH_ISA_A64)
+#include "include/base/internal/cef_atomicops_arm64_msvc.h"
 #elif defined(OS_MACOSX)
 #include "include/base/internal/cef_atomicops_mac.h"
 #elif defined(COMPILER_GCC) && defined(ARCH_CPU_X86_FAMILY)

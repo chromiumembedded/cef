@@ -316,7 +316,8 @@ def ValidateArgs(args):
   if platform == 'macosx':
     assert target_cpu == 'x64', 'target_cpu must be "x64"'
   elif platform == 'windows':
-    assert target_cpu in ('x86', 'x64'), 'target_cpu must be "x86" or "x64"'
+    assert target_cpu in (
+        'x86', 'x64', 'arm64'), 'target_cpu must be "x86", "x64" or "arm64"'
   elif platform == 'linux':
     assert target_cpu in (
         'x86', 'x64', 'arm',
@@ -521,7 +522,7 @@ def GetAllPlatformConfigs(build_args):
     else:
       supported_cpus = ['x64']
   elif platform == 'windows':
-    supported_cpus = ['x86', 'x64']
+    supported_cpus = ['x86', 'x64', 'arm64']
   elif platform == 'macosx':
     supported_cpus = ['x64']
   else:

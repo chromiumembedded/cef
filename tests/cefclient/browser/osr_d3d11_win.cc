@@ -18,6 +18,9 @@
 
 #include <iomanip>  // For std::setw.
 
+#if OS_WIN && ARCH_CPU_ARM_FAMILY
+#define __prefetch(x) x
+#endif
 #include <d3dcompiler.h>
 #include <directxmath.h>
 

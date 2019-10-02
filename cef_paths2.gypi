@@ -71,6 +71,7 @@
       'include/wrapper/cef_library_loader.h',
     ],
     'includes_win': [
+      'include/base/internal/cef_atomicops_arm64_msvc.h',
       'include/base/internal/cef_atomicops_x86_msvc.h',
       'include/base/internal/cef_bind_internal_win.h',
       'include/cef_sandbox_win.h',
