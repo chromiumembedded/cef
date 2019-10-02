@@ -14,6 +14,7 @@
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
 
+#include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/osr/host_display_client_osr.h"
 #include "libcef/browser/osr/motion_event_osr.h"
 
@@ -62,7 +63,6 @@ class BackingStore;
 class CursorManager;
 }  // namespace content
 
-class CefBrowserHostImpl;
 class CefCopyFrameGenerator;
 class CefSoftwareOutputDeviceOSR;
 class CefVideoConsumerOSR;

@@ -696,6 +696,8 @@ static_library("libcef_static") {
     "//chrome/browser/local_discovery/service_discovery_client_impl.h",
     "//chrome/browser/local_discovery/service_discovery_client.cc",
     "//chrome/browser/local_discovery/service_discovery_client.h",
+    "//chrome/browser/local_discovery/service_discovery_client_mdns.cc",
+    "//chrome/browser/local_discovery/service_discovery_client_mdns.h",
     "//chrome/browser/local_discovery/service_discovery_shared_client.cc",
     "//chrome/browser/local_discovery/service_discovery_shared_client.h",    
   ]
@@ -1022,8 +1024,6 @@ static_library("libcef_static") {
 
     if (is_linux && !use_x11) {
       sources += [
-        "//ui/aura/test/mus/window_tree_client_test_api.h",
-        "//ui/aura/test/mus/window_tree_client_test_api.cc",
         "//ui/aura/test/ui_controls_factory_ozone.cc",
         "//ui/events/test/events_test_utils.cc"
       ]
