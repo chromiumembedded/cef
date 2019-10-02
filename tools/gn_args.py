@@ -522,7 +522,9 @@ def GetAllPlatformConfigs(build_args):
     else:
       supported_cpus = ['x64']
   elif platform == 'windows':
-    supported_cpus = ['x86', 'x64', 'arm64']
+    supported_cpus = ['x86', 'x64']
+    if os.environ.get('CEF_ENABLE_ARM64', '') == '1':
+      supported_cpus.append('arm64')
   elif platform == 'macosx':
     supported_cpus = ['x64']
   else:
