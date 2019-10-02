@@ -56,10 +56,10 @@ index 982fbe8d3f0d..e757be4688f1 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index ef8aeda56458..5b7f057311b9 100644
+index 9ee69df7d210..00ad4b3be81a 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
-@@ -136,22 +136,25 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
+@@ -142,22 +142,25 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
        # variable.
        if 'VSINSTALLDIR' in os.environ:
          del os.environ['VSINSTALLDIR']

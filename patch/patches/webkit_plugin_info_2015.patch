@@ -44,7 +44,7 @@ index 80a9ec9bc75b..13cbb056cdfa 100644
                                                          .Top()
                                                          .GetSecurityContext()
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index 52f56794f2ed..9bbef168e262 100644
+index 6e2fc4a7dd2f..eba455341d32 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
 @@ -1236,7 +1236,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {

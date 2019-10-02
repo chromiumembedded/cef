@@ -1,5 +1,5 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index dd1363a6b295..b69c7895c0e3 100644
+index 30e6e9de1c8d..527c77fa51fe 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
 @@ -189,6 +189,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
@@ -11,7 +11,7 @@ index dd1363a6b295..b69c7895c0e3 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git content/public/common/web_preferences.cc content/public/common/web_preferences.cc
-index 114b0f7d04cd..adce9ab8c3b5 100644
+index 8c04e3b6d53d..8ba0b3f94ca9 100644
 --- content/public/common/web_preferences.cc
 +++ content/public/common/web_preferences.cc
 @@ -167,6 +167,7 @@ WebPreferences::WebPreferences()
@@ -23,7 +23,7 @@ index 114b0f7d04cd..adce9ab8c3b5 100644
        record_whole_document(false),
        cookie_enabled(true),
 diff --git content/public/common/web_preferences.h content/public/common/web_preferences.h
-index e47b250f52bd..dfa18577d402 100644
+index 7079cc86dca6..6176e50261ea 100644
 --- content/public/common/web_preferences.h
 +++ content/public/common/web_preferences.h
 @@ -184,6 +184,7 @@ struct CONTENT_EXPORT WebPreferences {
@@ -35,10 +35,10 @@ index e47b250f52bd..dfa18577d402 100644
    bool record_whole_document;
  
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index f780c653d6e5..4b07220bac8c 100644
+index 23d8e4994252..b1a7ecf56e19 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -998,6 +998,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+@@ -1000,6 +1000,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
  #endif
  
    WebRuntimeFeatures::EnableTranslateService(prefs.translate_service_available);

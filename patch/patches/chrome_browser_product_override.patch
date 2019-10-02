@@ -1,5 +1,5 @@
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index b1d5ac049933..cfb78bb97597 100644
+index 65decf0c243a..65fa0fca385c 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -1013,10 +1013,6 @@ void LaunchURL(const GURL& url,

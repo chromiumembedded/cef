@@ -11,7 +11,7 @@ index db7d7c87686a..a7c6beb6a6f1 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 58e4fbcf6ee2..51f2645e6154 100644
+index b286951e399b..b8997bcbf861 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -219,8 +219,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {

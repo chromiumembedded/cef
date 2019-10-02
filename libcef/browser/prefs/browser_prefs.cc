@@ -179,6 +179,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   flags_ui::PrefServiceFlagsStorage::RegisterPrefs(registry.get());
   PluginInfoHostImpl::RegisterUserPrefs(registry.get());
   PrefProxyConfigTrackerImpl::RegisterPrefs(registry.get());
+  ProfileNetworkContextService::RegisterLocalStatePrefs(registry.get());
   SSLConfigServiceManager::RegisterPrefs(registry.get());
   update_client::RegisterPrefs(registry.get());
 

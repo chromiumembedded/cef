@@ -229,10 +229,10 @@ index 632ae86c6fd6..55b749ec1242 100644
                            const std::vector<WebPluginInfo>& all_plugins);
  
 diff --git content/common/frame_messages.h content/common/frame_messages.h
-index 318e199de304..2baed51cc931 100644
+index c67d0cc01562..bf318a8dd294 100644
 --- content/common/frame_messages.h
 +++ content/common/frame_messages.h
-@@ -1146,9 +1146,10 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
+@@ -1147,9 +1147,10 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
  // type. If there is no matching plugin, |found| is false.
  // |actual_mime_type| is the actual mime type supported by the
  // found plugin.

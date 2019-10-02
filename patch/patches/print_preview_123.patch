@@ -262,7 +262,7 @@ index 06f5799efbb9..6119691b2700 100644
    Profile* const profile_;
    StickySettings* const sticky_settings_;
 diff --git chrome/browser/ui/webui/print_preview/print_preview_handler.cc chrome/browser/ui/webui/print_preview/print_preview_handler.cc
-index 0a6c4d4de3aa..a22377a02343 100644
+index 977fa0091ffb..84644e143866 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 @@ -26,6 +26,7 @@

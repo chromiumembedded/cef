@@ -197,7 +197,7 @@ index da401532ffbe..e878204e71db 100644
  
  }  // namespace views
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 0eedc2665313..1bbc2abc7514 100644
+index dc6acb1c1600..be0ad74e3fa6 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -128,8 +128,12 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {

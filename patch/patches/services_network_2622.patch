@@ -1,16 +1,16 @@
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index 35302d90a73f..73424c925e13 100644
+index a7c5ee5f7542..f79ba8454f95 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
-@@ -14,6 +14,7 @@
- #include "base/logging.h"
+@@ -16,6 +16,7 @@
  #include "base/metrics/histogram_macros.h"
+ #include "base/strings/string_split.h"
  #include "base/task/post_task.h"
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -463,9 +464,22 @@ ProfileNetworkContextService::CreateNetworkContextParams(
+@@ -479,9 +480,22 @@ ProfileNetworkContextService::CreateNetworkContextParams(
    network_context_params->cookie_manager_params =
        CreateCookieManagerParams(profile_, *cookie_settings_);
  
@@ -33,7 +33,7 @@ index 35302d90a73f..73424c925e13 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -478,6 +492,7 @@ ProfileNetworkContextService::CreateNetworkContextParams(
+@@ -494,6 +508,7 @@ ProfileNetworkContextService::CreateNetworkContextParams(
          base_cache_path.Append(chrome::kCacheDirname);
      network_context_params->http_cache_max_size =
          local_state->GetInteger(prefs::kDiskCacheSize);
@@ -139,10 +139,10 @@ index c0f105aec142..6afd5f9e25fc 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 8e848688225a..cbbf5de461d6 100644
+index 74cb411eb848..0a5b4ed5e91c 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -1762,6 +1762,7 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext() {
+@@ -1765,6 +1765,7 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext() {
    }
  
    scoped_refptr<SessionCleanupCookieStore> session_cleanup_cookie_store;
@@ -150,7 +150,7 @@ index 8e848688225a..cbbf5de461d6 100644
    if (params_->cookie_path) {
      scoped_refptr<base::SequencedTaskRunner> client_task_runner =
          base::ThreadTaskRunnerHandle::Get();
-@@ -1789,18 +1790,27 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext() {
+@@ -1792,18 +1793,27 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext() {
      session_cleanup_cookie_store =
          base::MakeRefCounted<SessionCleanupCookieStore>(sqlite_store);
  
@@ -182,7 +182,7 @@ index 8e848688225a..cbbf5de461d6 100644
        std::make_unique<net::StaticHttpUserAgentSettings>(
            params_->accept_language, params_->user_agent);
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 873bce449b63..3189e268d950 100644
+index 05418052345a..39877a966de9 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
 @@ -210,6 +210,9 @@ struct NetworkContextParams {
