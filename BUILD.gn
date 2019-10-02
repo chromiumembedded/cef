@@ -1535,6 +1535,7 @@ make_pack_header("strings") {
     "$root_gen_dir/components/strings/grit/components_strings.h",
     "$root_gen_dir/content/app/strings/grit/content_strings.h",
     "$root_gen_dir/extensions/strings/grit/extensions_strings.h",
+    "$root_gen_dir/services/strings/grit/services_strings.h",
     "$root_gen_dir/ui/strings/grit/ui_strings.h",
   ]
 }
