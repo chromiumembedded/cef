@@ -852,17 +852,6 @@ void CefContentBrowserClient::AdjustUtilityServiceProcessCommandLine(
 #endif
 }
 
-bool CefContentBrowserClient::ShouldEnableStrictSiteIsolation() {
-  // TODO(cef): Enable this mode once we figure out why it breaks ceftests that
-  // rely on command-line arguments passed to the renderer process. It looks
-  // like the first renderer process is getting all of the callbacks despite
-  // multiple renderer processes being launched.
-  // For example, V8RendererTest::OnBrowserCreated appears to get the same
-  // kV8TestCmdArg value twice when running with:
-  // --gtest_filter=V8Test.ContextEvalCspBypassUnsafeEval:V8Test.ContextEntered
-  return false;
-}
-
 std::string CefContentBrowserClient::GetApplicationLocale() {
   return g_browser_process->GetApplicationLocale();
 }

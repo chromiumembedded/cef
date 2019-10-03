@@ -163,6 +163,7 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
   create_params.settings = new_settings;
   create_params.devtools_opener = inspected_browser;
   create_params.request_context = inspected_browser->GetRequestContext();
+  create_params.extra_info = inspected_browser->browser_info()->extra_info();
 
   CefRefPtr<CefBrowserHostImpl> frontend_browser =
       CefBrowserHostImpl::Create(create_params);

@@ -35,27 +35,7 @@ enum NetNotifyTestType {
 const char kNetNotifyOrigin1[] = "http://tests-netnotify1/";
 const char kNetNotifyOrigin2[] = "http://tests-netnotify2/";
 const char kNetNotifyMsg[] = "RequestHandlerTest.NetNotify";
-
-bool g_net_notify_test = false;
-
-// Browser side.
-class NetNotifyBrowserTest : public ClientAppBrowser::Delegate {
- public:
-  NetNotifyBrowserTest() {}
-
-  void OnBeforeChildProcessLaunch(
-      CefRefPtr<ClientAppBrowser> app,
-      CefRefPtr<CefCommandLine> command_line) override {
-    if (!g_net_notify_test)
-      return;
-
-    // Indicate to the render process that the test should be run.
-    command_line->AppendSwitchWithValue("test", kNetNotifyMsg);
-  }
-
- protected:
-  IMPLEMENT_REFCOUNTING(NetNotifyBrowserTest);
-};
+const char kNetNotifyTestCmdKey[] = "rh-net-notify-test";
 
 // Browser side.
 class NetNotifyTestHandler : public TestHandler {
@@ -98,8 +78,11 @@ class NetNotifyTestHandler : public TestHandler {
         CefRequestContext::CreateContext(settings, NULL);
     cookie_manager_ = request_context->GetCookieManager(NULL);
 
+    CefRefPtr<CefDictionaryValue> extra_info = CefDictionaryValue::Create();
+    extra_info->SetBool(kNetNotifyTestCmdKey, true);
+
     // Create browser that loads the 1st URL.
-    CreateBrowser(url1_, request_context);
+    CreateBrowser(url1_, request_context, extra_info);
   }
 
   void RunTest() override {
@@ -191,6 +174,9 @@ class NetNotifyTestHandler : public TestHandler {
         // render process to be created. We therefore need some information in
         // the request itself to tell us that the navigation has already been
         // delayed.
+        // Navigating cross-origin from the renderer process will cause the
+        // process to be terminated with "bad IPC message" reason
+        // INVALID_INITIATOR_ORIGIN (213).
         url += "&delayed=true";
 
         if (test_type_ == NNTT_DELAYED_RENDERER) {
@@ -258,6 +244,19 @@ class NetNotifyTestHandler : public TestHandler {
     return false;
   }
 
+  void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
+                                 TerminationStatus status) override {
+    got_process_terminated_ct_++;
+
+    // Termination is expected for cross-origin requests initiated from the
+    // renderer process.
+    if (!(test_type_ == NNTT_DELAYED_RENDERER && !same_origin_)) {
+      TestHandler::OnRenderProcessTerminated(browser, status);
+    }
+
+    FinishTest();
+  }
+
  protected:
   void SetupCompleteIfDone() {
     if (got_load_end1_ && got_process_message1_)
@@ -316,17 +315,33 @@ class NetNotifyTestHandler : public TestHandler {
     EXPECT_TRUE(got_cookie1_) << " browser " << browser_id;
     EXPECT_TRUE(got_process_message1_) << " browser " << browser_id;
     EXPECT_TRUE(got_before_browse2_) << " browser " << browser_id;
-    EXPECT_TRUE(got_load_end2_) << " browser " << browser_id;
-    EXPECT_TRUE(got_before_resource_load2_) << " browser " << browser_id;
-    EXPECT_TRUE(got_get_resource_handler2_) << " browser " << browser_id;
-    EXPECT_TRUE(got_resource_load_complete2_) << " browser " << browser_id;
-    EXPECT_TRUE(got_cookie2_) << " browser " << browser_id;
-    EXPECT_TRUE(got_process_message2_) << " browser " << browser_id;
+
+    if (test_type_ == NNTT_DELAYED_RENDERER && !same_origin_) {
+      EXPECT_EQ(1, got_process_terminated_ct_) << " browser " << browser_id;
+      EXPECT_FALSE(got_load_end2_) << " browser " << browser_id;
+      EXPECT_FALSE(got_before_resource_load2_) << " browser " << browser_id;
+      EXPECT_FALSE(got_get_resource_handler2_) << " browser " << browser_id;
+      EXPECT_FALSE(got_resource_load_complete2_) << " browser " << browser_id;
+      EXPECT_FALSE(got_cookie2_) << " browser " << browser_id;
+      EXPECT_FALSE(got_process_message2_) << " browser " << browser_id;
+    } else {
+      EXPECT_EQ(0, got_process_terminated_ct_) << " browser " << browser_id;
+      EXPECT_TRUE(got_load_end2_) << " browser " << browser_id;
+      EXPECT_TRUE(got_before_resource_load2_) << " browser " << browser_id;
+      EXPECT_TRUE(got_get_resource_handler2_) << " browser " << browser_id;
+      EXPECT_TRUE(got_resource_load_complete2_) << " browser " << browser_id;
+      EXPECT_TRUE(got_cookie2_) << " browser " << browser_id;
+      EXPECT_TRUE(got_process_message2_) << " browser " << browser_id;
+    }
 
     if (test_type_ == NNTT_DELAYED_RENDERER ||
         test_type_ == NNTT_DELAYED_BROWSER) {
       EXPECT_TRUE(got_before_browse2_will_delay_) << " browser " << browser_id;
-      EXPECT_TRUE(got_before_browse2_delayed_) << " browser " << browser_id;
+      if (test_type_ == NNTT_DELAYED_RENDERER && !same_origin_) {
+        EXPECT_FALSE(got_before_browse2_delayed_) << " browser " << browser_id;
+      } else {
+        EXPECT_TRUE(got_before_browse2_delayed_) << " browser " << browser_id;
+      }
     } else {
       EXPECT_FALSE(got_before_browse2_will_delay_) << " browser " << browser_id;
       EXPECT_FALSE(got_before_browse2_delayed_) << " browser " << browser_id;
@@ -360,6 +375,7 @@ class NetNotifyTestHandler : public TestHandler {
   TrackCallback got_process_message2_;
   TrackCallback got_before_browse2_will_delay_;
   TrackCallback got_before_browse2_delayed_;
+  int got_process_terminated_ct_ = 0;
 
   int64 response_length1_;
   int64 response_length2_;
@@ -373,18 +389,10 @@ class NetNotifyRendererTest : public ClientAppRenderer::Delegate,
  public:
   NetNotifyRendererTest() : run_test_(false) {}
 
-  void OnRenderThreadCreated(CefRefPtr<ClientAppRenderer> app,
-                             CefRefPtr<CefListValue> extra_info) override {
-    if (!g_net_notify_test) {
-      // Check that the test should be run.
-      CefRefPtr<CefCommandLine> command_line =
-          CefCommandLine::GetGlobalCommandLine();
-      const std::string& test = command_line->GetSwitchValue("test");
-      if (test != kNetNotifyMsg)
-        return;
-    }
-
-    run_test_ = true;
+  void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
+                        CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefDictionaryValue> extra_info) override {
+    run_test_ = extra_info->HasKey(kNetNotifyTestCmdKey);
   }
 
   CefRefPtr<CefLoadHandler> GetLoadHandler(
@@ -443,8 +451,6 @@ class NetNotifyRendererTest : public ClientAppRenderer::Delegate,
 void RunNetNotifyTest(NetNotifyTestType test_type,
                       bool same_origin,
                       size_t count = 3U) {
-  g_net_notify_test = true;
-
   TestHandler::CompletionState completion_state(count);
   TestHandler::Collection collection(&completion_state);
 
@@ -463,8 +469,6 @@ void RunNetNotifyTest(NetNotifyTestType test_type,
     handlers.erase(handlers.begin());
     ReleaseAndWaitForDestructor(handler);
   }
-
-  g_net_notify_test = false;
 }
 
 }  // namespace
@@ -507,13 +511,6 @@ TEST(RequestHandlerTest, NotificationsCrossOriginDelayedRenderer) {
 // the browser process.
 TEST(RequestHandlerTest, NotificationsCrossOriginDelayedBrowser) {
   RunNetNotifyTest(NNTT_DELAYED_BROWSER, false);
-}
-
-// Entry point for creating request handler browser test objects.
-// Called from client_app_delegates.cc.
-void CreateRequestHandlerBrowserTests(
-    ClientAppBrowser::DelegateSet& delegates) {
-  delegates.insert(new NetNotifyBrowserTest);
 }
 
 // Entry point for creating request handler renderer test objects.
