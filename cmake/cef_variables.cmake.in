@@ -332,6 +332,9 @@ if(OS_MACOSX)
     set(CMAKE_OSX_ARCHITECTURES "i386")
   endif()
 
+  # Prevent Xcode 11 from doing automatic codesigning.
+  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
+
   # CEF directory paths.
   set(CEF_BINARY_DIR          "${_CEF_ROOT}/$<CONFIGURATION>")
   set(CEF_BINARY_DIR_DEBUG    "${_CEF_ROOT}/Debug")
