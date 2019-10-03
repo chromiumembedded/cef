@@ -42,7 +42,7 @@ const char kV8HandlerCallOnReleasedContextUrl[] =
 const char kV8HandlerCallOnReleasedContextChildUrl[] =
     "http://tests/V8Test.HandlerCallOnReleasedContext/child.html";
 const char kV8TestMsg[] = "V8Test.Test";
-const char kV8TestCmdArg[] = "v8-test";
+const char kV8TestCmdKey[] = "v8-test";
 const char kV8RunTestMsg[] = "V8Test.RunTest";
 
 enum V8TestMode {
@@ -94,31 +94,6 @@ enum V8TestMode {
   V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS,
   V8TEST_EXTENSION,
   V8TEST_HANDLER_CALL_ON_RELEASED_CONTEXT,
-};
-
-// Set to the current test being run in the browser process. Will always be
-// V8TEST_NONE in the render process.
-V8TestMode g_current_test_mode = V8TEST_NONE;
-
-// Browser side.
-class V8BrowserTest : public ClientAppBrowser::Delegate {
- public:
-  V8BrowserTest() {}
-
-  void OnBeforeChildProcessLaunch(
-      CefRefPtr<ClientAppBrowser> app,
-      CefRefPtr<CefCommandLine> command_line) override {
-    CefString process_type = command_line->GetSwitchValue("type");
-    if (process_type == "renderer") {
-      // Add the current test mode to the render process command line arguments.
-      char buff[33];
-      sprintf(buff, "%d", g_current_test_mode);
-      command_line->AppendSwitchWithValue(kV8TestCmdArg, buff);
-    }
-  }
-
- private:
-  IMPLEMENT_REFCOUNTING(V8BrowserTest);
 };
 
 // Renderer side.
@@ -2500,14 +2475,8 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
   void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefDictionaryValue> extra_info) override {
-    test_mode_ = g_current_test_mode;
-    if (test_mode_ == V8TEST_NONE) {
-      // Retrieve the test mode from the command line.
-      CefRefPtr<CefCommandLine> command_line =
-          CefCommandLine::GetGlobalCommandLine();
-      CefString value = command_line->GetSwitchValue(kV8TestCmdArg);
-      if (!value.empty())
-        test_mode_ = static_cast<V8TestMode>(atoi(value.ToString().c_str()));
+    if (extra_info->HasKey(kV8TestCmdKey)) {
+      test_mode_ = static_cast<V8TestMode>(extra_info->GetInt(kV8TestCmdKey));
     }
     if (test_mode_ > V8TEST_NONE)
       RunStartupTest();
@@ -2843,6 +2812,9 @@ class V8TestHandler : public TestHandler {
       : test_mode_(test_mode), test_url_(test_url) {}
 
   void RunTest() override {
+    CefRefPtr<CefDictionaryValue> extra_info = CefDictionaryValue::Create();
+    extra_info->SetInt(kV8TestCmdKey, test_mode_);
+
     // Nested script tag forces creation of the V8 context.
     if (test_mode_ == V8TEST_CONTEXT_EVAL_CSP_BYPASS_UNSAFE_EVAL ||
         test_mode_ == V8TEST_CONTEXT_EVAL_CSP_BYPASS_SANDBOX) {
@@ -2864,7 +2836,7 @@ class V8TestHandler : public TestHandler {
                       "<p id='result' style='display:none'>CSP_BYPASSED</p>"
                       "</body></html>",
                   "text/html", headers);
-      CreateBrowser(test_url_);
+      CreateBrowser(test_url_, NULL, extra_info);
     } else if (test_mode_ == V8TEST_CONTEXT_ENTERED) {
       AddResource(kV8ContextParentTestUrl,
                   "<html><body>"
@@ -2877,7 +2849,7 @@ class V8TestHandler : public TestHandler {
                   "<html><body>"
                   "<script>var i = 0;</script>CHILD</body></html>",
                   "text/html");
-      CreateBrowser(kV8ContextParentTestUrl);
+      CreateBrowser(kV8ContextParentTestUrl, NULL, extra_info);
     } else if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION ||
                test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
       AddResource(kV8OnUncaughtExceptionTestUrl,
@@ -2889,7 +2861,7 @@ class V8TestHandler : public TestHandler {
                   "</script>\n"
                   "</body></html>\n",
                   "text/html");
-      CreateBrowser(kV8OnUncaughtExceptionTestUrl);
+      CreateBrowser(kV8OnUncaughtExceptionTestUrl, NULL, extra_info);
     } else if (test_mode_ == V8TEST_HANDLER_CALL_ON_RELEASED_CONTEXT) {
       AddResource(kV8HandlerCallOnReleasedContextUrl,
                   "<html><body onload='createFrame()'>"
@@ -2941,14 +2913,14 @@ class V8TestHandler : public TestHandler {
                   "</script>"
                   "</body></html>",
                   "text/html");
-      CreateBrowser(kV8HandlerCallOnReleasedContextUrl);
+      CreateBrowser(kV8HandlerCallOnReleasedContextUrl, NULL, extra_info);
     } else {
       EXPECT_TRUE(test_url_ != NULL);
       AddResource(test_url_,
                   "<html><body>"
                   "<script>var i = 0;</script>TEST</body></html>",
                   "text/html");
-      CreateBrowser(test_url_);
+      CreateBrowser(test_url_, NULL, extra_info);
     }
 
     // Time out the test after a reasonable period of time.
@@ -3034,12 +3006,6 @@ class V8TestHandler : public TestHandler {
 
 }  // namespace
 
-// Entry point for creating V8 browser test objects.
-// Called from client_app_delegates.cc.
-void CreateV8BrowserTests(ClientAppBrowser::DelegateSet& delegates) {
-  delegates.insert(new V8BrowserTest);
-}
-
 // Entry point for creating V8 renderer test objects.
 // Called from client_app_delegates.cc.
 void CreateV8RendererTests(ClientAppRenderer::DelegateSet& delegates) {
@@ -3049,12 +3015,10 @@ void CreateV8RendererTests(ClientAppRenderer::DelegateSet& delegates) {
 // Helpers for defining V8 tests.
 #define V8_TEST_EX(name, test_mode, test_url)                                  \
   TEST(V8Test, name) {                                                         \
-    g_current_test_mode = test_mode;                                           \
     CefRefPtr<V8TestHandler> handler = new V8TestHandler(test_mode, test_url); \
     handler->ExecuteTest();                                                    \
     EXPECT_TRUE(handler->got_message_);                                        \
     EXPECT_TRUE(handler->got_success_);                                        \
-    g_current_test_mode = V8TEST_NONE;                                         \
     ReleaseAndWaitForDestructor(handler);                                      \
   }
 

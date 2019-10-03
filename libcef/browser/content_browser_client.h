@@ -66,7 +66,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   void AdjustUtilityServiceProcessCommandLine(
       const service_manager::Identity& identity,
       base::CommandLine* command_line) override;
-  bool ShouldEnableStrictSiteIsolation() override;
   std::string GetApplicationLocale() override;
   scoped_refptr<network::SharedURLLoaderFactory>
   GetSystemSharedURLLoaderFactory() override;
