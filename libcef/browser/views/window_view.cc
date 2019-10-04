@@ -409,12 +409,10 @@ views::NonClientFrameView* CefWindowView::CreateNonClientFrameView(
     // DesktopNativeWidgetAura::CreateNonClientFrameView() returns
     // NativeFrameView by default. Extend that type.
     return new NativeFrameViewEx(widget, this);
-  } else {
-    // Widget::CreateNonClientFrameView() returns CustomFrameView by default.
-    // Need to extend CustomFrameView on this platform.
-    NOTREACHED() << "Platform does not use NativeFrameView";
   }
 
+  // Use Chromium provided CustomFrameView. In case if we would like to
+  // customize the frame, provide own implementation.
   return nullptr;
 }
 
