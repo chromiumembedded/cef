@@ -11,6 +11,10 @@
 #include "tests/ceftests/thread_helper.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
+#if defined(OS_WIN)
+#include <windows.h>
+#endif
+
 namespace {
 
 // Test timeout in MS.
@@ -24,7 +28,21 @@ const int TestWindowDelegate::kWSize = 400;
 // static
 void TestWindowDelegate::RunTest(CefRefPtr<CefWaitableEvent> event,
                                  const Config& config) {
-  CefWindow::CreateTopLevelWindow(new TestWindowDelegate(event, config));
+#if defined(OS_WIN)
+  RECT rect = {0, 0, config.window_size, config.window_size};
+  if (!config.frameless) {
+    // The size value is for the client area. Calculate the whole window size
+    // based on the default frame window style.
+    AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
+                     false /* has_menu */);
+  }
+  CefSize window_size = CefSize(rect.right - rect.left, rect.bottom - rect.top);
+#else
+  CefSize window_size = CefSize(config.window_size, config.window_size);
+#endif
+
+  CefWindow::CreateTopLevelWindow(
+      new TestWindowDelegate(event, config, window_size));
 }
 
 void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
@@ -62,8 +80,8 @@ void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
     // Client area bounds calculation might have off-by-one errors on Windows
     // due to non-client frame size being calculated internally in pixels and
     // then converted to DIPs. See http://crbug.com/602692.
-    EXPECT_TRUE(abs(client_bounds.width - config_.window_size) <= 1);
-    EXPECT_TRUE(abs(client_bounds.height - config_.window_size) <= 1);
+    EXPECT_TRUE(abs(client_bounds.width - window_size_.width) <= 1);
+    EXPECT_TRUE(abs(client_bounds.height - window_size_.height) <= 1);
   }
 
   // Run the callback.
@@ -108,7 +126,7 @@ bool TestWindowDelegate::IsFrameless(CefRefPtr<CefWindow> window) {
 
 CefSize TestWindowDelegate::GetPreferredSize(CefRefPtr<CefView> view) {
   got_get_preferred_size_ = true;
-  return CefSize(config_.window_size, config_.window_size);
+  return window_size_;
 }
 
 bool TestWindowDelegate::OnAccelerator(CefRefPtr<CefWindow> window,
@@ -126,8 +144,12 @@ bool TestWindowDelegate::OnKeyEvent(CefRefPtr<CefWindow> window,
 }
 
 TestWindowDelegate::TestWindowDelegate(CefRefPtr<CefWaitableEvent> event,
-                                       const Config& config)
-    : event_(event), config_(config), weak_ptr_factory_(this) {}
+                                       const Config& config,
+                                       const CefSize& window_size)
+    : event_(event),
+      config_(config),
+      window_size_(window_size),
+      weak_ptr_factory_(this) {}
 
 TestWindowDelegate::~TestWindowDelegate() {
   // Complete the test (signal the event) asynchronously so objects on the call
