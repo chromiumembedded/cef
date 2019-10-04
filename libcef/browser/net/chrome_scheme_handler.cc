@@ -32,6 +32,7 @@
 #include "cef/grit/cef_resources.h"
 #include "chrome/browser/browser_about_handler.h"
 #include "chrome/browser/ui/webui/chrome_web_ui_controller_factory.h"
+#include "chrome/browser/ui/webui/theme_source.h"
 #include "chrome/common/url_constants.h"
 #include "content/browser/frame_host/debug_urls.h"
 #include "content/browser/webui/content_web_ui_controller_factory.h"
@@ -85,9 +86,11 @@ const char* kAllowedWebUIHosts[] = {
     content::kChromeUINetworkErrorHost,
     content::kChromeUINetworkErrorsListingHost,
     chrome::kChromeUIPrintHost,
+    content::kChromeUIProcessInternalsHost,
     content::kChromeUIResourcesHost,
     content::kChromeUIServiceWorkerInternalsHost,
     chrome::kChromeUISystemInfoHost,
+    chrome::kChromeUIThemeHost,
     content::kChromeUITracingHost,
     chrome::kChromeUIVersionHost,
     content::kChromeUIWebRTCInternalsHost,
@@ -99,6 +102,7 @@ const char* kAllowedWebUIHosts[] = {
 const char* kUnlistedHosts[] = {
     content::kChromeUINetworkErrorHost,
     content::kChromeUIResourcesHost,
+    chrome::kChromeUIThemeHost,
 };
 
 enum ChromeHostId {
@@ -535,6 +539,16 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     std::unique_ptr<content::WebUIController> controller;
     if (!AllowWebUIForURL(url))
       return controller;
+
+    // Set up the chrome://theme/ source. These URLs are referenced from many
+    // places (WebUI and chrome://resources which live in //ui). WebUI code
+    // can live in both //content and //chrome. Since ThemeSource lives in
+    // //chrome the WebUI from //content is not performing this setup despite
+    // the fact that it's needed for proper handling of theme resource requests.
+    // See https://crbug.com/1011280.
+    Profile* profile = Profile::FromWebUI(web_ui);
+    content::URLDataSource::Add(profile,
+                                std::make_unique<ThemeSource>(profile));
 
     const auto host_id = GetChromeHostId(url.host());
     if (host_id != CHROME_UNKNOWN) {
