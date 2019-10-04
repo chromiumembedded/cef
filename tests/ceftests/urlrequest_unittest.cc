@@ -2836,7 +2836,7 @@ class RequestTestHandler : public TestHandler {
     SetSignalCompletionWhenAllBrowsersClose(false);
     CefPostDelayedTask(
         TID_UI, base::Bind(&TestHandler::CloseBrowser, GetBrowser(), false),
-        100);
+        1000);
   }
 
   // Test run is complete. It ran in either the browser or render process.
