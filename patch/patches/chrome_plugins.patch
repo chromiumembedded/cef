@@ -128,7 +128,7 @@ index 865ca9288de7..8f736f081b86 100644
    // If we broke out of the loop, we have found an enabled plugin.
    bool enabled = i < matching_plugins.size();
 diff --git chrome/browser/plugins/plugin_utils.cc chrome/browser/plugins/plugin_utils.cc
-index 56f147d2fc56..90553ec27d23 100644
+index 56f147d2fc56..9f5687d9a5b9 100644
 --- chrome/browser/plugins/plugin_utils.cc
 +++ chrome/browser/plugins/plugin_utils.cc
 @@ -5,6 +5,7 @@
@@ -151,6 +151,51 @@ index 56f147d2fc56..90553ec27d23 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/common/pref_names.h"
  #include "components/prefs/pref_service.h"
+@@ -182,6 +188,12 @@ base::flat_map<std::string, std::string>
+ PluginUtils::GetMimeTypeToExtensionIdMap(
+     content::BrowserContext* browser_context) {
+   base::flat_map<std::string, std::string> mime_type_to_extension_id_map;
++
++#if BUILDFLAG(ENABLE_CEF)
++  if (!extensions::ExtensionsEnabled())
++    return mime_type_to_extension_id_map;
++#endif
++
+ #if BUILDFLAG(ENABLE_EXTENSIONS)
+   Profile* profile = Profile::FromBrowserContext(browser_context);
+   std::vector<std::string> whitelist = MimeTypesHandler::GetMIMETypeWhitelist();
+diff --git chrome/common/google_url_loader_throttle.cc chrome/common/google_url_loader_throttle.cc
+index 3ce38cb1ee3a..44e93a0b5035 100644
+--- chrome/common/google_url_loader_throttle.cc
++++ chrome/common/google_url_loader_throttle.cc
+@@ -4,10 +4,15 @@
+ 
+ #include "chrome/common/google_url_loader_throttle.h"
+ 
++#include "cef/libcef/features/features.h"
+ #include "chrome/common/net/safe_search_util.h"
+ #include "components/variations/net/variations_http_headers.h"
+ #include "services/network/public/cpp/resource_response.h"
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/common/extensions/extensions_util.h"
++#endif
++
+ #if BUILDFLAG(ENABLE_EXTENSIONS)
+ #include "extensions/common/extension_urls.h"
+ #endif
+@@ -96,6 +101,11 @@ void GoogleURLLoaderThrottle::WillProcessResponse(
+     const GURL& response_url,
+     network::ResourceResponseHead* response_head,
+     bool* defer) {
++#if BUILDFLAG(ENABLE_CEF)
++  if (!extensions::ExtensionsEnabled())
++    return;
++#endif
++
+   // Built-in additional protection for the chrome web store origin.
+   GURL webstore_url(extension_urls::GetWebstoreLaunchURL());
+   if (response_url.SchemeIsHTTPOrHTTPS() &&
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
 index 03781c0b08e0..37dc3e93c7d9 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
