@@ -848,7 +848,8 @@ class RedirectTestHandler : public TestHandler {
       EXPECT_EQ(302, response->GetStatus());
       EXPECT_STREQ("Found", response->GetStatusText().ToString().c_str());
       EXPECT_STREQ("", response->GetMimeType().ToString().c_str());
-      EXPECT_STREQ(kRNav2, response->GetHeader("Location").ToString().c_str());
+      EXPECT_STREQ(kRNav2,
+                   response->GetHeaderByName("Location").ToString().c_str());
 
       // Change the redirect to the 3rd URL.
       new_url = kRNav3;
@@ -860,7 +861,8 @@ class RedirectTestHandler : public TestHandler {
       EXPECT_STREQ("Internal Redirect",
                    response->GetStatusText().ToString().c_str());
       EXPECT_TRUE(response->GetMimeType().empty());
-      EXPECT_STREQ(kRNav3, response->GetHeader("Location").ToString().c_str());
+      EXPECT_STREQ(kRNav3,
+                   response->GetHeaderByName("Location").ToString().c_str());
     } else if (old_url == kRNav3 && new_url == kRNav4) {
       // Called due to the nav3 redirect response.
       got_nav3_redirect_.yes();

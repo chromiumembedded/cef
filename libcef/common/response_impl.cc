@@ -6,6 +6,7 @@
 
 #include <string>
 
+#include "libcef/common/net/http_header_utils.h"
 #include "libcef/common/net_service/net_service_util.h"
 
 #include "base/logging.h"
@@ -96,16 +97,40 @@ void CefResponseImpl::SetCharset(const CefString& charset) {
   charset_ = charset;
 }
 
-CefString CefResponseImpl::GetHeader(const CefString& name) {
+CefString CefResponseImpl::GetHeaderByName(const CefString& name) {
   base::AutoLock lock_scope(lock_);
 
-  CefString value;
+  std::string nameLower = name;
+  HttpHeaderUtils::MakeASCIILower(&nameLower);
 
-  HeaderMap::const_iterator it = header_map_.find(name);
+  auto it = HttpHeaderUtils::FindHeaderInMap(nameLower, header_map_);
   if (it != header_map_.end())
-    value = it->second;
+    return it->second;
 
-  return value;
+  return CefString();
+}
+
+void CefResponseImpl::SetHeaderByName(const CefString& name,
+                                      const CefString& value,
+                                      bool overwrite) {
+  base::AutoLock lock_scope(lock_);
+  CHECK_READONLY_RETURN_VOID();
+
+  std::string nameLower = name;
+  HttpHeaderUtils::MakeASCIILower(&nameLower);
+
+  // There may be multiple values, so remove any first.
+  for (auto it = header_map_.begin(); it != header_map_.end();) {
+    if (base::EqualsCaseInsensitiveASCII(it->first.ToString(), nameLower)) {
+      if (!overwrite)
+        return;
+      it = header_map_.erase(it);
+    } else {
+      ++it;
+    }
+  }
+
+  header_map_.insert(std::make_pair(name, value));
 }
 
 CefString CefResponseImpl::GetURL() {
