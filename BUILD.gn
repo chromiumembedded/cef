@@ -1959,6 +1959,9 @@ if (is_mac) {
       ":cefsimple_resources_bundle_data_english",
       ":cefsimple_xibs",
     ]
+    libs = [
+      "AppKit.framework",
+    ]
     defines = [
       "CEF_USE_SANDBOX",
     ]
