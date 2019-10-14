@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5c6b14610ef7bcadf5e4936a262c660896a32526$
+// $hash=f4a89951c1d04bd2c48dceed80e10b1e281a1d24$
 //
 
 #include "libcef_dll/cpptoc/response_cpptoc.h"
@@ -182,7 +182,8 @@ void CEF_CALLBACK response_set_charset(struct _cef_response_t* self,
 }
 
 cef_string_userfree_t CEF_CALLBACK
-response_get_header(struct _cef_response_t* self, const cef_string_t* name) {
+response_get_header_by_name(struct _cef_response_t* self,
+                            const cef_string_t* name) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -194,10 +195,31 @@ response_get_header(struct _cef_response_t* self, const cef_string_t* name) {
     return NULL;
 
   // Execute
-  CefString _retval = CefResponseCppToC::Get(self)->GetHeader(CefString(name));
+  CefString _retval =
+      CefResponseCppToC::Get(self)->GetHeaderByName(CefString(name));
 
   // Return type: string
   return _retval.DetachToUserFree();
+}
+
+void CEF_CALLBACK response_set_header_by_name(struct _cef_response_t* self,
+                                              const cef_string_t* name,
+                                              const cef_string_t* value,
+                                              int overwrite) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: name; type: string_byref_const
+  DCHECK(name);
+  if (!name)
+    return;
+  // Unverified params: value
+
+  // Execute
+  CefResponseCppToC::Get(self)->SetHeaderByName(
+      CefString(name), CefString(value), overwrite ? true : false);
 }
 
 void CEF_CALLBACK response_get_header_map(struct _cef_response_t* self,
@@ -288,7 +310,8 @@ CefResponseCppToC::CefResponseCppToC() {
   GetStruct()->set_mime_type = response_set_mime_type;
   GetStruct()->get_charset = response_get_charset;
   GetStruct()->set_charset = response_set_charset;
-  GetStruct()->get_header = response_get_header;
+  GetStruct()->get_header_by_name = response_get_header_by_name;
+  GetStruct()->set_header_by_name = response_set_header_by_name;
   GetStruct()->get_header_map = response_get_header_map;
   GetStruct()->set_header_map = response_set_header_map;
   GetStruct()->get_url = response_get_url;

@@ -127,7 +127,17 @@ class CefResponse : public virtual CefBaseRefCounted {
   // Get the value for the specified response header field.
   ///
   /*--cef()--*/
-  virtual CefString GetHeader(const CefString& name) = 0;
+  virtual CefString GetHeaderByName(const CefString& name) = 0;
+
+  ///
+  // Set the header |name| to |value|. If |overwrite| is true any existing
+  // values will be replaced with the new value. If |overwrite| is false any
+  // existing values will not be overwritten.
+  ///
+  /*--cef(optional_param=value)--*/
+  virtual void SetHeaderByName(const CefString& name,
+                               const CefString& value,
+                               bool overwrite) = 0;
 
   ///
   // Get all response header fields.

@@ -4,6 +4,9 @@
 
 #include "libcef/common/net/http_header_utils.h"
 
+#include <algorithm>
+
+#include "base/strings/string_util.h"
 #include "net/http/http_response_headers.h"
 #include "net/http/http_util.h"
 
@@ -38,6 +41,20 @@ void ParseHeaders(const std::string& header_str, HeaderMap& map) {
        i.GetNext();) {
     map.insert(std::make_pair(i.name(), i.values()));
   }
+}
+
+void MakeASCIILower(std::string* str) {
+  std::transform(str->begin(), str->end(), str->begin(), ::tolower);
+}
+
+HeaderMap::iterator FindHeaderInMap(const std::string& nameLower,
+                                    HeaderMap& map) {
+  for (auto it = map.begin(); it != map.end(); ++it) {
+    if (base::EqualsCaseInsensitiveASCII(it->first.ToString(), nameLower))
+      return it;
+  }
+
+  return map.end();
 }
 
 }  // namespace HttpHeaderUtils

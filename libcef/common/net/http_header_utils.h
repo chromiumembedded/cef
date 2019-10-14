@@ -6,16 +6,24 @@
 #define CEF_LIBCEF_COMMON_NET_HTTP_HEADER_UTILS_H_
 #pragma once
 
+#include <map>
 #include <string>
 
-#include "include/cef_request.h"
+#include "include/cef_base.h"
 
 namespace HttpHeaderUtils {
 
-typedef CefRequest::HeaderMap HeaderMap;
+typedef std::multimap<CefString, CefString> HeaderMap;
 
 std::string GenerateHeaders(const HeaderMap& map);
 void ParseHeaders(const std::string& header_str, HeaderMap& map);
+
+// Convert |str| to lower-case.
+void MakeASCIILower(std::string* str);
+
+// Finds the first instance of |name| (already lower-case) in |map| with
+// case-insensitive comparison.
+HeaderMap::iterator FindHeaderInMap(const std::string& name, HeaderMap& map);
 
 }  // namespace HttpHeaderUtils
 

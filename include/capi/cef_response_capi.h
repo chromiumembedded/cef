@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=cc5ec5ca76adb568adb08c3b58fb3289a94b2ecd$
+// $hash=67776173c2e8c45b7261af692af96084cdd618ec$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESPONSE_CAPI_H_
@@ -126,8 +126,19 @@ typedef struct _cef_response_t {
   // Get the value for the specified response header field.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t(CEF_CALLBACK* get_header)(struct _cef_response_t* self,
-                                                  const cef_string_t* name);
+  cef_string_userfree_t(CEF_CALLBACK* get_header_by_name)(
+      struct _cef_response_t* self,
+      const cef_string_t* name);
+
+  ///
+  // Set the header |name| to |value|. If |overwrite| is true (1) any existing
+  // values will be replaced with the new value. If |overwrite| is false (0) any
+  // existing values will not be overwritten.
+  ///
+  void(CEF_CALLBACK* set_header_by_name)(struct _cef_response_t* self,
+                                         const cef_string_t* name,
+                                         const cef_string_t* value,
+                                         int overwrite);
 
   ///
   // Get all response header fields.

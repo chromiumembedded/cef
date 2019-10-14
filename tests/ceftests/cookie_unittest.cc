@@ -2181,7 +2181,7 @@ class CookieRestartTestHandler : public RoutingTestHandler,
     resource_response_ct_++;
 
     const std::string& url = request->GetURL();
-    const std::string& set_cookie_str = response->GetHeader("Set-Cookie");
+    const std::string& set_cookie_str = response->GetHeaderByName("Set-Cookie");
 
     // Expect the network cookie with URL1 requests only.
     if (resource_response_ct_ <= 2) {

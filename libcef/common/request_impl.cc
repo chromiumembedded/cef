@@ -100,10 +100,6 @@ class FileElementReader : public net::UploadFileElementReader {
   DISALLOW_COPY_AND_ASSIGN(FileElementReader);
 };
 
-void MakeASCIILower(std::string* str) {
-  std::transform(str->begin(), str->end(), str->begin(), ::tolower);
-}
-
 // Returns the cef_urlrequest_flags_t policy specified by the Cache-Control
 // request header directives, if any. The directives are case-insensitive and
 // some have an optional argument. Multiple directives are comma-separated.
@@ -127,7 +123,7 @@ int GetCacheControlHeaderPolicy(CefRequest::HeaderMap headerMap) {
   int flags = 0;
 
   if (!line.empty()) {
-    MakeASCIILower(&line);
+    HttpHeaderUtils::MakeASCIILower(&line);
 
     std::vector<base::StringPiece> pieces = base::SplitStringPiece(
         line, ",", base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
@@ -219,18 +215,6 @@ void SetHeaderMap(const CefRequest::HeaderMap& map,
         blink::WebString::FromUTF16(it->first.ToString16()),
         blink::WebString::FromUTF16(it->second.ToString16()));
   }
-}
-
-// Finds the first instance of |nameLower| (already lower-case) in |map| with
-// case-insensitive comparison.
-CefRequest::HeaderMap::iterator FindHeaderInMap(const std::string& nameLower,
-                                                CefRequest::HeaderMap& map) {
-  for (auto it = map.begin(); it != map.end(); ++it) {
-    if (base::EqualsCaseInsensitiveASCII(it->first.ToString(), nameLower))
-      return it;
-  }
-
-  return map.end();
 }
 
 // Type used in UploadDataStream.
@@ -362,9 +346,9 @@ CefString CefRequestImpl::GetHeaderByName(const CefString& name) {
   base::AutoLock lock_scope(lock_);
 
   std::string nameLower = name;
-  MakeASCIILower(&nameLower);
+  HttpHeaderUtils::MakeASCIILower(&nameLower);
 
-  auto it = FindHeaderInMap(nameLower, headermap_);
+  auto it = HttpHeaderUtils::FindHeaderInMap(nameLower, headermap_);
   if (it != headermap_.end())
     return it->second;
 
@@ -378,7 +362,7 @@ void CefRequestImpl::SetHeaderByName(const CefString& name,
   CHECK_READONLY_RETURN_VOID();
 
   std::string nameLower = name;
-  MakeASCIILower(&nameLower);
+  HttpHeaderUtils::MakeASCIILower(&nameLower);
 
   // Do not include Referer in the header map.
   if (nameLower == kReferrerLowerCase)

@@ -35,7 +35,10 @@ class CefResponseImpl : public CefResponse {
   void SetMimeType(const CefString& mimeType) override;
   CefString GetCharset() override;
   void SetCharset(const CefString& charset) override;
-  CefString GetHeader(const CefString& name) override;
+  CefString GetHeaderByName(const CefString& name) override;
+  void SetHeaderByName(const CefString& name,
+                       const CefString& value,
+                       bool overwrite) override;
   void GetHeaderMap(HeaderMap& headerMap) override;
   void SetHeaderMap(const HeaderMap& headerMap) override;
   CefString GetURL() override;
