@@ -122,7 +122,7 @@ index 07d4351d0a8a..4ad78ab76a7c 100644
    // Set the view's active state (i.e., tint state of controls).
    virtual void SetActive(bool active) = 0;
 diff --git ui/base/x/x11_window.cc ui/base/x/x11_window.cc
-index 7df0a3a8ed26..4078efb5ad10 100644
+index ec9484ce33d5..52c26dcfd6df 100644
 --- ui/base/x/x11_window.cc
 +++ ui/base/x/x11_window.cc
 @@ -190,8 +190,12 @@ void XWindow::Init(const Configuration& config) {
