@@ -342,12 +342,13 @@ void PopulateWebPreferences(content::RenderViewHost* rvh,
   // Set preferences based on the extension.
   SetExtensionPrefs(rvh, web);
 
-  // Set preferences based on CefBrowserSettings.
-  if (browser)
+  if (browser) {
+    // Set preferences based on CefBrowserSettings.
     SetCefPrefs(browser->settings(), web);
 
-  // Set the background color for the WebView.
-  if (browser) {
+    web.picture_in_picture_enabled = browser->IsPictureInPictureSupported();
+
+    // Set the background color for the WebView.
     web.base_background_color = browser->GetBackgroundColor();
   } else {
     // We don't know for sure that the browser will be windowless but assume

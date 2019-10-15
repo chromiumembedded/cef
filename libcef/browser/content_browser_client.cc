@@ -1362,6 +1362,18 @@ bool CefContentBrowserClient::HandleExternalProtocol(
   return true;
 }
 
+std::unique_ptr<content::OverlayWindow>
+CefContentBrowserClient::CreateWindowForPictureInPicture(
+    content::PictureInPictureWindowController* controller) {
+  // Note: content::OverlayWindow::Create() is defined by platform-specific
+  // implementation in chrome/browser/ui/views. This layering hack, which goes
+  // through //content and ContentBrowserClient, allows us to work around the
+  // dependency constraints that disallow directly calling
+  // chrome/browser/ui/views code either from here or from other code in
+  // chrome/browser.
+  return content::OverlayWindow::Create(controller);
+}
+
 std::string CefContentBrowserClient::GetProduct() {
   // Match the logic in chrome_content_browser_client.cc GetProduct().
   return ::GetProduct();

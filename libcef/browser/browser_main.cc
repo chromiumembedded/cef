@@ -46,7 +46,6 @@
 #if defined(USE_AURA)
 #include "ui/aura/env.h"
 #include "ui/display/screen.h"
-#include "ui/views/test/desktop_test_views_delegate.h"
 #include "ui/views/widget/desktop_aura/desktop_screen.h"
 #include "ui/wm/core/wm_state.h"
 
@@ -54,6 +53,15 @@
 #include "ui/base/cursor/cursor_loader_win.h"
 #endif
 #endif  // defined(USE_AURA)
+
+#if defined(TOOLKIT_VIEWS)
+#if defined(OS_MACOSX)
+#include "chrome/browser/ui/views/chrome_layout_provider.h"
+#include "chrome/browser/ui/views/chrome_views_delegate.h"
+#else
+#include "ui/views/test/desktop_test_views_delegate.h"
+#endif
+#endif  // defined(TOOLKIT_VIEWS)
 
 #if defined(USE_AURA) && defined(OS_LINUX)
 #include "ui/base/ime/init/input_method_initializer.h"
@@ -91,8 +99,6 @@ void CefBrowserMainParts::ToolkitInitialized() {
 #if defined(USE_AURA)
   CHECK(aura::Env::GetInstance());
 
-  new views::DesktopTestViewsDelegate;
-
   wm_state_.reset(new wm::WMState);
 
 #if defined(OS_WIN)
@@ -100,6 +106,15 @@ void CefBrowserMainParts::ToolkitInitialized() {
       CefContentBrowserClient::Get()->GetResourceDllName());
 #endif
 #endif  // defined(USE_AURA)
+
+#if defined(TOOLKIT_VIEWS)
+#if defined(OS_MACOSX)
+  views_delegate_ = std::make_unique<ChromeViewsDelegate>();
+  layout_provider_ = ChromeLayoutProvider::CreateLayoutProvider();
+#else
+  views_delegate_ = std::make_unique<views::DesktopTestViewsDelegate>();
+#endif
+#endif  // defined(TOOLKIT_VIEWS)
 }
 
 void CefBrowserMainParts::PreMainMessageLoopStart() {
@@ -207,8 +222,10 @@ void CefBrowserMainParts::PostDestroyThreads() {
     extensions_browser_client_.reset();
   }
 
-#if defined(USE_AURA)
-  // Delete the DesktopTestViewsDelegate.
-  delete views::ViewsDelegate::GetInstance();
+#if defined(TOOLKIT_VIEWS)
+  views_delegate_.reset();
+#if defined(OS_MACOSX)
+  layout_provider_.reset();
 #endif
+#endif  // defined(TOOLKIT_VIEWS)
 }

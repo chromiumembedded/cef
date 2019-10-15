@@ -42,6 +42,7 @@
 #include "base/bind.h"
 #include "base/bind_helpers.h"
 #include "base/command_line.h"
+#include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
 #include "chrome/browser/printing/print_view_manager.h"
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_service.h"
@@ -1503,6 +1504,11 @@ bool CefBrowserHostImpl::IsPrintPreviewSupported() const {
   return !IsWindowless();
 }
 
+bool CefBrowserHostImpl::IsPictureInPictureSupported() const {
+  // Not currently supported with OSR.
+  return !IsWindowless();
+}
+
 void CefBrowserHostImpl::WindowDestroyed() {
   CEF_REQUIRE_UIT();
   DCHECK(!window_destroyed_);
@@ -2499,6 +2505,23 @@ bool CefBrowserHostImpl::IsNeverVisible(content::WebContents* web_contents) {
   if (extension_host_)
     return extension_host_->IsNeverVisible(web_contents);
   return false;
+}
+
+content::PictureInPictureResult CefBrowserHostImpl::EnterPictureInPicture(
+    content::WebContents* web_contents,
+    const viz::SurfaceId& surface_id,
+    const gfx::Size& natural_size) {
+  if (!IsPictureInPictureSupported()) {
+    return content::PictureInPictureResult::kNotSupported;
+  }
+
+  return PictureInPictureWindowManager::GetInstance()->EnterPictureInPicture(
+      web_contents, surface_id, natural_size);
+}
+
+void CefBrowserHostImpl::ExitPictureInPicture() {
+  DCHECK(IsPictureInPictureSupported());
+  PictureInPictureWindowManager::GetInstance()->ExitPictureInPicture();
 }
 
 // content::WebContentsObserver methods.

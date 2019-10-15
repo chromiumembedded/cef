@@ -949,6 +949,12 @@ static_library("libcef_static") {
     deps += [ "//tools/v8_context_snapshot" ]
   }
 
+  if (toolkit_views) {
+    deps += [
+      "//ui/views",
+    ]
+  }
+
   if (use_aura) {
     sources += [
       "libcef/browser/native/window_delegate_view.cc",
@@ -1039,7 +1045,6 @@ static_library("libcef_static") {
 
     if (toolkit_views) {
       deps += [
-        "//ui/views",
         "//ui/views/controls/webview",
       ]
     }
