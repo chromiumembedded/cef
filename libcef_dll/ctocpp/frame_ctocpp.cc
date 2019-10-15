@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=957f55c65387757a411f9b898827bdef95531c45$
+// $hash=99d10924d2ed2a233bd9d33314a627aa574cf89e$
 //
 
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
@@ -218,30 +218,6 @@ NO_SANITIZE("cfi-icall") void CefFrameCToCpp::LoadURL(const CefString& url) {
 
   // Execute
   _struct->load_url(_struct, url.GetStruct());
-}
-
-NO_SANITIZE("cfi-icall")
-void CefFrameCToCpp::LoadString(const CefString& string_val,
-                                const CefString& url) {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_frame_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, load_string))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: string_val; type: string_byref_const
-  DCHECK(!string_val.empty());
-  if (string_val.empty())
-    return;
-  // Verify param: url; type: string_byref_const
-  DCHECK(!url.empty());
-  if (url.empty())
-    return;
-
-  // Execute
-  _struct->load_string(_struct, string_val.GetStruct(), url.GetStruct());
 }
 
 NO_SANITIZE("cfi-icall")

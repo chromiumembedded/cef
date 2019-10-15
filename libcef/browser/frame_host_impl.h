@@ -66,7 +66,6 @@ class CefFrameHostImpl : public CefFrame {
   void GetText(CefRefPtr<CefStringVisitor> visitor) override;
   void LoadRequest(CefRefPtr<CefRequest> request) override;
   void LoadURL(const CefString& url) override;
-  void LoadString(const CefString& string, const CefString& url) override;
   void ExecuteJavaScript(const CefString& jsCode,
                          const CefString& scriptUrl,
                          int startLine) override;

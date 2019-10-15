@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=5f3cb132c1116a36c746c246ebeded195c917718$
+// $hash=69e96203a1f5a71808125a25e511d99b599b7915$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_FRAME_CAPI_H_
@@ -144,15 +144,6 @@ typedef struct _cef_frame_t {
   ///
   void(CEF_CALLBACK* load_url)(struct _cef_frame_t* self,
                                const cef_string_t* url);
-
-  ///
-  // Load the contents of |string_val| with the specified dummy |url|. |url|
-  // should have a standard scheme (for example, http scheme) or behaviors like
-  // link clicks and web security restrictions may not behave as expected.
-  ///
-  void(CEF_CALLBACK* load_string)(struct _cef_frame_t* self,
-                                  const cef_string_t* string_val,
-                                  const cef_string_t* url);
 
   ///
   // Execute a string of JavaScript code in this frame. The |script_url|

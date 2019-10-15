@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1f9305ea3945990271795caf303c11ae09f662a4$
+// $hash=016b054a1d376b7e66fa5bfc377be2d1da080631$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_FRAME_CTOCPP_H_
@@ -52,7 +52,6 @@ class CefFrameCToCpp
   void GetText(CefRefPtr<CefStringVisitor> visitor) OVERRIDE;
   void LoadRequest(CefRefPtr<CefRequest> request) OVERRIDE;
   void LoadURL(const CefString& url) OVERRIDE;
-  void LoadString(const CefString& string_val, const CefString& url) OVERRIDE;
   void ExecuteJavaScript(const CefString& code,
                          const CefString& script_url,
                          int start_line) OVERRIDE;
