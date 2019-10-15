@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=6bef924a259845dbf03e9cf5084ff7feb2771034$
+// $hash=5f3cb132c1116a36c746c246ebeded195c917718$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_FRAME_CAPI_H_
@@ -131,6 +131,10 @@ typedef struct _cef_frame_t {
 
   ///
   // Load the request represented by the |request| object.
+  //
+  // WARNING: This function will fail with "bad IPC message" reason
+  // INVALID_INITIATOR_ORIGIN (213) unless you first navigate to the request
+  // origin using some other mechanism (LoadURL, link click, etc).
   ///
   void(CEF_CALLBACK* load_request)(struct _cef_frame_t* self,
                                    struct _cef_request_t* request);
