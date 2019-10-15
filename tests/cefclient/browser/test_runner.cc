@@ -100,6 +100,16 @@ void RunRequestTest(CefRefPtr<CefBrowser> browser) {
   // Create a new request
   CefRefPtr<CefRequest> request(CefRequest::Create());
 
+  if (browser->GetMainFrame()->GetURL().ToString().find("http://tests/") != 0) {
+    // The LoadRequest method will fail with "bad IPC message" reason
+    // INVALID_INITIATOR_ORIGIN (213) unless you first navigate to the
+    // request origin using some other mechanism (LoadURL, link click, etc).
+    Alert(browser,
+          "Please first navigate to a http://tests/ URL. "
+          "For example, first load Tests > Other Tests.");
+    return;
+  }
+
   // Set the request URL
   request->SetURL("http://tests/request");
 

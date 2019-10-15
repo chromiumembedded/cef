@@ -131,6 +131,10 @@ class CefFrame : public virtual CefBaseRefCounted {
 
   ///
   // Load the request represented by the |request| object.
+  //
+  // WARNING: This method will fail with "bad IPC message" reason
+  // INVALID_INITIATOR_ORIGIN (213) unless you first navigate to the
+  // request origin using some other mechanism (LoadURL, link click, etc).
   ///
   /*--cef()--*/
   virtual void LoadRequest(CefRefPtr<CefRequest> request) = 0;
