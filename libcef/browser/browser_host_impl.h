@@ -277,6 +277,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Returns true if this browser supports print preview.
   bool IsPrintPreviewSupported() const;
 
+  // Returns true if this browser supports picture-in-picture.
+  bool IsPictureInPictureSupported() const;
+
   // Called when the OS window hosting the browser is destroyed.
   void WindowDestroyed();
 
@@ -458,6 +461,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
                                   const GURL& security_origin,
                                   blink::mojom::MediaStreamType type) override;
   bool IsNeverVisible(content::WebContents* web_contents) override;
+  content::PictureInPictureResult EnterPictureInPicture(
+      content::WebContents* web_contents,
+      const viz::SurfaceId& surface_id,
+      const gfx::Size& natural_size) override;
+  void ExitPictureInPicture() override;
 
   // content::WebContentsObserver methods.
   using content::WebContentsObserver::BeforeUnloadFired;

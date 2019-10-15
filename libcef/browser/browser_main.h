@@ -29,6 +29,15 @@ class WMState;
 }
 #endif
 
+#if defined(TOOLKIT_VIEWS)
+namespace views {
+class ViewsDelegate;
+#if defined(OS_MACOSX)
+class LayoutProvider;
+#endif
+}
+#endif  // defined(TOOLKIT_VIEWS)
+
 class CefDevToolsDelegate;
 
 class CefBrowserMainParts : public content::BrowserMainParts {
@@ -84,6 +93,13 @@ class CefBrowserMainParts : public content::BrowserMainParts {
 #if defined(USE_AURA)
   std::unique_ptr<wm::WMState> wm_state_;
 #endif
+
+#if defined(TOOLKIT_VIEWS)
+  std::unique_ptr<views::ViewsDelegate> views_delegate_;
+#if defined(OS_MACOSX)
+  std::unique_ptr<views::LayoutProvider> layout_provider_;
+#endif
+#endif  // defined(TOOLKIT_VIEWS)
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserMainParts);
 };

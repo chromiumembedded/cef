@@ -193,6 +193,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       const network::ResourceRequest& request,
       network::mojom::URLLoaderFactoryRequest* factory_request,
       network::mojom::URLLoaderFactoryPtr* out_factory) override;
+  std::unique_ptr<content::OverlayWindow> CreateWindowForPictureInPicture(
+      content::PictureInPictureWindowController* controller) override;
 
   std::string GetProduct() override;
   std::string GetChromeProduct() override;
