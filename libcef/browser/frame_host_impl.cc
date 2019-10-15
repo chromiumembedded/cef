@@ -168,25 +168,6 @@ void CefFrameHostImpl::LoadURL(const CefString& url) {
                     std::string());
 }
 
-void CefFrameHostImpl::LoadString(const CefString& string,
-                                  const CefString& url) {
-  // Only known frame ids or kMainFrameId are supported.
-  const auto frame_id = GetFrameId();
-  if (frame_id < CefFrameHostImpl::kMainFrameId)
-    return;
-
-  Cef_Request_Params params;
-  params.name = "load-string";
-  params.user_initiated = false;
-  params.request_id = -1;
-  params.expect_response = false;
-
-  params.arguments.AppendString(string);
-  params.arguments.AppendString(url);
-
-  Send(new CefMsg_Request(MSG_ROUTING_NONE, params));
-}
-
 void CefFrameHostImpl::ExecuteJavaScript(const CefString& jsCode,
                                          const CefString& scriptUrl,
                                          int startLine) {

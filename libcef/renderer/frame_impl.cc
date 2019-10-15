@@ -153,17 +153,6 @@ void CefFrameImpl::LoadURL(const CefString& url) {
   OnLoadRequest(params);
 }
 
-void CefFrameImpl::LoadString(const CefString& string, const CefString& url) {
-  CEF_REQUIRE_RT_RETURN_VOID();
-
-  if (frame_) {
-    GURL gurl = GURL(url.ToString());
-    content::RenderFrame::FromWebFrame(frame_)->LoadHTMLString(
-        string.ToString(), gurl, "UTF-8", GURL(),
-        false /* replace_current_item */);
-  }
-}
-
 void CefFrameImpl::ExecuteJavaScript(const CefString& jsCode,
                                      const CefString& scriptUrl,
                                      int startLine) {
@@ -481,17 +470,6 @@ void CefFrameImpl::OnRequest(const Cef_Request_Params& params) {
     } else if (frame_->ExecuteCommand(blink::WebString::FromUTF8(command))) {
       success = true;
     }
-  } else if (params.name == "load-string") {
-    // Load a string.
-    DCHECK_EQ(params.arguments.GetSize(), (size_t)2);
-
-    std::string string, url;
-
-    params.arguments.GetString(0, &string);
-    params.arguments.GetString(1, &url);
-
-    content::RenderFrame::FromWebFrame(frame_)->LoadHTMLString(
-        string, GURL(url), "UTF-8", GURL(), false /* replace_current_item */);
   } else {
     // Invalid request.
     NOTREACHED();

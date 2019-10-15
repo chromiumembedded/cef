@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=49a9d7412f4d9b8d5d7e15ce9f6f62e1b03ea248$
+// $hash=ecb9362194093a89170324347f61c27c31c46685$
 //
 
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
@@ -217,29 +217,6 @@ void CEF_CALLBACK frame_load_url(struct _cef_frame_t* self,
 
   // Execute
   CefFrameCppToC::Get(self)->LoadURL(CefString(url));
-}
-
-void CEF_CALLBACK frame_load_string(struct _cef_frame_t* self,
-                                    const cef_string_t* string_val,
-                                    const cef_string_t* url) {
-  shutdown_checker::AssertNotShutdown();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-  // Verify param: string_val; type: string_byref_const
-  DCHECK(string_val);
-  if (!string_val)
-    return;
-  // Verify param: url; type: string_byref_const
-  DCHECK(url);
-  if (!url)
-    return;
-
-  // Execute
-  CefFrameCppToC::Get(self)->LoadString(CefString(string_val), CefString(url));
 }
 
 void CEF_CALLBACK frame_execute_java_script(struct _cef_frame_t* self,
@@ -480,7 +457,6 @@ CefFrameCppToC::CefFrameCppToC() {
   GetStruct()->get_text = frame_get_text;
   GetStruct()->load_request = frame_load_request;
   GetStruct()->load_url = frame_load_url;
-  GetStruct()->load_string = frame_load_string;
   GetStruct()->execute_java_script = frame_execute_java_script;
   GetStruct()->is_main = frame_is_main;
   GetStruct()->is_focused = frame_is_focused;
