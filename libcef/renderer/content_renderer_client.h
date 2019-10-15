@@ -17,6 +17,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/message_loop/message_loop_current.h"
+#include "base/optional.h"
 #include "base/sequenced_task_runner.h"
 #include "chrome/common/plugin.mojom.h"
 #include "content/public/renderer/content_renderer_client.h"
@@ -69,8 +70,8 @@ class CefContentRendererClient
   // Called from CefBrowserImpl::OnDestruct().
   void OnBrowserDestroyed(CefBrowserImpl* browser);
 
-  // Returns true if a guest view associated with the specified RenderView.
-  bool HasGuestViewForView(content::RenderView* view);
+  // Returns the guest view associated with the specified RenderView if any.
+  CefGuestView* GetGuestViewForView(content::RenderView* view);
 
   // Called from CefGuestView::OnDestruct().
   void OnGuestViewDestroyed(CefGuestView* guest_view);
@@ -154,7 +155,8 @@ class CefContentRendererClient
   // nullptr for guest views.
   CefRefPtr<CefBrowserImpl> MaybeCreateBrowser(
       content::RenderView* render_view,
-      content::RenderFrame* render_frame);
+      content::RenderFrame* render_frame,
+      base::Optional<bool>* is_windowless);
 
   // Perform cleanup work for single-process mode.
   void RunSingleProcessCleanupOnUIThread();
