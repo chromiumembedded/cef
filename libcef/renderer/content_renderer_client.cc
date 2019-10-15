@@ -154,14 +154,19 @@ bool IsStandaloneExtensionProcess() {
 // Placeholder object for guest views.
 class CefGuestView : public content::RenderViewObserver {
  public:
-  explicit CefGuestView(content::RenderView* render_view)
-      : content::RenderViewObserver(render_view) {}
+  CefGuestView(content::RenderView* render_view, bool is_windowless)
+      : content::RenderViewObserver(render_view),
+        is_windowless_(is_windowless) {}
+
+  bool is_windowless() const { return is_windowless_; }
 
  private:
   // RenderViewObserver methods.
   void OnDestruct() override {
     CefContentRendererClient::Get()->OnGuestViewDestroyed(this);
   }
+
+  const bool is_windowless_;
 };
 
 CefContentRendererClient::CefContentRendererClient()
@@ -226,11 +231,14 @@ void CefContentRendererClient::OnBrowserDestroyed(CefBrowserImpl* browser) {
   NOTREACHED();
 }
 
-bool CefContentRendererClient::HasGuestViewForView(content::RenderView* view) {
-  CEF_REQUIRE_RT_RETURN(false);
+CefGuestView* CefContentRendererClient::GetGuestViewForView(
+    content::RenderView* view) {
+  CEF_REQUIRE_RT_RETURN(nullptr);
 
   GuestViewMap::const_iterator it = guest_views_.find(view);
-  return it != guest_views_.end();
+  if (it != guest_views_.end())
+    return it->second.get();
+  return nullptr;
 }
 
 void CefContentRendererClient::OnGuestViewDestroyed(CefGuestView* guest_view) {
@@ -481,12 +489,21 @@ void CefContentRendererClient::RenderFrameCreated(
     new SpellCheckProvider(render_frame, spellcheck_.get(), this);
   }
 
-  auto browser =
-      MaybeCreateBrowser(render_frame->GetRenderView(), render_frame);
+  base::Optional<bool> is_windowless;
+
+  auto browser = MaybeCreateBrowser(render_frame->GetRenderView(), render_frame,
+                                    &is_windowless);
   if (browser) {
     // Attach the frame to the observer for message routing purposes.
     render_frame_observer->AttachFrame(
         browser->GetWebFrameImpl(render_frame->GetWebFrame()).get());
+  }
+
+  if (is_windowless.has_value()) {
+    new printing::PrintRenderFrameHelper(
+        render_frame,
+        base::WrapUnique(
+            new extensions::CefPrintRenderFrameHelperDelegate(*is_windowless)));
   }
 }
 
@@ -494,7 +511,7 @@ void CefContentRendererClient::RenderViewCreated(
     content::RenderView* render_view) {
   new CefPrerendererClient(render_view);
 
-  MaybeCreateBrowser(render_view, render_view->GetMainRenderFrame());
+  MaybeCreateBrowser(render_view, render_view->GetMainRenderFrame(), nullptr);
 }
 
 bool CefContentRendererClient::IsPluginHandledExternally(
@@ -712,18 +729,28 @@ void CefContentRendererClient::WillDestroyCurrentMessageLoop() {
 
 CefRefPtr<CefBrowserImpl> CefContentRendererClient::MaybeCreateBrowser(
     content::RenderView* render_view,
-    content::RenderFrame* render_frame) {
+    content::RenderFrame* render_frame,
+    base::Optional<bool>* is_windowless) {
   if (!render_view || !render_frame)
     return nullptr;
 
   // Don't create another browser or guest view object if one already exists for
   // the view.
   auto browser = GetBrowserForView(render_view);
-  if (browser)
+  if (browser) {
+    if (is_windowless) {
+      *is_windowless = browser->is_windowless();
+    }
     return browser;
+  }
 
-  if (HasGuestViewForView(render_view))
+  auto guest_view = GetGuestViewForView(render_view);
+  if (guest_view) {
+    if (is_windowless) {
+      *is_windowless = guest_view->is_windowless();
+    }
     return nullptr;
+  }
 
   const int render_frame_routing_id = render_frame->GetRoutingID();
 
@@ -733,10 +760,9 @@ CefRefPtr<CefBrowserImpl> CefContentRendererClient::MaybeCreateBrowser(
   content::RenderThread::Get()->Send(new CefProcessHostMsg_GetNewBrowserInfo(
       render_frame_routing_id, &params));
 
-  new printing::PrintRenderFrameHelper(
-      render_frame,
-      base::WrapUnique(new extensions::CefPrintRenderFrameHelperDelegate(
-          params.is_windowless)));
+  if (is_windowless) {
+    *is_windowless = params.is_windowless;
+  }
 
   if (params.browser_id == 0) {
     // The popup may have been canceled during creation.
@@ -746,7 +772,8 @@ CefRefPtr<CefBrowserImpl> CefContentRendererClient::MaybeCreateBrowser(
   if (params.is_guest_view) {
     // Don't create a CefBrowser for guest views.
     guest_views_.insert(std::make_pair(
-        render_view, std::make_unique<CefGuestView>(render_view)));
+        render_view,
+        std::make_unique<CefGuestView>(render_view, params.is_windowless)));
     return nullptr;
   }
 
