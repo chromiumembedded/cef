@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index a4e4a612d82c..3bf880312d5e 100644
+index fbc1dc348385..b275cf9dfafb 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -2137,21 +2137,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
@@ -70,7 +70,7 @@ index a4e4a612d82c..3bf880312d5e 100644
        if (!renderer_started_hidden) {
          // RenderWidgets for frames always initialize as hidden. If the renderer
          // created this window as visible, then we show it here.
-@@ -6544,7 +6562,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
+@@ -6547,7 +6565,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =

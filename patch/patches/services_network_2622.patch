@@ -139,7 +139,7 @@ index c0f105aec142..6afd5f9e25fc 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 74cb411eb848..0a5b4ed5e91c 100644
+index 42805ff8756d..6fcd5dae2948 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
 @@ -1765,6 +1765,7 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext() {
@@ -182,10 +182,10 @@ index 74cb411eb848..0a5b4ed5e91c 100644
        std::make_unique<net::StaticHttpUserAgentSettings>(
            params_->accept_language, params_->user_agent);
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 05418052345a..39877a966de9 100644
+index 603173892e23..fcc814f8cdbc 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -210,6 +210,9 @@ struct NetworkContextParams {
+@@ -219,6 +219,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  
