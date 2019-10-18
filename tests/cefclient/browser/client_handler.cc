@@ -260,7 +260,7 @@ ClientHandler::ClientHandler(Delegate* delegate,
 #endif
 
   resource_manager_ = new CefResourceManager();
-  test_runner::SetupResourceManager(resource_manager_);
+  test_runner::SetupResourceManager(resource_manager_, &string_resource_map_);
 
   // Read command line settings.
   CefRefPtr<CefCommandLine> command_line =
@@ -971,6 +971,17 @@ void ClientHandler::ShowSSLInformation(CefRefPtr<CefBrowser> browser) {
   config.with_osr = is_osr();
   config.url = test_runner::GetDataURI(ss.str(), "text/html");
   MainContext::Get()->GetRootWindowManager()->CreateRootWindow(config);
+}
+
+void ClientHandler::SetStringResource(const std::string& page,
+                                      const std::string& data) {
+  if (!CefCurrentlyOn(TID_IO)) {
+    CefPostTask(TID_IO, base::Bind(&ClientHandler::SetStringResource, this,
+                                   page, data));
+    return;
+  }
+
+  string_resource_map_[page] = data;
 }
 
 bool ClientHandler::CreatePopupWindow(CefRefPtr<CefBrowser> browser,
