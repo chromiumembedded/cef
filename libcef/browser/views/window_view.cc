@@ -268,6 +268,10 @@ void CefWindowView::CreateWidget() {
       if (is_menu) {
         // Don't clip the window to parent bounds.
         params.type = views::Widget::InitParams::TYPE_MENU;
+
+        // Don't set "always on top" for the window.
+        params.z_order = ui::ZOrderLevel::kNormal;
+
         can_activate = can_activate_menu;
         if (can_activate_menu)
           params.activatable = views::Widget::InitParams::ACTIVATABLE_YES;
