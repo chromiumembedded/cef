@@ -40,7 +40,7 @@ std::string GetInternalPath(const std::string& extension_path) {
 
   std::string internal_path;
   if (!resources_path_lower.empty() &&
-      extension_path_lower.find(extension_path_lower) == 0U) {
+      extension_path_lower.find(resources_path_lower) == 0U) {
     internal_path = extension_path.substr(resources_path_lower.size());
   } else {
     internal_path = extension_path;
