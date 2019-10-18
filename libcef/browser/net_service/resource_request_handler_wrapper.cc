@@ -1224,13 +1224,6 @@ void InitOnUIThread(
 
   // |frame| may be null for service worker requests.
   if (frame) {
-#if DCHECK_IS_ON()
-    if (frame_tree_node_id >= 0) {
-      // Sanity check that we ended up with the expected frame.
-      DCHECK_EQ(frame_tree_node_id, frame->GetFrameTreeNodeId());
-    }
-#endif
-
     // May return nullptr for requests originating from guest views.
     browserPtr = CefBrowserHostImpl::GetBrowserForHost(frame);
     if (browserPtr) {
