@@ -451,7 +451,7 @@ class NetNotifyRendererTest : public ClientAppRenderer::Delegate,
 void RunNetNotifyTest(NetNotifyTestType test_type,
                       bool same_origin,
                       size_t count = 3U) {
-  TestHandler::CompletionState completion_state(count);
+  TestHandler::CompletionState completion_state(static_cast<int>(count));
   TestHandler::Collection collection(&completion_state);
 
   std::vector<CefRefPtr<NetNotifyTestHandler>> handlers;
