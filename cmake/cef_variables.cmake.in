@@ -506,6 +506,7 @@ if(OS_WINDOWS)
     # Libraries required by cef_sandbox.lib.
     set(CEF_SANDBOX_STANDARD_LIBS
       dbghelp.lib
+      Delayimp.lib
       PowrProf.lib
       Propsys.lib
       psapi.lib
