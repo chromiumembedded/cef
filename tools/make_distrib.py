@@ -845,6 +845,7 @@ if platform == 'windows':
   sandbox_libs = [
       'obj\\base\\base.lib',
       'obj\\base\\base_static.lib',
+      'obj\\base\\third_party\\double_conversion\\double_conversion.lib',
       'obj\\base\\third_party\\dynamic_annotations\\dynamic_annotations.lib',
       'obj\\base\\win\\pe_image.lib',
       cef_sandbox_lib,
