@@ -603,8 +603,6 @@ struct CefSettingsTraits {
     target->remote_debugging_port = src->remote_debugging_port;
     target->uncaught_exception_stack_size = src->uncaught_exception_stack_size;
     target->ignore_certificate_errors = src->ignore_certificate_errors;
-    target->enable_net_security_expiration =
-        src->enable_net_security_expiration;
     target->background_color = src->background_color;
 
     cef_string_set(src->accept_language_list.str,
@@ -639,8 +637,6 @@ struct CefRequestContextSettingsTraits {
     target->persist_session_cookies = src->persist_session_cookies;
     target->persist_user_preferences = src->persist_user_preferences;
     target->ignore_certificate_errors = src->ignore_certificate_errors;
-    target->enable_net_security_expiration =
-        src->enable_net_security_expiration;
     cef_string_set(src->accept_language_list.str,
                    src->accept_language_list.length,
                    &target->accept_language_list, copy);
