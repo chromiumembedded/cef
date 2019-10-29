@@ -386,19 +386,6 @@ typedef struct _cef_settings_t {
   int ignore_certificate_errors;
 
   ///
-  // Set to true (1) to enable date-based expiration of built in network
-  // security information (i.e. certificate transparency logs, HSTS preloading
-  // and pinning information). Enabling this option improves network security
-  // but may cause HTTPS load failures when using CEF binaries built more than
-  // 10 weeks in the past. See https://www.certificate-transparency.org/ and
-  // https://www.chromium.org/hsts for details. Also configurable using the
-  // "enable-net-security-expiration" command-line switch. Can be overridden for
-  // individual CefRequestContext instances via the
-  // CefRequestContextSettings.enable_net_security_expiration value.
-  ///
-  int enable_net_security_expiration;
-
-  ///
   // Background color used for the browser before a document is loaded and when
   // no document color is specified. The alpha component must be either fully
   // opaque (0xFF) or fully transparent (0x00). If the alpha component is fully
@@ -478,17 +465,6 @@ typedef struct _cef_request_context_settings_t {
   // |cache_path| matches the CefSettings.cache_path value.
   ///
   int ignore_certificate_errors;
-
-  ///
-  // Set to true (1) to enable date-based expiration of built in network
-  // security information (i.e. certificate transparency logs, HSTS preloading
-  // and pinning information). Enabling this option improves network security
-  // but may cause HTTPS load failures when using CEF binaries built more than
-  // 10 weeks in the past. See https://www.certificate-transparency.org/ and
-  // https://www.chromium.org/hsts for details. Can be set globally using the
-  // CefSettings.enable_net_security_expiration value.
-  ///
-  int enable_net_security_expiration;
 
   ///
   // Comma delimited ordered list of language codes without any whitespace that

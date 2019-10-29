@@ -51,7 +51,6 @@ extern const char kPluginPolicy_Allow[];
 extern const char kPluginPolicy_Detect[];
 extern const char kPluginPolicy_Block[];
 extern const char kEnablePreferenceTesting[];
-extern const char kEnableNetSecurityExpiration[];
 extern const char kEnablePrintPreview[];
 
 #if defined(OS_MACOSX)
