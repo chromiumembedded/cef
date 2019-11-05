@@ -235,6 +235,13 @@ if (is_win) {
   import("//build/config/win/manifest.gni")
 }
 
+declare_args() {
+  # The cefclient target depends on GTK packages that are not available in the
+  # default sysroot environment. So we should only use them when we are not
+  # using the sysroot. Alternatively, the developer might not want to use the
+  # GTK dependencies at all, in which case they can set `cef_use_gtk=false`.
+  cef_use_gtk = !use_sysroot
+}
 
 #
 # Verify required global arguments configured via `gn args`.
@@ -2055,7 +2062,9 @@ if (is_mac) {
         "glib-2.0",
       ]
     }
+  }
 
+  if (is_linux && cef_use_gtk) {
     pkg_config("gtk") {
       packages = [
         "gmodule-2.0",
@@ -2149,7 +2158,7 @@ if (is_mac) {
         "X11",
       ]
 
-      if (!use_sysroot) {
+      if (cef_use_gtk) {
         configs += [
           ":gtk",
           ":gtkglext",
