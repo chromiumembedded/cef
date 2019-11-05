@@ -676,6 +676,11 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       resource_response = CreateResourceResponse(id, resource_handler);
       DCHECK(resource_response);
       state->was_custom_handled_ = true;
+    } else {
+      // The request will be handled by the NetworkService. Remove the
+      // "Accept-Language" header here so that it can be re-added in
+      // URLRequestHttpJob::AddExtraHeaders with correct ordering applied.
+      request->headers.RemoveHeader(net::HttpRequestHeaders::kAcceptLanguage);
     }
 
     // Continue the request.
