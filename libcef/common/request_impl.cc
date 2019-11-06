@@ -1362,8 +1362,6 @@ void CefPostDataElementImpl::Set(const network::DataElement& element) {
     SetToBytes(element.length(), element.bytes());
   } else if (element.type() == network::mojom::DataElementType::kFile) {
     SetToFile(element.path().value());
-  } else {
-    NOTREACHED();
   }
 }
 
