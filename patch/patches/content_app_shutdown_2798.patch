@@ -1,0 +1,73 @@
+diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
+index 85f0a07c9733..e25cd242078d 100644
+--- content/app/content_main_runner_impl.cc
++++ content/app/content_main_runner_impl.cc
+@@ -42,6 +42,7 @@
+ #include "base/strings/string_util.h"
+ #include "base/strings/stringprintf.h"
+ #include "base/task/post_task.h"
++#include "base/threading/thread_restrictions.h"
+ #include "base/trace_event/trace_event.h"
+ #include "components/discardable_memory/service/discardable_shared_memory_manager.h"
+ #include "components/download/public/common/download_task_runner.h"
+@@ -983,6 +984,11 @@ void ContentMainRunnerImpl::Shutdown() {
+   is_shutdown_ = true;
+ }
+ 
++void ContentMainRunnerImpl::ShutdownOnUIThread() {
++  base::ScopedAllowBaseSyncPrimitivesForTesting allow_wait;
++  discardable_shared_memory_manager_.reset();
++}
++
+ // static
+ ContentMainRunner* ContentMainRunner::Create() {
+   return ContentMainRunnerImpl::Create();
+diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
+index 1a76e95cb041..bdd60c054abc 100644
+--- content/app/content_main_runner_impl.h
++++ content/app/content_main_runner_impl.h
+@@ -51,6 +51,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
+   int Run(bool start_service_manager_only) override;
+   void Shutdown() override;
+ 
++  void ShutdownOnUIThread();
++
+  private:
+ #if !defined(CHROME_MULTIPLE_DLL_CHILD)
+   int RunServiceManager(MainFunctionParams& main_function_params,
+diff --git content/app/content_service_manager_main_delegate.cc content/app/content_service_manager_main_delegate.cc
+index c8a728e73782..fe8e3e608acc 100644
+--- content/app/content_service_manager_main_delegate.cc
++++ content/app/content_service_manager_main_delegate.cc
+@@ -130,4 +130,8 @@ void ContentServiceManagerMainDelegate::SetStartServiceManagerOnly(
+   start_service_manager_only_ = start_service_manager_only;
+ }
+ 
++void ContentServiceManagerMainDelegate::ShutdownOnUIThread() {
++  content_main_runner_->ShutdownOnUIThread();
++}
++
+ }  // namespace content
+diff --git content/app/content_service_manager_main_delegate.h content/app/content_service_manager_main_delegate.h
+index 864f2a5a315a..241052bb5d99 100644
+--- content/app/content_service_manager_main_delegate.h
++++ content/app/content_service_manager_main_delegate.h
+@@ -18,7 +18,8 @@ namespace content {
+ 
+ class ContentMainRunnerImpl;
+ 
+-class ContentServiceManagerMainDelegate : public service_manager::MainDelegate {
++class CONTENT_EXPORT ContentServiceManagerMainDelegate :
++    public service_manager::MainDelegate {
+  public:
+   explicit ContentServiceManagerMainDelegate(const ContentMainParams& params);
+   ~ContentServiceManagerMainDelegate() override;
+@@ -46,6 +47,8 @@ class ContentServiceManagerMainDelegate : public service_manager::MainDelegate {
+   // full browser.
+   void SetStartServiceManagerOnly(bool start_service_manager_only);
+ 
++  void ShutdownOnUIThread();
++
+  private:
+   ContentMainParams content_main_params_;
+   std::unique_ptr<ContentMainRunnerImpl> content_main_runner_;
