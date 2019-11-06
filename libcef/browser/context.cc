@@ -613,6 +613,8 @@ void CefContext::FinishShutdownOnUIThread(
 
   ui::ResourceBundle::GetSharedInstance().CleanupOnUIThread();
 
+  sm_main_delegate_->ShutdownOnUIThread();
+
   if (uithread_shutdown_event)
     uithread_shutdown_event->Signal();
 }

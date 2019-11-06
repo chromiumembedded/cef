@@ -1,17 +1,3 @@
-diff --git content/app/content_service_manager_main_delegate.h content/app/content_service_manager_main_delegate.h
-index 864f2a5a315a..78b71d523e86 100644
---- content/app/content_service_manager_main_delegate.h
-+++ content/app/content_service_manager_main_delegate.h
-@@ -18,7 +18,8 @@ namespace content {
- 
- class ContentMainRunnerImpl;
- 
--class ContentServiceManagerMainDelegate : public service_manager::MainDelegate {
-+class CONTENT_EXPORT ContentServiceManagerMainDelegate :
-+    public service_manager::MainDelegate {
-  public:
-   explicit ContentServiceManagerMainDelegate(const ContentMainParams& params);
-   ~ContentServiceManagerMainDelegate() override;
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
 index 2207045d28b6..b87d28e8e618 100644
 --- content/browser/devtools/devtools_instrumentation.h
