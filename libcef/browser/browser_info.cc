@@ -164,14 +164,18 @@ void CefBrowserInfo::RemoveFrame(content::RenderFrameHost* host) {
   // A new RFH with the same node ID may be added before the old RFH is deleted,
   // or this might be a speculative RFH. Therefore only delete the map entry if
   // it's currently pointing to the to-be-deleted frame info object.
-  if (frame_tree_node_id_map_.find(frame_info->frame_tree_node_id_)->second ==
-      frame_info) {
-    frame_tree_node_id_map_.erase(frame_info->frame_tree_node_id_);
+  {
+    auto it2 = frame_tree_node_id_map_.find(frame_info->frame_tree_node_id_);
+    if (it2 != frame_tree_node_id_map_.end() && it2->second == frame_info) {
+      frame_tree_node_id_map_.erase(frame_info->frame_tree_node_id_);
+    }
   }
 
   // And finally delete the frame info.
-  auto it2 = frame_info_set_.find(frame_info);
-  frame_info_set_.erase(it2);
+  {
+    auto it2 = frame_info_set_.find(frame_info);
+    frame_info_set_.erase(it2);
+  }
 }
 
 CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetMainFrame() {
