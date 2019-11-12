@@ -1,8 +1,8 @@
 diff --git third_party/crashpad/crashpad/client/prune_crash_reports.cc third_party/crashpad/crashpad/client/prune_crash_reports.cc
-index c6fa389ba88f..8912e2169972 100644
+index 8eed18d4944c..3e1fb7ac3ba5 100644
 --- third_party/crashpad/crashpad/client/prune_crash_reports.cc
 +++ third_party/crashpad/crashpad/client/prune_crash_reports.cc
-@@ -66,13 +66,19 @@ void PruneCrashReportDatabase(CrashReportDatabase* database,
+@@ -72,13 +72,19 @@ size_t PruneCrashReportDatabase(CrashReportDatabase* database,
  }
  
  // static
@@ -26,10 +26,10 @@ index c6fa389ba88f..8912e2169972 100644
  
  static const time_t kSecondsInDay = 60 * 60 * 24;
 diff --git third_party/crashpad/crashpad/client/prune_crash_reports.h third_party/crashpad/crashpad/client/prune_crash_reports.h
-index 6dac5f3002b3..34f5ee111d3d 100644
+index 07a70980f12a..ddf7f17325fe 100644
 --- third_party/crashpad/crashpad/client/prune_crash_reports.h
 +++ third_party/crashpad/crashpad/client/prune_crash_reports.h
-@@ -57,7 +57,8 @@ class PruneCondition {
+@@ -59,7 +59,8 @@ class PruneCondition {
    //! of 128 MB.
    //!
    //! \return A PruneCondition for use with PruneCrashReportDatabase().
@@ -248,7 +248,7 @@ index 2ec1147d2620..8ff9a72e0bd7 100644
    //! \brief Calls ProcessPendingReports() in response to ReportPending() having
    //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index 7b69e8481ffa..2cee1da0dc4b 100644
+index 7d9701c0bf08..767a3c23fb4f 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -36,8 +36,10 @@
@@ -273,7 +273,7 @@ index 7b69e8481ffa..2cee1da0dc4b 100644
  namespace crashpad {
  
  namespace {
-@@ -195,6 +201,9 @@ struct Options {
+@@ -200,6 +206,9 @@ struct Options {
    bool periodic_tasks;
    bool rate_limit;
    bool upload_gzip;
@@ -282,8 +282,8 @@ index 7b69e8481ffa..2cee1da0dc4b 100644
 +  int max_database_age;
  #if defined(OS_CHROMEOS)
    bool use_cros_crash_reporter;
- #endif  // OS_CHROMEOS
-@@ -569,6 +578,9 @@ int HandlerMain(int argc,
+   base::FilePath minidump_dir_for_tests;
+@@ -558,6 +567,9 @@ int HandlerMain(int argc,
      kOptionTraceParentWithException,
  #endif
      kOptionURL,
@@ -292,8 +292,8 @@ index 7b69e8481ffa..2cee1da0dc4b 100644
 +    kOptionMaxDatabaseAge,
  #if defined(OS_CHROMEOS)
      kOptionUseCrosCrashReporter,
- #endif  // OS_CHROMEOS
-@@ -645,6 +657,9 @@ int HandlerMain(int argc,
+     kOptionMinidumpDirForTests,
+@@ -639,6 +651,9 @@ int HandlerMain(int argc,
  #endif  // OS_CHROMEOS
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
@@ -303,7 +303,7 @@ index 7b69e8481ffa..2cee1da0dc4b 100644
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -784,6 +799,27 @@ int HandlerMain(int argc,
+@@ -778,6 +793,27 @@ int HandlerMain(int argc,
          options.url = optarg;
          break;
        }
@@ -331,7 +331,7 @@ index 7b69e8481ffa..2cee1da0dc4b 100644
  #if defined(OS_CHROMEOS)
        case kOptionUseCrosCrashReporter: {
          options.use_cros_crash_reporter = true;
-@@ -910,8 +946,14 @@ int HandlerMain(int argc,
+@@ -909,8 +945,14 @@ int HandlerMain(int argc,
      upload_thread_options.upload_gzip = options.upload_gzip;
      upload_thread_options.watch_pending_reports = options.periodic_tasks;
  
@@ -346,7 +346,7 @@ index 7b69e8481ffa..2cee1da0dc4b 100644
      upload_thread.Get()->Start();
    }
  
-@@ -961,7 +1003,8 @@ int HandlerMain(int argc,
+@@ -966,7 +1008,8 @@ int HandlerMain(int argc,
    ScopedStoppable prune_thread;
    if (options.periodic_tasks) {
      prune_thread.Reset(new PruneCrashReportThread(

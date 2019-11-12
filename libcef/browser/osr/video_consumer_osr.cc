@@ -79,7 +79,8 @@ void CefVideoConsumerOSR::OnFrameCaptured(
   gfx::Rect damage_rect;
 
   if (!metadata.GetRect(media::VideoFrameMetadata::CAPTURE_UPDATE_RECT,
-                        &damage_rect)) {
+                        &damage_rect) ||
+      damage_rect.IsEmpty()) {
     damage_rect = content_rect;
   }
 

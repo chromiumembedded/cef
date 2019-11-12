@@ -1,5 +1,5 @@
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 5fb5b84258a8..e28db2e984f6 100644
+index 4e44716a40f3..1eb4731da1cf 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
 @@ -359,7 +359,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
@@ -12,7 +12,7 @@ index 5fb5b84258a8..e28db2e984f6 100644
  }
  
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index 87ecf1fc998b..924c24fa42a2 100644
+index 7d02af7f8f60..eb70e533dbfb 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
 @@ -99,7 +99,7 @@ class ProfileManager : public content::NotificationObserver,
@@ -43,7 +43,7 @@ index 87ecf1fc998b..924c24fa42a2 100644
    // Get the path of the last used profile, or if that's undefined, the default
    // profile.
 diff --git chrome/browser/profiles/renderer_updater.cc chrome/browser/profiles/renderer_updater.cc
-index 9dd42523f970..b8f5ae89ae3d 100644
+index 07e6f8d726df..9a3c6b38b8eb 100644
 --- chrome/browser/profiles/renderer_updater.cc
 +++ chrome/browser/profiles/renderer_updater.cc
 @@ -7,6 +7,7 @@
@@ -54,7 +54,7 @@ index 9dd42523f970..b8f5ae89ae3d 100644
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
  #include "chrome/browser/profiles/profile.h"
  #include "chrome/browser/signin/identity_manager_factory.h"
-@@ -60,8 +61,12 @@ void GetGuestViewDefaultContentSettingRules(
+@@ -67,8 +68,12 @@ void GetGuestViewDefaultContentSettingRules(
  
  RendererUpdater::RendererUpdater(Profile* profile)
      : profile_(profile), identity_manager_observer_(this) {
@@ -67,7 +67,7 @@ index 9dd42523f970..b8f5ae89ae3d 100644
  #if defined(OS_CHROMEOS)
    oauth2_login_manager_ =
        chromeos::OAuth2LoginManagerFactory::GetForProfile(profile_);
-@@ -228,7 +233,7 @@ void RendererUpdater::UpdateRenderer(
+@@ -238,7 +243,7 @@ void RendererUpdater::UpdateRenderer(
            force_google_safesearch_.GetValue(),
            force_youtube_restrict_.GetValue(),
            allowed_domains_for_apps_.GetValue(),

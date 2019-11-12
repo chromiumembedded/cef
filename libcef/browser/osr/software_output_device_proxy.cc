@@ -5,6 +5,7 @@
 #include "cef/libcef/browser/osr/software_output_device_proxy.h"
 
 #include "base/memory/shared_memory.h"
+#include "base/trace_event/trace_event.h"
 #include "components/viz/common/resources/resource_sizes.h"
 #include "mojo/public/cpp/base/shared_memory_utils.h"
 #include "mojo/public/cpp/system/platform_handle.h"

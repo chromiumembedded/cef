@@ -96,8 +96,7 @@ gfx::Rect CefWebContentsViewOSR::GetViewBounds() const {
   return view ? view->GetViewBounds() : gfx::Rect();
 }
 
-void CefWebContentsViewOSR::CreateView(const gfx::Size& initial_size,
-                                       gfx::NativeView context) {}
+void CefWebContentsViewOSR::CreateView(gfx::NativeView context) {}
 
 content::RenderWidgetHostViewBase* CefWebContentsViewOSR::CreateViewForWidget(
     content::RenderWidgetHost* render_widget_host,

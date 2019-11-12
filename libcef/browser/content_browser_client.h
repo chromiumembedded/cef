@@ -75,7 +75,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   void GetQuotaSettings(
       content::BrowserContext* context,
       content::StoragePartition* partition,
-      storage::OptionalQuotaSettingsCallback callback) override;
+      base::OnceCallback<void(base::Optional<storage::QuotaSettings>)> callback)
+      override;
   content::MediaObserver* GetMediaObserver() override;
   content::SpeechRecognitionManagerDelegate*
   CreateSpeechRecognitionManagerDelegate() override;
@@ -172,26 +173,26 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       bool* bypass_redirect_checks) override;
   void OnNetworkServiceCreated(
       network::mojom::NetworkService* network_service) override;
-  network::mojom::NetworkContextPtr CreateNetworkContext(
+  mojo::Remote<network::mojom::NetworkContext> CreateNetworkContext(
       content::BrowserContext* context,
       bool in_memory,
       const base::FilePath& relative_partition_path) override;
   std::vector<base::FilePath> GetNetworkContextsParentDirectory() override;
   bool HandleExternalProtocol(
       const GURL& url,
-      content::WebContents::Getter web_contents_getter,
+      base::Callback<content::WebContents*(void)> web_contents_getter,
       int child_id,
       content::NavigationUIData* navigation_data,
       bool is_main_frame,
       ui::PageTransition page_transition,
       bool has_user_gesture,
+      const base::Optional<url::Origin>& initiating_origin,
       network::mojom::URLLoaderFactoryPtr* out_factory) override;
   bool HandleExternalProtocol(
       content::WebContents::Getter web_contents_getter,
       int frame_tree_node_id,
       content::NavigationUIData* navigation_data,
       const network::ResourceRequest& request,
-      network::mojom::URLLoaderFactoryRequest* factory_request,
       network::mojom::URLLoaderFactoryPtr* out_factory) override;
   std::unique_ptr<content::OverlayWindow> CreateWindowForPictureInPicture(
       content::PictureInPictureWindowController* controller) override;

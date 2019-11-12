@@ -785,13 +785,13 @@ class OSRTestHandler : public RoutingTestHandler,
             EXPECT_GT(dirtyRects[0].height, kExpandedSelectRect.height);
           }
 
-          // first pixel of border
+          // Unselected option background color is cyan.
+          // Go down 100 pixels to skip the selected option and over 5 pixels to
+          // avoid hitting the border.
+          const uint32 offset = dirtyRects[0].width * 100 + 5;
+          EXPECT_EQ(0xff00ffff,
+                    *(reinterpret_cast<const uint32*>(buffer) + offset));
 
-#if defined(OS_MACOSX)
-          EXPECT_EQ(0xff3979d1U, *(reinterpret_cast<const uint32*>(buffer)));
-#else
-          EXPECT_EQ(0xff6497eaU, *(reinterpret_cast<const uint32*>(buffer)));
-#endif
           if (ExpectComputedPopupSize()) {
             EXPECT_EQ(expanded_select_rect.width, width);
             EXPECT_EQ(expanded_select_rect.height, height);

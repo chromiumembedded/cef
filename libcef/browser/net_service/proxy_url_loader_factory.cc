@@ -141,6 +141,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
   void OnBeforeSendHeaders(const net::HttpRequestHeaders& headers,
                            OnBeforeSendHeadersCallback callback) override;
   void OnHeadersReceived(const std::string& headers,
+                         const net::IPEndPoint& remote_endpoint,
                          OnHeadersReceivedCallback callback) override;
 
   // mojom::URLLoaderClient methods:
@@ -416,8 +417,10 @@ void InterceptedRequest::OnBeforeSendHeaders(
     proxied_client_binding_.ResumeIncomingMethodCallProcessing();
 }
 
-void InterceptedRequest::OnHeadersReceived(const std::string& headers,
-                                           OnHeadersReceivedCallback callback) {
+void InterceptedRequest::OnHeadersReceived(
+    const std::string& headers,
+    const net::IPEndPoint& remote_endpoint,
+    OnHeadersReceivedCallback callback) {
   if (!current_request_uses_header_client_) {
     std::move(callback).Run(net::OK, base::nullopt, GURL());
     return;
@@ -1165,9 +1168,9 @@ void ProxyURLLoaderFactory::CreateLoaderAndStart(
 }
 
 void ProxyURLLoaderFactory::Clone(
-    network::mojom::URLLoaderFactoryRequest loader_request) {
+    mojo::PendingReceiver<network::mojom::URLLoaderFactory> factory) {
   CEF_REQUIRE_IOT();
-  proxy_bindings_.AddBinding(this, std::move(loader_request));
+  proxy_bindings_.AddBinding(this, std::move(factory));
 }
 
 void ProxyURLLoaderFactory::OnLoaderCreated(
@@ -1177,6 +1180,13 @@ void ProxyURLLoaderFactory::OnLoaderCreated(
   auto request_it = requests_.find(request_id);
   if (request_it != requests_.end())
     request_it->second->OnLoaderCreated(std::move(receiver));
+}
+
+void ProxyURLLoaderFactory::OnLoaderForCorsPreflightCreated(
+    const ::network::ResourceRequest& request,
+    mojo::PendingReceiver<network::mojom::TrustedHeaderClient> header_client) {
+  CEF_REQUIRE_IOT();
+  // TODO(cef): Should we do something here?
 }
 
 void ProxyURLLoaderFactory::OnTargetFactoryError() {

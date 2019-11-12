@@ -6,9 +6,9 @@
 #define CEF_LIBCEF_COMMON_NET_RESOURCE_PROVIDER_H_
 #pragma once
 
-#include "base/strings/string_piece.h"
+#include "base/memory/ref_counted_memory.h"
 
 // This is called indirectly by the network layer to access resources.
-base::StringPiece NetResourceProvider(int key);
+scoped_refptr<base::RefCountedMemory> NetResourceProvider(int key);
 
 #endif  // CEF_LIBCEF_COMMON_NET_RESOURCE_PROVIDER_H_

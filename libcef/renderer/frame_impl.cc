@@ -342,8 +342,8 @@ void CefFrameImpl::OnDraggableRegionsChanged() {
   std::vector<Cef_DraggableRegion_Params> regions;
   for (size_t i = 0; i < webregions.size(); ++i) {
     Cef_DraggableRegion_Params region;
-    browser_->render_view()->ConvertViewportToWindowViaWidget(
-        &webregions[i].bounds);
+    auto render_frame = content::RenderFrameImpl::FromWebFrame(frame_);
+    render_frame->ConvertViewportToWindow(&webregions[i].bounds);
     region.bounds = webregions[i].bounds;
     region.draggable = webregions[i].draggable;
     regions.push_back(region);

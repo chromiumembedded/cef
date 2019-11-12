@@ -30,7 +30,12 @@ class CefHostDisplayClientOSR : public viz::HostDisplayClient {
   void UseProxyOutputDevice(UseProxyOutputDeviceCallback callback) override;
 
   void CreateLayeredWindowUpdater(
-      viz::mojom::LayeredWindowUpdaterRequest request) override;
+      mojo::PendingReceiver<viz::mojom::LayeredWindowUpdater> receiver)
+      override;
+
+#if defined(OS_LINUX) && !defined(OS_CHROMEOS)
+  void DidCompleteSwapWithNewSize(const gfx::Size& size) override;
+#endif
 
   CefRenderWidgetHostViewOSR* const view_;
   std::unique_ptr<CefLayeredWindowUpdaterOSR> layered_window_updater_;

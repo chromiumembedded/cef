@@ -29,7 +29,6 @@
 #include "content/public/common/widget_type.h"
 #include "ui/base/cursor/types/cursor_types.h"
 #include "ui/compositor/compositor.h"
-#include "ui/compositor/external_begin_frame_client.h"
 #include "ui/events/base_event_utils.h"
 #include "ui/events/gesture_detection/filtered_gesture_provider.h"
 #include "ui/events/gesture_detection/gesture_configuration.h"
@@ -95,7 +94,6 @@ class MacHelper;
 #endif
 
 class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
-                                   public ui::ExternalBeginFrameClient,
                                    public ui::CompositorDelegate,
                                    public content::TextInputManager::Observer,
                                    public ui::GestureProviderClient {
@@ -189,9 +187,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   const viz::FrameSinkId& GetFrameSinkId() const override;
   viz::FrameSinkId GetRootFrameSinkId() override;
 
-  // ui::ExternalBeginFrameClient implementation.
-  void OnDisplayDidFinishFrame(const viz::BeginFrameAck& ack) override;
-  void OnNeedsExternalBeginFrames(bool needs_begin_frames) override;
+  void OnFrameComplete(const viz::BeginFrameAck& ack);
 
   // ui::CompositorDelegate implementation.
   std::unique_ptr<viz::HostDisplayClient> CreateHostDisplayClient() override;

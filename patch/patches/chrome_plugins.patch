@@ -165,10 +165,10 @@ index 56f147d2fc56..9f5687d9a5b9 100644
    Profile* profile = Profile::FromBrowserContext(browser_context);
    std::vector<std::string> whitelist = MimeTypesHandler::GetMIMETypeWhitelist();
 diff --git chrome/common/google_url_loader_throttle.cc chrome/common/google_url_loader_throttle.cc
-index 3ce38cb1ee3a..44e93a0b5035 100644
+index 0a565575f36c..06dfa59d1a75 100644
 --- chrome/common/google_url_loader_throttle.cc
 +++ chrome/common/google_url_loader_throttle.cc
-@@ -4,10 +4,15 @@
+@@ -4,11 +4,16 @@
  
  #include "chrome/common/google_url_loader_throttle.h"
  
@@ -176,6 +176,7 @@ index 3ce38cb1ee3a..44e93a0b5035 100644
  #include "chrome/common/net/safe_search_util.h"
  #include "components/variations/net/variations_http_headers.h"
  #include "services/network/public/cpp/resource_response.h"
+ #include "services/network/public/mojom/url_response_head.mojom.h"
  
 +#if BUILDFLAG(ENABLE_CEF)
 +#include "cef/libcef/common/extensions/extensions_util.h"
@@ -184,7 +185,7 @@ index 3ce38cb1ee3a..44e93a0b5035 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "extensions/common/extension_urls.h"
  #endif
-@@ -96,6 +101,11 @@ void GoogleURLLoaderThrottle::WillProcessResponse(
+@@ -98,6 +103,11 @@ void GoogleURLLoaderThrottle::WillProcessResponse(
      const GURL& response_url,
      network::ResourceResponseHead* response_head,
      bool* defer) {
@@ -197,7 +198,7 @@ index 3ce38cb1ee3a..44e93a0b5035 100644
    GURL webstore_url(extension_urls::GetWebstoreLaunchURL());
    if (response_url.SchemeIsHTTPOrHTTPS() &&
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index 03781c0b08e0..37dc3e93c7d9 100644
+index 4d3cfef5b28a..bbcaceebfda2 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
 @@ -794,6 +794,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
@@ -210,7 +211,7 @@ index 03781c0b08e0..37dc3e93c7d9 100644
      }
 @@ -994,7 +995,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
          render_frame->GetRemoteAssociatedInterfaces()->GetInterface(
-             &plugin_auth_host);
+             plugin_auth_host.BindNewEndpointAndPassReceiver());
          plugin_auth_host->BlockedUnauthorizedPlugin(group_name, identifier);
 -        observer->DidBlockContentType(content_type, group_name);
 +        if (observer)
@@ -249,10 +250,10 @@ index 03781c0b08e0..37dc3e93c7d9 100644
        }
        case chrome::mojom::PluginStatus::kComponentUpdateRequired: {
 diff --git chrome/renderer/plugins/chrome_plugin_placeholder.cc chrome/renderer/plugins/chrome_plugin_placeholder.cc
-index fe074e5b99ac..5d19f37db3d0 100644
+index 205c7398f827..8fcb6e5ae7ad 100644
 --- chrome/renderer/plugins/chrome_plugin_placeholder.cc
 +++ chrome/renderer/plugins/chrome_plugin_placeholder.cc
-@@ -357,8 +357,11 @@ void ChromePluginPlaceholder::OnBlockedContent(
+@@ -358,8 +358,11 @@ void ChromePluginPlaceholder::OnBlockedContent(
  
    if (status ==
        content::RenderFrame::PeripheralContentStatus::CONTENT_STATUS_TINY) {

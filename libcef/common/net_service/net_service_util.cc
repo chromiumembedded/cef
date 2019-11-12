@@ -171,7 +171,7 @@ net::RedirectInfo MakeRedirectInfo(const network::ResourceRequest& request,
           : net::URLRequest::NEVER_CHANGE_FIRST_PARTY_URL;
   return net::RedirectInfo::ComputeRedirectInfo(
       request.method, request.url, request.site_for_cookies,
-      request.top_frame_origin, first_party_url_policy, request.referrer_policy,
+      first_party_url_policy, request.referrer_policy,
       request.referrer.spec(), status_code, location,
       net::RedirectUtil::GetReferrerPolicyHeader(headers),
       insecure_scheme_was_upgraded);

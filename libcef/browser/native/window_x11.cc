@@ -275,8 +275,10 @@ gfx::Rect CefWindowX11::GetBoundsInScreen() {
 views::DesktopWindowTreeHostX11* CefWindowX11::GetHost() {
   if (browser_.get()) {
     ::Window child = FindChild(xdisplay_, xwindow_);
-    if (child)
-      return views::DesktopWindowTreeHostX11::GetHostForXID(child);
+    if (child) {
+      return static_cast<views::DesktopWindowTreeHostX11*>(
+          views::DesktopWindowTreeHostLinux::GetHostForWidget(child));
+    }
   }
   return NULL;
 }

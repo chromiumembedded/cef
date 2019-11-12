@@ -632,7 +632,7 @@ void StreamReaderURLLoader::HeadersComplete(int orig_status_code,
 
   if (header_client_.is_bound()) {
     header_client_->OnHeadersReceived(
-        pending_response_.headers->raw_headers(),
+        pending_response_.headers->raw_headers(), net::IPEndPoint(),
         base::BindOnce(&StreamReaderURLLoader::ContinueWithResponseHeaders,
                        weak_factory_.GetWeakPtr()));
   } else {

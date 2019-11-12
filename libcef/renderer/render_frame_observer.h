@@ -26,7 +26,7 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
       mojo::ScopedMessagePipeHandle* interface_pipe) override;
   void DidCommitProvisionalLoad(bool is_same_document_navigation,
                                 ui::PageTransition transition) override;
-  void DidFailProvisionalLoad(const blink::WebURLError& error) override;
+  void DidFailProvisionalLoad() override;
   void DidFinishLoad() override;
   void FrameDetached() override;
   void FrameFocused() override;
@@ -45,7 +45,7 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
 
  private:
   void OnLoadStart();
-  void OnLoadError(const blink::WebURLError& error);
+  void OnLoadError();
 
   service_manager::BinderRegistry registry_;
   CefFrameImpl* frame_ = nullptr;

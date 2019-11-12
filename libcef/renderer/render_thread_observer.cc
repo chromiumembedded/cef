@@ -86,7 +86,7 @@ void CefRenderThreadObserver::UnregisterMojoInterfaces(
 
 void CefRenderThreadObserver::SetInitialConfiguration(
     bool is_incognito_process,
-    chrome::mojom::ChromeOSListenerRequest chromeos_listener_request) {
+    mojo::PendingReceiver<chrome::mojom::ChromeOSListener> chromeos_listener) {
   is_incognito_process_ = is_incognito_process;
 }
 
@@ -105,8 +105,9 @@ void CefRenderThreadObserver::SetFieldTrialGroup(
 }
 
 void CefRenderThreadObserver::OnRendererConfigurationAssociatedRequest(
-    chrome::mojom::RendererConfigurationAssociatedRequest request) {
-  renderer_configuration_bindings_.AddBinding(this, std::move(request));
+    mojo::PendingAssociatedReceiver<chrome::mojom::RendererConfiguration>
+        receiver) {
+  renderer_configuration_receivers_.Add(this, std::move(receiver));
 }
 
 void CefRenderThreadObserver::OnModifyCrossOriginWhitelistEntry(

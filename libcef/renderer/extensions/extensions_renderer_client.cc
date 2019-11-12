@@ -43,54 +43,6 @@ void IsGuestViewApiAvailableToScriptContext(
   }
 }
 
-// Returns true if the frame is navigating to an URL either into or out of an
-// extension app's extent.
-bool CrossesExtensionExtents(blink::WebLocalFrame* frame,
-                             const GURL& new_url,
-                             bool is_extension_url,
-                             bool is_initial_navigation) {
-  DCHECK(!frame->Parent());
-  GURL old_url(frame->GetDocument().Url());
-
-  extensions::RendererExtensionRegistry* extension_registry =
-      extensions::RendererExtensionRegistry::Get();
-
-  // If old_url is still empty and this is an initial navigation, then this is
-  // a window.open operation.  We should look at the opener URL.  Note that the
-  // opener is a local frame in this case.
-  if (is_initial_navigation && old_url.is_empty() && frame->Opener()) {
-    blink::WebLocalFrame* opener_frame = frame->Opener()->ToWebLocalFrame();
-
-    // We want to compare against the URL that determines the type of
-    // process.  Use the URL of the opener's local frame root, which will
-    // correctly handle any site isolation modes (e.g. --site-per-process).
-    blink::WebLocalFrame* local_root = opener_frame->LocalRoot();
-    old_url = local_root->GetDocument().Url();
-
-    // If we're about to open a normal web page from a same-origin opener stuck
-    // in an extension process (other than the Chrome Web Store), we want to
-    // keep it in process to allow the opener to script it.
-    blink::WebDocument opener_document = opener_frame->GetDocument();
-    blink::WebSecurityOrigin opener_origin =
-        opener_document.GetSecurityOrigin();
-    bool opener_is_extension_url =
-        !opener_origin.IsUnique() && extension_registry->GetExtensionOrAppByURL(
-                                         opener_document.Url()) != nullptr;
-    const Extension* opener_top_extension =
-        extension_registry->GetExtensionOrAppByURL(old_url);
-    bool opener_is_web_store =
-        opener_top_extension &&
-        opener_top_extension->id() == extensions::kWebStoreAppId;
-    if (!is_extension_url && !opener_is_extension_url && !opener_is_web_store &&
-        CefExtensionsRendererClient::IsStandaloneExtensionProcess() &&
-        opener_origin.CanRequest(blink::WebURL(new_url)))
-      return false;
-  }
-
-  return extensions::CrossesExtensionProcessBoundary(
-      *extension_registry->GetMainThreadExtensionSet(), old_url, new_url);
-}
-
 }  // namespace
 
 CefExtensionsRendererClient::CefExtensionsRendererClient() {}
@@ -223,35 +175,6 @@ void CefExtensionsRendererClient::RunScriptsAtDocumentIdle(
 bool CefExtensionsRendererClient::IsStandaloneExtensionProcess() {
   return base::CommandLine::ForCurrentProcess()->HasSwitch(
       extensions::switches::kExtensionProcess);
-}
-
-// static
-bool CefExtensionsRendererClient::ShouldFork(blink::WebLocalFrame* frame,
-                                             const GURL& url,
-                                             bool is_initial_navigation,
-                                             bool is_server_redirect) {
-  const extensions::RendererExtensionRegistry* extension_registry =
-      extensions::RendererExtensionRegistry::Get();
-
-  // Determine if the new URL is an extension (excluding bookmark apps).
-  const extensions::Extension* new_url_extension =
-      extensions::GetNonBookmarkAppExtension(
-          *extension_registry->GetMainThreadExtensionSet(), url);
-  bool is_extension_url = !!new_url_extension;
-
-  // If the navigation would cross an app extent boundary, we also need
-  // to defer to the browser to ensure process isolation.  This is not
-  // necessary for server redirects, which will be transferred to a new
-  // process by the browser process when they are ready to commit.  It is
-  // necessary for client redirects, which won't be transferred in the same
-  // way.
-  if (!is_server_redirect &&
-      CrossesExtensionExtents(frame, url, is_extension_url,
-                              is_initial_navigation)) {
-    return true;
-  }
-
-  return false;
 }
 
 // static

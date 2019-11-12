@@ -1,8 +1,8 @@
 diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
-index c626801963af..9d05b869101b 100644
+index 818a6370957a..64ab8e2462b5 100644
 --- content/browser/storage_partition_impl.cc
 +++ content/browser/storage_partition_impl.cc
-@@ -583,10 +583,6 @@ class LoginHandlerDelegate {
+@@ -577,10 +577,6 @@ class LoginHandlerDelegate {
      }
  
      WebContents* web_contents = web_contents_getter_.Run();
@@ -13,7 +13,7 @@ index c626801963af..9d05b869101b 100644
  
      // WeakPtr is not strictly necessary here due to OnRequestCancelled.
      creating_login_delegate_ = true;
-@@ -643,12 +639,6 @@ void OnAuthRequiredContinuation(
+@@ -637,12 +633,6 @@ void OnAuthRequiredContinuation(
      web_contents_getter =
          base::BindRepeating(GetWebContents, process_id, routing_id);
    }
@@ -27,18 +27,18 @@ index c626801963af..9d05b869101b 100644
                             std::move(web_contents_getter), auth_info,
                             is_request_for_main_frame, process_id, routing_id,
 diff --git services/network/public/cpp/simple_url_loader.cc services/network/public/cpp/simple_url_loader.cc
-index 1ab5688d10d6..7e8d8242a06f 100644
+index 1cc4198e6057..0fae6dbe25a2 100644
 --- services/network/public/cpp/simple_url_loader.cc
 +++ services/network/public/cpp/simple_url_loader.cc
-@@ -227,6 +227,7 @@ class SimpleURLLoaderImpl : public SimpleURLLoader,
-       uint64_t length = std::numeric_limits<uint64_t>::max()) override;
+@@ -230,6 +230,7 @@ class SimpleURLLoaderImpl : public SimpleURLLoader,
    void SetRetryOptions(int max_retries, int retry_mode) override;
+   void SetURLLoaderFactoryOptions(uint32_t options) override;
    void SetTimeoutDuration(base::TimeDelta timeout_duration) override;
 +  void SetRequestId(int32_t request_id) override;
  
    int NetError() const override;
-   const ResourceResponseHead* ResponseInfo() const override;
-@@ -344,6 +345,8 @@ class SimpleURLLoaderImpl : public SimpleURLLoader,
+   const mojom::URLResponseHead* ResponseInfo() const override;
+@@ -348,6 +349,8 @@ class SimpleURLLoaderImpl : public SimpleURLLoader,
    // The next values contain all the information required to restart the
    // request.
  
@@ -47,7 +47,7 @@ index 1ab5688d10d6..7e8d8242a06f 100644
    // Populated in the constructor, and cleared once no longer needed, when no
    // more retries are possible.
    std::unique_ptr<ResourceRequest> resource_request_;
-@@ -1363,6 +1366,12 @@ void SimpleURLLoaderImpl::SetTimeoutDuration(base::TimeDelta timeout_duration) {
+@@ -1373,6 +1376,12 @@ void SimpleURLLoaderImpl::SetTimeoutDuration(base::TimeDelta timeout_duration) {
    timeout_duration_ = timeout_duration;
  }
  
@@ -60,20 +60,20 @@ index 1ab5688d10d6..7e8d8242a06f 100644
  int SimpleURLLoaderImpl::NetError() const {
    // Should only be called once the request is compelete.
    DCHECK(request_state_->finished);
-@@ -1511,7 +1520,7 @@ void SimpleURLLoaderImpl::StartRequest(
-         string_upload_data_pipe_getter_->GetPtrForNewUpload());
+@@ -1521,7 +1530,7 @@ void SimpleURLLoaderImpl::StartRequest(
+         string_upload_data_pipe_getter_->GetRemoteForNewUpload());
    }
    url_loader_factory->CreateLoaderAndStart(
 -      mojo::MakeRequest(&url_loader_), 0 /* routing_id */, 0 /* request_id */,
 +      mojo::MakeRequest(&url_loader_), 0 /* routing_id */, request_id_,
-       0 /* options */, *resource_request_, std::move(client_ptr),
+       url_loader_factory_options_, *resource_request_, std::move(client_ptr),
        net::MutableNetworkTrafficAnnotationTag(annotation_tag_));
  
 diff --git services/network/public/cpp/simple_url_loader.h services/network/public/cpp/simple_url_loader.h
-index 255cb1830c5c..bd89d66d2520 100644
+index 88d602b0915c..ffe9b5adcebf 100644
 --- services/network/public/cpp/simple_url_loader.h
 +++ services/network/public/cpp/simple_url_loader.h
-@@ -327,6 +327,9 @@ class COMPONENT_EXPORT(NETWORK_CPP) SimpleURLLoader {
+@@ -332,6 +332,9 @@ class COMPONENT_EXPORT(NETWORK_CPP) SimpleURLLoader {
    // as much time as it wants.
    virtual void SetTimeoutDuration(base::TimeDelta timeout_duration) = 0;
  

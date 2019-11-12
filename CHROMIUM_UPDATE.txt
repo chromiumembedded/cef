@@ -58,6 +58,7 @@
     'content/shell/utility/shell_*',
     'extensions/shell/*',
     'net/cookies/cookie_store.h',
+    'ui/base/ui_base_features.cc',
   ],
   # Patterns that should not be found in the chromium/src directory after
   # applying patch files.

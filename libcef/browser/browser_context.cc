@@ -25,6 +25,7 @@
 #include "base/strings/string_util.h"
 #include "chrome/browser/font_family_cache.h"
 #include "chrome/browser/plugins/chrome_plugin_service_filter.h"
+#include "chrome/browser/profiles/profile_key.h"
 #include "chrome/browser/ui/zoom/chrome_zoom_level_prefs.h"
 #include "chrome/common/pref_names.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
@@ -47,6 +48,7 @@
 #include "extensions/common/constants.h"
 #include "net/proxy_resolution/proxy_config_service.h"
 #include "net/proxy_resolution/proxy_resolution_service.h"
+#include "services/network/public/mojom/cors_origin_pattern.mojom.h"
 
 using content::BrowserThread;
 
@@ -482,6 +484,11 @@ storage::SpecialStoragePolicy* CefBrowserContext::GetSpecialStoragePolicy() {
 }
 
 content::PushMessagingService* CefBrowserContext::GetPushMessagingService() {
+  return nullptr;
+}
+
+content::StorageNotificationService*
+CefBrowserContext::GetStorageNotificationService() {
   return nullptr;
 }
 

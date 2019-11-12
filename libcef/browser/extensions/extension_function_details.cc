@@ -408,11 +408,8 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
   auto scrub_tab_behavior = ExtensionTabUtil::GetScrubTabBehavior(
       extension, extensions::Feature::Context::UNSPECIFIED_CONTEXT,
       web_contents);
-  if (scrub_tab_behavior != ExtensionTabUtil::kDontScrubTab) {
-    ExtensionTabUtil::ScrubTabForExtension(extension, web_contents,
-                                           result.get(), scrub_tab_behavior);
-  }
-
+  ExtensionTabUtil::ScrubTabForExtension(extension, web_contents, result.get(),
+                                         scrub_tab_behavior);
   return result->ToValue().release();
 }
 

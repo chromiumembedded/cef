@@ -360,12 +360,6 @@ gcm::GCMDriver* ChromeBrowserProcessStub::gcm_driver() {
   return NULL;
 }
 
-shell_integration::DefaultWebClientState
-ChromeBrowserProcessStub::CachedDefaultWebClientState() {
-  NOTREACHED();
-  return shell_integration::UNKNOWN_DEFAULT;
-}
-
 resource_coordinator::TabManager* ChromeBrowserProcessStub::GetTabManager() {
   NOTREACHED();
   return NULL;

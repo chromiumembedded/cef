@@ -51,6 +51,7 @@
 #include "services/service_manager/sandbox/switches.h"
 #include "ui/base/layout.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "ui/base/ui_base_features.h"
 #include "ui/base/ui_base_paths.h"
 #include "ui/base/ui_base_switches.h"
 
@@ -598,6 +599,15 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       disable_features.push_back(
           features::kMimeHandlerViewInCrossProcessFrame.name);
     }
+
+#if defined(OS_WIN)
+    if (features::kCalculateNativeWinOcclusion.default_state ==
+        base::FEATURE_ENABLED_BY_DEFAULT) {
+      // TODO: Add support for occlusion detection in combination with native
+      // parent windows (see issue #2805).
+      disable_features.push_back(features::kCalculateNativeWinOcclusion.name);
+    }
+#endif  // defined(OS_WIN)
 
     if (!disable_features.empty()) {
       DCHECK(!base::FeatureList::GetInstance());

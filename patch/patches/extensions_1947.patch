@@ -132,7 +132,7 @@ index c0f80fd848d6..75b0e53ae68e 100644
    // A weak pointer to the current or pending RenderViewHost. We don't access
    // this through the host_contents because we want to deal with the pending
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index ed47ee5227ac..6b9e93784eaf 100644
+index 6d8ee7b85467..706a06d4a83c 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
 @@ -54,6 +54,7 @@ class ComponentExtensionResourceManager;
@@ -159,10 +159,10 @@ index ed47ee5227ac..6b9e93784eaf 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index 55dcd62be9fc..c19fa68da048 100644
+index e3220c480f15..e014b6bb618c 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
-@@ -380,9 +380,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,
+@@ -381,9 +381,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,
      return true;  // TODO(kalman): return false here? It might break things...
  
    DVLOG(1) << "CreateBackgroundHost " << extension->id();

@@ -36,9 +36,9 @@ template("_repack_one_locale") {
       "${root_gen_dir}/chrome/platform_locale_settings_${locale}.pak",
       "${root_gen_dir}/components/strings/components_locale_settings_${locale}.pak",
       "${root_gen_dir}/components/strings/components_strings_${locale}.pak",
-      "${root_gen_dir}/content/app/strings/content_strings_${locale}.pak",
       "${root_gen_dir}/extensions/strings/extensions_strings_${locale}.pak",
       "${root_gen_dir}/services/strings/services_strings_${locale}.pak",
+      "${root_gen_dir}/third_party/blink/public/strings/blink_strings_${locale}.pak",
       "${root_gen_dir}/ui/strings/app_locale_settings_${locale}.pak",
       "${root_gen_dir}/ui/strings/ui_strings_${locale}.pak",
     ]
@@ -54,9 +54,9 @@ template("_repack_one_locale") {
       "//chrome/app/resources:platform_locale_settings",
       "//components/strings:components_locale_settings",
       "//components/strings:components_strings",
-      "//content/app/strings",
       "//extensions/strings",
       "//services/strings",
+      "//third_party/blink/public/strings",
       "//ui/strings:app_locale_settings",
       "//ui/strings:ui_strings",
     ]

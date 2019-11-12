@@ -1,8 +1,8 @@
 diff --git content/renderer/loader/web_url_loader_impl.h content/renderer/loader/web_url_loader_impl.h
-index c5b971593d0d..760d5841434e 100644
+index 837447e61b87..3df0297ed7f8 100644
 --- content/renderer/loader/web_url_loader_impl.h
 +++ content/renderer/loader/web_url_loader_impl.h
-@@ -83,6 +83,7 @@ class CONTENT_EXPORT WebURLLoaderImpl : public blink::WebURLLoader {
+@@ -85,6 +85,7 @@ class CONTENT_EXPORT WebURLLoaderImpl : public blink::WebURLLoader {
                           blink::WebBlobInfo& downloaded_blob) override;
    void LoadAsynchronously(const blink::WebURLRequest& request,
                            blink::WebURLLoaderClient* client) override;
@@ -10,7 +10,7 @@ index c5b971593d0d..760d5841434e 100644
    void SetDefersLoading(bool value) override;
    void DidChangePriority(blink::WebURLRequest::Priority new_priority,
                           int intra_priority_value) override;
-@@ -93,8 +94,6 @@ class CONTENT_EXPORT WebURLLoaderImpl : public blink::WebURLLoader {
+@@ -95,8 +96,6 @@ class CONTENT_EXPORT WebURLLoaderImpl : public blink::WebURLLoader {
    class RequestPeerImpl;
    class SinkPeer;
  
@@ -20,10 +20,10 @@ index c5b971593d0d..760d5841434e 100644
  
    DISALLOW_COPY_AND_ASSIGN(WebURLLoaderImpl);
 diff --git third_party/blink/public/platform/web_url_loader.h third_party/blink/public/platform/web_url_loader.h
-index 7bb0b6bf25dc..d0b6bf5a887b 100644
+index 17d09c8f7466..8fe463d0e977 100644
 --- third_party/blink/public/platform/web_url_loader.h
 +++ third_party/blink/public/platform/web_url_loader.h
-@@ -71,6 +71,10 @@ class WebURLLoader {
+@@ -75,6 +75,10 @@ class WebURLLoader {
    virtual void LoadAsynchronously(const WebURLRequest&,
                                    WebURLLoaderClient*) = 0;
  

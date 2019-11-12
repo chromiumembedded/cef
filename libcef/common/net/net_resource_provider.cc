@@ -6,10 +6,10 @@
 
 #include "chrome/common/net/net_resource_provider.h"
 
-base::StringPiece NetResourceProvider(int key) {
+scoped_refptr<base::RefCountedMemory> NetResourceProvider(int key) {
   // Chrome performs substitution of localized strings for directory listings.
-  base::StringPiece value = chrome_common_net::NetResourceProvider(key);
-  if (value.empty())
+  scoped_refptr<base::RefCountedMemory> value = ChromeNetResourceProvider(key);
+  if (!value)
     LOG(ERROR) << "No data resource available for id " << key;
   return value;
 }

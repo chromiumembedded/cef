@@ -1,8 +1,8 @@
 diff --git chrome/browser/printing/print_job_worker.cc chrome/browser/printing/print_job_worker.cc
-index 13f9d7af3ae7..22d991fc1c14 100644
+index ab32d5475a0e..8e7aee00e765 100644
 --- chrome/browser/printing/print_job_worker.cc
 +++ chrome/browser/printing/print_job_worker.cc
-@@ -130,6 +130,7 @@ PrintJobWorker::PrintJobWorker(int render_process_id, int render_frame_id)
+@@ -133,6 +133,7 @@ PrintJobWorker::PrintJobWorker(int render_process_id, int render_frame_id)
            PrintingContext::Create(printing_context_delegate_.get())),
        thread_("Printing_Worker") {
    DCHECK_CURRENTLY_ON(content::BrowserThread::IO);

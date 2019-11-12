@@ -10,12 +10,12 @@
 #include "chrome/browser/extensions/api/tabs/tabs_constants.h"
 #include "components/zoom/zoom_controller.h"
 #include "content/public/browser/render_frame_host.h"
-#include "content/public/common/page_zoom.h"
 #include "extensions/browser/extension_api_frame_id_map.h"
 #include "extensions/browser/extension_zoom_request_client.h"
 #include "extensions/common/error_utils.h"
 #include "extensions/common/manifest_constants.h"
 #include "extensions/common/permissions/permissions_data.h"
+#include "third_party/blink/public/common/page/page_zoom.h"
 
 namespace extensions {
 namespace cef {
@@ -283,7 +283,7 @@ bool TabsSetZoomFunction::RunAsync() {
   zoom::ZoomController* zoom_controller =
       zoom::ZoomController::FromWebContents(web_contents);
   double zoom_level = params->zoom_factor > 0
-                          ? content::ZoomFactorToZoomLevel(params->zoom_factor)
+                          ? blink::PageZoomFactorToZoomLevel(params->zoom_factor)
                           : zoom_controller->GetDefaultZoomLevel();
 
   scoped_refptr<extensions::ExtensionZoomRequestClient> client(
@@ -310,7 +310,7 @@ bool TabsGetZoomFunction::RunAsync() {
 
   double zoom_level =
       zoom::ZoomController::FromWebContents(web_contents)->GetZoomLevel();
-  double zoom_factor = content::ZoomLevelToZoomFactor(zoom_level);
+  double zoom_factor = blink::PageZoomLevelToZoomFactor(zoom_level);
   results_ = tabs::GetZoom::Results::Create(zoom_factor);
   SendResponse(true);
   return true;
@@ -385,7 +385,7 @@ bool TabsGetZoomSettingsFunction::RunAsync() {
   api::tabs::ZoomSettings zoom_settings;
   ZoomModeToZoomSettings(zoom_mode, &zoom_settings);
   zoom_settings.default_zoom_factor.reset(new double(
-      content::ZoomLevelToZoomFactor(zoom_controller->GetDefaultZoomLevel())));
+      blink::PageZoomLevelToZoomFactor(zoom_controller->GetDefaultZoomLevel())));
 
   results_ = api::tabs::GetZoomSettings::Results::Create(zoom_settings);
   SendResponse(true);

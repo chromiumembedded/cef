@@ -18,12 +18,14 @@
 #include "libcef/common/response_impl.h"
 #include "libcef/common/task_runner_impl.h"
 
+#include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/memory/weak_ptr.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_util.h"
 #include "content/public/browser/global_request_id.h"
 #include "content/public/browser/render_frame_host.h"
+#include "net/base/mime_util.h"
 #include "net/base/net_errors.h"
 #include "net/http/http_response_headers.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
@@ -379,7 +381,7 @@ class CefBrowserURLRequest::Context
   }
 
   void OnRedirect(const net::RedirectInfo& redirect_info,
-                  const network::ResourceResponseHead& response_head,
+                  const network::mojom::URLResponseHead& response_head,
                   std::vector<std::string>* removed_headers) {
     DCHECK(CalledOnValidThread());
     DCHECK_EQ(status_, UR_IO_PENDING);
@@ -396,7 +398,7 @@ class CefBrowserURLRequest::Context
   }
 
   void OnResponseStarted(const GURL& final_url,
-                         const network::ResourceResponseHead& response_head) {
+                         const network::mojom::URLResponseHead& response_head) {
     DCHECK(CalledOnValidThread());
     DCHECK_EQ(status_, UR_IO_PENDING);
 

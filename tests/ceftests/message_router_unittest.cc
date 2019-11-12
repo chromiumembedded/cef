@@ -196,7 +196,7 @@ class MRTestHandler : public TestHandler {
     RunMRTest();
 
     // Time out the test after a reasonable period of time.
-    SetTestTimeout();
+    SetTestTimeout(10000);
   }
 
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {

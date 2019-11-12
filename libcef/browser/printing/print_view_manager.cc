@@ -26,6 +26,7 @@
 #include "chrome/browser/printing/printer_query.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/webui/print_preview/print_preview_ui.h"
+#include "components/printing/common/print.mojom.h"
 #include "components/printing/common/print_messages.h"
 #include "content/browser/download/download_manager_impl.h"
 #include "content/public/browser/browser_context.h"
@@ -37,7 +38,9 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
+#include "mojo/public/cpp/bindings/associated_remote.h"
 #include "printing/metafile_skia.h"
+#include "third_party/blink/public/common/associated_interfaces/associated_interface_provider.h"
 
 #include "libcef/browser/thread_util.h"
 
@@ -55,10 +58,7 @@ void FillInDictionaryFromPdfPrintSettings(
     int request_id,
     base::DictionaryValue& print_settings) {
   // Fixed settings.
-  print_settings.SetBoolean(kSettingPrintToPDF, true);
-  print_settings.SetBoolean(kSettingCloudPrintDialog, false);
-  print_settings.SetBoolean(kSettingPrintWithPrivet, false);
-  print_settings.SetBoolean(kSettingPrintWithExtension, false);
+  print_settings.SetIntKey(kSettingPrinterType, kPdfPrinter);
   print_settings.SetInteger(kSettingColor, GRAY);
   print_settings.SetInteger(kSettingDuplexMode, SIMPLEX);
   print_settings.SetInteger(kSettingCopies, 1);
@@ -205,8 +205,12 @@ bool CefPrintViewManager::PrintToPDF(content::RenderFrameHost* rfh,
   FillInDictionaryFromPdfPrintSettings(settings, ++next_pdf_request_id_,
                                        pdf_print_state_->settings_);
 
-  rfh->Send(new PrintMsg_InitiatePrintPreview(rfh->GetRoutingID(),
-                                              !!settings.selection_only));
+  mojo::AssociatedRemote<printing::mojom::PrintRenderFrame>
+      print_render_frame_remote;
+  rfh->GetRemoteAssociatedInterfaces()->GetInterface(
+      &print_render_frame_remote);
+  print_render_frame_remote->InitiatePrintPreview(nullptr,
+                                                  !!settings.selection_only);
 
   return true;
 }
@@ -302,7 +306,11 @@ void CefPrintViewManager::OnMetafileReadyForPrinting_PrintToPdf(
 
   DCHECK_EQ(pdf_print_state_->printing_rfh_, rfh);
 
-  rfh->Send(new PrintMsg_ClosePrintPreviewDialog(rfh->GetRoutingID()));
+  mojo::AssociatedRemote<printing::mojom::PrintRenderFrame>
+      print_render_frame_remote;
+  rfh->GetRemoteAssociatedInterfaces()->GetInterface(
+      &print_render_frame_remote);
+  print_render_frame_remote->OnPrintPreviewDialogClosed();
 
   auto shared_buf = base::RefCountedSharedMemoryMapping::CreateFromWholeRegion(
       params.content.metafile_data_region);

@@ -61,7 +61,7 @@ void GoBack(blink::WebView* view) {
     blink::WebViewImpl* view_impl = reinterpret_cast<blink::WebViewImpl*>(view);
     if (view_impl->Client()->HistoryBackListCount() > 0) {
       main_frame->ToWebLocalFrame()->Client()->NavigateBackForwardSoon(
-          -1, true /* has_user_gesture */, false /* from_script */);
+          -1, true /* has_user_gesture */);
     }
   }
 }
@@ -75,7 +75,7 @@ void GoForward(blink::WebView* view) {
     blink::WebViewImpl* view_impl = reinterpret_cast<blink::WebViewImpl*>(view);
     if (view_impl->Client()->HistoryForwardListCount() > 0) {
       main_frame->ToWebLocalFrame()->Client()->NavigateBackForwardSoon(
-          1, true /* has_user_gesture */, false /* from_script */);
+          1, true /* has_user_gesture */);
     }
   }
 }

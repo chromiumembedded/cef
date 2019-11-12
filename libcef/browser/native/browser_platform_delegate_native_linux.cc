@@ -121,7 +121,7 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   prefs->use_bitmaps = params->use_bitmaps;
   prefs->subpixel_rendering = params->subpixel_rendering;
 
-  browser_->web_contents()->GetRenderViewHost()->SyncRendererPrefs();
+  browser_->web_contents()->SyncRendererPrefs();
 
   return true;
 }
@@ -366,7 +366,8 @@ void CefBrowserPlatformDelegateNativeLinux::TranslateWheelEvent(
   result.delta_y = deltaY;
   result.wheel_ticks_x = deltaX / scrollbarPixelsPerGtkTick;
   result.wheel_ticks_y = deltaY / scrollbarPixelsPerGtkTick;
-  result.has_precise_scrolling_deltas = true;
+  result.delta_units =
+      ui::input_types::ScrollGranularity::kScrollByPrecisePixel;
 
   if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
     result.button = blink::WebMouseEvent::Button::kLeft;

@@ -535,8 +535,8 @@ void CefBrowserPlatformDelegateNativeWin::TranslateWheelEvent(
     ULONG scrollLines = defaultScrollLinesPerWheelDelta;
     SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &scrollLines, 0);
     if (scrollLines == WHEEL_PAGESCROLL)
-      result.scroll_by_page = true;
-    if (!result.scroll_by_page)
+      result.delta_units = ui::input_types::ScrollGranularity::kScrollByPage;
+    if (result.delta_units != ui::input_types::ScrollGranularity::kScrollByPage)
       scrollDelta *= static_cast<FLOAT>(scrollLines) * scrollbarPixelsPerLine;
   }
 

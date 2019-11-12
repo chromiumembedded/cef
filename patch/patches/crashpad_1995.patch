@@ -81,7 +81,7 @@ index 381322aca895..a5622ddfe66d 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 8072b8aa696e..e15894ca788f 100644
+index 4b9d1c365376..6529583db11b 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -4,6 +4,8 @@
@@ -93,7 +93,7 @@ index 8072b8aa696e..e15894ca788f 100644
  #include "base/base_switches.h"
  #include "base/command_line.h"
  #include "base/logging.h"
-@@ -27,7 +29,7 @@
+@@ -28,7 +30,7 @@
  namespace crash_keys {
  
  // Return true if we DON'T want to upload this flag to the crash server.
@@ -102,7 +102,7 @@ index 8072b8aa696e..e15894ca788f 100644
    static const char* const kIgnoreSwitches[] = {
      switches::kEnableLogging,
      switches::kFlagSwitchesBegin,
-@@ -82,7 +84,7 @@ static bool IsBoringSwitch(const std::string& flag) {
+@@ -83,7 +85,7 @@ static bool IsBoringSwitch(const std::string& flag) {
  }
  
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
@@ -127,7 +127,7 @@ index bcf172e645a2..f879aa745adf 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index 505156ada2d8..34ad815d20c6 100644
+index 7e561db0dd60..4b97ba370377 100644
 --- components/crash/content/app/breakpad_linux.cc
 +++ components/crash/content/app/breakpad_linux.cc
 @@ -28,6 +28,7 @@

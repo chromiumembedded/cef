@@ -73,7 +73,6 @@
 #include "components/spellcheck/common/spellcheck.mojom.h"
 #include "components/variations/variations_http_header_provider.h"
 #include "components/version_info/version_info.h"
-#include "content/browser/frame_host/navigation_handle_impl.h"
 #include "content/browser/frame_host/render_frame_host_impl.h"
 #include "content/browser/plugin_service_impl.h"
 #include "content/public/browser/browser_context.h"
@@ -82,6 +81,7 @@
 #include "content/public/browser/child_process_security_policy.h"
 #include "content/public/browser/client_certificate_delegate.h"
 #include "content/public/browser/navigation_handle.h"
+#include "content/public/browser/overlay_window.h"
 #include "content/public/browser/page_navigator.h"
 #include "content/public/browser/quota_permission_context.h"
 #include "content/public/browser/render_frame_host.h"
@@ -107,7 +107,7 @@
 #include "extensions/common/constants.h"
 #include "extensions/common/switches.h"
 #include "mojo/public/cpp/bindings/remote.h"
-#include "mojo/public/cpp/bindings/strong_associated_binding.h"
+#include "mojo/public/cpp/bindings/self_owned_associated_receiver.h"
 #include "net/base/auth.h"
 #include "net/ssl/ssl_cert_request_info.h"
 #include "ppapi/host/ppapi_host.h"
@@ -486,7 +486,7 @@ bool NavigationOnUIThread(
 // From chrome/browser/plugins/chrome_content_browser_client_plugins_part.cc.
 void BindPluginInfoHost(
     int render_process_id,
-    chrome::mojom::PluginInfoHostAssociatedRequest request) {
+    mojo::PendingAssociatedReceiver<chrome::mojom::PluginInfoHost> receiver) {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
   content::RenderProcessHost* host =
       content::RenderProcessHost::FromID(render_process_id);
@@ -494,9 +494,9 @@ void BindPluginInfoHost(
     return;
 
   Profile* profile = Profile::FromBrowserContext(host->GetBrowserContext());
-  mojo::MakeStrongAssociatedBinding(
+  mojo::MakeSelfOwnedAssociatedReceiver(
       std::make_unique<PluginInfoHostImpl>(render_process_id, profile),
-      std::move(request));
+      std::move(receiver));
 }
 
 }  // namespace
@@ -884,7 +884,7 @@ CefContentBrowserClient::CreateQuotaPermissionContext() {
 void CefContentBrowserClient::GetQuotaSettings(
     content::BrowserContext* context,
     content::StoragePartition* partition,
-    storage::OptionalQuotaSettingsCallback callback) {
+    base::OnceCallback<void(base::Optional<storage::QuotaSettings>)> callback) {
   const base::FilePath& cache_path = partition->GetPath();
   storage::GetNominalDynamicSettings(
       cache_path, cache_path.empty() /* is_incognito */,
@@ -1283,7 +1283,8 @@ void CefContentBrowserClient::OnNetworkServiceCreated(
       network_service);
 }
 
-network::mojom::NetworkContextPtr CefContentBrowserClient::CreateNetworkContext(
+mojo::Remote<network::mojom::NetworkContext>
+CefContentBrowserClient::CreateNetworkContext(
     content::BrowserContext* context,
     bool in_memory,
     const base::FilePath& relative_partition_path) {
@@ -1315,12 +1316,13 @@ CefContentBrowserClient::GetNetworkContextsParentDirectory() {
 
 bool CefContentBrowserClient::HandleExternalProtocol(
     const GURL& url,
-    content::WebContents::Getter web_contents_getter,
+    base::Callback<content::WebContents*(void)> web_contents_getter,
     int child_id,
     content::NavigationUIData* navigation_data,
     bool is_main_frame,
     ui::PageTransition page_transition,
     bool has_user_gesture,
+    const base::Optional<url::Origin>& initiating_origin,
     network::mojom::URLLoaderFactoryPtr* out_factory) {
   // Call the other HandleExternalProtocol variant.
   return false;
@@ -1331,7 +1333,6 @@ bool CefContentBrowserClient::HandleExternalProtocol(
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
     const network::ResourceRequest& resource_request,
-    network::mojom::URLLoaderFactoryRequest* factory_request,
     network::mojom::URLLoaderFactoryPtr* out_factory) {
   auto request = mojo::MakeRequest(out_factory);
   // CefBrowserPlatformDelegate::HandleExternalProtocol may be called if

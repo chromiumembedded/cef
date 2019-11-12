@@ -21,7 +21,10 @@
 #include "content/public/browser/plugin_service.h"
 #include "content/public/browser/ssl_host_state_delegate.h"
 #include "mojo/public/cpp/bindings/binding.h"
+#include "mojo/public/cpp/bindings/pending_receiver.h"
+#include "mojo/public/cpp/bindings/remote.h"
 #include "services/network/public/cpp/resolve_host_client_base.h"
+#include "services/network/public/mojom/network_context.mojom.h"
 
 using content::BrowserThread;
 
@@ -84,25 +87,21 @@ struct ResolveHostHelperOld {
 class ResolveHostHelper : public network::ResolveHostClientBase {
  public:
   explicit ResolveHostHelper(CefRefPtr<CefResolveCallback> callback)
-      : callback_(callback), binding_(this) {}
+      : callback_(callback), receiver_(this) {}
 
   void Start(CefBrowserContext* browser_context, const CefString& origin) {
     CEF_REQUIRE_UIT();
 
-    network::mojom::HostResolverPtrInfo host_resolver_info;
     browser_context->GetNetworkContext()->CreateHostResolver(
-        base::nullopt, mojo::MakeRequest(&host_resolver_info));
+        base::nullopt, host_resolver_.BindNewPipeAndPassReceiver());
 
-    network::mojom::ResolveHostClientPtr client_ptr;
-    binding_.Bind(mojo::MakeRequest(&client_ptr));
-    binding_.set_connection_error_handler(
+    host_resolver_.set_disconnect_handler(
         base::BindOnce(&ResolveHostHelper::OnComplete, base::Unretained(this),
                        net::ERR_FAILED, base::nullopt));
-    host_resolver_ =
-        network::mojom::HostResolverPtr(std::move(host_resolver_info));
+
     host_resolver_->ResolveHost(
         net::HostPortPair::FromURL(GURL(origin.ToString())), nullptr,
-        std::move(client_ptr));
+        receiver_.BindNewPipeAndPassRemote());
   }
 
  private:
@@ -112,7 +111,7 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
     CEF_REQUIRE_UIT();
 
     host_resolver_.reset();
-    binding_.Close();
+    receiver_.reset();
 
     std::vector<CefString> resolved_ips;
 
@@ -130,8 +129,8 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
 
   CefRefPtr<CefResolveCallback> callback_;
 
-  network::mojom::HostResolverPtr host_resolver_;
-  mojo::Binding<network::mojom::ResolveHostClient> binding_;
+  mojo::Remote<network::mojom::HostResolver> host_resolver_;
+  mojo::Receiver<network::mojom::ResolveHostClient> receiver_;
 
   DISALLOW_COPY_AND_ASSIGN(ResolveHostHelper);
 };

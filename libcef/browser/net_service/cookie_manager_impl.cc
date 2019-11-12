@@ -11,6 +11,7 @@
 #include "base/logging.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/storage_partition.h"
+#include "services/network/public/mojom/cookie_manager.mojom.h"
 #include "url/gurl.h"
 
 using network::mojom::CookieManager;

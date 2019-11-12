@@ -576,28 +576,6 @@ bool CefContentRendererClient::OverrideCreatePlugin(
   return true;
 }
 
-bool CefContentRendererClient::ShouldFork(blink::WebLocalFrame* frame,
-                                          const GURL& url,
-                                          const std::string& http_method,
-                                          bool is_initial_navigation,
-                                          bool is_server_redirect) {
-  DCHECK(!frame->Parent());
-
-  // For now, we skip the rest for POST submissions.  This is because
-  // http://crbug.com/101395 is more likely to cause compatibility issues
-  // with hosted apps and extensions than WebUI pages.  We will remove this
-  // check when cross-process POST submissions are supported.
-  if (http_method != "GET")
-    return false;
-
-  if (extensions::ExtensionsEnabled()) {
-    return extensions::CefExtensionsRendererClient::ShouldFork(
-        frame, url, is_initial_navigation, is_server_redirect);
-  }
-
-  return false;
-}
-
 void CefContentRendererClient::WillSendRequest(
     blink::WebLocalFrame* frame,
     ui::PageTransition transition_type,

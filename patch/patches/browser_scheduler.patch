@@ -1,18 +1,13 @@
 diff --git content/browser/scheduler/browser_task_executor.cc content/browser/scheduler/browser_task_executor.cc
-index f2ddb987a4de..a309caf4c670 100644
+index 4f786a1c21c7..2bbd7b0caf19 100644
 --- content/browser/scheduler/browser_task_executor.cc
 +++ content/browser/scheduler/browser_task_executor.cc
-@@ -136,10 +136,11 @@ void BrowserTaskExecutor::PostFeatureListSetup() {
+@@ -249,7 +249,7 @@ void BrowserTaskExecutor::PostFeatureListSetup() {
  
  // static
  void BrowserTaskExecutor::Shutdown() {
 -  if (!g_browser_task_executor)
-+  if (!g_browser_task_executor ||
-+      !g_browser_task_executor->browser_ui_thread_scheduler_) {
++  if (!g_browser_task_executor || !g_browser_task_executor->ui_thread_executor_)
      return;
-+  }
  
--  DCHECK(g_browser_task_executor->browser_ui_thread_scheduler_);
-   // We don't delete |g_browser_task_executor| because other threads may
-   // PostTask or call BrowserTaskExecutor::GetTaskRunner while we're tearing
-   // things down. We don't want to add locks so we just leak instead of dealing
+   DCHECK(g_browser_task_executor->ui_thread_executor_);

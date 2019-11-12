@@ -1,8 +1,8 @@
 diff --git services/service_manager/sandbox/win/sandbox_win.cc services/service_manager/sandbox/win/sandbox_win.cc
-index 5c915f75f985..f8ec8a81ce44 100644
+index 7fca3e218b4e..fc1b03056caa 100644
 --- services/service_manager/sandbox/win/sandbox_win.cc
 +++ services/service_manager/sandbox/win/sandbox_win.cc
-@@ -927,8 +927,11 @@ sandbox::ResultCode SandboxWin::StartSandboxedProcess(
+@@ -929,8 +929,11 @@ sandbox::ResultCode SandboxWin::StartSandboxedProcess(
    }
    // TODO(wfh): Relax strict handle checks for network process until root cause
    // for this crash can be resolved. See https://crbug.com/939590.

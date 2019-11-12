@@ -26,8 +26,9 @@
 
 class CefLayeredWindowUpdaterOSR : public viz::mojom::LayeredWindowUpdater {
  public:
-  CefLayeredWindowUpdaterOSR(CefRenderWidgetHostViewOSR* const view,
-                             viz::mojom::LayeredWindowUpdaterRequest request);
+  CefLayeredWindowUpdaterOSR(
+      CefRenderWidgetHostViewOSR* const view,
+      mojo::PendingReceiver<viz::mojom::LayeredWindowUpdater> receiver);
   ~CefLayeredWindowUpdaterOSR() override;
 
   void SetActive(bool active);
@@ -41,7 +42,7 @@ class CefLayeredWindowUpdaterOSR : public viz::mojom::LayeredWindowUpdater {
 
  private:
   CefRenderWidgetHostViewOSR* const view_;
-  mojo::Binding<viz::mojom::LayeredWindowUpdater> binding_;
+  mojo::Receiver<viz::mojom::LayeredWindowUpdater> receiver_;
   bool active_ = false;
   base::WritableSharedMemoryMapping shared_memory_;
   gfx::Size pixel_size_;
@@ -51,8 +52,8 @@ class CefLayeredWindowUpdaterOSR : public viz::mojom::LayeredWindowUpdater {
 
 CefLayeredWindowUpdaterOSR::CefLayeredWindowUpdaterOSR(
     CefRenderWidgetHostViewOSR* const view,
-    viz::mojom::LayeredWindowUpdaterRequest request)
-    : view_(view), binding_(this, std::move(request)) {}
+    mojo::PendingReceiver<viz::mojom::LayeredWindowUpdater> receiver)
+    : view_(view), receiver_(this, std::move(receiver)) {}
 
 CefLayeredWindowUpdaterOSR::~CefLayeredWindowUpdaterOSR() = default;
 
@@ -127,8 +128,13 @@ void CefHostDisplayClientOSR::UseProxyOutputDevice(
 }
 
 void CefHostDisplayClientOSR::CreateLayeredWindowUpdater(
-    viz::mojom::LayeredWindowUpdaterRequest request) {
+    mojo::PendingReceiver<viz::mojom::LayeredWindowUpdater> receiver) {
   layered_window_updater_ =
-      std::make_unique<CefLayeredWindowUpdaterOSR>(view_, std::move(request));
+      std::make_unique<CefLayeredWindowUpdaterOSR>(view_, std::move(receiver));
   layered_window_updater_->SetActive(active_);
 }
+
+#if defined(OS_LINUX) && !defined(OS_CHROMEOS)
+void CefHostDisplayClientOSR::DidCompleteSwapWithNewSize(
+    const gfx::Size& size) {}
+#endif

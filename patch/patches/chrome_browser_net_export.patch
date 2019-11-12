@@ -1,16 +1,16 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 3b387d754736..2c537f9c15c1 100644
+index 99b66171cd0f..46239384714e 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -10,6 +10,7 @@ import("//build/config/jumbo.gni")
+@@ -9,6 +9,7 @@ import("//build/config/features.gni")
+ import("//build/config/jumbo.gni")
  import("//build/config/linux/gtk/gtk.gni")
  import("//build/config/ui.gni")
- import("//build/split_static_library.gni")
 +import("//cef/libcef/features/features.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/assistant/assistant.gni")
  import("//components/feature_engagement/features.gni")
-@@ -370,6 +371,10 @@ jumbo_split_static_library("ui") {
+@@ -358,6 +359,10 @@ jumbo_static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -21,16 +21,24 @@ index 3b387d754736..2c537f9c15c1 100644
    # Since browser and browser_ui actually depend on each other,
    # we must omit the dependency from browser_ui to browser.
    # However, this means browser_ui and browser should more or less
-@@ -388,6 +393,7 @@ jumbo_split_static_library("ui") {
-     "//base:i18n",
+@@ -378,6 +383,7 @@ jumbo_static_library("ui") {
      "//base/allocator:buildflags",
+     "//build:branding_buildflags",
      "//cc/paint",
 +    "//cef/libcef/features",
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
+@@ -1372,6 +1378,7 @@ jumbo_static_library("ui") {
+       "//components/keep_alive_registry",
+       "//components/network_session_configurator/common",
+       "//components/page_load_metrics/browser",
++      "//components/printing/common:mojo_interfaces",
+       "//components/profile_metrics",
+       "//components/ui_metrics",
+       "//components/url_formatter",
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
-index 081ef17bf0d9..46b1d1af2baa 100644
+index 7b7cf106ad3d..b9fdb831737d 100644
 --- chrome/browser/ui/webui/net_export_ui.cc
 +++ chrome/browser/ui/webui/net_export_ui.cc
 @@ -20,13 +20,12 @@

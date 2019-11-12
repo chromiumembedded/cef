@@ -22,6 +22,7 @@
 #include "base/task/post_task.h"
 #include "cc/base/switches.h"
 #include "components/viz/common/features.h"
+#include "components/viz/common/frame_sinks/begin_frame_args.h"
 #include "components/viz/common/frame_sinks/copy_output_request.h"
 #include "components/viz/common/frame_sinks/delay_based_time_source.h"
 #include "components/viz/common/gl_helper.h"
@@ -220,7 +221,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       context_factory_private->AllocateFrameSinkId(),
       content::GetContextFactory(), context_factory_private,
       base::ThreadTaskRunnerHandle::Get(), false /* enable_pixel_canvas */,
-      use_external_begin_frame ? this : nullptr));
+      use_external_begin_frame));
   compositor_->SetAcceleratedWidget(gfx::kNullAcceleratedWidget);
 
   compositor_->SetDelegate(this);
@@ -842,15 +843,9 @@ void CefRenderWidgetHostViewOSR::DidNavigate() {
     delegated_frame_host_->DidNavigate();
 }
 
-void CefRenderWidgetHostViewOSR::OnDisplayDidFinishFrame(
-    const viz::BeginFrameAck& /*ack*/) {
+void CefRenderWidgetHostViewOSR::OnFrameComplete(
+    const viz::BeginFrameAck& ack) {
   // TODO(cef): is there something we need to track with this notification?
-}
-
-void CefRenderWidgetHostViewOSR::OnNeedsExternalBeginFrames(
-    bool needs_begin_frames) {
-  SetFrameRate();
-  needs_external_begin_frames_ = needs_begin_frames;
 }
 
 std::unique_ptr<viz::HostDisplayClient>
@@ -937,7 +932,9 @@ void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
     render_widget_host_->ProgressFlingIfNeeded(frame_time);
 
   compositor_->context_factory_private()->IssueExternalBeginFrame(
-      compositor_.get(), begin_frame_args);
+      compositor_.get(), begin_frame_args, /* force= */ true,
+      base::BindOnce(&CefRenderWidgetHostViewOSR::OnFrameComplete,
+                     weak_ptr_factory_.GetWeakPtr()));
 
   if (!IsPopupWidget() && popup_host_view_) {
     popup_host_view_->SendExternalBeginFrame();

@@ -160,12 +160,17 @@ class ProxyURLLoaderFactory
                             network::mojom::URLLoaderClientPtr client,
                             const net::MutableNetworkTrafficAnnotationTag&
                                 traffic_annotation) override;
-  void Clone(network::mojom::URLLoaderFactoryRequest loader_request) override;
+  void Clone(
+      mojo::PendingReceiver<network::mojom::URLLoaderFactory> factory) override;
 
   // network::mojom::TrustedURLLoaderHeaderClient:
   void OnLoaderCreated(
       int32_t request_id,
       mojo::PendingReceiver<network::mojom::TrustedHeaderClient> receiver)
+      override;
+  void OnLoaderForCorsPreflightCreated(
+      const ::network::ResourceRequest& request,
+      mojo::PendingReceiver<network::mojom::TrustedHeaderClient> header_client)
       override;
 
  private:

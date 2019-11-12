@@ -1,29 +1,3 @@
-diff --git base/message_loop/message_loop.cc base/message_loop/message_loop.cc
-index a8a66308a1c5..65ff368c5a72 100644
---- base/message_loop/message_loop.cc
-+++ base/message_loop/message_loop.cc
-@@ -174,6 +174,9 @@ MessageLoopForUI::MessageLoopForUI(MessagePumpType type) : MessageLoop(type) {
- #endif
- }
- 
-+MessageLoopForUI::MessageLoopForUI(std::unique_ptr<MessagePump> pump)
-+    : MessageLoop(MessagePumpType::UI, std::move(pump)) {}
-+
- #if defined(OS_IOS)
- void MessageLoopForUI::Attach() {
-   sequence_manager_->AttachToMessagePump();
-diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
-index cc760ffab174..131ccbb6520d 100644
---- base/message_loop/message_loop.h
-+++ base/message_loop/message_loop.h
-@@ -217,6 +217,7 @@ class BASE_EXPORT MessageLoop {
- class BASE_EXPORT MessageLoopForUI : public MessageLoop {
-  public:
-   explicit MessageLoopForUI(MessagePumpType type = MessagePumpType::UI);
-+  explicit MessageLoopForUI(std::unique_ptr<MessagePump> pump);
- 
- #if defined(OS_IOS)
-   // On iOS, the main message loop cannot be Run().  Instead call Attach(),
 diff --git base/message_loop/message_loop_current.cc base/message_loop/message_loop_current.cc
 index 7688ba3d7b0d..9acaaa0d5c7f 100644
 --- base/message_loop/message_loop_current.cc

@@ -57,10 +57,9 @@ void CefRenderFrameObserver::DidCommitProvisionalLoad(
   OnLoadStart();
 }
 
-void CefRenderFrameObserver::DidFailProvisionalLoad(
-    const blink::WebURLError& error) {
+void CefRenderFrameObserver::DidFailProvisionalLoad() {
   if (frame_) {
-    OnLoadError(error);
+    OnLoadError();
   }
 }
 
@@ -224,17 +223,19 @@ void CefRenderFrameObserver::OnLoadStart() {
   }
 }
 
-void CefRenderFrameObserver::OnLoadError(const blink::WebURLError& error) {
+void CefRenderFrameObserver::OnLoadError() {
   CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
     CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
     if (handler.get()) {
       CefRefPtr<CefLoadHandler> load_handler = handler->GetLoadHandler();
+      // Error codes were removed from DidFailProvisionalLoad() so we now always
+      // pass the same value.
       if (load_handler.get()) {
         const cef_errorcode_t errorCode =
-            static_cast<cef_errorcode_t>(error.reason());
-        const std::string& errorText = net::ErrorToString(error.reason());
-        const GURL& failedUrl = error.url();
+            static_cast<cef_errorcode_t>(net::ERR_ABORTED);
+        const std::string& errorText = net::ErrorToString(errorCode);
+        const GURL failedUrl(frame_->GetURL().c_str());
         blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
         CefRefPtr<CefBrowserImpl> browserPtr =
             CefBrowserImpl::GetBrowserForMainFrame(frame->Top());

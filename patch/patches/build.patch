@@ -1,8 +1,8 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index d1a9bfa30cb2..3c74d4acdda2 100644
+index 93ad68a613b3..19b82a3a6389 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
-@@ -152,7 +152,7 @@ declare_args() {
+@@ -167,7 +167,7 @@ declare_args() {
              !use_clang_coverage && !(is_android && use_order_profiling) &&
              (use_lld ||
               (use_gold &&
@@ -11,7 +11,7 @@ index d1a9bfa30cb2..3c74d4acdda2 100644
                 !(current_cpu == "x86" || current_cpu == "x64"))))
  }
  
-@@ -1728,8 +1728,6 @@ config("thin_archive") {
+@@ -1740,8 +1740,6 @@ config("thin_archive") {
    # archive names to 16 characters, which is not what we want).
    if ((is_posix && !is_nacl && !is_mac && !is_ios) || is_fuchsia) {
      arflags = [ "-T" ]

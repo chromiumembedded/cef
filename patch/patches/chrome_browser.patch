@@ -1,16 +1,16 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index 0bc6da647d95..aa57c4d046d5 100644
+index 5f4cb5b1c4fe..a082ec93ffe4 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
-@@ -10,6 +10,7 @@ import("//build/config/jumbo.gni")
+@@ -9,6 +9,7 @@ import("//build/config/features.gni")
+ import("//build/config/jumbo.gni")
  import("//build/config/linux/gtk/gtk.gni")
  import("//build/config/ui.gni")
- import("//build/split_static_library.gni")
 +import("//cef/libcef/features/features.gni")
  import("//chrome/common/features.gni")
  import("//components/feature_engagement/features.gni")
  import("//components/feed/features.gni")
-@@ -1938,6 +1939,7 @@ jumbo_split_static_library("browser") {
+@@ -1881,6 +1882,7 @@ jumbo_static_library("browser") {
      "//base/util/values:values_util",
      "//build:branding_buildflags",
      "//cc",
@@ -18,7 +18,7 @@ index 0bc6da647d95..aa57c4d046d5 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2238,6 +2240,10 @@ jumbo_split_static_library("browser") {
+@@ -2183,6 +2185,10 @@ jumbo_static_library("browser") {
      ]
    }
  

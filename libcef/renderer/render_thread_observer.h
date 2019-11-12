@@ -13,6 +13,7 @@
 #include "components/content_settings/core/common/content_settings.h"
 #include "content/public/renderer/render_thread_observer.h"
 #include "mojo/public/cpp/bindings/associated_binding_set.h"
+#include "mojo/public/cpp/bindings/associated_receiver_set.h"
 
 namespace visitedlink {
 class VisitedLinkSlave;
@@ -46,9 +47,10 @@ class CefRenderThreadObserver : public content::RenderThreadObserver,
       blink::AssociatedInterfaceRegistry* associated_interfaces) override;
 
   // chrome::mojom::RendererConfiguration:
-  void SetInitialConfiguration(bool is_incognito_process,
-                               chrome::mojom::ChromeOSListenerRequest
-                                   chromeos_listener_request) override;
+  void SetInitialConfiguration(
+      bool is_incognito_process,
+      mojo::PendingReceiver<chrome::mojom::ChromeOSListener> chromeos_listener)
+      override;
   void SetConfiguration(chrome::mojom::DynamicParamsPtr params) override;
   void SetContentSettingRules(
       const RendererContentSettingRules& rules) override;
@@ -56,7 +58,8 @@ class CefRenderThreadObserver : public content::RenderThreadObserver,
                           const std::string& group_name) override;
 
   void OnRendererConfigurationAssociatedRequest(
-      chrome::mojom::RendererConfigurationAssociatedRequest request);
+      mojo::PendingAssociatedReceiver<chrome::mojom::RendererConfiguration>
+          receiver);
 
   // Message handlers called on the render thread.
   void OnModifyCrossOriginWhitelistEntry(
@@ -68,8 +71,8 @@ class CefRenderThreadObserver : public content::RenderThreadObserver,
 
   std::unique_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
 
-  mojo::AssociatedBindingSet<chrome::mojom::RendererConfiguration>
-      renderer_configuration_bindings_;
+  mojo::AssociatedReceiverSet<chrome::mojom::RendererConfiguration>
+      renderer_configuration_receivers_;
 
   DISALLOW_COPY_AND_ASSIGN(CefRenderThreadObserver);
 };

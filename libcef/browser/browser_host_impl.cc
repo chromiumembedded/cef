@@ -1755,7 +1755,7 @@ bool CefBrowserHostImpl::EmbedsFullscreenWidget() {
 void CefBrowserHostImpl::EnterFullscreenModeForTab(
     content::WebContents* web_contents,
     const GURL& origin,
-    const blink::WebFullscreenOptions& options) {
+    const blink::mojom::FullscreenOptions& options) {
   OnFullscreenModeChange(true);
 }
 
@@ -1769,10 +1769,10 @@ bool CefBrowserHostImpl::IsFullscreenForTabOrPending(
   return is_fullscreen_;
 }
 
-blink::WebDisplayMode CefBrowserHostImpl::GetDisplayMode(
+blink::mojom::DisplayMode CefBrowserHostImpl::GetDisplayMode(
     const content::WebContents* web_contents) {
-  return is_fullscreen_ ? blink::kWebDisplayModeFullscreen
-                        : blink::kWebDisplayModeBrowser;
+  return is_fullscreen_ ? blink::mojom::DisplayMode::kFullscreen
+                        : blink::mojom::DisplayMode::kBrowser;
 }
 
 void CefBrowserHostImpl::FindReply(content::WebContents* web_contents,

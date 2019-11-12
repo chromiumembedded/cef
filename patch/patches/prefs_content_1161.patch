@@ -1,8 +1,8 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index dd1363a6b295..b69c7895c0e3 100644
+index 5411d32dbfd1..faf738b6b827 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
-@@ -189,6 +189,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+@@ -191,6 +191,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
    IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
@@ -11,7 +11,7 @@ index dd1363a6b295..b69c7895c0e3 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git content/public/common/web_preferences.cc content/public/common/web_preferences.cc
-index 114b0f7d04cd..adce9ab8c3b5 100644
+index 4b765944962d..7fe6d042bd53 100644
 --- content/public/common/web_preferences.cc
 +++ content/public/common/web_preferences.cc
 @@ -167,6 +167,7 @@ WebPreferences::WebPreferences()
@@ -23,10 +23,10 @@ index 114b0f7d04cd..adce9ab8c3b5 100644
        record_whole_document(false),
        cookie_enabled(true),
 diff --git content/public/common/web_preferences.h content/public/common/web_preferences.h
-index e47b250f52bd..dfa18577d402 100644
+index 700cba9043f0..6e0b11c28d89 100644
 --- content/public/common/web_preferences.h
 +++ content/public/common/web_preferences.h
-@@ -184,6 +184,7 @@ struct CONTENT_EXPORT WebPreferences {
+@@ -183,6 +183,7 @@ struct CONTENT_EXPORT WebPreferences {
    bool caret_browsing_enabled;
    bool use_solid_color_scrollbars;
    bool navigate_on_drag_drop;
@@ -35,10 +35,10 @@ index e47b250f52bd..dfa18577d402 100644
    bool record_whole_document;
  
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index f780c653d6e5..4b07220bac8c 100644
+index 16b6279b2228..f6c6af2559da 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -998,6 +998,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+@@ -1020,6 +1020,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
  #endif
  
    WebRuntimeFeatures::EnableTranslateService(prefs.translate_service_available);

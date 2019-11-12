@@ -1,16 +1,16 @@
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 85f0a07c9733..e25cd242078d 100644
+index 998ef8659928..b3594db3de1f 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -42,6 +42,7 @@
- #include "base/strings/string_util.h"
+@@ -43,6 +43,7 @@
  #include "base/strings/stringprintf.h"
  #include "base/task/post_task.h"
+ #include "base/task/thread_pool/thread_pool_instance.h"
 +#include "base/threading/thread_restrictions.h"
  #include "base/trace_event/trace_event.h"
  #include "components/discardable_memory/service/discardable_shared_memory_manager.h"
  #include "components/download/public/common/download_task_runner.h"
-@@ -983,6 +984,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1015,6 +1016,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
