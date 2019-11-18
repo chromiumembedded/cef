@@ -15,7 +15,7 @@
 class CefImageImpl : public CefImage {
  public:
   // Creates an empty image with no representations.
-  CefImageImpl();
+  CefImageImpl() = default;
 
   // Creates a new image by copying the ImageSkia for use as the default
   // representation.
@@ -23,7 +23,7 @@ class CefImageImpl : public CefImage {
 
   // Deletes the image and, if the only owner of the storage, all of its cached
   // representations.
-  ~CefImageImpl() override;
+  ~CefImageImpl() override = default;
 
   // CefImage methods:
   bool IsEmpty() override;
@@ -76,7 +76,8 @@ class CefImageImpl : public CefImage {
   // TODO(cef): Remove once https://crbug.com/597732 is resolved.
   gfx::ImageSkia GetForced1xScaleRepresentation(float scale_factor) const;
 
-  const gfx::Image& image() const { return image_; }
+  // Returns the skia representation of this Image.
+  gfx::ImageSkia AsImageSkia() const;
 
  private:
   // Add a bitmap.
@@ -114,6 +115,9 @@ class CefImageImpl : public CefImage {
                         std::vector<unsigned char>* compressed,
                         int quality);
 
+  mutable base::Lock lock_;
+
+  // Access to |image_| must be protected by |lock_|.
   gfx::Image image_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefImageImpl);

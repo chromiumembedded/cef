@@ -69,30 +69,18 @@ bool JPEGMethod(int quality,
 
 // static
 CefRefPtr<CefImage> CefImage::CreateImage() {
-  CEF_REQUIRE_UIT_RETURN(nullptr);
   return new CefImageImpl();
 }
 
-CefImageImpl::CefImageImpl() {
-  CEF_REQUIRE_UIT();
-}
-
 CefImageImpl::CefImageImpl(const gfx::ImageSkia& image_skia)
-    : image_(image_skia) {
-  CEF_REQUIRE_UIT();
-}
-
-CefImageImpl::~CefImageImpl() {
-  CEF_REQUIRE_UIT();
-}
+    : image_(image_skia) {}
 
 bool CefImageImpl::IsEmpty() {
-  CEF_REQUIRE_UIT_RETURN(false);
+  base::AutoLock lock_scope(lock_);
   return image_.IsEmpty();
 }
 
 bool CefImageImpl::IsSame(CefRefPtr<CefImage> that) {
-  CEF_REQUIRE_UIT_RETURN(false);
   CefImageImpl* that_impl = static_cast<CefImageImpl*>(that.get());
   if (!that_impl)
     return false;
@@ -101,6 +89,7 @@ bool CefImageImpl::IsSame(CefRefPtr<CefImage> that) {
   if (this == that_impl)
     return true;
 
+  base::AutoLock lock_scope(lock_);
   return image_.AsImageSkia().BackedBySameObjectAs(
       that_impl->image_.AsImageSkia());
 }
@@ -112,7 +101,6 @@ bool CefImageImpl::AddBitmap(float scale_factor,
                              cef_alpha_type_t alpha_type,
                              const void* pixel_data,
                              size_t pixel_data_size) {
-  CEF_REQUIRE_UIT_RETURN(false);
   const SkColorType ct = GetSkColorType(color_type);
   const SkAlphaType at = GetSkAlphaType(alpha_type);
 
@@ -137,8 +125,6 @@ bool CefImageImpl::AddBitmap(float scale_factor,
 bool CefImageImpl::AddPNG(float scale_factor,
                           const void* png_data,
                           size_t png_data_size) {
-  CEF_REQUIRE_UIT_RETURN(false);
-
   SkBitmap bitmap;
   if (!gfx::PNGCodec::Decode(static_cast<const unsigned char*>(png_data),
                              png_data_size, &bitmap)) {
@@ -151,8 +137,6 @@ bool CefImageImpl::AddPNG(float scale_factor,
 bool CefImageImpl::AddJPEG(float scale_factor,
                            const void* jpeg_data,
                            size_t jpeg_data_size) {
-  CEF_REQUIRE_UIT_RETURN(false);
-
   std::unique_ptr<SkBitmap> bitmap(gfx::JPEGCodec::Decode(
       static_cast<const unsigned char*>(jpeg_data), jpeg_data_size));
   if (!bitmap.get())
@@ -162,22 +146,22 @@ bool CefImageImpl::AddJPEG(float scale_factor,
 }
 
 size_t CefImageImpl::GetWidth() {
-  CEF_REQUIRE_UIT_RETURN(false);
+  base::AutoLock lock_scope(lock_);
   return image_.Width();
 }
 
 size_t CefImageImpl::GetHeight() {
-  CEF_REQUIRE_UIT_RETURN(false);
+  base::AutoLock lock_scope(lock_);
   return image_.Height();
 }
 
 bool CefImageImpl::HasRepresentation(float scale_factor) {
-  CEF_REQUIRE_UIT_RETURN(false);
+  base::AutoLock lock_scope(lock_);
   return image_.AsImageSkia().HasRepresentation(scale_factor);
 }
 
 bool CefImageImpl::RemoveRepresentation(float scale_factor) {
-  CEF_REQUIRE_UIT_RETURN(false);
+  base::AutoLock lock_scope(lock_);
   gfx::ImageSkia image_skia = image_.AsImageSkia();
   if (image_skia.HasRepresentation(scale_factor)) {
     image_skia.RemoveRepresentation(scale_factor);
@@ -190,7 +174,7 @@ bool CefImageImpl::GetRepresentationInfo(float scale_factor,
                                          float& actual_scale_factor,
                                          int& pixel_width,
                                          int& pixel_height) {
-  CEF_REQUIRE_UIT_RETURN(false);
+  base::AutoLock lock_scope(lock_);
   gfx::ImageSkia image_skia = image_.AsImageSkia();
   if (image_skia.isNull())
     return false;
@@ -210,11 +194,10 @@ CefRefPtr<CefBinaryValue> CefImageImpl::GetAsBitmap(float scale_factor,
                                                     cef_alpha_type_t alpha_type,
                                                     int& pixel_width,
                                                     int& pixel_height) {
-  CEF_REQUIRE_UIT_RETURN(nullptr);
-
   const SkColorType desired_ct = GetSkColorType(color_type);
   const SkAlphaType desired_at = GetSkAlphaType(alpha_type);
 
+  base::AutoLock lock_scope(lock_);
   const SkBitmap* bitmap = GetBitmap(scale_factor);
   if (!bitmap)
     return nullptr;
@@ -242,7 +225,7 @@ CefRefPtr<CefBinaryValue> CefImageImpl::GetAsPNG(float scale_factor,
                                                  bool with_transparency,
                                                  int& pixel_width,
                                                  int& pixel_height) {
-  CEF_REQUIRE_UIT_RETURN(nullptr);
+  base::AutoLock lock_scope(lock_);
   const SkBitmap* bitmap = GetBitmap(scale_factor);
   if (!bitmap)
     return nullptr;
@@ -261,7 +244,7 @@ CefRefPtr<CefBinaryValue> CefImageImpl::GetAsJPEG(float scale_factor,
                                                   int quality,
                                                   int& pixel_width,
                                                   int& pixel_height) {
-  CEF_REQUIRE_UIT_RETURN(nullptr);
+  base::AutoLock lock_scope(lock_);
   const SkBitmap* bitmap = GetBitmap(scale_factor);
   if (!bitmap)
     return nullptr;
@@ -299,6 +282,7 @@ void CefImageImpl::AddBitmaps(int32_t scale_1x_size,
 
 gfx::ImageSkia CefImageImpl::GetForced1xScaleRepresentation(
     float scale_factor) const {
+  base::AutoLock lock_scope(lock_);
   if (scale_factor == 1.0f) {
     // We can use the existing image without modification.
     return image_.AsImageSkia();
@@ -311,6 +295,11 @@ gfx::ImageSkia CefImageImpl::GetForced1xScaleRepresentation(
   return image_skia;
 }
 
+gfx::ImageSkia CefImageImpl::AsImageSkia() const {
+  base::AutoLock lock_scope(lock_);
+  return image_.AsImageSkia();
+}
+
 bool CefImageImpl::AddBitmap(float scale_factor, const SkBitmap& bitmap) {
 #if DCHECK_IS_ON()
   DCHECK(bitmap.readyToDraw());
@@ -319,6 +308,7 @@ bool CefImageImpl::AddBitmap(float scale_factor, const SkBitmap& bitmap) {
          bitmap.colorType() == kRGBA_8888_SkColorType);
 
   gfx::ImageSkiaRep skia_rep(bitmap, scale_factor);
+  base::AutoLock lock_scope(lock_);
   if (image_.IsEmpty()) {
     image_ = gfx::Image(gfx::ImageSkia(skia_rep));
   } else {
@@ -328,6 +318,7 @@ bool CefImageImpl::AddBitmap(float scale_factor, const SkBitmap& bitmap) {
 }
 
 const SkBitmap* CefImageImpl::GetBitmap(float scale_factor) const {
+  lock_.AssertAcquired();
   gfx::ImageSkia image_skia = image_.AsImageSkia();
   if (image_skia.isNull())
     return nullptr;
