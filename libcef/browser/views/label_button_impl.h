@@ -79,7 +79,7 @@ CEF_LABEL_BUTTON_IMPL_T void CEF_LABEL_BUTTON_IMPL_D::SetImage(
   CEF_REQUIRE_VALID_RETURN_VOID();
   gfx::ImageSkia image_skia;
   if (image)
-    image_skia = static_cast<CefImageImpl*>(image.get())->image().AsImageSkia();
+    image_skia = static_cast<CefImageImpl*>(image.get())->AsImageSkia();
   ParentClass::root_view()->SetImage(
       static_cast<views::Button::ButtonState>(button_state), image_skia);
 }
