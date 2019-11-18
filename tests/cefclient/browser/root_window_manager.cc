@@ -107,8 +107,7 @@ class ClientRequestContextHandler : public CefRequestContextHandler,
 }  // namespace
 
 RootWindowManager::RootWindowManager(bool terminate_when_all_windows_closed)
-    : terminate_when_all_windows_closed_(terminate_when_all_windows_closed),
-      image_cache_(new ImageCache) {
+    : terminate_when_all_windows_closed_(terminate_when_all_windows_closed) {
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
   DCHECK(command_line.get());
@@ -354,8 +353,11 @@ CefRefPtr<CefRequestContext> RootWindowManager::GetRequestContext(
 }
 
 scoped_refptr<ImageCache> RootWindowManager::GetImageCache() {
-  REQUIRE_MAIN_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
+  if (!image_cache_) {
+    image_cache_ = new ImageCache;
+  }
   return image_cache_;
 }
 
@@ -444,6 +446,10 @@ void RootWindowManager::CleanupOnUIThread() {
   if (temp_window_) {
     // TempWindow must be destroyed on the UI thread.
     temp_window_.reset(nullptr);
+  }
+
+  if (image_cache_) {
+    image_cache_ = nullptr;
   }
 
   // Quit the main message loop.
