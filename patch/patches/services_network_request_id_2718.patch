@@ -1,8 +1,8 @@
 diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
-index 818a6370957a..64ab8e2462b5 100644
+index a9318c8de615..b70cd1eb251d 100644
 --- content/browser/storage_partition_impl.cc
 +++ content/browser/storage_partition_impl.cc
-@@ -577,10 +577,6 @@ class LoginHandlerDelegate {
+@@ -580,10 +580,6 @@ class LoginHandlerDelegate {
      }
  
      WebContents* web_contents = web_contents_getter_.Run();
@@ -13,7 +13,7 @@ index 818a6370957a..64ab8e2462b5 100644
  
      // WeakPtr is not strictly necessary here due to OnRequestCancelled.
      creating_login_delegate_ = true;
-@@ -637,12 +633,6 @@ void OnAuthRequiredContinuation(
+@@ -640,12 +636,6 @@ void OnAuthRequiredContinuation(
      web_contents_getter =
          base::BindRepeating(GetWebContents, process_id, routing_id);
    }

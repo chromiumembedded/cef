@@ -122,7 +122,7 @@ index 78e055820447..9f8a6fd1cd65 100644
    // Set the view's active state (i.e., tint state of controls).
    virtual void SetActive(bool active) = 0;
 diff --git ui/base/x/x11_window.cc ui/base/x/x11_window.cc
-index a98dc5678ad0..8302238f6ea6 100644
+index d679a8e47754..48d5f9ea1a22 100644
 --- ui/base/x/x11_window.cc
 +++ ui/base/x/x11_window.cc
 @@ -228,8 +228,12 @@ void XWindow::Init(const Configuration& config) {
@@ -140,7 +140,7 @@ index a98dc5678ad0..8302238f6ea6 100644
                             bounds_in_pixels_.height(),
                             0,  // border width
 diff --git ui/base/x/x11_window.h ui/base/x/x11_window.h
-index 505db626f2ec..8ba8d7306714 100644
+index e35f3780bb69..34ba045100b9 100644
 --- ui/base/x/x11_window.h
 +++ ui/base/x/x11_window.h
 @@ -20,6 +20,7 @@
@@ -160,13 +160,13 @@ index 505db626f2ec..8ba8d7306714 100644
  
    XWindow();
 diff --git ui/platform_window/x11/x11_window.cc ui/platform_window/x11/x11_window.cc
-index e5c489eb1512..87841b48c032 100644
+index 5ab4e781b057..665009a782f4 100644
 --- ui/platform_window/x11/x11_window.cc
 +++ ui/platform_window/x11/x11_window.cc
-@@ -75,6 +75,7 @@ ui::XWindow::Configuration ConvertInitPropertiesToXWindowConfig(
-   config.wm_role_name = properties.wm_role_name;
-   config.activatable = properties.activatable;
+@@ -78,6 +78,7 @@ ui::XWindow::Configuration ConvertInitPropertiesToXWindowConfig(
    config.visual_id = properties.x_visual_id;
+   config.prefer_dark_theme = properties.prefer_dark_theme;
+   config.background_color = properties.background_color;
 +  config.parent_widget = properties.parent_widget;
    return config;
  }
@@ -185,10 +185,10 @@ index 70553b153c44..ecd99bc78373 100644
    return host ? host->GetAcceleratedWidget() : nullptr;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
-index 4f888a102b03..08c111d1a386 100644
+index 46bfbe947fca..7085c6b13508 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
-@@ -335,6 +335,8 @@ void DesktopWindowTreeHostLinux::AddAdditionalInitProperties(
+@@ -339,6 +339,8 @@ void DesktopWindowTreeHostLinux::AddAdditionalInitProperties(
    properties->wm_role_name = params.wm_role_name;
  
    properties->x_visual_id = pending_x_visual_id_;

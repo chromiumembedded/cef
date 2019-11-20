@@ -64,7 +64,7 @@ index e7f241e8db68..fe0b6e546b86 100644
  
  bool GetURLForDrop(const ui::DropTargetEvent& event, GURL* url) {
 diff --git content/browser/devtools/devtools_http_handler.cc content/browser/devtools/devtools_http_handler.cc
-index 367855448a71..c9e0ecffe5f6 100644
+index 569503d5f870..26e8b0c207c6 100644
 --- content/browser/devtools/devtools_http_handler.cc
 +++ content/browser/devtools/devtools_http_handler.cc
 @@ -570,7 +570,7 @@ void DevToolsHttpHandler::OnJsonRequest(
@@ -346,10 +346,10 @@ index f764efa250cc..9b2e8c053367 100644
    virtual void FocusedElementChanged(const blink::WebElement& element) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 8163ba87762e..54978cfe503a 100644
+index e793135c1946..c596719cbb6e 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -4149,7 +4149,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -4045,7 +4045,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -359,7 +359,7 @@ index 8163ba87762e..54978cfe503a 100644
        params.mime_type.Utf8(), &found, &info, &mime_type));
    if (!found)
      return nullptr;
-@@ -4562,6 +4563,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
+@@ -4453,6 +4454,8 @@ void RenderFrameImpl::FrameDetached(DetachType type) {
  
  void RenderFrameImpl::FrameFocused() {
    GetFrameHost()->FrameFocused();
@@ -382,10 +382,10 @@ index e2cb076d3a69..939cc09915c2 100644
        &RenderThreadImpl::OnRendererInterfaceReceiver, base::Unretained(this)));
  
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index 541268de0cc0..4572feb2e954 100644
+index 2a27da46284e..b81a54c9ac5f 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -981,6 +981,15 @@ RendererBlinkPlatformImpl::GetGpuFactories() {
+@@ -994,6 +994,15 @@ RendererBlinkPlatformImpl::GetGpuFactories() {
  
  //------------------------------------------------------------------------------
  
@@ -402,10 +402,10 @@ index 541268de0cc0..4572feb2e954 100644
    if (!code_cache_host_) {
      code_cache_host_ = mojo::SharedRemote<blink::mojom::CodeCacheHost>(
 diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
-index 68be1b765491..8468b1b42b79 100644
+index d8dce6702649..6575e90d7c9c 100644
 --- content/renderer/renderer_blink_platform_impl.h
 +++ content/renderer/renderer_blink_platform_impl.h
-@@ -209,6 +209,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
+@@ -210,6 +210,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
  
    media::GpuVideoAcceleratorFactories* GetGpuFactories() override;
  

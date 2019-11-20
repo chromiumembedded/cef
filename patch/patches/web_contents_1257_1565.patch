@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 812cfe34f691..308fde5e82d6 100644
+index b8105a844635..212358792a5c 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -2156,21 +2156,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2163,21 +2163,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -45,7 +45,7 @@ index 812cfe34f691..308fde5e82d6 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -2871,6 +2880,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
+@@ -2878,6 +2887,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -61,7 +61,7 @@ index 812cfe34f691..308fde5e82d6 100644
    // If |is_new_browsing_instance| is true, defer routing_id allocation
    // to the WebContentsImpl::Create() call. This is required because with
    // a new browsing instance, WebContentsImpl::Create() may elect a different
-@@ -2916,7 +2934,7 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
+@@ -2923,7 +2941,7 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
        // TODO(brettw): It seems bogus that we have to call this function on the
        // newly created object and give it one of its own member variables.
        RenderWidgetHostView* widget_view = new_view->CreateViewForWidget(
@@ -70,7 +70,7 @@ index 812cfe34f691..308fde5e82d6 100644
        if (!renderer_started_hidden) {
          // RenderWidgets for frames always initialize as hidden. If the renderer
          // created this window as visible, then we show it here.
-@@ -6599,7 +6617,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
+@@ -6616,7 +6634,7 @@ InterstitialPageImpl* WebContentsImpl::GetInterstitialForRenderManager() {
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =

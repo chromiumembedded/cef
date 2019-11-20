@@ -1,8 +1,8 @@
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 8171dbb425b9..908e745c7285 100644
+index 04a864ebd3e3..4fb7f7daa41f 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
-@@ -992,10 +992,6 @@ void LaunchURL(const GURL& url,
+@@ -993,10 +993,6 @@ void LaunchURL(const GURL& url,
    }
  }
  
@@ -13,7 +13,7 @@ index 8171dbb425b9..908e745c7285 100644
  void MaybeAppendSecureOriginsAllowlistSwitch(base::CommandLine* cmdline) {
    // |allowlist| combines pref/policy + cmdline switch in the browser process.
    // For renderer and utility (e.g. NetworkService) processes the switch is the
-@@ -1045,6 +1041,14 @@ void MaybeAddThrottle(
+@@ -1057,6 +1053,14 @@ bool IsInHostedApp(WebContents* web_contents) {
  
  }  // namespace
  

@@ -310,6 +310,8 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
   registry->RegisterStringPref(prefs::kWebRTCIPHandlingPolicy,
                                blink::kWebRTCIPHandlingDefault);
   registry->RegisterStringPref(prefs::kWebRTCUDPPortRange, std::string());
+  registry->RegisterBooleanPref(prefs::kWebRtcEventLogCollectionAllowed, false);
+  registry->RegisterListPref(prefs::kWebRtcLocalIpsAllowedUrls);
 
 #if !defined(OS_MACOSX)
   registry->RegisterBooleanPref(prefs::kFullscreenAllowed, true);

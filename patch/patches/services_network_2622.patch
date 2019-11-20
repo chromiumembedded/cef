@@ -1,5 +1,5 @@
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index 2788029519d2..205d29075ff8 100644
+index 2813526e1adf..cf8e3dd3e4bf 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -16,6 +16,7 @@
@@ -10,7 +10,7 @@ index 2788029519d2..205d29075ff8 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -484,9 +485,22 @@ ProfileNetworkContextService::CreateNetworkContextParams(
+@@ -487,9 +488,22 @@ ProfileNetworkContextService::CreateNetworkContextParams(
    network_context_params->cookie_manager_params =
        CreateCookieManagerParams(profile_, *cookie_settings_);
  
@@ -33,7 +33,7 @@ index 2788029519d2..205d29075ff8 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -499,6 +513,7 @@ ProfileNetworkContextService::CreateNetworkContextParams(
+@@ -502,6 +516,7 @@ ProfileNetworkContextService::CreateNetworkContextParams(
          base_cache_path.Append(chrome::kCacheDirname);
      network_context_params->http_cache_max_size =
          local_state->GetInteger(prefs::kDiskCacheSize);
@@ -58,7 +58,7 @@ index 756fa14db62a..4fb52050f8a5 100644
    // itself, if |relative_path| is empty).
    virtual mojo::Remote<network::mojom::NetworkContext> CreateNetworkContext(
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index adbda8bdf2c5..779e9e9764cb 100644
+index 5e5b1067d793..31da0f1fbd00 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
 @@ -504,6 +504,25 @@ void CookieMonster::SetCookieableSchemes(
@@ -117,10 +117,10 @@ index ebec5df3a7ed..718cf4bc7362 100644
    virtual void DumpMemoryStats(base::trace_event::ProcessMemoryDump* pmd,
                                 const std::string& parent_absolute_name) const;
 diff --git services/network/cookie_manager.cc services/network/cookie_manager.cc
-index 5a087228a2f1..1f46f8de2ee8 100644
+index 79f5342aca1d..5079e4d02649 100644
 --- services/network/cookie_manager.cc
 +++ services/network/cookie_manager.cc
-@@ -219,14 +219,9 @@ void CookieManager::FlushCookieStore(FlushCookieStoreCallback callback) {
+@@ -217,14 +217,9 @@ void CookieManager::FlushCookieStore(FlushCookieStoreCallback callback) {
  void CookieManager::AllowFileSchemeCookies(
      bool allow,
      AllowFileSchemeCookiesCallback callback) {
@@ -139,7 +139,7 @@ index 5a087228a2f1..1f46f8de2ee8 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 8489c08f3b5f..e2c22ea79382 100644
+index 6747b2f4efeb..c6594e903f0c 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
 @@ -1627,6 +1627,7 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext() {
@@ -182,7 +182,7 @@ index 8489c08f3b5f..e2c22ea79382 100644
        std::make_unique<net::StaticHttpUserAgentSettings>(
            params_->accept_language, params_->user_agent);
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 086f4b96cdd9..1fe8d2ccae88 100644
+index b60048c26c3b..c91d0094ebdc 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
 @@ -225,6 +225,9 @@ struct NetworkContextParams {

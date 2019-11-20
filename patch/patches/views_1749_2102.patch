@@ -1,5 +1,5 @@
 diff --git ui/base/models/menu_model.h ui/base/models/menu_model.h
-index b0ae539ba1dc..3fd16cbe7e7a 100644
+index 5bcc6204c2b5..1bf18609d150 100644
 --- ui/base/models/menu_model.h
 +++ ui/base/models/menu_model.h
 @@ -16,6 +16,7 @@
@@ -10,7 +10,7 @@ index b0ae539ba1dc..3fd16cbe7e7a 100644
  struct VectorIcon;
  }
  
-@@ -123,6 +124,27 @@ class UI_BASE_EXPORT MenuModel : public base::SupportsWeakPtr<MenuModel> {
+@@ -125,6 +126,27 @@ class UI_BASE_EXPORT MenuModel : public base::SupportsWeakPtr<MenuModel> {
    // |event_flags| is a bit mask of ui::EventFlags.
    virtual void ActivatedAt(int index, int event_flags);
  
@@ -300,10 +300,10 @@ index bdbd9c7e37b8..86138fd1d21c 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 0fcca1e59688..73fcd369ecb8 100644
+index f58099f2608c..75ce2dbff4e5 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1067,6 +1067,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1068,6 +1068,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -319,7 +319,7 @@ index 0fcca1e59688..73fcd369ecb8 100644
    } else if (render_selection) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == ACTIONABLE_SUBMENU) {
-@@ -1133,6 +1142,13 @@ void MenuItemView::PaintMinorIconAndText(
+@@ -1134,6 +1143,13 @@ void MenuItemView::PaintMinorIconAndText(
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool render_selection) const {
@@ -334,10 +334,10 @@ index 0fcca1e59688..73fcd369ecb8 100644
        GetMenuController() && GetMenuController()->use_touchable_layout()
            ? style::CONTEXT_TOUCH_MENU
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index 09b72733e66d..4bcee9da5b8a 100644
+index beac9986b2c6..f75e85ae6215 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
-@@ -226,6 +226,77 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
+@@ -229,6 +229,77 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
    return false;
  }
  
