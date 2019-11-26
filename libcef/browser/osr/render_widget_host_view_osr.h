@@ -163,6 +163,12 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void GetScreenInfo(content::ScreenInfo* results) override;
   void TransformPointToRootSurface(gfx::PointF* point) override;
   gfx::Rect GetBoundsInRootWindow() override;
+
+#if !defined(OS_MACOSX)
+  viz::ScopedSurfaceIdAllocator DidUpdateVisualProperties(
+      const cc::RenderFrameMetadata& metadata) override;
+#endif
+
   viz::SurfaceId GetCurrentSurfaceId() const override;
   content::BrowserAccessibilityManager* CreateBrowserAccessibilityManager(
       content::BrowserAccessibilityDelegate* delegate,
