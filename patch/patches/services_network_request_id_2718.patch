@@ -1,5 +1,5 @@
 diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
-index 48f6bd6beddf..24ef3b45a45e 100644
+index 48f6bd6beddf..e5ef5be1fdd6 100644
 --- content/browser/storage_partition_impl.cc
 +++ content/browser/storage_partition_impl.cc
 @@ -586,10 +586,6 @@ class LoginHandlerDelegate {
@@ -26,6 +26,18 @@ index 48f6bd6beddf..24ef3b45a45e 100644
    new LoginHandlerDelegate(std::move(auth_challenge_responder),
                             std::move(web_contents_getter), auth_info,
                             is_request_for_main_frame, process_id, routing_id,
+@@ -2282,7 +2272,10 @@ void StoragePartitionImpl::GetQuotaSettings(
+ void StoragePartitionImpl::InitNetworkContext() {
+   network_context_ = GetContentClient()->browser()->CreateNetworkContext(
+       browser_context_, is_in_memory_, relative_partition_path_);
+-  DCHECK(network_context_);
++  if (!network_context_) {
++    // May happen during shutdown.
++    return;
++  }
+ 
+   network_context_client_receiver_.reset();
+   network_context_->SetClient(
 diff --git services/network/public/cpp/simple_url_loader.cc services/network/public/cpp/simple_url_loader.cc
 index 1ab5688d10d6..7e8d8242a06f 100644
 --- services/network/public/cpp/simple_url_loader.cc
