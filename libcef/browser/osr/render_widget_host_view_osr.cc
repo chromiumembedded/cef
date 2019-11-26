@@ -162,6 +162,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     : content::RenderWidgetHostViewBase(widget),
       background_color_(background_color),
       frame_rate_threshold_us_(0),
+      host_display_client_(nullptr),
       hold_resize_(false),
       pending_resize_(false),
       pending_resize_force_(false),
@@ -814,7 +815,9 @@ CefRenderWidgetHostViewOSR::CreateSyntheticGestureTarget() {
 void CefRenderWidgetHostViewOSR::SetNeedsBeginFrames(bool enabled) {
   SetFrameRate();
 
-  host_display_client_->SetActive(enabled);
+  if (host_display_client_) {
+    host_display_client_->SetActive(enabled);
+  }
 }
 
 void CefRenderWidgetHostViewOSR::SetWantsAnimateOnlyBeginFrames() {
@@ -1496,7 +1499,7 @@ void CefRenderWidgetHostViewOSR::InvalidateInternal(
     const gfx::Rect& bounds_in_pixels) {
   if (video_consumer_) {
     video_consumer_->SizeChanged();
-  } else {
+  } else if (host_display_client_) {
     OnPaint(bounds_in_pixels, host_display_client_->GetPixelSize(),
             host_display_client_->GetPixelMemory());
   }
