@@ -229,6 +229,11 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
   compositor_->SetRootLayer(root_layer_.get());
   compositor_->AddChildFrameSink(GetFrameSinkId());
 
+  content::RenderWidgetHostImpl* render_widget_host_impl =
+      content::RenderWidgetHostImpl::From(render_widget_host_);
+  if (render_widget_host_impl)
+    render_widget_host_impl->SetCompositorForFlingScheduler(compositor_.get());
+
   if (browser_impl_.get())
     ResizeRootLayer(false);
 

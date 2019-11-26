@@ -1,0 +1,70 @@
+diff --git content/browser/renderer_host/input/fling_scheduler.cc content/browser/renderer_host/input/fling_scheduler.cc
+index cf220cb41b00..5ebff06e6031 100644
+--- content/browser/renderer_host/input/fling_scheduler.cc
++++ content/browser/renderer_host/input/fling_scheduler.cc
+@@ -71,6 +71,9 @@ void FlingScheduler::ProgressFlingOnBeginFrameIfneeded(
+ }
+ 
+ ui::Compositor* FlingScheduler::GetCompositor() {
++  if (compositor_) {
++    return compositor_;
++  }
+ #if defined(USE_AURA)
+   if (host_->GetView() && host_->GetView()->GetNativeView() &&
+       host_->GetView()->GetNativeView()->GetHost() &&
+diff --git content/browser/renderer_host/input/fling_scheduler_base.h content/browser/renderer_host/input/fling_scheduler_base.h
+index cc4b13a7b9c6..84f3b9ed7cf4 100644
+--- content/browser/renderer_host/input/fling_scheduler_base.h
++++ content/browser/renderer_host/input/fling_scheduler_base.h
+@@ -7,12 +7,23 @@
+ 
+ #include "content/browser/renderer_host/input/fling_controller.h"
+ 
++namespace ui {
++class Compositor;
++}
++
+ namespace content {
+ 
+ class FlingSchedulerBase : public FlingControllerSchedulerClient {
+  public:
+   virtual void ProgressFlingOnBeginFrameIfneeded(
+       base::TimeTicks current_time) = 0;
++
++  void SetCompositor(ui::Compositor* compositor) {
++    compositor_ = compositor;
++  }
++
++protected:
++ ui::Compositor* compositor_ = nullptr;
+ };
+ 
+ }  // namespace content
+diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
+index cfa68bf03b99..02918742fd15 100644
+--- content/browser/renderer_host/render_widget_host_impl.cc
++++ content/browser/renderer_host/render_widget_host_impl.cc
+@@ -2661,6 +2661,11 @@ void RenderWidgetHostImpl::SetNeedsBeginFrameForFlingProgress() {
+   SetNeedsBeginFrame(true);
+ }
+ 
++void RenderWidgetHostImpl::SetCompositorForFlingScheduler(ui::Compositor* compositor)
++{
++  fling_scheduler_->SetCompositor(compositor);
++}
++
+ void RenderWidgetHostImpl::AddPendingUserActivation(
+     const WebInputEvent& event) {
+   if (base::FeatureList::IsEnabled(features::kBrowserVerifiedUserActivation) &&
+diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
+index a3f9a2d865cc..2d6bdc5b65c2 100644
+--- content/browser/renderer_host/render_widget_host_impl.h
++++ content/browser/renderer_host/render_widget_host_impl.h
+@@ -714,6 +714,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+   void ProgressFlingIfNeeded(base::TimeTicks current_time);
+   void StopFling();
+   void SetNeedsBeginFrameForFlingProgress();
++  void SetCompositorForFlingScheduler(ui::Compositor* compositor);
+ 
+   // The RenderWidgetHostImpl will keep showing the old page (for a while) after
+   // navigation until the first frame of the new page arrives. This reduces
