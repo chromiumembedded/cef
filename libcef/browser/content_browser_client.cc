@@ -1288,6 +1288,11 @@ CefContentBrowserClient::CreateNetworkContext(
     content::BrowserContext* context,
     bool in_memory,
     const base::FilePath& relative_partition_path) {
+  // This method may be called during shutdown when using multi-threaded
+  // message loop mode. In that case exit early to avoid crashes.
+  if (!SystemNetworkContextManager::GetInstance())
+    return mojo::Remote<network::mojom::NetworkContext>();
+
   Profile* profile = Profile::FromBrowserContext(context);
   return profile->CreateNetworkContext(in_memory, relative_partition_path);
 }
