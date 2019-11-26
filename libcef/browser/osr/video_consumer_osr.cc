@@ -84,7 +84,7 @@ void CefVideoConsumerOSR::OnFrameCaptured(
     damage_rect = content_rect;
   }
 
-  view_->OnPaint(damage_rect, content_rect.size(), pixels);
+  view_->OnPaint(damage_rect, info->coded_size, pixels);
 }
 
 void CefVideoConsumerOSR::OnStopped() {}
