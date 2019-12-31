@@ -28,9 +28,13 @@ class ClientSchemeHandler : public CefResourceHandler {
  public:
   ClientSchemeHandler() : offset_(0) {}
 
-  virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              CefRefPtr<CefCallback> callback) OVERRIDE {
-    CEF_REQUIRE_IO_THREAD();
+  bool Open(CefRefPtr<CefRequest> request,
+            bool& handle_request,
+            CefRefPtr<CefCallback> callback) OVERRIDE {
+    DCHECK(!CefCurrentlyOn(TID_UI) && !CefCurrentlyOn(TID_IO));
+
+    // The request will be continued or canceled based on the return value.
+    handle_request = true;
 
     bool handled = false;
 
@@ -70,18 +74,12 @@ class ClientSchemeHandler : public CefResourceHandler {
       }
     }
 
-    if (handled) {
-      // Indicate the headers are available.
-      callback->Continue();
-      return true;
-    }
-
-    return false;
+    return handled;
   }
 
-  virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                                  int64& response_length,
-                                  CefString& redirectUrl) OVERRIDE {
+  void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                          int64& response_length,
+                          CefString& redirectUrl) OVERRIDE {
     CEF_REQUIRE_IO_THREAD();
 
     DCHECK(!data_.empty());
@@ -93,13 +91,13 @@ class ClientSchemeHandler : public CefResourceHandler {
     response_length = data_.length();
   }
 
-  virtual void Cancel() OVERRIDE { CEF_REQUIRE_IO_THREAD(); }
+  void Cancel() OVERRIDE { CEF_REQUIRE_IO_THREAD(); }
 
-  virtual bool ReadResponse(void* data_out,
-                            int bytes_to_read,
-                            int& bytes_read,
-                            CefRefPtr<CefCallback> callback) OVERRIDE {
-    CEF_REQUIRE_IO_THREAD();
+  bool Read(void* data_out,
+            int bytes_to_read,
+            int& bytes_read,
+            CefRefPtr<CefResourceReadCallback> callback) OVERRIDE {
+    DCHECK(!CefCurrentlyOn(TID_UI) && !CefCurrentlyOn(TID_IO));
 
     bool has_data = false;
     bytes_read = 0;
@@ -124,22 +122,25 @@ class ClientSchemeHandler : public CefResourceHandler {
   size_t offset_;
 
   IMPLEMENT_REFCOUNTING(ClientSchemeHandler);
+  DISALLOW_COPY_AND_ASSIGN(ClientSchemeHandler);
 };
 
 // Implementation of the factory for for creating schema handlers.
 class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {
  public:
+  ClientSchemeHandlerFactory() {}
+
   // Return a new scheme handler instance to handle the request.
-  virtual CefRefPtr<CefResourceHandler> Create(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      const CefString& scheme_name,
-      CefRefPtr<CefRequest> request) OVERRIDE {
+  CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
+                                       CefRefPtr<CefFrame> frame,
+                                       const CefString& scheme_name,
+                                       CefRefPtr<CefRequest> request) OVERRIDE {
     CEF_REQUIRE_IO_THREAD();
     return new ClientSchemeHandler();
   }
 
   IMPLEMENT_REFCOUNTING(ClientSchemeHandlerFactory);
+  DISALLOW_COPY_AND_ASSIGN(ClientSchemeHandlerFactory);
 };
 
 }  // namespace

@@ -22,6 +22,7 @@ namespace {
 
 // Normal stream resource handler implementation that additionally verifies
 // calls to Cancel.
+// This also tests the CefStreamResourceHandler implementation.
 class NormalResourceHandler : public CefStreamResourceHandler {
  public:
   NormalResourceHandler(int status_code,
@@ -50,27 +51,186 @@ class NormalResourceHandler : public CefStreamResourceHandler {
  private:
   const base::Closure destroy_callback_;
   int cancel_ct_ = 0;
+};
 
-  DISALLOW_COPY_AND_ASSIGN(NormalResourceHandler);
+// Normal stream resource handler implementation that additionally continues
+// using the callback object and verifies calls to Cancel.
+class CallbackResourceHandler : public CefResourceHandler {
+ public:
+  enum Mode {
+    DELAYED_OPEN,
+    DELAYED_READ,
+    IMMEDIATE_OPEN,
+    IMMEDIATE_READ,
+    DELAYED_ALL,
+    IMMEDIATE_ALL,
+  };
+
+  bool IsDelayedOpen() const {
+    return mode_ == DELAYED_OPEN || mode_ == DELAYED_ALL;
+  }
+
+  bool IsDelayedRead() const {
+    return mode_ == DELAYED_READ || mode_ == DELAYED_ALL;
+  }
+
+  bool IsImmediateOpen() const {
+    return mode_ == IMMEDIATE_OPEN || mode_ == IMMEDIATE_ALL;
+  }
+
+  bool IsImmediateRead() const {
+    return mode_ == IMMEDIATE_READ || mode_ == IMMEDIATE_ALL;
+  }
+
+  CallbackResourceHandler(Mode mode,
+                          int status_code,
+                          const CefString& status_text,
+                          const CefString& mime_type,
+                          CefResponse::HeaderMap header_map,
+                          CefRefPtr<CefStreamReader> stream,
+                          const base::Closure& destroy_callback)
+      : mode_(mode),
+        status_code_(status_code),
+        status_text_(status_text),
+        mime_type_(mime_type),
+        header_map_(header_map),
+        stream_(stream),
+        destroy_callback_(destroy_callback) {
+    DCHECK(!mime_type_.empty());
+    DCHECK(stream_.get());
+  }
+
+  ~CallbackResourceHandler() override {
+    EXPECT_EQ(1, cancel_ct_);
+    destroy_callback_.Run();
+  }
+
+  bool Open(CefRefPtr<CefRequest> request,
+            bool& handle_request,
+            CefRefPtr<CefCallback> callback) override {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
+
+    if (IsDelayedOpen()) {
+      // Continue the request asynchronously by executing the callback.
+      CefPostTask(TID_FILE_USER_VISIBLE,
+                  base::Bind(&CefCallback::Continue, callback));
+      handle_request = false;
+      return true;
+    } else if (IsImmediateOpen()) {
+      // Continue the request immediately be executing the callback.
+      callback->Continue();
+      handle_request = false;
+      return true;
+    }
+
+    // Continue the request immediately in the default manner.
+    handle_request = true;
+    return true;
+  }
+
+  void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                          int64& response_length,
+                          CefString& redirectUrl) override {
+    response->SetStatus(status_code_);
+    response->SetStatusText(status_text_);
+    response->SetMimeType(mime_type_);
+
+    if (!header_map_.empty())
+      response->SetHeaderMap(header_map_);
+
+    response_length = -1;
+  }
+
+  bool Read(void* data_out,
+            int bytes_to_read,
+            int& bytes_read,
+            CefRefPtr<CefResourceReadCallback> callback) override {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
+    EXPECT_GT(bytes_to_read, 0);
+
+    bytes_read = 0;
+
+    if (IsDelayedRead()) {
+      // Continue the request asynchronously by executing the callback.
+      CefPostTask(TID_FILE_USER_VISIBLE,
+                  base::Bind(&CallbackResourceHandler::ContinueRead, this,
+                             data_out, bytes_to_read, callback));
+      return true;
+    } else if (IsImmediateRead()) {
+      // Continue the request immediately be executing the callback.
+      ContinueRead(data_out, bytes_to_read, callback);
+      return true;
+    }
+
+    // Continue the request immediately in the default manner.
+    return DoRead(data_out, bytes_to_read, bytes_read);
+  }
+
+  void Cancel() override {
+    EXPECT_IO_THREAD();
+    cancel_ct_++;
+  }
+
+ private:
+  void ContinueRead(void* data_out,
+                    int bytes_to_read,
+                    CefRefPtr<CefResourceReadCallback> callback) {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
+
+    int bytes_read = 0;
+    DoRead(data_out, bytes_to_read, bytes_read);
+    callback->Continue(bytes_read);
+  }
+
+  bool DoRead(void* data_out, int bytes_to_read, int& bytes_read) {
+    DCHECK_GT(bytes_to_read, 0);
+
+    // Read until the buffer is full or until Read() returns 0 to indicate no
+    // more data.
+    bytes_read = 0;
+    int read = 0;
+    do {
+      read = static_cast<int>(
+          stream_->Read(static_cast<char*>(data_out) + bytes_read, 1,
+                        bytes_to_read - bytes_read));
+      bytes_read += read;
+    } while (read != 0 && bytes_read < bytes_to_read);
+
+    return (bytes_read > 0);
+  }
+
+  const Mode mode_;
+
+  const int status_code_;
+  const CefString status_text_;
+  const CefString mime_type_;
+  const CefResponse::HeaderMap header_map_;
+  const CefRefPtr<CefStreamReader> stream_;
+
+  const base::Closure destroy_callback_;
+  int cancel_ct_ = 0;
+
+  IMPLEMENT_REFCOUNTING(CallbackResourceHandler);
+  DISALLOW_COPY_AND_ASSIGN(CallbackResourceHandler);
 };
 
 // Resource handler implementation that never completes. Used to test
 // destruction handling behavior for in-progress requests.
-class IncompleteResourceHandler : public CefResourceHandler {
+class IncompleteResourceHandlerOld : public CefResourceHandler {
  public:
   enum TestMode {
     BLOCK_PROCESS_REQUEST,
     BLOCK_READ_RESPONSE,
   };
 
-  IncompleteResourceHandler(TestMode test_mode,
-                            const std::string& mime_type,
-                            const base::Closure& destroy_callback)
+  IncompleteResourceHandlerOld(TestMode test_mode,
+                               const std::string& mime_type,
+                               const base::Closure& destroy_callback)
       : test_mode_(test_mode),
         mime_type_(mime_type),
         destroy_callback_(destroy_callback) {}
 
-  ~IncompleteResourceHandler() override {
+  ~IncompleteResourceHandlerOld() override {
     EXPECT_EQ(1, process_request_ct_);
 
     EXPECT_EQ(1, cancel_ct_);
@@ -147,6 +307,119 @@ class IncompleteResourceHandler : public CefResourceHandler {
 
   CefRefPtr<CefCallback> incomplete_callback_;
 
+  IMPLEMENT_REFCOUNTING(IncompleteResourceHandlerOld);
+  DISALLOW_COPY_AND_ASSIGN(IncompleteResourceHandlerOld);
+};
+
+class IncompleteResourceHandler : public CefResourceHandler {
+ public:
+  enum TestMode {
+    BLOCK_OPEN,
+    BLOCK_READ,
+  };
+
+  IncompleteResourceHandler(TestMode test_mode,
+                            const std::string& mime_type,
+                            const base::Closure& destroy_callback)
+      : test_mode_(test_mode),
+        mime_type_(mime_type),
+        destroy_callback_(destroy_callback) {}
+
+  ~IncompleteResourceHandler() override {
+    EXPECT_EQ(1, open_ct_);
+
+    EXPECT_EQ(1, cancel_ct_);
+
+    if (test_mode_ == BLOCK_READ) {
+      EXPECT_EQ(1, get_response_headers_ct_);
+      EXPECT_EQ(1, read_ct_);
+    } else {
+      EXPECT_EQ(0, get_response_headers_ct_);
+      EXPECT_EQ(0, read_ct_);
+    }
+
+    destroy_callback_.Run();
+  }
+
+  bool Open(CefRefPtr<CefRequest> request,
+            bool& handle_request,
+            CefRefPtr<CefCallback> callback) override {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
+
+    open_ct_++;
+
+    if (test_mode_ == BLOCK_OPEN) {
+      // Never release or execute this callback.
+      incomplete_open_callback_ = callback;
+    } else {
+      // Continue immediately.
+      handle_request = true;
+    }
+    return true;
+  }
+
+  bool ProcessRequest(CefRefPtr<CefRequest> request,
+                      CefRefPtr<CefCallback> callback) override {
+    EXPECT_TRUE(false);  // Not reached.
+    return false;
+  }
+
+  void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                          int64& response_length,
+                          CefString& redirectUrl) override {
+    EXPECT_IO_THREAD();
+    EXPECT_EQ(test_mode_, BLOCK_READ);
+
+    get_response_headers_ct_++;
+
+    response->SetStatus(200);
+    response->SetStatusText("OK");
+    response->SetMimeType(mime_type_);
+    response_length = 100;
+  }
+
+  bool Read(void* data_out,
+            int bytes_to_read,
+            int& bytes_read,
+            CefRefPtr<CefResourceReadCallback> callback) override {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
+    EXPECT_EQ(test_mode_, BLOCK_READ);
+
+    read_ct_++;
+
+    // Never release or execute this callback.
+    incomplete_read_callback_ = callback;
+    bytes_read = 0;
+    return true;
+  }
+
+  bool ReadResponse(void* data_out,
+                    int bytes_to_read,
+                    int& bytes_read,
+                    CefRefPtr<CefCallback> callback) override {
+    EXPECT_TRUE(false);  // Not reached.
+    bytes_read = -2;
+    return false;
+  }
+
+  void Cancel() override {
+    EXPECT_IO_THREAD();
+    cancel_ct_++;
+  }
+
+ private:
+  const TestMode test_mode_;
+  const std::string mime_type_;
+  const base::Closure destroy_callback_;
+
+  int open_ct_ = 0;
+  int get_response_headers_ct_ = 0;
+  int read_ct_ = 0;
+  int cancel_ct_ = 0;
+
+  CefRefPtr<CefCallback> incomplete_open_callback_;
+  CefRefPtr<CefResourceReadCallback> incomplete_read_callback_;
+
   IMPLEMENT_REFCOUNTING(IncompleteResourceHandler);
   DISALLOW_COPY_AND_ASSIGN(IncompleteResourceHandler);
 };
@@ -175,11 +448,23 @@ class BasicResponseTest : public TestHandler {
     // Redirect the request (change the URL) in OnBeforeResourceLoad.
     REDIRECT_BEFORE_RESOURCE_LOAD,
 
+    // Return a CefResourceHandler from GetResourceHandler that continues
+    // immediately by using the callback object instead of the return value.
+    IMMEDIATE_REQUEST_HANDLER_OPEN,
+    IMMEDIATE_REQUEST_HANDLER_READ,
+    IMMEDIATE_REQUEST_HANDLER_ALL,
+
+    // Return a CefResourceHandler from GetResourceHandler that continues with
+    // a delay by using the callback object.
+    DELAYED_REQUEST_HANDLER_OPEN,
+    DELAYED_REQUEST_HANDLER_READ,
+    DELAYED_REQUEST_HANDLER_ALL,
+
     // Return a CefResourceHandler from GetResourceHandler that never completes,
     // then close the browser to verify destruction handling of in-progress
     // requests.
-    INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST,
-    INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE,
+    INCOMPLETE_REQUEST_HANDLER_OPEN,
+    INCOMPLETE_REQUEST_HANDLER_READ,
 
     // Redirect the request using a CefResourceHandler returned from
     // GetResourceHandler.
@@ -552,24 +837,7 @@ class BasicResponseTest : public TestHandler {
   }
 
   void DestroyTest() override {
-    if (mode_ == LOAD || mode_ == MODIFY_BEFORE_RESOURCE_LOAD) {
-      EXPECT_EQ(1, on_before_browse_ct_);
-      EXPECT_EQ(1, get_resource_request_handler_ct_);
-      EXPECT_EQ(1, get_cookie_access_filter_ct_);
-      EXPECT_EQ(1, on_before_resource_load_ct_);
-      EXPECT_EQ(1, get_resource_handler_ct_);
-      EXPECT_EQ(0, on_resource_redirect_ct_);
-
-      // Unhandled requests won't see a call to GetResourceResponseFilter
-      // or OnResourceResponse.
-      if (unhandled_) {
-        EXPECT_EQ(0, get_resource_response_filter_ct_);
-        EXPECT_EQ(0, on_resource_response_ct_);
-      } else {
-        EXPECT_EQ(1, get_resource_response_filter_ct_);
-        EXPECT_EQ(1, on_resource_response_ct_);
-      }
-    } else if (mode_ == RESTART_RESOURCE_RESPONSE) {
+    if (mode_ == RESTART_RESOURCE_RESPONSE) {
       EXPECT_EQ(1, on_before_browse_ct_);
       EXPECT_EQ(2, get_resource_request_handler_ct_);
       EXPECT_EQ(2, get_cookie_access_filter_ct_);
@@ -585,6 +853,23 @@ class BasicResponseTest : public TestHandler {
       } else {
         EXPECT_EQ(1, get_resource_response_filter_ct_);
         EXPECT_EQ(2, on_resource_response_ct_);
+      }
+    } else if (IsLoad()) {
+      EXPECT_EQ(1, on_before_browse_ct_);
+      EXPECT_EQ(1, get_resource_request_handler_ct_);
+      EXPECT_EQ(1, get_cookie_access_filter_ct_);
+      EXPECT_EQ(1, on_before_resource_load_ct_);
+      EXPECT_EQ(1, get_resource_handler_ct_);
+      EXPECT_EQ(0, on_resource_redirect_ct_);
+
+      // Unhandled requests won't see a call to GetResourceResponseFilter
+      // or OnResourceResponse.
+      if (unhandled_) {
+        EXPECT_EQ(0, get_resource_response_filter_ct_);
+        EXPECT_EQ(0, on_resource_response_ct_);
+      } else {
+        EXPECT_EQ(1, get_resource_response_filter_ct_);
+        EXPECT_EQ(1, on_resource_response_ct_);
       }
     } else if (IsRedirect()) {
       EXPECT_EQ(2, on_before_browse_ct_);
@@ -634,7 +919,7 @@ class BasicResponseTest : public TestHandler {
 
       EXPECT_EQ(0, on_resource_redirect_ct_);
 
-      if (mode_ == INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE) {
+      if (mode_ == INCOMPLETE_REQUEST_HANDLER_READ) {
         EXPECT_EQ(1, get_resource_response_filter_ct_);
         EXPECT_EQ(1, on_resource_response_ct_);
       } else {
@@ -739,46 +1024,96 @@ class BasicResponseTest : public TestHandler {
     return base::Bind(&BasicResponseTest::MaybeDestroyTest, this, true);
   }
 
-  CefRefPtr<CefResourceHandler> GetOKResource() {
-    const std::string& body = GetResponseBody();
+  bool GetCallbackResourceHandlerMode(CallbackResourceHandler::Mode& mode) {
+    switch (mode_) {
+      case IMMEDIATE_REQUEST_HANDLER_OPEN:
+        mode = CallbackResourceHandler::IMMEDIATE_OPEN;
+        return true;
+      case IMMEDIATE_REQUEST_HANDLER_READ:
+        mode = CallbackResourceHandler::IMMEDIATE_READ;
+        return true;
+      case IMMEDIATE_REQUEST_HANDLER_ALL:
+        mode = CallbackResourceHandler::IMMEDIATE_ALL;
+        return true;
+      case DELAYED_REQUEST_HANDLER_OPEN:
+        mode = CallbackResourceHandler::DELAYED_OPEN;
+        return true;
+      case DELAYED_REQUEST_HANDLER_READ:
+        mode = CallbackResourceHandler::DELAYED_READ;
+        return true;
+      case DELAYED_REQUEST_HANDLER_ALL:
+        mode = CallbackResourceHandler::DELAYED_ALL;
+        return true;
+      default:
+        break;
+    }
+    return false;
+  }
+
+  CefRefPtr<CefResourceHandler> GetResource(int status_code,
+                                            const CefString& status_text,
+                                            const CefString& mime_type,
+                                            CefResponse::HeaderMap header_map,
+                                            const std::string& body) {
     CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
         const_cast<char*>(body.c_str()), body.size());
 
-    return new NormalResourceHandler(200, "OK", "text/html",
-                                     CefResponse::HeaderMap(), stream,
+    CallbackResourceHandler::Mode handler_mode;
+    if (GetCallbackResourceHandlerMode(handler_mode)) {
+      return new CallbackResourceHandler(handler_mode, status_code, status_text,
+                                         mime_type, header_map, stream,
+                                         GetResourceDestroyCallback());
+    }
+
+    return new NormalResourceHandler(status_code, status_text, mime_type,
+                                     header_map, stream,
                                      GetResourceDestroyCallback());
+  }
+
+  CefRefPtr<CefResourceHandler> GetOKResource() {
+    return GetResource(200, "OK", "text/html", CefResponse::HeaderMap(),
+                       GetResponseBody());
   }
 
   CefRefPtr<CefResourceHandler> GetRedirectResource(
       const std::string& redirect_url) {
-    const std::string& body = GetRedirectBody();
-    CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
-        const_cast<char*>(body.c_str()), body.size());
-
     CefResponse::HeaderMap headerMap;
     headerMap.insert(std::make_pair("Location", redirect_url));
 
-    return new NormalResourceHandler(307, "Temporary Redirect", "text/html",
-                                     headerMap, stream,
-                                     GetResourceDestroyCallback());
+    return GetResource(307, "Temporary Redirect", "text/html", headerMap,
+                       GetRedirectBody());
   }
 
   CefRefPtr<CefResourceHandler> GetIncompleteResource() {
+    if (TestOldResourceAPI()) {
+      return new IncompleteResourceHandlerOld(
+          mode_ == INCOMPLETE_REQUEST_HANDLER_OPEN
+              ? IncompleteResourceHandlerOld::BLOCK_PROCESS_REQUEST
+              : IncompleteResourceHandlerOld::BLOCK_READ_RESPONSE,
+          "text/html", GetResourceDestroyCallback());
+    }
+
     return new IncompleteResourceHandler(
-        mode_ == INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST
-            ? IncompleteResourceHandler::BLOCK_PROCESS_REQUEST
-            : IncompleteResourceHandler::BLOCK_READ_RESPONSE,
+        mode_ == INCOMPLETE_REQUEST_HANDLER_OPEN
+            ? IncompleteResourceHandler::BLOCK_OPEN
+            : IncompleteResourceHandler::BLOCK_READ,
         "text/html", GetResourceDestroyCallback());
   }
 
   bool IsLoad() const {
     return mode_ == LOAD || mode_ == MODIFY_BEFORE_RESOURCE_LOAD ||
-           mode_ == RESTART_RESOURCE_RESPONSE;
+           mode_ == RESTART_RESOURCE_RESPONSE ||
+           mode_ == IMMEDIATE_REQUEST_HANDLER_OPEN ||
+           mode_ == IMMEDIATE_REQUEST_HANDLER_READ ||
+           mode_ == IMMEDIATE_REQUEST_HANDLER_ALL ||
+           mode_ == DELAYED_REQUEST_HANDLER_OPEN ||
+           mode_ == DELAYED_REQUEST_HANDLER_READ ||
+           mode_ == DELAYED_REQUEST_HANDLER_ALL;
   }
 
   bool IsIncompleteRequestHandler() const {
-    return mode_ == INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST ||
-           mode_ == INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE;
+    return mode_ == INCOMPLETE_REQUEST_HANDLER_OPEN ||
+           mode_ == INCOMPLETE_REQUEST_HANDLER_READ;
   }
 
   bool IsIncomplete() const {
@@ -916,7 +1251,7 @@ class BasicResponseTest : public TestHandler {
     // response.
     const bool incomplete_unhandled =
         (mode_ == INCOMPLETE_BEFORE_RESOURCE_LOAD ||
-         mode_ == INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST ||
+         mode_ == INCOMPLETE_REQUEST_HANDLER_OPEN ||
          (IsAborted() && !custom_scheme_));
 
     if ((unhandled_ && !override_unhandled) || incomplete_unhandled) {
@@ -932,7 +1267,7 @@ class BasicResponseTest : public TestHandler {
       EXPECT_STREQ("", response->GetMimeType().ToString().c_str()) << callback;
       EXPECT_STREQ("", response->GetCharset().ToString().c_str()) << callback;
     } else {
-      if ((mode_ == INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE || IsAborted()) &&
+      if ((mode_ == INCOMPLETE_REQUEST_HANDLER_READ || IsAborted()) &&
           callback == kOnResourceLoadComplete) {
         // We got a response, but we also got aborted.
         EXPECT_EQ(ERR_ABORTED, response->GetError()) << callback;
@@ -1059,13 +1394,25 @@ class BasicResponseTest : public TestHandler {
              unhandled)
 
 // Tests only supported in handled mode.
-#define BASIC_TEST_HANDLED_MODES(name, custom)                          \
-  BASIC_TEST(name##IncompleteBeforeResourceLoad,                        \
-             INCOMPLETE_BEFORE_RESOURCE_LOAD, custom, false)            \
-  BASIC_TEST(name##IncompleteRequestHandlerProcessRequest,              \
-             INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST, custom, false) \
-  BASIC_TEST(name##IncompleteRequestHandlerReadResponse,                \
-             INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE, custom, false)
+#define BASIC_TEST_HANDLED_MODES(name, custom)                                \
+  BASIC_TEST(name##ImmediateRequestHandlerOpen,                               \
+             IMMEDIATE_REQUEST_HANDLER_OPEN, custom, false)                   \
+  BASIC_TEST(name##ImmediateRequestHandlerRead,                               \
+             IMMEDIATE_REQUEST_HANDLER_READ, custom, false)                   \
+  BASIC_TEST(name##ImmediateRequestHandlerAll, IMMEDIATE_REQUEST_HANDLER_ALL, \
+             custom, false)                                                   \
+  BASIC_TEST(name##DelayedRequestHandlerOpen, DELAYED_REQUEST_HANDLER_OPEN,   \
+             custom, false)                                                   \
+  BASIC_TEST(name##DelayedRequestHandlerRead, DELAYED_REQUEST_HANDLER_READ,   \
+             custom, false)                                                   \
+  BASIC_TEST(name##DelayedRequestHandlerAll, DELAYED_REQUEST_HANDLER_ALL,     \
+             custom, false)                                                   \
+  BASIC_TEST(name##IncompleteBeforeResourceLoad,                              \
+             INCOMPLETE_BEFORE_RESOURCE_LOAD, custom, false)                  \
+  BASIC_TEST(name##IncompleteRequestHandlerOpen,                              \
+             INCOMPLETE_REQUEST_HANDLER_OPEN, custom, false)                  \
+  BASIC_TEST(name##IncompleteRequestHandlerRead,                              \
+             INCOMPLETE_REQUEST_HANDLER_READ, custom, false)
 
 BASIC_TEST_ALL_MODES(StandardHandled, false, false)
 BASIC_TEST_ALL_MODES(StandardUnhandled, false, true)
@@ -1095,11 +1442,23 @@ class SubresourceResponseTest : public RoutingTestHandler {
     // Redirect the request (change the URL) in OnBeforeResourceLoad.
     REDIRECT_BEFORE_RESOURCE_LOAD,
 
+    // Return a CefResourceHandler from GetResourceHandler that continues
+    // immediately by using the callback object instead of the return value.
+    IMMEDIATE_REQUEST_HANDLER_OPEN,
+    IMMEDIATE_REQUEST_HANDLER_READ,
+    IMMEDIATE_REQUEST_HANDLER_ALL,
+
+    // Return a CefResourceHandler from GetResourceHandler that continues with
+    // a delay by using the callback object.
+    DELAYED_REQUEST_HANDLER_OPEN,
+    DELAYED_REQUEST_HANDLER_READ,
+    DELAYED_REQUEST_HANDLER_ALL,
+
     // Return a CefResourceHandler from GetResourceHandler that never completes,
     // then close the browser to verify destruction handling of in-progress
     // requests.
-    INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST,
-    INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE,
+    INCOMPLETE_REQUEST_HANDLER_OPEN,
+    INCOMPLETE_REQUEST_HANDLER_READ,
 
     // Redirect the request using a CefResourceHandler returned from
     // GetResourceHandler.
@@ -1581,22 +1940,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
       EXPECT_EQ(1, on_before_browse_ct_);
     }
 
-    if (mode_ == LOAD || mode_ == MODIFY_BEFORE_RESOURCE_LOAD) {
-      EXPECT_EQ(1, get_resource_request_handler_ct_);
-      EXPECT_EQ(1, get_cookie_access_filter_ct_);
-      EXPECT_EQ(1, on_before_resource_load_ct_);
-      EXPECT_EQ(1, get_resource_handler_ct_);
-      EXPECT_EQ(0, on_resource_redirect_ct_);
-      // Unhandled requests won't see a call to GetResourceResponseFilter or
-      // OnResourceResponse.
-      if (unhandled_) {
-        EXPECT_EQ(0, get_resource_response_filter_ct_);
-        EXPECT_EQ(0, on_resource_response_ct_);
-      } else {
-        EXPECT_EQ(1, get_resource_response_filter_ct_);
-        EXPECT_EQ(1, on_resource_response_ct_);
-      }
-    } else if (mode_ == RESTART_RESOURCE_RESPONSE) {
+    if (mode_ == RESTART_RESOURCE_RESPONSE) {
       EXPECT_EQ(2, get_resource_request_handler_ct_);
       EXPECT_EQ(2, get_cookie_access_filter_ct_);
       EXPECT_EQ(2, on_before_resource_load_ct_);
@@ -1611,6 +1955,21 @@ class SubresourceResponseTest : public RoutingTestHandler {
       } else {
         EXPECT_EQ(1, get_resource_response_filter_ct_);
         EXPECT_EQ(2, on_resource_response_ct_);
+      }
+    } else if (IsLoad()) {
+      EXPECT_EQ(1, get_resource_request_handler_ct_);
+      EXPECT_EQ(1, get_cookie_access_filter_ct_);
+      EXPECT_EQ(1, on_before_resource_load_ct_);
+      EXPECT_EQ(1, get_resource_handler_ct_);
+      EXPECT_EQ(0, on_resource_redirect_ct_);
+      // Unhandled requests won't see a call to GetResourceResponseFilter or
+      // OnResourceResponse.
+      if (unhandled_) {
+        EXPECT_EQ(0, get_resource_response_filter_ct_);
+        EXPECT_EQ(0, on_resource_response_ct_);
+      } else {
+        EXPECT_EQ(1, get_resource_response_filter_ct_);
+        EXPECT_EQ(1, on_resource_response_ct_);
       }
     } else if (IsRedirect()) {
       EXPECT_EQ(2, get_resource_request_handler_ct_);
@@ -1655,7 +2014,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
 
       EXPECT_EQ(0, on_resource_redirect_ct_);
 
-      if (mode_ == INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE) {
+      if (mode_ == INCOMPLETE_REQUEST_HANDLER_READ) {
         EXPECT_EQ(1, get_resource_response_filter_ct_);
         EXPECT_EQ(1, on_resource_response_ct_);
       } else {
@@ -1812,66 +2171,106 @@ class SubresourceResponseTest : public RoutingTestHandler {
     return base::Bind(&SubresourceResponseTest::MaybeDestroyTest, this, true);
   }
 
-  CefRefPtr<CefResourceHandler> GetMainResource() {
-    const std::string& body = GetMainResponseBody();
+  bool GetCallbackResourceHandlerMode(CallbackResourceHandler::Mode& mode) {
+    switch (mode_) {
+      case IMMEDIATE_REQUEST_HANDLER_OPEN:
+        mode = CallbackResourceHandler::IMMEDIATE_OPEN;
+        return true;
+      case IMMEDIATE_REQUEST_HANDLER_READ:
+        mode = CallbackResourceHandler::IMMEDIATE_READ;
+        return true;
+      case IMMEDIATE_REQUEST_HANDLER_ALL:
+        mode = CallbackResourceHandler::IMMEDIATE_ALL;
+        return true;
+      case DELAYED_REQUEST_HANDLER_OPEN:
+        mode = CallbackResourceHandler::DELAYED_OPEN;
+        return true;
+      case DELAYED_REQUEST_HANDLER_READ:
+        mode = CallbackResourceHandler::DELAYED_READ;
+        return true;
+      case DELAYED_REQUEST_HANDLER_ALL:
+        mode = CallbackResourceHandler::DELAYED_ALL;
+        return true;
+      default:
+        break;
+    }
+    return false;
+  }
+
+  CefRefPtr<CefResourceHandler> GetResource(int status_code,
+                                            const CefString& status_text,
+                                            const CefString& mime_type,
+                                            CefResponse::HeaderMap header_map,
+                                            const std::string& body) {
     CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
         const_cast<char*>(body.c_str()), body.size());
 
-    return new NormalResourceHandler(200, "OK", "text/html",
-                                     CefResponse::HeaderMap(), stream,
+    CallbackResourceHandler::Mode handler_mode;
+    if (GetCallbackResourceHandlerMode(handler_mode)) {
+      return new CallbackResourceHandler(handler_mode, status_code, status_text,
+                                         mime_type, header_map, stream,
+                                         GetResourceDestroyCallback());
+    }
+
+    return new NormalResourceHandler(status_code, status_text, mime_type,
+                                     header_map, stream,
                                      GetResourceDestroyCallback());
+  }
+
+  CefRefPtr<CefResourceHandler> GetMainResource() {
+    return GetResource(200, "OK", "text/html", CefResponse::HeaderMap(),
+                       GetMainResponseBody());
   }
 
   CefRefPtr<CefResourceHandler> GetSubResource() {
-    const std::string& body = GetSubResponseBody();
-    CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
-        const_cast<char*>(body.c_str()), body.size());
-
-    return new NormalResourceHandler(200, "OK", "text/html",
-                                     CefResponse::HeaderMap(), stream,
-                                     GetResourceDestroyCallback());
+    return GetResource(200, "OK", "text/html", CefResponse::HeaderMap(),
+                       GetSubResponseBody());
   }
 
   CefRefPtr<CefResourceHandler> GetOKResource() {
-    const std::string& body = GetResponseBody();
-    CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
-        const_cast<char*>(body.c_str()), body.size());
-
-    return new NormalResourceHandler(200, "OK", "text/javascript",
-                                     CefResponse::HeaderMap(), stream,
-                                     GetResourceDestroyCallback());
+    return GetResource(200, "OK", "text/javascript", CefResponse::HeaderMap(),
+                       GetResponseBody());
   }
 
   CefRefPtr<CefResourceHandler> GetRedirectResource(
       const std::string& redirect_url) {
-    const std::string& body = GetRedirectBody();
-    CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(
-        const_cast<char*>(body.c_str()), body.size());
-
     CefResponse::HeaderMap headerMap;
     headerMap.insert(std::make_pair("Location", redirect_url));
 
-    return new NormalResourceHandler(307, "Temporary Redirect",
-                                     "text/javascript", headerMap, stream,
-                                     GetResourceDestroyCallback());
+    return GetResource(307, "Temporary Redirect", "text/javascript", headerMap,
+                       GetRedirectBody());
   }
 
   CefRefPtr<CefResourceHandler> GetIncompleteResource() {
+    if (TestOldResourceAPI()) {
+      return new IncompleteResourceHandlerOld(
+          mode_ == INCOMPLETE_REQUEST_HANDLER_OPEN
+              ? IncompleteResourceHandlerOld::BLOCK_PROCESS_REQUEST
+              : IncompleteResourceHandlerOld::BLOCK_READ_RESPONSE,
+          "text/javascript", GetResourceDestroyCallback());
+    }
+
     return new IncompleteResourceHandler(
-        mode_ == INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST
-            ? IncompleteResourceHandler::BLOCK_PROCESS_REQUEST
-            : IncompleteResourceHandler::BLOCK_READ_RESPONSE,
+        mode_ == INCOMPLETE_REQUEST_HANDLER_OPEN
+            ? IncompleteResourceHandler::BLOCK_OPEN
+            : IncompleteResourceHandler::BLOCK_READ,
         "text/javascript", GetResourceDestroyCallback());
   }
 
   bool IsLoad() const {
     return mode_ == LOAD || mode_ == MODIFY_BEFORE_RESOURCE_LOAD ||
-           mode_ == RESTART_RESOURCE_RESPONSE;
+           mode_ == RESTART_RESOURCE_RESPONSE ||
+           mode_ == IMMEDIATE_REQUEST_HANDLER_OPEN ||
+           mode_ == IMMEDIATE_REQUEST_HANDLER_READ ||
+           mode_ == IMMEDIATE_REQUEST_HANDLER_ALL ||
+           mode_ == DELAYED_REQUEST_HANDLER_OPEN ||
+           mode_ == DELAYED_REQUEST_HANDLER_READ ||
+           mode_ == DELAYED_REQUEST_HANDLER_ALL;
   }
 
   bool IsIncompleteRequestHandler() const {
-    return mode_ == INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST ||
-           mode_ == INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE;
+    return mode_ == INCOMPLETE_REQUEST_HANDLER_OPEN ||
+           mode_ == INCOMPLETE_REQUEST_HANDLER_READ;
   }
 
   bool IsIncomplete() const {
@@ -2010,7 +2409,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
     // response.
     const bool incomplete_unhandled =
         (mode_ == INCOMPLETE_BEFORE_RESOURCE_LOAD ||
-         mode_ == INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST);
+         mode_ == INCOMPLETE_REQUEST_HANDLER_OPEN);
 
     if ((unhandled_ && !override_unhandled) || incomplete_unhandled) {
       if (incomplete_unhandled) {
@@ -2025,7 +2424,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
       EXPECT_STREQ("", response->GetMimeType().ToString().c_str()) << callback;
       EXPECT_STREQ("", response->GetCharset().ToString().c_str()) << callback;
     } else {
-      if (mode_ == INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE &&
+      if (mode_ == INCOMPLETE_REQUEST_HANDLER_READ &&
           callback == kOnResourceLoadComplete) {
         // We got a response, but we also got aborted.
         EXPECT_EQ(ERR_ABORTED, response->GetError()) << callback;
@@ -2156,15 +2555,25 @@ class SubresourceResponseTest : public RoutingTestHandler {
                    custom, unhandled, subframe)
 
 // Tests only supported in handled mode.
-#define SUBRESOURCE_TEST_HANDLED_MODES(name, custom, subframe)                \
-  SUBRESOURCE_TEST(name##IncompleteBeforeResourceLoad,                        \
-                   INCOMPLETE_BEFORE_RESOURCE_LOAD, custom, false, subframe)  \
-  SUBRESOURCE_TEST(name##IncompleteRequestHandlerProcessRequest,              \
-                   INCOMPLETE_REQUEST_HANDLER_PROCESS_REQUEST, custom, false, \
-                   subframe)                                                  \
-  SUBRESOURCE_TEST(name##IncompleteRequestHandlerReadResponse,                \
-                   INCOMPLETE_REQUEST_HANDLER_READ_RESPONSE, custom, false,   \
-                   subframe)
+#define SUBRESOURCE_TEST_HANDLED_MODES(name, custom, subframe)               \
+  SUBRESOURCE_TEST(name##ImmediateRequestHandlerOpen,                        \
+                   IMMEDIATE_REQUEST_HANDLER_OPEN, custom, false, subframe)  \
+  SUBRESOURCE_TEST(name##ImmediateRequestHandlerRead,                        \
+                   IMMEDIATE_REQUEST_HANDLER_READ, custom, false, subframe)  \
+  SUBRESOURCE_TEST(name##ImmediateRequestHandlerAll,                         \
+                   IMMEDIATE_REQUEST_HANDLER_ALL, custom, false, subframe)   \
+  SUBRESOURCE_TEST(name##DelayedRequestHandlerOpen,                          \
+                   DELAYED_REQUEST_HANDLER_OPEN, custom, false, subframe)    \
+  SUBRESOURCE_TEST(name##DelayedRequestHandlerRead,                          \
+                   DELAYED_REQUEST_HANDLER_READ, custom, false, subframe)    \
+  SUBRESOURCE_TEST(name##DelayedRequestHandlerAll,                           \
+                   DELAYED_REQUEST_HANDLER_ALL, custom, false, subframe)     \
+  SUBRESOURCE_TEST(name##IncompleteBeforeResourceLoad,                       \
+                   INCOMPLETE_BEFORE_RESOURCE_LOAD, custom, false, subframe) \
+  SUBRESOURCE_TEST(name##IncompleteRequestHandlerOpen,                       \
+                   INCOMPLETE_REQUEST_HANDLER_OPEN, custom, false, subframe) \
+  SUBRESOURCE_TEST(name##IncompleteRequestHandlerRead,                       \
+                   INCOMPLETE_REQUEST_HANDLER_READ, custom, false, subframe)
 
 SUBRESOURCE_TEST_ALL_MODES(StandardHandledMainFrame, false, false, false)
 SUBRESOURCE_TEST_ALL_MODES(StandardUnhandledMainFrame, false, true, false)

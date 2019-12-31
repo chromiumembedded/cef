@@ -688,9 +688,10 @@ class RedirectSchemeHandler : public CefResourceHandler {
  public:
   RedirectSchemeHandler() : offset_(0), status_(0) {}
 
-  bool ProcessRequest(CefRefPtr<CefRequest> request,
-                      CefRefPtr<CefCallback> callback) override {
-    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+  bool Open(CefRefPtr<CefRequest> request,
+            bool& handle_request,
+            CefRefPtr<CefCallback> callback) override {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
 
     std::string url = request->GetURL();
     if (url == kRNav1) {
@@ -711,13 +712,16 @@ class RedirectSchemeHandler : public CefResourceHandler {
       content_ = "<html><body>Nav4</body></html>";
     }
 
+    handle_request = true;
+
     if (status_ != 0) {
-      callback->Continue();
+      // Continue request.
       return true;
-    } else {
-      g_got_invalid_request = true;
-      return false;
     }
+
+    // Cancel request.
+    g_got_invalid_request = true;
+    return false;
   }
 
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
@@ -748,11 +752,14 @@ class RedirectSchemeHandler : public CefResourceHandler {
 
   void Cancel() override { EXPECT_TRUE(CefCurrentlyOn(TID_IO)); }
 
-  bool ReadResponse(void* data_out,
-                    int bytes_to_read,
-                    int& bytes_read,
-                    CefRefPtr<CefCallback> callback) override {
-    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+  bool Read(void* data_out,
+            int bytes_to_read,
+            int& bytes_read,
+            CefRefPtr<CefResourceReadCallback> callback) override {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
+
+    bytes_read = 0;
+    bool has_data = false;
 
     size_t size = content_.size();
     if (offset_ < size) {
@@ -762,10 +769,10 @@ class RedirectSchemeHandler : public CefResourceHandler {
       offset_ += transfer_size;
 
       bytes_read = transfer_size;
-      return true;
+      has_data = true;
     }
 
-    return false;
+    return has_data;
   }
 
  protected:
@@ -775,6 +782,7 @@ class RedirectSchemeHandler : public CefResourceHandler {
   std::string location_;
 
   IMPLEMENT_REFCOUNTING(RedirectSchemeHandler);
+  DISALLOW_COPY_AND_ASSIGN(RedirectSchemeHandler);
 };
 
 class RedirectSchemeHandlerFactory : public CefSchemeHandlerFactory {
@@ -795,6 +803,7 @@ class RedirectSchemeHandlerFactory : public CefSchemeHandlerFactory {
   }
 
   IMPLEMENT_REFCOUNTING(RedirectSchemeHandlerFactory);
+  DISALLOW_COPY_AND_ASSIGN(RedirectSchemeHandlerFactory);
 };
 
 class RedirectTestHandler : public TestHandler {
@@ -2843,9 +2852,13 @@ class UnstartedSchemeHandler : public CefResourceHandler {
  public:
   UnstartedSchemeHandler() {}
 
-  bool ProcessRequest(CefRefPtr<CefRequest> request,
-                      CefRefPtr<CefCallback> callback) override {
-    callback->Continue();
+  bool Open(CefRefPtr<CefRequest> request,
+            bool& handle_request,
+            CefRefPtr<CefCallback> callback) override {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
+
+    // Continue immediately.
+    handle_request = true;
     return true;
   }
 
@@ -2859,10 +2872,12 @@ class UnstartedSchemeHandler : public CefResourceHandler {
 
   void Cancel() override { callback_ = nullptr; }
 
-  bool ReadResponse(void* data_out,
-                    int bytes_to_read,
-                    int& bytes_read,
-                    CefRefPtr<CefCallback> callback) override {
+  bool Read(void* data_out,
+            int bytes_to_read,
+            int& bytes_read,
+            CefRefPtr<CefResourceReadCallback> callback) override {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
+
     callback_ = callback;
 
     // Pretend that we'll provide the data later.
@@ -2871,9 +2886,10 @@ class UnstartedSchemeHandler : public CefResourceHandler {
   }
 
  protected:
-  CefRefPtr<CefCallback> callback_;
+  CefRefPtr<CefResourceReadCallback> callback_;
 
   IMPLEMENT_REFCOUNTING(UnstartedSchemeHandler);
+  DISALLOW_COPY_AND_ASSIGN(UnstartedSchemeHandler);
 };
 
 // Browser side.
@@ -3055,9 +3071,13 @@ class StalledSchemeHandler : public CefResourceHandler {
  public:
   StalledSchemeHandler() : offset_(0), write_size_(0) {}
 
-  bool ProcessRequest(CefRefPtr<CefRequest> request,
-                      CefRefPtr<CefCallback> callback) override {
-    callback->Continue();
+  bool Open(CefRefPtr<CefRequest> request,
+            bool& handle_request,
+            CefRefPtr<CefCallback> callback) override {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
+
+    // Continue immediately.
+    handle_request = true;
     return true;
   }
 
@@ -3074,17 +3094,22 @@ class StalledSchemeHandler : public CefResourceHandler {
 
   void Cancel() override { callback_ = nullptr; }
 
-  bool ReadResponse(void* data_out,
-                    int bytes_to_read,
-                    int& bytes_read,
-                    CefRefPtr<CefCallback> callback) override {
+  bool Read(void* data_out,
+            int bytes_to_read,
+            int& bytes_read,
+            CefRefPtr<CefResourceReadCallback> callback) override {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
+
+    bytes_read = 0;
+
     size_t size = content_.size();
     if (offset_ >= write_size_) {
       // Now stall.
-      bytes_read = 0;
       callback_ = callback;
       return true;
     }
+
+    bool has_data = false;
 
     if (offset_ < size) {
       // Write up to |write_size_| bytes.
@@ -3095,19 +3120,20 @@ class StalledSchemeHandler : public CefResourceHandler {
       offset_ += transfer_size;
 
       bytes_read = transfer_size;
-      return true;
+      has_data = true;
     }
 
-    return false;
+    return has_data;
   }
 
  protected:
   std::string content_;
   size_t offset_;
   size_t write_size_;
-  CefRefPtr<CefCallback> callback_;
+  CefRefPtr<CefResourceReadCallback> callback_;
 
   IMPLEMENT_REFCOUNTING(StalledSchemeHandler);
+  DISALLOW_COPY_AND_ASSIGN(StalledSchemeHandler);
 };
 
 // Browser side.

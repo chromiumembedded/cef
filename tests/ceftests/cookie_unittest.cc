@@ -709,8 +709,11 @@ class CookieTestSchemeHandler : public TestHandler {
     explicit SchemeHandler(CookieTestSchemeHandler* handler)
         : handler_(handler), offset_(0) {}
 
-    bool ProcessRequest(CefRefPtr<CefRequest> request,
-                        CefRefPtr<CefCallback> callback) override {
+    bool Open(CefRefPtr<CefRequest> request,
+              bool& handle_request,
+              CefRefPtr<CefCallback> callback) override {
+      EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
+
       std::string url = request->GetURL();
       if (url == handler_->url1_) {
         content_ = "<html><body>COOKIE TEST1</body></html>";
@@ -731,7 +734,9 @@ class CookieTestSchemeHandler : public TestHandler {
         if (it != headerMap.end() && it->second == "name2=value2")
           handler_->got_process_request_cookie_.yes();
       }
-      callback->Continue();
+
+      // Continue immediately.
+      handle_request = true;
       return true;
     }
 
@@ -751,10 +756,12 @@ class CookieTestSchemeHandler : public TestHandler {
       }
     }
 
-    bool ReadResponse(void* data_out,
-                      int bytes_to_read,
-                      int& bytes_read,
-                      CefRefPtr<CefCallback> callback) override {
+    bool Read(void* data_out,
+              int bytes_to_read,
+              int& bytes_read,
+              CefRefPtr<CefResourceReadCallback> callback) override {
+      EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
+
       bool has_data = false;
       bytes_read = 0;
 
@@ -781,6 +788,7 @@ class CookieTestSchemeHandler : public TestHandler {
     std::string cookie_;
 
     IMPLEMENT_REFCOUNTING(SchemeHandler);
+    DISALLOW_COPY_AND_ASSIGN(SchemeHandler);
   };
 
   class SchemeHandlerFactory : public CefSchemeHandlerFactory {
@@ -810,6 +818,7 @@ class CookieTestSchemeHandler : public TestHandler {
     CookieTestSchemeHandler* handler_;
 
     IMPLEMENT_REFCOUNTING(SchemeHandlerFactory);
+    DISALLOW_COPY_AND_ASSIGN(SchemeHandlerFactory);
   };
 
   CookieTestSchemeHandler(const std::string& scheme,
@@ -1106,9 +1115,10 @@ class CookieAccessSchemeHandler : public CefResourceHandler {
   explicit CookieAccessSchemeHandler(CookieAccessData* data)
       : data_(data), offset_(0) {}
 
-  bool ProcessRequest(CefRefPtr<CefRequest> request,
-                      CefRefPtr<CefCallback> callback) override {
-    EXPECT_IO_THREAD();
+  bool Open(CefRefPtr<CefRequest> request,
+            bool& handle_request,
+            CefRefPtr<CefCallback> callback) override {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
 
     CefRequest::HeaderMap headerMap;
     request->GetHeaderMap(headerMap);
@@ -1116,7 +1126,7 @@ class CookieAccessSchemeHandler : public CefResourceHandler {
     TestCookieString(cookie_str, data_->cookie_js_ct_, data_->cookie_net_ct_);
 
     // Continue immediately.
-    callback->Continue();
+    handle_request = true;
     return true;
   }
 
@@ -1136,11 +1146,11 @@ class CookieAccessSchemeHandler : public CefResourceHandler {
     response_length = data_->response_data.length();
   }
 
-  bool ReadResponse(void* response_data_out,
-                    int bytes_to_read,
-                    int& bytes_read,
-                    CefRefPtr<CefCallback> callback) override {
-    EXPECT_IO_THREAD();
+  bool Read(void* data_out,
+            int bytes_to_read,
+            int& bytes_read,
+            CefRefPtr<CefResourceReadCallback> callback) override {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
 
     bool has_data = false;
     bytes_read = 0;
@@ -1149,8 +1159,7 @@ class CookieAccessSchemeHandler : public CefResourceHandler {
     if (offset_ < size) {
       int transfer_size =
           std::min(bytes_to_read, static_cast<int>(size - offset_));
-      memcpy(response_data_out, data_->response_data.c_str() + offset_,
-             transfer_size);
+      memcpy(data_out, data_->response_data.c_str() + offset_, transfer_size);
       offset_ += transfer_size;
 
       bytes_read = transfer_size;
@@ -1185,6 +1194,7 @@ class CookieAccessSchemeHandler : public CefResourceHandler {
   size_t offset_;
 
   IMPLEMENT_REFCOUNTING(CookieAccessSchemeHandler);
+  DISALLOW_COPY_AND_ASSIGN(CookieAccessSchemeHandler);
 };
 
 class CookieAccessSchemeHandlerFactory : public CefSchemeHandlerFactory,

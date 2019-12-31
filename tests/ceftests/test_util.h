@@ -78,6 +78,9 @@ inline bool IsTestRequestContextModeCustom(TestRequestContextMode mode) {
          mode == TEST_RC_MODE_CUSTOM_WITH_HANDLER;
 }
 
+// Returns true if the old CefResourceHandler API should be tested.
+bool TestOldResourceAPI();
+
 // Return a RequestContext object matching the specified |mode|.
 // |cache_path| may be specified for CUSTOM modes.
 // Use the RC_TEST_GROUP_BASE macro to test all valid combinations.

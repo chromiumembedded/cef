@@ -52,9 +52,11 @@ class RedirectHandler : public CefResourceHandler {
  public:
   explicit RedirectHandler(const GURL& url) : url_(url) {}
 
-  bool ProcessRequest(CefRefPtr<CefRequest> request,
-                      CefRefPtr<CefCallback> callback) override {
-    callback->Continue();
+  bool Open(CefRefPtr<CefRequest> request,
+            bool& handle_request,
+            CefRefPtr<CefCallback> callback) override {
+    // Continue immediately.
+    handle_request = true;
     return true;
   }
 
@@ -65,10 +67,11 @@ class RedirectHandler : public CefResourceHandler {
     redirectUrl = url_.spec();
   }
 
-  bool ReadResponse(void* data_out,
-                    int bytes_to_read,
-                    int& bytes_read,
-                    CefRefPtr<CefCallback> callback) override {
+  bool Read(void* data_out,
+            int bytes_to_read,
+            int& bytes_read,
+            CefRefPtr<CefResourceReadCallback> callback) override {
+    NOTREACHED();
     return false;
   }
 
@@ -78,6 +81,7 @@ class RedirectHandler : public CefResourceHandler {
   GURL url_;
 
   IMPLEMENT_REFCOUNTING(RedirectHandler);
+  DISALLOW_COPY_AND_ASSIGN(RedirectHandler);
 };
 
 class InternalHandler : public CefResourceHandler {
@@ -87,9 +91,11 @@ class InternalHandler : public CefResourceHandler {
                   int size)
       : mime_type_(mime_type), reader_(reader), size_(size) {}
 
-  bool ProcessRequest(CefRefPtr<CefRequest> request,
-                      CefRefPtr<CefCallback> callback) override {
-    callback->Continue();
+  bool Open(CefRefPtr<CefRequest> request,
+            bool& handle_request,
+            CefRefPtr<CefCallback> callback) override {
+    // Continue immediately.
+    handle_request = true;
     return true;
   }
 
@@ -102,11 +108,21 @@ class InternalHandler : public CefResourceHandler {
     response->SetStatus(200);
   }
 
-  bool ReadResponse(void* data_out,
-                    int bytes_to_read,
-                    int& bytes_read,
-                    CefRefPtr<CefCallback> callback) override {
-    bytes_read = reader_->Read(data_out, 1, bytes_to_read);
+  bool Read(void* data_out,
+            int bytes_to_read,
+            int& bytes_read,
+            CefRefPtr<CefResourceReadCallback> callback) override {
+    // Read until the buffer is full or until Read() returns 0 to indicate no
+    // more data.
+    bytes_read = 0;
+    int read = 0;
+    do {
+      read = static_cast<int>(
+          reader_->Read(static_cast<char*>(data_out) + bytes_read, 1,
+                        bytes_to_read - bytes_read));
+      bytes_read += read;
+    } while (read != 0 && bytes_read < bytes_to_read);
+
     return (bytes_read > 0);
   }
 
@@ -118,6 +134,7 @@ class InternalHandler : public CefResourceHandler {
   int size_;
 
   IMPLEMENT_REFCOUNTING(InternalHandler);
+  DISALLOW_COPY_AND_ASSIGN(InternalHandler);
 };
 
 class InternalHandlerFactory : public CefSchemeHandlerFactory {
@@ -170,6 +187,7 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
   std::unique_ptr<InternalHandlerDelegate> delegate_;
 
   IMPLEMENT_REFCOUNTING(InternalHandlerFactory);
+  DISALLOW_COPY_AND_ASSIGN(InternalHandlerFactory);
 };
 
 }  // namespace
