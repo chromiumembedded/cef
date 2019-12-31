@@ -1,0 +1,22 @@
+diff --git chrome/browser/ui/views/confirm_bubble_views.cc chrome/browser/ui/views/confirm_bubble_views.cc
+index 5f25a23aff9d..994b493b556f 100644
+--- chrome/browser/ui/views/confirm_bubble_views.cc
++++ chrome/browser/ui/views/confirm_bubble_views.cc
+@@ -27,7 +27,7 @@
+ 
+ namespace {
+ 
+-std::unique_ptr<views::View> CreateExtraView(views::ButtonListener* listener) {
++std::unique_ptr<views::View> CreateExtraView2(views::ButtonListener* listener) {
+   auto help_button = CreateVectorImageButton(listener);
+   help_button->SetFocusForPlatform();
+   help_button->SetTooltipText(l10n_util::GetStringUTF16(IDS_LEARN_MORE));
+@@ -46,7 +46,7 @@ ConfirmBubbleViews::ConfirmBubbleViews(
+   DialogDelegate::set_button_label(
+       ui::DIALOG_BUTTON_CANCEL,
+       model_->GetButtonLabel(ConfirmBubbleModel::BUTTON_CANCEL));
+-  help_button_ = DialogDelegate::SetExtraView(::CreateExtraView(this));
++  help_button_ = DialogDelegate::SetExtraView(::CreateExtraView2(this));
+ 
+   set_margins(ChromeLayoutProvider::Get()->GetDialogInsetsForContentType(
+       views::TEXT, views::TEXT));

@@ -307,7 +307,7 @@ index 98c59005599e..69752184745d 100644
                                   WebPluginInfo* plugin) = 0;
  
 diff --git content/public/renderer/content_renderer_client.h content/public/renderer/content_renderer_client.h
-index c1ed9f008b49..d055159b66f9 100644
+index 902bd023e6d2..9de1a06cc1ec 100644
 --- content/public/renderer/content_renderer_client.h
 +++ content/public/renderer/content_renderer_client.h
 @@ -72,6 +72,9 @@ class CONTENT_EXPORT ContentRendererClient {
@@ -320,7 +320,7 @@ index c1ed9f008b49..d055159b66f9 100644
    // Notifies that a new RenderFrame has been created.
    virtual void RenderFrameCreated(RenderFrame* render_frame) {}
  
-@@ -308,6 +311,10 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -315,6 +318,10 @@ class CONTENT_EXPORT ContentRendererClient {
    // This method may invalidate the frame.
    virtual void RunScriptsAtDocumentIdle(RenderFrame* render_frame) {}
  
@@ -346,7 +346,7 @@ index f764efa250cc..9b2e8c053367 100644
    virtual void FocusedElementChanged(const blink::WebElement& element) {}
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index e793135c1946..c596719cbb6e 100644
+index ac736036792f..09b98f37ef86 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
 @@ -4045,7 +4045,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
