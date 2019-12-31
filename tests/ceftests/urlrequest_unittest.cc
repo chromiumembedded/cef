@@ -546,13 +546,13 @@ bool IsAuthorized(CefRefPtr<CefRequest> request,
 // SCHEME HANDLER BACKEND
 
 // Serves request responses.
-class RequestSchemeHandler : public CefResourceHandler {
+class RequestSchemeHandlerOld : public CefResourceHandler {
  public:
-  RequestSchemeHandler(RequestRunSettings* settings,
-                       const base::Closure& destroy_callback)
+  RequestSchemeHandlerOld(RequestRunSettings* settings,
+                          const base::Closure& destroy_callback)
       : settings_(settings), destroy_callback_(destroy_callback) {}
 
-  ~RequestSchemeHandler() override {
+  ~RequestSchemeHandlerOld() override {
     EXPECT_EQ(1, cancel_ct_);
     destroy_callback_.Run();
   }
@@ -580,7 +580,7 @@ class RequestSchemeHandler : public CefResourceHandler {
     response_length = response_data_.length();
   }
 
-  bool ReadResponse(void* response_data_out,
+  bool ReadResponse(void* data_out,
                     int bytes_to_read,
                     int& bytes_read,
                     CefRefPtr<CefCallback> callback) override {
@@ -593,8 +593,7 @@ class RequestSchemeHandler : public CefResourceHandler {
     if (offset_ < size) {
       int transfer_size =
           std::min(bytes_to_read, static_cast<int>(size - offset_));
-      memcpy(response_data_out, response_data_.c_str() + offset_,
-             transfer_size);
+      memcpy(data_out, response_data_.c_str() + offset_, transfer_size);
       offset_ += transfer_size;
 
       bytes_read = transfer_size;
@@ -619,20 +618,114 @@ class RequestSchemeHandler : public CefResourceHandler {
 
   int cancel_ct_ = 0;
 
+  IMPLEMENT_REFCOUNTING(RequestSchemeHandlerOld);
+  DISALLOW_COPY_AND_ASSIGN(RequestSchemeHandlerOld);
+};
+
+class RequestSchemeHandler : public CefResourceHandler {
+ public:
+  RequestSchemeHandler(RequestRunSettings* settings,
+                       const base::Closure& destroy_callback)
+      : settings_(settings), destroy_callback_(destroy_callback) {}
+
+  ~RequestSchemeHandler() override {
+    EXPECT_EQ(1, cancel_ct_);
+    destroy_callback_.Run();
+  }
+
+  bool Open(CefRefPtr<CefRequest> request,
+            bool& handle_request,
+            CefRefPtr<CefCallback> callback) override {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
+    VerifyNormalRequest(settings_, request, false);
+
+    // HEAD requests are identical to GET requests except no response data is
+    // sent.
+    if (request->GetMethod() != "HEAD")
+      response_data_ = settings_->response_data;
+
+    // Continue immediately.
+    handle_request = true;
+    return true;
+  }
+
+  bool ProcessRequest(CefRefPtr<CefRequest> request,
+                      CefRefPtr<CefCallback> callback) override {
+    EXPECT_TRUE(false);  // Not reached.
+    return false;
+  }
+
+  void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                          int64& response_length,
+                          CefString& redirectUrl) override {
+    EXPECT_IO_THREAD();
+    GetNormalResponse(settings_, response);
+    response_length = response_data_.length();
+  }
+
+  bool Read(void* data_out,
+            int bytes_to_read,
+            int& bytes_read,
+            CefRefPtr<CefResourceReadCallback> callback) override {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
+
+    // Default to response complete.
+    bool has_data = false;
+    bytes_read = 0;
+
+    size_t size = response_data_.length();
+    if (offset_ < size) {
+      int transfer_size =
+          std::min(bytes_to_read, static_cast<int>(size - offset_));
+      memcpy(data_out, response_data_.c_str() + offset_, transfer_size);
+      offset_ += transfer_size;
+
+      bytes_read = transfer_size;
+      has_data = true;
+    }
+
+    return has_data;
+  }
+
+  bool ReadResponse(void* data_out,
+                    int bytes_to_read,
+                    int& bytes_read,
+                    CefRefPtr<CefCallback> callback) override {
+    EXPECT_TRUE(false);  // Not reached.
+    bytes_read = -2;
+    return false;
+  }
+
+  void Cancel() override {
+    EXPECT_IO_THREAD();
+    cancel_ct_++;
+  }
+
+ private:
+  // |settings_| is not owned by this object.
+  RequestRunSettings* settings_;
+  base::Closure destroy_callback_;
+
+  std::string response_data_;
+  size_t offset_ = 0;
+
+  int cancel_ct_ = 0;
+
   IMPLEMENT_REFCOUNTING(RequestSchemeHandler);
+  DISALLOW_COPY_AND_ASSIGN(RequestSchemeHandler);
 };
 
 // Serves redirect request responses.
-class RequestRedirectSchemeHandler : public CefResourceHandler {
+class RequestRedirectSchemeHandlerOld : public CefResourceHandler {
  public:
-  RequestRedirectSchemeHandler(CefRefPtr<CefRequest> request,
-                               CefRefPtr<CefResponse> response,
-                               const base::Closure& destroy_callback)
+  RequestRedirectSchemeHandlerOld(CefRefPtr<CefRequest> request,
+                                  CefRefPtr<CefResponse> response,
+                                  const base::Closure& destroy_callback)
       : request_(request),
         response_(response),
         destroy_callback_(destroy_callback) {}
 
-  ~RequestRedirectSchemeHandler() override {
+  ~RequestRedirectSchemeHandlerOld() override {
     EXPECT_EQ(1, cancel_ct_);
     destroy_callback_.Run();
   }
@@ -686,20 +779,104 @@ class RequestRedirectSchemeHandler : public CefResourceHandler {
 
   int cancel_ct_ = 0;
 
+  IMPLEMENT_REFCOUNTING(RequestRedirectSchemeHandlerOld);
+  DISALLOW_COPY_AND_ASSIGN(RequestRedirectSchemeHandlerOld);
+};
+
+class RequestRedirectSchemeHandler : public CefResourceHandler {
+ public:
+  RequestRedirectSchemeHandler(CefRefPtr<CefRequest> request,
+                               CefRefPtr<CefResponse> response,
+                               const base::Closure& destroy_callback)
+      : request_(request),
+        response_(response),
+        destroy_callback_(destroy_callback) {}
+
+  ~RequestRedirectSchemeHandler() override {
+    EXPECT_EQ(1, cancel_ct_);
+    destroy_callback_.Run();
+  }
+
+  bool Open(CefRefPtr<CefRequest> request,
+            bool& handle_request,
+            CefRefPtr<CefCallback> callback) override {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
+
+    // Verify that the request was sent correctly.
+    TestRequestEqual(request_, request, true);
+
+    // Continue immediately.
+    handle_request = true;
+    return true;
+  }
+
+  bool ProcessRequest(CefRefPtr<CefRequest> request,
+                      CefRefPtr<CefCallback> callback) override {
+    EXPECT_TRUE(false);  // Not reached.
+    return false;
+  }
+
+  void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                          int64& response_length,
+                          CefString& redirectUrl) override {
+    EXPECT_IO_THREAD();
+
+    response->SetStatus(response_->GetStatus());
+    response->SetStatusText(response_->GetStatusText());
+    response->SetMimeType(response_->GetMimeType());
+
+    CefResponse::HeaderMap headerMap;
+    response_->GetHeaderMap(headerMap);
+    response->SetHeaderMap(headerMap);
+
+    response_length = 0;
+  }
+
+  bool Read(void* data_out,
+            int bytes_to_read,
+            int& bytes_read,
+            CefRefPtr<CefResourceReadCallback> callback) override {
+    EXPECT_TRUE(false);  // Not reached.
+    bytes_read = -1;
+    return false;
+  }
+
+  bool ReadResponse(void* data_out,
+                    int bytes_to_read,
+                    int& bytes_read,
+                    CefRefPtr<CefCallback> callback) override {
+    EXPECT_TRUE(false);  // Not reached.
+    bytes_read = -2;
+    return false;
+  }
+
+  void Cancel() override {
+    EXPECT_IO_THREAD();
+    cancel_ct_++;
+  }
+
+ private:
+  CefRefPtr<CefRequest> request_;
+  CefRefPtr<CefResponse> response_;
+  base::Closure destroy_callback_;
+
+  int cancel_ct_ = 0;
+
   IMPLEMENT_REFCOUNTING(RequestRedirectSchemeHandler);
+  DISALLOW_COPY_AND_ASSIGN(RequestRedirectSchemeHandler);
 };
 
 // Resource handler implementation that never completes. Used to test
 // destruction handling behavior for in-progress requests.
-class IncompleteSchemeHandler : public CefResourceHandler {
+class IncompleteSchemeHandlerOld : public CefResourceHandler {
  public:
-  IncompleteSchemeHandler(RequestRunSettings* settings,
-                          const base::Closure& destroy_callback)
+  IncompleteSchemeHandlerOld(RequestRunSettings* settings,
+                             const base::Closure& destroy_callback)
       : settings_(settings), destroy_callback_(destroy_callback) {
     EXPECT_NE(settings_->incomplete_type, RequestRunSettings::INCOMPLETE_NONE);
   }
 
-  ~IncompleteSchemeHandler() override {
+  ~IncompleteSchemeHandlerOld() override {
     EXPECT_EQ(1, process_request_ct_);
     EXPECT_EQ(1, cancel_ct_);
 
@@ -783,6 +960,120 @@ class IncompleteSchemeHandler : public CefResourceHandler {
 
   CefRefPtr<CefCallback> incomplete_callback_;
 
+  IMPLEMENT_REFCOUNTING(IncompleteSchemeHandlerOld);
+  DISALLOW_COPY_AND_ASSIGN(IncompleteSchemeHandlerOld);
+};
+
+class IncompleteSchemeHandler : public CefResourceHandler {
+ public:
+  IncompleteSchemeHandler(RequestRunSettings* settings,
+                          const base::Closure& destroy_callback)
+      : settings_(settings), destroy_callback_(destroy_callback) {
+    EXPECT_NE(settings_->incomplete_type, RequestRunSettings::INCOMPLETE_NONE);
+  }
+
+  ~IncompleteSchemeHandler() override {
+    EXPECT_EQ(1, open_ct_);
+    EXPECT_EQ(1, cancel_ct_);
+
+    if (settings_->incomplete_type ==
+        RequestRunSettings::INCOMPLETE_READ_RESPONSE) {
+      EXPECT_EQ(1, get_response_headers_ct_);
+      EXPECT_EQ(1, read_ct_);
+    } else {
+      EXPECT_EQ(0, get_response_headers_ct_);
+      EXPECT_EQ(0, read_ct_);
+    }
+
+    destroy_callback_.Run();
+  }
+
+  bool Open(CefRefPtr<CefRequest> request,
+            bool& handle_request,
+            CefRefPtr<CefCallback> callback) override {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
+
+    open_ct_++;
+
+    if (settings_->incomplete_type ==
+        RequestRunSettings::INCOMPLETE_PROCESS_REQUEST) {
+      // Never release or execute this callback.
+      incomplete_open_callback_ = callback;
+    } else {
+      // Continue immediately.
+      handle_request = true;
+    }
+    return true;
+  }
+
+  bool ProcessRequest(CefRefPtr<CefRequest> request,
+                      CefRefPtr<CefCallback> callback) override {
+    EXPECT_TRUE(false);  // Not reached.
+    return false;
+  }
+
+  void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                          int64& response_length,
+                          CefString& redirectUrl) override {
+    EXPECT_IO_THREAD();
+    EXPECT_EQ(settings_->incomplete_type,
+              RequestRunSettings::INCOMPLETE_READ_RESPONSE);
+
+    get_response_headers_ct_++;
+
+    response->SetStatus(settings_->response->GetStatus());
+    response->SetStatusText(settings_->response->GetStatusText());
+    response->SetMimeType(settings_->response->GetMimeType());
+
+    CefResponse::HeaderMap headerMap;
+    settings_->response->GetHeaderMap(headerMap);
+    settings_->response->SetHeaderMap(headerMap);
+
+    response_length = static_cast<int64>(settings_->response_data.size());
+  }
+
+  bool Read(void* data_out,
+            int bytes_to_read,
+            int& bytes_read,
+            CefRefPtr<CefResourceReadCallback> callback) override {
+    EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
+    EXPECT_EQ(settings_->incomplete_type,
+              RequestRunSettings::INCOMPLETE_READ_RESPONSE);
+
+    read_ct_++;
+
+    // Never release or execute this callback.
+    incomplete_read_callback_ = callback;
+    bytes_read = 0;
+    return true;
+  }
+
+  bool ReadResponse(void* data_out,
+                    int bytes_to_read,
+                    int& bytes_read,
+                    CefRefPtr<CefCallback> callback) override {
+    EXPECT_TRUE(false);  // Not reached.
+    bytes_read = -2;
+    return false;
+  }
+
+  void Cancel() override {
+    EXPECT_IO_THREAD();
+    cancel_ct_++;
+  }
+
+ private:
+  RequestRunSettings* const settings_;
+  const base::Closure destroy_callback_;
+
+  int open_ct_ = 0;
+  int get_response_headers_ct_ = 0;
+  int read_ct_ = 0;
+  int cancel_ct_ = 0;
+
+  CefRefPtr<CefCallback> incomplete_open_callback_;
+  CefRefPtr<CefResourceReadCallback> incomplete_read_callback_;
+
   IMPLEMENT_REFCOUNTING(IncompleteSchemeHandler);
   DISALLOW_COPY_AND_ASSIGN(IncompleteSchemeHandler);
 };
@@ -805,10 +1096,21 @@ class RequestSchemeHandlerFactory : public CefSchemeHandlerFactory {
     if (entry.type == RequestDataMap::Entry::TYPE_NORMAL) {
       if (entry.settings->incomplete_type ==
           RequestRunSettings::INCOMPLETE_NONE) {
+        if (TestOldResourceAPI()) {
+          return new RequestSchemeHandlerOld(entry.settings, destroy_callback);
+        }
         return new RequestSchemeHandler(entry.settings, destroy_callback);
+      }
+
+      if (TestOldResourceAPI()) {
+        return new IncompleteSchemeHandlerOld(entry.settings, destroy_callback);
       }
       return new IncompleteSchemeHandler(entry.settings, destroy_callback);
     } else if (entry.type == RequestDataMap::Entry::TYPE_REDIRECT) {
+      if (TestOldResourceAPI()) {
+        return new RequestRedirectSchemeHandlerOld(
+            entry.redirect_request, entry.redirect_response, destroy_callback);
+      }
       return new RequestRedirectSchemeHandler(
           entry.redirect_request, entry.redirect_response, destroy_callback);
     }
@@ -882,6 +1184,7 @@ class RequestSchemeHandlerFactory : public CefSchemeHandlerFactory {
   base::Closure shutdown_callback_;
 
   IMPLEMENT_REFCOUNTING(RequestSchemeHandlerFactory);
+  DISALLOW_COPY_AND_ASSIGN(RequestSchemeHandlerFactory);
 };
 
 // SERVER BACKEND
