@@ -174,6 +174,7 @@ void SaveCookies(content::BrowserContext* browser_context,
   CEF_REQUIRE_IOT();
 
   if (request.credentials_mode == network::mojom::CredentialsMode::kOmit ||
+      !head.headers ||
       !head.headers->HasHeader(net_service::kHTTPSetCookieHeaderName)) {
     // Continue immediately without saving cookies.
     std::move(done_callback).Run(0, {});
