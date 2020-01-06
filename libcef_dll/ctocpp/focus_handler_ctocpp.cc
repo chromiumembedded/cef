@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4bec2131fcbc3b72f7c0d8afd095f6f194bb1294$
+// $hash=c8cc2d8d93cc636f1528d34238a784b4428dcfa0$
 //
 
 #include "libcef_dll/ctocpp/focus_handler_ctocpp.h"

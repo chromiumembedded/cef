@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=518bfaff2760e397f28e62c9d09c5ae5a99177e1$
+// $hash=301a972d95ae8ff41174ec6e7b0574be5ccf131e$
 //
 
 #include "libcef_dll/ctocpp/download_image_callback_ctocpp.h"
