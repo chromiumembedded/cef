@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5d72a5d5a22095adfe20a58b63334469d16f53d5$
+// $hash=5324f142da5ca5e214ce03eeab0babbaa4031126$
 //
 
 #include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
