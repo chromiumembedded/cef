@@ -257,22 +257,44 @@ base::FilePath GetUserDataPath() {
 }
 
 bool GetDefaultDownloadDirectory(base::FilePath* result) {
-  base::FilePath cur;
-  if (!chrome::GetUserDownloadsDirectory(&cur))
+  // This will return the safe download directory if necessary.
+  return chrome::GetUserDownloadsDirectory(result);
+}
+
+// From chrome/browser/download/download_prefs.cc.
+// Consider downloads 'dangerous' if they go to the home directory on Linux and
+// to the desktop on any platform.
+bool DownloadPathIsDangerous(const base::FilePath& download_path) {
+#if defined(OS_LINUX)
+  base::FilePath home_dir = base::GetHomeDir();
+  if (download_path == home_dir) {
+    return true;
+  }
+#endif
+
+  base::FilePath desktop_dir;
+  if (!base::PathService::Get(base::DIR_USER_DESKTOP, &desktop_dir)) {
+    NOTREACHED();
     return false;
-  *result = cur;
-  return true;
+  }
+  return (download_path == desktop_dir);
 }
 
 bool GetDefaultDownloadSafeDirectory(base::FilePath* result) {
-  base::FilePath cur;
-#if defined(OS_WIN) || defined(OS_LINUX)
-  if (!chrome::GetUserDownloadsDirectorySafe(&cur))
+  // Start with the default download directory.
+  if (!GetDefaultDownloadDirectory(result))
     return false;
+
+  if (DownloadPathIsDangerous(*result)) {
+#if defined(OS_WIN) || defined(OS_LINUX)
+    // Explicitly switch to the safe download directory.
+    return chrome::GetUserDownloadsDirectorySafe(result);
 #else
-  GetDefaultDownloadDirectory(&cur);
+    // No viable alternative on macOS.
+    return false;
 #endif
-  *result = cur;
+  }
+
   return true;
 }
 
