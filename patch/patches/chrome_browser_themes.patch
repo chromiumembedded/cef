@@ -1,0 +1,37 @@
+diff --git chrome/browser/themes/theme_service_factory.cc chrome/browser/themes/theme_service_factory.cc
+index 3f065778092c..3661a9ece2a6 100644
+--- chrome/browser/themes/theme_service_factory.cc
++++ chrome/browser/themes/theme_service_factory.cc
+@@ -6,6 +6,7 @@
+ 
+ #include "base/logging.h"
+ #include "build/build_config.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/extensions/extension_system_factory.h"
+ #include "chrome/browser/profiles/incognito_helpers.h"
+ #include "chrome/browser/profiles/profile.h"
+@@ -25,6 +26,10 @@
+ #include "ui/views/linux_ui/linux_ui.h"
+ #endif
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/common/extensions/extensions_util.h"
++#endif
++
+ // static
+ ThemeService* ThemeServiceFactory::GetForProfile(Profile* profile) {
+   return static_cast<ThemeService*>(
+@@ -54,7 +59,13 @@ ThemeServiceFactory::ThemeServiceFactory()
+           BrowserContextDependencyManager::GetInstance()) {
+   DependsOn(extensions::ExtensionRegistryFactory::GetInstance());
+   DependsOn(extensions::ExtensionPrefsFactory::GetInstance());
++#if BUILDFLAG(ENABLE_CEF)
++  if (extensions::ExtensionsEnabled()) {
++#endif
+   DependsOn(extensions::ExtensionSystemFactory::GetInstance());
++#if BUILDFLAG(ENABLE_CEF)
++  }
++#endif
+ }
+ 
+ ThemeServiceFactory::~ThemeServiceFactory() {}
