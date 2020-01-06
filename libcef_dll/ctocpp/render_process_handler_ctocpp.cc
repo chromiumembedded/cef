@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3983c8f521d444195dc52b4605840b51289e77e0$
+// $hash=049d5c9b4c8a3cb9aad2bb88afbdb48c2798fa92$
 //
 
 #include "libcef_dll/ctocpp/render_process_handler_ctocpp.h"

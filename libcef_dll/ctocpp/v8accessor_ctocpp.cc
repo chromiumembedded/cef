@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0794c5b8959e5dcf3215ce9559f30dd6cd13ac21$
+// $hash=d298814c204fb111820f558bbe1aef373af460b4$
 //
 
 #include "libcef_dll/ctocpp/v8accessor_ctocpp.h"

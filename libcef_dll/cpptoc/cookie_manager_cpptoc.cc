@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=887754026eb62e631a0279fbba8fb1c370f0bcf7$
+// $hash=c4bd1ca7668ae793b51cee0ee60f7e66a9ad5fe3$
 //
 
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"

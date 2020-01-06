@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=33f5c103833cb9b4e6555f6a82fcaec06f3ff449$
+// $hash=50239c2410b1976d78289858a3155e6f37591c9d$
 //
 
 #include <dlfcn.h>
