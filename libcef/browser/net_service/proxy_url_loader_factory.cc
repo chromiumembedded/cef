@@ -1218,7 +1218,6 @@ void ProxyURLLoaderFactory::MaybeDestroySelf() {
   if (target_factory_.is_bound() || !requests_.empty())
     return;
 
-  CHECK(!destroyed_);
   destroyed_ = true;
 
   // In some cases we may be destroyed before SetDisconnectCallback is called.
