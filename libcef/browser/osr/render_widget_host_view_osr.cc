@@ -1051,26 +1051,17 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
     const blink::WebMouseWheelEvent& event) {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::SendMouseWheelEvent");
 
-  blink::WebMouseWheelEvent mouse_wheel_event(event);
-
-  mouse_wheel_phase_handler_.SendWheelEndForTouchpadScrollingIfNeeded(false);
-  mouse_wheel_phase_handler_.AddPhaseIfNeededAndScheduleEndEvent(
-      mouse_wheel_event, false);
-
   if (!IsPopupWidget()) {
     if (browser_impl_.get())
       browser_impl_->CancelContextMenu();
 
     if (popup_host_view_) {
       if (popup_host_view_->popup_position_.Contains(
-              mouse_wheel_event.PositionInWidget().x,
-              mouse_wheel_event.PositionInWidget().y)) {
-        blink::WebMouseWheelEvent popup_mouse_wheel_event(mouse_wheel_event);
+              event.PositionInWidget().x, event.PositionInWidget().y)) {
+        blink::WebMouseWheelEvent popup_mouse_wheel_event(event);
         popup_mouse_wheel_event.SetPositionInWidget(
-            mouse_wheel_event.PositionInWidget().x -
-                popup_host_view_->popup_position_.x(),
-            mouse_wheel_event.PositionInWidget().y -
-                popup_host_view_->popup_position_.y());
+            event.PositionInWidget().x - popup_host_view_->popup_position_.x(),
+            event.PositionInWidget().y - popup_host_view_->popup_position_.y());
         popup_mouse_wheel_event.SetPositionInScreen(
             popup_mouse_wheel_event.PositionInWidget().x,
             popup_mouse_wheel_event.PositionInWidget().y);
@@ -1094,12 +1085,12 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
         }
         const gfx::Rect& guest_bounds =
             guest_host_view->render_widget_host_->GetView()->GetViewBounds();
-        if (guest_bounds.Contains(mouse_wheel_event.PositionInWidget().x,
-                                  mouse_wheel_event.PositionInWidget().y)) {
-          blink::WebMouseWheelEvent guest_mouse_wheel_event(mouse_wheel_event);
+        if (guest_bounds.Contains(event.PositionInWidget().x,
+                                  event.PositionInWidget().y)) {
+          blink::WebMouseWheelEvent guest_mouse_wheel_event(event);
           guest_mouse_wheel_event.SetPositionInWidget(
-              mouse_wheel_event.PositionInWidget().x - guest_bounds.x(),
-              mouse_wheel_event.PositionInWidget().y - guest_bounds.y());
+              event.PositionInWidget().x - guest_bounds.x(),
+              event.PositionInWidget().y - guest_bounds.y());
           guest_mouse_wheel_event.SetPositionInScreen(
               guest_mouse_wheel_event.PositionInWidget().x,
               guest_mouse_wheel_event.PositionInWidget().y);
@@ -1112,6 +1103,12 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
   }
 
   if (render_widget_host_ && render_widget_host_->GetView()) {
+    blink::WebMouseWheelEvent mouse_wheel_event(event);
+
+    mouse_wheel_phase_handler_.SendWheelEndForTouchpadScrollingIfNeeded(false);
+    mouse_wheel_phase_handler_.AddPhaseIfNeededAndScheduleEndEvent(
+        mouse_wheel_event, false);
+
     if (ShouldRouteEvents()) {
       render_widget_host_->delegate()
           ->GetInputEventRouter()
