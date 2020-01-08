@@ -435,6 +435,17 @@ void CefRenderWidgetHostViewOSR::DidCreateNewRendererCompositorFrameSink(
 
 void CefRenderWidgetHostViewOSR::OnPresentCompositorFrame() {}
 
+void CefRenderWidgetHostViewOSR::OnDidUpdateVisualPropertiesComplete(
+    const cc::RenderFrameMetadata& metadata) {
+  bool force = false;
+  if (metadata.local_surface_id_allocation) {
+    force = local_surface_id_allocator_.UpdateFromChild(
+        *metadata.local_surface_id_allocation);
+  }
+
+  SynchronizeVisualProperties(force);
+}
+
 void CefRenderWidgetHostViewOSR::AddDamageRect(uint32_t sequence,
                                                const gfx::Rect& rect) {
   // Associate the given damage rect with the presentation token.
@@ -700,9 +711,9 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
 viz::ScopedSurfaceIdAllocator
 CefRenderWidgetHostViewOSR::DidUpdateVisualProperties(
     const cc::RenderFrameMetadata& metadata) {
-  base::OnceCallback<void()> allocation_task =
-      base::BindOnce(&CefRenderWidgetHostViewOSR::SynchronizeVisualProperties,
-                     weak_ptr_factory_.GetWeakPtr(), false);
+  base::OnceCallback<void()> allocation_task = base::BindOnce(
+      &CefRenderWidgetHostViewOSR::OnDidUpdateVisualPropertiesComplete,
+      weak_ptr_factory_.GetWeakPtr(), metadata);
   return viz::ScopedSurfaceIdAllocator(std::move(allocation_task));
 }
 #endif
