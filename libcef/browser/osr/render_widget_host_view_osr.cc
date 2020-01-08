@@ -851,7 +851,8 @@ bool CefRenderWidgetHostViewOSR::TransformPointToCoordSpaceForView(
     return true;
   }
 
-  return false;
+  return target_view->TransformPointToLocalCoordSpace(
+      point, GetCurrentSurfaceId(), transformed_point);
 }
 
 void CefRenderWidgetHostViewOSR::DidNavigate() {
@@ -1021,9 +1022,17 @@ void CefRenderWidgetHostViewOSR::SendMouseEvent(
   }
 
   if (render_widget_host_ && render_widget_host_->GetView()) {
-    // Direct routing requires that mouse events go directly to the View.
-    render_widget_host_->GetView()->ProcessMouseEvent(
-        event, ui::LatencyInfo(ui::SourceEventType::OTHER));
+    if (ShouldRouteEvents()) {
+      // RouteMouseEvent wants non-const pointer to WebMouseEvent, but it only
+      // forwards it to RenderWidgetTargeter::FindTargetAndDispatch as a const
+      // reference, so const_cast here is safe.
+      render_widget_host_->delegate()->GetInputEventRouter()->RouteMouseEvent(
+          this, const_cast<blink::WebMouseEvent*>(&event),
+          ui::LatencyInfo(ui::SourceEventType::OTHER));
+    } else {
+      render_widget_host_->GetView()->ProcessMouseEvent(
+          event, ui::LatencyInfo(ui::SourceEventType::OTHER));
+    }
   }
 }
 
@@ -1092,9 +1101,16 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
   }
 
   if (render_widget_host_ && render_widget_host_->GetView()) {
-    // Direct routing requires that mouse events go directly to the View.
-    render_widget_host_->GetView()->ProcessMouseWheelEvent(
-        mouse_wheel_event, ui::LatencyInfo(ui::SourceEventType::WHEEL));
+    if (ShouldRouteEvents()) {
+      render_widget_host_->delegate()
+          ->GetInputEventRouter()
+          ->RouteMouseWheelEvent(
+              this, const_cast<blink::WebMouseWheelEvent*>(&mouse_wheel_event),
+              ui::LatencyInfo(ui::SourceEventType::WHEEL));
+    } else {
+      render_widget_host_->GetView()->ProcessMouseWheelEvent(
+          mouse_wheel_event, ui::LatencyInfo(ui::SourceEventType::WHEEL));
+    }
   }
 }
 
