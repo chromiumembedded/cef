@@ -268,6 +268,9 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   void OnPresentCompositorFrame();
 
+  void OnDidUpdateVisualPropertiesComplete(
+      const cc::RenderFrameMetadata& metadata);
+
  private:
   content::DelegatedFrameHost* GetDelegatedFrameHost() const;
 
