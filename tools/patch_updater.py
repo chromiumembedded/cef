@@ -2,6 +2,9 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from __future__ import absolute_import
+from __future__ import print_function
+from io import open
 from optparse import Option, OptionParser, OptionValueError
 import os
 import re
@@ -33,14 +36,14 @@ def warn(message):
 def extract_paths(file):
   """ Extract the list of modified paths from the patch file. """
   paths = []
-  fp = open(file)
-  for line in fp:
-    if line[:4] != '+++ ':
-      continue
-    match = re.match('^([^\t]+)', line[4:])
-    if not match:
-      continue
-    paths.append(match.group(1).strip())
+  with open(file, 'r', encoding='utf-8') as fp:
+    for line in fp:
+      if line[:4] != '+++ ':
+        continue
+      match = re.match('^([^\t]+)', line[4:])
+      if not match:
+        continue
+      paths.append(match.group(1).strip())
   return paths
 
 
@@ -119,12 +122,12 @@ parser.add_option(
 (options, args) = parser.parse_args()
 
 if options.resave and options.revert:
-  print 'Invalid combination of options.'
+  print('Invalid combination of options.')
   parser.print_help(sys.stderr)
   sys.exit()
 
 if len(options.add) > 0 and (len(options.patch) != 1 or not options.resave):
-  print '--add can only be used with --resave and a single --patch value.'
+  print('--add can only be used with --resave and a single --patch value.')
   parser.print_help(sys.stderr)
   sys.exit()
 
@@ -144,7 +147,7 @@ if not os.path.isfile(patch_cfg):
 # Read the patch configuration file.
 msg('Reading patch config %s' % patch_cfg)
 scope = {}
-execfile(patch_cfg, scope)
+exec (compile(open(patch_cfg, "rb").read(), patch_cfg, 'exec'), scope)
 patches = scope["patches"]
 
 failed_patches = {}
@@ -214,7 +217,7 @@ for patch in patches:
           patch_path_abs = os.path.abspath(os.path.join(patch_root_abs, \
                                                         patch_path))
           if os.path.exists(patch_path_abs):
-            with open(patch_path_abs, 'rb') as fp:
+            with open(patch_path_abs, 'r', encoding='utf-8') as fp:
               contents = fp.read()
             if "\r\n" in contents:
               msg('Converting to Posix line endings for %s' % patch_path_abs)
@@ -304,7 +307,7 @@ for patch in patches:
         msg('Converting to Posix line endings for %s' % patch_file)
         result['out'] = result['out'].replace("\r\n", "\n")
 
-      f = open(patch_file, 'wb')
+      f = open(patch_file, 'w', encoding='utf-8')
       f.write(result['out'])
       f.close()
   else:

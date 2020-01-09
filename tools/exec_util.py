@@ -38,4 +38,4 @@ def exec_cmd(cmd, path, input_string=None):
     raise
   except:
     raise
-  return {'out': out.decode(), 'err': err.decode(), 'ret': ret}
+  return {'out': out.decode('utf-8'), 'err': err.decode('utf-8'), 'ret': ret}
