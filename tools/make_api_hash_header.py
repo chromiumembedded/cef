@@ -2,6 +2,7 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from __future__ import absolute_import
 from cef_api_hash import cef_api_hash
 from cef_parser import *
 from file_util import *
@@ -53,7 +54,7 @@ CEF_EXPORT const char* cef_api_hash(int entry);
 """
 
   # Substitute hash values for placeholders.
-  for platform, value in api_hash.iteritems():
+  for platform, value in api_hash.items():
     result = result.replace('$%s$' % platform.upper(), value)
 
   return result
@@ -70,7 +71,7 @@ if __name__ == "__main__":
 
   # Verify that the correct number of command-line arguments are provided.
   if len(sys.argv) < 2:
-    sys.stderr.write('Usage: ' + sys.argv[0] + ' <cppheaderdir>')
+    sys.stderr.write('Usage: ' + sys.argv[0] + ' <cppheaderdir>\n')
     sys.exit()
 
   # Dump the result to stdout.

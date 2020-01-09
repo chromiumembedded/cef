@@ -2,6 +2,7 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from __future__ import absolute_import
 from date_util import *
 from file_util import *
 import os
@@ -49,10 +50,10 @@ def get_capi_name(cppname, isclassname, prefix=None):
     # add an underscore if the current character is an upper case letter
     # and the last character was a lower case letter
     if len(result) > 0 and not chr.isdigit() \
-        and string.upper(chr) == chr \
-        and not string.upper(lastchr) == lastchr:
+        and chr.upper() == chr \
+        and not lastchr.upper() == lastchr:
       result += '_'
-    result += string.lower(chr)
+    result += chr.lower()
     lastchr = chr
 
   if isclassname:
@@ -81,7 +82,7 @@ def get_prev_line(body, pos):
   """ Retrieve the start and end positions and value for the line immediately
     before the line containing the specified position.
     """
-  end = string.rfind(body, '\n', 0, pos)
+  end = body.rfind('\n', 0, pos)
   start = body.rfind('\n', 0, end) + 1
   line = body[start:end]
   return {'start': start, 'end': end, 'line': line}
@@ -95,12 +96,12 @@ def get_comment(body, name):
   in_block_comment = False
   while pos > 0:
     data = get_prev_line(body, pos)
-    line = string.strip(data['line'])
+    line = data['line'].strip()
     pos = data['start']
     if len(line) == 0:
       # check if the next previous line is a comment
       prevdata = get_prev_line(body, pos)
-      prevline = string.strip(prevdata['line'])
+      prevline = prevdata['line'].strip()
       if prevline[0:2] == '//' and prevline[0:3] != '///':
         result.append(None)
       else:
@@ -146,6 +147,11 @@ def validate_comment(file, name, comment):
 
 def format_comment(comment, indent, translate_map=None, maxchars=80):
   """ Return the comments array as a formatted string. """
+  if not translate_map is None:
+    # Replace longest keys first in translation.
+    translate_keys = sorted(
+        translate_map.keys(), key=lambda item: (-len(item), item))
+
   result = ''
   wrapme = ''
   hasemptyline = False
@@ -163,7 +169,7 @@ def format_comment(comment, indent, translate_map=None, maxchars=80):
       if len(wrapme) > 0:
         if not translate_map is None:
           # apply the translation
-          for key in translate_map.keys():
+          for key in translate_keys:
             wrapme = wrapme.replace(key, translate_map[key])
         # output the previous paragraph
         result += wrap_text(wrapme, indent + '// ', maxchars)
@@ -299,17 +305,17 @@ def str_to_dict(str):
   """ Convert a string to a dictionary. If the same key has multiple values
         the values will be stored in a list. """
   dict = {}
-  parts = string.split(str, ',')
+  parts = str.split(',')
   for part in parts:
-    part = string.strip(part)
+    part = part.strip()
     if len(part) == 0:
       continue
-    sparts = string.split(part, '=')
+    sparts = part.split('=')
     if len(sparts) > 2:
       raise Exception('Invalid dictionary pair format: ' + part)
-    name = string.strip(sparts[0])
+    name = sparts[0].strip()
     if len(sparts) == 2:
-      val = string.strip(sparts[1])
+      val = sparts[1].strip()
     else:
       val = True
     if name in dict:
@@ -339,7 +345,7 @@ def dict_to_str(dict):
       # currently a list value
       for val in dict[name]:
         str.append(name + '=' + val)
-  return string.join(str, ',')
+  return ','.join(str)
 
 
 # regex for matching comment-formatted attributes
@@ -656,19 +662,19 @@ class obj_header:
       strlist = []
       for cls in self.typedefs:
         strlist.append(str(cls))
-      result += string.join(strlist, "\n") + "\n\n"
+      result += "\n".join(strlist) + "\n\n"
 
     if len(self.funcs) > 0:
       strlist = []
       for cls in self.funcs:
         strlist.append(str(cls))
-      result += string.join(strlist, "\n") + "\n\n"
+      result += "\n".join(strlist) + "\n\n"
 
     if len(self.classes) > 0:
       strlist = []
       for cls in self.classes:
         strlist.append(str(cls))
-      result += string.join(strlist, "\n")
+      result += "\n".join(strlist)
 
     return result
 
@@ -868,21 +874,21 @@ class obj_class:
       strlist = []
       for cls in self.typedefs:
         strlist.append(str(cls))
-      result += string.join(strlist, "\n\t")
+      result += "\n\t".join(strlist)
 
     if len(self.staticfuncs) > 0:
       result += "\n\t"
       strlist = []
       for cls in self.staticfuncs:
         strlist.append(str(cls))
-      result += string.join(strlist, "\n\t")
+      result += "\n\t".join(strlist)
 
     if len(self.virtualfuncs) > 0:
       result += "\n\t"
       strlist = []
       for cls in self.virtualfuncs:
         strlist.append(str(cls))
-      result += string.join(strlist, "\n\t")
+      result += "\n\t".join(strlist)
 
     result += "\n};\n"
     return result
@@ -1090,7 +1096,7 @@ class obj_function:
 
     # build the argument objects
     self.arguments = []
-    arglist = string.split(argval, ',')
+    arglist = argval.split(',')
     argindex = 0
     while argindex < len(arglist):
       arg = arglist[argindex]
@@ -1100,7 +1106,7 @@ class obj_function:
         argindex += 1
         arg += ',' + arglist[argindex]
 
-      arg = string.strip(arg)
+      arg = arg.strip()
       if len(arg) > 0:
         argument = obj_argument(self, arg)
         if argument.needs_attrib_count_func() and \
@@ -1235,7 +1241,7 @@ class obj_function:
     """ Return the prototype of the C API function. """
     parts = self.get_capi_parts(defined_structs, prefix)
     result = parts['retval']+' '+parts['name']+ \
-             '('+string.join(parts['args'], ', ')+')'
+             '('+', '.join(parts['args'])+')'
     return result
 
   def get_cpp_parts(self, isimpl=False):
@@ -1264,7 +1270,7 @@ class obj_function:
     result = parts['retval'] + ' '
     if not classname is None:
       result += classname + '::'
-    result += parts['name'] + '(' + string.join(parts['args'], ', ') + ')'
+    result += parts['name'] + '(' + ', '.join(parts['args']) + ')'
     if isinstance(self, obj_function_virtual) and self.is_const():
       result += ' const'
     return result
@@ -1395,12 +1401,12 @@ class obj_argument:
     name = self.type.get_name()
     vals = self.parent.get_attrib_list('count_func')
     for val in vals:
-      parts = string.split(val, ':')
+      parts = val.split(':')
       if len(parts) != 2:
         raise Exception("Invalid 'count_func' attribute value for "+ \
                         self.parent.get_qualified_name()+': '+val)
-      if string.strip(parts[0]) == name:
-        return string.strip(parts[1])
+      if parts[0].strip() == name:
+        return parts[1].strip()
     return None
 
   def needs_attrib_default_retval(self):
@@ -1601,7 +1607,7 @@ class obj_analysis:
     self.ptr_type = None
 
     # parse the argument string
-    partlist = string.split(string.strip(value))
+    partlist = value.strip().split()
 
     if named == True:
       # extract the name value
@@ -1624,7 +1630,7 @@ class obj_analysis:
       raise Exception('Invalid argument value: ' + value)
 
     # combine the data type
-    self.type = string.join(partlist, ' ')
+    self.type = ' '.join(partlist)
 
     # extract the last character of the data type
     endchar = self.type[-1]
@@ -1668,7 +1674,7 @@ class obj_analysis:
     # check for vectors
     if value.find('std::vector') == 0:
       self.result_type = 'vector'
-      val = string.strip(value[12:-1])
+      val = value[12:-1].strip()
       self.result_value = [self._get_basic(val)]
       self.result_value[0]['vector_type'] = val
       return True
@@ -1676,22 +1682,22 @@ class obj_analysis:
     # check for maps
     if value.find('std::map') == 0:
       self.result_type = 'map'
-      vals = string.split(value[9:-1], ',')
+      vals = value[9:-1].split(',')
       if len(vals) == 2:
         self.result_value = [
-            self._get_basic(string.strip(vals[0])),
-            self._get_basic(string.strip(vals[1]))
+            self._get_basic(vals[0].strip()),
+            self._get_basic(vals[1].strip())
         ]
         return True
 
     # check for multimaps
     if value.find('std::multimap') == 0:
       self.result_type = 'multimap'
-      vals = string.split(value[14:-1], ',')
+      vals = value[14:-1].split(',')
       if len(vals) == 2:
         self.result_value = [
-            self._get_basic(string.strip(vals[0])),
-            self._get_basic(string.strip(vals[1]))
+            self._get_basic(vals[0].strip()),
+            self._get_basic(vals[1].strip())
         ]
         return True
 

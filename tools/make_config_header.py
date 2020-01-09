@@ -2,6 +2,7 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from __future__ import absolute_import
 from date_util import *
 from file_util import *
 from optparse import OptionParser
@@ -53,6 +54,7 @@ def check_x11_build(gn_config):
       return False
 
   return True
+
 
 def write_config_header(header, cef_gn_config):
   """ Creates the header file for the cef build configuration
@@ -112,6 +114,7 @@ def write_config_header(header, cef_gn_config):
     write_file(header, newcontents)
     return True
   return False
+
 
 written = write_config_header(options.header, options.cef_gn_config)
 if not options.quiet:
