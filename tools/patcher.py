@@ -2,6 +2,7 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from __future__ import absolute_import
 import pickle
 from optparse import OptionParser
 import os
@@ -54,7 +55,7 @@ def apply_patch_config():
 
   # Parse the configuration file.
   scope = {}
-  execfile(config_file, scope)
+  exec (compile(open(config_file, "rb").read(), config_file, 'exec'), scope)
   patches = scope["patches"]
 
   results = {'apply': 0, 'skip': 0, 'fail': 0}

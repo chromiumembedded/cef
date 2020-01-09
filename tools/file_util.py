@@ -2,6 +2,7 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from __future__ import absolute_import
 from glob import iglob
 import os
 import shutil
@@ -19,7 +20,8 @@ def read_file(name, normalize=True):
       # normalize line endings
       data = data.replace("\r\n", "\n")
     return data
-  except IOError, (errno, strerror):
+  except IOError as e:
+    (errno, strerror) = e.args
     sys.stderr.write('Failed to read file ' + name + ': ' + strerror)
     raise
   else:
@@ -32,7 +34,8 @@ def write_file(name, data):
     f = open(name, 'w')
     # write the data
     f.write(data)
-  except IOError, (errno, strerror):
+  except IOError as e:
+    (errno, strerror) = e.args
     sys.stderr.write('Failed to write file ' + name + ': ' + strerror)
     raise
   else:
@@ -55,7 +58,8 @@ def copy_file(src, dst, quiet=True):
     shutil.copy2(src, dst)
     if not quiet:
       sys.stdout.write('Transferring ' + src + ' file.\n')
-  except IOError, (errno, strerror):
+  except IOError as e:
+    (errno, strerror) = e.args
     sys.stderr.write('Failed to copy file from ' + src + ' to ' + dst + ': ' +
                      strerror)
     raise
@@ -67,7 +71,8 @@ def move_file(src, dst, quiet=True):
     shutil.move(src, dst)
     if not quiet:
       sys.stdout.write('Moving ' + src + ' file.\n')
-  except IOError, (errno, strerror):
+  except IOError as e:
+    (errno, strerror) = e.args
     sys.stderr.write('Failed to move file from ' + src + ' to ' + dst + ': ' +
                      strerror)
     raise
@@ -90,7 +95,8 @@ def remove_file(name, quiet=True):
       os.remove(name)
       if not quiet:
         sys.stdout.write('Removing ' + name + ' file.\n')
-  except IOError, (errno, strerror):
+  except IOError as e:
+    (errno, strerror) = e.args
     sys.stderr.write('Failed to remove file ' + name + ': ' + strerror)
     raise
 
@@ -102,7 +108,8 @@ def copy_dir(src, dst, quiet=True):
     shutil.copytree(src, dst)
     if not quiet:
       sys.stdout.write('Transferring ' + src + ' directory.\n')
-  except IOError, (errno, strerror):
+  except IOError as e:
+    (errno, strerror) = e.args
     sys.stderr.write('Failed to copy directory from ' + src + ' to ' + dst +
                      ': ' + strerror)
     raise
@@ -115,7 +122,8 @@ def remove_dir(name, quiet=True):
       shutil.rmtree(name)
       if not quiet:
         sys.stdout.write('Removing ' + name + ' directory.\n')
-  except IOError, (errno, strerror):
+  except IOError as e:
+    (errno, strerror) = e.args
     sys.stderr.write('Failed to remove directory ' + name + ': ' + strerror)
     raise
 
@@ -127,7 +135,8 @@ def make_dir(name, quiet=True):
       if not quiet:
         sys.stdout.write('Creating ' + name + ' directory.\n')
       os.makedirs(name)
-  except IOError, (errno, strerror):
+  except IOError as e:
+    (errno, strerror) = e.args
     sys.stderr.write('Failed to create directory ' + name + ': ' + strerror)
     raise
 
