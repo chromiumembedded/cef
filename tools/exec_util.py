@@ -2,6 +2,7 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file
 
+from __future__ import absolute_import
 from subprocess import Popen, PIPE
 import sys
 
@@ -32,8 +33,9 @@ def exec_cmd(cmd, path, input_string=None):
           shell=(sys.platform == 'win32'))
       out, err = process.communicate(input=input_string)
       ret = process.returncode
-  except IOError, (errno, strerror):
+  except IOError as e:
+    (errno, strerror) = e.args
     raise
   except:
     raise
-  return {'out': out, 'err': err, 'ret': ret}
+  return {'out': out.decode(), 'err': err.decode(), 'ret': ret}
