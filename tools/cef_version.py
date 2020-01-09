@@ -2,6 +2,8 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from __future__ import absolute_import
+from __future__ import print_function
 from file_util import *
 import git_util as git
 import os
@@ -261,13 +263,13 @@ if __name__ == "__main__":
 
   for format in formats:
     if len(formats) > 1:
-      print format
+      print(format)
 
     if format == 'old':
-      print formatter.get_version_string(True)
+      print(formatter.get_version_string(True))
     elif format == 'dylib':
-      print formatter.get_dylib_version_string()
+      print(formatter.get_dylib_version_string())
     elif format == 'plist':
-      print formatter.get_plist_version_string()
+      print(formatter.get_plist_version_string())
     else:
-      print formatter.get_version_string(False)
+      print(formatter.get_version_string(False))
