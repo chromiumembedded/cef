@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=af959ada2c76d9868fa43b1b61a299a90b205949$
+// $hash=a13b5b607d5a2108fac5fe75f5ebd2ede7eaef6a$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_EXTENSION_HANDLER_CAPI_H_
@@ -53,7 +53,7 @@ struct _cef_client_t;
 
 ///
 // Callback structure used for asynchronous continuation of
-// cef_extension_tHandler::GetExtensionResource.
+// cef_extension_handler_t::GetExtensionResource.
 ///
 typedef struct _cef_get_extension_resource_callback_t {
   ///
@@ -77,7 +77,7 @@ typedef struct _cef_get_extension_resource_callback_t {
 ///
 // Implement this structure to handle events related to browser extensions. The
 // functions of this structure will be called on the UI thread. See
-// cef_request_tContext::LoadExtension for information about extension loading.
+// cef_request_context_t::LoadExtension for information about extension loading.
 ///
 typedef struct _cef_extension_handler_t {
   ///
@@ -86,7 +86,7 @@ typedef struct _cef_extension_handler_t {
   cef_base_ref_counted_t base;
 
   ///
-  // Called if the cef_request_tContext::LoadExtension request fails. |result|
+  // Called if the cef_request_context_t::LoadExtension request fails. |result|
   // will be the error code.
   ///
   void(CEF_CALLBACK* on_extension_load_failed)(
@@ -94,7 +94,7 @@ typedef struct _cef_extension_handler_t {
       cef_errorcode_t result);
 
   ///
-  // Called if the cef_request_tContext::LoadExtension request succeeds.
+  // Called if the cef_request_context_t::LoadExtension request succeeds.
   // |extension| is the loaded extension.
   ///
   void(CEF_CALLBACK* on_extension_loaded)(struct _cef_extension_handler_t* self,
@@ -161,7 +161,7 @@ typedef struct _cef_extension_handler_t {
   // tabId parameter (e.g. chrome.tabs.*). |extension| and |browser| are the
   // source of the API call. Return the browser that will be acted on by the API
   // call or return NULL to act on |browser|. The returned browser must share
-  // the same cef_request_tContext as |browser|. Incognito browsers should not
+  // the same cef_request_context_t as |browser|. Incognito browsers should not
   // be considered unless the source extension has incognito access enabled, in
   // which case |include_incognito| will be true (1).
   ///

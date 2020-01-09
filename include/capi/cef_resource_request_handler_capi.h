@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=67463808f6bacde8afd0c0af6c4459a8981adfa2$
+// $hash=afc96f188710bd336d09ce479a650aaa3a55357a$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESOURCE_REQUEST_HANDLER_CAPI_H_
@@ -87,7 +87,7 @@ typedef struct _cef_resource_request_handler_t {
   // or change the resource load optionally modify |request|. Modification of
   // the request URL will be treated as a redirect. Return RV_CONTINUE to
   // continue the request immediately. Return RV_CONTINUE_ASYNC and call
-  // cef_request_tCallback:: cont() at a later time to continue or cancel the
+  // cef_request_callback_t:: cont() at a later time to continue or cancel the
   // request asynchronously. Return RV_CANCEL to cancel the request immediately.
   //
   ///

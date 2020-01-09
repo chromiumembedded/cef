@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=36cf362d97cf6f68692f9d8e060cc9306b1d64b1$
+// $hash=b50087959cb679e4132f0fccfd23f01f76079018$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_EXTENSION_CAPI_H_
@@ -72,7 +72,7 @@ typedef struct _cef_extension_t {
   ///
   // Returns the absolute path to the extension directory on disk. This value
   // will be prefixed with PK_DIR_RESOURCES if a relative path was passed to
-  // cef_request_tContext::LoadExtension.
+  // cef_request_context_t::LoadExtension.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_path)(struct _cef_extension_t* self);
@@ -95,7 +95,7 @@ typedef struct _cef_extension_t {
   ///
   // Returns the handler for this extension. Will return NULL for internal
   // extensions or if no handler was passed to
-  // cef_request_tContext::LoadExtension.
+  // cef_request_context_t::LoadExtension.
   ///
   struct _cef_extension_handler_t*(CEF_CALLBACK* get_handler)(
       struct _cef_extension_t* self);
@@ -103,7 +103,7 @@ typedef struct _cef_extension_t {
   ///
   // Returns the request context that loaded this extension. Will return NULL
   // for internal extensions or if the extension has been unloaded. See the
-  // cef_request_tContext::LoadExtension documentation for more information
+  // cef_request_context_t::LoadExtension documentation for more information
   // about loader contexts. Must be called on the browser process UI thread.
   ///
   struct _cef_request_context_t*(CEF_CALLBACK* get_loader_context)(
@@ -118,7 +118,7 @@ typedef struct _cef_extension_t {
   ///
   // Unload this extension if it is not an internal extension and is currently
   // loaded. Will result in a call to
-  // cef_extension_tHandler::OnExtensionUnloaded on success.
+  // cef_extension_handler_t::OnExtensionUnloaded on success.
   ///
   void(CEF_CALLBACK* unload)(struct _cef_extension_t* self);
 } cef_extension_t;
