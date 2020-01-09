@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=72d10c0974ced675d89aa54db60de845978f6319$
+// $hash=3b9789f2149c3e6d6a2e671e5427c19654442ede$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_SCROLL_VIEW_CAPI_H_
@@ -59,7 +59,7 @@ typedef struct _cef_scroll_view_t {
 
   ///
   // Set the content View. The content View must have a specified size (e.g. via
-  // cef_view_t::SetBounds or cef_view_tDelegate::GetPreferredSize).
+  // cef_view_t::SetBounds or cef_view_delegate_t::GetPreferredSize).
   ///
   void(CEF_CALLBACK* set_content_view)(struct _cef_scroll_view_t* self,
                                        struct _cef_view_t* view);

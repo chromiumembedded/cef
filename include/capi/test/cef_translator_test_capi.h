@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=deae5180f995f35ff2db04b2c5396577300c315b$
+// $hash=a5d8033127cf2d21f1cb0c87f76d2d59ec3eace0$
 //
 
 #ifndef CEF_INCLUDE_CAPI_TEST_CEF_TRANSLATOR_TEST_CAPI_H_
@@ -323,7 +323,7 @@ typedef struct _cef_translator_test_t {
 
   ///
   // Set an object. Returns the value from
-  // cef_translator_test_tRefPtrClient::get_value(). This tests input and
+  // cef_translator_test_ref_ptr_client_t::get_value(). This tests input and
   // execution of a client-side object type.
   ///
   int(CEF_CALLBACK* set_ref_ptr_client)(
@@ -341,7 +341,7 @@ typedef struct _cef_translator_test_t {
 
   ///
   // Set a child object. Returns the value from
-  // cef_translator_test_tRefPtrClient::get_value(). This tests input of a
+  // cef_translator_test_ref_ptr_client_t::get_value(). This tests input of a
   // client- side child object type and execution as the parent type.
   ///
   int(CEF_CALLBACK* set_child_ref_ptr_client)(

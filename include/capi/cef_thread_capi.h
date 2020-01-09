@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=1f462f42bf69d259b876c1ad8245a3e0484b3804$
+// $hash=370cdeaa3252a9ed0e1a627d858dcab23af24ee1$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_THREAD_CAPI_H_
@@ -49,7 +49,7 @@ extern "C" {
 
 ///
 // A simple thread abstraction that establishes a message loop on a new thread.
-// The consumer uses cef_task_tRunner to execute code on the thread's message
+// The consumer uses cef_task_runner_t to execute code on the thread's message
 // loop. The thread is terminated when the cef_thread_t object is destroyed or
 // stop() is called. All pending tasks queued on the thread's message loop will
 // run to completion before the thread is terminated. cef_thread_create() can be
@@ -65,7 +65,7 @@ typedef struct _cef_thread_t {
   cef_base_ref_counted_t base;
 
   ///
-  // Returns the cef_task_tRunner that will execute code on this thread's
+  // Returns the cef_task_runner_t that will execute code on this thread's
   // message loop. This function is safe to call from any thread.
   ///
   struct _cef_task_runner_t*(CEF_CALLBACK* get_task_runner)(
