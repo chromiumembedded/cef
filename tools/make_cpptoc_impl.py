@@ -2,6 +2,7 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from __future__ import absolute_import
 from cef_parser import *
 
 
@@ -11,7 +12,7 @@ def make_cpptoc_impl_proto(name, func, parts):
   else:
     proto = 'CEF_EXPORT ' + parts['retval']
 
-  proto += ' ' + name + '(' + string.join(parts['args'], ', ') + ')'
+  proto += ' ' + name + '(' + ', '.join(parts['args']) + ')'
   return proto
 
 
@@ -69,7 +70,7 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
     # code could not be auto-generated
     result += '\n  // BEGIN DELETE BEFORE MODIFYING'
     result += '\n  // AUTO-GENERATED CONTENT'
-    result += '\n  // COULD NOT IMPLEMENT DUE TO: ' + string.join(invalid, ', ')
+    result += '\n  // COULD NOT IMPLEMENT DUE TO: ' + ', '.join(invalid)
     result += '\n  #pragma message("Warning: "__FILE__": ' + name + ' is not implemented")'
     result += '\n  // END DELETE BEFORE MODIFYING'
     result += '\n}\n\n'
@@ -336,7 +337,7 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
   result += func.get_name() + '('
 
   if len(params) > 0:
-    result += '\n      ' + string.join(params, ',\n      ')
+    result += '\n      ' + ',\n      '.join(params)
 
   result += ');\n'
 
@@ -735,9 +736,10 @@ if __name__ == "__main__":
 
   # read the existing implementation file into memory
   try:
-    f = open(sys.argv[3], 'r')
-    data = f.read()
-  except IOError, (errno, strerror):
+    with open(sys.argv[3], 'r') as f:
+      data = f.read()
+  except IOError as e:
+    (errno, strerror) = e.args
     raise Exception('Failed to read file ' + sys.argv[3] + ': ' + strerror)
   else:
     f.close()

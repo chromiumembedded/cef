@@ -2,6 +2,7 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from __future__ import absolute_import
 import sys
 from cef_parser import *
 from clang_util import clang_format
@@ -134,8 +135,7 @@ def update_file(file, newcontents):
         oldhash = oldcontents[start + len(hash_start):end]
 
   # Compute the new hash.
-  rev = hashlib.sha1(newcontents).digest()
-  newhash = ''.join(format(ord(i), '0>2x') for i in rev)
+  newhash = hashlib.sha1(newcontents.encode('utf-8')).hexdigest()
 
   if oldhash == newhash:
     # Pre-formatted contents have not changed.

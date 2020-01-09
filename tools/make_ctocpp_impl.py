@@ -2,6 +2,7 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from __future__ import absolute_import
 from cef_parser import *
 
 
@@ -20,7 +21,7 @@ def make_ctocpp_impl_proto(clsname, name, func, parts):
 
     proto += '::'
 
-  proto += name + '(' + string.join(parts['args'], ', ') + ')' + const
+  proto += name + '(' + ', '.join(parts['args']) + ')' + const
   return proto
 
 
@@ -102,7 +103,7 @@ def make_ctocpp_function_impl_new(clsname, name, func, base_scoped):
     # code could not be auto-generated
     result += '\n  // BEGIN DELETE BEFORE MODIFYING'
     result += '\n  // AUTO-GENERATED CONTENT'
-    result += '\n  // COULD NOT IMPLEMENT DUE TO: ' + string.join(invalid, ', ')
+    result += '\n  // COULD NOT IMPLEMENT DUE TO: ' + ', '.join(invalid)
     result += '\n  #pragma message("Warning: "__FILE__": ' + name + ' is not implemented")'
     result += '\n  // END DELETE BEFORE MODIFYING'
     result += '\n}\n\n'
@@ -354,7 +355,7 @@ def make_ctocpp_function_impl_new(clsname, name, func, base_scoped):
   if len(params) > 0:
     if not isinstance(func, obj_function_virtual):
       result += '\n      '
-    result += string.join(params, ',\n      ')
+    result += ',\n      '.join(params)
 
   result += ');\n'
 
@@ -718,7 +719,7 @@ if __name__ == "__main__":
   # verify that the correct number of command-line arguments are provided
   if len(sys.argv) < 4:
     sys.stderr.write('Usage: ' + sys.argv[0] +
-                     ' <infile> <classname> <existing_impl>')
+                     ' <infile> <classname> <existing_impl>\n')
     sys.exit()
 
   # create the header object
@@ -727,12 +728,11 @@ if __name__ == "__main__":
 
   # read the existing implementation file into memory
   try:
-    f = open(sys.argv[3], 'r')
-    data = f.read()
-  except IOError, (errno, strerror):
+    with open(sys.argv[3], 'r') as f:
+      data = f.read()
+  except IOError as e:
+    (errno, strerror) = e.args
     raise Exception('Failed to read file ' + sys.argv[3] + ': ' + strerror)
-  else:
-    f.close()
 
   # dump the result to stdout
   sys.stdout.write(make_ctocpp_class_impl(header, sys.argv[2], data))

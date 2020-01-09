@@ -2,6 +2,8 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from __future__ import absolute_import
+from __future__ import print_function
 from file_util import *
 import os
 import re
@@ -63,7 +65,7 @@ class cef_api_hash:
     objects = []
     for filename in filenames:
       if self.__verbose:
-        print "Processing " + filename + "..."
+        print("Processing " + filename + "...")
       content = read_file(os.path.join(self.__headerdir, filename), True)
       platforms = list([
           p for p in self.platforms if self.__is_platform_filename(filename, p)
@@ -101,8 +103,7 @@ class cef_api_hash:
       sig = self.__get_final_sig(objects, platform)
       if self.__debug_enabled:
         self.__write_debug_file(platform + ".sig", sig)
-      rev = hashlib.sha1(sig).digest()
-      revstr = ''.join(format(ord(i), '0>2x') for i in rev)
+      revstr = hashlib.sha1(sig.encode('utf-8')).hexdigest()
       revisions[platform] = revstr
 
     return revisions
@@ -256,10 +257,10 @@ if __name__ == "__main__":
 
   c_completed_in = time.time() - c_start_time
 
-  print "{"
+  print("{")
   for k in sorted(revisions.keys()):
-    print format("\"" + k + "\"", ">12s") + ": \"" + revisions[k] + "\""
-  print "}"
+    print(format("\"" + k + "\"", ">12s") + ": \"" + revisions[k] + "\"")
+  print("}")
   # print
   # print 'Completed in: ' + str(c_completed_in)
   # print

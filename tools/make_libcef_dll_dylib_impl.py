@@ -2,6 +2,7 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from __future__ import absolute_import
 from cef_parser import *
 from file_util import *
 import os
@@ -198,7 +199,7 @@ if __name__ == "__main__":
 
   # Verify that the correct number of command-line arguments are provided.
   if len(sys.argv) < 2:
-    sys.stderr.write('Usage: ' + sys.argv[0] + ' <cpp_header_dir>')
+    sys.stderr.write('Usage: ' + sys.argv[0] + ' <cpp_header_dir>\n')
     sys.exit()
 
   cpp_header_dir = sys.argv[1]

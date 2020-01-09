@@ -2,6 +2,7 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from __future__ import absolute_import
 from cef_parser import *
 from date_util import *
 
@@ -32,7 +33,7 @@ def make_capi_member_funcs(funcs, defined_names, translate_map, indent):
       result += indent + '// The resulting string must be freed by calling cef_string_userfree_free().\n'
     parts = func.get_capi_parts()
     result += indent+parts['retval']+' (CEF_CALLBACK *'+parts['name']+ \
-              ')('+string.join(parts['args'], ', ')+');\n'
+              ')('+', '.join(parts['args'])+');\n'
     if first:
       first = False
   return result
@@ -195,8 +196,8 @@ extern "C" {
   # add the copyright year
   result = result.replace('$YEAR$', get_year())
   # add the guard string
-  guard = 'CEF_INCLUDE_CAPI_' + string.upper(
-      filename.replace('/', '_').replace('.', '_capi_')) + '_'
+  guard = 'CEF_INCLUDE_CAPI_' + \
+      filename.replace('/', '_').replace('.', '_capi_').upper() + '_'
   result = result.replace('$GUARD$', guard)
 
   return result
@@ -214,7 +215,7 @@ if __name__ == "__main__":
 
   # verify that the correct number of command-line arguments are provided
   if len(sys.argv) < 2:
-    sys.stderr.write('Usage: ' + sys.argv[0] + ' <infile>')
+    sys.stderr.write('Usage: ' + sys.argv[0] + ' <infile>\n')
     sys.exit()
 
   # create the header object
