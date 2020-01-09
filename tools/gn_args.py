@@ -60,6 +60,8 @@
 #     - Perform validation in ValidateArgs().
 #     - Result: An AssertionError will be thrown if validation fails.
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 import shlex
 import sys
@@ -77,12 +79,12 @@ elif sys.platform == 'darwin':
 elif sys.platform.startswith('linux'):
   platform = 'linux'
 else:
-  print 'Unknown operating system platform'
+  print('Unknown operating system platform')
   sys.exit()
 
 
 def msg(msg):
-  print 'NOTE: ' + msg
+  print('NOTE: ' + msg)
 
 
 def NameValueListToDict(name_value_list):
@@ -139,13 +141,13 @@ def GetValueString(val):
   """
   Return the string representation of |val| expected by GN.
   """
-  if isinstance(val, basestring):
-    return '"%s"' % val
-  elif isinstance(val, bool):
+  if isinstance(val, bool):
     if val:
       return 'true'
     else:
       return 'false'
+  else:
+    return '"%s"' % val
   return val
 
 
@@ -565,13 +567,13 @@ if __name__ == '__main__':
   if len(sys.argv) > 1:
     platform = sys.argv[1]
     if not platform in ('linux', 'macosx', 'windows'):
-      sys.stderr.write('Usage: %s <platform>' % sys.argv[0])
+      sys.stderr.write('Usage: %s <platform>\n' % sys.argv[0])
       sys.exit()
 
-  print 'Platform: %s' % platform
+  print('Platform: %s' % platform)
 
   # Dump the configuration based on platform and environment.
   configs = GetAllPlatformConfigs({})
   for dir, config in configs.items():
-    print '\n\nout/%s:\n' % dir
-    print GetConfigFileContents(config)
+    print('\n\nout/%s:\n' % dir)
+    print(GetConfigFileContents(config))
