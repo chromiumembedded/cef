@@ -2,11 +2,19 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from __future__ import absolute_import
+from __future__ import print_function
 import datetime
 import json
 import os
 import re
-import urllib
+
+try:
+  # Python 2
+  from urllib2 import urlopen
+except Exception as e:
+  # Python 3
+  from urllib.request import urlopen
 
 # Class used to build the cefbuilds JSON file. See cef_json_builder_example.py
 # for example usage. See cef_json_builder_test.py for unit tests.
@@ -152,7 +160,7 @@ class cef_json_builder:
     if self._fatalerrors:
       raise Exception(msg)
     if not self._silent:
-      print msg
+      print(msg)
 
   def get_query_count(self):
     """ Returns the number of queries sent while building. """
@@ -166,11 +174,11 @@ class cef_json_builder:
     query_url = 'https://bitbucket.org/chromiumembedded/cef/raw/%s/CHROMIUM_BUILD_COMPATIBILITY.txt' % git_hash
     self._queryct = self._queryct + 1
     if not self._silent:
-      print 'Reading %s' % query_url
+      print('Reading %s' % query_url)
 
     try:
       # Read the remote URL contents.
-      handle = urllib.urlopen(query_url)
+      handle = urlopen(query_url)
       compat_value = handle.read().strip()
       handle.close()
 
@@ -182,8 +190,8 @@ class cef_json_builder:
       val = config['chromium_checkout']
       if val.find('refs/tags/') == 0:
         chromium_version = val[10:]
-    except Exception, e:
-      print 'Failed to read Chromium version information'
+    except Exception as e:
+      print('Failed to read Chromium version information')
       raise
 
     return chromium_version
@@ -392,7 +400,7 @@ class cef_json_builder:
     # Parse the file name.
     (platform, version, type) = self._parse_name(name)
 
-    if not isinstance(size, (int, long)):
+    if not isinstance(size, int):
       size = int(size)
     if not isinstance(last_modified, datetime.datetime):
       last_modified = parse_date(last_modified)
