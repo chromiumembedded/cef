@@ -16,6 +16,8 @@
 # After creating an index.json file you can use the cef_html_builder.py tool to
 # create an HTML file.
 
+from __future__ import absolute_import
+from __future__ import print_function
 from cef_json_builder import cef_json_builder
 import datetime
 import os
@@ -70,8 +72,9 @@ def create_fake_files(platform, version):
 if __name__ == '__main__':
   # Verify command-line arguments.
   if len(sys.argv) < 5 or sys.argv[1] != 'add':
-    sys.stderr.write('Usage: %s add <platform> <cef_version> <chromium_version>'
-                     % sys.argv[0])
+    sys.stderr.write(
+        'Usage: %s add <platform> <cef_version> <chromium_version>\n' %
+        sys.argv[0])
     sys.exit()
 
   # Requested platform.
@@ -80,19 +83,19 @@ if __name__ == '__main__':
   elif sys.argv[2] in cef_json_builder.get_platforms():
     platforms = [sys.argv[2]]
   else:
-    sys.stderr.write('Invalid platform: %s' % platform)
+    sys.stderr.write('Invalid platform: %s\n' % platform)
     sys.exit()
 
   # Requested CEF version.
   cef_version = sys.argv[3]
   if not cef_json_builder.is_valid_version(cef_version):
-    sys.stderr.write('Invalid CEF version: %s' % cef_version)
+    sys.stderr.write('Invalid CEF version: %s\n' % cef_version)
     sys.exit()
 
   # Requested Chromium version.
   chromium_version = sys.argv[4]
   if not cef_json_builder.is_valid_chromium_version(chromium_version):
-    sys.stderr.write('Invalid Chromium version: %s' % chromium_version)
+    sys.stderr.write('Invalid Chromium version: %s\n' % chromium_version)
     sys.exit()
 
   # Write the JSON file in the same directory as this file.
@@ -109,7 +112,7 @@ if __name__ == '__main__':
   # Load the existing JSON file, if any. Ignore format errors for example
   # purposes.
   if os.path.exists(json_file):
-    print '--> Reading index.json'
+    print('--> Reading index.json')
     with open(json_file, 'r') as f:
       builder.load(f.read(), fatalerrors=False)
 
@@ -140,10 +143,10 @@ if __name__ == '__main__':
 
   if len(changed_files) > 0:
     # Write the updated JSON file.
-    print '--> Writing index.json'
+    print('--> Writing index.json')
     with open(json_file, 'w') as f:
       f.write(str(builder))
 
     # A real implementation would now upload the changed files.
     for file in changed_files:
-      print '--> Upload file %s' % file['name']
+      print('--> Upload file %s' % file['name'])

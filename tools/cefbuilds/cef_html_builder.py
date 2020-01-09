@@ -2,6 +2,8 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from __future__ import absolute_import
+from __future__ import print_function
 from cef_json_builder import cef_json_builder
 import datetime
 import math
@@ -72,7 +74,7 @@ class cef_html_builder:
 
   @staticmethod
   def _replace_all(str, dict):
-    for key, value in dict.iteritems():
+    for (key, value) in dict.items():
       str = cef_html_builder._replace(str, key, value)
     return str
 
@@ -295,8 +297,8 @@ class cef_html_builder:
 if __name__ == '__main__':
   # Verify command-line arguments.
   if len(sys.argv) < 4:
-    sys.stderr.write(
-        'Usage: %s <json_file_in> <html_file_in> <html_file_out>' % sys.argv[0])
+    sys.stderr.write('Usage: %s <json_file_in> <html_file_in> <html_file_out>\n'
+                     % sys.argv[0])
     sys.exit()
 
   json_file_in = sys.argv[1]
@@ -304,18 +306,18 @@ if __name__ == '__main__':
   html_file_out = sys.argv[3]
 
   # Create the HTML builder and load the HTML template.
-  print '--> Reading %s' % html_file_in
+  print('--> Reading %s' % html_file_in)
   html_builder = cef_html_builder()
   with open(html_file_in, 'r') as f:
     html_builder.load(f.read())
 
   # Create the JSON builder and load the JSON file.
-  print '--> Reading %s' % json_file_in
+  print('--> Reading %s' % json_file_in)
   json_builder = cef_json_builder(silent=False)
   with open(json_file_in, 'r') as f:
     json_builder.load(f.read())
 
   # Write the HTML output file.
-  print '--> Writing %s' % html_file_out
+  print('--> Writing %s' % html_file_out)
   with open(html_file_out, 'w') as f:
     f.write(html_builder.generate(json_builder))
