@@ -2,17 +2,20 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from __future__ import absolute_import
+from __future__ import print_function
 from cef_version import VersionFormatter
 from date_util import *
 from exec_util import exec_cmd
 from file_util import *
+import git_util as git
+from io import open
 from make_cmake import process_cmake_template
 from optparse import OptionParser
 import os
 import re
 import shlex
 import subprocess
-import git_util as git
 import sys
 import tarfile
 import zipfile
@@ -246,14 +249,22 @@ def eval_transfer_file(cef_dir, script_dir, transfer_cfg, output_dir, quiet):
       if not path_exists(readme):
         copy_file(
             os.path.join(script_dir, 'distrib/README-TRANSFER.txt'), readme)
-      open(readme, 'ab').write(cfg['source'] + "\n")
+
+      str = cfg['source'] + "\n"
+      with open(readme, 'a', encoding='utf-8') as fp:
+        try:
+          # Python 2
+          fp.write(str.decode('utf-8'))
+        except Exception as e:
+          # Python 3
+          fp.write(str)
 
     # perform any required post-processing
     if 'post-process' in cfg:
       post = cfg['post-process']
       if post == 'normalize_headers':
         new_path = ''
-        if cfg.has_key('new_header_path'):
+        if 'new_header_path' in cfg:
           new_path = cfg['new_header_path']
         normalize_headers(dst, new_path)
 
@@ -345,8 +356,8 @@ def combine_libs(platform, build_dir, libs, dest_lib):
   """ Combine multiple static libraries into a single static library. """
   intermediate_obj = None
   if platform == 'windows':
-    cmdline = 'msvs_env.bat win%s python combine_libs.py -o "%s"' % (
-        platform_arch, dest_lib)
+    cmdline = 'msvs_env.bat win%s "%s" combine_libs.py -o "%s"' % (
+        platform_arch, sys.executable, dest_lib)
   elif platform == 'macosx':
     # Find CEF_EXPORT symbols from libcef_sandbox.a (include/cef_sandbox_mac.h)
     # Export only symbols that include these strings.
@@ -355,7 +366,7 @@ def combine_libs(platform, build_dir, libs, dest_lib):
         'Cef',  # C++ symbols
     ]
 
-    print 'Finding exported symbols...'
+    print('Finding exported symbols...')
     assert 'libcef_sandbox.a' in libs[0], libs[0]
     symbols = []
     for symbol in get_exported_symbols(os.path.join(build_dir, libs[0])):
@@ -387,22 +398,22 @@ def combine_libs(platform, build_dir, libs, dest_lib):
     remove_file(intermediate_obj)
 
     # Verify that only the expected symbols are exported from the archive file.
-    print 'Verifying exported symbols...'
+    print('Verifying exported symbols...')
     result_symbols = get_exported_symbols(dest_lib)
     if set(symbols) != set(result_symbols):
-      print 'Expected', symbols
-      print 'Got', result_symbols
+      print('Expected', symbols)
+      print('Got', result_symbols)
       raise Exception('Failure verifying exported symbols')
 
     # Verify that no C++ symbols are imported by the archive file. If the
     # archive imports C++ symbols and the client app links an incompatible C++
     # library, the result will be undefined behavior.
-    print 'Verifying imported (undefined) symbols...'
+    print('Verifying imported (undefined) symbols...')
     undefined_symbols = get_undefined_symbols(dest_lib)
     cpp_symbols = list(
         filter(lambda symbol: symbol.startswith('__Z'), undefined_symbols))
     if cpp_symbols:
-      print 'Found C++ symbols:', cpp_symbols
+      print('Found C++ symbols:', cpp_symbols)
       raise Exception('Failure verifying imported (undefined) symbols')
 
 
@@ -413,6 +424,10 @@ def run(command_line, working_dir):
   args = shlex.split(command_line.replace('\\', '\\\\'))
   return subprocess.check_call(
       args, cwd=working_dir, env=os.environ, shell=(sys.platform == 'win32'))
+
+
+def print_error(msg):
+  print('Error: %s\nSee --help for usage.' % msg)
 
 
 # cannot be loaded as a module
@@ -528,33 +543,31 @@ elif sys.platform.startswith('linux'):
 
 # the outputdir option is required
 if options.outputdir is None:
-  parser.print_help(sys.stderr)
+  print_error('--output-dir is required.')
   sys.exit()
 
 if options.minimal and options.client:
-  print 'Cannot specify both --minimal and --client'
-  parser.print_help(sys.stderr)
+  print_error('Cannot specify both --minimal and --client.')
   sys.exit()
 
 if options.x64build + options.armbuild + options.arm64build > 1:
-  print 'Invalid combination of build options.'
-  parser.print_help(sys.stderr)
+  print_error('Invalid combination of build options.')
   sys.exit()
 
 if (options.armbuild or options.arm64build) and platform != 'linux':
-  print '--arm-build and --arm64-build only supported on Linux.'
+  print_error('--arm-build and --arm64-build are only supported on Linux.')
   sys.exit()
 
 if options.sandbox and not platform in ('macosx', 'windows'):
-  print '--sandbox is only supported on macOS and Windows.'
+  print_error('--sandbox is only supported on macOS and Windows.')
   sys.exit()
 
 if not options.ninjabuild:
-  print 'Ninja build is required on all platforms'
+  print_error('--ninja-build is required.')
   sys.exit()
 
 if options.ozone and platform != 'linux':
-  print '--ozone is only supported on Linux.'
+  print_error('--ozone is only supported on Linux.')
   sys.exit()
 
 # script directory
@@ -712,7 +725,8 @@ if mode == 'standard' or mode == 'minimal':
                    mode, output_dir, options.quiet)
 
   # process cmake templates
-  variables = dict(cef_paths.items() + cef_paths2.items())
+  variables = cef_paths.copy()
+  variables.update(cef_paths2)
   process_cmake_template(os.path.join(cef_dir, 'CMakeLists.txt.in'), \
                          os.path.join(output_dir, 'CMakeLists.txt'), \
                          variables, options.quiet)
