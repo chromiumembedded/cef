@@ -9,6 +9,8 @@ optionally removing some of the object files in the input libs by regular
 expression matching.
 For usage information, run the script with a --help argument.
 '''
+from __future__ import absolute_import
+from __future__ import print_function
 import optparse
 import os
 import re
@@ -51,7 +53,7 @@ def CombineLibraries(output, remove_re, inputs):
     removals = CollectRemovals(remove_re, inputs)
 
   if len(removals) > 0:
-    print 'Removals: ', removals
+    print('Removals: ', removals)
 
   args = ['lib.exe', '/out:%s' % output]
   args += ['/remove:%s' % obj for obj in removals]

@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import
 from glob import iglob
+from io import open
 import os
 import shutil
 import sys
@@ -13,33 +14,29 @@ import time
 def read_file(name, normalize=True):
   """ Read a file. """
   try:
-    f = open(name, 'r')
-    # read the data
-    data = f.read()
-    if normalize:
-      # normalize line endings
-      data = data.replace("\r\n", "\n")
-    return data
+    with open(name, 'r', encoding='utf-8') as f:
+      # read the data
+      data = f.read()
+      if normalize:
+        # normalize line endings
+        data = data.replace("\r\n", "\n")
+      return data
   except IOError as e:
     (errno, strerror) = e.args
     sys.stderr.write('Failed to read file ' + name + ': ' + strerror)
     raise
-  else:
-    f.close()
 
 
 def write_file(name, data):
   """ Write a file. """
   try:
-    f = open(name, 'w')
-    # write the data
-    f.write(data)
+    with open(name, 'w', encoding='utf-8') as f:
+      # write the data
+      f.write(data)
   except IOError as e:
     (errno, strerror) = e.args
     sys.stderr.write('Failed to write file ' + name + ': ' + strerror)
     raise
-  else:
-    f.close()
 
 
 def path_exists(name):
