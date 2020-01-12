@@ -3,11 +3,14 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+from __future__ import absolute_import
+from __future__ import print_function
+from file_util import make_dir, write_file
 from gclient_util import *
 from gn_args import GetAllPlatformConfigs, GetConfigFileContents
-from file_util import make_dir, write_file
-import os, sys
 import issue_1999
+import os
+import sys
 
 # The CEF directory is the parent directory of _this_ script.
 cef_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
@@ -22,21 +25,21 @@ elif sys.platform == 'darwin':
 elif sys.platform.startswith('linux'):
   platform = 'linux'
 else:
-  print 'Unknown operating system platform'
+  print('Unknown operating system platform')
   sys.exit()
 
-print "\nGenerating CEF version header file..."
+print("\nGenerating CEF version header file...")
 cmd = [
-    'python', 'tools/make_version_header.py', '--header',
+    sys.executable, 'tools/make_version_header.py', '--header',
     'include/cef_version.h'
 ]
 RunAction(cef_dir, cmd)
 
-print "\nPatching build configuration and source files for CEF..."
-cmd = ['python', 'tools/patcher.py']
+print("\nPatching build configuration and source files for CEF...")
+cmd = [sys.executable, 'tools/patcher.py']
 RunAction(cef_dir, cmd)
 
-print "\nGenerating CEF project files..."
+print("\nGenerating CEF project files...")
 
 gn_args = {}
 
@@ -133,13 +136,13 @@ for dir, config in configs.items():
   if platform == 'windows':
     issue_1999.apply(out_path)
 
-gn_dir = configs.keys()[0]
+gn_dir = list(configs.keys())[0]
 out_gn_path = os.path.join(src_dir, 'out', gn_dir)
 gn_path = os.path.join(out_gn_path, 'args.gn')
-print "\nGenerating CEF buildinfo header file..."
+print("\nGenerating CEF buildinfo header file...")
 cmd = [
-    'python', 'tools/make_config_header.py', '--header', 'include/cef_config.h',
-    '--cef_gn_config', gn_path
+    sys.executable, 'tools/make_config_header.py', '--header',
+    'include/cef_config.h', '--cef_gn_config', gn_path
 ]
 
 RunAction(cef_dir, cmd)
