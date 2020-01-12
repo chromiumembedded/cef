@@ -10,6 +10,9 @@
 #   import issue_1999
 #   issue_1999.apply(output_path)
 #
+from __future__ import absolute_import
+from __future__ import print_function
+from io import open
 import sys
 import os
 
@@ -82,9 +85,9 @@ def process_line(line):
 
 
 def process_file(path):
-  print "Applying issue #1999 fix to " + path
+  print("Applying issue #1999 fix to " + path)
 
-  with open(path) as f:
+  with open(path, 'r', encoding='utf-8') as f:
     content = f.read().splitlines()
 
   result = []
@@ -92,9 +95,14 @@ def process_file(path):
   for line in content:
     result.append(process_line(line))
 
-  with open(path, "w") as f:
-    f.write("\n".join(result))
-    f.write("\n")
+  with open(path, 'w', encoding='utf-8') as fp:
+    str = "\n".join(result) + "\n"
+    try:
+      # Python 2
+      fp.write(str.decode('utf-8'))
+    except Exception as e:
+      # Python 3
+      fp.write(str)
 
 
 def apply(confpath):
