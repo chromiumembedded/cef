@@ -108,9 +108,9 @@ Usage of this script is as follows:
    include/cef_crash_util.h.
 """
 
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+from __future__ import absolute_import
+from __future__ import print_function
 import cgi
-import cStringIO
 import datetime
 import json
 import os
@@ -118,6 +118,15 @@ import shutil
 import sys
 import uuid
 import zlib
+
+is_python2 = sys.version_info.major == 2
+
+if is_python2:
+  from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+  from cStringIO import StringIO as BytesIO
+else:
+  from http.server import BaseHTTPRequestHandler, HTTPServer
+  from io import BytesIO, open
 
 
 def print_msg(msg):
@@ -149,7 +158,7 @@ class CrashHTTPRequestHandler(BaseHTTPRequestHandler):
     if self.command != 'POST':
       return None
     return cgi.FieldStorage(
-        fp=cStringIO.StringIO(data),
+        fp=BytesIO(data),
         headers=self.headers,
         environ={
             'REQUEST_METHOD': 'POST',
@@ -182,7 +191,7 @@ class CrashHTTPRequestHandler(BaseHTTPRequestHandler):
     unchunked = b""
     while True:
       chunk_size = self._get_chunk_size()
-      print 'Chunk size 0x%x' % chunk_size
+      print('Chunk size 0x%x' % chunk_size)
       if (chunk_size == 0):
         break
       chunk_data = self._get_chunk_data(chunk_size)
@@ -198,7 +207,7 @@ class CrashHTTPRequestHandler(BaseHTTPRequestHandler):
 
   def _create_new_dump_id(self):
     """ Breakpad requires a 16 digit hexadecimal dump ID. """
-    return str(uuid.uuid4().get_hex().upper()[0:16])
+    return uuid.uuid4().hex.upper()[0:16]
 
   def do_GET(self):
     """ Default empty implementation for handling GET requests. """
@@ -217,7 +226,7 @@ class CrashHTTPRequestHandler(BaseHTTPRequestHandler):
     dump_id = self._create_new_dump_id()
 
     # Return the unique ID to the caller.
-    self.wfile.write(dump_id)
+    self.wfile.write(dump_id.encode('utf-8'))
 
     dmp_stream = None
     metadata = {}
@@ -247,7 +256,7 @@ class CrashHTTPRequestHandler(BaseHTTPRequestHandler):
     #   Content-Type: multipart/form-data; boundary=--------------------------83572861f14cc736
     #   Content-Length: 32237
     #   Content-Encoding: gzip
-    print self.headers
+    print(self.headers)
 
     chunked = 'Transfer-Encoding' in self.headers and self.headers['Transfer-Encoding'].lower(
     ) == 'chunked'
@@ -287,14 +296,18 @@ class CrashHTTPRequestHandler(BaseHTTPRequestHandler):
 
     # Write the metadata to file.
     meta_file = os.path.join(self._dump_directory, dump_id + '.json')
-    with open(meta_file, 'w') as fp:
-      json.dump(
-          metadata,
-          fp,
-          ensure_ascii=False,
-          encoding='utf8',
-          indent=2,
-          sort_keys=True)
+    if is_python2:
+      with open(meta_file, 'w') as fp:
+        json.dump(
+            metadata,
+            fp,
+            ensure_ascii=False,
+            encoding='utf-8',
+            indent=2,
+            sort_keys=True)
+    else:
+      with open(meta_file, 'w', encoding='utf-8') as fp:
+        json.dump(metadata, fp, indent=2, sort_keys=True)
 
 
 def HandleRequestsUsing(dump_store):
@@ -311,7 +324,7 @@ def RunCrashServer(port, dump_directory):
 # Program entry point.
 if __name__ == "__main__":
   if len(sys.argv) != 3:
-    print 'Usage: %s <port> <dump_directory>' % os.path.basename(sys.argv[0])
+    print('Usage: %s <port> <dump_directory>' % os.path.basename(sys.argv[0]))
     sys.exit(1)
 
   # Create the dump directory if necessary.
