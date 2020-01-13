@@ -252,11 +252,9 @@ def eval_transfer_file(cef_dir, script_dir, transfer_cfg, output_dir, quiet):
 
       str = cfg['source'] + "\n"
       with open(readme, 'a', encoding='utf-8') as fp:
-        try:
-          # Python 2
+        if sys.version_info.major == 2:
           fp.write(str.decode('utf-8'))
-        except Exception as e:
-          # Python 3
+        else:
           fp.write(str)
 
     # perform any required post-processing

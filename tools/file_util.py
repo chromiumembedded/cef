@@ -32,11 +32,9 @@ def write_file(name, data):
   try:
     with open(name, 'w', encoding='utf-8') as f:
       # write the data
-      try:
-        # Python 2
+      if sys.version_info.major == 2:
         f.write(data.decode('utf-8'))
-      except Exception as e:
-        # Python 3
+      else:
         f.write(data)
   except IOError as e:
     (errno, strerror) = e.args
