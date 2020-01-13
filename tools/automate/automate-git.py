@@ -2,8 +2,11 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
+from __future__ import absolute_import
+from __future__ import print_function
 from datetime import datetime
 import json
+from io import open
 from optparse import OptionParser
 import os
 import re
@@ -12,9 +15,15 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import urllib
-import urllib2
 import zipfile
+
+is_python2 = sys.version_info.major == 2
+
+if is_python2:
+  from urllib import FancyURLopener
+  from urllib2 import urlopen
+else:
+  from urllib.request import FancyURLopener, urlopen
 
 ##
 # Default URLs.
@@ -61,14 +70,14 @@ def run(command_line, working_dir, depot_tools_dir=None, output_file=None):
           args, cwd=working_dir, env=env, shell=(sys.platform == 'win32'))
     try:
       msg('Writing %s' % output_file)
-      with open(output_file, "w") as f:
+      with open(output_file, 'w', encoding='utf-8') as fp:
         return subprocess.check_call(
             args,
             cwd=working_dir,
             env=env,
             shell=(sys.platform == 'win32'),
             stderr=subprocess.STDOUT,
-            stdout=f)
+            stdout=fp)
     except subprocess.CalledProcessError:
       msg('ERROR Run failed. See %s for output.' % output_file)
       raise
@@ -133,11 +142,12 @@ def exec_cmd(cmd, path):
         stderr=subprocess.PIPE,
         shell=(sys.platform == 'win32'))
     out, err = process.communicate()
-  except IOError, (errno, strerror):
+  except IOError as e:
+    (errno, strerror) = e.args
     raise
   except:
     raise
-  return {'out': out, 'err': err}
+  return {'out': out.decode('utf-8'), 'err': err.decode('utf-8')}
 
 
 def get_git_hash(path, branch):
@@ -175,7 +185,7 @@ def download_and_extract(src, target):
 
   if src[:4] == 'http':
     # Attempt to download a URL.
-    opener = urllib.FancyURLopener({})
+    opener = FancyURLopener({})
     response = opener.open(src)
 
     temporary = True
@@ -209,12 +219,25 @@ def download_and_extract(src, target):
 def read_file(path):
   """ Read a file. """
   if os.path.exists(path):
-    fp = open(path, 'r')
-    data = fp.read()
-    fp.close()
-    return data
+    with open(path, 'r', encoding='utf-8') as fp:
+      return fp.read()
   else:
     raise Exception("Path does not exist: %s" % (path))
+
+
+def write_fp(fp, data):
+  if is_python2:
+    fp.write(data.decode('utf-8'))
+  else:
+    fp.write(data)
+
+
+def write_file(path, data):
+  """ Write a file. """
+  msg('Writing %s' % path)
+  if not options.dryrun:
+    with open(path, 'w', encoding='utf-8') as fp:
+      write_fp(fp, data)
 
 
 def read_config_file(path):
@@ -225,14 +248,11 @@ def read_config_file(path):
 
 def write_config_file(path, contents):
   """ Write a configuration file. """
-  msg('Writing file: %s' % path)
-  if not options.dryrun:
-    fp = open(path, 'w')
-    fp.write("{\n")
-    for key in sorted(contents.keys()):
-      fp.write("  '%s': '%s',\n" % (key, contents[key]))
-    fp.write("}\n")
-    fp.close()
+  data = "{\n"
+  for key in sorted(contents.keys()):
+    data += "  '%s': '%s',\n" % (key, contents[key])
+  data += "}\n"
+  write_file(path, data)
 
 
 def read_branch_config_file(path):
@@ -257,23 +277,21 @@ def remove_deps_entry(path, entry):
   msg('Updating DEPS file: %s' % path)
   if not options.dryrun:
     # Read the DEPS file.
-    fp = open(path, 'r')
-    lines = fp.readlines()
-    fp.close()
+    with open(path, 'r', encoding='utf-8') as fp:
+      lines = fp.readlines()
 
     # Write the DEPS file.
     # Each entry takes 2 lines. Skip both lines if found.
-    fp = open(path, 'w')
-    skip_next = False
-    for line in lines:
-      if skip_next:
-        skip_next = False
-        continue
-      elif line.find(entry) >= 0:
-        skip_next = True
-        continue
-      fp.write(line)
-    fp.close()
+    with open(path, 'w', encoding='utf-8') as fp:
+      skip_next = False
+      for line in lines:
+        if skip_next:
+          skip_next = False
+          continue
+        elif line.find(entry) >= 0:
+          skip_next = True
+          continue
+        write_fp(fp, line)
 
 
 def apply_deps_patch():
@@ -339,8 +357,7 @@ def onerror(func, path, exc_info):
 def read_json_url(url):
   """ Read a JSON URL. """
   msg('Downloading %s' % url)
-  response = urllib2.urlopen(url)
-  return json.loads(response.read())
+  return json.loads(urlopen(url).read())
 
 
 g_channel_data = None
@@ -540,9 +557,7 @@ def log_chromium_changes():
         git_exe, old_commit, new_commit, ' '.join(config['files']))
     result = exec_cmd(cmd, chromium_src_dir)
     if result['out'] != '':
-      msg('Writing %s' % out_file)
-      with open(out_file, 'w') as fp:
-        fp.write(result['out'])
+      write_file(out_file, result['out'])
 
 
 def check_pattern_matches(output_file=None):
@@ -557,7 +572,7 @@ def check_pattern_matches(output_file=None):
       fp = sys.stdout
     else:
       msg('Writing %s' % output_file)
-      fp = open(output_file, 'w')
+      fp = open(output_file, 'w', encoding='utf-8')
 
     has_output = False
     for entry in config['patterns']:
@@ -585,20 +600,21 @@ def check_pattern_matches(output_file=None):
           if not skip:
             if write_msg:
               if has_output:
-                fp.write('\n')
-              fp.write('!!!! WARNING: FOUND PATTERN: %s\n' % entry['pattern'])
+                write_fp(fp, '\n')
+              write_fp(fp,
+                       '!!!! WARNING: FOUND PATTERN: %s\n' % entry['pattern'])
               if 'message' in entry:
-                fp.write(entry['message'] + '\n')
-              fp.write('\n')
+                write_fp(fp, entry['message'] + '\n')
+              write_fp(fp, '\n')
               write_msg = False
-            fp.write(line + '\n')
+            write_fp(fp, line + '\n')
             has_output = True
 
     if not output_file is None:
       if has_output:
         msg('ERROR Matches found. See %s for output.' % out_file)
       else:
-        fp.write('Good news! No matches.\n')
+        write_fp(fp, 'Good news! No matches.\n')
       fp.close()
 
     if has_output:
@@ -936,7 +952,7 @@ parser.add_option('--distrib-subdir', dest='distribsubdir',
 (options, args) = parser.parse_args()
 
 if options.downloaddir is None:
-  print "The --download-dir option is required."
+  print("The --download-dir option is required.")
   parser.print_help(sys.stderr)
   sys.exit()
 
@@ -955,7 +971,7 @@ if (options.nochromiumupdate and options.forceupdate) or \
    (options.nodistrib and options.forcedistrib) or \
    ((options.forceclean or options.forcecleandeps) and options.fastupdate) or \
    (options.chromiumcheckout and options.chromiumchannel):
-  print "Invalid combination of options."
+  print("Invalid combination of options.")
   parser.print_help(sys.stderr)
   sys.exit()
 
@@ -963,17 +979,17 @@ if (options.noreleasebuild and \
      (options.minimaldistrib or options.minimaldistribonly or \
       options.clientdistrib or options.clientdistribonly)) or \
    (options.minimaldistribonly + options.clientdistribonly + options.sandboxdistribonly > 1):
-  print 'Invalid combination of options.'
+  print('Invalid combination of options.')
   parser.print_help(sys.stderr)
   sys.exit()
 
 if options.x64build + options.armbuild + options.arm64build > 1:
-  print 'Invalid combination of options.'
+  print('Invalid combination of options.')
   parser.print_help(sys.stderr)
   sys.exit()
 
 if (options.buildtests or options.runtests) and len(options.testtarget) == 0:
-  print "A test target must be specified via --test-target."
+  print("A test target must be specified via --test-target.")
   parser.print_help(sys.stderr)
   sys.exit()
 
@@ -981,7 +997,7 @@ if (options.buildtests or options.runtests) and len(options.testtarget) == 0:
 if options.dryrun and options.dryrunplatform is not None:
   platform = options.dryrunplatform
   if not platform in ['windows', 'macosx', 'linux']:
-    print 'Invalid dry-run-platform value: %s' % (platform)
+    print('Invalid dry-run-platform value: %s' % (platform))
     sys.exit()
 elif sys.platform == 'win32':
   platform = 'windows'
@@ -990,14 +1006,8 @@ elif sys.platform == 'darwin':
 elif sys.platform.startswith('linux'):
   platform = 'linux'
 else:
-  print 'Unknown operating system platform'
+  print('Unknown operating system platform')
   sys.exit()
-
-# Script extension.
-if platform == 'windows':
-  script_ext = '.bat'
-else:
-  script_ext = '.sh'
 
 if options.clientdistrib or options.clientdistribonly:
   if platform == 'linux':
@@ -1005,20 +1015,20 @@ if options.clientdistrib or options.clientdistribonly:
   else:
     client_app = 'cefclient'
   if options.buildtarget.find(client_app) == -1:
-    print 'A client distribution cannot be generated if --build-target '+\
-          'excludes %s.' % client_app
+    print('A client distribution cannot be generated if --build-target ' +
+          'excludes %s.' % client_app)
     parser.print_help(sys.stderr)
     sys.exit()
 
 # CEF branch.
 if options.branch != 'trunk' and not options.branch.isdigit():
-  print 'Invalid branch value: %s' % (options.branch)
+  print('Invalid branch value: %s' % (options.branch))
   sys.exit()
 
 cef_branch = options.branch
 
 if cef_branch != 'trunk' and int(cef_branch) <= 1453:
-  print 'The requested branch is too old to build using this tool.'
+  print('The requested branch is too old to build using this tool.')
   sys.exit()
 
 # True if the requested branch is 2272 or newer.
@@ -1042,46 +1052,60 @@ branch_is_3029_or_older = (cef_branch != 'trunk' and int(cef_branch) <= 3029)
 # True if the requested branch is newer than 3497.
 branch_is_newer_than_3497 = (cef_branch == 'trunk' or int(cef_branch) > 3497)
 
+# True if the requested branch is 3945 or newer.
+branch_is_3945_or_newer = (cef_branch == 'trunk' or int(cef_branch) >= 3945)
+
 # Enable GN by default for branches newer than 2785.
 if branch_is_newer_than_2785 and not 'CEF_USE_GN' in os.environ.keys():
   os.environ['CEF_USE_GN'] = '1'
+
+# Enable Python 3 usage in Chromium for branches 3945 and newer.
+if branch_is_3945_or_newer and not is_python2 and \
+    not 'GCLIENT_PY3' in os.environ.keys():
+  os.environ['GCLIENT_PY3'] = '1'
+
+if not branch_is_3945_or_newer and \
+  (not is_python2 or bool(int(os.environ.get('GCLIENT_PY3', '0')))):
+  print('Python 3 is not supported with branch 3904 and older ' +
+        '(set GCLIENT_PY3=0 and run with Python 2 executable).')
+  sys.exit()
 
 # Whether to use GN or GYP. GYP is currently the default for older branches.
 use_gn = bool(int(os.environ.get('CEF_USE_GN', '0')))
 if use_gn:
   if branch_is_2743_or_older:
-    print 'GN is not supported with branch 2743 and older (set CEF_USE_GN=0).'
+    print('GN is not supported with branch 2743 and older (set CEF_USE_GN=0).')
     sys.exit()
 
   if options.armbuild:
     if platform != 'linux':
-      print 'The ARM build option is only supported on Linux.'
+      print('The ARM build option is only supported on Linux.')
       sys.exit()
 
     if not branch_is_newer_than_2785:
-      print 'The ARM build option is not supported with branch 2785 and older.'
+      print('The ARM build option is not supported with branch 2785 and older.')
       sys.exit()
 
   if options.arm64build:
     if platform != 'linux' and platform != 'windows':
-      print 'The ARM64 build option is only supported on Linux and Windows.'
+      print('The ARM64 build option is only supported on Linux and Windows.')
       sys.exit()
 
     if not branch_is_newer_than_2840:
-      print 'The ARM build option is not supported with branch 2840 and older.'
+      print('The ARM build option is not supported with branch 2840 and older.')
       sys.exit()
 
 else:
   if options.armbuild or options.arm64build:
-    print 'The ARM build option is not supported by GYP.'
+    print('The ARM build option is not supported by GYP.')
     sys.exit()
 
   if options.x64build and platform != 'windows' and platform != 'macosx':
-    print 'The x64 build option is only used on Windows and Mac OS X.'
+    print('The x64 build option is only used on Windows and Mac OS X.')
     sys.exit()
 
   if platform == 'windows' and not 'GYP_MSVS_VERSION' in os.environ.keys():
-    print 'You must set the GYP_MSVS_VERSION environment variable on Windows.'
+    print('You must set the GYP_MSVS_VERSION environment variable on Windows.')
     sys.exit()
 
   # True if GYP_DEFINES=target_arch=x64 must be set.
@@ -1097,8 +1121,8 @@ else:
   deps_file = '.DEPS.git'
 
 if platform == 'macosx' and not options.x64build and branch_is_2272_or_newer:
-  print '32-bit Mac OS X builds are no longer supported with 2272 branch and '+\
-        'newer. Add --x64-build flag to generate a 64-bit build.'
+  print('32-bit Mac OS X builds are no longer supported with 2272 branch and ' +
+        'newer. Add --x64-build flag to generate a 64-bit build.')
   sys.exit()
 
 # Platforms that build a cef_sandbox library.
@@ -1108,7 +1132,7 @@ if branch_is_newer_than_3497:
 
 if not platform in sandbox_lib_platforms and (options.sandboxdistrib or
                                               options.sandboxdistribonly):
-  print 'The sandbox distribution is not supported on this platform.'
+  print('The sandbox distribution is not supported on this platform.')
   sys.exit()
 
 # Options that force the sources to change.
@@ -1118,7 +1142,8 @@ force_change = options.forceclean or options.forceupdate
 discard_local_changes = force_change or options.forcecefupdate
 
 if options.resave and (options.forcepatchupdate or discard_local_changes):
-  print '--resave cannot be combined with options that modify or discard patches.'
+  print('--resave cannot be combined with options that modify or discard ' +
+        'patches.')
   parser.print_help(sys.stderr)
   sys.exit()
 
@@ -1187,16 +1212,17 @@ if not options.nodepottoolsupdate:
 if platform == 'windows':
   # Force use of the version bundled with depot_tools.
   git_exe = os.path.join(depot_tools_dir, 'git.bat')
-  python_exe = os.path.join(depot_tools_dir, 'python.bat')
+  python_bat = 'python.bat' if is_python2 else 'python3.bat'
+  python_exe = os.path.join(depot_tools_dir, python_bat)
   if options.dryrun and not os.path.exists(git_exe):
     sys.stdout.write("WARNING: --dry-run assumes that depot_tools" \
                      " is already in your PATH. If it isn't\nplease" \
                      " specify a --depot-tools-dir value.\n")
     git_exe = 'git.bat'
-    python_exe = 'python.bat'
+    python_exe = python_bat
 else:
   git_exe = 'git'
-  python_exe = 'python'
+  python_exe = sys.executable
 
 ##
 # Manage the cef directory.
@@ -1326,11 +1352,10 @@ if not os.path.exists(gclient_file) or options.forceconfig:
         "'safesync_url': ''"+\
       "}]"
 
-  msg('Writing file: %s' % gclient_file)
+  msg('Writing %s' % gclient_file)
   if not options.dryrun:
-    fp = open(gclient_file, 'w')
-    fp.write(gclient_spec)
-    fp.close()
+    with open(gclient_file, 'w', encoding='utf-8') as fp:
+      write_fp(fp, gclient_spec)
 
 # Initial Chromium checkout.
 if not options.nochromiumupdate and not os.path.exists(chromium_src_dir):
@@ -1516,13 +1541,14 @@ if not options.nobuild and (chromium_checkout_changed or \
   # Print all build-related environment variables including any that were set
   # previously.
   for key in os.environ.keys():
-    if key.startswith('CEF_') or key.startswith('GN_') or \
-       key.startswith('GYP_') or key.startswith('DEPOT_TOOLS_'):
+    if key.startswith('CEF_') or key.startswith('GCLIENT_') or \
+       key.startswith('GN_') or key.startswith('GYP_') or \
+       key.startswith('DEPOT_TOOLS_'):
       msg('%s=%s' % (key, os.environ[key]))
 
-  # Run the cef_create_projects script to generate project files.
-  path = os.path.join(cef_src_dir, 'cef_create_projects' + script_ext)
-  run(path, cef_src_dir, depot_tools_dir)
+  # Generate project files.
+  tool = os.path.join(cef_src_dir, 'tools', 'gclient_hook.py')
+  run('%s %s' % (python_exe, tool), cef_src_dir, depot_tools_dir)
 
   # Build using Ninja.
   command = 'ninja '
@@ -1655,37 +1681,38 @@ if not options.nodistrib and (chromium_checkout_changed or \
   # Create the requested distribution types.
   first_type = True
   for type in distrib_types:
-    path = os.path.join(cef_tools_dir, 'make_distrib' + script_ext)
+    path = '%s make_distrib.py --output-dir=../binary_distrib/' % python_exe
+
     if options.nodebugbuild or options.noreleasebuild or type != 'standard':
-      path = path + ' --allow-partial'
+      path += ' --allow-partial'
     path = path + ' --ninja-build'
     if options.x64build:
-      path = path + ' --x64-build'
+      path += ' --x64-build'
     elif options.armbuild:
-      path = path + ' --arm-build'
+      path += ' --arm-build'
     elif options.arm64build:
-      path = path + ' --arm64-build'
+      path += ' --arm64-build'
 
     if type == 'minimal':
-      path = path + ' --minimal'
+      path += ' --minimal'
     elif type == 'client':
-      path = path + ' --client'
+      path += ' --client'
     elif type == 'sandbox':
-      path = path + ' --sandbox'
+      path += ' --sandbox'
 
     if first_type:
       if options.nodistribdocs:
-        path = path + ' --no-docs'
+        path += ' --no-docs'
       if options.nodistribarchive:
-        path = path + ' --no-archive'
+        path += ' --no-archive'
       first_type = False
     else:
       # Don't create the symbol archives or documentation more than once.
-      path = path + ' --no-symbols --no-docs'
+      path += ' --no-symbols --no-docs'
 
     # Override the subdirectory name of binary_distrib if the caller requested.
     if options.distribsubdir != '':
-      path = path + ' --distrib-subdir=' + options.distribsubdir
+      path += ' --distrib-subdir=' + options.distribsubdir
 
     # Create the distribution.
     run(path, cef_tools_dir, depot_tools_dir)
