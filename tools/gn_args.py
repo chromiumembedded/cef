@@ -146,6 +146,8 @@ def GetValueString(val):
       return 'true'
     else:
       return 'false'
+  elif isinstance(val, int):
+    return val
   else:
     return '"%s"' % val
   return val
