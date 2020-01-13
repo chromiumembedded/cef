@@ -107,7 +107,7 @@ def NameValueListToDict(name_value_list):
         try:
           token_value = int(token_value)
         except ValueError:
-          sys.exc_clear()
+          pass
       # Set the variable to the supplied value.
       result[tokens[0]] = token_value
     else:
