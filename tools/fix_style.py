@@ -3,6 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os, re, sys
 from clang_util import clang_format
 from file_util import eval_file, get_files, read_file, write_file
@@ -34,7 +36,7 @@ def msg(filename, status):
       filename = filename[pos:]
     filename = "..." + filename
 
-  print "%-60s %s" % (filename, status)
+  print("%-60s %s" % (filename, status))
 
 
 updatect = 0
@@ -124,15 +126,15 @@ def fix_style(filenames, white_list=None, black_list=None):
 
 if __name__ == "__main__":
   if len(sys.argv) == 1:
-    print "Usage: %s [file-path|git-hash|unstaged|staged] ..." % sys.argv[0]
-    print "\n Format C, C++ and ObjC files using Chromium's clang-format style."
-    print "\nOptions:"
-    print " file-path\tProcess the specified file or directory."
-    print " \t\tDirectories will be processed recursively."
-    print " \t\tThe \"*\" wildcard character is supported."
-    print " git-hash\tProcess all files changed in the specified Git commit."
-    print " unstaged\tProcess all unstaged files in the Git repo."
-    print " staged\t\tProcess all staged files in the Git repo."
+    print("Usage: %s [file-path|git-hash|unstaged|staged] ...\n" % sys.argv[0])
+    print(" Format C, C++ and ObjC files using Chromium's clang-format style.")
+    print("\nOptions:")
+    print(" file-path\tProcess the specified file or directory.")
+    print(" \t\tDirectories will be processed recursively.")
+    print(" \t\tThe \"*\" wildcard character is supported.")
+    print(" git-hash\tProcess all files changed in the specified Git commit.")
+    print(" unstaged\tProcess all unstaged files in the Git repo.")
+    print(" staged\t\tProcess all staged files in the Git repo.")
     sys.exit(1)
 
   # Read the configuration file.
@@ -140,4 +142,4 @@ if __name__ == "__main__":
 
   # Process anything passed on the command-line.
   fix_style(sys.argv[1:])
-  print 'Done - Wrote %d files.' % updatect
+  print('Done - Wrote %d files.' % updatect)

@@ -2,6 +2,8 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file
 
+from __future__ import absolute_import
+from __future__ import print_function
 from exec_util import exec_cmd
 import os
 import sys
@@ -14,9 +16,9 @@ root_dir = os.path.join(script_dir, os.pardir)
 def yapf_format(file_name, file_contents):
   # Reads .style.yapf in the root_dir when specifying contents via stdin.
   result = exec_cmd("%s %s/yapf" % (sys.executable, script_dir), root_dir,
-                    file_contents)
+                    file_contents.encode('utf-8'))
   if result['err'] != '':
-    print "yapf error: %s" % result['err']
+    print("yapf error: %s" % result['err'])
   if result['out'] != '':
     output = result['out']
     if sys.platform == 'win32':
