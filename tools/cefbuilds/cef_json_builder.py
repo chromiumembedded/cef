@@ -8,12 +8,11 @@ import datetime
 import json
 import os
 import re
+import sys
 
-try:
-  # Python 2
+if sys.version_info.major == 2:
   from urllib2 import urlopen
-except Exception as e:
-  # Python 3
+else:
   from urllib.request import urlopen
 
 # Class used to build the cefbuilds JSON file. See cef_json_builder_example.py
