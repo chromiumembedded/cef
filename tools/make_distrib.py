@@ -44,6 +44,10 @@ def create_tar_archive(input_dir, format):
   # Supported formats include "gz" and "bz2".
   tar_file = input_dir + '.tar.' + format
   tf = tarfile.open(tar_file, "w:" + format)
+  # The default tar format changed from GNU_FORMAT to PAX_FORMAT in Python 3.8.
+  # However, PAX_FORMAT generates additional @PaxHeader entries and truncates file
+  # names on Windows, so we'll stick with the previous default.
+  tf.format = tarfile.GNU_FORMAT
   tf.add(input_dir, arcname=os.path.basename(input_dir))
   tf.close()
 
