@@ -391,6 +391,7 @@ if(OS_WINDOWS)
       1921  # VS2019 version 16.1
       1922  # VS2019 version 16.2
       1923  # VS2019 version 16.3
+      1924  # VS2019 version 16.4
       )
     list(FIND supported_msvc_versions ${MSVC_VERSION} _index)
     if (${_index} EQUAL -1)
