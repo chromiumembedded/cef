@@ -18,8 +18,8 @@ OsrAXNode::OsrAXNode(int treeId,
     : tree_id_(treeId),
       node_id_(nodeId),
       child_tree_id_(-1),
-      platform_accessibility_(NULL),
-      parent_(NULL),
+      platform_accessibility_(nullptr),
+      parent_(nullptr),
       offset_container_id_(-1),
       accessibility_helper_(helper) {
   UpdateValue(value);
@@ -105,7 +105,7 @@ CefWindowHandle OsrAXNode::GetWindowHandle() const {
 CefRefPtr<CefBrowser> OsrAXNode::GetBrowser() const {
   if (accessibility_helper_)
     return accessibility_helper_->GetBrowser();
-  return NULL;
+  return nullptr;
 }
 
 void OsrAXNode::SetParent(OsrAXNode* parent) {
@@ -161,7 +161,7 @@ OsrAXNode* OsrAXNode::ChildAtIndex(int index) const {
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 // Create and return the platform specific OsrAXNode Object

@@ -277,7 +277,7 @@ void ClientHandler::DetachDelegate() {
   }
 
   DCHECK(delegate_);
-  delegate_ = NULL;
+  delegate_ = nullptr;
 }
 
 bool ClientHandler::OnProcessMessageReceived(
@@ -615,7 +615,7 @@ void ClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
       delete *(it);
     }
     message_handler_set_.clear();
-    message_router_ = NULL;
+    message_router_ = nullptr;
   }
 
   NotifyBrowserClosed(browser);
@@ -784,7 +784,7 @@ bool ClientHandler::OnSelectClientCertificate(
       command_line->GetSwitchValue(switches::kSslClientCertificate);
 
   if (cert_name.empty()) {
-    callback->Select(NULL);
+    callback->Select(nullptr);
     return true;
   }
 

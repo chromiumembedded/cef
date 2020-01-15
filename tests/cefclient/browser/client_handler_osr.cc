@@ -25,7 +25,7 @@ void ClientHandlerOsr::DetachOsrDelegate() {
   }
 
   DCHECK(osr_delegate_);
-  osr_delegate_ = NULL;
+  osr_delegate_ = nullptr;
 }
 
 void ClientHandlerOsr::OnAfterCreated(CefRefPtr<CefBrowser> browser) {

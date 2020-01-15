@@ -208,7 +208,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     CefRefPtr<CefValue> value = CefParseJSON(string, JSON_PARSER_RFC);
     if (value.get() && value->GetType() == VTYPE_DICTIONARY)
       return value->GetDictionary();
-    return NULL;
+    return nullptr;
   }
 
   // Convert a dictionary value to a JSON string.

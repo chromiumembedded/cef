@@ -10,7 +10,7 @@ namespace client {
 
 namespace {
 
-MainContext* g_main_context = NULL;
+MainContext* g_main_context = nullptr;
 
 }  // namespace
 
@@ -26,7 +26,7 @@ MainContext::MainContext() {
 }
 
 MainContext::~MainContext() {
-  g_main_context = NULL;
+  g_main_context = nullptr;
 }
 
 }  // namespace client

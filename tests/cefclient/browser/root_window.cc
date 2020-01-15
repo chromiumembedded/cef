@@ -17,7 +17,7 @@ RootWindowConfig::RootWindowConfig()
       initially_hidden(false),
       url(MainContext::Get()->GetMainURL()) {}
 
-RootWindow::RootWindow() : delegate_(NULL) {}
+RootWindow::RootWindow() : delegate_(nullptr) {}
 
 RootWindow::~RootWindow() {}
 
@@ -37,7 +37,7 @@ void RootWindow::OnExtensionsChanged(const ExtensionSet& extensions) {
 
   ExtensionSet::const_iterator it = extensions.begin();
   for (; it != extensions.end(); ++it) {
-    delegate_->CreateExtensionWindow(*it, CefRect(), NULL, base::Closure(),
+    delegate_->CreateExtensionWindow(*it, CefRect(), nullptr, base::Closure(),
                                      WithWindowlessRendering());
   }
 }

@@ -251,7 +251,7 @@ void RootWindowViews::OnViewsWindowCreated(CefRefPtr<ViewsWindow> window) {
 
 void RootWindowViews::OnViewsWindowDestroyed(CefRefPtr<ViewsWindow> window) {
   CEF_REQUIRE_UI_THREAD();
-  window_ = NULL;
+  window_ = nullptr;
 
   // Continue on the main thread.
   MAIN_POST_CLOSURE(
@@ -333,11 +333,11 @@ void RootWindowViews::OnBrowserClosed(CefRefPtr<CefBrowser> browser) {
   REQUIRE_MAIN_THREAD();
   if (browser_) {
     DCHECK_EQ(browser->GetIdentifier(), browser_->GetIdentifier());
-    browser_ = NULL;
+    browser_ = nullptr;
   }
 
   client_handler_->DetachDelegate();
-  client_handler_ = NULL;
+  client_handler_ = nullptr;
 
   browser_destroyed_ = true;
   NotifyDestroyedIfDone();

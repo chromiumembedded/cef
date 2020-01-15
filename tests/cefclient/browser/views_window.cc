@@ -112,11 +112,11 @@ CefRefPtr<ViewsWindow> ViewsWindow::Create(
   DCHECK(delegate);
 
   // Create a new ViewsWindow.
-  CefRefPtr<ViewsWindow> views_window = new ViewsWindow(delegate, NULL);
+  CefRefPtr<ViewsWindow> views_window = new ViewsWindow(delegate, nullptr);
 
   // Create a new BrowserView.
   CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(
-      client, url, settings, NULL, request_context, views_window);
+      client, url, settings, nullptr, request_context, views_window);
 
   // Associate the BrowserView with the ViewsWindow.
   views_window->SetBrowserView(browser_view);
@@ -334,7 +334,7 @@ CefRefPtr<CefBrowserViewDelegate> ViewsWindow::GetDelegateForPopupBrowserView(
   DCHECK(popup_delegate && popup_delegate != delegate_);
 
   // Create a new ViewsWindow for the popup BrowserView.
-  return new ViewsWindow(popup_delegate, NULL);
+  return new ViewsWindow(popup_delegate, nullptr);
 }
 
 bool ViewsWindow::OnPopupBrowserViewCreated(
@@ -525,14 +525,14 @@ void ViewsWindow::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
 
   delegate_->OnViewsWindowDestroyed(this);
 
-  browser_view_ = NULL;
-  button_menu_model_ = NULL;
+  browser_view_ = nullptr;
+  button_menu_model_ = nullptr;
   if (top_menu_bar_) {
     top_menu_bar_->Reset();
-    top_menu_bar_ = NULL;
+    top_menu_bar_ = nullptr;
   }
-  extensions_panel_ = NULL;
-  window_ = NULL;
+  extensions_panel_ = nullptr;
+  window_ = nullptr;
 }
 
 bool ViewsWindow::CanClose(CefRefPtr<CefWindow> window) {
@@ -711,8 +711,8 @@ void ViewsWindow::CreateMenuModel() {
 
   if (top_menu_bar_) {
     // Add the menus to the top menu bar.
-    AddFileMenuItems(top_menu_bar_->CreateMenuModel("&File", NULL));
-    AddTestMenuItems(top_menu_bar_->CreateMenuModel("&Tests", NULL));
+    AddFileMenuItems(top_menu_bar_->CreateMenuModel("&File", nullptr));
+    AddTestMenuItems(top_menu_bar_->CreateMenuModel("&Tests", nullptr));
   }
 }
 
@@ -762,7 +762,7 @@ void ViewsWindow::AddControls() {
   menu_button->SetMinimumSize(CefSize(0, 0));
 
   // Create the top panel.
-  CefRefPtr<CefPanel> top_panel = CefPanel::CreatePanel(NULL);
+  CefRefPtr<CefPanel> top_panel = CefPanel::CreatePanel(nullptr);
 
   // Use a horizontal box layout for |top_panel|.
   CefBoxLayoutSettings top_panel_layout_settings;
@@ -876,7 +876,7 @@ void ViewsWindow::UpdateExtensionControls() {
     return;
 
   if (!extensions_panel_) {
-    extensions_panel_ = CefPanel::CreatePanel(NULL);
+    extensions_panel_ = CefPanel::CreatePanel(nullptr);
 
     // Use a horizontal box layout for |top_panel|.
     CefBoxLayoutSettings top_panel_layout_settings;
@@ -946,7 +946,7 @@ void ViewsWindow::OnExtensionWindowClosed() {
   }
 
   // Restore the button state.
-  extension_button_pressed_lock_ = NULL;
+  extension_button_pressed_lock_ = nullptr;
 }
 
 }  // namespace client

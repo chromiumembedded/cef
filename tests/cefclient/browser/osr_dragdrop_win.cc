@@ -277,7 +277,7 @@ bool DragDataToDataObject(CefRefPtr<CefDragData> drag_data,
 
 CefRefPtr<CefDragData> DataObjectToDragData(IDataObject* data_object) {
   CefRefPtr<CefDragData> drag_data = CefDragData::Create();
-  IEnumFORMATETC* enumFormats = NULL;
+  IEnumFORMATETC* enumFormats = nullptr;
   HRESULT res = data_object->EnumFormatEtc(DATADIR_GET, &enumFormats);
   if (res != S_OK)
     return drag_data;
@@ -396,7 +396,7 @@ CefBrowserHost::DragOperationsMask DropTargetWin::StartDragging(
     HRESULT res = DoDragDrop(dataObject, dropSource, effect, &resEffect);
     if (res != DRAGDROP_S_DROP)
       resEffect = DROPEFFECT_NONE;
-    current_drag_data_ = NULL;
+    current_drag_data_ = nullptr;
   }
   return DropEffectToDragOperation(resEffect);
 }

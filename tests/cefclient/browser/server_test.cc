@@ -352,7 +352,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     CefRefPtr<CefValue> value = CefParseJSON(string, JSON_PARSER_RFC);
     if (value.get() && value->GetType() == VTYPE_DICTIONARY)
       return value->GetDictionary();
-    return NULL;
+    return nullptr;
   }
 
   // Verify that |key| exists in |dictionary| and has type |value_type|. Fails

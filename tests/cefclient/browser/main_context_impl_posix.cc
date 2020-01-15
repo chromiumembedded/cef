@@ -14,7 +14,7 @@ std::string MainContextImpl::GetDownloadPath(const std::string& file_name) {
 
 std::string MainContextImpl::GetAppWorkingDirectory() {
   char szWorkingDir[256];
-  if (getcwd(szWorkingDir, sizeof(szWorkingDir) - 1) == NULL) {
+  if (getcwd(szWorkingDir, sizeof(szWorkingDir) - 1) == nullptr) {
     szWorkingDir[0] = 0;
   } else {
     // Add trailing path separator.

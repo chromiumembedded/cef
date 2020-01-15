@@ -39,7 +39,7 @@ class ClientSchemeHandler : public CefResourceHandler {
     bool handled = false;
 
     std::string url = request->GetURL();
-    if (strstr(url.c_str(), "handler.html") != NULL) {
+    if (strstr(url.c_str(), "handler.html") != nullptr) {
       // Build the response html
       data_ =
           "<html><head><title>Client Scheme Handler</title></head>"
@@ -65,7 +65,7 @@ class ClientSchemeHandler : public CefResourceHandler {
 
       // Set the resulting mime type
       mime_type_ = "text/html";
-    } else if (strstr(url.c_str(), "logo.png") != NULL) {
+    } else if (strstr(url.c_str(), "logo.png") != nullptr) {
       // Load the response image
       if (LoadBinaryResource("logo.png", data_)) {
         handled = true;

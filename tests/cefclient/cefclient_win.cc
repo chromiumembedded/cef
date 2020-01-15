@@ -39,7 +39,7 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
 
   CefMainArgs main_args(hInstance);
 
-  void* sandbox_info = NULL;
+  void* sandbox_info = nullptr;
 
 #if defined(CEF_USE_SANDBOX)
   // Manage the life span of the sandbox information object. This is necessary

@@ -63,7 +63,7 @@ class OsrAXNode {
   CefNativeAccessible* GetNativeAccessibleObject(OsrAXNode* parent);
 
   CefNativeAccessible* GetParentAccessibleObject() const {
-    return parent_ ? parent_->platform_accessibility_ : NULL;
+    return parent_ ? parent_->platform_accessibility_ : nullptr;
   }
 
   OsrAccessibilityHelper* GetAccessibilityHelper() const {

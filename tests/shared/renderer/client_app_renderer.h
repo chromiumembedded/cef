@@ -34,7 +34,7 @@ class ClientAppRenderer : public ClientApp, public CefRenderProcessHandler {
 
     virtual CefRefPtr<CefLoadHandler> GetLoadHandler(
         CefRefPtr<ClientAppRenderer> app) {
-      return NULL;
+      return nullptr;
     }
 
     virtual void OnContextCreated(CefRefPtr<ClientAppRenderer> app,

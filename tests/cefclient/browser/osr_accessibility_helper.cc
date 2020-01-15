@@ -14,7 +14,7 @@ OsrAXNode* OsrAXTree::GetNode(int nodeId) const {
   if (result != node_map_.end()) {
     return result->second;
   }
-  return NULL;
+  return nullptr;
 }
 
 void OsrAXTree::EraseNode(int nodeId) {
@@ -127,7 +127,7 @@ OsrAXNode* OsrAccessibilityHelper::GetFocusedNode() const {
     return tree->second.GetNode(focused_node_id_);
   }
 
-  return NULL;
+  return nullptr;
 }
 
 OsrAXNode* OsrAccessibilityHelper::GetTreeRootNode(int treeId) const {
@@ -136,7 +136,7 @@ OsrAXNode* OsrAccessibilityHelper::GetTreeRootNode(int treeId) const {
     return tree->second.GetNode(tree->second.GetRootNodeId());
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void OsrAccessibilityHelper::UpdateLayout(
@@ -205,7 +205,7 @@ void OsrAccessibilityHelper::UpdateLayout(
   if (update->HasKey("root_id")) {
     int nodeId = CastToInt(update->GetValue("root_id"));
     OsrAXNode* node = GetNode(treeId, nodeId);
-    if (node != NULL) {
+    if (node != nullptr) {
       auto& tree = accessibility_node_map_[treeId];
       tree.SetRootNodeId(nodeId);
     }
@@ -242,7 +242,7 @@ void OsrAccessibilityHelper::DestroyNode(OsrAXNode* node) {
         if (!childNode) {
           continue;
         }
-        childNode->SetParent(NULL);
+        childNode->SetParent(nullptr);
         if (childNode->OsrAXTreeId() == treeId) {
           DestroyNode(childNode);
         }
@@ -263,7 +263,7 @@ OsrAXNode* OsrAccessibilityHelper::GetNode(int treeId, int nodeId) const {
     return tree->second.GetNode(nodeId);
   }
 
-  return NULL;
+  return nullptr;
 }
 
 }  // namespace client

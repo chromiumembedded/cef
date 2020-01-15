@@ -30,7 +30,7 @@ HWND CreateTempWindow() {
                       1, 1, NULL, NULL, hInstance, NULL);
 }
 
-TempWindowWin* g_temp_window = NULL;
+TempWindowWin* g_temp_window = nullptr;
 
 }  // namespace
 
@@ -43,7 +43,7 @@ TempWindowWin::TempWindowWin() : hwnd_(NULL) {
 }
 
 TempWindowWin::~TempWindowWin() {
-  g_temp_window = NULL;
+  g_temp_window = nullptr;
   DCHECK(hwnd_);
   DestroyWindow(hwnd_);
 }

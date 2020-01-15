@@ -11,7 +11,7 @@ namespace client {
 
 namespace {
 
-MainMessageLoop* g_main_message_loop = NULL;
+MainMessageLoop* g_main_message_loop = nullptr;
 
 }  // namespace
 
@@ -21,7 +21,7 @@ MainMessageLoop::MainMessageLoop() {
 }
 
 MainMessageLoop::~MainMessageLoop() {
-  g_main_message_loop = NULL;
+  g_main_message_loop = nullptr;
 }
 
 // static

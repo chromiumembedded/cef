@@ -85,7 +85,7 @@ class StickyPrintSettingGtk {
 
 // Lazily initialize the singleton instance.
 StickyPrintSettingGtk* GetLastUsedSettings() {
-  static StickyPrintSettingGtk* settings = NULL;
+  static StickyPrintSettingGtk* settings = nullptr;
   if (!settings)
     settings = new StickyPrintSettingGtk();
   return settings;
@@ -94,7 +94,7 @@ StickyPrintSettingGtk* GetLastUsedSettings() {
 // Helper class to track GTK printers.
 class GtkPrinterList {
  public:
-  GtkPrinterList() : default_printer_(NULL) {
+  GtkPrinterList() : default_printer_(nullptr) {
     gtk_enumerate_printers(SetPrinter, this, NULL, TRUE);
   }
 
@@ -114,7 +114,7 @@ class GtkPrinterList {
   // - Querying for non-existant printers like 'Print to PDF'.
   GtkPrinter* GetPrinterWithName(const std::string& name) {
     if (name.empty())
-      return NULL;
+      return nullptr;
 
     for (std::vector<GtkPrinter*>::iterator it = printers_.begin();
          it < printers_.end(); ++it) {
@@ -123,7 +123,7 @@ class GtkPrinterList {
       }
     }
 
-    return NULL;
+    return nullptr;
   }
 
  private:
@@ -279,7 +279,7 @@ GtkWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
       RootWindow::GetForBrowser(browser->GetIdentifier());
   if (root_window)
     return GTK_WINDOW(root_window->GetWindowHandle());
-  return NULL;
+  return nullptr;
 }
 
 void RunCallback(base::Callback<void(GtkWindow*)> callback, GtkWindow* window) {
@@ -304,29 +304,29 @@ void GetWindowAndContinue(CefRefPtr<CefBrowser> browser,
 struct ClientPrintHandlerGtk::PrintHandler {
   PrintHandler(CefRefPtr<CefBrowser> browser)
       : browser_(browser),
-        dialog_(NULL),
-        gtk_settings_(NULL),
-        page_setup_(NULL),
-        printer_(NULL) {}
+        dialog_(nullptr),
+        gtk_settings_(nullptr),
+        page_setup_(nullptr),
+        printer_(nullptr) {}
 
   ~PrintHandler() {
     ScopedGdkThreadsEnter scoped_gdk_threads;
 
     if (dialog_) {
       gtk_widget_destroy(dialog_);
-      dialog_ = NULL;
+      dialog_ = nullptr;
     }
     if (gtk_settings_) {
       g_object_unref(gtk_settings_);
-      gtk_settings_ = NULL;
+      gtk_settings_ = nullptr;
     }
     if (page_setup_) {
       g_object_unref(page_setup_);
-      page_setup_ = NULL;
+      page_setup_ = nullptr;
     }
     if (printer_) {
       g_object_unref(printer_);
-      printer_ = NULL;
+      printer_ = nullptr;
     }
   }
 
@@ -370,7 +370,7 @@ struct ClientPrintHandlerGtk::PrintHandler {
                              color_value.c_str());
 
       if (settings->GetDuplexMode() != DUPLEX_MODE_UNKNOWN) {
-        const char* cups_duplex_mode = NULL;
+        const char* cups_duplex_mode = nullptr;
         switch (settings->GetDuplexMode()) {
           case DUPLEX_MODE_LONG_EDGE:
             cups_duplex_mode = kDuplexNoTumble;
@@ -523,17 +523,19 @@ struct ClientPrintHandlerGtk::PrintHandler {
         settings->SetSelectionOnly(print_selection_only);
         InitPrintSettings(gtk_settings_, page_setup_, settings);
         dialog_callback_->Continue(settings);
-        dialog_callback_ = NULL;
+        dialog_callback_ = nullptr;
         return;
       }
       case GTK_RESPONSE_DELETE_EVENT:  // Fall through.
       case GTK_RESPONSE_CANCEL: {
         dialog_callback_->Cancel();
-        dialog_callback_ = NULL;
+        dialog_callback_ = nullptr;
         return;
       }
       case GTK_RESPONSE_APPLY:
-      default: { NOTREACHED(); }
+      default: {
+        NOTREACHED();
+      }
     }
   }
 
@@ -543,7 +545,7 @@ struct ClientPrintHandlerGtk::PrintHandler {
     // chance to unwind.
     CefPostTask(TID_UI, base::Bind(&CefPrintJobCallback::Continue,
                                    job_callback_.get()));
-    job_callback_ = NULL;
+    job_callback_ = nullptr;
   }
 
   static void OnDialogResponseThunk(GtkDialog* dialog,

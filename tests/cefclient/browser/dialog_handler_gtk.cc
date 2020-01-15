@@ -140,7 +140,7 @@ GtkWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
       LOG(ERROR) << "No GtkWindow for browser";
     return window;
   }
-  return NULL;
+  return nullptr;
 }
 
 void RunCallback(base::Callback<void(GtkWindow*)> callback, GtkWindow* window) {
@@ -149,7 +149,7 @@ void RunCallback(base::Callback<void(GtkWindow*)> callback, GtkWindow* window) {
 
 }  // namespace
 
-ClientDialogHandlerGtk::ClientDialogHandlerGtk() : gtk_dialog_(NULL) {}
+ClientDialogHandlerGtk::ClientDialogHandlerGtk() : gtk_dialog_(nullptr) {}
 
 bool ClientDialogHandlerGtk::OnFileDialog(
     CefRefPtr<CefBrowser> browser,
@@ -221,8 +221,8 @@ void ClientDialogHandlerGtk::OnResetDialogState(CefRefPtr<CefBrowser> browser) {
     return;
 
   gtk_widget_destroy(gtk_dialog_);
-  gtk_dialog_ = NULL;
-  js_dialog_callback_ = NULL;
+  gtk_dialog_ = nullptr;
+  js_dialog_callback_ = nullptr;
 }
 
 void ClientDialogHandlerGtk::OnFileDialogContinue(OnFileDialogParams params,
@@ -331,7 +331,7 @@ void ClientDialogHandlerGtk::OnFileDialogContinue(OnFileDialogParams params,
       GSList* filenames =
           gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(dialog));
       if (filenames) {
-        for (GSList* iter = filenames; iter != NULL;
+        for (GSList* iter = filenames; iter != nullptr;
              iter = g_slist_next(iter)) {
           std::string path(static_cast<char*>(iter->data));
           g_free(iter->data);
@@ -347,7 +347,7 @@ void ClientDialogHandlerGtk::OnFileDialogContinue(OnFileDialogParams params,
   if (success) {
     GtkFileFilter* selected_filter =
         gtk_file_chooser_get_filter(GTK_FILE_CHOOSER(dialog));
-    if (selected_filter != NULL) {
+    if (selected_filter != nullptr) {
       for (size_t x = 0; x < filters.size(); ++x) {
         if (filters[x] == selected_filter) {
           filter_index = x;
@@ -466,7 +466,7 @@ void ClientDialogHandlerGtk::OnDialogResponse(GtkDialog* dialog,
       NOTREACHED();
   }
 
-  handler->OnResetDialogState(NULL);
+  handler->OnResetDialogState(nullptr);
 }
 
 }  // namespace client

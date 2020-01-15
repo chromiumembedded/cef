@@ -103,7 +103,7 @@ class V8Handler : public CefV8Handler {
             retval = CefV8Value::CreateString("Hello, world!");
             break;
           case 8:
-            retval = CefV8Value::CreateObject(NULL, NULL);
+            retval = CefV8Value::CreateObject(nullptr, nullptr);
             break;
           case 9:
             retval = CefV8Value::CreateArray(8);

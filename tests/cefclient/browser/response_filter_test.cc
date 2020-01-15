@@ -234,7 +234,7 @@ CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
   if (MatchesFilterURL(url))
     return new PassThruResponseFilter();
 
-  return NULL;
+  return nullptr;
 }
 
 }  // namespace response_filter_test

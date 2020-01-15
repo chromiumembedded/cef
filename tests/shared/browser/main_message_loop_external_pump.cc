@@ -22,7 +22,7 @@ const int32 kTimerDelayPlaceholder = INT_MAX;
 // DoWork().
 const int64 kMaxTimerDelay = 1000 / 30;  // 30fps
 
-client::MainMessageLoopExternalPump* g_external_message_pump = NULL;
+client::MainMessageLoopExternalPump* g_external_message_pump = nullptr;
 
 }  // namespace
 
@@ -33,7 +33,7 @@ MainMessageLoopExternalPump::MainMessageLoopExternalPump()
 }
 
 MainMessageLoopExternalPump::~MainMessageLoopExternalPump() {
-  g_external_message_pump = NULL;
+  g_external_message_pump = nullptr;
 }
 
 MainMessageLoopExternalPump* MainMessageLoopExternalPump::Get() {

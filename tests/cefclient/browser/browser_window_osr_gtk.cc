@@ -965,10 +965,10 @@ BrowserWindowOsrGtk::BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
       painting_popup_(false),
       hidden_(false),
       glarea_(NULL),
-      drag_trigger_event_(NULL),
-      drag_data_(NULL),
+      drag_trigger_event_(nullptr),
+      drag_data_(nullptr),
       drag_operation_(DRAG_OPERATION_NONE),
-      drag_context_(NULL),
+      drag_context_(nullptr),
       drag_targets_(gtk_target_list_new(NULL, 0)),
       drag_leave_(false),
       drag_drop_(false),
@@ -1900,13 +1900,13 @@ void BrowserWindowOsrGtk::DragReset() {
   CEF_REQUIRE_UI_THREAD();
   if (drag_trigger_event_) {
     gdk_event_free(drag_trigger_event_);
-    drag_trigger_event_ = NULL;
+    drag_trigger_event_ = nullptr;
   }
-  drag_data_ = NULL;
+  drag_data_ = nullptr;
   drag_operation_ = DRAG_OPERATION_NONE;
   if (drag_context_) {
     g_object_unref(drag_context_);
-    drag_context_ = NULL;
+    drag_context_ = nullptr;
   }
   drag_leave_ = false;
   drag_drop_ = false;
@@ -1943,12 +1943,12 @@ void BrowserWindowOsrGtk::DragBegin(GtkWidget* widget,
   size_t image_size = image_binary->GetSize();
   guint8* image_buffer = (guint8*)malloc(image_size);  // must free
   image_binary->GetData((void*)image_buffer, image_size, 0);
-  GdkPixbufLoader* loader = NULL;  // must unref
-  GError* error = NULL;            // must free
-  GdkPixbuf* pixbuf = NULL;        // owned by loader
+  GdkPixbufLoader* loader = nullptr;  // must unref
+  GError* error = nullptr;            // must free
+  GdkPixbuf* pixbuf = nullptr;        // owned by loader
   gboolean success = FALSE;
   loader = gdk_pixbuf_loader_new_with_type("png", &error);
-  if (error == NULL && loader) {
+  if (error == nullptr && loader) {
     success = gdk_pixbuf_loader_write(loader, image_buffer, image_size, NULL);
     if (success) {
       success = gdk_pixbuf_loader_close(loader, NULL);

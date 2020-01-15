@@ -133,7 +133,7 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
     // cef_web_plugin.h for details. It's safe to call this method before
     // CefInitialize(), and calling it before CefInitialize() is required on
     // Linux.
-    CefRegisterWidevineCdm(cdm_path, NULL);
+    CefRegisterWidevineCdm(cdm_path, nullptr);
   }
 }
 

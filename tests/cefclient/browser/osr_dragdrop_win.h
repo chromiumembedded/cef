@@ -24,7 +24,7 @@ namespace client {
 
 #define DEFAULT_QUERY_INTERFACE(__Class)                            \
   HRESULT __stdcall QueryInterface(const IID& iid, void** object) { \
-    *object = NULL;                                                 \
+    *object = nullptr;                                              \
     if (IsEqualIID(iid, IID_IUnknown)) {                            \
       IUnknown* obj = this;                                         \
       *object = obj;                                                \

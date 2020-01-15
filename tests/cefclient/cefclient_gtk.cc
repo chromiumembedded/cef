@@ -79,7 +79,7 @@ int RunMain(int argc, char* argv[]) {
   }
 
   // Execute the secondary process, if any.
-  int exit_code = CefExecuteProcess(main_args, app, NULL);
+  int exit_code = CefExecuteProcess(main_args, app, nullptr);
   if (exit_code >= 0)
     return exit_code;
 
@@ -108,7 +108,7 @@ int RunMain(int argc, char* argv[]) {
     message_loop.reset(new MainMessageLoopStd);
 
   // Initialize CEF.
-  context->Initialize(main_args, settings, app, NULL);
+  context->Initialize(main_args, settings, app, nullptr);
 
   // The Chromium sandbox requires that there only be a single thread during
   // initialization. Therefore initialize GTK after CEF.

@@ -22,7 +22,7 @@ CefRefPtr<CefPrintHandler> ClientAppBrowser::CreatePrintHandler() {
 #if defined(OS_LINUX)
   return new ClientPrintHandlerGtk();
 #else
-  return NULL;
+  return nullptr;
 #endif
 }
 

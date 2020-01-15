@@ -108,7 +108,7 @@ void ImageCache::LoadImages(const ImageInfoSet& image_info,
 
     if (info.id_ == kEmptyId) {
       // Image intentionally left empty.
-      images.push_back(NULL);
+      images.push_back(nullptr);
       continue;
     }
 
@@ -125,7 +125,7 @@ void ImageCache::LoadImages(const ImageInfoSet& image_info,
     }
 
     // Load the image.
-    images.push_back(NULL);
+    images.push_back(nullptr);
     if (!missing_images)
       missing_images = true;
   }
@@ -146,7 +146,7 @@ CefRefPtr<CefImage> ImageCache::GetCachedImage(const std::string& image_id) {
   if (it != image_map_.end())
     return it->second;
 
-  return NULL;
+  return nullptr;
 }
 
 // static
@@ -273,7 +273,7 @@ CefRefPtr<CefImage> ImageCache::CreateImage(const std::string& image_id,
   DCHECK(!content.image_);
 
   if (content.contents_.empty())
-    return NULL;
+    return nullptr;
 
   CefRefPtr<CefImage> image = CefImage::CreateImage();
 
@@ -285,18 +285,18 @@ CefRefPtr<CefImage> ImageCache::CreateImage(const std::string& image_id,
                          rep.contents_.size())) {
         LOG(ERROR) << "Failed to create image " << image_id << " for PNG@"
                    << rep.scale_factor_;
-        return NULL;
+        return nullptr;
       }
     } else if (rep.type_ == TYPE_JPEG) {
       if (!image->AddJPEG(rep.scale_factor_, rep.contents_.c_str(),
                           rep.contents_.size())) {
         LOG(ERROR) << "Failed to create image " << image_id << " for JPG@"
                    << rep.scale_factor_;
-        return NULL;
+        return nullptr;
       }
     } else {
       NOTREACHED();
-      return NULL;
+      return nullptr;
     }
   }
 

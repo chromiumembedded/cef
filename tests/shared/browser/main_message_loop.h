@@ -88,7 +88,7 @@ class MainMessageLoop {
 //
 // base::scoped_refptr<Foo> foo = new Foo();
 // foo->DoSomething();
-// foo = NULL;  // Deletion of |foo| will occur on the main thread.
+// foo = nullptr;  // Deletion of |foo| will occur on the main thread.
 //
 struct DeleteOnMainThread {
   template <typename T>

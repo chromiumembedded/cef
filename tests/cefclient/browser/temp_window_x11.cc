@@ -38,7 +38,7 @@ void CloseTempWindow(::Window xwindow) {
   XDestroyWindow(xdisplay, xwindow);
 }
 
-TempWindowX11* g_temp_window = NULL;
+TempWindowX11* g_temp_window = nullptr;
 
 }  // namespace
 
@@ -51,7 +51,7 @@ TempWindowX11::TempWindowX11() : xwindow_(kNullWindowHandle) {
 }
 
 TempWindowX11::~TempWindowX11() {
-  g_temp_window = NULL;
+  g_temp_window = nullptr;
   DCHECK(xwindow_);
 
   CloseTempWindow(xwindow_);

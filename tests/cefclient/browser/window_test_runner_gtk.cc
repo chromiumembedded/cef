@@ -25,7 +25,7 @@ GtkWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
       LOG(ERROR) << "No GtkWindow for browser";
     return window;
   }
-  return NULL;
+  return nullptr;
 }
 
 bool IsMaximized(GtkWindow* window) {

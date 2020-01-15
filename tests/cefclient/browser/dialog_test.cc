@@ -75,10 +75,10 @@ class DialogCallback : public CefRunFileDialogCallback {
     }
 
     router_callback_->Success(response);
-    router_callback_ = NULL;
+    router_callback_ = nullptr;
 
     dialog_state_->pending_ = false;
-    dialog_state_ = NULL;
+    dialog_state_ = nullptr;
   }
 
  private:

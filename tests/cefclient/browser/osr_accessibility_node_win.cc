@@ -218,7 +218,7 @@ struct CefIAccessible : public IAccessible {
 
   // Remove the node reference when OsrAXNode is destroyed, so that
   // MSAA clients get  CO_E_OBJNOTCONNECTED
-  void MarkDestroyed() { node_ = NULL; }
+  void MarkDestroyed() { node_ = nullptr; }
 
  protected:
   virtual ~CefIAccessible() {}
@@ -242,7 +242,7 @@ STDMETHODIMP CefIAccessible::QueryInterface(REFIID riid, void** ppvObject) {
   else if (riid == IID_IUnknown)
     *ppvObject = static_cast<IUnknown*>(this);
   else
-    *ppvObject = NULL;
+    *ppvObject = nullptr;
 
   if (*ppvObject)
     reinterpret_cast<IUnknown*>(*ppvObject)->AddRef();
@@ -317,7 +317,7 @@ STDMETHODIMP CefIAccessible::get_accChild(VARIANT varChild,
     int numChilds = node_->GetChildCount();
     // Mark Leaf node if there are no child
     if (numChilds <= 0) {
-      *ppdispChild = NULL;
+      *ppdispChild = nullptr;
       return S_FALSE;
     } else {
       if (ppdispChild && VALID_CHILDID(varChild)) {
@@ -332,7 +332,7 @@ STDMETHODIMP CefIAccessible::get_accChild(VARIANT varChild,
 
           *ppdispChild = child->GetNativeAccessibleObject(node_);
         }
-        if (*ppdispChild == NULL)
+        if (*ppdispChild == nullptr)
           retCode = S_FALSE;
         else
           (*ppdispChild)->AddRef();
@@ -449,9 +449,9 @@ STDMETHODIMP CefIAccessible::get_accFocus(VARIANT* pFocusChild) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
     OsrAXNode* focusedNode = node_->GetAccessibilityHelper()->GetFocusedNode();
-    CefNativeAccessible* nativeObj = NULL;
+    CefNativeAccessible* nativeObj = nullptr;
     if (focusedNode)
-      nativeObj = focusedNode->GetNativeAccessibleObject(NULL);
+      nativeObj = focusedNode->GetNativeAccessibleObject(nullptr);
 
     if (nativeObj) {
       if (nativeObj == this) {
@@ -663,7 +663,7 @@ void OsrAXNode::Destroy() {
   CefIAccessible* ptr = static_cast<CefIAccessible*>(platform_accessibility_);
   if (ptr)
     ptr->MarkDestroyed();
-  platform_accessibility_ = NULL;
+  platform_accessibility_ = nullptr;
 }
 
 // Create and return NSAccessibility Implementation Object for Window
@@ -687,7 +687,7 @@ void OsrAXNode::NotifyAccessibilityEvent(std::string event_type) const {}
 void OsrAXNode::Destroy() {}
 
 CefNativeAccessible* OsrAXNode::GetNativeAccessibleObject(OsrAXNode* parent) {
-  return NULL;
+  return nullptr;
 }
 
 }  // namespace client

@@ -174,7 +174,7 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsExtension(
   const std::string& extension_url = extension_util::GetExtensionURL(extension);
   if (extension_url.empty()) {
     NOTREACHED() << "Extension cannot be loaded directly.";
-    return NULL;
+    return nullptr;
   }
 
   // Create an initially hidden browser window that loads the extension URL.
@@ -226,7 +226,7 @@ scoped_refptr<RootWindow> RootWindowManager::GetWindowForBrowser(
     if (browser.get() && browser->GetIdentifier() == browser_id)
       return *it;
   }
-  return NULL;
+  return nullptr;
 }
 
 scoped_refptr<RootWindow> RootWindowManager::GetActiveRootWindow() const {
@@ -382,10 +382,10 @@ void RootWindowManager::OnRootWindowDestroyed(RootWindow* root_window) {
     root_windows_.erase(it);
 
   if (root_window == active_root_window_) {
-    active_root_window_ = NULL;
+    active_root_window_ = nullptr;
 
     base::AutoLock lock_scope(active_browser_lock_);
-    active_browser_ = NULL;
+    active_browser_ = nullptr;
   }
 
   if (terminate_when_all_windows_closed_ && root_windows_.empty()) {

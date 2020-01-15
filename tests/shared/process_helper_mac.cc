@@ -46,7 +46,7 @@ int RunMain(int argc, char* argv[]) {
     app = new ClientAppOther();
 
   // Execute the secondary process.
-  return CefExecuteProcess(main_args, app, NULL);
+  return CefExecuteProcess(main_args, app, nullptr);
 }
 
 }  // namespace client

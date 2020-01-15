@@ -307,7 +307,7 @@ void OsrWindowWin::Create(HWND parent_hwnd, const RECT& rect) {
   SetUserDataPtr(hwnd_, this);
 
 #if defined(CEF_USE_ATL)
-  accessibility_root_ = NULL;
+  accessibility_root_ = nullptr;
 
   // Create/register the drag&drop handler.
   drop_target_ = DropTargetWin::Create(this, hwnd_);
@@ -332,7 +332,7 @@ void OsrWindowWin::Destroy() {
 #if defined(CEF_USE_ATL)
   // Revoke/delete the drag&drop handler.
   RevokeDragDrop(hwnd_);
-  drop_target_ = NULL;
+  drop_target_ = nullptr;
 #endif
 
   render_handler_.reset();
@@ -807,7 +807,7 @@ void OsrWindowWin::OnPaint() {
 
 bool OsrWindowWin::OnEraseBkgnd() {
   // Erase the background when the browser does not exist.
-  return (browser_ == NULL);
+  return (browser_ == nullptr);
 }
 
 bool OsrWindowWin::OnTouchEvent(UINT message, WPARAM wParam, LPARAM lParam) {
@@ -911,8 +911,8 @@ void OsrWindowWin::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   // Detach |this| from the ClientHandlerOsr.
   static_cast<ClientHandlerOsr*>(browser_->GetHost()->GetClient().get())
       ->DetachOsrDelegate();
-  browser_ = NULL;
-  render_handler_->SetBrowser(NULL);
+  browser_ = nullptr;
+  render_handler_->SetBrowser(nullptr);
   Destroy();
 }
 
@@ -1092,7 +1092,8 @@ void OsrWindowWin::UpdateAccessibilityTree(CefRefPtr<CefValue> value) {
   // Update |accessibility_root_| because UpdateAccessibilityTree may have
   // cleared it.
   OsrAXNode* root = accessibility_handler_->GetRootNode();
-  accessibility_root_ = root ? root->GetNativeAccessibleObject(NULL) : NULL;
+  accessibility_root_ =
+      root ? root->GetNativeAccessibleObject(nullptr) : nullptr;
 #endif  // defined(CEF_USE_ATL)
 }
 

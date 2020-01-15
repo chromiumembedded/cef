@@ -147,13 +147,13 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       static_cast<RequestClient*>(urlrequest_->GetClient().get())->Detach();
 
       urlrequest_->Cancel();
-      urlrequest_ = NULL;
+      urlrequest_ = nullptr;
     }
 
     if (callback_.get()) {
       // Must always execute |callback_| before deleting it.
       callback_->Failure(ERR_ABORTED, test_runner::GetErrorString(ERR_ABORTED));
-      callback_ = NULL;
+      callback_ = nullptr;
     }
   }
 
@@ -166,8 +166,8 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     else
       callback_->Failure(error_code, test_runner::GetErrorString(error_code));
 
-    callback_ = NULL;
-    urlrequest_ = NULL;
+    callback_ = nullptr;
+    urlrequest_ = nullptr;
   }
 
   CefRefPtr<Callback> callback_;

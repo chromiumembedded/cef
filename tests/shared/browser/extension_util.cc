@@ -83,7 +83,7 @@ void GetInternalManifest(const std::string& extension_path,
   if (!LoadBinaryResource(manifest_path.c_str(), manifest_contents) ||
       manifest_contents.empty()) {
     LOG(ERROR) << "Failed to load manifest from " << manifest_path;
-    RunManifestCallback(callback, NULL);
+    RunManifestCallback(callback, nullptr);
     return;
   }
 
@@ -96,7 +96,7 @@ void GetInternalManifest(const std::string& extension_path,
       error_msg = "Incorrectly formatted dictionary contents.";
     LOG(ERROR) << "Failed to parse manifest from " << manifest_path << "; "
                << error_msg.ToString();
-    RunManifestCallback(callback, NULL);
+    RunManifestCallback(callback, nullptr);
     return;
   }
 
@@ -178,7 +178,7 @@ void LoadExtension(CefRefPtr<CefRequestContext> request_context,
                                    extension_path, handler));
   } else {
     // Load the extension from disk.
-    request_context->LoadExtension(extension_path, NULL, handler);
+    request_context->LoadExtension(extension_path, nullptr, handler);
   }
 }
 

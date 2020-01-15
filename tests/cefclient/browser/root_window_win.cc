@@ -286,7 +286,7 @@ CefRefPtr<CefBrowser> RootWindowWin::GetBrowser() const {
 
   if (browser_window_)
     return browser_window_->GetBrowser();
-  return NULL;
+  return nullptr;
 }
 
 ClientWindowHandle RootWindowWin::GetWindowHandle() const {
@@ -489,7 +489,7 @@ LRESULT CALLBACK RootWindowWin::RootWndProc(HWND hWnd,
                                             LPARAM lParam) {
   REQUIRE_MAIN_THREAD();
 
-  RootWindowWin* self = NULL;
+  RootWindowWin* self = nullptr;
   if (message != WM_NCCREATE) {
     self = GetUserDataPtr<RootWindowWin*>(hWnd);
     if (!self)
@@ -749,7 +749,7 @@ void RootWindowWin::OnDpiChanged(WPARAM wParam, LPARAM lParam) {
 
 bool RootWindowWin::OnEraseBkgnd() {
   // Erase the background when the browser does not exist.
-  return (GetBrowser() == NULL);
+  return (GetBrowser() == nullptr);
 }
 
 bool RootWindowWin::OnCommand(UINT id) {
@@ -949,7 +949,7 @@ void RootWindowWin::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     // Create the browser window.
     CefRect cef_rect(rect.left, rect.top, rect.right - rect.left,
                      rect.bottom - rect.top);
-    browser_window_->CreateBrowser(hwnd_, cef_rect, browser_settings_, NULL,
+    browser_window_->CreateBrowser(hwnd_, cef_rect, browser_settings_, nullptr,
                                    delegate_->GetRequestContext(this));
   } else {
     // With popups we already have a browser window. Parent the browser window

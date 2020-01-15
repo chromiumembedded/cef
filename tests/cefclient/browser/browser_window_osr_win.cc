@@ -112,7 +112,7 @@ void BrowserWindowOsrWin::OnBrowserClosed(CefRefPtr<CefBrowser> browser) {
   REQUIRE_MAIN_THREAD();
 
   // Release the OSR window reference. It will be deleted on the UI thread.
-  osr_window_ = NULL;
+  osr_window_ = nullptr;
 
   BrowserWindow::OnBrowserClosed(browser);
 }

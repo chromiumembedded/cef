@@ -36,7 +36,7 @@ scoped_refptr<RootWindow> RootWindow::Create(bool use_views) {
   return new RootWindowMac();
 #endif
 
-  return NULL;
+  return nullptr;
 }
 
 }  // namespace client

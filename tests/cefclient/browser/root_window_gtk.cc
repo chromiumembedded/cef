@@ -56,12 +56,12 @@ RootWindowGtk::RootWindowGtk()
       with_extension_(false),
       is_popup_(false),
       initialized_(false),
-      window_(NULL),
-      back_button_(NULL),
-      forward_button_(NULL),
-      reload_button_(NULL),
-      stop_button_(NULL),
-      url_entry_(NULL),
+      window_(nullptr),
+      back_button_(nullptr),
+      forward_button_(nullptr),
+      reload_button_(nullptr),
+      stop_button_(nullptr),
+      url_entry_(nullptr),
       toolbar_height_(0),
       menubar_height_(0),
       window_destroyed_(false),
@@ -225,7 +225,7 @@ CefRefPtr<CefBrowser> RootWindowGtk::GetBrowser() const {
 
   if (browser_window_)
     return browser_window_->GetBrowser();
-  return NULL;
+  return nullptr;
 }
 
 ClientWindowHandle RootWindowGtk::GetWindowHandle() const {
@@ -380,7 +380,7 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings,
 
   if (!is_popup_) {
     // Create the browser window.
-    browser_window_->CreateBrowser(parent, browser_bounds_, settings, NULL,
+    browser_window_->CreateBrowser(parent, browser_bounds_, settings, nullptr,
                                    delegate_->GetRequestContext(this));
   } else {
     // With popups we already have a browser window. Parent the browser window

@@ -323,7 +323,7 @@ void BeginTracing() {
     return;
   }
 
-  CefBeginTracing(CefString(), NULL);
+  CefBeginTracing(CefString(), nullptr);
 }
 
 void EndTracing(CefRefPtr<CefBrowser> browser) {
@@ -364,7 +364,7 @@ void EndTracing(CefRefPtr<CefBrowser> browser) {
         CefEndTracing(file_paths.front(), this);
       } else {
         // No file selected. Discard the trace data.
-        CefEndTracing(CefString(), NULL);
+        CefEndTracing(CefString(), nullptr);
       }
     }
 
