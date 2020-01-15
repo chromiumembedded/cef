@@ -1586,12 +1586,13 @@ class obj_argument:
       return 'CefString()'
     elif type == 'refptr_same' or type == 'refptr_diff' or \
          type == 'rawptr_same' or type == 'rawptr_diff':
-      return 'NULL'
+      if for_capi:
+        return 'NULL'
+      return 'nullptr'
     elif type == 'ownptr_same' or type == 'ownptr_diff':
       if for_capi:
         return 'NULL'
-      else:
-        return 'CefOwnPtr<' + self.type.get_ptr_type() + '>()'
+      return 'CefOwnPtr<' + self.type.get_ptr_type() + '>()'
 
     return ''
 

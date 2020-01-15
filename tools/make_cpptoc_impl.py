@@ -375,7 +375,7 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
                 '\n        *'+arg_name+' = '+assign+';'\
                 '\n      }'\
                 '\n    } else {'\
-                '\n      *'+arg_name+' = NULL;'\
+                '\n      *'+arg_name+' = nullptr;'\
                 '\n    }'\
                 '\n  }'
     elif arg_type == 'string_vec_byref':
@@ -643,13 +643,13 @@ def make_cpptoc_class_impl(header, clsname, impl):
              'template<> CefRawPtr<'+clsname+'> '+parent_sig+'::UnwrapDerivedRaw(CefWrapperType type, '+capiname+'* s) {\n' + \
              unwrapderived[1] + \
              '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
-             '  return NULL;\n'+ \
+             '  return nullptr;\n'+ \
              '}\n\n'
   else:
     const += 'template<> CefRefPtr<'+clsname+'> '+parent_sig+'::UnwrapDerived(CefWrapperType type, '+capiname+'* s) {\n' + \
              unwrapderived + \
              '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
-             '  return NULL;\n'+ \
+             '  return nullptr;\n'+ \
              '}\n\n'
 
   const += 'template<> CefWrapperType ' + parent_sig + '::kWrapperType = ' + get_wrapper_type_enum(

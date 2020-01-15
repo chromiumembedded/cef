@@ -388,7 +388,7 @@ def make_ctocpp_function_impl_new(clsname, name, func, base_scoped):
                 '\n      '+arg_name+' = '+assign+';'\
                 '\n    }'\
                 '\n  } else {'\
-                '\n    '+arg_name+' = NULL;'\
+                '\n    '+arg_name+' = nullptr;'\
                 '\n  }'
     elif arg_type == 'string_vec_byref':
       result += comment+\
@@ -635,18 +635,18 @@ def make_ctocpp_class_impl(header, clsname, impl):
     const += 'template<> '+capiname+'* '+parent_sig+'::UnwrapDerivedOwn(CefWrapperType type, CefOwnPtr<'+clsname+'> c) {\n'+ \
              unwrapderived[0] + \
              '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
-             '  return NULL;\n'+ \
+             '  return nullptr;\n'+ \
              '}\n\n' + \
              'template<> '+capiname+'* '+parent_sig+'::UnwrapDerivedRaw(CefWrapperType type, CefRawPtr<'+clsname+'> c) {\n'+ \
              unwrapderived[1] + \
              '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
-             '  return NULL;\n'+ \
+             '  return nullptr;\n'+ \
              '}\n\n'
   else:
     const += 'template<> '+capiname+'* '+parent_sig+'::UnwrapDerived(CefWrapperType type, '+clsname+'* c) {\n'+ \
              unwrapderived + \
              '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
-             '  return NULL;\n'+ \
+             '  return nullptr;\n'+ \
              '}\n\n'
 
   const += 'template<> CefWrapperType ' + parent_sig + '::kWrapperType = ' + get_wrapper_type_enum(

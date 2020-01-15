@@ -125,7 +125,7 @@ def make_libcef_dll_dylib_impl(header):
 
 namespace {
 
-void* g_libcef_handle = NULL;
+void* g_libcef_handle = nullptr;
 
 void* libcef_get_ptr(const char* path, const char* name) {
   void* ptr = dlsym(g_libcef_handle, name);
@@ -179,7 +179,7 @@ int cef_unload_library() {
     if (!result) {
       fprintf(stderr, "dlclose: %s\\n", dlerror());
     }
-    g_libcef_handle = NULL;
+    g_libcef_handle = nullptr;
   }
   return result;
 }
