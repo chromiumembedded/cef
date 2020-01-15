@@ -14,7 +14,7 @@ void CefBrowserMainParts::PlatformInitialize() {
   HRESULT res;
 
   // Initialize common controls.
-  res = CoInitialize(NULL);
+  res = CoInitialize(nullptr);
   DCHECK(SUCCEEDED(res));
   INITCOMMONCONTROLSEX InitCtrlEx;
   InitCtrlEx.dwSize = sizeof(INITCOMMONCONTROLSEX);
@@ -22,6 +22,6 @@ void CefBrowserMainParts::PlatformInitialize() {
   InitCommonControlsEx(&InitCtrlEx);
 
   // Start COM stuff.
-  res = OleInitialize(NULL);
+  res = OleInitialize(nullptr);
   DCHECK(SUCCEEDED(res));
 }

@@ -21,7 +21,7 @@ CefWebContentsViewOSR::CefWebContentsViewOSR(SkColor background_color,
     : background_color_(background_color),
       use_shared_texture_(use_shared_texture),
       use_external_begin_frame_(use_external_begin_frame),
-      web_contents_(NULL) {}
+      web_contents_(nullptr) {}
 
 CefWebContentsViewOSR::~CefWebContentsViewOSR() {}
 
@@ -88,7 +88,7 @@ void CefWebContentsViewOSR::TakeFocus(bool reverse) {
 }
 
 content::DropData* CefWebContentsViewOSR::GetDropData() const {
-  return NULL;
+  return nullptr;
 }
 
 gfx::Rect CefWebContentsViewOSR::GetViewBounds() const {

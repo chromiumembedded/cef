@@ -156,7 +156,7 @@ CefFileDialogManager::~CefFileDialogManager() {}
 
 void CefFileDialogManager::Destroy() {
   DCHECK(!file_chooser_pending_);
-  runner_.reset(NULL);
+  runner_.reset(nullptr);
 }
 
 void CefFileDialogManager::RunFileDialog(

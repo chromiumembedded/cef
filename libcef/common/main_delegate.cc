@@ -381,7 +381,7 @@ class CefUIThread : public base::PlatformThread::Delegate {
 
 #if defined(OS_WIN)
     // Initializes the COM library on the current thread.
-    CoInitialize(NULL);
+    CoInitialize(nullptr);
 #endif
 
     start_event_.Signal();
@@ -393,7 +393,7 @@ class CefUIThread : public base::PlatformThread::Delegate {
     run_loop.Run();
 
     browser_runner_->Shutdown();
-    browser_runner_.reset(NULL);
+    browser_runner_.reset(nullptr);
 
     content::BrowserTaskExecutor::Shutdown();
 
@@ -651,7 +651,7 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
         new CefCommandLineImpl(command_line, false, false));
     content_client_.application()->OnBeforeCommandLineProcessing(
         CefString(process_type), commandLinePtr.get());
-    commandLinePtr->Detach(NULL);
+    commandLinePtr->Detach(nullptr);
   }
 
   // Initialize logging.
@@ -841,7 +841,7 @@ content::ContentUtilityClient* CefMainDelegate::CreateContentUtilityClient() {
 void CefMainDelegate::ShutdownBrowser() {
   if (browser_runner_.get()) {
     browser_runner_->Shutdown();
-    browser_runner_.reset(NULL);
+    browser_runner_.reset(nullptr);
   }
 
   if (ui_thread_.get()) {

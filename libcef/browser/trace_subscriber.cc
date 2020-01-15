@@ -58,7 +58,7 @@ CefTraceSubscriber::CefTraceSubscriber()
 CefTraceSubscriber::~CefTraceSubscriber() {
   CEF_REQUIRE_UIT();
   if (collecting_trace_data_)
-    TracingController::GetInstance()->StopTracing(NULL);
+    TracingController::GetInstance()->StopTracing(nullptr);
 }
 
 bool CefTraceSubscriber::BeginTracing(
@@ -95,7 +95,7 @@ bool CefTraceSubscriber::EndTracing(const base::FilePath& tracing_file,
   if (!callback.get()) {
     // Discard the trace data.
     collecting_trace_data_ = false;
-    TracingController::GetInstance()->StopTracing(NULL);
+    TracingController::GetInstance()->StopTracing(nullptr);
     return true;
   }
 

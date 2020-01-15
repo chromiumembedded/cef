@@ -13,7 +13,7 @@
 CefNavigationEntryImpl::CefNavigationEntryImpl(content::NavigationEntry* value)
     : CefValueBase<CefNavigationEntry, content::NavigationEntry>(
           value,
-          NULL,
+          nullptr,
           kOwnerNoDelete,
           false,
           new CefValueControllerNonThreadSafe()) {

@@ -120,7 +120,8 @@ std::unique_ptr<base::DictionaryValue> ParseManifestFile(
   }
 
   JSONStringValueDeserializer deserializer(manifest_contents);
-  std::unique_ptr<base::Value> manifest(deserializer.Deserialize(NULL, NULL));
+  std::unique_ptr<base::Value> manifest(
+      deserializer.Deserialize(nullptr, nullptr));
 
   if (!manifest.get() || !manifest->is_dict())
     return nullptr;

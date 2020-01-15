@@ -73,7 +73,7 @@ struct ParamTraits<net::UploadElement> {
 
 void ParamTraits<scoped_refptr<net::UploadData>>::Write(base::Pickle* m,
                                                         const param_type& p) {
-  WriteParam(m, p.get() != NULL);
+  WriteParam(m, p.get() != nullptr);
   if (p.get()) {
     WriteParam(m, p->elements());
     WriteParam(m, p->identifier());

@@ -34,7 +34,7 @@ CefRefPtr<CefDownloadHandler> GetDownloadHandler(
   CefRefPtr<CefClient> client = browser->GetClient();
   if (client.get())
     return client->GetDownloadHandler();
-  return NULL;
+  return nullptr;
 }
 
 // CefBeforeDownloadCallback implementation.
@@ -262,7 +262,7 @@ CefDownloadManagerDelegate::CefDownloadManagerDelegate(DownloadManager* manager)
 
 CefDownloadManagerDelegate::~CefDownloadManagerDelegate() {
   if (manager_) {
-    manager_->SetDelegate(NULL);
+    manager_->SetDelegate(nullptr);
     manager_->RemoveObserver(this);
   }
 
@@ -284,7 +284,7 @@ void CefDownloadManagerDelegate::OnDownloadUpdated(DownloadItem* download) {
 
     handler->OnDownloadUpdated(browser.get(), download_item.get(), callback);
 
-    download_item->Detach(NULL);
+    download_item->Detach(nullptr);
   }
 }
 
@@ -339,10 +339,10 @@ void CefDownloadManagerDelegate::OnDownloadCreated(DownloadManager* manager,
 
 void CefDownloadManagerDelegate::ManagerGoingDown(DownloadManager* manager) {
   DCHECK_EQ(manager, manager_);
-  manager->SetDelegate(NULL);
+  manager->SetDelegate(nullptr);
   manager->RemoveObserver(this);
   manager_ptr_factory_.InvalidateWeakPtrs();
-  manager_ = NULL;
+  manager_ = nullptr;
 }
 
 bool CefDownloadManagerDelegate::DetermineDownloadTarget(
@@ -377,7 +377,7 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
     handler->OnBeforeDownload(browser.get(), download_item.get(),
                               suggested_name.value(), callbackObj);
 
-    download_item->Detach(NULL);
+    download_item->Detach(nullptr);
   }
 
   return true;

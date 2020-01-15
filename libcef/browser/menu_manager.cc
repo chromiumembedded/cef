@@ -91,7 +91,7 @@ CefMenuManager::CefMenuManager(CefBrowserHostImpl* browser,
     : content::WebContentsObserver(browser->web_contents()),
       browser_(browser),
       runner_(std::move(runner)),
-      custom_menu_callback_(NULL),
+      custom_menu_callback_(nullptr),
       weak_ptr_factory_(this) {
   DCHECK(web_contents());
   model_ = new CefMenuModelImpl(this, nullptr, false);
@@ -100,13 +100,13 @@ CefMenuManager::CefMenuManager(CefBrowserHostImpl* browser,
 CefMenuManager::~CefMenuManager() {
   // The model may outlive the delegate if the context menu is visible when the
   // application is closed.
-  model_->set_delegate(NULL);
+  model_->set_delegate(nullptr);
 }
 
 void CefMenuManager::Destroy() {
   CancelContextMenu();
   if (runner_)
-    runner_.reset(NULL);
+    runner_.reset(nullptr);
 }
 
 bool CefMenuManager::IsShowingContextMenu() {
@@ -166,13 +166,13 @@ bool CefMenuManager::CreateContextMenu(
         } else {
           // Callback should not be executed if the handler returns false.
           DCHECK(custom_menu_callback_);
-          custom_menu_callback_ = NULL;
+          custom_menu_callback_ = nullptr;
           callbackImpl->Disconnect();
         }
       }
 
       // Do not keep references to the parameters in the callback.
-      paramsPtr->Detach(NULL);
+      paramsPtr->Detach(nullptr);
       DCHECK(paramsPtr->HasOneRef());
       DCHECK(model_->VerifyRefCount());
 
@@ -214,7 +214,7 @@ void CefMenuManager::ExecuteCommand(CefRefPtr<CefMenuModelImpl> source,
           event_flags);
 
       // Do not keep references to the parameters in the callback.
-      paramsPtr->Detach(NULL);
+      paramsPtr->Detach(nullptr);
       DCHECK(paramsPtr->HasOneRef());
 
       if (handled)
@@ -280,7 +280,7 @@ void CefMenuManager::ExecuteCommandCallback(int command_id,
   if (command_id != kInvalidCommandId)
     ExecuteCommand(model_, command_id, event_flags);
   MenuClosed(model_);
-  custom_menu_callback_ = NULL;
+  custom_menu_callback_ = nullptr;
 }
 
 void CefMenuManager::CreateDefaultModel() {

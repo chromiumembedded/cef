@@ -178,7 +178,7 @@ class CefApp : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefResourceBundleHandler> GetResourceBundleHandler() {
-    return NULL;
+    return nullptr;
   }
 
   ///
@@ -187,7 +187,7 @@ class CefApp : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() {
-    return NULL;
+    return nullptr;
   }
 
   ///
@@ -196,7 +196,7 @@ class CefApp : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() {
-    return NULL;
+    return nullptr;
   }
 };
 

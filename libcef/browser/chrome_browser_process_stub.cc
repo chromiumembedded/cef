@@ -72,8 +72,8 @@ void ChromeBrowserProcessStub::Shutdown() {
   // this might cause a nested message loop to run, and we don't want pending
   // tasks to run once teardown has started.
   print_job_manager_->Shutdown();
-  print_job_manager_.reset(NULL);
-  print_preview_dialog_controller_ = NULL;
+  print_job_manager_.reset(nullptr);
+  print_preview_dialog_controller_ = nullptr;
 
   profile_manager_.reset();
   event_router_forwarder_ = nullptr;
@@ -119,17 +119,17 @@ void ChromeBrowserProcessStub::FlushLocalStateAndReply(
 metrics_services_manager::MetricsServicesManager*
 ChromeBrowserProcessStub::GetMetricsServicesManager() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 metrics::MetricsService* ChromeBrowserProcessStub::metrics_service() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 rappor::RapporServiceImpl* ChromeBrowserProcessStub::rappor_service() {
   // Called from PluginInfoHostImpl::ReportMetrics.
-  return NULL;
+  return nullptr;
 }
 
 SystemNetworkContextManager*
@@ -141,12 +141,12 @@ ChromeBrowserProcessStub::system_network_context_manager() {
 network::NetworkQualityTracker*
 ChromeBrowserProcessStub::network_quality_tracker() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 WatchDogThread* ChromeBrowserProcessStub::watchdog_thread() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 ProfileManager* ChromeBrowserProcessStub::profile_manager() {
@@ -171,17 +171,17 @@ PrefService* ChromeBrowserProcessStub::local_state() {
 scoped_refptr<network::SharedURLLoaderFactory>
 ChromeBrowserProcessStub::shared_url_loader_factory() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 variations::VariationsService* ChromeBrowserProcessStub::variations_service() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 BrowserProcessPlatformPart* ChromeBrowserProcessStub::platform_part() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 extensions::EventRouterForwarder*
@@ -192,13 +192,13 @@ ChromeBrowserProcessStub::extension_event_router_forwarder() {
 
 NotificationUIManager* ChromeBrowserProcessStub::notification_ui_manager() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 NotificationPlatformBridge*
 ChromeBrowserProcessStub::notification_platform_bridge() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 policy::ChromeBrowserPolicyConnector*
@@ -216,12 +216,12 @@ policy::PolicyService* ChromeBrowserProcessStub::policy_service() {
 
 IconManager* ChromeBrowserProcessStub::icon_manager() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 GpuModeManager* ChromeBrowserProcessStub::gpu_mode_manager() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 void ChromeBrowserProcessStub::CreateDevToolsProtocolHandler() {
@@ -263,7 +263,7 @@ ChromeBrowserProcessStub::background_printing_manager() {
 IntranetRedirectDetector*
 ChromeBrowserProcessStub::intranet_redirect_detector() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 const std::string& ChromeBrowserProcessStub::GetApplicationLocale() {
@@ -277,17 +277,17 @@ void ChromeBrowserProcessStub::SetApplicationLocale(const std::string& locale) {
 
 DownloadStatusUpdater* ChromeBrowserProcessStub::download_status_updater() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 DownloadRequestLimiter* ChromeBrowserProcessStub::download_request_limiter() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 BackgroundModeManager* ChromeBrowserProcessStub::background_mode_manager() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 void ChromeBrowserProcessStub::set_background_mode_manager_for_test(
@@ -297,35 +297,35 @@ void ChromeBrowserProcessStub::set_background_mode_manager_for_test(
 
 StatusTray* ChromeBrowserProcessStub::status_tray() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 safe_browsing::SafeBrowsingService*
 ChromeBrowserProcessStub::safe_browsing_service() {
-  return NULL;
+  return nullptr;
 }
 
 safe_browsing::ClientSideDetectionService*
 ChromeBrowserProcessStub::safe_browsing_detection_service() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 subresource_filter::RulesetService*
 ChromeBrowserProcessStub::subresource_filter_ruleset_service() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 optimization_guide::OptimizationGuideService*
 ChromeBrowserProcessStub::optimization_guide_service() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 StartupData* ChromeBrowserProcessStub::startup_data() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 #if (defined(OS_WIN) || defined(OS_LINUX)) && !defined(OS_CHROMEOS)
@@ -335,38 +335,38 @@ void ChromeBrowserProcessStub::StartAutoupdateTimer() {}
 component_updater::ComponentUpdateService*
 ChromeBrowserProcessStub::component_updater() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 MediaFileSystemRegistry*
 ChromeBrowserProcessStub::media_file_system_registry() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 WebRtcLogUploader* ChromeBrowserProcessStub::webrtc_log_uploader() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 network_time::NetworkTimeTracker*
 ChromeBrowserProcessStub::network_time_tracker() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 gcm::GCMDriver* ChromeBrowserProcessStub::gcm_driver() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 resource_coordinator::TabManager* ChromeBrowserProcessStub::GetTabManager() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 resource_coordinator::ResourceCoordinatorParts*
 ChromeBrowserProcessStub::resource_coordinator_parts() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }

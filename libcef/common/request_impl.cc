@@ -982,7 +982,7 @@ void CefRequestImpl::Reset() {
   method_ = "GET";
   referrer_url_ = GURL();
   referrer_policy_ = REFERRER_POLICY_DEFAULT;
-  postdata_ = NULL;
+  postdata_ = nullptr;
   headermap_.clear();
   resource_type_ = RT_SUB_RESOURCE;
   transition_type_ = TT_EXPLICIT;
@@ -1306,8 +1306,8 @@ void CefPostDataElementImpl::SetToBytes(size_t size, const void* bytes) {
 
   // Assign the new data
   void* data = malloc(size);
-  DCHECK(data != NULL);
-  if (data == NULL)
+  DCHECK(data != nullptr);
+  if (data == nullptr)
     return;
 
   memcpy(data, bytes, size);

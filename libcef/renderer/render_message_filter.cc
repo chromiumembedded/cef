@@ -21,7 +21,7 @@
 
 using content::BrowserThread;
 
-CefRenderMessageFilter::CefRenderMessageFilter() : channel_(NULL) {}
+CefRenderMessageFilter::CefRenderMessageFilter() : channel_(nullptr) {}
 
 CefRenderMessageFilter::~CefRenderMessageFilter() {}
 

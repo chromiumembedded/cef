@@ -12,10 +12,10 @@ CefCommandLineImpl::CefCommandLineImpl(base::CommandLine* value,
                                        bool read_only)
     : CefValueBase<CefCommandLine, base::CommandLine>(
           value,
-          NULL,
+          nullptr,
           will_delete ? kOwnerWillDelete : kOwnerNoDelete,
           read_only,
-          NULL) {}
+          nullptr) {}
 
 bool CefCommandLineImpl::IsValid() {
   return !detached();
@@ -26,7 +26,7 @@ bool CefCommandLineImpl::IsReadOnly() {
 }
 
 CefRefPtr<CefCommandLine> CefCommandLineImpl::Copy() {
-  CEF_VALUE_VERIFY_RETURN(false, NULL);
+  CEF_VALUE_VERIFY_RETURN(false, nullptr);
   return new CefCommandLineImpl(new base::CommandLine(const_value().argv()),
                                 true, false);
 }

@@ -327,7 +327,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
 void PopulateWebPreferences(content::RenderViewHost* rvh,
                             content::WebPreferences& web) {
   CefRefPtr<CefBrowserHostImpl> browser =
-      extensions::GetOwnerBrowserForHost(rvh, NULL);
+      extensions::GetOwnerBrowserForHost(rvh, nullptr);
 
   // Set defaults for preferences that are not handled by PrefService.
   SetDefaultPrefs(web);

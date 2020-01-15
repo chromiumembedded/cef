@@ -122,7 +122,7 @@ template <class ClassName, class BaseName, class StructName>
 StructName* CefCToCppScoped<ClassName, BaseName, StructName>::UnwrapOwn(
     CefOwnPtr<BaseName> c) {
   if (!c.get())
-    return NULL;
+    return nullptr;
 
   WrapperStruct* wrapperStruct = GetWrapperStruct(c.get());
 
@@ -140,7 +140,7 @@ StructName* CefCToCppScoped<ClassName, BaseName, StructName>::UnwrapOwn(
 #endif
 
   // Don't delete the original object when the wrapper is deleted.
-  wrapperStruct->struct_ = NULL;
+  wrapperStruct->struct_ = nullptr;
 
   // Return the original structure.
   return orig_struct;
@@ -151,7 +151,7 @@ template <class ClassName, class BaseName, class StructName>
 StructName* CefCToCppScoped<ClassName, BaseName, StructName>::UnwrapRaw(
     CefRawPtr<BaseName> c) {
   if (!c)
-    return NULL;
+    return nullptr;
 
   WrapperStruct* wrapperStruct = GetWrapperStruct(c);
 

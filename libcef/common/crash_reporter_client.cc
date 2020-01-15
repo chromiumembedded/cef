@@ -380,7 +380,7 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
     kCrashKeysSection,
   } current_section = kNoSection;
 
-  while (fgets(line, sizeof(line) - 1, fp) != NULL) {
+  while (fgets(line, sizeof(line) - 1, fp) != nullptr) {
     std::string str = line;
     base::TrimString(str, base::kWhitespaceASCII, &str);
     if (str.empty() || str[0] == '#')

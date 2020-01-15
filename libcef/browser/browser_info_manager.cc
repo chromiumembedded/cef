@@ -139,7 +139,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
   std::unique_ptr<CefWindowInfo> window_info(new CefWindowInfo);
 
 #if defined(OS_WIN)
-  window_info->SetAsPopup(NULL, CefString());
+  window_info->SetAsPopup(nullptr, CefString());
 #endif
 
   auto pending_popup = std::make_unique<CefBrowserInfoManager::PendingPopup>();

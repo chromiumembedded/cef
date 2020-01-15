@@ -382,7 +382,7 @@ void CefBrowserPlatformDelegateNativeLinux::TranslateWheelEvent(
 CefEventHandle CefBrowserPlatformDelegateNativeLinux::GetEventHandle(
     const content::NativeWebKeyboardEvent& event) const {
   if (!event.os_event)
-    return NULL;
+    return nullptr;
   return const_cast<CefEventHandle>(
       static_cast<CefEventHandle>(event.os_event->native_event()));
 }

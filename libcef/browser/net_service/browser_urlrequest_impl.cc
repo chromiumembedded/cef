@@ -588,13 +588,13 @@ bool CefBrowserURLRequest::Start() {
 
 CefRefPtr<CefRequest> CefBrowserURLRequest::GetRequest() {
   if (!VerifyContext())
-    return NULL;
+    return nullptr;
   return context_->request();
 }
 
 CefRefPtr<CefURLRequestClient> CefBrowserURLRequest::GetClient() {
   if (!VerifyContext())
-    return NULL;
+    return nullptr;
   return context_->client();
 }
 
@@ -612,7 +612,7 @@ CefURLRequest::ErrorCode CefBrowserURLRequest::GetRequestError() {
 
 CefRefPtr<CefResponse> CefBrowserURLRequest::GetResponse() {
   if (!VerifyContext())
-    return NULL;
+    return nullptr;
   return context_->response();
 }
 

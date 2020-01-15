@@ -48,7 +48,7 @@ class CefBrowserInfoMap {
 
   // Add an object associated with the specified ID values.
   void Add(int browser_id, IdType info_id, ObjectType info) {
-    InfoMap* info_map = NULL;
+    InfoMap* info_map = nullptr;
     typename BrowserInfoMap::const_iterator it_browser =
         browser_info_map_.find(browser_id);
     if (it_browser == browser_info_map_.end()) {

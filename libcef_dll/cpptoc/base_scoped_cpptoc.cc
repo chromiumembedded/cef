@@ -19,7 +19,7 @@ CefRawPtr<CefBaseScoped>
 CefCppToCScoped<CefBaseScopedCppToC, CefBaseScoped, cef_base_scoped_t>::
     UnwrapDerivedRaw(CefWrapperType type, cef_base_scoped_t* s) {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 template <>

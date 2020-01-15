@@ -12,7 +12,7 @@
 CefDownloadItemImpl::CefDownloadItemImpl(download::DownloadItem* value)
     : CefValueBase<CefDownloadItem, download::DownloadItem>(
           value,
-          NULL,
+          nullptr,
           kOwnerNoDelete,
           true,
           new CefValueControllerNonThreadSafe()) {

@@ -150,7 +150,7 @@ CefRefPtr<CefZipArchive::File> CefZipArchive::GetFile(
   FileMap::const_iterator it = contents_.find(ToLower(fileName));
   if (it != contents_.end())
     return it->second;
-  return NULL;
+  return nullptr;
 }
 
 bool CefZipArchive::RemoveFile(const CefString& fileName) {

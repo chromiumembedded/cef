@@ -111,13 +111,13 @@ CefString CefBase64Encode(const void* data, size_t data_size) {
 
 CefRefPtr<CefBinaryValue> CefBase64Decode(const CefString& data) {
   if (data.size() == 0)
-    return NULL;
+    return nullptr;
 
   const std::string& input = data;
   std::string output;
   if (base::Base64Decode(input, &output))
     return CefBinaryValue::Create(output.data(), output.size());
-  return NULL;
+  return nullptr;
 }
 
 CefString CefURIEncode(const CefString& text, bool use_plus) {
@@ -131,7 +131,7 @@ CefString CefURIDecode(const CefString& text,
       static_cast<net::UnescapeRule::Type>(unescape_rule);
   if (convert_to_utf8)
     return net::UnescapeAndDecodeUTF8URLComponentWithAdjustments(
-        text.ToString(), type, NULL);
+        text.ToString(), type, nullptr);
   else
     return net::UnescapeURLComponent(text.ToString(), type);
 }

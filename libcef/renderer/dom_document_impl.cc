@@ -34,7 +34,7 @@ CefDOMDocumentImpl::~CefDOMDocumentImpl() {
   CEF_REQUIRE_RT();
 
   // Verify that the Detach() method has been called.
-  DCHECK(frame_ == NULL);
+  DCHECK(frame_ == nullptr);
 }
 
 CefDOMDocumentImpl::Type CefDOMDocumentImpl::GetType() {
@@ -189,11 +189,11 @@ CefString CefDOMDocumentImpl::GetCompleteURL(const CefString& partialURL) {
 CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetOrCreateNode(
     const blink::WebNode& node) {
   if (!VerifyContext())
-    return NULL;
+    return nullptr;
 
   // Nodes may potentially be null.
   if (node.IsNull())
-    return NULL;
+    return nullptr;
 
   if (!node_map_.empty()) {
     // Locate the existing node, if any.
@@ -238,11 +238,11 @@ void CefDOMDocumentImpl::Detach() {
     node_map_.clear();
   }
 
-  frame_ = NULL;
+  frame_ = nullptr;
 }
 
 bool CefDOMDocumentImpl::VerifyContext() {
-  if (!CEF_CURRENTLY_ON_RT() || frame_ == NULL) {
+  if (!CEF_CURRENTLY_ON_RT() || frame_ == nullptr) {
     NOTREACHED();
     return false;
   }

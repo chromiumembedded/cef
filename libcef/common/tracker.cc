@@ -6,7 +6,7 @@
 
 // CefTrackNode implementation.
 
-CefTrackNode::CefTrackNode() : track_next_(NULL), track_prev_(NULL) {}
+CefTrackNode::CefTrackNode() : track_next_(nullptr), track_prev_(nullptr) {}
 
 CefTrackNode::~CefTrackNode() {}
 
@@ -31,8 +31,8 @@ void CefTrackNode::RemoveTracking() {
     track_next_->SetTrackPrev(track_prev_);
   if (track_prev_)
     track_prev_->SetTrackNext(track_next_);
-  track_next_ = NULL;
-  track_prev_ = NULL;
+  track_next_ = nullptr;
+  track_prev_ = nullptr;
 }
 
 // CefTrackManager implementation.
@@ -71,6 +71,6 @@ void CefTrackManager::DeleteAll() {
       next->RemoveTracking();
       delete next;
     }
-  } while (next != NULL);
+  } while (next != nullptr);
   object_count_ = 0;
 }

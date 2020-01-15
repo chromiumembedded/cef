@@ -26,7 +26,7 @@ CefRefPtr<CefTaskRunner> CefTaskRunner::GetForCurrentThread() {
       CefTaskRunnerImpl::GetCurrentTaskRunner();
   if (task_runner.get())
     return new CefTaskRunnerImpl(task_runner);
-  return NULL;
+  return nullptr;
 }
 
 // static
@@ -37,7 +37,7 @@ CefRefPtr<CefTaskRunner> CefTaskRunner::GetForThread(CefThreadId threadId) {
     return new CefTaskRunnerImpl(task_runner);
 
   LOG(WARNING) << "Invalid thread id " << threadId;
-  return NULL;
+  return nullptr;
 }
 
 // CefTaskRunnerImpl
@@ -56,13 +56,13 @@ scoped_refptr<base::SingleThreadTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
     CefContentRendererClient* client = CefContentRendererClient::Get();
     if (client)
       return client->render_task_runner();
-    return NULL;
+    return nullptr;
   }
 
   // Browser process.
   CefContentBrowserClient* client = CefContentBrowserClient::Get();
   if (!client)
-    return NULL;
+    return nullptr;
 
   int id = -1;
   switch (threadId) {
@@ -93,7 +93,7 @@ scoped_refptr<base::SingleThreadTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
          base::TaskPriority::USER_BLOCKING});
   }
 
-  return NULL;
+  return nullptr;
 }
 
 // static

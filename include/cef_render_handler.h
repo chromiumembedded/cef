@@ -65,7 +65,7 @@ class CefRenderHandler : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefAccessibilityHandler> GetAccessibilityHandler() {
-    return NULL;
+    return nullptr;
   }
 
   ///

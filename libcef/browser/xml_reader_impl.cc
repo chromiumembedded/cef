@@ -14,7 +14,7 @@ CefRefPtr<CefXmlReader> CefXmlReader::Create(CefRefPtr<CefStreamReader> stream,
                                              const CefString& URI) {
   CefRefPtr<CefXmlReaderImpl> impl(new CefXmlReaderImpl());
   if (!impl->Initialize(stream, encodingType, URI))
-    return NULL;
+    return nullptr;
   return impl.get();
 }
 
@@ -107,10 +107,11 @@ CefString xmlCharToString(const xmlChar* xmlStr, bool free) {
 }  // namespace
 
 CefXmlReaderImpl::CefXmlReaderImpl()
-    : supported_thread_id_(base::PlatformThread::CurrentId()), reader_(NULL) {}
+    : supported_thread_id_(base::PlatformThread::CurrentId()),
+      reader_(nullptr) {}
 
 CefXmlReaderImpl::~CefXmlReaderImpl() {
-  if (reader_ != NULL) {
+  if (reader_ != nullptr) {
     if (!VerifyContext()) {
       // Close() is supposed to be called directly. We'll try to free the reader
       // now on the wrong thread but there's no guarantee this call won't crash.
@@ -183,7 +184,7 @@ bool CefXmlReaderImpl::Close() {
 
   // The input buffer will be freed automatically.
   xmlFreeTextReader(reader_);
-  reader_ = NULL;
+  reader_ = nullptr;
   return true;
 }
 
@@ -309,7 +310,7 @@ CefString CefXmlReaderImpl::GetValue() {
   if (xmlTextReaderNodeType(reader_) == XML_READER_TYPE_ENTITY_REFERENCE) {
     // Provide special handling to return entity reference values.
     xmlNodePtr node = xmlTextReaderCurrentNode(reader_);
-    if (node->content != NULL)
+    if (node->content != nullptr)
       return xmlCharToString(node->content, false);
     return CefString();
   } else {
@@ -447,5 +448,5 @@ bool CefXmlReaderImpl::VerifyContext() {
     return false;
   }
 
-  return (reader_ != NULL);
+  return (reader_ != nullptr);
 }

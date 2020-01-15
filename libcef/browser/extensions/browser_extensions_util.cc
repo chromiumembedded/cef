@@ -42,7 +42,7 @@ content::WebContents* GetFullPageGuestForOwnerContents(
     if (plugin_guest)
       return plugin_guest->web_contents();
   }
-  return NULL;
+  return nullptr;
 }
 
 void GetAllGuestsForOwnerContents(content::WebContents* owner,
@@ -77,7 +77,7 @@ CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForFrameRoute(
         content::RenderFrameHost::FromID(render_process_id, render_routing_id);
     if (host)
       return GetOwnerBrowserForHost(host, is_guest_view);
-    return NULL;
+    return nullptr;
   } else {
     // Use the thread-safe approach.
     scoped_refptr<CefBrowserInfo> info =
@@ -93,7 +93,7 @@ CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForFrameRoute(
       }
       return browser;
     }
-    return NULL;
+    return nullptr;
   }
 }
 

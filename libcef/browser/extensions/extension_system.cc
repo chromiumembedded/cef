@@ -63,11 +63,12 @@ namespace {
 std::unique_ptr<base::DictionaryValue> ParseManifest(
     const std::string& manifest_contents) {
   JSONStringValueDeserializer deserializer(manifest_contents);
-  std::unique_ptr<base::Value> manifest(deserializer.Deserialize(NULL, NULL));
+  std::unique_ptr<base::Value> manifest(
+      deserializer.Deserialize(nullptr, nullptr));
 
   if (!manifest.get() || !manifest->is_dict()) {
     LOG(ERROR) << "Failed to parse extension manifest.";
-    return NULL;
+    return nullptr;
   }
   // Transfer ownership to the caller.
   return base::WrapUnique(

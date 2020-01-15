@@ -19,12 +19,12 @@ CefRefPtr<CefURLRequest> CefURLRequest::Create(
     CefRefPtr<CefRequestContext> request_context) {
   if (!request.get() || !client.get()) {
     NOTREACHED() << "called with invalid parameters";
-    return NULL;
+    return nullptr;
   }
 
   if (!CefTaskRunnerImpl::GetCurrentTaskRunner()) {
     NOTREACHED() << "called on invalid thread";
-    return NULL;
+    return nullptr;
   }
 
   if (CefContentClient::Get()->browser()) {
@@ -33,16 +33,16 @@ CefRefPtr<CefURLRequest> CefURLRequest::Create(
         new CefBrowserURLRequest(nullptr, request, client, request_context);
     if (impl->Start())
       return impl.get();
-    return NULL;
+    return nullptr;
   } else if (CefContentClient::Get()->renderer()) {
     // In the render process.
     CefRefPtr<CefRenderURLRequest> impl =
         new CefRenderURLRequest(nullptr, request, client);
     if (impl->Start())
       return impl.get();
-    return NULL;
+    return nullptr;
   } else {
     NOTREACHED() << "called in unsupported process";
-    return NULL;
+    return nullptr;
   }
 }

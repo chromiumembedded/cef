@@ -112,7 +112,7 @@ template <class ClassName, class BaseName, class StructName>
 CefRefPtr<BaseName> CefCToCppRefCounted<ClassName, BaseName, StructName>::Wrap(
     StructName* s) {
   if (!s)
-    return NULL;
+    return nullptr;
 
   // Wrap their structure with the CefCToCppRefCounted object.
   WrapperStruct* wrapperStruct = new WrapperStruct;
@@ -132,7 +132,7 @@ template <class ClassName, class BaseName, class StructName>
 StructName* CefCToCppRefCounted<ClassName, BaseName, StructName>::Unwrap(
     CefRefPtr<BaseName> c) {
   if (!c.get())
-    return NULL;
+    return nullptr;
 
   WrapperStruct* wrapperStruct = GetWrapperStruct(c.get());
 

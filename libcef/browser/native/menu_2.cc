@@ -32,7 +32,7 @@ void Menu2::CancelMenu() {
 }
 
 void Menu2::Rebuild() {
-  wrapper_->Rebuild(NULL);
+  wrapper_->Rebuild(nullptr);
 }
 
 void Menu2::UpdateStates() {

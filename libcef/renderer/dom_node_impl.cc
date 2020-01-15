@@ -214,28 +214,28 @@ CefString CefDOMNodeImpl::GetAsMarkup() {
 
 CefRefPtr<CefDOMDocument> CefDOMNodeImpl::GetDocument() {
   if (!VerifyContext())
-    return NULL;
+    return nullptr;
 
   return document_.get();
 }
 
 CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetParent() {
   if (!VerifyContext())
-    return NULL;
+    return nullptr;
 
   return document_->GetOrCreateNode(node_.ParentNode());
 }
 
 CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetPreviousSibling() {
   if (!VerifyContext())
-    return NULL;
+    return nullptr;
 
   return document_->GetOrCreateNode(node_.PreviousSibling());
 }
 
 CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetNextSibling() {
   if (!VerifyContext())
-    return NULL;
+    return nullptr;
 
   return document_->GetOrCreateNode(node_.NextSibling());
 }
@@ -249,14 +249,14 @@ bool CefDOMNodeImpl::HasChildren() {
 
 CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetFirstChild() {
   if (!VerifyContext())
-    return NULL;
+    return nullptr;
 
   return document_->GetOrCreateNode(node_.FirstChild());
 }
 
 CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetLastChild() {
   if (!VerifyContext())
-    return NULL;
+    return nullptr;
 
   return document_->GetOrCreateNode(node_.LastChild());
 }
@@ -397,7 +397,7 @@ CefRect CefDOMNodeImpl::GetElementBounds() {
 }
 
 void CefDOMNodeImpl::Detach() {
-  document_ = NULL;
+  document_ = nullptr;
   node_.Assign(WebNode());
 }
 

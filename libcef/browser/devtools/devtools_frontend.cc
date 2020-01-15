@@ -209,7 +209,7 @@ void CefDevToolsFrontend::DisconnectFromTarget() {
   if (!agent_host_)
     return;
   agent_host_->DetachClient(this);
-  agent_host_ = NULL;
+  agent_host_ = nullptr;
 }
 
 CefDevToolsFrontend::CefDevToolsFrontend(
@@ -274,8 +274,8 @@ void CefDevToolsFrontend::WebContentsDestroyed() {
 void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     const std::string& message) {
   std::string method;
-  base::ListValue* params = NULL;
-  base::DictionaryValue* dict = NULL;
+  base::ListValue* params = nullptr;
+  base::DictionaryValue* dict = nullptr;
   base::Optional<base::Value> parsed_message = base::JSONReader::Read(message);
   if (!parsed_message || !parsed_message->GetAsDictionary(&dict) ||
       !dict->GetString("method", &method)) {

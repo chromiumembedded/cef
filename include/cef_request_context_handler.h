@@ -119,7 +119,7 @@ class CefRequestContextHandler : public virtual CefBaseRefCounted {
       bool is_download,
       const CefString& request_initiator,
       bool& disable_default_handling) {
-    return NULL;
+    return nullptr;
   }
 };
 

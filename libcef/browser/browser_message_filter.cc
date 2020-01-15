@@ -51,7 +51,7 @@ void CefBrowserMessageFilter::OnGetNewRenderThreadInfo(
       CefRefPtr<CefListValueImpl> listValuePtr(
           new CefListValueImpl(&params->extra_info, false, false));
       handler->OnRenderProcessThreadCreated(listValuePtr.get());
-      listValuePtr->Detach(NULL);
+      listValuePtr->Detach(nullptr);
     }
   }
 }

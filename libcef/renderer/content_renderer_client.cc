@@ -194,17 +194,17 @@ CefContentRendererClient* CefContentRendererClient::Get() {
 
 CefRefPtr<CefBrowserImpl> CefContentRendererClient::GetBrowserForView(
     content::RenderView* view) {
-  CEF_REQUIRE_RT_RETURN(NULL);
+  CEF_REQUIRE_RT_RETURN(nullptr);
 
   BrowserMap::const_iterator it = browsers_.find(view);
   if (it != browsers_.end())
     return it->second;
-  return NULL;
+  return nullptr;
 }
 
 CefRefPtr<CefBrowserImpl> CefContentRendererClient::GetBrowserForMainFrame(
     blink::WebFrame* frame) {
-  CEF_REQUIRE_RT_RETURN(NULL);
+  CEF_REQUIRE_RT_RETURN(nullptr);
 
   BrowserMap::const_iterator it = browsers_.begin();
   for (; it != browsers_.end(); ++it) {
@@ -215,7 +215,7 @@ CefRefPtr<CefBrowserImpl> CefContentRendererClient::GetBrowserForMainFrame(
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void CefContentRendererClient::OnBrowserDestroyed(CefBrowserImpl* browser) {
@@ -341,7 +341,7 @@ CefContentRendererClient::GetCurrentTaskRunner() {
   // Check if currently on the render thread.
   if (CEF_CURRENTLY_ON_RT())
     return render_task_runner_;
-  return NULL;
+  return nullptr;
 }
 
 void CefContentRendererClient::RunSingleProcessCleanup() {
@@ -462,7 +462,7 @@ void CefContentRendererClient::RenderThreadConnected() {
       CefRefPtr<CefListValueImpl> listValuePtr(
           new CefListValueImpl(&params.extra_info, false, true));
       handler->OnRenderThreadCreated(listValuePtr.get());
-      listValuePtr->Detach(NULL);
+      listValuePtr->Detach(nullptr);
     }
   }
 
@@ -777,7 +777,7 @@ CefRefPtr<CefBrowserImpl> CefContentRendererClient::MaybeCreateBrowser(
       CefRefPtr<CefDictionaryValueImpl> dictValuePtr(
           new CefDictionaryValueImpl(&params.extra_info, false, true));
       handler->OnBrowserCreated(browser.get(), dictValuePtr.get());
-      dictValuePtr->Detach(NULL);
+      dictValuePtr->Detach(nullptr);
     }
   }
 
@@ -788,7 +788,7 @@ void CefContentRendererClient::RunSingleProcessCleanupOnUIThread() {
   DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
 
   // Clean up the single existing RenderProcessHost.
-  content::RenderProcessHost* host = NULL;
+  content::RenderProcessHost* host = nullptr;
   content::RenderProcessHost::iterator iterator(
       content::RenderProcessHost::AllHostsIterator());
   if (!iterator.IsAtEnd()) {

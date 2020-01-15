@@ -144,7 +144,7 @@ CefRefPtr<CefRequestContext> CefRequestContext::GetGlobalContext() {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
-    return NULL;
+    return nullptr;
   }
 
   CefRequestContextImpl::Config config;
@@ -159,7 +159,7 @@ CefRefPtr<CefRequestContext> CefRequestContext::CreateContext(
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
-    return NULL;
+    return nullptr;
   }
 
   CefRequestContextImpl::Config config;
@@ -176,11 +176,11 @@ CefRefPtr<CefRequestContext> CefRequestContext::CreateContext(
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
-    return NULL;
+    return nullptr;
   }
 
   if (!other.get())
-    return NULL;
+    return nullptr;
 
   CefRequestContextImpl::Config config;
   config.other = static_cast<CefRequestContextImpl*>(other.get());
@@ -373,7 +373,7 @@ bool CefRequestContextImpl::HasPreference(const CefString& name) {
   EnsureBrowserContext();
 
   PrefService* pref_service = browser_context()->GetPrefs();
-  return (pref_service->FindPreference(name) != NULL);
+  return (pref_service->FindPreference(name) != nullptr);
 }
 
 CefRefPtr<CefValue> CefRequestContextImpl::GetPreference(
@@ -381,7 +381,7 @@ CefRefPtr<CefValue> CefRequestContextImpl::GetPreference(
   // Verify that this method is being called on the UI thread.
   if (!CEF_CURRENTLY_ON_UIT()) {
     NOTREACHED() << "called on invalid thread";
-    return NULL;
+    return nullptr;
   }
 
   // Make sure the browser context exists.
@@ -390,7 +390,7 @@ CefRefPtr<CefValue> CefRequestContextImpl::GetPreference(
   PrefService* pref_service = browser_context()->GetPrefs();
   const PrefService::Preference* pref = pref_service->FindPreference(name);
   if (!pref)
-    return NULL;
+    return nullptr;
   return new CefValueImpl(pref->GetValue()->DeepCopy());
 }
 
@@ -399,7 +399,7 @@ CefRefPtr<CefDictionaryValue> CefRequestContextImpl::GetAllPreferences(
   // Verify that this method is being called on the UI thread.
   if (!CEF_CURRENTLY_ON_UIT()) {
     NOTREACHED() << "called on invalid thread";
-    return NULL;
+    return nullptr;
   }
 
   // Make sure the browser context exists.
@@ -669,7 +669,7 @@ void CefRequestContextImpl::Initialize() {
     // Clear the reference to |config_.other| after setting
     // |request_context_getter_|. This is the reverse order of checks in
     // IsSharedWith().
-    config_.other = NULL;
+    config_.other = nullptr;
   }
 
   if (config_.handler)

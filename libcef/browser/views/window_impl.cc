@@ -43,7 +43,8 @@ void InitializeUITesting() {
     ui_controls::InstallUIControlsAura(
         views::test::CreateUIControlsDesktopAura());
 #else
-    ui_controls::InstallUIControlsAura(aura::test::CreateUIControlsAura(NULL));
+    ui_controls::InstallUIControlsAura(
+        aura::test::CreateUIControlsAura(nullptr));
 #endif
 #endif
 

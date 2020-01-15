@@ -13,7 +13,7 @@ CefRefPtr<CefBaseRefCounted> CefCppToCRefCounted<
     cef_base_ref_counted_t>::UnwrapDerived(CefWrapperType type,
                                            cef_base_ref_counted_t* s) {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 template <>

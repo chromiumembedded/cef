@@ -163,7 +163,7 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
         if (action.string_piece.empty()) {
           NOTREACHED() << "Failed to load internal resource for id: "
                        << action.resource_id << " URL: " << url.spec().c_str();
-          return NULL;
+          return nullptr;
         }
       }
 
@@ -180,7 +180,7 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
       }
     }
 
-    return NULL;
+    return nullptr;
   }
 
  private:

@@ -27,7 +27,7 @@ AppViewGuestDelegate* CefExtensionsAPIClient::CreateAppViewGuestDelegate()
     const {
   // TODO(extensions): Implement to support Apps.
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 std::unique_ptr<guest_view::GuestViewManagerDelegate>

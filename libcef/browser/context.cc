@@ -49,7 +49,7 @@
 
 namespace {
 
-CefContext* g_context = NULL;
+CefContext* g_context = nullptr;
 
 #if DCHECK_IS_ON()
 // When the process terminates check if CefShutdown() has been called.
@@ -201,7 +201,7 @@ int CefExecuteProcess(const CefMainArgs& args,
 // Execute the secondary process.
 #if defined(OS_WIN)
   sandbox::SandboxInterfaceInfo sandbox_info = {0};
-  if (windows_sandbox_info == NULL) {
+  if (windows_sandbox_info == nullptr) {
     content::InitializeSandboxInfo(&sandbox_info);
     windows_sandbox_info = &sandbox_info;
   }
@@ -270,7 +270,7 @@ void CefShutdown() {
 
   // Delete the global context object.
   delete g_context;
-  g_context = NULL;
+  g_context = nullptr;
 }
 
 void CefDoMessageLoopWork() {
@@ -391,7 +391,7 @@ bool CefContext::Initialize(const CefMainArgs& args,
   content::ContentMainParams params(main_delegate_.get());
 #if defined(OS_WIN)
   sandbox::SandboxInterfaceInfo sandbox_info = {0};
-  if (windows_sandbox_info == NULL) {
+  if (windows_sandbox_info == nullptr) {
     content::InitializeSandboxInfo(&sandbox_info);
     windows_sandbox_info = &sandbox_info;
     settings_.no_sandbox = true;
@@ -481,7 +481,7 @@ void CefContext::Shutdown() {
     FinalizeShutdown();
   } else {
     // Finish shutdown on the current thread, which should be the UI thread.
-    FinishShutdownOnUIThread(NULL);
+    FinishShutdownOnUIThread(nullptr);
 
     FinalizeShutdown();
   }
@@ -513,7 +513,7 @@ SkColor CefContext::GetBackgroundColor(
 CefTraceSubscriber* CefContext::GetTraceSubscriber() {
   CEF_REQUIRE_UIT();
   if (shutting_down_)
-    return NULL;
+    return nullptr;
   if (!trace_subscriber_.get())
     trace_subscriber_.reset(new CefTraceSubscriber());
   return trace_subscriber_.get();
@@ -607,7 +607,7 @@ void CefContext::FinishShutdownOnUIThread(
     observer.OnContextDestroyed();
 
   if (trace_subscriber_.get())
-    trace_subscriber_.reset(NULL);
+    trace_subscriber_.reset(nullptr);
 
   static_cast<ChromeBrowserProcessStub*>(g_browser_process)->Shutdown();
 
@@ -631,11 +631,11 @@ void CefContext::FinalizeShutdown() {
   // Shut down the content runner.
   service_manager::MainShutdown(*sm_main_params_);
 
-  browser_info_manager_.reset(NULL);
-  sm_main_params_.reset(NULL);
-  sm_main_delegate_.reset(NULL);
-  main_delegate_.reset(NULL);
+  browser_info_manager_.reset(nullptr);
+  sm_main_params_.reset(nullptr);
+  sm_main_delegate_.reset(nullptr);
+  main_delegate_.reset(nullptr);
 
   delete g_browser_process;
-  g_browser_process = NULL;
+  g_browser_process = nullptr;
 }

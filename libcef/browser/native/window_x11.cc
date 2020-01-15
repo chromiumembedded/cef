@@ -53,7 +53,7 @@ const char kUTF8String[] = "UTF8_STRING";
   ::Window top_level_window = window;
   ::Window root = x11::None;
   ::Window parent = x11::None;
-  ::Window* children = NULL;
+  ::Window* children = nullptr;
   unsigned int nchildren = 0;
   // Enumerate all parents of "window" to find the highest level window
   // that either:
@@ -77,7 +77,7 @@ const char kUTF8String[] = "UTF8_STRING";
 
 CEF_EXPORT XDisplay* cef_get_xdisplay() {
   if (!CEF_CURRENTLY_ON(CEF_UIT))
-    return NULL;
+    return nullptr;
   return gfx::GetXDisplay();
 }
 
@@ -280,7 +280,7 @@ views::DesktopWindowTreeHostX11* CefWindowX11::GetHost() {
           views::DesktopWindowTreeHostLinux::GetHostForWidget(child));
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 bool CefWindowX11::CanDispatchEvent(const ui::PlatformEvent& event) {

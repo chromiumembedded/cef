@@ -26,7 +26,7 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForFile(
 
 CefRefPtr<CefStreamReader> CefStreamReader::CreateForData(void* data,
                                                           size_t size) {
-  DCHECK(data != NULL);
+  DCHECK(data != nullptr);
   DCHECK(size > 0);
   CefRefPtr<CefStreamReader> reader;
   if (data && size > 0)
@@ -139,12 +139,12 @@ int CefFileWriter::Flush() {
 // CefBytesReader
 
 CefBytesReader::CefBytesReader(void* data, int64 datasize, bool copy)
-    : data_(NULL), datasize_(0), copy_(false), offset_(0) {
+    : data_(nullptr), datasize_(0), copy_(false), offset_(0) {
   SetData(data, datasize, copy);
 }
 
 CefBytesReader::~CefBytesReader() {
-  SetData(NULL, 0, false);
+  SetData(nullptr, 0, false);
 }
 
 size_t CefBytesReader::Read(void* ptr, size_t size, size_t n) {
@@ -206,7 +206,7 @@ void CefBytesReader::SetData(void* data, int64 datasize, bool copy) {
 
   if (copy) {
     data_ = malloc(datasize);
-    DCHECK(data_ != NULL);
+    DCHECK(data_ != nullptr);
     if (data_)
       memcpy(data_, data, datasize);
   } else {
@@ -220,7 +220,7 @@ CefBytesWriter::CefBytesWriter(size_t grow)
     : grow_(grow), datasize_(grow), offset_(0) {
   DCHECK(grow > 0);
   data_ = malloc(grow);
-  DCHECK(data_ != NULL);
+  DCHECK(data_ != nullptr);
 }
 
 CefBytesWriter::~CefBytesWriter() {
@@ -293,7 +293,7 @@ size_t CefBytesWriter::Grow(size_t size) {
   size_t rv;
   size_t s = (size > grow_ ? size : grow_);
   void* tmp = realloc(data_, datasize_ + s);
-  DCHECK(tmp != NULL);
+  DCHECK(tmp != nullptr);
   if (tmp) {
     data_ = tmp;
     datasize_ += s;

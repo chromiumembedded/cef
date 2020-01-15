@@ -47,9 +47,9 @@ CEF_EXPORT void cef_trace_event_instant(const char* /* category */,
     return;
 
   if (copy) {
-    if (arg1_name == NULL && arg2_name == NULL) {
+    if (arg1_name == nullptr && arg2_name == nullptr) {
       TRACE_EVENT_COPY_INSTANT0(kCategory, name, TRACE_EVENT_SCOPE_THREAD);
-    } else if (arg2_name == NULL) {
+    } else if (arg2_name == nullptr) {
       TRACE_EVENT_COPY_INSTANT1(kCategory, name, TRACE_EVENT_SCOPE_THREAD,
                                 arg1_name, arg1_val);
     } else {
@@ -57,9 +57,9 @@ CEF_EXPORT void cef_trace_event_instant(const char* /* category */,
                                 arg1_name, arg1_val, arg2_name, arg2_val);
     }
   } else {
-    if (arg1_name == NULL && arg2_name == NULL) {
+    if (arg1_name == nullptr && arg2_name == nullptr) {
       TRACE_EVENT_INSTANT0(kCategory, name, TRACE_EVENT_SCOPE_THREAD);
-    } else if (arg2_name == NULL) {
+    } else if (arg2_name == nullptr) {
       TRACE_EVENT_INSTANT1(kCategory, name, TRACE_EVENT_SCOPE_THREAD, arg1_name,
                            arg1_val);
     } else {
@@ -81,9 +81,9 @@ CEF_EXPORT void cef_trace_event_begin(const char* /* category */,
     return;
 
   if (copy) {
-    if (arg1_name == NULL && arg2_name == NULL) {
+    if (arg1_name == nullptr && arg2_name == nullptr) {
       TRACE_EVENT_BEGIN_WITH_FLAGS0(kCategory, name, TRACE_EVENT_FLAG_COPY);
-    } else if (arg2_name == NULL) {
+    } else if (arg2_name == nullptr) {
       TRACE_EVENT_BEGIN_WITH_FLAGS1(kCategory, name, TRACE_EVENT_FLAG_COPY,
                                     arg1_name, arg1_val);
     } else {
@@ -91,9 +91,9 @@ CEF_EXPORT void cef_trace_event_begin(const char* /* category */,
                               arg2_val);
     }
   } else {
-    if (arg1_name == NULL && arg2_name == NULL) {
+    if (arg1_name == nullptr && arg2_name == nullptr) {
       TRACE_EVENT_BEGIN0(kCategory, name);
-    } else if (arg2_name == NULL) {
+    } else if (arg2_name == nullptr) {
       TRACE_EVENT_BEGIN1(kCategory, name, arg1_name, arg1_val);
     } else {
       TRACE_EVENT_BEGIN2(kCategory, name, arg1_name, arg1_val, arg2_name,
@@ -114,9 +114,9 @@ CEF_EXPORT void cef_trace_event_end(const char* /* category */,
     return;
 
   if (copy) {
-    if (arg1_name == NULL && arg2_name == NULL) {
+    if (arg1_name == nullptr && arg2_name == nullptr) {
       TRACE_EVENT_END_WITH_FLAGS0(kCategory, name, TRACE_EVENT_FLAG_COPY);
-    } else if (arg2_name == NULL) {
+    } else if (arg2_name == nullptr) {
       TRACE_EVENT_END_WITH_FLAGS1(kCategory, name, TRACE_EVENT_FLAG_COPY,
                                   arg1_name, arg1_val);
     } else {
@@ -124,9 +124,9 @@ CEF_EXPORT void cef_trace_event_end(const char* /* category */,
                             arg2_val);
     }
   } else {
-    if (arg1_name == NULL && arg2_name == NULL) {
+    if (arg1_name == nullptr && arg2_name == nullptr) {
       TRACE_EVENT_END0(kCategory, name);
-    } else if (arg2_name == NULL) {
+    } else if (arg2_name == nullptr) {
       TRACE_EVENT_END1(kCategory, name, arg1_name, arg1_val);
     } else {
       TRACE_EVENT_END2(kCategory, name, arg1_name, arg1_val, arg2_name,
@@ -147,14 +147,14 @@ CEF_EXPORT void cef_trace_counter(const char* /* category */,
     return;
 
   if (copy) {
-    if (value1_name == NULL && value2_name == NULL) {
+    if (value1_name == nullptr && value2_name == nullptr) {
       TRACE_COPY_COUNTER1(kCategory, name, value1_val);
     } else {
       TRACE_COPY_COUNTER2(kCategory, name, value1_name, value1_val, value2_name,
                           value2_val);
     }
   } else {
-    if (value1_name == NULL && value2_name == NULL) {
+    if (value1_name == nullptr && value2_name == nullptr) {
       TRACE_COUNTER1(kCategory, name, value1_val);
     } else {
       TRACE_COUNTER2(kCategory, name, value1_name, value1_val, value2_name,
@@ -176,14 +176,14 @@ CEF_EXPORT void cef_trace_counter_id(const char* /* category */,
     return;
 
   if (copy) {
-    if (value1_name == NULL && value2_name == NULL) {
+    if (value1_name == nullptr && value2_name == nullptr) {
       TRACE_COPY_COUNTER_ID1(kCategory, name, id, value1_val);
     } else {
       TRACE_COPY_COUNTER_ID2(kCategory, name, id, value1_name, value1_val,
                              value2_name, value2_val);
     }
   } else {
-    if (value1_name == NULL && value2_name == NULL) {
+    if (value1_name == nullptr && value2_name == nullptr) {
       TRACE_COUNTER_ID1(kCategory, name, id, value1_val);
     } else {
       TRACE_COUNTER_ID2(kCategory, name, id, value1_name, value1_val,
@@ -205,18 +205,18 @@ CEF_EXPORT void cef_trace_event_async_begin(const char* /* category */,
     return;
 
   if (copy) {
-    if (arg1_name == NULL && arg2_name == NULL) {
+    if (arg1_name == nullptr && arg2_name == nullptr) {
       TRACE_EVENT_COPY_ASYNC_BEGIN0(kCategory, name, id);
-    } else if (arg2_name == NULL) {
+    } else if (arg2_name == nullptr) {
       TRACE_EVENT_COPY_ASYNC_BEGIN1(kCategory, name, id, arg1_name, arg1_val);
     } else {
       TRACE_EVENT_COPY_ASYNC_BEGIN2(kCategory, name, id, arg1_name, arg1_val,
                                     arg2_name, arg2_val);
     }
   } else {
-    if (arg1_name == NULL && arg2_name == NULL) {
+    if (arg1_name == nullptr && arg2_name == nullptr) {
       TRACE_EVENT_ASYNC_BEGIN0(kCategory, name, id);
-    } else if (arg2_name == NULL) {
+    } else if (arg2_name == nullptr) {
       TRACE_EVENT_ASYNC_BEGIN1(kCategory, name, id, arg1_name, arg1_val);
     } else {
       TRACE_EVENT_ASYNC_BEGIN2(kCategory, name, id, arg1_name, arg1_val,
@@ -237,7 +237,7 @@ CEF_EXPORT void cef_trace_event_async_step_into(const char* /* category */,
     return;
 
   if (copy) {
-    if (arg1_name == NULL) {
+    if (arg1_name == nullptr) {
       INTERNAL_TRACE_EVENT_ADD_WITH_ID(TRACE_EVENT_PHASE_ASYNC_STEP_INTO,
                                        kCategory, name, id,
                                        TRACE_EVENT_FLAG_COPY, "step", step);
@@ -247,7 +247,7 @@ CEF_EXPORT void cef_trace_event_async_step_into(const char* /* category */,
           TRACE_EVENT_FLAG_COPY, "step", step, arg1_name, arg1_val);
     }
   } else {
-    if (arg1_name == NULL) {
+    if (arg1_name == nullptr) {
       TRACE_EVENT_ASYNC_STEP_INTO0(kCategory, name, id, step);
     } else {
       TRACE_EVENT_ASYNC_STEP_INTO1(kCategory, name, id, step, arg1_name,
@@ -268,7 +268,7 @@ CEF_EXPORT void cef_trace_event_async_step_past(const char* /* category */,
     return;
 
   if (copy) {
-    if (arg1_name == NULL) {
+    if (arg1_name == nullptr) {
       INTERNAL_TRACE_EVENT_ADD_WITH_ID(TRACE_EVENT_PHASE_ASYNC_STEP_PAST,
                                        kCategory, name, id,
                                        TRACE_EVENT_FLAG_COPY, "step", step);
@@ -278,7 +278,7 @@ CEF_EXPORT void cef_trace_event_async_step_past(const char* /* category */,
           TRACE_EVENT_FLAG_COPY, "step", step, arg1_name, arg1_val);
     }
   } else {
-    if (arg1_name == NULL) {
+    if (arg1_name == nullptr) {
       TRACE_EVENT_ASYNC_STEP_PAST0(kCategory, name, id, step);
     } else {
       TRACE_EVENT_ASYNC_STEP_PAST1(kCategory, name, id, step, arg1_name,
@@ -300,18 +300,18 @@ CEF_EXPORT void cef_trace_event_async_end(const char* /* category */,
     return;
 
   if (copy) {
-    if (arg1_name == NULL && arg2_name == NULL) {
+    if (arg1_name == nullptr && arg2_name == nullptr) {
       TRACE_EVENT_COPY_ASYNC_END0(kCategory, name, id);
-    } else if (arg2_name == NULL) {
+    } else if (arg2_name == nullptr) {
       TRACE_EVENT_COPY_ASYNC_END1(kCategory, name, id, arg1_name, arg1_val);
     } else {
       TRACE_EVENT_COPY_ASYNC_END2(kCategory, name, id, arg1_name, arg1_val,
                                   arg2_name, arg2_val);
     }
   } else {
-    if (arg1_name == NULL && arg2_name == NULL) {
+    if (arg1_name == nullptr && arg2_name == nullptr) {
       TRACE_EVENT_ASYNC_END0(kCategory, name, id);
-    } else if (arg2_name == NULL) {
+    } else if (arg2_name == nullptr) {
       TRACE_EVENT_ASYNC_END1(kCategory, name, id, arg1_name, arg1_val);
     } else {
       TRACE_EVENT_ASYNC_END2(kCategory, name, id, arg1_name, arg1_val,

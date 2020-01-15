@@ -17,7 +17,7 @@ CefWindowDelegateView::CefWindowDelegateView(
     bool always_on_top,
     base::RepeatingClosure on_bounds_changed)
     : background_color_(background_color),
-      web_view_(NULL),
+      web_view_(nullptr),
       always_on_top_(always_on_top),
       on_bounds_changed_(on_bounds_changed) {}
 

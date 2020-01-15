@@ -14,7 +14,7 @@ CefRefPtr<CefZipReader> CefZipReader::Create(
     CefRefPtr<CefStreamReader> stream) {
   CefRefPtr<CefZipReaderImpl> impl(new CefZipReaderImpl());
   if (!impl->Initialize(stream))
-    return NULL;
+    return nullptr;
   return impl.get();
 }
 
@@ -76,14 +76,14 @@ int ZCALLBACK zlib_error_callback OF((voidpf opaque, voidpf stream)) {
 
 CefZipReaderImpl::CefZipReaderImpl()
     : supported_thread_id_(base::PlatformThread::CurrentId()),
-      reader_(NULL),
+      reader_(nullptr),
       has_fileopen_(false),
       has_fileinfo_(false),
       filesize_(0),
       filemodified_(0) {}
 
 CefZipReaderImpl::~CefZipReaderImpl() {
-  if (reader_ != NULL) {
+  if (reader_ != nullptr) {
     if (!VerifyContext()) {
       // Close() is supposed to be called directly. We'll try to free the reader
       // now on the wrong thread but there's no guarantee this call won't crash.
@@ -100,7 +100,7 @@ bool CefZipReaderImpl::Initialize(CefRefPtr<CefStreamReader> stream) {
   zlib_filefunc64_def filefunc_def;
   filefunc_def.zopen64_file = zlib_open_callback;
   filefunc_def.zread_file = zlib_read_callback;
-  filefunc_def.zwrite_file = NULL;
+  filefunc_def.zwrite_file = nullptr;
   filefunc_def.ztell64_file = zlib_tell_callback;
   filefunc_def.zseek64_file = zlib_seek_callback;
   filefunc_def.zclose_file = zlib_close_callback;
@@ -111,7 +111,7 @@ bool CefZipReaderImpl::Initialize(CefRefPtr<CefStreamReader> stream) {
   stream->AddRef();
 
   reader_ = unzOpen2_64("", &filefunc_def);
-  return (reader_ != NULL);
+  return (reader_ != nullptr);
 }
 
 bool CefZipReaderImpl::MoveToFirstFile() {
@@ -161,7 +161,7 @@ bool CefZipReaderImpl::Close() {
     CloseFile();
 
   int result = unzClose(reader_);
-  reader_ = NULL;
+  reader_ = nullptr;
   return (result == UNZ_OK);
 }
 
@@ -278,5 +278,5 @@ bool CefZipReaderImpl::VerifyContext() {
     return false;
   }
 
-  return (reader_ != NULL);
+  return (reader_ != nullptr);
 }

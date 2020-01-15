@@ -10,7 +10,7 @@ CefContextMenuParamsImpl::CefContextMenuParamsImpl(
     content::ContextMenuParams* value)
     : CefValueBase<CefContextMenuParams, content::ContextMenuParams>(
           value,
-          NULL,
+          nullptr,
           kOwnerNoDelete,
           true,
           new CefValueControllerNonThreadSafe()) {

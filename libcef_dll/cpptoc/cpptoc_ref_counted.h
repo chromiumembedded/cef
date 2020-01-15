@@ -22,7 +22,7 @@ class CefCppToCRefCounted : public CefBaseRefCounted {
   // passing an object instance the other side.
   static StructName* Wrap(CefRefPtr<BaseName> c) {
     if (!c.get())
-      return NULL;
+      return nullptr;
 
     // Wrap our object with the CefCppToCRefCounted class.
     ClassName* wrapper = new ClassName();
@@ -38,7 +38,7 @@ class CefCppToCRefCounted : public CefBaseRefCounted {
   // back from the other side.
   static CefRefPtr<BaseName> Unwrap(StructName* s) {
     if (!s)
-      return NULL;
+      return nullptr;
 
     // Cast our structure to the wrapper structure type.
     WrapperStruct* wrapperStruct = GetWrapperStruct(s);

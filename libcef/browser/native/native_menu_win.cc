@@ -401,7 +401,7 @@ class CefNativeMenuWin::MenuHostWindow {
 
 struct CefNativeMenuWin::HighlightedMenuItemInfo {
   HighlightedMenuItemInfo()
-      : has_parent(false), has_submenu(false), menu(NULL), position(-1) {}
+      : has_parent(false), has_submenu(false), menu(nullptr), position(-1) {}
 
   bool has_parent;
   bool has_submenu;
@@ -420,16 +420,16 @@ const wchar_t* CefNativeMenuWin::MenuHostWindow::kWindowClassName =
 
 CefNativeMenuWin::CefNativeMenuWin(ui::MenuModel* model, HWND system_menu_for)
     : model_(model),
-      menu_(NULL),
+      menu_(nullptr),
       owner_draw_(l10n_util::NeedOverrideDefaultUIFont(NULL, NULL) &&
                   !system_menu_for),
       system_menu_for_(system_menu_for),
       first_item_index_(0),
       menu_action_(MENU_ACTION_NONE),
-      menu_to_select_(NULL),
+      menu_to_select_(nullptr),
       position_to_select_(-1),
-      parent_(NULL),
-      destroyed_flag_(NULL),
+      parent_(nullptr),
+      destroyed_flag_(nullptr),
       menu_to_select_factory_(this) {}
 
 CefNativeMenuWin::~CefNativeMenuWin() {
@@ -458,7 +458,7 @@ void CefNativeMenuWin::RunMenuAt(const gfx::Point& point, int alignment) {
 
   // Command dispatch is done through WM_MENUCOMMAND, handled by the host
   // window.
-  menu_to_select_ = NULL;
+  menu_to_select_ = nullptr;
   position_to_select_ = -1;
   menu_to_select_factory_.InvalidateWeakPtrs();
   bool destroyed = false;
@@ -467,10 +467,10 @@ void CefNativeMenuWin::RunMenuAt(const gfx::Point& point, int alignment) {
   TrackPopupMenu(menu_, flags, point.x(), point.y(), 0, host_window_->hwnd(),
                  NULL);
   UnhookWindowsHookEx(hhook);
-  open_native_menu_win_ = NULL;
+  open_native_menu_win_ = nullptr;
   if (destroyed)
     return;
-  destroyed_flag_ = NULL;
+  destroyed_flag_ = nullptr;
   if (menu_to_select_) {
     // Folks aren't too happy if we notify immediately. In particular, notifying
     // the delegate can cause destruction leaving the stack in a weird
@@ -542,7 +542,7 @@ void CefNativeMenuWin::SetMinimumWidth(int width) {
 // CefNativeMenuWin, private:
 
 // static
-CefNativeMenuWin* CefNativeMenuWin::open_native_menu_win_ = NULL;
+CefNativeMenuWin* CefNativeMenuWin::open_native_menu_win_ = nullptr;
 
 void CefNativeMenuWin::DelayedSelect() {
   if (menu_to_select_)

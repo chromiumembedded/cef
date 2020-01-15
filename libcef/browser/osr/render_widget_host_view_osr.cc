@@ -167,10 +167,10 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       pending_resize_(false),
       pending_resize_force_(false),
       render_widget_host_(content::RenderWidgetHostImpl::From(widget)),
-      has_parent_(parent_host_view != NULL),
+      has_parent_(parent_host_view != nullptr),
       parent_host_view_(parent_host_view),
-      popup_host_view_(NULL),
-      child_host_view_(NULL),
+      popup_host_view_(nullptr),
+      child_host_view_(nullptr),
       is_showing_(false),
       is_destroyed_(false),
       pinch_zoom_enabled_(content::IsPinchToZoomEnabled()),
@@ -728,7 +728,7 @@ content::BrowserAccessibilityManager*
 CefRenderWidgetHostViewOSR::CreateBrowserAccessibilityManager(
     content::BrowserAccessibilityDelegate* delegate,
     bool for_root_frame) {
-  return NULL;
+  return nullptr;
 }
 
 void CefRenderWidgetHostViewOSR::ImeSetComposition(
@@ -1473,21 +1473,21 @@ void CefRenderWidgetHostViewOSR::CancelWidget() {
         browser_impl_->client()->GetRenderHandler();
     CHECK(handler);
     handler->OnPopupShow(browser_impl_.get(), false);
-    browser_impl_ = NULL;
+    browser_impl_ = nullptr;
   }
 
   if (parent_host_view_) {
     if (parent_host_view_->popup_host_view_ == this) {
-      parent_host_view_->set_popup_host_view(NULL);
+      parent_host_view_->set_popup_host_view(nullptr);
     } else if (parent_host_view_->child_host_view_ == this) {
-      parent_host_view_->set_child_host_view(NULL);
+      parent_host_view_->set_child_host_view(nullptr);
 
       // Start rendering the parent view again.
       parent_host_view_->Show();
     } else {
       parent_host_view_->RemoveGuestHostView(this);
     }
-    parent_host_view_ = NULL;
+    parent_host_view_ = nullptr;
   }
 
   if (render_widget_host_ && !is_destroyed_) {

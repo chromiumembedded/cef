@@ -61,7 +61,7 @@ ValueStore::ReadResult CefValueStore::Get(
   auto settings = std::make_unique<base::DictionaryValue>();
   for (std::vector<std::string>::const_iterator it = keys.begin();
        it != keys.end(); ++it) {
-    base::Value* value = NULL;
+    base::Value* value = nullptr;
     if (storage_.GetWithoutPathExpansion(*it, &value)) {
       settings->SetWithoutPathExpansion(*it, value->CreateDeepCopy());
     }
@@ -94,7 +94,7 @@ ValueStore::WriteResult CefValueStore::Set(
   std::unique_ptr<ValueStoreChangeList> changes(new ValueStoreChangeList());
   for (base::DictionaryValue::Iterator it(settings); !it.IsAtEnd();
        it.Advance()) {
-    base::Value* old_value = NULL;
+    base::Value* old_value = nullptr;
     if (!storage_.GetWithoutPathExpansion(it.key(), &old_value) ||
         !old_value->Equals(&it.value())) {
       changes->push_back(ValueStoreChange(

@@ -110,7 +110,7 @@ ExecuteCodeFunction::InitResult ExecuteCodeInTabFunction::Init() {
     return set_init_result(VALIDATION_FAILURE);
 
   // |details| are not optional.
-  base::DictionaryValue* details_value = NULL;
+  base::DictionaryValue* details_value = nullptr;
   if (!args_->GetDictionary(1, &details_value))
     return set_init_result(VALIDATION_FAILURE);
   std::unique_ptr<InjectDetails> details(new InjectDetails());
@@ -282,9 +282,10 @@ bool TabsSetZoomFunction::RunAsync() {
 
   zoom::ZoomController* zoom_controller =
       zoom::ZoomController::FromWebContents(web_contents);
-  double zoom_level = params->zoom_factor > 0
-                          ? blink::PageZoomFactorToZoomLevel(params->zoom_factor)
-                          : zoom_controller->GetDefaultZoomLevel();
+  double zoom_level =
+      params->zoom_factor > 0
+          ? blink::PageZoomFactorToZoomLevel(params->zoom_factor)
+          : zoom_controller->GetDefaultZoomLevel();
 
   scoped_refptr<extensions::ExtensionZoomRequestClient> client(
       new extensions::ExtensionZoomRequestClient(extension()));
@@ -384,8 +385,9 @@ bool TabsGetZoomSettingsFunction::RunAsync() {
   zoom::ZoomController::ZoomMode zoom_mode = zoom_controller->zoom_mode();
   api::tabs::ZoomSettings zoom_settings;
   ZoomModeToZoomSettings(zoom_mode, &zoom_settings);
-  zoom_settings.default_zoom_factor.reset(new double(
-      blink::PageZoomLevelToZoomFactor(zoom_controller->GetDefaultZoomLevel())));
+  zoom_settings.default_zoom_factor.reset(
+      new double(blink::PageZoomLevelToZoomFactor(
+          zoom_controller->GetDefaultZoomLevel())));
 
   results_ = api::tabs::GetZoomSettings::Results::Create(zoom_settings);
   SendResponse(true);

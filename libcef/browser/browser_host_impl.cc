@@ -927,7 +927,7 @@ void CefBrowserHostImpl::GetNavigationEntries(
     CefRefPtr<CefNavigationEntryImpl> entry =
         new CefNavigationEntryImpl(controller.GetEntryAtIndex(current));
     visitor->Visit(entry.get(), true, current, total);
-    entry->Detach(NULL);
+    entry->Detach(nullptr);
   } else {
     // Visit all entries.
     bool cont = true;
@@ -935,7 +935,7 @@ void CefBrowserHostImpl::GetNavigationEntries(
       CefRefPtr<CefNavigationEntryImpl> entry =
           new CefNavigationEntryImpl(controller.GetEntryAtIndex(i));
       cont = visitor->Visit(entry.get(), (i == current), i, total);
-      entry->Detach(NULL);
+      entry->Detach(nullptr);
     }
   }
 }
@@ -1554,19 +1554,19 @@ void CefBrowserHostImpl::DestroyBrowser() {
   // Disassociate the platform delegate from this browser.
   platform_delegate_->BrowserDestroyed(this);
 
-  registrar_.reset(NULL);
-  content::WebContentsObserver::Observe(NULL);
+  registrar_.reset(nullptr);
+  content::WebContentsObserver::Observe(nullptr);
   if (owned_web_contents_)
-    owned_web_contents_.reset(NULL);
+    owned_web_contents_.reset(nullptr);
 
   // Delete objects created by the platform delegate that may be referenced by
   // the WebContents.
-  file_dialog_manager_.reset(NULL);
-  javascript_dialog_manager_.reset(NULL);
-  menu_manager_.reset(NULL);
+  file_dialog_manager_.reset(nullptr);
+  javascript_dialog_manager_.reset(nullptr);
+  menu_manager_.reset(nullptr);
 
   // Delete the platform delegate.
-  platform_delegate_.reset(NULL);
+  platform_delegate_.reset(nullptr);
 
   CefBrowserInfoManager::GetInstance()->RemoveBrowserInfo(browser_info_);
   browser_info_->SetBrowser(nullptr);
@@ -2869,7 +2869,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(
       is_in_onsetfocus_(false),
       focus_on_editable_field_(false),
       mouse_cursor_change_disabled_(false),
-      devtools_frontend_(NULL),
+      devtools_frontend_(nullptr),
       extension_(extension) {
   if (opener.get() && !platform_delegate_->IsViewsHosted()) {
     // GetOpenerWindowHandle() only returns a value for non-views-hosted
@@ -3082,7 +3082,7 @@ void CefBrowserHostImpl::OnTitleChange(const base::string16& title) {
 
 void CefBrowserHostImpl::OnDevToolsWebContentsDestroyed() {
   devtools_observer_.reset();
-  devtools_frontend_ = NULL;
+  devtools_frontend_ = nullptr;
 }
 
 void CefBrowserHostImpl::EnsureFileDialogManager() {

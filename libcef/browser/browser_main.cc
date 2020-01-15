@@ -78,7 +78,7 @@
 
 CefBrowserMainParts::CefBrowserMainParts(
     const content::MainFunctionParams& parameters)
-    : BrowserMainParts(), devtools_delegate_(NULL) {}
+    : BrowserMainParts(), devtools_delegate_(nullptr) {}
 
 CefBrowserMainParts::~CefBrowserMainParts() {
   constrained_window::SetConstrainedWindowViewsClient(nullptr);
@@ -213,12 +213,12 @@ void CefBrowserMainParts::PostMainMessageLoopRun() {
   // There should be no additional references to the global CefRequestContext
   // during shutdown. Did you forget to release a CefBrowser reference?
   DCHECK(global_request_context_->HasOneRef());
-  global_request_context_ = NULL;
+  global_request_context_ = nullptr;
 }
 
 void CefBrowserMainParts::PostDestroyThreads() {
   if (extensions::ExtensionsEnabled()) {
-    extensions::ExtensionsBrowserClient::Set(NULL);
+    extensions::ExtensionsBrowserClient::Set(nullptr);
     extensions_browser_client_.reset();
   }
 

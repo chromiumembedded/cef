@@ -157,7 +157,7 @@ class CefExtensionHandler : public virtual CefBaseRefCounted {
       CefRefPtr<CefExtension> extension,
       CefRefPtr<CefBrowser> browser,
       bool include_incognito) {
-    return NULL;
+    return nullptr;
   }
 
   ///

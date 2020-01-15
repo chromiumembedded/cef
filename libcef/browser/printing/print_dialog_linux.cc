@@ -36,7 +36,7 @@ class CefPrintDialogCallbackImpl : public CefPrintDialogCallback {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (dialog_.get()) {
         dialog_->OnPrintContinue(settings);
-        dialog_ = NULL;
+        dialog_ = nullptr;
       }
     } else {
       CEF_POST_TASK(CEF_UIT, base::Bind(&CefPrintDialogCallbackImpl::Continue,
@@ -48,7 +48,7 @@ class CefPrintDialogCallbackImpl : public CefPrintDialogCallback {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (dialog_.get()) {
         dialog_->OnPrintCancel();
-        dialog_ = NULL;
+        dialog_ = nullptr;
       }
     } else {
       CEF_POST_TASK(CEF_UIT,
@@ -56,7 +56,7 @@ class CefPrintDialogCallbackImpl : public CefPrintDialogCallback {
     }
   }
 
-  void Disconnect() { dialog_ = NULL; }
+  void Disconnect() { dialog_ = nullptr; }
 
  private:
   CefRefPtr<CefPrintDialogLinux> dialog_;
@@ -74,7 +74,7 @@ class CefPrintJobCallbackImpl : public CefPrintJobCallback {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (dialog_.get()) {
         dialog_->OnJobCompleted();
-        dialog_ = NULL;
+        dialog_ = nullptr;
       }
     } else {
       CEF_POST_TASK(CEF_UIT,
@@ -82,7 +82,7 @@ class CefPrintJobCallbackImpl : public CefPrintJobCallback {
     }
   }
 
-  void Disconnect() { dialog_ = NULL; }
+  void Disconnect() { dialog_ = nullptr; }
 
  private:
   CefRefPtr<CefPrintDialogLinux> dialog_;
@@ -151,7 +151,7 @@ void CefPrintDialogLinux::OnPrintStart(int render_process_id,
 
   CefRefPtr<CefBrowserHostImpl> browser =
       extensions::GetOwnerBrowserForFrameRoute(render_process_id,
-                                               render_routing_id, NULL);
+                                               render_routing_id, nullptr);
   if (browser.get())
     handler->OnPrintStart(browser.get());
 }
@@ -160,7 +160,7 @@ CefPrintDialogLinux::CefPrintDialogLinux(PrintingContextLinux* context)
     : context_(context) {
   DCHECK(context_);
   browser_ = extensions::GetOwnerBrowserForFrameRoute(
-      context_->render_process_id(), context_->render_frame_id(), NULL);
+      context_->render_process_id(), context_->render_frame_id(), nullptr);
   DCHECK(browser_);
 }
 
@@ -263,7 +263,7 @@ void CefPrintDialogLinux::SetHandler() {
 void CefPrintDialogLinux::ReleaseHandler() {
   if (handler_.get()) {
     handler_->OnPrintReset(browser_.get());
-    handler_ = NULL;
+    handler_ = nullptr;
   }
 }
 

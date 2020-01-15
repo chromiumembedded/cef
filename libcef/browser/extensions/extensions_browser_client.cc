@@ -65,7 +65,7 @@ bool CefExtensionsBrowserClient::AreExtensionsDisabled(
 }
 
 bool CefExtensionsBrowserClient::IsValidContext(BrowserContext* context) {
-  return GetOriginalContext(context) != NULL;
+  return GetOriginalContext(context) != nullptr;
 }
 
 bool CefExtensionsBrowserClient::IsSameContext(BrowserContext* first,
@@ -83,7 +83,7 @@ bool CefExtensionsBrowserClient::HasOffTheRecordContext(
 
 BrowserContext* CefExtensionsBrowserClient::GetOffTheRecordContext(
     BrowserContext* context) {
-  return NULL;
+  return nullptr;
 }
 
 BrowserContext* CefExtensionsBrowserClient::GetOriginalContext(
@@ -159,7 +159,7 @@ void CefExtensionsBrowserClient::GetEarlyExtensionPrefsObservers(
 
 ProcessManagerDelegate* CefExtensionsBrowserClient::GetProcessManagerDelegate()
     const {
-  return NULL;
+  return nullptr;
 }
 
 std::unique_ptr<ExtensionHostDelegate>
@@ -291,7 +291,7 @@ void CefExtensionsBrowserClient::BroadcastEventToRenderers(
 ExtensionCache* CefExtensionsBrowserClient::GetExtensionCache() {
   // Only used by Chrome via ExtensionService.
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 bool CefExtensionsBrowserClient::IsBackgroundUpdateAllowed() {
@@ -311,7 +311,7 @@ CefExtensionsBrowserClient::GetExtensionWebContentsObserver(
 
 KioskDelegate* CefExtensionsBrowserClient::GetKioskDelegate() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 bool CefExtensionsBrowserClient::IsLockScreenContext(

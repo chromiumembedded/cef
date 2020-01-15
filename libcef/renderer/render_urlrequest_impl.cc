@@ -210,13 +210,13 @@ class CefRenderURLRequest::Context
     }
 
     if (loader_.get())
-      loader_.reset(NULL);
+      loader_.reset(nullptr);
 
     DCHECK(url_request_.get());
     client_->OnRequestComplete(url_request_.get());
 
     // This may result in the Context object being deleted.
-    url_request_ = NULL;
+    url_request_ = nullptr;
   }
 
   void OnBodyReadable(MojoResult, const mojo::HandleSignalsState&) {
@@ -426,13 +426,13 @@ bool CefRenderURLRequest::Start() {
 
 CefRefPtr<CefRequest> CefRenderURLRequest::GetRequest() {
   if (!VerifyContext())
-    return NULL;
+    return nullptr;
   return context_->request();
 }
 
 CefRefPtr<CefURLRequestClient> CefRenderURLRequest::GetClient() {
   if (!VerifyContext())
-    return NULL;
+    return nullptr;
   return context_->client();
 }
 
@@ -450,7 +450,7 @@ CefURLRequest::ErrorCode CefRenderURLRequest::GetRequestError() {
 
 CefRefPtr<CefResponse> CefRenderURLRequest::GetResponse() {
   if (!VerifyContext())
-    return NULL;
+    return nullptr;
   return context_->response();
 }
 

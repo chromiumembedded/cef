@@ -264,7 +264,7 @@ class CefSelectClientCertificateCallbackImpl
     // If Select has not been called, call it with NULL to continue without any
     // client certificate.
     if (delegate_)
-      DoSelect(NULL);
+      DoSelect(nullptr);
   }
 
   void Select(CefRefPtr<CefX509Certificate> cert) override {
@@ -393,7 +393,7 @@ int GetCrashSignalFD(const base::CommandLine& command_line) {
 
   // Extensions have the same process type as renderers.
   if (command_line.HasSwitch(extensions::switches::kExtensionProcess)) {
-    static breakpad::CrashHandlerHostLinux* crash_handler = NULL;
+    static breakpad::CrashHandlerHostLinux* crash_handler = nullptr;
     if (!crash_handler)
       crash_handler = CreateCrashHandlerHost("extension");
     return crash_handler->GetDeathSignalSocket();
@@ -403,21 +403,21 @@ int GetCrashSignalFD(const base::CommandLine& command_line) {
       command_line.GetSwitchValueASCII(switches::kProcessType);
 
   if (process_type == switches::kRendererProcess) {
-    static breakpad::CrashHandlerHostLinux* crash_handler = NULL;
+    static breakpad::CrashHandlerHostLinux* crash_handler = nullptr;
     if (!crash_handler)
       crash_handler = CreateCrashHandlerHost(process_type);
     return crash_handler->GetDeathSignalSocket();
   }
 
   if (process_type == switches::kPpapiPluginProcess) {
-    static breakpad::CrashHandlerHostLinux* crash_handler = NULL;
+    static breakpad::CrashHandlerHostLinux* crash_handler = nullptr;
     if (!crash_handler)
       crash_handler = CreateCrashHandlerHost(process_type);
     return crash_handler->GetDeathSignalSocket();
   }
 
   if (process_type == switches::kGpuProcess) {
-    static breakpad::CrashHandlerHostLinux* crash_handler = NULL;
+    static breakpad::CrashHandlerHostLinux* crash_handler = nullptr;
     if (!crash_handler)
       crash_handler = CreateCrashHandlerHost(process_type);
     return crash_handler->GetDeathSignalSocket();
@@ -501,7 +501,8 @@ void BindPluginInfoHost(
 
 }  // namespace
 
-CefContentBrowserClient::CefContentBrowserClient() : browser_main_parts_(NULL) {
+CefContentBrowserClient::CefContentBrowserClient()
+    : browser_main_parts_(nullptr) {
   plugin_service_filter_.reset(new CefPluginServiceFilter);
   content::PluginServiceImpl::GetInstance()->SetFilter(
       plugin_service_filter_.get());
@@ -835,7 +836,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
       CefRefPtr<CefCommandLineImpl> commandLinePtr(
           new CefCommandLineImpl(command_line, false, false));
       handler->OnBeforeChildProcessLaunch(commandLinePtr.get());
-      commandLinePtr->Detach(NULL);
+      commandLinePtr->Detach(nullptr);
     }
   }
 }
@@ -902,7 +903,7 @@ CefContentBrowserClient::CreateSpeechRecognitionManagerDelegate() {
   if (command_line->HasSwitch(switches::kEnableSpeechInput))
     return new CefSpeechRecognitionManagerDelegate();
 
-  return NULL;
+  return nullptr;
 }
 
 content::GeneratedCodeCacheSettings

@@ -5,7 +5,7 @@
 #include "libcef/common/value_base.h"
 
 CefValueController::CefValueController()
-    : owner_value_(NULL), owner_object_(NULL) {}
+    : owner_value_(nullptr), owner_object_(nullptr) {}
 
 CefValueController::~CefValueController() {
   // Everything should already have been removed.
@@ -56,8 +56,8 @@ void CefValueController::Remove(void* value, bool notify_object) {
     // Should never notify when removing the owner object.
     DCHECK(!notify_object);
 
-    owner_value_ = NULL;
-    owner_object_ = NULL;
+    owner_value_ = nullptr;
+    owner_object_ = nullptr;
 
     // Remove all references.
     if (reference_map_.size() > 0) {
@@ -92,7 +92,7 @@ CefValueController::Object* CefValueController::Get(void* value) {
     ReferenceMap::iterator it = reference_map_.find(value);
     if (it != reference_map_.end())
       return it->second;
-    return NULL;
+    return nullptr;
   }
 }
 

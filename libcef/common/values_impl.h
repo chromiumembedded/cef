@@ -130,10 +130,10 @@ class CefBinaryValueImpl : public CefValueBase<CefBinaryValue, base::Value> {
 
   // Reference an existing value (set |will_delete| to false) or take ownership
   // of an existing value (set |will_delete| to true). When referencing an
-  // existing value you must explicitly call Detach(NULL) when |value| is no
+  // existing value you must explicitly call Detach(nullptr) when |value| is no
   // longer valid. Use GetOrCreateRef instead of this constructor if |value| is
   // owned by some other object and you do not plan to explicitly call
-  // Detach(NULL).
+  // Detach(nullptr).
   CefBinaryValueImpl(base::Value* value, bool will_delete);
 
   // The data will always be copied.
@@ -186,10 +186,10 @@ class CefDictionaryValueImpl
 
   // Reference an existing value (set |will_delete| to false) or take ownership
   // of an existing value (set |will_delete| to true). When referencing an
-  // existing value you must explicitly call Detach(NULL) when |value| is no
+  // existing value you must explicitly call Detach(nullptr) when |value| is no
   // longer valid. Use GetOrCreateRef instead of this constructor if |value| is
   // owned by some other object and you do not plan to explicitly call
-  // Detach(NULL).
+  // Detach(nullptr).
   CefDictionaryValueImpl(base::DictionaryValue* value,
                          bool will_delete,
                          bool read_only);
@@ -266,10 +266,10 @@ class CefListValueImpl : public CefValueBase<CefListValue, base::ListValue> {
 
   // Reference an existing value (set |will_delete| to false) or take ownership
   // of an existing value (set |will_delete| to true). When referencing an
-  // existing value you must explicitly call Detach(NULL) when |value| is no
+  // existing value you must explicitly call Detach(nullptr) when |value| is no
   // longer valid. Use GetOrCreateRef instead of this constructor if |value| is
   // owned by some other object and you do not plan to explicitly call
-  // Detach(NULL).
+  // Detach(nullptr).
   CefListValueImpl(base::ListValue* value, bool will_delete, bool read_only);
 
   // Return a copy of the value.

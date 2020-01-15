@@ -154,12 +154,13 @@ void CefDevToolsFileManager::FileSavedAs(const std::string& url,
   base::Value url_value(url);
   base::Value file_system_path_value(file_system_path);
   CallClientFunction("DevToolsAPI.savedURL", &url_value,
-                     &file_system_path_value, NULL);
+                     &file_system_path_value, nullptr);
 }
 
 void CefDevToolsFileManager::CanceledFileSaveAs(const std::string& url) {
   base::Value url_value(url);
-  CallClientFunction("DevToolsAPI.canceledSaveURL", &url_value, NULL, NULL);
+  CallClientFunction("DevToolsAPI.canceledSaveURL", &url_value, nullptr,
+                     nullptr);
 }
 
 void CefDevToolsFileManager::Append(const std::string& url,
@@ -175,7 +176,7 @@ void CefDevToolsFileManager::Append(const std::string& url,
 
 void CefDevToolsFileManager::AppendedTo(const std::string& url) {
   base::Value url_value(url);
-  CallClientFunction("DevToolsAPI.appendedToURL", &url_value, NULL, NULL);
+  CallClientFunction("DevToolsAPI.appendedToURL", &url_value, nullptr, nullptr);
 }
 
 void CefDevToolsFileManager::CallClientFunction(

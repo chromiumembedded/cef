@@ -75,7 +75,7 @@ class CefWindowDelegate : public CefPanelDelegate {
   virtual CefRefPtr<CefWindow> GetParentWindow(CefRefPtr<CefWindow> window,
                                                bool* is_menu,
                                                bool* can_activate_menu) {
-    return NULL;
+    return nullptr;
   }
 
   ///

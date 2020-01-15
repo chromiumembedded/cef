@@ -228,7 +228,7 @@ class ArchiveProvider : public CefResourceManager::Provider {
       archive = new CefZipArchive;
       if (archive->Load(stream, password, true) == 0) {
         DLOG(WARNING) << "Empty archive file: " << archive_path;
-        archive = NULL;
+        archive = nullptr;
       }
     } else {
       DLOG(WARNING) << "Failed to load archive file: " << archive_path;
@@ -388,7 +388,7 @@ CefResourceManager::Request::SendRequest() {
 
 bool CefResourceManager::Request::HasState() {
   CEF_REQUIRE_IO_THREAD();
-  return (state_.get() != NULL);
+  return (state_.get() != nullptr);
 }
 
 // static
@@ -598,7 +598,7 @@ CefRefPtr<CefResourceHandler> CefResourceManager::GetResourceHandler(
   CEF_REQUIRE_IO_THREAD();
 
   if (pending_handlers_.empty())
-    return NULL;
+    return nullptr;
 
   CefRefPtr<CefResourceHandler> handler;
 
@@ -734,7 +734,7 @@ void CefResourceManager::DeleteProvider(ProviderEntryList::iterator& iterator,
         if (stop)
           request->Stop();
         else
-          request->Continue(NULL);
+          request->Continue(nullptr);
         current_entry->provider_->OnRequestCanceled(request);
       }
     }

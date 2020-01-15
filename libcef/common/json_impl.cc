@@ -41,7 +41,7 @@ CefRefPtr<CefValue> CefParseJSON(const CefString& json_string,
         base::Value::ToUniquePtrValue(std::move(parse_result.value()))
             .release());
   }
-  return NULL;
+  return nullptr;
 }
 
 CefRefPtr<CefValue> CefParseJSONAndReturnError(
@@ -64,7 +64,7 @@ CefRefPtr<CefValue> CefParseJSONAndReturnError(
   error_code_out =
       static_cast<cef_json_parser_error_t>(value_and_error.error_code);
   error_msg_out = value_and_error.error_message;
-  return NULL;
+  return nullptr;
 }
 
 CefString CefWriteJSON(CefRefPtr<CefValue> node,

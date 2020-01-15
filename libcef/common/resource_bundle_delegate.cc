@@ -32,7 +32,7 @@ gfx::Image CefResourceBundleDelegate::GetNativeImageNamed(int resource_id) {
 base::RefCountedStaticMemory* CefResourceBundleDelegate::LoadDataResourceBytes(
     int resource_id,
     ui::ScaleFactor scale_factor) {
-  return NULL;
+  return nullptr;
 }
 
 bool CefResourceBundleDelegate::GetRawDataResource(int resource_id,
@@ -42,7 +42,7 @@ bool CefResourceBundleDelegate::GetRawDataResource(int resource_id,
     CefRefPtr<CefResourceBundleHandler> handler =
         content_client_->application()->GetResourceBundleHandler();
     if (handler.get()) {
-      void* data = NULL;
+      void* data = nullptr;
       size_t data_size = 0;
       if (scale_factor != ui::SCALE_FACTOR_NONE) {
         if (handler->GetDataResourceForScale(

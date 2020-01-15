@@ -41,7 +41,7 @@ class AuthCallbackImpl : public CefAuthCallback {
 
     if (delegate_) {
       delegate_->Continue(username, password);
-      delegate_ = NULL;
+      delegate_ = nullptr;
     }
   }
 
@@ -54,7 +54,7 @@ class AuthCallbackImpl : public CefAuthCallback {
 
     if (delegate_) {
       delegate_->Cancel();
-      delegate_ = NULL;
+      delegate_ = nullptr;
     }
   }
 

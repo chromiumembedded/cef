@@ -54,7 +54,7 @@ CEF_EXPORT int cef_string_wide_set(const wchar_t* src,
   } else {
     output->str = const_cast<wchar_t*>(src);
     output->length = src_len;
-    output->dtor = NULL;
+    output->dtor = nullptr;
   }
   return 1;
 }
@@ -78,7 +78,7 @@ CEF_EXPORT int cef_string_utf8_set(const char* src,
   } else {
     output->str = const_cast<char*>(src);
     output->length = src_len;
-    output->dtor = NULL;
+    output->dtor = nullptr;
   }
   return 1;
 }
@@ -103,39 +103,39 @@ CEF_EXPORT int cef_string_utf16_set(const char16* src,
   } else {
     output->str = const_cast<char16*>(src);
     output->length = src_len;
-    output->dtor = NULL;
+    output->dtor = nullptr;
   }
   return 1;
 }
 
 CEF_EXPORT void cef_string_wide_clear(cef_string_wide_t* str) {
-  DCHECK(str != NULL);
+  DCHECK(str != nullptr);
   if (str->dtor && str->str)
     str->dtor(str->str);
 
-  str->str = NULL;
+  str->str = nullptr;
   str->length = 0;
-  str->dtor = NULL;
+  str->dtor = nullptr;
 }
 
 CEF_EXPORT void cef_string_utf8_clear(cef_string_utf8_t* str) {
-  DCHECK(str != NULL);
+  DCHECK(str != nullptr);
   if (str->dtor && str->str)
     str->dtor(str->str);
 
-  str->str = NULL;
+  str->str = nullptr;
   str->length = 0;
-  str->dtor = NULL;
+  str->dtor = nullptr;
 }
 
 CEF_EXPORT void cef_string_utf16_clear(cef_string_utf16_t* str) {
-  DCHECK(str != NULL);
+  DCHECK(str != nullptr);
   if (str->dtor && str->str)
     str->dtor(str->str);
 
-  str->str = NULL;
+  str->str = nullptr;
   str->length = 0;
-  str->dtor = NULL;
+  str->dtor = nullptr;
 }
 
 CEF_EXPORT int cef_string_wide_cmp(const cef_string_wide_t* str1,

@@ -59,7 +59,7 @@ CefFrameImpl::~CefFrameImpl() {}
 bool CefFrameImpl::IsValid() {
   CEF_REQUIRE_RT_RETURN(false);
 
-  return (frame_ != NULL);
+  return (frame_ != nullptr);
 }
 
 void CefFrameImpl::Undo() {
@@ -174,7 +174,7 @@ bool CefFrameImpl::IsMain() {
   CEF_REQUIRE_RT_RETURN(false);
 
   if (frame_)
-    return (frame_->Parent() == NULL);
+    return (frame_->Parent() == nullptr);
   return false;
 }
 
@@ -202,7 +202,7 @@ int64 CefFrameImpl::GetIdentifier() {
 }
 
 CefRefPtr<CefFrame> CefFrameImpl::GetParent() {
-  CEF_REQUIRE_RT_RETURN(NULL);
+  CEF_REQUIRE_RT_RETURN(nullptr);
 
   if (frame_) {
     blink::WebFrame* parent = frame_->Parent();
@@ -210,7 +210,7 @@ CefRefPtr<CefFrame> CefFrameImpl::GetParent() {
       return browser_->GetWebFrameImpl(parent->ToWebLocalFrame()).get();
   }
 
-  return NULL;
+  return nullptr;
 }
 
 CefString CefFrameImpl::GetURL() {
@@ -225,20 +225,20 @@ CefString CefFrameImpl::GetURL() {
 }
 
 CefRefPtr<CefBrowser> CefFrameImpl::GetBrowser() {
-  CEF_REQUIRE_RT_RETURN(NULL);
+  CEF_REQUIRE_RT_RETURN(nullptr);
 
   return browser_;
 }
 
 CefRefPtr<CefV8Context> CefFrameImpl::GetV8Context() {
-  CEF_REQUIRE_RT_RETURN(NULL);
+  CEF_REQUIRE_RT_RETURN(nullptr);
 
   if (frame_) {
     v8::Isolate* isolate = blink::MainThreadIsolate();
     v8::HandleScope handle_scope(isolate);
     return new CefV8ContextImpl(isolate, frame_->MainWorldScriptContext());
   } else {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -264,16 +264,16 @@ void CefFrameImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
 CefRefPtr<CefURLRequest> CefFrameImpl::CreateURLRequest(
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefURLRequestClient> client) {
-  CEF_REQUIRE_RT_RETURN(NULL);
+  CEF_REQUIRE_RT_RETURN(nullptr);
 
   if (!request || !client || !frame_)
-    return NULL;
+    return nullptr;
 
   CefRefPtr<CefRenderURLRequest> impl =
       new CefRenderURLRequest(this, request, client);
   if (impl->Start())
     return impl.get();
-  return NULL;
+  return nullptr;
 }
 
 void CefFrameImpl::SendProcessMessage(CefProcessId target_process,

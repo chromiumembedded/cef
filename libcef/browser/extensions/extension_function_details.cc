@@ -373,7 +373,7 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
   create_params.window_info.reset(new CefWindowInfo);
 
 #if defined(OS_WIN)
-  create_params.window_info->SetAsPopup(NULL, CefString());
+  create_params.window_info->SetAsPopup(nullptr, CefString());
 #endif
 
   // Start with the active browser's settings.

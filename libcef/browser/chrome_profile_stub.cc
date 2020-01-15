@@ -36,7 +36,7 @@ Profile::ProfileType ChromeProfileStub::GetProfileType() const {
 
 Profile* ChromeProfileStub::GetOffTheRecordProfile() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 void ChromeProfileStub::DestroyOffTheRecordProfile() {
@@ -70,12 +70,12 @@ bool ChromeProfileStub::IsLegacySupervised() const {
 ExtensionSpecialStoragePolicy*
 ChromeProfileStub::GetExtensionSpecialStoragePolicy() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 PrefService* ChromeProfileStub::GetOffTheRecordPrefs() {
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 bool ChromeProfileStub::IsSameProfile(Profile* profile) {

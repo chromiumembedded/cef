@@ -30,10 +30,10 @@ CefProcessMessageImpl::CefProcessMessageImpl(Cef_Request_Params* value,
                                              bool read_only)
     : CefValueBase<CefProcessMessage, Cef_Request_Params>(
           value,
-          NULL,
+          nullptr,
           will_delete ? kOwnerWillDelete : kOwnerNoDelete,
           read_only,
-          NULL) {}
+          nullptr) {}
 
 bool CefProcessMessageImpl::CopyTo(Cef_Request_Params& target) {
   CEF_VALUE_VERIFY_RETURN(false, false);
@@ -50,7 +50,7 @@ bool CefProcessMessageImpl::IsReadOnly() {
 }
 
 CefRefPtr<CefProcessMessage> CefProcessMessageImpl::Copy() {
-  CEF_VALUE_VERIFY_RETURN(false, NULL);
+  CEF_VALUE_VERIFY_RETURN(false, nullptr);
   Cef_Request_Params* params = new Cef_Request_Params();
   CopyValue(const_value(), *params);
   return new CefProcessMessageImpl(params, true, false);
@@ -62,7 +62,7 @@ CefString CefProcessMessageImpl::GetName() {
 }
 
 CefRefPtr<CefListValue> CefProcessMessageImpl::GetArgumentList() {
-  CEF_VALUE_VERIFY_RETURN(false, NULL);
+  CEF_VALUE_VERIFY_RETURN(false, nullptr);
   return CefListValueImpl::GetOrCreateRef(
       const_cast<base::ListValue*>(&(const_value().arguments)),
       const_cast<Cef_Request_Params*>(&const_value()), read_only(),

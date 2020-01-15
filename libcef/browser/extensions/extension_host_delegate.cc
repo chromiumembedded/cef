@@ -27,7 +27,7 @@ content::JavaScriptDialogManager*
 CefExtensionHostDelegate::GetJavaScriptDialogManager() {
   // Never routed here from CefBrowserHostImpl.
   NOTREACHED();
-  return NULL;
+  return nullptr;
 }
 
 void CefExtensionHostDelegate::CreateTab(

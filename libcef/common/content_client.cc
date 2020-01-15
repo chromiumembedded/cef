@@ -44,7 +44,7 @@
 
 namespace {
 
-CefContentClient* g_content_client = NULL;
+CefContentClient* g_content_client = nullptr;
 
 // The following plugin-related methods are from
 // chrome/common/chrome_content_client.cc
@@ -168,7 +168,7 @@ bool GetSystemPepperFlash(content::PepperPluginInfo* plugin) {
                     .value())));
   if (!manifest_value.get())
     return false;
-  base::DictionaryValue* manifest = NULL;
+  base::DictionaryValue* manifest = nullptr;
   if (!manifest_value->GetAsDictionary(&manifest))
     return false;
 
@@ -195,7 +195,7 @@ CefContentClient::CefContentClient(CefRefPtr<CefApp> application)
 }
 
 CefContentClient::~CefContentClient() {
-  g_content_client = NULL;
+  g_content_client = nullptr;
 }
 
 // static
