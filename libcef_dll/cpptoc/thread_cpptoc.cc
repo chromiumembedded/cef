@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=021143077a1c6c05ea7e30a91185669fc4eeebc8$
+// $hash=f417535f2fb1f11f13efb5b5dfedf87f1062b70e$
 //
 
 #include "libcef_dll/cpptoc/thread_cpptoc.h"
@@ -131,7 +131,7 @@ CefCppToCRefCounted<CefThreadCppToC, CefThread, cef_thread_t>::UnwrapDerived(
     CefWrapperType type,
     cef_thread_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

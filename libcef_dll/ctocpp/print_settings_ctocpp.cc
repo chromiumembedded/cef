@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e82609d7db669c6867d4bba4a78d8d4c90c1d5e1$
+// $hash=bb2d141ebf3f887910043a250bf18f95b87d5fc3$
 //
 
 #include "libcef_dll/ctocpp/print_settings_ctocpp.h"
@@ -431,7 +431,7 @@ CefCToCppRefCounted<CefPrintSettingsCToCpp,
                     cef_print_settings_t>::UnwrapDerived(CefWrapperType type,
                                                          CefPrintSettings* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

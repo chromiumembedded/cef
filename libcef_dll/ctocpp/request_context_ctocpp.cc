@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=57295d584f84e500ab51e609eb0cebdcb73f2d02$
+// $hash=dd21194253186ee403d7ffe5098e87b030eeb4c8$
 //
 
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
@@ -62,7 +62,7 @@ CefRefPtr<CefRequestContext> CefRequestContext::CreateContext(
   // Verify param: other; type: refptr_same
   DCHECK(other.get());
   if (!other.get())
-    return NULL;
+    return nullptr;
   // Unverified params: handler
 
   // Execute
@@ -137,7 +137,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefRequestContextHandler> CefRequestContextCToCpp::GetHandler() {
   cef_request_context_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_handler))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -169,7 +169,7 @@ CefRefPtr<CefCookieManager> CefRequestContextCToCpp::GetCookieManager(
     CefRefPtr<CefCompletionCallback> callback) {
   cef_request_context_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_cookie_manager))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -261,14 +261,14 @@ CefRefPtr<CefValue> CefRequestContextCToCpp::GetPreference(
     const CefString& name) {
   cef_request_context_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_preference))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: name; type: string_byref_const
   DCHECK(!name.empty());
   if (name.empty())
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_value_t* _retval = _struct->get_preference(_struct, name.GetStruct());
@@ -282,7 +282,7 @@ CefRefPtr<CefDictionaryValue> CefRequestContextCToCpp::GetAllPreferences(
     bool include_defaults) {
   cef_request_context_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_all_preferences))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -508,14 +508,14 @@ CefRefPtr<CefExtension> CefRequestContextCToCpp::GetExtension(
     const CefString& extension_id) {
   cef_request_context_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_extension))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: extension_id; type: string_byref_const
   DCHECK(!extension_id.empty());
   if (extension_id.empty())
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_extension_t* _retval =
@@ -540,7 +540,7 @@ cef_request_context_t* CefCToCppRefCounted<
     cef_request_context_t>::UnwrapDerived(CefWrapperType type,
                                           CefRequestContext* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

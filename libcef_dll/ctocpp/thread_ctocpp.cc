@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d33acc7a6302c64c0038077a9daeba14e3ec7359$
+// $hash=10047fa557a7b02daa67063a01f1f19c45d17120$
 //
 
 #include "libcef_dll/ctocpp/thread_ctocpp.h"
@@ -48,7 +48,7 @@ CefRefPtr<CefTaskRunner> CefThreadCToCpp::GetTaskRunner() {
 
   cef_thread_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_task_runner))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -121,7 +121,7 @@ CefCToCppRefCounted<CefThreadCToCpp, CefThread, cef_thread_t>::UnwrapDerived(
     CefWrapperType type,
     CefThread* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

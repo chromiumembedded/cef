@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=baf1fac516c1c52da7342b35c96a467a541215ca$
+// $hash=c9ea7a1dae87105f7abfbd2e95747bc3380a9dc6$
 //
 
 #include "libcef_dll/cpptoc/views/browser_view_delegate_cpptoc.h"
@@ -384,7 +384,7 @@ CefRefPtr<CefBrowserViewDelegate> CefCppToCRefCounted<
                                                 cef_browser_view_delegate_t*
                                                     s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

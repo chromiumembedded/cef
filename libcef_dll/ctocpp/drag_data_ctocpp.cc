@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ecdd9b926abc011ae6c2b5318b0ef7f5660c2107$
+// $hash=3c09e3dd7fb76abe189934ca434a74af29ac9954$
 //
 
 #include "libcef_dll/ctocpp/drag_data_ctocpp.h"
@@ -39,7 +39,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefDragData> CefDragDataCToCpp::Clone() {
 
   cef_drag_data_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, clone))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -425,7 +425,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefImage> CefDragDataCToCpp::GetImage() {
 
   cef_drag_data_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_image))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -483,7 +483,7 @@ cef_drag_data_t*
 CefCToCppRefCounted<CefDragDataCToCpp, CefDragData, cef_drag_data_t>::
     UnwrapDerived(CefWrapperType type, CefDragData* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

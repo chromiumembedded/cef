@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=aedb334de8de21efd95e2dd47665303fb04a1beb$
+// $hash=83b45b70a01ab7ae99b015e0017446f623e484b6$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_ref_ptr_client_cpptoc.h"
@@ -63,7 +63,7 @@ CefCppToCRefCounted<CefTranslatorTestRefPtrClientCppToC,
         reinterpret_cast<cef_translator_test_ref_ptr_client_child_t*>(s));
   }
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

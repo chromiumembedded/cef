@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5324f142da5ca5e214ce03eeab0babbaa4031126$
+// $hash=31420c63af54d0862f106caad051e85ed7a6772d$
 //
 
 #include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
@@ -85,18 +85,18 @@ CefBrowserViewDelegateCToCpp::GetDelegateForPopupBrowserView(
 
   cef_browser_view_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_delegate_for_popup_browser_view))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser_view; type: refptr_diff
   DCHECK(browser_view.get());
   if (!browser_view.get())
-    return NULL;
+    return nullptr;
   // Verify param: client; type: refptr_same
   DCHECK(client.get());
   if (!client.get())
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_browser_view_delegate_t* _retval =
@@ -350,7 +350,7 @@ cef_browser_view_delegate_t* CefCToCppRefCounted<
     cef_browser_view_delegate_t>::UnwrapDerived(CefWrapperType type,
                                                 CefBrowserViewDelegate* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

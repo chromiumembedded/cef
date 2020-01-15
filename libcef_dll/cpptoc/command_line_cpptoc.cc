@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=72764aa71557dcd95d03c496b9470300e7dc9bdf$
+// $hash=c2e91da671aba98135e71145f6b27f92b892d425$
 //
 
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
@@ -422,7 +422,7 @@ CefRefPtr<CefCommandLine>
 CefCppToCRefCounted<CefCommandLineCppToC, CefCommandLine, cef_command_line_t>::
     UnwrapDerived(CefWrapperType type, cef_command_line_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

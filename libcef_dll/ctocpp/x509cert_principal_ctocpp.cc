@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=972fb9f391ff78cc65ff8594153e8de13da3b2cb$
+// $hash=66b1884e86ab45e63bbe4f902da5934d61520d45$
 //
 
 #include "libcef_dll/ctocpp/x509cert_principal_ctocpp.h"
@@ -241,7 +241,7 @@ cef_x509cert_principal_t* CefCToCppRefCounted<
     cef_x509cert_principal_t>::UnwrapDerived(CefWrapperType type,
                                              CefX509CertPrincipal* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

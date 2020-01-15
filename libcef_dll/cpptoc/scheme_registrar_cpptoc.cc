@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b022c5b8041ec64e6aa9292441c9ef25a343fb85$
+// $hash=64e26329466a4e6f497b648abbcb60bb5619b033$
 //
 
 #include "libcef_dll/cpptoc/scheme_registrar_cpptoc.h"
@@ -69,7 +69,7 @@ CefRawPtr<CefSchemeRegistrar> CefCppToCScoped<
     cef_scheme_registrar_t>::UnwrapDerivedRaw(CefWrapperType type,
                                               cef_scheme_registrar_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

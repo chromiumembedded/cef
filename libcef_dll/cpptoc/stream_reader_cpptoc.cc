@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=60cb93ae404284f84735a6f496d64a7136dfb5e2$
+// $hash=02a72f4e6ace34f8ddeec8f2b9055cc304a5dfcd$
 //
 
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
@@ -193,7 +193,7 @@ CefRefPtr<CefStreamReader> CefCppToCRefCounted<
     cef_stream_reader_t>::UnwrapDerived(CefWrapperType type,
                                         cef_stream_reader_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

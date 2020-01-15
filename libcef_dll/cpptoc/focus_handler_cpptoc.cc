@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2df72fda903f459dcb6fb7333f8666ad6263f084$
+// $hash=f506b931a2f5de1d742319863e8d12e7f097d945$
 //
 
 #include "libcef_dll/cpptoc/focus_handler_cpptoc.h"
@@ -104,7 +104,7 @@ CefRefPtr<CefFocusHandler> CefCppToCRefCounted<
     cef_focus_handler_t>::UnwrapDerived(CefWrapperType type,
                                         cef_focus_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0b50c4766749d4090e489c30fcf04a196d7f964e$
+// $hash=0acbb84fac664d4f43b0d32586dcdec0b81cd082$
 //
 
 #include "libcef_dll/ctocpp/views/layout_ctocpp.h"
@@ -25,7 +25,7 @@ CefRefPtr<CefBoxLayout> CefLayoutCToCpp::AsBoxLayout() {
 
   cef_layout_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, as_box_layout))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -42,7 +42,7 @@ CefRefPtr<CefFillLayout> CefLayoutCToCpp::AsFillLayout() {
 
   cef_layout_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, as_fill_layout))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -93,7 +93,7 @@ CefCToCppRefCounted<CefLayoutCToCpp, CefLayout, cef_layout_t>::UnwrapDerived(
         CefFillLayoutCToCpp::Unwrap(reinterpret_cast<CefFillLayout*>(c)));
   }
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

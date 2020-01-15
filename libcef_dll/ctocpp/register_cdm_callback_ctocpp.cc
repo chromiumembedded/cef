@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b9e2e1092f6215025fda28739f2e6c6a5768db71$
+// $hash=cb7f7a8bc8e7b414eceba18bd4164b857d21ff34$
 //
 
 #include "libcef_dll/ctocpp/register_cdm_callback_ctocpp.h"
@@ -53,7 +53,7 @@ cef_register_cdm_callback_t* CefCToCppRefCounted<
     cef_register_cdm_callback_t>::UnwrapDerived(CefWrapperType type,
                                                 CefRegisterCdmCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

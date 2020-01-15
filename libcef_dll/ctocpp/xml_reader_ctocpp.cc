@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ed0d53b51e05aca4a5dc42fabf8df950328cd052$
+// $hash=480fc8b34176c75410ff4073adea11b2397e7d3e$
 //
 
 #include "libcef_dll/ctocpp/xml_reader_ctocpp.h"
@@ -29,11 +29,11 @@ CefRefPtr<CefXmlReader> CefXmlReader::Create(CefRefPtr<CefStreamReader> stream,
   // Verify param: stream; type: refptr_same
   DCHECK(stream.get());
   if (!stream.get())
-    return NULL;
+    return nullptr;
   // Verify param: URI; type: string_byref_const
   DCHECK(!URI.empty());
   if (URI.empty())
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_xml_reader_t* _retval = cef_xml_reader_create(
@@ -599,7 +599,7 @@ cef_xml_reader_t*
 CefCToCppRefCounted<CefXmlReaderCToCpp, CefXmlReader, cef_xml_reader_t>::
     UnwrapDerived(CefWrapperType type, CefXmlReader* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

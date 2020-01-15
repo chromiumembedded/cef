@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f0975279c92730c0d0ea07353c1cd0848b802641$
+// $hash=243cd9194d5b67b3ba35ae8b3f7c58588c0ccebb$
 //
 
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
@@ -84,7 +84,7 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
       client = CefClientCToCpp::Wrap(clientStruct);
     }
   } else {
-    client = NULL;
+    client = nullptr;
   }
   // Restore param:extra_info; type: refptr_diff_byref
   if (extra_infoStruct) {
@@ -92,7 +92,7 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
       extra_info = CefDictionaryValueCppToC::Unwrap(extra_infoStruct);
     }
   } else {
-    extra_info = NULL;
+    extra_info = nullptr;
   }
   // Restore param:no_javascript_access; type: bool_byaddr
   if (no_javascript_access)
@@ -179,7 +179,7 @@ cef_life_span_handler_t* CefCToCppRefCounted<
     cef_life_span_handler_t>::UnwrapDerived(CefWrapperType type,
                                             CefLifeSpanHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

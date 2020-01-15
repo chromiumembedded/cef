@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=331073baf491d6619dcf8eeac7568c451955c1dd$
+// $hash=ce5faec2604b151f3872baae02247038c41dfbbd$
 //
 
 #include "libcef_dll/cpptoc/completion_callback_cpptoc.h"
@@ -54,7 +54,7 @@ CefRefPtr<CefCompletionCallback> CefCppToCRefCounted<
     cef_completion_callback_t>::UnwrapDerived(CefWrapperType type,
                                               cef_completion_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

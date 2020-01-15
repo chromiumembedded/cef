@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=830d3833ca75910c1d7bb2a0a1cd2920b5c5a28f$
+// $hash=68730b3bdc2f7d7fb673a3321fa6e4b17f8a4011$
 //
 
 #include "libcef_dll/ctocpp/request_ctocpp.h"
@@ -159,7 +159,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefPostData> CefRequestCToCpp::GetPostData() {
   cef_request_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_post_data))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -427,7 +427,7 @@ CefCToCppRefCounted<CefRequestCToCpp, CefRequest, cef_request_t>::UnwrapDerived(
     CefWrapperType type,
     CefRequest* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

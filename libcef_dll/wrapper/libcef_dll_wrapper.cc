@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3edb51e2a90e523d8013129b8d17730e210eea65$
+// $hash=c565ea9030eeed15f24fe420b828453a23dbc6ba$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -492,7 +492,7 @@ CEF_GLOBAL CefRefPtr<CefBinaryValue> CefBase64Decode(const CefString& data) {
   // Verify param: data; type: string_byref_const
   DCHECK(!data.empty());
   if (data.empty())
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_binary_value_t* _retval = cef_base64decode(data.GetStruct());
@@ -548,7 +548,7 @@ CEF_GLOBAL CefRefPtr<CefValue> CefParseJSON(const CefString& json_string,
   // Verify param: json_string; type: string_byref_const
   DCHECK(!json_string.empty());
   if (json_string.empty())
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_value_t* _retval = cef_parse_json(json_string.GetStruct(), options);
@@ -568,7 +568,7 @@ CEF_GLOBAL CefRefPtr<CefValue> CefParseJSONAndReturnError(
   // Verify param: json_string; type: string_byref_const
   DCHECK(!json_string.empty());
   if (json_string.empty())
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_value_t* _retval = cef_parse_jsonand_return_error(

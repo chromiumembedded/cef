@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=40f2f58875396baef0de17aba890a2c252cf6167$
+// $hash=ba596df840e36426b87e0744fcf55e179a915c5e$
 //
 
 #include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
@@ -28,18 +28,18 @@ CefRefPtr<CefResourceHandler> CefSchemeHandlerFactoryCToCpp::Create(
     CefRefPtr<CefRequest> request) {
   cef_scheme_handler_factory_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, create))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: scheme_name; type: string_byref_const
   DCHECK(!scheme_name.empty());
   if (scheme_name.empty())
-    return NULL;
+    return nullptr;
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
   if (!request.get())
-    return NULL;
+    return nullptr;
   // Unverified params: browser, frame
 
   // Execute
@@ -66,7 +66,7 @@ cef_scheme_handler_factory_t* CefCToCppRefCounted<
     cef_scheme_handler_factory_t>::UnwrapDerived(CefWrapperType type,
                                                  CefSchemeHandlerFactory* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

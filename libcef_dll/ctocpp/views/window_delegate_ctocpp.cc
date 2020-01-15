@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=387f260fbe71b40544754d1215affa3becbedb4d$
+// $hash=42f9fdcc49577f6d052e4f357138efe4443a72d9$
 //
 
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
@@ -66,22 +66,22 @@ CefRefPtr<CefWindow> CefWindowDelegateCToCpp::GetParentWindow(
 
   cef_window_delegate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_parent_window))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: window; type: refptr_diff
   DCHECK(window.get());
   if (!window.get())
-    return NULL;
+    return nullptr;
   // Verify param: is_menu; type: bool_byaddr
   DCHECK(is_menu);
   if (!is_menu)
-    return NULL;
+    return nullptr;
   // Verify param: can_activate_menu; type: bool_byaddr
   DCHECK(can_activate_menu);
   if (!can_activate_menu)
-    return NULL;
+    return nullptr;
 
   // Translate param: is_menu; type: bool_byaddr
   int is_menuInt = is_menu ? *is_menu : 0;
@@ -470,7 +470,7 @@ cef_window_delegate_t* CefCToCppRefCounted<
     cef_window_delegate_t>::UnwrapDerived(CefWrapperType type,
                                           CefWindowDelegate* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=08bfb6f0babec341e93b1d4960922f836116f55e$
+// $hash=65dec86d6113bdacec295b3b46c6f35ed299f42a$
 //
 
 #include "libcef_dll/cpptoc/menu_model_delegate_cpptoc.h"
@@ -212,7 +212,7 @@ CefRefPtr<CefMenuModelDelegate> CefCppToCRefCounted<
     cef_menu_model_delegate_t>::UnwrapDerived(CefWrapperType type,
                                               cef_menu_model_delegate_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

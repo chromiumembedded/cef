@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3b5e32a03d86fc4c5ca036e37380c3603a09772e$
+// $hash=ac8389b701fc37f7aa4dbccff339d8a88b2a7741$
 //
 
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
@@ -80,7 +80,7 @@ CefRefPtr<CefCookieVisitor> CefCppToCRefCounted<
     cef_cookie_visitor_t>::UnwrapDerived(CefWrapperType type,
                                          cef_cookie_visitor_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

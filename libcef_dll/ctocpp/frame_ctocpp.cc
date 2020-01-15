@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=077aa890d762e02f21214ced17c43820b6c727a5$
+// $hash=180295a757845728ac0b6b2fd778e7a16574ab56$
 //
 
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
@@ -314,7 +314,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefFrame> CefFrameCToCpp::GetParent() {
 
   cef_frame_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_parent))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -348,7 +348,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefBrowser> CefFrameCToCpp::GetBrowser() {
 
   cef_frame_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_browser))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -365,7 +365,7 @@ CefRefPtr<CefV8Context> CefFrameCToCpp::GetV8Context() {
 
   cef_frame_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_v8context))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -403,18 +403,18 @@ CefRefPtr<CefURLRequest> CefFrameCToCpp::CreateURLRequest(
 
   cef_frame_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, create_urlrequest))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_same
   DCHECK(request.get());
   if (!request.get())
-    return NULL;
+    return nullptr;
   // Verify param: client; type: refptr_diff
   DCHECK(client.get());
   if (!client.get())
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_urlrequest_t* _retval =
@@ -462,7 +462,7 @@ CefCToCppRefCounted<CefFrameCToCpp, CefFrame, cef_frame_t>::UnwrapDerived(
     CefWrapperType type,
     CefFrame* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

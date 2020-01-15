@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c69bc6de2e1b778382798d120ecfa5330fababad$
+// $hash=fb9b9acf2ce3e3a2ba72b2a20e886eb8530b97b4$
 //
 
 #include "libcef_dll/cpptoc/list_value_cpptoc.h"
@@ -597,7 +597,7 @@ CefRefPtr<CefListValue>
 CefCppToCRefCounted<CefListValueCppToC, CefListValue, cef_list_value_t>::
     UnwrapDerived(CefWrapperType type, cef_list_value_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

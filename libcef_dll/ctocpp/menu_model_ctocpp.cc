@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=be43ce63296a122aee664701e344d91f31533a32$
+// $hash=fb562ef19ca1a0c2094548aae3f6a213d08480f8$
 //
 
 #include "libcef_dll/ctocpp/menu_model_ctocpp.h"
@@ -28,7 +28,7 @@ CefRefPtr<CefMenuModel> CefMenuModel::CreateMenuModel(
   // Verify param: delegate; type: refptr_diff
   DCHECK(delegate.get());
   if (!delegate.get())
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_menu_model_t* _retval =
@@ -180,14 +180,14 @@ CefRefPtr<CefMenuModel> CefMenuModelCToCpp::AddSubMenu(int command_id,
 
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, add_sub_menu))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: label; type: string_byref_const
   DCHECK(!label.empty());
   if (label.empty())
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_menu_model_t* _retval =
@@ -298,14 +298,14 @@ CefRefPtr<CefMenuModel> CefMenuModelCToCpp::InsertSubMenuAt(
 
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, insert_sub_menu_at))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: label; type: string_byref_const
   DCHECK(!label.empty());
   if (label.empty())
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_menu_model_t* _retval = _struct->insert_sub_menu_at(
@@ -583,7 +583,7 @@ CefRefPtr<CefMenuModel> CefMenuModelCToCpp::GetSubMenu(int command_id) {
 
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_sub_menu))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -600,7 +600,7 @@ CefRefPtr<CefMenuModel> CefMenuModelCToCpp::GetSubMenuAt(int index) {
 
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_sub_menu_at))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -1126,7 +1126,7 @@ cef_menu_model_t*
 CefCToCppRefCounted<CefMenuModelCToCpp, CefMenuModel, cef_menu_model_t>::
     UnwrapDerived(CefWrapperType type, CefMenuModel* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6281cabe7451f958d7169f6fc0bd6bcfcbfed9f4$
+// $hash=669e20095016a2e40a0925b9715fc0b15229ff32$
 //
 
 #include "libcef_dll/cpptoc/cookie_access_filter_cpptoc.h"
@@ -118,7 +118,7 @@ CefRefPtr<CefCookieAccessFilter> CefCppToCRefCounted<
     cef_cookie_access_filter_t>::UnwrapDerived(CefWrapperType type,
                                                cef_cookie_access_filter_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

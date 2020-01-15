@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=86316b91574d4bd0505e59e14212f72e984ff2ff$
+// $hash=69b5f96bfef5ed4e368ff868fc8968d38a1159bb$
 //
 
 #include "libcef_dll/cpptoc/views/panel_delegate_cpptoc.h"
@@ -244,7 +244,7 @@ CefRefPtr<CefPanelDelegate> CefCppToCRefCounted<
         reinterpret_cast<cef_window_delegate_t*>(s));
   }
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

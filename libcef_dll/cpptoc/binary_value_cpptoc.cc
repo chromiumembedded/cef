@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4b918f6b512d20b2a46b716ee0b7aa268f9c8705$
+// $hash=d83e342a1d94a14e39b1eba174e0b8892fd52728$
 //
 
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
@@ -197,7 +197,7 @@ CefRefPtr<CefBinaryValue>
 CefCppToCRefCounted<CefBinaryValueCppToC, CefBinaryValue, cef_binary_value_t>::
     UnwrapDerived(CefWrapperType type, cef_binary_value_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=aba82e51088af7c7ee73ea05943ae6d10c3eed10$
+// $hash=c5439c177bd70bf3d8d52e0381c08d6276453183$
 //
 
 #include "include/views/cef_browser_view.h"
@@ -34,19 +34,19 @@ CefRefPtr<CefBrowserView> CefBrowserView::CreateBrowserView(
     CefRefPtr<CefRequestContext> request_context,
     CefRefPtr<CefBrowserViewDelegate> delegate) {
   NOTIMPLEMENTED();
-  return NULL;
+  return nullptr;
 }
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBrowserView> CefBrowserView::GetForBrowser(
     CefRefPtr<CefBrowser> browser) {
   NOTIMPLEMENTED();
-  return NULL;
+  return nullptr;
 }
 
 NO_SANITIZE("cfi-icall") CefRefPtr<CefDisplay> CefDisplay::GetPrimaryDisplay() {
   NOTIMPLEMENTED();
-  return NULL;
+  return nullptr;
 }
 
 NO_SANITIZE("cfi-icall")
@@ -54,7 +54,7 @@ CefRefPtr<CefDisplay> CefDisplay::GetDisplayNearestPoint(
     const CefPoint& point,
     bool input_pixel_coords) {
   NOTIMPLEMENTED();
-  return NULL;
+  return nullptr;
 }
 
 NO_SANITIZE("cfi-icall")
@@ -62,7 +62,7 @@ CefRefPtr<CefDisplay> CefDisplay::GetDisplayMatchingBounds(
     const CefRect& bounds,
     bool input_pixel_coords) {
   NOTIMPLEMENTED();
-  return NULL;
+  return nullptr;
 }
 
 NO_SANITIZE("cfi-icall") size_t CefDisplay::GetDisplayCount() {
@@ -80,7 +80,7 @@ CefRefPtr<CefLabelButton> CefLabelButton::CreateLabelButton(
     CefRefPtr<CefButtonDelegate> delegate,
     const CefString& text) {
   NOTIMPLEMENTED();
-  return NULL;
+  return nullptr;
 }
 
 NO_SANITIZE("cfi-icall")
@@ -88,33 +88,33 @@ CefRefPtr<CefMenuButton> CefMenuButton::CreateMenuButton(
     CefRefPtr<CefMenuButtonDelegate> delegate,
     const CefString& text) {
   NOTIMPLEMENTED();
-  return NULL;
+  return nullptr;
 }
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefPanel> CefPanel::CreatePanel(
     CefRefPtr<CefPanelDelegate> delegate) {
   NOTIMPLEMENTED();
-  return NULL;
+  return nullptr;
 }
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefScrollView> CefScrollView::CreateScrollView(
     CefRefPtr<CefViewDelegate> delegate) {
   NOTIMPLEMENTED();
-  return NULL;
+  return nullptr;
 }
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefTextfield> CefTextfield::CreateTextfield(
     CefRefPtr<CefTextfieldDelegate> delegate) {
   NOTIMPLEMENTED();
-  return NULL;
+  return nullptr;
 }
 
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefWindow> CefWindow::CreateTopLevelWindow(
     CefRefPtr<CefWindowDelegate> delegate) {
   NOTIMPLEMENTED();
-  return NULL;
+  return nullptr;
 }

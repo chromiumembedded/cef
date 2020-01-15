@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f4e3b182d968e9b59d0a7c592863aa3c6cb86ead$
+// $hash=bf467f48bb553cc7308bce0fd74d3dcedaf8b8ad$
 //
 
 #include "libcef_dll/ctocpp/image_ctocpp.h"
@@ -247,7 +247,7 @@ CefRefPtr<CefBinaryValue> CefImageCToCpp::GetAsBitmap(
 
   cef_image_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_as_bitmap))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -269,7 +269,7 @@ CefRefPtr<CefBinaryValue> CefImageCToCpp::GetAsPNG(float scale_factor,
 
   cef_image_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_as_png))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -290,7 +290,7 @@ CefRefPtr<CefBinaryValue> CefImageCToCpp::GetAsJPEG(float scale_factor,
 
   cef_image_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_as_jpeg))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -318,7 +318,7 @@ CefCToCppRefCounted<CefImageCToCpp, CefImage, cef_image_t>::UnwrapDerived(
     CefWrapperType type,
     CefImage* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

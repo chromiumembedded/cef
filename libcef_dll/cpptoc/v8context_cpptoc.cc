@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c37fce403323d485b8079a38c65a4460862f3faa$
+// $hash=982d6b3a8201bbd3d32070c3ca522d849bc2d1f0$
 //
 
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
@@ -225,7 +225,7 @@ int CEF_CALLBACK v8context_eval(struct _cef_v8context_t* self,
         *retval = CefV8ValueCppToC::Wrap(retvalPtr);
       }
     } else {
-      *retval = NULL;
+      *retval = nullptr;
     }
   }
   // Restore param: exception; type: refptr_same_byref
@@ -235,7 +235,7 @@ int CEF_CALLBACK v8context_eval(struct _cef_v8context_t* self,
         *exception = CefV8ExceptionCppToC::Wrap(exceptionPtr);
       }
     } else {
-      *exception = NULL;
+      *exception = nullptr;
     }
   }
 
@@ -268,7 +268,7 @@ CefRefPtr<CefV8Context>
 CefCppToCRefCounted<CefV8ContextCppToC, CefV8Context, cef_v8context_t>::
     UnwrapDerived(CefWrapperType type, cef_v8context_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

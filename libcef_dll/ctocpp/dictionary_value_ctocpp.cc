@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3ad6b3c8233236177290a95017941cf81c6c8c34$
+// $hash=e7dcf32d390886ac5690380fbf034c8daadec891$
 //
 
 #include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
@@ -137,7 +137,7 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValueCToCpp::Copy(
 
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, copy))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -282,14 +282,14 @@ CefRefPtr<CefValue> CefDictionaryValueCToCpp::GetValue(const CefString& key) {
 
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_value))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: key; type: string_byref_const
   DCHECK(!key.empty());
   if (key.empty())
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_value_t* _retval = _struct->get_value(_struct, key.GetStruct());
@@ -395,14 +395,14 @@ CefRefPtr<CefBinaryValue> CefDictionaryValueCToCpp::GetBinary(
 
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_binary))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: key; type: string_byref_const
   DCHECK(!key.empty());
   if (key.empty())
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_binary_value_t* _retval = _struct->get_binary(_struct, key.GetStruct());
@@ -418,14 +418,14 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValueCToCpp::GetDictionary(
 
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_dictionary))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: key; type: string_byref_const
   DCHECK(!key.empty());
   if (key.empty())
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_dictionary_value_t* _retval =
@@ -442,14 +442,14 @@ CefRefPtr<CefListValue> CefDictionaryValueCToCpp::GetList(
 
   cef_dictionary_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_list))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: key; type: string_byref_const
   DCHECK(!key.empty());
   if (key.empty())
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_list_value_t* _retval = _struct->get_list(_struct, key.GetStruct());
@@ -701,7 +701,7 @@ cef_dictionary_value_t* CefCToCppRefCounted<
     cef_dictionary_value_t>::UnwrapDerived(CefWrapperType type,
                                            CefDictionaryValue* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

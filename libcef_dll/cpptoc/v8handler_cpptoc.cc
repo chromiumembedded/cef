@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d20f7aa156d951e3567e2cdf27e2e2d5f946b72c$
+// $hash=e0f75f572dbb0e9c838dbc88a5bfdd4d73a8e880$
 //
 
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
@@ -80,7 +80,7 @@ int CEF_CALLBACK v8handler_execute(struct _cef_v8handler_t* self,
         *retval = CefV8ValueCToCpp::Unwrap(retvalPtr);
       }
     } else {
-      *retval = NULL;
+      *retval = nullptr;
     }
   }
 
@@ -105,7 +105,7 @@ CefRefPtr<CefV8Handler>
 CefCppToCRefCounted<CefV8HandlerCppToC, CefV8Handler, cef_v8handler_t>::
     UnwrapDerived(CefWrapperType type, cef_v8handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

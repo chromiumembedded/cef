@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7b9456e6c60c73a8fed4dace1bd08f49ad1dcf2b$
+// $hash=5477e0f2a6661422b3e2d719e97f8e76ce0a631c$
 //
 
 #include "libcef_dll/cpptoc/image_cpptoc.h"
@@ -425,7 +425,7 @@ CefCppToCRefCounted<CefImageCppToC, CefImage, cef_image_t>::UnwrapDerived(
     CefWrapperType type,
     cef_image_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

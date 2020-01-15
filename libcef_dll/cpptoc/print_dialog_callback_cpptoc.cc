@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e2d66f3ac63884b4d533e163f2b4ca3714fb95f7$
+// $hash=dd4497ea885d54be767940af4148f3c7c9f22298$
 //
 
 #include "libcef_dll/cpptoc/print_dialog_callback_cpptoc.h"
@@ -77,7 +77,7 @@ CefRefPtr<CefPrintDialogCallback> CefCppToCRefCounted<
                                                 cef_print_dialog_callback_t*
                                                     s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

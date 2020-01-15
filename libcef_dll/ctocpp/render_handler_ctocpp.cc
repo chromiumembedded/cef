@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8fdcf6326c9187cb82aee7e5f2f44318a68986fa$
+// $hash=f592f3806c9f87ee6c691b9f072cee4d6bb4650e$
 //
 
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
@@ -27,7 +27,7 @@ CefRenderHandlerCToCpp::GetAccessibilityHandler() {
 
   cef_render_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_accessibility_handler))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -470,7 +470,7 @@ CefCToCppRefCounted<CefRenderHandlerCToCpp,
                     cef_render_handler_t>::UnwrapDerived(CefWrapperType type,
                                                          CefRenderHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

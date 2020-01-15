@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=50239c2410b1976d78289858a3155e6f37591c9d$
+// $hash=5e0a3a27b41b550a1dd4985eec9034a6f7c2b7d7$
 //
 
 #include <dlfcn.h>
@@ -74,7 +74,7 @@
 
 namespace {
 
-void* g_libcef_handle = NULL;
+void* g_libcef_handle = nullptr;
 
 void* libcef_get_ptr(const char* path, const char* name) {
   void* ptr = dlsym(g_libcef_handle, name);
@@ -953,7 +953,7 @@ int cef_unload_library() {
     if (!result) {
       fprintf(stderr, "dlclose: %s\n", dlerror());
     }
-    g_libcef_handle = NULL;
+    g_libcef_handle = nullptr;
   }
   return result;
 }

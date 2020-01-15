@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b74ec6da2ba269e972355cd1f6efa6bcd8d2a19c$
+// $hash=bcc26f8afe20b67daeb6feb8578f195649b2bc59$
 //
 
 #include "libcef_dll/ctocpp/sslinfo_ctocpp.h"
@@ -40,7 +40,7 @@ CefRefPtr<CefX509Certificate> CefSSLInfoCToCpp::GetX509Certificate() {
 
   cef_sslinfo_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_x509certificate))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -67,7 +67,7 @@ CefCToCppRefCounted<CefSSLInfoCToCpp, CefSSLInfo, cef_sslinfo_t>::UnwrapDerived(
     CefWrapperType type,
     CefSSLInfo* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

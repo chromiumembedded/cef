@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bf5dc99db8cb51472da0e567be431209352b7eb6$
+// $hash=e8c1ba613fd96ac7872f84e15bf560350f957ec4$
 //
 
 #include "libcef_dll/ctocpp/v8stack_trace_ctocpp.h"
@@ -71,7 +71,7 @@ CefRefPtr<CefV8StackFrame> CefV8StackTraceCToCpp::GetFrame(int index) {
 
   cef_v8stack_trace_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_frame))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -99,7 +99,7 @@ CefCToCppRefCounted<CefV8StackTraceCToCpp,
                     cef_v8stack_trace_t>::UnwrapDerived(CefWrapperType type,
                                                         CefV8StackTrace* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

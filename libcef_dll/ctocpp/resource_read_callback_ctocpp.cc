@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1729a3c4a46b325c1bfcd9b1e56ffae0bf58f875$
+// $hash=125f79d2fcbf968b7fd2d872b03a711274583eb1$
 //
 
 #include "libcef_dll/ctocpp/resource_read_callback_ctocpp.h"
@@ -48,7 +48,7 @@ cef_resource_read_callback_t* CefCToCppRefCounted<
     cef_resource_read_callback_t>::UnwrapDerived(CefWrapperType type,
                                                  CefResourceReadCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

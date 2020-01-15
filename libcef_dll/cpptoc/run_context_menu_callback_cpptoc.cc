@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=77cb63933bbc0f7709c1d5068ae2770df4c27a01$
+// $hash=7445defe1636c34ac7fc05e2acb02330cf71ef6e$
 //
 
 #include "libcef_dll/cpptoc/run_context_menu_callback_cpptoc.h"
@@ -71,7 +71,7 @@ CefCppToCRefCounted<CefRunContextMenuCallbackCppToC,
                     cef_run_context_menu_callback_t>::
     UnwrapDerived(CefWrapperType type, cef_run_context_menu_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

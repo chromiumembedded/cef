@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cbcf553a3a5210539b934a153cdc56c0a0496d98$
+// $hash=17553c276ccdfd3d27c552d8ae7bedfe7a458f9a$
 //
 
 #include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
@@ -111,7 +111,7 @@ CefRefPtr<CefWebPluginInfo> CefCppToCRefCounted<
     cef_web_plugin_info_t>::UnwrapDerived(CefWrapperType type,
                                           cef_web_plugin_info_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

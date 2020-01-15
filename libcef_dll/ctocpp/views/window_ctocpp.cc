@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3563b09d215c93f4e87129c6e6a733f55fd9e2b2$
+// $hash=50c86d019c16b2efb58ea99ca3f763eaaf297397$
 //
 
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
@@ -361,7 +361,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefImage> CefWindowCToCpp::GetWindowIcon() {
 
   cef_window_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_window_icon))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -397,7 +397,7 @@ CefRefPtr<CefImage> CefWindowCToCpp::GetWindowAppIcon() {
 
   cef_window_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_window_app_icon))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -448,7 +448,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefDisplay> CefWindowCToCpp::GetDisplay() {
 
   cef_window_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_display))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -621,7 +621,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefWindow> CefWindowCToCpp::AsWindow() {
 
   cef_panel_t* _struct = reinterpret_cast<cef_panel_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_window))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -638,7 +638,7 @@ CefRefPtr<CefFillLayout> CefWindowCToCpp::SetToFillLayout() {
 
   cef_panel_t* _struct = reinterpret_cast<cef_panel_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, set_to_fill_layout))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -656,7 +656,7 @@ CefRefPtr<CefBoxLayout> CefWindowCToCpp::SetToBoxLayout(
 
   cef_panel_t* _struct = reinterpret_cast<cef_panel_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, set_to_box_layout))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -672,7 +672,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefLayout> CefWindowCToCpp::GetLayout() {
 
   cef_panel_t* _struct = reinterpret_cast<cef_panel_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_layout))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -811,14 +811,14 @@ CefRefPtr<CefView> CefWindowCToCpp::GetChildViewAt(int index) {
 
   cef_panel_t* _struct = reinterpret_cast<cef_panel_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_child_view_at))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: index; type: simple_byval
   DCHECK_GE(index, 0);
   if (index < 0)
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_view_t* _retval = _struct->get_child_view_at(_struct, index);
@@ -833,7 +833,7 @@ CefRefPtr<CefBrowserView> CefWindowCToCpp::AsBrowserView() {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_browser_view))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -849,7 +849,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefButton> CefWindowCToCpp::AsButton() {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_button))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -865,7 +865,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefPanel> CefWindowCToCpp::AsPanel() {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_panel))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -882,7 +882,7 @@ CefRefPtr<CefScrollView> CefWindowCToCpp::AsScrollView() {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_scroll_view))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -899,7 +899,7 @@ CefRefPtr<CefTextfield> CefWindowCToCpp::AsTextfield() {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_textfield))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -1006,7 +1006,7 @@ CefRefPtr<CefViewDelegate> CefWindowCToCpp::GetDelegate() {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_delegate))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -1022,7 +1022,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefWindow> CefWindowCToCpp::GetWindow() {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_window))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -1096,7 +1096,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefView> CefWindowCToCpp::GetParentView() {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_parent_view))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -1113,7 +1113,7 @@ CefRefPtr<CefView> CefWindowCToCpp::GetViewForID(int id) {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_view_for_id))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -1613,7 +1613,7 @@ CefCToCppRefCounted<CefWindowCToCpp, CefWindow, cef_window_t>::UnwrapDerived(
     CefWrapperType type,
     CefWindow* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

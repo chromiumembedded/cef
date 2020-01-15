@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f53be20a44c3bd718b07487a4275d70f8f285c75$
+// $hash=9ee756d7e93888230541b494da5559d736260b5c$
 //
 
 #include "libcef_dll/cpptoc/views/textfield_cpptoc.h"
@@ -1609,7 +1609,7 @@ CefRefPtr<CefTextfield>
 CefCppToCRefCounted<CefTextfieldCppToC, CefTextfield, cef_textfield_t>::
     UnwrapDerived(CefWrapperType type, cef_textfield_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

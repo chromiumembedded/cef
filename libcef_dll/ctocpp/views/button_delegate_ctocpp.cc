@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bd3bdac0b3f93a3b0bf878ad4b59e13df57ca21f$
+// $hash=17852d5b4f41fd2e6d5e3b33b61d014bc4131dc3$
 //
 
 #include "libcef_dll/ctocpp/views/button_delegate_ctocpp.h"
@@ -272,7 +272,7 @@ cef_button_delegate_t* CefCToCppRefCounted<
             reinterpret_cast<CefMenuButtonDelegate*>(c)));
   }
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d5b4eafcaee7c9e57ebe97c1b0dafffdee5f5250$
+// $hash=c3d58fe1274c19d04eb2ef801747b1f2012b86ce$
 //
 
 #include "libcef_dll/ctocpp/jsdialog_handler_ctocpp.h"
@@ -151,7 +151,7 @@ cef_jsdialog_handler_t* CefCToCppRefCounted<
     cef_jsdialog_handler_t>::UnwrapDerived(CefWrapperType type,
                                            CefJSDialogHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

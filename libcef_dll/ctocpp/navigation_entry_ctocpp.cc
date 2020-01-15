@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=862efad909cbb6fc85ba52208f54bfa16177777d$
+// $hash=c6f680dcbbea79f362a1d7686d7af902be9f0f9b$
 //
 
 #include "libcef_dll/ctocpp/navigation_entry_ctocpp.h"
@@ -178,7 +178,7 @@ CefRefPtr<CefSSLStatus> CefNavigationEntryCToCpp::GetSSLStatus() {
 
   cef_navigation_entry_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_sslstatus))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -206,7 +206,7 @@ cef_navigation_entry_t* CefCToCppRefCounted<
     cef_navigation_entry_t>::UnwrapDerived(CefWrapperType type,
                                            CefNavigationEntry* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

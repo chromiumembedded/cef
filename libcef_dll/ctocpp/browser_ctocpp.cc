@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d4d9c9f4868c9dc5a087ce24452b3304b8dc3f47$
+// $hash=9d16a2ca7a348181df0b026b3013d362170f7085$
 //
 
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
@@ -26,7 +26,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefBrowserHost> CefBrowserCToCpp::GetHost() {
 
   cef_browser_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_host))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -225,7 +225,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefFrame> CefBrowserCToCpp::GetMainFrame() {
 
   cef_browser_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_main_frame))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -242,7 +242,7 @@ CefRefPtr<CefFrame> CefBrowserCToCpp::GetFocusedFrame() {
 
   cef_browser_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_focused_frame))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -259,7 +259,7 @@ CefRefPtr<CefFrame> CefBrowserCToCpp::GetFrame(int64 identifier) {
 
   cef_browser_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_frame_byident))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -276,7 +276,7 @@ CefRefPtr<CefFrame> CefBrowserCToCpp::GetFrame(const CefString& name) {
 
   cef_browser_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_frame))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -388,7 +388,7 @@ CefCToCppRefCounted<CefBrowserCToCpp, CefBrowser, cef_browser_t>::UnwrapDerived(
     CefWrapperType type,
     CefBrowser* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

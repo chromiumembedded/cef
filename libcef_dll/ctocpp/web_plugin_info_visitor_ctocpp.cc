@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f5ca58ce4bb74b88f47f8216e0f4239e6c2f61fb$
+// $hash=aa1d37e0ac4dbe70fc8e0739676ef968c8ffa765$
 //
 
 #include "libcef_dll/ctocpp/web_plugin_info_visitor_ctocpp.h"
@@ -60,7 +60,7 @@ cef_web_plugin_info_visitor_t* CefCToCppRefCounted<
     cef_web_plugin_info_visitor_t>::UnwrapDerived(CefWrapperType type,
                                                   CefWebPluginInfoVisitor* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

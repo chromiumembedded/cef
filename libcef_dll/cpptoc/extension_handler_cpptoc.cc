@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=54aac42c1bfed7bc4e1ef031a0709bb36b2f5702$
+// $hash=ccd5999e0c5b68720a67e185c2ae1cf46da77963$
 //
 
 #include "libcef_dll/cpptoc/extension_handler_cpptoc.h"
@@ -131,7 +131,7 @@ int CEF_CALLBACK extension_handler_on_before_background_browser(
         *client = CefClientCppToC::Wrap(clientPtr);
       }
     } else {
-      *client = NULL;
+      *client = nullptr;
     }
   }
   // Restore param: settings; type: struct_byref
@@ -219,7 +219,7 @@ extension_handler_on_before_browser(struct _cef_extension_handler_t* self,
         *client = CefClientCppToC::Wrap(clientPtr);
       }
     } else {
-      *client = NULL;
+      *client = nullptr;
     }
   }
   // Restore param: settings; type: struct_byref
@@ -366,7 +366,7 @@ CefRefPtr<CefExtensionHandler> CefCppToCRefCounted<
     cef_extension_handler_t>::UnwrapDerived(CefWrapperType type,
                                             cef_extension_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9b39c06745038ba11242357f7ca387fa1078570e$
+// $hash=59e8bd7a950727fdcd6234401df65ca60ea33ba2$
 //
 
 #include "libcef_dll/ctocpp/urlrequest_ctocpp.h"
@@ -33,11 +33,11 @@ CefRefPtr<CefURLRequest> CefURLRequest::Create(
   // Verify param: request; type: refptr_same
   DCHECK(request.get());
   if (!request.get())
-    return NULL;
+    return nullptr;
   // Verify param: client; type: refptr_diff
   DCHECK(client.get());
   if (!client.get())
-    return NULL;
+    return nullptr;
   // Unverified params: request_context
 
   // Execute
@@ -58,7 +58,7 @@ CefRefPtr<CefRequest> CefURLRequestCToCpp::GetRequest() {
 
   cef_urlrequest_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_request))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -75,7 +75,7 @@ CefRefPtr<CefURLRequestClient> CefURLRequestCToCpp::GetClient() {
 
   cef_urlrequest_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_client))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -126,7 +126,7 @@ CefRefPtr<CefResponse> CefURLRequestCToCpp::GetResponse() {
 
   cef_urlrequest_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_response))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -181,7 +181,7 @@ cef_urlrequest_t*
 CefCToCppRefCounted<CefURLRequestCToCpp, CefURLRequest, cef_urlrequest_t>::
     UnwrapDerived(CefWrapperType type, CefURLRequest* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

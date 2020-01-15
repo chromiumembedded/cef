@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f96749c9b92e6029490e08806b5bea95b130581e$
+// $hash=f79bd331e5b7091c916778dd4d850da4b9bbbc4d$
 //
 
 #include "libcef_dll/cpptoc/print_job_callback_cpptoc.h"
@@ -54,7 +54,7 @@ CefRefPtr<CefPrintJobCallback> CefCppToCRefCounted<
     cef_print_job_callback_t>::UnwrapDerived(CefWrapperType type,
                                              cef_print_job_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

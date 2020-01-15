@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=eebf4dd3c694b94d07f5261540e6a575d5f505d0$
+// $hash=72e6ec9a5095a99eaa78ff867ca429f8cd28b101$
 //
 
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
@@ -113,22 +113,22 @@ CefRequestHandlerCToCpp::GetResourceRequestHandler(
 
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_resource_request_handler))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
   if (!browser.get())
-    return NULL;
+    return nullptr;
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
   if (!frame.get())
-    return NULL;
+    return nullptr;
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
   if (!request.get())
-    return NULL;
+    return nullptr;
   // Unverified params: request_initiator
 
   // Translate param: disable_default_handling; type: bool_byref
@@ -411,7 +411,7 @@ cef_request_handler_t* CefCToCppRefCounted<
     cef_request_handler_t>::UnwrapDerived(CefWrapperType type,
                                           CefRequestHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

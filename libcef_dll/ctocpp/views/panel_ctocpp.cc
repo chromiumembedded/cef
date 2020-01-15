@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e0e6cef1c04e5337df981fc232da7ecdc268254a$
+// $hash=9821af1835fd4289a117b3dba1b893b5bf83dd55$
 //
 
 #include "libcef_dll/ctocpp/views/panel_ctocpp.h"
@@ -52,7 +52,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefWindow> CefPanelCToCpp::AsWindow() {
 
   cef_panel_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, as_window))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -69,7 +69,7 @@ CefRefPtr<CefFillLayout> CefPanelCToCpp::SetToFillLayout() {
 
   cef_panel_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_to_fill_layout))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -87,7 +87,7 @@ CefRefPtr<CefBoxLayout> CefPanelCToCpp::SetToBoxLayout(
 
   cef_panel_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_to_box_layout))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -103,7 +103,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefLayout> CefPanelCToCpp::GetLayout() {
 
   cef_panel_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_layout))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -242,14 +242,14 @@ CefRefPtr<CefView> CefPanelCToCpp::GetChildViewAt(int index) {
 
   cef_panel_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_child_view_at))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: index; type: simple_byval
   DCHECK_GE(index, 0);
   if (index < 0)
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_view_t* _retval = _struct->get_child_view_at(_struct, index);
@@ -264,7 +264,7 @@ CefRefPtr<CefBrowserView> CefPanelCToCpp::AsBrowserView() {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_browser_view))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -280,7 +280,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefButton> CefPanelCToCpp::AsButton() {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_button))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -296,7 +296,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefPanel> CefPanelCToCpp::AsPanel() {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_panel))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -313,7 +313,7 @@ CefRefPtr<CefScrollView> CefPanelCToCpp::AsScrollView() {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_scroll_view))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -329,7 +329,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefTextfield> CefPanelCToCpp::AsTextfield() {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_textfield))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -436,7 +436,7 @@ CefRefPtr<CefViewDelegate> CefPanelCToCpp::GetDelegate() {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_delegate))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -452,7 +452,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefWindow> CefPanelCToCpp::GetWindow() {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_window))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -526,7 +526,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefView> CefPanelCToCpp::GetParentView() {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_parent_view))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -543,7 +543,7 @@ CefRefPtr<CefView> CefPanelCToCpp::GetViewForID(int id) {
 
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_view_for_id))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -1046,7 +1046,7 @@ CefCToCppRefCounted<CefPanelCToCpp, CefPanel, cef_panel_t>::UnwrapDerived(
         CefWindowCToCpp::Unwrap(reinterpret_cast<CefWindow*>(c)));
   }
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

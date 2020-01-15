@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ccdbb7c65c432f8a1bd0c94cab74fc37ca912366$
+// $hash=67f9af743f81c6fa7e4f1cdf7e626115fc83333f$
 //
 
 #include "libcef_dll/cpptoc/dialog_handler_cpptoc.h"
@@ -87,7 +87,7 @@ CefRefPtr<CefDialogHandler> CefCppToCRefCounted<
     cef_dialog_handler_t>::UnwrapDerived(CefWrapperType type,
                                          cef_dialog_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

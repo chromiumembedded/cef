@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=951c8a587ec000fbae5b7d43658f6d71fd381176$
+// $hash=e33f5d5355018c27df765228ce01ea4d21ac1663$
 //
 
 #include "libcef_dll/ctocpp/server_ctocpp.h"
@@ -51,7 +51,7 @@ CefRefPtr<CefTaskRunner> CefServerCToCpp::GetTaskRunner() {
 
   cef_server_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_task_runner))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -312,7 +312,7 @@ CefCToCppRefCounted<CefServerCToCpp, CefServer, cef_server_t>::UnwrapDerived(
     CefWrapperType type,
     CefServer* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

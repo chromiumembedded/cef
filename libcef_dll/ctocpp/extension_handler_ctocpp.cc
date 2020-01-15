@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=296ce29198f2d4e061c49aba879aeafdb81ec6e1$
+// $hash=e2150893079724b7435ca143122b17096be5a8f5$
 //
 
 #include "libcef_dll/ctocpp/extension_handler_ctocpp.h"
@@ -115,7 +115,7 @@ bool CefExtensionHandlerCToCpp::OnBeforeBackgroundBrowser(
       client = CefClientCToCpp::Wrap(clientStruct);
     }
   } else {
-    client = NULL;
+    client = nullptr;
   }
 
   // Return type: bool
@@ -176,7 +176,7 @@ bool CefExtensionHandlerCToCpp::OnBeforeBrowser(
       client = CefClientCToCpp::Wrap(clientStruct);
     }
   } else {
-    client = NULL;
+    client = nullptr;
   }
 
   // Return type: bool
@@ -192,18 +192,18 @@ CefRefPtr<CefBrowser> CefExtensionHandlerCToCpp::GetActiveBrowser(
 
   cef_extension_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_active_browser))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: extension; type: refptr_diff
   DCHECK(extension.get());
   if (!extension.get())
-    return NULL;
+    return nullptr;
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
   if (!browser.get())
-    return NULL;
+    return nullptr;
 
   // Execute
   cef_browser_t* _retval = _struct->get_active_browser(
@@ -309,7 +309,7 @@ cef_extension_handler_t* CefCToCppRefCounted<
     cef_extension_handler_t>::UnwrapDerived(CefWrapperType type,
                                             CefExtensionHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

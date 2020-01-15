@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fa49ebc3b49993f1080a3709f26658ee39d89838$
+// $hash=cb91642733be3dfd60a0d848c41c71bbe06a835c$
 //
 
 #include "libcef_dll/ctocpp/client_ctocpp.h"
@@ -36,7 +36,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefContextMenuHandler> CefClientCToCpp::GetContextMenuHandler() {
   cef_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_context_menu_handler))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -52,7 +52,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDialogHandler> CefClientCToCpp::GetDialogHandler() {
   cef_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_dialog_handler))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -67,7 +67,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDisplayHandler> CefClientCToCpp::GetDisplayHandler() {
   cef_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_display_handler))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -82,7 +82,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDownloadHandler> CefClientCToCpp::GetDownloadHandler() {
   cef_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_download_handler))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -97,7 +97,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDragHandler> CefClientCToCpp::GetDragHandler() {
   cef_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_drag_handler))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -112,7 +112,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefFindHandler> CefClientCToCpp::GetFindHandler() {
   cef_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_find_handler))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -127,7 +127,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefFocusHandler> CefClientCToCpp::GetFocusHandler() {
   cef_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_focus_handler))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -142,7 +142,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefJSDialogHandler> CefClientCToCpp::GetJSDialogHandler() {
   cef_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_jsdialog_handler))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -157,7 +157,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefKeyboardHandler> CefClientCToCpp::GetKeyboardHandler() {
   cef_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_keyboard_handler))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -172,7 +172,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefLifeSpanHandler> CefClientCToCpp::GetLifeSpanHandler() {
   cef_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_life_span_handler))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -187,7 +187,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefLoadHandler> CefClientCToCpp::GetLoadHandler() {
   cef_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_load_handler))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -202,7 +202,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefRenderHandler> CefClientCToCpp::GetRenderHandler() {
   cef_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_render_handler))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -217,7 +217,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefRequestHandler> CefClientCToCpp::GetRequestHandler() {
   cef_client_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_request_handler))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -276,7 +276,7 @@ CefCToCppRefCounted<CefClientCToCpp, CefClient, cef_client_t>::UnwrapDerived(
     CefWrapperType type,
     CefClient* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

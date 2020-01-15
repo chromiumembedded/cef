@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d298814c204fb111820f558bbe1aef373af460b4$
+// $hash=ba0cb1e58376451d6ab1a9bddf36629a79d10b95$
 //
 
 #include "libcef_dll/ctocpp/v8accessor_ctocpp.h"
@@ -54,7 +54,7 @@ bool CefV8AccessorCToCpp::Get(const CefString& name,
       retval = CefV8ValueCppToC::Unwrap(retvalStruct);
     }
   } else {
-    retval = NULL;
+    retval = nullptr;
   }
 
   // Return type: bool
@@ -107,7 +107,7 @@ cef_v8accessor_t*
 CefCToCppRefCounted<CefV8AccessorCToCpp, CefV8Accessor, cef_v8accessor_t>::
     UnwrapDerived(CefWrapperType type, CefV8Accessor* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

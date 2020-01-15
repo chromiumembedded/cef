@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1630e709b7e4ec2de789941317467bc4a312469a$
+// $hash=03d79fc410f4c1f268f34abf0e13483fe4c62172$
 //
 
 #include "libcef_dll/ctocpp/v8interceptor_ctocpp.h"
@@ -54,7 +54,7 @@ bool CefV8InterceptorCToCpp::Get(const CefString& name,
       retval = CefV8ValueCppToC::Unwrap(retvalStruct);
     }
   } else {
-    retval = NULL;
+    retval = nullptr;
   }
 
   // Return type: bool
@@ -98,7 +98,7 @@ bool CefV8InterceptorCToCpp::Get(int index,
       retval = CefV8ValueCppToC::Unwrap(retvalStruct);
     }
   } else {
-    retval = NULL;
+    retval = nullptr;
   }
 
   // Return type: bool
@@ -186,7 +186,7 @@ CefCToCppRefCounted<CefV8InterceptorCToCpp,
                     cef_v8interceptor_t>::UnwrapDerived(CefWrapperType type,
                                                         CefV8Interceptor* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

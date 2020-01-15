@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f8315e0604538f4aad73a97305181ea22cb14775$
+// $hash=1aa70a0c640336bc3569f151bfba80d675b4c07e$
 //
 
 #include "libcef_dll/ctocpp/drag_handler_ctocpp.h"
@@ -109,7 +109,7 @@ cef_drag_handler_t*
 CefCToCppRefCounted<CefDragHandlerCToCpp, CefDragHandler, cef_drag_handler_t>::
     UnwrapDerived(CefWrapperType type, CefDragHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

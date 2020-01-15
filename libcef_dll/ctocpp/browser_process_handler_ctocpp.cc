@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5e228f6808cffe012917f3b7a450615a77e99f3a$
+// $hash=622d56aec0a5d6485a586bd6d993df7af4fa2d62$
 //
 
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
@@ -73,7 +73,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefPrintHandler> CefBrowserProcessHandlerCToCpp::GetPrintHandler() {
   cef_browser_process_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_print_handler))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -111,7 +111,7 @@ cef_browser_process_handler_t* CefCToCppRefCounted<
     cef_browser_process_handler_t>::UnwrapDerived(CefWrapperType type,
                                                   CefBrowserProcessHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

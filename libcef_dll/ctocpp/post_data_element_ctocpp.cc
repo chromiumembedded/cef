@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1a11e33ba79e871ecc843c9e69a5fe39f08d9ca1$
+// $hash=89f51160ee669abdfee47c627c7b7fec0b034b2b$
 //
 
 #include "libcef_dll/ctocpp/post_data_element_ctocpp.h"
@@ -168,7 +168,7 @@ cef_post_data_element_t* CefCToCppRefCounted<
     cef_post_data_element_t>::UnwrapDerived(CefWrapperType type,
                                             CefPostDataElement* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

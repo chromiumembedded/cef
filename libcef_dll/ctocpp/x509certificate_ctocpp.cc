@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=73a4afd5a81c6d296d04aff80a710e86ecc743e9$
+// $hash=c47209a99213feca0178f75623f6c7d1b6985f06$
 //
 
 #include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
@@ -26,7 +26,7 @@ CefRefPtr<CefX509CertPrincipal> CefX509CertificateCToCpp::GetSubject() {
 
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_subject))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -43,7 +43,7 @@ CefRefPtr<CefX509CertPrincipal> CefX509CertificateCToCpp::GetIssuer() {
 
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_issuer))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -60,7 +60,7 @@ CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetSerialNumber() {
 
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_serial_number))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -109,7 +109,7 @@ CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetDEREncoded() {
 
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_derencoded))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -126,7 +126,7 @@ CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetPEMEncoded() {
 
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_pemencoded))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -252,7 +252,7 @@ cef_x509certificate_t* CefCToCppRefCounted<
     cef_x509certificate_t>::UnwrapDerived(CefWrapperType type,
                                           CefX509Certificate* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

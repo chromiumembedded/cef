@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bee9df7de6c0568c4168e58af568651f6a26353b$
+// $hash=7711f5c2b432b11bf4ab1d194c09a1cb7a8fcd05$
 //
 
 #include "libcef_dll/ctocpp/value_ctocpp.h"
@@ -130,7 +130,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefValue> CefValueCToCpp::Copy() {
 
   cef_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, copy))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -228,7 +228,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefBinaryValue> CefValueCToCpp::GetBinary() {
 
   cef_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_binary))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -245,7 +245,7 @@ CefRefPtr<CefDictionaryValue> CefValueCToCpp::GetDictionary() {
 
   cef_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_dictionary))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -261,7 +261,7 @@ NO_SANITIZE("cfi-icall") CefRefPtr<CefListValue> CefValueCToCpp::GetList() {
 
   cef_value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_list))
-    return NULL;
+    return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -439,7 +439,7 @@ CefCToCppRefCounted<CefValueCToCpp, CefValue, cef_value_t>::UnwrapDerived(
     CefWrapperType type,
     CefValue* c) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

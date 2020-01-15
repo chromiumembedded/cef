@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4064173339490fe9f711bd1906be20dadd4c26ba$
+// $hash=6c70366a25d8ad81d0adf85e2a867906f90ee695$
 //
 
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
@@ -128,7 +128,7 @@ CefRefPtr<CefBrowserProcessHandler> CefCppToCRefCounted<
                                                   cef_browser_process_handler_t*
                                                       s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

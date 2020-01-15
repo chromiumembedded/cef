@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a0344ba7d0e1f0b81d7dd457c30d71f944a81cd9$
+// $hash=44e223e0d74d87cfc4aeee6bfad7e6582390a0ad$
 //
 
 #include "libcef_dll/cpptoc/app_cpptoc.h"
@@ -135,7 +135,7 @@ CefCppToCRefCounted<CefAppCppToC, CefApp, cef_app_t>::UnwrapDerived(
     CefWrapperType type,
     cef_app_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

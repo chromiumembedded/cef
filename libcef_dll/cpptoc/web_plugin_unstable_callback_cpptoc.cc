@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7dfa73f2bd4faa894d3365d98b8dec79bc643821$
+// $hash=a0757524464550a80541e4a57f1a8d285098fcdd$
 //
 
 #include "libcef_dll/cpptoc/web_plugin_unstable_callback_cpptoc.h"
@@ -61,7 +61,7 @@ CefCppToCRefCounted<CefWebPluginUnstableCallbackCppToC,
                     cef_web_plugin_unstable_callback_t>::
     UnwrapDerived(CefWrapperType type, cef_web_plugin_unstable_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d7ebfea9228b66c357c73c98f1f0942fed3c2355$
+// $hash=3e7417f66df20a3329577fceaceb329f835290e4$
 //
 
 #include "libcef_dll/cpptoc/resource_read_callback_cpptoc.h"
@@ -56,7 +56,7 @@ CefRefPtr<CefResourceReadCallback> CefCppToCRefCounted<
                                                  cef_resource_read_callback_t*
                                                      s) {
   NOTREACHED() << "Unexpected class type: " << type;
-  return NULL;
+  return nullptr;
 }
 
 template <>
