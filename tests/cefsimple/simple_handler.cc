@@ -17,7 +17,7 @@
 
 namespace {
 
-SimpleHandler* g_instance = NULL;
+SimpleHandler* g_instance = nullptr;
 
 // Returns a data: URI with the specified contents.
 std::string GetDataURI(const std::string& data, const std::string& mime_type) {
@@ -35,7 +35,7 @@ SimpleHandler::SimpleHandler(bool use_views)
 }
 
 SimpleHandler::~SimpleHandler() {
-  g_instance = NULL;
+  g_instance = nullptr;
 }
 
 // static

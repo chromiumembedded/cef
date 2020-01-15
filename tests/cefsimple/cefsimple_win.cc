@@ -30,7 +30,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   // Enable High-DPI support on Windows 7 or newer.
   CefEnableHighDPISupport();
 
-  void* sandbox_info = NULL;
+  void* sandbox_info = nullptr;
 
 #if defined(CEF_USE_SANDBOX)
   // Manage the life span of the sandbox information object. This is necessary
@@ -45,7 +45,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   // CEF applications have multiple sub-processes (render, plugin, GPU, etc)
   // that share the same executable. This function checks the command-line and,
   // if this is a sub-process, executes the appropriate logic.
-  int exit_code = CefExecuteProcess(main_args, NULL, sandbox_info);
+  int exit_code = CefExecuteProcess(main_args, nullptr, sandbox_info);
   if (exit_code >= 0) {
     // The sub-process has completed so return here.
     return exit_code;
