@@ -90,10 +90,11 @@ class OpenInputStreamWrapper
 
   void Open(const RequestId& request_id,
             const network::ResourceRequest& request) {
-    if (!delegate_->OpenInputStream(
-            request_id, request,
-            base::BindOnce(&OpenInputStreamWrapper::OnCallback,
-                           base::WrapRefCounted(this)))) {
+    // |delegate_| may be null if we were canceled.
+    if (delegate_ && !delegate_->OpenInputStream(
+                         request_id, request,
+                         base::BindOnce(&OpenInputStreamWrapper::OnCallback,
+                                        base::WrapRefCounted(this)))) {
       OnCallback(nullptr);
     }
   }
