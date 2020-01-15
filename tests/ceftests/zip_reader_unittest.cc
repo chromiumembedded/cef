@@ -128,11 +128,11 @@ TEST(ZipReaderTest, Read) {
   // Create the stream reader.
   CefRefPtr<CefStreamReader> stream(
       CefStreamReader::CreateForData(g_test_zip, sizeof(g_test_zip) - 1));
-  ASSERT_TRUE(stream.get() != NULL);
+  ASSERT_TRUE(stream.get() != nullptr);
 
   // Create the Zip reader.
   CefRefPtr<CefZipReader> reader(CefZipReader::Create(stream));
-  ASSERT_TRUE(reader.get() != NULL);
+  ASSERT_TRUE(reader.get() != nullptr);
 
   char buff[25];
 
@@ -215,7 +215,7 @@ TEST(ZipReaderTest, ReadArchive) {
   // Create the stream reader.
   CefRefPtr<CefStreamReader> stream(
       CefStreamReader::CreateForData(g_test_zip, sizeof(g_test_zip) - 1));
-  ASSERT_TRUE(stream.get() != NULL);
+  ASSERT_TRUE(stream.get() != nullptr);
 
   // Create the Zip archive object.
   CefRefPtr<CefZipArchive> archive(new CefZipArchive());

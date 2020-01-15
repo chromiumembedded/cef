@@ -87,7 +87,7 @@ void ExtensionTestHandler::RunTest() {
         CefRequestContext::CreateContext(request_context_, new Handler());
   } else if (request_context_load_without_handler()) {
     loader_request_context_ =
-        CefRequestContext::CreateContext(request_context_, NULL);
+        CefRequestContext::CreateContext(request_context_, nullptr);
   } else {
     loader_request_context_ = request_context_;
   }
@@ -232,6 +232,6 @@ void ExtensionTestHandler::UnloadExtension(CefRefPtr<CefExtension> extension) {
 }
 
 void ExtensionTestHandler::ReleaseRequestContexts() {
-  request_context_ = NULL;
-  loader_request_context_ = NULL;
+  request_context_ = nullptr;
+  loader_request_context_ = nullptr;
 }

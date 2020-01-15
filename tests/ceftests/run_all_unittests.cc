@@ -122,12 +122,12 @@ int main(int argc, char* argv[]) {
     CefEnableHighDPISupport();
   }
 
-  CefMainArgs main_args(::GetModuleHandle(NULL));
+  CefMainArgs main_args(::GetModuleHandle(nullptr));
 #else
   CefMainArgs main_args(argc, argv);
 #endif
 
-  void* windows_sandbox_info = NULL;
+  void* windows_sandbox_info = nullptr;
 
 #if defined(OS_WIN) && defined(CEF_USE_SANDBOX)
   // Manages the life span of the sandbox information object.

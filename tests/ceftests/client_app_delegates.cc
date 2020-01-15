@@ -112,7 +112,7 @@ void ClientAppBrowser::CreateDelegates(DelegateSet& delegates) {
 
 // static
 CefRefPtr<CefPrintHandler> ClientAppBrowser::CreatePrintHandler() {
-  return NULL;
+  return nullptr;
 }
 
 // static

@@ -880,7 +880,7 @@ class StaticHttpURLRequestClient : public CefURLRequestClient {
 
   void RunRequest() {
     EXPECT_UI_THREAD();
-    CefURLRequest::Create(request_, this, NULL);
+    CefURLRequest::Create(request_, this, nullptr);
   }
 
   void OnRequestComplete(CefRefPtr<CefURLRequest> request) override {

@@ -64,7 +64,7 @@ class TabsTestHandler : public ExtensionTestHandler {
     EXPECT_TRUE(extension_->IsSame(extension));
     EXPECT_FALSE(got_extension_unloaded_);
     got_extension_unloaded_.yes();
-    extension_ = NULL;
+    extension_ = nullptr;
 
     // Execute asynchronously so call stacks have a chance to unwind.
     // Will close the browser windows.
@@ -199,8 +199,8 @@ class TabsTestHandler : public ExtensionTestHandler {
   }
 
   void OnDestroyTest() override {
-    main_browser_ = NULL;
-    extension_browser_ = NULL;
+    main_browser_ = nullptr;
+    extension_browser_ = nullptr;
 
     EXPECT_TRUE(got_extension_loaded_);
     EXPECT_TRUE(got_main_url_request_);
@@ -497,7 +497,7 @@ class CreateTestHandler : public TabsTestHandler {
   }
 
   void OnDestroyTest() override {
-    created_browser_ = NULL;
+    created_browser_ = nullptr;
 
     EXPECT_TRUE(got_on_before_browser_);
     EXPECT_TRUE(got_create_browser_url_request_);

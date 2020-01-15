@@ -599,7 +599,7 @@ class BasicResponseTest : public TestHandler {
 
     get_cookie_access_filter_ct_++;
 
-    return NULL;
+    return nullptr;
   }
 
   cef_return_value_t OnBeforeResourceLoad(
@@ -1597,11 +1597,11 @@ class SubresourceResponseTest : public RoutingTestHandler {
 
     if (IsMainURL(request->GetURL())) {
       EXPECT_TRUE(frame->IsMain());
-      return NULL;
+      return nullptr;
     } else if (IsSubURL(request->GetURL())) {
       EXPECT_FALSE(frame->IsMain());
       EXPECT_TRUE(subframe_);
-      return NULL;
+      return nullptr;
     }
 
     VerifyFrame(kGetCookieAccessFilter, frame);
@@ -1610,7 +1610,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
 
     get_cookie_access_filter_ct_++;
 
-    return NULL;
+    return nullptr;
   }
 
   cef_return_value_t OnBeforeResourceLoad(
@@ -2678,7 +2678,7 @@ class RedirectResponseTest : public TestHandler {
 
   void DestroyTest() override {
     resource_test_->CheckExpected();
-    resource_test_.reset(NULL);
+    resource_test_.reset(nullptr);
 
     TestHandler::DestroyTest();
   }

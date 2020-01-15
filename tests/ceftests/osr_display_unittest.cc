@@ -112,7 +112,8 @@ class DisplayTestHandler : public RoutingTestHandler, public CefRenderHandler {
     windowInfo.SetAsWindowless(kNullWindowHandle);
 #endif
 
-    CefBrowserHost::CreateBrowser(windowInfo, this, url, settings, NULL, NULL);
+    CefBrowserHost::CreateBrowser(windowInfo, this, url, settings, nullptr,
+                                  nullptr);
   }
 
   std::string GetPageContents(const std::string& name,

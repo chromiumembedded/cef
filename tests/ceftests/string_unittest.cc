@@ -43,7 +43,7 @@ TEST(StringTest, UTF8) {
 
   // Test userfree assignment.
   cef_string_userfree_utf8_t uf = str2.DetachToUserFree();
-  EXPECT_TRUE(uf != NULL);
+  EXPECT_TRUE(uf != nullptr);
   EXPECT_TRUE(str2.empty());
   str2.AttachToUserFree(uf);
   EXPECT_FALSE(str2.empty());
@@ -81,7 +81,7 @@ TEST(StringTest, UTF16) {
 
   // Test userfree assignment.
   cef_string_userfree_utf16_t uf = str2.DetachToUserFree();
-  EXPECT_TRUE(uf != NULL);
+  EXPECT_TRUE(uf != nullptr);
   EXPECT_TRUE(str2.empty());
   str2.AttachToUserFree(uf);
   EXPECT_FALSE(str2.empty());
@@ -119,7 +119,7 @@ TEST(StringTest, Wide) {
 
   // Test userfree assignment.
   cef_string_userfree_wide_t uf = str2.DetachToUserFree();
-  EXPECT_TRUE(uf != NULL);
+  EXPECT_TRUE(uf != nullptr);
   EXPECT_TRUE(str2.empty());
   str2.AttachToUserFree(uf);
   EXPECT_FALSE(str2.empty());
@@ -162,7 +162,7 @@ TEST(StringTest, List) {
   EXPECT_EQ(list[2], "String 3");
 
   cef_string_list_t listPtr = cef_string_list_alloc();
-  EXPECT_TRUE(listPtr != NULL);
+  EXPECT_TRUE(listPtr != nullptr);
   ListType::const_iterator it = list.begin();
   for (; it != list.end(); ++it)
     cef_string_list_append(listPtr, it->GetStruct());

@@ -53,7 +53,7 @@ void ValidateReset(CefRefPtr<CefRequestContext> context, const char* name) {
   EXPECT_TRUE(context->CanSetPreference(name));
 
   CefString error;
-  EXPECT_TRUE(context->SetPreference(name, NULL, error));
+  EXPECT_TRUE(context->SetPreference(name, nullptr, error));
   EXPECT_TRUE(error.empty());
 }
 
@@ -436,7 +436,7 @@ TEST(PreferenceTest, GlobalSetGetShared) {
 
   // Sharing storage.
   CefRefPtr<CefRequestContext> context2 =
-      CefRequestContext::CreateContext(context, NULL);
+      CefRequestContext::CreateContext(context, nullptr);
   EXPECT_TRUE(context2.get());
 
   // Sharing storage.
@@ -447,7 +447,7 @@ TEST(PreferenceTest, GlobalSetGetShared) {
   // Unassociated context.
   CefRequestContextSettings settings;
   CefRefPtr<CefRequestContext> context4 =
-      CefRequestContext::CreateContext(settings, NULL);
+      CefRequestContext::CreateContext(settings, nullptr);
   EXPECT_TRUE(context.get());
 
   // Set/get the values on the first context.
@@ -476,7 +476,7 @@ TEST(PreferenceTest, CustomDefaults) {
 
   CefRequestContextSettings settings;
   CefRefPtr<CefRequestContext> context =
-      CefRequestContext::CreateContext(settings, NULL);
+      CefRequestContext::CreateContext(settings, nullptr);
   EXPECT_TRUE(context.get());
 
   ValidateDefaults(context, false, event);
@@ -490,7 +490,7 @@ TEST(PreferenceTest, CustomSetGet) {
 
   CefRequestContextSettings settings;
   CefRefPtr<CefRequestContext> context =
-      CefRequestContext::CreateContext(settings, NULL);
+      CefRequestContext::CreateContext(settings, nullptr);
   EXPECT_TRUE(context.get());
 
   ValidateSetGet(context, event);
@@ -508,12 +508,12 @@ TEST(PreferenceTest, CustomSetGetShared) {
 
   CefRequestContextSettings settings;
   CefRefPtr<CefRequestContext> context =
-      CefRequestContext::CreateContext(settings, NULL);
+      CefRequestContext::CreateContext(settings, nullptr);
   EXPECT_TRUE(context.get());
 
   // Sharing storage.
   CefRefPtr<CefRequestContext> context2 =
-      CefRequestContext::CreateContext(context, NULL);
+      CefRequestContext::CreateContext(context, nullptr);
   EXPECT_TRUE(context2.get());
 
   // Sharing storage.
@@ -523,7 +523,7 @@ TEST(PreferenceTest, CustomSetGetShared) {
 
   // Unassociated context.
   CefRefPtr<CefRequestContext> context4 =
-      CefRequestContext::CreateContext(settings, NULL);
+      CefRequestContext::CreateContext(settings, nullptr);
   EXPECT_TRUE(context.get());
 
   // Set/get the values on the first context.

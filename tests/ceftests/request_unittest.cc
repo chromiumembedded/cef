@@ -18,7 +18,7 @@ using client::ClientAppRenderer;
 TEST(RequestTest, SetGet) {
   // CefRequest CreateRequest
   CefRefPtr<CefRequest> request(CefRequest::Create());
-  EXPECT_TRUE(request.get() != NULL);
+  EXPECT_TRUE(request.get() != nullptr);
   EXPECT_EQ(0U, request->GetIdentifier());
 
   CefString url = "http://tests/run.html";
@@ -29,13 +29,13 @@ TEST(RequestTest, SetGet) {
 
   // CefPostData CreatePostData
   CefRefPtr<CefPostData> postData(CefPostData::Create());
-  EXPECT_TRUE(postData.get() != NULL);
+  EXPECT_TRUE(postData.get() != nullptr);
 
   // CefPostDataElement CreatePostDataElement
   CefRefPtr<CefPostDataElement> element1(CefPostDataElement::Create());
-  EXPECT_TRUE(element1.get() != NULL);
+  EXPECT_TRUE(element1.get() != nullptr);
   CefRefPtr<CefPostDataElement> element2(CefPostDataElement::Create());
-  EXPECT_TRUE(element2.get() != NULL);
+  EXPECT_TRUE(element2.get() != nullptr);
 
   // CefPostDataElement SetToFile
   CefString file = "c:\\path\\to\\file.ext";
@@ -106,7 +106,7 @@ TEST(RequestTest, SetGet) {
   EXPECT_EQ(0U, request->GetIdentifier());
 
   request = CefRequest::Create();
-  EXPECT_TRUE(request.get() != NULL);
+  EXPECT_TRUE(request.get() != nullptr);
   EXPECT_EQ(0U, request->GetIdentifier());
 
   // CefRequest Set
@@ -122,7 +122,7 @@ TEST(RequestTest, SetGet) {
 
 TEST(RequestTest, SetGetHeaderByName) {
   CefRefPtr<CefRequest> request(CefRequest::Create());
-  EXPECT_TRUE(request.get() != NULL);
+  EXPECT_TRUE(request.get() != nullptr);
 
   CefRequest::HeaderMap headers, expectedHeaders;
 
@@ -190,7 +190,7 @@ const char kTestUrl[] = "http://tests.com/run.html";
 
 void CreateRequest(CefRefPtr<CefRequest>& request) {
   request = CefRequest::Create();
-  EXPECT_TRUE(request.get() != NULL);
+  EXPECT_TRUE(request.get() != nullptr);
 
   request->SetURL(kTestUrl);
   request->SetMethod("POST");
@@ -203,10 +203,10 @@ void CreateRequest(CefRefPtr<CefRequest>& request) {
   request->SetHeaderMap(headers);
 
   CefRefPtr<CefPostData> postData(CefPostData::Create());
-  EXPECT_TRUE(postData.get() != NULL);
+  EXPECT_TRUE(postData.get() != nullptr);
 
   CefRefPtr<CefPostDataElement> element1(CefPostDataElement::Create());
-  EXPECT_TRUE(element1.get() != NULL);
+  EXPECT_TRUE(element1.get() != nullptr);
   char bytes[] = "Test Bytes";
   element1->SetToBytes(sizeof(bytes), bytes);
   postData->AddElement(element1);
@@ -301,7 +301,7 @@ class RequestSendRecvTestHandler : public TestHandler {
     EXPECT_TRUE(response->IsReadOnly());
 
     got_resource_response_filter_.yes();
-    return NULL;
+    return nullptr;
   }
 
   void OnResourceLoadComplete(CefRefPtr<CefBrowser> browser,

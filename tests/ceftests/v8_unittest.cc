@@ -640,7 +640,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     // Enter the V8 context.
     EXPECT_TRUE(context->Enter());
 
-    CefRefPtr<CefV8Value> value = CefV8Value::CreateObject(NULL, NULL);
+    CefRefPtr<CefV8Value> value = CefV8Value::CreateObject(nullptr, nullptr);
 
     EXPECT_TRUE(value.get());
     EXPECT_TRUE(value->IsObject());
@@ -676,7 +676,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     // Enter the V8 context.
     EXPECT_TRUE(context->Enter());
 
-    CefRefPtr<CefV8Value> value = CefV8Value::CreateObject(NULL, NULL);
+    CefRefPtr<CefV8Value> value = CefV8Value::CreateObject(nullptr, nullptr);
     EXPECT_TRUE(value.get());
 
     EXPECT_TRUE(value->SetUserData(new UserData(10)));
@@ -751,7 +751,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     Accessor* accessor = new Accessor;
     CefRefPtr<CefV8Accessor> accessorPtr(accessor);
 
-    CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(accessor, NULL);
+    CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(accessor, nullptr);
     EXPECT_TRUE(object.get());
     accessor->object_ = object;
 
@@ -775,7 +775,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(val->IsInt());
     EXPECT_EQ(kValue, val->GetIntValue());
 
-    accessor->object_ = NULL;
+    accessor->object_ = nullptr;
 
     // Exit the V8 context.
     EXPECT_TRUE(context->Exit());
@@ -826,7 +826,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     Accessor* accessor = new Accessor;
     CefRefPtr<CefV8Accessor> accessorPtr(accessor);
 
-    CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(accessor, NULL);
+    CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(accessor, nullptr);
     EXPECT_TRUE(object.get());
 
     EXPECT_FALSE(object->HasValue(kName));
@@ -898,7 +898,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     Accessor* accessor = new Accessor;
     CefRefPtr<CefV8Accessor> accessorPtr(accessor);
 
-    CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(accessor, NULL);
+    CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(accessor, nullptr);
     EXPECT_TRUE(object.get());
 
     EXPECT_FALSE(object->HasValue(kName));
@@ -962,7 +962,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     Accessor* accessor = new Accessor;
     CefRefPtr<CefV8Accessor> accessorPtr(accessor);
 
-    CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(accessor, NULL);
+    CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(accessor, nullptr);
     EXPECT_TRUE(object.get());
 
     EXPECT_FALSE(object->HasValue(kName));
@@ -1115,7 +1115,8 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     Interceptor* interceptor = new Interceptor;
     CefRefPtr<CefV8Interceptor> interceptorPtr(interceptor);
 
-    CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(NULL, interceptor);
+    CefRefPtr<CefV8Value> object =
+        CefV8Value::CreateObject(nullptr, interceptor);
     EXPECT_TRUE(object.get());
     interceptor->object_ = object;
 
@@ -1184,7 +1185,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       EXPECT_EQ(kArray[i], val->GetIntValue());
     }
 
-    interceptor->object_ = NULL;
+    interceptor->object_ = nullptr;
 
     // Exit the V8 context.
     EXPECT_TRUE(context->Exit());
@@ -1267,7 +1268,8 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     Interceptor* interceptor = new Interceptor;
     CefRefPtr<CefV8Interceptor> interceptorPtr(interceptor);
 
-    CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(NULL, interceptor);
+    CefRefPtr<CefV8Value> object =
+        CefV8Value::CreateObject(nullptr, interceptor);
     EXPECT_TRUE(object.get());
 
     EXPECT_FALSE(object->HasValue(kName));
@@ -1394,7 +1396,8 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     Interceptor* interceptor = new Interceptor;
     CefRefPtr<CefV8Interceptor> interceptorPtr(interceptor);
 
-    CefRefPtr<CefV8Value> object = CefV8Value::CreateObject(NULL, interceptor);
+    CefRefPtr<CefV8Value> object =
+        CefV8Value::CreateObject(nullptr, interceptor);
     EXPECT_TRUE(object.get());
 
     EXPECT_FALSE(object->SetValue(kName, CefV8Value::CreateInt(1),
@@ -1681,7 +1684,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> object = context->GetGlobal();
     EXPECT_TRUE(object.get());
 
-    CefRefPtr<CefV8Value> obj1 = CefV8Value::CreateObject(NULL, NULL);
+    CefRefPtr<CefV8Value> obj1 = CefV8Value::CreateObject(nullptr, nullptr);
     object->SetValue(kObjName, obj1, V8_PROPERTY_ATTRIBUTE_NONE);
 
     obj1->SetValue(kArgName, CefV8Value::CreateInt(0),
@@ -1725,7 +1728,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> object = context->GetGlobal();
     EXPECT_TRUE(object.get());
 
-    CefRefPtr<CefV8Value> obj1 = CefV8Value::CreateObject(NULL, NULL);
+    CefRefPtr<CefV8Value> obj1 = CefV8Value::CreateObject(nullptr, nullptr);
     object->SetValue(kObjName, obj1, V8_PROPERTY_ATTRIBUTE_NONE);
 
     obj1->SetValue(kArgName, CefV8Value::CreateInt(0),
@@ -1962,7 +1965,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> func = CefV8Value::CreateFunction(kFuncName, handler);
     EXPECT_TRUE(func.get());
 
-    CefRefPtr<CefV8Value> obj = CefV8Value::CreateObject(NULL, NULL);
+    CefRefPtr<CefV8Value> obj = CefV8Value::CreateObject(nullptr, nullptr);
     EXPECT_TRUE(obj.get());
     handler->object_ = obj;
 
@@ -1977,7 +1980,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(retval->IsInt());
     EXPECT_EQ(kRetVal, retval->GetIntValue());
 
-    handler->object_ = NULL;
+    handler->object_ = nullptr;
 
     // Exit the V8 context.
     EXPECT_TRUE(context->Exit());
@@ -2020,7 +2023,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     CefV8ValueList args;
 
-    CefRefPtr<CefV8Value> retval = func->ExecuteFunction(NULL, args);
+    CefRefPtr<CefV8Value> retval = func->ExecuteFunction(nullptr, args);
     EXPECT_TRUE(handler->got_execute_);
     EXPECT_FALSE(retval.get());
     EXPECT_TRUE(func->HasException());
@@ -2065,7 +2068,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     CefV8ValueList args;
 
-    CefRefPtr<CefV8Value> retval = func->ExecuteFunction(NULL, args);
+    CefRefPtr<CefV8Value> retval = func->ExecuteFunction(nullptr, args);
     EXPECT_TRUE(handler->got_execute_);
     EXPECT_TRUE(retval.get());
     EXPECT_FALSE(func->HasException());
@@ -2115,7 +2118,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     CefV8ValueList args;
 
-    CefRefPtr<CefV8Value> retval = func->ExecuteFunction(NULL, args);
+    CefRefPtr<CefV8Value> retval = func->ExecuteFunction(nullptr, args);
     EXPECT_TRUE(handler->got_execute_);
     EXPECT_TRUE(retval.get());
     EXPECT_FALSE(func->HasException());
@@ -2166,12 +2169,12 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefV8ValueList args;
 
     CefRefPtr<CefV8Value> retval =
-        func->ExecuteFunctionWithContext(context, NULL, args);
+        func->ExecuteFunctionWithContext(context, nullptr, args);
     EXPECT_TRUE(handler->got_execute_);
     EXPECT_TRUE(retval.get());
     EXPECT_FALSE(func->HasException());
 
-    handler->context_ = NULL;
+    handler->context_ = nullptr;
 
     DestroyTest();
   }
@@ -2221,7 +2224,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefV8ValueList args;
     args.push_back(CefV8Value::CreateString(CefString()));
 
-    CefRefPtr<CefV8Value> retval = func->ExecuteFunction(NULL, args);
+    CefRefPtr<CefV8Value> retval = func->ExecuteFunction(nullptr, args);
     EXPECT_TRUE(handler->got_execute_);
     EXPECT_TRUE(retval.get());
     EXPECT_FALSE(func->HasException());
@@ -2489,7 +2492,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
   CefRefPtr<CefLoadHandler> GetLoadHandler(
       CefRefPtr<ClientAppRenderer> app) override {
     if (test_mode_ == V8TEST_NONE)
-      return NULL;
+      return nullptr;
 
     return this;
   }
@@ -2542,7 +2545,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
           EXPECT_TRUE(entered.get());
           EXPECT_TRUE(entered->IsSame(context_));
 
-          context_ = NULL;
+          context_ = nullptr;
           retval = CefV8Value::CreateInt(21);
           return true;
         }
@@ -2751,7 +2754,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
   void DevToolsLoaded(CefRefPtr<CefBrowser> browser) {
     EXPECT_TRUE(browser->IsPopup());
-    // |browser_| will be NULL if the DevTools window is opened in a separate
+    // |browser_| will be nullptr if the DevTools window is opened in a separate
     // render process.
     const int other_browser_id =
         (browser_.get() ? browser_->GetIdentifier() : -1);
@@ -2779,10 +2782,10 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(return_msg->GetArgumentList()->SetBool(0, result));
     browser_->GetMainFrame()->SendProcessMessage(PID_BROWSER, return_msg);
 
-    app_ = NULL;
-    browser_ = NULL;
-    test_context_ = NULL;
-    test_object_ = NULL;
+    app_ = nullptr;
+    browser_ = nullptr;
+    test_context_ = nullptr;
+    test_object_ = nullptr;
   }
 
   // Return the V8 context.
@@ -2836,7 +2839,7 @@ class V8TestHandler : public TestHandler {
                       "<p id='result' style='display:none'>CSP_BYPASSED</p>"
                       "</body></html>",
                   "text/html", headers);
-      CreateBrowser(test_url_, NULL, extra_info);
+      CreateBrowser(test_url_, nullptr, extra_info);
     } else if (test_mode_ == V8TEST_CONTEXT_ENTERED) {
       AddResource(kV8ContextParentTestUrl,
                   "<html><body>"
@@ -2849,7 +2852,7 @@ class V8TestHandler : public TestHandler {
                   "<html><body>"
                   "<script>var i = 0;</script>CHILD</body></html>",
                   "text/html");
-      CreateBrowser(kV8ContextParentTestUrl, NULL, extra_info);
+      CreateBrowser(kV8ContextParentTestUrl, nullptr, extra_info);
     } else if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION ||
                test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
       AddResource(kV8OnUncaughtExceptionTestUrl,
@@ -2861,7 +2864,7 @@ class V8TestHandler : public TestHandler {
                   "</script>\n"
                   "</body></html>\n",
                   "text/html");
-      CreateBrowser(kV8OnUncaughtExceptionTestUrl, NULL, extra_info);
+      CreateBrowser(kV8OnUncaughtExceptionTestUrl, nullptr, extra_info);
     } else if (test_mode_ == V8TEST_HANDLER_CALL_ON_RELEASED_CONTEXT) {
       AddResource(kV8HandlerCallOnReleasedContextUrl,
                   "<html><body onload='createFrame()'>"
@@ -2913,14 +2916,14 @@ class V8TestHandler : public TestHandler {
                   "</script>"
                   "</body></html>",
                   "text/html");
-      CreateBrowser(kV8HandlerCallOnReleasedContextUrl, NULL, extra_info);
+      CreateBrowser(kV8HandlerCallOnReleasedContextUrl, nullptr, extra_info);
     } else {
-      EXPECT_TRUE(test_url_ != NULL);
+      EXPECT_TRUE(test_url_ != nullptr);
       AddResource(test_url_,
                   "<html><body>"
                   "<script>var i = 0;</script>TEST</body></html>",
                   "text/html");
-      CreateBrowser(test_url_, NULL, extra_info);
+      CreateBrowser(test_url_, nullptr, extra_info);
     }
 
     // Time out the test after a reasonable period of time.
@@ -3069,7 +3072,7 @@ V8_TEST_EX(ContextEvalCspBypassUnsafeEval,
 V8_TEST_EX(ContextEvalCspBypassSandbox,
            V8TEST_CONTEXT_EVAL_CSP_BYPASS_SANDBOX,
            kV8ContextEvalCspBypassSandbox)
-V8_TEST_EX(ContextEntered, V8TEST_CONTEXT_ENTERED, NULL)
+V8_TEST_EX(ContextEntered, V8TEST_CONTEXT_ENTERED, nullptr)
 V8_TEST_EX(Binding, V8TEST_BINDING, kV8BindingTestUrl)
 V8_TEST(StackTrace, V8TEST_STACK_TRACE)
 V8_TEST(OnUncaughtException, V8TEST_ON_UNCAUGHT_EXCEPTION)

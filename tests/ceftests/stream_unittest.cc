@@ -74,25 +74,25 @@ TEST(StreamTest, ReadFile) {
   std::string contents = "This is my test\ncontents for the file";
 
   // Create the file
-  FILE* f = NULL;
+  FILE* f = nullptr;
 #ifdef _WIN32
   fopen_s(&f, fileName, "wb");
 #else
   f = fopen(fileName, "wb");
 #endif
-  ASSERT_TRUE(f != NULL);
+  ASSERT_TRUE(f != nullptr);
   ASSERT_EQ((size_t)1, fwrite(contents.c_str(), contents.size(), 1, f));
   fclose(f);
 
   // Test the stream
   CefRefPtr<CefStreamReader> stream(
       CefStreamReader::CreateForFile(fileNameStr));
-  ASSERT_TRUE(stream.get() != NULL);
+  ASSERT_TRUE(stream.get() != nullptr);
   ASSERT_TRUE(stream->MayBlock());
   VerifyStreamReadBehavior(stream, contents);
 
   // Release the file pointer
-  stream = NULL;
+  stream = nullptr;
 
 // Delete the file
 #ifdef _WIN32
@@ -109,7 +109,7 @@ TEST(StreamTest, ReadData) {
   CefRefPtr<CefStreamReader> stream(CefStreamReader::CreateForData(
       static_cast<void*>(const_cast<char*>(contents.c_str())),
       contents.size()));
-  ASSERT_TRUE(stream.get() != NULL);
+  ASSERT_TRUE(stream.get() != nullptr);
   ASSERT_FALSE(stream->MayBlock());
   VerifyStreamReadBehavior(stream, contents);
 }
@@ -122,22 +122,22 @@ TEST(StreamTest, WriteFile) {
   // Test the stream
   CefRefPtr<CefStreamWriter> stream(
       CefStreamWriter::CreateForFile(fileNameStr));
-  ASSERT_TRUE(stream.get() != NULL);
+  ASSERT_TRUE(stream.get() != nullptr);
   ASSERT_TRUE(stream->MayBlock());
   VerifyStreamWriteBehavior(stream, contents);
 
   // Release the file pointer
-  stream = NULL;
+  stream = nullptr;
 
   // Read the file that was written
-  FILE* f = NULL;
+  FILE* f = nullptr;
   char* buff = new char[contents.size()];
 #ifdef _WIN32
   fopen_s(&f, fileName, "rb");
 #else
   f = fopen(fileName, "rb");
 #endif
-  ASSERT_TRUE(f != NULL);
+  ASSERT_TRUE(f != nullptr);
   ASSERT_EQ((size_t)1, fread(buff, contents.size(), 1, f));
 
   // Read past the end of the file
@@ -163,7 +163,7 @@ class ReadHandlerTester : public CefReadHandler {
  public:
   ReadHandlerTester()
       : read_called_(false),
-        read_ptr_(NULL),
+        read_ptr_(nullptr),
         read_size_(0),
         read_n_(0),
         seek_called_(false),
@@ -218,10 +218,10 @@ class ReadHandlerTester : public CefReadHandler {
 
 TEST(StreamTest, ReadHandler) {
   ReadHandlerTester* handler = new ReadHandlerTester();
-  ASSERT_TRUE(handler != NULL);
+  ASSERT_TRUE(handler != nullptr);
 
   CefRefPtr<CefStreamReader> stream(CefStreamReader::CreateForHandler(handler));
-  ASSERT_TRUE(stream.get() != NULL);
+  ASSERT_TRUE(stream.get() != nullptr);
   ASSERT_FALSE(stream->MayBlock());
 
   // CefReadHandler Read
@@ -256,7 +256,7 @@ TEST(StreamTest, ReadHandler) {
   ASSERT_EQ(10, eof_res);
 
   // Delete the stream
-  stream = NULL;
+  stream = nullptr;
 
   // Verify that the handler object was deleted
   ASSERT_TRUE(g_ReadHandlerTesterDeleted);
@@ -268,7 +268,7 @@ class WriteHandlerTester : public CefWriteHandler {
  public:
   WriteHandlerTester()
       : write_called_(false),
-        write_ptr_(NULL),
+        write_ptr_(nullptr),
         write_size_(0),
         write_n_(0),
         seek_called_(false),
@@ -323,10 +323,10 @@ class WriteHandlerTester : public CefWriteHandler {
 
 TEST(StreamTest, WriteHandler) {
   WriteHandlerTester* handler = new WriteHandlerTester();
-  ASSERT_TRUE(handler != NULL);
+  ASSERT_TRUE(handler != nullptr);
 
   CefRefPtr<CefStreamWriter> stream(CefStreamWriter::CreateForHandler(handler));
-  ASSERT_TRUE(stream.get() != NULL);
+  ASSERT_TRUE(stream.get() != nullptr);
   ASSERT_FALSE(stream->MayBlock());
 
   // CefWriteHandler Write
@@ -360,7 +360,7 @@ TEST(StreamTest, WriteHandler) {
   ASSERT_EQ(10, flush_res);
 
   // Delete the stream
-  stream = NULL;
+  stream = nullptr;
 
   // Verify that the handler object was deleted
   ASSERT_TRUE(g_WriteHandlerTesterDeleted);

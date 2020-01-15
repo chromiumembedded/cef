@@ -171,7 +171,7 @@ TEST(ResourceManagerTest, NoProviders) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Should get the message returned from GetResourceHandler when the request is
   // not handled.
@@ -276,7 +276,7 @@ void TestUrlParsing(const char* kUrl) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();
@@ -350,7 +350,7 @@ class SimpleTestProvider : public TestProvider {
     if (mode_ == NOT_HANDLED)
       return false;
     else if (mode_ == CONTINUE)
-      request->Continue(NULL);
+      request->Continue(nullptr);
     else if (mode_ == STOP)
       request->Stop();
     else if (mode_ == REMOVE)
@@ -392,11 +392,11 @@ TEST(ResourceManagerTest, ProviderNotHandled) {
 
   state.manager_->AddProvider(
       new SimpleTestProvider(&provider_state1, SimpleTestProvider::NOT_HANDLED,
-                             NULL),
+                             nullptr),
       0, std::string());
   state.manager_->AddProvider(
       new SimpleTestProvider(&provider_state2, SimpleTestProvider::NOT_HANDLED,
-                             NULL),
+                             nullptr),
       0, std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
@@ -405,7 +405,7 @@ TEST(ResourceManagerTest, ProviderNotHandled) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();
@@ -439,11 +439,11 @@ TEST(ResourceManagerTest, ProviderContinue) {
 
   state.manager_->AddProvider(
       new SimpleTestProvider(&provider_state1, SimpleTestProvider::CONTINUE,
-                             NULL),
+                             nullptr),
       0, std::string());
   state.manager_->AddProvider(
       new SimpleTestProvider(&provider_state2, SimpleTestProvider::CONTINUE,
-                             NULL),
+                             nullptr),
       0, std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
@@ -452,7 +452,7 @@ TEST(ResourceManagerTest, ProviderContinue) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();
@@ -485,11 +485,12 @@ TEST(ResourceManagerTest, ProviderStop) {
   provider_state2.destruct_callback_ = destruct_helper.callback();
 
   state.manager_->AddProvider(
-      new SimpleTestProvider(&provider_state1, SimpleTestProvider::STOP, NULL),
+      new SimpleTestProvider(&provider_state1, SimpleTestProvider::STOP,
+                             nullptr),
       0, std::string());
   state.manager_->AddProvider(
       new SimpleTestProvider(&provider_state2, SimpleTestProvider::CONTINUE,
-                             NULL),
+                             nullptr),
       0, std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
@@ -498,7 +499,7 @@ TEST(ResourceManagerTest, ProviderStop) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();
@@ -540,11 +541,11 @@ TEST(ResourceManagerTest, ProviderRemove) {
       0, kProviderId);
   state.manager_->AddProvider(
       new SimpleTestProvider(&provider_state2, SimpleTestProvider::CONTINUE,
-                             NULL),
+                             nullptr),
       0, kProviderId);
   state.manager_->AddProvider(
       new SimpleTestProvider(&provider_state3, SimpleTestProvider::CONTINUE,
-                             NULL),
+                             nullptr),
       1, std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
@@ -553,7 +554,7 @@ TEST(ResourceManagerTest, ProviderRemove) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();
@@ -600,11 +601,11 @@ TEST(ResourceManagerTest, ProviderRemoveAll) {
       0, std::string());
   state.manager_->AddProvider(
       new SimpleTestProvider(&provider_state2, SimpleTestProvider::CONTINUE,
-                             NULL),
+                             nullptr),
       0, std::string());
   state.manager_->AddProvider(
       new SimpleTestProvider(&provider_state3, SimpleTestProvider::CONTINUE,
-                             NULL),
+                             nullptr),
       1, std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
@@ -613,7 +614,7 @@ TEST(ResourceManagerTest, ProviderRemoveAll) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();
@@ -657,12 +658,12 @@ TEST(ResourceManagerTest, ProviderDoNothing) {
   // DelayedDestroyTest will be executed from SimpleTestHandler::OnRequest.
   state.manager_->AddProvider(
       new SimpleTestProvider(
-          &provider_state1, SimpleTestProvider::DO_NOTHING, NULL,
+          &provider_state1, SimpleTestProvider::DO_NOTHING, nullptr,
           base::Bind(&ResourceManagerTestHandler::DelayedDestroyTest, handler)),
       0, std::string());
   state.manager_->AddProvider(
       new SimpleTestProvider(&provider_state2, SimpleTestProvider::DO_NOTHING,
-                             NULL),
+                             nullptr),
       0, std::string());
 
   handler->ExecuteTest();
@@ -670,7 +671,7 @@ TEST(ResourceManagerTest, ProviderDoNothing) {
   // Destroy the resource manager before the handler so that pending requests
   // are canceled. ResourceManagerTestHandler::GetResourceHandler will be called
   // after the manager is destroyed.
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();
@@ -718,7 +719,7 @@ TEST(ResourceManagerTest, ContentProvider) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   WaitForIOThread();
@@ -773,7 +774,7 @@ TEST(ResourceManagerTest, DirectoryProvider) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   WaitForIOThread();
@@ -842,7 +843,7 @@ TEST(ResourceManagerTest, ArchiveProvider) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   WaitForIOThread();
@@ -949,7 +950,7 @@ TEST(ResourceManagerTest, ProviderOrder) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();
@@ -1036,7 +1037,7 @@ TEST(ResourceManagerTest, ManyRequests) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   WaitForIOThread();
@@ -1174,7 +1175,7 @@ TEST(ResourceManagerTest, RemoveProviderAfterContinue) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();
@@ -1268,7 +1269,7 @@ TEST(ResourceManagerTest, RemoveProviderBeforeContinue) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();
@@ -1358,7 +1359,7 @@ TEST(ResourceManagerTest, RemoveAllProvidersAfterContinue) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();
@@ -1446,7 +1447,7 @@ TEST(ResourceManagerTest, RemoveAllProvidersBeforeContinue) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();
@@ -1499,7 +1500,7 @@ class UrlFilterTestProvider : public TestProvider {
         request->url_filter().Run(request->request()->GetURL());
     EXPECT_EQ(expected_url_after_filter_, filtered_url);
 
-    request->Continue(NULL);
+    request->Continue(nullptr);
     return true;
   }
 
@@ -1562,7 +1563,7 @@ TEST(ResourceManagerTest, UrlFilter) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();
@@ -1615,7 +1616,7 @@ TEST(ResourceManagerTest, UrlFilterWithQuery) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();
@@ -1669,7 +1670,7 @@ TEST(ResourceManagerTest, UrlFilterWithFragment) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();
@@ -1702,7 +1703,7 @@ class MimeTypeTestProvider : public TestProvider {
         request->mime_type_resolver().Run(request->url());
     EXPECT_EQ(expected_mime_type_, mime_type);
 
-    request->Continue(NULL);
+    request->Continue(nullptr);
     return true;
   }
 
@@ -1749,7 +1750,7 @@ TEST(ResourceManagerTest, MimeTypeResolver) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();
@@ -1786,10 +1787,11 @@ class AddingTestProvider : public TestProvider {
     TestProvider::OnRequest(request);
 
     manager_->AddProvider(
-        new SimpleTestProvider(new_state_, SimpleTestProvider::CONTINUE, NULL),
+        new SimpleTestProvider(new_state_, SimpleTestProvider::CONTINUE,
+                               nullptr),
         before_ ? -1 : 1, std::string());
 
-    request->Continue(NULL);
+    request->Continue(nullptr);
     return true;
   }
 
@@ -1828,7 +1830,7 @@ TEST(ResourceManagerTest, AddProviderAfter) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();
@@ -1871,7 +1873,7 @@ TEST(ResourceManagerTest, AddProviderBefore) {
 
   ReleaseAndWaitForDestructor(handler);
 
-  state.manager_ = NULL;
+  state.manager_ = nullptr;
 
   // Wait for the manager to be deleted.
   destruct_helper.Wait();

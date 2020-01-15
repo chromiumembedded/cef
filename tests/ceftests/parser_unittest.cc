@@ -351,7 +351,7 @@ TEST(ParserTest, ParseJSONDictionary) {
   EXPECT_EQ(123, dict->GetInt("key2"));
   EXPECT_EQ(VTYPE_LIST, dict->GetType("key3"));
   CefRefPtr<CefListValue> key3 = dict->GetList("key3");
-  EXPECT_TRUE(NULL != key3);
+  EXPECT_TRUE(nullptr != key3);
   EXPECT_TRUE(key3->IsValid());
   EXPECT_EQ(3U, key3->GetSize());
   EXPECT_EQ(1, key3->GetInt(0));
@@ -372,7 +372,7 @@ TEST(ParserTest, ParseJSONList) {
   EXPECT_TRUE(value->GetType() == VTYPE_LIST);
   EXPECT_FALSE(value->IsOwned());
   CefRefPtr<CefListValue> list = value->GetList();
-  EXPECT_TRUE(NULL != list);
+  EXPECT_TRUE(nullptr != list);
   EXPECT_TRUE(list->IsValid());
   EXPECT_EQ(3U, list->GetSize());
 

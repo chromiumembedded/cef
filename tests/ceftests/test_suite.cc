@@ -182,7 +182,7 @@ void CefTestSuite::PreInitialize() {
 
   // Enable termination on heap corruption.
   // Ignore the result code. Supported starting with XP SP3 and Vista.
-  HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, NULL, 0);
+  HeapSetInformation(nullptr, HeapEnableTerminationOnCorruption, nullptr, 0);
 #endif
 
 #if defined(OS_LINUX) && defined(USE_AURA)

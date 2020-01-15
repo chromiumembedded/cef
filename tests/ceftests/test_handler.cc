@@ -177,7 +177,7 @@ int TestHandler::browser_count_ = 0;
 TestHandler::TestHandler(CompletionState* completion_state)
     : first_browser_id_(0),
       signal_completion_when_all_browsers_close_(true),
-      destroy_event_(NULL),
+      destroy_event_(nullptr),
       destroy_test_expected_(true),
       destroy_test_called_(false) {
   if (completion_state) {
@@ -229,7 +229,7 @@ void TestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 
   if (browser_id == first_browser_id_) {
     first_browser_id_ = 0;
-    first_browser_ = NULL;
+    first_browser_ = nullptr;
   }
 
   if (browser_map_.empty() && signal_completion_when_all_browsers_close_) {
@@ -281,7 +281,7 @@ CefRefPtr<CefResourceHandler> TestHandler::GetResourceHandler(
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void TestHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
@@ -345,7 +345,7 @@ void TestHandler::DestroyTest() {
   }
 
   if (ui_thread_helper_.get())
-    ui_thread_helper_.reset(NULL);
+    ui_thread_helper_.reset(nullptr);
 }
 
 void TestHandler::OnTestTimeout(int timeout_ms, bool treat_as_error) {
@@ -387,7 +387,7 @@ void TestHandler::CreateBrowser(const CefString& url,
 #endif  // defined(USE_AURA)
   {
 #if defined(OS_WIN)
-    windowInfo.SetAsPopup(NULL, "CefUnitTest");
+    windowInfo.SetAsPopup(nullptr, "CefUnitTest");
     windowInfo.style |= WS_VISIBLE;
 #endif
     CefBrowserHost::CreateBrowser(windowInfo, this, url, settings, extra_info,

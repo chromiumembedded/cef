@@ -317,7 +317,7 @@ TEST(TranslatorTest, RefPtrClient) {
       obj->SetRefPtrClientAndReturn(test_obj.get());
   EXPECT_EQ(test_obj.get(), handler.get());
   EXPECT_EQ(kTestVal, handler->GetValue());
-  handler = NULL;
+  handler = nullptr;
 
   // Only one reference to the object should exist.
   EXPECT_TRUE(obj->HasOneRef());
@@ -345,7 +345,7 @@ TEST(TranslatorTest, RefPtrClientInherit) {
       obj->SetChildRefPtrClientAndReturnParent(test_obj);
   EXPECT_EQ(kTestVal, handler->GetValue());
   EXPECT_EQ(test_obj.get(), handler.get());
-  handler = NULL;
+  handler = nullptr;
 
   // Only one reference to the object should exist.
   EXPECT_TRUE(obj->HasOneRef());
@@ -439,7 +439,7 @@ TEST(TranslatorTest, OwnPtrLibraryInherit) {
   EXPECT_FALSE(test_obj.get());
   EXPECT_TRUE(test_obj_parent.get());
   EXPECT_EQ(kTestVal, test_obj_parent->GetValue());
-  test_obj_parent.reset(NULL);
+  test_obj_parent.reset(nullptr);
 
   const int kTestVal3 = 100;
   CefOwnPtr<CefTranslatorTestScopedLibraryChildChild> test_obj2 =
@@ -467,7 +467,7 @@ TEST(TranslatorTest, OwnPtrLibraryInherit) {
   EXPECT_FALSE(test_obj2.get());
   EXPECT_TRUE(test_obj_parent.get());
   EXPECT_EQ(kTestVal, test_obj_parent->GetValue());
-  test_obj_parent.reset(NULL);
+  test_obj_parent.reset(nullptr);
 
   // Only one reference to the object should exist.
   EXPECT_TRUE(obj->HasOneRef());
@@ -535,7 +535,7 @@ TEST(TranslatorTest, OwnPtrClient) {
   EXPECT_TRUE(handler.get());
   EXPECT_FALSE(got_delete);
   EXPECT_EQ(kTestVal, handler->GetValue());
-  handler.reset(NULL);
+  handler.reset(nullptr);
   EXPECT_TRUE(got_delete);
 
   // Only one reference to the object should exist.
@@ -574,7 +574,7 @@ TEST(TranslatorTest, OwnPtrClientInherit) {
   EXPECT_EQ(kTestVal, handler->GetValue());
   EXPECT_FALSE(test_obj.get());
   EXPECT_FALSE(got_delete);
-  handler.reset(NULL);
+  handler.reset(nullptr);
   EXPECT_TRUE(got_delete);
 
   // Only one reference to the object should exist.
@@ -675,7 +675,7 @@ TEST(TranslatorTest, RawPtrClient) {
   EXPECT_EQ(kTestVal, test_obj->GetValue());
   EXPECT_EQ(kTestVal, obj->SetRawPtrClient(test_obj.get()));
   EXPECT_FALSE(got_delete);
-  test_obj.reset(NULL);
+  test_obj.reset(nullptr);
   EXPECT_TRUE(got_delete);
 
   // Only one reference to the object should exist.
@@ -702,7 +702,7 @@ TEST(TranslatorTest, RawPtrClientInherit) {
 
   EXPECT_EQ(kTestVal, obj->SetChildRawPtrClient(test_obj.get()));
   EXPECT_FALSE(got_delete);
-  test_obj.reset(NULL);
+  test_obj.reset(nullptr);
   EXPECT_TRUE(got_delete);
 
   // Only one reference to the object should exist.
@@ -729,11 +729,11 @@ TEST(TranslatorTest, RawPtrClientList) {
   list.clear();
 
   EXPECT_FALSE(got_delete1);
-  val1.reset(NULL);
+  val1.reset(nullptr);
   EXPECT_TRUE(got_delete1);
 
   EXPECT_FALSE(got_delete2);
-  val2.reset(NULL);
+  val2.reset(nullptr);
   EXPECT_TRUE(got_delete2);
 
   // Only one reference to the object should exist.

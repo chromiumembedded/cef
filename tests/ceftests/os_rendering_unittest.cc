@@ -20,7 +20,7 @@
 #include <X11/keysym.h>
 #elif defined(OS_WIN)
 // Required for resource_util_win, which uses this as an extern
-HINSTANCE hInst = ::GetModuleHandle(NULL);
+HINSTANCE hInst = ::GetModuleHandle(nullptr);
 #endif
 
 namespace {
@@ -400,7 +400,7 @@ class OSRTestHandler : public RoutingTestHandler,
       return new CefStreamResourceHandler("text/html", stream);
     }
 
-    return NULL;
+    return nullptr;
   }
 
   // CefRenderHandler methods
@@ -1153,7 +1153,7 @@ class OSRTestHandler : public RoutingTestHandler,
                       const CefCursorInfo& custom_cursor_info) override {
     if (test_type_ == OSR_TEST_CURSOR && started()) {
       EXPECT_EQ(CT_HAND, type);
-      EXPECT_EQ(NULL, custom_cursor_info.buffer);
+      EXPECT_EQ(nullptr, custom_cursor_info.buffer);
       DestroySucceededTestSoon();
     }
   }
@@ -1180,7 +1180,7 @@ class OSRTestHandler : public RoutingTestHandler,
       const CefRect& dragdiv = GetElementBounds("dragdiv");
       EXPECT_TRUE(drag_data->HasImage());
       CefRefPtr<CefImage> image = drag_data->GetImage();
-      EXPECT_TRUE(image.get() != NULL);
+      EXPECT_TRUE(image.get() != nullptr);
       if (image.get()) {
         // Drag image height seems to always be + 1px greater than the drag rect
         // on Linux. Therefore allow it to be +/- 1px.
@@ -1338,7 +1338,8 @@ class OSRTestHandler : public RoutingTestHandler,
 #else
 #error "Unsupported platform"
 #endif
-    CefBrowserHost::CreateBrowser(windowInfo, this, url, settings, NULL, NULL);
+    CefBrowserHost::CreateBrowser(windowInfo, this, url, settings, nullptr,
+                                  nullptr);
   }
 
   CefRect GetScaledRect(const CefRect& rect) const {

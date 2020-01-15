@@ -52,7 +52,7 @@ class StorageTestHandler : public ExtensionTestHandler {
     EXPECT_TRUE(extension_->IsSame(extension));
     EXPECT_FALSE(got_unloaded_);
     got_unloaded_.yes();
-    extension_ = NULL;
+    extension_ = nullptr;
 
     // Execute asynchronously so call stacks have a chance to unwind.
     // Will close the browser windows.
@@ -124,7 +124,7 @@ class StorageTestHandler : public ExtensionTestHandler {
   }
 
   void OnDestroyTest() override {
-    extension_browser_ = NULL;
+    extension_browser_ = nullptr;
 
     EXPECT_TRUE(got_loaded_);
     EXPECT_TRUE(got_url_request_);

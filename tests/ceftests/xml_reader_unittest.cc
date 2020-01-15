@@ -36,12 +36,12 @@ TEST(XmlReaderTest, Read) {
   // Create the stream reader.
   CefRefPtr<CefStreamReader> stream(
       CefStreamReader::CreateForData(g_test_xml, sizeof(g_test_xml) - 1));
-  ASSERT_TRUE(stream.get() != NULL);
+  ASSERT_TRUE(stream.get() != nullptr);
 
   // Create the XML reader.
   CefRefPtr<CefXmlReader> reader(CefXmlReader::Create(
       stream, XML_ENCODING_NONE, "http://www.example.org/example.xml"));
-  ASSERT_TRUE(reader.get() != NULL);
+  ASSERT_TRUE(reader.get() != nullptr);
 
   // Move to the processing instruction node.
   ASSERT_TRUE(reader->MoveToNextNode());
@@ -503,12 +503,12 @@ TEST(XmlReaderTest, ReadError) {
   // Create the stream reader.
   CefRefPtr<CefStreamReader> stream(
       CefStreamReader::CreateForData(test_str, sizeof(test_str) - 1));
-  ASSERT_TRUE(stream.get() != NULL);
+  ASSERT_TRUE(stream.get() != nullptr);
 
   // Create the XML reader.
   CefRefPtr<CefXmlReader> reader(CefXmlReader::Create(
       stream, XML_ENCODING_NONE, "http://www.example.org/example.xml"));
-  ASSERT_TRUE(reader.get() != NULL);
+  ASSERT_TRUE(reader.get() != nullptr);
 
   // Move to the processing instruction node and generate parser error.
   ASSERT_FALSE(reader->MoveToNextNode());
@@ -520,12 +520,12 @@ TEST(XmlReaderTest, ObjectLoad) {
   // Create the stream reader.
   CefRefPtr<CefStreamReader> stream(
       CefStreamReader::CreateForData(g_test_xml, sizeof(g_test_xml) - 1));
-  ASSERT_TRUE(stream.get() != NULL);
+  ASSERT_TRUE(stream.get() != nullptr);
 
   // Create the XML reader.
   CefRefPtr<CefXmlObject> object(new CefXmlObject("object"));
   ASSERT_TRUE(object->Load(stream, XML_ENCODING_NONE,
-                           "http://www.example.org/example.xml", NULL));
+                           "http://www.example.org/example.xml", nullptr));
 
   ASSERT_FALSE(object->HasAttributes());
   ASSERT_TRUE(object->HasChildren());
@@ -606,7 +606,7 @@ TEST(XmlReaderTest, ObjectLoadError) {
     // Create the stream reader.
     CefRefPtr<CefStreamReader> stream(
         CefStreamReader::CreateForData(error_xml, sizeof(error_xml) - 1));
-    ASSERT_TRUE(stream.get() != NULL);
+    ASSERT_TRUE(stream.get() != nullptr);
 
     CefString error_str;
 
@@ -626,7 +626,7 @@ TEST(XmlReaderTest, ObjectLoadError) {
     // Create the stream reader.
     CefRefPtr<CefStreamReader> stream(
         CefStreamReader::CreateForData(error_xml, sizeof(error_xml) - 1));
-    ASSERT_TRUE(stream.get() != NULL);
+    ASSERT_TRUE(stream.get() != nullptr);
 
     CefString error_str;
 

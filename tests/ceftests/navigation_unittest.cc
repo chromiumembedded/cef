@@ -65,7 +65,7 @@ class HistoryNavRendererTest : public ClientAppRenderer::Delegate,
   CefRefPtr<CefLoadHandler> GetLoadHandler(
       CefRefPtr<ClientAppRenderer> app) override {
     if (!run_test_)
-      return NULL;
+      return nullptr;
 
     return this;
   }
@@ -287,7 +287,7 @@ class HistoryNavTestHandler : public TestHandler {
     extra_info->SetBool(kHistoryNavTestCmdKey, true);
 
     // Create the browser.
-    CreateBrowser(CefString(), NULL, extra_info);
+    CreateBrowser(CefString(), nullptr, extra_info);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
@@ -454,7 +454,7 @@ class HistoryNavTestHandler : public TestHandler {
     CefRefPtr<NavigationEntryVisitor> visitor =
         new NavigationEntryVisitor(nav_, &got_correct_history_[nav_]);
     browser->GetHost()->GetNavigationEntries(visitor.get(), false);
-    visitor = NULL;
+    visitor = nullptr;
 
     std::string url1 = browser->GetMainFrame()->GetURL();
     std::string url2 = frame->GetURL();
@@ -1223,14 +1223,14 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
       EXPECT_EQ(browser_id_main_, browser->GetIdentifier());
       EXPECT_GT(browser->GetIdentifier(), 0);
 
-      browser_main_ = NULL;
+      browser_main_ = nullptr;
     }
   }
 
   CefRefPtr<CefLoadHandler> GetLoadHandler(
       CefRefPtr<ClientAppRenderer> app) override {
     if (!run_test_)
-      return NULL;
+      return nullptr;
 
     return this;
   }
@@ -1384,7 +1384,7 @@ class OrderNavTestHandler : public TestHandler {
     AddResource(KONav2, "<html>Nav2</html>", "text/html");
 
     // Create the browser.
-    CreateBrowser(KONav1, NULL, GetExtraInfo());
+    CreateBrowser(KONav1, nullptr, GetExtraInfo());
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
@@ -1574,7 +1574,7 @@ class OrderNavTestHandler : public TestHandler {
         ContinueIfReady(browser);
       } else {
         // Popup was closed. End the test.
-        browser_popup_ = NULL;
+        browser_popup_ = nullptr;
         DestroyTest();
       }
 
@@ -1664,7 +1664,7 @@ class LoadNavRendererTest : public ClientAppRenderer::Delegate,
   CefRefPtr<CefLoadHandler> GetLoadHandler(
       CefRefPtr<ClientAppRenderer> app) override {
     if (!run_test_)
-      return NULL;
+      return nullptr;
 
     return this;
   }
@@ -1756,7 +1756,7 @@ class LoadNavTestHandler : public TestHandler {
     extra_info->SetBool(kLoadNavTestCmdKey, true);
 
     // Create the browser.
-    CreateBrowser(kLoadNav1, NULL, extra_info);
+    CreateBrowser(kLoadNav1, nullptr, extra_info);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
@@ -3428,7 +3428,7 @@ class ExtraInfoNavTestHandler : public TestHandler {
     SetBrowserExtraInfo(extra_info);
 
     // Create the browser.
-    CreateBrowser(kExtraInfoUrl, NULL, extra_info);
+    CreateBrowser(kExtraInfoUrl, nullptr, extra_info);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();

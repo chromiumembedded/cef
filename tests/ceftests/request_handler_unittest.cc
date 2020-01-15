@@ -75,8 +75,8 @@ class NetNotifyTestHandler : public TestHandler {
     // Create the request context that will use an in-memory cache.
     CefRequestContextSettings settings;
     CefRefPtr<CefRequestContext> request_context =
-        CefRequestContext::CreateContext(settings, NULL);
-    cookie_manager_ = request_context->GetCookieManager(NULL);
+        CefRequestContext::CreateContext(settings, nullptr);
+    cookie_manager_ = request_context->GetCookieManager(nullptr);
 
     CefRefPtr<CefDictionaryValue> extra_info = CefDictionaryValue::Create();
     extra_info->SetBool(kNetNotifyTestCmdKey, true);
@@ -347,7 +347,7 @@ class NetNotifyTestHandler : public TestHandler {
       EXPECT_FALSE(got_before_browse2_delayed_) << " browser " << browser_id;
     }
 
-    cookie_manager_ = NULL;
+    cookie_manager_ = nullptr;
 
     TestHandler::DestroyTest();
   }
@@ -399,7 +399,7 @@ class NetNotifyRendererTest : public ClientAppRenderer::Delegate,
       CefRefPtr<ClientAppRenderer> app) override {
     if (run_test_)
       return this;
-    return NULL;
+    return nullptr;
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,

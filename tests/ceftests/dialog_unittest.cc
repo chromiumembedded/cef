@@ -57,7 +57,7 @@ class DialogTestHandler : public TestHandler {
       }
 
       handler_->DestroyTest();
-      handler_ = NULL;
+      handler_ = nullptr;
     }
 
    private:

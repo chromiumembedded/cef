@@ -11,7 +11,7 @@
 TEST(PrintTest, SettingsSetGet) {
   // CefRequest CreateRequest
   CefRefPtr<CefPrintSettings> settings(CefPrintSettings::Create());
-  EXPECT_TRUE(settings.get() != NULL);
+  EXPECT_TRUE(settings.get() != nullptr);
   EXPECT_TRUE(settings->IsValid());
   EXPECT_FALSE(settings->IsReadOnly());
 

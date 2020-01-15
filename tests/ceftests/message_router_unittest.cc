@@ -76,10 +76,10 @@ class MRRenderDelegate : public ClientAppRenderer::Delegate {
 
         if (name == kJSAssertTotalCountFunc) {
           actual_count =
-              delegate_->message_router_->GetPendingCount(NULL, NULL);
+              delegate_->message_router_->GetPendingCount(nullptr, nullptr);
         } else if (name == kJSAssertBrowserCountFunc) {
           actual_count =
-              delegate_->message_router_->GetPendingCount(browser, NULL);
+              delegate_->message_router_->GetPendingCount(browser, nullptr);
         } else if (name == kJSAssertContextCountFunc) {
           actual_count =
               delegate_->message_router_->GetPendingCount(browser, context);
@@ -295,7 +295,7 @@ class SingleLoadTestHandler : public MRTestHandler,
     AddOtherResources();
     AddResource(main_url_, GetMainHTML(), "text/html");
 
-    CreateBrowser(main_url_, NULL);
+    CreateBrowser(main_url_, nullptr);
   }
 
   void AddHandlers(
@@ -498,7 +498,7 @@ class SingleQueryTestHandler : public SingleLoadTestHandler {
     } else {
       EXPECT_TRUE(false);  // Not reached.
     }
-    callback_ = NULL;
+    callback_ = nullptr;
   }
 
   bool OnQuery(CefRefPtr<CefBrowser> browser,
@@ -541,7 +541,7 @@ class SingleQueryTestHandler : public SingleLoadTestHandler {
     EXPECT_TRUE(callback_.get());
 
     got_on_query_canceled_.yes();
-    callback_ = NULL;
+    callback_ = nullptr;
 
     DestroyTestIfDone();
   }
@@ -731,7 +731,7 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
       callback_->Success(kSingleQueryResponse);
     } else {
       callback_->Failure(kSingleQueryErrorCode, kSingleQueryErrorMessage);
-      callback_ = NULL;
+      callback_ = nullptr;
     }
   }
 
@@ -779,7 +779,7 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
     EXPECT_TRUE(callback_.get());
 
     got_on_query_canceled_.yes();
-    callback_ = NULL;
+    callback_ = nullptr;
 
     DestroyTestIfDone();
   }
@@ -1326,7 +1326,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
         EXPECT_TRUE(query.callback.get()) << i;
 
         // Release the callback.
-        query.callback = NULL;
+        query.callback = nullptr;
 
         // Verify that call order is correct.
         EXPECT_TRUE(query.got_query) << i;
@@ -1883,7 +1883,7 @@ class MultiQuerySingleFrameTestHandler : public SingleLoadTestHandler,
         manager_.WillCancelByRemovingHandler();
         GetRouter()->RemoveHandler(this);
         // All queries should be immediately canceled.
-        AssertQueryCount(NULL, NULL, 0);
+        AssertQueryCount(nullptr, nullptr, 0);
       } else if (cancel_type_ == CANCEL_BY_CLOSING_BROWSER) {
         // Change the expected behavior in the handler.
         SetSignalCompletionWhenAllBrowsersClose(false);
@@ -1896,7 +1896,7 @@ class MultiQuerySingleFrameTestHandler : public SingleLoadTestHandler,
     EXPECT_EQ(manager, &manager_);
 
     // All queries should be canceled.
-    AssertQueryCount(NULL, NULL, 0);
+    AssertQueryCount(nullptr, nullptr, 0);
 
     DestroyTest();
 
@@ -2192,7 +2192,7 @@ class MultiQueryMultiHandlerTestHandler : public SingleLoadTestHandler,
     EXPECT_EQ(manager, &manager_);
 
     // All queries should be canceled.
-    AssertQueryCount(NULL, NULL, 0);
+    AssertQueryCount(nullptr, nullptr, 0);
 
     DestroyTest();
   }
@@ -2806,9 +2806,9 @@ class MultiQueryMultiBrowserTestHandler
     Finalize();
 
     // Create 2 browsers simultaniously.
-    CreateBrowser(url1, NULL);
-    CreateBrowser(url2, NULL);
-    CreateBrowser(url3, NULL);
+    CreateBrowser(url1, nullptr);
+    CreateBrowser(url2, nullptr);
+    CreateBrowser(url3, nullptr);
   }
 
  private:
@@ -2881,7 +2881,7 @@ class MultiQueryMultiNavigateTestHandler
     Finalize();
 
     // 1. Load the 1st url.
-    CreateBrowser(url1_, NULL);
+    CreateBrowser(url1_, nullptr);
   }
 
  private:

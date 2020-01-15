@@ -80,7 +80,7 @@ TEST(RequestContextTest, BasicCreateNoHandler) {
   CefRequestContextSettings settings;
 
   CefRefPtr<CefRequestContext> context1 =
-      CefRequestContext::CreateContext(settings, NULL);
+      CefRequestContext::CreateContext(settings, nullptr);
   EXPECT_TRUE(context1.get());
   EXPECT_FALSE(context1->IsGlobal());
   EXPECT_TRUE(context1->IsSame(context1));
@@ -88,7 +88,7 @@ TEST(RequestContextTest, BasicCreateNoHandler) {
   EXPECT_FALSE(context1->GetHandler().get());
 
   CefRefPtr<CefRequestContext> context2 =
-      CefRequestContext::CreateContext(settings, NULL);
+      CefRequestContext::CreateContext(settings, nullptr);
   EXPECT_TRUE(context2.get());
   EXPECT_FALSE(context2->IsGlobal());
   EXPECT_TRUE(context2->IsSame(context2));
@@ -123,7 +123,7 @@ TEST(RequestContextTest, BasicCreateSharedGlobal) {
 
   // Returns the same global context.
   CefRefPtr<CefRequestContext> context2 =
-      CefRequestContext::CreateContext(context1, NULL);
+      CefRequestContext::CreateContext(context1, nullptr);
   EXPECT_TRUE(context2.get());
   EXPECT_TRUE(context2->IsGlobal());
   EXPECT_TRUE(context2->IsSame(context2));
@@ -142,14 +142,14 @@ TEST(RequestContextTest, BasicCreateSharedOnDisk) {
   CefString(&settings.cache_path) = tempdir.GetPath();
 
   CefRefPtr<CefRequestContext> context1 =
-      CefRequestContext::CreateContext(settings, NULL);
+      CefRequestContext::CreateContext(settings, nullptr);
   EXPECT_TRUE(context1.get());
   EXPECT_FALSE(context1->IsGlobal());
   EXPECT_TRUE(context1->IsSame(context1));
   EXPECT_TRUE(context1->IsSharingWith(context1));
 
   CefRefPtr<CefRequestContext> context2 =
-      CefRequestContext::CreateContext(context1, NULL);
+      CefRequestContext::CreateContext(context1, nullptr);
   EXPECT_TRUE(context2.get());
   EXPECT_FALSE(context2->IsGlobal());
   EXPECT_TRUE(context2->IsSame(context2));
@@ -160,7 +160,7 @@ TEST(RequestContextTest, BasicCreateSharedOnDisk) {
   EXPECT_TRUE(context1->IsSharingWith(context2));
 
   CefRefPtr<CefRequestContext> context3 =
-      CefRequestContext::CreateContext(context2, NULL);
+      CefRequestContext::CreateContext(context2, nullptr);
   EXPECT_TRUE(context3.get());
   EXPECT_FALSE(context3->IsGlobal());
   EXPECT_TRUE(context3->IsSame(context3));
@@ -175,7 +175,7 @@ TEST(RequestContextTest, BasicCreateSharedOnDisk) {
   EXPECT_TRUE(context2->IsSharingWith(context3));
 
   CefRefPtr<CefRequestContext> context4 =
-      CefRequestContext::CreateContext(context1, NULL);
+      CefRequestContext::CreateContext(context1, nullptr);
   EXPECT_TRUE(context4.get());
   EXPECT_FALSE(context4->IsGlobal());
   EXPECT_TRUE(context4->IsSame(context4));
@@ -244,8 +244,8 @@ class PopupTestHandler : public TestHandler {
 
     CefRequestContextSettings settings;
 
-    context_ = CefRequestContext::CreateContext(settings, NULL);
-    cookie_manager_ = context_->GetCookieManager(NULL);
+    context_ = CefRequestContext::CreateContext(settings, nullptr);
+    cookie_manager_ = context_->GetCookieManager(nullptr);
 
     // Create browser that loads the 1st URL.
     CreateBrowser(url_, context_);
@@ -369,7 +369,7 @@ class PopupTestHandler : public TestHandler {
     EXPECT_TRUE(got_load_end2_);
     EXPECT_TRUE(got_cookie1_);
     EXPECT_TRUE(got_cookie2_);
-    context_ = NULL;
+    context_ = nullptr;
 
     TestHandler::DestroyTest();
   }

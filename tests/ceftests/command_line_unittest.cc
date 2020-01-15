@@ -82,7 +82,7 @@ void VerifyCommandLine(CefRefPtr<CefCommandLine> command_line,
 // Test creating a command line from argc/argv or string.
 TEST(CommandLineTest, Init) {
   CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
-  EXPECT_TRUE(command_line.get() != NULL);
+  EXPECT_TRUE(command_line.get() != nullptr);
 
 #if defined(OS_WIN)
   command_line->InitFromString(
@@ -101,7 +101,7 @@ TEST(CommandLineTest, Init) {
 // Test creating a command line using set and append methods.
 TEST(CommandLineTest, Manual) {
   CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
-  EXPECT_TRUE(command_line.get() != NULL);
+  EXPECT_TRUE(command_line.get() != nullptr);
 
   command_line->SetProgram("test.exe");
   command_line->AppendSwitch("switch1");
@@ -117,7 +117,7 @@ TEST(CommandLineTest, Manual) {
 // Test that any prefixes included with the switches are ignored.
 TEST(CommandLineTest, IgnorePrefixes) {
   CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
-  EXPECT_TRUE(command_line.get() != NULL);
+  EXPECT_TRUE(command_line.get() != nullptr);
 
   command_line->SetProgram("test.exe");
   command_line->AppendSwitch("-switch1");

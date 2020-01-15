@@ -8,7 +8,7 @@
 
 TEST(ResponseTest, SetGetHeaderByName) {
   CefRefPtr<CefResponse> response(CefResponse::Create());
-  EXPECT_TRUE(response.get() != NULL);
+  EXPECT_TRUE(response.get() != nullptr);
 
   CefResponse::HeaderMap headers, expectedHeaders;
 

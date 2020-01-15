@@ -170,7 +170,7 @@ class PluginTestHandler : public RoutingTestHandler,
       return false;
     }
 
-    void Detach() { handler_ = NULL; }
+    void Detach() { handler_ = nullptr; }
 
    private:
     PluginTestHandler* handler_;
@@ -355,7 +355,7 @@ class PluginTestHandler : public RoutingTestHandler,
       return new CefStreamResourceHandler("application/pdf", stream);
     }
 
-    return NULL;
+    return nullptr;
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -509,7 +509,7 @@ class PluginTestHandler : public RoutingTestHandler,
   void DestroyTest() override {
     if (context_handler_.get()) {
       context_handler_->Detach();
-      context_handler_ = NULL;
+      context_handler_ = nullptr;
     }
 
     if (HasContextHide()) {

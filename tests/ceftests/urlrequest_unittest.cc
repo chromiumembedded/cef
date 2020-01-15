@@ -379,7 +379,7 @@ void SetTestCookie(CefRefPtr<CefRequestContext> request_context,
   CefString(&cookie.domain) = GetRequestHost(server_backend, false);
   CefString(&cookie.path) = "/";
   cookie.has_expires = false;
-  EXPECT_TRUE(request_context->GetCookieManager(NULL)->SetCookie(
+  EXPECT_TRUE(request_context->GetCookieManager(nullptr)->SetCookie(
       GetRequestOrigin(server_backend), cookie, new Callback(callback)));
 }
 
@@ -419,7 +419,7 @@ void GetTestCookie(CefRefPtr<CefRequestContext> request_context,
   };
 
   CefRefPtr<CefCookieManager> cookie_manager =
-      request_context->GetCookieManager(NULL);
+      request_context->GetCookieManager(nullptr);
   cookie_manager->VisitUrlCookies(GetRequestOrigin(server_backend), true,
                                   new Visitor(callback));
 }
@@ -2718,7 +2718,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     // Remove the factory registration.
     request_context_->RegisterSchemeHandlerFactory(
-        GetRequestScheme(false), GetRequestHost(false, false), NULL);
+        GetRequestScheme(false), GetRequestHost(false, false), nullptr);
     scheme_factory_->Shutdown(complete_callback);
     scheme_factory_ = nullptr;
   }
@@ -2858,8 +2858,8 @@ class RequestRendererTest : public ClientAppRenderer::Delegate {
     EXPECT_TRUE(return_msg->GetArgumentList()->SetBool(0, result));
     browser_->GetMainFrame()->SendProcessMessage(PID_BROWSER, return_msg);
 
-    app_ = NULL;
-    browser_ = NULL;
+    app_ = nullptr;
+    browser_ = nullptr;
   }
 
   CefRefPtr<ClientAppRenderer> app_;
@@ -2955,7 +2955,7 @@ class RequestTestHandler : public TestHandler {
         supported_schemes.push_back(GetRequestScheme(false));
 
         // Continue the test once supported schemes has been set.
-        request_context->GetCookieManager(NULL)->SetSupportedSchemes(
+        request_context->GetCookieManager(nullptr)->SetSupportedSchemes(
             supported_schemes, true,
             new TestCompletionCallback(
                 base::Bind(&RequestTestHandler::PreSetupComplete, this)));
@@ -2994,7 +2994,7 @@ class RequestTestHandler : public TestHandler {
 
     if (test_in_browser_) {
       if (test_frame_method_) {
-        EXPECT_TRUE(test_url_ != NULL);
+        EXPECT_TRUE(test_url_ != nullptr);
         AddResource(test_url_, "<html><body>TEST</body></html>", "text/html");
 
         // Create the browser who's main frame will be the initiator for the
@@ -3008,7 +3008,7 @@ class RequestTestHandler : public TestHandler {
             base::Bind(&RequestTestHandler::OnRunComplete, this));
       }
     } else {
-      EXPECT_TRUE(test_url_ != NULL);
+      EXPECT_TRUE(test_url_ != nullptr);
       AddResource(test_url_, "<html><body>TEST</body></html>", "text/html");
 
       // Create a browser to run the test in the renderer process.
@@ -3572,7 +3572,7 @@ class InvalidURLTestClient : public CefURLRequestClient {
     request->SetMethod("GET");
     request->SetURL("foo://invalidurl");
 
-    CefURLRequest::Create(request, this, NULL);
+    CefURLRequest::Create(request, this, nullptr);
   }
 
   void CompleteOnUIThread() {

@@ -87,8 +87,8 @@ class TracingTestHandler : public CefEndTracingCallback,
 
     // Verify the results.
     EXPECT_TRUE(!trace_data_.empty());
-    EXPECT_TRUE(trace_type_ != NULL);
-    EXPECT_TRUE(strstr(trace_data_.c_str(), trace_type_) != NULL);
+    EXPECT_TRUE(trace_type_ != nullptr);
+    EXPECT_TRUE(strstr(trace_data_.c_str(), trace_type_) != nullptr);
   }
 
   void BeginTracing() {

@@ -80,7 +80,7 @@ class TestResults {
 // Current scheme handler object. Used when destroying the test from
 // ClientSchemeHandler::ProcessRequest().
 class TestSchemeHandler;
-TestSchemeHandler* g_current_handler = NULL;
+TestSchemeHandler* g_current_handler = nullptr;
 
 class TestSchemeHandler : public TestHandler {
  public:
@@ -823,7 +823,7 @@ TEST(SchemeHandlerTest, Registration) {
   EXPECT_TRUE(g_TestResults.got_output);
 
   // Unregister the handler.
-  EXPECT_TRUE(CefRegisterSchemeHandlerFactory("customstd", "test", NULL));
+  EXPECT_TRUE(CefRegisterSchemeHandlerFactory("customstd", "test", nullptr));
   WaitForIOThread();
 
   g_TestResults.got_request.reset();

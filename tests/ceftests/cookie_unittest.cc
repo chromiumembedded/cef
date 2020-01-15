@@ -583,8 +583,8 @@ class CookieTestJSHandler : public TestHandler {
     // Create the request context that will use an in-memory cache.
     CefRequestContextSettings settings;
     CefRefPtr<CefRequestContext> request_context =
-        CefRequestContext::CreateContext(settings, NULL);
-    manager_ = request_context->GetCookieManager(NULL);
+        CefRequestContext::CreateContext(settings, nullptr);
+    manager_ = request_context->GetCookieManager(nullptr);
 
     // Create the browser.
     CreateBrowser(kCookieJSUrl1, request_context);
@@ -838,13 +838,13 @@ class CookieTestSchemeHandler : public TestHandler {
     } else {
       // Create the request context that will use an in-memory cache.
       CefRequestContextSettings settings;
-      request_context_ = CefRequestContext::CreateContext(settings, NULL);
+      request_context_ = CefRequestContext::CreateContext(settings, nullptr);
     }
 
     // Register the scheme handler.
     request_context_->RegisterSchemeHandlerFactory(
         scheme_, "cookie-tests", new SchemeHandlerFactory(this));
-    manager_ = request_context_->GetCookieManager(NULL);
+    manager_ = request_context_->GetCookieManager(nullptr);
     if (!use_global_ && (scheme_ == kCustomCookieScheme || block_cookies_)) {
       std::vector<CefString> schemes;
       if (!block_cookies_)
@@ -888,7 +888,7 @@ class CookieTestSchemeHandler : public TestHandler {
 
     // Unregister the scheme handler.
     browser->GetHost()->GetRequestContext()->RegisterSchemeHandlerFactory(
-        scheme_, "cookie-tests", NULL);
+        scheme_, "cookie-tests", nullptr);
 
     DestroyTest();
   }
@@ -939,8 +939,8 @@ class CookieTestSchemeHandler : public TestHandler {
 
     // Unregister the scheme handler.
     request_context_->RegisterSchemeHandlerFactory(scheme_, "cookie-tests",
-                                                   NULL);
-    request_context_ = NULL;
+                                                   nullptr);
+    request_context_ = nullptr;
 
     TestHandler::DestroyTest();
   }
@@ -1566,7 +1566,7 @@ class CookieAccessTestHandler : public RoutingTestHandler,
     } else {
       // Create the request context that will use an in-memory cache.
       CefRequestContextSettings settings;
-      context_ = CefRequestContext::CreateContext(settings, NULL);
+      context_ = CefRequestContext::CreateContext(settings, nullptr);
     }
 
     cookie_manager_ = context_->GetCookieManager(nullptr);
@@ -1596,8 +1596,8 @@ class CookieAccessTestHandler : public RoutingTestHandler,
       return;
     }
 
-    cookie_manager_ = NULL;
-    context_ = NULL;
+    cookie_manager_ = nullptr;
+    context_ = nullptr;
 
     // Got both network requests.
     EXPECT_EQ(1, data1_.request_ct_);
@@ -2032,7 +2032,7 @@ class CookieRestartTestHandler : public RoutingTestHandler,
     } else {
       // Create the request context that will use an in-memory cache.
       CefRequestContextSettings settings;
-      context_ = CefRequestContext::CreateContext(settings, NULL);
+      context_ = CefRequestContext::CreateContext(settings, nullptr);
     }
 
     cookie_manager_ = context_->GetCookieManager(nullptr);
@@ -2048,8 +2048,8 @@ class CookieRestartTestHandler : public RoutingTestHandler,
       return;
     }
 
-    cookie_manager_ = NULL;
-    context_ = NULL;
+    cookie_manager_ = nullptr;
+    context_ = nullptr;
 
     // Get 2 network requests for each URL.
     EXPECT_EQ(2, data1_.request_ct_);

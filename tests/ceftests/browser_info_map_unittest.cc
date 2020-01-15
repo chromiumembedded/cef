@@ -176,41 +176,41 @@ TEST(BrowserInfoMapTest, FindSingleBrowser) {
   g_destruct_ct = 0;
 
   // obj1 not added yet.
-  MyObject nf1 = map.Find(kBrowserId, 1, NULL);
+  MyObject nf1 = map.Find(kBrowserId, 1, nullptr);
   EXPECT_EQ(0, nf1.member);
 
   MyObject obj1(1);
   map.Add(kBrowserId, 1, obj1);
 
   // obj1 should exist.
-  MyObject f1 = map.Find(kBrowserId, 1, NULL);
+  MyObject f1 = map.Find(kBrowserId, 1, nullptr);
   EXPECT_EQ(obj1.member, f1.member);
 
   // obj2 not added yet.
-  MyObject nf2 = map.Find(kBrowserId, 2, NULL);
+  MyObject nf2 = map.Find(kBrowserId, 2, nullptr);
   EXPECT_EQ(0, nf2.member);
 
   MyObject obj2(2);
   map.Add(kBrowserId, 2, obj2);
 
   // obj2 should exist.
-  MyObject f2 = map.Find(kBrowserId, 2, NULL);
+  MyObject f2 = map.Find(kBrowserId, 2, nullptr);
   EXPECT_EQ(obj2.member, f2.member);
 
   // find obj1 again.
-  MyObject f1b = map.Find(kBrowserId, 1, NULL);
+  MyObject f1b = map.Find(kBrowserId, 1, nullptr);
   EXPECT_EQ(obj1.member, f1b.member);
 
   // find obj2 again.
-  MyObject f2b = map.Find(kBrowserId, 2, NULL);
+  MyObject f2b = map.Find(kBrowserId, 2, nullptr);
   EXPECT_EQ(obj2.member, f2b.member);
 
   // doesn't exist.
-  MyObject nf3 = map.Find(kBrowserId, 3, NULL);
+  MyObject nf3 = map.Find(kBrowserId, 3, nullptr);
   EXPECT_EQ(0, nf3.member);
-  MyObject nf4 = map.Find(10, 1, NULL);
+  MyObject nf4 = map.Find(10, 1, nullptr);
   EXPECT_EQ(0, nf4.member);
-  MyObject nf5 = map.Find(10, 3, NULL);
+  MyObject nf5 = map.Find(10, 3, nullptr);
   EXPECT_EQ(0, nf5.member);
 
   EXPECT_EQ(0, g_destruct_ct);
@@ -226,69 +226,69 @@ TEST(BrowserInfoMapTest, FindMultipleBrowsers) {
   g_destruct_ct = 0;
 
   // obj1 not added yet.
-  MyObject nf1 = map.Find(kBrowserId1, 1, NULL);
+  MyObject nf1 = map.Find(kBrowserId1, 1, nullptr);
   EXPECT_EQ(0, nf1.member);
 
   MyObject obj1(1);
   map.Add(kBrowserId1, 1, obj1);
 
   // obj1 should exist.
-  MyObject f1 = map.Find(kBrowserId1, 1, NULL);
+  MyObject f1 = map.Find(kBrowserId1, 1, nullptr);
   EXPECT_EQ(obj1.member, f1.member);
 
   // obj2 not added yet.
-  MyObject nf2 = map.Find(kBrowserId1, 2, NULL);
+  MyObject nf2 = map.Find(kBrowserId1, 2, nullptr);
   EXPECT_EQ(0, nf2.member);
 
   MyObject obj2(2);
   map.Add(kBrowserId1, 2, obj2);
 
   // obj2 should exist.
-  MyObject f2 = map.Find(kBrowserId1, 2, NULL);
+  MyObject f2 = map.Find(kBrowserId1, 2, nullptr);
   EXPECT_EQ(obj2.member, f2.member);
 
   // obj3 not added yet.
-  MyObject nf3 = map.Find(kBrowserId2, 3, NULL);
+  MyObject nf3 = map.Find(kBrowserId2, 3, nullptr);
   EXPECT_EQ(0, nf3.member);
 
   MyObject obj3(3);
   map.Add(kBrowserId2, 3, obj3);
 
   // obj3 should exist.
-  MyObject f3 = map.Find(kBrowserId2, 3, NULL);
+  MyObject f3 = map.Find(kBrowserId2, 3, nullptr);
   EXPECT_EQ(obj3.member, f3.member);
 
   // obj4 not added yet.
-  MyObject nf4 = map.Find(kBrowserId2, 4, NULL);
+  MyObject nf4 = map.Find(kBrowserId2, 4, nullptr);
   EXPECT_EQ(0, nf4.member);
 
   MyObject obj4(4);
   map.Add(kBrowserId2, 4, obj4);
 
   // obj4 should exist.
-  MyObject f4 = map.Find(kBrowserId2, 4, NULL);
+  MyObject f4 = map.Find(kBrowserId2, 4, nullptr);
   EXPECT_EQ(obj4.member, f4.member);
 
   // obj1-3 should exist.
-  MyObject f1b = map.Find(kBrowserId1, 1, NULL);
+  MyObject f1b = map.Find(kBrowserId1, 1, nullptr);
   EXPECT_EQ(obj1.member, f1b.member);
-  MyObject f2b = map.Find(kBrowserId1, 2, NULL);
+  MyObject f2b = map.Find(kBrowserId1, 2, nullptr);
   EXPECT_EQ(obj2.member, f2b.member);
-  MyObject f3b = map.Find(kBrowserId2, 3, NULL);
+  MyObject f3b = map.Find(kBrowserId2, 3, nullptr);
   EXPECT_EQ(obj3.member, f3b.member);
 
   // wrong browser
-  MyObject nf5 = map.Find(kBrowserId1, 4, NULL);
+  MyObject nf5 = map.Find(kBrowserId1, 4, nullptr);
   EXPECT_EQ(0, nf5.member);
-  MyObject nf6 = map.Find(kBrowserId2, 1, NULL);
+  MyObject nf6 = map.Find(kBrowserId2, 1, nullptr);
   EXPECT_EQ(0, nf6.member);
 
   // deosn't exist
-  MyObject nf7 = map.Find(kBrowserId2, 5, NULL);
+  MyObject nf7 = map.Find(kBrowserId2, 5, nullptr);
   EXPECT_EQ(0, nf7.member);
-  MyObject nf8 = map.Find(8, 1, NULL);
+  MyObject nf8 = map.Find(8, 1, nullptr);
   EXPECT_EQ(0, nf8.member);
-  MyObject nf9 = map.Find(8, 10, NULL);
+  MyObject nf9 = map.Find(8, 10, nullptr);
   EXPECT_EQ(0, nf9.member);
 
   EXPECT_EQ(0, g_destruct_ct);
@@ -370,15 +370,15 @@ TEST(BrowserInfoMapTest, FindAndRemove) {
   EXPECT_EQ(2U, map.size(kBrowserId2));
 
   // visited object shouldn't exist
-  MyObject nf2 = map.Find(kBrowserId1, 2, NULL);
+  MyObject nf2 = map.Find(kBrowserId1, 2, nullptr);
   EXPECT_EQ(0, nf2.member);
 
   // other objects should exist
-  MyObject nf1 = map.Find(kBrowserId1, 1, NULL);
+  MyObject nf1 = map.Find(kBrowserId1, 1, nullptr);
   EXPECT_EQ(obj1.member, nf1.member);
-  MyObject nf3 = map.Find(kBrowserId2, 3, NULL);
+  MyObject nf3 = map.Find(kBrowserId2, 3, nullptr);
   EXPECT_EQ(obj3.member, nf3.member);
-  MyObject nf4 = map.Find(kBrowserId2, 4, NULL);
+  MyObject nf4 = map.Find(kBrowserId2, 4, nullptr);
   EXPECT_EQ(obj4.member, nf4.member);
 
   EXPECT_EQ(0, g_destruct_ct);
@@ -551,15 +551,15 @@ TEST(BrowserInfoMapTest, FindAllAndRemoveOne) {
   EXPECT_EQ(1U, map.size(kBrowserId2));
 
   // removed object shouldn't exist
-  MyObject nf3 = map.Find(kBrowserId2, 3, NULL);
+  MyObject nf3 = map.Find(kBrowserId2, 3, nullptr);
   EXPECT_EQ(0, nf3.member);
 
   // other objects should exist
-  MyObject f1 = map.Find(kBrowserId1, 1, NULL);
+  MyObject f1 = map.Find(kBrowserId1, 1, nullptr);
   EXPECT_EQ(obj1.member, f1.member);
-  MyObject f2 = map.Find(kBrowserId1, 2, NULL);
+  MyObject f2 = map.Find(kBrowserId1, 2, nullptr);
   EXPECT_EQ(obj2.member, f2.member);
-  MyObject f4 = map.Find(kBrowserId2, 4, NULL);
+  MyObject f4 = map.Find(kBrowserId2, 4, nullptr);
   EXPECT_EQ(obj4.member, f4.member);
 
   EXPECT_EQ(0, g_destruct_ct);
@@ -605,15 +605,15 @@ TEST(BrowserInfoMapTest, FindAllAndRemoveAllByBrowser) {
   EXPECT_EQ(2U, map.size(kBrowserId2));
 
   // browser1 objects shouldn't exist
-  MyObject nf1 = map.Find(kBrowserId1, 1, NULL);
+  MyObject nf1 = map.Find(kBrowserId1, 1, nullptr);
   EXPECT_EQ(0, nf1.member);
-  MyObject nf2 = map.Find(kBrowserId1, 2, NULL);
+  MyObject nf2 = map.Find(kBrowserId1, 2, nullptr);
   EXPECT_EQ(0, nf2.member);
 
   // browser 2 objects should exist
-  MyObject f3 = map.Find(kBrowserId2, 3, NULL);
+  MyObject f3 = map.Find(kBrowserId2, 3, nullptr);
   EXPECT_EQ(obj3.member, f3.member);
-  MyObject f4 = map.Find(kBrowserId2, 4, NULL);
+  MyObject f4 = map.Find(kBrowserId2, 4, nullptr);
   EXPECT_EQ(obj4.member, f4.member);
 
   EXPECT_EQ(0, g_destruct_ct);
@@ -659,15 +659,15 @@ TEST(BrowserInfoMapTest, FindAllAndRemoveOneByBrowser) {
   EXPECT_EQ(1U, map.size(kBrowserId2));
 
   // removed object shouldn't exist
-  MyObject nf4 = map.Find(kBrowserId2, 4, NULL);
+  MyObject nf4 = map.Find(kBrowserId2, 4, nullptr);
   EXPECT_EQ(0, nf4.member);
 
   // other objects should exist
-  MyObject f1 = map.Find(kBrowserId1, 1, NULL);
+  MyObject f1 = map.Find(kBrowserId1, 1, nullptr);
   EXPECT_EQ(obj1.member, f1.member);
-  MyObject f2 = map.Find(kBrowserId1, 2, NULL);
+  MyObject f2 = map.Find(kBrowserId1, 2, nullptr);
   EXPECT_EQ(obj2.member, f2.member);
-  MyObject f3 = map.Find(kBrowserId2, 3, NULL);
+  MyObject f3 = map.Find(kBrowserId2, 3, nullptr);
   EXPECT_EQ(obj3.member, f3.member);
 
   EXPECT_EQ(0, g_destruct_ct);
