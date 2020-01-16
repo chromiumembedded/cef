@@ -39,6 +39,17 @@ print("\nPatching build configuration and source files for CEF...")
 cmd = [sys.executable, 'tools/patcher.py']
 RunAction(cef_dir, cmd)
 
+if platform == 'linux' and 'CEF_INSTALL_SYSROOT' in os.environ:
+  for arch in os.environ['CEF_INSTALL_SYSROOT'].split(','):
+    if len(arch) == 0:
+      continue
+    print("\nInstalling %s sysroot environment..." % arch)
+    cmd = [
+        sys.executable, 'build/linux/sysroot_scripts/install-sysroot.py',
+        '--arch', arch
+    ]
+    RunAction(src_dir, cmd)
+
 print("\nGenerating CEF project files...")
 
 gn_args = {}
