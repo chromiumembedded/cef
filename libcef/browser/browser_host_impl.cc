@@ -2621,8 +2621,18 @@ void CefBrowserHostImpl::DidFinishNavigation(
   const GURL& url =
       (error_code == net::OK ? navigation_handle->GetURL() : GURL());
 
+  // May return NULL when starting a new navigation if the previous navigation
+  // caused the renderer process to crash during load.
   CefRefPtr<CefFrameHostImpl> frame = browser_info_->GetFrameForFrameTreeNode(
       navigation_handle->GetFrameTreeNodeId());
+  if (!frame) {
+    if (is_main_frame) {
+      frame = browser_info_->GetMainFrame();
+    } else {
+      frame =
+          browser_info_->CreateTempSubFrame(CefFrameHostImpl::kInvalidFrameId);
+    }
+  }
   frame->RefreshAttributes();
 
   if (error_code == net::OK) {
