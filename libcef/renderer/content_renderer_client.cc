@@ -81,6 +81,7 @@
 #include "content/public/renderer/render_view_visitor.h"
 #include "content/renderer/render_widget.h"
 #include "extensions/common/switches.h"
+#include "extensions/renderer/guest_view/mime_handler_view/mime_handler_view_container_manager.h"
 #include "extensions/renderer/renderer_extension_registry.h"
 #include "ipc/ipc_sync_channel.h"
 #include "media/base/media.h"
@@ -90,6 +91,7 @@
 #include "services/service_manager/public/cpp/connector.h"
 #include "services/service_manager/public/cpp/interface_provider.h"
 #include "third_party/blink/public/common/associated_interfaces/associated_interface_provider.h"
+#include "third_party/blink/public/common/associated_interfaces/associated_interface_registry.h"
 #include "third_party/blink/public/platform/platform.h"
 #include "third_party/blink/public/platform/scheduler/web_renderer_process_type.h"
 #include "third_party/blink/public/platform/url_conversion.h"
@@ -480,8 +482,15 @@ void CefContentRendererClient::RenderFrameCreated(
 
   new PepperHelper(render_frame);
 
-  if (extensions::ExtensionsEnabled())
+  if (extensions::ExtensionsEnabled()) {
     extensions_renderer_client_->RenderFrameCreated(render_frame, registry);
+
+    blink::AssociatedInterfaceRegistry* associated_interfaces =
+        render_frame_observer->associated_interfaces();
+    associated_interfaces->AddInterface(base::BindRepeating(
+        &extensions::MimeHandlerViewContainerManager::BindReceiver,
+        render_frame->GetRoutingID()));
+  }
 
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
@@ -747,8 +756,9 @@ CefRefPtr<CefBrowserImpl> CefContentRendererClient::MaybeCreateBrowser(
     return nullptr;
   }
 
-  if (params.is_guest_view) {
-    // Don't create a CefBrowser for guest views.
+  if (params.is_guest_view || params.browser_id < 0) {
+    // Don't create a CefBrowser for guest views, or if the new browser info
+    // response has timed out.
     guest_views_.insert(std::make_pair(
         render_view,
         std::make_unique<CefGuestView>(render_view, params.is_windowless)));

@@ -7,6 +7,7 @@
 
 #include "content/public/renderer/render_frame_observer.h"
 #include "services/service_manager/public/cpp/binder_registry.h"
+#include "third_party/blink/public/common/associated_interfaces/associated_interface_registry.h"
 
 namespace content {
 class RenderFrame;
@@ -24,6 +25,9 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
   void OnInterfaceRequestForFrame(
       const std::string& interface_name,
       mojo::ScopedMessagePipeHandle* interface_pipe) override;
+  bool OnAssociatedInterfaceRequestForFrame(
+      const std::string& interface_name,
+      mojo::ScopedInterfaceEndpointHandle* handle) override;
   void DidCommitProvisionalLoad(bool is_same_document_navigation,
                                 ui::PageTransition transition) override;
   void DidFailProvisionalLoad() override;
@@ -40,6 +44,9 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
   bool OnMessageReceived(const IPC::Message& message) override;
 
   service_manager::BinderRegistry* registry() { return &registry_; }
+  blink::AssociatedInterfaceRegistry* associated_interfaces() {
+    return &associated_interfaces_;
+  }
 
   void AttachFrame(CefFrameImpl* frame);
 
@@ -48,6 +55,7 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
   void OnLoadError();
 
   service_manager::BinderRegistry registry_;
+  blink::AssociatedInterfaceRegistry associated_interfaces_;
   CefFrameImpl* frame_ = nullptr;
 
   DISALLOW_COPY_AND_ASSIGN(CefRenderFrameObserver);

@@ -76,6 +76,7 @@ void CefBrowserPlatformDelegateViews::BrowserCreated(
     CefBrowserHostImpl* browser) {
   CefBrowserPlatformDelegate::BrowserCreated(browser);
 
+  native_delegate_->set_browser(browser);
   browser_view_->BrowserCreated(browser, GetBoundsChangedCallback());
 }
 
@@ -97,6 +98,7 @@ void CefBrowserPlatformDelegateViews::BrowserDestroyed(
     CefBrowserHostImpl* browser) {
   CefBrowserPlatformDelegate::BrowserDestroyed(browser);
 
+  native_delegate_->set_browser(nullptr);
   browser_view_->BrowserDestroyed(browser);
   browser_view_ = nullptr;
 }
@@ -183,34 +185,38 @@ SkColor CefBrowserPlatformDelegateViews::GetBackgroundColor() const {
 }
 
 void CefBrowserPlatformDelegateViews::SynchronizeVisualProperties() {
-  content::RenderViewHost* host = browser_->web_contents()->GetRenderViewHost();
-  if (host)
-    host->GetWidget()->SynchronizeVisualProperties();
+  native_delegate_->SynchronizeVisualProperties();
 }
 
-void CefBrowserPlatformDelegateViews::SendKeyEvent(
-    const content::NativeWebKeyboardEvent& event) {
-  content::RenderViewHost* host = browser_->web_contents()->GetRenderViewHost();
-  if (host)
-    host->GetWidget()->ForwardKeyboardEvent(event);
+void CefBrowserPlatformDelegateViews::SendKeyEvent(const CefKeyEvent& event) {
+  native_delegate_->SendKeyEvent(event);
 }
 
-void CefBrowserPlatformDelegateViews::SendMouseEvent(
-    const blink::WebMouseEvent& event) {
-  content::RenderViewHost* host = browser_->web_contents()->GetRenderViewHost();
-  if (host)
-    host->GetWidget()->ForwardMouseEvent(event);
+void CefBrowserPlatformDelegateViews::SendMouseClickEvent(
+    const CefMouseEvent& event,
+    CefBrowserHost::MouseButtonType type,
+    bool mouseUp,
+    int clickCount) {
+  native_delegate_->SendMouseClickEvent(event, type, mouseUp, clickCount);
+}
+
+void CefBrowserPlatformDelegateViews::SendMouseMoveEvent(
+    const CefMouseEvent& event,
+    bool mouseLeave) {
+  native_delegate_->SendMouseMoveEvent(event, mouseLeave);
 }
 
 void CefBrowserPlatformDelegateViews::SendMouseWheelEvent(
-    const blink::WebMouseWheelEvent& event) {
-  content::RenderViewHost* host = browser_->web_contents()->GetRenderViewHost();
-  if (host)
-    host->GetWidget()->ForwardWheelEvent(event);
+    const CefMouseEvent& event,
+    int deltaX,
+    int deltaY) {
+  native_delegate_->SendMouseWheelEvent(event, deltaX, deltaY);
 }
 
 void CefBrowserPlatformDelegateViews::SendTouchEvent(
-    const CefTouchEvent& event) {}
+    const CefTouchEvent& event) {
+  native_delegate_->SendTouchEvent(event);
+}
 
 void CefBrowserPlatformDelegateViews::SendFocusEvent(bool setFocus) {
   // Will result in a call to WebContents::Focus().
@@ -237,37 +243,6 @@ bool CefBrowserPlatformDelegateViews::HandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   // The BrowserView will handle accelerators.
   return browser_view_->HandleKeyboardEvent(event);
-}
-
-void CefBrowserPlatformDelegateViews::TranslateKeyEvent(
-    content::NativeWebKeyboardEvent& result,
-    const CefKeyEvent& key_event) const {
-  native_delegate_->TranslateKeyEvent(result, key_event);
-}
-
-void CefBrowserPlatformDelegateViews::TranslateClickEvent(
-    blink::WebMouseEvent& result,
-    const CefMouseEvent& mouse_event,
-    CefBrowserHost::MouseButtonType type,
-    bool mouseUp,
-    int clickCount) const {
-  native_delegate_->TranslateClickEvent(result, mouse_event, type, mouseUp,
-                                        clickCount);
-}
-
-void CefBrowserPlatformDelegateViews::TranslateMoveEvent(
-    blink::WebMouseEvent& result,
-    const CefMouseEvent& mouse_event,
-    bool mouseLeave) const {
-  native_delegate_->TranslateMoveEvent(result, mouse_event, mouseLeave);
-}
-
-void CefBrowserPlatformDelegateViews::TranslateWheelEvent(
-    blink::WebMouseWheelEvent& result,
-    const CefMouseEvent& mouse_event,
-    int deltaX,
-    int deltaY) const {
-  native_delegate_->TranslateWheelEvent(result, mouse_event, deltaX, deltaY);
 }
 
 CefEventHandle CefBrowserPlatformDelegateViews::GetEventHandle(

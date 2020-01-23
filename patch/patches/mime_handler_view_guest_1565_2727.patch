@@ -1,21 +1,8 @@
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index 6eb21be63dec..87ccc46f4d43 100644
+index 6eb21be63dec..8617eff6bfc8 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
-@@ -306,8 +306,11 @@ void BrowserPluginGuest::InitInternal(
-           static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
-     }
- 
--    if (owner_web_contents_ && new_view)
-+    if (owner_web_contents_ && new_view) {
-       new_view->OnGuestDetached(owner_web_contents_->GetView());
-+      if (delegate_)
-+        delegate_->OnGuestDetached(owner_web_contents_->GetView());
-+    }
- 
-     // Once a BrowserPluginGuest has an embedder WebContents, it's considered to
-     // be attached.
-@@ -820,10 +823,19 @@ void BrowserPluginGuest::OnWillAttachComplete(
+@@ -820,7 +820,8 @@ void BrowserPluginGuest::OnWillAttachComplete(
          static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
      if (!web_contents()->GetRenderViewHost()->GetWidget()->GetView()) {
        web_contents_view->CreateViewForWidget(
@@ -25,17 +12,6 @@ index 6eb21be63dec..87ccc46f4d43 100644
      }
    }
  
-+  if (delegate_) {
-+    // Notify the delegate here instead of in InitInternal because InitInternal
-+    // will now be called from Init before GuestViewBase::CompleteInit has set
-+    // web_contents() to the guest WebContents. This behavior change is due to
-+    // https://crrev.com/07263b56.
-+    delegate_->OnGuestAttached(embedder_web_contents->GetView());
-+  }
-+
-   InitInternal(params, embedder_web_contents);
- 
-   attached_ = true;
 diff --git content/browser/frame_host/interstitial_page_impl.cc content/browser/frame_host/interstitial_page_impl.cc
 index 7bb71f92bb0a..a6b89a831044 100644
 --- content/browser/frame_host/interstitial_page_impl.cc
@@ -242,31 +218,8 @@ index 4721a9b3f511..dfdd46d0c5d2 100644
    RenderWidgetHostViewMac* view =
        g_create_render_widget_host_view
            ? g_create_render_widget_host_view(render_widget_host,
-diff --git content/public/browser/browser_plugin_guest_delegate.h content/public/browser/browser_plugin_guest_delegate.h
-index ea12af6b86b8..f1211f374328 100644
---- content/public/browser/browser_plugin_guest_delegate.h
-+++ content/public/browser/browser_plugin_guest_delegate.h
-@@ -20,6 +20,7 @@ class GuestHost;
- class RenderFrameHost;
- class RenderWidgetHost;
- class SiteInstance;
-+class WebContentsView;
- 
- // Objects implement this interface to get notified about changes in the guest
- // WebContents and to provide necessary functionality.
-@@ -68,6 +69,10 @@ class CONTENT_EXPORT BrowserPluginGuestDelegate {
-   // content module.
-   virtual void SetGuestHost(GuestHost* guest_host) {}
- 
-+  // Called when a guest is attached or detached.
-+  virtual void OnGuestAttached(content::WebContentsView* parent_view) {}
-+  virtual void OnGuestDetached(content::WebContentsView* parent_view) {}
-+
-   // TODO(ekaramad): A short workaround to force some types of guests to use
-   // a BrowserPlugin even when we are using cross process frames for guests. It
-   // should be removed after resolving https://crbug.com/642826).
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index fa13ab856de9..ddc70aedbab2 100644
+index fa13ab856de9..81216c2bc8ff 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 @@ -215,6 +215,8 @@ void MimeHandlerViewGuest::CreateWebContents(
@@ -278,42 +231,42 @@ index fa13ab856de9..ddc70aedbab2 100644
    // TODO(erikchen): Fix ownership semantics for guest views.
    // https://crbug.com/832879.
    std::move(callback).Run(
-@@ -259,6 +261,18 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
+@@ -230,6 +232,9 @@ void MimeHandlerViewGuest::CreateWebContents(
+ }
+ 
+ void MimeHandlerViewGuest::DidAttachToEmbedder() {
++  if (delegate_)
++    delegate_->OnGuestAttached();
++
+   web_contents()->GetController().LoadURL(
+       stream_->handler_url(), content::Referrer(),
+       ui::PAGE_TRANSITION_AUTO_TOPLEVEL, std::string());
+@@ -259,6 +264,11 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
    return true;
  }
  
-+void MimeHandlerViewGuest::OnGuestAttached(
-+    content::WebContentsView* parent_view) {
++void MimeHandlerViewGuest::WillDestroy() {
 +  if (delegate_)
-+    delegate_->OnGuestAttached(parent_view);
-+}
-+
-+void MimeHandlerViewGuest::OnGuestDetached(
-+    content::WebContentsView* parent_view) {
-+  if (delegate_)
-+    delegate_->OnGuestDetached(parent_view);
++    delegate_->OnGuestDetached();
 +}
 +
  WebContents* MimeHandlerViewGuest::OpenURLFromTab(
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index 3d0b70d06fe7..a33da99391f6 100644
+index 3d0b70d06fe7..06d5e5d4e9e3 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-@@ -128,6 +128,10 @@ class MimeHandlerViewGuest
+@@ -127,6 +127,7 @@ class MimeHandlerViewGuest
+   void EmbedderFullscreenToggled(bool entered_fullscreen) final;
    bool ZoomPropagatesFromEmbedderToGuest() const final;
    bool ShouldDestroyOnDetach() const final;
++  void WillDestroy() override;
  
-+  // content::BrowserPluginGuestDelegate implementation
-+  void OnGuestAttached(content::WebContentsView* parent_view) override;
-+  void OnGuestDetached(content::WebContentsView* parent_view) override;
-+
    // WebContentsDelegate implementation.
    content::WebContents* OpenURLFromTab(
-       content::WebContents* source,
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
-index 98689e261460..c501568b6f70 100644
+index 98689e261460..a1b08274f455 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 @@ -8,9 +8,9 @@
@@ -336,8 +289,8 @@ index 98689e261460..c501568b6f70 100644
 +      content::WebContents::CreateParams* params) {}
 +
 +  // Called when a guest is attached or detached.
-+  virtual void OnGuestAttached(content::WebContentsView* parent_view) {}
-+  virtual void OnGuestDetached(content::WebContentsView* parent_view) {}
++  virtual void OnGuestAttached() {}
++  virtual void OnGuestDetached() {}
 +
    // Handles context menu, or returns false if unhandled.
    virtual bool HandleContextMenu(content::WebContents* web_contents,

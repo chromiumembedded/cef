@@ -7,11 +7,11 @@
 
 #include <windows.h>
 
-#include "libcef/browser/native/browser_platform_delegate_native.h"
+#include "libcef/browser/native/browser_platform_delegate_native_aura.h"
 
 // Windowed browser implementation for Windows.
 class CefBrowserPlatformDelegateNativeWin
-    : public CefBrowserPlatformDelegateNative {
+    : public CefBrowserPlatformDelegateNativeAura {
  public:
   CefBrowserPlatformDelegateNativeWin(const CefWindowInfo& window_info,
                                       SkColor background_color,
@@ -31,20 +31,6 @@ class CefBrowserPlatformDelegateNativeWin
   void ViewText(const std::string& text) override;
   bool HandleKeyboardEvent(
       const content::NativeWebKeyboardEvent& event) override;
-  void TranslateKeyEvent(content::NativeWebKeyboardEvent& result,
-                         const CefKeyEvent& key_event) const override;
-  void TranslateClickEvent(blink::WebMouseEvent& result,
-                           const CefMouseEvent& mouse_event,
-                           CefBrowserHost::MouseButtonType type,
-                           bool mouseUp,
-                           int clickCount) const override;
-  void TranslateMoveEvent(blink::WebMouseEvent& result,
-                          const CefMouseEvent& mouse_event,
-                          bool mouseLeave) const override;
-  void TranslateWheelEvent(blink::WebMouseWheelEvent& result,
-                           const CefMouseEvent& mouse_event,
-                           int deltaX,
-                           int deltaY) const override;
   CefEventHandle GetEventHandle(
       const content::NativeWebKeyboardEvent& event) const override;
   std::unique_ptr<CefFileDialogRunner> CreateFileDialogRunner() override;
@@ -54,10 +40,12 @@ class CefBrowserPlatformDelegateNativeWin
   gfx::Point GetDialogPosition(const gfx::Size& size) override;
   gfx::Size GetMaximumDialogSize() override;
 
- private:
-  void TranslateMouseEvent(blink::WebMouseEvent& result,
-                           const CefMouseEvent& mouse_event) const;
+  // CefBrowserPlatformDelegateNativeAura methods:
+  ui::KeyEvent TranslateUiKeyEvent(const CefKeyEvent& key_event) const override;
+  gfx::Vector2d GetUiWheelEventOffset(int deltaX, int deltaY) const override;
+  base::TimeTicks GetEventTimeStamp() const override;
 
+ private:
   static void RegisterWindowClass();
   static LPCTSTR GetWndClass();
   static LRESULT CALLBACK WndProc(HWND hwnd,

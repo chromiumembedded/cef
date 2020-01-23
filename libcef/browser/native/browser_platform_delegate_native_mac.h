@@ -7,6 +7,10 @@
 
 #include "libcef/browser/native/browser_platform_delegate_native.h"
 
+namespace content {
+class RenderWidgetHostViewMac;
+}
+
 // Windowed browser implementation for Mac OS X.
 class CefBrowserPlatformDelegateNativeMac
     : public CefBrowserPlatformDelegateNative {
@@ -19,25 +23,21 @@ class CefBrowserPlatformDelegateNativeMac
   bool CreateHostWindow() override;
   void CloseHostWindow() override;
   CefWindowHandle GetHostWindowHandle() const override;
+  void SendKeyEvent(const CefKeyEvent& event) override;
+  void SendMouseClickEvent(const CefMouseEvent& event,
+                           CefBrowserHost::MouseButtonType type,
+                           bool mouseUp,
+                           int clickCount) override;
+  void SendMouseMoveEvent(const CefMouseEvent& event, bool mouseLeave) override;
+  void SendMouseWheelEvent(const CefMouseEvent& event,
+                           int deltaX,
+                           int deltaY) override;
+  void SendTouchEvent(const CefTouchEvent& event) override;
   void SendFocusEvent(bool setFocus) override;
   gfx::Point GetScreenPoint(const gfx::Point& view) const override;
   void ViewText(const std::string& text) override;
   bool HandleKeyboardEvent(
       const content::NativeWebKeyboardEvent& event) override;
-  void TranslateKeyEvent(content::NativeWebKeyboardEvent& result,
-                         const CefKeyEvent& key_event) const override;
-  void TranslateClickEvent(blink::WebMouseEvent& result,
-                           const CefMouseEvent& mouse_event,
-                           CefBrowserHost::MouseButtonType type,
-                           bool mouseUp,
-                           int clickCount) const override;
-  void TranslateMoveEvent(blink::WebMouseEvent& result,
-                          const CefMouseEvent& mouse_event,
-                          bool mouseLeave) const override;
-  void TranslateWheelEvent(blink::WebMouseWheelEvent& result,
-                           const CefMouseEvent& mouse_event,
-                           int deltaX,
-                           int deltaY) const override;
   CefEventHandle GetEventHandle(
       const content::NativeWebKeyboardEvent& event) const override;
   std::unique_ptr<CefFileDialogRunner> CreateFileDialogRunner() override;
@@ -47,9 +47,26 @@ class CefBrowserPlatformDelegateNativeMac
   gfx::Point GetDialogPosition(const gfx::Size& size) override;
   gfx::Size GetMaximumDialogSize() override;
 
+  // CefBrowserPlatformDelegateNative methods:
+  content::NativeWebKeyboardEvent TranslateWebKeyEvent(
+      const CefKeyEvent& key_event) const override;
+  blink::WebMouseEvent TranslateWebClickEvent(
+      const CefMouseEvent& mouse_event,
+      CefBrowserHost::MouseButtonType type,
+      bool mouseUp,
+      int clickCount) const override;
+  blink::WebMouseEvent TranslateWebMoveEvent(const CefMouseEvent& mouse_event,
+                                             bool mouseLeave) const override;
+  blink::WebMouseWheelEvent TranslateWebWheelEvent(
+      const CefMouseEvent& mouse_event,
+      int deltaX,
+      int deltaY) const override;
+
  private:
-  void TranslateMouseEvent(blink::WebMouseEvent& result,
-                           const CefMouseEvent& mouse_event) const;
+  void TranslateWebMouseEvent(blink::WebMouseEvent& result,
+                              const CefMouseEvent& mouse_event) const;
+
+  content::RenderWidgetHostViewMac* GetHostView() const;
 
   // True if the host window has been created.
   bool host_window_created_;

@@ -29,24 +29,43 @@ class CefBrowserPlatformDelegateNative : public CefBrowserPlatformDelegate {
   bool CanUseExternalBeginFrame() const override;
   SkColor GetBackgroundColor() const override;
   void SynchronizeVisualProperties() override;
-  void SendKeyEvent(const content::NativeWebKeyboardEvent& event) override;
-  void SendMouseEvent(const blink::WebMouseEvent& event) override;
-  void SendMouseWheelEvent(const blink::WebMouseWheelEvent& event) override;
-  void SendTouchEvent(const CefTouchEvent& event) override;
   bool IsWindowless() const override;
   bool IsViewsHosted() const override;
 
+  // Translate CEF events to Chromium/Blink Web events.
+  virtual content::NativeWebKeyboardEvent TranslateWebKeyEvent(
+      const CefKeyEvent& key_event) const = 0;
+  virtual blink::WebMouseEvent TranslateWebClickEvent(
+      const CefMouseEvent& mouse_event,
+      CefBrowserHost::MouseButtonType type,
+      bool mouseUp,
+      int clickCount) const = 0;
+  virtual blink::WebMouseEvent TranslateWebMoveEvent(
+      const CefMouseEvent& mouse_event,
+      bool mouseLeave) const = 0;
+  virtual blink::WebMouseWheelEvent TranslateWebWheelEvent(
+      const CefMouseEvent& mouse_event,
+      int deltaX,
+      int deltaY) const = 0;
+
   const CefWindowInfo& window_info() const { return window_info_; }
 
-  void set_windowless_handler(WindowlessHandler* handler) {
-    windowless_handler_ = handler;
-  }
-
  protected:
+  // Delegates that can wrap a native delegate.
+  friend class CefBrowserPlatformDelegateBackground;
+  friend class CefBrowserPlatformDelegateOsr;
+  friend class CefBrowserPlatformDelegateViews;
+
   CefBrowserPlatformDelegateNative(const CefWindowInfo& window_info,
                                    SkColor background_color,
                                    bool use_shared_texture,
                                    bool use_external_begin_frame);
+
+  // Methods used by delegates that can wrap a native delegate.
+  void set_windowless_handler(WindowlessHandler* handler) {
+    windowless_handler_ = handler;
+  }
+  void set_browser(CefBrowserHostImpl* browser) { browser_ = browser; }
 
   CefWindowInfo window_info_;
   const SkColor background_color_;

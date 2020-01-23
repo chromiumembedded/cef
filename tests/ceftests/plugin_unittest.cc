@@ -5,7 +5,6 @@
 #include "include/base/cef_bind.h"
 #include "include/cef_pack_resources.h"
 #include "include/cef_request_context_handler.h"
-#include "include/cef_resource_bundle.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/ceftests/routing_test_handler.h"
@@ -14,16 +13,6 @@
 #include "tests/shared/browser/resource_util.h"
 
 namespace {
-
-std::string GetDataResourceAsString(int resource_id) {
-  void* data;
-  size_t data_size;
-  if (CefResourceBundle::GetGlobal()->GetDataResource(resource_id, data,
-                                                      data_size)) {
-    return std::string(static_cast<char*>(data), data_size);
-  }
-  return std::string();
-}
 
 // Browser-side app delegate.
 class PluginBrowserTest : public client::ClientAppBrowser::Delegate {
@@ -272,38 +261,18 @@ class PluginTestHandler : public RoutingTestHandler,
   }
 
   void WaitForPluginLoad(CefRefPtr<CefFrame> frame) {
-    if (url_ == kPdfHtmlUrl) {
-      // PDFScriptingAPI does not work with iframes (the LoadCallback will
-      // never be executed). Use a timeout instead.
-      if (got_context_menu_dismissed_) {
-        // After context menu display. Destroy the test.
-        CefPostDelayedTask(TID_UI,
-                           base::Bind(&PluginTestHandler::DestroyTest, this),
-                           kPdfLoadDelayMs);
-      } else {
-        // Trigger the context menu.
-        CefPostDelayedTask(TID_UI,
-                           base::Bind(&PluginTestHandler::TriggerContextMenu,
-                                      this, frame->GetBrowser()),
-                           kPdfLoadDelayMs);
-      }
-      return;
+    if (got_context_menu_dismissed_) {
+      // After context menu display. Destroy the test.
+      CefPostDelayedTask(TID_UI,
+                         base::Bind(&PluginTestHandler::DestroyTest, this),
+                         kPdfLoadDelayMs);
+    } else {
+      // Trigger the context menu.
+      CefPostDelayedTask(TID_UI,
+                         base::Bind(&PluginTestHandler::TriggerContextMenu,
+                                    this, frame->GetBrowser()),
+                         kPdfLoadDelayMs);
     }
-
-    // Wait for the PDF file to load.
-    // See chrome/browser/pdf/pdf_extension_test_util.cc.
-    const std::string& scripting_api_js =
-        GetDataResourceAsString(IDR_PDF_PDF_SCRIPTING_API_JS);
-    EXPECT_TRUE(!scripting_api_js.empty());
-    frame->ExecuteJavaScript(scripting_api_js, frame->GetURL(), 0);
-
-    const std::string& code =
-        "var scriptingAPI = new PDFScriptingAPI(window, " + GetPluginNode() +
-        ");"
-        "scriptingAPI.setLoadCallback(function(success) {"
-        "  window.testQuery({request:'plugin_ready'});"
-        "});";
-    frame->ExecuteJavaScript(code, frame->GetURL(), 0);
   }
 
   void EndTest() {
@@ -420,19 +389,6 @@ class PluginTestHandler : public RoutingTestHandler,
 
       // The plugin placeholder has been hidden. End the test.
       EndTest();
-    } else if (request == "plugin_ready") {
-      EXPECT_FALSE(got_plugin_ready_);
-      got_plugin_ready_.yes();
-
-      // The plugin has loaded the PDF file.
-      if (got_context_menu_dismissed_) {
-        // After context menu display. End the test.
-        EndTest();
-      } else {
-        // Trigger the context menu.
-        CefPostTask(TID_UI, base::Bind(&PluginTestHandler::TriggerContextMenu,
-                                       this, browser));
-      }
     } else {
       NOTREACHED();
     }
@@ -448,8 +404,8 @@ class PluginTestHandler : public RoutingTestHandler,
     mouse_event.y = 100;
 
     // Send right-click mouse down and mouse up to tigger context menu.
-    browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_RIGHT, false, 0);
-    browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_RIGHT, true, 0);
+    browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_RIGHT, false, 1);
+    browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_RIGHT, true, 1);
   }
 
   bool RunContextMenu(CefRefPtr<CefBrowser> browser,
@@ -514,14 +470,8 @@ class PluginTestHandler : public RoutingTestHandler,
 
     if (HasContextHide()) {
       EXPECT_TRUE(got_placeholder_hidden_);
-      EXPECT_FALSE(got_plugin_ready_);
     } else {
       EXPECT_FALSE(got_placeholder_hidden_);
-
-      if (url_ == kPdfDirectUrl)
-        EXPECT_TRUE(got_plugin_ready_);
-      else
-        EXPECT_FALSE(got_plugin_ready_);
     }
 
     if (HasRequestContextHandler())
@@ -587,7 +537,6 @@ class PluginTestHandler : public RoutingTestHandler,
   TrackCallback got_pdf_plugin_found_;
   TrackCallback got_pdf_plugin_missing_;
   TrackCallback got_placeholder_hidden_;
-  TrackCallback got_plugin_ready_;
   TrackCallback got_run_context_menu_;
   TrackCallback got_context_menu_dismissed_;
 

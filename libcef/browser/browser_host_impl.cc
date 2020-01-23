@@ -1163,11 +1163,7 @@ void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
   if (!web_contents() || !platform_delegate_)
     return;
 
-  content::NativeWebKeyboardEvent web_event(blink::WebInputEvent::kUndefined,
-                                            blink::WebInputEvent::kNoModifiers,
-                                            ui::EventTimeForNow());
-  platform_delegate_->TranslateKeyEvent(web_event, event);
-  platform_delegate_->SendKeyEvent(web_event);
+  platform_delegate_->SendKeyEvent(event);
 }
 
 void CefBrowserHostImpl::SendMouseClickEvent(const CefMouseEvent& event,
@@ -1184,10 +1180,7 @@ void CefBrowserHostImpl::SendMouseClickEvent(const CefMouseEvent& event,
   if (!web_contents() || !platform_delegate_)
     return;
 
-  blink::WebMouseEvent web_event;
-  platform_delegate_->TranslateClickEvent(web_event, event, type, mouseUp,
-                                          clickCount);
-  platform_delegate_->SendMouseEvent(web_event);
+  platform_delegate_->SendMouseClickEvent(event, type, mouseUp, clickCount);
 }
 
 void CefBrowserHostImpl::SendMouseMoveEvent(const CefMouseEvent& event,
@@ -1202,9 +1195,7 @@ void CefBrowserHostImpl::SendMouseMoveEvent(const CefMouseEvent& event,
   if (!web_contents() || !platform_delegate_)
     return;
 
-  blink::WebMouseEvent web_event;
-  platform_delegate_->TranslateMoveEvent(web_event, event, mouseLeave);
-  platform_delegate_->SendMouseEvent(web_event);
+  platform_delegate_->SendMouseMoveEvent(event, mouseLeave);
 }
 
 void CefBrowserHostImpl::SendMouseWheelEvent(const CefMouseEvent& event,
@@ -1225,9 +1216,7 @@ void CefBrowserHostImpl::SendMouseWheelEvent(const CefMouseEvent& event,
   if (!web_contents() || !platform_delegate_)
     return;
 
-  blink::WebMouseWheelEvent web_event;
-  platform_delegate_->TranslateWheelEvent(web_event, event, deltaX, deltaY);
-  platform_delegate_->SendMouseWheelEvent(web_event);
+  platform_delegate_->SendMouseWheelEvent(event, deltaX, deltaY);
 }
 
 void CefBrowserHostImpl::SendFocusEvent(bool setFocus) {

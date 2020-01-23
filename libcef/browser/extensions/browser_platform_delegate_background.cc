@@ -52,17 +52,28 @@ void CefBrowserPlatformDelegateBackground::SynchronizeVisualProperties() {
 }
 
 void CefBrowserPlatformDelegateBackground::SendKeyEvent(
-    const content::NativeWebKeyboardEvent& event) {
+    const CefKeyEvent& event) {
   // Nothing to do here.
 }
 
-void CefBrowserPlatformDelegateBackground::SendMouseEvent(
-    const blink::WebMouseEvent& event) {
+void CefBrowserPlatformDelegateBackground::SendMouseClickEvent(
+    const CefMouseEvent& event,
+    CefBrowserHost::MouseButtonType type,
+    bool mouseUp,
+    int clickCount) {
+  // Nothing to do here.
+}
+
+void CefBrowserPlatformDelegateBackground::SendMouseMoveEvent(
+    const CefMouseEvent& event,
+    bool mouseLeave) {
   // Nothing to do here.
 }
 
 void CefBrowserPlatformDelegateBackground::SendMouseWheelEvent(
-    const blink::WebMouseWheelEvent& event) {
+    const CefMouseEvent& event,
+    int deltaX,
+    int deltaY) {
   // Nothing to do here.
 }
 
@@ -89,37 +100,6 @@ bool CefBrowserPlatformDelegateBackground::HandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   // Nothing to do here.
   return false;
-}
-
-void CefBrowserPlatformDelegateBackground::TranslateKeyEvent(
-    content::NativeWebKeyboardEvent& result,
-    const CefKeyEvent& key_event) const {
-  native_delegate_->TranslateKeyEvent(result, key_event);
-}
-
-void CefBrowserPlatformDelegateBackground::TranslateClickEvent(
-    blink::WebMouseEvent& result,
-    const CefMouseEvent& mouse_event,
-    CefBrowserHost::MouseButtonType type,
-    bool mouseUp,
-    int clickCount) const {
-  native_delegate_->TranslateClickEvent(result, mouse_event, type, mouseUp,
-                                        clickCount);
-}
-
-void CefBrowserPlatformDelegateBackground::TranslateMoveEvent(
-    blink::WebMouseEvent& result,
-    const CefMouseEvent& mouse_event,
-    bool mouseLeave) const {
-  native_delegate_->TranslateMoveEvent(result, mouse_event, mouseLeave);
-}
-
-void CefBrowserPlatformDelegateBackground::TranslateWheelEvent(
-    blink::WebMouseWheelEvent& result,
-    const CefMouseEvent& mouse_event,
-    int deltaX,
-    int deltaY) const {
-  native_delegate_->TranslateWheelEvent(result, mouse_event, deltaX, deltaY);
 }
 
 CefEventHandle CefBrowserPlatformDelegateBackground::GetEventHandle(

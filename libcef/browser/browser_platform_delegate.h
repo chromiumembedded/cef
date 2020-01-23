@@ -148,11 +148,16 @@ class CefBrowserPlatformDelegate {
   virtual void SynchronizeVisualProperties() = 0;
 
   // Send input events.
-  virtual void SendKeyEvent(const content::NativeWebKeyboardEvent& event) = 0;
-  virtual void SendMouseEvent(const blink::WebMouseEvent& event) = 0;
-  virtual void SendMouseWheelEvent(const blink::WebMouseWheelEvent& event) = 0;
-
-  // Send touch events.
+  virtual void SendKeyEvent(const CefKeyEvent& event) = 0;
+  virtual void SendMouseClickEvent(const CefMouseEvent& event,
+                                   CefBrowserHost::MouseButtonType type,
+                                   bool mouseUp,
+                                   int clickCount) = 0;
+  virtual void SendMouseMoveEvent(const CefMouseEvent& event,
+                                  bool mouseLeave) = 0;
+  virtual void SendMouseWheelEvent(const CefMouseEvent& event,
+                                   int deltaX,
+                                   int deltaY) = 0;
   virtual void SendTouchEvent(const CefTouchEvent& event) = 0;
 
   // Send focus event. The browser's WebContents may be NULL when this method is
@@ -186,22 +191,6 @@ class CefBrowserPlatformDelegate {
 
   // Invoke platform specific handling for the external protocol.
   static void HandleExternalProtocol(const GURL& url);
-
-  // Translate CEF events to Chromium/Blink events.
-  virtual void TranslateKeyEvent(content::NativeWebKeyboardEvent& result,
-                                 const CefKeyEvent& key_event) const = 0;
-  virtual void TranslateClickEvent(blink::WebMouseEvent& result,
-                                   const CefMouseEvent& mouse_event,
-                                   CefBrowserHost::MouseButtonType type,
-                                   bool mouseUp,
-                                   int clickCount) const = 0;
-  virtual void TranslateMoveEvent(blink::WebMouseEvent& result,
-                                  const CefMouseEvent& mouse_event,
-                                  bool mouseLeave) const = 0;
-  virtual void TranslateWheelEvent(blink::WebMouseWheelEvent& result,
-                                   const CefMouseEvent& mouse_event,
-                                   int deltaX,
-                                   int deltaY) const = 0;
 
   // Returns the OS event handle, if any, associated with |event|.
   virtual CefEventHandle GetEventHandle(
@@ -287,9 +276,9 @@ class CefBrowserPlatformDelegate {
 
   base::RepeatingClosure GetBoundsChangedCallback();
 
-  static int TranslateModifiers(uint32 cef_modifiers);
+  static int TranslateWebEventModifiers(uint32 cef_modifiers);
 
-  CefBrowserHostImpl* browser_;  // Not owned by this object.
+  CefBrowserHostImpl* browser_ = nullptr;  // Not owned by this object.
 
  private:
   // Used for the print preview dialog.

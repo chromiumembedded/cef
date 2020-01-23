@@ -14,7 +14,7 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
 
-CefBrowserPlatformDelegate::CefBrowserPlatformDelegate() : browser_(nullptr) {}
+CefBrowserPlatformDelegate::CefBrowserPlatformDelegate() {}
 
 CefBrowserPlatformDelegate::~CefBrowserPlatformDelegate() {
   DCHECK(!browser_);
@@ -237,32 +237,33 @@ base::RepeatingClosure CefBrowserPlatformDelegate::GetBoundsChangedCallback() {
 }
 
 // static
-int CefBrowserPlatformDelegate::TranslateModifiers(uint32 cef_modifiers) {
-  int webkit_modifiers = 0;
+int CefBrowserPlatformDelegate::TranslateWebEventModifiers(
+    uint32 cef_modifiers) {
+  int result = 0;
   // Set modifiers based on key state.
   if (cef_modifiers & EVENTFLAG_SHIFT_DOWN)
-    webkit_modifiers |= blink::WebInputEvent::kShiftKey;
+    result |= blink::WebInputEvent::kShiftKey;
   if (cef_modifiers & EVENTFLAG_CONTROL_DOWN)
-    webkit_modifiers |= blink::WebInputEvent::kControlKey;
+    result |= blink::WebInputEvent::kControlKey;
   if (cef_modifiers & EVENTFLAG_ALT_DOWN)
-    webkit_modifiers |= blink::WebInputEvent::kAltKey;
+    result |= blink::WebInputEvent::kAltKey;
   if (cef_modifiers & EVENTFLAG_COMMAND_DOWN)
-    webkit_modifiers |= blink::WebInputEvent::kMetaKey;
+    result |= blink::WebInputEvent::kMetaKey;
   if (cef_modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
-    webkit_modifiers |= blink::WebInputEvent::kLeftButtonDown;
+    result |= blink::WebInputEvent::kLeftButtonDown;
   if (cef_modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
-    webkit_modifiers |= blink::WebInputEvent::kMiddleButtonDown;
+    result |= blink::WebInputEvent::kMiddleButtonDown;
   if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
-    webkit_modifiers |= blink::WebInputEvent::kRightButtonDown;
+    result |= blink::WebInputEvent::kRightButtonDown;
   if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON)
-    webkit_modifiers |= blink::WebInputEvent::kCapsLockOn;
+    result |= blink::WebInputEvent::kCapsLockOn;
   if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON)
-    webkit_modifiers |= blink::WebInputEvent::kNumLockOn;
+    result |= blink::WebInputEvent::kNumLockOn;
   if (cef_modifiers & EVENTFLAG_IS_LEFT)
-    webkit_modifiers |= blink::WebInputEvent::kIsLeft;
+    result |= blink::WebInputEvent::kIsLeft;
   if (cef_modifiers & EVENTFLAG_IS_RIGHT)
-    webkit_modifiers |= blink::WebInputEvent::kIsRight;
+    result |= blink::WebInputEvent::kIsRight;
   if (cef_modifiers & EVENTFLAG_IS_KEY_PAD)
-    webkit_modifiers |= blink::WebInputEvent::kIsKeyPad;
-  return webkit_modifiers;
+    result |= blink::WebInputEvent::kIsKeyPad;
+  return result;
 }

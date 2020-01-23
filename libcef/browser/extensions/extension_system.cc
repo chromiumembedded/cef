@@ -185,48 +185,78 @@ void CefExtensionSystem::Init() {
       content::NotificationService::NoDetails());
 
   // Add the internal PDF extension. PDF loading works as follows:
-  // 1. PDF PPAPI plugin is registered to handle kPDFPluginOutOfProcessMimeType
-  //    in libcef/common/content_client.cc ComputeBuiltInPlugins.
-  // 2. PDF extension is registered and associated with the "application/pdf"
-  //    mime type by the below call to AddExtension.
-  // 3. A page requests a resource with the "application/pdf" mime type. For
-  //    example, by loading a PDF file.
+  // 1. The PDF PPAPI plugin is registered in libcef/common/content_client.cc
+  //    ComputeBuiltInPlugins to handle the kPDFPluginOutOfProcessMimeType.
+  // 2. The PDF extension is registered by the below call to AddExtension and
+  //    associated with the "application/pdf" mime type.
+  // 3. Web content running in the owner CefBrowser requests to load a PDF file
+  //    resource with the "application/pdf" mime type. This can be via a frame
+  //    (main frame/iframe) or object/embed tag.
   // 4. PluginResponseInterceptorURLLoaderThrottle intercepts the PDF resource
-  // load in the browser process, generates a
-  //    unique View ID that is associated with the resource request for later
-  //    retrieval via MimeHandlerStreamManager and the
-  //    chrome.mimeHandlerPrivate JS API (extensions/common/api/
-  //    mime_handler_private.idl), and returns the unique View ID via the
-  //    |payload| argument.
-  // 5. The unique View ID arrives in the renderer process via
-  //    ResourceLoader::DidReceiveData and triggers creation of a new Document.
-  //    DOMImplementation::createDocument indirectly calls
-  //    RendererBlinkPlatformImpl::getPluginList to retrieve the list of
-  //    supported plugins from the browser process. If a plugin supports the
-  //    "application/pdf" mime type then a PluginDocument is created and
-  //    CefContentRendererClient::OverrideCreatePlugin is called. This then
-  //    indirectly calls CefContentRendererClient::CreateBrowserPluginDelegate
-  //    to create a MimeHandlerViewContainer.
-  // 6. A MimeHandlerViewGuest and CefMimeHandlerViewGuestDelegate is created in
-  //    the browser process.
-  // 7. MimeHandlerViewGuest navigates to the PDF extension URL.
-  // 8. Access to PDF extension resources is checked by
-  //    CefExtensionsBrowserClient::AllowCrossRendererResourceLoad.
-  // 9. PDF extension resources are provided from bundle via
-  //    CefExtensionsBrowserClient::LoadResourceFromResourceBundle,
-  //    CefContentBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories
-  //    and CefComponentExtensionResourceManager.
-  // 10.The PDF extension (chrome/browser/resources/pdf/browser_api.js) calls
-  //    chrome.mimeHandlerPrivate.getStreamInfo to retrieve the PDF resource
-  //    stream. This API is implemented using Mojo as described in
-  //    libcef/common/extensions/api/README.txt.
-  // 11.The PDF extension requests a plugin to handle
-  //    kPDFPluginOutOfProcessMimeType which loads the PDF PPAPI plugin.
-  // 12.Routing of print-related commands are handled by ChromePDFPrintClient
-  //    and CefPrintRenderFrameHelperDelegate in the renderer process.
-  // 13.The PDF extension is granted access to chrome://resources via
-  //    CefExtensionWebContentsObserver::RenderViewCreated in the browser
+  //    load in the browser process and registers the PDF resource as a stream
+  //    via MimeHandlerStreamManager::AddStream.
+  // 5. PluginResponseInterceptorURLLoaderThrottle::WillProcessResponse triggers
+  //    creation of a MimeHandlerViewEmbedder in the browser process via
+  //    MimeHandlerViewAttachHelper::OverrideBodyForInterceptedResponse.
+  // 6. MimeHandlerViewEmbedder::ReadyToCommitNavigation is called and sends a
+  //    Mojo message to MimeHandlerViewContainerManager::SetInternalId in the
+  //    owner renderer process.
+  // 7. The MimeHandlerViewContainerManager is created in the owner renderer
+  //    process via MimeHandlerViewContainerManager::BindReceiver and the
+  //    SetInternalId call arrives.
+  // 8. HTMLPlugInElement::RequestObject is called in the owner renderer process
+  //    to handle the PDF file frame/object/embed tag. This results in calls to
+  //    ContentBrowserClient::GetPluginMimeTypesWithExternalHandlers (browser
+  //    process) and ContentRendererClient::IsPluginHandledExternally (owner
+  //    renderer process), and determines that the plugin should be handled
+  //    externally (handled_externally=true).
+  // 9. MimeHandlerViewContainerManager::IsManagedByContainerManager sends a
+  //    Mojo message to MimeHandlerViewEmbedder::ReadyToCreateMimeHandlerView
+  //    in the browser process.
+  // 10.MimeHandlerViewEmbedder::RenderFrameCreated triggers creation of a
+  //    MimeHandlerViewGuest and CefMimeHandlerViewGuestDelegate in the browser
   //    process.
+  // 11.MimeHandlerViewGuest::CreateWebContents creates a new guest WebContents
+  //    (is_guest_view=true) to host the PDF extension and the PDF resource
+  //    stream is retrieved via MimeHandlerStreamManager::ReleaseStream.
+  // 12.MimeHandlerViewGuest::DidAttachToEmbedder calls
+  //    CefMimeHandlerViewGuestDelegate::OnGuestAttached to associate the guest
+  //    WebContents routing IDs with the owner CefBrowser. MimeHandlerViewGuest
+  //    then loads the extension URL (index.html) in the guest WebContents.
+  // 13.Creation of the RenderFrame in the guest renderer process triggers a
+  //    sync IPC call from CefContentRendererClient::MaybeCreateBrowser to
+  //    CefBrowserInfoManager::GetBrowserInfo in the browser process to retrieve
+  //    the CefBrowser information, which will be immediately available due to
+  //    step 12.
+  // 14.The PDF extension begins to load. Extension resource requests are
+  //    handled via ExtensionURLLoaderFactory::CreateLoaderAndStart in the
+  //    browser process. Access to PDF extension resources is checked by
+  //    CefExtensionsBrowserClient::AllowCrossRendererResourceLoad and
+  //    PDF extension resources are provided from bundle via
+  //    CefExtensionsBrowserClient::LoadResourceFromResourceBundle
+  //    and CefComponentExtensionResourceManager. Access to chrome://resources
+  //    is granted via CefExtensionWebContentsObserver::RenderViewCreated.
+  // 15.The PDF extension calls chrome.mimeHandlerPrivate.getStreamInfo
+  //    (chrome/browser/resources/pdf/browser_api.js) to retrieve the PDF
+  //    resource stream. This API is implemented using Mojo as described in
+  //    libcef/common/extensions/api/README.txt.
+  // 16.The PDF extension requests the PDF PPAPI plugin to handle
+  //    kPDFPluginOutOfProcessMimeType. Approval arrives in the guest renderer
+  //    process via ExtensionFrameHelper::OnExtensionResponse which calls
+  //    NativeExtensionBindingsSystem::HandleResponse. This triggers creation of
+  //    an HTMLPlugInElement via native V8 bindings to host the PDF plugin.
+  // 17.HTMLPlugInElement::RequestObject is called in the guest renderer process
+  //    and determines that the PDF PPAPI plugin should be handled internally
+  //    (handled_externally=false). A PluginDocument is created and
+  //    CefContentRendererClient::OverrideCreatePlugin is called to create a
+  //    WebPlugin.
+  // 18.The PDF extension and PDF plugin are now loaded. Print commands, if
+  //    any, are handled in the guest renderer process by ChromePDFPrintClient
+  //    and CefPrintRenderFrameHelperDelegate.
+  // 19.When navigating away from the PDF file or closing the owner CefBrowser
+  //    the guest WebContents will be destroyed. This triggers a call to
+  //    CefMimeHandlerViewGuestDelegate::OnGuestDetached which removes the
+  //    routing ID association with the owner CefBrowser.
   if (PdfExtensionEnabled()) {
     LoadExtension(ParseManifest(pdf_extension_util::GetManifest()),
                   base::FilePath(FILE_PATH_LITERAL("pdf")), true /* internal */,

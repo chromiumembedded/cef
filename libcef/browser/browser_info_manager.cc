@@ -11,9 +11,11 @@
 #include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_messages.h"
+#include "libcef/common/cef_switches.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/values_impl.h"
 
+#include "base/command_line.h"
 #include "base/logging.h"
 #include "content/common/view_messages.h"
 #include "content/public/browser/render_frame_host.h"
@@ -22,6 +24,9 @@
 #include "content/public/common/child_process_host.h"
 
 namespace {
+
+// Timeout delay for new browser info responses.
+const int64_t kNewBrowserInfoResponseTimeoutMs = 2000;
 
 void TranslatePopupFeatures(const blink::mojom::WindowFeatures& webKitFeatures,
                             CefPopupFeatures& features) {
@@ -44,7 +49,7 @@ CefBrowserInfoManager* g_info_manager = nullptr;
 
 }  // namespace
 
-CefBrowserInfoManager::CefBrowserInfoManager() : next_browser_id_(0) {
+CefBrowserInfoManager::CefBrowserInfoManager() {
   DCHECK(!g_info_manager);
   g_info_manager = this;
 }
@@ -86,10 +91,11 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreatePopupBrowserInfo(
       new CefBrowserInfo(++next_browser_id_, true, is_windowless, extra_info);
   browser_info_list_.push_back(browser_info);
 
-  // Continue any pending NewBrowserInfo requests.
+  // Continue any pending NewBrowserInfo request.
   auto it = pending_new_browser_info_map_.find(frame_id);
   if (it != pending_new_browser_info_map_.end()) {
-    SendNewBrowserInfoResponse(render_process_id, browser_info, false,
+    SendNewBrowserInfoResponse(render_process_id, browser_info,
+                               false /* is_guest_view */,
                                it->second->reply_msg);
     pending_new_browser_info_map_.erase(it);
   }
@@ -287,13 +293,27 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(int render_process_id,
   DCHECK(pending_new_browser_info_map_.find(frame_id) ==
          pending_new_browser_info_map_.end());
 
+  const int timeout_id = ++next_timeout_id_;
+
   // Queue the request.
   std::unique_ptr<PendingNewBrowserInfo> pending(new PendingNewBrowserInfo());
   pending->render_process_id = render_process_id;
   pending->render_routing_id = render_routing_id;
+  pending->timeout_id = timeout_id;
   pending->reply_msg = reply_msg;
   pending_new_browser_info_map_.insert(
       std::make_pair(frame_id, std::move(pending)));
+
+  // Register a timeout for the pending response so that the renderer process
+  // doesn't hang forever.
+  if (!base::CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kDisableNewBrowserInfoTimeout)) {
+    CEF_POST_DELAYED_TASK(
+        CEF_UIT,
+        base::BindOnce(&CefBrowserInfoManager::TimeoutNewBrowserInfoResponse,
+                       frame_id, timeout_id),
+        kNewBrowserInfoResponseTimeoutMs);
+  }
 }
 
 void CefBrowserInfoManager::RemoveBrowserInfo(
@@ -498,19 +518,52 @@ void CefBrowserInfoManager::SendNewBrowserInfoResponse(
   }
 
   CefProcessHostMsg_GetNewBrowserInfo_Params params;
-  params.browser_id = browser_info->browser_id();
-  params.is_windowless = browser_info->is_windowless();
-  params.is_popup = browser_info->is_popup();
   params.is_guest_view = is_guest_view;
 
-  auto extra_info = browser_info->extra_info();
-  if (extra_info) {
-    auto extra_info_impl =
-        static_cast<CefDictionaryValueImpl*>(extra_info.get());
-    auto extra_info_value = extra_info_impl->CopyValue();
-    extra_info_value->Swap(&params.extra_info);
+  if (browser_info) {
+    params.browser_id = browser_info->browser_id();
+    params.is_windowless = browser_info->is_windowless();
+    params.is_popup = browser_info->is_popup();
+
+    auto extra_info = browser_info->extra_info();
+    if (extra_info) {
+      auto extra_info_impl =
+          static_cast<CefDictionaryValueImpl*>(extra_info.get());
+      auto extra_info_value = extra_info_impl->CopyValue();
+      extra_info_value->Swap(&params.extra_info);
+    }
+  } else {
+    // The new browser info response has timed out.
+    params.browser_id = -1;
   }
 
   CefProcessHostMsg_GetNewBrowserInfo::WriteReplyParams(reply_msg, params);
   host->Send(reply_msg);
+}
+
+// static
+void CefBrowserInfoManager::TimeoutNewBrowserInfoResponse(int64_t frame_id,
+                                                          int timeout_id) {
+  if (!g_info_manager)
+    return;
+
+  base::AutoLock lock_scope(g_info_manager->browser_info_lock_);
+
+  // Continue the NewBrowserInfo request if it's still pending.
+  auto it = g_info_manager->pending_new_browser_info_map_.find(frame_id);
+  if (it != g_info_manager->pending_new_browser_info_map_.end()) {
+    const auto& pending_info = it->second;
+    // Don't accidentally timeout a new request for the same frame.
+    if (pending_info->timeout_id != timeout_id)
+      return;
+
+    LOG(ERROR) << "Timeout of new browser info response for frame process id "
+               << pending_info->render_process_id << " and routing id "
+               << pending_info->render_routing_id;
+
+    SendNewBrowserInfoResponse(pending_info->render_process_id, nullptr,
+                               false /* is_guest_view */,
+                               pending_info->reply_msg);
+    g_info_manager->pending_new_browser_info_map_.erase(it);
+  }
 }

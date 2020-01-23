@@ -1098,6 +1098,13 @@ static_library("libcef_static") {
         ]
       }
     }
+
+    if (is_win || is_linux) {
+      sources += [
+        "libcef/browser/native/browser_platform_delegate_native_aura.cc",
+        "libcef/browser/native/browser_platform_delegate_native_aura.h",
+      ]
+    }
   } else {
     sources += [
       # Provides stub implementations for the views static methods.

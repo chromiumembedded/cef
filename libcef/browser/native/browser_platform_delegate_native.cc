@@ -8,6 +8,7 @@
 
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
+#include "third_party/blink/public/platform/web_mouse_event.h"
 
 CefBrowserPlatformDelegateNative::CefBrowserPlatformDelegateNative(
     const CefWindowInfo& window_info,
@@ -37,30 +38,6 @@ void CefBrowserPlatformDelegateNative::SynchronizeVisualProperties() {
   if (host)
     host->GetWidget()->SynchronizeVisualProperties();
 }
-
-void CefBrowserPlatformDelegateNative::SendKeyEvent(
-    const content::NativeWebKeyboardEvent& event) {
-  content::RenderViewHost* host = browser_->web_contents()->GetRenderViewHost();
-  if (host)
-    host->GetWidget()->ForwardKeyboardEvent(event);
-}
-
-void CefBrowserPlatformDelegateNative::SendMouseEvent(
-    const blink::WebMouseEvent& event) {
-  content::RenderViewHost* host = browser_->web_contents()->GetRenderViewHost();
-  if (host)
-    host->GetWidget()->ForwardMouseEvent(event);
-}
-
-void CefBrowserPlatformDelegateNative::SendMouseWheelEvent(
-    const blink::WebMouseWheelEvent& event) {
-  content::RenderViewHost* host = browser_->web_contents()->GetRenderViewHost();
-  if (host)
-    host->GetWidget()->ForwardWheelEvent(event);
-}
-
-void CefBrowserPlatformDelegateNative::SendTouchEvent(
-    const CefTouchEvent& event) {}
 
 bool CefBrowserPlatformDelegateNative::IsWindowless() const {
   return false;

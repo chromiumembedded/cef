@@ -116,6 +116,10 @@ const char kEnablePreferenceTesting[] = "enable-preference-testing";
 // Enable print preview.
 extern const char kEnablePrintPreview[] = "enable-print-preview";
 
+// Disable the timeout for delivering new browser info to the renderer process.
+extern const char kDisableNewBrowserInfoTimeout[] =
+    "disable-new-browser-info-timeout";
+
 #if defined(OS_MACOSX)
 // Path to the framework directory.
 const char kFrameworkDirPath[] = "framework-dir-path";

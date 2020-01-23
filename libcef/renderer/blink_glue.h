@@ -87,6 +87,9 @@ class BLINK_EXPORT CefScriptForbiddenScope final {
 
 BLINK_EXPORT bool ResponseWasCached(const blink::WebURLResponse& response);
 
+// Returns true if the frame owner is a plugin.
+BLINK_EXPORT bool HasPluginFrameOwner(blink::WebLocalFrame* frame);
+
 }  // namespace blink_glue
 
 #endif  // CEF_LIBCEF_RENDERER_BLINK_GLUE_H_

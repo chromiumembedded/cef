@@ -315,6 +315,11 @@ bool CefFrameImpl::OnMessageReceived(const IPC::Message& message) {
 }
 
 void CefFrameImpl::OnDidFinishLoad() {
+  // Ignore notifications from the embedded frame hosting a mime-type plugin.
+  // We'll eventually receive a notification from the owner frame.
+  if (blink_glue::HasPluginFrameOwner(frame_))
+    return;
+
   blink::WebDocumentLoader* dl = frame_->GetDocumentLoader();
   const int http_status_code = dl->GetResponse().HttpStatusCode();
   Send(new CefHostMsg_DidFinishLoad(MSG_ROUTING_NONE, dl->GetUrl(),

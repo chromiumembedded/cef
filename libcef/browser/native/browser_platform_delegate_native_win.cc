@@ -32,6 +32,7 @@
 #include "ui/events/keycodes/dom/keycode_converter.h"
 #include "ui/events/keycodes/keyboard_code_conversion_win.h"
 #include "ui/events/keycodes/platform_key_map_win.h"
+#include "ui/gfx/geometry/vector2d.h"
 #include "ui/gfx/win/hwnd_util.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_win.h"
 #include "ui/views/widget/widget.h"
@@ -128,10 +129,10 @@ CefBrowserPlatformDelegateNativeWin::CefBrowserPlatformDelegateNativeWin(
     SkColor background_color,
     bool use_shared_texture,
     bool use_external_begin_frame)
-    : CefBrowserPlatformDelegateNative(window_info,
-                                       background_color,
-                                       use_shared_texture,
-                                       use_external_begin_frame),
+    : CefBrowserPlatformDelegateNativeAura(window_info,
+                                           background_color,
+                                           use_shared_texture,
+                                           use_external_begin_frame),
       host_window_created_(false),
       window_widget_(nullptr) {}
 
@@ -404,153 +405,6 @@ void CefBrowserPlatformDelegate::HandleExternalProtocol(const GURL& url) {
   CEF_POST_USER_VISIBLE_TASK(base::Bind(ExecuteExternalProtocol, url));
 }
 
-void CefBrowserPlatformDelegateNativeWin::TranslateKeyEvent(
-    content::NativeWebKeyboardEvent& result,
-    const CefKeyEvent& key_event) const {
-  result.windows_key_code = key_event.windows_key_code;
-  result.native_key_code = key_event.native_key_code;
-  result.is_system_key = key_event.is_system_key ? 1 : 0;
-  switch (key_event.type) {
-    case KEYEVENT_RAWKEYDOWN:
-    case KEYEVENT_KEYDOWN:
-      result.SetType(blink::WebInputEvent::kRawKeyDown);
-      break;
-    case KEYEVENT_KEYUP:
-      result.SetType(blink::WebInputEvent::kKeyUp);
-      break;
-    case KEYEVENT_CHAR:
-      result.SetType(blink::WebInputEvent::kChar);
-      break;
-    default:
-      NOTREACHED();
-  }
-
-  // Populate DOM values that will be passed to JavaScript handlers via
-  // KeyboardEvent.
-  result.dom_code = static_cast<int>(
-      ui::KeycodeConverter::NativeKeycodeToDomCode(key_event.native_key_code));
-  if (result.GetType() == blink::WebInputEvent::kChar) {
-    result.dom_key = ui::DomKey::FromCharacter(key_event.windows_key_code);
-  } else {
-    // TODO(cef): CefKeyEvent does not currently pass extended key status (see
-    // WM_KEYDOWN docs) which would be necessary to pass EF_IS_EXTENDED_KEY as
-    // the |flags| parameter to DomKeyFromKeyboardCode().
-    int flags = 0;
-    result.dom_key = ui::PlatformKeyMap::DomKeyFromKeyboardCode(
-        ui::KeyboardCodeForWindowsKeyCode(key_event.windows_key_code), &flags);
-  }
-
-  if (result.GetType() == blink::WebInputEvent::kChar ||
-      result.GetType() == blink::WebInputEvent::kRawKeyDown) {
-    result.text[0] = result.windows_key_code;
-    result.unmodified_text[0] = result.windows_key_code;
-  }
-
-  result.SetModifiers(result.GetModifiers() |
-                      TranslateModifiers(key_event.modifiers));
-}
-
-void CefBrowserPlatformDelegateNativeWin::TranslateClickEvent(
-    blink::WebMouseEvent& result,
-    const CefMouseEvent& mouse_event,
-    CefBrowserHost::MouseButtonType type,
-    bool mouseUp,
-    int clickCount) const {
-  TranslateMouseEvent(result, mouse_event);
-
-  switch (type) {
-    case MBT_LEFT:
-      result.SetType(mouseUp ? blink::WebInputEvent::kMouseUp
-                             : blink::WebInputEvent::kMouseDown);
-      result.button = blink::WebMouseEvent::Button::kLeft;
-      break;
-    case MBT_MIDDLE:
-      result.SetType(mouseUp ? blink::WebInputEvent::kMouseUp
-                             : blink::WebInputEvent::kMouseDown);
-      result.button = blink::WebMouseEvent::Button::kMiddle;
-      break;
-    case MBT_RIGHT:
-      result.SetType(mouseUp ? blink::WebInputEvent::kMouseUp
-                             : blink::WebInputEvent::kMouseDown);
-      result.button = blink::WebMouseEvent::Button::kRight;
-      break;
-    default:
-      NOTREACHED();
-  }
-
-  result.click_count = clickCount;
-}
-
-void CefBrowserPlatformDelegateNativeWin::TranslateMoveEvent(
-    blink::WebMouseEvent& result,
-    const CefMouseEvent& mouse_event,
-    bool mouseLeave) const {
-  TranslateMouseEvent(result, mouse_event);
-
-  if (!mouseLeave) {
-    result.SetType(blink::WebInputEvent::kMouseMove);
-    if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
-      result.button = blink::WebMouseEvent::Button::kLeft;
-    else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
-      result.button = blink::WebMouseEvent::Button::kMiddle;
-    else if (mouse_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
-      result.button = blink::WebMouseEvent::Button::kRight;
-    else
-      result.button = blink::WebMouseEvent::Button::kNoButton;
-  } else {
-    result.SetType(blink::WebInputEvent::kMouseLeave);
-    result.button = blink::WebMouseEvent::Button::kNoButton;
-  }
-
-  result.click_count = 0;
-}
-
-void CefBrowserPlatformDelegateNativeWin::TranslateWheelEvent(
-    blink::WebMouseWheelEvent& result,
-    const CefMouseEvent& mouse_event,
-    int deltaX,
-    int deltaY) const {
-  TranslateMouseEvent(result, mouse_event);
-
-  result.SetType(blink::WebInputEvent::kMouseWheel);
-  result.button = blink::WebMouseEvent::Button::kNoButton;
-
-  float wheelDelta;
-  bool horizontalScroll = false;
-
-  wheelDelta = static_cast<float>(deltaY ? deltaY : deltaX);
-
-  horizontalScroll = (deltaY == 0);
-
-  static const ULONG defaultScrollCharsPerWheelDelta = 1;
-  static const FLOAT scrollbarPixelsPerLine = 100.0f / 3.0f;
-  static const ULONG defaultScrollLinesPerWheelDelta = 3;
-  wheelDelta /= WHEEL_DELTA;
-  float scrollDelta = wheelDelta;
-  if (horizontalScroll) {
-    ULONG scrollChars = defaultScrollCharsPerWheelDelta;
-    SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &scrollChars, 0);
-    scrollDelta *= static_cast<FLOAT>(scrollChars) * scrollbarPixelsPerLine;
-  } else {
-    ULONG scrollLines = defaultScrollLinesPerWheelDelta;
-    SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &scrollLines, 0);
-    if (scrollLines == WHEEL_PAGESCROLL)
-      result.delta_units = ui::input_types::ScrollGranularity::kScrollByPage;
-    if (result.delta_units != ui::input_types::ScrollGranularity::kScrollByPage)
-      scrollDelta *= static_cast<FLOAT>(scrollLines) * scrollbarPixelsPerLine;
-  }
-
-  // Set scroll amount based on above calculations.  WebKit expects positive
-  // deltaY to mean "scroll up" and positive deltaX to mean "scroll left".
-  if (horizontalScroll) {
-    result.delta_x = scrollDelta;
-    result.wheel_ticks_x = wheelDelta;
-  } else {
-    result.delta_y = scrollDelta;
-    result.wheel_ticks_y = wheelDelta;
-  }
-}
-
 CefEventHandle CefBrowserPlatformDelegateNativeWin::GetEventHandle(
     const content::NativeWebKeyboardEvent& event) const {
   if (!event.os_event)
@@ -573,27 +427,6 @@ CefBrowserPlatformDelegateNativeWin::CreateMenuRunner() {
   return base::WrapUnique(new CefMenuRunnerWin);
 }
 
-void CefBrowserPlatformDelegateNativeWin::TranslateMouseEvent(
-    blink::WebMouseEvent& result,
-    const CefMouseEvent& mouse_event) const {
-  // position
-  result.SetPositionInWidget(mouse_event.x, mouse_event.y);
-
-  const gfx::Point& screen_pt =
-      GetScreenPoint(gfx::Point(mouse_event.x, mouse_event.y));
-  result.SetPositionInScreen(screen_pt.x(), screen_pt.y());
-
-  // modifiers
-  result.SetModifiers(result.GetModifiers() |
-                      TranslateModifiers(mouse_event.modifiers));
-
-  // timestamp
-  result.SetTimeStamp(base::TimeTicks() +
-                      base::TimeDelta::FromMilliseconds(GetMessageTime()));
-
-  result.pointer_type = blink::WebPointerProperties::PointerType::kMouse;
-}
-
 gfx::Point CefBrowserPlatformDelegateNativeWin::GetDialogPosition(
     const gfx::Size& size) {
   const gfx::Size& max_size = GetMaximumDialogSize();
@@ -603,6 +436,66 @@ gfx::Point CefBrowserPlatformDelegateNativeWin::GetDialogPosition(
 
 gfx::Size CefBrowserPlatformDelegateNativeWin::GetMaximumDialogSize() {
   return GetWindowWidget()->GetWindowBoundsInScreen().size();
+}
+
+ui::KeyEvent CefBrowserPlatformDelegateNativeWin::TranslateUiKeyEvent(
+    const CefKeyEvent& key_event) const {
+  int flags = TranslateUiEventModifiers(key_event.modifiers);
+  ui::KeyboardCode key_code =
+      ui::KeyboardCodeForWindowsKeyCode(key_event.windows_key_code);
+  ui::DomCode dom_code =
+      ui::KeycodeConverter::NativeKeycodeToDomCode(key_event.native_key_code);
+  base::TimeTicks time_stamp = GetEventTimeStamp();
+
+  if (key_event.type == KEYEVENT_CHAR) {
+    return ui::KeyEvent(key_event.windows_key_code /* character */, key_code,
+                        dom_code, flags, time_stamp);
+  }
+
+  ui::EventType type = ui::ET_UNKNOWN;
+  switch (key_event.type) {
+    case KEYEVENT_RAWKEYDOWN:
+    case KEYEVENT_KEYDOWN:
+      type = ui::ET_KEY_PRESSED;
+      break;
+    case KEYEVENT_KEYUP:
+      type = ui::ET_KEY_RELEASED;
+      break;
+    default:
+      NOTREACHED();
+  }
+
+  ui::DomKey dom_key =
+      ui::PlatformKeyMap::DomKeyFromKeyboardCode(key_code, &flags);
+  return ui::KeyEvent(type, key_code, dom_code, flags, dom_key, time_stamp);
+}
+
+gfx::Vector2d CefBrowserPlatformDelegateNativeWin::GetUiWheelEventOffset(
+    int deltaX,
+    int deltaY) const {
+  static const ULONG defaultScrollCharsPerWheelDelta = 1;
+  static const FLOAT scrollbarPixelsPerLine = 100.0f / 3.0f;
+  static const ULONG defaultScrollLinesPerWheelDelta = 3;
+
+  float wheelDeltaX = float(deltaX) / WHEEL_DELTA;
+  float wheelDeltaY = float(deltaY) / WHEEL_DELTA;
+  float scrollDeltaX = wheelDeltaX;
+  float scrollDeltaY = wheelDeltaY;
+
+  ULONG scrollChars = defaultScrollCharsPerWheelDelta;
+  SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &scrollChars, 0);
+  scrollDeltaX *= static_cast<FLOAT>(scrollChars) * scrollbarPixelsPerLine;
+
+  ULONG scrollLines = defaultScrollLinesPerWheelDelta;
+  SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &scrollLines, 0);
+  scrollDeltaY *= static_cast<FLOAT>(scrollLines) * scrollbarPixelsPerLine;
+
+  return gfx::Vector2d(scrollDeltaX, scrollDeltaY);
+}
+
+base::TimeTicks CefBrowserPlatformDelegateNativeWin::GetEventTimeStamp() const {
+  return base::TimeTicks() +
+         base::TimeDelta::FromMilliseconds(GetMessageTime());
 }
 
 // static

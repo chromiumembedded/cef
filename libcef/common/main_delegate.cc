@@ -615,13 +615,6 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       disable_features.push_back(network::features::kOutOfBlinkCors.name);
     }
 
-    if (features::kMimeHandlerViewInCrossProcessFrame.default_state ==
-        base::FEATURE_ENABLED_BY_DEFAULT) {
-      // TODO: Add support for cross-process mime handler view (see issue #2727)
-      disable_features.push_back(
-          features::kMimeHandlerViewInCrossProcessFrame.name);
-    }
-
 #if defined(OS_WIN)
     if (features::kCalculateNativeWinOcclusion.default_state ==
         base::FEATURE_ENABLED_BY_DEFAULT) {

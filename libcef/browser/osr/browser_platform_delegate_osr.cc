@@ -91,25 +91,53 @@ void CefBrowserPlatformDelegateOsr::SynchronizeVisualProperties() {
     view->SynchronizeVisualProperties();
 }
 
-void CefBrowserPlatformDelegateOsr::SendKeyEvent(
-    const content::NativeWebKeyboardEvent& event) {
+void CefBrowserPlatformDelegateOsr::SendKeyEvent(const CefKeyEvent& event) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view)
-    view->SendKeyEvent(event);
+  if (!view)
+    return;
+
+  content::NativeWebKeyboardEvent web_event =
+      native_delegate_->TranslateWebKeyEvent(event);
+  view->SendKeyEvent(web_event);
 }
 
-void CefBrowserPlatformDelegateOsr::SendMouseEvent(
-    const blink::WebMouseEvent& event) {
+void CefBrowserPlatformDelegateOsr::SendMouseClickEvent(
+    const CefMouseEvent& event,
+    CefBrowserHost::MouseButtonType type,
+    bool mouseUp,
+    int clickCount) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view)
-    view->SendMouseEvent(event);
+  if (!view)
+    return;
+
+  blink::WebMouseEvent web_event = native_delegate_->TranslateWebClickEvent(
+      event, type, mouseUp, clickCount);
+  view->SendMouseEvent(web_event);
+}
+
+void CefBrowserPlatformDelegateOsr::SendMouseMoveEvent(
+    const CefMouseEvent& event,
+    bool mouseLeave) {
+  CefRenderWidgetHostViewOSR* view = GetOSRHostView();
+  if (!view)
+    return;
+
+  blink::WebMouseEvent web_event =
+      native_delegate_->TranslateWebMoveEvent(event, mouseLeave);
+  view->SendMouseEvent(web_event);
 }
 
 void CefBrowserPlatformDelegateOsr::SendMouseWheelEvent(
-    const blink::WebMouseWheelEvent& event) {
+    const CefMouseEvent& event,
+    int deltaX,
+    int deltaY) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view)
-    view->SendMouseWheelEvent(event);
+  if (!view)
+    return;
+
+  blink::WebMouseWheelEvent web_event =
+      native_delegate_->TranslateWebWheelEvent(event, deltaX, deltaY);
+  view->SendMouseWheelEvent(web_event);
 }
 
 void CefBrowserPlatformDelegateOsr::SendTouchEvent(const CefTouchEvent& event) {
@@ -144,37 +172,6 @@ void CefBrowserPlatformDelegateOsr::ViewText(const std::string& text) {
 bool CefBrowserPlatformDelegateOsr::HandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   return native_delegate_->HandleKeyboardEvent(event);
-}
-
-void CefBrowserPlatformDelegateOsr::TranslateKeyEvent(
-    content::NativeWebKeyboardEvent& result,
-    const CefKeyEvent& key_event) const {
-  native_delegate_->TranslateKeyEvent(result, key_event);
-}
-
-void CefBrowserPlatformDelegateOsr::TranslateClickEvent(
-    blink::WebMouseEvent& result,
-    const CefMouseEvent& mouse_event,
-    CefBrowserHost::MouseButtonType type,
-    bool mouseUp,
-    int clickCount) const {
-  native_delegate_->TranslateClickEvent(result, mouse_event, type, mouseUp,
-                                        clickCount);
-}
-
-void CefBrowserPlatformDelegateOsr::TranslateMoveEvent(
-    blink::WebMouseEvent& result,
-    const CefMouseEvent& mouse_event,
-    bool mouseLeave) const {
-  native_delegate_->TranslateMoveEvent(result, mouse_event, mouseLeave);
-}
-
-void CefBrowserPlatformDelegateOsr::TranslateWheelEvent(
-    blink::WebMouseWheelEvent& result,
-    const CefMouseEvent& mouse_event,
-    int deltaX,
-    int deltaY) const {
-  native_delegate_->TranslateWheelEvent(result, mouse_event, deltaX, deltaY);
 }
 
 CefEventHandle CefBrowserPlatformDelegateOsr::GetEventHandle(
@@ -306,7 +303,7 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragEnter(
   const gfx::Point& screen_pt = GetScreenPoint(client_pt);
   blink::WebDragOperationsMask ops =
       static_cast<blink::WebDragOperationsMask>(allowed_ops);
-  int modifiers = TranslateModifiers(event.modifiers);
+  int modifiers = TranslateWebEventModifiers(event.modifiers);
 
   current_rwh_for_drag_->FilterDropData(drop_data);
 
@@ -370,7 +367,7 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragOver(
 
   blink::WebDragOperationsMask ops =
       static_cast<blink::WebDragOperationsMask>(allowed_ops);
-  int modifiers = TranslateModifiers(event.modifiers);
+  int modifiers = TranslateWebEventModifiers(event.modifiers);
 
   target_rwh->DragTargetDragOver(transformed_pt, gfx::PointF(screen_pt), ops,
                                  modifiers);
@@ -440,7 +437,7 @@ void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
         static_cast<CefDragDataImpl*>(drag_data_.get());
     base::AutoLock lock_scope(data_impl->lock());
     content::DropData* drop_data = data_impl->drop_data();
-    int modifiers = TranslateModifiers(event.modifiers);
+    int modifiers = TranslateWebEventModifiers(event.modifiers);
 
     target_rwh->DragTargetDrop(*drop_data, transformed_pt,
                                gfx::PointF(screen_pt), modifiers);

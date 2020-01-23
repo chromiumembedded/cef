@@ -201,10 +201,14 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
       bool is_guest_view,
       IPC::Message* reply_msg);
 
+  // Time out a response if it's still pending.
+  static void TimeoutNewBrowserInfoResponse(int64_t frame_id, int timeout_id);
+
   // Pending request for OnGetNewBrowserInfo.
   struct PendingNewBrowserInfo {
     int render_process_id;
     int render_routing_id;
+    int timeout_id;
     IPC::Message* reply_msg;
   };
 
@@ -213,7 +217,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // Access to the below members must be protected by |browser_info_lock_|.
 
   BrowserInfoList browser_info_list_;
-  int next_browser_id_;
+  int next_browser_id_ = 0;
 
   // Map of frame ID to info.
   using PendingNewBrowserInfoMap =
@@ -223,6 +227,8 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // Only accessed on the UI thread.
   using PendingPopupList = std::vector<std::unique_ptr<PendingPopup>>;
   PendingPopupList pending_popup_list_;
+
+  int next_timeout_id_ = 0;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserInfoManager);
 };

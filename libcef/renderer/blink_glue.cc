@@ -23,6 +23,7 @@
 #include "third_party/blink/renderer/core/dom/node.h"
 #include "third_party/blink/renderer/core/editing/serializers/serialization.h"
 #include "third_party/blink/renderer/core/exported/web_view_impl.h"
+#include "third_party/blink/renderer/core/frame/frame_owner.h"
 #include "third_party/blink/renderer/core/frame/local_frame.h"
 #include "third_party/blink/renderer/core/frame/settings.h"
 #include "third_party/blink/renderer/core/frame/web_local_frame_impl.h"
@@ -243,6 +244,11 @@ CefScriptForbiddenScope::~CefScriptForbiddenScope() {}
 
 bool ResponseWasCached(const blink::WebURLResponse& response) {
   return response.ToResourceResponse().WasCached();
+}
+
+bool HasPluginFrameOwner(blink::WebLocalFrame* frame) {
+  blink::Frame* core_frame = blink::WebFrame::ToCoreFrame(*frame);
+  return core_frame->Owner() && core_frame->Owner()->IsPlugin();
 }
 
 }  // namespace blink_glue
