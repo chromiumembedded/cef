@@ -161,6 +161,10 @@ void CefWindowX11::Close() {
   ev.xclient.data.l[0] = gfx::GetAtom(kWMDeleteWindow);
   ev.xclient.data.l[1] = x11::CurrentTime;
   XSendEvent(xdisplay_, xwindow_, false, NoEventMask, &ev);
+
+  auto host = GetHost();
+  if (host)
+    host->Close();
 }
 
 void CefWindowX11::Show() {
