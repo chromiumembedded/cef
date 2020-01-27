@@ -1,0 +1,21 @@
+diff --git third_party/blink/renderer/core/layout/layout_inline.cc third_party/blink/renderer/core/layout/layout_inline.cc
+index d3459a9c7e7a..00137ffdafb4 100644
+--- third_party/blink/renderer/core/layout/layout_inline.cc
++++ third_party/blink/renderer/core/layout/layout_inline.cc
+@@ -1070,9 +1070,14 @@ bool LayoutInline::HitTestCulledInline(
+         *ContainingNGBlockFlow()->PaintFragment()));
+     DCHECK(container_fragment->PhysicalFragment().IsInline() ||
+            container_fragment->PhysicalFragment().IsLineBox());
+-    NGInlineCursor cursor(*container_fragment);
+-    for (cursor.MoveTo(*this); cursor; cursor.MoveToNextForSameLayoutObject())
++    NGInlineCursor cursor;
++    cursor.MoveTo(*this);
++    for (; cursor; cursor.MoveToNextForSameLayoutObject()) {
++      if (!cursor.CurrentPaintFragment()->IsDescendantOfNotSelf(
++              *container_fragment))
++        continue;
+       yield(cursor.CurrentRect());
++    }
+   } else {
+     DCHECK(!ContainingNGBlockFlow());
+     CollectCulledLineBoxRects(yield);
