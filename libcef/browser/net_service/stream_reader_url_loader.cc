@@ -41,17 +41,9 @@ class OpenInputStreamWrapper
       const network::ResourceRequest& request,
       OnInputStreamOpenedCallback callback) WARN_UNUSED_RESULT {
     scoped_refptr<OpenInputStreamWrapper> wrapper = new OpenInputStreamWrapper(
-        std::move(delegate), base::ThreadTaskRunnerHandle::Get(),
-        std::move(callback));
-
-    work_thread_task_runner->PostTask(
-        FROM_HERE,
-        base::BindOnce(OpenInputStreamWrapper::OpenOnWorkThread,
-                       // This is intentional - the loader could be deleted
-                       // while the callback is executing on the background
-                       // thread. The delegate will be "returned" to the loader
-                       // once the InputStream open attempt is completed.
-                       wrapper, request_id, request));
+        std::move(delegate), work_thread_task_runner,
+        base::ThreadTaskRunnerHandle::Get(), std::move(callback));
+    wrapper->Start(request_id, request);
 
     return wrapper->GetCancelCallback();
   }
@@ -61,40 +53,61 @@ class OpenInputStreamWrapper
 
   OpenInputStreamWrapper(
       std::unique_ptr<StreamReaderURLLoader::Delegate> delegate,
+      scoped_refptr<base::SequencedTaskRunner> work_thread_task_runner,
       scoped_refptr<base::SingleThreadTaskRunner> job_thread_task_runner,
       OnInputStreamOpenedCallback callback)
       : delegate_(std::move(delegate)),
+        work_thread_task_runner_(work_thread_task_runner),
         job_thread_task_runner_(job_thread_task_runner),
         callback_(std::move(callback)) {}
   virtual ~OpenInputStreamWrapper() {}
 
-  static void OpenOnWorkThread(scoped_refptr<OpenInputStreamWrapper> wrapper,
-                               const RequestId& request_id,
-                               const network::ResourceRequest& request) {
-    DCHECK(!CEF_CURRENTLY_ON_IOT());
-    DCHECK(!CEF_CURRENTLY_ON_UIT());
-
-    wrapper->Open(request_id, request);
+  void Start(const RequestId& request_id,
+             const network::ResourceRequest& request) {
+    work_thread_task_runner_->PostTask(
+        FROM_HERE,
+        base::BindOnce(&OpenInputStreamWrapper::OpenOnWorkThread,
+                       base::WrapRefCounted(this), request_id, request));
   }
 
   base::OnceClosure GetCancelCallback() {
-    return base::BindOnce(&OpenInputStreamWrapper::Cancel,
+    return base::BindOnce(&OpenInputStreamWrapper::CancelOnJobThread,
                           base::WrapRefCounted(this));
   }
 
-  void Cancel() {
+  void CancelOnJobThread() {
     DCHECK(job_thread_task_runner_->RunsTasksInCurrentSequence());
-    delegate_.reset();
+    if (callback_.is_null())
+      return;
+
     callback_.Reset();
+
+    work_thread_task_runner_->PostTask(
+        FROM_HERE, base::BindOnce(&OpenInputStreamWrapper::CancelOnWorkThread,
+                                  base::WrapRefCounted(this)));
   }
 
-  void Open(const RequestId& request_id,
-            const network::ResourceRequest& request) {
-    // |delegate_| may be null if we were canceled.
-    if (delegate_ && !delegate_->OpenInputStream(
-                         request_id, request,
-                         base::BindOnce(&OpenInputStreamWrapper::OnCallback,
-                                        base::WrapRefCounted(this)))) {
+  void CancelOnWorkThread() {
+    DCHECK(work_thread_task_runner_->RunsTasksInCurrentSequence());
+    if (is_canceled_)
+      return;
+    is_canceled_ = true;
+    OnCallback(nullptr);
+  }
+
+  void OpenOnWorkThread(const RequestId& request_id,
+                        const network::ResourceRequest& request) {
+    DCHECK(work_thread_task_runner_->RunsTasksInCurrentSequence());
+    if (is_canceled_)
+      return;
+
+    // |delegate_| will remain valid until OnCallback() is executed on
+    // |job_thread_task_runner_|.
+    if (!delegate_->OpenInputStream(
+            request_id, request,
+            base::BindOnce(&OpenInputStreamWrapper::OnCallback,
+                           base::WrapRefCounted(this)))) {
+      is_canceled_ = true;
       OnCallback(nullptr);
     }
   }
@@ -108,16 +121,27 @@ class OpenInputStreamWrapper
       return;
     }
 
-    // May be null if we were canceled.
-    if (callback_.is_null())
+    // May be null if CancelOnJobThread() was called on
+    // |job_thread_task_runner_| while OpenOnWorkThread() was pending on
+    // |work_thread_task_runner_|.
+    if (callback_.is_null()) {
+      delegate_.reset();
       return;
+    }
 
     std::move(callback_).Run(std::move(delegate_), std::move(input_stream));
   }
 
   std::unique_ptr<StreamReaderURLLoader::Delegate> delegate_;
+
+  scoped_refptr<base::SequencedTaskRunner> work_thread_task_runner_;
   scoped_refptr<base::SingleThreadTaskRunner> job_thread_task_runner_;
+
+  // Only accessed on |job_thread_task_runner_|.
   OnInputStreamOpenedCallback callback_;
+
+  // Only accessed on |work_thread_task_runner_|.
+  bool is_canceled_ = false;
 
   DISALLOW_COPY_AND_ASSIGN(OpenInputStreamWrapper);
 };
