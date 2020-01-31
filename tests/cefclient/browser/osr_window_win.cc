@@ -95,7 +95,7 @@ OsrWindowWin::OsrWindowWin(Delegate* delegate,
       last_click_x_(0),
       last_click_y_(0),
       last_click_button_(MBT_LEFT),
-      last_click_count_(0),
+      last_click_count_(1),
       last_click_time_(0),
       last_mouse_down_on_view_(false) {
   DCHECK(delegate_);
@@ -583,7 +583,7 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         ((currentTime - last_click_time_) > GetDoubleClickTime());
     if (cancelPreviousClick &&
         (message == WM_MOUSEMOVE || message == WM_MOUSELEAVE)) {
-      last_click_count_ = 0;
+      last_click_count_ = 1;
       last_click_x_ = 0;
       last_click_y_ = 0;
       last_click_time_ = 0;
