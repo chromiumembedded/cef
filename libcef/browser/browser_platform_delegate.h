@@ -145,7 +145,7 @@ class CefBrowserPlatformDelegate {
   virtual bool CanUseExternalBeginFrame() const = 0;
 
   // Notify the window that it was resized.
-  virtual void SynchronizeVisualProperties() = 0;
+  virtual void WasResized() = 0;
 
   // Send input events.
   virtual void SendKeyEvent(const CefKeyEvent& event) = 0;

@@ -28,7 +28,7 @@ class CefBrowserPlatformDelegateNative : public CefBrowserPlatformDelegate {
   bool CanUseSharedTexture() const override;
   bool CanUseExternalBeginFrame() const override;
   SkColor GetBackgroundColor() const override;
-  void SynchronizeVisualProperties() override;
+  void WasResized() override;
   bool IsWindowless() const override;
   bool IsViewsHosted() const override;
 
