@@ -33,7 +33,7 @@ bool CefBrowserPlatformDelegateNative::CanUseExternalBeginFrame() const {
   return use_external_begin_frame_;
 }
 
-void CefBrowserPlatformDelegateNative::SynchronizeVisualProperties() {
+void CefBrowserPlatformDelegateNative::WasResized() {
   content::RenderViewHost* host = browser_->web_contents()->GetRenderViewHost();
   if (host)
     host->GetWidget()->SynchronizeVisualProperties();

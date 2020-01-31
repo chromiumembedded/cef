@@ -85,10 +85,10 @@ SkColor CefBrowserPlatformDelegateOsr::GetBackgroundColor() const {
   return native_delegate_->GetBackgroundColor();
 }
 
-void CefBrowserPlatformDelegateOsr::SynchronizeVisualProperties() {
+void CefBrowserPlatformDelegateOsr::WasResized() {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
   if (view)
-    view->SynchronizeVisualProperties();
+    view->WasResized();
 }
 
 void CefBrowserPlatformDelegateOsr::SendKeyEvent(const CefKeyEvent& event) {

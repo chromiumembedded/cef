@@ -1079,7 +1079,7 @@ void CefBrowserHostImpl::WasResized() {
   if (!web_contents() || !platform_delegate_)
     return;
 
-  platform_delegate_->SynchronizeVisualProperties();
+  platform_delegate_->WasResized();
 }
 
 void CefBrowserHostImpl::WasHidden(bool hidden) {

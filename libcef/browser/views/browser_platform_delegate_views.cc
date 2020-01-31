@@ -184,8 +184,8 @@ SkColor CefBrowserPlatformDelegateViews::GetBackgroundColor() const {
   return native_delegate_->GetBackgroundColor();
 }
 
-void CefBrowserPlatformDelegateViews::SynchronizeVisualProperties() {
-  native_delegate_->SynchronizeVisualProperties();
+void CefBrowserPlatformDelegateViews::WasResized() {
+  native_delegate_->WasResized();
 }
 
 void CefBrowserPlatformDelegateViews::SendKeyEvent(const CefKeyEvent& event) {

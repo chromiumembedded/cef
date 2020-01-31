@@ -149,6 +149,36 @@ ui::LatencyInfo CreateLatencyInfo(const blink::WebInputEvent& event) {
   return latency_info;
 }
 
+gfx::Rect GetViewBounds(CefBrowserHostImpl* browser) {
+  if (!browser)
+    return gfx::Rect();
+
+  CefRect rc;
+  CefRefPtr<CefRenderHandler> handler =
+      browser->GetClient()->GetRenderHandler();
+  CHECK(handler);
+
+  handler->GetViewRect(browser, rc);
+  CHECK_GT(rc.width, 0);
+  CHECK_GT(rc.height, 0);
+
+  return gfx::Rect(rc.x, rc.y, rc.width, rc.height);
+}
+
+float GetDeviceScaleFactor(CefBrowserHostImpl* browser) {
+  if (!browser)
+    return kDefaultScaleFactor;
+
+  CefScreenInfo screen_info(kDefaultScaleFactor, 0, 0, false, CefRect(),
+                            CefRect());
+  CefRefPtr<CefRenderHandler> handler = browser->client()->GetRenderHandler();
+  CHECK(handler);
+  if (!handler->GetScreenInfo(browser, screen_info))
+    return kDefaultScaleFactor;
+
+  return screen_info.device_scale_factor;
+}
+
 }  // namespace
 
 CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
@@ -159,23 +189,12 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     CefRenderWidgetHostViewOSR* parent_host_view)
     : content::RenderWidgetHostViewBase(widget),
       background_color_(background_color),
-      frame_rate_threshold_us_(0),
-      host_display_client_(nullptr),
-      hold_resize_(false),
-      pending_resize_(false),
-      pending_resize_force_(false),
       render_widget_host_(content::RenderWidgetHostImpl::From(widget)),
       has_parent_(parent_host_view != nullptr),
       parent_host_view_(parent_host_view),
-      popup_host_view_(nullptr),
-      child_host_view_(nullptr),
-      is_showing_(false),
-      is_destroyed_(false),
       pinch_zoom_enabled_(content::IsPinchToZoomEnabled()),
-      is_scroll_offset_changed_pending_(false),
       mouse_wheel_phase_handler_(this),
       gesture_provider_(CreateGestureProviderConfig(), this),
-      forward_touch_to_popup_(false),
       weak_ptr_factory_(this) {
   DCHECK(render_widget_host_);
   DCHECK(!render_widget_host_->GetView());
@@ -191,9 +210,6 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
         content::RenderViewHost::From(render_widget_host_));
   }
 
-  local_surface_id_allocator_.GenerateId();
-  local_surface_id_allocation_ =
-      local_surface_id_allocator_.GetCurrentLocalSurfaceIdAllocation();
   delegated_frame_host_client_.reset(new CefDelegatedFrameHostClient(this));
 
   // Matching the attributes from BrowserCompositorMac.
@@ -231,12 +247,9 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
   if (render_widget_host_impl)
     render_widget_host_impl->SetCompositorForFlingScheduler(compositor_.get());
 
-  if (browser_impl_.get())
-    ResizeRootLayer(false);
-
   cursor_manager_.reset(new content::CursorManager(this));
 
-  // Do this last because it may result in a call to SetNeedsBeginFrames.
+  // This may result in a call to GetFrameSinkId().
   render_widget_host_->SetView(this);
 
   if (GetTextInputManager())
@@ -248,15 +261,12 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
         GetFrameSinkId(), this);
   }
 
-  if (!render_widget_host_->is_hidden()) {
-    Show();
-  }
-
-  if (!content::GpuDataManagerImpl::GetInstance()->IsGpuCompositingDisabled()) {
-    video_consumer_.reset(new CefVideoConsumerOSR(this));
-    video_consumer_->SetActive(true);
-    video_consumer_->SetFrameRate(
-        base::TimeDelta::FromMicroseconds(frame_rate_threshold_us_));
+  if (browser_impl_ && !parent_host_view_) {
+    // For child/popup views this will be called from the associated InitAs*()
+    // method.
+    SetRootLayerSize(false /* force */);
+    if (!render_widget_host_->is_hidden())
+      Show();
   }
 }
 
@@ -297,7 +307,7 @@ void CefRenderWidgetHostViewOSR::InitAsChild(gfx::NativeView parent_view) {
   // The parent view should not render while the full-screen view exists.
   parent_host_view_->Hide();
 
-  ResizeRootLayer(false);
+  SetRootLayerSize(false /* force */);
   Show();
 }
 
@@ -321,7 +331,7 @@ bool CefRenderWidgetHostViewOSR::HasFocus() {
 }
 
 bool CefRenderWidgetHostViewOSR::IsSurfaceAvailableForCopy() {
-  return GetDelegatedFrameHost()->CanCopyFromCompositingSurface();
+  return delegated_frame_host_->CanCopyFromCompositingSurface();
 }
 
 void CefRenderWidgetHostViewOSR::Show() {
@@ -330,16 +340,40 @@ void CefRenderWidgetHostViewOSR::Show() {
 
   is_showing_ = true;
 
-  delegated_frame_host_->AttachToCompositor(compositor_.get());
-  delegated_frame_host_->WasShown(
-      GetLocalSurfaceIdAllocation().local_surface_id(),
-      GetRootLayer()->bounds().size(), base::nullopt);
+  // If the viz::LocalSurfaceIdAllocation is invalid, we may have been evicted,
+  // and no other visual properties have since been changed. Allocate a new id
+  // and start synchronizing.
+  if (!GetLocalSurfaceIdAllocation().IsValid()) {
+    AllocateLocalSurfaceId();
+    SynchronizeVisualProperties(cc::DeadlinePolicy::UseDefaultDeadline(),
+                                GetLocalSurfaceIdAllocation());
+  }
 
-  // Note that |render_widget_host_| will retrieve size parameters from the
-  // DelegatedFrameHost, so it must have WasShown called after.
-  if (render_widget_host_)
+  if (render_widget_host_) {
     render_widget_host_->WasShown(
         base::nullopt /* record_tab_switch_time_request */);
+  }
+
+  delegated_frame_host_->AttachToCompositor(compositor_.get());
+  delegated_frame_host_->WasShown(
+      GetLocalSurfaceIdAllocation().local_surface_id(), GetViewBounds().size(),
+      base::nullopt);
+
+  if (!content::GpuDataManagerImpl::GetInstance()->IsGpuCompositingDisabled()) {
+    // Start generating frames when we're visible and at the correct size.
+    if (!video_consumer_) {
+      video_consumer_.reset(new CefVideoConsumerOSR(this));
+      UpdateFrameRate();
+
+      // Call OnRenderFrameMetadataChangedAfterActivation for every frame.
+      content::RenderFrameMetadataProviderImpl* provider =
+          content::RenderWidgetHostImpl::From(render_widget_host_)
+              ->render_frame_metadata_provider();
+      provider->ReportAllFrameSubmissionsForTesting(true);
+    } else {
+      video_consumer_->SetActive(true);
+    }
+  }
 }
 
 void CefRenderWidgetHostViewOSR::Hide() {
@@ -351,12 +385,16 @@ void CefRenderWidgetHostViewOSR::Hide() {
   if (browser_impl_.get())
     browser_impl_->CancelContextMenu();
 
+  if (video_consumer_) {
+    video_consumer_->SetActive(false);
+  }
+
   if (render_widget_host_)
     render_widget_host_->WasHidden();
 
-  GetDelegatedFrameHost()->WasHidden(
+  delegated_frame_host_->WasHidden(
       content::DelegatedFrameHost::HiddenCause::kOther);
-  GetDelegatedFrameHost()->DetachFromCompositor();
+  delegated_frame_host_->DetachFromCompositor();
 }
 
 bool CefRenderWidgetHostViewOSR::IsShowing() {
@@ -365,26 +403,15 @@ bool CefRenderWidgetHostViewOSR::IsShowing() {
 
 void CefRenderWidgetHostViewOSR::EnsureSurfaceSynchronizedForWebTest() {
   ++latest_capture_sequence_number_;
-  SynchronizeVisualProperties();
+  SynchronizeVisualProperties(cc::DeadlinePolicy::UseInfiniteDeadline(),
+                              base::nullopt);
 }
 
 gfx::Rect CefRenderWidgetHostViewOSR::GetViewBounds() {
   if (IsPopupWidget())
     return popup_position_;
 
-  if (!browser_impl_.get())
-    return gfx::Rect();
-
-  CefRect rc;
-  CefRefPtr<CefRenderHandler> handler =
-      browser_impl_->GetClient()->GetRenderHandler();
-  CHECK(handler);
-
-  handler->GetViewRect(browser_impl_.get(), rc);
-  CHECK_GT(rc.width, 0);
-  CHECK_GT(rc.height, 0);
-
-  return gfx::Rect(rc.x, rc.y, rc.width, rc.height);
+  return current_view_bounds_;
 }
 
 void CefRenderWidgetHostViewOSR::SetBackgroundColor(SkColor color) {
@@ -416,9 +443,9 @@ void CefRenderWidgetHostViewOSR::TakeFallbackContentFrom(
   CefRenderWidgetHostViewOSR* view_cef =
       static_cast<CefRenderWidgetHostViewOSR*>(view);
   SetBackgroundColor(view_cef->background_color_);
-  if (GetDelegatedFrameHost() && view_cef->GetDelegatedFrameHost()) {
-    GetDelegatedFrameHost()->TakeFallbackContentFrom(
-        view_cef->GetDelegatedFrameHost());
+  if (delegated_frame_host_ && view_cef->delegated_frame_host_) {
+    delegated_frame_host_->TakeFallbackContentFrom(
+        view_cef->delegated_frame_host_.get());
   }
   host()->GetContentRenderingTimeoutFrom(view_cef->host());
 }
@@ -432,13 +459,55 @@ void CefRenderWidgetHostViewOSR::OnPresentCompositorFrame() {}
 
 void CefRenderWidgetHostViewOSR::OnDidUpdateVisualPropertiesComplete(
     const cc::RenderFrameMetadata& metadata) {
-  bool force = false;
-  if (metadata.local_surface_id_allocation) {
-    force = local_surface_id_allocator_.UpdateFromChild(
-        *metadata.local_surface_id_allocation);
+  if (host()->is_hidden()) {
+    // When an embedded child responds, we want to accept its changes to the
+    // viz::LocalSurfaceId. However we do not want to embed surfaces while
+    // hidden. Nor do we want to embed invalid ids when we are evicted. Becoming
+    // visible will generate a new id, if necessary, and begin embedding.
+    UpdateLocalSurfaceIdFromEmbeddedClient(
+        metadata.local_surface_id_allocation);
+  } else {
+    SynchronizeVisualProperties(cc::DeadlinePolicy::UseDefaultDeadline(),
+                                metadata.local_surface_id_allocation);
   }
+}
 
-  SynchronizeVisualProperties(force);
+void CefRenderWidgetHostViewOSR::AllocateLocalSurfaceId() {
+  if (!parent_local_surface_id_allocator_) {
+    parent_local_surface_id_allocator_ =
+        std::make_unique<viz::ParentLocalSurfaceIdAllocator>();
+  }
+  parent_local_surface_id_allocator_->GenerateId();
+}
+
+const viz::LocalSurfaceIdAllocation&
+CefRenderWidgetHostViewOSR::GetCurrentLocalSurfaceIdAllocation() const {
+  return parent_local_surface_id_allocator_
+      ->GetCurrentLocalSurfaceIdAllocation();
+}
+
+void CefRenderWidgetHostViewOSR::UpdateLocalSurfaceIdFromEmbeddedClient(
+    const base::Optional<viz::LocalSurfaceIdAllocation>&
+        embedded_client_local_surface_id_allocation) {
+  if (embedded_client_local_surface_id_allocation) {
+    parent_local_surface_id_allocator_->UpdateFromChild(
+        *embedded_client_local_surface_id_allocation);
+  } else {
+    AllocateLocalSurfaceId();
+  }
+}
+
+const viz::LocalSurfaceIdAllocation&
+CefRenderWidgetHostViewOSR::GetOrCreateLocalSurfaceIdAllocation() {
+  if (!parent_local_surface_id_allocator_)
+    AllocateLocalSurfaceId();
+  return GetCurrentLocalSurfaceIdAllocation();
+}
+
+void CefRenderWidgetHostViewOSR::InvalidateLocalSurfaceId() {
+  if (!parent_local_surface_id_allocator_)
+    return;
+  parent_local_surface_id_allocator_->Invalidate();
 }
 
 void CefRenderWidgetHostViewOSR::AddDamageRect(uint32_t sequence,
@@ -465,7 +534,7 @@ void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
 }
 
 void CefRenderWidgetHostViewOSR::ResetFallbackToFirstNavigationSurface() {
-  GetDelegatedFrameHost()->ResetFallbackToFirstNavigationSurface();
+  delegated_frame_host_->ResetFallbackToFirstNavigationSurface();
 }
 
 void CefRenderWidgetHostViewOSR::InitAsPopup(
@@ -493,12 +562,9 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
   if (handler.get())
     handler->OnPopupSize(browser_impl_.get(), widget_pos);
 
-  if (video_consumer_) {
-    video_consumer_->SizeChanged();
-  }
-
-  ResizeRootLayer(false);
-
+  // The size doesn't change for popups so we need to force the
+  // initialization.
+  SetRootLayerSize(true /* force */);
   Show();
 }
 
@@ -635,8 +701,8 @@ void CefRenderWidgetHostViewOSR::CopyFromSurface(
     const gfx::Rect& src_rect,
     const gfx::Size& output_size,
     base::OnceCallback<void(const SkBitmap&)> callback) {
-  GetDelegatedFrameHost()->CopyFromCompositingSurface(src_rect, output_size,
-                                                      std::move(callback));
+  delegated_frame_host_->CopyFromCompositingSurface(src_rect, output_size,
+                                                    std::move(callback));
 }
 
 void CefRenderWidgetHostViewOSR::GetScreenInfo(content::ScreenInfo* results) {
@@ -702,9 +768,8 @@ CefRenderWidgetHostViewOSR::DidUpdateVisualProperties(
 #endif
 
 viz::SurfaceId CefRenderWidgetHostViewOSR::GetCurrentSurfaceId() const {
-  return GetDelegatedFrameHost()
-             ? GetDelegatedFrameHost()->GetCurrentSurfaceId()
-             : viz::SurfaceId();
+  return delegated_frame_host_ ? delegated_frame_host_->GetCurrentSurfaceId()
+                               : viz::SurfaceId();
 }
 
 content::BrowserAccessibilityManager*
@@ -806,15 +871,26 @@ void CefRenderWidgetHostViewOSR::SelectionChanged(const base::string16& text,
 
 const viz::LocalSurfaceIdAllocation&
 CefRenderWidgetHostViewOSR::GetLocalSurfaceIdAllocation() const {
-  return local_surface_id_allocation_;
+  return const_cast<CefRenderWidgetHostViewOSR*>(this)
+      ->GetOrCreateLocalSurfaceIdAllocation();
 }
 
 const viz::FrameSinkId& CefRenderWidgetHostViewOSR::GetFrameSinkId() const {
-  return GetDelegatedFrameHost()->frame_sink_id();
+  return delegated_frame_host_->frame_sink_id();
 }
 
 viz::FrameSinkId CefRenderWidgetHostViewOSR::GetRootFrameSinkId() {
   return compositor_->frame_sink_id();
+}
+
+void CefRenderWidgetHostViewOSR::OnRenderFrameMetadataChangedAfterActivation() {
+  if (video_consumer_) {
+    // Need to wait for the first frame of the new size before calling
+    // SizeChanged. Otherwise, the video frame will be letterboxed.
+    auto metadata =
+        host_->render_frame_metadata_provider()->LastRenderFrameMetadata();
+    video_consumer_->SizeChanged(metadata.viewport_size_in_pixels);
+  }
 }
 
 std::unique_ptr<content::SyntheticGestureTarget>
@@ -831,8 +907,8 @@ void CefRenderWidgetHostViewOSR::SetNeedsBeginFrames(bool enabled) {
 }
 
 void CefRenderWidgetHostViewOSR::SetWantsAnimateOnlyBeginFrames() {
-  if (GetDelegatedFrameHost()) {
-    GetDelegatedFrameHost()->SetWantsAnimateOnlyBeginFrames();
+  if (delegated_frame_host_) {
+    delegated_frame_host_->SetWantsAnimateOnlyBeginFrames();
   }
 }
 
@@ -850,11 +926,25 @@ bool CefRenderWidgetHostViewOSR::TransformPointToCoordSpaceForView(
 }
 
 void CefRenderWidgetHostViewOSR::DidNavigate() {
-  // With surface synchronization enabled we need to force synchronization on
-  // first navigation.
-  ResizeRootLayer(true);
+  if (!IsShowing()) {
+    // Navigating while hidden should not allocate a new LocalSurfaceID. Once
+    // sizes are ready, or we begin to Show, we can then allocate the new
+    // LocalSurfaceId.
+    InvalidateLocalSurfaceId();
+  } else {
+    if (is_first_navigation_) {
+      // The first navigation does not need a new LocalSurfaceID. The renderer
+      // can use the ID that was already provided.
+      SynchronizeVisualProperties(cc::DeadlinePolicy::UseExistingDeadline(),
+                                  GetLocalSurfaceIdAllocation());
+    } else {
+      SynchronizeVisualProperties(cc::DeadlinePolicy::UseExistingDeadline(),
+                                  base::nullopt);
+    }
+  }
   if (delegated_frame_host_)
     delegated_frame_host_->DidNavigate();
+  is_first_navigation_ = false;
 }
 
 void CefRenderWidgetHostViewOSR::OnFrameComplete(
@@ -881,16 +971,53 @@ bool CefRenderWidgetHostViewOSR::InstallTransparency() {
   return false;
 }
 
-void CefRenderWidgetHostViewOSR::SynchronizeVisualProperties(bool force) {
+void CefRenderWidgetHostViewOSR::WasResized() {
+  // Only one resize will be in-flight at a time.
   if (hold_resize_) {
     if (!pending_resize_)
       pending_resize_ = true;
-    if (force)
-      pending_resize_force_ = true;
     return;
   }
 
-  ResizeRootLayer(force);
+  SynchronizeVisualProperties(cc::DeadlinePolicy::UseExistingDeadline(),
+                              base::nullopt);
+}
+
+void CefRenderWidgetHostViewOSR::SynchronizeVisualProperties(
+    const cc::DeadlinePolicy& deadline_policy,
+    const base::Optional<viz::LocalSurfaceIdAllocation>&
+        child_local_surface_id_allocation) {
+  SetFrameRate();
+
+  const bool resized = ResizeRootLayer();
+  bool surface_id_updated = false;
+
+  if (!resized && child_local_surface_id_allocation) {
+    // Update the current surface ID.
+    parent_local_surface_id_allocator_->UpdateFromChild(
+        *child_local_surface_id_allocation);
+    surface_id_updated = true;
+  }
+
+  // Allocate a new surface ID if the surface has been resized or if the current
+  // ID is invalid (meaning we may have been evicted).
+  if (resized || !GetCurrentLocalSurfaceIdAllocation().IsValid()) {
+    AllocateLocalSurfaceId();
+    surface_id_updated = true;
+  }
+
+  if (surface_id_updated) {
+    delegated_frame_host_->EmbedSurface(
+        GetCurrentLocalSurfaceIdAllocation().local_surface_id(),
+        GetViewBounds().size(), deadline_policy);
+
+    // |render_widget_host_| will retrieve resize parameters from the
+    // DelegatedFrameHost and this view, so SynchronizeVisualProperties must be
+    // called last.
+    if (render_widget_host_) {
+      render_widget_host_->SynchronizeVisualProperties();
+    }
+  }
 }
 
 void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
@@ -898,7 +1025,8 @@ void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
   if (!render_widget_host_)
     return;
 
-  SynchronizeVisualProperties();
+  SynchronizeVisualProperties(cc::DeadlinePolicy::UseDefaultDeadline(),
+                              base::nullopt);
 
   if (render_widget_host_->delegate())
     render_widget_host_->delegate()->SendScreenRects();
@@ -1259,30 +1387,14 @@ void CefRenderWidgetHostViewOSR::UpdateFrameRate() {
   frame_rate_threshold_us_ = 0;
   SetFrameRate();
 
+  if (video_consumer_) {
+    video_consumer_->SetFrameRate(
+        base::TimeDelta::FromMicroseconds(frame_rate_threshold_us_));
+  }
+
   // Notify the guest hosts if any.
   for (auto guest_host_view : guest_host_views_)
     guest_host_view->UpdateFrameRate();
-}
-
-void CefRenderWidgetHostViewOSR::HoldResize() {
-  if (!hold_resize_)
-    hold_resize_ = true;
-}
-
-void CefRenderWidgetHostViewOSR::ReleaseResize() {
-  if (!hold_resize_)
-    return;
-
-  hold_resize_ = false;
-  if (pending_resize_) {
-    bool force = pending_resize_force_;
-    pending_resize_ = false;
-    pending_resize_force_ = false;
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::Bind(&CefRenderWidgetHostViewOSR::SynchronizeVisualProperties,
-                   weak_ptr_factory_.GetWeakPtr(), force));
-  }
 }
 
 gfx::Size CefRenderWidgetHostViewOSR::SizeInPixels() {
@@ -1316,10 +1428,6 @@ void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
       browser_impl_->client()->GetRenderHandler();
   CHECK(handler);
 
-  // Don't execute SynchronizeVisualProperties while the OnPaint callback is
-  // pending.
-  HoldResize();
-
   gfx::Rect rect_in_pixels(0, 0, pixel_size.width(), pixel_size.height());
   rect_in_pixels.Intersect(damage_rect);
 
@@ -1330,16 +1438,13 @@ void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
   handler->OnPaint(browser_impl_.get(), IsPopupWidget() ? PET_POPUP : PET_VIEW,
                    rcList, pixels, pixel_size.width(), pixel_size.height());
 
-  ReleaseResize();
+  // Release the resize hold when we reach the desired size.
+  if (hold_resize_ && pixel_size == SizeInPixels())
+    ReleaseResizeHold();
 }
 
 ui::Layer* CefRenderWidgetHostViewOSR::GetRootLayer() const {
   return root_layer_.get();
-}
-
-content::DelegatedFrameHost* CefRenderWidgetHostViewOSR::GetDelegatedFrameHost()
-    const {
-  return delegated_frame_host_.get();
 }
 
 void CefRenderWidgetHostViewOSR::SetFrameRate() {
@@ -1373,19 +1478,13 @@ void CefRenderWidgetHostViewOSR::SetFrameRate() {
   }
 }
 
-void CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
-  float new_scale_factor = kDefaultScaleFactor;
+bool CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
+  // This method should not be called while the resize hold is active.
+  DCHECK(!hold_resize_);
 
-  if (browser_impl_.get()) {
-    CefScreenInfo screen_info(kDefaultScaleFactor, 0, 0, false, CefRect(),
-                              CefRect());
-    CefRefPtr<CefRenderHandler> handler =
-        browser_impl_->client()->GetRenderHandler();
-    CHECK(handler);
-    if (handler->GetScreenInfo(browser_impl_.get(), screen_info)) {
-      new_scale_factor = screen_info.device_scale_factor;
-    }
-  }
+  const float new_scale_factor = ::GetDeviceScaleFactor(browser_impl_.get());
+  if (new_scale_factor == current_device_scale_factor_)
+    return false;
 
   current_device_scale_factor_ = new_scale_factor;
 
@@ -1397,52 +1496,69 @@ void CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
     if (rwhi->GetView())
       rwhi->GetView()->set_current_device_scale_factor(new_scale_factor);
   }
+
+  return true;
 }
 
-void CefRenderWidgetHostViewOSR::ResizeRootLayer(bool force) {
-  SetFrameRate();
+bool CefRenderWidgetHostViewOSR::SetViewBounds() {
+  // This method should not be called while the resize hold is active.
+  DCHECK(!hold_resize_);
 
-  const float orgScaleFactor = current_device_scale_factor_;
-  SetDeviceScaleFactor();
-  const bool scaleFactorDidChange =
-      (orgScaleFactor != current_device_scale_factor_);
+  // Popup bounds are set in InitAsPopup.
+  if (IsPopupWidget())
+    return false;
 
-  gfx::Size size;
-  if (!IsPopupWidget())
-    size = GetViewBounds().size();
-  else
-    size = popup_position_.size();
+  const gfx::Rect& new_bounds = ::GetViewBounds(browser_impl_.get());
+  if (new_bounds == current_view_bounds_)
+    return false;
 
-  if (!force && !scaleFactorDidChange &&
-      size == GetRootLayer()->bounds().size()) {
-    return;
-  }
+  current_view_bounds_ = new_bounds;
+  return true;
+}
 
-  GetRootLayer()->SetBounds(gfx::Rect(size));
+bool CefRenderWidgetHostViewOSR::SetRootLayerSize(bool force) {
+  const bool scale_factor_changed = SetDeviceScaleFactor();
+  const bool view_bounds_changed = SetViewBounds();
+  if (!force && !scale_factor_changed && !view_bounds_changed)
+    return false;
 
-  const gfx::Size& size_in_pixels =
-      gfx::ConvertSizeToPixel(current_device_scale_factor_, size);
-
-  local_surface_id_allocator_.GenerateId();
-  local_surface_id_allocation_ =
-      local_surface_id_allocator_.GetCurrentLocalSurfaceIdAllocation();
+  GetRootLayer()->SetBounds(gfx::Rect(GetViewBounds().size()));
 
   if (compositor_) {
     compositor_local_surface_id_allocator_.GenerateId();
-    compositor_->SetScaleAndSize(current_device_scale_factor_, size_in_pixels,
+    compositor_->SetScaleAndSize(current_device_scale_factor_, SizeInPixels(),
                                  compositor_local_surface_id_allocator_
                                      .GetCurrentLocalSurfaceIdAllocation());
   }
 
-  GetDelegatedFrameHost()->EmbedSurface(
-      local_surface_id_allocation_.local_surface_id(), size,
-      cc::DeadlinePolicy::UseDefaultDeadline());
+  return (scale_factor_changed || view_bounds_changed);
+}
 
-  // Note that |render_widget_host_| will retrieve resize parameters from the
-  // DelegatedFrameHost, so it must have SynchronizeVisualProperties called
-  // after.
-  if (render_widget_host_)
-    render_widget_host_->SynchronizeVisualProperties();
+bool CefRenderWidgetHostViewOSR::ResizeRootLayer() {
+  if (!hold_resize_) {
+    // The resize hold is not currently active.
+    if (SetRootLayerSize(false /* force */)) {
+      // The size has changed. Avoid resizing again until ReleaseResizeHold() is
+      // called.
+      hold_resize_ = true;
+      return true;
+    }
+  } else if (!pending_resize_) {
+    // The resize hold is currently active. Another resize will be triggered
+    // from ReleaseResizeHold().
+    pending_resize_ = true;
+  }
+  return false;
+}
+
+void CefRenderWidgetHostViewOSR::ReleaseResizeHold() {
+  DCHECK(hold_resize_);
+  hold_resize_ = false;
+  if (pending_resize_) {
+    pending_resize_ = false;
+    CEF_POST_TASK(CEF_UIT, base::Bind(&CefRenderWidgetHostViewOSR::WasResized,
+                                      weak_ptr_factory_.GetWeakPtr()));
+  }
 }
 
 void CefRenderWidgetHostViewOSR::CancelWidget() {
@@ -1509,7 +1625,7 @@ void CefRenderWidgetHostViewOSR::RemoveGuestHostView(
 void CefRenderWidgetHostViewOSR::InvalidateInternal(
     const gfx::Rect& bounds_in_pixels) {
   if (video_consumer_) {
-    video_consumer_->SizeChanged();
+    video_consumer_->RequestRefreshFrame(bounds_in_pixels);
   } else if (host_display_client_) {
     OnPaint(bounds_in_pixels, host_display_client_->GetPixelSize(),
             host_display_client_->GetPixelMemory());
