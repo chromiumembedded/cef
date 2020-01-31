@@ -626,12 +626,17 @@ class OSRTestHandler : public RoutingTestHandler,
       case OSR_TEST_RESIZE:
         if (StartTest()) {
           browser->GetHost()->WasResized();
-          // There may be some partial repaints before the full repaint.
-        } else if (IsFullRepaint(dirtyRects[0], width, height)) {
-          EXPECT_EQ(GetScaledInt(kOsrWidth) * 2, width);
-          EXPECT_EQ(GetScaledInt(kOsrHeight) * 2, height);
+        } else {
+          // There may be some partial repaints before the full repaint at the
+          // desired size.
+          const int desired_width = GetScaledInt(kOsrWidth) * 2;
+          const int desired_height = GetScaledInt(kOsrHeight) * 2;
+
           EXPECT_EQ(dirtyRects.size(), 1U);
-          DestroySucceededTestSoon();
+          if (width == desired_width && height == desired_height &&
+              IsFullRepaint(dirtyRects[0], width, height)) {
+            DestroySucceededTestSoon();
+          }
         }
         break;
       case OSR_TEST_INVALIDATE: {

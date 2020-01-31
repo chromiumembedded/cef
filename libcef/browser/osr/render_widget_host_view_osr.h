@@ -21,6 +21,7 @@
 #include "base/memory/weak_ptr.h"
 #include "base/optional.h"
 #include "build/build_config.h"
+#include "cc/layers/deadline_policy.h"
 #include "components/viz/common/frame_sinks/begin_frame_source.h"
 #include "components/viz/common/surfaces/parent_local_surface_id_allocator.h"
 #include "content/browser/renderer_host/input/mouse_wheel_phase_handler.h"
@@ -192,6 +193,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
       const override;
   const viz::FrameSinkId& GetFrameSinkId() const override;
   viz::FrameSinkId GetRootFrameSinkId() override;
+  void OnRenderFrameMetadataChangedAfterActivation() override;
 
   void OnFrameComplete(const viz::BeginFrameAck& ack);
 
@@ -211,7 +213,11 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   bool InstallTransparency();
 
-  void SynchronizeVisualProperties(bool force = false);
+  void WasResized();
+  void SynchronizeVisualProperties(
+      const cc::DeadlinePolicy& deadline_policy,
+      const base::Optional<viz::LocalSurfaceIdAllocation>&
+          child_local_surface_id_allocation);
   void OnScreenInfoChanged();
   void Invalidate(CefBrowserHost::PaintElementType type);
   void SendExternalBeginFrame();
@@ -222,9 +228,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   bool ShouldRouteEvents() const;
   void SendFocusEvent(bool focus);
   void UpdateFrameRate();
-
-  void HoldResize();
-  void ReleaseResize();
 
   gfx::Size SizeInPixels();
   void OnPaint(const gfx::Rect& damage_rect,
@@ -272,11 +275,14 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
       const cc::RenderFrameMetadata& metadata);
 
  private:
-  content::DelegatedFrameHost* GetDelegatedFrameHost() const;
-
   void SetFrameRate();
-  void SetDeviceScaleFactor();
-  void ResizeRootLayer(bool force);
+  bool SetDeviceScaleFactor();
+  bool SetViewBounds();
+  bool SetRootLayerSize(bool force);
+
+  // Manages resizing so that only one resize request is in-flight at a time.
+  bool ResizeRootLayer();
+  void ReleaseResizeHold();
 
   void CancelWidget();
 
@@ -299,6 +305,27 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   viz::FrameSinkId AllocateFrameSinkId(bool is_guest_view_hack);
 
+  // Forces the view to allocate a new viz::LocalSurfaceId for the next
+  // CompositorFrame submission in anticipation of a synchronization operation
+  // that does not involve a resize or a device scale factor change.
+  void AllocateLocalSurfaceId();
+  const viz::LocalSurfaceIdAllocation& GetCurrentLocalSurfaceIdAllocation()
+      const;
+
+  // Sets the current viz::LocalSurfaceId, in cases where the embedded client
+  // has allocated one. Also sets child sequence number component of the
+  // viz::LocalSurfaceId allocator.
+  void UpdateLocalSurfaceIdFromEmbeddedClient(
+      const base::Optional<viz::LocalSurfaceIdAllocation>&
+          local_surface_id_allocation);
+
+  // Returns the current viz::LocalSurfaceIdAllocation.
+  const viz::LocalSurfaceIdAllocation& GetOrCreateLocalSurfaceIdAllocation();
+
+  // Marks the current viz::LocalSurfaceId as invalid. AllocateLocalSurfaceId
+  // must be called before submitting new CompositorFrames.
+  void InvalidateLocalSurfaceId();
+
   void AddDamageRect(uint32_t sequence, const gfx::Rect& rect);
 
   // Applies background color without notifying the RenderWidget about
@@ -312,15 +339,17 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   // The background color of the web content.
   SkColor background_color_;
 
-  int frame_rate_threshold_us_;
+  int frame_rate_threshold_us_ = 0;
 
   std::unique_ptr<ui::Compositor> compositor_;
   std::unique_ptr<content::DelegatedFrameHost> delegated_frame_host_;
   std::unique_ptr<content::DelegatedFrameHostClient>
       delegated_frame_host_client_;
   std::unique_ptr<ui::Layer> root_layer_;
-  viz::LocalSurfaceIdAllocation local_surface_id_allocation_;
-  viz::ParentLocalSurfaceIdAllocator local_surface_id_allocator_;
+
+  // Used to allocate LocalSurfaceIds when this is embedding external content.
+  std::unique_ptr<viz::ParentLocalSurfaceIdAllocator>
+      parent_local_surface_id_allocator_;
   viz::ParentLocalSurfaceIdAllocator compositor_local_surface_id_allocator_;
 
 #if defined(USE_X11)
@@ -337,12 +366,11 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   bool external_begin_frame_enabled_ = false;
   bool needs_external_begin_frames_ = false;
 
-  CefHostDisplayClientOSR* host_display_client_;
+  CefHostDisplayClientOSR* host_display_client_ = nullptr;
   std::unique_ptr<CefVideoConsumerOSR> video_consumer_;
 
-  bool hold_resize_;
-  bool pending_resize_;
-  bool pending_resize_force_;
+  bool hold_resize_ = false;
+  bool pending_resize_ = false;
 
   // The associated Model.  While |this| is being Destroyed,
   // |render_widget_host_| is NULL and the message loop is run one last time
@@ -351,14 +379,15 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   bool has_parent_;
   CefRenderWidgetHostViewOSR* parent_host_view_;
-  CefRenderWidgetHostViewOSR* popup_host_view_;
-  CefRenderWidgetHostViewOSR* child_host_view_;
+  CefRenderWidgetHostViewOSR* popup_host_view_ = nullptr;
+  CefRenderWidgetHostViewOSR* child_host_view_ = nullptr;
   std::set<CefRenderWidgetHostViewOSR*> guest_host_views_;
 
   CefRefPtr<CefBrowserHostImpl> browser_impl_;
 
-  bool is_showing_;
-  bool is_destroyed_;
+  bool is_showing_ = false;
+  bool is_destroyed_ = false;
+  bool is_first_navigation_ = true;
   gfx::Rect popup_position_;
   base::Lock damage_rect_lock_;
   std::map<uint32_t, gfx::Rect> damage_rects_;
@@ -369,7 +398,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   // The last scroll offset of the view.
   gfx::Vector2dF last_scroll_offset_;
-  bool is_scroll_offset_changed_pending_;
+  bool is_scroll_offset_changed_pending_ = false;
 
   content::MouseWheelPhaseHandler mouse_wheel_phase_handler_;
 
@@ -385,7 +414,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   ui::FilteredGestureProvider gesture_provider_;
 
   CefMotionEventOSR pointer_state_;
-  bool forward_touch_to_popup_;
+  bool forward_touch_to_popup_ = false;
 
   base::WeakPtrFactory<CefRenderWidgetHostViewOSR> weak_ptr_factory_;
 

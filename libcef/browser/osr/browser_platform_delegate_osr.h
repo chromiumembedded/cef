@@ -30,7 +30,7 @@ class CefBrowserPlatformDelegateOsr
   SkColor GetBackgroundColor() const override;
   bool CanUseSharedTexture() const override;
   bool CanUseExternalBeginFrame() const override;
-  void SynchronizeVisualProperties() override;
+  void WasResized() override;
   void SendExternalBeginFrame() override;
   void SendKeyEvent(const content::NativeWebKeyboardEvent& event) override;
   void SendMouseEvent(const blink::WebMouseEvent& event) override;
