@@ -80,7 +80,6 @@ class CefFrameImpl : public CefFrame {
   void OnAttached();
   bool OnMessageReceived(const IPC::Message& message);
   void OnDidFinishLoad();
-  void OnFocused();
   void OnDraggableRegionsChanged();
   void OnDetached();
 

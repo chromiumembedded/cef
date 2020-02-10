@@ -47,7 +47,8 @@ void CefVideoConsumerOSR::OnFrameCaptured(
     base::ReadOnlySharedMemoryRegion data,
     ::media::mojom::VideoFrameInfoPtr info,
     const gfx::Rect& content_rect,
-    viz::mojom::FrameSinkVideoConsumerFrameCallbacksPtr callbacks) {
+    mojo::PendingRemote<viz::mojom::FrameSinkVideoConsumerFrameCallbacks>
+        callbacks) {
   const gfx::Size view_size = view_->SizeInPixels();
   if (view_size != content_rect.size()) {
     video_capturer_->SetResolutionConstraints(view_size, view_size, true);
@@ -55,18 +56,23 @@ void CefVideoConsumerOSR::OnFrameCaptured(
     return;
   }
 
+  mojo::Remote<viz::mojom::FrameSinkVideoConsumerFrameCallbacks>
+      callbacks_remote(std::move(callbacks));
+
   if (!data.IsValid()) {
-    callbacks->Done();
+    callbacks_remote->Done();
     return;
   }
   base::ReadOnlySharedMemoryMapping mapping = data.Map();
   if (!mapping.IsValid()) {
     DLOG(ERROR) << "Shared memory mapping failed.";
+    callbacks_remote->Done();
     return;
   }
   if (mapping.size() <
       media::VideoFrame::AllocationSize(info->pixel_format, info->coded_size)) {
     DLOG(ERROR) << "Shared memory size was less than expected.";
+    callbacks_remote->Done();
     return;
   }
 
@@ -85,6 +91,8 @@ void CefVideoConsumerOSR::OnFrameCaptured(
   }
 
   view_->OnPaint(damage_rect, info->coded_size, pixels);
+
+  callbacks_remote->Done();
 }
 
 void CefVideoConsumerOSR::OnStopped() {}

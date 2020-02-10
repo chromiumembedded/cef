@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index 0825bf79f7d5..5bbb5b3ea05f 100644
+index 544ed223ac8e..490330c87453 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
 @@ -12,6 +12,7 @@
@@ -9,8 +9,8 @@ index 0825bf79f7d5..5bbb5b3ea05f 100644
 +#include "content/common/content_export.h"
  #include "content/common/navigation_params.mojom.h"
  #include "content/public/browser/certificate_request_result_type.h"
- #include "services/network/public/mojom/network_service.mojom.h"
-@@ -52,7 +53,7 @@ void ApplyNetworkRequestOverrides(FrameTreeNode* frame_tree_node,
+ #include "mojo/public/cpp/bindings/pending_receiver.h"
+@@ -48,7 +49,7 @@ void ApplyNetworkRequestOverrides(FrameTreeNode* frame_tree_node,
                                    mojom::BeginNavigationParams* begin_params,
                                    bool* report_raw_headers);
  
@@ -55,10 +55,10 @@ index 886bdf0edf8f..1d714000cce5 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 45c823a5f5cd..e8f82939e163 100644
+index afb225949027..d0647753af2b 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
-@@ -26,6 +26,7 @@ jumbo_component("controller") {
+@@ -25,6 +25,7 @@ jumbo_component("controller") {
  
    configs += [
      "//build/config/compiler:wexit_time_destructors",
@@ -66,7 +66,7 @@ index 45c823a5f5cd..e8f82939e163 100644
      "//third_party/blink/renderer:config",
      "//third_party/blink/renderer:inside_blink",
      "//third_party/blink/renderer:non_test_config",
-@@ -44,6 +45,8 @@ jumbo_component("controller") {
+@@ -43,6 +44,8 @@ jumbo_component("controller") {
      "dev_tools_frontend_impl.h",
      "memory_usage_monitor.cc",
      "memory_usage_monitor.h",

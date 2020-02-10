@@ -1,5 +1,5 @@
 diff --git ui/base/models/menu_model.h ui/base/models/menu_model.h
-index b0ae539ba1dc..3fd16cbe7e7a 100644
+index 5bcc6204c2b5..1bf18609d150 100644
 --- ui/base/models/menu_model.h
 +++ ui/base/models/menu_model.h
 @@ -16,6 +16,7 @@
@@ -10,7 +10,7 @@ index b0ae539ba1dc..3fd16cbe7e7a 100644
  struct VectorIcon;
  }
  
-@@ -123,6 +124,27 @@ class UI_BASE_EXPORT MenuModel : public base::SupportsWeakPtr<MenuModel> {
+@@ -125,6 +126,27 @@ class UI_BASE_EXPORT MenuModel : public base::SupportsWeakPtr<MenuModel> {
    // |event_flags| is a bit mask of ui::EventFlags.
    virtual void ActivatedAt(int index, int event_flags);
  
@@ -39,10 +39,10 @@ index b0ae539ba1dc..3fd16cbe7e7a 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index bd8491add744..92d33c554ca6 100644
+index cb1a7976f6dc..d6360da8e69d 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
-@@ -539,6 +539,14 @@ void RenderText::SetWhitespaceElision(base::Optional<bool> whitespace_elision) {
+@@ -713,6 +713,14 @@ void RenderText::SetWhitespaceElision(base::Optional<bool> whitespace_elision) {
    }
  }
  
@@ -57,9 +57,9 @@ index bd8491add744..92d33c554ca6 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -1666,6 +1674,19 @@ void RenderText::OnTextAttributeChanged() {
-   if (!multiline_ && replace_newline_chars_with_symbols_)
-     base::ReplaceChars(layout_text_, kNewline, kNewlineSymbol, &layout_text_);
+@@ -1904,6 +1912,19 @@ void RenderText::OnTextAttributeChanged() {
+ 
+   layout_text_up_to_date_ = false;
  
 +  if (draw_strings_flags_ != 0) {
 +    // Compute layout size with the mnemonic character underlined since it might
@@ -78,10 +78,10 @@ index bd8491add744..92d33c554ca6 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index d0dc1d08c912..7496b2620bd3 100644
+index ee5748fa6f02..d4477f724d68 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
-@@ -320,6 +320,10 @@ class GFX_EXPORT RenderText {
+@@ -304,6 +304,10 @@ class GFX_EXPORT RenderText {
      return whitespace_elision_;
    }
  
@@ -92,9 +92,9 @@ index d0dc1d08c912..7496b2620bd3 100644
    const Rect& display_rect() const { return display_rect_; }
    void SetDisplayRect(const Rect& r);
  
-@@ -979,6 +983,8 @@ class GFX_EXPORT RenderText {
-   // The cursor position in view space, used to traverse lines of varied widths.
-   base::Optional<int> cached_cursor_x_;
+@@ -980,6 +984,8 @@ class GFX_EXPORT RenderText {
+   // Tell whether or not the layout break lists need an update.
+   bool layout_text_attributes_up_to_date_ = false;
  
 +  int draw_strings_flags_ = 0;
 +
@@ -115,10 +115,10 @@ index 3b5bc508a0fd..262da51d50ac 100644
    // Size used for the default SquareInkDropRipple.
    static constexpr gfx::Size kDefaultInkDropSize = gfx::Size(24, 24);
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 1e66f0d7ec02..e978979e07a2 100644
+index f476f1725204..d2d30163abf3 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -482,6 +482,12 @@ void LabelButton::OnThemeChanged() {
+@@ -484,6 +484,12 @@ void LabelButton::OnThemeChanged() {
    SchedulePaint();
  }
  
@@ -132,10 +132,10 @@ index 1e66f0d7ec02..e978979e07a2 100644
    const gfx::Size previous_image_size(image_->GetPreferredSize());
    UpdateImage();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 1358e05eefd5..5dad3a3e37fb 100644
+index 1c8d5c27f928..90d7e7f004e4 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
-@@ -117,6 +117,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
+@@ -118,6 +118,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
    ui::NativeTheme::State GetForegroundThemeState(
        ui::NativeTheme::ExtraParams* params) const override;
  
@@ -146,7 +146,7 @@ index 1358e05eefd5..5dad3a3e37fb 100644
    ImageView* image() const { return image_; }
    Label* label() const { return label_; }
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 1837167589a6..a4df42465b74 100644
+index 21a8fa0fa8eb..55a2e57a2e6f 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -53,6 +53,20 @@ bool IsOpaque(SkColor color) {
@@ -170,7 +170,7 @@ index 1837167589a6..a4df42465b74 100644
  }  // namespace
  
  namespace views {
-@@ -310,6 +324,14 @@ base::string16 Label::GetTooltipText() const {
+@@ -309,6 +323,14 @@ base::string16 Label::GetTooltipText() const {
    return tooltip_text_;
  }
  
@@ -185,7 +185,7 @@ index 1837167589a6..a4df42465b74 100644
  void Label::SetTooltipText(const base::string16& tooltip_text) {
    DCHECK(handles_tooltips_);
    if (tooltip_text_ == tooltip_text)
-@@ -575,7 +597,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -577,7 +599,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
    render_text->SetFontList(font_list());
    render_text->set_shadows(GetShadows());
    render_text->SetCursorEnabled(false);
@@ -230,7 +230,7 @@ index aea6bb5b7b13..9ce9947174d4 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 276db1fb2017..dc873a80cd7a 100644
+index bbb1cc387eb2..f1b64580a780 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -2643,8 +2643,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
@@ -300,10 +300,10 @@ index bdbd9c7e37b8..86138fd1d21c 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 0fcca1e59688..73fcd369ecb8 100644
+index e86941132ce8..035296ce4bc2 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1067,6 +1067,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1034,6 +1034,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -319,7 +319,7 @@ index 0fcca1e59688..73fcd369ecb8 100644
    } else if (render_selection) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == ACTIONABLE_SUBMENU) {
-@@ -1133,6 +1142,13 @@ void MenuItemView::PaintMinorIconAndText(
+@@ -1101,6 +1110,13 @@ void MenuItemView::PaintMinorIconAndText(
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool render_selection) const {
@@ -334,10 +334,10 @@ index 0fcca1e59688..73fcd369ecb8 100644
        GetMenuController() && GetMenuController()->use_touchable_layout()
            ? style::CONTEXT_TOUCH_MENU
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index 09b72733e66d..4bcee9da5b8a 100644
+index beac9986b2c6..f75e85ae6215 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
-@@ -226,6 +226,77 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
+@@ -229,6 +229,77 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
    return false;
  }
  
@@ -441,7 +441,7 @@ index 78f832fd3acf..cb030c991614 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 1b084be1b7b7..80568aa44580 100644
+index 1a5af9db833f..60a61700a615 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -189,6 +189,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
@@ -472,7 +472,7 @@ index 6e69e4018a3b..f44fadcbb4c1 100644
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
        // current mouse position as a result of XGrabPointer()
 diff --git ui/views/view.h ui/views/view.h
-index 918a39060710..21670bb50f9f 100644
+index 4721462253e0..dd08911a0eaf 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -22,6 +22,7 @@

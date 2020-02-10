@@ -102,8 +102,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                              bool use_shared_texture,
                              bool use_external_begin_frame,
                              content::RenderWidgetHost* widget,
-                             CefRenderWidgetHostViewOSR* parent_host_view,
-                             bool is_guest_view_hack);
+                             CefRenderWidgetHostViewOSR* parent_host_view);
   ~CefRenderWidgetHostViewOSR() override;
 
   // RenderWidgetHostView implementation.
@@ -147,8 +146,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                    const gfx::Rect& pos) override;
   void InitAsFullscreen(
       content::RenderWidgetHostView* reference_host_view) override;
-  void InitAsGuest(content::RenderWidgetHostView* parent_host_view,
-                   content::RenderWidgetHostViewGuest* guest_view) override;
   void UpdateCursor(const content::WebCursor& cursor) override;
   void SetIsLoading(bool is_loading) override;
   void RenderProcessGone() override;
@@ -297,7 +294,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
   void RequestImeCompositionUpdate(bool start_monitoring);
 
-  viz::FrameSinkId AllocateFrameSinkId(bool is_guest_view_hack);
+  viz::FrameSinkId AllocateFrameSinkId();
 
   void AddDamageRect(uint32_t sequence, const gfx::Rect& rect);
 

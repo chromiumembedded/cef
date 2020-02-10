@@ -19,7 +19,7 @@ class RenderFrameHost;
 
 namespace network {
 class SharedURLLoaderFactory;
-class SharedURLLoaderFactoryInfo;
+class PendingSharedURLLoaderFactory;
 }  // namespace network
 
 namespace net_service {
@@ -49,14 +49,15 @@ class URLLoaderFactoryGetter
   friend struct URLLoaderFactoryGetterDeleter;
 
   URLLoaderFactoryGetter(
-      std::unique_ptr<network::SharedURLLoaderFactoryInfo> loader_factory_info,
+      std::unique_ptr<network::PendingSharedURLLoaderFactory>
+          loader_factory_info,
       network::mojom::URLLoaderFactoryPtrInfo proxy_factory_ptr_info,
       network::mojom::URLLoaderFactoryRequest proxy_factory_request);
   ~URLLoaderFactoryGetter();
 
   void DeleteOnCorrectThread() const;
 
-  std::unique_ptr<network::SharedURLLoaderFactoryInfo> loader_factory_info_;
+  std::unique_ptr<network::PendingSharedURLLoaderFactory> loader_factory_info_;
   scoped_refptr<network::SharedURLLoaderFactory> lazy_factory_;
   network::mojom::URLLoaderFactoryPtrInfo proxy_factory_ptr_info_;
   network::mojom::URLLoaderFactoryRequest proxy_factory_request_;

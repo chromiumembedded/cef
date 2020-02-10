@@ -32,9 +32,9 @@ class Delegate : public InternalHandlerDelegate {
     if (path.length() > 0)
       path = path.substr(1);
 
-    action->string_piece =
-        content::DevToolsFrontendHost::GetFrontendResource(path);
-    return !action->string_piece.empty();
+    action->bytes =
+        content::DevToolsFrontendHost::GetFrontendResourceBytes(path);
+    return !!action->bytes;
   }
 };
 

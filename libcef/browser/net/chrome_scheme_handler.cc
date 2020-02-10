@@ -465,10 +465,10 @@ class CefURLDataSource : public content::URLDataSource {
   std::string GetSource() override { return host_; }
 
   void StartDataRequest(
-      const std::string& path,
+      const GURL& path,
       const content::WebContents::Getter& wc_getter,
-      const content::URLDataSource::GotDataCallback& callback) override {
-    callback.Run(output_);
+      content::URLDataSource::GotDataCallback callback) override {
+    std::move(callback).Run(output_);
   }
 
   std::string GetMimeType(const std::string& path) override {

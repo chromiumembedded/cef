@@ -23,7 +23,6 @@
 #include "content/public/renderer/content_renderer_client.h"
 #include "content/public/renderer/render_thread.h"
 #include "mojo/public/cpp/bindings/generic_pending_receiver.h"
-#include "services/service_manager/public/cpp/binder_registry.h"
 #include "services/service_manager/public/cpp/local_interface_provider.h"
 
 namespace blink {
@@ -39,6 +38,10 @@ class ExtensionsGuestViewContainerDispatcher;
 class ExtensionsRendererClient;
 class ResourceRequestPolicy;
 }  // namespace extensions
+
+namespace visitedlink {
+class VisitedLinkReader;
+}
 
 namespace web_cache {
 class WebCacheImpl;
@@ -101,6 +104,7 @@ class CefContentRendererClient
 
   // ContentRendererClient implementation.
   void RenderThreadStarted() override;
+  void ExposeInterfacesToBrowser(mojo::BinderMap* binders) override;
   void RenderThreadConnected() override;
   void RenderFrameCreated(content::RenderFrame* render_frame) override;
   void RenderViewCreated(content::RenderView* render_view) override;
@@ -114,6 +118,7 @@ class CefContentRendererClient
   void WillSendRequest(blink::WebLocalFrame* frame,
                        ui::PageTransition transition_type,
                        const blink::WebURL& url,
+                       const blink::WebURL& site_for_cookies,
                        const url::Origin* initiator_origin,
                        GURL* new_url,
                        bool* attach_same_site_cookies) override;
@@ -136,7 +141,7 @@ class CefContentRendererClient
   std::unique_ptr<content::URLLoaderThrottleProvider>
   CreateURLLoaderThrottleProvider(
       content::URLLoaderThrottleProviderType provider_type) override;
-  void BindReceiverOnMainThread(mojo::GenericPendingReceiver receiver) override;
+  bool RequiresWebComponentsV0(const GURL& url) override;
 
   // service_manager::LocalInterfaceProvider implementation.
   void GetInterface(const std::string& name,
@@ -164,6 +169,7 @@ class CefContentRendererClient
   std::unique_ptr<CefRenderThreadObserver> observer_;
   std::unique_ptr<web_cache::WebCacheImpl> web_cache_impl_;
   std::unique_ptr<SpellCheck> spellcheck_;
+  std::unique_ptr<visitedlink::VisitedLinkReader> visited_link_slave_;
 
   std::unique_ptr<blink::WebURLLoaderFactory> default_url_loader_factory_;
 
@@ -193,8 +199,6 @@ class CefContentRendererClient
   // Access must be protected by |single_process_cleanup_lock_|.
   bool single_process_cleanup_complete_;
   base::Lock single_process_cleanup_lock_;
-
-  service_manager::BinderRegistry registry_;
 
   DISALLOW_COPY_AND_ASSIGN(CefContentRendererClient);
 };

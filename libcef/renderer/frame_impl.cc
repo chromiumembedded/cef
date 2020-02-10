@@ -337,10 +337,6 @@ void CefFrameImpl::OnDidFinishLoad() {
   }
 }
 
-void CefFrameImpl::OnFocused() {
-  Send(new CefHostMsg_FrameFocused(MSG_ROUTING_NONE));
-}
-
 void CefFrameImpl::OnDraggableRegionsChanged() {
   blink::WebVector<blink::WebDraggableRegion> webregions =
       frame_->GetDocument().DraggableRegions();

@@ -37,7 +37,7 @@
 #include "components/proxy_config/pref_proxy_config_tracker_impl.h"
 #include "components/user_prefs/user_prefs.h"
 #include "components/visitedlink/browser/visitedlink_event_listener.h"
-#include "components/visitedlink/browser/visitedlink_master.h"
+#include "components/visitedlink/browser/visitedlink_writer.h"
 #include "components/zoom/zoom_event_manager.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
@@ -167,8 +167,8 @@ base::LazyInstance<ImplManager>::Leaky g_manager = LAZY_INSTANCE_INITIALIZER;
 }  // namespace
 
 // Creates and manages VisitedLinkEventListener objects for each
-// CefBrowserContext sharing the same VisitedLinkMaster.
-class CefVisitedLinkListener : public visitedlink::VisitedLinkMaster::Listener {
+// CefBrowserContext sharing the same VisitedLinkWriter.
+class CefVisitedLinkListener : public visitedlink::VisitedLinkWriter::Listener {
  public:
   CefVisitedLinkListener() { DCHECK(listener_map_.empty()); }
 
@@ -186,7 +186,7 @@ class CefVisitedLinkListener : public visitedlink::VisitedLinkMaster::Listener {
     listener_map_.erase(it);
   }
 
-  // visitedlink::VisitedLinkMaster::Listener methods.
+  // visitedlink::VisitedLinkWriter::Listener methods.
 
   void NewTable(base::ReadOnlySharedMemoryRegion* table_region) override {
     CEF_REQUIRE_UIT();
@@ -341,7 +341,7 @@ void CefBrowserContext::Initialize() {
   if (!cache_path_.empty())
     visited_link_path = cache_path_.Append(FILE_PATH_LITERAL("Visited Links"));
   visitedlink_listener_ = new CefVisitedLinkListener;
-  visitedlink_master_.reset(new visitedlink::VisitedLinkMaster(
+  visitedlink_master_.reset(new visitedlink::VisitedLinkWriter(
       visitedlink_listener_, this, !visited_link_path.empty(), false,
       visited_link_path, 0));
   visitedlink_listener_->CreateListenerForContext(this);
@@ -582,7 +582,7 @@ HostContentSettingsMap* CefBrowserContext::GetHostContentSettingsMap() {
         plugin_policy = CONTENT_SETTING_BLOCK;
       }
       host_content_settings_map_->SetDefaultContentSetting(
-          CONTENT_SETTINGS_TYPE_PLUGINS, plugin_policy);
+          ContentSettingsType::PLUGINS, plugin_policy);
     }
   }
   return host_content_settings_map_.get();

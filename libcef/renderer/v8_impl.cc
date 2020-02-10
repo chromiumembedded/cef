@@ -2238,7 +2238,7 @@ int CefV8ValueImpl::GetArrayLength() {
 
 CefRefPtr<CefV8ArrayBufferReleaseCallback>
 CefV8ValueImpl::GetArrayBufferReleaseCallback() {
-  CEF_V8_REQUIRE_OBJECT_RETURN(0);
+  CEF_V8_REQUIRE_OBJECT_RETURN(nullptr);
 
   v8::Isolate* isolate = handle_->isolate();
   v8::HandleScope handle_scope(isolate);
@@ -2364,7 +2364,7 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::ExecuteFunctionWithContext(
   v8::Local<v8::Value> value = handle_->GetNewV8Handle(false);
   if (!value->IsFunction()) {
     NOTREACHED() << "V8 value is not a function";
-    return 0;
+    return nullptr;
   }
 
   if (context.get() && !context->IsValid()) {

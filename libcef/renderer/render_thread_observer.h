@@ -15,10 +15,6 @@
 #include "mojo/public/cpp/bindings/associated_binding_set.h"
 #include "mojo/public/cpp/bindings/associated_receiver_set.h"
 
-namespace visitedlink {
-class VisitedLinkSlave;
-}
-
 struct Cef_CrossOriginWhiteListEntry_Params;
 
 // This class sends and receives control messages in the renderer process.
@@ -33,10 +29,6 @@ class CefRenderThreadObserver : public content::RenderThreadObserver,
   // Return the dynamic parameters - those that may change while the
   // render process is running.
   static const chrome::mojom::DynamicParams& GetDynamicParams();
-
-  visitedlink::VisitedLinkSlave* visited_link_slave() {
-    return visited_link_slave_.get();
-  }
 
  private:
   // content::RenderThreadObserver:
@@ -68,8 +60,6 @@ class CefRenderThreadObserver : public content::RenderThreadObserver,
   void OnClearCrossOriginWhitelist();
 
   static bool is_incognito_process_;
-
-  std::unique_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
 
   mojo::AssociatedReceiverSet<chrome::mojom::RendererConfiguration>
       renderer_configuration_receivers_;

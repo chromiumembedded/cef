@@ -95,7 +95,7 @@ class CefExtensionSystem;
 }
 
 namespace visitedlink {
-class VisitedLinkMaster;
+class VisitedLinkWriter;
 }
 
 // Main entry point for configuring behavior on a per-browser basis. An instance
@@ -298,7 +298,7 @@ class CefBrowserContext : public ChromeProfileStub,
   std::unique_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
   std::unique_ptr<CefSSLHostStateDelegate> ssl_host_state_delegate_;
   scoped_refptr<HostContentSettingsMap> host_content_settings_map_;
-  std::unique_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
+  std::unique_ptr<visitedlink::VisitedLinkWriter> visitedlink_master_;
   // |visitedlink_listener_| is owned by visitedlink_master_.
   CefVisitedLinkListener* visitedlink_listener_;
   bool should_persist_session_cookies_ = false;

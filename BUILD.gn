@@ -687,8 +687,6 @@ static_library("libcef_static") {
     "libcef/renderer/render_frame_observer.h",
     "libcef/renderer/render_frame_util.cc",
     "libcef/renderer/render_frame_util.h",
-    "libcef/renderer/render_message_filter.cc",
-    "libcef/renderer/render_message_filter.h",
     "libcef/renderer/render_thread_observer.cc",
     "libcef/renderer/render_thread_observer.h",
     "libcef/renderer/render_urlrequest_impl.cc",
@@ -807,7 +805,6 @@ static_library("libcef_static") {
     "//media",
     "//media/blink",
     "//net",
-    "//net:net_with_v8",
     "//pdf",
     "//ppapi/buildflags",
     "//printing/buildflags",
@@ -822,7 +819,7 @@ static_library("libcef_static") {
     "//third_party/cld_3/src/src:cld_3",
     "//third_party/hunspell",
     "//third_party/leveldatabase",
-    "//third_party/libxml",
+    "//third_party/libxml:libxml",
     "//third_party/widevine/cdm:headers",
     "//third_party/widevine/cdm",
     "//third_party/icu",
@@ -1200,7 +1197,6 @@ source_set("cef_content_browser_overlay_manifest") {
 
 source_set("cef_content_renderer_overlay_manifest") {
   sources = [
-    "libcef/common/service_manifests/cef_content_renderer_overlay_manifest.cc",
     "libcef/common/service_manifests/cef_content_renderer_overlay_manifest.h",
   ]
 
@@ -1311,6 +1307,8 @@ repack("pak_extensions") {
   # Add associated .h files in the make_pack_header("resources") target.
   sources = [
     "$root_gen_dir/chrome/component_extension_resources.pak",
+    "$root_gen_dir/content/browser/resources/media/media_internals_resources.pak",
+    "$root_gen_dir/content/browser/webrtc/resources/webrtc_internals_resources.pak",
     "$root_gen_dir/extensions/extensions_renderer_resources.pak",
     "$root_gen_dir/extensions/extensions_resources.pak",
     "$root_gen_dir/mojo/public/js/mojo_bindings_resources.pak",
@@ -1322,6 +1320,8 @@ repack("pak_extensions") {
   # listed both here and in the libcef_static target.
   public_deps = [
     "//chrome/browser/resources:component_extension_resources",
+    "//content/browser/resources/media:media_internals_resources",
+    "//content/browser/webrtc/resources",
     "//extensions:extensions_renderer_resources",
     "//extensions:extensions_resources_grd",
     "//mojo/public/js:resources",
@@ -1393,7 +1393,7 @@ repack("pak") {
   # listed both here and in the libcef_static target.
   public_deps = [
     "//chrome/browser:resources",
-    "//chrome/browser/resources:net_internals_resources",
+    "//chrome/browser/resources/net_internals:net_internals_resources",
     "//chrome/browser/resources:print_preview_resources",
     "//chrome/common:resources",
     "//components/resources:components_resources",
@@ -1544,7 +1544,6 @@ if (is_mac) {
 
     if (v8_use_external_startup_data) {
       sources += [
-        "$root_out_dir/natives_blob.bin",
         "$root_out_dir/snapshot_blob.bin",
       ]
       public_deps += [ "//v8" ]

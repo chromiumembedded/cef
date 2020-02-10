@@ -95,18 +95,20 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
     browser_context->GetNetworkContext()->CreateHostResolver(
         base::nullopt, host_resolver_.BindNewPipeAndPassReceiver());
 
-    host_resolver_.set_disconnect_handler(
-        base::BindOnce(&ResolveHostHelper::OnComplete, base::Unretained(this),
-                       net::ERR_FAILED, base::nullopt));
+    host_resolver_.set_disconnect_handler(base::BindOnce(
+        &ResolveHostHelper::OnComplete, base::Unretained(this), net::ERR_FAILED,
+        net::ResolveErrorInfo(net::ERR_FAILED), base::nullopt));
 
     host_resolver_->ResolveHost(
-        net::HostPortPair::FromURL(GURL(origin.ToString())), nullptr,
+        net::HostPortPair::FromURL(GURL(origin.ToString())),
+        net::NetworkIsolationKey::Todo(), nullptr,
         receiver_.BindNewPipeAndPassRemote());
   }
 
  private:
   void OnComplete(
-      int result,
+      int32_t result,
+      const ::net::ResolveErrorInfo& resolve_error_info,
       const base::Optional<net::AddressList>& resolved_addresses) override {
     CEF_REQUIRE_UIT();
 

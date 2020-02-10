@@ -10,7 +10,7 @@
 
 #include "libcef/common/net/upload_data.h"
 
-#include "base/memory/shared_memory.h"
+#include "base/memory/shared_memory_mapping.h"
 #include "base/values.h"
 #include "content/public/common/common_param_traits.h"
 #include "content/public/common/referrer.h"
@@ -187,9 +187,6 @@ IPC_SYNC_MESSAGE_CONTROL1_1(
 
 // Sent by the renderer when the frame can begin receiving messages.
 IPC_MESSAGE_ROUTED0(CefHostMsg_FrameAttached)
-
-// Sent by the renderer when the frame becomes focused.
-IPC_MESSAGE_ROUTED0(CefHostMsg_FrameFocused)
 
 // Sent when a frame has finished loading. Based on ViewHostMsg_DidFinishLoad.
 IPC_MESSAGE_ROUTED2(CefHostMsg_DidFinishLoad,

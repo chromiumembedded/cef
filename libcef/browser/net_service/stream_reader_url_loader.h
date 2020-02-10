@@ -190,7 +190,7 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
   void HeadersComplete(int status_code, int64_t expected_content_length);
   void ContinueWithResponseHeaders(int32_t result,
                                    const base::Optional<std::string>& headers,
-                                   const GURL& redirect_url);
+                                   const base::Optional<GURL>& redirect_url);
 
   void SendBody();
   void ReadMore();

@@ -169,23 +169,33 @@ class TracingTestHandler : public CefEndTracingCallback,
                                 2);
         break;
       case TT_TRACE_EVENT_END0:
+        TRACE_EVENT_BEGIN0(kTraceTestCategory, "TT_TRACE_EVENT_END0");
         TRACE_EVENT_END0(kTraceTestCategory, "TT_TRACE_EVENT_END0");
         break;
       case TT_TRACE_EVENT_END1:
+        TRACE_EVENT_BEGIN1(kTraceTestCategory, "TT_TRACE_EVENT_END1", "arg1",
+                           1);
         TRACE_EVENT_END1(kTraceTestCategory, "TT_TRACE_EVENT_END1", "arg1", 1);
         break;
       case TT_TRACE_EVENT_END2:
+        TRACE_EVENT_BEGIN2(kTraceTestCategory, "TT_TRACE_EVENT_END2", "arg1", 1,
+                           "arg2", 2);
         TRACE_EVENT_END2(kTraceTestCategory, "TT_TRACE_EVENT_END2", "arg1", 1,
                          "arg2", 2);
         break;
       case TT_TRACE_EVENT_COPY_END0:
+        TRACE_EVENT_COPY_BEGIN0(kTraceTestCategory, "TT_TRACE_EVENT_COPY_END0");
         TRACE_EVENT_COPY_END0(kTraceTestCategory, "TT_TRACE_EVENT_COPY_END0");
         break;
       case TT_TRACE_EVENT_COPY_END1:
+        TRACE_EVENT_COPY_BEGIN1(kTraceTestCategory, "TT_TRACE_EVENT_COPY_END1",
+                                "arg1", 1);
         TRACE_EVENT_COPY_END1(kTraceTestCategory, "TT_TRACE_EVENT_COPY_END1",
                               "arg1", 1);
         break;
       case TT_TRACE_EVENT_COPY_END2:
+        TRACE_EVENT_COPY_BEGIN2(kTraceTestCategory, "TT_TRACE_EVENT_COPY_END2",
+                                "arg1", 1, "arg2", 2);
         TRACE_EVENT_COPY_END2(kTraceTestCategory, "TT_TRACE_EVENT_COPY_END2",
                               "arg1", 1, "arg2", 2);
         break;

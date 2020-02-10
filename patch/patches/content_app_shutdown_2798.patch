@@ -1,5 +1,5 @@
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 998ef8659928..b3594db3de1f 100644
+index 8b3b16ff94f6..96e5ead655e5 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -43,6 +43,7 @@
@@ -10,7 +10,7 @@ index 998ef8659928..b3594db3de1f 100644
  #include "base/trace_event/trace_event.h"
  #include "components/discardable_memory/service/discardable_shared_memory_manager.h"
  #include "components/download/public/common/download_task_runner.h"
-@@ -1015,6 +1016,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -996,6 +997,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -23,7 +23,7 @@ index 998ef8659928..b3594db3de1f 100644
  ContentMainRunner* ContentMainRunner::Create() {
    return ContentMainRunnerImpl::Create();
 diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
-index 1a76e95cb041..bdd60c054abc 100644
+index 9575db7e2311..6b449160565d 100644
 --- content/app/content_main_runner_impl.h
 +++ content/app/content_main_runner_impl.h
 @@ -51,6 +51,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
@@ -36,7 +36,7 @@ index 1a76e95cb041..bdd60c054abc 100644
  #if !defined(CHROME_MULTIPLE_DLL_CHILD)
    int RunServiceManager(MainFunctionParams& main_function_params,
 diff --git content/app/content_service_manager_main_delegate.cc content/app/content_service_manager_main_delegate.cc
-index c8a728e73782..fe8e3e608acc 100644
+index 86d0a470a7c2..5e4b91d31e3f 100644
 --- content/app/content_service_manager_main_delegate.cc
 +++ content/app/content_service_manager_main_delegate.cc
 @@ -130,4 +130,8 @@ void ContentServiceManagerMainDelegate::SetStartServiceManagerOnly(
@@ -49,7 +49,7 @@ index c8a728e73782..fe8e3e608acc 100644
 +
  }  // namespace content
 diff --git content/app/content_service_manager_main_delegate.h content/app/content_service_manager_main_delegate.h
-index 864f2a5a315a..241052bb5d99 100644
+index 0b4042aec2ae..b8643b10a02e 100644
 --- content/app/content_service_manager_main_delegate.h
 +++ content/app/content_service_manager_main_delegate.h
 @@ -18,7 +18,8 @@ namespace content {

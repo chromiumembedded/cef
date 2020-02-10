@@ -11,7 +11,6 @@
 
 #include "content/browser/browser_plugin/browser_plugin_embedder.h"
 #include "content/browser/browser_plugin/browser_plugin_guest.h"
-#include "content/browser/frame_host/render_widget_host_view_guest.h"
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/render_widget_host.h"
 
@@ -99,23 +98,15 @@ gfx::Rect CefWebContentsViewOSR::GetViewBounds() const {
 void CefWebContentsViewOSR::CreateView(gfx::NativeView context) {}
 
 content::RenderWidgetHostViewBase* CefWebContentsViewOSR::CreateViewForWidget(
-    content::RenderWidgetHost* render_widget_host,
-    content::RenderWidgetHost* embedder_render_widget_host) {
+    content::RenderWidgetHost* render_widget_host) {
   if (render_widget_host->GetView()) {
     return static_cast<content::RenderWidgetHostViewBase*>(
         render_widget_host->GetView());
   }
 
-  CefRenderWidgetHostViewOSR* embedder_host_view = nullptr;
-  if (embedder_render_widget_host) {
-    embedder_host_view = static_cast<CefRenderWidgetHostViewOSR*>(
-        embedder_render_widget_host->GetView());
-  }
-
-  const bool is_guest_view_hack = !!embedder_render_widget_host;
-  return new CefRenderWidgetHostViewOSR(
-      background_color_, use_shared_texture_, use_external_begin_frame_,
-      render_widget_host, embedder_host_view, is_guest_view_hack);
+  return new CefRenderWidgetHostViewOSR(background_color_, use_shared_texture_,
+                                        use_external_begin_frame_,
+                                        render_widget_host, nullptr);
 }
 
 // Called for popup and fullscreen widgets.
@@ -127,7 +118,7 @@ CefWebContentsViewOSR::CreateViewForChildWidget(
 
   return new CefRenderWidgetHostViewOSR(background_color_, use_shared_texture_,
                                         use_external_begin_frame_,
-                                        render_widget_host, view, false);
+                                        render_widget_host, view);
 }
 
 void CefWebContentsViewOSR::SetPageTitle(const base::string16& title) {}

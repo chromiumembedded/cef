@@ -1,0 +1,475 @@
+diff --git base/win/com_init_util.cc base/win/com_init_util.cc
+index d81f42019bd1..fab3998df55d 100644
+--- base/win/com_init_util.cc
++++ base/win/com_init_util.cc
+@@ -34,7 +34,7 @@ struct OleTlsData {
+ };
+ 
+ OleTlsData* GetOleTlsData() {
+-  TEB* teb = NtCurrentTeb();
++  auto teb = NtCurrentTeb();
+   return reinterpret_cast<OleTlsData*>(teb->ReservedForOle);
+ }
+ 
+diff --git build/config/jumbo.gni build/config/jumbo.gni
+index 0c84b283bf8f..e6f033a59151 100644
+--- build/config/jumbo.gni
++++ build/config/jumbo.gni
+@@ -11,13 +11,6 @@ declare_args() {
+   jumbo_file_merge_limit = -1
+ }
+ 
+-# TODO(crbug.com/994387): Remove all uses of the jumbo_* templates from the
+-# BUILD.gn files, and then remove this whole file.
+-assert(!use_jumbo_build,
+-       "The jumbo build is no longer supported. Please remove any uses of " +
+-           "'use_jumbo_build', 'jumbo_build_excluded', or " +
+-           "'jumbo_file_merge_limit' from your args.gn file and re-run GN.")
+-
+ # Normal builds benefit from lots of jumbification
+ jumbo_file_merge_default = 50
+ 
+diff --git chrome/browser/extensions/api/input_ime/input_ime_api.cc chrome/browser/extensions/api/input_ime/input_ime_api.cc
+index 3f790e96da74..7deec3e4b0ce 100644
+--- chrome/browser/extensions/api/input_ime/input_ime_api.cc
++++ chrome/browser/extensions/api/input_ime/input_ime_api.cc
+@@ -19,7 +19,9 @@ namespace SendKeyEvents = extensions::api::input_ime::SendKeyEvents;
+ using input_method::InputMethodEngineBase;
+ 
+ namespace {
++namespace i {
+ const char kErrorRouterNotAvailable[] = "The router is not available.";
++}
+ const char kErrorSetKeyEventsFail[] = "Could not send key events.";
+ 
+ InputMethodEngineBase* GetEngineIfActive(Profile* profile,
+@@ -27,7 +29,7 @@ InputMethodEngineBase* GetEngineIfActive(Profile* profile,
+                                          std::string* error) {
+   extensions::InputImeEventRouter* event_router =
+       extensions::GetInputImeEventRouter(profile);
+-  CHECK(event_router) << kErrorRouterNotAvailable;
++  CHECK(event_router) << i::kErrorRouterNotAvailable;
+   InputMethodEngineBase* engine =
+       event_router->GetEngineIfActive(extension_id, error);
+   return engine;
+diff --git chrome/browser/optimization_guide/optimization_guide_navigation_data.cc chrome/browser/optimization_guide/optimization_guide_navigation_data.cc
+index acbec3d510c4..3f640008ddc0 100644
+--- chrome/browser/optimization_guide/optimization_guide_navigation_data.cc
++++ chrome/browser/optimization_guide/optimization_guide_navigation_data.cc
+@@ -8,6 +8,7 @@
+ #include "base/metrics/histogram_functions.h"
+ #include "base/metrics/histogram_macros.h"
+ #include "base/strings/stringprintf.h"
++#include "chrome/browser/optimization_guide/optimization_guide_util.h"
+ #include "chrome/browser/optimization_guide/optimization_guide_web_contents_observer.h"
+ #include "components/optimization_guide/hints_processing_util.h"
+ #include "content/public/browser/navigation_handle.h"
+@@ -16,25 +17,6 @@
+ #include "services/metrics/public/cpp/ukm_source.h"
+ #include "services/metrics/public/cpp/ukm_source_id.h"
+ 
+-namespace {
+-
+-// The returned string is used to record histograms for the optimization target.
+-// Also add the string to OptimizationGuide.OptimizationTargets histogram
+-// suffixes in histograms.xml.
+-std::string GetStringNameForOptimizationTarget(
+-    optimization_guide::proto::OptimizationTarget optimization_target) {
+-  switch (optimization_target) {
+-    case optimization_guide::proto::OPTIMIZATION_TARGET_UNKNOWN:
+-      return "Unknown";
+-    case optimization_guide::proto::OPTIMIZATION_TARGET_PAINFUL_PAGE_LOAD:
+-      return "PainfulPageLoad";
+-  }
+-  NOTREACHED();
+-  return std::string();
+-}
+-
+-}  // namespace
+-
+ OptimizationGuideNavigationData::OptimizationGuideNavigationData(
+     int64_t navigation_id)
+     : navigation_id_(navigation_id) {}
+diff --git chrome/browser/optimization_guide/prediction/prediction_manager.cc chrome/browser/optimization_guide/prediction/prediction_manager.cc
+index f8eb245f6b48..6b24f4d43d5f 100644
+--- chrome/browser/optimization_guide/prediction/prediction_manager.cc
++++ chrome/browser/optimization_guide/prediction/prediction_manager.cc
+@@ -61,7 +61,9 @@ bool ShouldUseCurrentOptimizationTargetDecision(
+ 
+ // Delay between retries on failed fetch and store of prediction models and
+ // host model features from the remote Optimization Guide Service.
++namespace i {
+ constexpr base::TimeDelta kFetchRetryDelay = base::TimeDelta::FromMinutes(16);
++}
+ 
+ // The amount of time to wait after a successful fetch of models and host model
+ // features before requesting an update from the remote Optimization Guide
+@@ -71,11 +73,13 @@ constexpr base::TimeDelta kUpdateModelsAndFeaturesDelay =
+ 
+ // Provide a random time delta in seconds before fetching models and host model
+ // features.
++namespace i {
+ base::TimeDelta RandomFetchDelay() {
+   return base::TimeDelta::FromSeconds(base::RandInt(
+       optimization_guide::features::PredictionModelFetchRandomMinDelaySecs(),
+       optimization_guide::features::PredictionModelFetchRandomMaxDelaySecs()));
+ }
++}
+ 
+ }  // namespace
+ 
+@@ -694,12 +698,12 @@ void PredictionManager::ScheduleModelsAndHostModelFeaturesFetch() {
+       model_and_features_store_->GetHostModelFeaturesUpdateTime() -
+       clock_->Now();
+   const base::TimeDelta time_until_retry =
+-      GetLastFetchAttemptTime() + kFetchRetryDelay - clock_->Now();
++      GetLastFetchAttemptTime() + i::kFetchRetryDelay - clock_->Now();
+   base::TimeDelta fetcher_delay =
+       std::max(time_until_update_time, time_until_retry);
+   if (fetcher_delay <= base::TimeDelta()) {
+     SetLastModelAndFeaturesFetchAttemptTime(clock_->Now());
+-    fetch_timer_.Start(FROM_HERE, RandomFetchDelay(), this,
++    fetch_timer_.Start(FROM_HERE, i::RandomFetchDelay(), this,
+                        &PredictionManager::FetchModelsAndHostModelFeatures);
+     return;
+   }
+diff --git chrome/browser/performance_manager/decorators/process_priority_aggregator.cc chrome/browser/performance_manager/decorators/process_priority_aggregator.cc
+index 43ad1e7a3a42..e158b1dff474 100644
+--- chrome/browser/performance_manager/decorators/process_priority_aggregator.cc
++++ chrome/browser/performance_manager/decorators/process_priority_aggregator.cc
+@@ -22,6 +22,7 @@ class ProcessPriorityAggregatorAccess {
+ 
+ namespace {
+ 
++namespace i {
+ class DataImpl : public ProcessPriorityAggregator::Data,
+                  public NodeAttachedDataImpl<DataImpl> {
+  public:
+@@ -37,6 +38,7 @@ class DataImpl : public ProcessPriorityAggregator::Data,
+     return ProcessPriorityAggregatorAccess::GetUniquePtrStorage(process_node);
+   }
+ };
++}  // namespace i
+ 
+ }  // namespace
+ 
+@@ -106,7 +108,7 @@ base::TaskPriority ProcessPriorityAggregator::Data::GetPriority() const {
+ // static
+ ProcessPriorityAggregator::Data* ProcessPriorityAggregator::Data::GetForTesting(
+     ProcessNodeImpl* process_node) {
+-  return DataImpl::Get(process_node);
++  return i::DataImpl::Get(process_node);
+ }
+ 
+ ProcessPriorityAggregator::ProcessPriorityAggregator() = default;
+@@ -114,7 +116,7 @@ ProcessPriorityAggregator::~ProcessPriorityAggregator() = default;
+ 
+ void ProcessPriorityAggregator::OnFrameNodeAdded(const FrameNode* frame_node) {
+   auto* process_node = ProcessNodeImpl::FromNode(frame_node->GetProcessNode());
+-  DataImpl* data = DataImpl::Get(process_node);
++  i::DataImpl* data = i::DataImpl::Get(process_node);
+   data->Increment(frame_node->GetPriorityAndReason().priority());
+   // This is a nop if the priority didn't actually change.
+   process_node->set_priority(data->GetPriority());
+@@ -123,7 +125,7 @@ void ProcessPriorityAggregator::OnFrameNodeAdded(const FrameNode* frame_node) {
+ void ProcessPriorityAggregator::OnBeforeFrameNodeRemoved(
+     const FrameNode* frame_node) {
+   auto* process_node = ProcessNodeImpl::FromNode(frame_node->GetProcessNode());
+-  DataImpl* data = DataImpl::Get(process_node);
++  i::DataImpl* data = i::DataImpl::Get(process_node);
+   data->Decrement(frame_node->GetPriorityAndReason().priority());
+   // This is a nop if the priority didn't actually change.
+   process_node->set_priority(data->GetPriority());
+@@ -140,7 +142,7 @@ void ProcessPriorityAggregator::OnPriorityAndReasonChanged(
+   // Update the distinct frame priority counts, and set the process priority
+   // accordingly.
+   auto* process_node = ProcessNodeImpl::FromNode(frame_node->GetProcessNode());
+-  DataImpl* data = DataImpl::Get(process_node);
++  i::DataImpl* data = i::DataImpl::Get(process_node);
+   data->Decrement(previous_value.priority());
+   data->Increment(new_value.priority());
+   // This is a nop if the priority didn't actually change.
+@@ -160,8 +162,8 @@ void ProcessPriorityAggregator::OnTakenFromGraph(Graph* graph) {
+ void ProcessPriorityAggregator::OnProcessNodeAdded(
+     const ProcessNode* process_node) {
+   auto* process_node_impl = ProcessNodeImpl::FromNode(process_node);
+-  DCHECK(!DataImpl::Get(process_node_impl));
+-  DataImpl* data = DataImpl::GetOrCreate(process_node_impl);
++  DCHECK(!i::DataImpl::Get(process_node_impl));
++  i::DataImpl* data = i::DataImpl::GetOrCreate(process_node_impl);
+   DCHECK(data->IsEmpty());
+   DCHECK_EQ(base::TaskPriority::LOWEST, process_node_impl->priority());
+   DCHECK_EQ(base::TaskPriority::LOWEST, data->GetPriority());
+@@ -171,7 +173,7 @@ void ProcessPriorityAggregator::OnBeforeProcessNodeRemoved(
+     const ProcessNode* process_node) {
+ #if DCHECK_IS_ON()
+   auto* process_node_impl = ProcessNodeImpl::FromNode(process_node);
+-  DataImpl* data = DataImpl::Get(process_node_impl);
++  i::DataImpl* data = i::DataImpl::Get(process_node_impl);
+   DCHECK(data->IsEmpty());
+ #endif
+ }
+diff --git chrome/browser/ui/views/confirm_bubble_views.cc chrome/browser/ui/views/confirm_bubble_views.cc
+index 5f25a23aff9d..a2f160c2f1a5 100644
+--- chrome/browser/ui/views/confirm_bubble_views.cc
++++ chrome/browser/ui/views/confirm_bubble_views.cc
+@@ -27,6 +27,7 @@
+ 
+ namespace {
+ 
++namespace i {
+ std::unique_ptr<views::View> CreateExtraView(views::ButtonListener* listener) {
+   auto help_button = CreateVectorImageButton(listener);
+   help_button->SetFocusForPlatform();
+@@ -34,6 +35,7 @@ std::unique_ptr<views::View> CreateExtraView(views::ButtonListener* listener) {
+   SetImageFromVectorIcon(help_button.get(), vector_icons::kHelpOutlineIcon);
+   return help_button;
+ }
++}  // namespace i
+ 
+ }  // namespace
+ 
+@@ -46,7 +48,7 @@ ConfirmBubbleViews::ConfirmBubbleViews(
+   DialogDelegate::set_button_label(
+       ui::DIALOG_BUTTON_CANCEL,
+       model_->GetButtonLabel(ConfirmBubbleModel::BUTTON_CANCEL));
+-  help_button_ = DialogDelegate::SetExtraView(::CreateExtraView(this));
++  help_button_ = DialogDelegate::SetExtraView(::i::CreateExtraView(this));
+ 
+   set_margins(ChromeLayoutProvider::Get()->GetDialogInsetsForContentType(
+       views::TEXT, views::TEXT));
+diff --git content/browser/accessibility/accessibility_event_recorder_win.cc content/browser/accessibility/accessibility_event_recorder_win.cc
+index f4fcad03c04c..99b769763511 100644
+--- content/browser/accessibility/accessibility_event_recorder_win.cc
++++ content/browser/accessibility/accessibility_event_recorder_win.cc
+@@ -29,6 +29,7 @@ namespace content {
+ 
+ namespace {
+ 
++namespace i {
+ std::string RoleVariantToString(const base::win::ScopedVariant& role) {
+   if (role.type() == VT_I4) {
+     return base::UTF16ToUTF8(IAccessibleRoleToString(V_I4(role.ptr())));
+@@ -55,6 +56,7 @@ HRESULT QueryIAccessibleText(IAccessible* accessible,
+                                                         accessible_text)
+                        : hr;
+ }
++}  // namespace i
+ 
+ std::string BstrToPrettyUTF8(BSTR bstr) {
+   base::string16 str16(bstr, SysStringLen(bstr));
+@@ -291,7 +293,7 @@ void AccessibilityEventRecorderWin::OnWinEventHook(HWINEVENTHOOK handle,
+ 
+   AccessibleStates ia2_state = 0;
+   Microsoft::WRL::ComPtr<IAccessible2> iaccessible2;
+-  hr = QueryIAccessible2(iaccessible.Get(), iaccessible2.GetAddressOf());
++  hr = i::QueryIAccessible2(iaccessible.Get(), iaccessible2.GetAddressOf());
+   bool has_ia2 = SUCCEEDED(hr) && iaccessible2;
+ 
+   base::string16 html_tag;
+@@ -332,7 +334,7 @@ void AccessibilityEventRecorderWin::OnWinEventHook(HWINEVENTHOOK handle,
+         base::StringPrintf(" class=%s", base::UTF16ToUTF8(obj_class).c_str());
+   }
+ 
+-  log += base::StringPrintf(" role=%s", RoleVariantToString(role).c_str());
++  log += base::StringPrintf(" role=%s", i::RoleVariantToString(role).c_str());
+   if (name_bstr.Length() > 0)
+     log +=
+         base::StringPrintf(" name=\"%s\"", BstrToPrettyUTF8(name_bstr).c_str());
+@@ -367,7 +369,7 @@ void AccessibilityEventRecorderWin::OnWinEventHook(HWINEVENTHOOK handle,
+   // For TEXT_REMOVED and TEXT_INSERTED events, query the text that was
+   // inserted or removed and include that in the log.
+   Microsoft::WRL::ComPtr<IAccessibleText> accessible_text;
+-  hr = QueryIAccessibleText(iaccessible.Get(), accessible_text.GetAddressOf());
++  hr = i::QueryIAccessibleText(iaccessible.Get(), accessible_text.GetAddressOf());
+   if (SUCCEEDED(hr)) {
+     if (event == IA2_EVENT_TEXT_REMOVED) {
+       IA2TextSegment old_text;
+diff --git content/browser/devtools/protocol/storage_handler.cc content/browser/devtools/protocol/storage_handler.cc
+index 50cf4dd3edef..7ae6ed5d91f0 100644
+--- content/browser/devtools/protocol/storage_handler.cc
++++ content/browser/devtools/protocol/storage_handler.cc
+@@ -33,8 +33,10 @@ namespace content {
+ namespace protocol {
+ 
+ using ClearCookiesCallback = Storage::Backend::ClearCookiesCallback;
++namespace i {
+ using GetCookiesCallback = Storage::Backend::GetCookiesCallback;
+ using SetCookiesCallback = Storage::Backend::SetCookiesCallback;
++}
+ 
+ struct UsageListInitializer {
+   const char* type;
+@@ -284,7 +286,7 @@ void StorageHandler::GetCookies(Maybe<std::string> browser_context_id,
+ 
+   storage_partition->GetCookieManagerForBrowserProcess()->GetAllCookies(
+       base::BindOnce(
+-          [](std::unique_ptr<GetCookiesCallback> callback,
++          [](std::unique_ptr<i::GetCookiesCallback> callback,
+              const std::vector<net::CanonicalCookie>& cookies) {
+             callback->sendSuccess(NetworkHandler::BuildCookieArray(cookies));
+           },
+@@ -294,7 +296,7 @@ void StorageHandler::GetCookies(Maybe<std::string> browser_context_id,
+ void StorageHandler::SetCookies(
+     std::unique_ptr<protocol::Array<Network::CookieParam>> cookies,
+     Maybe<std::string> browser_context_id,
+-    std::unique_ptr<SetCookiesCallback> callback) {
++    std::unique_ptr<i::SetCookiesCallback> callback) {
+   StoragePartition* storage_partition = nullptr;
+   Response response = StorageHandler::FindStoragePartition(browser_context_id,
+                                                            &storage_partition);
+@@ -306,7 +308,7 @@ void StorageHandler::SetCookies(
+   NetworkHandler::SetCookies(
+       storage_partition, std::move(cookies),
+       base::BindOnce(
+-          [](std::unique_ptr<SetCookiesCallback> callback, bool success) {
++          [](std::unique_ptr<i::SetCookiesCallback> callback, bool success) {
+             if (success) {
+               callback->sendSuccess();
+             } else {
+diff --git content/browser/web_package/web_bundle_blob_data_source.cc content/browser/web_package/web_bundle_blob_data_source.cc
+index 6b3e423e9d12..f3b63178d70e 100644
+--- content/browser/web_package/web_bundle_blob_data_source.cc
++++ content/browser/web_package/web_bundle_blob_data_source.cc
+@@ -23,6 +23,7 @@
+ namespace content {
+ namespace {
+ 
++namespace i {
+ class MojoBlobReaderDelegate : public storage::MojoBlobReader::Delegate {
+  public:
+   using CompletionCallback = base::OnceCallback<void(net::Error net_error)>;
+@@ -43,6 +44,7 @@ class MojoBlobReaderDelegate : public storage::MojoBlobReader::Delegate {
+   CompletionCallback completion_callback_;
+   DISALLOW_COPY_AND_ASSIGN(MojoBlobReaderDelegate);
+ };
++}  // namespace i
+ 
+ void OnReadComplete(
+     data_decoder::mojom::BundleDataSource::ReadCallback callback,
+@@ -372,7 +374,7 @@ void WebBundleBlobDataSource::BlobDataSourceCore::OnBlobReadyForReadToDataPipe(
+   }
+   storage::MojoBlobReader::Create(
+       blob_.get(), net::HttpByteRange::Bounded(offset, offset + length - 1),
+-      std::make_unique<MojoBlobReaderDelegate>(std::move(callback)),
++      std::make_unique<i::MojoBlobReaderDelegate>(std::move(callback)),
+       std::move(producer_handle));
+ }
+ 
+diff --git storage/browser/quota/quota_settings.cc storage/browser/quota/quota_settings.cc
+index b2210b55b40f..668246e5f363 100644
+--- storage/browser/quota/quota_settings.cc
++++ storage/browser/quota/quota_settings.cc
+@@ -21,7 +21,9 @@ namespace storage {
+ 
+ namespace {
+ 
++namespace i {
+ const int64_t kMBytes = 1024 * 1024;
++}
+ const int kRandomizedPercentage = 10;
+ 
+ // Skews |value| by +/- |percent|.
+@@ -35,7 +37,7 @@ storage::QuotaSettings CalculateIncognitoDynamicSettings(
+   // The incognito pool size is a fraction of the amount of system memory,
+   // and the amount is capped to a hard limit.
+   double incognito_pool_size_ratio = 0.1;  // 10%
+-  int64_t max_incognito_pool_size = 300 * kMBytes;
++  int64_t max_incognito_pool_size = 300 * i::kMBytes;
+   if (base::FeatureList::IsEnabled(features::kIncognitoDynamicQuota)) {
+     const double lower_bound = features::kIncognitoQuotaRatioLowerBound.Get();
+     const double upper_bound = features::kIncognitoQuotaRatioUpperBound.Get();
+@@ -89,7 +91,7 @@ base::Optional<storage::QuotaSettings> CalculateNominalDynamicSettings(
+   // *  64GB storage -- min(6GB,2GB) = 2GB
+   // *  16GB storage -- min(1.6GB,2GB) = 1.6GB
+   // *   8GB storage -- min(800MB,2GB) = 800MB
+-  const int64_t kShouldRemainAvailableFixed = 2048 * kMBytes;  // 2GB
++  const int64_t kShouldRemainAvailableFixed = 2048 * i::kMBytes;  // 2GB
+   const double kShouldRemainAvailableRatio = 0.1;              // 10%
+ 
+   // The amount of the device's storage the browser attempts to
+@@ -104,7 +106,7 @@ base::Optional<storage::QuotaSettings> CalculateNominalDynamicSettings(
+   // *  64GB storage -- min(640MB,1GB) = 640MB
+   // *  16GB storage -- min(160MB,1GB) = 160MB
+   // *   8GB storage -- min(80MB,1GB) = 80MB
+-  const int64_t kMustRemainAvailableFixed = 1024 * kMBytes;  // 1GB
++  const int64_t kMustRemainAvailableFixed = 1024 * i::kMBytes;  // 1GB
+   const double kMustRemainAvailableRatio = 0.01;             // 1%
+ 
+   // The fraction of the temporary pool that can be utilized by a single host.
+@@ -116,7 +118,7 @@ base::Optional<storage::QuotaSettings> CalculateNominalDynamicSettings(
+   // SessionOnly (or ephemeral) origins are allotted a fraction of what
+   // normal origins are provided, and the amount is capped to a hard limit.
+   const double kSessionOnlyHostQuotaRatio = 0.1;  // 10%
+-  const int64_t kMaxSessionOnlyHostQuota = 300 * kMBytes;
++  const int64_t kMaxSessionOnlyHostQuota = 300 * i::kMBytes;
+ 
+   storage::QuotaSettings settings;
+ 
+diff --git third_party/blink/renderer/modules/xr/xr_hit_test_source.cc third_party/blink/renderer/modules/xr/xr_hit_test_source.cc
+index 8a49f3591a73..0345548ec18f 100644
+--- third_party/blink/renderer/modules/xr/xr_hit_test_source.cc
++++ third_party/blink/renderer/modules/xr/xr_hit_test_source.cc
+@@ -10,10 +10,12 @@
+ #include "third_party/blink/renderer/platform/bindings/exception_state.h"
+ 
+ namespace {
++namespace i {
+ const char kCannotCancelHitTestSource[] =
+     "Hit test source could not be canceled! Ensure that it was not already "
+     "canceled.";
+ }
++}
+ 
+ namespace blink {
+ 
+@@ -27,7 +29,7 @@ uint64_t XRHitTestSource::id() const {
+ void XRHitTestSource::cancel(ExceptionState& exception_state) {
+   if (!xr_session_->RemoveHitTestSource(this)) {
+     exception_state.ThrowDOMException(DOMExceptionCode::kInvalidStateError,
+-                                      kCannotCancelHitTestSource);
++                                      i::kCannotCancelHitTestSource);
+   }
+ }
+ 
+diff --git third_party/blink/renderer/platform/fonts/font_matching_metrics.cc third_party/blink/renderer/platform/fonts/font_matching_metrics.cc
+index 5e1005a2e4d3..ef83cadc9957 100644
+--- third_party/blink/renderer/platform/fonts/font_matching_metrics.cc
++++ third_party/blink/renderer/platform/fonts/font_matching_metrics.cc
+@@ -14,6 +14,7 @@ constexpr double kUkmFontLoadCountBucketSpacing = 1.3;
+ 
+ enum FontLoadContext { kTopLevel = 0, kSubFrame };
+ 
++namespace i {
+ template <typename T>
+ HashSet<T> Intersection(const HashSet<T>& a, const HashSet<T>& b) {
+   HashSet<T> result;
+@@ -23,6 +24,7 @@ HashSet<T> Intersection(const HashSet<T>& a, const HashSet<T>& b) {
+   }
+   return result;
+ }
++}  // namespace i
+ 
+ }  // namespace
+ 
+@@ -52,16 +54,16 @@ void FontMatchingMetrics::PublishUkmMetrics() {
+   ukm::builders::FontMatchAttempts(source_id_)
+       .SetLoadContext(top_level_ ? kTopLevel : kSubFrame)
+       .SetSystemFontFamilySuccesses(ukm::GetExponentialBucketMin(
+-          Intersection(successful_font_families_, system_font_families_).size(),
++          i::Intersection(successful_font_families_, system_font_families_).size(),
+           kUkmFontLoadCountBucketSpacing))
+       .SetSystemFontFamilyFailures(ukm::GetExponentialBucketMin(
+-          Intersection(failed_font_families_, system_font_families_).size(),
++          i::Intersection(failed_font_families_, system_font_families_).size(),
+           kUkmFontLoadCountBucketSpacing))
+       .SetWebFontFamilySuccesses(ukm::GetExponentialBucketMin(
+-          Intersection(successful_font_families_, web_font_families_).size(),
++          i::Intersection(successful_font_families_, web_font_families_).size(),
+           kUkmFontLoadCountBucketSpacing))
+       .SetWebFontFamilyFailures(ukm::GetExponentialBucketMin(
+-          Intersection(failed_font_families_, web_font_families_).size(),
++          i::Intersection(failed_font_families_, web_font_families_).size(),
+           kUkmFontLoadCountBucketSpacing))
+       .Record(ukm_recorder_);
+ }

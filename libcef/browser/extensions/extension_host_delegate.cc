@@ -59,10 +59,6 @@ bool CefExtensionHostDelegate::CheckMediaAccessPermission(
   return false;
 }
 
-ExtensionHostQueue* CefExtensionHostDelegate::GetExtensionHostQueue() const {
-  return CefExtensionsBrowserClient::Get()->GetExtensionHostQueue();
-}
-
 content::PictureInPictureResult CefExtensionHostDelegate::EnterPictureInPicture(
     content::WebContents* web_contents,
     const viz::SurfaceId& surface_id,

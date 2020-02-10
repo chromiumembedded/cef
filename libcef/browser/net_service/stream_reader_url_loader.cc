@@ -668,7 +668,7 @@ void StreamReaderURLLoader::HeadersComplete(int orig_status_code,
 void StreamReaderURLLoader::ContinueWithResponseHeaders(
     int32_t result,
     const base::Optional<std::string>& headers,
-    const GURL& redirect_url) {
+    const base::Optional<GURL>& redirect_url) {
   if (result != net::OK) {
     RequestComplete(result);
     return;
@@ -687,13 +687,13 @@ void StreamReaderURLLoader::ContinueWithResponseHeaders(
   DCHECK(client_.is_bound());
 
   std::string location;
-  if (!redirect_url.is_empty() ||
-      pending_response_.headers->IsRedirect(&location)) {
+  const auto has_redirect_url = redirect_url && !redirect_url->is_empty();
+  if (has_redirect_url || pending_response_.headers->IsRedirect(&location)) {
     pending_response_.encoded_data_length = header_length_;
     pending_response_.content_length = pending_response_.encoded_body_length =
         0;
     const GURL new_location =
-        redirect_url.is_empty() ? request_.url.Resolve(location) : redirect_url;
+        has_redirect_url ? *redirect_url : request_.url.Resolve(location);
     client_->OnReceiveRedirect(
         MakeRedirectInfo(request_, pending_response_.headers.get(),
                          new_location,

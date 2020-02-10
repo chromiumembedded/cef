@@ -39,11 +39,11 @@ class WebUITestHandler : public TestHandler {
   void NextNav() {
     base::Closure next_action;
 
-    if (++url_index_ == url_list_.size()) {
-      next_action = base::Bind(&WebUITestHandler::DestroyTest, this);
-    } else {
+    if (++url_index_ < url_list_.size()) {
       next_action =
           base::Bind(&WebUITestHandler::LoadURL, this, url_list_[url_index_]);
+    } else {
+      next_action = base::Bind(&WebUITestHandler::DestroyTest, this);
     }
 
     // Wait a bit for the WebUI content to finish loading before performing the
@@ -99,7 +99,7 @@ class WebUITestHandler : public TestHandler {
     if (done) {
       // Verify that we navigated to the expected URL.
       std::string expected_url = expected_url_;
-      if (expected_url.empty())
+      if (expected_url.empty() && url_index_ < url_list_.size())
         expected_url = url_list_[url_index_];
       EXPECT_STREQ(expected_url.c_str(), url.c_str());
 

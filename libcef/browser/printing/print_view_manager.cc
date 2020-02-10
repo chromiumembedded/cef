@@ -209,7 +209,7 @@ bool CefPrintViewManager::PrintToPDF(content::RenderFrameHost* rfh,
       print_render_frame_remote;
   rfh->GetRemoteAssociatedInterfaces()->GetInterface(
       &print_render_frame_remote);
-  print_render_frame_remote->InitiatePrintPreview(nullptr,
+  print_render_frame_remote->InitiatePrintPreview({},
                                                   !!settings.selection_only);
 
   return true;

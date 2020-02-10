@@ -39,7 +39,6 @@
 #include "libcef/common/net/scheme_registration.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/service_manifests/cef_content_browser_overlay_manifest.h"
-#include "libcef/common/service_manifests/cef_content_renderer_overlay_manifest.h"
 
 #include "base/base_switches.h"
 #include "base/command_line.h"
@@ -103,7 +102,6 @@
 #include "extensions/browser/extensions_browser_client.h"
 #include "extensions/browser/guest_view/extensions_guest_view_message_filter.h"
 #include "extensions/browser/guest_view/web_view/web_view_guest.h"
-#include "extensions/browser/io_thread_extension_message_filter.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/switches.h"
 #include "mojo/public/cpp/bindings/remote.h"
@@ -137,12 +135,18 @@
 #endif
 
 #if defined(OS_MACOSX)
+#include "net/ssl/client_cert_store_mac.h"
 #include "services/audio/public/mojom/constants.mojom.h"
 #include "services/video_capture/public/mojom/constants.mojom.h"
 #endif
 
 #if defined(OS_WIN)
+#include "net/ssl/client_cert_store_win.h"
 #include "sandbox/win/src/sandbox_policy.h"
+#endif
+
+#if defined(USE_NSS_CERTS)
+#include "net/ssl/client_cert_store_nss.h"
 #endif
 
 #if BUILDFLAG(HAS_SPELLCHECK_PANEL)
@@ -204,21 +208,22 @@ class CefQuotaCallbackImpl : public CefRequestCallback {
 
 class CefAllowCertificateErrorCallbackImpl : public CefRequestCallback {
  public:
-  typedef base::Callback<void(content::CertificateRequestResultType)>
+  typedef base::OnceCallback<void(content::CertificateRequestResultType)>
       CallbackType;
 
-  explicit CefAllowCertificateErrorCallbackImpl(const CallbackType& callback)
-      : callback_(callback) {}
+  explicit CefAllowCertificateErrorCallbackImpl(CallbackType callback)
+      : callback_(std::move(callback)) {}
 
   ~CefAllowCertificateErrorCallbackImpl() {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
       if (CEF_CURRENTLY_ON_UIT()) {
-        RunNow(callback_, false);
+        RunNow(std::move(callback_), false);
       } else {
-        CEF_POST_TASK(CEF_UIT,
-                      base::Bind(&CefAllowCertificateErrorCallbackImpl::RunNow,
-                                 callback_, false));
+        CEF_POST_TASK(
+            CEF_UIT,
+            base::BindOnce(&CefAllowCertificateErrorCallbackImpl::RunNow,
+                           std::move(callback_), false));
       }
     }
   }
@@ -226,8 +231,7 @@ class CefAllowCertificateErrorCallbackImpl : public CefRequestCallback {
   void Continue(bool allow) override {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (!callback_.is_null()) {
-        RunNow(callback_, allow);
-        callback_.Reset();
+        RunNow(std::move(callback_), allow);
       }
     } else {
       CEF_POST_TASK(CEF_UIT,
@@ -238,13 +242,14 @@ class CefAllowCertificateErrorCallbackImpl : public CefRequestCallback {
 
   void Cancel() override { Continue(false); }
 
-  void Disconnect() { callback_.Reset(); }
+  CallbackType Disconnect() WARN_UNUSED_RESULT { return std::move(callback_); }
 
  private:
-  static void RunNow(const CallbackType& callback, bool allow) {
+  static void RunNow(CallbackType callback, bool allow) {
     CEF_REQUIRE_UIT();
-    callback.Run(allow ? content::CERTIFICATE_REQUEST_RESULT_TYPE_CONTINUE
-                       : content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL);
+    std::move(callback).Run(
+        allow ? content::CERTIFICATE_REQUEST_RESULT_TYPE_CONTINUE
+              : content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL);
   }
 
   CallbackType callback_;
@@ -535,7 +540,6 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
 
   if (extensions::ExtensionsEnabled()) {
     host->AddFilter(new extensions::ExtensionMessageFilter(id, profile));
-    host->AddFilter(new extensions::IOThreadExtensionMessageFilter());
     host->AddFilter(
         new extensions::ExtensionsGuestViewMessageFilter(id, profile));
   }
@@ -713,8 +717,6 @@ base::Optional<service_manager::Manifest>
 CefContentBrowserClient::GetServiceManifestOverlay(base::StringPiece name) {
   if (name == content::mojom::kBrowserServiceName) {
     return GetCefContentBrowserOverlayManifest();
-  } else if (name == content::mojom::kRendererServiceName) {
-    return GetCefContentRendererOverlayManifest();
   }
 
   return base::nullopt;
@@ -889,7 +891,7 @@ void CefContentBrowserClient::GetQuotaSettings(
   const base::FilePath& cache_path = partition->GetPath();
   storage::GetNominalDynamicSettings(
       cache_path, cache_path.empty() /* is_incognito */,
-      storage::GetDefaultDiskInfoHelper(), std::move(callback));
+      storage::GetDefaultDeviceInfoHelper(), std::move(callback));
 }
 
 content::MediaObserver* CefContentBrowserClient::GetMediaObserver() {
@@ -924,15 +926,14 @@ void CefContentBrowserClient::AllowCertificateError(
     const GURL& request_url,
     bool is_main_frame_request,
     bool strict_enforcement,
-    const base::Callback<void(content::CertificateRequestResultType)>&
-        callback) {
+    base::OnceCallback<void(content::CertificateRequestResultType)> callback) {
   CEF_REQUIRE_UIT();
 
   if (!is_main_frame_request) {
     // A sub-resource has a certificate error. The user doesn't really
     // have a context for making the right decision, so block the request
     // hard.
-    callback.Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL);
+    std::move(callback).Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL);
     return;
   }
 
@@ -950,14 +951,17 @@ void CefContentBrowserClient::AllowCertificateError(
   CefRefPtr<CefSSLInfo> cef_ssl_info = new CefSSLInfoImpl(ssl_info);
 
   CefRefPtr<CefAllowCertificateErrorCallbackImpl> callbackImpl(
-      new CefAllowCertificateErrorCallbackImpl(callback));
+      new CefAllowCertificateErrorCallbackImpl(std::move(callback)));
 
   bool proceed = handler->OnCertificateError(
       browser.get(), static_cast<cef_errorcode_t>(cert_error),
       request_url.spec(), cef_ssl_info, callbackImpl.get());
   if (!proceed) {
-    callbackImpl->Disconnect();
-    callback.Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL);
+    // |callback| may be null if the user executed it despite returning false.
+    callback = callbackImpl->Disconnect();
+    if (!callback.is_null()) {
+      std::move(callback).Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL);
+    }
   }
 }
 
@@ -1164,11 +1168,19 @@ void CefContentBrowserClient::ExposeInterfacesToRenderer(
 
 std::unique_ptr<net::ClientCertStore>
 CefContentBrowserClient::CreateClientCertStore(
-    content::ResourceContext* resource_context) {
-  if (!resource_context)
-    return nullptr;
-  return static_cast<CefResourceContext*>(resource_context)
-      ->CreateClientCertStore();
+    content::BrowserContext* browser_context) {
+  // Match the logic in ProfileNetworkContextService::CreateClientCertStore.
+#if defined(USE_NSS_CERTS)
+  // TODO: Add support for client implementation of crypto password dialog.
+  return std::unique_ptr<net::ClientCertStore>(new net::ClientCertStoreNSS(
+      net::ClientCertStoreNSS::PasswordDelegateFactory()));
+#elif defined(OS_WIN)
+  return std::unique_ptr<net::ClientCertStore>(new net::ClientCertStoreWin());
+#elif defined(OS_MACOSX)
+  return std::unique_ptr<net::ClientCertStore>(new net::ClientCertStoreMac());
+#else
+#error Unknown platform.
+#endif
 }
 
 std::unique_ptr<content::LoginDelegate>
@@ -1257,10 +1269,12 @@ bool CefContentBrowserClient::WillCreateURLLoaderFactory(
     int render_process_id,
     URLLoaderFactoryType type,
     const url::Origin& request_initiator,
+    base::Optional<int64_t> navigation_id,
     mojo::PendingReceiver<network::mojom::URLLoaderFactory>* factory_receiver,
     mojo::PendingRemote<network::mojom::TrustedURLLoaderHeaderClient>*
         header_client,
-    bool* bypass_redirect_checks) {
+    bool* bypass_redirect_checks,
+    network::mojom::URLLoaderFactoryOverridePtr* factory_override) {
   auto request_handler = net_service::CreateInterceptedRequestHandler(
       browser_context, frame, render_process_id,
       type == URLLoaderFactoryType::kNavigation,
@@ -1322,14 +1336,14 @@ CefContentBrowserClient::GetNetworkContextsParentDirectory() {
 
 bool CefContentBrowserClient::HandleExternalProtocol(
     const GURL& url,
-    base::Callback<content::WebContents*(void)> web_contents_getter,
+    base::OnceCallback<content::WebContents*()> web_contents_getter,
     int child_id,
     content::NavigationUIData* navigation_data,
     bool is_main_frame,
     ui::PageTransition page_transition,
     bool has_user_gesture,
     const base::Optional<url::Origin>& initiating_origin,
-    network::mojom::URLLoaderFactoryPtr* out_factory) {
+    mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory) {
   // Call the other HandleExternalProtocol variant.
   return false;
 }
@@ -1339,32 +1353,34 @@ bool CefContentBrowserClient::HandleExternalProtocol(
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
     const network::ResourceRequest& resource_request,
-    network::mojom::URLLoaderFactoryPtr* out_factory) {
-  auto request = mojo::MakeRequest(out_factory);
+    mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory) {
+  mojo::PendingReceiver<network::mojom::URLLoaderFactory> receiver =
+      out_factory->InitWithNewPipeAndPassReceiver();
   // CefBrowserPlatformDelegate::HandleExternalProtocol may be called if
   // nothing handles the request.
   if (CEF_CURRENTLY_ON_IOT()) {
     auto request_handler = net_service::CreateInterceptedRequestHandler(
         web_contents_getter, frame_tree_node_id, resource_request);
     net_service::ProxyURLLoaderFactory::CreateProxy(
-        web_contents_getter, std::move(request), std::move(request_handler));
+        web_contents_getter, std::move(receiver), std::move(request_handler));
   } else {
     auto request_handler = net_service::CreateInterceptedRequestHandler(
         web_contents_getter, frame_tree_node_id, resource_request);
-    CEF_POST_TASK(CEF_IOT,
-                  base::BindOnce(
-                      [](network::mojom::URLLoaderFactoryRequest request,
-                         std::unique_ptr<net_service::InterceptedRequestHandler>
-                             request_handler,
-                         content::WebContents::Getter web_contents_getter) {
-                        // Manages its own lifetime.
+    CEF_POST_TASK(
+        CEF_IOT,
+        base::BindOnce(
+            [](mojo::PendingReceiver<network::mojom::URLLoaderFactory> receiver,
+               std::unique_ptr<net_service::InterceptedRequestHandler>
+                   request_handler,
+               content::WebContents::Getter web_contents_getter) {
+              // Manages its own lifetime.
 
-                        net_service::ProxyURLLoaderFactory::CreateProxy(
-                            web_contents_getter, std::move(request),
-                            std::move(request_handler));
-                      },
-                      std::move(request), std::move(request_handler),
-                      std::move(web_contents_getter)));
+              net_service::ProxyURLLoaderFactory::CreateProxy(
+                  web_contents_getter, std::move(receiver),
+                  std::move(request_handler));
+            },
+            std::move(receiver), std::move(request_handler),
+            std::move(web_contents_getter)));
   }
   return true;
 }
@@ -1379,6 +1395,33 @@ CefContentBrowserClient::CreateWindowForPictureInPicture(
   // chrome/browser/ui/views code either from here or from other code in
   // chrome/browser.
   return content::OverlayWindow::Create(controller);
+}
+
+void CefContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
+    content::RenderFrameHost* render_frame_host,
+    service_manager::BinderMapWithContext<content::RenderFrameHost*>* map) {
+  if (!extensions::ExtensionsEnabled())
+    return;
+
+  content::WebContents* web_contents =
+      content::WebContents::FromRenderFrameHost(render_frame_host);
+  if (!web_contents)
+    return;
+
+  const GURL& site = render_frame_host->GetSiteInstance()->GetSiteURL();
+  if (!site.SchemeIs(extensions::kExtensionScheme))
+    return;
+
+  content::BrowserContext* browser_context =
+      render_frame_host->GetProcess()->GetBrowserContext();
+  auto* extension = extensions::ExtensionRegistry::Get(browser_context)
+                        ->enabled_extensions()
+                        .GetByID(site.host());
+  if (!extension)
+    return;
+  extensions::ExtensionsBrowserClient::Get()
+      ->RegisterBrowserInterfaceBindersForFrame(map, render_frame_host,
+                                                extension);
 }
 
 std::string CefContentBrowserClient::GetProduct() {

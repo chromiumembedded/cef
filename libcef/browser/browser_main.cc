@@ -71,7 +71,7 @@
 #include "libcef/browser/printing/print_dialog_linux.h"
 #endif
 
-#if defined(OS_MACOSX)
+#if defined(OS_MACOSX) || defined(OS_WIN)
 #include "chrome/browser/browser_process.h"
 #include "components/os_crypt/os_crypt.h"
 #endif
@@ -122,7 +122,7 @@ void CefBrowserMainParts::PreMainMessageLoopStart() {
   ui::TouchFactory::SetTouchDeviceListFromCommandLine();
 #endif
 
-#if defined(OS_MACOSX)
+#if defined(OS_MACOSX) || defined(OS_WIN)
   // Initialize the OSCrypt.
   PrefService* local_state = g_browser_process->local_state();
   DCHECK(local_state);

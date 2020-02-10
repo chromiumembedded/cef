@@ -1,8 +1,8 @@
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 8171dbb425b9..908e745c7285 100644
+index 5cdfec3a834b..99a06ed3332c 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
-@@ -992,10 +992,6 @@ void LaunchURL(const GURL& url,
+@@ -990,10 +990,6 @@ void LaunchURL(const GURL& url,
    }
  }
  
@@ -13,7 +13,7 @@ index 8171dbb425b9..908e745c7285 100644
  void MaybeAppendSecureOriginsAllowlistSwitch(base::CommandLine* cmdline) {
    // |allowlist| combines pref/policy + cmdline switch in the browser process.
    // For renderer and utility (e.g. NetworkService) processes the switch is the
-@@ -1045,6 +1041,14 @@ void MaybeAddThrottle(
+@@ -1088,6 +1084,14 @@ void MaybeRecordSameSiteCookieEngagementHistogram(
  
  }  // namespace
  
@@ -29,10 +29,10 @@ index 8171dbb425b9..908e745c7285 100644
    base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
    if (command_line->HasSwitch(switches::kUserAgent)) {
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index b80edc76b14f..20ba68634bbc 100644
+index d6b48bfa4314..bc4266755dc7 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
-@@ -86,7 +86,8 @@ enum class Channel;
+@@ -87,7 +87,8 @@ enum class Channel;
  class ChromeHidDelegate;
  class ChromeSerialDelegate;
  

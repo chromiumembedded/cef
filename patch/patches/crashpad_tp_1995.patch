@@ -40,7 +40,7 @@ index 07a70980f12a..ddf7f17325fe 100644
    virtual ~PruneCondition() {}
  
 diff --git third_party/crashpad/crashpad/client/settings.cc third_party/crashpad/crashpad/client/settings.cc
-index f6db78dbb8ca..30b0cf88d47a 100644
+index db9dface43f8..e5bdfebf8403 100644
 --- third_party/crashpad/crashpad/client/settings.cc
 +++ third_party/crashpad/crashpad/client/settings.cc
 @@ -86,7 +86,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {

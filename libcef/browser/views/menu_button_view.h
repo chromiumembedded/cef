@@ -12,14 +12,11 @@
 #include "libcef/browser/views/label_button_view.h"
 
 #include "ui/views/controls/button/menu_button.h"
-#include "ui/views/controls/button/menu_button_listener.h"
 
 // Extend views::LabelButton with a no-argument constructor as required by the
 // CefViewView template and extend views::ButtonListener as required by the
 // CefButtonView template.
-class MenuButtonEx : public views::MenuButton,
-                     public views::ButtonListener,
-                     public views::MenuButtonListener {
+class MenuButtonEx : public views::MenuButton, public views::ButtonListener {
  public:
   MenuButtonEx() : views::MenuButton(base::string16(), this) {
     // TODO(cef): MenuButton should not use ButtonListener. See
@@ -45,10 +42,8 @@ class CefMenuButtonView
   // Set the flags that control display of accelerator characters.
   void SetDrawStringsFlags(int flags);
 
-  // views::MenuButtonListener methods:
-  void OnMenuButtonClicked(views::Button* source,
-                           const gfx::Point& point,
-                           const ui::Event* event) override;
+  // views::ButtonListener methods:
+  void ButtonPressed(views::Button* source, const ui::Event& event) override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CefMenuButtonView);

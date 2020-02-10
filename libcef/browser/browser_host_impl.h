@@ -313,7 +313,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
                         const std::string& extra_headers);
 
   // Called from CefFrameHostImpl.
-  void OnFrameFocused(CefRefPtr<CefFrameHostImpl> frame);
   void OnDidFinishLoad(CefRefPtr<CefFrameHostImpl> frame,
                        const GURL& validated_url,
                        int http_status_code);
@@ -386,8 +385,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                       bool* was_blocked) override;
   void LoadingStateChanged(content::WebContents* source,
                            bool to_different_document) override;
-  void LoadProgressChanged(content::WebContents* source,
-                           double progress) override;
+  void LoadProgressChanged(double progress) override;
   void CloseContents(content::WebContents* source) override;
   void UpdateTargetURL(content::WebContents* source, const GURL& url) override;
   bool DidAddMessageToConsole(content::WebContents* source,
@@ -493,6 +491,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   bool OnMessageReceived(const IPC::Message& message) override;
   bool OnMessageReceived(const IPC::Message& message,
                          content::RenderFrameHost* render_frame_host) override;
+  void OnFrameFocused(content::RenderFrameHost* render_frame_host) override;
   void AccessibilityEventReceived(
       const content::AXEventNotificationDetails& content_event_bundle) override;
   void AccessibilityLocationChangesReceived(

@@ -823,18 +823,15 @@ class OSRTestHandler : public RoutingTestHandler,
             const CefRect& expanded_select_rect =
                 GetScaledRect(kExpandedSelectRect);
             EXPECT_EQ(dirtyRects.size(), 1U);
-#if defined(OS_MACOSX)
-            EXPECT_EQ(GetScaledInt(1), dirtyRects[0].x);
-            EXPECT_EQ(GetScaledInt(1), dirtyRects[0].y);
-#else
-            EXPECT_EQ(1, dirtyRects[0].x);
-            EXPECT_EQ(1, dirtyRects[0].y);
-#endif
+
+            const int scaled_int_1 = GetScaledInt(1);
+            EXPECT_NEAR(0, dirtyRects[0].x, scaled_int_1);
+            EXPECT_NEAR(0, dirtyRects[0].y, scaled_int_1);
             if (ExpectComputedPopupSize()) {
-              EXPECT_EQ(expanded_select_rect.width,
-                        dirtyRects[0].width + GetScaledInt(2));
-              EXPECT_EQ(expanded_select_rect.height,
-                        dirtyRects[0].height + GetScaledInt(2));
+              EXPECT_NEAR(expanded_select_rect.width, dirtyRects[0].width,
+                          scaled_int_1 * 2);
+              EXPECT_NEAR(expanded_select_rect.height, dirtyRects[0].height,
+                          scaled_int_1 * 2);
             } else {
               EXPECT_GT(dirtyRects[0].width, kExpandedSelectRect.width);
               EXPECT_GT(dirtyRects[0].height, kExpandedSelectRect.height);

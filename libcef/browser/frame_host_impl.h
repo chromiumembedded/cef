@@ -144,7 +144,6 @@ class CefFrameHostImpl : public CefFrame {
 
   // OnMessageReceived message handlers.
   void OnAttached();
-  void OnFocused();
   void OnDidFinishLoad(const GURL& validated_url, int http_status_code);
   void OnUpdateDraggableRegions(
       const std::vector<Cef_DraggableRegion_Params>& regions);

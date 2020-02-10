@@ -62,7 +62,7 @@ void CefSSLHostStateDelegate::AllowCert(const std::string& host,
 }
 
 void CefSSLHostStateDelegate::Clear(
-    const base::Callback<bool(const std::string&)>& host_filter) {
+    const base::RepeatingCallback<bool(const std::string&)> host_filter) {
   if (host_filter.is_null()) {
     cert_policy_for_host_.clear();
     return;

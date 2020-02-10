@@ -1,0 +1,12 @@
+diff --git third_party/libxml/BUILD.gn third_party/libxml/BUILD.gn
+index 28b7c9d20c05..5b5d865b6ea8 100644
+--- third_party/libxml/BUILD.gn
++++ third_party/libxml/BUILD.gn
+@@ -145,6 +145,7 @@ static_library("libxml") {
+     "//third_party/blink/renderer/*",
+     "//third_party/fontconfig",
+     "//third_party/libxslt",
++    "//cef:*",
+   ]
+   if (is_ios) {
+     foreach(tgt, ios_libxml_visibility_additions) {

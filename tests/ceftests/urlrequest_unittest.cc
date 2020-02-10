@@ -35,7 +35,6 @@ using client::ClientAppRenderer;
 namespace {
 
 // Unique values for URLRequest tests.
-const char kRequestTestUrl[] = "http://tests/URLRequestTest.Test";
 const char kRequestTestMsg[] = "URLRequestTest.Test";
 const char kIncompleteRequestTestMsg[] = "URLRequestTest.IncompleteRequestTest";
 
@@ -2880,14 +2879,17 @@ class RequestTestHandler : public TestHandler {
                      ContextTestMode context_mode,
                      bool test_in_browser,
                      bool test_server_backend,
-                     bool test_frame_method,
-                     const char* test_url)
+                     bool test_frame_method)
       : test_mode_(test_mode),
         context_mode_(context_mode),
         test_in_browser_(test_in_browser),
         test_server_backend_(test_server_backend),
         test_frame_method_(test_frame_method),
-        test_url_(test_url) {}
+        // Must use the request origin to avoid failures in
+        // CorsURLLoaderFactory::IsSane for requests originating from the
+        // renderer process.
+        test_url_(GetRequestOrigin(test_server_backend) +
+                  "/URLRequestTest.Test") {}
 
   void RunTest() override {
     // Time out the test after a reasonable period of time.
@@ -2994,7 +2996,6 @@ class RequestTestHandler : public TestHandler {
 
     if (test_in_browser_) {
       if (test_frame_method_) {
-        EXPECT_TRUE(test_url_ != nullptr);
         AddResource(test_url_, "<html><body>TEST</body></html>", "text/html");
 
         // Create the browser who's main frame will be the initiator for the
@@ -3008,7 +3009,6 @@ class RequestTestHandler : public TestHandler {
             base::Bind(&RequestTestHandler::OnRunComplete, this));
       }
     } else {
-      EXPECT_TRUE(test_url_ != nullptr);
       AddResource(test_url_, "<html><body>TEST</body></html>", "text/html");
 
       // Create a browser to run the test in the renderer process.
@@ -3272,7 +3272,7 @@ class RequestTestHandler : public TestHandler {
   const bool test_in_browser_;
   const bool test_server_backend_;
   const bool test_frame_method_;
-  const char* const test_url_;
+  const std::string test_url_;
 
   scoped_refptr<RequestTestRunner> test_runner_;
 
@@ -3329,24 +3329,24 @@ void RegisterURLRequestCustomSchemes(
 }
 
 // Helpers for defining URLRequest tests.
-#define REQ_TEST_EX(name, test_mode, context_mode, test_in_browser,    \
-                    test_server_backend, test_frame_method, test_url)  \
-  TEST(URLRequestTest, name) {                                         \
-    if (!IsTestSupported(test_mode, context_mode, test_in_browser,     \
-                         test_server_backend, test_frame_method)) {    \
-      return;                                                          \
-    }                                                                  \
-    CefRefPtr<RequestTestHandler> handler = new RequestTestHandler(    \
-        test_mode, context_mode, test_in_browser, test_server_backend, \
-        test_frame_method, test_url);                                  \
-    handler->ExecuteTest();                                            \
-    ReleaseAndWaitForDestructor(handler);                              \
+#define REQ_TEST_EX(name, test_mode, context_mode, test_in_browser,      \
+                    test_server_backend, test_frame_method)              \
+  TEST(URLRequestTest, name) {                                           \
+    if (!IsTestSupported(test_mode, context_mode, test_in_browser,       \
+                         test_server_backend, test_frame_method)) {      \
+      return;                                                            \
+    }                                                                    \
+    CefRefPtr<RequestTestHandler> handler =                              \
+        new RequestTestHandler(test_mode, context_mode, test_in_browser, \
+                               test_server_backend, test_frame_method);  \
+    handler->ExecuteTest();                                              \
+    ReleaseAndWaitForDestructor(handler);                                \
   }
 
 #define REQ_TEST(name, test_mode, context_mode, test_in_browser, \
                  test_server_backend, test_frame_method)         \
   REQ_TEST_EX(name, test_mode, context_mode, test_in_browser,    \
-              test_server_backend, test_frame_method, kRequestTestUrl)
+              test_server_backend, test_frame_method)
 
 // Define the tests.
 #define REQ_TEST_SET_EX(suffix, context_mode, test_server_backend,             \

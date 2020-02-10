@@ -33,7 +33,6 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
   void DidFailProvisionalLoad() override;
   void DidFinishLoad() override;
   void FrameDetached() override;
-  void FrameFocused() override;
   void FocusedElementChanged(const blink::WebElement& element) override;
   void DraggableRegionsChanged() override;
   void DidCreateScriptContext(v8::Handle<v8::Context> context,

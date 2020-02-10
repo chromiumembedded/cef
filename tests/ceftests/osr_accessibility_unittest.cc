@@ -168,16 +168,13 @@ class AccessibilityTestHandler : public TestHandler,
                          GetBrowser()),
               200);
         } else {
-          CefRefPtr<CefDictionaryValue> update, event;
-          GetFirstUpdateAndEvent(value, update, event);
-          EXPECT_TRUE(update.get());
-
-          // Ignore other events.
-          if (!event.get() || event->GetString("event_type") != "focus") {
+          // Retrieve the "focus" event.
+          CefRefPtr<CefDictionaryValue> event;
+          if (!GetFirstMatchingEvent(value, "focus", event))
             return;
-          }
+          EXPECT_TRUE(event.get());
 
-          // And Focus is set to expected element edit_box
+          // Verify that focus is set to expected element edit_box.
           EXPECT_EQ(edit_box_id_, event->GetInt("id"));
 
           // Now Post a delayed task to destroy the test giving
@@ -257,29 +254,83 @@ class AccessibilityTestHandler : public TestHandler,
         TID_UI, base::Bind(&AccessibilityTestHandler::DestroyTest, this), 500);
   }
 
-  void GetFirstUpdateAndEvent(CefRefPtr<CefValue> value,
-                              CefRefPtr<CefDictionaryValue>& update,
-                              CefRefPtr<CefDictionaryValue>& event) {
+  static CefRefPtr<CefListValue> GetUpdateList(CefRefPtr<CefValue> value) {
     EXPECT_TRUE(value.get());
     EXPECT_EQ(value->GetType(), VTYPE_DICTIONARY);
     CefRefPtr<CefDictionaryValue> topLevel = value->GetDictionary();
     EXPECT_TRUE(topLevel.get());
 
-    // Get the first update dict.
-    CefRefPtr<CefListValue> updates = topLevel->GetList("updates");
-    if (updates.get()) {
-      EXPECT_GT(updates->GetSize(), 0U);
-      update = updates->GetDictionary(0);
-      EXPECT_TRUE(update.get());
-    }
+    return topLevel->GetList("updates");
+  }
 
-    // Get the first event dict.
-    CefRefPtr<CefListValue> events = topLevel->GetList("events");
-    if (events.get()) {
-      EXPECT_GT(events->GetSize(), 0U);
-      event = events->GetDictionary(0);
-      EXPECT_TRUE(event.get());
+  static size_t GetUpdateListSize(CefRefPtr<CefValue> value) {
+    CefRefPtr<CefListValue> updates = GetUpdateList(value);
+    if (updates)
+      return updates->GetSize();
+    return 0U;
+  }
+
+  static CefRefPtr<CefDictionaryValue> GetUpdateValue(CefRefPtr<CefValue> value,
+                                                      size_t index) {
+    CefRefPtr<CefListValue> updates = GetUpdateList(value);
+    if (!updates)
+      return nullptr;
+    EXPECT_LT(index, updates->GetSize());
+    CefRefPtr<CefDictionaryValue> update = updates->GetDictionary(index);
+    EXPECT_TRUE(update);
+    return update;
+  }
+
+  static CefRefPtr<CefListValue> GetEventList(CefRefPtr<CefValue> value) {
+    EXPECT_TRUE(value.get());
+    EXPECT_EQ(value->GetType(), VTYPE_DICTIONARY);
+    CefRefPtr<CefDictionaryValue> topLevel = value->GetDictionary();
+    EXPECT_TRUE(topLevel.get());
+
+    return topLevel->GetList("events");
+  }
+
+  static size_t GetEventListSize(CefRefPtr<CefValue> value) {
+    CefRefPtr<CefListValue> events = GetEventList(value);
+    if (events)
+      return events->GetSize();
+    return 0U;
+  }
+
+  static CefRefPtr<CefDictionaryValue> GetEventValue(CefRefPtr<CefValue> value,
+                                                     size_t index) {
+    CefRefPtr<CefListValue> events = GetEventList(value);
+    if (!events)
+      return nullptr;
+    EXPECT_LT(index, events->GetSize());
+    CefRefPtr<CefDictionaryValue> event = events->GetDictionary(index);
+    EXPECT_TRUE(event);
+    return event;
+  }
+
+  static void GetFirstUpdateAndEvent(CefRefPtr<CefValue> value,
+                                     CefRefPtr<CefDictionaryValue>& update,
+                                     CefRefPtr<CefDictionaryValue>& event) {
+    if (GetUpdateListSize(value) > 0U)
+      update = GetUpdateValue(value, 0U);
+    if (GetEventListSize(value) > 0U)
+      event = GetEventValue(value, 0U);
+  }
+
+  static bool GetFirstMatchingEvent(CefRefPtr<CefValue> value,
+                                    const std::string& event_type,
+                                    CefRefPtr<CefDictionaryValue>& event) {
+    // Return the first event that matches the requested |event_type|.
+    const size_t event_size = GetEventListSize(value);
+    for (size_t i = 0; i < event_size; ++i) {
+      CefRefPtr<CefDictionaryValue> cur_event = GetEventValue(value, i);
+      const std::string& cur_event_type = cur_event->GetString("event_type");
+      if (cur_event_type == event_type) {
+        event = cur_event;
+        return true;
+      }
     }
+    return false;
   }
 
   void TestEnableAccessibilityUpdate(CefRefPtr<CefValue> value) {

@@ -1,8 +1,8 @@
 diff --git chrome/browser/safe_browsing/BUILD.gn chrome/browser/safe_browsing/BUILD.gn
-index 8d5bdf428063..0aff2229bfa8 100644
+index 0f60694e2d9f..35eeee3233a1 100644
 --- chrome/browser/safe_browsing/BUILD.gn
 +++ chrome/browser/safe_browsing/BUILD.gn
-@@ -233,6 +233,7 @@ jumbo_static_library("safe_browsing") {
+@@ -237,6 +237,7 @@ jumbo_static_library("safe_browsing") {
          "//chrome/common/safe_browsing:download_type_util",
          "//chrome/services/file_util/public/cpp",
          "//components/content_settings/core/browser",

@@ -38,7 +38,7 @@ CefContextMenuParamsImpl::TypeFlags CefContextMenuParamsImpl::GetTypeFlags() {
     type_flags |= CM_TYPEFLAG_FRAME;
   if (!params.link_url.is_empty())
     type_flags |= CM_TYPEFLAG_LINK;
-  if (params.media_type != blink::WebContextMenuData::kMediaTypeNone)
+  if (params.media_type != blink::ContextMenuDataMediaType::kNone)
     type_flags |= CM_TYPEFLAG_MEDIA;
   if (!params.selection_text.empty())
     type_flags |= CM_TYPEFLAG_SELECTION;

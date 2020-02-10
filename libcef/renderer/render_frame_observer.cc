@@ -84,12 +84,6 @@ void CefRenderFrameObserver::FrameDetached() {
   }
 }
 
-void CefRenderFrameObserver::FrameFocused() {
-  if (frame_) {
-    frame_->OnFocused();
-  }
-}
-
 void CefRenderFrameObserver::FocusedElementChanged(
     const blink::WebElement& element) {
   if (!frame_)

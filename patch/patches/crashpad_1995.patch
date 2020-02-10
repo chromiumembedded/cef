@@ -127,7 +127,7 @@ index bcf172e645a2..f879aa745adf 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index 7e561db0dd60..4b97ba370377 100644
+index 27683246750c..064c679a03f1 100644
 --- components/crash/content/app/breakpad_linux.cc
 +++ components/crash/content/app/breakpad_linux.cc
 @@ -28,6 +28,7 @@
@@ -186,7 +186,7 @@ index 7e561db0dd60..4b97ba370377 100644
      if (info.pid > 0) {
        char pid_value_buf[kUint64StringSize];
        uint64_t pid_value_len = my_uint64_len(info.pid);
-@@ -1864,10 +1875,20 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1864,6 +1875,9 @@ void HandleCrashDump(const BreakpadInfo& info) {
          crash_reporter::internal::TransitionalCrashKeyStorage;
      CrashKeyStorage::Iterator crash_key_iterator(*info.crash_keys);
      const CrashKeyStorage::Entry* entry;
@@ -196,19 +196,22 @@ index 7e561db0dd60..4b97ba370377 100644
      while ((entry = crash_key_iterator.Next())) {
        if (g_use_crash_key_white_list && !IsInWhiteList(entry->key))
          continue;
--      writer.AddPairString(entry->key, entry->value);
-+      parameters.insert(std::make_pair(entry->key, entry->value));
+@@ -1876,7 +1890,13 @@ void HandleCrashDump(const BreakpadInfo& info) {
+                        ? CrashKeyStorage::value_size - 1
+                        : my_strlen(entry->value);
+ 
+-      writer.AddPairData(entry->key, key_size, entry->value, value_size);
++      parameters.insert(std::make_pair(std::string{entry->key, key_size}, std::string{entry->value, value_size}));
 +    }
-+
 +    if (!parameters.empty())
 +      parameters = GetCrashReporterClient()->FilterParameters(parameters);
 +
 +    for (const auto& param : parameters) {
-+      writer.AddPairString(param.first.c_str(), param.second.c_str());
++      writer.AddPairData(param.first.data(), param.first.size(), param.second.data(), param.second.size());
        writer.AddBoundary();
        writer.Flush();
      }
-@@ -2079,6 +2100,17 @@ void SetChannelCrashKey(const std::string& channel) {
+@@ -2088,6 +2108,17 @@ void SetChannelCrashKey(const std::string& channel) {
    channel_key.Set(channel);
  }
  

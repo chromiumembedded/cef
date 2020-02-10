@@ -146,7 +146,8 @@ void LoadCookies(content::BrowserContext* browser_context,
   CEF_REQUIRE_IOT();
 
   if ((request.load_flags & net::LOAD_DO_NOT_SEND_COOKIES) ||
-      request.credentials_mode == network::mojom::CredentialsMode::kOmit) {
+      request.credentials_mode == network::mojom::CredentialsMode::kOmit ||
+      request.url.IsAboutBlank()) {
     // Continue immediately without loading cookies.
     std::move(done_callback).Run(0, {});
     return;
@@ -174,7 +175,7 @@ void SaveCookies(content::BrowserContext* browser_context,
   CEF_REQUIRE_IOT();
 
   if (request.credentials_mode == network::mojom::CredentialsMode::kOmit ||
-      !head.headers ||
+      request.url.IsAboutBlank() || !head.headers ||
       !head.headers->HasHeader(net_service::kHTTPSetCookieHeaderName)) {
     // Continue immediately without saving cookies.
     std::move(done_callback).Run(0, {});

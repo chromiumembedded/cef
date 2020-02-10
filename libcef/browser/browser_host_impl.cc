@@ -591,7 +591,7 @@ void CefBrowserHostImpl::CloseBrowser(bool force_close) {
     }
 
     content::WebContents* contents = web_contents();
-    if (contents && contents->NeedToFireBeforeUnload()) {
+    if (contents && contents->NeedToFireBeforeUnloadOrUnload()) {
       // Will result in a call to BeforeUnloadFired() and, if the close isn't
       // canceled, CloseContents().
       contents->DispatchBeforeUnload(false /* auto_cancel */);
@@ -763,8 +763,9 @@ void CefBrowserHostImpl::DownloadImage(
     return;
 
   web_contents()->DownloadImage(
-      gurl, is_favicon, max_image_size * gfx::ImageSkia::GetMaxSupportedScale(),
-      bypass_cache, base::BindOnce(OnDownloadImage, max_image_size, callback));
+      gurl, is_favicon, max_image_size,
+      max_image_size * gfx::ImageSkia::GetMaxSupportedScale(), bypass_cache,
+      base::BindOnce(OnDownloadImage, max_image_size, callback));
 }
 
 void CefBrowserHostImpl::Print() {
@@ -1639,30 +1640,6 @@ void CefBrowserHostImpl::LoadMainFrameURL(const std::string& url,
   }
 }
 
-void CefBrowserHostImpl::OnFrameFocused(CefRefPtr<CefFrameHostImpl> frame) {
-  DCHECK(frame);
-
-  CefRefPtr<CefFrameHostImpl> previous_frame;
-  {
-    base::AutoLock lock_scope(state_lock_);
-    previous_frame = focused_frame_;
-    if (frame->IsMain())
-      focused_frame_ = nullptr;
-    else
-      focused_frame_ = frame;
-  }
-
-  if (!previous_frame) {
-    // The main frame is focused by default.
-    previous_frame = browser_info_->GetMainFrame();
-  }
-
-  if (previous_frame->GetIdentifier() != frame->GetIdentifier()) {
-    previous_frame->SetFocused(false);
-    frame->SetFocused(true);
-  }
-}
-
 void CefBrowserHostImpl::OnDidFinishLoad(CefRefPtr<CefFrameHostImpl> frame,
                                          const GURL& validated_url,
                                          int http_status_code) {
@@ -2108,8 +2085,7 @@ void CefBrowserHostImpl::LoadingStateChanged(content::WebContents* source,
   }
 }
 
-void CefBrowserHostImpl::LoadProgressChanged(content::WebContents* source,
-                                             double progress) {
+void CefBrowserHostImpl::LoadProgressChanged(double progress) {
   if (client_.get()) {
     CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
     if (handler.get()) {
@@ -2738,6 +2714,34 @@ bool CefBrowserHostImpl::OnMessageReceived(
         ->OnMessageReceived(message);
   }
   return false;
+}
+
+void CefBrowserHostImpl::OnFrameFocused(
+    content::RenderFrameHost* render_frame_host) {
+  CefRefPtr<CefFrameHostImpl> frame =
+      static_cast<CefFrameHostImpl*>(GetFrameForHost(render_frame_host).get());
+  if (!frame || frame->IsFocused())
+    return;
+
+  CefRefPtr<CefFrameHostImpl> previous_frame;
+  {
+    base::AutoLock lock_scope(state_lock_);
+    previous_frame = focused_frame_;
+    if (frame->IsMain())
+      focused_frame_ = nullptr;
+    else
+      focused_frame_ = frame;
+  }
+
+  if (!previous_frame) {
+    // The main frame is focused by default.
+    previous_frame = browser_info_->GetMainFrame();
+  }
+
+  if (previous_frame->GetIdentifier() != frame->GetIdentifier()) {
+    previous_frame->SetFocused(false);
+    frame->SetFocused(true);
+  }
 }
 
 void CefBrowserHostImpl::AccessibilityEventReceived(

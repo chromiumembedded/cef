@@ -1,8 +1,8 @@
 diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
-index 818a6370957a..46282b320b0b 100644
+index c05ce85a2327..2a9124db10a4 100644
 --- content/browser/storage_partition_impl.cc
 +++ content/browser/storage_partition_impl.cc
-@@ -577,10 +577,6 @@ class LoginHandlerDelegate {
+@@ -581,10 +581,6 @@ class LoginHandlerDelegate {
      }
  
      WebContents* web_contents = web_contents_getter_.Run();
@@ -13,7 +13,7 @@ index 818a6370957a..46282b320b0b 100644
  
      // WeakPtr is not strictly necessary here due to OnRequestCancelled.
      creating_login_delegate_ = true;
-@@ -637,12 +633,6 @@ void OnAuthRequiredContinuation(
+@@ -641,12 +637,6 @@ void OnAuthRequiredContinuation(
      web_contents_getter =
          base::BindRepeating(GetWebContents, process_id, routing_id);
    }
@@ -26,7 +26,7 @@ index 818a6370957a..46282b320b0b 100644
    new LoginHandlerDelegate(std::move(auth_challenge_responder),
                             std::move(web_contents_getter), auth_info,
                             is_request_for_main_frame, process_id, routing_id,
-@@ -2277,7 +2267,10 @@ void StoragePartitionImpl::GetQuotaSettings(
+@@ -2267,7 +2257,10 @@ void StoragePartitionImpl::GetQuotaSettings(
  void StoragePartitionImpl::InitNetworkContext() {
    network_context_ = GetContentClient()->browser()->CreateNetworkContext(
        browser_context_, is_in_memory_, relative_partition_path_);
@@ -39,7 +39,7 @@ index 818a6370957a..46282b320b0b 100644
    network_context_client_receiver_.reset();
    network_context_->SetClient(
 diff --git services/network/public/cpp/simple_url_loader.cc services/network/public/cpp/simple_url_loader.cc
-index 1cc4198e6057..0fae6dbe25a2 100644
+index f73b5b6fdc3d..14403d2e468c 100644
 --- services/network/public/cpp/simple_url_loader.cc
 +++ services/network/public/cpp/simple_url_loader.cc
 @@ -230,6 +230,7 @@ class SimpleURLLoaderImpl : public SimpleURLLoader,
@@ -59,7 +59,7 @@ index 1cc4198e6057..0fae6dbe25a2 100644
    // Populated in the constructor, and cleared once no longer needed, when no
    // more retries are possible.
    std::unique_ptr<ResourceRequest> resource_request_;
-@@ -1373,6 +1376,12 @@ void SimpleURLLoaderImpl::SetTimeoutDuration(base::TimeDelta timeout_duration) {
+@@ -1371,6 +1374,12 @@ void SimpleURLLoaderImpl::SetTimeoutDuration(base::TimeDelta timeout_duration) {
    timeout_duration_ = timeout_duration;
  }
  
@@ -72,17 +72,17 @@ index 1cc4198e6057..0fae6dbe25a2 100644
  int SimpleURLLoaderImpl::NetError() const {
    // Should only be called once the request is compelete.
    DCHECK(request_state_->finished);
-@@ -1521,7 +1530,7 @@ void SimpleURLLoaderImpl::StartRequest(
-         string_upload_data_pipe_getter_->GetRemoteForNewUpload());
+@@ -1516,7 +1525,7 @@ void SimpleURLLoaderImpl::StartRequest(
    }
    url_loader_factory->CreateLoaderAndStart(
--      mojo::MakeRequest(&url_loader_), 0 /* routing_id */, 0 /* request_id */,
-+      mojo::MakeRequest(&url_loader_), 0 /* routing_id */, request_id_,
-       url_loader_factory_options_, *resource_request_, std::move(client_ptr),
+       url_loader_.BindNewPipeAndPassReceiver(), 0 /* routing_id */,
+-      0 /* request_id */, url_loader_factory_options_, *resource_request_,
++      request_id_, url_loader_factory_options_, *resource_request_,
+       client_receiver_.BindNewPipeAndPassRemote(),
        net::MutableNetworkTrafficAnnotationTag(annotation_tag_));
- 
+   client_receiver_.set_disconnect_handler(base::BindOnce(
 diff --git services/network/public/cpp/simple_url_loader.h services/network/public/cpp/simple_url_loader.h
-index 88d602b0915c..ffe9b5adcebf 100644
+index 5a0df57c4444..5ee2bef53374 100644
 --- services/network/public/cpp/simple_url_loader.h
 +++ services/network/public/cpp/simple_url_loader.h
 @@ -332,6 +332,9 @@ class COMPONENT_EXPORT(NETWORK_CPP) SimpleURLLoader {

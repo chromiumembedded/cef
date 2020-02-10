@@ -11,7 +11,6 @@
 
 namespace extensions {
 
-class ExtensionHostQueue;
 class ExtensionsAPIClient;
 
 // An ExtensionsBrowserClient that supports a single content::BrowserContent
@@ -49,11 +48,11 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
       int* resource_id) const override;
   void LoadResourceFromResourceBundle(
       const network::ResourceRequest& request,
-      network::mojom::URLLoaderRequest loader,
+      mojo::PendingReceiver<network::mojom::URLLoader> loader,
       const base::FilePath& resource_relative_path,
       const int resource_id,
       const std::string& content_security_policy,
-      network::mojom::URLLoaderClientPtr client,
+      mojo::PendingRemote<network::mojom::URLLoaderClient> client,
       bool send_cors_header) override;
   bool AllowCrossRendererResourceLoad(const GURL& url,
                                       content::ResourceType resource_type,
@@ -82,6 +81,11 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
   bool IsAppModeForcedForApp(const ExtensionId& extension_id) override;
   bool IsLoggedInAsPublicAccount() override;
   ExtensionSystemProvider* GetExtensionSystemFactory() override;
+  void RegisterBrowserInterfaceBindersForFrame(
+      service_manager::BinderMapWithContext<content::RenderFrameHost*>*
+          binder_map,
+      content::RenderFrameHost* render_frame_host,
+      const Extension* extension) const override;
   void RegisterExtensionInterfaces(service_manager::BinderRegistryWithArgs<
                                        content::RenderFrameHost*>* registry,
                                    content::RenderFrameHost* render_frame_host,
@@ -104,17 +108,12 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
   bool IsLockScreenContext(content::BrowserContext* context) override;
   std::string GetApplicationLocale() override;
 
-  ExtensionHostQueue* GetExtensionHostQueue();
-
  private:
   // Support for extension APIs.
   std::unique_ptr<ExtensionsAPIClient> api_client_;
 
   // Resource manager used to supply resources from pak files.
   std::unique_ptr<ComponentExtensionResourceManager> resource_manager_;
-
-  // Used to create deferred RenderViews for extensions.
-  std::unique_ptr<ExtensionHostQueue> extension_host_queue_;
 
   DISALLOW_COPY_AND_ASSIGN(CefExtensionsBrowserClient);
 };

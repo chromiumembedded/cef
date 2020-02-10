@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_launcher_helper_linux.cc content/browser/child_process_launcher_helper_linux.cc
-index 720b92a1a3a7..4e5551a64ced 100644
+index ea5258a03f83..843f28411eea 100644
 --- content/browser/child_process_launcher_helper_linux.cc
 +++ content/browser/child_process_launcher_helper_linux.cc
-@@ -177,7 +177,7 @@ void ChildProcessLauncherHelper::ResetRegisteredFilesForTesting() {
+@@ -164,7 +164,7 @@ void ChildProcessLauncherHelper::SetProcessPriorityOnLauncherThread(
  base::File OpenFileToShare(const base::FilePath& path,
                             base::MemoryMappedFile::Region* region) {
    base::FilePath exe_dir;
@@ -25,7 +25,7 @@ index a277ffa5eb59..3935b9f8c17c 100644
      if (base::PathExists(sandbox_candidate))
        sandbox_binary = sandbox_candidate;
 diff --git ui/gl/init/gl_initializer_x11.cc ui/gl/init/gl_initializer_x11.cc
-index 3fc37d1c06bd..becd622d631e 100644
+index 60f73ddc504e..3d19011257aa 100644
 --- ui/gl/init/gl_initializer_x11.cc
 +++ ui/gl/init/gl_initializer_x11.cc
 @@ -86,7 +86,7 @@ bool InitializeStaticEGLInternal(GLImplementation implementation) {

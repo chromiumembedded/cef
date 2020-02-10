@@ -1,48 +1,8 @@
-diff --git chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-index 07f06ac694f5..831fd9f82dbe 100644
---- chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-+++ chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-@@ -6,6 +6,7 @@
- 
- #include "base/bind.h"
- #include "base/run_loop.h"
-+#include "cef/libcef/features/features.h"
- #include "chrome/browser/chrome_browser_main.h"
- #include "chrome/browser/profiles/profile.h"
- #include "chrome/browser/themes/theme_service.h"
-@@ -29,6 +30,7 @@
- 
- namespace {
- 
-+#if !BUILDFLAG(ENABLE_CEF)
- ui::NativeTheme* GetNativeThemeForWindow(aura::Window* window) {
-   if (!window)
-     return nullptr;
-@@ -53,6 +55,7 @@ ui::NativeTheme* GetNativeThemeForWindow(aura::Window* window) {
- 
-   return ui::NativeTheme::GetInstanceForNativeUi();
- }
-+#endif  // !BUILDFLAG(ENABLE_CEF)
- 
- }  // namespace
- 
-@@ -67,9 +70,11 @@ void ChromeBrowserMainExtraPartsViewsLinux::PreEarlyInitialization() {
-   if (!linux_ui)
-     return;
- 
-+#if !BUILDFLAG(ENABLE_CEF)
-   linux_ui->SetNativeThemeOverride(
-       base::BindRepeating(&GetNativeThemeForWindow));
-   views::LinuxUI::SetInstance(linux_ui);
-+#endif
- }
- 
- void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
 diff --git chrome/test/BUILD.gn chrome/test/BUILD.gn
-index dde2eafb88f0..2594b51f35b1 100644
+index 5c45bc5e6b75..97282b45f57e 100644
 --- chrome/test/BUILD.gn
 +++ chrome/test/BUILD.gn
-@@ -4609,7 +4609,7 @@ test("unit_tests") {
+@@ -4720,7 +4720,7 @@ test("unit_tests") {
    if (use_gio) {
      configs += [ "//build/linux:gio_config" ]
    }
@@ -51,7 +11,7 @@ index dde2eafb88f0..2594b51f35b1 100644
      deps += [ "//chrome/browser/ui/libgtkui" ]
    }
  
-@@ -5666,7 +5666,7 @@ if (!is_android) {
+@@ -5708,7 +5708,7 @@ if (!is_android) {
            # suites, it seems like one or another starts timing out too.
            "../browser/ui/views/keyboard_access_browsertest.cc",
          ]

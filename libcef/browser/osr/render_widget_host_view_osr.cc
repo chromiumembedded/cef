@@ -29,7 +29,6 @@
 #include "components/viz/common/switches.h"
 #include "content/browser/bad_message.h"
 #include "content/browser/compositor/image_transport_factory.h"
-#include "content/browser/frame_host/render_widget_host_view_guest.h"
 #include "content/browser/gpu/gpu_data_manager_impl.h"
 #include "content/browser/renderer_host/cursor_manager.h"
 #include "content/browser/renderer_host/delegated_frame_host.h"
@@ -157,8 +156,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     bool use_shared_texture,
     bool use_external_begin_frame,
     content::RenderWidgetHost* widget,
-    CefRenderWidgetHostViewOSR* parent_host_view,
-    bool is_guest_view_hack)
+    CefRenderWidgetHostViewOSR* parent_host_view)
     : content::RenderWidgetHostViewBase(widget),
       background_color_(background_color),
       frame_rate_threshold_us_(0),
@@ -200,8 +198,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 
   // Matching the attributes from BrowserCompositorMac.
   delegated_frame_host_ = std::make_unique<content::DelegatedFrameHost>(
-      AllocateFrameSinkId(is_guest_view_hack),
-      delegated_frame_host_client_.get(),
+      AllocateFrameSinkId(), delegated_frame_host_client_.get(),
       false /* should_register_frame_sink_id */);
 
   root_layer_.reset(new ui::Layer(ui::LAYER_SOLID_COLOR));
@@ -416,8 +413,6 @@ void CefRenderWidgetHostViewOSR::TakeFallbackContentFrom(
     content::RenderWidgetHostView* view) {
   DCHECK(!static_cast<RenderWidgetHostViewBase*>(view)
               ->IsRenderWidgetHostViewChildFrame());
-  DCHECK(!static_cast<RenderWidgetHostViewBase*>(view)
-              ->IsRenderWidgetHostViewGuest());
   CefRenderWidgetHostViewOSR* view_cef =
       static_cast<CefRenderWidgetHostViewOSR*>(view);
   SetBackgroundColor(view_cef->background_color_);
@@ -510,18 +505,6 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
 void CefRenderWidgetHostViewOSR::InitAsFullscreen(
     content::RenderWidgetHostView* reference_host_view) {
   NOTREACHED() << "Fullscreen widgets are not supported in OSR";
-}
-
-// Called for the "platform view" created by WebContentsViewGuest and owned by
-// RenderWidgetHostViewGuest.
-void CefRenderWidgetHostViewOSR::InitAsGuest(
-    content::RenderWidgetHostView* parent_host_view,
-    content::RenderWidgetHostViewGuest* guest_view) {
-  DCHECK_EQ(parent_host_view_, parent_host_view);
-  DCHECK(browser_impl_);
-
-  parent_host_view_->AddGuestHostView(this);
-  parent_host_view_->RegisterGuestViewFrameSwappedCallback(guest_view);
 }
 
 void CefRenderWidgetHostViewOSR::UpdateCursor(
@@ -1523,23 +1506,6 @@ void CefRenderWidgetHostViewOSR::RemoveGuestHostView(
   guest_host_views_.erase(guest_host);
 }
 
-void CefRenderWidgetHostViewOSR::RegisterGuestViewFrameSwappedCallback(
-    content::RenderWidgetHostViewGuest* guest_host_view) {
-  guest_host_view->RegisterFrameSwappedCallback(base::BindOnce(
-      &CefRenderWidgetHostViewOSR::OnGuestViewFrameSwapped,
-      weak_ptr_factory_.GetWeakPtr(), base::Unretained(guest_host_view)));
-  guest_host_view->set_current_device_scale_factor(
-      current_device_scale_factor_);
-}
-
-void CefRenderWidgetHostViewOSR::OnGuestViewFrameSwapped(
-    content::RenderWidgetHostViewGuest* guest_host_view) {
-  InvalidateInternal(gfx::ConvertRectToPixel(current_device_scale_factor_,
-                                             guest_host_view->GetViewBounds()));
-
-  RegisterGuestViewFrameSwappedCallback(guest_host_view);
-}
-
 void CefRenderWidgetHostViewOSR::InvalidateInternal(
     const gfx::Rect& bounds_in_pixels) {
   if (video_consumer_) {
@@ -1578,17 +1544,8 @@ void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
   }
 }
 
-viz::FrameSinkId CefRenderWidgetHostViewOSR::AllocateFrameSinkId(
-    bool is_guest_view_hack) {
-  // GuestViews have two RenderWidgetHostViews and so we need to make sure
-  // we don't have FrameSinkId collisions.
-  // The FrameSinkId generated here must be unique with FrameSinkId allocated
-  // in ContextFactoryPrivate.
-  content::ImageTransportFactory* factory =
-      content::ImageTransportFactory::GetInstance();
-  return is_guest_view_hack
-             ? factory->GetContextFactoryPrivate()->AllocateFrameSinkId()
-             : render_widget_host_->GetFrameSinkId();
+viz::FrameSinkId CefRenderWidgetHostViewOSR::AllocateFrameSinkId() {
+  return render_widget_host_->GetFrameSinkId();
 }
 
 void CefRenderWidgetHostViewOSR::UpdateBackgroundColorFromRenderer(

@@ -464,7 +464,6 @@ bool CefFrameHostImpl::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(CefFrameHostImpl, message)
     IPC_MESSAGE_HANDLER(CefHostMsg_FrameAttached, OnAttached)
-    IPC_MESSAGE_HANDLER(CefHostMsg_FrameFocused, OnFocused)
     IPC_MESSAGE_HANDLER(CefHostMsg_DidFinishLoad, OnDidFinishLoad)
     IPC_MESSAGE_HANDLER(CefHostMsg_UpdateDraggableRegions,
                         OnUpdateDraggableRegions)
@@ -553,16 +552,6 @@ void CefFrameHostImpl::OnAttached() {
       Send(queued_messages_.front().release());
       queued_messages_.pop();
     }
-  }
-}
-
-void CefFrameHostImpl::OnFocused() {
-  if (!IsFocused()) {
-    // Calls back to SetFocused(true) after updating state on the previously
-    // focused frame.
-    auto browser = GetBrowserHostImpl();
-    if (browser)
-      browser->OnFrameFocused(this);
   }
 }
 

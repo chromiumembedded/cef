@@ -148,18 +148,19 @@ class ProxyURLLoaderFactory
   // Create a proxy object on the IO thread.
   static ProxyURLLoaderFactory* CreateProxy(
       content::WebContents::Getter web_contents_getter,
-      network::mojom::URLLoaderFactoryRequest loader_request,
+      mojo::PendingReceiver<network::mojom::URLLoaderFactory> loader_request,
       std::unique_ptr<InterceptedRequestHandler> request_handler);
 
   // mojom::URLLoaderFactory methods:
-  void CreateLoaderAndStart(network::mojom::URLLoaderRequest loader,
-                            int32_t routing_id,
-                            int32_t request_id,
-                            uint32_t options,
-                            const network::ResourceRequest& request,
-                            network::mojom::URLLoaderClientPtr client,
-                            const net::MutableNetworkTrafficAnnotationTag&
-                                traffic_annotation) override;
+  void CreateLoaderAndStart(
+      mojo::PendingReceiver<network::mojom::URLLoader> receiver,
+      int32_t routing_id,
+      int32_t request_id,
+      uint32_t options,
+      const network::ResourceRequest& request,
+      mojo::PendingRemote<network::mojom::URLLoaderClient> client,
+      const net::MutableNetworkTrafficAnnotationTag& traffic_annotation)
+      override;
   void Clone(
       mojo::PendingReceiver<network::mojom::URLLoaderFactory> factory) override;
 

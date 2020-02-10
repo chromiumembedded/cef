@@ -13,7 +13,6 @@
 #include "libcef/browser/request_context_handler_map.h"
 
 #include "content/public/browser/resource_context.h"
-#include "net/ssl/client_cert_store.h"
 
 class GURL;
 
@@ -27,8 +26,6 @@ class CefResourceContext : public content::ResourceContext {
  public:
   explicit CefResourceContext(bool is_off_the_record);
   ~CefResourceContext() override;
-
-  std::unique_ptr<net::ClientCertStore> CreateClientCertStore();
 
   // See comments in CefRequestContextHandlerMap.
   void AddHandler(int render_process_id,

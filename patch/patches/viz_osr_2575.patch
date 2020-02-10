@@ -1,8 +1,8 @@
 diff --git components/viz/host/host_display_client.cc components/viz/host/host_display_client.cc
-index 0108c8926630..dc2aff882c72 100644
+index 3547ee865c22..2215296ffadc 100644
 --- components/viz/host/host_display_client.cc
 +++ components/viz/host/host_display_client.cc
-@@ -46,9 +46,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
+@@ -43,9 +43,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
  }
  #endif
  
@@ -18,7 +18,7 @@ index 0108c8926630..dc2aff882c72 100644
    if (!NeedsToUseLayerWindow(widget_)) {
      DLOG(ERROR) << "HWND shouldn't be using a layered window";
      return;
-@@ -56,8 +61,8 @@ void HostDisplayClient::CreateLayeredWindowUpdater(
+@@ -53,8 +58,8 @@ void HostDisplayClient::CreateLayeredWindowUpdater(
  
    layered_window_updater_ =
        std::make_unique<LayeredWindowUpdaterImpl>(widget_, std::move(receiver));
@@ -29,11 +29,11 @@ index 0108c8926630..dc2aff882c72 100644
  #if defined(OS_LINUX) && !defined(OS_CHROMEOS)
  void HostDisplayClient::DidCompleteSwapWithNewSize(const gfx::Size& size) {
 diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
-index af01fab0ac13..b1ed612ddb0f 100644
+index cedf833d2358..04456e045304 100644
 --- components/viz/host/host_display_client.h
 +++ components/viz/host/host_display_client.h
-@@ -30,17 +30,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
-   mojom::DisplayClientPtr GetBoundPtr(
+@@ -31,17 +31,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
+   mojo::PendingRemote<mojom::DisplayClient> GetBoundRemote(
        scoped_refptr<base::SingleThreadTaskRunner> task_runner);
  
 - private:
@@ -80,10 +80,10 @@ index 1026b739d283..fe562ab60ce9 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index be420915d729..4bb7456d0279 100644
+index ca67f58b73cc..025e022a472c 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -13,6 +13,8 @@ config("viz_service_implementation") {
+@@ -14,6 +14,8 @@ config("viz_service_implementation") {
  
  viz_component("service") {
    sources = [
@@ -93,7 +93,7 @@ index be420915d729..4bb7456d0279 100644
      "display/bsp_tree.h",
      "display/bsp_walk_action.cc",
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index e17b24a8b87b..b408b6a262a5 100644
+index 6f2eac863d1b..243c5acae3bf 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
 @@ -12,6 +12,7 @@
@@ -104,7 +104,7 @@ index e17b24a8b87b..b408b6a262a5 100644
  #include "components/viz/common/display/renderer_settings.h"
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
  #include "components/viz/service/display_embedder/gl_output_surface.h"
-@@ -223,6 +224,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+@@ -227,6 +228,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
    if (headless_)
      return std::make_unique<SoftwareOutputDevice>();
  
@@ -163,10 +163,10 @@ index ac94eab98fd0..b89d52a0c869 100644
  
  #if ENABLE_SYNC_CALL_RESTRICTIONS
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index 1e456c111b83..d345914271f9 100644
+index be56099d186f..3ec6f600f6e2 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
-@@ -79,12 +79,14 @@ interface DisplayPrivate {
+@@ -76,12 +76,14 @@ interface DisplayPrivate {
  };
  
  interface DisplayClient {
@@ -194,7 +194,7 @@ index 6b7fbb6cf13d..e2af75168cb9 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 17b9c783da91..5fbd9766a348 100644
+index 5410ee7a65ab..e5bf8c301c1c 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -23,7 +23,9 @@
@@ -204,10 +204,10 @@ index 17b9c783da91..5fbd9766a348 100644
 +#include "components/viz/host/host_display_client.h"
  #include "components/viz/host/host_frame_sink_client.h"
 +#include "components/viz/service/display/software_output_device.h"
+ #include "mojo/public/cpp/bindings/pending_remote.h"
  #include "services/viz/privileged/mojom/compositing/vsync_parameter_observer.mojom-forward.h"
  #include "third_party/skia/include/core/SkColor.h"
- #include "third_party/skia/include/core/SkMatrix44.h"
-@@ -196,6 +198,14 @@ class COMPOSITOR_EXPORT ContextFactory {
+@@ -197,6 +199,14 @@ class COMPOSITOR_EXPORT ContextFactory {
    virtual bool SyncTokensRequiredForDisplayCompositor() = 0;
  };
  
@@ -222,7 +222,7 @@ index 17b9c783da91..5fbd9766a348 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -235,6 +245,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -236,6 +246,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -232,7 +232,7 @@ index 17b9c783da91..5fbd9766a348 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -454,6 +467,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -459,6 +472,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    ui::ContextFactory* context_factory_;
    ui::ContextFactoryPrivate* context_factory_private_;
  
@@ -242,13 +242,13 @@ index 17b9c783da91..5fbd9766a348 100644
    Layer* root_layer_ = nullptr;
  
 diff --git ui/compositor/host/host_context_factory_private.cc ui/compositor/host/host_context_factory_private.cc
-index ce20a9bbd8f4..4cedc41cbe22 100644
+index d8c278b99d09..d6f9bd858627 100644
 --- ui/compositor/host/host_context_factory_private.cc
 +++ ui/compositor/host/host_context_factory_private.cc
 @@ -113,8 +113,13 @@ void HostContextFactoryPrivate::ConfigureCompositor(
-           .InitWithNewPipeAndPassReceiver();
+   compositor_data.display_private.reset();
    root_params->display_private =
-       mojo::MakeRequest(&compositor_data.display_private);
+       compositor_data.display_private.BindNewEndpointAndPassReceiver();
 -  compositor_data.display_client =
 -      std::make_unique<HostDisplayClient>(compositor);
 +  if (compositor->delegate()) {
@@ -259,5 +259,5 @@ index ce20a9bbd8f4..4cedc41cbe22 100644
 +        std::make_unique<HostDisplayClient>(compositor);
 +  }
    root_params->display_client =
-       compositor_data.display_client->GetBoundPtr(resize_task_runner_)
-           .PassInterface();
+       compositor_data.display_client->GetBoundRemote(resize_task_runner_);
+ 

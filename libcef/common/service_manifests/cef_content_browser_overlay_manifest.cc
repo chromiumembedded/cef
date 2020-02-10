@@ -9,8 +9,6 @@
 #include "build/build_config.h"
 #include "components/metrics/public/mojom/call_stack_profile_collector.mojom.h"
 #include "extensions/buildflags/buildflags.h"
-#include "extensions/common/api/mime_handler.mojom.h"  // nogncheck
-#include "extensions/common/mojom/keep_alive.mojom.h"  // nogncheck
 #include "services/service_manager/public/cpp/manifest_builder.h"
 
 #if defined(OS_WIN)
@@ -30,12 +28,6 @@ const service_manager::Manifest& GetCefContentBrowserOverlayManifest() {
 #endif
                               metrics::mojom::CallStackProfileCollector>())
         .RequireCapability("chrome_printing", "converter")
-        .ExposeInterfaceFilterCapability_Deprecated(
-            "navigation:frame", "renderer",
-            service_manager::Manifest::InterfaceList<
-                extensions::KeepAlive,
-                extensions::mime_handler::BeforeUnloadControl,
-                extensions::mime_handler::MimeHandlerService>())
         .Build()
   };
   return *manifest;

@@ -24,20 +24,58 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_frame_host.h"
 #include "extensions/browser/api/extensions_api_client.h"
+#include "extensions/browser/api/mime_handler_private/mime_handler_private.h"
 #include "extensions/browser/api/runtime/runtime_api_delegate.h"
 #include "extensions/browser/app_sorting.h"
 #include "extensions/browser/core_extensions_browser_api_provider.h"
 #include "extensions/browser/event_router.h"
 #include "extensions/browser/extension_host_delegate.h"
+#include "extensions/browser/extensions_browser_interface_binders.h"
+#include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h"
 #include "extensions/browser/mojo/interface_registration.h"
-#include "extensions/browser/serial_extension_host_queue.h"
 #include "extensions/browser/url_request_util.h"
+#include "extensions/common/api/mime_handler.mojom.h"
 #include "extensions/common/constants.h"
 
 using content::BrowserContext;
 using content::BrowserThread;
 
 namespace extensions {
+
+namespace {
+
+void BindMimeHandlerService(
+    content::RenderFrameHost* frame_host,
+    mojo::PendingReceiver<extensions::mime_handler::MimeHandlerService>
+        receiver) {
+  auto* web_contents = content::WebContents::FromRenderFrameHost(frame_host);
+  if (!web_contents)
+    return;
+
+  auto* guest_view =
+      extensions::MimeHandlerViewGuest::FromWebContents(web_contents);
+  if (!guest_view)
+    return;
+  extensions::MimeHandlerServiceImpl::Create(guest_view->GetStreamWeakPtr(),
+                                             std::move(receiver));
+}
+
+void BindBeforeUnloadControl(
+    content::RenderFrameHost* frame_host,
+    mojo::PendingReceiver<extensions::mime_handler::BeforeUnloadControl>
+        receiver) {
+  auto* web_contents = content::WebContents::FromRenderFrameHost(frame_host);
+  if (!web_contents)
+    return;
+
+  auto* guest_view =
+      extensions::MimeHandlerViewGuest::FromWebContents(web_contents);
+  if (!guest_view)
+    return;
+  guest_view->FuseBeforeUnloadControl(std::move(receiver));
+}
+
+}  // namespace
 
 CefExtensionsBrowserClient::CefExtensionsBrowserClient()
     : api_client_(new CefExtensionsAPIClient),
@@ -117,11 +155,11 @@ base::FilePath CefExtensionsBrowserClient::GetBundleResourcePath(
 
 void CefExtensionsBrowserClient::LoadResourceFromResourceBundle(
     const network::ResourceRequest& request,
-    network::mojom::URLLoaderRequest loader,
+    mojo::PendingReceiver<network::mojom::URLLoader> loader,
     const base::FilePath& resource_relative_path,
     const int resource_id,
     const std::string& content_security_policy,
-    network::mojom::URLLoaderClientPtr client,
+    mojo::PendingRemote<network::mojom::URLLoaderClient> client,
     bool send_cors_header) {
   chrome_url_request_util::LoadResourceFromResourceBundle(
       request, std::move(loader), resource_relative_path, resource_id,
@@ -257,6 +295,18 @@ CefExtensionsBrowserClient::GetExtensionSystemFactory() {
   return CefExtensionSystemFactory::GetInstance();
 }
 
+void CefExtensionsBrowserClient::RegisterBrowserInterfaceBindersForFrame(
+    service_manager::BinderMapWithContext<content::RenderFrameHost*>* map,
+    content::RenderFrameHost* render_frame_host,
+    const Extension* extension) const {
+  PopulateExtensionFrameBinders(map, render_frame_host, extension);
+
+  map->Add<extensions::mime_handler::MimeHandlerService>(
+      base::BindRepeating(&BindMimeHandlerService));
+  map->Add<extensions::mime_handler::BeforeUnloadControl>(
+      base::BindRepeating(&BindBeforeUnloadControl));
+}
+
 void CefExtensionsBrowserClient::RegisterExtensionInterfaces(
     service_manager::BinderRegistryWithArgs<content::RenderFrameHost*>*
         registry,
@@ -321,12 +371,6 @@ bool CefExtensionsBrowserClient::IsLockScreenContext(
 
 std::string CefExtensionsBrowserClient::GetApplicationLocale() {
   return g_browser_process->GetApplicationLocale();
-}
-
-ExtensionHostQueue* CefExtensionsBrowserClient::GetExtensionHostQueue() {
-  if (!extension_host_queue_)
-    extension_host_queue_.reset(new SerialExtensionHostQueue);
-  return extension_host_queue_.get();
 }
 
 }  // namespace extensions

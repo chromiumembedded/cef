@@ -34,7 +34,6 @@
 #include "libcef/renderer/extensions/extensions_renderer_client.h"
 #include "libcef/renderer/extensions/print_render_frame_helper_delegate.h"
 #include "libcef/renderer/render_frame_observer.h"
-#include "libcef/renderer/render_message_filter.h"
 #include "libcef/renderer/render_thread_observer.h"
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/url_loader_throttle_provider_impl.h"
@@ -52,6 +51,7 @@
 #include "build/build_config.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/url_constants.h"
+#include "chrome/renderer/browser_exposed_renderer_interfaces.h"
 #include "chrome/renderer/chrome_content_renderer_client.h"
 #include "chrome/renderer/extensions/chrome_extensions_renderer_client.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
@@ -65,7 +65,7 @@
 #include "components/spellcheck/renderer/spellcheck.h"
 #include "components/spellcheck/renderer/spellcheck_provider.h"
 #include "components/startup_metric_utils/common/startup_metric.mojom.h"
-#include "components/visitedlink/renderer/visitedlink_slave.h"
+#include "components/visitedlink/renderer/visitedlink_reader.h"
 #include "components/web_cache/renderer/web_cache_impl.h"
 #include "content/common/frame_messages.h"
 #include "content/public/browser/browser_task_traits.h"
@@ -75,7 +75,7 @@
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_paths.h"
 #include "content/public/common/content_switches.h"
-#include "content/public/common/mime_handler_view_mode.h"
+#include "content/public/common/url_constants.h"
 #include "content/public/renderer/plugin_instance_throttler.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/render_view_visitor.h"
@@ -85,6 +85,7 @@
 #include "extensions/renderer/renderer_extension_registry.h"
 #include "ipc/ipc_sync_channel.h"
 #include "media/base/media.h"
+#include "mojo/public/cpp/bindings/binder_map.h"
 #include "mojo/public/cpp/bindings/generic_pending_receiver.h"
 #include "printing/print_settings.h"
 #include "services/network/public/cpp/is_potentially_trustworthy.h"
@@ -381,8 +382,9 @@ void CefContentRendererClient::RenderThreadStarted() {
       base::CommandLine::ForCurrentProcess();
 
   render_task_runner_ = base::ThreadTaskRunnerHandle::Get();
-  observer_.reset(new CefRenderThreadObserver());
-  web_cache_impl_.reset(new web_cache::WebCacheImpl());
+  observer_ = std::make_unique<CefRenderThreadObserver>();
+  web_cache_impl_ = std::make_unique<web_cache::WebCacheImpl>();
+  visited_link_slave_ = std::make_unique<visitedlink::VisitedLinkReader>();
 
   content::RenderThread* thread = content::RenderThread::Get();
 
@@ -399,10 +401,9 @@ void CefContentRendererClient::RenderThreadStarted() {
   }
 
   thread->AddObserver(observer_.get());
-  thread->GetChannel()->AddFilter(new CefRenderMessageFilter);
 
   if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
-    spellcheck_ = std::make_unique<SpellCheck>(&registry_, this);
+    spellcheck_ = std::make_unique<SpellCheck>(this);
   }
 
   if (content::RenderProcessHost::run_renderer_in_process()) {
@@ -443,6 +444,27 @@ void CefContentRendererClient::RenderThreadStarted() {
 
   if (extensions::ExtensionsEnabled())
     extensions_renderer_client_->RenderThreadStarted();
+}
+
+void CefContentRendererClient::ExposeInterfacesToBrowser(
+    mojo::BinderMap* binders) {
+  auto task_runner = base::SequencedTaskRunnerHandle::Get();
+
+  binders->Add(base::BindRepeating(&web_cache::WebCacheImpl::BindReceiver,
+                                   base::Unretained(web_cache_impl_.get())),
+               task_runner);
+
+  binders->Add(visited_link_slave_->GetBindCallback(), task_runner);
+
+  if (spellcheck_) {
+    binders->Add(
+        base::BindRepeating(
+            [](SpellCheck* spellcheck,
+               mojo::PendingReceiver<spellcheck::mojom::SpellChecker>
+                   receiver) { spellcheck->BindReceiver(std::move(receiver)); },
+            base::Unretained(spellcheck_.get())),
+        task_runner);
+  }
 }
 
 void CefContentRendererClient::RenderThreadConnected() {
@@ -533,8 +555,6 @@ bool CefContentRendererClient::IsPluginHandledExternally(
 
   DCHECK(plugin_element.HasHTMLTagName("object") ||
          plugin_element.HasHTMLTagName("embed"));
-  if (!content::MimeHandlerViewMode::UsesCrossProcessFrame())
-    return false;
   // Blink will next try to load a WebPlugin which would end up in
   // OverrideCreatePlugin, sending another IPC only to find out the plugin is
   // not supported. Here it suffices to return false but there should perhaps be
@@ -589,13 +609,14 @@ void CefContentRendererClient::WillSendRequest(
     blink::WebLocalFrame* frame,
     ui::PageTransition transition_type,
     const blink::WebURL& url,
+    const blink::WebURL& site_for_cookies,
     const url::Origin* initiator_origin,
     GURL* new_url,
     bool* attach_same_site_cookies) {
   if (extensions::ExtensionsEnabled()) {
-    extensions_renderer_client_->WillSendRequest(frame, transition_type, url,
-                                                 initiator_origin, new_url,
-                                                 attach_same_site_cookies);
+    extensions_renderer_client_->WillSendRequest(
+        frame, transition_type, url, site_for_cookies, initiator_origin,
+        new_url, attach_same_site_cookies);
     if (!new_url->is_empty())
       return;
   }
@@ -603,12 +624,11 @@ void CefContentRendererClient::WillSendRequest(
 
 uint64_t CefContentRendererClient::VisitedLinkHash(const char* canonical_url,
                                                    size_t length) {
-  return observer_->visited_link_slave()->ComputeURLFingerprint(canonical_url,
-                                                                length);
+  return visited_link_slave_->ComputeURLFingerprint(canonical_url, length);
 }
 
 bool CefContentRendererClient::IsLinkVisited(uint64_t link_hash) {
-  return observer_->visited_link_slave()->IsVisited(link_hash);
+  return visited_link_slave_->IsVisited(link_hash);
 }
 
 bool CefContentRendererClient::IsOriginIsolatedPepperPlugin(
@@ -688,13 +708,11 @@ CefContentRendererClient::CreateURLLoaderThrottleProvider(
   return std::make_unique<CefURLLoaderThrottleProviderImpl>(provider_type);
 }
 
-void CefContentRendererClient::BindReceiverOnMainThread(
-    mojo::GenericPendingReceiver receiver) {
-  // TODO(crbug.com/977637): Get rid of the use of BinderRegistry here. This is
-  // only used to bind a spellcheck interface.
-  std::string interface_name = *receiver.interface_name();
-  auto pipe = receiver.PassPipe();
-  registry_.TryBindInterface(interface_name, &pipe);
+bool CefContentRendererClient::RequiresWebComponentsV0(const GURL& url) {
+  // TODO(1025782): For now, file:// URLs are allowed to access Web Components
+  // v0 features. This will be removed once origin trials support file:// URLs
+  // for this purpose.
+  return url.SchemeIs(content::kChromeUIScheme) || url.SchemeIs("file");
 }
 
 void CefContentRendererClient::GetInterface(

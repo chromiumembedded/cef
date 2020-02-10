@@ -10,7 +10,7 @@
 
 #include "include/cef_scheme.h"
 
-#include "base/strings/string_piece.h"
+#include "base/memory/ref_counted_memory.h"
 #include "url/gurl.h"
 
 namespace scheme {
@@ -31,8 +31,8 @@ class InternalHandlerDelegate {
     CefRefPtr<CefStreamReader> stream;
     int stream_size;
 
-    // Option 2: Provide a base::StringPiece for the resource contents.
-    base::StringPiece string_piece;
+    // Option 2: Provide a base::RefCountedMemory for the resource contents.
+    scoped_refptr<base::RefCountedMemory> bytes;
 
     // Option 3: Specify a resource id to load static content.
     int resource_id;

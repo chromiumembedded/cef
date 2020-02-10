@@ -12,6 +12,7 @@
 // $hash=c5439c177bd70bf3d8d52e0381c08d6276453183$
 //
 
+#include "base/logging.h"
 #include "include/views/cef_browser_view.h"
 #include "include/views/cef_display.h"
 #include "include/views/cef_label_button.h"
@@ -20,8 +21,6 @@
 #include "include/views/cef_scroll_view.h"
 #include "include/views/cef_textfield.h"
 #include "include/views/cef_window.h"
-
-#include "base/logging.h"
 
 // STATIC STUB METHODS - Do not edit by hand.
 

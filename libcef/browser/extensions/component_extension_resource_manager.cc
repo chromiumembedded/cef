@@ -50,13 +50,28 @@ CefComponentExtensionResourceManager::GetTemplateReplacementsForExtension(
 void CefComponentExtensionResourceManager::AddComponentResourceEntries(
     const GritResourceMap* entries,
     size_t size) {
+  base::FilePath gen_folder_path = base::FilePath().AppendASCII(
+      "@out_folder@/gen/chrome/browser/resources/");
+  gen_folder_path = gen_folder_path.NormalizePathSeparators();
+
   for (size_t i = 0; i < size; ++i) {
     base::FilePath resource_path =
         base::FilePath().AppendASCII(entries[i].name);
     resource_path = resource_path.NormalizePathSeparators();
 
-    DCHECK(!base::Contains(path_to_resource_info_, resource_path));
-    path_to_resource_info_[resource_path] = entries[i].value;
+    if (!gen_folder_path.IsParent(resource_path)) {
+      DCHECK(!base::Contains(path_to_resource_info_, resource_path));
+      path_to_resource_info_[resource_path] = entries[i].value;
+    } else {
+      // If the resource is a generated file, strip the generated folder's path,
+      // so that it can be served from a normal URL (as if it were not
+      // generated).
+      base::FilePath effective_path =
+          base::FilePath().AppendASCII(resource_path.AsUTF8Unsafe().substr(
+              gen_folder_path.value().length()));
+      DCHECK(!base::Contains(path_to_resource_info_, effective_path));
+      path_to_resource_info_[effective_path] = entries[i].value;
+    }
   }
 }
 

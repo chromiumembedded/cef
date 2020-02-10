@@ -34,9 +34,6 @@ const char kPdfTestOrigin[] = "http://tests/";
 const char kPdfHtmlUrl[] = "http://tests/pdf.html";
 const char kPdfDirectUrl[] = "http://tests/pdf.pdf";
 
-// Delay waiting for the plugin placeholder to load.
-const int64 kPlaceholderLoadDelayMs = 1000;
-
 // Delay waiting for iframe tests to load the PDF file.
 #if defined(OS_LINUX)
 const int64 kPdfLoadDelayMs = 7000;
@@ -236,14 +233,32 @@ class PluginTestHandler : public RoutingTestHandler,
   }
 
   void WaitForPlaceholderLoad(CefRefPtr<CefFrame> frame) {
-    // Waits for the placeholder to load.
-    CefPostDelayedTask(TID_UI,
-                       base::Bind(&PluginTestHandler::TriggerContextMenu, this,
-                                  frame->GetBrowser()),
-                       kPlaceholderLoadDelayMs);
+    // Keep track of the frame that contains the placeholder.
+    placeholder_frame_ = frame;
+
+    // Waits for the placeholder to load. This is indicated by the presence
+    // of the plugin node.
+    const std::string& code =
+        "(function waitForNode(i) {"
+        "   setTimeout(function() {"
+        "     var plugin = " +
+        GetPluginNode() +
+        ";"
+        "     if (plugin) {"
+        "        window.testQuery({request:'placeholder_loaded'});"
+        "        return;"
+        "     }"
+        "     if (--i) {"
+        "       waitForNode(i);"
+        "     } else {"
+        "       console.log('Timeout waiting for plugin load');"
+        "     }"
+        "   }, 250)"
+        "})(4);";
+    frame->ExecuteJavaScript(code, frame->GetURL(), 0);
   }
 
-  void WaitForPlaceholderHide(CefRefPtr<CefFrame> frame) const {
+  void WaitForPlaceholderHide() {
     // Waits for the placeholder to be hidden (style set to display:none).
     // See PluginPlaceholderBase::HidePlugin.
     const std::string& code =
@@ -257,7 +272,9 @@ class PluginTestHandler : public RoutingTestHandler,
         "});"
         "observer.observe(plugin, "
         "  { attributes : true, attributeFilter : ['style'] });";
-    frame->ExecuteJavaScript(code, frame->GetURL(), 0);
+    placeholder_frame_->ExecuteJavaScript(code, placeholder_frame_->GetURL(),
+                                          0);
+    placeholder_frame_ = nullptr;
   }
 
   void WaitForPluginLoad(CefRefPtr<CefFrame> frame) {
@@ -383,12 +400,25 @@ class PluginTestHandler : public RoutingTestHandler,
         // Wait for the first PDF file to load.
         WaitForPluginLoad(frame);
       }
+    } else if (request == "placeholder_loaded") {
+      EXPECT_FALSE(got_placeholder_loaded_);
+      EXPECT_FALSE(got_placeholder_hidden_);
+      got_placeholder_loaded_.yes();
+
+      // The plugin placeholder has loaded. Trigger the context menu.
+      TriggerContextMenu(frame->GetBrowser());
     } else if (request == "placeholder_hidden") {
+      EXPECT_TRUE(got_placeholder_loaded_);
       EXPECT_FALSE(got_placeholder_hidden_);
       got_placeholder_hidden_.yes();
 
-      // The plugin placeholder has been hidden. End the test.
-      EndTest();
+      if (HasContextLoad()) {
+        // Wait for the PDF plugin to load.
+        WaitForPluginLoad(frame);
+      } else {
+        // The plugin placeholder has been hidden. End the test.
+        EndTest();
+      }
     } else {
       NOTREACHED();
     }
@@ -420,14 +450,14 @@ class PluginTestHandler : public RoutingTestHandler,
       // Should have 4 elements -- plugin name, separator, run, hide.
       EXPECT_EQ(4, model->GetCount());
 
+      // Wait for the placeholder to be hidden.
+      WaitForPlaceholderHide();
+
       int command_id;
       if (HasContextLoad()) {
         // Execute the run command.
         command_id = model->GetCommandIdAt(2);
       } else {
-        // Wait for the plugin to be hidden.
-        WaitForPlaceholderHide(frame);
-
         // Execute the hide command.
         command_id = model->GetCommandIdAt(3);
       }
@@ -450,12 +480,8 @@ class PluginTestHandler : public RoutingTestHandler,
 
     if (HasContextHide()) {
       // Nothing to do here. The test will continue from OnQuery.
-      return;
-    }
-
-    if (HasContextLoad()) {
-      // Wait for the PDF plugin to load.
-      WaitForPluginLoad(frame);
+      // TODO: Once block-then-load is working this should also be the case for
+      // HasContextLoad().
       return;
     }
 
@@ -468,11 +494,18 @@ class PluginTestHandler : public RoutingTestHandler,
       context_handler_ = nullptr;
     }
 
-    if (HasContextHide()) {
+    if (HasContextLoad()) {
+      EXPECT_TRUE(got_placeholder_loaded_);
+      // TODO: Once block-then-load is working this value should be true.
+      EXPECT_FALSE(got_placeholder_hidden_);
+    } else if (HasContextHide()) {
+      EXPECT_TRUE(got_placeholder_loaded_);
       EXPECT_TRUE(got_placeholder_hidden_);
     } else {
+      EXPECT_FALSE(got_placeholder_loaded_);
       EXPECT_FALSE(got_placeholder_hidden_);
     }
+    EXPECT_FALSE(placeholder_frame_);
 
     if (HasRequestContextHandler())
       EXPECT_TRUE(got_on_before_plugin_empty_origin_);
@@ -528,6 +561,8 @@ class PluginTestHandler : public RoutingTestHandler,
   const Mode mode_;
   const std::string url_;
 
+  CefRefPtr<CefFrame> placeholder_frame_;
+
   TrackCallback got_on_before_plugin_empty_origin_;
   TrackCallback got_on_before_plugin_empty_origin2_;
   TrackCallback got_on_before_plugin_load_pdf_;
@@ -536,6 +571,7 @@ class PluginTestHandler : public RoutingTestHandler,
   TrackCallback got_on_load_end_pdf2_;
   TrackCallback got_pdf_plugin_found_;
   TrackCallback got_pdf_plugin_missing_;
+  TrackCallback got_placeholder_loaded_;
   TrackCallback got_placeholder_hidden_;
   TrackCallback got_run_context_menu_;
   TrackCallback got_context_menu_dismissed_;

@@ -15,18 +15,6 @@
 #include "content/browser/resource_context_impl.h"
 #include "content/public/browser/browser_thread.h"
 
-#if defined(USE_NSS_CERTS)
-#include "net/ssl/client_cert_store_nss.h"
-#endif
-
-#if defined(OS_WIN)
-#include "net/ssl/client_cert_store_win.h"
-#endif
-
-#if defined(OS_MACOSX)
-#include "net/ssl/client_cert_store_mac.h"
-#endif
-
 CefResourceContext::CefResourceContext(bool is_off_the_record)
     : is_off_the_record_(is_off_the_record) {
   // Using base::Unretained() is safe because both this callback and possible
@@ -37,25 +25,6 @@ CefResourceContext::CefResourceContext(bool is_off_the_record)
 }
 
 CefResourceContext::~CefResourceContext() {}
-
-std::unique_ptr<net::ClientCertStore>
-CefResourceContext::CreateClientCertStore() {
-#if defined(USE_NSS_CERTS)
-  return std::unique_ptr<net::ClientCertStore>(new net::ClientCertStoreNSS(
-      net::ClientCertStoreNSS::PasswordDelegateFactory()));
-#elif defined(OS_WIN)
-  return std::unique_ptr<net::ClientCertStore>(new net::ClientCertStoreWin());
-#elif defined(OS_MACOSX)
-  return std::unique_ptr<net::ClientCertStore>(new net::ClientCertStoreMac());
-#elif defined(USE_OPENSSL)
-  // OpenSSL does not use the ClientCertStore infrastructure. On Android client
-  // cert matching is done by the OS as part of the call to show the cert
-  // selection dialog.
-  return std::unique_ptr<net::ClientCertStore>();
-#else
-#error Unknown platform.
-#endif
-}
 
 void CefResourceContext::AddHandler(
     int render_process_id,

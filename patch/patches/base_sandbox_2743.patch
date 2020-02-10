@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 200b8daecfbe..2e9d3b35325a 100644
+index 0e54cd8264cf..44405b8a410b 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -32,6 +32,7 @@ import("//build/config/sysroot.gni")
@@ -10,7 +10,7 @@ index 200b8daecfbe..2e9d3b35325a 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  import("//third_party/icu/config.gni")
-@@ -1612,7 +1613,11 @@ jumbo_component("base") {
+@@ -1635,7 +1636,11 @@ jumbo_component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]

@@ -41,10 +41,10 @@ index cc4b13a7b9c6..84f3b9ed7cf4 100644
  
  }  // namespace content
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index cfa68bf03b99..02918742fd15 100644
+index a91a66bca29d..bff1662c7323 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -2661,6 +2661,11 @@ void RenderWidgetHostImpl::SetNeedsBeginFrameForFlingProgress() {
+@@ -2692,6 +2692,11 @@ void RenderWidgetHostImpl::SetNeedsBeginFrameForFlingProgress() {
    SetNeedsBeginFrame(true);
  }
  
@@ -57,10 +57,10 @@ index cfa68bf03b99..02918742fd15 100644
      const WebInputEvent& event) {
    if (base::FeatureList::IsEnabled(features::kBrowserVerifiedUserActivation) &&
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index a3f9a2d865cc..2d6bdc5b65c2 100644
+index 15a23f954089..87715137b8b4 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -714,6 +714,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -736,6 +736,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();
    void SetNeedsBeginFrameForFlingProgress();

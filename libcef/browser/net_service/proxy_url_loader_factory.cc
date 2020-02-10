@@ -122,9 +122,9 @@ class InterceptedRequest : public network::mojom::URLLoader,
       uint32_t options,
       const network::ResourceRequest& request,
       const net::MutableNetworkTrafficAnnotationTag& traffic_annotation,
-      network::mojom::URLLoaderRequest loader_request,
-      network::mojom::URLLoaderClientPtr client,
-      network::mojom::URLLoaderFactoryPtr target_factory);
+      mojo::PendingReceiver<network::mojom::URLLoader> loader_receiver,
+      mojo::PendingRemote<network::mojom::URLLoaderClient> client,
+      mojo::PendingRemote<network::mojom::URLLoaderFactory> target_factory);
   ~InterceptedRequest() override;
 
   // Restart the request. This happens on initial start and after redirect.
@@ -312,15 +312,15 @@ InterceptedRequest::InterceptedRequest(
     uint32_t options,
     const network::ResourceRequest& request,
     const net::MutableNetworkTrafficAnnotationTag& traffic_annotation,
-    network::mojom::URLLoaderRequest loader_request,
-    network::mojom::URLLoaderClientPtr client,
-    network::mojom::URLLoaderFactoryPtr target_factory)
+    mojo::PendingReceiver<network::mojom::URLLoader> loader_receiver,
+    mojo::PendingRemote<network::mojom::URLLoaderClient> client,
+    mojo::PendingRemote<network::mojom::URLLoaderFactory> target_factory)
     : factory_(factory),
       id_(id),
       options_(options),
       request_(request),
       traffic_annotation_(traffic_annotation),
-      proxied_loader_binding_(this, std::move(loader_request)),
+      proxied_loader_binding_(this, std::move(loader_receiver)),
       target_client_(std::move(client)),
       proxied_client_binding_(this),
       target_factory_(std::move(target_factory)),
@@ -685,7 +685,7 @@ void InterceptedRequest::ContinueAfterIntercept() {
     uint32_t options = options_ | network::mojom::kURLLoadOptionUseHeaderClient;
     target_factory_->CreateLoaderAndStart(
         mojo::MakeRequest(&target_loader_), id_.routing_id(), id_.request_id(),
-        options, request_, std::move(proxied_client), traffic_annotation_);
+        options, request_, proxied_client.PassInterface(), traffic_annotation_);
   }
 }
 
@@ -1117,13 +1117,13 @@ void ProxyURLLoaderFactory::CreateProxy(
 // static
 ProxyURLLoaderFactory* ProxyURLLoaderFactory::CreateProxy(
     content::WebContents::Getter web_contents_getter,
-    network::mojom::URLLoaderFactoryRequest loader_request,
+    mojo::PendingReceiver<network::mojom::URLLoaderFactory> loader_receiver,
     std::unique_ptr<InterceptedRequestHandler> request_handler) {
   CEF_REQUIRE_IOT();
   DCHECK(request_handler);
 
   auto proxy = new ProxyURLLoaderFactory(
-      std::move(loader_request), nullptr,
+      std::move(loader_receiver), nullptr,
       mojo::PendingReceiver<network::mojom::TrustedURLLoaderHeaderClient>(),
       std::move(request_handler));
   CEF_POST_TASK(CEF_UIT,
@@ -1133,12 +1133,12 @@ ProxyURLLoaderFactory* ProxyURLLoaderFactory::CreateProxy(
 }
 
 void ProxyURLLoaderFactory::CreateLoaderAndStart(
-    network::mojom::URLLoaderRequest loader,
+    mojo::PendingReceiver<network::mojom::URLLoader> receiver,
     int32_t routing_id,
     int32_t request_id,
     uint32_t options,
     const network::ResourceRequest& request,
-    network::mojom::URLLoaderClientPtr client,
+    mojo::PendingRemote<network::mojom::URLLoaderClient> client,
     const net::MutableNetworkTrafficAnnotationTag& traffic_annotation) {
   CEF_REQUIRE_IOT();
   if (!CONTEXT_STATE_VALID()) {
@@ -1150,18 +1150,19 @@ void ProxyURLLoaderFactory::CreateLoaderAndStart(
   if (pass_through) {
     // This is the so-called pass-through, no-op option.
     target_factory_->CreateLoaderAndStart(
-        std::move(loader), routing_id, request_id, options, request,
+        std::move(receiver), routing_id, request_id, options, request,
         std::move(client), traffic_annotation);
     return;
   }
 
-  network::mojom::URLLoaderFactoryPtr target_factory_clone;
+  mojo::PendingRemote<network::mojom::URLLoaderFactory> target_factory_clone;
   if (target_factory_)
-    target_factory_->Clone(MakeRequest(&target_factory_clone));
+    target_factory_->Clone(
+        target_factory_clone.InitWithNewPipeAndPassReceiver());
 
   InterceptedRequest* req = new InterceptedRequest(
       this, RequestId(request_id, routing_id), options, request,
-      traffic_annotation, std::move(loader), std::move(client),
+      traffic_annotation, std::move(receiver), std::move(client),
       std::move(target_factory_clone));
   requests_.insert(std::make_pair(request_id, base::WrapUnique(req)));
   req->Restart();
