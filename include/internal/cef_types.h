@@ -1107,9 +1107,8 @@ typedef enum {
   TT_LINK = 0,
 
   ///
-  // Source is some other "explicit" navigation action such as creating a new
-  // browser or using the LoadURL function. This is also the default value
-  // for navigations where the actual type is unknown.
+  // Source is some other "explicit" navigation. This is the default value for
+  // navigations where the actual type is unknown. See also TT_DIRECT_LOAD_FLAG.
   ///
   TT_EXPLICIT = 1,
 
@@ -1161,8 +1160,14 @@ typedef enum {
 
   ///
   // Used the Forward or Back function to navigate among browsing history.
+  // Will be ORed to the transition type for the original load.
   ///
   TT_FORWARD_BACK_FLAG = 0x01000000,
+
+  ///
+  // Loaded a URL directly via CreateBrowser, LoadURL or LoadRequest.
+  ///
+  TT_DIRECT_LOAD_FLAG = 0x02000000,
 
   ///
   // The beginning of a navigation chain.

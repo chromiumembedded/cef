@@ -138,6 +138,11 @@ class CefFrameHostImpl : public CefFrame {
   static const int64_t kUnspecifiedFrameId;
   static const int64_t kInvalidFrameId;
 
+  // PageTransition type for explicit navigations. This must pass the check in
+  // ContentBrowserClient::IsExplicitNavigation for debug URLs (HandleDebugURL)
+  // to work as expected.
+  static const ui::PageTransition kPageTransitionExplicit;
+
  private:
   int64 GetFrameId() const;
   CefRefPtr<CefBrowserHostImpl> GetBrowserHostImpl() const;

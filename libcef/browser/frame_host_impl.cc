@@ -158,13 +158,13 @@ void CefFrameHostImpl::GetText(CefRefPtr<CefStringVisitor> visitor) {
 }
 
 void CefFrameHostImpl::LoadRequest(CefRefPtr<CefRequest> request) {
-  CefNavigateParams params(GURL(), ui::PAGE_TRANSITION_TYPED);
+  CefNavigateParams params(GURL(), kPageTransitionExplicit);
   static_cast<CefRequestImpl*>(request.get())->Get(params);
   Navigate(params);
 }
 
 void CefFrameHostImpl::LoadURL(const CefString& url) {
-  LoadURLWithExtras(url, content::Referrer(), ui::PAGE_TRANSITION_TYPED,
+  LoadURLWithExtras(url, content::Referrer(), kPageTransitionExplicit,
                     std::string());
 }
 
@@ -532,6 +532,11 @@ const int64_t CefFrameHostImpl::kMainFrameId = -1;
 const int64_t CefFrameHostImpl::kFocusedFrameId = -2;
 const int64_t CefFrameHostImpl::kUnspecifiedFrameId = -3;
 const int64_t CefFrameHostImpl::kInvalidFrameId = -4;
+
+// This equates to (TT_EXPLICIT | TT_DIRECT_LOAD_FLAG).
+const ui::PageTransition CefFrameHostImpl::kPageTransitionExplicit =
+    static_cast<ui::PageTransition>(ui::PAGE_TRANSITION_TYPED |
+                                    ui::PAGE_TRANSITION_FROM_ADDRESS_BAR);
 
 int64 CefFrameHostImpl::GetFrameId() const {
   base::AutoLock lock_scope(state_lock_);

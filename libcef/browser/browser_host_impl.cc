@@ -381,7 +381,8 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
                                  create_params.extension_host_type);
   } else if (!create_params.url.is_empty()) {
     browser->LoadMainFrameURL(create_params.url.spec(), content::Referrer(),
-                              ui::PAGE_TRANSITION_TYPED, std::string());
+                              CefFrameHostImpl::kPageTransitionExplicit,
+                              std::string());
   }
 
   return browser.get();

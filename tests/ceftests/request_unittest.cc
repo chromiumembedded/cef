@@ -374,6 +374,8 @@ TEST(RequestTest, SendRecv) {
 namespace {
 
 const char kTypeTestOrigin[] = "http://tests-requesttt.com/";
+const cef_transition_type_t kTransitionExplicitLoad =
+    static_cast<cef_transition_type_t>(TT_EXPLICIT | TT_DIRECT_LOAD_FLAG);
 
 static struct TypeExpected {
   const char* file;
@@ -383,7 +385,7 @@ static struct TypeExpected {
   int expected_count;
 } g_type_expected[] = {
     // Initial main frame load due to browser creation.
-    {"main.html", true, TT_EXPLICIT, RT_MAIN_FRAME, 1},
+    {"main.html", true, kTransitionExplicitLoad, RT_MAIN_FRAME, 1},
 
     // Sub frame load.
     {"sub.html", true, TT_AUTO_SUBFRAME, RT_SUB_FRAME, 1},

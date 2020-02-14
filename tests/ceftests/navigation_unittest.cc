@@ -26,6 +26,14 @@ const char kHNav3[] = "http://tests-hnav.com/nav3.html";
 const char kHistoryNavMsg[] = "NavigationTest.HistoryNav";
 const char kHistoryNavTestCmdKey[] = "nav-history-test";
 
+const cef_transition_type_t kTransitionExplicitLoad =
+    static_cast<cef_transition_type_t>(TT_EXPLICIT | TT_DIRECT_LOAD_FLAG);
+
+// TT_FORWARD_BACK_FLAG is added to the original transition flags.
+const cef_transition_type_t kTransitionExplicitForwardBack =
+    static_cast<cef_transition_type_t>(kTransitionExplicitLoad |
+                                       TT_FORWARD_BACK_FLAG);
+
 enum NavAction { NA_LOAD = 1, NA_BACK, NA_FORWARD, NA_CLEAR };
 
 typedef struct {
@@ -237,10 +245,11 @@ class NavigationEntryVisitor : public CefNavigationEntryVisitor {
                  entry->GetOriginalURL().ToString().c_str());
     EXPECT_STREQ(expected_title.c_str(), entry->GetTitle().ToString().c_str());
 
+    const auto transition_type = entry->GetTransitionType();
     if (expected_forwardback_[index])
-      EXPECT_EQ(TT_EXPLICIT | TT_FORWARD_BACK_FLAG, entry->GetTransitionType());
+      EXPECT_EQ(kTransitionExplicitForwardBack, transition_type);
     else
-      EXPECT_EQ(TT_EXPLICIT, entry->GetTransitionType());
+      EXPECT_EQ(kTransitionExplicitLoad, transition_type);
 
     EXPECT_FALSE(entry->HasPostData());
     EXPECT_GT(entry->GetCompletionTime().GetTimeT(), 0);
@@ -355,11 +364,12 @@ class HistoryNavTestHandler : public TestHandler {
     EXPECT_STREQ(item.target, url.c_str());
 
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
+
+    const auto transition_type = request->GetTransitionType();
     if (item.action == NA_LOAD) {
-      EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+      EXPECT_EQ(kTransitionExplicitLoad, transition_type);
     } else if (item.action == NA_BACK || item.action == NA_FORWARD) {
-      EXPECT_EQ(TT_EXPLICIT | TT_FORWARD_BACK_FLAG,
-                request->GetTransitionType());
+      EXPECT_EQ(kTransitionExplicitForwardBack, transition_type);
     }
 
     if (nav_ > 0) {
@@ -382,11 +392,12 @@ class HistoryNavTestHandler : public TestHandler {
     const NavListItem& item = kHNavList[nav_];
 
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
+
+    const auto transition_type = request->GetTransitionType();
     if (item.action == NA_LOAD) {
-      EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+      EXPECT_EQ(kTransitionExplicitLoad, transition_type);
     } else if (item.action == NA_BACK || item.action == NA_FORWARD) {
-      EXPECT_EQ(TT_EXPLICIT | TT_FORWARD_BACK_FLAG,
-                request->GetTransitionType());
+      EXPECT_EQ(kTransitionExplicitForwardBack, transition_type);
     }
 
     got_before_resource_load_[nav_].yes();
@@ -429,9 +440,9 @@ class HistoryNavTestHandler : public TestHandler {
     got_load_start_[nav_].yes();
 
     if (item.action == NA_LOAD) {
-      EXPECT_EQ(TT_EXPLICIT, transition_type);
+      EXPECT_EQ(kTransitionExplicitLoad, transition_type);
     } else if (item.action == NA_BACK || item.action == NA_FORWARD) {
-      EXPECT_EQ(TT_EXPLICIT | TT_FORWARD_BACK_FLAG, transition_type);
+      EXPECT_EQ(kTransitionExplicitForwardBack, transition_type);
     }
 
     std::string url1 = browser->GetMainFrame()->GetURL();
@@ -827,7 +838,7 @@ class RedirectTestHandler : public TestHandler {
     std::string url = request->GetURL();
 
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
-    EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+    EXPECT_EQ(kTransitionExplicitLoad, request->GetTransitionType());
 
     if (url == kRNav1) {
       got_nav1_before_resource_load_.yes();
@@ -891,7 +902,7 @@ class RedirectTestHandler : public TestHandler {
     // Should only be called for the final loaded URL.
     std::string url = frame->GetURL();
 
-    EXPECT_EQ(TT_EXPLICIT, transition_type);
+    EXPECT_EQ(kTransitionExplicitLoad, transition_type);
 
     if (url == kRNav4) {
       got_nav4_load_start_.yes();
@@ -1457,7 +1468,7 @@ class OrderNavTestHandler : public TestHandler {
       EXPECT_EQ(browser_id_popup_, browser->GetIdentifier());
       got_before_browse_popup_.yes();
     } else {
-      EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+      EXPECT_EQ(kTransitionExplicitLoad, request->GetTransitionType());
       EXPECT_GT(browser->GetIdentifier(), 0);
       EXPECT_EQ(browser_id_main_, browser->GetIdentifier());
       got_before_browse_main_.yes();
@@ -1486,7 +1497,7 @@ class OrderNavTestHandler : public TestHandler {
       EXPECT_GT(browser->GetIdentifier(), 0);
       EXPECT_EQ(browser_id_popup_, browser->GetIdentifier());
     } else {
-      EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+      EXPECT_EQ(kTransitionExplicitLoad, request->GetTransitionType());
       EXPECT_GT(browser->GetIdentifier(), 0);
       EXPECT_EQ(browser_id_main_, browser->GetIdentifier());
     }
@@ -1517,7 +1528,7 @@ class OrderNavTestHandler : public TestHandler {
       EXPECT_EQ(TT_LINK, transition_type);
       state_popup_.OnLoadStart(browser, frame);
     } else {
-      EXPECT_EQ(TT_EXPLICIT, transition_type);
+      EXPECT_EQ(kTransitionExplicitLoad, transition_type);
       state_main_.OnLoadStart(browser, frame);
     }
   }
@@ -1835,7 +1846,7 @@ class LoadNavTestHandler : public TestHandler {
                       bool is_redirect) override {
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
     if (mode_ == LOAD || request->GetURL() == kLoadNav1) {
-      EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+      EXPECT_EQ(kTransitionExplicitLoad, request->GetTransitionType());
       EXPECT_FALSE(user_gesture);
     } else {
       EXPECT_EQ(TT_LINK, request->GetTransitionType());
@@ -1896,10 +1907,12 @@ class LoadNavTestHandler : public TestHandler {
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefRequestCallback> callback) override {
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
+
+    const auto transition_type = request->GetTransitionType();
     if (mode_ == LOAD || request->GetURL() == kLoadNav1)
-      EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+      EXPECT_EQ(kTransitionExplicitLoad, transition_type);
     else
-      EXPECT_EQ(TT_LINK, request->GetTransitionType());
+      EXPECT_EQ(TT_LINK, transition_type);
 
     EXPECT_GT(browser_id_current_, 0);
     EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
@@ -1916,7 +1929,7 @@ class LoadNavTestHandler : public TestHandler {
     EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
 
     if (mode_ == LOAD || frame->GetURL() == kLoadNav1)
-      EXPECT_EQ(TT_EXPLICIT, transition_type);
+      EXPECT_EQ(kTransitionExplicitLoad, transition_type);
     else
       EXPECT_EQ(TT_LINK, transition_type);
 
