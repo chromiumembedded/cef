@@ -36,9 +36,12 @@ Usage of this script is as follows:
 
    [CrashKeys]
    # The cefclient sample application sets these values (see step 5 below).
-   testkey1=small
-   testkey2=medium
-   testkey3=large
+   testkey_small1=small
+   testkey_small2=small
+   testkey_medium1=medium
+   testkey_medium2=medium
+   testkey_large1=large
+   testkey_large2=large
 
 3. Load one of the following URLs in the CEF-based application to cause a crash:
 
