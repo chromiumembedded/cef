@@ -262,7 +262,7 @@ index 0881b3dd9303..4df6883d4d05 100644
    Profile* const profile_;
    PrintPreviewStickySettings* const sticky_settings_;
 diff --git chrome/browser/ui/webui/print_preview/print_preview_handler.cc chrome/browser/ui/webui/print_preview/print_preview_handler.cc
-index 9bdbc0212f55..d93673e5b0c1 100644
+index 9d9c689a4b9f..e2a90255acab 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 @@ -25,6 +25,7 @@
@@ -273,7 +273,7 @@ index 9bdbc0212f55..d93673e5b0c1 100644
  #include "chrome/browser/app_mode/app_mode_utils.h"
  #include "chrome/browser/bad_message.h"
  #include "chrome/browser/browser_process.h"
-@@ -1107,7 +1108,7 @@ void PrintPreviewHandler::SendInitialSettings(
+@@ -1128,7 +1129,7 @@ void PrintPreviewHandler::SendInitialSettings(
      initial_settings.SetKey(kPolicies, std::move(policies));
  
    if (IsCloudPrintEnabled() &&
@@ -282,7 +282,7 @@ index 9bdbc0212f55..d93673e5b0c1 100644
      initial_settings.SetStringKey(
          kCloudPrintURL, GURL(cloud_devices::GetCloudPrintURL()).spec());
    }
-@@ -1366,6 +1367,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
+@@ -1393,6 +1394,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
      }
      return privet_printer_handler_.get();
    }
@@ -292,7 +292,7 @@ index 9bdbc0212f55..d93673e5b0c1 100644
  #endif
    if (printer_type == PrinterType::kPdfPrinter) {
      if (!pdf_printer_handler_) {
-@@ -1385,7 +1389,7 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
+@@ -1412,7 +1416,7 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
    if (printer_type == PrinterType::kCloudPrinter) {
      // This printer handler is currently experimental. Ensure it is never
      // created unless the flag is enabled.
@@ -301,7 +301,7 @@ index 9bdbc0212f55..d93673e5b0c1 100644
      if (!cloud_printer_handler_)
        cloud_printer_handler_ = PrinterHandler::CreateForCloudPrinters();
      return cloud_printer_handler_.get();
-@@ -1448,6 +1452,7 @@ void PrintPreviewHandler::OnPrintResult(const std::string& callback_id,
+@@ -1475,6 +1479,7 @@ void PrintPreviewHandler::OnPrintResult(const std::string& callback_id,
  }
  
  void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
@@ -309,7 +309,7 @@ index 9bdbc0212f55..d93673e5b0c1 100644
    DCHECK(!identity_manager_);
    cloud_print_enabled_ =
        !base::Contains(printer_type_deny_list_, kCloudPrinter) &&
-@@ -1464,6 +1469,7 @@ void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
+@@ -1491,6 +1496,7 @@ void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
  
    identity_manager_ = IdentityManagerFactory::GetForProfile(profile);
    identity_manager_->AddObserver(this);

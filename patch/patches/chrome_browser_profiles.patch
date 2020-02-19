@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 1abea76ebc02..d9fc9c0450c2 100644
+index c5ab679fb529..3f1c807c65a7 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -359,7 +359,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+@@ -360,7 +360,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
    registrar_.Add(this, chrome::NOTIFICATION_BROWSER_CLOSE_CANCELLED,
                   content::NotificationService::AllSources());
  
@@ -43,7 +43,7 @@ index 7d02af7f8f60..eb70e533dbfb 100644
    // Get the path of the last used profile, or if that's undefined, the default
    // profile.
 diff --git chrome/browser/profiles/renderer_updater.cc chrome/browser/profiles/renderer_updater.cc
-index 07e6f8d726df..9a3c6b38b8eb 100644
+index ce50c9ee3f92..eba0894ee2b4 100644
 --- chrome/browser/profiles/renderer_updater.cc
 +++ chrome/browser/profiles/renderer_updater.cc
 @@ -7,6 +7,7 @@
@@ -54,7 +54,7 @@ index 07e6f8d726df..9a3c6b38b8eb 100644
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
  #include "chrome/browser/profiles/profile.h"
  #include "chrome/browser/signin/identity_manager_factory.h"
-@@ -67,8 +68,12 @@ void GetGuestViewDefaultContentSettingRules(
+@@ -62,8 +63,12 @@ void GetGuestViewDefaultContentSettingRules(
  
  RendererUpdater::RendererUpdater(Profile* profile)
      : profile_(profile), identity_manager_observer_(this) {
@@ -67,7 +67,7 @@ index 07e6f8d726df..9a3c6b38b8eb 100644
  #if defined(OS_CHROMEOS)
    oauth2_login_manager_ =
        chromeos::OAuth2LoginManagerFactory::GetForProfile(profile_);
-@@ -238,7 +243,7 @@ void RendererUpdater::UpdateRenderer(
+@@ -233,7 +238,7 @@ void RendererUpdater::UpdateRenderer(
            force_google_safesearch_.GetValue(),
            force_youtube_restrict_.GetValue(),
            allowed_domains_for_apps_.GetValue(),

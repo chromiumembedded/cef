@@ -139,10 +139,10 @@ index 5dbc9d2dfcfb..1c31d97825c2 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index b1740e9c8a2f..3509c005191c 100644
+index 83d6b8a9e1d9..583e323a9d5a 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -1745,6 +1745,7 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -1727,6 +1727,7 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext() {
    }
  
    scoped_refptr<SessionCleanupCookieStore> session_cleanup_cookie_store;
@@ -150,7 +150,7 @@ index b1740e9c8a2f..3509c005191c 100644
    if (params_->cookie_path) {
      scoped_refptr<base::SequencedTaskRunner> client_task_runner =
          base::ThreadTaskRunnerHandle::Get();
-@@ -1772,18 +1773,27 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -1754,18 +1755,27 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext() {
      session_cleanup_cookie_store =
          base::MakeRefCounted<SessionCleanupCookieStore>(sqlite_store);
  

@@ -41,10 +41,10 @@ index cc4b13a7b9c6..84f3b9ed7cf4 100644
  
  }  // namespace content
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index a91a66bca29d..bff1662c7323 100644
+index e2e3d649a002..88d747b30755 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -2692,6 +2692,11 @@ void RenderWidgetHostImpl::SetNeedsBeginFrameForFlingProgress() {
+@@ -2694,6 +2694,11 @@ void RenderWidgetHostImpl::SetNeedsBeginFrameForFlingProgress() {
    SetNeedsBeginFrame(true);
  }
  

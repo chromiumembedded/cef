@@ -39,7 +39,7 @@ index 5bcc6204c2b5..1bf18609d150 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index cb1a7976f6dc..d6360da8e69d 100644
+index 07169b0ebe98..ea9488f13321 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -713,6 +713,14 @@ void RenderText::SetWhitespaceElision(base::Optional<bool> whitespace_elision) {
@@ -57,7 +57,7 @@ index cb1a7976f6dc..d6360da8e69d 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -1904,6 +1912,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -1850,6 +1858,19 @@ void RenderText::OnTextAttributeChanged() {
  
    layout_text_up_to_date_ = false;
  
@@ -78,7 +78,7 @@ index cb1a7976f6dc..d6360da8e69d 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index ee5748fa6f02..d4477f724d68 100644
+index db6cc4d1b601..703b539edcf2 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
 @@ -304,6 +304,10 @@ class GFX_EXPORT RenderText {
@@ -92,9 +92,9 @@ index ee5748fa6f02..d4477f724d68 100644
    const Rect& display_rect() const { return display_rect_; }
    void SetDisplayRect(const Rect& r);
  
-@@ -980,6 +984,8 @@ class GFX_EXPORT RenderText {
-   // Tell whether or not the layout break lists need an update.
-   bool layout_text_attributes_up_to_date_ = false;
+@@ -973,6 +977,8 @@ class GFX_EXPORT RenderText {
+   // Tell whether or not the |layout_text_| needs an update or is up to date.
+   bool layout_text_up_to_date_ = false;
  
 +  int draw_strings_flags_ = 0;
 +
@@ -102,12 +102,12 @@ index ee5748fa6f02..d4477f724d68 100644
  };
  
 diff --git ui/views/animation/ink_drop_host_view.h ui/views/animation/ink_drop_host_view.h
-index 3b5bc508a0fd..262da51d50ac 100644
+index 2b6056aed3ca..ecd5bc5c32b5 100644
 --- ui/views/animation/ink_drop_host_view.h
 +++ ui/views/animation/ink_drop_host_view.h
-@@ -132,6 +132,8 @@ class VIEWS_EXPORT InkDropHostView : public View {
-   // them.
-   void AnimateInkDrop(InkDropState state, const ui::LocatedEvent* event);
+@@ -142,6 +142,8 @@ class VIEWS_EXPORT InkDropHostView : public View {
+   // this isn't necessary anymore.
+   virtual InkDrop* GetInkDrop();
  
 +  InkDropMode ink_drop_mode() const { return ink_drop_mode_; }
 +
@@ -146,7 +146,7 @@ index 1c8d5c27f928..90d7e7f004e4 100644
    ImageView* image() const { return image_; }
    Label* label() const { return label_; }
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 21a8fa0fa8eb..55a2e57a2e6f 100644
+index b166c6f6afb1..32de6ffe5196 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -53,6 +53,20 @@ bool IsOpaque(SkColor color) {
@@ -185,7 +185,7 @@ index 21a8fa0fa8eb..55a2e57a2e6f 100644
  void Label::SetTooltipText(const base::string16& tooltip_text) {
    DCHECK(handles_tooltips_);
    if (tooltip_text_ == tooltip_text)
-@@ -577,7 +599,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -583,7 +605,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
    render_text->SetFontList(font_list());
    render_text->set_shadows(GetShadows());
    render_text->SetCursorEnabled(false);
@@ -207,7 +207,7 @@ index 21a8fa0fa8eb..55a2e57a2e6f 100644
    render_text->SetMultiline(multiline);
    render_text->SetMaxLines(multiline ? GetMaxLines() : 0);
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index aea6bb5b7b13..9ce9947174d4 100644
+index fd5657b75c4b..90b6e831bd3c 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -176,6 +176,10 @@ class VIEWS_EXPORT Label : public View,
@@ -221,7 +221,7 @@ index aea6bb5b7b13..9ce9947174d4 100644
    // Gets/Sets the tooltip text.  Default behavior for a label (single-line) is
    // to show the full text if it is wider than its bounds.  Calling this
    // overrides the default behavior and lets you set a custom tooltip.  To
-@@ -408,6 +412,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -411,6 +415,7 @@ class VIEWS_EXPORT Label : public View,
    bool collapse_when_hidden_;
    int fixed_width_;
    int max_width_;
@@ -441,7 +441,7 @@ index 78f832fd3acf..cb030c991614 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 1a5af9db833f..60a61700a615 100644
+index b4f0cfda3088..4a9c24d3a760 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -189,6 +189,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)

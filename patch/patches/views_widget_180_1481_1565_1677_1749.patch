@@ -160,7 +160,7 @@ index 91a828ead9e0..226cb92fd19b 100644
  
    XWindow();
 diff --git ui/platform_window/x11/x11_window.cc ui/platform_window/x11/x11_window.cc
-index d6e17cde3baf..b91415a060b8 100644
+index 10220f6bf888..2b31a58f676a 100644
 --- ui/platform_window/x11/x11_window.cc
 +++ ui/platform_window/x11/x11_window.cc
 @@ -84,6 +84,7 @@ ui::XWindow::Configuration ConvertInitPropertiesToXWindowConfig(
@@ -418,10 +418,10 @@ index 40e66a212e3e..08ee8523ab15 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 6412ff796794..f66aff5a8766 100644
+index 08807dc1a6ca..867d47829f09 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -3007,10 +3007,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -3008,10 +3008,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.

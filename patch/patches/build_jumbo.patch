@@ -53,7 +53,7 @@ index 3f790e96da74..7deec3e4b0ce 100644
        event_router->GetEngineIfActive(extension_id, error);
    return engine;
 diff --git chrome/browser/optimization_guide/optimization_guide_navigation_data.cc chrome/browser/optimization_guide/optimization_guide_navigation_data.cc
-index acbec3d510c4..3f640008ddc0 100644
+index 756a80c5565b..cb91b30e7882 100644
 --- chrome/browser/optimization_guide/optimization_guide_navigation_data.cc
 +++ chrome/browser/optimization_guide/optimization_guide_navigation_data.cc
 @@ -8,6 +8,7 @@
@@ -91,10 +91,10 @@ index acbec3d510c4..3f640008ddc0 100644
      int64_t navigation_id)
      : navigation_id_(navigation_id) {}
 diff --git chrome/browser/optimization_guide/prediction/prediction_manager.cc chrome/browser/optimization_guide/prediction/prediction_manager.cc
-index f8eb245f6b48..6b24f4d43d5f 100644
+index dfb47dfd1886..bf0753323b61 100644
 --- chrome/browser/optimization_guide/prediction/prediction_manager.cc
 +++ chrome/browser/optimization_guide/prediction/prediction_manager.cc
-@@ -61,7 +61,9 @@ bool ShouldUseCurrentOptimizationTargetDecision(
+@@ -62,7 +62,9 @@ bool ShouldUseCurrentOptimizationTargetDecision(
  
  // Delay between retries on failed fetch and store of prediction models and
  // host model features from the remote Optimization Guide Service.
@@ -104,7 +104,7 @@ index f8eb245f6b48..6b24f4d43d5f 100644
  
  // The amount of time to wait after a successful fetch of models and host model
  // features before requesting an update from the remote Optimization Guide
-@@ -71,11 +73,13 @@ constexpr base::TimeDelta kUpdateModelsAndFeaturesDelay =
+@@ -72,11 +74,13 @@ constexpr base::TimeDelta kUpdateModelsAndFeaturesDelay =
  
  // Provide a random time delta in seconds before fetching models and host model
  // features.
@@ -118,7 +118,7 @@ index f8eb245f6b48..6b24f4d43d5f 100644
  
  }  // namespace
  
-@@ -694,12 +698,12 @@ void PredictionManager::ScheduleModelsAndHostModelFeaturesFetch() {
+@@ -734,12 +738,12 @@ void PredictionManager::ScheduleModelsAndHostModelFeaturesFetch() {
        model_and_features_store_->GetHostModelFeaturesUpdateTime() -
        clock_->Now();
    const base::TimeDelta time_until_retry =
@@ -432,6 +432,29 @@ index 8a49f3591a73..0345548ec18f 100644
    }
  }
  
+diff --git third_party/blink/renderer/platform/audio/audio_delay_dsp_kernel.cc third_party/blink/renderer/platform/audio/audio_delay_dsp_kernel.cc
+index 3e2f1a5a3fad..613745b93595 100644
+--- third_party/blink/renderer/platform/audio/audio_delay_dsp_kernel.cc
++++ third_party/blink/renderer/platform/audio/audio_delay_dsp_kernel.cc
+@@ -32,7 +32,9 @@
+ namespace blink {
+ 
+ // Delay nodes have a max allowed delay time of this many seconds.
++namespace i {
+ const float kMaxDelayTimeSeconds = 30;
++}
+ 
+ AudioDelayDSPKernel::AudioDelayDSPKernel(AudioDSPKernelProcessor* processor,
+                                          size_t processing_size_in_frames)
+@@ -46,7 +48,7 @@ AudioDelayDSPKernel::AudioDelayDSPKernel(double max_delay_time,
+       max_delay_time_(max_delay_time),
+       write_index_(0) {
+   DCHECK_GT(max_delay_time_, 0.0);
+-  DCHECK_LE(max_delay_time_, kMaxDelayTimeSeconds);
++  DCHECK_LE(max_delay_time_, i::kMaxDelayTimeSeconds);
+   DCHECK(std::isfinite(max_delay_time_));
+ 
+   size_t buffer_length = BufferLengthForDelay(max_delay_time, sample_rate);
 diff --git third_party/blink/renderer/platform/fonts/font_matching_metrics.cc third_party/blink/renderer/platform/fonts/font_matching_metrics.cc
 index 5e1005a2e4d3..ef83cadc9957 100644
 --- third_party/blink/renderer/platform/fonts/font_matching_metrics.cc
