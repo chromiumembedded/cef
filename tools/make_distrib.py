@@ -556,8 +556,12 @@ if options.x64build + options.armbuild + options.arm64build > 1:
   print_error('Invalid combination of build options.')
   sys.exit()
 
-if (options.armbuild or options.arm64build) and platform != 'linux':
-  print_error('--arm-build and --arm64-build are only supported on Linux.')
+if options.armbuild and platform != 'linux':
+  print_error('--arm-build is only supported on Linux.')
+  sys.exit()
+
+if options.arm64build and not platform in ('linux', 'windows'):
+  print_error('--arm64-build is only supported on Linux and Windows.')
   sys.exit()
 
 if options.sandbox and not platform in ('macosx', 'windows'):

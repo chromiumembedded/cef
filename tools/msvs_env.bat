@@ -13,11 +13,13 @@ setlocal enabledelayedexpansion
 
 :: Require that platform is passed as the first argument.
 if "%1" == "win32" (
-  set bits=32
+  set vcvarsbat=vcvars32.bat
 ) else if "%1" == "win64" (
-  set bits=64
+  set vcvarsbat=vcvars64.bat
+) else if "%1" == "winarm64" (
+  set vcvarsbat=vcvarsamd64_arm64.bat
 ) else (
-  echo ERROR: Please specify a target platform: win32 or win64
+  echo ERROR: Please specify a target platform: win32, win64 or winarm64
   set ERRORLEVEL=1
   goto end
 )
@@ -30,7 +32,7 @@ if exist %vcvars% goto found_vcvars
 :: Search for the default VS2017 installation path.
 for %%x in ("%PROGRAMFILES(X86)%" "%PROGRAMFILES%") do (
   for %%y in (Professional Enterprise Community BuildTools) do (
-    set vcvars="%%~x\Microsoft Visual Studio\2017\%%y\VC\Auxiliary\Build\vcvars%bits%.bat"
+    set vcvars="%%~x\Microsoft Visual Studio\2017\%%y\VC\Auxiliary\Build\%vcvarsbat%"
     if exist !vcvars! goto found_vcvars
   )
 )

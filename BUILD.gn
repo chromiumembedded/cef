@@ -2143,13 +2143,18 @@ if (is_mac) {
       libs = [
         "comctl32.lib",
         "d3d11.lib",
-        "glu32.lib",
         "imm32.lib",
         "oleacc.lib",
-        "opengl32.lib",
         "rpcrt4.lib",
         "shlwapi.lib",
       ]
+
+      if (target_cpu != "arm64") {
+        libs += [
+          "opengl32.lib",
+          "glu32.lib"
+        ]
+      }
     }
 
     if (is_linux) {
