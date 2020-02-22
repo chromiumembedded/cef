@@ -388,6 +388,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   bool is_showing_ = false;
   bool is_destroyed_ = false;
   bool is_first_navigation_ = true;
+  gfx::Rect current_view_bounds_;
   gfx::Rect popup_position_;
   base::Lock damage_rect_lock_;
   std::map<uint32_t, gfx::Rect> damage_rects_;
