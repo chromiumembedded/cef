@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index c8f7f6f8057d..7dfc673f4090 100644
+index 08c2fda816c1..a448f0535b1f 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -2045,16 +2045,24 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2068,16 +2068,24 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -35,7 +35,7 @@ index c8f7f6f8057d..7dfc673f4090 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -2849,6 +2857,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
+@@ -2872,6 +2880,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -51,7 +51,7 @@ index c8f7f6f8057d..7dfc673f4090 100644
    // If |is_new_browsing_instance| is true, defer routing_id allocation
    // to the WebContentsImpl::Create() call. This is required because with
    // a new browsing instance, WebContentsImpl::Create() may elect a different
-@@ -6277,6 +6294,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -6300,6 +6317,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // doesn't support properly traversing BrowserPlugins.
      SetAsFocusedWebContentsIfNecessary();
    }
