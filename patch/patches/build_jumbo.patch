@@ -95,7 +95,7 @@ index e0da20cc3bb6..b3f6720dff90 100644
    base::PostTask(
        FROM_HERE, {content::BrowserThread::UI},
 diff --git chrome/browser/optimization_guide/optimization_guide_navigation_data.cc chrome/browser/optimization_guide/optimization_guide_navigation_data.cc
-index b532a58d5db7..e6d30ce29ea1 100644
+index a0ff050271dd..b9337420565e 100644
 --- chrome/browser/optimization_guide/optimization_guide_navigation_data.cc
 +++ chrome/browser/optimization_guide/optimization_guide_navigation_data.cc
 @@ -8,6 +8,7 @@
@@ -106,7 +106,7 @@ index b532a58d5db7..e6d30ce29ea1 100644
  #include "chrome/browser/optimization_guide/optimization_guide_web_contents_observer.h"
  #include "components/optimization_guide/hints_processing_util.h"
  #include "content/public/browser/navigation_handle.h"
-@@ -16,25 +17,6 @@
+@@ -17,25 +18,6 @@
  #include "services/metrics/public/cpp/ukm_source.h"
  #include "services/metrics/public/cpp/ukm_source_id.h"
  
@@ -133,7 +133,7 @@ index b532a58d5db7..e6d30ce29ea1 100644
      int64_t navigation_id)
      : navigation_id_(navigation_id) {}
 diff --git chrome/browser/optimization_guide/prediction/prediction_manager.cc chrome/browser/optimization_guide/prediction/prediction_manager.cc
-index 7b7567f55df2..3b204a446187 100644
+index c4a15ba4540c..947ed8abb02a 100644
 --- chrome/browser/optimization_guide/prediction/prediction_manager.cc
 +++ chrome/browser/optimization_guide/prediction/prediction_manager.cc
 @@ -62,7 +62,9 @@ bool ShouldUseCurrentOptimizationTargetDecision(
@@ -160,7 +160,7 @@ index 7b7567f55df2..3b204a446187 100644
  
  // Util class for recording the state of a prediction model. The result is
  // recorded when it goes out of scope and its destructor is called.
-@@ -822,12 +826,12 @@ void PredictionManager::ScheduleModelsAndHostModelFeaturesFetch() {
+@@ -838,12 +842,12 @@ void PredictionManager::ScheduleModelsAndHostModelFeaturesFetch() {
        model_and_features_store_->GetHostModelFeaturesUpdateTime() -
        clock_->Now();
    const base::TimeDelta time_until_retry =
@@ -787,7 +787,7 @@ index 73533fba5b15..42859c57dcd7 100644
    const GLenum target = GL_TEXTURE_2D;
    const GLuint service_id =
 diff --git media/muxers/webm_muxer.h media/muxers/webm_muxer.h
-index 0d9b8c6de789..d78badac69b2 100644
+index a53a3e0e3803..7ca35c681c35 100644
 --- media/muxers/webm_muxer.h
 +++ media/muxers/webm_muxer.h
 @@ -13,6 +13,7 @@

@@ -44,10 +44,10 @@ index 8df9cdf40707..746e15c5884c 100644
    }
  
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index 0cf193d31a02..1c62098d3a6a 100644
+index 6aa9046f5014..cb8174bef9c8 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
-@@ -1199,7 +1199,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
+@@ -1200,7 +1200,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins(kNotAboutToInstantiatePlugin))
      return nullptr;

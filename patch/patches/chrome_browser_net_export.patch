@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index c820df8447f0..58cb1279b7bf 100644
+index efacc93f730f..81625e668dbb 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -9,6 +9,7 @@ import("//build/config/features.gni")
@@ -29,7 +29,7 @@ index c820df8447f0..58cb1279b7bf 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -1438,6 +1444,7 @@ jumbo_static_library("ui") {
+@@ -1437,6 +1443,7 @@ jumbo_static_library("ui") {
        "//components/keep_alive_registry",
        "//components/network_session_configurator/common",
        "//components/page_load_metrics/browser",

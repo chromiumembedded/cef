@@ -224,10 +224,10 @@ index 632ae86c6fd6..55b749ec1242 100644
                            const std::vector<WebPluginInfo>& all_plugins);
  
 diff --git content/common/frame_messages.h content/common/frame_messages.h
-index 4370f99c9a51..8dc0736e2b59 100644
+index 4a4085021a61..d822c9c99e06 100644
 --- content/common/frame_messages.h
 +++ content/common/frame_messages.h
-@@ -826,9 +826,10 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
+@@ -825,9 +825,10 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
  // type. If there is no matching plugin, |found| is false.
  // |actual_mime_type| is the actual mime type supported by the
  // found plugin.
@@ -327,10 +327,10 @@ index 87df60c52d1e..c3841a7845dd 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 00bbbdc9b82d..a3c923fcc442 100644
+index 3f3f5da903d4..00af07f80d4c 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -3796,7 +3796,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -3798,7 +3798,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(

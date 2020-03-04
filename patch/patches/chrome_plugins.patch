@@ -165,15 +165,16 @@ index 4e64db143b8a..71322b0261a1 100644
    Profile* profile = Profile::FromBrowserContext(browser_context);
    std::vector<std::string> whitelist = MimeTypesHandler::GetMIMETypeWhitelist();
 diff --git chrome/common/google_url_loader_throttle.cc chrome/common/google_url_loader_throttle.cc
-index a7e5caea5add..f9d11b317946 100644
+index cce1eac38785..9343ff520a87 100644
 --- chrome/common/google_url_loader_throttle.cc
 +++ chrome/common/google_url_loader_throttle.cc
-@@ -4,10 +4,15 @@
- 
+@@ -5,11 +5,16 @@
  #include "chrome/common/google_url_loader_throttle.h"
  
+ #include "build/build_config.h"
 +#include "cef/libcef/features/features.h"
  #include "chrome/common/net/safe_search_util.h"
+ #include "components/google/core/common/google_util.h"
  #include "components/variations/net/variations_http_headers.h"
  #include "services/network/public/mojom/url_response_head.mojom.h"
  
@@ -184,7 +185,7 @@ index a7e5caea5add..f9d11b317946 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "extensions/common/extension_urls.h"
  #endif
-@@ -96,6 +101,11 @@ void GoogleURLLoaderThrottle::WillProcessResponse(
+@@ -127,6 +132,11 @@ void GoogleURLLoaderThrottle::WillProcessResponse(
      const GURL& response_url,
      network::mojom::URLResponseHead* response_head,
      bool* defer) {
