@@ -299,13 +299,17 @@ void CefRequestImpl::SetReferrer(const CefString& referrer_url,
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
 
-  // Call GetAsReferrer here for consistency since the same logic will later be
-  // applied by URLRequest::SetReferrer().
-  const GURL& new_referrer_url = GURL(referrer_url.ToString()).GetAsReferrer();
-  if (referrer_url_ != new_referrer_url || referrer_policy_ != policy) {
+  const auto& sanitized_referrer = content::Referrer::SanitizeForRequest(
+      url_, content::Referrer(GURL(referrer_url.ToString()),
+                              NetReferrerPolicyToBlinkReferrerPolicy(policy)));
+  const auto sanitized_policy =
+      BlinkReferrerPolicyToNetReferrerPolicy(sanitized_referrer.policy);
+
+  if (referrer_url_ != sanitized_referrer.url ||
+      referrer_policy_ != sanitized_policy) {
     Changed(kChangedReferrer);
-    referrer_url_ = new_referrer_url;
-    referrer_policy_ = policy;
+    referrer_url_ = sanitized_referrer.url;
+    referrer_policy_ = sanitized_policy;
   }
 }
 
@@ -425,16 +429,16 @@ void CefRequestImpl::SetFlags(int flags) {
 
 CefString CefRequestImpl::GetFirstPartyForCookies() {
   base::AutoLock lock_scope(lock_);
-  return first_party_for_cookies_.spec();
+  return site_for_cookies_.RepresentativeUrl().spec();
 }
 
 void CefRequestImpl::SetFirstPartyForCookies(const CefString& url) {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
-  const GURL& new_url = GURL(url.ToString());
-  if (first_party_for_cookies_ != new_url) {
-    Changed(kChangedFirstPartyForCookies);
-    first_party_for_cookies_ = new_url;
+  auto new_site = net::SiteForCookies::FromUrl(GURL(url.ToString()));
+  if (!new_site.IsEquivalent(site_for_cookies_)) {
+    Changed(kChangedSiteForCookies);
+    site_for_cookies_ = new_site;
   }
 }
 
@@ -464,12 +468,16 @@ void CefRequestImpl::Set(const network::ResourceRequest* request,
   method_ = request->method;
   identifier_ = identifier;
 
-  // Our consumer should have made sure that this is a safe referrer. See for
-  // instance WebCore::FrameLoader::HideReferrer.
   if (request->referrer.is_valid()) {
-    referrer_url_ = request->referrer;
+    const auto& sanitized_referrer = content::Referrer::SanitizeForRequest(
+        request->url,
+        content::Referrer(
+            request->referrer,
+            NetReferrerPolicyToBlinkReferrerPolicy(
+                static_cast<cef_referrer_policy_t>(request->referrer_policy))));
+    referrer_url_ = sanitized_referrer.url;
     referrer_policy_ =
-        static_cast<cef_referrer_policy_t>(request->referrer_policy);
+        BlinkReferrerPolicyToNetReferrerPolicy(sanitized_referrer.policy);
   }
 
   // Transfer request headers.
@@ -481,7 +489,7 @@ void CefRequestImpl::Set(const network::ResourceRequest* request,
     static_cast<CefPostDataImpl*>(postdata_.get())->Set(*request->request_body);
   }
 
-  first_party_for_cookies_ = request->site_for_cookies;
+  site_for_cookies_ = request->site_for_cookies;
 
   resource_type_ = static_cast<cef_resource_type_t>(request->resource_type);
   transition_type_ =
@@ -519,9 +527,9 @@ void CefRequestImpl::Get(network::ResourceRequest* request,
     }
   }
 
-  if (!first_party_for_cookies_.is_empty() &&
-      ShouldSet(kChangedFirstPartyForCookies, changed_only)) {
-    request->site_for_cookies = first_party_for_cookies_;
+  if (!site_for_cookies_.IsNull() &&
+      ShouldSet(kChangedSiteForCookies, changed_only)) {
+    request->site_for_cookies = site_for_cookies_;
   }
 
   if (ShouldSet(kChangedFlags, changed_only)) {
@@ -560,10 +568,17 @@ void CefRequestImpl::Set(const net::RedirectInfo& redirect_info) {
 
   url_ = redirect_info.new_url;
   method_ = redirect_info.new_method;
-  first_party_for_cookies_ = redirect_info.new_site_for_cookies;
-  referrer_url_ = GURL(redirect_info.new_referrer);
+  site_for_cookies_ = redirect_info.new_site_for_cookies;
+
+  const auto& sanitized_referrer = content::Referrer::SanitizeForRequest(
+      redirect_info.new_url,
+      content::Referrer(GURL(redirect_info.new_referrer),
+                        NetReferrerPolicyToBlinkReferrerPolicy(
+                            static_cast<cef_referrer_policy_t>(
+                                redirect_info.new_referrer_policy))));
+  referrer_url_ = sanitized_referrer.url;
   referrer_policy_ =
-      static_cast<cef_referrer_policy_t>(redirect_info.new_referrer_policy);
+      BlinkReferrerPolicyToNetReferrerPolicy(sanitized_referrer.policy);
 }
 
 void CefRequestImpl::Set(const net::HttpRequestHeaders& headers) {
@@ -584,7 +599,7 @@ void CefRequestImpl::Set(
   url_ = params.url();
   method_ = params.is_post() ? "POST" : "GET";
 
-  const content::Referrer& sanitized_referrer =
+  const auto& sanitized_referrer =
       content::Referrer::SanitizeForRequest(params.url(), params.referrer());
   referrer_url_ = sanitized_referrer.url;
   referrer_policy_ =
@@ -609,8 +624,9 @@ void CefRequestImpl::Get(blink::WebURLRequest& request,
             NetReferrerPolicyToBlinkReferrerPolicy(referrer_policy_), url_,
             blink::WebString::FromUTF8(referrer_url_.spec()));
     if (!referrer.IsEmpty()) {
-      request.SetHttpReferrer(
-          referrer, NetReferrerPolicyToBlinkReferrerPolicy(referrer_policy_));
+      request.SetReferrerString(referrer);
+      request.SetReferrerPolicy(
+          NetReferrerPolicyToBlinkReferrerPolicy(referrer_policy_));
     }
   }
 
@@ -634,8 +650,8 @@ void CefRequestImpl::Get(blink::WebURLRequest& request,
 
   ::SetHeaderMap(headermap_, request);
 
-  if (!first_party_for_cookies_.is_empty())
-    request.SetSiteForCookies(first_party_for_cookies_);
+  if (!site_for_cookies_.IsNull())
+    request.SetSiteForCookies(site_for_cookies_);
 
   int flags = flags_;
   if (!(flags & kURCachePolicyMask)) {
@@ -666,10 +682,9 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
                 static_cast<cef_referrer_policy_t>(params.referrer_policy)),
             params.url, blink::WebString::FromUTF8(params.referrer.spec()));
     if (!referrer.IsEmpty()) {
-      request.SetHttpReferrer(
-          referrer,
-          NetReferrerPolicyToBlinkReferrerPolicy(
-              static_cast<cef_referrer_policy_t>(params.referrer_policy)));
+      request.SetReferrerString(referrer);
+      request.SetReferrerPolicy(NetReferrerPolicyToBlinkReferrerPolicy(
+          static_cast<cef_referrer_policy_t>(params.referrer_policy)));
     }
   }
 
@@ -711,8 +726,10 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
         data.Assign(element->bytes(), element->bytes_length());
         body.AppendData(data);
       } else if (element->type() == net::UploadElement::TYPE_FILE) {
-        body.AppendFile(
-            FilePathStringToWebString(element->file_path().value()));
+        body.AppendFileRange(
+            FilePathStringToWebString(element->file_path().value()),
+            element->file_range_offset(), element->file_range_length(),
+            element->expected_file_modification_time());
       } else {
         NOTREACHED();
       }
@@ -721,7 +738,7 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
     request.SetHttpBody(body);
   }
 
-  if (params.site_for_cookies.is_valid())
+  if (!params.site_for_cookies.IsNull())
     request.SetSiteForCookies(params.site_for_cookies);
 
   int flags = params.load_flags;
@@ -758,7 +775,7 @@ void CefRequestImpl::Get(CefNavigateParams& params) const {
     impl->Get(*params.upload_data.get());
   }
 
-  params.site_for_cookies = first_party_for_cookies_;
+  params.site_for_cookies = site_for_cookies_;
   params.load_flags = flags_;
 }
 
@@ -817,8 +834,8 @@ void CefRequestImpl::RevertChanges() {
   }
   if (backup_->backups_ & kChangedFlags)
     flags_ = backup_->flags_;
-  if (backup_->backups_ & kChangedFirstPartyForCookies)
-    first_party_for_cookies_ = backup_->first_party_for_cookies_;
+  if (backup_->backups_ & kChangedSiteForCookies)
+    site_for_cookies_ = backup_->site_for_cookies_;
 
   backup_.reset();
 }
@@ -938,10 +955,10 @@ void CefRequestImpl::Changed(uint8_t changes) {
       backup_->flags_ = flags_;
       backup_->backups_ |= kChangedFlags;
     }
-    if ((changes & kChangedFirstPartyForCookies) &&
-        !(backup_->backups_ & kChangedFirstPartyForCookies)) {
-      backup_->first_party_for_cookies_ = first_party_for_cookies_;
-      backup_->backups_ |= kChangedFirstPartyForCookies;
+    if ((changes & kChangedSiteForCookies) &&
+        !(backup_->backups_ & kChangedSiteForCookies)) {
+      backup_->site_for_cookies_ = site_for_cookies_;
+      backup_->backups_ |= kChangedSiteForCookies;
     }
   }
 
@@ -988,7 +1005,7 @@ void CefRequestImpl::Reset() {
   transition_type_ = TT_EXPLICIT;
   identifier_ = 0U;
   flags_ = UR_FLAG_NONE;
-  first_party_for_cookies_ = GURL();
+  site_for_cookies_ = net::SiteForCookies();
 
   changes_ = kChangedNone;
 }
@@ -1193,7 +1210,8 @@ void CefPostDataImpl::Get(blink::WebHTTPBody& data) const {
     if (element.type == blink::WebHTTPBody::Element::kTypeData) {
       data.AppendData(element.data);
     } else if (element.type == blink::WebHTTPBody::Element::kTypeFile) {
-      data.AppendFile(element.file_path);
+      data.AppendFileRange(element.file_path, element.file_start,
+                           element.file_length, element.modification_time);
     } else {
       NOTREACHED();
     }

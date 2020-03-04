@@ -417,14 +417,14 @@ void LoadWidevineCdmInfoOnBlockingThread(
   cef_cdm_registration_error_t result =
       LoadWidevineCdmInfo(base_path, args.get(), &error_message);
   if (result != CEF_CDM_REGISTRATION_ERROR_NONE) {
-    CEF_POST_TASK(CEF_UIT, base::Bind(DeliverWidevineCdmCallback, result,
-                                      error_message, callback));
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(DeliverWidevineCdmCallback, result,
+                                          error_message, callback));
     return;
   }
 
   // Continue execution on the UI thread.
-  CEF_POST_TASK(CEF_UIT, base::Bind(RegisterWidevineCdmOnUIThread,
-                                    base::Passed(std::move(args)), callback));
+  CEF_POST_TASK(CEF_UIT, base::BindOnce(RegisterWidevineCdmOnUIThread,
+                                        std::move(args), callback));
 }
 
 }  // namespace
@@ -446,7 +446,7 @@ void CefWidevineLoader::LoadWidevineCdm(
   }
 
   CEF_POST_USER_VISIBLE_TASK(
-      base::Bind(LoadWidevineCdmInfoOnBlockingThread, path, callback));
+      base::BindOnce(LoadWidevineCdmInfoOnBlockingThread, path, callback));
 }
 
 void CefWidevineLoader::OnContextInitialized() {

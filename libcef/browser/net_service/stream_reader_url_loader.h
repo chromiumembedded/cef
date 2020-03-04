@@ -13,9 +13,9 @@
 #include "mojo/public/cpp/system/simple_watcher.h"
 #include "net/http/http_byte_range.h"
 #include "services/network/public/cpp/net_adapters.h"
-#include "services/network/public/cpp/resource_response.h"
 #include "services/network/public/mojom/network_context.mojom.h"
 #include "services/network/public/mojom/url_loader.mojom.h"
+#include "services/network/public/mojom/url_response_head.mojom.h"
 
 namespace net_service {
 
@@ -188,9 +188,11 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
 
   void OnReaderSkipCompleted(int64_t bytes_skipped);
   void HeadersComplete(int status_code, int64_t expected_content_length);
-  void ContinueWithResponseHeaders(int32_t result,
-                                   const base::Optional<std::string>& headers,
-                                   const base::Optional<GURL>& redirect_url);
+  void ContinueWithResponseHeaders(
+      network::mojom::URLResponseHeadPtr pending_response,
+      int32_t result,
+      const base::Optional<std::string>& headers,
+      const base::Optional<GURL>& redirect_url);
 
   void SendBody();
   void ReadMore();
@@ -204,8 +206,6 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
   bool byte_range_valid() const;
 
   const RequestId request_id_;
-
-  network::ResourceResponseHead pending_response_;
 
   size_t header_length_ = 0;
   int64_t total_bytes_read_ = 0;

@@ -110,7 +110,7 @@ index 83d86ad90d24..4edd1fb9e20b 100644
  // Works for std::priority_queue, std::queue, and std::stack.
  template <class A>
 diff --git base/values.cc base/values.cc
-index 66e8d39abf0b..c6674c3b65fb 100644
+index fbc859c6518d..95e8fc815067 100644
 --- base/values.cc
 +++ base/values.cc
 @@ -24,20 +24,6 @@
@@ -134,16 +134,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
  static_assert(sizeof(Value::DoubleStorage) == sizeof(double),
                "The double and DoubleStorage types should have the same size");
  
-@@ -428,7 +414,7 @@ bool Value::EraseListIter(ListStorage::const_iterator iter) {
- }
- 
- bool Value::EraseListIter(CheckedContiguousConstIterator<Value> iter) {
--  const auto offset = iter - as_const(*this).GetList().begin();
-+  const auto offset = iter - static_cast<const Value*>(this)->GetList().begin();
-   return EraseListIter(list_.begin() + offset);
- }
- 
-@@ -442,7 +428,7 @@ void Value::ClearList() {
+@@ -433,7 +419,7 @@ void Value::ClearList() {
  }
  
  Value* Value::FindKey(StringPiece key) {
@@ -152,7 +143,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
  }
  
  const Value* Value::FindKey(StringPiece key) const {
-@@ -454,7 +440,8 @@ const Value* Value::FindKey(StringPiece key) const {
+@@ -445,7 +431,8 @@ const Value* Value::FindKey(StringPiece key) const {
  }
  
  Value* Value::FindKeyOfType(StringPiece key, Type type) {
@@ -162,7 +153,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
  }
  
  const Value* Value::FindKeyOfType(StringPiece key, Type type) const {
-@@ -578,7 +565,7 @@ Optional<Value> Value::ExtractKey(StringPiece key) {
+@@ -569,7 +556,7 @@ Optional<Value> Value::ExtractKey(StringPiece key) {
  }
  
  Value* Value::FindPath(StringPiece path) {
@@ -171,7 +162,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
  }
  
  const Value* Value::FindPath(StringPiece path) const {
-@@ -593,7 +580,8 @@ const Value* Value::FindPath(StringPiece path) const {
+@@ -584,7 +571,8 @@ const Value* Value::FindPath(StringPiece path) const {
  }
  
  Value* Value::FindPathOfType(StringPiece path, Type type) {
@@ -181,7 +172,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
  }
  
  const Value* Value::FindPathOfType(StringPiece path, Type type) const {
-@@ -636,7 +624,8 @@ const std::string* Value::FindStringPath(StringPiece path) const {
+@@ -627,7 +615,8 @@ const std::string* Value::FindStringPath(StringPiece path) const {
  }
  
  std::string* Value::FindStringPath(StringPiece path) {
@@ -191,7 +182,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
  }
  
  const Value::BlobStorage* Value::FindBlobPath(StringPiece path) const {
-@@ -722,11 +711,11 @@ Optional<Value> Value::ExtractPath(StringPiece path) {
+@@ -713,11 +702,11 @@ Optional<Value> Value::ExtractPath(StringPiece path) {
  
  // DEPRECATED METHODS
  Value* Value::FindPath(std::initializer_list<StringPiece> path) {
@@ -205,7 +196,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
  }
  
  const Value* Value::FindPath(std::initializer_list<StringPiece> path) const {
-@@ -745,11 +734,13 @@ const Value* Value::FindPath(span<const StringPiece> path) const {
+@@ -736,11 +725,13 @@ const Value* Value::FindPath(span<const StringPiece> path) const {
  
  Value* Value::FindPathOfType(std::initializer_list<StringPiece> path,
                               Type type) {
@@ -221,7 +212,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
  }
  
  const Value* Value::FindPathOfType(std::initializer_list<StringPiece> path,
-@@ -911,7 +902,7 @@ bool Value::GetAsString(string16* out_value) const {
+@@ -902,7 +893,7 @@ bool Value::GetAsString(string16* out_value) const {
  
  bool Value::GetAsString(const Value** out_value) const {
    if (out_value && is_string()) {
@@ -230,7 +221,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
      return true;
    }
    return is_string();
-@@ -1309,7 +1300,9 @@ bool DictionaryValue::Get(StringPiece path,
+@@ -1300,7 +1291,9 @@ bool DictionaryValue::Get(StringPiece path,
  }
  
  bool DictionaryValue::Get(StringPiece path, Value** out_value)  {
@@ -241,7 +232,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
  }
  
  bool DictionaryValue::GetBoolean(StringPiece path, bool* bool_value) const {
-@@ -1382,7 +1375,8 @@ bool DictionaryValue::GetBinary(StringPiece path,
+@@ -1373,7 +1366,8 @@ bool DictionaryValue::GetBinary(StringPiece path,
  }
  
  bool DictionaryValue::GetBinary(StringPiece path, Value** out_value) {
@@ -251,7 +242,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
  }
  
  bool DictionaryValue::GetDictionary(StringPiece path,
-@@ -1400,8 +1394,9 @@ bool DictionaryValue::GetDictionary(StringPiece path,
+@@ -1391,8 +1385,9 @@ bool DictionaryValue::GetDictionary(StringPiece path,
  
  bool DictionaryValue::GetDictionary(StringPiece path,
                                      DictionaryValue** out_value) {
@@ -263,7 +254,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
  }
  
  bool DictionaryValue::GetList(StringPiece path,
-@@ -1418,8 +1413,9 @@ bool DictionaryValue::GetList(StringPiece path,
+@@ -1409,8 +1404,9 @@ bool DictionaryValue::GetList(StringPiece path,
  }
  
  bool DictionaryValue::GetList(StringPiece path, ListValue** out_value) {
@@ -275,7 +266,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
  }
  
  bool DictionaryValue::GetWithoutPathExpansion(StringPiece key,
-@@ -1436,8 +1432,9 @@ bool DictionaryValue::GetWithoutPathExpansion(StringPiece key,
+@@ -1427,8 +1423,9 @@ bool DictionaryValue::GetWithoutPathExpansion(StringPiece key,
  
  bool DictionaryValue::GetWithoutPathExpansion(StringPiece key,
                                                Value** out_value) {
@@ -287,7 +278,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
  }
  
  bool DictionaryValue::GetBooleanWithoutPathExpansion(StringPiece key,
-@@ -1503,8 +1500,11 @@ bool DictionaryValue::GetDictionaryWithoutPathExpansion(
+@@ -1494,8 +1491,11 @@ bool DictionaryValue::GetDictionaryWithoutPathExpansion(
  bool DictionaryValue::GetDictionaryWithoutPathExpansion(
      StringPiece key,
      DictionaryValue** out_value) {
@@ -301,7 +292,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
  }
  
  bool DictionaryValue::GetListWithoutPathExpansion(
-@@ -1523,8 +1523,10 @@ bool DictionaryValue::GetListWithoutPathExpansion(
+@@ -1514,8 +1514,10 @@ bool DictionaryValue::GetListWithoutPathExpansion(
  
  bool DictionaryValue::GetListWithoutPathExpansion(StringPiece key,
                                                    ListValue** out_value) {
@@ -314,7 +305,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
  }
  
  bool DictionaryValue::Remove(StringPiece path,
-@@ -1654,7 +1656,9 @@ bool ListValue::Get(size_t index, const Value** out_value) const {
+@@ -1645,7 +1647,9 @@ bool ListValue::Get(size_t index, const Value** out_value) const {
  }
  
  bool ListValue::Get(size_t index, Value** out_value) {
@@ -325,7 +316,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
  }
  
  bool ListValue::GetBoolean(size_t index, bool* bool_value) const {
-@@ -1711,8 +1715,9 @@ bool ListValue::GetDictionary(size_t index,
+@@ -1702,8 +1706,9 @@ bool ListValue::GetDictionary(size_t index,
  }
  
  bool ListValue::GetDictionary(size_t index, DictionaryValue** out_value) {
@@ -337,7 +328,7 @@ index 66e8d39abf0b..c6674c3b65fb 100644
  }
  
  bool ListValue::GetList(size_t index, const ListValue** out_value) const {
-@@ -1728,8 +1733,9 @@ bool ListValue::GetList(size_t index, const ListValue** out_value) const {
+@@ -1719,8 +1724,9 @@ bool ListValue::GetList(size_t index, const ListValue** out_value) const {
  }
  
  bool ListValue::GetList(size_t index, ListValue** out_value) {

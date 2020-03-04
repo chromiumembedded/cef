@@ -12,9 +12,12 @@ namespace content {
 class BrowserContext;
 }
 
+namespace net {
+class HttpResponseHeaders;
+}
+
 namespace network {
 struct ResourceRequest;
-struct ResourceResponseHead;
 }  // namespace network
 
 namespace net_service {
@@ -45,7 +48,7 @@ void LoadCookies(content::BrowserContext* browser_context,
 // on the IO thread.
 void SaveCookies(content::BrowserContext* browser_context,
                  const network::ResourceRequest& request,
-                 const network::ResourceResponseHead& head,
+                 net::HttpResponseHeaders* headers,
                  const AllowCookieCallback& allow_cookie_callback,
                  DoneCookieCallback done_callback);
 

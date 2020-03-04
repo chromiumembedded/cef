@@ -45,7 +45,6 @@
 #include "net/base/net_errors.h"
 #include "net/http/http_response_headers.h"
 #include "net/traffic_annotation/network_traffic_annotation.h"
-#include "services/network/public/cpp/resource_response.h"
 #include "services/network/public/cpp/simple_url_loader.h"
 #include "services/network/public/cpp/simple_url_loader_stream_consumer.h"
 #include "services/network/public/mojom/url_response_head.mojom.h"
@@ -59,9 +58,20 @@ static std::string GetFrontendURL() {
 }
 
 std::unique_ptr<base::DictionaryValue> BuildObjectForResponse(
-    const net::HttpResponseHeaders* rh) {
+    const net::HttpResponseHeaders* rh,
+    bool success,
+    int net_error) {
   auto response = std::make_unique<base::DictionaryValue>();
-  response->SetInteger("statusCode", rh ? rh->response_code() : 200);
+  int responseCode = 200;
+  if (rh) {
+    responseCode = rh->response_code();
+  } else if (!success) {
+    // In case of no headers, assume file:// URL and failed to load
+    responseCode = 404;
+  }
+  response->SetInteger("statusCode", responseCode);
+  response->SetInteger("netError", net_error);
+  response->SetString("netErrorName", net::ErrorToString(net_error));
 
   auto headers = std::make_unique<base::DictionaryValue>();
   size_t iterator = 0;
@@ -122,7 +132,8 @@ class CefDevToolsFrontend::NetworkResourceLoader
   }
 
   void OnComplete(bool success) override {
-    auto response = BuildObjectForResponse(response_headers_.get());
+    auto response = BuildObjectForResponse(response_headers_.get(), success,
+                                           loader_->NetError());
     bindings_->SendMessageAck(request_id_, response.get());
 
     bindings_->loaders_.erase(bindings_->loaders_.find(this));
@@ -289,7 +300,8 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     std::string protocol_message;
     if (!agent_host_ || !params->GetString(0, &protocol_message))
       return;
-    agent_host_->DispatchProtocolMessage(this, protocol_message);
+    agent_host_->DispatchProtocolMessage(
+        this, base::as_bytes(base::make_span(protocol_message)));
   } else if (method == "loadCompleted") {
     web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
         base::ASCIIToUTF16("DevToolsAPI.setUseSoftMenu(true);"),
@@ -308,6 +320,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     if (!gurl.is_valid()) {
       base::DictionaryValue response;
       response.SetInteger("statusCode", 404);
+      response.SetBoolean("urlValid", false);
       SendMessageAck(request_id, &response);
       return;
     }
@@ -344,7 +357,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     // TODO(caseq): this preserves behavior of URLFetcher-based
     // implementation. We really need to pass proper first party origin from
     // the front-end.
-    resource_request->site_for_cookies = gurl;
+    resource_request->site_for_cookies = net::SiteForCookies::FromUrl(gurl);
     resource_request->headers.AddHeadersFromString(headers);
 
     std::unique_ptr<network::mojom::URLLoaderFactory> file_url_loader_factory;
@@ -435,10 +448,12 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
 
 void CefDevToolsFrontend::DispatchProtocolMessage(
     content::DevToolsAgentHost* agent_host,
-    const std::string& message) {
-  if (message.length() < kMaxMessageChunkSize) {
+    base::span<const uint8_t> message) {
+  base::StringPiece str_message(reinterpret_cast<const char*>(message.data()),
+                                message.size());
+  if (str_message.length() < kMaxMessageChunkSize) {
     std::string param;
-    base::EscapeJSONString(message, true, &param);
+    base::EscapeJSONString(str_message, true, &param);
     std::string code = "DevToolsAPI.dispatchMessage(" + param + ");";
     base::string16 javascript = base::UTF8ToUTF16(code);
     web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
@@ -446,10 +461,11 @@ void CefDevToolsFrontend::DispatchProtocolMessage(
     return;
   }
 
-  size_t total_size = message.length();
-  for (size_t pos = 0; pos < message.length(); pos += kMaxMessageChunkSize) {
+  size_t total_size = str_message.length();
+  for (size_t pos = 0; pos < str_message.length();
+       pos += kMaxMessageChunkSize) {
     std::string param;
-    base::EscapeJSONString(message.substr(pos, kMaxMessageChunkSize), true,
+    base::EscapeJSONString(str_message.substr(pos, kMaxMessageChunkSize), true,
                            &param);
     std::string code = "DevToolsAPI.dispatchMessageChunk(" + param + "," +
                        std::to_string(pos ? 0 : total_size) + ");";

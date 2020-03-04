@@ -29,11 +29,6 @@ CefPrintRenderFrameHelperDelegate::CefPrintRenderFrameHelperDelegate(
 
 CefPrintRenderFrameHelperDelegate::~CefPrintRenderFrameHelperDelegate() {}
 
-bool CefPrintRenderFrameHelperDelegate::CancelPrerender(
-    content::RenderFrame* render_frame) {
-  return false;
-}
-
 // Return the PDF object element if |frame| is the out of process PDF extension.
 blink::WebElement CefPrintRenderFrameHelperDelegate::GetPdfElement(
     blink::WebLocalFrame* frame) {

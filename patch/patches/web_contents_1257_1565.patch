@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 6f2ee557fb41..7a9bf5c4c642 100644
+index ea2e52bf16dd..d77c3f7b991a 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -2045,16 +2045,24 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2062,15 +2062,22 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -13,7 +13,7 @@ index 6f2ee557fb41..7a9bf5c4c642 100644
 +    render_view_host_delegate_view_ = params.delegate_view;
 +  }
  
--  if (GuestMode::IsCrossProcessFrameGuest(this)) {
+-  if (browser_plugin_guest_) {
 -    view_.reset(new WebContentsViewChildFrame(
 -        this, delegate, &render_view_host_delegate_view_));
 -  } else {
@@ -23,7 +23,7 @@ index 6f2ee557fb41..7a9bf5c4c642 100644
 +    WebContentsViewDelegate* delegate =
 +        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
 +
-+    if (GuestMode::IsCrossProcessFrameGuest(this)) {
++    if (browser_plugin_guest_) {
 +      view_.reset(new WebContentsViewChildFrame(
 +          this, delegate, &render_view_host_delegate_view_));
 +    } else {
@@ -31,11 +31,9 @@ index 6f2ee557fb41..7a9bf5c4c642 100644
 +                                        &render_view_host_delegate_view_));
 +    }
    }
-+
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
- 
-@@ -2849,6 +2857,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
+@@ -2881,6 +2888,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -51,8 +49,8 @@ index 6f2ee557fb41..7a9bf5c4c642 100644
    // If |is_new_browsing_instance| is true, defer routing_id allocation
    // to the WebContentsImpl::Create() call. This is required because with
    // a new browsing instance, WebContentsImpl::Create() may elect a different
-@@ -6279,6 +6296,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
-     // doesn't support properly traversing BrowserPlugins.
+@@ -6308,6 +6324,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+     // This is an outermost WebContents.
      SetAsFocusedWebContentsIfNecessary();
    }
 +
@@ -75,7 +73,7 @@ index 2e133afb8da8..e9a88a6bb96b 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index ecee31b744ed..72d79c0a7180 100644
+index 40e1e940f87b..e08b16c26327 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -79,9 +79,11 @@ class BrowserPluginGuestDelegate;
@@ -89,7 +87,7 @@ index ecee31b744ed..72d79c0a7180 100644
 +class WebContentsView;
  struct CustomContextMenuContext;
  struct DropData;
- struct MHTMLGenerationParams;
+ struct FaviconURL;
 @@ -217,6 +219,10 @@ class WebContents : public PageNavigator,
      // Sandboxing flags set on the new WebContents.
      blink::WebSandboxFlags starting_sandbox_flags;
@@ -102,7 +100,7 @@ index ecee31b744ed..72d79c0a7180 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 2a073551cd8a..b049ef115f0d 100644
+index c2ff64f8b998..d4eb13585b71 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -57,10 +57,12 @@ class ColorChooser;
@@ -118,7 +116,7 @@ index 2a073551cd8a..b049ef115f0d 100644
  struct ContextMenuParams;
  struct DropData;
  struct NativeWebKeyboardEvent;
-@@ -321,6 +323,14 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -324,6 +326,14 @@ class CONTENT_EXPORT WebContentsDelegate {
        const std::string& partition_id,
        SessionStorageNamespace* session_storage_namespace);
  
@@ -134,10 +132,10 @@ index 2a073551cd8a..b049ef115f0d 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index b3c757d5d537..e2600917093e 100644
+index 7e1da29cb558..8ab2490bf689 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
-@@ -571,6 +571,10 @@ class CONTENT_EXPORT WebContentsObserver : public IPC::Listener {
+@@ -585,6 +585,10 @@ class CONTENT_EXPORT WebContentsObserver : public IPC::Listener {
    // WebContents has gained/lost focus.
    virtual void OnFocusChangedInPage(FocusedNodeDetails* details) {}
  

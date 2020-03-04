@@ -56,7 +56,7 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/ui_base_switches.h"
 
-#if defined(OS_MACOSX) || defined(OS_WIN)
+#if defined(OS_WIN)
 #include "components/os_crypt/os_crypt.h"
 #endif
 
@@ -185,7 +185,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
 
   if (!profile) {
     SystemNetworkContextManager::RegisterPrefs(registry.get());
-#if defined(OS_MACOSX) || defined(OS_WIN)
+#if defined(OS_WIN)
     OSCrypt::RegisterLocalPrefs(registry.get());
 #endif
   }

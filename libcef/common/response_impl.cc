@@ -155,7 +155,7 @@ void CefResponseImpl::SetHeaderMap(const HeaderMap& headerMap) {
   header_map_ = headerMap;
 }
 
-net::HttpResponseHeaders* CefResponseImpl::GetResponseHeaders() {
+scoped_refptr<net::HttpResponseHeaders> CefResponseImpl::GetResponseHeaders() {
   base::AutoLock lock_scope(lock_);
 
   std::string mime_type = mime_type_;

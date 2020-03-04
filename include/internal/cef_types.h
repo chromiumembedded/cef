@@ -2927,6 +2927,16 @@ typedef enum {
 } cef_cdm_registration_error_t;
 
 ///
+// Composition underline style.
+///
+typedef enum {
+  CEF_CUS_SOLID,
+  CEF_CUS_DOT,
+  CEF_CUS_DASH,
+  CEF_CUS_NONE,
+} cef_composition_underline_style_t;
+
+///
 // Structure representing IME composition underline information. This is a thin
 // wrapper around Blink's WebCompositionUnderline class and should be kept in
 // sync with that.
@@ -2951,6 +2961,11 @@ typedef struct _cef_composition_underline_t {
   // Set to true (1) for thick underline.
   ///
   int thick;
+
+  ///
+  // Style.
+  ///
+  cef_composition_underline_style_t style;
 } cef_composition_underline_t;
 
 #ifdef __cplusplus

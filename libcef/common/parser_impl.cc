@@ -102,8 +102,7 @@ CefString CefBase64Encode(const void* data, size_t data_size) {
   if (data_size == 0)
     return CefString();
 
-  base::StringPiece input;
-  input.set(static_cast<const char*>(data), data_size);
+  base::StringPiece input(static_cast<const char*>(data), data_size);
   std::string output;
   base::Base64Encode(input, &output);
   return output;

@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/input/fling_scheduler.cc content/browser/renderer_host/input/fling_scheduler.cc
-index cf220cb41b00..5ebff06e6031 100644
+index c7a4f1f0c3d0..7e6e3b4e56d4 100644
 --- content/browser/renderer_host/input/fling_scheduler.cc
 +++ content/browser/renderer_host/input/fling_scheduler.cc
-@@ -71,6 +71,9 @@ void FlingScheduler::ProgressFlingOnBeginFrameIfneeded(
+@@ -68,6 +68,9 @@ void FlingScheduler::ProgressFlingOnBeginFrameIfneeded(
  }
  
  ui::Compositor* FlingScheduler::GetCompositor() {
@@ -41,11 +41,11 @@ index cc4b13a7b9c6..84f3b9ed7cf4 100644
  
  }  // namespace content
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index a91a66bca29d..bff1662c7323 100644
+index 954011b5d562..da67cd106cec 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -2692,6 +2692,11 @@ void RenderWidgetHostImpl::SetNeedsBeginFrameForFlingProgress() {
-   SetNeedsBeginFrame(true);
+@@ -2606,6 +2606,11 @@ void RenderWidgetHostImpl::DidStartScrollingViewport() {
+     view_->set_is_currently_scrolling_viewport(true);
  }
  
 +void RenderWidgetHostImpl::SetCompositorForFlingScheduler(ui::Compositor* compositor)
@@ -55,15 +55,15 @@ index a91a66bca29d..bff1662c7323 100644
 +
  void RenderWidgetHostImpl::AddPendingUserActivation(
      const WebInputEvent& event) {
-   if (base::FeatureList::IsEnabled(features::kBrowserVerifiedUserActivation) &&
+   if ((base::FeatureList::IsEnabled(
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 15a23f954089..87715137b8b4 100644
+index 9faf49a3fd83..26c6845c53c3 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -736,6 +736,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -701,6 +701,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+ 
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();
-   void SetNeedsBeginFrameForFlingProgress();
 +  void SetCompositorForFlingScheduler(ui::Compositor* compositor);
  
    // The RenderWidgetHostImpl will keep showing the old page (for a while) after

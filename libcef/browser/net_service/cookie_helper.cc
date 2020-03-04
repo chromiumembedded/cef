@@ -15,7 +15,6 @@
 #include "net/cookies/cookie_util.h"
 #include "services/network/cookie_manager.h"
 #include "services/network/public/cpp/resource_request.h"
-#include "services/network/public/cpp/resource_response.h"
 
 namespace net_service {
 
@@ -169,14 +168,14 @@ void LoadCookies(content::BrowserContext* browser_context,
 
 void SaveCookies(content::BrowserContext* browser_context,
                  const network::ResourceRequest& request,
-                 const network::ResourceResponseHead& head,
+                 net::HttpResponseHeaders* headers,
                  const AllowCookieCallback& allow_cookie_callback,
                  DoneCookieCallback done_callback) {
   CEF_REQUIRE_IOT();
 
   if (request.credentials_mode == network::mojom::CredentialsMode::kOmit ||
-      request.url.IsAboutBlank() || !head.headers ||
-      !head.headers->HasHeader(net_service::kHTTPSetCookieHeaderName)) {
+      request.url.IsAboutBlank() || !headers ||
+      !headers->HasHeader(net_service::kHTTPSetCookieHeaderName)) {
     // Continue immediately without saving cookies.
     std::move(done_callback).Run(0, {});
     return;
@@ -185,7 +184,7 @@ void SaveCookies(content::BrowserContext* browser_context,
   // Match the logic in
   // URLRequestHttpJob::SaveCookiesAndNotifyHeadersComplete.
   base::Time response_date;
-  if (!head.headers->GetDateValue(&response_date))
+  if (!headers->GetDateValue(&response_date))
     response_date = base::Time();
 
   net::CookieOptions options;
@@ -201,7 +200,7 @@ void SaveCookies(content::BrowserContext* browser_context,
   net::CookieList allowed_cookies;
   int total_count = 0;
 
-  while (head.headers->EnumerateHeader(&iter, name, &cookie_string)) {
+  while (headers->EnumerateHeader(&iter, name, &cookie_string)) {
     total_count++;
 
     net::CanonicalCookie::CookieInclusionStatus returned_status;

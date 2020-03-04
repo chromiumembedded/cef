@@ -120,8 +120,8 @@ void CefFrameImpl::LoadRequest(CefRefPtr<CefRequest> request) {
   CefMsg_LoadRequest_Params params;
   params.url = GURL(std::string(request->GetURL()));
   params.method = request->GetMethod();
-  params.site_for_cookies =
-      GURL(std::string(request->GetFirstPartyForCookies()));
+  params.site_for_cookies = net::SiteForCookies::FromUrl(
+      GURL(request->GetFirstPartyForCookies().ToString()));
 
   CefRequest::HeaderMap headerMap;
   request->GetHeaderMap(headerMap);
@@ -504,7 +504,6 @@ void CefFrameImpl::OnDidStopLoading() {
   // in this frame's in-process subtree. If there are multiple of these for the
   // same browser then the other occurrences will be discarded in
   // OnLoadingStateChange.
-  DCHECK(frame_->IsLocalRoot());
   browser_->OnLoadingStateChange(false);
 }
 

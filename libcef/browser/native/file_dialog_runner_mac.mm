@@ -229,12 +229,34 @@ void AddFilters(NSPopUpButton* button,
 
 @end
 
-namespace {
+CefFileDialogRunnerMac::CefFileDialogRunnerMac() : weak_ptr_factory_(this) {}
 
-void RunOpenFileDialog(const CefFileDialogRunner::FileChooserParams& params,
-                       NSView* view,
-                       int filter_index,
-                       CefFileDialogRunner::RunFileChooserCallback callback) {
+void CefFileDialogRunnerMac::Run(CefBrowserHostImpl* browser,
+                                 const FileChooserParams& params,
+                                 RunFileChooserCallback callback) {
+  callback_ = std::move(callback);
+
+  int filter_index = params.selected_accept_filter;
+  NSView* owner = CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(browser->GetWindowHandle());
+  auto weak_this = weak_ptr_factory_.GetWeakPtr();
+
+  if (params.mode == blink::mojom::FileChooserParams::Mode::kOpen ||
+      params.mode == blink::mojom::FileChooserParams::Mode::kOpenMultiple ||
+      params.mode == blink::mojom::FileChooserParams::Mode::kUploadFolder) {
+    RunOpenFileDialog(weak_this, params, owner, filter_index);
+  } else if (params.mode == blink::mojom::FileChooserParams::Mode::kSave) {
+    RunSaveFileDialog(weak_this, params, owner, filter_index);
+  } else {
+    NOTIMPLEMENTED();
+  }
+}
+
+// static
+void CefFileDialogRunnerMac::RunOpenFileDialog(
+    base::WeakPtr<CefFileDialogRunnerMac> weak_this,
+    const CefFileDialogRunner::FileChooserParams& params,
+    NSView* view,
+    int filter_index) {
   NSOpenPanel* openPanel = [NSOpenPanel openPanel];
 
   base::string16 title;
@@ -308,18 +330,21 @@ void RunOpenFileDialog(const CefFileDialogRunner::FileChooserParams& params,
                    if (url.isFileURL)
                      files.push_back(base::FilePath(url.path.UTF8String));
                  }
-                 callback.Run(filter_index_to_use, files);
+                 std::move(weak_this->callback_)
+                     .Run(filter_index_to_use, files);
                } else {
-                 callback.Run(filter_index_to_use,
-                              std::vector<base::FilePath>());
+                 std::move(weak_this->callback_)
+                     .Run(filter_index_to_use, std::vector<base::FilePath>());
                }
              }];
 }
 
-void RunSaveFileDialog(const CefFileDialogRunner::FileChooserParams& params,
-                       NSView* view,
-                       int filter_index,
-                       CefFileDialogRunner::RunFileChooserCallback callback) {
+// static
+void CefFileDialogRunnerMac::RunSaveFileDialog(
+    base::WeakPtr<CefFileDialogRunnerMac> weak_this,
+    const CefFileDialogRunner::FileChooserParams& params,
+    NSView* view,
+    int filter_index) {
   NSSavePanel* savePanel = [NSSavePanel savePanel];
 
   base::string16 title;
@@ -371,31 +396,11 @@ void RunSaveFileDialog(const CefFileDialogRunner::FileChooserParams& params,
                  NSURL* url = savePanel.URL;
                  const char* path = url.path.UTF8String;
                  std::vector<base::FilePath> files(1, base::FilePath(path));
-                 callback.Run(filter_index_to_use, files);
+                 std::move(weak_this->callback_)
+                     .Run(filter_index_to_use, files);
                } else {
-                 callback.Run(filter_index_to_use,
-                              std::vector<base::FilePath>());
+                 std::move(weak_this->callback_)
+                     .Run(filter_index_to_use, std::vector<base::FilePath>());
                }
              }];
-}
-
-}  // namespace
-
-CefFileDialogRunnerMac::CefFileDialogRunnerMac() {}
-
-void CefFileDialogRunnerMac::Run(CefBrowserHostImpl* browser,
-                                 const FileChooserParams& params,
-                                 RunFileChooserCallback callback) {
-  int filter_index = params.selected_accept_filter;
-  NSView* owner = CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(browser->GetWindowHandle());
-
-  if (params.mode == blink::mojom::FileChooserParams::Mode::kOpen ||
-      params.mode == blink::mojom::FileChooserParams::Mode::kOpenMultiple ||
-      params.mode == blink::mojom::FileChooserParams::Mode::kUploadFolder) {
-    RunOpenFileDialog(params, owner, filter_index, callback);
-  } else if (params.mode == blink::mojom::FileChooserParams::Mode::kSave) {
-    RunSaveFileDialog(params, owner, filter_index, callback);
-  } else {
-    NOTIMPLEMENTED();
-  }
 }

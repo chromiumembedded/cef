@@ -63,19 +63,11 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       base::StringPiece name) override;
   void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
                                       int child_process_id) override;
-  void AdjustUtilityServiceProcessCommandLine(
-      const service_manager::Identity& identity,
-      base::CommandLine* command_line) override;
   std::string GetApplicationLocale() override;
   scoped_refptr<network::SharedURLLoaderFactory>
   GetSystemSharedURLLoaderFactory() override;
   network::mojom::NetworkContext* GetSystemNetworkContext() override;
   scoped_refptr<content::QuotaPermissionContext> CreateQuotaPermissionContext()
-      override;
-  void GetQuotaSettings(
-      content::BrowserContext* context,
-      content::StoragePartition* partition,
-      base::OnceCallback<void(base::Optional<storage::QuotaSettings>)> callback)
       override;
   content::MediaObserver* GetMediaObserver() override;
   content::SpeechRecognitionManagerDelegate*
@@ -172,6 +164,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       mojo::PendingRemote<network::mojom::TrustedURLLoaderHeaderClient>*
           header_client,
       bool* bypass_redirect_checks,
+      bool* disable_secure_dns,
       network::mojom::URLLoaderFactoryOverridePtr* factory_override) override;
   void OnNetworkServiceCreated(
       network::mojom::NetworkService* network_service) override;

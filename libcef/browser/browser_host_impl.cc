@@ -1708,9 +1708,9 @@ void CefBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
 
 void CefBrowserHostImpl::RunFileChooser(
     const CefFileDialogRunner::FileChooserParams& params,
-    const CefFileDialogRunner::RunFileChooserCallback& callback) {
+    CefFileDialogRunner::RunFileChooserCallback callback) {
   EnsureFileDialogManager();
-  file_dialog_manager_->RunFileChooser(params, callback);
+  file_dialog_manager_->RunFileChooser(params, std::move(callback));
 }
 
 bool CefBrowserHostImpl::EmbedsFullscreenWidget() {
@@ -2467,9 +2467,9 @@ bool CefBrowserHostImpl::CheckMediaAccessPermission(
   return command_line->HasSwitch(switches::kEnableMediaStream);
 }
 
-bool CefBrowserHostImpl::IsNeverVisible(content::WebContents* web_contents) {
+bool CefBrowserHostImpl::IsNeverComposited(content::WebContents* web_contents) {
   if (extension_host_)
-    return extension_host_->IsNeverVisible(web_contents);
+    return extension_host_->IsNeverComposited(web_contents);
   return false;
 }
 
@@ -2651,8 +2651,7 @@ void CefBrowserHostImpl::DocumentAvailableInMainFrame() {
 void CefBrowserHostImpl::DidFailLoad(
     content::RenderFrameHost* render_frame_host,
     const GURL& validated_url,
-    int error_code,
-    const base::string16& error_description) {
+    int error_code) {
   // The navigation failed after commit. OnLoadStart was called so we also call
   // OnLoadEnd.
   auto frame = browser_info_->GetFrameForHost(render_frame_host);

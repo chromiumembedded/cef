@@ -21,7 +21,6 @@
 #include "net/url_request/redirect_util.h"
 #include "net/url_request/url_request.h"
 #include "services/network/public/cpp/resource_request.h"
-#include "services/network/public/cpp/resource_response.h"
 
 namespace net_service {
 
@@ -91,7 +90,7 @@ std::string MakeContentTypeValue(const std::string& mime_type,
   return value;
 }
 
-net::HttpResponseHeaders* MakeResponseHeaders(
+scoped_refptr<net::HttpResponseHeaders> MakeResponseHeaders(
     int status_code,
     const std::string& status_text,
     const std::string& mime_type,
@@ -102,8 +101,8 @@ net::HttpResponseHeaders* MakeResponseHeaders(
   if (status_code <= 0)
     status_code = 200;
 
-  auto headers = new net::HttpResponseHeaders(
-      MakeStatusLine(status_code, status_text, false));
+  auto headers = WrapRefCounted(new net::HttpResponseHeaders(
+      MakeStatusLine(status_code, status_text, false)));
 
   // Track the headers that have already been set. Perform all comparisons in
   // lowercase.
@@ -171,8 +170,8 @@ net::RedirectInfo MakeRedirectInfo(const network::ResourceRequest& request,
           : net::URLRequest::NEVER_CHANGE_FIRST_PARTY_URL;
   return net::RedirectInfo::ComputeRedirectInfo(
       request.method, request.url, request.site_for_cookies,
-      first_party_url_policy, request.referrer_policy,
-      request.referrer.spec(), status_code, location,
+      first_party_url_policy, request.referrer_policy, request.referrer.spec(),
+      status_code, location,
       net::RedirectUtil::GetReferrerPolicyHeader(headers),
       insecure_scheme_was_upgraded);
 }

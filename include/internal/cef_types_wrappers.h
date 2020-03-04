@@ -866,10 +866,7 @@ struct CefCursorInfoTraits {
   static inline void set(const struct_type* src,
                          struct_type* target,
                          bool copy) {
-    target->hotspot = src->hotspot;
-    target->image_scale_factor = src->image_scale_factor;
-    target->buffer = src->buffer;
-    target->size = src->size;
+    *target = *src;
   }
 };
 
@@ -942,23 +939,14 @@ typedef CefStructBase<CefBoxLayoutSettingsTraits> CefBoxLayoutSettings;
 struct CefCompositionUnderlineTraits {
   typedef cef_composition_underline_t struct_type;
 
-  static inline void init(struct_type* s) {
-    s->range.from = 0;
-    s->range.to = 0;
-    s->color = 0;
-    s->background_color = 0;
-    s->thick = 0;
-  }
+  static inline void init(struct_type* s) {}
 
   static inline void clear(struct_type* s) {}
 
   static inline void set(const struct_type* src,
                          struct_type* target,
                          bool copy) {
-    target->range = src->range;
-    target->color = src->color;
-    target->background_color = src->background_color;
-    target->thick = src->thick;
+    *target = *src;
   }
 };
 

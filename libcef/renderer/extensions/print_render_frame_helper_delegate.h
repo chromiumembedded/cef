@@ -15,7 +15,6 @@ class CefPrintRenderFrameHelperDelegate
   explicit CefPrintRenderFrameHelperDelegate(bool is_windowless);
   ~CefPrintRenderFrameHelperDelegate() override;
 
-  bool CancelPrerender(content::RenderFrame* render_frame) override;
   blink::WebElement GetPdfElement(blink::WebLocalFrame* frame) override;
   bool IsPrintPreviewEnabled() override;
   bool OverridePrint(blink::WebLocalFrame* frame) override;

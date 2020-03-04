@@ -15,8 +15,8 @@ class CefBrowserHostImpl;
 
 class CefJavaScriptDialogRunner {
  public:
-  typedef base::Callback<void(bool /* success */,
-                              const base::string16& /* user_input */)>
+  typedef base::OnceCallback<void(bool /* success */,
+                                  const base::string16& /* user_input */)>
       DialogClosedCallback;
 
   // Run the dialog. Execute |callback| on completion.
@@ -25,7 +25,7 @@ class CefJavaScriptDialogRunner {
                    const base::string16& display_url,
                    const base::string16& message_text,
                    const base::string16& default_prompt_text,
-                   const DialogClosedCallback& callback) = 0;
+                   DialogClosedCallback callback) = 0;
 
   // Cancel a dialog mid-flight.
   virtual void Cancel() = 0;

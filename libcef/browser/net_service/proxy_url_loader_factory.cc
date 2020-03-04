@@ -11,7 +11,7 @@
 
 #include "base/barrier_closure.h"
 #include "base/strings/string_number_conversions.h"
-#include "components/safe_browsing/common/safebrowsing_constants.h"
+#include "components/safe_browsing/core/common/safebrowsing_constants.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/resource_context.h"
@@ -245,7 +245,8 @@ class InterceptedRequest : public network::mojom::URLLoader,
   bool waiting_for_upload_progress_ack_ = false;
 
   network::ResourceRequest request_;
-  network::ResourceResponseHead current_response_;
+  network::mojom::URLResponseHeadPtr current_response_;
+  scoped_refptr<net::HttpResponseHeaders> current_headers_;
   scoped_refptr<net::HttpResponseHeaders> override_headers_;
   GURL original_url_;
   GURL redirect_url_;
@@ -426,16 +427,15 @@ void InterceptedRequest::OnHeadersReceived(
     return;
   }
 
-  current_response_.headers =
-      base::MakeRefCounted<net::HttpResponseHeaders>(headers);
+  current_headers_ = base::MakeRefCounted<net::HttpResponseHeaders>(headers);
   on_headers_received_callback_ = std::move(callback);
 
   base::Optional<net::RedirectInfo> redirect_info;
   std::string location;
-  if (current_response_.headers->IsRedirect(&location)) {
+  if (current_headers_->IsRedirect(&location)) {
     const GURL new_url = request_.url.Resolve(location);
     redirect_info =
-        MakeRedirectInfo(request_, current_response_.headers.get(), new_url, 0);
+        MakeRedirectInfo(request_, current_headers_.get(), new_url, 0);
   }
 
   HandleResponseOrRedirectHeaders(
@@ -448,16 +448,16 @@ void InterceptedRequest::OnHeadersReceived(
 
 void InterceptedRequest::OnReceiveResponse(
     network::mojom::URLResponseHeadPtr head) {
+  current_response_ = std::move(head);
+
   if (current_request_uses_header_client_) {
     // Use the headers we got from OnHeadersReceived as that'll contain
     // Set-Cookie if it existed.
-    auto saved_headers = current_response_.headers;
-    DCHECK(saved_headers);
-    current_response_ = head;
-    current_response_.headers = saved_headers;
+    DCHECK(current_headers_);
+    current_response_->headers = current_headers_;
+    current_headers_ = nullptr;
     ContinueToResponseStarted(net::OK);
   } else {
-    current_response_ = head;
     HandleResponseOrRedirectHeaders(
         base::nullopt,
         base::BindOnce(&InterceptedRequest::ContinueToResponseStarted,
@@ -470,16 +470,15 @@ void InterceptedRequest::OnReceiveRedirect(
     network::mojom::URLResponseHeadPtr head) {
   bool needs_callback = false;
 
+  current_response_ = std::move(head);
+
   if (current_request_uses_header_client_) {
     // Use the headers we got from OnHeadersReceived as that'll contain
     // Set-Cookie if it existed. May be null for synthetic redirects.
-    auto saved_headers = current_response_.headers;
-    current_response_ = head;
-    if (saved_headers) {
-      current_response_.headers = saved_headers;
-    }
+    DCHECK(current_headers_);
+    current_response_->headers = current_headers_;
+    current_headers_ = nullptr;
   } else {
-    current_response_ = head;
     needs_callback = true;
   }
 
@@ -625,33 +624,35 @@ void InterceptedRequest::InterceptResponseReceived(
     DCHECK(!response);
 
     // Perform the redirect.
-    network::ResourceResponseHead head;
-    head.request_start = base::TimeTicks::Now();
-    head.response_start = base::TimeTicks::Now();
-    head.headers = MakeResponseHeaders(
+    current_response_ = network::mojom::URLResponseHead::New();
+    current_response_->request_start = base::TimeTicks::Now();
+    current_response_->response_start = base::TimeTicks::Now();
+
+    auto headers = MakeResponseHeaders(
         net::HTTP_TEMPORARY_REDIRECT, std::string(), std::string(),
         std::string(), -1, {}, false /* allow_existing_header_override */);
+    current_response_->headers = headers;
 
-    head.encoded_data_length = head.headers->raw_headers().length();
-    head.content_length = head.encoded_body_length = 0;
+    current_response_->encoded_data_length = headers->raw_headers().length();
+    current_response_->content_length = current_response_->encoded_body_length =
+        0;
 
     std::string origin;
     if (request_.headers.GetHeader(net::HttpRequestHeaders::kOrigin, &origin) &&
         origin != url::Origin().Serialize()) {
       // Allow redirects of cross-origin resource loads.
-      head.headers->AddHeader(MakeHeader(
+      headers->AddHeader(MakeHeader(
           network::cors::header_names::kAccessControlAllowOrigin, origin));
     }
 
     if (request_.credentials_mode ==
         network::mojom::CredentialsMode::kInclude) {
-      head.headers->AddHeader(MakeHeader(
+      headers->AddHeader(MakeHeader(
           network::cors::header_names::kAccessControlAllowCredentials, "true"));
     }
 
-    current_response_ = head;
     const net::RedirectInfo& redirect_info =
-        MakeRedirectInfo(request_, head.headers.get(), request_.url, 0);
+        MakeRedirectInfo(request_, headers.get(), request_.url, 0);
     HandleResponseOrRedirectHeaders(
         redirect_info,
         base::BindOnce(&InterceptedRequest::ContinueToBeforeRedirect,
@@ -715,17 +716,21 @@ void InterceptedRequest::HandleResponseOrRedirectHeaders(
   redirect_url_ = redirect_info.has_value() ? redirect_info->new_url : GURL();
   original_url_ = request_.url;
 
+  // |current_response_| may be nullptr when called from OnHeadersReceived.
+  auto headers =
+      current_response_ ? current_response_->headers : current_headers_;
+
   // Even though |head| is const we can get a non-const pointer to the headers
   // and modifications we make are passed to the target client.
   factory_->request_handler_->ProcessResponseHeaders(
-      id_, request_, redirect_url_, current_response_);
+      id_, request_, redirect_url_, headers.get());
 
   // Pause handling of client messages before waiting on an async callback.
   if (proxied_client_binding_)
     proxied_client_binding_.PauseIncomingMethodCallProcessing();
 
   factory_->request_handler_->OnRequestResponse(
-      id_, &request_, current_response_, redirect_info,
+      id_, &request_, headers.get(), redirect_info,
       base::BindOnce(&InterceptedRequest::ContinueResponseOrRedirect,
                      weak_factory_.GetWeakPtr(), std::move(continuation)));
 }
@@ -749,7 +754,7 @@ void InterceptedRequest::ContinueResponseOrRedirect(
     // Make sure to update current_response_, since when OnReceiveResponse
     // is called we will not use its headers as it might be missing the
     // Set-Cookie line (which gets stripped by the IPC layer).
-    current_response_.headers = override_headers_;
+    current_response_->headers = override_headers_;
   }
   redirect_url_ = redirect_url;
 
@@ -780,21 +785,22 @@ void InterceptedRequest::ContinueToHandleOverrideHeaders(int error_code) {
 net::RedirectInfo InterceptedRequest::MakeRedirectResponseAndInfo(
     const GURL& new_location) {
   // Clear the Content-Type values.
-  current_response_.mime_type = current_response_.charset = std::string();
-  current_response_.headers->RemoveHeader(
+  current_response_->mime_type = current_response_->charset = std::string();
+  current_response_->headers->RemoveHeader(
       net::HttpRequestHeaders::kContentType);
 
   // Clear the Content-Length values.
-  current_response_.content_length = current_response_.encoded_body_length = 0;
-  current_response_.headers->RemoveHeader(
+  current_response_->content_length = current_response_->encoded_body_length =
+      0;
+  current_response_->headers->RemoveHeader(
       net::HttpRequestHeaders::kContentLength);
 
-  current_response_.encoded_data_length =
-      current_response_.headers->raw_headers().size();
+  current_response_->encoded_data_length =
+      current_response_->headers->raw_headers().size();
 
   const net::RedirectInfo& redirect_info = MakeRedirectInfo(
-      request_, current_response_.headers.get(), new_location, 0);
-  current_response_.headers->ReplaceStatusLine(
+      request_, current_response_->headers.get(), new_location, 0);
+  current_response_->headers->ReplaceStatusLine(
       MakeStatusLine(redirect_info.status_code, std::string(), true));
 
   return redirect_info;
@@ -824,10 +830,12 @@ void InterceptedRequest::ContinueToBeforeRedirect(
   if (redirect_url.is_valid()) {
     net::RedirectInfo new_redirect_info = redirect_info;
     new_redirect_info.new_url = redirect_url;
-    target_client_->OnReceiveRedirect(new_redirect_info, current_response_);
+    target_client_->OnReceiveRedirect(new_redirect_info,
+                                      std::move(current_response_));
     request_.url = redirect_url;
   } else {
-    target_client_->OnReceiveRedirect(redirect_info, current_response_);
+    target_client_->OnReceiveRedirect(redirect_info,
+                                      std::move(current_response_));
     request_.url = redirect_info.new_url;
   }
 
@@ -854,8 +862,8 @@ void InterceptedRequest::ContinueToResponseStarted(int error_code) {
 
   std::string location;
   const bool is_redirect = redirect_url.is_valid() ||
-                           (current_response_.headers &&
-                            current_response_.headers->IsRedirect(&location));
+                           (current_response_->headers &&
+                            current_response_->headers->IsRedirect(&location));
   if (stream_loader_ && is_redirect) {
     // Redirecting from OnReceiveResponse generally isn't supported by the
     // NetworkService, so we can only support it when using a custom loader.
@@ -879,7 +887,7 @@ void InterceptedRequest::ContinueToResponseStarted(int error_code) {
     if (proxied_client_binding_)
       proxied_client_binding_.ResumeIncomingMethodCallProcessing();
 
-    target_client_->OnReceiveResponse(current_response_);
+    target_client_->OnReceiveResponse(std::move(current_response_));
   }
 
   if (stream_loader_)
@@ -1012,7 +1020,7 @@ void InterceptedRequestHandler::ShouldInterceptRequest(
 void InterceptedRequestHandler::OnRequestResponse(
     const RequestId& id,
     network::ResourceRequest* request,
-    const network::ResourceResponseHead& head,
+    net::HttpResponseHeaders* headers,
     base::Optional<net::RedirectInfo> redirect_info,
     OnRequestResponseResultCallback callback) {
   std::move(callback).Run(

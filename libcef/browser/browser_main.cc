@@ -50,6 +50,7 @@
 #include "ui/wm/core/wm_state.h"
 
 #if defined(OS_WIN)
+#include "components/os_crypt/os_crypt.h"
 #include "ui/base/cursor/cursor_loader_win.h"
 #endif
 #endif  // defined(USE_AURA)
@@ -69,11 +70,6 @@
 
 #if defined(OS_LINUX)
 #include "libcef/browser/printing/print_dialog_linux.h"
-#endif
-
-#if defined(OS_MACOSX) || defined(OS_WIN)
-#include "chrome/browser/browser_process.h"
-#include "components/os_crypt/os_crypt.h"
 #endif
 
 CefBrowserMainParts::CefBrowserMainParts(
@@ -122,11 +118,12 @@ void CefBrowserMainParts::PreMainMessageLoopStart() {
   ui::TouchFactory::SetTouchDeviceListFromCommandLine();
 #endif
 
-#if defined(OS_MACOSX) || defined(OS_WIN)
+#if defined(OS_WIN)
   // Initialize the OSCrypt.
   PrefService* local_state = g_browser_process->local_state();
   DCHECK(local_state);
-  OSCrypt::Init(local_state);
+  bool os_crypt_init = OSCrypt::Init(local_state);
+  DCHECK(os_crypt_init);
 #endif
 }
 

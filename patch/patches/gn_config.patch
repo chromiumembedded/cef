@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 62f3a6199ac3..fb0eb9b4b6ca 100644
+index 1bd5722a6ca5..c8919a7b4ab2 100644
 --- .gn
 +++ .gn
-@@ -649,6 +649,8 @@ exec_script_whitelist =
+@@ -647,6 +647,8 @@ exec_script_whitelist =
  
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
  
@@ -12,10 +12,10 @@ index 62f3a6199ac3..fb0eb9b4b6ca 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index efaf5b31ee37..2d9abf7a5e96 100644
+index d4c2158d938c..b58ce91305fe 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -213,6 +213,7 @@ group("gn_all") {
+@@ -219,6 +219,7 @@ group("gn_all") {
  
    if (!is_ios && !is_fuchsia) {
      deps += [
@@ -56,7 +56,7 @@ index 982fbe8d3f0d..e757be4688f1 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index 53fac69229a2..4eacf06265d1 100644
+index fa31688f36a2..69d74aa31c47 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
 @@ -142,22 +142,25 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
@@ -100,10 +100,10 @@ index 53fac69229a2..4eacf06265d1 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 2101755c6694..4410ece82aa2 100755
+index 97600e73ba10..36773b159453 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
-@@ -90,11 +90,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
+@@ -89,9 +89,16 @@ def SetEnvironmentAndGetRuntimeDllDirs():
      runtime_path = os.path.pathsep.join(vs_runtime_dll_dirs)
      os.environ['PATH'] = runtime_path + os.path.pathsep + os.environ['PATH']
    elif sys.platform == 'win32' and not depot_tools_win_toolchain:
@@ -111,8 +111,6 @@ index 2101755c6694..4410ece82aa2 100755
      if not 'GYP_MSVS_OVERRIDE_PATH' in os.environ:
 +      has_override_path = False
        os.environ['GYP_MSVS_OVERRIDE_PATH'] = DetectVisualStudioPath()
-     if not 'GYP_MSVS_VERSION' in os.environ:
-       os.environ['GYP_MSVS_VERSION'] = GetVisualStudioVersion()
  
 +    if has_override_path:
 +      # Don't attempt to copy DLLs when using a custom toolchain.
@@ -122,11 +120,22 @@ index 2101755c6694..4410ece82aa2 100755
      # When using an installed toolchain these files aren't needed in the output
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
+@@ -140,6 +147,10 @@ def _RegistryGetValue(key, value):
+ def GetVisualStudioVersion():
+   """Return best available version of Visual Studio.
+   """
++  # Return the explicitly requested version, if any.
++  if 'GYP_MSVS_VERSION' in os.environ:
++    return os.environ['GYP_MSVS_VERSION']
++
+   supported_versions = list(MSVS_VERSIONS.keys())
+ 
+   # VS installed in depot_tools for Googlers
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 6469473e6a79..f9f630bfe0df 100644
+index 5121fa721a06..b5ab128722f0 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -284,7 +284,7 @@ template("chrome_paks") {
+@@ -291,7 +291,7 @@ template("chrome_paks") {
      }
  
      input_locales = locales
@@ -136,10 +145,10 @@ index 6469473e6a79..f9f630bfe0df 100644
      if (is_mac) {
        output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index bebec015f85d..cf4151a0f23e 100644
+index 7d835183ab85..b8553902c1a9 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
-@@ -140,7 +140,7 @@ template("generate_mini_installer") {
+@@ -134,7 +134,7 @@ template("generate_mini_installer") {
      inputs = [
        "$chrome_dll_file",
        "$root_out_dir/chrome.exe",

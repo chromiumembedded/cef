@@ -1,8 +1,8 @@
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index 3adf99a4527b..4c607c45d136 100644
+index 75981a42a314..d29366145453 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
-@@ -16,6 +16,7 @@
+@@ -17,6 +17,7 @@
  #include "base/metrics/histogram_macros.h"
  #include "base/strings/string_split.h"
  #include "base/task/post_task.h"
@@ -10,7 +10,7 @@ index 3adf99a4527b..4c607c45d136 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -642,9 +643,22 @@ ProfileNetworkContextService::CreateNetworkContextParams(
+@@ -678,9 +679,22 @@ ProfileNetworkContextService::CreateNetworkContextParams(
    network_context_params->cookie_manager_params =
        CreateCookieManagerParams(profile_, *cookie_settings_);
  
@@ -33,7 +33,7 @@ index 3adf99a4527b..4c607c45d136 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -657,6 +671,7 @@ ProfileNetworkContextService::CreateNetworkContextParams(
+@@ -693,6 +707,7 @@ ProfileNetworkContextService::CreateNetworkContextParams(
          base_cache_path.Append(chrome::kCacheDirname);
      network_context_params->http_cache_max_size =
          local_state->GetInteger(prefs::kDiskCacheSize);
@@ -42,7 +42,7 @@ index 3adf99a4527b..4c607c45d136 100644
      // Currently this just contains HttpServerProperties, but that will likely
      // change.
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index 458c4acb0851..8f2a016a3054 100644
+index 442d72296903..aec40aa4b77d 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
 @@ -380,6 +380,11 @@ class Profile : public content::BrowserContext {
@@ -58,7 +58,7 @@ index 458c4acb0851..8f2a016a3054 100644
    // itself, if |relative_path| is empty).
    virtual mojo::Remote<network::mojom::NetworkContext> CreateNetworkContext(
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index 15068300b269..d5948416f730 100644
+index 84a7d50dfd71..aaa1346043da 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
 @@ -476,6 +476,25 @@ void CookieMonster::SetCookieableSchemes(
@@ -139,10 +139,10 @@ index 5dbc9d2dfcfb..1c31d97825c2 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index b1740e9c8a2f..3509c005191c 100644
+index e5dfb9c6fd20..07578a987dd9 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -1745,6 +1745,7 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -1765,6 +1765,7 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
    }
  
    scoped_refptr<SessionCleanupCookieStore> session_cleanup_cookie_store;
@@ -150,7 +150,7 @@ index b1740e9c8a2f..3509c005191c 100644
    if (params_->cookie_path) {
      scoped_refptr<base::SequencedTaskRunner> client_task_runner =
          base::ThreadTaskRunnerHandle::Get();
-@@ -1772,18 +1773,27 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -1792,18 +1793,27 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
      session_cleanup_cookie_store =
          base::MakeRefCounted<SessionCleanupCookieStore>(sqlite_store);
  
@@ -182,10 +182,10 @@ index b1740e9c8a2f..3509c005191c 100644
        std::make_unique<net::StaticHttpUserAgentSettings>(
            params_->accept_language, params_->user_agent);
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 662496d97241..6971cc3309af 100644
+index c37e71fb1eac..3504614682bb 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -242,6 +242,9 @@ struct NetworkContextParams {
+@@ -243,6 +243,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  

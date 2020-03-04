@@ -13,6 +13,7 @@
 #include "include/cef_request.h"
 
 #include "base/synchronization/lock.h"
+#include "net/cookies/site_for_cookies.h"
 #include "services/network/public/mojom/referrer_policy.mojom-shared.h"
 #include "third_party/blink/public/platform/web_http_body.h"
 #include "url/gurl.h"
@@ -54,7 +55,7 @@ class CefRequestImpl : public CefRequest {
     kChangedPostData = 1 << 3,
     kChangedHeaderMap = 1 << 4,
     kChangedFlags = 1 << 5,
-    kChangedFirstPartyForCookies = 1 << 6,
+    kChangedSiteForCookies = 1 << 6,
   };
 
   CefRequestImpl();
@@ -162,7 +163,7 @@ class CefRequestImpl : public CefRequest {
 
   // The below members are used by CefURLRequest.
   int flags_;
-  GURL first_party_for_cookies_;
+  net::SiteForCookies site_for_cookies_;
 
   // Stores backup of values for use with track changes.
   struct Backup {
@@ -176,7 +177,7 @@ class CefRequestImpl : public CefRequest {
     CefRefPtr<CefPostData> postdata_;
     std::unique_ptr<HeaderMap> headermap_;
     int flags_;
-    GURL first_party_for_cookies_;
+    net::SiteForCookies site_for_cookies_;
   };
   std::unique_ptr<Backup> backup_;
 

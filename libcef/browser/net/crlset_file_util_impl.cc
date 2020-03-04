@@ -17,7 +17,7 @@ namespace {
 void UpdateCRLSet(const std::string& crl_set_bytes) {
   CEF_REQUIRE_UIT();
   content::GetNetworkService()->UpdateCRLSet(
-      base::as_bytes(base::make_span(crl_set_bytes)));
+      base::as_bytes(base::make_span(crl_set_bytes)), base::DoNothing());
 }
 
 void LoadFromDisk(const base::FilePath& path) {

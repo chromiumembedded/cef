@@ -1,0 +1,52 @@
+diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
+index 5283293ac557..407de9a5e23a 100644
+--- content/browser/storage_partition_impl.cc
++++ content/browser/storage_partition_impl.cc
+@@ -669,10 +669,6 @@ class LoginHandlerDelegate {
+     }
+ 
+     WebContents* web_contents = web_contents_getter_.Run();
+-    if (!web_contents) {
+-      OnAuthCredentials(base::nullopt);
+-      return;
+-    }
+ 
+     // WeakPtr is not strictly necessary here due to OnRequestCancelled.
+     creating_login_delegate_ = true;
+@@ -729,12 +725,6 @@ void OnAuthRequiredContinuation(
+     web_contents_getter =
+         base::BindRepeating(GetWebContents, process_id, routing_id);
+   }
+-  if (!web_contents_getter.Run()) {
+-    mojo::Remote<network::mojom::AuthChallengeResponder>
+-        auth_challenge_responder_remote(std::move(auth_challenge_responder));
+-    auth_challenge_responder_remote->OnAuthCredentials(base::nullopt);
+-    return;
+-  }
+   new LoginHandlerDelegate(std::move(auth_challenge_responder),
+                            std::move(web_contents_getter), auth_info,
+                            is_request_for_main_frame, process_id, routing_id,
+@@ -2411,15 +2401,21 @@ void StoragePartitionImpl::GetQuotaSettings(
+     return;
+   }
+ 
++  // CEF always returns false for IsOffTheRecord(), so also check the path.
++  const bool is_incognito = browser_context_->IsOffTheRecord() ||
++                            browser_context_->GetPath().empty();
+   storage::GetNominalDynamicSettings(
+-      GetPath(), browser_context_->IsOffTheRecord(),
++      GetPath(), is_incognito,
+       storage::GetDefaultDeviceInfoHelper(), std::move(callback));
+ }
+ 
+ void StoragePartitionImpl::InitNetworkContext() {
+   network_context_ = GetContentClient()->browser()->CreateNetworkContext(
+       browser_context_, is_in_memory_, relative_partition_path_);
+-  DCHECK(network_context_);
++  if (!network_context_) {
++    // May happen during shutdown.
++    return;
++  }
+ 
+   network_context_client_receiver_.reset();
+   network_context_->SetClient(

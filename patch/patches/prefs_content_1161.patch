@@ -1,8 +1,8 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index fcbfa6b8a81e..9bf5ad6a581b 100644
+index fe4ca0fafd45..025424a1654c 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
-@@ -184,6 +184,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+@@ -178,6 +178,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
    IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
@@ -35,10 +35,10 @@ index 04c03cfcb774..4f5488ef1699 100644
    bool record_whole_document;
  
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 556a107ed038..2dbf8cc69c7e 100644
+index bd44565e78aa..dcb7bbd6d875 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -1015,6 +1015,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+@@ -968,6 +968,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
  #endif
  
    WebRuntimeFeatures::EnableTranslateService(prefs.translate_service_available);

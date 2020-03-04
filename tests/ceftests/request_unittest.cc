@@ -21,7 +21,7 @@ TEST(RequestTest, SetGet) {
   EXPECT_TRUE(request.get() != nullptr);
   EXPECT_EQ(0U, request->GetIdentifier());
 
-  CefString url = "http://tests/run.html";
+  CefString url = "http://tests.com/run.html";
   CefString method = "POST";
   CefRequest::HeaderMap setHeaders, getHeaders;
   setHeaders.insert(std::make_pair("HeaderA", "ValueA"));
@@ -90,7 +90,8 @@ TEST(RequestTest, SetGet) {
   CefString referrer = "http://tests.com/referrer.html";
   CefRequest::ReferrerPolicy policy = REFERRER_POLICY_ORIGIN;
   request->SetReferrer(referrer, policy);
-  EXPECT_EQ(referrer, request->GetReferrerURL());
+  EXPECT_STREQ("http://tests.com/",
+               request->GetReferrerURL().ToString().c_str());
   EXPECT_EQ(policy, request->GetReferrerPolicy());
 
   // CefRequest SetHeaderMap

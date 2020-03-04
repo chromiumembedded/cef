@@ -64,7 +64,7 @@ const size_t kMaxDamageRects = 10;
 
 const float kDefaultScaleFactor = 1.0;
 
-static content::ScreenInfo ScreenInfoFrom(const CefScreenInfo& src) {
+content::ScreenInfo ScreenInfoFrom(const CefScreenInfo& src) {
   content::ScreenInfo screenInfo;
   screenInfo.device_scale_factor = src.device_scale_factor;
   screenInfo.depth = src.depth;
@@ -102,12 +102,6 @@ class CefDelegatedFrameHostClient : public content::DelegatedFrameHostClient {
       return SK_ColorBLACK;
     }
     return *view_->GetBackgroundColor();
-  }
-
-  void OnBeginFrame(base::TimeTicks frame_time) override {
-    // TODO(cef): Maybe we can use this method in combination with
-    // OnSetNeedsBeginFrames() instead of using CefBeginFrameTimer.
-    // See https://codereview.chromium.org/1841083007.
   }
 
   void OnFrameTokenChanged(uint32_t frame_token) override {
@@ -177,6 +171,23 @@ float GetDeviceScaleFactor(CefBrowserHostImpl* browser) {
     return kDefaultScaleFactor;
 
   return screen_info.device_scale_factor;
+}
+
+ui::ImeTextSpan::UnderlineStyle GetImeUnderlineStyle(
+    cef_composition_underline_style_t style) {
+  switch (style) {
+    case CEF_CUS_SOLID:
+      return ui::ImeTextSpan::UnderlineStyle::kSolid;
+    case CEF_CUS_DOT:
+      return ui::ImeTextSpan::UnderlineStyle::kDot;
+    case CEF_CUS_DASH:
+      return ui::ImeTextSpan::UnderlineStyle::kDash;
+    case CEF_CUS_NONE:
+      return ui::ImeTextSpan::UnderlineStyle::kNone;
+  }
+
+  NOTREACHED();
+  return ui::ImeTextSpan::UnderlineStyle::kSolid;
 }
 
 }  // namespace
@@ -450,11 +461,6 @@ void CefRenderWidgetHostViewOSR::TakeFallbackContentFrom(
   host()->GetContentRenderingTimeoutFrom(view_cef->host());
 }
 
-void CefRenderWidgetHostViewOSR::DidCreateNewRendererCompositorFrameSink(
-    viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink) {
-  NOTREACHED();
-}
-
 void CefRenderWidgetHostViewOSR::OnPresentCompositorFrame() {}
 
 void CefRenderWidgetHostViewOSR::OnDidUpdateVisualPropertiesComplete(
@@ -524,13 +530,6 @@ void CefRenderWidgetHostViewOSR::AddDamageRect(uint32_t sequence,
     damage_rects_.erase(damage_rects_.begin());
   }
   damage_rects_[sequence] = rect;
-}
-
-void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
-    const viz::LocalSurfaceId& local_surface_id,
-    viz::CompositorFrame frame,
-    base::Optional<viz::HitTestRegionList> hit_test_region_list) {
-  NOTREACHED();
 }
 
 void CefRenderWidgetHostViewOSR::ResetFallbackToFirstNavigationSurface() {
@@ -795,7 +794,8 @@ void CefRenderWidgetHostViewOSR::ImeSetComposition(
         ui::ImeTextSpan::Type::kComposition, line.range.from, line.range.to,
         line.thick ? ui::ImeTextSpan::Thickness::kThick
                    : ui::ImeTextSpan::Thickness::kThin,
-        line.background_color, line.color, std::vector<std::string>()));
+        GetImeUnderlineStyle(line.style), line.background_color, line.color,
+        std::vector<std::string>()));
   }
   gfx::Range range(replacement_range.from, replacement_range.to);
 
@@ -896,20 +896,6 @@ void CefRenderWidgetHostViewOSR::OnRenderFrameMetadataChangedAfterActivation() {
 std::unique_ptr<content::SyntheticGestureTarget>
 CefRenderWidgetHostViewOSR::CreateSyntheticGestureTarget() {
   return std::make_unique<CefSyntheticGestureTargetOSR>(host());
-}
-
-void CefRenderWidgetHostViewOSR::SetNeedsBeginFrames(bool enabled) {
-  SetFrameRate();
-
-  if (host_display_client_) {
-    host_display_client_->SetActive(enabled);
-  }
-}
-
-void CefRenderWidgetHostViewOSR::SetWantsAnimateOnlyBeginFrames() {
-  if (delegated_frame_host_) {
-    delegated_frame_host_->SetWantsAnimateOnlyBeginFrames();
-  }
 }
 
 bool CefRenderWidgetHostViewOSR::TransformPointToCoordSpaceForView(
@@ -1108,13 +1094,15 @@ void CefRenderWidgetHostViewOSR::SendMouseEvent(
 
     if (popup_host_view_) {
       if (popup_host_view_->popup_position_.Contains(
-              event.PositionInWidget().x, event.PositionInWidget().y)) {
+              event.PositionInWidget().x(), event.PositionInWidget().y())) {
         blink::WebMouseEvent popup_event(event);
         popup_event.SetPositionInWidget(
-            event.PositionInWidget().x - popup_host_view_->popup_position_.x(),
-            event.PositionInWidget().y - popup_host_view_->popup_position_.y());
-        popup_event.SetPositionInScreen(popup_event.PositionInWidget().x,
-                                        popup_event.PositionInWidget().y);
+            event.PositionInWidget().x() -
+                popup_host_view_->popup_position_.x(),
+            event.PositionInWidget().y() -
+                popup_host_view_->popup_position_.y());
+        popup_event.SetPositionInScreen(popup_event.PositionInWidget().x(),
+                                        popup_event.PositionInWidget().y());
 
         popup_host_view_->SendMouseEvent(popup_event);
         return;
@@ -1127,14 +1115,14 @@ void CefRenderWidgetHostViewOSR::SendMouseEvent(
         }
         const gfx::Rect& guest_bounds =
             guest_host_view->render_widget_host_->GetView()->GetViewBounds();
-        if (guest_bounds.Contains(event.PositionInWidget().x,
-                                  event.PositionInWidget().y)) {
+        if (guest_bounds.Contains(event.PositionInWidget().x(),
+                                  event.PositionInWidget().y())) {
           blink::WebMouseEvent guest_event(event);
           guest_event.SetPositionInWidget(
-              event.PositionInWidget().x - guest_bounds.x(),
-              event.PositionInWidget().y - guest_bounds.y());
-          guest_event.SetPositionInScreen(guest_event.PositionInWidget().x,
-                                          guest_event.PositionInWidget().y);
+              event.PositionInWidget().x() - guest_bounds.x(),
+              event.PositionInWidget().y() - guest_bounds.y());
+          guest_event.SetPositionInScreen(guest_event.PositionInWidget().x(),
+                                          guest_event.PositionInWidget().y());
 
           guest_host_view->SendMouseEvent(guest_event);
           return;
@@ -1168,14 +1156,16 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
 
     if (popup_host_view_) {
       if (popup_host_view_->popup_position_.Contains(
-              event.PositionInWidget().x, event.PositionInWidget().y)) {
+              event.PositionInWidget().x(), event.PositionInWidget().y())) {
         blink::WebMouseWheelEvent popup_mouse_wheel_event(event);
         popup_mouse_wheel_event.SetPositionInWidget(
-            event.PositionInWidget().x - popup_host_view_->popup_position_.x(),
-            event.PositionInWidget().y - popup_host_view_->popup_position_.y());
+            event.PositionInWidget().x() -
+                popup_host_view_->popup_position_.x(),
+            event.PositionInWidget().y() -
+                popup_host_view_->popup_position_.y());
         popup_mouse_wheel_event.SetPositionInScreen(
-            popup_mouse_wheel_event.PositionInWidget().x,
-            popup_mouse_wheel_event.PositionInWidget().y);
+            popup_mouse_wheel_event.PositionInWidget().x(),
+            popup_mouse_wheel_event.PositionInWidget().y());
 
         popup_host_view_->SendMouseWheelEvent(popup_mouse_wheel_event);
         return;
@@ -1196,15 +1186,15 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
         }
         const gfx::Rect& guest_bounds =
             guest_host_view->render_widget_host_->GetView()->GetViewBounds();
-        if (guest_bounds.Contains(event.PositionInWidget().x,
-                                  event.PositionInWidget().y)) {
+        if (guest_bounds.Contains(event.PositionInWidget().x(),
+                                  event.PositionInWidget().y())) {
           blink::WebMouseWheelEvent guest_mouse_wheel_event(event);
           guest_mouse_wheel_event.SetPositionInWidget(
-              event.PositionInWidget().x - guest_bounds.x(),
-              event.PositionInWidget().y - guest_bounds.y());
+              event.PositionInWidget().x() - guest_bounds.x(),
+              event.PositionInWidget().y() - guest_bounds.y());
           guest_mouse_wheel_event.SetPositionInScreen(
-              guest_mouse_wheel_event.PositionInWidget().x,
-              guest_mouse_wheel_event.PositionInWidget().y);
+              guest_mouse_wheel_event.PositionInWidget().x(),
+              guest_mouse_wheel_event.PositionInWidget().y());
 
           guest_host_view->SendMouseWheelEvent(guest_mouse_wheel_event);
           return;

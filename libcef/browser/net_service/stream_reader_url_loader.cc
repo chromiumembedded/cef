@@ -420,8 +420,8 @@ void InputStreamReader::RunSkipCallback(int64_t bytes_skipped) {
   DCHECK(!pending_skip_callback_.is_null());
   job_thread_task_runner_->PostTask(
       FROM_HERE,
-      base::Bind(InputStreamReader::RunSkipCallbackOnJobThread, bytes_skipped,
-                 base::Passed(std::move(pending_skip_callback_))));
+      base::BindOnce(InputStreamReader::RunSkipCallbackOnJobThread,
+                     bytes_skipped, std::move(pending_skip_callback_)));
 
   // Reset callback state.
   pending_callback_id_ = -1;
@@ -433,9 +433,8 @@ void InputStreamReader::RunReadCallback(int bytes_read) {
 
   DCHECK(!pending_read_callback_.is_null());
   job_thread_task_runner_->PostTask(
-      FROM_HERE,
-      base::Bind(InputStreamReader::RunReadCallbackOnJobThread, bytes_read,
-                 base::Passed(std::move(pending_read_callback_))));
+      FROM_HERE, base::BindOnce(InputStreamReader::RunReadCallbackOnJobThread,
+                                bytes_read, std::move(pending_read_callback_)));
 
   // Reset callback state.
   pending_callback_id_ = -1;
@@ -640,32 +639,38 @@ void StreamReaderURLLoader::HeadersComplete(int orig_status_code,
     return;
   }
 
-  pending_response_.request_start = base::TimeTicks::Now();
-  pending_response_.response_start = base::TimeTicks::Now();
-  pending_response_.headers = MakeResponseHeaders(
+  auto pending_response = network::mojom::URLResponseHead::New();
+  pending_response->request_start = base::TimeTicks::Now();
+  pending_response->response_start = base::TimeTicks::Now();
+
+  auto headers = MakeResponseHeaders(
       status_code, status_text, mime_type, charset, content_length,
       extra_headers, false /* allow_existing_header_override */);
+  pending_response->headers = headers;
 
   if (content_length >= 0)
-    pending_response_.content_length = content_length;
+    pending_response->content_length = content_length;
 
   if (!mime_type.empty()) {
-    pending_response_.mime_type = mime_type;
+    pending_response->mime_type = mime_type;
     if (!charset.empty())
-      pending_response_.charset = charset;
+      pending_response->charset = charset;
   }
 
   if (header_client_.is_bound()) {
     header_client_->OnHeadersReceived(
-        pending_response_.headers->raw_headers(), net::IPEndPoint(),
+        headers->raw_headers(), net::IPEndPoint(),
         base::BindOnce(&StreamReaderURLLoader::ContinueWithResponseHeaders,
-                       weak_factory_.GetWeakPtr()));
+                       weak_factory_.GetWeakPtr(),
+                       std::move(pending_response)));
   } else {
-    ContinueWithResponseHeaders(net::OK, base::nullopt, GURL());
+    ContinueWithResponseHeaders(std::move(pending_response), net::OK,
+                                base::nullopt, base::nullopt);
   }
 }
 
 void StreamReaderURLLoader::ContinueWithResponseHeaders(
+    network::mojom::URLResponseHeadPtr pending_response,
     int32_t result,
     const base::Optional<std::string>& headers,
     const base::Optional<GURL>& redirect_url) {
@@ -676,34 +681,35 @@ void StreamReaderURLLoader::ContinueWithResponseHeaders(
 
   if (headers) {
     DCHECK(header_client_.is_bound());
-    pending_response_.headers =
+    pending_response->headers =
         base::MakeRefCounted<net::HttpResponseHeaders>(*headers);
   }
 
+  auto pending_headers = pending_response->headers;
+
   // What the length would be if we sent headers over the network. Used to
   // calculate data length.
-  header_length_ = pending_response_.headers->raw_headers().length();
+  header_length_ = pending_headers->raw_headers().length();
 
   DCHECK(client_.is_bound());
 
   std::string location;
   const auto has_redirect_url = redirect_url && !redirect_url->is_empty();
-  if (has_redirect_url || pending_response_.headers->IsRedirect(&location)) {
-    pending_response_.encoded_data_length = header_length_;
-    pending_response_.content_length = pending_response_.encoded_body_length =
+  if (has_redirect_url || pending_headers->IsRedirect(&location)) {
+    pending_response->encoded_data_length = header_length_;
+    pending_response->content_length = pending_response->encoded_body_length =
         0;
     const GURL new_location =
         has_redirect_url ? *redirect_url : request_.url.Resolve(location);
     client_->OnReceiveRedirect(
-        MakeRedirectInfo(request_, pending_response_.headers.get(),
-                         new_location,
-                         pending_response_.headers->response_code()),
-        pending_response_);
+        MakeRedirectInfo(request_, pending_headers.get(), new_location,
+                         pending_headers->response_code()),
+        std::move(pending_response));
     // The client will restart the request with a new loader.
     // |this| will be deleted.
     CleanUp();
   } else {
-    client_->OnReceiveResponse(pending_response_);
+    client_->OnReceiveResponse(std::move(pending_response));
   }
 }
 

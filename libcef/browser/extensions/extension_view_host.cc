@@ -12,7 +12,7 @@
 #include "extensions/browser/extension_system.h"
 #include "extensions/browser/notification_types.h"
 #include "extensions/browser/runtime_data.h"
-#include "third_party/blink/public/platform/web_gesture_event.h"
+#include "third_party/blink/public/common/input/web_gesture_event.h"
 
 using content::NativeWebKeyboardEvent;
 using content::OpenURLParams;

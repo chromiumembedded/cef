@@ -30,7 +30,7 @@ class CefFileDialogRunner {
   };
 
   // The argument vector will be empty if the dialog was canceled.
-  typedef base::Callback<void(int, const std::vector<base::FilePath>&)>
+  typedef base::OnceCallback<void(int, const std::vector<base::FilePath>&)>
       RunFileChooserCallback;
 
   // Display the file chooser dialog. Execute |callback| on completion.
