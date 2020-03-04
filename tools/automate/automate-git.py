@@ -295,7 +295,7 @@ def remove_deps_entry(path, entry):
 
 
 def apply_deps_patch():
-  """ Patch the Chromium DEPS file if necessary. """
+  """ Patch the Chromium DEPS file before `gclient sync` if necessary. """
   # Starting with 43.0.2357.126 the DEPS file is now 100% Git and the .DEPS.git
   # file is no longer created. Look for the older file first in case we're
   # building an older branch version.
@@ -323,6 +323,17 @@ def apply_deps_patch():
       remove_deps_entry(deps_path, "'src'")
   else:
     raise Exception("Path does not exist: %s" % (deps_path))
+
+
+def apply_runhooks_patch():
+  """ Patch the Chromium runhooks files before `gclient runhooks` if necessary. """
+  patch_file = os.path.join(cef_dir, 'patch', 'patches', 'runhooks')
+  if os.path.exists(patch_file + ".patch"):
+    # Attempt to apply the runhooks patch file.
+    patch_tool = os.path.join(cef_dir, 'tools', 'patcher.py')
+    run('%s %s --patch-file "%s" --patch-dir "%s"' %
+        (python_exe, patch_tool, patch_file,
+         chromium_src_dir), chromium_src_dir, depot_tools_dir)
 
 
 def run_patch_updater(args='', output_file=None):
@@ -1452,8 +1463,14 @@ if chromium_checkout_changed:
   os.environ['GYP_CHROMIUM_NO_ACTION'] = '1'
 
   # Update third-party dependencies including branch/tag information.
-  run("gclient sync %s--with_branch_heads --jobs 16" % \
+  run("gclient sync %s--nohooks --with_branch_heads --jobs 16" % \
       ('--reset ' if discard_local_changes else ''), chromium_dir, depot_tools_dir)
+
+  # Patch the Chromium runhooks scripts if necessary.
+  apply_runhooks_patch()
+
+  # Runs hooks for files that have been modified in the local working copy.
+  run("gclient runhooks --jobs 16", chromium_dir, depot_tools_dir)
 
   # Clear the GYP_CHROMIUM_NO_ACTION value.
   del os.environ['GYP_CHROMIUM_NO_ACTION']
