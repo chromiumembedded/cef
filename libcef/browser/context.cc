@@ -392,9 +392,10 @@ bool CefContext::Initialize(const CefMainArgs& args,
 #if defined(OS_WIN)
   sandbox::SandboxInterfaceInfo sandbox_info = {0};
   if (windows_sandbox_info == nullptr) {
-    content::InitializeSandboxInfo(&sandbox_info);
+    if (!settings.no_sandbox) {
+      content::InitializeSandboxInfo(&sandbox_info);
+    }
     windows_sandbox_info = &sandbox_info;
-    settings_.no_sandbox = true;
   }
 
   params.instance = args.instance;
