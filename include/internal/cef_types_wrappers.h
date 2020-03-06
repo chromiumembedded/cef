@@ -743,6 +743,7 @@ struct CefURLPartsTraits {
     cef_string_clear(&s->origin);
     cef_string_clear(&s->path);
     cef_string_clear(&s->query);
+    cef_string_clear(&s->fragment);
   }
 
   static inline void set(const struct_type* src,
@@ -759,6 +760,8 @@ struct CefURLPartsTraits {
     cef_string_set(src->origin.str, src->origin.length, &target->origin, copy);
     cef_string_set(src->path.str, src->path.length, &target->path, copy);
     cef_string_set(src->query.str, src->query.length, &target->query, copy);
+    cef_string_set(src->fragment.str, src->fragment.length, &target->fragment,
+                   copy);
   }
 };
 

@@ -725,6 +725,11 @@ typedef struct _cef_urlparts_t {
   // Query string component (i.e., everything following the '?').
   ///
   cef_string_t query;
+
+  ///
+  // Fragment (hash) identifier component (i.e., the string following the '#').
+  ///
+  cef_string_t fragment;
 } cef_urlparts_t;
 
 ///

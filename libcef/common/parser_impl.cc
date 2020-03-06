@@ -27,6 +27,7 @@ bool CefParseURL(const CefString& url, CefURLParts& parts) {
   CefString(&parts.port).FromString(gurl.port());
   CefString(&parts.path).FromString(gurl.path());
   CefString(&parts.query).FromString(gurl.query());
+  CefString(&parts.fragment).FromString(gurl.ref());
 
   return true;
 }
@@ -42,6 +43,8 @@ bool CefCreateURL(const CefURLParts& parts, CefString& url) {
   std::string port = CefString(parts.port.str, parts.port.length, false);
   std::string path = CefString(parts.path.str, parts.path.length, false);
   std::string query = CefString(parts.query.str, parts.query.length, false);
+  std::string fragment =
+      CefString(parts.fragment.str, parts.fragment.length, false);
 
   GURL gurl;
   if (!spec.empty()) {
@@ -62,6 +65,8 @@ bool CefCreateURL(const CefURLParts& parts, CefString& url) {
       ss << path;
     if (!query.empty())
       ss << "?" << query;
+    if (!fragment.empty())
+      ss << "#" << fragment;
     gurl = GURL(ss.str());
   }
 
