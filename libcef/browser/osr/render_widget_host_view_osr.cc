@@ -349,6 +349,12 @@ void CefRenderWidgetHostViewOSR::Show() {
   if (is_showing_)
     return;
 
+  if (!content::GpuDataManagerImpl::GetInstance()->IsGpuCompositingDisabled() &&
+      !browser_impl_ &&
+      (!parent_host_view_ || !parent_host_view_->browser_impl_)) {
+    return;
+  }
+
   is_showing_ = true;
 
   // If the viz::LocalSurfaceIdAllocation is invalid, we may have been evicted,
