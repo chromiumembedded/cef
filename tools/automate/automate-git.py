@@ -404,15 +404,16 @@ def get_chromium_versions(commit):
   return None
 
 
-def get_chromium_compat_version():
-  """ Returns the compatible Chromium version specified by the CEF checkout. """
+def get_build_compat_versions():
+  """ Returns the compatible Chromium and (optionally) depot_tools versions
+      specified by the CEF checkout. """
   compat_path = os.path.join(cef_dir, 'CHROMIUM_BUILD_COMPATIBILITY.txt')
   msg("Reading %s" % compat_path)
   config = read_config_file(compat_path)
 
-  if 'chromium_checkout' in config:
-    return config['chromium_checkout']
-  raise Exception("Missing chromium_checkout value in %s" % (compat_path))
+  if not 'chromium_checkout' in config:
+    raise Exception("Missing chromium_checkout value in %s" % (compat_path))
+  return config
 
 
 def get_chromium_target_version(os='win', channel='canary', target_distance=0):
@@ -1213,6 +1214,19 @@ if not options.nocefupdate and os.path.exists(cef_dir):
 else:
   cef_checkout_changed = False
 
+build_compat_versions = get_build_compat_versions()
+
+if not options.nodepottoolsupdate and \
+    'depot_tools_checkout' in build_compat_versions:
+  # Update the depot_tools checkout.
+  depot_tools_compat_version = build_compat_versions['depot_tools_checkout']
+  run('%s checkout %s%s' %
+      (git_exe, '--force ' if discard_local_changes else '', depot_tools_compat_version), \
+      depot_tools_dir, depot_tools_dir)
+
+# Disable further depot_tools updates.
+os.environ['DEPOT_TOOLS_UPDATE'] = '0'
+
 ##
 # Manage the out directory.
 ##
@@ -1293,7 +1307,7 @@ if not options.nochromiumupdate and os.path.exists(chromium_src_dir):
   run("%s fetch --tags" % (git_exe), chromium_src_dir, depot_tools_dir)
 
 # Determine the Chromium checkout options required by CEF.
-chromium_compat_version = get_chromium_compat_version()
+chromium_compat_version = build_compat_versions['chromium_checkout']
 if len(options.chromiumcheckout) > 0:
   chromium_checkout = options.chromiumcheckout
 elif len(options.chromiumchannel) > 0:
