@@ -592,7 +592,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
           new RequestCallbackWrapper(base::BindOnce(
               &InterceptedRequestHandlerWrapper::ContinueShouldInterceptRequest,
               weak_ptr_factory_.GetWeakPtr(), id, base::Unretained(request),
-              base::Passed(std::move(callback))));
+              std::move(callback)));
 
       cef_return_value_t retval = state->handler_->OnBeforeResourceLoad(
           init_state_->browser_, init_state_->frame_,
@@ -687,11 +687,10 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     std::move(callback).Run(std::move(resource_response));
   }
 
-  void ProcessResponseHeaders(
-      const RequestId& id,
-      const network::ResourceRequest& request,
-      const GURL& redirect_url,
-      const network::ResourceResponseHead& head) override {
+  void ProcessResponseHeaders(const RequestId& id,
+                              const network::ResourceRequest& request,
+                              const GURL& redirect_url,
+                              net::HttpResponseHeaders* headers) override {
     CEF_REQUIRE_IOT();
 
     RequestState* state = GetState(id);
@@ -708,15 +707,15 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     else
       state->pending_response_->SetReadOnly(false);
 
-    if (head.headers)
-      state->pending_response_->SetResponseHeaders(*head.headers);
+    if (headers)
+      state->pending_response_->SetResponseHeaders(*headers);
 
     state->pending_response_->SetReadOnly(true);
   }
 
   void OnRequestResponse(const RequestId& id,
                          network::ResourceRequest* request,
-                         const network::ResourceResponseHead& head,
+                         net::HttpResponseHeaders* headers,
                          base::Optional<net::RedirectInfo> redirect_info,
                          OnRequestResponseResultCallback callback) override {
     CEF_REQUIRE_IOT();
@@ -735,7 +734,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     if (!state->handler_) {
       // Cookies may come from a scheme handler.
       MaybeSaveCookies(
-          id, state, request, head,
+          id, state, request, headers,
           base::BindOnce(
               std::move(callback), ResponseMode::CONTINUE, nullptr,
               redirect_info.has_value() ? redirect_info->new_url : GURL()));
@@ -746,17 +745,17 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     DCHECK(state->pending_response_);
 
     if (redirect_info.has_value()) {
-      HandleRedirect(id, state, request, head, *redirect_info,
+      HandleRedirect(id, state, request, headers, *redirect_info,
                      std::move(callback));
     } else {
-      HandleResponse(id, state, request, head, std::move(callback));
+      HandleResponse(id, state, request, headers, std::move(callback));
     }
   }
 
   void HandleRedirect(const RequestId& id,
                       RequestState* state,
                       network::ResourceRequest* request,
-                      const network::ResourceResponseHead& head,
+                      net::HttpResponseHeaders* headers,
                       const net::RedirectInfo& redirect_info,
                       OnRequestResponseResultCallback callback) {
     GURL new_url = redirect_info.new_url;
@@ -786,13 +785,13 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     auto exec_callback = base::BindOnce(
         std::move(callback), ResponseMode::CONTINUE, nullptr, new_url);
 
-    MaybeSaveCookies(id, state, request, head, std::move(exec_callback));
+    MaybeSaveCookies(id, state, request, headers, std::move(exec_callback));
   }
 
   void HandleResponse(const RequestId& id,
                       RequestState* state,
                       network::ResourceRequest* request,
-                      const network::ResourceResponseHead& head,
+                      net::HttpResponseHeaders* headers,
                       OnRequestResponseResultCallback callback) {
     // The client may modify |pending_request_| in OnResourceResponse.
     state->pending_request_->SetReadOnly(false);
@@ -835,13 +834,13 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       return;
     }
 
-    MaybeSaveCookies(id, state, request, head, std::move(exec_callback));
+    MaybeSaveCookies(id, state, request, headers, std::move(exec_callback));
   }
 
   void MaybeSaveCookies(const RequestId& id,
                         RequestState* state,
                         network::ResourceRequest* request,
-                        const network::ResourceResponseHead& head,
+                        net::HttpResponseHeaders* headers,
                         base::OnceClosure callback) {
     CEF_REQUIRE_IOT();
 
@@ -863,7 +862,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     auto done_cookie_callback = base::BindOnce(
         &InterceptedRequestHandlerWrapper::ContinueWithSavedCookies,
         weak_ptr_factory_.GetWeakPtr(), id, std::move(callback));
-    net_service::SaveCookies(init_state_->browser_context_, *request, head,
+    net_service::SaveCookies(init_state_->browser_context_, *request, headers,
                              allow_cookie_callback,
                              std::move(done_cookie_callback));
   }

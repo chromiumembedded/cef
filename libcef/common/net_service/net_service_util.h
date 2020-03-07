@@ -10,6 +10,8 @@
 
 #include "include/internal/cef_types_wrappers.h"
 
+#include "base/memory/scoped_refptr.h"
+
 namespace net {
 class CanonicalCookie;
 class HttpResponseHeaders;
@@ -18,7 +20,6 @@ struct RedirectInfo;
 
 namespace network {
 struct ResourceRequest;
-struct ResourceResponseHead;
 }  // namespace network
 
 class GURL;
@@ -48,7 +49,7 @@ std::string MakeContentTypeValue(const std::string& mime_type,
                                  const std::string& charset);
 
 // Make a new HttpResponseHeaders object.
-net::HttpResponseHeaders* MakeResponseHeaders(
+scoped_refptr<net::HttpResponseHeaders> MakeResponseHeaders(
     int status_code,
     const std::string& status_text,
     const std::string& mime_type,

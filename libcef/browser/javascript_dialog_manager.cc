@@ -19,17 +19,19 @@ namespace {
 
 class CefJSDialogCallbackImpl : public CefJSDialogCallback {
  public:
-  using Callback = content::JavaScriptDialogManager::DialogClosedCallback;
+  using CallbackType = content::JavaScriptDialogManager::DialogClosedCallback;
 
-  CefJSDialogCallbackImpl(Callback callback) : callback_(std::move(callback)) {}
+  CefJSDialogCallbackImpl(CallbackType callback)
+      : callback_(std::move(callback)) {}
   ~CefJSDialogCallbackImpl() override {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
       if (CEF_CURRENTLY_ON_UIT()) {
         CancelNow(std::move(callback_));
       } else {
-        CEF_POST_TASK(CEF_UIT, base::Bind(&CefJSDialogCallbackImpl::CancelNow,
-                                          base::Passed(std::move(callback_))));
+        CEF_POST_TASK(CEF_UIT,
+                      base::BindOnce(&CefJSDialogCallbackImpl::CancelNow,
+                                     std::move(callback_)));
       }
     }
   }
@@ -40,20 +42,20 @@ class CefJSDialogCallbackImpl : public CefJSDialogCallback {
         std::move(callback_).Run(success, user_input);
       }
     } else {
-      CEF_POST_TASK(CEF_UIT, base::Bind(&CefJSDialogCallbackImpl::Continue,
-                                        this, success, user_input));
+      CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefJSDialogCallbackImpl::Continue,
+                                            this, success, user_input));
     }
   }
 
-  Callback Disconnect() WARN_UNUSED_RESULT { return std::move(callback_); }
+  CallbackType Disconnect() WARN_UNUSED_RESULT { return std::move(callback_); }
 
  private:
-  static void CancelNow(Callback callback) {
+  static void CancelNow(CallbackType callback) {
     CEF_REQUIRE_UIT();
     std::move(callback).Run(false, base::string16());
   }
 
-  Callback callback_;
+  CallbackType callback_;
 
   IMPLEMENT_REFCOUNTING(CefJSDialogCallbackImpl);
 };
@@ -130,11 +132,10 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
       url_formatter::FormatUrlForSecurityDisplay(origin_url);
 
   DCHECK(!callback.is_null());
-  runner_->Run(browser_, message_type, display_url, message_text,
-               default_prompt_text,
-               base::Bind(&CefJavaScriptDialogManager::DialogClosed,
-                          weak_ptr_factory_.GetWeakPtr(),
-                          base::Passed(std::move(callback))));
+  runner_->Run(
+      browser_, message_type, display_url, message_text, default_prompt_text,
+      base::BindOnce(&CefJavaScriptDialogManager::DialogClosed,
+                     weak_ptr_factory_.GetWeakPtr(), std::move(callback)));
 }
 
 void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
@@ -185,13 +186,13 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
   dialog_running_ = true;
 
   DCHECK(!callback.is_null());
-  runner_->Run(browser_, content::JAVASCRIPT_DIALOG_TYPE_CONFIRM,
-               base::string16(),  // display_url
-               message_text,
-               base::string16(),  // default_prompt_text
-               base::Bind(&CefJavaScriptDialogManager::DialogClosed,
-                          weak_ptr_factory_.GetWeakPtr(),
-                          base::Passed(std::move(callback))));
+  runner_->Run(
+      browser_, content::JAVASCRIPT_DIALOG_TYPE_CONFIRM,
+      base::string16(),  // display_url
+      message_text,
+      base::string16(),  // default_prompt_text
+      base::BindOnce(&CefJavaScriptDialogManager::DialogClosed,
+                     weak_ptr_factory_.GetWeakPtr(), std::move(callback)));
 }
 
 void CefJavaScriptDialogManager::CancelDialogs(

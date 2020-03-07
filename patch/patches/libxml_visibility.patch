@@ -1,8 +1,8 @@
 diff --git third_party/libxml/BUILD.gn third_party/libxml/BUILD.gn
-index 28b7c9d20c05..5b5d865b6ea8 100644
+index 3fe4dfd2990b..64848dfd33d7 100644
 --- third_party/libxml/BUILD.gn
 +++ third_party/libxml/BUILD.gn
-@@ -145,6 +145,7 @@ static_library("libxml") {
+@@ -141,6 +141,7 @@ static_library("libxml") {
      "//third_party/blink/renderer/*",
      "//third_party/fontconfig",
      "//third_party/libxslt",

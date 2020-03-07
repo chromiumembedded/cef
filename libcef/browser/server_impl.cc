@@ -381,7 +381,7 @@ void CefServerImpl::SendHttp200ResponseInternal(
   if (!CEF_CURRENTLY_ON_HT()) {
     CEF_POST_TASK_HT(base::BindOnce(&CefServerImpl::SendHttp200ResponseInternal,
                                     this, connection_id, content_type,
-                                    base::Passed(std::move(data))));
+                                    std::move(data)));
     return;
   }
 
@@ -407,8 +407,7 @@ void CefServerImpl::SendRawDataInternal(int connection_id,
                                         std::unique_ptr<std::string> data) {
   if (!CEF_CURRENTLY_ON_HT()) {
     CEF_POST_TASK_HT(base::BindOnce(&CefServerImpl::SendRawDataInternal, this,
-                                    connection_id,
-                                    base::Passed(std::move(data))));
+                                    connection_id, std::move(data)));
     return;
   }
 
@@ -427,7 +426,7 @@ void CefServerImpl::SendWebSocketMessageInternal(
   if (!CEF_CURRENTLY_ON_HT()) {
     CEF_POST_TASK_HT(
         base::BindOnce(&CefServerImpl::SendWebSocketMessageInternal, this,
-                       connection_id, base::Passed(std::move(data))));
+                       connection_id, std::move(data)));
     return;
   }
 

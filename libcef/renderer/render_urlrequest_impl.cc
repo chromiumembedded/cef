@@ -56,7 +56,7 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
   void DidStartLoadingResponseBody(
       mojo::ScopedDataPipeConsumerHandle response_body) override;
   bool WillFollowRedirect(const WebURL& new_url,
-                          const WebURL& new_site_for_cookies,
+                          const net::SiteForCookies& new_site_for_cookies,
                           const WebString& new_referrer,
                           network::mojom::ReferrerPolicy new_referrer_policy,
                           const WebString& new_method,
@@ -392,7 +392,7 @@ void CefWebURLLoaderClient::DidStartLoadingResponseBody(
 
 bool CefWebURLLoaderClient::WillFollowRedirect(
     const WebURL& new_url,
-    const WebURL& new_site_for_cookies,
+    const net::SiteForCookies& new_site_for_cookies,
     const WebString& new_referrer,
     network::mojom::ReferrerPolicy new_referrer_policy,
     const WebString& new_method,

@@ -12,7 +12,7 @@ index ea5258a03f83..843f28411eea 100644
    base::File file(exe_dir.Append(path),
                    base::File::FLAG_OPEN | base::File::FLAG_READ);
 diff --git sandbox/linux/suid/client/setuid_sandbox_host.cc sandbox/linux/suid/client/setuid_sandbox_host.cc
-index a277ffa5eb59..3935b9f8c17c 100644
+index 0aaed76c1dda..517c3d8b5772 100644
 --- sandbox/linux/suid/client/setuid_sandbox_host.cc
 +++ sandbox/linux/suid/client/setuid_sandbox_host.cc
 @@ -120,7 +120,7 @@ bool SetuidSandboxHost::IsDisabledViaEnvironment() {
@@ -25,7 +25,7 @@ index a277ffa5eb59..3935b9f8c17c 100644
      if (base::PathExists(sandbox_candidate))
        sandbox_binary = sandbox_candidate;
 diff --git ui/gl/init/gl_initializer_x11.cc ui/gl/init/gl_initializer_x11.cc
-index 60f73ddc504e..3d19011257aa 100644
+index 995d4399165e..b0381d77a507 100644
 --- ui/gl/init/gl_initializer_x11.cc
 +++ ui/gl/init/gl_initializer_x11.cc
 @@ -86,7 +86,7 @@ bool InitializeStaticEGLInternal(GLImplementation implementation) {

@@ -290,8 +290,11 @@ void CefPrintViewManager::OnRequestPrintPreview_PrintToPdf(
 
   DCHECK_EQ(pdf_print_state_->printing_rfh_, rfh);
 
-  rfh->Send(new PrintMsg_PrintPreview(rfh->GetRoutingID(),
-                                      pdf_print_state_->settings_));
+  mojo::AssociatedRemote<printing::mojom::PrintRenderFrame>
+      print_render_frame_remote;
+  rfh->GetRemoteAssociatedInterfaces()->GetInterface(
+      &print_render_frame_remote);
+  print_render_frame_remote->PrintPreview(pdf_print_state_->settings_.Clone());
 }
 
 void CefPrintViewManager::OnMetafileReadyForPrinting_PrintToPdf(

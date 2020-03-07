@@ -1,22 +1,22 @@
 diff --git chrome/test/BUILD.gn chrome/test/BUILD.gn
-index 5c45bc5e6b75..97282b45f57e 100644
+index 7d23fc08f7ea..24a41cf936da 100644
 --- chrome/test/BUILD.gn
 +++ chrome/test/BUILD.gn
-@@ -4720,7 +4720,7 @@ test("unit_tests") {
+@@ -4852,7 +4852,7 @@ test("unit_tests") {
    if (use_gio) {
      configs += [ "//build/linux:gio_config" ]
    }
 -  if (!is_chromeos && !use_ozone && is_linux) {
 +  if (!is_chromeos && !use_ozone && is_linux && use_gtk) {
-     deps += [ "//chrome/browser/ui/libgtkui" ]
+     deps += [ "//chrome/browser/ui/gtk" ]
    }
  
-@@ -5708,7 +5708,7 @@ if (!is_android) {
+@@ -5833,7 +5833,7 @@ if (!is_android) {
            # suites, it seems like one or another starts timing out too.
            "../browser/ui/views/keyboard_access_browsertest.cc",
          ]
 -        if (!use_ozone) {
 +        if (!use_ozone && use_gtk) {
-           sources += [
-             "../browser/ui/libgtkui/select_file_dialog_interactive_uitest.cc",
-           ]
+           sources +=
+               [ "../browser/ui/gtk/select_file_dialog_interactive_uitest.cc" ]
+           deps += [ "//build/config/linux/gtk" ]

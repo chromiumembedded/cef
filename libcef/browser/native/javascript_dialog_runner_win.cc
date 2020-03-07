@@ -96,13 +96,13 @@ void CefJavaScriptDialogRunnerWin::Run(
     const base::string16& display_url,
     const base::string16& message_text,
     const base::string16& default_prompt_text,
-    const DialogClosedCallback& callback) {
+    DialogClosedCallback callback) {
   DCHECK(!dialog_win_);
 
   message_type_ = message_type;
   message_text_ = message_text;
   default_prompt_text_ = default_prompt_text;
-  callback_ = callback;
+  callback_ = std::move(callback);
 
   InstallMessageHook();
   hook_installed_ = true;
@@ -177,8 +177,7 @@ void CefJavaScriptDialogRunnerWin::CloseDialog(
   // cleared. Otherwise, RenderWidgetHostImpl::IsIgnoringInputEvents will
   // return true and RenderWidgetHostViewAura::OnWindowFocused will fail to
   // re-assign browser focus.
-  callback_.Run(success, user_input);
-  callback_.Reset();
+  std::move(callback_).Run(success, user_input);
   Cancel();
 }
 

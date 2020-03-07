@@ -12,10 +12,10 @@ index 7688ba3d7b0d..9acaaa0d5c7f 100644
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/message_loop/message_loop_current.h base/message_loop/message_loop_current.h
-index a3b48b58d367..57f8dc7fe2fa 100644
+index 61b8c6fcc42d..d439b00a87bb 100644
 --- base/message_loop/message_loop_current.h
 +++ base/message_loop/message_loop_current.h
-@@ -120,6 +120,12 @@ class BASE_EXPORT MessageLoopCurrent {
+@@ -117,6 +117,12 @@ class BASE_EXPORT MessageLoopCurrent {
    // posted tasks.
    void SetAddQueueTimeToTasks(bool enable);
  
@@ -28,7 +28,7 @@ index a3b48b58d367..57f8dc7fe2fa 100644
    // Enables or disables the recursive task processing. This happens in the case
    // of recursive message loops. Some unwanted message loops may occur when
    // using common controls or printer functions. By default, recursive task
-@@ -190,6 +196,13 @@ class BASE_EXPORT MessageLoopCurrent {
+@@ -186,6 +192,13 @@ class BASE_EXPORT MessageLoopCurrent {
    friend class web::WebTaskEnvironment;
  
    sequence_manager::internal::SequenceManagerImpl* current_;

@@ -1,8 +1,8 @@
 diff --git content/renderer/loader/web_url_loader_impl.h content/renderer/loader/web_url_loader_impl.h
-index 837447e61b87..3df0297ed7f8 100644
+index b694b8a2629f..ac1ba364175d 100644
 --- content/renderer/loader/web_url_loader_impl.h
 +++ content/renderer/loader/web_url_loader_impl.h
-@@ -85,6 +85,7 @@ class CONTENT_EXPORT WebURLLoaderImpl : public blink::WebURLLoader {
+@@ -76,6 +76,7 @@ class CONTENT_EXPORT WebURLLoaderImpl : public blink::WebURLLoader {
                           blink::WebBlobInfo& downloaded_blob) override;
    void LoadAsynchronously(const blink::WebURLRequest& request,
                            blink::WebURLLoaderClient* client) override;
@@ -10,7 +10,7 @@ index 837447e61b87..3df0297ed7f8 100644
    void SetDefersLoading(bool value) override;
    void DidChangePriority(blink::WebURLRequest::Priority new_priority,
                           int intra_priority_value) override;
-@@ -95,8 +96,6 @@ class CONTENT_EXPORT WebURLLoaderImpl : public blink::WebURLLoader {
+@@ -86,8 +87,6 @@ class CONTENT_EXPORT WebURLLoaderImpl : public blink::WebURLLoader {
    class RequestPeerImpl;
    class SinkPeer;
  

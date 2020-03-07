@@ -9,7 +9,7 @@
 
 #include "include/cef_base.h"
 
-#include "third_party/blink/public/platform/web_touch_event.h"
+#include "third_party/blink/public/common/input/web_touch_event.h"
 #include "ui/events/gesture_detection/motion_event_generic.h"
 
 // Implementation of MotionEvent which takes a stream of CefTouchEvents.

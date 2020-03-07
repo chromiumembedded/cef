@@ -9,6 +9,10 @@
 
 #include "libcef/browser/file_dialog_runner.h"
 
+#include "base/memory/weak_ptr.h"
+
+@class NSView;
+
 class CefFileDialogRunnerMac : public CefFileDialogRunner {
  public:
   CefFileDialogRunnerMac();
@@ -17,6 +21,21 @@ class CefFileDialogRunnerMac : public CefFileDialogRunner {
   void Run(CefBrowserHostImpl* browser,
            const FileChooserParams& params,
            RunFileChooserCallback callback) override;
+
+ private:
+  static void RunOpenFileDialog(
+      base::WeakPtr<CefFileDialogRunnerMac> weak_this,
+      const CefFileDialogRunner::FileChooserParams& params,
+      NSView* view,
+      int filter_index);
+  static void RunSaveFileDialog(
+      base::WeakPtr<CefFileDialogRunnerMac> weak_this,
+      const CefFileDialogRunner::FileChooserParams& params,
+      NSView* view,
+      int filter_index);
+
+  CefFileDialogRunner::RunFileChooserCallback callback_;
+  base::WeakPtrFactory<CefFileDialogRunnerMac> weak_ptr_factory_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NATIVE_FILE_DIALOG_RUNNER_MAC_H_

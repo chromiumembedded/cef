@@ -103,7 +103,7 @@ struct PopulateAxNodeAttributes {
       case ax::mojom::IntAttribute::kActivedescendantId:
       case ax::mojom::IntAttribute::kInPageLinkTargetId:
       case ax::mojom::IntAttribute::kErrormessageId:
-      case ax::mojom::IntAttribute::kDetailsId:
+      case ax::mojom::IntAttribute::kDOMNodeId:
       case ax::mojom::IntAttribute::kDropeffect:
       case ax::mojom::IntAttribute::kMemberOfId:
       case ax::mojom::IntAttribute::kNextFocusId:

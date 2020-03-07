@@ -34,7 +34,7 @@ index c880e6ba1766..d168a5fb44bb 100644
  
  bool DownloadPrefs::IsFromTrustedSource(const download::DownloadItem& item) {
 diff --git chrome/browser/printing/print_preview_dialog_controller.cc chrome/browser/printing/print_preview_dialog_controller.cc
-index ba6cbab2e2e0..ce4c9953abfb 100644
+index 8c2609b8447c..f113149a30e8 100644
 --- chrome/browser/printing/print_preview_dialog_controller.cc
 +++ chrome/browser/printing/print_preview_dialog_controller.cc
 @@ -16,6 +16,7 @@
@@ -45,7 +45,7 @@ index ba6cbab2e2e0..ce4c9953abfb 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/extensions/chrome_extension_web_contents_observer.h"
  #include "chrome/browser/printing/print_view_manager.h"
-@@ -446,8 +447,11 @@ WebContents* PrintPreviewDialogController::CreatePrintPreviewDialog(
+@@ -450,8 +451,11 @@ WebContents* PrintPreviewDialogController::CreatePrintPreviewDialog(
    content::HostZoomMap::Get(preview_dialog->GetSiteInstance())
        ->SetZoomLevelForHostAndScheme(print_url.scheme(), print_url.host(), 0);
    PrintViewManager::CreateForWebContents(preview_dialog);
@@ -58,10 +58,10 @@ index ba6cbab2e2e0..ce4c9953abfb 100644
    // Add an entry to the map.
    preview_dialog_map_[preview_dialog] = initiator;
 diff --git chrome/browser/resources/print_preview/ui/destination_dialog.html chrome/browser/resources/print_preview/ui/destination_dialog.html
-index a9873cd3c0eb..127b8cba461e 100644
+index 56a6a8d8ee67..5fecf7ad1780 100644
 --- chrome/browser/resources/print_preview/ui/destination_dialog.html
 +++ chrome/browser/resources/print_preview/ui/destination_dialog.html
-@@ -147,9 +147,7 @@
+@@ -141,9 +141,7 @@
      </print-preview-provisional-destination-resolver>
    </div>
    <div slot="button-container">
@@ -73,7 +73,7 @@ index a9873cd3c0eb..127b8cba461e 100644
        $i18n{cancel}
      </cr-button>
 diff --git chrome/browser/resources/print_preview/ui/destination_select.html chrome/browser/resources/print_preview/ui/destination_select.html
-index 92127e580c67..df902f18f46d 100644
+index c93947a7634c..c60cada63ef8 100644
 --- chrome/browser/resources/print_preview/ui/destination_select.html
 +++ chrome/browser/resources/print_preview/ui/destination_select.html
 @@ -31,10 +31,6 @@
@@ -81,7 +81,7 @@ index 92127e580c67..df902f18f46d 100644
      $i18n{printToPDF}
    </option>
 -  <option value="[[getGoogleDriveDestinationKey_(activeUser)]]"
--      hidden$="[[!activeUser]]">
+-      hidden$="[[!driveDestinationReady]]">
 -    $i18n{printToGoogleDrive}
 -  </option>
    <option value="noDestinations"
@@ -262,10 +262,10 @@ index 0881b3dd9303..4df6883d4d05 100644
    Profile* const profile_;
    PrintPreviewStickySettings* const sticky_settings_;
 diff --git chrome/browser/ui/webui/print_preview/print_preview_handler.cc chrome/browser/ui/webui/print_preview/print_preview_handler.cc
-index 9bdbc0212f55..d93673e5b0c1 100644
+index b5370dedff93..e9966c08b4f8 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_handler.cc
-@@ -25,6 +25,7 @@
+@@ -27,6 +27,7 @@
  #include "base/metrics/histogram_macros.h"
  #include "base/values.h"
  #include "build/build_config.h"
@@ -273,7 +273,7 @@ index 9bdbc0212f55..d93673e5b0c1 100644
  #include "chrome/browser/app_mode/app_mode_utils.h"
  #include "chrome/browser/bad_message.h"
  #include "chrome/browser/browser_process.h"
-@@ -1107,7 +1108,7 @@ void PrintPreviewHandler::SendInitialSettings(
+@@ -1149,7 +1150,7 @@ void PrintPreviewHandler::SendInitialSettings(
      initial_settings.SetKey(kPolicies, std::move(policies));
  
    if (IsCloudPrintEnabled() &&
@@ -282,7 +282,7 @@ index 9bdbc0212f55..d93673e5b0c1 100644
      initial_settings.SetStringKey(
          kCloudPrintURL, GURL(cloud_devices::GetCloudPrintURL()).spec());
    }
-@@ -1366,6 +1367,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
+@@ -1414,6 +1415,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
      }
      return privet_printer_handler_.get();
    }
@@ -292,7 +292,7 @@ index 9bdbc0212f55..d93673e5b0c1 100644
  #endif
    if (printer_type == PrinterType::kPdfPrinter) {
      if (!pdf_printer_handler_) {
-@@ -1385,7 +1389,7 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
+@@ -1433,7 +1437,7 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
    if (printer_type == PrinterType::kCloudPrinter) {
      // This printer handler is currently experimental. Ensure it is never
      // created unless the flag is enabled.
@@ -301,7 +301,7 @@ index 9bdbc0212f55..d93673e5b0c1 100644
      if (!cloud_printer_handler_)
        cloud_printer_handler_ = PrinterHandler::CreateForCloudPrinters();
      return cloud_printer_handler_.get();
-@@ -1448,6 +1452,7 @@ void PrintPreviewHandler::OnPrintResult(const std::string& callback_id,
+@@ -1496,6 +1500,7 @@ void PrintPreviewHandler::OnPrintResult(const std::string& callback_id,
  }
  
  void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
@@ -309,7 +309,7 @@ index 9bdbc0212f55..d93673e5b0c1 100644
    DCHECK(!identity_manager_);
    cloud_print_enabled_ =
        !base::Contains(printer_type_deny_list_, kCloudPrinter) &&
-@@ -1464,6 +1469,7 @@ void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
+@@ -1512,6 +1517,7 @@ void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
  
    identity_manager_ = IdentityManagerFactory::GetForProfile(profile);
    identity_manager_->AddObserver(this);
@@ -318,7 +318,7 @@ index 9bdbc0212f55..d93673e5b0c1 100644
  
  void PrintPreviewHandler::UnregisterForGaiaCookieChanges() {
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index 19dba387e24f..50ec2bde3cb9 100644
+index 758f61539d5e..37cd13836464 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -24,6 +24,7 @@
@@ -329,7 +329,7 @@ index 19dba387e24f..50ec2bde3cb9 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/browser_process_platform_part.h"
  #include "chrome/browser/printing/background_printing_manager.h"
-@@ -76,12 +77,16 @@ namespace printing {
+@@ -77,12 +78,16 @@ namespace printing {
  
  namespace {
  
@@ -346,7 +346,7 @@ index 19dba387e24f..50ec2bde3cb9 100644
  
  #if !BUILDFLAG(OPTIMIZE_WEBUI)
  constexpr char kGeneratedPath[] =
-@@ -332,7 +337,7 @@ void AddPrintPreviewFlags(content::WebUIDataSource* source, Profile* profile) {
+@@ -335,7 +340,7 @@ void AddPrintPreviewFlags(content::WebUIDataSource* source, Profile* profile) {
    source->AddBoolean("isEnterpriseManaged", enterprise_managed);
  
    bool cloud_printer_handler_enabled =

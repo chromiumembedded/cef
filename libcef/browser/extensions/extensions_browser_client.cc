@@ -32,7 +32,6 @@
 #include "extensions/browser/extension_host_delegate.h"
 #include "extensions/browser/extensions_browser_interface_binders.h"
 #include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h"
-#include "extensions/browser/mojo/interface_registration.h"
 #include "extensions/browser/url_request_util.h"
 #include "extensions/common/api/mime_handler.mojom.h"
 #include "extensions/common/constants.h"
@@ -305,14 +304,6 @@ void CefExtensionsBrowserClient::RegisterBrowserInterfaceBindersForFrame(
       base::BindRepeating(&BindMimeHandlerService));
   map->Add<extensions::mime_handler::BeforeUnloadControl>(
       base::BindRepeating(&BindBeforeUnloadControl));
-}
-
-void CefExtensionsBrowserClient::RegisterExtensionInterfaces(
-    service_manager::BinderRegistryWithArgs<content::RenderFrameHost*>*
-        registry,
-    content::RenderFrameHost* render_frame_host,
-    const Extension* extension) const {
-  RegisterInterfacesForExtension(registry, render_frame_host, extension);
 }
 
 std::unique_ptr<RuntimeAPIDelegate>

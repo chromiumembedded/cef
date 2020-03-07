@@ -351,9 +351,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Run the file chooser dialog specified by |params|. Only a single dialog may
   // be pending at any given time. |callback| will be executed asynchronously
   // after the dialog is dismissed or if another dialog is already pending.
-  void RunFileChooser(
-      const CefFileDialogRunner::FileChooserParams& params,
-      const CefFileDialogRunner::RunFileChooserCallback& callback);
+  void RunFileChooser(const CefFileDialogRunner::FileChooserParams& params,
+                      CefFileDialogRunner::RunFileChooserCallback callback);
 
   bool HandleContextMenu(content::WebContents* web_contents,
                          const content::ContextMenuParams& params);
@@ -458,7 +457,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   bool CheckMediaAccessPermission(content::RenderFrameHost* render_frame_host,
                                   const GURL& security_origin,
                                   blink::mojom::MediaStreamType type) override;
-  bool IsNeverVisible(content::WebContents* web_contents) override;
+  bool IsNeverComposited(content::WebContents* web_contents) override;
   content::PictureInPictureResult EnterPictureInPicture(
       content::WebContents* web_contents,
       const viz::SurfaceId& surface_id,
@@ -481,8 +480,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void DocumentAvailableInMainFrame() override;
   void DidFailLoad(content::RenderFrameHost* render_frame_host,
                    const GURL& validated_url,
-                   int error_code,
-                   const base::string16& error_description) override;
+                   int error_code) override;
   void TitleWasSet(content::NavigationEntry* entry) override;
   void PluginCrashed(const base::FilePath& plugin_path,
                      base::ProcessId plugin_pid) override;

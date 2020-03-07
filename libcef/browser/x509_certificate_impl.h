@@ -35,7 +35,7 @@ class CefX509CertificateImpl : public CefX509Certificate {
 
   scoped_refptr<net::X509Certificate> GetInternalCertObject() { return cert_; }
   void AcquirePrivateKey(
-      const base::Callback<void(scoped_refptr<net::SSLPrivateKey>)>&
+      base::OnceCallback<void(scoped_refptr<net::SSLPrivateKey>)>
           private_key_callback);
 
  private:

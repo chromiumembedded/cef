@@ -80,12 +80,14 @@ index 1026b739d283..fe562ab60ce9 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index ca67f58b73cc..025e022a472c 100644
+index 7a1277ad28ed..4a426441e505 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -14,6 +14,8 @@ config("viz_service_implementation") {
+@@ -13,7 +13,10 @@ config("viz_service_implementation") {
+ }
  
  viz_component("service") {
++  never_build_jumbo = true
    sources = [
 +    "//cef/libcef/browser/osr/software_output_device_proxy.cc",
 +    "//cef/libcef/browser/osr/software_output_device_proxy.h",
@@ -93,18 +95,18 @@ index ca67f58b73cc..025e022a472c 100644
      "display/bsp_tree.h",
      "display/bsp_walk_action.cc",
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index 6f2eac863d1b..243c5acae3bf 100644
+index 97feccc71b94..4388a702977f 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
-@@ -12,6 +12,7 @@
- #include "base/compiler_specific.h"
+@@ -13,6 +13,7 @@
  #include "base/threading/thread_task_runner_handle.h"
+ #include "build/chromecast_buildflags.h"
  #include "cc/base/switches.h"
 +#include "cef/libcef/browser/osr/software_output_device_proxy.h"
  #include "components/viz/common/display/renderer_settings.h"
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
  #include "components/viz/service/display_embedder/gl_output_surface.h"
-@@ -227,6 +228,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+@@ -242,6 +243,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
    if (headless_)
      return std::make_unique<SoftwareOutputDevice>();
  
@@ -163,10 +165,10 @@ index ac94eab98fd0..b89d52a0c869 100644
  
  #if ENABLE_SYNC_CALL_RESTRICTIONS
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index be56099d186f..3ec6f600f6e2 100644
+index 609ded904478..7b326b2e0364 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
-@@ -76,12 +76,14 @@ interface DisplayPrivate {
+@@ -75,12 +75,14 @@ interface DisplayPrivate {
  };
  
  interface DisplayClient {
@@ -194,7 +196,7 @@ index 6b7fbb6cf13d..e2af75168cb9 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 5410ee7a65ab..e5bf8c301c1c 100644
+index 443406844ecf..b7a48194e9d9 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -23,7 +23,9 @@
@@ -207,8 +209,8 @@ index 5410ee7a65ab..e5bf8c301c1c 100644
  #include "mojo/public/cpp/bindings/pending_remote.h"
  #include "services/viz/privileged/mojom/compositing/vsync_parameter_observer.mojom-forward.h"
  #include "third_party/skia/include/core/SkColor.h"
-@@ -197,6 +199,14 @@ class COMPOSITOR_EXPORT ContextFactory {
-   virtual bool SyncTokensRequiredForDisplayCompositor() = 0;
+@@ -166,6 +168,14 @@ class COMPOSITOR_EXPORT ContextFactory {
+   virtual cc::TaskGraphRunner* GetTaskGraphRunner() = 0;
  };
  
 +class COMPOSITOR_EXPORT CompositorDelegate {
@@ -222,7 +224,7 @@ index 5410ee7a65ab..e5bf8c301c1c 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -236,6 +246,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -205,6 +215,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -232,7 +234,7 @@ index 5410ee7a65ab..e5bf8c301c1c 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -459,6 +472,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -422,6 +435,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    ui::ContextFactory* context_factory_;
    ui::ContextFactoryPrivate* context_factory_private_;
  
@@ -242,10 +244,10 @@ index 5410ee7a65ab..e5bf8c301c1c 100644
    Layer* root_layer_ = nullptr;
  
 diff --git ui/compositor/host/host_context_factory_private.cc ui/compositor/host/host_context_factory_private.cc
-index d8c278b99d09..d6f9bd858627 100644
+index 1db09f76243c..2b3096ebc4d3 100644
 --- ui/compositor/host/host_context_factory_private.cc
 +++ ui/compositor/host/host_context_factory_private.cc
-@@ -113,8 +113,13 @@ void HostContextFactoryPrivate::ConfigureCompositor(
+@@ -112,8 +112,13 @@ void HostContextFactoryPrivate::ConfigureCompositor(
    compositor_data.display_private.reset();
    root_params->display_private =
        compositor_data.display_private.BindNewEndpointAndPassReceiver();

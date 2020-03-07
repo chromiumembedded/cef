@@ -64,7 +64,6 @@
 #include "components/printing/renderer/print_render_frame_helper.h"
 #include "components/spellcheck/renderer/spellcheck.h"
 #include "components/spellcheck/renderer/spellcheck_provider.h"
-#include "components/startup_metric_utils/common/startup_metric.mojom.h"
 #include "components/visitedlink/renderer/visitedlink_reader.h"
 #include "components/web_cache/renderer/web_cache_impl.h"
 #include "content/common/frame_messages.h"
@@ -393,13 +392,6 @@ void CefContentRendererClient::RenderThreadStarted() {
           ? blink::scheduler::WebRendererProcessType::kExtensionRenderer
           : blink::scheduler::WebRendererProcessType::kRenderer);
 
-  {
-    mojo::Remote<startup_metric_utils::mojom::StartupMetricHost>
-        startup_metric_host;
-    thread->BindHostReceiver(startup_metric_host.BindNewPipeAndPassReceiver());
-    startup_metric_host->RecordRendererMainEntryTime(main_entry_time_);
-  }
-
   thread->AddObserver(observer_.get());
 
   if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
@@ -609,7 +601,7 @@ void CefContentRendererClient::WillSendRequest(
     blink::WebLocalFrame* frame,
     ui::PageTransition transition_type,
     const blink::WebURL& url,
-    const blink::WebURL& site_for_cookies,
+    const net::SiteForCookies& site_for_cookies,
     const url::Origin* initiator_origin,
     GURL* new_url,
     bool* attach_same_site_cookies) {

@@ -43,11 +43,11 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
   CefBeforeDownloadCallbackImpl(const base::WeakPtr<DownloadManager>& manager,
                                 uint32 download_id,
                                 const base::FilePath& suggested_name,
-                                const content::DownloadTargetCallback& callback)
+                                content::DownloadTargetCallback callback)
       : manager_(manager),
         download_id_(download_id),
         suggested_name_(suggested_name),
-        callback_(callback) {}
+        callback_(std::move(callback)) {}
 
   void Continue(const CefString& download_path, bool show_dialog) override {
     if (CEF_CURRENTLY_ON_UIT()) {
@@ -56,28 +56,27 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
 
       if (manager_) {
         base::FilePath path = base::FilePath(download_path);
-        CEF_POST_USER_VISIBLE_TASK(base::Bind(
-            &CefBeforeDownloadCallbackImpl::GenerateFilename, manager_,
-            download_id_, suggested_name_, path, show_dialog, callback_));
+        CEF_POST_USER_VISIBLE_TASK(
+            base::BindOnce(&CefBeforeDownloadCallbackImpl::GenerateFilename,
+                           manager_, download_id_, suggested_name_, path,
+                           show_dialog, std::move(callback_)));
       }
 
       download_id_ = 0;
-      callback_.Reset();
     } else {
       CEF_POST_TASK(CEF_UIT,
-                    base::Bind(&CefBeforeDownloadCallbackImpl::Continue, this,
-                               download_path, show_dialog));
+                    base::BindOnce(&CefBeforeDownloadCallbackImpl::Continue,
+                                   this, download_path, show_dialog));
     }
   }
 
  private:
-  static void GenerateFilename(
-      base::WeakPtr<DownloadManager> manager,
-      uint32 download_id,
-      const base::FilePath& suggested_name,
-      const base::FilePath& download_path,
-      bool show_dialog,
-      const content::DownloadTargetCallback& callback) {
+  static void GenerateFilename(base::WeakPtr<DownloadManager> manager,
+                               uint32 download_id,
+                               const base::FilePath& suggested_name,
+                               const base::FilePath& download_path,
+                               bool show_dialog,
+                               content::DownloadTargetCallback callback) {
     CEF_REQUIRE_BLOCKING();
 
     base::FilePath suggested_path = download_path;
@@ -103,16 +102,16 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
 
     CEF_POST_TASK(
         CEF_UIT,
-        base::Bind(&CefBeforeDownloadCallbackImpl::ChooseDownloadPath, manager,
-                   download_id, suggested_path, show_dialog, callback));
+        base::BindOnce(&CefBeforeDownloadCallbackImpl::ChooseDownloadPath,
+                       manager, download_id, suggested_path, show_dialog,
+                       std::move(callback)));
   }
 
-  static void ChooseDownloadPath(
-      base::WeakPtr<DownloadManager> manager,
-      uint32 download_id,
-      const base::FilePath& suggested_path,
-      bool show_dialog,
-      const content::DownloadTargetCallback& callback) {
+  static void ChooseDownloadPath(base::WeakPtr<DownloadManager> manager,
+                                 uint32 download_id,
+                                 const base::FilePath& suggested_path,
+                                 bool show_dialog,
+                                 content::DownloadTargetCallback callback) {
     if (!manager)
       return;
 
@@ -142,21 +141,23 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
 
         browser->RunFileChooser(
             params,
-            base::Bind(
+            base::BindOnce(
                 &CefBeforeDownloadCallbackImpl::ChooseDownloadPathCallback,
-                callback));
+                std::move(callback)));
       }
     }
 
     if (!handled) {
-      callback.Run(suggested_path, DownloadItem::TARGET_DISPOSITION_OVERWRITE,
-                   download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, suggested_path,
-                   download::DOWNLOAD_INTERRUPT_REASON_NONE);
+      std::move(callback).Run(
+          suggested_path, DownloadItem::TARGET_DISPOSITION_OVERWRITE,
+          download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
+          download::DownloadItem::MixedContentStatus::UNKNOWN, suggested_path,
+          download::DOWNLOAD_INTERRUPT_REASON_NONE);
     }
   }
 
   static void ChooseDownloadPathCallback(
-      const content::DownloadTargetCallback& callback,
+      content::DownloadTargetCallback callback,
       int selected_accept_filter,
       const std::vector<base::FilePath>& file_paths) {
     DCHECK_LE(file_paths.size(), (size_t)1);
@@ -166,9 +167,10 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
       path = file_paths.front();
 
     // The download will be cancelled if |path| is empty.
-    callback.Run(path, DownloadItem::TARGET_DISPOSITION_OVERWRITE,
-                 download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, path,
-                 download::DOWNLOAD_INTERRUPT_REASON_NONE);
+    std::move(callback).Run(path, DownloadItem::TARGET_DISPOSITION_OVERWRITE,
+                            download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
+                            download::DownloadItem::MixedContentStatus::UNKNOWN,
+                            path, download::DOWNLOAD_INTERRUPT_REASON_NONE);
   }
 
   base::WeakPtr<DownloadManager> manager_;
@@ -347,12 +349,13 @@ void CefDownloadManagerDelegate::ManagerGoingDown(DownloadManager* manager) {
 
 bool CefDownloadManagerDelegate::DetermineDownloadTarget(
     DownloadItem* item,
-    const content::DownloadTargetCallback& callback) {
+    content::DownloadTargetCallback* callback) {
   if (!item->GetForcedFilePath().empty()) {
-    callback.Run(
+    std::move(*callback).Run(
         item->GetForcedFilePath(), DownloadItem::TARGET_DISPOSITION_OVERWRITE,
-        download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, item->GetForcedFilePath(),
-        download::DOWNLOAD_INTERRUPT_REASON_NONE);
+        download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
+        download::DownloadItem::MixedContentStatus::UNKNOWN,
+        item->GetForcedFilePath(), download::DOWNLOAD_INTERRUPT_REASON_NONE);
     return true;
   }
 
@@ -372,7 +375,7 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
     CefRefPtr<CefBeforeDownloadCallback> callbackObj(
         new CefBeforeDownloadCallbackImpl(manager_ptr_factory_.GetWeakPtr(),
                                           item->GetId(), suggested_name,
-                                          callback));
+                                          std::move(*callback)));
 
     handler->OnBeforeDownload(browser.get(), download_item.get(),
                               suggested_name.value(), callbackObj);
@@ -384,9 +387,9 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
 }
 
 void CefDownloadManagerDelegate::GetNextId(
-    const content::DownloadIdCallback& callback) {
+    content::DownloadIdCallback callback) {
   static uint32 next_id = DownloadItem::kInvalidId + 1;
-  callback.Run(next_id++);
+  std::move(callback).Run(next_id++);
 }
 
 std::string CefDownloadManagerDelegate::ApplicationClientIdForFileScanning() {

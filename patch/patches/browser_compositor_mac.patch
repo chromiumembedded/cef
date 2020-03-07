@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/browser_compositor_view_mac.h content/browser/renderer_host/browser_compositor_view_mac.h
-index de89d291e5cb..9ce7bf4cb250 100644
+index af7b3249d421..1483a48f9074 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.h
 +++ content/browser/renderer_host/browser_compositor_view_mac.h
-@@ -59,6 +59,8 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient,
+@@ -58,6 +58,8 @@ class CONTENT_EXPORT BrowserCompositorMac : public DelegatedFrameHostClient,
  
    // These will not return nullptr until Destroy is called.
    DelegatedFrameHost* GetDelegatedFrameHost();
@@ -12,7 +12,7 @@ index de89d291e5cb..9ce7bf4cb250 100644
    // Force a new surface id to be allocated. Returns true if the
    // RenderWidgetHostImpl sent the resulting surface id to the renderer.
 diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/browser/renderer_host/browser_compositor_view_mac.mm
-index 8ddd790decc4..3ffd3db8da4b 100644
+index c1593171af25..4c892782d338 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.mm
 +++ content/browser/renderer_host/browser_compositor_view_mac.mm
 @@ -85,6 +85,12 @@ DelegatedFrameHost* BrowserCompositorMac::GetDelegatedFrameHost() {

@@ -135,13 +135,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 #endif  // defined(OS_MACOSX)
 
   // RenderWidgetHostViewBase implementation.
-  void DidCreateNewRendererCompositorFrameSink(
-      viz::mojom::CompositorFrameSinkClient* renderer_compositor_frame_sink)
-      override;
-  void SubmitCompositorFrame(
-      const viz::LocalSurfaceId& local_surface_id,
-      viz::CompositorFrame frame,
-      base::Optional<viz::HitTestRegionList> hit_test_region_list) override;
   void ResetFallbackToFirstNavigationSurface() override;
   void InitAsPopup(content::RenderWidgetHostView* parent_host_view,
                    const gfx::Rect& pos) override;
@@ -176,8 +169,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
       const std::vector<gfx::Rect>& character_bounds) override;
   std::unique_ptr<content::SyntheticGestureTarget>
   CreateSyntheticGestureTarget() override;
-  void SetNeedsBeginFrames(bool enabled) override;
-  void SetWantsAnimateOnlyBeginFrames() override;
   bool TransformPointToCoordSpaceForView(
       const gfx::PointF& point,
       RenderWidgetHostViewBase* target_view,
@@ -399,9 +390,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   bool is_scroll_offset_changed_pending_ = false;
 
   content::MouseWheelPhaseHandler mouse_wheel_phase_handler_;
-
-  std::unique_ptr<viz::mojom::CompositorFrameSinkClient>
-      renderer_compositor_frame_sink_;
 
   // Latest capture sequence number which is incremented when the caller
   // requests surfaces be synchronized via

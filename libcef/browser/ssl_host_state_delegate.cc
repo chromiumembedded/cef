@@ -57,7 +57,8 @@ bool CefSSLHostStateDelegate::DidHostRunInsecureContent(
 
 void CefSSLHostStateDelegate::AllowCert(const std::string& host,
                                         const net::X509Certificate& cert,
-                                        int error) {
+                                        int error,
+                                        content::WebContents* web_contents) {
   cert_policy_for_host_[host].Allow(cert, error);
 }
 
@@ -82,7 +83,8 @@ void CefSSLHostStateDelegate::Clear(
 SSLHostStateDelegate::CertJudgment CefSSLHostStateDelegate::QueryPolicy(
     const std::string& host,
     const net::X509Certificate& cert,
-    int error) {
+    int error,
+    content::WebContents* web_contents) {
   return cert_policy_for_host_[host].Check(cert, error)
              ? SSLHostStateDelegate::ALLOWED
              : SSLHostStateDelegate::DENIED;
@@ -93,7 +95,9 @@ void CefSSLHostStateDelegate::RevokeUserAllowExceptions(
   cert_policy_for_host_.erase(host);
 }
 
-bool CefSSLHostStateDelegate::HasAllowException(const std::string& host) {
+bool CefSSLHostStateDelegate::HasAllowException(
+    const std::string& host,
+    content::WebContents* web_contents) {
   auto policy_iterator = cert_policy_for_host_.find(host);
   return policy_iterator != cert_policy_for_host_.end() &&
          policy_iterator->second.HasAllowException();

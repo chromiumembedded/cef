@@ -18,7 +18,6 @@
 #include "content/public/browser/web_contents.h"
 #include "mojo/public/cpp/bindings/binding_set.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
-#include "services/network/public/cpp/resource_response.h"
 #include "services/network/public/mojom/network_context.mojom.h"
 #include "services/network/public/mojom/url_loader_factory.mojom.h"
 
@@ -76,11 +75,10 @@ class InterceptedRequestHandler {
   // method is called in response to a redirect. Even though |head| is const the
   // |head.headers| value is non-const and any changes will be passed to the
   // client.
-  virtual void ProcessResponseHeaders(
-      const RequestId& id,
-      const network::ResourceRequest& request,
-      const GURL& redirect_url,
-      const network::ResourceResponseHead& head) {}
+  virtual void ProcessResponseHeaders(const RequestId& id,
+                                      const network::ResourceRequest& request,
+                                      const GURL& redirect_url,
+                                      net::HttpResponseHeaders* headers) {}
 
   enum class ResponseMode {
     // Continue the request.
@@ -101,7 +99,7 @@ class InterceptedRequestHandler {
   virtual void OnRequestResponse(
       const RequestId& id,
       network::ResourceRequest* request,
-      const network::ResourceResponseHead& head,
+      net::HttpResponseHeaders* headers,
       base::Optional<net::RedirectInfo> redirect_info,
       OnRequestResponseResultCallback callback);
 

@@ -64,7 +64,8 @@ scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
       content::ContentBrowserClient::URLLoaderFactoryType::kDocumentSubResource,
       url::Origin(), base::nullopt /* navigation_id */,
       &maybe_proxy_factory_request, nullptr /* header_client */,
-      nullptr /* bypass_redirect_checks */, nullptr /* factory_override */);
+      nullptr /* bypass_redirect_checks */, nullptr /* disable_secure_dns */,
+      nullptr /* factory_override */);
 
   // If anyone above indicated that they care about proxying, pass the
   // intermediate pipe along to the URLLoaderFactoryGetter.

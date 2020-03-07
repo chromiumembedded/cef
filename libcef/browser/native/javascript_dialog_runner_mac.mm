@@ -38,7 +38,7 @@
 - (id)initHelperWithCallback:
     (CefJavaScriptDialogRunner::DialogClosedCallback)callback {
   if (self = [super init])
-    callback_ = callback;
+    callback_ = std::move(callback);
 
   return self;
 }
@@ -69,7 +69,7 @@
   if (textField_)
     input = base::SysNSStringToUTF16([textField_ stringValue]);
 
-  callback_.Run(success, input);
+  std::move(callback_).Run(success, input);
 }
 
 - (void)cancel {
@@ -92,15 +92,15 @@ void CefJavaScriptDialogRunnerMac::Run(
     const base::string16& display_url,
     const base::string16& message_text,
     const base::string16& default_prompt_text,
-    const DialogClosedCallback& callback) {
+    DialogClosedCallback callback) {
   DCHECK(!helper_.get());
-  callback_ = callback;
+  callback_ = std::move(callback);
 
   bool text_field = message_type == content::JAVASCRIPT_DIALOG_TYPE_PROMPT;
   bool one_button = message_type == content::JAVASCRIPT_DIALOG_TYPE_ALERT;
 
   helper_.reset([[CefJavaScriptDialogHelper alloc]
-      initHelperWithCallback:base::Bind(
+      initHelperWithCallback:base::BindOnce(
                                  &CefJavaScriptDialogRunnerMac::DialogClosed,
                                  weak_ptr_factory_.GetWeakPtr())]);
 
@@ -167,5 +167,5 @@ void CefJavaScriptDialogRunnerMac::DialogClosed(
     bool success,
     const base::string16& user_input) {
   helper_.reset(nil);
-  callback_.Run(success, user_input);
+  std::move(callback_).Run(success, user_input);
 }

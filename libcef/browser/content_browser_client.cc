@@ -136,7 +136,6 @@
 
 #if defined(OS_MACOSX)
 #include "net/ssl/client_cert_store_mac.h"
-#include "services/audio/public/mojom/constants.mojom.h"
 #include "services/video_capture/public/mojom/constants.mojom.h"
 #endif
 
@@ -157,18 +156,19 @@ namespace {
 
 class CefQuotaCallbackImpl : public CefRequestCallback {
  public:
-  explicit CefQuotaCallbackImpl(
-      const content::QuotaPermissionContext::PermissionCallback& callback)
-      : callback_(callback) {}
+  using CallbackType = content::QuotaPermissionContext::PermissionCallback;
+
+  explicit CefQuotaCallbackImpl(CallbackType callback)
+      : callback_(std::move(callback)) {}
 
   ~CefQuotaCallbackImpl() {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
       if (CEF_CURRENTLY_ON_IOT()) {
-        RunNow(callback_, false);
+        RunNow(std::move(callback_), false);
       } else {
-        CEF_POST_TASK(CEF_IOT, base::Bind(&CefQuotaCallbackImpl::RunNow,
-                                          callback_, false));
+        CEF_POST_TASK(CEF_IOT, base::BindOnce(&CefQuotaCallbackImpl::RunNow,
+                                              std::move(callback_), false));
       }
     }
   }
@@ -176,31 +176,28 @@ class CefQuotaCallbackImpl : public CefRequestCallback {
   void Continue(bool allow) override {
     if (CEF_CURRENTLY_ON_IOT()) {
       if (!callback_.is_null()) {
-        RunNow(callback_, allow);
-        callback_.Reset();
+        RunNow(std::move(callback_), allow);
       }
     } else {
-      CEF_POST_TASK(CEF_IOT,
-                    base::Bind(&CefQuotaCallbackImpl::Continue, this, allow));
+      CEF_POST_TASK(CEF_IOT, base::BindOnce(&CefQuotaCallbackImpl::Continue,
+                                            this, allow));
     }
   }
 
   void Cancel() override { Continue(false); }
 
-  void Disconnect() { callback_.Reset(); }
+  CallbackType Disconnect() WARN_UNUSED_RESULT { return std::move(callback_); }
 
  private:
-  static void RunNow(
-      const content::QuotaPermissionContext::PermissionCallback& callback,
-      bool allow) {
+  static void RunNow(CallbackType callback, bool allow) {
     CEF_REQUIRE_IOT();
-    callback.Run(
+    std::move(callback).Run(
         allow ? content::QuotaPermissionContext::QUOTA_PERMISSION_RESPONSE_ALLOW
               : content::QuotaPermissionContext::
                     QUOTA_PERMISSION_RESPONSE_DISALLOW);
   }
 
-  content::QuotaPermissionContext::PermissionCallback callback_;
+  CallbackType callback_;
 
   IMPLEMENT_REFCOUNTING(CefQuotaCallbackImpl);
   DISALLOW_COPY_AND_ASSIGN(CefQuotaCallbackImpl);
@@ -282,9 +279,10 @@ class CefSelectClientCertificateCallbackImpl
     if (CEF_CURRENTLY_ON_UIT()) {
       RunNow(std::move(delegate_), cert);
     } else {
-      CEF_POST_TASK(CEF_UIT,
-                    base::Bind(&CefSelectClientCertificateCallbackImpl::RunNow,
-                               base::Passed(std::move(delegate_)), cert));
+      CEF_POST_TASK(
+          CEF_UIT,
+          base::BindOnce(&CefSelectClientCertificateCallbackImpl::RunNow,
+                         std::move(delegate_), cert));
     }
   }
 
@@ -296,9 +294,9 @@ class CefSelectClientCertificateCallbackImpl
     if (cert) {
       CefX509CertificateImpl* certImpl =
           static_cast<CefX509CertificateImpl*>(cert.get());
-      certImpl->AcquirePrivateKey(
-          base::Bind(&CefSelectClientCertificateCallbackImpl::RunWithPrivateKey,
-                     base::Passed(std::move(delegate)), cert));
+      certImpl->AcquirePrivateKey(base::BindOnce(
+          &CefSelectClientCertificateCallbackImpl::RunWithPrivateKey,
+          std::move(delegate), cert));
       return;
     }
 
@@ -334,11 +332,11 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
   // The callback will be dispatched on the IO thread.
   void RequestQuotaPermission(const content::StorageQuotaParams& params,
                               int render_process_id,
-                              const PermissionCallback& callback) override {
+                              PermissionCallback callback) override {
     if (params.storage_type != blink::mojom::StorageType::kPersistent) {
       // To match Chrome behavior we only support requesting quota with this
       // interface for Persistent storage type.
-      callback.Run(QUOTA_PERMISSION_RESPONSE_DISALLOW);
+      std::move(callback).Run(QUOTA_PERMISSION_RESPONSE_DISALLOW);
       return;
     }
 
@@ -353,19 +351,22 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
         CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
         if (handler.get()) {
           CefRefPtr<CefQuotaCallbackImpl> callbackImpl(
-              new CefQuotaCallbackImpl(callback));
+              new CefQuotaCallbackImpl(std::move(callback)));
           handled = handler->OnQuotaRequest(
               browser.get(), params.origin_url.spec(), params.requested_size,
               callbackImpl.get());
-          if (!handled)
-            callbackImpl->Disconnect();
+          if (!handled) {
+            // May return nullptr if the client has already executed the
+            // callback.
+            callback = callbackImpl->Disconnect();
+          }
         }
       }
     }
 
-    if (!handled) {
+    if (!handled && !callback.is_null()) {
       // Disallow the request by default.
-      callback.Run(QUOTA_PERMISSION_RESPONSE_DISALLOW);
+      std::move(callback).Run(QUOTA_PERMISSION_RESPONSE_DISALLOW);
     }
   }
 
@@ -843,18 +844,6 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
   }
 }
 
-void CefContentBrowserClient::AdjustUtilityServiceProcessCommandLine(
-    const service_manager::Identity& identity,
-    base::CommandLine* command_line) {
-#if defined(OS_MACOSX)
-  // On Mac, the video-capture and audio services require a CFRunLoop, provided
-  // by a UI message loop, to run AVFoundation and CoreAudio code.
-  // See https://crbug.com/834581
-  if (identity.name() == audio::mojom::kServiceName)
-    command_line->AppendSwitch(switches::kMessageLoopTypeUi);
-#endif
-}
-
 std::string CefContentBrowserClient::GetApplicationLocale() {
   return g_browser_process->GetApplicationLocale();
 }
@@ -882,16 +871,6 @@ CefContentBrowserClient::GetSystemNetworkContext() {
 scoped_refptr<content::QuotaPermissionContext>
 CefContentBrowserClient::CreateQuotaPermissionContext() {
   return new CefQuotaPermissionContext();
-}
-
-void CefContentBrowserClient::GetQuotaSettings(
-    content::BrowserContext* context,
-    content::StoragePartition* partition,
-    base::OnceCallback<void(base::Optional<storage::QuotaSettings>)> callback) {
-  const base::FilePath& cache_path = partition->GetPath();
-  storage::GetNominalDynamicSettings(
-      cache_path, cache_path.empty() /* is_incognito */,
-      storage::GetDefaultDeviceInfoHelper(), std::move(callback));
 }
 
 content::MediaObserver* CefContentBrowserClient::GetMediaObserver() {
@@ -1274,6 +1253,7 @@ bool CefContentBrowserClient::WillCreateURLLoaderFactory(
     mojo::PendingRemote<network::mojom::TrustedURLLoaderHeaderClient>*
         header_client,
     bool* bypass_redirect_checks,
+    bool* disable_secure_dns,
     network::mojom::URLLoaderFactoryOverridePtr* factory_override) {
   auto request_handler = net_service::CreateInterceptedRequestHandler(
       browser_context, frame, render_process_id,

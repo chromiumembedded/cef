@@ -37,7 +37,7 @@ struct CefNavigateParams {
   // lead to undesired cookie blocking. Third-party cookie blocking can be
   // bypassed by setting site_for_cookies = url, but this should ideally
   // only be done if there really is no way to determine the correct value.
-  GURL site_for_cookies;
+  net::SiteForCookies site_for_cookies;
 
   // Additional HTTP request headers.
   std::string headers;

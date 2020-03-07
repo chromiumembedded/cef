@@ -66,7 +66,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   // content::DevToolsAgentHostClient implementation.
   void AgentHostClosed(content::DevToolsAgentHost* agent_host) override;
   void DispatchProtocolMessage(content::DevToolsAgentHost* agent_host,
-                               const std::string& message) override;
+                               base::span<const uint8_t> message) override;
   void HandleMessageFromDevToolsFrontend(const std::string& message);
 
  private:

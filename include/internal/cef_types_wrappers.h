@@ -743,6 +743,7 @@ struct CefURLPartsTraits {
     cef_string_clear(&s->origin);
     cef_string_clear(&s->path);
     cef_string_clear(&s->query);
+    cef_string_clear(&s->fragment);
   }
 
   static inline void set(const struct_type* src,
@@ -759,6 +760,8 @@ struct CefURLPartsTraits {
     cef_string_set(src->origin.str, src->origin.length, &target->origin, copy);
     cef_string_set(src->path.str, src->path.length, &target->path, copy);
     cef_string_set(src->query.str, src->query.length, &target->query, copy);
+    cef_string_set(src->fragment.str, src->fragment.length, &target->fragment,
+                   copy);
   }
 };
 
@@ -866,10 +869,7 @@ struct CefCursorInfoTraits {
   static inline void set(const struct_type* src,
                          struct_type* target,
                          bool copy) {
-    target->hotspot = src->hotspot;
-    target->image_scale_factor = src->image_scale_factor;
-    target->buffer = src->buffer;
-    target->size = src->size;
+    *target = *src;
   }
 };
 
@@ -942,23 +942,14 @@ typedef CefStructBase<CefBoxLayoutSettingsTraits> CefBoxLayoutSettings;
 struct CefCompositionUnderlineTraits {
   typedef cef_composition_underline_t struct_type;
 
-  static inline void init(struct_type* s) {
-    s->range.from = 0;
-    s->range.to = 0;
-    s->color = 0;
-    s->background_color = 0;
-    s->thick = 0;
-  }
+  static inline void init(struct_type* s) {}
 
   static inline void clear(struct_type* s) {}
 
   static inline void set(const struct_type* src,
                          struct_type* target,
                          bool copy) {
-    target->range = src->range;
-    target->color = src->color;
-    target->background_color = src->background_color;
-    target->thick = src->thick;
+    *target = *src;
   }
 };
 

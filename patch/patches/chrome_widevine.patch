@@ -1,5 +1,5 @@
 diff --git third_party/widevine/cdm/BUILD.gn third_party/widevine/cdm/BUILD.gn
-index 60757fdc2eee..29012ea670cf 100644
+index 1919784f5f93..6a8d2d5140f2 100644
 --- third_party/widevine/cdm/BUILD.gn
 +++ third_party/widevine/cdm/BUILD.gn
 @@ -5,6 +5,7 @@

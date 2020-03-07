@@ -44,10 +44,9 @@ class CefGetExtensionLoadFileCallbackImpl
       if (CEF_CURRENTLY_ON_UIT()) {
         RunNow(file_, std::move(callback_), nullptr);
       } else {
-        CEF_POST_TASK(
-            CEF_UIT,
-            base::BindOnce(&CefGetExtensionLoadFileCallbackImpl::RunNow, file_,
-                           base::Passed(std::move(callback_)), nullptr));
+        CEF_POST_TASK(CEF_UIT, base::BindOnce(
+                                   &CefGetExtensionLoadFileCallbackImpl::RunNow,
+                                   file_, std::move(callback_), nullptr));
       }
     }
   }
@@ -56,10 +55,9 @@ class CefGetExtensionLoadFileCallbackImpl
     if (CEF_CURRENTLY_ON_UIT()) {
       if (!callback_.is_null()) {
         // Always continue asynchronously.
-        CEF_POST_TASK(
-            CEF_UIT,
-            base::BindOnce(&CefGetExtensionLoadFileCallbackImpl::RunNow, file_,
-                           base::Passed(std::move(callback_)), stream));
+        CEF_POST_TASK(CEF_UIT, base::BindOnce(
+                                   &CefGetExtensionLoadFileCallbackImpl::RunNow,
+                                   file_, std::move(callback_), stream));
       }
     } else {
       CEF_POST_TASK(CEF_UIT, base::BindOnce(

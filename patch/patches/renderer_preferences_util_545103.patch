@@ -1,8 +1,8 @@
 diff --git chrome/browser/renderer_preferences_util.cc chrome/browser/renderer_preferences_util.cc
-index ed00da9fe671..5ebbfdbc5a48 100644
+index f7ce4ce22bb7..27363d09cb7b 100644
 --- chrome/browser/renderer_preferences_util.cc
 +++ chrome/browser/renderer_preferences_util.cc
-@@ -30,7 +30,8 @@
+@@ -31,7 +31,8 @@
  #include "ui/base/cocoa/defaults_utils.h"
  #endif
  
@@ -12,7 +12,7 @@ index ed00da9fe671..5ebbfdbc5a48 100644
  #include "chrome/browser/themes/theme_service.h"
  #include "chrome/browser/themes/theme_service_factory.h"
  #include "ui/views/linux_ui/linux_ui.h"
-@@ -145,7 +146,8 @@ void UpdateFromSystemSettings(blink::mojom::RendererPreferences* prefs,
+@@ -146,7 +147,8 @@ void UpdateFromSystemSettings(blink::mojom::RendererPreferences* prefs,
      prefs->caret_blink_interval = interval;
  #endif
  

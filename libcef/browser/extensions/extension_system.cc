@@ -44,6 +44,7 @@
 #include "extensions/browser/runtime_data.h"
 #include "extensions/browser/service_worker_manager.h"
 #include "extensions/browser/state_store.h"
+#include "extensions/browser/unloaded_extension_reason.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/extension_messages.h"
 #include "extensions/common/file_util.h"
@@ -96,9 +97,8 @@ void LoadExtensionOnUIThread(base::WeakPtr<CefExtensionSystem> context,
                              CefRefPtr<CefExtensionHandler> handler) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, base::BindOnce(LoadExtensionOnUIThread, context,
-                                          base::Passed(std::move(manifest)),
-                                          root_directory, internal,
-                                          loader_context, handler));
+                                          std::move(manifest), root_directory,
+                                          internal, loader_context, handler));
     return;
   }
 
@@ -447,7 +447,7 @@ AppSorting* CefExtensionSystem::app_sorting() {
 // ExtensionSystemImpl::RegisterExtensionWithRequestContexts.
 void CefExtensionSystem::RegisterExtensionWithRequestContexts(
     const Extension* extension,
-    const base::Closure& callback) {
+    base::OnceClosure callback) {
   // TODO(extensions): The |incognito_enabled| value should be set based on
   // manifest settings.
   base::PostTaskAndReply(
@@ -456,7 +456,7 @@ void CefExtensionSystem::RegisterExtensionWithRequestContexts(
                  base::RetainedRef(extension), base::Time::Now(),
                  true,    // incognito_enabled
                  false),  // notifications_disabled
-      callback);
+      std::move(callback));
 }
 
 // Implementation based on

@@ -8,7 +8,7 @@
 
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
-#include "third_party/blink/public/platform/web_mouse_event.h"
+#include "third_party/blink/public/common/input/web_mouse_event.h"
 
 CefBrowserPlatformDelegateNative::CefBrowserPlatformDelegateNative(
     const CefWindowInfo& window_info,

@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/prefs/pref_watcher.h chrome/browser/ui/prefs/pref_watcher.h
-index dd06c6d22b16..1f3a5aa7ac2b 100644
+index a439b2ce1b32..21c7b97639f4 100644
 --- chrome/browser/ui/prefs/pref_watcher.h
 +++ chrome/browser/ui/prefs/pref_watcher.h
 @@ -29,10 +29,10 @@ class PrefWatcher : public KeyedService {
@@ -13,4 +13,4 @@ index dd06c6d22b16..1f3a5aa7ac2b 100644
 + private:
    void UpdateRendererPreferences();
    void OnWebPrefChanged(const std::string& pref_name);
- 
+   void OnLiveCaptionEnabledPrefChanged(const std::string& pref_name);

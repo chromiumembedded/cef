@@ -520,5 +520,5 @@ void CefFileDialogRunnerWin::Run(CefBrowserHostImpl* browser,
     NOTIMPLEMENTED();
   }
 
-  callback.Run(filter_index, files);
+  std::move(callback).Run(filter_index, files);
 }

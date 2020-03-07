@@ -52,19 +52,18 @@ class CefFileDialogManager {
   // Run the file chooser dialog specified by |params|. Only a single dialog may
   // be pending at any given time. |callback| will be executed asynchronously
   // after the dialog is dismissed or if another dialog is already pending.
-  void RunFileChooser(
-      const CefFileDialogRunner::FileChooserParams& params,
-      const CefFileDialogRunner::RunFileChooserCallback& callback);
+  void RunFileChooser(const CefFileDialogRunner::FileChooserParams& params,
+                      CefFileDialogRunner::RunFileChooserCallback callback);
 
  private:
   void RunFileChooserInternal(
       const CefFileDialogRunner::FileChooserParams& params,
-      const CefFileDialogRunner::RunFileChooserCallback& callback);
+      CefFileDialogRunner::RunFileChooserCallback callback);
 
   // Used with the RunFileChooser variant where the caller specifies a callback
   // (no associated RenderFrameHost).
   void OnRunFileChooserCallback(
-      const CefFileDialogRunner::RunFileChooserCallback& callback,
+      CefFileDialogRunner::RunFileChooserCallback callback,
       int selected_accept_filter,
       const std::vector<base::FilePath>& file_paths);
 

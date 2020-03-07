@@ -69,6 +69,20 @@ TEST(ParserTest, CreateURLSchemeHostPathQuery) {
                url.ToString().c_str());
 }
 
+// Create the URL using scheme, host, path, query and Fragment
+TEST(ParserTest, CreateURLSchemeHostPathQueryFragment) {
+  CefURLParts parts;
+  CefString url;
+  CefString(&parts.scheme).FromASCII("http");
+  CefString(&parts.host).FromASCII("www.example.com");
+  CefString(&parts.path).FromASCII("/path/to.html");
+  CefString(&parts.query).FromASCII("foo=test&bar=test2");
+  CefString(&parts.fragment).FromASCII("ref");
+  EXPECT_TRUE(CefCreateURL(parts, url));
+  EXPECT_STREQ("http://www.example.com/path/to.html?foo=test&bar=test2#ref",
+               url.ToString().c_str());
+}
+
 // Create the URL using all the various components.
 TEST(ParserTest, CreateURLAll) {
   CefURLParts parts;
@@ -80,9 +94,10 @@ TEST(ParserTest, CreateURLAll) {
   CefString(&parts.port).FromASCII("88");
   CefString(&parts.path).FromASCII("/path/to.html");
   CefString(&parts.query).FromASCII("foo=test&bar=test2");
+  CefString(&parts.fragment).FromASCII("ref");
   EXPECT_TRUE(CefCreateURL(parts, url));
   EXPECT_STREQ(
-      "http://user:pass@www.example.com:88/path/to.html?foo=test&bar=test2",
+      "http://user:pass@www.example.com:88/path/to.html?foo=test&bar=test2#ref",
       url.ToString().c_str());
 }
 
@@ -157,17 +172,45 @@ TEST(ParserTest, ParseURLSchemeHostPathQuery) {
   EXPECT_STREQ("foo=test&bar=test2", query.ToString().c_str());
 }
 
+// Parse the URL using scheme, host, path, query and fragment.
+TEST(ParserTest, ParseURLSchemeHostPathQueryFragment) {
+  CefURLParts parts;
+  CefString url;
+  url.FromASCII("http://www.example.com/path/to.html?foo=test&bar=test2#ref");
+  EXPECT_TRUE(CefParseURL(url, parts));
+
+  CefString spec(&parts.spec);
+  EXPECT_STREQ("http://www.example.com/path/to.html?foo=test&bar=test2#ref",
+               spec.ToString().c_str());
+  EXPECT_EQ(0U, parts.username.length);
+  EXPECT_EQ(0U, parts.password.length);
+  CefString scheme(&parts.scheme);
+  EXPECT_STREQ("http", scheme.ToString().c_str());
+  CefString host(&parts.host);
+  EXPECT_STREQ("www.example.com", host.ToString().c_str());
+  EXPECT_EQ(0U, parts.port.length);
+  CefString origin(&parts.origin);
+  EXPECT_STREQ(origin.ToString().c_str(), "http://www.example.com/");
+  CefString path(&parts.path);
+  EXPECT_STREQ("/path/to.html", path.ToString().c_str());
+  CefString query(&parts.query);
+  EXPECT_STREQ("foo=test&bar=test2", query.ToString().c_str());
+  CefString ref(&parts.fragment);
+  EXPECT_STREQ("ref", ref.ToString().c_str());
+}
+
 // Parse the URL using all the various components.
 TEST(ParserTest, ParseURLAll) {
   CefURLParts parts;
   CefString url;
   url.FromASCII(
-      "http://user:pass@www.example.com:88/path/to.html?foo=test&bar=test2");
+      "http://user:pass@www.example.com:88/path/"
+      "to.html?foo=test&bar=test2#ref");
   EXPECT_TRUE(CefParseURL(url, parts));
 
   CefString spec(&parts.spec);
   EXPECT_STREQ(
-      "http://user:pass@www.example.com:88/path/to.html?foo=test&bar=test2",
+      "http://user:pass@www.example.com:88/path/to.html?foo=test&bar=test2#ref",
       spec.ToString().c_str());
   CefString scheme(&parts.scheme);
   EXPECT_STREQ("http", scheme.ToString().c_str());
@@ -185,6 +228,8 @@ TEST(ParserTest, ParseURLAll) {
   EXPECT_STREQ("/path/to.html", path.ToString().c_str());
   CefString query(&parts.query);
   EXPECT_STREQ("foo=test&bar=test2", query.ToString().c_str());
+  CefString ref(&parts.fragment);
+  EXPECT_STREQ("ref", ref.ToString().c_str());
 }
 
 // Parse an invalid URL.
@@ -199,11 +244,11 @@ TEST(ParserTest, ParseURLInvalid) {
 TEST(ParserTest, ParseURLNonStandard) {
   CefURLParts parts;
   CefString url;
-  url.FromASCII("custom:something%20else?foo");
+  url.FromASCII("custom:something%20else?foo#ref");
   EXPECT_TRUE(CefParseURL(url, parts));
 
   CefString spec(&parts.spec);
-  EXPECT_STREQ("custom:something%20else?foo", spec.ToString().c_str());
+  EXPECT_STREQ("custom:something%20else?foo#ref", spec.ToString().c_str());
   EXPECT_EQ(0U, parts.username.length);
   EXPECT_EQ(0U, parts.password.length);
   CefString scheme(&parts.scheme);
@@ -215,6 +260,8 @@ TEST(ParserTest, ParseURLNonStandard) {
   EXPECT_STREQ("something%20else", path.ToString().c_str());
   CefString query(&parts.query);
   EXPECT_STREQ("foo", query.ToString().c_str());
+  CefString ref(&parts.fragment);
+  EXPECT_STREQ("ref", ref.ToString().c_str());
 }
 
 TEST(ParserTest, FormatUrlForSecurityDisplay) {

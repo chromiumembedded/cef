@@ -280,7 +280,7 @@ class CefBrowserURLRequest::Context
 
     // Associate the request with |request_id|.
     request_id_ = request_id;
-    loader_->SetRequestId(request_id);
+    loader_->SetRequestID(request_id);
     g_manager.Get().Add(request_id, url_request_, client_);
 
     if (request_body) {

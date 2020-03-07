@@ -101,12 +101,12 @@ size_t CefX509CertificateImpl::GetIssuerChainSize() {
 }
 
 void CefX509CertificateImpl::AcquirePrivateKey(
-    const base::Callback<void(scoped_refptr<net::SSLPrivateKey>)>&
+    base::OnceCallback<void(scoped_refptr<net::SSLPrivateKey>)>
         private_key_callback) {
   if (identity_)
-    identity_->AcquirePrivateKey(private_key_callback);
+    identity_->AcquirePrivateKey(std::move(private_key_callback));
   else
-    private_key_callback.Run(nullptr);
+    std::move(private_key_callback).Run(nullptr);
 }
 
 void CefX509CertificateImpl::GetEncodedIssuerChain(
