@@ -50,6 +50,7 @@
 #include "ui/wm/core/wm_state.h"
 
 #if defined(OS_WIN)
+#include "chrome/browser/chrome_browser_main_win.h"
 #include "ui/base/cursor/cursor_loader_win.h"
 #endif
 #endif  // defined(USE_AURA)
@@ -128,6 +129,12 @@ void CefBrowserMainParts::PreMainMessageLoopStart() {
   DCHECK(local_state);
   OSCrypt::Init(local_state);
 #endif
+
+#if defined(OS_WIN)
+  // installer_util references strings that are normally compiled into
+  // setup.exe.  In Chrome, these strings are in the locale files.
+  ChromeBrowserMainPartsWin::SetupInstallerUtilStrings();
+#endif  // defined(OS_WIN)
 }
 
 void CefBrowserMainParts::PostMainMessageLoopStart() {

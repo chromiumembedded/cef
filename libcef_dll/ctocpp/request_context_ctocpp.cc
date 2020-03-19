@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=dd21194253186ee403d7ffe5098e87b030eeb4c8$
+// $hash=a29d8f9e49143e42a0ae0204c7d439c76b3c371c$
 //
 
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
@@ -21,6 +21,7 @@
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
 #include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/extension_ctocpp.h"
+#include "libcef_dll/ctocpp/media_router_ctocpp.h"
 #include "libcef_dll/ctocpp/value_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -523,6 +524,21 @@ CefRefPtr<CefExtension> CefRequestContextCToCpp::GetExtension(
 
   // Return type: refptr_same
   return CefExtensionCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefMediaRouter> CefRequestContextCToCpp::GetMediaRouter() {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_media_router))
+    return nullptr;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_media_router_t* _retval = _struct->get_media_router(_struct);
+
+  // Return type: refptr_same
+  return CefMediaRouterCToCpp::Wrap(_retval);
 }
 
 // CONSTRUCTOR - Do not edit by hand.

@@ -11,6 +11,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/download_manager_delegate.h"
 #include "libcef/browser/extensions/extension_system.h"
+#include "libcef/browser/media_router/media_router_manager.h"
 #include "libcef/browser/prefs/browser_prefs.h"
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/ssl_host_state_delegate.h"
@@ -164,6 +165,11 @@ base::LazyInstance<ImplManager>::DestructorAtExit g_manager =
 base::LazyInstance<ImplManager>::Leaky g_manager = LAZY_INSTANCE_INITIALIZER;
 #endif
 
+CefBrowserContext* GetSelf(base::WeakPtr<CefBrowserContext> self) {
+  CEF_REQUIRE_UIT();
+  return self.get();
+}
+
 }  // namespace
 
 // Creates and manages VisitedLinkEventListener objects for each
@@ -220,8 +226,9 @@ class CefVisitedLinkListener : public visitedlink::VisitedLinkWriter::Listener {
 };
 
 CefBrowserContext::CefBrowserContext(const CefRequestContextSettings& settings)
-    : settings_(settings) {
+    : settings_(settings), weak_ptr_factory_(this) {
   g_manager.Get().AddImpl(this);
+  getter_ = base::BindRepeating(GetSelf, weak_ptr_factory_.GetWeakPtr());
 }
 
 CefBrowserContext::~CefBrowserContext() {
@@ -232,6 +239,9 @@ CefBrowserContext::~CefBrowserContext() {
 
   // Unregister the context first to avoid re-entrancy during shutdown.
   g_manager.Get().RemoveImpl(this, cache_path_);
+
+  // Destroy objects that may hold references to the MediaRouter.
+  media_router_manager_.reset();
 
   // Send notifications to clean up objects associated with this Profile.
   MaybeSendDestroyedNotification();
@@ -811,4 +821,12 @@ bool CefBrowserContext::IsPrintPreviewSupported() const {
     return false;
 
   return !GetPrefs()->GetBoolean(prefs::kPrintPreviewDisabled);
+}
+
+CefMediaRouterManager* CefBrowserContext::GetMediaRouterManager() {
+  CEF_REQUIRE_UIT();
+  if (!media_router_manager_) {
+    media_router_manager_.reset(new CefMediaRouterManager(this));
+  }
+  return media_router_manager_.get();
 }

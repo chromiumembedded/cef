@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=2b01472d9b9a8cc9d1b2e669c91c2849bdb162e9$
+// $hash=7ce0953f069204a4dd2037c4a05ac9454c5e66a6$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
@@ -44,6 +44,7 @@
 #include "include/capi/cef_cookie_capi.h"
 #include "include/capi/cef_extension_capi.h"
 #include "include/capi/cef_extension_handler_capi.h"
+#include "include/capi/cef_media_router_capi.h"
 #include "include/capi/cef_values_capi.h"
 
 #ifdef __cplusplus
@@ -353,6 +354,12 @@ typedef struct _cef_request_context_t {
   struct _cef_extension_t*(CEF_CALLBACK* get_extension)(
       struct _cef_request_context_t* self,
       const cef_string_t* extension_id);
+
+  ///
+  // Returns the MediaRouter object associated with this context.
+  ///
+  struct _cef_media_router_t*(CEF_CALLBACK* get_media_router)(
+      struct _cef_request_context_t* self);
 } cef_request_context_t;
 
 ///

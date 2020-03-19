@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4af6d074b7de62b759a9555a0b0246e57c290328$
+// $hash=5168000f75f7911dce0bffcf47341e4ee1c2a275$
 //
 
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
 #include "libcef_dll/cpptoc/dictionary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/extension_cpptoc.h"
+#include "libcef_dll/cpptoc/media_router_cpptoc.h"
 #include "libcef_dll/cpptoc/value_cpptoc.h"
 #include "libcef_dll/ctocpp/completion_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/extension_handler_ctocpp.h"
@@ -540,6 +541,22 @@ request_context_get_extension(struct _cef_request_context_t* self,
   return CefExtensionCppToC::Wrap(_retval);
 }
 
+cef_media_router_t* CEF_CALLBACK
+request_context_get_media_router(struct _cef_request_context_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefMediaRouter> _retval =
+      CefRequestContextCppToC::Get(self)->GetMediaRouter();
+
+  // Return type: refptr_same
+  return CefMediaRouterCppToC::Wrap(_retval);
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -573,6 +590,7 @@ CefRequestContextCppToC::CefRequestContextCppToC() {
   GetStruct()->has_extension = request_context_has_extension;
   GetStruct()->get_extensions = request_context_get_extensions;
   GetStruct()->get_extension = request_context_get_extension;
+  GetStruct()->get_media_router = request_context_get_media_router;
 }
 
 // DESTRUCTOR - Do not edit by hand.

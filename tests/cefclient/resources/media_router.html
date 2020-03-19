@@ -1,0 +1,562 @@
+<html>
+<head>
+<style>
+body {
+  font-family: Verdana, Arial;
+  font-size: 12px;
+}
+
+/* Give the same font styling to form elements. */
+input, select, textarea, button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.description {
+  padding-bottom: 5px;
+}
+
+.description .title {
+  font-size: 120%;
+  font-weight: bold;
+}
+
+.route_controls {
+  flex: 0;
+  align-self: center;
+  text-align: right;
+  padding-bottom: 5px;
+}
+
+.route_controls .label {
+  display: inline-block;
+  vertical-align: top;
+  font-weight: bold;
+}
+
+.route_controls .control {
+  width: 400px;
+}
+
+.messages {
+  flex: 1;
+  min-height: 100px;
+  border: 1px solid gray;
+  overflow: auto;
+}
+
+.messages .message {
+  padding: 3px;
+  border-bottom: 1px solid #cccbca;
+}
+
+.messages .message .timestamp {
+  font-size: 90%;
+  font-style: italic;
+}
+
+.messages .status {
+  background-color: #d6d6d6;  /* light gray */
+}
+
+.messages .sent {
+  background-color: #c5e8fc;  /* light blue */
+}
+
+.messages .recv {
+  background-color: #fcf4e3;  /* light yellow */
+}
+
+.message_controls {
+  flex: 0;
+  text-align: right;
+  padding-top: 5px;
+}
+
+.message_controls textarea {
+  width: 100%;
+  height: 10em;
+}
+</style>
+<script language="JavaScript">
+// Application state.
+var demoMode = false;
+var currentSubscriptionId = null;
+var currentRouteId = null;
+
+// List of currently supported source protocols.
+var allowedSourceProtocols = ['cast', 'dial'];
+
+// Values from cef_media_route_connection_state_t.
+var CEF_MRCS_UNKNOWN = 0;
+var CEF_MRCS_CONNECTING = 1;
+var CEF_MRCS_CONNECTED = 2;
+var CEF_MRCS_CLOSED = 3;
+var CEF_MRCS_TERMINATED = 4;
+
+function getStateLabel(state) {
+  switch (state) {
+    case CEF_MRCS_CONNECTING: return "CONNECTING";
+    case CEF_MRCS_CONNECTED: return "CONNECTED";
+    case CEF_MRCS_CLOSED: return "CLOSED";
+    case CEF_MRCS_TERMINATED: return "TERMINATED";
+    default: break;
+  }
+  return "UNKNOWN";
+}
+
+///
+// Manage show/hide of default text for form elements.
+///
+
+// Default messages that are shown until the user focuses on the input field.
+var defaultSourceText = 'Enter URN here and click "Create Route"';
+var defaultMessageText = 'Enter message contents here and click "Send Message"';
+
+function getDefaultText(control) {
+  if (control === 'source')
+    return defaultSourceText;
+  if (control === 'message')
+    return defaultMessageText;
+  return null;
+}
+
+function hideDefaultText(control) {
+  var element = document.getElementById(control);
+  var defaultText = getDefaultText(control);
+  if (element.value === defaultText)
+    element.value = '';
+}
+
+function showDefaultText(control) {
+  var element = document.getElementById(control);
+  var defaultText = getDefaultText(control);
+  if (element.value === '')
+    element.value = defaultText;
+}
+
+function initDefaultText() {
+  showDefaultText('source');
+  showDefaultText('message');
+}
+
+
+///
+// Retrieve current form values. Return null if validation fails.
+///
+
+function getCurrentSource() {
+  var sourceInput = document.getElementById('source');
+  var value = sourceInput.value;
+  if (value === defaultSourceText || value.length === 0 || value.indexOf(':') < 0) {
+    return null;
+  }
+
+  // Validate the URN value.
+  try {
+    var url = new URL(value);
+    if ((url.hostname.length === 0 && url.pathname.length === 0) ||
+        !allowedSourceProtocols.includes(url.protocol.slice(0, -1))) {
+      return null;
+    }
+  } catch (e) {
+    return null;
+  }
+
+  return value;
+}
+
+function getCurrentSink() {
+  var sinksSelect = document.getElementById('sink');
+  if (sinksSelect.options.length === 0)
+    return null;
+  return sinksSelect.value;
+}
+
+function getCurrentMessage() {
+  var messageInput = document.getElementById('message');
+  if (messageInput.value === defaultMessageText || messageInput.value.length === 0)
+    return null;
+  return messageInput.value;
+}
+
+
+///
+// Set disabled state of form elements.
+///
+
+function updateControls() {
+  document.getElementById('source').disabled = hasRoute();
+  document.getElementById('sink').disabled = hasRoute();
+  document.getElementById('create_route').disabled =
+      hasRoute() || getCurrentSource() === null || getCurrentSink() === null;
+  document.getElementById('terminate_route').disabled = !hasRoute();
+  document.getElementById('message').disabled = !hasRoute();
+  document.getElementById('send_message').disabled = !hasRoute() || getCurrentMessage() === null;
+}
+
+
+///
+// Manage the media sinks list.
+///
+
+/*
+Expected format for |sinks| is:
+  [
+    {
+      name: string,
+      type: string ('cast' or 'dial'),
+      id: string
+    }, ...
+  ]
+*/
+function updateSinks(sinks) {
+  var sinksSelect = document.getElementById('sink');
+
+  // Currently selected value.
+  var selectedValue = sinksSelect.options.length === 0 ? null : sinksSelect.value;
+
+  // Build a list of old (existing) values.
+  var oldValues = [];
+  for (var i = 0; i < sinksSelect.options.length; ++i) {
+    oldValues.push(sinksSelect.options[i].value);
+  }
+
+  // Build a list of new (possibly new or existing) values.
+  var newValues = [];
+  for(var i = 0; i < sinks.length; i++) {
+    newValues.push(sinks[i].id);
+  }
+
+  // Remove old values that no longer exist.
+  for (var i = sinksSelect.options.length - 1; i >= 0; --i) {
+    if (!newValues.includes(sinksSelect.options[i].value)) {
+      sinksSelect.remove(i);
+    }
+  }
+
+  // Add new values that don't already exist.
+  for(var i = 0; i < sinks.length; i++) {
+    var sink = sinks[i];
+    if (oldValues.includes(sink.id))
+      continue;
+    var opt = document.createElement('option');
+    opt.innerHTML = sink.name + ' (' + sink.type + ')';
+    opt.value = sink.id;
+    sinksSelect.appendChild(opt);
+  }
+
+  if (sinksSelect.options.length === 0) {
+    selectedValue = null;
+  } else if (!newValues.includes(selectedValue)) {
+    // The previously selected value no longer exists.
+    // Select the first value in the new list.
+    selectedValue = sinksSelect.options[0].value;
+    sinksSelect.value = selectedValue;
+  }
+
+  updateControls();
+
+  return selectedValue;
+}
+
+
+///
+// Manage the current media route.
+///
+
+function hasRoute() {
+  return currentRouteId !== null;
+}
+
+function createRoute() {
+  console.assert(!hasRoute());
+  var source = getCurrentSource();
+  console.assert(source !== null);
+  var sink = getCurrentSink();
+  console.assert(sink !== null);
+
+  if (demoMode) {
+    onRouteCreated('demo-route-id');
+    return;
+  }
+
+  sendCefQuery(
+    {name: 'createRoute', source_urn: source, sink_id: sink},
+    (message) => onRouteCreated(JSON.parse(message).route_id)
+  );
+}
+
+function onRouteCreated(route_id) {
+  currentRouteId = route_id;
+  showStatusMessage('Route ' + route_id + '\ncreated');
+  updateControls();
+}
+
+function terminateRoute() {
+  console.assert(hasRoute());
+  var source = getCurrentSource();
+  console.assert(source !== null);
+  var sink = getCurrentSink();
+  console.assert(sink !== null);
+
+  if (demoMode) {
+    onRouteTerminated();
+    return;
+  }
+
+  sendCefQuery(
+    {name: 'terminateRoute', route_id: currentRouteId},
+    (unused) => {}
+  );
+}
+
+function onRouteTerminated() {
+  showStatusMessage('Route ' + currentRouteId + '\nterminated');
+  currentRouteId = null;
+  updateControls();
+}
+
+
+///
+// Manage messages.
+///
+
+function sendMessage() {
+  console.assert(hasRoute());
+  var message = getCurrentMessage();
+  console.assert(message !== null);
+
+  if (demoMode) {
+    showSentMessage(message);
+    setTimeout(function(){ if (hasRoute()) { recvMessage('Demo ACK for: ' + message); } }, 1000);
+    return;
+  }
+
+  sendCefQuery(
+    {name: 'sendMessage', route_id: currentRouteId, message: message},
+    (unused) => showSentMessage(message)
+  );
+}
+
+function recvMessage(message) {
+  console.assert(hasRoute());
+  console.assert(message !== undefined && message !== null && message.length > 0);
+  showRecvMessage(message);
+}
+
+function showStatusMessage(message) {
+  showMessage('status', message);
+}
+
+function showSentMessage(message) {
+  showMessage('sent', message);
+}
+
+function showRecvMessage(message) {
+  showMessage('recv', message);
+}
+
+function showMessage(type, message) {
+  if (!['status', 'sent', 'recv'].includes(type)) {
+    console.warn('Invalid message type: ' + type);
+    return;
+  }
+
+  if (message[0] === '{') {
+    try {
+      // Pretty print JSON strings.
+      message = JSON.stringify(JSON.parse(message), null, 2);
+    } catch(e) {}
+  }
+
+  var messagesDiv = document.getElementById('messages');
+
+  var newDiv = document.createElement("div");
+  newDiv.innerHTML =
+      '<span class="timestamp">' + (new Date().toLocaleString()) +
+      ' (' + type.toUpperCase() + ')</span><br/>';
+  // Escape any HTML tags or entities in |message|.
+  var pre = document.createElement('pre');
+  pre.appendChild(document.createTextNode(message));
+  newDiv.appendChild(pre);
+  newDiv.className = 'message ' + type;
+
+  messagesDiv.appendChild(newDiv);
+
+  // Always scroll to bottom.
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+
+///
+// Manage communication with native code in media_router_test.cc.
+///
+
+function onCefError(code, message) {
+  showStatusMessage('ERROR: ' + message + ' (' + code + ')');
+}
+
+function sendCefQuery(payload, onSuccess, onFailure=onCefError, persistent=false) {
+  // Results in a call to the OnQuery method in media_router_test.cc
+  return window.cefQuery({
+    request: JSON.stringify(payload),
+    onSuccess: onSuccess,
+    onFailure: onFailure,
+    persistent: persistent
+  });
+}
+
+/*
+Expected format for |message| is:
+  {
+    name: string,
+    payload: dictionary
+  }
+*/
+function onCefSubscriptionMessage(message) {
+  if (message.name === 'onSinks') {
+    // List of sinks.
+    updateSinks(message.payload.sinks_list);
+  } else if (message.name === 'onRouteStateChanged') {
+    // Route status changed.
+    if (message.payload.route_id === currentRouteId) {
+      var connection_state = message.payload.connection_state;
+      showStatusMessage('Route ' + currentRouteId +
+                        '\nconnection state ' + getStateLabel(connection_state) +
+                        ' (' + connection_state + ')');
+      if ([CEF_MRCS_CLOSED, CEF_MRCS_TERMINATED].includes(connection_state)) {
+        onRouteTerminated();
+      }
+    }
+  } else if (message.name === 'onRouteMessageReceived') {
+    // Route message received.
+    if (message.payload.route_id === currentRouteId) {
+      recvMessage(message.payload.message);
+    }
+  }
+}
+
+// Subscribe to ongoing message notifications from the native code.
+function startCefSubscription() {
+  currentSubscriptionId = sendCefQuery(
+    {name: 'subscribe'},
+    (message) => onCefSubscriptionMessage(JSON.parse(message)),
+    (code, message) => {
+      onCefError(code, message);
+      currentSubscriptionId = null;
+    },
+    true
+  );
+}
+
+function stopCefSubscription() {
+  if (currentSubscriptionId !== null) {
+    // Results in a call to the OnQueryCanceled method in media_router_test.cc
+    window.cefQueryCancel(currentSubscriptionId);
+  }
+}
+
+
+///
+// Example app load/unload.
+///
+
+function initDemoMode() {
+  demoMode = true;
+
+  var sinks = [
+    {
+      name: 'Sink 1',
+      type: 'cast',
+      id: 'sink1'
+    },
+    {
+      name: 'Sink 2',
+      type: 'dial',
+      id: 'sink2'
+    }
+  ];
+  updateSinks(sinks);
+
+  showStatusMessage('Running in Demo mode.');
+  showSentMessage('Demo sent message.');
+  showRecvMessage('Demo recv message.');
+}
+
+function onLoad() {
+  initDefaultText();
+
+  if (window.cefQuery === undefined) {
+    // Initialize demo mode when running outside of CEF.
+    // This supports development and testing of the HTML/JS behavior outside
+    // of a cefclient build.
+    initDemoMode();
+    return;
+  }
+
+  startCefSubscription()
+}
+
+function onUnload() {
+  if (demoMode)
+    return;
+
+  if (hasRoute())
+    terminateRoute();
+  stopCefSubscription();
+}
+</script>
+<title>Media Router Example</title>
+</head>
+<body bgcolor="white" onLoad="onLoad()" onUnload="onUnload()">
+<div class="content">
+  <div class="description">
+    <span class="title">Media Router Example</span>
+    <p>
+      <b>Overview:</b>
+      Chromium supports communication with devices on the local network via the
+      <a href="https://blog.oakbits.com/google-cast-protocol-overview.html" target="_blank">Cast</a> and
+      <a href="http://www.dial-multiscreen.org/" target="_blank">DIAL</a> protocols.
+      CEF exposes this functionality via the CefMediaRouter interface which is demonstrated by this test.
+      Test code is implemented in resources/media_router.html and browser/media_router_test.cc.
+    </p>
+    <p>
+      <b>Usage:</b>
+      Devices available on your local network will be discovered automatically and populated in the "Sink" list.
+      Enter a URN for "Source", select an available device from the "Sink" list, and click the "Create Route" button.
+      Cast URNs take the form "cast:<i>&lt;appId&gt;</i>?clientId=<i>&lt;clientId&gt;</i>" and DIAL URNs take the form "dial:<i>&lt;appId&gt;</i>",
+      where <i>&lt;appId&gt;</i> is the <a href="https://developers.google.com/cast/docs/registration" target="_blank">registered application ID</a>
+      and <i>&lt;clientId&gt;</i> is an arbitrary numeric identifier.
+      Status information and messages will be displayed in the center of the screen.
+      After creating a route you can send messages to the receiver app using the textarea at the bottom of the screen.
+      Messages are usually in JSON format with a example of Cast communication to be found
+      <a href="https://bitbucket.org/chromiumembedded/cef/issues/2900/add-mediarouter-support-for-cast-receiver#comment-56680326" target="_blank">here</a>.
+    </p>
+  </div>
+  <div class="route_controls">
+    <span class="label">Source:</span>
+    <input type="text" id="source" class="control" onInput="updateControls()" onFocus="hideDefaultText('source')" onBlur="showDefaultText('source')"/>
+    <br/>
+    <span class="label">Sink:</span>
+    <select id="sink" size="3" class="control"></select>
+    <br/>
+    <input type="button" id="create_route" onclick="createRoute()" value="Create Route" disabled/>
+    <input type="button" id="terminate_route" onclick="terminateRoute()" value="Terminate Route" disabled/>
+  </div>
+  <div id="messages" class="messages">
+  </div>
+  <div class="message_controls">
+    <textarea id="message" onInput="updateControls()" onFocus="hideDefaultText('message')" onBlur="showDefaultText('message')" disabled></textarea>
+    <br/><input type="button" id="send_message" onclick="sendMessage()" value="Send Message" disabled/>
+  </div>
+</div>
+</body>
+</html>
