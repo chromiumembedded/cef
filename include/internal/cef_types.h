@@ -2973,6 +2973,36 @@ typedef struct _cef_composition_underline_t {
   cef_composition_underline_style_t style;
 } cef_composition_underline_t;
 
+///
+// Result codes for CefMediaRouter::CreateRoute. These constants match
+// their equivalents in Chromium's route_request_result.h and should not be
+// renumbered.
+///
+typedef enum {
+  CEF_MRCR_UNKNOWN_ERROR = 0,
+  CEF_MRCR_OK = 1,
+  CEF_MRCR_TIMED_OUT = 2,
+  CEF_MRCR_ROUTE_NOT_FOUND = 3,
+  CEF_MRCR_SINK_NOT_FOUND = 4,
+  CEF_MRCR_INVALID_ORIGIN = 5,
+  CEF_MRCR_NO_SUPPORTED_PROVIDER = 7,
+  CEF_MRCR_CANCELLED = 8,
+  CEF_MRCR_ROUTE_ALREADY_EXISTS = 9,
+
+  CEF_MRCR_TOTAL_COUNT = 11  // The total number of values.
+} cef_media_route_create_result_t;
+
+///
+// Connection state for a MediaRoute object.
+///
+typedef enum {
+  CEF_MRCS_UNKNOWN,
+  CEF_MRCS_CONNECTING,
+  CEF_MRCS_CONNECTED,
+  CEF_MRCS_CLOSED,
+  CEF_MRCS_TERMINATED,
+} cef_media_route_connection_state_t;
+
 #ifdef __cplusplus
 }
 #endif

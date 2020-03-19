@@ -8,6 +8,7 @@
 
 #include "include/cef_request_context.h"
 #include "libcef/browser/browser_context.h"
+#include "libcef/browser/media_router/media_router_impl.h"
 #include "libcef/browser/thread_util.h"
 
 class CefBrowserContext;
@@ -75,6 +76,7 @@ class CefRequestContextImpl : public CefRequestContext {
   bool HasExtension(const CefString& extension_id) override;
   bool GetExtensions(std::vector<CefString>& extension_ids) override;
   CefRefPtr<CefExtension> GetExtension(const CefString& extension_id) override;
+  CefRefPtr<CefMediaRouter> GetMediaRouter() override;
 
   const CefRequestContextSettings& settings() const { return config_.settings; }
 
@@ -146,6 +148,9 @@ class CefRequestContextImpl : public CefRequestContext {
   void ResolveHostInternal(const CefString& origin,
                            CefRefPtr<CefResolveCallback> callback,
                            CefBrowserContext* browser_context);
+
+  void InitializeMediaRouterOnUIThread(
+      CefRefPtr<CefMediaRouterImpl> media_router);
 
   CefBrowserContext* browser_context() const;
 

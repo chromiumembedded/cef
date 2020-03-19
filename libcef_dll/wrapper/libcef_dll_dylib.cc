@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5e0a3a27b41b550a1dd4985eec9034a6f7c2b7d7$
+// $hash=bf82965f02cafae5a1afc80ab0c976436be9712e$
 //
 
 #include <dlfcn.h>
@@ -23,6 +23,7 @@
 #include "include/capi/cef_drag_data_capi.h"
 #include "include/capi/cef_file_util_capi.h"
 #include "include/capi/cef_image_capi.h"
+#include "include/capi/cef_media_router_capi.h"
 #include "include/capi/cef_menu_model_capi.h"
 #include "include/capi/cef_origin_whitelist_capi.h"
 #include "include/capi/cef_parser_capi.h"
@@ -201,6 +202,7 @@ typedef struct _cef_cookie_manager_t* (
     struct _cef_completion_callback_t*);
 typedef struct _cef_drag_data_t* (*cef_drag_data_create_ptr)();
 typedef struct _cef_image_t* (*cef_image_create_ptr)();
+typedef struct _cef_media_router_t* (*cef_media_router_get_global_ptr)();
 typedef struct _cef_menu_model_t* (*cef_menu_model_create_ptr)(
     struct _cef_menu_model_delegate_t*);
 typedef struct _cef_print_settings_t* (*cef_print_settings_create_ptr)();
@@ -575,6 +577,7 @@ struct libcef_pointers {
       cef_cookie_manager_get_global_manager;
   cef_drag_data_create_ptr cef_drag_data_create;
   cef_image_create_ptr cef_image_create;
+  cef_media_router_get_global_ptr cef_media_router_get_global;
   cef_menu_model_create_ptr cef_menu_model_create;
   cef_print_settings_create_ptr cef_print_settings_create;
   cef_process_message_create_ptr cef_process_message_create;
@@ -788,6 +791,7 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_cookie_manager_get_global_manager);
   INIT_ENTRY(cef_drag_data_create);
   INIT_ENTRY(cef_image_create);
+  INIT_ENTRY(cef_media_router_get_global);
   INIT_ENTRY(cef_menu_model_create);
   INIT_ENTRY(cef_print_settings_create);
   INIT_ENTRY(cef_process_message_create);
@@ -1299,6 +1303,11 @@ NO_SANITIZE("cfi-icall") struct _cef_drag_data_t* cef_drag_data_create() {
 
 NO_SANITIZE("cfi-icall") struct _cef_image_t* cef_image_create() {
   return g_libcef_pointers.cef_image_create();
+}
+
+NO_SANITIZE("cfi-icall")
+struct _cef_media_router_t* cef_media_router_get_global() {
+  return g_libcef_pointers.cef_media_router_get_global();
 }
 
 NO_SANITIZE("cfi-icall")

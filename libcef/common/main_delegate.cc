@@ -30,6 +30,7 @@
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/media/router/media_router_feature.h"
 #include "chrome/child/pdf_child_init.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
@@ -636,6 +637,33 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       }
       command_line->AppendSwitchASCII(switches::kDisableFeatures,
                                       disable_features_str);
+    }
+
+    std::vector<std::string> enable_features;
+
+    if (media_router::kDialMediaRouteProvider.default_state ==
+        base::FEATURE_DISABLED_BY_DEFAULT) {
+      // Enable discovery of DIAL devices.
+      enable_features.push_back(media_router::kDialMediaRouteProvider.name);
+    }
+
+    if (media_router::kCastMediaRouteProvider.default_state ==
+        base::FEATURE_DISABLED_BY_DEFAULT) {
+      // Enable discovery of Cast devices.
+      enable_features.push_back(media_router::kCastMediaRouteProvider.name);
+    }
+
+    if (!enable_features.empty()) {
+      DCHECK(!base::FeatureList::GetInstance());
+      std::string enable_features_str =
+          command_line->GetSwitchValueASCII(switches::kEnableFeatures);
+      for (auto feature_str : enable_features) {
+        if (!enable_features_str.empty())
+          enable_features_str += ",";
+        enable_features_str += feature_str;
+      }
+      command_line->AppendSwitchASCII(switches::kEnableFeatures,
+                                      enable_features_str);
     }
   }
 

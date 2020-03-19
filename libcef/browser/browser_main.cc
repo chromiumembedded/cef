@@ -50,6 +50,7 @@
 #include "ui/wm/core/wm_state.h"
 
 #if defined(OS_WIN)
+#include "chrome/browser/chrome_browser_main_win.h"
 #include "components/os_crypt/os_crypt.h"
 #include "ui/base/cursor/cursor_loader_win.h"
 #endif
@@ -124,7 +125,11 @@ void CefBrowserMainParts::PreMainMessageLoopStart() {
   DCHECK(local_state);
   bool os_crypt_init = OSCrypt::Init(local_state);
   DCHECK(os_crypt_init);
-#endif
+
+  // installer_util references strings that are normally compiled into
+  // setup.exe.  In Chrome, these strings are in the locale files.
+  ChromeBrowserMainPartsWin::SetupInstallerUtilStrings();
+#endif  // defined(OS_WIN)
 }
 
 void CefBrowserMainParts::PostMainMessageLoopStart() {

@@ -44,6 +44,7 @@
 #include "include/cef_cookie.h"
 #include "include/cef_extension.h"
 #include "include/cef_extension_handler.h"
+#include "include/cef_media_router.h"
 #include "include/cef_values.h"
 
 class CefRequestContextHandler;
@@ -361,6 +362,12 @@ class CefRequestContext : public virtual CefBaseRefCounted {
   /*--cef()--*/
   virtual CefRefPtr<CefExtension> GetExtension(
       const CefString& extension_id) = 0;
+
+  ///
+  // Returns the MediaRouter object associated with this context.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefMediaRouter> GetMediaRouter() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_REQUEST_CONTEXT_H_
