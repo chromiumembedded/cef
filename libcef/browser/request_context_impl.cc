@@ -594,6 +594,12 @@ CefRefPtr<CefExtension> CefRequestContextImpl::GetExtension(
   return GetBrowserContext()->extension_system()->GetExtension(extension_id);
 }
 
+CefRefPtr<CefMediaRouter> CefRequestContextImpl::GetMediaRouter() {
+  CefRefPtr<CefMediaRouterImpl> media_router = new CefMediaRouterImpl();
+  InitializeMediaRouterOnUIThread(media_router);
+  return media_router.get();
+}
+
 void CefRequestContextImpl::OnRenderFrameCreated(int render_process_id,
                                                  int render_frame_id,
                                                  int frame_tree_node_id,
@@ -759,6 +765,20 @@ void CefRequestContextImpl::ResolveHostInternal(
   // |helper| will be deleted in ResolveHostHelper::OnComplete().
   ResolveHostHelper* helper = new ResolveHostHelper(callback);
   helper->Start(browser_context, origin);
+}
+
+void CefRequestContextImpl::InitializeMediaRouterOnUIThread(
+    CefRefPtr<CefMediaRouterImpl> media_router) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::Bind(&CefRequestContextImpl::InitializeMediaRouterOnUIThread,
+                   this, media_router));
+    return;
+  }
+
+  auto browser_context = GetBrowserContext();
+  media_router->Initialize(browser_context->getter());
 }
 
 CefBrowserContext* CefRequestContextImpl::browser_context() const {

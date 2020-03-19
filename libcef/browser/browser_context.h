@@ -13,8 +13,10 @@
 #include "libcef/browser/request_context_handler_map.h"
 #include "libcef/browser/resource_context.h"
 
+#include "base/callback.h"
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
+#include "base/memory/weak_ptr.h"
 #include "chrome/browser/download/download_prefs.h"
 #include "chrome/common/plugin.mojom.h"
 #include "components/proxy_config/pref_proxy_config_tracker.h"
@@ -84,6 +86,7 @@
 */
 
 class CefDownloadManagerDelegate;
+class CefMediaRouterManager;
 class CefRequestContextImpl;
 class CefSSLHostStateDelegate;
 class CefVisitedLinkListener;
@@ -279,6 +282,13 @@ class CefBrowserContext : public ChromeProfileStub,
   // Returns true if this context supports print preview.
   bool IsPrintPreviewSupported() const;
 
+  CefMediaRouterManager* GetMediaRouterManager();
+
+  // Returns the BrowserContext, or nullptr if the BrowserContext has already
+  // been destroyed.
+  using Getter = base::RepeatingCallback<CefBrowserContext*()>;
+  Getter getter() const { return getter_; }
+
  private:
   // Allow deletion via std::unique_ptr().
   friend std::default_delete<CefBrowserContext>;
@@ -315,6 +325,8 @@ class CefBrowserContext : public ChromeProfileStub,
 
   std::unique_ptr<DownloadPrefs> download_prefs_;
 
+  std::unique_ptr<CefMediaRouterManager> media_router_manager_;
+
   // Map IDs to CefRequestContextHandler objects.
   CefRequestContextHandlerMap handler_map_;
 
@@ -337,6 +349,9 @@ class CefBrowserContext : public ChromeProfileStub,
   // background.
   typedef std::set<int> NodeIdSet;
   NodeIdSet node_id_set_;
+
+  Getter getter_;
+  base::WeakPtrFactory<CefBrowserContext> weak_ptr_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserContext);
 };
