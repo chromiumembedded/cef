@@ -6,19 +6,20 @@
 #define CEF_LIBCEF_BROWSER_NET_SERVICE_COOKIE_MANAGER_IMPL_H_
 
 #include "include/cef_cookie.h"
-#include "libcef/browser/request_context_impl.h"
+#include "libcef/browser/browser_context.h"
 #include "libcef/browser/thread_util.h"
 
 #include "base/files/file_path.h"
 
-// Implementation of the CefCookieManager interface.
+// Implementation of the CefCookieManager interface. May be created on any
+// thread.
 class CefCookieManagerImpl : public CefCookieManager {
  public:
   CefCookieManagerImpl();
 
-  // Must be called immediately after this object is created when |is_blocking|
-  // is false.
-  void Initialize(CefRefPtr<CefRequestContextImpl> request_context,
+  // Called on the UI thread after object creation and before any other object
+  // methods are executed on the UI thread.
+  void Initialize(CefBrowserContext::Getter browser_context_getter,
                   CefRefPtr<CefCompletionCallback> callback);
 
   // CefCookieManager methods.
@@ -38,10 +39,11 @@ class CefCookieManagerImpl : public CefCookieManager {
   bool FlushStore(CefRefPtr<CefCompletionCallback> callback) override;
 
  private:
-  // Context that owns the cookie manager.
-  CefRefPtr<CefRequestContextImpl> request_context_;
+  // Only accessed on the UI thread. Will be non-null after Initialize().
+  CefBrowserContext::Getter browser_context_getter_;
 
   IMPLEMENT_REFCOUNTING(CefCookieManagerImpl);
+  DISALLOW_COPY_AND_ASSIGN(CefCookieManagerImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NET_SERVICE_COOKIE_MANAGER_IMPL_H_

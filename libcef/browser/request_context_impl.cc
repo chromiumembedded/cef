@@ -7,7 +7,6 @@
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/extensions/extension_system.h"
-#include "libcef/browser/net_service/cookie_manager_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/task_runner_impl.h"
@@ -315,7 +314,7 @@ CefString CefRequestContextImpl::GetCachePath() {
 CefRefPtr<CefCookieManager> CefRequestContextImpl::GetCookieManager(
     CefRefPtr<CefCompletionCallback> callback) {
   CefRefPtr<CefCookieManagerImpl> cookie_manager = new CefCookieManagerImpl();
-  cookie_manager->Initialize(this, callback);
+  InitializeCookieManagerOnUIThread(cookie_manager, callback);
   return cookie_manager.get();
 }
 
@@ -765,6 +764,21 @@ void CefRequestContextImpl::ResolveHostInternal(
   // |helper| will be deleted in ResolveHostHelper::OnComplete().
   ResolveHostHelper* helper = new ResolveHostHelper(callback);
   helper->Start(browser_context, origin);
+}
+
+void CefRequestContextImpl::InitializeCookieManagerOnUIThread(
+    CefRefPtr<CefCookieManagerImpl> cookie_manager,
+    CefRefPtr<CefCompletionCallback> callback) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::Bind(&CefRequestContextImpl::InitializeCookieManagerOnUIThread,
+                   this, cookie_manager, callback));
+    return;
+  }
+
+  auto browser_context = GetBrowserContext();
+  cookie_manager->Initialize(browser_context->getter(), callback);
 }
 
 void CefRequestContextImpl::InitializeMediaRouterOnUIThread(
