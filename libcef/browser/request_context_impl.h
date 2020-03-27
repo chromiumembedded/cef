@@ -9,6 +9,7 @@
 #include "include/cef_request_context.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/media_router/media_router_impl.h"
+#include "libcef/browser/net_service/cookie_manager_impl.h"
 #include "libcef/browser/thread_util.h"
 
 class CefBrowserContext;
@@ -149,6 +150,9 @@ class CefRequestContextImpl : public CefRequestContext {
                            CefRefPtr<CefResolveCallback> callback,
                            CefBrowserContext* browser_context);
 
+  void InitializeCookieManagerOnUIThread(
+      CefRefPtr<CefCookieManagerImpl> cookie_manager,
+      CefRefPtr<CefCompletionCallback> callback);
   void InitializeMediaRouterOnUIThread(
       CefRefPtr<CefMediaRouterImpl> media_router);
 
