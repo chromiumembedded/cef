@@ -55,7 +55,7 @@ scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
         content::devtools_instrumentation::WillCreateURLLoaderFactory(
             static_cast<content::RenderFrameHostImpl*>(render_frame_host),
             false /* is_navigation */, false /* is_download */,
-            &maybe_proxy_factory_request);
+            &maybe_proxy_factory_request, nullptr /* factory_override */);
   }
 
   // Allow the Content embedder to inject itself if it wants to.

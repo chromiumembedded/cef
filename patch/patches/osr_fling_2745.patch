@@ -41,10 +41,10 @@ index cc4b13a7b9c6..84f3b9ed7cf4 100644
  
  }  // namespace content
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index 954011b5d562..da67cd106cec 100644
+index 40b9e634b8bf..4d2401533577 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -2606,6 +2606,11 @@ void RenderWidgetHostImpl::DidStartScrollingViewport() {
+@@ -2671,6 +2671,11 @@ void RenderWidgetHostImpl::DidStartScrollingViewport() {
      view_->set_is_currently_scrolling_viewport(true);
  }
  
@@ -57,10 +57,10 @@ index 954011b5d562..da67cd106cec 100644
      const WebInputEvent& event) {
    if ((base::FeatureList::IsEnabled(
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 9faf49a3fd83..26c6845c53c3 100644
+index b6f95fdfa88b..73ab5a676373 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -701,6 +701,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -709,6 +709,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();

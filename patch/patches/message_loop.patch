@@ -43,7 +43,7 @@ index 61b8c6fcc42d..d439b00a87bb 100644
  
  #if !defined(OS_NACL)
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 3e9562cc4cc5..cf4a700364d3 100644
+index 8f6258f7644a..9c356dea5234 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -2,6 +2,7 @@

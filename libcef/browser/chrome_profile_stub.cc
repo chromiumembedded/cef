@@ -5,8 +5,34 @@
 
 #include "libcef/browser/chrome_profile_stub.h"
 
+#include "components/variations/variations_client.h"
+#include "components/variations/variations_http_header_provider.h"
 #include "content/public/browser/resource_context.h"
 #include "net/url_request/url_request_context.h"
+
+namespace {
+
+class CefVariationsClient : public variations::VariationsClient {
+ public:
+  explicit CefVariationsClient(content::BrowserContext* browser_context)
+      : browser_context_(browser_context) {}
+
+  ~CefVariationsClient() override = default;
+
+  bool IsIncognito() const override {
+    return browser_context_->IsOffTheRecord();
+  }
+
+  std::string GetVariationsHeader() const override {
+    return variations::VariationsHttpHeaderProvider::GetInstance()
+        ->GetClientDataHeader(false /* is_signed_in */);
+  }
+
+ private:
+  content::BrowserContext* browser_context_;
+};
+
+}  // namespace
 
 ChromeProfileStub::ChromeProfileStub() {}
 
@@ -18,6 +44,12 @@ bool ChromeProfileStub::IsOffTheRecord() {
 
 bool ChromeProfileStub::IsOffTheRecord() const {
   return false;
+}
+
+variations::VariationsClient* ChromeProfileStub::GetVariationsClient() {
+  if (!variations_client_)
+    variations_client_ = std::make_unique<CefVariationsClient>(this);
+  return variations_client_.get();
 }
 
 scoped_refptr<base::SequencedTaskRunner> ChromeProfileStub::GetIOTaskRunner() {

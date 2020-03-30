@@ -372,3 +372,8 @@ ChromeBrowserProcessStub::resource_coordinator_parts() {
   NOTREACHED();
   return nullptr;
 }
+
+BuildState* ChromeBrowserProcessStub::GetBuildState() {
+  NOTREACHED();
+  return nullptr;
+}

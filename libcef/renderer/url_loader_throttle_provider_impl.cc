@@ -15,6 +15,7 @@
 #include "content/public/renderer/render_frame.h"
 #include "extensions/renderer/guest_view/mime_handler_view/mime_handler_view_container.h"
 #include "services/network/public/cpp/features.h"
+#include "third_party/blink/public/common/loader/resource_type_util.h"
 #include "third_party/blink/public/platform/web_url.h"
 
 CefURLLoaderThrottleProviderImpl::CefURLLoaderThrottleProviderImpl(
@@ -42,22 +43,25 @@ CefURLLoaderThrottleProviderImpl::Clone() {
 std::vector<std::unique_ptr<blink::URLLoaderThrottle>>
 CefURLLoaderThrottleProviderImpl::CreateThrottles(
     int render_frame_id,
-    const blink::WebURLRequest& request,
-    content::ResourceType resource_type) {
+    const blink::WebURLRequest& request) {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
 
   std::vector<std::unique_ptr<blink::URLLoaderThrottle>> throttles;
 
+  const network::mojom::RequestDestination request_destination =
+      request.GetRequestDestination();
+
   // Some throttles have already been added in the browser for frame resources.
   // Don't add them for frame requests.
-  bool is_frame_resource = content::IsResourceTypeFrame(resource_type);
+  bool is_frame_resource =
+      blink::IsRequestDestinationFrame(request_destination);
 
   DCHECK(!is_frame_resource ||
          type_ == content::URLLoaderThrottleProviderType::kFrame);
 
   if (extensions::ExtensionsEnabled() &&
       type_ == content::URLLoaderThrottleProviderType::kFrame &&
-      resource_type == content::ResourceType::kObject) {
+      request_destination == network::mojom::RequestDestination::kObject) {
     content::RenderFrame* render_frame =
         content::RenderFrame::FromRoutingID(render_frame_id);
     auto mime_handlers =
@@ -73,7 +77,6 @@ CefURLLoaderThrottleProviderImpl::CreateThrottles(
   }
 
   throttles.push_back(std::make_unique<GoogleURLLoaderThrottle>(
-      CefRenderThreadObserver::is_incognito_process(),
       CefRenderThreadObserver::GetDynamicParams()));
 
   return throttles;

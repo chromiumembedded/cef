@@ -48,7 +48,6 @@
 #include "extensions/browser/process_manager.h"
 #include "extensions/common/constants.h"
 #include "net/proxy_resolution/proxy_config_service.h"
-#include "net/proxy_resolution/proxy_resolution_service.h"
 #include "services/network/public/mojom/cors_origin_pattern.mojom.h"
 
 using content::BrowserThread;

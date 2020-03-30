@@ -14,6 +14,8 @@
 
 #include "base/logging.h"
 #include "base/message_loop/message_loop.h"
+#include "net/base/request_priority.h"
+#include "third_party/blink/public/mojom/fetch/fetch_api_request.mojom.h"
 #include "third_party/blink/public/platform/web_security_origin.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
@@ -110,15 +112,35 @@ class CefRenderURLRequest::Context
 
     url_client_.reset(new CefWebURLLoaderClient(this, request_->GetFlags()));
 
-    WebURLRequest urlRequest;
+    std::unique_ptr<network::ResourceRequest> resource_request =
+        std::make_unique<network::ResourceRequest>();
     static_cast<CefRequestImpl*>(request_.get())
-        ->Get(urlRequest, upload_data_size_);
-    urlRequest.SetPriority(blink::WebURLRequest::Priority::kMedium);
+        ->Get(resource_request.get(), false);
+    resource_request->priority = net::MEDIUM;
+
+    // Behave the same as a subresource load.
+    resource_request->fetch_request_context_type =
+        static_cast<int>(blink::mojom::RequestContextType::SUBRESOURCE);
+    resource_request->resource_type =
+        static_cast<int>(blink::mojom::ResourceType::kSubResource);
+
+    // Need load timing info for WebURLLoaderImpl::PopulateURLResponse to
+    // properly set cached status.
+    resource_request->enable_load_timing = true;
 
     // Set the origin to match the request. The requirement for an origin is
     // DCHECK'd in ResourceDispatcherHostImpl::ContinuePendingBeginRequest.
-    urlRequest.SetRequestorOrigin(
-        blink::WebSecurityOrigin::Create(urlRequest.Url()));
+    resource_request->request_initiator = url::Origin::Create(url);
+
+    if (resource_request->request_body) {
+      const auto& elements = *resource_request->request_body->elements();
+      if (elements.size() > 0) {
+        const auto& element = elements[0];
+        if (element.type() == network::mojom::DataElementType::kBytes) {
+          upload_data_size_ = element.length() - element.offset();
+        }
+      }
+    }
 
     blink::WebURLLoaderFactory* factory = nullptr;
     if (frame_) {
@@ -131,9 +153,13 @@ class CefRenderURLRequest::Context
     }
 
     loader_ = factory->CreateURLLoader(
-        urlRequest, blink::scheduler::WebResourceLoadingTaskRunnerHandle::
-                        CreateUnprioritized(task_runner_.get()));
-    loader_->LoadAsynchronously(urlRequest, url_client_.get());
+        blink::WebURLRequest(),
+        blink::scheduler::WebResourceLoadingTaskRunnerHandle::
+            CreateUnprioritized(task_runner_.get()));
+    loader_->LoadAsynchronously(
+        std::move(resource_request), nullptr /* extra_data */,
+        0 /* requestor_id */, false /* download_to_network_cache_only */,
+        false /* no_mime_sniffing */, url_client_.get());
     return true;
   }
 
@@ -316,8 +342,7 @@ class CefRenderURLRequest::Context
       // Upload notifications are sent using a timer and may not occur if the
       // request completes too quickly. We therefore send the notification here
       // if necessary.
-      client_->OnUploadProgress(url_request_.get(), upload_data_size_,
-                                upload_data_size_);
+      url_client_->DidSendData(upload_data_size_, upload_data_size_);
       got_upload_progress_complete_ = true;
     }
   }

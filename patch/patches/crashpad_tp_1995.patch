@@ -130,10 +130,10 @@ index db9dface43f8..e5bdfebf8403 100644
  Settings::ScopedLockedFileHandle Settings::MakeScopedLockedFileHandle(
      FileHandle file,
 diff --git third_party/crashpad/crashpad/client/settings.h third_party/crashpad/crashpad/client/settings.h
-index a2b0c74636f4..01370fdc20d9 100644
+index 5761c6b965b5..aee4e6c96033 100644
 --- third_party/crashpad/crashpad/client/settings.h
 +++ third_party/crashpad/crashpad/client/settings.h
-@@ -111,6 +111,11 @@ class Settings {
+@@ -115,6 +115,11 @@ class Settings {
    //!     error logged.
    bool SetLastUploadAttemptTime(time_t time);
  
@@ -146,7 +146,7 @@ index a2b0c74636f4..01370fdc20d9 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index b06f68af3baa..42b47ab40109 100644
+index ff9f5d1f2c47..c7935c4d65a7 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -248,7 +248,7 @@ index 2ec1147d2620..8ff9a72e0bd7 100644
    //! \brief Calls ProcessPendingReports() in response to ReportPending() having
    //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index 1cf655aec466..50ff7ed6fdbf 100644
+index e0a262cd1f38..2949e3ac1739 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -36,8 +36,10 @@
@@ -273,7 +273,7 @@ index 1cf655aec466..50ff7ed6fdbf 100644
  namespace crashpad {
  
  namespace {
-@@ -204,6 +210,9 @@ struct Options {
+@@ -215,6 +221,9 @@ struct Options {
    bool periodic_tasks;
    bool rate_limit;
    bool upload_gzip;
@@ -283,7 +283,7 @@ index 1cf655aec466..50ff7ed6fdbf 100644
  #if defined(OS_CHROMEOS)
    bool use_cros_crash_reporter = false;
    base::FilePath minidump_dir_for_tests;
-@@ -563,6 +572,9 @@ int HandlerMain(int argc,
+@@ -577,6 +586,9 @@ int HandlerMain(int argc,
      kOptionTraceParentWithException,
  #endif
      kOptionURL,
@@ -293,8 +293,8 @@ index 1cf655aec466..50ff7ed6fdbf 100644
  #if defined(OS_CHROMEOS)
      kOptionUseCrosCrashReporter,
      kOptionMinidumpDirForTests,
-@@ -649,6 +661,9 @@ int HandlerMain(int argc,
- #endif  // OS_CHROMEOS
+@@ -675,6 +687,9 @@ int HandlerMain(int argc,
+ #endif  // OS_ANDROID
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
 +    {"max-uploads", required_argument, nullptr, kOptionMaxUploads},
@@ -303,7 +303,7 @@ index 1cf655aec466..50ff7ed6fdbf 100644
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -788,6 +803,27 @@ int HandlerMain(int argc,
+@@ -823,6 +838,27 @@ int HandlerMain(int argc,
          options.url = optarg;
          break;
        }
@@ -331,7 +331,7 @@ index 1cf655aec466..50ff7ed6fdbf 100644
  #if defined(OS_CHROMEOS)
        case kOptionUseCrosCrashReporter: {
          options.use_cros_crash_reporter = true;
-@@ -923,8 +959,14 @@ int HandlerMain(int argc,
+@@ -972,8 +1008,14 @@ int HandlerMain(int argc,
      upload_thread_options.upload_gzip = options.upload_gzip;
      upload_thread_options.watch_pending_reports = options.periodic_tasks;
  
@@ -346,7 +346,7 @@ index 1cf655aec466..50ff7ed6fdbf 100644
      upload_thread.Get()->Start();
    }
  
-@@ -984,7 +1026,8 @@ int HandlerMain(int argc,
+@@ -1043,7 +1085,8 @@ int HandlerMain(int argc,
    ScopedStoppable prune_thread;
    if (options.periodic_tasks) {
      prune_thread.Reset(new PruneCrashReportThread(

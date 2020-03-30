@@ -5,8 +5,6 @@
 
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
 
-#include "third_party/blink/public/platform/web_cursor_info.h"
-
 #if defined(USE_X11)
 #include <X11/Xlib.h>
 #include <X11/cursorfont.h>
@@ -23,110 +21,108 @@ namespace {
 
 // Based on ui/base/cursor/cursor_loader_x11.cc.
 
-using blink::WebCursorInfo;
-
-int ToCursorID(ui::CursorType type) {
+int ToCursorID(ui::mojom::CursorType type) {
   switch (type) {
-    case ui::CursorType::kPointer:
+    case ui::mojom::CursorType::kPointer:
       return XC_left_ptr;
-    case ui::CursorType::kCross:
+    case ui::mojom::CursorType::kCross:
       return XC_crosshair;
-    case ui::CursorType::kHand:
+    case ui::mojom::CursorType::kHand:
       return XC_hand2;
-    case ui::CursorType::kIBeam:
+    case ui::mojom::CursorType::kIBeam:
       return XC_xterm;
-    case ui::CursorType::kWait:
+    case ui::mojom::CursorType::kWait:
       return XC_watch;
-    case ui::CursorType::kHelp:
+    case ui::mojom::CursorType::kHelp:
       return XC_question_arrow;
-    case ui::CursorType::kEastResize:
+    case ui::mojom::CursorType::kEastResize:
       return XC_right_side;
-    case ui::CursorType::kNorthResize:
+    case ui::mojom::CursorType::kNorthResize:
       return XC_top_side;
-    case ui::CursorType::kNorthEastResize:
+    case ui::mojom::CursorType::kNorthEastResize:
       return XC_top_right_corner;
-    case ui::CursorType::kNorthWestResize:
+    case ui::mojom::CursorType::kNorthWestResize:
       return XC_top_left_corner;
-    case ui::CursorType::kSouthResize:
+    case ui::mojom::CursorType::kSouthResize:
       return XC_bottom_side;
-    case ui::CursorType::kSouthEastResize:
+    case ui::mojom::CursorType::kSouthEastResize:
       return XC_bottom_right_corner;
-    case ui::CursorType::kSouthWestResize:
+    case ui::mojom::CursorType::kSouthWestResize:
       return XC_bottom_left_corner;
-    case ui::CursorType::kWestResize:
+    case ui::mojom::CursorType::kWestResize:
       return XC_left_side;
-    case ui::CursorType::kNorthSouthResize:
+    case ui::mojom::CursorType::kNorthSouthResize:
       return XC_sb_v_double_arrow;
-    case ui::CursorType::kEastWestResize:
+    case ui::mojom::CursorType::kEastWestResize:
       return XC_sb_h_double_arrow;
-    case ui::CursorType::kNorthEastSouthWestResize:
+    case ui::mojom::CursorType::kNorthEastSouthWestResize:
       return XC_left_ptr;
-    case ui::CursorType::kNorthWestSouthEastResize:
+    case ui::mojom::CursorType::kNorthWestSouthEastResize:
       return XC_left_ptr;
-    case ui::CursorType::kColumnResize:
+    case ui::mojom::CursorType::kColumnResize:
       return XC_sb_h_double_arrow;
-    case ui::CursorType::kRowResize:
+    case ui::mojom::CursorType::kRowResize:
       return XC_sb_v_double_arrow;
-    case ui::CursorType::kMiddlePanning:
+    case ui::mojom::CursorType::kMiddlePanning:
       return XC_fleur;
-    case ui::CursorType::kEastPanning:
+    case ui::mojom::CursorType::kEastPanning:
       return XC_sb_right_arrow;
-    case ui::CursorType::kNorthPanning:
+    case ui::mojom::CursorType::kNorthPanning:
       return XC_sb_up_arrow;
-    case ui::CursorType::kNorthEastPanning:
+    case ui::mojom::CursorType::kNorthEastPanning:
       return XC_top_right_corner;
-    case ui::CursorType::kNorthWestPanning:
+    case ui::mojom::CursorType::kNorthWestPanning:
       return XC_top_left_corner;
-    case ui::CursorType::kSouthPanning:
+    case ui::mojom::CursorType::kSouthPanning:
       return XC_sb_down_arrow;
-    case ui::CursorType::kSouthEastPanning:
+    case ui::mojom::CursorType::kSouthEastPanning:
       return XC_bottom_right_corner;
-    case ui::CursorType::kSouthWestPanning:
+    case ui::mojom::CursorType::kSouthWestPanning:
       return XC_bottom_left_corner;
-    case ui::CursorType::kWestPanning:
+    case ui::mojom::CursorType::kWestPanning:
       return XC_sb_left_arrow;
-    case ui::CursorType::kMove:
+    case ui::mojom::CursorType::kMove:
       return XC_fleur;
-    case ui::CursorType::kVerticalText:
+    case ui::mojom::CursorType::kVerticalText:
       return XC_left_ptr;
-    case ui::CursorType::kCell:
+    case ui::mojom::CursorType::kCell:
       return XC_left_ptr;
-    case ui::CursorType::kContextMenu:
+    case ui::mojom::CursorType::kContextMenu:
       return XC_left_ptr;
-    case ui::CursorType::kAlias:
+    case ui::mojom::CursorType::kAlias:
       return XC_left_ptr;
-    case ui::CursorType::kProgress:
+    case ui::mojom::CursorType::kProgress:
       return XC_left_ptr;
-    case ui::CursorType::kNoDrop:
+    case ui::mojom::CursorType::kNoDrop:
       return XC_left_ptr;
-    case ui::CursorType::kCopy:
+    case ui::mojom::CursorType::kCopy:
       return XC_left_ptr;
-    case ui::CursorType::kNotAllowed:
+    case ui::mojom::CursorType::kNotAllowed:
       return XC_left_ptr;
-    case ui::CursorType::kZoomIn:
+    case ui::mojom::CursorType::kZoomIn:
       return XC_left_ptr;
-    case ui::CursorType::kZoomOut:
+    case ui::mojom::CursorType::kZoomOut:
       return XC_left_ptr;
-    case ui::CursorType::kGrab:
+    case ui::mojom::CursorType::kGrab:
       return XC_left_ptr;
-    case ui::CursorType::kGrabbing:
+    case ui::mojom::CursorType::kGrabbing:
       return XC_left_ptr;
-    case ui::CursorType::kMiddlePanningVertical:
+    case ui::mojom::CursorType::kMiddlePanningVertical:
       return XC_left_ptr;
-    case ui::CursorType::kMiddlePanningHorizontal:
+    case ui::mojom::CursorType::kMiddlePanningHorizontal:
       return XC_left_ptr;
-    case ui::CursorType::kDndNone:
+    case ui::mojom::CursorType::kDndNone:
       return XC_left_ptr;
-    case ui::CursorType::kDndMove:
+    case ui::mojom::CursorType::kDndMove:
       return XC_left_ptr;
-    case ui::CursorType::kDndCopy:
+    case ui::mojom::CursorType::kDndCopy:
       return XC_left_ptr;
-    case ui::CursorType::kDndLink:
+    case ui::mojom::CursorType::kDndLink:
       return XC_left_ptr;
-    case ui::CursorType::kNull:
+    case ui::mojom::CursorType::kNull:
       return XC_left_ptr;
-    case ui::CursorType::kCustom:
-    case ui::CursorType::kNone:
+    case ui::mojom::CursorType::kCustom:
+    case ui::mojom::CursorType::kNone:
       break;
   }
   NOTREACHED();
@@ -184,9 +180,9 @@ XCursorCache* cursor_cache = nullptr;
 #endif  // defined(USE_X11)
 
 ui::PlatformCursor CefRenderWidgetHostViewOSR::GetPlatformCursor(
-    ui::CursorType type) {
+    ui::mojom::CursorType type) {
 #if defined(USE_X11)
-  if (type == ui::CursorType::kNone) {
+  if (type == ui::mojom::CursorType::kNone) {
     if (!invisible_cursor_) {
       invisible_cursor_.reset(new ui::XScopedCursor(ui::CreateInvisibleCursor(),
                                                     gfx::GetXDisplay()));

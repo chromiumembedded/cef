@@ -1150,10 +1150,9 @@ if os.path.exists(cef_dir) and not is_git_checkout(cef_dir):
   raise Exception("Not a valid CEF Git checkout: %s" % (cef_dir))
 
 # Determine the CEF download URL to use.
-if options.url == '':
+cef_url = options.url.strip()
+if cef_url == '':
   cef_url = cef_git_url
-else:
-  cef_url = options.url
 
 # Verify that the requested CEF URL matches the existing checkout.
 if not options.nocefupdate and os.path.exists(cef_dir):

@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index c820df8447f0..58cb1279b7bf 100644
+index c2920a353de1..1b5a3b70b276 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -9,6 +9,7 @@ import("//build/config/features.gni")
+@@ -10,6 +10,7 @@ import("//build/config/features.gni")
  import("//build/config/jumbo.gni")
  import("//build/config/linux/gtk/gtk.gni")
  import("//build/config/ui.gni")
@@ -10,7 +10,7 @@ index c820df8447f0..58cb1279b7bf 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/assistant/assistant.gni")
-@@ -362,6 +363,10 @@ jumbo_static_library("ui") {
+@@ -364,6 +365,10 @@ jumbo_static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -21,7 +21,7 @@ index c820df8447f0..58cb1279b7bf 100644
    # Since browser and browser_ui actually depend on each other,
    # we must omit the dependency from browser_ui to browser.
    # However, this means browser_ui and browser should more or less
-@@ -383,6 +388,7 @@ jumbo_static_library("ui") {
+@@ -385,6 +390,7 @@ jumbo_static_library("ui") {
      "//base/allocator:buildflags",
      "//build:branding_buildflags",
      "//cc/paint",
@@ -29,7 +29,7 @@ index c820df8447f0..58cb1279b7bf 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -1438,6 +1444,7 @@ jumbo_static_library("ui") {
+@@ -1460,6 +1466,7 @@ jumbo_static_library("ui") {
        "//components/keep_alive_registry",
        "//components/network_session_configurator/common",
        "//components/page_load_metrics/browser",

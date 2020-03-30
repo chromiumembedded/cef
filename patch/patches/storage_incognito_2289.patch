@@ -1,22 +1,22 @@
 diff --git content/browser/blob_storage/chrome_blob_storage_context.cc content/browser/blob_storage/chrome_blob_storage_context.cc
-index 33a732dab0e8..99ecf91a66a5 100644
+index f90e9fce0675..33551a2874bc 100644
 --- content/browser/blob_storage/chrome_blob_storage_context.cc
 +++ content/browser/blob_storage/chrome_blob_storage_context.cc
-@@ -116,7 +116,8 @@ ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
+@@ -117,7 +117,8 @@ ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
  
      // If we're not incognito mode, schedule all of our file tasks to enable
      // disk on the storage context.
 -    if (!context->IsOffTheRecord() && io_thread_valid) {
 +    if (!context->GetPath().empty() && !context->IsOffTheRecord() &&
 +        io_thread_valid) {
-       file_task_runner = base::CreateTaskRunner(
-           {base::ThreadPool(), base::MayBlock(),
-            base::TaskPriority::USER_VISIBLE,
+       file_task_runner = base::ThreadPool::CreateTaskRunner(
+           {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
+            base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index 44e6a961112b..f1f3e1af7f16 100644
+index 25afe1eda95e..78310ebd061d 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
-@@ -59,6 +59,7 @@
+@@ -58,6 +58,7 @@
  #include "content/public/common/content_switches.h"
  #include "content/public/common/service_manager_connection.h"
  #include "content/public/common/service_names.mojom.h"
@@ -24,7 +24,7 @@ index 44e6a961112b..f1f3e1af7f16 100644
  #include "media/base/media_switches.h"
  #include "media/capabilities/in_memory_video_decode_stats_db_impl.h"
  #include "media/capabilities/video_decode_stats_db_impl.h"
-@@ -170,7 +171,7 @@ StoragePartition* GetStoragePartitionFromConfig(
+@@ -169,7 +170,7 @@ StoragePartition* GetStoragePartitionFromConfig(
    StoragePartitionImplMap* partition_map =
        GetStoragePartitionMap(browser_context);
  
@@ -33,7 +33,7 @@ index 44e6a961112b..f1f3e1af7f16 100644
      in_memory = true;
  
    return partition_map->Get(partition_domain, partition_name, in_memory,
-@@ -675,7 +676,7 @@ media::VideoDecodePerfHistory* BrowserContext::GetVideoDecodePerfHistory() {
+@@ -673,7 +674,7 @@ media::VideoDecodePerfHistory* BrowserContext::GetVideoDecodePerfHistory() {
          kUseInMemoryDBDefault);
  
      std::unique_ptr<media::VideoDecodeStatsDB> stats_db;
@@ -43,10 +43,10 @@ index 44e6a961112b..f1f3e1af7f16 100644
            std::make_unique<media::InMemoryVideoDecodeStatsDBImpl>(nullptr);
      } else {
 diff --git storage/browser/database/database_tracker.cc storage/browser/database/database_tracker.cc
-index d4cb25f0b5c5..46a145e175e6 100644
+index 41dc6c9ac188..b125c1d2bcc8 100644
 --- storage/browser/database/database_tracker.cc
 +++ storage/browser/database/database_tracker.cc
-@@ -509,7 +509,7 @@ bool DatabaseTracker::LazyInit() {
+@@ -506,7 +506,7 @@ bool DatabaseTracker::LazyInit() {
      meta_table_.reset(new sql::MetaTable());
  
      is_initialized_ =

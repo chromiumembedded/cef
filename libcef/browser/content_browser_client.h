@@ -197,7 +197,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       content::RenderFrameHost* render_frame_host,
       service_manager::BinderMapWithContext<content::RenderFrameHost*>* map)
       override;
-
+  base::FilePath GetSandboxedStorageServiceDataDirectory() override;
   std::string GetProduct() override;
   std::string GetChromeProduct() override;
   std::string GetUserAgent() override;

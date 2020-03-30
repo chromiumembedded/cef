@@ -22,6 +22,7 @@ class ChromeProfileStub : public Profile {
   // Profile methods.
   bool IsOffTheRecord() override;
   bool IsOffTheRecord() const override;
+  variations::VariationsClient* GetVariationsClient() override;
   scoped_refptr<base::SequencedTaskRunner> GetIOTaskRunner() override;
   std::string GetProfileUserName() const override;
   ProfileType GetProfileType() const override;
@@ -48,6 +49,8 @@ class ChromeProfileStub : public Profile {
   void SetCreationTimeForTesting(base::Time creation_time) override;
 
  private:
+  std::unique_ptr<variations::VariationsClient> variations_client_;
+
   DISALLOW_COPY_AND_ASSIGN(ChromeProfileStub);
 };
 

@@ -36,7 +36,6 @@
 #include "extensions/common/constants.h"
 #include "net/base/net_module.h"
 #include "services/service_manager/embedder/result_codes.h"
-#include "ui/base/material_design/material_design_controller.h"
 #include "ui/base/resource/resource_bundle.h"
 
 #if defined(USE_AURA) && defined(USE_X11)
@@ -160,8 +159,6 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
 #if defined(USE_AURA)
   display::Screen::SetScreenInstance(views::CreateDesktopScreen());
 #endif
-
-  ui::MaterialDesignController::Initialize();
 
   if (extensions::ExtensionsEnabled()) {
     // Initialize extension global objects before creating the global

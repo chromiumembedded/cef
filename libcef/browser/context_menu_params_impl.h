@@ -9,7 +9,7 @@
 #include "include/cef_context_menu_handler.h"
 #include "libcef/common/value_base.h"
 
-#include "content/public/common/context_menu_params.h"
+#include "content/public/browser/context_menu_params.h"
 
 // CefContextMenuParams implementation. This class is not thread safe.
 class CefContextMenuParamsImpl

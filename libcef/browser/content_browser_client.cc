@@ -115,6 +115,8 @@
 #include "services/service_manager/public/mojom/connector.mojom.h"
 #include "services/service_manager/sandbox/switches.h"
 #include "storage/browser/quota/quota_settings.h"
+#include "third_party/blink/public/mojom/insecure_input/insecure_input_service.mojom.h"
+#include "third_party/blink/public/mojom/prerender/prerender.mojom.h"
 #include "third_party/blink/public/web/web_window_features.h"
 #include "third_party/widevine/cdm/buildflags.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -503,6 +505,30 @@ void BindPluginInfoHost(
   mojo::MakeSelfOwnedAssociatedReceiver(
       std::make_unique<PluginInfoHostImpl>(render_process_id, profile),
       std::move(receiver));
+}
+
+base::FilePath GetRootCachePath() {
+  // The CefContext::ValidateCachePath method enforces the requirement that all
+  // cache_path values be either equal to or a child of root_cache_path.
+  return base::FilePath(
+      CefString(&CefContext::Get()->settings().root_cache_path));
+}
+
+// Register BrowserInterfaceBroker's GetInterface() handler callbacks for
+// chrome-specific document-scoped interfaces.
+// Stub implementations to silence "Empty binder for interface
+// blink.mojom.[Name] for the frame/document scope" errors.
+// Based on chrome/browser/chrome_browser_interface_binders.cc.
+void PopulateChromeFrameBinders(
+    service_manager::BinderMapWithContext<content::RenderFrameHost*>* map) {
+  map->Add<blink::mojom::InsecureInputService>(base::BindRepeating(
+      [](content::RenderFrameHost* frame_host,
+         mojo::PendingReceiver<blink::mojom::InsecureInputService> receiver) {
+      }));
+
+  map->Add<blink::mojom::PrerenderProcessor>(base::BindRepeating(
+      [](content::RenderFrameHost* frame_host,
+         mojo::PendingReceiver<blink::mojom::PrerenderProcessor> receiver) {}));
 }
 
 }  // namespace
@@ -1088,16 +1114,13 @@ CefContentBrowserClient::CreateURLLoaderThrottles(
       request.resource_type, frame_tree_node_id));
 
   Profile* profile = Profile::FromBrowserContext(browser_context);
-  bool is_off_the_record = profile->IsOffTheRecord();
 
   chrome::mojom::DynamicParams dynamic_params = {
       profile->GetPrefs()->GetBoolean(prefs::kForceGoogleSafeSearch),
       profile->GetPrefs()->GetInteger(prefs::kForceYouTubeRestrict),
-      profile->GetPrefs()->GetString(prefs::kAllowedDomainsForApps),
-      variations::VariationsHttpHeaderProvider::GetInstance()
-          ->GetClientDataHeader(false /* is_signed_in */)};
-  result.push_back(std::make_unique<GoogleURLLoaderThrottle>(
-      is_off_the_record, std::move(dynamic_params)));
+      profile->GetPrefs()->GetString(prefs::kAllowedDomainsForApps)};
+  result.push_back(
+      std::make_unique<GoogleURLLoaderThrottle>(std::move(dynamic_params)));
 
   return result;
 }
@@ -1300,10 +1323,7 @@ CefContentBrowserClient::GetNetworkContextsParentDirectory() {
   base::PathService::Get(chrome::DIR_USER_DATA, &user_data_path);
   DCHECK(!user_data_path.empty());
 
-  // The CefContext::ValidateCachePath method enforces the requirement that all
-  // cache_path values be either equal to or a child of root_cache_path.
-  const base::FilePath& root_cache_path =
-      base::FilePath(CefString(&CefContext::Get()->settings().root_cache_path));
+  const auto& root_cache_path = GetRootCachePath();
 
   // root_cache_path may sometimes be empty or a child of user_data_path, so
   // only return the one path in that case.
@@ -1380,6 +1400,8 @@ CefContentBrowserClient::CreateWindowForPictureInPicture(
 void CefContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
     content::RenderFrameHost* render_frame_host,
     service_manager::BinderMapWithContext<content::RenderFrameHost*>* map) {
+  PopulateChromeFrameBinders(map);
+
   if (!extensions::ExtensionsEnabled())
     return;
 
@@ -1402,6 +1424,11 @@ void CefContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
   extensions::ExtensionsBrowserClient::Get()
       ->RegisterBrowserInterfaceBindersForFrame(map, render_frame_host,
                                                 extension);
+}
+
+base::FilePath
+CefContentBrowserClient::GetSandboxedStorageServiceDataDirectory() {
+  return GetRootCachePath();
 }
 
 std::string CefContentBrowserClient::GetProduct() {

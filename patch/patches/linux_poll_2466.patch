@@ -1,5 +1,5 @@
 diff --git base/files/file_path_watcher_linux.cc base/files/file_path_watcher_linux.cc
-index 51cecad2eb04..004054491187 100644
+index 563e08067585..3200fa658457 100644
 --- base/files/file_path_watcher_linux.cc
 +++ base/files/file_path_watcher_linux.cc
 @@ -5,6 +5,7 @@
@@ -18,7 +18,7 @@ index 51cecad2eb04..004054491187 100644
  #include <fstream>
  #include <map>
  #include <memory>
-@@ -263,22 +265,15 @@ void InotifyReaderThreadDelegate::ThreadMain() {
+@@ -263,8 +265,10 @@ void InotifyReaderThreadDelegate::ThreadMain() {
    PlatformThread::SetName("inotify_reader");
  
    // Make sure the file descriptors are good for use with select().
@@ -30,14 +30,11 @@ index 51cecad2eb04..004054491187 100644
 +  } };
  
    while (true) {
--    fd_set rfds;
--    FD_ZERO(&rfds);
--    FD_SET(inotify_fd_, &rfds);
--
--    ScopedBlockingCall scoped_blocking_call(FROM_HERE,
--                                            BlockingType::WILL_BLOCK);
--
--    // Wait until some inotify events are available.
+     fd_set rfds;
+@@ -272,10 +276,9 @@ void InotifyReaderThreadDelegate::ThreadMain() {
+     FD_SET(inotify_fd_, &rfds);
+ 
+     // Wait until some inotify events are available.
 -    int select_result =
 -        HANDLE_EINTR(select(inotify_fd_ + 1, &rfds, nullptr, nullptr, nullptr));
 -    if (select_result < 0) {

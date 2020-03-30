@@ -12,7 +12,7 @@ index af7b3249d421..1483a48f9074 100644
    // Force a new surface id to be allocated. Returns true if the
    // RenderWidgetHostImpl sent the resulting surface id to the renderer.
 diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/browser/renderer_host/browser_compositor_view_mac.mm
-index c1593171af25..4c892782d338 100644
+index ac9fdebbc87d..ebb2556ad908 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.mm
 +++ content/browser/renderer_host/browser_compositor_view_mac.mm
 @@ -85,6 +85,12 @@ DelegatedFrameHost* BrowserCompositorMac::GetDelegatedFrameHost() {

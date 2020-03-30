@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/streams_private/streams_private_api.cc chrome/browser/extensions/api/streams_private/streams_private_api.cc
-index 3841b7adf65d..41ca32ea5e2f 100644
+index bb4af725af9f..a1389be84f6e 100644
 --- chrome/browser/extensions/api/streams_private/streams_private_api.cc
 +++ chrome/browser/extensions/api/streams_private/streams_private_api.cc
 @@ -6,6 +6,7 @@
@@ -9,8 +9,8 @@ index 3841b7adf65d..41ca32ea5e2f 100644
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/extensions/extension_tab_util.h"
  #include "chrome/browser/prerender/prerender_contents.h"
- #include "content/public/browser/browser_thread.h"
-@@ -40,6 +41,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+ #include "components/sessions/core/session_id.h"
+@@ -41,6 +42,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
    if (!web_contents)
      return;
  
@@ -18,7 +18,7 @@ index 3841b7adf65d..41ca32ea5e2f 100644
    // If the request was for a prerender, abort the prerender and do not
    // continue. This is because plugins cancel prerender, see
    // http://crbug.com/343590.
-@@ -49,6 +51,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+@@ -50,6 +52,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
      prerender_contents->Destroy(prerender::FINAL_STATUS_DOWNLOAD);
      return;
    }
@@ -132,7 +132,7 @@ index 093fb25589a9..3e6247802c52 100644
    // A weak pointer to the current or pending RenderViewHost. We don't access
    // this through the host_contents because we want to deal with the pending
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index e697984786c5..dc84cfd92669 100644
+index c2d64706c1db..4d5c75dd035f 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
 @@ -56,6 +56,7 @@ class ComponentExtensionResourceManager;

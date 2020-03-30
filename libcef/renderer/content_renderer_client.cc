@@ -95,7 +95,6 @@
 #include "third_party/blink/public/platform/platform.h"
 #include "third_party/blink/public/platform/scheduler/web_renderer_process_type.h"
 #include "third_party/blink/public/platform/url_conversion.h"
-#include "third_party/blink/public/platform/web_prerendering_support.h"
 #include "third_party/blink/public/platform/web_runtime_features.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
@@ -115,15 +114,6 @@
 
 namespace {
 
-// Stub implementation of blink::WebPrerenderingSupport.
-class CefPrerenderingSupport : public blink::WebPrerenderingSupport {
- private:
-  void Add(const blink::WebPrerender& prerender) override {}
-  void Cancel(const blink::WebPrerender& prerender) override {}
-  void Abandon(const blink::WebPrerender& prerender) override {}
-  void PrefetchFinished() override {}
-};
-
 // Stub implementation of blink::WebPrerendererClient.
 class CefPrerendererClient : public content::RenderViewObserver,
                              public blink::WebPrerendererClient {
@@ -141,7 +131,6 @@ class CefPrerendererClient : public content::RenderViewObserver,
   void OnDestruct() override { delete this; }
 
   // WebPrerendererClient methods:
-  void WillAddPrerender(blink::WebPrerender* prerender) override {}
   bool IsPrefetchOnly() override { return false; }
 };
 
@@ -403,8 +392,6 @@ void CefContentRendererClient::RenderThreadStarted() {
     // on the render thread's MessageLoop.
     base::MessageLoopCurrent::Get()->AddDestructionObserver(this);
   }
-
-  blink::WebPrerenderingSupport::Initialize(new CefPrerenderingSupport());
 
 #if defined(OS_MACOSX)
   {

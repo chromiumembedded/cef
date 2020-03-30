@@ -29,8 +29,11 @@ void CefWebContentsViewOSR::WebContentsCreated(
   DCHECK(!web_contents_);
   web_contents_ = web_contents;
 
-  // Call this again for popup browsers now that the view should exist.
-  RenderViewCreated(web_contents_->GetRenderViewHost());
+  auto host = web_contents_->GetRenderViewHost();
+  CefRenderWidgetHostViewOSR* view =
+      static_cast<CefRenderWidgetHostViewOSR*>(host->GetWidget()->GetView());
+  if (view)
+    view->InstallTransparency();
 }
 
 gfx::NativeView CefWebContentsViewOSR::GetNativeView() const {
@@ -122,15 +125,6 @@ CefWebContentsViewOSR::CreateViewForChildWidget(
 }
 
 void CefWebContentsViewOSR::SetPageTitle(const base::string16& title) {}
-
-void CefWebContentsViewOSR::RenderViewCreated(content::RenderViewHost* host) {
-  if (!host)
-    return;
-  CefRenderWidgetHostViewOSR* view =
-      static_cast<CefRenderWidgetHostViewOSR*>(host->GetWidget()->GetView());
-  if (view)
-    view->InstallTransparency();
-}
 
 void CefWebContentsViewOSR::RenderViewReady() {}
 

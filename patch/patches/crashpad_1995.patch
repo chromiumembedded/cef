@@ -1,5 +1,5 @@
 diff --git chrome/chrome_elf/BUILD.gn chrome/chrome_elf/BUILD.gn
-index abd8ceba1896..f92981183aad 100644
+index de079e97cc2b..b6bcf351e438 100644
 --- chrome/chrome_elf/BUILD.gn
 +++ chrome/chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -244,7 +244,7 @@ index 6e95af6ca7f5..061fb189d60f 100644
  extern void InitCrashKeysForTesting();
  
 diff --git components/crash/content/app/crash_reporter_client.cc components/crash/content/app/crash_reporter_client.cc
-index 4d2b6ad68d80..728ffd9e7b4c 100644
+index bb131fb5d540..a4b86e58187d 100644
 --- components/crash/content/app/crash_reporter_client.cc
 +++ components/crash/content/app/crash_reporter_client.cc
 @@ -88,7 +88,7 @@ int CrashReporterClient::GetResultCodeRespawnFailed() {
@@ -305,7 +305,7 @@ index 4d2b6ad68d80..728ffd9e7b4c 100644
  #if defined(OS_ANDROID)
  unsigned int CrashReporterClient::GetCrashDumpPercentage() {
    return 100;
-@@ -195,9 +223,11 @@ bool CrashReporterClient::ShouldMonitorCrashHandlerExpensively() {
+@@ -200,9 +228,11 @@ bool CrashReporterClient::ShouldMonitorCrashHandlerExpensively() {
    return false;
  }
  
@@ -321,7 +321,7 @@ index 4d2b6ad68d80..728ffd9e7b4c 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crash_reporter_client.h components/crash/content/app/crash_reporter_client.h
-index d46bcc2a39b4..390654dd76fd 100644
+index eb726494e22b..c8b1d82e64b9 100644
 --- components/crash/content/app/crash_reporter_client.h
 +++ components/crash/content/app/crash_reporter_client.h
 @@ -5,7 +5,9 @@
@@ -359,7 +359,7 @@ index d46bcc2a39b4..390654dd76fd 100644
  #endif
  
    // The location where minidump files should be written. Returns true if
-@@ -207,6 +211,30 @@ class CrashReporterClient {
+@@ -210,6 +214,30 @@ class CrashReporterClient {
  
    // Returns true if breakpad should run in the given process type.
    virtual bool EnableBreakpadForProcess(const std::string& process_type);
@@ -391,16 +391,16 @@ index d46bcc2a39b4..390654dd76fd 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crashpad.cc components/crash/content/app/crashpad.cc
-index 5eba3742684b..9bc66b0dbfb9 100644
+index 222d62ada276..22c35665b394 100644
 --- components/crash/content/app/crashpad.cc
 +++ components/crash/content/app/crashpad.cc
-@@ -152,7 +152,8 @@ void InitializeCrashpadImpl(bool initial_client,
+@@ -151,7 +151,8 @@ void InitializeCrashpadImpl(bool initial_client,
    // fallback. Forwarding is turned off for debug-mode builds even for the
    // browser process, because the system's crash reporter can take a very long
    // time to chew on symbols.
 -  if (!browser_process || is_debug_build) {
 +  if (!browser_process || is_debug_build ||
-+      !crash_reporter_client->EnableBrowserCrashForwarding()) {
++      !GetCrashReporterClient()->EnableBrowserCrashForwarding()) {
      crashpad::CrashpadInfo::GetCrashpadInfo()
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }

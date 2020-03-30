@@ -15,7 +15,6 @@
 #include "base/synchronization/lock.h"
 #include "net/cookies/site_for_cookies.h"
 #include "services/network/public/mojom/referrer_policy.mojom-shared.h"
-#include "third_party/blink/public/platform/web_http_body.h"
 #include "url/gurl.h"
 
 namespace blink {
@@ -108,10 +107,6 @@ class CefRequestImpl : public CefRequest {
   // Called from content_browser_client.cc NavigationOnUIThread().
   void Set(const navigation_interception::NavigationParams& params,
            bool is_main_frame);
-
-  // Populate the WebURLRequest object from this object.
-  // Called from CefRenderURLRequest::Context::Start().
-  void Get(blink::WebURLRequest& request, int64& upload_data_size) const;
 
   // Populate the WebURLRequest object based on the contents of |params|.
   // Called from CefBrowserImpl::LoadRequest().
@@ -217,8 +212,6 @@ class CefPostDataImpl : public CefPostData {
   void Set(const net::UploadDataStream& data_stream);
   void Get(net::UploadData& data) const;
   std::unique_ptr<net::UploadDataStream> Get() const;
-  void Set(const blink::WebHTTPBody& data);
-  void Get(blink::WebHTTPBody& data) const;
 
   void SetReadOnly(bool read_only);
 
@@ -270,8 +263,6 @@ class CefPostDataElementImpl : public CefPostDataElement {
   void Set(const net::UploadElementReader& element_reader);
   void Get(net::UploadElement& element) const;
   std::unique_ptr<net::UploadElementReader> Get() const;
-  void Set(const blink::WebHTTPBody::Element& element);
-  void Get(blink::WebHTTPBody::Element& element) const;
 
   void SetReadOnly(bool read_only);
 

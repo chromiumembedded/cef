@@ -25,10 +25,8 @@
 #include "components/viz/common/frame_sinks/begin_frame_args.h"
 #include "components/viz/common/frame_sinks/copy_output_request.h"
 #include "components/viz/common/frame_sinks/delay_based_time_source.h"
-#include "components/viz/common/gl_helper.h"
 #include "components/viz/common/switches.h"
 #include "content/browser/bad_message.h"
-#include "content/browser/compositor/image_transport_factory.h"
 #include "content/browser/gpu/gpu_data_manager_impl.h"
 #include "content/browser/renderer_host/cursor_manager.h"
 #include "content/browser/renderer_host/delegated_frame_host.h"
@@ -48,7 +46,6 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/common/content_switches.h"
 #include "media/base/video_frame.h"
-#include "ui/base/cursor/types/cursor_types.h"
 #include "ui/compositor/compositor.h"
 #include "ui/events/blink/blink_event_util.h"
 #include "ui/events/gesture_detection/gesture_provider_config_helper.h"
@@ -236,15 +233,11 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 
   external_begin_frame_enabled_ = use_external_begin_frame;
 
-  content::ImageTransportFactory* factory =
-      content::ImageTransportFactory::GetInstance();
-  ui::ContextFactoryPrivate* context_factory_private =
-      factory->GetContextFactoryPrivate();
+  auto context_factory = content::GetContextFactory();
 
   // Matching the attributes from RecyclableCompositorMac.
   compositor_.reset(new ui::Compositor(
-      context_factory_private->AllocateFrameSinkId(),
-      content::GetContextFactory(), context_factory_private,
+      context_factory->AllocateFrameSinkId(), context_factory,
       base::ThreadTaskRunnerHandle::Get(), false /* enable_pixel_canvas */,
       use_external_begin_frame));
   compositor_->SetAcceleratedWidget(gfx::kNullAcceleratedWidget);
@@ -447,8 +440,9 @@ base::Optional<SkColor> CefRenderWidgetHostViewOSR::GetBackgroundColor() {
 
 void CefRenderWidgetHostViewOSR::UpdateBackgroundColor() {}
 
-bool CefRenderWidgetHostViewOSR::LockMouse(bool request_unadjusted_movement) {
-  return false;
+blink::mojom::PointerLockResult CefRenderWidgetHostViewOSR::LockMouse(
+    bool request_unadjusted_movement) {
+  return blink::mojom::PointerLockResult::kPermissionDenied;
 }
 
 void CefRenderWidgetHostViewOSR::UnlockMouse() {}
@@ -588,39 +582,29 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
       browser_impl_->GetClient()->GetRenderHandler();
   CHECK(handler);
 
-  const content::CursorInfo& cursor_info = cursor.info();
+  const auto& ui_cursor = cursor.cursor();
 
   const cef_cursor_type_t cursor_type =
-      static_cast<cef_cursor_type_t>(cursor_info.type);
+      static_cast<cef_cursor_type_t>(ui_cursor.type());
   CefCursorInfo custom_cursor_info;
-  if (cursor_info.type == ui::CursorType::kCustom) {
-    custom_cursor_info.hotspot.x = cursor_info.hotspot.x();
-    custom_cursor_info.hotspot.y = cursor_info.hotspot.y();
-    custom_cursor_info.image_scale_factor = cursor_info.image_scale_factor;
-    custom_cursor_info.buffer = cursor_info.custom_image.getPixels();
-    custom_cursor_info.size.width = cursor_info.custom_image.width();
-    custom_cursor_info.size.height = cursor_info.custom_image.height();
+  if (ui_cursor.type() == ui::mojom::CursorType::kCustom) {
+    custom_cursor_info.hotspot.x = ui_cursor.custom_hotspot().x();
+    custom_cursor_info.hotspot.y = ui_cursor.custom_hotspot().y();
+    custom_cursor_info.image_scale_factor = ui_cursor.image_scale_factor();
+    custom_cursor_info.buffer = ui_cursor.custom_bitmap().getPixels();
+    custom_cursor_info.size.width = ui_cursor.custom_bitmap().width();
+    custom_cursor_info.size.height = ui_cursor.custom_bitmap().height();
   }
 
 #if defined(USE_AURA)
-  content::WebCursor web_cursor(cursor_info);
+  content::WebCursor web_cursor(ui_cursor);
 
   ui::PlatformCursor platform_cursor;
-  if (cursor_info.type == ui::CursorType::kCustom) {
-    ui::Cursor ui_cursor(ui::CursorType::kCustom);
-    SkBitmap bitmap;
-    gfx::Point hotspot;
-    float scale_factor;
-    web_cursor.CreateScaledBitmapAndHotspotFromCustomData(&bitmap, &hotspot,
-                                                          &scale_factor);
-    ui_cursor.set_custom_bitmap(bitmap);
-    ui_cursor.set_custom_hotspot(hotspot);
-    ui_cursor.set_device_scale_factor(scale_factor);
-
+  if (ui_cursor.type() == ui::mojom::CursorType::kCustom) {
     // |web_cursor| owns the resulting |platform_cursor|.
     platform_cursor = web_cursor.GetPlatformCursor(ui_cursor);
   } else {
-    platform_cursor = GetPlatformCursor(cursor_info.type);
+    platform_cursor = GetPlatformCursor(ui_cursor.type());
   }
 
   handler->OnCursorChange(browser_impl_.get(), platform_cursor, cursor_type,
@@ -1065,8 +1049,8 @@ void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
   if (render_widget_host_)
     render_widget_host_->ProgressFlingIfNeeded(frame_time);
 
-  compositor_->context_factory_private()->IssueExternalBeginFrame(
-      compositor_.get(), begin_frame_args, /* force= */ true,
+  compositor_->IssueExternalBeginFrame(
+      begin_frame_args, /* force= */ true,
       base::BindOnce(&CefRenderWidgetHostViewOSR::OnFrameComplete,
                      weak_ptr_factory_.GetWeakPtr()));
 

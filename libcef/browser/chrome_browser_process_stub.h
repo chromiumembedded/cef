@@ -98,6 +98,7 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   resource_coordinator::TabManager* GetTabManager() override;
   resource_coordinator::ResourceCoordinatorParts* resource_coordinator_parts()
       override;
+  BuildState* GetBuildState() override;
 
  private:
   bool initialized_;

@@ -378,7 +378,7 @@ CefValueController* CefValueImpl::GetValueController() const {
   return nullptr;
 }
 
-void CefValueImpl::AcquireLock() {
+void CefValueImpl::AcquireLock() NO_THREAD_SAFETY_ANALYSIS {
   lock_.Acquire();
 
   CefValueController* controller = GetValueController();
@@ -386,7 +386,7 @@ void CefValueImpl::AcquireLock() {
     controller->lock();
 }
 
-void CefValueImpl::ReleaseLock() {
+void CefValueImpl::ReleaseLock() NO_THREAD_SAFETY_ANALYSIS {
   CefValueController* controller = GetValueController();
   if (controller) {
     controller->AssertLockAcquired();

@@ -785,7 +785,6 @@ static_library("libcef_static") {
     "//components/safe_browsing/core/db:test_database_manager",
     "//components/services/print_compositor/public/cpp",
     "//components/services/print_compositor/public/mojom",
-    "//components/tracing",
     "//components/update_client",
     "//components/url_formatter",
     "//components/user_prefs",
@@ -1088,8 +1087,8 @@ static_library("libcef_static") {
         "//ui/aura/test/aura_test_utils.cc",
         "//ui/aura/test/aura_test_utils.h",
         # Part of //ui/events:test_support which is testingonly.
-        "//ui/events/test/platform_event_waiter.cc",
-        "//ui/events/test/platform_event_waiter.h",
+        "//ui/events/test/x11_event_waiter.cc",
+        "//ui/events/test/x11_event_waiter.h",
       ]
 
       if (use_x11) {
@@ -1583,6 +1582,7 @@ if (is_mac) {
       sources = [
         "$root_out_dir/egl_intermediates/libEGL.dylib",
         "$root_out_dir/egl_intermediates/libGLESv2.dylib",
+        "$root_out_dir/egl_intermediates/libvulkan.dylib",
       ]
       outputs = [
         "{{bundle_contents_dir}}/Libraries/{{source_file_part}}",
@@ -1597,12 +1597,15 @@ if (is_mac) {
       sources = [
         "$root_out_dir/egl_intermediates/libswiftshader_libEGL.dylib",
         "$root_out_dir/egl_intermediates/libswiftshader_libGLESv2.dylib",
+        "$root_out_dir/vk_intermediates/libvk_swiftshader.dylib",
+        "$root_out_dir/vk_intermediates/vk_swiftshader_icd.json",
       ]
       outputs = [
         "{{bundle_contents_dir}}/Libraries/{{source_file_part}}",
       ]
       public_deps = [
-        "//ui/gl:swiftshader_library_copy",
+        "//ui/gl:swiftshader_egl_library_copy",
+        "//ui/gl:swiftshader_vk_library_copy",
       ]
     }
   }
@@ -1691,11 +1694,6 @@ if (is_mac) {
       sources += gypi_paths2.includes_win + [
         "libcef_dll/libcef_dll.rc",
       ]
-
-      # This is a large module that can't do incremental linking in some cases.
-      configs -= [ "//build/config/win:default_incremental_linking" ]
-      configs +=
-          [ "//build/config/win:default_large_module_incremental_linking" ]
 
       deps += [ 
         # Bring in ui_unscaled_resources.rc which contains custom cursors.

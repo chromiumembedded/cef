@@ -13,6 +13,7 @@
 #include "base/logging.h"
 #include "base/memory/ref_counted.h"
 #include "base/synchronization/lock.h"
+#include "base/thread_annotations.h"
 #include "base/threading/platform_thread.h"
 
 // Controller implementation base class.
@@ -142,11 +143,11 @@ class CefValueControllerThreadSafe : public CefValueController {
   // CefValueController methods.
   bool thread_safe() override { return true; }
   bool on_correct_thread() override { return true; }
-  void lock() override {
+  void lock() override NO_THREAD_SAFETY_ANALYSIS {
     lock_.Acquire();
     locked_thread_id_ = base::PlatformThread::CurrentId();
   }
-  void unlock() override {
+  void unlock() override NO_THREAD_SAFETY_ANALYSIS {
     locked_thread_id_ = 0;
     lock_.Release();
   }

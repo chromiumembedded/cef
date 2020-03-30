@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 3c43cc752511..fbc476cc9023 100644
+index bd8f77e07208..325f4ba698ec 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -362,7 +362,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+@@ -364,7 +364,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
    registrar_.Add(this, chrome::NOTIFICATION_BROWSER_CLOSE_CANCELLED,
                   content::NotificationService::AllSources());
  
@@ -12,7 +12,7 @@ index 3c43cc752511..fbc476cc9023 100644
  }
  
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index f4c3c9e25190..dd91e00d3001 100644
+index 3e1e28ea7d0e..b70f718c8e94 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
 @@ -101,7 +101,7 @@ class ProfileManager : public content::NotificationObserver,
@@ -43,7 +43,7 @@ index f4c3c9e25190..dd91e00d3001 100644
    // Get the path of the last used profile, or if that's undefined, the default
    // profile.
 diff --git chrome/browser/profiles/renderer_updater.cc chrome/browser/profiles/renderer_updater.cc
-index ce50c9ee3f92..eba0894ee2b4 100644
+index c1792eccd997..6c34846b7947 100644
 --- chrome/browser/profiles/renderer_updater.cc
 +++ chrome/browser/profiles/renderer_updater.cc
 @@ -7,6 +7,7 @@
@@ -67,12 +67,3 @@ index ce50c9ee3f92..eba0894ee2b4 100644
  #if defined(OS_CHROMEOS)
    oauth2_login_manager_ =
        chromeos::OAuth2LoginManagerFactory::GetForProfile(profile_);
-@@ -233,7 +238,7 @@ void RendererUpdater::UpdateRenderer(
-           force_google_safesearch_.GetValue(),
-           force_youtube_restrict_.GetValue(),
-           allowed_domains_for_apps_.GetValue(),
--          identity_manager_->HasPrimaryAccount()
-+          identity_manager_ && identity_manager_->HasPrimaryAccount()
-               ? cached_variation_ids_header_signed_in_
-               : cached_variation_ids_header_));
- }

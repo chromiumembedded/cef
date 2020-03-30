@@ -38,7 +38,7 @@ const int kOsrHeight = 400;
 #if defined(OS_WIN)
 const CefRect kExpandedSelectRect(462, 42, 81, 334);
 #elif defined(OS_MACOSX)
-const CefRect kExpandedSelectRect(462, 42, 75, 286);
+const CefRect kExpandedSelectRect(462, 42, 75, 334);
 #elif defined(OS_LINUX)
 const CefRect kExpandedSelectRect(462, 42, 79, 334);
 #else

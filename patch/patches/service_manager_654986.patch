@@ -1,8 +1,21 @@
+diff --git base/memory/shared_memory_hooks.h base/memory/shared_memory_hooks.h
+index 4404b54c22a4..fa3138003032 100644
+--- base/memory/shared_memory_hooks.h
++++ base/memory/shared_memory_hooks.h
+@@ -24,7 +24,7 @@ class SharedMemoryHooks {
+ 
+  private:
+   friend class SharedMemoryHooksTest;
+-  friend int service_manager::Main(const service_manager::MainParams&);
++  friend int service_manager::MainInitialize(service_manager::MainParams&);
+ 
+   // Allows shared memory region creation to be hooked. Useful for sandboxed
+   // processes that are restricted from invoking the platform APIs directly.
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index 53e9e0aafc49..20b13ebc17b5 100644
+index b338bbff49ff..a0645251504b 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
-@@ -241,22 +241,36 @@ int RunService(MainDelegate* delegate) {
+@@ -244,22 +244,36 @@ int RunService(MainDelegate* delegate) {
    return 0;
  }
  
@@ -43,7 +56,7 @@ index 53e9e0aafc49..20b13ebc17b5 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -342,12 +356,7 @@ int Main(const MainParams& params) {
+@@ -345,12 +359,7 @@ int Main(const MainParams& params) {
      MainDelegate::InitializeParams init_params;
  
  #if defined(OS_MACOSX)
@@ -57,7 +70,7 @@ index 53e9e0aafc49..20b13ebc17b5 100644
      InitializeMac();
  #endif
  
-@@ -391,18 +400,16 @@ int Main(const MainParams& params) {
+@@ -423,18 +432,16 @@ int Main(const MainParams& params) {
      }
    }
  
@@ -85,7 +98,7 @@ index 53e9e0aafc49..20b13ebc17b5 100644
    switch (process_type) {
      case ProcessType::kDefault:
        NOTREACHED();
-@@ -424,6 +431,8 @@ int Main(const MainParams& params) {
+@@ -456,6 +463,8 @@ int Main(const MainParams& params) {
        break;
    }
  
@@ -94,7 +107,7 @@ index 53e9e0aafc49..20b13ebc17b5 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -435,13 +444,38 @@ int Main(const MainParams& params) {
+@@ -467,13 +476,38 @@ int Main(const MainParams& params) {
      }
    }
  

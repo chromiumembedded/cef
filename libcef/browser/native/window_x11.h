@@ -16,6 +16,7 @@ typedef struct _XDisplay Display;
 
 #include "base/memory/weak_ptr.h"
 #include "ui/events/platform/platform_event_dispatcher.h"
+#include "ui/events/platform/x11/x11_event_source.h"
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/x/x11_atom_cache.h"
 
@@ -25,7 +26,8 @@ class DesktopWindowTreeHostX11;
 
 // Object wrapper for an X11 Window.
 // Based on WindowTreeHostX11 and DesktopWindowTreeHostX11.
-class CefWindowX11 : public ui::PlatformEventDispatcher {
+class CefWindowX11 : public ui::PlatformEventDispatcher,
+                     public ui::XEventDispatcher {
  public:
   CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
                ::Window parent_xwindow,
@@ -50,6 +52,12 @@ class CefWindowX11 : public ui::PlatformEventDispatcher {
   bool CanDispatchEvent(const ui::PlatformEvent& event) override;
   uint32_t DispatchEvent(const ui::PlatformEvent& event) override;
 
+  // ui::XEventDispatcher methods:
+  void CheckCanDispatchNextPlatformEvent(XEvent* xev) override;
+  void PlatformEventDispatchFinished() override;
+  ui::PlatformEventDispatcher* GetPlatformEventDispatcher() override;
+  bool DispatchXEvent(XEvent* event) override;
+
   ::Window xwindow() const { return xwindow_; }
   gfx::Rect bounds() const { return bounds_; }
 
@@ -57,6 +65,9 @@ class CefWindowX11 : public ui::PlatformEventDispatcher {
 
  private:
   void ContinueFocus();
+
+  bool IsTargetedBy(const XEvent& xev) const;
+  void ProcessXEvent(XEvent* xev);
 
   CefRefPtr<CefBrowserHostImpl> browser_;
 
@@ -72,6 +83,11 @@ class CefWindowX11 : public ui::PlatformEventDispatcher {
   gfx::Rect bounds_;
 
   bool focus_pending_;
+
+  // Tells if this dispatcher can process next translated event based on a
+  // previous check in ::CheckCanDispatchNextPlatformEvent based on a XID
+  // target.
+  XEvent* current_xevent_ = nullptr;
 
   // Must always be the last member.
   base::WeakPtrFactory<CefWindowX11> weak_ptr_factory_;

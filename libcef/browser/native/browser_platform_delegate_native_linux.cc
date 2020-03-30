@@ -258,10 +258,10 @@ void CefBrowserPlatformDelegate::HandleExternalProtocol(const GURL& url) {}
 
 CefEventHandle CefBrowserPlatformDelegateNativeLinux::GetEventHandle(
     const content::NativeWebKeyboardEvent& event) const {
-  if (!event.os_event)
-    return nullptr;
-  return const_cast<CefEventHandle>(
-      static_cast<CefEventHandle>(event.os_event->native_event()));
+  // TODO(cef): We need to return an XEvent* from this method, but
+  // |event.os_event->native_event()| now returns a ui::Event* instead.
+  // See https://crbug.com/965991.
+  return nullptr;
 }
 
 std::unique_ptr<CefMenuRunner>

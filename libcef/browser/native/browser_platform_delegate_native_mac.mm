@@ -526,8 +526,7 @@ CefBrowserPlatformDelegateNativeMac::TranslateWebWheelEvent(
   result.delta_y = deltaY;
   result.wheel_ticks_x = deltaX / scrollbarPixelsPerCocoaTick;
   result.wheel_ticks_y = deltaY / scrollbarPixelsPerCocoaTick;
-  result.delta_units =
-      ui::input_types::ScrollGranularity::kScrollByPrecisePixel;
+  result.delta_units = ui::ScrollGranularity::kScrollByPrecisePixel;
 
   if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
     result.button = blink::WebMouseEvent::Button::kLeft;

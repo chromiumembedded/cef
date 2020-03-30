@@ -28,7 +28,7 @@
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
 #include "content/browser/renderer_host/text_input_manager.h"
 #include "content/public/common/widget_type.h"
-#include "ui/base/cursor/types/cursor_types.h"
+#include "ui/base/mojom/cursor_type.mojom-shared.h"
 #include "ui/compositor/compositor.h"
 #include "ui/events/base_event_utils.h"
 #include "ui/events/gesture_detection/filtered_gesture_provider.h"
@@ -49,7 +49,6 @@
 #endif
 
 #if defined(USE_AURA)
-#include "third_party/blink/public/platform/web_cursor_info.h"
 #include "ui/base/cursor/cursor.h"
 #endif
 
@@ -124,7 +123,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void SetBackgroundColor(SkColor color) override;
   base::Optional<SkColor> GetBackgroundColor() override;
   void UpdateBackgroundColor() override;
-  bool LockMouse(bool request_unadjusted_movement) override;
+  blink::mojom::PointerLockResult LockMouse(
+      bool request_unadjusted_movement) override;
   void UnlockMouse() override;
   void TakeFallbackContentFrom(content::RenderWidgetHostView* view) override;
 
@@ -321,7 +321,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void UpdateBackgroundColorFromRenderer(SkColor color);
 
 #if defined(USE_AURA)
-  ui::PlatformCursor GetPlatformCursor(ui::CursorType type);
+  ui::PlatformCursor GetPlatformCursor(ui::mojom::CursorType type);
 #endif
 
   // The background color of the web content.

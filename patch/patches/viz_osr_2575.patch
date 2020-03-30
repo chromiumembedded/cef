@@ -80,7 +80,7 @@ index 1026b739d283..fe562ab60ce9 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 7a1277ad28ed..4a426441e505 100644
+index 84a16ad496b5..79db9031051e 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -13,7 +13,10 @@ config("viz_service_implementation") {
@@ -95,7 +95,7 @@ index 7a1277ad28ed..4a426441e505 100644
      "display/bsp_tree.h",
      "display/bsp_walk_action.cc",
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index 97feccc71b94..4388a702977f 100644
+index b4d4b1c1c597..9ce685048ab1 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
 @@ -13,6 +13,7 @@
@@ -106,7 +106,7 @@ index 97feccc71b94..4388a702977f 100644
  #include "components/viz/common/display/renderer_settings.h"
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
  #include "components/viz/service/display_embedder/gl_output_surface.h"
-@@ -242,6 +243,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+@@ -224,6 +225,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
    if (headless_)
      return std::make_unique<SoftwareOutputDevice>();
  
@@ -128,7 +128,7 @@ index 97feccc71b94..4388a702977f 100644
    return CreateSoftwareOutputDeviceWin(surface_handle, &output_device_backing_,
                                         display_client);
 diff --git components/viz/service/display_embedder/software_output_device_win.cc components/viz/service/display_embedder/software_output_device_win.cc
-index bb07c338fac5..60441480f981 100644
+index 94ea55487f85..542ec00f4a7f 100644
 --- components/viz/service/display_embedder/software_output_device_win.cc
 +++ components/viz/service/display_embedder/software_output_device_win.cc
 @@ -268,8 +268,9 @@ void SoftwareOutputDeviceWinProxy::EndPaintDelegated(
@@ -143,11 +143,31 @@ index bb07c338fac5..60441480f981 100644
    waiting_on_draw_ack_ = true;
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
+diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
+index 8e10af98f2b0..d39fc7ec7b4c 100644
+--- content/browser/compositor/viz_process_transport_factory.cc
++++ content/browser/compositor/viz_process_transport_factory.cc
+@@ -404,8 +404,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+   compositor_data.display_private.reset();
+   root_params->display_private =
+       compositor_data.display_private.BindNewEndpointAndPassReceiver();
+-  compositor_data.display_client =
+-      std::make_unique<HostDisplayClient>(compositor);
++  if (compositor->delegate()) {
++    compositor_data.display_client =
++        compositor->delegate()->CreateHostDisplayClient();
++  } else {
++    compositor_data.display_client =
++        std::make_unique<HostDisplayClient>(compositor);
++  }
+   root_params->display_client =
+       compositor_data.display_client->GetBoundRemote(resize_task_runner_);
+ 
 diff --git mojo/public/cpp/bindings/sync_call_restrictions.h mojo/public/cpp/bindings/sync_call_restrictions.h
-index ac94eab98fd0..b89d52a0c869 100644
+index 60e114920575..01f2ce164a3b 100644
 --- mojo/public/cpp/bindings/sync_call_restrictions.h
 +++ mojo/public/cpp/bindings/sync_call_restrictions.h
-@@ -29,6 +29,7 @@ class HostContextFactoryPrivate;
+@@ -29,6 +29,7 @@ class Compositor;
  
  namespace viz {
  class HostFrameSinkManager;
@@ -158,17 +178,17 @@ index ac94eab98fd0..b89d52a0c869 100644
 @@ -82,6 +83,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
    // For preventing frame swaps of wrong size during resize on Windows.
    // (https://crbug.com/811945)
-   friend class ui::HostContextFactoryPrivate;
-+  // For query of whether to use SoftwareOutputDevice or not
+   friend class ui::Compositor;
++  // For query of whether to use SoftwareOutputDevice or not.
 +  friend class viz::GpuDisplayProvider;
    // END ALLOWED USAGE.
  
  #if ENABLE_SYNC_CALL_RESTRICTIONS
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index 609ded904478..7b326b2e0364 100644
+index d36f62e6ee41..e8ec62cda569 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
-@@ -75,12 +75,14 @@ interface DisplayPrivate {
+@@ -74,12 +74,14 @@ interface DisplayPrivate {
  };
  
  interface DisplayClient {
@@ -196,7 +216,7 @@ index 6b7fbb6cf13d..e2af75168cb9 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 443406844ecf..b7a48194e9d9 100644
+index 3e2d2304faf7..f0029d34f591 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -23,7 +23,9 @@
@@ -209,8 +229,8 @@ index 443406844ecf..b7a48194e9d9 100644
  #include "mojo/public/cpp/bindings/pending_remote.h"
  #include "services/viz/privileged/mojom/compositing/vsync_parameter_observer.mojom-forward.h"
  #include "third_party/skia/include/core/SkColor.h"
-@@ -166,6 +168,14 @@ class COMPOSITOR_EXPORT ContextFactory {
-   virtual cc::TaskGraphRunner* GetTaskGraphRunner() = 0;
+@@ -122,6 +124,14 @@ class COMPOSITOR_EXPORT ContextFactory {
+   virtual viz::HostFrameSinkManager* GetHostFrameSinkManager() = 0;
  };
  
 +class COMPOSITOR_EXPORT CompositorDelegate {
@@ -224,7 +244,7 @@ index 443406844ecf..b7a48194e9d9 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -205,6 +215,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -155,6 +165,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -234,32 +254,12 @@ index 443406844ecf..b7a48194e9d9 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -422,6 +435,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
-   ui::ContextFactory* context_factory_;
-   ui::ContextFactoryPrivate* context_factory_private_;
+@@ -390,6 +403,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+ 
+   std::unique_ptr<PendingBeginFrameArgs> pending_begin_frame_args_;
  
 +  CompositorDelegate* delegate_ = nullptr;
 +
    // The root of the Layer tree drawn by this compositor.
    Layer* root_layer_ = nullptr;
- 
-diff --git ui/compositor/host/host_context_factory_private.cc ui/compositor/host/host_context_factory_private.cc
-index 1db09f76243c..2b3096ebc4d3 100644
---- ui/compositor/host/host_context_factory_private.cc
-+++ ui/compositor/host/host_context_factory_private.cc
-@@ -112,8 +112,13 @@ void HostContextFactoryPrivate::ConfigureCompositor(
-   compositor_data.display_private.reset();
-   root_params->display_private =
-       compositor_data.display_private.BindNewEndpointAndPassReceiver();
--  compositor_data.display_client =
--      std::make_unique<HostDisplayClient>(compositor);
-+  if (compositor->delegate()) {
-+    compositor_data.display_client =
-+        compositor->delegate()->CreateHostDisplayClient();
-+  } else {
-+    compositor_data.display_client =
-+        std::make_unique<HostDisplayClient>(compositor);
-+  }
-   root_params->display_client =
-       compositor_data.display_client->GetBoundRemote(resize_task_runner_);
  

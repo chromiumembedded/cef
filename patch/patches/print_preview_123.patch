@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index c880e6ba1766..d168a5fb44bb 100644
+index 332aa3a417e8..094523fc1d6b 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -22,6 +22,7 @@
@@ -34,7 +34,7 @@ index c880e6ba1766..d168a5fb44bb 100644
  
  bool DownloadPrefs::IsFromTrustedSource(const download::DownloadItem& item) {
 diff --git chrome/browser/printing/print_preview_dialog_controller.cc chrome/browser/printing/print_preview_dialog_controller.cc
-index 8c2609b8447c..f113149a30e8 100644
+index 84818167bce1..cdbd3f7f6f27 100644
 --- chrome/browser/printing/print_preview_dialog_controller.cc
 +++ chrome/browser/printing/print_preview_dialog_controller.cc
 @@ -16,6 +16,7 @@
@@ -45,7 +45,7 @@ index 8c2609b8447c..f113149a30e8 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/extensions/chrome_extension_web_contents_observer.h"
  #include "chrome/browser/printing/print_view_manager.h"
-@@ -450,8 +451,11 @@ WebContents* PrintPreviewDialogController::CreatePrintPreviewDialog(
+@@ -451,8 +452,11 @@ WebContents* PrintPreviewDialogController::CreatePrintPreviewDialog(
    content::HostZoomMap::Get(preview_dialog->GetSiteInstance())
        ->SetZoomLevelForHostAndScheme(print_url.scheme(), print_url.host(), 0);
    PrintViewManager::CreateForWebContents(preview_dialog);
@@ -112,10 +112,10 @@ index b59728f623e3..6fd443962836 100644
  
  ConstrainedWebDialogUI::~ConstrainedWebDialogUI() {
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
-index c87e8694d1fa..af5f4126fd3d 100644
+index 394ce8f66012..fe0e14e27fd1 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 +++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
-@@ -177,8 +177,10 @@ PdfPrinterHandler::PdfPrinterHandler(
+@@ -178,8 +178,10 @@ PdfPrinterHandler::PdfPrinterHandler(
        sticky_settings_(sticky_settings) {}
  
  PdfPrinterHandler::~PdfPrinterHandler() {
@@ -126,7 +126,7 @@ index c87e8694d1fa..af5f4126fd3d 100644
  }
  
  void PdfPrinterHandler::Reset() {
-@@ -227,12 +229,14 @@ void PdfPrinterHandler::StartPrint(
+@@ -226,12 +228,14 @@ void PdfPrinterHandler::StartPrint(
      return;
    }
  
@@ -141,7 +141,7 @@ index c87e8694d1fa..af5f4126fd3d 100644
  
    DCHECK(!print_callback_);
    print_callback_ = std::move(callback);
-@@ -372,7 +376,11 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
+@@ -370,7 +374,11 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
    // If the directory is empty there is no reason to create it or use the
    // default location.
    if (path.empty()) {
@@ -153,9 +153,9 @@ index c87e8694d1fa..af5f4126fd3d 100644
      return;
    }
  
-@@ -383,8 +391,14 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
-       FROM_HERE,
-       {base::ThreadPool(), base::MayBlock(), base::TaskPriority::BEST_EFFORT},
+@@ -380,8 +388,14 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
+   base::ThreadPool::PostTaskAndReplyWithResult(
+       FROM_HERE, {base::MayBlock(), base::TaskPriority::BEST_EFFORT},
        base::BindOnce(&SelectSaveDirectory, path, default_path),
 +#if !BUILDFLAG(ENABLE_CEF)
        base::BindOnce(&PdfPrinterHandler::OnDirectorySelected,
@@ -168,7 +168,7 @@ index c87e8694d1fa..af5f4126fd3d 100644
  }
  
  void PdfPrinterHandler::PostPrintToPdfTask() {
-@@ -401,6 +415,7 @@ void PdfPrinterHandler::OnGotUniqueFileName(const base::FilePath& path) {
+@@ -397,6 +411,7 @@ void PdfPrinterHandler::OnGotUniqueFileName(const base::FilePath& path) {
    FileSelected(path, 0, nullptr);
  }
  
@@ -176,7 +176,7 @@ index c87e8694d1fa..af5f4126fd3d 100644
  void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
                                              const base::FilePath& directory) {
    base::FilePath path = directory.Append(filename);
-@@ -425,5 +440,36 @@ void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
+@@ -421,5 +436,36 @@ void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
        &file_type_info, 0, base::FilePath::StringType(),
        platform_util::GetTopLevel(preview_web_contents_->GetNativeView()), NULL);
  }
@@ -262,7 +262,7 @@ index 0881b3dd9303..4df6883d4d05 100644
    Profile* const profile_;
    PrintPreviewStickySettings* const sticky_settings_;
 diff --git chrome/browser/ui/webui/print_preview/print_preview_handler.cc chrome/browser/ui/webui/print_preview/print_preview_handler.cc
-index b5370dedff93..e9966c08b4f8 100644
+index c0823ff96ee0..1897338ee4e6 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 @@ -27,6 +27,7 @@
@@ -273,7 +273,7 @@ index b5370dedff93..e9966c08b4f8 100644
  #include "chrome/browser/app_mode/app_mode_utils.h"
  #include "chrome/browser/bad_message.h"
  #include "chrome/browser/browser_process.h"
-@@ -1149,7 +1150,7 @@ void PrintPreviewHandler::SendInitialSettings(
+@@ -1146,7 +1147,7 @@ void PrintPreviewHandler::SendInitialSettings(
      initial_settings.SetKey(kPolicies, std::move(policies));
  
    if (IsCloudPrintEnabled() &&
@@ -282,7 +282,7 @@ index b5370dedff93..e9966c08b4f8 100644
      initial_settings.SetStringKey(
          kCloudPrintURL, GURL(cloud_devices::GetCloudPrintURL()).spec());
    }
-@@ -1414,6 +1415,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
+@@ -1411,6 +1412,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
      }
      return privet_printer_handler_.get();
    }
@@ -292,7 +292,7 @@ index b5370dedff93..e9966c08b4f8 100644
  #endif
    if (printer_type == PrinterType::kPdfPrinter) {
      if (!pdf_printer_handler_) {
-@@ -1433,7 +1437,7 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
+@@ -1430,7 +1434,7 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
    if (printer_type == PrinterType::kCloudPrinter) {
      // This printer handler is currently experimental. Ensure it is never
      // created unless the flag is enabled.
@@ -301,7 +301,7 @@ index b5370dedff93..e9966c08b4f8 100644
      if (!cloud_printer_handler_)
        cloud_printer_handler_ = PrinterHandler::CreateForCloudPrinters();
      return cloud_printer_handler_.get();
-@@ -1496,6 +1500,7 @@ void PrintPreviewHandler::OnPrintResult(const std::string& callback_id,
+@@ -1493,6 +1497,7 @@ void PrintPreviewHandler::OnPrintResult(const std::string& callback_id,
  }
  
  void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
@@ -309,7 +309,7 @@ index b5370dedff93..e9966c08b4f8 100644
    DCHECK(!identity_manager_);
    cloud_print_enabled_ =
        !base::Contains(printer_type_deny_list_, kCloudPrinter) &&
-@@ -1512,6 +1517,7 @@ void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
+@@ -1509,6 +1514,7 @@ void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
  
    identity_manager_ = IdentityManagerFactory::GetForProfile(profile);
    identity_manager_->AddObserver(this);
@@ -318,7 +318,7 @@ index b5370dedff93..e9966c08b4f8 100644
  
  void PrintPreviewHandler::UnregisterForGaiaCookieChanges() {
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index 758f61539d5e..37cd13836464 100644
+index 4e2e925da7c9..b4c622ce6c7f 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -24,6 +24,7 @@
@@ -329,7 +329,7 @@ index 758f61539d5e..37cd13836464 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/browser_process_platform_part.h"
  #include "chrome/browser/printing/background_printing_manager.h"
-@@ -77,12 +78,16 @@ namespace printing {
+@@ -76,12 +77,16 @@ namespace printing {
  
  namespace {
  
@@ -346,7 +346,7 @@ index 758f61539d5e..37cd13836464 100644
  
  #if !BUILDFLAG(OPTIMIZE_WEBUI)
  constexpr char kGeneratedPath[] =
-@@ -335,7 +340,7 @@ void AddPrintPreviewFlags(content::WebUIDataSource* source, Profile* profile) {
+@@ -334,7 +339,7 @@ void AddPrintPreviewFlags(content::WebUIDataSource* source, Profile* profile) {
    source->AddBoolean("isEnterpriseManaged", enterprise_managed);
  
    bool cloud_printer_handler_enabled =

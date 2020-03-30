@@ -84,12 +84,6 @@ void CefRenderThreadObserver::SetConfiguration(
 void CefRenderThreadObserver::SetContentSettingRules(
     const RendererContentSettingRules& rules) {}
 
-void CefRenderThreadObserver::SetFieldTrialGroup(
-    const std::string& trial_name,
-    const std::string& group_name) {
-  content::RenderThread::Get()->SetFieldTrialGroup(trial_name, group_name);
-}
-
 void CefRenderThreadObserver::OnRendererConfigurationAssociatedRequest(
     mojo::PendingAssociatedReceiver<chrome::mojom::RendererConfiguration>
         receiver) {

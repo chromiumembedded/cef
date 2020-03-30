@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index ea2e52bf16dd..d77c3f7b991a 100644
+index b57520fe4254..0aa0a4a7c058 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -2062,15 +2062,22 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2066,15 +2066,22 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -33,7 +33,7 @@ index ea2e52bf16dd..d77c3f7b991a 100644
    }
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
-@@ -2881,6 +2888,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
+@@ -2894,6 +2901,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -46,10 +46,10 @@ index ea2e52bf16dd..d77c3f7b991a 100644
 +                                        &create_params.delegate_view);
 +  }
 +
-   // If |is_new_browsing_instance| is true, defer routing_id allocation
-   // to the WebContentsImpl::Create() call. This is required because with
-   // a new browsing instance, WebContentsImpl::Create() may elect a different
-@@ -6308,6 +6324,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+   std::unique_ptr<WebContentsImpl> new_contents;
+   if (!is_guest) {
+     create_params.context = view_->GetNativeView();
+@@ -6356,6 +6372,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // This is an outermost WebContents.
      SetAsFocusedWebContentsIfNecessary();
    }
@@ -60,23 +60,23 @@ index ea2e52bf16dd..d77c3f7b991a 100644
  
  void WebContentsImpl::DidCallFocus() {
 diff --git content/public/browser/web_contents.cc content/public/browser/web_contents.cc
-index 2e133afb8da8..e9a88a6bb96b 100644
+index d1d8ff84e1d2..e7cca94f8647 100644
 --- content/public/browser/web_contents.cc
 +++ content/public/browser/web_contents.cc
-@@ -31,6 +31,8 @@ WebContents::CreateParams::CreateParams(BrowserContext* context,
+@@ -28,6 +28,8 @@ WebContents::CreateParams::CreateParams(BrowserContext* context,
        renderer_initiated_creation(false),
        desired_renderer_state(kOkayToHaveRendererProcess),
-       starting_sandbox_flags(blink::WebSandboxFlags::kNone),
+       starting_sandbox_flags(blink::mojom::WebSandboxFlags::kNone),
 +      view(nullptr),
 +      delegate_view(nullptr),
        is_never_visible(false) {}
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 40e1e940f87b..e08b16c26327 100644
+index cf98180740c4..c4eba9a42702 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
-@@ -79,9 +79,11 @@ class BrowserPluginGuestDelegate;
+@@ -82,9 +82,11 @@ class BrowserPluginGuestDelegate;
  class InterstitialPage;
  class RenderFrameHost;
  class RenderViewHost;
@@ -85,12 +85,12 @@ index 40e1e940f87b..e08b16c26327 100644
  class RenderWidgetHostView;
  class WebContentsDelegate;
 +class WebContentsView;
+ class WebUI;
  struct CustomContextMenuContext;
  struct DropData;
- struct FaviconURL;
-@@ -217,6 +219,10 @@ class WebContents : public PageNavigator,
+@@ -212,6 +214,10 @@ class WebContents : public PageNavigator,
      // Sandboxing flags set on the new WebContents.
-     blink::WebSandboxFlags starting_sandbox_flags;
+     blink::mojom::WebSandboxFlags starting_sandbox_flags;
  
 +    // Optionally specify the view and delegate view.
 +    content::WebContentsView* view;
@@ -100,7 +100,7 @@ index 40e1e940f87b..e08b16c26327 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index c2ff64f8b998..d4eb13585b71 100644
+index c20a325ff586..874490e1c878 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -57,10 +57,12 @@ class ColorChooser;
@@ -132,7 +132,7 @@ index c2ff64f8b998..d4eb13585b71 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index 7e1da29cb558..8ab2490bf689 100644
+index 7bc8aae9b388..81cf86ef7990 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
 @@ -585,6 +585,10 @@ class CONTENT_EXPORT WebContentsObserver : public IPC::Listener {

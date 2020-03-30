@@ -31,6 +31,7 @@
 #include "net/base/load_flags.h"
 #include "net/http/http_status_code.h"
 #include "net/http/http_util.h"
+#include "third_party/blink/public/mojom/loader/resource_load_info.mojom-shared.h"
 #include "ui/base/page_transition_types.h"
 #include "url/origin.h"
 
@@ -1202,8 +1203,8 @@ void InitOnUIThread(
   if (request.render_frame_id >= 0) {
     // TODO(network): Are these main frame checks equivalent?
     if (request.is_main_frame ||
-        static_cast<content::ResourceType>(request.resource_type) ==
-            content::ResourceType::kMainFrame) {
+        static_cast<blink::mojom::ResourceType>(request.resource_type) ==
+            blink::mojom::ResourceType::kMainFrame) {
       frame = web_contents->GetMainFrame();
       DCHECK(frame);
     } else {

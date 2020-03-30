@@ -784,7 +784,7 @@ void CefMainDelegate::PreSandboxStartup() {
   crash_reporting::PreSandboxStartup(*command_line, process_type);
 
   InitializeResourceBundle();
-  InitializePDF();
+  MaybeInitializeGDI();
 }
 
 void CefMainDelegate::SandboxInitialized(const std::string& process_type) {

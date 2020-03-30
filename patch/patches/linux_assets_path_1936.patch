@@ -1,5 +1,5 @@
 diff --git content/browser/child_process_launcher_helper_linux.cc content/browser/child_process_launcher_helper_linux.cc
-index ea5258a03f83..843f28411eea 100644
+index e53e60ef146f..9b6db4a69d41 100644
 --- content/browser/child_process_launcher_helper_linux.cc
 +++ content/browser/child_process_launcher_helper_linux.cc
 @@ -164,7 +164,7 @@ void ChildProcessLauncherHelper::SetProcessPriorityOnLauncherThread(
@@ -25,7 +25,7 @@ index 0aaed76c1dda..517c3d8b5772 100644
      if (base::PathExists(sandbox_candidate))
        sandbox_binary = sandbox_candidate;
 diff --git ui/gl/init/gl_initializer_x11.cc ui/gl/init/gl_initializer_x11.cc
-index 995d4399165e..b0381d77a507 100644
+index d9190a957ca2..50bb49eaf56c 100644
 --- ui/gl/init/gl_initializer_x11.cc
 +++ ui/gl/init/gl_initializer_x11.cc
 @@ -86,7 +86,7 @@ bool InitializeStaticEGLInternal(GLImplementation implementation) {

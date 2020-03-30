@@ -47,6 +47,8 @@
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_service.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
+#include "components/favicon/core/favicon_url.h"
+#include "components/spellcheck/common/spellcheck_features.h"
 #include "components/zoom/zoom_controller.h"
 #include "content/browser/gpu/compositor_util.h"
 #include "content/browser/web_contents/web_contents_impl.h"
@@ -69,7 +71,6 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/web_contents.h"
-#include "content/public/common/favicon_url.h"
 #include "extensions/browser/process_manager.h"
 #include "net/base/net_errors.h"
 #include "third_party/blink/public/mojom/frame/find_in_page.mojom.h"
@@ -1056,16 +1057,18 @@ void CefBrowserHostImpl::AddWordToDictionary(const CefString& word) {
   if (!web_contents())
     return;
 
+  SpellcheckService* spellcheck = nullptr;
   content::BrowserContext* browser_context =
       web_contents()->GetBrowserContext();
   if (browser_context) {
-    SpellcheckService* spellcheck =
-        SpellcheckServiceFactory::GetForContext(browser_context);
+    spellcheck = SpellcheckServiceFactory::GetForContext(browser_context);
     if (spellcheck)
       spellcheck->GetCustomDictionary()->AddWord(word);
   }
 #if defined(OS_MACOSX)
-  spellcheck_platform::AddWord(word);
+  if (spellcheck && spellcheck::UseBrowserSpellChecker()) {
+    spellcheck_platform::AddWord(spellcheck->platform_spell_checker(), word);
+  }
 #endif
 }
 
@@ -2679,15 +2682,14 @@ void CefBrowserHostImpl::PluginCrashed(const base::FilePath& plugin_path,
 }
 
 void CefBrowserHostImpl::DidUpdateFaviconURL(
-    const std::vector<content::FaviconURL>& candidates) {
+    const std::vector<blink::mojom::FaviconURLPtr>& candidates) {
   if (client_.get()) {
     CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
     if (handler.get()) {
       std::vector<CefString> icon_urls;
-      std::vector<content::FaviconURL>::const_iterator it = candidates.begin();
-      for (; it != candidates.end(); ++it) {
-        if (it->icon_type == content::FaviconURL::IconType::kFavicon)
-          icon_urls.push_back(it->icon_url.spec());
+      for (const auto& icon : candidates) {
+        if (icon->icon_type == blink::mojom::FaviconIconType::kFavicon)
+          icon_urls.push_back(icon->icon_url.spec());
       }
       if (!icon_urls.empty())
         handler->OnFaviconURLChange(this, icon_urls);

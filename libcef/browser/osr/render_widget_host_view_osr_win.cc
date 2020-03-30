@@ -10,7 +10,6 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/content_browser_client.h"
 
-#include "third_party/blink/public/platform/web_cursor_info.h"
 #include "ui/resources/grit/ui_unscaled_resources.h"
 
 namespace {
@@ -39,112 +38,110 @@ class CefCompositorHostWin : public gfx::WindowImpl {
 
 // From content/common/cursors/webcursor_win.cc.
 
-using blink::WebCursorInfo;
-
-LPCWSTR ToCursorID(ui::CursorType type) {
+LPCWSTR ToCursorID(ui::mojom::CursorType type) {
   switch (type) {
-    case ui::CursorType::kPointer:
+    case ui::mojom::CursorType::kPointer:
       return IDC_ARROW;
-    case ui::CursorType::kCross:
+    case ui::mojom::CursorType::kCross:
       return IDC_CROSS;
-    case ui::CursorType::kHand:
+    case ui::mojom::CursorType::kHand:
       return IDC_HAND;
-    case ui::CursorType::kIBeam:
+    case ui::mojom::CursorType::kIBeam:
       return IDC_IBEAM;
-    case ui::CursorType::kWait:
+    case ui::mojom::CursorType::kWait:
       return IDC_WAIT;
-    case ui::CursorType::kHelp:
+    case ui::mojom::CursorType::kHelp:
       return IDC_HELP;
-    case ui::CursorType::kEastResize:
+    case ui::mojom::CursorType::kEastResize:
       return IDC_SIZEWE;
-    case ui::CursorType::kNorthResize:
+    case ui::mojom::CursorType::kNorthResize:
       return IDC_SIZENS;
-    case ui::CursorType::kNorthEastResize:
+    case ui::mojom::CursorType::kNorthEastResize:
       return IDC_SIZENESW;
-    case ui::CursorType::kNorthWestResize:
+    case ui::mojom::CursorType::kNorthWestResize:
       return IDC_SIZENWSE;
-    case ui::CursorType::kSouthResize:
+    case ui::mojom::CursorType::kSouthResize:
       return IDC_SIZENS;
-    case ui::CursorType::kSouthEastResize:
+    case ui::mojom::CursorType::kSouthEastResize:
       return IDC_SIZENWSE;
-    case ui::CursorType::kSouthWestResize:
+    case ui::mojom::CursorType::kSouthWestResize:
       return IDC_SIZENESW;
-    case ui::CursorType::kWestResize:
+    case ui::mojom::CursorType::kWestResize:
       return IDC_SIZEWE;
-    case ui::CursorType::kNorthSouthResize:
+    case ui::mojom::CursorType::kNorthSouthResize:
       return IDC_SIZENS;
-    case ui::CursorType::kEastWestResize:
+    case ui::mojom::CursorType::kEastWestResize:
       return IDC_SIZEWE;
-    case ui::CursorType::kNorthEastSouthWestResize:
+    case ui::mojom::CursorType::kNorthEastSouthWestResize:
       return IDC_SIZENESW;
-    case ui::CursorType::kNorthWestSouthEastResize:
+    case ui::mojom::CursorType::kNorthWestSouthEastResize:
       return IDC_SIZENWSE;
-    case ui::CursorType::kColumnResize:
+    case ui::mojom::CursorType::kColumnResize:
       return MAKEINTRESOURCE(IDC_COLRESIZE);
-    case ui::CursorType::kRowResize:
+    case ui::mojom::CursorType::kRowResize:
       return MAKEINTRESOURCE(IDC_ROWRESIZE);
-    case ui::CursorType::kMiddlePanning:
+    case ui::mojom::CursorType::kMiddlePanning:
       return MAKEINTRESOURCE(IDC_PAN_MIDDLE);
-    case ui::CursorType::kEastPanning:
+    case ui::mojom::CursorType::kEastPanning:
       return MAKEINTRESOURCE(IDC_PAN_EAST);
-    case ui::CursorType::kNorthPanning:
+    case ui::mojom::CursorType::kNorthPanning:
       return MAKEINTRESOURCE(IDC_PAN_NORTH);
-    case ui::CursorType::kNorthEastPanning:
+    case ui::mojom::CursorType::kNorthEastPanning:
       return MAKEINTRESOURCE(IDC_PAN_NORTH_EAST);
-    case ui::CursorType::kNorthWestPanning:
+    case ui::mojom::CursorType::kNorthWestPanning:
       return MAKEINTRESOURCE(IDC_PAN_NORTH_WEST);
-    case ui::CursorType::kSouthPanning:
+    case ui::mojom::CursorType::kSouthPanning:
       return MAKEINTRESOURCE(IDC_PAN_SOUTH);
-    case ui::CursorType::kSouthEastPanning:
+    case ui::mojom::CursorType::kSouthEastPanning:
       return MAKEINTRESOURCE(IDC_PAN_SOUTH_EAST);
-    case ui::CursorType::kSouthWestPanning:
+    case ui::mojom::CursorType::kSouthWestPanning:
       return MAKEINTRESOURCE(IDC_PAN_SOUTH_WEST);
-    case ui::CursorType::kWestPanning:
+    case ui::mojom::CursorType::kWestPanning:
       return MAKEINTRESOURCE(IDC_PAN_WEST);
-    case ui::CursorType::kMove:
+    case ui::mojom::CursorType::kMove:
       return IDC_SIZEALL;
-    case ui::CursorType::kVerticalText:
+    case ui::mojom::CursorType::kVerticalText:
       return MAKEINTRESOURCE(IDC_VERTICALTEXT);
-    case ui::CursorType::kCell:
+    case ui::mojom::CursorType::kCell:
       return MAKEINTRESOURCE(IDC_CELL);
-    case ui::CursorType::kContextMenu:
+    case ui::mojom::CursorType::kContextMenu:
       return IDC_ARROW;
-    case ui::CursorType::kAlias:
+    case ui::mojom::CursorType::kAlias:
       return MAKEINTRESOURCE(IDC_ALIAS);
-    case ui::CursorType::kProgress:
+    case ui::mojom::CursorType::kProgress:
       return IDC_APPSTARTING;
-    case ui::CursorType::kNoDrop:
+    case ui::mojom::CursorType::kNoDrop:
       return IDC_NO;
-    case ui::CursorType::kCopy:
+    case ui::mojom::CursorType::kCopy:
       return MAKEINTRESOURCE(IDC_COPYCUR);
-    case ui::CursorType::kNone:
+    case ui::mojom::CursorType::kNone:
       return MAKEINTRESOURCE(IDC_CURSOR_NONE);
-    case ui::CursorType::kNotAllowed:
+    case ui::mojom::CursorType::kNotAllowed:
       return IDC_NO;
-    case ui::CursorType::kZoomIn:
+    case ui::mojom::CursorType::kZoomIn:
       return MAKEINTRESOURCE(IDC_ZOOMIN);
-    case ui::CursorType::kZoomOut:
+    case ui::mojom::CursorType::kZoomOut:
       return MAKEINTRESOURCE(IDC_ZOOMOUT);
-    case ui::CursorType::kGrab:
+    case ui::mojom::CursorType::kGrab:
       return MAKEINTRESOURCE(IDC_HAND_GRAB);
-    case ui::CursorType::kGrabbing:
+    case ui::mojom::CursorType::kGrabbing:
       return MAKEINTRESOURCE(IDC_HAND_GRABBING);
-    case ui::CursorType::kNull:
+    case ui::mojom::CursorType::kNull:
       return IDC_NO;
-    case ui::CursorType::kMiddlePanningVertical:
+    case ui::mojom::CursorType::kMiddlePanningVertical:
       return MAKEINTRESOURCE(IDC_PAN_MIDDLE_VERTICAL);
-    case ui::CursorType::kMiddlePanningHorizontal:
+    case ui::mojom::CursorType::kMiddlePanningHorizontal:
       return MAKEINTRESOURCE(IDC_PAN_MIDDLE_HORIZONTAL);
     // TODO(cef): Find better cursors for these things
-    case ui::CursorType::kDndNone:
+    case ui::mojom::CursorType::kDndNone:
       return IDC_ARROW;
-    case ui::CursorType::kDndMove:
+    case ui::mojom::CursorType::kDndMove:
       return IDC_ARROW;
-    case ui::CursorType::kDndCopy:
+    case ui::mojom::CursorType::kDndCopy:
       return IDC_ARROW;
-    case ui::CursorType::kDndLink:
+    case ui::mojom::CursorType::kDndLink:
       return IDC_ARROW;
-    case ui::CursorType::kCustom:
+    case ui::mojom::CursorType::kCustom:
       break;
   }
   NOTREACHED();
@@ -158,7 +155,7 @@ bool IsSystemCursorID(LPCWSTR cursor_id) {
 }  // namespace
 
 ui::PlatformCursor CefRenderWidgetHostViewOSR::GetPlatformCursor(
-    ui::CursorType type) {
+    ui::mojom::CursorType type) {
   HMODULE module_handle = NULL;
   const wchar_t* cursor_id = ToCursorID(type);
   if (!IsSystemCursorID(cursor_id)) {
