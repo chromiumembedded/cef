@@ -162,8 +162,10 @@ PrefService* ChromeBrowserProcessStub::local_state() {
         base::FilePath(CefString(&settings.cache_path));
 
     // Used for very early NetworkService initialization.
+    // Always persist preferences for this PrefService if possible because it
+    // contains the cookie encryption key on Windows.
     local_state_ = browser_prefs::CreatePrefService(
-        nullptr, cache_path, !!settings.persist_user_preferences);
+        nullptr /* profile */, cache_path, true /* persist_user_preferences */);
   }
   return local_state_.get();
 }

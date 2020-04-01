@@ -83,6 +83,7 @@ std::string GetAcceptLanguageList(Profile* profile) {
 }  // namespace
 
 const char kUserPrefsFileName[] = "UserPrefs.json";
+const char kLocalPrefsFileName[] = "LocalPrefs.json";
 
 std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
                                                const base::FilePath& cache_path,
@@ -118,8 +119,8 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   // Used to store user preferences.
   scoped_refptr<PersistentPrefStore> user_pref_store;
   if (store_on_disk) {
-    const base::FilePath& pref_path =
-        cache_path.AppendASCII(browser_prefs::kUserPrefsFileName);
+    const base::FilePath& pref_path = cache_path.AppendASCII(
+        profile ? kUserPrefsFileName : kLocalPrefsFileName);
     scoped_refptr<JsonPrefStore> json_pref_store = new JsonPrefStore(
         pref_path, std::unique_ptr<PrefFilter>(), sequenced_task_runner);
     factory.set_user_prefs(json_pref_store.get());
