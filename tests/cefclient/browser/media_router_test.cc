@@ -68,9 +68,9 @@ class MediaRouteCreateCallback : public CefMediaRouteCreateCallback {
                                   CefRefPtr<CefMediaRoute> route) OVERRIDE {
     CEF_REQUIRE_UI_THREAD();
     if (result == CEF_MRCR_OK) {
-      CefRefPtr<CefDictionaryValue> result = CefDictionaryValue::Create();
-      result->SetString(kRouteKey, route->GetId());
-      SendSuccess(create_callback_, result);
+      CefRefPtr<CefDictionaryValue> dict = CefDictionaryValue::Create();
+      dict->SetString(kRouteKey, route->GetId());
+      SendSuccess(create_callback_, dict);
     } else {
       SendFailure(create_callback_, kRequestFailedError + result, error);
     }
