@@ -839,15 +839,26 @@ void InterceptedRequest::ContinueToBeforeRedirect(
     request_.url = redirect_info.new_url;
   }
 
+  // If request_ changes from POST to GET, strip POST headers.
+  const bool post_to_get =
+      request_.method == "POST" &&
+      redirect_info.new_method == net::HttpRequestHeaders::kGetMethod;
+
   request_.method = redirect_info.new_method;
   request_.site_for_cookies = redirect_info.new_site_for_cookies;
   request_.referrer = GURL(redirect_info.new_referrer);
   request_.referrer_policy = redirect_info.new_referrer_policy;
 
   // The request method can be changed to "GET". In this case we need to
-  // reset the request body manually.
-  if (request_.method == net::HttpRequestHeaders::kGetMethod)
+  // reset the request body manually, and strip the POST headers.
+  if (request_.method == net::HttpRequestHeaders::kGetMethod) {
     request_.request_body = nullptr;
+
+    if (post_to_get) {
+      request_.headers.RemoveHeader(net::HttpRequestHeaders::kContentLength);
+      request_.headers.RemoveHeader(net::HttpRequestHeaders::kContentType);
+    }
+  }
 }
 
 void InterceptedRequest::ContinueToResponseStarted(int error_code) {
