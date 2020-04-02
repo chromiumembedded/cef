@@ -555,9 +555,16 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
 
   handler->OnPopupShow(browser_impl_.get(), true);
 
-  popup_position_ = pos;
+  CefRect view_rect;
+  handler->GetViewRect(browser_impl_.get(), view_rect);
+  gfx::Rect client_pos(pos.x() - view_rect.x, pos.y() - view_rect.y,
+                       pos.width(), pos.height());
 
-  CefRect widget_pos(pos.x(), pos.y(), pos.width(), pos.height());
+  popup_position_ = client_pos;
+
+  CefRect widget_pos(client_pos.x(), client_pos.y(), client_pos.width(),
+                     client_pos.height());
+
   if (handler.get())
     handler->OnPopupSize(browser_impl_.get(), widget_pos);
 
