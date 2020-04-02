@@ -11,13 +11,12 @@
 
 namespace client {
 
-OsrAXNode::OsrAXNode(int treeId,
+OsrAXNode::OsrAXNode(const CefString& treeId,
                      int nodeId,
                      CefRefPtr<CefDictionaryValue> value,
                      OsrAccessibilityHelper* helper)
     : tree_id_(treeId),
       node_id_(nodeId),
-      child_tree_id_(-1),
       platform_accessibility_(nullptr),
       parent_(nullptr),
       offset_container_id_(-1),
@@ -68,7 +67,7 @@ void OsrAXNode::UpdateValue(CefRefPtr<CefDictionaryValue> value) {
   }
   // Update attributes
   if (value->HasKey("attributes")) {
-    child_tree_id_ = -1;
+    child_tree_id_ = "";
 
     attributes_ = value->GetDictionary("attributes");
 
@@ -84,8 +83,7 @@ void OsrAXNode::UpdateValue(CefRefPtr<CefDictionaryValue> value) {
     }
 
     if (attributes_ && attributes_->HasKey("childTreeId")) {
-      child_tree_id_ = OsrAccessibilityHelper::CastToInt(
-          attributes_->GetValue("childTreeId"));
+      child_tree_id_ = attributes_->GetString("childTreeId");
     }
     if (attributes_ && attributes_->HasKey("name"))
       name_ = attributes_->GetString("name");
@@ -139,7 +137,7 @@ CefRect OsrAXNode::AxLocation() const {
 
 int OsrAXNode::GetChildCount() const {
   int count = static_cast<int>(child_ids_.size());
-  if (child_tree_id_ >= 0) {
+  if (!child_tree_id_.empty()) {
     OsrAXNode* childTreeRootNode =
         accessibility_helper_->GetTreeRootNode(child_tree_id_);
     if (childTreeRootNode) {
@@ -153,7 +151,7 @@ OsrAXNode* OsrAXNode::ChildAtIndex(int index) const {
   int count = static_cast<int>(child_ids_.size());
   if (index < count)
     return accessibility_helper_->GetNode(OsrAXTreeId(), child_ids_[index]);
-  if ((index == count) && (child_tree_id_ >= 0)) {
+  if ((index == count) && (!child_tree_id_.empty())) {
     OsrAXNode* childTreeRootNode =
         accessibility_helper_->GetTreeRootNode(child_tree_id_);
     if (childTreeRootNode) {
@@ -165,7 +163,7 @@ OsrAXNode* OsrAXNode::ChildAtIndex(int index) const {
 }
 
 // Create and return the platform specific OsrAXNode Object
-OsrAXNode* OsrAXNode::CreateNode(int treeId,
+OsrAXNode* OsrAXNode::CreateNode(const CefString& treeId,
                                  int nodeId,
                                  CefRefPtr<CefDictionaryValue> value,
                                  OsrAccessibilityHelper* helper) {
