@@ -1424,6 +1424,18 @@ class RequestServerHandler : public CefServerHandler {
                              CefRefPtr<CefRequest> request,
                              CefRefPtr<CefRequest> redirect_request,
                              CefRefPtr<CefResponse> redirect_response) {
+    if (redirect_response->GetStatus() == 302) {
+      // Simulate wrong copying of POST-specific headers Content-Type and
+      // Content-Length. A 302 redirect should end up in a GET request and
+      // these headers should not propagate from a 302 POST-to-GET redirect.
+      CefResponse::HeaderMap redirectHeaderMap;
+      redirect_response->GetHeaderMap(redirectHeaderMap);
+      redirectHeaderMap.insert(
+          std::make_pair("content-type", "application/x-www-form-urlencoded"));
+      redirectHeaderMap.insert(std::make_pair("content-length", "0"));
+      redirect_response->SetHeaderMap(redirectHeaderMap);
+    }
+
     // Verify that the request was sent correctly.
     TestRequestEqual(redirect_request, request, true);
 
