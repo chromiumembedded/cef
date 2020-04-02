@@ -329,6 +329,13 @@ TEST(ParserTest, URIEncode) {
   EXPECT_STREQ(test_str_encoded.c_str(), encoded_value.ToString().c_str());
 }
 
+TEST(ParserTest, URIEncodeWithPlusSpace) {
+  const std::string& test_str_decoded = "A test string=";
+  const std::string& test_str_encoded = "A+test+string%3D";
+  const CefString& encoded_value = CefURIEncode(test_str_decoded, true);
+  EXPECT_STREQ(test_str_encoded.c_str(), encoded_value.ToString().c_str());
+}
+
 TEST(ParserTest, URIDecode) {
   const std::string& test_str_decoded = "A test string=";
   const std::string& test_str_encoded = "A%20test%20string%3D";
@@ -336,6 +343,17 @@ TEST(ParserTest, URIDecode) {
       test_str_encoded, false,
       static_cast<cef_uri_unescape_rule_t>(
           UU_SPACES | UU_URL_SPECIAL_CHARS_EXCEPT_PATH_SEPARATORS));
+  EXPECT_STREQ(test_str_decoded.c_str(), decoded_value.ToString().c_str());
+}
+
+TEST(ParserTest, URIDecodeWithPlusSpace) {
+  const std::string& test_str_decoded = "A test string=";
+  const std::string& test_str_encoded = "A+test+string%3D";
+  const CefString& decoded_value =
+      CefURIDecode(test_str_encoded, false,
+                   static_cast<cef_uri_unescape_rule_t>(
+                       UU_SPACES | UU_URL_SPECIAL_CHARS_EXCEPT_PATH_SEPARATORS |
+                       UU_REPLACE_PLUS_WITH_SPACE));
   EXPECT_STREQ(test_str_decoded.c_str(), decoded_value.ToString().c_str());
 }
 
