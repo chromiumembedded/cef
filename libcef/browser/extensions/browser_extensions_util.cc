@@ -58,8 +58,10 @@ content::WebContents* GetOwnerForGuestContents(content::WebContents* guest) {
       static_cast<content::WebContentsImpl*>(guest);
   content::BrowserPluginGuest* plugin_guest =
       guest_impl->GetBrowserPluginGuest();
-  if (plugin_guest)
-    return plugin_guest->embedder_web_contents();
+  if (plugin_guest) {
+    return content::WebContents::FromRenderFrameHost(
+        plugin_guest->GetEmbedderFrame());
+  }
 
   // Maybe it's a print preview dialog.
   auto print_preview_controller =
