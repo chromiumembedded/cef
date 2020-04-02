@@ -50,7 +50,7 @@ more information.
 
 The "cefclient Helper" app is used for executing separate processes (renderer,
 plugin, etc) with different characteristics. It needs to have a separate app
-bundle and Info.plist file so that, among other things, it doesn’t show dock
+bundle and Info.plist file so that, among other things, it doesn't show dock
 icons.
 
 Required components:
