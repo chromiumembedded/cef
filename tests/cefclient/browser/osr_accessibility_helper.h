@@ -21,12 +21,12 @@ class OsrAXTree {
   void EraseNode(int nodeId);
   void UpdateTreeData(CefRefPtr<CefDictionaryValue> value);
   void AddNode(OsrAXNode* node);
-  int GetParentTreeId() const { return parent_tree_id_; }
+  const CefString& GetParentTreeId() const { return parent_tree_id_; }
   int GetRootNodeId() const { return root_node_id_; }
   void SetRootNodeId(int nodeId) { root_node_id_ = nodeId; }
 
  private:
-  int parent_tree_id_;
+  CefString parent_tree_id_;
   int root_node_id_;
   std::map<int, OsrAXNode*> node_map_;
 };
@@ -53,26 +53,27 @@ class OsrAccessibilityHelper {
 
   CefRefPtr<CefBrowser> GetBrowser() const { return browser_; }
 
-  OsrAXNode* GetNode(int treeId, int nodeId) const;
+  OsrAXNode* GetNode(const CefString& treeId, int nodeId) const;
 
-  OsrAXNode* GetTreeRootNode(int treeId) const;
+  OsrAXNode* GetTreeRootNode(const CefString& treeId) const;
 
   static int CastToInt(CefRefPtr<CefValue> value);
 
  private:
   void Reset();
 
-  void UpdateLayout(int treeId, CefRefPtr<CefDictionaryValue> update);
+  void UpdateLayout(const CefString& treeId,
+                    CefRefPtr<CefDictionaryValue> update);
 
-  void UpdateFocusedNode(int treeId, int nodeId);
+  void UpdateFocusedNode(const CefString& treeId, int nodeId);
 
   // Destroy the node and remove from Map
   void DestroyNode(OsrAXNode* node);
-  int root_tree_id_;
-  int focused_tree_id_;
+  CefString root_tree_id_;
+  CefString focused_tree_id_;
   int focused_node_id_;
   CefRefPtr<CefBrowser> browser_;
-  std::map<int, OsrAXTree> accessibility_node_map_;
+  std::map<CefString, OsrAXTree> accessibility_node_map_;
 };
 
 }  // namespace client
