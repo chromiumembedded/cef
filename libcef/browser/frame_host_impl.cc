@@ -367,6 +367,11 @@ void CefFrameHostImpl::SendCommand(
   if (frame_id < CefFrameHostImpl::kMainFrameId)
     return;
 
+  if (!render_frame_host_ || !response_manager_) {
+    // detached frame has no response_manager_
+    return;
+  }
+
   TRACE_EVENT2("cef", "CefFrameHostImpl::SendCommand", "frame_id", frame_id,
                "needsResponse", responseHandler.get() ? 1 : 0);
   Cef_Request_Params params;
@@ -406,6 +411,11 @@ void CefFrameHostImpl::SendCode(
   auto frame_id = GetFrameId();
   if (frame_id < CefFrameHostImpl::kMainFrameId)
     return;
+
+  if (!render_frame_host_ || !response_manager_) {
+    // detached frame has no response_manager_
+    return;
+  }
 
   TRACE_EVENT2("cef", "CefFrameHostImpl::SendCommand", "frame_id", frame_id,
                "needsResponse", responseHandler.get() ? 1 : 0);
