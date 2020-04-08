@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 4e6457e56ed5..d2a5437fc043 100644
+index 9507ac2f76d7..39c4210688ec 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -2085,15 +2085,22 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
@@ -49,7 +49,7 @@ index 4e6457e56ed5..d2a5437fc043 100644
    // If |is_new_browsing_instance| is true, defer routing_id allocation
    // to the WebContentsImpl::Create() call. This is required because with
    // a new browsing instance, WebContentsImpl::Create() may elect a different
-@@ -6329,6 +6345,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -6332,6 +6348,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // This is an outermost WebContents.
      SetAsFocusedWebContentsIfNecessary();
    }
@@ -73,7 +73,7 @@ index 2e133afb8da8..e9a88a6bb96b 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 40e1e940f87b..e08b16c26327 100644
+index 3e467bccf696..507108fbd330 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -79,9 +79,11 @@ class BrowserPluginGuestDelegate;
