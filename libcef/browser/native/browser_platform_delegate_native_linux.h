@@ -40,6 +40,8 @@ class CefBrowserPlatformDelegateNativeLinux
 
   // CefBrowserPlatformDelegateNativeAura methods:
   ui::KeyEvent TranslateUiKeyEvent(const CefKeyEvent& key_event) const override;
+  content::NativeWebKeyboardEvent TranslateWebKeyEvent(
+      const CefKeyEvent& key_event) const override;
   base::TimeTicks GetEventTimeStamp() const override;
 
  private:

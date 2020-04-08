@@ -791,6 +791,25 @@ void OsrWindowWin::OnKeyEvent(UINT message, WPARAM wParam, LPARAM lParam) {
     event.type = KEYEVENT_CHAR;
   event.modifiers = GetCefKeyboardModifiers(wParam, lParam);
 
+  // mimic alt-gr check behaviour from
+  // src/ui/events/win/events_win_utils.cc: GetModifiersFromKeyState
+  if ((event.type == KEYEVENT_CHAR) && IsKeyDown(VK_RMENU)) {
+    // reverse AltGr detection taken from PlatformKeyMap::UsesAltGraph
+    // instead of checking all combination for ctrl-alt, just check current char
+    HKL current_layout = ::GetKeyboardLayout(0);
+
+    // https://docs.microsoft.com/en-gb/windows/win32/api/winuser/nf-winuser-vkkeyscanexw
+    // ... high-order byte contains the shift state,
+    // which can be a combination of the following flag bits.
+    // 2 Either CTRL key is pressed.
+    // 4 Either ALT key is pressed.
+    SHORT scan_res = ::VkKeyScanExW(wParam, current_layout);
+    if (((scan_res >> 8) & 0xFF) == (2 | 4)) {  // ctrl-alt pressed
+      event.modifiers &= ~(EVENTFLAG_CONTROL_DOWN | EVENTFLAG_ALT_DOWN);
+      event.modifiers |= EVENTFLAG_ALTGR_DOWN;
+    }
+  }
+
   browser_->GetHost()->SendKeyEvent(event);
 }
 
