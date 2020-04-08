@@ -313,6 +313,16 @@ ui::KeyEvent CefBrowserPlatformDelegateNativeLinux::TranslateUiKeyEvent(
   return ui::KeyEvent(type, key_code, dom_code, flags, dom_key, time_stamp);
 }
 
+content::NativeWebKeyboardEvent
+CefBrowserPlatformDelegateNativeLinux::TranslateWebKeyEvent(
+    const CefKeyEvent& key_event) const {
+  ui::KeyEvent ui_event = TranslateUiKeyEvent(key_event);
+  if (key_event.type == KEYEVENT_CHAR) {
+    return content::NativeWebKeyboardEvent(ui_event, key_event.character);
+  }
+  return content::NativeWebKeyboardEvent(ui_event);
+}
+
 base::TimeTicks CefBrowserPlatformDelegateNativeLinux::GetEventTimeStamp()
     const {
   return base::TimeTicks() + base::TimeDelta::FromSeconds(GetSystemUptime());
