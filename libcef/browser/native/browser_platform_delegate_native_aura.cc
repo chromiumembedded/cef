@@ -210,6 +210,8 @@ int CefBrowserPlatformDelegateNativeAura::TranslateUiEventModifiers(
     result |= ui::EF_CAPS_LOCK_ON;
   if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON)
     result |= ui::EF_NUM_LOCK_ON;
+  if (cef_modifiers & EVENTFLAG_ALTGR_DOWN)
+    result |= ui::EF_ALTGR_DOWN;
   return result;
 }
 

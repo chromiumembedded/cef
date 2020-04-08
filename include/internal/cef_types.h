@@ -1780,6 +1780,7 @@ typedef enum {
   EVENTFLAG_IS_KEY_PAD = 1 << 9,
   EVENTFLAG_IS_LEFT = 1 << 10,
   EVENTFLAG_IS_RIGHT = 1 << 11,
+  EVENTFLAG_ALTGR_DOWN = 1 << 12,
 } cef_event_flags_t;
 
 ///
