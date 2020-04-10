@@ -1,0 +1,12 @@
+diff --git chrome/browser/extensions/api/BUILD.gn chrome/browser/extensions/api/BUILD.gn
+index 82da6124bc6f..0e20d4191ec4 100644
+--- chrome/browser/extensions/api/BUILD.gn
++++ chrome/browser/extensions/api/BUILD.gn
+@@ -22,6 +22,7 @@ function_registration("api_registration") {
+   deps = [
+     # Different APIs include headers from these targets.
+     "//chrome/common:mojo_bindings",
++    "//components/omnibox/browser",
+     "//components/zoom",
+     "//content/public/browser",
+     "//extensions/browser",
