@@ -423,8 +423,8 @@ std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::CreateTabObject(
   tab_object->id = std::make_unique<int>(new_browser->GetIdentifier());
   tab_object->index = index;
   tab_object->window_id = *tab_object->id;
-  tab_object->status = std::make_unique<std::string>(
-      is_loading ? keys::kStatusValueLoading : keys::kStatusValueComplete);
+  tab_object->status = is_loading ? api::tabs::TAB_STATUS_LOADING
+                                  : api::tabs::TAB_STATUS_COMPLETE;
   tab_object->active = active;
   tab_object->selected = true;
   tab_object->highlighted = true;

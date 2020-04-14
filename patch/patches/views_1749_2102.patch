@@ -39,7 +39,7 @@ index 5bcc6204c2b5..1bf18609d150 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index dcaacc840f3a..602cb6b03c0c 100644
+index 7d5fb0c4d6e6..79e59cd87f91 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -609,6 +609,14 @@ void RenderText::SetWhitespaceElision(base::Optional<bool> whitespace_elision) {
@@ -57,7 +57,7 @@ index dcaacc840f3a..602cb6b03c0c 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -1987,6 +1995,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -1973,6 +1981,19 @@ void RenderText::OnTextAttributeChanged() {
  
    layout_text_up_to_date_ = false;
  
@@ -78,7 +78,7 @@ index dcaacc840f3a..602cb6b03c0c 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index 3e554d265299..1596aa1f873e 100644
+index 892b32910b77..0d3c4ef5cafa 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
 @@ -324,6 +324,10 @@ class GFX_EXPORT RenderText {
@@ -115,10 +115,10 @@ index b711c5f08f80..d0d428057e5d 100644
    // Size used for the default SquareInkDropRipple.
    static constexpr gfx::Size kDefaultInkDropSize = gfx::Size(24, 24);
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 76864b91df6d..f9b61ee10b1e 100644
+index bb9105f1a18e..45ae9cdb4ab0 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -479,6 +479,12 @@ void LabelButton::OnThemeChanged() {
+@@ -480,6 +480,12 @@ void LabelButton::OnThemeChanged() {
    SchedulePaint();
  }
  
@@ -146,7 +146,7 @@ index ac348aa7dd46..88ab098daddc 100644
    ImageView* image() const { return image_; }
    Label* label() const { return label_; }
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 7749c52c1cf0..487099b3559d 100644
+index c15c27ae75b6..325eec4939de 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -53,6 +53,20 @@ bool IsOpaque(SkColor color) {
@@ -170,7 +170,7 @@ index 7749c52c1cf0..487099b3559d 100644
  }  // namespace
  
  namespace views {
-@@ -310,6 +324,14 @@ base::string16 Label::GetTooltipText() const {
+@@ -308,6 +322,14 @@ base::string16 Label::GetTooltipText() const {
    return tooltip_text_;
  }
  
@@ -185,7 +185,7 @@ index 7749c52c1cf0..487099b3559d 100644
  void Label::SetTooltipText(const base::string16& tooltip_text) {
    DCHECK(handles_tooltips_);
    if (tooltip_text_ == tooltip_text)
-@@ -587,7 +609,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -582,7 +604,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
    render_text->SetFontList(font_list());
    render_text->set_shadows(GetShadows());
    render_text->SetCursorEnabled(false);
@@ -230,10 +230,10 @@ index 4cb533caa9c7..63eac79c878c 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 36e7f97887fd..940fb3d8a338 100644
+index d8c09129ad9a..7c28530fa7dd 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2646,8 +2646,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2638,8 +2638,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -248,7 +248,7 @@ index 36e7f97887fd..940fb3d8a338 100644
    MenuItemView* to_select = nullptr;
    if (!item->GetSubmenu()->GetMenuItems().empty())
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2666,8 +2671,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2658,8 +2663,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -300,10 +300,10 @@ index 2a03ff43f4a6..c12d68eb212c 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index c67fc8503db7..604c8e29f5e3 100644
+index 6f45e5ac5d1c..d8a0eee3fedd 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1036,6 +1036,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -987,6 +987,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -319,7 +319,7 @@ index c67fc8503db7..604c8e29f5e3 100644
    } else if (render_selection) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == Type::kActionableSubMenu) {
-@@ -1103,6 +1112,13 @@ void MenuItemView::PaintMinorIconAndText(
+@@ -1054,6 +1063,13 @@ void MenuItemView::PaintMinorIconAndText(
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool render_selection) const {
@@ -334,10 +334,10 @@ index c67fc8503db7..604c8e29f5e3 100644
        GetMenuController() && GetMenuController()->use_touchable_layout()
            ? style::CONTEXT_TOUCH_MENU
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index 373ea41937fe..8d13cab6916b 100644
+index 88a868cf6f98..b7c10dc5613c 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
-@@ -228,6 +228,77 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
+@@ -230,6 +230,77 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
    return false;
  }
  
@@ -441,10 +441,10 @@ index 78f832fd3acf..cb030c991614 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index a1d302f3d5d5..d83ad955da37 100644
+index 7a9d15cb2066..abfe73a68ace 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
-@@ -187,6 +187,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
+@@ -189,6 +189,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
    scroll_down_button_ =
        AddChildView(std::make_unique<MenuScrollButton>(content_view, false));
  
@@ -457,10 +457,10 @@ index a1d302f3d5d5..d83ad955da37 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aurax11.cc ui/views/test/ui_controls_factory_desktop_aurax11.cc
-index 3c483dffc6c8..203e3b62c385 100644
+index 82a2d7a7827f..082c614e57a9 100644
 --- ui/views/test/ui_controls_factory_desktop_aurax11.cc
 +++ ui/views/test/ui_controls_factory_desktop_aurax11.cc
-@@ -134,10 +134,6 @@ class UIControlsDesktopX11 : public UIControlsAura {
+@@ -139,10 +139,6 @@ class UIControlsDesktopX11 : public UIControlsAura {
          aura::test::QueryLatestMousePositionRequestInHost(host);
      host->ConvertPixelsToDIP(&root_current_location);
  

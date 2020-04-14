@@ -34,11 +34,17 @@ class MessagePumpExternal : public base::MessagePumpForUI {
       base::mac::ScopedNSAutoreleasePool autorelease_pool;
 #endif
 
-      const bool has_more_work = DirectRunWork(delegate);
+      base::TimeTicks next_run_time;  // is_null()
+      const bool has_more_work = DirectRunWork(delegate, &next_run_time);
       if (!has_more_work)
         break;
 
-      const base::TimeDelta& delta = base::TimeTicks::Now() - start;
+      if (next_run_time.is_null()) {
+        // We have more work that should run immediately.
+        next_run_time = base::TimeTicks::Now();
+      }
+
+      const base::TimeDelta& delta = next_run_time - start;
       if (delta.InSecondsF() > max_time_slice_)
         break;
     }
@@ -54,26 +60,31 @@ class MessagePumpExternal : public base::MessagePumpForUI {
   }
 
  private:
-  bool DirectRunWork(Delegate* delegate) {
-    bool did_work = false;
-    bool did_delayed_work = false;
-    bool did_idle_work = false;
+  static bool DirectRunWork(Delegate* delegate,
+                            base::TimeTicks* next_run_time) {
+    bool more_immediate_work = false;
+    bool more_idle_work = false;
+    bool more_delayed_work = false;
 
-    // Perform work & delayed work.
-    // If no work was found, then perform idle work.
+    Delegate::NextWorkInfo next_work_info = delegate->DoWork();
 
-    did_work = delegate->DoWork();
+    // is_immediate() returns true if the next task is ready right away.
+    more_immediate_work = next_work_info.is_immediate();
+    if (!more_immediate_work) {
+      // DoIdleWork() returns true if idle work was all done.
+      more_idle_work = !delegate->DoIdleWork();
 
-    // We are using an external timer, so we don't have any action based on the
-    // returned next delayed work time.
-    base::TimeTicks next_time;
-    did_delayed_work = delegate->DoDelayedWork(&next_time);
-
-    if (!did_work && !did_delayed_work) {
-      did_idle_work = delegate->DoIdleWork();
+      // Check the next PendingTask's |delayed_run_time|.
+      // is_max() returns true if there are no more immediate nor delayed tasks.
+      more_delayed_work = !next_work_info.delayed_run_time.is_max();
+      if (more_delayed_work && !more_idle_work) {
+        // The only remaining work that we know about is the PendingTask.
+        // Consider the run time for that task in the time slice calculation.
+        *next_run_time = next_work_info.delayed_run_time;
+      }
     }
 
-    return did_work || did_delayed_work || did_idle_work;
+    return more_immediate_work || more_idle_work || more_delayed_work;
   }
 
   const float max_time_slice_;

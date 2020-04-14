@@ -57,7 +57,9 @@
     'content/shell/renderer/shell_*',
     'content/shell/utility/shell_*',
     'extensions/shell/*',
+    'net/base/features.cc',
     'net/cookies/cookie_store.h',
+    'services/network/public/cpp/features.cc',
     'ui/base/ui_base_features.cc',
   ],
   # Patterns that should not be found in the chromium/src directory after

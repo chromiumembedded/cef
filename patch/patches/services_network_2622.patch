@@ -58,7 +58,7 @@ index ee2f1e1baf51..4d53c655d723 100644
    // itself, if |relative_path| is empty).
    virtual mojo::Remote<network::mojom::NetworkContext> CreateNetworkContext(
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index 84a7d50dfd71..aaa1346043da 100644
+index 783485c013df..bf115fd4d63a 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
 @@ -476,6 +476,25 @@ void CookieMonster::SetCookieableSchemes(
@@ -139,10 +139,10 @@ index d1bf7a4d1f6d..772e08ee8916 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 05bd6dc34b94..26bd748ad4b6 100644
+index 5e37a45a033a..ca44461120a8 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -1785,6 +1785,7 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext() {
+@@ -1795,6 +1795,7 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext() {
    }
  
    scoped_refptr<SessionCleanupCookieStore> session_cleanup_cookie_store;
@@ -150,7 +150,7 @@ index 05bd6dc34b94..26bd748ad4b6 100644
    if (params_->cookie_path) {
      scoped_refptr<base::SequencedTaskRunner> client_task_runner =
          base::ThreadTaskRunnerHandle::Get();
-@@ -1811,18 +1812,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext() {
+@@ -1821,18 +1822,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext() {
      session_cleanup_cookie_store =
          base::MakeRefCounted<SessionCleanupCookieStore>(sqlite_store);
  
@@ -177,14 +177,14 @@ index 05bd6dc34b94..26bd748ad4b6 100644
  
 +  builder.SetCookieStore(std::move(cookie_store));
 +
- #if BUILDFLAG(IS_TRUST_TOKENS_SUPPORTED)
    if (base::FeatureList::IsEnabled(features::kTrustTokens)) {
-     if (params_->trust_token_path) {
+     trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
+ 
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index b74677de805c..b67a2d246e65 100644
+index 9515fe92e0b1..e659550debd2 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -253,6 +253,9 @@ struct NetworkContextParams {
+@@ -219,6 +219,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  

@@ -46,7 +46,7 @@
 #if defined(OS_WIN)
 #include "base/debug/leak_annotations.h"
 #include "chrome/install_static/install_util.h"
-#include "components/crash/content/app/crashpad.h"
+#include "components/crash/core/app/crashpad.h"
 #endif
 
 namespace {

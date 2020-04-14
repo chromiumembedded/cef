@@ -1,18 +1,5 @@
-diff --git base/memory/shared_memory_hooks.h base/memory/shared_memory_hooks.h
-index 4404b54c22a4..fa3138003032 100644
---- base/memory/shared_memory_hooks.h
-+++ base/memory/shared_memory_hooks.h
-@@ -24,7 +24,7 @@ class SharedMemoryHooks {
- 
-  private:
-   friend class SharedMemoryHooksTest;
--  friend int service_manager::Main(const service_manager::MainParams&);
-+  friend int service_manager::MainInitialize(service_manager::MainParams&);
- 
-   // Allows shared memory region creation to be hooked. Useful for sandboxed
-   // processes that are restricted from invoking the platform APIs directly.
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index b338bbff49ff..a0645251504b 100644
+index f9c275cdd78f..247142951d99 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
 @@ -244,22 +244,36 @@ int RunService(MainDelegate* delegate) {
@@ -70,7 +57,7 @@ index b338bbff49ff..a0645251504b 100644
      InitializeMac();
  #endif
  
-@@ -423,18 +432,16 @@ int Main(const MainParams& params) {
+@@ -422,18 +431,16 @@ int Main(const MainParams& params) {
      }
    }
  
@@ -98,7 +85,7 @@ index b338bbff49ff..a0645251504b 100644
    switch (process_type) {
      case ProcessType::kDefault:
        NOTREACHED();
-@@ -456,6 +463,8 @@ int Main(const MainParams& params) {
+@@ -455,6 +462,8 @@ int Main(const MainParams& params) {
        break;
    }
  
@@ -107,7 +94,7 @@ index b338bbff49ff..a0645251504b 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -467,13 +476,38 @@ int Main(const MainParams& params) {
+@@ -466,13 +475,38 @@ int Main(const MainParams& params) {
      }
    }
  

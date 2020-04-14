@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 7ad6b3bc6298..6dc25b644f2b 100644
+index c7296bb80f62..a64c7c42720a 100644
 --- .gn
 +++ .gn
-@@ -643,6 +643,8 @@ exec_script_whitelist =
+@@ -642,6 +642,8 @@ exec_script_whitelist =
  
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
  
@@ -12,7 +12,7 @@ index 7ad6b3bc6298..6dc25b644f2b 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 6791cf2464d3..a00f33f5987f 100644
+index 72ae0d476511..1f8c6244e2a3 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -222,6 +222,7 @@ group("gn_all") {

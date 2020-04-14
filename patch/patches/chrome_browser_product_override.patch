@@ -1,8 +1,8 @@
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index f1f4f715ca7e..97075e049f9c 100644
+index b7ff92ae4e58..6c3773b92454 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
-@@ -992,10 +992,6 @@ void LaunchURL(const GURL& url,
+@@ -996,10 +996,6 @@ void LaunchURL(const GURL& url,
    }
  }
  
@@ -13,7 +13,7 @@ index f1f4f715ca7e..97075e049f9c 100644
  void MaybeAppendSecureOriginsAllowlistSwitch(base::CommandLine* cmdline) {
    // |allowlist| combines pref/policy + cmdline switch in the browser process.
    // For renderer and utility (e.g. NetworkService) processes the switch is the
-@@ -1090,6 +1086,14 @@ void MaybeRecordSameSiteCookieEngagementHistogram(
+@@ -1094,6 +1090,14 @@ void MaybeRecordSameSiteCookieEngagementHistogram(
  
  }  // namespace
  
@@ -29,12 +29,12 @@ index f1f4f715ca7e..97075e049f9c 100644
    base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
    if (command_line->HasSwitch(switches::kUserAgent)) {
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index 3e2312a0bffa..940ca48b98a0 100644
+index ae86be8afe0f..61be54670431 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
-@@ -85,7 +85,8 @@ class ChromeBluetoothDelegate;
- class ChromeHidDelegate;
- class ChromeSerialDelegate;
+@@ -91,7 +91,8 @@ class ChromeXrIntegrationClient;
+ }
+ #endif
  
 -// Returns the user agent of Chrome.
 +// Returns the product and user agent of Chrome.

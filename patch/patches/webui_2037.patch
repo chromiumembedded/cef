@@ -1,8 +1,16 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index 29953fdc7c55..fb03891ede32 100644
+index 29953fdc7c55..89dd4e61f66f 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-@@ -28,6 +28,7 @@
+@@ -21,6 +21,7 @@
+ #include "base/task/thread_pool.h"
+ #include "build/branding_buildflags.h"
+ #include "build/build_config.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/data_reduction_proxy/data_reduction_proxy_chrome_settings.h"
+ #include "chrome/browser/data_reduction_proxy/data_reduction_proxy_chrome_settings_factory.h"
+@@ -28,6 +29,7 @@
  #include "chrome/browser/profiles/profile_manager.h"
  #include "chrome/browser/sync/profile_sync_service_factory.h"
  #include "chrome/common/channel_info.h"
@@ -10,18 +18,19 @@ index 29953fdc7c55..fb03891ede32 100644
  #include "components/prefs/pref_service.h"
  #include "components/sync/driver/about_sync_util.h"
  #include "components/sync/driver/sync_service.h"
-@@ -322,6 +323,10 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
- }
+@@ -274,7 +276,11 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
+   response->emplace(kOsVersionTag, os_version);
+ #endif
  
- void ChromeInternalLogSource::PopulateSyncLogs(SystemLogsResponse* response) {
++#if !BUILDFLAG(ENABLE_CEF)
 +  // CEF should avoid loading ProfileSyncServiceFactory which depends on a lot
 +  // of unnecessary Chrome-specific factories.
-+  return;
-+
-   // We are only interested in sync logs for the primary user profile.
-   Profile* profile = ProfileManager::GetPrimaryUserProfile();
-   if (!profile || !ProfileSyncServiceFactory::HasSyncService(profile))
-@@ -364,6 +369,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
+   PopulateSyncLogs(response.get());
++#endif
+   PopulateExtensionInfoLogs(response.get());
+   PopulatePowerApiLogs(response.get());
+   PopulateDataReductionProxyLogs(response.get());
+@@ -364,6 +370,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
    if (!profile)
      return;
  
@@ -34,7 +43,7 @@ index 29953fdc7c55..fb03891ede32 100644
    extensions::ExtensionRegistry* extension_registry =
        extensions::ExtensionRegistry::Get(profile);
    std::string extensions_list;
-@@ -453,6 +464,8 @@ void ChromeInternalLogSource::PopulateArcPolicyStatus(
+@@ -453,6 +465,8 @@ void ChromeInternalLogSource::PopulateArcPolicyStatus(
  #if defined(OS_WIN)
  void ChromeInternalLogSource::PopulateUsbKeyboardDetected(
      SystemLogsResponse* response) {

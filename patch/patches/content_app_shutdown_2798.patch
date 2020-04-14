@@ -1,8 +1,8 @@
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index d769b656dbe9..b2c67e1da6aa 100644
+index bb72915a26e2..9fbafc0643e1 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -43,6 +43,7 @@
+@@ -44,6 +44,7 @@
  #include "base/strings/stringprintf.h"
  #include "base/task/post_task.h"
  #include "base/task/thread_pool/thread_pool_instance.h"
@@ -10,7 +10,7 @@ index d769b656dbe9..b2c67e1da6aa 100644
  #include "base/trace_event/trace_event.h"
  #include "components/discardable_memory/service/discardable_shared_memory_manager.h"
  #include "components/download/public/common/download_task_runner.h"
-@@ -1014,6 +1015,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1016,6 +1017,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -23,7 +23,7 @@ index d769b656dbe9..b2c67e1da6aa 100644
  ContentMainRunner* ContentMainRunner::Create() {
    return ContentMainRunnerImpl::Create();
 diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
-index 0a129f34c19f..9c83646113a0 100644
+index 4632e35eaf65..c74d9ca750c7 100644
 --- content/app/content_main_runner_impl.h
 +++ content/app/content_main_runner_impl.h
 @@ -51,6 +51,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {

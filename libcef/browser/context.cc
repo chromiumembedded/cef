@@ -37,13 +37,13 @@
 #include "base/strings/utf_string_conversions.h"
 #include "chrome/chrome_elf/chrome_elf_main.h"
 #include "chrome/install_static/initialize_from_primary_module.h"
-#include "components/crash/content/app/crashpad.h"
+#include "components/crash/core/app/crashpad.h"
 #include "content/public/app/sandbox_helper_win.h"
 #include "sandbox/win/src/sandbox_types.h"
 #endif
 
 #if defined(OS_MACOSX) || defined(OS_WIN)
-#include "components/crash/content/app/crash_switches.h"
+#include "components/crash/core/app/crash_switches.h"
 #include "third_party/crashpad/crashpad/handler/handler_main.h"
 #endif
 
@@ -97,12 +97,12 @@ void InitCrashReporter() {
 
 #if defined(OS_MACOSX) || defined(OS_WIN)
 
-// Based on components/crash/content/app/run_as_crashpad_handler_win.cc
+// Based on components/crash/core/app/run_as_crashpad_handler_win.cc
 // Remove the "--type=crashpad-handler" command-line flag that will otherwise
 // confuse the crashpad handler.
 // Chrome uses an embedded crashpad handler on Windows only and imports this
 // function via the existing "run_as_crashpad_handler" target defined in
-// components/crash/content/app/BUILD.gn. CEF uses an embedded handler on both
+// components/crash/core/app/BUILD.gn. CEF uses an embedded handler on both
 // Windows and macOS so we define the function here instead of using the
 // existing target (because we can't use that target on macOS).
 int RunAsCrashpadHandler(const base::CommandLine& command_line) {

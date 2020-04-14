@@ -32,6 +32,7 @@
 #include "chrome/browser/plugins/plugin_finder.h"
 #include "components/constrained_window/constrained_window_views.h"
 #include "content/public/browser/gpu_data_manager.h"
+#include "content/public/browser/network_service_instance.h"
 #include "extensions/browser/extension_system.h"
 #include "extensions/common/constants.h"
 #include "net/base/net_module.h"
@@ -198,6 +199,9 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
       global_request_context_->GetBrowserContext());
 
   CefDevToolsManagerDelegate::StartHttpHandler(browser_context);
+
+  // Initialize before IO access restrictions are applied.
+  content::GetNetworkService();
 
   // Triggers initialization of the singleton instance on UI thread.
   PluginFinder::GetInstance()->Init();

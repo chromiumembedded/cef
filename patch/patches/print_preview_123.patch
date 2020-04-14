@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index 332aa3a417e8..094523fc1d6b 100644
+index 00d1c0fa2b00..45dcadc79fb2 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -22,6 +22,7 @@
@@ -262,7 +262,7 @@ index 0881b3dd9303..4df6883d4d05 100644
    Profile* const profile_;
    PrintPreviewStickySettings* const sticky_settings_;
 diff --git chrome/browser/ui/webui/print_preview/print_preview_handler.cc chrome/browser/ui/webui/print_preview/print_preview_handler.cc
-index c0823ff96ee0..1897338ee4e6 100644
+index 113d34201f90..8834b94c5475 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 @@ -27,6 +27,7 @@
@@ -318,7 +318,7 @@ index c0823ff96ee0..1897338ee4e6 100644
  
  void PrintPreviewHandler::UnregisterForGaiaCookieChanges() {
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index 4e2e925da7c9..b4c622ce6c7f 100644
+index cf3c71f478da..8438a234eb8b 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -24,6 +24,7 @@
@@ -346,7 +346,7 @@ index 4e2e925da7c9..b4c622ce6c7f 100644
  
  #if !BUILDFLAG(OPTIMIZE_WEBUI)
  constexpr char kGeneratedPath[] =
-@@ -334,7 +339,7 @@ void AddPrintPreviewFlags(content::WebUIDataSource* source, Profile* profile) {
+@@ -332,7 +337,7 @@ void AddPrintPreviewFlags(content::WebUIDataSource* source, Profile* profile) {
    source->AddBoolean("isEnterpriseManaged", enterprise_managed);
  
    bool cloud_printer_handler_enabled =

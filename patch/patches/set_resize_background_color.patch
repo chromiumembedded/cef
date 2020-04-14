@@ -1,8 +1,8 @@
 diff --git ui/views/controls/native/native_view_host.cc ui/views/controls/native/native_view_host.cc
-index bc1cb3a9e6fc..f68bdeb8786c 100644
+index b29553ae8f7b..c31233db9ab2 100644
 --- ui/views/controls/native/native_view_host.cc
 +++ ui/views/controls/native/native_view_host.cc
-@@ -151,7 +151,7 @@ void NativeViewHost::OnPaint(gfx::Canvas* canvas) {
+@@ -154,7 +154,7 @@ void NativeViewHost::OnPaint(gfx::Canvas* canvas) {
    // It would be nice if this used some approximation of the page's
    // current background color.
    if (native_wrapper_->HasInstalledClip())
@@ -12,10 +12,10 @@ index bc1cb3a9e6fc..f68bdeb8786c 100644
  
  void NativeViewHost::VisibilityChanged(View* starting_from, bool is_visible) {
 diff --git ui/views/controls/native/native_view_host.h ui/views/controls/native/native_view_host.h
-index 2a6cfc54d866..48623ab5d672 100644
+index f92961e9f79b..f1ff80b244ef 100644
 --- ui/views/controls/native/native_view_host.h
 +++ ui/views/controls/native/native_view_host.h
-@@ -85,6 +85,12 @@ class VIEWS_EXPORT NativeViewHost : public View {
+@@ -86,6 +86,12 @@ class VIEWS_EXPORT NativeViewHost : public View {
    void set_fast_resize(bool fast_resize) { fast_resize_ = fast_resize; }
    bool fast_resize() const { return fast_resize_; }
  
@@ -28,7 +28,7 @@ index 2a6cfc54d866..48623ab5d672 100644
    gfx::NativeView native_view() const { return native_view_; }
  
    void NativeViewDestroyed();
-@@ -131,6 +137,9 @@ class VIEWS_EXPORT NativeViewHost : public View {
+@@ -132,6 +138,9 @@ class VIEWS_EXPORT NativeViewHost : public View {
    // in the setter/accessor above.
    bool fast_resize_ = false;
  
@@ -39,10 +39,10 @@ index 2a6cfc54d866..48623ab5d672 100644
  };
  
 diff --git ui/views/controls/webview/webview.cc ui/views/controls/webview/webview.cc
-index 9a9f2505f15f..8cd5198e0304 100644
+index 7bef84b8c9ea..9b9f0a789fe9 100644
 --- ui/views/controls/webview/webview.cc
 +++ ui/views/controls/webview/webview.cc
-@@ -126,6 +126,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
+@@ -127,6 +127,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
    MaybeEnableAutoResize();
  }
  

@@ -445,6 +445,11 @@ blink::mojom::PointerLockResult CefRenderWidgetHostViewOSR::LockMouse(
   return blink::mojom::PointerLockResult::kPermissionDenied;
 }
 
+blink::mojom::PointerLockResult CefRenderWidgetHostViewOSR::ChangeMouseLock(
+    bool request_unadjusted_movement) {
+  return blink::mojom::PointerLockResult::kPermissionDenied;
+}
+
 void CefRenderWidgetHostViewOSR::UnlockMouse() {}
 
 void CefRenderWidgetHostViewOSR::TakeFallbackContentFrom(

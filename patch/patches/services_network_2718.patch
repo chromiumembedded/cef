@@ -1,8 +1,8 @@
 diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
-index e76b66dace82..94a5f80a9b42 100644
+index 66a4f7c28b4f..92cb66c1dc38 100644
 --- content/browser/storage_partition_impl.cc
 +++ content/browser/storage_partition_impl.cc
-@@ -780,10 +780,6 @@ class LoginHandlerDelegate {
+@@ -797,10 +797,6 @@ class LoginHandlerDelegate {
      }
  
      WebContents* web_contents = web_contents_getter_.Run();
@@ -13,7 +13,7 @@ index e76b66dace82..94a5f80a9b42 100644
  
      // WeakPtr is not strictly necessary here due to OnRequestCancelled.
      creating_login_delegate_ = true;
-@@ -840,12 +836,6 @@ void OnAuthRequiredContinuation(
+@@ -857,12 +853,6 @@ void OnAuthRequiredContinuation(
      web_contents_getter =
          base::BindRepeating(GetWebContents, process_id, routing_id);
    }
@@ -26,7 +26,7 @@ index e76b66dace82..94a5f80a9b42 100644
    new LoginHandlerDelegate(std::move(auth_challenge_responder),
                             std::move(web_contents_getter), auth_info,
                             is_request_for_main_frame, process_id, routing_id,
-@@ -2573,15 +2563,21 @@ void StoragePartitionImpl::GetQuotaSettings(
+@@ -2603,15 +2593,21 @@ void StoragePartitionImpl::GetQuotaSettings(
      return;
    }
  

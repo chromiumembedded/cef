@@ -151,7 +151,7 @@ void SavePdfFile(scoped_refptr<base::RefCountedSharedMemoryMapping> data,
   DCHECK_GT(data->size(), 0U);
 
   MetafileSkia metafile;
-  metafile.InitFromData(static_cast<const void*>(data->front()), data->size());
+  metafile.InitFromData(*data);
 
   base::File file(path,
                   base::File::FLAG_CREATE_ALWAYS | base::File::FLAG_WRITE);

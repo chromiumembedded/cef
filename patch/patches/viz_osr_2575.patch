@@ -80,7 +80,7 @@ index 1026b739d283..fe562ab60ce9 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 84a16ad496b5..79db9031051e 100644
+index eb1a0ae5ca25..846c738053b7 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -13,7 +13,10 @@ config("viz_service_implementation") {
@@ -128,10 +128,10 @@ index b4d4b1c1c597..9ce685048ab1 100644
    return CreateSoftwareOutputDeviceWin(surface_handle, &output_device_backing_,
                                         display_client);
 diff --git components/viz/service/display_embedder/software_output_device_win.cc components/viz/service/display_embedder/software_output_device_win.cc
-index 94ea55487f85..542ec00f4a7f 100644
+index 2bb30e5318b6..535535dd6c10 100644
 --- components/viz/service/display_embedder/software_output_device_win.cc
 +++ components/viz/service/display_embedder/software_output_device_win.cc
-@@ -268,8 +268,9 @@ void SoftwareOutputDeviceWinProxy::EndPaintDelegated(
+@@ -188,8 +188,9 @@ void SoftwareOutputDeviceWinProxy::EndPaintDelegated(
    if (!canvas_)
      return;
  

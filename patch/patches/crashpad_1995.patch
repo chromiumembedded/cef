@@ -1,5 +1,5 @@
 diff --git chrome/chrome_elf/BUILD.gn chrome/chrome_elf/BUILD.gn
-index de079e97cc2b..b6bcf351e438 100644
+index 9b08e23e921b..49182504ae36 100644
 --- chrome/chrome_elf/BUILD.gn
 +++ chrome/chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -26,7 +26,7 @@ index de079e97cc2b..b6bcf351e438 100644
      "//base:base_static",  # pe_image
 +    "//cef/libcef/features",
      "//chrome/install_static:install_static_util",
-     "//components/crash/content/app",
+     "//components/crash/core/app",
      "//components/crash/core/common",  # crash_keys
 @@ -121,6 +120,17 @@ static_library("crash") {
      "//content/public/common:result_codes",
@@ -47,7 +47,7 @@ index de079e97cc2b..b6bcf351e438 100644
  
  source_set("dll_hash") {
 diff --git chrome/chrome_elf/crash/crash_helper.cc chrome/chrome_elf/crash/crash_helper.cc
-index a02aa37c566a..0d0581132bdd 100644
+index 42a4bfcdb856..9f674625a155 100644
 --- chrome/chrome_elf/crash/crash_helper.cc
 +++ chrome/chrome_elf/crash/crash_helper.cc
 @@ -11,12 +11,17 @@
@@ -57,7 +57,7 @@ index a02aa37c566a..0d0581132bdd 100644
 +#include "cef/libcef/features/features.h"
  #include "chrome/app/chrome_crash_reporter_client_win.h"
  #include "chrome/chrome_elf/hook_util/hook_util.h"
- #include "components/crash/content/app/crashpad.h"
+ #include "components/crash/core/app/crashpad.h"
  #include "components/crash/core/common/crash_keys.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  
@@ -81,7 +81,7 @@ index a02aa37c566a..0d0581132bdd 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 4b9d1c365376..6529583db11b 100644
+index f9a6c6b6ae2d..3701b4423899 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -4,6 +4,8 @@
@@ -126,10 +126,10 @@ index bcf172e645a2..f879aa745adf 100644
  // Sets the kNumSwitches key and the set of keys named using kSwitchFormat based
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
-diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index 27683246750c..064c679a03f1 100644
---- components/crash/content/app/breakpad_linux.cc
-+++ components/crash/content/app/breakpad_linux.cc
+diff --git components/crash/core/app/breakpad_linux.cc components/crash/core/app/breakpad_linux.cc
+index 192b0a7f137f..d53b90173ae2 100644
+--- components/crash/core/app/breakpad_linux.cc
++++ components/crash/core/app/breakpad_linux.cc
 @@ -28,6 +28,7 @@
  #include "base/base_switches.h"
  #include "base/command_line.h"
@@ -229,10 +229,10 @@ index 27683246750c..064c679a03f1 100644
  #if defined(OS_ANDROID)
  void InitNonBrowserCrashReporterForAndroid(const std::string& process_type) {
    SanitizationInfo sanitization_info;
-diff --git components/crash/content/app/breakpad_linux.h components/crash/content/app/breakpad_linux.h
-index 6e95af6ca7f5..061fb189d60f 100644
---- components/crash/content/app/breakpad_linux.h
-+++ components/crash/content/app/breakpad_linux.h
+diff --git components/crash/core/app/breakpad_linux.h components/crash/core/app/breakpad_linux.h
+index 9ea80370a842..3043f7d32f33 100644
+--- components/crash/core/app/breakpad_linux.h
++++ components/crash/core/app/breakpad_linux.h
 @@ -20,6 +20,9 @@ extern void InitCrashReporter(const std::string& process_type);
  // Sets the product/distribution channel crash key.
  void SetChannelCrashKey(const std::string& channel);
@@ -243,10 +243,10 @@ index 6e95af6ca7f5..061fb189d60f 100644
  #if defined(OS_ANDROID)
  extern void InitCrashKeysForTesting();
  
-diff --git components/crash/content/app/crash_reporter_client.cc components/crash/content/app/crash_reporter_client.cc
-index bb131fb5d540..a4b86e58187d 100644
---- components/crash/content/app/crash_reporter_client.cc
-+++ components/crash/content/app/crash_reporter_client.cc
+diff --git components/crash/core/app/crash_reporter_client.cc components/crash/core/app/crash_reporter_client.cc
+index e778f68af30f..d2a2a6bf1f67 100644
+--- components/crash/core/app/crash_reporter_client.cc
++++ components/crash/core/app/crash_reporter_client.cc
 @@ -88,7 +88,7 @@ int CrashReporterClient::GetResultCodeRespawnFailed() {
  }
  #endif
@@ -320,13 +320,13 @@ index bb131fb5d540..a4b86e58187d 100644
 +#endif
  
  }  // namespace crash_reporter
-diff --git components/crash/content/app/crash_reporter_client.h components/crash/content/app/crash_reporter_client.h
-index eb726494e22b..c8b1d82e64b9 100644
---- components/crash/content/app/crash_reporter_client.h
-+++ components/crash/content/app/crash_reporter_client.h
+diff --git components/crash/core/app/crash_reporter_client.h components/crash/core/app/crash_reporter_client.h
+index 9cc78fc25840..f54cdbdf2fc4 100644
+--- components/crash/core/app/crash_reporter_client.h
++++ components/crash/core/app/crash_reporter_client.h
 @@ -5,7 +5,9 @@
- #ifndef COMPONENTS_CRASH_CONTENT_APP_CRASH_REPORTER_CLIENT_H_
- #define COMPONENTS_CRASH_CONTENT_APP_CRASH_REPORTER_CLIENT_H_
+ #ifndef COMPONENTS_CRASH_CORE_APP_CRASH_REPORTER_CLIENT_H_
+ #define COMPONENTS_CRASH_CORE_APP_CRASH_REPORTER_CLIENT_H_
  
 +#include <map>
  #include <string>
@@ -390,10 +390,10 @@ index eb726494e22b..c8b1d82e64b9 100644
  };
  
  }  // namespace crash_reporter
-diff --git components/crash/content/app/crashpad.cc components/crash/content/app/crashpad.cc
-index 222d62ada276..22c35665b394 100644
---- components/crash/content/app/crashpad.cc
-+++ components/crash/content/app/crashpad.cc
+diff --git components/crash/core/app/crashpad.cc components/crash/core/app/crashpad.cc
+index 290b4692c16f..ef91dbdc369d 100644
+--- components/crash/core/app/crashpad.cc
++++ components/crash/core/app/crashpad.cc
 @@ -151,7 +151,8 @@ void InitializeCrashpadImpl(bool initial_client,
    // fallback. Forwarding is turned off for debug-mode builds even for the
    // browser process, because the system's crash reporter can take a very long
@@ -404,10 +404,10 @@ index 222d62ada276..22c35665b394 100644
      crashpad::CrashpadInfo::GetCrashpadInfo()
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
-diff --git components/crash/content/app/crashpad_mac.mm components/crash/content/app/crashpad_mac.mm
-index c2de9fe867c5..29cda67a1f72 100644
---- components/crash/content/app/crashpad_mac.mm
-+++ components/crash/content/app/crashpad_mac.mm
+diff --git components/crash/core/app/crashpad_mac.mm components/crash/core/app/crashpad_mac.mm
+index b579521d5586..644756cf710c 100644
+--- components/crash/core/app/crashpad_mac.mm
++++ components/crash/core/app/crashpad_mac.mm
 @@ -16,12 +16,15 @@
  #include "base/logging.h"
  #include "base/mac/bundle_locations.h"
@@ -418,8 +418,8 @@ index c2de9fe867c5..29cda67a1f72 100644
  #include "base/strings/stringprintf.h"
  #include "base/strings/sys_string_conversions.h"
  #include "build/branding_buildflags.h"
- #include "components/crash/content/app/crash_reporter_client.h"
-+#include "components/crash/content/app/crash_switches.h"
+ #include "components/crash/core/app/crash_reporter_client.h"
++#include "components/crash/core/app/crash_switches.h"
 +#include "content/public/common/content_paths.h"
  #include "third_party/crashpad/crashpad/client/crash_report_database.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
@@ -513,10 +513,10 @@ index c2de9fe867c5..29cda67a1f72 100644
        bool result = GetCrashpadClient().StartHandler(
            handler_path, database_path, metrics_path, url,
            GetProcessSimpleAnnotations(), arguments, true, false);
-diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
-index 4e6d3052b315..f8c4dfb37e5d 100644
---- components/crash/content/app/crashpad_win.cc
-+++ components/crash/content/app/crashpad_win.cc
+diff --git components/crash/core/app/crashpad_win.cc components/crash/core/app/crashpad_win.cc
+index 669f5bea844d..734163c0aad1 100644
+--- components/crash/core/app/crashpad_win.cc
++++ components/crash/core/app/crashpad_win.cc
 @@ -36,8 +36,8 @@ void GetPlatformCrashpadAnnotations(
    base::string16 product_name, version, special_build, channel_name;
    crash_reporter_client->GetProductNameAndVersion(

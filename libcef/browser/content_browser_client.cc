@@ -131,8 +131,8 @@
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
 #include "base/debug/leak_annotations.h"
 #include "chrome/common/chrome_paths.h"
-#include "components/crash/content/app/breakpad_linux.h"
 #include "components/crash/content/browser/crash_handler_host_linux.h"
+#include "components/crash/core/app/breakpad_linux.h"
 #include "content/public/common/content_descriptors.h"
 #endif
 

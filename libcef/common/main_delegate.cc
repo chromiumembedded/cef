@@ -48,6 +48,7 @@
 #include "content/public/common/main_function_params.h"
 #include "extensions/common/constants.h"
 #include "ipc/ipc_buildflags.h"
+#include "net/base/features.h"
 #include "pdf/pdf_ppapi.h"
 #include "services/network/public/cpp/features.h"
 #include "services/service_manager/sandbox/switches.h"
@@ -182,6 +183,7 @@ const base::FilePath::CharType kPepperFlashSystemBaseDirectory[] =
 #endif
 
 void OverridePepperFlashSystemPluginPath() {
+#if defined(OS_WIN) || defined(OS_MACOSX)
   base::FilePath plugin_filename;
 #if defined(OS_WIN)
   if (!GetSystemFlashFilename(&plugin_filename))
@@ -191,15 +193,16 @@ void OverridePepperFlashSystemPluginPath() {
     return;
   plugin_filename = plugin_filename.Append(kPepperFlashSystemBaseDirectory)
                         .Append(chrome::kPepperFlashPluginFilename);
-#else
-  // A system plugin is not available on other platforms.
-  return;
-#endif
+#endif  // defined(OS_MACOSX)
 
   if (!plugin_filename.empty()) {
     base::PathService::Override(chrome::FILE_PEPPER_FLASH_SYSTEM_PLUGIN,
                                 plugin_filename);
   }
+#else  // !(defined(OS_WIN) || defined(OS_MACOSX))
+  // A system plugin is not available on other platforms.
+  return;
+#endif
 }
 
 #if defined(OS_LINUX)
@@ -615,6 +618,18 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
         base::FEATURE_ENABLED_BY_DEFAULT) {
       // TODO: Add support for out-of-Blink CORS (see issue #2716)
       disable_features.push_back(network::features::kOutOfBlinkCors.name);
+    }
+
+    // TODO: Add support for creating cookies with SameSite attribute (see issue
+    // #2524)
+    if (net::features::kSameSiteByDefaultCookies.default_state ==
+        base::FEATURE_ENABLED_BY_DEFAULT) {
+      disable_features.push_back(net::features::kSameSiteByDefaultCookies.name);
+    }
+    if (net::features::kCookiesWithoutSameSiteMustBeSecure.default_state ==
+        base::FEATURE_ENABLED_BY_DEFAULT) {
+      disable_features.push_back(
+          net::features::kCookiesWithoutSameSiteMustBeSecure.name);
     }
 
 #if defined(OS_WIN)

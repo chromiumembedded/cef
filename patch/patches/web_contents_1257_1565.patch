@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index b57520fe4254..0aa0a4a7c058 100644
+index 0fe5a498d698..9d5379624671 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -2066,15 +2066,22 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2069,15 +2069,22 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -33,7 +33,7 @@ index b57520fe4254..0aa0a4a7c058 100644
    }
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
-@@ -2894,6 +2901,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
+@@ -2897,6 +2904,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -49,7 +49,7 @@ index b57520fe4254..0aa0a4a7c058 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -6356,6 +6372,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -6370,6 +6386,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // This is an outermost WebContents.
      SetAsFocusedWebContentsIfNecessary();
    }
@@ -73,10 +73,10 @@ index d1d8ff84e1d2..e7cca94f8647 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index cf98180740c4..c4eba9a42702 100644
+index b471bd1f78c6..19fb0c70ac94 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
-@@ -82,9 +82,11 @@ class BrowserPluginGuestDelegate;
+@@ -84,9 +84,11 @@ class BrowserPluginGuestDelegate;
  class InterstitialPage;
  class RenderFrameHost;
  class RenderViewHost;
@@ -88,7 +88,7 @@ index cf98180740c4..c4eba9a42702 100644
  class WebUI;
  struct CustomContextMenuContext;
  struct DropData;
-@@ -212,6 +214,10 @@ class WebContents : public PageNavigator,
+@@ -214,6 +216,10 @@ class WebContents : public PageNavigator,
      // Sandboxing flags set on the new WebContents.
      blink::mojom::WebSandboxFlags starting_sandbox_flags;
  
@@ -100,10 +100,10 @@ index cf98180740c4..c4eba9a42702 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index c20a325ff586..874490e1c878 100644
+index d10b0f458416..84e09b266d48 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
-@@ -57,10 +57,12 @@ class ColorChooser;
+@@ -59,10 +59,12 @@ class ColorChooser;
  class FileSelectListener;
  class JavaScriptDialogManager;
  class RenderFrameHost;
@@ -115,8 +115,8 @@ index c20a325ff586..874490e1c878 100644
 +class WebContentsView;
  struct ContextMenuParams;
  struct DropData;
- struct NativeWebKeyboardEvent;
-@@ -324,6 +326,14 @@ class CONTENT_EXPORT WebContentsDelegate {
+ struct MediaPlayerWatchTime;
+@@ -327,6 +329,14 @@ class CONTENT_EXPORT WebContentsDelegate {
        const std::string& partition_id,
        SessionStorageNamespace* session_storage_namespace);
  
@@ -132,10 +132,10 @@ index c20a325ff586..874490e1c878 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index 7bc8aae9b388..81cf86ef7990 100644
+index 0b9a8c72a426..1c6ca61171cd 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
-@@ -585,6 +585,10 @@ class CONTENT_EXPORT WebContentsObserver : public IPC::Listener {
+@@ -582,6 +582,10 @@ class CONTENT_EXPORT WebContentsObserver : public IPC::Listener {
    // WebContents has gained/lost focus.
    virtual void OnFocusChangedInPage(FocusedNodeDetails* details) {}
  

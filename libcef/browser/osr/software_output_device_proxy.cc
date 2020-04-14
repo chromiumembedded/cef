@@ -7,7 +7,6 @@
 #include "base/memory/shared_memory_mapping.h"
 #include "base/trace_event/trace_event.h"
 #include "components/viz/common/resources/resource_sizes.h"
-#include "mojo/public/cpp/base/shared_memory_utils.h"
 #include "mojo/public/cpp/system/platform_handle.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/skia/include/core/SkCanvas.h"
@@ -74,7 +73,7 @@ void SoftwareOutputDeviceProxy::Resize(const gfx::Size& viewport_pixel_size,
   }
 
 #if !defined(OS_WIN)
-  auto shm = mojo::CreateReadOnlySharedMemoryRegion(required_bytes);
+  auto shm = base::ReadOnlySharedMemoryRegion::Create(required_bytes);
   if (!shm.IsValid()) {
     DLOG(ERROR) << "Failed to allocate " << required_bytes << " bytes";
     return;

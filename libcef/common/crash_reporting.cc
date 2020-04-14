@@ -21,7 +21,7 @@
 
 #if defined(OS_MACOSX)
 #include "base/mac/foundation_util.h"
-#include "components/crash/content/app/crashpad.h"
+#include "components/crash/core/app/crashpad.h"
 #include "components/crash/core/common/crash_keys.h"
 #include "content/public/common/content_paths.h"
 #endif
@@ -32,7 +32,7 @@
 #endif
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
-#include "components/crash/content/app/breakpad_linux.h"
+#include "components/crash/core/app/breakpad_linux.h"
 #include "v8/include/v8-wasm-trap-handler-posix.h"
 #endif
 
