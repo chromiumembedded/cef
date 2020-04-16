@@ -41,10 +41,10 @@ index cc4b13a7b9c6..84f3b9ed7cf4 100644
  
  }  // namespace content
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index 5ad66a6af94f..501a4dc07a9f 100644
+index fc06067480b0..4f313bdb1414 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -2746,6 +2746,11 @@ void RenderWidgetHostImpl::DidStartScrollingViewport() {
+@@ -2751,6 +2751,11 @@ void RenderWidgetHostImpl::DidStartScrollingViewport() {
      view_->set_is_currently_scrolling_viewport(true);
  }
  
