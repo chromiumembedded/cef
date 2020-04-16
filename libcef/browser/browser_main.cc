@@ -51,6 +51,7 @@
 
 #if defined(OS_WIN)
 #include "chrome/browser/chrome_browser_main_win.h"
+#include "chrome/browser/win/parental_controls.h"
 #include "components/os_crypt/os_crypt.h"
 #include "ui/base/cursor/cursor_loader_win.h"
 #endif
@@ -200,8 +201,11 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
 
   CefDevToolsManagerDelegate::StartHttpHandler(browser_context);
 
-  // Initialize before IO access restrictions are applied.
-  content::GetNetworkService();
+#if defined(OS_WIN)
+  // Windows parental controls calls can be slow, so we do an early init here
+  // that calculates this value off of the UI thread.
+  InitializeWinParentalControls();
+#endif
 
   // Triggers initialization of the singleton instance on UI thread.
   PluginFinder::GetInstance()->Init();
