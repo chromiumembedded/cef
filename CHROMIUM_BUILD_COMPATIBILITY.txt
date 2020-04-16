@@ -7,6 +7,6 @@
 # https://bitbucket.org/chromiumembedded/cef/wiki/BranchesAndBuilding
 
 {
-  'chromium_checkout': 'refs/tags/81.0.4044.92',
+  'chromium_checkout': 'refs/tags/81.0.4044.113',
   'depot_tools_checkout': 'ec2a6ce270'
 }
