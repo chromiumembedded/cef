@@ -475,9 +475,10 @@ void InterceptedRequest::OnReceiveRedirect(
   if (current_request_uses_header_client_) {
     // Use the headers we got from OnHeadersReceived as that'll contain
     // Set-Cookie if it existed. May be null for synthetic redirects.
-    DCHECK(current_headers_);
-    current_response_->headers = current_headers_;
-    current_headers_ = nullptr;
+    if (current_headers_) {
+      current_response_->headers = current_headers_;
+      current_headers_ = nullptr;
+    }
   } else {
     needs_callback = true;
   }
