@@ -60,6 +60,7 @@ const char kIncompleteDoNotSendData[] = "DO NOT SEND";
 enum RequestTestMode {
   REQTEST_GET = 0,
   REQTEST_GET_NODATA,
+  REQTEST_GET_PARTIAL_CONTENT,
   REQTEST_GET_ALLOWCOOKIES,
   REQTEST_GET_REDIRECT,
   REQTEST_GET_REDIRECT_STOP,
@@ -132,6 +133,9 @@ struct RequestRunSettings {
 
   // If true download data will be expected.
   bool expect_download_data = true;
+
+  // The offset from what we passed that we expect to receive.
+  size_t expected_download_offset = 0;
 
   // Expected status value.
   CefURLRequest::Status expected_status = UR_SUCCESS;
@@ -659,7 +663,22 @@ class RequestSchemeHandler : public CefResourceHandler {
                           CefString& redirectUrl) override {
     EXPECT_IO_THREAD();
     GetNormalResponse(settings_, response);
-    response_length = response_data_.length();
+    response_length = response_data_.length() - offset_;
+  }
+
+  bool Skip(int64 bytes_to_skip,
+            int64& bytes_skipped,
+            CefRefPtr<CefResourceSkipCallback> callback) override {
+    size_t size = response_data_.length();
+    if (offset_ < size) {
+      bytes_skipped =
+          std::min(bytes_to_skip, static_cast<int64>(size - offset_));
+      offset_ += bytes_skipped;
+    } else {
+      bytes_skipped = ERR_FAILED;
+    }
+
+    return bytes_skipped > 0;
   }
 
   bool Read(void* data_out,
@@ -1413,8 +1432,10 @@ class RequestServerHandler : public CefServerHandler {
     // HEAD requests are identical to GET requests except no response data is
     // sent.
     std::string response_data;
-    if (request->GetMethod() != "HEAD")
-      response_data = settings->response_data;
+    if (request->GetMethod() != "HEAD") {
+      size_t expected_offset = settings->expected_download_offset;
+      response_data = settings->response_data.substr(expected_offset);
+    }
 
     SendResponse(server, connection_id, response, response_data);
   }
@@ -1644,6 +1665,8 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     // Register the test callbacks.
     REGISTER_TEST(REQTEST_GET, SetupGetTest, SingleRunTest);
     REGISTER_TEST(REQTEST_GET_NODATA, SetupGetNoDataTest, SingleRunTest);
+    REGISTER_TEST(REQTEST_GET_PARTIAL_CONTENT, SetupGetPartialContentTest,
+                  SingleRunTest);
     REGISTER_TEST(REQTEST_GET_ALLOWCOOKIES, SetupGetAllowCookiesTest,
                   SingleRunTest);
     REGISTER_TEST(REQTEST_GET_REDIRECT, SetupGetRedirectTest, SingleRunTest);
@@ -1815,6 +1838,20 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.request->SetFlags(UR_FLAG_NO_DOWNLOAD_DATA);
 
     settings_.expect_download_data = false;
+
+    complete_callback.Run();
+  }
+
+  void SetupGetPartialContentTest(const base::Closure& complete_callback) {
+    // Start with the normal get test.
+    SetupGetTestShared();
+
+    // Skip first 4 bytes of content and expect to receive the rest
+    settings_.request->SetHeaderByName("Range", "bytes=4-", true);
+    settings_.response->SetHeaderByName("Content-Range", "bytes 4-8/8", true);
+    settings_.response->SetStatus(206);
+    settings_.response->SetStatusText("Partial Content");
+    settings_.expected_download_offset = 4;
 
     complete_callback.Run();
   }
@@ -2541,15 +2578,18 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     if (settings_.expect_download_progress) {
       EXPECT_LE(1, client->download_progress_ct_);
-      EXPECT_EQ((int64)settings_.response_data.size(), client->download_total_);
+      EXPECT_EQ((int64)(settings_.response_data.size() -
+                        settings_.expected_download_offset),
+                client->download_total_);
     } else {
       EXPECT_EQ(0, client->download_progress_ct_);
       EXPECT_EQ(0, client->download_total_);
     }
 
     if (settings_.expect_download_data) {
+      size_t expected_offset = settings_.expected_download_offset;
       EXPECT_LE(1, client->download_data_ct_);
-      EXPECT_STREQ(settings_.response_data.c_str(),
+      EXPECT_STREQ(settings_.response_data.substr(expected_offset).c_str(),
                    client->download_data_.c_str());
     } else {
       EXPECT_EQ(0, client->download_data_ct_);
@@ -3367,6 +3407,8 @@ void RegisterURLRequestCustomSchemes(
            test_server_backend, test_frame_method)                             \
   REQ_TEST(BrowserGETNoData##suffix, REQTEST_GET_NODATA, context_mode, true,   \
            test_server_backend, test_frame_method)                             \
+  REQ_TEST(BrowserGETPartialContent##suffix, REQTEST_GET_PARTIAL_CONTENT,      \
+           context_mode, true, test_server_backend, test_frame_method)         \
   REQ_TEST(BrowserGETAllowCookies##suffix, REQTEST_GET_ALLOWCOOKIES,           \
            context_mode, true, test_server_backend, test_frame_method)         \
   REQ_TEST(BrowserGETRedirect##suffix, REQTEST_GET_REDIRECT, context_mode,     \
