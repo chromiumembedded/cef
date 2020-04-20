@@ -107,8 +107,9 @@ scoped_refptr<net::HttpResponseHeaders> MakeResponseHeaders(
   // Track the headers that have already been set. Perform all comparisons in
   // lowercase.
   std::set<std::string> set_headers_lowercase;
-
-  if (status_code == net::HTTP_OK) {
+  if ((status_code >= 200 && status_code < 300) &&
+      status_code != net::HTTP_NO_CONTENT &&
+      status_code != net::HTTP_RESET_CONTENT) {
     if (!mime_type.empty()) {
       headers->AddHeader(MakeHeader(net::HttpRequestHeaders::kContentType,
                                     MakeContentTypeValue(mime_type, charset)));

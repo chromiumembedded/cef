@@ -610,9 +610,12 @@ void StreamReaderURLLoader::OnReaderSkipCompleted(int64_t bytes_skipped) {
     HeadersComplete(net::HTTP_OK, -1);
   } else if (bytes_skipped == byte_range_.first_byte_position()) {
     // We skipped the expected number of bytes.
-    int64_t expected_content_length = byte_range_.last_byte_position() -
-                                      byte_range_.first_byte_position() + 1;
-    DCHECK_GE(expected_content_length, 0);
+    int64_t expected_content_length = -1;
+    if (byte_range_.HasLastBytePosition()) {
+      expected_content_length = byte_range_.last_byte_position() -
+                                byte_range_.first_byte_position() + 1;
+      DCHECK_GE(expected_content_length, 0);
+    }
     HeadersComplete(net::HTTP_OK, expected_content_length);
   } else {
     RequestComplete(bytes_skipped < 0 ? bytes_skipped : net::ERR_FAILED);
