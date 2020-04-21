@@ -1074,9 +1074,18 @@ void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
 void CefRenderWidgetHostViewOSR::SendKeyEvent(
     const content::NativeWebKeyboardEvent& event) {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::SendKeyEvent");
-  if (render_widget_host_ && render_widget_host_->GetView()) {
+  content::RenderWidgetHostImpl* target_host = render_widget_host_;
+
+  // If there are multiple widgets on the page (such as when there are
+  // out-of-process iframes), pick the one that should process this event.
+  if (render_widget_host_ && render_widget_host_->delegate()) {
+    target_host = render_widget_host_->delegate()->GetFocusedRenderWidgetHost(
+        render_widget_host_);
+  }
+
+  if (target_host && target_host->GetView()) {
     // Direct routing requires that events go directly to the View.
-    render_widget_host_->ForwardKeyboardEventWithLatencyInfo(
+    target_host->ForwardKeyboardEventWithLatencyInfo(
         event, ui::LatencyInfo(event.GetType() == blink::WebInputEvent::kChar ||
                                        event.GetType() ==
                                            blink::WebInputEvent::kRawKeyDown
