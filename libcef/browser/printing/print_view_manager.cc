@@ -116,10 +116,10 @@ void FillInDictionaryFromPdfPrintSettings(
   print_settings.SetInteger(kSettingMarginsType, margin_type);
   if (margin_type == CUSTOM_MARGINS) {
     std::unique_ptr<base::DictionaryValue> dict(new base::DictionaryValue);
-    dict->SetDouble(kSettingMarginTop, pdf_settings.margin_top);
-    dict->SetDouble(kSettingMarginRight, pdf_settings.margin_right);
-    dict->SetDouble(kSettingMarginBottom, pdf_settings.margin_bottom);
-    dict->SetDouble(kSettingMarginLeft, pdf_settings.margin_left);
+    dict->SetInteger(kSettingMarginTop, pdf_settings.margin_top);
+    dict->SetInteger(kSettingMarginRight, pdf_settings.margin_right);
+    dict->SetInteger(kSettingMarginBottom, pdf_settings.margin_bottom);
+    dict->SetInteger(kSettingMarginLeft, pdf_settings.margin_left);
     print_settings.Set(kSettingMarginsCustom, std::move(dict));
   }
 

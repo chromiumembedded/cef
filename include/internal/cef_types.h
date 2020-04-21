@@ -2430,13 +2430,13 @@ typedef struct _cef_pdf_print_settings_t {
   int scale_factor;
 
   ///
-  // Margins in millimeters. Only used if |margin_type| is set to
+  // Margins in points. Only used if |margin_type| is set to
   // PDF_PRINT_MARGIN_CUSTOM.
   ///
-  double margin_top;
-  double margin_right;
-  double margin_bottom;
-  double margin_left;
+  int margin_top;
+  int margin_right;
+  int margin_bottom;
+  int margin_left;
 
   ///
   // Margin type.
