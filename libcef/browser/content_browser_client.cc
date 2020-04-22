@@ -102,6 +102,7 @@
 #include "extensions/browser/extensions_browser_client.h"
 #include "extensions/browser/guest_view/extensions_guest_view_message_filter.h"
 #include "extensions/browser/guest_view/web_view/web_view_guest.h"
+#include "extensions/browser/url_loader_factory_manager.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/switches.h"
 #include "mojo/public/cpp/bindings/remote.h"
@@ -624,6 +625,17 @@ bool CefContentBrowserClient::DoesSiteRequireDedicatedProcess(
           .GetExtensionOrAppByURL(effective_site_url);
   // Isolate all extensions.
   return extension != nullptr;
+}
+
+void CefContentBrowserClient::OverrideURLLoaderFactoryParams(
+    content::BrowserContext* browser_context,
+    const url::Origin& origin,
+    bool is_for_isolated_world,
+    network::mojom::URLLoaderFactoryParams* factory_params) {
+  if (extensions::ExtensionsEnabled()) {
+    extensions::URLLoaderFactoryManager::OverrideURLLoaderFactoryParams(
+        browser_context, origin, is_for_isolated_world, factory_params);
+  }
 }
 
 void CefContentBrowserClient::GetAdditionalWebUISchemes(
