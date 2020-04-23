@@ -858,8 +858,8 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
   // if the query is non-persistent. If |removed| is true the caller is
   // responsible for deleting the returned QueryInfo object.
   RequestInfo* GetRequestInfo(int browser_id,
-                              int request_id,
                               int context_id,
+                              int request_id,
                               bool always_remove,
                               bool* removed) {
     class Visitor : public BrowserRequestInfoMap::Visitor {
@@ -884,7 +884,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
 
     Visitor visitor(always_remove);
     RequestInfo* info = browser_request_info_map_.Find(
-        browser_id, std::make_pair(request_id, context_id), &visitor);
+        browser_id, std::make_pair(context_id, request_id), &visitor);
     if (info)
       *removed = visitor.removed();
     return info;
