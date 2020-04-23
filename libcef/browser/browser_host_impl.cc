@@ -2534,6 +2534,13 @@ void CefBrowserHostImpl::RenderViewCreated(
   RenderFrameCreated(render_view_host->GetMainFrame());
 
   platform_delegate_->RenderViewCreated(render_view_host);
+
+  // Make sure the background color is set on the WebView and the Widget.
+  render_view_host->OnWebkitPreferencesChanged();
+  if (render_view_host->GetWidget()->GetView()) {
+    render_view_host->GetWidget()->GetView()->SetBackgroundColor(
+        GetBackgroundColor());
+  }
 }
 
 void CefBrowserHostImpl::RenderViewDeleted(
