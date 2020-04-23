@@ -645,9 +645,15 @@ void CefRequestContextImpl::Initialize() {
     // Share storage with |config_.other|.
     browser_context_ =
         CefBrowserContext::GetForContext(config_.other->GetBrowserContext());
+    DCHECK(browser_context_);
   }
 
   if (!browser_context_) {
+    if (!config_.is_global) {
+      // User-specified settings need to be normalized.
+      CefContext::Get()->NormalizeRequestContextSettings(&config_.settings);
+    }
+
     const base::FilePath& cache_path =
         base::FilePath(CefString(&config_.settings.cache_path));
     if (!cache_path.empty()) {
@@ -661,16 +667,16 @@ void CefRequestContextImpl::Initialize() {
     // Create a new CefBrowserContext instance. If the cache path is non-
     // empty then this new instance will become the globally registered
     // CefBrowserContext for that path. Otherwise, this new instance will
-    // be a completely isolated "incongento mode" context.
+    // be a completely isolated "incognito mode" context.
     browser_context_ = new CefBrowserContext(config_.settings);
     browser_context_->Initialize();
+  } else {
+    // Share the same settings as the existing context.
+    config_.settings = browser_context_->GetSettings();
   }
 
   // We'll disassociate from |browser_context_| on destruction.
   browser_context_->AddCefRequestContext(this);
-
-  // Force our settings to match |browser_context_|.
-  config_.settings = browser_context_->GetSettings();
 
   if (config_.other) {
     // Clear the reference to |config_.other| after setting

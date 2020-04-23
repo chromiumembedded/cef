@@ -87,10 +87,11 @@ class CefContext {
 
   // Populate request context settings for the global system context based on
   // CefSettings and command-line flags.
-  void PopulateRequestContextSettings(CefRequestContextSettings* settings);
+  void PopulateGlobalRequestContextSettings(
+      CefRequestContextSettings* settings);
 
-  // Verify that |cache_path| is valid and create it if necessary.
-  bool ValidateCachePath(const base::FilePath& cache_path);
+  // Normalize and validate request context settings for user-created contexts.
+  void NormalizeRequestContextSettings(CefRequestContextSettings* settings);
 
   // Manage observer objects. The observer must either outlive this object or
   // remove itself before destruction. These methods can only be called on the

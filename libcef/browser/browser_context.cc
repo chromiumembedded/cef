@@ -8,7 +8,6 @@
 #include <utility>
 
 #include "libcef/browser/content_browser_client.h"
-#include "libcef/browser/context.h"
 #include "libcef/browser/download_manager_delegate.h"
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/media_router/media_router_manager.h"
@@ -292,36 +291,23 @@ CefBrowserContext::~CefBrowserContext() {
 }
 
 void CefBrowserContext::Initialize() {
-  CefContext* context = CefContext::Get();
-
   cache_path_ = base::FilePath(CefString(&settings_.cache_path));
-  if (!context->ValidateCachePath(cache_path_)) {
-    // Reset to in-memory storage.
-    CefString(&settings_.cache_path).clear();
-    cache_path_ = base::FilePath();
-  }
 
   if (!cache_path_.empty())
     g_manager.Get().SetImplPath(this, cache_path_);
-
-  if (settings_.accept_language_list.length == 0) {
-    // Use the global language list setting.
-    CefString(&settings_.accept_language_list) =
-        CefString(&context->settings().accept_language_list);
-  }
 
   if (!!settings_.persist_session_cookies) {
     set_should_persist_session_cookies(true);
   }
 
-  key_ = std::make_unique<ProfileKey>(GetPath());
+  key_ = std::make_unique<ProfileKey>(cache_path_);
   SimpleKeyMap::GetInstance()->Associate(this, key_.get());
 
   // Initialize the PrefService object.
   pref_service_ = browser_prefs::CreatePrefService(
       this, cache_path_, !!settings_.persist_user_preferences);
 
-  content::BrowserContext::Initialize(this, GetPath());
+  content::BrowserContext::Initialize(this, cache_path_);
 
   resource_context_.reset(new CefResourceContext(IsOffTheRecord()));
 
