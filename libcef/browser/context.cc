@@ -160,6 +160,85 @@ bool GetColor(const cef_color_t cef_in, bool is_windowless, SkColor* sk_out) {
   return true;
 }
 
+// Convert |path_str| to a normalized FilePath.
+base::FilePath NormalizePath(const cef_string_t& path_str,
+                             const char* name,
+                             bool* has_error = nullptr) {
+  if (has_error)
+    *has_error = false;
+
+  base::FilePath path = base::FilePath(CefString(&path_str));
+  if (path.EndsWithSeparator()) {
+    // Remove the trailing separator because it will interfere with future
+    // equality checks.
+    path = path.StripTrailingSeparators();
+  }
+
+  if (!path.empty() && !path.IsAbsolute()) {
+    LOG(ERROR) << "The " << name << " directory (" << path.value()
+               << ") is not an absolute path. Defaulting to empty.";
+    if (has_error)
+      *has_error = true;
+    path = base::FilePath();
+  }
+
+  return path;
+}
+
+void SetPath(cef_string_t& path_str, const base::FilePath& path) {
+#if defined(OS_WIN)
+  CefString(&path_str).FromWString(path.value());
+#else
+  CefString(&path_str).FromString(path.value());
+#endif
+}
+
+// Convert |path_str| to a normalized FilePath and update the |path_str| value.
+base::FilePath NormalizePathAndSet(cef_string_t& path_str, const char* name) {
+  const base::FilePath& path = NormalizePath(path_str, name);
+  SetPath(path_str, path);
+  return path;
+}
+
+// Verify that |cache_path| is valid and create it if necessary.
+bool ValidateCachePath(const base::FilePath& cache_path,
+                       const base::FilePath& root_cache_path) {
+  if (cache_path.empty())
+    return true;
+
+  if (!root_cache_path.empty() && root_cache_path != cache_path &&
+      !root_cache_path.IsParent(cache_path)) {
+    LOG(ERROR) << "The cache_path directory (" << cache_path.value()
+               << ") is not a child of the root_cache_path directory ("
+               << root_cache_path.value() << ")";
+    return false;
+  }
+
+  base::ThreadRestrictions::ScopedAllowIO allow_io;
+  if (!base::DirectoryExists(cache_path) &&
+      !base::CreateDirectory(cache_path)) {
+    LOG(ERROR) << "The cache_path directory (" << cache_path.value()
+               << ") could not be created.";
+    return false;
+  }
+
+  return true;
+}
+
+// Like NormalizePathAndSet but with additional checks specific to the
+// cache_path value.
+base::FilePath NormalizeCachePathAndSet(cef_string_t& path_str,
+                                        const base::FilePath& root_cache_path) {
+  bool has_error = false;
+  base::FilePath path = NormalizePath(path_str, "cache_path", &has_error);
+  if (has_error || !ValidateCachePath(path, root_cache_path)) {
+    LOG(ERROR) << "The cache_path is invalid. Defaulting to in-memory storage.";
+    path = base::FilePath();
+  }
+  SetPath(path_str, path);
+  return path;
+}
+
 }  // namespace
 
 int CefExecuteProcess(const CefMainArgs& args,
@@ -370,17 +449,22 @@ bool CefContext::Initialize(const CefMainArgs& args,
   SignalChromeElf();
 #endif
 
-  base::FilePath cache_path = base::FilePath(CefString(&settings_.cache_path));
-  if (!ValidateCachePath(cache_path)) {
-    // Reset to in-memory storage.
-    CefString(&settings_.cache_path).clear();
-    cache_path = base::FilePath();
-  }
   const base::FilePath& root_cache_path =
-      base::FilePath(CefString(&settings_.root_cache_path));
+      NormalizePathAndSet(settings_.root_cache_path, "root_cache_path");
+  const base::FilePath& cache_path =
+      NormalizeCachePathAndSet(settings_.cache_path, root_cache_path);
   if (root_cache_path.empty() && !cache_path.empty()) {
-    CefString(&settings_.root_cache_path) = CefString(&settings_.cache_path);
+    CefString(&settings_.root_cache_path) = cache_path.value();
   }
+
+  // All other paths that need to be normalized.
+  NormalizePathAndSet(settings_.browser_subprocess_path,
+                      "browser_subprocess_path");
+  NormalizePathAndSet(settings_.framework_dir_path, "framework_dir_path");
+  NormalizePathAndSet(settings_.main_bundle_path, "main_bundle_path");
+  NormalizePathAndSet(settings_.user_data_path, "user_data_path");
+  NormalizePathAndSet(settings_.resources_dir_path, "resources_dir_path");
+  NormalizePathAndSet(settings_.locales_dir_path, "locales_dir_path");
 
   main_delegate_.reset(new CefMainDelegate(application));
   browser_info_manager_.reset(new CefBrowserInfoManager);
@@ -518,11 +602,14 @@ CefTraceSubscriber* CefContext::GetTraceSubscriber() {
   return trace_subscriber_.get();
 }
 
-void CefContext::PopulateRequestContextSettings(
+void CefContext::PopulateGlobalRequestContextSettings(
     CefRequestContextSettings* settings) {
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
+
+  // This value was already normalized in Initialize.
   CefString(&settings->cache_path) = CefString(&settings_.cache_path);
+
   settings->persist_session_cookies =
       settings_.persist_session_cookies ||
       command_line->HasSwitch(switches::kPersistSessionCookies);
@@ -536,29 +623,17 @@ void CefContext::PopulateRequestContextSettings(
       CefString(&settings_.accept_language_list);
 }
 
-bool CefContext::ValidateCachePath(const base::FilePath& cache_path) {
-  if (cache_path.empty())
-    return true;
+void CefContext::NormalizeRequestContextSettings(
+    CefRequestContextSettings* settings) {
+  // The |root_cache_path| value was already normalized in Initialize.
+  const base::FilePath& root_cache_path = CefString(&settings_.root_cache_path);
+  NormalizeCachePathAndSet(settings->cache_path, root_cache_path);
 
-  const base::FilePath& root_cache_path =
-      base::FilePath(CefString(&settings_.root_cache_path));
-  if (!root_cache_path.empty() && root_cache_path != cache_path &&
-      !root_cache_path.IsParent(cache_path)) {
-    LOG(ERROR) << "The cache_path directory (" << cache_path.value()
-               << ") is not a child of the root_cache_path directory ("
-               << root_cache_path.value() << ")";
-    return false;
+  if (settings->accept_language_list.length == 0) {
+    // Use the global language list setting.
+    CefString(&settings->accept_language_list) =
+        CefString(&settings_.accept_language_list);
   }
-
-  base::ThreadRestrictions::ScopedAllowIO allow_io;
-  if (!base::DirectoryExists(cache_path) &&
-      !base::CreateDirectory(cache_path)) {
-    LOG(ERROR) << "The cache_path directory (" << cache_path.value()
-               << ") could not be created.";
-    return false;
-  }
-
-  return true;
 }
 
 void CefContext::AddObserver(Observer* observer) {

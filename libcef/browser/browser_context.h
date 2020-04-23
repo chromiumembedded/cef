@@ -296,7 +296,7 @@ class CefBrowserContext : public ChromeProfileStub,
   ~CefBrowserContext() override;
 
   // Members initialized during construction are safe to access from any thread.
-  CefRequestContextSettings settings_;
+  const CefRequestContextSettings settings_;
   base::FilePath cache_path_;
 
   // CefRequestContextImpl objects referencing this object.

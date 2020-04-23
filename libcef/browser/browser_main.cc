@@ -191,7 +191,7 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
        base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()});
 
   CefRequestContextSettings settings;
-  CefContext::Get()->PopulateRequestContextSettings(&settings);
+  CefContext::Get()->PopulateGlobalRequestContextSettings(&settings);
 
   // Create the global RequestContext.
   global_request_context_ =
