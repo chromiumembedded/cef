@@ -47,6 +47,9 @@ void SetCookieCallbackImpl(CefRefPtr<CefSetCookieCallback> callback,
                            net::CanonicalCookie::CookieInclusionStatus status) {
   if (!callback.get())
     return;
+  if (!status.IsInclude()) {
+    LOG(WARNING) << "SetCookie failed with reason: " << status.GetDebugString();
+  }
   CEF_POST_TASK(CEF_UIT, base::Bind(&CefSetCookieCallback::OnComplete,
                                     callback.get(), status.IsInclude()));
 }
@@ -203,6 +206,8 @@ bool CefCookieManagerImpl::VisitUrlCookies(
   net::CookieOptions options;
   if (includeHttpOnly)
     options.set_include_httponly();
+  options.set_same_site_cookie_context(
+      net::CookieOptions::SameSiteCookieContext::MakeInclusive());
 
   auto browser_context = GetBrowserContext(browser_context_getter_);
   if (!browser_context)
@@ -239,13 +244,18 @@ bool CefCookieManagerImpl::SetCookie(const CefString& url,
   if (cookie.has_expires)
     cef_time_to_basetime(cookie.expires, expiration_time);
 
+  net::CookieSameSite same_site =
+      net_service::MakeCookieSameSite(cookie.same_site);
+  net::CookiePriority priority =
+      net_service::MakeCookiePriority(cookie.priority);
+
   auto canonical_cookie = net::CanonicalCookie::CreateSanitizedCookie(
       gurl, name, value, domain, path,
       base::Time(),  // Creation time.
       expiration_time,
       base::Time(),  // Last access time.
-      cookie.secure ? true : false, cookie.httponly ? true : false,
-      net::CookieSameSite::UNSPECIFIED, net::COOKIE_PRIORITY_DEFAULT);
+      cookie.secure ? true : false, cookie.httponly ? true : false, same_site,
+      priority);
 
   if (!canonical_cookie) {
     SetCookieCallbackImpl(callback,
@@ -258,6 +268,8 @@ bool CefCookieManagerImpl::SetCookie(const CefString& url,
   net::CookieOptions options;
   if (cookie.httponly)
     options.set_include_httponly();
+  options.set_same_site_cookie_context(
+      net::CookieOptions::SameSiteCookieContext::MakeInclusive());
 
   auto browser_context = GetBrowserContext(browser_context_getter_);
   if (!browser_context)

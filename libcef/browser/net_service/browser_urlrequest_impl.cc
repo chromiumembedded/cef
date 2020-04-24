@@ -31,6 +31,7 @@
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 #include "services/network/public/cpp/simple_url_loader.h"
 #include "services/network/public/cpp/simple_url_loader_stream_consumer.h"
+#include "third_party/blink/public/mojom/loader/resource_load_info.mojom.h"
 
 namespace {
 
@@ -253,6 +254,23 @@ class CefBrowserURLRequest::Context
         ->Get(resource_request.get(), false);
 
     resource_request->render_frame_id = render_frame_id;
+
+    // Behave the same as a subresource load.
+    resource_request->fetch_request_context_type =
+        static_cast<int>(blink::mojom::RequestContextType::SUBRESOURCE);
+    resource_request->resource_type =
+        static_cast<int>(blink::mojom::ResourceType::kSubResource);
+
+    // Set the origin to match the request.
+    const GURL& url = GURL(request_->GetURL().ToString());
+    resource_request->request_initiator = url::Origin::Create(url);
+
+    if (request_flags & UR_FLAG_ALLOW_STORED_CREDENTIALS) {
+      // Include SameSite cookies.
+      resource_request->attach_same_site_cookies = true;
+      resource_request->site_for_cookies =
+          net::SiteForCookies::FromOrigin(*resource_request->request_initiator);
+    }
 
     // SimpleURLLoader is picky about the body contents. Try to populate them
     // correctly below.

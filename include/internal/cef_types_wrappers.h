@@ -851,6 +851,8 @@ struct CefCookieTraits {
     target->last_access = src->last_access;
     target->has_expires = src->has_expires;
     target->expires = src->expires;
+    target->same_site = src->same_site;
+    target->priority = src->priority;
   }
 };
 

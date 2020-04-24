@@ -475,10 +475,7 @@ void VerifyNormalRequest(const RequestRunSettings* settings,
     has_send_cookie = true;
   }
 
-  if (settings->expect_send_cookie)
-    EXPECT_TRUE(has_send_cookie);
-  else
-    EXPECT_FALSE(has_send_cookie);
+  EXPECT_EQ(settings->expect_send_cookie, has_send_cookie);
 }
 
 // Populate normal response contents.

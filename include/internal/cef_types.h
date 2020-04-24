@@ -738,6 +738,25 @@ typedef struct _cef_urlparts_t {
 } cef_urlparts_t;
 
 ///
+// Cookie priority values.
+///
+typedef enum {
+  CEF_COOKIE_PRIORITY_LOW = -1,
+  CEF_COOKIE_PRIORITY_MEDIUM = 0,
+  CEF_COOKIE_PRIORITY_HIGH = 1,
+} cef_cookie_priority_t;
+
+///
+// Cookie same site values.
+///
+typedef enum {
+  CEF_COOKIE_SAME_SITE_UNSPECIFIED,
+  CEF_COOKIE_SAME_SITE_NO_RESTRICTION,
+  CEF_COOKIE_SAME_SITE_LAX_MODE,
+  CEF_COOKIE_SAME_SITE_STRICT_MODE,
+} cef_cookie_same_site_t;
+
+///
 // Cookie information.
 ///
 typedef struct _cef_cookie_t {
@@ -791,6 +810,16 @@ typedef struct _cef_cookie_t {
   ///
   int has_expires;
   cef_time_t expires;
+
+  ///
+  // Same site.
+  ///
+  cef_cookie_same_site_t same_site;
+
+  ///
+  // Priority.
+  ///
+  cef_cookie_priority_t priority;
 } cef_cookie_t;
 
 ///

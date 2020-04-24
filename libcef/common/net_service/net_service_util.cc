@@ -38,6 +38,30 @@ bool GetCookieDomain(const GURL& url,
                                                      result);
 }
 
+cef_cookie_same_site_t MakeCefCookieSameSite(net::CookieSameSite value) {
+  switch (value) {
+    case net::CookieSameSite::UNSPECIFIED:
+      return CEF_COOKIE_SAME_SITE_UNSPECIFIED;
+    case net::CookieSameSite::NO_RESTRICTION:
+      return CEF_COOKIE_SAME_SITE_NO_RESTRICTION;
+    case net::CookieSameSite::LAX_MODE:
+      return CEF_COOKIE_SAME_SITE_LAX_MODE;
+    case net::CookieSameSite::STRICT_MODE:
+      return CEF_COOKIE_SAME_SITE_STRICT_MODE;
+  }
+}
+
+cef_cookie_priority_t MakeCefCookiePriority(net::CookiePriority value) {
+  switch (value) {
+    case net::COOKIE_PRIORITY_LOW:
+      return CEF_COOKIE_PRIORITY_LOW;
+    case net::COOKIE_PRIORITY_MEDIUM:
+      return CEF_COOKIE_PRIORITY_MEDIUM;
+    case net::COOKIE_PRIORITY_HIGH:
+      return CEF_COOKIE_PRIORITY_HIGH;
+  }
+}
+
 }  // namespace
 
 const char kHTTPLocationHeaderName[] = "Location";
@@ -177,6 +201,30 @@ net::RedirectInfo MakeRedirectInfo(const network::ResourceRequest& request,
       insecure_scheme_was_upgraded);
 }
 
+net::CookieSameSite MakeCookieSameSite(cef_cookie_same_site_t value) {
+  switch (value) {
+    case CEF_COOKIE_SAME_SITE_UNSPECIFIED:
+      return net::CookieSameSite::UNSPECIFIED;
+    case CEF_COOKIE_SAME_SITE_NO_RESTRICTION:
+      return net::CookieSameSite::NO_RESTRICTION;
+    case CEF_COOKIE_SAME_SITE_LAX_MODE:
+      return net::CookieSameSite::LAX_MODE;
+    case CEF_COOKIE_SAME_SITE_STRICT_MODE:
+      return net::CookieSameSite::STRICT_MODE;
+  }
+}
+
+net::CookiePriority MakeCookiePriority(cef_cookie_priority_t value) {
+  switch (value) {
+    case CEF_COOKIE_PRIORITY_LOW:
+      return net::COOKIE_PRIORITY_LOW;
+    case CEF_COOKIE_PRIORITY_MEDIUM:
+      return net::COOKIE_PRIORITY_MEDIUM;
+    case CEF_COOKIE_PRIORITY_HIGH:
+      return net::COOKIE_PRIORITY_HIGH;
+  }
+}
+
 bool MakeCefCookie(const net::CanonicalCookie& cc, CefCookie& cookie) {
   CefString(&cookie.name).FromString(cc.Name());
   CefString(&cookie.value).FromString(cc.Value());
@@ -189,6 +237,8 @@ bool MakeCefCookie(const net::CanonicalCookie& cc, CefCookie& cookie) {
   cookie.has_expires = cc.IsPersistent();
   if (cookie.has_expires)
     cef_time_from_basetime(cc.ExpiryDate(), cookie.expires);
+  cookie.same_site = MakeCefCookieSameSite(cc.SameSite());
+  cookie.priority = MakeCefCookiePriority(cc.Priority());
 
   return true;
 }
@@ -225,6 +275,8 @@ bool MakeCefCookie(const GURL& url,
   cookie.has_expires = !cookie_expires.is_null();
   if (cookie.has_expires)
     cef_time_from_basetime(cookie_expires, cookie.expires);
+  cookie.same_site = MakeCefCookieSameSite(pc.SameSite());
+  cookie.priority = MakeCefCookiePriority(pc.Priority());
 
   return true;
 }
