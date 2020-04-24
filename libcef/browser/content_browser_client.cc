@@ -1051,6 +1051,11 @@ void CefContentBrowserClient::OverrideWebkitPrefs(
   // Using RVH instead of RFH here because rvh->GetMainFrame() may be nullptr
   // when this method is called.
   renderer_prefs::PopulateWebPreferences(rvh, *prefs);
+
+  if (rvh->GetWidget()->GetView()) {
+    rvh->GetWidget()->GetView()->SetBackgroundColor(
+        prefs->base_background_color);
+  }
 }
 
 void CefContentBrowserClient::BrowserURLHandlerCreated(
