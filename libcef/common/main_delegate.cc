@@ -620,18 +620,6 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       disable_features.push_back(network::features::kOutOfBlinkCors.name);
     }
 
-    // TODO: Add support for creating cookies with SameSite attribute (see issue
-    // #2524)
-    if (net::features::kSameSiteByDefaultCookies.default_state ==
-        base::FEATURE_ENABLED_BY_DEFAULT) {
-      disable_features.push_back(net::features::kSameSiteByDefaultCookies.name);
-    }
-    if (net::features::kCookiesWithoutSameSiteMustBeSecure.default_state ==
-        base::FEATURE_ENABLED_BY_DEFAULT) {
-      disable_features.push_back(
-          net::features::kCookiesWithoutSameSiteMustBeSecure.name);
-    }
-
 #if defined(OS_WIN)
     if (features::kCalculateNativeWinOcclusion.default_state ==
         base::FEATURE_ENABLED_BY_DEFAULT) {

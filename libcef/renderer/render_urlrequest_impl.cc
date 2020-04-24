@@ -132,6 +132,13 @@ class CefRenderURLRequest::Context
     // DCHECK'd in ResourceDispatcherHostImpl::ContinuePendingBeginRequest.
     resource_request->request_initiator = url::Origin::Create(url);
 
+    if (request_->GetFlags() & UR_FLAG_ALLOW_STORED_CREDENTIALS) {
+      // Include SameSite cookies.
+      resource_request->attach_same_site_cookies = true;
+      resource_request->site_for_cookies =
+          net::SiteForCookies::FromOrigin(*resource_request->request_initiator);
+    }
+
     if (resource_request->request_body) {
       const auto& elements = *resource_request->request_body->elements();
       if (elements.size() > 0) {

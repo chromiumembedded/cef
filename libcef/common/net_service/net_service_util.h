@@ -11,6 +11,7 @@
 #include "include/internal/cef_types_wrappers.h"
 
 #include "base/memory/scoped_refptr.h"
+#include "net/cookies/cookie_constants.h"
 
 namespace net {
 class CanonicalCookie;
@@ -69,6 +70,9 @@ bool MakeCefCookie(const net::CanonicalCookie& cc, CefCookie& cookie);
 bool MakeCefCookie(const GURL& url,
                    const std::string& cookie_line,
                    CefCookie& cookie);
+
+net::CookieSameSite MakeCookieSameSite(cef_cookie_same_site_t value);
+net::CookiePriority MakeCookiePriority(cef_cookie_priority_t value);
 
 }  // namespace net_service
 

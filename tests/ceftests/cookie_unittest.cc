@@ -247,6 +247,8 @@ void GetCookie(CefRefPtr<CefCookieManager> manager,
   EXPECT_EQ(cookie.expires.minute, cookie_read.expires.minute);
   EXPECT_EQ(cookie.expires.second, cookie_read.expires.second);
   EXPECT_EQ(cookie.expires.millisecond, cookie_read.expires.millisecond);
+  EXPECT_EQ(cookie.same_site, cookie_read.same_site);
+  EXPECT_EQ(cookie.priority, cookie_read.priority);
 }
 
 // Verify that no cookies exist. If |withUrl| is true it will only check for
