@@ -1410,8 +1410,8 @@ void CefRenderWidgetHostViewOSR::UpdateFrameRate() {
 }
 
 gfx::Size CefRenderWidgetHostViewOSR::SizeInPixels() {
-  return gfx::ConvertSizeToPixel(current_device_scale_factor_,
-                                 GetViewBounds().size());
+  return gfx::ScaleToCeiledSize(GetViewBounds().size(),
+                                current_device_scale_factor_);
 }
 
 #if defined(OS_MACOSX)
