@@ -221,6 +221,8 @@ class CefMediaRouteCreateCallback : public virtual CefBaseRefCounted {
 /*--cef(source=library)--*/
 class CefMediaSink : public virtual CefBaseRefCounted {
  public:
+  typedef cef_media_sink_icon_type_t IconType;
+
   ///
   // Returns the ID for this sink.
   ///
@@ -244,6 +246,12 @@ class CefMediaSink : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual CefString GetDescription() = 0;
+
+  ///
+  // Returns the icon type for this sink.
+  ///
+  /*--cef(default_retval=CEF_MSIT_GENERIC)--*/
+  virtual IconType GetIconType() = 0;
 
   ///
   // Returns true if this sink accepts content via Cast.

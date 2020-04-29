@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cbbac244f39cc1d644b0db80a3f7234399286368$
+// $hash=3a295e7d6703e2e8effd94da8e97d8b7f451dc32$
 //
 
 #include "libcef_dll/cpptoc/media_sink_cpptoc.h"
@@ -87,6 +87,24 @@ media_sink_get_description(struct _cef_media_sink_t* self) {
   return _retval.DetachToUserFree();
 }
 
+cef_media_sink_icon_type_t CEF_CALLBACK
+media_sink_get_icon_type(struct _cef_media_sink_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return CEF_MSIT_GENERIC;
+
+  // Execute
+  cef_media_sink_icon_type_t _retval =
+      CefMediaSinkCppToC::Get(self)->GetIconType();
+
+  // Return type: simple
+  return _retval;
+}
+
 int CEF_CALLBACK media_sink_is_cast_sink(struct _cef_media_sink_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -151,6 +169,7 @@ CefMediaSinkCppToC::CefMediaSinkCppToC() {
   GetStruct()->is_valid = media_sink_is_valid;
   GetStruct()->get_name = media_sink_get_name;
   GetStruct()->get_description = media_sink_get_description;
+  GetStruct()->get_icon_type = media_sink_get_icon_type;
   GetStruct()->is_cast_sink = media_sink_is_cast_sink;
   GetStruct()->is_dial_sink = media_sink_is_dial_sink;
   GetStruct()->is_compatible_with = media_sink_is_compatible_with;

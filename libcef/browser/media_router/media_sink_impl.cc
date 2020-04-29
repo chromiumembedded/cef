@@ -27,6 +27,15 @@ CefString CefMediaSinkImpl::GetDescription() {
   return sink_.description().value_or("");
 }
 
+CefMediaSink::IconType CefMediaSinkImpl::GetIconType() {
+  // Verify that our enum matches Chromium's values.
+  static_assert(static_cast<int>(CEF_MSIT_TOTAL_COUNT) ==
+                    static_cast<int>(media_router::SinkIconType::TOTAL_COUNT),
+                "enum mismatch");
+
+  return static_cast<CefMediaSink::IconType>(sink_.icon_type());
+}
+
 bool CefMediaSinkImpl::IsCastSink() {
   return sink_.provider_id() == media_router::CAST;
 }

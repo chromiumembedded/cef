@@ -161,6 +161,7 @@ class MediaObserver : public CefMediaObserver {
       sink_dict->SetString("id", sink_id);
       sink_dict->SetString("name", sink->GetName());
       sink_dict->SetString("desc", sink->GetDescription());
+      sink_dict->SetInt("icon", sink->GetIconType());
       sink_dict->SetString(
           "type", sink->IsCastSink() ? "cast"
                                      : sink->IsDialSink() ? "dial" : "unknown");
