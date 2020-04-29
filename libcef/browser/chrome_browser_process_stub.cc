@@ -157,15 +157,17 @@ ProfileManager* ChromeBrowserProcessStub::profile_manager() {
 PrefService* ChromeBrowserProcessStub::local_state() {
   DCHECK(initialized_);
   if (!local_state_) {
+    // Use a location that is shared by all request contexts.
     const CefSettings& settings = CefContext::Get()->settings();
-    const base::FilePath& cache_path =
-        base::FilePath(CefString(&settings.cache_path));
+    const base::FilePath& root_cache_path =
+        base::FilePath(CefString(&settings.root_cache_path));
 
     // Used for very early NetworkService initialization.
     // Always persist preferences for this PrefService if possible because it
     // contains the cookie encryption key on Windows.
-    local_state_ = browser_prefs::CreatePrefService(
-        nullptr /* profile */, cache_path, true /* persist_user_preferences */);
+    local_state_ =
+        browser_prefs::CreatePrefService(nullptr /* profile */, root_cache_path,
+                                         true /* persist_user_preferences */);
   }
   return local_state_.get();
 }
