@@ -34,7 +34,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=af15b08731cc133c3974ceb18002b146a53b9c9e$
+// $hash=fd013f5bdcf2333b1f0fb452442d300dffe598e5$
 //
 
 #ifndef CEF_INCLUDE_API_HASH_H_
@@ -47,13 +47,13 @@
 // way that may cause binary incompatibility with other builds. The universal
 // hash value will change if any platform is affected whereas the platform hash
 // values will change only if that particular platform is affected.
-#define CEF_API_HASH_UNIVERSAL "f76dc8c40e454ef26318d0f83312dadaf909e4c5"
+#define CEF_API_HASH_UNIVERSAL "c80d4c5f1dc72279ac7a44d7b174fb80cf728abc"
 #if defined(OS_WIN)
-#define CEF_API_HASH_PLATFORM "831ef33853bb8575bcd097ba65851d4d98a08db8"
+#define CEF_API_HASH_PLATFORM "bde71fdc88914ed7353ee7308d060cd6b4f8c8af"
 #elif defined(OS_MACOSX)
-#define CEF_API_HASH_PLATFORM "0944363458590a23d84e99eb1b81372be6784b97"
+#define CEF_API_HASH_PLATFORM "2fb3e42a6d2e594aa55792b5852d7f57524ab011"
 #elif defined(OS_LINUX)
-#define CEF_API_HASH_PLATFORM "dfd012193a93782cd4b041f4cd71e1e8f2ca401e"
+#define CEF_API_HASH_PLATFORM "222824f83536a111c6480dba64833251c01cd6fd"
 #endif
 
 #ifdef __cplusplus

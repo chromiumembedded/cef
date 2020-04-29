@@ -22,6 +22,7 @@ class CefMediaSinkImpl : public CefMediaSink {
   bool IsValid() override;
   CefString GetName() override;
   CefString GetDescription() override;
+  IconType GetIconType() override;
   bool IsCastSink() override;
   bool IsDialSink() override;
   bool IsCompatibleWith(CefRefPtr<CefMediaSource> source) override;

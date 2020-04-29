@@ -112,6 +112,32 @@ function getStateLabel(state) {
   return "UNKNOWN";
 }
 
+// Values from cef_media_sink_icon_type_t.
+var CEF_MSIT_CAST = 0;
+var CEF_MSIT_CAST_AUDIO_GROUP = 1;
+var CEF_MSIT_CAST_AUDIO = 2;
+var CEF_MSIT_MEETING = 3;
+var CEF_MSIT_HANGOUT = 4;
+var CEF_MSIT_EDUCATION = 5;
+var CEF_MSIT_WIRED_DISPLAY = 6;
+var CEF_MSIT_GENERIC = 7;
+
+function getIconTypeLabel(type) {
+  switch (type) {
+    case CEF_MSIT_CAST: return "CAST";
+    case CEF_MSIT_CAST_AUDIO_GROUP: return "CAST_AUDIO_GROUP";
+    case CEF_MSIT_CAST_AUDIO: return "CAST_AUDIO";
+    case CEF_MSIT_MEETING: return "MEETING";
+    case CEF_MSIT_HANGOUT: return "HANGOUT";
+    case CEF_MSIT_EDUCATION: return "EDUCATION";
+    case CEF_MSIT_WIRED_DISPLAY: return "WIRED_DISPLAY";
+    case CEF_MSIT_GENERIC: return "GENERIC";
+    default: break;
+  }
+  return "UNKNOWN";
+}
+
+
 ///
 // Manage show/hide of default text for form elements.
 ///
@@ -213,7 +239,9 @@ Expected format for |sinks| is:
     {
       name: string,
       type: string ('cast' or 'dial'),
-      id: string
+      id: string,
+      desc: string,
+      icon: int
     }, ...
   ]
 */
@@ -248,7 +276,7 @@ function updateSinks(sinks) {
     if (oldValues.includes(sink.id))
       continue;
     var opt = document.createElement('option');
-    opt.innerHTML = sink.name + ' (' + sink.type + ')';
+    opt.innerHTML = sink.name + ' (' + sink.type + ', ' + getIconTypeLabel(sink.icon) + ')';
     opt.value = sink.id;
     sinksSelect.appendChild(opt);
   }
@@ -476,12 +504,16 @@ function initDemoMode() {
     {
       name: 'Sink 1',
       type: 'cast',
-      id: 'sink1'
+      id: 'sink1',
+      desc: 'My cast device',
+      icon: CEF_MSIT_CAST
     },
     {
       name: 'Sink 2',
       type: 'dial',
-      id: 'sink2'
+      id: 'sink2',
+      desc: 'My dial device',
+      icon: CEF_MSIT_GENERIC
     }
   ];
   updateSinks(sinks);
