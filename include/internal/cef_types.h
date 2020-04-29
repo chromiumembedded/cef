@@ -3004,9 +3004,8 @@ typedef struct _cef_composition_underline_t {
 } cef_composition_underline_t;
 
 ///
-// Result codes for CefMediaRouter::CreateRoute. These constants match
-// their equivalents in Chromium's route_request_result.h and should not be
-// renumbered.
+// Result codes for CefMediaRouter::CreateRoute. Should be kept in sync with
+// Chromium's media_router::RouteRequestResult::ResultCode type.
 ///
 typedef enum {
   CEF_MRCR_UNKNOWN_ERROR = 0,
@@ -3032,6 +3031,23 @@ typedef enum {
   CEF_MRCS_CLOSED,
   CEF_MRCS_TERMINATED,
 } cef_media_route_connection_state_t;
+
+///
+// Icon types for a MediaSink object. Should be kept in sync with Chromium's
+// media_router::SinkIconType type.
+///
+typedef enum {
+  CEF_MSIT_CAST,
+  CEF_MSIT_CAST_AUDIO_GROUP,
+  CEF_MSIT_CAST_AUDIO,
+  CEF_MSIT_MEETING,
+  CEF_MSIT_HANGOUT,
+  CEF_MSIT_EDUCATION,
+  CEF_MSIT_WIRED_DISPLAY,
+  CEF_MSIT_GENERIC,
+
+  CEF_MSIT_TOTAL_COUNT,  // The total number of values.
+} cef_media_sink_icon_type_t;
 
 #ifdef __cplusplus
 }

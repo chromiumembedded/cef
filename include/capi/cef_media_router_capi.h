@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=a7070419332ec8f6d6e4df898c8eb666b988970a$
+// $hash=aa1310919932145744d5347d449d6ee10a3a0813$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_MEDIA_ROUTER_CAPI_H_
@@ -262,6 +262,12 @@ typedef struct _cef_media_sink_t {
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_description)(
+      struct _cef_media_sink_t* self);
+
+  ///
+  // Returns the icon type for this sink.
+  ///
+  cef_media_sink_icon_type_t(CEF_CALLBACK* get_icon_type)(
       struct _cef_media_sink_t* self);
 
   ///

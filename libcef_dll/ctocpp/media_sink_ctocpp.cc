@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bb39ec5e546482b707c1e01a83fc1b064d96a4e6$
+// $hash=63071af2d949b451ad0e7273ca0f5d7bfec425db$
 //
 
 #include "libcef_dll/ctocpp/media_sink_ctocpp.h"
@@ -86,6 +86,23 @@ NO_SANITIZE("cfi-icall") CefString CefMediaSinkCToCpp::GetDescription() {
   CefString _retvalStr;
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
+}
+
+NO_SANITIZE("cfi-icall")
+CefMediaSink::IconType CefMediaSinkCToCpp::GetIconType() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_media_sink_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_icon_type))
+    return CEF_MSIT_GENERIC;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_media_sink_icon_type_t _retval = _struct->get_icon_type(_struct);
+
+  // Return type: simple
+  return _retval;
 }
 
 NO_SANITIZE("cfi-icall") bool CefMediaSinkCToCpp::IsCastSink() {
