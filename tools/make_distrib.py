@@ -694,6 +694,8 @@ if mode == 'standard' or mode == 'minimal':
   # transfer common include files
   transfer_gypi_files(cef_dir, cef_paths2['includes_common'], \
                       'include/', include_dir, options.quiet)
+  transfer_gypi_files(cef_dir, cef_paths2['includes_common_capi'], \
+                      'include/', include_dir, options.quiet)
   transfer_gypi_files(cef_dir, cef_paths2['includes_capi'], \
                       'include/', include_dir, options.quiet)
   transfer_gypi_files(cef_dir, cef_paths2['includes_wrapper'], \
@@ -948,6 +950,8 @@ if platform == 'windows':
     # transfer include files
     transfer_gypi_files(cef_dir, cef_paths2['includes_win'], \
                         'include/', include_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['includes_win_capi'], \
+                        'include/', include_dir, options.quiet)
 
     # transfer additional files, if any
     transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib', 'win'), \
@@ -1094,6 +1098,8 @@ elif platform == 'macosx':
     # transfer include files
     transfer_gypi_files(cef_dir, cef_paths2['includes_mac'], \
                         'include/', include_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['includes_mac_capi'], \
+                        'include/', include_dir, options.quiet)
     transfer_gypi_files(cef_dir, cef_paths2['includes_wrapper_mac'], \
                         'include/', include_dir, options.quiet)
 
@@ -1210,6 +1216,8 @@ elif platform == 'linux':
   if mode == 'standard' or mode == 'minimal':
     # transfer include files
     transfer_gypi_files(cef_dir, cef_paths2['includes_linux'], \
+                        'include/', include_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['includes_linux_capi'], \
                         'include/', include_dir, options.quiet)
 
     # transfer additional files, if any

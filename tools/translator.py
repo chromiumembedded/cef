@@ -238,11 +238,12 @@ if not options.quiet:
   sys.stdout.write('Generating ' + libcef_dll_dylib_impl + ' file...\n')
 update_file(*write_libcef_dll_dylib_impl(header, libcef_dll_dylib_impl))
 
-# Output the API hash header file. This must be done last because it reads files
-# that were potentially written by proceeding operations.
+# Update the API hash header file if necessary. This must be done last because
+# it reads files that were potentially written by proceeding operations.
 if not options.quiet:
   sys.stdout.write('Generating API hash header...\n')
-update_file(*write_api_hash_header(api_hash_header, cpp_header_dir))
+if write_api_hash_header(api_hash_header, cpp_header_dir):
+  writect += 1
 
 if not options.quiet:
   sys.stdout.write('Done - Wrote ' + str(writect) + ' files.\n')

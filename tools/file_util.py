@@ -47,6 +47,19 @@ def path_exists(name):
   return os.path.exists(name)
 
 
+def write_file_if_changed(name, data):
+  """ Write a file if the contents have changed. Returns True if the file was written. """
+  if path_exists(name):
+    old_contents = read_file(name)
+  else:
+    old_contents = ''
+
+  if (data != old_contents):
+    write_file(name, data)
+    return True
+  return False
+
+
 def backup_file(name):
   """ Rename the file to a name that includes the current time stamp. """
   move_file(name, name + '.' + time.strftime('%Y-%m-%d-%H-%M-%S'))
