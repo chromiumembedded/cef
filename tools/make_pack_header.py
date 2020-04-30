@@ -119,16 +119,7 @@ def MakeFile(output, input):
   guard = 'CEF_INCLUDE_' + filename.replace('.', '_').upper() + '_'
   result = result.replace('$GUARD$', guard)
 
-  if path_exists(output):
-    old_contents = read_file(output)
-  else:
-    old_contents = ''
-
-  if (result != old_contents):
-    write_file(output, result)
-    sys.stdout.write('File ' + output + ' updated.\n')
-  else:
-    sys.stdout.write('File ' + output + ' is already up to date.\n')
+  write_file_if_changed(output, result)
 
 
 def main(argv):

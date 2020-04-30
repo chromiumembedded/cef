@@ -303,6 +303,10 @@ gypi_paths2 = exec_script("//cef/tools/gypi_to_gn.py",
                           "scope",
                           [ "cef_paths2.gypi" ])
 
+includes_common = gypi_paths2.includes_common + gypi_paths2.includes_common_capi
+includes_mac = gypi_paths2.includes_mac + gypi_paths2.includes_mac_capi
+includes_linux = gypi_paths2.includes_linux + gypi_paths2.includes_linux_capi
+includes_win = gypi_paths2.includes_win + gypi_paths2.includes_win_capi
 
 #
 # Targets that will be built when depending on "//cef".
@@ -371,7 +375,7 @@ if (is_win) {
 }
 
 static_library("libcef_static") {
-  sources = gypi_paths2.includes_common +
+  sources = includes_common +
             gypi_paths.autogen_cpp_includes + [
     "libcef/browser/browser_context.cc",
     "libcef/browser/browser_context.h",
@@ -847,7 +851,7 @@ static_library("libcef_static") {
   ]
 
   if (is_win) {
-    sources += gypi_paths2.includes_win + [
+    sources += includes_win + [
       "libcef/browser/browser_main_win.cc",
       "libcef/browser/native/browser_platform_delegate_native_win.cc",
       "libcef/browser/native/browser_platform_delegate_native_win.h",
@@ -892,7 +896,7 @@ static_library("libcef_static") {
   }
 
   if (is_linux) {
-    sources += gypi_paths2.includes_linux + [
+    sources += includes_linux + [
       "libcef/browser/native/browser_platform_delegate_native_linux.cc",
       "libcef/browser/native/browser_platform_delegate_native_linux.h",
       "libcef/browser/native/menu_runner_linux.cc",
@@ -924,7 +928,7 @@ static_library("libcef_static") {
   }
 
   if (is_mac) {
-    sources += gypi_paths2.includes_mac + [
+    sources += includes_mac + [
       "libcef/browser/native/browser_platform_delegate_native_mac.h",
       "libcef/browser/native/browser_platform_delegate_native_mac.mm",
       "libcef/browser/native/file_dialog_runner_mac.h",
@@ -1138,7 +1142,7 @@ config("libcef_dll_wrapper_config") {
 
 # libcef_dll_wrapper target.
 static_library("libcef_dll_wrapper") {
-  sources = gypi_paths2.includes_common +
+  sources = includes_common +
             gypi_paths.autogen_cpp_includes +
             gypi_paths2.includes_capi +
             gypi_paths.autogen_capi_includes +
@@ -1494,11 +1498,29 @@ make_pack_header("strings") {
   ]
 }
 
+# Generate cef_api_hash.h.
+action("make_api_hash_header") {
+  script = "tools/make_api_hash_header.py"
+
+  # List of all C API files that will be checked for changes by cef_api_hash.py.
+  inputs = gypi_paths2.includes_common_capi +
+           gypi_paths2.includes_linux_capi +
+           gypi_paths2.includes_mac_capi +
+           gypi_paths2.includes_win_capi +
+           gypi_paths2.includes_capi +
+           gypi_paths.autogen_capi_includes
+  include_dir = [ "include" ]
+  outputs = [ "$root_out_dir/includes/include/cef_api_hash.h" ]
+
+  args = rebase_path(outputs + include_dir, root_build_dir)
+}
+
 # Generate pack files and associated CEF header files.
 group("cef_make_headers") {
   deps = [
     ":make_pack_header_resources",
     ":make_pack_header_strings",
+    ":make_api_hash_header",
   ]
 }
 
@@ -1634,8 +1656,8 @@ if (is_mac) {
       "Resources",
     ]
 
-    sources = gypi_paths2.includes_common +
-              gypi_paths2.includes_mac +
+    sources = includes_common +
+              includes_mac +
               gypi_paths.autogen_cpp_includes +
               gypi_paths2.includes_capi +
               gypi_paths.autogen_capi_includes +
@@ -1678,7 +1700,7 @@ if (is_mac) {
   }
 } else {
   shared_library("libcef") {
-    sources = gypi_paths2.includes_common +
+    sources = includes_common +
               gypi_paths.autogen_cpp_includes +
               gypi_paths2.includes_capi +
               gypi_paths.autogen_capi_includes +
@@ -1690,7 +1712,7 @@ if (is_mac) {
     ]
 
     if (is_win) {
-      sources += gypi_paths2.includes_win + [
+      sources += includes_win + [
         "libcef_dll/libcef_dll.rc",
       ]
 
@@ -1901,8 +1923,8 @@ if (is_mac) {
 
   cef_app("cefclient") {
     helper_info_plist = "tests/cefclient/resources/mac/helper-Info.plist"
-    helper_sources = gypi_paths2.includes_mac +
-                     gypi_paths2.includes_common +
+    helper_sources = includes_common +
+                     includes_mac +
                      gypi_paths2.includes_wrapper +
                      gypi_paths2.includes_wrapper_mac +
                      gypi_paths2.shared_sources_common +
@@ -1915,8 +1937,8 @@ if (is_mac) {
     ]
 
     info_plist = "tests/cefclient/resources/mac/Info.plist"
-    sources = gypi_paths2.includes_mac +
-              gypi_paths2.includes_common +
+    sources = includes_common +
+              includes_mac +
               gypi_paths2.includes_wrapper +
               gypi_paths2.includes_wrapper_mac +
               gypi_paths2.shared_sources_browser +
@@ -1974,8 +1996,8 @@ if (is_mac) {
 
   cef_app("cefsimple") {
     helper_info_plist = "tests/cefsimple/mac/helper-Info.plist"
-    helper_sources = gypi_paths2.includes_mac +
-                     gypi_paths2.includes_common +
+    helper_sources = includes_common +
+                     includes_mac +
                      gypi_paths2.includes_wrapper +
                      gypi_paths2.includes_wrapper_mac +
                      gypi_paths2.cefsimple_sources_mac_helper
@@ -1984,8 +2006,8 @@ if (is_mac) {
     ]
 
     info_plist = "tests/cefsimple/mac/Info.plist"
-    sources = gypi_paths2.includes_mac +
-              gypi_paths2.includes_common +
+    sources = includes_common +
+              includes_mac +
               gypi_paths2.includes_wrapper +
               gypi_paths2.includes_wrapper_mac +
               gypi_paths2.cefsimple_sources_common +
@@ -2051,8 +2073,8 @@ if (is_mac) {
     ]
 
     info_plist = "tests/ceftests/resources/mac/Info.plist"
-    sources = gypi_paths2.includes_mac +
-              gypi_paths2.includes_common +
+    sources = includes_common +
+              includes_mac +
               gypi_paths2.includes_wrapper +
               gypi_paths2.includes_wrapper_mac +
               gypi_paths2.shared_sources_browser +
@@ -2120,7 +2142,7 @@ if (is_mac) {
   }
 
   executable("cefclient") {
-    sources = gypi_paths2.includes_common +
+    sources = includes_common +
               gypi_paths2.includes_wrapper +
               gypi_paths2.shared_sources_browser +
               gypi_paths2.shared_sources_common +
@@ -2139,7 +2161,7 @@ if (is_mac) {
     ]
 
     if (is_win) {
-      sources += gypi_paths2.includes_win +
+      sources += includes_win +
                  gypi_paths2.shared_sources_win +
                  gypi_paths2.cefclient_sources_win
 
@@ -2174,7 +2196,7 @@ if (is_mac) {
     }
 
     if (is_linux) {
-      sources += gypi_paths2.includes_linux +
+      sources += includes_linux +
                  gypi_paths2.shared_sources_linux +
                  gypi_paths2.cefclient_sources_linux
 
@@ -2213,7 +2235,7 @@ if (is_mac) {
   #
 
   executable("cefsimple") {
-    sources = gypi_paths2.includes_common +
+    sources = includes_common +
               gypi_paths2.includes_wrapper +
               gypi_paths2.cefsimple_sources_common
 
@@ -2227,7 +2249,7 @@ if (is_mac) {
     ]
 
     if (is_win) {
-      sources += gypi_paths2.includes_win +
+      sources += includes_win +
                  gypi_paths2.cefsimple_sources_win
 
       # Set /SUBSYSTEM:WINDOWS.
@@ -2247,7 +2269,7 @@ if (is_mac) {
     }
 
     if (is_linux) {
-      sources += gypi_paths2.includes_linux +
+      sources += includes_linux +
                  gypi_paths2.cefsimple_sources_linux
 
       if (use_x11) {
@@ -2278,7 +2300,7 @@ if (is_mac) {
   executable("ceftests") {
     testonly = true
 
-    sources = gypi_paths2.includes_common +
+    sources = includes_common +
               gypi_paths2.includes_wrapper +
               gypi_paths2.shared_sources_browser +
               gypi_paths2.shared_sources_common +

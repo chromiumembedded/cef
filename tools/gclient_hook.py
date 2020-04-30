@@ -29,10 +29,7 @@ else:
   sys.exit()
 
 print("\nGenerating CEF version header file...")
-cmd = [
-    sys.executable, 'tools/make_version_header.py', '--header',
-    'include/cef_version.h'
-]
+cmd = [sys.executable, 'tools/make_version_header.py', 'include/cef_version.h']
 RunAction(cef_dir, cmd)
 
 print("\nPatching build configuration and source files for CEF...")

@@ -32,12 +32,15 @@ class cef_api_hash:
     self.platforms = ["windows", "macosx", "linux"]
 
     self.platform_files = {
+        # List of includes_win_capi from cef_paths2.gypi.
         "windows": [
             "internal/cef_types_win.h",
         ],
+        # List of includes_mac_capi from cef_paths2.gypi.
         "macosx": [
             "internal/cef_types_mac.h",
         ],
+        # List of includes_linux_capi from cef_paths2.gypi.
         "linux": [
             "internal/cef_types_linux.h",
         ]
@@ -45,14 +48,25 @@ class cef_api_hash:
 
     self.included_files = []
 
+    # List of include/ and include/internal/ files from cef_paths2.gypi.
     self.excluded_files = [
+        # includes_common
         "cef_api_hash.h",
+        "cef_base.h",
+        "cef_config.h",
         "cef_version.h",
-        "internal/cef_tuple.h",
-        "internal/cef_types_wrappers.h",
+        "internal/cef_export.h",
+        "internal/cef_ptr.h",
         "internal/cef_string_wrappers.h",
+        "internal/cef_types_wrappers.h",
+        # includes_win
+        "cef_sandbox_win.h",
         "internal/cef_win.h",
+        # includes_mac
+        "cef_application_mac.h",
+        "cef_sandbox_mac.h",
         "internal/cef_mac.h",
+        # includes_linux
         "internal/cef_linux.h",
     ]
 

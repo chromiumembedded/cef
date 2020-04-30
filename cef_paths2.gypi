@@ -39,19 +39,21 @@
       'include/cef_config.h',
       'include/cef_version.h',
       'include/internal/cef_export.h',
-      'include/internal/cef_logging_internal.h',
       'include/internal/cef_ptr.h',
+      'include/internal/cef_string_wrappers.h',
+      'include/internal/cef_types_wrappers.h',
+    ],
+    'includes_common_capi': [
+      'include/internal/cef_logging_internal.h',
       'include/internal/cef_string.h',
       'include/internal/cef_string_list.h',
       'include/internal/cef_string_map.h',
       'include/internal/cef_string_multimap.h',
       'include/internal/cef_string_types.h',
-      'include/internal/cef_string_wrappers.h',
       'include/internal/cef_thread_internal.h',
       'include/internal/cef_time.h',
       'include/internal/cef_trace_event_internal.h',
       'include/internal/cef_types.h',
-      'include/internal/cef_types_wrappers.h',
     ],
     'includes_capi': [
       'include/capi/cef_base_capi.h',
@@ -75,8 +77,10 @@
       'include/base/internal/cef_atomicops_x86_msvc.h',
       'include/base/internal/cef_bind_internal_win.h',
       'include/cef_sandbox_win.h',
-      'include/internal/cef_types_win.h',
       'include/internal/cef_win.h',
+    ],
+    'includes_win_capi': [
+      'include/internal/cef_types_win.h',
     ],
     'includes_mac': [
       'include/base/internal/cef_atomicops_atomicword_compat.h',
@@ -84,6 +88,8 @@
       'include/cef_application_mac.h',
       'include/cef_sandbox_mac.h',
       'include/internal/cef_mac.h',
+    ],
+    'includes_mac_capi': [
       'include/internal/cef_types_mac.h',
     ],
     'includes_linux': [
@@ -92,6 +98,8 @@
       'include/base/internal/cef_atomicops_arm64_gcc.h',
       'include/base/internal/cef_atomicops_x86_gcc.h',
       'include/internal/cef_linux.h',
+    ],
+    'includes_linux_capi': [
       'include/internal/cef_types_linux.h',
     ],
     'libcef_sources_common': [
