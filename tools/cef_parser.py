@@ -381,6 +381,7 @@ _simpletypes = {
     'uint64': ['uint64', '0'],
     'double': ['double', '0'],
     'float': ['float', '0'],
+    'float*': ['float*', 'NULL'],
     'long': ['long', '0'],
     'unsigned long': ['unsigned long', '0'],
     'long long': ['long long', '0'],
@@ -404,6 +405,7 @@ _simpletypes = {
     'CefDraggableRegion': ['cef_draggable_region_t', 'CefDraggableRegion()'],
     'CefThreadId': ['cef_thread_id_t', 'TID_UI'],
     'CefTime': ['cef_time_t', 'CefTime()'],
+    'CefAudioParameters': ['cef_audio_parameters_t', 'CefAudioParameters()']
 }
 
 
