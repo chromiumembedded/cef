@@ -377,6 +377,8 @@ if (is_win) {
 static_library("libcef_static") {
   sources = includes_common +
             gypi_paths.autogen_cpp_includes + [
+    "libcef/browser/audio_capturer.cc",
+    "libcef/browser/audio_capturer.h",
     "libcef/browser/browser_context.cc",
     "libcef/browser/browser_context.h",
     "libcef/browser/browser_context_keyed_service_factories.cc",

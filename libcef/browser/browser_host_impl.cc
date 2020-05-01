@@ -8,6 +8,7 @@
 #include <string>
 #include <utility>
 
+#include "libcef/browser/audio_capturer.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_info_manager.h"
@@ -193,6 +194,9 @@ void OnDownloadImage(uint32 max_image_size,
   callback->OnDownloadImageFinished(image_url.spec(), http_status_code,
                                     image_impl.get());
 }
+
+static constexpr base::TimeDelta kRecentlyAudibleTimeout =
+    base::TimeDelta::FromSeconds(2);
 
 }  // namespace
 
@@ -1559,6 +1563,10 @@ void CefBrowserHostImpl::DestroyBrowser() {
   javascript_dialog_manager_.reset(nullptr);
   menu_manager_.reset(nullptr);
 
+  // Delete the audio capturer
+  recently_audible_timer_.Stop();
+  audio_capturer_.reset(nullptr);
+
   // Delete the platform delegate.
   platform_delegate_.reset(nullptr);
 
@@ -2697,6 +2705,25 @@ void CefBrowserHostImpl::DidUpdateFaviconURL(
   }
 }
 
+void CefBrowserHostImpl::OnAudioStateChanged(bool audible) {
+  if (audible) {
+    recently_audible_timer_.Stop();
+    StartAudioCapturer();
+  } else if (audio_capturer_) {
+    // If you have a media playing that has a short quiet moment, web_contents
+    // will immediately switch to non-audible state. We don't want to stop
+    // audio stream so quickly, let's give the stream some time to resume
+    // playing.
+    recently_audible_timer_.Start(
+        FROM_HERE, kRecentlyAudibleTimeout,
+        base::BindOnce(&CefBrowserHostImpl::OnRecentlyAudibleTimerFired, this));
+  }
+}
+
+void CefBrowserHostImpl::OnRecentlyAudibleTimerFired() {
+  audio_capturer_.reset();
+}
+
 bool CefBrowserHostImpl::OnMessageReceived(const IPC::Message& message) {
   // Handle the cursor message here if mouse cursor change is disabled instead
   // of propegating the message to the normal handler.
@@ -2790,6 +2817,25 @@ void CefBrowserHostImpl::RemoveObserver(Observer* observer) {
 bool CefBrowserHostImpl::HasObserver(Observer* observer) const {
   CEF_REQUIRE_UIT();
   return observers_.HasObserver(observer);
+}
+
+void CefBrowserHostImpl::StartAudioCapturer() {
+  if (!client_.get() || audio_capturer_)
+    return;
+
+  CefRefPtr<CefAudioHandler> audio_handler = client_->GetAudioHandler();
+  if (!audio_handler.get())
+    return;
+
+  CefAudioParameters params;
+  params.channel_layout = CEF_CHANNEL_LAYOUT_STEREO;
+  params.sample_rate = media::AudioParameters::kAudioCDSampleRate;
+  params.frames_per_buffer = 1024;
+
+  if (!audio_handler->GetAudioParameters(this, params))
+    return;
+
+  audio_capturer_.reset(new CefAudioCapturer(params, this, audio_handler));
 }
 
 CefBrowserHostImpl::NavigationLock::NavigationLock(

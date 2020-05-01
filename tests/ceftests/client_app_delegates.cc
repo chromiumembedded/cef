@@ -9,6 +9,10 @@ using client::ClientAppBrowser;
 using client::ClientAppRenderer;
 
 void CreateBrowserDelegates(ClientAppBrowser::DelegateSet& delegates) {
+  // Bring in audio output tests.
+  extern void CreateAudioOutputTests(ClientAppBrowser::DelegateSet & delegates);
+  CreateAudioOutputTests(delegates);
+
   // Bring in the Navigation tests.
   extern void CreateNavigationBrowserTests(ClientAppBrowser::DelegateSet &
                                            delegates);
