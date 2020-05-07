@@ -422,7 +422,7 @@ index 0db088ae7917..d4567efbf0b9 100644
                callback->sendSuccess();
              } else {
 diff --git content/browser/media/capture/frame_sink_video_capture_device.cc content/browser/media/capture/frame_sink_video_capture_device.cc
-index 2630aae48b16..475dc5572ef7 100644
+index 3c93ee9dfe60..d59d90a28161 100644
 --- content/browser/media/capture/frame_sink_video_capture_device.cc
 +++ content/browser/media/capture/frame_sink_video_capture_device.cc
 @@ -53,11 +53,13 @@ class ScopedFrameDoneHelper
@@ -439,7 +439,7 @@ index 2630aae48b16..475dc5572ef7 100644
  
  }  // namespace
  
-@@ -364,7 +366,7 @@ void FrameSinkVideoCaptureDevice::RequestWakeLock() {
+@@ -379,7 +381,7 @@ void FrameSinkVideoCaptureDevice::RequestWakeLock() {
    mojo::Remote<device::mojom::WakeLockProvider> wake_lock_provider;
    auto receiver = wake_lock_provider.BindNewPipeAndPassReceiver();
    base::PostTask(FROM_HERE, {BrowserThread::UI},
@@ -1725,7 +1725,7 @@ index cb12d36124c2..341845474fc3 100644
      if (gpu_factories_->IsDecoderConfigSupported(
              RTCVideoDecoderAdapter::kImplementation, config) ==
 diff --git third_party/blink/renderer/platform/peerconnection/webrtc_audio_sink.cc third_party/blink/renderer/platform/peerconnection/webrtc_audio_sink.cc
-index 7d747bc50090..59a6c42e3281 100644
+index 1d07732a1f08..9b44c8e2e96d 100644
 --- third_party/blink/renderer/platform/peerconnection/webrtc_audio_sink.cc
 +++ third_party/blink/renderer/platform/peerconnection/webrtc_audio_sink.cc
 @@ -19,9 +19,11 @@
@@ -1816,15 +1816,6 @@ index 7d747bc50090..59a6c42e3281 100644
        base::StringPrintf("Adapter::RemoveSink([label=%s])", label_.c_str()));
    base::AutoLock auto_lock(lock_);
    const auto it = std::find(sinks_.begin(), sinks_.end(), sink);
-@@ -230,7 +232,7 @@ bool WebRtcAudioSink::Adapter::GetSignalLevel(int* level) {
-   // Convert from float in range [0.0,1.0] to an int in range [0,32767].
-   *level = static_cast<int>(signal_level * std::numeric_limits<int16_t>::max() +
-                             0.5f /* rounding to nearest int */);
--  SendLogMessage(
-+  j::SendLogMessage(
-       base::StringPrintf("Adapter::GetSignalLevel([label=%s]) => (level=%d)",
-                          label_.c_str(), *level));
-   return true;
 diff --git ui/base/x/x11_drag_context.cc ui/base/x/x11_drag_context.cc
 index 3ed9e98b2a20..8ada19c7afd9 100644
 --- ui/base/x/x11_drag_context.cc
