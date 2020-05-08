@@ -1,7 +1,8 @@
 ﻿# This file is an addendum to the Chromium AUTHORS file. It lists authors
 # through March 16, 2015 when Git was introduced for source code management.
-# A list of authors after that date can be found by executing this command on
-# a local Git checkout: git log --all --format="%aN <%aE>" | sort -u
+# A list of additional authors added after that date can be found by executing
+# this command on a local Git checkout:
+# git log --all --format="%aN <%aE>" | sort -u
 
 Marshall Greenblatt <magreenblatt@gmail.com>
 Jamie Kirkpatrick <jkp@spotify.com>
