@@ -1,0 +1,21 @@
+diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
+index bcd42e788019..6a7a164a527a 100644
+--- content/browser/child_process_security_policy_impl.cc
++++ content/browser/child_process_security_policy_impl.cc
+@@ -1469,6 +1469,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForOrigin(
+         // DeclarativeApiTest.PersistRules.
+         if (actual_process_lock.SchemeIs(url::kDataScheme))
+           return true;
++
++        // Allow other schemes that are non-standard, non-local and WebSafe.
++        if (actual_process_lock.is_valid() &&
++            !actual_process_lock.IsStandard() &&
++            !base::Contains(url::GetLocalSchemes(),
++                            actual_process_lock.scheme_piece()) &&
++            base::Contains(schemes_okay_to_request_in_any_process_,
++                           actual_process_lock.scheme_piece())) {
++          return true;
++        }
+       }
+ 
+       failure_reason = "lock_mismatch";
