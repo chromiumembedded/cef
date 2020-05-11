@@ -210,9 +210,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   base::flat_set<std::string> GetPluginMimeTypesWithExternalHandlers(
       content::BrowserContext* browser_context) override;
 
-  // Perform browser process registration for the custom scheme.
-  void RegisterCustomScheme(const std::string& scheme);
-
   CefRefPtr<CefRequestContextImpl> request_context() const;
   CefDevToolsDelegate* devtools_delegate() const;
 

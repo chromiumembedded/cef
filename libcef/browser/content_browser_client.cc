@@ -77,7 +77,6 @@
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_ppapi_host.h"
 #include "content/public/browser/browser_thread.h"
-#include "content/public/browser/child_process_security_policy.h"
 #include "content/public/browser/client_certificate_delegate.h"
 #include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/overlay_window.h"
@@ -1479,16 +1478,6 @@ CefContentBrowserClient::GetPluginMimeTypesWithExternalHandlers(
   for (const auto& pair : map)
     mime_types.insert(pair.first);
   return mime_types;
-}
-
-void CefContentBrowserClient::RegisterCustomScheme(const std::string& scheme) {
-  // Register as a Web-safe scheme so that requests for the scheme from a
-  // render process will be allowed in resource_dispatcher_host_impl.cc
-  // ShouldServiceRequest.
-  content::ChildProcessSecurityPolicy* policy =
-      content::ChildProcessSecurityPolicy::GetInstance();
-  if (!policy->IsWebSafeScheme(scheme))
-    policy->RegisterWebSafeScheme(scheme);
 }
 
 CefRefPtr<CefRequestContextImpl> CefContentBrowserClient::request_context()
