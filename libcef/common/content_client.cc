@@ -9,7 +9,6 @@
 
 #include "include/cef_stream.h"
 #include "include/cef_version.h"
-#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/extensions/pdf_extension_util.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/extensions/extensions_util.h"
@@ -30,6 +29,7 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pepper_flash.h"
+#include "content/public/browser/child_process_security_policy.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/pepper_plugin_info.h"
@@ -292,9 +292,15 @@ void CefContentClient::AddCustomScheme(const SchemeInfo& scheme_info) {
   DCHECK(!scheme_info_list_locked_);
   scheme_info_list_.push_back(scheme_info);
 
-  if (CefContentBrowserClient::Get()) {
-    CefContentBrowserClient::Get()->RegisterCustomScheme(
-        scheme_info.scheme_name);
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  if (!command_line->HasSwitch(switches::kProcessType)) {
+    // Register as a Web-safe scheme in the browser process so that requests for
+    // the scheme from a render process will be allowed in
+    // resource_dispatcher_host_impl.cc ShouldServiceRequest.
+    content::ChildProcessSecurityPolicy* policy =
+        content::ChildProcessSecurityPolicy::GetInstance();
+    if (!policy->IsWebSafeScheme(scheme_info.scheme_name))
+      policy->RegisterWebSafeScheme(scheme_info.scheme_name);
   }
 }
 
