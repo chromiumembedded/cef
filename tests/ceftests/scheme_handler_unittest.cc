@@ -1401,6 +1401,91 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentOrigin) {
   ClearTestSchemes();
 }
 
+// Test that a cross-protocol iframe load succeeds, and that the custom
+// standard scheme cannot generate XSS requests to the HTTP protocol by default.
+TEST(SchemeHandlerTest, CustomStandardXSSDifferentProtocolHttp) {
+  RegisterTestScheme("customstd", "test1");
+  RegisterTestScheme("http", "test2");
+  SetUpXSS("customstd://test1/run.html", "http://test2/iframe.html");
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_FALSE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
+// Test that a cross-protocol iframe load succeeds, and that the custom
+// standard scheme cannot generate XSS requests to a non-standard scheme by
+// default.
+TEST(SchemeHandlerTest, CustomStandardXSSDifferentProtocolCustomNonStandard) {
+  RegisterTestScheme("customstd", "test1");
+  RegisterTestScheme("customnonstd", std::string());
+  SetUpXSS("customstd://test1/run.html", "customnonstd:some%20value");
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_FALSE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
+// Test that a cross-protocol iframe load succeeds, and that the HTTP protocol
+// cannot generate XSS requests to the custom standard scheme by default.
+TEST(SchemeHandlerTest, HttpXSSDifferentProtocolCustomStandard) {
+  RegisterTestScheme("http", "test1");
+  RegisterTestScheme("customstd", "test2");
+  SetUpXSS("http://test1/run.html", "customstd://test2/iframe.html");
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_FALSE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
+// Test that a cross-protocol iframe load succeeds, and that the HTTP protocol
+// cannot generate XSS requests to the custom non-standard scheme by default.
+TEST(SchemeHandlerTest, HttpXSSDifferentProtocolCustomNonStandard) {
+  RegisterTestScheme("http", "test1");
+  RegisterTestScheme("customnonstd", std::string());
+  SetUpXSS("http://test1/run.html", "customnonstd:some%20value");
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_sub_request);
+  EXPECT_TRUE(g_TestResults.got_sub_read);
+  EXPECT_FALSE(g_TestResults.got_sub_success);
+
+  ClearTestSchemes();
+}
+
 // Test that an HTTP scheme cannot generate cross-domain XHR requests by
 // default.
 TEST(SchemeHandlerTest, HttpXHRDifferentOriginSync) {
