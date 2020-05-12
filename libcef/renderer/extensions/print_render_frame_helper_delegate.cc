@@ -55,9 +55,6 @@ bool CefPrintRenderFrameHelperDelegate::IsPrintPreviewEnabled() {
 
 bool CefPrintRenderFrameHelperDelegate::OverridePrint(
     blink::WebLocalFrame* frame) {
-  if (!frame->GetDocument().IsPluginDocument())
-    return false;
-
   auto* post_message_support =
       extensions::PostMessageSupport::FromWebLocalFrame(frame);
   if (post_message_support) {
