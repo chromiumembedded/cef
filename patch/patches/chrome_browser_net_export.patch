@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index efacc93f730f..81625e668dbb 100644
+index efacc93f730f..39d0eaaad66a 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -9,6 +9,7 @@ import("//build/config/features.gni")
@@ -37,6 +37,18 @@ index efacc93f730f..81625e668dbb 100644
        "//components/profile_metrics",
        "//components/ui_metrics",
        "//components/url_formatter",
+@@ -2142,7 +2149,10 @@ jumbo_static_library("ui") {
+       "webui/signin/sync_confirmation_ui.cc",
+       "webui/signin/sync_confirmation_ui.h",
+     ]
+-    deps += [ "//ui/webui" ]
++    deps += [
++      "//chrome/browser/performance_manager:site_data_proto",
++      "//ui/webui"
++    ]
+   }
+ 
+   if (is_win || is_mac || is_desktop_linux) {
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
 index 93bfc84f49a1..eeee229e943f 100644
 --- chrome/browser/ui/webui/net_export_ui.cc
