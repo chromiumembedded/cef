@@ -2289,8 +2289,10 @@ bool CefBrowserHostImpl::PreHandleGestureEvent(
 bool CefBrowserHostImpl::CanDragEnter(content::WebContents* source,
                                       const content::DropData& data,
                                       blink::WebDragOperationsMask mask) {
-  CefRefPtr<CefDragHandler> handler = client_->GetDragHandler();
-  if (handler.get()) {
+  CefRefPtr<CefDragHandler> handler;
+  if (client_)
+    handler = client_->GetDragHandler();
+  if (handler) {
     CefRefPtr<CefDragDataImpl> drag_data(new CefDragDataImpl(data));
     drag_data->SetReadOnly(true);
     if (handler->OnDragEnter(
