@@ -203,7 +203,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
 
   // From Chrome::RegisterBrowserUserPrefs.
   registry->RegisterBooleanPref(prefs::kPrintPreviewUseSystemDefaultPrinter,
-                                true);
+                                false);
 
   if (command_line->HasSwitch(switches::kEnablePreferenceTesting)) {
     // Preferences used with unit tests.
