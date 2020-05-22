@@ -57,7 +57,7 @@ index ab0d55c3de88..360c1b8abdf5 100644
  }
  
 diff --git third_party/blink/renderer/core/inspector/devtools_session.cc third_party/blink/renderer/core/inspector/devtools_session.cc
-index 7286135e8f5d..55e17265a36d 100644
+index 4ee6a0ea5689..8b6d5b1a6e06 100644
 --- third_party/blink/renderer/core/inspector/devtools_session.cc
 +++ third_party/blink/renderer/core/inspector/devtools_session.cc
 @@ -8,6 +8,7 @@
@@ -68,7 +68,7 @@ index 7286135e8f5d..55e17265a36d 100644
  #include "third_party/blink/renderer/bindings/core/v8/script_controller.h"
  #include "third_party/blink/renderer/core/frame/local_frame.h"
  #include "third_party/blink/renderer/core/inspector/devtools_agent.h"
-@@ -141,6 +142,7 @@ DevToolsSession::DevToolsSession(
+@@ -142,6 +143,7 @@ DevToolsSession::DevToolsSession(
      for (wtf_size_t i = 0; i < agents_.size(); i++)
        agents_[i]->Restore();
    }
@@ -76,7 +76,7 @@ index 7286135e8f5d..55e17265a36d 100644
  }
  
  DevToolsSession::~DevToolsSession() {
-@@ -181,6 +183,7 @@ void DevToolsSession::Detach() {
+@@ -182,6 +184,7 @@ void DevToolsSession::Detach() {
    agents_.clear();
    v8_session_.reset();
    agent_->client_->DebuggerTaskFinished();
