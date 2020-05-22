@@ -1,0 +1,13 @@
+diff --git chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
+index 55026be5292d..589e2c3afd28 100644
+--- chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
++++ chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
+@@ -45,7 +45,7 @@ ChromeBrowserMainExtraPartsViewsLinux::
+ }
+ 
+ void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
+-#if defined(USE_X11)
++#if defined(USE_X11) && BUILDFLAG(USE_GTK)
+   // In Aura/X11, Gtk-based LinuxUI implementation is used, so we instantiate
+   // and inject the GtkUiDelegate before ChromeBrowserMainExtraPartsViewsLinux,
+   // so it can properly initialize GtkUi on its |ToolkitInitialized| override.
