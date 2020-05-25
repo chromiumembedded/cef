@@ -253,7 +253,7 @@ if (is_linux) {
 # Set ENABLE_PRINTING=1 ENABLE_BASIC_PRINTING=1.
 assert(enable_basic_printing)
 assert(enable_print_preview)
-assert(!enable_service_discovery)
+assert(enable_service_discovery)
 
 # Enable support for Widevine CDM.
 assert(enable_widevine)

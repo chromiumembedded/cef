@@ -246,7 +246,7 @@ def GetRequiredArgs():
       # ENABLE_SERVICE_DISCOVERY=0 for print preview support
       'enable_print_preview': True,
       'optimize_webui': True,
-      'enable_service_discovery': False,
+      'enable_service_discovery': True,
       # Enable support for Widevine CDM.
       'enable_widevine': True,
 
