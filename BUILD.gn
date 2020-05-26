@@ -711,17 +711,6 @@ static_library("libcef_static") {
     "libcef/renderer/url_loader_throttle_provider_impl.h",
     "libcef/renderer/v8_impl.cc",
     "libcef/renderer/v8_impl.h",
-
-    "//chrome/browser/local_discovery/service_discovery_device_lister.cc",
-    "//chrome/browser/local_discovery/service_discovery_device_lister.h",
-    "//chrome/browser/local_discovery/service_discovery_client_impl.cc",
-    "//chrome/browser/local_discovery/service_discovery_client_impl.h",
-    "//chrome/browser/local_discovery/service_discovery_client.cc",
-    "//chrome/browser/local_discovery/service_discovery_client.h",
-    "//chrome/browser/local_discovery/service_discovery_client_mdns.cc",
-    "//chrome/browser/local_discovery/service_discovery_client_mdns.h",
-    "//chrome/browser/local_discovery/service_discovery_shared_client.cc",
-    "//chrome/browser/local_discovery/service_discovery_shared_client.h",    
   ]
 
   configs += [
