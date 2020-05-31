@@ -28,7 +28,7 @@
 		<string>0</string>
 	</dict>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.9.0</string>
+	<string>10.10.0</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
