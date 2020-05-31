@@ -25,9 +25,13 @@
 		<key>MallocNanoZone</key>
 		<string>0</string>
 	</dict>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.10.0</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSSupportsAutomaticGraphicsSwitching</key>
+	<true/>
 </dict>
 </plist>
