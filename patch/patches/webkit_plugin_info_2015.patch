@@ -44,7 +44,7 @@ index c9c761dd34e6..75afc167a60e 100644
    }
  
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index ab0d55c3de88..360c1b8abdf5 100644
+index 3c78d0089938..2f7cb6d27eea 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
 @@ -1331,7 +1331,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
