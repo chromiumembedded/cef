@@ -104,8 +104,6 @@ LPCWSTR ToCursorID(ui::mojom::CursorType type) {
       return MAKEINTRESOURCE(IDC_VERTICALTEXT);
     case ui::mojom::CursorType::kCell:
       return MAKEINTRESOURCE(IDC_CELL);
-    case ui::mojom::CursorType::kContextMenu:
-      return IDC_ARROW;
     case ui::mojom::CursorType::kAlias:
       return MAKEINTRESOURCE(IDC_ALIAS);
     case ui::mojom::CursorType::kProgress:
@@ -114,8 +112,6 @@ LPCWSTR ToCursorID(ui::mojom::CursorType type) {
       return IDC_NO;
     case ui::mojom::CursorType::kCopy:
       return MAKEINTRESOURCE(IDC_COPYCUR);
-    case ui::mojom::CursorType::kNone:
-      return MAKEINTRESOURCE(IDC_CURSOR_NONE);
     case ui::mojom::CursorType::kNotAllowed:
       return IDC_NO;
     case ui::mojom::CursorType::kZoomIn:
@@ -141,8 +137,11 @@ LPCWSTR ToCursorID(ui::mojom::CursorType type) {
       return IDC_ARROW;
     case ui::mojom::CursorType::kDndLink:
       return IDC_ARROW;
+    case ui::mojom::CursorType::kContextMenu:
     case ui::mojom::CursorType::kCustom:
-      break;
+    case ui::mojom::CursorType::kNone:
+      NOTIMPLEMENTED();
+      return IDC_ARROW;
   }
   NOTREACHED();
   return NULL;
@@ -156,6 +155,13 @@ bool IsSystemCursorID(LPCWSTR cursor_id) {
 
 ui::PlatformCursor CefRenderWidgetHostViewOSR::GetPlatformCursor(
     ui::mojom::CursorType type) {
+  // Using a dark 1x1 bit bmp kNone cursor may still cause DWM to do composition
+  // work unnecessarily. Better to totally remove it from the screen.
+  // crbug.com/1069698
+  if (type == ui::mojom::CursorType::kNone) {
+    return nullptr;
+  }
+
   HMODULE module_handle = NULL;
   const wchar_t* cursor_id = ToCursorID(type);
   if (!IsSystemCursorID(cursor_id)) {

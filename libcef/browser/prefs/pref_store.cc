@@ -65,6 +65,11 @@ void CefPrefStore::SetValueSilently(const std::string& key,
     committed_ = false;
 }
 
+void CefPrefStore::RemoveValuesByPrefixSilently(const std::string& prefix) {
+  prefs_.ClearWithPrefix(prefix);
+  committed_ = false;
+}
+
 void CefPrefStore::RemoveValue(const std::string& key, uint32_t flags) {
   if (prefs_.RemoveValue(key)) {
     committed_ = false;

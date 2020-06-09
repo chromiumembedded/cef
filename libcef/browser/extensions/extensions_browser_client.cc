@@ -32,6 +32,7 @@
 #include "extensions/browser/extension_host_delegate.h"
 #include "extensions/browser/extensions_browser_interface_binders.h"
 #include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h"
+#include "extensions/browser/kiosk/kiosk_delegate.h"
 #include "extensions/browser/url_request_util.h"
 #include "extensions/common/api/mime_handler.mojom.h"
 #include "extensions/common/constants.h"
@@ -73,6 +74,18 @@ void BindBeforeUnloadControl(
     return;
   guest_view->FuseBeforeUnloadControl(std::move(receiver));
 }
+
+// Dummy KiosDelegate that always returns false
+class CefKioskDelegate : public extensions::KioskDelegate {
+ public:
+  CefKioskDelegate() = default;
+  ~CefKioskDelegate() override = default;
+
+  // KioskDelegate overrides:
+  bool IsAutoLaunchedKioskApp(const ExtensionId& id) const override {
+    return false;
+  }
+};
 
 }  // namespace
 
@@ -295,7 +308,7 @@ CefExtensionsBrowserClient::GetExtensionSystemFactory() {
 }
 
 void CefExtensionsBrowserClient::RegisterBrowserInterfaceBindersForFrame(
-    service_manager::BinderMapWithContext<content::RenderFrameHost*>* map,
+    mojo::BinderMapWithContext<content::RenderFrameHost*>* map,
     content::RenderFrameHost* render_frame_host,
     const Extension* extension) const {
   PopulateExtensionFrameBinders(map, render_frame_host, extension);
@@ -351,8 +364,9 @@ CefExtensionsBrowserClient::GetExtensionWebContentsObserver(
 }
 
 KioskDelegate* CefExtensionsBrowserClient::GetKioskDelegate() {
-  NOTREACHED();
-  return nullptr;
+  if (!kiosk_delegate_)
+    kiosk_delegate_.reset(new CefKioskDelegate());
+  return kiosk_delegate_.get();
 }
 
 bool CefExtensionsBrowserClient::IsLockScreenContext(

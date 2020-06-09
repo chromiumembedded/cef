@@ -1,16 +1,16 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index 023024e81c99..1404e5aff399 100644
+index ffbec39c3e56..573ee6f18653 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
-@@ -11,6 +11,7 @@ import("//build/config/features.gni")
- import("//build/config/jumbo.gni")
+@@ -11,6 +11,7 @@ import("//build/config/crypto.gni")
+ import("//build/config/features.gni")
  import("//build/config/linux/gtk/gtk.gni")
  import("//build/config/ui.gni")
 +import("//cef/libcef/features/features.gni")
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/downgrade/buildflags.gni")
  import("//chrome/common/features.gni")
-@@ -1988,6 +1989,7 @@ jumbo_static_library("browser") {
+@@ -1979,6 +1980,7 @@ static_library("browser") {
      "//base/util/values:values_util",
      "//build:branding_buildflags",
      "//cc",
@@ -18,7 +18,7 @@ index 023024e81c99..1404e5aff399 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2314,6 +2316,10 @@ jumbo_static_library("browser") {
+@@ -2313,6 +2315,10 @@ static_library("browser") {
      ]
    }
  

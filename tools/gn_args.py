@@ -207,8 +207,14 @@ def GetRecommendedDefaultArgs():
       # distribution.
       'is_component_build': False,
 
-      # Don't enforce component builds in debug mode
+      # Don't enforce component builds in debug mode.
       'forbid_non_component_debug_builds': False,
+
+      # Specify the current PGO phase. Default is 0 (turned off) for normal
+      # builds and 2 (used during the optimization phase) for official Windows
+      # and macOS builds. Currently turned off for CEF because it requires
+      # additional setup and is not yet tested. See issue #2956.
+      'chrome_pgo_phase': 0,
   }
 
   if platform == 'linux':

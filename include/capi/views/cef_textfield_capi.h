@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=71ba0e5714400e2bea3ca564cab4527d95e4b52c$
+// $hash=06f1c03ba824052122c6217c1227931f15dadd08$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_TEXTFIELD_CAPI_H_
@@ -219,16 +219,13 @@ typedef struct _cef_textfield_t {
   // enabled. See additional comments on execute_command().
   ///
   int(CEF_CALLBACK* is_command_enabled)(struct _cef_textfield_t* self,
-                                        int command_id);
+                                        cef_text_field_commands_t command_id);
 
   ///
-  // Performs the action associated with the specified command id. Valid values
-  // include IDS_APP_UNDO, IDS_APP_REDO, IDS_APP_CUT, IDS_APP_COPY,
-  // IDS_APP_PASTE, IDS_APP_DELETE, IDS_APP_SELECT_ALL, IDS_DELETE_* and
-  // IDS_MOVE_*. See include/cef_pack_strings.h for definitions.
+  // Performs the action associated with the specified command id.
   ///
   void(CEF_CALLBACK* execute_command)(struct _cef_textfield_t* self,
-                                      int command_id);
+                                      cef_text_field_commands_t command_id);
 
   ///
   // Clears Edit history.

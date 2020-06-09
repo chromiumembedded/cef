@@ -40,6 +40,7 @@ enum client_menu_ids {
   CLIENT_ID_CLOSE_DEVTOOLS,
   CLIENT_ID_INSPECT_ELEMENT,
   CLIENT_ID_SHOW_SSL_INFO,
+  CLIENT_ID_CURSOR_CHANGE_DISABLED,
   CLIENT_ID_TESTMENU_SUBMENU,
   CLIENT_ID_TESTMENU_CHECKITEM,
   CLIENT_ID_TESTMENU_RADIOITEM1,
@@ -328,6 +329,11 @@ void ClientHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
       model->AddItem(CLIENT_ID_SHOW_SSL_INFO, "Show SSL information");
     }
 
+    model->AddSeparator();
+    model->AddItem(CLIENT_ID_CURSOR_CHANGE_DISABLED, "Cursor change disabled");
+    if (browser->GetHost()->IsMouseCursorChangeDisabled())
+      model->SetChecked(CLIENT_ID_CURSOR_CHANGE_DISABLED, true);
+
     // Test context menu features.
     BuildTestMenu(model);
   }
@@ -355,6 +361,10 @@ bool ClientHandler::OnContextMenuCommand(CefRefPtr<CefBrowser> browser,
       return true;
     case CLIENT_ID_SHOW_SSL_INFO:
       ShowSSLInformation(browser);
+      return true;
+    case CLIENT_ID_CURSOR_CHANGE_DISABLED:
+      browser->GetHost()->SetMouseCursorChangeDisabled(
+          !browser->GetHost()->IsMouseCursorChangeDisabled());
       return true;
     default:  // Allow default handling, if any.
       return ExecuteTestMenu(command_id);

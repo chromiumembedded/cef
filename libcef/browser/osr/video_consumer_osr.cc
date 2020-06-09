@@ -134,3 +134,5 @@ void CefVideoConsumerOSR::OnFrameCaptured(
 }
 
 void CefVideoConsumerOSR::OnStopped() {}
+
+void CefVideoConsumerOSR::OnLog(const std::string& message) {}

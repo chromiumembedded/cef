@@ -34,9 +34,6 @@ extern const char kHTTPSetCookieHeaderName[];
 // HTTP header values.
 extern const char kContentTypeApplicationFormURLEncoded[];
 
-// Make a header name/value pair.
-std::string MakeHeader(const std::string& name, const std::string& value);
-
 // Make an HTTP response status line.
 // Set |for_replacement| to true if the result will be passed to
 // HttpResponseHeaders::ReplaceStatusLine and false if the result will

@@ -788,7 +788,7 @@ static_library("libcef_static") {
     "//components/visitedlink/renderer",
     "//components/viz/service",
     "//components/web_cache/renderer",
-    "//content/public/app:both",
+    "//content/public/app",
     "//content/public/browser",
     "//content/public/child",
     "//content/public/common",

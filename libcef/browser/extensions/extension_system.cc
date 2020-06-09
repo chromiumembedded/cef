@@ -492,6 +492,12 @@ void CefExtensionSystem::InstallUpdate(
   base::DeleteFile(temp_dir, true /* recursive */);
 }
 
+void CefExtensionSystem::PerformActionBasedOnOmahaAttributes(
+    const std::string& extension_id,
+    const base::Value& attributes) {
+  NOTREACHED();
+}
+
 bool CefExtensionSystem::FinishDelayedInstallationIfReady(
     const std::string& extension_id,
     bool install_immediately) {

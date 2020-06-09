@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-index 55026be5292d..589e2c3afd28 100644
+index b0f91ff72823..ba0660ffcdc2 100644
 --- chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
 +++ chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-@@ -45,7 +45,7 @@ ChromeBrowserMainExtraPartsViewsLinux::
+@@ -48,7 +48,7 @@ ChromeBrowserMainExtraPartsViewsLinux::
  }
  
  void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {

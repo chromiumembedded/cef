@@ -123,11 +123,11 @@ void CefMotionEventOSR::MarkUnchangedTouchPointsAsStationary(
     blink::WebTouchEvent* event,
     const CefTouchEvent& cef_event) {
   int id = LookupId(cef_event.id);
-  if (event->GetType() == blink::WebInputEvent::kTouchMove ||
-      event->GetType() == blink::WebInputEvent::kTouchCancel) {
+  if (event->GetType() == blink::WebInputEvent::Type::kTouchMove ||
+      event->GetType() == blink::WebInputEvent::Type::kTouchCancel) {
     for (size_t i = 0; i < event->touches_length; ++i) {
       if (event->touches[i].id != id)
-        event->touches[i].state = blink::WebTouchPoint::kStateStationary;
+        event->touches[i].state = blink::WebTouchPoint::State::kStateStationary;
     }
   }
 }

@@ -63,7 +63,8 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
                           network::mojom::ReferrerPolicy new_referrer_policy,
                           const WebString& new_method,
                           const WebURLResponse& passed_redirect_response,
-                          bool& report_raw_headers) override;
+                          bool& report_raw_headers,
+                          std::vector<std::string>* removed_headers) override;
 
  protected:
   // The context_ pointer will outlive this object.
@@ -119,8 +120,6 @@ class CefRenderURLRequest::Context
     resource_request->priority = net::MEDIUM;
 
     // Behave the same as a subresource load.
-    resource_request->fetch_request_context_type =
-        static_cast<int>(blink::mojom::RequestContextType::SUBRESOURCE);
     resource_request->resource_type =
         static_cast<int>(blink::mojom::ResourceType::kSubResource);
 
@@ -134,7 +133,7 @@ class CefRenderURLRequest::Context
 
     if (request_->GetFlags() & UR_FLAG_ALLOW_STORED_CREDENTIALS) {
       // Include SameSite cookies.
-      resource_request->attach_same_site_cookies = true;
+      resource_request->force_ignore_site_for_cookies = true;
       resource_request->site_for_cookies =
           net::SiteForCookies::FromOrigin(*resource_request->request_initiator);
     }
@@ -429,7 +428,8 @@ bool CefWebURLLoaderClient::WillFollowRedirect(
     network::mojom::ReferrerPolicy new_referrer_policy,
     const WebString& new_method,
     const WebURLResponse& passed_redirect_response,
-    bool& report_raw_headers) {
+    bool& report_raw_headers,
+    std::vector<std::string>* removed_headers) {
   if (request_flags_ & UR_FLAG_STOP_ON_REDIRECT) {
     context_->OnStopRedirect(new_url, passed_redirect_response);
     return false;

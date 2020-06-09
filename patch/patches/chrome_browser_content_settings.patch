@@ -1,5 +1,5 @@
 diff --git chrome/browser/content_settings/host_content_settings_map_factory.cc chrome/browser/content_settings/host_content_settings_map_factory.cc
-index 937b56a2e261..9e3877b06c59 100644
+index bf7534ed9436..dbbc552ce1b3 100644
 --- chrome/browser/content_settings/host_content_settings_map_factory.cc
 +++ chrome/browser/content_settings/host_content_settings_map_factory.cc
 @@ -8,6 +8,7 @@
@@ -10,9 +10,9 @@ index 937b56a2e261..9e3877b06c59 100644
  #include "chrome/browser/profiles/off_the_record_profile_impl.h"
  #include "chrome/browser/profiles/profile.h"
  #include "chrome/browser/search_engines/template_url_service_factory.h"
-@@ -19,6 +20,10 @@
- #include "content/public/browser/browser_thread.h"
+@@ -20,6 +21,10 @@
  #include "extensions/buildflags/buildflags.h"
+ #include "ui/webui/webui_allowlist_provider.h"
  
 +#if BUILDFLAG(ENABLE_CEF)
 +#include "cef/libcef/common/extensions/extensions_util.h"
@@ -21,7 +21,7 @@ index 937b56a2e261..9e3877b06c59 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/extensions/extension_service.h"
  #include "extensions/browser/extension_system.h"
-@@ -47,8 +52,14 @@ HostContentSettingsMapFactory::HostContentSettingsMapFactory()
+@@ -48,8 +53,14 @@ HostContentSettingsMapFactory::HostContentSettingsMapFactory()
    DependsOn(SupervisedUserSettingsServiceFactory::GetInstance());
  #endif
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -36,8 +36,8 @@ index 937b56a2e261..9e3877b06c59 100644
  #endif
  }
  
-@@ -89,10 +100,16 @@ scoped_refptr<RefcountedKeyedService>
-           permissions::features::kPermissionDelegation)));
+@@ -97,10 +108,16 @@ scoped_refptr<RefcountedKeyedService>
+       std::move(allowlist_provider));
  
  #if BUILDFLAG(ENABLE_EXTENSIONS)
 +#if BUILDFLAG(ENABLE_CEF)

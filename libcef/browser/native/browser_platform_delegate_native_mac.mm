@@ -394,9 +394,9 @@ gfx::Size CefBrowserPlatformDelegateNativeMac::GetMaximumDialogSize() {
 content::NativeWebKeyboardEvent
 CefBrowserPlatformDelegateNativeMac::TranslateWebKeyEvent(
     const CefKeyEvent& key_event) const {
-  content::NativeWebKeyboardEvent result(blink::WebInputEvent::kUndefined,
-                                         blink::WebInputEvent::kNoModifiers,
-                                         ui::EventTimeForNow());
+  content::NativeWebKeyboardEvent result(
+      blink::WebInputEvent::Type::kUndefined,
+      blink::WebInputEvent::Modifiers::kNoModifiers, ui::EventTimeForNow());
 
   // Use a synthetic NSEvent in order to obtain the windowsKeyCode member from
   // the NativeWebKeyboardEvent constructor. This is the only member which can
@@ -444,7 +444,7 @@ CefBrowserPlatformDelegateNativeMac::TranslateWebKeyEvent(
 
   result = content::NativeWebKeyboardEvent(synthetic_event);
   if (key_event.type == KEYEVENT_CHAR)
-    result.SetType(blink::WebInputEvent::kChar);
+    result.SetType(blink::WebInputEvent::Type::kChar);
 
   result.is_system_key = key_event.is_system_key;
 
@@ -462,18 +462,18 @@ CefBrowserPlatformDelegateNativeMac::TranslateWebClickEvent(
 
   switch (type) {
     case MBT_LEFT:
-      result.SetType(mouseUp ? blink::WebInputEvent::kMouseUp
-                             : blink::WebInputEvent::kMouseDown);
+      result.SetType(mouseUp ? blink::WebInputEvent::Type::kMouseUp
+                             : blink::WebInputEvent::Type::kMouseDown);
       result.button = blink::WebMouseEvent::Button::kLeft;
       break;
     case MBT_MIDDLE:
-      result.SetType(mouseUp ? blink::WebInputEvent::kMouseUp
-                             : blink::WebInputEvent::kMouseDown);
+      result.SetType(mouseUp ? blink::WebInputEvent::Type::kMouseUp
+                             : blink::WebInputEvent::Type::kMouseDown);
       result.button = blink::WebMouseEvent::Button::kMiddle;
       break;
     case MBT_RIGHT:
-      result.SetType(mouseUp ? blink::WebInputEvent::kMouseUp
-                             : blink::WebInputEvent::kMouseDown);
+      result.SetType(mouseUp ? blink::WebInputEvent::Type::kMouseUp
+                             : blink::WebInputEvent::Type::kMouseDown);
       result.button = blink::WebMouseEvent::Button::kRight;
       break;
     default:
@@ -492,7 +492,7 @@ blink::WebMouseEvent CefBrowserPlatformDelegateNativeMac::TranslateWebMoveEvent(
   TranslateWebMouseEvent(result, mouse_event);
 
   if (!mouseLeave) {
-    result.SetType(blink::WebInputEvent::kMouseMove);
+    result.SetType(blink::WebInputEvent::Type::kMouseMove);
     if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
       result.button = blink::WebMouseEvent::Button::kLeft;
     else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
@@ -502,7 +502,7 @@ blink::WebMouseEvent CefBrowserPlatformDelegateNativeMac::TranslateWebMoveEvent(
     else
       result.button = blink::WebMouseEvent::Button::kNoButton;
   } else {
-    result.SetType(blink::WebInputEvent::kMouseLeave);
+    result.SetType(blink::WebInputEvent::Type::kMouseLeave);
     result.button = blink::WebMouseEvent::Button::kNoButton;
   }
 
@@ -519,7 +519,7 @@ CefBrowserPlatformDelegateNativeMac::TranslateWebWheelEvent(
   blink::WebMouseWheelEvent result;
   TranslateWebMouseEvent(result, mouse_event);
 
-  result.SetType(blink::WebInputEvent::kMouseWheel);
+  result.SetType(blink::WebInputEvent::Type::kMouseWheel);
 
   static const double scrollbarPixelsPerCocoaTick = 40.0;
   result.delta_x = deltaX;

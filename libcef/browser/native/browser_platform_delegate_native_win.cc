@@ -374,13 +374,13 @@ bool CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
       return false;
 
     switch (event.GetType()) {
-      case blink::WebInputEvent::kRawKeyDown:
+      case blink::WebInputEvent::Type::kRawKeyDown:
         msg.message = event.is_system_key ? WM_SYSKEYDOWN : WM_KEYDOWN;
         break;
-      case blink::WebInputEvent::kKeyUp:
+      case blink::WebInputEvent::Type::kKeyUp:
         msg.message = event.is_system_key ? WM_SYSKEYUP : WM_KEYUP;
         break;
-      case blink::WebInputEvent::kChar:
+      case blink::WebInputEvent::Type::kChar:
         msg.message = event.is_system_key ? WM_SYSCHAR : WM_CHAR;
         break;
       default:

@@ -379,6 +379,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   bool ShouldTransferNavigation(bool is_main_frame_navigation) override;
   void AddNewContents(content::WebContents* source,
                       std::unique_ptr<content::WebContents> new_contents,
+                      const GURL& target_url,
                       WindowOpenDisposition disposition,
                       const gfx::Rect& initial_rect,
                       bool user_gesture,
@@ -488,7 +489,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void DidUpdateFaviconURL(
       const std::vector<blink::mojom::FaviconURLPtr>& candidates) override;
   void OnAudioStateChanged(bool audible) override;
-  bool OnMessageReceived(const IPC::Message& message) override;
   bool OnMessageReceived(const IPC::Message& message,
                          content::RenderFrameHost* render_frame_host) override;
   void OnFrameFocused(content::RenderFrameHost* render_frame_host) override;
@@ -589,7 +589,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void ConfigureAutoResize();
 
   void StartAudioCapturer();
-
   void OnRecentlyAudibleTimerFired();
 
   CefBrowserSettings settings_;

@@ -671,7 +671,7 @@ bool CefCrashReporterClient::IsRunningUnattended() {
 }
 #endif
 
-std::string CefCrashReporterClient::GetCrashServerURL() {
+std::string CefCrashReporterClient::GetUploadUrl() {
   return server_url_;
 }
 

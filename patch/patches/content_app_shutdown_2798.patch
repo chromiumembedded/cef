@@ -1,5 +1,5 @@
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index bb72915a26e2..9fbafc0643e1 100644
+index 01327e6e6c53..d7b737592833 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -44,6 +44,7 @@
@@ -10,7 +10,7 @@ index bb72915a26e2..9fbafc0643e1 100644
  #include "base/trace_event/trace_event.h"
  #include "components/discardable_memory/service/discardable_shared_memory_manager.h"
  #include "components/download/public/common/download_task_runner.h"
-@@ -1016,6 +1017,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -974,6 +975,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -23,7 +23,7 @@ index bb72915a26e2..9fbafc0643e1 100644
  ContentMainRunner* ContentMainRunner::Create() {
    return ContentMainRunnerImpl::Create();
 diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
-index 4632e35eaf65..c74d9ca750c7 100644
+index 299af2871498..8639eb8843f7 100644
 --- content/app/content_main_runner_impl.h
 +++ content/app/content_main_runner_impl.h
 @@ -51,6 +51,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
@@ -33,8 +33,8 @@ index 4632e35eaf65..c74d9ca750c7 100644
 +  void ShutdownOnUIThread();
 +
   private:
- #if !defined(CHROME_MULTIPLE_DLL_CHILD)
    int RunServiceManager(MainFunctionParams& main_function_params,
+                         bool start_service_manager_only);
 diff --git content/app/content_service_manager_main_delegate.cc content/app/content_service_manager_main_delegate.cc
 index 86d0a470a7c2..5e4b91d31e3f 100644
 --- content/app/content_service_manager_main_delegate.cc

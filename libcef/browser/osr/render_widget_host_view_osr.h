@@ -28,7 +28,7 @@
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
 #include "content/browser/renderer_host/text_input_manager.h"
 #include "content/public/common/widget_type.h"
-#include "ui/base/mojom/cursor_type.mojom-shared.h"
+#include "ui/base/cursor/mojom/cursor_type.mojom-shared.h"
 #include "ui/compositor/compositor.h"
 #include "ui/events/base_event_utils.h"
 #include "ui/events/gesture_detection/filtered_gesture_provider.h"
@@ -197,8 +197,9 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
       bool did_update_state) override;
 
   // ui::GestureProviderClient implementation.
-  void ProcessAckedTouchEvent(const content::TouchEventWithLatencyInfo& touch,
-                              content::InputEventAckState ack_result) override;
+  void ProcessAckedTouchEvent(
+      const content::TouchEventWithLatencyInfo& touch,
+      blink::mojom::InputEventResultState ack_result) override;
   void OnGestureEvent(const ui::GestureEventData& gesture) override;
 
   bool InstallTransparency();

@@ -1,8 +1,8 @@
 diff --git base/values.cc base/values.cc
-index ecca445840a8..9cde6ece0000 100644
+index 4315dbc20684..91ce4e8e9ba1 100644
 --- base/values.cc
 +++ base/values.cc
-@@ -24,20 +24,6 @@
+@@ -25,20 +25,6 @@
  
  namespace base {
  

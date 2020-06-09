@@ -40,15 +40,15 @@ index 07a70980f12a..ddf7f17325fe 100644
    virtual ~PruneCondition() {}
  
 diff --git third_party/crashpad/crashpad/client/settings.cc third_party/crashpad/crashpad/client/settings.cc
-index db9dface43f8..e5bdfebf8403 100644
+index 0aa525f1b4c0..2ddb73e7dd0c 100644
 --- third_party/crashpad/crashpad/client/settings.cc
 +++ third_party/crashpad/crashpad/client/settings.cc
 @@ -86,7 +86,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
  
  struct Settings::Data {
-   static const uint32_t kSettingsMagic = 'CPds';
--  static const uint32_t kSettingsVersion = 1;
-+  static const uint32_t kSettingsVersion = 2;
+   static constexpr uint32_t kSettingsMagic = 'CPds';
+-  static constexpr uint32_t kSettingsVersion = 1;
++  static constexpr uint32_t kSettingsVersion = 2;
  
    enum Options : uint32_t {
      kUploadsEnabled = 1 << 0,
@@ -146,7 +146,7 @@ index 5761c6b965b5..aee4e6c96033 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index ff9f5d1f2c47..c7935c4d65a7 100644
+index b314e0a11b92..a374df4728c0 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -157,7 +157,7 @@ index ff9f5d1f2c47..c7935c4d65a7 100644
  import("../build/crashpad_buildconfig.gni")
  
  static_library("handler") {
-@@ -74,6 +75,17 @@ static_library("handler") {
+@@ -65,6 +66,17 @@ static_library("handler") {
      ]
    }
  
@@ -175,7 +175,7 @@ index ff9f5d1f2c47..c7935c4d65a7 100644
    public_configs = [ "..:crashpad_config" ]
  
    public_deps = [
-@@ -86,6 +98,7 @@ static_library("handler") {
+@@ -77,6 +89,7 @@ static_library("handler") {
      "../minidump",
      "../snapshot",
      "../tools:tool_support",
@@ -248,7 +248,7 @@ index 2ec1147d2620..8ff9a72e0bd7 100644
    //! \brief Calls ProcessPendingReports() in response to ReportPending() having
    //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index e0a262cd1f38..2949e3ac1739 100644
+index d56857ff9042..69fc74639431 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -36,8 +36,10 @@
@@ -262,7 +262,7 @@ index e0a262cd1f38..2949e3ac1739 100644
  #include "client/crash_report_database.h"
  #include "client/crashpad_client.h"
  #include "client/crashpad_info.h"
-@@ -100,6 +102,10 @@
+@@ -91,6 +93,10 @@
  #include "handler/linux/exception_handler_server.h"
  #endif  // OS_MACOSX
  
@@ -273,7 +273,7 @@ index e0a262cd1f38..2949e3ac1739 100644
  namespace crashpad {
  
  namespace {
-@@ -215,6 +221,9 @@ struct Options {
+@@ -206,6 +212,9 @@ struct Options {
    bool periodic_tasks;
    bool rate_limit;
    bool upload_gzip;
@@ -283,7 +283,7 @@ index e0a262cd1f38..2949e3ac1739 100644
  #if defined(OS_CHROMEOS)
    bool use_cros_crash_reporter = false;
    base::FilePath minidump_dir_for_tests;
-@@ -577,6 +586,9 @@ int HandlerMain(int argc,
+@@ -552,6 +561,9 @@ int HandlerMain(int argc,
      kOptionTraceParentWithException,
  #endif
      kOptionURL,
@@ -293,7 +293,7 @@ index e0a262cd1f38..2949e3ac1739 100644
  #if defined(OS_CHROMEOS)
      kOptionUseCrosCrashReporter,
      kOptionMinidumpDirForTests,
-@@ -675,6 +687,9 @@ int HandlerMain(int argc,
+@@ -650,6 +662,9 @@ int HandlerMain(int argc,
  #endif  // OS_ANDROID
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
@@ -303,7 +303,7 @@ index e0a262cd1f38..2949e3ac1739 100644
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -823,6 +838,27 @@ int HandlerMain(int argc,
+@@ -798,6 +813,27 @@ int HandlerMain(int argc,
          options.url = optarg;
          break;
        }
@@ -331,7 +331,7 @@ index e0a262cd1f38..2949e3ac1739 100644
  #if defined(OS_CHROMEOS)
        case kOptionUseCrosCrashReporter: {
          options.use_cros_crash_reporter = true;
-@@ -972,8 +1008,14 @@ int HandlerMain(int argc,
+@@ -947,8 +983,14 @@ int HandlerMain(int argc,
      upload_thread_options.upload_gzip = options.upload_gzip;
      upload_thread_options.watch_pending_reports = options.periodic_tasks;
  
@@ -346,7 +346,7 @@ index e0a262cd1f38..2949e3ac1739 100644
      upload_thread.Get()->Start();
    }
  
-@@ -1043,7 +1085,8 @@ int HandlerMain(int argc,
+@@ -1014,7 +1056,8 @@ int HandlerMain(int argc,
    ScopedStoppable prune_thread;
    if (options.periodic_tasks) {
      prune_thread.Reset(new PruneCrashReportThread(

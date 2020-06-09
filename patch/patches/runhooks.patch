@@ -1,5 +1,5 @@
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index 2ab240da4548..b8eec0aa2383 100644
+index 9c936c69d684..13be02ae33f8 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
 @@ -142,22 +142,25 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
@@ -43,7 +43,7 @@ index 2ab240da4548..b8eec0aa2383 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 97600e73ba10..36773b159453 100755
+index f3557ad32eea..b3e056acccdb 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -89,9 +89,16 @@ def SetEnvironmentAndGetRuntimeDllDirs():

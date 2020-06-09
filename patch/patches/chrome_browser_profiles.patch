@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index bd8f77e07208..325f4ba698ec 100644
+index 8ce681f0d694..9bc310da1695 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -364,7 +364,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+@@ -378,7 +378,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
    registrar_.Add(this, chrome::NOTIFICATION_BROWSER_CLOSE_CANCELLED,
                   content::NotificationService::AllSources());
  

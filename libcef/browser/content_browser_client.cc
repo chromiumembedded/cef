@@ -520,7 +520,7 @@ base::FilePath GetRootCachePath() {
 // blink.mojom.[Name] for the frame/document scope" errors.
 // Based on chrome/browser/chrome_browser_interface_binders.cc.
 void PopulateChromeFrameBinders(
-    service_manager::BinderMapWithContext<content::RenderFrameHost*>* map) {
+    mojo::BinderMapWithContext<content::RenderFrameHost*>* map) {
   map->Add<blink::mojom::InsecureInputService>(base::BindRepeating(
       [](content::RenderFrameHost* frame_host,
          mojo::PendingReceiver<blink::mojom::InsecureInputService> receiver) {
@@ -1312,18 +1312,19 @@ void CefContentBrowserClient::OnNetworkServiceCreated(
       network_service);
 }
 
-mojo::Remote<network::mojom::NetworkContext>
-CefContentBrowserClient::CreateNetworkContext(
+void CefContentBrowserClient::ConfigureNetworkContextParams(
     content::BrowserContext* context,
     bool in_memory,
-    const base::FilePath& relative_partition_path) {
-  // This method may be called during shutdown when using multi-threaded
-  // message loop mode. In that case exit early to avoid crashes.
-  if (!SystemNetworkContextManager::GetInstance())
-    return mojo::Remote<network::mojom::NetworkContext>();
-
+    const base::FilePath& relative_partition_path,
+    network::mojom::NetworkContextParams* network_context_params,
+    network::mojom::CertVerifierCreationParams* cert_verifier_creation_params) {
   Profile* profile = Profile::FromBrowserContext(context);
-  return profile->CreateNetworkContext(in_memory, relative_partition_path);
+  profile->ConfigureNetworkContextParams(in_memory, relative_partition_path,
+                                         network_context_params,
+                                         cert_verifier_creation_params);
+  // TODO(cef): Remove this and add required NetworkIsolationKeys,
+  // this is currently not the case and this was not required pre M84.
+  network_context_params->require_network_isolation_key = false;
 }
 
 // The sandbox may block read/write access from the NetworkService to
@@ -1410,7 +1411,7 @@ CefContentBrowserClient::CreateWindowForPictureInPicture(
 
 void CefContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
     content::RenderFrameHost* render_frame_host,
-    service_manager::BinderMapWithContext<content::RenderFrameHost*>* map) {
+    mojo::BinderMapWithContext<content::RenderFrameHost*>* map) {
   PopulateChromeFrameBinders(map);
 
   if (!extensions::ExtensionsEnabled())
@@ -1459,7 +1460,8 @@ std::string CefContentBrowserClient::GetUserAgent() {
 blink::UserAgentMetadata CefContentBrowserClient::GetUserAgentMetadata() {
   blink::UserAgentMetadata metadata;
 
-  metadata.brand = version_info::GetProductName();
+  metadata.brand_version_list = {blink::UserAgentBrandVersion{
+      version_info::GetProductName(), version_info::GetMajorVersionNumber()}};
   metadata.full_version = version_info::GetVersionNumber();
   metadata.platform = version_info::GetOSType();
 

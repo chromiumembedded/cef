@@ -309,12 +309,6 @@ ChromeBrowserProcessStub::safe_browsing_service() {
   return nullptr;
 }
 
-safe_browsing::ClientSideDetectionService*
-ChromeBrowserProcessStub::safe_browsing_detection_service() {
-  NOTREACHED();
-  return nullptr;
-}
-
 subresource_filter::RulesetService*
 ChromeBrowserProcessStub::subresource_filter_ruleset_service() {
   NOTREACHED();

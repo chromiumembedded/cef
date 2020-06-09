@@ -43,7 +43,7 @@ index 61b8c6fcc42d..d439b00a87bb 100644
  
  #if !defined(OS_NACL)
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index c50e34f6da1b..40dcc66ed82a 100644
+index 83cbec19c292..a890a324c8db 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -2,6 +2,7 @@
@@ -54,8 +54,8 @@ index c50e34f6da1b..40dcc66ed82a 100644
  #include "base/message_loop/message_pump_win.h"
  
  #include <algorithm>
-@@ -493,10 +494,18 @@ bool MessagePumpForUI::ProcessPumpReplacementMessage() {
-   // asynchronous to this thread!!
+@@ -550,10 +551,18 @@ bool MessagePumpForUI::ProcessPumpReplacementMessage() {
+   state_->delegate->BeforeDoInternalWork();
  
    MSG msg;
 -  const bool have_message =

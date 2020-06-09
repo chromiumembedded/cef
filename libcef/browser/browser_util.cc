@@ -11,16 +11,16 @@ namespace browser_util {
 bool GetCefKeyEvent(const content::NativeWebKeyboardEvent& event,
                     CefKeyEvent& cef_event) {
   switch (event.GetType()) {
-    case blink::WebKeyboardEvent::kRawKeyDown:
+    case blink::WebKeyboardEvent::Type::kRawKeyDown:
       cef_event.type = KEYEVENT_RAWKEYDOWN;
       break;
-    case blink::WebKeyboardEvent::kKeyDown:
+    case blink::WebKeyboardEvent::Type::kKeyDown:
       cef_event.type = KEYEVENT_KEYDOWN;
       break;
-    case blink::WebKeyboardEvent::kKeyUp:
+    case blink::WebKeyboardEvent::Type::kKeyUp:
       cef_event.type = KEYEVENT_KEYUP;
       break;
-    case blink::WebKeyboardEvent::kChar:
+    case blink::WebKeyboardEvent::Type::kChar:
       cef_event.type = KEYEVENT_CHAR;
       break;
     default:

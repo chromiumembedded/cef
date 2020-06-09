@@ -25,10 +25,10 @@ index 0aaed76c1dda..517c3d8b5772 100644
      if (base::PathExists(sandbox_candidate))
        sandbox_binary = sandbox_candidate;
 diff --git ui/gl/init/gl_initializer_x11.cc ui/gl/init/gl_initializer_x11.cc
-index d9190a957ca2..50bb49eaf56c 100644
+index d76d146b0d86..f4d9b4d748bb 100644
 --- ui/gl/init/gl_initializer_x11.cc
 +++ ui/gl/init/gl_initializer_x11.cc
-@@ -86,7 +86,7 @@ bool InitializeStaticEGLInternal(GLImplementation implementation) {
+@@ -87,7 +87,7 @@ bool InitializeStaticEGLInternal(GLImplementation implementation) {
    if (implementation == kGLImplementationSwiftShaderGL) {
  #if BUILDFLAG(ENABLE_SWIFTSHADER)
      base::FilePath module_path;
@@ -37,7 +37,7 @@ index d9190a957ca2..50bb49eaf56c 100644
        return false;
      module_path = module_path.Append("swiftshader/");
  
-@@ -97,7 +97,7 @@ bool InitializeStaticEGLInternal(GLImplementation implementation) {
+@@ -98,7 +98,7 @@ bool InitializeStaticEGLInternal(GLImplementation implementation) {
  #endif
    } else if (implementation == kGLImplementationEGLANGLE) {
      base::FilePath module_path;

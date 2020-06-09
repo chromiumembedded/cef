@@ -1,16 +1,16 @@
 diff --git chrome/browser/themes/theme_service_factory.cc chrome/browser/themes/theme_service_factory.cc
-index 5a0d5e736cb9..f1c9da3f73b1 100644
+index caec77bbe3ba..1640307eef65 100644
 --- chrome/browser/themes/theme_service_factory.cc
 +++ chrome/browser/themes/theme_service_factory.cc
-@@ -7,6 +7,7 @@
- #include "base/logging.h"
+@@ -6,6 +6,7 @@
+ 
  #include "base/no_destructor.h"
  #include "build/build_config.h"
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/extensions/extension_system_factory.h"
  #include "chrome/browser/profiles/incognito_helpers.h"
  #include "chrome/browser/profiles/profile.h"
-@@ -42,6 +43,10 @@ const ThemeHelper& GetThemeHelper() {
+@@ -41,6 +42,10 @@ const ThemeHelper& GetThemeHelper() {
  
  }  // namespace
  
@@ -21,7 +21,7 @@ index 5a0d5e736cb9..f1c9da3f73b1 100644
  // static
  ThemeService* ThemeServiceFactory::GetForProfile(Profile* profile) {
    return static_cast<ThemeService*>(
-@@ -71,7 +76,13 @@ ThemeServiceFactory::ThemeServiceFactory()
+@@ -70,7 +75,13 @@ ThemeServiceFactory::ThemeServiceFactory()
            BrowserContextDependencyManager::GetInstance()) {
    DependsOn(extensions::ExtensionRegistryFactory::GetInstance());
    DependsOn(extensions::ExtensionPrefsFactory::GetInstance());

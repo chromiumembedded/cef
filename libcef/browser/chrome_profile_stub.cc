@@ -46,6 +46,13 @@ bool ChromeProfileStub::IsOffTheRecord() const {
   return false;
 }
 
+const Profile::OTRProfileID& ChromeProfileStub::GetOTRProfileID() const {
+  NOTREACHED();
+  static base::NoDestructor<Profile::OTRProfileID> otr_profile_id(
+      "ProfileImp::NoOTRProfileID");
+  return *otr_profile_id;
+}
+
 variations::VariationsClient* ChromeProfileStub::GetVariationsClient() {
   if (!variations_client_)
     variations_client_ = std::make_unique<CefVariationsClient>(this);
@@ -66,16 +73,27 @@ Profile::ProfileType ChromeProfileStub::GetProfileType() const {
   return REGULAR_PROFILE;
 }
 
-Profile* ChromeProfileStub::GetOffTheRecordProfile() {
+Profile* ChromeProfileStub::GetOffTheRecordProfile(
+    const Profile::OTRProfileID& otr_profile_id) {
   NOTREACHED();
   return nullptr;
 }
 
-void ChromeProfileStub::DestroyOffTheRecordProfile() {
+std::vector<Profile*> ChromeProfileStub::GetAllOffTheRecordProfiles() {
+  NOTREACHED();
+  return {};
+}
+
+void ChromeProfileStub::DestroyOffTheRecordProfile(Profile* otr_profile) {
   NOTREACHED();
 }
 
-bool ChromeProfileStub::HasOffTheRecordProfile() {
+bool ChromeProfileStub::HasOffTheRecordProfile(
+    const Profile::OTRProfileID& otr_profile_id) {
+  return false;
+}
+
+bool ChromeProfileStub::HasAnyOffTheRecordProfile() {
   return false;
 }
 
@@ -137,10 +155,6 @@ GURL ChromeProfileStub::GetHomePage() {
 
 bool ChromeProfileStub::WasCreatedByVersionOrLater(const std::string& version) {
   NOTREACHED();
-  return false;
-}
-
-bool ChromeProfileStub::IsIndependentOffTheRecordProfile() {
   return false;
 }
 

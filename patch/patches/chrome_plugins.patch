@@ -165,7 +165,7 @@ index 4e64db143b8a..71322b0261a1 100644
    Profile* profile = Profile::FromBrowserContext(browser_context);
    std::vector<std::string> whitelist = MimeTypesHandler::GetMIMETypeWhitelist();
 diff --git chrome/common/google_url_loader_throttle.cc chrome/common/google_url_loader_throttle.cc
-index bcb97138c321..df6792bd5317 100644
+index a9ee607a2cb0..347261030e0e 100644
 --- chrome/common/google_url_loader_throttle.cc
 +++ chrome/common/google_url_loader_throttle.cc
 @@ -5,10 +5,15 @@
@@ -184,7 +184,7 @@ index bcb97138c321..df6792bd5317 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "extensions/common/extension_urls.h"
  #endif
-@@ -116,6 +121,11 @@ void GoogleURLLoaderThrottle::WillProcessResponse(
+@@ -126,6 +131,11 @@ void GoogleURLLoaderThrottle::WillProcessResponse(
      const GURL& response_url,
      network::mojom::URLResponseHead* response_head,
      bool* defer) {
@@ -197,18 +197,18 @@ index bcb97138c321..df6792bd5317 100644
    GURL webstore_url(extension_urls::GetWebstoreLaunchURL());
    if (response_url.SchemeIsHTTPOrHTTPS() &&
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index b96048aec4f7..edaa78c59fe8 100644
+index c1d92ae00fe5..2574fb1430ed 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
-@@ -813,6 +813,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -831,6 +831,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
  
      if ((status == chrome::mojom::PluginStatus::kUnauthorized ||
           status == chrome::mojom::PluginStatus::kBlocked) &&
-+        content_settings_agent &&
-         content_settings_agent->IsPluginTemporarilyAllowed(identifier)) {
++        content_settings_agent_delegate &&
+         content_settings_agent_delegate->IsPluginTemporarilyAllowed(
+             identifier)) {
        status = chrome::mojom::PluginStatus::kAllowed;
-     }
-@@ -1015,7 +1016,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1034,7 +1035,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
          render_frame->GetRemoteAssociatedInterfaces()->GetInterface(
              plugin_auth_host.BindNewEndpointAndPassReceiver());
          plugin_auth_host->BlockedUnauthorizedPlugin(group_name, identifier);
@@ -218,7 +218,7 @@ index b96048aec4f7..edaa78c59fe8 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlocked: {
-@@ -1024,7 +1026,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1043,7 +1045,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, group_name));
          placeholder->AllowLoading();
          RenderThread::Get()->RecordAction(UserMetricsAction("Plugin_Blocked"));
@@ -228,7 +228,7 @@ index b96048aec4f7..edaa78c59fe8 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedByPolicy: {
-@@ -1034,7 +1037,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1053,7 +1056,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
                                         group_name));
          RenderThread::Get()->RecordAction(
              UserMetricsAction("Plugin_BlockedByPolicy"));
@@ -238,7 +238,7 @@ index b96048aec4f7..edaa78c59fe8 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedNoLoading: {
-@@ -1042,7 +1046,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1061,7 +1065,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              IDR_BLOCKED_PLUGIN_HTML,
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED_NO_LOADING,
                                         group_name));
@@ -249,17 +249,17 @@ index b96048aec4f7..edaa78c59fe8 100644
        }
        case chrome::mojom::PluginStatus::kComponentUpdateRequired: {
 diff --git chrome/renderer/plugins/chrome_plugin_placeholder.cc chrome/renderer/plugins/chrome_plugin_placeholder.cc
-index 8a7d7402a48c..4dde943d0222 100644
+index 4410ede5cb61..b15fa6406a9d 100644
 --- chrome/renderer/plugins/chrome_plugin_placeholder.cc
 +++ chrome/renderer/plugins/chrome_plugin_placeholder.cc
-@@ -359,8 +359,11 @@ void ChromePluginPlaceholder::OnBlockedContent(
+@@ -360,8 +360,11 @@ void ChromePluginPlaceholder::OnBlockedContent(
  
    if (status ==
        content::RenderFrame::PeripheralContentStatus::CONTENT_STATUS_TINY) {
--    ContentSettingsAgentImpl::Get(render_frame())
+-    content_settings::ContentSettingsAgentImpl::Get(render_frame())
 -        ->DidBlockContentType(ContentSettingsType::PLUGINS);
-+      ContentSettingsAgentImpl *content_settings_agent =
-+          ContentSettingsAgentImpl::Get(render_frame());
++      content_settings::ContentSettingsAgentImpl *content_settings_agent =
++          content_settings::ContentSettingsAgentImpl::Get(render_frame());
 +      if (content_settings_agent) {
 +        content_settings_agent->DidBlockContentType(ContentSettingsType::PLUGINS);
 +      }

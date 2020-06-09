@@ -28,10 +28,10 @@ index 133540ca848f..d442344715af 100644
  void ResourceBundle::InitSharedInstance(Delegate* delegate) {
    DCHECK(g_shared_instance_ == nullptr) << "ResourceBundle initialized twice";
 diff --git ui/base/resource/resource_bundle.h ui/base/resource/resource_bundle.h
-index 3daa73bdc6d5..3d2f9232870d 100644
+index 0b62c5dba949..ddcb938a26ed 100644
 --- ui/base/resource/resource_bundle.h
 +++ ui/base/resource/resource_bundle.h
-@@ -158,6 +158,11 @@ class UI_BASE_EXPORT ResourceBundle {
+@@ -159,6 +159,11 @@ class UI_BASE_EXPORT ResourceBundle {
    // Return the global resource loader instance.
    static ResourceBundle& GetSharedInstance();
  

@@ -52,8 +52,6 @@ void CefWebContentsViewOSR::GetContainerBounds(gfx::Rect* out) const {
   *out = GetViewBounds();
 }
 
-void CefWebContentsViewOSR::SizeContents(const gfx::Size& size) {}
-
 void CefWebContentsViewOSR::Focus() {}
 
 void CefWebContentsViewOSR::SetInitialFocus() {}

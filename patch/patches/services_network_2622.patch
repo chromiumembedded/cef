@@ -1,5 +1,5 @@
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index 44ce8ba980a6..1dbbf0aa2341 100644
+index 75a5ee192358..bc97cbf684c0 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -18,6 +18,7 @@
@@ -10,7 +10,7 @@ index 44ce8ba980a6..1dbbf0aa2341 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -681,9 +682,22 @@ ProfileNetworkContextService::CreateNetworkContextParams(
+@@ -661,9 +662,22 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
    network_context_params->cookie_manager_params =
        CreateCookieManagerParams(profile_, *cookie_settings_);
  
@@ -33,7 +33,7 @@ index 44ce8ba980a6..1dbbf0aa2341 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -696,6 +710,7 @@ ProfileNetworkContextService::CreateNetworkContextParams(
+@@ -676,6 +690,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
          base_cache_path.Append(chrome::kCacheDirname);
      network_context_params->http_cache_max_size =
          local_state->GetInteger(prefs::kDiskCacheSize);
@@ -42,10 +42,10 @@ index 44ce8ba980a6..1dbbf0aa2341 100644
      // Currently this just contains HttpServerProperties, but that will likely
      // change.
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index ee2f1e1baf51..4d53c655d723 100644
+index a48ead96b3f7..967a5975c330 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
-@@ -375,6 +375,11 @@ class Profile : public content::BrowserContext {
+@@ -464,6 +464,11 @@ class Profile : public content::BrowserContext {
    virtual bool ShouldRestoreOldSessionCookies();
    virtual bool ShouldPersistSessionCookies();
  
@@ -54,11 +54,11 @@ index ee2f1e1baf51..4d53c655d723 100644
 +    return base::nullopt;
 +  }
 +
-   // Creates NetworkContext for the specified isolated app (or for the profile
-   // itself, if |relative_path| is empty).
-   virtual mojo::Remote<network::mojom::NetworkContext> CreateNetworkContext(
+   // Configures NetworkContextParams and CertVerifierCreationParams for the
+   // specified isolated app (or for the profile itself, if |relative_path| is
+   // empty).
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index 783485c013df..bf115fd4d63a 100644
+index 69652bdb5952..f1554d00df7b 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
 @@ -476,6 +476,25 @@ void CookieMonster::SetCookieableSchemes(
@@ -88,7 +88,7 @@ index 783485c013df..bf115fd4d63a 100644
  void CookieMonster::SetPersistSessionCookies(bool persist_session_cookies) {
    DCHECK(thread_checker_.CalledOnValidThread());
 diff --git net/cookies/cookie_monster.h net/cookies/cookie_monster.h
-index 431fab884a5f..eeed129b49f2 100644
+index 46001bd4e4e1..7ac1fc4f49ce 100644
 --- net/cookies/cookie_monster.h
 +++ net/cookies/cookie_monster.h
 @@ -180,6 +180,8 @@ class NET_EXPORT CookieMonster : public CookieStore {
@@ -101,7 +101,7 @@ index 431fab884a5f..eeed129b49f2 100644
    // Enables writing session cookies into the cookie database. If this this
    // method is called, it must be called before first use of the instance
 diff --git net/cookies/cookie_store.h net/cookies/cookie_store.h
-index 996ad7d14dfb..5c8e43c1d29c 100644
+index 4157f0ce83a5..1a0966ce73c8 100644
 --- net/cookies/cookie_store.h
 +++ net/cookies/cookie_store.h
 @@ -148,6 +148,11 @@ class NET_EXPORT CookieStore {
@@ -117,7 +117,7 @@ index 996ad7d14dfb..5c8e43c1d29c 100644
    virtual void DumpMemoryStats(base::trace_event::ProcessMemoryDump* pmd,
                                 const std::string& parent_absolute_name) const;
 diff --git services/network/cookie_manager.cc services/network/cookie_manager.cc
-index d1bf7a4d1f6d..772e08ee8916 100644
+index 1d988375b00a..e71cbc3b612f 100644
 --- services/network/cookie_manager.cc
 +++ services/network/cookie_manager.cc
 @@ -228,14 +228,9 @@ void CookieManager::FlushCookieStore(FlushCookieStoreCallback callback) {
@@ -139,10 +139,10 @@ index d1bf7a4d1f6d..772e08ee8916 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 5e37a45a033a..ca44461120a8 100644
+index 2c3f75ea4ad1..2e639893913b 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -1795,6 +1795,7 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext() {
+@@ -1746,6 +1746,7 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext() {
    }
  
    scoped_refptr<SessionCleanupCookieStore> session_cleanup_cookie_store;
@@ -150,7 +150,7 @@ index 5e37a45a033a..ca44461120a8 100644
    if (params_->cookie_path) {
      scoped_refptr<base::SequencedTaskRunner> client_task_runner =
          base::ThreadTaskRunnerHandle::Get();
-@@ -1821,18 +1822,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext() {
+@@ -1772,18 +1773,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext() {
      session_cleanup_cookie_store =
          base::MakeRefCounted<SessionCleanupCookieStore>(sqlite_store);
  
@@ -181,10 +181,10 @@ index 5e37a45a033a..ca44461120a8 100644
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
  
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 9515fe92e0b1..e659550debd2 100644
+index 6589fe215cfa..481fabeef3a1 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -219,6 +219,9 @@ struct NetworkContextParams {
+@@ -258,6 +258,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  

@@ -49,8 +49,8 @@ class CefTextfieldImpl
   void ApplyTextStyle(cef_text_style_t style,
                       bool add,
                       const CefRange& range) override;
-  bool IsCommandEnabled(int command_id) override;
-  void ExecuteCommand(int command_id) override;
+  bool IsCommandEnabled(cef_text_field_commands_t command_id) override;
+  void ExecuteCommand(cef_text_field_commands_t command_id) override;
   void ClearEditHistory() override;
   void SetPlaceholderText(const CefString& text) override;
   CefString GetPlaceholderText() override;

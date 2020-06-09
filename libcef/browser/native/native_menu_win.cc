@@ -20,6 +20,7 @@
 #include "ui/base/accelerators/accelerator.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/l10n/l10n_util_win.h"
+#include "ui/base/models/image_model.h"
 #include "ui/base/models/menu_model.h"
 #include "ui/events/keycodes/keyboard_codes.h"
 #include "ui/gfx/canvas.h"
@@ -30,6 +31,7 @@
 #include "ui/gfx/text_utils.h"
 #include "ui/gfx/win/hwnd_util.h"
 #include "ui/native_theme/native_theme.h"
+#include "ui/native_theme/themed_vector_icon.h"
 #include "ui/views/controls/menu/menu_config.h"
 #include "ui/views/controls/menu/menu_insertion_delegate_win.h"
 
@@ -288,10 +290,18 @@ class CefNativeMenuWin::MenuHostWindow {
 
       // Draw the icon after the label, otherwise it would be covered
       // by the label.
-      gfx::Image icon;
-      if (data->native_menu_win->model_->GetIconAt(data->model_index, &icon)) {
+      ui::ImageModel icon =
+          data->native_menu_win->model_->GetIconAt(data->model_index);
+      if (icon.IsImage() || icon.IsVectorIcon()) {
+        ui::NativeTheme* native_theme =
+            ui::NativeTheme::GetInstanceForNativeUi();
+
         // We currently don't support items with both icons and checkboxes.
-        const gfx::ImageSkia skia_icon = icon.AsImageSkia();
+        const gfx::ImageSkia skia_icon =
+            icon.IsImage() ? icon.GetImage().AsImageSkia()
+                           : ui::ThemedVectorIcon(icon.GetVectorIcon())
+                                 .GetImageSkia(native_theme, 16);
+
         DCHECK(type != ui::MenuModel::TYPE_CHECK);
         std::unique_ptr<SkCanvas> canvas = skia::CreatePlatformCanvas(
             skia_icon.width(), skia_icon.height(), false);

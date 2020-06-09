@@ -27,7 +27,7 @@ index bb4af725af9f..a1389be84f6e 100644
    auto* browser_context = web_contents->GetBrowserContext();
  
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
-index 01fbe50e48a9..3977d27e813d 100644
+index da431bd8ecc5..587952b1af1c 100644
 --- extensions/browser/extension_host.cc
 +++ extensions/browser/extension_host.cc
 @@ -66,11 +66,12 @@ ExtensionHost::ExtensionHost(const Extension* extension,
@@ -97,7 +97,7 @@ index 01fbe50e48a9..3977d27e813d 100644
    ExtensionRegistry::Get(browser_context_)->RemoveObserver(this);
  
 diff --git extensions/browser/extension_host.h extensions/browser/extension_host.h
-index b5d2c7652cae..2e11775e5db3 100644
+index 3b4afb96942f..ae832c720dd8 100644
 --- extensions/browser/extension_host.h
 +++ extensions/browser/extension_host.h
 @@ -52,13 +52,19 @@ class ExtensionHost : public DeferredStartRenderHost,
@@ -121,7 +121,7 @@ index b5d2c7652cae..2e11775e5db3 100644
    content::RenderViewHost* render_view_host() const;
    content::RenderProcessHost* render_process_host() const;
    bool has_loaded_once() const { return has_loaded_once_; }
-@@ -176,7 +182,8 @@ class ExtensionHost : public DeferredStartRenderHost,
+@@ -177,7 +183,8 @@ class ExtensionHost : public DeferredStartRenderHost,
    content::BrowserContext* browser_context_;
  
    // The host for our HTML content.
@@ -132,7 +132,7 @@ index b5d2c7652cae..2e11775e5db3 100644
    // A weak pointer to the current or pending RenderViewHost. We don't access
    // this through the host_contents because we want to deal with the pending
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index c2d64706c1db..4d5c75dd035f 100644
+index e2723b1a42e3..cb176afba5aa 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
 @@ -56,6 +56,7 @@ class ComponentExtensionResourceManager;
@@ -159,7 +159,7 @@ index c2d64706c1db..4d5c75dd035f 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index bc06d55da961..64f513b54fe3 100644
+index 374f722809b4..c0e22f4ad697 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -386,9 +386,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,

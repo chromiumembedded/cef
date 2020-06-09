@@ -224,16 +224,13 @@ class CefTextfield : public CefView {
   // enabled. See additional comments on ExecuteCommand().
   ///
   /*--cef()--*/
-  virtual bool IsCommandEnabled(int command_id) = 0;
+  virtual bool IsCommandEnabled(cef_text_field_commands_t command_id) = 0;
 
   ///
-  // Performs the action associated with the specified command id. Valid values
-  // include IDS_APP_UNDO, IDS_APP_REDO, IDS_APP_CUT, IDS_APP_COPY,
-  // IDS_APP_PASTE, IDS_APP_DELETE, IDS_APP_SELECT_ALL, IDS_DELETE_* and
-  // IDS_MOVE_*. See include/cef_pack_strings.h for definitions.
+  // Performs the action associated with the specified command id.
   ///
   /*--cef()--*/
-  virtual void ExecuteCommand(int command_id) = 0;
+  virtual void ExecuteCommand(cef_text_field_commands_t command_id) = 0;
 
   ///
   // Clears Edit history.

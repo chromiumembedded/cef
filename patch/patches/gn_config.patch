@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index c7296bb80f62..a64c7c42720a 100644
+index b6d50b724d74..f6f87492bd93 100644
 --- .gn
 +++ .gn
-@@ -642,6 +642,8 @@ exec_script_whitelist =
+@@ -638,6 +638,8 @@ exec_script_whitelist =
  
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
  
@@ -12,10 +12,10 @@ index c7296bb80f62..a64c7c42720a 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 72ae0d476511..1f8c6244e2a3 100644
+index 97494c0a0782..da1c1eeabd85 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -222,6 +222,7 @@ group("gn_all") {
+@@ -223,6 +223,7 @@ group("gn_all") {
  
    if (!is_ios && !is_fuchsia) {
      deps += [
@@ -56,10 +56,10 @@ index 982fbe8d3f0d..e757be4688f1 100644
 +         "studio path")
  }
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index ddfc4bd551d1..0e9157969deb 100644
+index deef406b9273..2dfd2cd8c2ef 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -297,7 +297,7 @@ template("chrome_paks") {
+@@ -303,7 +303,7 @@ template("chrome_paks") {
      }
  
      input_locales = locales
@@ -69,7 +69,7 @@ index ddfc4bd551d1..0e9157969deb 100644
      if (is_mac) {
        output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index b2c99d4721dd..c8f870fa4a06 100644
+index 056d425c4194..dd1a5094ec8d 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -134,7 +134,7 @@ template("generate_mini_installer") {

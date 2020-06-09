@@ -130,7 +130,6 @@ void InitCrashReporter(const base::CommandLine& command_line,
 
   g_crash_reporting_enabled = true;
 #else   // !defined(OS_MACOSX)
-  breakpad::SetCrashServerURL(crash_client->GetCrashServerURL());
 
   if (process_type != service_manager::switches::kZygoteProcess) {
     // Crash reporting for subprocesses created using the zygote will be

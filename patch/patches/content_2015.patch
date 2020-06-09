@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_target_determiner.cc chrome/browser/download/download_target_determiner.cc
-index 1b5b71193d02..05dad7a969d5 100644
+index 16c71312d84f..1a706a8d2018 100644
 --- chrome/browser/download/download_target_determiner.cc
 +++ chrome/browser/download/download_target_determiner.cc
 @@ -657,7 +657,7 @@ void IsHandledBySafePlugin(int render_process_id,
@@ -49,7 +49,7 @@ index 5b780f8bf34c..a75d0da983b4 100644
        false /* allow_wildcard */, is_stale, &plugin_info,
        nullptr /* actual_mime_type */);
 diff --git chrome/browser/ui/views/frame/browser_root_view.cc chrome/browser/ui/views/frame/browser_root_view.cc
-index 2277ac1008af..db0c90677538 100644
+index d20d6f084b67..13f655dbceaa 100644
 --- chrome/browser/ui/views/frame/browser_root_view.cc
 +++ chrome/browser/ui/views/frame/browser_root_view.cc
 @@ -76,7 +76,7 @@ void OnFindURLMimeType(const GURL& url,
@@ -75,10 +75,10 @@ index 4956b35c1278..2f9c0621f53e 100644
                        GetContentClient()->browser()->GetUserAgent());
      version.SetString("V8-Version", V8_VERSION_STRING);
 diff --git content/browser/frame_host/render_frame_message_filter.cc content/browser/frame_host/render_frame_message_filter.cc
-index f6511e22ab05..0ccf811d7b22 100644
+index 33e2c5f972de..9dd9cd29baa4 100644
 --- content/browser/frame_host/render_frame_message_filter.cc
 +++ content/browser/frame_host/render_frame_message_filter.cc
-@@ -298,6 +298,7 @@ void RenderFrameMessageFilter::OnCreateChildFrame(
+@@ -301,6 +301,7 @@ void RenderFrameMessageFilter::OnCreateChildFrame(
  void RenderFrameMessageFilter::OnGetPluginInfo(
      int render_frame_id,
      const GURL& url,
@@ -86,7 +86,7 @@ index f6511e22ab05..0ccf811d7b22 100644
      const url::Origin& main_frame_origin,
      const std::string& mime_type,
      bool* found,
-@@ -305,8 +306,9 @@ void RenderFrameMessageFilter::OnGetPluginInfo(
+@@ -308,8 +309,9 @@ void RenderFrameMessageFilter::OnGetPluginInfo(
      std::string* actual_mime_type) {
    bool allow_wildcard = true;
    *found = plugin_service_->GetPluginInfo(
@@ -99,7 +99,7 @@ index f6511e22ab05..0ccf811d7b22 100644
  
  void RenderFrameMessageFilter::OnOpenChannelToPepperPlugin(
 diff --git content/browser/frame_host/render_frame_message_filter.h content/browser/frame_host/render_frame_message_filter.h
-index 451bfecfa4b1..b7cddcbaca66 100644
+index 8d1c932e9f3a..e6a2c525da06 100644
 --- content/browser/frame_host/render_frame_message_filter.h
 +++ content/browser/frame_host/render_frame_message_filter.h
 @@ -83,6 +83,7 @@ class CONTENT_EXPORT RenderFrameMessageFilter : public BrowserMessageFilter {
@@ -111,10 +111,10 @@ index 451bfecfa4b1..b7cddcbaca66 100644
                         const std::string& mime_type,
                         bool* found,
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index 2be5d4400de9..14ece86df0e3 100644
+index 9ecb16d776d8..db2373890942 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
-@@ -722,6 +722,13 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
+@@ -735,6 +735,13 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
              resource_request_->has_user_gesture,
              resource_request_->request_initiator, &loader_factory);
  
@@ -128,7 +128,7 @@ index 2be5d4400de9..14ece86df0e3 100644
          if (loader_factory) {
            factory =
                base::MakeRefCounted<network::WrapperSharedURLLoaderFactory>(
-@@ -932,7 +939,7 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
+@@ -945,7 +952,7 @@ class NavigationURLLoaderImpl::URLLoaderRequestController
          frame_tree_node->current_frame_host()->GetProcess()->GetID();
      int routing_id = frame_tree_node->current_frame_host()->GetRoutingID();
      bool has_plugin = PluginService::GetInstance()->GetPluginInfo(
@@ -138,7 +138,7 @@ index 2be5d4400de9..14ece86df0e3 100644
  
      if (stale) {
 diff --git content/browser/plugin_service_impl.cc content/browser/plugin_service_impl.cc
-index 8f0f145f9760..49f0698c89f5 100644
+index b8800c3381ef..e260d7e56554 100644
 --- content/browser/plugin_service_impl.cc
 +++ content/browser/plugin_service_impl.cc
 @@ -340,6 +340,7 @@ bool PluginServiceImpl::GetPluginInfoArray(
@@ -224,10 +224,10 @@ index 632ae86c6fd6..55b749ec1242 100644
                            const std::vector<WebPluginInfo>& all_plugins);
  
 diff --git content/common/frame_messages.h content/common/frame_messages.h
-index 118765f9323f..614830e4f406 100644
+index 0821c7061118..fed37861b6b2 100644
 --- content/common/frame_messages.h
 +++ content/common/frame_messages.h
-@@ -687,9 +687,10 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
+@@ -615,9 +615,10 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
  // type. If there is no matching plugin, |found| is false.
  // |actual_mime_type| is the actual mime type supported by the
  // found plugin.
@@ -240,31 +240,31 @@ index 118765f9323f..614830e4f406 100644
                              std::string /* mime_type */,
                              bool /* found */,
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index 89f33b33f8c8..30512bab9b12 100644
+index 5c344d9b9ff7..776e506d2a10 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
 @@ -9,7 +9,7 @@
  // declarations instead of including more headers. If that is infeasible, adjust
  // the limit. For more info, see
  // https://chromium.googlesource.com/chromium/src/+/HEAD/docs/wmax_tokens.md
--#pragma clang max_tokens_here 820000
-+// #pragma clang max_tokens_here 820000
+-#pragma clang max_tokens_here 840000
++// #pragma clang max_tokens_here 840000
  
  #include <utility>
  
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 26cd6d1afcb8..5ac45c794daf 100644
+index d6c203ab546d..621bf11f32e9 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -26,6 +26,7 @@
- #include "content/common/content_export.h"
+@@ -28,6 +28,7 @@
+ #include "content/public/browser/allow_service_worker_result.h"
  #include "content/public/browser/certificate_request_result_type.h"
  #include "content/public/browser/generated_code_cache_settings.h"
 +#include "content/public/browser/web_contents.h"
  #include "content/public/common/page_visibility_state.h"
  #include "content/public/common/previews_state.h"
  #include "content/public/common/window_container_type.mojom-forward.h"
-@@ -1631,6 +1632,14 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1624,6 +1625,14 @@ class CONTENT_EXPORT ContentBrowserClient {
        const base::Optional<url::Origin>& initiating_origin,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
@@ -279,7 +279,7 @@ index 26cd6d1afcb8..5ac45c794daf 100644
    // Creates an OverlayWindow to be used for Picture-in-Picture. This window
    // will house the content shown when in Picture-in-Picture mode. This will
    // return a new OverlayWindow.
-@@ -1699,6 +1708,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1692,6 +1701,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  
@@ -315,10 +315,10 @@ index 98c59005599e..69752184745d 100644
                                   WebPluginInfo* plugin) = 0;
  
 diff --git content/public/renderer/content_renderer_client.h content/public/renderer/content_renderer_client.h
-index 764556d80f1b..7267aa6c26f6 100644
+index 7da02ee54143..6436dc300c43 100644
 --- content/public/renderer/content_renderer_client.h
 +++ content/public/renderer/content_renderer_client.h
-@@ -81,6 +81,9 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -85,6 +85,9 @@ class CONTENT_EXPORT ContentRendererClient {
    // binding requests from RenderProcessHost::BindReceiver().
    virtual void ExposeInterfacesToBrowser(mojo::BinderMap* binders) {}
  
@@ -328,7 +328,7 @@ index 764556d80f1b..7267aa6c26f6 100644
    // Notifies that a new RenderFrame has been created.
    virtual void RenderFrameCreated(RenderFrame* render_frame) {}
  
-@@ -310,6 +313,10 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -326,6 +329,10 @@ class CONTENT_EXPORT ContentRendererClient {
    // This method may invalidate the frame.
    virtual void RunScriptsAtDocumentIdle(RenderFrame* render_frame) {}
  
@@ -340,10 +340,10 @@ index 764556d80f1b..7267aa6c26f6 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 2ab5e79b71cc..51cd9556a884 100644
+index 34cdad7f7205..60042cb8b4e6 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -3742,7 +3742,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -3663,7 +3663,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -354,10 +354,10 @@ index 2ab5e79b71cc..51cd9556a884 100644
    if (!found)
      return nullptr;
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index 76176518dfe4..b7d8dc75a23a 100644
+index 3b99b09c45e9..a6b9562d1c5c 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
-@@ -630,6 +630,8 @@ void RenderThreadImpl::Init() {
+@@ -633,6 +633,8 @@ void RenderThreadImpl::Init() {
        GetContentClient()->renderer()->CreateURLLoaderThrottleProvider(
            URLLoaderThrottleProviderType::kFrame);
  
@@ -367,10 +367,10 @@ index 76176518dfe4..b7d8dc75a23a 100644
        &RenderThreadImpl::OnRendererInterfaceReceiver, base::Unretained(this)));
  
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index 8c641e6e3a6f..d2d1a7c2b6de 100644
+index 9b6fb9c13ed5..0bc31784d5be 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -899,6 +899,15 @@ RendererBlinkPlatformImpl::GetGpuFactories() {
+@@ -898,6 +898,15 @@ RendererBlinkPlatformImpl::GetGpuFactories() {
  
  //------------------------------------------------------------------------------
  

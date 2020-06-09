@@ -276,7 +276,7 @@ bool CefCookieManagerImpl::SetCookie(const CefString& url,
     return false;
 
   GetCookieManager(browser_context)
-      ->SetCanonicalCookie(*canonical_cookie, gurl.scheme(), options,
+      ->SetCanonicalCookie(*canonical_cookie, gurl, options,
                            base::Bind(SetCookieCallbackImpl, callback));
   return true;
 }

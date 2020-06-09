@@ -27,6 +27,7 @@ class CefVideoConsumerOSR : public viz::mojom::FrameSinkVideoConsumer {
       mojo::PendingRemote<viz::mojom::FrameSinkVideoConsumerFrameCallbacks>
           callbacks) override;
   void OnStopped() override;
+  void OnLog(const std::string& message) override;
 
   CefRenderWidgetHostViewOSR* const view_;
   std::unique_ptr<viz::ClientFrameSinkVideoCapturer> video_capturer_;

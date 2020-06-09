@@ -152,7 +152,7 @@ v8::MaybeLocal<v8::Value> CallV8Function(v8::Local<v8::Context> context,
   if (frame &&
       frame->GetDocument()->CanExecuteScripts(blink::kAboutToExecuteScript)) {
     func_rv = blink::V8ScriptRunner::CallFunction(
-        function, frame->GetDocument()->ToExecutionContext(), receiver, argc,
+        function, frame->GetDocument()->GetExecutionContext(), receiver, argc,
         args, isolate);
   }
 

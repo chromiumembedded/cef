@@ -1,16 +1,16 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index dfffff81bcf2..a4518ba20aaf 100644
+index 284154368652..cdd775136329 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -10,6 +10,7 @@ import("//build/config/features.gni")
- import("//build/config/jumbo.gni")
+@@ -9,6 +9,7 @@ import("//build/config/crypto.gni")
+ import("//build/config/features.gni")
  import("//build/config/linux/gtk/gtk.gni")
  import("//build/config/ui.gni")
 +import("//cef/libcef/features/features.gni")
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/assistant/assistant.gni")
-@@ -362,6 +363,10 @@ jumbo_static_library("ui") {
+@@ -362,6 +363,10 @@ static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -21,7 +21,7 @@ index dfffff81bcf2..a4518ba20aaf 100644
    # Since browser and browser_ui actually depend on each other,
    # we must omit the dependency from browser_ui to browser.
    # However, this means browser_ui and browser should more or less
-@@ -383,6 +388,7 @@ jumbo_static_library("ui") {
+@@ -383,6 +388,7 @@ static_library("ui") {
      "//base/allocator:buildflags",
      "//build:branding_buildflags",
      "//cc/paint",
@@ -29,16 +29,16 @@ index dfffff81bcf2..a4518ba20aaf 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -1470,6 +1476,7 @@ jumbo_static_library("ui") {
+@@ -1489,6 +1495,7 @@ static_library("ui") {
        "//components/keep_alive_registry",
        "//components/network_session_configurator/common",
        "//components/page_load_metrics/browser",
 +      "//components/printing/common:mojo_interfaces",
        "//components/profile_metrics",
+       "//components/safety_check",
        "//components/search_provider_logos",
-       "//components/ui_metrics",
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
-index 93bfc84f49a1..eeee229e943f 100644
+index f27414c41891..b42478315ac0 100644
 --- chrome/browser/ui/webui/net_export_ui.cc
 +++ chrome/browser/ui/webui/net_export_ui.cc
 @@ -21,13 +21,12 @@
@@ -184,7 +184,7 @@ index 93bfc84f49a1..eeee229e943f 100644
    file_writer_->StopNetLog(std::move(ui_thread_polled_data));
  }
 @@ -272,6 +301,7 @@ void NetExportMessageHandler::OnShowFile(const base::ListValue* list) {
-       base::Bind(&NetExportMessageHandler::ShowFileInShell, AsWeakPtr()));
+       base::BindOnce(&NetExportMessageHandler::ShowFileInShell, AsWeakPtr()));
  }
  
 +#if !BUILDFLAG(ENABLE_CEF)

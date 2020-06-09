@@ -256,8 +256,6 @@ class CefBrowserURLRequest::Context
     resource_request->render_frame_id = render_frame_id;
 
     // Behave the same as a subresource load.
-    resource_request->fetch_request_context_type =
-        static_cast<int>(blink::mojom::RequestContextType::SUBRESOURCE);
     resource_request->resource_type =
         static_cast<int>(blink::mojom::ResourceType::kSubResource);
 
@@ -267,7 +265,7 @@ class CefBrowserURLRequest::Context
 
     if (request_flags & UR_FLAG_ALLOW_STORED_CREDENTIALS) {
       // Include SameSite cookies.
-      resource_request->attach_same_site_cookies = true;
+      resource_request->force_ignore_site_for_cookies = true;
       resource_request->site_for_cookies =
           net::SiteForCookies::FromOrigin(*resource_request->request_initiator);
     }

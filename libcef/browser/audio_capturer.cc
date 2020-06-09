@@ -41,9 +41,9 @@ void StreamCreatorHelper(
              media::mojom::ReadOnlyAudioDataPipePtr data_pipe) {
             mojo::Remote<mirroring::mojom::AudioStreamCreatorClient>
                 audio_client(std::move(client));
-            audio_client->StreamCreated(
-                std::move(stream), std::move(client_receiver),
-                std::move(data_pipe), false /* initially_muted */);
+            audio_client->StreamCreated(std::move(stream),
+                                        std::move(client_receiver),
+                                        std::move(data_pipe));
           },
           base::Passed(&client)));
 }

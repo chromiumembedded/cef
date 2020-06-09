@@ -13,18 +13,10 @@ index f90e9fce0675..33551a2874bc 100644
            {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
             base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index 25afe1eda95e..78310ebd061d 100644
+index 05473c622dbd..9cd0e465fd2d 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
-@@ -58,6 +58,7 @@
- #include "content/public/common/content_switches.h"
- #include "content/public/common/service_manager_connection.h"
- #include "content/public/common/service_names.mojom.h"
-+#include "media/capabilities/in_memory_video_decode_stats_db_impl.h"
- #include "media/base/media_switches.h"
- #include "media/capabilities/in_memory_video_decode_stats_db_impl.h"
- #include "media/capabilities/video_decode_stats_db_impl.h"
-@@ -169,7 +170,7 @@ StoragePartition* GetStoragePartitionFromConfig(
+@@ -129,7 +129,7 @@ StoragePartition* GetStoragePartitionFromConfig(
    StoragePartitionImplMap* partition_map =
        GetStoragePartitionMap(browser_context);
  
@@ -33,7 +25,7 @@ index 25afe1eda95e..78310ebd061d 100644
      in_memory = true;
  
    return partition_map->Get(partition_domain, partition_name, in_memory,
-@@ -673,7 +674,7 @@ media::VideoDecodePerfHistory* BrowserContext::GetVideoDecodePerfHistory() {
+@@ -543,7 +543,7 @@ media::VideoDecodePerfHistory* BrowserContext::GetVideoDecodePerfHistory() {
          kUseInMemoryDBDefault);
  
      std::unique_ptr<media::VideoDecodeStatsDB> stats_db;
@@ -43,7 +35,7 @@ index 25afe1eda95e..78310ebd061d 100644
            std::make_unique<media::InMemoryVideoDecodeStatsDBImpl>(nullptr);
      } else {
 diff --git storage/browser/database/database_tracker.cc storage/browser/database/database_tracker.cc
-index 41dc6c9ac188..b125c1d2bcc8 100644
+index ecc6a0d2b8e5..b120add8abab 100644
 --- storage/browser/database/database_tracker.cc
 +++ storage/browser/database/database_tracker.cc
 @@ -506,7 +506,7 @@ bool DatabaseTracker::LazyInit() {
@@ -51,7 +43,7 @@ index 41dc6c9ac188..b125c1d2bcc8 100644
  
      is_initialized_ =
 -        base::CreateDirectory(db_dir_) &&
-+        (is_incognito_ ? true : base::CreateDirectory(db_dir_)) &&
++        (is_off_the_record_ ? true : base::CreateDirectory(db_dir_)) &&
          (db_->is_open() ||
-          (is_incognito_ ? db_->OpenInMemory() :
-           db_->Open(kTrackerDatabaseFullPath))) &&
+          (is_off_the_record_ ? db_->OpenInMemory()
+                              : db_->Open(kTrackerDatabaseFullPath))) &&

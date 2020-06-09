@@ -1,8 +1,8 @@
 diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
-index 66a4f7c28b4f..92cb66c1dc38 100644
+index f06c5b512342..1e8d5eef47fc 100644
 --- content/browser/storage_partition_impl.cc
 +++ content/browser/storage_partition_impl.cc
-@@ -797,10 +797,6 @@ class LoginHandlerDelegate {
+@@ -489,10 +489,6 @@ class LoginHandlerDelegate {
      }
  
      WebContents* web_contents = web_contents_getter_.Run();
@@ -13,7 +13,7 @@ index 66a4f7c28b4f..92cb66c1dc38 100644
  
      // WeakPtr is not strictly necessary here due to OnRequestCancelled.
      creating_login_delegate_ = true;
-@@ -857,12 +853,6 @@ void OnAuthRequiredContinuation(
+@@ -549,12 +545,6 @@ void OnAuthRequiredContinuation(
      web_contents_getter =
          base::BindRepeating(GetWebContents, process_id, routing_id);
    }
@@ -26,22 +26,24 @@ index 66a4f7c28b4f..92cb66c1dc38 100644
    new LoginHandlerDelegate(std::move(auth_challenge_responder),
                             std::move(web_contents_getter), auth_info,
                             is_request_for_main_frame, process_id, routing_id,
-@@ -2603,15 +2593,21 @@ void StoragePartitionImpl::GetQuotaSettings(
+@@ -2363,8 +2353,12 @@ void StoragePartitionImpl::GetQuotaSettings(
      return;
    }
  
 +  // CEF always returns false for IsOffTheRecord(), so also check the path.
 +  const bool is_incognito = browser_context_->IsOffTheRecord() ||
 +                            browser_context_->GetPath().empty();
++
    storage::GetNominalDynamicSettings(
 -      GetPath(), browser_context_->IsOffTheRecord(),
 +      GetPath(), is_incognito,
        storage::GetDefaultDeviceInfoHelper(), std::move(callback));
  }
  
- void StoragePartitionImpl::InitNetworkContext() {
-   network_context_ = GetContentClient()->browser()->CreateNetworkContext(
-       browser_context_, is_in_memory_, relative_partition_path_);
+@@ -2387,7 +2381,10 @@ void StoragePartitionImpl::InitNetworkContext() {
+   network_context_.reset();
+   GetNetworkService()->CreateNetworkContext(
+       network_context_.BindNewPipeAndPassReceiver(), std::move(context_params));
 -  DCHECK(network_context_);
 +  if (!network_context_) {
 +    // May happen during shutdown.

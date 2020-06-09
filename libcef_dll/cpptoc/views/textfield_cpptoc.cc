@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9ee756d7e93888230541b494da5559d736260b5c$
+// $hash=d7188da59785fbdd640a0cfbe7728a95021ef2bd$
 //
 
 #include "libcef_dll/cpptoc/views/textfield_cpptoc.h"
@@ -453,8 +453,9 @@ void CEF_CALLBACK textfield_apply_text_style(struct _cef_textfield_t* self,
                                                 rangeVal);
 }
 
-int CEF_CALLBACK textfield_is_command_enabled(struct _cef_textfield_t* self,
-                                              int command_id) {
+int CEF_CALLBACK
+textfield_is_command_enabled(struct _cef_textfield_t* self,
+                             cef_text_field_commands_t command_id) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -470,8 +471,9 @@ int CEF_CALLBACK textfield_is_command_enabled(struct _cef_textfield_t* self,
   return _retval;
 }
 
-void CEF_CALLBACK textfield_execute_command(struct _cef_textfield_t* self,
-                                            int command_id) {
+void CEF_CALLBACK
+textfield_execute_command(struct _cef_textfield_t* self,
+                          cef_text_field_commands_t command_id) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING

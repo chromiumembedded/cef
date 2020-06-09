@@ -118,7 +118,7 @@ struct PopulateAxNodeAttributes {
       case ax::mojom::IntAttribute::kDefaultActionVerb:
         attributes->SetString(
             ToString(attr.first),
-            ui::ActionVerbToUnlocalizedString(
+            ui::ToString(
                 static_cast<ax::mojom::DefaultActionVerb>(attr.second)));
         break;
       case ax::mojom::IntAttribute::kInvalidState: {

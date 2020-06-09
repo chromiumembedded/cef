@@ -74,7 +74,7 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
   bool IsRunningUnattended() override;
 #endif
 
-  std::string GetCrashServerURL() override;
+  std::string GetUploadUrl() override;
   void GetCrashOptionalArguments(std::vector<std::string>* arguments) override;
 
 #if defined(OS_WIN)

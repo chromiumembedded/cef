@@ -125,7 +125,7 @@ void SaveCookiesOnUIThread(content::BrowserContext* browser_context,
   for (const auto& cookie : cookies) {
     progress->num_cookie_lines_left_++;
     cookie_manager->SetCanonicalCookie(
-        cookie, url.scheme(), options,
+        cookie, url, options,
         base::BindOnce(&SetCanonicalCookieCallback, base::Unretained(progress),
                        cookie));
   }
@@ -158,7 +158,7 @@ void LoadCookies(content::BrowserContext* browser_context,
   options.set_same_site_cookie_context(
       net::cookie_util::ComputeSameSiteContextForRequest(
           request.method, request.url, request.site_for_cookies,
-          request.request_initiator, request.attach_same_site_cookies));
+          request.request_initiator, request.force_ignore_site_for_cookies));
 
   CEF_POST_TASK(
       CEF_UIT,
@@ -192,7 +192,7 @@ void SaveCookies(content::BrowserContext* browser_context,
   options.set_same_site_cookie_context(
       net::cookie_util::ComputeSameSiteContextForRequest(
           request.method, request.url, request.site_for_cookies,
-          request.request_initiator, request.attach_same_site_cookies));
+          request.request_initiator, request.force_ignore_site_for_cookies));
 
   const base::StringPiece name(net_service::kHTTPSetCookieHeaderName);
   std::string cookie_string;

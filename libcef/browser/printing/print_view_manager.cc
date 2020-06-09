@@ -58,9 +58,11 @@ void FillInDictionaryFromPdfPrintSettings(
     int request_id,
     base::DictionaryValue& print_settings) {
   // Fixed settings.
-  print_settings.SetIntKey(kSettingPrinterType, kPdfPrinter);
+  print_settings.SetIntKey(kSettingPrinterType,
+                           static_cast<int>(PrinterType::kPdf));
   print_settings.SetInteger(kSettingColor, GRAY);
-  print_settings.SetInteger(kSettingDuplexMode, SIMPLEX);
+  print_settings.SetInteger(kSettingDuplexMode,
+                            static_cast<int>(mojom::DuplexMode::kSimplex));
   print_settings.SetInteger(kSettingCopies, 1);
   print_settings.SetBoolean(kSettingCollate, false);
   print_settings.SetString(kSettingDeviceName, "");

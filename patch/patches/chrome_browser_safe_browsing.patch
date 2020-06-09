@@ -1,12 +1,12 @@
 diff --git chrome/browser/safe_browsing/BUILD.gn chrome/browser/safe_browsing/BUILD.gn
-index 14bef91c5370..cb1faba7c23e 100644
+index d041bd3f61a8..5f2feb9cd4c5 100644
 --- chrome/browser/safe_browsing/BUILD.gn
 +++ chrome/browser/safe_browsing/BUILD.gn
-@@ -246,6 +246,7 @@ jumbo_static_library("safe_browsing") {
+@@ -248,6 +248,7 @@ static_library("safe_browsing") {
          "//chrome/common/safe_browsing:download_type_util",
          "//chrome/services/file_util/public/cpp",
          "//components/content_settings/core/browser",
 +        "//components/gcm_driver:gcm_buildflags",
          "//components/language/core/common",
          "//components/prefs",
-         "//components/safe_browsing/core:webprotect_proto",
+         "//components/safe_browsing/core:client_model_proto",

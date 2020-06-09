@@ -15,7 +15,9 @@
 #include "base/message_loop/message_loop.h"
 #include "content/public/common/menu_item.h"
 #include "ui/base/accelerators/accelerator.h"
+#include "ui/base/models/image_model.h"
 #include "ui/gfx/geometry/point.h"
+#include "ui/gfx/image/image.h"
 
 namespace {
 
@@ -104,7 +106,9 @@ class CefSimpleMenuModel : public ui::MenuModel {
     return impl_->GetGroupIdAt(index);
   }
 
-  bool GetIconAt(int index, gfx::Image* icon) const override { return false; }
+  ui::ImageModel GetIconAt(int index) const override {
+    return ui::ImageModel();
+  }
 
   ui::ButtonMenuItemModel* GetButtonMenuItemAt(int index) const override {
     return nullptr;

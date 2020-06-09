@@ -70,15 +70,6 @@ const char kHTTPSetCookieHeaderName[] = "Set-Cookie";
 const char kContentTypeApplicationFormURLEncoded[] =
     "application/x-www-form-urlencoded";
 
-const char kHTTPHeaderSep[] = ": ";
-
-std::string MakeHeader(const std::string& name, const std::string& value) {
-  std::string header(name);
-  header.append(kHTTPHeaderSep);
-  header.append(value);
-  return header;
-}
-
 std::string MakeStatusLine(int status_code,
                            const std::string& status_text,
                            bool for_replacement) {
@@ -135,15 +126,15 @@ scoped_refptr<net::HttpResponseHeaders> MakeResponseHeaders(
       status_code != net::HTTP_NO_CONTENT &&
       status_code != net::HTTP_RESET_CONTENT) {
     if (!mime_type.empty()) {
-      headers->AddHeader(MakeHeader(net::HttpRequestHeaders::kContentType,
-                                    MakeContentTypeValue(mime_type, charset)));
+      headers->AddHeader(net::HttpRequestHeaders::kContentType,
+                         MakeContentTypeValue(mime_type, charset));
       set_headers_lowercase.insert(
           base::ToLowerASCII(net::HttpRequestHeaders::kContentType));
     }
 
     if (content_length >= 0) {
-      headers->AddHeader(MakeHeader(net::HttpRequestHeaders::kContentLength,
-                                    base::NumberToString(content_length)));
+      headers->AddHeader(net::HttpRequestHeaders::kContentLength,
+                         base::NumberToString(content_length));
       set_headers_lowercase.insert(
           base::ToLowerASCII(net::HttpRequestHeaders::kContentLength));
     }
@@ -162,7 +153,7 @@ scoped_refptr<net::HttpResponseHeaders> MakeResponseHeaders(
       }
     }
 
-    headers->AddHeader(MakeHeader(pair.first, pair.second));
+    headers->AddHeader(pair.first, pair.second);
   }
 
   return headers;

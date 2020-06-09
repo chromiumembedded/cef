@@ -41,11 +41,11 @@ index cc4b13a7b9c6..84f3b9ed7cf4 100644
  
  }  // namespace content
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index 5ad66a6af94f..501a4dc07a9f 100644
+index bb483be1fbfb..d33a95e2dee3 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -2746,6 +2746,11 @@ void RenderWidgetHostImpl::DidStartScrollingViewport() {
-     view_->set_is_currently_scrolling_viewport(true);
+@@ -2735,6 +2735,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
+       GetProcess(), bad_message::INPUT_ROUTER_INVALID_EVENT_SOURCE);
  }
  
 +void RenderWidgetHostImpl::SetCompositorForFlingScheduler(ui::Compositor* compositor)
@@ -57,10 +57,10 @@ index 5ad66a6af94f..501a4dc07a9f 100644
      const WebInputEvent& event) {
    if ((base::FeatureList::IsEnabled(
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 013b2165038f..28d33768143f 100644
+index 7200b0616892..733833deb5e0 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -731,6 +731,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -741,6 +741,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();

@@ -71,10 +71,12 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
+#include "content/public/browser/render_widget_host_observer.h"
 #include "content/public/browser/web_contents.h"
 #include "extensions/browser/process_manager.h"
 #include "net/base/net_errors.h"
 #include "third_party/blink/public/mojom/frame/find_in_page.mojom.h"
+#include "third_party/blink/public/mojom/page/widget.mojom-test-utils.h"
 #include "ui/events/base_event_utils.h"
 
 #if defined(OS_MACOSX)
@@ -194,6 +196,46 @@ void OnDownloadImage(uint32 max_image_size,
   callback->OnDownloadImageFinished(image_url.spec(), http_status_code,
                                     image_impl.get());
 }
+
+class CefWidgetHostInterceptor
+    : public blink::mojom::WidgetHostInterceptorForTesting,
+      public content::RenderWidgetHostObserver {
+ public:
+  CefWidgetHostInterceptor(CefBrowserHostImpl* browser,
+                           content::RenderViewHost* render_view_host)
+      : browser_(browser),
+        render_widget_host_(
+            content::RenderWidgetHostImpl::From(render_view_host->GetWidget())),
+        impl_(render_widget_host_->widget_host_receiver_for_testing()
+                  .SwapImplForTesting(this)) {
+    render_widget_host_->AddObserver(this);
+  }
+
+  blink::mojom::WidgetHost* GetForwardingInterface() override { return impl_; }
+
+  // WidgetHostInterceptorForTesting method:
+  void SetCursor(const ui::Cursor& cursor) override {
+    if (browser_->IsMouseCursorChangeDisabled()) {
+      // Don't change the cursor.
+      return;
+    }
+    GetForwardingInterface()->SetCursor(cursor);
+  }
+
+  // RenderWidgetHostObserver method:
+  void RenderWidgetHostDestroyed(
+      content::RenderWidgetHost* widget_host) override {
+    widget_host->RemoveObserver(this);
+    delete this;
+  }
+
+ private:
+  CefBrowserHostImpl* const browser_;
+  content::RenderWidgetHostImpl* const render_widget_host_;
+  blink::mojom::WidgetHost* const impl_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefWidgetHostInterceptor);
+};
 
 static constexpr base::TimeDelta kRecentlyAudibleTimeout =
     base::TimeDelta::FromSeconds(2);
@@ -1026,6 +1068,8 @@ bool CefBrowserHostImpl::IsBackgroundHost() {
 
 void CefBrowserHostImpl::SetMouseCursorChangeDisabled(bool disabled) {
   base::AutoLock lock_scope(state_lock_);
+  if (mouse_cursor_change_disabled_ == disabled)
+    return;
   mouse_cursor_change_disabled_ = disabled;
 }
 
@@ -2044,6 +2088,7 @@ bool CefBrowserHostImpl::ShouldTransferNavigation(
 void CefBrowserHostImpl::AddNewContents(
     content::WebContents* source,
     std::unique_ptr<content::WebContents> new_contents,
+    const GURL& target_url,
     WindowOpenDisposition disposition,
     const gfx::Rect& initial_rect,
     bool user_gesture,
@@ -2057,7 +2102,7 @@ void CefBrowserHostImpl::AddNewContents(
   }
 
   if (extension_host_) {
-    extension_host_->AddNewContents(source, std::move(new_contents),
+    extension_host_->AddNewContents(source, std::move(new_contents), target_url,
                                     disposition, initial_rect, user_gesture,
                                     was_blocked);
   }
@@ -2543,6 +2588,8 @@ void CefBrowserHostImpl::RenderViewCreated(
   // RenderFrameCreated is otherwise not called for new popup browsers.
   RenderFrameCreated(render_view_host->GetMainFrame());
 
+  new CefWidgetHostInterceptor(this, render_view_host);
+
   platform_delegate_->RenderViewCreated(render_view_host);
 }
 
@@ -2724,15 +2771,6 @@ void CefBrowserHostImpl::OnAudioStateChanged(bool audible) {
 
 void CefBrowserHostImpl::OnRecentlyAudibleTimerFired() {
   audio_capturer_.reset();
-}
-
-bool CefBrowserHostImpl::OnMessageReceived(const IPC::Message& message) {
-  // Handle the cursor message here if mouse cursor change is disabled instead
-  // of propegating the message to the normal handler.
-  if (message.type() == WidgetHostMsg_SetCursor::ID)
-    return IsMouseCursorChangeDisabled();
-
-  return false;
 }
 
 bool CefBrowserHostImpl::OnMessageReceived(
