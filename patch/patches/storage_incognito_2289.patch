@@ -13,10 +13,10 @@ index f90e9fce0675..33551a2874bc 100644
            {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
             base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index 05473c622dbd..9cd0e465fd2d 100644
+index 85251cbcd6b5..27e09121205f 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
-@@ -129,7 +129,7 @@ StoragePartition* GetStoragePartitionFromConfig(
+@@ -130,7 +130,7 @@ StoragePartition* GetStoragePartitionFromConfig(
    StoragePartitionImplMap* partition_map =
        GetStoragePartitionMap(browser_context);
  
@@ -25,7 +25,7 @@ index 05473c622dbd..9cd0e465fd2d 100644
      in_memory = true;
  
    return partition_map->Get(partition_domain, partition_name, in_memory,
-@@ -543,7 +543,7 @@ media::VideoDecodePerfHistory* BrowserContext::GetVideoDecodePerfHistory() {
+@@ -546,7 +546,7 @@ media::VideoDecodePerfHistory* BrowserContext::GetVideoDecodePerfHistory() {
          kUseInMemoryDBDefault);
  
      std::unique_ptr<media::VideoDecodeStatsDB> stats_db;

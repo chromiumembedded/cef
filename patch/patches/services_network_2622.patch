@@ -58,7 +58,7 @@ index a48ead96b3f7..967a5975c330 100644
    // specified isolated app (or for the profile itself, if |relative_path| is
    // empty).
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index 69652bdb5952..f1554d00df7b 100644
+index 533cc97ba715..36d9f1f3b511 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
 @@ -476,6 +476,25 @@ void CookieMonster::SetCookieableSchemes(

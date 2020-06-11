@@ -44,7 +44,7 @@ index 8d1802954e22..4ec2caa2fd92 100644
  
  DocumentInit& DocumentInit::WithTypeFrom(const String& mime_type) {
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index 453cc53860af..f42e2a34ab23 100644
+index 923913ab9dd9..c7870736ab29 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
 @@ -1365,7 +1365,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
