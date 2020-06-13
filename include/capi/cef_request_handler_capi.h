@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=a28219cc8c1cb53faacaf236374c3cf2c0c45bef$
+// $hash=0167eb1abe614bd6391d273a8085fa3e53e7c217$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_HANDLER_CAPI_H_
@@ -253,6 +253,14 @@ typedef struct _cef_request_handler_t {
       struct _cef_request_handler_t* self,
       struct _cef_browser_t* browser,
       cef_termination_status_t status);
+
+  ///
+  // Called on the browser process UI thread when the window.document object of
+  // the main frame has been created.
+  ///
+  void(CEF_CALLBACK* on_document_available_in_main_frame)(
+      struct _cef_request_handler_t* self,
+      struct _cef_browser_t* browser);
 } cef_request_handler_t;
 
 #ifdef __cplusplus

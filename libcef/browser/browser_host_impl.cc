@@ -16,8 +16,7 @@
 #include "libcef/browser/browser_util.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
-#include "libcef/browser/devtools/devtools_frontend.h"
-#include "libcef/browser/devtools/devtools_manager_delegate.h"
+#include "libcef/browser/devtools/devtools_manager.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/extensions/extension_background_host.h"
 #include "libcef/browser/extensions/extension_system.h"
@@ -594,26 +593,6 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForFrameRoute(
 // CefBrowserHostImpl methods.
 // -----------------------------------------------------------------------------
 
-// WebContentsObserver that will be notified when the frontend WebContents is
-// destroyed so that the inspected browser can clear its DevTools references.
-class CefBrowserHostImpl::DevToolsWebContentsObserver
-    : public content::WebContentsObserver {
- public:
-  DevToolsWebContentsObserver(CefBrowserHostImpl* browser,
-                              content::WebContents* frontend_web_contents)
-      : WebContentsObserver(frontend_web_contents), browser_(browser) {}
-
-  // WebContentsObserver methods:
-  void WebContentsDestroyed() override {
-    browser_->OnDevToolsWebContentsDestroyed();
-  }
-
- private:
-  CefBrowserHostImpl* browser_;
-
-  DISALLOW_COPY_AND_ASSIGN(DevToolsWebContentsObserver);
-};
-
 CefBrowserHostImpl::~CefBrowserHostImpl() {}
 
 CefRefPtr<CefBrowser> CefBrowserHostImpl::GetBrowser() {
@@ -906,39 +885,29 @@ void CefBrowserHostImpl::ShowDevTools(const CefWindowInfo& windowInfo,
                                       CefRefPtr<CefClient> client,
                                       const CefBrowserSettings& settings,
                                       const CefPoint& inspect_element_at) {
-  if (CEF_CURRENTLY_ON_UIT()) {
-    if (!web_contents())
-      return;
-
-    if (devtools_frontend_) {
-      if (!inspect_element_at.IsEmpty()) {
-        devtools_frontend_->InspectElementAt(inspect_element_at.x,
-                                             inspect_element_at.y);
-      }
-      devtools_frontend_->Focus();
-      return;
-    }
-
-    devtools_frontend_ = CefDevToolsFrontend::Show(
-        this, windowInfo, client, settings, inspect_element_at);
-    devtools_observer_.reset(new DevToolsWebContentsObserver(
-        this, devtools_frontend_->frontend_browser()->web_contents()));
-  } else {
+  if (!CEF_CURRENTLY_ON_UIT()) {
     ShowDevToolsHelper* helper = new ShowDevToolsHelper(
         this, windowInfo, client, settings, inspect_element_at);
     CEF_POST_TASK(CEF_UIT, base::BindOnce(ShowDevToolsWithHelper, helper));
+    return;
   }
+
+  if (!EnsureDevToolsManager())
+    return;
+  devtools_manager_->ShowDevTools(windowInfo, client, settings,
+                                  inspect_element_at);
 }
 
 void CefBrowserHostImpl::CloseDevTools() {
-  if (CEF_CURRENTLY_ON_UIT()) {
-    if (!devtools_frontend_)
-      return;
-    devtools_frontend_->Close();
-  } else {
+  if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
                   base::BindOnce(&CefBrowserHostImpl::CloseDevTools, this));
+    return;
   }
+
+  if (!devtools_manager_)
+    return;
+  devtools_manager_->CloseDevTools();
 }
 
 bool CefBrowserHostImpl::HasDevTools() {
@@ -947,7 +916,84 @@ bool CefBrowserHostImpl::HasDevTools() {
     return false;
   }
 
-  return (devtools_frontend_ != nullptr);
+  if (!devtools_manager_)
+    return false;
+  return devtools_manager_->HasDevTools();
+}
+
+bool CefBrowserHostImpl::SendDevToolsMessage(const void* message,
+                                             size_t message_size) {
+  if (!message || message_size == 0)
+    return false;
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    std::string message_str(static_cast<const char*>(message), message_size);
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::BindOnce(
+            [](CefRefPtr<CefBrowserHostImpl> self, std::string message_str) {
+              self->SendDevToolsMessage(message_str.data(), message_str.size());
+            },
+            CefRefPtr<CefBrowserHostImpl>(this), std::move(message_str)));
+    return false;
+  }
+
+  if (!EnsureDevToolsManager())
+    return false;
+  return devtools_manager_->SendDevToolsMessage(message, message_size);
+}
+
+int CefBrowserHostImpl::ExecuteDevToolsMethod(
+    int message_id,
+    const CefString& method,
+    CefRefPtr<CefDictionaryValue> params) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT, base::BindOnce(base::IgnoreResult(
+                                    &CefBrowserHostImpl::ExecuteDevToolsMethod),
+                                this, message_id, method, params));
+    return 0;
+  }
+
+  if (!EnsureDevToolsManager())
+    return 0;
+  return devtools_manager_->ExecuteDevToolsMethod(message_id, method, params);
+}
+
+CefRefPtr<CefRegistration> CefBrowserHostImpl::AddDevToolsMessageObserver(
+    CefRefPtr<CefDevToolsMessageObserver> observer) {
+  if (!observer)
+    return nullptr;
+  auto registration = CefDevToolsManager::CreateRegistration(observer);
+  InitializeDevToolsRegistrationOnUIThread(registration);
+  return registration.get();
+}
+
+bool CefBrowserHostImpl::EnsureDevToolsManager() {
+  CEF_REQUIRE_UIT();
+  if (!web_contents())
+    return false;
+
+  if (!devtools_manager_) {
+    devtools_manager_.reset(new CefDevToolsManager(this));
+  }
+  return true;
+}
+
+void CefBrowserHostImpl::InitializeDevToolsRegistrationOnUIThread(
+    CefRefPtr<CefRegistration> registration) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::BindOnce(
+            &CefBrowserHostImpl::InitializeDevToolsRegistrationOnUIThread, this,
+            registration));
+    return;
+  }
+
+  if (!EnsureDevToolsManager())
+    return;
+  devtools_manager_->InitializeRegistrationOnUIThread(registration);
 }
 
 void CefBrowserHostImpl::GetNavigationEntries(
@@ -1610,6 +1656,8 @@ void CefBrowserHostImpl::DestroyBrowser() {
   // Delete the audio capturer
   recently_audible_timer_.Stop();
   audio_capturer_.reset(nullptr);
+
+  devtools_manager_.reset(nullptr);
 
   // Delete the platform delegate.
   platform_delegate_.reset(nullptr);
@@ -2704,16 +2752,24 @@ void CefBrowserHostImpl::DidStopLoading() {
 }
 
 void CefBrowserHostImpl::DocumentAvailableInMainFrame() {
-  base::AutoLock lock_scope(state_lock_);
-  has_document_ = true;
+  {
+    base::AutoLock lock_scope(state_lock_);
+    has_document_ = true;
+  }
+
+  if (client_) {
+    CefRefPtr<CefRequestHandler> handler = client_->GetRequestHandler();
+    if (handler)
+      handler->OnDocumentAvailableInMainFrame(this);
+  }
 }
 
 void CefBrowserHostImpl::DidFailLoad(
     content::RenderFrameHost* render_frame_host,
     const GURL& validated_url,
     int error_code) {
-  // The navigation failed after commit. OnLoadStart was called so we also call
-  // OnLoadEnd.
+  // The navigation failed after commit. OnLoadStart was called so we also
+  // call OnLoadEnd.
   auto frame = browser_info_->GetFrameForHost(render_frame_host);
   frame->RefreshAttributes();
   OnLoadError(frame, validated_url, error_code);
@@ -2949,18 +3005,6 @@ CefBrowserHostImpl::CefBrowserHostImpl(
       platform_delegate_(std::move(platform_delegate)),
       is_windowless_(platform_delegate_->IsWindowless()),
       is_views_hosted_(platform_delegate_->IsViewsHosted()),
-      host_window_handle_(kNullWindowHandle),
-      is_loading_(false),
-      can_go_back_(false),
-      can_go_forward_(false),
-      has_document_(false),
-      is_fullscreen_(false),
-      destruction_state_(DESTRUCTION_STATE_NONE),
-      window_destroyed_(false),
-      is_in_onsetfocus_(false),
-      focus_on_editable_field_(false),
-      mouse_cursor_change_disabled_(false),
-      devtools_frontend_(nullptr),
       extension_(extension) {
   if (opener.get() && !platform_delegate_->IsViewsHosted()) {
     // GetOpenerWindowHandle() only returns a value for non-views-hosted
@@ -3169,11 +3213,6 @@ void CefBrowserHostImpl::OnTitleChange(const base::string16& title) {
     if (handler.get())
       handler->OnTitleChange(this, title);
   }
-}
-
-void CefBrowserHostImpl::OnDevToolsWebContentsDestroyed() {
-  devtools_observer_.reset();
-  devtools_frontend_ = nullptr;
 }
 
 void CefBrowserHostImpl::EnsureFileDialogManager() {

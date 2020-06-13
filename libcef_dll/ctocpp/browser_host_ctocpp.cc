@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9073823898d373a435ccdc56f2914aad91cbba1e$
+// $hash=a362e11e85ce68488bbb0f5232b01f53cffeec1d$
 //
 
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
 #include "libcef_dll/cpptoc/client_cpptoc.h"
+#include "libcef_dll/cpptoc/dev_tools_message_observer_cpptoc.h"
 #include "libcef_dll/cpptoc/download_image_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/navigation_entry_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/pdf_print_callback_cpptoc.h"
@@ -23,6 +24,7 @@
 #include "libcef_dll/ctocpp/drag_data_ctocpp.h"
 #include "libcef_dll/ctocpp/extension_ctocpp.h"
 #include "libcef_dll/ctocpp/navigation_entry_ctocpp.h"
+#include "libcef_dll/ctocpp/registration_ctocpp.h"
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
@@ -466,6 +468,81 @@ NO_SANITIZE("cfi-icall") bool CefBrowserHostCToCpp::HasDevTools() {
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefBrowserHostCToCpp::SendDevToolsMessage(const void* message,
+                                               size_t message_size) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, send_dev_tools_message))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: message; type: simple_byaddr
+  DCHECK(message);
+  if (!message)
+    return false;
+
+  // Execute
+  int _retval = _struct->send_dev_tools_message(_struct, message, message_size);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+int CefBrowserHostCToCpp::ExecuteDevToolsMethod(
+    int message_id,
+    const CefString& method,
+    CefRefPtr<CefDictionaryValue> params) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, execute_dev_tools_method))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: method; type: string_byref_const
+  DCHECK(!method.empty());
+  if (method.empty())
+    return 0;
+  // Unverified params: params
+
+  // Execute
+  int _retval = _struct->execute_dev_tools_method(
+      _struct, message_id, method.GetStruct(),
+      CefDictionaryValueCToCpp::Unwrap(params));
+
+  // Return type: simple
+  return _retval;
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefRegistration> CefBrowserHostCToCpp::AddDevToolsMessageObserver(
+    CefRefPtr<CefDevToolsMessageObserver> observer) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, add_dev_tools_message_observer))
+    return nullptr;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: observer; type: refptr_diff
+  DCHECK(observer.get());
+  if (!observer.get())
+    return nullptr;
+
+  // Execute
+  cef_registration_t* _retval = _struct->add_dev_tools_message_observer(
+      _struct, CefDevToolsMessageObserverCppToC::Wrap(observer));
+
+  // Return type: refptr_same
+  return CefRegistrationCToCpp::Wrap(_retval);
 }
 
 NO_SANITIZE("cfi-icall")

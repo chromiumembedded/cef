@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a9c5f9224663a0c2f2a29c35c2dea3f47973b82f$
+// $hash=c9abd1293472afbac964aac4cd7dd4cac9dd8e58$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_
@@ -76,6 +76,12 @@ class CefBrowserHostCToCpp : public CefCToCppRefCounted<CefBrowserHostCToCpp,
                     const CefPoint& inspect_element_at) OVERRIDE;
   void CloseDevTools() OVERRIDE;
   bool HasDevTools() OVERRIDE;
+  bool SendDevToolsMessage(const void* message, size_t message_size) OVERRIDE;
+  int ExecuteDevToolsMethod(int message_id,
+                            const CefString& method,
+                            CefRefPtr<CefDictionaryValue> params) OVERRIDE;
+  CefRefPtr<CefRegistration> AddDevToolsMessageObserver(
+      CefRefPtr<CefDevToolsMessageObserver> observer) OVERRIDE;
   void GetNavigationEntries(CefRefPtr<CefNavigationEntryVisitor> visitor,
                             bool current_only) OVERRIDE;
   void SetMouseCursorChangeDisabled(bool disabled) OVERRIDE;

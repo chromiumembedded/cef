@@ -134,6 +134,16 @@ CefRefPtr<CefValue> CefParseJSON(const CefString& json_string,
                                  cef_json_parser_options_t options);
 
 ///
+// Parses the specified UTF8-encoded |json| buffer of size |json_size| and
+// returns a dictionary or list representation. If JSON parsing fails this
+// method returns NULL.
+///
+/*--cef(capi_name=cef_parse_json_buffer)--*/
+CefRefPtr<CefValue> CefParseJSON(const void* json,
+                                 size_t json_size,
+                                 cef_json_parser_options_t options);
+
+///
 // Parses the specified |json_string| and returns a dictionary or list
 // representation. If JSON parsing fails this method returns NULL and populates
 // |error_code_out| and |error_msg_out| with an error code and a formatted error

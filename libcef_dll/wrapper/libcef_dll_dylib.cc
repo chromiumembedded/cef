@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bf82965f02cafae5a1afc80ab0c976436be9712e$
+// $hash=66b734973339eb27399083e978844f7d5a6a6c44$
 //
 
 #include <dlfcn.h>
@@ -139,6 +139,8 @@ typedef cef_string_userfree_t (*cef_uridecode_ptr)(const cef_string_t*,
                                                    cef_uri_unescape_rule_t);
 typedef struct _cef_value_t* (*cef_parse_json_ptr)(const cef_string_t*,
                                                    cef_json_parser_options_t);
+typedef struct _cef_value_t* (
+    *cef_parse_json_buffer_ptr)(const void*, size_t, cef_json_parser_options_t);
 typedef struct _cef_value_t* (*cef_parse_jsonand_return_error_ptr)(
     const cef_string_t*,
     cef_json_parser_options_t,
@@ -547,6 +549,7 @@ struct libcef_pointers {
   cef_uriencode_ptr cef_uriencode;
   cef_uridecode_ptr cef_uridecode;
   cef_parse_json_ptr cef_parse_json;
+  cef_parse_json_buffer_ptr cef_parse_json_buffer;
   cef_parse_jsonand_return_error_ptr cef_parse_jsonand_return_error;
   cef_write_json_ptr cef_write_json;
   cef_get_path_ptr cef_get_path;
@@ -763,6 +766,7 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_uriencode);
   INIT_ENTRY(cef_uridecode);
   INIT_ENTRY(cef_parse_json);
+  INIT_ENTRY(cef_parse_json_buffer);
   INIT_ENTRY(cef_parse_jsonand_return_error);
   INIT_ENTRY(cef_write_json);
   INIT_ENTRY(cef_get_path);
@@ -1132,6 +1136,13 @@ NO_SANITIZE("cfi-icall")
 struct _cef_value_t* cef_parse_json(const cef_string_t* json_string,
                                     cef_json_parser_options_t options) {
   return g_libcef_pointers.cef_parse_json(json_string, options);
+}
+
+NO_SANITIZE("cfi-icall")
+struct _cef_value_t* cef_parse_json_buffer(const void* json,
+                                           size_t json_size,
+                                           cef_json_parser_options_t options) {
+  return g_libcef_pointers.cef_parse_json_buffer(json, json_size, options);
 }
 
 NO_SANITIZE("cfi-icall")

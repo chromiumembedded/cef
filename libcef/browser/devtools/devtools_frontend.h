@@ -11,6 +11,7 @@
 #include "libcef/browser/devtools/devtools_file_manager.h"
 
 #include "base/compiler_specific.h"
+#include "base/files/file_path.h"
 #include "base/macros.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/weak_ptr.h"
@@ -31,36 +32,38 @@ class WebContents;
 
 class PrefService;
 
+enum class ProtocolMessageType {
+  METHOD,
+  RESULT,
+  EVENT,
+};
+
 class CefDevToolsFrontend : public content::WebContentsObserver,
                             public content::DevToolsAgentHostClient {
  public:
   static CefDevToolsFrontend* Show(
-      CefRefPtr<CefBrowserHostImpl> inspected_browser,
+      CefBrowserHostImpl* inspected_browser,
       const CefWindowInfo& windowInfo,
       CefRefPtr<CefClient> client,
       const CefBrowserSettings& settings,
-      const CefPoint& inspect_element_at);
+      const CefPoint& inspect_element_at,
+      base::OnceClosure frontend_destroyed_callback);
 
   void Activate();
   void Focus();
   void InspectElementAt(int x, int y);
   void Close();
 
-  void DisconnectFromTarget();
-
   void CallClientFunction(const std::string& function_name,
                           const base::Value* arg1,
                           const base::Value* arg2,
                           const base::Value* arg3);
 
-  CefRefPtr<CefBrowserHostImpl> frontend_browser() const {
-    return frontend_browser_;
-  }
-
  private:
-  CefDevToolsFrontend(CefRefPtr<CefBrowserHostImpl> frontend_browser,
+  CefDevToolsFrontend(CefBrowserHostImpl* frontend_browser,
                       content::WebContents* inspected_contents,
-                      const CefPoint& inspect_element_at);
+                      const CefPoint& inspect_element_at,
+                      base::OnceClosure destroyed_callback);
   ~CefDevToolsFrontend() override;
 
   // content::DevToolsAgentHostClient implementation.
@@ -78,12 +81,17 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
 
   void SendMessageAck(int request_id, const base::Value* arg1);
 
+  bool ProtocolLoggingEnabled() const;
+  void LogProtocolMessage(ProtocolMessageType type,
+                          const base::StringPiece& message);
+
   PrefService* GetPrefs() const;
 
   CefRefPtr<CefBrowserHostImpl> frontend_browser_;
   content::WebContents* inspected_contents_;
   scoped_refptr<content::DevToolsAgentHost> agent_host_;
   CefPoint inspect_element_at_;
+  base::OnceClosure frontend_destroyed_callback_;
   std::unique_ptr<content::DevToolsFrontendHost> frontend_host_;
 
   class NetworkResourceLoader;
@@ -93,6 +101,9 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   using ExtensionsAPIs = std::map<std::string, std::string>;
   ExtensionsAPIs extensions_api_;
   CefDevToolsFileManager file_manager_;
+
+  const base::FilePath protocol_log_file_;
+
   base::WeakPtrFactory<CefDevToolsFrontend> weak_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(CefDevToolsFrontend);

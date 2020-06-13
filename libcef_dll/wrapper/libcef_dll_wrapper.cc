@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c565ea9030eeed15f24fe420b828453a23dbc6ba$
+// $hash=7db8dbe24a2510d9ae0649f1569909711017c064$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -552,6 +552,24 @@ CEF_GLOBAL CefRefPtr<CefValue> CefParseJSON(const CefString& json_string,
 
   // Execute
   cef_value_t* _retval = cef_parse_json(json_string.GetStruct(), options);
+
+  // Return type: refptr_same
+  return CefValueCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+CEF_GLOBAL CefRefPtr<CefValue> CefParseJSON(const void* json,
+                                            size_t json_size,
+                                            cef_json_parser_options_t options) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: json; type: simple_byaddr
+  DCHECK(json);
+  if (!json)
+    return nullptr;
+
+  // Execute
+  cef_value_t* _retval = cef_parse_json_buffer(json, json_size, options);
 
   // Return type: refptr_same
   return CefValueCToCpp::Wrap(_retval);

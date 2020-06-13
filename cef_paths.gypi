@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=21f0ab1e9902e4a47bf2893a4a383d33bd8161e2$
+# $hash=30eed8c81da55c640eb6a491283d1c00fb59d635$
 #
 
 {
@@ -26,6 +26,7 @@
       'include/cef_context_menu_handler.h',
       'include/cef_cookie.h',
       'include/cef_crash_util.h',
+      'include/cef_devtools_message_observer.h',
       'include/cef_dialog_handler.h',
       'include/cef_display_handler.h',
       'include/cef_dom.h',
@@ -122,6 +123,7 @@
       'include/capi/cef_context_menu_handler_capi.h',
       'include/capi/cef_cookie_capi.h',
       'include/capi/cef_crash_util_capi.h',
+      'include/capi/cef_devtools_message_observer_capi.h',
       'include/capi/cef_dialog_handler_capi.h',
       'include/capi/cef_display_handler_capi.h',
       'include/capi/cef_dom_capi.h',
@@ -260,6 +262,8 @@
       'libcef_dll/ctocpp/domvisitor_ctocpp.h',
       'libcef_dll/ctocpp/delete_cookies_callback_ctocpp.cc',
       'libcef_dll/ctocpp/delete_cookies_callback_ctocpp.h',
+      'libcef_dll/ctocpp/dev_tools_message_observer_ctocpp.cc',
+      'libcef_dll/ctocpp/dev_tools_message_observer_ctocpp.h',
       'libcef_dll/ctocpp/dialog_handler_ctocpp.cc',
       'libcef_dll/ctocpp/dialog_handler_ctocpp.h',
       'libcef_dll/cpptoc/dictionary_value_cpptoc.cc',
@@ -566,6 +570,8 @@
       'libcef_dll/cpptoc/domvisitor_cpptoc.h',
       'libcef_dll/cpptoc/delete_cookies_callback_cpptoc.cc',
       'libcef_dll/cpptoc/delete_cookies_callback_cpptoc.h',
+      'libcef_dll/cpptoc/dev_tools_message_observer_cpptoc.cc',
+      'libcef_dll/cpptoc/dev_tools_message_observer_cpptoc.h',
       'libcef_dll/cpptoc/dialog_handler_cpptoc.cc',
       'libcef_dll/cpptoc/dialog_handler_cpptoc.h',
       'libcef_dll/ctocpp/dictionary_value_ctocpp.cc',

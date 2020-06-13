@@ -28,6 +28,7 @@ const char kShowUpdateRect[] = "show-update-rect";
 const char kSharedTextureEnabled[] = "shared-texture-enabled";
 const char kExternalBeginFrameEnabled[] = "external-begin-frame-enabled";
 const char kMouseCursorChangeDisabled[] = "mouse-cursor-change-disabled";
+const char kOffline[] = "offline";
 const char kRequestContextPerBrowser[] = "request-context-per-browser";
 const char kRequestContextSharedCache[] = "request-context-shared-cache";
 const char kBackgroundColor[] = "background-color";
