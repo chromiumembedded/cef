@@ -6,13 +6,18 @@
 
 #include <stddef.h>
 
+#include <iomanip>
 #include <utility>
 
 #include "libcef/browser/browser_context.h"
+#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/devtools/devtools_manager_delegate.h"
 #include "libcef/browser/net/devtools_scheme_handler.h"
+#include "libcef/common/cef_switches.h"
 
 #include "base/base64.h"
+#include "base/command_line.h"
+#include "base/files/file_util.h"
 #include "base/guid.h"
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
@@ -48,6 +53,13 @@
 #include "services/network/public/cpp/simple_url_loader.h"
 #include "services/network/public/cpp/simple_url_loader_stream_consumer.h"
 #include "services/network/public/mojom/url_response_head.mojom.h"
+#include "storage/browser/file_system/native_file_util.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
+#elif defined(OS_POSIX)
+#include <time.h>
+#endif
 
 namespace {
 
@@ -84,6 +96,71 @@ std::unique_ptr<base::DictionaryValue> BuildObjectForResponse(
 
   response->Set("headers", std::move(headers));
   return response;
+}
+
+const int kMaxLogLineLength = 1024;
+
+void WriteTimestamp(std::stringstream& stream) {
+#if defined(OS_WIN)
+  SYSTEMTIME local_time;
+  GetLocalTime(&local_time);
+  stream << std::setfill('0') << std::setw(2) << local_time.wMonth
+         << std::setw(2) << local_time.wDay << '/' << std::setw(2)
+         << local_time.wHour << std::setw(2) << local_time.wMinute
+         << std::setw(2) << local_time.wSecond << '.' << std::setw(3)
+         << local_time.wMilliseconds;
+#elif defined(OS_POSIX)
+  timeval tv;
+  gettimeofday(&tv, nullptr);
+  time_t t = tv.tv_sec;
+  struct tm local_time;
+  localtime_r(&t, &local_time);
+  struct tm* tm_time = &local_time;
+  stream << std::setfill('0') << std::setw(2) << 1 + tm_time->tm_mon
+         << std::setw(2) << tm_time->tm_mday << '/' << std::setw(2)
+         << tm_time->tm_hour << std::setw(2) << tm_time->tm_min << std::setw(2)
+         << tm_time->tm_sec << '.' << std::setw(6) << tv.tv_usec;
+#else
+#error Unsupported platform
+#endif
+}
+
+void LogProtocolMessage(const base::FilePath& log_file,
+                        ProtocolMessageType type,
+                        std::string to_log) {
+  // Track if logging has failed, in which case we don't keep trying.
+  static bool log_error = false;
+  if (log_error)
+    return;
+
+  if (storage::NativeFileUtil::EnsureFileExists(log_file, nullptr) !=
+      base::File::FILE_OK) {
+    LOG(ERROR) << "Failed to create file " << log_file.value();
+    log_error = true;
+    return;
+  }
+
+  std::string type_label;
+  switch (type) {
+    case ProtocolMessageType::METHOD:
+      type_label = "METHOD";
+      break;
+    case ProtocolMessageType::RESULT:
+      type_label = "RESULT";
+      break;
+    case ProtocolMessageType::EVENT:
+      type_label = "EVENT";
+      break;
+  }
+
+  std::stringstream stream;
+  WriteTimestamp(stream);
+  stream << ": " << type_label << ": " << to_log << "\n";
+  const std::string& str = stream.str();
+  if (!base::AppendToFile(log_file, str.c_str(), str.size())) {
+    LOG(ERROR) << "Failed to write file " << log_file.value();
+    log_error = true;
+  }
 }
 
 }  // namespace
@@ -156,11 +233,12 @@ const size_t kMaxMessageChunkSize = IPC::Channel::kMaximumMessageSize / 4;
 
 // static
 CefDevToolsFrontend* CefDevToolsFrontend::Show(
-    CefRefPtr<CefBrowserHostImpl> inspected_browser,
+    CefBrowserHostImpl* inspected_browser,
     const CefWindowInfo& windowInfo,
     CefRefPtr<CefClient> client,
     const CefBrowserSettings& settings,
-    const CefPoint& inspect_element_at) {
+    const CefPoint& inspect_element_at,
+    base::OnceClosure frontend_destroyed_callback) {
   CefBrowserSettings new_settings = settings;
   if (!windowInfo.windowless_rendering_enabled &&
       CefColorGetA(new_settings.background_color) != SK_AlphaOPAQUE) {
@@ -187,7 +265,8 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
   // destroyed.
   CefDevToolsFrontend* devtools_frontend = new CefDevToolsFrontend(
       static_cast<CefBrowserHostImpl*>(frontend_browser.get()),
-      inspected_contents, inspect_element_at);
+      inspected_contents, inspect_element_at,
+      std::move(frontend_destroyed_callback));
 
   // Need to load the URL after creating the DevTools objects.
   frontend_browser->GetMainFrame()->LoadURL(GetFrontendURL());
@@ -216,23 +295,23 @@ void CefDevToolsFrontend::Close() {
                             frontend_browser_.get(), true));
 }
 
-void CefDevToolsFrontend::DisconnectFromTarget() {
-  if (!agent_host_)
-    return;
-  agent_host_->DetachClient(this);
-  agent_host_ = nullptr;
-}
-
 CefDevToolsFrontend::CefDevToolsFrontend(
-    CefRefPtr<CefBrowserHostImpl> frontend_browser,
+    CefBrowserHostImpl* frontend_browser,
     content::WebContents* inspected_contents,
-    const CefPoint& inspect_element_at)
+    const CefPoint& inspect_element_at,
+    base::OnceClosure frontend_destroyed_callback)
     : content::WebContentsObserver(frontend_browser->web_contents()),
       frontend_browser_(frontend_browser),
       inspected_contents_(inspected_contents),
       inspect_element_at_(inspect_element_at),
-      file_manager_(frontend_browser.get(), GetPrefs()),
-      weak_factory_(this) {}
+      frontend_destroyed_callback_(std::move(frontend_destroyed_callback)),
+      file_manager_(frontend_browser, GetPrefs()),
+      protocol_log_file_(
+          base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
+              switches::kDevToolsProtocolLogFile)),
+      weak_factory_(this) {
+  DCHECK(!frontend_destroyed_callback_.is_null());
+}
 
 CefDevToolsFrontend::~CefDevToolsFrontend() {}
 
@@ -279,6 +358,7 @@ void CefDevToolsFrontend::WebContentsDestroyed() {
     agent_host_->DetachClient(this);
     agent_host_ = nullptr;
   }
+  std::move(frontend_destroyed_callback_).Run();
   delete this;
 }
 
@@ -300,6 +380,9 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     std::string protocol_message;
     if (!agent_host_ || !params->GetString(0, &protocol_message))
       return;
+    if (ProtocolLoggingEnabled()) {
+      LogProtocolMessage(ProtocolMessageType::METHOD, protocol_message);
+    }
     agent_host_->DispatchProtocolMessage(
         this, base::as_bytes(base::make_span(protocol_message)));
   } else if (method == "loadCompleted") {
@@ -451,6 +534,14 @@ void CefDevToolsFrontend::DispatchProtocolMessage(
     base::span<const uint8_t> message) {
   base::StringPiece str_message(reinterpret_cast<const char*>(message.data()),
                                 message.size());
+  if (ProtocolLoggingEnabled()) {
+    // Quick check to avoid parsing the JSON object. Events begin with a
+    // "method" value whereas method results begin with an "id" value.
+    LogProtocolMessage(str_message.starts_with("{\"method\":")
+                           ? ProtocolMessageType::EVENT
+                           : ProtocolMessageType::RESULT,
+                       str_message);
+  }
   if (str_message.length() < kMaxMessageChunkSize) {
     std::string param;
     base::EscapeJSONString(str_message, true, &param);
@@ -502,6 +593,23 @@ void CefDevToolsFrontend::SendMessageAck(int request_id,
                                          const base::Value* arg) {
   base::Value id_value(request_id);
   CallClientFunction("DevToolsAPI.embedderMessageAck", &id_value, arg, nullptr);
+}
+
+bool CefDevToolsFrontend::ProtocolLoggingEnabled() const {
+  return !protocol_log_file_.empty();
+}
+
+void CefDevToolsFrontend::LogProtocolMessage(ProtocolMessageType type,
+                                             const base::StringPiece& message) {
+  DCHECK(ProtocolLoggingEnabled());
+
+  std::string to_log = message.substr(0, kMaxLogLineLength).as_string();
+
+  // Execute in an ordered context that allows blocking.
+  auto task_runner = CefContentBrowserClient::Get()->background_task_runner();
+  task_runner->PostTask(
+      FROM_HERE, base::BindOnce(::LogProtocolMessage, protocol_log_file_, type,
+                                std::move(to_log)));
 }
 
 void CefDevToolsFrontend::AgentHostClosed(

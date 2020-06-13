@@ -114,11 +114,13 @@ const char kPluginPolicy_Block[] = "block";
 const char kEnablePreferenceTesting[] = "enable-preference-testing";
 
 // Enable print preview.
-extern const char kEnablePrintPreview[] = "enable-print-preview";
+const char kEnablePrintPreview[] = "enable-print-preview";
 
 // Disable the timeout for delivering new browser info to the renderer process.
-extern const char kDisableNewBrowserInfoTimeout[] =
-    "disable-new-browser-info-timeout";
+const char kDisableNewBrowserInfoTimeout[] = "disable-new-browser-info-timeout";
+
+// File used for logging DevTools protocol messages.
+const char kDevToolsProtocolLogFile[] = "devtools-protocol-log-file";
 
 #if defined(OS_MACOSX)
 // Path to the framework directory.

@@ -252,6 +252,13 @@ class CefRequestHandler : public virtual CefBaseRefCounted {
   /*--cef()--*/
   virtual void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
                                          TerminationStatus status) {}
+
+  ///
+  // Called on the browser process UI thread when the window.document object of
+  // the main frame has been created.
+  ///
+  /*--cef()--*/
+  virtual void OnDocumentAvailableInMainFrame(CefRefPtr<CefBrowser> browser) {}
 };
 
 #endif  // CEF_INCLUDE_CEF_REQUEST_HANDLER_H_

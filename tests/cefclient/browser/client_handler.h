@@ -256,6 +256,7 @@ class ClientHandler : public CefClient,
       CefRefPtr<CefSelectClientCertificateCallback> callback) OVERRIDE;
   void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
                                  TerminationStatus status) OVERRIDE;
+  void OnDocumentAvailableInMainFrame(CefRefPtr<CefBrowser> browser) OVERRIDE;
 
   // CefResourceRequestHandler methods
   cef_return_value_t OnBeforeResourceLoad(
@@ -344,6 +345,8 @@ class ClientHandler : public CefClient,
   void BuildTestMenu(CefRefPtr<CefMenuModel> model);
   bool ExecuteTestMenu(int command_id);
 
+  void SetOfflineState(CefRefPtr<CefBrowser> browser, bool offline);
+
   // THREAD SAFE MEMBERS
   // The following members may be accessed from any thread.
 
@@ -355,6 +358,9 @@ class ClientHandler : public CefClient,
 
   // True if mouse cursor change is disabled.
   bool mouse_cursor_change_disabled_;
+
+  // True if the browser is currently offline.
+  bool offline_;
 
   // True if Favicon images should be downloaded.
   bool download_favicon_images_;

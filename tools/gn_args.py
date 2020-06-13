@@ -260,10 +260,6 @@ def GetRequiredArgs():
     # can't be enforced by assert().
     result['enable_linux_installer'] = False
 
-    # Use system fontconfig. This avoids a startup hang on Ubuntu 16.04.4 (see
-    # issue #2424).
-    result['use_bundled_fontconfig'] = False
-
     # Build without GTK dependencies (see issue #2014).
     result['use_gtk'] = False
 
