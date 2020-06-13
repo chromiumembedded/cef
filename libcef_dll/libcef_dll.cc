@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fbf992432bd4ff88bed34f803047f70b5b3400f7$
+// $hash=c42cd0225d8e4286df471fcc622f9bbf9ed977d3$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -584,6 +584,24 @@ CEF_EXPORT struct _cef_value_t* cef_parse_json(
 
   // Execute
   CefRefPtr<CefValue> _retval = CefParseJSON(CefString(json_string), options);
+
+  // Return type: refptr_same
+  return CefValueCppToC::Wrap(_retval);
+}
+
+CEF_EXPORT struct _cef_value_t* cef_parse_json_buffer(
+    const void* json,
+    size_t json_size,
+    cef_json_parser_options_t options) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: json; type: simple_byaddr
+  DCHECK(json);
+  if (!json)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefValue> _retval = CefParseJSON(json, json_size, options);
 
   // Return type: refptr_same
   return CefValueCppToC::Wrap(_retval);

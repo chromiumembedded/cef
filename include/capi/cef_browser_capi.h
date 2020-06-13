@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=ba4033eaf40a8ee24408b89b78496bf1381e7e6b$
+// $hash=6cb00a0fa3631a46903abb3a783f315895511db2$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -41,10 +41,12 @@
 #pragma once
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_devtools_message_observer_capi.h"
 #include "include/capi/cef_drag_data_capi.h"
 #include "include/capi/cef_frame_capi.h"
 #include "include/capi/cef_image_capi.h"
 #include "include/capi/cef_navigation_entry_capi.h"
+#include "include/capi/cef_registration_capi.h"
 #include "include/capi/cef_request_context_capi.h"
 
 #ifdef __cplusplus
@@ -483,6 +485,71 @@ typedef struct _cef_browser_host_t {
   // browser. Must be called on the browser process UI thread.
   ///
   int(CEF_CALLBACK* has_dev_tools)(struct _cef_browser_host_t* self);
+
+  ///
+  // Send a function call message over the DevTools protocol. |message| must be
+  // a UTF8-encoded JSON dictionary that contains "id" (int), "function"
+  // (string) and "params" (dictionary, optional) values. See the DevTools
+  // protocol documentation at https://chromedevtools.github.io/devtools-
+  // protocol/ for details of supported functions and the expected "params"
+  // dictionary contents. |message| will be copied if necessary. This function
+  // will return true (1) if called on the UI thread and the message was
+  // successfully submitted for validation, otherwise false (0). Validation will
+  // be applied asynchronously and any messages that fail due to formatting
+  // errors or missing parameters may be discarded without notification. Prefer
+  // ExecuteDevToolsMethod if a more structured approach to message formatting
+  // is desired.
+  //
+  // Every valid function call will result in an asynchronous function result or
+  // error message that references the sent message "id". Event messages are
+  // received while notifications are enabled (for example, between function
+  // calls for "Page.enable" and "Page.disable"). All received messages will be
+  // delivered to the observer(s) registered with AddDevToolsMessageObserver.
+  // See cef_dev_tools_message_observer_t::OnDevToolsMessage documentation for
+  // details of received message contents.
+  //
+  // Usage of the SendDevToolsMessage, ExecuteDevToolsMethod and
+  // AddDevToolsMessageObserver functions does not require an active DevTools
+  // front-end or remote-debugging session. Other active DevTools sessions will
+  // continue to function independently. However, any modification of global
+  // browser state by one session may not be reflected in the UI of other
+  // sessions.
+  //
+  // Communication with the DevTools front-end (when displayed) can be logged
+  // for development purposes by passing the `--devtools-protocol-log-
+  // file=<path>` command-line flag.
+  ///
+  int(CEF_CALLBACK* send_dev_tools_message)(struct _cef_browser_host_t* self,
+                                            const void* message,
+                                            size_t message_size);
+
+  ///
+  // Execute a function call over the DevTools protocol. This is a more
+  // structured version of SendDevToolsMessage. |message_id| is an incremental
+  // number that uniquely identifies the message (pass 0 to have the next number
+  // assigned automatically based on previous values). |function| is the
+  // function name. |params| are the function parameters, which may be NULL. See
+  // the DevTools protocol documentation (linked above) for details of supported
+  // functions and the expected |params| dictionary contents. This function will
+  // return the assigned message ID if called on the UI thread and the message
+  // was successfully submitted for validation, otherwise 0. See the
+  // SendDevToolsMessage documentation for additional usage information.
+  ///
+  int(CEF_CALLBACK* execute_dev_tools_method)(
+      struct _cef_browser_host_t* self,
+      int message_id,
+      const cef_string_t* method,
+      struct _cef_dictionary_value_t* params);
+
+  ///
+  // Add an observer for DevTools protocol messages (function results and
+  // events). The observer will remain registered until the returned
+  // Registration object is destroyed. See the SendDevToolsMessage documentation
+  // for additional usage information.
+  ///
+  struct _cef_registration_t*(CEF_CALLBACK* add_dev_tools_message_observer)(
+      struct _cef_browser_host_t* self,
+      struct _cef_dev_tools_message_observer_t* observer);
 
   ///
   // Retrieve a snapshot of current navigation entries as values sent to the

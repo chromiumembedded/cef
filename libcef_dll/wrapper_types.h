@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9bfe176dfac4770800e95e2bbc0fafffbf0aeeaf$
+// $hash=20268db646dcf8aa6d54b2342dbc70a6e624e202$
 //
 
 #ifndef CEF_LIBCEF_DLL_WRAPPER_TYPES_H_
@@ -46,6 +46,7 @@ enum CefWrapperType {
   WT_DOMNODE,
   WT_DOMVISITOR,
   WT_DELETE_COOKIES_CALLBACK,
+  WT_DEV_TOOLS_MESSAGE_OBSERVER,
   WT_DIALOG_HANDLER,
   WT_DICTIONARY_VALUE,
   WT_DISPLAY,

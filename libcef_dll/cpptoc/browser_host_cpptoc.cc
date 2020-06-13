@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a84451b4f759f2a4a0fe673d90be1fb5053bfd1a$
+// $hash=516b55b7ea53e2de2b096e85ba0eb83f2a2693f3$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -18,8 +18,10 @@
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
 #include "libcef_dll/cpptoc/extension_cpptoc.h"
 #include "libcef_dll/cpptoc/navigation_entry_cpptoc.h"
+#include "libcef_dll/cpptoc/registration_cpptoc.h"
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
+#include "libcef_dll/ctocpp/dev_tools_message_observer_ctocpp.h"
 #include "libcef_dll/ctocpp/download_image_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/navigation_entry_visitor_ctocpp.h"
 #include "libcef_dll/ctocpp/pdf_print_callback_ctocpp.h"
@@ -520,6 +522,81 @@ int CEF_CALLBACK browser_host_has_dev_tools(struct _cef_browser_host_t* self) {
 
   // Return type: bool
   return _retval;
+}
+
+int CEF_CALLBACK
+browser_host_send_dev_tools_message(struct _cef_browser_host_t* self,
+                                    const void* message,
+                                    size_t message_size) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: message; type: simple_byaddr
+  DCHECK(message);
+  if (!message)
+    return 0;
+
+  // Execute
+  bool _retval = CefBrowserHostCppToC::Get(self)->SendDevToolsMessage(
+      message, message_size);
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK
+browser_host_execute_dev_tools_method(struct _cef_browser_host_t* self,
+                                      int message_id,
+                                      const cef_string_t* method,
+                                      struct _cef_dictionary_value_t* params) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: method; type: string_byref_const
+  DCHECK(method);
+  if (!method)
+    return 0;
+  // Unverified params: params
+
+  // Execute
+  int _retval = CefBrowserHostCppToC::Get(self)->ExecuteDevToolsMethod(
+      message_id, CefString(method), CefDictionaryValueCppToC::Unwrap(params));
+
+  // Return type: simple
+  return _retval;
+}
+
+struct _cef_registration_t* CEF_CALLBACK
+browser_host_add_dev_tools_message_observer(
+    struct _cef_browser_host_t* self,
+    struct _cef_dev_tools_message_observer_t* observer) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+  // Verify param: observer; type: refptr_diff
+  DCHECK(observer);
+  if (!observer)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefRegistration> _retval =
+      CefBrowserHostCppToC::Get(self)->AddDevToolsMessageObserver(
+          CefDevToolsMessageObserverCToCpp::Wrap(observer));
+
+  // Return type: refptr_same
+  return CefRegistrationCppToC::Wrap(_retval);
 }
 
 void CEF_CALLBACK
@@ -1285,6 +1362,10 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->show_dev_tools = browser_host_show_dev_tools;
   GetStruct()->close_dev_tools = browser_host_close_dev_tools;
   GetStruct()->has_dev_tools = browser_host_has_dev_tools;
+  GetStruct()->send_dev_tools_message = browser_host_send_dev_tools_message;
+  GetStruct()->execute_dev_tools_method = browser_host_execute_dev_tools_method;
+  GetStruct()->add_dev_tools_message_observer =
+      browser_host_add_dev_tools_message_observer;
   GetStruct()->get_navigation_entries = browser_host_get_navigation_entries;
   GetStruct()->set_mouse_cursor_change_disabled =
       browser_host_set_mouse_cursor_change_disabled;

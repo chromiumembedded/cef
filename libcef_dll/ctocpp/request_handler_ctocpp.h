@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0d67e24bf6d8079bcdfd8b36ba48543a05a9d2fd$
+// $hash=be2bb80e8816f0eaad34382f05e2bec59dfe7fa7$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_HANDLER_CTOCPP_H_
@@ -82,6 +82,7 @@ class CefRequestHandlerCToCpp
   void OnRenderViewReady(CefRefPtr<CefBrowser> browser) override;
   void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
                                  TerminationStatus status) override;
+  void OnDocumentAvailableInMainFrame(CefRefPtr<CefBrowser> browser) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_REQUEST_HANDLER_CTOCPP_H_

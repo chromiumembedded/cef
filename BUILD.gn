@@ -106,6 +106,7 @@ import("//media/media_options.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
 import("//ppapi/buildflags/buildflags.gni")
 import("//printing/buildflags/buildflags.gni")
+import("//testing/test.gni")
 import("//third_party/icu/config.gni")
 import("//third_party/widevine/cdm/widevine.gni")
 import("//tools/grit/repack.gni")
@@ -262,12 +263,6 @@ if (is_clang) {
   assert(!clang_use_chrome_plugins)
 }
 
-if (is_linux) {
-  # Use system fontconfig. This avoids a startup hang on Ubuntu 16.04.4 (see
-  # issue #2424).
-  assert(!use_bundled_fontconfig)
-}
-
 if (is_mac) {
   # Always generate dSYM files. The make_distrib script will fail if
   # enable_dsyms=true is not explicitly set when is_official_build=false.
@@ -316,6 +311,7 @@ group("cef") {
   deps = [
     ":cefsimple",
     ":ceftests",
+    ":libcef_static_unittests",
   ]
 
   if (!is_linux || use_x11) {
@@ -373,6 +369,41 @@ if (is_win) {
   }
 }
 
+# libcef_static source files that have unit tests.
+source_set("libcef_static_unittested") {
+  sources = [
+    "libcef/browser/devtools/devtools_util.cc",
+    "libcef/browser/devtools/devtools_util.h",
+  ]
+
+  deps = [
+    "//base",
+  ]
+
+  configs += [
+    "libcef/features:config",
+    "//build/config:precompiled_headers",
+  ]
+}
+
+# Executable target for libcef_static unit tests.
+test("libcef_static_unittests") {
+  sources = [
+    "libcef/browser/devtools/devtools_util_unittest.cc",
+  ]
+
+  deps = [
+    ":libcef_static_unittested",
+    "//base/test:run_all_unittests",
+    "//testing/gtest",
+  ]
+
+  configs += [
+    "libcef/features:config",
+    "//build/config:precompiled_headers",
+  ]
+}
+
 static_library("libcef_static") {
   sources = includes_common +
             gypi_paths.autogen_cpp_includes + [
@@ -412,10 +443,14 @@ static_library("libcef_static") {
     "libcef/browser/context.h",
     "libcef/browser/context_menu_params_impl.cc",
     "libcef/browser/context_menu_params_impl.h",
+    "libcef/browser/devtools/devtools_controller.cc",
+    "libcef/browser/devtools/devtools_controller.h",
     "libcef/browser/devtools/devtools_file_manager.cc",
     "libcef/browser/devtools/devtools_file_manager.h",
     "libcef/browser/devtools/devtools_frontend.cc",
     "libcef/browser/devtools/devtools_frontend.h",
+    "libcef/browser/devtools/devtools_manager.cc",
+    "libcef/browser/devtools/devtools_manager.h",
     "libcef/browser/devtools/devtools_manager_delegate.cc",
     "libcef/browser/devtools/devtools_manager_delegate.h",
     "libcef/browser/download_item_impl.cc",
@@ -738,6 +773,8 @@ static_library("libcef_static") {
   deps = [
     ":cef_make_headers",
     ":cef_service_manifests",
+
+    ":libcef_static_unittested",
 
     # Generate API bindings for extensions.
     # TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See

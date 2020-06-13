@@ -34,8 +34,17 @@ int GetJSONWriterOptions(cef_json_writer_options_t options) {
 CefRefPtr<CefValue> CefParseJSON(const CefString& json_string,
                                  cef_json_parser_options_t options) {
   const std::string& json = json_string.ToString();
-  base::Optional<base::Value> parse_result =
-      base::JSONReader::Read(json, GetJSONReaderOptions(options));
+  return CefParseJSON(json.data(), json.size(), options);
+}
+
+CefRefPtr<CefValue> CefParseJSON(const void* json,
+                                 size_t json_size,
+                                 cef_json_parser_options_t options) {
+  if (!json || json_size == 0)
+    return nullptr;
+  base::Optional<base::Value> parse_result = base::JSONReader::Read(
+      base::StringPiece(static_cast<const char*>(json), json_size),
+      GetJSONReaderOptions(options));
   if (parse_result) {
     return new CefValueImpl(
         base::Value::ToUniquePtrValue(std::move(parse_result.value()))

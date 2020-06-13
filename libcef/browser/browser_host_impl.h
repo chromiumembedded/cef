@@ -51,7 +51,7 @@ class Widget;
 class CefAudioCapturer;
 class CefBrowserInfo;
 class CefBrowserPlatformDelegate;
-class CefDevToolsFrontend;
+class CefDevToolsManager;
 class SiteInstance;
 
 // Implementation of CefBrowser.
@@ -192,6 +192,12 @@ class CefBrowserHostImpl : public CefBrowserHost,
                     const CefPoint& inspect_element_at) override;
   void CloseDevTools() override;
   bool HasDevTools() override;
+  bool SendDevToolsMessage(const void* message, size_t message_size) override;
+  int ExecuteDevToolsMethod(int message_id,
+                            const CefString& method,
+                            CefRefPtr<CefDictionaryValue> params) override;
+  CefRefPtr<CefRegistration> AddDevToolsMessageObserver(
+      CefRefPtr<CefDevToolsMessageObserver> observer) override;
   void GetNavigationEntries(CefRefPtr<CefNavigationEntryVisitor> visitor,
                             bool current_only) override;
   void SetMouseCursorChangeDisabled(bool disabled) override;
@@ -523,8 +529,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   std::unique_ptr<NavigationLock> CreateNavigationLock();
 
  private:
-  class DevToolsWebContentsObserver;
-
   static CefRefPtr<CefBrowserHostImpl> CreateInternal(
       const CefBrowserSettings& settings,
       CefRefPtr<CefClient> client,
@@ -581,8 +585,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void OnFullscreenModeChange(bool fullscreen);
   void OnTitleChange(const base::string16& title);
 
-  void OnDevToolsWebContentsDestroyed();
-
   // Create the CefFileDialogManager if it doesn't already exist.
   void EnsureFileDialogManager();
 
@@ -590,6 +592,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   void StartAudioCapturer();
   void OnRecentlyAudibleTimerFired();
+
+  bool EnsureDevToolsManager();
+  void InitializeDevToolsRegistrationOnUIThread(
+      CefRefPtr<CefRegistration> registration);
 
   CefBrowserSettings settings_;
   CefRefPtr<CefClient> client_;
@@ -599,7 +605,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate_;
   const bool is_windowless_;
   const bool is_views_hosted_;
-  CefWindowHandle host_window_handle_;
+  CefWindowHandle host_window_handle_ = kNullWindowHandle;
 
   // Non-nullptr if this object owns the WebContents. Will be nullptr for popup
   // browsers between the calls to WebContentsCreated() and AddNewContents(),
@@ -609,18 +615,18 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Volatile state information. All access must be protected by the state lock.
   base::Lock state_lock_;
-  bool is_loading_;
-  bool can_go_back_;
-  bool can_go_forward_;
-  bool has_document_;
-  bool is_fullscreen_;
+  bool is_loading_ = false;
+  bool can_go_back_ = false;
+  bool can_go_forward_ = false;
+  bool has_document_ = false;
+  bool is_fullscreen_ = false;
 
   // The currently focused frame, or nullptr if the main frame is focused.
   CefRefPtr<CefFrameHostImpl> focused_frame_;
 
   // Represents the current browser destruction state. Only accessed on the UI
   // thread.
-  DestructionState destruction_state_;
+  DestructionState destruction_state_ = DESTRUCTION_STATE_NONE;
 
   // Navigation will not occur while |navigation_lock_count_| > 0.
   // |pending_navigation_action_| will be executed when the lock is released.
@@ -630,18 +636,18 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // True if the OS window hosting the browser has been destroyed. Only accessed
   // on the UI thread.
-  bool window_destroyed_;
+  bool window_destroyed_ = false;
 
   // True if currently in the OnSetFocus callback. Only accessed on the UI
   // thread.
-  bool is_in_onsetfocus_;
+  bool is_in_onsetfocus_ = false;
 
   // True if the focus is currently on an editable field on the page. Only
   // accessed on the UI thread.
-  bool focus_on_editable_field_;
+  bool focus_on_editable_field_ = false;
 
   // True if mouse cursor change is disabled.
-  bool mouse_cursor_change_disabled_;
+  bool mouse_cursor_change_disabled_ = false;
 
   // Used for managing notification subscriptions.
   std::unique_ptr<content::NotificationRegistrar> registrar_;
@@ -655,12 +661,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Used for creating and managing context menus.
   std::unique_ptr<CefMenuManager> menu_manager_;
 
-  // Track the lifespan of the frontend WebContents associated with this
-  // browser.
-  std::unique_ptr<DevToolsWebContentsObserver> devtools_observer_;
-  // CefDevToolsFrontend will delete itself when the frontend WebContents is
-  // destroyed.
-  CefDevToolsFrontend* devtools_frontend_;
+  // Used for creating and managing DevTools instances.
+  std::unique_ptr<CefDevToolsManager> devtools_manager_;
 
   // Observers that want to be notified of changes to this object.
   base::ObserverList<Observer>::Unchecked observers_;
