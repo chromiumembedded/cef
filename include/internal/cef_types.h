@@ -1550,8 +1550,8 @@ typedef enum {
 // Supported value types.
 ///
 typedef enum {
-  VTYPE_INVALID = 0,
-  VTYPE_NULL,
+  VTYPE_INVALID = -1,
+  VTYPE_NULL = 0,
   VTYPE_BOOL,
   VTYPE_INT,
   VTYPE_DOUBLE,
