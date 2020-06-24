@@ -62,7 +62,7 @@ void ChromeBrowserProcessStub::OnContextInitialized() {
   context_initialized_ = true;
 }
 
-void ChromeBrowserProcessStub::Shutdown() {
+void ChromeBrowserProcessStub::CleanupOnUIThread() {
   CEF_REQUIRE_UIT();
   DCHECK(initialized_);
   DCHECK(context_initialized_);

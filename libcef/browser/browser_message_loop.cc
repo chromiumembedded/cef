@@ -3,7 +3,6 @@
 // be found in the LICENSE file.
 
 #include "libcef/browser/browser_message_loop.h"
-#include "libcef/browser/context.h"
 #include "libcef/common/content_client.h"
 
 #include "base/memory/ptr_util.h"
@@ -116,9 +115,6 @@ std::unique_ptr<base::MessagePump> MessagePumpFactoryForUI() {
 
 }  // namespace
 
-void InitMessagePumpFactoryForUI() {
-  const CefSettings& settings = CefContext::Get()->settings();
-  if (settings.external_message_pump) {
-    base::MessagePump::OverrideMessagePumpForUIFactory(MessagePumpFactoryForUI);
-  }
+void InitExternalMessagePumpFactoryForUI() {
+  base::MessagePump::OverrideMessagePumpForUIFactory(MessagePumpFactoryForUI);
 }

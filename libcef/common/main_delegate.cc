@@ -8,27 +8,24 @@
 #include <dlfcn.h>
 #endif
 
-#include "libcef/browser/browser_message_loop.h"
+#include "libcef/browser/chrome_browser_process_stub.h"
 #include "libcef/browser/content_browser_client.h"
-#include "libcef/browser/context.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
 #include "libcef/common/crash_reporting.h"
 #include "libcef/common/extensions/extensions_util.h"
+#include "libcef/common/widevine_loader.h"
 #include "libcef/renderer/content_renderer_client.h"
 
-#include "base/at_exit.h"
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
 #include "base/path_service.h"
-#include "base/run_loop.h"
 #include "base/stl_util.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
 #include "base/synchronization/waitable_event.h"
-#include "base/threading/thread.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/media/router/media_router_feature.h"
 #include "chrome/child/pdf_child_init.h"
@@ -40,8 +37,6 @@
 #include "components/content_settings/core/common/content_settings_pattern.h"
 #include "components/viz/common/features.h"
 #include "content/browser/browser_process_sub_thread.h"
-#include "content/browser/scheduler/browser_task_executor.h"
-#include "content/public/browser/browser_main_runner.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_features.h"
 #include "content/public/common/content_switches.h"
@@ -67,7 +62,6 @@
 #endif
 
 #if defined(OS_WIN)
-#include <Objbase.h>
 #include "base/win/registry.h"
 #endif
 
@@ -245,10 +239,9 @@ bool GetDefaultUserDataDirectory(base::FilePath* result) {
 
 #endif
 
-base::FilePath GetUserDataPath() {
-  const CefSettings& settings = CefContext::Get()->settings();
-  if (settings.user_data_path.length > 0)
-    return base::FilePath(CefString(&settings.user_data_path));
+base::FilePath GetUserDataPath(CefSettings* settings) {
+  if (settings->user_data_path.length > 0)
+    return base::FilePath(CefString(&settings->user_data_path));
 
   base::FilePath result;
   if (GetDefaultUserDataDirectory(&result))
@@ -328,117 +321,10 @@ void OverrideAssetPath() {
 
 }  // namespace
 
-// Used to run the UI on a separate thread.
-class CefUIThread : public base::PlatformThread::Delegate {
- public:
-  explicit CefUIThread(base::OnceClosure setup_callback)
-      : setup_callback_(std::move(setup_callback)) {}
-  ~CefUIThread() override { Stop(); }
-
-  void Start() {
-    base::AutoLock lock(thread_lock_);
-    bool success = base::PlatformThread::CreateWithPriority(
-        0, this, &thread_, base::ThreadPriority::NORMAL);
-    if (!success) {
-      LOG(FATAL) << "failed to UI create thread";
-    }
-  }
-
-  void Stop() {
-    base::AutoLock lock(thread_lock_);
-
-    if (!stopping_) {
-      stopping_ = true;
-      base::PostTask(
-          FROM_HERE, {content::BrowserThread::UI},
-          base::BindOnce(&CefUIThread::ThreadQuitHelper, Unretained(this)));
-    }
-
-    // Can't join if the |thread_| is either already gone or is non-joinable.
-    if (thread_.is_null())
-      return;
-
-    base::PlatformThread::Join(thread_);
-    thread_ = base::PlatformThreadHandle();
-
-    stopping_ = false;
-  }
-
-  bool WaitUntilThreadStarted() const {
-    DCHECK(owning_sequence_checker_.CalledOnValidSequence());
-    start_event_.Wait();
-    return true;
-  }
-
-  void InitializeBrowserRunner(
-      const content::MainFunctionParams& main_function_params) {
-    // Use our own browser process runner.
-    browser_runner_ = content::BrowserMainRunner::Create();
-
-    // Initialize browser process state. Uses the current thread's message loop.
-    int exit_code = browser_runner_->Initialize(main_function_params);
-    CHECK_EQ(exit_code, -1);
-  }
-
- protected:
-  void ThreadMain() override {
-    base::PlatformThread::SetName("CefUIThread");
-
-#if defined(OS_WIN)
-    // Initializes the COM library on the current thread.
-    CoInitialize(nullptr);
-#endif
-
-    start_event_.Signal();
-
-    std::move(setup_callback_).Run();
-
-    base::RunLoop run_loop;
-    run_loop_ = &run_loop;
-    run_loop.Run();
-
-    browser_runner_->Shutdown();
-    browser_runner_.reset(nullptr);
-
-    content::BrowserTaskExecutor::Shutdown();
-
-    // Run exit callbacks on the UI thread to avoid sequence check failures.
-    base::AtExitManager::ProcessCallbacksNow();
-
-#if defined(OS_WIN)
-    // Closes the COM library on the current thread. CoInitialize must
-    // be balanced by a corresponding call to CoUninitialize.
-    CoUninitialize();
-#endif
-
-    run_loop_ = nullptr;
-  }
-
-  void ThreadQuitHelper() {
-    DCHECK(run_loop_);
-    run_loop_->QuitWhenIdle();
-  }
-
-  std::unique_ptr<content::BrowserMainRunner> browser_runner_;
-  base::OnceClosure setup_callback_;
-
-  bool stopping_ = false;
-
-  // The thread's handle.
-  base::PlatformThreadHandle thread_;
-  mutable base::Lock thread_lock_;  // Protects |thread_|.
-
-  base::RunLoop* run_loop_ = nullptr;
-
-  mutable base::WaitableEvent start_event_;
-
-  // This class is not thread-safe, use this to verify access from the owning
-  // sequence of the Thread.
-  base::SequenceChecker owning_sequence_checker_;
-};
-
-CefMainDelegate::CefMainDelegate(CefRefPtr<CefApp> application)
-    : content_client_(application) {
+CefMainDelegate::CefMainDelegate(Runner* runner,
+                                 CefSettings* settings,
+                                 CefRefPtr<CefApp> application)
+    : runner_(runner), settings_(settings), content_client_(application) {
   // Necessary so that exported functions from base_impl.cc will be included
   // in the binary.
   extern void base_impl_stub();
@@ -452,7 +338,7 @@ CefMainDelegate::CefMainDelegate(CefRefPtr<CefApp> application)
 CefMainDelegate::~CefMainDelegate() {}
 
 void CefMainDelegate::PreCreateMainMessageLoop() {
-  InitMessagePumpFactoryForUI();
+  runner_->PreCreateMainMessageLoop();
 }
 
 bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
@@ -468,9 +354,7 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 
   if (process_type.empty()) {
     // In the browser process. Populate the global command-line object.
-    const CefSettings& settings = CefContext::Get()->settings();
-
-    if (settings.command_line_args_disabled) {
+    if (settings_->command_line_args_disabled) {
       // Remove any existing command-line arguments.
       base::CommandLine::StringVector argv;
       argv.push_back(command_line->GetProgram().value());
@@ -480,11 +364,11 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       const_cast<base::CommandLine::SwitchMap*>(&map)->clear();
     }
 
-    bool no_sandbox = settings.no_sandbox ? true : false;
+    bool no_sandbox = settings_->no_sandbox ? true : false;
 
-    if (settings.browser_subprocess_path.length > 0) {
+    if (settings_->browser_subprocess_path.length > 0) {
       base::FilePath file_path =
-          base::FilePath(CefString(&settings.browser_subprocess_path));
+          base::FilePath(CefString(&settings_->browser_subprocess_path));
       if (!file_path.empty()) {
         command_line->AppendSwitchPath(switches::kBrowserSubprocessPath,
                                        file_path);
@@ -498,16 +382,16 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
     }
 
 #if defined(OS_MACOSX)
-    if (settings.framework_dir_path.length > 0) {
+    if (settings_->framework_dir_path.length > 0) {
       base::FilePath file_path =
-          base::FilePath(CefString(&settings.framework_dir_path));
+          base::FilePath(CefString(&settings_->framework_dir_path));
       if (!file_path.empty())
         command_line->AppendSwitchPath(switches::kFrameworkDirPath, file_path);
     }
 
-    if (settings.main_bundle_path.length > 0) {
+    if (settings_->main_bundle_path.length > 0) {
       base::FilePath file_path =
-          base::FilePath(CefString(&settings.main_bundle_path));
+          base::FilePath(CefString(&settings_->main_bundle_path));
       if (!file_path.empty())
         command_line->AppendSwitchPath(switches::kMainBundlePath, file_path);
     }
@@ -516,25 +400,25 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
     if (no_sandbox)
       command_line->AppendSwitch(service_manager::switches::kNoSandbox);
 
-    if (settings.user_agent.length > 0) {
+    if (settings_->user_agent.length > 0) {
       command_line->AppendSwitchASCII(switches::kUserAgent,
-                                      CefString(&settings.user_agent));
-    } else if (settings.product_version.length > 0) {
+                                      CefString(&settings_->user_agent));
+    } else if (settings_->product_version.length > 0) {
       command_line->AppendSwitchASCII(switches::kProductVersion,
-                                      CefString(&settings.product_version));
+                                      CefString(&settings_->product_version));
     }
 
-    if (settings.locale.length > 0) {
+    if (settings_->locale.length > 0) {
       command_line->AppendSwitchASCII(switches::kLang,
-                                      CefString(&settings.locale));
+                                      CefString(&settings_->locale));
     } else if (!command_line->HasSwitch(switches::kLang)) {
       command_line->AppendSwitchASCII(switches::kLang, "en-US");
     }
 
     base::FilePath log_file;
     bool has_log_file_cmdline = false;
-    if (settings.log_file.length > 0)
-      log_file = base::FilePath(CefString(&settings.log_file));
+    if (settings_->log_file.length > 0)
+      log_file = base::FilePath(CefString(&settings_->log_file));
     if (log_file.empty() && command_line->HasSwitch(switches::kLogFile)) {
       log_file = command_line->GetSwitchValuePath(switches::kLogFile);
       if (!log_file.empty())
@@ -546,9 +430,9 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
     if (!has_log_file_cmdline)
       command_line->AppendSwitchPath(switches::kLogFile, log_file);
 
-    if (settings.log_severity != LOGSEVERITY_DEFAULT) {
+    if (settings_->log_severity != LOGSEVERITY_DEFAULT) {
       std::string log_severity;
-      switch (settings.log_severity) {
+      switch (settings_->log_severity) {
         case LOGSEVERITY_VERBOSE:
           log_severity = switches::kLogSeverity_Verbose;
           break;
@@ -574,42 +458,42 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
         command_line->AppendSwitchASCII(switches::kLogSeverity, log_severity);
     }
 
-    if (settings.javascript_flags.length > 0) {
+    if (settings_->javascript_flags.length > 0) {
       command_line->AppendSwitchASCII(switches::kJavaScriptFlags,
-                                      CefString(&settings.javascript_flags));
+                                      CefString(&settings_->javascript_flags));
     }
 
-    if (settings.pack_loading_disabled) {
+    if (settings_->pack_loading_disabled) {
       command_line->AppendSwitch(switches::kDisablePackLoading);
     } else {
-      if (settings.resources_dir_path.length > 0) {
+      if (settings_->resources_dir_path.length > 0) {
         base::FilePath file_path =
-            base::FilePath(CefString(&settings.resources_dir_path));
+            base::FilePath(CefString(&settings_->resources_dir_path));
         if (!file_path.empty()) {
           command_line->AppendSwitchPath(switches::kResourcesDirPath,
                                          file_path);
         }
       }
 
-      if (settings.locales_dir_path.length > 0) {
+      if (settings_->locales_dir_path.length > 0) {
         base::FilePath file_path =
-            base::FilePath(CefString(&settings.locales_dir_path));
+            base::FilePath(CefString(&settings_->locales_dir_path));
         if (!file_path.empty())
           command_line->AppendSwitchPath(switches::kLocalesDirPath, file_path);
       }
     }
 
-    if (settings.remote_debugging_port >= 1024 &&
-        settings.remote_debugging_port <= 65535) {
+    if (settings_->remote_debugging_port >= 1024 &&
+        settings_->remote_debugging_port <= 65535) {
       command_line->AppendSwitchASCII(
           switches::kRemoteDebuggingPort,
-          base::NumberToString(settings.remote_debugging_port));
+          base::NumberToString(settings_->remote_debugging_port));
     }
 
-    if (settings.uncaught_exception_stack_size > 0) {
+    if (settings_->uncaught_exception_stack_size > 0) {
       command_line->AppendSwitchASCII(
           switches::kUncaughtExceptionStackSize,
-          base::NumberToString(settings.uncaught_exception_stack_size));
+          base::NumberToString(settings_->uncaught_exception_stack_size));
     }
 
     std::vector<std::string> disable_features;
@@ -765,7 +649,7 @@ void CefMainDelegate::PreSandboxStartup() {
                                   dir_default_download_safe);
     }
 
-    const base::FilePath& user_data_path = GetUserDataPath();
+    const base::FilePath& user_data_path = GetUserDataPath(settings_);
     base::PathService::Override(chrome::DIR_USER_DATA, user_data_path);
 
     // Path used for crash dumps.
@@ -800,38 +684,10 @@ int CefMainDelegate::RunProcess(
     const std::string& process_type,
     const content::MainFunctionParams& main_function_params) {
   if (process_type.empty()) {
-    const CefSettings& settings = CefContext::Get()->settings();
-    if (!settings.multi_threaded_message_loop) {
-      // Use our own browser process runner.
-      browser_runner_ = content::BrowserMainRunner::Create();
-
-      // Initialize browser process state. Results in a call to
-      // CefBrowserMain::PreMainMessageLoopStart() which creates the UI message
-      // loop.
-      int exit_code = browser_runner_->Initialize(main_function_params);
-      if (exit_code >= 0)
-        return exit_code;
-    } else {
-      // Running on the separate UI thread.
-      DCHECK(ui_thread_);
-      ui_thread_->InitializeBrowserRunner(main_function_params);
-    }
-
-    return 0;
+    return runner_->RunMainProcess(main_function_params);
   }
 
   return -1;
-}
-
-bool CefMainDelegate::CreateUIThread(base::OnceClosure setup_callback) {
-  DCHECK(!ui_thread_);
-
-  ui_thread_.reset(new CefUIThread(std::move(setup_callback)));
-  ui_thread_->Start();
-  ui_thread_->WaitUntilThreadStarted();
-
-  InitMessagePumpFactoryForUI();
-  return true;
 }
 
 void CefMainDelegate::ProcessExiting(const std::string& process_type) {
@@ -863,17 +719,38 @@ content::ContentUtilityClient* CefMainDelegate::CreateContentUtilityClient() {
   return utility_client_.get();
 }
 
-void CefMainDelegate::ShutdownBrowser() {
-  if (browser_runner_.get()) {
-    browser_runner_->Shutdown();
-    browser_runner_.reset(nullptr);
-  }
+// static
+void CefMainDelegate::CefInitialize() {
+  g_browser_process = new ChromeBrowserProcessStub();
+}
 
-  if (ui_thread_.get()) {
-    // Blocks until the thread has stopped.
-    ui_thread_->Stop();
-    ui_thread_.reset();
-  }
+// static
+void CefMainDelegate::MainThreadInitialize() {
+  static_cast<ChromeBrowserProcessStub*>(g_browser_process)->Initialize();
+}
+
+// static
+void CefMainDelegate::UIThreadInitialize() {
+#if BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
+  CefWidevineLoader::GetInstance()->OnContextInitialized();
+#endif
+
+  static_cast<ChromeBrowserProcessStub*>(g_browser_process)
+      ->OnContextInitialized();
+}
+
+// static
+void CefMainDelegate::UIThreadShutdown() {
+  static_cast<ChromeBrowserProcessStub*>(g_browser_process)
+      ->CleanupOnUIThread();
+
+  ui::ResourceBundle::GetSharedInstance().CleanupOnUIThread();
+}
+
+// static
+void CefMainDelegate::MainThreadShutdown() {
+  delete g_browser_process;
+  g_browser_process = nullptr;
 }
 
 void CefMainDelegate::InitializeResourceBundle() {

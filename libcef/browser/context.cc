@@ -3,34 +3,20 @@
 // be found in the LICENSE file.
 
 #include "libcef/browser/context.h"
-#include "libcef/browser/browser_host_impl.h"
-#include "libcef/browser/browser_info.h"
+
 #include "libcef/browser/browser_info_manager.h"
-#include "libcef/browser/browser_main.h"
-#include "libcef/browser/chrome_browser_process_stub.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/trace_subscriber.h"
 #include "libcef/common/cef_switches.h"
-#include "libcef/common/main_delegate.h"
-#include "libcef/common/widevine_loader.h"
-#include "libcef/renderer/content_renderer_client.h"
 
-#include "base/base_switches.h"
 #include "base/bind.h"
-#include "base/command_line.h"
-#include "base/debug/debugger.h"
 #include "base/files/file_util.h"
+#include "base/message_loop/message_loop_current.h"
 #include "base/run_loop.h"
-#include "base/synchronization/waitable_event.h"
 #include "base/threading/thread_restrictions.h"
 #include "components/network_session_configurator/common/network_switches.h"
-#include "content/app/content_service_manager_main_delegate.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_types.h"
-#include "content/public/browser/render_process_host.h"
-#include "content/public/common/content_switches.h"
-#include "services/service_manager/embedder/main.h"
-#include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_switches.h"
 
 #if defined(OS_WIN)
@@ -38,13 +24,6 @@
 #include "chrome/chrome_elf/chrome_elf_main.h"
 #include "chrome/install_static/initialize_from_primary_module.h"
 #include "components/crash/core/app/crashpad.h"
-#include "content/public/app/sandbox_helper_win.h"
-#include "sandbox/win/src/sandbox_types.h"
-#endif
-
-#if defined(OS_MACOSX) || defined(OS_WIN)
-#include "components/crash/core/app/crash_switches.h"
-#include "third_party/crashpad/crashpad/handler/handler_main.h"
 #endif
 
 namespace {
@@ -94,54 +73,6 @@ void InitCrashReporter() {
   SignalInitializeCrashReporting();
 }
 #endif  // defined(OS_WIN)
-
-#if defined(OS_MACOSX) || defined(OS_WIN)
-
-// Based on components/crash/core/app/run_as_crashpad_handler_win.cc
-// Remove the "--type=crashpad-handler" command-line flag that will otherwise
-// confuse the crashpad handler.
-// Chrome uses an embedded crashpad handler on Windows only and imports this
-// function via the existing "run_as_crashpad_handler" target defined in
-// components/crash/core/app/BUILD.gn. CEF uses an embedded handler on both
-// Windows and macOS so we define the function here instead of using the
-// existing target (because we can't use that target on macOS).
-int RunAsCrashpadHandler(const base::CommandLine& command_line) {
-  base::CommandLine::StringVector argv = command_line.argv();
-  const base::CommandLine::StringType process_type =
-      FILE_PATH_LITERAL("--type=");
-  argv.erase(
-      std::remove_if(argv.begin(), argv.end(),
-                     [&process_type](const base::CommandLine::StringType& str) {
-                       return base::StartsWith(str, process_type,
-                                               base::CompareCase::SENSITIVE) ||
-                              (!str.empty() && str[0] == L'/');
-                     }),
-      argv.end());
-
-#if defined(OS_MACOSX)
-  // HandlerMain on macOS uses the system version of getopt_long which expects
-  // the first argument to be the program name.
-  argv.insert(argv.begin(), command_line.GetProgram().value());
-#endif
-
-  std::unique_ptr<char*[]> argv_as_utf8(new char*[argv.size() + 1]);
-  std::vector<std::string> storage;
-  storage.reserve(argv.size());
-  for (size_t i = 0; i < argv.size(); ++i) {
-#if defined(OS_WIN)
-    storage.push_back(base::UTF16ToUTF8(argv[i]));
-#else
-    storage.push_back(argv[i]);
-#endif
-    argv_as_utf8[i] = &storage[i][0];
-  }
-  argv_as_utf8[argv.size()] = nullptr;
-  argv.clear();
-  return crashpad::HandlerMain(static_cast<int>(storage.size()),
-                               argv_as_utf8.get(), nullptr);
-}
-
-#endif  // defined(OS_MACOSX) || defined(OS_WIN)
 
 bool GetColor(const cef_color_t cef_in, bool is_windowless, SkColor* sk_out) {
   // Windowed browser colors must be fully opaque.
@@ -252,52 +183,8 @@ int CefExecuteProcess(const CefMainArgs& args,
   InitCrashReporter();
 #endif
 
-  base::CommandLine command_line(base::CommandLine::NO_PROGRAM);
-#if defined(OS_WIN)
-  command_line.ParseFromString(::GetCommandLineW());
-#else
-  command_line.InitFromArgv(args.argc, args.argv);
-#endif
-
-  // Wait for the debugger as early in process initialization as possible.
-  if (command_line.HasSwitch(switches::kWaitForDebugger))
-    base::debug::WaitForDebugger(60, true);
-
-  // If no process type is specified then it represents the browser process and
-  // we do nothing.
-  std::string process_type =
-      command_line.GetSwitchValueASCII(switches::kProcessType);
-  if (process_type.empty())
-    return -1;
-
-#if defined(OS_MACOSX) || defined(OS_WIN)
-  if (process_type == crash_reporter::switches::kCrashpadHandler)
-    return RunAsCrashpadHandler(command_line);
-#endif
-
-  CefMainDelegate main_delegate(application);
-
-// Execute the secondary process.
-#if defined(OS_WIN)
-  sandbox::SandboxInterfaceInfo sandbox_info = {0};
-  if (windows_sandbox_info == nullptr) {
-    content::InitializeSandboxInfo(&sandbox_info);
-    windows_sandbox_info = &sandbox_info;
-  }
-
-  content::ContentMainParams params(&main_delegate);
-  params.instance = args.instance;
-  params.sandbox_info =
-      static_cast<sandbox::SandboxInterfaceInfo*>(windows_sandbox_info);
-
-  return content::ContentMain(params);
-#else
-  content::ContentMainParams params(&main_delegate);
-  params.argc = args.argc;
-  params.argv = const_cast<const char**>(args.argv);
-
-  return content::ContentMain(params);
-#endif
+  return CefMainRunner::RunAsHelperProcess(args, application,
+                                           windows_sandbox_info);
 }
 
 bool CefInitialize(const CefMainArgs& args,
@@ -320,8 +207,6 @@ bool CefInitialize(const CefMainArgs& args,
     NOTREACHED() << "invalid CefSettings structure size";
     return false;
   }
-
-  g_browser_process = new ChromeBrowserProcessStub();
 
   // Create the new global context object.
   g_context = new CefContext();
@@ -466,78 +351,14 @@ bool CefContext::Initialize(const CefMainArgs& args,
   NormalizePathAndSet(settings_.resources_dir_path, "resources_dir_path");
   NormalizePathAndSet(settings_.locales_dir_path, "locales_dir_path");
 
-  main_delegate_.reset(new CefMainDelegate(application));
   browser_info_manager_.reset(new CefBrowserInfoManager);
 
-  int exit_code;
-
-  // Initialize the content runner.
-  content::ContentMainParams params(main_delegate_.get());
-#if defined(OS_WIN)
-  sandbox::SandboxInterfaceInfo sandbox_info = {0};
-  if (windows_sandbox_info == nullptr) {
-    windows_sandbox_info = &sandbox_info;
-    settings_.no_sandbox = true;
-  }
-
-  params.instance = args.instance;
-  params.sandbox_info =
-      static_cast<sandbox::SandboxInterfaceInfo*>(windows_sandbox_info);
-#else
-  params.argc = args.argc;
-  params.argv = const_cast<const char**>(args.argv);
-#endif
-
-  sm_main_delegate_.reset(
-      new content::ContentServiceManagerMainDelegate(params));
-  sm_main_params_.reset(
-      new service_manager::MainParams(sm_main_delegate_.get()));
-
-#if defined(OS_POSIX) && !defined(OS_ANDROID)
-  sm_main_params_->argc = params.argc;
-  sm_main_params_->argv = params.argv;
-#endif
-
-  exit_code = service_manager::MainInitialize(*sm_main_params_);
-  DCHECK_LT(exit_code, 0);
-  if (exit_code >= 0)
-    return false;
-
-  static_cast<ChromeBrowserProcessStub*>(g_browser_process)->Initialize();
-
-  if (settings.multi_threaded_message_loop) {
-    base::WaitableEvent uithread_startup_event(
-        base::WaitableEvent::ResetPolicy::AUTOMATIC,
-        base::WaitableEvent::InitialState::NOT_SIGNALED);
-
-    if (!main_delegate_->CreateUIThread(base::BindOnce(
-            [](CefContext* context, base::WaitableEvent* event) {
-              service_manager::MainRun(*context->sm_main_params_);
-              event->Signal();
-            },
-            base::Unretained(this),
-            base::Unretained(&uithread_startup_event)))) {
-      return false;
-    }
-
-    initialized_ = true;
-
-    // We need to wait until service_manager::MainRun has finished.
-    uithread_startup_event.Wait();
-  } else {
-    initialized_ = true;
-    service_manager::MainRun(*sm_main_params_);
-  }
-
-  if (CEF_CURRENTLY_ON_UIT()) {
-    OnContextInitialized();
-  } else {
-    // Continue initialization on the UI thread.
-    CEF_POST_TASK(CEF_UIT, base::Bind(&CefContext::OnContextInitialized,
-                                      base::Unretained(this)));
-  }
-
-  return true;
+  main_runner_.reset(new CefMainRunner(settings_.multi_threaded_message_loop,
+                                       settings_.external_message_pump));
+  return main_runner_->Initialize(
+      &settings_, application, args, windows_sandbox_info, &initialized_,
+      base::BindOnce(&CefContext::OnContextInitialized,
+                     base::Unretained(this)));
 }
 
 void CefContext::Shutdown() {
@@ -546,28 +367,9 @@ void CefContext::Shutdown() {
 
   shutting_down_ = true;
 
-  if (settings_.multi_threaded_message_loop) {
-    // Events that will be used to signal when shutdown is complete. Start in
-    // non-signaled mode so that the event will block.
-    base::WaitableEvent uithread_shutdown_event(
-        base::WaitableEvent::ResetPolicy::AUTOMATIC,
-        base::WaitableEvent::InitialState::NOT_SIGNALED);
-
-    // Finish shutdown on the UI thread.
-    CEF_POST_TASK(CEF_UIT,
-                  base::Bind(&CefContext::FinishShutdownOnUIThread,
-                             base::Unretained(this), &uithread_shutdown_event));
-
-    /// Block until UI thread shutdown is complete.
-    uithread_shutdown_event.Wait();
-
-    FinalizeShutdown();
-  } else {
-    // Finish shutdown on the current thread, which should be the UI thread.
-    FinishShutdownOnUIThread(nullptr);
-
-    FinalizeShutdown();
-  }
+  main_runner_->Shutdown(
+      base::BindOnce(&CefContext::ShutdownOnUIThread, base::Unretained(this)),
+      base::BindOnce(&CefContext::FinalizeShutdown, base::Unretained(this)));
 }
 
 bool CefContext::OnInitThread() {
@@ -654,13 +456,6 @@ bool CefContext::HasObserver(Observer* observer) const {
 void CefContext::OnContextInitialized() {
   CEF_REQUIRE_UIT();
 
-  static_cast<ChromeBrowserProcessStub*>(g_browser_process)
-      ->OnContextInitialized();
-
-#if BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
-  CefWidevineLoader::GetInstance()->OnContextInitialized();
-#endif
-
   // Notify the handler.
   CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
@@ -671,8 +466,7 @@ void CefContext::OnContextInitialized() {
   }
 }
 
-void CefContext::FinishShutdownOnUIThread(
-    base::WaitableEvent* uithread_shutdown_event) {
+void CefContext::ShutdownOnUIThread() {
   CEF_REQUIRE_UIT();
 
   browser_info_manager_->DestroyAllBrowsers();
@@ -682,34 +476,8 @@ void CefContext::FinishShutdownOnUIThread(
 
   if (trace_subscriber_.get())
     trace_subscriber_.reset(nullptr);
-
-  static_cast<ChromeBrowserProcessStub*>(g_browser_process)->Shutdown();
-
-  ui::ResourceBundle::GetSharedInstance().CleanupOnUIThread();
-
-  sm_main_delegate_->ShutdownOnUIThread();
-
-  if (uithread_shutdown_event)
-    uithread_shutdown_event->Signal();
 }
 
 void CefContext::FinalizeShutdown() {
-  if (content::RenderProcessHost::run_renderer_in_process()) {
-    // Blocks until RenderProcess cleanup is complete.
-    CefContentRendererClient::Get()->RunSingleProcessCleanup();
-  }
-
-  // Shut down the browser runner or UI thread.
-  main_delegate_->ShutdownBrowser();
-
-  // Shut down the content runner.
-  service_manager::MainShutdown(*sm_main_params_);
-
   browser_info_manager_.reset(nullptr);
-  sm_main_params_.reset(nullptr);
-  sm_main_delegate_.reset(nullptr);
-  main_delegate_.reset(nullptr);
-
-  delete g_browser_process;
-  g_browser_process = nullptr;
 }

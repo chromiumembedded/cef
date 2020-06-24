@@ -11,26 +11,14 @@
 #include <string>
 
 #include "include/cef_app.h"
+#include "libcef/browser/main_runner.h"
 
 #include "base/observer_list.h"
 #include "base/threading/platform_thread.h"
 #include "third_party/skia/include/core/SkColor.h"
 
-namespace base {
-class WaitableEvent;
-}
-
-namespace content {
-class ContentServiceManagerMainDelegate;
-}
-
-namespace service_manager {
-struct MainParams;
-}
-
 class CefBrowserHostImpl;
 class CefBrowserInfoManager;
-class CefMainDelegate;
 class CefTraceSubscriber;
 
 class CefContext {
@@ -105,7 +93,7 @@ class CefContext {
 
   // Performs shutdown actions that need to occur on the UI thread before any
   // threads are destroyed.
-  void FinishShutdownOnUIThread(base::WaitableEvent* uithread_shutdown_event);
+  void ShutdownOnUIThread();
 
   // Destroys the main runner and related objects.
   void FinalizeShutdown();
@@ -119,9 +107,7 @@ class CefContext {
 
   CefSettings settings_;
 
-  std::unique_ptr<CefMainDelegate> main_delegate_;
-  std::unique_ptr<content::ContentServiceManagerMainDelegate> sm_main_delegate_;
-  std::unique_ptr<service_manager::MainParams> sm_main_params_;
+  std::unique_ptr<CefMainRunner> main_runner_;
   std::unique_ptr<CefTraceSubscriber> trace_subscriber_;
   std::unique_ptr<CefBrowserInfoManager> browser_info_manager_;
 

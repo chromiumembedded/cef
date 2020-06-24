@@ -36,7 +36,7 @@ class ChromeBrowserProcessStub : public BrowserProcess {
 
   void Initialize();
   void OnContextInitialized();
-  void Shutdown();
+  void CleanupOnUIThread();
 
   // BrowserProcess implementation.
   void EndSession() override;

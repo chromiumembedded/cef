@@ -5,6 +5,6 @@
 #ifndef CEF_LIBCEF_BROWSER_BROWSER_MESSAGE_LOOP_H_
 #define CEF_LIBCEF_BROWSER_BROWSER_MESSAGE_LOOP_H_
 
-void InitMessagePumpFactoryForUI();
+void InitExternalMessagePumpFactoryForUI();
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_MESSAGE_LOOP_H_

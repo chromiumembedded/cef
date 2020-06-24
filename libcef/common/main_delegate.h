@@ -16,22 +16,30 @@
 
 namespace base {
 class CommandLine;
-class MessageLoop;
-class Thread;
-}  // namespace base
-
-namespace content {
-class BrowserMainRunner;
 }
 
 class CefContentBrowserClient;
 class CefContentRendererClient;
-class CefUIThread;
 class ChromeContentUtilityClient;
 
+// Manages state specific to the CEF runtime.
 class CefMainDelegate : public content::ContentMainDelegate {
  public:
-  explicit CefMainDelegate(CefRefPtr<CefApp> application);
+  class Runner {
+   public:
+    virtual void PreCreateMainMessageLoop() = 0;
+    virtual int RunMainProcess(
+        const content::MainFunctionParams& main_function_params) = 0;
+
+   protected:
+    virtual ~Runner() {}
+  };
+
+  // |runner| and |settings| will be non-nullptr for the main process only,
+  // and will outlive this object.
+  CefMainDelegate(Runner* runner,
+                  CefSettings* settings,
+                  CefRefPtr<CefApp> application);
   ~CefMainDelegate() override;
 
   void PreCreateMainMessageLoop() override;
@@ -49,19 +57,22 @@ class CefMainDelegate : public content::ContentMainDelegate {
   content::ContentRendererClient* CreateContentRendererClient() override;
   content::ContentUtilityClient* CreateContentUtilityClient() override;
 
-  bool CreateUIThread(base::OnceClosure setup_callback);
-
-  // Shut down the browser runner.
-  void ShutdownBrowser();
-
   CefContentBrowserClient* browser_client() { return browser_client_.get(); }
   CefContentClient* content_client() { return &content_client_; }
+
+  // Called from MainRunner at various initialization/shutdown stages to create
+  // and clean up global state.
+  static void CefInitialize();
+  static void MainThreadInitialize();
+  static void UIThreadInitialize();
+  static void UIThreadShutdown();
+  static void MainThreadShutdown();
 
  private:
   void InitializeResourceBundle();
 
-  std::unique_ptr<content::BrowserMainRunner> browser_runner_;
-  std::unique_ptr<CefUIThread> ui_thread_;
+  Runner* const runner_;
+  CefSettings* const settings_;
 
   std::unique_ptr<CefContentBrowserClient> browser_client_;
   std::unique_ptr<CefContentRendererClient> renderer_client_;
