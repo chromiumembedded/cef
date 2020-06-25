@@ -321,7 +321,7 @@ void OverrideAssetPath() {
 
 }  // namespace
 
-CefMainDelegate::CefMainDelegate(Runner* runner,
+CefMainDelegate::CefMainDelegate(CefMainRunnerHandler* runner,
                                  CefSettings* settings,
                                  CefRefPtr<CefApp> application)
     : runner_(runner), settings_(settings), content_client_(application) {
@@ -719,18 +719,15 @@ content::ContentUtilityClient* CefMainDelegate::CreateContentUtilityClient() {
   return utility_client_.get();
 }
 
-// static
-void CefMainDelegate::CefInitialize() {
+void CefMainDelegate::BeforeMainThreadInitialize(const CefMainArgs& args) {
   g_browser_process = new ChromeBrowserProcessStub();
 }
 
-// static
-void CefMainDelegate::MainThreadInitialize() {
+void CefMainDelegate::BeforeMainThreadRun() {
   static_cast<ChromeBrowserProcessStub*>(g_browser_process)->Initialize();
 }
 
-// static
-void CefMainDelegate::UIThreadInitialize() {
+void CefMainDelegate::AfterUIThreadInitialize() {
 #if BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
   CefWidevineLoader::GetInstance()->OnContextInitialized();
 #endif
@@ -739,18 +736,60 @@ void CefMainDelegate::UIThreadInitialize() {
       ->OnContextInitialized();
 }
 
-// static
-void CefMainDelegate::UIThreadShutdown() {
+void CefMainDelegate::AfterUIThreadShutdown() {
   static_cast<ChromeBrowserProcessStub*>(g_browser_process)
       ->CleanupOnUIThread();
 
   ui::ResourceBundle::GetSharedInstance().CleanupOnUIThread();
 }
 
-// static
-void CefMainDelegate::MainThreadShutdown() {
-  delete g_browser_process;
-  g_browser_process = nullptr;
+void CefMainDelegate::BeforeMainThreadShutdown() {
+  if (content::RenderProcessHost::run_renderer_in_process()) {
+    // Blocks until RenderProcess cleanup is complete.
+    CefContentRendererClient::Get()->RunSingleProcessCleanup();
+  }
+}
+
+void CefMainDelegate::AfterMainThreadShutdown() {
+  if (g_browser_process) {
+    delete g_browser_process;
+    g_browser_process = nullptr;
+  }
+}
+
+scoped_refptr<base::SingleThreadTaskRunner>
+CefMainDelegate::GetBackgroundTaskRunner() {
+  if (browser_client_)
+    return browser_client_->background_task_runner();
+  return nullptr;
+}
+
+scoped_refptr<base::SingleThreadTaskRunner>
+CefMainDelegate::GetUserVisibleTaskRunner() {
+  if (browser_client_)
+    return browser_client_->user_visible_task_runner();
+  return nullptr;
+}
+
+scoped_refptr<base::SingleThreadTaskRunner>
+CefMainDelegate::GetUserBlockingTaskRunner() {
+  if (browser_client_)
+    return browser_client_->user_blocking_task_runner();
+  return nullptr;
+}
+
+scoped_refptr<base::SingleThreadTaskRunner>
+CefMainDelegate::GetRenderTaskRunner() {
+  if (renderer_client_)
+    return renderer_client_->render_task_runner();
+  return nullptr;
+}
+
+scoped_refptr<base::SingleThreadTaskRunner>
+CefMainDelegate::GetWebWorkerTaskRunner() {
+  if (renderer_client_)
+    return renderer_client_->GetCurrentTaskRunner();
+  return nullptr;
 }
 
 void CefMainDelegate::InitializeResourceBundle() {

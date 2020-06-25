@@ -85,6 +85,11 @@ void SimpleApp::OnContextInitialized() {
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
 
+  const bool enable_chrome_runtime =
+      command_line->HasSwitch("enable-chrome-runtime");
+  if (enable_chrome_runtime)
+    return;
+
 #if defined(OS_WIN) || defined(OS_LINUX)
   // Create the browser using the Views framework if "--use-views" is specified
   // via the command-line. Otherwise, create the browser using the native

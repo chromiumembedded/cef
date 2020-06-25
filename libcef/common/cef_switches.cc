@@ -122,6 +122,9 @@ const char kDisableNewBrowserInfoTimeout[] = "disable-new-browser-info-timeout";
 // File used for logging DevTools protocol messages.
 const char kDevToolsProtocolLogFile[] = "devtools-protocol-log-file";
 
+// Enable use of the Chrome runtime in CEF. See issue #2969 for details.
+const char kEnableChromeRuntime[] = "enable-chrome-runtime";
+
 #if defined(OS_MACOSX)
 // Path to the framework directory.
 const char kFrameworkDirPath[] = "framework-dir-path";

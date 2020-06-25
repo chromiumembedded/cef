@@ -47,6 +47,8 @@ class CefContext {
                   const CefSettings& settings,
                   CefRefPtr<CefApp> application,
                   void* windows_sandbox_info);
+  void RunMessageLoop();
+  void QuitMessageLoop();
   void Shutdown();
 
   // Returns true if the current thread is the initialization thread.
@@ -106,6 +108,7 @@ class CefContext {
   base::PlatformThreadId init_thread_id_;
 
   CefSettings settings_;
+  CefRefPtr<CefApp> application_;
 
   std::unique_ptr<CefMainRunner> main_runner_;
   std::unique_ptr<CefTraceSubscriber> trace_subscriber_;

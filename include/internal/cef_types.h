@@ -193,6 +193,13 @@ typedef struct _cef_settings_t {
   cef_string_t main_bundle_path;
 
   ///
+  // Set to true (1) to enable use of the Chrome runtime in CEF. This feature is
+  // considered experimental and is not recommended for most users at this time.
+  // See issue #2969 for details.
+  ///
+  int chrome_runtime;
+
+  ///
   // Set to true (1) to have the browser process message loop run in a separate
   // thread. If false (0) than the CefDoMessageLoopWork() function must be
   // called from your application message loop. This option is only supported on

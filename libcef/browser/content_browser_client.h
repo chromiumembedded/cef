@@ -224,7 +224,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   const extensions::Extension* GetExtension(
       content::SiteInstance* site_instance);
 
-  CefBrowserMainParts* browser_main_parts_;
+  CefBrowserMainParts* browser_main_parts_ = nullptr;
 
   std::unique_ptr<content::PluginServiceFilter> plugin_service_filter_;
 };

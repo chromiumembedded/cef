@@ -1,0 +1,48 @@
+diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
+index c06585b15b8f..b5ed3518c0fd 100644
+--- chrome/browser/chrome_browser_main.cc
++++ chrome/browser/chrome_browser_main.cc
+@@ -49,6 +49,7 @@
+ #include "build/branding_buildflags.h"
+ #include "build/build_config.h"
+ #include "cc/base/switches.h"
++#include "cef/libcef/features/chrome_cef.h"
+ #include "chrome/browser/about_flags.h"
+ #include "chrome/browser/active_use_util.h"
+ #include "chrome/browser/after_startup_task_utils.h"
+@@ -885,8 +886,10 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
+ #if !defined(OS_ANDROID)
+   // Create the RunLoop for MainMessageLoopRun() to use, and pass a copy of
+   // its QuitClosure to the BrowserProcessImpl to call when it is time to exit.
++  // CEF with the Chrome runtime will create and manage its own RunLoop.
+   DCHECK(!g_run_loop);
+-  g_run_loop = new base::RunLoop;
++  if (!cef::IsChromeRuntimeEnabled())
++    g_run_loop = new base::RunLoop;
+ 
+   // These members must be initialized before returning from this function.
+   // Android doesn't use StartupBrowserCreator.
+@@ -1613,7 +1616,9 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+ #endif  // defined(OS_MACOSX)
+ 
+     // Transfer ownership of the browser's lifetime to the BrowserProcess.
+-    browser_process_->SetQuitClosure(g_run_loop->QuitWhenIdleClosure());
++    // CEF with the Chrome runtime will create and manage its own RunLoop.
++    if (g_run_loop)
++      browser_process_->SetQuitClosure(g_run_loop->QuitWhenIdleClosure());
+     DCHECK(!run_message_loop_);
+     run_message_loop_ = true;
+   }
+diff --git ui/gtk/select_file_dialog_impl_kde.cc ui/gtk/select_file_dialog_impl_kde.cc
+index f09501d6cd8e..edfc2a4c9bb5 100644
+--- ui/gtk/select_file_dialog_impl_kde.cc
++++ ui/gtk/select_file_dialog_impl_kde.cc
+@@ -6,6 +6,8 @@
+ #include <gtk/gtk.h>
+ #include <stddef.h>
+ 
++#undef Success
++
+ #include <memory>
+ #include <set>
+ 

@@ -3,14 +3,13 @@
 // can be found in the LICENSE file.
 
 #include "libcef/common/task_runner_impl.h"
-#include "libcef/browser/content_browser_client.h"
-#include "libcef/common/content_client.h"
-#include "libcef/renderer/content_renderer_client.h"
+#include "libcef/common/task_runner_manager.h"
 
 #include "base/bind.h"
 #include "base/location.h"
 #include "base/logging.h"
 #include "base/message_loop/message_loop.h"
+#include "base/task/post_task.h"
 #include "base/threading/thread_task_runner_handle.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
@@ -51,17 +50,8 @@ CefTaskRunnerImpl::CefTaskRunnerImpl(
 // static
 scoped_refptr<base::SingleThreadTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
     CefThreadId threadId) {
-  // Render process.
-  if (threadId == TID_RENDERER) {
-    CefContentRendererClient* client = CefContentRendererClient::Get();
-    if (client)
-      return client->render_task_runner();
-    return nullptr;
-  }
-
-  // Browser process.
-  CefContentBrowserClient* client = CefContentBrowserClient::Get();
-  if (!client)
+  auto* manager = CefTaskRunnerManager::Get();
+  if (!manager)
     return nullptr;
 
   int id = -1;
@@ -70,16 +60,18 @@ scoped_refptr<base::SingleThreadTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
       id = BrowserThread::UI;
       break;
     case TID_FILE_BACKGROUND:
-      return client->background_task_runner();
+      return manager->GetBackgroundTaskRunner();
     case TID_FILE_USER_VISIBLE:
-      return client->user_visible_task_runner();
+      return manager->GetUserVisibleTaskRunner();
     case TID_FILE_USER_BLOCKING:
-      return client->user_blocking_task_runner();
+      return manager->GetUserBlockingTaskRunner();
     case TID_PROCESS_LAUNCHER:
       return content::GetProcessLauncherTaskRunner();
     case TID_IO:
       id = BrowserThread::IO;
       break;
+    case TID_RENDERER:
+      return manager->GetRenderTaskRunner();
     default:
       break;
   };
@@ -99,6 +91,10 @@ scoped_refptr<base::SingleThreadTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
 // static
 scoped_refptr<base::SingleThreadTaskRunner>
 CefTaskRunnerImpl::GetCurrentTaskRunner() {
+  auto* manager = CefTaskRunnerManager::Get();
+  if (!manager)
+    return nullptr;
+
   scoped_refptr<base::SingleThreadTaskRunner> task_runner;
 
   // For named browser process threads return the same TaskRunner as
@@ -120,9 +116,7 @@ CefTaskRunnerImpl::GetCurrentTaskRunner() {
 
   if (!task_runner.get()) {
     // Check for a WebWorker thread.
-    CefContentRendererClient* client = CefContentRendererClient::Get();
-    if (client)
-      task_runner = client->GetCurrentTaskRunner();
+    return manager->GetWebWorkerTaskRunner();
   }
 
   return task_runner;

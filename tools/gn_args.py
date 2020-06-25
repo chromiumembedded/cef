@@ -232,6 +232,10 @@ def GetRecommendedDefaultArgs():
     # TODO(cef): Remove this flag once we require a newer host system.
     result['fatal_linker_warnings'] = False
 
+    # GTK is enabled by default for the Chrome runtime (see issue #2969).
+    # Disable GTK when building the CEF runtime only (see issue #2014).
+    result['use_gtk'] = False
+
   return result
 
 
@@ -265,9 +269,6 @@ def GetRequiredArgs():
     # Due to the way this variable is declared in chrome/installer/BUILD.gn it
     # can't be enforced by assert().
     result['enable_linux_installer'] = False
-
-    # Build without GTK dependencies (see issue #2014).
-    result['use_gtk'] = False
 
   if platform == 'macosx':
     # Always generate dSYM files. The make_distrib script will fail if

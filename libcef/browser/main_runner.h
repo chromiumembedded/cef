@@ -7,9 +7,11 @@
 #define CEF_LIBCEF_BROWSER_MAIN_RUNNER_H_
 #pragma once
 
-#include "libcef/common/main_delegate.h"
+#include "include/cef_app.h"
+#include "libcef/common/main_runner_delegate.h"
+#include "libcef/common/main_runner_handler.h"
 
-#include "base/callback_forward.h"
+#include "base/callback.h"
 #include "base/macros.h"
 #include "content/public/browser/browser_main_runner.h"
 
@@ -30,7 +32,7 @@ struct MainParams;
 class CefUIThread;
 
 // Manages the main process lifespan and related objects.
-class CefMainRunner : public CefMainDelegate::Runner {
+class CefMainRunner : public CefMainRunnerHandler {
  public:
   CefMainRunner(bool multi_threaded_message_loop, bool external_message_pump);
   ~CefMainRunner();
@@ -47,7 +49,8 @@ class CefMainRunner : public CefMainDelegate::Runner {
   void Shutdown(base::OnceClosure shutdown_on_ui_thread,
                 base::OnceClosure finalize_shutdown);
 
-  bool IsCefRuntime() const { return runtime_type_ == RuntimeType::CEF; }
+  void RunMessageLoop();
+  void QuitMessageLoop();
 
   // Called from CefExecuteProcess.
   static int RunAsHelperProcess(const CefMainArgs& args,
@@ -56,13 +59,12 @@ class CefMainRunner : public CefMainDelegate::Runner {
 
  private:
   // Called from Initialize().
-  void CefRuntimeInitialize(CefSettings* settings, CefRefPtr<CefApp> app);
   int ContentMainInitialize(const CefMainArgs& args,
                             void* windows_sandbox_info,
                             int* no_sandbox);
   bool ContentMainRun(bool* initialized, base::OnceClosure context_initialized);
 
-  // CefMainDelegate::Runner methods:
+  // CefMainRunnerHandler methods:
   void PreCreateMainMessageLoop() override;
   int RunMainProcess(
       const content::MainFunctionParams& main_function_params) override;
@@ -84,18 +86,15 @@ class CefMainRunner : public CefMainDelegate::Runner {
   const bool multi_threaded_message_loop_;
   const bool external_message_pump_;
 
-  enum class RuntimeType {
-    UNINITIALIZED,
-    CEF,
-  };
-  RuntimeType runtime_type_ = RuntimeType::UNINITIALIZED;
-
-  std::unique_ptr<content::ContentMainDelegate> main_delegate_;
+  std::unique_ptr<CefMainRunnerDelegate> main_delegate_;
   std::unique_ptr<content::ContentServiceManagerMainDelegate> sm_main_delegate_;
   std::unique_ptr<service_manager::MainParams> sm_main_params_;
 
   std::unique_ptr<content::BrowserMainRunner> browser_runner_;
   std::unique_ptr<CefUIThread> ui_thread_;
+
+  // Used to quit the current base::RunLoop.
+  base::OnceClosure quit_when_idle_callback_;
 
   DISALLOW_COPY_AND_ASSIGN(CefMainRunner);
 };

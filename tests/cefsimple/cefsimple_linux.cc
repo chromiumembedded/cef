@@ -9,6 +9,7 @@
 #endif
 
 #include "include/base/cef_logging.h"
+#include "include/cef_command_line.h"
 
 #if defined(CEF_X11)
 namespace {
@@ -52,8 +53,17 @@ int main(int argc, char* argv[]) {
   XSetIOErrorHandler(XIOErrorHandlerImpl);
 #endif
 
+  // Parse command-line arguments for use in this method.
+  CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
+  command_line->InitFromArgv(argc, argv);
+
   // Specify CEF global settings here.
   CefSettings settings;
+
+  if (command_line->HasSwitch("enable-chrome-runtime")) {
+    // Enable experimental Chrome runtime. See issue #2969 for details.
+    settings.chrome_runtime = true;
+  }
 
 // When generating projects with CMake the CEF_USE_SANDBOX value will be defined
 // automatically. Pass -DUSE_SANDBOX=OFF to the CMake command-line to disable

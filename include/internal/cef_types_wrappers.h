@@ -569,6 +569,7 @@ struct CefSettingsTraits {
                    &target->framework_dir_path, copy);
     cef_string_set(src->main_bundle_path.str, src->main_bundle_path.length,
                    &target->main_bundle_path, copy);
+    target->chrome_runtime = src->chrome_runtime;
     target->multi_threaded_message_loop = src->multi_threaded_message_loop;
     target->external_message_pump = src->external_message_pump;
     target->windowless_rendering_enabled = src->windowless_rendering_enabled;

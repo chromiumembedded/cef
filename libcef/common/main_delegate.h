@@ -10,6 +10,9 @@
 
 #include "include/cef_app.h"
 #include "libcef/common/content_client.h"
+#include "libcef/common/main_runner_delegate.h"
+#include "libcef/common/main_runner_handler.h"
+#include "libcef/common/task_runner_manager.h"
 
 #include "base/compiler_specific.h"
 #include "content/public/app/content_main_delegate.h"
@@ -23,25 +26,18 @@ class CefContentRendererClient;
 class ChromeContentUtilityClient;
 
 // Manages state specific to the CEF runtime.
-class CefMainDelegate : public content::ContentMainDelegate {
+class CefMainDelegate : public content::ContentMainDelegate,
+                        public CefMainRunnerDelegate,
+                        public CefTaskRunnerManager {
  public:
-  class Runner {
-   public:
-    virtual void PreCreateMainMessageLoop() = 0;
-    virtual int RunMainProcess(
-        const content::MainFunctionParams& main_function_params) = 0;
-
-   protected:
-    virtual ~Runner() {}
-  };
-
   // |runner| and |settings| will be non-nullptr for the main process only,
   // and will outlive this object.
-  CefMainDelegate(Runner* runner,
+  CefMainDelegate(CefMainRunnerHandler* runner,
                   CefSettings* settings,
                   CefRefPtr<CefApp> application);
   ~CefMainDelegate() override;
 
+  // content::ContentMainDelegate overrides.
   void PreCreateMainMessageLoop() override;
   bool BasicStartupComplete(int* exit_code) override;
   void PreSandboxStartup() override;
@@ -60,18 +56,32 @@ class CefMainDelegate : public content::ContentMainDelegate {
   CefContentBrowserClient* browser_client() { return browser_client_.get(); }
   CefContentClient* content_client() { return &content_client_; }
 
-  // Called from MainRunner at various initialization/shutdown stages to create
-  // and clean up global state.
-  static void CefInitialize();
-  static void MainThreadInitialize();
-  static void UIThreadInitialize();
-  static void UIThreadShutdown();
-  static void MainThreadShutdown();
+ protected:
+  // CefMainRunnerDelegate overrides.
+  content::ContentMainDelegate* GetContentMainDelegate() override {
+    return this;
+  }
+  void BeforeMainThreadInitialize(const CefMainArgs& args) override;
+  void BeforeMainThreadRun() override;
+  void AfterUIThreadInitialize() override;
+  void AfterUIThreadShutdown() override;
+  void BeforeMainThreadShutdown() override;
+  void AfterMainThreadShutdown() override;
+
+  // CefTaskRunnerManager overrides.
+  scoped_refptr<base::SingleThreadTaskRunner> GetBackgroundTaskRunner()
+      override;
+  scoped_refptr<base::SingleThreadTaskRunner> GetUserVisibleTaskRunner()
+      override;
+  scoped_refptr<base::SingleThreadTaskRunner> GetUserBlockingTaskRunner()
+      override;
+  scoped_refptr<base::SingleThreadTaskRunner> GetRenderTaskRunner() override;
+  scoped_refptr<base::SingleThreadTaskRunner> GetWebWorkerTaskRunner() override;
 
  private:
   void InitializeResourceBundle();
 
-  Runner* const runner_;
+  CefMainRunnerHandler* const runner_;
   CefSettings* const settings_;
 
   std::unique_ptr<CefContentBrowserClient> browser_client_;

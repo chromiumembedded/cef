@@ -4,6 +4,7 @@
 
 #include <windows.h>
 
+#include "include/cef_command_line.h"
 #include "include/cef_sandbox_win.h"
 #include "tests/cefsimple/simple_app.h"
 
@@ -51,8 +52,17 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     return exit_code;
   }
 
+  // Parse command-line arguments for use in this method.
+  CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
+  command_line->InitFromString(::GetCommandLineW());
+
   // Specify CEF global settings here.
   CefSettings settings;
+
+  if (command_line->HasSwitch("enable-chrome-runtime")) {
+    // Enable experimental Chrome runtime. See issue #2969 for details.
+    settings.chrome_runtime = true;
+  }
 
 #if !defined(CEF_USE_SANDBOX)
   settings.no_sandbox = true;

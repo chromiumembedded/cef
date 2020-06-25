@@ -533,8 +533,7 @@ void PopulateChromeFrameBinders(
 
 }  // namespace
 
-CefContentBrowserClient::CefContentBrowserClient()
-    : browser_main_parts_(nullptr) {
+CefContentBrowserClient::CefContentBrowserClient() {
   plugin_service_filter_.reset(new CefPluginServiceFilter);
   content::PluginServiceImpl::GetInstance()->SetFilter(
       plugin_service_filter_.get());

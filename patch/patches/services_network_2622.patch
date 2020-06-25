@@ -1,16 +1,16 @@
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index 75a5ee192358..bc97cbf684c0 100644
+index 75a5ee192358..379e0bdd11b1 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -18,6 +18,7 @@
  #include "base/strings/string_split.h"
  #include "base/task/post_task.h"
  #include "base/task/thread_pool.h"
-+#include "cef/libcef/features/features.h"
++#include "cef/libcef/features/chrome_cef.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -661,9 +662,22 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -661,9 +662,23 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
    network_context_params->cookie_manager_params =
        CreateCookieManagerParams(profile_, *cookie_settings_);
  
@@ -18,8 +18,8 @@ index 75a5ee192358..bc97cbf684c0 100644
 +
    // Configure on-disk storage for non-OTR profiles. OTR profiles just use
    // default behavior (in memory storage, default sizes).
-   if (!in_memory) {
-+#if BUILDFLAG(ENABLE_CEF)
+-  if (!in_memory) {
++  if (!in_memory && cef::IsCefRuntimeEnabled()) {
 +    PrefService* prefs = profile_->GetPrefs();
 +    // Configure the HTTP cache path and size.
 +    const base::FilePath& base_cache_path =
@@ -29,18 +29,22 @@ index 75a5ee192358..bc97cbf684c0 100644
 +        base_cache_path.Append(chrome::kCacheDirname);
 +    network_context_params->http_cache_max_size =
 +        prefs->GetInteger(prefs::kDiskCacheSize);
-+#else
++  }
++
++  if (!in_memory && !cef::IsCefRuntimeEnabled()) {
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -676,6 +690,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -676,7 +691,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
          base_cache_path.Append(chrome::kCacheDirname);
      network_context_params->http_cache_max_size =
          local_state->GetInteger(prefs::kDiskCacheSize);
-+#endif
++  }
  
++  if (!in_memory) {
      // Currently this just contains HttpServerProperties, but that will likely
      // change.
+     network_context_params->http_server_properties_path =
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
 index a48ead96b3f7..967a5975c330 100644
 --- chrome/browser/profiles/profile.h

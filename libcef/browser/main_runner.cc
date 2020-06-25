@@ -7,7 +7,10 @@
 
 #include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/renderer/content_renderer_client.h"
+#include "libcef/common/cef_switches.h"
+#include "libcef/common/chrome/chrome_main_runner_delegate.h"
+#include "libcef/common/main_delegate.h"
+#include "libcef/features/chrome_cef.h"
 
 #include "base/at_exit.h"
 #include "base/base_switches.h"
@@ -37,6 +40,27 @@
 #endif
 
 namespace {
+
+enum class RuntimeType {
+  UNINITIALIZED,
+  CEF,
+  CHROME,
+};
+RuntimeType g_runtime_type = RuntimeType::UNINITIALIZED;
+
+std::unique_ptr<CefMainRunnerDelegate> MakeDelegate(
+    RuntimeType type,
+    CefMainRunnerHandler* runner,
+    CefSettings* settings,
+    CefRefPtr<CefApp> application) {
+  if (type == RuntimeType::CEF) {
+    g_runtime_type = RuntimeType::CEF;
+    return std::make_unique<CefMainDelegate>(runner, settings, application);
+  } else {
+    g_runtime_type = RuntimeType::CHROME;
+    return std::make_unique<ChromeMainRunnerDelegate>(runner);
+  }
+}
 
 #if defined(OS_MACOSX) || defined(OS_WIN)
 
@@ -91,8 +115,8 @@ int RunAsCrashpadHandler(const base::CommandLine& command_line) {
 // Used to run the UI on a separate thread.
 class CefUIThread : public base::PlatformThread::Delegate {
  public:
-  explicit CefUIThread(base::OnceClosure setup_callback)
-      : setup_callback_(std::move(setup_callback)) {}
+  CefUIThread(CefMainRunner* runner, base::OnceClosure setup_callback)
+      : runner_(runner), setup_callback_(std::move(setup_callback)) {}
   ~CefUIThread() override { Stop(); }
 
   void Start() {
@@ -109,8 +133,8 @@ class CefUIThread : public base::PlatformThread::Delegate {
 
     if (!stopping_) {
       stopping_ = true;
-      CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefUIThread::ThreadQuitHelper,
-                                            base::Unretained(this)));
+      CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefMainRunner::QuitMessageLoop,
+                                            base::Unretained(runner_)));
     }
 
     // Can't join if the |thread_| is either already gone or is non-joinable.
@@ -152,12 +176,10 @@ class CefUIThread : public base::PlatformThread::Delegate {
 
     std::move(setup_callback_).Run();
 
-    base::RunLoop run_loop;
-    run_loop_ = &run_loop;
-    run_loop.Run();
+    runner_->RunMessageLoop();
 
     browser_runner_->Shutdown();
-    browser_runner_.reset(nullptr);
+    browser_runner_.reset();
 
     content::BrowserTaskExecutor::Shutdown();
 
@@ -169,25 +191,18 @@ class CefUIThread : public base::PlatformThread::Delegate {
     // be balanced by a corresponding call to CoUninitialize.
     CoUninitialize();
 #endif
-
-    run_loop_ = nullptr;
   }
 
-  void ThreadQuitHelper() {
-    DCHECK(run_loop_);
-    run_loop_->QuitWhenIdle();
-  }
+  CefMainRunner* const runner_;
+  base::OnceClosure setup_callback_;
 
   std::unique_ptr<content::BrowserMainRunner> browser_runner_;
-  base::OnceClosure setup_callback_;
 
   bool stopping_ = false;
 
   // The thread's handle.
   base::PlatformThreadHandle thread_;
   mutable base::Lock thread_lock_;  // Protects |thread_|.
-
-  base::RunLoop* run_loop_ = nullptr;
 
   mutable base::WaitableEvent start_event_;
 
@@ -209,7 +224,10 @@ bool CefMainRunner::Initialize(CefSettings* settings,
                                void* windows_sandbox_info,
                                bool* initialized,
                                base::OnceClosure context_initialized) {
-  CefRuntimeInitialize(settings, application);
+  DCHECK(!main_delegate_);
+  main_delegate_ = MakeDelegate(
+      settings->chrome_runtime ? RuntimeType::CHROME : RuntimeType::CEF, this,
+      settings, application);
 
   const int exit_code =
       ContentMainInitialize(args, windows_sandbox_info, &settings->no_sandbox);
@@ -254,6 +272,25 @@ void CefMainRunner::Shutdown(base::OnceClosure shutdown_on_ui_thread,
   }
 }
 
+void CefMainRunner::RunMessageLoop() {
+  base::RunLoop run_loop;
+
+  DCHECK(quit_when_idle_callback_.is_null());
+  quit_when_idle_callback_ = run_loop.QuitWhenIdleClosure();
+
+  main_delegate_->BeforeMainMessageLoopRun(&run_loop);
+
+  // Blocks until QuitMessageLoop() is called.
+  run_loop.Run();
+}
+
+void CefMainRunner::QuitMessageLoop() {
+  if (!quit_when_idle_callback_.is_null()) {
+    main_delegate_->BeforeMainMessageLoopQuit();
+    std::move(quit_when_idle_callback_).Run();
+  }
+}
+
 // static
 int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
                                       CefRefPtr<CefApp> application,
@@ -276,16 +313,25 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
   if (process_type.empty())
     return -1;
 
+  auto runtime_type = command_line.HasSwitch(switches::kEnableChromeRuntime)
+                          ? RuntimeType::CHROME
+                          : RuntimeType::CEF;
+  auto main_delegate = MakeDelegate(runtime_type, /*runner=*/nullptr,
+                                    /*settings=*/nullptr, application);
+  main_delegate->BeforeExecuteProcess(args);
+
+  int result;
+
 #if defined(OS_MACOSX) || defined(OS_WIN)
-  if (process_type == crash_reporter::switches::kCrashpadHandler)
-    return RunAsCrashpadHandler(command_line);
+  if (process_type == crash_reporter::switches::kCrashpadHandler) {
+    result = RunAsCrashpadHandler(command_line);
+    main_delegate->AfterExecuteProcess();
+    return result;
+  }
 #endif
 
-  std::unique_ptr<content::ContentMainDelegate> main_delegate;
-  main_delegate.reset(new CefMainDelegate(/*context=*/nullptr,
-                                          /*settings=*/nullptr, application));
-
-// Execute the secondary process.
+  // Execute the secondary process.
+  content::ContentMainParams params(main_delegate->GetContentMainDelegate());
 #if defined(OS_WIN)
   sandbox::SandboxInterfaceInfo sandbox_info = {0};
   if (windows_sandbox_info == nullptr) {
@@ -293,38 +339,27 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
     windows_sandbox_info = &sandbox_info;
   }
 
-  content::ContentMainParams params(main_delegate.get());
   params.instance = args.instance;
   params.sandbox_info =
       static_cast<sandbox::SandboxInterfaceInfo*>(windows_sandbox_info);
-
-  return content::ContentMain(params);
 #else
-  content::ContentMainParams params(main_delegate.get());
   params.argc = args.argc;
   params.argv = const_cast<const char**>(args.argv);
-
-  return content::ContentMain(params);
 #endif
-}
+  result = content::ContentMain(params);
 
-void CefMainRunner::CefRuntimeInitialize(CefSettings* settings,
-                                         CefRefPtr<CefApp> app) {
-  DCHECK_EQ(RuntimeType::UNINITIALIZED, runtime_type_);
-  DCHECK(!main_delegate_);
+  main_delegate->AfterExecuteProcess();
 
-  runtime_type_ = RuntimeType::CEF;
-  CefMainDelegate::CefInitialize();
-  main_delegate_.reset(new CefMainDelegate(this, settings, app));
+  return result;
 }
 
 int CefMainRunner::ContentMainInitialize(const CefMainArgs& args,
                                          void* windows_sandbox_info,
                                          int* no_sandbox) {
-  DCHECK(main_delegate_);
+  main_delegate_->BeforeMainThreadInitialize(args);
 
   // Initialize the content runner.
-  content::ContentMainParams params(main_delegate_.get());
+  content::ContentMainParams params(main_delegate_->GetContentMainDelegate());
 #if defined(OS_WIN)
   sandbox::SandboxInterfaceInfo sandbox_info = {0};
   if (windows_sandbox_info == nullptr) {
@@ -355,8 +390,7 @@ int CefMainRunner::ContentMainInitialize(const CefMainArgs& args,
 
 bool CefMainRunner::ContentMainRun(bool* initialized,
                                    base::OnceClosure context_initialized) {
-  if (IsCefRuntime())
-    CefMainDelegate::MainThreadInitialize();
+  main_delegate_->BeforeMainThreadRun();
 
   if (multi_threaded_message_loop_) {
     base::WaitableEvent uithread_startup_event(
@@ -424,7 +458,7 @@ int CefMainRunner::RunMainProcess(
 bool CefMainRunner::CreateUIThread(base::OnceClosure setup_callback) {
   DCHECK(!ui_thread_);
 
-  ui_thread_.reset(new CefUIThread(std::move(setup_callback)));
+  ui_thread_.reset(new CefUIThread(this, std::move(setup_callback)));
   ui_thread_->Start();
   ui_thread_->WaitUntilThreadStarted();
 
@@ -437,8 +471,8 @@ bool CefMainRunner::CreateUIThread(base::OnceClosure setup_callback) {
 void CefMainRunner::OnContextInitialized(
     base::OnceClosure context_initialized) {
   CEF_REQUIRE_UIT();
-  if (IsCefRuntime())
-    CefMainDelegate::UIThreadInitialize();
+
+  main_delegate_->AfterUIThreadInitialize();
   std::move(context_initialized).Run();
 }
 
@@ -450,22 +484,18 @@ void CefMainRunner::FinishShutdownOnUIThread(
   sm_main_delegate_->ShutdownOnUIThread();
 
   std::move(shutdown_on_ui_thread).Run();
-  if (IsCefRuntime())
-    CefMainDelegate::UIThreadShutdown();
+  main_delegate_->AfterUIThreadShutdown();
 
   if (uithread_shutdown_event)
     uithread_shutdown_event->Signal();
 }
 
 void CefMainRunner::FinalizeShutdown(base::OnceClosure finalize_shutdown) {
-  if (content::RenderProcessHost::run_renderer_in_process() && IsCefRuntime()) {
-    // Blocks until RenderProcess cleanup is complete.
-    CefContentRendererClient::Get()->RunSingleProcessCleanup();
-  }
+  main_delegate_->BeforeMainThreadShutdown();
 
   if (browser_runner_.get()) {
     browser_runner_->Shutdown();
-    browser_runner_.reset(nullptr);
+    browser_runner_.reset();
   }
 
   if (ui_thread_.get()) {
@@ -477,13 +507,25 @@ void CefMainRunner::FinalizeShutdown(base::OnceClosure finalize_shutdown) {
   // Shut down the content runner.
   service_manager::MainShutdown(*sm_main_params_);
 
-  sm_main_params_.reset(nullptr);
-  sm_main_delegate_.reset(nullptr);
+  sm_main_params_.reset();
+  sm_main_delegate_.reset();
 
   std::move(finalize_shutdown).Run();
-  if (IsCefRuntime())
-    CefMainDelegate::MainThreadShutdown();
+  main_delegate_->AfterMainThreadShutdown();
 
-  main_delegate_.reset(nullptr);
-  runtime_type_ = RuntimeType::UNINITIALIZED;
+  main_delegate_.reset();
+  g_runtime_type = RuntimeType::UNINITIALIZED;
 }
+
+// From libcef/features/chrome_cef.h:
+namespace cef {
+
+bool IsCefRuntimeEnabled() {
+  return g_runtime_type == RuntimeType::CEF;
+}
+
+bool IsChromeRuntimeEnabled() {
+  return g_runtime_type == RuntimeType::CHROME;
+}
+
+}  // namespace cef

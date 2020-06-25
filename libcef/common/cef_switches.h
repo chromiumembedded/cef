@@ -54,6 +54,7 @@ extern const char kEnablePreferenceTesting[];
 extern const char kEnablePrintPreview[];
 extern const char kDisableNewBrowserInfoTimeout[];
 extern const char kDevToolsProtocolLogFile[];
+extern const char kEnableChromeRuntime[];
 
 #if defined(OS_MACOSX)
 extern const char kFrameworkDirPath[];

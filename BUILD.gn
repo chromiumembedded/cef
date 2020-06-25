@@ -430,6 +430,10 @@ static_library("libcef_static") {
     "libcef/browser/browser_platform_delegate_create.cc",
     "libcef/browser/browser_util.cc",
     "libcef/browser/browser_util.h",
+    "libcef/browser/chrome/chrome_browser_main_extra_parts_cef.cc",
+    "libcef/browser/chrome/chrome_browser_main_extra_parts_cef.h",
+    "libcef/browser/chrome/chrome_content_browser_client_cef.cc",
+    "libcef/browser/chrome/chrome_content_browser_client_cef.h",
     "libcef/browser/chrome_browser_process_stub.cc",
     "libcef/browser/chrome_browser_process_stub.h",
     "libcef/browser/chrome_crash_reporter_client_stub.cc",
@@ -645,6 +649,10 @@ static_library("libcef_static") {
     "libcef/common/cef_messages.h",
     "libcef/common/cef_switches.cc",
     "libcef/common/cef_switches.h",
+    "libcef/common/chrome/chrome_main_delegate_cef.cc",
+    "libcef/common/chrome/chrome_main_delegate_cef.h",
+    "libcef/common/chrome/chrome_main_runner_delegate.cc",
+    "libcef/common/chrome/chrome_main_runner_delegate.h",
     "libcef/common/command_line_impl.cc",
     "libcef/common/command_line_impl.h",
     "libcef/common/content_client.cc",
@@ -669,6 +677,8 @@ static_library("libcef_static") {
     "libcef/common/json_impl.cc",
     "libcef/common/main_delegate.cc",
     "libcef/common/main_delegate.h",
+    "libcef/common/main_runner_delegate.h",
+    "libcef/common/main_runner_handler.h",
     "libcef/common/net/http_header_utils.cc",
     "libcef/common/net/http_header_utils.h",
     "libcef/common/net/net_resource_provider.cc",
@@ -703,6 +713,8 @@ static_library("libcef_static") {
     "libcef/common/task_impl.cc",
     "libcef/common/task_runner_impl.cc",
     "libcef/common/task_runner_impl.h",
+    "libcef/common/task_runner_manager.cc",
+    "libcef/common/task_runner_manager.h",
     "libcef/common/test/translator_test_impl.cc",
     "libcef/common/thread_impl.cc",
     "libcef/common/thread_impl.h",
@@ -719,6 +731,7 @@ static_library("libcef_static") {
     "libcef/common/waitable_event_impl.h",
     "libcef/common/widevine_loader.cc",
     "libcef/common/widevine_loader.h",
+    "libcef/features/chrome_cef.h",
     "libcef/renderer/browser_impl.cc",
     "libcef/renderer/browser_impl.h",
     "libcef/renderer/content_renderer_client.cc",
@@ -748,6 +761,10 @@ static_library("libcef_static") {
     "libcef/renderer/url_loader_throttle_provider_impl.h",
     "libcef/renderer/v8_impl.cc",
     "libcef/renderer/v8_impl.h",
+
+    # For Chrome runtime support.
+    "//chrome/app/chrome_main_delegate.cc",
+    "//chrome/app/chrome_main_delegate.h",
   ]
 
   configs += [
@@ -790,12 +807,12 @@ static_library("libcef_static") {
     "//base:base_static",
     "//base/third_party/dynamic_annotations",
     "//cc",
-    "//chrome/browser",
-    "//chrome/child",
-    "//chrome/common",
-    "//chrome/renderer",
+    "//chrome:browser_dependencies",
+    "//chrome:child_dependencies",
+    "//chrome:packed_resources",
+    "//chrome:resources",
+    "//chrome:strings",
     "//chrome/services/printing:lib",
-    "//chrome/utility",
     "//components/cdm/renderer",
     "//components/certificate_transparency",
     "//components/content_settings/core/browser",
@@ -970,6 +987,10 @@ static_library("libcef_static") {
       "libcef/browser/osr/browser_platform_delegate_osr_mac.mm",
       "libcef/common/util_mac.h",
       "libcef/common/util_mac.mm",
+
+      # For Chrome runtime support.
+      "//chrome/app/chrome_main_mac.h",
+      "//chrome/app/chrome_main_mac.mm",
     ]
   }
 
@@ -1519,6 +1540,7 @@ make_pack_header("strings") {
     "$root_gen_dir/chrome/grit/generated_resources.h",
     "$root_gen_dir/chrome/grit/locale_settings.h",
     "$root_gen_dir/chrome/grit/platform_locale_settings.h",
+    "$root_gen_dir/components/strings/grit/components_chromium_strings.h",
     "$root_gen_dir/components/strings/grit/components_strings.h",
     "$root_gen_dir/extensions/strings/grit/extensions_strings.h",
     "$root_gen_dir/services/strings/grit/services_strings.h",

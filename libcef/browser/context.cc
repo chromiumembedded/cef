@@ -23,7 +23,6 @@
 #include "base/strings/utf_string_conversions.h"
 #include "chrome/chrome_elf/chrome_elf_main.h"
 #include "chrome/install_static/initialize_from_primary_module.h"
-#include "components/crash/core/app/crashpad.h"
 #endif
 
 namespace {
@@ -267,8 +266,7 @@ void CefRunMessageLoop() {
     return;
   }
 
-  base::RunLoop run_loop;
-  run_loop.Run();
+  g_context->RunMessageLoop();
 }
 
 void CefQuitMessageLoop() {
@@ -284,8 +282,7 @@ void CefQuitMessageLoop() {
     return;
   }
 
-  // Quit the CefBrowserMessageLoop.
-  base::RunLoop::QuitCurrentWhenIdleDeprecated();
+  g_context->QuitMessageLoop();
 }
 
 void CefSetOSModalLoop(bool osModalLoop) {
@@ -321,6 +318,7 @@ bool CefContext::Initialize(const CefMainArgs& args,
                             void* windows_sandbox_info) {
   init_thread_id_ = base::PlatformThread::CurrentId();
   settings_ = settings;
+  application_ = application;
 
 #if !(defined(OS_WIN) || defined(OS_LINUX))
   if (settings.multi_threaded_message_loop) {
@@ -359,6 +357,21 @@ bool CefContext::Initialize(const CefMainArgs& args,
       &settings_, application, args, windows_sandbox_info, &initialized_,
       base::BindOnce(&CefContext::OnContextInitialized,
                      base::Unretained(this)));
+}
+
+void CefContext::RunMessageLoop() {
+  // Must always be called on the same thread as Initialize.
+  DCHECK(OnInitThread());
+
+  // Blocks until QuitMessageLoop() is called.
+  main_runner_->RunMessageLoop();
+}
+
+void CefContext::QuitMessageLoop() {
+  // Must always be called on the same thread as Initialize.
+  DCHECK(OnInitThread());
+
+  main_runner_->QuitMessageLoop();
 }
 
 void CefContext::Shutdown() {
@@ -457,11 +470,10 @@ void CefContext::OnContextInitialized() {
   CEF_REQUIRE_UIT();
 
   // Notify the handler.
-  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
-  if (app.get()) {
+  if (application_) {
     CefRefPtr<CefBrowserProcessHandler> handler =
-        app->GetBrowserProcessHandler();
-    if (handler.get())
+        application_->GetBrowserProcessHandler();
+    if (handler)
       handler->OnContextInitialized();
   }
 }
@@ -480,4 +492,5 @@ void CefContext::ShutdownOnUIThread() {
 
 void CefContext::FinalizeShutdown() {
   browser_info_manager_.reset(nullptr);
+  application_ = nullptr;
 }
