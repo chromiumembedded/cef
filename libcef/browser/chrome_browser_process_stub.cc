@@ -289,6 +289,7 @@ DownloadRequestLimiter* ChromeBrowserProcessStub::download_request_limiter() {
   return nullptr;
 }
 
+#if BUILDFLAG(ENABLE_BACKGROUND_MODE)
 BackgroundModeManager* ChromeBrowserProcessStub::background_mode_manager() {
   NOTREACHED();
   return nullptr;
@@ -298,6 +299,7 @@ void ChromeBrowserProcessStub::set_background_mode_manager_for_test(
     std::unique_ptr<BackgroundModeManager> manager) {
   NOTREACHED();
 }
+#endif
 
 StatusTray* ChromeBrowserProcessStub::status_tray() {
   NOTREACHED();

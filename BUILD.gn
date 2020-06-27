@@ -812,6 +812,7 @@ static_library("libcef_static") {
     "//chrome:packed_resources",
     "//chrome:resources",
     "//chrome:strings",
+    "//chrome/common:buildflags",
     "//chrome/services/printing:lib",
     "//components/cdm/renderer",
     "//components/certificate_transparency",

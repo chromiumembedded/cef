@@ -215,6 +215,12 @@ def GetRecommendedDefaultArgs():
       # and macOS builds. Currently turned off for CEF because it requires
       # additional setup and is not yet tested. See issue #2956.
       'chrome_pgo_phase': 0,
+
+      # Disable support for background apps, which don't make sense with CEF.
+      # Default is enabled on desktop platforms. This feature was also causing
+      # strange shutdown crashes when using the Chrome runtime with a Debug
+      # component build on Windows.
+      'enable_background_mode': False,
   }
 
   if platform == 'linux':
