@@ -321,7 +321,7 @@ void OverrideAssetPath() {
 AlloyMainDelegate::AlloyMainDelegate(CefMainRunnerHandler* runner,
                                      CefSettings* settings,
                                      CefRefPtr<CefApp> application)
-    : runner_(runner), settings_(settings), content_client_(application) {
+    : runner_(runner), settings_(settings), application_(application) {
   // Necessary so that exported functions from base_impl.cc will be included
   // in the binary.
   extern void base_impl_stub();
@@ -551,12 +551,12 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
     }
   }
 
-  if (content_client_.application().get()) {
+  if (application_) {
     // Give the application a chance to view/modify the command line.
     CefRefPtr<CefCommandLineImpl> commandLinePtr(
         new CefCommandLineImpl(command_line, false, false));
-    content_client_.application()->OnBeforeCommandLineProcessing(
-        CefString(process_type), commandLinePtr.get());
+    application_->OnBeforeCommandLineProcessing(CefString(process_type),
+                                                commandLinePtr.get());
     commandLinePtr->Detach(nullptr);
   }
 
@@ -661,7 +661,7 @@ void AlloyMainDelegate::PreSandboxStartup() {
   }
 
   if (command_line->HasSwitch(switches::kDisablePackLoading))
-    content_client_.set_pack_loading_disabled(true);
+    resource_bundle_delegate_.set_pack_loading_disabled(true);
 
   // Initialize crash reporting state for this process/module.
   // chrome::DIR_CRASH_DUMPS must be configured before calling this function.
@@ -717,6 +717,12 @@ content::ContentUtilityClient* AlloyMainDelegate::CreateContentUtilityClient() {
   return utility_client_.get();
 }
 
+CefRefPtr<CefRequestContext> AlloyMainDelegate::GetGlobalRequestContext() {
+  if (!browser_client_)
+    return nullptr;
+  return browser_client_->request_context();
+}
+
 scoped_refptr<base::SingleThreadTaskRunner>
 AlloyMainDelegate::GetBackgroundTaskRunner() {
   if (browser_client_)
@@ -769,7 +775,7 @@ void AlloyMainDelegate::InitializeResourceBundle() {
   if (!resources_dir.empty())
     base::PathService::Override(chrome::DIR_RESOURCES, resources_dir);
 
-  if (!content_client_.pack_loading_disabled()) {
+  if (!resource_bundle_delegate_.pack_loading_disabled()) {
     if (!resources_dir.empty()) {
       CHECK(resources_dir.IsAbsolute());
       cef_pak_file = resources_dir.Append(FILE_PATH_LITERAL("cef.pak"));
@@ -795,18 +801,18 @@ void AlloyMainDelegate::InitializeResourceBundle() {
 
   const std::string loaded_locale =
       ui::ResourceBundle::InitSharedInstanceWithLocale(
-          locale, content_client_.GetCefResourceBundleDelegate(),
+          locale, &resource_bundle_delegate_,
           ui::ResourceBundle::LOAD_COMMON_RESOURCES);
   if (!loaded_locale.empty() && g_browser_process)
     g_browser_process->SetApplicationLocale(loaded_locale);
 
   ui::ResourceBundle& resource_bundle = ui::ResourceBundle::GetSharedInstance();
 
-  if (!content_client_.pack_loading_disabled()) {
+  if (!resource_bundle_delegate_.pack_loading_disabled()) {
     if (loaded_locale.empty())
       LOG(ERROR) << "Could not load locale pak for " << locale;
 
-    content_client_.set_allow_pack_file_load(true);
+    resource_bundle_delegate_.set_allow_pack_file_load(true);
 
     if (base::PathExists(cef_pak_file)) {
       resource_bundle.AddDataPackFromPath(cef_pak_file, ui::SCALE_FACTOR_NONE);
@@ -856,6 +862,6 @@ void AlloyMainDelegate::InitializeResourceBundle() {
                                           ui::SCALE_FACTOR_NONE);
     }
 
-    content_client_.set_allow_pack_file_load(false);
+    resource_bundle_delegate_.set_allow_pack_file_load(false);
   }
 }

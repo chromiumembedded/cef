@@ -7,8 +7,11 @@
 
 #include "libcef/browser/chrome/chrome_content_browser_client_cef.h"
 
-ChromeMainDelegateCef::ChromeMainDelegateCef(CefMainRunnerHandler* runner)
-    : ChromeMainDelegate(base::TimeTicks::Now()), runner_(runner) {}
+ChromeMainDelegateCef::ChromeMainDelegateCef(CefMainRunnerHandler* runner,
+                                             CefRefPtr<CefApp> application)
+    : ChromeMainDelegate(base::TimeTicks::Now()),
+      runner_(runner),
+      application_(application) {}
 ChromeMainDelegateCef::~ChromeMainDelegateCef() = default;
 
 void ChromeMainDelegateCef::PreCreateMainMessageLoop() {
@@ -27,6 +30,10 @@ int ChromeMainDelegateCef::RunProcess(
   return ChromeMainDelegate::RunProcess(process_type, main_function_params);
 }
 
+content::ContentClient* ChromeMainDelegateCef::CreateContentClient() {
+  return &chrome_content_client_cef_;
+}
+
 content::ContentBrowserClient*
 ChromeMainDelegateCef::CreateContentBrowserClient() {
   // Match the logic in the parent ChromeMainDelegate implementation, but create
@@ -39,6 +46,12 @@ ChromeMainDelegateCef::CreateContentBrowserClient() {
         std::make_unique<ChromeContentBrowserClientCef>(startup_data_.get());
   }
   return chrome_content_browser_client_.get();
+}
+
+CefRefPtr<CefRequestContext> ChromeMainDelegateCef::GetGlobalRequestContext() {
+  // TODO(chrome-runtime): Implement this method.
+  NOTIMPLEMENTED();
+  return nullptr;
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>

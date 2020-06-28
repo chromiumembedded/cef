@@ -35,9 +35,6 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
   AlloyContentBrowserClient();
   ~AlloyContentBrowserClient() override;
 
-  // Returns the singleton AlloyContentBrowserClient instance.
-  static AlloyContentBrowserClient* Get();
-
   // ContentBrowserClient implementation.
   std::unique_ptr<content::BrowserMainParts> CreateBrowserMainParts(
       const content::MainFunctionParams& parameters) override;
@@ -131,7 +128,6 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
 #endif
 
 #if defined(OS_WIN)
-  const wchar_t* GetResourceDllName();
   bool PreSpawnRenderer(sandbox::TargetPolicy* policy,
                         RendererSpawnFlags flags) override;
 #endif

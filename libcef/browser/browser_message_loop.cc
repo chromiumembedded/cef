@@ -3,7 +3,7 @@
 // be found in the LICENSE file.
 
 #include "libcef/browser/browser_message_loop.h"
-#include "libcef/common/alloy/alloy_content_client.h"
+#include "libcef/common/app_manager.h"
 
 #include "base/memory/ptr_util.h"
 #include "base/message_loop/message_pump.h"
@@ -91,7 +91,7 @@ class MessagePumpExternal : public base::MessagePumpForUI {
 };
 
 CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() {
-  CefRefPtr<CefApp> app = AlloyContentClient::Get()->application();
+  CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
   if (app)
     return app->GetBrowserProcessHandler();
   return nullptr;

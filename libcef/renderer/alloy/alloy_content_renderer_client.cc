@@ -23,12 +23,15 @@
 #include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/common/alloy/alloy_content_client.h"
+#include "libcef/common/app_manager.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/extensions/extensions_client.h"
 #include "libcef/common/extensions/extensions_util.h"
+#include "libcef/common/net/scheme_info.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/values_impl.h"
+#include "libcef/features/runtime_checks.h"
 #include "libcef/renderer/blink_glue.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/extensions/extensions_renderer_client.h"
@@ -92,7 +95,6 @@
 #include "services/service_manager/public/cpp/interface_provider.h"
 #include "third_party/blink/public/common/associated_interfaces/associated_interface_provider.h"
 #include "third_party/blink/public/common/associated_interfaces/associated_interface_registry.h"
-#include "third_party/blink/public/platform/platform.h"
 #include "third_party/blink/public/platform/scheduler/web_renderer_process_type.h"
 #include "third_party/blink/public/platform/url_conversion.h"
 #include "third_party/blink/public/platform/web_runtime_features.h"
@@ -179,8 +181,9 @@ AlloyContentRendererClient::~AlloyContentRendererClient() {}
 
 // static
 AlloyContentRendererClient* AlloyContentRendererClient::Get() {
+  REQUIRE_ALLOY_RUNTIME();
   return static_cast<AlloyContentRendererClient*>(
-      AlloyContentClient::Get()->renderer());
+      CefAppManager::Get()->GetContentClient()->renderer());
 }
 
 CefRefPtr<CefBrowserImpl> AlloyContentRendererClient::GetBrowserForView(
@@ -246,15 +249,6 @@ void AlloyContentRendererClient::OnGuestViewDestroyed(
   NOTREACHED();
 }
 
-blink::WebURLLoaderFactory*
-AlloyContentRendererClient::GetDefaultURLLoaderFactory() {
-  if (!default_url_loader_factory_) {
-    default_url_loader_factory_ =
-        blink::Platform::Current()->CreateDefaultURLLoaderFactory();
-  }
-  return default_url_loader_factory_.get();
-}
-
 void AlloyContentRendererClient::WebKitInitialized() {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
@@ -265,14 +259,14 @@ void AlloyContentRendererClient::WebKitInitialized() {
   // TODO(cef): Enable these once the implementation supports it.
   blink::WebRuntimeFeatures::EnableNotifications(false);
 
-  const AlloyContentClient::SchemeInfoList* schemes =
-      AlloyContentClient::Get()->GetCustomSchemes();
+  const CefAppManager::SchemeInfoList* schemes =
+      CefAppManager::Get()->GetCustomSchemes();
   if (!schemes->empty()) {
     // Register the custom schemes. The |is_standard| value is excluded here
     // because it's not explicitly registered with Blink.
-    AlloyContentClient::SchemeInfoList::const_iterator it = schemes->begin();
+    CefAppManager::SchemeInfoList::const_iterator it = schemes->begin();
     for (; it != schemes->end(); ++it) {
-      const AlloyContentClient::SchemeInfo& info = *it;
+      const CefSchemeInfo& info = *it;
       const blink::WebString& scheme =
           blink::WebString::FromUTF8(info.scheme_name);
       if (info.is_local)
@@ -319,7 +313,7 @@ void AlloyContentRendererClient::WebKitInitialized() {
   }
 
   // Notify the render process handler.
-  CefRefPtr<CefApp> application = AlloyContentClient::Get()->application();
+  CefRefPtr<CefApp> application = CefAppManager::Get()->GetApplication();
   if (application.get()) {
     CefRefPtr<CefRenderProcessHandler> handler =
         application->GetRenderProcessHandler();
@@ -459,7 +453,7 @@ void AlloyContentRendererClient::RenderThreadConnected() {
   cross_origin_whitelist_entries_ = params.cross_origin_whitelist_entries;
 
   // Notify the render process handler.
-  CefRefPtr<CefApp> application = AlloyContentClient::Get()->application();
+  CefRefPtr<CefApp> application = CefAppManager::Get()->GetApplication();
   if (application.get()) {
     CefRefPtr<CefRenderProcessHandler> handler =
         application->GetRenderProcessHandler();
@@ -778,7 +772,7 @@ CefRefPtr<CefBrowserImpl> AlloyContentRendererClient::MaybeCreateBrowser(
   browsers_.insert(std::make_pair(render_view, browser));
 
   // Notify the render process handler.
-  CefRefPtr<CefApp> application = AlloyContentClient::Get()->application();
+  CefRefPtr<CefApp> application = CefAppManager::Get()->GetApplication();
   if (application.get()) {
     CefRefPtr<CefRenderProcessHandler> handler =
         application->GetRenderProcessHandler();

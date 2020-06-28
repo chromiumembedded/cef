@@ -8,7 +8,9 @@
 
 #include <memory>
 
-#include "include/cef_base.h"
+#include "include/cef_app.h"
+#include "libcef/common/app_manager.h"
+#include "libcef/common/chrome/chrome_content_client_cef.h"
 #include "libcef/common/main_runner_handler.h"
 #include "libcef/common/task_runner_manager.h"
 
@@ -19,11 +21,13 @@ class ChromeContentBrowserClientCef;
 
 // CEF override of ChromeMainDelegate
 class ChromeMainDelegateCef : public ChromeMainDelegate,
+                              public CefAppManager,
                               public CefTaskRunnerManager {
  public:
   // |runner| will be non-nullptr for the main process only, and will outlive
   // this object.
-  explicit ChromeMainDelegateCef(CefMainRunnerHandler* runner);
+  ChromeMainDelegateCef(CefMainRunnerHandler* runner,
+                        CefRefPtr<CefApp> application);
   ~ChromeMainDelegateCef() override;
 
   // ChromeMainDelegate overrides.
@@ -31,9 +35,17 @@ class ChromeMainDelegateCef : public ChromeMainDelegate,
   int RunProcess(
       const std::string& process_type,
       const content::MainFunctionParams& main_function_params) override;
+  content::ContentClient* CreateContentClient() override;
   content::ContentBrowserClient* CreateContentBrowserClient() override;
 
  protected:
+  // CefAppManager overrides.
+  CefRefPtr<CefApp> GetApplication() override { return application_; }
+  content::ContentClient* GetContentClient() override {
+    return &chrome_content_client_cef_;
+  }
+  CefRefPtr<CefRequestContext> GetGlobalRequestContext() override;
+
   // CefTaskRunnerManager overrides.
   scoped_refptr<base::SingleThreadTaskRunner> GetBackgroundTaskRunner()
       override;
@@ -48,6 +60,10 @@ class ChromeMainDelegateCef : public ChromeMainDelegate,
   ChromeContentBrowserClientCef* content_browser_client() const;
 
   CefMainRunnerHandler* const runner_;
+  CefRefPtr<CefApp> application_;
+
+  // We use this instead of ChromeMainDelegate::chrome_content_client_.
+  ChromeContentClientCef chrome_content_client_cef_;
 
   DISALLOW_COPY_AND_ASSIGN(ChromeMainDelegateCef);
 };

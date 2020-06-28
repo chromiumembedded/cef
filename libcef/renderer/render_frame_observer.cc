@@ -17,7 +17,7 @@
 
 #include "libcef/renderer/render_frame_observer.h"
 
-#include "libcef/common/alloy/alloy_content_client.h"
+#include "libcef/common/app_manager.h"
 #include "libcef/renderer/blink_glue.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/dom_document_impl.h"
@@ -96,7 +96,7 @@ void CefRenderFrameObserver::FocusedElementChanged(
     return;
 
   CefRefPtr<CefRenderProcessHandler> handler;
-  CefRefPtr<CefApp> application = AlloyContentClient::Get()->application();
+  CefRefPtr<CefApp> application = CefAppManager::Get()->GetApplication();
   if (application)
     handler = application->GetRenderProcessHandler();
   if (!handler)
@@ -138,7 +138,7 @@ void CefRenderFrameObserver::DidCreateScriptContext(
     return;
 
   CefRefPtr<CefRenderProcessHandler> handler;
-  CefRefPtr<CefApp> application = AlloyContentClient::Get()->application();
+  CefRefPtr<CefApp> application = CefAppManager::Get()->GetApplication();
   if (application)
     handler = application->GetRenderProcessHandler();
   if (!handler)
@@ -164,7 +164,7 @@ void CefRenderFrameObserver::WillReleaseScriptContext(
   CefRefPtr<CefBrowserImpl> browserPtr =
       CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
   if (browserPtr) {
-    CefRefPtr<CefApp> application = AlloyContentClient::Get()->application();
+    CefRefPtr<CefApp> application = CefAppManager::Get()->GetApplication();
     if (application) {
       CefRefPtr<CefRenderProcessHandler> handler =
           application->GetRenderProcessHandler();
@@ -210,7 +210,7 @@ void CefRenderFrameObserver::AttachFrame(CefFrameImpl* frame) {
 }
 
 void CefRenderFrameObserver::OnLoadStart() {
-  CefRefPtr<CefApp> app = AlloyContentClient::Get()->application();
+  CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
   if (app.get()) {
     CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
     if (handler.get()) {
@@ -226,7 +226,7 @@ void CefRenderFrameObserver::OnLoadStart() {
 }
 
 void CefRenderFrameObserver::OnLoadError() {
-  CefRefPtr<CefApp> app = AlloyContentClient::Get()->application();
+  CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
   if (app.get()) {
     CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
     if (handler.get()) {

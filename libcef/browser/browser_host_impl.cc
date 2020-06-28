@@ -37,6 +37,7 @@
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/values_impl.h"
+#include "libcef/features/runtime_checks.h"
 
 #include "base/bind.h"
 #include "base/bind_helpers.h"
@@ -257,6 +258,9 @@ bool CefBrowserHost::CreateBrowser(
     return false;
   }
 
+  // TODO(chrome-runtime): Add support for this method.
+  REQUIRE_ALLOY_RUNTIME();
+
   // Verify that the settings structure is a valid size.
   if (settings.size != sizeof(cef_browser_settings_t)) {
     NOTREACHED() << "invalid CefBrowserSettings structure size";
@@ -298,6 +302,9 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     NOTREACHED() << "context not valid";
     return nullptr;
   }
+
+  // TODO(chrome-runtime): Add support for this method.
+  REQUIRE_ALLOY_RUNTIME();
 
   // Verify that the settings structure is a valid size.
   if (settings.size != sizeof(cef_browser_settings_t)) {

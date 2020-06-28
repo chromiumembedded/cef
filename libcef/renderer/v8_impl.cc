@@ -25,7 +25,7 @@
 
 #include "libcef/renderer/v8_impl.h"
 
-#include "libcef/common/alloy/alloy_content_client.h"
+#include "libcef/common/app_manager.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/task_runner_impl.h"
 #include "libcef/common/tracker.h"
@@ -783,7 +783,7 @@ class CefV8ExceptionImpl : public CefV8Exception {
 
 void MessageListenerCallbackImpl(v8::Handle<v8::Message> message,
                                  v8::Handle<v8::Value> data) {
-  CefRefPtr<CefApp> application = AlloyContentClient::Get()->application();
+  CefRefPtr<CefApp> application = CefAppManager::Get()->GetApplication();
   if (!application.get())
     return;
 

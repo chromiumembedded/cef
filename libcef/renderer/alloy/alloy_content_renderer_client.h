@@ -25,10 +25,6 @@
 #include "mojo/public/cpp/bindings/generic_pending_receiver.h"
 #include "services/service_manager/public/cpp/local_interface_provider.h"
 
-namespace blink {
-class WebURLLoaderFactory;
-}
-
 namespace extensions {
 class CefExtensionsRendererClient;
 class Dispatcher;
@@ -62,6 +58,7 @@ class AlloyContentRendererClient
   ~AlloyContentRendererClient() override;
 
   // Returns the singleton AlloyContentRendererClient instance.
+  // This method is deprecated and should not be used in new callsites.
   static AlloyContentRendererClient* Get();
 
   // Returns the browser associated with the specified RenderView.
@@ -87,10 +84,6 @@ class AlloyContentRendererClient
   int uncaught_exception_stack_size() const {
     return uncaught_exception_stack_size_;
   }
-
-  // Returns a factory that only supports unintercepted http(s) and blob
-  // requests. Used by CefRenderURLRequest.
-  blink::WebURLLoaderFactory* GetDefaultURLLoaderFactory();
 
   void WebKitInitialized();
 
@@ -170,8 +163,6 @@ class AlloyContentRendererClient
   std::unique_ptr<web_cache::WebCacheImpl> web_cache_impl_;
   std::unique_ptr<SpellCheck> spellcheck_;
   std::unique_ptr<visitedlink::VisitedLinkReader> visited_link_slave_;
-
-  std::unique_ptr<blink::WebURLLoaderFactory> default_url_loader_factory_;
 
   // Map of RenderView pointers to CefBrowserImpl references.
   typedef std::map<content::RenderView*, CefRefPtr<CefBrowserImpl>> BrowserMap;

@@ -8,7 +8,7 @@
 
 #include <memory>
 
-#include "include/cef_base.h"
+#include "include/cef_app.h"
 #include "libcef/common/main_runner_delegate.h"
 #include "libcef/common/main_runner_handler.h"
 
@@ -20,7 +20,8 @@ class ChromeMainRunnerDelegate : public CefMainRunnerDelegate {
  public:
   // |runner| will be non-nullptr for the main process only, and will outlive
   // this object.
-  explicit ChromeMainRunnerDelegate(CefMainRunnerHandler* runner);
+  ChromeMainRunnerDelegate(CefMainRunnerHandler* runner,
+                           CefRefPtr<CefApp> application);
   ~ChromeMainRunnerDelegate() override;
 
  protected:
@@ -40,6 +41,7 @@ class ChromeMainRunnerDelegate : public CefMainRunnerDelegate {
   std::unique_ptr<ScopedKeepAlive> keep_alive_;
 
   CefMainRunnerHandler* const runner_;
+  CefRefPtr<CefApp> application_;
 
   DISALLOW_COPY_AND_ASSIGN(ChromeMainRunnerDelegate);
 };

@@ -8,7 +8,6 @@
 
 #include <string>
 
-#include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_context_keyed_service_factories.h"
 #include "libcef/browser/context.h"
@@ -19,6 +18,7 @@
 #include "libcef/browser/printing/constrained_window_views_client.h"
 #include "libcef/browser/printing/printing_message_filter.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/app_manager.h"
 #include "libcef/common/extensions/extensions_client.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/net/net_resource_provider.h"
@@ -101,7 +101,7 @@ void AlloyBrowserMainParts::ToolkitInitialized() {
 
 #if defined(OS_WIN)
   ui::CursorLoaderWin::SetCursorResourceModule(
-      AlloyContentBrowserClient::Get()->GetResourceDllName());
+      CefAppManager::Get()->GetResourceDllName());
 #endif
 #endif  // defined(USE_AURA)
 

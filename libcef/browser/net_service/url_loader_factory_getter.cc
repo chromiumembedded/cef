@@ -5,12 +5,13 @@
 
 #include "libcef/browser/net_service/url_loader_factory_getter.h"
 
-#include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/app_manager.h"
 
 #include "base/threading/thread_task_runner_handle.h"
 #include "content/browser/devtools/devtools_instrumentation.h"
 #include "content/browser/frame_host/render_frame_host_impl.h"
+#include "content/public/browser/browser_context.h"
 #include "content/public/browser/storage_partition.h"
 #include "content/public/common/content_client.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
@@ -58,8 +59,10 @@ scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
             &maybe_proxy_factory_request, nullptr /* factory_override */);
   }
 
+  auto browser_client = CefAppManager::Get()->GetContentClient()->browser();
+
   // Allow the Content embedder to inject itself if it wants to.
-  should_proxy |= AlloyContentBrowserClient::Get()->WillCreateURLLoaderFactory(
+  should_proxy |= browser_client->WillCreateURLLoaderFactory(
       browser_context, render_frame_host, render_process_id,
       content::ContentBrowserClient::URLLoaderFactoryType::kDocumentSubResource,
       url::Origin(), base::nullopt /* navigation_id */,

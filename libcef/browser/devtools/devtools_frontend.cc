@@ -9,11 +9,11 @@
 #include <iomanip>
 #include <utility>
 
-#include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/devtools/devtools_manager_delegate.h"
 #include "libcef/browser/net/devtools_scheme_handler.h"
 #include "libcef/common/cef_switches.h"
+#include "libcef/common/task_runner_manager.h"
 
 #include "base/base64.h"
 #include "base/command_line.h"
@@ -606,7 +606,7 @@ void CefDevToolsFrontend::LogProtocolMessage(ProtocolMessageType type,
   std::string to_log = message.substr(0, kMaxLogLineLength).as_string();
 
   // Execute in an ordered context that allows blocking.
-  auto task_runner = AlloyContentBrowserClient::Get()->background_task_runner();
+  auto task_runner = CefTaskRunnerManager::Get()->GetBackgroundTaskRunner();
   task_runner->PostTask(
       FROM_HERE, base::BindOnce(::LogProtocolMessage, protocol_log_file_, type,
                                 std::move(to_log)));

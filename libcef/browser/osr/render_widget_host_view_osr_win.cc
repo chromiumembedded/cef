@@ -7,8 +7,8 @@
 
 #include <windows.h>
 
-#include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/browser_host_impl.h"
+#include "libcef/common/app_manager.h"
 
 #include "ui/resources/grit/ui_unscaled_resources.h"
 
@@ -165,8 +165,8 @@ ui::PlatformCursor CefRenderWidgetHostViewOSR::GetPlatformCursor(
   HMODULE module_handle = NULL;
   const wchar_t* cursor_id = ToCursorID(type);
   if (!IsSystemCursorID(cursor_id)) {
-    module_handle = ::GetModuleHandle(
-        AlloyContentBrowserClient::Get()->GetResourceDllName());
+    module_handle =
+        ::GetModuleHandle(CefAppManager::Get()->GetResourceDllName());
     if (!module_handle)
       module_handle = ::GetModuleHandle(NULL);
   }

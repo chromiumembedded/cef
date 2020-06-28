@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "libcef/common/alloy/alloy_content_client.h"
+#include "libcef/common/app_manager.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/renderer/alloy/alloy_content_renderer_client.h"
 #include "libcef/renderer/blink_glue.h"
@@ -345,7 +345,7 @@ void CefBrowserImpl::AddFrameObject(int64_t frame_id,
 
 void CefBrowserImpl::OnDestruct() {
   // Notify that the browser window has been destroyed.
-  CefRefPtr<CefApp> app = AlloyContentClient::Get()->application();
+  CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
   if (app.get()) {
     CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
     if (handler.get())
@@ -373,7 +373,7 @@ void CefBrowserImpl::FrameDetached(int64_t frame_id) {
 }
 
 void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {
-  CefRefPtr<CefApp> app = AlloyContentClient::Get()->application();
+  CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
   if (app.get()) {
     CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
     if (handler.get()) {

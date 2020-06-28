@@ -5,8 +5,9 @@
 
 #include "libcef/browser/alloy/chrome_profile_manager_alloy.h"
 
-#include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/browser_context.h"
+#include "libcef/browser/request_context_impl.h"
+#include "libcef/common/app_manager.h"
 
 namespace {
 
@@ -21,8 +22,9 @@ namespace {
 // Return the main context for now since we don't currently have a good way to
 // determine that.
 CefBrowserContext* GetActiveBrowserContext() {
-  return static_cast<CefBrowserContext*>(
-      AlloyContentBrowserClient::Get()->request_context()->GetBrowserContext());
+  auto request_context = static_cast<CefRequestContextImpl*>(
+      CefAppManager::Get()->GetGlobalRequestContext().get());
+  return static_cast<CefBrowserContext*>(request_context->GetBrowserContext());
 }
 
 }  // namespace

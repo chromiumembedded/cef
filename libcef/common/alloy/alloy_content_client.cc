@@ -10,10 +10,9 @@
 #include "include/cef_stream.h"
 #include "include/cef_version.h"
 #include "libcef/browser/extensions/pdf_extension_util.h"
+#include "libcef/common/app_manager.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/extensions/extensions_util.h"
-#include "libcef/common/net/scheme_registration.h"
-#include "libcef/common/scheme_registrar_impl.h"
 
 #include "base/command_line.h"
 #include "base/files/file_util.h"
@@ -29,7 +28,6 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pepper_flash.h"
-#include "content/public/browser/child_process_security_policy.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/pepper_plugin_info.h"
@@ -43,8 +41,6 @@
 #endif
 
 namespace {
-
-AlloyContentClient* g_content_client = nullptr;
 
 // The following plugin-related methods are from
 // chrome/common/chrome_content_client.cc
@@ -184,24 +180,8 @@ bool GetSystemPepperFlash(content::PepperPluginInfo* plugin) {
 
 const char AlloyContentClient::kPDFPluginPath[] = "internal-pdf-viewer";
 
-AlloyContentClient::AlloyContentClient(CefRefPtr<CefApp> application)
-    : application_(application),
-      pack_loading_disabled_(false),
-      allow_pack_file_load_(false),
-      scheme_info_list_locked_(false),
-      resource_bundle_delegate_(this) {
-  DCHECK(!g_content_client);
-  g_content_client = this;
-}
-
-AlloyContentClient::~AlloyContentClient() {
-  g_content_client = nullptr;
-}
-
-// static
-AlloyContentClient* AlloyContentClient::Get() {
-  return g_content_client;
-}
+AlloyContentClient::AlloyContentClient() = default;
+AlloyContentClient::~AlloyContentClient() = default;
 
 void AlloyContentClient::AddPepperPlugins(
     std::vector<content::PepperPluginInfo>* plugins) {
@@ -224,17 +204,7 @@ void AlloyContentClient::AddContentDecryptionModules(
 }
 
 void AlloyContentClient::AddAdditionalSchemes(Schemes* schemes) {
-  DCHECK(!scheme_info_list_locked_);
-
-  if (application_.get()) {
-    CefSchemeRegistrarImpl schemeRegistrar;
-    application_->OnRegisterCustomSchemes(&schemeRegistrar);
-    schemeRegistrar.GetSchemes(schemes);
-  }
-
-  scheme::AddInternalSchemes(schemes);
-
-  scheme_info_list_locked_ = true;
+  CefAppManager::Get()->AddAdditionalSchemes(schemes);
 }
 
 base::string16 AlloyContentClient::GetLocalizedString(int message_id) {
@@ -286,42 +256,6 @@ gfx::Image& AlloyContentClient::GetNativeImageNamed(int resource_id) {
     LOG(ERROR) << "No native image available for id " << resource_id;
 
   return value;
-}
-
-void AlloyContentClient::AddCustomScheme(const SchemeInfo& scheme_info) {
-  DCHECK(!scheme_info_list_locked_);
-  scheme_info_list_.push_back(scheme_info);
-
-  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-  if (!command_line->HasSwitch(switches::kProcessType)) {
-    // Register as a Web-safe scheme in the browser process so that requests for
-    // the scheme from a render process will be allowed in
-    // resource_dispatcher_host_impl.cc ShouldServiceRequest.
-    content::ChildProcessSecurityPolicy* policy =
-        content::ChildProcessSecurityPolicy::GetInstance();
-    if (!policy->IsWebSafeScheme(scheme_info.scheme_name))
-      policy->RegisterWebSafeScheme(scheme_info.scheme_name);
-  }
-}
-
-const AlloyContentClient::SchemeInfoList*
-AlloyContentClient::GetCustomSchemes() {
-  DCHECK(scheme_info_list_locked_);
-  return &scheme_info_list_;
-}
-
-bool AlloyContentClient::HasCustomScheme(const std::string& scheme_name) {
-  DCHECK(scheme_info_list_locked_);
-  if (scheme_info_list_.empty())
-    return false;
-
-  SchemeInfoList::const_iterator it = scheme_info_list_.begin();
-  for (; it != scheme_info_list_.end(); ++it) {
-    if (it->scheme_name == scheme_name)
-      return true;
-  }
-
-  return false;
 }
 
 // static

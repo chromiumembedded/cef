@@ -1,13 +1,12 @@
 #include "libcef/common/resource_bundle_delegate.h"
 
-#include "libcef/common/alloy/alloy_content_client.h"
+#include "libcef/common/app_manager.h"
 
 base::FilePath CefResourceBundleDelegate::GetPathForResourcePack(
     const base::FilePath& pack_path,
     ui::ScaleFactor scale_factor) {
   // Only allow the cef pack file to load.
-  if (!content_client_->pack_loading_disabled() &&
-      content_client_->allow_pack_file_load()) {
+  if (!pack_loading_disabled_ && allow_pack_file_load_) {
     return pack_path;
   }
   return base::FilePath();
@@ -16,7 +15,7 @@ base::FilePath CefResourceBundleDelegate::GetPathForResourcePack(
 base::FilePath CefResourceBundleDelegate::GetPathForLocalePack(
     const base::FilePath& pack_path,
     const std::string& locale) {
-  if (!content_client_->pack_loading_disabled())
+  if (!pack_loading_disabled_)
     return pack_path;
   return base::FilePath();
 }
@@ -38,9 +37,10 @@ base::RefCountedStaticMemory* CefResourceBundleDelegate::LoadDataResourceBytes(
 bool CefResourceBundleDelegate::GetRawDataResource(int resource_id,
                                                    ui::ScaleFactor scale_factor,
                                                    base::StringPiece* value) {
-  if (content_client_->application().get()) {
+  auto application = CefAppManager::Get()->GetApplication();
+  if (application) {
     CefRefPtr<CefResourceBundleHandler> handler =
-        content_client_->application()->GetResourceBundleHandler();
+        application->GetResourceBundleHandler();
     if (handler.get()) {
       void* data = nullptr;
       size_t data_size = 0;
@@ -56,14 +56,15 @@ bool CefResourceBundleDelegate::GetRawDataResource(int resource_id,
     }
   }
 
-  return (content_client_->pack_loading_disabled() || !value->empty());
+  return (pack_loading_disabled_ || !value->empty());
 }
 
 bool CefResourceBundleDelegate::GetLocalizedString(int message_id,
                                                    base::string16* value) {
-  if (content_client_->application().get()) {
+  auto application = CefAppManager::Get()->GetApplication();
+  if (application) {
     CefRefPtr<CefResourceBundleHandler> handler =
-        content_client_->application()->GetResourceBundleHandler();
+        application->GetResourceBundleHandler();
     if (handler.get()) {
       CefString cef_str;
       if (handler->GetLocalizedString(message_id, cef_str))
@@ -71,5 +72,5 @@ bool CefResourceBundleDelegate::GetLocalizedString(int message_id,
     }
   }
 
-  return (content_client_->pack_loading_disabled() || !value->empty());
+  return (pack_loading_disabled_ || !value->empty());
 }

@@ -4,7 +4,9 @@
 
 #include "libcef/common/net/scheme_registration.h"
 
-#include "libcef/common/alloy/alloy_content_client.h"
+#include "libcef/common/app_manager.h"
+#include "libcef/common/net/scheme_info.h"
+#include "libcef/features/runtime.h"
 
 #include "content/public/common/url_constants.h"
 #include "extensions/common/constants.h"
@@ -15,11 +17,14 @@
 namespace scheme {
 
 void AddInternalSchemes(content::ContentClient::Schemes* schemes) {
+  if (!cef::IsAlloyRuntimeEnabled())
+    return;
+
   // chrome: and chrome-devtools: schemes are registered in
   // RenderThreadImpl::RegisterSchemes().
   // Access restrictions for chrome-extension: and chrome-extension-resource:
   // schemes will be applied in AlloyContentRendererClient::WillSendRequest().
-  static AlloyContentClient::SchemeInfo internal_schemes[] = {
+  static CefSchemeInfo internal_schemes[] = {
       {
           extensions::kExtensionScheme, true, /* is_standard */
           false,                              /* is_local */
@@ -32,7 +37,6 @@ void AddInternalSchemes(content::ContentClient::Schemes* schemes) {
 
   // The |is_display_isolated| value is excluded here because it's registered
   // with Blink only.
-  AlloyContentClient* client = AlloyContentClient::Get();
   for (size_t i = 0; i < sizeof(internal_schemes) / sizeof(internal_schemes[0]);
        ++i) {
     if (internal_schemes[i].is_standard)
@@ -45,7 +49,7 @@ void AddInternalSchemes(content::ContentClient::Schemes* schemes) {
       schemes->cors_enabled_schemes.push_back(internal_schemes[i].scheme_name);
     if (internal_schemes[i].is_csp_bypassing)
       schemes->csp_bypassing_schemes.push_back(internal_schemes[i].scheme_name);
-    client->AddCustomScheme(internal_schemes[i]);
+    CefAppManager::Get()->AddCustomScheme(&internal_schemes[i]);
   }
 }
 

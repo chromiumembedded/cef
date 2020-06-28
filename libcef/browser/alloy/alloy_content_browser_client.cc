@@ -32,6 +32,7 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/x509_certificate_impl.h"
 #include "libcef/common/alloy/alloy_content_client.h"
+#include "libcef/common/app_manager.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
@@ -541,14 +542,6 @@ AlloyContentBrowserClient::AlloyContentBrowserClient() {
 
 AlloyContentBrowserClient::~AlloyContentBrowserClient() {}
 
-// static
-AlloyContentBrowserClient* AlloyContentBrowserClient::Get() {
-  if (!AlloyContentClient::Get())
-    return nullptr;
-  return static_cast<AlloyContentBrowserClient*>(
-      AlloyContentClient::Get()->browser());
-}
-
 std::unique_ptr<content::BrowserMainParts>
 AlloyContentBrowserClient::CreateBrowserMainParts(
     const content::MainFunctionParams& parameters) {
@@ -672,7 +665,7 @@ bool AlloyContentBrowserClient::IsHandledURL(const GURL& url) {
   if (scheme::IsInternalHandledScheme(scheme))
     return true;
 
-  return AlloyContentClient::Get()->HasCustomScheme(scheme);
+  return CefAppManager::Get()->HasCustomScheme(scheme);
 }
 
 void AlloyContentBrowserClient::SiteInstanceGotProcess(
@@ -867,7 +860,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
   }
 #endif  // defined(OS_LINUX)
 
-  CefRefPtr<CefApp> app = AlloyContentClient::Get()->application();
+  CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
   if (app.get()) {
     CefRefPtr<CefBrowserProcessHandler> handler =
         app->GetBrowserProcessHandler();
@@ -1148,22 +1141,6 @@ void AlloyContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
 #endif  // defined(OS_LINUX)
 
 #if defined(OS_WIN)
-const wchar_t* AlloyContentBrowserClient::GetResourceDllName() {
-  static wchar_t file_path[MAX_PATH + 1] = {0};
-
-  if (file_path[0] == 0) {
-    // Retrieve the module path (usually libcef.dll).
-    base::FilePath module;
-    base::PathService::Get(base::FILE_MODULE, &module);
-    const std::wstring wstr = module.value();
-    size_t count = std::min(static_cast<size_t>(MAX_PATH), wstr.size());
-    wcsncpy(file_path, wstr.c_str(), count);
-    file_path[count] = 0;
-  }
-
-  return file_path;
-}
-
 bool AlloyContentBrowserClient::PreSpawnRenderer(sandbox::TargetPolicy* policy,
                                                  RendererSpawnFlags flags) {
   return true;

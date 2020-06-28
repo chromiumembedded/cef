@@ -3,14 +3,15 @@
 // can be found in the LICENSE file.
 
 #include "libcef/browser/request_context_impl.h"
-#include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/app_manager.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/task_runner_impl.h"
 #include "libcef/common/values_impl.h"
+#include "libcef/features/runtime_checks.h"
 
 #include "base/atomic_sequence_num.h"
 #include "base/logging.h"
@@ -622,10 +623,14 @@ void CefRequestContextImpl::OnRenderFrameDeleted(int render_process_id,
 // static
 CefRefPtr<CefRequestContextImpl>
 CefRequestContextImpl::GetOrCreateRequestContext(const Config& config) {
+  // TODO(chrome-runtime): Add support for this method.
+  REQUIRE_ALLOY_RUNTIME();
+
   if (config.is_global ||
       (config.other && config.other->IsGlobal() && !config.handler)) {
     // Return the singleton global context.
-    return AlloyContentBrowserClient::Get()->request_context();
+    return static_cast<CefRequestContextImpl*>(
+        CefAppManager::Get()->GetGlobalRequestContext().get());
   }
 
   // The new context will be initialized later by EnsureBrowserContext().

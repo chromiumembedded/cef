@@ -8,7 +8,7 @@
 #include <string>
 #include <utility>
 
-#include "libcef/common/alloy/alloy_content_client.h"
+#include "libcef/common/app_manager.h"
 
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
@@ -159,7 +159,8 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
 
       if (!action.bytes && action.resource_id >= 0) {
         action.bytes =
-            AlloyContentClient::Get()->GetDataResourceBytes(action.resource_id);
+            CefAppManager::Get()->GetContentClient()->GetDataResourceBytes(
+                action.resource_id);
         if (!action.bytes) {
           NOTREACHED() << "Failed to load internal resource for id: "
                        << action.resource_id << " URL: " << url.spec().c_str();

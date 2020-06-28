@@ -6,16 +6,18 @@
 
 #include <stdint.h>
 
+#include "libcef/common/app_manager.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
 #include "libcef/common/task_runner_impl.h"
-#include "libcef/renderer/alloy/alloy_content_renderer_client.h"
 #include "libcef/renderer/blink_glue.h"
+#include "libcef/renderer/frame_impl.h"
 
 #include "base/logging.h"
 #include "base/message_loop/message_loop.h"
 #include "net/base/request_priority.h"
 #include "third_party/blink/public/mojom/fetch/fetch_api_request.mojom.h"
+#include "third_party/blink/public/mojom/loader/resource_load_info.mojom.h"
 #include "third_party/blink/public/platform/web_security_origin.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
@@ -155,7 +157,7 @@ class CefRenderURLRequest::Context
     }
     if (!factory) {
       // This factory only supports unintercepted http(s) and blob requests.
-      factory = AlloyContentRendererClient::Get()->GetDefaultURLLoaderFactory();
+      factory = CefAppManager::Get()->GetDefaultURLLoaderFactory();
     }
 
     loader_ = factory->CreateURLLoader(

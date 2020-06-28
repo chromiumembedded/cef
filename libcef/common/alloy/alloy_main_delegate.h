@@ -10,7 +10,9 @@
 
 #include "include/cef_app.h"
 #include "libcef/common/alloy/alloy_content_client.h"
+#include "libcef/common/app_manager.h"
 #include "libcef/common/main_runner_handler.h"
+#include "libcef/common/resource_bundle_delegate.h"
 #include "libcef/common/task_runner_manager.h"
 
 #include "base/compiler_specific.h"
@@ -26,6 +28,7 @@ class ChromeContentUtilityClient;
 
 // Manages state specific to the CEF runtime.
 class AlloyMainDelegate : public content::ContentMainDelegate,
+                          public CefAppManager,
                           public CefTaskRunnerManager {
  public:
   // |runner| and |settings| will be non-nullptr for the main process only,
@@ -51,10 +54,14 @@ class AlloyMainDelegate : public content::ContentMainDelegate,
   content::ContentRendererClient* CreateContentRendererClient() override;
   content::ContentUtilityClient* CreateContentUtilityClient() override;
 
-  AlloyContentBrowserClient* browser_client() { return browser_client_.get(); }
-  AlloyContentClient* content_client() { return &content_client_; }
-
  protected:
+  // CefAppManager overrides.
+  CefRefPtr<CefApp> GetApplication() override { return application_; }
+  content::ContentClient* GetContentClient() override {
+    return &content_client_;
+  }
+  CefRefPtr<CefRequestContext> GetGlobalRequestContext() override;
+
   // CefTaskRunnerManager overrides.
   scoped_refptr<base::SingleThreadTaskRunner> GetBackgroundTaskRunner()
       override;
@@ -70,11 +77,14 @@ class AlloyMainDelegate : public content::ContentMainDelegate,
 
   CefMainRunnerHandler* const runner_;
   CefSettings* const settings_;
+  CefRefPtr<CefApp> application_;
 
   std::unique_ptr<AlloyContentBrowserClient> browser_client_;
   std::unique_ptr<AlloyContentRendererClient> renderer_client_;
   std::unique_ptr<ChromeContentUtilityClient> utility_client_;
   AlloyContentClient content_client_;
+
+  CefResourceBundleDelegate resource_bundle_delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(AlloyMainDelegate);
 };

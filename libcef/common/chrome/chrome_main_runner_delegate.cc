@@ -18,14 +18,17 @@
 #include "chrome/app/chrome_main_mac.h"
 #endif
 
-ChromeMainRunnerDelegate::ChromeMainRunnerDelegate(CefMainRunnerHandler* runner)
-    : runner_(runner) {}
+ChromeMainRunnerDelegate::ChromeMainRunnerDelegate(
+    CefMainRunnerHandler* runner,
+    CefRefPtr<CefApp> application)
+    : runner_(runner), application_(application) {}
 ChromeMainRunnerDelegate::~ChromeMainRunnerDelegate() = default;
 
 content::ContentMainDelegate*
 ChromeMainRunnerDelegate::GetContentMainDelegate() {
   if (!main_delegate_) {
-    main_delegate_ = std::make_unique<ChromeMainDelegateCef>(runner_);
+    main_delegate_ =
+        std::make_unique<ChromeMainDelegateCef>(runner_, application_);
   }
   return main_delegate_.get();
 }

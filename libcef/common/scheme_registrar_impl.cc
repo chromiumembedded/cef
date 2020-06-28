@@ -6,7 +6,8 @@
 
 #include <string>
 
-#include "libcef/common/alloy/alloy_content_client.h"
+#include "libcef/common/app_manager.h"
+#include "libcef/common/net/scheme_info.h"
 #include "libcef/common/net/scheme_registration.h"
 
 #include "base/bind.h"
@@ -56,10 +57,10 @@ bool CefSchemeRegistrarImpl::AddCustomScheme(const CefString& scheme_name,
   if (is_csp_bypassing)
     schemes_.csp_bypassing_schemes.push_back(scheme);
 
-  AlloyContentClient::SchemeInfo scheme_info = {
+  CefSchemeInfo scheme_info = {
       scheme,    is_standard,     is_local,         is_display_isolated,
       is_secure, is_cors_enabled, is_csp_bypassing, is_fetch_enabled};
-  AlloyContentClient::Get()->AddCustomScheme(scheme_info);
+  CefAppManager::Get()->AddCustomScheme(&scheme_info);
 
   return true;
 }

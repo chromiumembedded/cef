@@ -11,7 +11,7 @@
 #include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/print_settings_impl.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/common/alloy/alloy_content_client.h"
+#include "libcef/common/app_manager.h"
 
 #include "base/bind.h"
 #include "base/files/file_util.h"
@@ -105,7 +105,7 @@ gfx::Size CefPrintDialogLinux::GetPdfPaperSize(
 
   gfx::Size size;
 
-  CefRefPtr<CefApp> app = AlloyContentClient::Get()->application();
+  CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
   if (app.get()) {
     CefRefPtr<CefBrowserProcessHandler> browser_handler =
         app->GetBrowserProcessHandler();
@@ -136,7 +136,7 @@ void CefPrintDialogLinux::OnPrintStart(int render_process_id,
     return;
   }
 
-  CefRefPtr<CefApp> app = AlloyContentClient::Get()->application();
+  CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
   if (!app.get())
     return;
 
@@ -251,7 +251,7 @@ void CefPrintDialogLinux::SetHandler() {
   if (handler_.get())
     return;
 
-  CefRefPtr<CefApp> app = AlloyContentClient::Get()->application();
+  CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
   if (app.get()) {
     CefRefPtr<CefBrowserProcessHandler> browser_handler =
         app->GetBrowserProcessHandler();

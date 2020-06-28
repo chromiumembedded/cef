@@ -9,6 +9,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/views/window_impl.h"
+#include "libcef/features/runtime_checks.h"
 
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "ui/content_accelerators/accelerator_util.h"
@@ -44,6 +45,9 @@ CefRefPtr<CefBrowserViewImpl> CefBrowserViewImpl::Create(
     CefRefPtr<CefDictionaryValue> extra_info,
     CefRefPtr<CefRequestContext> request_context,
     CefRefPtr<CefBrowserViewDelegate> delegate) {
+  // TODO(chrome-runtime): Add support for this method.
+  REQUIRE_ALLOY_RUNTIME();
+
   CEF_REQUIRE_UIT_RETURN(nullptr);
   CefRefPtr<CefBrowserViewImpl> browser_view = new CefBrowserViewImpl(delegate);
   browser_view->SetPendingBrowserCreateParams(client, url, settings, extra_info,

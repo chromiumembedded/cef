@@ -13,8 +13,12 @@ class AlloyContentClient;
 
 class CefResourceBundleDelegate : public ui::ResourceBundle::Delegate {
  public:
-  CefResourceBundleDelegate(AlloyContentClient* content_client)
-      : content_client_(content_client) {}
+  CefResourceBundleDelegate() {}
+
+  void set_pack_loading_disabled(bool val) { pack_loading_disabled_ = val; }
+  bool pack_loading_disabled() const { return pack_loading_disabled_; }
+  void set_allow_pack_file_load(bool val) { allow_pack_file_load_ = val; }
+  bool allow_pack_file_load() const { return allow_pack_file_load_; }
 
  private:
   // ui::ResourceBundle::Delegate methods.
@@ -33,7 +37,8 @@ class CefResourceBundleDelegate : public ui::ResourceBundle::Delegate {
   bool GetLocalizedString(int message_id, base::string16* value) override;
 
  private:
-  AlloyContentClient* content_client_;
+  bool pack_loading_disabled_ = false;
+  bool allow_pack_file_load_ = false;
 };
 
 #endif  // CEF_LIBCEF_COMMON_RESOURCE_BUNDLE_DELEGATE_H_
