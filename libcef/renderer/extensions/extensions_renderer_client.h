@@ -59,7 +59,7 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
       const GURL& scope,
       const GURL& script_url) const override;
 
-  // See CefContentRendererClient methods with the same names.
+  // See AlloyContentRendererClient methods with the same names.
   void RenderThreadStarted();
   void RenderFrameCreated(content::RenderFrame* render_frame,
                           service_manager::BinderRegistry* registry);

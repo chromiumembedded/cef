@@ -4,7 +4,7 @@
 
 #include "include/cef_urlrequest.h"
 #include "libcef/browser/net_service/browser_urlrequest_impl.h"
-#include "libcef/common/content_client.h"
+#include "libcef/common/alloy/alloy_content_client.h"
 #include "libcef/common/task_runner_impl.h"
 #include "libcef/renderer/render_urlrequest_impl.h"
 
@@ -27,14 +27,14 @@ CefRefPtr<CefURLRequest> CefURLRequest::Create(
     return nullptr;
   }
 
-  if (CefContentClient::Get()->browser()) {
+  if (AlloyContentClient::Get()->browser()) {
     // In the browser process.
     CefRefPtr<CefBrowserURLRequest> impl =
         new CefBrowserURLRequest(nullptr, request, client, request_context);
     if (impl->Start())
       return impl.get();
     return nullptr;
-  } else if (CefContentClient::Get()->renderer()) {
+  } else if (AlloyContentClient::Get()->renderer()) {
     // In the render process.
     CefRefPtr<CefRenderURLRequest> impl =
         new CefRenderURLRequest(nullptr, request, client);

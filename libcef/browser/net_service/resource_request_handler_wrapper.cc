@@ -4,9 +4,9 @@
 
 #include "libcef/browser/net_service/resource_request_handler_wrapper.h"
 
+#include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_platform_delegate.h"
-#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/net_service/cookie_helper.h"
 #include "libcef/browser/net_service/proxy_url_loader_factory.h"
@@ -14,7 +14,7 @@
 #include "libcef/browser/net_service/response_filter_wrapper.h"
 #include "libcef/browser/resource_context.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/common/content_client.h"
+#include "libcef/common/alloy/alloy_content_client.h"
 #include "libcef/common/net/scheme_registration.h"
 #include "libcef/common/net_service/net_service_util.h"
 #include "libcef/common/request_impl.h"
@@ -290,7 +290,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       accept_language_ = ComputeAcceptLanguageFromPref(
           GetAcceptLanguageList(browser_context, browser));
       DCHECK(!accept_language_.empty());
-      user_agent_ = CefContentClient::Get()->browser()->GetUserAgent();
+      user_agent_ = AlloyContentClient::Get()->browser()->GetUserAgent();
       DCHECK(!user_agent_.empty());
     }
 

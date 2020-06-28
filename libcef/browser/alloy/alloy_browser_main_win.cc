@@ -6,11 +6,11 @@
 #include <commctrl.h>
 #include <windows.h>
 
-#include "libcef/browser/browser_main.h"
+#include "libcef/browser/alloy/alloy_browser_main.h"
 
 #include "base/logging.h"
 
-void CefBrowserMainParts::PlatformInitialize() {
+void AlloyBrowserMainParts::PlatformInitialize() {
   HRESULT res;
 
   // Initialize common controls.

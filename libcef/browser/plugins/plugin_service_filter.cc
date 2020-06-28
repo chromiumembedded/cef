@@ -8,7 +8,7 @@
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/web_plugin_impl.h"
-#include "libcef/common/content_client.h"
+#include "libcef/common/alloy/alloy_content_client.h"
 
 #include "extensions/common/constants.h"
 
@@ -42,11 +42,11 @@ bool CefPluginServiceFilter::IsPluginAvailable(
   // with an empty origin. If we return false then the plugin will not be listed
   // in navigator.plugins and navigating to the plugin mime type will trigger
   // the download code path. If we return true then individual plugin instance
-  // loads will be evaluated in CefContentRendererClient::OverrideCreatePlugin,
-  // which will result in a call to CefPluginInfoMessageFilter::PluginsLoaded to
-  // retrieve the actual load decision with a non-empty origin. That will
-  // determine whether the plugin load is allowed or the plugin placeholder is
-  // displayed.
+  // loads will be evaluated in
+  // AlloyContentRendererClient::OverrideCreatePlugin, which will result in a
+  // call to CefPluginInfoMessageFilter::PluginsLoaded to retrieve the actual
+  // load decision with a non-empty origin. That will determine whether the
+  // plugin load is allowed or the plugin placeholder is displayed.
   return IsPluginAvailable(render_process_id, render_frame_id, url,
                            is_main_frame, url::Origin(), plugin, &status);
 }
@@ -72,7 +72,7 @@ bool CefPluginServiceFilter::IsPluginAvailable(
     return false;
   }
 
-  if (plugin->path == CefString(CefContentClient::kPDFPluginPath)) {
+  if (plugin->path == CefString(AlloyContentClient::kPDFPluginPath)) {
     // Always allow the internal PDF plugin to load.
     *status = chrome::mojom::PluginStatus::kAllowed;
     return true;

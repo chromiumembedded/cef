@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_BROWSER_BROWSER_MAIN_H_
-#define CEF_LIBCEF_BROWSER_BROWSER_MAIN_H_
+#ifndef CEF_LIBCEF_BROWSER_ALLOY_ALLOY_BROWSER_MAIN_H_
+#define CEF_LIBCEF_BROWSER_ALLOY_ALLOY_BROWSER_MAIN_H_
 #pragma once
 
 #include "libcef/browser/request_context_impl.h"
@@ -35,15 +35,15 @@ class ViewsDelegate;
 #if defined(OS_MACOSX)
 class LayoutProvider;
 #endif
-}
+}  // namespace views
 #endif  // defined(TOOLKIT_VIEWS)
 
 class CefDevToolsDelegate;
 
-class CefBrowserMainParts : public content::BrowserMainParts {
+class AlloyBrowserMainParts : public content::BrowserMainParts {
  public:
-  explicit CefBrowserMainParts(const content::MainFunctionParams& parameters);
-  ~CefBrowserMainParts() override;
+  explicit AlloyBrowserMainParts(const content::MainFunctionParams& parameters);
+  ~AlloyBrowserMainParts() override;
 
   int PreEarlyInitialization() override;
   void ToolkitInitialized() override;
@@ -101,7 +101,7 @@ class CefBrowserMainParts : public content::BrowserMainParts {
 #endif
 #endif  // defined(TOOLKIT_VIEWS)
 
-  DISALLOW_COPY_AND_ASSIGN(CefBrowserMainParts);
+  DISALLOW_COPY_AND_ASSIGN(AlloyBrowserMainParts);
 };
 
-#endif  // CEF_LIBCEF_BROWSER_BROWSER_MAIN_H_
+#endif  // CEF_LIBCEF_BROWSER_ALLOY_ALLOY_BROWSER_MAIN_H_

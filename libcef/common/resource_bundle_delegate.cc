@@ -1,6 +1,6 @@
 #include "libcef/common/resource_bundle_delegate.h"
 
-#include "libcef/common/content_client.h"
+#include "libcef/common/alloy/alloy_content_client.h"
 
 base::FilePath CefResourceBundleDelegate::GetPathForResourcePack(
     const base::FilePath& pack_path,

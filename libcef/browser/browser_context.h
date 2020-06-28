@@ -9,7 +9,7 @@
 #include <set>
 
 #include "include/cef_request_context_handler.h"
-#include "libcef/browser/chrome_profile_stub.h"
+#include "libcef/browser/alloy/chrome_profile_alloy.h"
 #include "libcef/browser/request_context_handler_map.h"
 #include "libcef/browser/resource_context.h"
 
@@ -36,7 +36,7 @@
 // BHI = CefBrowserHostImpl
 //  Implements the CefBrowser and CefBrowserHost interfaces which are exposed
 //  to clients. References an RCI instance. Owns a WC. Life span is controlled
-//  by client references and CefContentBrowserClient.
+//  by client references and AlloyContentBrowserClient.
 //
 // RCI = CefRequestContextImpl
 //  Implements the CefRequestContext interface which is exposed to clients.
@@ -44,7 +44,8 @@
 //
 // BC = CefBrowserContext
 //   Entry point from WC when using an isolated RCI. Owns the RC and creates the
-//   SPI indirectly. Owned by CefBrowserMainParts for the global context or RCI
+//   SPI indirectly. Owned by AlloyBrowserMainParts for the global context or
+RCI
 //   for non-global contexts.
 //
 // SPI = content::StoragePartitionImpl
@@ -63,7 +64,7 @@
 //   own = ownership (std::unique_ptr)
 //   ptr = raw pointer
 //
-//               CefBrowserMainParts
+//               AlloyBrowserMainParts
 //                       |
 //                      own
 //                       v
@@ -79,7 +80,7 @@
 //    thread due to CefBrowserHostImpl destruction, ref release, etc.
 // 3. CefBrowserContext is destroyed on the UI thread due to
 //    CefRequestContextImpl destruction or deletion in
-//    CefBrowserMainParts::PostMainMessageLoopRun().
+//    AlloyBrowserMainParts::PostMainMessageLoopRun().
 // 4. CefResourceContext is destroyed asynchronously on the IO thread due to
 //    CefBrowserContext destruction. This cancels/destroys any pending
 //    network requests.
@@ -104,7 +105,7 @@ class VisitedLinkWriter;
 // Main entry point for configuring behavior on a per-browser basis. An instance
 // of this class is passed to WebContents::Create in CefBrowserHostImpl::
 // CreateInternal. Only accessed on the UI thread unless otherwise indicated.
-class CefBrowserContext : public ChromeProfileStub,
+class CefBrowserContext : public ChromeProfileAlloy,
                           public visitedlink::VisitedLinkDelegate {
  public:
   explicit CefBrowserContext(const CefRequestContextSettings& settings);

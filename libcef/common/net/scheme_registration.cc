@@ -4,7 +4,7 @@
 
 #include "libcef/common/net/scheme_registration.h"
 
-#include "libcef/common/content_client.h"
+#include "libcef/common/alloy/alloy_content_client.h"
 
 #include "content/public/common/url_constants.h"
 #include "extensions/common/constants.h"
@@ -18,8 +18,8 @@ void AddInternalSchemes(content::ContentClient::Schemes* schemes) {
   // chrome: and chrome-devtools: schemes are registered in
   // RenderThreadImpl::RegisterSchemes().
   // Access restrictions for chrome-extension: and chrome-extension-resource:
-  // schemes will be applied in CefContentRendererClient::WillSendRequest().
-  static CefContentClient::SchemeInfo internal_schemes[] = {
+  // schemes will be applied in AlloyContentRendererClient::WillSendRequest().
+  static AlloyContentClient::SchemeInfo internal_schemes[] = {
       {
           extensions::kExtensionScheme, true, /* is_standard */
           false,                              /* is_local */
@@ -32,7 +32,7 @@ void AddInternalSchemes(content::ContentClient::Schemes* schemes) {
 
   // The |is_display_isolated| value is excluded here because it's registered
   // with Blink only.
-  CefContentClient* client = CefContentClient::Get();
+  AlloyContentClient* client = AlloyContentClient::Get();
   for (size_t i = 0; i < sizeof(internal_schemes) / sizeof(internal_schemes[0]);
        ++i) {
     if (internal_schemes[i].is_standard)

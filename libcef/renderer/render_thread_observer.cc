@@ -8,7 +8,6 @@
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/net/net_resource_provider.h"
 #include "libcef/renderer/blink_glue.h"
-#include "libcef/renderer/content_renderer_client.h"
 
 #include "components/visitedlink/renderer/visitedlink_reader.h"
 #include "content/public/child/child_thread.h"

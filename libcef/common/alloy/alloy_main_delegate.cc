@@ -2,20 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/common/main_delegate.h"
+#include "libcef/common/alloy/alloy_main_delegate.h"
 
 #if defined(OS_LINUX)
 #include <dlfcn.h>
 #endif
 
-#include "libcef/browser/chrome_browser_process_stub.h"
-#include "libcef/browser/content_browser_client.h"
+#include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
 #include "libcef/common/crash_reporting.h"
 #include "libcef/common/extensions/extensions_util.h"
-#include "libcef/common/widevine_loader.h"
-#include "libcef/renderer/content_renderer_client.h"
+#include "libcef/renderer/alloy/alloy_content_renderer_client.h"
 
 #include "base/base_switches.h"
 #include "base/command_line.h"
@@ -37,7 +35,6 @@
 #include "components/content_settings/core/common/content_settings_pattern.h"
 #include "components/viz/common/features.h"
 #include "content/browser/browser_process_sub_thread.h"
-#include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_features.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
@@ -321,9 +318,9 @@ void OverrideAssetPath() {
 
 }  // namespace
 
-CefMainDelegate::CefMainDelegate(CefMainRunnerHandler* runner,
-                                 CefSettings* settings,
-                                 CefRefPtr<CefApp> application)
+AlloyMainDelegate::AlloyMainDelegate(CefMainRunnerHandler* runner,
+                                     CefSettings* settings,
+                                     CefRefPtr<CefApp> application)
     : runner_(runner), settings_(settings), content_client_(application) {
   // Necessary so that exported functions from base_impl.cc will be included
   // in the binary.
@@ -335,13 +332,13 @@ CefMainDelegate::CefMainDelegate(CefMainRunnerHandler* runner,
 #endif
 }
 
-CefMainDelegate::~CefMainDelegate() {}
+AlloyMainDelegate::~AlloyMainDelegate() {}
 
-void CefMainDelegate::PreCreateMainMessageLoop() {
+void AlloyMainDelegate::PreCreateMainMessageLoop() {
   runner_->PreCreateMainMessageLoop();
 }
 
-bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
+bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   std::string process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
@@ -624,7 +621,7 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
   return false;
 }
 
-void CefMainDelegate::PreSandboxStartup() {
+void AlloyMainDelegate::PreSandboxStartup() {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
   const std::string& process_type =
@@ -674,13 +671,13 @@ void CefMainDelegate::PreSandboxStartup() {
   MaybeInitializeGDI();
 }
 
-void CefMainDelegate::SandboxInitialized(const std::string& process_type) {
-  CefContentClient::SetPDFEntryFunctions(chrome_pdf::PPP_GetInterface,
-                                         chrome_pdf::PPP_InitializeModule,
-                                         chrome_pdf::PPP_ShutdownModule);
+void AlloyMainDelegate::SandboxInitialized(const std::string& process_type) {
+  AlloyContentClient::SetPDFEntryFunctions(chrome_pdf::PPP_GetInterface,
+                                           chrome_pdf::PPP_InitializeModule,
+                                           chrome_pdf::PPP_ShutdownModule);
 }
 
-int CefMainDelegate::RunProcess(
+int AlloyMainDelegate::RunProcess(
     const std::string& process_type,
     const content::MainFunctionParams& main_function_params) {
   if (process_type.empty()) {
@@ -690,12 +687,12 @@ int CefMainDelegate::RunProcess(
   return -1;
 }
 
-void CefMainDelegate::ProcessExiting(const std::string& process_type) {
+void AlloyMainDelegate::ProcessExiting(const std::string& process_type) {
   ui::ResourceBundle::CleanupSharedInstance();
 }
 
 #if defined(OS_LINUX)
-void CefMainDelegate::ZygoteForked() {
+void AlloyMainDelegate::ZygoteForked() {
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   const std::string& process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
@@ -704,95 +701,58 @@ void CefMainDelegate::ZygoteForked() {
 }
 #endif
 
-content::ContentBrowserClient* CefMainDelegate::CreateContentBrowserClient() {
-  browser_client_.reset(new CefContentBrowserClient);
+content::ContentBrowserClient* AlloyMainDelegate::CreateContentBrowserClient() {
+  browser_client_.reset(new AlloyContentBrowserClient);
   return browser_client_.get();
 }
 
-content::ContentRendererClient* CefMainDelegate::CreateContentRendererClient() {
-  renderer_client_.reset(new CefContentRendererClient);
+content::ContentRendererClient*
+AlloyMainDelegate::CreateContentRendererClient() {
+  renderer_client_.reset(new AlloyContentRendererClient);
   return renderer_client_.get();
 }
 
-content::ContentUtilityClient* CefMainDelegate::CreateContentUtilityClient() {
+content::ContentUtilityClient* AlloyMainDelegate::CreateContentUtilityClient() {
   utility_client_.reset(new ChromeContentUtilityClient);
   return utility_client_.get();
 }
 
-void CefMainDelegate::BeforeMainThreadInitialize(const CefMainArgs& args) {
-  g_browser_process = new ChromeBrowserProcessStub();
-}
-
-void CefMainDelegate::BeforeMainThreadRun() {
-  static_cast<ChromeBrowserProcessStub*>(g_browser_process)->Initialize();
-}
-
-void CefMainDelegate::AfterUIThreadInitialize() {
-#if BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
-  CefWidevineLoader::GetInstance()->OnContextInitialized();
-#endif
-
-  static_cast<ChromeBrowserProcessStub*>(g_browser_process)
-      ->OnContextInitialized();
-}
-
-void CefMainDelegate::AfterUIThreadShutdown() {
-  static_cast<ChromeBrowserProcessStub*>(g_browser_process)
-      ->CleanupOnUIThread();
-
-  ui::ResourceBundle::GetSharedInstance().CleanupOnUIThread();
-}
-
-void CefMainDelegate::BeforeMainThreadShutdown() {
-  if (content::RenderProcessHost::run_renderer_in_process()) {
-    // Blocks until RenderProcess cleanup is complete.
-    CefContentRendererClient::Get()->RunSingleProcessCleanup();
-  }
-}
-
-void CefMainDelegate::AfterMainThreadShutdown() {
-  if (g_browser_process) {
-    delete g_browser_process;
-    g_browser_process = nullptr;
-  }
-}
-
 scoped_refptr<base::SingleThreadTaskRunner>
-CefMainDelegate::GetBackgroundTaskRunner() {
+AlloyMainDelegate::GetBackgroundTaskRunner() {
   if (browser_client_)
     return browser_client_->background_task_runner();
   return nullptr;
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
-CefMainDelegate::GetUserVisibleTaskRunner() {
+AlloyMainDelegate::GetUserVisibleTaskRunner() {
   if (browser_client_)
     return browser_client_->user_visible_task_runner();
   return nullptr;
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
-CefMainDelegate::GetUserBlockingTaskRunner() {
+AlloyMainDelegate::GetUserBlockingTaskRunner() {
   if (browser_client_)
     return browser_client_->user_blocking_task_runner();
   return nullptr;
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
-CefMainDelegate::GetRenderTaskRunner() {
+AlloyMainDelegate::GetRenderTaskRunner() {
   if (renderer_client_)
     return renderer_client_->render_task_runner();
   return nullptr;
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
-CefMainDelegate::GetWebWorkerTaskRunner() {
+AlloyMainDelegate::GetWebWorkerTaskRunner() {
   if (renderer_client_)
     return renderer_client_->GetCurrentTaskRunner();
   return nullptr;
 }
 
-void CefMainDelegate::InitializeResourceBundle() {
+void AlloyMainDelegate::InitializeResourceBundle() {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
   base::FilePath cef_pak_file, cef_100_percent_pak_file,

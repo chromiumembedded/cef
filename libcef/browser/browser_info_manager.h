@@ -63,7 +63,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
       bool is_windowless,
       CefRefPtr<CefDictionaryValue> extra_info);
 
-  // Called from CefContentBrowserClient::CanCreateWindow. See comments on
+  // Called from AlloyContentBrowserClient::CanCreateWindow. See comments on
   // PendingPopup for more information.
   bool CanCreateWindow(content::RenderFrameHost* opener,
                        const GURL& target_url,
@@ -143,7 +143,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   void RenderProcessHostDestroyed(content::RenderProcessHost* host) override;
 
   // Store state information about pending popups. Call order is:
-  // - CefContentBrowserClient::CanCreateWindow (UIT)
+  // - AlloyContentBrowserClient::CanCreateWindow (UIT)
   //   Provides an opportunity to cancel the popup (calls OnBeforePopup) and
   //   creates the new platform delegate for the popup. If the popup owner is
   //   an extension guest view then the popup is canceled and

@@ -5,18 +5,18 @@
 
 // This class gathers state related to a single user profile.
 
-#ifndef CEF_LIBCEF_BROWSER_CHROME_PROFILE_STUB_H_
-#define CEF_LIBCEF_BROWSER_CHROME_PROFILE_STUB_H_
+#ifndef CEF_LIBCEF_BROWSER_ALLOY_CHROME_PROFILE_ALLOY_H_
+#define CEF_LIBCEF_BROWSER_ALLOY_CHROME_PROFILE_ALLOY_H_
 
 #include "chrome/browser/profiles/profile.h"
 
 // This file provides a stub implementation of Chrome's Profile object for use
 // as an interop layer between CEF and files that live in chrome/.
 
-class ChromeProfileStub : public Profile {
+class ChromeProfileAlloy : public Profile {
  public:
-  ChromeProfileStub();
-  ~ChromeProfileStub() override;
+  ChromeProfileAlloy();
+  ~ChromeProfileAlloy() override;
 
  protected:
   // Profile methods.
@@ -55,7 +55,7 @@ class ChromeProfileStub : public Profile {
  private:
   std::unique_ptr<variations::VariationsClient> variations_client_;
 
-  DISALLOW_COPY_AND_ASSIGN(ChromeProfileStub);
+  DISALLOW_COPY_AND_ASSIGN(ChromeProfileAlloy);
 };
 
-#endif  // CEF_LIBCEF_BROWSER_CHROME_PROFILE_STUB_H_
+#endif  // CEF_LIBCEF_BROWSER_ALLOY_CHROME_PROFILE_ALLOY_H_

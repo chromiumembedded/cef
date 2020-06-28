@@ -21,7 +21,7 @@ class CefRequestContextImpl : public CefRequestContext {
   ~CefRequestContextImpl() override;
 
   // Creates the singleton global RequestContext. Called from
-  // CefBrowserMainParts::PreMainMessageLoopRun.
+  // AlloyBrowserMainParts::PreMainMessageLoopRun.
   static CefRefPtr<CefRequestContextImpl> CreateGlobalRequestContext(
       const CefRequestContextSettings& settings);
 

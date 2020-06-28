@@ -9,11 +9,11 @@
 
 #include "ui/base/resource/resource_bundle.h"
 
-class CefContentClient;
+class AlloyContentClient;
 
 class CefResourceBundleDelegate : public ui::ResourceBundle::Delegate {
  public:
-  CefResourceBundleDelegate(CefContentClient* content_client)
+  CefResourceBundleDelegate(AlloyContentClient* content_client)
       : content_client_(content_client) {}
 
  private:
@@ -33,7 +33,7 @@ class CefResourceBundleDelegate : public ui::ResourceBundle::Delegate {
   bool GetLocalizedString(int message_id, base::string16* value) override;
 
  private:
-  CefContentClient* content_client_;
+  AlloyContentClient* content_client_;
 };
 
 #endif  // CEF_LIBCEF_COMMON_RESOURCE_BUNDLE_DELEGATE_H_

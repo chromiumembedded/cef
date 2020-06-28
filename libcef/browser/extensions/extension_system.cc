@@ -224,7 +224,7 @@ void CefExtensionSystem::Init() {
   //    WebContents routing IDs with the owner CefBrowser. MimeHandlerViewGuest
   //    then loads the extension URL (index.html) in the guest WebContents.
   // 13.Creation of the RenderFrame in the guest renderer process triggers a
-  //    sync IPC call from CefContentRendererClient::MaybeCreateBrowser to
+  //    sync IPC call from AlloyContentRendererClient::MaybeCreateBrowser to
   //    CefBrowserInfoManager::GetBrowserInfo in the browser process to retrieve
   //    the CefBrowser information, which will be immediately available due to
   //    step 12.
@@ -248,7 +248,7 @@ void CefExtensionSystem::Init() {
   // 17.HTMLPlugInElement::RequestObject is called in the guest renderer process
   //    and determines that the PDF PPAPI plugin should be handled internally
   //    (handled_externally=false). A PluginDocument is created and
-  //    CefContentRendererClient::OverrideCreatePlugin is called to create a
+  //    AlloyContentRendererClient::OverrideCreatePlugin is called to create a
   //    WebPlugin.
   // 18.The PDF extension and PDF plugin are now loaded. Print commands, if
   //    any, are handled in the guest renderer process by ChromePDFPrintClient

@@ -8,10 +8,10 @@
 #include <string>
 #include <vector>
 
+#include "libcef/common/alloy/alloy_content_client.h"
 #include "libcef/common/cef_messages.h"
-#include "libcef/common/content_client.h"
+#include "libcef/renderer/alloy/alloy_content_renderer_client.h"
 #include "libcef/renderer/blink_glue.h"
-#include "libcef/renderer/content_renderer_client.h"
 #include "libcef/renderer/render_frame_util.h"
 #include "libcef/renderer/thread_util.h"
 
@@ -38,13 +38,13 @@
 // static
 CefRefPtr<CefBrowserImpl> CefBrowserImpl::GetBrowserForView(
     content::RenderView* view) {
-  return CefContentRendererClient::Get()->GetBrowserForView(view);
+  return AlloyContentRendererClient::Get()->GetBrowserForView(view);
 }
 
 // static
 CefRefPtr<CefBrowserImpl> CefBrowserImpl::GetBrowserForMainFrame(
     blink::WebFrame* frame) {
-  return CefContentRendererClient::Get()->GetBrowserForMainFrame(frame);
+  return AlloyContentRendererClient::Get()->GetBrowserForMainFrame(frame);
 }
 
 // CefBrowser methods.
@@ -345,14 +345,14 @@ void CefBrowserImpl::AddFrameObject(int64_t frame_id,
 
 void CefBrowserImpl::OnDestruct() {
   // Notify that the browser window has been destroyed.
-  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
+  CefRefPtr<CefApp> app = AlloyContentClient::Get()->application();
   if (app.get()) {
     CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
     if (handler.get())
       handler->OnBrowserDestroyed(this);
   }
 
-  CefContentRendererClient::Get()->OnBrowserDestroyed(this);
+  AlloyContentRendererClient::Get()->OnBrowserDestroyed(this);
 }
 
 void CefBrowserImpl::FrameDetached(int64_t frame_id) {
@@ -373,7 +373,7 @@ void CefBrowserImpl::FrameDetached(int64_t frame_id) {
 }
 
 void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {
-  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
+  CefRefPtr<CefApp> app = AlloyContentClient::Get()->application();
   if (app.get()) {
     CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
     if (handler.get()) {

@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_RENDERER_THREAD_UTIL_H_
 #pragma once
 
-#include "libcef/renderer/content_renderer_client.h"
+#include "libcef/common/task_runner_manager.h"
 
 #include "base/location.h"
 #include "base/logging.h"
@@ -28,12 +28,13 @@
     return;                                     \
   }
 
-#define CEF_RENDER_LOOP() \
-  (CefContentRendererClient::Get()->render_task_runner())
+#define CEF_RENDER_TASK_RUNNER() \
+  (CefTaskRunnerManager::Get()->GetRenderTaskRunner())
 
-#define CEF_POST_TASK_RT(task) CEF_RENDER_LOOP()->PostTask(FROM_HERE, task)
+#define CEF_POST_TASK_RT(task) \
+  CEF_RENDER_TASK_RUNNER()->PostTask(FROM_HERE, task)
 #define CEF_POST_DELAYED_TASK_RT(task, delay_ms) \
-  CEF_RENDER_LOOP()->PostDelayedTask(            \
+  CEF_RENDER_TASK_RUNNER()->PostDelayedTask(     \
       FROM_HERE, task, base::TimeDelta::FromMilliseconds(delay_ms))
 
 // Use this template in conjuction with RefCountedThreadSafe when you want to
@@ -44,7 +45,7 @@ struct CefDeleteOnRenderThread {
     if (CEF_CURRENTLY_ON_RT()) {
       delete x;
     } else {
-      if (!CEF_RENDER_LOOP()->DeleteSoon(FROM_HERE, x)) {
+      if (!CEF_RENDER_TASK_RUNNER()->DeleteSoon(FROM_HERE, x)) {
 #if defined(UNIT_TEST)
         // Only logged under unit testing because leaks at shutdown
         // are acceptable under normal circumstances.

@@ -17,7 +17,7 @@ class CefX509CertificateImpl : public CefX509Certificate {
  public:
   explicit CefX509CertificateImpl(scoped_refptr<net::X509Certificate> cert);
 
-  // Used with CefContentBrowserClient::SelectClientCertificate only.
+  // Used with AlloyContentBrowserClient::SelectClientCertificate only.
   explicit CefX509CertificateImpl(
       std::unique_ptr<net::ClientCertIdentity> identity);
 

@@ -156,7 +156,7 @@ void CefCookieManagerImpl::SetSupportedSchemes(
 
   // This will be forwarded to the CookieMonster that lives in the
   // NetworkService process when the NetworkContext is created via
-  // CefContentBrowserClient::CreateNetworkContext.
+  // AlloyContentBrowserClient::CreateNetworkContext.
   browser_context->set_cookieable_schemes(base::make_optional(all_schemes));
   RunAsyncCompletionOnUIThread(callback);
 }

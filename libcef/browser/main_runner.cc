@@ -7,10 +7,10 @@
 
 #include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/alloy/alloy_main_runner_delegate.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/chrome/chrome_main_runner_delegate.h"
-#include "libcef/common/main_delegate.h"
-#include "libcef/features/chrome_cef.h"
+#include "libcef/features/runtime.h"
 
 #include "base/at_exit.h"
 #include "base/base_switches.h"
@@ -43,7 +43,7 @@ namespace {
 
 enum class RuntimeType {
   UNINITIALIZED,
-  CEF,
+  ALLOY,
   CHROME,
 };
 RuntimeType g_runtime_type = RuntimeType::UNINITIALIZED;
@@ -53,9 +53,10 @@ std::unique_ptr<CefMainRunnerDelegate> MakeDelegate(
     CefMainRunnerHandler* runner,
     CefSettings* settings,
     CefRefPtr<CefApp> application) {
-  if (type == RuntimeType::CEF) {
-    g_runtime_type = RuntimeType::CEF;
-    return std::make_unique<CefMainDelegate>(runner, settings, application);
+  if (type == RuntimeType::ALLOY) {
+    g_runtime_type = RuntimeType::ALLOY;
+    return std::make_unique<AlloyMainRunnerDelegate>(runner, settings,
+                                                     application);
   } else {
     g_runtime_type = RuntimeType::CHROME;
     return std::make_unique<ChromeMainRunnerDelegate>(runner);
@@ -226,7 +227,7 @@ bool CefMainRunner::Initialize(CefSettings* settings,
                                base::OnceClosure context_initialized) {
   DCHECK(!main_delegate_);
   main_delegate_ = MakeDelegate(
-      settings->chrome_runtime ? RuntimeType::CHROME : RuntimeType::CEF, this,
+      settings->chrome_runtime ? RuntimeType::CHROME : RuntimeType::ALLOY, this,
       settings, application);
 
   const int exit_code =
@@ -315,7 +316,7 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
 
   auto runtime_type = command_line.HasSwitch(switches::kEnableChromeRuntime)
                           ? RuntimeType::CHROME
-                          : RuntimeType::CEF;
+                          : RuntimeType::ALLOY;
   auto main_delegate = MakeDelegate(runtime_type, /*runner=*/nullptr,
                                     /*settings=*/nullptr, application);
   main_delegate->BeforeExecuteProcess(args);
@@ -441,7 +442,7 @@ int CefMainRunner::RunMainProcess(
     browser_runner_ = content::BrowserMainRunner::Create();
 
     // Initialize browser process state. Results in a call to
-    // CefBrowserMain::PreMainMessageLoopStart() which creates the UI message
+    // AlloyBrowserMain::PreMainMessageLoopStart() which creates the UI message
     // loop.
     int exit_code = browser_runner_->Initialize(main_function_params);
     if (exit_code >= 0)
@@ -517,11 +518,11 @@ void CefMainRunner::FinalizeShutdown(base::OnceClosure finalize_shutdown) {
   g_runtime_type = RuntimeType::UNINITIALIZED;
 }
 
-// From libcef/features/chrome_cef.h:
+// From libcef/features/runtime.h:
 namespace cef {
 
-bool IsCefRuntimeEnabled() {
-  return g_runtime_type == RuntimeType::CEF;
+bool IsAlloyRuntimeEnabled() {
+  return g_runtime_type == RuntimeType::ALLOY;
 }
 
 bool IsChromeRuntimeEnabled() {

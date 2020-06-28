@@ -6,22 +6,22 @@
 // This file provides a stub implementation of Chrome's ProfileManager object
 // for use as an interop layer between CEF and files that live in chrome/.
 
-#ifndef CEF_LIBCEF_BROWSER_CHROME_PROFILE_MANAGER_STUB_H_
-#define CEF_LIBCEF_BROWSER_CHROME_PROFILE_MANAGER_STUB_H_
+#ifndef CEF_LIBCEF_BROWSER_ALLOY_CHROME_PROFILE_MANAGER_ALLOY_H_
+#define CEF_LIBCEF_BROWSER_ALLOY_CHROME_PROFILE_MANAGER_ALLOY_H_
 
 #include "chrome/browser/profiles/profile_manager.h"
 
-class ChromeProfileManagerStub : public ProfileManager {
+class ChromeProfileManagerAlloy : public ProfileManager {
  public:
-  ChromeProfileManagerStub();
-  ~ChromeProfileManagerStub() override;
+  ChromeProfileManagerAlloy();
+  ~ChromeProfileManagerAlloy() override;
 
   Profile* GetProfile(const base::FilePath& profile_dir) override;
   bool IsValidProfile(const void* profile) override;
   Profile* GetLastUsedProfile(const base::FilePath& user_data_dir) override;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(ChromeProfileManagerStub);
+  DISALLOW_COPY_AND_ASSIGN(ChromeProfileManagerAlloy);
 };
 
-#endif  // CEF_LIBCEF_BROWSER_CHROME_PROFILE_MANAGER_STUB_H_
+#endif  // CEF_LIBCEF_BROWSER_ALLOY_CHROME_PROFILE_MANAGER_ALLOY_H_

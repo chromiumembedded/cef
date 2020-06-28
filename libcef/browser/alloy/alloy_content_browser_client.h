@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_BROWSER_CONTENT_BROWSER_CLIENT_H_
-#define CEF_LIBCEF_BROWSER_CONTENT_BROWSER_CLIENT_H_
+#ifndef CEF_LIBCEF_BROWSER_ALLOY_ALLOY_CONTENT_BROWSER_CLIENT_H_
+#define CEF_LIBCEF_BROWSER_ALLOY_ALLOY_CONTENT_BROWSER_CLIENT_H_
 #pragma once
 
 #include <string>
@@ -18,7 +18,7 @@
 #include "content/public/browser/content_browser_client.h"
 #include "third_party/skia/include/core/SkColor.h"
 
-class CefBrowserMainParts;
+class AlloyBrowserMainParts;
 class CefDevToolsDelegate;
 
 namespace content {
@@ -30,13 +30,13 @@ namespace extensions {
 class Extension;
 }
 
-class CefContentBrowserClient : public content::ContentBrowserClient {
+class AlloyContentBrowserClient : public content::ContentBrowserClient {
  public:
-  CefContentBrowserClient();
-  ~CefContentBrowserClient() override;
+  AlloyContentBrowserClient();
+  ~AlloyContentBrowserClient() override;
 
-  // Returns the singleton CefContentBrowserClient instance.
-  static CefContentBrowserClient* Get();
+  // Returns the singleton AlloyContentBrowserClient instance.
+  static AlloyContentBrowserClient* Get();
 
   // ContentBrowserClient implementation.
   std::unique_ptr<content::BrowserMainParts> CreateBrowserMainParts(
@@ -224,9 +224,9 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   const extensions::Extension* GetExtension(
       content::SiteInstance* site_instance);
 
-  CefBrowserMainParts* browser_main_parts_ = nullptr;
+  AlloyBrowserMainParts* browser_main_parts_ = nullptr;
 
   std::unique_ptr<content::PluginServiceFilter> plugin_service_filter_;
 };
 
-#endif  // CEF_LIBCEF_BROWSER_CONTENT_BROWSER_CLIENT_H_
+#endif  // CEF_LIBCEF_BROWSER_ALLOY_ALLOY_CONTENT_BROWSER_CLIENT_H_

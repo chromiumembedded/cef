@@ -3,8 +3,8 @@
 // can be found in the LICENSE file.
 
 #include "libcef/browser/request_context_impl.h"
+#include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/browser_context.h"
-#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/thread_util.h"
@@ -625,7 +625,7 @@ CefRequestContextImpl::GetOrCreateRequestContext(const Config& config) {
   if (config.is_global ||
       (config.other && config.other->IsGlobal() && !config.handler)) {
     // Return the singleton global context.
-    return CefContentBrowserClient::Get()->request_context();
+    return AlloyContentBrowserClient::Get()->request_context();
   }
 
   // The new context will be initialized later by EnsureBrowserContext().

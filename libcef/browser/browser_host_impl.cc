@@ -8,13 +8,13 @@
 #include <string>
 #include <utility>
 
+#include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/audio_capturer.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/browser_util.h"
-#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools/devtools_manager.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
@@ -35,7 +35,6 @@
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/drag_data_impl.h"
 #include "libcef/common/extensions/extensions_util.h"
-#include "libcef/common/main_delegate.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/values_impl.h"
 
@@ -390,7 +389,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
 
       // Extension resources will fail to load if we don't use a SiteInstance
       // associated with the extension.
-      // (CefContentBrowserClient::SiteInstanceGotProcess won't find the
+      // (AlloyContentBrowserClient::SiteInstanceGotProcess won't find the
       // extension to register with InfoMap, and AllowExtensionResourceLoad in
       // ExtensionProtocolHandler::MaybeCreateJob will return false resulting in
       // ERR_BLOCKED_BY_CLIENT).
@@ -2097,7 +2096,7 @@ bool CefBrowserHostImpl::IsAudioMuted() {
 // -----------------------------------------------------------------------------
 
 // |source| may be NULL if the navigation originates from a guest view via
-// CefContentBrowserClient::CanCreateWindow.
+// AlloyContentBrowserClient::CanCreateWindow.
 content::WebContents* CefBrowserHostImpl::OpenURLFromTab(
     content::WebContents* source,
     const content::OpenURLParams& params) {

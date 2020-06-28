@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/content_browser_client.h"
+#include "libcef/browser/alloy/alloy_content_browser_client.h"
 
 #include <algorithm>
 #include <utility>
 
 #include "include/cef_version.h"
+#include "libcef/browser/alloy/alloy_browser_main.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_info_manager.h"
-#include "libcef/browser/browser_main.h"
 #include "libcef/browser/browser_message_filter.h"
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/context.h"
@@ -31,10 +31,10 @@
 #include "libcef/browser/ssl_info_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/x509_certificate_impl.h"
+#include "libcef/common/alloy/alloy_content_client.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
-#include "libcef/common/content_client.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/net/scheme_registration.h"
 #include "libcef/common/request_impl.h"
@@ -386,7 +386,7 @@ breakpad::CrashHandlerHostLinux* CreateCrashHandlerHost(
   {
     ANNOTATE_SCOPED_MEMORY_LEAK;
     // Uploads will only occur if a non-empty crash URL is specified in
-    // CefMainDelegate::InitCrashReporter.
+    // AlloyMainDelegate::InitCrashReporter.
     breakpad::CrashHandlerHostLinux* crash_handler =
         new breakpad::CrashHandlerHostLinux(process_type, dumps_path,
                                             true /* upload */);
@@ -533,30 +533,30 @@ void PopulateChromeFrameBinders(
 
 }  // namespace
 
-CefContentBrowserClient::CefContentBrowserClient() {
+AlloyContentBrowserClient::AlloyContentBrowserClient() {
   plugin_service_filter_.reset(new CefPluginServiceFilter);
   content::PluginServiceImpl::GetInstance()->SetFilter(
       plugin_service_filter_.get());
 }
 
-CefContentBrowserClient::~CefContentBrowserClient() {}
+AlloyContentBrowserClient::~AlloyContentBrowserClient() {}
 
 // static
-CefContentBrowserClient* CefContentBrowserClient::Get() {
-  if (!CefContentClient::Get())
+AlloyContentBrowserClient* AlloyContentBrowserClient::Get() {
+  if (!AlloyContentClient::Get())
     return nullptr;
-  return static_cast<CefContentBrowserClient*>(
-      CefContentClient::Get()->browser());
+  return static_cast<AlloyContentBrowserClient*>(
+      AlloyContentClient::Get()->browser());
 }
 
 std::unique_ptr<content::BrowserMainParts>
-CefContentBrowserClient::CreateBrowserMainParts(
+AlloyContentBrowserClient::CreateBrowserMainParts(
     const content::MainFunctionParams& parameters) {
-  browser_main_parts_ = new CefBrowserMainParts(parameters);
+  browser_main_parts_ = new AlloyBrowserMainParts(parameters);
   return base::WrapUnique(browser_main_parts_);
 }
 
-void CefContentBrowserClient::RenderProcessWillLaunch(
+void AlloyContentBrowserClient::RenderProcessWillLaunch(
     content::RenderProcessHost* host) {
   const int id = host->GetID();
   Profile* profile = Profile::FromBrowserContext(host->GetBrowserContext());
@@ -582,7 +582,7 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
       ->InitializeRenderer(host);
 }
 
-bool CefContentBrowserClient::ShouldUseProcessPerSite(
+bool AlloyContentBrowserClient::ShouldUseProcessPerSite(
     content::BrowserContext* browser_context,
     const GURL& effective_url) {
   if (!extensions::ExtensionsEnabled())
@@ -611,7 +611,7 @@ bool CefContentBrowserClient::ShouldUseProcessPerSite(
 
 // Based on
 // ChromeContentBrowserClientExtensionsPart::DoesSiteRequireDedicatedProcess.
-bool CefContentBrowserClient::DoesSiteRequireDedicatedProcess(
+bool AlloyContentBrowserClient::DoesSiteRequireDedicatedProcess(
     content::BrowserContext* browser_context,
     const GURL& effective_site_url) {
   if (!extensions::ExtensionsEnabled())
@@ -625,7 +625,7 @@ bool CefContentBrowserClient::DoesSiteRequireDedicatedProcess(
   return extension != nullptr;
 }
 
-void CefContentBrowserClient::OverrideURLLoaderFactoryParams(
+void AlloyContentBrowserClient::OverrideURLLoaderFactoryParams(
     content::BrowserContext* browser_context,
     const url::Origin& origin,
     bool is_for_isolated_world,
@@ -636,21 +636,21 @@ void CefContentBrowserClient::OverrideURLLoaderFactoryParams(
   }
 }
 
-void CefContentBrowserClient::GetAdditionalWebUISchemes(
+void AlloyContentBrowserClient::GetAdditionalWebUISchemes(
     std::vector<std::string>* additional_schemes) {
   // Any schemes listed here are treated as WebUI schemes but do not get WebUI
   // bindings. Also, view-source is allowed for these schemes. WebUI schemes
   // will not be passed to HandleExternalProtocol.
 }
 
-void CefContentBrowserClient::GetAdditionalViewSourceSchemes(
+void AlloyContentBrowserClient::GetAdditionalViewSourceSchemes(
     std::vector<std::string>* additional_schemes) {
   GetAdditionalWebUISchemes(additional_schemes);
 
   additional_schemes->push_back(extensions::kExtensionScheme);
 }
 
-void CefContentBrowserClient::GetAdditionalAllowedSchemesForFileSystem(
+void AlloyContentBrowserClient::GetAdditionalAllowedSchemesForFileSystem(
     std::vector<std::string>* additional_allowed_schemes) {
   ContentBrowserClient::GetAdditionalAllowedSchemesForFileSystem(
       additional_allowed_schemes);
@@ -658,12 +658,12 @@ void CefContentBrowserClient::GetAdditionalAllowedSchemesForFileSystem(
   additional_allowed_schemes->push_back(content::kChromeUIScheme);
 }
 
-bool CefContentBrowserClient::IsWebUIAllowedToMakeNetworkRequests(
+bool AlloyContentBrowserClient::IsWebUIAllowedToMakeNetworkRequests(
     const url::Origin& origin) {
   return scheme::IsWebUIAllowedToMakeNetworkRequests(origin);
 }
 
-bool CefContentBrowserClient::IsHandledURL(const GURL& url) {
+bool AlloyContentBrowserClient::IsHandledURL(const GURL& url) {
   if (!url.is_valid())
     return false;
   const std::string& scheme = url.scheme();
@@ -672,10 +672,10 @@ bool CefContentBrowserClient::IsHandledURL(const GURL& url) {
   if (scheme::IsInternalHandledScheme(scheme))
     return true;
 
-  return CefContentClient::Get()->HasCustomScheme(scheme);
+  return AlloyContentClient::Get()->HasCustomScheme(scheme);
 }
 
-void CefContentBrowserClient::SiteInstanceGotProcess(
+void AlloyContentBrowserClient::SiteInstanceGotProcess(
     content::SiteInstance* site_instance) {
   if (!extensions::ExtensionsEnabled())
     return;
@@ -699,7 +699,7 @@ void CefContentBrowserClient::SiteInstanceGotProcess(
                           site_instance->GetId()));
 }
 
-void CefContentBrowserClient::SiteInstanceDeleting(
+void AlloyContentBrowserClient::SiteInstanceDeleting(
     content::SiteInstance* site_instance) {
   if (!extensions::ExtensionsEnabled())
     return;
@@ -731,7 +731,7 @@ void CefContentBrowserClient::SiteInstanceDeleting(
                           site_instance->GetId()));
 }
 
-void CefContentBrowserClient::BindHostReceiverForRenderer(
+void AlloyContentBrowserClient::BindHostReceiverForRenderer(
     content::RenderProcessHost* render_process_host,
     mojo::GenericPendingReceiver receiver) {
   if (auto host_receiver = receiver.As<spellcheck::mojom::SpellCheckHost>()) {
@@ -751,7 +751,7 @@ void CefContentBrowserClient::BindHostReceiverForRenderer(
 }
 
 base::Optional<service_manager::Manifest>
-CefContentBrowserClient::GetServiceManifestOverlay(base::StringPiece name) {
+AlloyContentBrowserClient::GetServiceManifestOverlay(base::StringPiece name) {
   if (name == content::mojom::kBrowserServiceName) {
     return GetCefContentBrowserOverlayManifest();
   }
@@ -759,7 +759,7 @@ CefContentBrowserClient::GetServiceManifestOverlay(base::StringPiece name) {
   return base::nullopt;
 }
 
-void CefContentBrowserClient::AppendExtraCommandLineSwitches(
+void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
     base::CommandLine* command_line,
     int child_process_id) {
   const base::CommandLine* browser_cmd = base::CommandLine::ForCurrentProcess();
@@ -867,7 +867,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
   }
 #endif  // defined(OS_LINUX)
 
-  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
+  CefRefPtr<CefApp> app = AlloyContentClient::Get()->application();
   if (app.get()) {
     CefRefPtr<CefBrowserProcessHandler> handler =
         app->GetBrowserProcessHandler();
@@ -880,12 +880,12 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
   }
 }
 
-std::string CefContentBrowserClient::GetApplicationLocale() {
+std::string AlloyContentBrowserClient::GetApplicationLocale() {
   return g_browser_process->GetApplicationLocale();
 }
 
 scoped_refptr<network::SharedURLLoaderFactory>
-CefContentBrowserClient::GetSystemSharedURLLoaderFactory() {
+AlloyContentBrowserClient::GetSystemSharedURLLoaderFactory() {
   DCHECK(
       content::BrowserThread::CurrentlyOn(content::BrowserThread::UI) ||
       !content::BrowserThread::IsThreadInitialized(content::BrowserThread::UI));
@@ -898,23 +898,23 @@ CefContentBrowserClient::GetSystemSharedURLLoaderFactory() {
 }
 
 network::mojom::NetworkContext*
-CefContentBrowserClient::GetSystemNetworkContext() {
+AlloyContentBrowserClient::GetSystemNetworkContext() {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
   DCHECK(SystemNetworkContextManager::GetInstance());
   return SystemNetworkContextManager::GetInstance()->GetContext();
 }
 
 scoped_refptr<content::QuotaPermissionContext>
-CefContentBrowserClient::CreateQuotaPermissionContext() {
+AlloyContentBrowserClient::CreateQuotaPermissionContext() {
   return new CefQuotaPermissionContext();
 }
 
-content::MediaObserver* CefContentBrowserClient::GetMediaObserver() {
+content::MediaObserver* AlloyContentBrowserClient::GetMediaObserver() {
   return CefMediaCaptureDevicesDispatcher::GetInstance();
 }
 
 content::SpeechRecognitionManagerDelegate*
-CefContentBrowserClient::CreateSpeechRecognitionManagerDelegate() {
+AlloyContentBrowserClient::CreateSpeechRecognitionManagerDelegate() {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kEnableSpeechInput))
@@ -924,7 +924,7 @@ CefContentBrowserClient::CreateSpeechRecognitionManagerDelegate() {
 }
 
 content::GeneratedCodeCacheSettings
-CefContentBrowserClient::GetGeneratedCodeCacheSettings(
+AlloyContentBrowserClient::GetGeneratedCodeCacheSettings(
     content::BrowserContext* context) {
   // If we pass 0 for size, disk_cache will pick a default size using the
   // heuristics based on available disk size. These are implemented in
@@ -934,7 +934,7 @@ CefContentBrowserClient::GetGeneratedCodeCacheSettings(
                                              0 /* size */, cache_path);
 }
 
-void CefContentBrowserClient::AllowCertificateError(
+void AlloyContentBrowserClient::AllowCertificateError(
     content::WebContents* web_contents,
     int cert_error,
     const net::SSLInfo& ssl_info,
@@ -980,7 +980,7 @@ void CefContentBrowserClient::AllowCertificateError(
   }
 }
 
-base::OnceClosure CefContentBrowserClient::SelectClientCertificate(
+base::OnceClosure AlloyContentBrowserClient::SelectClientCertificate(
     content::WebContents* web_contents,
     net::SSLCertRequestInfo* cert_request_info,
     net::ClientCertIdentityList client_certs,
@@ -1021,7 +1021,7 @@ base::OnceClosure CefContentBrowserClient::SelectClientCertificate(
   return base::OnceClosure();
 }
 
-bool CefContentBrowserClient::CanCreateWindow(
+bool AlloyContentBrowserClient::CanCreateWindow(
     content::RenderFrameHost* opener,
     const GURL& opener_url,
     const GURL& opener_top_level_frame_url,
@@ -1043,7 +1043,7 @@ bool CefContentBrowserClient::CanCreateWindow(
       user_gesture, opener_suppressed, no_javascript_access);
 }
 
-void CefContentBrowserClient::OverrideWebkitPrefs(
+void AlloyContentBrowserClient::OverrideWebkitPrefs(
     content::RenderViewHost* rvh,
     content::WebPreferences* prefs) {
   // Using RVH instead of RFH here because rvh->GetMainFrame() may be nullptr
@@ -1056,16 +1056,16 @@ void CefContentBrowserClient::OverrideWebkitPrefs(
   }
 }
 
-void CefContentBrowserClient::BrowserURLHandlerCreated(
+void AlloyContentBrowserClient::BrowserURLHandlerCreated(
     content::BrowserURLHandler* handler) {
   scheme::BrowserURLHandlerCreated(handler);
 }
 
-std::string CefContentBrowserClient::GetDefaultDownloadName() {
+std::string AlloyContentBrowserClient::GetDefaultDownloadName() {
   return "download";
 }
 
-void CefContentBrowserClient::DidCreatePpapiPlugin(
+void AlloyContentBrowserClient::DidCreatePpapiPlugin(
     content::BrowserPpapiHost* browser_host) {
   browser_host->GetPpapiHost()->AddHostFactoryFilter(
       std::unique_ptr<ppapi::host::HostFactory>(
@@ -1073,12 +1073,12 @@ void CefContentBrowserClient::DidCreatePpapiPlugin(
 }
 
 content::DevToolsManagerDelegate*
-CefContentBrowserClient::GetDevToolsManagerDelegate() {
+AlloyContentBrowserClient::GetDevToolsManagerDelegate() {
   return new CefDevToolsManagerDelegate();
 }
 
 std::vector<std::unique_ptr<content::NavigationThrottle>>
-CefContentBrowserClient::CreateThrottlesForNavigation(
+AlloyContentBrowserClient::CreateThrottlesForNavigation(
     content::NavigationHandle* navigation_handle) {
   CEF_REQUIRE_UIT();
 
@@ -1111,7 +1111,7 @@ CefContentBrowserClient::CreateThrottlesForNavigation(
 }
 
 std::vector<std::unique_ptr<blink::URLLoaderThrottle>>
-CefContentBrowserClient::CreateURLLoaderThrottles(
+AlloyContentBrowserClient::CreateURLLoaderThrottles(
     const network::ResourceRequest& request,
     content::BrowserContext* browser_context,
     const base::RepeatingCallback<content::WebContents*()>& wc_getter,
@@ -1136,7 +1136,7 @@ CefContentBrowserClient::CreateURLLoaderThrottles(
 }
 
 #if defined(OS_LINUX)
-void CefContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
+void AlloyContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
     const base::CommandLine& command_line,
     int child_process_id,
     content::PosixFileDescriptorInfo* mappings) {
@@ -1148,7 +1148,7 @@ void CefContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
 #endif  // defined(OS_LINUX)
 
 #if defined(OS_WIN)
-const wchar_t* CefContentBrowserClient::GetResourceDllName() {
+const wchar_t* AlloyContentBrowserClient::GetResourceDllName() {
   static wchar_t file_path[MAX_PATH + 1] = {0};
 
   if (file_path[0] == 0) {
@@ -1164,13 +1164,13 @@ const wchar_t* CefContentBrowserClient::GetResourceDllName() {
   return file_path;
 }
 
-bool CefContentBrowserClient::PreSpawnRenderer(sandbox::TargetPolicy* policy,
-                                               RendererSpawnFlags flags) {
+bool AlloyContentBrowserClient::PreSpawnRenderer(sandbox::TargetPolicy* policy,
+                                                 RendererSpawnFlags flags) {
   return true;
 }
 #endif  // defined(OS_WIN)
 
-void CefContentBrowserClient::ExposeInterfacesToRenderer(
+void AlloyContentBrowserClient::ExposeInterfacesToRenderer(
     service_manager::BinderRegistry* registry,
     blink::AssociatedInterfaceRegistry* associated_registry,
     content::RenderProcessHost* host) {
@@ -1179,7 +1179,7 @@ void CefContentBrowserClient::ExposeInterfacesToRenderer(
 }
 
 std::unique_ptr<net::ClientCertStore>
-CefContentBrowserClient::CreateClientCertStore(
+AlloyContentBrowserClient::CreateClientCertStore(
     content::BrowserContext* browser_context) {
   // Match the logic in ProfileNetworkContextService::CreateClientCertStore.
 #if defined(USE_NSS_CERTS)
@@ -1196,7 +1196,7 @@ CefContentBrowserClient::CreateClientCertStore(
 }
 
 std::unique_ptr<content::LoginDelegate>
-CefContentBrowserClient::CreateLoginDelegate(
+AlloyContentBrowserClient::CreateLoginDelegate(
     const net::AuthChallengeInfo& auth_info,
     content::WebContents* web_contents,
     const content::GlobalRequestID& request_id,
@@ -1210,7 +1210,7 @@ CefContentBrowserClient::CreateLoginDelegate(
       std::move(auth_required_callback));
 }
 
-void CefContentBrowserClient::RegisterNonNetworkNavigationURLLoaderFactories(
+void AlloyContentBrowserClient::RegisterNonNetworkNavigationURLLoaderFactories(
     int frame_tree_node_id,
     NonNetworkURLLoaderFactoryMap* factories) {
   if (!extensions::ExtensionsEnabled())
@@ -1225,7 +1225,7 @@ void CefContentBrowserClient::RegisterNonNetworkNavigationURLLoaderFactories(
           !!extensions::WebViewGuest::FromWebContents(web_contents)));
 }
 
-void CefContentBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories(
+void AlloyContentBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories(
     int render_process_id,
     int render_frame_id,
     NonNetworkURLLoaderFactoryMap* factories) {
@@ -1275,7 +1275,7 @@ void CefContentBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories(
   }
 }
 
-bool CefContentBrowserClient::WillCreateURLLoaderFactory(
+bool AlloyContentBrowserClient::WillCreateURLLoaderFactory(
     content::BrowserContext* browser_context,
     content::RenderFrameHost* frame,
     int render_process_id,
@@ -1299,7 +1299,7 @@ bool CefContentBrowserClient::WillCreateURLLoaderFactory(
   return true;
 }
 
-void CefContentBrowserClient::OnNetworkServiceCreated(
+void AlloyContentBrowserClient::OnNetworkServiceCreated(
     network::mojom::NetworkService* network_service) {
   DCHECK(g_browser_process);
   PrefService* local_state = g_browser_process->local_state();
@@ -1311,7 +1311,7 @@ void CefContentBrowserClient::OnNetworkServiceCreated(
       network_service);
 }
 
-void CefContentBrowserClient::ConfigureNetworkContextParams(
+void AlloyContentBrowserClient::ConfigureNetworkContextParams(
     content::BrowserContext* context,
     bool in_memory,
     const base::FilePath& relative_partition_path,
@@ -1329,7 +1329,7 @@ void CefContentBrowserClient::ConfigureNetworkContextParams(
 // The sandbox may block read/write access from the NetworkService to
 // directories that are not returned by this method.
 std::vector<base::FilePath>
-CefContentBrowserClient::GetNetworkContextsParentDirectory() {
+AlloyContentBrowserClient::GetNetworkContextsParentDirectory() {
   base::FilePath user_data_path;
   base::PathService::Get(chrome::DIR_USER_DATA, &user_data_path);
   DCHECK(!user_data_path.empty());
@@ -1345,7 +1345,7 @@ CefContentBrowserClient::GetNetworkContextsParentDirectory() {
   return {user_data_path, root_cache_path};
 }
 
-bool CefContentBrowserClient::HandleExternalProtocol(
+bool AlloyContentBrowserClient::HandleExternalProtocol(
     const GURL& url,
     base::OnceCallback<content::WebContents*()> web_contents_getter,
     int child_id,
@@ -1359,7 +1359,7 @@ bool CefContentBrowserClient::HandleExternalProtocol(
   return false;
 }
 
-bool CefContentBrowserClient::HandleExternalProtocol(
+bool AlloyContentBrowserClient::HandleExternalProtocol(
     content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
@@ -1397,7 +1397,7 @@ bool CefContentBrowserClient::HandleExternalProtocol(
 }
 
 std::unique_ptr<content::OverlayWindow>
-CefContentBrowserClient::CreateWindowForPictureInPicture(
+AlloyContentBrowserClient::CreateWindowForPictureInPicture(
     content::PictureInPictureWindowController* controller) {
   // Note: content::OverlayWindow::Create() is defined by platform-specific
   // implementation in chrome/browser/ui/views. This layering hack, which goes
@@ -1408,7 +1408,7 @@ CefContentBrowserClient::CreateWindowForPictureInPicture(
   return content::OverlayWindow::Create(controller);
 }
 
-void CefContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
+void AlloyContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
     content::RenderFrameHost* render_frame_host,
     mojo::BinderMapWithContext<content::RenderFrameHost*>* map) {
   PopulateChromeFrameBinders(map);
@@ -1438,25 +1438,25 @@ void CefContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
 }
 
 base::FilePath
-CefContentBrowserClient::GetSandboxedStorageServiceDataDirectory() {
+AlloyContentBrowserClient::GetSandboxedStorageServiceDataDirectory() {
   return GetRootCachePath();
 }
 
-std::string CefContentBrowserClient::GetProduct() {
+std::string AlloyContentBrowserClient::GetProduct() {
   // Match the logic in chrome_content_browser_client.cc GetProduct().
   return ::GetProduct();
 }
 
-std::string CefContentBrowserClient::GetChromeProduct() {
+std::string AlloyContentBrowserClient::GetChromeProduct() {
   return version_info::GetProductNameAndVersionForUserAgent();
 }
 
-std::string CefContentBrowserClient::GetUserAgent() {
+std::string AlloyContentBrowserClient::GetUserAgent() {
   // Match the logic in chrome_content_browser_client.cc GetUserAgent().
   return ::GetUserAgent();
 }
 
-blink::UserAgentMetadata CefContentBrowserClient::GetUserAgentMetadata() {
+blink::UserAgentMetadata AlloyContentBrowserClient::GetUserAgentMetadata() {
   blink::UserAgentMetadata metadata;
 
   metadata.brand_version_list = {blink::UserAgentBrandVersion{
@@ -1472,7 +1472,7 @@ blink::UserAgentMetadata CefContentBrowserClient::GetUserAgentMetadata() {
 }
 
 base::flat_set<std::string>
-CefContentBrowserClient::GetPluginMimeTypesWithExternalHandlers(
+AlloyContentBrowserClient::GetPluginMimeTypesWithExternalHandlers(
     content::BrowserContext* browser_context) {
   base::flat_set<std::string> mime_types;
   auto map = PluginUtils::GetMimeTypeToExtensionIdMap(browser_context);
@@ -1481,31 +1481,31 @@ CefContentBrowserClient::GetPluginMimeTypesWithExternalHandlers(
   return mime_types;
 }
 
-CefRefPtr<CefRequestContextImpl> CefContentBrowserClient::request_context()
+CefRefPtr<CefRequestContextImpl> AlloyContentBrowserClient::request_context()
     const {
   return browser_main_parts_->request_context();
 }
 
-CefDevToolsDelegate* CefContentBrowserClient::devtools_delegate() const {
+CefDevToolsDelegate* AlloyContentBrowserClient::devtools_delegate() const {
   return browser_main_parts_->devtools_delegate();
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
-CefContentBrowserClient::background_task_runner() const {
+AlloyContentBrowserClient::background_task_runner() const {
   return browser_main_parts_->background_task_runner();
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
-CefContentBrowserClient::user_visible_task_runner() const {
+AlloyContentBrowserClient::user_visible_task_runner() const {
   return browser_main_parts_->user_visible_task_runner();
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
-CefContentBrowserClient::user_blocking_task_runner() const {
+AlloyContentBrowserClient::user_blocking_task_runner() const {
   return browser_main_parts_->user_blocking_task_runner();
 }
 
-const extensions::Extension* CefContentBrowserClient::GetExtension(
+const extensions::Extension* AlloyContentBrowserClient::GetExtension(
     content::SiteInstance* site_instance) {
   extensions::ExtensionRegistry* registry =
       extensions::ExtensionRegistry::Get(site_instance->GetBrowserContext());

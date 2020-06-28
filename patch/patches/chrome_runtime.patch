@@ -6,7 +6,7 @@ index c06585b15b8f..b5ed3518c0fd 100644
  #include "build/branding_buildflags.h"
  #include "build/build_config.h"
  #include "cc/base/switches.h"
-+#include "cef/libcef/features/chrome_cef.h"
++#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/active_use_util.h"
  #include "chrome/browser/after_startup_task_utils.h"

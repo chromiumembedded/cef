@@ -3,10 +3,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/chrome_profile_manager_stub.h"
+#include "libcef/browser/alloy/chrome_profile_manager_alloy.h"
 
+#include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/browser_context.h"
-#include "libcef/browser/content_browser_client.h"
 
 namespace {
 
@@ -22,17 +22,17 @@ namespace {
 // determine that.
 CefBrowserContext* GetActiveBrowserContext() {
   return static_cast<CefBrowserContext*>(
-      CefContentBrowserClient::Get()->request_context()->GetBrowserContext());
+      AlloyContentBrowserClient::Get()->request_context()->GetBrowserContext());
 }
 
 }  // namespace
 
-ChromeProfileManagerStub::ChromeProfileManagerStub()
+ChromeProfileManagerAlloy::ChromeProfileManagerAlloy()
     : ProfileManager(base::FilePath()) {}
 
-ChromeProfileManagerStub::~ChromeProfileManagerStub() {}
+ChromeProfileManagerAlloy::~ChromeProfileManagerAlloy() {}
 
-Profile* ChromeProfileManagerStub::GetProfile(
+Profile* ChromeProfileManagerAlloy::GetProfile(
     const base::FilePath& profile_dir) {
   CefBrowserContext* browser_context =
       CefBrowserContext::GetForCachePath(profile_dir);
@@ -48,14 +48,14 @@ Profile* ChromeProfileManagerStub::GetProfile(
   return browser_context;
 }
 
-bool ChromeProfileManagerStub::IsValidProfile(const void* profile) {
+bool ChromeProfileManagerAlloy::IsValidProfile(const void* profile) {
   if (!profile)
     return false;
   return !!CefBrowserContext::GetForContext(
       reinterpret_cast<content::BrowserContext*>(const_cast<void*>(profile)));
 }
 
-Profile* ChromeProfileManagerStub::GetLastUsedProfile(
+Profile* ChromeProfileManagerAlloy::GetLastUsedProfile(
     const base::FilePath& user_data_dir) {
   // Override this method to avoid having to register prefs::kProfileLastUsed,
   // usage of which doesn't make sense for CEF.

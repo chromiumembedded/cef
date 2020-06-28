@@ -2,15 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_COMMON_MAIN_DELEGATE_H_
-#define CEF_LIBCEF_COMMON_MAIN_DELEGATE_H_
+#ifndef CEF_LIBCEF_COMMON_ALLOY_ALLOY_MAIN_DELEGATE_H_
+#define CEF_LIBCEF_COMMON_ALLOY_ALLOY_MAIN_DELEGATE_H_
 #pragma once
 
 #include <string>
 
 #include "include/cef_app.h"
-#include "libcef/common/content_client.h"
-#include "libcef/common/main_runner_delegate.h"
+#include "libcef/common/alloy/alloy_content_client.h"
 #include "libcef/common/main_runner_handler.h"
 #include "libcef/common/task_runner_manager.h"
 
@@ -21,21 +20,20 @@ namespace base {
 class CommandLine;
 }
 
-class CefContentBrowserClient;
-class CefContentRendererClient;
+class AlloyContentBrowserClient;
+class AlloyContentRendererClient;
 class ChromeContentUtilityClient;
 
 // Manages state specific to the CEF runtime.
-class CefMainDelegate : public content::ContentMainDelegate,
-                        public CefMainRunnerDelegate,
-                        public CefTaskRunnerManager {
+class AlloyMainDelegate : public content::ContentMainDelegate,
+                          public CefTaskRunnerManager {
  public:
   // |runner| and |settings| will be non-nullptr for the main process only,
   // and will outlive this object.
-  CefMainDelegate(CefMainRunnerHandler* runner,
-                  CefSettings* settings,
-                  CefRefPtr<CefApp> application);
-  ~CefMainDelegate() override;
+  AlloyMainDelegate(CefMainRunnerHandler* runner,
+                    CefSettings* settings,
+                    CefRefPtr<CefApp> application);
+  ~AlloyMainDelegate() override;
 
   // content::ContentMainDelegate overrides.
   void PreCreateMainMessageLoop() override;
@@ -53,21 +51,10 @@ class CefMainDelegate : public content::ContentMainDelegate,
   content::ContentRendererClient* CreateContentRendererClient() override;
   content::ContentUtilityClient* CreateContentUtilityClient() override;
 
-  CefContentBrowserClient* browser_client() { return browser_client_.get(); }
-  CefContentClient* content_client() { return &content_client_; }
+  AlloyContentBrowserClient* browser_client() { return browser_client_.get(); }
+  AlloyContentClient* content_client() { return &content_client_; }
 
  protected:
-  // CefMainRunnerDelegate overrides.
-  content::ContentMainDelegate* GetContentMainDelegate() override {
-    return this;
-  }
-  void BeforeMainThreadInitialize(const CefMainArgs& args) override;
-  void BeforeMainThreadRun() override;
-  void AfterUIThreadInitialize() override;
-  void AfterUIThreadShutdown() override;
-  void BeforeMainThreadShutdown() override;
-  void AfterMainThreadShutdown() override;
-
   // CefTaskRunnerManager overrides.
   scoped_refptr<base::SingleThreadTaskRunner> GetBackgroundTaskRunner()
       override;
@@ -84,12 +71,12 @@ class CefMainDelegate : public content::ContentMainDelegate,
   CefMainRunnerHandler* const runner_;
   CefSettings* const settings_;
 
-  std::unique_ptr<CefContentBrowserClient> browser_client_;
-  std::unique_ptr<CefContentRendererClient> renderer_client_;
+  std::unique_ptr<AlloyContentBrowserClient> browser_client_;
+  std::unique_ptr<AlloyContentRendererClient> renderer_client_;
   std::unique_ptr<ChromeContentUtilityClient> utility_client_;
-  CefContentClient content_client_;
+  AlloyContentClient content_client_;
 
-  DISALLOW_COPY_AND_ASSIGN(CefMainDelegate);
+  DISALLOW_COPY_AND_ASSIGN(AlloyMainDelegate);
 };
 
-#endif  // CEF_LIBCEF_COMMON_MAIN_DELEGATE_H_
+#endif  // CEF_LIBCEF_COMMON_ALLOY_ALLOY_MAIN_DELEGATE_H_

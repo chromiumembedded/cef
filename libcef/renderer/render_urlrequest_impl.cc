@@ -9,8 +9,8 @@
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
 #include "libcef/common/task_runner_impl.h"
+#include "libcef/renderer/alloy/alloy_content_renderer_client.h"
 #include "libcef/renderer/blink_glue.h"
-#include "libcef/renderer/content_renderer_client.h"
 
 #include "base/logging.h"
 #include "base/message_loop/message_loop.h"
@@ -155,7 +155,7 @@ class CefRenderURLRequest::Context
     }
     if (!factory) {
       // This factory only supports unintercepted http(s) and blob requests.
-      factory = CefContentRendererClient::Get()->GetDefaultURLLoaderFactory();
+      factory = AlloyContentRendererClient::Get()->GetDefaultURLLoaderFactory();
     }
 
     loader_ = factory->CreateURLLoader(

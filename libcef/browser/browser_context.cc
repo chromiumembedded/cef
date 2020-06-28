@@ -7,7 +7,7 @@
 #include <map>
 #include <utility>
 
-#include "libcef/browser/content_browser_client.h"
+#include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/download_manager_delegate.h"
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/media_router/media_router_manager.h"

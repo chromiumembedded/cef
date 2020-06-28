@@ -17,8 +17,8 @@
 #endif
 #endif
 
+#include "libcef/common/alloy/alloy_content_client.h"
 #include "libcef/common/cef_messages.h"
-#include "libcef/common/content_client.h"
 #include "libcef/common/net/http_header_utils.h"
 #include "libcef/common/process_message_impl.h"
 #include "libcef/common/request_impl.h"
@@ -325,7 +325,7 @@ void CefFrameImpl::OnDidFinishLoad() {
   Send(new CefHostMsg_DidFinishLoad(MSG_ROUTING_NONE, dl->GetUrl(),
                                     http_status_code));
 
-  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
+  CefRefPtr<CefApp> app = AlloyContentClient::Get()->application();
   if (app) {
     CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
     if (handler) {
@@ -417,7 +417,7 @@ void CefFrameImpl::OnRequest(const Cef_Request_Params& params) {
 
   if (params.user_initiated) {
     // Give the user a chance to handle the request.
-    CefRefPtr<CefApp> app = CefContentClient::Get()->application();
+    CefRefPtr<CefApp> app = AlloyContentClient::Get()->application();
     if (app.get()) {
       CefRefPtr<CefRenderProcessHandler> handler =
           app->GetRenderProcessHandler();

@@ -12,12 +12,12 @@
 
 #include "include/cef_version.h"
 #include "include/cef_web_plugin.h"
-#include "libcef/browser/content_browser_client.h"
+#include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/extensions/chrome_api_registration.h"
 #include "libcef/browser/frame_host_impl.h"
 #include "libcef/browser/net/internal_scheme_handler.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/common/content_client.h"
+#include "libcef/common/alloy/alloy_content_client.h"
 
 #include "base/command_line.h"
 #include "base/files/file_util.h"
@@ -60,7 +60,7 @@ const char kChromeUIWebUIHostsHost[] = "webui-hosts";
 // TODO(network): Consider handling content::kChromeDevToolsScheme via WebUI
 // (DevToolsUI class) with the following changes:
 // 1. Add an entry for content::kChromeDevToolsScheme in
-//    CefContentBrowserClient::GetAdditionalWebUISchemes.
+//    AlloyContentBrowserClient::GetAdditionalWebUISchemes.
 // 2. Allow the scheme in CefWebUIControllerFactory::AllowWebUIForURL.
 // 3. Add an entry for chrome::kChromeUIDevToolsHost in kAllowedWebUIHosts and
 //    kUnlistedHosts.
@@ -341,7 +341,7 @@ bool OnExtensionsSupportUI(std::string* mime_type, std::string* output) {
 }
 
 bool OnLicenseUI(std::string* mime_type, std::string* output) {
-  base::StringPiece piece = CefContentClient::Get()->GetDataResource(
+  base::StringPiece piece = AlloyContentClient::Get()->GetDataResource(
       IDR_CEF_LICENSE_TXT, ui::SCALE_FACTOR_NONE);
   if (piece.empty()) {
     NOTREACHED() << "Failed to load license txt resource.";
@@ -358,7 +358,7 @@ bool OnLicenseUI(std::string* mime_type, std::string* output) {
 bool OnVersionUI(Profile* profile,
                  std::string* mime_type,
                  std::string* output) {
-  base::StringPiece piece = CefContentClient::Get()->GetDataResource(
+  base::StringPiece piece = AlloyContentClient::Get()->GetDataResource(
       IDR_CEF_VERSION_HTML, ui::SCALE_FACTOR_NONE);
   if (piece.empty()) {
     NOTREACHED() << "Failed to load version html resource.";
@@ -376,7 +376,7 @@ bool OnVersionUI(Profile* profile,
   parser.Add("WEBKIT", content::GetWebKitVersion());
   parser.Add("JAVASCRIPT", v8::V8::GetVersion());
   parser.Add("FLASH", std::string());  // Value populated asynchronously.
-  parser.Add("USERAGENT", CefContentClient::Get()->browser()->GetUserAgent());
+  parser.Add("USERAGENT", AlloyContentClient::Get()->browser()->GetUserAgent());
   parser.Add("COMMANDLINE", GetCommandLine());
   parser.Add("MODULEPATH", GetModulePath());
   parser.Add("CACHEPATH", CefString(profile->GetPath().value()));

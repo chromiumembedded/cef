@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_RENDERER_CONTENT_RENDERER_CLIENT_H_
-#define CEF_LIBCEF_RENDERER_CONTENT_RENDERER_CLIENT_H_
+#ifndef CEF_LIBCEF_RENDERER_ALLOY_ALLOY_CONTENT_RENDERER_CLIENT_H_
+#define CEF_LIBCEF_RENDERER_ALLOY_ALLOY_CONTENT_RENDERER_CLIENT_H_
 #pragma once
 
 #include <list>
@@ -53,16 +53,16 @@ struct Cef_CrossOriginWhiteListEntry_Params;
 class ChromePDFPrintClient;
 class SpellCheck;
 
-class CefContentRendererClient
+class AlloyContentRendererClient
     : public content::ContentRendererClient,
       public service_manager::LocalInterfaceProvider,
       public base::MessageLoopCurrent::DestructionObserver {
  public:
-  CefContentRendererClient();
-  ~CefContentRendererClient() override;
+  AlloyContentRendererClient();
+  ~AlloyContentRendererClient() override;
 
-  // Returns the singleton CefContentRendererClient instance.
-  static CefContentRendererClient* Get();
+  // Returns the singleton AlloyContentRendererClient instance.
+  static AlloyContentRendererClient* Get();
 
   // Returns the browser associated with the specified RenderView.
   CefRefPtr<CefBrowserImpl> GetBrowserForView(content::RenderView* view);
@@ -200,7 +200,7 @@ class CefContentRendererClient
   bool single_process_cleanup_complete_;
   base::Lock single_process_cleanup_lock_;
 
-  DISALLOW_COPY_AND_ASSIGN(CefContentRendererClient);
+  DISALLOW_COPY_AND_ASSIGN(AlloyContentRendererClient);
 };
 
-#endif  // CEF_LIBCEF_RENDERER_CONTENT_RENDERER_CLIENT_H_
+#endif  // CEF_LIBCEF_RENDERER_ALLOY_ALLOY_CONTENT_RENDERER_CLIENT_H_

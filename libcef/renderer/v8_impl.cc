@@ -25,8 +25,8 @@
 
 #include "libcef/renderer/v8_impl.h"
 
+#include "libcef/common/alloy/alloy_content_client.h"
 #include "libcef/common/cef_switches.h"
-#include "libcef/common/content_client.h"
 #include "libcef/common/task_runner_impl.h"
 #include "libcef/common/tracker.h"
 #include "libcef/renderer/blink_glue.h"
@@ -87,7 +87,7 @@ class CefV8IsolateManager {
  public:
   CefV8IsolateManager()
       : isolate_(v8::Isolate::GetCurrent()),
-        task_runner_(CefContentRendererClient::Get()->GetCurrentTaskRunner()),
+        task_runner_(CEF_RENDER_TASK_RUNNER()),
         message_listener_registered_(false),
         worker_id_(0) {
     DCHECK(isolate_);
@@ -783,7 +783,7 @@ class CefV8ExceptionImpl : public CefV8Exception {
 
 void MessageListenerCallbackImpl(v8::Handle<v8::Message> message,
                                  v8::Handle<v8::Value> data) {
-  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
+  CefRefPtr<CefApp> application = AlloyContentClient::Get()->application();
   if (!application.get())
     return;
 

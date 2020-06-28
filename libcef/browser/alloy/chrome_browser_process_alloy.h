@@ -6,8 +6,8 @@
 // This file provides a stub implementation of Chrome's BrowserProcess object
 // for use as an interop layer between CEF and files that live in chrome/.
 
-#ifndef CEF_LIBCEF_BROWSER_CHROME_BROWSER_PROCESS_STUB_H_
-#define CEF_LIBCEF_BROWSER_CHROME_BROWSER_PROCESS_STUB_H_
+#ifndef CEF_LIBCEF_BROWSER_ALLOY_CHROME_BROWSER_PROCESS_ALLOY_H_
+#define CEF_LIBCEF_BROWSER_ALLOY_CHROME_BROWSER_PROCESS_ALLOY_H_
 
 #include <memory>
 #include <string>
@@ -18,7 +18,7 @@
 #include "chrome/browser/extensions/event_router_forwarder.h"
 #include "media/media_buildflags.h"
 
-class ChromeProfileManagerStub;
+class ChromeProfileManagerAlloy;
 
 class BackgroundModeManager {
  public:
@@ -29,10 +29,10 @@ class BackgroundModeManager {
   DISALLOW_COPY_AND_ASSIGN(BackgroundModeManager);
 };
 
-class ChromeBrowserProcessStub : public BrowserProcess {
+class ChromeBrowserProcessAlloy : public BrowserProcess {
  public:
-  ChromeBrowserProcessStub();
-  ~ChromeBrowserProcessStub() override;
+  ChromeBrowserProcessAlloy();
+  ~ChromeBrowserProcessAlloy() override;
 
   void Initialize();
   void OnContextInitialized();
@@ -107,7 +107,7 @@ class ChromeBrowserProcessStub : public BrowserProcess {
 
   std::string locale_;
   std::unique_ptr<printing::PrintJobManager> print_job_manager_;
-  std::unique_ptr<ChromeProfileManagerStub> profile_manager_;
+  std::unique_ptr<ChromeProfileManagerAlloy> profile_manager_;
   scoped_refptr<extensions::EventRouterForwarder> event_router_forwarder_;
   scoped_refptr<printing::PrintPreviewDialogController>
       print_preview_dialog_controller_;
@@ -119,7 +119,7 @@ class ChromeBrowserProcessStub : public BrowserProcess {
       browser_policy_connector_;
   std::unique_ptr<base::FieldTrialList> field_trial_list_;
 
-  DISALLOW_COPY_AND_ASSIGN(ChromeBrowserProcessStub);
+  DISALLOW_COPY_AND_ASSIGN(ChromeBrowserProcessAlloy);
 };
 
-#endif  // CEF_LIBCEF_BROWSER_CHROME_BROWSER_PROCESS_STUB_H_
+#endif  // CEF_LIBCEF_BROWSER_ALLOY_CHROME_BROWSER_PROCESS_ALLOY_H_

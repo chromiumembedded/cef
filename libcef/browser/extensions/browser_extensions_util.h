@@ -45,7 +45,7 @@ CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForFrameRoute(
 // |is_guest_view| will be set to true if the host matches a guest view
 // associated with the returned browser instead of the browser itself.
 // TODO(cef): Delete the RVH variant once the remaining use case
-// (via CefContentBrowserClient::OverrideWebkitPrefs) has been removed.
+// (via AlloyContentBrowserClient::OverrideWebkitPrefs) has been removed.
 CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForHost(
     content::RenderViewHost* host,
     bool* is_guest_view);

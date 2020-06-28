@@ -53,8 +53,8 @@
 // Tasks posted with this method are not guaranteed to run sequentially. Use
 // base::CreateSequencedTaskRunner instead if sequence is important.
 // Sequenced runners at various priorities that always execute all pending tasks
-// before shutdown are available via CefContentBrowserClient::*_task_runner()
-// and exposed by the CEF API.
+// before shutdown are available via CefTaskRunnerManager and exposed by the CEF
+// API.
 #define CEF_POST_BLOCKING_TASK(priority, task)                          \
   base::PostTask(                                                       \
       FROM_HERE,                                                        \

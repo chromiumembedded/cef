@@ -7,8 +7,8 @@
 
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/origin_whitelist_impl.h"
+#include "libcef/common/alloy/alloy_content_client.h"
 #include "libcef/common/cef_messages.h"
-#include "libcef/common/content_client.h"
 #include "libcef/common/values_impl.h"
 
 #include "base/bind.h"
@@ -43,7 +43,7 @@ void CefBrowserMessageFilter::OnGetNewRenderThreadInfo(
     CefProcessHostMsg_GetNewRenderThreadInfo_Params* params) {
   GetCrossOriginWhitelistEntries(&params->cross_origin_whitelist_entries);
 
-  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
+  CefRefPtr<CefApp> app = AlloyContentClient::Get()->application();
   if (app.get()) {
     CefRefPtr<CefBrowserProcessHandler> handler =
         app->GetBrowserProcessHandler();

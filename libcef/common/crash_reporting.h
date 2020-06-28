@@ -20,7 +20,7 @@ bool Enabled();
 bool SetCrashKeyValue(const base::StringPiece& key,
                       const base::StringPiece& value);
 
-// Functions are called from similarly named methods in CefMainDelegate.
+// Functions are called from similarly named methods in AlloyMainDelegate.
 
 #if defined(OS_POSIX)
 void BasicStartupComplete(base::CommandLine* command_line);

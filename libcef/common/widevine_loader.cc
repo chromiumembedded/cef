@@ -478,7 +478,7 @@ void CefWidevineLoader::AddContentDecryptionModules(
   }
 
   // The Widevine CDM path is passed to the zygote process via
-  // CefContentBrowserClient::AppendExtraCommandLineSwitches.
+  // AlloyContentBrowserClient::AppendExtraCommandLineSwitches.
   const base::FilePath& base_path =
       command_line.GetSwitchValuePath(switches::kWidevineCdmPath);
   if (base_path.empty())

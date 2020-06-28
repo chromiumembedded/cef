@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_COMMON_CONTENT_CLIENT_H_
-#define CEF_LIBCEF_COMMON_CONTENT_CLIENT_H_
+#ifndef CEF_LIBCEF_COMMON_ALLOY_ALLOY_CONTENT_CLIENT_H_
+#define CEF_LIBCEF_COMMON_ALLOY_ALLOY_CONTENT_CLIENT_H_
 #pragma once
 
 #include <list>
@@ -19,15 +19,15 @@
 #include "content/public/common/pepper_plugin_info.h"
 #include "url/url_util.h"
 
-class CefContentClient : public content::ContentClient {
+class AlloyContentClient : public content::ContentClient {
  public:
   static const char kPDFPluginPath[];
 
-  explicit CefContentClient(CefRefPtr<CefApp> application);
-  ~CefContentClient() override;
+  explicit AlloyContentClient(CefRefPtr<CefApp> application);
+  ~AlloyContentClient() override;
 
-  // Returns the singleton CefContentClient instance.
-  static CefContentClient* Get();
+  // Returns the singleton AlloyContentClient instance.
+  static AlloyContentClient* Get();
 
   // content::ContentClient methods.
   void AddPepperPlugins(
@@ -88,9 +88,9 @@ class CefContentClient : public content::ContentClient {
   typedef std::list<SchemeInfo> SchemeInfoList;
 
   // Custom scheme information will be registered first with all processes
-  // (url/url_util.h) via CefContentClient::AddAdditionalSchemes which calls
+  // (url/url_util.h) via AlloyContentClient::AddAdditionalSchemes which calls
   // AddCustomScheme, and second with Blink (SchemeRegistry) via
-  // CefContentRendererClient::WebKitInitialized which calls GetCustomSchemes.
+  // AlloyContentRendererClient::WebKitInitialized which calls GetCustomSchemes.
   void AddCustomScheme(const SchemeInfo& scheme_info);
   const SchemeInfoList* GetCustomSchemes();
   bool HasCustomScheme(const std::string& scheme_name);
@@ -123,4 +123,4 @@ class CefContentClient : public content::ContentClient {
   CefResourceBundleDelegate resource_bundle_delegate_;
 };
 
-#endif  // CEF_LIBCEF_COMMON_CONTENT_CLIENT_H_
+#endif  // CEF_LIBCEF_COMMON_ALLOY_ALLOY_CONTENT_CLIENT_H_

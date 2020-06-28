@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/common/content_client.h"
+#include "libcef/common/alloy/alloy_content_client.h"
 
 #include <stdint.h>
 
@@ -44,7 +44,7 @@
 
 namespace {
 
-CefContentClient* g_content_client = nullptr;
+AlloyContentClient* g_content_client = nullptr;
 
 // The following plugin-related methods are from
 // chrome/common/chrome_content_client.cc
@@ -72,7 +72,7 @@ void ComputeBuiltInPlugins(std::vector<content::PepperPluginInfo>* plugins) {
     pdf_info.name = extensions::pdf_extension_util::kPdfPluginName;
     pdf_info.description = kPDFPluginDescription;
     pdf_info.path =
-        base::FilePath::FromUTF8Unsafe(CefContentClient::kPDFPluginPath);
+        base::FilePath::FromUTF8Unsafe(AlloyContentClient::kPDFPluginPath);
     content::WebPluginMimeType pdf_mime_type(kPDFPluginOutOfProcessMimeType,
                                              kPDFPluginExtension,
                                              kPDFPluginDescription);
@@ -182,9 +182,9 @@ bool GetSystemPepperFlash(content::PepperPluginInfo* plugin) {
 
 }  // namespace
 
-const char CefContentClient::kPDFPluginPath[] = "internal-pdf-viewer";
+const char AlloyContentClient::kPDFPluginPath[] = "internal-pdf-viewer";
 
-CefContentClient::CefContentClient(CefRefPtr<CefApp> application)
+AlloyContentClient::AlloyContentClient(CefRefPtr<CefApp> application)
     : application_(application),
       pack_loading_disabled_(false),
       allow_pack_file_load_(false),
@@ -194,16 +194,16 @@ CefContentClient::CefContentClient(CefRefPtr<CefApp> application)
   g_content_client = this;
 }
 
-CefContentClient::~CefContentClient() {
+AlloyContentClient::~AlloyContentClient() {
   g_content_client = nullptr;
 }
 
 // static
-CefContentClient* CefContentClient::Get() {
+AlloyContentClient* AlloyContentClient::Get() {
   return g_content_client;
 }
 
-void CefContentClient::AddPepperPlugins(
+void AlloyContentClient::AddPepperPlugins(
     std::vector<content::PepperPluginInfo>* plugins) {
   ComputeBuiltInPlugins(plugins);
   AddPepperFlashFromCommandLine(plugins);
@@ -213,7 +213,7 @@ void CefContentClient::AddPepperPlugins(
     plugins->push_back(plugin);
 }
 
-void CefContentClient::AddContentDecryptionModules(
+void AlloyContentClient::AddContentDecryptionModules(
     std::vector<content::CdmInfo>* cdms,
     std::vector<media::CdmHostFilePath>* cdm_host_file_paths) {
 #if defined(OS_LINUX)
@@ -223,7 +223,7 @@ void CefContentClient::AddContentDecryptionModules(
 #endif
 }
 
-void CefContentClient::AddAdditionalSchemes(Schemes* schemes) {
+void AlloyContentClient::AddAdditionalSchemes(Schemes* schemes) {
   DCHECK(!scheme_info_list_locked_);
 
   if (application_.get()) {
@@ -237,7 +237,7 @@ void CefContentClient::AddAdditionalSchemes(Schemes* schemes) {
   scheme_info_list_locked_ = true;
 }
 
-base::string16 CefContentClient::GetLocalizedString(int message_id) {
+base::string16 AlloyContentClient::GetLocalizedString(int message_id) {
   base::string16 value =
       ui::ResourceBundle::GetSharedInstance().GetLocalizedString(message_id);
   if (value.empty())
@@ -246,7 +246,7 @@ base::string16 CefContentClient::GetLocalizedString(int message_id) {
   return value;
 }
 
-base::string16 CefContentClient::GetLocalizedString(
+base::string16 AlloyContentClient::GetLocalizedString(
     int message_id,
     const base::string16& replacement) {
   base::string16 value = l10n_util::GetStringFUTF16(message_id, replacement);
@@ -256,7 +256,7 @@ base::string16 CefContentClient::GetLocalizedString(
   return value;
 }
 
-base::StringPiece CefContentClient::GetDataResource(
+base::StringPiece AlloyContentClient::GetDataResource(
     int resource_id,
     ui::ScaleFactor scale_factor) {
   base::StringPiece value =
@@ -268,7 +268,7 @@ base::StringPiece CefContentClient::GetDataResource(
   return value;
 }
 
-base::RefCountedMemory* CefContentClient::GetDataResourceBytes(
+base::RefCountedMemory* AlloyContentClient::GetDataResourceBytes(
     int resource_id) {
   base::RefCountedMemory* value =
       ui::ResourceBundle::GetSharedInstance().LoadDataResourceBytes(
@@ -279,7 +279,7 @@ base::RefCountedMemory* CefContentClient::GetDataResourceBytes(
   return value;
 }
 
-gfx::Image& CefContentClient::GetNativeImageNamed(int resource_id) {
+gfx::Image& AlloyContentClient::GetNativeImageNamed(int resource_id) {
   gfx::Image& value =
       ui::ResourceBundle::GetSharedInstance().GetNativeImageNamed(resource_id);
   if (value.IsEmpty())
@@ -288,7 +288,7 @@ gfx::Image& CefContentClient::GetNativeImageNamed(int resource_id) {
   return value;
 }
 
-void CefContentClient::AddCustomScheme(const SchemeInfo& scheme_info) {
+void AlloyContentClient::AddCustomScheme(const SchemeInfo& scheme_info) {
   DCHECK(!scheme_info_list_locked_);
   scheme_info_list_.push_back(scheme_info);
 
@@ -304,12 +304,13 @@ void CefContentClient::AddCustomScheme(const SchemeInfo& scheme_info) {
   }
 }
 
-const CefContentClient::SchemeInfoList* CefContentClient::GetCustomSchemes() {
+const AlloyContentClient::SchemeInfoList*
+AlloyContentClient::GetCustomSchemes() {
   DCHECK(scheme_info_list_locked_);
   return &scheme_info_list_;
 }
 
-bool CefContentClient::HasCustomScheme(const std::string& scheme_name) {
+bool AlloyContentClient::HasCustomScheme(const std::string& scheme_name) {
   DCHECK(scheme_info_list_locked_);
   if (scheme_info_list_.empty())
     return false;
@@ -324,7 +325,7 @@ bool CefContentClient::HasCustomScheme(const std::string& scheme_name) {
 }
 
 // static
-void CefContentClient::SetPDFEntryFunctions(
+void AlloyContentClient::SetPDFEntryFunctions(
     content::PepperPluginInfo::GetInterfaceFunc get_interface,
     content::PepperPluginInfo::PPP_InitializeModuleFunc initialize_module,
     content::PepperPluginInfo::PPP_ShutdownModuleFunc shutdown_module) {

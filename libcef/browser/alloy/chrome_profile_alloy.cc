@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/chrome_profile_stub.h"
+#include "libcef/browser/alloy/chrome_profile_alloy.h"
 
 #include "components/variations/variations_client.h"
 #include "components/variations/variations_http_header_provider.h"
@@ -34,144 +34,145 @@ class CefVariationsClient : public variations::VariationsClient {
 
 }  // namespace
 
-ChromeProfileStub::ChromeProfileStub() {}
+ChromeProfileAlloy::ChromeProfileAlloy() {}
 
-ChromeProfileStub::~ChromeProfileStub() {}
+ChromeProfileAlloy::~ChromeProfileAlloy() {}
 
-bool ChromeProfileStub::IsOffTheRecord() {
+bool ChromeProfileAlloy::IsOffTheRecord() {
   return false;
 }
 
-bool ChromeProfileStub::IsOffTheRecord() const {
+bool ChromeProfileAlloy::IsOffTheRecord() const {
   return false;
 }
 
-const Profile::OTRProfileID& ChromeProfileStub::GetOTRProfileID() const {
+const Profile::OTRProfileID& ChromeProfileAlloy::GetOTRProfileID() const {
   NOTREACHED();
   static base::NoDestructor<Profile::OTRProfileID> otr_profile_id(
       "ProfileImp::NoOTRProfileID");
   return *otr_profile_id;
 }
 
-variations::VariationsClient* ChromeProfileStub::GetVariationsClient() {
+variations::VariationsClient* ChromeProfileAlloy::GetVariationsClient() {
   if (!variations_client_)
     variations_client_ = std::make_unique<CefVariationsClient>(this);
   return variations_client_.get();
 }
 
-scoped_refptr<base::SequencedTaskRunner> ChromeProfileStub::GetIOTaskRunner() {
+scoped_refptr<base::SequencedTaskRunner> ChromeProfileAlloy::GetIOTaskRunner() {
   NOTREACHED();
   return scoped_refptr<base::SequencedTaskRunner>();
 }
 
-std::string ChromeProfileStub::GetProfileUserName() const {
+std::string ChromeProfileAlloy::GetProfileUserName() const {
   NOTREACHED();
   return std::string();
 }
 
-Profile::ProfileType ChromeProfileStub::GetProfileType() const {
+Profile::ProfileType ChromeProfileAlloy::GetProfileType() const {
   return REGULAR_PROFILE;
 }
 
-Profile* ChromeProfileStub::GetOffTheRecordProfile(
+Profile* ChromeProfileAlloy::GetOffTheRecordProfile(
     const Profile::OTRProfileID& otr_profile_id) {
   NOTREACHED();
   return nullptr;
 }
 
-std::vector<Profile*> ChromeProfileStub::GetAllOffTheRecordProfiles() {
+std::vector<Profile*> ChromeProfileAlloy::GetAllOffTheRecordProfiles() {
   NOTREACHED();
   return {};
 }
 
-void ChromeProfileStub::DestroyOffTheRecordProfile(Profile* otr_profile) {
+void ChromeProfileAlloy::DestroyOffTheRecordProfile(Profile* otr_profile) {
   NOTREACHED();
 }
 
-bool ChromeProfileStub::HasOffTheRecordProfile(
+bool ChromeProfileAlloy::HasOffTheRecordProfile(
     const Profile::OTRProfileID& otr_profile_id) {
   return false;
 }
 
-bool ChromeProfileStub::HasAnyOffTheRecordProfile() {
+bool ChromeProfileAlloy::HasAnyOffTheRecordProfile() {
   return false;
 }
 
-Profile* ChromeProfileStub::GetOriginalProfile() {
+Profile* ChromeProfileAlloy::GetOriginalProfile() {
   return this;
 }
 
-const Profile* ChromeProfileStub::GetOriginalProfile() const {
+const Profile* ChromeProfileAlloy::GetOriginalProfile() const {
   return this;
 }
 
-bool ChromeProfileStub::IsSupervised() const {
+bool ChromeProfileAlloy::IsSupervised() const {
   return false;
 }
 
-bool ChromeProfileStub::IsChild() const {
+bool ChromeProfileAlloy::IsChild() const {
   return false;
 }
 
-bool ChromeProfileStub::IsLegacySupervised() const {
+bool ChromeProfileAlloy::IsLegacySupervised() const {
   return false;
 }
 
 ExtensionSpecialStoragePolicy*
-ChromeProfileStub::GetExtensionSpecialStoragePolicy() {
+ChromeProfileAlloy::GetExtensionSpecialStoragePolicy() {
   NOTREACHED();
   return nullptr;
 }
 
-PrefService* ChromeProfileStub::GetOffTheRecordPrefs() {
+PrefService* ChromeProfileAlloy::GetOffTheRecordPrefs() {
   NOTREACHED();
   return nullptr;
 }
 
-bool ChromeProfileStub::IsSameProfile(Profile* profile) {
+bool ChromeProfileAlloy::IsSameProfile(Profile* profile) {
   NOTREACHED();
   return false;
 }
 
-base::Time ChromeProfileStub::GetStartTime() const {
+base::Time ChromeProfileAlloy::GetStartTime() const {
   NOTREACHED();
   return base::Time();
 }
 
-base::FilePath ChromeProfileStub::last_selected_directory() {
+base::FilePath ChromeProfileAlloy::last_selected_directory() {
   NOTREACHED();
   return base::FilePath();
 }
 
-void ChromeProfileStub::set_last_selected_directory(
+void ChromeProfileAlloy::set_last_selected_directory(
     const base::FilePath& path) {
   NOTREACHED();
 }
 
-GURL ChromeProfileStub::GetHomePage() {
+GURL ChromeProfileAlloy::GetHomePage() {
   NOTREACHED();
   return GURL();
 }
 
-bool ChromeProfileStub::WasCreatedByVersionOrLater(const std::string& version) {
+bool ChromeProfileAlloy::WasCreatedByVersionOrLater(
+    const std::string& version) {
   NOTREACHED();
   return false;
 }
 
-void ChromeProfileStub::SetExitType(ExitType exit_type) {
+void ChromeProfileAlloy::SetExitType(ExitType exit_type) {
   NOTREACHED();
 }
 
-Profile::ExitType ChromeProfileStub::GetLastSessionExitType() {
+Profile::ExitType ChromeProfileAlloy::GetLastSessionExitType() {
   NOTREACHED();
   return EXIT_NORMAL;
 }
 
-base::Time ChromeProfileStub::GetCreationTime() const {
+base::Time ChromeProfileAlloy::GetCreationTime() const {
   NOTREACHED();
   return base::Time();
 }
 
-void ChromeProfileStub::SetCreationTimeForTesting(base::Time creation_time) {
+void ChromeProfileAlloy::SetCreationTimeForTesting(base::Time creation_time) {
   NOTREACHED();
 }

@@ -10,7 +10,7 @@
 #include "libcef/browser/context_menu_params_impl.h"
 #include "libcef/browser/menu_runner.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/common/content_client.h"
+#include "libcef/common/alloy/alloy_content_client.h"
 
 #include "base/compiler_specific.h"
 #include "base/logging.h"
@@ -24,7 +24,7 @@ namespace {
 
 CefString GetLabel(int message_id) {
   base::string16 label =
-      CefContentClient::Get()->GetLocalizedString(message_id);
+      AlloyContentClient::Get()->GetLocalizedString(message_id);
   DCHECK(!label.empty());
   return label;
 }

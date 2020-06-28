@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/browser_main.h"
+#include "libcef/browser/alloy/alloy_browser_main.h"
 
 #include <stdint.h>
 
 #include <string>
 
+#include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_context_keyed_service_factories.h"
-#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools/devtools_manager_delegate.h"
 #include "libcef/browser/extensions/extension_system_factory.h"
@@ -74,15 +74,15 @@
 #include "libcef/browser/printing/print_dialog_linux.h"
 #endif
 
-CefBrowserMainParts::CefBrowserMainParts(
+AlloyBrowserMainParts::AlloyBrowserMainParts(
     const content::MainFunctionParams& parameters)
     : BrowserMainParts(), devtools_delegate_(nullptr) {}
 
-CefBrowserMainParts::~CefBrowserMainParts() {
+AlloyBrowserMainParts::~AlloyBrowserMainParts() {
   constrained_window::SetConstrainedWindowViewsClient(nullptr);
 }
 
-int CefBrowserMainParts::PreEarlyInitialization() {
+int AlloyBrowserMainParts::PreEarlyInitialization() {
 #if defined(USE_AURA) && defined(OS_LINUX)
   // TODO(linux): Consider using a real input method or
   // views::LinuxUI::SetInstance.
@@ -92,7 +92,7 @@ int CefBrowserMainParts::PreEarlyInitialization() {
   return service_manager::RESULT_CODE_NORMAL_EXIT;
 }
 
-void CefBrowserMainParts::ToolkitInitialized() {
+void AlloyBrowserMainParts::ToolkitInitialized() {
   SetConstrainedWindowViewsClient(CreateCefConstrainedWindowViewsClient());
 #if defined(USE_AURA)
   CHECK(aura::Env::GetInstance());
@@ -101,7 +101,7 @@ void CefBrowserMainParts::ToolkitInitialized() {
 
 #if defined(OS_WIN)
   ui::CursorLoaderWin::SetCursorResourceModule(
-      CefContentBrowserClient::Get()->GetResourceDllName());
+      AlloyContentBrowserClient::Get()->GetResourceDllName());
 #endif
 #endif  // defined(USE_AURA)
 
@@ -115,7 +115,7 @@ void CefBrowserMainParts::ToolkitInitialized() {
 #endif  // defined(TOOLKIT_VIEWS)
 }
 
-void CefBrowserMainParts::PreMainMessageLoopStart() {
+void AlloyBrowserMainParts::PreMainMessageLoopStart() {
 #if defined(USE_AURA) && defined(USE_X11)
   ui::TouchFactory::SetTouchDeviceListFromCommandLine();
 #endif
@@ -133,7 +133,7 @@ void CefBrowserMainParts::PreMainMessageLoopStart() {
 #endif  // defined(OS_WIN)
 }
 
-void CefBrowserMainParts::PostMainMessageLoopStart() {
+void AlloyBrowserMainParts::PostMainMessageLoopStart() {
 #if defined(OS_LINUX)
   printing::PrintingContextLinux::SetCreatePrintDialogFunction(
       &CefPrintDialogLinux::CreatePrintDialog);
@@ -142,7 +142,7 @@ void CefBrowserMainParts::PostMainMessageLoopStart() {
 #endif
 }
 
-int CefBrowserMainParts::PreCreateThreads() {
+int AlloyBrowserMainParts::PreCreateThreads() {
 #if defined(OS_WIN)
   PlatformInitialize();
 #endif
@@ -157,7 +157,7 @@ int CefBrowserMainParts::PreCreateThreads() {
   return 0;
 }
 
-void CefBrowserMainParts::PreMainMessageLoopRun() {
+void AlloyBrowserMainParts::PreMainMessageLoopRun() {
 #if defined(USE_AURA)
   display::Screen::SetScreenInstance(views::CreateDesktopScreen());
 #endif
@@ -213,7 +213,7 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
   scheme::RegisterWebUIControllerFactory();
 }
 
-void CefBrowserMainParts::PostMainMessageLoopRun() {
+void AlloyBrowserMainParts::PostMainMessageLoopRun() {
   // NOTE: Destroy objects in reverse order of creation.
   CefDevToolsManagerDelegate::StopHttpHandler();
 
@@ -223,7 +223,7 @@ void CefBrowserMainParts::PostMainMessageLoopRun() {
   global_request_context_ = nullptr;
 }
 
-void CefBrowserMainParts::PostDestroyThreads() {
+void AlloyBrowserMainParts::PostDestroyThreads() {
   if (extensions::ExtensionsEnabled()) {
     extensions::ExtensionsBrowserClient::Set(nullptr);
     extensions_browser_client_.reset();

@@ -5,10 +5,10 @@
 
 #include "libcef/browser/extensions/mime_handler_view_guest_delegate.h"
 
+#include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_info.h"
-#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/osr/web_contents_view_osr.h"
 
 #include "content/browser/browser_plugin/browser_plugin_guest.h"

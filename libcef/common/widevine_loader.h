@@ -44,7 +44,7 @@ class CefWidevineLoader {
   // The zygote process which is used when the sandbox is enabled on Linux
   // requires early loading of CDM modules. Other processes will receive
   // load notification in the usual way.
-  // Called from CefContentClient::AddContentDecryptionModules.
+  // Called from AlloyContentClient::AddContentDecryptionModules.
   static void AddContentDecryptionModules(
       std::vector<content::CdmInfo>* cdms,
       std::vector<media::CdmHostFilePath>* cdm_host_file_paths);
