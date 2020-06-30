@@ -132,9 +132,8 @@ CefDevToolsManagerDelegate::CreateNewTarget(const GURL& url) {
 }
 
 std::string CefDevToolsManagerDelegate::GetDiscoveryPageHTML() {
-  return ui::ResourceBundle::GetSharedInstance()
-      .GetRawDataResource(IDR_CEF_DEVTOOLS_DISCOVERY_PAGE)
-      .as_string();
+  return ui::ResourceBundle::GetSharedInstance().LoadDataResourceString(
+      IDR_CEF_DEVTOOLS_DISCOVERY_PAGE);
 }
 
 bool CefDevToolsManagerDelegate::HasBundledFrontendResources() {
