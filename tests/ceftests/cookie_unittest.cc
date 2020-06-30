@@ -569,7 +569,9 @@ class CookieTestJSHandler : public TestHandler {
     std::string page =
         "<html><head>"
         "<script>"
-        "document.cookie='name1=value1';"
+        "document.cookie='name1=value1;"
+        // Invalid date should not cause a crash (see issue #2927).
+        " expires=Tue, 07 Nov 94276 07:58:05 GMT'"
         "</script>"
         "</head><body>COOKIE TEST1</body></html>";
     AddResource(kCookieJSUrl1, page, "text/html");
