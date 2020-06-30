@@ -79,6 +79,31 @@ std::wstring FormatFilterForExtensions(
 
   std::wstring result;
 
+  // Create all supported .ext filter if more than one filter.
+  if (file_ext.size() > 1) {
+    std::set<base::WStringPiece> unique_exts;
+    for (const auto& exts : file_ext) {
+      for (const auto& ext : base::SplitStringPiece(
+               exts, L";", base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY)) {
+        unique_exts.insert(ext);
+      }
+    }
+
+    if (unique_exts.size() > 1) {
+      std::wstring ext;
+      auto it = unique_exts.cbegin();
+      ext = it->as_string();
+      for (++it; it != unique_exts.cend(); ++it) {
+        ext += L";" + it->as_string();
+      }
+      std::wstring desc =
+          l10n_util::GetStringUTF16(IDS_CUSTOM_FILES) + L" (" + ext + L")";
+
+      result.append(desc.c_str(), desc.size() + 1);  // Append NULL too.
+      result.append(ext.c_str(), ext.size() + 1);
+    }
+  }
+
   for (size_t i = 0; i < file_ext.size(); ++i) {
     std::wstring ext = file_ext[i];
     std::wstring desc;
