@@ -158,10 +158,12 @@ bool GetSystemPepperFlash(content::PepperPluginInfo* plugin) {
   std::string manifest_data;
   if (!base::ReadFileToString(manifest_path, &manifest_data))
     return false;
-  std::unique_ptr<base::Value> manifest_value(base::Value::ToUniquePtrValue(
-      std::move(base::JSONReader::Read(manifest_data,
-                                       base::JSON_ALLOW_TRAILING_COMMAS)
-                    .value())));
+  auto json_manifest_value =
+      base::JSONReader::Read(manifest_data, base::JSON_ALLOW_TRAILING_COMMAS);
+  if (!json_manifest_value.has_value())
+    return false;
+  std::unique_ptr<base::Value> manifest_value(
+      base::Value::ToUniquePtrValue(std::move(json_manifest_value.value())));
   if (!manifest_value.get())
     return false;
   base::DictionaryValue* manifest = nullptr;
