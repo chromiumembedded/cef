@@ -30,7 +30,8 @@ CefBrowserContext* GetBrowserContext(const CefBrowserContext::Getter& getter) {
 // Do not keep a reference to the object returned by this method.
 CookieManager* GetCookieManager(CefBrowserContext* browser_context) {
   CEF_REQUIRE_UIT();
-  return content::BrowserContext::GetDefaultStoragePartition(browser_context)
+  return content::BrowserContext::GetDefaultStoragePartition(
+             browser_context->AsBrowserContext())
       ->GetCookieManagerForBrowserProcess();
 }
 

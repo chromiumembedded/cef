@@ -9,13 +9,17 @@
 #include "libcef/browser/net/chrome_scheme_handler.h"
 #include "libcef/browser/net/devtools_scheme_handler.h"
 #include "libcef/common/net/scheme_registration.h"
+#include "libcef/features/runtime.h"
 
 #include "content/public/common/url_constants.h"
 
 namespace scheme {
 
-void RegisterInternalHandlers(CefResourceContext* resource_context) {
-  scheme::RegisterChromeDevToolsHandler(resource_context);
+void RegisterInternalHandlers(CefIOThreadState* iothread_state) {
+  if (!cef::IsAlloyRuntimeEnabled())
+    return;
+
+  scheme::RegisterChromeDevToolsHandler(iothread_state);
 }
 
 void DidFinishLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url) {

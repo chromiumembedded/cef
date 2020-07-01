@@ -1,12 +1,12 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index a996e15eeba1..76191e5ffa14 100644
+index a996e15eeba1..cbc0ad1f9019 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -23,6 +23,7 @@
  #include "base/strings/sys_string_conversions.h"
  #include "base/strings/utf_string_conversions.h"
  #include "build/build_config.h"
-+#include "cef/libcef/features/features.h"
++#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/download/chrome_download_manager_delegate.h"
  #include "chrome/browser/download/download_core_service_factory.h"
  #include "chrome/browser/download/download_core_service_impl.h"
@@ -15,24 +15,24 @@ index a996e15eeba1..76191e5ffa14 100644
  #endif
  
 +#if BUILDFLAG(ENABLE_CEF)
-+#include "cef/libcef/browser/browser_context.h"
++#include "cef/libcef/browser/alloy/alloy_browser_context.h"
 +#endif
 +
  using content::BrowserContext;
  using content::BrowserThread;
  using content::DownloadManager;
-@@ -340,7 +345,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
+@@ -340,6 +345,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
  // static
  DownloadPrefs* DownloadPrefs::FromBrowserContext(
      content::BrowserContext* context) {
-+#if !BUILDFLAG(ENABLE_CEF)
-   return FromDownloadManager(BrowserContext::GetDownloadManager(context));
-+#else
-+  return CefBrowserContext::GetForContext(context)->GetDownloadPrefs();
++#if BUILDFLAG(ENABLE_CEF)
++  if (cef::IsAlloyRuntimeEnabled()) {
++    return static_cast<AlloyBrowserContext*>(context)->GetDownloadPrefs();
++  }
 +#endif
+   return FromDownloadManager(BrowserContext::GetDownloadManager(context));
  }
  
- bool DownloadPrefs::IsFromTrustedSource(const download::DownloadItem& item) {
 diff --git chrome/browser/printing/print_preview_dialog_controller.cc chrome/browser/printing/print_preview_dialog_controller.cc
 index 84818167bce1..cdbd3f7f6f27 100644
 --- chrome/browser/printing/print_preview_dialog_controller.cc

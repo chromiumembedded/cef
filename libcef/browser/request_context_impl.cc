@@ -5,10 +5,8 @@
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/context.h"
-#include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/app_manager.h"
-#include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/task_runner_impl.h"
 #include "libcef/common/values_impl.h"
 #include "libcef/features/runtime_checks.h"
@@ -16,6 +14,7 @@
 #include "base/atomic_sequence_num.h"
 #include "base/logging.h"
 #include "base/strings/stringprintf.h"
+#include "chrome/browser/profiles/profile.h"
 #include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/plugin_service.h"
@@ -374,7 +373,7 @@ bool CefRequestContextImpl::HasPreference(const CefString& name) {
   // Make sure the browser context exists.
   EnsureBrowserContext();
 
-  PrefService* pref_service = browser_context()->GetPrefs();
+  PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
   return (pref_service->FindPreference(name) != nullptr);
 }
 
@@ -389,7 +388,7 @@ CefRefPtr<CefValue> CefRequestContextImpl::GetPreference(
   // Make sure the browser context exists.
   EnsureBrowserContext();
 
-  PrefService* pref_service = browser_context()->GetPrefs();
+  PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
   const PrefService::Preference* pref = pref_service->FindPreference(name);
   if (!pref)
     return nullptr;
@@ -407,7 +406,7 @@ CefRefPtr<CefDictionaryValue> CefRequestContextImpl::GetAllPreferences(
   // Make sure the browser context exists.
   EnsureBrowserContext();
 
-  PrefService* pref_service = browser_context()->GetPrefs();
+  PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
 
   std::unique_ptr<base::DictionaryValue> values =
       pref_service->GetPreferenceValues(include_defaults
@@ -428,7 +427,7 @@ bool CefRequestContextImpl::CanSetPreference(const CefString& name) {
   // Make sure the browser context exists.
   EnsureBrowserContext();
 
-  PrefService* pref_service = browser_context()->GetPrefs();
+  PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
   const PrefService::Preference* pref = pref_service->FindPreference(name);
   return (pref && pref->IsUserModifiable());
 }
@@ -445,7 +444,7 @@ bool CefRequestContextImpl::SetPreference(const CefString& name,
   // Make sure the browser context exists.
   EnsureBrowserContext();
 
-  PrefService* pref_service = browser_context()->GetPrefs();
+  PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
 
   // The below validation logic should match PrefService::SetUserPrefValue.
 
@@ -531,22 +530,10 @@ void CefRequestContextImpl::LoadExtension(
     return;
   }
 
-  if (!extensions::ExtensionsEnabled()) {
-    if (handler)
-      handler->OnExtensionLoadFailed(ERR_ABORTED);
-    return;
-  }
+  // Make sure the browser context exists.
+  EnsureBrowserContext();
 
-  if (manifest && manifest->GetSize() > 0) {
-    CefDictionaryValueImpl* value_impl =
-        static_cast<CefDictionaryValueImpl*>(manifest.get());
-    GetBrowserContext()->extension_system()->LoadExtension(
-        base::WrapUnique(value_impl->CopyValue()), root_directory,
-        false /* builtin */, this, handler);
-  } else {
-    GetBrowserContext()->extension_system()->LoadExtension(
-        root_directory, false /* builtin */, this, handler);
-  }
+  browser_context()->LoadExtension(root_directory, manifest, handler, this);
 }
 
 bool CefRequestContextImpl::DidLoadExtension(const CefString& extension_id) {
@@ -568,17 +555,10 @@ bool CefRequestContextImpl::GetExtensions(
     return false;
   }
 
-  if (!extensions::ExtensionsEnabled())
-    return false;
+  // Make sure the browser context exists.
+  EnsureBrowserContext();
 
-  extensions::CefExtensionSystem::ExtensionMap extension_map =
-      GetBrowserContext()->extension_system()->GetExtensions();
-  extensions::CefExtensionSystem::ExtensionMap::const_iterator it =
-      extension_map.begin();
-  for (; it != extension_map.end(); ++it)
-    extension_ids.push_back(it->second->GetIdentifier());
-
-  return true;
+  return browser_context()->GetExtensions(extension_ids);
 }
 
 CefRefPtr<CefExtension> CefRequestContextImpl::GetExtension(
@@ -588,10 +568,10 @@ CefRefPtr<CefExtension> CefRequestContextImpl::GetExtension(
     return nullptr;
   }
 
-  if (!extensions::ExtensionsEnabled())
-    return nullptr;
+  // Make sure the browser context exists.
+  EnsureBrowserContext();
 
-  return GetBrowserContext()->extension_system()->GetExtension(extension_id);
+  return browser_context()->GetExtension(extension_id);
 }
 
 CefRefPtr<CefMediaRouter> CefRequestContextImpl::GetMediaRouter() {
@@ -648,8 +628,7 @@ void CefRequestContextImpl::Initialize() {
 
   if (config_.other) {
     // Share storage with |config_.other|.
-    browser_context_ =
-        CefBrowserContext::GetForContext(config_.other->GetBrowserContext());
+    browser_context_ = config_.other->GetBrowserContext();
     DCHECK(browser_context_);
   }
 
@@ -664,7 +643,7 @@ void CefRequestContextImpl::Initialize() {
     if (!cache_path.empty()) {
       // Check if a CefBrowserContext is already globally registered for
       // the specified cache path. If so then use it.
-      browser_context_ = CefBrowserContext::GetForCachePath(cache_path);
+      browser_context_ = CefBrowserContext::FromCachePath(cache_path);
     }
   }
 
@@ -673,11 +652,11 @@ void CefRequestContextImpl::Initialize() {
     // empty then this new instance will become the globally registered
     // CefBrowserContext for that path. Otherwise, this new instance will
     // be a completely isolated "incognito mode" context.
-    browser_context_ = new CefBrowserContext(config_.settings);
-    browser_context_->Initialize();
+    browser_context_ =
+        CefAppManager::Get()->CreateNewBrowserContext(config_.settings);
   } else {
     // Share the same settings as the existing context.
-    config_.settings = browser_context_->GetSettings();
+    config_.settings = browser_context_->settings();
   }
 
   // We'll disassociate from |browser_context_| on destruction.
@@ -728,8 +707,8 @@ void CefRequestContextImpl::PurgePluginListCacheInternal(
     CefBrowserContext* browser_context) {
   CEF_REQUIRE_UIT();
   browser_context->ClearPluginLoadDecision(-1);
-  content::PluginService::GetInstance()->PurgePluginListCache(browser_context,
-                                                              false);
+  content::PluginService::GetInstance()->PurgePluginListCache(
+      browser_context->AsBrowserContext(), false);
 }
 
 void CefRequestContextImpl::ClearCertificateExceptionsInternal(
@@ -738,7 +717,7 @@ void CefRequestContextImpl::ClearCertificateExceptionsInternal(
   CEF_REQUIRE_UIT();
 
   content::SSLHostStateDelegate* ssl_delegate =
-      browser_context->GetSSLHostStateDelegate();
+      browser_context->AsBrowserContext()->GetSSLHostStateDelegate();
   if (ssl_delegate)
     ssl_delegate->Clear(base::Callback<bool(const std::string&)>());
 

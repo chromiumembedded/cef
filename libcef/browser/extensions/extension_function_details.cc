@@ -166,9 +166,10 @@ CefRefPtr<CefBrowserHostImpl> CefExtensionFunctionDetails::GetCurrentBrowser()
         CefRefPtr<CefBrowserHostImpl> active_browser_impl =
             static_cast<CefBrowserHostImpl*>(active_browser.get());
 
-        // Make sure we're operating in the same BrowserContextImpl.
-        if (CefBrowserContext::GetForContext(browser->GetBrowserContext()) ==
-            CefBrowserContext::GetForContext(
+        // Make sure we're operating in the same CefBrowserContext.
+        if (CefBrowserContext::FromBrowserContext(
+                browser->GetBrowserContext()) ==
+            CefBrowserContext::FromBrowserContext(
                 active_browser_impl->GetBrowserContext())) {
           browser = active_browser_impl;
         } else {
@@ -347,13 +348,12 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
   if (params.index.get())
     index = *params.index;
 
-  CefBrowserContext* browser_context_impl =
-      CefBrowserContext::GetForContext(active_browser->GetBrowserContext());
+  auto cef_browser_context = CefBrowserContext::FromBrowserContext(
+      active_browser->GetBrowserContext());
 
   // A CEF representation should always exist.
   CefRefPtr<CefExtension> cef_extension =
-      browser_context_impl->extension_system()->GetExtension(
-          function()->extension()->id());
+      cef_browser_context->GetExtension(function()->extension()->id());
   DCHECK(cef_extension);
   if (!cef_extension)
     return nullptr;
@@ -466,8 +466,7 @@ CefExtensionFunctionDetails::CreateMutedInfo(content::WebContents* contents) {
 CefRefPtr<CefExtension> CefExtensionFunctionDetails::GetCefExtension() const {
   if (!cef_extension_) {
     cef_extension_ =
-        static_cast<CefBrowserContext*>(function_->browser_context())
-            ->extension_system()
+        CefBrowserContext::FromBrowserContext(function_->browser_context())
             ->GetExtension(function_->extension_id());
     DCHECK(cef_extension_);
   }

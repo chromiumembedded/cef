@@ -6,8 +6,8 @@
 
 #include <string>
 
+#include "libcef/browser/iothread_state.h"
 #include "libcef/browser/net/internal_scheme_handler.h"
-#include "libcef/browser/resource_context.h"
 
 #include "base/memory/ptr_util.h"
 #include "base/strings/string_util.h"
@@ -40,8 +40,8 @@ class Delegate : public InternalHandlerDelegate {
 
 }  // namespace
 
-void RegisterChromeDevToolsHandler(CefResourceContext* resource_context) {
-  resource_context->RegisterSchemeHandlerFactory(
+void RegisterChromeDevToolsHandler(CefIOThreadState* iothread_state) {
+  iothread_state->RegisterSchemeHandlerFactory(
       content::kChromeDevToolsScheme, kChromeDevToolsHost,
       CreateInternalHandlerFactory(base::WrapUnique(new Delegate())));
 }

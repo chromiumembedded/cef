@@ -7,7 +7,6 @@
 
 #include "components/variations/variations_client.h"
 #include "components/variations/variations_http_header_provider.h"
-#include "content/public/browser/resource_context.h"
 #include "net/url_request/url_request_context.h"
 
 namespace {

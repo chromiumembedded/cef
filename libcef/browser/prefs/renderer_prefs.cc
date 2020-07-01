@@ -6,7 +6,6 @@
 
 #include <string>
 
-#include "libcef/browser/browser_context.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/common/cef_switches.h"
@@ -20,6 +19,7 @@
 #include "chrome/browser/defaults.h"
 #include "chrome/browser/extensions/extension_webkit_preferences.h"
 #include "chrome/browser/font_family_cache.h"
+#include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
@@ -65,7 +65,7 @@ void SetDefaultPrefs(content::WebPreferences& web) {
 
 // Chrome preferences.
 // Should match ChromeContentBrowserClient::OverrideWebkitPrefs.
-void SetChromePrefs(CefBrowserContext* profile, content::WebPreferences& web) {
+void SetChromePrefs(Profile* profile, content::WebPreferences& web) {
   PrefService* prefs = profile->GetPrefs();
 
   // Fill per-script font preferences.
@@ -334,7 +334,7 @@ void PopulateWebPreferences(content::RenderViewHost* rvh,
 
   // Set preferences based on the context's PrefService.
   if (browser) {
-    CefBrowserContext* profile = static_cast<CefBrowserContext*>(
+    auto profile = Profile::FromBrowserContext(
         browser->web_contents()->GetBrowserContext());
     SetChromePrefs(profile, web);
   }

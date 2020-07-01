@@ -54,6 +54,13 @@ CefRefPtr<CefRequestContext> ChromeMainDelegateCef::GetGlobalRequestContext() {
   return nullptr;
 }
 
+CefBrowserContext* ChromeMainDelegateCef::CreateNewBrowserContext(
+    const CefRequestContextSettings& settings) {
+  // TODO(chrome-runtime): Implement this method.
+  NOTIMPLEMENTED();
+  return nullptr;
+}
+
 scoped_refptr<base::SingleThreadTaskRunner>
 ChromeMainDelegateCef::GetBackgroundTaskRunner() {
   auto browser_client = content_browser_client();

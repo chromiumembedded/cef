@@ -8,6 +8,7 @@
 #include <dlfcn.h>
 #endif
 
+#include "libcef/browser/alloy/alloy_browser_context.h"
 #include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
@@ -721,6 +722,13 @@ CefRefPtr<CefRequestContext> AlloyMainDelegate::GetGlobalRequestContext() {
   if (!browser_client_)
     return nullptr;
   return browser_client_->request_context();
+}
+
+CefBrowserContext* AlloyMainDelegate::CreateNewBrowserContext(
+    const CefRequestContextSettings& settings) {
+  auto context = new AlloyBrowserContext(settings);
+  context->Initialize();
+  return context;
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>

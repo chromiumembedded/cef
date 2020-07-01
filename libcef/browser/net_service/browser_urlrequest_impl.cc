@@ -188,9 +188,9 @@ class CefBrowserURLRequest::Context
     CefRefPtr<CefRequestContextImpl> request_context_impl =
         CefRequestContextImpl::GetOrCreateForRequestContext(request_context);
     DCHECK(request_context_impl);
-    CefBrowserContext* browser_context =
+    CefBrowserContext* cef_browser_context =
         request_context_impl->GetBrowserContext();
-    DCHECK(browser_context);
+    DCHECK(cef_browser_context);
 
     int render_frame_id = MSG_ROUTING_NONE;
     scoped_refptr<net_service::URLLoaderFactoryGetter> loader_factory_getter;
@@ -208,12 +208,12 @@ class CefBrowserURLRequest::Context
         // network::mojom::kBrowserProcessId (value 0) for these requests.
         render_frame_id = rfh->GetFrameTreeNodeId();
 
-        loader_factory_getter =
-            net_service::URLLoaderFactoryGetter::Create(rfh, browser_context);
+        loader_factory_getter = net_service::URLLoaderFactoryGetter::Create(
+            rfh, cef_browser_context->AsBrowserContext());
       }
     } else {
-      loader_factory_getter =
-          net_service::URLLoaderFactoryGetter::Create(nullptr, browser_context);
+      loader_factory_getter = net_service::URLLoaderFactoryGetter::Create(
+          nullptr, cef_browser_context->AsBrowserContext());
     }
 
     task_runner->PostTask(

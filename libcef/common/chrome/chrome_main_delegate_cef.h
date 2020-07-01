@@ -45,6 +45,8 @@ class ChromeMainDelegateCef : public ChromeMainDelegate,
     return &chrome_content_client_cef_;
   }
   CefRefPtr<CefRequestContext> GetGlobalRequestContext() override;
+  CefBrowserContext* CreateNewBrowserContext(
+      const CefRequestContextSettings& settings) override;
 
   // CefTaskRunnerManager overrides.
   scoped_refptr<base::SingleThreadTaskRunner> GetBackgroundTaskRunner()

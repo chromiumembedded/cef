@@ -19,6 +19,7 @@ namespace blink {
 class WebURLLoaderFactory;
 }
 
+class CefBrowserContext;
 struct CefSchemeInfo;
 
 // Exposes global application state in the main and render processes.
@@ -47,7 +48,10 @@ class CefAppManager {
 
   // The following methods are only available in the main (browser) process.
 
+  // Called from CefRequestContextImpl.
   virtual CefRefPtr<CefRequestContext> GetGlobalRequestContext() = 0;
+  virtual CefBrowserContext* CreateNewBrowserContext(
+      const CefRequestContextSettings& settings) = 0;
 
 #if defined(OS_WIN)
   // Returns the module name (usually libcef.dll).

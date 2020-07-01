@@ -8,7 +8,6 @@
 #include <string>
 #include <utility>
 
-#include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/audio_capturer.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_info.h"
@@ -365,9 +364,10 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
       CefRequestContextImpl::GetOrCreateForRequestContext(
           create_params.request_context);
   DCHECK(request_context_impl);
-  CefBrowserContext* browser_context =
+  CefBrowserContext* cef_browser_context =
       request_context_impl->GetBrowserContext();
-  DCHECK(browser_context);
+  DCHECK(cef_browser_context);
+  auto browser_context = cef_browser_context->AsBrowserContext();
 
   if (!create_params.request_context) {
     // Using the global request context.
@@ -384,8 +384,8 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
           extensions::GetExtensionForUrl(browser_context, create_params.url);
     }
     if (create_params.extension) {
-      cef_extension = browser_context->extension_system()->GetExtension(
-          create_params.extension->id());
+      cef_extension =
+          cef_browser_context->GetExtension(create_params.extension->id());
       DCHECK(cef_extension);
 
       if (create_params.extension_host_type == extensions::VIEW_TYPE_INVALID) {
@@ -755,13 +755,12 @@ void CefBrowserHostImpl::StartDownload(const CefString& url) {
   if (!web_contents())
     return;
 
-  CefBrowserContext* context =
-      static_cast<CefBrowserContext*>(web_contents()->GetBrowserContext());
-  if (!context)
+  auto browser_context = web_contents()->GetBrowserContext();
+  if (!browser_context)
     return;
 
   content::DownloadManager* manager =
-      content::BrowserContext::GetDownloadManager(context);
+      content::BrowserContext::GetDownloadManager(browser_context);
   if (!manager)
     return;
 
@@ -1588,9 +1587,9 @@ bool CefBrowserHostImpl::IsPrintPreviewSupported() const {
   if (!actionable_contents)
     return false;
 
-  if (!CefBrowserContext::GetForContext(
-           actionable_contents->GetBrowserContext())
-           ->IsPrintPreviewSupported()) {
+  auto cef_browser_context = CefBrowserContext::FromBrowserContext(
+      actionable_contents->GetBrowserContext());
+  if (!cef_browser_context->IsPrintPreviewSupported()) {
     return false;
   }
 
@@ -2736,10 +2735,11 @@ void CefBrowserHostImpl::DidFinishNavigation(
   }
 
   if (web_contents()) {
-    CefBrowserContext* context =
-        static_cast<CefBrowserContext*>(web_contents()->GetBrowserContext());
-    if (context) {
-      context->AddVisitedURLs(navigation_handle->GetRedirectChain());
+    auto cef_browser_context = CefBrowserContext::FromBrowserContext(
+        web_contents()->GetBrowserContext());
+    if (cef_browser_context) {
+      cef_browser_context->AddVisitedURLs(
+          navigation_handle->GetRedirectChain());
     }
   }
 }

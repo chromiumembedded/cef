@@ -29,6 +29,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/task/post_task.h"
 #include "base/values.h"
+#include "chrome/browser/profiles/profile.h"
 #include "chrome/common/pref_names.h"
 #include "components/prefs/scoped_user_pref_update.h"
 #include "content/public/browser/browser_context.h"
@@ -620,7 +621,8 @@ void CefDevToolsFrontend::AgentHostClosed(
 }
 
 PrefService* CefDevToolsFrontend::GetPrefs() const {
-  return static_cast<CefBrowserContext*>(
+  return CefBrowserContext::FromBrowserContext(
              frontend_browser_->web_contents()->GetBrowserContext())
+      ->AsProfile()
       ->GetPrefs();
 }

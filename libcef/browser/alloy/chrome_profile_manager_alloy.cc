@@ -24,7 +24,7 @@ namespace {
 CefBrowserContext* GetActiveBrowserContext() {
   auto request_context = static_cast<CefRequestContextImpl*>(
       CefAppManager::Get()->GetGlobalRequestContext().get());
-  return static_cast<CefBrowserContext*>(request_context->GetBrowserContext());
+  return request_context->GetBrowserContext();
 }
 
 }  // namespace
@@ -37,7 +37,7 @@ ChromeProfileManagerAlloy::~ChromeProfileManagerAlloy() {}
 Profile* ChromeProfileManagerAlloy::GetProfile(
     const base::FilePath& profile_dir) {
   CefBrowserContext* browser_context =
-      CefBrowserContext::GetForCachePath(profile_dir);
+      CefBrowserContext::FromCachePath(profile_dir);
   if (!browser_context) {
     // ProfileManager makes assumptions about profile directory paths that do
     // not match CEF usage. For example, the default Chrome profile name is
@@ -47,19 +47,19 @@ Profile* ChromeProfileManagerAlloy::GetProfile(
     // asking for.
     browser_context = GetActiveBrowserContext();
   }
-  return browser_context;
+  return browser_context->AsProfile();
 }
 
 bool ChromeProfileManagerAlloy::IsValidProfile(const void* profile) {
   if (!profile)
     return false;
-  return !!CefBrowserContext::GetForContext(
-      reinterpret_cast<content::BrowserContext*>(const_cast<void*>(profile)));
+  return !!CefBrowserContext::FromBrowserContext(
+      static_cast<const content::BrowserContext*>(profile));
 }
 
 Profile* ChromeProfileManagerAlloy::GetLastUsedProfile(
     const base::FilePath& user_data_dir) {
   // Override this method to avoid having to register prefs::kProfileLastUsed,
   // usage of which doesn't make sense for CEF.
-  return GetActiveBrowserContext();
+  return GetActiveBrowserContext()->AsProfile();
 }

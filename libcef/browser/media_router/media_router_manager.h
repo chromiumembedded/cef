@@ -7,7 +7,6 @@
 #pragma once
 
 #include "include/cef_media_router.h"
-#include "libcef/browser/browser_context.h"
 
 #include "base/memory/weak_ptr.h"
 #include "base/observer_list.h"
@@ -15,7 +14,10 @@
 #include "chrome/browser/ui/media_router/query_result_manager.h"
 #include "chrome/common/media_router/mojom/media_router.mojom.h"
 
-class CefBrowserContext;
+namespace content {
+class BrowserContext;
+}
+
 class CefMediaRoutesObserver;
 class CefPresentationConnection;
 class CefRouteMessageObserver;
@@ -46,7 +48,7 @@ class CefMediaRouterManager
     ~Observer() override {}
   };
 
-  explicit CefMediaRouterManager(CefBrowserContext* browser_context);
+  explicit CefMediaRouterManager(content::BrowserContext* browser_context);
   ~CefMediaRouterManager() override;
 
   // |observer| must outlive this object or be removed.
@@ -103,7 +105,7 @@ class CefMediaRouterManager
   RouteState* GetRouteState(const media_router::MediaRoute::Id& route_id);
   void RemoveRouteState(const media_router::MediaRoute::Id& route_id);
 
-  CefBrowserContext* const browser_context_;
+  content::BrowserContext* const browser_context_;
 
   base::ObserverList<Observer> observers_;
 

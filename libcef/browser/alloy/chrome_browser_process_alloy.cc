@@ -84,8 +84,9 @@ void ChromeBrowserProcessAlloy::CleanupOnUIThread() {
 
   // Release any references held by objects associated with a Profile. The
   // Profile will be deleted later.
-  for (const auto& profile : CefBrowserContext::GetAll()) {
+  for (const auto& browser_context : CefBrowserContext::GetAll()) {
     // Release any references to |local_state_|.
+    auto profile = browser_context->AsProfile();
     PrefWatcher* pref_watcher = PrefWatcher::Get(profile);
     if (pref_watcher)
       pref_watcher->Shutdown();

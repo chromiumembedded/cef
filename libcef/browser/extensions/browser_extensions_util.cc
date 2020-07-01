@@ -149,16 +149,16 @@ CefRefPtr<CefBrowserHostImpl> GetBrowserForTabId(
   if (tab_id < 0 || !browser_context)
     return nullptr;
 
-  CefBrowserContext* browser_context_impl =
-      CefBrowserContext::GetForContext(browser_context);
+  auto cef_browser_context =
+      CefBrowserContext::FromBrowserContext(browser_context);
 
   for (const auto& browser_info :
        CefBrowserInfoManager::GetInstance()->GetBrowserInfoList()) {
     CefRefPtr<CefBrowserHostImpl> current_browser = browser_info->browser();
     if (current_browser && current_browser->GetIdentifier() == tab_id) {
-      // Make sure we're operating in the same BrowserContextImpl.
-      if (CefBrowserContext::GetForContext(
-              current_browser->GetBrowserContext()) == browser_context_impl) {
+      // Make sure we're operating in the same CefBrowserContext.
+      if (CefBrowserContext::FromBrowserContext(
+              current_browser->GetBrowserContext()) == cef_browser_context) {
         return current_browser;
       } else {
         LOG(WARNING) << "Browser with tabId " << tab_id

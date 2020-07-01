@@ -25,6 +25,7 @@
 #include "chrome/browser/plugins/plugin_info_host_impl.h"
 #include "chrome/browser/prefs/chrome_command_line_pref_store.h"
 #include "chrome/browser/printing/print_preview_sticky_settings.h"
+#include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/renderer_host/pepper/device_id_fetcher.h"
 #include "chrome/browser/ssl/ssl_config_service_manager.h"
 #include "chrome/browser/themes/theme_service.h"
@@ -73,7 +74,7 @@ namespace {
 
 std::string GetAcceptLanguageList(Profile* profile) {
   const CefRequestContextSettings& context_settings =
-      static_cast<CefBrowserContext*>(profile)->GetSettings();
+      CefBrowserContext::FromBrowserContext(profile)->settings();
   if (context_settings.accept_language_list.length > 0) {
     return CefString(&context_settings.accept_language_list);
   }

@@ -407,6 +407,8 @@ test("libcef_static_unittests") {
 static_library("libcef_static") {
   sources = includes_common +
             gypi_paths.autogen_cpp_includes + [
+    "libcef/browser/alloy/alloy_browser_context.cc",
+    "libcef/browser/alloy/alloy_browser_context.h",
     "libcef/browser/alloy/alloy_browser_main.cc",
     "libcef/browser/alloy/alloy_browser_main.h",
     "libcef/browser/alloy/chrome_browser_process_alloy.cc",
@@ -512,6 +514,8 @@ static_library("libcef_static") {
     "libcef/browser/frame_host_impl.h",
     "libcef/browser/image_impl.cc",
     "libcef/browser/image_impl.h",
+    "libcef/browser/iothread_state.cc",
+    "libcef/browser/iothread_state.h",
     "libcef/browser/javascript_dialog_runner.h",
     "libcef/browser/javascript_dialog_manager.cc",
     "libcef/browser/javascript_dialog_manager.h",
@@ -607,8 +611,6 @@ static_library("libcef_static") {
     "libcef/browser/printing/print_view_manager.cc",
     "libcef/browser/printing/print_view_manager.h",
     "libcef/browser/process_util_impl.cc",
-    "libcef/browser/resource_context.cc",
-    "libcef/browser/resource_context.h",
     "libcef/browser/request_context_handler_map.cc",
     "libcef/browser/request_context_handler_map.h",
     "libcef/browser/request_context_impl.cc",

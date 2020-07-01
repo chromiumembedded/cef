@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/resource_context.h"
+#include "libcef/browser/iothread_state.h"
 
 #include "libcef/browser/net/scheme_handler.h"
 #include "libcef/browser/thread_util.h"
@@ -15,36 +15,34 @@
 #include "content/browser/resource_context_impl.h"
 #include "content/public/browser/browser_thread.h"
 
-CefResourceContext::CefResourceContext(bool is_off_the_record)
-    : is_off_the_record_(is_off_the_record) {
+CefIOThreadState::CefIOThreadState() {
   // Using base::Unretained() is safe because both this callback and possible
   // deletion of |this| will execute on the IO thread, and this callback will
   // be executed first.
-  CEF_POST_TASK(CEF_IOT, base::Bind(&CefResourceContext::InitOnIOThread,
+  CEF_POST_TASK(CEF_IOT, base::Bind(&CefIOThreadState::InitOnIOThread,
                                     base::Unretained(this)));
 }
 
-CefResourceContext::~CefResourceContext() {}
+CefIOThreadState::~CefIOThreadState() {}
 
-void CefResourceContext::AddHandler(
-    int render_process_id,
-    int render_frame_id,
-    int frame_tree_node_id,
-    CefRefPtr<CefRequestContextHandler> handler) {
+void CefIOThreadState::AddHandler(int render_process_id,
+                                  int render_frame_id,
+                                  int frame_tree_node_id,
+                                  CefRefPtr<CefRequestContextHandler> handler) {
   CEF_REQUIRE_IOT();
   handler_map_.AddHandler(render_process_id, render_frame_id,
                           frame_tree_node_id, handler);
 }
 
-void CefResourceContext::RemoveHandler(int render_process_id,
-                                       int render_frame_id,
-                                       int frame_tree_node_id) {
+void CefIOThreadState::RemoveHandler(int render_process_id,
+                                     int render_frame_id,
+                                     int frame_tree_node_id) {
   CEF_REQUIRE_IOT();
   handler_map_.RemoveHandler(render_process_id, render_frame_id,
                              frame_tree_node_id);
 }
 
-CefRefPtr<CefRequestContextHandler> CefResourceContext::GetHandler(
+CefRefPtr<CefRequestContextHandler> CefIOThreadState::GetHandler(
     int render_process_id,
     int render_frame_id,
     int frame_tree_node_id,
@@ -54,7 +52,7 @@ CefRefPtr<CefRequestContextHandler> CefResourceContext::GetHandler(
                                  frame_tree_node_id, require_frame_match);
 }
 
-void CefResourceContext::RegisterSchemeHandlerFactory(
+void CefIOThreadState::RegisterSchemeHandlerFactory(
     const std::string& scheme_name,
     const std::string& domain_name,
     CefRefPtr<CefSchemeHandlerFactory> factory) {
@@ -83,7 +81,7 @@ void CefResourceContext::RegisterSchemeHandlerFactory(
   }
 }
 
-void CefResourceContext::ClearSchemeHandlerFactories() {
+void CefIOThreadState::ClearSchemeHandlerFactories() {
   CEF_REQUIRE_IOT();
 
   scheme_handler_factory_map_.clear();
@@ -92,7 +90,7 @@ void CefResourceContext::ClearSchemeHandlerFactories() {
   scheme::RegisterInternalHandlers(this);
 }
 
-CefRefPtr<CefSchemeHandlerFactory> CefResourceContext::GetSchemeHandlerFactory(
+CefRefPtr<CefSchemeHandlerFactory> CefIOThreadState::GetSchemeHandlerFactory(
     const GURL& url) {
   CEF_REQUIRE_IOT();
 
@@ -123,7 +121,7 @@ CefRefPtr<CefSchemeHandlerFactory> CefResourceContext::GetSchemeHandlerFactory(
   return nullptr;
 }
 
-void CefResourceContext::InitOnIOThread() {
+void CefIOThreadState::InitOnIOThread() {
   CEF_REQUIRE_IOT();
 
   // Add the default internal handlers.

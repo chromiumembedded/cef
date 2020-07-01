@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "include/cef_version.h"
+#include "libcef/browser/alloy/alloy_browser_context.h"
 #include "libcef/browser/alloy/alloy_browser_main.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_host_impl.h"
@@ -678,8 +679,8 @@ void AlloyContentBrowserClient::SiteInstanceGotProcess(
   if (!extension)
     return;
 
-  CefBrowserContext* browser_context =
-      static_cast<CefBrowserContext*>(site_instance->GetBrowserContext());
+  auto browser_context =
+      static_cast<AlloyBrowserContext*>(site_instance->GetBrowserContext());
 
   extensions::ProcessMap::Get(browser_context)
       ->Insert(extension->id(), site_instance->GetProcess()->GetID(),
@@ -710,8 +711,8 @@ void AlloyContentBrowserClient::SiteInstanceDeleting(
   if (!extension)
     return;
 
-  CefBrowserContext* browser_context =
-      static_cast<CefBrowserContext*>(site_instance->GetBrowserContext());
+  auto browser_context =
+      static_cast<AlloyBrowserContext*>(site_instance->GetBrowserContext());
 
   extensions::ProcessMap::Get(browser_context)
       ->Remove(extension->id(), site_instance->GetProcess()->GetID(),
@@ -803,18 +804,19 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
     if (extensions::ExtensionsEnabled()) {
       content::RenderProcessHost* process =
           content::RenderProcessHost::FromID(child_process_id);
-      CefBrowserContext* context =
-          process
-              ? CefBrowserContext::GetForContext(process->GetBrowserContext())
-              : nullptr;
-      if (context) {
-        if (context->IsPrintPreviewSupported()) {
+      auto browser_context = process->GetBrowserContext();
+      CefBrowserContext* cef_browser_context =
+          process ? CefBrowserContext::FromBrowserContext(browser_context)
+                  : nullptr;
+      if (cef_browser_context) {
+        if (cef_browser_context->IsPrintPreviewSupported()) {
           command_line->AppendSwitch(switches::kEnablePrintPreview);
         }
 
         // Based on ChromeContentBrowserClientExtensionsPart::
         // AppendExtraRendererCommandLineSwitches
-        if (extensions::ProcessMap::Get(context)->Contains(process->GetID())) {
+        if (extensions::ProcessMap::Get(browser_context)
+                ->Contains(process->GetID())) {
           command_line->AppendSwitch(extensions::switches::kExtensionProcess);
         }
       }

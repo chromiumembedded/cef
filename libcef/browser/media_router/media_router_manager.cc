@@ -121,7 +121,8 @@ class CefPresentationConnection : public blink::mojom::PresentationConnection {
   DISALLOW_COPY_AND_ASSIGN(CefPresentationConnection);
 };
 
-CefMediaRouterManager::CefMediaRouterManager(CefBrowserContext* browser_context)
+CefMediaRouterManager::CefMediaRouterManager(
+    content::BrowserContext* browser_context)
     : browser_context_(browser_context),
       query_result_manager_(GetMediaRouter()),
       weak_ptr_factory_(this) {

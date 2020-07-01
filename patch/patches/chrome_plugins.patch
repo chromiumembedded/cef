@@ -128,36 +128,35 @@ index d49a1df73622..9a389e4383f0 100644
    // If we broke out of the loop, we have found an enabled plugin.
    bool enabled = i < matching_plugins.size();
 diff --git chrome/browser/plugins/plugin_utils.cc chrome/browser/plugins/plugin_utils.cc
-index 4e64db143b8a..71322b0261a1 100644
+index 4e64db143b8a..3dc127b7b992 100644
 --- chrome/browser/plugins/plugin_utils.cc
 +++ chrome/browser/plugins/plugin_utils.cc
 @@ -5,6 +5,7 @@
  #include "chrome/browser/plugins/plugin_utils.h"
  
  #include "base/values.h"
-+#include "cef/libcef/features/features.h"
++#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/profiles/profile_io_data.h"
  #include "chrome/common/plugin_utils.h"
  #include "components/content_settings/core/browser/host_content_settings_map.h"
-@@ -14,6 +15,11 @@
+@@ -14,6 +15,10 @@
  #include "url/gurl.h"
  #include "url/origin.h"
  
 +#if BUILDFLAG(ENABLE_CEF)
-+#include "cef/libcef/browser/resource_context.h"
 +#include "cef/libcef/common/extensions/extensions_util.h"
 +#endif
 +
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/common/pref_names.h"
  #include "components/prefs/pref_service.h"
-@@ -182,6 +188,12 @@ base::flat_map<std::string, std::string>
+@@ -182,6 +187,12 @@ base::flat_map<std::string, std::string>
  PluginUtils::GetMimeTypeToExtensionIdMap(
      content::BrowserContext* browser_context) {
    base::flat_map<std::string, std::string> mime_type_to_extension_id_map;
 +
 +#if BUILDFLAG(ENABLE_CEF)
-+  if (!extensions::ExtensionsEnabled())
++  if (cef::IsAlloyRuntimeEnabled() && !extensions::ExtensionsEnabled())
 +    return mime_type_to_extension_id_map;
 +#endif
 +

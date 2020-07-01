@@ -7,11 +7,11 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/context.h"
+#include "libcef/browser/iothread_state.h"
 #include "libcef/browser/net_service/cookie_helper.h"
 #include "libcef/browser/net_service/proxy_url_loader_factory.h"
 #include "libcef/browser/net_service/resource_handler_wrapper.h"
 #include "libcef/browser/net_service/response_filter_wrapper.h"
-#include "libcef/browser/resource_context.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/app_manager.h"
 #include "libcef/common/net/scheme_registration.h"
@@ -19,6 +19,7 @@
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
 
+#include "chrome/browser/profiles/profile.h"
 #include "chrome/common/chrome_features.h"
 #include "components/language/core/browser/pref_names.h"
 #include "components/prefs/pref_service.h"
@@ -262,9 +263,10 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       CEF_REQUIRE_UIT();
 
       browser_context_ = browser_context;
-      resource_context_ = static_cast<CefResourceContext*>(
-          browser_context->GetResourceContext());
-      DCHECK(resource_context_);
+      auto cef_browser_context =
+          CefBrowserContext::FromBrowserContext(browser_context);
+      iothread_state_ = cef_browser_context->iothread_state();
+      DCHECK(iothread_state_);
 
       // We register to be notified of CEF context or browser destruction so
       // that we can stop accepting new requests and cancel pending/in-progress
@@ -312,7 +314,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
     CefRefPtr<CefBrowserHostImpl> browser_;
     CefRefPtr<CefFrame> frame_;
-    CefResourceContext* resource_context_ = nullptr;
+    CefIOThreadState* iothread_state_ = nullptr;
     int render_process_id_ = 0;
     int render_frame_id_ = -1;
     int frame_tree_node_id_ = -1;
@@ -450,7 +452,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
         GetHandler(id, request, &intercept_only, requestPtr);
 
     CefRefPtr<CefSchemeHandlerFactory> scheme_factory =
-        init_state_->resource_context_->GetSchemeHandlerFactory(request->url);
+        init_state_->iothread_state_->GetSchemeHandlerFactory(request->url);
     if (scheme_factory && !requestPtr) {
       requestPtr = MakeRequest(request, id.hash(), true);
     }
@@ -1055,7 +1057,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     if (!handler) {
       // Maybe the request context wants to handle it?
       CefRefPtr<CefRequestContextHandler> context_handler =
-          init_state_->resource_context_->GetHandler(
+          init_state_->iothread_state_->GetHandler(
               init_state_->render_process_id_, request->render_frame_id,
               init_state_->frame_tree_node_id_, false);
       if (context_handler) {

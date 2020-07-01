@@ -4,7 +4,6 @@
 
 #include "libcef/browser/extension_impl.h"
 
-#include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/values_impl.h"
@@ -89,7 +88,6 @@ void CefExtensionImpl::Unload() {
 
   const bool result = static_cast<CefRequestContextImpl*>(loader_context_)
                           ->GetBrowserContext()
-                          ->extension_system()
                           ->UnloadExtension(id_);
   ALLOW_UNUSED_LOCAL(result);
   DCHECK(result);

@@ -88,8 +88,8 @@ bool CefPluginServiceFilter::IsPluginAvailable(
     return true;
   }
 
-  auto browser_context = CefBrowserContext::GetForIDs(
-      render_process_id, render_frame_id, -1, false);
+  auto browser_context =
+      CefBrowserContext::FromIDs(render_process_id, render_frame_id, -1, false);
   CefRefPtr<CefRequestContextHandler> handler;
   if (browser_context) {
     handler = browser_context->GetHandler(render_process_id, render_frame_id,

@@ -61,6 +61,8 @@ class AlloyMainDelegate : public content::ContentMainDelegate,
     return &content_client_;
   }
   CefRefPtr<CefRequestContext> GetGlobalRequestContext() override;
+  CefBrowserContext* CreateNewBrowserContext(
+      const CefRequestContextSettings& settings) override;
 
   // CefTaskRunnerManager overrides.
   scoped_refptr<base::SingleThreadTaskRunner> GetBackgroundTaskRunner()

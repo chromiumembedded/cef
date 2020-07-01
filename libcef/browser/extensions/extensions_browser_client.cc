@@ -138,7 +138,10 @@ BrowserContext* CefExtensionsBrowserClient::GetOffTheRecordContext(
 
 BrowserContext* CefExtensionsBrowserClient::GetOriginalContext(
     BrowserContext* context) {
-  return CefBrowserContext::GetForContext(context);
+  auto cef_browser_context = CefBrowserContext::FromBrowserContext(context);
+  if (cef_browser_context)
+    return cef_browser_context->AsBrowserContext();
+  return nullptr;
 }
 
 bool CefExtensionsBrowserClient::IsGuestSession(BrowserContext* context) const {
@@ -200,7 +203,9 @@ bool CefExtensionsBrowserClient::AllowCrossRendererResourceLoad(
 
 PrefService* CefExtensionsBrowserClient::GetPrefServiceForContext(
     BrowserContext* context) {
-  return static_cast<CefBrowserContext*>(context)->GetPrefs();
+  return CefBrowserContext::FromBrowserContext(context)
+      ->AsProfile()
+      ->GetPrefs();
 }
 
 void CefExtensionsBrowserClient::GetEarlyExtensionPrefsObservers(
@@ -224,12 +229,12 @@ bool CefExtensionsBrowserClient::CreateBackgroundExtensionHost(
     content::BrowserContext* browser_context,
     const GURL& url,
     ExtensionHost** host) {
-  CefBrowserContext* browser_context_impl =
-      CefBrowserContext::GetForContext(browser_context);
+  auto cef_browser_context =
+      CefBrowserContext::FromBrowserContext(browser_context);
 
   // A CEF representation should always exist.
   CefRefPtr<CefExtension> cef_extension =
-      browser_context_impl->extension_system()->GetExtension(extension->id());
+      cef_browser_context->GetExtension(extension->id());
   DCHECK(cef_extension);
   if (!cef_extension) {
     // Cancel the background host creation.

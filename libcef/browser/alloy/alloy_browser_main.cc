@@ -196,8 +196,8 @@ void AlloyBrowserMainParts::PreMainMessageLoopRun() {
   // Create the global RequestContext.
   global_request_context_ =
       CefRequestContextImpl::CreateGlobalRequestContext(settings);
-  CefBrowserContext* browser_context = static_cast<CefBrowserContext*>(
-      global_request_context_->GetBrowserContext());
+  auto browser_context =
+      global_request_context_->GetBrowserContext()->AsBrowserContext();
 
   CefDevToolsManagerDelegate::StartHttpHandler(browser_context);
 

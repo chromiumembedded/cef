@@ -11,12 +11,12 @@
 #include "content/public/browser/browser_context.h"
 #include "url/gurl.h"
 
-class CefResourceContext;
+class CefIOThreadState;
 
 namespace scheme {
 
 // Register the internal scheme handlers that can be overridden.
-void RegisterInternalHandlers(CefResourceContext* resource_context);
+void RegisterInternalHandlers(CefIOThreadState* iothread_state);
 
 // Used to fire any asynchronous content updates.
 void DidFinishLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url);

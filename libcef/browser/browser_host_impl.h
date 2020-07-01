@@ -42,6 +42,10 @@ class Extension;
 class ExtensionHost;
 }  // namespace extensions
 
+namespace gfx {
+class ImageSkia;
+}
+
 #if defined(USE_AURA)
 namespace views {
 class Widget;
