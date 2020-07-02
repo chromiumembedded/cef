@@ -44,6 +44,7 @@
 #include "content/public/common/url_utils.h"
 #include "content/public/common/user_agent.h"
 #include "ipc/ipc_channel.h"
+#include "ui/base/resource/resource_bundle.h"
 #include "v8/include/v8.h"
 
 using extensions::api::cef::kSupportedAPIs;
@@ -342,17 +343,17 @@ bool OnExtensionsSupportUI(std::string* mime_type, std::string* output) {
 }
 
 bool OnLicenseUI(std::string* mime_type, std::string* output) {
-  base::StringPiece piece =
-      CefAppManager::Get()->GetContentClient()->GetDataResource(
-          IDR_CEF_LICENSE_TXT, ui::SCALE_FACTOR_NONE);
+  std::string piece =
+      ui::ResourceBundle::GetSharedInstance().LoadDataResourceString(
+          IDR_CEF_LICENSE_TXT);
   if (piece.empty()) {
     NOTREACHED() << "Failed to load license txt resource.";
     return false;
   }
 
   *mime_type = "text/html";
-  *output = "<html><head><title>License</title></head><body><pre>" +
-            piece.as_string() + "</pre></body></html>";
+  *output = "<html><head><title>License</title></head><body><pre>" + piece +
+            "</pre></body></html>";
 
   return true;
 }
@@ -360,10 +361,10 @@ bool OnLicenseUI(std::string* mime_type, std::string* output) {
 bool OnVersionUI(Profile* profile,
                  std::string* mime_type,
                  std::string* output) {
-  base::StringPiece piece =
-      CefAppManager::Get()->GetContentClient()->GetDataResource(
-          IDR_CEF_VERSION_HTML, ui::SCALE_FACTOR_NONE);
-  if (piece.empty()) {
+  std::string tmpl =
+      ui::ResourceBundle::GetSharedInstance().LoadDataResourceString(
+          IDR_CEF_VERSION_HTML);
+  if (tmpl.empty()) {
     NOTREACHED() << "Failed to load version html resource.";
     return false;
   }
@@ -386,7 +387,6 @@ bool OnVersionUI(Profile* profile,
   parser.Add("MODULEPATH", GetModulePath());
   parser.Add("CACHEPATH", CefString(profile->GetPath().value()));
 
-  std::string tmpl = piece.as_string();
   parser.Parse(&tmpl);
 
   *mime_type = "text/html";

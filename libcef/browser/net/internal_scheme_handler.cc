@@ -158,14 +158,15 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
         action.mime_type = GetMimeType(url.path());
 
       if (!action.bytes && action.resource_id >= 0) {
-        action.bytes =
-            CefAppManager::Get()->GetContentClient()->GetDataResourceBytes(
+        std::string str =
+            ui::ResourceBundle::GetSharedInstance().LoadDataResourceString(
                 action.resource_id);
-        if (!action.bytes) {
+        if (str.empty()) {
           NOTREACHED() << "Failed to load internal resource for id: "
                        << action.resource_id << " URL: " << url.spec().c_str();
           return nullptr;
         }
+        action.bytes = base::RefCountedString::TakeString(&str);
       }
 
       if (action.bytes) {
