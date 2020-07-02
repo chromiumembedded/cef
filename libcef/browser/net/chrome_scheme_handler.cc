@@ -75,6 +75,7 @@ const char* kAllowedWebUIHosts[] = {
     content::kChromeUIAppCacheInternalsHost,
     chrome::kChromeUIAccessibilityHost,
     content::kChromeUIBlobInternalsHost,
+    chrome::kChromeUIChromeURLsHost,
     chrome::kChromeUICreditsHost,
     kChromeUIExtensionsSupportHost,
     content::kChromeUIGpuHost,
@@ -119,6 +120,7 @@ const struct {
   const char* host;
   ChromeHostId host_id;
 } kAllowedCefHosts[] = {
+    {chrome::kChromeUIChromeURLsHost, CHROME_WEBUI_HOSTS},
     {kChromeUIExtensionsSupportHost, CHROME_EXTENSIONS_SUPPORT},
     {kChromeUILicenseHost, CHROME_LICENSE},
     {chrome::kChromeUIVersionHost, CHROME_VERSION},
@@ -394,8 +396,8 @@ bool OnVersionUI(Profile* profile,
 
 bool OnWebUIHostsUI(std::string* mime_type, std::string* output) {
   std::string html =
-      "<html>\n<head><title>WebUI Hosts</title></head>\n"
-      "<body bgcolor=\"white\"><h3>WebUI Hosts</h3>\n<ul>\n";
+      "<html>\n<head><title>Chrome URLs</title></head>\n"
+      "<body bgcolor=\"white\"><h3>List of Chrome URLs</h3>\n<ul>\n";
 
   std::vector<std::string> list;
   GetAllowedHosts(&list);
