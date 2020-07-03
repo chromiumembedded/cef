@@ -27,7 +27,6 @@ class CefExtensionBackgroundHost : public ExtensionHost {
   CefExtensionBackgroundHost(CefBrowserHostImpl* browser,
                              base::OnceClosure deleted_callback,
                              const Extension* extension,
-                             content::BrowserContext* browser_context,
                              content::WebContents* host_contents,
                              const GURL& url,
                              ViewType host_type);

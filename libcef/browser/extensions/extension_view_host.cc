@@ -21,16 +21,14 @@ using content::WebContentsObserver;
 
 namespace extensions {
 
-CefExtensionViewHost::CefExtensionViewHost(
-    CefBrowserHostImpl* browser,
-    const Extension* extension,
-    content::BrowserContext* browser_context,
-    content::WebContents* host_contents,
-    const GURL& url,
-    ViewType host_type)
+CefExtensionViewHost::CefExtensionViewHost(CefBrowserHostImpl* browser,
+                                           const Extension* extension,
+                                           content::WebContents* host_contents,
+                                           const GURL& url,
+                                           ViewType host_type)
     : ExtensionHost(new CefExtensionHostDelegate(browser),
                     extension,
-                    browser_context,
+                    host_contents->GetBrowserContext(),
                     host_contents,
                     url,
                     host_type) {

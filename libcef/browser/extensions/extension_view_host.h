@@ -29,7 +29,6 @@ class CefExtensionViewHost : public ExtensionHost,
  public:
   CefExtensionViewHost(CefBrowserHostImpl* browser,
                        const Extension* extension,
-                       content::BrowserContext* browser_context,
                        content::WebContents* host_contents,
                        const GURL& url,
                        ViewType host_type);

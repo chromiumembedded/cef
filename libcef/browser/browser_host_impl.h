@@ -285,9 +285,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Returns true if this browser is views-hosted.
   bool IsViewsHosted() const;
 
-  // Returns true if this browser supports print preview.
-  bool IsPrintPreviewSupported() const;
-
   // Returns true if this browser supports picture-in-picture.
   bool IsPictureInPictureSupported() const;
 
@@ -354,8 +351,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   }
 
   // Accessors that must be called on the UI thread.
-  content::BrowserContext* GetBrowserContext();
-  extensions::ExtensionHost* extension_host() const { return extension_host_; }
+  content::BrowserContext* GetBrowserContext() const;
+  extensions::ExtensionHost* GetExtensionHost() const;
 
   void OnSetFocus(cef_focus_source_t source);
 
@@ -367,12 +364,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   bool HandleContextMenu(content::WebContents* web_contents,
                          const content::ContextMenuParams& params);
-
-  // Returns the WebContents most likely to handle an action. If extensions are
-  // enabled and this browser has a full-page guest (for example, a full-page
-  // PDF viewer extension) then the guest's WebContents will be returned.
-  // Otherwise, the browser's WebContents will be returned.
-  content::WebContents* GetActionableWebContents() const;
 
   enum DestructionState {
     DESTRUCTION_STATE_NONE = 0,
@@ -408,7 +399,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
                          bool proceed,
                          bool* proceed_to_fire_unload) override;
   bool TakeFocus(content::WebContents* source, bool reverse) override;
-
   bool HandleContextMenu(content::RenderFrameHost* render_frame_host,
                          const content::ContextMenuParams& params) override;
   content::KeyboardEventProcessingResult PreHandleKeyboardEvent(
@@ -507,7 +497,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void AccessibilityLocationChangesReceived(
       const std::vector<content::AXLocationChangeNotificationDetails>& locData)
       override;
-
   void OnWebContentsFocused(
       content::RenderWidgetHost* render_widget_host) override;
 
@@ -533,6 +522,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   std::unique_ptr<NavigationLock> CreateNavigationLock();
 
  private:
+  friend class CefBrowserPlatformDelegate;
+
   static CefRefPtr<CefBrowserHostImpl> CreateInternal(
       const CefBrowserSettings& settings,
       CefRefPtr<CefClient> client,
@@ -560,19 +551,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
       std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
       CefRefPtr<CefExtension> extension);
 
-  void set_owned_web_contents(content::WebContents* owned_contents);
-
   // Give the platform delegate an opportunity to create the host window.
   bool CreateHostWindow();
-
-  // Create/delete the host for extensions.
-  void CreateExtensionHost(const extensions::Extension* extension,
-                           content::BrowserContext* browser_context,
-                           content::WebContents* host_contents,
-                           const GURL& url,
-                           extensions::ViewType host_type);
-  void DestroyExtensionHost();
-  void OnExtensionHostDeleted();
 
   // Returns true if navigation actions are currently locked.
   bool navigation_locked() const;
@@ -592,8 +572,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Create the CefFileDialogManager if it doesn't already exist.
   void EnsureFileDialogManager();
 
-  void ConfigureAutoResize();
-
   void StartAudioCapturer();
   void OnRecentlyAudibleTimerFired();
 
@@ -610,12 +588,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   const bool is_windowless_;
   const bool is_views_hosted_;
   CefWindowHandle host_window_handle_ = kNullWindowHandle;
-
-  // Non-nullptr if this object owns the WebContents. Will be nullptr for popup
-  // browsers between the calls to WebContentsCreated() and AddNewContents(),
-  // and may never be set if the parent browser is destroyed during popup
-  // creation.
-  std::unique_ptr<content::WebContents> owned_web_contents_;
+  CefRefPtr<CefExtension> extension_;
+  bool is_background_host_ = false;
 
   // Volatile state information. All access must be protected by the state lock.
   base::Lock state_lock_;
@@ -671,14 +645,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Observers that want to be notified of changes to this object.
   base::ObserverList<Observer>::Unchecked observers_;
 
-  // Used to provide unique incremental IDs for each find request.
-  int find_request_id_counter_ = 0;
-
-  // Used when the browser is hosting an extension.
-  extensions::ExtensionHost* extension_host_ = nullptr;
-  CefRefPtr<CefExtension> extension_;
-  bool is_background_host_ = false;
-
   // Used for capturing audio for CefAudioHandler.
   std::unique_ptr<CefAudioCapturer> audio_capturer_;
 
@@ -686,11 +652,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // starts running when a tab stops being audible, and is canceled if it starts
   // being audible again before it fires.
   base::OneShotTimer recently_audible_timer_;
-
-  // Used with auto-resize.
-  bool auto_resize_enabled_ = false;
-  gfx::Size auto_resize_min_;
-  gfx::Size auto_resize_max_;
 
   IMPLEMENT_REFCOUNTING(CefBrowserHostImpl);
   DISALLOW_COPY_AND_ASSIGN(CefBrowserHostImpl);

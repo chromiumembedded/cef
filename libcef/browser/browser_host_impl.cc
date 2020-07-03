@@ -16,24 +16,16 @@
 #include "libcef/browser/browser_util.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools/devtools_manager.h"
-#include "libcef/browser/extensions/browser_extensions_util.h"
-#include "libcef/browser/extensions/extension_background_host.h"
-#include "libcef/browser/extensions/extension_system.h"
-#include "libcef/browser/extensions/extension_view_host.h"
-#include "libcef/browser/extensions/extension_web_contents_observer.h"
 #include "libcef/browser/image_impl.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/navigation_entry_impl.h"
-#include "libcef/browser/net/chrome_scheme_handler.h"
 #include "libcef/browser/net/scheme_handler.h"
 #include "libcef/browser/osr/osr_util.h"
-#include "libcef/browser/printing/print_view_manager.h"
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/drag_data_impl.h"
-#include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/values_impl.h"
 #include "libcef/features/runtime_checks.h"
@@ -42,15 +34,12 @@
 #include "base/bind_helpers.h"
 #include "base/command_line.h"
 #include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
-#include "chrome/browser/printing/print_view_manager.h"
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_service.h"
-#include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "components/favicon/core/favicon_url.h"
 #include "components/spellcheck/common/spellcheck_features.h"
-#include "components/zoom/zoom_controller.h"
 #include "content/browser/gpu/compositor_util.h"
-#include "content/browser/web_contents/web_contents_impl.h"
+#include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/common/widget_messages.h"
 #include "content/public/browser/desktop_media_id.h"
 #include "content/public/browser/download_manager.h"
@@ -71,11 +60,11 @@
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/render_widget_host_observer.h"
 #include "content/public/browser/web_contents.h"
-#include "extensions/browser/process_manager.h"
+#include "extensions/common/extension.h"
 #include "net/base/net_errors.h"
-#include "third_party/blink/public/mojom/frame/find_in_page.mojom.h"
 #include "third_party/blink/public/mojom/page/widget.mojom-test-utils.h"
 #include "ui/events/base_event_utils.h"
+#include "ui/gfx/image/image_skia.h"
 
 #if defined(OS_MACOSX)
 #include "components/spellcheck/browser/spellcheck_platform.h"
@@ -359,78 +348,36 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
           is_devtools_popup, platform_delegate->IsWindowless(),
           create_params.extra_info);
 
-  // Get or create the request context and browser context.
-  CefRefPtr<CefRequestContextImpl> request_context_impl =
-      CefRequestContextImpl::GetOrCreateForRequestContext(
-          create_params.request_context);
-  DCHECK(request_context_impl);
-  CefBrowserContext* cef_browser_context =
-      request_context_impl->GetBrowserContext();
-  DCHECK(cef_browser_context);
-  auto browser_context = cef_browser_context->AsBrowserContext();
+  bool own_web_contents = false;
 
-  if (!create_params.request_context) {
-    // Using the global request context.
-    create_params.request_context = request_context_impl.get();
-  }
+  // This call may modify |create_params|.
+  auto web_contents =
+      platform_delegate->CreateWebContents(create_params, own_web_contents);
+
+  auto request_context_impl =
+      static_cast<CefRequestContextImpl*>(create_params.request_context.get());
 
   CefRefPtr<CefExtension> cef_extension;
-  scoped_refptr<content::SiteInstance> site_instance;
-  if (extensions::ExtensionsEnabled() && !create_params.url.is_empty()) {
-    if (!create_params.extension) {
-      // We might be loading an extension app view where the extension URL is
-      // provided by the client.
-      create_params.extension =
-          extensions::GetExtensionForUrl(browser_context, create_params.url);
-    }
-    if (create_params.extension) {
-      cef_extension =
-          cef_browser_context->GetExtension(create_params.extension->id());
-      DCHECK(cef_extension);
-
-      if (create_params.extension_host_type == extensions::VIEW_TYPE_INVALID) {
-        // Default to dialog behavior.
-        create_params.extension_host_type =
-            extensions::VIEW_TYPE_EXTENSION_DIALOG;
-      }
-
-      // Extension resources will fail to load if we don't use a SiteInstance
-      // associated with the extension.
-      // (AlloyContentBrowserClient::SiteInstanceGotProcess won't find the
-      // extension to register with InfoMap, and AllowExtensionResourceLoad in
-      // ExtensionProtocolHandler::MaybeCreateJob will return false resulting in
-      // ERR_BLOCKED_BY_CLIENT).
-      site_instance = extensions::ProcessManager::Get(browser_context)
-                          ->GetSiteInstanceForURL(create_params.url);
-      DCHECK(site_instance);
-    }
+  if (create_params.extension) {
+    auto cef_browser_context = request_context_impl->GetBrowserContext();
+    cef_extension =
+        cef_browser_context->GetExtension(create_params.extension->id());
+    CHECK(cef_extension);
   }
 
-  content::WebContents::CreateParams wc_create_params(browser_context,
-                                                      site_instance);
-
-  if (platform_delegate->IsWindowless()) {
-    // Create the OSR view for the WebContents.
-    platform_delegate->CreateViewForWebContents(
-        &wc_create_params.view, &wc_create_params.delegate_view);
-  }
-
-  std::unique_ptr<content::WebContents> web_contents =
-      content::WebContents::Create(wc_create_params);
-  DCHECK(web_contents);
+  auto platform_delegate_ptr = platform_delegate.get();
 
   CefRefPtr<CefBrowserHostImpl> browser = CreateInternal(
-      create_params.settings, create_params.client, web_contents.release(),
-      true, info, create_params.devtools_opener, is_devtools_popup,
-      static_cast<CefRequestContextImpl*>(create_params.request_context.get()),
-      std::move(platform_delegate), cef_extension);
+      create_params.settings, create_params.client, web_contents,
+      own_web_contents, info, create_params.devtools_opener, is_devtools_popup,
+      request_context_impl, std::move(platform_delegate), cef_extension);
   if (!browser)
     return nullptr;
 
   if (create_params.extension) {
-    browser->CreateExtensionHost(create_params.extension, browser_context,
-                                 browser->web_contents(), create_params.url,
-                                 create_params.extension_host_type);
+    platform_delegate_ptr->CreateExtensionHost(
+        create_params.extension, create_params.url,
+        create_params.extension_host_type);
   } else if (!create_params.url.is_empty()) {
     browser->LoadMainFrameURL(create_params.url.spec(), content::Referrer(),
                               CefFrameHostImpl::kPageTransitionExplicit,
@@ -464,6 +411,8 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
   if (opener) {
     if (!opener->platform_delegate_) {
       // The opener window is being destroyed. Cancel the popup.
+      if (own_web_contents)
+        delete web_contents;
       return nullptr;
     }
 
@@ -474,13 +423,12 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
         is_devtools_popup);
   }
 
-  platform_delegate->WebContentsCreated(web_contents);
+  // Take ownership of |web_contents| if |own_web_contents| is true.
+  platform_delegate->WebContentsCreated(web_contents, own_web_contents);
 
   CefRefPtr<CefBrowserHostImpl> browser = new CefBrowserHostImpl(
       settings, client, web_contents, browser_info, opener, request_context,
       std::move(platform_delegate), extension);
-  if (own_web_contents)
-    browser->set_owned_web_contents(web_contents);
   if (!browser->CreateHostWindow())
     return nullptr;
 
@@ -801,44 +749,26 @@ void CefBrowserHostImpl::DownloadImage(
 }
 
 void CefBrowserHostImpl::Print() {
-  if (CEF_CURRENTLY_ON_UIT()) {
-    auto actionable_contents = GetActionableWebContents();
-    if (!actionable_contents)
-      return;
-
-    auto rfh = actionable_contents->GetMainFrame();
-
-    if (IsPrintPreviewSupported()) {
-      printing::CefPrintViewManager::FromWebContents(actionable_contents)
-          ->PrintPreviewNow(rfh, false);
-    } else {
-      printing::PrintViewManager::FromWebContents(actionable_contents)
-          ->PrintNow(rfh);
-    }
-  } else {
+  if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostImpl::Print, this));
+    return;
   }
+
+  if (platform_delegate_)
+    platform_delegate_->Print();
 }
 
 void CefBrowserHostImpl::PrintToPDF(const CefString& path,
                                     const CefPdfPrintSettings& settings,
                                     CefRefPtr<CefPdfPrintCallback> callback) {
-  if (CEF_CURRENTLY_ON_UIT()) {
-    content::WebContents* actionable_contents = GetActionableWebContents();
-    if (!actionable_contents)
-      return;
-
-    printing::CefPrintViewManager::PdfPrintCallback pdf_callback;
-    if (callback.get()) {
-      pdf_callback = base::Bind(&CefPdfPrintCallback::OnPdfPrintFinished,
-                                callback.get(), path);
-    }
-    printing::CefPrintViewManager::FromWebContents(actionable_contents)
-        ->PrintToPDF(actionable_contents->GetMainFrame(), base::FilePath(path),
-                     settings, pdf_callback);
-  } else {
+  if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostImpl::PrintToPDF, this,
                                           path, settings, callback));
+    return;
+  }
+
+  if (platform_delegate_) {
+    platform_delegate_->PrintToPDF(path, settings, callback);
   }
 }
 
@@ -847,43 +777,28 @@ void CefBrowserHostImpl::Find(int identifier,
                               bool forward,
                               bool matchCase,
                               bool findNext) {
-  if (CEF_CURRENTLY_ON_UIT()) {
-    if (!web_contents())
-      return;
-
-    // Every find request must have a unique ID and these IDs must strictly
-    // increase so that newer requests always have greater IDs than older
-    // requests.
-    if (identifier <= find_request_id_counter_)
-      identifier = ++find_request_id_counter_;
-    else
-      find_request_id_counter_ = identifier;
-
-    auto options = blink::mojom::FindOptions::New();
-    options->forward = forward;
-    options->match_case = matchCase;
-    options->find_next = findNext;
-    web_contents()->Find(identifier, searchText, std::move(options));
-  } else {
+  if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
                   base::BindOnce(&CefBrowserHostImpl::Find, this, identifier,
                                  searchText, forward, matchCase, findNext));
+    return;
+  }
+
+  if (platform_delegate_) {
+    platform_delegate_->Find(identifier, searchText, forward, matchCase,
+                             findNext);
   }
 }
 
 void CefBrowserHostImpl::StopFinding(bool clearSelection) {
-  if (CEF_CURRENTLY_ON_UIT()) {
-    if (!web_contents())
-      return;
-
-    content::StopFindAction action =
-        clearSelection ? content::STOP_FIND_ACTION_CLEAR_SELECTION
-                       : content::STOP_FIND_ACTION_KEEP_SELECTION;
-    web_contents()->StopFinding(action);
-  } else {
+  if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostImpl::StopFinding,
                                           this, clearSelection));
+    return;
   }
+
+  if (platform_delegate_)
+    platform_delegate_->StopFinding(clearSelection);
 }
 
 void CefBrowserHostImpl::ShowDevTools(const CefWindowInfo& windowInfo,
@@ -1058,12 +973,6 @@ CefRefPtr<CefNavigationEntry> CefBrowserHostImpl::GetVisibleNavigationEntry() {
 
 void CefBrowserHostImpl::SetAccessibilityState(
     cef_state_t accessibility_state) {
-  // Do nothing if state is set to default. It'll be disabled by default and
-  // controlled by the commmand-line flags "force-renderer-accessibility" and
-  // "disable-renderer-accessibility".
-  if (accessibility_state == STATE_DEFAULT)
-    return;
-
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
                   base::BindOnce(&CefBrowserHostImpl::SetAccessibilityState,
@@ -1071,19 +980,9 @@ void CefBrowserHostImpl::SetAccessibilityState(
     return;
   }
 
-  content::WebContentsImpl* web_contents_impl =
-      static_cast<content::WebContentsImpl*>(web_contents());
-
-  if (!web_contents_impl)
-    return;
-
-  ui::AXMode accMode;
-  // In windowless mode set accessibility to TreeOnly mode. Else native
-  // accessibility APIs, specific to each platform, are also created.
-  if (accessibility_state == STATE_ENABLED) {
-    accMode = IsWindowless() ? ui::kAXModeWebContentsOnly : ui::kAXModeComplete;
+  if (platform_delegate_) {
+    platform_delegate_->SetAccessibilityState(accessibility_state);
   }
-  web_contents_impl->SetAccessibilityMode(accMode);
 }
 
 void CefBrowserHostImpl::SetAutoResizeEnabled(bool enabled,
@@ -1096,17 +995,9 @@ void CefBrowserHostImpl::SetAutoResizeEnabled(bool enabled,
     return;
   }
 
-  if (enabled == auto_resize_enabled_)
-    return;
-
-  auto_resize_enabled_ = enabled;
-  if (enabled) {
-    auto_resize_min_ = gfx::Size(min_size.width, min_size.height);
-    auto_resize_max_ = gfx::Size(max_size.width, max_size.height);
-  } else {
-    auto_resize_min_ = auto_resize_max_ = gfx::Size();
+  if (platform_delegate_) {
+    platform_delegate_->SetAutoResizeEnabled(enabled, min_size, max_size);
   }
-  ConfigureAutoResize();
 }
 
 CefRefPtr<CefExtension> CefBrowserHostImpl::GetExtension() {
@@ -1178,10 +1069,8 @@ void CefBrowserHostImpl::WasResized() {
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->WasResized();
+  if (platform_delegate_)
+    platform_delegate_->WasResized();
 }
 
 void CefBrowserHostImpl::WasHidden(bool hidden) {
@@ -1196,10 +1085,8 @@ void CefBrowserHostImpl::WasHidden(bool hidden) {
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->WasHidden(hidden);
+  if (platform_delegate_)
+    platform_delegate_->WasHidden(hidden);
 }
 
 void CefBrowserHostImpl::NotifyScreenInfoChanged() {
@@ -1215,10 +1102,8 @@ void CefBrowserHostImpl::NotifyScreenInfoChanged() {
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->NotifyScreenInfoChanged();
+  if (platform_delegate_)
+    platform_delegate_->NotifyScreenInfoChanged();
 }
 
 void CefBrowserHostImpl::Invalidate(PaintElementType type) {
@@ -1233,10 +1118,8 @@ void CefBrowserHostImpl::Invalidate(PaintElementType type) {
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->Invalidate(type);
+  if (platform_delegate_)
+    platform_delegate_->Invalidate(type);
 }
 
 void CefBrowserHostImpl::SendExternalBeginFrame() {
@@ -1251,10 +1134,8 @@ void CefBrowserHostImpl::SendExternalBeginFrame() {
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->SendExternalBeginFrame();
+  if (platform_delegate_)
+    platform_delegate_->SendExternalBeginFrame();
 }
 
 void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
@@ -1264,10 +1145,8 @@ void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->SendKeyEvent(event);
+  if (platform_delegate_)
+    platform_delegate_->SendKeyEvent(event);
 }
 
 void CefBrowserHostImpl::SendMouseClickEvent(const CefMouseEvent& event,
@@ -1281,10 +1160,9 @@ void CefBrowserHostImpl::SendMouseClickEvent(const CefMouseEvent& event,
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->SendMouseClickEvent(event, type, mouseUp, clickCount);
+  if (platform_delegate_) {
+    platform_delegate_->SendMouseClickEvent(event, type, mouseUp, clickCount);
+  }
 }
 
 void CefBrowserHostImpl::SendMouseMoveEvent(const CefMouseEvent& event,
@@ -1296,10 +1174,9 @@ void CefBrowserHostImpl::SendMouseMoveEvent(const CefMouseEvent& event,
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->SendMouseMoveEvent(event, mouseLeave);
+  if (platform_delegate_) {
+    platform_delegate_->SendMouseMoveEvent(event, mouseLeave);
+  }
 }
 
 void CefBrowserHostImpl::SendMouseWheelEvent(const CefMouseEvent& event,
@@ -1317,10 +1194,25 @@ void CefBrowserHostImpl::SendMouseWheelEvent(const CefMouseEvent& event,
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
+  if (platform_delegate_) {
+    platform_delegate_->SendMouseWheelEvent(event, deltaX, deltaY);
+  }
+}
 
-  platform_delegate_->SendMouseWheelEvent(event, deltaX, deltaY);
+void CefBrowserHostImpl::SendTouchEvent(const CefTouchEvent& event) {
+  if (!IsWindowless()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+                  base::Bind(&CefBrowserHostImpl::SendTouchEvent, this, event));
+    return;
+  }
+
+  if (platform_delegate_)
+    platform_delegate_->SendTouchEvent(event);
 }
 
 void CefBrowserHostImpl::SendFocusEvent(bool setFocus) {
@@ -1335,10 +1227,8 @@ void CefBrowserHostImpl::SendCaptureLostEvent() {
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->SendCaptureLostEvent();
+  if (platform_delegate_)
+    platform_delegate_->SendCaptureLostEvent();
 }
 
 void CefBrowserHostImpl::NotifyMoveOrResizeStarted() {
@@ -1350,10 +1240,8 @@ void CefBrowserHostImpl::NotifyMoveOrResizeStarted() {
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->NotifyMoveOrResizeStarted();
+  if (platform_delegate_)
+    platform_delegate_->NotifyMoveOrResizeStarted();
 #endif
 }
 
@@ -1581,22 +1469,6 @@ bool CefBrowserHostImpl::IsViewsHosted() const {
   return is_views_hosted_;
 }
 
-bool CefBrowserHostImpl::IsPrintPreviewSupported() const {
-  CEF_REQUIRE_UIT();
-  auto actionable_contents = GetActionableWebContents();
-  if (!actionable_contents)
-    return false;
-
-  auto cef_browser_context = CefBrowserContext::FromBrowserContext(
-      actionable_contents->GetBrowserContext());
-  if (!cef_browser_context->IsPrintPreviewSupported()) {
-    return false;
-  }
-
-  // Print preview is not currently supported with OSR.
-  return !IsWindowless();
-}
-
 bool CefBrowserHostImpl::IsPictureInPictureSupported() const {
   // Not currently supported with OSR.
   return !IsWindowless();
@@ -1638,7 +1510,6 @@ void CefBrowserHostImpl::DestroyBrowser() {
     javascript_dialog_manager_->Destroy();
   if (menu_manager_.get())
     menu_manager_->Destroy();
-  DestroyExtensionHost();
 
   // Notify any observers that may have state associated with this browser.
   for (auto& observer : observers_)
@@ -1649,8 +1520,6 @@ void CefBrowserHostImpl::DestroyBrowser() {
 
   registrar_.reset(nullptr);
   content::WebContentsObserver::Observe(nullptr);
-  if (owned_web_contents_)
-    owned_web_contents_.reset(nullptr);
 
   // Delete objects created by the platform delegate that may be referenced by
   // the WebContents.
@@ -1781,11 +1650,17 @@ int CefBrowserHostImpl::browser_id() const {
   return browser_info_->browser_id();
 }
 
-content::BrowserContext* CefBrowserHostImpl::GetBrowserContext() {
+content::BrowserContext* CefBrowserHostImpl::GetBrowserContext() const {
   CEF_REQUIRE_UIT();
   if (web_contents())
     return web_contents()->GetBrowserContext();
   return nullptr;
+}
+
+extensions::ExtensionHost* CefBrowserHostImpl::GetExtensionHost() const {
+  CEF_REQUIRE_UIT();
+  DCHECK(platform_delegate_);
+  return platform_delegate_->extension_host();
 }
 
 void CefBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
@@ -1885,11 +1760,10 @@ void CefBrowserHostImpl::ImeSetComposition(
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->ImeSetComposition(text, underlines, replacement_range,
-                                        selection_range);
+  if (platform_delegate_) {
+    platform_delegate_->ImeSetComposition(text, underlines, replacement_range,
+                                          selection_range);
+  }
 }
 
 void CefBrowserHostImpl::ImeCommitText(const CefString& text,
@@ -1907,11 +1781,10 @@ void CefBrowserHostImpl::ImeCommitText(const CefString& text,
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->ImeCommitText(text, replacement_range,
-                                    relative_cursor_pos);
+  if (platform_delegate_) {
+    platform_delegate_->ImeCommitText(text, replacement_range,
+                                      relative_cursor_pos);
+  }
 }
 
 void CefBrowserHostImpl::ImeFinishComposingText(bool keep_selection) {
@@ -1927,10 +1800,9 @@ void CefBrowserHostImpl::ImeFinishComposingText(bool keep_selection) {
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->ImeFinishComposingText(keep_selection);
+  if (platform_delegate_) {
+    platform_delegate_->ImeFinishComposingText(keep_selection);
+  }
 }
 
 void CefBrowserHostImpl::ImeCancelComposition() {
@@ -1946,10 +1818,8 @@ void CefBrowserHostImpl::ImeCancelComposition() {
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->ImeCancelComposition();
+  if (platform_delegate_)
+    platform_delegate_->ImeCancelComposition();
 }
 
 void CefBrowserHostImpl::DragTargetDragEnter(
@@ -1973,10 +1843,9 @@ void CefBrowserHostImpl::DragTargetDragEnter(
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->DragTargetDragEnter(drag_data, event, allowed_ops);
+  if (platform_delegate_) {
+    platform_delegate_->DragTargetDragEnter(drag_data, event, allowed_ops);
+  }
 }
 
 void CefBrowserHostImpl::DragTargetDragOver(
@@ -1994,10 +1863,9 @@ void CefBrowserHostImpl::DragTargetDragOver(
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->DragTargetDragOver(event, allowed_ops);
+  if (platform_delegate_) {
+    platform_delegate_->DragTargetDragOver(event, allowed_ops);
+  }
 }
 
 void CefBrowserHostImpl::DragTargetDragLeave() {
@@ -2012,10 +1880,8 @@ void CefBrowserHostImpl::DragTargetDragLeave() {
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->DragTargetDragLeave();
+  if (platform_delegate_)
+    platform_delegate_->DragTargetDragLeave();
 }
 
 void CefBrowserHostImpl::DragTargetDrop(const CefMouseEvent& event) {
@@ -2030,10 +1896,8 @@ void CefBrowserHostImpl::DragTargetDrop(const CefMouseEvent& event) {
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->DragTargetDrop(event);
+  if (platform_delegate_)
+    platform_delegate_->DragTargetDrop(event);
 }
 
 void CefBrowserHostImpl::DragSourceSystemDragEnded() {
@@ -2049,10 +1913,8 @@ void CefBrowserHostImpl::DragSourceSystemDragEnded() {
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->DragSourceSystemDragEnded();
+  if (platform_delegate_)
+    platform_delegate_->DragSourceSystemDragEnded();
 }
 
 void CefBrowserHostImpl::DragSourceEndedAt(
@@ -2071,10 +1933,8 @@ void CefBrowserHostImpl::DragSourceEndedAt(
     return;
   }
 
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->DragSourceEndedAt(x, y, op);
+  if (platform_delegate_)
+    platform_delegate_->DragSourceEndedAt(x, y, op);
 }
 
 void CefBrowserHostImpl::SetAudioMuted(bool mute) {
@@ -2132,10 +1992,7 @@ content::WebContents* CefBrowserHostImpl::OpenURLFromTab(
 
 bool CefBrowserHostImpl::ShouldTransferNavigation(
     bool is_main_frame_navigation) {
-  if (extension_host_) {
-    return extension_host_->ShouldTransferNavigation(is_main_frame_navigation);
-  }
-  return true;
+  return platform_delegate_->ShouldTransferNavigation(is_main_frame_navigation);
 }
 
 void CefBrowserHostImpl::AddNewContents(
@@ -2146,19 +2003,9 @@ void CefBrowserHostImpl::AddNewContents(
     const gfx::Rect& initial_rect,
     bool user_gesture,
     bool* was_blocked) {
-  CefRefPtr<CefBrowserHostImpl> owner =
-      GetBrowserForContents(new_contents.get());
-  if (owner) {
-    // Taking ownership of |new_contents|.
-    owner->set_owned_web_contents(new_contents.release());
-    return;
-  }
-
-  if (extension_host_) {
-    extension_host_->AddNewContents(source, std::move(new_contents), target_url,
-                                    disposition, initial_rect, user_gesture,
-                                    was_blocked);
-  }
+  platform_delegate_->AddNewContents(source, std::move(new_contents),
+                                     target_url, disposition, initial_rect,
+                                     user_gesture, was_blocked);
 }
 
 void CefBrowserHostImpl::LoadingStateChanged(content::WebContents* source,
@@ -2314,16 +2161,6 @@ bool CefBrowserHostImpl::HandleContextMenu(
   return HandleContextMenu(web_contents(), params);
 }
 
-content::WebContents* CefBrowserHostImpl::GetActionableWebContents() const {
-  if (web_contents() && extensions::ExtensionsEnabled()) {
-    content::WebContents* guest_contents =
-        extensions::GetFullPageGuestForOwnerContents(web_contents());
-    if (guest_contents)
-      return guest_contents;
-  }
-  return web_contents();
-}
-
 KeyboardEventProcessingResult CefBrowserHostImpl::PreHandleKeyboardEvent(
     content::WebContents* source,
     const content::NativeWebKeyboardEvent& event) {
@@ -2379,9 +2216,7 @@ bool CefBrowserHostImpl::HandleKeyboardEvent(
 bool CefBrowserHostImpl::PreHandleGestureEvent(
     content::WebContents* source,
     const blink::WebGestureEvent& event) {
-  if (extension_host_)
-    return extension_host_->PreHandleGestureEvent(source, event);
-  return false;
+  return platform_delegate_->PreHandleGestureEvent(source, event);
 }
 
 bool CefBrowserHostImpl::CanDragEnter(content::WebContents* source,
@@ -2433,22 +2268,23 @@ void CefBrowserHostImpl::WebContentsCreated(
   scoped_refptr<CefBrowserInfo> info =
       CefBrowserInfoManager::GetInstance()->CreatePopupBrowserInfo(
           new_contents, platform_delegate->IsWindowless(), extra_info);
-  DCHECK(info.get());
-  DCHECK(info->is_popup());
+  CHECK(info.get());
+  CHECK(info->is_popup());
 
   CefRefPtr<CefBrowserHostImpl> opener = GetBrowserForContents(source_contents);
-  if (!opener.get())
+  if (!opener)
     return;
 
   // Popups must share the same RequestContext as the parent.
   CefRefPtr<CefRequestContextImpl> request_context = opener->request_context();
-  DCHECK(request_context);
+  CHECK(request_context);
 
   // We don't officially own |new_contents| until AddNewContents() is called.
   // However, we need to install observers/delegates here.
   CefRefPtr<CefBrowserHostImpl> browser =
-      CreateInternal(settings, client, new_contents, false, info, opener, false,
-                     request_context, std::move(platform_delegate), nullptr);
+      CreateInternal(settings, client, new_contents, /*own_web_contents=*/false,
+                     info, opener, /*is_devtools_popup=*/false, request_context,
+                     std::move(platform_delegate), /*cef_extension=*/nullptr);
 }
 
 void CefBrowserHostImpl::DidNavigateMainFramePostCommit(
@@ -2579,9 +2415,7 @@ bool CefBrowserHostImpl::CheckMediaAccessPermission(
 }
 
 bool CefBrowserHostImpl::IsNeverComposited(content::WebContents* web_contents) {
-  if (extension_host_)
-    return extension_host_->IsNeverComposited(web_contents);
-  return false;
+  return platform_delegate_->IsNeverComposited(web_contents);
 }
 
 content::PictureInPictureResult CefBrowserHostImpl::EnterPictureInPicture(
@@ -2658,7 +2492,7 @@ void CefBrowserHostImpl::RenderViewDeleted(
 }
 
 void CefBrowserHostImpl::RenderViewReady() {
-  ConfigureAutoResize();
+  platform_delegate_->ConfigureAutoResize();
 
   if (client_.get()) {
     CefRefPtr<CefRequestHandler> handler = client_->GetRequestHandler();
@@ -3021,8 +2855,6 @@ CefBrowserHostImpl::CefBrowserHostImpl(
   DCHECK(!browser_info_->browser().get());
   browser_info_->SetBrowser(this);
 
-  web_contents->SetDelegate(this);
-
   // Associate the WebContents with this browser object.
   WebContentsUserDataAdapter::Register(this);
 
@@ -3037,31 +2869,11 @@ CefBrowserHostImpl::CefBrowserHostImpl(
                   content::Source<content::NavigationController>(
                       &web_contents->GetController()));
 
-  PrefsTabHelper::CreateForWebContents(web_contents);
-  printing::CefPrintViewManager::CreateForWebContents(web_contents);
-
-  if (extensions::ExtensionsEnabled()) {
-    extensions::CefExtensionWebContentsObserver::CreateForWebContents(
-        web_contents);
-
-    // Used by the tabs extension API.
-    zoom::ZoomController::CreateForWebContents(web_contents);
-  }
+  // Associate the platform delegate with this browser.
+  platform_delegate_->BrowserCreated(this);
 
   // Make sure RenderViewCreated is called at least one time.
   RenderViewCreated(web_contents->GetRenderViewHost());
-
-  // Associate the platform delegate with this browser.
-  platform_delegate_->BrowserCreated(this);
-}
-
-void CefBrowserHostImpl::set_owned_web_contents(
-    content::WebContents* owned_contents) {
-  // Should not currently own a WebContents.
-  CHECK(!owned_web_contents_);
-  // Should already be associated with |owned_contents|.
-  CHECK(web_contents() == owned_contents);
-  owned_web_contents_.reset(owned_contents);
 }
 
 bool CefBrowserHostImpl::CreateHostWindow() {
@@ -3073,58 +2885,6 @@ bool CefBrowserHostImpl::CreateHostWindow() {
   if (success && !IsViewsHosted())
     host_window_handle_ = platform_delegate_->GetHostWindowHandle();
   return success;
-}
-
-void CefBrowserHostImpl::CreateExtensionHost(
-    const extensions::Extension* extension,
-    content::BrowserContext* browser_context,
-    content::WebContents* host_contents,
-    const GURL& url,
-    extensions::ViewType host_type) {
-  DCHECK(!extension_host_);
-
-  if (host_type == extensions::VIEW_TYPE_EXTENSION_DIALOG ||
-      host_type == extensions::VIEW_TYPE_EXTENSION_POPUP) {
-    // Create an extension host that we own.
-    extension_host_ = new extensions::CefExtensionViewHost(
-        this, extension, browser_context, host_contents, url, host_type);
-    // Trigger load of the extension URL.
-    extension_host_->CreateRenderViewSoon();
-  } else if (host_type == extensions::VIEW_TYPE_EXTENSION_BACKGROUND_PAGE) {
-    is_background_host_ = true;
-    // Create an extension host that will be owned by ProcessManager.
-    extension_host_ = new extensions::CefExtensionBackgroundHost(
-        this, base::BindOnce(&CefBrowserHostImpl::OnExtensionHostDeleted, this),
-        extension, browser_context, host_contents, url, host_type);
-    // Load will be triggered by ProcessManager::CreateBackgroundHost.
-  } else {
-    NOTREACHED() << " Unsupported extension host type: " << host_type;
-  }
-}
-
-void CefBrowserHostImpl::DestroyExtensionHost() {
-  if (!extension_host_)
-    return;
-  if (extension_host_->extension_host_type() ==
-      extensions::VIEW_TYPE_EXTENSION_BACKGROUND_PAGE) {
-    DCHECK(is_background_host_);
-    // Close notification for background pages arrives via CloseContents.
-    // The extension host will be deleted by
-    // ProcessManager::CloseBackgroundHost and OnExtensionHostDeleted will be
-    // called to notify us.
-    extension_host_->Close();
-  } else {
-    DCHECK(!is_background_host_);
-    // We own the extension host and must delete it.
-    delete extension_host_;
-    extension_host_ = nullptr;
-  }
-}
-
-void CefBrowserHostImpl::OnExtensionHostDeleted() {
-  DCHECK(is_background_host_);
-  DCHECK(extension_host_);
-  extension_host_ = nullptr;
 }
 
 gfx::Point CefBrowserHostImpl::GetScreenPoint(const gfx::Point& view) const {
@@ -3227,36 +2987,4 @@ void CefBrowserHostImpl::EnsureFileDialogManager() {
     file_dialog_manager_.reset(new CefFileDialogManager(
         this, platform_delegate_->CreateFileDialogRunner()));
   }
-}
-
-void CefBrowserHostImpl::ConfigureAutoResize() {
-  CEF_REQUIRE_UIT();
-  if (!web_contents() || !web_contents()->GetRenderWidgetHostView()) {
-    return;
-  }
-
-  if (auto_resize_enabled_) {
-    web_contents()->GetRenderWidgetHostView()->EnableAutoResize(
-        auto_resize_min_, auto_resize_max_);
-  } else {
-    web_contents()->GetRenderWidgetHostView()->DisableAutoResize(gfx::Size());
-  }
-}
-
-void CefBrowserHostImpl::SendTouchEvent(const CefTouchEvent& event) {
-  if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
-    return;
-  }
-
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-                  base::Bind(&CefBrowserHostImpl::SendTouchEvent, this, event));
-    return;
-  }
-
-  if (!web_contents() || !platform_delegate_)
-    return;
-
-  platform_delegate_->SendTouchEvent(event);
 }

@@ -272,7 +272,7 @@ bool CefExtensionsBrowserClient::CreateBackgroundExtensionHost(
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::Create(create_params);
   if (browser) {
-    *host = browser->extension_host();
+    *host = browser->GetExtensionHost();
     DCHECK(*host);
   }
   return true;

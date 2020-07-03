@@ -38,8 +38,9 @@ void CefBrowserPlatformDelegateOsr::CreateViewForWebContents(
 }
 
 void CefBrowserPlatformDelegateOsr::WebContentsCreated(
-    content::WebContents* web_contents) {
-  CefBrowserPlatformDelegate::WebContentsCreated(web_contents);
+    content::WebContents* web_contents,
+    bool owned) {
+  CefBrowserPlatformDelegate::WebContentsCreated(web_contents, owned);
 
   DCHECK(view_osr_);
   DCHECK(!view_osr_->web_contents());

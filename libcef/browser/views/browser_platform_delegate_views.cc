@@ -66,8 +66,9 @@ void CefBrowserPlatformDelegateViews::SetBrowserView(
 }
 
 void CefBrowserPlatformDelegateViews::WebContentsCreated(
-    content::WebContents* web_contents) {
-  CefBrowserPlatformDelegate::WebContentsCreated(web_contents);
+    content::WebContents* web_contents,
+    bool owned) {
+  CefBrowserPlatformDelegate::WebContentsCreated(web_contents, owned);
 
   browser_view_->WebContentsCreated(web_contents);
 }

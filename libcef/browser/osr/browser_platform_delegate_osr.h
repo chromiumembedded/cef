@@ -24,7 +24,8 @@ class CefBrowserPlatformDelegateOsr
   void CreateViewForWebContents(
       content::WebContentsView** view,
       content::RenderViewHostDelegateView** delegate_view) override;
-  void WebContentsCreated(content::WebContents* web_contents) override;
+  void WebContentsCreated(content::WebContents* web_contents,
+                          bool owned) override;
   void BrowserCreated(CefBrowserHostImpl* browser) override;
   void BrowserDestroyed(CefBrowserHostImpl* browser) override;
   SkColor GetBackgroundColor() const override;
