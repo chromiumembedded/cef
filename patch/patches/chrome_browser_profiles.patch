@@ -43,14 +43,14 @@ index 3e1e28ea7d0e..b70f718c8e94 100644
    // Get the path of the last used profile, or if that's undefined, the default
    // profile.
 diff --git chrome/browser/profiles/renderer_updater.cc chrome/browser/profiles/renderer_updater.cc
-index c1792eccd997..6c34846b7947 100644
+index c1792eccd997..d7434ff76a88 100644
 --- chrome/browser/profiles/renderer_updater.cc
 +++ chrome/browser/profiles/renderer_updater.cc
 @@ -7,6 +7,7 @@
  #include <utility>
  
  #include "base/bind.h"
-+#include "cef/libcef/features/features.h"
++#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
  #include "chrome/browser/profiles/profile.h"
  #include "chrome/browser/signin/identity_manager_factory.h"
@@ -58,12 +58,14 @@ index c1792eccd997..6c34846b7947 100644
  
  RendererUpdater::RendererUpdater(Profile* profile)
      : profile_(profile), identity_manager_observer_(this) {
-+#if !BUILDFLAG(ENABLE_CEF)
-   identity_manager_ = IdentityManagerFactory::GetForProfile(profile);
-   identity_manager_observer_.Add(identity_manager_);
-+#else
-+  identity_manager_ = nullptr;
-+#endif
+-  identity_manager_ = IdentityManagerFactory::GetForProfile(profile);
+-  identity_manager_observer_.Add(identity_manager_);
++  if (cef::IsAlloyRuntimeEnabled()) {
++    identity_manager_ = nullptr;
++  } else {
++    identity_manager_ = IdentityManagerFactory::GetForProfile(profile);
++    identity_manager_observer_.Add(identity_manager_);
++  }
  #if defined(OS_CHROMEOS)
    oauth2_login_manager_ =
        chromeos::OAuth2LoginManagerFactory::GetForProfile(profile_);

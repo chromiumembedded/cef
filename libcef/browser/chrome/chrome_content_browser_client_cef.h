@@ -8,6 +8,8 @@
 
 #include <memory>
 
+#include "libcef/browser/request_context_impl.h"
+
 #include "base/macros.h"
 #include "chrome/browser/chrome_content_browser_client.h"
 
@@ -24,6 +26,8 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
       const content::MainFunctionParams& parameters) override;
   void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
                                       int child_process_id) override;
+
+  CefRefPtr<CefRequestContextImpl> request_context() const;
 
   scoped_refptr<base::SingleThreadTaskRunner> background_task_runner() const;
   scoped_refptr<base::SingleThreadTaskRunner> user_visible_task_runner() const;

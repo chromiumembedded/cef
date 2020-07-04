@@ -9,7 +9,6 @@
 #include "libcef/common/app_manager.h"
 #include "libcef/common/task_runner_impl.h"
 #include "libcef/common/values_impl.h"
-#include "libcef/features/runtime_checks.h"
 
 #include "base/atomic_sequence_num.h"
 #include "base/logging.h"
@@ -604,8 +603,6 @@ void CefRequestContextImpl::OnRenderFrameDeleted(int render_process_id,
 CefRefPtr<CefRequestContextImpl>
 CefRequestContextImpl::GetOrCreateRequestContext(const Config& config) {
   // TODO(chrome-runtime): Add support for this method.
-  REQUIRE_ALLOY_RUNTIME();
-
   if (config.is_global ||
       (config.other && config.other->IsGlobal() && !config.handler)) {
     // Return the singleton global context.

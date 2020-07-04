@@ -499,6 +499,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       override;
   void OnWebContentsFocused(
       content::RenderWidgetHost* render_widget_host) override;
+  void WebContentsDestroyed() override;
 
   // Manage observer objects. The observer must either outlive this object or
   // remove itself before destruction. These methods can only be called on the

@@ -28,7 +28,6 @@
 #include "libcef/common/drag_data_impl.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/values_impl.h"
-#include "libcef/features/runtime_checks.h"
 
 #include "base/bind.h"
 #include "base/bind_helpers.h"
@@ -246,9 +245,6 @@ bool CefBrowserHost::CreateBrowser(
     return false;
   }
 
-  // TODO(chrome-runtime): Add support for this method.
-  REQUIRE_ALLOY_RUNTIME();
-
   // Verify that the settings structure is a valid size.
   if (settings.size != sizeof(cef_browser_settings_t)) {
     NOTREACHED() << "invalid CefBrowserSettings structure size";
@@ -290,9 +286,6 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     NOTREACHED() << "context not valid";
     return nullptr;
   }
-
-  // TODO(chrome-runtime): Add support for this method.
-  REQUIRE_ALLOY_RUNTIME();
 
   // Verify that the settings structure is a valid size.
   if (settings.size != sizeof(cef_browser_settings_t)) {
@@ -1515,11 +1508,16 @@ void CefBrowserHostImpl::DestroyBrowser() {
   for (auto& observer : observers_)
     observer.OnBrowserDestroyed(this);
 
+  // If the WebContents still exists at this point, signal destruction before
+  // browser destruction.
+  if (web_contents()) {
+    WebContentsDestroyed();
+  }
+
   // Disassociate the platform delegate from this browser.
   platform_delegate_->BrowserDestroyed(this);
 
   registrar_.reset(nullptr);
-  content::WebContentsObserver::Observe(nullptr);
 
   // Delete objects created by the platform delegate that may be referenced by
   // the WebContents.
@@ -2738,6 +2736,13 @@ void CefBrowserHostImpl::OnWebContentsFocused(
     if (handler.get())
       handler->OnGotFocus(this);
   }
+}
+
+void CefBrowserHostImpl::WebContentsDestroyed() {
+  auto wc = web_contents();
+  content::WebContentsObserver::Observe(nullptr);
+  if (platform_delegate_)
+    platform_delegate_->WebContentsDestroyed(wc);
 }
 
 void CefBrowserHostImpl::AddObserver(Observer* observer) {

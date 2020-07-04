@@ -1,5 +1,5 @@
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index c06585b15b8f..b5ed3518c0fd 100644
+index c06585b15b8f..763212a575ce 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -49,6 +49,7 @@
@@ -22,17 +22,21 @@ index c06585b15b8f..b5ed3518c0fd 100644
  
    // These members must be initialized before returning from this function.
    // Android doesn't use StartupBrowserCreator.
-@@ -1613,7 +1616,9 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
- #endif  // defined(OS_MACOSX)
- 
-     // Transfer ownership of the browser's lifetime to the BrowserProcess.
--    browser_process_->SetQuitClosure(g_run_loop->QuitWhenIdleClosure());
-+    // CEF with the Chrome runtime will create and manage its own RunLoop.
-+    if (g_run_loop)
-+      browser_process_->SetQuitClosure(g_run_loop->QuitWhenIdleClosure());
-     DCHECK(!run_message_loop_);
-     run_message_loop_ = true;
-   }
+@@ -1580,11 +1583,13 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+   // This step is costly and is already measured in
+   // Startup.StartupBrowserCreator_Start.
+   // See the comment above for an explanation of |process_command_line|.
++  // Bypass StartupBrowserCreator with CEF where |g_run_loop| is nullptr.
+   const bool started =
++      !g_run_loop ||
+       !process_command_line ||
+       browser_creator_->Start(parsed_command_line(), base::FilePath(), profile_,
+                               last_opened_profiles);
+-  if (started) {
++  if (started && g_run_loop) {
+ #if defined(OS_WIN) || (defined(OS_LINUX) && !defined(OS_CHROMEOS))
+     // Initialize autoupdate timer. Timer callback costs basically nothing
+     // when browser is not in persistent mode, so it's OK to let it ride on
 diff --git ui/gtk/select_file_dialog_impl_kde.cc ui/gtk/select_file_dialog_impl_kde.cc
 index f09501d6cd8e..edfc2a4c9bb5 100644
 --- ui/gtk/select_file_dialog_impl_kde.cc

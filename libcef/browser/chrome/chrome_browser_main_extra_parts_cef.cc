@@ -4,11 +4,22 @@
 
 #include "libcef/browser/chrome/chrome_browser_main_extra_parts_cef.h"
 
+#include "libcef/browser/context.h"
+
 #include "base/task/post_task.h"
 
 ChromeBrowserMainExtraPartsCef::ChromeBrowserMainExtraPartsCef() = default;
 
 ChromeBrowserMainExtraPartsCef::~ChromeBrowserMainExtraPartsCef() = default;
+
+void ChromeBrowserMainExtraPartsCef::PostProfileInit() {
+  CefRequestContextSettings settings;
+  CefContext::Get()->PopulateGlobalRequestContextSettings(&settings);
+
+  // Create the global RequestContext.
+  global_request_context_ =
+      CefRequestContextImpl::CreateGlobalRequestContext(settings);
+}
 
 void ChromeBrowserMainExtraPartsCef::PostMainMessageLoopRun() {
   background_task_runner_ = base::CreateSingleThreadTaskRunner(

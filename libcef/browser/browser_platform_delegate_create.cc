@@ -11,7 +11,9 @@
 #include "base/memory/ptr_util.h"
 #include "build/build_config.h"
 
+#include "libcef/browser/chrome/browser_platform_delegate_chrome.h"
 #include "libcef/browser/extensions/browser_platform_delegate_background.h"
+#include "libcef/features/runtime_checks.h"
 
 #if defined(OS_WIN)
 #include "libcef/browser/native/browser_platform_delegate_native_win.h"
@@ -80,12 +82,18 @@ std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
   bool use_external_begin_frame = false;
 
   if (is_windowless) {
+    REQUIRE_ALLOY_RUNTIME();
+
     use_shared_texture = create_params.window_info &&
                          create_params.window_info->shared_texture_enabled;
 
     use_external_begin_frame =
         create_params.window_info &&
         create_params.window_info->external_begin_frame_enabled;
+  }
+
+  if (cef::IsChromeRuntimeEnabled()) {
+    return std::make_unique<CefBrowserPlatformDelegateChrome>(background_color);
   }
 
   if (create_params.window_info) {

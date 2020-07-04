@@ -7,6 +7,8 @@
 
 #include <memory>
 
+#include "libcef/browser/request_context_impl.h"
+
 #include "base/macros.h"
 #include "base/single_thread_task_runner.h"
 #include "chrome/browser/chrome_browser_main_extra_parts.h"
@@ -16,6 +18,10 @@ class ChromeBrowserMainExtraPartsCef : public ChromeBrowserMainExtraParts {
  public:
   ChromeBrowserMainExtraPartsCef();
   ~ChromeBrowserMainExtraPartsCef() override;
+
+  CefRefPtr<CefRequestContextImpl> request_context() const {
+    return global_request_context_;
+  }
 
   scoped_refptr<base::SingleThreadTaskRunner> background_task_runner() const {
     return background_task_runner_;
@@ -30,7 +36,10 @@ class ChromeBrowserMainExtraPartsCef : public ChromeBrowserMainExtraParts {
 
  private:
   // ChromeBrowserMainExtraParts overrides.
+  void PostProfileInit() override;
   void PostMainMessageLoopRun() override;
+
+  CefRefPtr<CefRequestContextImpl> global_request_context_;
 
   // Blocking task runners exposed via CefTaskRunner. For consistency with
   // previous named thread behavior always execute all pending tasks before

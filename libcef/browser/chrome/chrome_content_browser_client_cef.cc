@@ -37,6 +37,11 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
   command_line->AppendSwitch(switches::kEnableChromeRuntime);
 }
 
+CefRefPtr<CefRequestContextImpl>
+ChromeContentBrowserClientCef::request_context() const {
+  return browser_main_parts_->request_context();
+}
+
 scoped_refptr<base::SingleThreadTaskRunner>
 ChromeContentBrowserClientCef::background_task_runner() const {
   return browser_main_parts_->background_task_runner();

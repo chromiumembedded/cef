@@ -23,7 +23,7 @@ class CefMainRunnerDelegate {
   virtual void BeforeMainThreadInitialize(const CefMainArgs& args) {}
   virtual void BeforeMainThreadRun() {}
   virtual void BeforeMainMessageLoopRun(base::RunLoop* run_loop) {}
-  virtual void BeforeMainMessageLoopQuit() {}
+  virtual bool HandleMainMessageLoopQuit() { return false; }
   virtual void AfterUIThreadInitialize() {}
   virtual void AfterUIThreadShutdown() {}
   virtual void BeforeMainThreadShutdown() {}

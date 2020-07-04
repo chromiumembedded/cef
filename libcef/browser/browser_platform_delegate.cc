@@ -140,6 +140,12 @@ void CefBrowserPlatformDelegate::AddNewContents(
   }
 }
 
+void CefBrowserPlatformDelegate::WebContentsDestroyed(
+    content::WebContents* web_contents) {
+  DCHECK(web_contents_ && web_contents_ == web_contents);
+  web_contents_ = nullptr;
+}
+
 bool CefBrowserPlatformDelegate::ShouldTransferNavigation(
     bool is_main_frame_navigation) {
   if (extension_host_) {
@@ -219,9 +225,11 @@ void CefBrowserPlatformDelegate::NotifyBrowserCreated() {}
 void CefBrowserPlatformDelegate::NotifyBrowserDestroyed() {}
 
 void CefBrowserPlatformDelegate::BrowserDestroyed(CefBrowserHostImpl* browser) {
+  // WebContentsDestroyed should already be called.
+  DCHECK(!web_contents_);
+
   DestroyExtensionHost();
   owned_web_contents_.reset();
-  web_contents_ = nullptr;
 
   DCHECK(browser_ && browser_ == browser);
   browser_ = nullptr;

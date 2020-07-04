@@ -93,6 +93,10 @@ class CefBrowserPlatformDelegate {
       bool user_gesture,
       bool* was_blocked);
 
+  // Called when the WebContents is destroyed. This will be called before
+  // BrowserDestroyed(). Will only be called a single time per instance.
+  virtual void WebContentsDestroyed(content::WebContents* web_contents);
+
   // See WebContentsDelegate documentation.
   virtual bool ShouldTransferNavigation(bool is_main_frame_navigation);
 

@@ -5,6 +5,7 @@
 
 #include "libcef/common/chrome/chrome_main_delegate_cef.h"
 
+#include "libcef/browser/chrome/chrome_browser_context.h"
 #include "libcef/browser/chrome/chrome_content_browser_client_cef.h"
 
 ChromeMainDelegateCef::ChromeMainDelegateCef(CefMainRunnerHandler* runner,
@@ -49,16 +50,17 @@ ChromeMainDelegateCef::CreateContentBrowserClient() {
 }
 
 CefRefPtr<CefRequestContext> ChromeMainDelegateCef::GetGlobalRequestContext() {
-  // TODO(chrome-runtime): Implement this method.
-  NOTIMPLEMENTED();
+  auto browser_client = content_browser_client();
+  if (browser_client)
+    return browser_client->request_context();
   return nullptr;
 }
 
 CefBrowserContext* ChromeMainDelegateCef::CreateNewBrowserContext(
     const CefRequestContextSettings& settings) {
-  // TODO(chrome-runtime): Implement this method.
-  NOTIMPLEMENTED();
-  return nullptr;
+  auto context = new ChromeBrowserContext(settings);
+  context->Initialize();
+  return context;
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>

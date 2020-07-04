@@ -53,13 +53,8 @@ void ChromeMainRunnerDelegate::BeforeMainMessageLoopRun(
   // The ScopedKeepAlive instance triggers shutdown logic when released on the
   // UI thread before terminating the message loop (e.g. from CefQuitMessageLoop
   // or FinishShutdownOnUIThread when running with multi-threaded message loop).
-  // TODO(chrome-runtime): Enable this once browser life-span notifications are
-  // in place. In the mean time, closing the last Chrome browser instance will
-  // exit the app.
-  /*
   keep_alive_ = std::make_unique<ScopedKeepAlive>(
       KeepAliveOrigin::APP_CONTROLLER, KeepAliveRestartOption::DISABLED);
-  */
 
   // The idle callback will be executed from BrowserProcessImpl::Unpin() via
   // KeepAliveRegistry when the last ScopedKeepAlive is released.
@@ -69,9 +64,14 @@ void ChromeMainRunnerDelegate::BeforeMainMessageLoopRun(
       ->SetQuitClosure(run_loop->QuitWhenIdleClosure());
 }
 
-void ChromeMainRunnerDelegate::BeforeMainMessageLoopQuit() {
+bool ChromeMainRunnerDelegate::HandleMainMessageLoopQuit() {
   // May be called multiple times. See comments in RunMainMessageLoopBefore.
   keep_alive_.reset();
+
+  // Cancel direct execution of the QuitWhenIdleClosure() in
+  // CefMainRunner::QuitMessageLoop. We instead wait for all Chrome browser
+  // windows to exit.
+  return true;
 }
 
 void ChromeMainRunnerDelegate::AfterMainThreadShutdown() {

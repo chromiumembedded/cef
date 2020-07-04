@@ -287,7 +287,8 @@ void CefMainRunner::RunMessageLoop() {
 
 void CefMainRunner::QuitMessageLoop() {
   if (!quit_when_idle_callback_.is_null()) {
-    main_delegate_->BeforeMainMessageLoopQuit();
+    if (main_delegate_->HandleMainMessageLoopQuit())
+      return;
     std::move(quit_when_idle_callback_).Run();
   }
 }
