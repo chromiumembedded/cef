@@ -5,10 +5,11 @@
 #ifndef CEF_LIBCEF_BROWSER_NATIVE_BROWSER_PLATFORM_DELEGATE_NATIVE_H_
 #define CEF_LIBCEF_BROWSER_NATIVE_BROWSER_PLATFORM_DELEGATE_NATIVE_H_
 
-#include "libcef/browser/browser_platform_delegate.h"
+#include "libcef/browser/alloy/browser_platform_delegate_alloy.h"
 
 // Base implementation of native browser functionality.
-class CefBrowserPlatformDelegateNative : public CefBrowserPlatformDelegate {
+class CefBrowserPlatformDelegateNative
+    : public CefBrowserPlatformDelegateAlloy {
  public:
   // Used by the windowless implementation to override specific functionality
   // when delegating to the native implementation.
@@ -25,8 +26,6 @@ class CefBrowserPlatformDelegateNative : public CefBrowserPlatformDelegate {
   };
 
   // CefBrowserPlatformDelegate methods:
-  bool CanUseSharedTexture() const override;
-  bool CanUseExternalBeginFrame() const override;
   SkColor GetBackgroundColor() const override;
   void WasResized() override;
   bool IsWindowless() const override;
@@ -57,9 +56,7 @@ class CefBrowserPlatformDelegateNative : public CefBrowserPlatformDelegate {
   friend class CefBrowserPlatformDelegateViews;
 
   CefBrowserPlatformDelegateNative(const CefWindowInfo& window_info,
-                                   SkColor background_color,
-                                   bool use_shared_texture,
-                                   bool use_external_begin_frame);
+                                   SkColor background_color);
 
   // Methods used by delegates that can wrap a native delegate.
   void set_windowless_handler(WindowlessHandler* handler) {
@@ -69,8 +66,6 @@ class CefBrowserPlatformDelegateNative : public CefBrowserPlatformDelegate {
 
   CefWindowInfo window_info_;
   const SkColor background_color_;
-  const bool use_shared_texture_;
-  const bool use_external_begin_frame_;
 
   WindowlessHandler* windowless_handler_;  // Not owned by this object.
 };

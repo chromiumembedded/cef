@@ -24,8 +24,6 @@ class CefBrowserPlatformDelegateChrome : public CefBrowserPlatformDelegate {
   void CloseHostWindow() override;
   CefWindowHandle GetHostWindowHandle() const override;
   SkColor GetBackgroundColor() const override;
-  bool CanUseSharedTexture() const override;
-  bool CanUseExternalBeginFrame() const override;
   void WasResized() override;
   void SendKeyEvent(const CefKeyEvent& event) override;
   void SendMouseClickEvent(const CefMouseEvent& event,

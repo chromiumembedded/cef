@@ -5,7 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_OSR_BROWSER_PLATFORM_DELEGATE_OSR_H_
 #define CEF_LIBCEF_BROWSER_OSR_BROWSER_PLATFORM_DELEGATE_OSR_H_
 
-#include "libcef/browser/browser_platform_delegate.h"
+#include "libcef/browser/alloy/browser_platform_delegate_alloy.h"
 #include "libcef/browser/native/browser_platform_delegate_native.h"
 
 class CefRenderWidgetHostViewOSR;
@@ -17,7 +17,7 @@ class RenderWidgetHostImpl;
 
 // Base implementation of windowless browser functionality.
 class CefBrowserPlatformDelegateOsr
-    : public CefBrowserPlatformDelegate,
+    : public CefBrowserPlatformDelegateAlloy,
       public CefBrowserPlatformDelegateNative::WindowlessHandler {
  public:
   // CefBrowserPlatformDelegate methods:
@@ -29,8 +29,6 @@ class CefBrowserPlatformDelegateOsr
   void BrowserCreated(CefBrowserHostImpl* browser) override;
   void BrowserDestroyed(CefBrowserHostImpl* browser) override;
   SkColor GetBackgroundColor() const override;
-  bool CanUseSharedTexture() const override;
-  bool CanUseExternalBeginFrame() const override;
   void WasResized() override;
   void SendKeyEvent(const CefKeyEvent& event) override;
   void SendMouseClickEvent(const CefMouseEvent& event,
@@ -97,8 +95,10 @@ class CefBrowserPlatformDelegateOsr
 
  protected:
   // Platform-specific behaviors will be delegated to |native_delegate|.
-  explicit CefBrowserPlatformDelegateOsr(
-      std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate);
+  CefBrowserPlatformDelegateOsr(
+      std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate,
+      bool use_shared_texture,
+      bool use_external_begin_frame);
 
   // Returns the primary OSR host view for the underlying browser. If a
   // full-screen host view currently exists then it will be returned. Otherwise,
@@ -106,7 +106,10 @@ class CefBrowserPlatformDelegateOsr
   CefRenderWidgetHostViewOSR* GetOSRHostView() const;
 
   std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate_;
-  CefWebContentsViewOSR* view_osr_;  // Not owned by this class.
+  const bool use_shared_texture_;
+  const bool use_external_begin_frame_;
+
+  CefWebContentsViewOSR* view_osr_ = nullptr;  // Not owned by this class.
 
   // Pending drag/drop data.
   CefRefPtr<CefDragData> drag_data_;

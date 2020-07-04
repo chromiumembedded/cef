@@ -12,25 +12,13 @@
 
 CefBrowserPlatformDelegateNative::CefBrowserPlatformDelegateNative(
     const CefWindowInfo& window_info,
-    SkColor background_color,
-    bool use_shared_texture,
-    bool use_external_begin_frame)
+    SkColor background_color)
     : window_info_(window_info),
       background_color_(background_color),
-      use_shared_texture_(use_shared_texture),
-      use_external_begin_frame_(use_external_begin_frame),
       windowless_handler_(nullptr) {}
 
 SkColor CefBrowserPlatformDelegateNative::GetBackgroundColor() const {
   return background_color_;
-}
-
-bool CefBrowserPlatformDelegateNative::CanUseSharedTexture() const {
-  return use_shared_texture_;
-}
-
-bool CefBrowserPlatformDelegateNative::CanUseExternalBeginFrame() const {
-  return use_external_begin_frame_;
 }
 
 void CefBrowserPlatformDelegateNative::WasResized() {

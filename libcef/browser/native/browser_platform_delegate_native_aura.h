@@ -22,9 +22,7 @@ class CefBrowserPlatformDelegateNativeAura
     : public CefBrowserPlatformDelegateNative {
  public:
   CefBrowserPlatformDelegateNativeAura(const CefWindowInfo& window_info,
-                                       SkColor background_color,
-                                       bool use_shared_texture,
-                                       bool use_external_begin_frame);
+                                       SkColor background_color);
 
   // CefBrowserPlatformDelegate methods:
   void SendKeyEvent(const CefKeyEvent& event) override;

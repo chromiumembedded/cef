@@ -1658,7 +1658,7 @@ content::BrowserContext* CefBrowserHostImpl::GetBrowserContext() const {
 extensions::ExtensionHost* CefBrowserHostImpl::GetExtensionHost() const {
   CEF_REQUIRE_UIT();
   DCHECK(platform_delegate_);
-  return platform_delegate_->extension_host();
+  return platform_delegate_->GetExtensionHost();
 }
 
 void CefBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
@@ -2490,7 +2490,7 @@ void CefBrowserHostImpl::RenderViewDeleted(
 }
 
 void CefBrowserHostImpl::RenderViewReady() {
-  platform_delegate_->ConfigureAutoResize();
+  platform_delegate_->RenderViewReady();
 
   if (client_.get()) {
     CefRefPtr<CefRequestHandler> handler = client_->GetRequestHandler();

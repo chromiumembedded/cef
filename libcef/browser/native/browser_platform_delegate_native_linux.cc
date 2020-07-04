@@ -44,18 +44,14 @@ long GetSystemUptime() {
 
 CefBrowserPlatformDelegateNativeLinux::CefBrowserPlatformDelegateNativeLinux(
     const CefWindowInfo& window_info,
-    SkColor background_color,
-    bool use_external_begin_frame)
-    : CefBrowserPlatformDelegateNativeAura(window_info,
-                                           background_color,
-                                           false,
-                                           use_external_begin_frame),
+    SkColor background_color)
+    : CefBrowserPlatformDelegateNativeAura(window_info, background_color),
       host_window_created_(false),
       window_widget_(nullptr) {}
 
 void CefBrowserPlatformDelegateNativeLinux::BrowserDestroyed(
     CefBrowserHostImpl* browser) {
-  CefBrowserPlatformDelegate::BrowserDestroyed(browser);
+  CefBrowserPlatformDelegateNative::BrowserDestroyed(browser);
 
   if (host_window_created_) {
     // Release the reference added in CreateHostWindow().
@@ -166,7 +162,7 @@ void CefBrowserPlatformDelegateNativeLinux::SendFocusEvent(bool setFocus) {
 
 void CefBrowserPlatformDelegateNativeLinux::NotifyMoveOrResizeStarted() {
   // Call the parent method to dismiss any existing popups.
-  CefBrowserPlatformDelegate::NotifyMoveOrResizeStarted();
+  CefBrowserPlatformDelegateNative::NotifyMoveOrResizeStarted();
 
 #if defined(USE_X11)
   if (!window_x11_)

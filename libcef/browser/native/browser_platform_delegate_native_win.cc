@@ -126,19 +126,14 @@ float GetWindowScaleFactor(HWND hwnd) {
 
 CefBrowserPlatformDelegateNativeWin::CefBrowserPlatformDelegateNativeWin(
     const CefWindowInfo& window_info,
-    SkColor background_color,
-    bool use_shared_texture,
-    bool use_external_begin_frame)
-    : CefBrowserPlatformDelegateNativeAura(window_info,
-                                           background_color,
-                                           use_shared_texture,
-                                           use_external_begin_frame),
+    SkColor background_color)
+    : CefBrowserPlatformDelegateNativeAura(window_info, background_color),
       host_window_created_(false),
       window_widget_(nullptr) {}
 
 void CefBrowserPlatformDelegateNativeWin::BrowserDestroyed(
     CefBrowserHostImpl* browser) {
-  CefBrowserPlatformDelegate::BrowserDestroyed(browser);
+  CefBrowserPlatformDelegateNative::BrowserDestroyed(browser);
 
   if (host_window_created_) {
     // Release the reference added in CreateHostWindow().
@@ -295,7 +290,7 @@ void CefBrowserPlatformDelegateNativeWin::SendFocusEvent(bool setFocus) {
 
 void CefBrowserPlatformDelegateNativeWin::NotifyMoveOrResizeStarted() {
   // Call the parent method to dismiss any existing popups.
-  CefBrowserPlatformDelegate::NotifyMoveOrResizeStarted();
+  CefBrowserPlatformDelegateNative::NotifyMoveOrResizeStarted();
 
   if (!window_widget_)
     return;

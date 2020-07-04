@@ -9,8 +9,12 @@
 #include "libcef/browser/browser_host_impl.h"
 
 CefBrowserPlatformDelegateOsrWin::CefBrowserPlatformDelegateOsrWin(
-    std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate)
-    : CefBrowserPlatformDelegateOsr(std::move(native_delegate)) {}
+    std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate,
+    bool use_shared_texture,
+    bool use_external_begin_frame)
+    : CefBrowserPlatformDelegateOsr(std::move(native_delegate),
+                                    use_shared_texture,
+                                    use_external_begin_frame) {}
 
 CefWindowHandle CefBrowserPlatformDelegateOsrWin::GetHostWindowHandle() const {
   return native_delegate_->window_info().parent_window;

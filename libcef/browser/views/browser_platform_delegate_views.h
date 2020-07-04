@@ -5,13 +5,13 @@
 #ifndef CEF_LIBCEF_BROWSER_VIEWS_BROWSER_PLATFORM_DELEGATE_VIEWS_H_
 #define CEF_LIBCEF_BROWSER_VIEWS_BROWSER_PLATFORM_DELEGATE_VIEWS_H_
 
-#include "libcef/browser/browser_platform_delegate.h"
+#include "libcef/browser/alloy/browser_platform_delegate_alloy.h"
 #include "libcef/browser/native/browser_platform_delegate_native.h"
 #include "libcef/browser/views/browser_view_impl.h"
 
 // Implementation of Views-based browser functionality.
 class CefBrowserPlatformDelegateViews
-    : public CefBrowserPlatformDelegate,
+    : public CefBrowserPlatformDelegateAlloy,
       public CefBrowserPlatformDelegateNative::WindowlessHandler {
  public:
   // Platform-specific behaviors will be delegated to |native_delegate|.
@@ -40,8 +40,6 @@ class CefBrowserPlatformDelegateViews
       bool is_devtools) override;
   void PopupBrowserCreated(CefBrowserHostImpl* new_browser,
                            bool is_devtools) override;
-  bool CanUseSharedTexture() const override;
-  bool CanUseExternalBeginFrame() const override;
   SkColor GetBackgroundColor() const override;
   void WasResized() override;
   void SendKeyEvent(const CefKeyEvent& event) override;

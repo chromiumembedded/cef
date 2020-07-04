@@ -68,14 +68,14 @@ void CefBrowserPlatformDelegateViews::SetBrowserView(
 void CefBrowserPlatformDelegateViews::WebContentsCreated(
     content::WebContents* web_contents,
     bool owned) {
-  CefBrowserPlatformDelegate::WebContentsCreated(web_contents, owned);
+  CefBrowserPlatformDelegateAlloy::WebContentsCreated(web_contents, owned);
 
   browser_view_->WebContentsCreated(web_contents);
 }
 
 void CefBrowserPlatformDelegateViews::BrowserCreated(
     CefBrowserHostImpl* browser) {
-  CefBrowserPlatformDelegate::BrowserCreated(browser);
+  CefBrowserPlatformDelegateAlloy::BrowserCreated(browser);
 
   native_delegate_->set_browser(browser);
   browser_view_->BrowserCreated(browser, GetBoundsChangedCallback());
@@ -97,7 +97,7 @@ void CefBrowserPlatformDelegateViews::NotifyBrowserDestroyed() {
 
 void CefBrowserPlatformDelegateViews::BrowserDestroyed(
     CefBrowserHostImpl* browser) {
-  CefBrowserPlatformDelegate::BrowserDestroyed(browser);
+  CefBrowserPlatformDelegateAlloy::BrowserDestroyed(browser);
 
   native_delegate_->set_browser(nullptr);
   browser_view_->BrowserDestroyed(browser);
@@ -171,14 +171,6 @@ void CefBrowserPlatformDelegateViews::PopupBrowserCreated(
     CefWindow::CreateTopLevelWindow(
         new PopupWindowDelegate(new_browser_view.get()));
   }
-}
-
-bool CefBrowserPlatformDelegateViews::CanUseSharedTexture() const {
-  return native_delegate_->CanUseSharedTexture();
-}
-
-bool CefBrowserPlatformDelegateViews::CanUseExternalBeginFrame() const {
-  return native_delegate_->CanUseExternalBeginFrame();
 }
 
 SkColor CefBrowserPlatformDelegateViews::GetBackgroundColor() const {

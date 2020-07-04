@@ -16,7 +16,6 @@
 #include "libcef/browser/browser_host_impl.h"
 
 #include "base/callback_forward.h"
-#include "base/memory/weak_ptr.h"
 #include "content/public/browser/web_contents.h"
 
 namespace blink {
@@ -43,11 +42,9 @@ class Widget;
 }
 #endif
 
-class CefBrowserInfo;
 class CefFileDialogRunner;
 class CefJavaScriptDialogRunner;
 class CefMenuRunner;
-class CefWebContentsDialogHelper;
 
 // Provides platform-specific implementations of browser functionality. All
 // methods are called on the browser process UI thread unless otherwise
@@ -64,7 +61,7 @@ class CefBrowserPlatformDelegate {
   // of the resulting WebContents object.
   virtual content::WebContents* CreateWebContents(
       CefBrowserHostImpl::CreateParams& create_params,
-      bool& own_web_contents);
+      bool& own_web_contents) = 0;
 
   // Called to create the view objects for a new WebContents. Will only be
   // called a single time per instance. May be called on multiple threads. Only
@@ -103,15 +100,21 @@ class CefBrowserPlatformDelegate {
   // Called after the RenderViewHost is created.
   virtual void RenderViewCreated(content::RenderViewHost* render_view_host);
 
+  // See WebContentsObserver documentation.
+  virtual void RenderViewReady();
+
   // Called after the owning CefBrowserHostImpl is created. Will only be called
   // a single time per instance. Do not send any client notifications from this
   // method.
   virtual void BrowserCreated(CefBrowserHostImpl* browser);
 
   // Called from CefBrowserHostImpl::Create.
-  void CreateExtensionHost(const extensions::Extension* extension,
-                           const GURL& url,
-                           extensions::ViewType host_type);
+  virtual void CreateExtensionHost(const extensions::Extension* extension,
+                                   const GURL& url,
+                                   extensions::ViewType host_type);
+
+  // Returns the current extension host.
+  virtual extensions::ExtensionHost* GetExtensionHost() const;
 
   // Send any notifications related to browser creation. Called after
   // BrowserCreated().
@@ -180,9 +183,6 @@ class CefBrowserPlatformDelegate {
   // browsers. SK_ColorTRANSPARENT may be returned for windowless browsers to
   // enable transparency.
   virtual SkColor GetBackgroundColor() const = 0;
-
-  virtual bool CanUseSharedTexture() const = 0;
-  virtual bool CanUseExternalBeginFrame() const = 0;
 
   // Notify the window that it was resized.
   virtual void WasResized() = 0;
@@ -271,6 +271,7 @@ class CefBrowserPlatformDelegate {
   // Invalidate the view. Only used with windowless rendering.
   virtual void Invalidate(cef_paint_element_type_t type);
 
+  // Send the external begin frame message. Only used with windowless rendering.
   virtual void SendExternalBeginFrame();
 
   // Set the windowless frame rate. Only used with windowless rendering.
@@ -315,10 +316,9 @@ class CefBrowserPlatformDelegate {
   virtual gfx::Size GetMaximumDialogSize();
 
   // See CefBrowserHost documentation.
-  void SetAutoResizeEnabled(bool enabled,
-                            const CefSize& min_size,
-                            const CefSize& max_size);
-  virtual void ConfigureAutoResize();
+  virtual void SetAutoResizeEnabled(bool enabled,
+                                    const CefSize& min_size,
+                                    const CefSize& max_size);
   virtual void SetAccessibilityState(cef_state_t accessibility_state);
   virtual bool IsPrintPreviewSupported() const;
   virtual void Print();
@@ -332,8 +332,6 @@ class CefBrowserPlatformDelegate {
                     bool findNext);
   virtual void StopFinding(bool clearSelection);
 
-  extensions::ExtensionHost* extension_host() const { return extension_host_; }
-
  protected:
   // Allow deletion via scoped_ptr only.
   friend std::default_delete<CefBrowserPlatformDelegate>;
@@ -341,48 +339,11 @@ class CefBrowserPlatformDelegate {
   CefBrowserPlatformDelegate();
   virtual ~CefBrowserPlatformDelegate();
 
-  base::RepeatingClosure GetBoundsChangedCallback();
-
   static int TranslateWebEventModifiers(uint32 cef_modifiers);
-
-  // Returns the WebContents most likely to handle an action. If extensions are
-  // enabled and this browser has a full-page guest (for example, a full-page
-  // PDF viewer extension) then the guest's WebContents will be returned.
-  // Otherwise, the browser's WebContents will be returned.
-  content::WebContents* GetActionableWebContents() const;
 
   // Not owned by this object.
   content::WebContents* web_contents_ = nullptr;
   CefBrowserHostImpl* browser_ = nullptr;
-
- private:
-  void SetOwnedWebContents(content::WebContents* owned_contents);
-
-  void DestroyExtensionHost();
-  void OnExtensionHostDeleted();
-
-  // Non-nullptr if this object owns the WebContents. Will be nullptr for popup
-  // browsers between the calls to WebContentsCreated() and AddNewContents(),
-  // and may never be set if the parent browser is destroyed during popup
-  // creation.
-  std::unique_ptr<content::WebContents> owned_web_contents_;
-
-  // Used for the print preview dialog.
-  std::unique_ptr<CefWebContentsDialogHelper> web_contents_dialog_helper_;
-
-  // Used to provide unique incremental IDs for each find request.
-  int find_request_id_counter_ = 0;
-
-  // Used when the browser is hosting an extension.
-  extensions::ExtensionHost* extension_host_ = nullptr;
-  bool is_background_host_ = false;
-
-  // Used with auto-resize.
-  bool auto_resize_enabled_ = false;
-  gfx::Size auto_resize_min_;
-  gfx::Size auto_resize_max_;
-
-  base::WeakPtrFactory<CefBrowserPlatformDelegate> weak_ptr_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserPlatformDelegate);
 };

@@ -411,6 +411,8 @@ static_library("libcef_static") {
     "libcef/browser/alloy/alloy_browser_context.h",
     "libcef/browser/alloy/alloy_browser_main.cc",
     "libcef/browser/alloy/alloy_browser_main.h",
+    "libcef/browser/alloy/browser_platform_delegate_alloy.cc",
+    "libcef/browser/alloy/browser_platform_delegate_alloy.h",
     "libcef/browser/alloy/chrome_browser_process_alloy.cc",
     "libcef/browser/alloy/chrome_browser_process_alloy.h",
     "libcef/browser/alloy/chrome_profile_manager_alloy.cc",

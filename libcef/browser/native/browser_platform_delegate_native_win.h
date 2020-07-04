@@ -14,9 +14,7 @@ class CefBrowserPlatformDelegateNativeWin
     : public CefBrowserPlatformDelegateNativeAura {
  public:
   CefBrowserPlatformDelegateNativeWin(const CefWindowInfo& window_info,
-                                      SkColor background_color,
-                                      bool use_shared_texture,
-                                      bool use_external_begin_frame);
+                                      SkColor background_color);
 
   // CefBrowserPlatformDelegate methods:
   void BrowserDestroyed(CefBrowserHostImpl* browser) override;

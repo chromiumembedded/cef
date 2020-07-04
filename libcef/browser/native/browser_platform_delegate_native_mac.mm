@@ -146,15 +146,12 @@ NSUInteger NativeModifiers(int cef_modifiers) {
 CefBrowserPlatformDelegateNativeMac::CefBrowserPlatformDelegateNativeMac(
     const CefWindowInfo& window_info,
     SkColor background_color)
-    : CefBrowserPlatformDelegateNative(window_info,
-                                       background_color,
-                                       false,
-                                       false),
+    : CefBrowserPlatformDelegateNative(window_info, background_color),
       host_window_created_(false) {}
 
 void CefBrowserPlatformDelegateNativeMac::BrowserDestroyed(
     CefBrowserHostImpl* browser) {
-  CefBrowserPlatformDelegate::BrowserDestroyed(browser);
+  CefBrowserPlatformDelegateNative::BrowserDestroyed(browser);
 
   if (host_window_created_) {
     // Release the reference added in CreateHostWindow().

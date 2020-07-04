@@ -523,7 +523,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   std::unique_ptr<NavigationLock> CreateNavigationLock();
 
  private:
-  friend class CefBrowserPlatformDelegate;
+  friend class CefBrowserPlatformDelegateAlloy;
 
   static CefRefPtr<CefBrowserHostImpl> CreateInternal(
       const CefBrowserSettings& settings,

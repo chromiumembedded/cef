@@ -20,8 +20,12 @@
 #include "ui/events/base_event_utils.h"
 
 CefBrowserPlatformDelegateOsr::CefBrowserPlatformDelegateOsr(
-    std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate)
-    : native_delegate_(std::move(native_delegate)), view_osr_(nullptr) {
+    std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate,
+    bool use_shared_texture,
+    bool use_external_begin_frame)
+    : native_delegate_(std::move(native_delegate)),
+      use_shared_texture_(use_shared_texture),
+      use_external_begin_frame_(use_external_begin_frame) {
   native_delegate_->set_windowless_handler(this);
 }
 
@@ -32,7 +36,7 @@ void CefBrowserPlatformDelegateOsr::CreateViewForWebContents(
 
   // Use the OSR view instead of the default platform view.
   view_osr_ = new CefWebContentsViewOSR(
-      GetBackgroundColor(), CanUseSharedTexture(), CanUseExternalBeginFrame());
+      GetBackgroundColor(), use_shared_texture_, use_external_begin_frame_);
   *view = view_osr_;
   *delegate_view = view_osr_;
 }
@@ -40,7 +44,7 @@ void CefBrowserPlatformDelegateOsr::CreateViewForWebContents(
 void CefBrowserPlatformDelegateOsr::WebContentsCreated(
     content::WebContents* web_contents,
     bool owned) {
-  CefBrowserPlatformDelegate::WebContentsCreated(web_contents, owned);
+  CefBrowserPlatformDelegateAlloy::WebContentsCreated(web_contents, owned);
 
   DCHECK(view_osr_);
   DCHECK(!view_osr_->web_contents());
@@ -51,7 +55,7 @@ void CefBrowserPlatformDelegateOsr::WebContentsCreated(
 
 void CefBrowserPlatformDelegateOsr::BrowserCreated(
     CefBrowserHostImpl* browser) {
-  CefBrowserPlatformDelegate::BrowserCreated(browser);
+  CefBrowserPlatformDelegateAlloy::BrowserCreated(browser);
 
   if (browser->IsPopup()) {
     // Associate the RenderWidget host view with the browser now because the
@@ -69,17 +73,9 @@ void CefBrowserPlatformDelegateOsr::BrowserCreated(
 
 void CefBrowserPlatformDelegateOsr::BrowserDestroyed(
     CefBrowserHostImpl* browser) {
-  CefBrowserPlatformDelegate::BrowserDestroyed(browser);
+  CefBrowserPlatformDelegateAlloy::BrowserDestroyed(browser);
 
   view_osr_ = nullptr;
-}
-
-bool CefBrowserPlatformDelegateOsr::CanUseSharedTexture() const {
-  return native_delegate_->CanUseSharedTexture();
-}
-
-bool CefBrowserPlatformDelegateOsr::CanUseExternalBeginFrame() const {
-  return native_delegate_->CanUseExternalBeginFrame();
 }
 
 SkColor CefBrowserPlatformDelegateOsr::GetBackgroundColor() const {

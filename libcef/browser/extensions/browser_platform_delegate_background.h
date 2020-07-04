@@ -5,12 +5,12 @@
 #ifndef CEF_LIBCEF_BROWSER_VIEWS_BROWSER_PLATFORM_DELEGATE_BACKGROUND_H_
 #define CEF_LIBCEF_BROWSER_VIEWS_BROWSER_PLATFORM_DELEGATE_BACKGROUND_H_
 
-#include "libcef/browser/browser_platform_delegate.h"
+#include "libcef/browser/alloy/browser_platform_delegate_alloy.h"
 #include "libcef/browser/native/browser_platform_delegate_native.h"
 
 // Implementation of browser functionality for background script hosts.
 class CefBrowserPlatformDelegateBackground
-    : public CefBrowserPlatformDelegate,
+    : public CefBrowserPlatformDelegateAlloy,
       public CefBrowserPlatformDelegateNative::WindowlessHandler {
  public:
   // Platform-specific behaviors will be delegated to |native_delegate|.
@@ -22,8 +22,6 @@ class CefBrowserPlatformDelegateBackground
   void CloseHostWindow() override;
   CefWindowHandle GetHostWindowHandle() const override;
   SkColor GetBackgroundColor() const override;
-  bool CanUseSharedTexture() const override;
-  bool CanUseExternalBeginFrame() const override;
   void WasResized() override;
   void SendKeyEvent(const CefKeyEvent& event) override;
   void SendMouseClickEvent(const CefMouseEvent& event,

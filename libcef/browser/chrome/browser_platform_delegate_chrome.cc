@@ -4,6 +4,7 @@
 
 #include "libcef/browser/chrome/browser_platform_delegate_chrome.h"
 
+#include "base/logging.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_tabstrip.h"
 #include "chrome/browser/ui/browser_window.h"
@@ -81,14 +82,6 @@ SkColor CefBrowserPlatformDelegateChrome::GetBackgroundColor() const {
   return background_color_;
 }
 
-bool CefBrowserPlatformDelegateChrome::CanUseSharedTexture() const {
-  return false;
-}
-
-bool CefBrowserPlatformDelegateChrome::CanUseExternalBeginFrame() const {
-  return false;
-}
-
 void CefBrowserPlatformDelegateChrome::WasResized() {}
 
 void CefBrowserPlatformDelegateChrome::SendKeyEvent(const CefKeyEvent& event) {}
@@ -132,6 +125,7 @@ CefEventHandle CefBrowserPlatformDelegateChrome::GetEventHandle(
 
 std::unique_ptr<CefMenuRunner>
 CefBrowserPlatformDelegateChrome::CreateMenuRunner() {
+  NOTIMPLEMENTED();
   return nullptr;
 }
 
