@@ -1,3 +1,39 @@
+diff --git chrome/browser/app_controller_mac.mm chrome/browser/app_controller_mac.mm
+index 559e51776e42..a429421f7c61 100644
+--- chrome/browser/app_controller_mac.mm
++++ chrome/browser/app_controller_mac.mm
+@@ -1140,6 +1140,7 @@ - (void)commandDispatch:(id)sender {
+ 
+ // Run a (background) application in a new tab.
+ - (void)executeApplication:(id)sender {
++#if BUILDFLAG(ENABLE_BACKGROUND_MODE)
+   NSInteger tag = [sender tag];
+   Profile* profile = [self lastProfile];
+   DCHECK(profile);
+@@ -1148,6 +1149,7 @@ - (void)executeApplication:(id)sender {
+          tag < static_cast<int>(applications.size()));
+   const extensions::Extension* extension = applications.GetExtension(tag);
+   BackgroundModeManager::LaunchBackgroundApplication(profile, extension);
++#endif  // BUILDFLAG(ENABLE_BACKGROUND_MODE)
+ }
+ 
+ // Same as |-commandDispatch:|, but executes commands using a disposition
+@@ -1529,6 +1531,7 @@ - (NSMenu*)applicationDockMenu:(NSApplication*)sender {
+   // TODO(rickcam): Mock out BackgroundApplicationListModel, then add unit
+   // tests which use the mock in place of the profile-initialized model.
+ 
++#if BUILDFLAG(ENABLE_BACKGROUND_MODE)
+   // Avoid breaking unit tests which have no profile.
+   if (profile) {
+     BackgroundApplicationListModel applications(profile);
+@@ -1555,6 +1558,7 @@ - (NSMenu*)applicationDockMenu:(NSApplication*)sender {
+       }
+     }
+   }
++#endif  // BUILDFLAG(ENABLE_BACKGROUND_MODE)
+ 
+   return dockMenu;
+ }
 diff --git chrome/browser/browser_process.h chrome/browser/browser_process.h
 index 6332572ac884..bf555124ce59 100644
 --- chrome/browser/browser_process.h

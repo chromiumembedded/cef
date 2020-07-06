@@ -22,6 +22,9 @@ bool IsAlloyRuntimeEnabled();
 // True if CEF was initialized with the Chrome runtime.
 bool IsChromeRuntimeEnabled();
 
+// True if CEF crash reporting is enabled.
+bool IsCrashReportingEnabled();
+
 #else
 
 inline bool IsCefBuildEnabled() {
@@ -31,6 +34,9 @@ inline bool IsAlloyRuntimeEnabled() {
   return false;
 }
 inline bool IsChromeRuntimeEnabled() {
+  return false;
+}
+inline bool IsCrashReportingEnabled() {
   return false;
 }
 

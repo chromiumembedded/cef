@@ -21,6 +21,7 @@ class ChromeMainRunnerDelegate : public CefMainRunnerDelegate {
   // |runner| will be non-nullptr for the main process only, and will outlive
   // this object.
   ChromeMainRunnerDelegate(CefMainRunnerHandler* runner,
+                           CefSettings* settings,
                            CefRefPtr<CefApp> application);
   ~ChromeMainRunnerDelegate() override;
 
@@ -41,6 +42,7 @@ class ChromeMainRunnerDelegate : public CefMainRunnerDelegate {
   std::unique_ptr<ScopedKeepAlive> keep_alive_;
 
   CefMainRunnerHandler* const runner_;
+  CefSettings* const settings_;
   CefRefPtr<CefApp> application_;
 
   DISALLOW_COPY_AND_ASSIGN(ChromeMainRunnerDelegate);

@@ -7,17 +7,78 @@
 
 #include "libcef/browser/chrome/chrome_browser_context.h"
 #include "libcef/browser/chrome/chrome_content_browser_client_cef.h"
+#include "libcef/common/crash_reporting.h"
+#include "libcef/common/resource_util.h"
+
+#include "content/public/common/content_switches.h"
+
+#if defined(OS_MACOSX)
+#include "libcef/common/util_mac.h"
+#endif
 
 ChromeMainDelegateCef::ChromeMainDelegateCef(CefMainRunnerHandler* runner,
+                                             CefSettings* settings,
                                              CefRefPtr<CefApp> application)
     : ChromeMainDelegate(base::TimeTicks::Now()),
       runner_(runner),
-      application_(application) {}
+      settings_(settings),
+      application_(application) {
+#if defined(OS_LINUX)
+  resource_util::OverrideAssetPath();
+#endif
+}
+
 ChromeMainDelegateCef::~ChromeMainDelegateCef() = default;
+
+bool ChromeMainDelegateCef::BasicStartupComplete(int* exit_code) {
+  // Returns false if startup should proceed.
+  bool result = ChromeMainDelegate::BasicStartupComplete(exit_code);
+
+  if (!result) {
+#if defined(OS_POSIX)
+    // Read the crash configuration file. Platforms using Breakpad also add a
+    // command-line switch. On Windows this is done from chrome_elf.
+    crash_reporting::BasicStartupComplete(
+        base::CommandLine::ForCurrentProcess());
+#endif
+
+#if defined(OS_MACOSX)
+    util_mac::BasicStartupComplete();
+#endif
+  }
+
+  return result;
+}
+
+void ChromeMainDelegateCef::PreSandboxStartup() {
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  const std::string& process_type =
+      command_line->GetSwitchValueASCII(switches::kProcessType);
+
+#if defined(OS_MACOSX)
+  if (process_type.empty()) {
+    util_mac::PreSandboxStartup();
+  }
+#endif  // defined(OS_MACOSX)
+
+  // Since this may be configured via CefSettings we override the value on
+  // all platforms. We can't use the default implementation on macOS because
+  // chrome::GetDefaultUserDataDirectory expects to find the Chromium version
+  // number in the app bundle path.
+  resource_util::OverrideUserDataDir(settings_, command_line);
+
+  ChromeMainDelegate::PreSandboxStartup();
+
+  // Initialize crash reporting state for this process/module.
+  // chrome::DIR_CRASH_DUMPS must be configured before calling this function.
+  crash_reporting::PreSandboxStartup(*command_line, process_type);
+}
 
 void ChromeMainDelegateCef::PreCreateMainMessageLoop() {
   // The parent ChromeMainDelegate implementation creates the NSApplication
   // instance on macOS, and we intentionally don't want to do that here.
+  // TODO(macos): Do we need l10n_util::OverrideLocaleWithCocoaLocale()?
   runner_->PreCreateMainMessageLoop();
 }
 
@@ -30,6 +91,19 @@ int ChromeMainDelegateCef::RunProcess(
 
   return ChromeMainDelegate::RunProcess(process_type, main_function_params);
 }
+
+#if defined(OS_LINUX)
+void ChromeMainDelegateCef::ZygoteForked() {
+  ChromeMainDelegate::ZygoteForked();
+
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  const std::string& process_type =
+      command_line->GetSwitchValueASCII(switches::kProcessType);
+
+  // Initialize crash reporting state for the newly forked process.
+  crash_reporting::ZygoteForked(command_line, process_type);
+}
+#endif  // defined(OS_LINUX)
 
 content::ContentClient* ChromeMainDelegateCef::CreateContentClient() {
   return &chrome_content_client_cef_;

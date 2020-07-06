@@ -9,7 +9,10 @@
 #include "libcef/common/cef_switches.h"
 
 #include "base/command_line.h"
+#include "base/path_service.h"
 #include "chrome/browser/chrome_browser_main.h"
+#include "chrome/common/chrome_paths.h"
+#include "chrome/common/chrome_switches.h"
 
 ChromeContentBrowserClientCef::ChromeContentBrowserClientCef(
     StartupData* startup_data)
@@ -35,6 +38,13 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
 
   // Necessary to launch sub-processes in the correct mode.
   command_line->AppendSwitch(switches::kEnableChromeRuntime);
+
+  // Necessary to populate DIR_USER_DATA in sub-processes.
+  // See resource_util.cc GetUserDataPath.
+  base::FilePath user_data_dir;
+  if (base::PathService::Get(chrome::DIR_USER_DATA, &user_data_dir)) {
+    command_line->AppendSwitchPath(switches::kUserDataDir, user_data_dir);
+  }
 }
 
 CefRefPtr<CefRequestContextImpl>

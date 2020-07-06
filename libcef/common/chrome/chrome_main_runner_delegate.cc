@@ -14,21 +14,19 @@
 #include "components/keep_alive_registry/keep_alive_types.h"
 #include "components/keep_alive_registry/scoped_keep_alive.h"
 
-#if defined(OS_MACOSX)
-#include "chrome/app/chrome_main_mac.h"
-#endif
-
 ChromeMainRunnerDelegate::ChromeMainRunnerDelegate(
     CefMainRunnerHandler* runner,
+    CefSettings* settings,
     CefRefPtr<CefApp> application)
-    : runner_(runner), application_(application) {}
+    : runner_(runner), settings_(settings), application_(application) {}
+
 ChromeMainRunnerDelegate::~ChromeMainRunnerDelegate() = default;
 
 content::ContentMainDelegate*
 ChromeMainRunnerDelegate::GetContentMainDelegate() {
   if (!main_delegate_) {
-    main_delegate_ =
-        std::make_unique<ChromeMainDelegateCef>(runner_, application_);
+    main_delegate_ = std::make_unique<ChromeMainDelegateCef>(runner_, settings_,
+                                                             application_);
   }
   return main_delegate_.get();
 }
@@ -39,10 +37,6 @@ void ChromeMainRunnerDelegate::BeforeMainThreadInitialize(
   base::CommandLine::Init(0, nullptr);
 #else
   base::CommandLine::Init(args.argc, args.argv);
-#endif
-
-#if defined(OS_MACOSX)
-  SetUpBundleOverrides();
 #endif
 
   sampling_profiler_ = std::make_unique<MainThreadStackSamplingProfiler>();

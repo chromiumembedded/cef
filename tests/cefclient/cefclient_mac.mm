@@ -363,6 +363,11 @@ int RunMain(int argc, char* argv[]) {
     // Initialize the ClientApplication instance.
     [ClientApplication sharedApplication];
 
+    // If there was an invocation to NSApp prior to this method, then the NSApp
+    // will not be a ClientApplication, but will instead be an NSApplication.
+    // This is undesirable and we must enforce that this doesn't happen.
+    CHECK([NSApp isKindOfClass:[ClientApplication class]]);
+
     // Parse command-line arguments.
     CefRefPtr<CefCommandLine> command_line =
         CefCommandLine::CreateCommandLine();

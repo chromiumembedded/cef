@@ -56,28 +56,68 @@ index 982fbe8d3f0d..e757be4688f1 100644
 +         "studio path")
  }
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index deef406b9273..2dfd2cd8c2ef 100644
+index deef406b9273..ad338636cf5d 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -303,7 +303,7 @@ template("chrome_paks") {
+@@ -3,6 +3,7 @@
+ # found in the LICENSE file.
+ 
+ import("//build/config/locales.gni")
++import("//cef/libcef/features/features.gni")
+ import("//chrome/browser/buildflags.gni")
+ import("//chrome/common/features.gni")
+ import("//chromeos/components/media_app_ui/media_app_ui.gni")
+@@ -289,6 +290,7 @@ template("chrome_paks") {
      }
+   }
  
-     input_locales = locales
--    output_dir = "${invoker.output_dir}/locales"
-+    output_dir = "${invoker.output_dir}/chrome/locales"
++  if (!enable_cef) {
+   chrome_repack_locales("${target_name}_locales") {
+     forward_variables_from(invoker,
+                            [
+@@ -311,14 +313,17 @@ template("chrome_paks") {
+       output_locales = locales
+     }
+   }
++  }  # !enable_cef
  
-     if (is_mac) {
-       output_locales = locales_as_mac_outputs
+   group(target_name) {
+     forward_variables_from(invoker, [ "deps" ])
+     public_deps = [
+       ":${target_name}_100_percent",
+       ":${target_name}_extra",
+-      ":${target_name}_locales",
+     ]
++    if (!enable_cef) {
++      public_deps += [ ":${target_name}_locales" ]
++    }
+     if (enable_hidpi) {
+       public_deps += [ ":${target_name}_200_percent" ]
+     }
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 056d425c4194..dd1a5094ec8d 100644
+index 056d425c4194..0c0e0f22ab66 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
-@@ -134,7 +134,7 @@ template("generate_mini_installer") {
+@@ -5,6 +5,7 @@
+ import("//build/config/compiler/compiler.gni")
+ import("//build/config/features.gni")
+ import("//build/config/ui.gni")
++import("//cef/libcef/features/features.gni")
+ import("//chrome/process_version_rc_template.gni")
+ import("//components/nacl/features.gni")
+ import("//third_party/icu/config.gni")
+@@ -134,11 +135,13 @@ template("generate_mini_installer") {
      inputs = [
        "$chrome_dll_file",
        "$root_out_dir/chrome.exe",
 -      "$root_out_dir/locales/en-US.pak",
-+      "$root_out_dir/chrome/locales/en-US.pak",
        "$root_out_dir/setup.exe",
        "//chrome/tools/build/win/makecab.py",
        release_file,
+     ]
++    if (!enable_cef) {
++      inputs += [ "$root_out_dir/locales/en-US.pak" ]
++    }
+ 
+     outputs = [
+       # See also chrome.packed.7z conditionally added below.

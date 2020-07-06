@@ -27,14 +27,20 @@ class ChromeMainDelegateCef : public ChromeMainDelegate,
   // |runner| will be non-nullptr for the main process only, and will outlive
   // this object.
   ChromeMainDelegateCef(CefMainRunnerHandler* runner,
+                        CefSettings* settings,
                         CefRefPtr<CefApp> application);
   ~ChromeMainDelegateCef() override;
 
   // ChromeMainDelegate overrides.
+  bool BasicStartupComplete(int* exit_code) override;
+  void PreSandboxStartup() override;
   void PreCreateMainMessageLoop() override;
   int RunProcess(
       const std::string& process_type,
       const content::MainFunctionParams& main_function_params) override;
+#if defined(OS_LINUX)
+  void ZygoteForked() override;
+#endif
   content::ContentClient* CreateContentClient() override;
   content::ContentBrowserClient* CreateContentBrowserClient() override;
 
@@ -62,6 +68,7 @@ class ChromeMainDelegateCef : public ChromeMainDelegate,
   ChromeContentBrowserClientCef* content_browser_client() const;
 
   CefMainRunnerHandler* const runner_;
+  CefSettings* const settings_;
   CefRefPtr<CefApp> application_;
 
   // We use this instead of ChromeMainDelegate::chrome_content_client_.

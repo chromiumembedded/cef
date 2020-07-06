@@ -4,16 +4,13 @@
 
 #include "libcef/common/alloy/alloy_main_delegate.h"
 
-#if defined(OS_LINUX)
-#include <dlfcn.h>
-#endif
-
 #include "libcef/browser/alloy/alloy_browser_context.h"
 #include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
 #include "libcef/common/crash_reporting.h"
 #include "libcef/common/extensions/extensions_util.h"
+#include "libcef/common/resource_util.h"
 #include "libcef/renderer/alloy/alloy_content_renderer_client.h"
 
 #include "base/base_switches.h"
@@ -30,7 +27,6 @@
 #include "chrome/child/pdf_child_init.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/chrome_paths_internal.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/utility/chrome_content_utility_client.h"
 #include "components/content_settings/core/common/content_settings_pattern.h"
@@ -45,11 +41,14 @@
 #include "pdf/pdf_ppapi.h"
 #include "services/network/public/cpp/features.h"
 #include "services/service_manager/sandbox/switches.h"
-#include "ui/base/layout.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_features.h"
 #include "ui/base/ui_base_paths.h"
 #include "ui/base/ui_base_switches.h"
+
+#if defined(OS_MACOSX)
+#include "libcef/common/util_mac.h"
+#endif
 
 #if BUILDFLAG(IPC_MESSAGE_LOG_ENABLED)
 #define IPC_MESSAGE_MACROS_LOG_ENABLED
@@ -59,263 +58,12 @@
 #include "libcef/common/cef_message_generator.h"
 #endif
 
-#if defined(OS_WIN)
-#include "base/win/registry.h"
-#endif
-
-#if defined(OS_MACOSX)
-#include "base/mac/bundle_locations.h"
-#include "base/mac/foundation_util.h"
-#include "content/public/common/content_paths.h"
-#include "libcef/common/util_mac.h"
-#endif
-
-#if defined(OS_LINUX)
-#include "base/environment.h"
-#include "base/nix/xdg_util.h"
-#endif
-
 namespace {
 
 const char* const kNonWildcardDomainNonPortSchemes[] = {
     extensions::kExtensionScheme};
 const size_t kNonWildcardDomainNonPortSchemesSize =
     base::size(kNonWildcardDomainNonPortSchemes);
-
-#if defined(OS_MACOSX)
-
-base::FilePath GetResourcesFilePath() {
-  return util_mac::GetFrameworkResourcesDirectory();
-}
-
-// Use a "~/Library/Logs/<app name>_debug.log" file where <app name> is the name
-// of the running executable.
-base::FilePath GetDefaultLogFile() {
-  std::string exe_name = util_mac::GetMainProcessPath().BaseName().value();
-  return base::mac::GetUserLibraryPath()
-      .Append(FILE_PATH_LITERAL("Logs"))
-      .Append(FILE_PATH_LITERAL(exe_name + "_debug.log"));
-}
-
-void OverrideFrameworkBundlePath() {
-  base::FilePath framework_path = util_mac::GetFrameworkDirectory();
-  DCHECK(!framework_path.empty());
-
-  base::mac::SetOverrideFrameworkBundlePath(framework_path);
-}
-
-void OverrideOuterBundlePath() {
-  base::FilePath bundle_path = util_mac::GetMainBundlePath();
-  DCHECK(!bundle_path.empty());
-
-  base::mac::SetOverrideOuterBundlePath(bundle_path);
-}
-
-void OverrideBaseBundleID() {
-  std::string bundle_id = util_mac::GetMainBundleID();
-  DCHECK(!bundle_id.empty());
-
-  base::mac::SetBaseBundleID(bundle_id.c_str());
-}
-
-void OverrideChildProcessPath() {
-  base::FilePath child_process_path =
-      base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
-          switches::kBrowserSubprocessPath);
-
-  if (child_process_path.empty()) {
-    child_process_path = util_mac::GetChildProcessPath();
-    DCHECK(!child_process_path.empty());
-  }
-
-  // Used by ChildProcessHost::GetChildPath and PlatformCrashpadInitialization.
-  base::PathService::Override(content::CHILD_PROCESS_EXE, child_process_path);
-}
-
-#else  // !defined(OS_MACOSX)
-
-base::FilePath GetResourcesFilePath() {
-  base::FilePath pak_dir;
-  base::PathService::Get(base::DIR_ASSETS, &pak_dir);
-  return pak_dir;
-}
-
-// Use a "debug.log" file in the running executable's directory.
-base::FilePath GetDefaultLogFile() {
-  base::FilePath log_path;
-  base::PathService::Get(base::DIR_EXE, &log_path);
-  return log_path.Append(FILE_PATH_LITERAL("debug.log"));
-}
-
-#endif  // !defined(OS_MACOSX)
-
-#if defined(OS_WIN)
-
-// Gets the Flash path if installed on the system.
-bool GetSystemFlashFilename(base::FilePath* out_path) {
-  const wchar_t kPepperFlashRegistryRoot[] =
-      L"SOFTWARE\\Macromedia\\FlashPlayerPepper";
-  const wchar_t kFlashPlayerPathValueName[] = L"PlayerPath";
-
-  base::win::RegKey path_key(HKEY_LOCAL_MACHINE, kPepperFlashRegistryRoot,
-                             KEY_READ);
-  base::string16 path_str;
-  if (FAILED(path_key.ReadValue(kFlashPlayerPathValueName, &path_str)))
-    return false;
-
-  *out_path = base::FilePath(path_str);
-  return true;
-}
-
-#elif defined(OS_MACOSX)
-
-const base::FilePath::CharType kPepperFlashSystemBaseDirectory[] =
-    FILE_PATH_LITERAL("Internet Plug-Ins/PepperFlashPlayer");
-
-#endif
-
-void OverridePepperFlashSystemPluginPath() {
-#if defined(OS_WIN) || defined(OS_MACOSX)
-  base::FilePath plugin_filename;
-#if defined(OS_WIN)
-  if (!GetSystemFlashFilename(&plugin_filename))
-    return;
-#elif defined(OS_MACOSX)
-  if (!util_mac::GetLocalLibraryDirectory(&plugin_filename))
-    return;
-  plugin_filename = plugin_filename.Append(kPepperFlashSystemBaseDirectory)
-                        .Append(chrome::kPepperFlashPluginFilename);
-#endif  // defined(OS_MACOSX)
-
-  if (!plugin_filename.empty()) {
-    base::PathService::Override(chrome::FILE_PEPPER_FLASH_SYSTEM_PLUGIN,
-                                plugin_filename);
-  }
-#else  // !(defined(OS_WIN) || defined(OS_MACOSX))
-  // A system plugin is not available on other platforms.
-  return;
-#endif
-}
-
-#if defined(OS_LINUX)
-
-// Based on chrome/common/chrome_paths_linux.cc.
-// See http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
-// for a spec on where config files go.  The net effect for most
-// systems is we use ~/.config/chromium/ for Chromium and
-// ~/.config/google-chrome/ for official builds.
-// (This also helps us sidestep issues with other apps grabbing ~/.chromium .)
-bool GetDefaultUserDataDirectory(base::FilePath* result) {
-  std::unique_ptr<base::Environment> env(base::Environment::Create());
-  base::FilePath config_dir(base::nix::GetXDGDirectory(
-      env.get(), base::nix::kXdgConfigHomeEnvVar, base::nix::kDotConfigDir));
-  *result = config_dir.Append(FILE_PATH_LITERAL("cef_user_data"));
-  return true;
-}
-
-#elif defined(OS_MACOSX)
-
-// Based on chrome/common/chrome_paths_mac.mm.
-bool GetDefaultUserDataDirectory(base::FilePath* result) {
-  if (!base::PathService::Get(base::DIR_APP_DATA, result))
-    return false;
-  *result = result->Append(FILE_PATH_LITERAL("CEF"));
-  *result = result->Append(FILE_PATH_LITERAL("User Data"));
-  return true;
-}
-
-#elif defined(OS_WIN)
-
-// Based on chrome/common/chrome_paths_win.cc.
-bool GetDefaultUserDataDirectory(base::FilePath* result) {
-  if (!base::PathService::Get(base::DIR_LOCAL_APP_DATA, result))
-    return false;
-  *result = result->Append(FILE_PATH_LITERAL("CEF"));
-  *result = result->Append(FILE_PATH_LITERAL("User Data"));
-  return true;
-}
-
-#endif
-
-base::FilePath GetUserDataPath(CefSettings* settings) {
-  if (settings->user_data_path.length > 0)
-    return base::FilePath(CefString(&settings->user_data_path));
-
-  base::FilePath result;
-  if (GetDefaultUserDataDirectory(&result))
-    return result;
-
-  if (base::PathService::Get(base::DIR_TEMP, &result))
-    return result;
-
-  NOTREACHED();
-  return result;
-}
-
-bool GetDefaultDownloadDirectory(base::FilePath* result) {
-  // This will return the safe download directory if necessary.
-  return chrome::GetUserDownloadsDirectory(result);
-}
-
-// From chrome/browser/download/download_prefs.cc.
-// Consider downloads 'dangerous' if they go to the home directory on Linux and
-// to the desktop on any platform.
-bool DownloadPathIsDangerous(const base::FilePath& download_path) {
-#if defined(OS_LINUX)
-  base::FilePath home_dir = base::GetHomeDir();
-  if (download_path == home_dir) {
-    return true;
-  }
-#endif
-
-  base::FilePath desktop_dir;
-  if (!base::PathService::Get(base::DIR_USER_DESKTOP, &desktop_dir)) {
-    NOTREACHED();
-    return false;
-  }
-  return (download_path == desktop_dir);
-}
-
-bool GetDefaultDownloadSafeDirectory(base::FilePath* result) {
-  // Start with the default download directory.
-  if (!GetDefaultDownloadDirectory(result))
-    return false;
-
-  if (DownloadPathIsDangerous(*result)) {
-#if defined(OS_WIN) || defined(OS_LINUX)
-    // Explicitly switch to the safe download directory.
-    return chrome::GetUserDownloadsDirectorySafe(result);
-#else
-    // No viable alternative on macOS.
-    return false;
-#endif
-  }
-
-  return true;
-}
-
-// Returns true if |scale_factor| is supported by this platform.
-// Same as ui::ResourceBundle::IsScaleFactorSupported.
-bool IsScaleFactorSupported(ui::ScaleFactor scale_factor) {
-  const std::vector<ui::ScaleFactor>& supported_scale_factors =
-      ui::GetSupportedScaleFactors();
-  return std::find(supported_scale_factors.begin(),
-                   supported_scale_factors.end(),
-                   scale_factor) != supported_scale_factors.end();
-}
-
-#if defined(OS_LINUX)
-// Look for binary files (*.bin, *.dat, *.pak, chrome-sandbox, libGLESv2.so,
-// libEGL.so, locales/*.pak, swiftshader/*.so) next to libcef instead of the exe
-// on Linux. This is already the default on Windows.
-void OverrideAssetPath() {
-  Dl_info dl_info;
-  if (dladdr(reinterpret_cast<const void*>(&OverrideAssetPath), &dl_info)) {
-    base::FilePath path = base::FilePath(dl_info.dli_fname).DirName();
-    base::PathService::Override(base::DIR_ASSETS, path);
-  }
-}
-#endif
 
 }  // namespace
 
@@ -329,7 +77,7 @@ AlloyMainDelegate::AlloyMainDelegate(CefMainRunnerHandler* runner,
   base_impl_stub();
 
 #if defined(OS_LINUX)
-  OverrideAssetPath();
+  resource_util::OverrideAssetPath();
 #endif
 }
 
@@ -423,7 +171,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
         has_log_file_cmdline = true;
     }
     if (log_file.empty())
-      log_file = GetDefaultLogFile();
+      log_file = resource_util::GetDefaultLogFilePath();
     DCHECK(!log_file.empty());
     if (!has_log_file_cmdline)
       command_line->AppendSwitchPath(switches::kLogFile, log_file);
@@ -614,9 +362,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
   content::SetContentClient(&content_client_);
 
 #if defined(OS_MACOSX)
-  OverrideFrameworkBundlePath();
-  OverrideOuterBundlePath();
-  OverrideBaseBundleID();
+  util_mac::BasicStartupComplete();
 #endif
 
   return false;
@@ -631,34 +377,12 @@ void AlloyMainDelegate::PreSandboxStartup() {
   if (process_type.empty()) {
 // Only override these paths when executing the main process.
 #if defined(OS_MACOSX)
-    OverrideChildProcessPath();
+    util_mac::PreSandboxStartup();
 #endif
 
-    OverridePepperFlashSystemPluginPath();
-
-    base::FilePath dir_default_download;
-    base::FilePath dir_default_download_safe;
-    if (GetDefaultDownloadDirectory(&dir_default_download)) {
-      base::PathService::Override(chrome::DIR_DEFAULT_DOWNLOADS,
-                                  dir_default_download);
-    }
-    if (GetDefaultDownloadSafeDirectory(&dir_default_download_safe)) {
-      base::PathService::Override(chrome::DIR_DEFAULT_DOWNLOADS_SAFE,
-                                  dir_default_download_safe);
-    }
-
-    const base::FilePath& user_data_path = GetUserDataPath(settings_);
-    base::PathService::Override(chrome::DIR_USER_DATA, user_data_path);
-
-    // Path used for crash dumps.
-    base::PathService::Override(chrome::DIR_CRASH_DUMPS, user_data_path);
-
-    // Path used for spell checking dictionary files.
-    base::PathService::OverrideAndCreateIfNeeded(
-        chrome::DIR_APP_DICTIONARIES,
-        user_data_path.AppendASCII("Dictionaries"),
-        false,  // May not be an absolute path.
-        true);  // Create if necessary.
+    resource_util::OverridePepperFlashSystemPluginPath();
+    resource_util::OverrideDefaultDownloadDir();
+    resource_util::OverrideUserDataDir(settings_, command_line);
   }
 
   if (command_line->HasSwitch(switches::kDisablePackLoading))
@@ -779,7 +503,7 @@ void AlloyMainDelegate::InitializeResourceBundle() {
         command_line->GetSwitchValuePath(switches::kResourcesDirPath);
   }
   if (resources_dir.empty())
-    resources_dir = GetResourcesFilePath();
+    resources_dir = resource_util::GetResourcesDir();
   if (!resources_dir.empty())
     base::PathService::Override(chrome::DIR_RESOURCES, resources_dir);
 
@@ -832,7 +556,7 @@ void AlloyMainDelegate::InitializeResourceBundle() {
     // pack contains both 1x and 2x images.
     const bool load_100_percent =
 #if defined(OS_WIN)
-        IsScaleFactorSupported(ui::SCALE_FACTOR_100P);
+        resource_util::IsScaleFactorSupported(ui::SCALE_FACTOR_100P);
 #else
         true;
 #endif
@@ -846,7 +570,7 @@ void AlloyMainDelegate::InitializeResourceBundle() {
       }
     }
 
-    if (IsScaleFactorSupported(ui::SCALE_FACTOR_200P)) {
+    if (resource_util::IsScaleFactorSupported(ui::SCALE_FACTOR_200P)) {
       if (base::PathExists(cef_200_percent_pak_file)) {
         resource_bundle.AddDataPackFromPath(cef_200_percent_pak_file,
                                             ui::SCALE_FACTOR_200P);

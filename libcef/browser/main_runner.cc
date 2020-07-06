@@ -59,7 +59,8 @@ std::unique_ptr<CefMainRunnerDelegate> MakeDelegate(
                                                      application);
   } else {
     g_runtime_type = RuntimeType::CHROME;
-    return std::make_unique<ChromeMainRunnerDelegate>(runner, application);
+    return std::make_unique<ChromeMainRunnerDelegate>(runner, settings,
+                                                      application);
   }
 }
 

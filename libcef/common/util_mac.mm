@@ -9,10 +9,13 @@
 #include "base/base_paths.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
+#include "base/logging.h"
 #include "base/mac/bundle_locations.h"
 #include "base/mac/foundation_util.h"
 #include "base/path_service.h"
 #include "base/strings/sys_string_conversions.h"
+#include "content/public/common/content_paths.h"
+#include "content/public/common/content_switches.h"
 
 namespace util_mac {
 
@@ -26,6 +29,41 @@ base::FilePath GetFrameworksPath() {
 
   return bundle_path.Append(FILE_PATH_LITERAL("Contents"))
       .Append(FILE_PATH_LITERAL("Frameworks"));
+}
+
+void OverrideFrameworkBundlePath() {
+  base::FilePath framework_path = GetFrameworkDirectory();
+  DCHECK(!framework_path.empty());
+
+  base::mac::SetOverrideFrameworkBundlePath(framework_path);
+}
+
+void OverrideOuterBundlePath() {
+  base::FilePath bundle_path = GetMainBundlePath();
+  DCHECK(!bundle_path.empty());
+
+  base::mac::SetOverrideOuterBundlePath(bundle_path);
+}
+
+void OverrideBaseBundleID() {
+  std::string bundle_id = GetMainBundleID();
+  DCHECK(!bundle_id.empty());
+
+  base::mac::SetBaseBundleID(bundle_id.c_str());
+}
+
+void OverrideChildProcessPath() {
+  base::FilePath child_process_path =
+      base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
+          switches::kBrowserSubprocessPath);
+
+  if (child_process_path.empty()) {
+    child_process_path = util_mac::GetChildProcessPath();
+    DCHECK(!child_process_path.empty());
+  }
+
+  // Used by ChildProcessHost::GetChildPath and PlatformCrashpadInitialization.
+  base::PathService::Override(content::CHILD_PROCESS_EXE, child_process_path);
 }
 
 }  // namespace
@@ -98,6 +136,16 @@ base::FilePath GetChildProcessPath() {
       .Append(FILE_PATH_LITERAL("Contents"))
       .Append(FILE_PATH_LITERAL("MacOS"))
       .Append(FILE_PATH_LITERAL(exe_name + " Helper"));
+}
+
+void PreSandboxStartup() {
+  OverrideChildProcessPath();
+}
+
+void BasicStartupComplete() {
+  OverrideFrameworkBundlePath();
+  OverrideOuterBundlePath();
+  OverrideBaseBundleID();
 }
 
 }  // namespace util_mac

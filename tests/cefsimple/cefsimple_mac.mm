@@ -6,13 +6,19 @@
 #import <Cocoa/Cocoa.h>
 
 #include "include/cef_application_mac.h"
+#include "include/cef_command_line.h"
 #include "include/wrapper/cef_helpers.h"
 #include "include/wrapper/cef_library_loader.h"
 #include "tests/cefsimple/simple_app.h"
 #include "tests/cefsimple/simple_handler.h"
 
 // Receives notifications from the application.
-@interface SimpleAppDelegate : NSObject <NSApplicationDelegate>
+@interface SimpleAppDelegate : NSObject <NSApplicationDelegate> {
+ @private
+  bool with_chrome_runtime_;
+}
+
+- (id)initWithChromeRuntime:(bool)with_chrome_runtime;
 - (void)createApplication:(id)object;
 - (void)tryToTerminateApplication:(NSApplication*)app;
 @end
@@ -85,12 +91,23 @@
 
 @implementation SimpleAppDelegate
 
+- (id)initWithChromeRuntime:(bool)with_chrome_runtime {
+  if (self = [super init]) {
+    with_chrome_runtime_ = with_chrome_runtime;
+  }
+  return self;
+}
+
 // Create the application on the UI thread.
 - (void)createApplication:(id)object {
-  [NSApplication sharedApplication];
-  [[NSBundle mainBundle] loadNibNamed:@"MainMenu"
-                                owner:NSApp
-                      topLevelObjects:nil];
+  if (!with_chrome_runtime_) {
+    // Chrome will create the top-level menu programmatically in
+    // chrome/browser/ui/cocoa/main_menu_builder.h
+    // TODO(chrome-runtime): Expose a way to customize this menu.
+    [[NSBundle mainBundle] loadNibNamed:@"MainMenu"
+                                  owner:NSApp
+                        topLevelObjects:nil];
+  }
 
   // Set the delegate for application events.
   [[NSApplication sharedApplication] setDelegate:self];
@@ -123,8 +140,26 @@ int main(int argc, char* argv[]) {
     // Initialize the SimpleApplication instance.
     [SimpleApplication sharedApplication];
 
+    // If there was an invocation to NSApp prior to this method, then the NSApp
+    // will not be a SimpleApplication, but will instead be an NSApplication.
+    // This is undesirable and we must enforce that this doesn't happen.
+    CHECK([NSApp isKindOfClass:[SimpleApplication class]]);
+
+    // Parse command-line arguments for use in this method.
+    CefRefPtr<CefCommandLine> command_line =
+        CefCommandLine::CreateCommandLine();
+    command_line->InitFromArgv(argc, argv);
+
     // Specify CEF global settings here.
     CefSettings settings;
+
+    const bool with_chrome_runtime =
+        command_line->HasSwitch("enable-chrome-runtime");
+
+    if (with_chrome_runtime) {
+      // Enable experimental Chrome runtime. See issue #2969 for details.
+      settings.chrome_runtime = true;
+    }
 
     // When generating projects with CMake the CEF_USE_SANDBOX value will be
     // defined automatically. Pass -DUSE_SANDBOX=OFF to the CMake command-line
@@ -142,7 +177,8 @@ int main(int argc, char* argv[]) {
     CefInitialize(main_args, settings, app.get(), NULL);
 
     // Create the application delegate.
-    NSObject* delegate = [[SimpleAppDelegate alloc] init];
+    NSObject* delegate =
+        [[SimpleAppDelegate alloc] initWithChromeRuntime:with_chrome_runtime];
     [delegate performSelectorOnMainThread:@selector(createApplication:)
                                withObject:nil
                             waitUntilDone:NO];

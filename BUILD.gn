@@ -714,6 +714,8 @@ static_library("libcef_static") {
     "libcef/common/resource_bundle_delegate.h",
     "libcef/common/resource_bundle_impl.cc",
     "libcef/common/resource_bundle_impl.h",
+    "libcef/common/resource_util.cc",
+    "libcef/common/resource_util.h",
     "libcef/common/response_impl.cc",
     "libcef/common/response_impl.h",
     "libcef/common/response_manager.cc",
@@ -1730,10 +1732,6 @@ if (is_mac) {
               gypi_paths.autogen_capi_includes +
               gypi_paths2.libcef_sources_common +
               gypi_paths.autogen_library_side
-
-    # TODO(rsesek): Handle these missing pieces:
-    #   - crash_inspector
-    #   - crash_report_sender.app
 
     deps = [
       ":cef_framework_angle_library",

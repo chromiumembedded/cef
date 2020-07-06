@@ -50,6 +50,12 @@ base::FilePath GetMainResourcesDirectory();
 // return an empty value if not running in an app bundle.
 base::FilePath GetChildProcessPath();
 
+// Called from MainDelegate::PreSandboxStartup for the main process.
+void PreSandboxStartup();
+
+// Called from MainDelegate::BasicStartupComplete for all processes.
+void BasicStartupComplete();
+
 }  // namespace util_mac
 
 #endif  // CEF_LIBCEF_COMMON_UTIL_MAC_H_
