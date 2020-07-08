@@ -153,7 +153,7 @@ bool IsSystemCursorID(LPCWSTR cursor_id) {
 
 }  // namespace
 
-ui::PlatformCursor CefRenderWidgetHostViewOSR::GetPlatformCursor(
+CefCursorHandle CefRenderWidgetHostViewOSR::GetPlatformCursor(
     ui::mojom::CursorType type) {
   // Using a dark 1x1 bit bmp kNone cursor may still cause DWM to do composition
   // work unnecessarily. Better to totally remove it from the screen.

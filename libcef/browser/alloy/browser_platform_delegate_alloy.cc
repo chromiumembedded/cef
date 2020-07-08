@@ -210,16 +210,25 @@ void CefBrowserPlatformDelegateAlloy::BrowserDestroyed(
 }
 
 void CefBrowserPlatformDelegateAlloy::SendCaptureLostEvent() {
-  content::RenderWidgetHostImpl* widget = content::RenderWidgetHostImpl::From(
-      browser_->web_contents()->GetRenderViewHost()->GetWidget());
+  if (!web_contents_)
+    return;
+  content::RenderViewHost* host = web_contents_->GetRenderViewHost();
+  if (!host)
+    return;
+
+  content::RenderWidgetHostImpl* widget =
+      content::RenderWidgetHostImpl::From(host->GetWidget());
   if (widget)
     widget->LostCapture();
 }
 
 #if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MACOSX))
 void CefBrowserPlatformDelegateAlloy::NotifyMoveOrResizeStarted() {
+  if (!web_contents_)
+    return;
+
   // Dismiss any existing popups.
-  content::RenderViewHost* host = browser_->web_contents()->GetRenderViewHost();
+  content::RenderViewHost* host = web_contents_->GetRenderViewHost();
   if (host)
     host->NotifyMoveOrResizeStarted();
 }
@@ -360,7 +369,7 @@ void CefBrowserPlatformDelegateAlloy::Find(int identifier,
   auto options = blink::mojom::FindOptions::New();
   options->forward = forward;
   options->match_case = matchCase;
-  options->find_next = findNext;
+  options->find_next_if_selection_matches = findNext;
   web_contents_->Find(identifier, searchText, std::move(options));
 }
 

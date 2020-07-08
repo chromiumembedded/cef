@@ -199,7 +199,7 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
 
   CefWindowDelegateView* delegate_view = new CefWindowDelegateView(
       GetBackgroundColor(), always_on_top, GetBoundsChangedCallback());
-  delegate_view->Init(window_info_.window, browser_->web_contents(),
+  delegate_view->Init(window_info_.window, web_contents_,
                       gfx::Rect(0, 0, point.x(), point.y()));
 
   window_widget_ = delegate_view->GetWidget();
@@ -249,10 +249,10 @@ void CefBrowserPlatformDelegateNativeWin::SendFocusEvent(bool setFocus) {
   if (!setFocus)
     return;
 
-  if (browser_->web_contents()) {
+  if (web_contents_) {
     // Give logical focus to the RenderWidgetHostViewAura in the views
     // hierarchy. This does not change the native keyboard focus.
-    browser_->web_contents()->Focus();
+    web_contents_->Focus();
   }
 
   if (window_widget_) {

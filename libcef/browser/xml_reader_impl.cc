@@ -3,8 +3,11 @@
 // can be found in the LICENSE file.
 
 #include "libcef/browser/xml_reader_impl.h"
-#include "base/logging.h"
+
 #include "include/cef_stream.h"
+
+#include "base/logging.h"
+#include "base/notreached.h"
 
 // Static functions
 

@@ -179,7 +179,7 @@ XCursorCache* cursor_cache = nullptr;
 }  // namespace
 #endif  // defined(USE_X11)
 
-ui::PlatformCursor CefRenderWidgetHostViewOSR::GetPlatformCursor(
+CefCursorHandle CefRenderWidgetHostViewOSR::GetPlatformCursor(
     ui::mojom::CursorType type) {
 #if defined(USE_X11)
   if (type == ui::mojom::CursorType::kNone) {

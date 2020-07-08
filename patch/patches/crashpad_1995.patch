@@ -47,7 +47,7 @@ index 9b08e23e921b..49182504ae36 100644
  
  source_set("dll_hash") {
 diff --git chrome/chrome_elf/crash/crash_helper.cc chrome/chrome_elf/crash/crash_helper.cc
-index 42a4bfcdb856..9f674625a155 100644
+index 886372e11489..ad3bc2242883 100644
 --- chrome/chrome_elf/crash/crash_helper.cc
 +++ chrome/chrome_elf/crash/crash_helper.cc
 @@ -11,12 +11,17 @@
@@ -127,7 +127,7 @@ index bcf172e645a2..f879aa745adf 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git components/crash/core/app/breakpad_linux.cc components/crash/core/app/breakpad_linux.cc
-index 8ca43e2a8a10..5425a33709bb 100644
+index d2ca4a9056e5..3a4d8e1e82d9 100644
 --- components/crash/core/app/breakpad_linux.cc
 +++ components/crash/core/app/breakpad_linux.cc
 @@ -28,6 +28,7 @@
@@ -138,7 +138,7 @@ index 8ca43e2a8a10..5425a33709bb 100644
  #include "base/files/file_path.h"
  #include "base/lazy_instance.h"
  #include "base/linux_util.h"
-@@ -721,7 +722,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
+@@ -722,7 +723,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
    info.process_type_length = 7;
    info.distro = base::g_linux_distro;
    info.distro_length = my_strlen(base::g_linux_distro);
@@ -147,7 +147,7 @@ index 8ca43e2a8a10..5425a33709bb 100644
    info.process_start_time = g_process_start_time;
    info.oom_size = base::g_oom_size;
    info.pid = g_pid;
-@@ -1748,10 +1749,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1749,10 +1750,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
      GetCrashReporterClient()->GetProductNameAndVersion(&product_name, &version);
  
      writer.AddBoundary();
@@ -169,7 +169,7 @@ index 8ca43e2a8a10..5425a33709bb 100644
      if (info.pid > 0) {
        char pid_value_buf[kUint64StringSize];
        uint64_t pid_value_len = my_uint64_len(info.pid);
-@@ -1868,6 +1878,9 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1869,6 +1879,9 @@ void HandleCrashDump(const BreakpadInfo& info) {
          crash_reporter::internal::TransitionalCrashKeyStorage;
      CrashKeyStorage::Iterator crash_key_iterator(*info.crash_keys);
      const CrashKeyStorage::Entry* entry;
@@ -179,7 +179,7 @@ index 8ca43e2a8a10..5425a33709bb 100644
      while ((entry = crash_key_iterator.Next())) {
        if (g_use_crash_key_white_list && !IsInWhiteList(entry->key))
          continue;
-@@ -1880,7 +1893,13 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1881,7 +1894,13 @@ void HandleCrashDump(const BreakpadInfo& info) {
                         ? CrashKeyStorage::value_size - 1
                         : my_strlen(entry->value);
  

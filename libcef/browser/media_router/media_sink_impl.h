@@ -19,7 +19,6 @@ class CefMediaSinkImpl : public CefMediaSink {
 
   // CefMediaSink methods.
   CefString GetId() override;
-  bool IsValid() override;
   CefString GetName() override;
   CefString GetDescription() override;
   IconType GetIconType() override;

@@ -15,10 +15,6 @@ CefString CefMediaSinkImpl::GetId() {
   return sink_.id();
 }
 
-bool CefMediaSinkImpl::IsValid() {
-  return true;
-}
-
 CefString CefMediaSinkImpl::GetName() {
   return sink_.name();
 }

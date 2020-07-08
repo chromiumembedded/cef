@@ -209,9 +209,9 @@ void CefMediaRouterImpl::CreateRoute(
   auto browser_context = GetBrowserContext(browser_context_getter_);
   if (!browser_context) {
     error = "Context has already been destroyed";
-  } else if (!source || !source->IsValid()) {
+  } else if (!source) {
     error = "Source is empty or invalid";
-  } else if (!sink || !sink->IsValid()) {
+  } else if (!sink) {
     error = "Sink is empty or invalid";
   } else if (!sink->IsCompatibleWith(source)) {
     error = "Sink is not compatible with source";

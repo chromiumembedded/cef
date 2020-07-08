@@ -77,7 +77,8 @@ CefAudioCapturer::CefAudioCapturer(const CefAudioParameters& params,
       std::make_unique<mirroring::CapturedAudioInput>(base::BindRepeating(
           &StreamCreatorHelper, base::Unretained(browser_->web_contents()),
           base::Unretained(audio_stream_creator_.get()))),
-      media::AudioInputDevice::kLoopback);
+      media::AudioInputDevice::kLoopback,
+      media::AudioInputDevice::DeadStreamDetection::kEnabled);
 
   audio_input_device_->Initialize(audio_params, this);
   audio_input_device_->Start();

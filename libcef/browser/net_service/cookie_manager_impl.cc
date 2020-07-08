@@ -45,7 +45,7 @@ void RunAsyncCompletionOnUIThread(CefRefPtr<CefCompletionCallback> callback) {
 
 // Always execute the callback asynchronously.
 void SetCookieCallbackImpl(CefRefPtr<CefSetCookieCallback> callback,
-                           net::CanonicalCookie::CookieInclusionStatus status) {
+                           net::CookieInclusionStatus status) {
   if (!callback.get())
     return;
   if (!status.IsInclude()) {
@@ -104,8 +104,8 @@ void GetAllCookiesCallbackImpl(
 void GetCookiesCallbackImpl(
     CefRefPtr<CefCookieVisitor> visitor,
     const CefBrowserContext::Getter& browser_context_getter,
-    const net::CookieStatusList& include_cookies,
-    const net::CookieStatusList&) {
+    const net::CookieAccessResultList& include_cookies,
+    const net::CookieAccessResultList&) {
   net::CookieList cookies;
   for (const auto& status : include_cookies) {
     cookies.push_back(status.cookie);
@@ -259,10 +259,9 @@ bool CefCookieManagerImpl::SetCookie(const CefString& url,
       priority);
 
   if (!canonical_cookie) {
-    SetCookieCallbackImpl(callback,
-                          net::CanonicalCookie::CookieInclusionStatus(
-                              net::CanonicalCookie::CookieInclusionStatus::
-                                  EXCLUDE_UNKNOWN_ERROR));
+    SetCookieCallbackImpl(
+        callback, net::CookieInclusionStatus(
+                      net::CookieInclusionStatus::EXCLUDE_UNKNOWN_ERROR));
     return true;
   }
 

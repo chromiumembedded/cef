@@ -24,6 +24,7 @@
 #include "third_party/blink/renderer/core/editing/serializers/serialization.h"
 #include "third_party/blink/renderer/core/exported/web_view_impl.h"
 #include "third_party/blink/renderer/core/frame/frame_owner.h"
+#include "third_party/blink/renderer/core/frame/local_dom_window.h"
 #include "third_party/blink/renderer/core/frame/local_frame.h"
 #include "third_party/blink/renderer/core/frame/settings.h"
 #include "third_party/blink/renderer/core/frame/web_local_frame_impl.h"
@@ -150,7 +151,7 @@ v8::MaybeLocal<v8::Value> CallV8Function(v8::Local<v8::Context> context,
   blink::LocalFrame* frame = blink::ToLocalFrameIfNotDetached(context);
   DCHECK(frame);
   if (frame &&
-      frame->GetDocument()->CanExecuteScripts(blink::kAboutToExecuteScript)) {
+      frame->DomWindow()->CanExecuteScripts(blink::kAboutToExecuteScript)) {
     func_rv = blink::V8ScriptRunner::CallFunction(
         function, frame->GetDocument()->GetExecutionContext(), receiver, argc,
         args, isolate);

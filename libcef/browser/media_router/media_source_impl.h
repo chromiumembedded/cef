@@ -18,7 +18,6 @@ class CefMediaSourceImpl : public CefMediaSource {
 
   // CefMediaSource methods.
   CefString GetId() override;
-  bool IsValid() override;
   bool IsCastSource() override;
   bool IsDialSource() override;
 

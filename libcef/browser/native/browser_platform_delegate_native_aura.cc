@@ -226,5 +226,5 @@ int CefBrowserPlatformDelegateNativeAura::TranslateUiChangedButtonFlags(
 content::RenderWidgetHostViewAura*
 CefBrowserPlatformDelegateNativeAura::GetHostView() const {
   return static_cast<content::RenderWidgetHostViewAura*>(
-      browser_->web_contents()->GetRenderWidgetHostView());
+      web_contents_->GetRenderWidgetHostView());
 }

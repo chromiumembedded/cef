@@ -6,11 +6,11 @@
 #include "libcef/browser/net_service/browser_urlrequest_impl.h"
 #include "libcef/common/app_manager.h"
 #include "libcef/common/task_runner_impl.h"
-#include "libcef/renderer/render_urlrequest_impl.h"
 #include "libcef/features/runtime_checks.h"
+#include "libcef/renderer/render_urlrequest_impl.h"
 
 #include "base/logging.h"
-#include "base/message_loop/message_loop.h"
+#include "base/notreached.h"
 #include "content/public/common/content_client.h"
 
 // static

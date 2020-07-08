@@ -6,6 +6,7 @@
 
 #include <queue>
 
+#include "base/logging.h"
 #include "mojo/public/cpp/system/simple_watcher.h"
 #include "mojo/public/cpp/system/string_data_source.h"
 

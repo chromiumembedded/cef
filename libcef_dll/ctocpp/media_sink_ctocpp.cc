@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=63071af2d949b451ad0e7273ca0f5d7bfec425db$
+// $hash=6ffdd140e2cb688f1d7db2eb1e2356a62ac08e5e$
 //
 
 #include "libcef_dll/ctocpp/media_sink_ctocpp.h"
@@ -34,22 +34,6 @@ NO_SANITIZE("cfi-icall") CefString CefMediaSinkCToCpp::GetId() {
   CefString _retvalStr;
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
-}
-
-NO_SANITIZE("cfi-icall") bool CefMediaSinkCToCpp::IsValid() {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_media_sink_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_valid))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  int _retval = _struct->is_valid(_struct);
-
-  // Return type: bool
-  return _retval ? true : false;
 }
 
 NO_SANITIZE("cfi-icall") CefString CefMediaSinkCToCpp::GetName() {

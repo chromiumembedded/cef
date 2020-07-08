@@ -1,8 +1,8 @@
 diff --git third_party/blink/renderer/core/input/pointer_event_manager.cc third_party/blink/renderer/core/input/pointer_event_manager.cc
-index 08a017090502..6ef3584b2fe6 100644
+index 99b37de3d6a1..918c6a62d4e1 100644
 --- third_party/blink/renderer/core/input/pointer_event_manager.cc
 +++ third_party/blink/renderer/core/input/pointer_event_manager.cc
-@@ -310,7 +310,7 @@ void PointerEventManager::HandlePointerInterruption(
+@@ -302,7 +302,7 @@ void PointerEventManager::HandlePointerInterruption(
    for (auto pointer_event : canceled_pointer_events) {
      // If we are sending a pointercancel we have sent the pointerevent to some
      // target before.

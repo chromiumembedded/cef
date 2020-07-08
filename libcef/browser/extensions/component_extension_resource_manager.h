@@ -8,6 +8,7 @@
 #include <map>
 
 #include "base/files/file_path.h"
+#include "base/macros.h"
 #include "extensions/browser/component_extension_resource_manager.h"
 
 struct GritResourceMap;

@@ -36,10 +36,6 @@
 #include "ui/events/gesture_detection/motion_event_generic.h"
 #include "ui/gfx/geometry/rect.h"
 
-#if defined(OS_LINUX)
-#include "ui/base/x/x11_util.h"
-#endif
-
 #if defined(OS_MACOSX)
 #include "content/browser/renderer_host/browser_compositor_view_mac.h"
 #endif
@@ -68,6 +64,9 @@ class CefVideoConsumerOSR;
 class CefWebContentsViewOSR;
 
 #if defined(USE_X11)
+namespace ui {
+class XScopedCursor;
+}
 class CefWindowX11;
 #endif
 
@@ -324,7 +323,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void UpdateBackgroundColorFromRenderer(SkColor color);
 
 #if defined(USE_AURA)
-  ui::PlatformCursor GetPlatformCursor(ui::mojom::CursorType type);
+  CefCursorHandle GetPlatformCursor(ui::mojom::CursorType type);
 #endif
 
   // The background color of the web content.

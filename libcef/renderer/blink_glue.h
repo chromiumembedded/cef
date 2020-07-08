@@ -13,6 +13,7 @@
 
 #include "include/internal/cef_types.h"
 
+#include "base/macros.h"
 #include "third_party/blink/public/platform/web_common.h"
 #include "third_party/blink/renderer/bindings/core/v8/sanitize_script_errors.h"
 #include "v8/include/v8.h"

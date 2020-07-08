@@ -14,7 +14,6 @@
 #include "libcef/renderer/frame_impl.h"
 
 #include "base/logging.h"
-#include "base/message_loop/message_loop.h"
 #include "net/base/request_priority.h"
 #include "third_party/blink/public/mojom/fetch/fetch_api_request.mojom.h"
 #include "third_party/blink/public/mojom/loader/resource_load_info.mojom.h"

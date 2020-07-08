@@ -152,6 +152,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
           suggested_path, DownloadItem::TARGET_DISPOSITION_OVERWRITE,
           download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
           download::DownloadItem::MixedContentStatus::UNKNOWN, suggested_path,
+          base::nullopt /*download_schedule*/,
           download::DOWNLOAD_INTERRUPT_REASON_NONE);
     }
   }
@@ -170,7 +171,8 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
     std::move(callback).Run(path, DownloadItem::TARGET_DISPOSITION_OVERWRITE,
                             download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
                             download::DownloadItem::MixedContentStatus::UNKNOWN,
-                            path, download::DOWNLOAD_INTERRUPT_REASON_NONE);
+                            path, base::nullopt /*download_schedule*/,
+                            download::DOWNLOAD_INTERRUPT_REASON_NONE);
   }
 
   base::WeakPtr<DownloadManager> manager_;
@@ -355,7 +357,8 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
         item->GetForcedFilePath(), DownloadItem::TARGET_DISPOSITION_OVERWRITE,
         download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
         download::DownloadItem::MixedContentStatus::UNKNOWN,
-        item->GetForcedFilePath(), download::DOWNLOAD_INTERRUPT_REASON_NONE);
+        item->GetForcedFilePath(), base::nullopt /*download_schedule*/,
+        download::DOWNLOAD_INTERRUPT_REASON_NONE);
     return true;
   }
 

@@ -4,6 +4,7 @@
 
 #include "libcef/common/cef_crash_report_upload_thread.h"
 
+#include "base/notreached.h"
 #include "libcef/common/cef_crash_report_utils.h"
 #include "third_party/crashpad/crashpad/client/settings.h"
 

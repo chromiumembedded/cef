@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "base/files/file_path.h"
+#include "base/macros.h"
 #include "base/time/time.h"
 #include "net/base/net_export.h"
 

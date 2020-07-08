@@ -106,8 +106,7 @@ void CefVideoConsumerOSR::OnFrameCaptured(
   // API requires a non-const pointer. So, cast away the const.
   void* const pixels = const_cast<void*>(mapping.memory());
 
-  media::VideoFrameMetadata metadata;
-  metadata.MergeInternalValuesFrom(info->metadata);
+  media::VideoFrameMetadata metadata = info->metadata;
   gfx::Rect damage_rect;
 
   if (bounds_in_pixels_) {
@@ -123,9 +122,10 @@ void CefVideoConsumerOSR::OnFrameCaptured(
     // This rectangle is relative to the full frame data, i.e. [0, 0,
     // coded_size.width(), coded_size.height()]. It does not have to be
     // fully contained within visible_rect.
-    if (!metadata.GetRect(media::VideoFrameMetadata::CAPTURE_UPDATE_RECT,
-                          &damage_rect) ||
-        damage_rect.IsEmpty()) {
+    if (metadata.capture_update_rect) {
+      damage_rect = *metadata.capture_update_rect;
+    }
+    if (damage_rect.IsEmpty()) {
       damage_rect = gfx::Rect(info->coded_size);
     }
   }

@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 024415bb096e..0166b65c74ad 100644
+index 1afd8ac2c2cf..34d1ec7938b2 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -2096,15 +2096,22 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2225,15 +2225,22 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -33,7 +33,7 @@ index 024415bb096e..0166b65c74ad 100644
    }
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
-@@ -2905,6 +2912,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
+@@ -3035,6 +3042,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -49,7 +49,7 @@ index 024415bb096e..0166b65c74ad 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -6262,6 +6278,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -6405,6 +6421,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // This is an outermost WebContents.
      SetAsFocusedWebContentsIfNecessary();
    }
@@ -72,22 +72,21 @@ index f1dcf53ea481..192f7c0ddd04 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 039f001f1294..9ee4058d46b4 100644
+index 40b5d17d9c73..662068b57f36 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
-@@ -82,9 +82,11 @@ class BrowserContext;
+@@ -82,8 +82,10 @@ class BrowserContext;
  class BrowserPluginGuestDelegate;
  class RenderFrameHost;
  class RenderViewHost;
 +class RenderViewHostDelegateView;
- class RenderWidgetHost;
  class RenderWidgetHostView;
  class WebContentsDelegate;
 +class WebContentsView;
  class WebUI;
  struct CustomContextMenuContext;
  struct DropData;
-@@ -212,6 +214,10 @@ class WebContents : public PageNavigator,
+@@ -211,6 +213,10 @@ class WebContents : public PageNavigator,
      // Sandboxing flags set on the new WebContents.
      network::mojom::WebSandboxFlags starting_sandbox_flags;
  
@@ -99,7 +98,7 @@ index 039f001f1294..9ee4058d46b4 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 7757c7720406..356fb0577bae 100644
+index e545ff70c612..41cd5299898f 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -61,10 +61,12 @@ class EyeDropperListener;
@@ -115,7 +114,7 @@ index 7757c7720406..356fb0577bae 100644
  struct ContextMenuParams;
  struct DropData;
  struct MediaPlayerWatchTime;
-@@ -331,6 +333,14 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -337,6 +339,14 @@ class CONTENT_EXPORT WebContentsDelegate {
        const std::string& partition_id,
        SessionStorageNamespace* session_storage_namespace);
  
@@ -131,10 +130,10 @@ index 7757c7720406..356fb0577bae 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index f80da27979a7..0a04f21c131d 100644
+index 0cab1ba9e1ef..1f74ccca4ff2 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
-@@ -570,6 +570,10 @@ class CONTENT_EXPORT WebContentsObserver : public IPC::Listener {
+@@ -599,6 +599,10 @@ class CONTENT_EXPORT WebContentsObserver : public IPC::Listener {
    // WebContents has gained/lost focus.
    virtual void OnFocusChangedInPage(FocusedNodeDetails* details) {}
  

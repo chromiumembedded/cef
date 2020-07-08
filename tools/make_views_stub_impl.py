@@ -60,7 +60,7 @@ def make_views_stub_impl(header):
         impl += cls_impl
         includes += '#include "include/' + cls.get_file_name() + '"\n'
 
-  includes += '\n#include "base/logging.h"\n'
+  includes += '\n#include "base/logging.h"\n#include "base/notreached.h"\n'
 
   # Build the final output.
   result = get_copyright() + includes

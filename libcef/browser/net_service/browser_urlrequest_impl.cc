@@ -21,7 +21,6 @@
 #include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/memory/weak_ptr.h"
-#include "base/message_loop/message_loop.h"
 #include "base/strings/string_util.h"
 #include "content/public/browser/global_request_id.h"
 #include "content/public/browser/render_frame_host.h"

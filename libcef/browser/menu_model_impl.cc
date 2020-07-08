@@ -12,7 +12,6 @@
 
 #include "base/bind.h"
 #include "base/logging.h"
-#include "base/message_loop/message_loop.h"
 #include "content/public/common/menu_item.h"
 #include "ui/base/accelerators/accelerator.h"
 #include "ui/base/models/image_model.h"

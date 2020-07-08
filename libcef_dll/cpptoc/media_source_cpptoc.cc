@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ddd51b3c8020de1b10b00eef06d745a498168323$
+// $hash=74a4cfec87c4f42891695c46b3cfcc8683403923$
 //
 
 #include "libcef_dll/cpptoc/media_source_cpptoc.h"
@@ -34,22 +34,6 @@ media_source_get_id(struct _cef_media_source_t* self) {
 
   // Return type: string
   return _retval.DetachToUserFree();
-}
-
-int CEF_CALLBACK media_source_is_valid(struct _cef_media_source_t* self) {
-  shutdown_checker::AssertNotShutdown();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return 0;
-
-  // Execute
-  bool _retval = CefMediaSourceCppToC::Get(self)->IsValid();
-
-  // Return type: bool
-  return _retval;
 }
 
 int CEF_CALLBACK media_source_is_cast_source(struct _cef_media_source_t* self) {
@@ -90,7 +74,6 @@ int CEF_CALLBACK media_source_is_dial_source(struct _cef_media_source_t* self) {
 
 CefMediaSourceCppToC::CefMediaSourceCppToC() {
   GetStruct()->get_id = media_source_get_id;
-  GetStruct()->is_valid = media_source_is_valid;
   GetStruct()->is_cast_source = media_source_is_cast_source;
   GetStruct()->is_dial_source = media_source_is_dial_source;
 }

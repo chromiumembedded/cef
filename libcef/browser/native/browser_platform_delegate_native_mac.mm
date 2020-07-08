@@ -221,8 +221,7 @@ bool CefBrowserPlatformDelegateNativeMac::CreateHostWindow() {
 
   // Parent the TabContents to the browser view.
   const NSRect bounds = [browser_view bounds];
-  NSView* native_view =
-      browser_->web_contents()->GetNativeView().GetNativeNSView();
+  NSView* native_view = web_contents_->GetNativeView().GetNativeNSView();
   [browser_view addSubview:native_view];
   [native_view setFrame:bounds];
   [native_view setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
@@ -314,8 +313,7 @@ void CefBrowserPlatformDelegateNativeMac::SendFocusEvent(bool setFocus) {
 
     if (setFocus) {
       // Give keyboard focus to the native view.
-      NSView* view =
-          browser_->web_contents()->GetContentNativeView().GetNativeNSView();
+      NSView* view = web_contents_->GetContentNativeView().GetNativeNSView();
       DCHECK([view canBecomeKeyView]);
       [[view window] makeFirstResponder:view];
     }
@@ -383,9 +381,12 @@ gfx::Point CefBrowserPlatformDelegateNativeMac::GetDialogPosition(
 }
 
 gfx::Size CefBrowserPlatformDelegateNativeMac::GetMaximumDialogSize() {
+  if (!web_contents_)
+    return gfx::Size();
+
   // The dialog should try to fit within the overlay for the web contents.
   // Note that, for things like print preview, this is just a suggested maximum.
-  return browser_->web_contents()->GetContainerBounds().size();
+  return web_contents_->GetContainerBounds().size();
 }
 
 content::NativeWebKeyboardEvent
@@ -560,6 +561,8 @@ void CefBrowserPlatformDelegateNativeMac::TranslateWebMouseEvent(
 
 content::RenderWidgetHostViewMac*
 CefBrowserPlatformDelegateNativeMac::GetHostView() const {
+  if (!web_contents_)
+    return nullptr;
   return static_cast<content::RenderWidgetHostViewMac*>(
-      browser_->web_contents()->GetRenderWidgetHostView());
+      web_contents_->GetRenderWidgetHostView());
 }

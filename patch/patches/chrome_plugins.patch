@@ -164,16 +164,18 @@ index 4e64db143b8a..3dc127b7b992 100644
    Profile* profile = Profile::FromBrowserContext(browser_context);
    std::vector<std::string> whitelist = MimeTypesHandler::GetMIMETypeWhitelist();
 diff --git chrome/common/google_url_loader_throttle.cc chrome/common/google_url_loader_throttle.cc
-index a9ee607a2cb0..347261030e0e 100644
+index c1870b0f56ef..d32b8d54fb3f 100644
 --- chrome/common/google_url_loader_throttle.cc
 +++ chrome/common/google_url_loader_throttle.cc
-@@ -5,10 +5,15 @@
- #include "chrome/common/google_url_loader_throttle.h"
- 
+@@ -7,12 +7,17 @@
+ #include "base/feature_list.h"
+ #include "base/metrics/histogram_functions.h"
  #include "build/build_config.h"
-+#include "cef/libcef/features/features.h"
++#include "cef/libcef/features/runtime.h"
+ #include "chrome/common/chrome_features.h"
  #include "chrome/common/net/safe_search_util.h"
  #include "components/google/core/common/google_util.h"
+ #include "net/base/url_util.h"
  #include "services/network/public/mojom/url_response_head.mojom.h"
  
 +#if BUILDFLAG(ENABLE_CEF)
@@ -183,12 +185,12 @@ index a9ee607a2cb0..347261030e0e 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "extensions/common/extension_urls.h"
  #endif
-@@ -126,6 +131,11 @@ void GoogleURLLoaderThrottle::WillProcessResponse(
+@@ -152,6 +157,11 @@ void GoogleURLLoaderThrottle::WillProcessResponse(
      const GURL& response_url,
      network::mojom::URLResponseHead* response_head,
      bool* defer) {
 +#if BUILDFLAG(ENABLE_CEF)
-+  if (!extensions::ExtensionsEnabled())
++  if (cef::IsAlloyRuntimeEnabled() && !extensions::ExtensionsEnabled())
 +    return;
 +#endif
 +
@@ -196,10 +198,10 @@ index a9ee607a2cb0..347261030e0e 100644
    GURL webstore_url(extension_urls::GetWebstoreLaunchURL());
    if (response_url.SchemeIsHTTPOrHTTPS() &&
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index c1d92ae00fe5..2574fb1430ed 100644
+index 03d1e6a07843..2fd040ed87b5 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
-@@ -831,6 +831,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -842,6 +842,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
  
      if ((status == chrome::mojom::PluginStatus::kUnauthorized ||
           status == chrome::mojom::PluginStatus::kBlocked) &&
@@ -207,7 +209,7 @@ index c1d92ae00fe5..2574fb1430ed 100644
          content_settings_agent_delegate->IsPluginTemporarilyAllowed(
              identifier)) {
        status = chrome::mojom::PluginStatus::kAllowed;
-@@ -1034,7 +1035,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1045,7 +1046,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
          render_frame->GetRemoteAssociatedInterfaces()->GetInterface(
              plugin_auth_host.BindNewEndpointAndPassReceiver());
          plugin_auth_host->BlockedUnauthorizedPlugin(group_name, identifier);
@@ -217,7 +219,7 @@ index c1d92ae00fe5..2574fb1430ed 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlocked: {
-@@ -1043,7 +1045,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1054,7 +1056,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, group_name));
          placeholder->AllowLoading();
          RenderThread::Get()->RecordAction(UserMetricsAction("Plugin_Blocked"));
@@ -227,7 +229,7 @@ index c1d92ae00fe5..2574fb1430ed 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedByPolicy: {
-@@ -1053,7 +1056,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1064,7 +1067,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
                                         group_name));
          RenderThread::Get()->RecordAction(
              UserMetricsAction("Plugin_BlockedByPolicy"));
@@ -237,7 +239,7 @@ index c1d92ae00fe5..2574fb1430ed 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedNoLoading: {
-@@ -1061,7 +1065,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1072,7 +1076,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              IDR_BLOCKED_PLUGIN_HTML,
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED_NO_LOADING,
                                         group_name));
@@ -248,7 +250,7 @@ index c1d92ae00fe5..2574fb1430ed 100644
        }
        case chrome::mojom::PluginStatus::kComponentUpdateRequired: {
 diff --git chrome/renderer/plugins/chrome_plugin_placeholder.cc chrome/renderer/plugins/chrome_plugin_placeholder.cc
-index 4410ede5cb61..b15fa6406a9d 100644
+index d662fe9310c9..c4c406d16b95 100644
 --- chrome/renderer/plugins/chrome_plugin_placeholder.cc
 +++ chrome/renderer/plugins/chrome_plugin_placeholder.cc
 @@ -360,8 +360,11 @@ void ChromePluginPlaceholder::OnBlockedContent(

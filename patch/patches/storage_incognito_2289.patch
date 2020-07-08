@@ -1,8 +1,8 @@
 diff --git content/browser/blob_storage/chrome_blob_storage_context.cc content/browser/blob_storage/chrome_blob_storage_context.cc
-index f90e9fce0675..33551a2874bc 100644
+index 12d84e3d4a09..526048daac85 100644
 --- content/browser/blob_storage/chrome_blob_storage_context.cc
 +++ content/browser/blob_storage/chrome_blob_storage_context.cc
-@@ -117,7 +117,8 @@ ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
+@@ -116,7 +116,8 @@ ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
  
      // If we're not incognito mode, schedule all of our file tasks to enable
      // disk on the storage context.
@@ -13,19 +13,19 @@ index f90e9fce0675..33551a2874bc 100644
            {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
             base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index 05473c622dbd..9cd0e465fd2d 100644
+index 13e78598fea9..f5f3fc28c46a 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
-@@ -129,7 +129,7 @@ StoragePartition* GetStoragePartitionFromConfig(
-   StoragePartitionImplMap* partition_map =
+@@ -255,7 +255,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
        GetStoragePartitionMap(browser_context);
  
+   auto config_to_use = storage_partition_config;
 -  if (browser_context->IsOffTheRecord())
 +  if (browser_context->IsOffTheRecord() || browser_context->GetPath().empty())
-     in_memory = true;
+     config_to_use = storage_partition_config.CopyWithInMemorySet();
  
-   return partition_map->Get(partition_domain, partition_name, in_memory,
-@@ -543,7 +543,7 @@ media::VideoDecodePerfHistory* BrowserContext::GetVideoDecodePerfHistory() {
+   return partition_map->Get(config_to_use, can_create);
+@@ -536,7 +536,7 @@ media::VideoDecodePerfHistory* BrowserContext::GetVideoDecodePerfHistory() {
          kUseInMemoryDBDefault);
  
      std::unique_ptr<media::VideoDecodeStatsDB> stats_db;
@@ -35,10 +35,10 @@ index 05473c622dbd..9cd0e465fd2d 100644
            std::make_unique<media::InMemoryVideoDecodeStatsDBImpl>(nullptr);
      } else {
 diff --git storage/browser/database/database_tracker.cc storage/browser/database/database_tracker.cc
-index ecc6a0d2b8e5..b120add8abab 100644
+index 4f8cfb3eb34a..8c357827e893 100644
 --- storage/browser/database/database_tracker.cc
 +++ storage/browser/database/database_tracker.cc
-@@ -506,7 +506,7 @@ bool DatabaseTracker::LazyInit() {
+@@ -508,7 +508,7 @@ bool DatabaseTracker::LazyInit() {
      meta_table_.reset(new sql::MetaTable());
  
      is_initialized_ =

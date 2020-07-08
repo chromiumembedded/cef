@@ -1,8 +1,8 @@
 diff --git content/browser/screenlock_monitor/screenlock_monitor_device_source_win.cc content/browser/screenlock_monitor/screenlock_monitor_device_source_win.cc
-index 1cc7bf44645f..7ec28c21ec1d 100644
+index 444e19ccb601..6d696b28f417 100644
 --- content/browser/screenlock_monitor/screenlock_monitor_device_source_win.cc
 +++ content/browser/screenlock_monitor/screenlock_monitor_device_source_win.cc
-@@ -48,7 +48,7 @@ bool ScreenlockMonitorDeviceSource::SessionMessageWindow::OnWndProc(
+@@ -49,7 +49,7 @@ bool ScreenlockMonitorDeviceSource::SessionMessageWindow::OnWndProc(
    if (message == WM_WTSSESSION_CHANGE) {
      ProcessWTSSessionLockMessage(wparam);
    }

@@ -1,8 +1,8 @@
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index 9c936c69d684..13be02ae33f8 100644
+index 1a7c3d74b5c5..00c166906396 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
-@@ -142,22 +142,25 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
+@@ -142,13 +142,17 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
        # variable.
        if 'VSINSTALLDIR' in os.environ:
          del os.environ['VSINSTALLDIR']
@@ -14,36 +14,19 @@ index 9c936c69d684..13be02ae33f8 100644
 -        raise Exception('%s is missing - make sure VC++ tools are installed.' %
 -                        script_path)
 -      script_path = other_path
--    cpu_arg = "amd64"
--    if (cpu != 'x64'):
--      # x64 is default target CPU thus any other CPU requires a target set
--      cpu_arg += '_' + cpu
--    args = [script_path, cpu_arg]
--    # Store target must come before any SDK version declaration
--    if (target_store):
--      args.append(['store'])
--    variables = _LoadEnvFromBat(args)
-+    if os.path.exists(script_path):
-+      cpu_arg = "amd64"
-+      if (cpu != 'x64'):
-+        # x64 is default target CPU thus any other CPU requires a target set
-+        cpu_arg += '_' + cpu
-+      args = [script_path, cpu_arg]
-+      # Store target must come before any SDK version declaration
-+      if (target_store):
-+        args.append(['store'])
-+      variables = _LoadEnvFromBat(args)
-+    else:
++    if not os.path.exists(script_path):
++      # Compiler environment variables must already be specified.
 +      variables = []
 +      for k in sorted(os.environ.keys()):
 +        variables.append('%s=%s' % (str(k), str(os.environ[k])))
 +      variables = '\n'.join(variables)
++      return _ExtractImportantEnvironment(variables)
 +
-   return _ExtractImportantEnvironment(variables)
- 
- 
+     cpu_arg = "amd64"
+     if (cpu != 'x64'):
+       # x64 is default target CPU thus any other CPU requires a target set
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index f3557ad32eea..b3e056acccdb 100755
+index e60770e9b4e6..edeb0c357878 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -89,9 +89,16 @@ def SetEnvironmentAndGetRuntimeDllDirs():

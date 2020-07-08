@@ -1370,13 +1370,15 @@ repack("pak_devtools") {
   # Add associated .h files in the make_pack_header("resources") target.
   sources = [
     "$root_gen_dir/content/browser/devtools/devtools_resources.pak",
+    "$root_gen_dir/third_party/blink/public/resources/inspector_overlay_resources.pak",
   ]
 
   # Use public_deps so that generated grit headers are discoverable from
   # the libcef_static target. Grit deps that generate .cc files must be
   # listed both here and in the libcef_static target.
   public_deps = [
-    "//content/browser/devtools:resources",
+    "//content/browser/devtools:devtools_resources",
+    "//third_party/blink/public:devtools_inspector_resources",
   ]
 
   output = "$root_out_dir/devtools_resources.pak"

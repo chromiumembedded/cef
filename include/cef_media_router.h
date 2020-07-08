@@ -230,12 +230,6 @@ class CefMediaSink : public virtual CefBaseRefCounted {
   virtual CefString GetId() = 0;
 
   ///
-  // Returns true if this sink is valid.
-  ///
-  /*--cef()--*/
-  virtual bool IsValid() = 0;
-
-  ///
   // Returns the name of this sink.
   ///
   /*--cef()--*/
@@ -285,12 +279,6 @@ class CefMediaSource : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual CefString GetId() = 0;
-
-  ///
-  // Returns true if this source is valid.
-  ///
-  /*--cef()--*/
-  virtual bool IsValid() = 0;
 
   ///
   // Returns true if this source outputs its content via Cast.

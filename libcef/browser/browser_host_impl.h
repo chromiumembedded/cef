@@ -434,8 +434,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                       const blink::mojom::FileChooserParams& params) override;
   bool EmbedsFullscreenWidget() override;
   void EnterFullscreenModeForTab(
-      content::WebContents* web_contents,
-      const GURL& origin,
+      content::RenderFrameHost* requesting_frame,
       const blink::mojom::FullscreenOptions& options) override;
   void ExitFullscreenModeForTab(content::WebContents* web_contents) override;
   bool IsFullscreenForTabOrPending(
@@ -487,6 +486,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void PluginCrashed(const base::FilePath& plugin_path,
                      base::ProcessId plugin_pid) override;
   void DidUpdateFaviconURL(
+      content::RenderFrameHost* render_frame_host,
       const std::vector<blink::mojom::FaviconURLPtr>& candidates) override;
   void OnAudioStateChanged(bool audible) override;
   bool OnMessageReceived(const IPC::Message& message,

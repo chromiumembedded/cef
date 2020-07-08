@@ -139,8 +139,8 @@ void StopWorker(int document_cookie) {
   std::unique_ptr<PrinterQuery> printer_query =
       queue->PopPrinterQuery(document_cookie);
   if (printer_query.get()) {
-    base::PostTask(
-        FROM_HERE, {BrowserThread::IO},
+    content::GetIOThreadTaskRunner({})->PostTask(
+        FROM_HERE,
         base::BindOnce(&PrinterQuery::StopWorker, std::move(printer_query)));
   }
 }
@@ -160,7 +160,8 @@ void SavePdfFile(scoped_refptr<base::RefCountedSharedMemoryMapping> data,
   bool ok = file.IsValid() && metafile.SaveTo(&file);
 
   if (!callback.is_null()) {
-    base::PostTask(FROM_HERE, {BrowserThread::UI}, base::Bind(callback, ok));
+    content::GetUIThreadTaskRunner({})->PostTask(FROM_HERE,
+                                                 base::Bind(callback, ok));
   }
 }
 
@@ -193,9 +194,8 @@ bool CefPrintViewManager::PrintToPDF(content::RenderFrameHost* rfh,
   if (pdf_print_state_)
     return false;
 
-  // Don't print interstitials or crashed tabs.
-  if (!web_contents() || web_contents()->ShowingInterstitialPage() ||
-      web_contents()->IsCrashed()) {
+  // Don't print crashed tabs.
+  if (!web_contents() || web_contents()->IsCrashed()) {
     return false;
   }
 
@@ -342,8 +342,8 @@ void CefPrintViewManager::TerminatePdfPrintJob() {
 
   if (!pdf_print_state_->callback_.is_null()) {
     // Execute the callback.
-    base::PostTask(FROM_HERE, {BrowserThread::UI},
-                   base::Bind(pdf_print_state_->callback_, false));
+    content::GetUIThreadTaskRunner({})->PostTask(
+        FROM_HERE, base::Bind(pdf_print_state_->callback_, false));
   }
 
   // Reset state information.

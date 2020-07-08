@@ -81,12 +81,12 @@ CefString CefDragDataImpl::GetLinkMetadata() {
 
 CefString CefDragDataImpl::GetFragmentText() {
   base::AutoLock lock_scope(lock_);
-  return data_.text.is_null() ? CefString() : CefString(data_.text.string());
+  return data_.text ? CefString(*data_.text) : CefString();
 }
 
 CefString CefDragDataImpl::GetFragmentHtml() {
   base::AutoLock lock_scope(lock_);
-  return data_.html.is_null() ? CefString() : CefString(data_.html.string());
+  return data_.html ? CefString(*data_.html) : CefString();
 }
 
 CefString CefDragDataImpl::GetFragmentBaseURL() {
@@ -96,8 +96,7 @@ CefString CefDragDataImpl::GetFragmentBaseURL() {
 
 CefString CefDragDataImpl::GetFileName() {
   base::AutoLock lock_scope(lock_);
-  base::Optional<base::FilePath> filename =
-      data_.GetSafeFilenameForImageFileContents();
+  auto filename = data_.GetSafeFilenameForImageFileContents();
   return filename ? CefString(filename->value()) : CefString();
 }
 
@@ -148,13 +147,13 @@ void CefDragDataImpl::SetLinkMetadata(const CefString& data) {
 void CefDragDataImpl::SetFragmentText(const CefString& text) {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
-  data_.text = base::NullableString16(text.ToString16(), false);
+  data_.text = text.ToString16();
 }
 
 void CefDragDataImpl::SetFragmentHtml(const CefString& fragment) {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
-  data_.html = base::NullableString16(fragment.ToString16(), false);
+  data_.html = fragment.ToString16();
 }
 
 void CefDragDataImpl::SetFragmentBaseURL(const CefString& fragment) {

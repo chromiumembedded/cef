@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_launcher_helper_linux.cc content/browser/child_process_launcher_helper_linux.cc
-index e53e60ef146f..9b6db4a69d41 100644
+index e63dfcf43147..3b7b69a688f9 100644
 --- content/browser/child_process_launcher_helper_linux.cc
 +++ content/browser/child_process_launcher_helper_linux.cc
-@@ -164,7 +164,7 @@ void ChildProcessLauncherHelper::SetProcessPriorityOnLauncherThread(
+@@ -162,7 +162,7 @@ void ChildProcessLauncherHelper::SetProcessPriorityOnLauncherThread(
  base::File OpenFileToShare(const base::FilePath& path,
                             base::MemoryMappedFile::Region* region) {
    base::FilePath exe_dir;
@@ -24,10 +24,10 @@ index 0aaed76c1dda..517c3d8b5772 100644
      base::FilePath sandbox_candidate = exe_dir.AppendASCII("chrome-sandbox");
      if (base::PathExists(sandbox_candidate))
        sandbox_binary = sandbox_candidate;
-diff --git ui/gl/init/gl_initializer_x11.cc ui/gl/init/gl_initializer_x11.cc
-index d76d146b0d86..f4d9b4d748bb 100644
---- ui/gl/init/gl_initializer_x11.cc
-+++ ui/gl/init/gl_initializer_x11.cc
+diff --git ui/gl/init/gl_initializer_linux_x11.cc ui/gl/init/gl_initializer_linux_x11.cc
+index 0c57d500c0d2..9e82845e7fce 100644
+--- ui/gl/init/gl_initializer_linux_x11.cc
++++ ui/gl/init/gl_initializer_linux_x11.cc
 @@ -87,7 +87,7 @@ bool InitializeStaticEGLInternal(GLImplementation implementation) {
    if (implementation == kGLImplementationSwiftShaderGL) {
  #if BUILDFLAG(ENABLE_SWIFTSHADER)

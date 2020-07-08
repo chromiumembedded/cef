@@ -6,6 +6,7 @@
 
 #include "base/files/file_path.h"
 #include "base/logging.h"
+#include "base/notreached.h"
 #include "base/path_service.h"
 #include "chrome/common/chrome_paths.h"
 

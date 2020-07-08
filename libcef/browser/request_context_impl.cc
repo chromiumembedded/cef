@@ -357,7 +357,7 @@ bool CefRequestContextImpl::ClearSchemeHandlerFactories() {
 
 void CefRequestContextImpl::PurgePluginListCache(bool reload_pages) {
   GetBrowserContext(
-      base::CreateSingleThreadTaskRunner({BrowserThread::UI}),
+      content::GetUIThreadTaskRunner({}),
       base::Bind(&CefRequestContextImpl::PurgePluginListCacheInternal, this,
                  reload_pages));
 }
@@ -489,7 +489,7 @@ bool CefRequestContextImpl::SetPreference(const CefString& name,
 void CefRequestContextImpl::ClearCertificateExceptions(
     CefRefPtr<CefCompletionCallback> callback) {
   GetBrowserContext(
-      base::CreateSingleThreadTaskRunner({BrowserThread::UI}),
+      content::GetUIThreadTaskRunner({}),
       base::Bind(&CefRequestContextImpl::ClearCertificateExceptionsInternal,
                  this, callback));
 }
@@ -497,7 +497,7 @@ void CefRequestContextImpl::ClearCertificateExceptions(
 void CefRequestContextImpl::ClearHttpAuthCredentials(
     CefRefPtr<CefCompletionCallback> callback) {
   GetBrowserContext(
-      base::CreateSingleThreadTaskRunner({BrowserThread::UI}),
+      content::GetUIThreadTaskRunner({}),
       base::Bind(&CefRequestContextImpl::ClearHttpAuthCredentialsInternal, this,
                  callback));
 }
@@ -505,7 +505,7 @@ void CefRequestContextImpl::ClearHttpAuthCredentials(
 void CefRequestContextImpl::CloseAllConnections(
     CefRefPtr<CefCompletionCallback> callback) {
   GetBrowserContext(
-      base::CreateSingleThreadTaskRunner({BrowserThread::UI}),
+      content::GetUIThreadTaskRunner({}),
       base::Bind(&CefRequestContextImpl::CloseAllConnectionsInternal, this,
                  callback));
 }
@@ -513,7 +513,7 @@ void CefRequestContextImpl::CloseAllConnections(
 void CefRequestContextImpl::ResolveHost(
     const CefString& origin,
     CefRefPtr<CefResolveCallback> callback) {
-  GetBrowserContext(base::CreateSingleThreadTaskRunner({BrowserThread::UI}),
+  GetBrowserContext(content::GetUIThreadTaskRunner({}),
                     base::Bind(&CefRequestContextImpl::ResolveHostInternal,
                                this, origin, callback));
 }

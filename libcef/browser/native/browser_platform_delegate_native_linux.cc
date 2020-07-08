@@ -40,6 +40,11 @@ long GetSystemUptime() {
   return 0;
 }
 
+// See https://crbug.com/1066670#c57 for background.
+inline x11::Window ToX11Window(::Window window) {
+  return static_cast<x11::Window>(window);
+}
+
 }  // namespace
 
 CefBrowserPlatformDelegateNativeLinux::CefBrowserPlatformDelegateNativeLinux(
@@ -87,7 +92,7 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   CefWindowDelegateView* delegate_view = new CefWindowDelegateView(
       GetBackgroundColor(), window_x11_->TopLevelAlwaysOnTop(),
       GetBoundsChangedCallback());
-  delegate_view->Init(window_info_.window, browser_->web_contents(),
+  delegate_view->Init(ToX11Window(window_info_.window), web_contents_,
                       gfx::Rect(gfx::Point(), rect.size()));
 
   window_widget_ = delegate_view->GetWidget();
@@ -99,7 +104,7 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   // As an additional requirement on Linux, we must set the colors for the
   // render widgets in webkit.
   blink::mojom::RendererPreferences* prefs =
-      browser_->web_contents()->GetMutableRendererPrefs();
+      web_contents_->GetMutableRendererPrefs();
   prefs->focus_ring_color = SkColorSetARGB(255, 229, 151, 0);
 
   prefs->active_selection_bg_color = SkColorSetRGB(30, 144, 255);
@@ -117,7 +122,7 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   prefs->use_bitmaps = params->use_bitmaps;
   prefs->subpixel_rendering = params->subpixel_rendering;
 
-  browser_->web_contents()->SyncRendererPrefs();
+  web_contents_->SyncRendererPrefs();
 
   return true;
 }
@@ -144,10 +149,10 @@ void CefBrowserPlatformDelegateNativeLinux::SendFocusEvent(bool setFocus) {
   if (!setFocus)
     return;
 
-  if (browser_->web_contents()) {
+  if (web_contents_) {
     // Give logical focus to the RenderWidgetHostViewAura in the views
     // hierarchy. This does not change the native keyboard focus.
-    browser_->web_contents()->Focus();
+    web_contents_->Focus();
   }
 
 #if defined(USE_X11)
@@ -163,6 +168,9 @@ void CefBrowserPlatformDelegateNativeLinux::SendFocusEvent(bool setFocus) {
 void CefBrowserPlatformDelegateNativeLinux::NotifyMoveOrResizeStarted() {
   // Call the parent method to dismiss any existing popups.
   CefBrowserPlatformDelegateNative::NotifyMoveOrResizeStarted();
+
+  if (!web_contents_)
+    return;
 
 #if defined(USE_X11)
   if (!window_x11_)
@@ -180,7 +188,7 @@ void CefBrowserPlatformDelegateNativeLinux::NotifyMoveOrResizeStarted() {
   // Send updated screen rectangle information to the renderer process so that
   // popups are displayed in the correct location.
   content::RenderWidgetHostImpl::From(
-      browser_->web_contents()->GetRenderViewHost()->GetWidget())
+      web_contents_->GetRenderViewHost()->GetWidget())
       ->SendScreenRects();
 #endif  // defined(USE_X11)
 }

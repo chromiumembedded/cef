@@ -9,7 +9,6 @@
 #include "base/bind.h"
 #include "base/logging.h"
 #include "base/memory/ptr_util.h"
-#include "base/message_loop/message_loop.h"
 #include "base/stl_util.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
@@ -132,7 +131,7 @@ class CefNativeMenuWin::MenuHostWindow {
     RegisterClass();
     hwnd_ = CreateWindowEx(l10n_util::GetExtendedStyles(), kWindowClassName,
                            L"", 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, NULL, NULL);
-    gfx::CheckWindowCreated(hwnd_);
+    gfx::CheckWindowCreated(hwnd_, ::GetLastError());
     gfx::SetWindowUserData(hwnd_, this);
   }
 

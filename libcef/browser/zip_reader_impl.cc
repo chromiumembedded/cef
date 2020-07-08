@@ -5,6 +5,7 @@
 #include "libcef/browser/zip_reader_impl.h"
 #include <time.h>
 #include "base/logging.h"
+#include "base/notreached.h"
 #include "include/cef_stream.h"
 
 // Static functions

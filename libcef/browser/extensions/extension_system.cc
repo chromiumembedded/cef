@@ -20,7 +20,6 @@
 #include "base/path_service.h"
 #include "base/strings/string_tokenizer.h"
 #include "base/strings/utf_string_conversions.h"
-#include "base/task/post_task.h"
 #include "base/threading/thread_restrictions.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/common/chrome_paths.h"
@@ -54,7 +53,6 @@
 #include "net/base/mime_util.h"
 
 using content::BrowserContext;
-using content::BrowserThread;
 
 namespace extensions {
 
@@ -179,10 +177,6 @@ void CefExtensionSystem::Init() {
 
   // Inform the rest of the extensions system to start.
   ready_.Signal();
-  content::NotificationService::current()->Notify(
-      NOTIFICATION_EXTENSIONS_READY_DEPRECATED,
-      content::Source<BrowserContext>(browser_context_),
-      content::NotificationService::NoDetails());
 
   // Add the internal PDF extension. PDF loading works as follows:
   // 1. The PDF PPAPI plugin is registered in libcef/common/content_client.cc
@@ -413,7 +407,7 @@ ServiceWorkerManager* CefExtensionSystem::service_worker_manager() {
   return service_worker_manager_.get();
 }
 
-SharedUserScriptMaster* CefExtensionSystem::shared_user_script_master() {
+SharedUserScriptManager* CefExtensionSystem::shared_user_script_manager() {
   return nullptr;
 }
 
@@ -450,8 +444,8 @@ void CefExtensionSystem::RegisterExtensionWithRequestContexts(
     base::OnceClosure callback) {
   // TODO(extensions): The |incognito_enabled| value should be set based on
   // manifest settings.
-  base::PostTaskAndReply(
-      FROM_HERE, {BrowserThread::IO},
+  content::GetIOThreadTaskRunner({})->PostTaskAndReply(
+      FROM_HERE,
       base::Bind(&InfoMap::AddExtension, info_map(),
                  base::RetainedRef(extension), base::Time::Now(),
                  true,    // incognito_enabled
@@ -464,13 +458,17 @@ void CefExtensionSystem::RegisterExtensionWithRequestContexts(
 void CefExtensionSystem::UnregisterExtensionWithRequestContexts(
     const std::string& extension_id,
     const UnloadedExtensionReason reason) {
-  base::PostTask(
-      FROM_HERE, {BrowserThread::IO},
+  content::GetIOThreadTaskRunner({})->PostTask(
+      FROM_HERE,
       base::Bind(&InfoMap::RemoveExtension, info_map(), extension_id, reason));
 }
 
 const base::OneShotEvent& CefExtensionSystem::ready() const {
   return ready_;
+}
+
+bool CefExtensionSystem::is_ready() const {
+  return ready_.is_signaled();
 }
 
 ContentVerifier* CefExtensionSystem::content_verifier() {

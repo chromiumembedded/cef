@@ -28,8 +28,7 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
   bool OnAssociatedInterfaceRequestForFrame(
       const std::string& interface_name,
       mojo::ScopedInterfaceEndpointHandle* handle) override;
-  void DidCommitProvisionalLoad(bool is_same_document_navigation,
-                                ui::PageTransition transition) override;
+  void DidCommitProvisionalLoad(ui::PageTransition transition) override;
   void DidFailProvisionalLoad() override;
   void DidFinishLoad() override;
   void FrameDetached() override;

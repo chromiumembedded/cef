@@ -79,8 +79,7 @@ CefPrintingMessageFilter::CefPrintingMessageFilter(int render_process_id,
           ->Subscribe(base::Bind(&CefPrintingMessageFilter::ShutdownOnUIThread,
                                  base::Unretained(this)));
   is_printing_enabled_.Init(prefs::kPrintingEnabled, profile->GetPrefs());
-  is_printing_enabled_.MoveToSequence(
-      base::CreateSingleThreadTaskRunner({BrowserThread::IO}));
+  is_printing_enabled_.MoveToSequence(content::GetIOThreadTaskRunner({}));
 }
 
 void CefPrintingMessageFilter::EnsureShutdownNotifierFactoryBuilt() {

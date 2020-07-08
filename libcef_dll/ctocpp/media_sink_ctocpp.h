@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c57a82e66fdcd26f70a69fbd92554ca8aa38495c$
+// $hash=9d3af9897a857a63abec8327f84f5d809be603da$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_MEDIA_SINK_CTOCPP_H_
@@ -35,7 +35,6 @@ class CefMediaSinkCToCpp : public CefCToCppRefCounted<CefMediaSinkCToCpp,
 
   // CefMediaSink methods.
   CefString GetId() OVERRIDE;
-  bool IsValid() OVERRIDE;
   CefString GetName() OVERRIDE;
   CefString GetDescription() OVERRIDE;
   IconType GetIconType() OVERRIDE;

@@ -18,7 +18,7 @@ class CefVariationsClient : public variations::VariationsClient {
 
   ~CefVariationsClient() override = default;
 
-  bool IsIncognito() const override {
+  bool IsOffTheRecord() const override {
     return browser_context_->IsOffTheRecord();
   }
 
@@ -68,10 +68,6 @@ std::string ChromeProfileAlloy::GetProfileUserName() const {
   return std::string();
 }
 
-Profile::ProfileType ChromeProfileAlloy::GetProfileType() const {
-  return REGULAR_PROFILE;
-}
-
 Profile* ChromeProfileAlloy::GetOffTheRecordProfile(
     const Profile::OTRProfileID& otr_profile_id) {
   NOTREACHED();
@@ -79,7 +75,6 @@ Profile* ChromeProfileAlloy::GetOffTheRecordProfile(
 }
 
 std::vector<Profile*> ChromeProfileAlloy::GetAllOffTheRecordProfiles() {
-  NOTREACHED();
   return {};
 }
 
@@ -127,7 +122,7 @@ PrefService* ChromeProfileAlloy::GetOffTheRecordPrefs() {
   return nullptr;
 }
 
-bool ChromeProfileAlloy::IsSameProfile(Profile* profile) {
+bool ChromeProfileAlloy::IsSameOrParent(Profile* profile) {
   NOTREACHED();
   return false;
 }

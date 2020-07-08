@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=aa1310919932145744d5347d449d6ee10a3a0813$
+// $hash=a259fab661bc913498ae4f46f8dee1c1e592823d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_MEDIA_ROUTER_CAPI_H_
@@ -247,11 +247,6 @@ typedef struct _cef_media_sink_t {
   cef_string_userfree_t(CEF_CALLBACK* get_id)(struct _cef_media_sink_t* self);
 
   ///
-  // Returns true (1) if this sink is valid.
-  ///
-  int(CEF_CALLBACK* is_valid)(struct _cef_media_sink_t* self);
-
-  ///
   // Returns the name of this sink.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
@@ -304,11 +299,6 @@ typedef struct _cef_media_source_t {
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_id)(struct _cef_media_source_t* self);
-
-  ///
-  // Returns true (1) if this source is valid.
-  ///
-  int(CEF_CALLBACK* is_valid)(struct _cef_media_source_t* self);
 
   ///
   // Returns true (1) if this source outputs its content via Cast.

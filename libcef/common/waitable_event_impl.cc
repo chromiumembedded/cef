@@ -6,6 +6,7 @@
 
 #include "include/cef_task.h"
 
+#include "base/notreached.h"
 #include "base/time/time.h"
 
 namespace {

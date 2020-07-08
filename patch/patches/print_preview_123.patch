@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index a996e15eeba1..cbc0ad1f9019 100644
+index b4c6ef8fec23..1e2586810d7c 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -23,6 +23,7 @@
@@ -10,7 +10,7 @@ index a996e15eeba1..cbc0ad1f9019 100644
  #include "chrome/browser/download/chrome_download_manager_delegate.h"
  #include "chrome/browser/download/download_core_service_factory.h"
  #include "chrome/browser/download/download_core_service_impl.h"
-@@ -56,6 +57,10 @@
+@@ -57,6 +58,10 @@
  #include "chrome/browser/ui/pdf/adobe_reader_info_win.h"
  #endif
  
@@ -21,7 +21,7 @@ index a996e15eeba1..cbc0ad1f9019 100644
  using content::BrowserContext;
  using content::BrowserThread;
  using content::DownloadManager;
-@@ -340,6 +345,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
+@@ -349,6 +354,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
  // static
  DownloadPrefs* DownloadPrefs::FromBrowserContext(
      content::BrowserContext* context) {
@@ -34,7 +34,7 @@ index a996e15eeba1..cbc0ad1f9019 100644
  }
  
 diff --git chrome/browser/printing/print_preview_dialog_controller.cc chrome/browser/printing/print_preview_dialog_controller.cc
-index 84818167bce1..cdbd3f7f6f27 100644
+index 3fadaba3336f..5ef67b35883d 100644
 --- chrome/browser/printing/print_preview_dialog_controller.cc
 +++ chrome/browser/printing/print_preview_dialog_controller.cc
 @@ -16,6 +16,7 @@
@@ -262,7 +262,7 @@ index 0881b3dd9303..4df6883d4d05 100644
    Profile* const profile_;
    PrintPreviewStickySettings* const sticky_settings_;
 diff --git chrome/browser/ui/webui/print_preview/print_preview_handler.cc chrome/browser/ui/webui/print_preview/print_preview_handler.cc
-index 1d2254cefc2c..7aa5fe7f11a4 100644
+index a61439ed8cae..3e210caffafe 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 @@ -24,6 +24,7 @@
@@ -273,7 +273,7 @@ index 1d2254cefc2c..7aa5fe7f11a4 100644
  #include "chrome/browser/app_mode/app_mode_utils.h"
  #include "chrome/browser/bad_message.h"
  #include "chrome/browser/browser_process.h"
-@@ -1243,7 +1244,7 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
+@@ -1244,7 +1245,7 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
      }
      return extension_printer_handler_.get();
    }
@@ -282,7 +282,7 @@ index 1d2254cefc2c..7aa5fe7f11a4 100644
    if (printer_type == PrinterType::kPrivet) {
      if (!privet_printer_handler_) {
        privet_printer_handler_ =
-@@ -1251,6 +1252,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
+@@ -1252,6 +1253,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
      }
      return privet_printer_handler_.get();
    }
@@ -292,7 +292,7 @@ index 1d2254cefc2c..7aa5fe7f11a4 100644
  #endif
    if (printer_type == PrinterType::kPdf) {
      if (!pdf_printer_handler_) {
-@@ -1323,6 +1327,7 @@ void PrintPreviewHandler::OnPrintResult(const std::string& callback_id,
+@@ -1324,6 +1328,7 @@ void PrintPreviewHandler::OnPrintResult(const std::string& callback_id,
  }
  
  void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
@@ -300,7 +300,7 @@ index 1d2254cefc2c..7aa5fe7f11a4 100644
    DCHECK(!identity_manager_);
    cloud_print_enabled_ =
        !base::Contains(printer_type_deny_list_, PrinterType::kCloud) &&
-@@ -1339,6 +1344,7 @@ void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
+@@ -1340,6 +1345,7 @@ void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
  
    identity_manager_ = IdentityManagerFactory::GetForProfile(profile);
    identity_manager_->AddObserver(this);
@@ -309,18 +309,18 @@ index 1d2254cefc2c..7aa5fe7f11a4 100644
  
  void PrintPreviewHandler::UnregisterForGaiaCookieChanges() {
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index 43cddc1495e9..c4307c9f7292 100644
+index 1d226233cce3..7ce5bc268410 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-@@ -28,6 +28,7 @@
- #include "base/task/post_task.h"
+@@ -27,6 +27,7 @@
+ #include "base/synchronization/lock.h"
  #include "base/values.h"
  #include "build/build_config.h"
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/browser_process_platform_part.h"
- #include "chrome/browser/printing/background_printing_manager.h"
-@@ -84,12 +85,16 @@ namespace printing {
+ #include "chrome/browser/pdf/pdf_extension_util.h"
+@@ -86,12 +87,16 @@ namespace printing {
  
  namespace {
  

@@ -97,10 +97,10 @@ index da431bd8ecc5..587952b1af1c 100644
    ExtensionRegistry::Get(browser_context_)->RemoveObserver(this);
  
 diff --git extensions/browser/extension_host.h extensions/browser/extension_host.h
-index 3b4afb96942f..ae832c720dd8 100644
+index ee031971ea4c..c82a4f30eb7f 100644
 --- extensions/browser/extension_host.h
 +++ extensions/browser/extension_host.h
-@@ -52,13 +52,19 @@ class ExtensionHost : public DeferredStartRenderHost,
+@@ -51,13 +51,19 @@ class ExtensionHost : public DeferredStartRenderHost,
    ExtensionHost(const Extension* extension,
                  content::SiteInstance* site_instance,
                  const GURL& url, ViewType host_type);
@@ -121,7 +121,7 @@ index 3b4afb96942f..ae832c720dd8 100644
    content::RenderViewHost* render_view_host() const;
    content::RenderProcessHost* render_process_host() const;
    bool has_loaded_once() const { return has_loaded_once_; }
-@@ -177,7 +183,8 @@ class ExtensionHost : public DeferredStartRenderHost,
+@@ -176,7 +182,8 @@ class ExtensionHost : public DeferredStartRenderHost,
    content::BrowserContext* browser_context_;
  
    // The host for our HTML content.
@@ -132,7 +132,7 @@ index 3b4afb96942f..ae832c720dd8 100644
    // A weak pointer to the current or pending RenderViewHost. We don't access
    // this through the host_contents because we want to deal with the pending
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index e2723b1a42e3..cb176afba5aa 100644
+index 757ed5668b94..142c0ea7f801 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
 @@ -56,6 +56,7 @@ class ComponentExtensionResourceManager;
@@ -143,7 +143,7 @@ index e2723b1a42e3..cb176afba5aa 100644
  class ExtensionHostDelegate;
  class ExtensionSet;
  class ExtensionSystem;
-@@ -195,6 +196,14 @@ class ExtensionsBrowserClient {
+@@ -196,6 +197,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  
@@ -159,10 +159,10 @@ index e2723b1a42e3..cb176afba5aa 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index 374f722809b4..c0e22f4ad697 100644
+index fc25df40852a..5f14f04835bb 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
-@@ -386,9 +386,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,
+@@ -385,9 +385,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,
      return true;  // TODO(kalman): return false here? It might break things...
  
    DVLOG(1) << "CreateBackgroundHost " << extension->id();

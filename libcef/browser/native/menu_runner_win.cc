@@ -7,7 +7,6 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/native/menu_2.h"
 
-#include "base/message_loop/message_loop.h"
 #include "base/message_loop/message_loop_current.h"
 #include "ui/gfx/geometry/point.h"
 

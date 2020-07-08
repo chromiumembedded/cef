@@ -6,6 +6,7 @@
 #include "libcef/common/command_line_impl.h"
 
 #include "base/logging.h"
+#include "base/notreached.h"
 #include "base/process/launch.h"
 #include "content/public/browser/child_process_launcher_utils.h"
 

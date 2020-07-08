@@ -16,7 +16,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/task/post_task.h"
 #include "base/threading/sequenced_task_runner_handle.h"
-#include "base/value_conversions.h"
+#include "base/util/values/values_util.h"
 #include "base/values.h"
 #include "chrome/common/pref_names.h"
 #include "components/prefs/scoped_user_pref_update.h"
@@ -81,9 +81,9 @@ void CefDevToolsFileManager::Save(const std::string& url,
 
   const base::Value* path_value;
   if (file_map->Get(base::MD5String(url), &path_value)) {
-    // Ignore base::GetValueAsFilePath() failure since we handle empty
-    // |initial_path| below.
-    ignore_result(base::GetValueAsFilePath(*path_value, &initial_path));
+    base::Optional<base::FilePath> path = util::ValueToFilePath(*path_value);
+    if (path)
+      initial_path = std::move(*path);
   }
 
   if (initial_path.empty()) {
@@ -142,7 +142,7 @@ void CefDevToolsFileManager::SaveAsFileSelected(const std::string& url,
 
   DictionaryPrefUpdate update(prefs_, prefs::kDevToolsEditedFiles);
   base::DictionaryValue* files_map = update.Get();
-  files_map->SetKey(base::MD5String(url), base::CreateFilePathValue(path));
+  files_map->SetKey(base::MD5String(url), util::FilePathToValue(path));
   std::string file_system_path = path.AsUTF8Unsafe();
   callback.Run(file_system_path);
   file_task_runner_->PostTask(FROM_HERE,

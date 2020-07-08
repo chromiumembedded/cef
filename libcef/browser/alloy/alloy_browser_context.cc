@@ -155,7 +155,7 @@ void AlloyBrowserContext::Initialize() {
 
   // Initialize proxy configuration tracker.
   pref_proxy_config_tracker_.reset(new PrefProxyConfigTrackerImpl(
-      GetPrefs(), base::CreateSingleThreadTaskRunner({BrowserThread::IO})));
+      GetPrefs(), content::GetIOThreadTaskRunner({})));
 
   // Spell checking support and possibly other subsystems retrieve the
   // PrefService associated with a BrowserContext via UserPrefs::Get().

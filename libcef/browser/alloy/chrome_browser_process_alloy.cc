@@ -319,6 +319,12 @@ ChromeBrowserProcessAlloy::subresource_filter_ruleset_service() {
   return nullptr;
 }
 
+federated_learning::FlocBlocklistService*
+ChromeBrowserProcessAlloy::floc_blocklist_service() {
+  NOTREACHED();
+  return nullptr;
+}
+
 optimization_guide::OptimizationGuideService*
 ChromeBrowserProcessAlloy::optimization_guide_service() {
   NOTREACHED();

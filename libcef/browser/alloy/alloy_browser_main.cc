@@ -24,7 +24,6 @@
 #include "libcef/common/net/net_resource_provider.h"
 
 #include "base/bind.h"
-#include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/task/post_task.h"
 #include "chrome/browser/browser_process.h"

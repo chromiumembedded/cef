@@ -48,8 +48,8 @@ gfx::NativeWindow CefWebContentsViewOSR::GetTopLevelNativeWindow() const {
   return gfx::NativeWindow();
 }
 
-void CefWebContentsViewOSR::GetContainerBounds(gfx::Rect* out) const {
-  *out = GetViewBounds();
+gfx::Rect CefWebContentsViewOSR::GetContainerBounds() const {
+  return GetViewBounds();
 }
 
 void CefWebContentsViewOSR::Focus() {}
@@ -150,7 +150,8 @@ void CefWebContentsViewOSR::StartDragging(
     browser->StartDragging(drop_data, allowed_ops, image, image_offset,
                            event_info, source_rwh);
   } else if (web_contents_) {
-    web_contents_->SystemDragEnded(source_rwh);
+    static_cast<content::WebContentsImpl*>(web_contents_)
+        ->SystemDragEnded(source_rwh);
   }
 }
 

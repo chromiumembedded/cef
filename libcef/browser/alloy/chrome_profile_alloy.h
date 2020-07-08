@@ -26,7 +26,6 @@ class ChromeProfileAlloy : public Profile {
   variations::VariationsClient* GetVariationsClient() override;
   scoped_refptr<base::SequencedTaskRunner> GetIOTaskRunner() override;
   std::string GetProfileUserName() const override;
-  ProfileType GetProfileType() const override;
   Profile* GetOffTheRecordProfile(
       const Profile::OTRProfileID& otr_profile_id) override;
   std::vector<Profile*> GetAllOffTheRecordProfiles() override;
@@ -41,7 +40,7 @@ class ChromeProfileAlloy : public Profile {
   bool IsLegacySupervised() const override;
   ExtensionSpecialStoragePolicy* GetExtensionSpecialStoragePolicy() override;
   PrefService* GetOffTheRecordPrefs() override;
-  bool IsSameProfile(Profile* profile) override;
+  bool IsSameOrParent(Profile* profile) override;
   base::Time GetStartTime() const override;
   base::FilePath last_selected_directory() override;
   void set_last_selected_directory(const base::FilePath& path) override;

@@ -4,6 +4,7 @@
 
 #include "libcef/common/net/net_resource_provider.h"
 
+#include "base/logging.h"
 #include "chrome/common/net/net_resource_provider.h"
 
 scoped_refptr<base::RefCountedMemory> NetResourceProvider(int key) {

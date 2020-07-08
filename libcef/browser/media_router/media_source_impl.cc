@@ -15,10 +15,6 @@ CefString CefMediaSourceImpl::GetId() {
   return source_.id();
 }
 
-bool CefMediaSourceImpl::IsValid() {
-  return source_.IsValid();
-}
-
 bool CefMediaSourceImpl::IsCastSource() {
   return !IsDialSource();
 }

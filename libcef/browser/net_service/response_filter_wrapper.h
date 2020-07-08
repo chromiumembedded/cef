@@ -7,6 +7,7 @@
 
 #include "include/cef_response_filter.h"
 
+#include "base/callback_forward.h"
 #include "mojo/public/cpp/system/data_pipe.h"
 
 namespace net_service {

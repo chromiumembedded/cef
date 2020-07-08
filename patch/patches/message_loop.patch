@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_loop_current.cc base/message_loop/message_loop_current.cc
-index 7688ba3d7b0d..9acaaa0d5c7f 100644
+index 14d7b8fbb596..4cf58414c2f0 100644
 --- base/message_loop/message_loop_current.cc
 +++ base/message_loop/message_loop_current.cc
 @@ -47,6 +47,8 @@ void MessageLoopCurrent::AddDestructionObserver(
@@ -12,7 +12,7 @@ index 7688ba3d7b0d..9acaaa0d5c7f 100644
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/message_loop/message_loop_current.h base/message_loop/message_loop_current.h
-index 61b8c6fcc42d..d439b00a87bb 100644
+index 462098e2522a..b853e6dc0c40 100644
 --- base/message_loop/message_loop_current.h
 +++ base/message_loop/message_loop_current.h
 @@ -117,6 +117,12 @@ class BASE_EXPORT MessageLoopCurrent {
@@ -25,10 +25,10 @@ index 61b8c6fcc42d..d439b00a87bb 100644
 +  bool os_modal_loop() const { return os_modal_loop_; }
 +#endif  // OS_WIN
 +
-   // Enables or disables the recursive task processing. This happens in the case
-   // of recursive message loops. Some unwanted message loops may occur when
-   // using common controls or printer functions. By default, recursive task
-@@ -186,6 +192,13 @@ class BASE_EXPORT MessageLoopCurrent {
+   // Enables nested task processing in scope of an upcoming native message loop.
+   // Some unwanted message loops may occur when using common controls or printer
+   // functions. Hence, nested task processing is disabled by default to avoid
+@@ -183,6 +189,13 @@ class BASE_EXPORT MessageLoopCurrent {
    friend class web::WebTaskEnvironment;
  
    sequence_manager::internal::SequenceManagerImpl* current_;
@@ -43,7 +43,7 @@ index 61b8c6fcc42d..d439b00a87bb 100644
  
  #if !defined(OS_NACL)
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 83cbec19c292..a890a324c8db 100644
+index 4c500064bcd8..9b82c906b659 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -2,6 +2,7 @@
@@ -54,25 +54,22 @@ index 83cbec19c292..a890a324c8db 100644
  #include "base/message_loop/message_pump_win.h"
  
  #include <algorithm>
-@@ -550,10 +551,18 @@ bool MessagePumpForUI::ProcessPumpReplacementMessage() {
-   state_->delegate->BeforeDoInternalWork();
- 
-   MSG msg;
--  const bool have_message =
--      ::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) != FALSE;
-+  bool have_message = false;
-+  // We should not process all window messages if we are in the context of an
-+  // OS modal loop, i.e. in the context of a windows API call like MessageBox.
-+  // This is to ensure that these messages are peeked out by the OS modal loop.
-+  if (MessageLoopCurrent::Get()->os_modal_loop()) {
-+    // We only peek out WM_PAINT and WM_TIMER here for reasons mentioned above.
-+    have_message = PeekMessage(&msg, NULL, WM_PAINT, WM_PAINT, PM_REMOVE) ||
-+                   PeekMessage(&msg, NULL, WM_TIMER, WM_TIMER, PM_REMOVE);
-+  } else {
-+    have_message = PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) != FALSE;
-+  }
- 
--  // Expect no message or a message different than kMsgHaveWork.
-   DCHECK(!have_message || kMsgHaveWork != msg.message ||
-          msg.hwnd != message_window_.hwnd());
- 
+@@ -497,7 +498,17 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
+     TRACE_EVENT1("base",
+                  "MessagePumpForUI::ProcessNextWindowsMessage PeekMessage",
+                  "sent_messages_in_queue", more_work_is_plausible);
+-    has_msg = ::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) != FALSE;
++
++    // We should not process all window messages if we are in the context of an
++    // OS modal loop, i.e. in the context of a windows API call like MessageBox.
++    // This is to ensure that these messages are peeked out by the OS modal loop.
++    if (MessageLoopCurrent::Get()->os_modal_loop()) {
++      // We only peek out WM_PAINT and WM_TIMER here for reasons mentioned above.
++      has_msg = PeekMessage(&msg, NULL, WM_PAINT, WM_PAINT, PM_REMOVE) ||
++                PeekMessage(&msg, NULL, WM_TIMER, WM_TIMER, PM_REMOVE);
++    } else {
++      has_msg = PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) != FALSE;
++    }
+   }
+   if (has_msg)
+     more_work_is_plausible |= ProcessMessageHelper(msg);

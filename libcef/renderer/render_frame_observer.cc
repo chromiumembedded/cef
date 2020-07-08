@@ -51,7 +51,6 @@ bool CefRenderFrameObserver::OnAssociatedInterfaceRequestForFrame(
 }
 
 void CefRenderFrameObserver::DidCommitProvisionalLoad(
-    bool is_same_document_navigation,
     ui::PageTransition transition) {
   if (!frame_)
     return;

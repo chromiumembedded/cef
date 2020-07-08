@@ -1701,8 +1701,7 @@ bool CefBrowserHostImpl::EmbedsFullscreenWidget() {
 }
 
 void CefBrowserHostImpl::EnterFullscreenModeForTab(
-    content::WebContents* web_contents,
-    const GURL& origin,
+    content::RenderFrameHost* requesting_frame,
     const blink::mojom::FullscreenOptions& options) {
   OnFullscreenModeChange(true);
 }
@@ -2633,6 +2632,7 @@ void CefBrowserHostImpl::PluginCrashed(const base::FilePath& plugin_path,
 }
 
 void CefBrowserHostImpl::DidUpdateFaviconURL(
+    content::RenderFrameHost* render_frame_host,
     const std::vector<blink::mojom::FaviconURLPtr>& candidates) {
   if (client_.get()) {
     CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();

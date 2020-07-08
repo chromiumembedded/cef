@@ -317,7 +317,7 @@ void CefPrintDialogLinux::OnPrintCancel() {
 
 void CefPrintDialogLinux::OnJobCompleted() {
   CEF_POST_BACKGROUND_TASK(
-      base::Bind(base::IgnoreResult(&base::DeleteFile), path_to_pdf_, false));
+      base::BindOnce(base::GetDeleteFileCallback(), path_to_pdf_));
 
   // Printing finished. Matches AddRef() in PrintDocument();
   Release();

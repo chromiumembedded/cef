@@ -224,7 +224,7 @@ class MediaObserver : public CefMediaObserver {
  private:
   CefRefPtr<CefMediaSource> GetSource(const std::string& source_urn) {
     CefRefPtr<CefMediaSource> source = media_router_->GetSource(source_urn);
-    if (!source || !source->IsValid())
+    if (!source)
       return NULL;
     return source;
   }

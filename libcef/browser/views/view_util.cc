@@ -119,6 +119,15 @@ class UserData : public base::SupportsUserData::Data {
   CefView* view_ref_;
 };
 
+inline CefWindowHandle ToWindowHandle(gfx::AcceleratedWidget widget) {
+#if defined(USE_X11)
+  // See https://crbug.com/1066670#c57 for background.
+  return static_cast<uint32_t>(widget);
+#else
+  return widget;
+#endif
+}
+
 }  // namespace
 
 const SkColor kDefaultBackgroundColor = SkColorSetARGB(255, 255, 255, 255);
@@ -304,7 +313,7 @@ CefWindowHandle GetWindowHandle(views::Widget* widget) {
   if (widget) {
     aura::Window* window = widget->GetNativeWindow();
     if (window && window->GetRootWindow())
-      return window->GetHost()->GetAcceleratedWidget();
+      return ToWindowHandle(window->GetHost()->GetAcceleratedWidget());
   }
   return kNullWindowHandle;
 }

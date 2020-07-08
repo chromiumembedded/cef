@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2b4f20db4eccd1429c748f39db19852cd1644b4a$
+// $hash=42bb3686f7f20a5c8cf18d0123fb1f223cb30179$
 //
 
 #include "libcef_dll/ctocpp/media_source_ctocpp.h"
@@ -33,22 +33,6 @@ NO_SANITIZE("cfi-icall") CefString CefMediaSourceCToCpp::GetId() {
   CefString _retvalStr;
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
-}
-
-NO_SANITIZE("cfi-icall") bool CefMediaSourceCToCpp::IsValid() {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_media_source_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_valid))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  int _retval = _struct->is_valid(_struct);
-
-  // Return type: bool
-  return _retval ? true : false;
 }
 
 NO_SANITIZE("cfi-icall") bool CefMediaSourceCToCpp::IsCastSource() {

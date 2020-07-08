@@ -53,6 +53,11 @@
 #include "ui/gfx/geometry/dip_util.h"
 #include "ui/gfx/geometry/size_conversions.h"
 
+#if defined(USE_X11)
+#include "ui/base/x/x11_cursor.h"
+#include "ui/base/x/x11_util.h"
+#endif
+
 namespace {
 
 // The maximum number of damage rects to cache for outstanding frame requests
@@ -186,6 +191,17 @@ ui::ImeTextSpan::UnderlineStyle GetImeUnderlineStyle(
   NOTREACHED();
   return ui::ImeTextSpan::UnderlineStyle::kSolid;
 }
+
+#if defined(USE_AURA)
+CefCursorHandle ToCursorHandle(ui::PlatformCursor cursor) {
+#if defined(USE_X11)
+  // See https://crbug.com/1029142 for background.
+  return static_cast<ui::X11Cursor*>(cursor)->xcursor();
+#else
+  return cursor;
+#endif
+}
+#endif  // defined(USE_AURA)
 
 }  // namespace
 
@@ -611,10 +627,10 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
 #if defined(USE_AURA)
   content::WebCursor web_cursor(ui_cursor);
 
-  ui::PlatformCursor platform_cursor;
+  CefCursorHandle platform_cursor;
   if (ui_cursor.type() == ui::mojom::CursorType::kCustom) {
     // |web_cursor| owns the resulting |platform_cursor|.
-    platform_cursor = web_cursor.GetPlatformCursor(ui_cursor);
+    platform_cursor = ToCursorHandle(web_cursor.GetPlatformCursor(ui_cursor));
   } else {
     platform_cursor = GetPlatformCursor(ui_cursor.type());
   }
@@ -1330,8 +1346,7 @@ void CefRenderWidgetHostViewOSR::OnUpdateTextInputStateCalled(
     content::TextInputManager* text_input_manager,
     content::RenderWidgetHostViewBase* updated_view,
     bool did_update_state) {
-  const content::TextInputState* state =
-      text_input_manager->GetTextInputState();
+  const auto state = text_input_manager->GetTextInputState();
   if (state && !state->show_ime_if_needed)
     return;
 

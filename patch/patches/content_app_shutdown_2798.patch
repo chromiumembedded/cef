@@ -1,5 +1,5 @@
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 01327e6e6c53..d7b737592833 100644
+index f5e5576fd745..086ba8edc63a 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -44,6 +44,7 @@
@@ -10,7 +10,7 @@ index 01327e6e6c53..d7b737592833 100644
  #include "base/trace_event/trace_event.h"
  #include "components/discardable_memory/service/discardable_shared_memory_manager.h"
  #include "components/download/public/common/download_task_runner.h"
-@@ -974,6 +975,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1027,6 +1028,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -36,10 +36,10 @@ index 299af2871498..8639eb8843f7 100644
    int RunServiceManager(MainFunctionParams& main_function_params,
                          bool start_service_manager_only);
 diff --git content/app/content_service_manager_main_delegate.cc content/app/content_service_manager_main_delegate.cc
-index 86d0a470a7c2..5e4b91d31e3f 100644
+index 1983ab5b217d..25344b70d343 100644
 --- content/app/content_service_manager_main_delegate.cc
 +++ content/app/content_service_manager_main_delegate.cc
-@@ -130,4 +130,8 @@ void ContentServiceManagerMainDelegate::SetStartServiceManagerOnly(
+@@ -174,4 +174,8 @@ void ContentServiceManagerMainDelegate::SetStartServiceManagerOnly(
    start_service_manager_only_ = start_service_manager_only;
  }
  
@@ -49,7 +49,7 @@ index 86d0a470a7c2..5e4b91d31e3f 100644
 +
  }  // namespace content
 diff --git content/app/content_service_manager_main_delegate.h content/app/content_service_manager_main_delegate.h
-index 0b4042aec2ae..b8643b10a02e 100644
+index ae9796957e51..f26a578d60ed 100644
 --- content/app/content_service_manager_main_delegate.h
 +++ content/app/content_service_manager_main_delegate.h
 @@ -18,7 +18,8 @@ namespace content {

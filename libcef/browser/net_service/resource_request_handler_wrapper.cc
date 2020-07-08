@@ -20,7 +20,6 @@
 #include "libcef/common/response_impl.h"
 
 #include "chrome/browser/profiles/profile.h"
-#include "chrome/common/chrome_features.h"
 #include "components/language/core/browser/pref_names.h"
 #include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_context.h"
@@ -98,9 +97,7 @@ std::string GetAcceptLanguageList(content::BrowserContext* browser_context,
 // Match the logic in chrome/browser/net/profile_network_context_service.cc.
 std::string ComputeAcceptLanguageFromPref(const std::string& language_pref) {
   std::string accept_languages_str =
-      base::FeatureList::IsEnabled(features::kUseNewAcceptLanguageHeader)
-          ? net::HttpUtil::ExpandLanguageList(language_pref)
-          : language_pref;
+      net::HttpUtil::ExpandLanguageList(language_pref);
   return net::HttpUtil::GenerateAcceptLanguageHeader(accept_languages_str);
 }
 

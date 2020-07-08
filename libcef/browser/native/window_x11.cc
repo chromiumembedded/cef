@@ -19,6 +19,10 @@
 
 namespace {
 
+// Restore Xlib constants that were #undef'ed by gen/ui/gfx/x/xproto.h.
+constexpr int CopyFromParent = 0;
+constexpr int InputOutput = 1;
+
 const char kAtom[] = "ATOM";
 const char kWMDeleteWindow[] = "WM_DELETE_WINDOW";
 const char kWMProtocols[] = "WM_PROTOCOLS";
@@ -28,6 +32,19 @@ const char kNetWMPing[] = "_NET_WM_PING";
 const char kNetWMState[] = "_NET_WM_STATE";
 const char kXdndProxy[] = "XdndProxy";
 const char kUTF8String[] = "UTF8_STRING";
+
+// See https://crbug.com/1066670#c57 for background.
+inline x11::Window ToX11Window(::Window window) {
+  return static_cast<x11::Window>(window);
+}
+inline ::Window ToWindow(x11::Window window) {
+  return static_cast<::Window>(window);
+}
+
+// See https://crbug.com/1066670#c29 for background.
+inline ::Atom GetAtom(const std::string& atom_name) {
+  return static_cast<::Atom>(gfx::GetAtom(atom_name));
+}
 
 ::Window FindChild(::Display* display, ::Window window) {
   ::Window root;
@@ -59,7 +76,7 @@ const char kUTF8String[] = "UTF8_STRING";
     }
 
     top_level_window = window;
-    if (!ui::PropertyExists(parent, kNetWMPid) || parent == root) {
+    if (!ui::PropertyExists(ToX11Window(parent), kNetWMPid) || parent == root) {
       break;
     }
     window = parent;
@@ -99,7 +116,7 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
                            0,               // border width
                            CopyFromParent,  // depth
                            InputOutput,
-                           CopyFromParent,  // visual
+                           nullptr,  // visual
                            CWBackPixmap | CWOverrideRedirect, &swa);
   CHECK(xwindow_);
 
@@ -114,8 +131,8 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
   // should listen for activation events and anything else that GTK+ listens
   // for, and do something useful.
   ::Atom protocols[2];
-  protocols[0] = gfx::GetAtom(kWMDeleteWindow);
-  protocols[1] = gfx::GetAtom(kNetWMPing);
+  protocols[0] = GetAtom(kWMDeleteWindow);
+  protocols[1] = GetAtom(kNetWMPing);
   XSetWMProtocols(xdisplay_, xwindow_, protocols, 2);
 
   // We need a WM_CLIENT_MACHINE and WM_LOCALE_NAME value so we integrate with
@@ -128,13 +145,13 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
   static_assert(sizeof(long) >= sizeof(pid_t),
                 "pid_t should not be larger than long");
   long pid = getpid();
-  XChangeProperty(xdisplay_, xwindow_, gfx::GetAtom(kNetWMPid), XA_CARDINAL, 32,
+  XChangeProperty(xdisplay_, xwindow_, GetAtom(kNetWMPid), XA_CARDINAL, 32,
                   PropModeReplace, reinterpret_cast<unsigned char*>(&pid), 1);
 
   // Set the initial window name, if provided.
   if (!title.empty()) {
-    XChangeProperty(xdisplay_, xwindow_, gfx::GetAtom(kNetWMName),
-                    gfx::GetAtom(kUTF8String), 8, PropModeReplace,
+    XChangeProperty(xdisplay_, xwindow_, GetAtom(kNetWMName),
+                    GetAtom(kUTF8String), 8, PropModeReplace,
                     reinterpret_cast<const unsigned char*>(title.c_str()),
                     title.size());
   }
@@ -150,9 +167,9 @@ void CefWindowX11::Close() {
   XEvent ev = {0};
   ev.xclient.type = ClientMessage;
   ev.xclient.window = xwindow_;
-  ev.xclient.message_type = gfx::GetAtom(kWMProtocols);
+  ev.xclient.message_type = GetAtom(kWMProtocols);
   ev.xclient.format = 32;
-  ev.xclient.data.l[0] = gfx::GetAtom(kWMDeleteWindow);
+  ev.xclient.data.l[0] = GetAtom(kWMDeleteWindow);
   ev.xclient.data.l[1] = x11::CurrentTime;
   XSendEvent(xdisplay_, xwindow_, false, NoEventMask, &ev);
 
@@ -193,17 +210,19 @@ void CefWindowX11::Show() {
       // that all drag&drop-related messages will be sent to the child
       // DesktopWindowTreeHostX11. The proxy property is referenced by
       // DesktopDragDropClientAuraX11::FindWindowFor.
-      ::Window proxy_target = gfx::kNullAcceleratedWidget;
-      ui::GetXIDProperty(toplevel_window, kXdndProxy, &proxy_target);
+      x11::Window window = x11::Window::None;
+      ui::GetProperty(ToX11Window(toplevel_window), gfx::GetAtom(kXdndProxy),
+                      &window);
+      ::Window proxy_target = ToWindow(window);
 
       if (proxy_target != child) {
         // Set the proxy target for the top-most window.
-        XChangeProperty(xdisplay_, toplevel_window, gfx::GetAtom(kXdndProxy),
+        XChangeProperty(xdisplay_, toplevel_window, GetAtom(kXdndProxy),
                         XA_WINDOW, 32, PropModeReplace,
                         reinterpret_cast<unsigned char*>(&child), 1);
         // Do the same for the proxy target per the spec.
-        XChangeProperty(xdisplay_, child, gfx::GetAtom(kXdndProxy), XA_WINDOW,
-                        32, PropModeReplace,
+        XChangeProperty(xdisplay_, child, GetAtom(kXdndProxy), XA_WINDOW, 32,
+                        PropModeReplace,
                         reinterpret_cast<unsigned char*>(&child), 1);
       }
     }
@@ -226,7 +245,7 @@ void CefWindowX11::Focus() {
 
   if (browser_.get()) {
     ::Window child = FindChild(xdisplay_, xwindow_);
-    if (child && ui::IsWindowVisible(child)) {
+    if (child && ui::IsWindowVisible(ToX11Window(child))) {
       // Give focus to the child DesktopWindowTreeHostX11.
       XSetInputFocus(xdisplay_, child, RevertToParent, x11::CurrentTime);
     }
@@ -275,7 +294,8 @@ views::DesktopWindowTreeHostX11* CefWindowX11::GetHost() {
     ::Window child = FindChild(xdisplay_, xwindow_);
     if (child) {
       return static_cast<views::DesktopWindowTreeHostX11*>(
-          views::DesktopWindowTreeHostLinux::GetHostForWidget(child));
+          views::DesktopWindowTreeHostLinux::GetHostForWidget(
+              ToX11Window(child)));
     }
   }
   return nullptr;
@@ -297,8 +317,9 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
 
 // Called by X11EventSourceLibevent to determine whether this XEventDispatcher
 // implementation is able to process the next translated event sent by it.
-void CefWindowX11::CheckCanDispatchNextPlatformEvent(XEvent* xev) {
-  current_xevent_ = IsTargetedBy(*xev) ? xev : nullptr;
+void CefWindowX11::CheckCanDispatchNextPlatformEvent(x11::Event* x11_event) {
+  XEvent* xev = &x11_event->xlib_event();
+  current_xevent_ = IsTargetedBy(*x11_event) ? xev : nullptr;
 }
 
 void CefWindowX11::PlatformEventDispatchFinished() {
@@ -309,9 +330,10 @@ ui::PlatformEventDispatcher* CefWindowX11::GetPlatformEventDispatcher() {
   return this;
 }
 
-bool CefWindowX11::DispatchXEvent(XEvent* xev) {
-  if (!IsTargetedBy(*xev))
+bool CefWindowX11::DispatchXEvent(x11::Event* x11_event) {
+  if (!IsTargetedBy(*x11_event))
     return false;
+  XEvent* xev = &x11_event->xlib_event();
   ProcessXEvent(xev);
   return true;
 }
@@ -327,8 +349,8 @@ void CefWindowX11::ContinueFocus() {
 bool CefWindowX11::TopLevelAlwaysOnTop() const {
   ::Window toplevel_window = FindToplevelParent(xdisplay_, xwindow_);
 
-  Atom state_atom = gfx::GetAtom("_NET_WM_STATE");
-  Atom state_keep_above = gfx::GetAtom("_NET_WM_STATE_KEEP_ABOVE");
+  Atom state_atom = GetAtom("_NET_WM_STATE");
+  Atom state_keep_above = GetAtom("_NET_WM_STATE_KEEP_ABOVE");
   Atom* states;
 
   Atom actual_type;
@@ -355,9 +377,10 @@ bool CefWindowX11::TopLevelAlwaysOnTop() const {
   return always_on_top;
 }
 
-bool CefWindowX11::IsTargetedBy(const XEvent& xev) const {
+bool CefWindowX11::IsTargetedBy(const x11::Event& x11_event) const {
+  const XEvent& xev = x11_event.xlib_event();
   ::Window target_window =
-      (xev.type == GenericEvent)
+      xev.type == x11::GeGenericEvent::opcode
           ? static_cast<XIDeviceEvent*>(xev.xcookie.data)->event
           : xev.xany.window;
   return target_window == xwindow_;
@@ -391,9 +414,9 @@ void CefWindowX11::ProcessXEvent(XEvent* xev) {
     }
     case ClientMessage: {
       Atom message_type = xev->xclient.message_type;
-      if (message_type == gfx::GetAtom(kWMProtocols)) {
+      if (message_type == GetAtom(kWMProtocols)) {
         Atom protocol = static_cast<Atom>(xev->xclient.data.l[0]);
-        if (protocol == gfx::GetAtom(kWMDeleteWindow)) {
+        if (protocol == GetAtom(kWMDeleteWindow)) {
           // We have received a close message from the window manager.
           if (!browser_ || browser_->TryCloseBrowser()) {
             // Allow the close.
@@ -409,7 +432,7 @@ void CefWindowX11::ProcessXEvent(XEvent* xev) {
 
             delete this;
           }
-        } else if (protocol == gfx::GetAtom(kNetWMPing)) {
+        } else if (protocol == GetAtom(kNetWMPing)) {
           XEvent reply_event = *xev;
           reply_event.xclient.window = parent_xwindow_;
 
@@ -444,7 +467,7 @@ void CefWindowX11::ProcessXEvent(XEvent* xev) {
       break;
     case PropertyNotify: {
       ::Atom changed_atom = xev->xproperty.atom;
-      if (changed_atom == gfx::GetAtom(kNetWMState)) {
+      if (changed_atom == GetAtom(kNetWMState)) {
         // State change event like minimize/maximize.
         if (browser_.get()) {
           ::Window child = FindChild(xdisplay_, xwindow_);
@@ -452,16 +475,18 @@ void CefWindowX11::ProcessXEvent(XEvent* xev) {
             // Forward the state change to the child DesktopWindowTreeHostX11
             // window so that resource usage will be reduced while the window is
             // minimized.
-            std::vector<::Atom> atom_list;
-            if (ui::GetAtomArrayProperty(xwindow_, kNetWMState, &atom_list) &&
+            std::vector<x11::Atom> atom_list;
+            if (ui::GetAtomArrayProperty(ToX11Window(xwindow_), kNetWMState,
+                                         &atom_list) &&
                 !atom_list.empty()) {
-              ui::SetAtomArrayProperty(child, kNetWMState, "ATOM", atom_list);
+              ui::SetAtomArrayProperty(ToX11Window(child), kNetWMState, "ATOM",
+                                       atom_list);
             } else {
               // Set an empty list of property values to pass the check in
               // DesktopWindowTreeHostX11::OnWMStateUpdated().
               XChangeProperty(xdisplay_, child,
-                              gfx::GetAtom(kNetWMState),  // name
-                              gfx::GetAtom(kAtom),        // type
+                              GetAtom(kNetWMState),  // name
+                              GetAtom(kAtom),        // type
                               32,  // size in bits of items in 'value'
                               PropModeReplace, NULL,
                               0);  // num items

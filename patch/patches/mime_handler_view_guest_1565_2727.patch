@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index 2277fc44cf2f..42cf0b8db757 100644
+index d722cbe08060..615a03b15f71 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
 @@ -23,7 +23,7 @@ struct DropData;
@@ -12,7 +12,7 @@ index 2277fc44cf2f..42cf0b8db757 100644
    virtual ~WebContentsView() {}
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index e1789871c949..61d3ae65a5ea 100644
+index 390b07fc5775..a432ea7fe6a4 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 @@ -207,6 +207,8 @@ void MimeHandlerViewGuest::CreateWebContents(
@@ -47,7 +47,7 @@ index e1789871c949..61d3ae65a5ea 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index 242db17f8f3b..80e9a5663588 100644
+index 56babf6fff59..b97d63128d70 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 @@ -130,6 +130,7 @@ class MimeHandlerViewGuest

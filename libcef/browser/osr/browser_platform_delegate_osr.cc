@@ -531,7 +531,8 @@ void CefBrowserPlatformDelegateOsr::DragSourceSystemDragEnded() {
   if (!drag_start_rwh_)
     return;
 
-  content::WebContents* web_contents = browser_->web_contents();
+  content::WebContentsImpl* web_contents =
+      static_cast<content::WebContentsImpl*>(browser_->web_contents());
   if (!web_contents)
     return;
 

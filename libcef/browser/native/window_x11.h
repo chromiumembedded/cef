@@ -53,10 +53,10 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
   uint32_t DispatchEvent(const ui::PlatformEvent& event) override;
 
   // ui::XEventDispatcher methods:
-  void CheckCanDispatchNextPlatformEvent(XEvent* xev) override;
+  void CheckCanDispatchNextPlatformEvent(x11::Event* x11_event) override;
   void PlatformEventDispatchFinished() override;
   ui::PlatformEventDispatcher* GetPlatformEventDispatcher() override;
-  bool DispatchXEvent(XEvent* event) override;
+  bool DispatchXEvent(x11::Event* x11_event) override;
 
   ::Window xwindow() const { return xwindow_; }
   gfx::Rect bounds() const { return bounds_; }
@@ -66,7 +66,7 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
  private:
   void ContinueFocus();
 
-  bool IsTargetedBy(const XEvent& xev) const;
+  bool IsTargetedBy(const x11::Event& x11_event) const;
   void ProcessXEvent(XEvent* xev);
 
   CefRefPtr<CefBrowserHostImpl> browser_;
