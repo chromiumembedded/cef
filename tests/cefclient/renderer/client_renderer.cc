@@ -24,8 +24,7 @@ class ClientRenderDelegate : public ClientAppRenderer::Delegate {
  public:
   ClientRenderDelegate() : last_node_is_editable_(false) {}
 
-  void OnRenderThreadCreated(CefRefPtr<ClientAppRenderer> app,
-                             CefRefPtr<CefListValue> extra_info) OVERRIDE {
+  void OnWebKitInitialized(CefRefPtr<ClientAppRenderer> app) OVERRIDE {
     if (CefCrashReportingEnabled()) {
       // Set some crash keys for testing purposes. Keys must be defined in the
       // "crash_reporter.cfg" file. See cef_crash_util.h for details.
@@ -36,9 +35,7 @@ class ClientRenderDelegate : public ClientAppRenderer::Delegate {
       CefSetCrashKeyValue("testkey_large1", "value1_large_renderer");
       CefSetCrashKeyValue("testkey_large2", "value2_large_renderer");
     }
-  }
 
-  void OnWebKitInitialized(CefRefPtr<ClientAppRenderer> app) OVERRIDE {
     // Create the renderer-side router for query handling.
     CefMessageRouterConfig config;
     message_router_ = CefMessageRouterRendererSide::Create(config);

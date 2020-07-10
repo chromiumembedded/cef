@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=084106863bdaf595427b0d121362e207b15c66bf$
+// $hash=86c1554ebf9afc248f432a5240e3f37d89eb1ef6$
 //
 
 #include "libcef_dll/ctocpp/render_process_handler_ctocpp.h"
@@ -17,7 +17,6 @@
 #include "libcef_dll/cpptoc/dictionary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/domnode_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
-#include "libcef_dll/cpptoc/list_value_cpptoc.h"
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
 #include "libcef_dll/cpptoc/v8exception_cpptoc.h"
@@ -25,25 +24,6 @@
 #include "libcef_dll/ctocpp/load_handler_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
-
-NO_SANITIZE("cfi-icall")
-void CefRenderProcessHandlerCToCpp::OnRenderThreadCreated(
-    CefRefPtr<CefListValue> extra_info) {
-  cef_render_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_render_thread_created))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: extra_info; type: refptr_diff
-  DCHECK(extra_info.get());
-  if (!extra_info.get())
-    return;
-
-  // Execute
-  _struct->on_render_thread_created(_struct,
-                                    CefListValueCppToC::Wrap(extra_info));
-}
 
 NO_SANITIZE("cfi-icall")
 void CefRenderProcessHandlerCToCpp::OnWebKitInitialized() {

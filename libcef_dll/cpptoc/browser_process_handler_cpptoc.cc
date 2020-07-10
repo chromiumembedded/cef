@@ -9,13 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6c70366a25d8ad81d0adf85e2a867906f90ee695$
+// $hash=7f01f5096df081ae224560eefba57b45fb9c758b$
 //
 
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/print_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/command_line_ctocpp.h"
-#include "libcef_dll/ctocpp/list_value_ctocpp.h"
 
 namespace {
 
@@ -49,24 +48,6 @@ void CEF_CALLBACK browser_process_handler_on_before_child_process_launch(
   // Execute
   CefBrowserProcessHandlerCppToC::Get(self)->OnBeforeChildProcessLaunch(
       CefCommandLineCToCpp::Wrap(command_line));
-}
-
-void CEF_CALLBACK browser_process_handler_on_render_process_thread_created(
-    struct _cef_browser_process_handler_t* self,
-    struct _cef_list_value_t* extra_info) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-  // Verify param: extra_info; type: refptr_diff
-  DCHECK(extra_info);
-  if (!extra_info)
-    return;
-
-  // Execute
-  CefBrowserProcessHandlerCppToC::Get(self)->OnRenderProcessThreadCreated(
-      CefListValueCToCpp::Wrap(extra_info));
 }
 
 struct _cef_print_handler_t* CEF_CALLBACK
@@ -109,8 +90,6 @@ CefBrowserProcessHandlerCppToC::CefBrowserProcessHandlerCppToC() {
       browser_process_handler_on_context_initialized;
   GetStruct()->on_before_child_process_launch =
       browser_process_handler_on_before_child_process_launch;
-  GetStruct()->on_render_process_thread_created =
-      browser_process_handler_on_render_process_thread_created;
   GetStruct()->get_print_handler = browser_process_handler_get_print_handler;
   GetStruct()->on_schedule_message_pump_work =
       browser_process_handler_on_schedule_message_pump_work;

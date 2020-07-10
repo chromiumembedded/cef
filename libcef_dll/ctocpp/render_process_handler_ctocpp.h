@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=37559903bacc38b0c955e1471f0d0dbeb79b11a8$
+// $hash=0f28e90718cbc42c5b62f213c202296d80d724c0$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RENDER_PROCESS_HANDLER_CTOCPP_H_
@@ -35,7 +35,6 @@ class CefRenderProcessHandlerCToCpp
   virtual ~CefRenderProcessHandlerCToCpp();
 
   // CefRenderProcessHandler methods.
-  void OnRenderThreadCreated(CefRefPtr<CefListValue> extra_info) override;
   void OnWebKitInitialized() override;
   void OnBrowserCreated(CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefDictionaryValue> extra_info) override;

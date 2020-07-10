@@ -12,13 +12,6 @@ ClientAppRenderer::ClientAppRenderer() {
   CreateDelegates(delegates_);
 }
 
-void ClientAppRenderer::OnRenderThreadCreated(
-    CefRefPtr<CefListValue> extra_info) {
-  DelegateSet::iterator it = delegates_.begin();
-  for (; it != delegates_.end(); ++it)
-    (*it)->OnRenderThreadCreated(this, extra_info);
-}
-
 void ClientAppRenderer::OnWebKitInitialized() {
   DelegateSet::iterator it = delegates_.begin();
   for (; it != delegates_.end(); ++it)

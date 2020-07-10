@@ -161,8 +161,6 @@ IPC_MESSAGE_CONTROL0(CefProcessMsg_ClearCrossOriginWhitelist)
 IPC_STRUCT_BEGIN(CefProcessHostMsg_GetNewRenderThreadInfo_Params)
   IPC_STRUCT_MEMBER(std::vector<Cef_CrossOriginWhiteListEntry_Params>,
                     cross_origin_whitelist_entries)
-
-  IPC_STRUCT_MEMBER(base::ListValue, extra_info)
 IPC_STRUCT_END()
 
 // Retrieve information about a newly created render thread.

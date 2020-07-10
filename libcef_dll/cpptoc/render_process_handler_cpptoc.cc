@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=41d141e97c1a248bdf7834b583bb417333b55955$
+// $hash=fd848ac49661a654620cf32359a7a206937fcb8d$
 //
 
 #include "libcef_dll/cpptoc/render_process_handler_cpptoc.h"
@@ -18,7 +18,6 @@
 #include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/domnode_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
-#include "libcef_dll/ctocpp/list_value_ctocpp.h"
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
 #include "libcef_dll/ctocpp/v8exception_ctocpp.h"
@@ -27,24 +26,6 @@
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
-
-void CEF_CALLBACK render_process_handler_on_render_thread_created(
-    struct _cef_render_process_handler_t* self,
-    struct _cef_list_value_t* extra_info) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-  // Verify param: extra_info; type: refptr_diff
-  DCHECK(extra_info);
-  if (!extra_info)
-    return;
-
-  // Execute
-  CefRenderProcessHandlerCppToC::Get(self)->OnRenderThreadCreated(
-      CefListValueCToCpp::Wrap(extra_info));
-}
 
 void CEF_CALLBACK render_process_handler_on_web_kit_initialized(
     struct _cef_render_process_handler_t* self) {
@@ -275,8 +256,6 @@ int CEF_CALLBACK render_process_handler_on_process_message_received(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefRenderProcessHandlerCppToC::CefRenderProcessHandlerCppToC() {
-  GetStruct()->on_render_thread_created =
-      render_process_handler_on_render_thread_created;
   GetStruct()->on_web_kit_initialized =
       render_process_handler_on_web_kit_initialized;
   GetStruct()->on_browser_created = render_process_handler_on_browser_created;

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b15ba2c750f5227b6b40fea59965817ba4431ee0$
+// $hash=306236316b35037523ca566068d133755bce48fd$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_PROCESS_HANDLER_CAPI_H_
@@ -77,17 +77,6 @@ typedef struct _cef_browser_process_handler_t {
   void(CEF_CALLBACK* on_before_child_process_launch)(
       struct _cef_browser_process_handler_t* self,
       struct _cef_command_line_t* command_line);
-
-  ///
-  // Called on the browser process IO thread after the main thread has been
-  // created for a new render process. Provides an opportunity to specify extra
-  // information that will be passed to
-  // cef_render_process_handler_t::on_render_thread_created() in the render
-  // process. Do not keep a reference to |extra_info| outside of this function.
-  ///
-  void(CEF_CALLBACK* on_render_process_thread_created)(
-      struct _cef_browser_process_handler_t* self,
-      struct _cef_list_value_t* extra_info);
 
   ///
   // Return the handler for printing on Linux. If a print handler is not

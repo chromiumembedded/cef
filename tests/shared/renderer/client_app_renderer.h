@@ -20,9 +20,6 @@ class ClientAppRenderer : public ClientApp, public CefRenderProcessHandler {
   // constructor. See CefRenderProcessHandler for documentation.
   class Delegate : public virtual CefBaseRefCounted {
    public:
-    virtual void OnRenderThreadCreated(CefRefPtr<ClientAppRenderer> app,
-                                       CefRefPtr<CefListValue> extra_info) {}
-
     virtual void OnWebKitInitialized(CefRefPtr<ClientAppRenderer> app) {}
 
     virtual void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
@@ -88,7 +85,6 @@ class ClientAppRenderer : public ClientApp, public CefRenderProcessHandler {
   }
 
   // CefRenderProcessHandler methods.
-  void OnRenderThreadCreated(CefRefPtr<CefListValue> extra_info) OVERRIDE;
   void OnWebKitInitialized() OVERRIDE;
   void OnBrowserCreated(CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefDictionaryValue> extra_info) OVERRIDE;

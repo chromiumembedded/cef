@@ -81,13 +81,6 @@ void ClientAppBrowser::OnBeforeChildProcessLaunch(
     (*it)->OnBeforeChildProcessLaunch(this, command_line);
 }
 
-void ClientAppBrowser::OnRenderProcessThreadCreated(
-    CefRefPtr<CefListValue> extra_info) {
-  DelegateSet::iterator it = delegates_.begin();
-  for (; it != delegates_.end(); ++it)
-    (*it)->OnRenderProcessThreadCreated(this, extra_info);
-}
-
 void ClientAppBrowser::OnScheduleMessagePumpWork(int64 delay) {
   // Only used when `--external-message-pump` is passed via the command-line.
   MainMessageLoopExternalPump* message_pump =

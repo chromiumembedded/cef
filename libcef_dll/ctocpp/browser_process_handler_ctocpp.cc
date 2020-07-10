@@ -9,12 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=622d56aec0a5d6485a586bd6d993df7af4fa2d62$
+// $hash=394c9b4009a90393aa15be216b5e44f1bafccdfb$
 //
 
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
-#include "libcef_dll/cpptoc/list_value_cpptoc.h"
 #include "libcef_dll/ctocpp/print_handler_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -48,25 +47,6 @@ void CefBrowserProcessHandlerCToCpp::OnBeforeChildProcessLaunch(
   // Execute
   _struct->on_before_child_process_launch(
       _struct, CefCommandLineCppToC::Wrap(command_line));
-}
-
-NO_SANITIZE("cfi-icall")
-void CefBrowserProcessHandlerCToCpp::OnRenderProcessThreadCreated(
-    CefRefPtr<CefListValue> extra_info) {
-  cef_browser_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_render_process_thread_created))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: extra_info; type: refptr_diff
-  DCHECK(extra_info.get());
-  if (!extra_info.get())
-    return;
-
-  // Execute
-  _struct->on_render_process_thread_created(
-      _struct, CefListValueCppToC::Wrap(extra_info));
 }
 
 NO_SANITIZE("cfi-icall")

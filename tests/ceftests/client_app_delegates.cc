@@ -13,11 +13,6 @@ void CreateBrowserDelegates(ClientAppBrowser::DelegateSet& delegates) {
   extern void CreateAudioOutputTests(ClientAppBrowser::DelegateSet & delegates);
   CreateAudioOutputTests(delegates);
 
-  // Bring in the Navigation tests.
-  extern void CreateNavigationBrowserTests(ClientAppBrowser::DelegateSet &
-                                           delegates);
-  CreateNavigationBrowserTests(delegates);
-
   // Bring in the plugin tests.
   extern void CreatePluginBrowserTests(ClientAppBrowser::DelegateSet &
                                        delegates);

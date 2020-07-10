@@ -1042,35 +1042,6 @@ const char kOrderNavMsg[] = "NavigationTest.OrderNav";
 const char kOrderNavClosedMsg[] = "NavigationTest.OrderNavClosed";
 const char kOrderNavTestCmdKey[] = "nav-order-test";
 
-void SetOrderNavExtraInfo(CefRefPtr<CefListValue> extra_info) {
-  // Arbitrary data for testing.
-  extra_info->SetBool(0, true);
-  CefRefPtr<CefDictionaryValue> dict = CefDictionaryValue::Create();
-  dict->SetInt("key1", 5);
-  dict->SetString("key2", "test string");
-  extra_info->SetDictionary(1, dict);
-  extra_info->SetDouble(2, 5.43322);
-  extra_info->SetString(3, "some string");
-}
-
-// Browser side.
-class OrderNavBrowserTest : public ClientAppBrowser::Delegate {
- public:
-  OrderNavBrowserTest() {}
-
-  void OnRenderProcessThreadCreated(
-      CefRefPtr<ClientAppBrowser> app,
-      CefRefPtr<CefListValue> extra_info) override {
-    // Some data that we'll check for. Note that this leaks into all renderer
-    // process test cases, but that shouldn't be an issue since we only check
-    // the result in this test case.
-    SetOrderNavExtraInfo(extra_info);
-  }
-
- protected:
-  IMPLEMENT_REFCOUNTING(OrderNavBrowserTest);
-};
-
 class OrderNavLoadState {
  public:
   OrderNavLoadState(bool is_popup, bool browser_side)
@@ -1154,21 +1125,7 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
         state_main_(false, false),
         state_popup_(true, false) {}
 
-  void OnRenderThreadCreated(CefRefPtr<ClientAppRenderer> app,
-                             CefRefPtr<CefListValue> extra_info) override {
-    EXPECT_FALSE(got_render_thread_created_);
-    EXPECT_FALSE(got_webkit_initialized_);
-
-    got_render_thread_created_.yes();
-
-    // Verify that |extra_info| transferred successfully.
-    CefRefPtr<CefListValue> expected = CefListValue::Create();
-    SetOrderNavExtraInfo(expected);
-    TestListEqual(expected, extra_info);
-  }
-
   void OnWebKitInitialized(CefRefPtr<ClientAppRenderer> app) override {
-    EXPECT_TRUE(got_render_thread_created_);
     EXPECT_FALSE(got_webkit_initialized_);
 
     got_webkit_initialized_.yes();
@@ -1181,7 +1138,6 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
     if (!run_test_)
       return;
 
-    EXPECT_TRUE(got_render_thread_created_);
     EXPECT_TRUE(got_webkit_initialized_);
 
     if (browser->IsPopup()) {
@@ -1210,7 +1166,6 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
     if (!run_test_)
       return;
 
-    EXPECT_TRUE(got_render_thread_created_);
     EXPECT_TRUE(got_webkit_initialized_);
 
     if (browser->IsPopup()) {
@@ -1250,7 +1205,6 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
                             bool isLoading,
                             bool canGoBack,
                             bool canGoForward) override {
-    EXPECT_TRUE(got_render_thread_created_);
     EXPECT_TRUE(got_webkit_initialized_);
 
     if (browser->IsPopup()) {
@@ -1274,7 +1228,6 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
                    CefRefPtr<CefFrame> frame,
                    TransitionType transition_type) override {
-    EXPECT_TRUE(got_render_thread_created_);
     EXPECT_TRUE(got_webkit_initialized_);
 
     if (browser->IsPopup()) {
@@ -1293,7 +1246,6 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
-    EXPECT_TRUE(got_render_thread_created_);
     EXPECT_TRUE(got_webkit_initialized_);
 
     if (browser->IsPopup()) {
@@ -1358,7 +1310,6 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
   int browser_id_main_;
   int browser_id_popup_;
   CefRefPtr<CefBrowser> browser_main_;
-  TrackCallback got_render_thread_created_;
   TrackCallback got_webkit_initialized_;
   TrackCallback got_browser_created_main_;
   TrackCallback got_browser_destroyed_main_;
@@ -3528,12 +3479,6 @@ TEST(NavigationTest, ExtraInfo) {
   CefRefPtr<ExtraInfoNavTestHandler> handler = new ExtraInfoNavTestHandler();
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
-}
-
-// Entry point for creating navigation browser test objects.
-// Called from client_app_delegates.cc.
-void CreateNavigationBrowserTests(ClientAppBrowser::DelegateSet& delegates) {
-  delegates.insert(new OrderNavBrowserTest);
 }
 
 // Entry point for creating navigation renderer test objects.

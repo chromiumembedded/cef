@@ -29,10 +29,6 @@ class ClientAppBrowser : public ClientApp, public CefBrowserProcessHandler {
     virtual void OnBeforeChildProcessLaunch(
         CefRefPtr<ClientAppBrowser> app,
         CefRefPtr<CefCommandLine> command_line) {}
-
-    virtual void OnRenderProcessThreadCreated(
-        CefRefPtr<ClientAppBrowser> app,
-        CefRefPtr<CefListValue> extra_info) {}
   };
 
   typedef std::set<CefRefPtr<Delegate>> DelegateSet;
@@ -60,8 +56,6 @@ class ClientAppBrowser : public ClientApp, public CefBrowserProcessHandler {
   void OnContextInitialized() OVERRIDE;
   void OnBeforeChildProcessLaunch(
       CefRefPtr<CefCommandLine> command_line) OVERRIDE;
-  void OnRenderProcessThreadCreated(
-      CefRefPtr<CefListValue> extra_info) OVERRIDE;
   CefRefPtr<CefPrintHandler> GetPrintHandler() OVERRIDE {
     return print_handler_;
   }

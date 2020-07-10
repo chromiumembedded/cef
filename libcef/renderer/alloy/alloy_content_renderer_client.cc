@@ -452,19 +452,6 @@ void AlloyContentRendererClient::RenderThreadConnected() {
   // Cross-origin entries need to be added after WebKit is initialized.
   cross_origin_whitelist_entries_ = params.cross_origin_whitelist_entries;
 
-  // Notify the render process handler.
-  CefRefPtr<CefApp> application = CefAppManager::Get()->GetApplication();
-  if (application.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler =
-        application->GetRenderProcessHandler();
-    if (handler.get()) {
-      CefRefPtr<CefListValueImpl> listValuePtr(
-          new CefListValueImpl(&params.extra_info, false, true));
-      handler->OnRenderThreadCreated(listValuePtr.get());
-      listValuePtr->Detach(nullptr);
-    }
-  }
-
   // Register extensions last because it will trigger WebKit initialization.
   thread->RegisterExtension(extensions_v8::LoadTimesExtension::Get());
 

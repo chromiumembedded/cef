@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=3630a82a4ea731b43ed4ba468a57c5dfe15f8679$
+// $hash=8419eb3eba9dd372b019bd367d4f195433b21c9b$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RENDER_PROCESS_HANDLER_CAPI_H_
@@ -63,16 +63,6 @@ typedef struct _cef_render_process_handler_t {
   // Base structure.
   ///
   cef_base_ref_counted_t base;
-
-  ///
-  // Called after the render process main thread has been created. |extra_info|
-  // is a read-only value originating from
-  // cef_browser_process_handler_t::on_render_process_thread_created(). Do not
-  // keep a reference to |extra_info| outside of this function.
-  ///
-  void(CEF_CALLBACK* on_render_thread_created)(
-      struct _cef_render_process_handler_t* self,
-      struct _cef_list_value_t* extra_info);
 
   ///
   // Called after WebKit has been initialized.

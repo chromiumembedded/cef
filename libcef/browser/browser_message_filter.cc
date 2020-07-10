@@ -42,18 +42,6 @@ bool CefBrowserMessageFilter::OnMessageReceived(const IPC::Message& message) {
 void CefBrowserMessageFilter::OnGetNewRenderThreadInfo(
     CefProcessHostMsg_GetNewRenderThreadInfo_Params* params) {
   GetCrossOriginWhitelistEntries(&params->cross_origin_whitelist_entries);
-
-  CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
-  if (app.get()) {
-    CefRefPtr<CefBrowserProcessHandler> handler =
-        app->GetBrowserProcessHandler();
-    if (handler.get()) {
-      CefRefPtr<CefListValueImpl> listValuePtr(
-          new CefListValueImpl(&params->extra_info, false, false));
-      handler->OnRenderProcessThreadCreated(listValuePtr.get());
-      listValuePtr->Detach(nullptr);
-    }
-  }
 }
 
 void CefBrowserMessageFilter::OnGetNewBrowserInfo(int render_frame_routing_id,
