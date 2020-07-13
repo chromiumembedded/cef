@@ -1,8 +1,8 @@
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index 9c936c69d684..13be02ae33f8 100644
+index 9c936c69d684..40825f4950b7 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
-@@ -142,22 +142,25 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
+@@ -142,21 +142,29 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
        # variable.
        if 'VSINSTALLDIR' in os.environ:
          del os.environ['VSINSTALLDIR']
@@ -14,33 +14,30 @@ index 9c936c69d684..13be02ae33f8 100644
 -        raise Exception('%s is missing - make sure VC++ tools are installed.' %
 -                        script_path)
 -      script_path = other_path
--    cpu_arg = "amd64"
--    if (cpu != 'x64'):
--      # x64 is default target CPU thus any other CPU requires a target set
--      cpu_arg += '_' + cpu
--    args = [script_path, cpu_arg]
--    # Store target must come before any SDK version declaration
--    if (target_store):
--      args.append(['store'])
--    variables = _LoadEnvFromBat(args)
-+    if os.path.exists(script_path):
-+      cpu_arg = "amd64"
-+      if (cpu != 'x64'):
-+        # x64 is default target CPU thus any other CPU requires a target set
-+        cpu_arg += '_' + cpu
-+      args = [script_path, cpu_arg]
-+      # Store target must come before any SDK version declaration
-+      if (target_store):
-+        args.append(['store'])
-+      variables = _LoadEnvFromBat(args)
-+    else:
++    if not os.path.exists(script_path):
++      # Compiler environment variables must already be specified.
 +      variables = []
 +      for k in sorted(os.environ.keys()):
 +        variables.append('%s=%s' % (str(k), str(os.environ[k])))
 +      variables = '\n'.join(variables)
++      return _ExtractImportantEnvironment(variables)
 +
+     cpu_arg = "amd64"
+     if (cpu != 'x64'):
+       # x64 is default target CPU thus any other CPU requires a target set
+       cpu_arg += '_' + cpu
+-    args = [script_path, cpu_arg]
++    args = [script_path, cpu_arg, ]
+     # Store target must come before any SDK version declaration
+     if (target_store):
+-      args.append(['store'])
++      args.append('store')
++    # Explicitly specifying the SDK version to build with to avoid accidentally
++    # building with a new and untested SDK. This should stay in sync with the
++    # packaged toolchain in build/vs_toolchain.py.
++    args.append('10.0.18362.0')
+     variables = _LoadEnvFromBat(args)
    return _ExtractImportantEnvironment(variables)
- 
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
 index f3557ad32eea..b3e056acccdb 100755
