@@ -151,7 +151,9 @@ CefBrowserContext::CefBrowserContext(const CefRequestContextSettings& settings)
 
 CefBrowserContext::~CefBrowserContext() {
   CEF_REQUIRE_UIT();
+#if DCHECK_IS_ON()
   DCHECK(is_shutdown_);
+#endif
 
   if (iothread_state_) {
     // Destruction of the CefIOThreadState will trigger destruction of all

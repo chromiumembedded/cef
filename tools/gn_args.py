@@ -221,6 +221,11 @@ def GetRecommendedDefaultArgs():
       # strange shutdown crashes when using the Chrome runtime with a Debug
       # component build on Windows.
       'enable_background_mode': False,
+
+      # Disable support for resource whitelist generation. When enabled this
+      # introduces a Windows official build dependency on the
+      # "//chrome:chrome_dll" target, which will fail to build with CEF.
+      'enable_resource_whitelist_generation': False,
   }
 
   if platform == 'linux':
