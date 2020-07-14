@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=63071af2d949b451ad0e7273ca0f5d7bfec425db$
+// $hash=8aa27e34aea83e91b04d21764f3ab985b04bbf9b$
 //
 
 #include "libcef_dll/ctocpp/media_sink_ctocpp.h"
+#include "libcef_dll/cpptoc/media_sink_device_info_callback_cpptoc.h"
 #include "libcef_dll/ctocpp/media_source_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
 
@@ -103,6 +104,27 @@ CefMediaSink::IconType CefMediaSinkCToCpp::GetIconType() {
 
   // Return type: simple
   return _retval;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefMediaSinkCToCpp::GetDeviceInfo(
+    CefRefPtr<CefMediaSinkDeviceInfoCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_media_sink_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_device_info))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback.get());
+  if (!callback.get())
+    return;
+
+  // Execute
+  _struct->get_device_info(
+      _struct, CefMediaSinkDeviceInfoCallbackCppToC::Wrap(callback));
 }
 
 NO_SANITIZE("cfi-icall") bool CefMediaSinkCToCpp::IsCastSink() {

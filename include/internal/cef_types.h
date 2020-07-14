@@ -3180,6 +3180,15 @@ typedef enum {
   CEF_MSIT_TOTAL_COUNT,  // The total number of values.
 } cef_media_sink_icon_type_t;
 
+///
+// Device information for a MediaSink object.
+///
+typedef struct _cef_media_sink_device_info_t {
+  cef_string_t ip_address;
+  int port;
+  cef_string_t model_name;
+} cef_media_sink_device_info_t;
+
 #ifdef __cplusplus
 }
 #endif
