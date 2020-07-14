@@ -22,6 +22,8 @@ class CefMediaSinkImpl : public CefMediaSink {
   CefString GetName() override;
   CefString GetDescription() override;
   IconType GetIconType() override;
+  void GetDeviceInfo(
+      CefRefPtr<CefMediaSinkDeviceInfoCallback> callback) override;
   bool IsCastSink() override;
   bool IsDialSink() override;
   bool IsCompatibleWith(CefRefPtr<CefMediaSource> source) override;

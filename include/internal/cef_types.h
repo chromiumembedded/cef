@@ -3188,6 +3188,15 @@ typedef enum {
 } cef_media_sink_icon_type_t;
 
 ///
+// Device information for a MediaSink object.
+///
+typedef struct _cef_media_sink_device_info_t {
+  cef_string_t ip_address;
+  int port;
+  cef_string_t model_name;
+} cef_media_sink_device_info_t;
+
+///
 // Represents commands available to TextField.
 ///
 typedef enum {

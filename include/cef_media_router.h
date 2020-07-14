@@ -46,6 +46,7 @@ class CefMediaObserver;
 class CefMediaRoute;
 class CefMediaRouteCreateCallback;
 class CefMediaSink;
+class CefMediaSinkDeviceInfoCallback;
 class CefMediaSource;
 
 ///
@@ -248,6 +249,13 @@ class CefMediaSink : public virtual CefBaseRefCounted {
   virtual IconType GetIconType() = 0;
 
   ///
+  // Asynchronously retrieves device info.
+  ///
+  /*--cef()--*/
+  virtual void GetDeviceInfo(
+      CefRefPtr<CefMediaSinkDeviceInfoCallback> callback) = 0;
+
+  ///
   // Returns true if this sink accepts content via Cast.
   ///
   /*--cef()--*/
@@ -264,6 +272,22 @@ class CefMediaSink : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual bool IsCompatibleWith(CefRefPtr<CefMediaSource> source) = 0;
+};
+
+///
+// Callback interface for CefMediaSink::GetDeviceInfo. The methods of this
+// class will be called on the browser process UI thread.
+///
+/*--cef(source=client)--*/
+class CefMediaSinkDeviceInfoCallback : public virtual CefBaseRefCounted {
+ public:
+  ///
+  // Method that will be executed asyncronously once device information has been
+  // retrieved.
+  ///
+  /*--cef()--*/
+  virtual void OnMediaSinkDeviceInfo(
+      const CefMediaSinkDeviceInfo& device_info) = 0;
 };
 
 ///

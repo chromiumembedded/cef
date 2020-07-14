@@ -980,4 +980,30 @@ struct CefAudioParametersTraits {
 ///
 typedef CefStructBase<CefAudioParametersTraits> CefAudioParameters;
 
+struct CefMediaSinkDeviceInfoTraits {
+  typedef cef_media_sink_device_info_t struct_type;
+
+  static inline void init(struct_type* s) {}
+
+  static inline void clear(struct_type* s) {
+    cef_string_clear(&s->ip_address);
+    cef_string_clear(&s->model_name);
+  }
+
+  static inline void set(const struct_type* src,
+                         struct_type* target,
+                         bool copy) {
+    cef_string_set(src->ip_address.str, src->ip_address.length,
+                   &target->ip_address, copy);
+    target->port = src->port;
+    cef_string_set(src->model_name.str, src->model_name.length,
+                   &target->model_name, copy);
+  }
+};
+
+///
+// Class representing MediaSink device info.
+///
+typedef CefStructBase<CefMediaSinkDeviceInfoTraits> CefMediaSinkDeviceInfo;
+
 #endif  // CEF_INCLUDE_INTERNAL_CEF_TYPES_WRAPPERS_H_

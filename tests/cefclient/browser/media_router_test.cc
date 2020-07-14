@@ -93,7 +93,12 @@ class MediaObserver : public CefMediaObserver {
   MediaObserver(CefRefPtr<CefMediaRouter> media_router,
                 CefRefPtr<CallbackType> subscription_callback)
       : media_router_(media_router),
-        subscription_callback_(subscription_callback) {}
+        subscription_callback_(subscription_callback),
+        next_sink_query_id_(0),
+        pending_sink_query_id_(-1),
+        pending_sink_callbacks_(0U) {}
+
+  ~MediaObserver() OVERRIDE { ClearSinkInfoMap(); }
 
   bool CreateRoute(const std::string& source_urn,
                    const std::string& sink_id,
@@ -141,35 +146,62 @@ class MediaObserver : public CefMediaObserver {
   }
 
  protected:
+  class DeviceInfoCallback : public CefMediaSinkDeviceInfoCallback {
+   public:
+    // Callback to be executed when the device info is available.
+    typedef base::Callback<void(const std::string& sink_id,
+                                const CefMediaSinkDeviceInfo& device_info)>
+        CallbackType;
+
+    DeviceInfoCallback(const std::string& sink_id, const CallbackType& callback)
+        : sink_id_(sink_id), callback_(callback) {}
+
+    void OnMediaSinkDeviceInfo(
+        const CefMediaSinkDeviceInfo& device_info) OVERRIDE {
+      CEF_REQUIRE_UI_THREAD();
+      callback_.Run(sink_id_, device_info);
+      callback_.Reset();
+    }
+
+   private:
+    const std::string sink_id_;
+    CallbackType callback_;
+
+    IMPLEMENT_REFCOUNTING(DeviceInfoCallback);
+    DISALLOW_COPY_AND_ASSIGN(DeviceInfoCallback);
+  };
+
   // CefMediaObserver methods:
   void OnSinks(const MediaSinkVector& sinks) OVERRIDE {
     CEF_REQUIRE_UI_THREAD();
 
-    sink_map_.clear();
+    ClearSinkInfoMap();
 
-    CefRefPtr<CefDictionaryValue> payload = CefDictionaryValue::Create();
-    CefRefPtr<CefListValue> sinks_list = CefListValue::Create();
-    sinks_list->SetSize(sinks.size());
+    // Reset pending sink state.
+    pending_sink_callbacks_ = sinks.size();
+    pending_sink_query_id_ = ++next_sink_query_id_;
+
+    if (sinks.empty()) {
+      // No sinks, send the response immediately.
+      SendSinksResponse();
+      return;
+    }
+
+    DeviceInfoCallback::CallbackType callback = base::Bind(
+        &MediaObserver::OnSinkDeviceInfo, this, pending_sink_query_id_);
 
     MediaSinkVector::const_iterator it = sinks.begin();
     for (size_t idx = 0; it != sinks.end(); ++it, ++idx) {
       CefRefPtr<CefMediaSink> sink = *it;
       const std::string& sink_id = sink->GetId();
-      sink_map_.insert(std::make_pair(sink_id, sink));
+      SinkInfo* info = new SinkInfo;
+      info->sink = sink;
+      sink_info_map_.insert(std::make_pair(sink_id, info));
 
-      CefRefPtr<CefDictionaryValue> sink_dict = CefDictionaryValue::Create();
-      sink_dict->SetString("id", sink_id);
-      sink_dict->SetString("name", sink->GetName());
-      sink_dict->SetString("desc", sink->GetDescription());
-      sink_dict->SetInt("icon", sink->GetIconType());
-      sink_dict->SetString(
-          "type", sink->IsCastSink() ? "cast"
-                                     : sink->IsDialSink() ? "dial" : "unknown");
-      sinks_list->SetDictionary(idx, sink_dict);
+      // Request the device info asynchronously. Send the response once all
+      // callbacks have executed.
+      sink->GetDeviceInfo(new DeviceInfoCallback(sink_id, callback));
     }
-
-    payload->SetList("sinks_list", sinks_list);
-    SendResponse("onSinks", payload);
   }
 
   void OnRoutes(const MediaRouteVector& routes) OVERRIDE {
@@ -230,10 +262,37 @@ class MediaObserver : public CefMediaObserver {
   }
 
   CefRefPtr<CefMediaSink> GetSink(const std::string& sink_id) {
-    SinkMap::const_iterator it = sink_map_.find(sink_id);
-    if (it != sink_map_.end())
-      return it->second;
+    SinkInfoMap::const_iterator it = sink_info_map_.find(sink_id);
+    if (it != sink_info_map_.end())
+      return it->second->sink;
     return NULL;
+  }
+
+  void ClearSinkInfoMap() {
+    SinkInfoMap::const_iterator it = sink_info_map_.begin();
+    for (; it != sink_info_map_.end(); ++it) {
+      delete it->second;
+    }
+    sink_info_map_.clear();
+  }
+
+  void OnSinkDeviceInfo(int sink_query_id,
+                        const std::string& sink_id,
+                        const CefMediaSinkDeviceInfo& device_info) {
+    // Discard callbacks that arrive after a new call to OnSinks().
+    if (sink_query_id != pending_sink_query_id_)
+      return;
+
+    SinkInfoMap::const_iterator it = sink_info_map_.find(sink_id);
+    if (it != sink_info_map_.end()) {
+      it->second->device_info = device_info;
+    }
+
+    // Send the response once we've received all expected callbacks.
+    DCHECK_GT(pending_sink_callbacks_, 0U);
+    if (--pending_sink_callbacks_ == 0U) {
+      SendSinksResponse();
+    }
   }
 
   CefRefPtr<CefMediaRoute> GetRoute(const std::string& route_id) {
@@ -251,12 +310,55 @@ class MediaObserver : public CefMediaObserver {
     SendSuccess(subscription_callback_, result);
   }
 
+  void SendSinksResponse() {
+    CefRefPtr<CefDictionaryValue> payload = CefDictionaryValue::Create();
+    CefRefPtr<CefListValue> sinks_list = CefListValue::Create();
+    sinks_list->SetSize(sink_info_map_.size());
+
+    SinkInfoMap::const_iterator it = sink_info_map_.begin();
+    for (size_t idx = 0; it != sink_info_map_.end(); ++it, ++idx) {
+      const SinkInfo* info = it->second;
+
+      CefRefPtr<CefDictionaryValue> sink_dict = CefDictionaryValue::Create();
+      sink_dict->SetString("id", it->first);
+      sink_dict->SetString("name", info->sink->GetName());
+      sink_dict->SetString("desc", info->sink->GetDescription());
+      sink_dict->SetInt("icon", info->sink->GetIconType());
+      sink_dict->SetString("ip_address",
+                           CefString(&info->device_info.ip_address));
+      sink_dict->SetInt("port", info->device_info.port);
+      sink_dict->SetString("model_name",
+                           CefString(&info->device_info.model_name));
+      sink_dict->SetString("type",
+                           info->sink->IsCastSink()
+                               ? "cast"
+                               : info->sink->IsDialSink() ? "dial" : "unknown");
+      sinks_list->SetDictionary(idx, sink_dict);
+    }
+
+    payload->SetList("sinks_list", sinks_list);
+    SendResponse("onSinks", payload);
+  }
+
   CefRefPtr<CefMediaRouter> media_router_;
   CefRefPtr<CallbackType> subscription_callback_;
 
-  typedef std::map<std::string, CefRefPtr<CefMediaSink>> SinkMap;
-  SinkMap sink_map_;
+  struct SinkInfo {
+    CefRefPtr<CefMediaSink> sink;
+    CefMediaSinkDeviceInfo device_info;
+  };
+  typedef std::map<std::string, SinkInfo*> SinkInfoMap;
 
+  // Used to uniquely identify a call to OnSinks(), for the purpose of
+  // associating OnMediaSinkDeviceInfo() callbacks.
+  int next_sink_query_id_;
+
+  // State from the most recent call to OnSinks().
+  SinkInfoMap sink_info_map_;
+  int pending_sink_query_id_;
+  size_t pending_sink_callbacks_;
+
+  // State from the most recent call to OnRoutes().
   typedef std::map<std::string, CefRefPtr<CefMediaRoute>> RouteMap;
   RouteMap route_map_;
 

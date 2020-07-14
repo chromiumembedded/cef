@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=53dca3d842bb3d2f8a329a38759eb623620439a2$
+// $hash=67d4596d3230067ea7dfe3c8150e3cf87ac526a5$
 //
 
 #include "libcef_dll/cpptoc/media_sink_cpptoc.h"
 #include "libcef_dll/cpptoc/media_source_cpptoc.h"
+#include "libcef_dll/ctocpp/media_sink_device_info_callback_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
 
 namespace {
@@ -89,6 +90,26 @@ media_sink_get_icon_type(struct _cef_media_sink_t* self) {
   return _retval;
 }
 
+void CEF_CALLBACK media_sink_get_device_info(
+    struct _cef_media_sink_t* self,
+    struct _cef_media_sink_device_info_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback);
+  if (!callback)
+    return;
+
+  // Execute
+  CefMediaSinkCppToC::Get(self)->GetDeviceInfo(
+      CefMediaSinkDeviceInfoCallbackCToCpp::Wrap(callback));
+}
+
 int CEF_CALLBACK media_sink_is_cast_sink(struct _cef_media_sink_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -153,6 +174,7 @@ CefMediaSinkCppToC::CefMediaSinkCppToC() {
   GetStruct()->get_name = media_sink_get_name;
   GetStruct()->get_description = media_sink_get_description;
   GetStruct()->get_icon_type = media_sink_get_icon_type;
+  GetStruct()->get_device_info = media_sink_get_device_info;
   GetStruct()->is_cast_sink = media_sink_is_cast_sink;
   GetStruct()->is_dial_sink = media_sink_is_dial_sink;
   GetStruct()->is_compatible_with = media_sink_is_compatible_with;

@@ -42,7 +42,7 @@ input, select, textarea, button {
 }
 
 .route_controls .control {
-  width: 400px;
+  width: 500px;
 }
 
 .messages {
@@ -276,7 +276,8 @@ function updateSinks(sinks) {
     if (oldValues.includes(sink.id))
       continue;
     var opt = document.createElement('option');
-    opt.innerHTML = sink.name + ' (' + sink.type + ', ' + getIconTypeLabel(sink.icon) + ')';
+    opt.innerHTML = sink.name + ' (' + sink.model_name + ', ' + sink.type + ', ' +
+                    getIconTypeLabel(sink.icon) + ', ' + sink.ip_address + ':' + sink.port + ')';
     opt.value = sink.id;
     sinksSelect.appendChild(opt);
   }
