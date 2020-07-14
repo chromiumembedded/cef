@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=30eed8c81da55c640eb6a491283d1c00fb59d635$
+# $hash=72268a78a76d7d91b8ad47f6b6e9f6d9cb04d9cf$
 #
 
 {
@@ -330,6 +330,8 @@
       'libcef_dll/cpptoc/media_router_cpptoc.h',
       'libcef_dll/cpptoc/media_sink_cpptoc.cc',
       'libcef_dll/cpptoc/media_sink_cpptoc.h',
+      'libcef_dll/ctocpp/media_sink_device_info_callback_ctocpp.cc',
+      'libcef_dll/ctocpp/media_sink_device_info_callback_ctocpp.h',
       'libcef_dll/cpptoc/media_source_cpptoc.cc',
       'libcef_dll/cpptoc/media_source_cpptoc.h',
       'libcef_dll/cpptoc/views/menu_button_cpptoc.cc',
@@ -638,6 +640,8 @@
       'libcef_dll/ctocpp/media_router_ctocpp.h',
       'libcef_dll/ctocpp/media_sink_ctocpp.cc',
       'libcef_dll/ctocpp/media_sink_ctocpp.h',
+      'libcef_dll/cpptoc/media_sink_device_info_callback_cpptoc.cc',
+      'libcef_dll/cpptoc/media_sink_device_info_callback_cpptoc.h',
       'libcef_dll/ctocpp/media_source_ctocpp.cc',
       'libcef_dll/ctocpp/media_source_ctocpp.h',
       'libcef_dll/ctocpp/views/menu_button_ctocpp.cc',
