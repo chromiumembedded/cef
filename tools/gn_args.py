@@ -477,6 +477,10 @@ def GetConfigArgsSandbox(platform, args, is_debug, cpu):
     # Avoid Debug build linker errors caused by custom libc++.
     add_args['use_custom_libcxx'] = False
 
+    # Avoid dependency on //third_party/perfetto:libperfetto which fails to
+    # build with MSVC libc++.
+    add_args['enable_base_tracing'] = False
+
   result = MergeDicts(args, add_args, {
       'is_debug': is_debug,
       'target_cpu': cpu,
