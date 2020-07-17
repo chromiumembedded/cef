@@ -240,7 +240,7 @@ index bec2919abc99..4186be149a81 100644
                              std::string /* mime_type */,
                              bool /* found */,
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index 5c344d9b9ff7..776e506d2a10 100644
+index c8c1e668d087..f8e7f39dd96f 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
 @@ -9,7 +9,7 @@
@@ -253,7 +253,7 @@ index 5c344d9b9ff7..776e506d2a10 100644
  #include <utility>
  
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index d6c203ab546d..621bf11f32e9 100644
+index b211fea98791..1492a74be337 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -28,6 +28,7 @@

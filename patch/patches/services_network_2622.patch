@@ -181,7 +181,7 @@ index 2c3f75ea4ad1..2e639893913b 100644
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
  
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 6589fe215cfa..481fabeef3a1 100644
+index 93a2baf855d3..87e8ba113005 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
 @@ -258,6 +258,9 @@ struct NetworkContextParams {
