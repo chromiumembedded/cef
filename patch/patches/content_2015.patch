@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_target_determiner.cc chrome/browser/download/download_target_determiner.cc
-index b5bb5e01d7db..f2e23f9fffef 100644
+index cdeecb35a998..1615185f2a65 100644
 --- chrome/browser/download/download_target_determiner.cc
 +++ chrome/browser/download/download_target_determiner.cc
 @@ -660,7 +660,7 @@ void IsHandledBySafePlugin(int render_process_id,
