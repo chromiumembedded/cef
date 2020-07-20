@@ -27,6 +27,7 @@ class CefBrowserPlatformDelegateOsr
   void WebContentsCreated(content::WebContents* web_contents,
                           bool owned) override;
   void BrowserCreated(CefBrowserHostImpl* browser) override;
+  void NotifyBrowserDestroyed() override;
   void BrowserDestroyed(CefBrowserHostImpl* browser) override;
   SkColor GetBackgroundColor() const override;
   void WasResized() override;
