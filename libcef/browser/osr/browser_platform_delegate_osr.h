@@ -26,6 +26,7 @@ class CefBrowserPlatformDelegateOsr
       content::RenderViewHostDelegateView** delegate_view) override;
   void WebContentsCreated(content::WebContents* web_contents) override;
   void BrowserCreated(CefBrowserHostImpl* browser) override;
+  void NotifyBrowserDestroyed() override;
   void BrowserDestroyed(CefBrowserHostImpl* browser) override;
   SkColor GetBackgroundColor() const override;
   bool CanUseSharedTexture() const override;

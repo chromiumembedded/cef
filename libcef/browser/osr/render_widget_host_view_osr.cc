@@ -25,6 +25,7 @@
 #include "components/viz/common/frame_sinks/begin_frame_args.h"
 #include "components/viz/common/frame_sinks/copy_output_request.h"
 #include "components/viz/common/frame_sinks/delay_based_time_source.h"
+#include "components/viz/common/surfaces/frame_sink_id_allocator.h"
 #include "components/viz/common/switches.h"
 #include "content/browser/bad_message.h"
 #include "content/browser/gpu/gpu_data_manager_impl.h"
@@ -275,6 +276,23 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 }
 
 CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
+  ReleaseCompositor();
+  root_layer_.reset(nullptr);
+
+  DCHECK(!parent_host_view_);
+  DCHECK(!popup_host_view_);
+  DCHECK(!child_host_view_);
+  DCHECK(guest_host_views_.empty());
+
+  if (text_input_manager_)
+    text_input_manager_->RemoveObserver(this);
+}
+
+void CefRenderWidgetHostViewOSR::ReleaseCompositor() {
+  if (!compositor_) {
+    return;  // already released
+  }
+
   // Marking the DelegatedFrameHost as removed from the window hierarchy is
   // necessary to remove all connections to its old ui::Compositor.
   if (is_showing_) {
@@ -285,15 +303,6 @@ CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
 
   delegated_frame_host_.reset(nullptr);
   compositor_.reset(nullptr);
-  root_layer_.reset(nullptr);
-
-  DCHECK(!parent_host_view_);
-  DCHECK(!popup_host_view_);
-  DCHECK(!child_host_view_);
-  DCHECK(guest_host_views_.empty());
-
-  if (text_input_manager_)
-    text_input_manager_->RemoveObserver(this);
 }
 
 // Called for full-screen widgets.
@@ -335,7 +344,9 @@ bool CefRenderWidgetHostViewOSR::HasFocus() {
 }
 
 bool CefRenderWidgetHostViewOSR::IsSurfaceAvailableForCopy() {
-  return delegated_frame_host_->CanCopyFromCompositingSurface();
+  return delegated_frame_host_
+             ? delegated_frame_host_->CanCopyFromCompositingSurface()
+             : false;
 }
 
 void CefRenderWidgetHostViewOSR::Show() {
@@ -364,10 +375,12 @@ void CefRenderWidgetHostViewOSR::Show() {
         base::nullopt /* record_tab_switch_time_request */);
   }
 
-  delegated_frame_host_->AttachToCompositor(compositor_.get());
-  delegated_frame_host_->WasShown(
-      GetLocalSurfaceIdAllocation().local_surface_id(), GetViewBounds().size(),
-      base::nullopt);
+  if (delegated_frame_host_) {
+    delegated_frame_host_->AttachToCompositor(compositor_.get());
+    delegated_frame_host_->WasShown(
+        GetLocalSurfaceIdAllocation().local_surface_id(),
+        GetViewBounds().size(), base::nullopt);
+  }
 
   if (!content::GpuDataManagerImpl::GetInstance()->IsGpuCompositingDisabled()) {
     // Start generating frames when we're visible and at the correct size.
@@ -402,9 +415,11 @@ void CefRenderWidgetHostViewOSR::Hide() {
   if (render_widget_host_)
     render_widget_host_->WasHidden();
 
-  delegated_frame_host_->WasHidden(
-      content::DelegatedFrameHost::HiddenCause::kOther);
-  delegated_frame_host_->DetachFromCompositor();
+  if (delegated_frame_host_) {
+    delegated_frame_host_->WasHidden(
+        content::DelegatedFrameHost::HiddenCause::kOther);
+    delegated_frame_host_->DetachFromCompositor();
+  }
 }
 
 bool CefRenderWidgetHostViewOSR::IsShowing() {
@@ -538,7 +553,9 @@ void CefRenderWidgetHostViewOSR::AddDamageRect(uint32_t sequence,
 }
 
 void CefRenderWidgetHostViewOSR::ResetFallbackToFirstNavigationSurface() {
-  delegated_frame_host_->ResetFallbackToFirstNavigationSurface();
+  if (delegated_frame_host_) {
+    delegated_frame_host_->ResetFallbackToFirstNavigationSurface();
+  }
 }
 
 void CefRenderWidgetHostViewOSR::InitAsPopup(
@@ -702,8 +719,10 @@ void CefRenderWidgetHostViewOSR::CopyFromSurface(
     const gfx::Rect& src_rect,
     const gfx::Size& output_size,
     base::OnceCallback<void(const SkBitmap&)> callback) {
-  delegated_frame_host_->CopyFromCompositingSurface(src_rect, output_size,
-                                                    std::move(callback));
+  if (delegated_frame_host_) {
+    delegated_frame_host_->CopyFromCompositingSurface(src_rect, output_size,
+                                                      std::move(callback));
+  }
 }
 
 void CefRenderWidgetHostViewOSR::GetScreenInfo(content::ScreenInfo* results) {
@@ -878,11 +897,13 @@ CefRenderWidgetHostViewOSR::GetLocalSurfaceIdAllocation() const {
 }
 
 const viz::FrameSinkId& CefRenderWidgetHostViewOSR::GetFrameSinkId() const {
-  return delegated_frame_host_->frame_sink_id();
+  return delegated_frame_host_
+             ? delegated_frame_host_->frame_sink_id()
+             : viz::FrameSinkIdAllocator::InvalidFrameSinkId();
 }
 
 viz::FrameSinkId CefRenderWidgetHostViewOSR::GetRootFrameSinkId() {
-  return compositor_->frame_sink_id();
+  return compositor_ ? compositor_->frame_sink_id() : viz::FrameSinkId();
 }
 
 void CefRenderWidgetHostViewOSR::OnRenderFrameMetadataChangedAfterActivation() {
@@ -1061,10 +1082,12 @@ void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
   if (render_widget_host_)
     render_widget_host_->ProgressFlingIfNeeded(frame_time);
 
-  compositor_->IssueExternalBeginFrame(
-      begin_frame_args, /* force= */ true,
-      base::BindOnce(&CefRenderWidgetHostViewOSR::OnFrameComplete,
-                     weak_ptr_factory_.GetWeakPtr()));
+  if (compositor_) {
+    compositor_->IssueExternalBeginFrame(
+        begin_frame_args, /* force= */ true,
+        base::BindOnce(&CefRenderWidgetHostViewOSR::OnFrameComplete,
+                       weak_ptr_factory_.GetWeakPtr()));
+  }
 
   if (!IsPopupWidget() && popup_host_view_) {
     popup_host_view_->SendExternalBeginFrame();
