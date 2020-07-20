@@ -1,5 +1,5 @@
 diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
-index a0034ad3a21d..80fa8da263ac 100644
+index a0034ad3a21d..bf694fdf18d0 100644
 --- content/browser/storage_partition_impl.cc
 +++ content/browser/storage_partition_impl.cc
 @@ -490,10 +490,6 @@ class LoginHandlerDelegate {
@@ -40,15 +40,15 @@ index a0034ad3a21d..80fa8da263ac 100644
        storage::GetDefaultDeviceInfoHelper(), std::move(callback));
  }
  
-@@ -2396,7 +2390,10 @@ void StoragePartitionImpl::InitNetworkContext() {
-   network_context_.reset();
-   GetNetworkService()->CreateNetworkContext(
-       network_context_.BindNewPipeAndPassReceiver(), std::move(context_params));
--  DCHECK(network_context_);
-+  if (!network_context_) {
-+    // May happen during shutdown.
+@@ -2371,6 +2365,11 @@ void StoragePartitionImpl::InitNetworkContext() {
+   GetContentClient()->browser()->ConfigureNetworkContextParams(
+       browser_context_, is_in_memory_, relative_partition_path_,
+       context_params.get(), cert_verifier_creation_params.get());
++  if (context_params->context_name &&
++      *context_params->context_name == "magic_shutting_down") {
++    // Don't re-initialize the network context during shutdown.
 +    return;
 +  }
- 
-   network_context_client_receiver_.reset();
-   network_context_->SetClient(
+   devtools_instrumentation::ApplyNetworkContextParamsOverrides(
+       browser_context_, context_params.get());
+   DCHECK(!context_params->cert_verifier_params)
