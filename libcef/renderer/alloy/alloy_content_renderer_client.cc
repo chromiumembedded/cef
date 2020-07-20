@@ -256,9 +256,6 @@ void AlloyContentRendererClient::WebKitInitialized() {
   // Create global objects associated with the default Isolate.
   CefV8IsolateCreated();
 
-  // TODO(cef): Enable these once the implementation supports it.
-  blink::WebRuntimeFeatures::EnableNotifications(false);
-
   const CefAppManager::SchemeInfoList* schemes =
       CefAppManager::Get()->GetCustomSchemes();
   if (!schemes->empty()) {
@@ -359,6 +356,13 @@ void AlloyContentRendererClient::RunSingleProcessCleanup() {
     if (!complete)
       base::PlatformThread::YieldCurrentThread();
   } while (!complete);
+}
+
+void AlloyContentRendererClient::PostIOThreadCreated(
+  base::SingleThreadTaskRunner*) {
+  // TODO(cef): Enable these once the implementation supports it.
+  blink::WebRuntimeFeatures::EnableNotifications(false);
+  blink::WebRuntimeFeatures::EnablePushMessaging(false);
 }
 
 void AlloyContentRendererClient::RenderThreadStarted() {
