@@ -103,6 +103,8 @@ class CefContentRendererClient
   void RunSingleProcessCleanup();
 
   // ContentRendererClient implementation.
+  void PostIOThreadCreated(
+      base::SingleThreadTaskRunner* io_thread_task_runner) override;
   void RenderThreadStarted() override;
   void ExposeInterfacesToBrowser(mojo::BinderMap* binders) override;
   void RenderThreadConnected() override;

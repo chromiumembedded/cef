@@ -261,9 +261,6 @@ void CefContentRendererClient::WebKitInitialized() {
   // Create global objects associated with the default Isolate.
   CefV8IsolateCreated();
 
-  // TODO(cef): Enable these once the implementation supports it.
-  blink::WebRuntimeFeatures::EnableNotifications(false);
-
   const CefContentClient::SchemeInfoList* schemes =
       CefContentClient::Get()->GetCustomSchemes();
   if (!schemes->empty()) {
@@ -363,6 +360,13 @@ void CefContentRendererClient::RunSingleProcessCleanup() {
     if (!complete)
       base::PlatformThread::YieldCurrentThread();
   } while (!complete);
+}
+
+void CefContentRendererClient::PostIOThreadCreated(
+  base::SingleThreadTaskRunner*) {
+  // TODO(cef): Enable these once the implementation supports it.
+  blink::WebRuntimeFeatures::EnableNotifications(false);
+  blink::WebRuntimeFeatures::EnablePushMessaging(false);
 }
 
 void CefContentRendererClient::RenderThreadStarted() {
