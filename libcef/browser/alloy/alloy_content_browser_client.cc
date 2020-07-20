@@ -1296,6 +1296,15 @@ void AlloyContentBrowserClient::ConfigureNetworkContextParams(
     const base::FilePath& relative_partition_path,
     network::mojom::NetworkContextParams* network_context_params,
     network::mojom::CertVerifierCreationParams* cert_verifier_creation_params) {
+  // This method may be called during shutdown when using multi-threaded
+  // message loop mode. In that case exit early to avoid crashes.
+  if (!SystemNetworkContextManager::GetInstance()) {
+    // This must match the value expected in
+    // StoragePartitionImpl::InitNetworkContext.
+    network_context_params->context_name = "magic_shutting_down";
+    return;
+  }
+
   Profile* profile = Profile::FromBrowserContext(context);
   profile->ConfigureNetworkContextParams(in_memory, relative_partition_path,
                                          network_context_params,
