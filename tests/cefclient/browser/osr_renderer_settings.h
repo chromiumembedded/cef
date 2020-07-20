@@ -13,7 +13,7 @@ namespace client {
 struct OsrRendererSettings {
   OsrRendererSettings()
       : show_update_rect(false),
-        background_color(CefColorSetARGB(255, 255, 255, 255)),
+        background_color(0),
         shared_texture_enabled(false),
         external_begin_frame_enabled(false),
         begin_frame_rate(0) {}
