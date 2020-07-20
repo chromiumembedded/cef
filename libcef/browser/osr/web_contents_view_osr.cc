@@ -29,11 +29,7 @@ void CefWebContentsViewOSR::WebContentsCreated(
   DCHECK(!web_contents_);
   web_contents_ = web_contents;
 
-  auto host = web_contents_->GetRenderViewHost();
-  CefRenderWidgetHostViewOSR* view =
-      static_cast<CefRenderWidgetHostViewOSR*>(host->GetWidget()->GetView());
-  if (view)
-    view->InstallTransparency();
+  RenderViewReady();
 }
 
 gfx::NativeView CefWebContentsViewOSR::GetNativeView() const {
@@ -124,7 +120,15 @@ CefWebContentsViewOSR::CreateViewForChildWidget(
 
 void CefWebContentsViewOSR::SetPageTitle(const base::string16& title) {}
 
-void CefWebContentsViewOSR::RenderViewReady() {}
+void CefWebContentsViewOSR::RenderViewReady() {
+  if (web_contents_) {
+    auto host = web_contents_->GetRenderViewHost();
+    CefRenderWidgetHostViewOSR* view =
+        static_cast<CefRenderWidgetHostViewOSR*>(host->GetWidget()->GetView());
+    if (view)
+      view->InstallTransparency();
+  }
+}
 
 void CefWebContentsViewOSR::RenderViewHostChanged(
     content::RenderViewHost* old_host,
