@@ -264,6 +264,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void OnDidUpdateVisualPropertiesComplete(
       const cc::RenderFrameMetadata& metadata);
 
+  void ReleaseCompositor();
+
  private:
   void SetFrameRate();
   bool SetDeviceScaleFactor();

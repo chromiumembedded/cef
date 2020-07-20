@@ -71,6 +71,20 @@ void CefBrowserPlatformDelegateOsr::BrowserCreated(
   }
 }
 
+void CefBrowserPlatformDelegateOsr::NotifyBrowserDestroyed() {
+  content::WebContents* web_contents = browser_->web_contents();
+  content::RenderViewHost* host = web_contents->GetRenderViewHost();
+  if (host) {
+    CefRenderWidgetHostViewOSR* view =
+        static_cast<CefRenderWidgetHostViewOSR*>(host->GetWidget()->GetView());
+    if (view) {
+      view->ReleaseCompositor();
+    }
+  }
+
+  CefBrowserPlatformDelegateAlloy::NotifyBrowserDestroyed();
+}
+
 void CefBrowserPlatformDelegateOsr::BrowserDestroyed(
     CefBrowserHostImpl* browser) {
   CefBrowserPlatformDelegateAlloy::BrowserDestroyed(browser);
