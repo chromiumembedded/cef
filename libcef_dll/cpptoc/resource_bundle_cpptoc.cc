@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ba0a12367019906d32dae965d7d1b5245d02b442$
+// $hash=0dc6766f75f9b051daf582009455efb08c969e9f$
 //
 
 #include "libcef_dll/cpptoc/resource_bundle_cpptoc.h"
+#include "libcef_dll/cpptoc/binary_value_cpptoc.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -47,83 +48,40 @@ resource_bundle_get_localized_string(struct _cef_resource_bundle_t* self,
   return _retval.DetachToUserFree();
 }
 
-int CEF_CALLBACK
+struct _cef_binary_value_t* CEF_CALLBACK
 resource_bundle_get_data_resource(struct _cef_resource_bundle_t* self,
-                                  int resource_id,
-                                  void** data,
-                                  size_t* data_size) {
+                                  int resource_id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
-    return 0;
-  // Verify param: data; type: simple_byref
-  DCHECK(data);
-  if (!data)
-    return 0;
-  // Verify param: data_size; type: simple_byref
-  DCHECK(data_size);
-  if (!data_size)
-    return 0;
-
-  // Translate param: data; type: simple_byref
-  void* dataVal = data ? *data : NULL;
-  // Translate param: data_size; type: simple_byref
-  size_t data_sizeVal = data_size ? *data_size : 0;
+    return NULL;
 
   // Execute
-  bool _retval = CefResourceBundleCppToC::Get(self)->GetDataResource(
-      resource_id, dataVal, data_sizeVal);
+  CefRefPtr<CefBinaryValue> _retval =
+      CefResourceBundleCppToC::Get(self)->GetDataResource(resource_id);
 
-  // Restore param: data; type: simple_byref
-  if (data)
-    *data = dataVal;
-  // Restore param: data_size; type: simple_byref
-  if (data_size)
-    *data_size = data_sizeVal;
-
-  // Return type: bool
-  return _retval;
+  // Return type: refptr_same
+  return CefBinaryValueCppToC::Wrap(_retval);
 }
 
-int CEF_CALLBACK
+struct _cef_binary_value_t* CEF_CALLBACK
 resource_bundle_get_data_resource_for_scale(struct _cef_resource_bundle_t* self,
                                             int resource_id,
-                                            cef_scale_factor_t scale_factor,
-                                            void** data,
-                                            size_t* data_size) {
+                                            cef_scale_factor_t scale_factor) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
-    return 0;
-  // Verify param: data; type: simple_byref
-  DCHECK(data);
-  if (!data)
-    return 0;
-  // Verify param: data_size; type: simple_byref
-  DCHECK(data_size);
-  if (!data_size)
-    return 0;
-
-  // Translate param: data; type: simple_byref
-  void* dataVal = data ? *data : NULL;
-  // Translate param: data_size; type: simple_byref
-  size_t data_sizeVal = data_size ? *data_size : 0;
+    return NULL;
 
   // Execute
-  bool _retval = CefResourceBundleCppToC::Get(self)->GetDataResourceForScale(
-      resource_id, scale_factor, dataVal, data_sizeVal);
+  CefRefPtr<CefBinaryValue> _retval =
+      CefResourceBundleCppToC::Get(self)->GetDataResourceForScale(resource_id,
+                                                                  scale_factor);
 
-  // Restore param: data; type: simple_byref
-  if (data)
-    *data = dataVal;
-  // Restore param: data_size; type: simple_byref
-  if (data_size)
-    *data_size = data_sizeVal;
-
-  // Return type: bool
-  return _retval;
+  // Return type: refptr_same
+  return CefBinaryValueCppToC::Wrap(_retval);
 }
 
 }  // namespace
