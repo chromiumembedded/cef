@@ -39,6 +39,7 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_values.h"
 
 ///
 // Class used for retrieving resources from the resource bundle (*.pak) files
@@ -67,33 +68,24 @@ class CefResourceBundle : public virtual CefBaseRefCounted {
   virtual CefString GetLocalizedString(int string_id) = 0;
 
   ///
-  // Retrieves the contents of the specified scale independent |resource_id|.
-  // If the value is found then |data| and |data_size| will be populated and
-  // this method will return true. If the value is not found then this method
-  // will return false. The returned |data| pointer will remain resident in
-  // memory and should not be freed. Include cef_pack_resources.h for a listing
-  // of valid resource ID values.
+  // Returns a CefBinaryValue containing the decompressed contents of the
+  // specified scale independent |resource_id| or NULL if not found. Include
+  // cef_pack_resources.h for a listing of valid resource ID values.
   ///
   /*--cef()--*/
-  virtual bool GetDataResource(int resource_id,
-                               void*& data,
-                               size_t& data_size) = 0;
+  virtual CefRefPtr<CefBinaryValue> GetDataResource(int resource_id) = 0;
 
   ///
-  // Retrieves the contents of the specified |resource_id| nearest the scale
-  // factor |scale_factor|. Use a |scale_factor| value of SCALE_FACTOR_NONE for
-  // scale independent resources or call GetDataResource instead. If the value
-  // is found then |data| and |data_size| will be populated and this method will
-  // return true. If the value is not found then this method will return false.
-  // The returned |data| pointer will remain resident in memory and should not
-  // be freed. Include cef_pack_resources.h for a listing of valid resource ID
-  // values.
+  // Returns a CefBinaryValue containing the decompressed contents of the
+  // specified |resource_id| nearest the scale factor |scale_factor| or NULL if
+  // not found. Use a |scale_factor| value of SCALE_FACTOR_NONE for scale
+  // independent resources or call GetDataResource instead.Include
+  // cef_pack_resources.h for a listing of valid resource ID values.
   ///
   /*--cef()--*/
-  virtual bool GetDataResourceForScale(int resource_id,
-                                       ScaleFactor scale_factor,
-                                       void*& data,
-                                       size_t& data_size) = 0;
+  virtual CefRefPtr<CefBinaryValue> GetDataResourceForScale(
+      int resource_id,
+      ScaleFactor scale_factor) = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_RESOURCE_BUNDLE_H_

@@ -14,13 +14,10 @@ class CefResourceBundleImpl : public CefResourceBundle {
 
   // CefResourceBundle methods.
   CefString GetLocalizedString(int string_id) override;
-  bool GetDataResource(int resource_id,
-                       void*& data,
-                       size_t& data_size) override;
-  bool GetDataResourceForScale(int resource_id,
-                               ScaleFactor scale_factor,
-                               void*& data,
-                               size_t& data_size) override;
+  CefRefPtr<CefBinaryValue> GetDataResource(int resource_id) override;
+  CefRefPtr<CefBinaryValue> GetDataResourceForScale(
+      int resource_id,
+      ScaleFactor scale_factor) override;
 
  private:
   IMPLEMENT_REFCOUNTING(CefResourceBundleImpl);
