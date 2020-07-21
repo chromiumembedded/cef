@@ -4,6 +4,7 @@
 
 #include "libcef/common/resource_bundle_impl.h"
 
+#include "base/memory/ref_counted_memory.h"
 #include "ui/base/resource/resource_bundle.h"
 
 CefResourceBundleImpl::CefResourceBundleImpl() {}
@@ -15,29 +16,24 @@ CefString CefResourceBundleImpl::GetLocalizedString(int string_id) {
   return ui::ResourceBundle::GetSharedInstance().GetLocalizedString(string_id);
 }
 
-bool CefResourceBundleImpl::GetDataResource(int resource_id,
-                                            void*& data,
-                                            size_t& data_size) {
-  return GetDataResourceForScale(resource_id, SCALE_FACTOR_NONE, data,
-                                 data_size);
+CefRefPtr<CefBinaryValue> CefResourceBundleImpl::GetDataResource(
+    int resource_id) {
+  return GetDataResourceForScale(resource_id, SCALE_FACTOR_NONE);
 }
 
-bool CefResourceBundleImpl::GetDataResourceForScale(int resource_id,
-                                                    ScaleFactor scale_factor,
-                                                    void*& data,
-                                                    size_t& data_size) {
+CefRefPtr<CefBinaryValue> CefResourceBundleImpl::GetDataResourceForScale(
+    int resource_id,
+    ScaleFactor scale_factor) {
   if (!ui::ResourceBundle::HasSharedInstance())
-    return false;
+    return nullptr;
 
-  const base::StringPiece& result =
-      ui::ResourceBundle::GetSharedInstance().GetRawDataResourceForScale(
+  base::RefCountedMemory* result =
+      ui::ResourceBundle::GetSharedInstance().LoadDataResourceBytesForScale(
           resource_id, static_cast<ui::ScaleFactor>(scale_factor));
-  if (result.empty())
-    return false;
+  if (!result)
+    return nullptr;
 
-  data = const_cast<char*>(result.data());
-  data_size = result.size();
-  return true;
+  return CefBinaryValue::Create(result->data(), result->size());
 }
 
 // static
