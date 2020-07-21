@@ -70,17 +70,19 @@ class MessagePumpExternal : public base::MessagePumpForUI {
     // is_immediate() returns true if the next task is ready right away.
     more_immediate_work = next_work_info.is_immediate();
     if (!more_immediate_work) {
-      // DoIdleWork() returns true if idle work was all done.
-      more_idle_work = !delegate->DoIdleWork();
-
       // Check the next PendingTask's |delayed_run_time|.
       // is_max() returns true if there are no more immediate nor delayed tasks.
       more_delayed_work = !next_work_info.delayed_run_time.is_max();
-      if (more_delayed_work && !more_idle_work) {
+      if (more_delayed_work) {
         // The only remaining work that we know about is the PendingTask.
         // Consider the run time for that task in the time slice calculation.
         *next_run_time = next_work_info.delayed_run_time;
       }
+    }
+
+    if (!more_immediate_work && !more_delayed_work) {
+      // DoIdleWork() returns true if idle work was all done.
+      more_idle_work = !delegate->DoIdleWork();
     }
 
     return more_immediate_work || more_idle_work || more_delayed_work;
