@@ -141,7 +141,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
 
   // Returns true if the navigation should be allowed to proceed, or false if
   // the navigation will instead be sent via OpenURLFromTab. If allowed,
-  // |browser| will be set to the target browser.
+  // |browser| will be set to the target browser if any.
   bool MaybeAllowNavigation(content::RenderFrameHost* opener,
                             const content::OpenURLParams& params,
                             CefRefPtr<CefBrowserHostImpl>& browser) const;
