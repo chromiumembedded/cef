@@ -450,10 +450,21 @@ bool NavigationOnUIThread(
     const navigation_interception::NavigationParams& params) {
   CEF_REQUIRE_UIT();
 
+  content::OpenURLParams open_params(
+      params.url(), params.referrer(), WindowOpenDisposition::CURRENT_TAB,
+      params.transition_type(), params.is_renderer_initiated());
+  open_params.user_gesture = params.has_user_gesture();
+  open_params.initiator_origin = params.initiator_origin();
+
+  CefRefPtr<CefBrowserHostImpl> browser;
+  if (!CefBrowserInfoManager::GetInstance()->MaybeAllowNavigation(
+          source->GetMainFrame(), open_params, browser)) {
+    // Cancel the navigation.
+    return true;
+  }
+
   bool ignore_navigation = false;
 
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForContents(source);
   if (browser.get()) {
     CefRefPtr<CefClient> client = browser->GetClient();
     if (client.get()) {
