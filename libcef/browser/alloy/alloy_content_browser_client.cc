@@ -61,6 +61,7 @@
 #include "chrome/browser/profiles/renderer_updater_factory.h"
 #include "chrome/browser/renderer_host/pepper/chrome_browser_pepper_host_factory.h"
 #include "chrome/browser/spellchecker/spell_check_host_chrome_impl.h"
+#include "chrome/common/chrome_content_client.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/google_url_loader_throttle.h"
@@ -1478,6 +1479,31 @@ AlloyContentBrowserClient::GetPluginMimeTypesWithExternalHandlers(
   for (const auto& pair : map)
     mime_types.insert(pair.first);
   return mime_types;
+}
+
+bool AlloyContentBrowserClient::ShouldAllowPluginCreation(
+    const url::Origin& embedder_origin,
+    const content::PepperPluginInfo& plugin_info) {
+  if (plugin_info.name == ChromeContentClient::kPDFInternalPluginName) {
+    // Allow embedding the internal PDF plugin in the built-in PDF extension.
+    if (embedder_origin.scheme() == extensions::kExtensionScheme &&
+        embedder_origin.host() == extension_misc::kPdfExtensionId) {
+      return true;
+    }
+
+    // Allow embedding the internal PDF plugin in chrome://print.
+    if (embedder_origin ==
+        url::Origin::Create(GURL(chrome::kChromeUIPrintURL))) {
+      return true;
+    }
+
+    // Only allow the PDF plugin in the known, trustworthy origins that are
+    // allowlisted above.  See also https://crbug.com/520422 and
+    // https://crbug.com/1027173.
+    return false;
+  }
+
+  return true;
 }
 
 CefRefPtr<CefRequestContextImpl> AlloyContentBrowserClient::request_context()

@@ -207,6 +207,9 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
   blink::UserAgentMetadata GetUserAgentMetadata() override;
   base::flat_set<std::string> GetPluginMimeTypesWithExternalHandlers(
       content::BrowserContext* browser_context) override;
+  bool ShouldAllowPluginCreation(
+      const url::Origin& embedder_origin,
+      const content::PepperPluginInfo& plugin_info) override;
 
   CefRefPtr<CefRequestContextImpl> request_context() const;
   CefDevToolsDelegate* devtools_delegate() const;
