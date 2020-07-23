@@ -22,6 +22,7 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/child_process_host.h"
+#include "extensions/common/constants.h"
 
 namespace {
 
@@ -115,26 +116,13 @@ bool CefBrowserInfoManager::CanCreateWindow(
     bool* no_javascript_access) {
   CEF_REQUIRE_UIT();
 
-  bool is_guest_view = false;
-  CefRefPtr<CefBrowserHostImpl> browser =
-      extensions::GetOwnerBrowserForHost(opener, &is_guest_view);
-  DCHECK(browser.get());
-  if (!browser.get()) {
-    // Cancel the popup.
-    return false;
-  }
+  content::OpenURLParams params(target_url, referrer, disposition,
+                                ui::PAGE_TRANSITION_LINK,
+                                /*is_renderer_initiated=*/true);
+  params.user_gesture = user_gesture;
 
-  if (is_guest_view) {
-    content::OpenURLParams params(target_url, referrer, disposition,
-                                  ui::PAGE_TRANSITION_LINK, true);
-    params.user_gesture = user_gesture;
-
-    // Pass navigation to the owner browser.
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::Bind(base::IgnoreResult(&CefBrowserHostImpl::OpenURLFromTab),
-                   browser.get(), nullptr, params));
-
+  CefRefPtr<CefBrowserHostImpl> browser;
+  if (!MaybeAllowNavigation(opener, params, browser)) {
     // Cancel the popup.
     return false;
   }
@@ -367,6 +355,34 @@ CefBrowserInfoManager::GetBrowserInfoForFrameRoute(int render_process_id,
                                                    bool* is_guest_view) {
   base::AutoLock lock_scope(browser_info_lock_);
   return GetBrowserInfo(render_process_id, render_routing_id, is_guest_view);
+}
+
+bool CefBrowserInfoManager::MaybeAllowNavigation(
+    content::RenderFrameHost* opener,
+    const content::OpenURLParams& params,
+    CefRefPtr<CefBrowserHostImpl>& browser_out) const {
+  CEF_REQUIRE_UIT();
+
+  bool is_guest_view = false;
+  CefRefPtr<CefBrowserHostImpl> browser =
+      extensions::GetOwnerBrowserForHost(opener, &is_guest_view);
+  DCHECK(browser);
+  if (!browser)
+    return false;
+
+  if (is_guest_view && !params.url.SchemeIs(extensions::kExtensionScheme)) {
+    // The PDF viewer will load an extension in the guest view. All other
+    // navigations are passed to the owner browser.
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::Bind(base::IgnoreResult(&CefBrowserHostImpl::OpenURLFromTab),
+                   browser.get(), nullptr, params));
+
+    return false;
+  }
+
+  browser_out = browser;
+  return true;
 }
 
 scoped_refptr<CefBrowserInfo>
