@@ -22,6 +22,7 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/child_process_host.h"
+#include "content/public/common/url_constants.h"
 #include "extensions/common/constants.h"
 
 namespace {
@@ -122,7 +123,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
   params.user_gesture = user_gesture;
 
   CefRefPtr<CefBrowserHostImpl> browser;
-  if (!MaybeAllowNavigation(opener, params, browser)) {
+  if (!MaybeAllowNavigation(opener, params, browser) || !browser) {
     // Cancel the popup.
     return false;
   }
@@ -366,13 +367,17 @@ bool CefBrowserInfoManager::MaybeAllowNavigation(
   bool is_guest_view = false;
   CefRefPtr<CefBrowserHostImpl> browser =
       extensions::GetOwnerBrowserForHost(opener, &is_guest_view);
-  DCHECK(browser);
-  if (!browser)
-    return false;
+  if (!browser) {
+    // Print preview uses a modal dialog where we don't own the WebContents.
+    // Allow that navigation to proceed.
+    return true;
+  }
 
-  if (is_guest_view && !params.url.SchemeIs(extensions::kExtensionScheme)) {
-    // The PDF viewer will load an extension in the guest view. All other
-    // navigations are passed to the owner browser.
+  if (is_guest_view && !params.url.SchemeIs(extensions::kExtensionScheme) &&
+      !params.url.SchemeIs(content::kChromeUIScheme)) {
+    // The PDF viewer will load the PDF extension in the guest view, and print
+    // preview will load chrome://print in the guest view. All other navigations
+    // are passed to the owner browser.
     CEF_POST_TASK(
         CEF_UIT,
         base::Bind(base::IgnoreResult(&CefBrowserHostImpl::OpenURLFromTab),
