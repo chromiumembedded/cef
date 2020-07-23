@@ -25,6 +25,7 @@ struct WebWindowFeatures;
 }
 
 namespace content {
+struct OpenURLParams;
 struct Referrer;
 class RenderFrameHost;
 class RenderViewHostDelegateView;
@@ -137,6 +138,13 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // Returns all existing CefBrowserInfo objects.
   typedef std::list<scoped_refptr<CefBrowserInfo>> BrowserInfoList;
   BrowserInfoList GetBrowserInfoList();
+
+  // Returns true if the navigation should be allowed to proceed, or false if
+  // the navigation will instead be sent via OpenURLFromTab. If allowed,
+  // |browser| will be set to the target browser.
+  bool MaybeAllowNavigation(content::RenderFrameHost* opener,
+                            const content::OpenURLParams& params,
+                            CefRefPtr<CefBrowserHostImpl>& browser) const;
 
  private:
   // RenderProcessHostObserver methods:
