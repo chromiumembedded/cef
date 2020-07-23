@@ -375,25 +375,8 @@ if(OS_WINDOWS)
 
   if(USE_SANDBOX)
     # Check if the current MSVC version is compatible with the cef_sandbox.lib
-    # static library. For a list of all version numbers see
-    # https://en.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B#Internal_version_numbering
-    list(APPEND supported_msvc_versions
-      1900  # VS2015 and updates 1, 2, & 3
-      1910  # VS2017 version 15.1 & 15.2
-      1911  # VS2017 version 15.3 & 15.4
-      1912  # VS2017 version 15.5
-      1913  # VS2017 version 15.6
-      1914  # VS2017 version 15.7
-      1915  # VS2017 version 15.8
-      1916  # VS2017 version 15.9
-      1920  # VS2019 version 16.0
-      1921  # VS2019 version 16.1
-      1922  # VS2019 version 16.2
-      1923  # VS2019 version 16.3
-      1924  # VS2019 version 16.4
-      )
-    list(FIND supported_msvc_versions ${MSVC_VERSION} _index)
-    if (${_index} EQUAL -1)
+    # static library. We require VS2015 or newer.
+    if(MSVC_VERSION LESS 1900)
       message(WARNING "CEF sandbox is not compatible with the current MSVC version (${MSVC_VERSION})")
       set(USE_SANDBOX OFF)
     endif()
