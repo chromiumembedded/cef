@@ -53,6 +53,12 @@ void CefBrowserPlatformDelegateOsr::WebContentsCreated(
   view_osr_->WebContentsCreated(web_contents);
 }
 
+void CefBrowserPlatformDelegateOsr::RenderViewCreated(
+    content::RenderViewHost* render_view_host) {
+  if (view_osr_)
+    view_osr_->RenderViewCreated();
+}
+
 void CefBrowserPlatformDelegateOsr::BrowserCreated(
     CefBrowserHostImpl* browser) {
   CefBrowserPlatformDelegateAlloy::BrowserCreated(browser);
