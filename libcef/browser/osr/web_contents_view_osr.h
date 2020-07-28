@@ -31,6 +31,8 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   void WebContentsCreated(content::WebContents* web_contents);
   content::WebContents* web_contents() const { return web_contents_; }
 
+  void RenderViewCreated();
+
   // WebContentsView methods.
   gfx::NativeView GetNativeView() const override;
   gfx::NativeView GetContentNativeView() const override;
