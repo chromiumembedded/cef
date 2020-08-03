@@ -915,14 +915,13 @@ parser.add_option(
 parser.add_option(
     '--distrib-subdir',
     dest='distribsubdir',
-    help='CEF distrib dir name, child of chromium/src/cef/binary_distrib',
-    default='')
+    default='',
+    help='CEF distrib dir name, child of chromium/src/cef/binary_distrib')
 parser.add_option(
     '--distrib-subdir-suffix',
     dest='distribsubdirsuffix',
     default='',
-    help='CEF distrib dir name suffix, child of chromium/src/cef/binary_distrib',
-    default='')
+    help='CEF distrib dir name suffix, child of chromium/src/cef/binary_distrib')
 
 (options, args) = parser.parse_args()
 
