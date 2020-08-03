@@ -912,10 +912,17 @@ parser.add_option(
     dest='cleanartifacts',
     default=False,
     help='Clean the artifacts output directory.')
-parser.add_option('--distrib-subdir', dest='distribsubdir',
-                  help='CEF distrib dir name, child of '+\
-                       'chromium/src/cef/binary_distrib',
-                  default='')
+parser.add_option(
+    '--distrib-subdir',
+    dest='distribsubdir',
+    help='CEF distrib dir name, child of chromium/src/cef/binary_distrib',
+    default='')
+parser.add_option(
+    '--distrib-subdir-suffix',
+    dest='distribsubdirsuffix',
+    default='',
+    help='CEF distrib dir name suffix, child of chromium/src/cef/binary_distrib',
+    default='')
 
 (options, args) = parser.parse_args()
 
@@ -1620,6 +1627,8 @@ if not options.nodistrib and (chromium_checkout_changed or \
     # Override the subdirectory name of binary_distrib if the caller requested.
     if options.distribsubdir != '':
       path += ' --distrib-subdir=' + options.distribsubdir
+    if options.distribsubdirsuffix != '':
+      path += ' --distrib-subdir-suffix=' + options.distribsubdirsuffix
 
     # Create the distribution.
     run(path, cef_tools_dir, depot_tools_dir)

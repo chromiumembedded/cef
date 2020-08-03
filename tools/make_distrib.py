@@ -454,6 +454,11 @@ parser.add_option(
     help='name of the subdirectory for the distribution',
     default='')
 parser.add_option(
+    '--distrib-subdir-suffix',
+    dest='distribsubdirsuffix',
+    help='suffix added to name of the subdirectory for the distribution',
+    default='')
+parser.add_option(
     '--allow-partial',
     action='store_true',
     dest='allowpartial',
@@ -628,6 +633,8 @@ output_dir_base = 'cef_binary_' + cef_ver
 
 if options.distribsubdir == '':
   output_dir_name = output_dir_base + '_' + platform + platform_arch
+  if options.distribsubdirsuffix != '':
+    output_dir_name += '_' + options.distribsubdirsuffix
 else:
   output_dir_name = options.distribsubdir
 
