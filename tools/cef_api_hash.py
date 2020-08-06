@@ -15,6 +15,12 @@ import time
 import itertools
 import hashlib
 
+# Determines string type for python 2 and python 3.
+if sys.version_info[0] == 3:
+  string_type = str
+else:
+  string_type = basestring
+
 
 class cef_api_hash:
   """ CEF API hash calculator """
@@ -145,7 +151,7 @@ class cef_api_hash:
 
     # enums
     for m in re.finditer(
-        "\nenum\s+?(\w+)\s+?\{.*?\}\s*?;", content, flags=re.DOTALL):
+        "\ntypedef\s+?enum\s+?\{.*?\}\s+?(\w+)\s*?;", content, flags=re.DOTALL):
       object = {"name": m.group(1), "text": m.group(0).strip()}
       objects.append(object)
 
@@ -225,7 +231,7 @@ class cef_api_hash:
     outfile = os.path.join(self.__debugdir, filename)
     dir = os.path.dirname(outfile)
     make_dir(dir)
-    if not isinstance(content, basestring):
+    if not isinstance(content, string_type):
       content = "\n".join(content)
     write_file(outfile, content)
 
