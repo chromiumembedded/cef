@@ -16,6 +16,8 @@
     table.list tr.topheader td {border-bottom: 1px solid black; padding: 5px; padding-top: 4px; font-size: 9pt}
     table.list tr.toprow:nth-child(even) {color: #000; background: #FFF}
     table.list tr.toprow:nth-child(odd) {color: #000; background: #DDD}
+    table.list tr.toprow {display:none}
+    table.list tr.toprow:nth-child(2) {display:table-row}
     table.version {border-spacing: 0; border: 0px; padding: 4px 4px; font-size: 10pt}
     table.version td.header {font-weight: bold; font-size: 9pt}
     table.version td.links {font-size: 8pt}
@@ -52,7 +54,7 @@
         var version = rows[i].getAttribute('data-version')
         var allow = (version_filter == '' || version.indexOf(version_filter) == 0)
         var display = (allow && displayed_ct < desired_ct)
-        rows[i].style.display = (display ? '' : 'none')
+        rows[i].style.display = (display ? 'table-row' : 'none')
         rows[i].style.background = (displayed_ct % 2 == 0 ? '#FFF' : '#DDD')
         allowed_ct += allow
         displayed_ct += display
