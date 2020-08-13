@@ -229,6 +229,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
   const uint32_t options_;
   bool input_stream_previously_failed_ = false;
   bool request_was_redirected_ = false;
+  int redirect_limit_ = net::URLRequest::kMaxRedirects;
 
   // To avoid sending multiple OnReceivedError callbacks.
   bool sent_error_callback_ = false;
@@ -483,6 +484,11 @@ void InterceptedRequest::OnReceiveRedirect(
     }
   } else {
     needs_callback = true;
+  }
+
+  if (--redirect_limit_ == 0) {
+    SendErrorAndCompleteImmediately(net::ERR_TOO_MANY_REDIRECTS);
+    return;
   }
 
   net::RedirectInfo new_redirect_info;
