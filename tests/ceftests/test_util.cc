@@ -281,6 +281,17 @@ bool TestOldResourceAPI() {
   return state ? true : false;
 }
 
+bool IsOutOfBlinkCorsEnabled() {
+  static int state = -1;
+  if (state == -1) {
+    CefRefPtr<CefCommandLine> command_line =
+        CefCommandLine::GetGlobalCommandLine();
+    const std::string& value = command_line->GetSwitchValue("disable-features");
+    state = value.find("OutOfBlinkCors") == std::string::npos ? 1 : 0;
+  }
+  return state ? true : false;
+}
+
 CefRefPtr<CefRequestContext> CreateTestRequestContext(
     TestRequestContextMode mode,
     const std::string& cache_path) {

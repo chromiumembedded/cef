@@ -15,8 +15,12 @@
 #include "base/bind.h"
 #include "base/lazy_instance.h"
 #include "base/synchronization/lock.h"
+#include "chrome/common/webui_url_constants.h"
 #include "content/public/browser/render_process_host.h"
+#include "content/public/common/url_constants.h"
+#include "extensions/common/constants.h"
 #include "url/gurl.h"
+#include "url/origin.h"
 
 namespace {
 
@@ -157,10 +161,11 @@ CefOriginWhitelistManager* CefOriginWhitelistManager::GetInstance() {
   return g_manager.Pointer();
 }
 
-bool IsMatch(const GURL& source_origin,
-             const GURL& target_origin,
+bool IsMatch(const url::Origin& source_origin,
+             const url::Origin& target_origin,
              const Cef_CrossOriginWhiteListEntry_Params& param) {
-  if (source_origin.GetOrigin() != GURL(param.source_origin)) {
+  if (!source_origin.IsSameOriginWith(
+          url::Origin::Create(GURL(param.source_origin)))) {
     // Source origin does not match.
     return false;
   }
@@ -271,7 +276,18 @@ void GetCrossOriginWhitelistEntries(
       entries);
 }
 
-bool HasCrossOriginWhitelistEntry(const GURL& source, const GURL& target) {
+bool HasCrossOriginWhitelistEntry(const url::Origin& source,
+                                  const url::Origin& target) {
+  // Components of chrome that are implemented as extensions or platform apps
+  // are allowed to use chrome://resources/ and chrome://theme/ URLs.
+  // See also RegisterNonNetworkSubresourceURLLoaderFactories.
+  if (source.scheme() == extensions::kExtensionScheme &&
+      target.scheme() == content::kChromeUIScheme &&
+      (target.host() == chrome::kChromeUIThemeHost ||
+       target.host() == content::kChromeUIResourcesHost)) {
+    return true;
+  }
+
   std::vector<Cef_CrossOriginWhiteListEntry_Params> params;
   CefOriginWhitelistManager::GetInstance()->GetCrossOriginWhitelistEntries(
       &params);

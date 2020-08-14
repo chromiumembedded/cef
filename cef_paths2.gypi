@@ -470,6 +470,7 @@
       'tests/ceftests/browser_info_map_unittest.cc',
       'tests/ceftests/command_line_unittest.cc',
       'tests/ceftests/cookie_unittest.cc',
+      'tests/ceftests/cors_unittest.cc',
       'tests/ceftests/devtools_message_unittest.cc',
       'tests/ceftests/dialog_unittest.cc',
       'tests/ceftests/display_unittest.cc',

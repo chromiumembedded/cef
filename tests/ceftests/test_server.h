@@ -11,6 +11,7 @@
 #include "include/base/cef_bind.h"
 #include "include/cef_registration.h"
 #include "include/cef_request.h"
+#include "include/cef_response.h"
 #include "include/cef_server.h"
 
 namespace test_server {
@@ -75,6 +76,12 @@ CefRefPtr<CefRegistration> AddObserver(Observer* observer,
 CefRefPtr<CefRegistration> AddObserverAndStart(
     Observer* observer,
     const StartDoneCallback& callback);
+
+// Helper for sending a fully qualified response.
+void SendResponse(CefRefPtr<CefServer> server,
+                  int connection_id,
+                  CefRefPtr<CefResponse> response,
+                  const std::string& response_data);
 
 // Helper for managing Observer registration and callbacks. Only used on the UI
 // thread.

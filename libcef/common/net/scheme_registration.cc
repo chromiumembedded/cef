@@ -8,6 +8,7 @@
 #include "libcef/common/net/scheme_info.h"
 #include "libcef/features/runtime.h"
 
+#include "base/stl_util.h"
 #include "content/public/common/url_constants.h"
 #include "extensions/common/constants.h"
 #include "net/net_buildflags.h"
@@ -84,6 +85,12 @@ bool IsInternalHandledScheme(const std::string& scheme) {
 bool IsStandardScheme(const std::string& scheme) {
   url::Component scheme_comp(0, scheme.length());
   return url::IsStandard(scheme.c_str(), scheme_comp);
+}
+
+// Should return the same value as SecurityOrigin::isLocal and
+// SchemeRegistry::shouldTreatURLSchemeAsCorsEnabled.
+bool IsCorsEnabledScheme(const std::string& scheme) {
+  return base::Contains(url::GetCorsEnabledSchemes(), scheme);
 }
 
 }  // namespace scheme

@@ -10,6 +10,7 @@
 #include "include/cef_stream.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
+#include "tests/ceftests/test_request.h"
 #include "tests/shared/common/client_switches.h"
 
 #if defined(USE_AURA)
@@ -261,15 +262,8 @@ CefRefPtr<CefResourceHandler> TestHandler::GetResourceHandler(
   EXPECT_IO_THREAD();
 
   if (resource_map_.size() > 0) {
-    CefString url = request->GetURL();
-
-    // Ignore the query component, if any.
-    std::string urlStr = url;
-    size_t idx = urlStr.find('?');
-    if (idx > 0)
-      urlStr = urlStr.substr(0, idx);
-
-    ResourceMap::const_iterator it = resource_map_.find(urlStr);
+    const std::string& url = test_request::GetPathURL(request->GetURL());
+    ResourceMap::const_iterator it = resource_map_.find(url);
     if (it != resource_map_.end()) {
       // Return the previously mapped resource
       CefRefPtr<CefStreamReader> stream = CefStreamReader::CreateForData(

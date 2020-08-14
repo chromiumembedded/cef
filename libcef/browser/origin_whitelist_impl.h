@@ -12,7 +12,9 @@ namespace content {
 class RenderProcessHost;
 }
 
-class GURL;
+namespace url {
+class Origin;
+}
 
 struct Cef_CrossOriginWhiteListEntry_Params;
 
@@ -23,6 +25,7 @@ void GetCrossOriginWhitelistEntries(
 
 // Returns true if |source| can access |target| based on the cross-origin white
 // list settings.
-bool HasCrossOriginWhitelistEntry(const GURL& source, const GURL& target);
+bool HasCrossOriginWhitelistEntry(const url::Origin& source,
+                                  const url::Origin& target);
 
 #endif  // CEF_LIBCEF_BROWSER_ORIGIN_WHITELIST_IMPL_H_
