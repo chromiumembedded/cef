@@ -4,9 +4,13 @@
 
 #include "tests/ceftests/test_request.h"
 
+#include <algorithm>
+
+#include "include/cef_stream.h"
 #include "include/cef_urlrequest.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
+#include "include/wrapper/cef_stream_resource_handler.h"
 
 namespace test_request {
 
@@ -104,6 +108,41 @@ void Send(const SendConfig& config, const RequestDoneCallback& callback) {
     CefURLRequest::Create(config.request_, client.get(),
                           config.request_context_);
   }
+}
+
+std::string GetPathURL(const std::string& url) {
+  const size_t index1 = url.find('?');
+  const size_t index2 = url.find('#');
+  size_t index = -1;
+  if (index1 >= 0 && index2 >= 0) {
+    index = std::min(index1, index2);
+  } else if (index1 >= 0) {
+    index = index1;
+  } else if (index2 >= 0) {
+    index = index2;
+  }
+  if (index >= 0) {
+    return url.substr(0, index);
+  }
+  return url;
+}
+
+CefRefPtr<CefResourceHandler> CreateResourceHandler(
+    CefRefPtr<CefResponse> response,
+    const std::string& response_data) {
+  CefRefPtr<CefStreamReader> stream;
+  if (!response_data.empty()) {
+    stream = CefStreamReader::CreateForData(
+        static_cast<void*>(const_cast<char*>(response_data.c_str())),
+        response_data.length());
+  }
+
+  CefResponse::HeaderMap headerMap;
+  response->GetHeaderMap(headerMap);
+
+  return new CefStreamResourceHandler(
+      response->GetStatus(), response->GetStatusText(), response->GetMimeType(),
+      headerMap, stream);
 }
 
 }  // namespace test_request

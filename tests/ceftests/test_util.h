@@ -81,6 +81,9 @@ inline bool IsTestRequestContextModeCustom(TestRequestContextMode mode) {
 // Returns true if the old CefResourceHandler API should be tested.
 bool TestOldResourceAPI();
 
+// Returns true if OutOfBlinkCors is enabled.
+bool IsOutOfBlinkCorsEnabled();
+
 // Return a RequestContext object matching the specified |mode|.
 // |cache_path| may be specified for CUSTOM modes.
 // Use the RC_TEST_GROUP_BASE macro to test all valid combinations.

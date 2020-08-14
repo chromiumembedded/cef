@@ -244,12 +244,6 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
 
     std::vector<std::string> disable_features;
 
-    if (network::features::kOutOfBlinkCors.default_state ==
-        base::FEATURE_ENABLED_BY_DEFAULT) {
-      // TODO: Add support for out-of-Blink CORS (see issue #2716)
-      disable_features.push_back(network::features::kOutOfBlinkCors.name);
-    }
-
 #if defined(OS_WIN)
     if (features::kCalculateNativeWinOcclusion.default_state ==
         base::FEATURE_ENABLED_BY_DEFAULT) {

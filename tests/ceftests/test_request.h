@@ -12,6 +12,7 @@
 #include "include/cef_frame.h"
 #include "include/cef_request.h"
 #include "include/cef_request_context.h"
+#include "include/cef_resource_handler.h"
 #include "include/cef_response.h"
 
 namespace test_request {
@@ -63,6 +64,14 @@ struct SendConfig {
 // Send a request. |callback| will be executed on the calling thread after the
 // request completes.
 void Send(const SendConfig& config, const RequestDoneCallback& callback);
+
+// Removes query and/or fragment components from |url|.
+std::string GetPathURL(const std::string& url);
+
+// Creates a new resource handler that returns the specified response.
+CefRefPtr<CefResourceHandler> CreateResourceHandler(
+    CefRefPtr<CefResponse> response,
+    const std::string& response_data);
 
 }  // namespace test_request
 

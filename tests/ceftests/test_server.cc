@@ -447,6 +447,27 @@ CefRefPtr<CefRegistration> AddObserverAndStart(
   return AddObserver(observer, base::Bind(Start, callback));
 }
 
+void SendResponse(CefRefPtr<CefServer> server,
+                  int connection_id,
+                  CefRefPtr<CefResponse> response,
+                  const std::string& response_data) {
+  const int response_code = response->GetStatus();
+  const CefString& content_type = response->GetMimeType();
+  int64 content_length = static_cast<int64>(response_data.size());
+
+  CefResponse::HeaderMap extra_headers;
+  response->GetHeaderMap(extra_headers);
+
+  server->SendHttpResponse(connection_id, response_code, content_type,
+                           content_length, extra_headers);
+
+  if (content_length != 0) {
+    server->SendRawData(connection_id, response_data.data(),
+                        response_data.size());
+    server->CloseConnection(connection_id);
+  }
+}
+
 // ObserverHelper
 
 ObserverHelper::ObserverHelper() : weak_ptr_factory_(this) {

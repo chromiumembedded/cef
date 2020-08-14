@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include <algorithm>
+#include <vector>
 
 #include "include/base/cef_bind.h"
 #include "include/cef_callback.h"
@@ -32,6 +33,7 @@ class TestResults {
     sub_allow_origin.clear();
     exit_url.clear();
     accept_language.clear();
+    console_messages.clear();
     delay = 0;
     got_request.reset();
     got_read.reset();
@@ -69,6 +71,9 @@ class TestResults {
   // Used for testing per-browser Accept-Language.
   std::string accept_language;
 
+  // Used for testing received console messages.
+  std::vector<std::string> console_messages;
+
   // Delay for returning scheme handler results.
   int delay;
 
@@ -104,7 +109,13 @@ class TestSchemeHandler : public TestHandler {
 
   // Necessary to make the method public in order to destroy the test from
   // ClientSchemeHandler::ProcessRequest().
-  void DestroyTest() override { TestHandler::DestroyTest(); }
+  void DestroyTest() override {
+    EXPECT_TRUE(test_results_->console_messages.empty())
+        << "Did not receive expected console message: "
+        << test_results_->console_messages.front();
+
+    TestHandler::DestroyTest();
+  }
 
   void DestroyTestIfDone() {
     if (!test_results_->exit_url.empty() && !test_results_->got_exit_request) {
@@ -204,6 +215,31 @@ class TestSchemeHandler : public TestHandler {
     }
 
     DestroyTestIfDone();
+  }
+
+  bool OnConsoleMessage(CefRefPtr<CefBrowser> browser,
+                        cef_log_severity_t level,
+                        const CefString& message,
+                        const CefString& source,
+                        int line) override {
+    bool expected = false;
+    if (!test_results_->console_messages.empty()) {
+      std::vector<std::string>::iterator it =
+          test_results_->console_messages.begin();
+      for (; it != test_results_->console_messages.end(); ++it) {
+        const std::string& possible = *it;
+        const std::string& actual = message.ToString();
+        if (actual.find(possible) == 0U) {
+          expected = true;
+          test_results_->console_messages.erase(it);
+          break;
+        }
+      }
+    }
+
+    EXPECT_TRUE(expected) << "Unexpected console message: "
+                          << message.ToString();
+    return false;
   }
 
  protected:
@@ -635,6 +671,11 @@ void SetUpXHR(const XHRTestSettings& settings) {
   g_TestResults.sub_allow_origin = settings.sub_allow_origin;
   g_TestResults.sub_redirect_url = settings.sub_redirect_url;
 
+  if (settings.synchronous) {
+    g_TestResults.console_messages.push_back(
+        "Synchronous XMLHttpRequest on the main thread is deprecated");
+  }
+
   std::string request_url;
   if (!settings.sub_redirect_url.empty())
     request_url = settings.sub_redirect_url;
@@ -677,7 +718,6 @@ void SetUpXHR(const XHRTestSettings& settings) {
           "  }"
           "};"
           "xhr.onerror = function(e) {"
-          "  console.log('XMLHttpRequest failed with error ' + e);"
           "  onResult('FAILURE');"
           "};"
           "xhr.send()";
@@ -728,16 +768,12 @@ void SetUpFetch(const FetchTestSettings& settings) {
         "      response.text().then(function(text) {"
         "          onResult(text);"
         "      }).catch(function(e) {"
-        "          console.log('FetchHttpRequest failed with error ' + e);"
         "          onResult('FAILURE');        "
         "      });"
         "  } else {"
-        "      console.log('XMLHttpRequest failed with status ' + "
-        "      response.status);"
         "      onResult('FAILURE');"
         "  }"
         "}).catch(function(e) {"
-        "  console.log('FetchHttpRequest failed with error ' + e);"
         "  onResult('FAILURE');"
         "});"
      << "}"
@@ -1154,6 +1190,11 @@ TEST(SchemeHandlerTest, CustomNonStandardXHRSameOriginSync) {
   settings.sub_url = "customnonstd:xhr%20value";
   SetUpXHR(settings);
 
+  g_TestResults.console_messages.push_back(
+      "Access to XMLHttpRequest at 'customnonstd:xhr%20value' from origin "
+      "'null' has been blocked by CORS policy: Cross origin requests are only "
+      "supported for protocol schemes:");
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -1179,6 +1220,11 @@ TEST(SchemeHandlerTest, CustomNonStandardXHRSameOriginAsync) {
   settings.synchronous = false;
   SetUpXHR(settings);
 
+  g_TestResults.console_messages.push_back(
+      "Access to XMLHttpRequest at 'customnonstd:xhr%20value' from origin "
+      "'null' has been blocked by CORS policy: Cross origin requests are only "
+      "supported for protocol schemes:");
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -1202,6 +1248,10 @@ TEST(SchemeHandlerTest, CustomStandardFetchSameOrigin) {
   settings.url = "customstd://test/run.html";
   settings.sub_url = "customstd://test/fetch.html";
   SetUpFetch(settings);
+
+  g_TestResults.console_messages.push_back(
+      "Fetch API cannot load customstd://test/fetch.html. URL scheme "
+      "\"customstd\" is not supported.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -1251,6 +1301,10 @@ TEST(SchemeHandlerTest, CustomNonStandardFetchSameOrigin) {
   settings.sub_url = "customnonstd:xhr%20value";
   SetUpFetch(settings);
 
+  g_TestResults.console_messages.push_back(
+      "Fetch API cannot load customnonstd:xhr%20value. URL scheme must be "
+      "\"http\" or \"https\" for CORS request.");
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -1290,6 +1344,10 @@ TEST(SchemeHandlerTest, CustomNonStandardXSSSameOrigin) {
   RegisterTestScheme("customnonstd", std::string());
   SetUpXSS("customnonstd:some%20value", "customnonstd:xhr%20value");
 
+  g_TestResults.console_messages.push_back(
+      "Error: Blocked a frame with origin \"null\" from accessing a "
+      "cross-origin frame.");
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -1315,6 +1373,12 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginSync) {
   settings.sub_url = "customstd://test2/xhr.html";
   SetUpXHR(settings);
 
+  g_TestResults.console_messages.push_back(
+      "Access to XMLHttpRequest at 'customstd://test2/xhr.html' from origin "
+      "'customstd://test1' has been blocked by CORS policy: No "
+      "'Access-Control-Allow-Origin' header is present on the requested "
+      "resource.");
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -1323,7 +1387,11 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginSync) {
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  EXPECT_TRUE(g_TestResults.got_sub_read);
+  if (!IsOutOfBlinkCorsEnabled()) {
+    EXPECT_TRUE(g_TestResults.got_sub_read);
+  } else {
+    EXPECT_FALSE(g_TestResults.got_sub_read);
+  }
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -1341,6 +1409,12 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginAsync) {
   settings.synchronous = false;
   SetUpXHR(settings);
 
+  g_TestResults.console_messages.push_back(
+      "Access to XMLHttpRequest at 'customstd://test2/xhr.html' from origin "
+      "'customstd://test1' has been blocked by CORS policy: No "
+      "'Access-Control-Allow-Origin' header is present on the requested "
+      "resource.");
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -1349,7 +1423,11 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginAsync) {
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  EXPECT_TRUE(g_TestResults.got_sub_read);
+  if (!IsOutOfBlinkCorsEnabled()) {
+    EXPECT_TRUE(g_TestResults.got_sub_read);
+  } else {
+    EXPECT_FALSE(g_TestResults.got_sub_read);
+  }
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -1366,6 +1444,13 @@ TEST(SchemeHandlerTest, CustomStandardFetchDifferentOrigin) {
   settings.sub_url = "customstdfetch://test2/fetch.html";
   SetUpFetch(settings);
 
+  g_TestResults.console_messages.push_back(
+      "Access to fetch at 'customstdfetch://test2/fetch.html' from origin "
+      "'customstdfetch://test1' has been blocked by CORS policy: No "
+      "'Access-Control-Allow-Origin' header is present on the requested "
+      "resource. If an opaque response serves your needs, set the request's "
+      "mode to 'no-cors' to fetch the resource with CORS disabled.");
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -1374,7 +1459,11 @@ TEST(SchemeHandlerTest, CustomStandardFetchDifferentOrigin) {
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  EXPECT_TRUE(g_TestResults.got_sub_read);
+  if (!IsOutOfBlinkCorsEnabled()) {
+    EXPECT_TRUE(g_TestResults.got_sub_read);
+  } else {
+    EXPECT_FALSE(g_TestResults.got_sub_read);
+  }
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -1386,6 +1475,10 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentOrigin) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("customstd", "test2");
   SetUpXSS("customstd://test1/run.html", "customstd://test2/iframe.html");
+
+  g_TestResults.console_messages.push_back(
+      "Error: Blocked a frame with origin \"customstd://test2\" from accessing "
+      "a cross-origin frame.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -1407,6 +1500,10 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentProtocolHttp) {
   RegisterTestScheme("customstd", "test1");
   RegisterTestScheme("http", "test2");
   SetUpXSS("customstd://test1/run.html", "http://test2/iframe.html");
+
+  g_TestResults.console_messages.push_back(
+      "Error: Blocked a frame with origin \"http://test2\" from accessing a "
+      "cross-origin frame.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -1430,6 +1527,10 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentProtocolCustomNonStandard) {
   RegisterTestScheme("customnonstd", std::string());
   SetUpXSS("customstd://test1/run.html", "customnonstd:some%20value");
 
+  g_TestResults.console_messages.push_back(
+      "Error: Blocked a frame with origin \"null\" from accessing a "
+      "cross-origin frame.");
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -1451,6 +1552,10 @@ TEST(SchemeHandlerTest, HttpXSSDifferentProtocolCustomStandard) {
   RegisterTestScheme("customstd", "test2");
   SetUpXSS("http://test1/run.html", "customstd://test2/iframe.html");
 
+  g_TestResults.console_messages.push_back(
+      "Error: Blocked a frame with origin \"customstd://test2\" from accessing "
+      "a cross-origin frame.");
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -1471,6 +1576,10 @@ TEST(SchemeHandlerTest, HttpXSSDifferentProtocolCustomNonStandard) {
   RegisterTestScheme("http", "test1");
   RegisterTestScheme("customnonstd", std::string());
   SetUpXSS("http://test1/run.html", "customnonstd:some%20value");
+
+  g_TestResults.console_messages.push_back(
+      "Error: Blocked a frame with origin \"null\" from accessing a "
+      "cross-origin frame.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -1497,6 +1606,12 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginSync) {
   settings.sub_url = "http://test2/xhr.html";
   SetUpXHR(settings);
 
+  g_TestResults.console_messages.push_back(
+      "Access to XMLHttpRequest at 'http://test2/xhr.html' from origin "
+      "'http://test1' has been blocked by CORS policy: No "
+      "'Access-Control-Allow-Origin' header is present on the requested "
+      "resource.");
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -1505,7 +1620,11 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginSync) {
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  EXPECT_TRUE(g_TestResults.got_sub_read);
+  if (!IsOutOfBlinkCorsEnabled()) {
+    EXPECT_TRUE(g_TestResults.got_sub_read);
+  } else {
+    EXPECT_FALSE(g_TestResults.got_sub_read);
+  }
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -1523,6 +1642,12 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginAsync) {
   settings.synchronous = false;
   SetUpXHR(settings);
 
+  g_TestResults.console_messages.push_back(
+      "Access to XMLHttpRequest at 'http://test2/xhr.html' from origin "
+      "'http://test1' has been blocked by CORS policy: No "
+      "'Access-Control-Allow-Origin' header is present on the requested "
+      "resource.");
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -1531,7 +1656,11 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginAsync) {
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  EXPECT_TRUE(g_TestResults.got_sub_read);
+  if (!IsOutOfBlinkCorsEnabled()) {
+    EXPECT_TRUE(g_TestResults.got_sub_read);
+  } else {
+    EXPECT_FALSE(g_TestResults.got_sub_read);
+  }
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -1548,6 +1677,13 @@ TEST(SchemeHandlerTest, HttpFetchDifferentOriginAsync) {
   settings.sub_url = "http://test2/fetch.html";
   SetUpFetch(settings);
 
+  g_TestResults.console_messages.push_back(
+      "Access to fetch at 'http://test2/fetch.html' from origin 'http://test1' "
+      "has been blocked by CORS policy: No 'Access-Control-Allow-Origin' "
+      "header is present on the requested resource. If an opaque response "
+      "serves your needs, set the request's mode to 'no-cors' to fetch the "
+      "resource with CORS disabled.");
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -1556,7 +1692,11 @@ TEST(SchemeHandlerTest, HttpFetchDifferentOriginAsync) {
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  EXPECT_TRUE(g_TestResults.got_sub_read);
+  if (!IsOutOfBlinkCorsEnabled()) {
+    EXPECT_TRUE(g_TestResults.got_sub_read);
+  } else {
+    EXPECT_FALSE(g_TestResults.got_sub_read);
+  }
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -1568,6 +1708,10 @@ TEST(SchemeHandlerTest, HttpXSSDifferentOrigin) {
   RegisterTestScheme("http", "test1");
   RegisterTestScheme("http", "test2");
   SetUpXSS("http://test1/run.html", "http://test2/xss.html");
+
+  g_TestResults.console_messages.push_back(
+      "Error: Blocked a frame with origin \"http://test2\" from accessing a "
+      "cross-origin frame.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -2085,6 +2229,12 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginRedirectSync) {
   settings.sub_redirect_url = "customstd://test1/xhr.html";
   SetUpXHR(settings);
 
+  g_TestResults.console_messages.push_back(
+      "Access to XMLHttpRequest at 'customstd://test2/xhr.html' (redirected "
+      "from 'customstd://test1/xhr.html') from origin 'customstd://test1' has "
+      "been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is "
+      "present on the requested resource.");
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -2094,7 +2244,11 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginRedirectSync) {
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_redirect);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  EXPECT_TRUE(g_TestResults.got_sub_read);
+  if (!IsOutOfBlinkCorsEnabled()) {
+    EXPECT_TRUE(g_TestResults.got_sub_read);
+  } else {
+    EXPECT_FALSE(g_TestResults.got_sub_read);
+  }
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -2113,6 +2267,12 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginRedirectAsync) {
   settings.synchronous = false;
   SetUpXHR(settings);
 
+  g_TestResults.console_messages.push_back(
+      "Access to XMLHttpRequest at 'customstd://test2/xhr.html' (redirected "
+      "from 'customstd://test1/xhr.html') from origin 'customstd://test1' has "
+      "been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is "
+      "present on the requested resource.");
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -2122,7 +2282,11 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginRedirectAsync) {
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_redirect);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  EXPECT_TRUE(g_TestResults.got_sub_read);
+  if (!IsOutOfBlinkCorsEnabled()) {
+    EXPECT_TRUE(g_TestResults.got_sub_read);
+  } else {
+    EXPECT_FALSE(g_TestResults.got_sub_read);
+  }
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -2140,6 +2304,14 @@ TEST(SchemeHandlerTest, CustomStandardFetchDifferentOriginRedirect) {
   settings.sub_redirect_url = "customstdfetch://test1/fetch.html";
   SetUpFetch(settings);
 
+  g_TestResults.console_messages.push_back(
+      "Access to fetch at 'customstdfetch://test2/fetch.html' (redirected from "
+      "'customstdfetch://test1/fetch.html') from origin "
+      "'customstdfetch://test1' has been blocked by CORS policy: No "
+      "'Access-Control-Allow-Origin' header is present on the requested "
+      "resource. If an opaque response serves your needs, set the request's "
+      "mode to 'no-cors' to fetch the resource with CORS disabled.");
+
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -2149,7 +2321,11 @@ TEST(SchemeHandlerTest, CustomStandardFetchDifferentOriginRedirect) {
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_redirect);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  EXPECT_TRUE(g_TestResults.got_sub_read);
+  if (!IsOutOfBlinkCorsEnabled()) {
+    EXPECT_TRUE(g_TestResults.got_sub_read);
+  } else {
+    EXPECT_FALSE(g_TestResults.got_sub_read);
+  }
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -2429,6 +2605,7 @@ void RegisterSchemeHandlerCustomSchemes(
   // Add a custom standard scheme.
   registrar->AddCustomScheme(
       "customstd", CEF_SCHEME_OPTION_STANDARD | CEF_SCHEME_OPTION_CORS_ENABLED);
+  // Also used in cors_unittest.cc.
   registrar->AddCustomScheme("customstdfetch",
                              CEF_SCHEME_OPTION_STANDARD |
                                  CEF_SCHEME_OPTION_CORS_ENABLED |

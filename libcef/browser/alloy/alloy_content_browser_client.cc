@@ -1255,6 +1255,7 @@ void AlloyContentBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories(
       extensions::Manifest::IsComponentLocation(extension->location())) {
     // Components of chrome that are implemented as extensions or platform apps
     // are allowed to use chrome://resources/ and chrome://theme/ URLs.
+    // See also HasCrossOriginWhitelistEntry.
     allowed_webui_hosts.emplace_back(content::kChromeUIResourcesHost);
     allowed_webui_hosts.emplace_back(chrome::kChromeUIThemeHost);
   }
