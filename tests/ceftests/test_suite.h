@@ -2,8 +2,8 @@
 // 2012 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#ifndef CEF_TESTS_UNITTESTS_TEST_SUITE_H_
-#define CEF_TESTS_UNITTESTS_TEST_SUITE_H_
+#ifndef CEF_TESTS_CEFTESTS_TEST_SUITE_H_
+#define CEF_TESTS_CEFTESTS_TEST_SUITE_H_
 #pragma once
 
 #include <string>
@@ -55,4 +55,4 @@ class CefTestSuite {
 
 #define CEF_SETTINGS_ACCEPT_LANGUAGE "en-GB"
 
-#endif  // CEF_TESTS_UNITTESTS_TEST_SUITE_H_
+#endif  // CEF_TESTS_CEFTESTS_TEST_SUITE_H_

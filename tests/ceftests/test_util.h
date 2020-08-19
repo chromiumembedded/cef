@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef CEF_TESTS_UNITTESTS_TEST_UTIL_H_
-#define CEF_TESTS_UNITTESTS_TEST_UTIL_H_
+#ifndef CEF_TESTS_CEFTESTS_TEST_UTIL_H_
+#define CEF_TESTS_CEFTESTS_TEST_UTIL_H_
 #pragma once
 
 #include "include/cef_process_message.h"
@@ -179,4 +179,4 @@ CefRefPtr<CefRequestContext> CreateTestRequestContext(
   RC_TEST_GROUP_IN_MEMORY(test_case_name, test_name, test_class, test_mode) \
   RC_TEST_GROUP_ON_DISK(test_case_name, test_name, test_class, test_mode)
 
-#endif  // CEF_TESTS_UNITTESTS_TEST_UTIL_H_
+#endif  // CEF_TESTS_CEFTESTS_TEST_UTIL_H_
