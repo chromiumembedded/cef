@@ -19,19 +19,8 @@
 #include "include/cef_task.h"
 #include "include/cef_waitable_event.h"
 #include "tests/ceftests/thread_helper.h"
+#include "tests/ceftests/track_callback.h"
 #include "tests/gtest/include/gtest/gtest.h"
-
-class TrackCallback {
- public:
-  TrackCallback() : gotit_(false) {}
-  void yes() { gotit_ = true; }
-  bool isSet() { return gotit_; }
-  void reset() { gotit_ = false; }
-  operator bool() const { return gotit_; }
-
- protected:
-  bool gotit_;
-};
 
 class ResourceContent {
  public:
