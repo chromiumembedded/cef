@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef CEF_TESTS_UNITTESTS_TEST_HANDLER_H_
-#define CEF_TESTS_UNITTESTS_TEST_HANDLER_H_
+#ifndef CEF_TESTS_CEFTESTS_TEST_HANDLER_H_
+#define CEF_TESTS_CEFTESTS_TEST_HANDLER_H_
 #pragma once
 
 #include <list>
@@ -363,4 +363,4 @@ bool TestFailed();
   GTEST_TEST_BOOLEAN_(!(__result), #condition, true, false, \
                       GTEST_NONFATAL_FAILURE_)
 
-#endif  // CEF_TESTS_UNITTESTS_TEST_HANDLER_H_
+#endif  // CEF_TESTS_CEFTESTS_TEST_HANDLER_H_

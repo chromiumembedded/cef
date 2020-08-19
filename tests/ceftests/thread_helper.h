@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef CEF_TESTS_UNITTESTS_THREAD_HELPER_H_
-#define CEF_TESTS_UNITTESTS_THREAD_HELPER_H_
+#ifndef CEF_TESTS_CEFTESTS_THREAD_HELPER_H_
+#define CEF_TESTS_CEFTESTS_THREAD_HELPER_H_
 #pragma once
 
 #include "include/base/cef_bind.h"
@@ -69,4 +69,4 @@ void RunOnThreadAsync(
 #define UI_THREAD_TEST_ASYNC(test_case_name, test_name) \
   NAMED_THREAD_TEST_ASYNC(TID_UI, test_case_name, test_name)
 
-#endif  // CEF_TESTS_UNITTESTS_THREAD_HELPER_H_
+#endif  // CEF_TESTS_CEFTESTS_THREAD_HELPER_H_

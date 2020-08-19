@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license
 // that can be found in the LICENSE file.
 
-#ifndef CEF_TESTS_UNITTESTS_OS_RENDERING_UNITTEST_MAC_H_
-#define CEF_TESTS_UNITTESTS_OS_RENDERING_UNITTEST_MAC_H_
+#ifndef CEF_TESTS_CEFTESTS_OS_RENDERING_UNITTEST_MAC_H_
+#define CEF_TESTS_CEFTESTS_OS_RENDERING_UNITTEST_MAC_H_
 
 #include "include/cef_base.h"
 
@@ -13,4 +13,4 @@ CefWindowHandle GetFakeView();
 
 }  // namespace osr_unittests
 
-#endif
+#endif  // CEF_TESTS_CEFTESTS_OS_RENDERING_UNITTEST_MAC_H_
