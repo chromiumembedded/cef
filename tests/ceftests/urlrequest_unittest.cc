@@ -17,6 +17,8 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_scoped_temp_dir.h"
 #include "tests/ceftests/test_handler.h"
+#include "tests/ceftests/test_request.h"
+#include "tests/ceftests/test_server.h"
 #include "tests/ceftests/test_suite.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
@@ -45,9 +47,9 @@ const char kRequestSchemeCustom[] = "urcustom";
 const char kRequestHostCustom[] = "test";
 
 // Server backend.
-const char kRequestAddressServer[] = "127.0.0.1";
-const uint16 kRequestPortServer = 8099;
-const char kRequestSchemeServer[] = "http";
+const char* kRequestAddressServer = test_server::kServerAddress;
+const uint16 kRequestPortServer = test_server::kServerPort;
+const char* kRequestSchemeServer = test_server::kServerScheme;
 
 const char kRequestSendCookieName[] = "urcookie_send";
 const char kRequestSaveCookieName[] = "urcookie_save";
@@ -1205,7 +1207,7 @@ class RequestSchemeHandlerFactory : public CefSchemeHandlerFactory {
 // SERVER BACKEND
 
 // HTTP server handler.
-class RequestServerHandler : public CefServerHandler {
+class RequestServerHandler : public test_server::ObserverHelper {
  public:
   RequestServerHandler()
       : initialized_(false),
@@ -1244,8 +1246,7 @@ class RequestServerHandler : public CefServerHandler {
     EXPECT_TRUE(complete_callback_.is_null());
     complete_callback_ = complete_callback;
 
-    CefServer::CreateServer(kRequestAddressServer, kRequestPortServer, 10,
-                            this);
+    Initialize();
   }
 
   // Results in a call to VerifyResults() and eventual execution of the
@@ -1256,73 +1257,59 @@ class RequestServerHandler : public CefServerHandler {
     EXPECT_TRUE(complete_callback_.is_null());
     complete_callback_ = complete_callback;
 
-    EXPECT_TRUE(server_);
-    if (server_)
-      server_->Shutdown();
+    Shutdown();
   }
 
-  void OnServerCreated(CefRefPtr<CefServer> server) override {
-    EXPECT_TRUE(server);
-    EXPECT_TRUE(server->IsRunning());
-    EXPECT_FALSE(server->HasConnection());
+  void OnInitialized(const std::string& server_origin) override {
+    EXPECT_UI_THREAD();
+    EXPECT_STREQ(server_origin.c_str(), GetRequestOrigin(true).c_str());
+    EXPECT_FALSE(got_initialized_);
+    got_initialized_.yes();
 
-    EXPECT_FALSE(got_server_created_);
-    got_server_created_.yes();
-
-    EXPECT_FALSE(server_);
-    server_ = server;
-
-    EXPECT_FALSE(server_runner_);
-    server_runner_ = server_->GetTaskRunner();
-    EXPECT_TRUE(server_runner_);
-    EXPECT_TRUE(server_runner_->BelongsToCurrentThread());
-
-    CefPostTask(TID_UI, base::Bind(&RequestServerHandler::RunCompleteCallback,
-                                   this, true));
+    RunCompleteCallback(true);
   }
 
-  void OnServerDestroyed(CefRefPtr<CefServer> server) override {
-    EXPECT_TRUE(VerifyServer(server));
-    EXPECT_FALSE(server->IsRunning());
-    EXPECT_FALSE(server->HasConnection());
-
-    EXPECT_FALSE(got_server_destroyed_);
-    got_server_destroyed_.yes();
+  void OnShutdown() override {
+    EXPECT_UI_THREAD();
+    EXPECT_FALSE(got_shutdown_);
+    got_shutdown_.yes();
 
     data_map_.SetOwnerTaskRunner(nullptr);
-    server_ = nullptr;
 
     VerifyResults();
+
+    delete this;
   }
 
-  void OnClientConnected(CefRefPtr<CefServer> server,
+  bool OnClientConnected(CefRefPtr<CefServer> server,
                          int connection_id) override {
-    EXPECT_TRUE(VerifyServer(server));
-    EXPECT_TRUE(server->HasConnection());
-    EXPECT_TRUE(server->IsValidConnection(connection_id));
+    EXPECT_UI_THREAD();
 
     EXPECT_TRUE(connection_id_set_.find(connection_id) ==
                 connection_id_set_.end());
     connection_id_set_.insert(connection_id);
 
     actual_connection_ct_++;
+
+    return true;
   }
 
-  void OnClientDisconnected(CefRefPtr<CefServer> server,
+  bool OnClientDisconnected(CefRefPtr<CefServer> server,
                             int connection_id) override {
-    EXPECT_TRUE(VerifyServer(server));
-    EXPECT_FALSE(server->IsValidConnection(connection_id));
+    EXPECT_UI_THREAD();
 
     ConnectionIdSet::iterator it = connection_id_set_.find(connection_id);
     EXPECT_TRUE(it != connection_id_set_.end());
     connection_id_set_.erase(it);
+
+    return true;
   }
 
-  void OnHttpRequest(CefRefPtr<CefServer> server,
+  bool OnHttpRequest(CefRefPtr<CefServer> server,
                      int connection_id,
                      const CefString& client_address,
                      CefRefPtr<CefRequest> request) override {
-    EXPECT_TRUE(VerifyServer(server));
+    EXPECT_UI_THREAD();
     EXPECT_TRUE(VerifyConnection(connection_id));
     EXPECT_FALSE(client_address.empty());
 
@@ -1333,52 +1320,18 @@ class RequestServerHandler : public CefServerHandler {
     HandleRequest(server, connection_id, request);
 
     actual_http_request_ct_++;
-  }
 
-  void OnWebSocketRequest(CefRefPtr<CefServer> server,
-                          int connection_id,
-                          const CefString& client_address,
-                          CefRefPtr<CefRequest> request,
-                          CefRefPtr<CefCallback> callback) override {
-    NOTREACHED();
-  }
-
-  void OnWebSocketConnected(CefRefPtr<CefServer> server,
-                            int connection_id) override {
-    NOTREACHED();
-  }
-
-  void OnWebSocketMessage(CefRefPtr<CefServer> server,
-                          int connection_id,
-                          const void* data,
-                          size_t data_size) override {
-    NOTREACHED();
+    return true;
   }
 
  private:
-  bool RunningOnServerThread() {
-    return server_runner_ && server_runner_->BelongsToCurrentThread();
-  }
-
-  bool VerifyServer(CefRefPtr<CefServer> server) {
-    V_DECLARE();
-    V_EXPECT_TRUE(RunningOnServerThread());
-    V_EXPECT_TRUE(server);
-    V_EXPECT_TRUE(server_);
-    V_EXPECT_TRUE(server->GetAddress().ToString() ==
-                  server_->GetAddress().ToString());
-    V_RETURN();
-  }
-
   bool VerifyConnection(int connection_id) {
     return connection_id_set_.find(connection_id) != connection_id_set_.end();
   }
 
   void VerifyResults() {
-    EXPECT_TRUE(RunningOnServerThread());
-
-    EXPECT_TRUE(got_server_created_);
-    EXPECT_TRUE(got_server_destroyed_);
+    EXPECT_TRUE(got_initialized_);
+    EXPECT_TRUE(got_shutdown_);
     EXPECT_TRUE(connection_id_set_.empty());
     EXPECT_EQ(expected_connection_ct_, actual_connection_ct_) << request_log_;
     EXPECT_EQ(expected_http_request_ct_, actual_http_request_ct_)
@@ -1409,18 +1362,18 @@ class RequestServerHandler : public CefServerHandler {
     }
   }
 
-  void HandleAuthRequest(CefRefPtr<CefServer> server,
-                         int connection_id,
-                         CefRefPtr<CefRequest> request) {
+  static void HandleAuthRequest(CefRefPtr<CefServer> server,
+                                int connection_id,
+                                CefRefPtr<CefRequest> request) {
     CefRefPtr<CefResponse> response = CefResponse::Create();
     GetAuthResponse(response);
     SendResponse(server, connection_id, response, std::string());
   }
 
-  void HandleNormalRequest(CefRefPtr<CefServer> server,
-                           int connection_id,
-                           CefRefPtr<CefRequest> request,
-                           RequestRunSettings* settings) {
+  static void HandleNormalRequest(CefRefPtr<CefServer> server,
+                                  int connection_id,
+                                  CefRefPtr<CefRequest> request,
+                                  RequestRunSettings* settings) {
     VerifyNormalRequest(settings, request, true);
 
     CefRefPtr<CefResponse> response = CefResponse::Create();
@@ -1437,11 +1390,11 @@ class RequestServerHandler : public CefServerHandler {
     SendResponse(server, connection_id, response, response_data);
   }
 
-  void HandleRedirectRequest(CefRefPtr<CefServer> server,
-                             int connection_id,
-                             CefRefPtr<CefRequest> request,
-                             CefRefPtr<CefRequest> redirect_request,
-                             CefRefPtr<CefResponse> redirect_response) {
+  static void HandleRedirectRequest(CefRefPtr<CefServer> server,
+                                    int connection_id,
+                                    CefRefPtr<CefRequest> request,
+                                    CefRefPtr<CefRequest> redirect_request,
+                                    CefRefPtr<CefResponse> redirect_response) {
     if (redirect_response->GetStatus() == 302) {
       // Simulate wrong copying of POST-specific headers Content-Type and
       // Content-Length. A 302 redirect should end up in a GET request and
@@ -1460,10 +1413,19 @@ class RequestServerHandler : public CefServerHandler {
     SendResponse(server, connection_id, redirect_response, std::string());
   }
 
-  void SendResponse(CefRefPtr<CefServer> server,
-                    int connection_id,
-                    CefRefPtr<CefResponse> response,
-                    const std::string& response_data) {
+  static void SendResponse(CefRefPtr<CefServer> server,
+                           int connection_id,
+                           CefRefPtr<CefResponse> response,
+                           const std::string& response_data) {
+    // Execute on the server thread because some methods require it.
+    CefRefPtr<CefTaskRunner> task_runner = server->GetTaskRunner();
+    if (!task_runner->BelongsToCurrentThread()) {
+      task_runner->PostTask(CefCreateClosureTask(
+          base::Bind(RequestServerHandler::SendResponse, server, connection_id,
+                     response, response_data)));
+      return;
+    }
+
     const int response_code = response->GetStatus();
     if (response_code <= 0) {
       // Intentionally not responding for incomplete request tests.
@@ -1498,8 +1460,8 @@ class RequestServerHandler : public CefServerHandler {
     EXPECT_UI_THREAD();
 
     if (startup) {
-      // Transfer DataMap ownership to the server thread.
-      data_map_.SetOwnerTaskRunner(server_->GetTaskRunner());
+      // Transfer DataMap ownership to the UI thread.
+      data_map_.SetOwnerTaskRunner(CefTaskRunner::GetForCurrentThread());
     }
 
     EXPECT_FALSE(complete_callback_.is_null());
@@ -1509,8 +1471,6 @@ class RequestServerHandler : public CefServerHandler {
 
   RequestDataMap data_map_;
 
-  CefRefPtr<CefServer> server_;
-  CefRefPtr<CefTaskRunner> server_runner_;
   bool initialized_;
 
   // Only accessed on the UI thread.
@@ -1519,8 +1479,8 @@ class RequestServerHandler : public CefServerHandler {
   // After initialization the below members are only accessed on the server
   // thread.
 
-  TrackCallback got_server_created_;
-  TrackCallback got_server_destroyed_;
+  TrackCallback got_initialized_;
+  TrackCallback got_shutdown_;
 
   typedef std::set<int> ConnectionIdSet;
   ConnectionIdSet connection_id_set_;
@@ -1531,106 +1491,6 @@ class RequestServerHandler : public CefServerHandler {
   int actual_http_request_ct_;
 
   std::string request_log_;
-
-  IMPLEMENT_REFCOUNTING(RequestServerHandler);
-  DISALLOW_COPY_AND_ASSIGN(RequestServerHandler);
-};
-
-// URLREQUEST CLIENT
-
-// Implementation of CefURLRequestClient that stores response information.
-class RequestClient : public CefURLRequestClient {
- public:
-  typedef base::Callback<void(CefRefPtr<RequestClient>)>
-      RequestCompleteCallback;
-
-  explicit RequestClient(const RequestCompleteCallback& complete_callback)
-      : complete_callback_(complete_callback) {
-    EXPECT_FALSE(complete_callback_.is_null());
-  }
-
-  void OnRequestComplete(CefRefPtr<CefURLRequest> request) override {
-    request_complete_ct_++;
-
-    request_ = request->GetRequest();
-    EXPECT_TRUE(request_->IsReadOnly());
-    status_ = request->GetRequestStatus();
-    error_code_ = request->GetRequestError();
-    response_was_cached_ = request->ResponseWasCached();
-    response_ = request->GetResponse();
-    if (response_) {
-      EXPECT_TRUE(response_->IsReadOnly());
-    }
-
-    complete_callback_.Run(this);
-  }
-
-  void OnUploadProgress(CefRefPtr<CefURLRequest> request,
-                        int64 current,
-                        int64 total) override {
-    upload_progress_ct_++;
-    upload_total_ = total;
-  }
-
-  void OnDownloadProgress(CefRefPtr<CefURLRequest> request,
-                          int64 current,
-                          int64 total) override {
-    response_ = request->GetResponse();
-    EXPECT_TRUE(response_.get());
-    EXPECT_TRUE(response_->IsReadOnly());
-    download_progress_ct_++;
-    download_total_ = total;
-  }
-
-  void OnDownloadData(CefRefPtr<CefURLRequest> request,
-                      const void* data,
-                      size_t data_length) override {
-    response_ = request->GetResponse();
-    EXPECT_TRUE(response_.get());
-    EXPECT_TRUE(response_->IsReadOnly());
-    download_data_ct_++;
-    download_data_ += std::string(static_cast<const char*>(data), data_length);
-  }
-
-  bool GetAuthCredentials(bool isProxy,
-                          const CefString& host,
-                          int port,
-                          const CefString& realm,
-                          const CefString& scheme,
-                          CefRefPtr<CefAuthCallback> callback) override {
-    auth_credentials_ct_++;
-    if (has_authentication_) {
-      callback->Continue(username_, password_);
-      return true;
-    }
-    return false;
-  }
-
- private:
-  const RequestCompleteCallback complete_callback_;
-
- public:
-  bool has_authentication_ = false;
-  std::string username_;
-  std::string password_;
-
-  int request_complete_ct_ = 0;
-  int upload_progress_ct_ = 0;
-  int download_progress_ct_ = 0;
-  int download_data_ct_ = 0;
-  int auth_credentials_ct_ = 0;
-
-  int64 upload_total_ = 0;
-  int64 download_total_ = 0;
-  std::string download_data_;
-  CefRefPtr<CefRequest> request_;
-  CefURLRequest::Status status_ = UR_UNKNOWN;
-  CefURLRequest::ErrorCode error_code_ = ERR_NONE;
-  CefRefPtr<CefResponse> response_;
-  bool response_was_cached_ = false;
-
- private:
-  IMPLEMENT_REFCOUNTING(RequestClient);
 };
 
 // SHARED TEST RUNNER
@@ -2501,30 +2361,30 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
   }
 
   // Send a request. |complete_callback| will be executed on request completion.
-  void SendRequest(
-      const RequestClient::RequestCompleteCallback& complete_callback) {
-    CefRefPtr<CefRequest> request;
-    if (settings_.redirect_request)
-      request = settings_.redirect_request;
-    else
-      request = settings_.request;
-    EXPECT_TRUE(request.get());
+  void SendRequest(const test_request::RequestDoneCallback& done_callback) {
+    test_request::SendConfig config;
 
-    CefRefPtr<RequestClient> client = new RequestClient(complete_callback);
+    if (settings_.redirect_request)
+      config.request_ = settings_.redirect_request;
+    else
+      config.request_ = settings_.request;
+    EXPECT_TRUE(config.request_.get());
 
     // Not delegating to CefRequestHandler::GetAuthCredentials.
     if (!use_frame_method_ && settings_.expect_authentication) {
-      client->has_authentication_ = true;
-      client->username_ = settings_.username;
-      client->password_ = settings_.password;
+      config.has_credentials_ = true;
+      config.username_ = settings_.username;
+      config.password_ = settings_.password;
     }
 
     if (use_frame_method_) {
       EXPECT_TRUE(frame_);
-      frame_->CreateURLRequest(request, client.get());
+      config.frame_ = frame_;
     } else {
-      CefURLRequest::Create(request, client.get(), request_context_);
+      config.request_context_ = request_context_;
     }
+
+    test_request::Send(config, done_callback);
 
     if (settings_.incomplete_type != RequestRunSettings::INCOMPLETE_NONE) {
       incomplete_request_callback_.Run();
@@ -2533,7 +2393,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
   }
 
   // Verify a response.
-  void VerifyResponse(CefRefPtr<RequestClient> client) {
+  void VerifyResponse(const test_request::State* const client) {
     CefRefPtr<CefRequest> expected_request;
     CefRefPtr<CefResponse> expected_response;
 
@@ -2607,8 +2467,8 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
   }
 
   void SingleRunTestComplete(const base::Closure& complete_callback,
-                             CefRefPtr<RequestClient> completed_client) {
-    VerifyResponse(completed_client);
+                             const test_request::State& completed_client) {
+    VerifyResponse(&completed_client);
     complete_callback.Run();
   }
 
@@ -2628,9 +2488,9 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
   void MultipleRunTestNext(const base::Closure& complete_callback,
                            int send_count,
-                           CefRefPtr<RequestClient> completed_client) {
+                           const test_request::State& completed_client) {
     // Verify the completed request.
-    VerifyResponse(completed_client);
+    VerifyResponse(&completed_client);
 
     if (send_count == settings_.expected_send_count) {
       // All requests complete.
@@ -2757,6 +2617,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
   void ShutdownServer(const base::Closure& complete_callback) {
     EXPECT_TRUE(server_handler_);
 
+    // |server_handler_| will delete itself after shutdown.
     server_handler_->ShutdownServer(complete_callback);
     server_handler_ = nullptr;
   }
@@ -2797,7 +2658,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
   TestMap test_map_;
 
   // Server backend.
-  CefRefPtr<RequestServerHandler> server_handler_;
+  RequestServerHandler* server_handler_ = nullptr;
 
   // Scheme handler backend.
   std::string scheme_name_;

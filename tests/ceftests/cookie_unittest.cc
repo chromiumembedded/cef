@@ -15,6 +15,7 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/routing_test_handler.h"
 #include "tests/ceftests/test_handler.h"
+#include "tests/ceftests/test_server.h"
 #include "tests/ceftests/test_suite.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
@@ -1050,30 +1051,29 @@ namespace {
 
 const char kCookieAccessScheme[] = "http";
 const char kCookieAccessDomain[] = "test-cookies.com";
-const char kCookieAccessServerIP[] = "127.0.0.1";
-const uint16 kCookieAccessServerPort = 8099;
+const char* kCookieAccessServerAddress = test_server::kServerAddress;
+const uint16 kCookieAccessServerPort = test_server::kServerPort;
 
 std::string GetCookieAccessOrigin(const std::string& scheme,
                                   bool server_backend) {
   std::stringstream ss;
   if (server_backend) {
-    ss << scheme << "://" << kCookieAccessServerIP << ":"
+    ss << scheme << "://" << kCookieAccessServerAddress << ":"
        << kCookieAccessServerPort;
   } else {
     ss << scheme << "://" << kCookieAccessDomain;
   }
-  ss << "/";
   return ss.str();
 }
 
 std::string GetCookieAccessUrl1(const std::string& scheme,
                                 bool server_backend) {
-  return GetCookieAccessOrigin(scheme, server_backend) + "cookie1.html";
+  return GetCookieAccessOrigin(scheme, server_backend) + "/cookie1.html";
 }
 
 std::string GetCookieAccessUrl2(const std::string& scheme,
                                 bool server_backend) {
-  return GetCookieAccessOrigin(scheme, server_backend) + "cookie2.html";
+  return GetCookieAccessOrigin(scheme, server_backend) + "/cookie2.html";
 }
 
 void TestCookieString(const std::string& cookie_str,
@@ -1248,7 +1248,7 @@ class CookieAccessSchemeHandlerFactory : public CefSchemeHandlerFactory,
 };
 
 // HTTP server handler.
-class CookieAccessServerHandler : public CefServerHandler,
+class CookieAccessServerHandler : public test_server::ObserverHelper,
                                   public CookieAccessResponseHandler {
  public:
   CookieAccessServerHandler()
@@ -1288,8 +1288,7 @@ class CookieAccessServerHandler : public CefServerHandler,
     EXPECT_TRUE(complete_callback_.is_null());
     complete_callback_ = complete_callback;
 
-    CefServer::CreateServer(kCookieAccessServerIP, kCookieAccessServerPort, 10,
-                            this);
+    Initialize();
   }
 
   // Results in a call to VerifyResults() and eventual execution of the
@@ -1301,73 +1300,60 @@ class CookieAccessServerHandler : public CefServerHandler,
     EXPECT_TRUE(complete_callback_.is_null());
     complete_callback_ = complete_callback;
 
-    EXPECT_TRUE(server_);
-    if (server_)
-      server_->Shutdown();
+    Shutdown();
   }
 
-  void OnServerCreated(CefRefPtr<CefServer> server) override {
-    EXPECT_TRUE(server);
-    EXPECT_TRUE(server->IsRunning());
-    EXPECT_FALSE(server->HasConnection());
+  void OnInitialized(const std::string& server_origin) override {
+    EXPECT_UI_THREAD();
+    EXPECT_STREQ(server_origin.c_str(),
+                 GetCookieAccessOrigin(kCookieAccessScheme, true).c_str());
 
     EXPECT_FALSE(got_server_created_);
     got_server_created_.yes();
 
-    EXPECT_FALSE(server_);
-    server_ = server;
-
-    EXPECT_FALSE(server_runner_);
-    server_runner_ = server_->GetTaskRunner();
-    EXPECT_TRUE(server_runner_);
-    EXPECT_TRUE(server_runner_->BelongsToCurrentThread());
-
-    CefPostTask(
-        TID_UI,
-        base::Bind(&CookieAccessServerHandler::RunCompleteCallback, this));
+    RunCompleteCallback();
   }
 
-  void OnServerDestroyed(CefRefPtr<CefServer> server) override {
-    EXPECT_TRUE(VerifyServer(server));
-    EXPECT_FALSE(server->IsRunning());
-    EXPECT_FALSE(server->HasConnection());
+  void OnShutdown() override {
+    EXPECT_UI_THREAD();
 
     EXPECT_FALSE(got_server_destroyed_);
     got_server_destroyed_.yes();
 
-    server_ = nullptr;
-
     VerifyResults();
+
+    delete this;
   }
 
-  void OnClientConnected(CefRefPtr<CefServer> server,
+  bool OnClientConnected(CefRefPtr<CefServer> server,
                          int connection_id) override {
-    EXPECT_TRUE(VerifyServer(server));
-    EXPECT_TRUE(server->HasConnection());
-    EXPECT_TRUE(server->IsValidConnection(connection_id));
+    EXPECT_UI_THREAD();
 
     EXPECT_TRUE(connection_id_set_.find(connection_id) ==
                 connection_id_set_.end());
     connection_id_set_.insert(connection_id);
 
     actual_connection_ct_++;
+
+    return true;
   }
 
-  void OnClientDisconnected(CefRefPtr<CefServer> server,
+  bool OnClientDisconnected(CefRefPtr<CefServer> server,
                             int connection_id) override {
-    EXPECT_TRUE(VerifyServer(server));
-    EXPECT_FALSE(server->IsValidConnection(connection_id));
+    EXPECT_UI_THREAD();
 
     ConnectionIdSet::iterator it = connection_id_set_.find(connection_id);
     EXPECT_TRUE(it != connection_id_set_.end());
     connection_id_set_.erase(it);
+
+    return true;
   }
 
-  void OnHttpRequest(CefRefPtr<CefServer> server,
+  bool OnHttpRequest(CefRefPtr<CefServer> server,
                      int connection_id,
                      const CefString& client_address,
                      CefRefPtr<CefRequest> request) override {
-    EXPECT_TRUE(VerifyServer(server));
+    EXPECT_UI_THREAD();
     EXPECT_TRUE(VerifyConnection(connection_id));
     EXPECT_FALSE(client_address.empty());
 
@@ -1378,50 +1364,16 @@ class CookieAccessServerHandler : public CefServerHandler,
     HandleRequest(server, connection_id, request);
 
     actual_http_request_ct_++;
-  }
 
-  void OnWebSocketRequest(CefRefPtr<CefServer> server,
-                          int connection_id,
-                          const CefString& client_address,
-                          CefRefPtr<CefRequest> request,
-                          CefRefPtr<CefCallback> callback) override {
-    NOTREACHED();
-  }
-
-  void OnWebSocketConnected(CefRefPtr<CefServer> server,
-                            int connection_id) override {
-    NOTREACHED();
-  }
-
-  void OnWebSocketMessage(CefRefPtr<CefServer> server,
-                          int connection_id,
-                          const void* data,
-                          size_t data_size) override {
-    NOTREACHED();
+    return true;
   }
 
  private:
-  bool RunningOnServerThread() {
-    return server_runner_ && server_runner_->BelongsToCurrentThread();
-  }
-
-  bool VerifyServer(CefRefPtr<CefServer> server) {
-    V_DECLARE();
-    V_EXPECT_TRUE(RunningOnServerThread());
-    V_EXPECT_TRUE(server);
-    V_EXPECT_TRUE(server_);
-    V_EXPECT_TRUE(server->GetAddress().ToString() ==
-                  server_->GetAddress().ToString());
-    V_RETURN();
-  }
-
   bool VerifyConnection(int connection_id) {
     return connection_id_set_.find(connection_id) != connection_id_set_.end();
   }
 
   void VerifyResults() {
-    EXPECT_TRUE(RunningOnServerThread());
-
     EXPECT_TRUE(got_server_created_);
     EXPECT_TRUE(got_server_destroyed_);
     EXPECT_TRUE(connection_id_set_.empty());
@@ -1453,10 +1405,19 @@ class CookieAccessServerHandler : public CefServerHandler,
     }
   }
 
-  void SendResponse(CefRefPtr<CefServer> server,
-                    int connection_id,
-                    CefRefPtr<CefResponse> response,
-                    const std::string& response_data) {
+  static void SendResponse(CefRefPtr<CefServer> server,
+                           int connection_id,
+                           CefRefPtr<CefResponse> response,
+                           const std::string& response_data) {
+    // Execute on the server thread because some methods require it.
+    CefRefPtr<CefTaskRunner> task_runner = server->GetTaskRunner();
+    if (!task_runner->BelongsToCurrentThread()) {
+      task_runner->PostTask(CefCreateClosureTask(
+          base::Bind(CookieAccessServerHandler::SendResponse, server,
+                     connection_id, response, response_data)));
+      return;
+    }
+
     int response_code = response->GetStatus();
     const CefString& content_type = response->GetMimeType();
     int64 content_length = static_cast<int64>(response_data.size());
@@ -1489,8 +1450,6 @@ class CookieAccessServerHandler : public CefServerHandler,
   typedef std::map<std::string, CookieAccessData*> ResponseDataMap;
   ResponseDataMap data_map_;
 
-  CefRefPtr<CefServer> server_;
-  CefRefPtr<CefTaskRunner> server_runner_;
   bool initialized_;
 
   // Only accessed on the UI thread.
@@ -1512,7 +1471,6 @@ class CookieAccessServerHandler : public CefServerHandler,
 
   std::string request_log_;
 
-  IMPLEMENT_REFCOUNTING(CookieAccessServerHandler);
   DISALLOW_COPY_AND_ASSIGN(CookieAccessServerHandler);
 };
 
@@ -1833,7 +1791,7 @@ class CookieAccessTestHandler : public RoutingTestHandler,
     EXPECT_FALSE(server_handler_);
 
     server_handler_ = new CookieAccessServerHandler();
-    AddResponses(server_handler_.get());
+    AddResponses(server_handler_);
     server_handler_->CreateServer(complete_callback);
   }
 
@@ -1911,6 +1869,7 @@ class CookieAccessTestHandler : public RoutingTestHandler,
   void ShutdownServer(const base::Closure& complete_callback) {
     EXPECT_TRUE(server_handler_);
 
+    // |server_handler_| will delete itself after shutdown.
     server_handler_->ShutdownServer(complete_callback);
     server_handler_ = nullptr;
   }
@@ -1933,7 +1892,7 @@ class CookieAccessTestHandler : public RoutingTestHandler,
   CefRefPtr<CefRequestContext> context_;
   CefRefPtr<CefCookieManager> cookie_manager_;
 
-  CefRefPtr<CookieAccessServerHandler> server_handler_;
+  CookieAccessServerHandler* server_handler_ = nullptr;
   CefRefPtr<CookieAccessSchemeHandlerFactory> scheme_factory_;
 
   CookieAccessData data1_;
@@ -2292,7 +2251,7 @@ class CookieRestartTestHandler : public RoutingTestHandler,
     EXPECT_FALSE(server_handler_);
 
     server_handler_ = new CookieAccessServerHandler();
-    AddResponses(server_handler_.get());
+    AddResponses(server_handler_);
     // 2 requests for each URL.
     server_handler_->SetExpectedRequestCount(4);
     server_handler_->CreateServer(complete_callback);
@@ -2351,6 +2310,7 @@ class CookieRestartTestHandler : public RoutingTestHandler,
   void ShutdownServer(const base::Closure& complete_callback) {
     EXPECT_TRUE(server_handler_);
 
+    // |server_handler_| will delete itself after shutdown.
     server_handler_->ShutdownServer(complete_callback);
     server_handler_ = nullptr;
   }
@@ -2360,7 +2320,7 @@ class CookieRestartTestHandler : public RoutingTestHandler,
   CefRefPtr<CefRequestContext> context_;
   CefRefPtr<CefCookieManager> cookie_manager_;
 
-  CefRefPtr<CookieAccessServerHandler> server_handler_;
+  CookieAccessServerHandler* server_handler_ = nullptr;
 
   CookieAccessData data1_;
   CookieAccessData data2_;

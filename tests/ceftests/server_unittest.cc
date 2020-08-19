@@ -20,6 +20,7 @@
 
 namespace {
 
+// Must use a different port than test_server.cc.
 const char kTestServerAddress[] = "127.0.0.1";
 const uint16 kTestServerPort = 8099;
 const int kTestTimeout = 5000;
@@ -27,7 +28,7 @@ const int kTestTimeout = 5000;
 std::string GetTestServerOrigin(bool is_websocket) {
   std::stringstream ss;
   ss << (is_websocket ? "ws://" : "http://") << kTestServerAddress << ":"
-     << kTestServerPort << "/";
+     << kTestServerPort;
   return ss.str();
 }
 
@@ -793,7 +794,7 @@ CefRefPtr<CefRequest> CreateTestServerRequest(
     const std::string& content_type = std::string(),
     const CefRequest::HeaderMap& extra_headers = CefRequest::HeaderMap()) {
   CefRefPtr<CefRequest> request = CefRequest::Create();
-  request->SetURL(GetTestServerOrigin(false) + path);
+  request->SetURL(GetTestServerOrigin(false) + "/" + path);
   request->SetMethod(method);
 
   CefRequest::HeaderMap header_map;
@@ -1277,7 +1278,7 @@ class EchoWebSocketRequestHandler : public TestServerHandler::WsRequestHandler {
   explicit EchoWebSocketRequestHandler(int expected_message_ct)
       : expected_message_ct_(expected_message_ct), actual_message_ct_(0) {}
 
-  std::string GetWebSocketUrl() { return GetTestServerOrigin(true) + "echo"; }
+  std::string GetWebSocketUrl() { return GetTestServerOrigin(true) + "/echo"; }
 
   bool HandleRequest(CefRefPtr<CefServer> server,
                      int connection_id,

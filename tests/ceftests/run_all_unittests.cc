@@ -20,9 +20,11 @@
 #include "include/cef_app.h"
 #include "include/cef_task.h"
 #include "include/cef_thread.h"
+#include "include/cef_waitable_event.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
 #include "tests/ceftests/test_handler.h"
+#include "tests/ceftests/test_server.h"
 #include "tests/ceftests/test_suite.h"
 #include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/browser/main_message_loop_external_pump.h"
@@ -48,6 +50,7 @@
 namespace {
 
 void QuitMessageLoop() {
+  CEF_REQUIRE_UI_THREAD();
   client::MainMessageLoop* message_loop = client::MainMessageLoop::Get();
   if (message_loop)
     message_loop->Quit();
@@ -74,8 +77,8 @@ void RunTestsOnTestThread() {
   while (TestHandler::HasBrowser())
     sleep(100);
 
-  // Quit the CEF message loop.
-  CefPostTask(TID_UI, base::Bind(&QuitMessageLoop));
+  // Wait for the test server to stop, and then quit the CEF message loop.
+  test_server::Stop(base::Bind(QuitMessageLoop));
 }
 
 // Called on the UI thread.
@@ -201,6 +204,12 @@ int main(int argc, char* argv[]) {
   if (settings.multi_threaded_message_loop) {
     // Run the test suite on the main thread.
     retval = test_suite.Run();
+
+    // Wait for the test server to stop.
+    CefRefPtr<CefWaitableEvent> event =
+        CefWaitableEvent::CreateWaitableEvent(true, false);
+    test_server::Stop(base::Bind(&CefWaitableEvent::Signal, event));
+    event->Wait();
   } else {
     // Create and start the test thread.
     CefRefPtr<CefThread> thread = CefThread::CreateThread("test_thread");
