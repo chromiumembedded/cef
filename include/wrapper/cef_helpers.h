@@ -89,6 +89,32 @@ struct CefDeleteOnIOThread : public CefDeleteOnThread<TID_IO> {};
 struct CefDeleteOnFileThread : public CefDeleteOnThread<TID_FILE> {};
 struct CefDeleteOnRendererThread : public CefDeleteOnThread<TID_RENDERER> {};
 
+// Same as IMPLEMENT_REFCOUNTING() but using the specified Destructor.
+#define IMPLEMENT_REFCOUNTING_EX(ClassName, Destructor)              \
+ public:                                                             \
+  void AddRef() const OVERRIDE { ref_count_.AddRef(); }              \
+  bool Release() const OVERRIDE {                                    \
+    if (ref_count_.Release()) {                                      \
+      Destructor::Destruct(this);                                    \
+      return true;                                                   \
+    }                                                                \
+    return false;                                                    \
+  }                                                                  \
+  bool HasOneRef() const OVERRIDE { return ref_count_.HasOneRef(); } \
+  bool HasAtLeastOneRef() const OVERRIDE {                           \
+    return ref_count_.HasAtLeastOneRef();                            \
+  }                                                                  \
+                                                                     \
+ private:                                                            \
+  CefRefCount ref_count_
+
+#define IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(ClassName) \
+  IMPLEMENT_REFCOUNTING_EX(ClassName, CefDeleteOnUIThread)
+
+#define IMPLEMENT_REFCOUNTING_DELETE_ON_IOT(ClassName) \
+  IMPLEMENT_REFCOUNTING_EX(ClassName, CefDeleteOnIOThread)
+
+
 ///
 // Helper class to manage a scoped copy of |argv|.
 ///
