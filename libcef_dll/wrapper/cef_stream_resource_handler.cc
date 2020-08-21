@@ -18,7 +18,6 @@ CefStreamResourceHandler::CefStreamResourceHandler(
       mime_type_(mime_type),
       stream_(stream) {
   DCHECK(!mime_type_.empty());
-  DCHECK(stream_.get());
 }
 
 CefStreamResourceHandler::CefStreamResourceHandler(
@@ -33,7 +32,6 @@ CefStreamResourceHandler::CefStreamResourceHandler(
       header_map_(header_map),
       stream_(stream) {
   DCHECK(!mime_type_.empty());
-  DCHECK(stream_.get());
 }
 
 bool CefStreamResourceHandler::Open(CefRefPtr<CefRequest> request,
@@ -59,7 +57,7 @@ void CefStreamResourceHandler::GetResponseHeaders(
   if (!header_map_.empty())
     response->SetHeaderMap(header_map_);
 
-  response_length = -1;
+  response_length = stream_ ? -1 : 0;
 }
 
 bool CefStreamResourceHandler::Read(
@@ -69,6 +67,7 @@ bool CefStreamResourceHandler::Read(
     CefRefPtr<CefResourceReadCallback> callback) {
   DCHECK(!CefCurrentlyOn(TID_UI) && !CefCurrentlyOn(TID_IO));
   DCHECK_GT(bytes_to_read, 0);
+  DCHECK(stream_);
 
   // Read until the buffer is full or until Read() returns 0 to indicate no
   // more data.
