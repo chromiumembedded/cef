@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index 3a18c70b25a7..a61f10db6379 100644
+index 995b99c5ba9d..ba71d4093417 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -12,6 +12,7 @@ import("//build/config/crypto.gni")
@@ -10,7 +10,7 @@ index 3a18c70b25a7..a61f10db6379 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/downgrade/buildflags.gni")
  import("//chrome/common/features.gni")
-@@ -1834,6 +1835,7 @@ static_library("browser") {
+@@ -1840,6 +1841,7 @@ static_library("browser") {
      "//base/util/values:values_util",
      "//build:branding_buildflags",
      "//cc",
@@ -18,7 +18,7 @@ index 3a18c70b25a7..a61f10db6379 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2166,6 +2168,10 @@ static_library("browser") {
+@@ -2172,6 +2174,10 @@ static_library("browser") {
      ]
    }
  

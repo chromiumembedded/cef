@@ -78,7 +78,7 @@ index 945cee14368b..38c180a6e7e6 100644
  
  #endif  // defined(OS_LINUX)
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index 5117fe3b5ee3..e8f37fa7066f 100644
+index 5448284d476e..3197f24b5004 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -48,6 +48,7 @@
@@ -89,7 +89,7 @@ index 5117fe3b5ee3..e8f37fa7066f 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/active_use_util.h"
  #include "chrome/browser/after_startup_task_utils.h"
-@@ -889,8 +890,10 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
+@@ -891,8 +892,10 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
  #if !defined(OS_ANDROID)
    // Create the RunLoop for MainMessageLoopRun() to use, and pass a copy of
    // its QuitClosure to the BrowserProcessImpl to call when it is time to exit.
@@ -101,7 +101,7 @@ index 5117fe3b5ee3..e8f37fa7066f 100644
  
    // These members must be initialized before returning from this function.
    // Android doesn't use StartupBrowserCreator.
-@@ -1592,11 +1595,13 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1597,11 +1600,13 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
    // This step is costly and is already measured in
    // Startup.StartupBrowserCreator_Start.
    // See the comment above for an explanation of |process_command_line|.

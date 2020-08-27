@@ -198,7 +198,7 @@ index c1870b0f56ef..d32b8d54fb3f 100644
    GURL webstore_url(extension_urls::GetWebstoreLaunchURL());
    if (response_url.SchemeIsHTTPOrHTTPS() &&
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index 03d1e6a07843..2fd040ed87b5 100644
+index 35542225d869..b30cd9d24b0d 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
 @@ -842,6 +842,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(

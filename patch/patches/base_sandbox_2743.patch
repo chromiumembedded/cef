@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index fb85807363f1..bdef6c7f64c7 100644
+index 31b9d9258353..ca1d82201b53 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -34,6 +34,7 @@ import("//build/config/ui.gni")

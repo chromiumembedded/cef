@@ -1,5 +1,5 @@
 diff --git ui/base/models/menu_model.h ui/base/models/menu_model.h
-index 4c08fbf43c16..e319f8b6782f 100644
+index c746b37d6278..b6cebc24b73e 100644
 --- ui/base/models/menu_model.h
 +++ ui/base/models/menu_model.h
 @@ -12,8 +12,11 @@
@@ -14,7 +14,7 @@ index 4c08fbf43c16..e319f8b6782f 100644
  }
  
  namespace ui {
-@@ -129,6 +132,27 @@ class COMPONENT_EXPORT(UI_BASE) MenuModel
+@@ -133,6 +136,27 @@ class COMPONENT_EXPORT(UI_BASE) MenuModel
    // |event_flags| is a bit mask of ui::EventFlags.
    virtual void ActivatedAt(int index, int event_flags);
  
@@ -234,10 +234,10 @@ index 5a45ef3cbf00..597d5f1e8767 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 7d60e21f3a44..998f5e114253 100644
+index 87f9291b67d1..860c0a2e147b 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2657,8 +2657,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2662,8 +2662,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -252,7 +252,7 @@ index 7d60e21f3a44..998f5e114253 100644
    MenuItemView* to_select = nullptr;
    if (!item->GetSubmenu()->GetMenuItems().empty())
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2677,8 +2682,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2682,8 +2687,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -304,10 +304,10 @@ index 158724b4752c..c82192848584 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 6d06d6fc20ea..28722992c551 100644
+index 262ea70539ab..f91f6c9b668c 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1030,6 +1030,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1055,6 +1055,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -323,7 +323,7 @@ index 6d06d6fc20ea..28722992c551 100644
    } else if (render_selection) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == Type::kActionableSubMenu) {
-@@ -1097,6 +1106,13 @@ void MenuItemView::PaintMinorIconAndText(
+@@ -1122,6 +1131,13 @@ void MenuItemView::PaintMinorIconAndText(
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool render_selection) const {
@@ -338,10 +338,10 @@ index 6d06d6fc20ea..28722992c551 100644
        GetMenuController() && GetMenuController()->use_touchable_layout()
            ? style::CONTEXT_TOUCH_MENU
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index 7d0d04e10a19..a2fbe6b62328 100644
+index b0b1cf9a7a79..17b37e84e933 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
-@@ -236,6 +236,77 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
+@@ -240,6 +240,77 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
    return false;
  }
  

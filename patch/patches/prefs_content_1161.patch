@@ -35,7 +35,7 @@ index bf98747b7b38..fa046af3e0ee 100644
    bool record_whole_document;
  
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index c6a990f87306..1b9759f2b603 100644
+index efab61352658..f65cdba5b96c 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
 @@ -963,6 +963,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
