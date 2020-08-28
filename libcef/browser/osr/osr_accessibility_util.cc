@@ -150,6 +150,12 @@ struct PopulateAxNodeAttributes {
           attributes->SetString(ToString(attr.first), ToString(state));
         }
       } break;
+      case ax::mojom::IntAttribute::kTextAlign: {
+        auto state = static_cast<ax::mojom::TextAlign>(attr.second);
+        if (ax::mojom::TextAlign::kNone != state) {
+          attributes->SetString(ToString(attr.first), ToString(state));
+        }
+      } break;
       case ax::mojom::IntAttribute::kNameFrom:
         attributes->SetString(
             ToString(attr.first),
@@ -173,8 +179,8 @@ struct PopulateAxNodeAttributes {
         }
       } break;
       case ax::mojom::IntAttribute::kTextDirection: {
-        auto state = static_cast<ax::mojom::TextDirection>(attr.second);
-        if (ax::mojom::TextDirection::kNone != state) {
+        auto state = static_cast<ax::mojom::WritingDirection>(attr.second);
+        if (ax::mojom::WritingDirection::kNone != state) {
           attributes->SetString(ToString(attr.first), ToString(state));
         }
       } break;

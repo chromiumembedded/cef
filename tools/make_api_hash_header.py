@@ -35,8 +35,8 @@ def make_api_hash_header(cpp_header_dir):
 #define CEF_API_HASH_UNIVERSAL "$UNIVERSAL$"
 #if defined(OS_WIN)
 #define CEF_API_HASH_PLATFORM "$WINDOWS$"
-#elif defined(OS_MACOSX)
-#define CEF_API_HASH_PLATFORM "$MACOSX$"
+#elif defined(OS_MAC)
+#define CEF_API_HASH_PLATFORM "$MAC$"
 #elif defined(OS_LINUX)
 #define CEF_API_HASH_PLATFORM "$LINUX$"
 #endif

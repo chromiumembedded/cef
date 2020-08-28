@@ -8,10 +8,11 @@
 #if defined(USE_X11)
 #include <X11/Xlib.h>
 #include <X11/cursorfont.h>
-#undef Status  // Avoid conflicts with url_request_status.h
 
 #include "libcef/browser/native/window_x11.h"
 
+#include "third_party/skia/include/core/SkBitmap.h"
+#include "ui/base/x/x11_cursor_loader.h"
 #include "ui/base/x/x11_util.h"
 #include "ui/gfx/x/x11_types.h"
 #endif  // defined(USE_X11)
@@ -176,6 +177,14 @@ XCursorCache* cursor_cache = nullptr;
   return cursor_cache->GetCursor(cursor_shape);
 }
 
+// Based on ui/base/x/x11_cursor_factory.cc.
+scoped_refptr<ui::X11Cursor> CreateInvisibleCursor(
+    ui::XCursorLoader* cursor_loader) {
+  SkBitmap bitmap;
+  bitmap.allocN32Pixels(1, 1);
+  return cursor_loader->CreateCursor(bitmap, gfx::Point(0, 0));
+}
+
 }  // namespace
 #endif  // defined(USE_X11)
 
@@ -184,10 +193,11 @@ CefCursorHandle CefRenderWidgetHostViewOSR::GetPlatformCursor(
 #if defined(USE_X11)
   if (type == ui::mojom::CursorType::kNone) {
     if (!invisible_cursor_) {
-      invisible_cursor_.reset(new ui::XScopedCursor(ui::CreateInvisibleCursor(),
-                                                    gfx::GetXDisplay()));
+      cursor_loader_ =
+          std::make_unique<ui::XCursorLoader>(x11::Connection::Get());
+      invisible_cursor_ = CreateInvisibleCursor(cursor_loader_.get());
     }
-    return invisible_cursor_->get();
+    return static_cast<::Cursor>(invisible_cursor_->xcursor());
   } else {
     return GetXCursor(ToCursorID(type));
   }

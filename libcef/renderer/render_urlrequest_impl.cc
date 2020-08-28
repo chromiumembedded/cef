@@ -6,7 +6,6 @@
 
 #include <stdint.h>
 
-#include "libcef/common/app_manager.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
 #include "libcef/common/task_runner_impl.h"
@@ -155,8 +154,8 @@ class CefRenderURLRequest::Context
       factory = static_cast<CefFrameImpl*>(frame_.get())->GetURLLoaderFactory();
     }
     if (!factory) {
-      // This factory only supports unintercepted http(s) and blob requests.
-      factory = CefAppManager::Get()->GetDefaultURLLoaderFactory();
+      // Global requests are not supported.
+      return false;
     }
 
     loader_ = factory->CreateURLLoader(
@@ -446,6 +445,9 @@ CefRenderURLRequest::CefRenderURLRequest(
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefURLRequestClient> client) {
+  DCHECK(frame);
+  DCHECK(request);
+  DCHECK(client);
   context_ = new Context(this, frame, request, client);
 }
 

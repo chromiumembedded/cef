@@ -114,7 +114,7 @@ def process_cmake_template_segment(segment, segment_ct, cmake_path, variables):
   #  'includes': [
   #    'cefsimple_sources_common',
   #    'cefsimple_sources_win:WINDOWS',
-  #    'cefsimple_sources_mac:MACOSX',
+  #    'cefsimple_sources_mac:MAC',
   #    'cefsimple_sources_linux:LINUX',
   #  ],
   values = eval('{' + segment + '}', {'__builtins__': None}, None)

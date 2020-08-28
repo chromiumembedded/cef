@@ -81,7 +81,7 @@ index 886372e11489..ad3bc2242883 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 0c5f0f9af928..b27599cc1494 100644
+index 2014df5fe810..3cf97e8d8e3c 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -4,6 +4,8 @@
@@ -127,7 +127,7 @@ index bcf172e645a2..f879aa745adf 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git components/crash/core/app/breakpad_linux.cc components/crash/core/app/breakpad_linux.cc
-index d2ca4a9056e5..3a4d8e1e82d9 100644
+index 9b07ab4667e6..07b61ac63e9d 100644
 --- components/crash/core/app/breakpad_linux.cc
 +++ components/crash/core/app/breakpad_linux.cc
 @@ -28,6 +28,7 @@
@@ -138,7 +138,7 @@ index d2ca4a9056e5..3a4d8e1e82d9 100644
  #include "base/files/file_path.h"
  #include "base/lazy_instance.h"
  #include "base/linux_util.h"
-@@ -722,7 +723,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
+@@ -719,7 +720,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
    info.process_type_length = 7;
    info.distro = base::g_linux_distro;
    info.distro_length = my_strlen(base::g_linux_distro);
@@ -147,7 +147,7 @@ index d2ca4a9056e5..3a4d8e1e82d9 100644
    info.process_start_time = g_process_start_time;
    info.oom_size = base::g_oom_size;
    info.pid = g_pid;
-@@ -1749,10 +1750,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1733,10 +1734,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
      GetCrashReporterClient()->GetProductNameAndVersion(&product_name, &version);
  
      writer.AddBoundary();
@@ -169,7 +169,7 @@ index d2ca4a9056e5..3a4d8e1e82d9 100644
      if (info.pid > 0) {
        char pid_value_buf[kUint64StringSize];
        uint64_t pid_value_len = my_uint64_len(info.pid);
-@@ -1869,6 +1879,9 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1853,6 +1863,9 @@ void HandleCrashDump(const BreakpadInfo& info) {
          crash_reporter::internal::TransitionalCrashKeyStorage;
      CrashKeyStorage::Iterator crash_key_iterator(*info.crash_keys);
      const CrashKeyStorage::Entry* entry;
@@ -177,9 +177,9 @@ index d2ca4a9056e5..3a4d8e1e82d9 100644
 +    crash_reporter::CrashReporterClient::ParameterMap parameters;
 +
      while ((entry = crash_key_iterator.Next())) {
-       if (g_use_crash_key_white_list && !IsInWhiteList(entry->key))
-         continue;
-@@ -1881,7 +1894,13 @@ void HandleCrashDump(const BreakpadInfo& info) {
+       size_t key_size, value_size;
+       // Check for malformed messages.
+@@ -1863,7 +1876,13 @@ void HandleCrashDump(const BreakpadInfo& info) {
                         ? CrashKeyStorage::value_size - 1
                         : my_strlen(entry->value);
  
@@ -209,15 +209,15 @@ index 9ea80370a842..3043f7d32f33 100644
  extern void InitCrashKeysForTesting();
  
 diff --git components/crash/core/app/crash_reporter_client.cc components/crash/core/app/crash_reporter_client.cc
-index 44e81b2f95f6..bfa419e46bc8 100644
+index 1d0fb4f2a633..8226a3d792be 100644
 --- components/crash/core/app/crash_reporter_client.cc
 +++ components/crash/core/app/crash_reporter_client.cc
 @@ -88,7 +88,7 @@ int CrashReporterClient::GetResultCodeRespawnFailed() {
  }
  #endif
  
--#if defined(OS_POSIX) && !defined(OS_MACOSX) && !defined(OS_IOS)
-+#if defined(OS_POSIX) && !defined(OS_IOS)
+-#if defined(OS_POSIX) && !defined(OS_MAC)
++#if defined(OS_POSIX)
  void CrashReporterClient::GetProductNameAndVersion(const char** product_name,
                                                     const char** version) {
  }
@@ -225,7 +225,7 @@ index 44e81b2f95f6..bfa419e46bc8 100644
                                                     std::string* version,
                                                     std::string* channel) {}
  
-+#if !defined(OS_MACOSX)
++#if !defined(OS_MAC)
  base::FilePath CrashReporterClient::GetReporterLogFilename() {
    return base::FilePath();
  }
@@ -237,7 +237,7 @@ index 44e81b2f95f6..bfa419e46bc8 100644
  
  #if defined(OS_WIN)
  bool CrashReporterClient::GetCrashDumpLocation(base::string16* crash_dir) {
-@@ -148,6 +150,28 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
+@@ -140,6 +142,28 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
    return false;
  }
  
@@ -257,7 +257,7 @@ index 44e81b2f95f6..bfa419e46bc8 100644
 +}
 +#endif
 +
-+#if defined(OS_MACOSX)
++#if defined(OS_MAC)
 +bool CrashReporterClient::EnableBrowserCrashForwarding() {
 +  return true;
 +}
@@ -266,14 +266,14 @@ index 44e81b2f95f6..bfa419e46bc8 100644
  #if defined(OS_ANDROID)
  unsigned int CrashReporterClient::GetCrashDumpPercentage() {
    return 100;
-@@ -210,9 +234,11 @@ bool CrashReporterClient::ShouldMonitorCrashHandlerExpensively() {
+@@ -202,9 +226,11 @@ bool CrashReporterClient::ShouldMonitorCrashHandlerExpensively() {
    return false;
  }
  
 -bool CrashReporterClient::EnableBreakpadForProcess(
 -    const std::string& process_type) {
 -  return false;
-+#if defined(OS_POSIX) && !defined(OS_MACOSX)
++#if defined(OS_POSIX) && !defined(OS_MAC)
 +CrashReporterClient::ParameterMap
 +CrashReporterClient::FilterParameters(const ParameterMap& parameters) {
 +  return parameters;
@@ -282,7 +282,7 @@ index 44e81b2f95f6..bfa419e46bc8 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crash_reporter_client.h components/crash/core/app/crash_reporter_client.h
-index 05538423d0b9..60b3403b4b0e 100644
+index aaa9ad1d58d7..14b98b2e6598 100644
 --- components/crash/core/app/crash_reporter_client.h
 +++ components/crash/core/app/crash_reporter_client.h
 @@ -5,7 +5,9 @@
@@ -299,8 +299,8 @@ index 05538423d0b9..60b3403b4b0e 100644
    virtual int GetResultCodeRespawnFailed();
  #endif
  
--#if defined(OS_POSIX) && !defined(OS_MACOSX) && !defined(OS_IOS)
-+#if defined(OS_POSIX) && !defined(OS_IOS)
+-#if defined(OS_POSIX) && !defined(OS_MAC)
++#if defined(OS_POSIX)
    // Returns a textual description of the product type and version to include
    // in the crash report. Neither out parameter should be set to NULL.
    // TODO(jperaza): Remove the 2-parameter overload of this method once all
@@ -308,7 +308,7 @@ index 05538423d0b9..60b3403b4b0e 100644
                                          std::string* version,
                                          std::string* channel);
  
-+#if !defined(OS_MACOSX)
++#if !defined(OS_MAC)
    virtual base::FilePath GetReporterLogFilename();
  
    // Custom crash minidump handler after the minidump is generated.
@@ -320,7 +320,7 @@ index 05538423d0b9..60b3403b4b0e 100644
  #endif
  
    // The location where minidump files should be written. Returns true if
-@@ -210,6 +214,27 @@ class CrashReporterClient {
+@@ -205,6 +209,27 @@ class CrashReporterClient {
  
    // Returns true if breakpad should run in the given process type.
    virtual bool EnableBreakpadForProcess(const std::string& process_type);
@@ -333,13 +333,13 @@ index 05538423d0b9..60b3403b4b0e 100644
 +  virtual base::string16 GetCrashExternalHandler(const base::string16& exe_dir);
 +#endif
 +
-+#if defined(OS_MACOSX)
++#if defined(OS_MAC)
 +  // Returns true if forwarding of crashes to the system crash reporter is
 +  // enabled for the browser process.
 +  virtual bool EnableBrowserCrashForwarding();
 +#endif
 +
-+#if defined(OS_POSIX) && !defined(OS_MACOSX)
++#if defined(OS_POSIX) && !defined(OS_MAC)
 +  // Provides an oportunity to modify the parameters that will be sent with a
 +  // crash upload.
 +  using ParameterMap = std::map<std::string, std::string>;
@@ -349,7 +349,7 @@ index 05538423d0b9..60b3403b4b0e 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crashpad.cc components/crash/core/app/crashpad.cc
-index 290b4692c16f..ef91dbdc369d 100644
+index e1c66df6cecf..681dd496292e 100644
 --- components/crash/core/app/crashpad.cc
 +++ components/crash/core/app/crashpad.cc
 @@ -151,7 +151,8 @@ void InitializeCrashpadImpl(bool initial_client,
@@ -363,7 +363,7 @@ index 290b4692c16f..ef91dbdc369d 100644
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/core/app/crashpad_mac.mm components/crash/core/app/crashpad_mac.mm
-index 0b594d053d7c..c79b69a31dd1 100644
+index aa7c3302f2e3..c471132afe3f 100644
 --- components/crash/core/app/crashpad_mac.mm
 +++ components/crash/core/app/crashpad_mac.mm
 @@ -16,12 +16,15 @@
@@ -382,18 +382,10 @@ index 0b594d053d7c..c79b69a31dd1 100644
  #include "third_party/crashpad/crashpad/client/crash_report_database.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -37,12 +40,25 @@ namespace {
- std::map<std::string, std::string> GetProcessSimpleAnnotations() {
-   static std::map<std::string, std::string> annotations = []() -> auto {
+@@ -39,14 +42,24 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
      std::map<std::string, std::string> process_annotations;
-+
      @autoreleasepool {
        NSBundle* outer_bundle = base::mac::OuterBundle();
--      NSString* product = base::mac::ObjCCast<NSString>([outer_bundle
--          objectForInfoDictionaryKey:base::mac::CFToNSCast(kCFBundleNameKey)]);
--      process_annotations["prod"] =
--          base::SysNSStringToUTF8(product).append("_Mac");
-+
 +      CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
 +      const char* product_name = "";
 +      const char* product_version = "";
@@ -401,18 +393,26 @@ index 0b594d053d7c..c79b69a31dd1 100644
 +                                                      &product_version);
 +
 +      if (strlen(product_name) == 0) {
+ #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
+-      process_annotations["prod"] = "Chrome_Mac";
++        process_annotations["product"] = "Chrome_Mac";
+ #else
+-      NSString* product = base::mac::ObjCCast<NSString>([outer_bundle
+-          objectForInfoDictionaryKey:base::mac::CFToNSCast(kCFBundleNameKey)]);
+-      process_annotations["prod"] =
+-          base::SysNSStringToUTF8(product).append("_Mac");
 +        NSString* product = base::mac::ObjCCast<NSString>([outer_bundle
-+            objectForInfoDictionaryKey:base::mac::CFToNSCast(
-+                kCFBundleNameKey)]);
++            objectForInfoDictionaryKey:base::mac::CFToNSCast(kCFBundleNameKey)]);
 +        process_annotations["product"] =
 +            base::SysNSStringToUTF8(product).append("_Mac");
+ #endif
 +      } else {
 +        process_annotations["product"] = product_name;
 +      }
  
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
        // Empty means stable.
-@@ -58,12 +74,16 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
+@@ -62,12 +75,16 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
          process_annotations["channel"] = "";
        }
  
@@ -434,7 +434,7 @@ index 0b594d053d7c..c79b69a31dd1 100644
      }  // @autoreleasepool
      return process_annotations;
    }();
-@@ -123,10 +143,10 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -127,10 +144,10 @@ base::FilePath PlatformCrashpadInitialization(
  
    if (initial_client) {
      @autoreleasepool {
@@ -449,7 +449,7 @@ index 0b594d053d7c..c79b69a31dd1 100644
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -155,6 +175,12 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -159,6 +176,12 @@ base::FilePath PlatformCrashpadInitialization(
              "--reset-own-crash-exception-port-to-system-default");
        }
  

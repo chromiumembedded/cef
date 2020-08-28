@@ -1,8 +1,8 @@
 diff --git chrome/browser/themes/theme_service.cc chrome/browser/themes/theme_service.cc
-index 2a6df8119a44..dffe87df9c54 100644
+index e49552e272e4..b935ef2d47b9 100644
 --- chrome/browser/themes/theme_service.cc
 +++ chrome/browser/themes/theme_service.cc
-@@ -25,6 +25,7 @@
+@@ -26,6 +26,7 @@
  #include "base/task/thread_pool.h"
  #include "base/threading/thread_task_runner_handle.h"
  #include "build/build_config.h"
@@ -10,7 +10,7 @@ index 2a6df8119a44..dffe87df9c54 100644
  #include "chrome/browser/chrome_notification_types.h"
  #include "chrome/browser/extensions/extension_service.h"
  #include "chrome/browser/extensions/theme_installed_infobar_delegate.h"
-@@ -54,6 +55,10 @@
+@@ -55,6 +56,10 @@
  #include "extensions/common/extension_set.h"
  #include "ui/base/layout.h"
  
@@ -21,7 +21,7 @@ index 2a6df8119a44..dffe87df9c54 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "base/scoped_observer.h"
  #include "extensions/browser/extension_registry_observer.h"
-@@ -270,11 +275,19 @@ void ThemeService::Init() {
+@@ -271,11 +276,19 @@ void ThemeService::Init() {
    // OnExtensionServiceReady. Otherwise, the ThemeObserver won't be
    // constructed in time to observe the corresponding events.
  #if BUILDFLAG(ENABLE_EXTENSIONS)

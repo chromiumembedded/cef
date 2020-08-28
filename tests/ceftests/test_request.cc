@@ -113,15 +113,15 @@ void Send(const SendConfig& config, const RequestDoneCallback& callback) {
 std::string GetPathURL(const std::string& url) {
   const size_t index1 = url.find('?');
   const size_t index2 = url.find('#');
-  size_t index = -1;
-  if (index1 >= 0 && index2 >= 0) {
+  size_t index = std::string::npos;
+  if (index1 != std::string::npos && index2 != std::string::npos) {
     index = std::min(index1, index2);
-  } else if (index1 >= 0) {
+  } else if (index1 != std::string::npos) {
     index = index1;
-  } else if (index2 >= 0) {
+  } else if (index2 != std::string::npos) {
     index = index2;
   }
-  if (index >= 0) {
+  if (index != std::string::npos) {
     return url.substr(0, index);
   }
   return url;

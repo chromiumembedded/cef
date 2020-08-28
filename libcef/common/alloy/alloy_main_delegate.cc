@@ -39,14 +39,14 @@
 #include "ipc/ipc_buildflags.h"
 #include "net/base/features.h"
 #include "pdf/pdf_ppapi.h"
+#include "sandbox/policy/switches.h"
 #include "services/network/public/cpp/features.h"
-#include "services/service_manager/sandbox/switches.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_features.h"
 #include "ui/base/ui_base_paths.h"
 #include "ui/base/ui_base_switches.h"
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 #include "libcef/common/util_mac.h"
 #endif
 
@@ -127,7 +127,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
       }
     }
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
     if (settings_->framework_dir_path.length > 0) {
       base::FilePath file_path =
           base::FilePath(CefString(&settings_->framework_dir_path));
@@ -144,7 +144,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
 #endif
 
     if (no_sandbox)
-      command_line->AppendSwitch(service_manager::switches::kNoSandbox);
+      command_line->AppendSwitch(sandbox::policy::switches::kNoSandbox);
 
     if (settings_->user_agent.length > 0) {
       command_line->AppendSwitchASCII(switches::kUserAgent,
@@ -355,7 +355,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
 
   content::SetContentClient(&content_client_);
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
   util_mac::BasicStartupComplete();
 #endif
 
@@ -370,7 +370,7 @@ void AlloyMainDelegate::PreSandboxStartup() {
 
   if (process_type.empty()) {
 // Only override these paths when executing the main process.
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
     util_mac::PreSandboxStartup();
 #endif
 

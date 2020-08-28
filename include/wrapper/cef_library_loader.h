@@ -56,7 +56,7 @@ int cef_unload_library();
 #ifdef __cplusplus
 }
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 
 ///
 // Scoped helper for loading and unloading the CEF framework library at
@@ -122,7 +122,7 @@ class CefScopedLibraryLoader {
   DISALLOW_COPY_AND_ASSIGN(CefScopedLibraryLoader);
 };
 
-#endif  // defined(OS_MACOSX)
+#endif  // defined(OS_MAC)
 #endif  // __cplusplus
 
 #endif  // CEF_INCLUDE_WRAPPER_CEF_LIBRARY_LOADER_H_

@@ -4,18 +4,18 @@
 // found in the LICENSE file.
 
 #include "libcef/browser/native/window_x11.h"
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/extensions/XInput2.h>
+
 #include "libcef/browser/thread_util.h"
 
 #include "ui/base/x/x11_util.h"
 #include "ui/events/platform/platform_event_source.h"
 #include "ui/events/x/x11_event_translation.h"
 #include "ui/platform_window/x11/x11_topmost_window_finder.h"
-#include "ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h"
-
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/extensions/XInput2.h>
+#include "ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h"
 
 namespace {
 
@@ -208,7 +208,7 @@ void CefWindowX11::Show() {
     if (child && toplevel_window) {
       // Configure the drag&drop proxy property for the top-most window so
       // that all drag&drop-related messages will be sent to the child
-      // DesktopWindowTreeHostX11. The proxy property is referenced by
+      // DesktopWindowTreeHostLinux. The proxy property is referenced by
       // DesktopDragDropClientAuraX11::FindWindowFor.
       x11::Window window = x11::Window::None;
       ui::GetProperty(ToX11Window(toplevel_window), gfx::GetAtom(kXdndProxy),
@@ -246,7 +246,7 @@ void CefWindowX11::Focus() {
   if (browser_.get()) {
     ::Window child = FindChild(xdisplay_, xwindow_);
     if (child && ui::IsWindowVisible(ToX11Window(child))) {
-      // Give focus to the child DesktopWindowTreeHostX11.
+      // Give focus to the child DesktopWindowTreeHostLinux.
       XSetInputFocus(xdisplay_, child, RevertToParent, x11::CurrentTime);
     }
   } else {
@@ -289,13 +289,13 @@ gfx::Rect CefWindowX11::GetBoundsInScreen() {
   return gfx::Rect();
 }
 
-views::DesktopWindowTreeHostX11* CefWindowX11::GetHost() {
+views::DesktopWindowTreeHostLinux* CefWindowX11::GetHost() {
   if (browser_.get()) {
     ::Window child = FindChild(xdisplay_, xwindow_);
     if (child) {
-      return static_cast<views::DesktopWindowTreeHostX11*>(
+      return static_cast<views::DesktopWindowTreeHostLinux*>(
           views::DesktopWindowTreeHostLinux::GetHostForWidget(
-              ToX11Window(child)));
+              static_cast<gfx::AcceleratedWidget>(child)));
     }
   }
   return nullptr;
@@ -318,8 +318,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
 // Called by X11EventSourceLibevent to determine whether this XEventDispatcher
 // implementation is able to process the next translated event sent by it.
 void CefWindowX11::CheckCanDispatchNextPlatformEvent(x11::Event* x11_event) {
-  XEvent* xev = &x11_event->xlib_event();
-  current_xevent_ = IsTargetedBy(*x11_event) ? xev : nullptr;
+  current_xevent_ = IsTargetedBy(*x11_event) ? x11_event : nullptr;
 }
 
 void CefWindowX11::PlatformEventDispatchFinished() {
@@ -333,8 +332,7 @@ ui::PlatformEventDispatcher* CefWindowX11::GetPlatformEventDispatcher() {
 bool CefWindowX11::DispatchXEvent(x11::Event* x11_event) {
   if (!IsTargetedBy(*x11_event))
     return false;
-  XEvent* xev = &x11_event->xlib_event();
-  ProcessXEvent(xev);
+  ProcessXEvent(x11_event);
   return true;
 }
 
@@ -378,77 +376,64 @@ bool CefWindowX11::TopLevelAlwaysOnTop() const {
 }
 
 bool CefWindowX11::IsTargetedBy(const x11::Event& x11_event) const {
-  const XEvent& xev = x11_event.xlib_event();
-  ::Window target_window =
-      xev.type == x11::GeGenericEvent::opcode
-          ? static_cast<XIDeviceEvent*>(xev.xcookie.data)->event
-          : xev.xany.window;
-  return target_window == xwindow_;
+  return ToWindow(x11_event.window()) == xwindow_;
 }
 
-void CefWindowX11::ProcessXEvent(XEvent* xev) {
-  switch (xev->type) {
-    case ConfigureNotify: {
-      DCHECK_EQ(xwindow_, xev->xconfigure.event);
-      DCHECK_EQ(xwindow_, xev->xconfigure.window);
-      // It's possible that the X window may be resized by some other means
-      // than from within Aura (e.g. the X window manager can change the
-      // size). Make sure the root window size is maintained properly.
-      gfx::Rect bounds(xev->xconfigure.x, xev->xconfigure.y,
-                       xev->xconfigure.width, xev->xconfigure.height);
-      bounds_ = bounds;
+void CefWindowX11::ProcessXEvent(x11::Event* event) {
+  if (auto* configure = event->As<x11::ConfigureNotifyEvent>()) {
+    DCHECK_EQ(xwindow_, ToWindow(configure->event));
+    DCHECK_EQ(xwindow_, ToWindow(configure->window));
+    // It's possible that the X window may be resized by some other means
+    // than from within Aura (e.g. the X window manager can change the
+    // size). Make sure the root window size is maintained properly.
+    bounds_ = gfx::Rect(configure->x, configure->y, configure->width,
+                        configure->height);
 
-      if (browser_.get()) {
-        ::Window child = FindChild(xdisplay_, xwindow_);
-        if (child) {
-          // Resize the child DesktopWindowTreeHostX11 to match this window.
-          XWindowChanges changes = {0};
-          changes.width = bounds.width();
-          changes.height = bounds.height();
-          XConfigureWindow(xdisplay_, child, CWHeight | CWWidth, &changes);
+    if (browser_.get()) {
+      ::Window child = FindChild(xdisplay_, xwindow_);
+      if (child) {
+        // Resize the child DesktopWindowTreeHostLinux to match this window.
+        XWindowChanges changes = {0};
+        changes.width = bounds_.width();
+        changes.height = bounds_.height();
+        XConfigureWindow(xdisplay_, child, CWHeight | CWWidth, &changes);
 
-          browser_->NotifyMoveOrResizeStarted();
-        }
+        browser_->NotifyMoveOrResizeStarted();
       }
-      break;
     }
-    case ClientMessage: {
-      Atom message_type = xev->xclient.message_type;
-      if (message_type == GetAtom(kWMProtocols)) {
-        Atom protocol = static_cast<Atom>(xev->xclient.data.l[0]);
-        if (protocol == GetAtom(kWMDeleteWindow)) {
-          // We have received a close message from the window manager.
-          if (!browser_ || browser_->TryCloseBrowser()) {
-            // Allow the close.
-            XDestroyWindow(xdisplay_, xwindow_);
+  } else if (auto* client = event->As<x11::ClientMessageEvent>()) {
+    if (client->type == gfx::GetAtom(kWMProtocols)) {
+      x11::Atom protocol = static_cast<x11::Atom>(client->data.data32[0]);
+      if (protocol == gfx::GetAtom(kWMDeleteWindow)) {
+        // We have received a close message from the window manager.
+        if (!browser_ || browser_->TryCloseBrowser()) {
+          // Allow the close.
+          XDestroyWindow(xdisplay_, xwindow_);
 
-            xwindow_ = x11::None;
+          xwindow_ = x11::None;
 
-            if (browser_.get()) {
-              // Force the browser to be destroyed and release the reference
-              // added in PlatformCreateWindow().
-              browser_->WindowDestroyed();
-            }
-
-            delete this;
+          if (browser_.get()) {
+            // Force the browser to be destroyed and release the reference
+            // added in PlatformCreateWindow().
+            browser_->WindowDestroyed();
           }
-        } else if (protocol == GetAtom(kNetWMPing)) {
-          XEvent reply_event = *xev;
-          reply_event.xclient.window = parent_xwindow_;
 
-          XSendEvent(xdisplay_, reply_event.xclient.window, false,
-                     SubstructureRedirectMask | SubstructureNotifyMask,
-                     &reply_event);
-          XFlush(xdisplay_);
+          delete this;
         }
+      } else if (protocol == gfx::GetAtom(kNetWMPing)) {
+        x11::ClientMessageEvent reply_event = *client;
+        reply_event.window = ToX11Window(parent_xwindow_);
+        ui::SendEvent(reply_event, reply_event.window,
+                      x11::EventMask::SubstructureNotify |
+                          x11::EventMask::SubstructureRedirect);
       }
-      break;
     }
-    case x11::FocusIn:
+  } else if (auto* focus = event->As<x11::FocusEvent>()) {
+    if (focus->opcode == x11::FocusEvent::In) {
       // This message is received first followed by a "_NET_ACTIVE_WINDOW"
       // message sent to the root window. When X11DesktopHandler handles the
       // "_NET_ACTIVE_WINDOW" message it will erroneously mark the WebView
-      // (hosted in a DesktopWindowTreeHostX11) as unfocused. Use a delayed
+      // (hosted in a DesktopWindowTreeHostLinux) as unfocused. Use a delayed
       // task here to restore the WebView's focus state.
       if (!focus_pending_) {
         focus_pending_ = true;
@@ -457,44 +442,40 @@ void CefWindowX11::ProcessXEvent(XEvent* xev) {
                                          weak_ptr_factory_.GetWeakPtr()),
                               100);
       }
-      break;
-    case x11::FocusOut:
+    } else {
       // Cancel the pending focus change if some other window has gained focus
       // while waiting for the async task to run. Otherwise we can get stuck in
       // a focus change loop.
       if (focus_pending_)
         focus_pending_ = false;
-      break;
-    case PropertyNotify: {
-      ::Atom changed_atom = xev->xproperty.atom;
-      if (changed_atom == GetAtom(kNetWMState)) {
-        // State change event like minimize/maximize.
-        if (browser_.get()) {
-          ::Window child = FindChild(xdisplay_, xwindow_);
-          if (child) {
-            // Forward the state change to the child DesktopWindowTreeHostX11
-            // window so that resource usage will be reduced while the window is
-            // minimized.
-            std::vector<x11::Atom> atom_list;
-            if (ui::GetAtomArrayProperty(ToX11Window(xwindow_), kNetWMState,
-                                         &atom_list) &&
-                !atom_list.empty()) {
-              ui::SetAtomArrayProperty(ToX11Window(child), kNetWMState, "ATOM",
-                                       atom_list);
-            } else {
-              // Set an empty list of property values to pass the check in
-              // DesktopWindowTreeHostX11::OnWMStateUpdated().
-              XChangeProperty(xdisplay_, child,
-                              GetAtom(kNetWMState),  // name
-                              GetAtom(kAtom),        // type
-                              32,  // size in bits of items in 'value'
-                              PropModeReplace, NULL,
-                              0);  // num items
-            }
+    }
+  } else if (auto* property = event->As<x11::PropertyNotifyEvent>()) {
+    if (property->atom == gfx::GetAtom(kNetWMState)) {
+      // State change event like minimize/maximize.
+      if (browser_.get()) {
+        ::Window child = FindChild(xdisplay_, xwindow_);
+        if (child) {
+          // Forward the state change to the child DesktopWindowTreeHostLinux
+          // window so that resource usage will be reduced while the window is
+          // minimized.
+          std::vector<x11::Atom> atom_list;
+          if (ui::GetAtomArrayProperty(ToX11Window(xwindow_), kNetWMState,
+                                       &atom_list) &&
+              !atom_list.empty()) {
+            ui::SetAtomArrayProperty(ToX11Window(child), kNetWMState, "ATOM",
+                                     atom_list);
+          } else {
+            // Set an empty list of property values to pass the check in
+            // DesktopWindowTreeHostLinux::OnWMStateUpdated().
+            XChangeProperty(xdisplay_, child,
+                            GetAtom(kNetWMState),  // name
+                            GetAtom(kAtom),        // type
+                            32,  // size in bits of items in 'value'
+                            PropModeReplace, NULL,
+                            0);  // num items
           }
         }
       }
-      break;
     }
   }
 }

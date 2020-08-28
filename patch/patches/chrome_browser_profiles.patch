@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index f81028b5cda7..9b934d020ce6 100644
+index 9b9335369a4f..fea76956bd41 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -377,7 +377,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+@@ -374,7 +374,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
    registrar_.Add(this, chrome::NOTIFICATION_BROWSER_CLOSE_CANCELLED,
                   content::NotificationService::AllSources());
  
@@ -12,7 +12,7 @@ index f81028b5cda7..9b934d020ce6 100644
  }
  
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index 3e1e28ea7d0e..b70f718c8e94 100644
+index 93571e419253..bc77bebce943 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
 @@ -101,7 +101,7 @@ class ProfileManager : public content::NotificationObserver,
@@ -22,9 +22,9 @@ index 3e1e28ea7d0e..b70f718c8e94 100644
 -  Profile* GetProfile(const base::FilePath& profile_dir);
 +  virtual Profile* GetProfile(const base::FilePath& profile_dir);
  
-   // Returns total number of profiles available on this machine.
-   size_t GetNumberOfProfiles();
-@@ -131,7 +131,7 @@ class ProfileManager : public content::NotificationObserver,
+   // Returns regular or off-the-record profile given its profile key.
+   static Profile* GetProfileFromProfileKey(ProfileKey* profile_key);
+@@ -134,7 +134,7 @@ class ProfileManager : public content::NotificationObserver,
  
    // Returns true if the profile pointer is known to point to an existing
    // profile.
@@ -33,7 +33,7 @@ index 3e1e28ea7d0e..b70f718c8e94 100644
  
    // Returns the directory where the first created profile is stored,
    // relative to the user data directory currently in use.
-@@ -140,7 +140,7 @@ class ProfileManager : public content::NotificationObserver,
+@@ -143,7 +143,7 @@ class ProfileManager : public content::NotificationObserver,
    // Get the Profile last used (the Profile to which owns the most recently
    // focused window) with this Chrome build. If no signed profile has been
    // stored in Local State, hand back the Default profile.
@@ -43,7 +43,7 @@ index 3e1e28ea7d0e..b70f718c8e94 100644
    // Get the path of the last used profile, or if that's undefined, the default
    // profile.
 diff --git chrome/browser/profiles/renderer_updater.cc chrome/browser/profiles/renderer_updater.cc
-index c1792eccd997..d7434ff76a88 100644
+index 4eb91c80e57a..02373b149bde 100644
 --- chrome/browser/profiles/renderer_updater.cc
 +++ chrome/browser/profiles/renderer_updater.cc
 @@ -7,6 +7,7 @@
@@ -54,7 +54,7 @@ index c1792eccd997..d7434ff76a88 100644
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
  #include "chrome/browser/profiles/profile.h"
  #include "chrome/browser/signin/identity_manager_factory.h"
-@@ -62,8 +63,12 @@ void GetGuestViewDefaultContentSettingRules(
+@@ -57,8 +58,12 @@ void GetGuestViewDefaultContentSettingRules(
  
  RendererUpdater::RendererUpdater(Profile* profile)
      : profile_(profile), identity_manager_observer_(this) {

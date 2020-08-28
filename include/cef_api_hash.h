@@ -45,7 +45,7 @@
 #define CEF_API_HASH_UNIVERSAL "09dba98bcfcdf8a84e6e1bddf9cfbfd02cdb9c41"
 #if defined(OS_WIN)
 #define CEF_API_HASH_PLATFORM "52cba70fb6dd7cfa07a64033875f2b9951ab194b"
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
 #define CEF_API_HASH_PLATFORM "40ddb93c4e9b9d0f81b62a61a595307c6ed204e5"
 #elif defined(OS_LINUX)
 #define CEF_API_HASH_PLATFORM "e48b0f06a363df82624951e4b85fb638bf0987c0"

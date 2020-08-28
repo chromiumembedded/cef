@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 7f8d13d8c4c2..ab5688900991 100644
+index c7bd97a32af1..311f2c52af8d 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -9,6 +9,7 @@ import("//build/config/crypto.gni")
+@@ -10,6 +10,7 @@ import("//build/config/crypto.gni")
  import("//build/config/features.gni")
  import("//build/config/linux/gtk/gtk.gni")
  import("//build/config/ui.gni")
@@ -10,7 +10,7 @@ index 7f8d13d8c4c2..ab5688900991 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/assistant/assistant.gni")
-@@ -335,6 +336,10 @@ static_library("ui") {
+@@ -334,6 +335,10 @@ static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -21,7 +21,7 @@ index 7f8d13d8c4c2..ab5688900991 100644
    # Since browser and browser_ui actually depend on each other,
    # we must omit the dependency from browser_ui to browser.
    # However, this means browser_ui and browser should more or less
-@@ -356,6 +361,7 @@ static_library("ui") {
+@@ -355,6 +360,7 @@ static_library("ui") {
      "//base/allocator:buildflags",
      "//build:branding_buildflags",
      "//cc/paint",
@@ -29,14 +29,23 @@ index 7f8d13d8c4c2..ab5688900991 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -1473,6 +1479,7 @@ static_library("ui") {
-       "//components/keep_alive_registry",
+@@ -1532,6 +1538,7 @@ static_library("ui") {
        "//components/network_session_configurator/common",
        "//components/page_load_metrics/browser",
+       "//components/performance_manager:site_data_proto",
 +      "//components/printing/common:mojo_interfaces",
        "//components/profile_metrics",
        "//components/safety_check",
        "//components/search_provider_logos",
+@@ -3905,8 +3912,6 @@ static_library("ui") {
+       "views/toolbar/home_button.h",
+       "views/toolbar/reload_button.cc",
+       "views/toolbar/reload_button.h",
+-      "views/toolbar/sharesheet_button.cc",
+-      "views/toolbar/sharesheet_button.h",
+       "views/toolbar/toolbar_account_icon_container_view.cc",
+       "views/toolbar/toolbar_account_icon_container_view.h",
+       "views/toolbar/toolbar_action_view.cc",
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
 index f27414c41891..b42478315ac0 100644
 --- chrome/browser/ui/webui/net_export_ui.cc

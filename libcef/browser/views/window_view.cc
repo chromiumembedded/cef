@@ -36,7 +36,11 @@ class ClientViewEx : public views::ClientView {
     DCHECK(window_delegate_);
   }
 
-  bool CanClose() override { return window_delegate_->CanWidgetClose(); }
+  views::CloseRequestResult OnWindowCloseRequested() override {
+    return window_delegate_->CanWidgetClose()
+               ? views::CloseRequestResult::kCanClose
+               : views::CloseRequestResult::kCannotClose;
+  }
 
  private:
   CefWindowView::Delegate* window_delegate_;  // Not owned by this object.
@@ -404,15 +408,15 @@ views::ClientView* CefWindowView::CreateClientView(views::Widget* widget) {
   return new ClientViewEx(widget, GetContentsView(), window_delegate_);
 }
 
-views::NonClientFrameView* CefWindowView::CreateNonClientFrameView(
-    views::Widget* widget) {
+std::unique_ptr<views::NonClientFrameView>
+CefWindowView::CreateNonClientFrameView(views::Widget* widget) {
   if (is_frameless_) {
     // Custom frame type that doesn't render a caption.
-    return new CaptionlessFrameView(widget, this);
+    return std::make_unique<CaptionlessFrameView>(widget, this);
   } else if (widget->ShouldUseNativeFrame()) {
     // DesktopNativeWidgetAura::CreateNonClientFrameView() returns
     // NativeFrameView by default. Extend that type.
-    return new NativeFrameViewEx(widget, this);
+    return std::make_unique<NativeFrameViewEx>(widget, this);
   }
 
   // Use Chromium provided CustomFrameView. In case if we would like to

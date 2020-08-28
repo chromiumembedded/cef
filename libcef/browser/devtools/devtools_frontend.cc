@@ -25,6 +25,7 @@
 #include "base/macros.h"
 #include "base/memory/ptr_util.h"
 #include "base/strings/string_number_conversions.h"
+#include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/task/post_task.h"
@@ -538,7 +539,7 @@ void CefDevToolsFrontend::DispatchProtocolMessage(
   if (ProtocolLoggingEnabled()) {
     // Quick check to avoid parsing the JSON object. Events begin with a
     // "method" value whereas method results begin with an "id" value.
-    LogProtocolMessage(str_message.starts_with("{\"method\":")
+    LogProtocolMessage(base::StartsWith(str_message, "{\"method\":")
                            ? ProtocolMessageType::EVENT
                            : ProtocolMessageType::RESULT,
                        str_message);

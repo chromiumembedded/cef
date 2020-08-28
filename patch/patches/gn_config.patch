@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index c789fe56958f..2c57543a71d8 100644
+index aff8517d72f4..6ad4c7aefdff 100644
 --- .gn
 +++ .gn
-@@ -640,6 +640,8 @@ exec_script_whitelist =
+@@ -385,6 +385,8 @@ exec_script_whitelist =
  
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
  
@@ -12,10 +12,10 @@ index c789fe56958f..2c57543a71d8 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 16ad01eac88d..71275b71be81 100644
+index 4e74a1d6948f..044f4016a2b6 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -228,6 +228,7 @@ group("gn_all") {
+@@ -226,6 +226,7 @@ group("gn_all") {
  
    if (!is_ios && !is_fuchsia) {
      deps += [
@@ -56,7 +56,7 @@ index 982fbe8d3f0d..e757be4688f1 100644
 +         "studio path")
  }
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 4c051291ab4c..5b3a61149522 100644
+index 5a7d02d80a89..dcc77f0e8b33 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -3,6 +3,7 @@
@@ -67,7 +67,7 @@ index 4c051291ab4c..5b3a61149522 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/components/media_app_ui/media_app_ui.gni")
-@@ -307,6 +308,7 @@ template("chrome_paks") {
+@@ -315,6 +316,7 @@ template("chrome_paks") {
      }
    }
  
@@ -75,7 +75,7 @@ index 4c051291ab4c..5b3a61149522 100644
    chrome_repack_locales("${target_name}_locales") {
      forward_variables_from(invoker,
                             [
-@@ -329,14 +331,17 @@ template("chrome_paks") {
+@@ -337,14 +339,17 @@ template("chrome_paks") {
        output_locales = locales
      }
    }
@@ -95,7 +95,7 @@ index 4c051291ab4c..5b3a61149522 100644
        public_deps += [ ":${target_name}_200_percent" ]
      }
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index a04d7f31c2a6..68303e3ab3be 100644
+index 7c7af8c0d948..c7869c760b12 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -5,6 +5,7 @@
@@ -105,8 +105,8 @@ index a04d7f31c2a6..68303e3ab3be 100644
 +import("//cef/libcef/features/features.gni")
  import("//chrome/process_version_rc_template.gni")
  import("//components/nacl/features.gni")
- import("//third_party/icu/config.gni")
-@@ -134,11 +135,13 @@ template("generate_mini_installer") {
+ import("//third_party/ffmpeg/ffmpeg_options.gni")
+@@ -139,11 +140,13 @@ template("generate_mini_installer") {
      inputs = [
        "$chrome_dll_file",
        "$root_out_dir/chrome.exe",

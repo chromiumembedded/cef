@@ -1,8 +1,8 @@
 diff --git ui/base/resource/resource_bundle.cc ui/base/resource/resource_bundle.cc
-index eeb09546b453..b97a392faf74 100644
+index df4b0a7c9bb0..140574fe2886 100644
 --- ui/base/resource/resource_bundle.cc
 +++ ui/base/resource/resource_bundle.cc
-@@ -865,6 +865,12 @@ ResourceBundle::ResourceBundle(Delegate* delegate)
+@@ -868,6 +868,12 @@ ResourceBundle::ResourceBundle(Delegate* delegate)
      : delegate_(delegate),
        locale_resources_data_lock_(new base::Lock),
        max_scale_factor_(SCALE_FACTOR_100P) {
@@ -15,7 +15,7 @@ index eeb09546b453..b97a392faf74 100644
    mangle_localized_strings_ = base::CommandLine::ForCurrentProcess()->HasSwitch(
        switches::kMangleLocalizedStrings);
  }
-@@ -874,6 +880,11 @@ ResourceBundle::~ResourceBundle() {
+@@ -877,6 +883,11 @@ ResourceBundle::~ResourceBundle() {
    UnloadLocaleResources();
  }
  

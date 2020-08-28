@@ -56,7 +56,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
                              content::RenderViewHost* new_host) override;
   void SetOverscrollControllerEnabled(bool enabled) override;
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
   bool CloseTabAfterEventTrackingIfNeeded() override;
 #endif
 

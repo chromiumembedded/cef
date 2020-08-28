@@ -96,10 +96,10 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
 
   // Values checked in ProfileNetworkContextService::CreateNetworkContextParams
   // when creating the NetworkContext.
-  bool ShouldRestoreOldSessionCookies() override {
+  bool ShouldRestoreOldSessionCookies() const override {
     return ShouldPersistSessionCookies();
   }
-  bool ShouldPersistSessionCookies() override {
+  bool ShouldPersistSessionCookies() const override {
     return !!settings_.persist_session_cookies;
   }
   base::Optional<std::vector<std::string>> GetCookieableSchemes() override {

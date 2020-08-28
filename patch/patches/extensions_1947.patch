@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/streams_private/streams_private_api.cc chrome/browser/extensions/api/streams_private/streams_private_api.cc
-index bb4af725af9f..a1389be84f6e 100644
+index 3cc8dfd2754e..37b34413d506 100644
 --- chrome/browser/extensions/api/streams_private/streams_private_api.cc
 +++ chrome/browser/extensions/api/streams_private/streams_private_api.cc
 @@ -6,6 +6,7 @@
@@ -8,9 +8,9 @@ index bb4af725af9f..a1389be84f6e 100644
  
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/extensions/extension_tab_util.h"
- #include "chrome/browser/prerender/prerender_contents.h"
- #include "components/sessions/core/session_id.h"
-@@ -41,6 +42,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+ #include "chrome/browser/prerender/chrome_prerender_contents_delegate.h"
+ #include "components/prerender/browser/prerender_contents.h"
+@@ -42,6 +43,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
    if (!web_contents)
      return;
  
@@ -18,7 +18,7 @@ index bb4af725af9f..a1389be84f6e 100644
    // If the request was for a prerender, abort the prerender and do not
    // continue. This is because plugins cancel prerender, see
    // http://crbug.com/343590.
-@@ -50,6 +52,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+@@ -51,6 +53,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
      prerender_contents->Destroy(prerender::FINAL_STATUS_DOWNLOAD);
      return;
    }
@@ -27,7 +27,7 @@ index bb4af725af9f..a1389be84f6e 100644
    auto* browser_context = web_contents->GetBrowserContext();
  
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
-index da431bd8ecc5..587952b1af1c 100644
+index 0f588c70627f..a1b9ea21cc72 100644
 --- extensions/browser/extension_host.cc
 +++ extensions/browser/extension_host.cc
 @@ -66,11 +66,12 @@ ExtensionHost::ExtensionHost(const Extension* extension,
@@ -97,7 +97,7 @@ index da431bd8ecc5..587952b1af1c 100644
    ExtensionRegistry::Get(browser_context_)->RemoveObserver(this);
  
 diff --git extensions/browser/extension_host.h extensions/browser/extension_host.h
-index ee031971ea4c..c82a4f30eb7f 100644
+index 11bfec21cc9f..416de61f85fa 100644
 --- extensions/browser/extension_host.h
 +++ extensions/browser/extension_host.h
 @@ -51,13 +51,19 @@ class ExtensionHost : public DeferredStartRenderHost,
@@ -121,7 +121,7 @@ index ee031971ea4c..c82a4f30eb7f 100644
    content::RenderViewHost* render_view_host() const;
    content::RenderProcessHost* render_process_host() const;
    bool has_loaded_once() const { return has_loaded_once_; }
-@@ -176,7 +182,8 @@ class ExtensionHost : public DeferredStartRenderHost,
+@@ -178,7 +184,8 @@ class ExtensionHost : public DeferredStartRenderHost,
    content::BrowserContext* browser_context_;
  
    // The host for our HTML content.
@@ -132,10 +132,10 @@ index ee031971ea4c..c82a4f30eb7f 100644
    // A weak pointer to the current or pending RenderViewHost. We don't access
    // this through the host_contents because we want to deal with the pending
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index 757ed5668b94..142c0ea7f801 100644
+index 829941a3f095..dd6d5334c692 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
-@@ -56,6 +56,7 @@ class ComponentExtensionResourceManager;
+@@ -57,6 +57,7 @@ class ComponentExtensionResourceManager;
  class Extension;
  class ExtensionCache;
  class ExtensionError;
@@ -143,7 +143,7 @@ index 757ed5668b94..142c0ea7f801 100644
  class ExtensionHostDelegate;
  class ExtensionSet;
  class ExtensionSystem;
-@@ -196,6 +197,14 @@ class ExtensionsBrowserClient {
+@@ -197,6 +198,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  

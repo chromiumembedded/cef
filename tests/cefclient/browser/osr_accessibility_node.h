@@ -10,7 +10,7 @@
 
 #include "include/cef_browser.h"
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 typedef void CefNativeAccessible;
 #if __OBJC__
 #if __has_feature(objc_arc)

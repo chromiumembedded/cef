@@ -42,7 +42,7 @@
 //
 // On Mac OS X, |long long| is used for 64-bit types for compatibility with
 // <inttypes.h> format macros even in the LP64 model.
-#if defined(__LP64__) && !defined(OS_MACOSX) && !defined(OS_OPENBSD)
+#if defined(__LP64__) && !defined(OS_MAC) && !defined(OS_OPENBSD)
 typedef long int64;
 typedef unsigned long uint64;
 #else

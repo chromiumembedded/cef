@@ -46,7 +46,7 @@ class CefFileDialogManager {
 
   // Called from CefBrowserHostImpl::RunFileChooser.
   // See WebContentsDelegate::RunFileChooser documentation.
-  void RunFileChooser(std::unique_ptr<content::FileSelectListener> listener,
+  void RunFileChooser(scoped_refptr<content::FileSelectListener> listener,
                       const blink::mojom::FileChooserParams& params);
 
   // Run the file chooser dialog specified by |params|. Only a single dialog may
@@ -71,7 +71,7 @@ class CefFileDialogManager {
   // blink::mojom::FileChooserParams::Mode::kUploadFolder.
   void OnRunFileChooserUploadFolderDelegateCallback(
       const blink::mojom::FileChooserParams::Mode mode,
-      std::unique_ptr<content::FileSelectListener> listener,
+      scoped_refptr<content::FileSelectListener> listener,
       int selected_accept_filter,
       const std::vector<base::FilePath>& file_paths);
 
@@ -79,7 +79,7 @@ class CefFileDialogManager {
   // RenderFrameHost.
   void OnRunFileChooserDelegateCallback(
       blink::mojom::FileChooserParams::Mode mode,
-      std::unique_ptr<content::FileSelectListener> listener,
+      scoped_refptr<content::FileSelectListener> listener,
       int selected_accept_filter,
       const std::vector<base::FilePath>& file_paths);
 

@@ -367,7 +367,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefTime date;
     date.year = 2200;
     date.month = 4;
-#if !defined(OS_MACOSX)
+#if !defined(OS_MAC)
     date.day_of_week = 5;
 #endif
     date.day_of_month = 11;

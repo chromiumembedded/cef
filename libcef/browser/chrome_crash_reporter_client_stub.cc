@@ -5,11 +5,11 @@
 
 #include "build/build_config.h"
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 
 #include "chrome/app/chrome_crash_reporter_client.h"
 
 // Required due to https://crrev.com/1c9f89a06f
 void ChromeCrashReporterClient::Create() {}
 
-#endif  // defined(OS_MACOSX)
+#endif  // defined(OS_MAC)

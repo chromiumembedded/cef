@@ -8,6 +8,7 @@
 #include "include/internal/cef_types_wrappers.h"
 
 #include "base/macros.h"
+#include "components/printing/common/print.mojom-forward.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/browser/web_contents_user_data.h"
 
@@ -19,7 +20,6 @@ class WebContentsObserver;
 
 class CefBrowserInfo;
 
-struct PrintHostMsg_DidPreviewDocument_Params;
 struct PrintHostMsg_PreviewIds;
 struct PrintHostMsg_RequestPrintPreview_Params;
 
@@ -85,7 +85,7 @@ class CefPrintViewManager
   void OnDidShowPrintDialog_PrintToPdf(content::RenderFrameHost* rfh);
   void OnMetafileReadyForPrinting_PrintToPdf(
       content::RenderFrameHost* rfh,
-      const PrintHostMsg_DidPreviewDocument_Params& params,
+      const mojom::DidPreviewDocumentParams& params,
       const PrintHostMsg_PreviewIds& ids);
   void InitializePrintPreview(int frame_tree_node_id);
   void TerminatePdfPrintJob();

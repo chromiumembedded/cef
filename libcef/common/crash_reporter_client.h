@@ -57,7 +57,7 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
   void GetProductNameAndVersion(std::string* product_name,
                                 std::string* version,
                                 std::string* channel) override;
-#if !defined(OS_MACOSX)
+#if !defined(OS_MAC)
   base::FilePath GetReporterLogFilename() override;
   bool EnableBreakpadForProcess(const std::string& process_type) override;
 #endif
@@ -67,11 +67,11 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
   // All of these methods must return true to enable crash report upload.
   bool GetCollectStatsConsent() override;
   bool GetCollectStatsInSample() override;
-#if defined(OS_WIN) || defined(OS_MACOSX)
+#if defined(OS_WIN) || defined(OS_MAC)
   bool ReportingIsEnforcedByPolicy(bool* crashpad_enabled) override;
 #endif
 
-#if defined(OS_POSIX) && !defined(OS_MACOSX)
+#if defined(OS_POSIX) && !defined(OS_MAC)
   bool IsRunningUnattended() override;
 #endif
 
@@ -84,11 +84,11 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
   bool HasCrashExternalHandler() const;
 #endif
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
   bool EnableBrowserCrashForwarding() override;
 #endif
 
-#if defined(OS_POSIX) && !defined(OS_MACOSX)
+#if defined(OS_POSIX) && !defined(OS_MAC)
   ParameterMap FilterParameters(const ParameterMap& parameters) override;
 #endif
 
@@ -123,7 +123,7 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
   std::string external_handler_;
 #endif
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
   bool enable_browser_crash_forwarding_ = false;
 #endif
 

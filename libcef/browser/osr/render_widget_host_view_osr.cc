@@ -55,7 +55,7 @@
 #include "ui/gfx/geometry/size_conversions.h"
 
 #if defined(USE_X11)
-#include "ui/base/x/x11_cursor.h"
+#include "ui/base/x/x11_cursor_loader.h"
 #include "ui/base/x/x11_util.h"
 #endif
 
@@ -67,8 +67,8 @@ const size_t kMaxDamageRects = 10;
 
 const float kDefaultScaleFactor = 1.0;
 
-content::ScreenInfo ScreenInfoFrom(const CefScreenInfo& src) {
-  content::ScreenInfo screenInfo;
+blink::ScreenInfo ScreenInfoFrom(const CefScreenInfo& src) {
+  blink::ScreenInfo screenInfo;
   screenInfo.device_scale_factor = src.device_scale_factor;
   screenInfo.depth = src.depth;
   screenInfo.depth_per_component = src.depth_per_component;
@@ -101,7 +101,7 @@ class CefDelegatedFrameHostClient : public content::DelegatedFrameHostClient {
     // may not match the page's, so use black as the gutter color to avoid
     // flashes of brighter colors during the transition.
     if (view_->render_widget_host()->delegate() &&
-        view_->render_widget_host()->delegate()->IsFullscreenForCurrentTab()) {
+        view_->render_widget_host()->delegate()->IsFullscreen()) {
       return SK_ColorBLACK;
     }
     return *view_->GetBackgroundColor();
@@ -197,7 +197,8 @@ ui::ImeTextSpan::UnderlineStyle GetImeUnderlineStyle(
 CefCursorHandle ToCursorHandle(ui::PlatformCursor cursor) {
 #if defined(USE_X11)
   // See https://crbug.com/1029142 for background.
-  return static_cast<ui::X11Cursor*>(cursor)->xcursor();
+  return static_cast<CefCursorHandle>(
+      static_cast<ui::X11Cursor*>(cursor)->xcursor());
 #else
   return cursor;
 #endif
@@ -654,7 +655,7 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
 
   handler->OnCursorChange(browser_impl_.get(), platform_cursor, cursor_type,
                           custom_cursor_info);
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
   // |web_cursor| owns the resulting |native_cursor|.
   content::WebCursor web_cursor(cursor);
   CefCursorHandle native_cursor = web_cursor.GetNativeCursor();
@@ -741,7 +742,7 @@ void CefRenderWidgetHostViewOSR::CopyFromSurface(
   }
 }
 
-void CefRenderWidgetHostViewOSR::GetScreenInfo(content::ScreenInfo* results) {
+void CefRenderWidgetHostViewOSR::GetScreenInfo(blink::ScreenInfo* results) {
   if (!browser_impl_.get())
     return;
 
@@ -792,7 +793,7 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
   return GetViewBounds();
 }
 
-#if !defined(OS_MACOSX)
+#if !defined(OS_MAC)
 viz::ScopedSurfaceIdAllocator
 CefRenderWidgetHostViewOSR::DidUpdateVisualProperties(
     const cc::RenderFrameMetadata& metadata) {
@@ -1443,13 +1444,16 @@ gfx::Size CefRenderWidgetHostViewOSR::SizeInPixels() {
                                 current_device_scale_factor_);
 }
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 void CefRenderWidgetHostViewOSR::SetActive(bool active) {}
 
 void CefRenderWidgetHostViewOSR::ShowDefinitionForSelection() {}
 
 void CefRenderWidgetHostViewOSR::SpeakSelection() {}
-#endif
+
+void CefRenderWidgetHostViewOSR::SetWindowFrameInScreen(const gfx::Rect& rect) {
+}
+#endif  // defined(OS_MAC)
 
 void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
                                          const gfx::Size& pixel_size,

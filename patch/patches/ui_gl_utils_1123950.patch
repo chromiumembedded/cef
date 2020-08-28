@@ -1,0 +1,13 @@
+diff --git ui/gl/gl_utils.cc ui/gl/gl_utils.cc
+index 2f0832c0ae75..f8a494b05e42 100644
+--- ui/gl/gl_utils.cc
++++ ui/gl/gl_utils.cc
+@@ -130,7 +130,7 @@ bool ShouldForceDirectCompositionRootSurfaceFullDamage() {
+     if ((brga_flags & kSupportBits) == 0)
+       return false;
+     return true;
+-  };
++  }();
+   return should_force;
+ }
+ #endif  // OS_WIN

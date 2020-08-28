@@ -18,7 +18,7 @@
 #if defined(OS_WIN)
 #include "libcef/browser/native/browser_platform_delegate_native_win.h"
 #include "libcef/browser/osr/browser_platform_delegate_osr_win.h"
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
 #include "libcef/browser/native/browser_platform_delegate_native_mac.h"
 #include "libcef/browser/osr/browser_platform_delegate_osr_mac.h"
 #elif defined(OS_LINUX)
@@ -40,7 +40,7 @@ std::unique_ptr<CefBrowserPlatformDelegateNative> CreateNativeDelegate(
 #if defined(OS_WIN)
   return std::make_unique<CefBrowserPlatformDelegateNativeWin>(
       window_info, background_color);
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
   return std::make_unique<CefBrowserPlatformDelegateNativeMac>(
       window_info, background_color);
 #elif defined(OS_LINUX)
@@ -56,7 +56,7 @@ std::unique_ptr<CefBrowserPlatformDelegateOsr> CreateOSRDelegate(
 #if defined(OS_WIN)
   return std::make_unique<CefBrowserPlatformDelegateOsrWin>(
       std::move(native_delegate), use_shared_texture, use_external_begin_frame);
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
   return std::make_unique<CefBrowserPlatformDelegateOsrMac>(
       std::move(native_delegate));
 #elif defined(OS_LINUX)

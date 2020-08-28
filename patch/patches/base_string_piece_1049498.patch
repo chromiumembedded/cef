@@ -1,0 +1,12 @@
+diff --git base/strings/string_piece.h base/strings/string_piece.h
+index c650cfa84d59..0d6ff1ab5684 100644
+--- base/strings/string_piece.h
++++ base/strings/string_piece.h
+@@ -24,6 +24,7 @@
+ 
+ #include <stddef.h>
+ 
++#include <algorithm>
+ #include <iosfwd>
+ #include <ostream>
+ #include <string>

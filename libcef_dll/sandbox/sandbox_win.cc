@@ -2,6 +2,7 @@
 // 2011 the Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
+#include "base/logging.h"
 #include "sandbox/win/src/process_mitigations.h"
 #include "sandbox/win/src/sandbox_factory.h"
 
@@ -37,3 +38,13 @@ void* cef_sandbox_info_create() {
 void cef_sandbox_info_destroy(void* sandbox_info) {
   delete static_cast<sandbox::SandboxInterfaceInfo*>(sandbox_info);
 }
+
+// Implementation from third_party/abseil-cpp/absl/types/bad_variant_access.cc
+// to avoid bringing in absl dependencies.
+namespace absl {
+namespace variant_internal {
+void ThrowBadVariantAccess() {
+  LOG(FATAL) << "Bad variant access";
+}
+}  // namespace variant_internal
+}  // namespace absl

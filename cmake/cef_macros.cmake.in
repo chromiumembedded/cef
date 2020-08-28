@@ -25,7 +25,7 @@ macro(PRINT_CEF_CONFIG)
 
   message(STATUS "Binary distribution root:     ${_CEF_ROOT}")
 
-  if(OS_MACOSX)
+  if(OS_MAC)
     message(STATUS "Base SDK:                     ${CMAKE_OSX_SYSROOT}")
     message(STATUS "Target SDK:                   ${CEF_TARGET_SDK}")
   endif()
@@ -75,8 +75,8 @@ macro(APPEND_PLATFORM_SOURCES name_of_list)
   if(OS_WINDOWS AND ${name_of_list}_WINDOWS)
     list(APPEND ${name_of_list} ${${name_of_list}_WINDOWS})
   endif()
-  if(OS_MACOSX AND ${name_of_list}_MACOSX)
-    list(APPEND ${name_of_list} ${${name_of_list}_MACOSX})
+  if(OS_MAC AND ${name_of_list}_MAC)
+    list(APPEND ${name_of_list} ${${name_of_list}_MAC})
   endif()
 endmacro()
 
@@ -184,10 +184,10 @@ endif(OS_LINUX)
 # Mac OS X macros.
 #
 
-if(OS_MACOSX)
+if(OS_MAC)
 
 # Manually process and copy over resource files.
-macro(COPY_MACOSX_RESOURCES resource_list prefix_list target source_dir app_path)
+macro(COPY_MAC_RESOURCES resource_list prefix_list target source_dir app_path)
   foreach(FILENAME ${resource_list})
     # Remove one or more prefixes from the source paths.
     set(TARGET_FILENAME "${FILENAME}")
@@ -229,7 +229,7 @@ macro(COPY_MACOSX_RESOURCES resource_list prefix_list target source_dir app_path
   endforeach()
 endmacro()
 
-endif(OS_MACOSX)
+endif(OS_MAC)
 
 
 #
@@ -298,7 +298,7 @@ macro(SET_COMMON_TARGET_PROPERTIES target)
     set_property(TARGET ${target} PROPERTY LINK_FLAGS_RELEASE ${_flags_str})
   endif()
 
-  if(OS_MACOSX)
+  if(OS_MAC)
     # Set Xcode target properties.
     set_target_properties(${target} PROPERTIES
       XCODE_ATTRIBUTE_ALWAYS_SEARCH_USER_PATHS                    NO

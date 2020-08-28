@@ -49,7 +49,7 @@
 #cefclient Mac OS X sources
 {{
   'prefix': 'cefclient_macosx',
-  'set': 'CEFCLIENT_MACOSX_SRCS',
+  'set': 'CEFCLIENT_MAC_SRCS',
   'includes': [
     'shared_sources_mac',
     'cefclient_sources_mac',
@@ -59,7 +59,7 @@
 # cefclient Mac OS X helper sources.
 {{
   'prefix': 'cefclient_helper',
-  'set': 'CEFCLIENT_MACOSX_HELPER_SRCS',
+  'set': 'CEFCLIENT_MAC_HELPER_SRCS',
   'includes': [
     'shared_sources_mac_helper',
   ],
@@ -81,7 +81,7 @@
   'set': 'CEFCLIENT_RESOURCES_SRCS',
   'includes': [
     'shared_sources_resources',
-    'cefclient_bundle_resources_mac:MACOSX',
+    'cefclient_bundle_resources_mac:MAC',
     'cefclient_sources_resources',
     'cefclient_sources_resources_extensions_set_page_color',
   ],
@@ -94,7 +94,7 @@
 
 # Target executable names.
 set(CEF_TARGET "cefclient")
-if(OS_MACOSX)
+if(OS_MAC)
   set(CEF_HELPER_TARGET "cefclient_Helper")
   set(CEF_HELPER_OUTPUT_NAME "cefclient Helper")
 else()
@@ -151,7 +151,7 @@ endif()
 # Mac OS X configuration.
 #
 
-if(OS_MACOSX)
+if(OS_MAC)
   option(OPTION_USE_ARC "Build with ARC (automatic Reference Counting) on macOS." ON)
   if(OPTION_USE_ARC)
     list(APPEND CEF_COMPILER_FLAGS
@@ -168,7 +168,7 @@ if(OS_MACOSX)
     ${CEFCLIENT_BROWSER_SRCS}
     ${CEFCLIENT_COMMON_SRCS}
     ${CEFCLIENT_RESOURCES_SRCS}
-    ${CEFCLIENT_MACOSX_SRCS}
+    ${CEFCLIENT_MAC_SRCS}
     )
 
   # All sources required by the "cefclient Helper" target. Generates an app
@@ -176,7 +176,7 @@ if(OS_MACOSX)
   set(CEFCLIENT_HELPER_SRCS
     ${CEFCLIENT_COMMON_SRCS}
     ${CEFCLIENT_RENDERER_SRCS}
-    ${CEFCLIENT_MACOSX_HELPER_SRCS}
+    ${CEFCLIENT_MAC_HELPER_SRCS}
     )
 
   # Output path for the main app bundle.
@@ -270,7 +270,7 @@ if(OS_MACOSX)
     "resources/"
     "../shared/resources/"
     )
-  COPY_MACOSX_RESOURCES("${CEFCLIENT_RESOURCES_SRCS}" "${PREFIXES}" "${CEF_TARGET}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_APP}")
+  COPY_MAC_RESOURCES("${CEFCLIENT_RESOURCES_SRCS}" "${PREFIXES}" "${CEF_TARGET}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_APP}")
 endif()
 
 

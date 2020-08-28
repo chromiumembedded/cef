@@ -23,7 +23,7 @@
 #include "services/service_manager/embedder/switches.h"
 #include "third_party/crashpad/crashpad/client/annotation.h"
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 #include "libcef/common/util_mac.h"
 #endif
 
@@ -39,7 +39,7 @@
 #include "chrome/common/chrome_paths.h"
 #endif
 
-#if defined(OS_POSIX) && !defined(OS_MACOSX)
+#if defined(OS_POSIX) && !defined(OS_MAC)
 #include "content/public/common/content_switches.h"
 #include "libcef/common/cef_crash_report_utils.h"
 #endif
@@ -79,7 +79,7 @@ PathString GetCrashConfigPath() {
 #elif defined(OS_POSIX)
   base::FilePath config_path;
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
   // Start with the path to the main app Resources directory. May be empty if
   // not running in an app bundle.
   config_path = util_mac::GetMainResourcesDirectory();
@@ -439,7 +439,7 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
             app_name_ = val_str;
         }
       }
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
       else if (name_str == "BrowserCrashForwardingEnabled") {
         enable_browser_crash_forwarding_ = ParseBool(val_str);
       }
@@ -617,7 +617,7 @@ void CefCrashReporterClient::GetProductNameAndVersion(std::string* product_name,
   *version = product_version_;
 }
 
-#if !defined(OS_MACOSX)
+#if !defined(OS_MAC)
 
 base::FilePath CefCrashReporterClient::GetReporterLogFilename() {
   return base::FilePath(FILE_PATH_LITERAL("uploads.log"));
@@ -631,7 +631,7 @@ bool CefCrashReporterClient::EnableBreakpadForProcess(
          process_type == switches::kGpuProcess;
 }
 
-#endif  // !defined(OS_MACOSX)
+#endif  // !defined(OS_MAC)
 
 bool CefCrashReporterClient::GetCrashDumpLocation(base::FilePath* crash_dir) {
   // By setting the BREAKPAD_DUMP_LOCATION environment variable, an alternate
@@ -656,7 +656,7 @@ bool CefCrashReporterClient::GetCollectStatsInSample() {
   return true;
 }
 
-#if defined(OS_WIN) || defined(OS_MACOSX)
+#if defined(OS_WIN) || defined(OS_MAC)
 bool CefCrashReporterClient::ReportingIsEnforcedByPolicy(
     bool* crashpad_enabled) {
   *crashpad_enabled = true;
@@ -664,7 +664,7 @@ bool CefCrashReporterClient::ReportingIsEnforcedByPolicy(
 }
 #endif
 
-#if defined(OS_POSIX) && !defined(OS_MACOSX)
+#if defined(OS_POSIX) && !defined(OS_MAC)
 bool CefCrashReporterClient::IsRunningUnattended() {
   // Crash upload will only be enabled with Breakpad on Linux if this method
   // returns false.
@@ -717,13 +717,13 @@ bool CefCrashReporterClient::HasCrashExternalHandler() const {
 
 #endif  // defined(OS_WIN)
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 bool CefCrashReporterClient::EnableBrowserCrashForwarding() {
   return enable_browser_crash_forwarding_;
 }
 #endif
 
-#if defined(OS_POSIX) && !defined(OS_MACOSX)
+#if defined(OS_POSIX) && !defined(OS_MAC)
 CefCrashReporterClient::ParameterMap CefCrashReporterClient::FilterParameters(
     const ParameterMap& parameters) {
   return crash_report_utils::FilterParameters(parameters);

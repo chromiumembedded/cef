@@ -36,7 +36,7 @@
 #include "ui/events/gesture_detection/motion_event_generic.h"
 #include "ui/gfx/geometry/rect.h"
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 #include "content/browser/renderer_host/browser_compositor_view_mac.h"
 #endif
 
@@ -65,8 +65,9 @@ class CefWebContentsViewOSR;
 
 #if defined(USE_X11)
 namespace ui {
-class XScopedCursor;
-}
+class X11Cursor;
+class XCursorLoader;
+}  // namespace ui
 class CefWindowX11;
 #endif
 
@@ -88,7 +89,7 @@ class CefWindowX11;
 // RenderWidgetHostView class hierarchy described in render_widget_host_view.h.
 ///////////////////////////////////////////////////////////////////////////////
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 class MacHelper;
 #endif
 
@@ -129,11 +130,12 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void UnlockMouse() override;
   void TakeFallbackContentFrom(content::RenderWidgetHostView* view) override;
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
   void SetActive(bool active) override;
   void ShowDefinitionForSelection() override;
   void SpeakSelection() override;
-#endif  // defined(OS_MACOSX)
+  void SetWindowFrameInScreen(const gfx::Rect& rect) override;
+#endif  // defined(OS_MAC)
 
   // RenderWidgetHostViewBase implementation.
   void ResetFallbackToFirstNavigationSurface() override;
@@ -152,11 +154,11 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
       const gfx::Rect& src_rect,
       const gfx::Size& output_size,
       base::OnceCallback<void(const SkBitmap&)> callback) override;
-  void GetScreenInfo(content::ScreenInfo* results) override;
+  void GetScreenInfo(blink::ScreenInfo* results) override;
   void TransformPointToRootSurface(gfx::PointF* point) override;
   gfx::Rect GetBoundsInRootWindow() override;
 
-#if !defined(OS_MACOSX)
+#if !defined(OS_MAC)
   viz::ScopedSurfaceIdAllocator DidUpdateVisualProperties(
       const cc::RenderFrameMetadata& metadata) override;
 #endif
@@ -345,7 +347,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   viz::ParentLocalSurfaceIdAllocator compositor_local_surface_id_allocator_;
 
 #if defined(USE_X11)
-  std::unique_ptr<ui::XScopedCursor> invisible_cursor_;
+  std::unique_ptr<ui::XCursorLoader> cursor_loader_;
+  scoped_refptr<ui::X11Cursor> invisible_cursor_;
 #endif
 
   std::unique_ptr<content::CursorManager> cursor_manager_;

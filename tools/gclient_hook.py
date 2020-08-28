@@ -21,7 +21,7 @@ src_dir = os.path.abspath(os.path.join(cef_dir, os.pardir))
 if sys.platform == 'win32':
   platform = 'windows'
 elif sys.platform == 'darwin':
-  platform = 'macosx'
+  platform = 'mac'
 elif sys.platform.startswith('linux'):
   platform = 'linux'
 else:

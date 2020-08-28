@@ -126,7 +126,7 @@ class cef_html_builder:
         'linux64': 'Linux 64-bit',
         'linuxarm': 'Linux ARM',
         'linuxarm64': 'Linux ARM64',
-        'macosx64': 'Mac OS X 64-bit',
+        'macosx64': 'MacOS 64-bit',
         'windows32': 'Windows 32-bit',
         'windows64': 'Windows 64-bit'
     }[platform]

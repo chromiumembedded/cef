@@ -19,7 +19,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "ui/base/layout.h"
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 #include "base/mac/foundation_util.h"
 #include "libcef/common/util_mac.h"
 #endif
@@ -55,7 +55,7 @@ bool GetSystemFlashFilename(base::FilePath* out_path) {
   return true;
 }
 
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
 
 const base::FilePath::CharType kPepperFlashSystemBaseDirectory[] =
     FILE_PATH_LITERAL("Internet Plug-Ins/PepperFlashPlayer");
@@ -78,7 +78,7 @@ bool GetDefaultUserDataDirectory(base::FilePath* result) {
   return true;
 }
 
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
 
 // Based on chrome/common/chrome_paths_mac.mm.
 bool GetDefaultUserDataDirectory(base::FilePath* result) {
@@ -168,7 +168,7 @@ bool GetDefaultDownloadSafeDirectory(base::FilePath* result) {
 
 }  // namespace
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 
 base::FilePath GetResourcesDir() {
   return util_mac::GetFrameworkResourcesDirectory();
@@ -183,7 +183,7 @@ base::FilePath GetDefaultLogFilePath() {
       .Append(FILE_PATH_LITERAL(exe_name + "_debug.log"));
 }
 
-#else  // !defined(OS_MACOSX)
+#else  // !defined(OS_MAC)
 
 base::FilePath GetResourcesDir() {
   base::FilePath pak_dir;
@@ -198,26 +198,26 @@ base::FilePath GetDefaultLogFilePath() {
   return log_path.Append(FILE_PATH_LITERAL("debug.log"));
 }
 
-#endif  // !defined(OS_MACOSX)
+#endif  // !defined(OS_MAC)
 
 void OverridePepperFlashSystemPluginPath() {
-#if defined(OS_WIN) || defined(OS_MACOSX)
+#if defined(OS_WIN) || defined(OS_MAC)
   base::FilePath plugin_filename;
 #if defined(OS_WIN)
   if (!GetSystemFlashFilename(&plugin_filename))
     return;
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
   if (!util_mac::GetLocalLibraryDirectory(&plugin_filename))
     return;
   plugin_filename = plugin_filename.Append(kPepperFlashSystemBaseDirectory)
                         .Append(chrome::kPepperFlashPluginFilename);
-#endif  // defined(OS_MACOSX)
+#endif  // defined(OS_MAC)
 
   if (!plugin_filename.empty()) {
     base::PathService::Override(chrome::FILE_PEPPER_FLASH_SYSTEM_PLUGIN,
                                 plugin_filename);
   }
-#else  // !(defined(OS_WIN) || defined(OS_MACOSX))
+#else  // !(defined(OS_WIN) || defined(OS_MAC))
   // A system plugin is not available on other platforms.
   return;
 #endif

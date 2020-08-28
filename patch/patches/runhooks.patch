@@ -1,11 +1,11 @@
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index 1a7c3d74b5c5..00c166906396 100644
+index d9cd61297548..9bfbc5212ed6 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
-@@ -142,13 +142,17 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
-       # variable.
-       if 'VSINSTALLDIR' in os.environ:
-         del os.environ['VSINSTALLDIR']
+@@ -149,13 +149,17 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
+         del os.environ['INCLUDE']
+         del os.environ['LIB']
+         del os.environ['LIBPATH']
 -      other_path = os.path.normpath(os.path.join(
 +      script_path = os.path.normpath(os.path.join(
                                          os.environ['GYP_MSVS_OVERRIDE_PATH'],
@@ -26,7 +26,7 @@ index 1a7c3d74b5c5..00c166906396 100644
      if (cpu != 'x64'):
        # x64 is default target CPU thus any other CPU requires a target set
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index e60770e9b4e6..edeb0c357878 100755
+index 6bc24a921272..24ee9a0a04a9 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -89,9 +89,16 @@ def SetEnvironmentAndGetRuntimeDllDirs():

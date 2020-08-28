@@ -7,7 +7,6 @@
 #include "libcef/common/app_manager.h"
 #include "libcef/common/task_runner_impl.h"
 #include "libcef/features/runtime_checks.h"
-#include "libcef/renderer/render_urlrequest_impl.h"
 
 #include "base/logging.h"
 #include "base/notreached.h"
@@ -36,13 +35,6 @@ CefRefPtr<CefURLRequest> CefURLRequest::Create(
     // In the browser process.
     CefRefPtr<CefBrowserURLRequest> impl =
         new CefBrowserURLRequest(nullptr, request, client, request_context);
-    if (impl->Start())
-      return impl.get();
-    return nullptr;
-  } else if (content_client->renderer()) {
-    // In the render process.
-    CefRefPtr<CefRenderURLRequest> impl =
-        new CefRenderURLRequest(nullptr, request, client);
     if (impl->Start())
       return impl.get();
     return nullptr;

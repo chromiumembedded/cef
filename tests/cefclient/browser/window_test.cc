@@ -23,7 +23,7 @@
 #include "tests/cefclient/browser/window_test_runner_win.h"
 #elif defined(OS_LINUX)
 #include "tests/cefclient/browser/window_test_runner_gtk.h"
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
 #include "tests/cefclient/browser/window_test_runner_mac.h"
 #endif
 
@@ -49,7 +49,7 @@ scoped_ptr<WindowTestRunner> CreateWindowTestRunner() {
   return scoped_ptr<WindowTestRunner>(new WindowTestRunnerWin());
 #elif defined(OS_LINUX)
   return scoped_ptr<WindowTestRunner>(new WindowTestRunnerGtk());
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
   return scoped_ptr<WindowTestRunner>(new WindowTestRunnerMac());
 #else
 #error "No implementation available for your platform."

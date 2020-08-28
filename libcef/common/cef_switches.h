@@ -56,7 +56,7 @@ extern const char kDisableNewBrowserInfoTimeout[];
 extern const char kDevToolsProtocolLogFile[];
 extern const char kEnableChromeRuntime[];
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 extern const char kFrameworkDirPath[];
 extern const char kMainBundlePath[];
 #endif

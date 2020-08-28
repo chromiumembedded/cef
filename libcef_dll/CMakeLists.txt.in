@@ -4,8 +4,8 @@
 
 # Append platform specific sources to a list of sources.
 macro(LIBCEF_APPEND_PLATFORM_SOURCES name_of_list)
-  if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin" AND ${name_of_list}_MACOSX)
-    list(APPEND ${name_of_list} ${${name_of_list}_MACOSX})
+  if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin" AND ${name_of_list}_MAC)
+    list(APPEND ${name_of_list} ${${name_of_list}_MAC})
   endif()
   if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" AND ${name_of_list}_LINUX)
     list(APPEND ${name_of_list} ${${name_of_list}_LINUX})
@@ -28,16 +28,16 @@ set(CEF_TARGET libcef_dll_wrapper)
     'includes_capi',
     'autogen_capi_includes',
     'includes_wrapper',
-    'includes_wrapper_mac:MACOSX',
+    'includes_wrapper_mac:MAC',
     'includes_win:WINDOWS',
     'includes_win_capi:WINDOWS',
-    'includes_mac:MACOSX',
-    'includes_mac_capi:MACOSX',
+    'includes_mac:MAC',
+    'includes_mac_capi:MAC',
     'includes_linux:LINUX',
     'includes_linux_capi:LINUX',
     'libcef_dll_wrapper_sources_base',
     'libcef_dll_wrapper_sources_common',
-    'libcef_dll_wrapper_sources_mac:MACOSX',
+    'libcef_dll_wrapper_sources_mac:MAC',
     'autogen_client_side',
   ],
 }}

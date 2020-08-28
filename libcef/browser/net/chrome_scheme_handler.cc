@@ -191,7 +191,7 @@ void GetDebugURLs(std::vector<std::string>* urls) {
 std::string GetOSType() {
 #if defined(OS_WIN)
   return "Windows";
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
   return "Mac OS X";
 #elif defined(OS_CHROMEOS)
   return "Chromium OS";

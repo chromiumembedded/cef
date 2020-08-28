@@ -82,10 +82,10 @@ struct SaveCookiesProgress {
 
 void SetCanonicalCookieCallback(SaveCookiesProgress* progress,
                                 const net::CanonicalCookie& cookie,
-                                net::CookieInclusionStatus status) {
+                                net::CookieAccessResult access_result) {
   CEF_REQUIRE_UIT();
   progress->num_cookie_lines_left_--;
-  if (status.IsInclude()) {
+  if (access_result.status.IsInclude()) {
     progress->allowed_cookies_.push_back(cookie);
   }
 
@@ -131,8 +131,8 @@ void SaveCookiesOnUIThread(content::BrowserContext* browser_context,
 
   SetCanonicalCookieCallback(
       progress, net::CanonicalCookie(),
-      net::CookieInclusionStatus(
-          net::CookieInclusionStatus::EXCLUDE_UNKNOWN_ERROR));
+      net::CookieAccessResult(net::CookieInclusionStatus(
+          net::CookieInclusionStatus::EXCLUDE_UNKNOWN_ERROR)));
 }
 
 }  // namespace

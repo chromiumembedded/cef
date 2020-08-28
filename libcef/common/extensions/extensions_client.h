@@ -29,8 +29,8 @@ class CefExtensionsClient : public ExtensionsClient {
   void FilterHostPermissions(const URLPatternSet& hosts,
                              URLPatternSet* new_hosts,
                              PermissionIDSet* permissions) const override;
-  void SetScriptingWhitelist(const ScriptingWhitelist& whitelist) override;
-  const ScriptingWhitelist& GetScriptingWhitelist() const override;
+  void SetScriptingAllowlist(const ScriptingAllowlist& allowlist) override;
+  const ScriptingAllowlist& GetScriptingAllowlist() const override;
   URLPatternSet GetPermittedChromeSchemeHosts(
       const Extension* extension,
       const APIPermissionSet& api_permissions) const override;
@@ -42,7 +42,7 @@ class CefExtensionsClient : public ExtensionsClient {
  private:
   const ChromePermissionMessageProvider permission_message_provider_;
 
-  ScriptingWhitelist scripting_whitelist_;
+  ScriptingAllowlist scripting_allowlist_;
 
   // Mutable to allow caching in a const method.
   const GURL webstore_base_url_;

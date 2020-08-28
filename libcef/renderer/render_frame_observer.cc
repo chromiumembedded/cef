@@ -76,7 +76,7 @@ void CefRenderFrameObserver::DidFinishLoad() {
   }
 }
 
-void CefRenderFrameObserver::FrameDetached() {
+void CefRenderFrameObserver::WillDetach() {
   if (frame_) {
     frame_->OnDetached();
     frame_ = nullptr;

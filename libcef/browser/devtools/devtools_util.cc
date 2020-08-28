@@ -5,6 +5,7 @@
 #include "libcef/browser/devtools/devtools_util.h"
 
 #include "base/strings/string_number_conversions.h"
+#include "base/strings/string_util.h"
 
 namespace devtools_util {
 
@@ -24,7 +25,7 @@ bool ParseEvent(const base::StringPiece& message,
   static const char kMethodEnd[] = "\"";
   static const char kParamsStart[] = ",\"params\":";
 
-  if (!message.starts_with(kMethodStart))
+  if (!base::StartsWith(message, kMethodStart))
     return false;
 
   const size_t method_start = sizeof(kMethodStart) - 1;
@@ -41,7 +42,7 @@ bool ParseEvent(const base::StringPiece& message,
     params = base::StringPiece();
   } else {
     const base::StringPiece& remainder = message.substr(remainder_start);
-    if (remainder.starts_with(kParamsStart)) {
+    if (base::StartsWith(remainder, kParamsStart)) {
       // Stop immediately before the message closing bracket.
       remainder_start += sizeof(kParamsStart) - 1;
       params =
@@ -71,7 +72,7 @@ bool ParseResult(const base::StringPiece& message,
   static const char kResultStart[] = "\"result\":";
   static const char kErrorStart[] = "\"error\":";
 
-  if (!message.starts_with(kIdStart))
+  if (!base::StartsWith(message, kIdStart))
     return false;
 
   const size_t id_start = sizeof(kIdStart) - 1;
@@ -84,13 +85,13 @@ bool ParseResult(const base::StringPiece& message,
 
   size_t remainder_start = id_end + sizeof(kIdEnd) - 1;
   const base::StringPiece& remainder = message.substr(remainder_start);
-  if (remainder.starts_with(kResultStart)) {
+  if (base::StartsWith(remainder, kResultStart)) {
     // Stop immediately before the message closing bracket.
     remainder_start += sizeof(kResultStart) - 1;
     result =
         message.substr(remainder_start, message.size() - 1 - remainder_start);
     success = true;
-  } else if (remainder.starts_with(kErrorStart)) {
+  } else if (base::StartsWith(remainder, kErrorStart)) {
     // Stop immediately before the message closing bracket.
     remainder_start += sizeof(kErrorStart) - 1;
     result =

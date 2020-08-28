@@ -18,7 +18,7 @@
 // CefButtonView template.
 class MenuButtonEx : public views::MenuButton, public views::ButtonListener {
  public:
-  MenuButtonEx() : views::MenuButton(base::string16(), this) {
+  MenuButtonEx() : views::MenuButton(this, base::string16()) {
     // TODO(cef): MenuButton should not use ButtonListener. See
     // http://crbug.com/585252 for details.
     Button::listener_ = this;

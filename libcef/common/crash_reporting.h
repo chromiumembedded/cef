@@ -29,7 +29,7 @@ void BasicStartupComplete(base::CommandLine* command_line);
 void PreSandboxStartup(const base::CommandLine& command_line,
                        const std::string& process_type);
 
-#if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MACOSX)
+#if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MAC)
 void ZygoteForked(base::CommandLine* command_line,
                   const std::string& process_type);
 #endif

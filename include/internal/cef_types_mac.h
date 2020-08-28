@@ -33,7 +33,7 @@
 
 #include "include/base/cef_build.h"
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 #include "include/internal/cef_string.h"
 
 // Handle types.
@@ -137,6 +137,6 @@ typedef struct _cef_window_info_t {
 }
 #endif
 
-#endif  // OS_MACOSX
+#endif  // OS_MAC
 
 #endif  // CEF_INCLUDE_INTERNAL_CEF_TYPES_MAC_H_

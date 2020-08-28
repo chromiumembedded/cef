@@ -180,7 +180,7 @@ Atomic64 Release_Load(volatile const Atomic64* ptr);
 #include "include/base/internal/cef_atomicops_x86_msvc.h"
 #elif defined(OS_WIN) && (defined(__ARM_ARCH_ISA_A64) || defined(_M_ARM64))
 #include "include/base/internal/cef_atomicops_arm64_msvc.h"
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
 #include "include/base/internal/cef_atomicops_mac.h"
 #elif defined(COMPILER_GCC) && defined(ARCH_CPU_X86_FAMILY)
 #include "include/base/internal/cef_atomicops_x86_gcc.h"
@@ -194,7 +194,7 @@ Atomic64 Release_Load(volatile const Atomic64* ptr);
 
 // On some platforms we need additional declarations to make
 // AtomicWord compatible with our other Atomic* types.
-#if defined(OS_MACOSX) || defined(OS_OPENBSD)
+#if defined(OS_MAC) || defined(OS_OPENBSD)
 #include "include/base/internal/cef_atomicops_atomicword_compat.h"
 #endif
 

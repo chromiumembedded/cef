@@ -34,7 +34,7 @@
 #include "include/base/cef_build.h"
 #include "include/internal/cef_export.h"
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,6 +83,6 @@ class CEF_EXPORT CefScopedSandboxContext {
 };
 #endif  // __cplusplus
 
-#endif  // defined(OS_MACOSX)
+#endif  // defined(OS_MAC)
 
 #endif  // CEF_INCLUDE_CEF_SANDBOX_MAC_H_

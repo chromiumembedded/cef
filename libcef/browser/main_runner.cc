@@ -34,7 +34,7 @@
 #include "sandbox/win/src/sandbox_types.h"
 #endif
 
-#if defined(OS_MACOSX) || defined(OS_WIN)
+#if defined(OS_MAC) || defined(OS_WIN)
 #include "components/crash/core/app/crash_switches.h"
 #include "third_party/crashpad/crashpad/handler/handler_main.h"
 #endif
@@ -64,7 +64,7 @@ std::unique_ptr<CefMainRunnerDelegate> MakeDelegate(
   }
 }
 
-#if defined(OS_MACOSX) || defined(OS_WIN)
+#if defined(OS_MAC) || defined(OS_WIN)
 
 // Based on components/crash/core/app/run_as_crashpad_handler_win.cc
 // Remove the "--type=crashpad-handler" command-line flag that will otherwise
@@ -87,7 +87,7 @@ int RunAsCrashpadHandler(const base::CommandLine& command_line) {
                      }),
       argv.end());
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
   // HandlerMain on macOS uses the system version of getopt_long which expects
   // the first argument to be the program name.
   argv.insert(argv.begin(), command_line.GetProgram().value());
@@ -110,7 +110,7 @@ int RunAsCrashpadHandler(const base::CommandLine& command_line) {
                                argv_as_utf8.get(), nullptr);
 }
 
-#endif  // defined(OS_MACOSX) || defined(OS_WIN)
+#endif  // defined(OS_MAC) || defined(OS_WIN)
 
 }  // namespace
 
@@ -325,7 +325,7 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
 
   int result;
 
-#if defined(OS_MACOSX) || defined(OS_WIN)
+#if defined(OS_MAC) || defined(OS_WIN)
   if (process_type == crash_reporter::switches::kCrashpadHandler) {
     result = RunAsCrashpadHandler(command_line);
     main_delegate->AfterExecuteProcess();

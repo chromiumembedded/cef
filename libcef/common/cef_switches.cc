@@ -125,7 +125,7 @@ const char kDevToolsProtocolLogFile[] = "devtools-protocol-log-file";
 // Enable use of the Chrome runtime in CEF. See issue #2969 for details.
 const char kEnableChromeRuntime[] = "enable-chrome-runtime";
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 // Path to the framework directory.
 const char kFrameworkDirPath[] = "framework-dir-path";
 const char kMainBundlePath[] = "main-bundle-path";

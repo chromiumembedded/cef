@@ -109,7 +109,7 @@
 #include "third_party/blink/public/web/web_view.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 #include "base/mac/mac_util.h"
 #include "base/strings/sys_string_conversions.h"
 #endif
@@ -359,7 +359,7 @@ void AlloyContentRendererClient::RunSingleProcessCleanup() {
 }
 
 void AlloyContentRendererClient::PostIOThreadCreated(
-  base::SingleThreadTaskRunner*) {
+    base::SingleThreadTaskRunner*) {
   // TODO(cef): Enable these once the implementation supports it.
   blink::WebRuntimeFeatures::EnableNotifications(false);
   blink::WebRuntimeFeatures::EnablePushMessaging(false);
@@ -390,10 +390,10 @@ void AlloyContentRendererClient::RenderThreadStarted() {
   if (content::RenderProcessHost::run_renderer_in_process()) {
     // When running in single-process mode register as a destruction observer
     // on the render thread's MessageLoop.
-    base::MessageLoopCurrent::Get()->AddDestructionObserver(this);
+    base::CurrentThread::Get()->AddDestructionObserver(this);
   }
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
   {
     base::ScopedCFTypeRef<CFStringRef> key(
         base::SysUTF8ToCFStringRef("NSScrollViewRubberbanding"));
@@ -408,7 +408,7 @@ void AlloyContentRendererClient::RenderThreadStarted() {
     CFPreferencesSetAppValue(key, value, kCFPreferencesCurrentApplication);
     CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication);
   }
-#endif  // defined(OS_MACOSX)
+#endif  // defined(OS_MAC)
 
   if (extensions::PdfExtensionEnabled()) {
     pdf_print_client_.reset(new ChromePDFPrintClient());
@@ -749,7 +749,7 @@ CefRefPtr<CefBrowserImpl> AlloyContentRendererClient::MaybeCreateBrowser(
     return nullptr;
   }
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
   // FIXME: It would be better if this API would be a callback from the
   // WebKit layer, or if it would be exposed as an WebView instance method; the
   // current implementation uses a static variable, and WebKit needs to be

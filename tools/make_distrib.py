@@ -94,7 +94,7 @@ def get_readme_component(name):
   # platform directory
   if platform == 'windows':
     platform_cmp = 'win'
-  elif platform == 'macosx':
+  elif platform == 'mac':
     platform_cmp = 'mac'
   elif platform == 'linux':
     platform_cmp = 'linux'
@@ -135,8 +135,8 @@ def create_readme():
 
   if platform == 'windows':
     platform_str = 'Windows'
-  elif platform == 'macosx':
-    platform_str = 'Mac OS-X'
+  elif platform == 'mac':
+    platform_str = 'MacOS'
   elif platform == 'linux':
     platform_str = 'Linux'
 
@@ -360,7 +360,7 @@ def combine_libs(platform, build_dir, libs, dest_lib):
   if platform == 'windows':
     cmdline = 'msvs_env.bat win%s "%s" combine_libs.py -o "%s"' % (
         platform_arch, sys.executable, dest_lib)
-  elif platform == 'macosx':
+  elif platform == 'mac':
     # Find CEF_EXPORT symbols from libcef_sandbox.a (include/cef_sandbox_mac.h)
     # Export only symbols that include these strings.
     symbol_match = [
@@ -544,7 +544,7 @@ platform = ''
 if sys.platform == 'win32':
   platform = 'windows'
 elif sys.platform == 'darwin':
-  platform = 'macosx'
+  platform = 'mac'
 elif sys.platform.startswith('linux'):
   platform = 'linux'
 
@@ -569,7 +569,7 @@ if options.arm64build and not platform in ('linux', 'windows'):
   print_error('--arm64-build is only supported on Linux and Windows.')
   sys.exit()
 
-if options.sandbox and not platform in ('macosx', 'windows'):
+if options.sandbox and not platform in ('mac', 'windows'):
   print_error('--sandbox is only supported on macOS and Windows.')
   sys.exit()
 
@@ -632,7 +632,10 @@ else:
 output_dir_base = 'cef_binary_' + cef_ver
 
 if options.distribsubdir == '':
-  output_dir_name = output_dir_base + '_' + platform + platform_arch
+  # For backwards compatibility keep the old default directory name on mac.
+  platform_name = 'macosx' if platform == 'mac' else platform
+
+  output_dir_name = output_dir_base + '_' + platform_name + platform_arch
   if options.distribsubdirsuffix != '':
     output_dir_name += '_' + options.distribsubdirsuffix
 else:
@@ -1001,7 +1004,7 @@ if platform == 'windows':
       # transfer contents
       copy_dir(src_dir, docs_output_dir, options.quiet)
 
-elif platform == 'macosx':
+elif platform == 'mac':
   framework_name = 'Chromium Embedded Framework'
   framework_dsym = '%s.dSYM' % framework_name
   cefclient_app = 'cefclient.app'

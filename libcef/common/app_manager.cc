@@ -12,7 +12,6 @@
 #include "base/logging.h"
 #include "content/public/browser/child_process_security_policy.h"
 #include "content/public/common/content_switches.h"
-#include "third_party/blink/public/platform/platform.h"
 
 #if defined(OS_WIN)
 #include <windows.h>
@@ -108,11 +107,3 @@ const wchar_t* CefAppManager::GetResourceDllName() {
   return file_path;
 }
 #endif  // defined(OS_WIN)
-
-blink::WebURLLoaderFactory* CefAppManager::GetDefaultURLLoaderFactory() {
-  if (!default_url_loader_factory_) {
-    default_url_loader_factory_ =
-        blink::Platform::Current()->CreateDefaultURLLoaderFactory();
-  }
-  return default_url_loader_factory_.get();
-}

@@ -19,6 +19,7 @@
 #include "net/http/http_status_code.h"
 #include "net/url_request/redirect_info.h"
 #include "net/url_request/redirect_util.h"
+#include "net/url_request/referrer_policy.h"
 #include "net/url_request/url_request.h"
 #include "services/network/public/cpp/resource_request.h"
 
@@ -180,10 +181,10 @@ net::RedirectInfo MakeRedirectInfo(const network::ResourceRequest& request,
     }
   }
 
-  net::URLRequest::FirstPartyURLPolicy first_party_url_policy =
+  auto first_party_url_policy =
       request.update_first_party_url_on_redirect
-          ? net::URLRequest::UPDATE_FIRST_PARTY_URL_ON_REDIRECT
-          : net::URLRequest::NEVER_CHANGE_FIRST_PARTY_URL;
+          ? net::RedirectInfo::FirstPartyURLPolicy::UPDATE_URL_ON_REDIRECT
+          : net::RedirectInfo::FirstPartyURLPolicy::NEVER_CHANGE_URL;
   return net::RedirectInfo::ComputeRedirectInfo(
       request.method, request.url, request.site_for_cookies,
       first_party_url_policy, request.referrer_policy, request.referrer.spec(),

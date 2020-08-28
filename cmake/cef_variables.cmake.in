@@ -14,7 +14,8 @@ endif()
 
 # Determine the platform.
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-  set(OS_MACOSX 1)
+  set(OS_MAC 1)
+  set(OS_MACOSX 1)  # For backwards compatibility.
   set(OS_POSIX 1)
 elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
   set(OS_LINUX 1)
@@ -31,7 +32,7 @@ if(NOT DEFINED PROJECT_ARCH)
     set(PROJECT_ARCH "x86")
   endif()
 
-  if(OS_MACOSX)
+  if(OS_MAC)
     # PROJECT_ARCH should be specified on Mac OS X.
     message(WARNING "No PROJECT_ARCH value specified, using ${PROJECT_ARCH}")
   endif()
@@ -246,7 +247,7 @@ endif()
 # Mac OS X configuration.
 #
 
-if(OS_MACOSX)
+if(OS_MAC)
   # Platform-specific compiler/linker flags.
   # See also Xcode target properties in cef_macros.cmake.
   set(CEF_LIBTYPE SHARED)

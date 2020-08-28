@@ -63,20 +63,13 @@ class CefURLRequest : public virtual CefBaseRefCounted {
   // Create a new URL request that is not associated with a specific browser or
   // frame. Use CefFrame::CreateURLRequest instead if you want the request to
   // have this association, in which case it may be handled differently (see
-  // documentation on that method). Requests may originate from the both browser
-  // process and the render process.
-  //
-  // For requests originating from the browser process:
+  // documentation on that method). A request created with this method may only
+  // originate from the browser process, and will behave as follows:
   //   - It may be intercepted by the client via CefResourceRequestHandler or
   //     CefSchemeHandlerFactory.
   //   - POST data may only contain only a single element of type PDE_TYPE_FILE
   //     or PDE_TYPE_BYTES.
   //   - If |request_context| is empty the global request context will be used.
-  // For requests originating from the render process:
-  //   - It cannot be intercepted by the client so only http(s) and blob schemes
-  //     are supported.
-  //   - POST data may only contain a single element of type PDE_TYPE_BYTES.
-  //   - The |request_context| parameter must be NULL.
   //
   // The |request| object will be marked as read-only after calling this method.
   ///

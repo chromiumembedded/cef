@@ -58,15 +58,15 @@ void CefExtensionsClient::FilterHostPermissions(
   NOTIMPLEMENTED();
 }
 
-void CefExtensionsClient::SetScriptingWhitelist(
-    const ScriptingWhitelist& whitelist) {
-  scripting_whitelist_ = whitelist;
+void CefExtensionsClient::SetScriptingAllowlist(
+    const ScriptingAllowlist& allowlist) {
+  scripting_allowlist_ = allowlist;
 }
 
-const ExtensionsClient::ScriptingWhitelist&
-CefExtensionsClient::GetScriptingWhitelist() const {
-  // TODO(jamescook): Real whitelist.
-  return scripting_whitelist_;
+const ExtensionsClient::ScriptingAllowlist&
+CefExtensionsClient::GetScriptingAllowlist() const {
+  // TODO(jamescook): Real allowlist.
+  return scripting_allowlist_;
 }
 
 URLPatternSet CefExtensionsClient::GetPermittedChromeSchemeHosts(

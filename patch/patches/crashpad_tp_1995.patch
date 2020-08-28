@@ -146,7 +146,7 @@ index 5761c6b965b5..aee4e6c96033 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index b314e0a11b92..a374df4728c0 100644
+index 54af69767c8a..8b659955db3e 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -156,8 +156,8 @@ index b314e0a11b92..a374df4728c0 100644
 +import("//cef/libcef/features/features.gni")
  import("../build/crashpad_buildconfig.gni")
  
- static_library("handler") {
-@@ -65,6 +66,17 @@ static_library("handler") {
+ if (crashpad_is_in_chromium) {
+@@ -69,6 +70,17 @@ static_library("handler") {
      ]
    }
  
@@ -175,7 +175,7 @@ index b314e0a11b92..a374df4728c0 100644
    public_configs = [ "..:crashpad_config" ]
  
    public_deps = [
-@@ -77,6 +89,7 @@ static_library("handler") {
+@@ -81,6 +93,7 @@ static_library("handler") {
      "../minidump",
      "../snapshot",
      "../tools:tool_support",
@@ -184,7 +184,7 @@ index b314e0a11b92..a374df4728c0 100644
  
    if (crashpad_is_win) {
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
-index fd48e1b6bc1f..42a753fafe47 100644
+index 1e5f12374ce1..d227dea8649c 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
 @@ -263,6 +263,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
@@ -248,7 +248,7 @@ index 2ec1147d2620..8ff9a72e0bd7 100644
    //! \brief Calls ProcessPendingReports() in response to ReportPending() having
    //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index d56857ff9042..69fc74639431 100644
+index c8001f457199..6c64610c69d4 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -36,8 +36,10 @@
@@ -264,7 +264,7 @@ index d56857ff9042..69fc74639431 100644
  #include "client/crashpad_info.h"
 @@ -91,6 +93,10 @@
  #include "handler/linux/exception_handler_server.h"
- #endif  // OS_MACOSX
+ #endif  // OS_APPLE
  
 +#if BUILDFLAG(ENABLE_CEF)
 +#include "cef/libcef/common/cef_crash_report_upload_thread.h"
@@ -273,7 +273,7 @@ index d56857ff9042..69fc74639431 100644
  namespace crashpad {
  
  namespace {
-@@ -206,6 +212,9 @@ struct Options {
+@@ -215,6 +221,9 @@ struct Options {
    bool periodic_tasks;
    bool rate_limit;
    bool upload_gzip;
@@ -283,7 +283,7 @@ index d56857ff9042..69fc74639431 100644
  #if defined(OS_CHROMEOS)
    bool use_cros_crash_reporter = false;
    base::FilePath minidump_dir_for_tests;
-@@ -552,6 +561,9 @@ int HandlerMain(int argc,
+@@ -568,6 +577,9 @@ int HandlerMain(int argc,
      kOptionTraceParentWithException,
  #endif
      kOptionURL,
@@ -293,7 +293,7 @@ index d56857ff9042..69fc74639431 100644
  #if defined(OS_CHROMEOS)
      kOptionUseCrosCrashReporter,
      kOptionMinidumpDirForTests,
-@@ -650,6 +662,9 @@ int HandlerMain(int argc,
+@@ -669,6 +681,9 @@ int HandlerMain(int argc,
  #endif  // OS_ANDROID
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
@@ -303,7 +303,7 @@ index d56857ff9042..69fc74639431 100644
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -798,6 +813,27 @@ int HandlerMain(int argc,
+@@ -824,6 +839,27 @@ int HandlerMain(int argc,
          options.url = optarg;
          break;
        }
@@ -331,7 +331,7 @@ index d56857ff9042..69fc74639431 100644
  #if defined(OS_CHROMEOS)
        case kOptionUseCrosCrashReporter: {
          options.use_cros_crash_reporter = true;
-@@ -947,8 +983,14 @@ int HandlerMain(int argc,
+@@ -973,8 +1009,14 @@ int HandlerMain(int argc,
      upload_thread_options.upload_gzip = options.upload_gzip;
      upload_thread_options.watch_pending_reports = options.periodic_tasks;
  
@@ -346,7 +346,7 @@ index d56857ff9042..69fc74639431 100644
      upload_thread.Get()->Start();
    }
  
-@@ -1014,7 +1056,8 @@ int HandlerMain(int argc,
+@@ -1044,7 +1086,8 @@ int HandlerMain(int argc,
    ScopedStoppable prune_thread;
    if (options.periodic_tasks) {
      prune_thread.Reset(new PruneCrashReportThread(

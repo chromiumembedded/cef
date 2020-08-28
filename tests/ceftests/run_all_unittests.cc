@@ -32,7 +32,7 @@
 #include "tests/shared/common/client_app_other.h"
 #include "tests/shared/renderer/client_app_renderer.h"
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 #include "include/wrapper/cef_library_loader.h"
 #endif
 
@@ -108,7 +108,7 @@ int XIOErrorHandlerImpl(Display* display) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
   // Load the CEF framework library at runtime instead of linking directly
   // as required by the macOS sandbox implementation.
   CefScopedLibraryLoader library_loader;
@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
       client::ClientApp::GetProcessType(test_suite.command_line());
   if (process_type == client::ClientApp::BrowserProcess) {
     app = new client::ClientAppBrowser();
-#if !defined(OS_MACOSX)
+#if !defined(OS_MAC)
   } else if (process_type == client::ClientApp::RendererProcess ||
              process_type == client::ClientApp::ZygoteProcess) {
     app = new client::ClientAppRenderer();
@@ -171,7 +171,7 @@ int main(int argc, char* argv[]) {
 
   test_suite.GetSettings(settings);
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
   // Platform-specific initialization.
   extern void PlatformInit();
   PlatformInit();
@@ -240,7 +240,7 @@ int main(int argc, char* argv[]) {
   // Destroy the MessageLoop.
   message_loop.reset(nullptr);
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
   // Platform-specific cleanup.
   extern void PlatformCleanup();
   PlatformCleanup();

@@ -114,7 +114,11 @@ void CefCommandLineImpl::AppendSwitch(const CefString& name) {
 void CefCommandLineImpl::AppendSwitchWithValue(const CefString& name,
                                                const CefString& value) {
   CEF_VALUE_VERIFY_RETURN_VOID(true);
-  mutable_value()->AppendSwitchNative(name, value);
+#if defined(OS_WIN)
+  mutable_value()->AppendSwitchNative(name, value.ToWString());
+#else
+  mutable_value()->AppendSwitchNative(name, value.ToString());
+#endif
 }
 
 bool CefCommandLineImpl::HasArguments() {

@@ -49,7 +49,7 @@ CEF_BUTTON_IMPL_T class CefButtonImpl : public CEF_VIEW_IMPL_D {
 
 CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetState(cef_button_state_t state) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  views::Button::ButtonState old_state = ParentClass::root_view()->state();
+  views::Button::ButtonState old_state = ParentClass::root_view()->GetState();
   views::Button::ButtonState new_state =
       static_cast<views::Button::ButtonState>(state);
 
@@ -72,7 +72,7 @@ CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetState(cef_button_state_t state) {
 
 CEF_BUTTON_IMPL_T cef_button_state_t CEF_BUTTON_IMPL_D::GetState() {
   CEF_REQUIRE_VALID_RETURN(CEF_BUTTON_STATE_NORMAL);
-  return static_cast<cef_button_state_t>(ParentClass::root_view()->state());
+  return static_cast<cef_button_state_t>(ParentClass::root_view()->GetState());
 }
 
 CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetInkDropEnabled(bool enabled) {

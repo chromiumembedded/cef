@@ -21,7 +21,7 @@ typedef struct _XDisplay Display;
 #include "ui/gfx/x/x11_atom_cache.h"
 
 namespace views {
-class DesktopWindowTreeHostX11;
+class DesktopWindowTreeHostLinux;
 }
 
 // Object wrapper for an X11 Window.
@@ -46,7 +46,7 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
 
   gfx::Rect GetBoundsInScreen();
 
-  views::DesktopWindowTreeHostX11* GetHost();
+  views::DesktopWindowTreeHostLinux* GetHost();
 
   // ui::PlatformEventDispatcher methods:
   bool CanDispatchEvent(const ui::PlatformEvent& event) override;
@@ -67,7 +67,7 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
   void ContinueFocus();
 
   bool IsTargetedBy(const x11::Event& x11_event) const;
-  void ProcessXEvent(XEvent* xev);
+  void ProcessXEvent(x11::Event* xev);
 
   CefRefPtr<CefBrowserHostImpl> browser_;
 
@@ -87,7 +87,7 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
   // Tells if this dispatcher can process next translated event based on a
   // previous check in ::CheckCanDispatchNextPlatformEvent based on a XID
   // target.
-  XEvent* current_xevent_ = nullptr;
+  x11::Event* current_xevent_ = nullptr;
 
   // Must always be the last member.
   base::WeakPtrFactory<CefWindowX11> weak_ptr_factory_;

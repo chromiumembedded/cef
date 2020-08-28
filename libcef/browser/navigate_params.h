@@ -13,6 +13,7 @@
 
 #include "content/public/browser/global_request_id.h"
 #include "content/public/common/referrer.h"
+#include "net/cookies/site_for_cookies.h"
 #include "ui/base/page_transition_types.h"
 #include "ui/base/window_open_disposition.h"
 #include "url/gurl.h"

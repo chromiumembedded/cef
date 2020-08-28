@@ -1753,7 +1753,7 @@ class LoadNavTestHandler : public TestHandler {
         CefMouseEvent mouse_event;
         mouse_event.x = 20;
         mouse_event.y = 20;
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
         // Use cmd instead of ctrl on OS X.
         mouse_event.modifiers =
             (mode_ == CTRL_LEFT_CLICK ? EVENTFLAG_COMMAND_DOWN : 0);

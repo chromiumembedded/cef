@@ -21,7 +21,7 @@
 #include "content/public/common/content_switches.h"
 #include "services/service_manager/embedder/switches.h"
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 #include "base/mac/foundation_util.h"
 #include "components/crash/core/app/crashpad.h"
 #include "components/crash/core/common/crash_keys.h"
@@ -33,7 +33,7 @@
 #include "libcef/common/crash_reporter_client.h"
 #endif
 
-#if defined(OS_POSIX) && !defined(OS_MACOSX)
+#if defined(OS_POSIX) && !defined(OS_MAC)
 #include "components/crash/core/app/breakpad_linux.h"
 #include "v8/include/v8-wasm-trap-handler-posix.h"
 #endif
@@ -101,7 +101,7 @@ void InitCrashReporter(const base::CommandLine& command_line,
 
   crash_reporter::SetCrashReporterClient(crash_client);
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
   // TODO(mark): Right now, InitializeCrashpad() needs to be called after
   // CommandLine::Init() and configuration of chrome::DIR_CRASH_DUMPS. Ideally,
   // Crashpad initialization could occur sooner, preferably even before the
@@ -131,7 +131,7 @@ void InitCrashReporter(const base::CommandLine& command_line,
   }
 
   g_crash_reporting_enabled = true;
-#else   // !defined(OS_MACOSX)
+#else   // !defined(OS_MAC)
 
   if (process_type != service_manager::switches::kZygoteProcess) {
     // Crash reporting for subprocesses created using the zygote will be
@@ -140,7 +140,7 @@ void InitCrashReporter(const base::CommandLine& command_line,
 
     g_crash_reporting_enabled = true;
   }
-#endif  // !defined(OS_MACOSX)
+#endif  // !defined(OS_MAC)
 }
 #endif  // defined(OS_POSIX)
 
@@ -196,7 +196,7 @@ bool SetCrashKeyValue(const base::StringPiece& key,
 void BasicStartupComplete(base::CommandLine* command_line) {
   CefCrashReporterClient* crash_client = g_crash_reporter_client.Pointer();
   if (crash_client->ReadCrashConfigFile()) {
-#if !defined(OS_MACOSX)
+#if !defined(OS_MAC)
     // Breakpad requires this switch.
     command_line->AppendSwitch(switches::kEnableCrashReporter);
 
@@ -228,7 +228,7 @@ void PreSandboxStartup(const base::CommandLine& command_line,
   crash_keys::SetSwitchesFromCommandLine(command_line, &IsBoringCEFSwitch);
 }
 
-#if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MACOSX)
+#if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MAC)
 void ZygoteForked(base::CommandLine* command_line,
                   const std::string& process_type) {
   CefCrashReporterClient* crash_client = g_crash_reporter_client.Pointer();

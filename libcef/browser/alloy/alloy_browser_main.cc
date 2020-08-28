@@ -57,7 +57,7 @@
 #endif  // defined(USE_AURA)
 
 #if defined(TOOLKIT_VIEWS)
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 #include "chrome/browser/ui/views/chrome_layout_provider.h"
 #include "chrome/browser/ui/views/chrome_views_delegate.h"
 #else
@@ -105,7 +105,7 @@ void AlloyBrowserMainParts::ToolkitInitialized() {
 #endif  // defined(USE_AURA)
 
 #if defined(TOOLKIT_VIEWS)
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
   views_delegate_ = std::make_unique<ChromeViewsDelegate>();
   layout_provider_ = ChromeLayoutProvider::CreateLayoutProvider();
 #else
@@ -230,7 +230,7 @@ void AlloyBrowserMainParts::PostDestroyThreads() {
 
 #if defined(TOOLKIT_VIEWS)
   views_delegate_.reset();
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
   layout_provider_.reset();
 #endif
 #endif  // defined(TOOLKIT_VIEWS)

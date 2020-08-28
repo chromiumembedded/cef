@@ -32,6 +32,7 @@
 #include "net/http/http_request_headers.h"
 #include "net/http/http_util.h"
 #include "net/url_request/redirect_info.h"
+#include "net/url_request/referrer_policy.h"
 #include "services/network/public/cpp/data_element.h"
 #include "services/network/public/cpp/network_switches.h"
 #include "services/network/public/cpp/resource_request.h"
@@ -241,7 +242,7 @@ CefRefPtr<CefRequest> CefRequest::Create() {
 CefRequestImpl::CefRequestImpl() {
   // Verify that our enum matches Chromium's values.
   static_assert(static_cast<int>(REFERRER_POLICY_LAST_VALUE) ==
-                    static_cast<int>(net::URLRequest::MAX_REFERRER_POLICY),
+                    static_cast<int>(net::ReferrerPolicy::MAX),
                 "enum mismatch");
 
   base::AutoLock lock_scope(lock_);
@@ -498,7 +499,7 @@ void CefRequestImpl::Get(network::ResourceRequest* request,
   if (ShouldSet(kChangedReferrer, changed_only)) {
     request->referrer = referrer_url_;
     request->referrer_policy =
-        static_cast<net::URLRequest::ReferrerPolicy>(referrer_policy_);
+        static_cast<net::ReferrerPolicy>(referrer_policy_);
   }
 
   if (ShouldSet(kChangedHeaderMap, changed_only)) {

@@ -15,10 +15,6 @@
 #include "build/build_config.h"
 #include "content/public/common/content_client.h"
 
-namespace blink {
-class WebURLLoaderFactory;
-}
-
 class CefBrowserContext;
 struct CefSchemeInfo;
 
@@ -58,12 +54,6 @@ class CefAppManager {
   const wchar_t* GetResourceDllName();
 #endif
 
-  // The following methods are only available in the render process.
-
-  // Returns a factory that only supports unintercepted http(s) and blob
-  // requests. Used by CefRenderURLRequest.
-  blink::WebURLLoaderFactory* GetDefaultURLLoaderFactory();
-
  protected:
   CefAppManager();
   virtual ~CefAppManager();
@@ -72,8 +62,6 @@ class CefAppManager {
   // Custom schemes handled by the client.
   SchemeInfoList scheme_info_list_;
   bool scheme_info_list_locked_ = false;
-
-  std::unique_ptr<blink::WebURLLoaderFactory> default_url_loader_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(CefAppManager);
 };

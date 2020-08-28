@@ -122,7 +122,7 @@ bool CefPrintSettingsImpl::WillCollate() {
 
 void CefPrintSettingsImpl::SetColorModel(ColorModel model) {
   CEF_VALUE_VERIFY_RETURN_VOID(true);
-  mutable_value()->set_color(static_cast<printing::ColorModel>(model));
+  mutable_value()->set_color(static_cast<printing::mojom::ColorModel>(model));
 }
 
 CefPrintSettings::ColorModel CefPrintSettingsImpl::GetColorModel() {

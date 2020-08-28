@@ -487,7 +487,7 @@ void CefExtensionSystem::InstallUpdate(
     bool install_immediately,
     InstallUpdateCallback install_update_callback) {
   NOTREACHED();
-  base::DeleteFile(temp_dir, true /* recursive */);
+  base::DeletePathRecursively(temp_dir);
 }
 
 void CefExtensionSystem::PerformActionBasedOnOmahaAttributes(

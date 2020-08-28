@@ -299,10 +299,11 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
   PrefsTabHelper::RegisterProfilePrefs(registry, locale);
   RegisterAnimationPolicyPrefs(registry);
 
-  // From chrome::RegisterBrowserUserPrefs.
+  // From chrome/browser/ui/browser_ui_prefs.cc RegisterBrowserUserPrefs.
   registry->RegisterBooleanPref(
       prefs::kEnableDoNotTrack, false,
       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+  registry->RegisterBooleanPref(prefs::kCaretBrowsingEnabled, false);
 
   // TODO(guoweis): Remove next 2 options at M50.
   registry->RegisterBooleanPref(prefs::kWebRTCMultipleRoutesEnabled, true);
@@ -311,7 +312,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
                                blink::kWebRTCIPHandlingDefault);
   registry->RegisterStringPref(prefs::kWebRTCUDPPortRange, std::string());
 
-#if !defined(OS_MACOSX)
+#if !defined(OS_MAC)
   registry->RegisterBooleanPref(prefs::kFullscreenAllowed, true);
 #endif
 

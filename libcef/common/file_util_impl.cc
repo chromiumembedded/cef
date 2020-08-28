@@ -74,7 +74,11 @@ bool CefDirectoryExists(const CefString& path) {
 bool CefDeleteFile(const CefString& path, bool recursive) {
   if (!AllowFileIO())
     return false;
-  return base::DeleteFile(path, recursive);
+  if (recursive) {
+    return base::DeletePathRecursively(path);
+  } else {
+    return base::DeleteFile(path);
+  }
 }
 
 bool CefZipDirectory(const CefString& src_dir,

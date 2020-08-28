@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index 3746ac12a072..fbc31dd14729 100644
+index a8ad8c8220c8..91ca3ff02fbe 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
 @@ -12,6 +12,7 @@
@@ -10,7 +10,7 @@ index 3746ac12a072..fbc31dd14729 100644
  #include "content/common/navigation_params.mojom.h"
  #include "content/public/browser/certificate_request_result_type.h"
  #include "mojo/public/cpp/bindings/pending_receiver.h"
-@@ -75,7 +76,7 @@ bool ApplyUserAgentMetadataOverrides(
+@@ -74,7 +75,7 @@ bool ApplyUserAgentMetadataOverrides(
      FrameTreeNode* frame_tree_node,
      base::Optional<blink::UserAgentMetadata>* override_out);
  
@@ -55,10 +55,10 @@ index 886bdf0edf8f..1d714000cce5 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index ea7f0d6dbdac..d586c2900861 100644
+index 9cfeb73eb397..de5bc486f204 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
-@@ -25,6 +25,7 @@ jumbo_component("controller") {
+@@ -25,6 +25,7 @@ component("controller") {
  
    configs += [
      "//build/config/compiler:wexit_time_destructors",
@@ -66,20 +66,20 @@ index ea7f0d6dbdac..d586c2900861 100644
      "//third_party/blink/renderer:config",
      "//third_party/blink/renderer:inside_blink",
      "//third_party/blink/renderer:non_test_config",
-@@ -43,6 +44,8 @@ jumbo_component("controller") {
-     "dev_tools_frontend_impl.h",
-     "memory_usage_monitor.cc",
+@@ -45,6 +46,8 @@ component("controller") {
      "memory_usage_monitor.h",
-+    "//cef/libcef/renderer/blink_glue.cc",
-+    "//cef/libcef/renderer/blink_glue.h",
+     "performance_manager/renderer_resource_coordinator_impl.cc",
+     "performance_manager/renderer_resource_coordinator_impl.h",
++     "//cef/libcef/renderer/blink_glue.cc",
++     "//cef/libcef/renderer/blink_glue.h",
    ]
  
-   if (is_linux) {
+   if (is_linux || is_chromeos) {
 diff --git ui/events/keycodes/BUILD.gn ui/events/keycodes/BUILD.gn
-index 0068238c9f9f..67c3632e6239 100644
+index 12f3abf92434..d73901dece01 100644
 --- ui/events/keycodes/BUILD.gn
 +++ ui/events/keycodes/BUILD.gn
-@@ -17,6 +17,8 @@ jumbo_source_set("xkb") {
+@@ -16,6 +16,8 @@ source_set("xkb") {
  
    public_deps = [ "//ui/base:buildflags" ]
  

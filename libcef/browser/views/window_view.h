@@ -63,7 +63,7 @@ class CefWindowView
   void WindowClosing() override;
   views::View* GetContentsView() override;
   views::ClientView* CreateClientView(views::Widget* widget) override;
-  views::NonClientFrameView* CreateNonClientFrameView(
+  std::unique_ptr<views::NonClientFrameView> CreateNonClientFrameView(
       views::Widget* widget) override;
   bool ShouldDescendIntoChildForEventHandling(
       gfx::NativeView child,

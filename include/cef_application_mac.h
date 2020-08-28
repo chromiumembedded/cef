@@ -35,7 +35,7 @@
 #include "include/cef_base.h"
 #endif  // __cplusplus
 
-#if defined(OS_MACOSX) && defined(__OBJC__)
+#if defined(OS_MAC) && defined(__OBJC__)
 
 #ifdef USING_CHROMIUM_INCLUDES
 
@@ -105,6 +105,6 @@ class CefScopedSendingEvent {
 
 #endif  // __cplusplus
 
-#endif  // defined(OS_MACOSX) && defined(__OBJC__)
+#endif  // defined(OS_MAC) && defined(__OBJC__)
 
 #endif  // CEF_INCLUDE_CEF_APPLICATION_MAC_H_

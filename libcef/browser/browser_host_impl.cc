@@ -65,7 +65,7 @@
 #include "ui/events/base_event_utils.h"
 #include "ui/gfx/image/image_skia.h"
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 #include "components/spellcheck/browser/spellcheck_platform.h"
 #endif
 
@@ -565,7 +565,7 @@ void CefBrowserHostImpl::CloseBrowser(bool force_close) {
     }
 
     content::WebContents* contents = web_contents();
-    if (contents && contents->NeedToFireBeforeUnloadOrUnload()) {
+    if (contents && contents->NeedToFireBeforeUnloadOrUnloadEvents()) {
       // Will result in a call to BeforeUnloadFired() and, if the close isn't
       // canceled, CloseContents().
       contents->DispatchBeforeUnload(false /* auto_cancel */);
@@ -1048,7 +1048,7 @@ void CefBrowserHostImpl::AddWordToDictionary(const CefString& word) {
     if (spellcheck)
       spellcheck->GetCustomDictionary()->AddWord(word);
   }
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
   if (spellcheck && spellcheck::UseBrowserSpellChecker()) {
     spellcheck_platform::AddWord(spellcheck->platform_spell_checker(), word);
   }
@@ -1225,7 +1225,7 @@ void CefBrowserHostImpl::SendCaptureLostEvent() {
 }
 
 void CefBrowserHostImpl::NotifyMoveOrResizeStarted() {
-#if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MACOSX))
+#if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MAC))
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(
         CEF_UIT,
@@ -2301,10 +2301,10 @@ CefBrowserHostImpl::GetJavaScriptDialogManager(content::WebContents* source) {
 
 void CefBrowserHostImpl::RunFileChooser(
     content::RenderFrameHost* render_frame_host,
-    std::unique_ptr<content::FileSelectListener> listener,
+    scoped_refptr<content::FileSelectListener> listener,
     const blink::mojom::FileChooserParams& params) {
   EnsureFileDialogManager();
-  file_dialog_manager_->RunFileChooser(std::move(listener), params);
+  file_dialog_manager_->RunFileChooser(listener, params);
 }
 
 bool CefBrowserHostImpl::HandleContextMenu(
@@ -2320,7 +2320,7 @@ bool CefBrowserHostImpl::HandleContextMenu(
 
 void CefBrowserHostImpl::UpdatePreferredSize(content::WebContents* source,
                                              const gfx::Size& pref_size) {
-#if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MACOSX))
+#if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MAC))
   CEF_REQUIRE_UIT();
   if (platform_delegate_)
     platform_delegate_->SizeTo(pref_size.width(), pref_size.height());

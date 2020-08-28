@@ -13,11 +13,8 @@
 #include "third_party/blink/public/web/web_node.h"
 #include "third_party/blink/public/web/web_view_client.h"
 
-#include "third_party/blink/renderer/bindings/core/v8/referrer_script_info.h"
-#include "third_party/blink/renderer/bindings/core/v8/script_controller.h"
 #include "third_party/blink/renderer/bindings/core/v8/script_source_code.h"
 #include "third_party/blink/renderer/bindings/core/v8/v8_binding_for_core.h"
-#include "third_party/blink/renderer/bindings/core/v8/v8_code_cache.h"
 #include "third_party/blink/renderer/core/dom/document.h"
 #include "third_party/blink/renderer/core/dom/element.h"
 #include "third_party/blink/renderer/core/dom/node.h"
@@ -31,6 +28,7 @@
 #include "third_party/blink/renderer/platform/bindings/script_forbidden_scope.h"
 #include "third_party/blink/renderer/platform/bindings/v8_binding.h"
 #include "third_party/blink/renderer/platform/loader/fetch/resource_response.h"
+#include "third_party/blink/renderer/platform/loader/fetch/script_fetch_options.h"
 #include "third_party/blink/renderer/platform/weborigin/scheme_registry.h"
 #undef LOG
 
@@ -179,13 +177,6 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
   if (start_line < 1)
     start_line = 1;
 
-  const blink::ScriptSourceCode ssc = blink::ScriptSourceCode(
-      source, blink::ScriptSourceLocationType::kInternal,
-      nullptr, /* cache_handler */
-      blink::KURL(source_url),
-      WTF::TextPosition(WTF::OrdinalNumber::FromOneBasedInt(start_line),
-                        WTF::OrdinalNumber::FromZeroBasedInt(0)));
-
   v8::MaybeLocal<v8::Value> result;
 
   blink::LocalFrame* frame = blink::ToLocalFrameIfNotDetached(context);
@@ -193,35 +184,25 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
     return result;
 
   blink::V8CacheOptions v8CacheOptions(blink::kV8CacheOptionsDefault);
-  if (frame && frame->GetSettings())
-    v8CacheOptions = frame->GetSettings()->GetV8CacheOptions();
+  if (const blink::Settings* settings = frame->GetSettings())
+    v8CacheOptions = settings->GetV8CacheOptions();
 
-  // Based on V8ScriptRunner::CompileAndRunInternalScript:
-  v8::ScriptCompiler::CompileOptions compile_options;
-  blink::V8CodeCache::ProduceCacheOptions produce_cache_options;
-  v8::ScriptCompiler::NoCacheReason no_cache_reason;
-  std::tie(compile_options, produce_cache_options, no_cache_reason) =
-      blink::V8CodeCache::GetCompileOptions(v8CacheOptions, ssc);
+  const blink::ScriptSourceCode ssc = blink::ScriptSourceCode(
+      source, blink::ScriptSourceLocationType::kInternal,
+      nullptr, /* cache_handler */
+      blink::KURL(source_url),
+      WTF::TextPosition(WTF::OrdinalNumber::FromOneBasedInt(start_line),
+                        WTF::OrdinalNumber::FromZeroBasedInt(0)));
 
-  // Currently internal scripts don't have cache handlers, so we should not
-  // produce cache for them.
-  DCHECK_EQ(produce_cache_options,
-            blink::V8CodeCache::ProduceCacheOptions::kNoProduceCache);
-
-  v8::Local<v8::Script> script;
-  // Use default ReferrerScriptInfo here:
-  // - nonce: empty for internal script, and
-  // - parser_state: always "not parser inserted" for internal scripts.
-  if (!blink::V8ScriptRunner::CompileScript(
-           blink::ScriptState::From(context), ssc, sanitizeScriptErrors,
-           compile_options, no_cache_reason, blink::ReferrerScriptInfo())
-           .ToLocal(&script)) {
+  result = blink::V8ScriptRunner::CompileAndRunScript(
+      isolate, blink::ScriptState::From(context), frame->DomWindow(), ssc,
+      ssc.Url(), sanitizeScriptErrors, blink::ScriptFetchOptions(),
+      v8CacheOptions);
+  if (result.IsEmpty()) {
     DCHECK(tryCatch.HasCaught());
-    return result;
   }
 
-  return blink::V8ScriptRunner::RunCompiledScript(
-      isolate, script, blink::ToExecutionContext(context));
+  return result;
 }
 
 bool IsScriptForbidden() {

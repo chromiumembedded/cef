@@ -10,9 +10,10 @@
 #include "libcef/common/crash_reporting.h"
 #include "libcef/common/resource_util.h"
 
+#include "base/command_line.h"
 #include "content/public/common/content_switches.h"
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 #include "libcef/common/util_mac.h"
 #endif
 
@@ -42,7 +43,7 @@ bool ChromeMainDelegateCef::BasicStartupComplete(int* exit_code) {
         base::CommandLine::ForCurrentProcess());
 #endif
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
     util_mac::BasicStartupComplete();
 #endif
   }
@@ -56,11 +57,11 @@ void ChromeMainDelegateCef::PreSandboxStartup() {
   const std::string& process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
   if (process_type.empty()) {
     util_mac::PreSandboxStartup();
   }
-#endif  // defined(OS_MACOSX)
+#endif  // defined(OS_MAC)
 
   // Since this may be configured via CefSettings we override the value on
   // all platforms. We can't use the default implementation on macOS because

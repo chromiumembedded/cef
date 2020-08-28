@@ -1,5 +1,5 @@
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index d277d1eea17e..5f87c13a47b1 100644
+index 607618c0fad8..d55d1c2d4046 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
 @@ -244,22 +244,36 @@ int RunService(MainDelegate* delegate) {
@@ -37,7 +37,7 @@ index d277d1eea17e..5f87c13a47b1 100644
    int exit_code = -1;
    base::debug::GlobalActivityTracker* tracker = nullptr;
    ProcessType process_type = delegate->OverrideProcessType();
--#if defined(OS_MACOSX)
+-#if defined(OS_MAC)
 -  std::unique_ptr<base::mac::ScopedNSAutoreleasePool> autorelease_pool;
 -#endif
  
@@ -46,7 +46,7 @@ index d277d1eea17e..5f87c13a47b1 100644
 @@ -345,12 +359,7 @@ int Main(const MainParams& params) {
      MainDelegate::InitializeParams init_params;
  
- #if defined(OS_MACOSX)
+ #if defined(OS_MAC)
 -    // We need this pool for all the objects created before we get to the event
 -    // loop, but we don't want to leave them hanging around until the app quits.
 -    // Each "main" needs to flush this pool right before it goes into its main
@@ -94,7 +94,7 @@ index d277d1eea17e..5f87c13a47b1 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -465,13 +474,38 @@ int Main(const MainParams& params) {
+@@ -465,12 +474,38 @@ int Main(const MainParams& params) {
      }
    }
  
@@ -105,7 +105,7 @@ index d277d1eea17e..5f87c13a47b1 100644
 +  MainDelegate* delegate = params.delegate;
 +  DCHECK(delegate);
 +
- #if defined(OS_MACOSX)
+ #if defined(OS_MAC)
 -  autorelease_pool.reset();
 +  params.autorelease_pool.reset();
  #endif
@@ -117,7 +117,7 @@ index d277d1eea17e..5f87c13a47b1 100644
 +}
 +
 +int Main(MainParams& params) {
-+#if defined(OS_MACOSX)
++#if defined(OS_MAC)
 +  // We need this pool for all the objects created before we get to the event
 +  // loop, but we don't want to leave them hanging around until the app quits.
 +  // Each "main" needs to flush this pool right before it goes into its main
@@ -125,17 +125,17 @@ index d277d1eea17e..5f87c13a47b1 100644
 +  params.autorelease_pool =
 +      std::make_unique<base::mac::ScopedNSAutoreleasePool>();
 +#endif
- 
++
 +  int exit_code = MainInitialize(params);
 +  if (exit_code >= 0)
 +    return exit_code;
 +  exit_code = MainRun(params);
 +  MainShutdown(params);
+ 
    return exit_code;
  }
- 
 diff --git services/service_manager/embedder/main.h services/service_manager/embedder/main.h
-index 57e88aa85dfe..5ed6ec2abfda 100644
+index 57e88aa85dfe..f28c9ef4c0ea 100644
 --- services/service_manager/embedder/main.h
 +++ services/service_manager/embedder/main.h
 @@ -5,9 +5,15 @@
@@ -147,9 +147,9 @@ index 57e88aa85dfe..5ed6ec2abfda 100644
  #include "base/component_export.h"
  #include "build/build_config.h"
  
-+#if defined(OS_MACOSX)
++#if defined(OS_MAC)
 +#include "base/mac/scoped_nsautorelease_pool.h"
-+#endif  // defined(OS_MACOSX)
++#endif  // defined(OS_MAC)
 +
  namespace service_manager {
  
@@ -159,7 +159,7 @@ index 57e88aa85dfe..5ed6ec2abfda 100644
    const char** argv = nullptr;
  #endif
 +
-+#if defined(OS_MACOSX)
++#if defined(OS_MAC)
 +  std::unique_ptr<base::mac::ScopedNSAutoreleasePool> autorelease_pool;
 +#endif
  };
@@ -179,15 +179,15 @@ index 57e88aa85dfe..5ed6ec2abfda 100644
  }  // namespace service_manager
  
 diff --git services/service_manager/embedder/set_process_title.cc services/service_manager/embedder/set_process_title.cc
-index 1dc53b847ef9..5432ab02a088 100644
+index a2ced5316c78..96946a2168aa 100644
 --- services/service_manager/embedder/set_process_title.cc
 +++ services/service_manager/embedder/set_process_title.cc
-@@ -44,7 +44,7 @@ void SetProcessTitleFromCommandLine(const char** main_argv) {
+@@ -53,7 +53,7 @@ void SetProcessTitleFromCommandLine(const char** main_argv) {
    bool have_argv0 = false;
  
- #if defined(OS_LINUX)
+ #if defined(OS_LINUX) || defined(OS_CHROMEOS)
 -  DCHECK_EQ(base::PlatformThread::CurrentId(), getpid());
-+  //DCHECK_EQ(base::PlatformThread::CurrentId(), getpid());
++  // DCHECK_EQ(base::PlatformThread::CurrentId(), getpid());
  
    if (main_argv)
      setproctitle_init(main_argv);

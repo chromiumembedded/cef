@@ -122,8 +122,8 @@ if (is_linux) {
   import("//third_party/fontconfig/fontconfig.gni")
 }
 if (is_mac) {
+  import("//build/apple/tweak_info_plist.gni")
   import("//build/config/mac/rules.gni")
-  import("//build/mac/tweak_info_plist.gni")
   import("//build/util/version.gni")
   import("//media/cdm/library_cdm/cdm_paths.gni")
   import("//build/config/mac/base_rules.gni")
@@ -808,7 +808,6 @@ static_library("libcef_static") {
 
   deps = [
     ":cef_make_headers",
-    ":cef_service_manifests",
 
     ":libcef_static_unittested",
 
@@ -841,7 +840,7 @@ static_library("libcef_static") {
     "//components/keyed_service/content:content",
     "//components/keyed_service/core:core",
     "//components/navigation_interception",
-    "//components/network_session_configurator/browser",
+    "//components/network_session_configurator/common",
     "//components/pdf/browser",
     "//components/pdf/renderer",
     "//components/plugins/renderer",
@@ -1167,7 +1166,6 @@ static_library("libcef_static") {
         sources += [
           # Support for UI input events.
           # Part of //ui/aura:test_support which is testingonly.
-          "//ui/aura/test/ui_controls_factory_aurax11.cc",
           "//ui/aura/test/x11_event_sender.cc",
           "//ui/aura/test/x11_event_sender.h",
           # Part of //ui/views:test_support which is testingonly.
@@ -1250,56 +1248,6 @@ if (is_mac) {
     include_dirs = [ "." ]
     deps = [ "//sandbox/mac:seatbelt" ]
   }
-}
-
-#
-# Service manifests.
-#
-
-source_set("cef_content_browser_overlay_manifest") {
-  sources = [
-    "libcef/common/service_manifests/cef_content_browser_overlay_manifest.cc",
-    "libcef/common/service_manifests/cef_content_browser_overlay_manifest.h",
-  ]
-
-  configs += [
-    "libcef/features:config"
-  ]
-
-  deps = [
-    "//base",
-    "//extensions/buildflags",
-    "//extensions/common:mojom",
-    "//extensions/common/api:mojom",
-    "//services/service_manager/public/cpp",
-    "//third_party/blink/public/common",
-  ]
-}
-
-source_set("cef_content_renderer_overlay_manifest") {
-  sources = [
-    "libcef/common/service_manifests/cef_content_renderer_overlay_manifest.h",
-  ]
-
-  configs += [
-    "libcef/features:config"
-  ]
-
-  deps = [
-    "//base",
-    "//components/subresource_filter/content/mojom",
-    "//extensions/buildflags",
-    "//extensions/common:mojom",
-    "//services/service_manager/public/cpp",
-    "//third_party/blink/public/common",
-  ]
-}
-
-source_set("cef_service_manifests") {
-  public_deps = [
-    ":cef_content_browser_overlay_manifest",
-    ":cef_content_renderer_overlay_manifest",
-  ]
 }
 
 #
@@ -1935,8 +1883,8 @@ if (is_mac) {
         deps += invoker.deps
       }
 
-      if (defined(invoker.libs)) {
-        libs = invoker.libs
+      if (defined(invoker.frameworks)) {
+        frameworks = invoker.frameworks
       }
 
       if (defined(invoker.defines)) {
@@ -2020,7 +1968,7 @@ if (is_mac) {
       ":cefclient_resources_bundle_data_english",
       ":cefclient_xibs",
     ]
-    libs = [
+    frameworks = [
       "AppKit.framework",
       "OpenGL.framework",
     ]
@@ -2084,7 +2032,7 @@ if (is_mac) {
       ":cefsimple_resources_bundle_data_english",
       ":cefsimple_xibs",
     ]
-    libs = [
+    frameworks = [
       "AppKit.framework",
     ]
     defines = [
@@ -2155,7 +2103,7 @@ if (is_mac) {
       ":ceftests_xibs",
       "//testing/gtest",
     ]
-    libs = [
+    frameworks = [
       "AppKit.framework",
     ]
     defines = [

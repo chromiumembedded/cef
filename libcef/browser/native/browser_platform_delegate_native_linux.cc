@@ -27,7 +27,7 @@
 
 #if defined(USE_X11)
 #include "libcef/browser/native/window_x11.h"
-#include "ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h"
+#include "ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h"
 #endif
 
 namespace {
@@ -38,11 +38,6 @@ long GetSystemUptime() {
   if (sysinfo(&info) == 0)
     return info.uptime;
   return 0;
-}
-
-// See https://crbug.com/1066670#c57 for background.
-inline x11::Window ToX11Window(::Window window) {
-  return static_cast<x11::Window>(window);
 }
 
 }  // namespace
@@ -92,8 +87,8 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   CefWindowDelegateView* delegate_view = new CefWindowDelegateView(
       GetBackgroundColor(), window_x11_->TopLevelAlwaysOnTop(),
       GetBoundsChangedCallback());
-  delegate_view->Init(ToX11Window(window_info_.window), web_contents_,
-                      gfx::Rect(gfx::Point(), rect.size()));
+  delegate_view->Init(static_cast<gfx::AcceleratedWidget>(window_info_.window),
+                      web_contents_, gfx::Rect(gfx::Point(), rect.size()));
 
   window_widget_ = delegate_view->GetWidget();
   window_widget_->Show();
@@ -176,7 +171,7 @@ void CefBrowserPlatformDelegateNativeLinux::NotifyMoveOrResizeStarted() {
   if (!window_x11_)
     return;
 
-  views::DesktopWindowTreeHostX11* tree_host = window_x11_->GetHost();
+  views::DesktopWindowTreeHostLinux* tree_host = window_x11_->GetHost();
   if (!tree_host)
     return;
 
@@ -212,7 +207,7 @@ gfx::Point CefBrowserPlatformDelegateNativeLinux::GetScreenPoint(
     return view;
 
   // We can't use aura::Window::GetBoundsInScreen on Linux because it will
-  // return bounds from DesktopWindowTreeHostX11 which in our case is relative
+  // return bounds from DesktopWindowTreeHostLinux which in our case is relative
   // to the parent window instead of the root window (screen).
   const gfx::Rect& bounds_in_screen = window_x11_->GetBoundsInScreen();
   return gfx::Point(bounds_in_screen.x() + view.x(),

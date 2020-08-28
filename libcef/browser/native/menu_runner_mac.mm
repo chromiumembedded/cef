@@ -8,7 +8,7 @@
 
 #include "base/compiler_specific.h"
 #import "base/mac/scoped_sending_event.h"
-#include "base/message_loop/message_loop_current.h"
+#include "base/task/current_thread.h"
 #import "ui/base/cocoa/menu_controller.h"
 #include "ui/gfx/geometry/point.h"
 
@@ -23,6 +23,7 @@ bool CefMenuRunnerMac::RunContextMenu(
   // Create a menu controller based on the model.
   menu_controller_.reset([[MenuControllerCocoa alloc]
                initWithModel:model->model()
+                    delegate:nil
       useWithPopUpButtonCell:NO]);
 
   // Keep the menu controller alive (by adding an additional retain) until after
@@ -33,7 +34,7 @@ bool CefMenuRunnerMac::RunContextMenu(
       menu_controller_);
 
   // Make sure events can be pumped while the menu is up.
-  base::MessageLoopCurrent::ScopedNestableTaskAllower allow;
+  base::CurrentThread::ScopedNestableTaskAllower allow;
 
   // One of the events that could be pumped is |window.close()|.
   // User-initiated event-tracking loops protect against this by

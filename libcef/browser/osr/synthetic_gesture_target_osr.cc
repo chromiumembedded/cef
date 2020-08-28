@@ -5,7 +5,6 @@
 #include "libcef/browser/osr/synthetic_gesture_target_osr.h"
 
 #include "content/browser/renderer_host/render_widget_host_impl.h"
-#include "content/public/common/screen_info.h"
 #include "ui/events/gesture_detection/gesture_configuration.h"
 
 CefSyntheticGestureTargetOSR::CefSyntheticGestureTargetOSR(

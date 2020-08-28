@@ -25,8 +25,8 @@
 #include "content/public/common/content_switches.h"
 #include "media/cdm/cdm_host_file.h"
 #include "media/cdm/supported_cdm_versions.h"
+#include "sandbox/policy/switches.h"
 #include "services/service_manager/embedder/switches.h"
-#include "services/service_manager/sandbox/switches.h"
 #include "third_party/widevine/cdm/widevine_cdm_common.h"  // nogncheck
 
 namespace {
@@ -38,7 +38,7 @@ base::LazyInstance<CefWidevineLoader>::Leaky g_widevine_loader =
 
 // Name of the Widevine CDM OS in the component manifest.
 const char kWidevineCdmOs[] =
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
     "mac";
 #elif defined(OS_WIN)
     "win";
@@ -473,7 +473,7 @@ void CefWidevineLoader::AddContentDecryptionModules(
   // load all plugins before initializing the sandbox.
   if (command_line.GetSwitchValueASCII(switches::kProcessType) !=
           service_manager::switches::kZygoteProcess ||
-      command_line.HasSwitch(service_manager::switches::kNoSandbox)) {
+      command_line.HasSwitch(sandbox::policy::switches::kNoSandbox)) {
     return;
   }
 

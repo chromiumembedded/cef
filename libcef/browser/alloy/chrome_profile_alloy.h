@@ -47,7 +47,7 @@ class ChromeProfileAlloy : public Profile {
   GURL GetHomePage() override;
   bool WasCreatedByVersionOrLater(const std::string& version) override;
   void SetExitType(ExitType exit_type) override;
-  ExitType GetLastSessionExitType() override;
+  ExitType GetLastSessionExitType() const override;
   base::Time GetCreationTime() const override;
   void SetCreationTimeForTesting(base::Time creation_time) override;
 

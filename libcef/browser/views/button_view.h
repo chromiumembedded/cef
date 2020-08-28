@@ -61,7 +61,7 @@ CEF_BUTTON_VIEW_T void CEF_BUTTON_VIEW_D::ButtonPressed(
     ParentClass::cef_delegate()->OnButtonPressed(GetCefButton());
   if (ParentClass::ink_drop_mode() != views::Button::InkDropMode::OFF &&
       !ParentClass::IsFocusable() &&
-      ParentClass::state() != views::Button::STATE_PRESSED) {
+      ParentClass::GetState() != views::Button::STATE_PRESSED) {
     // Ink drop state does not get reset properly on click when the button is
     // non-focusable. Reset the ink drop state here if the state has not been
     // explicitly set to pressed by the OnButtonPressed callback calling

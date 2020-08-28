@@ -39,7 +39,7 @@
 // Bring in platform-specific definitions.
 #if defined(OS_WIN)
 #include "include/internal/cef_types_win.h"
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
 #include "include/internal/cef_types_mac.h"
 #elif defined(OS_LINUX)
 #include "include/internal/cef_types_linux.h"

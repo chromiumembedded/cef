@@ -1,5 +1,5 @@
 diff --git chrome/browser/printing/print_job_worker.cc chrome/browser/printing/print_job_worker.cc
-index 52efa2037a31..cc1792facfca 100644
+index 17788cb2b506..9014f48ed0dd 100644
 --- chrome/browser/printing/print_job_worker.cc
 +++ chrome/browser/printing/print_job_worker.cc
 @@ -133,6 +133,7 @@ PrintJobWorker::PrintJobWorker(int render_process_id, int render_frame_id)
@@ -11,10 +11,10 @@ index 52efa2037a31..cc1792facfca 100644
  
  PrintJobWorker::~PrintJobWorker() {
 diff --git printing/printing_context.h printing/printing_context.h
-index 6a5a7c90ef5b..04c0535046dc 100644
+index 7ac9ce996ca7..7a2099349f3b 100644
 --- printing/printing_context.h
 +++ printing/printing_context.h
-@@ -131,6 +131,13 @@ class PRINTING_EXPORT PrintingContext {
+@@ -133,6 +133,13 @@ class PRINTING_EXPORT PrintingContext {
  
    int job_id() const { return job_id_; }
  
@@ -28,14 +28,14 @@ index 6a5a7c90ef5b..04c0535046dc 100644
   protected:
    explicit PrintingContext(Delegate* delegate);
  
-@@ -155,6 +162,10 @@ class PRINTING_EXPORT PrintingContext {
+@@ -156,6 +163,10 @@ class PRINTING_EXPORT PrintingContext {
+ 
    // The job id for the current job. The value is 0 if no jobs are active.
    int job_id_;
- 
++
 +  // Routing IDs for the frame that owns this object.
 +  int render_process_id_ = 0;
 +  int render_frame_id_ = 0;
-+
-  private:
-   DISALLOW_COPY_AND_ASSIGN(PrintingContext);
  };
+ 
+ }  // namespace printing

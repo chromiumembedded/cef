@@ -26,7 +26,8 @@ ChromeContentBrowserClientCef::CreateBrowserMainParts(
       ChromeContentBrowserClient::CreateBrowserMainParts(parameters);
   browser_main_parts_ = new ChromeBrowserMainExtraPartsCef;
   static_cast<ChromeBrowserMainParts*>(main_parts.get())
-      ->AddParts(browser_main_parts_);
+      ->AddParts(
+          base::WrapUnique<ChromeBrowserMainExtraParts>(browser_main_parts_));
   return main_parts;
 }
 

@@ -1,8 +1,8 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index 6e219b3994e2..0e14d81370ef 100644
+index 8166e38ceda5..178099b1ac62 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
-@@ -1742,8 +1742,6 @@ config("thin_archive") {
+@@ -1767,8 +1767,6 @@ config("thin_archive") {
    # archive names to 16 characters, which is not what we want).
    if ((is_posix && !is_nacl && !is_mac && !is_ios) || is_fuchsia) {
      arflags = [ "-T" ]

@@ -1,5 +1,5 @@
 diff --git components/viz/host/host_display_client.cc components/viz/host/host_display_client.cc
-index 3547ee865c22..2215296ffadc 100644
+index c80e6831d4af..3fd2f9e4f822 100644
 --- components/viz/host/host_display_client.cc
 +++ components/viz/host/host_display_client.cc
 @@ -43,9 +43,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
@@ -29,7 +29,7 @@ index 3547ee865c22..2215296ffadc 100644
  #if defined(OS_LINUX) && !defined(OS_CHROMEOS)
  void HostDisplayClient::DidCompleteSwapWithNewSize(const gfx::Size& size) {
 diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
-index cedf833d2358..04456e045304 100644
+index 521ea99a35da..47d0ae89cdf1 100644
 --- components/viz/host/host_display_client.h
 +++ components/viz/host/host_display_client.h
 @@ -31,17 +31,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
@@ -41,7 +41,7 @@ index cedf833d2358..04456e045304 100644
    // mojom::DisplayClient implementation:
 +  void UseProxyOutputDevice(UseProxyOutputDeviceCallback callback) override;
 +
- #if defined(OS_MACOSX)
+ #if defined(OS_APPLE)
    void OnDisplayReceivedCALayerParams(
        const gfx::CALayerParams& ca_layer_params) override;
  #endif
@@ -80,14 +80,12 @@ index 1026b739d283..fe562ab60ce9 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 7b6f69e3dcce..b04d7984d855 100644
+index d991c2126b23..cc51bb326e86 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -13,7 +13,10 @@ config("viz_service_implementation") {
- }
+@@ -14,6 +14,8 @@ config("viz_service_implementation") {
  
  viz_component("service") {
-+  never_build_jumbo = true
    sources = [
 +    "//cef/libcef/browser/osr/software_output_device_proxy.cc",
 +    "//cef/libcef/browser/osr/software_output_device_proxy.h",
@@ -95,10 +93,10 @@ index 7b6f69e3dcce..b04d7984d855 100644
      "display/bsp_tree.h",
      "display/bsp_walk_action.cc",
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index da8936a87cfe..2992b7616f05 100644
+index 2da653cc9c3c..e536a34dca33 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
-@@ -13,6 +13,7 @@
+@@ -14,6 +14,7 @@
  #include "base/threading/thread_task_runner_handle.h"
  #include "build/chromecast_buildflags.h"
  #include "cc/base/switches.h"
@@ -106,7 +104,7 @@ index da8936a87cfe..2992b7616f05 100644
  #include "components/viz/common/display/renderer_settings.h"
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
  #include "components/viz/service/display_embedder/gl_output_surface.h"
-@@ -223,6 +224,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+@@ -225,6 +226,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
    if (headless_)
      return std::make_unique<SoftwareOutputDevice>();
  
@@ -144,10 +142,10 @@ index 2bb30e5318b6..535535dd6c10 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 641a63e8c18e..cdb9a23a1f3e 100644
+index 04da825a6b5d..3c63015b9b6c 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
-@@ -403,8 +403,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+@@ -407,8 +407,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
    compositor_data.display_private.reset();
    root_params->display_private =
        compositor_data.display_private.BindNewEndpointAndPassReceiver();
@@ -164,10 +162,10 @@ index 641a63e8c18e..cdb9a23a1f3e 100644
        compositor_data.display_client->GetBoundRemote(resize_task_runner_);
  
 diff --git mojo/public/cpp/bindings/sync_call_restrictions.h mojo/public/cpp/bindings/sync_call_restrictions.h
-index 599d24e260ae..13bb4cc5910f 100644
+index c9a75d59b7eb..e4cf92fe15e8 100644
 --- mojo/public/cpp/bindings/sync_call_restrictions.h
 +++ mojo/public/cpp/bindings/sync_call_restrictions.h
-@@ -33,6 +33,7 @@ class Compositor;
+@@ -29,6 +29,7 @@ class Compositor;
  
  namespace viz {
  class HostFrameSinkManager;
@@ -175,7 +173,7 @@ index 599d24e260ae..13bb4cc5910f 100644
  }
  
  namespace mojo {
-@@ -86,6 +87,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
+@@ -81,6 +82,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
    // For preventing frame swaps of wrong size during resize on Windows.
    // (https://crbug.com/811945)
    friend class ui::Compositor;
@@ -185,10 +183,10 @@ index 599d24e260ae..13bb4cc5910f 100644
    // running in the same process, so it won't block anything.
    // TODO(159346933) Remove once the origin isolation logic is moved outside of
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index d88fab3b7d0a..54984d27a75e 100644
+index 0c9686f3c807..6fc92dda1072 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
-@@ -74,12 +74,14 @@ interface DisplayPrivate {
+@@ -80,12 +80,14 @@ interface DisplayPrivate {
  };
  
  interface DisplayClient {
@@ -216,7 +214,7 @@ index 6b7fbb6cf13d..e2af75168cb9 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 438dd212d881..c2e112def4e9 100644
+index 13665946e08a..ceea7b60d44f 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -25,7 +25,9 @@
@@ -229,7 +227,7 @@ index 438dd212d881..c2e112def4e9 100644
  #include "mojo/public/cpp/bindings/pending_remote.h"
  #include "services/viz/privileged/mojom/compositing/vsync_parameter_observer.mojom-forward.h"
  #include "third_party/skia/include/core/SkColor.h"
-@@ -127,6 +129,14 @@ class COMPOSITOR_EXPORT ContextFactory {
+@@ -128,6 +130,14 @@ class COMPOSITOR_EXPORT ContextFactory {
    virtual viz::HostFrameSinkManager* GetHostFrameSinkManager() = 0;
  };
  
@@ -244,7 +242,7 @@ index 438dd212d881..c2e112def4e9 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -161,6 +171,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -162,6 +172,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -254,7 +252,7 @@ index 438dd212d881..c2e112def4e9 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -424,6 +437,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -435,6 +448,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
  
    std::unique_ptr<PendingBeginFrameArgs> pending_begin_frame_args_;
  

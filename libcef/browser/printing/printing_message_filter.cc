@@ -25,6 +25,7 @@
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/child_process_host.h"
+#include "printing/mojom/print.mojom.h"
 
 #if defined(OS_LINUX)
 #include "libcef/browser/printing/print_dialog_linux.h"
@@ -139,8 +140,8 @@ void CefPrintingMessageFilter::OnGetDefaultPrintSettings(
   // will hang until the settings are retrieved.
   auto* printer_query_ptr = printer_query.get();
   printer_query_ptr->GetSettings(
-      PrinterQuery::GetSettingsAskParam::DEFAULTS, 0, false, DEFAULT_MARGINS,
-      false, false,
+      PrinterQuery::GetSettingsAskParam::DEFAULTS, 0, false,
+      printing::mojom::MarginType::kDefaultMargins, false, false,
       base::BindOnce(&CefPrintingMessageFilter::OnGetDefaultPrintSettingsReply,
                      this, std::move(printer_query), reply_msg));
 }
@@ -148,11 +149,8 @@ void CefPrintingMessageFilter::OnGetDefaultPrintSettings(
 void CefPrintingMessageFilter::OnGetDefaultPrintSettingsReply(
     std::unique_ptr<PrinterQuery> printer_query,
     IPC::Message* reply_msg) {
-  PrintMsg_Print_Params params;
-  if (!printer_query.get() ||
-      printer_query->last_status() != PrintingContext::OK) {
-    params.Reset();
-  } else {
+  mojom::PrintParams params;
+  if (printer_query && printer_query->last_status() == PrintingContext::OK) {
     RenderParamsFromPrintSettings(printer_query->settings(), &params);
     params.document_cookie = printer_query->cookie();
   }

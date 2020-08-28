@@ -1,8 +1,8 @@
 diff --git chrome/browser/app_controller_mac.mm chrome/browser/app_controller_mac.mm
-index 559e51776e42..a429421f7c61 100644
+index 8493d1b2233b..69efa5114c6f 100644
 --- chrome/browser/app_controller_mac.mm
 +++ chrome/browser/app_controller_mac.mm
-@@ -1140,6 +1140,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1141,6 +1141,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
  
  // Run a (background) application in a new tab.
  - (void)executeApplication:(id)sender {
@@ -10,7 +10,7 @@ index 559e51776e42..a429421f7c61 100644
    NSInteger tag = [sender tag];
    Profile* profile = [self lastProfile];
    DCHECK(profile);
-@@ -1148,6 +1149,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1149,6 +1150,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
           tag < static_cast<int>(applications.size()));
    const extensions::Extension* extension = applications.GetExtension(tag);
    BackgroundModeManager::LaunchBackgroundApplication(profile, extension);
@@ -18,7 +18,7 @@ index 559e51776e42..a429421f7c61 100644
  }
  
  // Same as |-commandDispatch:|, but executes commands using a disposition
-@@ -1529,6 +1531,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1530,6 +1532,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
    // TODO(rickcam): Mock out BackgroundApplicationListModel, then add unit
    // tests which use the mock in place of the profile-initialized model.
  
@@ -26,7 +26,7 @@ index 559e51776e42..a429421f7c61 100644
    // Avoid breaking unit tests which have no profile.
    if (profile) {
      BackgroundApplicationListModel applications(profile);
-@@ -1555,6 +1558,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1556,6 +1559,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
        }
      }
    }
@@ -52,10 +52,10 @@ index 132f2a8d15fd..1262f31d39db 100644
    // Returns the StatusTray, which provides an API for displaying status icons
    // in the system status tray. Returns NULL if status icons are not supported
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index 77faedcc2944..4d06b472dc64 100644
+index 254173b22652..93f0eb216cc7 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
-@@ -964,24 +964,19 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
+@@ -955,24 +955,19 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
    return download_request_limiter_.get();
  }
  
@@ -83,10 +83,10 @@ index 77faedcc2944..4d06b472dc64 100644
  StatusTray* BrowserProcessImpl::status_tray() {
    DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index 5ac13a0eecee..0bb9262acf1b 100644
+index 124ebbf06ea2..c47e6b6cf24c 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
-@@ -164,9 +164,11 @@ class BrowserProcessImpl : public BrowserProcess,
+@@ -163,9 +163,11 @@ class BrowserProcessImpl : public BrowserProcess,
    void SetApplicationLocale(const std::string& actual_locale) override;
    DownloadStatusUpdater* download_status_updater() override;
    DownloadRequestLimiter* download_request_limiter() override;
@@ -99,7 +99,7 @@ index 5ac13a0eecee..0bb9262acf1b 100644
    safe_browsing::SafeBrowsingService* safe_browsing_service() override;
    subresource_filter::RulesetService* subresource_filter_ruleset_service()
 diff --git chrome/browser/lifetime/browser_close_manager.cc chrome/browser/lifetime/browser_close_manager.cc
-index 2f6bb4a8cd34..d6ba58c228aa 100644
+index d20c93b35f39..badf57a88d90 100644
 --- chrome/browser/lifetime/browser_close_manager.cc
 +++ chrome/browser/lifetime/browser_close_manager.cc
 @@ -148,12 +148,14 @@ void BrowserCloseManager::CloseBrowsers() {
@@ -118,10 +118,10 @@ index 2f6bb4a8cd34..d6ba58c228aa 100644
    // Make a copy of the BrowserList to simplify the case where we need to
    // destroy a Browser during the loop.
 diff --git chrome/browser/sessions/session_service.cc chrome/browser/sessions/session_service.cc
-index f5079f6d2189..a43a981d471b 100644
+index 73d97b1da62a..eec9c645366f 100644
 --- chrome/browser/sessions/session_service.cc
 +++ chrome/browser/sessions/session_service.cc
-@@ -942,12 +942,19 @@ void SessionService::MaybeDeleteSessionOnlyData() {
+@@ -939,12 +939,19 @@ void SessionService::MaybeDeleteSessionOnlyData() {
    if (!profile() || profile()->AsTestingProfile())
      return;
  

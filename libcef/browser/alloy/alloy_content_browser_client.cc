@@ -40,7 +40,6 @@
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/net/scheme_registration.h"
 #include "libcef/common/request_impl.h"
-#include "libcef/common/service_manifests/cef_content_browser_overlay_manifest.h"
 
 #include "base/base_switches.h"
 #include "base/command_line.h"
@@ -73,7 +72,6 @@
 #include "components/navigation_interception/intercept_navigation_throttle.h"
 #include "components/navigation_interception/navigation_params.h"
 #include "components/spellcheck/common/spellcheck.mojom.h"
-#include "components/variations/variations_http_header_provider.h"
 #include "components/version_info/version_info.h"
 #include "content/browser/frame_host/render_frame_host_impl.h"
 #include "content/browser/plugin_service_impl.h"
@@ -104,6 +102,8 @@
 #include "extensions/browser/extensions_browser_client.h"
 #include "extensions/browser/guest_view/extensions_guest_view_message_filter.h"
 #include "extensions/browser/guest_view/web_view/web_view_guest.h"
+#include "extensions/browser/info_map.h"
+#include "extensions/browser/process_map.h"
 #include "extensions/browser/url_loader_factory_manager.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/switches.h"
@@ -112,11 +112,11 @@
 #include "net/base/auth.h"
 #include "net/ssl/ssl_cert_request_info.h"
 #include "ppapi/host/ppapi_host.h"
+#include "sandbox/policy/switches.h"
 #include "services/network/public/cpp/network_switches.h"
 #include "services/proxy_resolver/public/mojom/proxy_resolver.mojom.h"
 #include "services/service_manager/embedder/switches.h"
 #include "services/service_manager/public/mojom/connector.mojom.h"
-#include "services/service_manager/sandbox/switches.h"
 #include "storage/browser/quota/quota_settings.h"
 #include "third_party/blink/public/mojom/insecure_input/insecure_input_service.mojom.h"
 #include "third_party/blink/public/mojom/prerender/prerender.mojom.h"
@@ -131,7 +131,7 @@
 #include "libcef/common/widevine_loader.h"
 #endif
 
-#if defined(OS_POSIX) && !defined(OS_MACOSX)
+#if defined(OS_POSIX) && !defined(OS_MAC)
 #include "base/debug/leak_annotations.h"
 #include "chrome/common/chrome_paths.h"
 #include "components/crash/content/browser/crash_handler_host_linux.h"
@@ -139,7 +139,7 @@
 #include "content/public/common/content_descriptors.h"
 #endif
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 #include "net/ssl/client_cert_store_mac.h"
 #include "services/video_capture/public/mojom/constants.mojom.h"
 #endif
@@ -381,7 +381,7 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
   DISALLOW_COPY_AND_ASSIGN(CefQuotaPermissionContext);
 };
 
-#if defined(OS_POSIX) && !defined(OS_MACOSX)
+#if defined(OS_POSIX) && !defined(OS_MAC)
 breakpad::CrashHandlerHostLinux* CreateCrashHandlerHost(
     const std::string& process_type) {
   base::FilePath dumps_path;
@@ -436,7 +436,7 @@ int GetCrashSignalFD(const base::CommandLine& command_line) {
 
   return -1;
 }
-#endif  // defined(OS_POSIX) && !defined(OS_MACOSX)
+#endif  // defined(OS_POSIX) && !defined(OS_MAC)
 
 // TODO(cef): We can't currently trust NavigationParams::is_main_frame() because
 // it's always set to true in
@@ -697,12 +697,6 @@ void AlloyContentBrowserClient::SiteInstanceGotProcess(
   extensions::ProcessMap::Get(browser_context)
       ->Insert(extension->id(), site_instance->GetProcess()->GetID(),
                site_instance->GetId());
-
-  CEF_POST_TASK(
-      CEF_IOT, base::Bind(&extensions::InfoMap::RegisterExtensionProcess,
-                          browser_context->extension_system()->info_map(),
-                          extension->id(), site_instance->GetProcess()->GetID(),
-                          site_instance->GetId()));
 }
 
 void AlloyContentBrowserClient::SiteInstanceDeleting(
@@ -729,12 +723,6 @@ void AlloyContentBrowserClient::SiteInstanceDeleting(
   extensions::ProcessMap::Get(browser_context)
       ->Remove(extension->id(), site_instance->GetProcess()->GetID(),
                site_instance->GetId());
-
-  CEF_POST_TASK(
-      CEF_IOT, base::Bind(&extensions::InfoMap::UnregisterExtensionProcess,
-                          browser_context->extension_system()->info_map(),
-                          extension->id(), site_instance->GetProcess()->GetID(),
-                          site_instance->GetId()));
 }
 
 void AlloyContentBrowserClient::BindHostReceiverForRenderer(
@@ -756,15 +744,6 @@ void AlloyContentBrowserClient::BindHostReceiverForRenderer(
 #endif  // BUILDFLAG(HAS_SPELLCHECK_PANEL)
 }
 
-base::Optional<service_manager::Manifest>
-AlloyContentBrowserClient::GetServiceManifestOverlay(base::StringPiece name) {
-  if (name == content::mojom::kBrowserServiceName) {
-    return GetCefContentBrowserOverlayManifest();
-  }
-
-  return base::nullopt;
-}
-
 void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
     base::CommandLine* command_line,
     int child_process_id) {
@@ -775,7 +754,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
     // associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
       switches::kDisablePackLoading,
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
       switches::kFrameworkDirPath,
       switches::kMainBundlePath,
 #endif
@@ -855,7 +834,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
                                    base::size(kSwitchNames));
 
 #if BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
-    if (!browser_cmd->HasSwitch(service_manager::switches::kNoSandbox)) {
+    if (!browser_cmd->HasSwitch(sandbox::policy::switches::kNoSandbox)) {
       // Pass the Widevine CDM path to the Zygote process. See comments in
       // CefWidevineLoader::AddContentDecryptionModules.
       const base::FilePath& cdm_path = CefWidevineLoader::GetInstance()->path();
@@ -1179,7 +1158,7 @@ AlloyContentBrowserClient::CreateClientCertStore(
       net::ClientCertStoreNSS::PasswordDelegateFactory()));
 #elif defined(OS_WIN)
   return std::unique_ptr<net::ClientCertStore>(new net::ClientCertStoreWin());
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
   return std::unique_ptr<net::ClientCertStore>(new net::ClientCertStoreMac());
 #else
 #error Unknown platform.
@@ -1203,6 +1182,7 @@ AlloyContentBrowserClient::CreateLoginDelegate(
 
 void AlloyContentBrowserClient::RegisterNonNetworkNavigationURLLoaderFactories(
     int frame_tree_node_id,
+    base::UkmSourceId ukm_source_id,
     NonNetworkURLLoaderFactoryMap* factories) {
   if (!extensions::ExtensionsEnabled())
     return;
@@ -1212,7 +1192,7 @@ void AlloyContentBrowserClient::RegisterNonNetworkNavigationURLLoaderFactories(
   factories->emplace(
       extensions::kExtensionScheme,
       extensions::CreateExtensionNavigationURLLoaderFactory(
-          web_contents->GetBrowserContext(),
+          web_contents->GetBrowserContext(), ukm_source_id,
           !!extensions::WebViewGuest::FromWebContents(web_contents)));
 }
 

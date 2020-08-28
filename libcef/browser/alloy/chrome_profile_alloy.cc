@@ -5,8 +5,9 @@
 
 #include "libcef/browser/alloy/chrome_profile_alloy.h"
 
+#include "base/no_destructor.h"
 #include "components/variations/variations_client.h"
-#include "components/variations/variations_http_header_provider.h"
+#include "components/variations/variations_ids_provider.h"
 #include "net/url_request/url_request_context.h"
 
 namespace {
@@ -23,7 +24,7 @@ class CefVariationsClient : public variations::VariationsClient {
   }
 
   std::string GetVariationsHeader() const override {
-    return variations::VariationsHttpHeaderProvider::GetInstance()
+    return variations::VariationsIdsProvider::GetInstance()
         ->GetClientDataHeader(false /* is_signed_in */);
   }
 
@@ -157,7 +158,7 @@ void ChromeProfileAlloy::SetExitType(ExitType exit_type) {
   NOTREACHED();
 }
 
-Profile::ExitType ChromeProfileAlloy::GetLastSessionExitType() {
+Profile::ExitType ChromeProfileAlloy::GetLastSessionExitType() const {
   NOTREACHED();
   return EXIT_NORMAL;
 }

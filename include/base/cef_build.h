@@ -44,6 +44,14 @@
 #define OS_WIN 1
 #endif
 #elif defined(__APPLE__)
+// New platform defines after https://crbug.com/1105907.
+#ifndef OS_MAC
+#define OS_MAC 1
+#endif
+#ifndef OS_APPLE
+#define OS_APPLE 1
+#endif
+// Old platform defines retained for backwards compatibility.
 #ifndef OS_MACOSX
 #define OS_MACOSX 1
 #endif
@@ -57,7 +65,7 @@
 
 // For access to standard POSIXish features, use OS_POSIX instead of a
 // more specific macro.
-#if defined(OS_MACOSX) || defined(OS_LINUX)
+#if defined(OS_MAC) || defined(OS_LINUX)
 #ifndef OS_POSIX
 #define OS_POSIX 1
 #endif

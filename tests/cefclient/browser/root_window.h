@@ -17,9 +17,9 @@
 #include "tests/cefclient/browser/image_cache.h"
 #include "tests/shared/browser/main_message_loop.h"
 
-#if defined(OS_MACOSX) && __OBJC__
+#if defined(OS_MAC) && __OBJC__
 @class NSWindow;
-#endif  // defined(OS_MACOSX) && __OBJC__
+#endif  // defined(OS_MAC) && __OBJC__
 
 namespace client {
 
@@ -121,7 +121,7 @@ class RootWindow
   // called on the main thread.
   static scoped_refptr<RootWindow> GetForBrowser(int browser_id);
 
-#if defined(OS_MACOSX) && __OBJC__
+#if defined(OS_MAC) && __OBJC__
   // Returns the RootWindow associated with the specified |window|. Must be
   // called on the main thread.
   static scoped_refptr<RootWindow> GetForNSWindow(NSWindow* window);

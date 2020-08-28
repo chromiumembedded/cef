@@ -679,7 +679,7 @@ parser.add_option(
     help="Output commands without executing them.")
 parser.add_option('--dry-run-platform', dest='dryrunplatform', default=None,
                   help='Simulate a dry run on the specified platform '+\
-                       '(windows, macosx, linux). Must be used in combination'+\
+                       '(windows, mac, linux). Must be used in combination'+\
                        ' with the --dry-run flag.')
 
 # Update-related options.
@@ -970,13 +970,13 @@ if (options.buildtests or options.runtests) and len(options.testtarget) == 0:
 # Operating system.
 if options.dryrun and options.dryrunplatform is not None:
   platform = options.dryrunplatform
-  if not platform in ['windows', 'macosx', 'linux']:
+  if not platform in ['windows', 'mac', 'linux']:
     print('Invalid dry-run-platform value: %s' % (platform))
     sys.exit()
 elif sys.platform == 'win32':
   platform = 'windows'
 elif sys.platform == 'darwin':
-  platform = 'macosx'
+  platform = 'mac'
 elif sys.platform.startswith('linux'):
   platform = 'linux'
 else:
@@ -1039,15 +1039,15 @@ if options.arm64build:
 
 deps_file = 'DEPS'
 
-if platform == 'macosx' and not options.x64build:
-  print('32-bit Mac OS X builds are not supported. ' +
+if platform == 'mac' and not options.x64build:
+  print('32-bit MacOS builds are not supported. ' +
         'Add --x64-build flag to generate a 64-bit build.')
   sys.exit()
 
 # Platforms that build a cef_sandbox library.
 sandbox_lib_platforms = ['windows']
 if branch_is_3538_or_newer:
-  sandbox_lib_platforms.append('macosx')
+  sandbox_lib_platforms.append('mac')
 
 if not platform in sandbox_lib_platforms and (options.sandboxdistrib or
                                               options.sandboxdistribonly):
@@ -1531,7 +1531,7 @@ elif not options.nobuild:
 if options.runtests:
   if platform == 'windows':
     test_exe = '%s.exe' % options.testtarget
-  elif platform == 'macosx':
+  elif platform == 'mac':
     test_exe = '%s.app/Contents/MacOS/%s' % (options.testtarget,
                                              options.testtarget)
   elif platform == 'linux':

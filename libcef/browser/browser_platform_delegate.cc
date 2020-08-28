@@ -127,7 +127,7 @@ void CefBrowserPlatformDelegate::SendCaptureLostEvent() {
   NOTIMPLEMENTED();
 }
 
-#if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MACOSX))
+#if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MAC))
 void CefBrowserPlatformDelegate::NotifyMoveOrResizeStarted() {}
 
 void CefBrowserPlatformDelegate::SizeTo(int width, int height) {}

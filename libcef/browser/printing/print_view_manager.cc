@@ -60,7 +60,8 @@ void FillInDictionaryFromPdfPrintSettings(
   // Fixed settings.
   print_settings.SetIntKey(kSettingPrinterType,
                            static_cast<int>(PrinterType::kPdf));
-  print_settings.SetInteger(kSettingColor, GRAY);
+  print_settings.SetInteger(kSettingColor,
+                            static_cast<int>(mojom::ColorModel::kGray));
   print_settings.SetInteger(kSettingDuplexMode,
                             static_cast<int>(mojom::DuplexMode::kSimplex));
   print_settings.SetInteger(kSettingCopies, 1);
@@ -100,23 +101,23 @@ void FillInDictionaryFromPdfPrintSettings(
     print_settings.Set(kSettingMediaSize, std::move(dict));
   }
 
-  int margin_type = DEFAULT_MARGINS;
+  auto margin_type = printing::mojom::MarginType::kDefaultMargins;
   switch (pdf_settings.margin_type) {
     case PDF_PRINT_MARGIN_NONE:
-      margin_type = NO_MARGINS;
+      margin_type = printing::mojom::MarginType::kNoMargins;
       break;
     case PDF_PRINT_MARGIN_MINIMUM:
-      margin_type = PRINTABLE_AREA_MARGINS;
+      margin_type = printing::mojom::MarginType::kPrintableAreaMargins;
       break;
     case PDF_PRINT_MARGIN_CUSTOM:
-      margin_type = CUSTOM_MARGINS;
+      margin_type = printing::mojom::MarginType::kCustomMargins;
       break;
     default:
       break;
   }
 
-  print_settings.SetInteger(kSettingMarginsType, margin_type);
-  if (margin_type == CUSTOM_MARGINS) {
+  print_settings.SetInteger(kSettingMarginsType, static_cast<int>(margin_type));
+  if (margin_type == printing::mojom::MarginType::kCustomMargins) {
     std::unique_ptr<base::DictionaryValue> dict(new base::DictionaryValue);
     dict->SetInteger(kSettingMarginTop, pdf_settings.margin_top);
     dict->SetInteger(kSettingMarginRight, pdf_settings.margin_right);
@@ -301,7 +302,7 @@ void CefPrintViewManager::OnRequestPrintPreview_PrintToPdf(
 
 void CefPrintViewManager::OnMetafileReadyForPrinting_PrintToPdf(
     content::RenderFrameHost* rfh,
-    const PrintHostMsg_DidPreviewDocument_Params& params,
+    const mojom::DidPreviewDocumentParams& params,
     const PrintHostMsg_PreviewIds& ids) {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   StopWorker(params.document_cookie);
@@ -318,7 +319,7 @@ void CefPrintViewManager::OnMetafileReadyForPrinting_PrintToPdf(
   print_render_frame_remote->OnPrintPreviewDialogClosed();
 
   auto shared_buf = base::RefCountedSharedMemoryMapping::CreateFromWholeRegion(
-      params.content.metafile_data_region);
+      params.content->metafile_data_region);
   if (!shared_buf) {
     TerminatePdfPrintJob();
     return;

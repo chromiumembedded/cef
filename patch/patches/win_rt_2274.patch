@@ -1,8 +1,8 @@
-diff --git services/service_manager/sandbox/win/sandbox_win.cc services/service_manager/sandbox/win/sandbox_win.cc
-index cde75bd07101..34f6853596d5 100644
---- services/service_manager/sandbox/win/sandbox_win.cc
-+++ services/service_manager/sandbox/win/sandbox_win.cc
-@@ -959,8 +959,11 @@ sandbox::ResultCode SandboxWin::StartSandboxedProcess(
+diff --git sandbox/policy/win/sandbox_win.cc sandbox/policy/win/sandbox_win.cc
+index d63d942c7e3e..a100fb4d685f 100644
+--- sandbox/policy/win/sandbox_win.cc
++++ sandbox/policy/win/sandbox_win.cc
+@@ -953,8 +953,11 @@ ResultCode SandboxWin::StartSandboxedProcess(
    }
    // TODO(wfh): Relax strict handle checks for network process until root cause
    // for this crash can be resolved. See https://crbug.com/939590.
@@ -10,8 +10,8 @@ index cde75bd07101..34f6853596d5 100644
 +  if (!launcher_process_command_line.HasSwitch("win-rt-app") &&
 +      sandbox_type != SandboxType::kNetwork) {
 +    // Don't enable this mitigation in WinRT apps. See issue #2274.
-     mitigations |= sandbox::MITIGATION_STRICT_HANDLE_CHECKS;
+     mitigations |= MITIGATION_STRICT_HANDLE_CHECKS;
 +  }
  
    result = policy->SetDelayedProcessMitigations(mitigations);
-   if (result != sandbox::SBOX_ALL_OK)
+   if (result != SBOX_ALL_OK)

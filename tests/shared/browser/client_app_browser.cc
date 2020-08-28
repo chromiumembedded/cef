@@ -47,7 +47,7 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
       command_line->AppendSwitch("disable-gpu-shader-disk-cache");
     }
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
     // Disable the toolchain prompt on macOS.
     command_line->AppendSwitch("use-mock-keychain");
 #endif

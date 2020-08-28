@@ -1,8 +1,8 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index d67aa115c4ed..c799f2e32011 100644
+index 8e810871066b..107f15b92829 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
-@@ -176,6 +176,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+@@ -174,6 +174,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
    IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
@@ -11,34 +11,34 @@ index d67aa115c4ed..c799f2e32011 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git content/public/common/web_preferences.cc content/public/common/web_preferences.cc
-index f85ad51fb34b..6168136649ea 100644
+index 839e3cbde987..ef1b0d7be31f 100644
 --- content/public/common/web_preferences.cc
 +++ content/public/common/web_preferences.cc
-@@ -163,6 +163,7 @@ WebPreferences::WebPreferences()
+@@ -181,6 +181,7 @@ WebPreferences::WebPreferences()
+ #endif
        spatial_navigation_enabled(false),
-       caret_browsing_enabled(false),
        navigate_on_drag_drop(true),
 +      base_background_color(0xFFFFFFFF),  // Color::white
        v8_cache_options(blink::mojom::V8CacheOptions::kDefault),
        record_whole_document(false),
        cookie_enabled(true),
 diff --git content/public/common/web_preferences.h content/public/common/web_preferences.h
-index bf98747b7b38..fa046af3e0ee 100644
+index 700b47b5f521..4cd1cdceaf42 100644
 --- content/public/common/web_preferences.h
 +++ content/public/common/web_preferences.h
-@@ -180,6 +180,7 @@ struct CONTENT_EXPORT WebPreferences {
+@@ -179,6 +179,7 @@ struct CONTENT_EXPORT WebPreferences {
+   bool smart_insert_delete_enabled;
    bool spatial_navigation_enabled;
-   bool caret_browsing_enabled;
    bool navigate_on_drag_drop;
 +  uint32_t base_background_color;
    blink::mojom::V8CacheOptions v8_cache_options;
    bool record_whole_document;
  
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index c6a990f87306..1b9759f2b603 100644
+index 49619a9b5683..52e09111aad3 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -963,6 +963,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+@@ -950,6 +950,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
  #endif
  
    WebRuntimeFeatures::EnableTranslateService(prefs.translate_service_available);

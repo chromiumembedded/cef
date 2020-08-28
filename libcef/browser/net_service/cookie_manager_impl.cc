@@ -45,14 +45,16 @@ void RunAsyncCompletionOnUIThread(CefRefPtr<CefCompletionCallback> callback) {
 
 // Always execute the callback asynchronously.
 void SetCookieCallbackImpl(CefRefPtr<CefSetCookieCallback> callback,
-                           net::CookieInclusionStatus status) {
+                           net::CookieAccessResult access_result) {
   if (!callback.get())
     return;
-  if (!status.IsInclude()) {
-    LOG(WARNING) << "SetCookie failed with reason: " << status.GetDebugString();
+  const bool is_include = access_result.status.IsInclude();
+  if (!is_include) {
+    LOG(WARNING) << "SetCookie failed with reason: "
+                 << access_result.status.GetDebugString();
   }
   CEF_POST_TASK(CEF_UIT, base::Bind(&CefSetCookieCallback::OnComplete,
-                                    callback.get(), status.IsInclude()));
+                                    callback.get(), is_include));
 }
 
 // Always execute the callback asynchronously.
@@ -260,8 +262,8 @@ bool CefCookieManagerImpl::SetCookie(const CefString& url,
 
   if (!canonical_cookie) {
     SetCookieCallbackImpl(
-        callback, net::CookieInclusionStatus(
-                      net::CookieInclusionStatus::EXCLUDE_UNKNOWN_ERROR));
+        callback, net::CookieAccessResult(net::CookieInclusionStatus(
+                      net::CookieInclusionStatus::EXCLUDE_UNKNOWN_ERROR)));
     return true;
   }
 

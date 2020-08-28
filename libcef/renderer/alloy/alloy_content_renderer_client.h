@@ -16,9 +16,9 @@
 #include "libcef/renderer/browser_impl.h"
 
 #include "base/compiler_specific.h"
-#include "base/message_loop/message_loop_current.h"
 #include "base/optional.h"
 #include "base/sequenced_task_runner.h"
+#include "base/task/current_thread.h"
 #include "chrome/common/plugin.mojom.h"
 #include "content/public/renderer/content_renderer_client.h"
 #include "content/public/renderer/render_thread.h"
@@ -52,7 +52,7 @@ class SpellCheck;
 class AlloyContentRendererClient
     : public content::ContentRendererClient,
       public service_manager::LocalInterfaceProvider,
-      public base::MessageLoopCurrent::DestructionObserver {
+      public base::CurrentThread::DestructionObserver {
  public:
   AlloyContentRendererClient();
   ~AlloyContentRendererClient() override;

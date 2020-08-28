@@ -12,7 +12,7 @@
 #include "tests/cefclient/browser/root_window_win.h"
 #elif defined(OS_LINUX)
 #include "tests/cefclient/browser/root_window_gtk.h"
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
 #include "tests/cefclient/browser/root_window_mac.h"
 #endif
 
@@ -32,7 +32,7 @@ scoped_refptr<RootWindow> RootWindow::Create(bool use_views) {
   return new RootWindowWin();
 #elif defined(OS_LINUX)
   return new RootWindowGtk();
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
   return new RootWindowMac();
 #endif
 

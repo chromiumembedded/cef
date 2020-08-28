@@ -1,21 +1,21 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index ca111c5b80ee..35e734fe6a54 100644
+index 9cd1ff2b9222..2f5264de68c4 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
-@@ -1498,6 +1498,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForOrigin(
+@@ -1548,6 +1548,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForOrigin(
          // DeclarativeApiTest.PersistRules.
-         if (actual_process_lock.SchemeIs(url::kDataScheme))
+         if (actual_process_lock.matches_scheme(url::kDataScheme))
            return true;
 +
 +        // Allow other schemes that are non-standard, non-local and WebSafe.
-+        if (actual_process_lock.is_valid() &&
-+            !actual_process_lock.IsStandard() &&
++        if (lock_url.is_valid() &&
++            !lock_url.IsStandard() &&
 +            !base::Contains(url::GetLocalSchemes(),
-+                            actual_process_lock.scheme_piece()) &&
++                            lock_url.scheme_piece()) &&
 +            base::Contains(schemes_okay_to_request_in_any_process_,
-+                           actual_process_lock.scheme_piece())) {
++                           lock_url.scheme_piece())) {
 +          return true;
 +        }
        }
  
-       failure_reason = "lock_mismatch";
+       // TODO(wjmaclean): We should update the ProcessLock comparison API to

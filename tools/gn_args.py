@@ -75,7 +75,7 @@ src_dir = os.path.abspath(os.path.join(cef_dir, os.pardir))
 if sys.platform == 'win32':
   platform = 'windows'
 elif sys.platform == 'darwin':
-  platform = 'macosx'
+  platform = 'mac'
 elif sys.platform.startswith('linux'):
   platform = 'linux'
 else:
@@ -281,7 +281,7 @@ def GetRequiredArgs():
     # can't be enforced by assert().
     result['enable_linux_installer'] = False
 
-  if platform == 'macosx':
+  if platform == 'mac':
     # Always generate dSYM files. The make_distrib script will fail if
     # enable_dsyms=true is not explicitly set when is_official_build=false.
     result['enable_dsyms'] = True
@@ -330,7 +330,7 @@ def ValidateArgs(args):
   # - Windows supports "x86" and "x64".
   # - Mac supports only "x64".
   # - Linux supports only "x64" unless using a sysroot environment.
-  if platform == 'macosx':
+  if platform == 'mac':
     assert target_cpu == 'x64', 'target_cpu must be "x64"'
   elif platform == 'windows':
     assert target_cpu in (
@@ -546,7 +546,7 @@ def GetAllPlatformConfigs(build_args):
     supported_cpus = ['x86', 'x64']
     if os.environ.get('CEF_ENABLE_ARM64', '') == '1':
       supported_cpus.append('arm64')
-  elif platform == 'macosx':
+  elif platform == 'mac':
     supported_cpus = ['x64']
   else:
     raise Exception('Unsupported platform')
@@ -556,7 +556,7 @@ def GetAllPlatformConfigs(build_args):
       result['Debug_GN_' + cpu] = GetConfigArgs(args, True, cpu)
     result['Release_GN_' + cpu] = GetConfigArgs(args, False, cpu)
 
-    if platform in ('windows', 'macosx') and GetArgValue(
+    if platform in ('windows', 'mac') and GetArgValue(
         args, 'is_official_build'):
       # Build cef_sandbox.lib with a different configuration.
       if create_debug:
@@ -585,7 +585,7 @@ if __name__ == '__main__':
   # Allow override of the platform via the command-line for testing.
   if len(sys.argv) > 1:
     platform = sys.argv[1]
-    if not platform in ('linux', 'macosx', 'windows'):
+    if not platform in ('linux', 'mac', 'windows'):
       sys.stderr.write('Usage: %s <platform>\n' % sys.argv[0])
       sys.exit()
 

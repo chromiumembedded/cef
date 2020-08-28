@@ -1,16 +1,16 @@
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index f5e5576fd745..086ba8edc63a 100644
+index 1dec904333df..e1f2ec06d93f 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -44,6 +44,7 @@
- #include "base/strings/stringprintf.h"
+@@ -45,6 +45,7 @@
  #include "base/task/post_task.h"
  #include "base/task/thread_pool/thread_pool_instance.h"
+ #include "base/threading/hang_watcher.h"
 +#include "base/threading/thread_restrictions.h"
  #include "base/trace_event/trace_event.h"
  #include "components/discardable_memory/service/discardable_shared_memory_manager.h"
  #include "components/download/public/common/download_task_runner.h"
-@@ -1027,6 +1028,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1028,6 +1029,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -23,7 +23,7 @@ index f5e5576fd745..086ba8edc63a 100644
  ContentMainRunner* ContentMainRunner::Create() {
    return ContentMainRunnerImpl::Create();
 diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
-index 299af2871498..8639eb8843f7 100644
+index 50797fdcea18..33acf1f35429 100644
 --- content/app/content_main_runner_impl.h
 +++ content/app/content_main_runner_impl.h
 @@ -51,6 +51,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
@@ -36,7 +36,7 @@ index 299af2871498..8639eb8843f7 100644
    int RunServiceManager(MainFunctionParams& main_function_params,
                          bool start_service_manager_only);
 diff --git content/app/content_service_manager_main_delegate.cc content/app/content_service_manager_main_delegate.cc
-index 1983ab5b217d..25344b70d343 100644
+index 1e6ad316bc67..e11e443ae694 100644
 --- content/app/content_service_manager_main_delegate.cc
 +++ content/app/content_service_manager_main_delegate.cc
 @@ -174,4 +174,8 @@ void ContentServiceManagerMainDelegate::SetStartServiceManagerOnly(

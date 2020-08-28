@@ -157,7 +157,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
       CefPopupFeatures cef_features;
       TranslatePopupFeatures(features, cef_features);
 
-#if (defined(OS_WIN) || defined(OS_MACOSX))
+#if (defined(OS_WIN) || defined(OS_MAC))
       // Default to the size from the popup features.
       if (cef_features.xSet)
         window_info->x = cef_features.x;

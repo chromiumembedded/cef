@@ -13,7 +13,7 @@
   'includes': [
     'cefsimple_sources_common',
     'cefsimple_sources_win:WINDOWS',
-    'cefsimple_sources_mac:MACOSX',
+    'cefsimple_sources_mac:MAC',
     'cefsimple_sources_linux:LINUX',
   ],
 }}
@@ -22,7 +22,7 @@
 {{
   'prefix': 'cefsimple_helper',
   'includes': [
-    'cefsimple_sources_mac_helper:MACOSX',
+    'cefsimple_sources_mac_helper:MAC',
   ],
 }}
 
@@ -31,7 +31,7 @@
   'prefix': 'cefsimple_resources',
   'set': 'CEFSIMPLE_RESOURCES_SRCS',
   'includes': [
-    'cefsimple_bundle_resources_mac:MACOSX',
+    'cefsimple_bundle_resources_mac:MAC',
   ],
 }}
 
@@ -42,7 +42,7 @@
 
 # Target executable names.
 set(CEF_TARGET "cefsimple")
-if(OS_MACOSX)
+if(OS_MAC)
   set(CEF_HELPER_TARGET "cefsimple_Helper")
   set(CEF_HELPER_OUTPUT_NAME "cefsimple Helper")
 else()
@@ -86,7 +86,7 @@ endif()
 # Mac OS X configuration.
 #
 
-if(OS_MACOSX)
+if(OS_MAC)
   option(OPTION_USE_ARC "Build with ARC (automatic Reference Counting) on macOS." ON)
   if(OPTION_USE_ARC)
     list(APPEND CEF_COMPILER_FLAGS
@@ -184,7 +184,7 @@ if(OS_MACOSX)
   # directive but that doesn't properly handle nested resource directories.
   # Remove these prefixes from input file paths.
   set(PREFIXES "mac/")
-  COPY_MACOSX_RESOURCES("${CEFSIMPLE_RESOURCES_SRCS}" "${PREFIXES}" "${CEF_TARGET}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_APP}")
+  COPY_MAC_RESOURCES("${CEFSIMPLE_RESOURCES_SRCS}" "${PREFIXES}" "${CEF_TARGET}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_APP}")
 endif()
 
 

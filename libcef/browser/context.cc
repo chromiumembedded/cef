@@ -11,8 +11,8 @@
 
 #include "base/bind.h"
 #include "base/files/file_util.h"
-#include "base/message_loop/message_loop_current.h"
 #include "base/run_loop.h"
+#include "base/task/current_thread.h"
 #include "base/threading/thread_restrictions.h"
 #include "components/network_session_configurator/common/network_switches.h"
 #include "content/public/browser/notification_service.h"
@@ -294,7 +294,7 @@ void CefSetOSModalLoop(bool osModalLoop) {
   }
 
   if (CEF_CURRENTLY_ON_UIT())
-    base::MessageLoopCurrent::Get()->set_os_modal_loop(osModalLoop);
+    base::CurrentThread::Get()->set_os_modal_loop(osModalLoop);
   else
     CEF_POST_TASK(CEF_UIT, base::Bind(CefSetOSModalLoop, osModalLoop));
 #endif  // defined(OS_WIN)

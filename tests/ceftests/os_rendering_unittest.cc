@@ -13,7 +13,7 @@
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/resource_util.h"
 
-#if defined(OS_MACOSX)
+#if defined(OS_MAC)
 #include <Carbon/Carbon.h>  // For character codes.
 #include "tests/ceftests/os_rendering_unittest_mac.h"
 #elif defined(OS_LINUX)
@@ -37,7 +37,7 @@ const int kOsrHeight = 400;
 // bounding client rects for edit box and navigate button
 #if defined(OS_WIN)
 const CefRect kExpandedSelectRect(462, 42, 81, 334);
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
 const CefRect kExpandedSelectRect(462, 42, 75, 334);
 #elif defined(OS_LINUX)
 const CefRect kExpandedSelectRect(462, 42, 79, 334);
@@ -63,7 +63,7 @@ const unsigned int kNativeKeyTestCodes[] = {XK_d, XK_o, XK_n, XK_e};
 const unsigned int kNativeKeyEscape = XK_Escape;
 const unsigned int kNativeKeyTab = XK_Tab;
 
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
 
 // See kKeyCodesMap in ui/events/keycodes/keyboard_code_conversion_mac.mm
 #define VKEY_D 'd'
@@ -81,7 +81,7 @@ const unsigned int kNativeKeyTab = kVK_Tab;
 
 #endif
 
-#if defined(OS_MACOSX) || defined(OS_LINUX)
+#if defined(OS_MAC) || defined(OS_LINUX)
 
 const unsigned int kKeyTestCodes[] = {VKEY_D, VKEY_O, VKEY_N, VKEY_E};
 
@@ -557,7 +557,7 @@ class OSRTestHandler : public RoutingTestHandler,
 
 #if defined(OS_WIN)
           SendKeyEvent(browser, VK_TAB);
-#elif defined(OS_MACOSX) || defined(OS_LINUX)
+#elif defined(OS_MAC) || defined(OS_LINUX)
           SendKeyEvent(browser, kNativeKeyTab, VKEY_TAB);
 #else
 #error "Unsupported platform"
@@ -674,7 +674,7 @@ class OSRTestHandler : public RoutingTestHandler,
           for (size_t i = 0; i < word_length; ++i) {
 #if defined(OS_WIN)
             SendKeyEvent(browser, kKeyTestWord[i]);
-#elif defined(OS_MACOSX) || defined(OS_LINUX)
+#elif defined(OS_MAC) || defined(OS_LINUX)
             SendKeyEvent(browser, kNativeKeyTestCodes[i], kKeyTestCodes[i]);
 #else
 #error "Unsupported platform"
@@ -760,7 +760,7 @@ class OSRTestHandler : public RoutingTestHandler,
         } else if (type == PET_POPUP) {
 #if defined(OS_WIN)
           SendKeyEvent(browser, VK_ESCAPE);
-#elif defined(OS_MACOSX) || defined(OS_LINUX)
+#elif defined(OS_MAC) || defined(OS_LINUX)
           SendKeyEvent(browser, kNativeKeyEscape, VKEY_ESCAPE);
 #else
 #error "Unsupported platform"
@@ -886,7 +886,7 @@ class OSRTestHandler : public RoutingTestHandler,
           for (size_t i = 0; i < word_length; ++i) {
 #if defined(OS_WIN)
             SendKeyEvent(browser, kKeyTestWord[i]);
-#elif defined(OS_MACOSX) || defined(OS_LINUX)
+#elif defined(OS_MAC) || defined(OS_LINUX)
             SendKeyEvent(browser, kNativeKeyTestCodes[i], kKeyTestCodes[i]);
 #else
 #error "Unsupported platform"
@@ -927,7 +927,7 @@ class OSRTestHandler : public RoutingTestHandler,
           for (size_t i = 0; i < word_length; ++i) {
 #if defined(OS_WIN)
             SendKeyEvent(browser, kKeyTestWord[i]);
-#elif defined(OS_MACOSX) || defined(OS_LINUX)
+#elif defined(OS_MAC) || defined(OS_LINUX)
             SendKeyEvent(browser, kNativeKeyTestCodes[i], kKeyTestCodes[i]);
 #else
 #error "Unsupported platform"
@@ -1328,7 +1328,7 @@ class OSRTestHandler : public RoutingTestHandler,
 
 #if defined(OS_WIN)
     windowInfo.SetAsWindowless(GetDesktopWindow());
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
     // An actual vies is needed only for the ContextMenu test. The menu runner
     // checks if the view is not nil before showing the context menu.
     if (test_type_ == OSR_TEST_CONTEXT_MENU)
@@ -1384,7 +1384,7 @@ class OSRTestHandler : public RoutingTestHandler,
   }
 
   bool ExpectComputedPopupSize() const {
-#if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MACOSX))
+#if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MAC))
     // On Windows the device scale factor is ignored in Blink when computing
     // the default form control font size (see https://crbug.com/674663#c11).
     // This results in better font size display but also means that we won't
@@ -1436,7 +1436,7 @@ class OSRTestHandler : public RoutingTestHandler,
   }
 
   void SendKeyEvent(CefRefPtr<CefBrowser> browser,
-#if defined(OS_LINUX) || defined(OS_MACOSX)
+#if defined(OS_LINUX) || defined(OS_MAC)
                     unsigned int native_key_code,
 #endif
                     int key_code) {
@@ -1450,7 +1450,7 @@ class OSRTestHandler : public RoutingTestHandler,
     event.native_key_code = (scanCode << 16) |  // key scan code
                             1;                  // key repeat count
     event.windows_key_code = VkCode;
-#elif defined(OS_MACOSX)
+#elif defined(OS_MAC)
     event.native_key_code = native_key_code;
     // Note that this is only correct for lower-case characters. If |key_code|
     // was an upper-case character then |event.character| would be the upper-
