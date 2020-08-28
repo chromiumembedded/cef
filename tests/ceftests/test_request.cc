@@ -113,7 +113,7 @@ void Send(const SendConfig& config, const RequestDoneCallback& callback) {
 std::string GetPathURL(const std::string& url) {
   const size_t index1 = url.find('?');
   const size_t index2 = url.find('#');
-  size_t index = -1;
+  int index = -1;
   if (index1 >= 0 && index2 >= 0) {
     index = std::min(index1, index2);
   } else if (index1 >= 0) {
