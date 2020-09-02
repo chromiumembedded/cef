@@ -404,15 +404,17 @@ void CefRenderWidgetHostViewOSR::Show() {
     if (!video_consumer_) {
       video_consumer_.reset(new CefVideoConsumerOSR(this));
       UpdateFrameRate();
-
-      // Call OnRenderFrameMetadataChangedAfterActivation for every frame.
-      content::RenderFrameMetadataProviderImpl* provider =
-          content::RenderWidgetHostImpl::From(render_widget_host_)
-              ->render_frame_metadata_provider();
-      provider->ReportAllFrameSubmissionsForTesting(true);
     } else {
       video_consumer_->SetActive(true);
     }
+  }
+
+  if (render_widget_host_) {
+    // Call OnRenderFrameMetadataChangedAfterActivation for every frame.
+    content::RenderFrameMetadataProviderImpl* provider =
+        content::RenderWidgetHostImpl::From(render_widget_host_)
+            ->render_frame_metadata_provider();
+    provider->ReportAllFrameSubmissionsForTesting(true);
   }
 }
 
@@ -924,13 +926,35 @@ viz::FrameSinkId CefRenderWidgetHostViewOSR::GetRootFrameSinkId() {
 }
 
 void CefRenderWidgetHostViewOSR::OnRenderFrameMetadataChangedAfterActivation() {
+  auto metadata =
+      host_->render_frame_metadata_provider()->LastRenderFrameMetadata();
+
   if (video_consumer_) {
     // Need to wait for the first frame of the new size before calling
     // SizeChanged. Otherwise, the video frame will be letterboxed.
-    auto metadata =
-        host_->render_frame_metadata_provider()->LastRenderFrameMetadata();
     video_consumer_->SizeChanged(metadata.viewport_size_in_pixels);
   }
+
+  gfx::Vector2dF root_scroll_offset;
+  if (metadata.root_scroll_offset) {
+    root_scroll_offset = *metadata.root_scroll_offset;
+  }
+  if (root_scroll_offset != last_scroll_offset_) {
+    last_scroll_offset_ = root_scroll_offset;
+
+    if (!is_scroll_offset_changed_pending_) {
+      is_scroll_offset_changed_pending_ = true;
+
+      // Send the notification asynchronously.
+      CEF_POST_TASK(
+          CEF_UIT,
+          base::Bind(&CefRenderWidgetHostViewOSR::OnScrollOffsetChanged,
+                     weak_ptr_factory_.GetWeakPtr()));
+    }
+  }
+
+  content::RenderWidgetHostViewBase::
+      OnRenderFrameMetadataChangedAfterActivation();
 }
 
 std::unique_ptr<content::SyntheticGestureTarget>
