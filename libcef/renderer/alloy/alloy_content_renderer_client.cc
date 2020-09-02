@@ -107,6 +107,7 @@
 #include "third_party/blink/public/web/web_prerenderer_client.h"
 #include "third_party/blink/public/web/web_security_policy.h"
 #include "third_party/blink/public/web/web_view.h"
+#include "third_party/blink/renderer/platform/runtime_enabled_features.h"
 #include "ui/base/l10n/l10n_util.h"
 
 #if defined(OS_MAC)
@@ -363,6 +364,7 @@ void AlloyContentRendererClient::PostIOThreadCreated(
   // TODO(cef): Enable these once the implementation supports it.
   blink::WebRuntimeFeatures::EnableNotifications(false);
   blink::WebRuntimeFeatures::EnablePushMessaging(false);
+  blink::RuntimeEnabledFeatures::SetBadgingEnabled(false);
 }
 
 void AlloyContentRendererClient::RenderThreadStarted() {
