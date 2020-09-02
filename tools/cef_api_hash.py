@@ -196,8 +196,16 @@ class cef_api_hash:
         os.path.join(self.__headerdir, filename)
         for filename in self.included_files
     ]
-    headers = itertools.chain(
-        headers, get_files(os.path.join(self.__headerdir, "capi", "*.h")))
+
+    capi_dir = os.path.join(self.__headerdir, "capi")
+    headers = itertools.chain(headers, get_files(os.path.join(capi_dir, "*.h")))
+
+    # Also include capi sub-directories.
+    for root, dirs, files in os.walk(capi_dir):
+      for name in dirs:
+        headers = itertools.chain(headers,
+                                  get_files(os.path.join(root, name, "*.h")))
+
     headers = itertools.chain(
         headers, get_files(os.path.join(self.__headerdir, "internal", "*.h")))
 
