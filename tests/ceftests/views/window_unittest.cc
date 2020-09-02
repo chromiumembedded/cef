@@ -47,12 +47,23 @@ void WindowCreateFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, config);
 }
 
-void RunWindowShowHide(CefRefPtr<CefWindow> window) {
+void RunWindowShow(CefRefPtr<CefWindow> window) {
   EXPECT_FALSE(window->IsVisible());
   EXPECT_FALSE(window->IsDrawn());
   window->Show();
   EXPECT_TRUE(window->IsVisible());
   EXPECT_TRUE(window->IsDrawn());
+}
+
+void WindowCreateWithOriginImpl(CefRefPtr<CefWaitableEvent> event) {
+  TestWindowDelegate::Config config;
+  config.window_origin = {100, 200};
+  config.on_window_created = base::Bind(RunWindowShow);
+  TestWindowDelegate::RunTest(event, config);
+}
+
+void RunWindowShowHide(CefRefPtr<CefWindow> window) {
+  RunWindowShow(window);
   window->Hide();
   EXPECT_FALSE(window->IsVisible());
   EXPECT_FALSE(window->IsDrawn());
@@ -481,6 +492,7 @@ void WindowAcceleratorImpl(CefRefPtr<CefWaitableEvent> event) {
 // we presume that Chromium is testing).
 WINDOW_TEST_ASYNC(WindowCreate)
 WINDOW_TEST_ASYNC(WindowCreateFrameless)
+WINDOW_TEST_ASYNC(WindowCreateWithOrigin)
 WINDOW_TEST_ASYNC(WindowShowHide)
 WINDOW_TEST_ASYNC(WindowShowHideFrameless)
 WINDOW_TEST_ASYNC(WindowLayoutAndCoords)

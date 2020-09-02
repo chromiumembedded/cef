@@ -79,6 +79,17 @@ class CefWindowDelegate : public CefPanelDelegate {
   }
 
   ///
+  // Return the initial bounds for |window| in screen coordinates. If this
+  // method returns an empty CefRect then GetPreferredSize() will be called to
+  // retrieve the size, and the window will be placed on the default screen with
+  // origin (0,0).
+  ///
+  /*--cef()--*/
+  virtual CefRect GetInitialBounds(CefRefPtr<CefWindow> window) {
+    return CefRect();
+  }
+
+  ///
   // Return true if |window| should be created without a frame or title bar. The
   // window will be resizable if CanResize() returns true. Use
   // CefWindow::SetDraggableRegions() to specify draggable regions.

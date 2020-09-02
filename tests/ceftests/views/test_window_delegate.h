@@ -28,6 +28,7 @@ class TestWindowDelegate : public CefWindowDelegate {
     bool frameless = false;
     bool close_window = true;
     int window_size = kWSize;
+    CefPoint window_origin = {};
   };
 
   // Creates a Window with a new TestWindowDelegate instance and executes
@@ -42,6 +43,7 @@ class TestWindowDelegate : public CefWindowDelegate {
   void OnWindowCreated(CefRefPtr<CefWindow> window) override;
   void OnWindowDestroyed(CefRefPtr<CefWindow> window) override;
   bool IsFrameless(CefRefPtr<CefWindow> window) override;
+  CefRect GetInitialBounds(CefRefPtr<CefWindow> window) override;
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override;
   bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) override;
   bool OnKeyEvent(CefRefPtr<CefWindow> window,
@@ -62,6 +64,7 @@ class TestWindowDelegate : public CefWindowDelegate {
 
   CefRefPtr<CefWindow> window_;
 
+  bool got_get_initial_bounds_ = false;
   bool got_get_preferred_size_ = false;
 
   // Must be the last member.

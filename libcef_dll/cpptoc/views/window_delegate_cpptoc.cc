@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=52b31a63bbe83937a9f5dc557accfc1e84af6d84$
+// $hash=fc5a46d1a73e61c08ec1266ac1c481dc65aedf6b$
 //
 
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
@@ -106,6 +106,29 @@ window_delegate_get_parent_window(struct _cef_window_delegate_t* self,
 
   // Return type: refptr_diff
   return CefWindowCToCpp::Unwrap(_retval);
+}
+
+cef_rect_t CEF_CALLBACK
+window_delegate_get_initial_bounds(struct _cef_window_delegate_t* self,
+                                   cef_window_t* window) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return CefRect();
+  // Verify param: window; type: refptr_diff
+  DCHECK(window);
+  if (!window)
+    return CefRect();
+
+  // Execute
+  cef_rect_t _retval = CefWindowDelegateCppToC::Get(self)->GetInitialBounds(
+      CefWindowCToCpp::Wrap(window));
+
+  // Return type: simple
+  return _retval;
 }
 
 int CEF_CALLBACK
@@ -475,6 +498,7 @@ CefWindowDelegateCppToC::CefWindowDelegateCppToC() {
   GetStruct()->on_window_created = window_delegate_on_window_created;
   GetStruct()->on_window_destroyed = window_delegate_on_window_destroyed;
   GetStruct()->get_parent_window = window_delegate_get_parent_window;
+  GetStruct()->get_initial_bounds = window_delegate_get_initial_bounds;
   GetStruct()->is_frameless = window_delegate_is_frameless;
   GetStruct()->can_resize = window_delegate_can_resize;
   GetStruct()->can_maximize = window_delegate_can_maximize;
