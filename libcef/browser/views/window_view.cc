@@ -254,12 +254,14 @@ void CefWindowView::CreateWidget() {
   views::Widget::InitParams params;
   params.delegate = this;
   params.type = views::Widget::InitParams::TYPE_WINDOW;
-  params.bounds = gfx::Rect(CalculatePreferredSize());
   bool can_activate = true;
 
   if (cef_delegate()) {
     CefRefPtr<CefWindow> cef_window = GetCefWindow();
     is_frameless_ = cef_delegate()->IsFrameless(cef_window);
+
+    auto bounds = cef_delegate()->GetInitialBounds(cef_window);
+    params.bounds = gfx::Rect(bounds.x, bounds.y, bounds.width, bounds.height);
 
     bool is_menu = false;
     bool can_activate_menu = true;
@@ -281,6 +283,11 @@ void CefWindowView::CreateWidget() {
           params.activatable = views::Widget::InitParams::ACTIVATABLE_YES;
       }
     }
+  }
+
+  if (params.bounds.IsEmpty()) {
+    // The window will be placed on the default screen with origin (0,0).
+    params.bounds = gfx::Rect(CalculatePreferredSize());
   }
 
 #if defined(OS_WIN)

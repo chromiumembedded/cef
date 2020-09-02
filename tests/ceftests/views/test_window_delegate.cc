@@ -70,9 +70,24 @@ void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
 
   EXPECT_TRUE(window->GetDisplay().get());
 
-  // Size will come from GetPreferredSize() on initial Window creation.
-  EXPECT_TRUE(got_get_preferred_size_);
+  // Size will come from GetGetInitialBounds() or GetPreferredSize() on
+  // initial Window creation.
+  EXPECT_TRUE(got_get_initial_bounds_);
+  if (config_.window_origin.IsEmpty())
+    EXPECT_TRUE(got_get_preferred_size_);
+  else
+    EXPECT_FALSE(got_get_preferred_size_);
+
   CefRect client_bounds = window->GetBounds();
+  if (!config_.window_origin.IsEmpty()) {
+    EXPECT_EQ(config_.window_origin.x, client_bounds.x);
+    EXPECT_EQ(config_.window_origin.y, client_bounds.y);
+  } else {
+    // Default origin is (0,0).
+    EXPECT_EQ(0, client_bounds.x);
+    EXPECT_EQ(0, client_bounds.y);
+  }
+
   if (config_.frameless) {
     EXPECT_EQ(config_.window_size, client_bounds.width);
     EXPECT_EQ(config_.window_size, client_bounds.height);
@@ -122,6 +137,17 @@ void TestWindowDelegate::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
 
 bool TestWindowDelegate::IsFrameless(CefRefPtr<CefWindow> window) {
   return config_.frameless;
+}
+
+CefRect TestWindowDelegate::GetInitialBounds(CefRefPtr<CefWindow> window) {
+  got_get_initial_bounds_ = true;
+  if (!config_.window_origin.IsEmpty()) {
+    return CefRect(config_.window_origin.x, config_.window_origin.y,
+                   window_size_.width, window_size_.height);
+  }
+
+  // Call GetPreferredSize().
+  return CefRect();
 }
 
 CefSize TestWindowDelegate::GetPreferredSize(CefRefPtr<CefView> view) {

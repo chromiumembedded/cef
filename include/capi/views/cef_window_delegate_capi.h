@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=a0cec778fbaf0b1f5c9b3ef75dc7bbeeba777a44$
+// $hash=734a13cd5ad9b0af1b29e1e91b406dd5e6740dc4$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
@@ -86,6 +86,16 @@ typedef struct _cef_window_delegate_t {
       struct _cef_window_t* window,
       int* is_menu,
       int* can_activate_menu);
+
+  ///
+  // Return the initial bounds for |window| in screen coordinates. If this
+  // function returns an NULL CefRect then get_preferred_size() will be called
+  // to retrieve the size, and the window will be placed on the default screen
+  // with origin (0,0).
+  ///
+  cef_rect_t(CEF_CALLBACK* get_initial_bounds)(
+      struct _cef_window_delegate_t* self,
+      struct _cef_window_t* window);
 
   ///
   // Return true (1) if |window| should be created without a frame or title bar.

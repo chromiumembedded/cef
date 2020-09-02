@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=42f9fdcc49577f6d052e4f357138efe4443a72d9$
+// $hash=c2193e3a76df58538caf73c332d4148d00e235d4$
 //
 
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
@@ -102,6 +102,29 @@ CefRefPtr<CefWindow> CefWindowDelegateCToCpp::GetParentWindow(
 
   // Return type: refptr_diff
   return CefWindowCppToC::Unwrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+CefRect CefWindowDelegateCToCpp::GetInitialBounds(CefRefPtr<CefWindow> window) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_initial_bounds))
+    return CefRect();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: window; type: refptr_diff
+  DCHECK(window.get());
+  if (!window.get())
+    return CefRect();
+
+  // Execute
+  cef_rect_t _retval =
+      _struct->get_initial_bounds(_struct, CefWindowCppToC::Wrap(window));
+
+  // Return type: simple
+  return _retval;
 }
 
 NO_SANITIZE("cfi-icall")
