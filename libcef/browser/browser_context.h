@@ -196,10 +196,11 @@ class CefBrowserContext {
 
   CefMediaRouterManager* GetMediaRouterManager();
 
-  void set_cookieable_schemes(
-      base::Optional<std::vector<std::string>> schemes) {
+  using CookieableSchemes = base::Optional<std::vector<std::string>>;
+  void set_cookieable_schemes(const CookieableSchemes& schemes) {
     cookieable_schemes_ = schemes;
   }
+  CookieableSchemes cookieable_schemes() const { return cookieable_schemes_; }
 
   // These accessors are safe to call from any thread because the values don't
   // change during this object's lifespan.
@@ -227,10 +228,9 @@ class CefBrowserContext {
   const CefRequestContextSettings settings_;
   base::FilePath cache_path_;
 
-  base::Optional<std::vector<std::string>> cookieable_schemes_;
-
  private:
   std::unique_ptr<CefIOThreadState> iothread_state_;
+  CookieableSchemes cookieable_schemes_;
   std::unique_ptr<CefMediaRouterManager> media_router_manager_;
 
   // CefRequestContextImpl objects referencing this object.

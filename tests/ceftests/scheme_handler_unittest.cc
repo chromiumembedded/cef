@@ -2605,11 +2605,13 @@ void RegisterSchemeHandlerCustomSchemes(
   // Add a custom standard scheme.
   registrar->AddCustomScheme(
       "customstd", CEF_SCHEME_OPTION_STANDARD | CEF_SCHEME_OPTION_CORS_ENABLED);
+  cookiable_schemes.push_back("customstd");
   // Also used in cors_unittest.cc.
   registrar->AddCustomScheme("customstdfetch",
                              CEF_SCHEME_OPTION_STANDARD |
                                  CEF_SCHEME_OPTION_CORS_ENABLED |
                                  CEF_SCHEME_OPTION_FETCH_ENABLED);
+  cookiable_schemes.push_back("customstdfetch");
   // Add a custom non-standard scheme.
   registrar->AddCustomScheme("customnonstd", CEF_SCHEME_OPTION_NONE);
   registrar->AddCustomScheme("customnonstdfetch",

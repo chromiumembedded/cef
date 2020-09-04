@@ -1569,20 +1569,24 @@ class CookieAccessTestHandler : public RoutingTestHandler,
       EXPECT_EQ(0, can_save_cookie1_ct_);
       EXPECT_EQ(0, can_send_cookie2_ct_);
     } else {
-      // Get 1 call to CanSaveCookie for the 1st network request due to the
-      // network cookie.
-      EXPECT_EQ(1, can_save_cookie1_ct_);
       if (test_mode_ == BLOCK_ALL_COOKIES) {
         // Never send any cookies.
         EXPECT_EQ(0, can_send_cookie2_ct_);
+        EXPECT_EQ(0, can_save_cookie1_ct_);
       } else if (test_mode_ & BLOCK_WRITE) {
         // Get 1 calls to CanSendCookie for the 2nd network request due to the
         // JS cookie (network cookie is blocked).
         EXPECT_EQ(1, can_send_cookie2_ct_);
+        // Get 1 call to CanSaveCookie for the 1st network request due to the
+        // network cookie.
+        EXPECT_EQ(1, can_save_cookie1_ct_);
       } else {
         // Get 2 calls to CanSendCookie for the 2nd network request due to the
         // network cookie + JS cookie.
         EXPECT_EQ(2, can_send_cookie2_ct_);
+        // Get 1 call to CanSaveCookie for the 1st network request due to the
+        // network cookie.
+        EXPECT_EQ(1, can_save_cookie1_ct_);
       }
     }
 

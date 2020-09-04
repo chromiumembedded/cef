@@ -22,6 +22,7 @@ const char kMimeTypeText[] = "text/plain";
 
 const char kDefaultHtml[] = "<html><body>TEST</body></html>";
 const char kDefaultText[] = "TEST";
+const char kDefaultCookie[] = "testCookie=testVal";
 
 const char kSuccessMsg[] = "CorsTestHandler.Success";
 const char kFailureMsg[] = "CorsTestHandler.Failure";
@@ -144,6 +145,9 @@ struct TestSetup {
   // Used for testing received console messages.
   std::vector<std::string> console_messages;
 
+  // If true cookies will be cleared after every test run.
+  bool clear_cookies = false;
+
   void AddResource(Resource* resource) {
     DCHECK(resource);
     resource->Validate();
@@ -205,6 +209,12 @@ struct TestSetup {
     for (; it != resources.end(); ++it) {
       (*it)->AssertDone();
     }
+  }
+
+  // Optionally override to verify cleared cookie contents.
+  virtual bool VerifyClearedCookies(
+      const test_request::CookieVector& cookies) const {
+    return true;
   }
 };
 
@@ -284,23 +294,24 @@ class CorsTestHandler : public RoutingTestHandler {
   void DestroyTest() override {
     EXPECT_TRUE(shutting_down_);
 
+    if (setup_->NeedsServer()) {
+      EXPECT_TRUE(got_stopped_server_);
+    } else {
+      EXPECT_FALSE(got_stopped_server_);
+    }
+
+    if (setup_->clear_cookies) {
+      EXPECT_TRUE(got_cleared_cookies_);
+    } else {
+      EXPECT_FALSE(got_cleared_cookies_);
+    }
+
     setup_->AssertDone();
     EXPECT_TRUE(setup_->console_messages.empty())
         << "Did not receive expected console message: "
         << setup_->console_messages.front();
 
     RoutingTestHandler::DestroyTest();
-  }
-
-  void DestroyTestIfDone() {
-    CEF_REQUIRE_UI_THREAD();
-    if (shutting_down_)
-      return;
-
-    if (setup_->IsDone()) {
-      shutting_down_ = true;
-      StopServer();
-    }
   }
 
   CefRefPtr<CefResourceHandler> GetResourceHandler(
@@ -412,6 +423,17 @@ class CorsTestHandler : public RoutingTestHandler {
     CefPostTask(TID_UI, base::Bind(&CorsTestHandler::DestroyTestIfDone, this));
   }
 
+  void DestroyTestIfDone() {
+    CEF_REQUIRE_UI_THREAD();
+    if (shutting_down_)
+      return;
+
+    if (setup_->IsDone()) {
+      shutting_down_ = true;
+      StopServer();
+    }
+  }
+
   void StartServer(const base::Closure& next_step) {
     if (!CefCurrentlyOn(TID_UI)) {
       CefPostTask(TID_UI,
@@ -433,7 +455,7 @@ class CorsTestHandler : public RoutingTestHandler {
     CEF_REQUIRE_UI_THREAD();
     if (!server_) {
       DCHECK(!setup_->NeedsServer());
-      DestroyTest();
+      AfterStoppedServer();
       return;
     }
 
@@ -443,7 +465,32 @@ class CorsTestHandler : public RoutingTestHandler {
 
   void StoppedServer() {
     CEF_REQUIRE_UI_THREAD();
+    got_stopped_server_.yes();
     server_ = nullptr;
+    AfterStoppedServer();
+  }
+
+  void AfterStoppedServer() {
+    CEF_REQUIRE_UI_THREAD();
+    if (setup_->clear_cookies) {
+      ClearCookies();
+    } else {
+      DestroyTest();
+    }
+  }
+
+  void ClearCookies() {
+    CEF_REQUIRE_UI_THREAD();
+    DCHECK(setup_->clear_cookies);
+    test_request::GetAllCookies(
+        CefCookieManager::GetGlobalManager(nullptr), /*delete_cookies=*/true,
+        base::Bind(&CorsTestHandler::ClearedCookies, this));
+  }
+
+  void ClearedCookies(const test_request::CookieVector& cookies) {
+    CEF_REQUIRE_UI_THREAD();
+    got_cleared_cookies_.yes();
+    EXPECT_TRUE(setup_->VerifyClearedCookies(cookies));
     DestroyTest();
   }
 
@@ -457,6 +504,9 @@ class CorsTestHandler : public RoutingTestHandler {
   std::string main_url_;
   TestServerObserver* server_ = nullptr;
   bool shutting_down_ = false;
+
+  TrackCallback got_stopped_server_;
+  TrackCallback got_cleared_cookies_;
 
   IMPLEMENT_REFCOUNTING(CorsTestHandler);
   DISALLOW_COPY_AND_ASSIGN(CorsTestHandler);
@@ -558,6 +608,68 @@ TEST(CorsTest, BasicCustomStandardSchemeWithQuery) {
 
 namespace {
 
+struct CookieTestSetup : TestSetup {
+  CookieTestSetup() {}
+
+  bool expect_cookie = false;
+
+  bool VerifyClearedCookies(
+      const test_request::CookieVector& cookies) const override {
+    if (!expect_cookie) {
+      EXPECT_TRUE(cookies.empty());
+      return cookies.empty();
+    }
+
+    EXPECT_EQ(1U, cookies.size());
+    const std::string& cookie = CefString(&cookies[0].name).ToString() + "=" +
+                                CefString(&cookies[0].value).ToString();
+    EXPECT_STREQ(kDefaultCookie, cookie.c_str());
+    return cookie == kDefaultCookie;
+  }
+};
+
+struct CookieResource : Resource {
+  CookieResource() {}
+
+  bool expect_cookie = false;
+
+  void InitSetCookie() {
+    response->SetHeaderByName("Set-Cookie", kDefaultCookie,
+                              /*override=*/true);
+  }
+
+  bool VerifyRequest(CefRefPtr<CefRequest> request) const override {
+    const std::string& cookie = request->GetHeaderByName("Cookie");
+    const std::string& expected_cookie =
+        expect_cookie ? kDefaultCookie : std::string();
+    EXPECT_STREQ(expected_cookie.c_str(), cookie.c_str()) << GetPathURL();
+    return expected_cookie == cookie;
+  }
+};
+
+void SetupCookieExpectations(CookieTestSetup* setup,
+                             CookieResource* main_resource,
+                             CookieResource* sub_resource) {
+  // All schemes except custom non-standard support cookies.
+  const bool supports_cookies =
+      main_resource->handler != HandlerType::CUSTOM_NONSTANDARD_SCHEME;
+
+  // The main resource may set the cookie (if cookies are supported), but should
+  // not receive one.
+  main_resource->InitSetCookie();
+  main_resource->expect_cookie = false;
+
+  // A cookie will be set only for schemes that support cookies.
+  setup->expect_cookie = supports_cookies;
+  // Always clear cookies so we can verify that one wasn't set unexpectedly.
+  setup->clear_cookies = true;
+
+  // Expect the sub-resource to receive the cookie for same-origin requests
+  // only.
+  sub_resource->expect_cookie =
+      supports_cookies && main_resource->handler == sub_resource->handler;
+}
+
 std::string GetIframeMainHtml(const std::string& iframe_url,
                               const std::string& sandbox_attribs) {
   return "<html><body>TEST<iframe src=\"" + iframe_url + "\" sandbox=\"" +
@@ -576,12 +688,12 @@ bool HasSandboxAttrib(const std::string& sandbox_attribs,
   return sandbox_attribs.find(attrib) != std::string::npos;
 }
 
-void SetupIframeRequest(TestSetup* setup,
+void SetupIframeRequest(CookieTestSetup* setup,
                         const std::string& test_name,
                         HandlerType main_handler,
-                        Resource* main_resource,
+                        CookieResource* main_resource,
                         HandlerType iframe_handler,
-                        Resource* iframe_resource,
+                        CookieResource* iframe_resource,
                         const std::string& sandbox_attribs) {
   const std::string& base_path = "/" + test_name;
 
@@ -593,6 +705,8 @@ void SetupIframeRequest(TestSetup* setup,
   const std::string& iframe_url = iframe_resource->GetPathURL();
   main_resource->Init(main_handler, base_path, kMimeTypeHtml,
                       GetIframeMainHtml(iframe_url, sandbox_attribs));
+
+  SetupCookieExpectations(setup, main_resource, iframe_resource);
 
   if (HasSandboxAttrib(sandbox_attribs, "allow-scripts")) {
     // Expect the iframe to load successfully and send the SuccessMsg.
@@ -636,8 +750,8 @@ void SetupIframeRequest(TestSetup* setup,
 #define CORS_TEST_IFRAME(test_name, handler_main, handler_iframe,     \
                          sandbox_attribs)                             \
   TEST(CorsTest, Iframe##test_name) {                                 \
-    TestSetup setup;                                                  \
-    Resource resource_main, resource_iframe;                          \
+    CookieTestSetup setup;                                            \
+    CookieResource resource_main, resource_iframe;                    \
     SetupIframeRequest(&setup, "CorsTest.Iframe" #test_name,          \
                        HandlerType::handler_main, &resource_main,     \
                        HandlerType::handler_iframe, &resource_iframe, \
@@ -698,7 +812,7 @@ CORS_TEST_IFRAME_ALL(AllowScriptsAndSameOrigin,
 
 namespace {
 
-struct SubResource : Resource {
+struct SubResource : CookieResource {
   SubResource() {}
 
   std::string main_origin;
@@ -733,14 +847,15 @@ struct SubResource : Resource {
   }
 
   bool VerifyRequest(CefRefPtr<CefRequest> request) const override {
+    if (!CookieResource::VerifyRequest(request))
+      return false;
+
     // Verify that the "Origin" header contains the expected value.
     const std::string& origin = request->GetHeaderByName("Origin");
-    if (is_cross_origin) {
-      EXPECT_STREQ(main_origin.c_str(), origin.c_str());
-      return main_origin == origin;
-    }
-    EXPECT_TRUE(origin.empty());
-    return origin.empty();
+    const std::string& expected_origin =
+        is_cross_origin ? main_origin : std::string();
+    EXPECT_STREQ(expected_origin.c_str(), origin.c_str()) << GetPathURL();
+    return expected_origin == origin;
   }
 };
 
@@ -809,10 +924,10 @@ std::string GetExecMainHtml(ExecMode mode, const std::string& sub_url) {
 
 // XHR and fetch requests behave the same, except for console message contents.
 void SetupExecRequest(ExecMode mode,
-                      TestSetup* setup,
+                      CookieTestSetup* setup,
                       const std::string& test_name,
                       HandlerType main_handler,
-                      Resource* main_resource,
+                      CookieResource* main_resource,
                       HandlerType sub_handler,
                       SubResource* sub_resource,
                       bool add_header) {
@@ -827,6 +942,8 @@ void SetupExecRequest(ExecMode mode,
   const std::string& sub_url = sub_resource->GetPathURL();
   main_resource->Init(main_handler, base_path, kMimeTypeHtml,
                       GetExecMainHtml(mode, sub_url));
+
+  SetupCookieExpectations(setup, main_resource, sub_resource);
 
   if (sub_resource->is_cross_origin &&
       (!sub_resource->supports_cors || !add_header)) {
@@ -877,8 +994,8 @@ void SetupExecRequest(ExecMode mode,
 // Test XHR requests with different origin combinations.
 #define CORS_TEST_XHR(test_name, handler_main, handler_sub, add_header)    \
   TEST(CorsTest, Xhr##test_name) {                                         \
-    TestSetup setup;                                                       \
-    Resource resource_main;                                                \
+    CookieTestSetup setup;                                                 \
+    CookieResource resource_main;                                          \
     SubResource resource_sub;                                              \
     SetupExecRequest(ExecMode::XHR, &setup, "CorsTest.Xhr" #test_name,     \
                      HandlerType::handler_main, &resource_main,            \
@@ -930,8 +1047,8 @@ CORS_TEST_XHR_ALL(WithHeader, true)
 // Test fetch requests with different origin combinations.
 #define CORS_TEST_FETCH(test_name, handler_main, handler_sub, add_header)  \
   TEST(CorsTest, Fetch##test_name) {                                       \
-    TestSetup setup;                                                       \
-    Resource resource_main;                                                \
+    CookieTestSetup setup;                                                 \
+    CookieResource resource_main;                                          \
     SubResource resource_sub;                                              \
     SetupExecRequest(ExecMode::FETCH, &setup, "CorsTest.Fetch" #test_name, \
                      HandlerType::handler_main, &resource_main,            \
