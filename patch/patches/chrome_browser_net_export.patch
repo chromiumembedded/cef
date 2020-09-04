@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index c7bd97a32af1..311f2c52af8d 100644
+index 15657bbf7f7b..398ef9bb6c50 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -10,6 +10,7 @@ import("//build/config/crypto.gni")
@@ -37,7 +37,7 @@ index c7bd97a32af1..311f2c52af8d 100644
        "//components/profile_metrics",
        "//components/safety_check",
        "//components/search_provider_logos",
-@@ -3905,8 +3912,6 @@ static_library("ui") {
+@@ -3910,8 +3917,6 @@ static_library("ui") {
        "views/toolbar/home_button.h",
        "views/toolbar/reload_button.cc",
        "views/toolbar/reload_button.h",

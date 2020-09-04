@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index 6cb9ee1f0764..8109a134907e 100644
+index d5b479bc9991..fa144b20ce37 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -12,6 +12,7 @@ import("//build/config/crypto.gni")

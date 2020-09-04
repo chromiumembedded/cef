@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 4dca843104ac..63020b374688 100644
+index 5c0eea105870..1c82c2d0be99 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -2561,15 +2561,22 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2578,15 +2578,22 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -33,7 +33,7 @@ index 4dca843104ac..63020b374688 100644
    }
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
-@@ -3368,6 +3375,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
+@@ -3385,6 +3392,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -49,7 +49,7 @@ index 4dca843104ac..63020b374688 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -6850,6 +6866,10 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -6884,6 +6900,10 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // This is an outermost WebContents.
      SetAsFocusedWebContentsIfNecessary();
    }
@@ -73,10 +73,10 @@ index f1dcf53ea481..192f7c0ddd04 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index f1c25ed4cf62..8bb6e9a374c7 100644
+index 9d5bc0a3e914..57f2e66ea415 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
-@@ -82,8 +82,10 @@ class BrowserContext;
+@@ -83,8 +83,10 @@ class BrowserContext;
  class BrowserPluginGuestDelegate;
  class RenderFrameHost;
  class RenderViewHost;
@@ -87,7 +87,7 @@ index f1c25ed4cf62..8bb6e9a374c7 100644
  class WebUI;
  struct CustomContextMenuContext;
  struct DropData;
-@@ -212,6 +214,10 @@ class WebContents : public PageNavigator,
+@@ -213,6 +215,10 @@ class WebContents : public PageNavigator,
      // Sandboxing flags set on the new WebContents.
      network::mojom::WebSandboxFlags starting_sandbox_flags;
  

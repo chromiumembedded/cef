@@ -44,10 +44,10 @@ index ba112d79de9a..83f5bd971bc9 100644
  
  DocumentInit& DocumentInit::WithTypeFrom(const String& mime_type) {
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index 11b7b4a63f2e..c2714178a4a4 100644
+index 3d86affee6ad..1d29b9622763 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
-@@ -1641,7 +1641,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
+@@ -1647,7 +1647,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins(kNotAboutToInstantiatePlugin))
      return nullptr;
@@ -85,7 +85,7 @@ index 0608c4defc6d..54eaa2197957 100644
  
  void DevToolsSession::DispatchProtocolCommand(
 diff --git third_party/blink/renderer/core/page/page.cc third_party/blink/renderer/core/page/page.cc
-index 45ef79f88b4d..074d5ea48b12 100644
+index ed6e86624c7d..f377121a2436 100644
 --- third_party/blink/renderer/core/page/page.cc
 +++ third_party/blink/renderer/core/page/page.cc
 @@ -212,7 +212,8 @@ Page::Page(PageClients& page_clients)
@@ -160,7 +160,7 @@ index 45ef79f88b4d..074d5ea48b12 100644
    visitor->Trace(agent_metrics_collector_);
    visitor->Trace(plugins_changed_observers_);
 diff --git third_party/blink/renderer/core/page/page.h third_party/blink/renderer/core/page/page.h
-index b6a1caadf7b7..95fafb720083 100644
+index 945730f54afa..3a95342006b2 100644
 --- third_party/blink/renderer/core/page/page.h
 +++ third_party/blink/renderer/core/page/page.h
 @@ -150,7 +150,8 @@ class CORE_EXPORT Page final : public GarbageCollected<Page>,
