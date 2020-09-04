@@ -21,6 +21,14 @@ struct ResourceRequest;
 }  // namespace network
 
 namespace net_service {
+namespace cookie_helper {
+
+// Returns true if the scheme for |url| supports cookies. |cookieable_schemes|
+// is the optional list of schemes that the client has explicitly registered as
+// cookieable, which may intentionally exclude standard schemes.
+bool IsCookieableScheme(
+    const GURL& url,
+    const base::Optional<std::vector<std::string>>& cookieable_schemes);
 
 using AllowCookieCallback =
     base::Callback<void(const net::CanonicalCookie&, bool* /* allow */)>;
@@ -52,6 +60,7 @@ void SaveCookies(content::BrowserContext* browser_context,
                  const AllowCookieCallback& allow_cookie_callback,
                  DoneCookieCallback done_callback);
 
+}  // namespace cookie_helper
 }  // namespace net_service
 
 #endif  // CEF_LIBCEF_BROWSER_NET_SERVICE_COOKIE_HELPER_H_

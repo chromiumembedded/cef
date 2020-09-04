@@ -103,7 +103,7 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
     return !!settings_.persist_session_cookies;
   }
   base::Optional<std::vector<std::string>> GetCookieableSchemes() override {
-    return cookieable_schemes_;
+    return cookieable_schemes();
   }
 
   // visitedlink::VisitedLinkDelegate methods.
