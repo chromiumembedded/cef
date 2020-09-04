@@ -94,6 +94,40 @@ class RequestClient : public CefURLRequestClient, public State {
   const RequestDoneCallback done_callback_;
 
   IMPLEMENT_REFCOUNTING(RequestClient);
+  DISALLOW_COPY_AND_ASSIGN(RequestClient);
+};
+
+// Implementation that collects all cookies, and optionally deletes them.
+class CookieVisitor : public CefCookieVisitor {
+ public:
+  CookieVisitor(bool deleteCookies, const CookieDoneCallback& callback)
+      : delete_cookies_(deleteCookies), callback_(callback) {
+    DCHECK(!callback_.is_null());
+  }
+
+  ~CookieVisitor() override {
+    CEF_REQUIRE_UI_THREAD();
+    callback_.Run(cookies_);
+  }
+
+  bool Visit(const CefCookie& cookie,
+             int count,
+             int total,
+             bool& deleteCookie) override {
+    CEF_REQUIRE_UI_THREAD();
+    cookies_.push_back(cookie);
+    if (delete_cookies_)
+      deleteCookie = true;
+    return true;
+  }
+
+ private:
+  CookieVector cookies_;
+  bool delete_cookies_;
+  CookieDoneCallback callback_;
+
+  IMPLEMENT_REFCOUNTING(CookieVisitor);
+  DISALLOW_COPY_AND_ASSIGN(CookieVisitor);
 };
 
 }  // namespace
@@ -143,6 +177,26 @@ CefRefPtr<CefResourceHandler> CreateResourceHandler(
   return new CefStreamResourceHandler(
       response->GetStatus(), response->GetStatusText(), response->GetMimeType(),
       headerMap, stream);
+}
+
+void GetAllCookies(CefRefPtr<CefCookieManager> manager,
+                   bool deleteCookies,
+                   const CookieDoneCallback& callback) {
+  bool result =
+      manager->VisitAllCookies(new CookieVisitor(deleteCookies, callback));
+  DCHECK(result);
+}
+
+// Retrieves URL cookies from |manager| and executes |callback| upon completion.
+// If |deleteCookies| is true the cookies will also be deleted.
+void GetUrlCookies(CefRefPtr<CefCookieManager> manager,
+                   const CefString& url,
+                   bool includeHttpOnly,
+                   bool deleteCookies,
+                   const CookieDoneCallback& callback) {
+  bool result = manager->VisitUrlCookies(
+      url, includeHttpOnly, new CookieVisitor(deleteCookies, callback));
+  DCHECK(result);
 }
 
 }  // namespace test_request

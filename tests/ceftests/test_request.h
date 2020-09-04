@@ -9,6 +9,7 @@
 #include <string>
 
 #include "include/base/cef_bind.h"
+#include "include/cef_cookie.h"
 #include "include/cef_frame.h"
 #include "include/cef_request.h"
 #include "include/cef_request_context.h"
@@ -72,6 +73,23 @@ std::string GetPathURL(const std::string& url);
 CefRefPtr<CefResourceHandler> CreateResourceHandler(
     CefRefPtr<CefResponse> response,
     const std::string& response_data);
+
+typedef std::vector<CefCookie> CookieVector;
+typedef base::Callback<void(const CookieVector& cookies)> CookieDoneCallback;
+
+// Retrieves all cookies from |manager| and executes |callback| upon completion.
+// If |deleteCookies| is true the cookies will also be deleted.
+void GetAllCookies(CefRefPtr<CefCookieManager> manager,
+                   bool deleteCookies,
+                   const CookieDoneCallback& callback);
+
+// Retrieves URL cookies from |manager| and executes |callback| upon completion.
+// If |deleteCookies| is true the cookies will also be deleted.
+void GetUrlCookies(CefRefPtr<CefCookieManager> manager,
+                   const CefString& url,
+                   bool includeHttpOnly,
+                   bool deleteCookies,
+                   const CookieDoneCallback& callback);
 
 }  // namespace test_request
 

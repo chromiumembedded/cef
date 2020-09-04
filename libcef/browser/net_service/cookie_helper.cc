@@ -17,6 +17,7 @@
 #include "services/network/public/cpp/resource_request.h"
 
 namespace net_service {
+namespace cookie_helper {
 
 namespace {
 
@@ -137,6 +138,28 @@ void SaveCookiesOnUIThread(content::BrowserContext* browser_context,
 
 }  // namespace
 
+bool IsCookieableScheme(
+    const GURL& url,
+    const base::Optional<std::vector<std::string>>& cookieable_schemes) {
+  if (!url.has_scheme())
+    return false;
+
+  if (cookieable_schemes) {
+    // The client has explicitly registered the full set of schemes that should
+    // be supported.
+    const auto url_scheme = url.scheme_piece();
+    for (auto scheme : *cookieable_schemes) {
+      if (url_scheme == scheme)
+        return true;
+    }
+    return false;
+  }
+
+  // Schemes that support cookies by default.
+  // This should match CookieMonster::kDefaultCookieableSchemes.
+  return url.SchemeIsHTTPOrHTTPS() || url.SchemeIsWSOrWSS();
+}
+
 void LoadCookies(content::BrowserContext* browser_context,
                  const network::ResourceRequest& request,
                  const AllowCookieCallback& allow_cookie_callback,
@@ -228,4 +251,5 @@ void SaveCookies(content::BrowserContext* browser_context,
   }
 }
 
+}  // namespace cookie_helper
 }  // namespace net_service

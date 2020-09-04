@@ -264,6 +264,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
           CefBrowserContext::FromBrowserContext(browser_context);
       iothread_state_ = cef_browser_context->iothread_state();
       DCHECK(iothread_state_);
+      cookieable_schemes_ = cef_browser_context->cookieable_schemes();
 
       // We register to be notified of CEF context or browser destruction so
       // that we can stop accepting new requests and cancel pending/in-progress
@@ -312,6 +313,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     CefRefPtr<CefBrowserHostImpl> browser_;
     CefRefPtr<CefFrame> frame_;
     CefIOThreadState* iothread_state_ = nullptr;
+    CefBrowserContext::CookieableSchemes cookieable_schemes_;
     int render_process_id_ = 0;
     int render_frame_id_ = -1;
     int frame_tree_node_id_ = -1;
@@ -487,6 +489,13 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                         base::OnceClosure callback) {
     CEF_REQUIRE_IOT();
 
+    if (!cookie_helper::IsCookieableScheme(request->url,
+                                           init_state_->cookieable_schemes_)) {
+      // The scheme does not support cookies.
+      std::move(callback).Run();
+      return;
+    }
+
     // We need to load/save cookies ourselves for custom-handled requests, or
     // if we're using a cookie filter.
     auto allow_cookie_callback =
@@ -499,9 +508,9 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     auto done_cookie_callback = base::BindOnce(
         &InterceptedRequestHandlerWrapper::ContinueWithLoadedCookies,
         weak_ptr_factory_.GetWeakPtr(), id, request, std::move(callback));
-    net_service::LoadCookies(init_state_->browser_context_, *request,
-                             allow_cookie_callback,
-                             std::move(done_cookie_callback));
+    cookie_helper::LoadCookies(init_state_->browser_context_, *request,
+                               allow_cookie_callback,
+                               std::move(done_cookie_callback));
   }
 
   static void AllowCookieAlways(const net::CanonicalCookie& cookie,
@@ -850,6 +859,13 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       return;
     }
 
+    if (!cookie_helper::IsCookieableScheme(request->url,
+                                           init_state_->cookieable_schemes_)) {
+      // The scheme does not support cookies.
+      std::move(callback).Run();
+      return;
+    }
+
     // We need to load/save cookies ourselves for custom-handled requests, or
     // if we're using a cookie filter.
     auto allow_cookie_callback =
@@ -862,9 +878,9 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     auto done_cookie_callback = base::BindOnce(
         &InterceptedRequestHandlerWrapper::ContinueWithSavedCookies,
         weak_ptr_factory_.GetWeakPtr(), id, std::move(callback));
-    net_service::SaveCookies(init_state_->browser_context_, *request, headers,
-                             allow_cookie_callback,
-                             std::move(done_cookie_callback));
+    cookie_helper::SaveCookies(init_state_->browser_context_, *request, headers,
+                               allow_cookie_callback,
+                               std::move(done_cookie_callback));
   }
 
   void AllowCookieSave(const RequestId& id,
