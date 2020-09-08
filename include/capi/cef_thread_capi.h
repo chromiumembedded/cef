@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=370cdeaa3252a9ed0e1a627d858dcab23af24ee1$
+// $hash=d443c0990241554b548bc946f46f35582445e818$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_THREAD_CAPI_H_
@@ -98,8 +98,8 @@ typedef struct _cef_thread_t {
 // identify the thread. |priority| is the thread execution priority.
 // |message_loop_type| indicates the set of asynchronous events that the thread
 // can process. If |stoppable| is true (1) the thread will stopped and joined on
-// destruction or when stop() is called; otherwise, the the thread cannot be
-// stopped and will be leaked on shutdown. On Windows the |com_init_mode| value
+// destruction or when stop() is called; otherwise, the thread cannot be stopped
+// and will be leaked on shutdown. On Windows the |com_init_mode| value
 // specifies how COM will be initialized for the thread. If |com_init_mode| is
 // set to COM_INIT_MODE_STA then |message_loop_type| must be set to ML_TYPE_UI.
 ///
