@@ -20,6 +20,7 @@
 #include "content/public/browser/web_contents.h"
 #include "mojo/public/cpp/base/big_buffer.h"
 #include "net/http/http_status_code.h"
+#include "net/url_request/redirect_util.h"
 #include "net/url_request/url_request.h"
 #include "services/network/public/cpp/cors/cors.h"
 #include "services/network/public/cpp/features.h"
@@ -884,27 +885,24 @@ void InterceptedRequest::ContinueToBeforeRedirect(
   if (proxied_client_binding_)
     proxied_client_binding_.ResumeIncomingMethodCallProcessing();
 
+  const auto original_url = request_.url;
+  const auto original_method = request_.method;
+
+  net::RedirectInfo new_redirect_info = redirect_info;
   if (redirect_url.is_valid()) {
-    net::RedirectInfo new_redirect_info = redirect_info;
     new_redirect_info.new_url = redirect_url;
-    target_client_->OnReceiveRedirect(new_redirect_info,
-                                      std::move(current_response_));
-    request_.url = redirect_url;
-  } else {
-    target_client_->OnReceiveRedirect(redirect_info,
-                                      std::move(current_response_));
-    request_.url = redirect_info.new_url;
+    new_redirect_info.new_site_for_cookies =
+        net::SiteForCookies::FromUrl(redirect_url);
   }
 
-  // If request_ changes from POST to GET, strip POST headers.
-  const bool post_to_get =
-      request_.method == "POST" &&
-      redirect_info.new_method == net::HttpRequestHeaders::kGetMethod;
+  target_client_->OnReceiveRedirect(new_redirect_info,
+                                    std::move(current_response_));
 
-  request_.method = redirect_info.new_method;
-  request_.site_for_cookies = redirect_info.new_site_for_cookies;
-  request_.referrer = GURL(redirect_info.new_referrer);
-  request_.referrer_policy = redirect_info.new_referrer_policy;
+  request_.url = new_redirect_info.new_url;
+  request_.method = new_redirect_info.new_method;
+  request_.site_for_cookies = new_redirect_info.new_site_for_cookies;
+  request_.referrer = GURL(new_redirect_info.new_referrer);
+  request_.referrer_policy = new_redirect_info.new_referrer_policy;
 
   if (request_.trusted_params) {
     request_.trusted_params->isolation_info =
@@ -912,15 +910,21 @@ void InterceptedRequest::ContinueToBeforeRedirect(
             url::Origin::Create(request_.url));
   }
 
-  // The request method can be changed to "GET". In this case we need to
-  // reset the request body manually, and strip the POST headers.
-  if (request_.method == net::HttpRequestHeaders::kGetMethod) {
-    request_.request_body = nullptr;
+  // Remove existing Cookie headers. They may be re-added after Restart().
+  const std::vector<std::string> remove_headers{
+      net::HttpRequestHeaders::kCookie};
 
-    if (post_to_get) {
-      request_.headers.RemoveHeader(net::HttpRequestHeaders::kContentLength);
-      request_.headers.RemoveHeader(net::HttpRequestHeaders::kContentType);
-    }
+  // Use common logic for sanitizing request headers including Origin and
+  // Content-*.
+  bool should_clear_upload;
+  net::RedirectUtil::UpdateHttpRequest(original_url, original_method,
+                                       new_redirect_info,
+                                       base::make_optional(remove_headers),
+                                       /*modified_headers=*/base::nullopt,
+                                       &request_.headers, &should_clear_upload);
+
+  if (should_clear_upload) {
+    request_.request_body = nullptr;
   }
 }
 
