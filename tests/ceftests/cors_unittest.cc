@@ -1098,3 +1098,121 @@ CORS_TEST_FETCH_ALL(NoHeader, false)
 
 // Fetch requests with the "Access-Control-Allow-Origin" header.
 CORS_TEST_FETCH_ALL(WithHeader, true)
+
+namespace {
+
+enum class RedirectGetMode {
+  MODE_302,
+  MODE_307,
+};
+
+struct RedirectGetResource : CookieResource {
+  RedirectGetResource() {}
+
+  bool VerifyRequest(CefRefPtr<CefRequest> request) const override {
+    if (!CookieResource::VerifyRequest(request))
+      return false;
+
+    // The "Origin" header should never be present for a redirect.
+    const std::string& origin = request->GetHeaderByName("Origin");
+    EXPECT_TRUE(origin.empty()) << GetPathURL();
+    return origin.empty();
+  }
+};
+
+void SetupRedirectGetResponse(RedirectGetMode mode,
+                              const std::string& redirect_url,
+                              CefRefPtr<CefResponse> response) {
+  if (mode == RedirectGetMode::MODE_302)
+    response->SetStatus(302);
+  else if (mode == RedirectGetMode::MODE_307)
+    response->SetStatus(307);
+  else
+    NOTREACHED();
+
+  response->SetHeaderByName("Location", redirect_url,
+                            /*override=*/false);
+}
+
+// Test redirect requests.
+void SetupRedirectGetRequest(RedirectGetMode mode,
+                             CookieTestSetup* setup,
+                             const std::string& test_name,
+                             HandlerType main_handler,
+                             CookieResource* main_resource,
+                             HandlerType redirect_handler,
+                             RedirectGetResource* redirect_resource) {
+  const std::string& base_path = "/" + test_name;
+
+  // Expect a single redirect request that sends SuccessMsg.
+  redirect_resource->Init(redirect_handler, base_path + ".redirect.html",
+                          kMimeTypeHtml, GetDefaultSuccessMsgHtml());
+  redirect_resource->expected_success_query_ct = 1;
+
+  // Expect a single main request that results in a redirect.
+  const std::string& redirect_url = redirect_resource->GetPathURL();
+  main_resource->Init(main_handler, base_path, kMimeTypeHtml, std::string());
+  SetupRedirectGetResponse(mode, redirect_url, main_resource->response);
+
+  SetupCookieExpectations(setup, main_resource, redirect_resource);
+
+  setup->AddResource(main_resource);
+  setup->AddResource(redirect_resource);
+}
+
+}  // namespace
+
+// Test redirect GET requests with different origin combinations.
+#define CORS_TEST_REDIRECT_GET(test_name, mode, handler_main,             \
+                               handler_redirect)                          \
+  TEST(CorsTest, RedirectGet##test_name) {                                \
+    CookieTestSetup setup;                                                \
+    CookieResource resource_main;                                         \
+    RedirectGetResource resource_redirect;                                \
+    SetupRedirectGetRequest(                                              \
+        RedirectGetMode::mode, &setup, "CorsTest.RedirectGet" #test_name, \
+        HandlerType::handler_main, &resource_main,                        \
+        HandlerType::handler_redirect, &resource_redirect);               \
+    CefRefPtr<CorsTestHandler> handler = new CorsTestHandler(&setup);     \
+    handler->ExecuteTest();                                               \
+    ReleaseAndWaitForDestructor(handler);                                 \
+  }
+
+// Test all redirect GET combinations (same and cross-origin).
+#define CORS_TEST_REDIRECT_GET_ALL(name, mode)                                 \
+  CORS_TEST_REDIRECT_GET(name##ServerToServer, mode, SERVER, SERVER)           \
+  CORS_TEST_REDIRECT_GET(name##ServerToHttpScheme, mode, SERVER, HTTP_SCHEME)  \
+  CORS_TEST_REDIRECT_GET(name##ServerToCustomStandardScheme, mode, SERVER,     \
+                         CUSTOM_STANDARD_SCHEME)                               \
+  CORS_TEST_REDIRECT_GET(name##ServerToCustomNonStandardScheme, mode, SERVER,  \
+                         CUSTOM_NONSTANDARD_SCHEME)                            \
+  CORS_TEST_REDIRECT_GET(name##HttpSchemeToServer, mode, HTTP_SCHEME, SERVER)  \
+  CORS_TEST_REDIRECT_GET(name##HttpSchemeToHttpScheme, mode, HTTP_SCHEME,      \
+                         HTTP_SCHEME)                                          \
+  CORS_TEST_REDIRECT_GET(name##HttpSchemeToCustomStandardScheme, mode,         \
+                         HTTP_SCHEME, CUSTOM_STANDARD_SCHEME)                  \
+  CORS_TEST_REDIRECT_GET(name##HttpSchemeToCustomNonStandardScheme, mode,      \
+                         HTTP_SCHEME, CUSTOM_NONSTANDARD_SCHEME)               \
+  CORS_TEST_REDIRECT_GET(name##CustomStandardSchemeToServer, mode,             \
+                         CUSTOM_STANDARD_SCHEME, SERVER)                       \
+  CORS_TEST_REDIRECT_GET(name##CustomStandardSchemeToHttpScheme, mode,         \
+                         CUSTOM_STANDARD_SCHEME, HTTP_SCHEME)                  \
+  CORS_TEST_REDIRECT_GET(name##CustomStandardSchemeToCustomStandardScheme,     \
+                         mode, CUSTOM_STANDARD_SCHEME, CUSTOM_STANDARD_SCHEME) \
+  CORS_TEST_REDIRECT_GET(name##CustomStandardSchemeToCustomNonStandardScheme,  \
+                         mode, CUSTOM_STANDARD_SCHEME,                         \
+                         CUSTOM_NONSTANDARD_SCHEME)                            \
+  CORS_TEST_REDIRECT_GET(name##CustomNonStandardSchemeToServer, mode,          \
+                         CUSTOM_NONSTANDARD_SCHEME, SERVER)                    \
+  CORS_TEST_REDIRECT_GET(name##CustomNonStandardSchemeToHttpScheme, mode,      \
+                         CUSTOM_NONSTANDARD_SCHEME, HTTP_SCHEME)               \
+  CORS_TEST_REDIRECT_GET(name##CustomNonStandardSchemeToCustomStandardScheme,  \
+                         mode, CUSTOM_NONSTANDARD_SCHEME,                      \
+                         CUSTOM_STANDARD_SCHEME)                               \
+  CORS_TEST_REDIRECT_GET(                                                      \
+      name##CustomNonStandardSchemeToCustomNonStandardScheme, mode,            \
+      CUSTOM_NONSTANDARD_SCHEME, CUSTOM_NONSTANDARD_SCHEME)
+
+// Redirect GET requests.
+CORS_TEST_REDIRECT_GET_ALL(302, MODE_302)
+CORS_TEST_REDIRECT_GET_ALL(307, MODE_307)
