@@ -906,6 +906,12 @@ void InterceptedRequest::ContinueToBeforeRedirect(
   request_.referrer = GURL(redirect_info.new_referrer);
   request_.referrer_policy = redirect_info.new_referrer_policy;
 
+  if (request_.trusted_params) {
+    request_.trusted_params->isolation_info =
+        request_.trusted_params->isolation_info.CreateForRedirect(
+            url::Origin::Create(request_.url));
+  }
+
   // The request method can be changed to "GET". In this case we need to
   // reset the request body manually, and strip the POST headers.
   if (request_.method == net::HttpRequestHeaders::kGetMethod) {
