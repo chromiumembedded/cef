@@ -247,12 +247,19 @@ class ServerManager {
     // Use a copy in case |observer_list_| is modified during iteration.
     ObserverList list = observer_list_;
 
+    bool handled = false;
+
     ObserverList::const_iterator it = list.begin();
     for (; it != list.end(); ++it) {
       if ((*it)->OnHttpRequest(server, connection_id, client_address,
                                request)) {
+        handled = true;
         break;
       }
+    }
+
+    if (!handled) {
+      server->SendHttp500Response(connection_id, "Unhandled request.");
     }
   }
 
