@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include <algorithm>
+#include <set>
 #include <vector>
 
 #include "include/base/cef_bind.h"
@@ -62,6 +63,8 @@ struct Resource {
   // Uniquely identifies the resource.
   HandlerType handler = HandlerType::SERVER;
   std::string path;
+  // If non-empty the method value must match.
+  std::string method;
 
   // Response information that will be returned.
   CefRefPtr<CefResponse> response;
@@ -159,22 +162,35 @@ struct TestSetup {
     console_messages.push_back(message);
   }
 
-  Resource* GetResource(const std::string& url) const {
+  Resource* GetResource(const std::string& url,
+                        const std::string& method = std::string()) const {
     if (resources.empty())
       return nullptr;
+
+    std::set<std::string> matching_methods;
+    if (method.empty()) {
+      // Match standard HTTP methods.
+      matching_methods.insert("GET");
+      matching_methods.insert("POST");
+    } else {
+      matching_methods.insert(method);
+    }
 
     const std::string& path_url = test_request::GetPathURL(url);
     ResourceList::const_iterator it = resources.begin();
     for (; it != resources.end(); ++it) {
       Resource* resource = *it;
-      if (resource->GetPathURL() == path_url)
+      if (resource->GetPathURL() == path_url &&
+          (resource->method.empty() ||
+           matching_methods.find(resource->method) != matching_methods.end())) {
         return resource;
+      }
     }
     return nullptr;
   }
 
   Resource* GetResource(CefRefPtr<CefRequest> request) const {
-    return GetResource(request->GetURL());
+    return GetResource(request->GetURL(), request->GetMethod());
   }
 
   // Validate expected initial state.
@@ -319,11 +335,17 @@ class CorsTestHandler : public RoutingTestHandler {
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request) override {
     CEF_REQUIRE_IO_THREAD();
+    const std::string& url = request->GetURL();
+    const std::string& method = request->GetMethod();
+    if (method == "OPTIONS") {
+      // We should never see the CORS preflight request.
+      ADD_FAILURE() << "Unexpected CORS preflight for " << url;
+    }
+
     Resource* resource = setup_->GetResource(request);
     if (resource && resource->handler != HandlerType::SERVER) {
       resource->response_ct++;
-      EXPECT_TRUE(resource->VerifyRequest(request))
-          << request->GetURL().ToString();
+      EXPECT_TRUE(resource->VerifyRequest(request)) << url;
       return test_request::CreateResourceHandler(resource->response,
                                                  resource->response_data);
     }
@@ -812,6 +834,10 @@ CORS_TEST_IFRAME_ALL(AllowScriptsAndSameOrigin,
 
 namespace {
 
+const char kSubRequestMethod[] = "GET";
+const char kSubUnsafeHeaderName[] = "x-unsafe-header";
+const char kSubUnsafeHeaderValue[] = "not-safe";
+
 struct SubResource : CookieResource {
   SubResource() {}
 
@@ -820,6 +846,9 @@ struct SubResource : CookieResource {
   bool is_cross_origin = false;
 
   void InitCors(HandlerType main_handler, bool add_header) {
+    // Must specify the method to differentiate from the preflight request.
+    method = kSubRequestMethod;
+
     // Origin is always "null" for non-standard schemes.
     main_origin = main_handler == HandlerType::CUSTOM_NONSTANDARD_SCHEME
                       ? "null"
@@ -850,12 +879,76 @@ struct SubResource : CookieResource {
     if (!CookieResource::VerifyRequest(request))
       return false;
 
+    const std::string& request_method = request->GetMethod();
+    EXPECT_STREQ(method.c_str(), request_method.c_str()) << GetPathURL();
+    if (request_method != method)
+      return false;
+
     // Verify that the "Origin" header contains the expected value.
     const std::string& origin = request->GetHeaderByName("Origin");
     const std::string& expected_origin =
         is_cross_origin ? main_origin : std::string();
     EXPECT_STREQ(expected_origin.c_str(), origin.c_str()) << GetPathURL();
-    return expected_origin == origin;
+    if (expected_origin != origin)
+      return false;
+
+    // Verify that the "X-Unsafe-Header" header contains the expected value.
+    const std::string& unsafe_header =
+        request->GetHeaderByName(kSubUnsafeHeaderName);
+    EXPECT_STREQ(kSubUnsafeHeaderValue, unsafe_header.c_str()) << GetPathURL();
+    return unsafe_header == kSubUnsafeHeaderValue;
+  }
+};
+
+// See https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request
+// for details of CORS preflight behavior.
+struct PreflightResource : Resource {
+  std::string main_origin;
+
+  void InitPreflight(HandlerType main_handler) {
+    // CORS preflight requests originate from PreflightController in the network
+    // process, so we only expect them for server requests.
+    EXPECT_EQ(HandlerType::SERVER, handler);
+
+    // Origin is always "null" for non-standard schemes.
+    main_origin = main_handler == HandlerType::CUSTOM_NONSTANDARD_SCHEME
+                      ? "null"
+                      : GetOrigin(main_handler);
+
+    method = "OPTIONS";
+    response->SetHeaderByName("Access-Control-Allow-Methods",
+                              "GET,HEAD,OPTIONS,POST", false);
+    response->SetHeaderByName("Access-Control-Allow-Headers",
+                              kSubUnsafeHeaderName, false);
+    response->SetHeaderByName("Access-Control-Allow-Origin", main_origin,
+                              false);
+  }
+
+  bool VerifyRequest(CefRefPtr<CefRequest> request) const override {
+    const std::string& request_method = request->GetMethod();
+    EXPECT_STREQ(method.c_str(), request_method.c_str()) << GetPathURL();
+    if (request_method != method)
+      return false;
+
+    const std::string& origin = request->GetHeaderByName("Origin");
+    EXPECT_STREQ(main_origin.c_str(), origin.c_str()) << GetPathURL();
+    if (main_origin != origin)
+      return false;
+
+    const std::string& ac_request_method =
+        request->GetHeaderByName("Access-Control-Request-Method");
+    EXPECT_STREQ(kSubRequestMethod, ac_request_method.c_str()) << GetPathURL();
+    if (ac_request_method != kSubRequestMethod)
+      return false;
+
+    const std::string& ac_request_headers =
+        request->GetHeaderByName("Access-Control-Request-Headers");
+    EXPECT_STREQ(kSubUnsafeHeaderName, ac_request_headers.c_str())
+        << GetPathURL();
+    if (ac_request_headers != kSubUnsafeHeaderName)
+      return false;
+
+    return true;
   }
 };
 
@@ -865,10 +958,15 @@ enum class ExecMode {
 };
 
 std::string GetXhrExecJS(const std::string& sub_url) {
+  // Inclusion of an unsafe header triggers CORS preflight for cross-origin
+  // requests to the server.
   return "xhr = new XMLHttpRequest();\n"
          "xhr.open(\"GET\", \"" +
          sub_url +
          "\", true)\n;"
+         "xhr.setRequestHeader('" +
+         kSubUnsafeHeaderName + "', '" + kSubUnsafeHeaderValue +
+         "');\n"
          "xhr.onload = function(e) {\n"
          "  if (xhr.readyState === 4) {\n"
          "    if (xhr.status === 200) {\n"
@@ -887,8 +985,16 @@ std::string GetXhrExecJS(const std::string& sub_url) {
 }
 
 std::string GetFetchExecJS(const std::string& sub_url) {
-  return "fetch('" + sub_url +
-         "')\n"
+  // Inclusion of an unsafe header triggers CORS preflight for cross-origin
+  // requests to the server.
+  return std::string() +
+         "let h = new Headers();\n"
+         "h.append('" +
+         kSubUnsafeHeaderName + "', '" + kSubUnsafeHeaderValue +
+         "');\n"
+         "fetch('" +
+         sub_url +
+         "', {headers: h})\n"
          ".then(function(response) {\n"
          "  if (response.status === 200) {\n"
          "      response.text().then(function(text) {\n"
@@ -923,6 +1029,10 @@ std::string GetExecMainHtml(ExecMode mode, const std::string& sub_url) {
 }
 
 // XHR and fetch requests behave the same, except for console message contents.
+// In addition to basic CORS header behaviors and request blocking, this test
+// verifies that CORS preflight requests are sent and received when expected.
+// Since preflight behavior is implemented in the network process we expect it
+// to already have substantial test coverage in Chromium.
 void SetupExecRequest(ExecMode mode,
                       CookieTestSetup* setup,
                       const std::string& test_name,
@@ -930,12 +1040,13 @@ void SetupExecRequest(ExecMode mode,
                       CookieResource* main_resource,
                       HandlerType sub_handler,
                       SubResource* sub_resource,
+                      PreflightResource* preflight_resource,
                       bool add_header) {
   const std::string& base_path = "/" + test_name;
 
   // Expect a single xhr request.
-  sub_resource->Init(sub_handler, base_path + ".sub.txt", kMimeTypeText,
-                     kDefaultText);
+  const std::string& sub_path = base_path + ".sub.txt";
+  sub_resource->Init(sub_handler, sub_path, kMimeTypeText, kDefaultText);
   sub_resource->InitCors(main_handler, add_header);
 
   // Expect a single main frame request.
@@ -945,29 +1056,42 @@ void SetupExecRequest(ExecMode mode,
 
   SetupCookieExpectations(setup, main_resource, sub_resource);
 
+  // Cross-origin requests to a server sub-resource will receive a CORS
+  // preflight request because we add an unsafe header.
+  const bool expect_cors_preflight =
+      sub_resource->is_cross_origin && sub_handler == HandlerType::SERVER;
+
   if (sub_resource->is_cross_origin &&
       (!sub_resource->supports_cors || !add_header)) {
     // Expect the cross-origin XHR to be blocked.
     main_resource->expected_failure_query_ct = 1;
 
     if (sub_resource->supports_cors && !add_header) {
-      // The request supports CORS, but we didn't add the header.
-      if (mode == ExecMode::XHR) {
-        setup->AddConsoleMessage(
-            "Access to XMLHttpRequest at '" + sub_url + "' from origin '" +
-            sub_resource->main_origin +
-            "' has been blocked by CORS policy: No "
-            "'Access-Control-Allow-Origin' "
-            "header is present on the requested resource.");
-      } else {
-        setup->AddConsoleMessage(
-            "Access to fetch at '" + sub_url + "' from origin '" +
-            sub_resource->main_origin +
-            "' has been blocked by CORS policy: No "
-            "'Access-Control-Allow-Origin' header is present on the requested "
-            "resource. If an opaque response serves your needs, set the "
-            "request's mode to 'no-cors' to fetch the resource with CORS "
-            "disabled.");
+      // The request supports CORS, but we didn't add the
+      // "Access-Control-Allow-Origin" header.
+      if (!expect_cors_preflight || preflight_resource != nullptr) {
+        // This is the error message when not expecting a CORS preflight
+        // request, or when the preflight request is handled by the server.
+        // Unhandled preflight requests will output a different error message
+        // (see below).
+        if (mode == ExecMode::XHR) {
+          setup->AddConsoleMessage(
+              "Access to XMLHttpRequest at '" + sub_url + "' from origin '" +
+              sub_resource->main_origin +
+              "' has been blocked by CORS policy: No "
+              "'Access-Control-Allow-Origin' "
+              "header is present on the requested resource.");
+        } else {
+          setup->AddConsoleMessage(
+              "Access to fetch at '" + sub_url + "' from origin '" +
+              sub_resource->main_origin +
+              "' has been blocked by CORS policy: No "
+              "'Access-Control-Allow-Origin' header is present on the "
+              "requested "
+              "resource. If an opaque response serves your needs, set the "
+              "request's mode to 'no-cors' to fetch the resource with CORS "
+              "disabled.");
+        }
       }
     } else if (mode == ExecMode::XHR) {
       setup->AddConsoleMessage(
@@ -987,22 +1111,63 @@ void SetupExecRequest(ExecMode mode,
 
   setup->AddResource(main_resource);
   setup->AddResource(sub_resource);
+
+  if (expect_cors_preflight) {
+    // Expect a CORS preflight request.
+    if (preflight_resource) {
+      // The server will handle the preflight request. The cross-origin XHR may
+      // still be blocked if the "Access-Control-Allow-Origin" header is missing
+      // (see above).
+      preflight_resource->Init(sub_handler, sub_path, kMimeTypeText,
+                               std::string());
+      preflight_resource->InitPreflight(main_handler);
+      setup->AddResource(preflight_resource);
+    } else {
+      // The server will not handle the preflight request. Expect the
+      // cross-origin XHR to be blocked.
+      main_resource->expected_failure_query_ct = 1;
+      main_resource->expected_success_query_ct = 0;
+      sub_resource->expected_response_ct = 0;
+
+      if (mode == ExecMode::XHR) {
+        setup->AddConsoleMessage(
+            "Access to XMLHttpRequest at '" + sub_url + "' from origin '" +
+            sub_resource->main_origin +
+            "' has been blocked by CORS policy: Response to preflight request "
+            "doesn't pass access control check: No "
+            "'Access-Control-Allow-Origin' header is present on the requested "
+            "resource.");
+      } else {
+        setup->AddConsoleMessage(
+            "Access to fetch at '" + sub_url + "' from origin '" +
+            sub_resource->main_origin +
+            "' has been blocked by CORS policy: Response to preflight request "
+            "doesn't pass access control check: No "
+            "'Access-Control-Allow-Origin' header is present on the requested "
+            "resource. If an opaque response serves your needs, set the "
+            "request's mode to 'no-cors' to fetch the resource with CORS "
+            "disabled.");
+      }
+    }
+  }
 }
 
 }  // namespace
 
 // Test XHR requests with different origin combinations.
-#define CORS_TEST_XHR(test_name, handler_main, handler_sub, add_header)    \
-  TEST(CorsTest, Xhr##test_name) {                                         \
-    CookieTestSetup setup;                                                 \
-    CookieResource resource_main;                                          \
-    SubResource resource_sub;                                              \
-    SetupExecRequest(ExecMode::XHR, &setup, "CorsTest.Xhr" #test_name,     \
-                     HandlerType::handler_main, &resource_main,            \
-                     HandlerType::handler_sub, &resource_sub, add_header); \
-    CefRefPtr<CorsTestHandler> handler = new CorsTestHandler(&setup);      \
-    handler->ExecuteTest();                                                \
-    ReleaseAndWaitForDestructor(handler);                                  \
+#define CORS_TEST_XHR(test_name, handler_main, handler_sub, add_header) \
+  TEST(CorsTest, Xhr##test_name) {                                      \
+    CookieTestSetup setup;                                              \
+    CookieResource resource_main;                                       \
+    SubResource resource_sub;                                           \
+    PreflightResource resource_preflight;                               \
+    SetupExecRequest(ExecMode::XHR, &setup, "CorsTest.Xhr" #test_name,  \
+                     HandlerType::handler_main, &resource_main,         \
+                     HandlerType::handler_sub, &resource_sub,           \
+                     &resource_preflight, add_header);                  \
+    CefRefPtr<CorsTestHandler> handler = new CorsTestHandler(&setup);   \
+    handler->ExecuteTest();                                             \
+    ReleaseAndWaitForDestructor(handler);                               \
   }
 
 // Test all origin combinations (same and cross-origin).
@@ -1044,15 +1209,48 @@ CORS_TEST_XHR_ALL(NoHeader, false)
 // XHR requests with the "Access-Control-Allow-Origin" header.
 CORS_TEST_XHR_ALL(WithHeader, true)
 
+// Like above, but without handling CORS preflight requests.
+#define CORS_TEST_XHR_NO_PREFLIGHT(test_name, handler_main, handler_sub, \
+                                   add_header)                           \
+  TEST(CorsTest, Xhr##test_name) {                                       \
+    CookieTestSetup setup;                                               \
+    CookieResource resource_main;                                        \
+    SubResource resource_sub;                                            \
+    SetupExecRequest(ExecMode::XHR, &setup, "CorsTest.Xhr" #test_name,   \
+                     HandlerType::handler_main, &resource_main,          \
+                     HandlerType::handler_sub, &resource_sub, nullptr,   \
+                     add_header);                                        \
+    CefRefPtr<CorsTestHandler> handler = new CorsTestHandler(&setup);    \
+    handler->ExecuteTest();                                              \
+    ReleaseAndWaitForDestructor(handler);                                \
+  }
+
+#define CORS_TEST_XHR_NO_PREFLIGHT_SERVER(name, add_header)                    \
+  CORS_TEST_XHR_NO_PREFLIGHT(name##ServerToServer, SERVER, SERVER, add_header) \
+  CORS_TEST_XHR_NO_PREFLIGHT(name##HttpSchemeToServer, HTTP_SCHEME, SERVER,    \
+                             add_header)                                       \
+  CORS_TEST_XHR_NO_PREFLIGHT(name##CustomStandardSchemeToServer,               \
+                             CUSTOM_STANDARD_SCHEME, SERVER, add_header)       \
+  CORS_TEST_XHR_NO_PREFLIGHT(name##CustomNonStandardSchemeToServer,            \
+                             CUSTOM_NONSTANDARD_SCHEME, SERVER, add_header)
+
+// XHR requests without the "Access-Control-Allow-Origin" header.
+CORS_TEST_XHR_NO_PREFLIGHT_SERVER(NoHeaderNoPreflight, false)
+
+// XHR requests with the "Access-Control-Allow-Origin" header.
+CORS_TEST_XHR_NO_PREFLIGHT_SERVER(WithHeaderNoPreflight, true)
+
 // Test fetch requests with different origin combinations.
 #define CORS_TEST_FETCH(test_name, handler_main, handler_sub, add_header)  \
   TEST(CorsTest, Fetch##test_name) {                                       \
     CookieTestSetup setup;                                                 \
     CookieResource resource_main;                                          \
     SubResource resource_sub;                                              \
+    PreflightResource resource_preflight;                                  \
     SetupExecRequest(ExecMode::FETCH, &setup, "CorsTest.Fetch" #test_name, \
                      HandlerType::handler_main, &resource_main,            \
-                     HandlerType::handler_sub, &resource_sub, add_header); \
+                     HandlerType::handler_sub, &resource_sub,              \
+                     &resource_preflight, add_header);                     \
     CefRefPtr<CorsTestHandler> handler = new CorsTestHandler(&setup);      \
     handler->ExecuteTest();                                                \
     ReleaseAndWaitForDestructor(handler);                                  \
@@ -1098,6 +1296,38 @@ CORS_TEST_FETCH_ALL(NoHeader, false)
 
 // Fetch requests with the "Access-Control-Allow-Origin" header.
 CORS_TEST_FETCH_ALL(WithHeader, true)
+
+// Like above, but without handling CORS preflight requests.
+#define CORS_TEST_FETCH_NO_PREFLIGHT(test_name, handler_main, handler_sub, \
+                                     add_header)                           \
+  TEST(CorsTest, Fetch##test_name) {                                       \
+    CookieTestSetup setup;                                                 \
+    CookieResource resource_main;                                          \
+    SubResource resource_sub;                                              \
+    SetupExecRequest(ExecMode::FETCH, &setup, "CorsTest.Fetch" #test_name, \
+                     HandlerType::handler_main, &resource_main,            \
+                     HandlerType::handler_sub, &resource_sub, nullptr,     \
+                     add_header);                                          \
+    CefRefPtr<CorsTestHandler> handler = new CorsTestHandler(&setup);      \
+    handler->ExecuteTest();                                                \
+    ReleaseAndWaitForDestructor(handler);                                  \
+  }
+
+#define CORS_TEST_FETCH_NO_PREFLIGHT_SERVER(name, add_header)                 \
+  CORS_TEST_FETCH_NO_PREFLIGHT(name##ServerToServer, SERVER, SERVER,          \
+                               add_header)                                    \
+  CORS_TEST_FETCH_NO_PREFLIGHT(name##HttpSchemeToServer, HTTP_SCHEME, SERVER, \
+                               add_header)                                    \
+  CORS_TEST_FETCH_NO_PREFLIGHT(name##CustomStandardSchemeToServer,            \
+                               CUSTOM_STANDARD_SCHEME, SERVER, add_header)    \
+  CORS_TEST_FETCH_NO_PREFLIGHT(name##CustomNonStandardSchemeToServer,         \
+                               CUSTOM_NONSTANDARD_SCHEME, SERVER, add_header)
+
+// Fetch requests without the "Access-Control-Allow-Origin" header.
+CORS_TEST_FETCH_NO_PREFLIGHT_SERVER(NoHeaderNoPreflight, false)
+
+// Fetch requests with the "Access-Control-Allow-Origin" header.
+CORS_TEST_FETCH_NO_PREFLIGHT_SERVER(WithHeaderNoPreflight, true)
 
 namespace {
 
@@ -1233,7 +1463,7 @@ struct PostResource : CookieResource {
     // This should only be "null" for non-standard schemes, but Blink is likely
     // using SchemeIsHTTPOrHTTPS() when submitting the form request.
     main_origin = main_handler == HandlerType::CUSTOM_NONSTANDARD_SCHEME ||
-                  main_handler == HandlerType::CUSTOM_STANDARD_SCHEME
+                          main_handler == HandlerType::CUSTOM_STANDARD_SCHEME
                       ? "null"
                       : GetOrigin(main_handler);
 

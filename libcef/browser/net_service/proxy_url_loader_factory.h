@@ -168,8 +168,8 @@ class ProxyURLLoaderFactory
       mojo::PendingReceiver<network::mojom::TrustedHeaderClient> receiver)
       override;
   void OnLoaderForCorsPreflightCreated(
-      const ::network::ResourceRequest& request,
-      mojo::PendingReceiver<network::mojom::TrustedHeaderClient> header_client)
+      const network::ResourceRequest& request,
+      mojo::PendingReceiver<network::mojom::TrustedHeaderClient> receiver)
       override;
 
  private:
