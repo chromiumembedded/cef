@@ -131,6 +131,43 @@ class ResourceContextData : public base::SupportsUserData::Data {
   DISALLOW_COPY_AND_ASSIGN(ResourceContextData);
 };
 
+// CORS preflight requests are handled in the network process, so we just need
+// to continue all of the callbacks and then delete ourself.
+class CorsPreflightRequest : public network::mojom::TrustedHeaderClient {
+ public:
+  explicit CorsPreflightRequest(
+      mojo::PendingReceiver<network::mojom::TrustedHeaderClient> receiver)
+      : weak_factory_(this) {
+    header_client_receiver_.Bind(std::move(receiver));
+
+    header_client_receiver_.set_disconnect_handler(base::BindOnce(
+        &CorsPreflightRequest::OnDestroy, weak_factory_.GetWeakPtr()));
+  }
+
+  // mojom::TrustedHeaderClient methods:
+  void OnBeforeSendHeaders(const net::HttpRequestHeaders& headers,
+                           OnBeforeSendHeadersCallback callback) override {
+    std::move(callback).Run(net::OK, base::nullopt);
+  }
+
+  void OnHeadersReceived(const std::string& headers,
+                         const net::IPEndPoint& remote_endpoint,
+                         OnHeadersReceivedCallback callback) override {
+    std::move(callback).Run(net::OK, base::nullopt, GURL());
+    OnDestroy();
+  }
+
+ private:
+  void OnDestroy() { delete this; }
+
+  mojo::Receiver<network::mojom::TrustedHeaderClient> header_client_receiver_{
+      this};
+
+  base::WeakPtrFactory<CorsPreflightRequest> weak_factory_;
+
+  DISALLOW_COPY_AND_ASSIGN(CorsPreflightRequest);
+};
+
 //==============================
 // InterceptedRequest
 //=============================
@@ -1302,10 +1339,10 @@ void ProxyURLLoaderFactory::OnLoaderCreated(
 }
 
 void ProxyURLLoaderFactory::OnLoaderForCorsPreflightCreated(
-    const ::network::ResourceRequest& request,
-    mojo::PendingReceiver<network::mojom::TrustedHeaderClient> header_client) {
+    const network::ResourceRequest& request,
+    mojo::PendingReceiver<network::mojom::TrustedHeaderClient> receiver) {
   CEF_REQUIRE_IOT();
-  // TODO(cef): Should we do something here?
+  new CorsPreflightRequest(std::move(receiver));
 }
 
 void ProxyURLLoaderFactory::OnTargetFactoryError() {
