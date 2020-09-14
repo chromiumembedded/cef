@@ -51,6 +51,7 @@
 #include "cef/grit/cef_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_content_browser_client.h"
+#include "chrome/browser/content_settings/cookie_settings_factory.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/plugins/plugin_info_host_impl.h"
 #include "chrome/browser/plugins/plugin_response_interceptor_url_loader_throttle.h"
@@ -69,6 +70,7 @@
 #include "chrome/grit/browser_resources.h"
 #include "chrome/grit/generated_resources.h"
 #include "chrome/services/printing/printing_service.h"
+#include "components/content_settings/core/browser/cookie_settings.h"
 #include "components/navigation_interception/intercept_navigation_throttle.h"
 #include "components/navigation_interception/navigation_params.h"
 #include "components/spellcheck/common/spellcheck.mojom.h"
@@ -1460,6 +1462,17 @@ AlloyContentBrowserClient::GetPluginMimeTypesWithExternalHandlers(
   for (const auto& pair : map)
     mime_types.insert(pair.first);
   return mime_types;
+}
+
+bool AlloyContentBrowserClient::ArePersistentMediaDeviceIDsAllowed(
+    content::BrowserContext* browser_context,
+    const GURL& url,
+    const GURL& site_for_cookies,
+    const base::Optional<url::Origin>& top_frame_origin) {
+  // Persistent MediaDevice IDs are allowed if cookies are allowed.
+  return CookieSettingsFactory::GetForProfile(
+             Profile::FromBrowserContext(browser_context))
+      ->IsCookieAccessAllowed(url, site_for_cookies, top_frame_origin);
 }
 
 bool AlloyContentBrowserClient::ShouldAllowPluginCreation(

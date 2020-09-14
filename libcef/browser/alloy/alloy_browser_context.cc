@@ -21,6 +21,7 @@
 #include "base/logging.h"
 #include "base/strings/string_util.h"
 #include "chrome/browser/font_family_cache.h"
+#include "chrome/browser/media/media_device_id_salt.h"
 #include "chrome/browser/plugins/chrome_plugin_service_filter.h"
 #include "chrome/browser/profiles/profile_key.h"
 #include "chrome/browser/ui/zoom/chrome_zoom_level_prefs.h"
@@ -168,6 +169,8 @@ void AlloyBrowserContext::Initialize() {
     extension_system_->Init();
 
   ChromePluginServiceFilter::GetInstance()->RegisterProfile(this);
+
+  media_device_id_salt_ = new MediaDeviceIDSalt(pref_service);
 }
 
 void AlloyBrowserContext::Shutdown() {
@@ -395,6 +398,10 @@ AlloyBrowserContext::GetBackgroundSyncController() {
 content::BrowsingDataRemoverDelegate*
 AlloyBrowserContext::GetBrowsingDataRemoverDelegate() {
   return nullptr;
+}
+
+std::string AlloyBrowserContext::GetMediaDeviceIDSalt() {
+  return media_device_id_salt_->GetSalt();
 }
 
 PrefService* AlloyBrowserContext::GetPrefs() {
