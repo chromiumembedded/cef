@@ -62,7 +62,6 @@ class CefBrowserPlatformDelegateNative
   void set_windowless_handler(WindowlessHandler* handler) {
     windowless_handler_ = handler;
   }
-  void set_browser(CefBrowserHostImpl* browser) { browser_ = browser; }
 
   CefWindowInfo window_info_;
   const SkColor background_color_;

@@ -69,15 +69,21 @@ void CefBrowserPlatformDelegateViews::WebContentsCreated(
     content::WebContents* web_contents,
     bool owned) {
   CefBrowserPlatformDelegateAlloy::WebContentsCreated(web_contents, owned);
-
+  native_delegate_->WebContentsCreated(web_contents, /*owned=*/false);
   browser_view_->WebContentsCreated(web_contents);
+}
+
+void CefBrowserPlatformDelegateViews::WebContentsDestroyed(
+    content::WebContents* web_contents) {
+  CefBrowserPlatformDelegateAlloy::WebContentsDestroyed(web_contents);
+  native_delegate_->WebContentsDestroyed(web_contents);
 }
 
 void CefBrowserPlatformDelegateViews::BrowserCreated(
     CefBrowserHostImpl* browser) {
   CefBrowserPlatformDelegateAlloy::BrowserCreated(browser);
 
-  native_delegate_->set_browser(browser);
+  native_delegate_->BrowserCreated(browser);
   browser_view_->BrowserCreated(browser, GetBoundsChangedCallback());
 }
 
@@ -99,9 +105,9 @@ void CefBrowserPlatformDelegateViews::BrowserDestroyed(
     CefBrowserHostImpl* browser) {
   CefBrowserPlatformDelegateAlloy::BrowserDestroyed(browser);
 
-  native_delegate_->set_browser(nullptr);
   browser_view_->BrowserDestroyed(browser);
   browser_view_ = nullptr;
+  native_delegate_->BrowserDestroyed(browser);
 }
 
 bool CefBrowserPlatformDelegateViews::CreateHostWindow() {
