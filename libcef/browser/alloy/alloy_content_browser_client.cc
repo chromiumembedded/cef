@@ -1044,6 +1044,13 @@ void AlloyContentBrowserClient::OverrideWebkitPrefs(
   }
 }
 
+bool AlloyContentBrowserClient::OverrideWebPreferencesAfterNavigation(
+    content::WebContents* web_contents,
+    content::WebPreferences* prefs) {
+  return renderer_prefs::PopulateWebPreferencesAfterNavigation(web_contents,
+                                                               *prefs);
+}
+
 void AlloyContentBrowserClient::BrowserURLHandlerCreated(
     content::BrowserURLHandler* handler) {
   scheme::BrowserURLHandlerCreated(handler);

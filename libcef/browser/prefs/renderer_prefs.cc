@@ -21,6 +21,7 @@
 #include "chrome/browser/font_family_cache.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
+#include "chrome/common/chrome_features.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "components/pref_registry/pref_registry_syncable.h"
@@ -31,12 +32,14 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/site_instance.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/common/url_constants.h"
 #include "content/public/common/web_preferences.h"
 #include "extensions/browser/extension_registry.h"
 #include "extensions/browser/view_type_utils.h"
 #include "extensions/common/constants.h"
 #include "media/media_buildflags.h"
 #include "third_party/blink/public/common/peerconnection/webrtc_ip_handling_policy.h"
+#include "ui/native_theme/native_theme.h"
 
 namespace renderer_prefs {
 
@@ -273,6 +276,25 @@ void SetBool(CommandLinePrefStore* prefs, const std::string& key, bool value) {
                   WriteablePrefStore::DEFAULT_PREF_WRITE_FLAGS);
 }
 
+// From chrome/browser/chrome_content_browser_client.cc
+bool UpdatePreferredColorSchemesBasedOnURLIfNeeded(
+    content::WebPreferences* web_prefs,
+    const GURL& url) {
+  // Force a light preferred color scheme on certain URLs if kWebUIDarkMode is
+  // disabled; some of the UI is not yet correctly themed.
+  if (base::FeatureList::IsEnabled(features::kWebUIDarkMode))
+    return false;
+  bool force_light = url.SchemeIs(content::kChromeUIScheme);
+  if (!force_light && extensions::ExtensionsEnabled()) {
+    force_light = url.SchemeIs(extensions::kExtensionScheme) &&
+                  url.host_piece() == extension_misc::kPdfExtensionId;
+  }
+  auto old_preferred_color_scheme = web_prefs->preferred_color_scheme;
+  if (force_light)
+    web_prefs->preferred_color_scheme = blink::PreferredColorScheme::kLight;
+  return old_preferred_color_scheme != web_prefs->preferred_color_scheme;
+}
+
 }  // namespace
 
 void SetCommandLinePrefDefaults(CommandLinePrefStore* prefs) {
@@ -340,6 +362,19 @@ void PopulateWebPreferences(content::RenderViewHost* rvh,
     SetChromePrefs(profile, web);
   }
 
+  auto* native_theme = ui::NativeTheme::GetInstanceForWeb();
+  switch (native_theme->GetPreferredColorScheme()) {
+    case ui::NativeTheme::PreferredColorScheme::kDark:
+      web.preferred_color_scheme = blink::PreferredColorScheme::kDark;
+      break;
+    case ui::NativeTheme::PreferredColorScheme::kLight:
+      web.preferred_color_scheme = blink::PreferredColorScheme::kLight;
+      break;
+  }
+
+  UpdatePreferredColorSchemesBasedOnURLIfNeeded(
+      &web, rvh->GetSiteInstance()->GetSiteURL());
+
   // Set preferences based on the extension.
   SetExtensionPrefs(rvh, web);
 
@@ -357,6 +392,12 @@ void PopulateWebPreferences(content::RenderViewHost* rvh,
     web.base_background_color =
         CefContext::Get()->GetBackgroundColor(nullptr, STATE_DEFAULT);
   }
+}
+
+bool PopulateWebPreferencesAfterNavigation(content::WebContents* web_contents,
+                                           content::WebPreferences& web) {
+  return UpdatePreferredColorSchemesBasedOnURLIfNeeded(
+      &web, web_contents->GetLastCommittedURL());
 }
 
 }  // namespace renderer_prefs
