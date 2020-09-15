@@ -12,6 +12,7 @@ class CommandLinePrefStore;
 
 namespace content {
 class RenderViewHost;
+class WebContents;
 struct WebPreferences;
 }  // namespace content
 
@@ -34,6 +35,8 @@ void SetCommandLinePrefDefaults(CommandLinePrefStore* prefs);
 // PrefService and CefBrowserSettings.
 void PopulateWebPreferences(content::RenderViewHost* rvh,
                             content::WebPreferences& web);
+bool PopulateWebPreferencesAfterNavigation(content::WebContents* web_contents,
+                                           content::WebPreferences& web);
 
 }  // namespace renderer_prefs
 
