@@ -23,6 +23,7 @@ class CefBrowserPlatformDelegateViews
   // CefBrowserPlatformDelegate methods:
   void WebContentsCreated(content::WebContents* web_contents,
                           bool owned) override;
+  void WebContentsDestroyed(content::WebContents* web_contents) override;
   void BrowserCreated(CefBrowserHostImpl* browser) override;
   void NotifyBrowserCreated() override;
   void NotifyBrowserDestroyed() override;
