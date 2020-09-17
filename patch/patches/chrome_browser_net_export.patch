@@ -47,181 +47,76 @@ index c7bd97a32af1..311f2c52af8d 100644
        "views/toolbar/toolbar_account_icon_container_view.h",
        "views/toolbar/toolbar_action_view.cc",
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
-index f27414c41891..b42478315ac0 100644
+index f27414c41891..0e6663680e80 100644
 --- chrome/browser/ui/webui/net_export_ui.cc
 +++ chrome/browser/ui/webui/net_export_ui.cc
-@@ -21,13 +21,12 @@
+@@ -21,6 +21,7 @@
  #include "base/strings/string_util.h"
  #include "base/strings/utf_string_conversions.h"
  #include "base/values.h"
-+#include "cef/libcef/features/features.h"
++#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/browser_process.h"
--#include "chrome/browser/download/download_prefs.h"
+ #include "chrome/browser/download/download_prefs.h"
  #include "chrome/browser/net/net_export_helper.h"
- #include "chrome/browser/net/system_network_context_manager.h"
- #include "chrome/browser/platform_util.h"
- #include "chrome/browser/profiles/profile.h"
--#include "chrome/browser/ui/chrome_select_file_policy.h"
- #include "chrome/common/channel_info.h"
- #include "chrome/common/url_constants.h"
- #include "components/grit/dev_ui_components_resources.h"
-@@ -42,7 +41,14 @@
- #include "content/public/browser/web_ui_message_handler.h"
- #include "extensions/buildflags/buildflags.h"
+@@ -44,6 +45,10 @@
  #include "net/log/net_log_capture_mode.h"
-+
-+#if !BUILDFLAG(ENABLE_CEF)
-+#include "chrome/browser/download/download_prefs.h"
-+#include "chrome/browser/ui/chrome_select_file_policy.h"
  #include "ui/shell_dialogs/select_file_dialog.h"
-+#else
+ 
++#if BUILDFLAG(ENABLE_CEF)
 +#include "cef/libcef/browser/browser_host_impl.h"
 +#endif
- 
++
  #if defined(OS_ANDROID)
  #include "chrome/browser/android/intent_helper.h"
-@@ -68,6 +74,7 @@ content::WebUIDataSource* CreateNetExportHTMLSource() {
-   return source;
- }
- 
-+#if !BUILDFLAG(ENABLE_CEF)
- void SetIfNotNull(base::DictionaryValue* dict,
-                   const base::StringPiece& path,
-                   std::unique_ptr<base::Value> in_value) {
-@@ -75,6 +82,7 @@ void SetIfNotNull(base::DictionaryValue* dict,
-     dict->Set(path, std::move(in_value));
-   }
- }
-+#endif  // !BUILDFLAG(ENABLE_CEF)
- 
- // This class receives javascript messages from the renderer.
- // Note that the WebUI infrastructure runs on the UI thread, therefore all of
-@@ -82,7 +90,9 @@ void SetIfNotNull(base::DictionaryValue* dict,
- class NetExportMessageHandler
-     : public WebUIMessageHandler,
-       public base::SupportsWeakPtr<NetExportMessageHandler>,
-+#if !BUILDFLAG(ENABLE_CEF)
-       public ui::SelectFileDialog::Listener,
-+#endif
-       public net_log::NetExportFileWriter::StateObserver {
-  public:
-   NetExportMessageHandler();
-@@ -98,11 +108,13 @@ class NetExportMessageHandler
-   void OnSendNetLog(const base::ListValue* list);
-   void OnShowFile(const base::ListValue* list);
- 
-+#if !BUILDFLAG(ENABLE_CEF)
-   // ui::SelectFileDialog::Listener implementation.
-   void FileSelected(const base::FilePath& path,
-                     int index,
-                     void* params) override;
-   void FileSelectionCanceled(void* params) override;
-+#endif  // !BUILDFLAG(ENABLE_CEF)
- 
-   // net_log::NetExportFileWriter::StateObserver implementation.
-   void OnNewState(const base::DictionaryValue& state) override;
-@@ -132,9 +144,16 @@ class NetExportMessageHandler
-   // renderer.
-   void NotifyUIWithState(std::unique_ptr<base::DictionaryValue> state);
- 
-+#if !BUILDFLAG(ENABLE_CEF)
-   // Opens the SelectFileDialog UI with the default path to save a
+ #endif
+@@ -136,6 +141,13 @@ class NetExportMessageHandler
    // NetLog file.
    void ShowSelectFileDialog(const base::FilePath& default_path);
-+#else
+ 
++#if BUILDFLAG(ENABLE_CEF)
 +  void ShowCefSaveAsDialog(content::WebContents* web_contents);
 +  void SaveAsDialogDismissed(
 +      int selected_accept_filter,
 +      const std::vector<base::FilePath>& file_paths);
 +#endif
- 
++
    // Cached pointer to SystemNetworkContextManager's NetExportFileWriter.
    net_log::NetExportFileWriter* file_writer_;
-@@ -150,7 +169,9 @@ class NetExportMessageHandler
-   net::NetLogCaptureMode capture_mode_;
-   uint64_t max_log_file_size_;
  
-+#if !BUILDFLAG(ENABLE_CEF)
-   scoped_refptr<ui::SelectFileDialog> select_file_dialog_;
-+#endif
- 
-   base::WeakPtrFactory<NetExportMessageHandler> weak_ptr_factory_{this};
- 
-@@ -167,8 +188,10 @@ NetExportMessageHandler::NetExportMessageHandler()
- NetExportMessageHandler::~NetExportMessageHandler() {
-   // There may be a pending file dialog, it needs to be told that the user
-   // has gone away so that it doesn't try to call back.
-+#if !BUILDFLAG(ENABLE_CEF)
-   if (select_file_dialog_)
-     select_file_dialog_->ListenerDestroyed();
-+#endif
- 
-   file_writer_->StopNetLog(nullptr);
- }
-@@ -231,6 +254,7 @@ void NetExportMessageHandler::OnStartNetLog(const base::ListValue* list) {
+@@ -231,6 +243,13 @@ void NetExportMessageHandler::OnStartNetLog(const base::ListValue* list) {
    if (UsingMobileUI()) {
      StartNetLog(base::FilePath());
    } else {
-+#if !BUILDFLAG(ENABLE_CEF)
++#if BUILDFLAG(ENABLE_CEF)
++    if (cef::IsAlloyRuntimeEnabled()) {
++      ShowCefSaveAsDialog(web_ui()->GetWebContents());
++      return;
++    }
++#endif
++
      base::FilePath initial_dir = last_save_dir.Pointer()->empty() ?
          DownloadPrefs::FromBrowserContext(
              web_ui()->GetWebContents()->GetBrowserContext())->DownloadPath() :
-@@ -238,6 +262,9 @@ void NetExportMessageHandler::OnStartNetLog(const base::ListValue* list) {
-     base::FilePath initial_path =
-         initial_dir.Append(FILE_PATH_LITERAL("chrome-net-export-log.json"));
-     ShowSelectFileDialog(initial_path);
-+#else  // BUILDFLAG(ENABLE_CEF)
-+    ShowCefSaveAsDialog(web_ui()->GetWebContents());
-+#endif  // BUILDFLAG(ENABLE_CEF)
-   }
- }
- 
-@@ -247,6 +274,7 @@ void NetExportMessageHandler::OnStopNetLog(const base::ListValue* list) {
+@@ -247,6 +266,7 @@ void NetExportMessageHandler::OnStopNetLog(const base::ListValue* list) {
    std::unique_ptr<base::DictionaryValue> ui_thread_polled_data(
        new base::DictionaryValue());
  
-+#if !BUILDFLAG(ENABLE_CEF)
++  if (!cef::IsAlloyRuntimeEnabled()) {
    Profile* profile = Profile::FromWebUI(web_ui());
    SetIfNotNull(ui_thread_polled_data.get(), "prerenderInfo",
                 chrome_browser_net::GetPrerenderInfo(profile));
-@@ -256,6 +284,7 @@ void NetExportMessageHandler::OnStopNetLog(const base::ListValue* list) {
+@@ -256,6 +276,7 @@ void NetExportMessageHandler::OnStopNetLog(const base::ListValue* list) {
    SetIfNotNull(ui_thread_polled_data.get(), "serviceProviders",
                 chrome_browser_net::GetWindowsServiceProviders());
  #endif
-+#endif  // !BUILDFLAG(ENABLE_CEF)
++  }
  
    file_writer_->StopNetLog(std::move(ui_thread_polled_data));
  }
-@@ -272,6 +301,7 @@ void NetExportMessageHandler::OnShowFile(const base::ListValue* list) {
-       base::BindOnce(&NetExportMessageHandler::ShowFileInShell, AsWeakPtr()));
- }
- 
-+#if !BUILDFLAG(ENABLE_CEF)
- void NetExportMessageHandler::FileSelected(const base::FilePath& path,
-                                            int index,
-                                            void* params) {
-@@ -290,6 +320,7 @@ void NetExportMessageHandler::FileSelectionCanceled(void* params) {
-   DCHECK(select_file_dialog_);
-   select_file_dialog_ = nullptr;
- }
-+#endif  // !BUILDFLAG(ENABLE_CEF)
- 
- void NetExportMessageHandler::OnNewState(const base::DictionaryValue& state) {
-   NotifyUIWithState(state.CreateDeepCopy());
-@@ -354,6 +385,7 @@ void NetExportMessageHandler::NotifyUIWithState(
-                                          *state);
- }
- 
-+#if !BUILDFLAG(ENABLE_CEF)
- void NetExportMessageHandler::ShowSelectFileDialog(
-     const base::FilePath& default_path) {
-   // User may have clicked more than once before the save dialog appears.
-@@ -372,6 +404,43 @@ void NetExportMessageHandler::ShowSelectFileDialog(
-       ui::SelectFileDialog::SELECT_SAVEAS_FILE, base::string16(), default_path,
+@@ -373,6 +394,42 @@ void NetExportMessageHandler::ShowSelectFileDialog(
        &file_type_info, 0, base::FilePath::StringType(), owning_window, nullptr);
  }
-+#endif  // !BUILDFLAG(ENABLE_CEF)
-+
+ 
 +#if BUILDFLAG(ENABLE_CEF)
 +
 +void NetExportMessageHandler::ShowCefSaveAsDialog(
@@ -257,6 +152,7 @@ index f27414c41891..b42478315ac0 100644
 +}
 +
 +#endif  // BUILDFLAG(ENABLE_CEF)
- 
++
  }  // namespace
  
+ NetExportUI::NetExportUI(content::WebUI* web_ui) : WebUIController(web_ui) {
