@@ -54,13 +54,13 @@ class CefBrowserPlatformDelegate {
   // Create a new CefBrowserPlatformDelegate instance. May be called on multiple
   // threads.
   static std::unique_ptr<CefBrowserPlatformDelegate> Create(
-      CefBrowserHostImpl::CreateParams& create_params);
+      CefBrowserHostBase::CreateParams& create_params);
 
   // Called from CefBrowserHostImpl::Create.
   // Wait for the call to WebContentsCreated(owned=true) before taking ownership
   // of the resulting WebContents object.
   virtual content::WebContents* CreateWebContents(
-      CefBrowserHostImpl::CreateParams& create_params,
+      CefBrowserHostBase::CreateParams& create_params,
       bool& own_web_contents) = 0;
 
   // Called to create the view objects for a new WebContents. Will only be

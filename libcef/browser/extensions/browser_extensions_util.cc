@@ -5,9 +5,12 @@
 #include "libcef/browser/extensions/browser_extensions_util.h"
 
 #include "libcef/browser/browser_context.h"
+#include "libcef/browser/browser_host_base.h"
+#include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_util.h"
+#include "libcef/features/runtime_checks.h"
 
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_preview_dialog_controller.h"
@@ -16,6 +19,8 @@
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_plugin_guest_manager.h"
+#include "content/public/browser/render_frame_host.h"
+#include "content/public/browser/render_view_host.h"
 #include "extensions/browser/extension_registry.h"
 
 namespace extensions {
@@ -69,7 +74,7 @@ content::WebContents* GetOwnerForGuestContents(content::WebContents* guest) {
   return print_preview_controller->GetInitiator(guest);
 }
 
-CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForFrameRoute(
+CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForFrameRoute(
     int render_process_id,
     int render_routing_id,
     bool* is_guest_view) {
@@ -86,7 +91,7 @@ CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForFrameRoute(
         CefBrowserInfoManager::GetInstance()->GetBrowserInfoForFrameRoute(
             render_process_id, render_routing_id, is_guest_view);
     if (info.get()) {
-      CefRefPtr<CefBrowserHostImpl> browser = info->browser();
+      CefRefPtr<CefBrowserHostBase> browser = info->browser();
       if (!browser.get()) {
         LOG(WARNING) << "Found browser id " << info->browser_id()
                      << " but no browser object matching view process id "
@@ -99,20 +104,20 @@ CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForFrameRoute(
   }
 }
 
-CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForHost(
+CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForHost(
     content::RenderViewHost* host,
     bool* is_guest_view) {
   if (is_guest_view)
     *is_guest_view = false;
 
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForHost(host);
+  CefRefPtr<CefBrowserHostBase> browser =
+      CefBrowserHostBase::GetBrowserForHost(host);
   if (!browser.get() && ExtensionsEnabled()) {
     // Retrieve the owner browser, if any.
     content::WebContents* owner = GetOwnerForGuestContents(
         content::WebContents::FromRenderViewHost(host));
     if (owner) {
-      browser = CefBrowserHostImpl::GetBrowserForContents(owner);
+      browser = CefBrowserHostBase::GetBrowserForContents(owner);
       if (browser.get() && is_guest_view)
         *is_guest_view = true;
     }
@@ -120,20 +125,20 @@ CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForHost(
   return browser;
 }
 
-CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForHost(
+CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForHost(
     content::RenderFrameHost* host,
     bool* is_guest_view) {
   if (is_guest_view)
     *is_guest_view = false;
 
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForHost(host);
+  CefRefPtr<CefBrowserHostBase> browser =
+      CefBrowserHostBase::GetBrowserForHost(host);
   if (!browser.get() && ExtensionsEnabled()) {
     // Retrieve the owner browser, if any.
     content::WebContents* owner = GetOwnerForGuestContents(
         content::WebContents::FromRenderFrameHost(host));
     if (owner) {
-      browser = CefBrowserHostImpl::GetBrowserForContents(owner);
+      browser = CefBrowserHostBase::GetBrowserForContents(owner);
       if (browser.get() && is_guest_view)
         *is_guest_view = true;
     }
@@ -144,6 +149,7 @@ CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForHost(
 CefRefPtr<CefBrowserHostImpl> GetBrowserForTabId(
     int tab_id,
     content::BrowserContext* browser_context) {
+  REQUIRE_ALLOY_RUNTIME();
   CEF_REQUIRE_UIT();
   DCHECK(browser_context);
   if (tab_id < 0 || !browser_context)
@@ -154,7 +160,8 @@ CefRefPtr<CefBrowserHostImpl> GetBrowserForTabId(
 
   for (const auto& browser_info :
        CefBrowserInfoManager::GetInstance()->GetBrowserInfoList()) {
-    CefRefPtr<CefBrowserHostImpl> current_browser = browser_info->browser();
+    CefRefPtr<CefBrowserHostImpl> current_browser =
+        static_cast<CefBrowserHostImpl*>(browser_info->browser().get());
     if (current_browser && current_browser->GetIdentifier() == tab_id) {
       // Make sure we're operating in the same CefBrowserContext.
       if (CefBrowserContext::FromBrowserContext(

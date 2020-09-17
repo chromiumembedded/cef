@@ -188,10 +188,6 @@ class CefBrowserContext {
   // Returns true if this context supports print preview.
   virtual bool IsPrintPreviewSupported() const;
 
-  // Called from CefBrowserHostImpl::DidNavigateAnyFrame to update the table of
-  // visited links.
-  virtual void AddVisitedURLs(const std::vector<GURL>& urls);
-
   network::mojom::NetworkContext* GetNetworkContext();
 
   CefMediaRouterManager* GetMediaRouterManager();

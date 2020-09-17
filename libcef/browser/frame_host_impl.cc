@@ -8,7 +8,7 @@
 #include "include/cef_stream.h"
 #include "include/cef_v8.h"
 #include "include/test/cef_test_helpers.h"
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/navigate_params.h"
 #include "libcef/browser/net_service/browser_urlrequest_impl.h"
 #include "libcef/common/cef_messages.h"
@@ -45,7 +45,7 @@ class ViewTextHandler : public CefResponseManager::Handler {
   void OnResponse(const Cef_Response_Params& params) override {
     CefRefPtr<CefBrowser> browser = frame_->GetBrowser();
     if (browser.get()) {
-      static_cast<CefBrowserHostImpl*>(browser.get())
+      static_cast<CefBrowserHostBase*>(browser.get())
           ->ViewText(params.response);
     }
   }
@@ -114,7 +114,7 @@ void CefFrameHostImpl::SetRenderFrameHost(content::RenderFrameHost* host) {
 }
 
 bool CefFrameHostImpl::IsValid() {
-  return !!GetBrowserHostImpl();
+  return !!GetBrowserHostBase();
 }
 
 void CefFrameHostImpl::Undo() {
@@ -203,7 +203,7 @@ CefRefPtr<CefFrame> CefFrameHostImpl::GetParent() {
     parent_frame_id = parent_frame_id_;
   }
 
-  auto browser = GetBrowserHostImpl();
+  auto browser = GetBrowserHostBase();
   if (browser)
     return browser->GetFrame(parent_frame_id);
 
@@ -216,7 +216,7 @@ CefString CefFrameHostImpl::GetURL() {
 }
 
 CefRefPtr<CefBrowser> CefFrameHostImpl::GetBrowser() {
-  return GetBrowserHostImpl().get();
+  return GetBrowserHostBase().get();
 }
 
 CefRefPtr<CefV8Context> CefFrameHostImpl::GetV8Context() {
@@ -239,7 +239,7 @@ CefRefPtr<CefURLRequest> CefFrameHostImpl::CreateURLRequest(
     return nullptr;
   }
 
-  auto browser = GetBrowserHostImpl();
+  auto browser = GetBrowserHostBase();
   if (!browser)
     return nullptr;
 
@@ -323,7 +323,7 @@ void CefFrameHostImpl::Navigate(const CefNavigateParams& params) {
 
   Send(new CefMsg_LoadRequest(MSG_ROUTING_NONE, request));
 
-  auto browser = GetBrowserHostImpl();
+  auto browser = GetBrowserHostBase();
   if (browser)
     browser->OnSetFocus(FOCUS_SOURCE_NAVIGATION);
 }
@@ -339,7 +339,7 @@ void CefFrameHostImpl::LoadURLWithExtras(const std::string& url,
 
   if (frame_id == CefFrameHostImpl::kMainFrameId) {
     // Load via the browser using NavigationController.
-    auto browser = GetBrowserHostImpl();
+    auto browser = GetBrowserHostBase();
     if (browser) {
       browser->LoadMainFrameURL(url, referrer, transition, extra_headers);
     }
@@ -553,7 +553,7 @@ int64 CefFrameHostImpl::GetFrameId() const {
   return is_main_frame_ ? kMainFrameId : frame_id_;
 }
 
-CefRefPtr<CefBrowserHostImpl> CefFrameHostImpl::GetBrowserHostImpl() const {
+CefRefPtr<CefBrowserHostBase> CefFrameHostImpl::GetBrowserHostBase() const {
   base::AutoLock lock_scope(state_lock_);
   if (browser_info_)
     return browser_info_->browser();
@@ -572,14 +572,14 @@ void CefFrameHostImpl::OnAttached() {
 
 void CefFrameHostImpl::OnDidFinishLoad(const GURL& validated_url,
                                        int http_status_code) {
-  auto browser = GetBrowserHostImpl();
+  auto browser = GetBrowserHostBase();
   if (browser)
     browser->OnDidFinishLoad(this, validated_url, http_status_code);
 }
 
 void CefFrameHostImpl::OnUpdateDraggableRegions(
     const std::vector<Cef_DraggableRegion_Params>& regions) {
-  auto browser = GetBrowserHostImpl();
+  auto browser = GetBrowserHostBase();
   if (!browser)
     return;
 
@@ -611,12 +611,12 @@ void CefFrameHostImpl::OnRequest(const Cef_Request_Params& params) {
   bool expect_response_ack = false;
 
   if (params.user_initiated) {
-    auto browser = GetBrowserHostImpl();
-    if (browser && browser->client()) {
+    auto browser = GetBrowserHostBase();
+    if (browser && browser->GetClient()) {
       // Give the user a chance to handle the request.
       CefRefPtr<CefProcessMessageImpl> message(new CefProcessMessageImpl(
           const_cast<Cef_Request_Params*>(&params), false, true));
-      success = browser->client()->OnProcessMessageReceived(
+      success = browser->GetClient()->OnProcessMessageReceived(
           browser.get(), this, PID_RENDERER, message.get());
       message->Detach(nullptr);
     }

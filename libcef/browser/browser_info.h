@@ -12,8 +12,10 @@
 #include "include/internal/cef_ptr.h"
 #include "libcef/common/values_impl.h"
 
+#include "base/callback.h"
 #include "base/containers/unique_ptr_adapters.h"
 #include "base/memory/ref_counted.h"
+#include "base/memory/weak_ptr.h"
 #include "base/synchronization/lock.h"
 #include "base/values.h"
 
@@ -21,12 +23,12 @@ namespace content {
 class RenderFrameHost;
 }
 
-class CefBrowserHostImpl;
+class CefBrowserHostBase;
 class CefFrameHostImpl;
 
 // CefBrowserInfo is used to associate a browser ID and render view/process
-// IDs with a particular CefBrowserHostImpl. Render view/process IDs may change
-// during the lifetime of a single CefBrowserHostImpl.
+// IDs with a particular CefBrowserHostBase. Render view/process IDs may change
+// during the lifetime of a single CefBrowserHostBase.
 //
 // CefBrowserInfo objects are managed by CefBrowserInfoManager and should not be
 // created directly.
@@ -44,23 +46,24 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
 
   // May return NULL if the browser has not yet been created or if the browser
   // has been destroyed.
-  CefRefPtr<CefBrowserHostImpl> browser() const;
+  CefRefPtr<CefBrowserHostBase> browser() const;
 
-  // Set or clear the browser. Called from the CefBrowserHostImpl constructor
+  // Set or clear the browser. Called from CefBrowserHostBase InitializeBrowser
   // (to set) and DestroyBrowser (to clear).
-  void SetBrowser(CefRefPtr<CefBrowserHostImpl> browser);
+  void SetBrowser(CefRefPtr<CefBrowserHostBase> browser);
 
   // Ensure that a frame record exists for |host|. Called for the main frame
   // when the RenderView is created, or for a sub-frame when the associated
   // RenderFrame is created in the renderer process.
-  // Called from CefBrowserHostImpl::RenderFrameCreated (is_guest_view = false)
-  // or CefMimeHandlerViewGuestDelegate::OnGuestAttached (is_guest_view = true).
+  // Called from CefBrowserContentsDelegate::RenderFrameCreated (is_guest_view =
+  // false) or CefMimeHandlerViewGuestDelegate::OnGuestAttached (is_guest_view =
+  // true).
   void MaybeCreateFrame(content::RenderFrameHost* host, bool is_guest_view);
 
   // Remove the frame record for |host|. Called for the main frame when the
   // RenderView is destroyed, or for a sub-frame when the associated RenderFrame
   // is destroyed in the renderer process.
-  // Called from CefBrowserHostImpl::FrameDeleted or
+  // Called from CefBrowserContentsDelegate::RenderFrameDeleted or
   // CefMimeHandlerViewGuestDelegate::OnGuestDetached.
   void RemoveFrame(content::RenderFrameHost* host);
 
@@ -121,6 +124,28 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   typedef std::set<CefRefPtr<CefFrameHostImpl>> FrameHostList;
   FrameHostList GetAllFrames() const;
 
+  class NavigationLock final : public base::RefCounted<NavigationLock> {
+   private:
+    friend class CefBrowserInfo;
+    friend class base::RefCounted<NavigationLock>;
+
+    NavigationLock();
+    ~NavigationLock();
+
+    base::OnceClosure pending_action_;
+    base::WeakPtrFactory<NavigationLock> weak_ptr_factory_;
+  };
+
+  // Block navigation actions on NavigationLock life span. Must be called on the
+  // UI thread.
+  scoped_refptr<NavigationLock> CreateNavigationLock();
+
+  // Returns true if navigation actions are currently blocked. If this method
+  // returns true the most recent |pending_action| will be executed on the UI
+  // thread once the navigation lock is released. Must be called on the UI
+  // thread.
+  bool IsNavigationLocked(base::OnceClosure pending_action);
+
  private:
   friend class base::RefCountedThreadSafe<CefBrowserInfo>;
 
@@ -151,11 +176,15 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   bool is_windowless_;
   CefRefPtr<CefDictionaryValue> extra_info_;
 
+  // Navigation will be blocked while |navigation_lock_| exists.
+  // Only accessed on the UI thread.
+  base::WeakPtr<NavigationLock> navigation_lock_;
+
   mutable base::Lock lock_;
 
   // The below members must be protected by |lock_|.
 
-  CefRefPtr<CefBrowserHostImpl> browser_;
+  CefRefPtr<CefBrowserHostBase> browser_;
 
   // Owner of FrameInfo structs.
   typedef std::set<std::unique_ptr<FrameInfo>, base::UniquePtrComparator>

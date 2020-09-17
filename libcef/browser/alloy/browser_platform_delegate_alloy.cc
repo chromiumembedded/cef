@@ -28,7 +28,7 @@ CefBrowserPlatformDelegateAlloy::CefBrowserPlatformDelegateAlloy()
     : weak_ptr_factory_(this) {}
 
 content::WebContents* CefBrowserPlatformDelegateAlloy::CreateWebContents(
-    CefBrowserHostImpl::CreateParams& create_params,
+    CefBrowserHostBase::CreateParams& create_params,
     bool& own_web_contents) {
   // Get or create the request context and browser context.
   CefRefPtr<CefRequestContextImpl> request_context_impl =

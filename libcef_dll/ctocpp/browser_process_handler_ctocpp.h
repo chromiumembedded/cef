@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=79e6f729e377f1dca76c076d7c694f07b8e171e6$
+// $hash=857a8ad51f8b7ca9e62b9ce35d0cf510d84fb8b1$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_PROCESS_HANDLER_CTOCPP_H_
@@ -40,6 +40,7 @@ class CefBrowserProcessHandlerCToCpp
       CefRefPtr<CefCommandLine> command_line) override;
   CefRefPtr<CefPrintHandler> GetPrintHandler() override;
   void OnScheduleMessagePumpWork(int64 delay_ms) override;
+  CefRefPtr<CefClient> GetDefaultClient() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BROWSER_PROCESS_HANDLER_CTOCPP_H_

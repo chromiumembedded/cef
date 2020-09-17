@@ -4,7 +4,7 @@
 
 #include "libcef/browser/net_service/resource_request_handler_wrapper.h"
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/iothread_state.h"
@@ -80,7 +80,7 @@ class RequestCallbackWrapper : public CefRequestCallback {
 };
 
 std::string GetAcceptLanguageList(content::BrowserContext* browser_context,
-                                  CefRefPtr<CefBrowserHostImpl> browser) {
+                                  CefRefPtr<CefBrowserHostBase> browser) {
   if (browser) {
     const CefBrowserSettings& browser_settings = browser->settings();
     if (browser_settings.accept_language_list.length > 0) {
@@ -163,10 +163,10 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
   // Observer to receive notification of CEF context or associated browser
   // destruction. Only one of the *Destroyed() methods will be called.
-  class DestructionObserver : public CefBrowserHostImpl::Observer,
+  class DestructionObserver : public CefBrowserHostBase::Observer,
                               public CefContext::Observer {
    public:
-    explicit DestructionObserver(CefBrowserHostImpl* browser) {
+    explicit DestructionObserver(CefBrowserHostBase* browser) {
       if (browser) {
         browser_info_ = browser->browser_info();
         browser->AddObserver(this);
@@ -198,7 +198,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       wrapper_ = wrapper;
     }
 
-    void OnBrowserDestroyed(CefBrowserHostImpl* browser) override {
+    void OnBrowserDestroyed(CefBrowserHostBase* browser) override {
       CEF_REQUIRE_UIT();
       browser->RemoveObserver(this);
       registered_ = false;
@@ -249,7 +249,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     }
 
     void Initialize(content::BrowserContext* browser_context,
-                    CefRefPtr<CefBrowserHostImpl> browser,
+                    CefRefPtr<CefBrowserHostBase> browser,
                     CefRefPtr<CefFrame> frame,
                     int render_process_id,
                     int render_frame_id,
@@ -310,7 +310,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
     bool initialized_ = false;
 
-    CefRefPtr<CefBrowserHostImpl> browser_;
+    CefRefPtr<CefBrowserHostBase> browser_;
     CefRefPtr<CefFrame> frame_;
     CefIOThreadState* iothread_state_ = nullptr;
     CefBrowserContext::CookieableSchemes cookieable_schemes_;
@@ -1239,13 +1239,13 @@ void InitOnUIThread(
     }
   }
 
-  CefRefPtr<CefBrowserHostImpl> browserPtr;
+  CefRefPtr<CefBrowserHostBase> browserPtr;
   CefRefPtr<CefFrame> framePtr;
 
   // |frame| may be null for service worker requests.
   if (frame) {
     // May return nullptr for requests originating from guest views.
-    browserPtr = CefBrowserHostImpl::GetBrowserForHost(frame);
+    browserPtr = CefBrowserHostBase::GetBrowserForHost(frame);
     if (browserPtr) {
       framePtr = browserPtr->GetFrameForHost(frame);
       if (frame_tree_node_id < 0)
@@ -1282,7 +1282,7 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
     bool is_download,
     const url::Origin& request_initiator) {
   CEF_REQUIRE_UIT();
-  CefRefPtr<CefBrowserHostImpl> browserPtr;
+  CefRefPtr<CefBrowserHostBase> browserPtr;
   CefRefPtr<CefFrame> framePtr;
   int render_frame_id = -1;
   int frame_tree_node_id = -1;
@@ -1293,7 +1293,7 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
     frame_tree_node_id = frame->GetFrameTreeNodeId();
 
     // May return nullptr for requests originating from guest views.
-    browserPtr = CefBrowserHostImpl::GetBrowserForHost(frame);
+    browserPtr = CefBrowserHostBase::GetBrowserForHost(frame);
     if (browserPtr) {
       framePtr = browserPtr->GetFrameForHost(frame);
       DCHECK(framePtr);

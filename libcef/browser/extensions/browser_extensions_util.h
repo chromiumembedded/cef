@@ -7,15 +7,19 @@
 
 #include <vector>
 
-#include "libcef/browser/browser_host_impl.h"
+#include "include/internal/cef_ptr.h"
 
 #include "url/gurl.h"
 
 namespace content {
 class BrowserContext;
+class RenderFrameHost;
 class RenderViewHost;
 class WebContents;
 }  // namespace content
+
+class CefBrowserHostBase;
+class CefBrowserHostImpl;
 
 namespace extensions {
 
@@ -32,24 +36,24 @@ void GetAllGuestsForOwnerContents(content::WebContents* owner,
 // Returns the WebContents that owns the specified |guest|, if any.
 content::WebContents* GetOwnerForGuestContents(content::WebContents* guest);
 
-// Returns the CefBrowserHostImpl that owns the host identified by the specified
+// Returns the CefBrowserHostBase that owns the host identified by the specified
 // routing IDs, if any. |is_guest_view| will be set to true if the IDs
 // match a guest view associated with the returned browser instead of the
 // browser itself.
-CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForFrameRoute(
+CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForFrameRoute(
     int render_process_id,
     int render_routing_id,
     bool* is_guest_view);
 
-// Returns the CefBrowserHostImpl that owns the specified |host|, if any.
+// Returns the CefBrowserHostBase that owns the specified |host|, if any.
 // |is_guest_view| will be set to true if the host matches a guest view
 // associated with the returned browser instead of the browser itself.
 // TODO(cef): Delete the RVH variant once the remaining use case
 // (via AlloyContentBrowserClient::OverrideWebkitPrefs) has been removed.
-CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForHost(
+CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForHost(
     content::RenderViewHost* host,
     bool* is_guest_view);
-CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForHost(
+CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForHost(
     content::RenderFrameHost* host,
     bool* is_guest_view);
 

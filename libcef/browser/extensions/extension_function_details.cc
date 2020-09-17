@@ -365,7 +365,7 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
   if (!request_context)
     return nullptr;
 
-  CefBrowserHostImpl::CreateParams create_params;
+  CefBrowserHostBase::CreateParams create_params;
   create_params.url = url;
   create_params.request_context = request_context;
   create_params.window_info.reset(new CefWindowInfo);

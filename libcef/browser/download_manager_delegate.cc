@@ -5,6 +5,7 @@
 #include "libcef/browser/download_manager_delegate.h"
 
 #include "include/cef_download_handler.h"
+#include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/download_item_impl.h"
 #include "libcef/browser/thread_util.h"
@@ -405,7 +406,7 @@ std::string CefDownloadManagerDelegate::ApplicationClientIdForFileScanning() {
 }
 
 void CefDownloadManagerDelegate::OnBrowserDestroyed(
-    CefBrowserHostImpl* browser) {
+    CefBrowserHostBase* browser) {
   ItemBrowserMap::iterator it = item_browser_map_.begin();
   for (; it != item_browser_map_.end(); ++it) {
     if (it->second == browser) {

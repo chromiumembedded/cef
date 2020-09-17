@@ -95,7 +95,7 @@ class CefBrowserViewImpl : public CefViewImpl<CefBrowserViewView,
   bool HandleAccelerator(const content::NativeWebKeyboardEvent& event,
                          views::FocusManager* focus_manager);
 
-  std::unique_ptr<CefBrowserHostImpl::CreateParams>
+  std::unique_ptr<CefBrowserHostBase::CreateParams>
       pending_browser_create_params_;
 
   CefRefPtr<CefBrowserHostImpl> browser_;

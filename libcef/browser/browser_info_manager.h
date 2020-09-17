@@ -37,6 +37,8 @@ namespace IPC {
 class Message;
 }
 
+class CefBrowserHostBase;
+class CefBrowserHostImpl;
 class CefBrowserPlatformDelegate;
 
 // Singleton object for managing BrowserInfo instances.
@@ -48,7 +50,8 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // Returns this singleton instance of this class.
   static CefBrowserInfoManager* GetInstance();
 
-  // Called from CefBrowserHostImpl::Create when a new browser is being created
+  // Called from CefBrowserHostImpl::Create or
+  // ChromeBrowserDelegate::SetAsDelegate when a new browser is being created
   // directly. In this case |is_popup| will be true only for DevTools browsers.
   scoped_refptr<CefBrowserInfo> CreateBrowserInfo(
       bool is_popup,
@@ -107,7 +110,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
                            int render_routing_id,
                            IPC::Message* reply_msg);
 
-  // Called from CefBrowserHostImpl::DestroyBrowser() when a browser is
+  // Called from CefBrowserHostBase::DestroyBrowser() when a browser is
   // destroyed.
   void RemoveBrowserInfo(scoped_refptr<CefBrowserInfo> browser_info);
 
@@ -116,7 +119,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
 
   // Returns the CefBrowserInfo matching the specified IDs or nullptr if no
   // match is found. It is allowed to add new callers of this method but
-  // consider using CefBrowserHostImpl::GetBrowserForFrameRoute() or
+  // consider using CefBrowserHostBase::GetBrowserForFrameRoute() or
   // extensions::GetOwnerBrowserForFrameRoute() instead. If |is_guest_view| is
   // non-nullptr it will be set to true if the IDs match a guest view associated
   // with the returned browser info instead of the browser itself.
@@ -127,7 +130,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
 
   // Returns the CefBrowserInfo matching the specified ID or nullptr if no match
   // is found. It is allowed to add new callers of this method but consider
-  // using CefBrowserHostImpl::GetBrowserForFrameTreeNode() instead. If
+  // using CefBrowserHostBase::GetBrowserForFrameTreeNode() instead. If
   // |is_guest_view| is non-nullptr it will be set to true if the IDs match a
   // guest view associated with the returned browser info instead of the browser
   // itself.

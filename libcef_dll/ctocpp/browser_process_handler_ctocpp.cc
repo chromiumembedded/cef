@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=394c9b4009a90393aa15be216b5e44f1bafccdfb$
+// $hash=9e8f283905d68b7b97c13a568040dc12c2859ad3$
 //
 
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
+#include "libcef_dll/ctocpp/client_ctocpp.h"
 #include "libcef_dll/ctocpp/print_handler_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -74,6 +75,21 @@ void CefBrowserProcessHandlerCToCpp::OnScheduleMessagePumpWork(int64 delay_ms) {
 
   // Execute
   _struct->on_schedule_message_pump_work(_struct, delay_ms);
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefClient> CefBrowserProcessHandlerCToCpp::GetDefaultClient() {
+  cef_browser_process_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_default_client))
+    return nullptr;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_client_t* _retval = _struct->get_default_client(_struct);
+
+  // Return type: refptr_same
+  return CefClientCToCpp::Wrap(_retval);
 }
 
 // CONSTRUCTOR - Do not edit by hand.

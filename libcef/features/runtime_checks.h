@@ -13,6 +13,6 @@
   CHECK(cef::IsAlloyRuntimeEnabled()) << "Alloy runtime is required"
 
 #define REQUIRE_CHROME_RUNTIME() \
-  CHECK(cef::IsChrimeRuntimeEnabled()) << "Chrome runtime is required"
+  CHECK(cef::IsChromeRuntimeEnabled()) << "Chrome runtime is required"
 
 #endif  // CEF_LIBCEF_FEATURES_RUNTIME_CHECKS_H_

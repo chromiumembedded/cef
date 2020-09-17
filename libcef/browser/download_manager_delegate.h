@@ -8,7 +8,7 @@
 
 #include <set>
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/browser_host_base.h"
 
 #include "base/compiler_specific.h"
 #include "base/memory/weak_ptr.h"
@@ -16,10 +16,12 @@
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/download_manager_delegate.h"
 
+class CefBrowserHostImpl;
+
 class CefDownloadManagerDelegate : public download::DownloadItem::Observer,
                                    public content::DownloadManager::Observer,
                                    public content::DownloadManagerDelegate,
-                                   public CefBrowserHostImpl::Observer {
+                                   public CefBrowserHostBase::Observer {
  public:
   explicit CefDownloadManagerDelegate(content::DownloadManager* manager);
   ~CefDownloadManagerDelegate() override;
@@ -41,8 +43,8 @@ class CefDownloadManagerDelegate : public download::DownloadItem::Observer,
   void GetNextId(content::DownloadIdCallback callback) override;
   std::string ApplicationClientIdForFileScanning() override;
 
-  // CefBrowserHostImpl::Observer methods.
-  void OnBrowserDestroyed(CefBrowserHostImpl* browser) override;
+  // CefBrowserHostBase::Observer methods.
+  void OnBrowserDestroyed(CefBrowserHostBase* browser) override;
 
   CefBrowserHostImpl* GetOrAssociateBrowser(download::DownloadItem* item);
   CefBrowserHostImpl* GetBrowser(download::DownloadItem* item);

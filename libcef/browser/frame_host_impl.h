@@ -31,7 +31,7 @@ struct Cef_DraggableRegion_Params;
 struct Cef_Request_Params;
 struct Cef_Response_Params;
 class CefBrowserInfo;
-class CefBrowserHostImpl;
+class CefBrowserHostBase;
 struct CefNavigateParams;
 
 // Implementation of CefFrame. CefFrameHostImpl objects should always be created
@@ -112,10 +112,10 @@ class CefFrameHostImpl : public CefFrame {
                       const std::string& scriptUrl,
                       int startLine);
 
-  // Called from CefBrowserHostImpl::DidStopLoading.
+  // Called from CefBrowserHostBase::DidStopLoading.
   void MaybeSendDidStopLoading();
 
-  // Called from CefBrowserHostImpl::OnMessageReceived.
+  // Called from CefBrowserHostBase::OnMessageReceived.
   bool OnMessageReceived(const IPC::Message& message);
 
   void ExecuteJavaScriptWithUserGestureForTests(const CefString& javascript);
@@ -145,7 +145,7 @@ class CefFrameHostImpl : public CefFrame {
 
  private:
   int64 GetFrameId() const;
-  CefRefPtr<CefBrowserHostImpl> GetBrowserHostImpl() const;
+  CefRefPtr<CefBrowserHostBase> GetBrowserHostBase() const;
 
   // OnMessageReceived message handlers.
   void OnAttached();

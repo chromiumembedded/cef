@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=306236316b35037523ca566068d133755bce48fd$
+// $hash=17e60bfb954ddf6c40b90b9a117d90a0fe3f08d6$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_PROCESS_HANDLER_CAPI_H_
@@ -41,6 +41,7 @@
 #pragma once
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_client_capi.h"
 #include "include/capi/cef_command_line_capi.h"
 #include "include/capi/cef_print_handler_capi.h"
 #include "include/capi/cef_values_capi.h"
@@ -101,6 +102,16 @@ typedef struct _cef_browser_process_handler_t {
   void(CEF_CALLBACK* on_schedule_message_pump_work)(
       struct _cef_browser_process_handler_t* self,
       int64 delay_ms);
+
+  ///
+  // Return the default client for use with a newly created browser window. If
+  // null is returned the browser will be unmanaged (no callbacks will be
+  // executed for that browser) and application shutdown will be blocked until
+  // the browser window is closed manually. This function is currently only used
+  // with the chrome runtime.
+  ///
+  struct _cef_client_t*(CEF_CALLBACK* get_default_client)(
+      struct _cef_browser_process_handler_t* self);
 } cef_browser_process_handler_t;
 
 #ifdef __cplusplus

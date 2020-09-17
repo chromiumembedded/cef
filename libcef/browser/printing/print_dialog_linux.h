@@ -7,7 +7,7 @@
 #define LIBCEF_BROWSER_PRINTING_PRINT_DIALOG_LINUX_H_
 
 #include "include/cef_print_handler.h"
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/browser_host_base.h"
 
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
@@ -87,7 +87,7 @@ class CefPrintDialogLinux : public printing::PrintDialogGtkInterface,
   // Printing dialog callback.
   PrintingContextLinux::PrintSettingsCallback callback_;
   PrintingContextLinux* context_;
-  CefRefPtr<CefBrowserHostImpl> browser_;
+  CefRefPtr<CefBrowserHostBase> browser_;
 
   base::FilePath path_to_pdf_;
 

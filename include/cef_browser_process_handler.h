@@ -39,6 +39,7 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_client.h"
 #include "include/cef_command_line.h"
 #include "include/cef_print_handler.h"
 #include "include/cef_values.h"
@@ -90,6 +91,16 @@ class CefBrowserProcessHandler : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual void OnScheduleMessagePumpWork(int64 delay_ms) {}
+
+  ///
+  // Return the default client for use with a newly created browser window. If
+  // null is returned the browser will be unmanaged (no callbacks will be
+  // executed for that browser) and application shutdown will be blocked until
+  // the browser window is closed manually. This method is currently only used
+  // with the chrome runtime.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefClient> GetDefaultClient() { return nullptr; }
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_PROCESS_HANDLER_H_

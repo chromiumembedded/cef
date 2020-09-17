@@ -34,12 +34,12 @@ CefBrowserInfo::CefBrowserInfo(int browser_id,
 
 CefBrowserInfo::~CefBrowserInfo() {}
 
-CefRefPtr<CefBrowserHostImpl> CefBrowserInfo::browser() const {
+CefRefPtr<CefBrowserHostBase> CefBrowserInfo::browser() const {
   base::AutoLock lock_scope(lock_);
   return browser_;
 }
 
-void CefBrowserInfo::SetBrowser(CefRefPtr<CefBrowserHostImpl> browser) {
+void CefBrowserInfo::SetBrowser(CefRefPtr<CefBrowserHostBase> browser) {
   base::AutoLock lock_scope(lock_);
   browser_ = browser;
 
@@ -295,6 +295,37 @@ CefBrowserInfo::FrameHostList CefBrowserInfo::GetAllFrames() const {
       frames.insert(info->frame_);
   }
   return frames;
+}
+
+CefBrowserInfo::NavigationLock::NavigationLock() : weak_ptr_factory_(this) {}
+
+CefBrowserInfo::NavigationLock::~NavigationLock() {
+  CEF_REQUIRE_UIT();
+  if (pending_action_) {
+    CEF_POST_TASK(CEF_UIT, std::move(pending_action_));
+  }
+}
+
+scoped_refptr<CefBrowserInfo::NavigationLock>
+CefBrowserInfo::CreateNavigationLock() {
+  CEF_REQUIRE_UIT();
+  scoped_refptr<NavigationLock> lock;
+  if (!navigation_lock_) {
+    lock = new NavigationLock();
+    navigation_lock_ = lock->weak_ptr_factory_.GetWeakPtr();
+  } else {
+    lock = navigation_lock_.get();
+  }
+  return lock;
+}
+
+bool CefBrowserInfo::IsNavigationLocked(base::OnceClosure pending_action) {
+  CEF_REQUIRE_UIT();
+  if (navigation_lock_) {
+    navigation_lock_->pending_action_ = std::move(pending_action);
+    return true;
+  }
+  return false;
 }
 
 void CefBrowserInfo::MaybeUpdateFrameTreeNodeIdMap(FrameInfo* info) {

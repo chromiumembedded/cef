@@ -285,10 +285,6 @@ bool AlloyBrowserContext::IsPrintPreviewSupported() const {
   return !GetPrefs()->GetBoolean(prefs::kPrintPreviewDisabled);
 }
 
-void AlloyBrowserContext::AddVisitedURLs(const std::vector<GURL>& urls) {
-  visitedlink_master_->AddURLs(urls);
-}
-
 content::ResourceContext* AlloyBrowserContext::GetResourceContext() {
   if (!resource_context_) {
     resource_context_ = std::make_unique<content::ResourceContext>();
@@ -453,4 +449,8 @@ DownloadPrefs* AlloyBrowserContext::GetDownloadPrefs() {
     download_prefs_.reset(new DownloadPrefs(this));
   }
   return download_prefs_.get();
+}
+
+void AlloyBrowserContext::AddVisitedURLs(const std::vector<GURL>& urls) {
+  visitedlink_master_->AddURLs(urls);
 }

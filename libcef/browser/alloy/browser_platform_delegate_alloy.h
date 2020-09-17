@@ -15,7 +15,7 @@
 class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
  public:
   content::WebContents* CreateWebContents(
-      CefBrowserHostImpl::CreateParams& create_params,
+      CefBrowserHostBase::CreateParams& create_params,
       bool& own_web_contents) override;
   void WebContentsCreated(content::WebContents* web_contents,
                           bool owned) override;

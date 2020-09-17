@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7f01f5096df081ae224560eefba57b45fb9c758b$
+// $hash=94217ee1df26d037136df93adda612261606c569$
 //
 
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/client_cpptoc.h"
 #include "libcef_dll/cpptoc/print_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/command_line_ctocpp.h"
 
@@ -81,6 +82,22 @@ void CEF_CALLBACK browser_process_handler_on_schedule_message_pump_work(
       delay_ms);
 }
 
+struct _cef_client_t* CEF_CALLBACK browser_process_handler_get_default_client(
+    struct _cef_browser_process_handler_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefClient> _retval =
+      CefBrowserProcessHandlerCppToC::Get(self)->GetDefaultClient();
+
+  // Return type: refptr_same
+  return CefClientCppToC::Wrap(_retval);
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -93,6 +110,7 @@ CefBrowserProcessHandlerCppToC::CefBrowserProcessHandlerCppToC() {
   GetStruct()->get_print_handler = browser_process_handler_get_print_handler;
   GetStruct()->on_schedule_message_pump_work =
       browser_process_handler_on_schedule_message_pump_work;
+  GetStruct()->get_default_client = browser_process_handler_get_default_client;
 }
 
 // DESTRUCTOR - Do not edit by hand.

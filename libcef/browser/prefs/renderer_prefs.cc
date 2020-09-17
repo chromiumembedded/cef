@@ -6,10 +6,12 @@
 
 #include <string>
 
+#include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/extensions/extensions_util.h"
+#include "libcef/features/runtime_checks.h"
 
 #include "base/command_line.h"
 #include "base/i18n/character_encoding.h"
@@ -349,8 +351,9 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
 
 void PopulateWebPreferences(content::RenderViewHost* rvh,
                             content::WebPreferences& web) {
-  CefRefPtr<CefBrowserHostImpl> browser =
-      extensions::GetOwnerBrowserForHost(rvh, nullptr);
+  REQUIRE_ALLOY_RUNTIME();
+  CefRefPtr<CefBrowserHostImpl> browser = static_cast<CefBrowserHostImpl*>(
+      extensions::GetOwnerBrowserForHost(rvh, nullptr).get());
 
   // Set defaults for preferences that are not handled by PrefService.
   SetDefaultPrefs(web);

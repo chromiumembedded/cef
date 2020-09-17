@@ -1,0 +1,180 @@
+diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
+index 71ec3bbbf1b6..8b99a3ac7de2 100644
+--- chrome/browser/ui/browser.cc
++++ chrome/browser/ui/browser.cc
+@@ -257,6 +257,20 @@
+ #include "components/captive_portal/content/captive_portal_tab_helper.h"
+ #endif
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#define CALL_CEF_DELEGATE(name, ...) \
++  if (cef_browser_delegate_) { \
++    cef_browser_delegate_->name(__VA_ARGS__); \
++  }
++#define CALL_CEF_DELEGATE_RETURN(name, ...) \
++  if (cef_browser_delegate_) { \
++    return cef_browser_delegate_->name(__VA_ARGS__); \
++  }
++#else  // !BUILDFLAG(ENABLE_CEF)
++#define CALL_CEF_DELEGATE(name, ...)
++#define CALL_CEF_DELEGATE_RETURN(name, ...)
++#endif
++
+ #if BUILDFLAG(ENABLE_EXTENSIONS)
+ #include "chrome/browser/extensions/extension_browser_window_helper.h"
+ #endif
+@@ -470,6 +484,13 @@ Browser::Browser(const CreateParams& params)
+ 
+   CHECK(CanCreateBrowserForProfile(profile_));
+ 
++#if BUILDFLAG(ENABLE_CEF)
++  if (cef::IsChromeRuntimeEnabled()) {
++    cef_browser_delegate_ =
++        cef::BrowserDelegate::Create(this, params.cef_params);
++  }
++#endif
++
+   tab_strip_model_->AddObserver(this);
+ 
+   location_bar_model_ = std::make_unique<LocationBarModelImpl>(
+@@ -1713,6 +1734,8 @@ void Browser::LoadingStateChanged(WebContents* source,
+                                   bool to_different_document) {
+   ScheduleUIUpdate(source, content::INVALIDATE_TYPE_LOAD);
+   UpdateWindowForLoadingStateChanged(source, to_different_document);
++
++  CALL_CEF_DELEGATE(LoadingStateChanged, source, to_different_document);
+ }
+ 
+ void Browser::CloseContents(WebContents* source) {
+@@ -1740,6 +1763,8 @@ void Browser::SetContentsBounds(WebContents* source, const gfx::Rect& bounds) {
+ }
+ 
+ void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
++  CALL_CEF_DELEGATE(UpdateTargetURL, source, url);
++
+   if (!GetStatusBubble())
+     return;
+ 
+@@ -1747,6 +1772,17 @@ void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
+     GetStatusBubble()->SetURL(url);
+ }
+ 
++bool Browser::DidAddMessageToConsole(
++    content::WebContents* source,
++    blink::mojom::ConsoleMessageLevel log_level,
++    const base::string16& message,
++    int32_t line_no,
++    const base::string16& source_id) {
++  CALL_CEF_DELEGATE_RETURN(DidAddMessageToConsole, source, log_level, message,
++                           line_no, source_id);
++  return false;
++}
++
+ void Browser::ContentsMouseEvent(WebContents* source,
+                                  bool motion,
+                                  bool exited) {
+@@ -1899,6 +1935,8 @@ void Browser::RendererResponsive(
+ void Browser::DidNavigateMainFramePostCommit(WebContents* web_contents) {
+   if (web_contents == tab_strip_model_->GetActiveWebContents())
+     UpdateBookmarkBarState(BOOKMARK_BAR_STATE_CHANGE_TAB_STATE);
++
++  CALL_CEF_DELEGATE(DidNavigateMainFramePostCommit, web_contents);
+ }
+ 
+ content::JavaScriptDialogManager* Browser::GetJavaScriptDialogManager(
+@@ -1949,11 +1987,15 @@ void Browser::EnterFullscreenModeForTab(
+     const blink::mojom::FullscreenOptions& options) {
+   exclusive_access_manager_->fullscreen_controller()->EnterFullscreenModeForTab(
+       requesting_frame, options.display_id);
++
++  CALL_CEF_DELEGATE(EnterFullscreenModeForTab, requesting_frame, options);
+ }
+ 
+ void Browser::ExitFullscreenModeForTab(WebContents* web_contents) {
+   exclusive_access_manager_->fullscreen_controller()->ExitFullscreenModeForTab(
+       web_contents);
++
++  CALL_CEF_DELEGATE(ExitFullscreenModeForTab, web_contents);
+ }
+ 
+ bool Browser::IsFullscreenForTabOrPending(const WebContents* web_contents) {
+@@ -2814,6 +2856,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
+     content_translate_driver->RemoveObserver(this);
+     BookmarkTabHelper::FromWebContents(web_contents)->RemoveObserver(this);
+   }
++
++  CALL_CEF_DELEGATE(SetAsDelegate, web_contents, set_delegate);
+ }
+ 
+ void Browser::CloseFrame() {
+diff --git chrome/browser/ui/browser.h chrome/browser/ui/browser.h
+index ab2a03e6e878..aef94abf4fd8 100644
+--- chrome/browser/ui/browser.h
++++ chrome/browser/ui/browser.h
+@@ -21,6 +21,7 @@
+ #include "base/strings/string16.h"
+ #include "base/timer/elapsed_timer.h"
+ #include "build/build_config.h"
++#include "cef/libcef/features/runtime.h"
+ #include "chrome/browser/devtools/devtools_toggle_action.h"
+ #include "chrome/browser/ui/bookmarks/bookmark_bar.h"
+ #include "chrome/browser/ui/bookmarks/bookmark_tab_helper_observer.h"
+@@ -56,6 +57,10 @@
+ #include "ui/gfx/geometry/rect.h"
+ #include "ui/shell_dialogs/select_file_dialog.h"
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/browser/chrome/browser_delegate.h"
++#endif
++
+ #if defined(OS_ANDROID)
+ #error This file should only be included on desktop.
+ #endif
+@@ -241,6 +246,11 @@ class Browser : public TabStripModelObserver,
+     // default. Intended for testing.
+     BrowserWindow* window = nullptr;
+ 
++#if BUILDFLAG(ENABLE_CEF)
++    // Opaque CEF-specific configuration. Will be propagated to new Browsers.
++    scoped_refptr<cef::BrowserDelegate::CreateParams> cef_params;
++#endif
++
+    private:
+     friend class Browser;
+     friend class WindowSizerChromeOSTest;
+@@ -358,6 +368,12 @@ class Browser : public TabStripModelObserver,
+     return &signin_view_controller_;
+   }
+ 
++#if BUILDFLAG(ENABLE_CEF)
++  cef::BrowserDelegate* cef_delegate() const {
++    return cef_browser_delegate_.get();
++  }
++#endif
++
+   // Get the FindBarController for this browser, creating it if it does not
+   // yet exist.
+   FindBarController* GetFindBarController();
+@@ -742,6 +758,11 @@ class Browser : public TabStripModelObserver,
+   void SetContentsBounds(content::WebContents* source,
+                          const gfx::Rect& bounds) override;
+   void UpdateTargetURL(content::WebContents* source, const GURL& url) override;
++  bool DidAddMessageToConsole(content::WebContents* source,
++                              blink::mojom::ConsoleMessageLevel log_level,
++                              const base::string16& message,
++                              int32_t line_no,
++                              const base::string16& source_id) override;
+   void ContentsMouseEvent(content::WebContents* source,
+                           bool motion,
+                           bool exited) override;
+@@ -1206,6 +1227,10 @@ class Browser : public TabStripModelObserver,
+       extension_browser_window_helper_;
+ #endif
+ 
++#if BUILDFLAG(ENABLE_CEF)
++  std::unique_ptr<cef::BrowserDelegate> cef_browser_delegate_;
++#endif
++
+   const base::ElapsedTimer creation_timer_;
+ 
+   // Stores the list of browser windows showing via a menu.

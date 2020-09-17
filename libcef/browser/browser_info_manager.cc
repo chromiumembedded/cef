@@ -14,6 +14,7 @@
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/values_impl.h"
+#include "libcef/features/runtime_checks.h"
 
 #include "base/command_line.h"
 #include "base/logging.h"
@@ -116,6 +117,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
     bool opener_suppressed,
     bool* no_javascript_access) {
   CEF_REQUIRE_UIT();
+  REQUIRE_ALLOY_RUNTIME();
 
   content::OpenURLParams params(target_url, referrer, disposition,
                                 ui::PAGE_TRANSITION_LINK,
@@ -180,7 +182,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
   }
 
   if (allow) {
-    CefBrowserHostImpl::CreateParams create_params;
+    CefBrowserHostBase::CreateParams create_params;
 
     if (!browser->IsViewsHosted())
       create_params.window_info = std::move(window_info);
@@ -213,6 +215,7 @@ void CefBrowserInfoManager::GetCustomWebContentsView(
     content::WebContentsView** view,
     content::RenderViewHostDelegateView** delegate_view) {
   CEF_REQUIRE_UIT();
+  REQUIRE_ALLOY_RUNTIME();
 
   std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
       PopPendingPopup(CefBrowserInfoManager::PendingPopup::CAN_CREATE_WINDOW,
@@ -240,6 +243,7 @@ void CefBrowserInfoManager::WebContentsCreated(
     std::unique_ptr<CefBrowserPlatformDelegate>& platform_delegate,
     CefRefPtr<CefDictionaryValue>& extra_info) {
   CEF_REQUIRE_UIT();
+  REQUIRE_ALLOY_RUNTIME();
 
   std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
       PopPendingPopup(
@@ -332,7 +336,7 @@ void CefBrowserInfoManager::DestroyAllBrowsers() {
   if (!list.empty()) {
     BrowserInfoList::iterator it = list.begin();
     for (; it != list.end(); ++it) {
-      CefRefPtr<CefBrowserHostImpl> browser = (*it)->browser();
+      CefRefPtr<CefBrowserHostBase> browser = (*it)->browser();
       DCHECK(browser.get());
       if (browser.get()) {
         // DestroyBrowser will call RemoveBrowserInfo.
@@ -363,10 +367,11 @@ bool CefBrowserInfoManager::MaybeAllowNavigation(
     const content::OpenURLParams& params,
     CefRefPtr<CefBrowserHostImpl>& browser_out) const {
   CEF_REQUIRE_UIT();
+  REQUIRE_ALLOY_RUNTIME();
 
   bool is_guest_view = false;
-  CefRefPtr<CefBrowserHostImpl> browser =
-      extensions::GetOwnerBrowserForHost(opener, &is_guest_view);
+  CefRefPtr<CefBrowserHostImpl> browser = static_cast<CefBrowserHostImpl*>(
+      extensions::GetOwnerBrowserForHost(opener, &is_guest_view).get());
   if (!browser) {
     // Print preview uses a modal dialog where we don't own the WebContents.
     // Allow that navigation to proceed.

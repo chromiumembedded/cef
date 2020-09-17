@@ -456,8 +456,6 @@ bool CefBrowserContext::IsPrintPreviewSupported() const {
   return true;
 }
 
-void CefBrowserContext::AddVisitedURLs(const std::vector<GURL>& urls) {}
-
 network::mojom::NetworkContext* CefBrowserContext::GetNetworkContext() {
   CEF_REQUIRE_UIT();
   auto browser_context = AsBrowserContext();
