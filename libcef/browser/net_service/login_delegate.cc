@@ -4,7 +4,7 @@
 
 #include "libcef/browser/net_service/login_delegate.h"
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/net_service/browser_urlrequest_impl.h"
 #include "libcef/browser/thread_util.h"
 
@@ -67,7 +67,7 @@ class AuthCallbackImpl : public CefAuthCallback {
 };
 
 void RunCallbackOnIOThread(
-    CefRefPtr<CefBrowserHostImpl> browser,
+    CefRefPtr<AlloyBrowserHostImpl> browser,
     base::Optional<CefBrowserURLRequest::RequestInfo> url_request_info,
     const net::AuthChallengeInfo& auth_info,
     const GURL& origin_url,
@@ -119,9 +119,9 @@ LoginDelegate::LoginDelegate(const net::AuthChallengeInfo& auth_info,
   CEF_REQUIRE_UIT();
 
   // May be nullptr for requests originating from CefURLRequest.
-  CefRefPtr<CefBrowserHostImpl> browser;
+  CefRefPtr<AlloyBrowserHostImpl> browser;
   if (web_contents) {
-    browser = CefBrowserHostImpl::GetBrowserForContents(web_contents);
+    browser = AlloyBrowserHostImpl::GetBrowserForContents(web_contents);
   }
 
   // |callback| needs to be executed asynchronously.
@@ -146,7 +146,7 @@ void LoginDelegate::Cancel() {
   }
 }
 
-void LoginDelegate::Start(CefRefPtr<CefBrowserHostImpl> browser,
+void LoginDelegate::Start(CefRefPtr<AlloyBrowserHostImpl> browser,
                           const net::AuthChallengeInfo& auth_info,
                           const content::GlobalRequestID& request_id,
                           const GURL& origin_url) {

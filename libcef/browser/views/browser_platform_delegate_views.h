@@ -24,10 +24,10 @@ class CefBrowserPlatformDelegateViews
   void WebContentsCreated(content::WebContents* web_contents,
                           bool owned) override;
   void WebContentsDestroyed(content::WebContents* web_contents) override;
-  void BrowserCreated(CefBrowserHostImpl* browser) override;
+  void BrowserCreated(AlloyBrowserHostImpl* browser) override;
   void NotifyBrowserCreated() override;
   void NotifyBrowserDestroyed() override;
-  void BrowserDestroyed(CefBrowserHostImpl* browser) override;
+  void BrowserDestroyed(AlloyBrowserHostImpl* browser) override;
   bool CreateHostWindow() override;
   void CloseHostWindow() override;
   CefWindowHandle GetHostWindowHandle() const override;
@@ -39,7 +39,7 @@ class CefBrowserPlatformDelegateViews
       content::WebContents* new_web_contents,
       CefBrowserPlatformDelegate* new_platform_delegate,
       bool is_devtools) override;
-  void PopupBrowserCreated(CefBrowserHostImpl* new_browser,
+  void PopupBrowserCreated(AlloyBrowserHostImpl* new_browser,
                            bool is_devtools) override;
   SkColor GetBackgroundColor() const override;
   void WasResized() override;

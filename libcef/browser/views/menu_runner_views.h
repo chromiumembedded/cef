@@ -16,7 +16,7 @@ class CefMenuRunnerViews : public CefMenuRunner {
   explicit CefMenuRunnerViews(CefBrowserViewImpl* browser_view);
 
   // CefMenuRunner methods.
-  bool RunContextMenu(CefBrowserHostImpl* browser,
+  bool RunContextMenu(AlloyBrowserHostImpl* browser,
                       CefMenuModelImpl* model,
                       const content::ContextMenuParams& params) override;
   void CancelContextMenu() override;

@@ -6,7 +6,7 @@
 
 #include <sys/sysinfo.h>
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/native/menu_runner_linux.h"
 #include "libcef/browser/native/window_delegate_view.h"
@@ -50,7 +50,7 @@ CefBrowserPlatformDelegateNativeLinux::CefBrowserPlatformDelegateNativeLinux(
       window_widget_(nullptr) {}
 
 void CefBrowserPlatformDelegateNativeLinux::BrowserDestroyed(
-    CefBrowserHostImpl* browser) {
+    AlloyBrowserHostImpl* browser) {
   CefBrowserPlatformDelegateNative::BrowserDestroyed(browser);
 
   if (host_window_created_) {

@@ -4,7 +4,6 @@
 
 #include "libcef/browser/osr/video_consumer_osr.h"
 
-#include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
 
 #include "media/base/video_frame_metadata.h"

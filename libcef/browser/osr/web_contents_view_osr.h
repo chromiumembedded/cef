@@ -16,7 +16,7 @@ class WebContents;
 class WebContentsViewDelegate;
 }  // namespace content
 
-class CefBrowserHostImpl;
+class AlloyBrowserHostImpl;
 class CefRenderWidgetHostViewOSR;
 
 // An implementation of WebContentsView for off-screen rendering.
@@ -76,7 +76,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
 
  private:
   CefRenderWidgetHostViewOSR* GetView() const;
-  CefBrowserHostImpl* GetBrowser() const;
+  AlloyBrowserHostImpl* GetBrowser() const;
 
   const SkColor background_color_;
   const bool use_shared_texture_;

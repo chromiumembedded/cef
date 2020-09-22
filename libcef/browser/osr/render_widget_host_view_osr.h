@@ -14,7 +14,7 @@
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/osr/host_display_client_osr.h"
 #include "libcef/browser/osr/motion_event_osr.h"
 
@@ -242,8 +242,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void ImeFinishComposingText(bool keep_selection);
   void ImeCancelComposition() override;
 
-  CefRefPtr<CefBrowserHostImpl> browser_impl() const { return browser_impl_; }
-  void set_browser_impl(CefRefPtr<CefBrowserHostImpl> browser) {
+  CefRefPtr<AlloyBrowserHostImpl> browser_impl() const { return browser_impl_; }
+  void set_browser_impl(CefRefPtr<AlloyBrowserHostImpl> browser) {
     browser_impl_ = browser;
   }
 
@@ -378,7 +378,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   CefRenderWidgetHostViewOSR* child_host_view_ = nullptr;
   std::set<CefRenderWidgetHostViewOSR*> guest_host_views_;
 
-  CefRefPtr<CefBrowserHostImpl> browser_impl_;
+  CefRefPtr<AlloyBrowserHostImpl> browser_impl_;
 
   bool is_showing_ = false;
   bool is_destroyed_ = false;

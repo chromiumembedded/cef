@@ -23,19 +23,19 @@ namespace net {
 class DirectoryLister;
 }
 
-class CefBrowserHostImpl;
+class AlloyBrowserHostImpl;
 
 class CefFileDialogManager {
  public:
   // |runner| may be NULL if the platform doesn't implement dialogs.
-  CefFileDialogManager(CefBrowserHostImpl* browser,
+  CefFileDialogManager(AlloyBrowserHostImpl* browser,
                        std::unique_ptr<CefFileDialogRunner> runner);
   ~CefFileDialogManager();
 
   // Delete the runner to free any platform constructs.
   void Destroy();
 
-  // Called from CefBrowserHostImpl::RunFileChooser.
+  // Called from AlloyBrowserHostImpl::RunFileChooser.
   // See CefBrowserHost::RunFileDialog documentation.
   void RunFileDialog(cef_file_dialog_mode_t mode,
                      const CefString& title,
@@ -44,7 +44,7 @@ class CefFileDialogManager {
                      int selected_accept_filter,
                      CefRefPtr<CefRunFileDialogCallback> callback);
 
-  // Called from CefBrowserHostImpl::RunFileChooser.
+  // Called from AlloyBrowserHostImpl::RunFileChooser.
   // See WebContentsDelegate::RunFileChooser documentation.
   void RunFileChooser(scoped_refptr<content::FileSelectListener> listener,
                       const blink::mojom::FileChooserParams& params);
@@ -86,8 +86,8 @@ class CefFileDialogManager {
   // Clean up state associated with the last run.
   void Cleanup();
 
-  // CefBrowserHostImpl pointer is guaranteed to outlive this object.
-  CefBrowserHostImpl* browser_;
+  // AlloyBrowserHostImpl pointer is guaranteed to outlive this object.
+  AlloyBrowserHostImpl* browser_;
 
   std::unique_ptr<CefFileDialogRunner> runner_;
 

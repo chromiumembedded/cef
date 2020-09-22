@@ -4,7 +4,7 @@
 
 #include "libcef/browser/native/menu_runner_mac.h"
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 
 #include "base/compiler_specific.h"
 #import "base/mac/scoped_sending_event.h"
@@ -17,7 +17,7 @@ CefMenuRunnerMac::CefMenuRunnerMac() {}
 CefMenuRunnerMac::~CefMenuRunnerMac() {}
 
 bool CefMenuRunnerMac::RunContextMenu(
-    CefBrowserHostImpl* browser,
+    AlloyBrowserHostImpl* browser,
     CefMenuModelImpl* model,
     const content::ContextMenuParams& params) {
   // Create a menu controller based on the model.

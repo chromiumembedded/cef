@@ -4,7 +4,7 @@
 
 #include "libcef/browser/alloy/browser_platform_delegate_alloy.h"
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/extensions/extension_background_host.h"
 #include "libcef/browser/extensions/extension_system.h"
@@ -105,8 +105,8 @@ void CefBrowserPlatformDelegateAlloy::AddNewContents(
     const gfx::Rect& initial_rect,
     bool user_gesture,
     bool* was_blocked) {
-  CefRefPtr<CefBrowserHostImpl> owner =
-      CefBrowserHostImpl::GetBrowserForContents(new_contents.get());
+  CefRefPtr<AlloyBrowserHostImpl> owner =
+      AlloyBrowserHostImpl::GetBrowserForContents(new_contents.get());
   if (owner) {
     // Taking ownership of |new_contents|.
     static_cast<CefBrowserPlatformDelegateAlloy*>(
@@ -143,7 +143,7 @@ void CefBrowserPlatformDelegateAlloy::RenderViewReady() {
 }
 
 void CefBrowserPlatformDelegateAlloy::BrowserCreated(
-    CefBrowserHostImpl* browser) {
+    AlloyBrowserHostImpl* browser) {
   CefBrowserPlatformDelegate::BrowserCreated(browser);
 
   web_contents_->SetDelegate(browser);
@@ -202,7 +202,7 @@ extensions::ExtensionHost* CefBrowserPlatformDelegateAlloy::GetExtensionHost()
 }
 
 void CefBrowserPlatformDelegateAlloy::BrowserDestroyed(
-    CefBrowserHostImpl* browser) {
+    AlloyBrowserHostImpl* browser) {
   DestroyExtensionHost();
   owned_web_contents_.reset();
 

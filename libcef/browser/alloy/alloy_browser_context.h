@@ -115,8 +115,8 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
     return extension_system_;
   }
 
-  // Called from CefBrowserHostImpl::DidFinishNavigation to update the table of
-  // visited links.
+  // Called from AlloyBrowserHostImpl::DidFinishNavigation to update the table
+  // of visited links.
   void AddVisitedURLs(const std::vector<GURL>& urls);
 
   // Called from DownloadPrefs::FromBrowserContext.

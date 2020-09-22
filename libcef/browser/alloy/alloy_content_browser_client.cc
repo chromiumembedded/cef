@@ -9,9 +9,9 @@
 
 #include "include/cef_version.h"
 #include "libcef/browser/alloy/alloy_browser_context.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/alloy/alloy_browser_main.h"
 #include "libcef/browser/browser_context.h"
-#include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_message_filter.h"
@@ -349,9 +349,9 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
 
     bool handled = false;
 
-    CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserForFrameRoute(render_process_id,
-                                                    params.render_frame_id);
+    CefRefPtr<AlloyBrowserHostImpl> browser =
+        AlloyBrowserHostImpl::GetBrowserForFrameRoute(render_process_id,
+                                                      params.render_frame_id);
     if (browser.get()) {
       CefRefPtr<CefClient> client = browser->GetClient();
       if (client.get()) {
@@ -459,7 +459,7 @@ bool NavigationOnUIThread(
   open_params.user_gesture = params.has_user_gesture();
   open_params.initiator_origin = params.initiator_origin();
 
-  CefRefPtr<CefBrowserHostImpl> browser;
+  CefRefPtr<AlloyBrowserHostImpl> browser;
   if (!CefBrowserInfoManager::GetInstance()->MaybeAllowNavigation(
           source->GetMainFrame(), open_params, browser)) {
     // Cancel the navigation.
@@ -939,8 +939,8 @@ void AlloyContentBrowserClient::AllowCertificateError(
     return;
   }
 
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForContents(web_contents);
+  CefRefPtr<AlloyBrowserHostImpl> browser =
+      AlloyBrowserHostImpl::GetBrowserForContents(web_contents);
   if (!browser.get())
     return;
   CefRefPtr<CefClient> client = browser->GetClient();
@@ -975,8 +975,8 @@ base::OnceClosure AlloyContentBrowserClient::SelectClientCertificate(
   CEF_REQUIRE_UIT();
 
   CefRefPtr<CefRequestHandler> handler;
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForContents(web_contents);
+  CefRefPtr<AlloyBrowserHostImpl> browser =
+      AlloyBrowserHostImpl::GetBrowserForContents(web_contents);
   if (browser.get()) {
     CefRefPtr<CefClient> client = browser->GetClient();
     if (client.get())

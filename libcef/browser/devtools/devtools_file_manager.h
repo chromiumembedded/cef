@@ -18,7 +18,7 @@ class SequencedTaskRunner;
 class Value;
 }  // namespace base
 
-class CefBrowserHostImpl;
+class AlloyBrowserHostImpl;
 class PrefService;
 
 // File management helper for DevTools.
@@ -26,7 +26,8 @@ class PrefService;
 // chrome/browser/devtools/devtools_file_helper.cc.
 class CefDevToolsFileManager {
  public:
-  CefDevToolsFileManager(CefBrowserHostImpl* browser_impl, PrefService* prefs);
+  CefDevToolsFileManager(AlloyBrowserHostImpl* browser_impl,
+                         PrefService* prefs);
 
   void SaveToFile(const std::string& url,
                   const std::string& content,
@@ -68,7 +69,7 @@ class CefDevToolsFileManager {
                           const base::Value* arg3);
 
   // Guaranteed to outlive this object.
-  CefBrowserHostImpl* browser_impl_;
+  AlloyBrowserHostImpl* browser_impl_;
   PrefService* prefs_;
 
   typedef std::map<std::string, base::FilePath> PathsMap;

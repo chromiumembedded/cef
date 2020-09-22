@@ -4,9 +4,9 @@
 
 #include "libcef/browser/extensions/browser_extensions_util.h"
 
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_util.h"
@@ -146,7 +146,7 @@ CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForHost(
   return browser;
 }
 
-CefRefPtr<CefBrowserHostImpl> GetBrowserForTabId(
+CefRefPtr<AlloyBrowserHostImpl> GetBrowserForTabId(
     int tab_id,
     content::BrowserContext* browser_context) {
   REQUIRE_ALLOY_RUNTIME();
@@ -160,8 +160,8 @@ CefRefPtr<CefBrowserHostImpl> GetBrowserForTabId(
 
   for (const auto& browser_info :
        CefBrowserInfoManager::GetInstance()->GetBrowserInfoList()) {
-    CefRefPtr<CefBrowserHostImpl> current_browser =
-        static_cast<CefBrowserHostImpl*>(browser_info->browser().get());
+    CefRefPtr<AlloyBrowserHostImpl> current_browser =
+        static_cast<AlloyBrowserHostImpl*>(browser_info->browser().get());
     if (current_browser && current_browser->GetIdentifier() == tab_id) {
       // Make sure we're operating in the same CefBrowserContext.
       if (CefBrowserContext::FromBrowserContext(

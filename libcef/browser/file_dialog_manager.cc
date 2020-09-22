@@ -8,7 +8,7 @@
 #include <utility>
 
 #include "include/cef_dialog_handler.h"
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/thread_util.h"
 
 #include "content/public/browser/file_select_listener.h"
@@ -140,7 +140,7 @@ class UploadFolderHelper
 }  // namespace
 
 CefFileDialogManager::CefFileDialogManager(
-    CefBrowserHostImpl* browser,
+    AlloyBrowserHostImpl* browser,
     std::unique_ptr<CefFileDialogRunner> runner)
     : browser_(browser),
       runner_(std::move(runner)),

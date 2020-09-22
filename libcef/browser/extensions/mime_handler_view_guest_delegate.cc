@@ -5,9 +5,9 @@
 
 #include "libcef/browser/extensions/mime_handler_view_guest_delegate.h"
 
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/browser_context.h"
-#include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/osr/web_contents_view_osr.h"
 
@@ -27,8 +27,8 @@ void CefMimeHandlerViewGuestDelegate::OverrideWebContentsCreateParams(
     content::WebContents::CreateParams* params) {
   DCHECK(params->guest_delegate);
 
-  CefRefPtr<CefBrowserHostImpl> owner_browser =
-      CefBrowserHostImpl::GetBrowserForContents(owner_web_contents_);
+  CefRefPtr<AlloyBrowserHostImpl> owner_browser =
+      AlloyBrowserHostImpl::GetBrowserForContents(owner_web_contents_);
   DCHECK(owner_browser);
 
   if (owner_browser->IsWindowless()) {
@@ -43,8 +43,8 @@ void CefMimeHandlerViewGuestDelegate::OnGuestAttached() {
   content::WebContents* web_contents = guest_->web_contents();
   DCHECK(web_contents);
 
-  CefRefPtr<CefBrowserHostImpl> owner_browser =
-      CefBrowserHostImpl::GetBrowserForContents(owner_web_contents_);
+  CefRefPtr<AlloyBrowserHostImpl> owner_browser =
+      AlloyBrowserHostImpl::GetBrowserForContents(owner_web_contents_);
   DCHECK(owner_browser);
 
   // Associate guest state information with the owner browser.
@@ -56,8 +56,8 @@ void CefMimeHandlerViewGuestDelegate::OnGuestDetached() {
   content::WebContents* web_contents = guest_->web_contents();
   DCHECK(web_contents);
 
-  CefRefPtr<CefBrowserHostImpl> owner_browser =
-      CefBrowserHostImpl::GetBrowserForContents(owner_web_contents_);
+  CefRefPtr<AlloyBrowserHostImpl> owner_browser =
+      AlloyBrowserHostImpl::GetBrowserForContents(owner_web_contents_);
   DCHECK(owner_browser);
 
   // Disassociate guest state information with the owner browser.
@@ -78,8 +78,8 @@ bool CefMimeHandlerViewGuestDelegate::HandleContextMenu(
   new_params.x += guest_coordinates.x();
   new_params.y += guest_coordinates.y();
 
-  CefRefPtr<CefBrowserHostImpl> owner_browser =
-      CefBrowserHostImpl::GetBrowserForContents(owner_web_contents_);
+  CefRefPtr<AlloyBrowserHostImpl> owner_browser =
+      AlloyBrowserHostImpl::GetBrowserForContents(owner_web_contents_);
   DCHECK(owner_browser);
 
   return owner_browser->HandleContextMenu(web_contents, new_params);

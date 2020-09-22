@@ -38,7 +38,7 @@ class Message;
 }
 
 class CefBrowserHostBase;
-class CefBrowserHostImpl;
+class AlloyBrowserHostImpl;
 class CefBrowserPlatformDelegate;
 
 // Singleton object for managing BrowserInfo instances.
@@ -50,7 +50,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // Returns this singleton instance of this class.
   static CefBrowserInfoManager* GetInstance();
 
-  // Called from CefBrowserHostImpl::Create or
+  // Called from AlloyBrowserHostImpl::Create or
   // ChromeBrowserDelegate::SetAsDelegate when a new browser is being created
   // directly. In this case |is_popup| will be true only for DevTools browsers.
   scoped_refptr<CefBrowserInfo> CreateBrowserInfo(
@@ -58,7 +58,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
       bool is_windowless,
       CefRefPtr<CefDictionaryValue> extra_info);
 
-  // Called from CefBrowserHostImpl::WebContentsCreated when a new browser is
+  // Called from AlloyBrowserHostImpl::WebContentsCreated when a new browser is
   // being created for a traditional popup (e.g. window.open() or targeted
   // link). If any OnGetNewBrowserInfo requests are pending for the popup the
   // response will be sent when this method is called.
@@ -79,7 +79,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
                        bool opener_suppressed,
                        bool* no_javascript_access);
 
-  // Called from CefBrowserHostImpl::GetCustomWebContentsView. See comments on
+  // Called from AlloyBrowserHostImpl::GetCustomWebContentsView. See comments on
   // PendingPopup for more information.
   void GetCustomWebContentsView(
       const GURL& target_url,
@@ -88,7 +88,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
       content::WebContentsView** view,
       content::RenderViewHostDelegateView** delegate_view);
 
-  // Called from CefBrowserHostImpl::WebContentsCreated. See comments on
+  // Called from AlloyBrowserHostImpl::WebContentsCreated. See comments on
   // PendingPopup for more information.
   void WebContentsCreated(
       const GURL& target_url,
@@ -147,7 +147,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // |browser| will be set to the target browser if any.
   bool MaybeAllowNavigation(content::RenderFrameHost* opener,
                             const content::OpenURLParams& params,
-                            CefRefPtr<CefBrowserHostImpl>& browser) const;
+                            CefRefPtr<AlloyBrowserHostImpl>& browser) const;
 
  private:
   // RenderProcessHostObserver methods:
@@ -158,12 +158,12 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   //   Provides an opportunity to cancel the popup (calls OnBeforePopup) and
   //   creates the new platform delegate for the popup. If the popup owner is
   //   an extension guest view then the popup is canceled and
-  //   CefBrowserHostImpl::OpenURLFromTab is called.
+  //   AlloyBrowserHostImpl::OpenURLFromTab is called.
   // And then the following calls may occur at the same time:
-  // - CefBrowserHostImpl::GetCustomWebContentsView (UIT)
+  // - AlloyBrowserHostImpl::GetCustomWebContentsView (UIT)
   //   Creates the OSR views for windowless popups.
-  // - CefBrowserHostImpl::WebContentsCreated (UIT)
-  //   Creates the CefBrowserHostImpl representation for the popup.
+  // - AlloyBrowserHostImpl::WebContentsCreated (UIT)
+  //   Creates the AlloyBrowserHostImpl representation for the popup.
   // - CefBrowserMessageFilter::OnGetNewBrowserInfo (IOT)
   //   Passes information about the popup to the renderer process.
   struct PendingPopup {

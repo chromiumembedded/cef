@@ -92,7 +92,7 @@ CEF_EXPORT XDisplay* cef_get_xdisplay() {
   return gfx::GetXDisplay();
 }
 
-CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
+CefWindowX11::CefWindowX11(CefRefPtr<AlloyBrowserHostImpl> browser,
                            ::Window parent_xwindow,
                            const gfx::Rect& bounds,
                            const std::string& title)

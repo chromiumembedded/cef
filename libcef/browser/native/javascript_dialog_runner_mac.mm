@@ -87,7 +87,7 @@ CefJavaScriptDialogRunnerMac::~CefJavaScriptDialogRunnerMac() {
 }
 
 void CefJavaScriptDialogRunnerMac::Run(
-    CefBrowserHostImpl* browser,
+    AlloyBrowserHostImpl* browser,
     content::JavaScriptDialogType message_type,
     const base::string16& display_url,
     const base::string16& message_text,

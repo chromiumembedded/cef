@@ -6,7 +6,6 @@
 
 #include <utility>
 
-#include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
 
 #include "base/memory/shared_memory_mapping.h"

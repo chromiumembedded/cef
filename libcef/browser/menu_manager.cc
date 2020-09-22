@@ -6,7 +6,7 @@
 
 #include <utility>
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/context_menu_params_impl.h"
 #include "libcef/browser/menu_runner.h"
 #include "libcef/browser/thread_util.h"
@@ -86,7 +86,7 @@ class CefRunContextMenuCallbackImpl : public CefRunContextMenuCallback {
 
 }  // namespace
 
-CefMenuManager::CefMenuManager(CefBrowserHostImpl* browser,
+CefMenuManager::CefMenuManager(AlloyBrowserHostImpl* browser,
                                std::unique_ptr<CefMenuRunner> runner)
     : content::WebContentsObserver(browser->web_contents()),
       browser_(browser),

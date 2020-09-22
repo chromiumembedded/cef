@@ -17,14 +17,11 @@
 #include "base/threading/platform_thread.h"
 #include "third_party/skia/include/core/SkColor.h"
 
-class CefBrowserHostImpl;
 class CefBrowserInfoManager;
 class CefTraceSubscriber;
 
 class CefContext {
  public:
-  typedef std::list<CefRefPtr<CefBrowserHostImpl>> BrowserList;
-
   // Interface to implement for observers that wish to be informed of changes
   // to the context. All methods will be called on the UI thread.
   class Observer {

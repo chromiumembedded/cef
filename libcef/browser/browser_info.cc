@@ -4,7 +4,7 @@
 
 #include "libcef/browser/browser_info.h"
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/values_impl.h"
 

@@ -11,7 +11,7 @@
 #include "base/macros.h"
 #include "extensions/browser/extension_host.h"
 
-class CefBrowserHostImpl;
+class AlloyBrowserHostImpl;
 
 namespace content {
 class WebContents;
@@ -24,7 +24,7 @@ namespace extensions {
 // is managed by ProcessManager.
 class CefExtensionBackgroundHost : public ExtensionHost {
  public:
-  CefExtensionBackgroundHost(CefBrowserHostImpl* browser,
+  CefExtensionBackgroundHost(AlloyBrowserHostImpl* browser,
                              base::OnceClosure deleted_callback,
                              const Extension* extension,
                              content::WebContents* host_contents,

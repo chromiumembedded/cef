@@ -4,7 +4,7 @@
 // found in the LICENSE file.
 
 #include "libcef/browser/audio_capturer.h"
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 
 #include "components/mirroring/service/captured_audio_input.h"
 #include "content/public/browser/audio_loopback_stream_creator.h"
@@ -51,7 +51,7 @@ void StreamCreatorHelper(
 }  // namespace
 
 CefAudioCapturer::CefAudioCapturer(const CefAudioParameters& params,
-                                   CefRefPtr<CefBrowserHostImpl> browser,
+                                   CefRefPtr<AlloyBrowserHostImpl> browser,
                                    CefRefPtr<CefAudioHandler> audio_handler)
     : params_(params),
       browser_(browser),

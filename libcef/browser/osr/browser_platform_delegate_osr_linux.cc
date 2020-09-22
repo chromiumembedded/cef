@@ -6,8 +6,6 @@
 
 #include <utility>
 
-#include "libcef/browser/browser_host_impl.h"
-
 CefBrowserPlatformDelegateOsrLinux::CefBrowserPlatformDelegateOsrLinux(
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate,
     bool use_external_begin_frame)

@@ -5,7 +5,7 @@
 
 #include "libcef/browser/native/javascript_dialog_runner_win.h"
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef_dll/resource.h"
 
 #include "base/files/file_path.h"
@@ -91,7 +91,7 @@ CefJavaScriptDialogRunnerWin::~CefJavaScriptDialogRunnerWin() {
 }
 
 void CefJavaScriptDialogRunnerWin::Run(
-    CefBrowserHostImpl* browser,
+    AlloyBrowserHostImpl* browser,
     content::JavaScriptDialogType message_type,
     const base::string16& display_url,
     const base::string16& message_text,

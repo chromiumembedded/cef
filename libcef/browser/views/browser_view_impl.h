@@ -10,7 +10,7 @@
 #include "include/views/cef_browser_view.h"
 #include "include/views/cef_browser_view_delegate.h"
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/views/browser_view_view.h"
 #include "libcef/browser/views/view_impl.h"
 
@@ -44,9 +44,9 @@ class CefBrowserViewImpl : public CefViewImpl<CefBrowserViewView,
 
   // Called from CefBrowserPlatformDelegateViews.
   void WebContentsCreated(content::WebContents* web_contents);
-  void BrowserCreated(CefBrowserHostImpl* browser,
+  void BrowserCreated(AlloyBrowserHostImpl* browser,
                       base::RepeatingClosure on_bounds_changed);
-  void BrowserDestroyed(CefBrowserHostImpl* browser);
+  void BrowserDestroyed(AlloyBrowserHostImpl* browser);
 
   // Called to handle accelerators when the event is unhandled by the web
   // content and the browser client.
@@ -98,7 +98,7 @@ class CefBrowserViewImpl : public CefViewImpl<CefBrowserViewView,
   std::unique_ptr<CefBrowserHostBase::CreateParams>
       pending_browser_create_params_;
 
-  CefRefPtr<CefBrowserHostImpl> browser_;
+  CefRefPtr<AlloyBrowserHostImpl> browser_;
 
   views::UnhandledKeyboardEventHandler unhandled_keyboard_event_handler_;
   bool ignore_next_char_event_ = false;

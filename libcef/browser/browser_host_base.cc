@@ -558,9 +558,7 @@ void CefBrowserHostBase::LoadMainFrameURL(const std::string& url,
     }
 
     if (!gurl.is_valid()) {
-      LOG(ERROR)
-          << "Invalid URL passed to CefBrowserHostImpl::LoadMainFrameURL: "
-          << url;
+      LOG(ERROR) << "Invalid URL: " << url;
       return;
     }
 

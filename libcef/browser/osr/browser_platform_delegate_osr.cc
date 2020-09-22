@@ -6,7 +6,7 @@
 
 #include <utility>
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/image_impl.h"
 #include "libcef/browser/osr/osr_accessibility_util.h"
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
@@ -60,7 +60,7 @@ void CefBrowserPlatformDelegateOsr::RenderViewCreated(
 }
 
 void CefBrowserPlatformDelegateOsr::BrowserCreated(
-    CefBrowserHostImpl* browser) {
+    AlloyBrowserHostImpl* browser) {
   CefBrowserPlatformDelegateAlloy::BrowserCreated(browser);
 
   if (browser->IsPopup()) {
@@ -92,7 +92,7 @@ void CefBrowserPlatformDelegateOsr::NotifyBrowserDestroyed() {
 }
 
 void CefBrowserPlatformDelegateOsr::BrowserDestroyed(
-    CefBrowserHostImpl* browser) {
+    AlloyBrowserHostImpl* browser) {
   CefBrowserPlatformDelegateAlloy::BrowserDestroyed(browser);
 
   view_osr_ = nullptr;

@@ -47,7 +47,7 @@ index c7bd97a32af1..311f2c52af8d 100644
        "views/toolbar/toolbar_account_icon_container_view.h",
        "views/toolbar/toolbar_action_view.cc",
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
-index f27414c41891..0e6663680e80 100644
+index f27414c41891..5ff3bfa8f724 100644
 --- chrome/browser/ui/webui/net_export_ui.cc
 +++ chrome/browser/ui/webui/net_export_ui.cc
 @@ -21,6 +21,7 @@
@@ -63,7 +63,7 @@ index f27414c41891..0e6663680e80 100644
  #include "ui/shell_dialogs/select_file_dialog.h"
  
 +#if BUILDFLAG(ENABLE_CEF)
-+#include "cef/libcef/browser/browser_host_impl.h"
++#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
 +#endif
 +
  #if defined(OS_ANDROID)
@@ -121,8 +121,8 @@ index f27414c41891..0e6663680e80 100644
 +
 +void NetExportMessageHandler::ShowCefSaveAsDialog(
 +    content::WebContents* web_contents) {
-+  CefRefPtr<CefBrowserHostImpl> cef_browser =
-+      CefBrowserHostImpl::GetBrowserForContents(web_contents);
++  CefRefPtr<AlloyBrowserHostImpl> cef_browser =
++      AlloyBrowserHostImpl::GetBrowserForContents(web_contents);
 +  if (!cef_browser)
 +    return;
 +

@@ -4,7 +4,7 @@
 
 #include "libcef/browser/extensions/extension_background_host.h"
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/extensions/extension_host_delegate.h"
 
 #include "base/callback.h"
@@ -12,7 +12,7 @@
 namespace extensions {
 
 CefExtensionBackgroundHost::CefExtensionBackgroundHost(
-    CefBrowserHostImpl* browser,
+    AlloyBrowserHostImpl* browser,
     base::OnceClosure deleted_callback,
     const Extension* extension,
     content::WebContents* host_contents,

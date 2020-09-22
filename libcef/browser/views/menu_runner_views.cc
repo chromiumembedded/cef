@@ -4,14 +4,14 @@
 
 #include "libcef/browser/views/menu_runner_views.h"
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/views/browser_view_impl.h"
 
 CefMenuRunnerViews::CefMenuRunnerViews(CefBrowserViewImpl* browser_view)
     : browser_view_(browser_view) {}
 
 bool CefMenuRunnerViews::RunContextMenu(
-    CefBrowserHostImpl* browser,
+    AlloyBrowserHostImpl* browser,
     CefMenuModelImpl* model,
     const content::ContextMenuParams& params) {
   CefRefPtr<CefWindow> window = browser_view_->GetWindow();

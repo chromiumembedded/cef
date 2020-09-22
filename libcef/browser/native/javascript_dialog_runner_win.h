@@ -17,7 +17,7 @@ class CefJavaScriptDialogRunnerWin : public CefJavaScriptDialogRunner {
   ~CefJavaScriptDialogRunnerWin() override;
 
   // CefJavaScriptDialogRunner methods:
-  void Run(CefBrowserHostImpl* browser,
+  void Run(AlloyBrowserHostImpl* browser,
            content::JavaScriptDialogType message_type,
            const base::string16& display_url,
            const base::string16& message_text,

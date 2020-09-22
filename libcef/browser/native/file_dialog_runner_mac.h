@@ -18,7 +18,7 @@ class CefFileDialogRunnerMac : public CefFileDialogRunner {
   CefFileDialogRunnerMac();
 
   // CefFileDialogRunner methods:
-  void Run(CefBrowserHostImpl* browser,
+  void Run(AlloyBrowserHostImpl* browser,
            const FileChooserParams& params,
            RunFileChooserCallback callback) override;
 

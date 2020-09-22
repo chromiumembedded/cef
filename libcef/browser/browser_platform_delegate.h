@@ -13,7 +13,7 @@
 #include "include/cef_drag_data.h"
 #include "include/internal/cef_types.h"
 #include "include/views/cef_browser_view.h"
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 
 #include "base/callback_forward.h"
 #include "content/public/browser/web_contents.h"
@@ -56,7 +56,7 @@ class CefBrowserPlatformDelegate {
   static std::unique_ptr<CefBrowserPlatformDelegate> Create(
       CefBrowserHostBase::CreateParams& create_params);
 
-  // Called from CefBrowserHostImpl::Create.
+  // Called from AlloyBrowserHostImpl::Create.
   // Wait for the call to WebContentsCreated(owned=true) before taking ownership
   // of the resulting WebContents object.
   virtual content::WebContents* CreateWebContents(
@@ -103,12 +103,12 @@ class CefBrowserPlatformDelegate {
   // See WebContentsObserver documentation.
   virtual void RenderViewReady();
 
-  // Called after the owning CefBrowserHostImpl is created. Will only be called
-  // a single time per instance. Do not send any client notifications from this
-  // method.
-  virtual void BrowserCreated(CefBrowserHostImpl* browser);
+  // Called after the owning AlloyBrowserHostImpl is created. Will only be
+  // called a single time per instance. Do not send any client notifications
+  // from this method.
+  virtual void BrowserCreated(AlloyBrowserHostImpl* browser);
 
-  // Called from CefBrowserHostImpl::Create.
+  // Called from AlloyBrowserHostImpl::Create.
   virtual void CreateExtensionHost(const extensions::Extension* extension,
                                    const GURL& url,
                                    extensions::ViewType host_type);
@@ -124,11 +124,11 @@ class CefBrowserPlatformDelegate {
   // BrowserDestroyed().
   virtual void NotifyBrowserDestroyed();
 
-  // Called before the owning CefBrowserHostImpl is destroyed. Will only be
-  // called a single time per instance. All references to the CefBrowserHostImpl
-  // and WebContents should be cleared when this method is called. Do not send
-  // any client notifications from this method.
-  virtual void BrowserDestroyed(CefBrowserHostImpl* browser);
+  // Called before the owning AlloyBrowserHostImpl is destroyed. Will only be
+  // called a single time per instance. All references to the
+  // AlloyBrowserHostImpl and WebContents should be cleared when this method is
+  // called. Do not send any client notifications from this method.
+  virtual void BrowserDestroyed(AlloyBrowserHostImpl* browser);
 
   // Create the window that hosts the browser. Will only be called a single time
   // per instance. Only used with windowed rendering.
@@ -156,7 +156,7 @@ class CefBrowserPlatformDelegate {
 #endif
 
   // Called after the WebContents have been created for a new popup browser
-  // parented to this browser but before the CefBrowserHostImpl is created for
+  // parented to this browser but before the AlloyBrowserHostImpl is created for
   // the popup. |is_devtools| will be true if the popup will host DevTools. This
   // method will be called before WebContentsCreated() is called on
   // |new_platform_delegate|. Do not make the new browser visible in this
@@ -168,13 +168,13 @@ class CefBrowserPlatformDelegate {
       CefBrowserPlatformDelegate* new_platform_delegate,
       bool is_devtools);
 
-  // Called after the CefBrowserHostImpl is created for a new popup browser
+  // Called after the AlloyBrowserHostImpl is created for a new popup browser
   // parented to this browser. |is_devtools| will be true if the popup will host
   // DevTools. This method will be called immediately after
   // CefLifeSpanHandler::OnAfterCreated() for the popup browser. It is safe to
   // make the new browser visible in this callback (for example, add the browser
   // to a window and show it).
-  virtual void PopupBrowserCreated(CefBrowserHostImpl* new_browser,
+  virtual void PopupBrowserCreated(AlloyBrowserHostImpl* new_browser,
                                    bool is_devtools);
 
   // Returns the background color for the browser. The alpha component will be
@@ -343,7 +343,7 @@ class CefBrowserPlatformDelegate {
 
   // Not owned by this object.
   content::WebContents* web_contents_ = nullptr;
-  CefBrowserHostImpl* browser_ = nullptr;
+  AlloyBrowserHostImpl* browser_ = nullptr;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserPlatformDelegate);
 };

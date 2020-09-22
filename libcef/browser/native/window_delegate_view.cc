@@ -47,7 +47,7 @@ void CefWindowDelegateView::Init(gfx::AcceleratedWidget parent_widget,
   // Tell Aura not to draw the window frame on resize.
   params.remove_standard_frame = true;
   // Cause WidgetDelegate::CanActivate to return true. See comments in
-  // CefBrowserHostImpl::PlatformSetFocus.
+  // AlloyBrowserHostImpl::PlatformSetFocus.
   params.activatable = views::Widget::InitParams::ACTIVATABLE_YES;
 
   params.z_order = always_on_top_ ? ui::ZOrderLevel::kFloatingWindow

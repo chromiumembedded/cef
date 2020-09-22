@@ -6,7 +6,7 @@
 
 #include <utility>
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/thread_util.h"
 
 #include "content/public/browser/render_view_host.h"
@@ -27,7 +27,7 @@ void CefBrowserPlatformDelegateBackground::CloseHostWindow() {
   // No host window, so continue browser destruction now. Do it asynchronously
   // so the call stack has a chance to unwind.
   CEF_POST_TASK(CEF_UIT,
-                base::Bind(&CefBrowserHostImpl::WindowDestroyed, browser_));
+                base::Bind(&AlloyBrowserHostImpl::WindowDestroyed, browser_));
 }
 
 CefWindowHandle CefBrowserPlatformDelegateBackground::GetHostWindowHandle()

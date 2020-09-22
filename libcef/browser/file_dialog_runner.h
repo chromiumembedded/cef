@@ -13,7 +13,7 @@
 #include "base/files/file_path.h"
 #include "third_party/blink/public/mojom/choosers/file_chooser.mojom.h"
 
-class CefBrowserHostImpl;
+class AlloyBrowserHostImpl;
 
 class CefFileDialogRunner {
  public:
@@ -34,7 +34,7 @@ class CefFileDialogRunner {
       RunFileChooserCallback;
 
   // Display the file chooser dialog. Execute |callback| on completion.
-  virtual void Run(CefBrowserHostImpl* browser,
+  virtual void Run(AlloyBrowserHostImpl* browser,
                    const FileChooserParams& params,
                    RunFileChooserCallback callback) = 0;
 

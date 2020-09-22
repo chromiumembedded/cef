@@ -112,80 +112,77 @@ index b59728f623e3..6fd443962836 100644
  
  ConstrainedWebDialogUI::~ConstrainedWebDialogUI() {
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
-index bb362bbd321e..ba5a9336ec6a 100644
+index bb362bbd321e..24e94cfd4211 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 +++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
-@@ -184,8 +184,10 @@ PdfPrinterHandler::PdfPrinterHandler(
-       sticky_settings_(sticky_settings) {}
+@@ -20,6 +20,7 @@
+ #include "base/task/thread_pool.h"
+ #include "base/values.h"
+ #include "build/build_config.h"
++#include "cef/libcef/features/runtime.h"
+ #include "chrome/browser/app_mode/app_mode_utils.h"
+ #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/download/download_prefs.h"
+@@ -54,6 +55,10 @@
+ #include "chrome/browser/chromeos/drive/drive_integration_service.h"
+ #endif
  
- PdfPrinterHandler::~PdfPrinterHandler() {
-+#if !BUILDFLAG(ENABLE_CEF)
-   if (select_file_dialog_.get())
-     select_file_dialog_->ListenerDestroyed();
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
 +#endif
- }
++
+ namespace printing {
  
- void PdfPrinterHandler::Reset() {
-@@ -232,12 +234,14 @@ void PdfPrinterHandler::StartPrint(
-     return;
-   }
- 
-+#if !BUILDFLAG(ENABLE_CEF)
-   if (select_file_dialog_ &&
-       select_file_dialog_->IsRunning(
-           platform_util::GetTopLevel(preview_web_contents_->GetNativeView()))) {
-     // Dialog is already showing.
-     return;
-   }
-+#endif
- 
-   DCHECK(!print_callback_);
-   print_callback_ = std::move(callback);
-@@ -380,7 +384,11 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
+ namespace {
+@@ -380,10 +385,27 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
    // If the directory is empty there is no reason to create it or use the
    // default location.
    if (path.empty()) {
-+#if !BUILDFLAG(ENABLE_CEF)
-     OnDirectorySelected(default_filename, path);
-+#else
-+    ShowCefSaveAsDialog(initiator, default_filename, path);
++#if BUILDFLAG(ENABLE_CEF)
++    if (cef::IsAlloyRuntimeEnabled()) {
++      ShowCefSaveAsDialog(initiator, default_filename, path);
++      return;
++    }
 +#endif
+     OnDirectorySelected(default_filename, path);
      return;
    }
  
-@@ -391,8 +399,14 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
++  auto callback = base::BindOnce(&PdfPrinterHandler::OnDirectorySelected,
++                                 weak_ptr_factory_.GetWeakPtr(),
++                                 default_filename);
++#if BUILDFLAG(ENABLE_CEF)
++  if (cef::IsAlloyRuntimeEnabled()) {
++    callback = base::BindOnce(&PdfPrinterHandler::ShowCefSaveAsDialog,
++                              weak_ptr_factory_.GetWeakPtr(), initiator,
++                              default_filename);
++  }
++#endif
++
+   // Get default download directory. This will be used as a fallback if the
+   // save directory does not exist.
+   DownloadPrefs* download_prefs = DownloadPrefs::FromBrowserContext(profile_);
+@@ -391,8 +413,7 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
    base::ThreadPool::PostTaskAndReplyWithResult(
        FROM_HERE, {base::MayBlock(), base::TaskPriority::BEST_EFFORT},
        base::BindOnce(&SelectSaveDirectory, path, default_path),
-+#if !BUILDFLAG(ENABLE_CEF)
-       base::BindOnce(&PdfPrinterHandler::OnDirectorySelected,
-                      weak_ptr_factory_.GetWeakPtr(), default_filename));
-+#else
-+      base::BindOnce(&PdfPrinterHandler::ShowCefSaveAsDialog,
-+                     weak_ptr_factory_.GetWeakPtr(), initiator,
-+                     default_filename));
-+#endif
+-      base::BindOnce(&PdfPrinterHandler::OnDirectorySelected,
+-                     weak_ptr_factory_.GetWeakPtr(), default_filename));
++      std::move(callback));
  }
  
  void PdfPrinterHandler::PostPrintToPdfTask() {
-@@ -408,6 +422,7 @@ void PdfPrinterHandler::OnGotUniqueFileName(const base::FilePath& path) {
-   FileSelected(path, 0, nullptr);
- }
- 
-+#if !BUILDFLAG(ENABLE_CEF)
- void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
-                                             const base::FilePath& directory) {
-   base::FilePath path = directory.Append(filename);
-@@ -432,6 +447,37 @@ void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
-       &file_type_info, 0, base::FilePath::StringType(),
+@@ -433,6 +454,40 @@ void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
        platform_util::GetTopLevel(preview_web_contents_->GetNativeView()), NULL);
  }
-+#else
+ 
++#if BUILDFLAG(ENABLE_CEF)
++
 +void PdfPrinterHandler::ShowCefSaveAsDialog(content::WebContents* initiator,
 +                                            const base::FilePath& filename,
 +                                            const base::FilePath& directory) {
-+  CefRefPtr<CefBrowserHostImpl> cef_browser =
-+      CefBrowserHostImpl::GetBrowserForContents(initiator);
++  CefRefPtr<AlloyBrowserHostImpl> cef_browser =
++      AlloyBrowserHostImpl::GetBrowserForContents(initiator);
 +  if (!cef_browser)
 +    return;
 +
@@ -210,15 +207,17 @@ index bb362bbd321e..ba5a9336ec6a 100644
 +    FileSelectionCanceled(nullptr);
 +  }
 +}
-+#endif
- 
++
++#endif  // BUILDFLAG(ENABLE_CEF)
++
  base::FilePath PdfPrinterHandler::GetSaveLocation() const {
  #if defined(OS_CHROMEOS)
+   drive::DriveIntegrationService* drive_service =
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.h chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
-index 26954aeae08f..025ecfa9aceb 100644
+index 26954aeae08f..48afeb608f83 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
 +++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
-@@ -11,9 +11,14 @@
+@@ -11,6 +11,7 @@
  #include "base/memory/ref_counted.h"
  #include "base/memory/weak_ptr.h"
  #include "base/strings/string16.h"
@@ -226,32 +225,11 @@ index 26954aeae08f..025ecfa9aceb 100644
  #include "chrome/browser/ui/webui/print_preview/printer_handler.h"
  #include "ui/shell_dialogs/select_file_dialog.h"
  
-+#if BUILDFLAG(ENABLE_CEF)
-+#include "cef/libcef/browser/browser_host_impl.h"
-+#endif
-+
- namespace base {
- class FilePath;
- class RefCountedMemory;
-@@ -76,17 +81,28 @@ class PdfPrinterHandler : public PrinterHandler,
-   // The print preview web contents. Protected so unit tests can access it.
-   content::WebContents* const preview_web_contents_;
- 
-+#if !BUILDFLAG(ENABLE_CEF)
-   // The underlying dialog object. Protected so unit tests can access it.
-   scoped_refptr<ui::SelectFileDialog> select_file_dialog_;
-+#endif
- 
-  private:
-   void PostPrintToPdfTask();
-   void OnGotUniqueFileName(const base::FilePath& path);
- 
-+#if !BUILDFLAG(ENABLE_CEF)
-   // Prompts the user to save the file. The dialog will default to saving
-   // the file with name |filename| in |directory|.
+@@ -88,6 +89,15 @@ class PdfPrinterHandler : public PrinterHandler,
    void OnDirectorySelected(const base::FilePath& filename,
                             const base::FilePath& directory);
-+#else
+ 
++#if BUILDFLAG(ENABLE_CEF)
 +  void ShowCefSaveAsDialog(content::WebContents* initiator,
 +                           const base::FilePath& filename,
 +                           const base::FilePath& directory);
@@ -259,9 +237,10 @@ index 26954aeae08f..025ecfa9aceb 100644
 +  void SaveAsDialogDismissed(int selected_accept_filter,
 +                             const std::vector<base::FilePath>& file_paths);
 +#endif
- 
++
    // Return save location as the Drive mount or fetch from Download Preferences.
    base::FilePath GetSaveLocation() const;
+ 
 diff --git chrome/browser/ui/webui/print_preview/print_preview_handler.cc chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 index ba451b6c854d..0f062e69fd47 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_handler.cc

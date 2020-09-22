@@ -4,7 +4,7 @@
 
 #include "libcef/browser/native/menu_runner_win.h"
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/native/menu_2.h"
 
 #include "base/task/current_thread.h"
@@ -13,7 +13,7 @@
 CefMenuRunnerWin::CefMenuRunnerWin() {}
 
 bool CefMenuRunnerWin::RunContextMenu(
-    CefBrowserHostImpl* browser,
+    AlloyBrowserHostImpl* browser,
     CefMenuModelImpl* model,
     const content::ContextMenuParams& params) {
   // Create a menu based on the model.

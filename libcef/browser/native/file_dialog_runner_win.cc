@@ -11,7 +11,7 @@
 #include <shlobj.h>
 #include <wrl/client.h>
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 
 #include "base/files/file_util.h"
 #include "base/stl_util.h"
@@ -517,7 +517,7 @@ bool RunSaveFileDialog(const CefFileDialogRunner::FileChooserParams& params,
 
 CefFileDialogRunnerWin::CefFileDialogRunnerWin() {}
 
-void CefFileDialogRunnerWin::Run(CefBrowserHostImpl* browser,
+void CefFileDialogRunnerWin::Run(AlloyBrowserHostImpl* browser,
                                  const FileChooserParams& params,
                                  RunFileChooserCallback callback) {
   int filter_index = params.selected_accept_filter;

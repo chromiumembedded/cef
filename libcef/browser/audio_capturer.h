@@ -21,12 +21,12 @@ class AudioInputDevice;
 }  // namespace media
 
 class CefAudioHandler;
-class CefBrowserHostImpl;
+class AlloyBrowserHostImpl;
 
 class CefAudioCapturer : public media::AudioCapturerSource::CaptureCallback {
  public:
   CefAudioCapturer(const CefAudioParameters& params,
-                   CefRefPtr<CefBrowserHostImpl> browser,
+                   CefRefPtr<AlloyBrowserHostImpl> browser,
                    CefRefPtr<CefAudioHandler> audio_handler);
   ~CefAudioCapturer() override;
 
@@ -42,7 +42,7 @@ class CefAudioCapturer : public media::AudioCapturerSource::CaptureCallback {
   void StopStream();
 
   CefAudioParameters params_;
-  CefRefPtr<CefBrowserHostImpl> browser_;
+  CefRefPtr<AlloyBrowserHostImpl> browser_;
   CefRefPtr<CefAudioHandler> audio_handler_;
   std::unique_ptr<content::AudioLoopbackStreamCreator> audio_stream_creator_;
   scoped_refptr<media::AudioInputDevice> audio_input_device_;

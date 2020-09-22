@@ -5,7 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_EXTENSIONS_EXTENSION_FUNCTION_DETAILS_H_
 #define CEF_LIBCEF_BROWSER_EXTENSIONS_EXTENSION_FUNCTION_DETAILS_H_
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 
 #include "include/cef_extension.h"
 
@@ -36,7 +36,7 @@ class CefExtensionFunctionDetails {
 
   // Get the "sender" browser that is hosting the extension. May return NULL
   // during startup/shutdown.
-  CefRefPtr<CefBrowserHostImpl> GetSenderBrowser() const;
+  CefRefPtr<AlloyBrowserHostImpl> GetSenderBrowser() const;
 
   // Get the "current" browser that will be acted on by this extension function,
   // if any. When mapping from a tabId use the GetBrowserForTabId* methods
@@ -57,12 +57,12 @@ class CefExtensionFunctionDetails {
   // This method can return NULL if there is no matching browser, which can
   // happen if only incognito windows are open, or early in startup or shutdown
   // shutdown when there are no active windows.
-  CefRefPtr<CefBrowserHostImpl> GetCurrentBrowser() const;
+  CefRefPtr<AlloyBrowserHostImpl> GetCurrentBrowser() const;
 
   // Returns true if the sender browser can access |target|. When mapping from a
   // tabId use the GetBrowserForTabId* methods instead of calling this method
   // directly.
-  bool CanAccessBrowser(CefRefPtr<CefBrowserHostImpl> target) const;
+  bool CanAccessBrowser(CefRefPtr<AlloyBrowserHostImpl> target) const;
 
   // Returns the browser matching |tab_id| or NULL if the browser cannot be
   // found or does not have a WebContents. If |tab_id| is < 0 the "current"
@@ -70,7 +70,7 @@ class CefExtensionFunctionDetails {
   // will be set with an appropriate message on error. This method should only
   // be called one time per extension function and will check all necessary
   // client permissions.
-  CefRefPtr<CefBrowserHostImpl> GetBrowserForTabIdFirstTime(
+  CefRefPtr<AlloyBrowserHostImpl> GetBrowserForTabIdFirstTime(
       int tab_id,
       std::string* error_message) const;
 
@@ -79,7 +79,7 @@ class CefExtensionFunctionDetails {
   // |error_message| can optionally be passed in and will be set with an
   // appropriate message on error. This method should be called only after
   // GetBrowserForTabIdFirstTime() has succeeded for the same |tab_id|.
-  CefRefPtr<CefBrowserHostImpl> GetBrowserForTabIdAgain(
+  CefRefPtr<AlloyBrowserHostImpl> GetBrowserForTabIdAgain(
       int tab_id,
       std::string* error_message) const;
 
@@ -114,7 +114,7 @@ class CefExtensionFunctionDetails {
   // permissions of the extension, the object may or may not include sensitive
   // data such as the tab's URL.
   std::unique_ptr<api::tabs::Tab> CreateTabObject(
-      CefRefPtr<CefBrowserHostImpl> new_browser,
+      CefRefPtr<AlloyBrowserHostImpl> new_browser,
       int opener_browser_id,
       bool active,
       int index) const;

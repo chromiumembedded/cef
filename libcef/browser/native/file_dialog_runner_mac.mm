@@ -8,7 +8,7 @@
 #import <Cocoa/Cocoa.h>
 #import <CoreServices/CoreServices.h>
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 
 #include "base/mac/mac_util.h"
 #include "base/stl_util.h"
@@ -231,7 +231,7 @@ void AddFilters(NSPopUpButton* button,
 
 CefFileDialogRunnerMac::CefFileDialogRunnerMac() : weak_ptr_factory_(this) {}
 
-void CefFileDialogRunnerMac::Run(CefBrowserHostImpl* browser,
+void CefFileDialogRunnerMac::Run(AlloyBrowserHostImpl* browser,
                                  const FileChooserParams& params,
                                  RunFileChooserCallback callback) {
   callback_ = std::move(callback);

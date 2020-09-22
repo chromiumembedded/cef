@@ -143,18 +143,18 @@ Profile* CefExtensionFunctionDetails::GetProfile() const {
   return Profile::FromBrowserContext(function_->browser_context());
 }
 
-CefRefPtr<CefBrowserHostImpl> CefExtensionFunctionDetails::GetSenderBrowser()
+CefRefPtr<AlloyBrowserHostImpl> CefExtensionFunctionDetails::GetSenderBrowser()
     const {
   content::WebContents* web_contents = function_->GetSenderWebContents();
   if (web_contents)
-    return CefBrowserHostImpl::GetBrowserForContents(web_contents);
+    return AlloyBrowserHostImpl::GetBrowserForContents(web_contents);
   return nullptr;
 }
 
-CefRefPtr<CefBrowserHostImpl> CefExtensionFunctionDetails::GetCurrentBrowser()
+CefRefPtr<AlloyBrowserHostImpl> CefExtensionFunctionDetails::GetCurrentBrowser()
     const {
   // Start with the browser hosting the extension.
-  CefRefPtr<CefBrowserHostImpl> browser = GetSenderBrowser();
+  CefRefPtr<AlloyBrowserHostImpl> browser = GetSenderBrowser();
   if (browser && browser->client()) {
     CefRefPtr<CefExtensionHandler> handler = GetCefExtension()->GetHandler();
     if (handler) {
@@ -163,8 +163,8 @@ CefRefPtr<CefBrowserHostImpl> CefExtensionFunctionDetails::GetCurrentBrowser()
           handler->GetActiveBrowser(GetCefExtension(), browser.get(),
                                     function_->include_incognito_information());
       if (active_browser && active_browser != browser) {
-        CefRefPtr<CefBrowserHostImpl> active_browser_impl =
-            static_cast<CefBrowserHostImpl*>(active_browser.get());
+        CefRefPtr<AlloyBrowserHostImpl> active_browser_impl =
+            static_cast<AlloyBrowserHostImpl*>(active_browser.get());
 
         // Make sure we're operating in the same CefBrowserContext.
         if (CefBrowserContext::FromBrowserContext(
@@ -187,11 +187,11 @@ CefRefPtr<CefBrowserHostImpl> CefExtensionFunctionDetails::GetCurrentBrowser()
 }
 
 bool CefExtensionFunctionDetails::CanAccessBrowser(
-    CefRefPtr<CefBrowserHostImpl> target) const {
+    CefRefPtr<AlloyBrowserHostImpl> target) const {
   DCHECK(target);
 
   // Start with the browser hosting the extension.
-  CefRefPtr<CefBrowserHostImpl> browser = GetSenderBrowser();
+  CefRefPtr<AlloyBrowserHostImpl> browser = GetSenderBrowser();
   if (browser == target) {
     // A sender can always access itself.
     return true;
@@ -210,14 +210,14 @@ bool CefExtensionFunctionDetails::CanAccessBrowser(
   return true;
 }
 
-CefRefPtr<CefBrowserHostImpl>
+CefRefPtr<AlloyBrowserHostImpl>
 CefExtensionFunctionDetails::GetBrowserForTabIdFirstTime(
     int tab_id,
     std::string* error_message) const {
   DCHECK(!get_browser_called_first_time_);
   get_browser_called_first_time_ = true;
 
-  CefRefPtr<CefBrowserHostImpl> browser;
+  CefRefPtr<AlloyBrowserHostImpl> browser;
 
   if (tab_id >= 0) {
     // May be an invalid tabId or in the wrong BrowserContext.
@@ -243,7 +243,7 @@ CefExtensionFunctionDetails::GetBrowserForTabIdFirstTime(
   return browser;
 }
 
-CefRefPtr<CefBrowserHostImpl>
+CefRefPtr<AlloyBrowserHostImpl>
 CefExtensionFunctionDetails::GetBrowserForTabIdAgain(
     int tab_id,
     std::string* error_message) const {
@@ -251,7 +251,7 @@ CefExtensionFunctionDetails::GetBrowserForTabIdAgain(
   DCHECK(get_browser_called_first_time_);
 
   // May return NULL during shutdown.
-  CefRefPtr<CefBrowserHostImpl> browser =
+  CefRefPtr<AlloyBrowserHostImpl> browser =
       GetBrowserForTabId(tab_id, function_->browser_context());
   if (!browser || !browser->web_contents()) {
     if (error_message) {
@@ -265,7 +265,7 @@ CefExtensionFunctionDetails::GetBrowserForTabIdAgain(
 bool CefExtensionFunctionDetails::LoadFile(const std::string& file,
                                            LoadFileCallback callback) const {
   // Start with the browser hosting the extension.
-  CefRefPtr<CefBrowserHostImpl> browser = GetSenderBrowser();
+  CefRefPtr<AlloyBrowserHostImpl> browser = GetSenderBrowser();
   if (browser && browser->client()) {
     CefRefPtr<CefExtensionHandler> handler = GetCefExtension()->GetHandler();
     if (handler) {
@@ -290,7 +290,7 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
     const OpenTabParams& params,
     bool user_gesture,
     std::string* error_message) const {
-  CefRefPtr<CefBrowserHostImpl> sender_browser = GetSenderBrowser();
+  CefRefPtr<AlloyBrowserHostImpl> sender_browser = GetSenderBrowser();
   if (!sender_browser)
     return nullptr;
 
@@ -301,7 +301,7 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
 
   // CEF doesn't have the concept of windows containing tab strips so we'll
   // select an "active browser" for BrowserContext sharing instead.
-  CefRefPtr<CefBrowserHostImpl> active_browser =
+  CefRefPtr<AlloyBrowserHostImpl> active_browser =
       GetBrowserForTabIdFirstTime(window_id, error_message);
   if (!active_browser)
     return nullptr;
@@ -394,8 +394,8 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
   }
 
   // Browser creation may fail under certain rare circumstances.
-  CefRefPtr<CefBrowserHostImpl> new_browser =
-      CefBrowserHostImpl::Create(create_params);
+  CefRefPtr<AlloyBrowserHostImpl> new_browser =
+      AlloyBrowserHostImpl::Create(create_params);
   if (!new_browser)
     return nullptr;
 
@@ -412,7 +412,7 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
 }
 
 std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::CreateTabObject(
-    CefRefPtr<CefBrowserHostImpl> new_browser,
+    CefRefPtr<AlloyBrowserHostImpl> new_browser,
     int opener_browser_id,
     bool active,
     int index) const {

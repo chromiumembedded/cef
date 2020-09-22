@@ -4,7 +4,7 @@
 
 #include "libcef/browser/browser_platform_delegate.h"
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 
 #include "base/logging.h"
 
@@ -57,7 +57,7 @@ void CefBrowserPlatformDelegate::RenderViewCreated(
 
 void CefBrowserPlatformDelegate::RenderViewReady() {}
 
-void CefBrowserPlatformDelegate::BrowserCreated(CefBrowserHostImpl* browser) {
+void CefBrowserPlatformDelegate::BrowserCreated(AlloyBrowserHostImpl* browser) {
   // We should have an associated WebContents at this point.
   DCHECK(web_contents_);
 
@@ -83,7 +83,8 @@ void CefBrowserPlatformDelegate::NotifyBrowserCreated() {}
 
 void CefBrowserPlatformDelegate::NotifyBrowserDestroyed() {}
 
-void CefBrowserPlatformDelegate::BrowserDestroyed(CefBrowserHostImpl* browser) {
+void CefBrowserPlatformDelegate::BrowserDestroyed(
+    AlloyBrowserHostImpl* browser) {
   // WebContentsDestroyed should already be called.
   DCHECK(!web_contents_);
 
@@ -120,7 +121,7 @@ void CefBrowserPlatformDelegate::PopupWebContentsCreated(
     bool is_devtools) {}
 
 void CefBrowserPlatformDelegate::PopupBrowserCreated(
-    CefBrowserHostImpl* new_browser,
+    AlloyBrowserHostImpl* new_browser,
     bool is_devtools) {}
 
 void CefBrowserPlatformDelegate::SendCaptureLostEvent() {

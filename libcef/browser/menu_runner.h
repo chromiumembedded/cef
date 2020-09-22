@@ -14,13 +14,13 @@ namespace content {
 struct ContextMenuParams;
 }
 
-class CefBrowserHostImpl;
+class AlloyBrowserHostImpl;
 class CefMenuModelImpl;
 
 // Provides platform-specific menu implementations for CefMenuCreator.
 class CefMenuRunner {
  public:
-  virtual bool RunContextMenu(CefBrowserHostImpl* browser,
+  virtual bool RunContextMenu(AlloyBrowserHostImpl* browser,
                               CefMenuModelImpl* model,
                               const content::ContextMenuParams& params) = 0;
   virtual void CancelContextMenu() {}

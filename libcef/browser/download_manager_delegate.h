@@ -16,7 +16,7 @@
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/download_manager_delegate.h"
 
-class CefBrowserHostImpl;
+class AlloyBrowserHostImpl;
 
 class CefDownloadManagerDelegate : public download::DownloadItem::Observer,
                                    public content::DownloadManager::Observer,
@@ -46,16 +46,17 @@ class CefDownloadManagerDelegate : public download::DownloadItem::Observer,
   // CefBrowserHostBase::Observer methods.
   void OnBrowserDestroyed(CefBrowserHostBase* browser) override;
 
-  CefBrowserHostImpl* GetOrAssociateBrowser(download::DownloadItem* item);
-  CefBrowserHostImpl* GetBrowser(download::DownloadItem* item);
+  AlloyBrowserHostImpl* GetOrAssociateBrowser(download::DownloadItem* item);
+  AlloyBrowserHostImpl* GetBrowser(download::DownloadItem* item);
 
   content::DownloadManager* manager_;
   base::WeakPtrFactory<content::DownloadManager> manager_ptr_factory_;
 
-  // Map of DownloadItem to originating CefBrowserHostImpl. Maintaining this
+  // Map of DownloadItem to originating AlloyBrowserHostImpl. Maintaining this
   // map is necessary because DownloadItem::GetWebContents() may return NULL if
   // the browser navigates while the download is in progress.
-  typedef std::map<download::DownloadItem*, CefBrowserHostImpl*> ItemBrowserMap;
+  typedef std::map<download::DownloadItem*, AlloyBrowserHostImpl*>
+      ItemBrowserMap;
   ItemBrowserMap item_browser_map_;
 
   DISALLOW_COPY_AND_ASSIGN(CefDownloadManagerDelegate);

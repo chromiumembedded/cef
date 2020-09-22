@@ -409,6 +409,8 @@ static_library("libcef_static") {
             gypi_paths.autogen_cpp_includes + [
     "libcef/browser/alloy/alloy_browser_context.cc",
     "libcef/browser/alloy/alloy_browser_context.h",
+    "libcef/browser/alloy/alloy_browser_host_impl.cc",
+    "libcef/browser/alloy/alloy_browser_host_impl.h",
     "libcef/browser/alloy/alloy_browser_main.cc",
     "libcef/browser/alloy/alloy_browser_main.h",
     "libcef/browser/alloy/browser_platform_delegate_alloy.cc",
@@ -432,8 +434,6 @@ static_library("libcef_static") {
     "libcef/browser/browser_host_base.cc",
     "libcef/browser/browser_host_base.h",
     "libcef/browser/browser_host_create.cc",
-    "libcef/browser/browser_host_impl.cc",
-    "libcef/browser/browser_host_impl.h",
     "libcef/browser/browser_info.cc",
     "libcef/browser/browser_info.h",
     "libcef/browser/browser_info_manager.cc",

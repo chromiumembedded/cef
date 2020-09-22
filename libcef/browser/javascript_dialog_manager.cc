@@ -7,7 +7,7 @@
 
 #include <utility>
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/thread_util.h"
 
 #include "base/bind.h"
@@ -63,7 +63,7 @@ class CefJSDialogCallbackImpl : public CefJSDialogCallback {
 }  // namespace
 
 CefJavaScriptDialogManager::CefJavaScriptDialogManager(
-    CefBrowserHostImpl* browser,
+    AlloyBrowserHostImpl* browser,
     std::unique_ptr<CefJavaScriptDialogRunner> runner)
     : browser_(browser),
       runner_(std::move(runner)),
@@ -144,7 +144,7 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
     bool is_reload,
     DialogClosedCallback callback) {
   if (browser_->destruction_state() >=
-      CefBrowserHostImpl::DESTRUCTION_STATE_ACCEPTED) {
+      AlloyBrowserHostImpl::DESTRUCTION_STATE_ACCEPTED) {
     // Currently destroying the browser. Accept the unload without showing
     // the prompt.
     std::move(callback).Run(true, base::string16());

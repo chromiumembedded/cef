@@ -4,7 +4,7 @@
 
 #include "libcef/browser/views/browser_view_impl.h"
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/browser_util.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
@@ -30,8 +30,8 @@ CefRefPtr<CefBrowserView> CefBrowserView::CreateBrowserView(
 CefRefPtr<CefBrowserView> CefBrowserView::GetForBrowser(
     CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UIT_RETURN(nullptr);
-  CefBrowserHostImpl* browser_impl =
-      static_cast<CefBrowserHostImpl*>(browser.get());
+  AlloyBrowserHostImpl* browser_impl =
+      static_cast<AlloyBrowserHostImpl*>(browser.get());
   if (browser_impl && browser_impl->IsViewsHosted())
     return browser_impl->GetBrowserView();
   return nullptr;
@@ -75,13 +75,13 @@ void CefBrowserViewImpl::WebContentsCreated(
 }
 
 void CefBrowserViewImpl::BrowserCreated(
-    CefBrowserHostImpl* browser,
+    AlloyBrowserHostImpl* browser,
     base::RepeatingClosure on_bounds_changed) {
   browser_ = browser;
   on_bounds_changed_ = on_bounds_changed;
 }
 
-void CefBrowserViewImpl::BrowserDestroyed(CefBrowserHostImpl* browser) {
+void CefBrowserViewImpl::BrowserDestroyed(AlloyBrowserHostImpl* browser) {
   DCHECK_EQ(browser, browser_);
   browser_ = nullptr;
 
@@ -145,7 +145,7 @@ void CefBrowserViewImpl::Detach() {
   if (browser_) {
     // |browser_| will disappear when WindowDestroyed() indirectly calls
     // BrowserDestroyed() so keep a reference.
-    CefRefPtr<CefBrowserHostImpl> browser = browser_;
+    CefRefPtr<AlloyBrowserHostImpl> browser = browser_;
 
     // Force the browser to be destroyed.
     browser->WindowDestroyed();
@@ -165,7 +165,7 @@ void CefBrowserViewImpl::OnBrowserViewAdded() {
     // hierarchy.
     pending_browser_create_params_->browser_view = this;
 
-    CefBrowserHostImpl::Create(*pending_browser_create_params_);
+    AlloyBrowserHostImpl::Create(*pending_browser_create_params_);
     DCHECK(browser_);
 
     pending_browser_create_params_.reset(nullptr);

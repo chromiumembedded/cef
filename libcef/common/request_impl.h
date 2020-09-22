@@ -114,7 +114,7 @@ class CefRequestImpl : public CefRequest {
                   blink::WebURLRequest& request);
 
   // Populate the CefNavigateParams object from this object.
-  // Called from CefBrowserHostImpl::LoadRequest().
+  // Called from CefFrameHostImpl::LoadRequest().
   void Get(CefNavigateParams& params) const;
 
   void SetReadOnly(bool read_only);

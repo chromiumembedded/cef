@@ -6,8 +6,6 @@
 
 #include <utility>
 
-#include "libcef/browser/browser_host_impl.h"
-
 CefBrowserPlatformDelegateOsrWin::CefBrowserPlatformDelegateOsrWin(
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate,
     bool use_shared_texture,

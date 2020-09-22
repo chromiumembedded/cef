@@ -119,7 +119,7 @@ ExecuteCodeFunction::InitResult ExecuteCodeInTabFunction::Init() {
 
   // Find a browser that we can access, or fail with error.
   std::string error;
-  CefRefPtr<CefBrowserHostImpl> browser =
+  CefRefPtr<AlloyBrowserHostImpl> browser =
       cef_details_.GetBrowserForTabIdFirstTime(tab_id, &error);
   if (!browser)
     return set_init_result_error(error);
@@ -133,7 +133,7 @@ ExecuteCodeFunction::InitResult ExecuteCodeInTabFunction::Init() {
 bool ExecuteCodeInTabFunction::CanExecuteScriptOnPage(std::string* error) {
   CHECK_GE(execute_tab_id_, 0);
 
-  CefRefPtr<CefBrowserHostImpl> browser =
+  CefRefPtr<AlloyBrowserHostImpl> browser =
       cef_details_.GetBrowserForTabIdAgain(execute_tab_id_, error);
   if (!browser)
     return false;
@@ -188,7 +188,7 @@ ScriptExecutor* ExecuteCodeInTabFunction::GetScriptExecutor(
     std::string* error) {
   CHECK_GE(execute_tab_id_, 0);
 
-  CefRefPtr<CefBrowserHostImpl> browser =
+  CefRefPtr<AlloyBrowserHostImpl> browser =
       cef_details_.GetBrowserForTabIdAgain(execute_tab_id_, error);
   if (!browser)
     return nullptr;
@@ -237,7 +237,7 @@ ZoomAPIFunction::ZoomAPIFunction() : cef_details_(this) {}
 
 content::WebContents* ZoomAPIFunction::GetWebContents(int tab_id) {
   // Find a browser that we can access, or set |error_| and return nullptr.
-  CefRefPtr<CefBrowserHostImpl> browser =
+  CefRefPtr<AlloyBrowserHostImpl> browser =
       cef_details_.GetBrowserForTabIdFirstTime(tab_id, &error_);
   if (!browser)
     return nullptr;

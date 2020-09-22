@@ -7,7 +7,6 @@
 
 #include <windows.h>
 
-#include "libcef/browser/browser_host_impl.h"
 #include "libcef/common/app_manager.h"
 
 #include "ui/resources/grit/ui_unscaled_resources.h"

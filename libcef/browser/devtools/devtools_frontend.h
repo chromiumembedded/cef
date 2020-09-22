@@ -7,7 +7,7 @@
 
 #include <memory>
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/devtools/devtools_file_manager.h"
 
 #include "base/compiler_specific.h"
@@ -42,7 +42,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
                             public content::DevToolsAgentHostClient {
  public:
   static CefDevToolsFrontend* Show(
-      CefBrowserHostImpl* inspected_browser,
+      AlloyBrowserHostImpl* inspected_browser,
       const CefWindowInfo& windowInfo,
       CefRefPtr<CefClient> client,
       const CefBrowserSettings& settings,
@@ -60,7 +60,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
                           const base::Value* arg3);
 
  private:
-  CefDevToolsFrontend(CefBrowserHostImpl* frontend_browser,
+  CefDevToolsFrontend(AlloyBrowserHostImpl* frontend_browser,
                       content::WebContents* inspected_contents,
                       const CefPoint& inspect_element_at,
                       base::OnceClosure destroyed_callback);
@@ -87,7 +87,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
 
   PrefService* GetPrefs() const;
 
-  CefRefPtr<CefBrowserHostImpl> frontend_browser_;
+  CefRefPtr<AlloyBrowserHostImpl> frontend_browser_;
   content::WebContents* inspected_contents_;
   scoped_refptr<content::DevToolsAgentHost> agent_host_;
   CefPoint inspect_element_at_;

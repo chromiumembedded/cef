@@ -22,7 +22,7 @@ class CefMenuRunnerMac : public CefMenuRunner {
   ~CefMenuRunnerMac() override;
 
   // CefMenuRunner methods.
-  bool RunContextMenu(CefBrowserHostImpl* browser,
+  bool RunContextMenu(AlloyBrowserHostImpl* browser,
                       CefMenuModelImpl* model,
                       const content::ContextMenuParams& params) override;
   void CancelContextMenu() override;

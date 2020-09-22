@@ -13,7 +13,7 @@
 namespace extensions {
 
 CefExtensionHostDelegate::CefExtensionHostDelegate(
-    CefBrowserHostImpl* browser) {}
+    AlloyBrowserHostImpl* browser) {}
 
 CefExtensionHostDelegate::~CefExtensionHostDelegate() {}
 
@@ -25,7 +25,7 @@ void CefExtensionHostDelegate::OnRenderViewCreatedForBackgroundPage(
 
 content::JavaScriptDialogManager*
 CefExtensionHostDelegate::GetJavaScriptDialogManager() {
-  // Never routed here from CefBrowserHostImpl.
+  // Never routed here from AlloyBrowserHostImpl.
   NOTREACHED();
   return nullptr;
 }
@@ -45,7 +45,7 @@ void CefExtensionHostDelegate::ProcessMediaAccessRequest(
     const content::MediaStreamRequest& request,
     content::MediaResponseCallback callback,
     const Extension* extension) {
-  // Never routed here from CefBrowserHostImpl.
+  // Never routed here from AlloyBrowserHostImpl.
   NOTREACHED();
 }
 
@@ -54,7 +54,7 @@ bool CefExtensionHostDelegate::CheckMediaAccessPermission(
     const GURL& security_origin,
     blink::mojom::MediaStreamType type,
     const Extension* extension) {
-  // Never routed here from CefBrowserHostImpl.
+  // Never routed here from AlloyBrowserHostImpl.
   NOTREACHED();
   return false;
 }

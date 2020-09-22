@@ -4,7 +4,7 @@
 
 #include "libcef/browser/native/menu_runner_linux.h"
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 
 #include "base/compiler_specific.h"
 #include "base/strings/string_util.h"
@@ -13,7 +13,7 @@
 CefMenuRunnerLinux::CefMenuRunnerLinux() {}
 
 bool CefMenuRunnerLinux::RunContextMenu(
-    CefBrowserHostImpl* browser,
+    AlloyBrowserHostImpl* browser,
     CefMenuModelImpl* model,
     const content::ContextMenuParams& params) {
   menu_.reset(

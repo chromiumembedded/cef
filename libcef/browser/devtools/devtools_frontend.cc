@@ -235,7 +235,7 @@ const size_t kMaxMessageChunkSize = IPC::Channel::kMaximumMessageSize / 4;
 
 // static
 CefDevToolsFrontend* CefDevToolsFrontend::Show(
-    CefBrowserHostImpl* inspected_browser,
+    AlloyBrowserHostImpl* inspected_browser,
     const CefWindowInfo& windowInfo,
     CefRefPtr<CefClient> client,
     const CefBrowserSettings& settings,
@@ -258,15 +258,15 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
   create_params.request_context = inspected_browser->GetRequestContext();
   create_params.extra_info = inspected_browser->browser_info()->extra_info();
 
-  CefRefPtr<CefBrowserHostImpl> frontend_browser =
-      CefBrowserHostImpl::Create(create_params);
+  CefRefPtr<AlloyBrowserHostImpl> frontend_browser =
+      AlloyBrowserHostImpl::Create(create_params);
 
   content::WebContents* inspected_contents = inspected_browser->web_contents();
 
   // CefDevToolsFrontend will delete itself when the frontend WebContents is
   // destroyed.
   CefDevToolsFrontend* devtools_frontend = new CefDevToolsFrontend(
-      static_cast<CefBrowserHostImpl*>(frontend_browser.get()),
+      static_cast<AlloyBrowserHostImpl*>(frontend_browser.get()),
       inspected_contents, inspect_element_at,
       std::move(frontend_destroyed_callback));
 
@@ -293,12 +293,12 @@ void CefDevToolsFrontend::InspectElementAt(int x, int y) {
 
 void CefDevToolsFrontend::Close() {
   base::PostTask(FROM_HERE, {content::BrowserThread::UI},
-                 base::Bind(&CefBrowserHostImpl::CloseBrowser,
+                 base::Bind(&AlloyBrowserHostImpl::CloseBrowser,
                             frontend_browser_.get(), true));
 }
 
 CefDevToolsFrontend::CefDevToolsFrontend(
-    CefBrowserHostImpl* frontend_browser,
+    AlloyBrowserHostImpl* frontend_browser,
     content::WebContents* inspected_contents,
     const CefPoint& inspect_element_at,
     base::OnceClosure frontend_destroyed_callback)

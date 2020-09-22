@@ -5,7 +5,7 @@
 #include "libcef/browser/download_manager_delegate.h"
 
 #include "include/cef_download_handler.h"
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/download_item_impl.h"
 #include "libcef/browser/thread_util.h"
@@ -31,7 +31,7 @@ namespace {
 
 // Helper function to retrieve the CefDownloadHandler.
 CefRefPtr<CefDownloadHandler> GetDownloadHandler(
-    CefRefPtr<CefBrowserHostImpl> browser) {
+    CefRefPtr<AlloyBrowserHostImpl> browser) {
   CefRefPtr<CefClient> client = browser->GetClient();
   if (client.get())
     return client->GetDownloadHandler();
@@ -125,8 +125,8 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
     if (show_dialog) {
       WebContents* web_contents =
           content::DownloadItemUtils::GetWebContents(item);
-      CefRefPtr<CefBrowserHostImpl> browser =
-          CefBrowserHostImpl::GetBrowserForContents(web_contents);
+      CefRefPtr<AlloyBrowserHostImpl> browser =
+          AlloyBrowserHostImpl::GetBrowserForContents(web_contents);
       if (browser.get()) {
         handled = true;
 
@@ -276,7 +276,7 @@ CefDownloadManagerDelegate::~CefDownloadManagerDelegate() {
 }
 
 void CefDownloadManagerDelegate::OnDownloadUpdated(DownloadItem* download) {
-  CefRefPtr<CefBrowserHostImpl> browser = GetBrowser(download);
+  CefRefPtr<AlloyBrowserHostImpl> browser = GetBrowser(download);
   CefRefPtr<CefDownloadHandler> handler;
   if (browser.get())
     handler = GetDownloadHandler(browser);
@@ -296,7 +296,7 @@ void CefDownloadManagerDelegate::OnDownloadUpdated(DownloadItem* download) {
 void CefDownloadManagerDelegate::OnDownloadDestroyed(DownloadItem* item) {
   item->RemoveObserver(this);
 
-  CefBrowserHostImpl* browser = nullptr;
+  AlloyBrowserHostImpl* browser = nullptr;
 
   ItemBrowserMap::iterator it = item_browser_map_.find(item);
   DCHECK(it != item_browser_map_.end());
@@ -326,7 +326,7 @@ void CefDownloadManagerDelegate::OnDownloadCreated(DownloadManager* manager,
                                                    DownloadItem* item) {
   // This callback may arrive after DetermineDownloadTarget, so we allow
   // association from either method.
-  CefRefPtr<CefBrowserHostImpl> browser = GetOrAssociateBrowser(item);
+  CefRefPtr<AlloyBrowserHostImpl> browser = GetOrAssociateBrowser(item);
   if (!browser) {
     // If the download is rejected (e.g. ALT+click on an invalid protocol link)
     // then an "interrupted" download will be started via DownloadManagerImpl::
@@ -365,7 +365,7 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
 
   // This callback may arrive before OnDownloadCreated, so we allow association
   // from either method.
-  CefRefPtr<CefBrowserHostImpl> browser = GetOrAssociateBrowser(item);
+  CefRefPtr<AlloyBrowserHostImpl> browser = GetOrAssociateBrowser(item);
   CefRefPtr<CefDownloadHandler> handler;
   if (browser.get())
     handler = GetDownloadHandler(browser);
@@ -418,17 +418,17 @@ void CefDownloadManagerDelegate::OnBrowserDestroyed(
   }
 }
 
-CefBrowserHostImpl* CefDownloadManagerDelegate::GetOrAssociateBrowser(
+AlloyBrowserHostImpl* CefDownloadManagerDelegate::GetOrAssociateBrowser(
     download::DownloadItem* item) {
   ItemBrowserMap::const_iterator it = item_browser_map_.find(item);
   if (it != item_browser_map_.end())
     return it->second;
 
-  CefBrowserHostImpl* browser = nullptr;
+  AlloyBrowserHostImpl* browser = nullptr;
   content::WebContents* contents =
       content::DownloadItemUtils::GetWebContents(item);
   if (contents) {
-    browser = CefBrowserHostImpl::GetBrowserForContents(contents).get();
+    browser = AlloyBrowserHostImpl::GetBrowserForContents(contents).get();
     DCHECK(browser);
   }
   if (!browser)
@@ -446,7 +446,8 @@ CefBrowserHostImpl* CefDownloadManagerDelegate::GetOrAssociateBrowser(
   return browser;
 }
 
-CefBrowserHostImpl* CefDownloadManagerDelegate::GetBrowser(DownloadItem* item) {
+AlloyBrowserHostImpl* CefDownloadManagerDelegate::GetBrowser(
+    DownloadItem* item) {
   ItemBrowserMap::const_iterator it = item_browser_map_.find(item);
   if (it != item_browser_map_.end())
     return it->second;

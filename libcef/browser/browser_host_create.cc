@@ -4,7 +4,7 @@
 // found in the LICENSE file.
 
 #include "include/cef_browser.h"
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/chrome/chrome_browser_host_impl.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
@@ -139,6 +139,6 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     return browser.get();
   }
 
-  auto browser = CefBrowserHostImpl::Create(create_params);
+  auto browser = AlloyBrowserHostImpl::Create(create_params);
   return browser.get();
 }

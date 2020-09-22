@@ -10,7 +10,7 @@
 
 #include "base/memory/weak_ptr.h"
 
-class CefBrowserHostImpl;
+class AlloyBrowserHostImpl;
 class CefDevToolsController;
 class CefDevToolsFrontend;
 
@@ -23,7 +23,7 @@ class WebContents;
 class CefDevToolsManager {
  public:
   // |inspected_browser| will outlive this object.
-  explicit CefDevToolsManager(CefBrowserHostImpl* inspected_browser);
+  explicit CefDevToolsManager(AlloyBrowserHostImpl* inspected_browser);
   ~CefDevToolsManager();
 
   // See CefBrowserHost methods of the same name for documentation.
@@ -52,7 +52,7 @@ class CefDevToolsManager {
 
   bool EnsureController();
 
-  CefBrowserHostImpl* const inspected_browser_;
+  AlloyBrowserHostImpl* const inspected_browser_;
 
   // CefDevToolsFrontend will delete itself when the frontend WebContents is
   // destroyed.

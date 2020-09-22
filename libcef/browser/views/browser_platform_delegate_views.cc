@@ -7,7 +7,7 @@
 #include <utility>
 
 #include "include/views/cef_window.h"
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/views/browser_view_impl.h"
 #include "libcef/browser/views/menu_runner_views.h"
 
@@ -80,7 +80,7 @@ void CefBrowserPlatformDelegateViews::WebContentsDestroyed(
 }
 
 void CefBrowserPlatformDelegateViews::BrowserCreated(
-    CefBrowserHostImpl* browser) {
+    AlloyBrowserHostImpl* browser) {
   CefBrowserPlatformDelegateAlloy::BrowserCreated(browser);
 
   native_delegate_->BrowserCreated(browser);
@@ -102,7 +102,7 @@ void CefBrowserPlatformDelegateViews::NotifyBrowserDestroyed() {
 }
 
 void CefBrowserPlatformDelegateViews::BrowserDestroyed(
-    CefBrowserHostImpl* browser) {
+    AlloyBrowserHostImpl* browser) {
   CefBrowserPlatformDelegateAlloy::BrowserDestroyed(browser);
 
   browser_view_->BrowserDestroyed(browser);
@@ -161,7 +161,7 @@ void CefBrowserPlatformDelegateViews::PopupWebContentsCreated(
 }
 
 void CefBrowserPlatformDelegateViews::PopupBrowserCreated(
-    CefBrowserHostImpl* new_browser,
+    AlloyBrowserHostImpl* new_browser,
     bool is_devtools) {
   CefRefPtr<CefBrowserView> new_browser_view =
       CefBrowserView::GetForBrowser(new_browser);

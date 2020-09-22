@@ -20,9 +20,9 @@ class CefRequestContextHandlerMap {
   ~CefRequestContextHandlerMap();
 
   // Keep track of handlers associated with specific frames. This information
-  // originates from frame create/delete notifications in CefBrowserHostImpl or
-  // CefMimeHandlerViewGuestDelegate which are forwarded via
-  // CefRequestContextImpl and CefBrowserContext.
+  // originates from frame create/delete notifications in
+  // CefBrowserContentsDelegate or CefMimeHandlerViewGuestDelegate which are
+  // forwarded via CefRequestContextImpl and CefBrowserContext.
   void AddHandler(int render_process_id,
                   int render_frame_id,
                   int frame_tree_node_id,

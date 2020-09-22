@@ -19,13 +19,13 @@ class RenderFrameHost;
 class WebContents;
 }  // namespace content
 
-class CefBrowserHostImpl;
+class AlloyBrowserHostImpl;
 class CefRunContextMenuCallback;
 
 class CefMenuManager : public CefMenuModelImpl::Delegate,
                        public content::WebContentsObserver {
  public:
-  CefMenuManager(CefBrowserHostImpl* browser,
+  CefMenuManager(AlloyBrowserHostImpl* browser,
                  std::unique_ptr<CefMenuRunner> runner);
   ~CefMenuManager() override;
 
@@ -59,8 +59,8 @@ class CefMenuManager : public CefMenuModelImpl::Delegate,
   // Returns true if the specified id is a custom context menu command.
   bool IsCustomContextMenuCommand(int command_id);
 
-  // CefBrowserHostImpl pointer is guaranteed to outlive this object.
-  CefBrowserHostImpl* browser_;
+  // AlloyBrowserHostImpl pointer is guaranteed to outlive this object.
+  AlloyBrowserHostImpl* browser_;
 
   std::unique_ptr<CefMenuRunner> runner_;
 

@@ -27,7 +27,7 @@
 //  Content API representation of a browser. Created by BHI or the system (for
 //  popups) and owned by BHI. Keeps a pointer to the content::BrowserContext.
 //
-// BHI = CefBrowserHostImpl
+// BHI = AlloyBrowserHostImpl
 //  Implements the CefBrowser and CefBrowserHost interfaces which are exposed
 //  to clients. References an RCI instance. Owns a WC. Lifespan is controlled
 //  by client references and CefBrowserInfoManager (until the browser has
@@ -62,9 +62,9 @@
 //
 //
 // How shutdown works:
-// 1. CefBrowserHostImpl::DestroyBrowser is called on the UI thread after the
+// 1. AlloyBrowserHostImpl::DestroyBrowser is called on the UI thread after the
 //    browser is closed and deletes the WebContents.
-// 1. CefBrowserHostImpl is destroyed on any thread when the last reference
+// 1. AlloyBrowserHostImpl is destroyed on any thread when the last reference
 //    is released.
 // 2. CefRequestContextImpl is destroyed (possibly asynchronously) on the UI
 //    thread when the last reference is released.
@@ -85,7 +85,7 @@ class Profile;
 
 // Main entry point for configuring behavior on a per-RequestContext basis. The
 // content::BrowserContext represented by this class is passed to
-// WebContents::Create in CefBrowserHostImpl::CreateInternal. Only accessed on
+// WebContents::Create in AlloyBrowserHostImpl::CreateInternal. Only accessed on
 // the UI thread unless otherwise indicated.
 class CefBrowserContext {
  public:

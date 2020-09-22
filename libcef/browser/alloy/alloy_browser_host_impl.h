@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_BROWSER_BROWSER_HOST_IMPL_H_
-#define CEF_LIBCEF_BROWSER_BROWSER_HOST_IMPL_H_
+#ifndef CEF_LIBCEF_BROWSER_ALLOY_ALLOY_BROWSER_HOST_IMPL_H_
+#define CEF_LIBCEF_BROWSER_ALLOY_ALLOY_BROWSER_HOST_IMPL_H_
 #pragma once
 
 #include <map>
@@ -62,22 +62,22 @@ class SiteInstance;
 // thread-safe unless otherwise indicated.
 //
 // WebContentsDelegate: Interface for handling WebContents delegations. There is
-// a one-to-one relationship between CefBrowserHostImpl and WebContents
+// a one-to-one relationship between AlloyBrowserHostImpl and WebContents
 // instances.
 //
 // WebContentsObserver: Interface for observing WebContents notifications and
 // IPC messages. There is a one-to-one relationship between WebContents and
 // RenderViewHost instances. IPC messages received by the RenderViewHost will be
 // forwarded to this WebContentsObserver implementation via WebContents. IPC
-// messages sent using CefBrowserHostImpl::Send() will be forwarded to the
+// messages sent using AlloyBrowserHostImpl::Send() will be forwarded to the
 // RenderViewHost (after posting to the UI thread if necessary). Use
 // WebContentsObserver::routing_id() when sending IPC messages.
 //
 // NotificationObserver: Interface for observing post-processed notifications.
-class CefBrowserHostImpl : public CefBrowserHostBase,
-                           public content::WebContentsDelegate,
-                           public content::WebContentsObserver,
-                           public content::NotificationObserver {
+class AlloyBrowserHostImpl : public CefBrowserHostBase,
+                             public content::WebContentsDelegate,
+                             public content::WebContentsObserver,
+                             public content::NotificationObserver {
  public:
   // Used for handling the response to command messages.
   class CommandResponseHandler : public virtual CefBaseRefCounted {
@@ -85,25 +85,25 @@ class CefBrowserHostImpl : public CefBrowserHostBase,
     virtual void OnResponse(const std::string& response) = 0;
   };
 
-  ~CefBrowserHostImpl() override;
+  ~AlloyBrowserHostImpl() override;
 
-  // Create a new CefBrowserHostImpl instance with owned WebContents.
-  static CefRefPtr<CefBrowserHostImpl> Create(CreateParams& create_params);
+  // Create a new AlloyBrowserHostImpl instance with owned WebContents.
+  static CefRefPtr<AlloyBrowserHostImpl> Create(CreateParams& create_params);
 
   // Returns the browser associated with the specified RenderViewHost.
-  static CefRefPtr<CefBrowserHostImpl> GetBrowserForHost(
+  static CefRefPtr<AlloyBrowserHostImpl> GetBrowserForHost(
       const content::RenderViewHost* host);
   // Returns the browser associated with the specified RenderFrameHost.
-  static CefRefPtr<CefBrowserHostImpl> GetBrowserForHost(
+  static CefRefPtr<AlloyBrowserHostImpl> GetBrowserForHost(
       const content::RenderFrameHost* host);
   // Returns the browser associated with the specified WebContents.
-  static CefRefPtr<CefBrowserHostImpl> GetBrowserForContents(
+  static CefRefPtr<AlloyBrowserHostImpl> GetBrowserForContents(
       const content::WebContents* contents);
   // Returns the browser associated with the specified FrameTreeNode ID.
-  static CefRefPtr<CefBrowserHostImpl> GetBrowserForFrameTreeNode(
+  static CefRefPtr<AlloyBrowserHostImpl> GetBrowserForFrameTreeNode(
       int frame_tree_node_id);
   // Returns the browser associated with the specified frame routing IDs.
-  static CefRefPtr<CefBrowserHostImpl> GetBrowserForFrameRoute(
+  static CefRefPtr<AlloyBrowserHostImpl> GetBrowserForFrameRoute(
       int render_process_id,
       int render_routing_id);
 
@@ -379,13 +379,13 @@ class CefBrowserHostImpl : public CefBrowserHostBase,
  private:
   friend class CefBrowserPlatformDelegateAlloy;
 
-  static CefRefPtr<CefBrowserHostImpl> CreateInternal(
+  static CefRefPtr<AlloyBrowserHostImpl> CreateInternal(
       const CefBrowserSettings& settings,
       CefRefPtr<CefClient> client,
       content::WebContents* web_contents,
       bool own_web_contents,
       scoped_refptr<CefBrowserInfo> browser_info,
-      CefRefPtr<CefBrowserHostImpl> opener,
+      CefRefPtr<AlloyBrowserHostImpl> opener,
       bool is_devtools_popup,
       CefRefPtr<CefRequestContextImpl> request_context,
       std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
@@ -396,12 +396,12 @@ class CefBrowserHostImpl : public CefBrowserHostBase,
                const content::NotificationSource& source,
                const content::NotificationDetails& details) override;
 
-  CefBrowserHostImpl(
+  AlloyBrowserHostImpl(
       const CefBrowserSettings& settings,
       CefRefPtr<CefClient> client,
       content::WebContents* web_contents,
       scoped_refptr<CefBrowserInfo> browser_info,
-      CefRefPtr<CefBrowserHostImpl> opener,
+      CefRefPtr<AlloyBrowserHostImpl> opener,
       CefRefPtr<CefRequestContextImpl> request_context,
       std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
       CefRefPtr<CefExtension> extension);
@@ -470,4 +470,4 @@ class CefBrowserHostImpl : public CefBrowserHostBase,
   base::OneShotTimer recently_audible_timer_;
 };
 
-#endif  // CEF_LIBCEF_BROWSER_BROWSER_HOST_IMPL_H_
+#endif  // CEF_LIBCEF_BROWSER_ALLOY_ALLOY_BROWSER_HOST_IMPL_H_

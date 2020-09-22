@@ -7,8 +7,8 @@
 
 #include <utility>
 
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/browser_context.h"
-#include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/extensions/component_extension_resource_manager.h"
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/extensions/extension_system_factory.h"
@@ -269,8 +269,8 @@ bool CefExtensionsBrowserClient::CreateBackgroundExtensionHost(
 
   // Browser creation may fail under certain rare circumstances. Fail the
   // background host creation in that case.
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::Create(create_params);
+  CefRefPtr<AlloyBrowserHostImpl> browser =
+      AlloyBrowserHostImpl::Create(create_params);
   if (browser) {
     *host = browser->GetExtensionHost();
     DCHECK(*host);

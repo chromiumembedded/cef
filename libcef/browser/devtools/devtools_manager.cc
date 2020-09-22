@@ -31,7 +31,7 @@ class CefDevToolsRegistrationImpl : public CefRegistration,
     controller_->RemoveObserver(this);
   }
 
-  void Initialize(CefBrowserHostImpl* browser,
+  void Initialize(AlloyBrowserHostImpl* browser,
                   base::WeakPtr<CefDevToolsController> controller) {
     CEF_REQUIRE_UIT();
     DCHECK(browser && controller);
@@ -83,7 +83,7 @@ class CefDevToolsRegistrationImpl : public CefRegistration,
 
   CefRefPtr<CefDevToolsMessageObserver> observer_;
 
-  CefBrowserHostImpl* browser_ = nullptr;
+  AlloyBrowserHostImpl* browser_ = nullptr;
   base::WeakPtr<CefDevToolsController> controller_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefDevToolsRegistrationImpl);
@@ -92,7 +92,7 @@ class CefDevToolsRegistrationImpl : public CefRegistration,
 
 }  // namespace
 
-CefDevToolsManager::CefDevToolsManager(CefBrowserHostImpl* inspected_browser)
+CefDevToolsManager::CefDevToolsManager(AlloyBrowserHostImpl* inspected_browser)
     : inspected_browser_(inspected_browser), weak_ptr_factory_(this) {
   CEF_REQUIRE_UIT();
 }

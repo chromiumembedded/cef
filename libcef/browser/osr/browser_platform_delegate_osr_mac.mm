@@ -6,9 +6,6 @@
 
 #include <utility>
 
-#include "libcef/browser/browser_host_impl.h"
-#include "libcef/browser/osr/render_widget_host_view_osr.h"
-
 CefBrowserPlatformDelegateOsrMac::CefBrowserPlatformDelegateOsrMac(
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate)
     : CefBrowserPlatformDelegateOsr(std::move(native_delegate),

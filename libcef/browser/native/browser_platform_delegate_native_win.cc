@@ -8,7 +8,7 @@
 #include <wininet.h>
 #include <winspool.h>
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/native/file_dialog_runner_win.h"
 #include "libcef/browser/native/javascript_dialog_runner_win.h"
@@ -132,7 +132,7 @@ CefBrowserPlatformDelegateNativeWin::CefBrowserPlatformDelegateNativeWin(
       window_widget_(nullptr) {}
 
 void CefBrowserPlatformDelegateNativeWin::BrowserDestroyed(
-    CefBrowserHostImpl* browser) {
+    AlloyBrowserHostImpl* browser) {
   CefBrowserPlatformDelegateNative::BrowserDestroyed(browser);
 
   if (host_window_created_) {
@@ -530,7 +530,7 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
                                                               WPARAM wParam,
                                                               LPARAM lParam) {
   CefBrowserPlatformDelegateNativeWin* platform_delegate = nullptr;
-  CefBrowserHostImpl* browser = nullptr;
+  AlloyBrowserHostImpl* browser = nullptr;
 
   if (message != WM_NCCREATE) {
     platform_delegate = static_cast<CefBrowserPlatformDelegateNativeWin*>(

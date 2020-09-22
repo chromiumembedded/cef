@@ -12,7 +12,7 @@
 #include "content/public/browser/notification_registrar.h"
 #include "extensions/browser/extension_host.h"
 
-class CefBrowserHostImpl;
+class AlloyBrowserHostImpl;
 
 namespace content {
 class WebContents;
@@ -22,12 +22,12 @@ namespace extensions {
 
 // The ExtensionHost for an extension that backs a view in the browser UI. For
 // example, this could be an extension popup or dialog, but not a background
-// page. Object lifespan is managed by CefBrowserHostImpl. Based on
+// page. Object lifespan is managed by AlloyBrowserHostImpl. Based on
 // chrome/browser/extensions/extension_view_host.h.
 class CefExtensionViewHost : public ExtensionHost,
                              public content::NotificationObserver {
  public:
-  CefExtensionViewHost(CefBrowserHostImpl* browser,
+  CefExtensionViewHost(AlloyBrowserHostImpl* browser,
                        const Extension* extension,
                        content::WebContents* host_contents,
                        const GURL& url,

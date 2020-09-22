@@ -8,13 +8,13 @@
 #include "base/macros.h"
 #include "extensions/browser/extension_host_delegate.h"
 
-class CefBrowserHostImpl;
+class AlloyBrowserHostImpl;
 
 namespace extensions {
 
 class CefExtensionHostDelegate : public ExtensionHostDelegate {
  public:
-  explicit CefExtensionHostDelegate(CefBrowserHostImpl* browser);
+  explicit CefExtensionHostDelegate(AlloyBrowserHostImpl* browser);
   ~CefExtensionHostDelegate() override;
 
   // ExtensionHostDelegate implementation.

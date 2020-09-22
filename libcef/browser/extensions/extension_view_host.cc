@@ -21,7 +21,7 @@ using content::WebContentsObserver;
 
 namespace extensions {
 
-CefExtensionViewHost::CefExtensionViewHost(CefBrowserHostImpl* browser,
+CefExtensionViewHost::CefExtensionViewHost(AlloyBrowserHostImpl* browser,
                                            const Extension* extension,
                                            content::WebContents* host_contents,
                                            const GURL& url,

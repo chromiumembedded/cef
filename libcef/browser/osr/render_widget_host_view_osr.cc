@@ -9,7 +9,7 @@
 
 #include <utility>
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/osr/osr_util.h"
 #include "libcef/browser/osr/synthetic_gesture_target_osr.h"
 #include "libcef/browser/osr/video_consumer_osr.h"
@@ -146,7 +146,7 @@ ui::LatencyInfo CreateLatencyInfo(const blink::WebInputEvent& event) {
   return latency_info;
 }
 
-gfx::Rect GetViewBounds(CefBrowserHostImpl* browser) {
+gfx::Rect GetViewBounds(AlloyBrowserHostImpl* browser) {
   if (!browser)
     return gfx::Rect();
 
@@ -162,7 +162,7 @@ gfx::Rect GetViewBounds(CefBrowserHostImpl* browser) {
   return gfx::Rect(rc.x, rc.y, rc.width, rc.height);
 }
 
-float GetDeviceScaleFactor(CefBrowserHostImpl* browser) {
+float GetDeviceScaleFactor(AlloyBrowserHostImpl* browser) {
   if (!browser)
     return kDefaultScaleFactor;
 
@@ -231,8 +231,8 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     browser_impl_ = parent_host_view_->browser_impl();
     DCHECK(browser_impl_);
   } else if (content::RenderViewHost::From(render_widget_host_)) {
-    // CefBrowserHostImpl might not be created at this time for popups.
-    browser_impl_ = CefBrowserHostImpl::GetBrowserForHost(
+    // AlloyBrowserHostImpl might not be created at this time for popups.
+    browser_impl_ = AlloyBrowserHostImpl::GetBrowserForHost(
         content::RenderViewHost::From(render_widget_host_));
   }
 
@@ -1517,7 +1517,7 @@ ui::Layer* CefRenderWidgetHostViewOSR::GetRootLayer() const {
 }
 
 void CefRenderWidgetHostViewOSR::SetFrameRate() {
-  CefRefPtr<CefBrowserHostImpl> browser;
+  CefRefPtr<AlloyBrowserHostImpl> browser;
   if (parent_host_view_) {
     // Use the same frame rate as the embedding browser.
     browser = parent_host_view_->browser_impl_;

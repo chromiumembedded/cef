@@ -6,7 +6,7 @@
 
 #include <utility>
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/thread_util.h"
@@ -124,7 +124,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
                                 /*is_renderer_initiated=*/true);
   params.user_gesture = user_gesture;
 
-  CefRefPtr<CefBrowserHostImpl> browser;
+  CefRefPtr<AlloyBrowserHostImpl> browser;
   if (!MaybeAllowNavigation(opener, params, browser) || !browser) {
     // Cancel the popup.
     return false;
@@ -365,12 +365,12 @@ CefBrowserInfoManager::GetBrowserInfoForFrameRoute(int render_process_id,
 bool CefBrowserInfoManager::MaybeAllowNavigation(
     content::RenderFrameHost* opener,
     const content::OpenURLParams& params,
-    CefRefPtr<CefBrowserHostImpl>& browser_out) const {
+    CefRefPtr<AlloyBrowserHostImpl>& browser_out) const {
   CEF_REQUIRE_UIT();
   REQUIRE_ALLOY_RUNTIME();
 
   bool is_guest_view = false;
-  CefRefPtr<CefBrowserHostImpl> browser = static_cast<CefBrowserHostImpl*>(
+  CefRefPtr<AlloyBrowserHostImpl> browser = static_cast<AlloyBrowserHostImpl*>(
       extensions::GetOwnerBrowserForHost(opener, &is_guest_view).get());
   if (!browser) {
     // Print preview uses a modal dialog where we don't own the WebContents.
@@ -385,7 +385,7 @@ bool CefBrowserInfoManager::MaybeAllowNavigation(
     // are passed to the owner browser.
     CEF_POST_TASK(
         CEF_UIT,
-        base::Bind(base::IgnoreResult(&CefBrowserHostImpl::OpenURLFromTab),
+        base::Bind(base::IgnoreResult(&AlloyBrowserHostImpl::OpenURLFromTab),
                    browser.get(), nullptr, params));
 
     return false;

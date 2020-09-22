@@ -5,7 +5,7 @@
 
 #include "libcef/browser/osr/web_contents_view_osr.h"
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
 #include "libcef/common/drag_data_impl.h"
 
@@ -151,7 +151,7 @@ void CefWebContentsViewOSR::StartDragging(
     const gfx::Vector2d& image_offset,
     const content::DragEventSourceInfo& event_info,
     content::RenderWidgetHostImpl* source_rwh) {
-  CefRefPtr<CefBrowserHostImpl> browser = GetBrowser();
+  CefRefPtr<AlloyBrowserHostImpl> browser = GetBrowser();
   if (browser.get()) {
     browser->StartDragging(drop_data, allowed_ops, image, image_offset,
                            event_info, source_rwh);
@@ -163,7 +163,7 @@ void CefWebContentsViewOSR::StartDragging(
 
 void CefWebContentsViewOSR::UpdateDragCursor(
     blink::WebDragOperation operation) {
-  CefRefPtr<CefBrowserHostImpl> browser = GetBrowser();
+  CefRefPtr<AlloyBrowserHostImpl> browser = GetBrowser();
   if (browser.get())
     browser->UpdateDragCursor(operation);
 }
@@ -176,7 +176,7 @@ CefRenderWidgetHostViewOSR* CefWebContentsViewOSR::GetView() const {
   return nullptr;
 }
 
-CefBrowserHostImpl* CefWebContentsViewOSR::GetBrowser() const {
+AlloyBrowserHostImpl* CefWebContentsViewOSR::GetBrowser() const {
   CefRenderWidgetHostViewOSR* view = GetView();
   if (view)
     return view->browser_impl().get();

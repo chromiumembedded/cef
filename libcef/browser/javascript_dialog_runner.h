@@ -11,7 +11,7 @@
 #include "base/strings/string16.h"
 #include "content/public/common/javascript_dialog_type.h"
 
-class CefBrowserHostImpl;
+class AlloyBrowserHostImpl;
 
 class CefJavaScriptDialogRunner {
  public:
@@ -20,7 +20,7 @@ class CefJavaScriptDialogRunner {
       DialogClosedCallback;
 
   // Run the dialog. Execute |callback| on completion.
-  virtual void Run(CefBrowserHostImpl* browser,
+  virtual void Run(AlloyBrowserHostImpl* browser,
                    content::JavaScriptDialogType message_type,
                    const base::string16& display_url,
                    const base::string16& message_text,

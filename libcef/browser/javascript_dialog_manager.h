@@ -15,12 +15,12 @@
 #include "base/memory/weak_ptr.h"
 #include "content/public/browser/javascript_dialog_manager.h"
 
-class CefBrowserHostImpl;
+class AlloyBrowserHostImpl;
 
 class CefJavaScriptDialogManager : public content::JavaScriptDialogManager {
  public:
   // |runner| may be NULL if the platform doesn't implement dialogs.
-  CefJavaScriptDialogManager(CefBrowserHostImpl* browser,
+  CefJavaScriptDialogManager(AlloyBrowserHostImpl* browser,
                              std::unique_ptr<CefJavaScriptDialogRunner> runner);
   ~CefJavaScriptDialogManager() override;
 
@@ -48,8 +48,8 @@ class CefJavaScriptDialogManager : public content::JavaScriptDialogManager {
                     bool success,
                     const base::string16& user_input);
 
-  // CefBrowserHostImpl pointer is guaranteed to outlive this object.
-  CefBrowserHostImpl* browser_;
+  // AlloyBrowserHostImpl pointer is guaranteed to outlive this object.
+  AlloyBrowserHostImpl* browser_;
 
   std::unique_ptr<CefJavaScriptDialogRunner> runner_;
 

@@ -8,8 +8,6 @@
 
 #include <vector>
 
-#include "libcef/browser/browser_host_impl.h"
-
 #include "base/atomicops.h"
 #include "base/bind.h"
 #include "base/command_line.h"

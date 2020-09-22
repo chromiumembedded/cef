@@ -29,12 +29,12 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
   bool ShouldTransferNavigation(bool is_main_frame_navigation) override;
   void RenderViewCreated(content::RenderViewHost* render_view_host) override;
   void RenderViewReady() override;
-  void BrowserCreated(CefBrowserHostImpl* browser) override;
+  void BrowserCreated(AlloyBrowserHostImpl* browser) override;
   void CreateExtensionHost(const extensions::Extension* extension,
                            const GURL& url,
                            extensions::ViewType host_type) override;
   extensions::ExtensionHost* GetExtensionHost() const override;
-  void BrowserDestroyed(CefBrowserHostImpl* browser) override;
+  void BrowserDestroyed(AlloyBrowserHostImpl* browser) override;
   void SendCaptureLostEvent() override;
 #if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MAC))
   void NotifyMoveOrResizeStarted() override;

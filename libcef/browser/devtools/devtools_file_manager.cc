@@ -4,7 +4,7 @@
 
 #include "libcef/browser/devtools/devtools_file_manager.h"
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 
 #include "base/bind.h"
 #include "base/callback.h"
@@ -39,8 +39,9 @@ void AppendToFile(const base::FilePath& path, const std::string& content) {
 
 }  // namespace
 
-CefDevToolsFileManager::CefDevToolsFileManager(CefBrowserHostImpl* browser_impl,
-                                               PrefService* prefs)
+CefDevToolsFileManager::CefDevToolsFileManager(
+    AlloyBrowserHostImpl* browser_impl,
+    PrefService* prefs)
     : browser_impl_(browser_impl),
       prefs_(prefs),
       file_task_runner_(base::CreateSequencedTaskRunner(

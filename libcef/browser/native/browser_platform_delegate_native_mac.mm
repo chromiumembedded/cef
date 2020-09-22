@@ -7,7 +7,7 @@
 #import <Cocoa/Cocoa.h>
 #import <CoreServices/CoreServices.h>
 
-#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/native/file_dialog_runner_mac.h"
 #include "libcef/browser/native/javascript_dialog_runner_mac.h"
@@ -34,10 +34,10 @@
 // the view is deleted.
 @interface CefBrowserHostView : NSView {
  @private
-  CefBrowserHostImpl* browser_;  // weak
+  AlloyBrowserHostImpl* browser_;  // weak
 }
 
-@property(nonatomic, assign) CefBrowserHostImpl* browser;
+@property(nonatomic, assign) AlloyBrowserHostImpl* browser;
 
 @end
 
@@ -60,15 +60,17 @@
 // Receives notifications from the browser window. Will delete itself when done.
 @interface CefWindowDelegate : NSObject <NSWindowDelegate> {
  @private
-  CefBrowserHostImpl* browser_;  // weak
+  AlloyBrowserHostImpl* browser_;  // weak
   NSWindow* window_;
 }
-- (id)initWithWindow:(NSWindow*)window andBrowser:(CefBrowserHostImpl*)browser;
+- (id)initWithWindow:(NSWindow*)window
+          andBrowser:(AlloyBrowserHostImpl*)browser;
 @end
 
 @implementation CefWindowDelegate
 
-- (id)initWithWindow:(NSWindow*)window andBrowser:(CefBrowserHostImpl*)browser {
+- (id)initWithWindow:(NSWindow*)window
+          andBrowser:(AlloyBrowserHostImpl*)browser {
   if (self = [super init]) {
     window_ = window;
     browser_ = browser;
@@ -150,7 +152,7 @@ CefBrowserPlatformDelegateNativeMac::CefBrowserPlatformDelegateNativeMac(
       host_window_created_(false) {}
 
 void CefBrowserPlatformDelegateNativeMac::BrowserDestroyed(
-    CefBrowserHostImpl* browser) {
+    AlloyBrowserHostImpl* browser) {
   CefBrowserPlatformDelegateNative::BrowserDestroyed(browser);
 
   if (host_window_created_) {

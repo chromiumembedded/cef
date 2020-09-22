@@ -19,7 +19,7 @@ class WebContents;
 }  // namespace content
 
 class CefBrowserHostBase;
-class CefBrowserHostImpl;
+class AlloyBrowserHostImpl;
 
 namespace extensions {
 
@@ -60,7 +60,7 @@ CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForHost(
 // Returns the browser matching |tab_id| and |browser_context|. Returns false if
 // |tab_id| is < 0 or a matching browser cannot be found within
 // |browser_context|. Similar in concept to ExtensionTabUtil::GetTabById.
-CefRefPtr<CefBrowserHostImpl> GetBrowserForTabId(
+CefRefPtr<AlloyBrowserHostImpl> GetBrowserForTabId(
     int tab_id,
     content::BrowserContext* browser_context);
 
