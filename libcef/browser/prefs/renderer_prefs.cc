@@ -328,6 +328,8 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
       prefs::kEnableDoNotTrack, false,
       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
   registry->RegisterBooleanPref(prefs::kCaretBrowsingEnabled, false);
+  registry->RegisterBooleanPref(prefs::kCloudPrintDeprecationWarningsSuppressed,
+                                false);
 
   // TODO(guoweis): Remove next 2 options at M50.
   registry->RegisterBooleanPref(prefs::kWebRTCMultipleRoutesEnabled, true);
