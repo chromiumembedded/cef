@@ -174,71 +174,79 @@ class CefView : public CefBaseRefCounted {
   virtual CefRefPtr<CefView> GetViewForID(int id) = 0;
 
   ///
-  // Sets the bounds (size and position) of this View. Position is in parent
-  // coordinates.
+  // Sets the bounds (size and position) of this View. |bounds| is in parent
+  // coordinates, or DIP screen coordinates if there is no parent.
   ///
   /*--cef()--*/
   virtual void SetBounds(const CefRect& bounds) = 0;
 
   ///
-  // Returns the bounds (size and position) of this View. Position is in parent
-  // coordinates.
+  // Returns the bounds (size and position) of this View in parent coordinates,
+  // or DIP screen coordinates if there is no parent.
   ///
   /*--cef()--*/
   virtual CefRect GetBounds() = 0;
 
   ///
-  // Returns the bounds (size and position) of this View. Position is in screen
+  // Returns the bounds (size and position) of this View in DIP screen
   // coordinates.
   ///
   /*--cef()--*/
   virtual CefRect GetBoundsInScreen() = 0;
 
   ///
-  // Sets the size of this View without changing the position.
+  // Sets the size of this View without changing the position. |size| in
+  // parent coordinates, or DIP screen coordinates if there is no parent.
   ///
   /*--cef()--*/
   virtual void SetSize(const CefSize& size) = 0;
 
   ///
-  // Returns the size of this View.
+  // Returns the size of this View in parent coordinates, or DIP screen
+  // coordinates if there is no parent.
   ///
   /*--cef()--*/
   virtual CefSize GetSize() = 0;
 
   ///
   // Sets the position of this View without changing the size. |position| is in
-  // parent coordinates.
+  // parent coordinates, or DIP screen coordinates if there is no parent.
   ///
   /*--cef()--*/
   virtual void SetPosition(const CefPoint& position) = 0;
 
   ///
-  // Returns the position of this View. Position is in parent coordinates.
+  // Returns the position of this View. Position is in parent coordinates, or
+  // DIP screen coordinates if there is no parent.
   ///
   /*--cef()--*/
   virtual CefPoint GetPosition() = 0;
 
   ///
   // Returns the size this View would like to be if enough space is available.
+  // Size is in parent coordinates, or DIP screen coordinates if there is no
+  // parent.
   ///
   /*--cef()--*/
   virtual CefSize GetPreferredSize() = 0;
 
   ///
-  // Size this View to its preferred size.
+  // Size this View to its preferred size. Size is in parent coordinates, or
+  // DIP screen coordinates if there is no parent.
   ///
   /*--cef()--*/
   virtual void SizeToPreferredSize() = 0;
 
   ///
-  // Returns the minimum size for this View.
+  // Returns the minimum size for this View. Size is in parent coordinates, or
+  // DIP screen coordinates if there is no parent.
   ///
   /*--cef()--*/
   virtual CefSize GetMinimumSize() = 0;
 
   ///
-  // Returns the maximum size for this View.
+  // Returns the maximum size for this View. Size is in parent coordinates, or
+  // DIP screen coordinates if there is no parent.
   ///
   /*--cef()--*/
   virtual CefSize GetMaximumSize() = 0;
@@ -345,9 +353,9 @@ class CefView : public CefBaseRefCounted {
   virtual cef_color_t GetBackgroundColor() = 0;
 
   ///
-  // Convert |point| from this View's coordinate system to that of the screen.
-  // This View must belong to a Window when calling this method. Returns true
-  // if the conversion is successful or false otherwise. Use
+  // Convert |point| from this View's coordinate system to DIP screen
+  // coordinates. This View must belong to a Window when calling this method.
+  // Returns true if the conversion is successful or false otherwise. Use
   // CefDisplay::ConvertPointToPixels() after calling this method if further
   // conversion to display-specific pixel coordinates is desired.
   ///
@@ -355,9 +363,9 @@ class CefView : public CefBaseRefCounted {
   virtual bool ConvertPointToScreen(CefPoint& point) = 0;
 
   ///
-  // Convert |point| to this View's coordinate system from that of the screen.
-  // This View must belong to a Window when calling this method. Returns true if
-  // the conversion is successful or false otherwise. Use
+  // Convert |point| to this View's coordinate system from DIP screen
+  // coordinates. This View must belong to a Window when calling this method.
+  // Returns true if the conversion is successful or false otherwise. Use
   // CefDisplay::ConvertPointFromPixels() before calling this method if
   // conversion from display-specific pixel coordinates is necessary.
   ///

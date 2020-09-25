@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=45b421dfcf8ee7cf61b1991a336bc65d33fbe10a$
+// $hash=55be3e44016d9861bb8e9270b52f2bf45c8a53f5$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_VIEW_CAPI_H_
@@ -176,64 +176,72 @@ typedef struct _cef_view_t {
                                                      int id);
 
   ///
-  // Sets the bounds (size and position) of this View. Position is in parent
-  // coordinates.
+  // Sets the bounds (size and position) of this View. |bounds| is in parent
+  // coordinates, or DIP screen coordinates if there is no parent.
   ///
   void(CEF_CALLBACK* set_bounds)(struct _cef_view_t* self,
                                  const cef_rect_t* bounds);
 
   ///
-  // Returns the bounds (size and position) of this View. Position is in parent
-  // coordinates.
+  // Returns the bounds (size and position) of this View in parent coordinates,
+  // or DIP screen coordinates if there is no parent.
   ///
   cef_rect_t(CEF_CALLBACK* get_bounds)(struct _cef_view_t* self);
 
   ///
-  // Returns the bounds (size and position) of this View. Position is in screen
+  // Returns the bounds (size and position) of this View in DIP screen
   // coordinates.
   ///
   cef_rect_t(CEF_CALLBACK* get_bounds_in_screen)(struct _cef_view_t* self);
 
   ///
-  // Sets the size of this View without changing the position.
+  // Sets the size of this View without changing the position. |size| in parent
+  // coordinates, or DIP screen coordinates if there is no parent.
   ///
   void(CEF_CALLBACK* set_size)(struct _cef_view_t* self,
                                const cef_size_t* size);
 
   ///
-  // Returns the size of this View.
+  // Returns the size of this View in parent coordinates, or DIP screen
+  // coordinates if there is no parent.
   ///
   cef_size_t(CEF_CALLBACK* get_size)(struct _cef_view_t* self);
 
   ///
   // Sets the position of this View without changing the size. |position| is in
-  // parent coordinates.
+  // parent coordinates, or DIP screen coordinates if there is no parent.
   ///
   void(CEF_CALLBACK* set_position)(struct _cef_view_t* self,
                                    const cef_point_t* position);
 
   ///
-  // Returns the position of this View. Position is in parent coordinates.
+  // Returns the position of this View. Position is in parent coordinates, or
+  // DIP screen coordinates if there is no parent.
   ///
   cef_point_t(CEF_CALLBACK* get_position)(struct _cef_view_t* self);
 
   ///
   // Returns the size this View would like to be if enough space is available.
+  // Size is in parent coordinates, or DIP screen coordinates if there is no
+  // parent.
   ///
   cef_size_t(CEF_CALLBACK* get_preferred_size)(struct _cef_view_t* self);
 
   ///
-  // Size this View to its preferred size.
+  // Size this View to its preferred size. Size is in parent coordinates, or DIP
+  // screen coordinates if there is no parent.
   ///
   void(CEF_CALLBACK* size_to_preferred_size)(struct _cef_view_t* self);
 
   ///
-  // Returns the minimum size for this View.
+  // Returns the minimum size for this View. Size is in parent coordinates, or
+  // DIP screen coordinates if there is no parent.
   ///
   cef_size_t(CEF_CALLBACK* get_minimum_size)(struct _cef_view_t* self);
 
   ///
-  // Returns the maximum size for this View.
+  // Returns the maximum size for this View. Size is in parent coordinates, or
+  // DIP screen coordinates if there is no parent.
   ///
   cef_size_t(CEF_CALLBACK* get_maximum_size)(struct _cef_view_t* self);
 
@@ -327,21 +335,21 @@ typedef struct _cef_view_t {
   cef_color_t(CEF_CALLBACK* get_background_color)(struct _cef_view_t* self);
 
   ///
-  // Convert |point| from this View's coordinate system to that of the screen.
-  // This View must belong to a Window when calling this function. Returns true
-  // (1) if the conversion is successful or false (0) otherwise. Use
-  // cef_display_t::convert_point_to_pixels() after calling this function if
+  // Convert |point| from this View's coordinate system to DIP screen
+  // coordinates. This View must belong to a Window when calling this function.
+  // Returns true (1) if the conversion is successful or false (0) otherwise.
+  // Use cef_display_t::convert_point_to_pixels() after calling this function if
   // further conversion to display-specific pixel coordinates is desired.
   ///
   int(CEF_CALLBACK* convert_point_to_screen)(struct _cef_view_t* self,
                                              cef_point_t* point);
 
   ///
-  // Convert |point| to this View's coordinate system from that of the screen.
-  // This View must belong to a Window when calling this function. Returns true
-  // (1) if the conversion is successful or false (0) otherwise. Use
-  // cef_display_t::convert_point_from_pixels() before calling this function if
-  // conversion from display-specific pixel coordinates is necessary.
+  // Convert |point| to this View's coordinate system from DIP screen
+  // coordinates. This View must belong to a Window when calling this function.
+  // Returns true (1) if the conversion is successful or false (0) otherwise.
+  // Use cef_display_t::convert_point_from_pixels() before calling this function
+  // if conversion from display-specific pixel coordinates is necessary.
   ///
   int(CEF_CALLBACK* convert_point_from_screen)(struct _cef_view_t* self,
                                                cef_point_t* point);

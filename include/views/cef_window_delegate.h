@@ -79,10 +79,12 @@ class CefWindowDelegate : public CefPanelDelegate {
   }
 
   ///
-  // Return the initial bounds for |window| in screen coordinates. If this
-  // method returns an empty CefRect then GetPreferredSize() will be called to
-  // retrieve the size, and the window will be placed on the default screen with
-  // origin (0,0).
+  // Return the initial bounds for |window| in density independent pixel (DIP)
+  // coordinates. If this method returns an empty CefRect then
+  // GetPreferredSize() will be called to retrieve the size, and the window will
+  // be placed on the screen with origin (0,0). This method can be used in
+  // combination with CefView::GetBoundsInScreen() to restore the previous
+  // window bounds.
   ///
   /*--cef()--*/
   virtual CefRect GetInitialBounds(CefRefPtr<CefWindow> window) {
