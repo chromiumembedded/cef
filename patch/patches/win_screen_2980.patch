@@ -1,0 +1,15 @@
+diff --git ui/display/win/screen_win.cc ui/display/win/screen_win.cc
+index d4fc53fd60d7..53c814534d44 100644
+--- ui/display/win/screen_win.cc
++++ ui/display/win/screen_win.cc
+@@ -728,7 +728,9 @@ Display ScreenWin::GetDisplayNearestPoint(const gfx::Point& point) const {
+ }
+ 
+ Display ScreenWin::GetDisplayMatching(const gfx::Rect& match_rect) const {
+-  return GetScreenWinDisplayNearestScreenRect(match_rect).display();
++  const gfx::Rect screen_rect = DIPToScreenRect(nullptr, match_rect);
++  return GetScreenWinDisplayNearestScreenRect(screen_rect).display();
++
+ }
+ 
+ Display ScreenWin::GetPrimaryDisplay() const {

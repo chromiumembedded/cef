@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=422243fda6e1404222aca7bdd4e7b84b961a9626$
+// $hash=652ac7a90c6cd10b1cbc6ae99a549c03f36c794e$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_DISPLAY_CAPI_H_
@@ -50,9 +50,9 @@ extern "C" {
 // This structure typically, but not always, corresponds to a physical display
 // connected to the system. A fake Display may exist on a headless system, or a
 // Display may correspond to a remote, virtual display. All size and position
-// values are in density independent pixels (DIP) unless otherwise indicated.
-// Methods must be called on the browser process UI thread unless otherwise
-// indicated.
+// values are in density independent pixel (DIP) coordinates unless otherwise
+// indicated. Methods must be called on the browser process UI thread unless
+// otherwise indicated.
 ///
 typedef struct _cef_display_t {
   ///
@@ -74,27 +74,28 @@ typedef struct _cef_display_t {
   float(CEF_CALLBACK* get_device_scale_factor)(struct _cef_display_t* self);
 
   ///
-  // Convert |point| from density independent pixels (DIP) to pixel coordinates
-  // using this Display's device scale factor.
+  // Convert |point| from DIP coordinates to pixel coordinates using this
+  // Display's device scale factor.
   ///
   void(CEF_CALLBACK* convert_point_to_pixels)(struct _cef_display_t* self,
                                               cef_point_t* point);
 
   ///
-  // Convert |point| from pixel coordinates to density independent pixels (DIP)
-  // using this Display's device scale factor.
+  // Convert |point| from pixel coordinates to DIP coordinates using this
+  // Display's device scale factor.
   ///
   void(CEF_CALLBACK* convert_point_from_pixels)(struct _cef_display_t* self,
                                                 cef_point_t* point);
 
   ///
-  // Returns this Display's bounds. This is the full size of the display.
+  // Returns this Display's bounds in DIP screen coordinates. This is the full
+  // size of the display.
   ///
   cef_rect_t(CEF_CALLBACK* get_bounds)(struct _cef_display_t* self);
 
   ///
-  // Returns this Display's work area. This excludes areas of the display that
-  // are occupied for window manager toolbars, etc.
+  // Returns this Display's work area in DIP screen coordinates. This excludes
+  // areas of the display that are occupied with window manager toolbars, etc.
   ///
   cef_rect_t(CEF_CALLBACK* get_work_area)(struct _cef_display_t* self);
 
@@ -111,7 +112,7 @@ CEF_EXPORT cef_display_t* cef_display_get_primary();
 
 ///
 // Returns the Display nearest |point|. Set |input_pixel_coords| to true (1) if
-// |point| is in pixel coordinates instead of density independent pixels (DIP).
+// |point| is in pixel screen coordinates instead of DIP screen coordinates.
 ///
 CEF_EXPORT cef_display_t* cef_display_get_nearest_point(
     const cef_point_t* point,
@@ -119,8 +120,8 @@ CEF_EXPORT cef_display_t* cef_display_get_nearest_point(
 
 ///
 // Returns the Display that most closely intersects |bounds|.  Set
-// |input_pixel_coords| to true (1) if |bounds| is in pixel coordinates instead
-// of density independent pixels (DIP).
+// |input_pixel_coords| to true (1) if |bounds| is in pixel screen coordinates
+// instead of DIP screen coordinates.
 ///
 CEF_EXPORT cef_display_t* cef_display_get_matching_bounds(
     const cef_rect_t* bounds,
