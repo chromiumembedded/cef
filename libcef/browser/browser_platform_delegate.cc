@@ -14,6 +14,13 @@ CefBrowserPlatformDelegate::~CefBrowserPlatformDelegate() {
   DCHECK(!browser_);
 }
 
+content::WebContents* CefBrowserPlatformDelegate::CreateWebContents(
+    CefBrowserCreateParams& create_params,
+    bool& own_web_contents) {
+  NOTREACHED();
+  return nullptr;
+}
+
 void CefBrowserPlatformDelegate::CreateViewForWebContents(
     content::WebContentsView** view,
     content::RenderViewHostDelegateView** delegate_view) {
@@ -57,7 +64,7 @@ void CefBrowserPlatformDelegate::RenderViewCreated(
 
 void CefBrowserPlatformDelegate::RenderViewReady() {}
 
-void CefBrowserPlatformDelegate::BrowserCreated(AlloyBrowserHostImpl* browser) {
+void CefBrowserPlatformDelegate::BrowserCreated(CefBrowserHostBase* browser) {
   // We should have an associated WebContents at this point.
   DCHECK(web_contents_);
 
@@ -83,8 +90,7 @@ void CefBrowserPlatformDelegate::NotifyBrowserCreated() {}
 
 void CefBrowserPlatformDelegate::NotifyBrowserDestroyed() {}
 
-void CefBrowserPlatformDelegate::BrowserDestroyed(
-    AlloyBrowserHostImpl* browser) {
+void CefBrowserPlatformDelegate::BrowserDestroyed(CefBrowserHostBase* browser) {
   // WebContentsDestroyed should already be called.
   DCHECK(!web_contents_);
 
@@ -99,6 +105,11 @@ bool CefBrowserPlatformDelegate::CreateHostWindow() {
 
 void CefBrowserPlatformDelegate::CloseHostWindow() {
   NOTREACHED();
+}
+
+CefWindowHandle CefBrowserPlatformDelegate::GetHostWindowHandle() const {
+  NOTREACHED();
+  return kNullWindowHandle;
 }
 
 #if defined(USE_AURA)
@@ -121,8 +132,48 @@ void CefBrowserPlatformDelegate::PopupWebContentsCreated(
     bool is_devtools) {}
 
 void CefBrowserPlatformDelegate::PopupBrowserCreated(
-    AlloyBrowserHostImpl* new_browser,
+    CefBrowserHostBase* new_browser,
     bool is_devtools) {}
+
+SkColor CefBrowserPlatformDelegate::GetBackgroundColor() const {
+  NOTREACHED();
+  return SkColor();
+}
+
+void CefBrowserPlatformDelegate::WasResized() {
+  NOTREACHED();
+}
+
+void CefBrowserPlatformDelegate::SendKeyEvent(const CefKeyEvent& event) {
+  NOTIMPLEMENTED();
+}
+
+void CefBrowserPlatformDelegate::SendMouseClickEvent(
+    const CefMouseEvent& event,
+    CefBrowserHost::MouseButtonType type,
+    bool mouseUp,
+    int clickCount) {
+  NOTIMPLEMENTED();
+}
+
+void CefBrowserPlatformDelegate::SendMouseMoveEvent(const CefMouseEvent& event,
+                                                    bool mouseLeave) {
+  NOTIMPLEMENTED();
+}
+
+void CefBrowserPlatformDelegate::SendMouseWheelEvent(const CefMouseEvent& event,
+                                                     int deltaX,
+                                                     int deltaY) {
+  NOTIMPLEMENTED();
+}
+
+void CefBrowserPlatformDelegate::SendTouchEvent(const CefTouchEvent& event) {
+  NOTIMPLEMENTED();
+}
+
+void CefBrowserPlatformDelegate::SendFocusEvent(bool setFocus) {
+  NOTIMPLEMENTED();
+}
 
 void CefBrowserPlatformDelegate::SendCaptureLostEvent() {
   NOTIMPLEMENTED();
@@ -133,6 +184,22 @@ void CefBrowserPlatformDelegate::NotifyMoveOrResizeStarted() {}
 
 void CefBrowserPlatformDelegate::SizeTo(int width, int height) {}
 #endif
+
+gfx::Point CefBrowserPlatformDelegate::GetScreenPoint(
+    const gfx::Point& view) const {
+  NOTREACHED();
+  return gfx::Point();
+}
+
+void CefBrowserPlatformDelegate::ViewText(const std::string& text) {
+  NOTIMPLEMENTED();
+}
+
+bool CefBrowserPlatformDelegate::HandleKeyboardEvent(
+    const content::NativeWebKeyboardEvent& event) {
+  NOTREACHED();
+  return false;
+}
 
 bool CefBrowserPlatformDelegate::PreHandleGestureEvent(
     content::WebContents* source,
@@ -145,6 +212,12 @@ bool CefBrowserPlatformDelegate::IsNeverComposited(
   return false;
 }
 
+CefEventHandle CefBrowserPlatformDelegate::GetEventHandle(
+    const content::NativeWebKeyboardEvent& event) const {
+  NOTREACHED();
+  return kNullEventHandle;
+}
+
 std::unique_ptr<CefFileDialogRunner>
 CefBrowserPlatformDelegate::CreateFileDialogRunner() {
   NOTIMPLEMENTED();
@@ -155,6 +228,19 @@ std::unique_ptr<CefJavaScriptDialogRunner>
 CefBrowserPlatformDelegate::CreateJavaScriptDialogRunner() {
   NOTIMPLEMENTED();
   return nullptr;
+}
+
+std::unique_ptr<CefMenuRunner> CefBrowserPlatformDelegate::CreateMenuRunner() {
+  NOTIMPLEMENTED();
+  return nullptr;
+}
+
+bool CefBrowserPlatformDelegate::IsWindowless() const {
+  return false;
+}
+
+bool CefBrowserPlatformDelegate::IsViewsHosted() const {
+  return false;
 }
 
 void CefBrowserPlatformDelegate::WasHidden(bool hidden) {

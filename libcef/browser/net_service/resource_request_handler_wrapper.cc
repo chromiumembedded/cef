@@ -5,7 +5,6 @@
 #include "libcef/browser/net_service/resource_request_handler_wrapper.h"
 
 #include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/iothread_state.h"
 #include "libcef/browser/net_service/cookie_helper.h"
@@ -256,7 +255,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                     int frame_tree_node_id,
                     bool is_navigation,
                     bool is_download,
-                    const url::Origin& request_initiator) {
+                    const url::Origin& request_initiator,
+                    const base::Closure& unhandled_request_callback) {
       CEF_REQUIRE_UIT();
 
       browser_context_ = browser_context;
@@ -264,7 +264,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
           CefBrowserContext::FromBrowserContext(browser_context);
       iothread_state_ = cef_browser_context->iothread_state();
       DCHECK(iothread_state_);
-      cookieable_schemes_ = cef_browser_context->cookieable_schemes();
+      cookieable_schemes_ = cef_browser_context->GetCookieableSchemes();
 
       // We register to be notified of CEF context or browser destruction so
       // that we can stop accepting new requests and cancel pending/in-progress
@@ -284,6 +284,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       is_navigation_ = is_navigation;
       is_download_ = is_download;
       request_initiator_ = request_initiator.Serialize();
+      unhandled_request_callback_ = unhandled_request_callback;
 
       // Default values for standard headers.
       accept_language_ = ComputeAcceptLanguageFromPref(
@@ -320,6 +321,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     bool is_navigation_ = true;
     bool is_download_ = false;
     CefString request_initiator_;
+    base::Closure unhandled_request_callback_;
 
     // Default values for standard headers.
     std::string accept_language_;
@@ -996,13 +998,14 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
       CallHandlerOnComplete(state, status);
 
-      if (status.error_code != 0 && is_external) {
+      if (status.error_code != 0 && status.error_code != ERR_ABORTED &&
+          is_external) {
         bool allow_os_execution = false;
         state->handler_->OnProtocolExecution(
             init_state_->browser_, init_state_->frame_,
             state->pending_request_.get(), allow_os_execution);
-        if (allow_os_execution) {
-          CefBrowserPlatformDelegate::HandleExternalProtocol(request.url);
+        if (allow_os_execution && init_state_->unhandled_request_callback_) {
+          init_state_->unhandled_request_callback_.Run();
         }
       }
     }
@@ -1197,7 +1200,8 @@ void InitOnUIThread(
     scoped_refptr<InterceptedRequestHandlerWrapper::InitHelper> init_helper,
     content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
-    const network::ResourceRequest& request) {
+    const network::ResourceRequest& request,
+    const base::Closure& unhandled_request_callback) {
   CEF_REQUIRE_UIT();
 
   // May return nullptr if the WebContents was destroyed while this callback was
@@ -1267,7 +1271,7 @@ void InitOnUIThread(
   init_state->Initialize(browser_context, browserPtr, framePtr,
                          render_process_id, request.render_frame_id,
                          frame_tree_node_id, is_navigation, is_download,
-                         request_initiator);
+                         request_initiator, unhandled_request_callback);
 
   init_helper->MaybeSetInitialized(std::move(init_state));
 }
@@ -1304,7 +1308,8 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
       std::make_unique<InterceptedRequestHandlerWrapper::InitState>();
   init_state->Initialize(browser_context, browserPtr, framePtr,
                          render_process_id, render_frame_id, frame_tree_node_id,
-                         is_navigation, is_download, request_initiator);
+                         is_navigation, is_download, request_initiator,
+                         base::Closure());
 
   auto wrapper = std::make_unique<InterceptedRequestHandlerWrapper>();
   wrapper->init_helper()->MaybeSetInitialized(std::move(init_state));
@@ -1315,11 +1320,12 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
 std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
     content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
-    const network::ResourceRequest& request) {
+    const network::ResourceRequest& request,
+    const base::Closure& unhandled_request_callback) {
   auto wrapper = std::make_unique<InterceptedRequestHandlerWrapper>();
   CEF_POST_TASK(CEF_UIT, base::BindOnce(InitOnUIThread, wrapper->init_helper(),
                                         web_contents_getter, frame_tree_node_id,
-                                        request));
+                                        request, unhandled_request_callback));
   return wrapper;
 }
 

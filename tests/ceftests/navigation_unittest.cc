@@ -20,6 +20,22 @@ using client::ClientAppRenderer;
 
 namespace {
 
+// Browser-side app delegate.
+class NavigationBrowserTest : public client::ClientAppBrowser::Delegate {
+ public:
+  NavigationBrowserTest() {}
+
+  void OnBeforeCommandLineProcessing(
+      CefRefPtr<client::ClientAppBrowser> app,
+      CefRefPtr<CefCommandLine> command_line) override {
+    // Disable popup blocking for the chrome runtime.
+    command_line->AppendSwitch("disable-popup-blocking");
+  }
+
+ private:
+  IMPLEMENT_REFCOUNTING(NavigationBrowserTest);
+};
+
 const char kHNav1[] = "http://tests-hnav.com/nav1.html";
 const char kHNav2[] = "http://tests-hnav.com/nav2.html";
 const char kHNav3[] = "http://tests-hnav.com/nav3.html";
@@ -389,20 +405,28 @@ class HistoryNavTestHandler : public TestHandler {
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefRequestCallback> callback) override {
-    const NavListItem& item = kHNavList[nav_];
+    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+      // Ignore favicon requests.
+      return RV_CANCEL;
+    }
 
-    EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
+    const NavListItem& item = kHNavList[nav_];
+    const std::string& url = request->GetURL();
+
+    EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType())
+        << "nav=" << nav_ << " url=" << url;
 
     const auto transition_type = request->GetTransitionType();
     if (item.action == NA_LOAD) {
-      EXPECT_EQ(kTransitionExplicitLoad, transition_type);
+      EXPECT_EQ(kTransitionExplicitLoad, transition_type)
+          << "nav=" << nav_ << " url=" << url;
     } else if (item.action == NA_BACK || item.action == NA_FORWARD) {
-      EXPECT_EQ(kTransitionExplicitForwardBack, transition_type);
+      EXPECT_EQ(kTransitionExplicitForwardBack, transition_type)
+          << "nav=" << nav_ << " url=" << url;
     }
 
     got_before_resource_load_[nav_].yes();
 
-    std::string url = request->GetURL();
     if (url == item.target)
       got_correct_target_[nav_].yes();
 
@@ -834,6 +858,11 @@ class RedirectTestHandler : public TestHandler {
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefRequestCallback> callback) override {
+    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+      // Ignore favicon requests.
+      return RV_CANCEL;
+    }
+
     // Should be called for all but the second URL.
     std::string url = request->GetURL();
 
@@ -1441,6 +1470,11 @@ class OrderNavTestHandler : public TestHandler {
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefRequestCallback> callback) override {
+    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+      // Ignore favicon requests.
+      return RV_CANCEL;
+    }
+
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
 
     if (browser->IsPopup()) {
@@ -1790,6 +1824,14 @@ class LoadNavTestHandler : public TestHandler {
     EXPECT_GT(browser_id_current_, 0);
   }
 
+  cef_transition_type_t ExpectedOpenURLTransitionType() const {
+    if (mode_ != LEFT_CLICK && IsChromeRuntimeEnabled()) {
+      // Because we triggered the navigation with LoadURL in OnOpenURLFromTab.
+      return kTransitionExplicitLoad;
+    }
+    return TT_LINK;
+  }
+
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
@@ -1800,7 +1842,7 @@ class LoadNavTestHandler : public TestHandler {
       EXPECT_EQ(kTransitionExplicitLoad, request->GetTransitionType());
       EXPECT_FALSE(user_gesture);
     } else {
-      EXPECT_EQ(TT_LINK, request->GetTransitionType());
+      EXPECT_EQ(ExpectedOpenURLTransitionType(), request->GetTransitionType());
 
       if (mode_ == LEFT_CLICK) {
         EXPECT_TRUE(user_gesture);
@@ -1849,6 +1891,14 @@ class LoadNavTestHandler : public TestHandler {
 
     got_open_url_from_tab_.yes();
 
+    if (!cancel_in_open_url_ && IsChromeRuntimeEnabled()) {
+      // The chrome runtime may create a new popup window, which is not the
+      // behavior that this test expects. Instead, match the alloy runtime
+      // behavior by navigating in the current window.
+      browser->GetMainFrame()->LoadURL(target_url);
+      return true;
+    }
+
     return cancel_in_open_url_;
   }
 
@@ -1857,13 +1907,19 @@ class LoadNavTestHandler : public TestHandler {
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefRequestCallback> callback) override {
+    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+      // Ignore favicon requests.
+      return RV_CANCEL;
+    }
+
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
 
     const auto transition_type = request->GetTransitionType();
-    if (mode_ == LOAD || request->GetURL() == kLoadNav1)
+    if (mode_ == LOAD || request->GetURL() == kLoadNav1) {
       EXPECT_EQ(kTransitionExplicitLoad, transition_type);
-    else
-      EXPECT_EQ(TT_LINK, transition_type);
+    } else {
+      EXPECT_EQ(ExpectedOpenURLTransitionType(), transition_type);
+    }
 
     EXPECT_GT(browser_id_current_, 0);
     EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
@@ -1879,10 +1935,11 @@ class LoadNavTestHandler : public TestHandler {
     EXPECT_GT(browser_id_current_, 0);
     EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
 
-    if (mode_ == LOAD || frame->GetURL() == kLoadNav1)
+    if (mode_ == LOAD || frame->GetURL() == kLoadNav1) {
       EXPECT_EQ(kTransitionExplicitLoad, transition_type);
-    else
-      EXPECT_EQ(TT_LINK, transition_type);
+    } else {
+      EXPECT_EQ(ExpectedOpenURLTransitionType(), transition_type);
+    }
 
     got_load_start_.yes();
   }
@@ -2181,6 +2238,7 @@ class PopupSimultaneousTestHandler : public TestHandler {
       const std::string& url = browser->GetMainFrame()->GetURL();
       for (size_t i = 0; i < kSimultPopupCount; ++i) {
         if (browser->GetIdentifier() == browser_id_[i]) {
+          EXPECT_TRUE(got_loading_state_change_[i]);
           EXPECT_STREQ(popup_url_[i].c_str(), url.c_str()) << i;
 
           got_before_close_[i].yes();
@@ -3473,6 +3531,7 @@ class ExtraInfoNavTestHandler : public TestHandler {
 
   IMPLEMENT_REFCOUNTING(ExtraInfoNavTestHandler);
 };
+
 }  // namespace
 
 TEST(NavigationTest, ExtraInfo) {
@@ -3488,4 +3547,11 @@ void CreateNavigationRendererTests(ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new OrderNavRendererTest);
   delegates.insert(new LoadNavRendererTest);
   delegates.insert(new ExtraInfoNavRendererTest);
+}
+
+// Entry point for creating plugin browser test objects.
+// Called from client_app_delegates.cc.
+void CreateNavigationBrowserTests(
+    client::ClientAppBrowser::DelegateSet& delegates) {
+  delegates.insert(new NavigationBrowserTest);
 }

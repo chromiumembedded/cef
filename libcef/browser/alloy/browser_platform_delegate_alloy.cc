@@ -12,6 +12,7 @@
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
 #include "libcef/browser/printing/print_view_manager.h"
 #include "libcef/common/extensions/extensions_util.h"
+#include "libcef/features/runtime_checks.h"
 
 #include "base/logging.h"
 #include "chrome/browser/printing/print_view_manager.h"
@@ -28,8 +29,11 @@ CefBrowserPlatformDelegateAlloy::CefBrowserPlatformDelegateAlloy()
     : weak_ptr_factory_(this) {}
 
 content::WebContents* CefBrowserPlatformDelegateAlloy::CreateWebContents(
-    CefBrowserHostBase::CreateParams& create_params,
+    CefBrowserCreateParams& create_params,
     bool& own_web_contents) {
+  REQUIRE_ALLOY_RUNTIME();
+  DCHECK(primary_);
+
   // Get or create the request context and browser context.
   CefRefPtr<CefRequestContextImpl> request_context_impl =
       CefRequestContextImpl::GetOrCreateForRequestContext(
@@ -105,6 +109,9 @@ void CefBrowserPlatformDelegateAlloy::AddNewContents(
     const gfx::Rect& initial_rect,
     bool user_gesture,
     bool* was_blocked) {
+  REQUIRE_ALLOY_RUNTIME();
+  DCHECK(primary_);
+
   CefRefPtr<AlloyBrowserHostImpl> owner =
       AlloyBrowserHostImpl::GetBrowserForContents(new_contents.get());
   if (owner) {
@@ -143,10 +150,15 @@ void CefBrowserPlatformDelegateAlloy::RenderViewReady() {
 }
 
 void CefBrowserPlatformDelegateAlloy::BrowserCreated(
-    AlloyBrowserHostImpl* browser) {
+    CefBrowserHostBase* browser) {
   CefBrowserPlatformDelegate::BrowserCreated(browser);
 
-  web_contents_->SetDelegate(browser);
+  // Only register WebContents delegate/observers if we're the primary delegate.
+  if (!primary_)
+    return;
+
+  DCHECK(!web_contents_->GetDelegate());
+  web_contents_->SetDelegate(static_cast<AlloyBrowserHostImpl*>(browser));
 
   PrefsTabHelper::CreateForWebContents(web_contents_);
   printing::CefPrintViewManager::CreateForWebContents(web_contents_);
@@ -169,24 +181,29 @@ void CefBrowserPlatformDelegateAlloy::CreateExtensionHost(
     const extensions::Extension* extension,
     const GURL& url,
     extensions::ViewType host_type) {
+  REQUIRE_ALLOY_RUNTIME();
+  DCHECK(primary_);
+
   // Should get WebContentsCreated and BrowserCreated calls first.
   DCHECK(web_contents_);
   DCHECK(browser_);
   DCHECK(!extension_host_);
 
+  auto alloy_browser = static_cast<AlloyBrowserHostImpl*>(browser_);
+
   if (host_type == extensions::VIEW_TYPE_EXTENSION_DIALOG ||
       host_type == extensions::VIEW_TYPE_EXTENSION_POPUP) {
     // Create an extension host that we own.
     extension_host_ = new extensions::CefExtensionViewHost(
-        browser_, extension, web_contents_, url, host_type);
+        alloy_browser, extension, web_contents_, url, host_type);
     // Trigger load of the extension URL.
     extension_host_->CreateRenderViewSoon();
   } else if (host_type == extensions::VIEW_TYPE_EXTENSION_BACKGROUND_PAGE) {
     is_background_host_ = true;
-    browser_->is_background_host_ = true;
+    alloy_browser->is_background_host_ = true;
     // Create an extension host that will be owned by ProcessManager.
     extension_host_ = new extensions::CefExtensionBackgroundHost(
-        browser_,
+        alloy_browser,
         base::BindOnce(&CefBrowserPlatformDelegateAlloy::OnExtensionHostDeleted,
                        weak_ptr_factory_.GetWeakPtr()),
         extension, web_contents_, url, host_type);
@@ -202,9 +219,11 @@ extensions::ExtensionHost* CefBrowserPlatformDelegateAlloy::GetExtensionHost()
 }
 
 void CefBrowserPlatformDelegateAlloy::BrowserDestroyed(
-    AlloyBrowserHostImpl* browser) {
-  DestroyExtensionHost();
-  owned_web_contents_.reset();
+    CefBrowserHostBase* browser) {
+  if (primary_) {
+    DestroyExtensionHost();
+    owned_web_contents_.reset();
+  }
 
   CefBrowserPlatformDelegate::BrowserDestroyed(browser);
 }
@@ -303,6 +322,8 @@ void CefBrowserPlatformDelegateAlloy::SetAccessibilityState(
 }
 
 bool CefBrowserPlatformDelegateAlloy::IsPrintPreviewSupported() const {
+  REQUIRE_ALLOY_RUNTIME();
+
   auto actionable_contents = GetActionableWebContents();
   if (!actionable_contents)
     return false;
@@ -318,6 +339,8 @@ bool CefBrowserPlatformDelegateAlloy::IsPrintPreviewSupported() const {
 }
 
 void CefBrowserPlatformDelegateAlloy::Print() {
+  REQUIRE_ALLOY_RUNTIME();
+
   auto actionable_contents = GetActionableWebContents();
   if (!actionable_contents)
     return;
@@ -337,6 +360,8 @@ void CefBrowserPlatformDelegateAlloy::PrintToPDF(
     const CefString& path,
     const CefPdfPrintSettings& settings,
     CefRefPtr<CefPdfPrintCallback> callback) {
+  REQUIRE_ALLOY_RUNTIME();
+
   content::WebContents* actionable_contents = GetActionableWebContents();
   if (!actionable_contents)
     return;
@@ -405,6 +430,8 @@ CefBrowserPlatformDelegateAlloy::GetActionableWebContents() const {
 
 void CefBrowserPlatformDelegateAlloy::SetOwnedWebContents(
     content::WebContents* owned_contents) {
+  DCHECK(primary_);
+
   // Should not currently own a WebContents.
   CHECK(!owned_web_contents_);
   owned_web_contents_.reset(owned_contents);

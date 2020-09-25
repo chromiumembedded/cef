@@ -250,7 +250,7 @@ bool CefExtensionsBrowserClient::CreateBackgroundExtensionHost(
     return true;
   }
 
-  CefBrowserHostBase::CreateParams create_params;
+  CefBrowserCreateParams create_params;
   create_params.url = url;
   create_params.request_context = request_context;
 

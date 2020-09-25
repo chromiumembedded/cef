@@ -13,12 +13,17 @@
 #include "include/cef_drag_data.h"
 #include "include/internal/cef_types.h"
 #include "include/views/cef_browser_view.h"
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 
 #include "base/callback_forward.h"
-#include "content/public/browser/web_contents.h"
+#include "extensions/common/view_type.h"
+#include "third_party/blink/public/common/page/web_drag_operation.h"
+#include "third_party/skia/include/core/SkColor.h"
+#include "ui/base/window_open_disposition.h"
+
+class GURL;
 
 namespace blink {
+class WebGestureEvent;
 class WebMouseEvent;
 class WebMouseWheelEvent;
 class WebInputEvent;
@@ -26,15 +31,30 @@ class WebTouchEvent;
 }  // namespace blink
 
 namespace content {
+struct AXEventNotificationDetails;
+struct AXLocationChangeNotificationDetails;
+struct DragEventSourceInfo;
+struct DropData;
 struct NativeWebKeyboardEvent;
 class RenderViewHost;
 class RenderViewHostDelegateView;
+class RenderWidgetHostImpl;
+class WebContents;
 class WebContentsView;
 }  // namespace content
 
 namespace extensions {
+class Extension;
 class ExtensionHost;
-}
+}  // namespace extensions
+
+namespace gfx {
+class ImageSkia;
+class Point;
+class Rect;
+class Size;
+class Vector2d;
+}  // namespace gfx
 
 #if defined(USE_AURA)
 namespace views {
@@ -42,6 +62,8 @@ class Widget;
 }
 #endif
 
+struct CefBrowserCreateParams;
+class CefBrowserHostBase;
 class CefFileDialogRunner;
 class CefJavaScriptDialogRunner;
 class CefMenuRunner;
@@ -54,14 +76,14 @@ class CefBrowserPlatformDelegate {
   // Create a new CefBrowserPlatformDelegate instance. May be called on multiple
   // threads.
   static std::unique_ptr<CefBrowserPlatformDelegate> Create(
-      CefBrowserHostBase::CreateParams& create_params);
+      const CefBrowserCreateParams& create_params);
 
   // Called from AlloyBrowserHostImpl::Create.
   // Wait for the call to WebContentsCreated(owned=true) before taking ownership
   // of the resulting WebContents object.
   virtual content::WebContents* CreateWebContents(
-      CefBrowserHostBase::CreateParams& create_params,
-      bool& own_web_contents) = 0;
+      CefBrowserCreateParams& create_params,
+      bool& own_web_contents);
 
   // Called to create the view objects for a new WebContents. Will only be
   // called a single time per instance. May be called on multiple threads. Only
@@ -106,7 +128,7 @@ class CefBrowserPlatformDelegate {
   // Called after the owning AlloyBrowserHostImpl is created. Will only be
   // called a single time per instance. Do not send any client notifications
   // from this method.
-  virtual void BrowserCreated(AlloyBrowserHostImpl* browser);
+  virtual void BrowserCreated(CefBrowserHostBase* browser);
 
   // Called from AlloyBrowserHostImpl::Create.
   virtual void CreateExtensionHost(const extensions::Extension* extension,
@@ -128,7 +150,7 @@ class CefBrowserPlatformDelegate {
   // called a single time per instance. All references to the
   // AlloyBrowserHostImpl and WebContents should be cleared when this method is
   // called. Do not send any client notifications from this method.
-  virtual void BrowserDestroyed(AlloyBrowserHostImpl* browser);
+  virtual void BrowserDestroyed(CefBrowserHostBase* browser);
 
   // Create the window that hosts the browser. Will only be called a single time
   // per instance. Only used with windowed rendering.
@@ -143,7 +165,7 @@ class CefBrowserPlatformDelegate {
   // rendering this will return the most immediate parent window handle. For
   // windowless rendering this will return the parent window handle specified by
   // the client, which may be NULL. May be called on multiple threads.
-  virtual CefWindowHandle GetHostWindowHandle() const = 0;
+  virtual CefWindowHandle GetHostWindowHandle() const;
 
 #if defined(USE_AURA)
   // Returns the Widget owner for the browser window. Only used with windowed
@@ -174,7 +196,7 @@ class CefBrowserPlatformDelegate {
   // CefLifeSpanHandler::OnAfterCreated() for the popup browser. It is safe to
   // make the new browser visible in this callback (for example, add the browser
   // to a window and show it).
-  virtual void PopupBrowserCreated(AlloyBrowserHostImpl* new_browser,
+  virtual void PopupBrowserCreated(CefBrowserHostBase* new_browser,
                                    bool is_devtools);
 
   // Returns the background color for the browser. The alpha component will be
@@ -182,27 +204,26 @@ class CefBrowserPlatformDelegate {
   // fully opaque). SK_AlphaOPAQUE will always be returned for windowed
   // browsers. SK_ColorTRANSPARENT may be returned for windowless browsers to
   // enable transparency.
-  virtual SkColor GetBackgroundColor() const = 0;
+  virtual SkColor GetBackgroundColor() const;
 
   // Notify the window that it was resized.
-  virtual void WasResized() = 0;
+  virtual void WasResized();
 
   // Send input events.
-  virtual void SendKeyEvent(const CefKeyEvent& event) = 0;
+  virtual void SendKeyEvent(const CefKeyEvent& event);
   virtual void SendMouseClickEvent(const CefMouseEvent& event,
                                    CefBrowserHost::MouseButtonType type,
                                    bool mouseUp,
-                                   int clickCount) = 0;
-  virtual void SendMouseMoveEvent(const CefMouseEvent& event,
-                                  bool mouseLeave) = 0;
+                                   int clickCount);
+  virtual void SendMouseMoveEvent(const CefMouseEvent& event, bool mouseLeave);
   virtual void SendMouseWheelEvent(const CefMouseEvent& event,
                                    int deltaX,
-                                   int deltaY) = 0;
-  virtual void SendTouchEvent(const CefTouchEvent& event) = 0;
+                                   int deltaY);
+  virtual void SendTouchEvent(const CefTouchEvent& event);
 
   // Send focus event. The browser's WebContents may be NULL when this method is
   // called.
-  virtual void SendFocusEvent(bool setFocus) = 0;
+  virtual void SendFocusEvent(bool setFocus);
 
   // Send capture lost event.
   virtual void SendCaptureLostEvent();
@@ -219,15 +240,15 @@ class CefBrowserPlatformDelegate {
 
   // Convert from view coordinates to screen coordinates. Potential display
   // scaling will be applied to the result.
-  virtual gfx::Point GetScreenPoint(const gfx::Point& view) const = 0;
+  virtual gfx::Point GetScreenPoint(const gfx::Point& view) const;
 
   // Open the specified text in the default text editor.
-  virtual void ViewText(const std::string& text) = 0;
+  virtual void ViewText(const std::string& text);
 
   // Forward the keyboard event to the application or frame window to allow
   // processing of shortcut keys.
   virtual bool HandleKeyboardEvent(
-      const content::NativeWebKeyboardEvent& event) = 0;
+      const content::NativeWebKeyboardEvent& event);
 
   // See WebContentsDelegate documentation.
   virtual bool PreHandleGestureEvent(content::WebContents* source,
@@ -241,7 +262,7 @@ class CefBrowserPlatformDelegate {
 
   // Returns the OS event handle, if any, associated with |event|.
   virtual CefEventHandle GetEventHandle(
-      const content::NativeWebKeyboardEvent& event) const = 0;
+      const content::NativeWebKeyboardEvent& event) const;
 
   // Create the platform-specific file dialog runner.
   virtual std::unique_ptr<CefFileDialogRunner> CreateFileDialogRunner();
@@ -251,15 +272,15 @@ class CefBrowserPlatformDelegate {
   CreateJavaScriptDialogRunner();
 
   // Create the platform-specific menu runner.
-  virtual std::unique_ptr<CefMenuRunner> CreateMenuRunner() = 0;
+  virtual std::unique_ptr<CefMenuRunner> CreateMenuRunner();
 
   // Returns true if this delegate implements windowless rendering. May be
   // called on multiple threads.
-  virtual bool IsWindowless() const = 0;
+  virtual bool IsWindowless() const;
 
   // Returns true if this delegate implements views-hosted browser handling. May
   // be called on multiple threads.
-  virtual bool IsViewsHosted() const = 0;
+  virtual bool IsViewsHosted() const;
 
   // Notify the browser that it was hidden. Only used with windowless rendering.
   virtual void WasHidden(bool hidden);
@@ -343,7 +364,7 @@ class CefBrowserPlatformDelegate {
 
   // Not owned by this object.
   content::WebContents* web_contents_ = nullptr;
-  AlloyBrowserHostImpl* browser_ = nullptr;
+  CefBrowserHostBase* browser_ = nullptr;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserPlatformDelegate);
 };

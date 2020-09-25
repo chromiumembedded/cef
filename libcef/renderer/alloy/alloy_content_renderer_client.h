@@ -16,8 +16,7 @@
 #include "libcef/renderer/browser_impl.h"
 
 #include "base/compiler_specific.h"
-#include "base/optional.h"
-#include "base/sequenced_task_runner.h"
+#include "base/single_thread_task_runner.h"
 #include "base/task/current_thread.h"
 #include "chrome/common/plugin.mojom.h"
 #include "content/public/renderer/content_renderer_client.h"
@@ -43,9 +42,8 @@ namespace web_cache {
 class WebCacheImpl;
 }
 
-class CefGuestView;
+class CefBrowserManager;
 class CefRenderThreadObserver;
-struct Cef_CrossOriginWhiteListEntry_Params;
 class ChromePDFPrintClient;
 class SpellCheck;
 
@@ -61,31 +59,10 @@ class AlloyContentRendererClient
   // This method is deprecated and should not be used in new callsites.
   static AlloyContentRendererClient* Get();
 
-  // Returns the browser associated with the specified RenderView.
-  CefRefPtr<CefBrowserImpl> GetBrowserForView(content::RenderView* view);
-
-  // Returns the browser associated with the specified main WebFrame.
-  CefRefPtr<CefBrowserImpl> GetBrowserForMainFrame(blink::WebFrame* frame);
-
-  // Called from CefBrowserImpl::OnDestruct().
-  void OnBrowserDestroyed(CefBrowserImpl* browser);
-
-  // Returns the guest view associated with the specified RenderView if any.
-  CefGuestView* GetGuestViewForView(content::RenderView* view);
-
-  // Called from CefGuestView::OnDestruct().
-  void OnGuestViewDestroyed(CefGuestView* guest_view);
-
   // Render thread task runner.
   base::SingleThreadTaskRunner* render_task_runner() const {
     return render_task_runner_.get();
   }
-
-  int uncaught_exception_stack_size() const {
-    return uncaught_exception_stack_size_;
-  }
-
-  void WebKitInitialized();
 
   // Returns the task runner for the current thread. Returns NULL if the current
   // thread is not the main render process thread.
@@ -146,12 +123,8 @@ class AlloyContentRendererClient
   void WillDestroyCurrentMessageLoop() override;
 
  private:
-  // Maybe create a new browser object, return the existing one, or return
-  // nullptr for guest views.
-  CefRefPtr<CefBrowserImpl> MaybeCreateBrowser(
-      content::RenderView* render_view,
-      content::RenderFrame* render_frame,
-      base::Optional<bool>* is_windowless);
+  void OnBrowserCreated(content::RenderView* render_view,
+                        base::Optional<bool> is_windowless);
 
   // Perform cleanup work for single-process mode.
   void RunSingleProcessCleanupOnUIThread();
@@ -160,24 +133,13 @@ class AlloyContentRendererClient
   // which the RendererMain function was entered.
   base::TimeTicks main_entry_time_;
 
+  std::unique_ptr<CefBrowserManager> browser_manager_;
+
   scoped_refptr<base::SingleThreadTaskRunner> render_task_runner_;
   std::unique_ptr<CefRenderThreadObserver> observer_;
   std::unique_ptr<web_cache::WebCacheImpl> web_cache_impl_;
   std::unique_ptr<SpellCheck> spellcheck_;
   std::unique_ptr<visitedlink::VisitedLinkReader> visited_link_slave_;
-
-  // Map of RenderView pointers to CefBrowserImpl references.
-  typedef std::map<content::RenderView*, CefRefPtr<CefBrowserImpl>> BrowserMap;
-  BrowserMap browsers_;
-
-  // Map of RenderView poiners to CefGuestView implementations.
-  typedef std::map<content::RenderView*, std::unique_ptr<CefGuestView>>
-      GuestViewMap;
-  GuestViewMap guest_views_;
-
-  // Cross-origin white list entries that need to be registered with WebKit.
-  typedef std::vector<Cef_CrossOriginWhiteListEntry_Params> CrossOriginList;
-  CrossOriginList cross_origin_whitelist_entries_;
 
   std::unique_ptr<ChromePDFPrintClient> pdf_print_client_;
 
@@ -185,12 +147,9 @@ class AlloyContentRendererClient
   std::unique_ptr<extensions::CefExtensionsRendererClient>
       extensions_renderer_client_;
 
-  int devtools_agent_count_;
-  int uncaught_exception_stack_size_;
-
   // Used in single-process mode to test when cleanup is complete.
   // Access must be protected by |single_process_cleanup_lock_|.
-  bool single_process_cleanup_complete_;
+  bool single_process_cleanup_complete_ = false;
   base::Lock single_process_cleanup_lock_;
 
   DISALLOW_COPY_AND_ASSIGN(AlloyContentRendererClient);

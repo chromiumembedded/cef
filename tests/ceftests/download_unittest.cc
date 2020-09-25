@@ -402,7 +402,7 @@ class DownloadTestHandler : public TestHandler {
   }
 
   void VerifyResultsOnFileThread() {
-    EXPECT_TRUE(CefCurrentlyOn(TID_FILE));
+    EXPECT_TRUE(CefCurrentlyOn(TID_FILE_USER_VISIBLE));
 
     if (test_mode_ != PENDING) {
       // Verify the file contents.
@@ -423,7 +423,7 @@ class DownloadTestHandler : public TestHandler {
       verified_results_ = true;
       // Clean up temp_dir_ on the FILE thread before destroying the test.
       CefPostTask(
-          TID_FILE,
+          TID_FILE_USER_VISIBLE,
           base::Bind(&DownloadTestHandler::VerifyResultsOnFileThread, this));
       return;
     }

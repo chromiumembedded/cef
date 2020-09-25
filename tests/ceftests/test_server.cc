@@ -206,7 +206,8 @@ class ServerManager {
   void NotifyClientConnected(CefRefPtr<CefServer> server, int connection_id) {
     CEF_REQUIRE_UI_THREAD();
 
-    DCHECK(!observer_list_.empty());
+    if (observer_list_.empty())
+      return;
 
     // Use a copy in case |observer_list_| is modified during iteration.
     ObserverList list = observer_list_;
@@ -223,7 +224,8 @@ class ServerManager {
                                 int connection_id) {
     CEF_REQUIRE_UI_THREAD();
 
-    DCHECK(!observer_list_.empty());
+    if (observer_list_.empty())
+      return;
 
     // Use a copy in case |observer_list_| is modified during iteration.
     ObserverList list = observer_list_;
@@ -242,7 +244,17 @@ class ServerManager {
                          CefRefPtr<CefRequest> request) {
     CEF_REQUIRE_UI_THREAD();
 
-    DCHECK(!observer_list_.empty());
+    // TODO(chrome-runtime): Debug why favicon requests don't always have the
+    // correct resource type.
+    const std::string& url = request->GetURL();
+    if (request->GetResourceType() == RT_FAVICON ||
+        url.find("/favicon.ico") != std::string::npos) {
+      // We don't currently handle favicon requests.
+      server->SendHttp404Response(connection_id);
+      return;
+    }
+
+    DCHECK(!observer_list_.empty()) << url;
 
     // Use a copy in case |observer_list_| is modified during iteration.
     ObserverList list = observer_list_;

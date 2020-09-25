@@ -17,9 +17,6 @@ CefRefPtr<CefURLRequest> CefURLRequest::Create(
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefURLRequestClient> client,
     CefRefPtr<CefRequestContext> request_context) {
-  // TODO(chrome-runtime): Add support for this method.
-  REQUIRE_ALLOY_RUNTIME();
-
   if (!request.get() || !client.get()) {
     NOTREACHED() << "called with invalid parameters";
     return nullptr;

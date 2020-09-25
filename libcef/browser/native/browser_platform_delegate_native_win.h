@@ -17,7 +17,7 @@ class CefBrowserPlatformDelegateNativeWin
                                       SkColor background_color);
 
   // CefBrowserPlatformDelegate methods:
-  void BrowserDestroyed(AlloyBrowserHostImpl* browser) override;
+  void BrowserDestroyed(CefBrowserHostBase* browser) override;
   bool CreateHostWindow() override;
   void CloseHostWindow() override;
   CefWindowHandle GetHostWindowHandle() const override;
@@ -52,11 +52,11 @@ class CefBrowserPlatformDelegateNativeWin
                                   LPARAM lParam);
 
   // True if the host window has been created.
-  bool host_window_created_;
+  bool host_window_created_ = false;
 
   // Widget hosting the web contents. It will be deleted automatically when the
   // associated root window is destroyed.
-  views::Widget* window_widget_;
+  views::Widget* window_widget_ = nullptr;
 
   bool has_frame_ = false;
   bool called_enable_non_client_dpi_scaling_ = false;

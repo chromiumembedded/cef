@@ -52,6 +52,15 @@ bool IsOutOfBlinkCorsEnabled() {
   return !!state;
 }
 
+void CreateProxyHelper(
+    content::WebContents::Getter web_contents_getter,
+    mojo::PendingReceiver<network::mojom::URLLoaderFactory> loader_receiver,
+    std::unique_ptr<InterceptedRequestHandler> request_handler) {
+  ProxyURLLoaderFactory::CreateProxy(web_contents_getter,
+                                     std::move(loader_receiver),
+                                     std::move(request_handler));
+}
+
 }  // namespace
 
 // Owns all of the ProxyURLLoaderFactorys for a given BrowserContext. Since
@@ -1270,12 +1279,19 @@ void ProxyURLLoaderFactory::CreateProxy(
 }
 
 // static
-ProxyURLLoaderFactory* ProxyURLLoaderFactory::CreateProxy(
+void ProxyURLLoaderFactory::CreateProxy(
     content::WebContents::Getter web_contents_getter,
     mojo::PendingReceiver<network::mojom::URLLoaderFactory> loader_receiver,
     std::unique_ptr<InterceptedRequestHandler> request_handler) {
-  CEF_REQUIRE_IOT();
   DCHECK(request_handler);
+
+  if (!CEF_CURRENTLY_ON_IOT()) {
+    CEF_POST_TASK(
+        CEF_IOT,
+        base::BindOnce(CreateProxyHelper, web_contents_getter,
+                       std::move(loader_receiver), std::move(request_handler)));
+    return;
+  }
 
   auto proxy = new ProxyURLLoaderFactory(
       std::move(loader_receiver), nullptr,
@@ -1284,7 +1300,6 @@ ProxyURLLoaderFactory* ProxyURLLoaderFactory::CreateProxy(
   CEF_POST_TASK(CEF_UIT,
                 base::BindOnce(ResourceContextData::AddProxyOnUIThread,
                                base::Unretained(proxy), web_contents_getter));
-  return proxy;
 }
 
 void ProxyURLLoaderFactory::CreateLoaderAndStart(

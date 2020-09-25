@@ -19,7 +19,7 @@ class CefBrowserPlatformDelegateNativeMac
                                       SkColor background_color);
 
   // CefBrowserPlatformDelegate methods:
-  void BrowserDestroyed(AlloyBrowserHostImpl* browser) override;
+  void BrowserDestroyed(CefBrowserHostBase* browser) override;
   bool CreateHostWindow() override;
   void CloseHostWindow() override;
   CefWindowHandle GetHostWindowHandle() const override;

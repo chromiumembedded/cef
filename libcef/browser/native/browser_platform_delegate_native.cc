@@ -22,15 +22,8 @@ SkColor CefBrowserPlatformDelegateNative::GetBackgroundColor() const {
 }
 
 void CefBrowserPlatformDelegateNative::WasResized() {
-  content::RenderViewHost* host = browser_->web_contents()->GetRenderViewHost();
-  if (host)
+  content::RenderViewHost* host = web_contents_->GetRenderViewHost();
+  if (host) {
     host->GetWidget()->SynchronizeVisualProperties();
-}
-
-bool CefBrowserPlatformDelegateNative::IsWindowless() const {
-  return false;
-}
-
-bool CefBrowserPlatformDelegateNative::IsViewsHosted() const {
-  return false;
+  }
 }

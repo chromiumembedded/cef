@@ -328,8 +328,9 @@ class TracingTestHandler : public CefEndTracingCallback,
   void OnEndTracingComplete(const CefString& tracing_file) override {
     EXPECT_UI_THREAD();
 
-    CefPostTask(TID_FILE, base::Bind(&TracingTestHandler::ReadTracingFile, this,
-                                     tracing_file));
+    CefPostTask(
+        TID_FILE_USER_VISIBLE,
+        base::Bind(&TracingTestHandler::ReadTracingFile, this, tracing_file));
   }
 
   void ReadTracingFile(const std::string& file_path) {

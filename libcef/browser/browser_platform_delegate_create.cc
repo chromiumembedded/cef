@@ -11,6 +11,8 @@
 #include "base/memory/ptr_util.h"
 #include "build/build_config.h"
 
+#include "libcef/browser/browser_host_base.h"
+#include "libcef/browser/chrome/browser_platform_delegate_chrome.h"
 #include "libcef/browser/extensions/browser_platform_delegate_background.h"
 #include "libcef/features/runtime_checks.h"
 
@@ -68,13 +70,21 @@ std::unique_ptr<CefBrowserPlatformDelegateOsr> CreateOSRDelegate(
 
 // static
 std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
-    CefBrowserHostBase::CreateParams& create_params) {
+    const CefBrowserCreateParams& create_params) {
   const bool is_windowless =
       create_params.window_info &&
       create_params.window_info->windowless_rendering_enabled &&
       create_params.client && create_params.client->GetRenderHandler().get();
   const SkColor background_color = CefContext::Get()->GetBackgroundColor(
       &create_params.settings, is_windowless ? STATE_ENABLED : STATE_DISABLED);
+
+  if (cef::IsChromeRuntimeEnabled()) {
+    // CefWindowInfo is not used in this case.
+    std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate =
+        CreateNativeDelegate(CefWindowInfo(), background_color);
+    return std::make_unique<CefBrowserPlatformDelegateChrome>(
+        std::move(native_delegate));
+  }
 
   if (create_params.window_info) {
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate =

@@ -38,6 +38,9 @@ class CefCookieManagerImpl : public CefCookieManager {
                      CefRefPtr<CefDeleteCookiesCallback> callback) override;
   bool FlushStore(CefRefPtr<CefCompletionCallback> callback) override;
 
+  using CookieableSchemes = base::Optional<std::vector<std::string>>;
+  static CookieableSchemes GetGlobalCookieableSchemes();
+
  private:
   // Only accessed on the UI thread. Will be non-null after Initialize().
   CefBrowserContext::Getter browser_context_getter_;

@@ -313,6 +313,11 @@ class RequestSendRecvTestHandler : public TestHandler {
                               int64 received_content_length) override {
     EXPECT_IO_THREAD();
 
+    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+      // Ignore favicon requests.
+      return;
+    }
+
     TestRequest(request);
     EXPECT_TRUE(request->IsReadOnly());
     TestResponse(response);

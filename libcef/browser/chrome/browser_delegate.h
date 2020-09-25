@@ -35,6 +35,9 @@ class BrowserDelegate : public content::WebContentsDelegate {
 
   ~BrowserDelegate() override {}
 
+  // Called immediately after |new_contents| is created.
+  virtual void OnWebContentsCreated(content::WebContents* new_contents) = 0;
+
   // Add or remove ownership of the WebContents.
   virtual void SetAsDelegate(content::WebContents* web_contents,
                              bool set_delegate) = 0;

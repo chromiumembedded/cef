@@ -12,7 +12,7 @@ typedef unsigned long Window;
 struct _XDisplay;
 typedef struct _XDisplay Display;
 
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "include/internal/cef_ptr.h"
 
 #include "base/memory/weak_ptr.h"
 #include "ui/events/platform/platform_event_dispatcher.h"
@@ -24,12 +24,14 @@ namespace views {
 class DesktopWindowTreeHostLinux;
 }
 
+class CefBrowserHostBase;
+
 // Object wrapper for an X11 Window.
 // Based on WindowTreeHostX11 and DesktopWindowTreeHostX11.
 class CefWindowX11 : public ui::PlatformEventDispatcher,
                      public ui::XEventDispatcher {
  public:
-  CefWindowX11(CefRefPtr<AlloyBrowserHostImpl> browser,
+  CefWindowX11(CefRefPtr<CefBrowserHostBase> browser,
                ::Window parent_xwindow,
                const gfx::Rect& bounds,
                const std::string& title);
@@ -69,7 +71,7 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
   bool IsTargetedBy(const x11::Event& x11_event) const;
   void ProcessXEvent(x11::Event* xev);
 
-  CefRefPtr<AlloyBrowserHostImpl> browser_;
+  CefRefPtr<CefBrowserHostBase> browser_;
 
   // The display and the native X window hosting the root window.
   ::Display* xdisplay_;

@@ -9,15 +9,47 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9e8f283905d68b7b97c13a568040dc12c2859ad3$
+// $hash=d591d5b715b75ccb712f18d29774836580bec514$
 //
 
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
 #include "libcef_dll/ctocpp/print_handler_ctocpp.h"
+#include "libcef_dll/transfer_util.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
+
+NO_SANITIZE("cfi-icall")
+void CefBrowserProcessHandlerCToCpp::GetCookieableSchemes(
+    std::vector<CefString>& schemes,
+    bool& include_defaults) {
+  cef_browser_process_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_cookieable_schemes))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Translate param: schemes; type: string_vec_byref
+  cef_string_list_t schemesList = cef_string_list_alloc();
+  DCHECK(schemesList);
+  if (schemesList)
+    transfer_string_list_contents(schemes, schemesList);
+  // Translate param: include_defaults; type: bool_byref
+  int include_defaultsInt = include_defaults;
+
+  // Execute
+  _struct->get_cookieable_schemes(_struct, schemesList, &include_defaultsInt);
+
+  // Restore param:schemes; type: string_vec_byref
+  if (schemesList) {
+    schemes.clear();
+    transfer_string_list_contents(schemesList, schemes);
+    cef_string_list_free(schemesList);
+  }
+  // Restore param:include_defaults; type: bool_byref
+  include_defaults = include_defaultsInt ? true : false;
+}
 
 NO_SANITIZE("cfi-icall")
 void CefBrowserProcessHandlerCToCpp::OnContextInitialized() {

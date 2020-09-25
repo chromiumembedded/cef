@@ -249,7 +249,7 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
     new_settings.background_color = SK_ColorWHITE;
   }
 
-  CefBrowserHostBase::CreateParams create_params;
+  CefBrowserCreateParams create_params;
   if (!inspected_browser->IsViewsHosted())
     create_params.window_info.reset(new CefWindowInfo(windowInfo));
   create_params.client = client;

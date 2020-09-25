@@ -12,6 +12,7 @@
 #include "include/wrapper/cef_scoped_temp_dir.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/ceftests/routing_test_handler.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/browser/file_util.h"
 
@@ -89,6 +90,11 @@ class ResourceManagerTestHandler : public RoutingTestHandler {
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefRequestCallback> callback) override {
+    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+      // Ignore favicon requests.
+      return RV_CANCEL;
+    }
+
     return state_->manager_->OnBeforeResourceLoad(browser, frame, request,
                                                   callback);
   }

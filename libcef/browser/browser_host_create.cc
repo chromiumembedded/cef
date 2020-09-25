@@ -121,7 +121,7 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     return nullptr;
   }
 
-  CefBrowserHostBase::CreateParams create_params;
+  CefBrowserCreateParams create_params;
   create_params.window_info.reset(new CefWindowInfo(windowInfo));
   create_params.client = client;
   create_params.url = GURL(url.ToString());

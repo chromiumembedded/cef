@@ -119,6 +119,10 @@ int CefTestSuite::Run() {
 }
 
 void CefTestSuite::GetSettings(CefSettings& settings) const {
+  // Enable the experimental Chrome runtime. See issue #2969 for details.
+  settings.chrome_runtime =
+      command_line_->HasSwitch(client::switches::kEnableChromeRuntime);
+
 #if (defined(OS_WIN) || defined(OS_LINUX))
   settings.multi_threaded_message_loop =
       command_line_->HasSwitch(client::switches::kMultiThreadedMessageLoop);

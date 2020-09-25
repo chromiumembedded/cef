@@ -24,36 +24,13 @@
 
 #include "base/strings/string16.h"
 #include "base/synchronization/lock.h"
-#include "content/public/browser/notification_observer.h"
-#include "content/public/browser/notification_registrar.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "extensions/common/view_type.h"
 
-namespace content {
-struct DragEventSourceInfo;
-class RenderWidgetHostImpl;
-}  // namespace content
-
-namespace extensions {
-class Extension;
-class ExtensionHost;
-}  // namespace extensions
-
-namespace gfx {
-class ImageSkia;
-}
-
-#if defined(USE_AURA)
-namespace views {
-class Widget;
-}
-#endif  // defined(USE_AURA)
-
 class CefAudioCapturer;
 class CefBrowserInfo;
-class CefBrowserPlatformDelegate;
 class CefDevToolsManager;
 class SiteInstance;
 
@@ -72,12 +49,9 @@ class SiteInstance;
 // messages sent using AlloyBrowserHostImpl::Send() will be forwarded to the
 // RenderViewHost (after posting to the UI thread if necessary). Use
 // WebContentsObserver::routing_id() when sending IPC messages.
-//
-// NotificationObserver: Interface for observing post-processed notifications.
 class AlloyBrowserHostImpl : public CefBrowserHostBase,
                              public content::WebContentsDelegate,
-                             public content::WebContentsObserver,
-                             public content::NotificationObserver {
+                             public content::WebContentsObserver {
  public:
   // Used for handling the response to command messages.
   class CommandResponseHandler : public virtual CefBaseRefCounted {
@@ -88,7 +62,8 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   ~AlloyBrowserHostImpl() override;
 
   // Create a new AlloyBrowserHostImpl instance with owned WebContents.
-  static CefRefPtr<AlloyBrowserHostImpl> Create(CreateParams& create_params);
+  static CefRefPtr<AlloyBrowserHostImpl> Create(
+      CefBrowserCreateParams& create_params);
 
   // Returns the browser associated with the specified RenderViewHost.
   static CefRefPtr<AlloyBrowserHostImpl> GetBrowserForHost(
@@ -152,15 +127,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   void NotifyScreenInfoChanged() override;
   void Invalidate(PaintElementType type) override;
   void SendExternalBeginFrame() override;
-  void SendKeyEvent(const CefKeyEvent& event) override;
-  void SendMouseClickEvent(const CefMouseEvent& event,
-                           MouseButtonType type,
-                           bool mouseUp,
-                           int clickCount) override;
-  void SendMouseMoveEvent(const CefMouseEvent& event, bool mouseLeave) override;
-  void SendMouseWheelEvent(const CefMouseEvent& event,
-                           int deltaX,
-                           int deltaY) override;
   void SendTouchEvent(const CefTouchEvent& event) override;
   void SendFocusEvent(bool setFocus) override;
   void SendCaptureLostEvent() override;
@@ -194,13 +160,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   CefRefPtr<CefExtension> GetExtension() override;
   bool IsBackgroundHost() override;
 
-  // CefBrowser methods.
-  void GoBack() override;
-  void GoForward() override;
-  void Reload() override;
-  void ReloadIgnoreCache() override;
-  void StopLoad() override;
-
   // Returns true if windowless rendering is enabled.
   bool IsWindowless() const;
 
@@ -230,8 +189,9 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   CefRefPtr<CefBrowserView> GetBrowserView() const;
 #endif
 
-  // Open the specified text in the default text editor.
-  void ViewText(const std::string& text) override;
+  bool MaybeAllowNavigation(content::RenderFrameHost* opener,
+                            bool is_guest_view,
+                            const content::OpenURLParams& params) override;
 
   // Convert from view coordinates to screen coordinates. Potential display
   // scaling will be applied to the result.
@@ -364,7 +324,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   // content::WebContentsObserver methods.
   using content::WebContentsObserver::BeforeUnloadFired;
   void RenderViewCreated(content::RenderViewHost* render_view_host) override;
-  void RenderViewDeleted(content::RenderViewHost* render_view_host) override;
   void RenderViewReady() override;
   void DidFinishNavigation(
       content::NavigationHandle* navigation_handle) override;
@@ -391,11 +350,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
       std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
       CefRefPtr<CefExtension> extension);
 
-  // content::NotificationObserver methods.
-  void Observe(int type,
-               const content::NotificationSource& source,
-               const content::NotificationDetails& details) override;
-
   AlloyBrowserHostImpl(
       const CefBrowserSettings& settings,
       CefRefPtr<CefClient> client,
@@ -420,7 +374,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
       CefRefPtr<CefRegistration> registration);
 
   CefWindowHandle opener_;
-  std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate_;
   const bool is_windowless_;
   const bool is_views_hosted_;
   CefWindowHandle host_window_handle_ = kNullWindowHandle;
@@ -435,19 +388,8 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   // on the UI thread.
   bool window_destroyed_ = false;
 
-  // True if currently in the OnSetFocus callback. Only accessed on the UI
-  // thread.
-  bool is_in_onsetfocus_ = false;
-
-  // True if the focus is currently on an editable field on the page. Only
-  // accessed on the UI thread.
-  bool focus_on_editable_field_ = false;
-
   // True if mouse cursor change is disabled.
   bool mouse_cursor_change_disabled_ = false;
-
-  // Used for managing notification subscriptions.
-  std::unique_ptr<content::NotificationRegistrar> registrar_;
 
   // Used for creating and managing file dialogs.
   std::unique_ptr<CefFileDialogManager> file_dialog_manager_;

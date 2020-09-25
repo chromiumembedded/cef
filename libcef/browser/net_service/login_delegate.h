@@ -17,7 +17,7 @@ struct GlobalRequestID;
 class WebContents;
 }  // namespace content
 
-class AlloyBrowserHostImpl;
+class CefBrowserHostBase;
 class GURL;
 
 namespace net_service {
@@ -36,7 +36,7 @@ class LoginDelegate : public content::LoginDelegate {
   void Cancel();
 
  private:
-  void Start(CefRefPtr<AlloyBrowserHostImpl> browser,
+  void Start(CefRefPtr<CefBrowserHostBase> browser,
              const net::AuthChallengeInfo& auth_info,
              const content::GlobalRequestID& request_id,
              const GURL& origin_url);

@@ -20,15 +20,16 @@ void WaitForThread(CefRefPtr<CefTaskRunner> task_runner, int64 delay_ms = 0);
 
 #define WaitForIOThread() WaitForThread(TID_IO)
 #define WaitForUIThread() WaitForThread(TID_UI)
-#define WaitForFILEThread() WaitForThread(TID_FILE)
+#define WaitForFILEThread() WaitForThread(TID_FILE_USER_VISIBLE)
 #define WaitForIOThreadWithDelay(delay_ms) WaitForThread(TID_IO, delay_ms)
 #define WaitForUIThreadWithDelay(delay_ms) WaitForThread(TID_UI, delay_ms)
-#define WaitForFILEThreadWithDelay(delay_ms) WaitForThread(TID_FILE, delay_ms)
+#define WaitForFILEThreadWithDelay(delay_ms) \
+  WaitForThread(TID_FILE_USER_VISIBLE, delay_ms)
 
 // Assert that execution is occuring on the named thread.
 #define EXPECT_UI_THREAD() EXPECT_TRUE(CefCurrentlyOn(TID_UI));
 #define EXPECT_IO_THREAD() EXPECT_TRUE(CefCurrentlyOn(TID_IO));
-#define EXPECT_FILE_THREAD() EXPECT_TRUE(CefCurrentlyOn(TID_FILE));
+#define EXPECT_FILE_THREAD() EXPECT_TRUE(CefCurrentlyOn(TID_FILE_USER_VISIBLE));
 #define EXPECT_RENDERER_THREAD() EXPECT_TRUE(CefCurrentlyOn(TID_RENDERER));
 
 // Executes |test_impl| on the specified |thread_id|. |event| will be signaled

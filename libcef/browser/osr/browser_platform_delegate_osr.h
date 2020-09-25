@@ -27,9 +27,9 @@ class CefBrowserPlatformDelegateOsr
   void WebContentsCreated(content::WebContents* web_contents,
                           bool owned) override;
   void RenderViewCreated(content::RenderViewHost* render_view_host) override;
-  void BrowserCreated(AlloyBrowserHostImpl* browser) override;
+  void BrowserCreated(CefBrowserHostBase* browser) override;
   void NotifyBrowserDestroyed() override;
-  void BrowserDestroyed(AlloyBrowserHostImpl* browser) override;
+  void BrowserDestroyed(CefBrowserHostBase* browser) override;
   SkColor GetBackgroundColor() const override;
   void WasResized() override;
   void SendKeyEvent(const CefKeyEvent& event) override;
@@ -54,7 +54,6 @@ class CefBrowserPlatformDelegateOsr
       override;
   std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
   bool IsWindowless() const override;
-  bool IsViewsHosted() const override;
   void WasHidden(bool hidden) override;
   void NotifyScreenInfoChanged() override;
   void Invalidate(cef_paint_element_type_t type) override;

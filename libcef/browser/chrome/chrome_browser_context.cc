@@ -4,6 +4,8 @@
 
 #include "libcef/browser/chrome/chrome_browser_context.h"
 
+#include "libcef/browser/prefs/browser_prefs.h"
+
 #include "chrome/browser/profiles/profile_manager.h"
 
 ChromeBrowserContext::ChromeBrowserContext(
@@ -28,6 +30,8 @@ void ChromeBrowserContext::Initialize() {
   // The global ProfileManager instance can be retrieved via
   // |g_browser_process->profile_manager()|.
   profile_ = ProfileManager::GetLastUsedProfileAllowedByPolicy();
+
+  browser_prefs::SetLanguagePrefs(profile_);
 }
 
 void ChromeBrowserContext::Shutdown() {

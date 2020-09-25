@@ -1,12 +1,12 @@
 diff --git chrome/browser/content_settings/host_content_settings_map_factory.cc chrome/browser/content_settings/host_content_settings_map_factory.cc
-index 3e2d1221d91e..b0572e99c613 100644
+index 3e2d1221d91e..4fbf30796bdb 100644
 --- chrome/browser/content_settings/host_content_settings_map_factory.cc
 +++ chrome/browser/content_settings/host_content_settings_map_factory.cc
 @@ -8,6 +8,7 @@
  
  #include "base/feature_list.h"
  #include "build/buildflag.h"
-+#include "cef/libcef/features/features.h"
++#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/profiles/off_the_record_profile_impl.h"
  #include "chrome/browser/profiles/profile.h"
  #include "chrome/browser/search_engines/template_url_service_factory.h"
@@ -26,7 +26,7 @@ index 3e2d1221d91e..b0572e99c613 100644
  #endif
  #if BUILDFLAG(ENABLE_EXTENSIONS)
 +#if BUILDFLAG(ENABLE_CEF)
-+  if (extensions::ExtensionsEnabled()) {
++  if (!cef::IsAlloyRuntimeEnabled() || extensions::ExtensionsEnabled()) {
 +#endif
    DependsOn(
        extensions::ExtensionsBrowserClient::Get()->GetExtensionSystemFactory());
@@ -41,7 +41,7 @@ index 3e2d1221d91e..b0572e99c613 100644
  
  #if BUILDFLAG(ENABLE_EXTENSIONS)
 +#if BUILDFLAG(ENABLE_CEF)
-+  if (extensions::ExtensionsEnabled()) {
++  if (!cef::IsAlloyRuntimeEnabled() || extensions::ExtensionsEnabled()) {
 +#endif
    // These must be registered before before the HostSettings are passed over to
    // the IOThread.  Simplest to do this on construction.
@@ -53,3 +53,16 @@ index 3e2d1221d91e..b0572e99c613 100644
  #endif // BUILDFLAG(ENABLE_EXTENSIONS)
  #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
    SupervisedUserSettingsService* supervised_service =
+diff --git components/content_settings/renderer/content_settings_agent_impl.cc components/content_settings/renderer/content_settings_agent_impl.cc
+index 450005f9fc0b..13fca8b3e2d2 100644
+--- components/content_settings/renderer/content_settings_agent_impl.cc
++++ components/content_settings/renderer/content_settings_agent_impl.cc
+@@ -183,7 +183,7 @@ ContentSetting GetContentSettingFromRulesImpl(
+       return rule.GetContentSetting();
+     }
+   }
+-  NOTREACHED();
++  // NOTREACHED();
+   return CONTENT_SETTING_DEFAULT;
+ }
+ 

@@ -11,6 +11,7 @@
 #include "include/views/cef_browser_view.h"
 #include "libcef/browser/browser_contents_delegate.h"
 #include "libcef/browser/browser_info.h"
+#include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/frame_host_impl.h"
 #include "libcef/browser/request_context_impl.h"
 
@@ -22,6 +23,64 @@ namespace extensions {
 class Extension;
 }
 
+// Parameters that are passed to the runtime-specific Create methods.
+struct CefBrowserCreateParams {
+  CefBrowserCreateParams() {}
+
+  // Copy constructor used with the chrome runtime only.
+  CefBrowserCreateParams(const CefBrowserCreateParams& that) {
+    operator=(that);
+  }
+  CefBrowserCreateParams& operator=(const CefBrowserCreateParams& that) {
+    // Not all parameters can be copied.
+    client = that.client;
+    url = that.url;
+    settings = that.settings;
+    request_context = that.request_context;
+    extra_info = that.extra_info;
+    return *this;
+  }
+
+  // Platform-specific window creation info. Will be nullptr when creating a
+  // views-hosted browser. Currently used with the alloy runtime only.
+  std::unique_ptr<CefWindowInfo> window_info;
+
+#if defined(USE_AURA)
+  // The BrowserView that will own a views-hosted browser. Will be nullptr for
+  // popup browsers (the BrowserView will be created later in that case).
+  // Currently used with the alloy runtime only.
+  CefRefPtr<CefBrowserView> browser_view;
+#endif
+
+  // Client implementation. May be nullptr.
+  CefRefPtr<CefClient> client;
+
+  // Initial URL to load. May be empty. If this is a valid extension URL then
+  // the browser will be created as an app view extension host.
+  GURL url;
+
+  // Browser settings.
+  CefBrowserSettings settings;
+
+  // Other browser that opened this DevTools browser. Will be nullptr for non-
+  // DevTools browsers. Currently used with the alloy runtime only.
+  CefRefPtr<CefBrowserHostBase> devtools_opener;
+
+  // Request context to use when creating the browser. If nullptr the global
+  // request context will be used.
+  CefRefPtr<CefRequestContext> request_context;
+
+  // Extra information that will be passed to
+  // CefRenderProcessHandler::OnBrowserCreated.
+  CefRefPtr<CefDictionaryValue> extra_info;
+
+  // Used when explicitly creating the browser as an extension host via
+  // ProcessManager::CreateBackgroundHost. Currently used with the alloy
+  // runtime only.
+  const extensions::Extension* extension = nullptr;
+  extensions::ViewType extension_host_type = extensions::VIEW_TYPE_INVALID;
+};
+
 // Base class for CefBrowserHost implementations. Includes functionality that is
 // shared by the alloy and chrome runtimes. All methods are thread-safe unless
 // otherwise indicated.
@@ -29,62 +88,6 @@ class CefBrowserHostBase : public CefBrowserHost,
                            public CefBrowser,
                            public CefBrowserContentsDelegate::Observer {
  public:
-  // Parameters that are passed to the runtime-specific Create methods.
-  struct CreateParams {
-    CreateParams() {}
-
-    // Copy constructor used with the chrome runtime only.
-    CreateParams(const CreateParams& that) { operator=(that); }
-    CreateParams& operator=(const CreateParams& that) {
-      // Not all parameters can be copied.
-      client = that.client;
-      url = that.url;
-      settings = that.settings;
-      request_context = that.request_context;
-      extra_info = that.extra_info;
-      return *this;
-    }
-
-    // Platform-specific window creation info. Will be nullptr when creating a
-    // views-hosted browser. Currently used with the alloy runtime only.
-    std::unique_ptr<CefWindowInfo> window_info;
-
-#if defined(USE_AURA)
-    // The BrowserView that will own a views-hosted browser. Will be nullptr for
-    // popup browsers (the BrowserView will be created later in that case).
-    // Currently used with the alloy runtime only.
-    CefRefPtr<CefBrowserView> browser_view;
-#endif
-
-    // Client implementation. May be nullptr.
-    CefRefPtr<CefClient> client;
-
-    // Initial URL to load. May be empty. If this is a valid extension URL then
-    // the browser will be created as an app view extension host.
-    GURL url;
-
-    // Browser settings.
-    CefBrowserSettings settings;
-
-    // Other browser that opened this DevTools browser. Will be nullptr for non-
-    // DevTools browsers. Currently used with the alloy runtime only.
-    CefRefPtr<CefBrowserHostBase> devtools_opener;
-
-    // Request context to use when creating the browser. If nullptr the global
-    // request context will be used.
-    CefRefPtr<CefRequestContext> request_context;
-
-    // Extra information that will be passed to
-    // CefRenderProcessHandler::OnBrowserCreated.
-    CefRefPtr<CefDictionaryValue> extra_info;
-
-    // Used when explicitly creating the browser as an extension host via
-    // ProcessManager::CreateBackgroundHost. Currently used with the alloy
-    // runtime only.
-    const extensions::Extension* extension = nullptr;
-    extensions::ViewType extension_host_type = extensions::VIEW_TYPE_INVALID;
-  };
-
   // Interface to implement for observers that wish to be informed of changes
   // to the CefBrowserHostBase. All methods will be called on the UI thread.
   class Observer : public base::CheckedObserver {
@@ -114,10 +117,12 @@ class CefBrowserHostBase : public CefBrowserHost,
       int render_process_id,
       int render_routing_id);
 
-  CefBrowserHostBase(const CefBrowserSettings& settings,
-                     CefRefPtr<CefClient> client,
-                     scoped_refptr<CefBrowserInfo> browser_info,
-                     CefRefPtr<CefRequestContextImpl> request_context);
+  CefBrowserHostBase(
+      const CefBrowserSettings& settings,
+      CefRefPtr<CefClient> client,
+      std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
+      scoped_refptr<CefBrowserInfo> browser_info,
+      CefRefPtr<CefRequestContextImpl> request_context);
 
   // Called on the UI thread after the associated WebContents is created.
   virtual void InitializeBrowser();
@@ -139,6 +144,15 @@ class CefBrowserHostBase : public CefBrowserHost,
                      CefRefPtr<CefDownloadImageCallback> callback) override;
   void ReplaceMisspelling(const CefString& word) override;
   void AddWordToDictionary(const CefString& word) override;
+  void SendKeyEvent(const CefKeyEvent& event) override;
+  void SendMouseClickEvent(const CefMouseEvent& event,
+                           MouseButtonType type,
+                           bool mouseUp,
+                           int clickCount) override;
+  void SendMouseMoveEvent(const CefMouseEvent& event, bool mouseLeave) override;
+  void SendMouseWheelEvent(const CefMouseEvent& event,
+                           int deltaX,
+                           int deltaY) override;
   void GetNavigationEntries(CefRefPtr<CefNavigationEntryVisitor> visitor,
                             bool current_only) override;
   CefRefPtr<CefNavigationEntry> GetVisibleNavigationEntry() override;
@@ -146,8 +160,13 @@ class CefBrowserHostBase : public CefBrowserHost,
   // CefBrowser methods:
   CefRefPtr<CefBrowserHost> GetHost() override;
   bool CanGoBack() override;
+  void GoBack() override;
   bool CanGoForward() override;
+  void GoForward() override;
   bool IsLoading() override;
+  void Reload() override;
+  void ReloadIgnoreCache() override;
+  void StopLoad() override;
   int GetIdentifier() override;
   bool IsSame(CefRefPtr<CefBrowser> that) override;
   bool HasDocument() override;
@@ -162,7 +181,7 @@ class CefBrowserHostBase : public CefBrowserHost,
 
   // CefBrowserContentsDelegate::Observer methods:
   void OnStateChanged(CefBrowserContentsState state_changed) override;
-  void OnWebContentsDestroyed() override;
+  void OnWebContentsDestroyed(content::WebContents* web_contents) override;
 
   // Returns the frame associated with the specified RenderFrameHost.
   CefRefPtr<CefFrame> GetFrameForHost(const content::RenderFrameHost* host);
@@ -177,15 +196,17 @@ class CefBrowserHostBase : public CefBrowserHost,
   bool HasObserver(Observer* observer) const;
 
   // Methods called from CefFrameHostImpl.
-  void LoadMainFrameURL(const std::string& url,
-                        const content::Referrer& referrer,
-                        ui::PageTransition transition,
-                        const std::string& extra_headers);
+  void LoadMainFrameURL(const content::OpenURLParams& params);
   void OnDidFinishLoad(CefRefPtr<CefFrameHostImpl> frame,
                        const GURL& validated_url,
                        int http_status_code);
   virtual void OnSetFocus(cef_focus_source_t source) = 0;
-  virtual void ViewText(const std::string& text) = 0;
+  void ViewText(const std::string& text);
+
+  // Called from CefBrowserInfoManager::MaybeAllowNavigation.
+  virtual bool MaybeAllowNavigation(content::RenderFrameHost* opener,
+                                    bool is_guest_view,
+                                    const content::OpenURLParams& params);
 
   // Helpers for executing client callbacks. Must be called on the UI thread.
   void OnAfterCreated();
@@ -204,14 +225,21 @@ class CefBrowserHostBase : public CefBrowserHost,
   // Accessors that must be called on the UI thread.
   content::WebContents* GetWebContents() const;
   content::BrowserContext* GetBrowserContext() const;
+  CefBrowserPlatformDelegate* platform_delegate() const {
+    return platform_delegate_.get();
+  }
   CefBrowserContentsDelegate* contents_delegate() const {
     return contents_delegate_.get();
   }
 
  protected:
+  // Called from LoadMainFrameURL to perform the actual navigation.
+  virtual bool Navigate(const content::OpenURLParams& params);
+
   // Thread-safe members.
   CefBrowserSettings settings_;
   CefRefPtr<CefClient> client_;
+  std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate_;
   scoped_refptr<CefBrowserInfo> browser_info_;
   CefRefPtr<CefRequestContextImpl> request_context_;
 

@@ -6,7 +6,6 @@
 
 #include <utility>
 
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/image_impl.h"
 #include "libcef/browser/osr/osr_accessibility_util.h"
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
@@ -60,26 +59,25 @@ void CefBrowserPlatformDelegateOsr::RenderViewCreated(
 }
 
 void CefBrowserPlatformDelegateOsr::BrowserCreated(
-    AlloyBrowserHostImpl* browser) {
+    CefBrowserHostBase* browser) {
   CefBrowserPlatformDelegateAlloy::BrowserCreated(browser);
 
   if (browser->IsPopup()) {
     // Associate the RenderWidget host view with the browser now because the
     // browser wasn't known at the time that the host view was created.
-    content::RenderViewHost* host =
-        browser->web_contents()->GetRenderViewHost();
+    content::RenderViewHost* host = web_contents_->GetRenderViewHost();
     DCHECK(host);
     CefRenderWidgetHostViewOSR* view =
         static_cast<CefRenderWidgetHostViewOSR*>(host->GetWidget()->GetView());
     // |view| will be null if the popup is a DevTools window.
-    if (view)
-      view->set_browser_impl(browser);
+    if (view) {
+      view->set_browser_impl(static_cast<AlloyBrowserHostImpl*>(browser));
+    }
   }
 }
 
 void CefBrowserPlatformDelegateOsr::NotifyBrowserDestroyed() {
-  content::WebContents* web_contents = browser_->web_contents();
-  content::RenderViewHost* host = web_contents->GetRenderViewHost();
+  content::RenderViewHost* host = web_contents_->GetRenderViewHost();
   if (host) {
     CefRenderWidgetHostViewOSR* view =
         static_cast<CefRenderWidgetHostViewOSR*>(host->GetWidget()->GetView());
@@ -92,7 +90,7 @@ void CefBrowserPlatformDelegateOsr::NotifyBrowserDestroyed() {
 }
 
 void CefBrowserPlatformDelegateOsr::BrowserDestroyed(
-    AlloyBrowserHostImpl* browser) {
+    CefBrowserHostBase* browser) {
   CefBrowserPlatformDelegateAlloy::BrowserDestroyed(browser);
 
   view_osr_ = nullptr;
@@ -215,14 +213,10 @@ bool CefBrowserPlatformDelegateOsr::IsWindowless() const {
   return true;
 }
 
-bool CefBrowserPlatformDelegateOsr::IsViewsHosted() const {
-  return false;
-}
-
 void CefBrowserPlatformDelegateOsr::WasHidden(bool hidden) {
   // The WebContentsImpl will notify the OSR view.
   content::WebContentsImpl* web_contents =
-      static_cast<content::WebContentsImpl*>(browser_->web_contents());
+      static_cast<content::WebContentsImpl*>(web_contents_);
   if (web_contents) {
     if (hidden)
       web_contents->WasHidden();
@@ -294,7 +288,7 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragEnter(
     const CefMouseEvent& event,
     cef_drag_operations_mask_t allowed_ops) {
   content::WebContentsImpl* web_contents =
-      static_cast<content::WebContentsImpl*>(browser_->web_contents());
+      static_cast<content::WebContentsImpl*>(web_contents_);
   if (!web_contents)
     return;
 
@@ -342,7 +336,7 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragOver(
     return;
 
   content::WebContentsImpl* web_contents =
-      static_cast<content::WebContentsImpl*>(browser_->web_contents());
+      static_cast<content::WebContentsImpl*>(web_contents_);
   if (!web_contents)
     return;
 
@@ -391,7 +385,7 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragOver(
 }
 
 void CefBrowserPlatformDelegateOsr::DragTargetDragLeave() {
-  if (current_rvh_for_drag_ != browser_->web_contents()->GetRenderViewHost() ||
+  if (current_rvh_for_drag_ != web_contents_->GetRenderViewHost() ||
       !drag_data_) {
     return;
   }
@@ -409,7 +403,7 @@ void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
     return;
 
   content::WebContentsImpl* web_contents =
-      static_cast<content::WebContentsImpl*>(browser_->web_contents());
+      static_cast<content::WebContentsImpl*>(web_contents_);
   if (!web_contents)
     return;
 
@@ -511,7 +505,7 @@ void CefBrowserPlatformDelegateOsr::DragSourceEndedAt(
     return;
 
   content::WebContentsImpl* web_contents =
-      static_cast<content::WebContentsImpl*>(browser_->web_contents());
+      static_cast<content::WebContentsImpl*>(web_contents_);
   if (!web_contents)
     return;
 
@@ -552,7 +546,7 @@ void CefBrowserPlatformDelegateOsr::DragSourceSystemDragEnded() {
     return;
 
   content::WebContentsImpl* web_contents =
-      static_cast<content::WebContentsImpl*>(browser_->web_contents());
+      static_cast<content::WebContentsImpl*>(web_contents_);
   if (!web_contents)
     return;
 
@@ -600,14 +594,13 @@ gfx::Point CefBrowserPlatformDelegateOsr::GetParentScreenPoint(
 
 CefRenderWidgetHostViewOSR* CefBrowserPlatformDelegateOsr::GetOSRHostView()
     const {
-  content::WebContents* web_contents = browser_->web_contents();
   CefRenderWidgetHostViewOSR* fs_view =
       static_cast<CefRenderWidgetHostViewOSR*>(
-          web_contents->GetFullscreenRenderWidgetHostView());
+          web_contents_->GetFullscreenRenderWidgetHostView());
   if (fs_view)
     return fs_view;
 
-  content::RenderViewHost* host = web_contents->GetRenderViewHost();
+  content::RenderViewHost* host = web_contents_->GetRenderViewHost();
   if (host) {
     return static_cast<CefRenderWidgetHostViewOSR*>(
         host->GetWidget()->GetView());

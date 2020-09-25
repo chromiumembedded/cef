@@ -29,7 +29,9 @@ CefRefPtr<CefBrowserView> CefBrowserView::CreateBrowserView(
 // static
 CefRefPtr<CefBrowserView> CefBrowserView::GetForBrowser(
     CefRefPtr<CefBrowser> browser) {
+  REQUIRE_ALLOY_RUNTIME();
   CEF_REQUIRE_UIT_RETURN(nullptr);
+
   AlloyBrowserHostImpl* browser_impl =
       static_cast<AlloyBrowserHostImpl*>(browser.get());
   if (browser_impl && browser_impl->IsViewsHosted())
@@ -45,10 +47,9 @@ CefRefPtr<CefBrowserViewImpl> CefBrowserViewImpl::Create(
     CefRefPtr<CefDictionaryValue> extra_info,
     CefRefPtr<CefRequestContext> request_context,
     CefRefPtr<CefBrowserViewDelegate> delegate) {
-  // TODO(chrome-runtime): Add support for this method.
   REQUIRE_ALLOY_RUNTIME();
-
   CEF_REQUIRE_UIT_RETURN(nullptr);
+
   CefRefPtr<CefBrowserViewImpl> browser_view = new CefBrowserViewImpl(delegate);
   browser_view->SetPendingBrowserCreateParams(client, url, settings, extra_info,
                                               request_context);
@@ -61,7 +62,9 @@ CefRefPtr<CefBrowserViewImpl> CefBrowserViewImpl::Create(
 CefRefPtr<CefBrowserViewImpl> CefBrowserViewImpl::CreateForPopup(
     const CefBrowserSettings& settings,
     CefRefPtr<CefBrowserViewDelegate> delegate) {
+  REQUIRE_ALLOY_RUNTIME();
   CEF_REQUIRE_UIT_RETURN(nullptr);
+
   CefRefPtr<CefBrowserViewImpl> browser_view = new CefBrowserViewImpl(delegate);
   browser_view->Initialize();
   browser_view->SetDefaults(settings);
@@ -75,13 +78,13 @@ void CefBrowserViewImpl::WebContentsCreated(
 }
 
 void CefBrowserViewImpl::BrowserCreated(
-    AlloyBrowserHostImpl* browser,
+    CefBrowserHostBase* browser,
     base::RepeatingClosure on_bounds_changed) {
   browser_ = browser;
   on_bounds_changed_ = on_bounds_changed;
 }
 
-void CefBrowserViewImpl::BrowserDestroyed(AlloyBrowserHostImpl* browser) {
+void CefBrowserViewImpl::BrowserDestroyed(CefBrowserHostBase* browser) {
   DCHECK_EQ(browser, browser_);
   browser_ = nullptr;
 
@@ -145,10 +148,10 @@ void CefBrowserViewImpl::Detach() {
   if (browser_) {
     // |browser_| will disappear when WindowDestroyed() indirectly calls
     // BrowserDestroyed() so keep a reference.
-    CefRefPtr<AlloyBrowserHostImpl> browser = browser_;
+    CefRefPtr<CefBrowserHostBase> browser = browser_;
 
     // Force the browser to be destroyed.
-    browser->WindowDestroyed();
+    static_cast<AlloyBrowserHostImpl*>(browser.get())->WindowDestroyed();
   }
 }
 
@@ -188,7 +191,7 @@ void CefBrowserViewImpl::SetPendingBrowserCreateParams(
     CefRefPtr<CefDictionaryValue> extra_info,
     CefRefPtr<CefRequestContext> request_context) {
   DCHECK(!pending_browser_create_params_);
-  pending_browser_create_params_.reset(new CefBrowserHostBase::CreateParams());
+  pending_browser_create_params_.reset(new CefBrowserCreateParams());
   pending_browser_create_params_->client = client;
   pending_browser_create_params_->url = GURL(url.ToString());
   pending_browser_create_params_->settings = settings;

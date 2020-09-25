@@ -5,10 +5,19 @@
 #include "libcef/browser/browser_contents_delegate.h"
 
 #include "libcef/browser/browser_host_base.h"
+#include "libcef/browser/browser_platform_delegate.h"
+#include "libcef/browser/browser_util.h"
 
+#include "content/public/browser/keyboard_event_processing_result.h"
+#include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/navigation_handle.h"
+#include "content/public/browser/notification_details.h"
+#include "content/public/browser/notification_source.h"
+#include "content/public/browser/notification_types.h"
 #include "content/public/browser/render_view_host.h"
+
+using content::KeyboardEventProcessingResult;
 
 CefBrowserContentsDelegate::CefBrowserContentsDelegate(
     scoped_refptr<CefBrowserInfo> browser_info)
@@ -18,13 +27,29 @@ CefBrowserContentsDelegate::CefBrowserContentsDelegate(
 
 void CefBrowserContentsDelegate::ObserveWebContents(
     content::WebContents* new_contents) {
-  Observe(new_contents);
+  WebContentsObserver::Observe(new_contents);
 
   if (new_contents) {
+    registrar_.reset(new content::NotificationRegistrar);
+
+    // When navigating through the history, the restored NavigationEntry's title
+    // will be used. If the entry ends up having the same title after we return
+    // to it, as will usually be the case, the
+    // NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED will then be suppressed, since
+    // the NavigationEntry's title hasn't changed.
+    registrar_->Add(this, content::NOTIFICATION_LOAD_STOP,
+                    content::Source<content::NavigationController>(
+                        &new_contents->GetController()));
+
+    // Make sure RenderViewCreated is called at least one time.
+    RenderViewCreated(new_contents->GetRenderViewHost());
+
     // Create the frame representation before OnAfterCreated is called for a new
     // browser. Additionally, RenderFrameCreated is otherwise not called at all
     // for new popup browsers.
     RenderFrameCreated(new_contents->GetMainFrame());
+  } else {
+    registrar_.reset();
   }
 }
 
@@ -34,6 +59,27 @@ void CefBrowserContentsDelegate::AddObserver(Observer* observer) {
 
 void CefBrowserContentsDelegate::RemoveObserver(Observer* observer) {
   observers_.RemoveObserver(observer);
+}
+
+// |source| may be NULL for navigations in the current tab, or if the
+// navigation originates from a guest view via MaybeAllowNavigation.
+content::WebContents* CefBrowserContentsDelegate::OpenURLFromTab(
+    content::WebContents* source,
+    const content::OpenURLParams& params) {
+  bool cancel = false;
+
+  if (auto c = client()) {
+    if (auto handler = c->GetRequestHandler()) {
+      cancel = handler->OnOpenURLFromTab(
+          browser(), browser()->GetFrame(params.frame_tree_node_id),
+          params.url.spec(),
+          static_cast<cef_window_open_disposition_t>(params.disposition),
+          params.user_gesture);
+    }
+  }
+
+  // Returning nullptr will cancel the navigation.
+  return cancel ? nullptr : web_contents();
 }
 
 void CefBrowserContentsDelegate::LoadingStateChanged(
@@ -126,6 +172,60 @@ void CefBrowserContentsDelegate::ExitFullscreenModeForTab(
   OnFullscreenModeChange(/*fullscreen=*/false);
 }
 
+KeyboardEventProcessingResult
+CefBrowserContentsDelegate::PreHandleKeyboardEvent(
+    content::WebContents* source,
+    const content::NativeWebKeyboardEvent& event) {
+  if (auto delegate = platform_delegate()) {
+    if (auto c = client()) {
+      if (auto handler = c->GetKeyboardHandler()) {
+        CefKeyEvent cef_event;
+        if (browser_util::GetCefKeyEvent(event, cef_event)) {
+          cef_event.focus_on_editable_field = focus_on_editable_field_;
+
+          auto event_handle = delegate->GetEventHandle(event);
+          bool is_keyboard_shortcut = false;
+          bool result = handler->OnPreKeyEvent(
+              browser(), cef_event, event_handle, &is_keyboard_shortcut);
+          if (result) {
+            return KeyboardEventProcessingResult::HANDLED;
+          } else if (is_keyboard_shortcut) {
+            return KeyboardEventProcessingResult::NOT_HANDLED_IS_SHORTCUT;
+          }
+        }
+      }
+    }
+  }
+
+  return KeyboardEventProcessingResult::NOT_HANDLED;
+}
+
+bool CefBrowserContentsDelegate::HandleKeyboardEvent(
+    content::WebContents* source,
+    const content::NativeWebKeyboardEvent& event) {
+  // Check to see if event should be ignored.
+  if (event.skip_in_browser)
+    return false;
+
+  if (auto delegate = platform_delegate()) {
+    if (auto c = client()) {
+      if (auto handler = c->GetKeyboardHandler()) {
+        CefKeyEvent cef_event;
+        if (browser_util::GetCefKeyEvent(event, cef_event)) {
+          cef_event.focus_on_editable_field = focus_on_editable_field_;
+
+          auto event_handle = delegate->GetEventHandle(event);
+          if (handler->OnKeyEvent(browser(), cef_event, event_handle)) {
+            return true;
+          }
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
 void CefBrowserContentsDelegate::RenderFrameCreated(
     content::RenderFrameHost* render_frame_host) {
   browser_info_->MaybeCreateFrame(render_frame_host, false /* is_guest_view */);
@@ -146,6 +246,28 @@ void CefBrowserContentsDelegate::RenderFrameDeleted(
   if (focused_frame_ && focused_frame_->GetIdentifier() == frame_id) {
     focused_frame_ = nullptr;
     OnStateChanged(State::kFocusedFrame);
+  }
+}
+
+void CefBrowserContentsDelegate::RenderViewCreated(
+    content::RenderViewHost* render_view_host) {
+  // May be already registered if the renderer crashed previously.
+  if (!registrar_->IsRegistered(
+          this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
+          content::Source<content::RenderViewHost>(render_view_host))) {
+    registrar_->Add(this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
+                    content::Source<content::RenderViewHost>(render_view_host));
+  }
+}
+
+void CefBrowserContentsDelegate::RenderViewDeleted(
+    content::RenderViewHost* render_view_host) {
+  if (registrar_->IsRegistered(
+          this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
+          content::Source<content::RenderViewHost>(render_view_host))) {
+    registrar_->Remove(
+        this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
+        content::Source<content::RenderViewHost>(render_view_host));
   }
 }
 
@@ -358,10 +480,75 @@ void CefBrowserContentsDelegate::OnWebContentsFocused(
 }
 
 void CefBrowserContentsDelegate::WebContentsDestroyed() {
+  auto wc = web_contents();
   ObserveWebContents(nullptr);
   for (auto& observer : observers_) {
-    observer.OnWebContentsDestroyed();
+    observer.OnWebContentsDestroyed(wc);
   }
+}
+
+void CefBrowserContentsDelegate::Observe(
+    int type,
+    const content::NotificationSource& source,
+    const content::NotificationDetails& details) {
+  DCHECK(type == content::NOTIFICATION_LOAD_STOP ||
+         type == content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE);
+
+  if (type == content::NOTIFICATION_LOAD_STOP) {
+    content::NavigationController* controller =
+        content::Source<content::NavigationController>(source).ptr();
+    OnTitleChange(controller->GetWebContents()->GetTitle());
+  } else if (type == content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE) {
+    focus_on_editable_field_ = *content::Details<bool>(details).ptr();
+  }
+}
+
+void CefBrowserContentsDelegate::OnLoadEnd(CefRefPtr<CefFrame> frame,
+                                           const GURL& url,
+                                           int http_status_code) {
+  if (auto c = client()) {
+    if (auto handler = c->GetLoadHandler()) {
+      handler->OnLoadEnd(browser(), frame, http_status_code);
+    }
+  }
+}
+
+bool CefBrowserContentsDelegate::OnSetFocus(cef_focus_source_t source) {
+  // SetFocus() might be called while inside the OnSetFocus() callback. If
+  // so, don't re-enter the callback.
+  if (is_in_onsetfocus_)
+    return true;
+
+  if (auto c = client()) {
+    if (auto handler = c->GetFocusHandler()) {
+      is_in_onsetfocus_ = true;
+      bool handled = handler->OnSetFocus(browser(), source);
+      is_in_onsetfocus_ = false;
+
+      return handled;
+    }
+  }
+
+  return false;
+}
+
+CefRefPtr<CefClient> CefBrowserContentsDelegate::client() const {
+  if (auto b = browser()) {
+    return b->GetHost()->GetClient();
+  }
+  return nullptr;
+}
+
+CefRefPtr<CefBrowser> CefBrowserContentsDelegate::browser() const {
+  return browser_info_->browser();
+}
+
+CefBrowserPlatformDelegate* CefBrowserContentsDelegate::platform_delegate()
+    const {
+  auto browser = browser_info_->browser();
+  if (browser)
+    return browser->platform_delegate();
+  return nullptr;
 }
 
 void CefBrowserContentsDelegate::OnAddressChange(const GURL& url) {
@@ -400,33 +587,12 @@ void CefBrowserContentsDelegate::OnLoadError(CefRefPtr<CefFrame> frame,
   }
 }
 
-void CefBrowserContentsDelegate::OnLoadEnd(CefRefPtr<CefFrame> frame,
-                                           const GURL& url,
-                                           int http_status_code) {
-  if (auto c = client()) {
-    if (auto handler = c->GetLoadHandler()) {
-      handler->OnLoadEnd(browser(), frame, http_status_code);
-    }
-  }
-}
-
 void CefBrowserContentsDelegate::OnTitleChange(const base::string16& title) {
   if (auto c = client()) {
     if (auto handler = c->GetDisplayHandler()) {
       handler->OnTitleChange(browser(), title);
     }
   }
-}
-
-CefRefPtr<CefClient> CefBrowserContentsDelegate::client() const {
-  if (auto b = browser()) {
-    return b->GetHost()->GetClient();
-  }
-  return nullptr;
-}
-
-CefRefPtr<CefBrowser> CefBrowserContentsDelegate::browser() const {
-  return browser_info_->browser();
 }
 
 void CefBrowserContentsDelegate::OnFullscreenModeChange(bool fullscreen) {

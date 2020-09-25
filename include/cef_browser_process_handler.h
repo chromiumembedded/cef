@@ -52,6 +52,23 @@
 class CefBrowserProcessHandler : public virtual CefBaseRefCounted {
  public:
   ///
+  // Called on the browser process UI thread to retrieve the list of schemes
+  // that should support cookies. If |include_defaults| is true the default
+  // schemes ("http", "https", "ws" and "wss") will also be supported. Providing
+  // an empty |schemes| value and setting |include_defaults| to false will
+  // disable all loading and saving of cookies.
+  //
+  // This state will apply to the CefCookieManager associated with the global
+  // CefRequestContext. It will also be used as the initial state for any new
+  // CefRequestContexts created by the client. After creating a new
+  // CefRequestContext the CefCookieManager::SetSupportedSchemes method may be
+  // called on the associated CefCookieManager to futher override these values.
+  ///
+  /*--cef()--*/
+  virtual void GetCookieableSchemes(std::vector<CefString>& schemes,
+                                    bool& include_defaults) {}
+
+  ///
   // Called on the browser process UI thread immediately after the CEF context
   // has been initialized.
   ///

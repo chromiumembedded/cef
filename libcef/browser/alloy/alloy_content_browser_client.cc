@@ -22,6 +22,8 @@
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
+#include "libcef/browser/net/throttle_handler.h"
+#include "libcef/browser/net_service/cookie_manager_impl.h"
 #include "libcef/browser/net_service/login_delegate.h"
 #include "libcef/browser/net_service/proxy_url_loader_factory.h"
 #include "libcef/browser/net_service/resource_request_handler_wrapper.h"
@@ -71,8 +73,6 @@
 #include "chrome/grit/generated_resources.h"
 #include "chrome/services/printing/printing_service.h"
 #include "components/content_settings/core/browser/cookie_settings.h"
-#include "components/navigation_interception/intercept_navigation_throttle.h"
-#include "components/navigation_interception/navigation_params.h"
 #include "components/spellcheck/common/spellcheck.mojom.h"
 #include "components/version_info/version_info.h"
 #include "content/browser/frame_host/render_frame_host_impl.h"
@@ -439,72 +439,6 @@ int GetCrashSignalFD(const base::CommandLine& command_line) {
   return -1;
 }
 #endif  // defined(OS_POSIX) && !defined(OS_MAC)
-
-// TODO(cef): We can't currently trust NavigationParams::is_main_frame() because
-// it's always set to true in
-// InterceptNavigationThrottle::CheckIfShouldIgnoreNavigation. Remove the
-// |is_main_frame| argument once this problem is fixed.
-bool NavigationOnUIThread(
-    bool is_main_frame,
-    int64_t frame_id,
-    int64_t parent_frame_id,
-    int frame_tree_node_id,
-    content::WebContents* source,
-    const navigation_interception::NavigationParams& params) {
-  CEF_REQUIRE_UIT();
-
-  content::OpenURLParams open_params(
-      params.url(), params.referrer(), WindowOpenDisposition::CURRENT_TAB,
-      params.transition_type(), params.is_renderer_initiated());
-  open_params.user_gesture = params.has_user_gesture();
-  open_params.initiator_origin = params.initiator_origin();
-
-  CefRefPtr<AlloyBrowserHostImpl> browser;
-  if (!CefBrowserInfoManager::GetInstance()->MaybeAllowNavigation(
-          source->GetMainFrame(), open_params, browser)) {
-    // Cancel the navigation.
-    return true;
-  }
-
-  bool ignore_navigation = false;
-
-  if (browser.get()) {
-    CefRefPtr<CefClient> client = browser->GetClient();
-    if (client.get()) {
-      CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
-      if (handler.get()) {
-        CefRefPtr<CefFrame> frame;
-        if (is_main_frame) {
-          frame = browser->GetMainFrame();
-        } else if (frame_id >= 0) {
-          frame = browser->GetFrame(frame_id);
-        }
-        if (!frame && frame_tree_node_id >= 0) {
-          frame = browser->GetFrameForFrameTreeNode(frame_tree_node_id);
-        }
-        if (!frame) {
-          // Create a temporary frame object for navigation of sub-frames that
-          // don't yet exist.
-          frame = browser->browser_info()->CreateTempSubFrame(parent_frame_id);
-        }
-
-        CefRefPtr<CefRequestImpl> request = new CefRequestImpl();
-        request->Set(params, is_main_frame);
-        request->SetReadOnly(true);
-
-        // Initiating a new navigation in OnBeforeBrowse will delete the
-        // InterceptNavigationThrottle that currently owns this callback,
-        // resulting in a crash. Use the lock to prevent that.
-        auto navigation_lock = browser->browser_info()->CreateNavigationLock();
-        ignore_navigation = handler->OnBeforeBrowse(
-            browser.get(), frame, request.get(), params.has_user_gesture(),
-            params.is_redirect());
-      }
-    }
-  }
-
-  return ignore_navigation;
-}
 
 // From chrome/browser/plugins/chrome_content_browser_client_plugins_part.cc.
 void BindPluginInfoHost(
@@ -1074,33 +1008,8 @@ AlloyContentBrowserClient::GetDevToolsManagerDelegate() {
 std::vector<std::unique_ptr<content::NavigationThrottle>>
 AlloyContentBrowserClient::CreateThrottlesForNavigation(
     content::NavigationHandle* navigation_handle) {
-  CEF_REQUIRE_UIT();
-
-  std::vector<std::unique_ptr<content::NavigationThrottle>> throttles;
-
-  const bool is_main_frame = navigation_handle->IsInMainFrame();
-
-  // Identify the RenderFrameHost that originated the navigation.
-  const int64_t parent_frame_id =
-      !is_main_frame
-          ? CefFrameHostImpl::MakeFrameId(navigation_handle->GetParentFrame())
-          : CefFrameHostImpl::kInvalidFrameId;
-
-  const int64_t frame_id = !is_main_frame && navigation_handle->HasCommitted()
-                               ? CefFrameHostImpl::MakeFrameId(
-                                     navigation_handle->GetRenderFrameHost())
-                               : CefFrameHostImpl::kInvalidFrameId;
-
-  // Must use SynchronyMode::kSync to ensure that OnBeforeBrowse is always
-  // called before OnBeforeResourceLoad.
-  std::unique_ptr<content::NavigationThrottle> throttle =
-      std::make_unique<navigation_interception::InterceptNavigationThrottle>(
-          navigation_handle,
-          base::Bind(&NavigationOnUIThread, is_main_frame, frame_id,
-                     parent_frame_id, navigation_handle->GetFrameTreeNodeId()),
-          navigation_interception::SynchronyMode::kSync);
-  throttles.push_back(std::move(throttle));
-
+  throttle::NavigationThrottleList throttles;
+  throttle::CreateThrottlesForNavigation(navigation_handle, throttles);
   return throttles;
 }
 
@@ -1306,10 +1215,16 @@ void AlloyContentBrowserClient::ConfigureNetworkContextParams(
     return;
   }
 
-  Profile* profile = Profile::FromBrowserContext(context);
+  auto cef_context = CefBrowserContext::FromBrowserContext(context);
+
+  Profile* profile = cef_context->AsProfile();
   profile->ConfigureNetworkContextParams(in_memory, relative_partition_path,
                                          network_context_params,
                                          cert_verifier_creation_params);
+
+  network_context_params->cookieable_schemes =
+      cef_context->GetCookieableSchemes();
+
   // TODO(cef): Remove this and add required NetworkIsolationKeys,
   // this is currently not the case and this was not required pre M84.
   network_context_params->require_network_isolation_key = false;
@@ -1336,7 +1251,7 @@ AlloyContentBrowserClient::GetNetworkContextsParentDirectory() {
 
 bool AlloyContentBrowserClient::HandleExternalProtocol(
     const GURL& url,
-    base::OnceCallback<content::WebContents*()> web_contents_getter,
+    content::WebContents::OnceGetter web_contents_getter,
     int child_id,
     content::NavigationUIData* navigation_data,
     bool is_main_frame,
@@ -1356,32 +1271,16 @@ bool AlloyContentBrowserClient::HandleExternalProtocol(
     mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory) {
   mojo::PendingReceiver<network::mojom::URLLoaderFactory> receiver =
       out_factory->InitWithNewPipeAndPassReceiver();
+
   // CefBrowserPlatformDelegate::HandleExternalProtocol may be called if
   // nothing handles the request.
-  if (CEF_CURRENTLY_ON_IOT()) {
-    auto request_handler = net_service::CreateInterceptedRequestHandler(
-        web_contents_getter, frame_tree_node_id, resource_request);
-    net_service::ProxyURLLoaderFactory::CreateProxy(
-        web_contents_getter, std::move(receiver), std::move(request_handler));
-  } else {
-    auto request_handler = net_service::CreateInterceptedRequestHandler(
-        web_contents_getter, frame_tree_node_id, resource_request);
-    CEF_POST_TASK(
-        CEF_IOT,
-        base::BindOnce(
-            [](mojo::PendingReceiver<network::mojom::URLLoaderFactory> receiver,
-               std::unique_ptr<net_service::InterceptedRequestHandler>
-                   request_handler,
-               content::WebContents::Getter web_contents_getter) {
-              // Manages its own lifetime.
+  auto request_handler = net_service::CreateInterceptedRequestHandler(
+      web_contents_getter, frame_tree_node_id, resource_request,
+      base::Bind(CefBrowserPlatformDelegate::HandleExternalProtocol,
+                 resource_request.url));
 
-              net_service::ProxyURLLoaderFactory::CreateProxy(
-                  web_contents_getter, std::move(receiver),
-                  std::move(request_handler));
-            },
-            std::move(receiver), std::move(request_handler),
-            std::move(web_contents_getter)));
-  }
+  net_service::ProxyURLLoaderFactory::CreateProxy(
+      web_contents_getter, std::move(receiver), std::move(request_handler));
   return true;
 }
 

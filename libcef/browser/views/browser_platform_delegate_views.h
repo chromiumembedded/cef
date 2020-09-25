@@ -24,10 +24,10 @@ class CefBrowserPlatformDelegateViews
   void WebContentsCreated(content::WebContents* web_contents,
                           bool owned) override;
   void WebContentsDestroyed(content::WebContents* web_contents) override;
-  void BrowserCreated(AlloyBrowserHostImpl* browser) override;
+  void BrowserCreated(CefBrowserHostBase* browser) override;
   void NotifyBrowserCreated() override;
   void NotifyBrowserDestroyed() override;
-  void BrowserDestroyed(AlloyBrowserHostImpl* browser) override;
+  void BrowserDestroyed(CefBrowserHostBase* browser) override;
   bool CreateHostWindow() override;
   void CloseHostWindow() override;
   CefWindowHandle GetHostWindowHandle() const override;
@@ -39,7 +39,7 @@ class CefBrowserPlatformDelegateViews
       content::WebContents* new_web_contents,
       CefBrowserPlatformDelegate* new_platform_delegate,
       bool is_devtools) override;
-  void PopupBrowserCreated(AlloyBrowserHostImpl* new_browser,
+  void PopupBrowserCreated(CefBrowserHostBase* new_browser,
                            bool is_devtools) override;
   SkColor GetBackgroundColor() const override;
   void WasResized() override;
@@ -64,7 +64,6 @@ class CefBrowserPlatformDelegateViews
   std::unique_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner()
       override;
   std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
-  bool IsWindowless() const override;
   bool IsViewsHosted() const override;
   gfx::Point GetDialogPosition(const gfx::Size& size) override;
   gfx::Size GetMaximumDialogSize() override;

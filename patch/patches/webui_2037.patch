@@ -1,5 +1,5 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index 0a144a99349f..7d835ce02b7f 100644
+index 0a144a99349f..c673f09e5652 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 @@ -10,6 +10,7 @@
@@ -14,7 +14,7 @@ index 0a144a99349f..7d835ce02b7f 100644
  #include "base/task/thread_pool.h"
  #include "build/branding_buildflags.h"
  #include "build/build_config.h"
-+#include "cef/libcef/features/features.h"
++#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/data_reduction_proxy/data_reduction_proxy_chrome_settings.h"
  #include "chrome/browser/data_reduction_proxy/data_reduction_proxy_chrome_settings_factory.h"
@@ -30,11 +30,12 @@ index 0a144a99349f..7d835ce02b7f 100644
    response->emplace(kOsVersionTag, os_version);
  #endif
  
-+#if !BUILDFLAG(ENABLE_CEF)
-+  // CEF should avoid loading ProfileSyncServiceFactory which depends on a lot
-+  // of unnecessary Chrome-specific factories.
-   PopulateSyncLogs(response.get());
-+#endif
+-  PopulateSyncLogs(response.get());
++  if (!cef::IsAlloyRuntimeEnabled()) {
++    // Avoid loading ProfileSyncServiceFactory which depends on a lot of
++    // unnecessary Chrome-specific factories.
++    PopulateSyncLogs(response.get());
++  }
    PopulateExtensionInfoLogs(response.get());
    PopulatePowerApiLogs(response.get());
    PopulateDataReductionProxyLogs(response.get());

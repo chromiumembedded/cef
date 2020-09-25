@@ -602,7 +602,6 @@ void CefRequestContextImpl::OnRenderFrameDeleted(int render_process_id,
 // static
 CefRefPtr<CefRequestContextImpl>
 CefRequestContextImpl::GetOrCreateRequestContext(const Config& config) {
-  // TODO(chrome-runtime): Add support for this method.
   if (config.is_global ||
       (config.other && config.other->IsGlobal() && !config.handler)) {
     // Return the singleton global context.

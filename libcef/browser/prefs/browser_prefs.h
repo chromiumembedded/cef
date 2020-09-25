@@ -25,6 +25,9 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
                                                const base::FilePath& cache_path,
                                                bool persist_user_preferences);
 
+// Set language preferences on |profile|.
+void SetLanguagePrefs(Profile* profile);
+
 }  // namespace browser_prefs
 
 #endif  // CEF_LIBCEF_BROWSER_PREFS_BROWSER_PREFS_H_

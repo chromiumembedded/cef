@@ -306,8 +306,7 @@ void CefFrameHostImpl::Navigate(const CefNavigateParams& params) {
   CefMsg_LoadRequest_Params request;
   request.url = params.url;
   if (!request.url.is_valid()) {
-    LOG(ERROR) << "Invalid URL passed to CefFrameHostImpl::Navigate: "
-               << params.url;
+    LOG(ERROR) << "Invalid URL: " << params.url;
     return;
   }
 
@@ -337,14 +336,30 @@ void CefFrameHostImpl::LoadURLWithExtras(const std::string& url,
   if (frame_id < CefFrameHostImpl::kMainFrameId)
     return;
 
+  GURL gurl(url);
+  if (!gurl.is_valid() && !gurl.has_scheme()) {
+    // Try to add "http://" at the beginning.
+    std::string new_url = std::string("http://") + url;
+    gurl = GURL(new_url);
+  }
+  if (!gurl.is_valid()) {
+    LOG(ERROR) << "Invalid URL: " << url;
+    return;
+  }
+
   if (frame_id == CefFrameHostImpl::kMainFrameId) {
     // Load via the browser using NavigationController.
     auto browser = GetBrowserHostBase();
     if (browser) {
-      browser->LoadMainFrameURL(url, referrer, transition, extra_headers);
+      content::OpenURLParams params(
+          gurl, referrer, WindowOpenDisposition::CURRENT_TAB, transition,
+          /*is_renderer_initiated=*/false);
+      params.extra_headers = extra_headers;
+
+      browser->LoadMainFrameURL(params);
     }
   } else {
-    CefNavigateParams params(GURL(url), transition);
+    CefNavigateParams params(gurl, transition);
     params.referrer = referrer;
     params.headers = extra_headers;
     Navigate(params);

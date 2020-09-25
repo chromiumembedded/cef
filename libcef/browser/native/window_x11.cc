@@ -9,6 +9,8 @@
 #include <X11/Xutil.h>
 #include <X11/extensions/XInput2.h>
 
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/thread_util.h"
 
 #include "ui/base/x/x11_util.h"
@@ -92,7 +94,7 @@ CEF_EXPORT XDisplay* cef_get_xdisplay() {
   return gfx::GetXDisplay();
 }
 
-CefWindowX11::CefWindowX11(CefRefPtr<AlloyBrowserHostImpl> browser,
+CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostBase> browser,
                            ::Window parent_xwindow,
                            const gfx::Rect& bounds,
                            const std::string& title)
@@ -412,10 +414,11 @@ void CefWindowX11::ProcessXEvent(x11::Event* event) {
 
           xwindow_ = x11::None;
 
-          if (browser_.get()) {
+          if (browser_) {
             // Force the browser to be destroyed and release the reference
             // added in PlatformCreateWindow().
-            browser_->WindowDestroyed();
+            static_cast<AlloyBrowserHostImpl*>(browser_.get())
+                ->WindowDestroyed();
           }
 
           delete this;

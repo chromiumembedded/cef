@@ -28,8 +28,6 @@ class CefBrowserPlatformDelegateNative
   // CefBrowserPlatformDelegate methods:
   SkColor GetBackgroundColor() const override;
   void WasResized() override;
-  bool IsWindowless() const override;
-  bool IsViewsHosted() const override;
 
   // Translate CEF events to Chromium/Blink Web events.
   virtual content::NativeWebKeyboardEvent TranslateWebKeyEvent(
@@ -52,6 +50,7 @@ class CefBrowserPlatformDelegateNative
  protected:
   // Delegates that can wrap a native delegate.
   friend class CefBrowserPlatformDelegateBackground;
+  friend class CefBrowserPlatformDelegateChrome;
   friend class CefBrowserPlatformDelegateOsr;
   friend class CefBrowserPlatformDelegateViews;
 
@@ -61,6 +60,7 @@ class CefBrowserPlatformDelegateNative
   // Methods used by delegates that can wrap a native delegate.
   void set_windowless_handler(WindowlessHandler* handler) {
     windowless_handler_ = handler;
+    set_as_secondary();
   }
 
   CefWindowInfo window_info_;

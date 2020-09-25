@@ -4,26 +4,27 @@
 
 #include "libcef/browser/chrome/chrome_browser_host_impl.h"
 
+#include "libcef/browser/browser_platform_delegate.h"
+#include "libcef/browser/chrome/browser_platform_delegate_chrome.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/features/runtime_checks.h"
 
 #include "base/logging.h"
 #include "base/notreached.h"
+#include "chrome/browser/printing/print_view_manager_common.h"
+#include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_commands.h"
+#include "chrome/browser/ui/browser_navigator.h"
 #include "chrome/browser/ui/browser_tabstrip.h"
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
-
-namespace {
-
-const auto kDefaultWindowDisposition = WindowOpenDisposition::CURRENT_TAB;
-
-}  // namespace
+#include "chrome/common/pref_names.h"
+#include "url/url_constants.h"
 
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::Create(
-    const CreateParams& params) {
+    const CefBrowserCreateParams& params) {
   // Get or create the request context and profile.
   CefRefPtr<CefRequestContextImpl> request_context_impl =
       CefRequestContextImpl::GetOrCreateForRequestContext(
@@ -44,21 +45,30 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::Create(
   // out of the existing Browser.
   auto browser = new Browser(chrome_params);
 
-  // Add a new tab. This will indirectly create a new tab WebContents and
-  // call ChromeBrowserDelegate::SetAsDelegate to create the associated
-  // ChromeBrowserHostImpl.
-  chrome::AddTabAt(browser, params.url, /*idx=*/-1, /*foreground=*/true);
+  GURL url = params.url;
+  if (url.is_empty()) {
+    // Chrome will navigate to kChromeUINewTabURL by default. We want to keep
+    // the current CEF behavior of not navigating at all. Use a special URL that
+    // will be recognized in HandleNonNavigationAboutURL.
+    url = GURL("chrome://ignore/");
+  }
 
-  browser->window()->Show();
+  // Add a new tab. This will indirectly create a new tab WebContents and
+  // call ChromeBrowserDelegate::OnWebContentsCreated to create the associated
+  // ChromeBrowserHostImpl.
+  chrome::AddTabAt(browser, url, /*idx=*/-1, /*foreground=*/true);
 
   // The new tab WebContents.
   auto web_contents = browser->tab_strip_model()->GetActiveWebContents();
-  DCHECK(web_contents);
+  CHECK(web_contents);
 
   // The associated ChromeBrowserHostImpl.
   auto browser_host =
       ChromeBrowserHostImpl::GetBrowserForContents(web_contents);
-  DCHECK(browser_host);
+  CHECK(browser_host);
+
+  browser->window()->Show();
+
   return browser_host;
 }
 
@@ -107,20 +117,34 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForFrameRoute(
 
 ChromeBrowserHostImpl::~ChromeBrowserHostImpl() = default;
 
-void ChromeBrowserHostImpl::OnWebContentsDestroyed() {
+void ChromeBrowserHostImpl::OnWebContentsDestroyed(
+    content::WebContents* web_contents) {
+  platform_delegate_->WebContentsDestroyed(web_contents);
   DestroyBrowser();
 }
 
 void ChromeBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
-  NOTIMPLEMENTED();
-}
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(&ChromeBrowserHostImpl::OnSetFocus,
+                                          this, source));
+    return;
+  }
 
-void ChromeBrowserHostImpl::ViewText(const std::string& text) {
-  NOTIMPLEMENTED();
+  if (contents_delegate_->OnSetFocus(source))
+    return;
+
+  if (browser_) {
+    const int tab_index = GetCurrentTabIndex();
+    if (tab_index != TabStripModel::kNoTab) {
+      chrome::SelectNumberedTab(browser_, tab_index);
+    }
+  }
 }
 
 void ChromeBrowserHostImpl::CloseBrowser(bool force_close) {
-  NOTIMPLEMENTED();
+  // Always do this asynchronously because TabStripModel is not re-entrant.
+  CEF_POST_TASK(CEF_UIT, base::BindOnce(&ChromeBrowserHostImpl::DoCloseBrowser,
+                                        this, force_close));
 }
 
 bool ChromeBrowserHostImpl::TryCloseBrowser() {
@@ -129,7 +153,9 @@ bool ChromeBrowserHostImpl::TryCloseBrowser() {
 }
 
 void ChromeBrowserHostImpl::SetFocus(bool focus) {
-  NOTIMPLEMENTED();
+  if (focus) {
+    OnSetFocus(FOCUS_SOURCE_SYSTEM);
+  }
 }
 
 CefWindowHandle ChromeBrowserHostImpl::GetWindowHandle() {
@@ -143,7 +169,7 @@ CefWindowHandle ChromeBrowserHostImpl::GetOpenerWindowHandle() {
 }
 
 bool ChromeBrowserHostImpl::HasView() {
-  NOTIMPLEMENTED();
+  // TODO(chrome-runtime): Support Views-hosted browsers.
   return false;
 }
 
@@ -174,7 +200,12 @@ void ChromeBrowserHostImpl::Print() {
   }
 
   if (browser_) {
-    chrome::Print(browser_);
+    // Like chrome::Print() but specifying the WebContents.
+    printing::StartPrint(GetWebContents(),
+                         /*print_renderer=*/mojo::NullAssociatedRemote(),
+                         browser_->profile()->GetPrefs()->GetBoolean(
+                             prefs::kPrintPreviewDisabled),
+                         /*has_selection=*/false);
   }
 }
 
@@ -264,28 +295,6 @@ void ChromeBrowserHostImpl::Invalidate(PaintElementType type) {
 }
 
 void ChromeBrowserHostImpl::SendExternalBeginFrame() {
-  NOTIMPLEMENTED();
-}
-
-void ChromeBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
-  NOTIMPLEMENTED();
-}
-
-void ChromeBrowserHostImpl::SendMouseClickEvent(const CefMouseEvent& event,
-                                                MouseButtonType type,
-                                                bool mouseUp,
-                                                int clickCount) {
-  NOTIMPLEMENTED();
-}
-
-void ChromeBrowserHostImpl::SendMouseMoveEvent(const CefMouseEvent& event,
-                                               bool mouseLeave) {
-  NOTIMPLEMENTED();
-}
-
-void ChromeBrowserHostImpl::SendMouseWheelEvent(const CefMouseEvent& event,
-                                                int deltaX,
-                                                int deltaY) {
   NOTIMPLEMENTED();
 }
 
@@ -390,93 +399,55 @@ bool ChromeBrowserHostImpl::IsBackgroundHost() {
   return false;
 }
 
-void ChromeBrowserHostImpl::GoBack() {
-  auto callback = base::BindOnce(&ChromeBrowserHostImpl::GoBack, this);
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, std::move(callback));
-  }
-
-  if (browser_info_->IsNavigationLocked(std::move(callback))) {
-    return;
-  }
-
-  if (browser_ && chrome::CanGoBack(browser_)) {
-    chrome::GoBack(browser_, kDefaultWindowDisposition);
-  }
-}
-
-void ChromeBrowserHostImpl::GoForward() {
-  auto callback = base::BindOnce(&ChromeBrowserHostImpl::GoForward, this);
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, std::move(callback));
-  }
-
-  if (browser_info_->IsNavigationLocked(std::move(callback))) {
-    return;
-  }
-
-  if (browser_ && chrome::CanGoForward(browser_)) {
-    chrome::GoForward(browser_, kDefaultWindowDisposition);
-  }
-}
-
-void ChromeBrowserHostImpl::Reload() {
-  auto callback = base::BindOnce(&ChromeBrowserHostImpl::Reload, this);
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, std::move(callback));
-  }
-
-  if (browser_info_->IsNavigationLocked(std::move(callback))) {
-    return;
+bool ChromeBrowserHostImpl::Navigate(const content::OpenURLParams& params) {
+  CEF_REQUIRE_UIT();
+  if (GetCurrentTabIndex() == TabStripModel::kNoTab) {
+    // We can't navigate via the Browser because we don't have a current tab.
+    return CefBrowserHostBase::Navigate(params);
   }
 
   if (browser_) {
-    chrome::Reload(browser_, kDefaultWindowDisposition);
-  }
-}
+    // This is generally equivalent to calling Browser::OpenURL, except:
+    // 1. It doesn't trigger a call to CefRequestHandler::OnOpenURLFromTab, and
+    // 2. It navigates in this CefBrowserHost's WebContents instead of
+    //    (a) creating a new WebContents, or (b) using the Browser's active
+    //    WebContents (which may not be the same), and
+    // 3. There is no risk of triggering chrome's popup blocker.
+    NavigateParams nav_params(browser_, params.url, params.transition);
+    nav_params.FillNavigateParamsFromOpenURLParams(params);
 
-void ChromeBrowserHostImpl::ReloadIgnoreCache() {
-  auto callback =
-      base::BindOnce(&ChromeBrowserHostImpl::ReloadIgnoreCache, this);
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, std::move(callback));
-  }
+    // Always navigate in the current tab.
+    nav_params.disposition = WindowOpenDisposition::CURRENT_TAB;
+    nav_params.source_contents = GetWebContents();
 
-  if (browser_info_->IsNavigationLocked(std::move(callback))) {
-    return;
+    nav_params.tabstrip_add_types = TabStripModel::ADD_NONE;
+    if (params.user_gesture)
+      nav_params.window_action = NavigateParams::SHOW_WINDOW;
+    ::Navigate(&nav_params);
+    return true;
   }
-
-  if (browser_) {
-    chrome::ReloadBypassingCache(browser_, kDefaultWindowDisposition);
-  }
-}
-
-void ChromeBrowserHostImpl::StopLoad() {
-  auto callback = base::BindOnce(&ChromeBrowserHostImpl::StopLoad, this);
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, std::move(callback));
-  }
-
-  if (browser_info_->IsNavigationLocked(std::move(callback))) {
-    return;
-  }
-
-  if (browser_) {
-    chrome::Stop(browser_);
-  }
+  return false;
 }
 
 ChromeBrowserHostImpl::ChromeBrowserHostImpl(
     const CefBrowserSettings& settings,
     CefRefPtr<CefClient> client,
+    std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
     scoped_refptr<CefBrowserInfo> browser_info,
     CefRefPtr<CefRequestContextImpl> request_context)
-    : CefBrowserHostBase(settings, client, browser_info, request_context) {}
+    : CefBrowserHostBase(settings,
+                         client,
+                         std::move(platform_delegate),
+                         browser_info,
+                         request_context) {}
 
 void ChromeBrowserHostImpl::Attach(Browser* browser,
                                    content::WebContents* web_contents) {
   DCHECK(browser);
   DCHECK(web_contents);
+
+  platform_delegate_->WebContentsCreated(web_contents,
+                                         /*own_web_contents=*/false);
 
   SetBrowser(browser);
   contents_delegate_->ObserveWebContents(web_contents);
@@ -486,14 +457,22 @@ void ChromeBrowserHostImpl::Attach(Browser* browser,
 void ChromeBrowserHostImpl::SetBrowser(Browser* browser) {
   CEF_REQUIRE_UIT();
   browser_ = browser;
+  static_cast<CefBrowserPlatformDelegateChrome*>(platform_delegate_.get())
+      ->set_chrome_browser(browser);
 }
 
 void ChromeBrowserHostImpl::InitializeBrowser() {
   CEF_REQUIRE_UIT();
   DCHECK(browser_);
 
+  // Associate the platform delegate with this browser.
+  platform_delegate_->BrowserCreated(this);
+
   CefBrowserHostBase::InitializeBrowser();
 
+  // The WebContents won't be added to the Browser's TabStripModel until later
+  // in the current call stack. Block navigation until that time.
+  auto navigation_lock = browser_info_->CreateNavigationLock();
   OnAfterCreated();
 }
 
@@ -504,5 +483,29 @@ void ChromeBrowserHostImpl::DestroyBrowser() {
   OnBeforeClose();
   OnBrowserDestroyed();
 
+  // Disassociate the platform delegate from this browser.
+  platform_delegate_->BrowserDestroyed(this);
+
   CefBrowserHostBase::DestroyBrowser();
+}
+
+void ChromeBrowserHostImpl::DoCloseBrowser(bool force_close) {
+  CEF_REQUIRE_UIT();
+  if (browser_) {
+    // Like chrome::CloseTab() but specifying the WebContents.
+    const int tab_index = GetCurrentTabIndex();
+    if (tab_index != TabStripModel::kNoTab) {
+      browser_->tab_strip_model()->CloseWebContentsAt(
+          tab_index, TabStripModel::CLOSE_CREATE_HISTORICAL_TAB |
+                         TabStripModel::CLOSE_USER_GESTURE);
+    }
+  }
+}
+
+int ChromeBrowserHostImpl::GetCurrentTabIndex() const {
+  CEF_REQUIRE_UIT();
+  if (browser_) {
+    return browser_->tab_strip_model()->GetIndexOfWebContents(GetWebContents());
+  }
+  return TabStripModel::kNoTab;
 }

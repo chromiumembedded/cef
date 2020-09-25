@@ -287,8 +287,9 @@ TEST(ThreadTest, CreateFromBrowserIOThread) {
 
 // Test creation of new threads from the browser FILE thread.
 TEST(ThreadTest, CreateFromBrowserFILEThread) {
+  // Use a FILE thread that will run tasks relatively quickly.
   CefRefPtr<BrowserThreadTestHandler> handler =
-      new BrowserThreadTestHandler(TID_FILE);
+      new BrowserThreadTestHandler(TID_FILE_USER_VISIBLE);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }

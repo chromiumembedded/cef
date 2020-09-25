@@ -11,11 +11,14 @@
 #include "libcef/browser/frame_host_impl.h"
 
 #include "base/observer_list.h"
+#include "content/public/browser/notification_observer.h"
+#include "content/public/browser/notification_registrar.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
 
 class CefBrowser;
 class CefBrowserInfo;
+class CefBrowserPlatformDelegate;
 class CefClient;
 
 // Flags that represent which states have changed.
@@ -45,7 +48,8 @@ constexpr inline CefBrowserContentsState operator|(
 // Includes functionality that is shared by the alloy and chrome runtimes.
 // Only accessed on the UI thread.
 class CefBrowserContentsDelegate : public content::WebContentsDelegate,
-                                   public content::WebContentsObserver {
+                                   public content::WebContentsObserver,
+                                   public content::NotificationObserver {
  public:
   using State = CefBrowserContentsState;
 
@@ -58,7 +62,7 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
     virtual void OnStateChanged(State state_changed) = 0;
 
     // Called when the associated WebContents is destroyed.
-    virtual void OnWebContentsDestroyed() = 0;
+    virtual void OnWebContentsDestroyed(content::WebContents* web_contents) = 0;
 
    protected:
     ~Observer() override {}
@@ -75,6 +79,9 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   void RemoveObserver(Observer* observer);
 
   // WebContentsDelegate methods:
+  content::WebContents* OpenURLFromTab(
+      content::WebContents* source,
+      const content::OpenURLParams& params) override;
   void LoadingStateChanged(content::WebContents* source,
                            bool to_different_document) override;
   void UpdateTargetURL(content::WebContents* source, const GURL& url) override;
@@ -89,12 +96,20 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
       content::RenderFrameHost* requesting_frame,
       const blink::mojom::FullscreenOptions& options) override;
   void ExitFullscreenModeForTab(content::WebContents* web_contents) override;
+  content::KeyboardEventProcessingResult PreHandleKeyboardEvent(
+      content::WebContents* source,
+      const content::NativeWebKeyboardEvent& event) override;
+  bool HandleKeyboardEvent(
+      content::WebContents* source,
+      const content::NativeWebKeyboardEvent& event) override;
 
   // WebContentsObserver methods:
   void RenderFrameCreated(content::RenderFrameHost* render_frame_host) override;
   void RenderFrameHostChanged(content::RenderFrameHost* old_host,
                               content::RenderFrameHost* new_host) override;
   void RenderFrameDeleted(content::RenderFrameHost* render_frame_host) override;
+  void RenderViewCreated(content::RenderViewHost* render_view_host) override;
+  void RenderViewDeleted(content::RenderViewHost* render_view_host) override;
   void RenderViewReady() override;
   void RenderProcessGone(base::TerminationStatus status) override;
   void OnFrameFocused(content::RenderFrameHost* render_frame_host) override;
@@ -118,6 +133,11 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
       content::RenderWidgetHost* render_widget_host) override;
   void WebContentsDestroyed() override;
 
+  // NotificationObserver methods.
+  void Observe(int type,
+               const content::NotificationSource& source,
+               const content::NotificationDetails& details) override;
+
   // Accessors for state information. Changes will be signaled to
   // Observer::OnStateChanged.
   bool is_loading() const { return is_loading_; }
@@ -128,20 +148,25 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   CefRefPtr<CefFrameHostImpl> focused_frame() const { return focused_frame_; }
 
   // Helpers for executing client callbacks.
-  void OnAddressChange(const GURL& url);
-  void OnLoadStart(CefRefPtr<CefFrame> frame,
-                   ui::PageTransition transition_type);
-  void OnLoadError(CefRefPtr<CefFrame> frame, const GURL& url, int error_code);
+  // TODO(cef): Make this private if/when possible.
   void OnLoadEnd(CefRefPtr<CefFrame> frame,
                  const GURL& url,
                  int http_status_code);
-  void OnTitleChange(const base::string16& title);
+  bool OnSetFocus(cef_focus_source_t source);
 
  private:
   CefRefPtr<CefClient> client() const;
   CefRefPtr<CefBrowser> browser() const;
+  CefBrowserPlatformDelegate* platform_delegate() const;
 
+  // Helpers for executing client callbacks.
+  void OnAddressChange(const GURL& url);
+  void OnLoadStart(CefRefPtr<CefFrame> frame,
+                   ui::PageTransition transition_type);
+  void OnLoadError(CefRefPtr<CefFrame> frame, const GURL& url, int error_code);
+  void OnTitleChange(const base::string16& title);
   void OnFullscreenModeChange(bool fullscreen);
+
   void OnStateChanged(State state_changed);
 
   scoped_refptr<CefBrowserInfo> browser_info_;
@@ -155,8 +180,17 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   // The currently focused frame, or nullptr if the main frame is focused.
   CefRefPtr<CefFrameHostImpl> focused_frame_;
 
+  // True if currently in the OnSetFocus callback.
+  bool is_in_onsetfocus_ = false;
+
   // Observers that want to be notified of changes to this object.
   base::ObserverList<Observer> observers_;
+
+  // Used for managing notification subscriptions.
+  std::unique_ptr<content::NotificationRegistrar> registrar_;
+
+  // True if the focus is currently on an editable field on the page.
+  bool focus_on_editable_field_ = false;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserContentsDelegate);
 };

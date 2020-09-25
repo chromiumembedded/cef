@@ -144,7 +144,7 @@ class ProxyURLLoaderFactory
       std::unique_ptr<InterceptedRequestHandler> request_handler);
 
   // Create a proxy object on the IO thread.
-  static ProxyURLLoaderFactory* CreateProxy(
+  static void CreateProxy(
       content::WebContents::Getter web_contents_getter,
       mojo::PendingReceiver<network::mojom::URLLoaderFactory> loader_request,
       std::unique_ptr<InterceptedRequestHandler> request_handler);

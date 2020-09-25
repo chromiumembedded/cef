@@ -6,6 +6,8 @@
 #define CEF_LIBCEF_BROWSER_CHROME_CHROME_BROWSER_HOST_IMPL_H_
 #pragma once
 
+#include <memory>
+
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/chrome/browser_delegate.h"
 
@@ -22,15 +24,16 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   // possibly shared by multiple Browser instances.
   class DelegateCreateParams : public cef::BrowserDelegate::CreateParams {
    public:
-    DelegateCreateParams(const CefBrowserHostBase::CreateParams& create_params)
+    DelegateCreateParams(const CefBrowserCreateParams& create_params)
         : create_params_(create_params) {}
 
-    CefBrowserHostBase::CreateParams create_params_;
+    CefBrowserCreateParams create_params_;
   };
 
   // Create a new Browser with a single tab (WebContents) and associated
   // ChromeBrowserHostImpl instance.
-  static CefRefPtr<ChromeBrowserHostImpl> Create(const CreateParams& params);
+  static CefRefPtr<ChromeBrowserHostImpl> Create(
+      const CefBrowserCreateParams& params);
 
   // Returns the browser associated with the specified RenderViewHost.
   static CefRefPtr<ChromeBrowserHostImpl> GetBrowserForHost(
@@ -52,11 +55,10 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   ~ChromeBrowserHostImpl() override;
 
   // CefBrowserContentsDelegate::Observer methods:
-  void OnWebContentsDestroyed() override;
+  void OnWebContentsDestroyed(content::WebContents* web_contents) override;
 
   // CefBrowserHostBase methods called from CefFrameHostImpl:
   void OnSetFocus(cef_focus_source_t source) override;
-  void ViewText(const std::string& text) override;
 
   // CefBrowserHost methods:
   void CloseBrowser(bool force_close) override;
@@ -103,15 +105,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   void NotifyScreenInfoChanged() override;
   void Invalidate(PaintElementType type) override;
   void SendExternalBeginFrame() override;
-  void SendKeyEvent(const CefKeyEvent& event) override;
-  void SendMouseClickEvent(const CefMouseEvent& event,
-                           MouseButtonType type,
-                           bool mouseUp,
-                           int clickCount) override;
-  void SendMouseMoveEvent(const CefMouseEvent& event, bool mouseLeave) override;
-  void SendMouseWheelEvent(const CefMouseEvent& event,
-                           int deltaX,
-                           int deltaY) override;
   void SendTouchEvent(const CefTouchEvent& event) override;
   void SendFocusEvent(bool setFocus) override;
   void SendCaptureLostEvent() override;
@@ -145,20 +138,18 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   CefRefPtr<CefExtension> GetExtension() override;
   bool IsBackgroundHost() override;
 
-  // CefBrowser methods:
-  void GoBack() override;
-  void GoForward() override;
-  void Reload() override;
-  void ReloadIgnoreCache() override;
-  void StopLoad() override;
+ protected:
+  bool Navigate(const content::OpenURLParams& params) override;
 
  private:
   friend class ChromeBrowserDelegate;
 
-  ChromeBrowserHostImpl(const CefBrowserSettings& settings,
-                        CefRefPtr<CefClient> client,
-                        scoped_refptr<CefBrowserInfo> browser_info,
-                        CefRefPtr<CefRequestContextImpl> request_context);
+  ChromeBrowserHostImpl(
+      const CefBrowserSettings& settings,
+      CefRefPtr<CefClient> client,
+      std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
+      scoped_refptr<CefBrowserInfo> browser_info,
+      CefRefPtr<CefRequestContextImpl> request_context);
 
   // Called from ChromeBrowserDelegate::SetAsDelegate when this object is first
   // created. Must be called on the UI thread.
@@ -172,6 +163,12 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   // CefBrowserHostBase methods:
   void InitializeBrowser() override;
   void DestroyBrowser() override;
+
+  void DoCloseBrowser(bool force_close);
+
+  // Returns the current tab index for the associated WebContents, or
+  // TabStripModel::kNoTab if not found.
+  int GetCurrentTabIndex() const;
 
   Browser* browser_ = nullptr;
 };

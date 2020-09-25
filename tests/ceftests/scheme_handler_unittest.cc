@@ -145,6 +145,11 @@ class TestSchemeHandler : public TestHandler {
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefRequestCallback> callback) override {
+    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+      // Ignore favicon requests.
+      return RV_CANCEL;
+    }
+
     const std::string& newUrl = request->GetURL();
     if (IsExitURL(newUrl)) {
       test_results_->got_exit_request.yes();
@@ -429,6 +434,11 @@ class ClientSchemeHandler : public CefResourceHandler {
             CefRefPtr<CefCallback> callback) override {
     EXPECT_FALSE(CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO));
 
+    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+      // Ignore favicon requests.
+      return false;
+    }
+
     bool handled = false;
 
     std::string url = request->GetURL();
@@ -495,6 +505,11 @@ class ClientSchemeHandler : public CefResourceHandler {
 
   bool ProcessRequest(CefRefPtr<CefRequest> request,
                       CefRefPtr<CefCallback> callback) override {
+    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+      // Ignore favicon requests.
+      return false;
+    }
+
     EXPECT_TRUE(false);  // Not reached.
     return false;
   }

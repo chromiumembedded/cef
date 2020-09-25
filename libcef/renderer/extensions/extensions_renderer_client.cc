@@ -4,9 +4,8 @@
 
 #include "libcef/renderer/extensions/extensions_renderer_client.h"
 
-#include "libcef/common/cef_messages.h"
+#include "libcef/renderer/alloy/alloy_render_thread_observer.h"
 #include "libcef/renderer/extensions/extensions_dispatcher_delegate.h"
-#include "libcef/renderer/render_thread_observer.h"
 
 #include "base/command_line.h"
 #include "chrome/common/url_constants.h"
@@ -50,7 +49,7 @@ CefExtensionsRendererClient::CefExtensionsRendererClient() {}
 CefExtensionsRendererClient::~CefExtensionsRendererClient() {}
 
 bool CefExtensionsRendererClient::IsIncognitoProcess() const {
-  return CefRenderThreadObserver::is_incognito_process();
+  return AlloyRenderThreadObserver::is_incognito_process();
 }
 
 int CefExtensionsRendererClient::GetLowestIsolatedWorldId() const {

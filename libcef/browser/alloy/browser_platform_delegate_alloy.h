@@ -10,13 +10,14 @@
 #include "libcef/browser/web_contents_dialog_helper.h"
 
 #include "base/memory/weak_ptr.h"
+#include "content/public/browser/web_contents.h"
+#include "ui/gfx/geometry/size.h"
 
 // Implementation of Alloy-based browser functionality.
 class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
  public:
-  content::WebContents* CreateWebContents(
-      CefBrowserHostBase::CreateParams& create_params,
-      bool& own_web_contents) override;
+  content::WebContents* CreateWebContents(CefBrowserCreateParams& create_params,
+                                          bool& own_web_contents) override;
   void WebContentsCreated(content::WebContents* web_contents,
                           bool owned) override;
   void AddNewContents(content::WebContents* source,
@@ -29,12 +30,12 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
   bool ShouldTransferNavigation(bool is_main_frame_navigation) override;
   void RenderViewCreated(content::RenderViewHost* render_view_host) override;
   void RenderViewReady() override;
-  void BrowserCreated(AlloyBrowserHostImpl* browser) override;
+  void BrowserCreated(CefBrowserHostBase* browser) override;
   void CreateExtensionHost(const extensions::Extension* extension,
                            const GURL& url,
                            extensions::ViewType host_type) override;
   extensions::ExtensionHost* GetExtensionHost() const override;
-  void BrowserDestroyed(AlloyBrowserHostImpl* browser) override;
+  void BrowserDestroyed(CefBrowserHostBase* browser) override;
   void SendCaptureLostEvent() override;
 #if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MAC))
   void NotifyMoveOrResizeStarted() override;
@@ -69,6 +70,9 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
   // Otherwise, the browser's WebContents will be returned.
   content::WebContents* GetActionableWebContents() const;
 
+  // Called from BrowserPlatformDelegateNative::set_windowless_handler().
+  void set_as_secondary() { primary_ = false; }
+
  private:
   void SetOwnedWebContents(content::WebContents* owned_contents);
 
@@ -97,6 +101,10 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
   bool auto_resize_enabled_ = false;
   gfx::Size auto_resize_min_;
   gfx::Size auto_resize_max_;
+
+  // True if this is the primary platform delegate, in which case it will
+  // register WebContents delegate/observers.
+  bool primary_ = true;
 
   base::WeakPtrFactory<CefBrowserPlatformDelegateAlloy> weak_ptr_factory_;
 

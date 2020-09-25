@@ -470,3 +470,12 @@ CefMediaRouterManager* CefBrowserContext::GetMediaRouterManager() {
   }
   return media_router_manager_.get();
 }
+
+CefBrowserContext::CookieableSchemes CefBrowserContext::GetCookieableSchemes()
+    const {
+  CEF_REQUIRE_UIT();
+  if (cookieable_schemes_)
+    return cookieable_schemes_;
+
+  return CefCookieManagerImpl::GetGlobalCookieableSchemes();
+}

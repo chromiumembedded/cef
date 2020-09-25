@@ -18,6 +18,7 @@
 #include "chrome/app/chrome_main_delegate.h"
 
 class ChromeContentBrowserClientCef;
+class ChromeContentRendererClientCef;
 
 // CEF override of ChromeMainDelegate
 class ChromeMainDelegateCef : public ChromeMainDelegate,
@@ -43,6 +44,7 @@ class ChromeMainDelegateCef : public ChromeMainDelegate,
 #endif
   content::ContentClient* CreateContentClient() override;
   content::ContentBrowserClient* CreateContentBrowserClient() override;
+  content::ContentRendererClient* CreateContentRendererClient() override;
 
  protected:
   // CefAppManager overrides.
@@ -66,6 +68,7 @@ class ChromeMainDelegateCef : public ChromeMainDelegate,
 
  private:
   ChromeContentBrowserClientCef* content_browser_client() const;
+  ChromeContentRendererClientCef* content_renderer_client() const;
 
   CefMainRunnerHandler* const runner_;
   CefSettings* const settings_;

@@ -44,6 +44,7 @@ const char kSslClientCertificate[] = "ssl-client-certificate";
 const char kCRLSetsPath[] = "crl-sets-path";
 const char kLoadExtension[] = "load-extension";
 const char kNoActivate[] = "no-activate";
+const char kEnableChromeRuntime[] = "enable-chrome-runtime";
 
 }  // namespace switches
 }  // namespace client

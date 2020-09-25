@@ -13,6 +13,11 @@ void CreateBrowserDelegates(ClientAppBrowser::DelegateSet& delegates) {
   extern void CreateAudioOutputTests(ClientAppBrowser::DelegateSet & delegates);
   CreateAudioOutputTests(delegates);
 
+  // Bring in navigation tests.
+  extern void CreateNavigationBrowserTests(ClientAppBrowser::DelegateSet &
+                                           delegates);
+  CreateNavigationBrowserTests(delegates);
+
   // Bring in the plugin tests.
   extern void CreatePluginBrowserTests(ClientAppBrowser::DelegateSet &
                                        delegates);
@@ -22,6 +27,11 @@ void CreateBrowserDelegates(ClientAppBrowser::DelegateSet& delegates) {
   extern void CreatePreferenceBrowserTests(ClientAppBrowser::DelegateSet &
                                            delegates);
   CreatePreferenceBrowserTests(delegates);
+
+  // Bring in URLRequest tests.
+  extern void CreateURLRequestBrowserTests(ClientAppBrowser::DelegateSet &
+                                           delegates);
+  CreateURLRequestBrowserTests(delegates);
 }
 
 void CreateRenderDelegates(ClientAppRenderer::DelegateSet& delegates) {

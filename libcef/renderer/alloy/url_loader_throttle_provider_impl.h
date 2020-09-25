@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_RENDERER_URL_LOADER_THROTTLE_PROVIDER_IMPL_H_
-#define CEF_LIBCEF_RENDERER_URL_LOADER_THROTTLE_PROVIDER_IMPL_H_
+#ifndef CEF_LIBCEF_RENDERER_ALLOY_URL_LOADER_THROTTLE_PROVIDER_IMPL_H_
+#define CEF_LIBCEF_RENDERER_ALLOY_URL_LOADER_THROTTLE_PROVIDER_IMPL_H_
 
 #include <memory>
 #include <vector>
@@ -41,4 +41,4 @@ class CefURLLoaderThrottleProviderImpl
   DISALLOW_ASSIGN(CefURLLoaderThrottleProviderImpl);
 };
 
-#endif  // CEF_LIBCEF_RENDERER_URL_LOADER_THROTTLE_PROVIDER_IMPL_H_
+#endif  // CEF_LIBCEF_RENDERER_ALLOY_URL_LOADER_THROTTLE_PROVIDER_IMPL_H_

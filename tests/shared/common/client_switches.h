@@ -38,6 +38,7 @@ extern const char kSslClientCertificate[];
 extern const char kCRLSetsPath[];
 extern const char kLoadExtension[];
 extern const char kNoActivate[];
+extern const char kEnableChromeRuntime[];
 
 }  // namespace switches
 }  // namespace client

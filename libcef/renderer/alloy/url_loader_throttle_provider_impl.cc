@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/renderer/url_loader_throttle_provider_impl.h"
+#include "libcef/renderer/alloy/url_loader_throttle_provider_impl.h"
 
 #include "libcef/common/extensions/extensions_util.h"
-#include "libcef/renderer/render_thread_observer.h"
+#include "libcef/renderer/alloy/alloy_render_thread_observer.h"
 
 #include <utility>
 
@@ -77,7 +77,7 @@ CefURLLoaderThrottleProviderImpl::CreateThrottles(
   }
 
   throttles.push_back(std::make_unique<GoogleURLLoaderThrottle>(
-      CefRenderThreadObserver::GetDynamicParams()));
+      AlloyRenderThreadObserver::GetDynamicParams()));
 
   return throttles;
 }

@@ -22,6 +22,7 @@
 #include "tests/ceftests/test_suite.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/browser/file_util.h"
 #include "tests/shared/renderer/client_app_renderer.h"
 
@@ -35,6 +36,22 @@ using client::ClientAppRenderer;
 //    the file.
 
 namespace {
+
+// Browser-side app delegate.
+class URLRequestBrowserTest : public client::ClientAppBrowser::Delegate {
+ public:
+  URLRequestBrowserTest() {}
+
+  void OnBeforeCommandLineProcessing(
+      CefRefPtr<client::ClientAppBrowser> app,
+      CefRefPtr<CefCommandLine> command_line) override {
+    // Delegate auth callbacks to GetAuthCredentials with the chrome runtime.
+    command_line->AppendSwitch("disable-chrome-login-prompt");
+  }
+
+ private:
+  IMPLEMENT_REFCOUNTING(URLRequestBrowserTest);
+};
 
 // Unique values for URLRequest tests.
 const char kRequestTestMsg[] = "URLRequestTest.Test";
@@ -1285,9 +1302,11 @@ class RequestServerHandler : public test_server::ObserverHelper {
                          int connection_id) override {
     EXPECT_UI_THREAD();
 
-    EXPECT_TRUE(connection_id_set_.find(connection_id) ==
-                connection_id_set_.end());
-    connection_id_set_.insert(connection_id);
+    if (!IsChromeRuntimeEnabled()) {
+      EXPECT_TRUE(connection_id_set_.find(connection_id) ==
+                  connection_id_set_.end());
+      connection_id_set_.insert(connection_id);
+    }
 
     actual_connection_ct_++;
 
@@ -1298,9 +1317,11 @@ class RequestServerHandler : public test_server::ObserverHelper {
                             int connection_id) override {
     EXPECT_UI_THREAD();
 
-    ConnectionIdSet::iterator it = connection_id_set_.find(connection_id);
-    EXPECT_TRUE(it != connection_id_set_.end());
-    connection_id_set_.erase(it);
+    if (!IsChromeRuntimeEnabled()) {
+      ConnectionIdSet::iterator it = connection_id_set_.find(connection_id);
+      EXPECT_TRUE(it != connection_id_set_.end());
+      connection_id_set_.erase(it);
+    }
 
     return true;
   }
@@ -1310,12 +1331,24 @@ class RequestServerHandler : public test_server::ObserverHelper {
                      const CefString& client_address,
                      CefRefPtr<CefRequest> request) override {
     EXPECT_UI_THREAD();
-    EXPECT_TRUE(VerifyConnection(connection_id));
+    if (!IsChromeRuntimeEnabled()) {
+      EXPECT_TRUE(VerifyConnection(connection_id));
+    }
     EXPECT_FALSE(client_address.empty());
 
     // Log the requests for better error reporting.
     request_log_ += request->GetMethod().ToString() + " " +
                     request->GetURL().ToString() + "\n";
+
+    // TODO(chrome-runtime): Debug why favicon requests don't always have the
+    // correct resource type.
+    const std::string& url = request->GetURL();
+    if (request->GetResourceType() == RT_FAVICON ||
+        url.find("/favicon.ico") != std::string::npos) {
+      // We don't currently handle favicon requests.
+      server->SendHttp404Response(connection_id);
+      return true;
+    }
 
     HandleRequest(server, connection_id, request);
 
@@ -1332,10 +1365,12 @@ class RequestServerHandler : public test_server::ObserverHelper {
   void VerifyResults() {
     EXPECT_TRUE(got_initialized_);
     EXPECT_TRUE(got_shutdown_);
-    EXPECT_TRUE(connection_id_set_.empty());
-    EXPECT_EQ(expected_connection_ct_, actual_connection_ct_) << request_log_;
-    EXPECT_EQ(expected_http_request_ct_, actual_http_request_ct_)
-        << request_log_;
+    if (!IsChromeRuntimeEnabled()) {
+      EXPECT_TRUE(connection_id_set_.empty());
+      EXPECT_EQ(expected_connection_ct_, actual_connection_ct_) << request_log_;
+      EXPECT_EQ(expected_http_request_ct_, actual_http_request_ct_)
+          << request_log_;
+    }
   }
 
   void HandleRequest(CefRefPtr<CefServer> server,
@@ -1631,7 +1666,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     if (!post_file_tmpdir_.IsEmpty()) {
       EXPECT_TRUE(is_browser_process_);
-      CefPostTask(TID_FILE,
+      CefPostTask(TID_FILE_USER_VISIBLE,
                   base::Bind(&RequestTestRunner::RunDeleteTempDirectory, this,
                              safe_complete_callback));
       return;
@@ -1882,13 +1917,13 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     settings_.response_data = "POST TEST SUCCESS";
 
-    CefPostTask(TID_FILE,
+    CefPostTask(TID_FILE_USER_VISIBLE,
                 base::Bind(&RequestTestRunner::SetupPostFileTestContinue, this,
                            complete_callback));
   }
 
   void SetupPostFileTestContinue(const base::Closure& complete_callback) {
-    EXPECT_TRUE(CefCurrentlyOn(TID_FILE));
+    EXPECT_TRUE(CefCurrentlyOn(TID_FILE_USER_VISIBLE));
 
     EXPECT_TRUE(post_file_tmpdir_.CreateUniqueTempDir());
     const std::string& path =
@@ -2540,7 +2575,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
   }
 
   void RunDeleteTempDirectory(const base::Closure& complete_callback) {
-    EXPECT_TRUE(CefCurrentlyOn(TID_FILE));
+    EXPECT_TRUE(CefCurrentlyOn(TID_FILE_USER_VISIBLE));
 
     EXPECT_TRUE(post_file_tmpdir_.Delete());
     EXPECT_TRUE(post_file_tmpdir_.IsEmpty());
@@ -2815,12 +2850,12 @@ class RequestTestHandler : public TestHandler {
   }
 
   void PreSetupStart() {
-    CefPostTask(TID_FILE,
+    CefPostTask(TID_FILE_USER_VISIBLE,
                 base::Bind(&RequestTestHandler::PreSetupFileTasks, this));
   }
 
   void PreSetupFileTasks() {
-    EXPECT_TRUE(CefCurrentlyOn(TID_FILE));
+    EXPECT_TRUE(CefCurrentlyOn(TID_FILE_USER_VISIBLE));
 
     if (context_mode_ == CONTEXT_ONDISK) {
       EXPECT_TRUE(context_tmpdir_.CreateUniqueTempDir());
@@ -3150,7 +3185,7 @@ class RequestTestHandler : public TestHandler {
       // Wait a bit for cache file handles to close after browser or request
       // context destruction.
       CefPostDelayedTask(
-          TID_FILE,
+          TID_FILE_USER_VISIBLE,
           base::Bind(&RequestTestHandler::PostTestCompleteFileTasks, this),
           100);
     } else {
@@ -3159,7 +3194,7 @@ class RequestTestHandler : public TestHandler {
   }
 
   void PostTestCompleteFileTasks() {
-    EXPECT_TRUE(CefCurrentlyOn(TID_FILE));
+    EXPECT_TRUE(CefCurrentlyOn(TID_FILE_USER_VISIBLE));
 
     EXPECT_TRUE(context_tmpdir_.Delete());
     EXPECT_TRUE(context_tmpdir_.IsEmpty());
@@ -3508,4 +3543,11 @@ class InvalidURLTestClient : public CefURLRequestClient {
 TEST(URLRequestTest, BrowserInvalidURL) {
   CefRefPtr<InvalidURLTestClient> client = new InvalidURLTestClient();
   client->RunTest();
+}
+
+// Entry point for creating plugin browser test objects.
+// Called from client_app_delegates.cc.
+void CreateURLRequestBrowserTests(
+    client::ClientAppBrowser::DelegateSet& delegates) {
+  delegates.insert(new URLRequestBrowserTest);
 }

@@ -608,6 +608,11 @@ class BasicResponseTest : public TestHandler {
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefRequestCallback> callback) override {
     EXPECT_IO_THREAD();
+    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+      // Ignore favicon requests.
+      return RV_CANCEL;
+    }
+
     EXPECT_EQ(browser_id_, browser->GetIdentifier());
     EXPECT_TRUE(frame->IsMain());
 
@@ -779,6 +784,12 @@ class BasicResponseTest : public TestHandler {
                               URLRequestStatus status,
                               int64 received_content_length) override {
     EXPECT_IO_THREAD();
+
+    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+      // Ignore favicon requests.
+      return;
+    }
+
     EXPECT_EQ(browser_id_, browser->GetIdentifier());
     EXPECT_TRUE(frame->IsMain());
 
@@ -1619,6 +1630,12 @@ class SubresourceResponseTest : public RoutingTestHandler {
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefRequestCallback> callback) override {
     EXPECT_IO_THREAD();
+
+    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+      // Ignore favicon requests.
+      return RV_CANCEL;
+    }
+
     EXPECT_EQ(browser_id_, browser->GetIdentifier());
 
     if (IsMainURL(request->GetURL())) {
@@ -1836,6 +1853,12 @@ class SubresourceResponseTest : public RoutingTestHandler {
                               URLRequestStatus status,
                               int64 received_content_length) override {
     EXPECT_IO_THREAD();
+
+    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+      // Ignore favicon requests.
+      return;
+    }
+
     EXPECT_EQ(browser_id_, browser->GetIdentifier());
 
     if (IsMainURL(request->GetURL())) {
@@ -2987,6 +3010,13 @@ class RedirectResponseTest : public TestHandler {
         CefRefPtr<CefRequest> request,
         CefRefPtr<CefRequestCallback> callback) override {
       EXPECT_IO_THREAD();
+
+      if (IsChromeRuntimeEnabled() &&
+          request->GetResourceType() == RT_FAVICON) {
+        // Ignore favicon requests.
+        return RV_CANCEL;
+      }
+
       EXPECT_EQ(test_->browser_id_, browser->GetIdentifier());
 
       if (request->GetURL() == kResourceTestHtml) {
@@ -3089,6 +3119,13 @@ class RedirectResponseTest : public TestHandler {
                                 URLRequestStatus status,
                                 int64 received_content_length) override {
       EXPECT_IO_THREAD();
+
+      if (IsChromeRuntimeEnabled() &&
+          request->GetResourceType() == RT_FAVICON) {
+        // Ignore favicon requests.
+        return;
+      }
+
       EXPECT_TRUE(browser.get());
       EXPECT_EQ(test_->browser_id_, browser->GetIdentifier());
 
@@ -3205,6 +3242,11 @@ class BeforeResourceLoadTest : public TestHandler {
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefRequestCallback> callback) override {
     EXPECT_IO_THREAD();
+
+    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+      // Ignore favicon requests.
+      return RV_CANCEL;
+    }
 
     // Allow the 2nd navigation to continue.
     const std::string& url = request->GetURL();
@@ -3764,6 +3806,11 @@ class ResponseFilterTestHandler : public TestHandler {
                               URLRequestStatus status,
                               int64 received_content_length) override {
     EXPECT_IO_THREAD();
+
+    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+      // Ignore favicon requests.
+      return;
+    }
 
     DCHECK(!got_resource_load_complete_);
     got_resource_load_complete_.yes();

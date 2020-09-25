@@ -1,5 +1,5 @@
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index e5160aa3ff1a..87b037e517c2 100644
+index e5160aa3ff1a..f0ca556ed9e4 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -19,6 +19,7 @@
@@ -10,12 +10,8 @@ index e5160aa3ff1a..87b037e517c2 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -668,9 +669,23 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
-   network_context_params->cookie_manager_params =
-       CreateCookieManagerParams(profile_, *cookie_settings_);
+@@ -670,7 +671,19 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
  
-+  network_context_params->cookieable_schemes = profile_->GetCookieableSchemes();
-+
    // Configure on-disk storage for non-OTR profiles. OTR profiles just use
    // default behavior (in memory storage, default sizes).
 -  if (!in_memory) {
@@ -35,7 +31,7 @@ index e5160aa3ff1a..87b037e517c2 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -683,7 +698,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -683,7 +696,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
          base_cache_path.Append(chrome::kCacheDirname);
      network_context_params->http_cache_max_size =
          local_state->GetInteger(prefs::kDiskCacheSize);
@@ -45,22 +41,6 @@ index e5160aa3ff1a..87b037e517c2 100644
      // Currently this just contains HttpServerProperties, but that will likely
      // change.
      network_context_params->http_server_properties_path =
-diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index a9dc5ed20a9f..3ce894531a21 100644
---- chrome/browser/profiles/profile.h
-+++ chrome/browser/profiles/profile.h
-@@ -449,6 +449,11 @@ class Profile : public content::BrowserContext {
-   virtual bool ShouldRestoreOldSessionCookies() const;
-   virtual bool ShouldPersistSessionCookies() const;
- 
-+  // Returns schemes that should be cookieable, if other than the defaults.
-+  virtual base::Optional<std::vector<std::string>> GetCookieableSchemes() {
-+    return base::nullopt;
-+  }
-+
-   // Configures NetworkContextParams and CertVerifierCreationParams for the
-   // specified isolated app (or for the profile itself, if |relative_path| is
-   // empty).
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
 index 265deed0e52e..89d37ae6218a 100644
 --- net/cookies/cookie_monster.cc

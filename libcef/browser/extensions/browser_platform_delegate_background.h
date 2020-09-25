@@ -44,8 +44,6 @@ class CefBrowserPlatformDelegateBackground
   std::unique_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner()
       override;
   std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
-  bool IsWindowless() const override;
-  bool IsViewsHosted() const override;
 
   // CefBrowserPlatformDelegateNative::WindowlessHandler methods:
   CefWindowHandle GetParentWindowHandle() const override;

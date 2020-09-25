@@ -193,10 +193,15 @@ class CefBrowserContext {
   CefMediaRouterManager* GetMediaRouterManager();
 
   using CookieableSchemes = base::Optional<std::vector<std::string>>;
+
+  // Returns the schemes associated with this context specifically, or the
+  // global configuration if unset.
+  CookieableSchemes GetCookieableSchemes() const;
+
+  // Set the schemes associated with this context specifically.
   void set_cookieable_schemes(const CookieableSchemes& schemes) {
     cookieable_schemes_ = schemes;
   }
-  CookieableSchemes cookieable_schemes() const { return cookieable_schemes_; }
 
   // These accessors are safe to call from any thread because the values don't
   // change during this object's lifespan.

@@ -298,4 +298,12 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   return factory.CreateSyncable(registry.get());
 }
 
+void SetLanguagePrefs(Profile* profile) {
+  const std::string& accept_language_list = GetAcceptLanguageList(profile);
+  if (!accept_language_list.empty()) {
+    profile->GetPrefs()->SetString(language::prefs::kAcceptLanguages,
+                                   accept_language_list);
+  }
+}
+
 }  // namespace browser_prefs

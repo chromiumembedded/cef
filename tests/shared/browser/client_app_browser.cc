@@ -58,15 +58,15 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
   }
 }
 
-void ClientAppBrowser::OnContextInitialized() {
+void ClientAppBrowser::GetCookieableSchemes(std::vector<CefString>& schemes,
+                                            bool& include_defaults) {
   if (!cookieable_schemes_.empty()) {
-    // Register cookieable schemes with the global cookie manager.
-    CefRefPtr<CefCookieManager> manager =
-        CefCookieManager::GetGlobalManager(nullptr);
-    DCHECK(manager.get());
-    manager->SetSupportedSchemes(cookieable_schemes_, true, nullptr);
+    schemes = cookieable_schemes_;
+    include_defaults = true;
   }
+}
 
+void ClientAppBrowser::OnContextInitialized() {
   print_handler_ = CreatePrintHandler();
 
   DelegateSet::iterator it = delegates_.begin();

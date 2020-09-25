@@ -34,10 +34,10 @@
 // the view is deleted.
 @interface CefBrowserHostView : NSView {
  @private
-  AlloyBrowserHostImpl* browser_;  // weak
+  CefBrowserHostBase* browser_;  // weak
 }
 
-@property(nonatomic, assign) AlloyBrowserHostImpl* browser;
+@property(nonatomic, assign) CefBrowserHostBase* browser;
 
 @end
 
@@ -49,7 +49,7 @@
   if (browser_) {
     // Force the browser to be destroyed and release the reference added in
     // PlatformCreateWindow().
-    browser_->WindowDestroyed();
+    static_cast<AlloyBrowserHostImpl*>(browser_)->WindowDestroyed();
   }
 
   [super dealloc];
@@ -60,17 +60,15 @@
 // Receives notifications from the browser window. Will delete itself when done.
 @interface CefWindowDelegate : NSObject <NSWindowDelegate> {
  @private
-  AlloyBrowserHostImpl* browser_;  // weak
+  CefBrowserHostBase* browser_;  // weak
   NSWindow* window_;
 }
-- (id)initWithWindow:(NSWindow*)window
-          andBrowser:(AlloyBrowserHostImpl*)browser;
+- (id)initWithWindow:(NSWindow*)window andBrowser:(CefBrowserHostBase*)browser;
 @end
 
 @implementation CefWindowDelegate
 
-- (id)initWithWindow:(NSWindow*)window
-          andBrowser:(AlloyBrowserHostImpl*)browser {
+- (id)initWithWindow:(NSWindow*)window andBrowser:(CefBrowserHostBase*)browser {
   if (self = [super init]) {
     window_ = window;
     browser_ = browser;
@@ -152,7 +150,7 @@ CefBrowserPlatformDelegateNativeMac::CefBrowserPlatformDelegateNativeMac(
       host_window_created_(false) {}
 
 void CefBrowserPlatformDelegateNativeMac::BrowserDestroyed(
-    AlloyBrowserHostImpl* browser) {
+    CefBrowserHostBase* browser) {
   CefBrowserPlatformDelegateNative::BrowserDestroyed(browser);
 
   if (host_window_created_) {

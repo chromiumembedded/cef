@@ -10,8 +10,8 @@
 
 #include "libcef/common/app_manager.h"
 #include "libcef/common/cef_messages.h"
-#include "libcef/renderer/alloy/alloy_content_renderer_client.h"
 #include "libcef/renderer/blink_glue.h"
+#include "libcef/renderer/browser_manager.h"
 #include "libcef/renderer/render_frame_util.h"
 #include "libcef/renderer/thread_util.h"
 
@@ -38,13 +38,13 @@
 // static
 CefRefPtr<CefBrowserImpl> CefBrowserImpl::GetBrowserForView(
     content::RenderView* view) {
-  return AlloyContentRendererClient::Get()->GetBrowserForView(view);
+  return CefBrowserManager::Get()->GetBrowserForView(view);
 }
 
 // static
 CefRefPtr<CefBrowserImpl> CefBrowserImpl::GetBrowserForMainFrame(
     blink::WebFrame* frame) {
-  return AlloyContentRendererClient::Get()->GetBrowserForMainFrame(frame);
+  return CefBrowserManager::Get()->GetBrowserForMainFrame(frame);
 }
 
 // CefBrowser methods.
@@ -352,7 +352,7 @@ void CefBrowserImpl::OnDestruct() {
       handler->OnBrowserDestroyed(this);
   }
 
-  AlloyContentRendererClient::Get()->OnBrowserDestroyed(this);
+  CefBrowserManager::Get()->OnBrowserDestroyed(this);
 }
 
 void CefBrowserImpl::FrameDetached(int64_t frame_id) {

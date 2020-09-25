@@ -1,12 +1,12 @@
 diff --git chrome/browser/plugins/plugin_info_host_impl.cc chrome/browser/plugins/plugin_info_host_impl.cc
-index d789ee040ac5..58b45d5a56f2 100644
+index d789ee040ac5..19e5a5daa343 100644
 --- chrome/browser/plugins/plugin_info_host_impl.cc
 +++ chrome/browser/plugins/plugin_info_host_impl.cc
 @@ -18,6 +18,7 @@
  #include "base/task_runner_util.h"
  #include "build/branding_buildflags.h"
  #include "build/build_config.h"
-+#include "cef/libcef/features/features.h"
++#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
  #include "chrome/browser/plugins/chrome_plugin_service_filter.h"
@@ -49,40 +49,32 @@ index d789ee040ac5..58b45d5a56f2 100644
 +
 +#if BUILDFLAG(ENABLE_EXTENSIONS)
 +#if BUILDFLAG(ENABLE_CEF)
-+  if (extensions::ExtensionsEnabled())
++  if (!cef::IsAlloyRuntimeEnabled() || extensions::ExtensionsEnabled())
 +#endif
 +    extension_registry_ = extensions::ExtensionRegistry::Get(profile);
 +#endif
  }
  
  PluginInfoHostImpl::Context::~Context() {}
-@@ -208,6 +221,7 @@ void PluginInfoHostImpl::PluginsLoaded(
+@@ -208,7 +221,8 @@ void PluginInfoHostImpl::PluginsLoaded(
          plugin_metadata->identifier(), &output->status);
    }
  
-+#if !BUILDFLAG(ENABLE_CEF)
-   if (output->status == chrome::mojom::PluginStatus::kNotFound) {
+-  if (output->status == chrome::mojom::PluginStatus::kNotFound) {
++  if (!cef::IsAlloyRuntimeEnabled() &&
++      output->status == chrome::mojom::PluginStatus::kNotFound) {
      // Check to see if the component updater can fetch an implementation.
      std::unique_ptr<component_updater::ComponentInfo> cus_plugin_info =
-@@ -216,7 +230,9 @@ void PluginInfoHostImpl::PluginsLoaded(
-     ComponentPluginLookupDone(params, std::move(output), std::move(callback),
-                               std::move(plugin_metadata),
-                               std::move(cus_plugin_info));
--  } else {
-+  } else
-+#endif  // !BUILDFLAG(ENABLE_CEF)
-+  {
-     GetPluginInfoFinish(params, std::move(output), std::move(callback),
-                         std::move(plugin_metadata));
-   }
-@@ -229,6 +245,14 @@ void PluginInfoHostImpl::Context::DecidePluginStatus(
+         g_browser_process->component_updater()->GetComponentForMimeType(
+@@ -229,6 +243,15 @@ void PluginInfoHostImpl::Context::DecidePluginStatus(
      PluginMetadata::SecurityStatus security_status,
      const std::string& plugin_identifier,
      chrome::mojom::PluginStatus* status) const {
 +#if BUILDFLAG(ENABLE_CEF)
 +  // Don't override the user decision.
-+  if (*status == chrome::mojom::PluginStatus::kBlocked ||
-+      *status == chrome::mojom::PluginStatus::kDisabled) {
++  if (cef::IsAlloyRuntimeEnabled() &&
++      (*status == chrome::mojom::PluginStatus::kBlocked ||
++       *status == chrome::mojom::PluginStatus::kDisabled)) {
 +    return;
 +  }
 +#endif
@@ -90,30 +82,33 @@ index d789ee040ac5..58b45d5a56f2 100644
    if (security_status == PluginMetadata::SECURITY_STATUS_FULLY_TRUSTED) {
      *status = chrome::mojom::PluginStatus::kAllowed;
      return;
-@@ -337,16 +361,35 @@ bool PluginInfoHostImpl::Context::FindEnabledPlugin(
+@@ -337,17 +360,41 @@ bool PluginInfoHostImpl::Context::FindEnabledPlugin(
      return false;
    }
  
 +  const bool is_main_frame =
 +      main_frame_origin.IsSameOriginWith(url::Origin::Create(url));
++  size_t i = 0;
 +
 +#if BUILDFLAG(ENABLE_CEF)
-+  CefPluginServiceFilter* filter = static_cast<CefPluginServiceFilter*>(
-+      PluginService::GetInstance()->GetFilter());
-+  DCHECK(filter);
++  if (cef::IsAlloyRuntimeEnabled()) {
++    CefPluginServiceFilter* filter = static_cast<CefPluginServiceFilter*>(
++        PluginService::GetInstance()->GetFilter());
++    DCHECK(filter);
 +
-+  size_t i = 0;
-+  for (; i < matching_plugins.size(); ++i) {
-+    if (filter->IsPluginAvailable(render_process_id_, render_frame_id,
-+                                  url, is_main_frame, main_frame_origin,
-+                                  &matching_plugins[i], status)) {
-+      break;
++    for (; i < matching_plugins.size(); ++i) {
++      if (filter->IsPluginAvailable(render_process_id_, render_frame_id,
++                                    url, is_main_frame, main_frame_origin,
++                                    &matching_plugins[i], status)) {
++        break;
++      }
 +    }
-+  }
-+#else  // !BUILDFLAG(ENABLE_CEF)
++  } else {
++#endif  // BUILDFLAG(ENABLE_CEF)
++
    content::PluginServiceFilter* filter =
        PluginService::GetInstance()->GetFilter();
-   size_t i = 0;
+-  size_t i = 0;
    for (; i < matching_plugins.size(); ++i) {
      if (!filter ||
          filter->IsPluginAvailable(render_process_id_, render_frame_id, url,
@@ -123,10 +118,14 @@ index d789ee040ac5..58b45d5a56f2 100644
        break;
      }
    }
-+#endif  // !BUILDFLAG(ENABLE_CEF)
  
++#if BUILDFLAG(ENABLE_CEF)
++  }
++#endif
++
    // If we broke out of the loop, we have found an enabled plugin.
    bool enabled = i < matching_plugins.size();
+   if (!enabled) {
 diff --git chrome/browser/plugins/plugin_utils.cc chrome/browser/plugins/plugin_utils.cc
 index 1471b8f2a414..a856ce635719 100644
 --- chrome/browser/plugins/plugin_utils.cc

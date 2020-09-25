@@ -8,6 +8,7 @@
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/features/runtime_checks.h"
 
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
@@ -15,6 +16,7 @@
 CefBrowserPlatformDelegateBackground::CefBrowserPlatformDelegateBackground(
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate)
     : native_delegate_(std::move(native_delegate)) {
+  REQUIRE_ALLOY_RUNTIME();
   native_delegate_->set_windowless_handler(this);
 }
 
@@ -27,7 +29,8 @@ void CefBrowserPlatformDelegateBackground::CloseHostWindow() {
   // No host window, so continue browser destruction now. Do it asynchronously
   // so the call stack has a chance to unwind.
   CEF_POST_TASK(CEF_UIT,
-                base::Bind(&AlloyBrowserHostImpl::WindowDestroyed, browser_));
+                base::Bind(&AlloyBrowserHostImpl::WindowDestroyed,
+                           static_cast<AlloyBrowserHostImpl*>(browser_)));
 }
 
 CefWindowHandle CefBrowserPlatformDelegateBackground::GetHostWindowHandle()
@@ -113,14 +116,6 @@ std::unique_ptr<CefMenuRunner>
 CefBrowserPlatformDelegateBackground::CreateMenuRunner() {
   // No default menu implementation for background browsers.
   return nullptr;
-}
-
-bool CefBrowserPlatformDelegateBackground::IsWindowless() const {
-  return false;
-}
-
-bool CefBrowserPlatformDelegateBackground::IsViewsHosted() const {
-  return false;
 }
 
 CefWindowHandle CefBrowserPlatformDelegateBackground::GetParentWindowHandle()

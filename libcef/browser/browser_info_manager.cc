@@ -6,7 +6,7 @@
 
 #include <utility>
 
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/thread_util.h"
@@ -24,7 +24,6 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/child_process_host.h"
 #include "content/public/common/url_constants.h"
-#include "extensions/common/constants.h"
 
 namespace {
 
@@ -117,14 +116,13 @@ bool CefBrowserInfoManager::CanCreateWindow(
     bool opener_suppressed,
     bool* no_javascript_access) {
   CEF_REQUIRE_UIT();
-  REQUIRE_ALLOY_RUNTIME();
 
   content::OpenURLParams params(target_url, referrer, disposition,
                                 ui::PAGE_TRANSITION_LINK,
                                 /*is_renderer_initiated=*/true);
   params.user_gesture = user_gesture;
 
-  CefRefPtr<AlloyBrowserHostImpl> browser;
+  CefRefPtr<CefBrowserHostBase> browser;
   if (!MaybeAllowNavigation(opener, params, browser) || !browser) {
     // Cancel the popup.
     return false;
@@ -182,9 +180,9 @@ bool CefBrowserInfoManager::CanCreateWindow(
   }
 
   if (allow) {
-    CefBrowserHostBase::CreateParams create_params;
+    CefBrowserCreateParams create_params;
 
-    if (!browser->IsViewsHosted())
+    if (!browser->HasView())
       create_params.window_info = std::move(window_info);
 
     create_params.settings = pending_popup->settings;
@@ -243,12 +241,16 @@ void CefBrowserInfoManager::WebContentsCreated(
     std::unique_ptr<CefBrowserPlatformDelegate>& platform_delegate,
     CefRefPtr<CefDictionaryValue>& extra_info) {
   CEF_REQUIRE_UIT();
-  REQUIRE_ALLOY_RUNTIME();
+
+  // GET_CUSTOM_WEB_CONTENTS_VIEW is only used with the alloy runtime.
+  const auto previous_step =
+      cef::IsAlloyRuntimeEnabled()
+          ? CefBrowserInfoManager::PendingPopup::GET_CUSTOM_WEB_CONTENTS_VIEW
+          : CefBrowserInfoManager::PendingPopup::CAN_CREATE_WINDOW;
 
   std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
-      PopPendingPopup(
-          CefBrowserInfoManager::PendingPopup::GET_CUSTOM_WEB_CONTENTS_VIEW,
-          opener_render_process_id, opener_render_routing_id, target_url);
+      PopPendingPopup(previous_step, opener_render_process_id,
+                      opener_render_routing_id, target_url);
   DCHECK(pending_popup.get());
   DCHECK(pending_popup->platform_delegate.get());
 
@@ -365,29 +367,18 @@ CefBrowserInfoManager::GetBrowserInfoForFrameRoute(int render_process_id,
 bool CefBrowserInfoManager::MaybeAllowNavigation(
     content::RenderFrameHost* opener,
     const content::OpenURLParams& params,
-    CefRefPtr<AlloyBrowserHostImpl>& browser_out) const {
+    CefRefPtr<CefBrowserHostBase>& browser_out) const {
   CEF_REQUIRE_UIT();
-  REQUIRE_ALLOY_RUNTIME();
 
   bool is_guest_view = false;
-  CefRefPtr<AlloyBrowserHostImpl> browser = static_cast<AlloyBrowserHostImpl*>(
-      extensions::GetOwnerBrowserForHost(opener, &is_guest_view).get());
+  auto browser = extensions::GetOwnerBrowserForHost(opener, &is_guest_view);
   if (!browser) {
     // Print preview uses a modal dialog where we don't own the WebContents.
     // Allow that navigation to proceed.
     return true;
   }
 
-  if (is_guest_view && !params.url.SchemeIs(extensions::kExtensionScheme) &&
-      !params.url.SchemeIs(content::kChromeUIScheme)) {
-    // The PDF viewer will load the PDF extension in the guest view, and print
-    // preview will load chrome://print in the guest view. All other navigations
-    // are passed to the owner browser.
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::Bind(base::IgnoreResult(&AlloyBrowserHostImpl::OpenURLFromTab),
-                   browser.get(), nullptr, params));
-
+  if (!browser->MaybeAllowNavigation(opener, is_guest_view, params)) {
     return false;
   }
 

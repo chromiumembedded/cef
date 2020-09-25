@@ -5,6 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_NET_SERVICE_RESOURCE_REQUEST_HANDLER_WRAPPER_H_
 #define CEF_LIBCEF_BROWSER_NET_SERVICE_RESOURCE_REQUEST_HANDLER_WRAPPER_H_
 
+#include "base/callback_forward.h"
 #include "content/public/browser/web_contents.h"
 
 namespace content {
@@ -41,7 +42,8 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
 std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
     content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
-    const network::ResourceRequest& request);
+    const network::ResourceRequest& request,
+    const base::Closure& unhandled_request_callback);
 
 }  // namespace net_service
 

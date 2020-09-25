@@ -53,6 +53,8 @@ class ClientAppBrowser : public ClientApp, public CefBrowserProcessHandler {
   }
 
   // CefBrowserProcessHandler methods.
+  void GetCookieableSchemes(std::vector<CefString>& schemes,
+                            bool& include_defaults) OVERRIDE;
   void OnContextInitialized() OVERRIDE;
   void OnBeforeChildProcessLaunch(
       CefRefPtr<CefCommandLine> command_line) OVERRIDE;

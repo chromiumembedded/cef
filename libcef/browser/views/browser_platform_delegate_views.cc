@@ -80,7 +80,7 @@ void CefBrowserPlatformDelegateViews::WebContentsDestroyed(
 }
 
 void CefBrowserPlatformDelegateViews::BrowserCreated(
-    AlloyBrowserHostImpl* browser) {
+    CefBrowserHostBase* browser) {
   CefBrowserPlatformDelegateAlloy::BrowserCreated(browser);
 
   native_delegate_->BrowserCreated(browser);
@@ -102,7 +102,7 @@ void CefBrowserPlatformDelegateViews::NotifyBrowserDestroyed() {
 }
 
 void CefBrowserPlatformDelegateViews::BrowserDestroyed(
-    AlloyBrowserHostImpl* browser) {
+    CefBrowserHostBase* browser) {
   CefBrowserPlatformDelegateAlloy::BrowserDestroyed(browser);
 
   browser_view_->BrowserDestroyed(browser);
@@ -161,7 +161,7 @@ void CefBrowserPlatformDelegateViews::PopupWebContentsCreated(
 }
 
 void CefBrowserPlatformDelegateViews::PopupBrowserCreated(
-    AlloyBrowserHostImpl* new_browser,
+    CefBrowserHostBase* new_browser,
     bool is_devtools) {
   CefRefPtr<CefBrowserView> new_browser_view =
       CefBrowserView::GetForBrowser(new_browser);
@@ -262,10 +262,6 @@ CefBrowserPlatformDelegateViews::CreateJavaScriptDialogRunner() {
 std::unique_ptr<CefMenuRunner>
 CefBrowserPlatformDelegateViews::CreateMenuRunner() {
   return base::WrapUnique(new CefMenuRunnerViews(browser_view_.get()));
-}
-
-bool CefBrowserPlatformDelegateViews::IsWindowless() const {
-  return false;
 }
 
 bool CefBrowserPlatformDelegateViews::IsViewsHosted() const {

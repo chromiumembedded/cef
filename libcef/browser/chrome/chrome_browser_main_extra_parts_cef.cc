@@ -21,7 +21,7 @@ void ChromeBrowserMainExtraPartsCef::PostProfileInit() {
       CefRequestContextImpl::CreateGlobalRequestContext(settings);
 }
 
-void ChromeBrowserMainExtraPartsCef::PostMainMessageLoopRun() {
+void ChromeBrowserMainExtraPartsCef::PreMainMessageLoopRun() {
   background_task_runner_ = base::CreateSingleThreadTaskRunner(
       {base::ThreadPool(), base::TaskPriority::BEST_EFFORT,
        base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()});

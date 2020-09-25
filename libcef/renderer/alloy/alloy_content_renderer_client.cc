@@ -28,19 +28,16 @@
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/extensions/extensions_client.h"
 #include "libcef/common/extensions/extensions_util.h"
-#include "libcef/common/net/scheme_info.h"
 #include "libcef/common/request_impl.h"
-#include "libcef/common/values_impl.h"
 #include "libcef/features/runtime_checks.h"
-#include "libcef/renderer/blink_glue.h"
+#include "libcef/renderer/alloy/alloy_render_frame_observer.h"
+#include "libcef/renderer/alloy/alloy_render_thread_observer.h"
+#include "libcef/renderer/alloy/url_loader_throttle_provider_impl.h"
 #include "libcef/renderer/browser_impl.h"
+#include "libcef/renderer/browser_manager.h"
 #include "libcef/renderer/extensions/extensions_renderer_client.h"
 #include "libcef/renderer/extensions/print_render_frame_helper_delegate.h"
-#include "libcef/renderer/render_frame_observer.h"
-#include "libcef/renderer/render_thread_observer.h"
 #include "libcef/renderer/thread_util.h"
-#include "libcef/renderer/url_loader_throttle_provider_impl.h"
-#include "libcef/renderer/v8_impl.h"
 
 #include "base/command_line.h"
 #include "base/macros.h"
@@ -48,7 +45,6 @@
 #include "base/metrics/user_metrics_action.h"
 #include "base/path_service.h"
 #include "base/stl_util.h"
-#include "base/strings/string_number_conversions.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/task/post_task.h"
 #include "build/build_config.h"
@@ -145,29 +141,9 @@ bool IsStandaloneExtensionProcess() {
 
 }  // namespace
 
-// Placeholder object for guest views.
-class CefGuestView : public content::RenderViewObserver {
- public:
-  CefGuestView(content::RenderView* render_view, bool is_windowless)
-      : content::RenderViewObserver(render_view),
-        is_windowless_(is_windowless) {}
-
-  bool is_windowless() const { return is_windowless_; }
-
- private:
-  // RenderViewObserver methods.
-  void OnDestruct() override {
-    AlloyContentRendererClient::Get()->OnGuestViewDestroyed(this);
-  }
-
-  const bool is_windowless_;
-};
-
 AlloyContentRendererClient::AlloyContentRendererClient()
     : main_entry_time_(base::TimeTicks::Now()),
-      devtools_agent_count_(0),
-      uncaught_exception_stack_size_(0),
-      single_process_cleanup_complete_(false) {
+      browser_manager_(new CefBrowserManager) {
   if (extensions::ExtensionsEnabled()) {
     extensions_client_.reset(new extensions::CefExtensionsClient);
     extensions::ExtensionsClient::Set(extensions_client_.get());
@@ -185,139 +161,6 @@ AlloyContentRendererClient* AlloyContentRendererClient::Get() {
   REQUIRE_ALLOY_RUNTIME();
   return static_cast<AlloyContentRendererClient*>(
       CefAppManager::Get()->GetContentClient()->renderer());
-}
-
-CefRefPtr<CefBrowserImpl> AlloyContentRendererClient::GetBrowserForView(
-    content::RenderView* view) {
-  CEF_REQUIRE_RT_RETURN(nullptr);
-
-  BrowserMap::const_iterator it = browsers_.find(view);
-  if (it != browsers_.end())
-    return it->second;
-  return nullptr;
-}
-
-CefRefPtr<CefBrowserImpl> AlloyContentRendererClient::GetBrowserForMainFrame(
-    blink::WebFrame* frame) {
-  CEF_REQUIRE_RT_RETURN(nullptr);
-
-  BrowserMap::const_iterator it = browsers_.begin();
-  for (; it != browsers_.end(); ++it) {
-    content::RenderView* render_view = it->second->render_view();
-    if (render_view && render_view->GetWebView() &&
-        render_view->GetWebView()->MainFrame() == frame) {
-      return it->second;
-    }
-  }
-
-  return nullptr;
-}
-
-void AlloyContentRendererClient::OnBrowserDestroyed(CefBrowserImpl* browser) {
-  BrowserMap::iterator it = browsers_.begin();
-  for (; it != browsers_.end(); ++it) {
-    if (it->second.get() == browser) {
-      browsers_.erase(it);
-      return;
-    }
-  }
-
-  // No browser was found in the map.
-  NOTREACHED();
-}
-
-CefGuestView* AlloyContentRendererClient::GetGuestViewForView(
-    content::RenderView* view) {
-  CEF_REQUIRE_RT_RETURN(nullptr);
-
-  GuestViewMap::const_iterator it = guest_views_.find(view);
-  if (it != guest_views_.end())
-    return it->second.get();
-  return nullptr;
-}
-
-void AlloyContentRendererClient::OnGuestViewDestroyed(
-    CefGuestView* guest_view) {
-  GuestViewMap::iterator it = guest_views_.begin();
-  for (; it != guest_views_.end(); ++it) {
-    if (it->second.get() == guest_view) {
-      guest_views_.erase(it);
-      return;
-    }
-  }
-
-  // No guest view was found in the map.
-  NOTREACHED();
-}
-
-void AlloyContentRendererClient::WebKitInitialized() {
-  const base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
-
-  // Create global objects associated with the default Isolate.
-  CefV8IsolateCreated();
-
-  const CefAppManager::SchemeInfoList* schemes =
-      CefAppManager::Get()->GetCustomSchemes();
-  if (!schemes->empty()) {
-    // Register the custom schemes. The |is_standard| value is excluded here
-    // because it's not explicitly registered with Blink.
-    CefAppManager::SchemeInfoList::const_iterator it = schemes->begin();
-    for (; it != schemes->end(); ++it) {
-      const CefSchemeInfo& info = *it;
-      const blink::WebString& scheme =
-          blink::WebString::FromUTF8(info.scheme_name);
-      if (info.is_local)
-        blink_glue::RegisterURLSchemeAsLocal(scheme);
-      if (info.is_display_isolated)
-        blink::WebSecurityPolicy::RegisterURLSchemeAsDisplayIsolated(scheme);
-      if (info.is_secure)
-        blink_glue::RegisterURLSchemeAsSecure(scheme);
-      if (info.is_fetch_enabled)
-        blink_glue::RegisterURLSchemeAsSupportingFetchAPI(scheme);
-    }
-  }
-
-  if (!cross_origin_whitelist_entries_.empty()) {
-    // Add the cross-origin white list entries.
-    for (size_t i = 0; i < cross_origin_whitelist_entries_.size(); ++i) {
-      const Cef_CrossOriginWhiteListEntry_Params& entry =
-          cross_origin_whitelist_entries_[i];
-      GURL gurl = GURL(entry.source_origin);
-      blink::WebSecurityPolicy::AddOriginAccessAllowListEntry(
-          gurl, blink::WebString::FromUTF8(entry.target_protocol),
-          blink::WebString::FromUTF8(entry.target_domain),
-          /*destination_port=*/0,
-          entry.allow_target_subdomains
-              ? network::mojom::CorsDomainMatchMode::kAllowSubdomains
-              : network::mojom::CorsDomainMatchMode::kDisallowSubdomains,
-          network::mojom::CorsPortMatchMode::kAllowAnyPort,
-          network::mojom::CorsOriginAccessMatchPriority::kDefaultPriority);
-    }
-    cross_origin_whitelist_entries_.clear();
-  }
-
-  // The number of stack trace frames to capture for uncaught exceptions.
-  if (command_line->HasSwitch(switches::kUncaughtExceptionStackSize)) {
-    int uncaught_exception_stack_size = 0;
-    base::StringToInt(command_line->GetSwitchValueASCII(
-                          switches::kUncaughtExceptionStackSize),
-                      &uncaught_exception_stack_size);
-
-    if (uncaught_exception_stack_size > 0) {
-      uncaught_exception_stack_size_ = uncaught_exception_stack_size;
-      CefV8SetUncaughtExceptionStackSize(uncaught_exception_stack_size_);
-    }
-  }
-
-  // Notify the render process handler.
-  CefRefPtr<CefApp> application = CefAppManager::Get()->GetApplication();
-  if (application.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler =
-        application->GetRenderProcessHandler();
-    if (handler.get())
-      handler->OnWebKitInitialized();
-  }
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
@@ -372,7 +215,7 @@ void AlloyContentRendererClient::RenderThreadStarted() {
       base::CommandLine::ForCurrentProcess();
 
   render_task_runner_ = base::ThreadTaskRunnerHandle::Get();
-  observer_ = std::make_unique<CefRenderThreadObserver>();
+  observer_ = std::make_unique<AlloyRenderThreadObserver>();
   web_cache_impl_ = std::make_unique<web_cache::WebCacheImpl>();
   visited_link_slave_ = std::make_unique<visitedlink::VisitedLinkReader>();
 
@@ -449,25 +292,17 @@ void AlloyContentRendererClient::ExposeInterfacesToBrowser(
 }
 
 void AlloyContentRendererClient::RenderThreadConnected() {
-  content::RenderThread* thread = content::RenderThread::Get();
-
-  // Retrieve the new render thread information synchronously.
-  CefProcessHostMsg_GetNewRenderThreadInfo_Params params;
-  thread->Send(new CefProcessHostMsg_GetNewRenderThreadInfo(&params));
-
-  // Cross-origin entries need to be added after WebKit is initialized.
-  cross_origin_whitelist_entries_ = params.cross_origin_whitelist_entries;
-
   // Register extensions last because it will trigger WebKit initialization.
+  content::RenderThread* thread = content::RenderThread::Get();
   thread->RegisterExtension(extensions_v8::LoadTimesExtension::Get());
 
-  WebKitInitialized();
+  browser_manager_->RenderThreadConnected();
 }
 
 void AlloyContentRendererClient::RenderFrameCreated(
     content::RenderFrame* render_frame) {
-  CefRenderFrameObserver* render_frame_observer =
-      new CefRenderFrameObserver(render_frame);
+  AlloyRenderFrameObserver* render_frame_observer =
+      new AlloyRenderFrameObserver(render_frame);
   service_manager::BinderRegistry* registry = render_frame_observer->registry();
 
   new PepperHelper(render_frame);
@@ -488,14 +323,12 @@ void AlloyContentRendererClient::RenderFrameCreated(
     new SpellCheckProvider(render_frame, spellcheck_.get(), this);
   }
 
+  bool browser_created;
   base::Optional<bool> is_windowless;
-
-  auto browser = MaybeCreateBrowser(render_frame->GetRenderView(), render_frame,
-                                    &is_windowless);
-  if (browser) {
-    // Attach the frame to the observer for message routing purposes.
-    render_frame_observer->AttachFrame(
-        browser->GetWebFrameImpl(render_frame->GetWebFrame()).get());
+  browser_manager_->RenderFrameCreated(render_frame, render_frame_observer,
+                                       browser_created, is_windowless);
+  if (browser_created) {
+    OnBrowserCreated(render_frame->GetRenderView(), is_windowless);
   }
 
   if (is_windowless.has_value()) {
@@ -510,7 +343,13 @@ void AlloyContentRendererClient::RenderViewCreated(
     content::RenderView* render_view) {
   new CefPrerendererClient(render_view);
 
-  MaybeCreateBrowser(render_view, render_view->GetMainRenderFrame(), nullptr);
+  bool browser_created;
+  base::Optional<bool> is_windowless;
+  browser_manager_->RenderViewCreated(render_view, browser_created,
+                                      is_windowless);
+  if (browser_created) {
+    OnBrowserCreated(render_view, is_windowless);
+  }
 }
 
 bool AlloyContentRendererClient::IsPluginHandledExternally(
@@ -649,7 +488,7 @@ void AlloyContentRendererClient::DevToolsAgentAttached() {
     return;
   }
 
-  ++devtools_agent_count_;
+  browser_manager_->DevToolsAgentAttached();
 }
 
 void AlloyContentRendererClient::DevToolsAgentDetached() {
@@ -662,12 +501,7 @@ void AlloyContentRendererClient::DevToolsAgentDetached() {
     return;
   }
 
-  --devtools_agent_count_;
-  if (devtools_agent_count_ == 0 && uncaught_exception_stack_size_ > 0) {
-    // When the last DevToolsAgent is detached the stack size is set to 0.
-    // Restore the user-specified stack size here.
-    CefV8SetUncaughtExceptionStackSize(uncaught_exception_stack_size_);
-  }
+  browser_manager_->DevToolsAgentDetached();
 }
 
 std::unique_ptr<content::URLLoaderThrottleProvider>
@@ -700,84 +534,18 @@ void AlloyContentRendererClient::WillDestroyCurrentMessageLoop() {
   single_process_cleanup_complete_ = true;
 }
 
-CefRefPtr<CefBrowserImpl> AlloyContentRendererClient::MaybeCreateBrowser(
+void AlloyContentRendererClient::OnBrowserCreated(
     content::RenderView* render_view,
-    content::RenderFrame* render_frame,
-    base::Optional<bool>* is_windowless) {
-  if (!render_view || !render_frame)
-    return nullptr;
-
-  // Don't create another browser or guest view object if one already exists for
-  // the view.
-  auto browser = GetBrowserForView(render_view);
-  if (browser) {
-    if (is_windowless) {
-      *is_windowless = browser->is_windowless();
-    }
-    return browser;
-  }
-
-  auto guest_view = GetGuestViewForView(render_view);
-  if (guest_view) {
-    if (is_windowless) {
-      *is_windowless = guest_view->is_windowless();
-    }
-    return nullptr;
-  }
-
-  const int render_frame_routing_id = render_frame->GetRoutingID();
-
-  // Retrieve the browser information synchronously. This will also register
-  // the routing ids with the browser info object in the browser process.
-  CefProcessHostMsg_GetNewBrowserInfo_Params params;
-  content::RenderThread::Get()->Send(new CefProcessHostMsg_GetNewBrowserInfo(
-      render_frame_routing_id, &params));
-
-  if (is_windowless) {
-    *is_windowless = params.is_windowless;
-  }
-
-  if (params.browser_id == 0) {
-    // The popup may have been canceled during creation.
-    return nullptr;
-  }
-
-  if (params.is_guest_view || params.browser_id < 0) {
-    // Don't create a CefBrowser for guest views, or if the new browser info
-    // response has timed out.
-    guest_views_.insert(std::make_pair(
-        render_view,
-        std::make_unique<CefGuestView>(render_view, params.is_windowless)));
-    return nullptr;
-  }
-
+    base::Optional<bool> is_windowless) {
 #if defined(OS_MAC)
+  const bool windowless = is_windowless.has_value() && *is_windowless;
+
   // FIXME: It would be better if this API would be a callback from the
   // WebKit layer, or if it would be exposed as an WebView instance method; the
   // current implementation uses a static variable, and WebKit needs to be
   // patched in order to make it work for each WebView instance
-  render_view->GetWebView()->SetUseExternalPopupMenusThisInstance(
-      !params.is_windowless);
+  render_view->GetWebView()->SetUseExternalPopupMenusThisInstance(!windowless);
 #endif
-
-  browser = new CefBrowserImpl(render_view, params.browser_id, params.is_popup,
-                               params.is_windowless);
-  browsers_.insert(std::make_pair(render_view, browser));
-
-  // Notify the render process handler.
-  CefRefPtr<CefApp> application = CefAppManager::Get()->GetApplication();
-  if (application.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler =
-        application->GetRenderProcessHandler();
-    if (handler.get()) {
-      CefRefPtr<CefDictionaryValueImpl> dictValuePtr(
-          new CefDictionaryValueImpl(&params.extra_info, false, true));
-      handler->OnBrowserCreated(browser.get(), dictValuePtr.get());
-      dictValuePtr->Detach(nullptr);
-    }
-  }
-
-  return browser;
 }
 
 void AlloyContentRendererClient::RunSingleProcessCleanupOnUIThread() {

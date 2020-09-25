@@ -103,9 +103,6 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
   bool ShouldPersistSessionCookies() const override {
     return !!settings_.persist_session_cookies;
   }
-  base::Optional<std::vector<std::string>> GetCookieableSchemes() override {
-    return cookieable_schemes();
-  }
 
   // visitedlink::VisitedLinkDelegate methods.
   void RebuildTable(const scoped_refptr<URLEnumerator>& enumerator) override;

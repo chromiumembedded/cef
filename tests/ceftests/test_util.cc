@@ -292,6 +292,16 @@ bool IsOutOfBlinkCorsEnabled() {
   return state ? true : false;
 }
 
+bool IsChromeRuntimeEnabled() {
+  static int state = -1;
+  if (state == -1) {
+    CefRefPtr<CefCommandLine> command_line =
+        CefCommandLine::GetGlobalCommandLine();
+    state = command_line->HasSwitch("enable-chrome-runtime") ? 1 : 0;
+  }
+  return state ? true : false;
+}
+
 CefRefPtr<CefRequestContext> CreateTestRequestContext(
     TestRequestContextMode mode,
     const std::string& cache_path) {

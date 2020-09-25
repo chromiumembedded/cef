@@ -7,12 +7,16 @@
 
 #include "base/bind.h"
 #include "base/location.h"
+#include "base/logging.h"
 
 bool CefCurrentlyOn(CefThreadId threadId) {
   scoped_refptr<base::SequencedTaskRunner> task_runner =
       CefTaskRunnerImpl::GetTaskRunner(threadId);
-  if (task_runner.get())
+  if (task_runner.get()) {
     return task_runner->RunsTasksInCurrentSequence();
+  }
+
+  LOG(WARNING) << "No task runner for threadId " << threadId;
   return false;
 }
 
@@ -23,6 +27,8 @@ bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task) {
     return task_runner->PostTask(FROM_HERE,
                                  base::Bind(&CefTask::Execute, task.get()));
   }
+
+  LOG(WARNING) << "No task runner for threadId " << threadId;
   return false;
 }
 
@@ -36,5 +42,7 @@ bool CefPostDelayedTask(CefThreadId threadId,
         FROM_HERE, base::Bind(&CefTask::Execute, task.get()),
         base::TimeDelta::FromMilliseconds(delay_ms));
   }
+
+  LOG(WARNING) << "No task runner for threadId " << threadId;
   return false;
 }

@@ -127,12 +127,10 @@ float GetWindowScaleFactor(HWND hwnd) {
 CefBrowserPlatformDelegateNativeWin::CefBrowserPlatformDelegateNativeWin(
     const CefWindowInfo& window_info,
     SkColor background_color)
-    : CefBrowserPlatformDelegateNativeAura(window_info, background_color),
-      host_window_created_(false),
-      window_widget_(nullptr) {}
+    : CefBrowserPlatformDelegateNativeAura(window_info, background_color) {}
 
 void CefBrowserPlatformDelegateNativeWin::BrowserDestroyed(
-    AlloyBrowserHostImpl* browser) {
+    CefBrowserHostBase* browser) {
   CefBrowserPlatformDelegateNative::BrowserDestroyed(browser);
 
   if (host_window_created_) {
@@ -530,13 +528,14 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
                                                               WPARAM wParam,
                                                               LPARAM lParam) {
   CefBrowserPlatformDelegateNativeWin* platform_delegate = nullptr;
-  AlloyBrowserHostImpl* browser = nullptr;
+  CefBrowserHostBase* browser = nullptr;
 
   if (message != WM_NCCREATE) {
     platform_delegate = static_cast<CefBrowserPlatformDelegateNativeWin*>(
         gfx::GetWindowUserData(hwnd));
-    if (platform_delegate)
+    if (platform_delegate) {
       browser = platform_delegate->browser_;
+    }
   }
 
   switch (message) {
@@ -582,7 +581,7 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
         // Force the browser to be destroyed. This will result in a call to
         // BrowserDestroyed() that will release the reference added in
         // CreateHostWindow().
-        browser->WindowDestroyed();
+        static_cast<AlloyBrowserHostImpl*>(browser)->WindowDestroyed();
       }
       break;
 
