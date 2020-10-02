@@ -23,7 +23,7 @@ index 839e3cbde987..ef1b0d7be31f 100644
        record_whole_document(false),
        cookie_enabled(true),
 diff --git content/public/common/web_preferences.h content/public/common/web_preferences.h
-index 700b47b5f521..4cd1cdceaf42 100644
+index 9262a32ce209..b4c9e32b6e69 100644
 --- content/public/common/web_preferences.h
 +++ content/public/common/web_preferences.h
 @@ -179,6 +179,7 @@ struct CONTENT_EXPORT WebPreferences {
@@ -35,10 +35,10 @@ index 700b47b5f521..4cd1cdceaf42 100644
    bool record_whole_document;
  
 diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
-index 49619a9b5683..52e09111aad3 100644
+index 2852dec8eaf5..881c75a45b2b 100644
 --- content/renderer/render_view_impl.cc
 +++ content/renderer/render_view_impl.cc
-@@ -950,6 +950,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+@@ -951,6 +951,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
  #endif
  
    WebRuntimeFeatures::EnableTranslateService(prefs.translate_service_available);

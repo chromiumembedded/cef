@@ -44,10 +44,10 @@ index ba112d79de9a..83f5bd971bc9 100644
  
  DocumentInit& DocumentInit::WithTypeFrom(const String& mime_type) {
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index 3d86affee6ad..1d29b9622763 100644
+index 6120b85a4c1a..6b1943e11ce1 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
-@@ -1647,7 +1647,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
+@@ -1652,7 +1652,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins(kNotAboutToInstantiatePlugin))
      return nullptr;

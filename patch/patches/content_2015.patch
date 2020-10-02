@@ -340,7 +340,7 @@ index 5b0784c844bd..a7b6d3f3c237 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 16a16b1f075d..94942f76489c 100644
+index c110db6a32bb..a823bbb57f89 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
 @@ -3853,7 +3853,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(

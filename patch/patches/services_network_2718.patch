@@ -1,5 +1,5 @@
 diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
-index eead3ac6a092..372c511b6c77 100644
+index 6996fe8d1be3..3bd057c7d316 100644
 --- content/browser/storage_partition_impl.cc
 +++ content/browser/storage_partition_impl.cc
 @@ -487,10 +487,6 @@ class LoginHandlerDelegate {

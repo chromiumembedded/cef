@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 5c0eea105870..1c82c2d0be99 100644
+index 1eadb3f0dace..4316de630cef 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -2578,15 +2578,22 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2582,15 +2582,22 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -33,7 +33,7 @@ index 5c0eea105870..1c82c2d0be99 100644
    }
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
-@@ -3385,6 +3392,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
+@@ -3389,6 +3396,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -49,7 +49,7 @@ index 5c0eea105870..1c82c2d0be99 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -6884,6 +6900,10 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -6910,6 +6926,10 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // This is an outermost WebContents.
      SetAsFocusedWebContentsIfNecessary();
    }
@@ -73,7 +73,7 @@ index f1dcf53ea481..192f7c0ddd04 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 9d5bc0a3e914..57f2e66ea415 100644
+index e282d97d9b0f..af6eb6506fb8 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -83,8 +83,10 @@ class BrowserContext;
@@ -131,10 +131,10 @@ index a10c5caf5a4b..ef8d3c3c1056 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index 3666e0357038..b82c54816894 100644
+index 301fa10bcc3e..37ec8ddd4583 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
-@@ -610,6 +610,10 @@ class CONTENT_EXPORT WebContentsObserver : public IPC::Listener {
+@@ -613,6 +613,10 @@ class CONTENT_EXPORT WebContentsObserver : public IPC::Listener {
    // WebContents has gained/lost focus.
    virtual void OnFocusChangedInPage(FocusedNodeDetails* details) {}
  

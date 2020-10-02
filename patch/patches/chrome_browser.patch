@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index d5b479bc9991..fa144b20ce37 100644
+index 98ae3acaf7cf..f9a7ec7f44b4 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -12,6 +12,7 @@ import("//build/config/crypto.gni")
@@ -29,7 +29,7 @@ index d5b479bc9991..fa144b20ce37 100644
    if (is_android) {
      sources += [
        "after_startup_task_utils_android.cc",
-@@ -3422,8 +3428,6 @@ static_library("browser") {
+@@ -3424,8 +3430,6 @@ static_library("browser") {
        "nearby_sharing/outgoing_share_target_info.h",
        "nearby_sharing/paired_key_verification_runner.cc",
        "nearby_sharing/paired_key_verification_runner.h",
@@ -38,11 +38,13 @@ index d5b479bc9991..fa144b20ce37 100644
        "nearby_sharing/share_target_discovered_callback.h",
        "nearby_sharing/share_target_info.cc",
        "nearby_sharing/share_target_info.h",
-@@ -3617,13 +3621,6 @@ static_library("browser") {
+@@ -3619,15 +3623,6 @@ static_library("browser") {
        "serial/serial_chooser_context_factory.cc",
        "serial/serial_chooser_context_factory.h",
        "serial/serial_chooser_histograms.h",
 -      "sharesheet/sharesheet_controller.h",
+-      "sharesheet/sharesheet_metrics.cc",
+-      "sharesheet/sharesheet_metrics.h",
 -      "sharesheet/sharesheet_service.cc",
 -      "sharesheet/sharesheet_service.h",
 -      "sharesheet/sharesheet_service_delegate.cc",
