@@ -146,10 +146,10 @@ bool CefWebContentsViewOSR::CloseTabAfterEventTrackingIfNeeded() {
 
 void CefWebContentsViewOSR::StartDragging(
     const content::DropData& drop_data,
-    blink::WebDragOperationsMask allowed_ops,
+    blink::DragOperationsMask allowed_ops,
     const gfx::ImageSkia& image,
     const gfx::Vector2d& image_offset,
-    const content::DragEventSourceInfo& event_info,
+    const blink::mojom::DragEventSourceInfo& event_info,
     content::RenderWidgetHostImpl* source_rwh) {
   CefRefPtr<AlloyBrowserHostImpl> browser = GetBrowser();
   if (browser.get()) {
@@ -161,8 +161,7 @@ void CefWebContentsViewOSR::StartDragging(
   }
 }
 
-void CefWebContentsViewOSR::UpdateDragCursor(
-    blink::WebDragOperation operation) {
+void CefWebContentsViewOSR::UpdateDragCursor(blink::DragOperation operation) {
   CefRefPtr<AlloyBrowserHostImpl> browser = GetBrowser();
   if (browser.get())
     browser->UpdateDragCursor(operation);

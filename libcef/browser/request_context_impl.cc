@@ -729,7 +729,8 @@ void CefRequestContextImpl::ClearHttpAuthCredentialsInternal(
   CEF_REQUIRE_UIT();
 
   browser_context->GetNetworkContext()->ClearHttpAuthCache(
-      base::Time(), base::Bind(&CefCompletionCallback::OnComplete, callback));
+      /*start_time=*/base::Time(), /*end_time=*/base::Time::Max(),
+      base::Bind(&CefCompletionCallback::OnComplete, callback));
 }
 
 void CefRequestContextImpl::CloseAllConnectionsInternal(

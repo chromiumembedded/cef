@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index b2a25c8c376c..c21bc286abf7 100644
+index 1d449b35bf40..0b859084ba1c 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -33,6 +33,7 @@ import("//build/config/ui.gni")
@@ -10,7 +10,7 @@ index b2a25c8c376c..c21bc286abf7 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  import("//third_party/icu/config.gni")
-@@ -1641,7 +1642,11 @@ component("base") {
+@@ -1646,7 +1647,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,6 +23,19 @@ index b2a25c8c376c..c21bc286abf7 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
+@@ -1841,6 +1846,12 @@ component("base") {
+       defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
+     }
+ 
++    if (!use_custom_libcxx) {
++      # Enable the VS 2015 Update 2 fix when building with the MSVC standard
++      # library.
++      defines += [ "_ENABLE_ATOMIC_ALIGNMENT_FIX" ]
++    }
++
+     # TODO(jschuh): crbug.com/167187 fix size_t to int truncations.
+     configs += [ "//build/config/compiler:no_size_t_to_int_warning" ]
+ 
 diff --git base/hash/md5.h base/hash/md5.h
 index 8a49f08dcb04..2f03d7a6d1b3 100644
 --- base/hash/md5.h

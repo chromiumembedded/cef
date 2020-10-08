@@ -172,3 +172,8 @@ CefCursorHandle CefRenderWidgetHostViewOSR::GetPlatformCursor(
 
   return LoadCursor(module_handle, cursor_id);
 }
+
+CefCursorHandle CefRenderWidgetHostViewOSR::ToCursorHandle(
+    ui::PlatformCursor cursor) {
+  return cursor;
+}

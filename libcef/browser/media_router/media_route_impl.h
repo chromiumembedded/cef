@@ -9,7 +9,7 @@
 #include "include/cef_media_router.h"
 #include "libcef/browser/browser_context.h"
 
-#include "chrome/common/media_router/media_route.h"
+#include "components/media_router/common/media_route.h"
 
 // Implementation of the CefMediaRoute interface. Only created on the UI thread.
 class CefMediaRouteImpl : public CefMediaRoute {

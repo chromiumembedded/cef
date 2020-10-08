@@ -87,10 +87,9 @@ void GetInternalManifest(const std::string& extension_path,
     return;
   }
 
-  cef_json_parser_error_t error_code;
   CefString error_msg;
-  CefRefPtr<CefValue> value = CefParseJSONAndReturnError(
-      manifest_contents, JSON_PARSER_RFC, error_code, error_msg);
+  CefRefPtr<CefValue> value =
+      CefParseJSONAndReturnError(manifest_contents, JSON_PARSER_RFC, error_msg);
   if (!value || value->GetType() != VTYPE_DICTIONARY) {
     if (error_msg.empty())
       error_msg = "Incorrectly formatted dictionary contents.";

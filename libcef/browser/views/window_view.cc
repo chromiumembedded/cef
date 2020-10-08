@@ -14,7 +14,7 @@
 #include "ui/views/window/native_frame_view.h"
 
 #if defined(OS_LINUX) && defined(USE_X11)
-#include <X11/Xlib.h>
+#include "ui/base/x/x11_util.h"
 #include "ui/gfx/x/x11_types.h"
 #endif
 
@@ -312,38 +312,9 @@ void CefWindowView::CreateWidget() {
 
 #if defined(OS_LINUX) && defined(USE_X11)
   if (is_frameless_) {
-    ::Window window = view_util::GetWindowHandle(widget);
+    auto window = view_util::GetWindowHandle(widget);
     DCHECK(window);
-    ::Display* display = gfx::GetXDisplay();
-    DCHECK(display);
-
-    // Make the window borderless. From
-    // http://stackoverflow.com/questions/1904445/borderless-windows-on-linux
-    struct MwmHints {
-      unsigned long flags;
-      unsigned long functions;
-      unsigned long decorations;
-      long input_mode;
-      unsigned long status;
-    };
-    enum {
-      MWM_HINTS_FUNCTIONS = (1L << 0),
-      MWM_HINTS_DECORATIONS = (1L << 1),
-
-      MWM_FUNC_ALL = (1L << 0),
-      MWM_FUNC_RESIZE = (1L << 1),
-      MWM_FUNC_MOVE = (1L << 2),
-      MWM_FUNC_MINIMIZE = (1L << 3),
-      MWM_FUNC_MAXIMIZE = (1L << 4),
-      MWM_FUNC_CLOSE = (1L << 5)
-    };
-
-    Atom mwmHintsProperty = XInternAtom(display, "_MOTIF_WM_HINTS", 0);
-    struct MwmHints hints = {};
-    hints.flags = MWM_HINTS_DECORATIONS;
-    hints.decorations = 0;
-    XChangeProperty(display, window, mwmHintsProperty, mwmHintsProperty, 32,
-                    PropModeReplace, (unsigned char*)&hints, 5);
+    ui::SetUseOSWindowFrame(static_cast<x11::Window>(window), false);
   }
 #endif  // defined(OS_LINUX) && defined(USE_X11)
 }

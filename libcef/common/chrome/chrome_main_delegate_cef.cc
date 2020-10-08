@@ -17,7 +17,6 @@
 #include "base/lazy_instance.h"
 #include "content/public/common/content_switches.h"
 #include "sandbox/policy/switches.h"
-#include "services/service_manager/embedder/switches.h"
 
 #if defined(OS_MAC)
 #include "libcef/common/util_mac.h"

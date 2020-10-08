@@ -54,11 +54,6 @@
 #include "ui/gfx/geometry/dip_util.h"
 #include "ui/gfx/geometry/size_conversions.h"
 
-#if defined(USE_X11)
-#include "ui/base/x/x11_cursor_loader.h"
-#include "ui/base/x/x11_util.h"
-#endif
-
 namespace {
 
 // The maximum number of damage rects to cache for outstanding frame requests
@@ -192,18 +187,6 @@ ui::ImeTextSpan::UnderlineStyle GetImeUnderlineStyle(
   NOTREACHED();
   return ui::ImeTextSpan::UnderlineStyle::kSolid;
 }
-
-#if defined(USE_AURA)
-CefCursorHandle ToCursorHandle(ui::PlatformCursor cursor) {
-#if defined(USE_X11)
-  // See https://crbug.com/1029142 for background.
-  return static_cast<CefCursorHandle>(
-      static_cast<ui::X11Cursor*>(cursor)->xcursor());
-#else
-  return cursor;
-#endif
-}
-#endif  // defined(USE_AURA)
 
 }  // namespace
 
@@ -378,25 +361,30 @@ void CefRenderWidgetHostViewOSR::Show() {
 
   is_showing_ = true;
 
-  // If the viz::LocalSurfaceIdAllocation is invalid, we may have been evicted,
+  // If the viz::LocalSurfaceId is invalid, we may have been evicted,
   // and no other visual properties have since been changed. Allocate a new id
   // and start synchronizing.
-  if (!GetLocalSurfaceIdAllocation().IsValid()) {
+  if (!GetLocalSurfaceId().is_valid()) {
     AllocateLocalSurfaceId();
     SynchronizeVisualProperties(cc::DeadlinePolicy::UseDefaultDeadline(),
-                                GetLocalSurfaceIdAllocation());
+                                GetLocalSurfaceId());
   }
 
   if (render_widget_host_) {
     render_widget_host_->WasShown(
-        base::nullopt /* record_tab_switch_time_request */);
+        /*record_tab_switch_time_request=*/{});
+
+    // Call OnRenderFrameMetadataChangedAfterActivation for every frame.
+    auto provider = content::RenderWidgetHostImpl::From(render_widget_host_)
+                        ->render_frame_metadata_provider();
+    provider->AddObserver(this);
+    provider->ReportAllFrameSubmissionsForTesting(true);
   }
 
   if (delegated_frame_host_) {
     delegated_frame_host_->AttachToCompositor(compositor_.get());
-    delegated_frame_host_->WasShown(
-        GetLocalSurfaceIdAllocation().local_surface_id(),
-        GetViewBounds().size(), base::nullopt);
+    delegated_frame_host_->WasShown(GetLocalSurfaceId(), GetViewBounds().size(),
+                                    /*record_tab_switch_time_request=*/{});
   }
 
   if (!content::GpuDataManagerImpl::GetInstance()->IsGpuCompositingDisabled()) {
@@ -407,14 +395,6 @@ void CefRenderWidgetHostViewOSR::Show() {
     } else {
       video_consumer_->SetActive(true);
     }
-  }
-
-  if (render_widget_host_) {
-    // Call OnRenderFrameMetadataChangedAfterActivation for every frame.
-    content::RenderFrameMetadataProviderImpl* provider =
-        content::RenderWidgetHostImpl::From(render_widget_host_)
-            ->render_frame_metadata_provider();
-    provider->ReportAllFrameSubmissionsForTesting(true);
   }
 }
 
@@ -431,8 +411,13 @@ void CefRenderWidgetHostViewOSR::Hide() {
     video_consumer_->SetActive(false);
   }
 
-  if (render_widget_host_)
+  if (render_widget_host_) {
     render_widget_host_->WasHidden();
+
+    auto provider = content::RenderWidgetHostImpl::From(render_widget_host_)
+                        ->render_frame_metadata_provider();
+    provider->RemoveObserver(this);
+  }
 
   if (delegated_frame_host_) {
     delegated_frame_host_->WasHidden(
@@ -509,11 +494,10 @@ void CefRenderWidgetHostViewOSR::OnDidUpdateVisualPropertiesComplete(
     // viz::LocalSurfaceId. However we do not want to embed surfaces while
     // hidden. Nor do we want to embed invalid ids when we are evicted. Becoming
     // visible will generate a new id, if necessary, and begin embedding.
-    UpdateLocalSurfaceIdFromEmbeddedClient(
-        metadata.local_surface_id_allocation);
+    UpdateLocalSurfaceIdFromEmbeddedClient(metadata.local_surface_id);
   } else {
     SynchronizeVisualProperties(cc::DeadlinePolicy::UseDefaultDeadline(),
-                                metadata.local_surface_id_allocation);
+                                metadata.local_surface_id);
   }
 }
 
@@ -525,28 +509,27 @@ void CefRenderWidgetHostViewOSR::AllocateLocalSurfaceId() {
   parent_local_surface_id_allocator_->GenerateId();
 }
 
-const viz::LocalSurfaceIdAllocation&
-CefRenderWidgetHostViewOSR::GetCurrentLocalSurfaceIdAllocation() const {
-  return parent_local_surface_id_allocator_
-      ->GetCurrentLocalSurfaceIdAllocation();
+const viz::LocalSurfaceId&
+CefRenderWidgetHostViewOSR::GetCurrentLocalSurfaceId() const {
+  return parent_local_surface_id_allocator_->GetCurrentLocalSurfaceId();
 }
 
 void CefRenderWidgetHostViewOSR::UpdateLocalSurfaceIdFromEmbeddedClient(
-    const base::Optional<viz::LocalSurfaceIdAllocation>&
-        embedded_client_local_surface_id_allocation) {
-  if (embedded_client_local_surface_id_allocation) {
+    const base::Optional<viz::LocalSurfaceId>&
+        embedded_client_local_surface_id) {
+  if (embedded_client_local_surface_id) {
     parent_local_surface_id_allocator_->UpdateFromChild(
-        *embedded_client_local_surface_id_allocation);
+        *embedded_client_local_surface_id);
   } else {
     AllocateLocalSurfaceId();
   }
 }
 
-const viz::LocalSurfaceIdAllocation&
-CefRenderWidgetHostViewOSR::GetOrCreateLocalSurfaceIdAllocation() {
+const viz::LocalSurfaceId&
+CefRenderWidgetHostViewOSR::GetOrCreateLocalSurfaceId() {
   if (!parent_local_surface_id_allocator_)
     AllocateLocalSurfaceId();
-  return GetCurrentLocalSurfaceIdAllocation();
+  return GetCurrentLocalSurfaceId();
 }
 
 void CefRenderWidgetHostViewOSR::InvalidateLocalSurfaceId() {
@@ -909,10 +892,10 @@ void CefRenderWidgetHostViewOSR::SelectionChanged(const base::string16& text,
                                   cef_range);
 }
 
-const viz::LocalSurfaceIdAllocation&
-CefRenderWidgetHostViewOSR::GetLocalSurfaceIdAllocation() const {
+const viz::LocalSurfaceId& CefRenderWidgetHostViewOSR::GetLocalSurfaceId()
+    const {
   return const_cast<CefRenderWidgetHostViewOSR*>(this)
-      ->GetOrCreateLocalSurfaceIdAllocation();
+      ->GetOrCreateLocalSurfaceId();
 }
 
 const viz::FrameSinkId& CefRenderWidgetHostViewOSR::GetFrameSinkId() const {
@@ -923,38 +906,6 @@ const viz::FrameSinkId& CefRenderWidgetHostViewOSR::GetFrameSinkId() const {
 
 viz::FrameSinkId CefRenderWidgetHostViewOSR::GetRootFrameSinkId() {
   return compositor_ ? compositor_->frame_sink_id() : viz::FrameSinkId();
-}
-
-void CefRenderWidgetHostViewOSR::OnRenderFrameMetadataChangedAfterActivation() {
-  auto metadata =
-      host_->render_frame_metadata_provider()->LastRenderFrameMetadata();
-
-  if (video_consumer_) {
-    // Need to wait for the first frame of the new size before calling
-    // SizeChanged. Otherwise, the video frame will be letterboxed.
-    video_consumer_->SizeChanged(metadata.viewport_size_in_pixels);
-  }
-
-  gfx::Vector2dF root_scroll_offset;
-  if (metadata.root_scroll_offset) {
-    root_scroll_offset = *metadata.root_scroll_offset;
-  }
-  if (root_scroll_offset != last_scroll_offset_) {
-    last_scroll_offset_ = root_scroll_offset;
-
-    if (!is_scroll_offset_changed_pending_) {
-      is_scroll_offset_changed_pending_ = true;
-
-      // Send the notification asynchronously.
-      CEF_POST_TASK(
-          CEF_UIT,
-          base::Bind(&CefRenderWidgetHostViewOSR::OnScrollOffsetChanged,
-                     weak_ptr_factory_.GetWeakPtr()));
-    }
-  }
-
-  content::RenderWidgetHostViewBase::
-      OnRenderFrameMetadataChangedAfterActivation();
 }
 
 std::unique_ptr<content::SyntheticGestureTarget>
@@ -986,7 +937,7 @@ void CefRenderWidgetHostViewOSR::DidNavigate() {
       // The first navigation does not need a new LocalSurfaceID. The renderer
       // can use the ID that was already provided.
       SynchronizeVisualProperties(cc::DeadlinePolicy::UseExistingDeadline(),
-                                  GetLocalSurfaceIdAllocation());
+                                  GetLocalSurfaceId());
     } else {
       SynchronizeVisualProperties(cc::DeadlinePolicy::UseExistingDeadline(),
                                   base::nullopt);
@@ -1000,6 +951,35 @@ void CefRenderWidgetHostViewOSR::DidNavigate() {
 void CefRenderWidgetHostViewOSR::OnFrameComplete(
     const viz::BeginFrameAck& ack) {
   // TODO(cef): is there something we need to track with this notification?
+}
+
+void CefRenderWidgetHostViewOSR::OnRenderFrameMetadataChangedAfterActivation() {
+  auto metadata =
+      host_->render_frame_metadata_provider()->LastRenderFrameMetadata();
+
+  if (video_consumer_) {
+    // Need to wait for the first frame of the new size before calling
+    // SizeChanged. Otherwise, the video frame will be letterboxed.
+    video_consumer_->SizeChanged(metadata.viewport_size_in_pixels);
+  }
+
+  gfx::Vector2dF root_scroll_offset;
+  if (metadata.root_scroll_offset) {
+    root_scroll_offset = *metadata.root_scroll_offset;
+  }
+  if (root_scroll_offset != last_scroll_offset_) {
+    last_scroll_offset_ = root_scroll_offset;
+
+    if (!is_scroll_offset_changed_pending_) {
+      is_scroll_offset_changed_pending_ = true;
+
+      // Send the notification asynchronously.
+      CEF_POST_TASK(
+          CEF_UIT,
+          base::Bind(&CefRenderWidgetHostViewOSR::OnScrollOffsetChanged,
+                     weak_ptr_factory_.GetWeakPtr()));
+    }
+  }
 }
 
 std::unique_ptr<viz::HostDisplayClient>
@@ -1035,31 +1015,29 @@ void CefRenderWidgetHostViewOSR::WasResized() {
 
 void CefRenderWidgetHostViewOSR::SynchronizeVisualProperties(
     const cc::DeadlinePolicy& deadline_policy,
-    const base::Optional<viz::LocalSurfaceIdAllocation>&
-        child_local_surface_id_allocation) {
+    const base::Optional<viz::LocalSurfaceId>& child_local_surface_id) {
   SetFrameRate();
 
   const bool resized = ResizeRootLayer();
   bool surface_id_updated = false;
 
-  if (!resized && child_local_surface_id_allocation) {
+  if (!resized && child_local_surface_id) {
     // Update the current surface ID.
     parent_local_surface_id_allocator_->UpdateFromChild(
-        *child_local_surface_id_allocation);
+        *child_local_surface_id);
     surface_id_updated = true;
   }
 
   // Allocate a new surface ID if the surface has been resized or if the current
   // ID is invalid (meaning we may have been evicted).
-  if (resized || !GetCurrentLocalSurfaceIdAllocation().IsValid()) {
+  if (resized || !GetCurrentLocalSurfaceId().is_valid()) {
     AllocateLocalSurfaceId();
     surface_id_updated = true;
   }
 
   if (surface_id_updated) {
     delegated_frame_host_->EmbedSurface(
-        GetCurrentLocalSurfaceIdAllocation().local_surface_id(),
-        GetViewBounds().size(), deadline_policy);
+        GetCurrentLocalSurfaceId(), GetViewBounds().size(), deadline_policy);
 
     // |render_widget_host_| will retrieve resize parameters from the
     // DelegatedFrameHost and this view, so SynchronizeVisualProperties must be
@@ -1595,9 +1573,9 @@ bool CefRenderWidgetHostViewOSR::SetRootLayerSize(bool force) {
 
   if (compositor_) {
     compositor_local_surface_id_allocator_.GenerateId();
-    compositor_->SetScaleAndSize(current_device_scale_factor_, SizeInPixels(),
-                                 compositor_local_surface_id_allocator_
-                                     .GetCurrentLocalSurfaceIdAllocation());
+    compositor_->SetScaleAndSize(
+        current_device_scale_factor_, SizeInPixels(),
+        compositor_local_surface_id_allocator_.GetCurrentLocalSurfaceId());
   }
 
   return (scale_factor_changed || view_bounds_changed);

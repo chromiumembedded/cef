@@ -15,7 +15,6 @@
 
 #include "base/macros.h"
 #include "third_party/blink/public/platform/web_common.h"
-#include "third_party/blink/renderer/bindings/core/v8/sanitize_script_errors.h"
 #include "v8/include/v8.h"
 
 namespace blink {
@@ -56,14 +55,13 @@ BLINK_EXPORT v8::MaybeLocal<v8::Value> CallV8Function(
     v8::Local<v8::Value> args[],
     v8::Isolate* isolate);
 
-BLINK_EXPORT v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
+BLINK_EXPORT v8::Local<v8::Value> ExecuteV8ScriptAndReturnValue(
     const blink::WebString& source,
     const blink::WebString& source_url,
     int start_line,
     v8::Local<v8::Context> context,
     v8::Isolate* isolate,
-    v8::TryCatch& tryCatch,
-    blink::SanitizeScriptErrors sanitizeScriptErrors);
+    v8::TryCatch& tryCatch);
 
 BLINK_EXPORT bool IsScriptForbidden();
 

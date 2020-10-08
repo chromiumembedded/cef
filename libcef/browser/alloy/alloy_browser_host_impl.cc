@@ -240,8 +240,12 @@ CefRefPtr<AlloyBrowserHostImpl> AlloyBrowserHostImpl::CreateInternal(
   // expected order.
 
   // 1. Notify the browser's LifeSpanHandler. This must always be the first
-  // notification for the browser.
-  browser->OnAfterCreated();
+  // notification for the browser. Block navigation to avoid issues with focus
+  // changes being sent to an unbound interface.
+  {
+    auto navigation_lock = browser_info->CreateNavigationLock();
+    browser->OnAfterCreated();
+  }
 
   // 2. Notify the platform delegate. With Views this will result in a call to
   // CefBrowserViewDelegate::OnBrowserCreated().
@@ -1368,7 +1372,7 @@ bool AlloyBrowserHostImpl::PreHandleGestureEvent(
 
 bool AlloyBrowserHostImpl::CanDragEnter(content::WebContents* source,
                                         const content::DropData& data,
-                                        blink::WebDragOperationsMask mask) {
+                                        blink::DragOperationsMask mask) {
   CefRefPtr<CefDragHandler> handler;
   if (client_)
     handler = client_->GetDragHandler();
@@ -1734,10 +1738,10 @@ gfx::Point AlloyBrowserHostImpl::GetScreenPoint(const gfx::Point& view) const {
 
 void AlloyBrowserHostImpl::StartDragging(
     const content::DropData& drop_data,
-    blink::WebDragOperationsMask allowed_ops,
+    blink::DragOperationsMask allowed_ops,
     const gfx::ImageSkia& image,
     const gfx::Vector2d& image_offset,
-    const content::DragEventSourceInfo& event_info,
+    const blink::mojom::DragEventSourceInfo& event_info,
     content::RenderWidgetHostImpl* source_rwh) {
   if (platform_delegate_) {
     platform_delegate_->StartDragging(drop_data, allowed_ops, image,
@@ -1745,7 +1749,7 @@ void AlloyBrowserHostImpl::StartDragging(
   }
 }
 
-void AlloyBrowserHostImpl::UpdateDragCursor(blink::WebDragOperation operation) {
+void AlloyBrowserHostImpl::UpdateDragCursor(blink::DragOperation operation) {
   if (platform_delegate_)
     platform_delegate_->UpdateDragCursor(operation);
 }

@@ -543,9 +543,8 @@ void CefRequestImpl::Get(network::ResourceRequest* request,
     }
 
     if (!(flags & UR_FLAG_ALLOW_STORED_CREDENTIALS)) {
-      net_flags |= net::LOAD_DO_NOT_SEND_AUTH_DATA |
-                   net::LOAD_DO_NOT_SEND_COOKIES |
-                   net::LOAD_DO_NOT_SAVE_COOKIES;
+      // This will disable all credentials including cookies, auth tokens, etc.
+      request->credentials_mode = network::mojom::CredentialsMode::kOmit;
     }
 
     request->load_flags = net_flags;

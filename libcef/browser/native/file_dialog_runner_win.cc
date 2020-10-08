@@ -92,9 +92,9 @@ std::wstring FormatFilterForExtensions(
     if (unique_exts.size() > 1) {
       std::wstring ext;
       auto it = unique_exts.cbegin();
-      ext = it->as_string();
+      ext = std::wstring(*it);
       for (++it; it != unique_exts.cend(); ++it) {
-        ext += L";" + it->as_string();
+        ext += L";" + std::wstring(*it);
       }
       std::wstring desc =
           l10n_util::GetStringUTF16(IDS_CUSTOM_FILES) + L" (" + ext + L")";

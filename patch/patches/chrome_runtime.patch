@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index 313975f42c0d..ee7f27dab6b7 100644
+index 8b7b6f492b3e..1085e4b1e23d 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -27,6 +27,7 @@
@@ -19,7 +19,7 @@ index 313975f42c0d..ee7f27dab6b7 100644
  #if defined(OS_WIN)
    // Reach out to chrome_elf for the truth on the user data directory.
    // Note that in tests, this links to chrome_elf_test_stubs.
-@@ -624,7 +627,9 @@ void ChromeMainDelegate::PostFieldTrialInitialization() {
+@@ -640,7 +643,9 @@ void ChromeMainDelegate::PostFieldTrialInitialization() {
    }
  
  #if defined(OS_WIN)
@@ -29,7 +29,7 @@ index 313975f42c0d..ee7f27dab6b7 100644
    base::sequence_manager::internal::ThreadControllerPowerMonitor::
        InitializeOnMainThread();
  #endif
-@@ -906,6 +911,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -922,6 +927,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    std::string process_type =
        command_line.GetSwitchValueASCII(switches::kProcessType);
  
@@ -37,7 +37,7 @@ index 313975f42c0d..ee7f27dab6b7 100644
    crash_reporter::InitializeCrashKeys();
  
  #if defined(OS_POSIX)
-@@ -916,6 +922,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -932,6 +938,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    InitMacCrashReporter(command_line, process_type);
    SetUpInstallerPreferences(command_line);
  #endif
@@ -45,15 +45,15 @@ index 313975f42c0d..ee7f27dab6b7 100644
  
  #if defined(OS_WIN)
    child_process_logging::Init();
-@@ -1040,6 +1047,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1056,6 +1063,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
          locale;
    }
  
 +  if (!cef::IsChromeRuntimeEnabled()) {
  #if defined(OS_POSIX) && !defined(OS_MAC)
    // Zygote needs to call InitCrashReporter() in RunZygote().
-   if (process_type != service_manager::switches::kZygoteProcess) {
-@@ -1072,6 +1080,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+   if (process_type != switches::kZygoteProcess) {
+@@ -1088,6 +1096,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    // After all the platform Breakpads have been initialized, store the command
    // line for crash reporting.
    crash_keys::SetCrashKeysFromCommandLine(command_line);
@@ -61,7 +61,7 @@ index 313975f42c0d..ee7f27dab6b7 100644
  
  #if BUILDFLAG(ENABLE_PDF)
    MaybeInitializeGDI();
-@@ -1170,6 +1179,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1186,6 +1195,7 @@ void ChromeMainDelegate::ZygoteForked() {
      SetUpProfilingShutdownHandler();
    }
  
@@ -69,7 +69,7 @@ index 313975f42c0d..ee7f27dab6b7 100644
    // Needs to be called after we have chrome::DIR_USER_DATA.  BrowserMain sets
    // this up for the browser process in a different manner.
    const base::CommandLine* command_line =
-@@ -1186,6 +1196,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1202,6 +1212,7 @@ void ChromeMainDelegate::ZygoteForked() {
  
    // Reset the command line for the newly spawned process.
    crash_keys::SetCrashKeysFromCommandLine(*command_line);
@@ -78,18 +78,18 @@ index 313975f42c0d..ee7f27dab6b7 100644
  
  #endif  // defined(OS_LINUX) || defined(OS_CHROMEOS)
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index 68a92d3924f0..280ef9019551 100644
+index c9bf19474a2a..3c1d5eec82fa 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -49,6 +49,7 @@
  #include "build/build_config.h"
- #include "build/lacros_buildflags.h"
+ #include "build/chromeos_buildflags.h"
  #include "cc/base/switches.h"
 +#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/active_use_util.h"
  #include "chrome/browser/after_startup_task_utils.h"
-@@ -892,8 +893,10 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
+@@ -893,8 +894,10 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
  #if !defined(OS_ANDROID)
    // Create the RunLoop for MainMessageLoopRun() to use, and pass a copy of
    // its QuitClosure to the BrowserProcessImpl to call when it is time to exit.
@@ -101,7 +101,7 @@ index 68a92d3924f0..280ef9019551 100644
  
    // These members must be initialized before returning from this function.
    // Android doesn't use StartupBrowserCreator.
-@@ -1608,11 +1611,13 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1613,11 +1616,13 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
    // This step is costly and is already measured in
    // Startup.StartupBrowserCreator_Start.
    // See the comment above for an explanation of |process_command_line|.
@@ -117,18 +117,18 @@ index 68a92d3924f0..280ef9019551 100644
      // Initialize autoupdate timer. Timer callback costs basically nothing
      // when browser is not in persistent mode, so it's OK to let it ride on
 diff --git chrome/browser/notifications/notification_platform_bridge_mac.mm chrome/browser/notifications/notification_platform_bridge_mac.mm
-index ad52e63ed83a..6b16ee3ccc96 100644
+index c2905bfd0df7..09bfcf942a7c 100644
 --- chrome/browser/notifications/notification_platform_bridge_mac.mm
 +++ chrome/browser/notifications/notification_platform_bridge_mac.mm
-@@ -24,6 +24,7 @@
+@@ -25,6 +25,7 @@
  #include "base/strings/sys_string_conversions.h"
  #include "base/strings/utf_string_conversions.h"
  #include "base/system/sys_info.h"
 +#include "cef/libcef/features/runtime.h"
- #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/browser_features.h"
  #include "chrome/browser/notifications/notification_common.h"
  #include "chrome/browser/notifications/notification_display_service_impl.h"
-@@ -651,6 +652,12 @@ getDisplayedAlertsForProfileId:(NSString*)profileId
+@@ -449,6 +450,12 @@ getDisplayedAlertsForProfileId:(NSString*)profileId
  - (id<NotificationDelivery>)serviceProxy {
    id<NotificationDelivery> proxy = [_xpcConnection remoteObjectProxy];
  
@@ -141,16 +141,3 @@ index ad52e63ed83a..6b16ee3ccc96 100644
    if (!_setExceptionPort) {
      base::mac::ScopedMachSendRight exceptionPort(
          crash_reporter::GetCrashpadClient().GetHandlerMachPort());
-diff --git ui/gtk/select_file_dialog_impl_kde.cc ui/gtk/select_file_dialog_impl_kde.cc
-index 464aa72e1d47..30a621dea6fc 100644
---- ui/gtk/select_file_dialog_impl_kde.cc
-+++ ui/gtk/select_file_dialog_impl_kde.cc
-@@ -6,6 +6,8 @@
- #include <gtk/gtk.h>
- #include <stddef.h>
- 
-+#undef Success
-+
- #include <memory>
- #include <set>
- 

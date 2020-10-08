@@ -120,7 +120,7 @@ void CefBrowserImpl::StopLoad() {
   if (render_view()->GetWebView()) {
     blink::WebFrame* main_frame = render_view()->GetWebView()->MainFrame();
     if (main_frame && main_frame->IsWebLocalFrame()) {
-      main_frame->ToWebLocalFrame()->StopLoading();
+      main_frame->ToWebLocalFrame()->DeprecatedStopLoading();
     }
   }
 }

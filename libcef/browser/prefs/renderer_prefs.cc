@@ -35,12 +35,12 @@
 #include "content/public/browser/site_instance.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/url_constants.h"
-#include "content/public/common/web_preferences.h"
 #include "extensions/browser/extension_registry.h"
 #include "extensions/browser/view_type_utils.h"
 #include "extensions/common/constants.h"
 #include "media/media_buildflags.h"
 #include "third_party/blink/public/common/peerconnection/webrtc_ip_handling_policy.h"
+#include "third_party/blink/public/common/web_preferences/web_preferences.h"
 #include "ui/native_theme/native_theme.h"
 
 namespace renderer_prefs {
@@ -50,7 +50,7 @@ namespace {
 // Set default values based on CEF command-line flags for preferences that are
 // not available via the PrefService. Chromium command-line flags should not
 // exist for these preferences.
-void SetDefaultPrefs(content::WebPreferences& web) {
+void SetDefaultPrefs(blink::web_pref::WebPreferences& web) {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
 
@@ -70,7 +70,7 @@ void SetDefaultPrefs(content::WebPreferences& web) {
 
 // Chrome preferences.
 // Should match ChromeContentBrowserClient::OverrideWebkitPrefs.
-void SetChromePrefs(Profile* profile, content::WebPreferences& web) {
+void SetChromePrefs(Profile* profile, blink::web_pref::WebPreferences& web) {
   PrefService* prefs = profile->GetPrefs();
 
   // Fill per-script font preferences.
@@ -134,11 +134,11 @@ void SetChromePrefs(Profile* profile, content::WebPreferences& web) {
     std::string image_animation_policy =
         prefs->GetString(prefs::kAnimationPolicy);
     if (image_animation_policy == kAnimationPolicyOnce)
-      web.animation_policy = content::IMAGE_ANIMATION_POLICY_ANIMATION_ONCE;
+      web.animation_policy = blink::web_pref::kImageAnimationPolicyAnimateOnce;
     else if (image_animation_policy == kAnimationPolicyNone)
-      web.animation_policy = content::IMAGE_ANIMATION_POLICY_NO_ANIMATION;
+      web.animation_policy = blink::web_pref::kImageAnimationPolicyNoAnimation;
     else
-      web.animation_policy = content::IMAGE_ANIMATION_POLICY_ALLOWED;
+      web.animation_policy = blink::web_pref::kImageAnimationPolicyAllowed;
   }
 
   // Make sure we will set the default_encoding with canonical encoding name.
@@ -161,7 +161,7 @@ void SetChromePrefs(Profile* profile, content::WebPreferences& web) {
 // Extension preferences.
 // Should match ChromeContentBrowserClientExtensionsPart::OverrideWebkitPrefs.
 void SetExtensionPrefs(content::RenderViewHost* rvh,
-                       content::WebPreferences& web) {
+                       blink::web_pref::WebPreferences& web) {
   if (!extensions::ExtensionsEnabled())
     return;
 
@@ -199,29 +199,30 @@ void SetExtensionPrefs(content::RenderViewHost* rvh,
     web_var = false;
 
 // Set preferences based on CefBrowserSettings.
-void SetCefPrefs(const CefBrowserSettings& cef, content::WebPreferences& web) {
+void SetCefPrefs(const CefBrowserSettings& cef,
+                 blink::web_pref::WebPreferences& web) {
   if (cef.standard_font_family.length > 0) {
-    web.standard_font_family_map[content::kCommonScript] =
+    web.standard_font_family_map[blink::web_pref::kCommonScript] =
         CefString(&cef.standard_font_family);
   }
   if (cef.fixed_font_family.length > 0) {
-    web.fixed_font_family_map[content::kCommonScript] =
+    web.fixed_font_family_map[blink::web_pref::kCommonScript] =
         CefString(&cef.fixed_font_family);
   }
   if (cef.serif_font_family.length > 0) {
-    web.serif_font_family_map[content::kCommonScript] =
+    web.serif_font_family_map[blink::web_pref::kCommonScript] =
         CefString(&cef.serif_font_family);
   }
   if (cef.sans_serif_font_family.length > 0) {
-    web.sans_serif_font_family_map[content::kCommonScript] =
+    web.sans_serif_font_family_map[blink::web_pref::kCommonScript] =
         CefString(&cef.sans_serif_font_family);
   }
   if (cef.cursive_font_family.length > 0) {
-    web.cursive_font_family_map[content::kCommonScript] =
+    web.cursive_font_family_map[blink::web_pref::kCommonScript] =
         CefString(&cef.cursive_font_family);
   }
   if (cef.fantasy_font_family.length > 0) {
-    web.fantasy_font_family_map[content::kCommonScript] =
+    web.fantasy_font_family_map[blink::web_pref::kCommonScript] =
         CefString(&cef.fantasy_font_family);
   }
 
@@ -280,7 +281,7 @@ void SetBool(CommandLinePrefStore* prefs, const std::string& key, bool value) {
 
 // From chrome/browser/chrome_content_browser_client.cc
 bool UpdatePreferredColorSchemesBasedOnURLIfNeeded(
-    content::WebPreferences* web_prefs,
+    blink::web_pref::WebPreferences* web_prefs,
     const GURL& url) {
   // Force a light preferred color scheme on certain URLs if kWebUIDarkMode is
   // disabled; some of the UI is not yet correctly themed.
@@ -352,7 +353,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
 }
 
 void PopulateWebPreferences(content::RenderViewHost* rvh,
-                            content::WebPreferences& web) {
+                            blink::web_pref::WebPreferences& web) {
   REQUIRE_ALLOY_RUNTIME();
   CefRefPtr<AlloyBrowserHostImpl> browser = static_cast<AlloyBrowserHostImpl*>(
       extensions::GetOwnerBrowserForHost(rvh, nullptr).get());
@@ -399,8 +400,9 @@ void PopulateWebPreferences(content::RenderViewHost* rvh,
   }
 }
 
-bool PopulateWebPreferencesAfterNavigation(content::WebContents* web_contents,
-                                           content::WebPreferences& web) {
+bool PopulateWebPreferencesAfterNavigation(
+    content::WebContents* web_contents,
+    blink::web_pref::WebPreferences& web) {
   return UpdatePreferredColorSchemesBasedOnURLIfNeeded(
       &web, web_contents->GetLastCommittedURL());
 }

@@ -80,18 +80,18 @@ index 1026b739d283..fe562ab60ce9 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index d991c2126b23..cc51bb326e86 100644
+index 3d3fc4f52270..a9c9c5324a62 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -14,6 +14,8 @@ config("viz_service_implementation") {
- 
- viz_component("service") {
-   sources = [
+@@ -183,6 +183,8 @@ viz_component("service") {
+     "surfaces/surface_reference.cc",
+     "surfaces/surface_reference.h",
+     "viz_service_export.h",
 +    "//cef/libcef/browser/osr/software_output_device_proxy.cc",
 +    "//cef/libcef/browser/osr/software_output_device_proxy.h",
-     "display/bsp_tree.cc",
-     "display/bsp_tree.h",
-     "display/bsp_walk_action.cc",
+   ]
+ 
+   defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
 index 2da653cc9c3c..e536a34dca33 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
@@ -214,7 +214,7 @@ index 6b7fbb6cf13d..e2af75168cb9 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 13665946e08a..ceea7b60d44f 100644
+index 32cdffd116b7..d0303c7e79d9 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -25,7 +25,9 @@
@@ -252,7 +252,7 @@ index 13665946e08a..ceea7b60d44f 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -435,6 +448,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -430,6 +443,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
  
    std::unique_ptr<PendingBeginFrameArgs> pending_begin_frame_args_;
  

@@ -76,12 +76,12 @@ class CefBrowserPlatformDelegateOsr
   void DragTargetDragLeave() override;
   void DragTargetDrop(const CefMouseEvent& event) override;
   void StartDragging(const content::DropData& drop_data,
-                     blink::WebDragOperationsMask allowed_ops,
+                     blink::DragOperationsMask allowed_ops,
                      const gfx::ImageSkia& image,
                      const gfx::Vector2d& image_offset,
-                     const content::DragEventSourceInfo& event_info,
+                     const blink::mojom::DragEventSourceInfo& event_info,
                      content::RenderWidgetHostImpl* source_rwh) override;
-  void UpdateDragCursor(blink::WebDragOperation operation) override;
+  void UpdateDragCursor(blink::DragOperation operation) override;
   void DragSourceEndedAt(int x, int y, cef_drag_operations_mask_t op) override;
   void DragSourceSystemDragEnded() override;
   void AccessibilityEventReceived(

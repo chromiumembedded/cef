@@ -1,8 +1,8 @@
 diff --git chrome/browser/safe_browsing/BUILD.gn chrome/browser/safe_browsing/BUILD.gn
-index 7f54cacab005..b4f509b766ca 100644
+index 8d48495d450e..eea8b9c41e54 100644
 --- chrome/browser/safe_browsing/BUILD.gn
 +++ chrome/browser/safe_browsing/BUILD.gn
-@@ -251,6 +251,7 @@ static_library("safe_browsing") {
+@@ -260,6 +260,7 @@ static_library("safe_browsing") {
          "//chrome/common/safe_browsing:download_type_util",
          "//chrome/services/file_util/public/cpp",
          "//components/content_settings/core/browser",

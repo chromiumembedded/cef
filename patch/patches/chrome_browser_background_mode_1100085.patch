@@ -1,5 +1,5 @@
 diff --git chrome/browser/app_controller_mac.mm chrome/browser/app_controller_mac.mm
-index 8493d1b2233b..69efa5114c6f 100644
+index ce66d73e0fa4..cc62e05ba3ba 100644
 --- chrome/browser/app_controller_mac.mm
 +++ chrome/browser/app_controller_mac.mm
 @@ -1141,6 +1141,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
@@ -35,10 +35,10 @@ index 8493d1b2233b..69efa5114c6f 100644
    return dockMenu;
  }
 diff --git chrome/browser/browser_process.h chrome/browser/browser_process.h
-index 132f2a8d15fd..1262f31d39db 100644
+index b6fe1fee2cbb..84a75c6070d6 100644
 --- chrome/browser/browser_process.h
 +++ chrome/browser/browser_process.h
-@@ -201,10 +201,12 @@ class BrowserProcess {
+@@ -202,10 +202,12 @@ class BrowserProcess {
    virtual DownloadStatusUpdater* download_status_updater() = 0;
    virtual DownloadRequestLimiter* download_request_limiter() = 0;
  
@@ -52,10 +52,10 @@ index 132f2a8d15fd..1262f31d39db 100644
    // Returns the StatusTray, which provides an API for displaying status icons
    // in the system status tray. Returns NULL if status icons are not supported
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index 254173b22652..93f0eb216cc7 100644
+index 443348c2de00..7486628a9912 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
-@@ -955,24 +955,19 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
+@@ -951,24 +951,19 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
    return download_request_limiter_.get();
  }
  
@@ -83,7 +83,7 @@ index 254173b22652..93f0eb216cc7 100644
  StatusTray* BrowserProcessImpl::status_tray() {
    DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index 124ebbf06ea2..c47e6b6cf24c 100644
+index 8a8d8a820690..c06d97c65ec2 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
 @@ -163,9 +163,11 @@ class BrowserProcessImpl : public BrowserProcess,
@@ -99,10 +99,10 @@ index 124ebbf06ea2..c47e6b6cf24c 100644
    safe_browsing::SafeBrowsingService* safe_browsing_service() override;
    subresource_filter::RulesetService* subresource_filter_ruleset_service()
 diff --git chrome/browser/lifetime/browser_close_manager.cc chrome/browser/lifetime/browser_close_manager.cc
-index d20c93b35f39..badf57a88d90 100644
+index 845abd9ea9ab..29a5cfb36448 100644
 --- chrome/browser/lifetime/browser_close_manager.cc
 +++ chrome/browser/lifetime/browser_close_manager.cc
-@@ -148,12 +148,14 @@ void BrowserCloseManager::CloseBrowsers() {
+@@ -147,12 +147,14 @@ void BrowserCloseManager::CloseBrowsers() {
    // exit can restore all browsers open before exiting.
    ProfileManager::ShutdownSessionServices();
  #endif
@@ -118,10 +118,10 @@ index d20c93b35f39..badf57a88d90 100644
    // Make a copy of the BrowserList to simplify the case where we need to
    // destroy a Browser during the loop.
 diff --git chrome/browser/sessions/session_service.cc chrome/browser/sessions/session_service.cc
-index 73d97b1da62a..eec9c645366f 100644
+index 1ed498e97be4..56e56b4d765a 100644
 --- chrome/browser/sessions/session_service.cc
 +++ chrome/browser/sessions/session_service.cc
-@@ -939,12 +939,19 @@ void SessionService::MaybeDeleteSessionOnlyData() {
+@@ -954,12 +954,19 @@ void SessionService::MaybeDeleteSessionOnlyData() {
    if (!profile() || profile()->AsTestingProfile())
      return;
  

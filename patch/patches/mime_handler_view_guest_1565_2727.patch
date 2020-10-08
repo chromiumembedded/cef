@@ -12,7 +12,7 @@ index 954e32c842a5..7563507d52d0 100644
    virtual ~WebContentsView() {}
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 60c4fe742d7e..e47f7daa6414 100644
+index 998d6d0c481f..e0f95ee4f7a0 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 @@ -207,6 +207,8 @@ void MimeHandlerViewGuest::CreateWebContents(
@@ -47,7 +47,7 @@ index 60c4fe742d7e..e47f7daa6414 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index 3e287fd18fee..4d5fca9bc322 100644
+index a7f0b19a8ab9..dca296badbf6 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 @@ -129,6 +129,7 @@ class MimeHandlerViewGuest

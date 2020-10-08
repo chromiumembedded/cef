@@ -198,12 +198,12 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   gfx::Point GetScreenPoint(const gfx::Point& view) const;
 
   void StartDragging(const content::DropData& drop_data,
-                     blink::WebDragOperationsMask allowed_ops,
+                     blink::DragOperationsMask allowed_ops,
                      const gfx::ImageSkia& image,
                      const gfx::Vector2d& image_offset,
-                     const content::DragEventSourceInfo& event_info,
+                     const blink::mojom::DragEventSourceInfo& event_info,
                      content::RenderWidgetHostImpl* source_rwh);
-  void UpdateDragCursor(blink::WebDragOperation operation);
+  void UpdateDragCursor(blink::DragOperation operation);
 
   // Thread safe accessors.
   SkColor GetBackgroundColor() const;
@@ -267,7 +267,7 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
                              const blink::WebGestureEvent& event) override;
   bool CanDragEnter(content::WebContents* source,
                     const content::DropData& data,
-                    blink::WebDragOperationsMask operations_allowed) override;
+                    blink::DragOperationsMask operations_allowed) override;
   void GetCustomWebContentsView(
       content::WebContents* web_contents,
       const GURL& target_url,

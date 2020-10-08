@@ -4,6 +4,8 @@
 
 #include "libcef/browser/printing/printing_message_filter.h"
 
+#include "libcef/browser/printing/print_view_manager.h"
+
 #include <memory>
 #include <string>
 #include <utility>
@@ -19,6 +21,7 @@
 #include "chrome/common/pref_names.h"
 #include "components/keyed_service/content/browser_context_keyed_service_shutdown_notifier_factory.h"
 #include "components/printing/browser/print_manager_utils.h"
+#include "components/printing/common/print.mojom.h"
 #include "components/printing/common/print_messages.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
@@ -26,10 +29,6 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/child_process_host.h"
 #include "printing/mojom/print.mojom.h"
-
-#if defined(OS_LINUX)
-#include "libcef/browser/printing/print_dialog_linux.h"
-#endif
 
 using content::BrowserThread;
 
@@ -64,6 +63,25 @@ CefPrintingMessageFilterShutdownNotifierFactory*
 CefPrintingMessageFilterShutdownNotifierFactory::GetInstance() {
   return g_printing_message_filter_shutdown_notifier_factory.Pointer();
 }
+
+#if defined(OS_WIN)
+content::WebContents* GetWebContentsForRenderFrame(int render_process_id,
+                                                   int render_frame_id) {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+  content::RenderFrameHost* frame =
+      content::RenderFrameHost::FromID(render_process_id, render_frame_id);
+  return frame ? content::WebContents::FromRenderFrameHost(frame) : nullptr;
+}
+
+CefPrintViewManager* GetPrintViewManager(int render_process_id,
+                                         int render_frame_id) {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+  content::WebContents* web_contents =
+      GetWebContentsForRenderFrame(render_process_id, render_frame_id);
+  return web_contents ? CefPrintViewManager::FromWebContents(web_contents)
+                      : nullptr;
+}
+#endif  // defined(OS_WIN)
 
 }  // namespace
 
@@ -104,8 +122,6 @@ void CefPrintingMessageFilter::OnDestruct() const {
 bool CefPrintingMessageFilter::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(CefPrintingMessageFilter, message)
-    IPC_MESSAGE_HANDLER_DELAY_REPLY(PrintHostMsg_GetDefaultPrintSettings,
-                                    OnGetDefaultPrintSettings)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(PrintHostMsg_ScriptedPrint, OnScriptedPrint)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(PrintHostMsg_UpdatePrintSettings,
                                     OnUpdatePrintSettings)
@@ -115,60 +131,8 @@ bool CefPrintingMessageFilter::OnMessageReceived(const IPC::Message& message) {
   return handled;
 }
 
-void CefPrintingMessageFilter::OnGetDefaultPrintSettings(
-    IPC::Message* reply_msg) {
-  DCHECK_CURRENTLY_ON(BrowserThread::IO);
-#if defined(OS_LINUX)
-  // Send notification to the client.
-  CefPrintDialogLinux::OnPrintStart(render_process_id_,
-                                    reply_msg->routing_id());
-#endif
-
-  std::unique_ptr<PrinterQuery> printer_query;
-  if (!is_printing_enabled_.GetValue()) {
-    // Reply with NULL query.
-    OnGetDefaultPrintSettingsReply(std::move(printer_query), reply_msg);
-    return;
-  }
-  printer_query = queue_->PopPrinterQuery(0);
-  if (!printer_query.get()) {
-    printer_query =
-        queue_->CreatePrinterQuery(render_process_id_, reply_msg->routing_id());
-  }
-
-  // Loads default settings. This is asynchronous, only the IPC message sender
-  // will hang until the settings are retrieved.
-  auto* printer_query_ptr = printer_query.get();
-  printer_query_ptr->GetSettings(
-      PrinterQuery::GetSettingsAskParam::DEFAULTS, 0, false,
-      printing::mojom::MarginType::kDefaultMargins, false, false,
-      base::BindOnce(&CefPrintingMessageFilter::OnGetDefaultPrintSettingsReply,
-                     this, std::move(printer_query), reply_msg));
-}
-
-void CefPrintingMessageFilter::OnGetDefaultPrintSettingsReply(
-    std::unique_ptr<PrinterQuery> printer_query,
-    IPC::Message* reply_msg) {
-  mojom::PrintParams params;
-  if (printer_query && printer_query->last_status() == PrintingContext::OK) {
-    RenderParamsFromPrintSettings(printer_query->settings(), &params);
-    params.document_cookie = printer_query->cookie();
-  }
-  PrintHostMsg_GetDefaultPrintSettings::WriteReplyParams(reply_msg, params);
-  Send(reply_msg);
-  // If printing was enabled.
-  if (printer_query.get()) {
-    // If user hasn't cancelled.
-    if (printer_query->cookie() && printer_query->settings().dpi()) {
-      queue_->QueuePrinterQuery(std::move(printer_query));
-    } else {
-      printer_query->StopWorker();
-    }
-  }
-}
-
 void CefPrintingMessageFilter::OnScriptedPrint(
-    const PrintHostMsg_ScriptedPrint_Params& params,
+    const mojom::ScriptedPrintParams& params,
     IPC::Message* reply_msg) {
   std::unique_ptr<PrinterQuery> printer_query =
       queue_->PopPrinterQuery(params.cookie);
@@ -187,18 +151,18 @@ void CefPrintingMessageFilter::OnScriptedPrint(
 void CefPrintingMessageFilter::OnScriptedPrintReply(
     std::unique_ptr<PrinterQuery> printer_query,
     IPC::Message* reply_msg) {
-  PrintMsg_PrintPages_Params params;
-  if (printer_query->last_status() != PrintingContext::OK ||
-      !printer_query->settings().dpi()) {
-    params.Reset();
-  } else {
-    RenderParamsFromPrintSettings(printer_query->settings(), &params.params);
-    params.params.document_cookie = printer_query->cookie();
+  mojom::PrintPagesParams params;
+  params.params = mojom::PrintParams::New();
+  if (printer_query->last_status() == PrintingContext::OK &&
+      printer_query->settings().dpi()) {
+    RenderParamsFromPrintSettings(printer_query->settings(),
+                                  params.params.get());
+    params.params->document_cookie = printer_query->cookie();
     params.pages = PageRange::GetPages(printer_query->settings().ranges());
   }
   PrintHostMsg_ScriptedPrint::WriteReplyParams(reply_msg, params);
   Send(reply_msg);
-  if (!params.params.dpi.IsEmpty() && params.params.document_cookie) {
+  if (!params.params->dpi.IsEmpty() && params.params->document_cookie) {
     queue_->QueuePrinterQuery(std::move(printer_query));
   } else {
     printer_query->StopWorker();
@@ -228,17 +192,26 @@ void CefPrintingMessageFilter::OnUpdatePrintSettings(int document_cookie,
 void CefPrintingMessageFilter::OnUpdatePrintSettingsReply(
     std::unique_ptr<PrinterQuery> printer_query,
     IPC::Message* reply_msg) {
-  PrintMsg_PrintPages_Params params;
-  if (!printer_query.get() ||
-      printer_query->last_status() != PrintingContext::OK) {
-    params.Reset();
-  } else {
-    RenderParamsFromPrintSettings(printer_query->settings(), &params.params);
-    params.params.document_cookie = printer_query->cookie();
+  mojom::PrintPagesParams params;
+  params.params = mojom::PrintParams::New();
+  if (printer_query && printer_query->last_status() == PrintingContext::OK) {
+    RenderParamsFromPrintSettings(printer_query->settings(),
+                                  params.params.get());
+    params.params->document_cookie = printer_query->cookie();
     params.pages = PageRange::GetPages(printer_query->settings().ranges());
   }
   bool canceled = printer_query.get() &&
                   (printer_query->last_status() == PrintingContext::CANCEL);
+#if defined(OS_WIN)
+  if (canceled) {
+    int routing_id = reply_msg->routing_id();
+    content::GetUIThreadTaskRunner({})->PostTask(
+        FROM_HERE,
+        base::BindOnce(&CefPrintingMessageFilter::NotifySystemDialogCancelled,
+                       this, routing_id));
+  }
+#endif
+
   PrintHostMsg_UpdatePrintSettings::WriteReplyParams(reply_msg, params,
                                                      canceled);
   Send(reply_msg);
@@ -252,10 +225,16 @@ void CefPrintingMessageFilter::OnUpdatePrintSettingsReply(
   }
 }
 
-void CefPrintingMessageFilter::OnCheckForCancel(
-    const PrintHostMsg_PreviewIds& ids,
-    bool* cancel) {
+void CefPrintingMessageFilter::OnCheckForCancel(const mojom::PreviewIds& ids,
+                                                bool* cancel) {
   *cancel = false;
 }
+
+#if defined(OS_WIN)
+void CefPrintingMessageFilter::NotifySystemDialogCancelled(int routing_id) {
+  auto manager = GetPrintViewManager(render_process_id_, routing_id);
+  manager->SystemDialogCancelled();
+}
+#endif
 
 }  // namespace printing

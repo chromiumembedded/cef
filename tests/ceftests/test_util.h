@@ -81,9 +81,6 @@ inline bool IsTestRequestContextModeCustom(TestRequestContextMode mode) {
 // Returns true if the old CefResourceHandler API should be tested.
 bool TestOldResourceAPI();
 
-// Returns true if OutOfBlinkCors is enabled.
-bool IsOutOfBlinkCorsEnabled();
-
 // Returns true if the Chrome runtime is enabled.
 bool IsChromeRuntimeEnabled();
 

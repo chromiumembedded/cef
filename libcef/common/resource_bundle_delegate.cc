@@ -34,9 +34,10 @@ base::RefCountedStaticMemory* CefResourceBundleDelegate::LoadDataResourceBytes(
   return nullptr;
 }
 
-bool CefResourceBundleDelegate::GetRawDataResource(int resource_id,
-                                                   ui::ScaleFactor scale_factor,
-                                                   base::StringPiece* value) {
+bool CefResourceBundleDelegate::GetRawDataResource(
+    int resource_id,
+    ui::ScaleFactor scale_factor,
+    base::StringPiece* value) const {
   auto application = CefAppManager::Get()->GetApplication();
   if (application) {
     CefRefPtr<CefResourceBundleHandler> handler =
@@ -59,8 +60,9 @@ bool CefResourceBundleDelegate::GetRawDataResource(int resource_id,
   return (pack_loading_disabled_ || !value->empty());
 }
 
-bool CefResourceBundleDelegate::GetLocalizedString(int message_id,
-                                                   base::string16* value) {
+bool CefResourceBundleDelegate::GetLocalizedString(
+    int message_id,
+    base::string16* value) const {
   auto application = CefAppManager::Get()->GetApplication();
   if (application) {
     CefRefPtr<CefResourceBundleHandler> handler =

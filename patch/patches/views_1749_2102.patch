@@ -106,10 +106,10 @@ index 4b39abb9d16c..c3b5debf995b 100644
  };
  
 diff --git ui/views/animation/ink_drop_host_view.h ui/views/animation/ink_drop_host_view.h
-index e6062daf0f1b..64aefc152a81 100644
+index 7a6dda99623b..7476e8966285 100644
 --- ui/views/animation/ink_drop_host_view.h
 +++ ui/views/animation/ink_drop_host_view.h
-@@ -149,6 +149,8 @@ class VIEWS_EXPORT InkDropHostView : public View {
+@@ -142,6 +142,8 @@ class VIEWS_EXPORT InkDropHostView : public View {
    // changes, to trigger the corresponding property change notification here.
    void OnInkDropHighlightedChanged();
  
@@ -119,10 +119,10 @@ index e6062daf0f1b..64aefc152a81 100644
    // Size used for the default SquareInkDropRipple.
    static constexpr gfx::Size kDefaultInkDropSize = gfx::Size(24, 24);
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 77c7f6830f9c..3a683e178668 100644
+index b8dada677222..87d790657722 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -508,6 +508,12 @@ void LabelButton::OnThemeChanged() {
+@@ -513,6 +513,12 @@ void LabelButton::OnThemeChanged() {
    SchedulePaint();
  }
  
@@ -136,10 +136,10 @@ index 77c7f6830f9c..3a683e178668 100644
    Button::StateChanged(old_state);
    ResetLabelEnabledColor();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 45692ab8b7c3..f4484c069137 100644
+index 4990f7e6ee48..c111e11f5100 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
-@@ -130,6 +130,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
+@@ -134,6 +134,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
    ui::NativeTheme::State GetForegroundThemeState(
        ui::NativeTheme::ExtraParams* params) const override;
  
@@ -150,7 +150,7 @@ index 45692ab8b7c3..f4484c069137 100644
    ImageView* image() const { return image_; }
    Label* label() const { return label_; }
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index d0b00369f1a9..920df6ad1988 100644
+index 66ce6e76618b..ac584d47cea9 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -47,12 +47,27 @@ enum LabelPropertyKey {
@@ -197,7 +197,7 @@ index d0b00369f1a9..920df6ad1988 100644
  void Label::SetTooltipText(const base::string16& tooltip_text) {
    DCHECK(handles_tooltips_);
    if (tooltip_text_ == tooltip_text)
-@@ -617,7 +641,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -619,7 +643,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
    render_text->SetFontList(font_list());
    render_text->set_shadows(GetShadows());
    render_text->SetCursorEnabled(false);
@@ -219,10 +219,10 @@ index d0b00369f1a9..920df6ad1988 100644
    render_text->SetMultiline(multiline);
    render_text->SetMaxLines(multiline ? GetMaxLines() : 0);
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 6cb286abd747..d05356e9caee 100644
+index f5b59c83c526..da238ea0a4ae 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
-@@ -198,6 +198,10 @@ class VIEWS_EXPORT Label : public View,
+@@ -199,6 +199,10 @@ class VIEWS_EXPORT Label : public View,
    gfx::ElideBehavior GetElideBehavior() const;
    void SetElideBehavior(gfx::ElideBehavior elide_behavior);
  
@@ -233,7 +233,7 @@ index 6cb286abd747..d05356e9caee 100644
    // Gets/Sets the tooltip text.  Default behavior for a label (single-line) is
    // to show the full text if it is wider than its bounds.  Calling this
    // overrides the default behavior and lets you set a custom tooltip.  To
-@@ -432,6 +436,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -433,6 +437,7 @@ class VIEWS_EXPORT Label : public View,
    bool collapse_when_hidden_ = false;
    int fixed_width_ = 0;
    int max_width_ = 0;
@@ -242,10 +242,10 @@ index 6cb286abd747..d05356e9caee 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index bad1730e19a0..2054d3b48e41 100644
+index e6a96689ef60..5dd54e402ce8 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2668,8 +2668,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2689,8 +2689,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -260,7 +260,7 @@ index bad1730e19a0..2054d3b48e41 100644
    MenuItemView* to_select = nullptr;
    if (!item->GetSubmenu()->GetMenuItems().empty())
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2688,8 +2693,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2709,8 +2714,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -312,10 +312,10 @@ index 158724b4752c..c82192848584 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index f14eb8069141..98b1fca6c190 100644
+index aaaddc97e057..2a335d26c3f9 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1070,6 +1070,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1075,6 +1075,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -331,7 +331,7 @@ index f14eb8069141..98b1fca6c190 100644
    } else if (render_selection) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == Type::kActionableSubMenu) {
-@@ -1137,6 +1146,13 @@ void MenuItemView::PaintMinorIconAndText(
+@@ -1142,6 +1151,13 @@ void MenuItemView::PaintMinorIconAndText(
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool render_selection) const {
@@ -453,10 +453,10 @@ index 78f832fd3acf..cb030c991614 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 3ba6950690e3..f500022cc083 100644
+index 979e2222ad7c..3644db9f087d 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
-@@ -199,6 +199,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
+@@ -200,6 +200,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
    scroll_down_button_ =
        AddChildView(std::make_unique<MenuScrollButton>(content_view, false));
  
@@ -469,10 +469,10 @@ index 3ba6950690e3..f500022cc083 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aurax11.cc ui/views/test/ui_controls_factory_desktop_aurax11.cc
-index 2d80939961d7..ef2299910d75 100644
+index 82135658e188..53674f44d5d1 100644
 --- ui/views/test/ui_controls_factory_desktop_aurax11.cc
 +++ ui/views/test/ui_controls_factory_desktop_aurax11.cc
-@@ -154,10 +154,6 @@ class UIControlsDesktopX11 : public UIControlsAura {
+@@ -135,10 +135,6 @@ class UIControlsDesktopX11 : public UIControlsAura {
          aura::test::QueryLatestMousePositionRequestInHost(host);
      host->ConvertPixelsToDIP(&root_current_location);
  
@@ -484,7 +484,7 @@ index 2d80939961d7..ef2299910d75 100644
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
        // current mouse position as a result of XGrabPointer()
 diff --git ui/views/view.h ui/views/view.h
-index 1990d29fcae1..dcfaaa7f6f3f 100644
+index ff42e9282492..b1f65d8e2c4d 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -24,6 +24,7 @@
@@ -495,7 +495,7 @@ index 1990d29fcae1..dcfaaa7f6f3f 100644
  #include "build/build_config.h"
  #include "third_party/skia/include/core/SkPath.h"
  #include "ui/accessibility/ax_enums.mojom-forward.h"
-@@ -275,6 +276,7 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -274,6 +275,7 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
                            public ui::EventTarget,
                            public ui::EventHandler,
                            public ui::PropertyHandler,

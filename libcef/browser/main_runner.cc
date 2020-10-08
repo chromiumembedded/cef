@@ -21,11 +21,12 @@
 #include "base/synchronization/lock.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
-#include "content/app/content_service_manager_main_delegate.h"
+#include "content/app/content_main_runner_impl.h"
 #include "content/browser/scheduler/browser_task_executor.h"
+#include "content/public/app/content_main.h"
+#include "content/public/app/content_main_runner.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
-#include "services/service_manager/embedder/main.h"
 
 #if defined(OS_WIN)
 #include <Objbase.h>
@@ -362,7 +363,10 @@ int CefMainRunner::ContentMainInitialize(const CefMainArgs& args,
   main_delegate_->BeforeMainThreadInitialize(args);
 
   // Initialize the content runner.
-  content::ContentMainParams params(main_delegate_->GetContentMainDelegate());
+  main_runner_ = content::ContentMainRunner::Create();
+  main_params_ = std::make_unique<content::ContentMainParams>(
+      main_delegate_->GetContentMainDelegate());
+
 #if defined(OS_WIN)
   sandbox::SandboxInterfaceInfo sandbox_info = {0};
   if (windows_sandbox_info == nullptr) {
@@ -370,25 +374,15 @@ int CefMainRunner::ContentMainInitialize(const CefMainArgs& args,
     *no_sandbox = true;
   }
 
-  params.instance = args.instance;
-  params.sandbox_info =
+  main_params_->instance = args.instance;
+  main_params_->sandbox_info =
       static_cast<sandbox::SandboxInterfaceInfo*>(windows_sandbox_info);
 #else
-  params.argc = args.argc;
-  params.argv = const_cast<const char**>(args.argv);
+  main_params_->argc = args.argc;
+  main_params_->argv = const_cast<const char**>(args.argv);
 #endif
 
-  sm_main_delegate_.reset(
-      new content::ContentServiceManagerMainDelegate(params));
-  sm_main_params_.reset(
-      new service_manager::MainParams(sm_main_delegate_.get()));
-
-#if defined(OS_POSIX) && !defined(OS_ANDROID)
-  sm_main_params_->argc = params.argc;
-  sm_main_params_->argv = params.argv;
-#endif
-
-  return service_manager::MainInitialize(*sm_main_params_);
+  return content::ContentMainInitialize(*main_params_, main_runner_.get());
 }
 
 bool CefMainRunner::ContentMainRun(bool* initialized,
@@ -402,7 +396,8 @@ bool CefMainRunner::ContentMainRun(bool* initialized,
 
     if (!CreateUIThread(base::BindOnce(
             [](CefMainRunner* runner, base::WaitableEvent* event) {
-              service_manager::MainRun(*runner->sm_main_params_);
+              content::ContentMainRun(*runner->main_params_,
+                                      runner->main_runner_.get());
               event->Signal();
             },
             base::Unretained(this),
@@ -412,11 +407,11 @@ bool CefMainRunner::ContentMainRun(bool* initialized,
 
     *initialized = true;
 
-    // We need to wait until service_manager::MainRun has finished.
+    // We need to wait until content::ContentMainRun has finished.
     uithread_startup_event.Wait();
   } else {
     *initialized = true;
-    service_manager::MainRun(*sm_main_params_);
+    content::ContentMainRun(*main_params_, main_runner_.get());
   }
 
   if (CEF_CURRENTLY_ON_UIT()) {
@@ -484,7 +479,8 @@ void CefMainRunner::FinishShutdownOnUIThread(
     base::WaitableEvent* uithread_shutdown_event) {
   CEF_REQUIRE_UIT();
 
-  sm_main_delegate_->ShutdownOnUIThread();
+  static_cast<content::ContentMainRunnerImpl*>(main_runner_.get())
+      ->ShutdownOnUIThread();
 
   std::move(shutdown_on_ui_thread).Run();
   main_delegate_->AfterUIThreadShutdown();
@@ -508,10 +504,10 @@ void CefMainRunner::FinalizeShutdown(base::OnceClosure finalize_shutdown) {
   }
 
   // Shut down the content runner.
-  service_manager::MainShutdown(*sm_main_params_);
+  content::ContentMainShutdown(*main_params_, main_runner_.get());
 
-  sm_main_params_.reset();
-  sm_main_delegate_.reset();
+  main_params_.reset();
+  main_runner_.reset();
 
   std::move(finalize_shutdown).Run();
   main_delegate_->AfterMainThreadShutdown();

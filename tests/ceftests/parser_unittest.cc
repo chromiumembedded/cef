@@ -464,25 +464,21 @@ TEST(ParserTest, ParseJSONList) {
 
 TEST(ParserTest, ParseJSONAndReturnErrorInvalid) {
   const char data[] = "This is my test data";
-  cef_json_parser_error_t error_code;
   CefString error_msg;
   CefRefPtr<CefValue> value =
-      CefParseJSONAndReturnError(data, JSON_PARSER_RFC, error_code, error_msg);
+      CefParseJSONAndReturnError(data, JSON_PARSER_RFC, error_msg);
   CefString expect_error_msg = "Line: 1, column: 1, Unexpected token.";
   EXPECT_FALSE(value.get());
-  EXPECT_EQ(JSON_UNEXPECTED_TOKEN, error_code);
   EXPECT_EQ(expect_error_msg, error_msg);
 }
 
 TEST(ParserTest, ParseJSONAndReturnErrorTrailingComma) {
   const char data[] = "{\"key1\":123,}";
-  cef_json_parser_error_t error_code;
   CefString error_msg;
   CefRefPtr<CefValue> value =
-      CefParseJSONAndReturnError(data, JSON_PARSER_RFC, error_code, error_msg);
+      CefParseJSONAndReturnError(data, JSON_PARSER_RFC, error_msg);
   CefString expect_error_msg =
       "Line: 1, column: 13, Trailing comma not allowed.";
   EXPECT_FALSE(value.get());
-  EXPECT_EQ(JSON_TRAILING_COMMA, error_code);
   EXPECT_EQ(expect_error_msg, error_msg);
 }

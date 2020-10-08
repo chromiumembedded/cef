@@ -42,16 +42,6 @@ base::Optional<std::string> GetHeaderString(
   return header_value;
 }
 
-bool IsOutOfBlinkCorsEnabled() {
-  static int state = -1;
-  if (state == -1) {
-    state = base::FeatureList::IsEnabled(network::features::kOutOfBlinkCors)
-                ? 1
-                : 0;
-  }
-  return !!state;
-}
-
 void CreateProxyHelper(
     content::WebContents::Getter web_contents_getter,
     mojo::PendingReceiver<network::mojom::URLLoaderFactory> loader_receiver,
@@ -439,7 +429,7 @@ void InterceptedRequest::Restart() {
   current_request_uses_header_client_ =
       !!factory_->url_loader_header_client_receiver_;
 
-  if (IsOutOfBlinkCorsEnabled() && request_.request_initiator &&
+  if (request_.request_initiator &&
       network::cors::ShouldCheckCors(request_.url, request_.request_initiator,
                                      request_.mode)) {
     if (scheme::IsCorsEnabledScheme(request_.url.scheme())) {
@@ -1010,8 +1000,7 @@ void InterceptedRequest::ContinueToResponseStarted(int error_code) {
 
     // CORS check for requests that are handled by the client. Requests handled
     // by the network process will be checked there.
-    if (IsOutOfBlinkCorsEnabled() && stream_loader_ && !is_redirect &&
-        request_.request_initiator &&
+    if (stream_loader_ && !is_redirect && request_.request_initiator &&
         network::cors::ShouldCheckCors(request_.url, request_.request_initiator,
                                        request_.mode)) {
       const auto error_status = network::cors::CheckAccess(

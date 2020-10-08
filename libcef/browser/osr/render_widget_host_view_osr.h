@@ -27,6 +27,7 @@
 #include "content/browser/renderer_host/input/mouse_wheel_phase_handler.h"
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
 #include "content/browser/renderer_host/text_input_manager.h"
+#include "content/public/browser/render_frame_metadata_provider.h"
 #include "content/public/common/widget_type.h"
 #include "ui/base/cursor/mojom/cursor_type.mojom-shared.h"
 #include "ui/compositor/compositor.h"
@@ -64,10 +65,6 @@ class CefVideoConsumerOSR;
 class CefWebContentsViewOSR;
 
 #if defined(USE_X11)
-namespace ui {
-class X11Cursor;
-class XCursorLoader;
-}  // namespace ui
 class CefWindowX11;
 #endif
 
@@ -93,10 +90,12 @@ class CefWindowX11;
 class MacHelper;
 #endif
 
-class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
-                                   public ui::CompositorDelegate,
-                                   public content::TextInputManager::Observer,
-                                   public ui::GestureProviderClient {
+class CefRenderWidgetHostViewOSR
+    : public content::RenderWidgetHostViewBase,
+      public content::RenderFrameMetadataProvider::Observer,
+      public ui::CompositorDelegate,
+      public content::TextInputManager::Observer,
+      public ui::GestureProviderClient {
  public:
   CefRenderWidgetHostViewOSR(SkColor background_color,
                              bool use_shared_texture,
@@ -180,13 +179,19 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void SelectionChanged(const base::string16& text,
                         size_t offset,
                         const gfx::Range& range) override;
-  const viz::LocalSurfaceIdAllocation& GetLocalSurfaceIdAllocation()
-      const override;
+  const viz::LocalSurfaceId& GetLocalSurfaceId() const override;
   const viz::FrameSinkId& GetFrameSinkId() const override;
   viz::FrameSinkId GetRootFrameSinkId() override;
-  void OnRenderFrameMetadataChangedAfterActivation() override;
 
   void OnFrameComplete(const viz::BeginFrameAck& ack);
+
+  // RenderFrameMetadataProvider::Observer implementation.
+  void OnRenderFrameMetadataChangedBeforeActivation(
+      const cc::RenderFrameMetadata& metadata) override {}
+  void OnRenderFrameMetadataChangedAfterActivation() override;
+  void OnRenderFrameSubmission() override {}
+  void OnLocalSurfaceIdChanged(
+      const cc::RenderFrameMetadata& metadata) override {}
 
   // ui::CompositorDelegate implementation.
   std::unique_ptr<viz::HostDisplayClient> CreateHostDisplayClient() override;
@@ -208,8 +213,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   void WasResized();
   void SynchronizeVisualProperties(
       const cc::DeadlinePolicy& deadline_policy,
-      const base::Optional<viz::LocalSurfaceIdAllocation>&
-          child_local_surface_id_allocation);
+      const base::Optional<viz::LocalSurfaceId>& child_local_surface_id);
   void OnScreenInfoChanged();
   void Invalidate(CefBrowserHost::PaintElementType type);
   void SendExternalBeginFrame();
@@ -303,18 +307,16 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   // CompositorFrame submission in anticipation of a synchronization operation
   // that does not involve a resize or a device scale factor change.
   void AllocateLocalSurfaceId();
-  const viz::LocalSurfaceIdAllocation& GetCurrentLocalSurfaceIdAllocation()
-      const;
+  const viz::LocalSurfaceId& GetCurrentLocalSurfaceId() const;
 
   // Sets the current viz::LocalSurfaceId, in cases where the embedded client
   // has allocated one. Also sets child sequence number component of the
   // viz::LocalSurfaceId allocator.
   void UpdateLocalSurfaceIdFromEmbeddedClient(
-      const base::Optional<viz::LocalSurfaceIdAllocation>&
-          local_surface_id_allocation);
+      const base::Optional<viz::LocalSurfaceId>& local_surface_id);
 
   // Returns the current viz::LocalSurfaceIdAllocation.
-  const viz::LocalSurfaceIdAllocation& GetOrCreateLocalSurfaceIdAllocation();
+  const viz::LocalSurfaceId& GetOrCreateLocalSurfaceId();
 
   // Marks the current viz::LocalSurfaceId as invalid. AllocateLocalSurfaceId
   // must be called before submitting new CompositorFrames.
@@ -328,6 +330,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
 
 #if defined(USE_AURA)
   CefCursorHandle GetPlatformCursor(ui::mojom::CursorType type);
+  CefCursorHandle ToCursorHandle(ui::PlatformCursor cursor);
 #endif
 
   // The background color of the web content.
@@ -345,11 +348,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   std::unique_ptr<viz::ParentLocalSurfaceIdAllocator>
       parent_local_surface_id_allocator_;
   viz::ParentLocalSurfaceIdAllocator compositor_local_surface_id_allocator_;
-
-#if defined(USE_X11)
-  std::unique_ptr<ui::XCursorLoader> cursor_loader_;
-  scoped_refptr<ui::X11Cursor> invisible_cursor_;
-#endif
 
   std::unique_ptr<content::CursorManager> cursor_manager_;
 

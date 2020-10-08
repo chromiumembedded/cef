@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=14cf03e02d8ca3416e65f756470afd8185c7bc78$
+// $hash=19337a70a13352e70452be7fcc25ef2de4b1ae4c$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_PARSER_CAPI_H_
@@ -153,13 +153,11 @@ CEF_EXPORT struct _cef_value_t* cef_parse_json_buffer(
 ///
 // Parses the specified |json_string| and returns a dictionary or list
 // representation. If JSON parsing fails this function returns NULL and
-// populates |error_code_out| and |error_msg_out| with an error code and a
-// formatted error message respectively.
+// populates |error_msg_out| with a formatted error message.
 ///
 CEF_EXPORT struct _cef_value_t* cef_parse_jsonand_return_error(
     const cef_string_t* json_string,
     cef_json_parser_options_t options,
-    cef_json_parser_error_t* error_code_out,
     cef_string_t* error_msg_out);
 
 ///

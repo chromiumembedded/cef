@@ -9,8 +9,8 @@
 #include "libcef/common/values_impl.h"
 
 #include "base/logging.h"
-#include "content/browser/frame_host/frame_tree_node.h"
-#include "content/browser/frame_host/render_frame_host_impl.h"
+#include "content/browser/renderer_host/frame_tree_node.h"
+#include "content/browser/renderer_host/render_frame_host_impl.h"
 #include "content/public/browser/render_process_host.h"
 #include "ipc/ipc_message.h"
 

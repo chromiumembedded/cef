@@ -53,8 +53,8 @@
 #   installed. Only 64-bit builds are supported.
 #
 # - Windows requirements:
-#   Visual Studio 2015 or newer building on Windows 7 or newer. Visual Studio
-#   2019 and Windows 10 64-bit are recommended.
+#   Visual Studio 2015 Update 2 or newer building on Windows 7 or newer. Visual
+#   Studio 2019 and Windows 10 64-bit are recommended.
 #
 # BUILD EXAMPLES
 #

@@ -1,8 +1,8 @@
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index d9cd61297548..9bfbc5212ed6 100644
+index 58bf3e8caf4e..c224432e8af2 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
-@@ -149,13 +149,17 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
+@@ -155,13 +155,17 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):
          del os.environ['INCLUDE']
          del os.environ['LIB']
          del os.environ['LIBPATH']

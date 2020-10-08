@@ -8,7 +8,7 @@
 
 #include "include/cef_media_router.h"
 
-#include "chrome/common/media_router/media_source.h"
+#include "components/media_router/common/media_source.h"
 
 // Implementation of the CefMediaSource interface. May be created on any thread.
 class CefMediaSourceImpl : public CefMediaSource {

@@ -54,6 +54,7 @@
 #include "net/traffic_annotation/network_traffic_annotation.h"
 #include "services/network/public/cpp/simple_url_loader.h"
 #include "services/network/public/cpp/simple_url_loader_stream_consumer.h"
+#include "services/network/public/cpp/wrapper_shared_url_loader_factory.h"
 #include "services/network/public/mojom/url_response_head.mojom.h"
 #include "storage/browser/file_system/native_file_util.h"
 
@@ -445,15 +446,15 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     resource_request->site_for_cookies = net::SiteForCookies::FromUrl(gurl);
     resource_request->headers.AddHeadersFromString(headers);
 
-    std::unique_ptr<network::mojom::URLLoaderFactory> file_url_loader_factory;
-    scoped_refptr<network::SharedURLLoaderFactory> network_url_loader_factory;
-    std::unique_ptr<network::mojom::URLLoaderFactory> webui_url_loader_factory;
-    network::mojom::URLLoaderFactory* url_loader_factory;
+    scoped_refptr<network::SharedURLLoaderFactory> url_loader_factory;
     if (gurl.SchemeIsFile()) {
-      file_url_loader_factory = content::CreateFileURLLoaderFactory(
-          base::FilePath() /* profile_path */,
-          nullptr /* shared_cors_origin_access_list */);
-      url_loader_factory = file_url_loader_factory.get();
+      mojo::PendingRemote<network::mojom::URLLoaderFactory> pending_remote =
+          content::CreateFileURLLoaderFactory(
+              base::FilePath() /* profile_path */,
+              nullptr /* shared_cors_origin_access_list */);
+      url_loader_factory = network::SharedURLLoaderFactory::Create(
+          std::make_unique<network::WrapperPendingSharedURLLoaderFactory>(
+              std::move(pending_remote)));
     } else if (content::HasWebUIScheme(gurl)) {
       base::DictionaryValue response;
       response.SetInteger("statusCode", 403);
@@ -462,15 +463,13 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     } else {
       auto* partition = content::BrowserContext::GetStoragePartitionForSite(
           web_contents()->GetBrowserContext(), gurl);
-      network_url_loader_factory =
-          partition->GetURLLoaderFactoryForBrowserProcess();
-      url_loader_factory = network_url_loader_factory.get();
+      url_loader_factory = partition->GetURLLoaderFactoryForBrowserProcess();
     }
 
     auto simple_url_loader = network::SimpleURLLoader::Create(
         std::move(resource_request), traffic_annotation);
     auto resource_loader = std::make_unique<NetworkResourceLoader>(
-        stream_id, this, std::move(simple_url_loader), url_loader_factory,
+        stream_id, this, std::move(simple_url_loader), url_loader_factory.get(),
         request_id);
     loaders_.insert(std::move(resource_loader));
     return;

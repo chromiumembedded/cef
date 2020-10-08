@@ -1,0 +1,39 @@
+diff --git net/base/load_flags_list.h net/base/load_flags_list.h
+index 96d1a51ec107..e8120a818b1f 100644
+--- net/base/load_flags_list.h
++++ net/base/load_flags_list.h
+@@ -101,3 +101,6 @@ LOAD_FLAG(RESTRICTED_PREFETCH, 1 << 15)
+ // is considered privileged, and therefore this flag must only be set from a
+ // trusted process.
+ LOAD_FLAG(CAN_USE_RESTRICTED_PREFETCH, 1 << 16)
++
++// This load will not send any cookies. For CEF usage.
++LOAD_FLAG(DO_NOT_SEND_COOKIES, 1 << 17)
+diff --git net/url_request/url_request_http_job.cc net/url_request/url_request_http_job.cc
+index f5e754f4ea02..5dd6fc5ca061 100644
+--- net/url_request/url_request_http_job.cc
++++ net/url_request/url_request_http_job.cc
+@@ -567,7 +567,8 @@ void URLRequestHttpJob::AddCookieHeaderAndStart() {
+   // Read cookies whenever allow_credentials() is true, even if the PrivacyMode
+   // is being overridden by NetworkDelegate and will eventually block them, as
+   // blocked cookies still need to be logged in that case.
+-  if (cookie_store && request_->allow_credentials()) {
++  if (cookie_store && request_->allow_credentials() &&
++      !(request_info_.load_flags & LOAD_DO_NOT_SEND_COOKIES)) {
+     CookieOptions options;
+     options.set_return_excluded_cookies();
+     options.set_include_httponly();
+diff --git services/network/public/cpp/resource_request.cc services/network/public/cpp/resource_request.cc
+index 8f1b36b6befd..979874409d23 100644
+--- services/network/public/cpp/resource_request.cc
++++ services/network/public/cpp/resource_request.cc
+@@ -126,7 +126,8 @@ bool ResourceRequest::EqualsForTesting(const ResourceRequest& request) const {
+ }
+ 
+ bool ResourceRequest::SendsCookies() const {
+-  return credentials_mode == network::mojom::CredentialsMode::kInclude;
++  return credentials_mode == network::mojom::CredentialsMode::kInclude &&
++         !(load_flags & net::LOAD_DO_NOT_SEND_COOKIES);
+ }
+ 
+ bool ResourceRequest::SavesCookies() const {

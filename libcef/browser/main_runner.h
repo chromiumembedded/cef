@@ -20,14 +20,9 @@ class WaitableEvent;
 }
 
 namespace content {
-class ContentMainDelegate;
-class ContentServiceManagerMainDelegate;
-struct MainFunctionParams;
+class ContentMainRunner;
+struct ContentMainParams;
 }  // namespace content
-
-namespace service_manager {
-struct MainParams;
-}
 
 class CefUIThread;
 
@@ -87,8 +82,8 @@ class CefMainRunner : public CefMainRunnerHandler {
   const bool external_message_pump_;
 
   std::unique_ptr<CefMainRunnerDelegate> main_delegate_;
-  std::unique_ptr<content::ContentServiceManagerMainDelegate> sm_main_delegate_;
-  std::unique_ptr<service_manager::MainParams> sm_main_params_;
+  std::unique_ptr<content::ContentMainRunner> main_runner_;
+  std::unique_ptr<content::ContentMainParams> main_params_;
 
   std::unique_ptr<content::BrowserMainRunner> browser_runner_;
   std::unique_ptr<CefUIThread> ui_thread_;

@@ -25,6 +25,15 @@
 #include "extensions/browser/process_manager.h"
 #include "third_party/blink/public/mojom/frame/find_in_page.mojom.h"
 
+namespace {
+
+printing::CefPrintViewManager* GetPrintViewManager(
+    content::WebContents* web_contents) {
+  return printing::CefPrintViewManager::FromWebContents(web_contents);
+}
+
+}  // namespace
+
 CefBrowserPlatformDelegateAlloy::CefBrowserPlatformDelegateAlloy()
     : weak_ptr_factory_(this) {}
 
@@ -348,11 +357,9 @@ void CefBrowserPlatformDelegateAlloy::Print() {
   auto rfh = actionable_contents->GetMainFrame();
 
   if (IsPrintPreviewSupported()) {
-    printing::CefPrintViewManager::FromWebContents(actionable_contents)
-        ->PrintPreviewNow(rfh, false);
+    GetPrintViewManager(actionable_contents)->PrintPreviewNow(rfh, false);
   } else {
-    printing::PrintViewManager::FromWebContents(actionable_contents)
-        ->PrintNow(rfh);
+    GetPrintViewManager(actionable_contents)->PrintNow(rfh);
   }
 }
 
@@ -370,7 +377,7 @@ void CefBrowserPlatformDelegateAlloy::PrintToPDF(
     pdf_callback = base::Bind(&CefPdfPrintCallback::OnPdfPrintFinished,
                               callback.get(), path);
   }
-  printing::CefPrintViewManager::FromWebContents(actionable_contents)
+  GetPrintViewManager(actionable_contents)
       ->PrintToPDF(actionable_contents->GetMainFrame(), base::FilePath(path),
                    settings, pdf_callback);
 }
@@ -394,7 +401,7 @@ void CefBrowserPlatformDelegateAlloy::Find(int identifier,
   auto options = blink::mojom::FindOptions::New();
   options->forward = forward;
   options->match_case = matchCase;
-  options->find_next_if_selection_matches = findNext;
+  options->find_match = findNext;
   web_contents_->Find(identifier, searchText, std::move(options));
 }
 

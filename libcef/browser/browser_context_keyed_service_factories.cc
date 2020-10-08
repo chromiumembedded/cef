@@ -6,6 +6,7 @@
 #include "libcef/common/extensions/extensions_util.h"
 
 #include "chrome/browser/content_settings/cookie_settings_factory.h"
+#include "chrome/browser/media/router/chrome_media_router_factory.h"
 #include "chrome/browser/plugins/plugin_prefs_factory.h"
 #include "chrome/browser/profiles/renderer_updater_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
@@ -19,6 +20,7 @@ namespace cef {
 
 void EnsureBrowserContextKeyedServiceFactoriesBuilt() {
   CookieSettingsFactory::GetInstance();
+  media_router::ChromeMediaRouterFactory::GetInstance();
   PluginPrefsFactory::GetInstance();
   PrefsTabHelper::GetServiceInstance();
   RendererUpdaterFactory::GetInstance();

@@ -10,9 +10,9 @@
 
 #include "base/memory/weak_ptr.h"
 #include "base/observer_list.h"
-#include "chrome/browser/media/router/media_router.h"
 #include "chrome/browser/ui/media_router/query_result_manager.h"
-#include "chrome/common/media_router/mojom/media_router.mojom.h"
+#include "components/media_router/browser/media_router.h"
+#include "components/media_router/common/mojom/media_router.mojom.h"
 
 namespace content {
 class BrowserContext;

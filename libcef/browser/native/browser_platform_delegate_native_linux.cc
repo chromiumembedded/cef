@@ -72,12 +72,20 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
 
 #if defined(USE_X11)
   DCHECK(!window_x11_);
+
+  x11::Window parent_window = x11::Window::None;
+  if (window_info_.parent_window != kNullWindowHandle) {
+    parent_window = static_cast<x11::Window>(window_info_.parent_window);
+  }
+
   // Create a new window object. It will delete itself when the associated X11
   // window is destroyed.
   window_x11_ =
-      new CefWindowX11(browser_, window_info_.parent_window, rect,
+      new CefWindowX11(browser_, parent_window, rect,
                        CefString(&window_info_.window_name).ToString());
-  window_info_.window = window_x11_->xwindow();
+  DCHECK_NE(window_x11_->xwindow(), x11::Window::None);
+  window_info_.window =
+      static_cast<cef_window_handle_t>(window_x11_->xwindow());
 
   host_window_created_ = true;
 

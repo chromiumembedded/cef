@@ -8,6 +8,7 @@
 #include "include/internal/cef_types_wrappers.h"
 
 #include "base/macros.h"
+#include "chrome/browser/printing/print_view_manager.h"
 #include "components/printing/common/print.mojom-forward.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/browser/web_contents_user_data.h"
@@ -20,15 +21,12 @@ class WebContentsObserver;
 
 class CefBrowserInfo;
 
-struct PrintHostMsg_PreviewIds;
 struct PrintHostMsg_RequestPrintPreview_Params;
 
 namespace printing {
 
-// Manages the print commands for a WebContents.
-class CefPrintViewManager
-    : public content::WebContentsObserver,
-      public content::WebContentsUserData<CefPrintViewManager> {
+// CEF handler for print commands.
+class CefPrintViewManager : public PrintViewManager {
  public:
   ~CefPrintViewManager() override;
 
@@ -41,15 +39,25 @@ class CefPrintViewManager
                   const CefPdfPrintSettings& settings,
                   const PdfPrintCallback& callback);
 
-  // Call to Chrome's PrintViewManager.
-  bool PrintPreviewNow(content::RenderFrameHost* rfh, bool has_selection);
+  // mojom::PrintManagerHost methods:
+  void GetDefaultPrintSettings(
+      GetDefaultPrintSettingsCallback callback) override;
+  void DidShowPrintDialog() override;
 
-  // content::WebContentsObserver implementation.
+  // content::WebContentsObserver methods:
   void RenderFrameDeleted(content::RenderFrameHost* render_frame_host) override;
   void NavigationStopped() override;
   void RenderProcessGone(base::TerminationStatus status) override;
   bool OnMessageReceived(const IPC::Message& message,
                          content::RenderFrameHost* render_frame_host) override;
+
+  // Inline versions of the content::WebContentsUserData methods to avoid
+  // ambiguous warnings due to the PrintViewManager base class also extending
+  // WebContentsUserData.
+  static void CreateForWebContents(content::WebContents* contents);
+  static CefPrintViewManager* FromWebContents(content::WebContents* contents);
+  static const CefPrintViewManager* FromWebContents(
+      const content::WebContents* contents);
 
   // Used to track the lifespan of the print preview WebContents.
   class PrintPreviewHelper
@@ -72,7 +80,6 @@ class CefPrintViewManager
 
  private:
   explicit CefPrintViewManager(content::WebContents* web_contents);
-  friend class content::WebContentsUserData<CefPrintViewManager>;
 
   // IPC Message handlers.
   void OnRequestPrintPreview(content::RenderFrameHost* rfh,
@@ -82,11 +89,10 @@ class CefPrintViewManager
   void OnRequestPrintPreview_PrintToPdf(
       content::RenderFrameHost* rfh,
       const PrintHostMsg_RequestPrintPreview_Params&);
-  void OnDidShowPrintDialog_PrintToPdf(content::RenderFrameHost* rfh);
   void OnMetafileReadyForPrinting_PrintToPdf(
       content::RenderFrameHost* rfh,
       const mojom::DidPreviewDocumentParams& params,
-      const PrintHostMsg_PreviewIds& ids);
+      const mojom::PreviewIds& ids);
   void InitializePrintPreview(int frame_tree_node_id);
   void TerminatePdfPrintJob();
 
@@ -94,7 +100,7 @@ class CefPrintViewManager
   int next_pdf_request_id_ = content::RenderFrameHost::kNoFrameTreeNodeId;
   struct PdfPrintState;
   std::unique_ptr<PdfPrintState> pdf_print_state_;
-  WEB_CONTENTS_USER_DATA_KEY_DECL();
+
   DISALLOW_COPY_AND_ASSIGN(CefPrintViewManager);
 };
 

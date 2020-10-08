@@ -75,8 +75,8 @@
 #include "components/content_settings/core/browser/cookie_settings.h"
 #include "components/spellcheck/common/spellcheck.mojom.h"
 #include "components/version_info/version_info.h"
-#include "content/browser/frame_host/render_frame_host_impl.h"
 #include "content/browser/plugin_service_impl.h"
+#include "content/browser/renderer_host/render_frame_host_impl.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_ppapi_host.h"
 #include "content/public/browser/browser_thread.h"
@@ -97,7 +97,6 @@
 #include "content/public/common/storage_quota_params.h"
 #include "content/public/common/url_constants.h"
 #include "content/public/common/user_agent.h"
-#include "content/public/common/web_preferences.h"
 #include "extensions/browser/extension_message_filter.h"
 #include "extensions/browser/extension_protocols.h"
 #include "extensions/browser/extension_registry.h"
@@ -117,9 +116,9 @@
 #include "sandbox/policy/switches.h"
 #include "services/network/public/cpp/network_switches.h"
 #include "services/proxy_resolver/public/mojom/proxy_resolver.mojom.h"
-#include "services/service_manager/embedder/switches.h"
 #include "services/service_manager/public/mojom/connector.mojom.h"
 #include "storage/browser/quota/quota_settings.h"
+#include "third_party/blink/public/common/web_preferences/web_preferences.h"
 #include "third_party/blink/public/mojom/insecure_input/insecure_input_service.mojom.h"
 #include "third_party/blink/public/mojom/prerender/prerender.mojom.h"
 #include "third_party/blink/public/web/web_window_features.h"
@@ -758,7 +757,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
   }
 
 #if defined(OS_LINUX)
-  if (process_type == service_manager::switches::kZygoteProcess) {
+  if (process_type == switches::kZygoteProcess) {
     // Propagate the following switches to the zygote command line (along with
     // any associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
@@ -966,7 +965,7 @@ bool AlloyContentBrowserClient::CanCreateWindow(
 
 void AlloyContentBrowserClient::OverrideWebkitPrefs(
     content::RenderViewHost* rvh,
-    content::WebPreferences* prefs) {
+    blink::web_pref::WebPreferences* prefs) {
   // Using RVH instead of RFH here because rvh->GetMainFrame() may be nullptr
   // when this method is called.
   renderer_prefs::PopulateWebPreferences(rvh, *prefs);
@@ -979,7 +978,7 @@ void AlloyContentBrowserClient::OverrideWebkitPrefs(
 
 bool AlloyContentBrowserClient::OverrideWebPreferencesAfterNavigation(
     content::WebContents* web_contents,
-    content::WebPreferences* prefs) {
+    blink::web_pref::WebPreferences* prefs) {
   return renderer_prefs::PopulateWebPreferencesAfterNavigation(web_contents,
                                                                *prefs);
 }
@@ -1045,7 +1044,7 @@ void AlloyContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
     content::PosixFileDescriptorInfo* mappings) {
   int crash_signal_fd = GetCrashSignalFD(command_line);
   if (crash_signal_fd >= 0) {
-    mappings->Share(service_manager::kCrashDumpSignal, crash_signal_fd);
+    mappings->Share(kCrashDumpSignal, crash_signal_fd);
   }
 }
 #endif  // defined(OS_LINUX)
@@ -1100,6 +1099,7 @@ AlloyContentBrowserClient::CreateLoginDelegate(
 void AlloyContentBrowserClient::RegisterNonNetworkNavigationURLLoaderFactories(
     int frame_tree_node_id,
     base::UkmSourceId ukm_source_id,
+    NonNetworkURLLoaderFactoryDeprecatedMap* uniquely_owned_factories,
     NonNetworkURLLoaderFactoryMap* factories) {
   if (!extensions::ExtensionsEnabled())
     return;
@@ -1116,6 +1116,7 @@ void AlloyContentBrowserClient::RegisterNonNetworkNavigationURLLoaderFactories(
 void AlloyContentBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories(
     int render_process_id,
     int render_frame_id,
+    NonNetworkURLLoaderFactoryDeprecatedMap* uniquely_owned_factories,
     NonNetworkURLLoaderFactoryMap* factories) {
   if (!extensions::ExtensionsEnabled())
     return;
@@ -1157,10 +1158,10 @@ void AlloyContentBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories(
     allowed_webui_hosts.emplace_back(chrome::kChromeUIThemeHost);
   }
   if (!allowed_webui_hosts.empty()) {
-    factories->emplace(
-        content::kChromeUIScheme,
-        content::CreateWebUIURLLoader(frame_host, content::kChromeUIScheme,
-                                      std::move(allowed_webui_hosts)));
+    factories->emplace(content::kChromeUIScheme,
+                       content::CreateWebUIURLLoaderFactory(
+                           frame_host, content::kChromeUIScheme,
+                           std::move(allowed_webui_hosts)));
   }
 }
 
@@ -1171,6 +1172,7 @@ bool AlloyContentBrowserClient::WillCreateURLLoaderFactory(
     URLLoaderFactoryType type,
     const url::Origin& request_initiator,
     base::Optional<int64_t> navigation_id,
+    base::UkmSourceId ukm_source_id,
     mojo::PendingReceiver<network::mojom::URLLoaderFactory>* factory_receiver,
     mojo::PendingRemote<network::mojom::TrustedURLLoaderHeaderClient>*
         header_client,

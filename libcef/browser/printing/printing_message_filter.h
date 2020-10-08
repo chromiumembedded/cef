@@ -15,11 +15,10 @@
 #include "build/build_config.h"
 #include "components/keyed_service/core/keyed_service_shutdown_notifier.h"
 #include "components/prefs/pref_member.h"
+#include "components/printing/common/print.mojom-forward.h"
 #include "content/public/browser/browser_message_filter.h"
 #include "printing/buildflags/buildflags.h"
 
-struct PrintHostMsg_PreviewIds;
-struct PrintHostMsg_ScriptedPrint_Params;
 class Profile;
 
 namespace printing {
@@ -47,16 +46,10 @@ class CefPrintingMessageFilter : public content::BrowserMessageFilter {
 
   void ShutdownOnUIThread();
 
-  // Get the default print setting.
-  void OnGetDefaultPrintSettings(IPC::Message* reply_msg);
-  void OnGetDefaultPrintSettingsReply(
-      std::unique_ptr<PrinterQuery> printer_query,
-      IPC::Message* reply_msg);
-
   // The renderer host have to show to the user the print dialog and returns
   // the selected print settings. The task is handled by the print worker
   // thread and the UI thread. The reply occurs on the IO thread.
-  void OnScriptedPrint(const PrintHostMsg_ScriptedPrint_Params& params,
+  void OnScriptedPrint(const mojom::ScriptedPrintParams& params,
                        IPC::Message* reply_msg);
   void OnScriptedPrintReply(std::unique_ptr<PrinterQuery> printer_query,
                             IPC::Message* reply_msg);
@@ -71,7 +64,10 @@ class CefPrintingMessageFilter : public content::BrowserMessageFilter {
                                   IPC::Message* reply_msg);
 
   // Check to see if print preview has been cancelled.
-  void OnCheckForCancel(const PrintHostMsg_PreviewIds& ids, bool* cancel);
+  void OnCheckForCancel(const mojom::PreviewIds& ids, bool* cancel);
+#if defined(OS_WIN)
+  void NotifySystemDialogCancelled(int routing_id);
+#endif
 
   std::unique_ptr<KeyedServiceShutdownNotifier::Subscription>
       printing_shutdown_notifier_;

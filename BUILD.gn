@@ -859,6 +859,7 @@ static_library("libcef_static") {
     "//components/google/core/common",
     "//components/keyed_service/content:content",
     "//components/keyed_service/core:core",
+    "//components/media_router/common/mojom:media_router",
     "//components/navigation_interception",
     "//components/network_session_configurator/common",
     "//components/pdf/browser",
@@ -906,7 +907,6 @@ static_library("libcef_static") {
     "//printing/buildflags",
     "//services/network:network_service",
     "//services/network/public/cpp",
-    "//services/service_manager/embedder",
     "//services/service_manager/public/cpp",
     "//skia",
     "//storage/browser",
@@ -1186,7 +1186,6 @@ static_library("libcef_static") {
         sources += [
           # Support for UI input events.
           # Part of //ui/aura:test_support which is testingonly.
-          "//ui/aura/test/x11_event_sender.cc",
           "//ui/aura/test/x11_event_sender.h",
           # Part of //ui/views:test_support which is testingonly.
           "//ui/views/test/ui_controls_factory_desktop_aurax11.cc",

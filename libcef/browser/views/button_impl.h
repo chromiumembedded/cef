@@ -81,7 +81,7 @@ CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetInkDropEnabled(bool enabled) {
       enabled ? views::InkDropHostView::InkDropMode::ON
               : views::InkDropHostView::InkDropMode::OFF);
   if (enabled) {
-    ParentClass::root_view()->set_ink_drop_base_color(
+    ParentClass::root_view()->SetInkDropBaseColor(
         color_utils::BlendTowardMaxContrast(
             ParentClass::root_view()->background()->get_color(), 0x61));
   }
@@ -101,7 +101,7 @@ CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetAccessibleName(
 
 CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetFocusable(bool focusable) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  ParentClass::root_view()->set_request_focus_on_press(focusable);
+  ParentClass::root_view()->SetRequestFocusOnPress(focusable);
   ParentClass::SetFocusable(focusable);
 }
 

@@ -222,10 +222,10 @@ def GetRecommendedDefaultArgs():
       # component build on Windows.
       'enable_background_mode': False,
 
-      # Disable support for resource whitelist generation. When enabled this
+      # Disable support for resource allowlist generation. When enabled this
       # introduces a Windows official build dependency on the
       # "//chrome:chrome_dll" target, which will fail to build with CEF.
-      'enable_resource_whitelist_generation': False,
+      'enable_resource_allowlist_generation': False,
   }
 
   if platform == 'linux':
@@ -333,8 +333,8 @@ def ValidateArgs(args):
   if platform == 'mac':
     assert target_cpu == 'x64', 'target_cpu must be "x64"'
   elif platform == 'windows':
-    assert target_cpu in (
-        'x86', 'x64', 'arm64'), 'target_cpu must be "x86", "x64" or "arm64"'
+    assert target_cpu in ('x86', 'x64',
+                          'arm64'), 'target_cpu must be "x86", "x64" or "arm64"'
   elif platform == 'linux':
     assert target_cpu in (
         'x86', 'x64', 'arm',
@@ -556,8 +556,8 @@ def GetAllPlatformConfigs(build_args):
       result['Debug_GN_' + cpu] = GetConfigArgs(args, True, cpu)
     result['Release_GN_' + cpu] = GetConfigArgs(args, False, cpu)
 
-    if platform in ('windows', 'mac') and GetArgValue(
-        args, 'is_official_build'):
+    if platform in ('windows', 'mac') and GetArgValue(args,
+                                                      'is_official_build'):
       # Build cef_sandbox.lib with a different configuration.
       if create_debug:
         result['Debug_GN_' + cpu + '_sandbox'] = GetConfigArgsSandbox(

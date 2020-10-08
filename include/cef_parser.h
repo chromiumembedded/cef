@@ -146,14 +146,12 @@ CefRefPtr<CefValue> CefParseJSON(const void* json,
 ///
 // Parses the specified |json_string| and returns a dictionary or list
 // representation. If JSON parsing fails this method returns NULL and populates
-// |error_code_out| and |error_msg_out| with an error code and a formatted error
-// message respectively.
+// |error_msg_out| with a formatted error message.
 ///
 /*--cef()--*/
 CefRefPtr<CefValue> CefParseJSONAndReturnError(
     const CefString& json_string,
     cef_json_parser_options_t options,
-    cef_json_parser_error_t& error_code_out,
     CefString& error_msg_out);
 
 ///

@@ -1,0 +1,70 @@
+diff --git chrome/browser/sharesheet/sharesheet_service_delegate.cc chrome/browser/sharesheet/sharesheet_service_delegate.cc
+index ceea6a38ca79..6e8e335222bc 100644
+--- chrome/browser/sharesheet/sharesheet_service_delegate.cc
++++ chrome/browser/sharesheet/sharesheet_service_delegate.cc
+@@ -21,8 +21,10 @@ SharesheetServiceDelegate::SharesheetServiceDelegate(
+     content::WebContents* web_contents,
+     SharesheetService* sharesheet_service)
+     : id_(id),
++#if defined(OS_CHROMEOS)
+       sharesheet_bubble_view_(
+           std::make_unique<SharesheetBubbleView>(web_contents, this)),
++#endif
+       sharesheet_service_(sharesheet_service) {}
+ 
+ SharesheetServiceDelegate::~SharesheetServiceDelegate() = default;
+@@ -31,18 +33,24 @@ void SharesheetServiceDelegate::ShowBubble(
+     std::vector<TargetInfo> targets,
+     apps::mojom::IntentPtr intent,
+     sharesheet::CloseCallback close_callback) {
++#if defined(OS_CHROMEOS)
+   sharesheet_bubble_view_->ShowBubble(std::move(targets), std::move(intent),
+                                       std::move(close_callback));
++#endif
+ }
+ 
+ void SharesheetServiceDelegate::OnBubbleClosed(
+     const base::string16& active_action) {
++#if defined(OS_CHROMEOS)
+   sharesheet_bubble_view_.release();
++#endif
+   sharesheet_service_->OnBubbleClosed(id_, active_action);
+ }
+ 
+ void SharesheetServiceDelegate::OnActionLaunched() {
++#if defined(OS_CHROMEOS)
+   sharesheet_bubble_view_->ShowActionView();
++#endif
+ }
+ 
+ void SharesheetServiceDelegate::OnTargetSelected(
+@@ -66,11 +74,15 @@ void SharesheetServiceDelegate::SetSharesheetSize(const int& width,
+                                                   const int& height) {
+   DCHECK_GT(width, 0);
+   DCHECK_GT(height, 0);
++#if defined(OS_CHROMEOS)
+   sharesheet_bubble_view_->ResizeBubble(width, height);
++#endif
+ }
+ 
+ void SharesheetServiceDelegate::CloseSharesheet() {
++#if defined(OS_CHROMEOS)
+   sharesheet_bubble_view_->CloseBubble();
++#endif
+ }
+ 
+ }  // namespace sharesheet
+diff --git chrome/browser/sharesheet/sharesheet_service_delegate.h chrome/browser/sharesheet/sharesheet_service_delegate.h
+index 47f15a6b4093..71189bfee8b9 100644
+--- chrome/browser/sharesheet/sharesheet_service_delegate.h
++++ chrome/browser/sharesheet/sharesheet_service_delegate.h
+@@ -59,7 +59,9 @@ class SharesheetServiceDelegate : public SharesheetController {
+  private:
+   const uint32_t id_;
+   base::string16 active_action_;
++#if defined(OS_CHROMEOS)
+   std::unique_ptr<SharesheetBubbleView> sharesheet_bubble_view_;
++#endif
+   SharesheetService* sharesheet_service_;
+ };
+ 

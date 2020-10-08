@@ -128,31 +128,16 @@ gfx::Size CefPrintDialogLinux::GetPdfPaperSize(
 }
 
 // static
-void CefPrintDialogLinux::OnPrintStart(int render_process_id,
-                                       int render_routing_id) {
-  if (!CEF_CURRENTLY_ON(CEF_UIT)) {
-    CEF_POST_TASK(CEF_UIT, base::Bind(&CefPrintDialogLinux::OnPrintStart,
-                                      render_process_id, render_routing_id));
-    return;
+void CefPrintDialogLinux::OnPrintStart(CefRefPtr<CefBrowserHostBase> browser) {
+  CEF_REQUIRE_UIT();
+  DCHECK(browser);
+  if (auto app = CefAppManager::Get()->GetApplication()) {
+    if (auto browser_handler = app->GetBrowserProcessHandler()) {
+      if (auto print_handler = browser_handler->GetPrintHandler()) {
+        print_handler->OnPrintStart(browser.get());
+      }
+    }
   }
-
-  CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
-  if (!app.get())
-    return;
-
-  CefRefPtr<CefBrowserProcessHandler> browser_handler =
-      app->GetBrowserProcessHandler();
-  if (!browser_handler.get())
-    return;
-
-  CefRefPtr<CefPrintHandler> handler = browser_handler->GetPrintHandler();
-  if (!handler.get())
-    return;
-
-  auto browser = extensions::GetOwnerBrowserForFrameRoute(
-      render_process_id, render_routing_id, nullptr);
-  if (browser.get())
-    handler->OnPrintStart(browser.get());
 }
 
 CefPrintDialogLinux::CefPrintDialogLinux(PrintingContextLinux* context)

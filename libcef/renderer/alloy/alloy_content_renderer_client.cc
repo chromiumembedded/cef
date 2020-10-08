@@ -444,17 +444,6 @@ bool AlloyContentRendererClient::IsOriginIsolatedPepperPlugin(
          base::FilePath::FromUTF8Unsafe(AlloyContentClient::kPDFPluginPath);
 }
 
-content::BrowserPluginDelegate*
-AlloyContentRendererClient::CreateBrowserPluginDelegate(
-    content::RenderFrame* render_frame,
-    const content::WebPluginInfo& info,
-    const std::string& mime_type,
-    const GURL& original_url) {
-  DCHECK(extensions::ExtensionsEnabled());
-  return extensions::CefExtensionsRendererClient::CreateBrowserPluginDelegate(
-      render_frame, info, mime_type, original_url);
-}
-
 void AlloyContentRendererClient::AddSupportedKeySystems(
     std::vector<std::unique_ptr<::media::KeySystemProperties>>* key_systems) {
   AddChromeKeySystems(key_systems);

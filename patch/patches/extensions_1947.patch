@@ -132,10 +132,10 @@ index 11bfec21cc9f..416de61f85fa 100644
    // A weak pointer to the current or pending RenderViewHost. We don't access
    // this through the host_contents because we want to deal with the pending
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index 829941a3f095..dd6d5334c692 100644
+index 1832f5e9acd6..059cb2a43578 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
-@@ -57,6 +57,7 @@ class ComponentExtensionResourceManager;
+@@ -62,6 +62,7 @@ class ComponentExtensionResourceManager;
  class Extension;
  class ExtensionCache;
  class ExtensionError;
@@ -143,7 +143,7 @@ index 829941a3f095..dd6d5334c692 100644
  class ExtensionHostDelegate;
  class ExtensionSet;
  class ExtensionSystem;
-@@ -197,6 +198,14 @@ class ExtensionsBrowserClient {
+@@ -204,6 +205,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  
@@ -159,7 +159,7 @@ index 829941a3f095..dd6d5334c692 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index fc25df40852a..5f14f04835bb 100644
+index 5c593b03d84e..c9588c09f23f 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -385,9 +385,16 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,

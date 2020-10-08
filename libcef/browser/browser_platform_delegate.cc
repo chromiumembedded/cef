@@ -309,16 +309,16 @@ void CefBrowserPlatformDelegate::DragTargetDrop(const CefMouseEvent& event) {
 
 void CefBrowserPlatformDelegate::StartDragging(
     const content::DropData& drop_data,
-    blink::WebDragOperationsMask allowed_ops,
+    blink::DragOperationsMask allowed_ops,
     const gfx::ImageSkia& image,
     const gfx::Vector2d& image_offset,
-    const content::DragEventSourceInfo& event_info,
+    const blink::mojom::DragEventSourceInfo& event_info,
     content::RenderWidgetHostImpl* source_rwh) {
   NOTREACHED();
 }
 
 void CefBrowserPlatformDelegate::UpdateDragCursor(
-    blink::WebDragOperation operation) {
+    blink::DragOperation operation) {
   NOTREACHED();
 }
 

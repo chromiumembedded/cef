@@ -1098,15 +1098,14 @@ bool CefV8ContextImpl::Eval(const CefString& code,
   v8::TryCatch try_catch(isolate);
   try_catch.SetVerbose(true);
 
-  v8::MaybeLocal<v8::Value> func_rv = blink_glue::ExecuteV8ScriptAndReturnValue(
-      source, source_url, start_line, context, isolate, try_catch,
-      blink::SanitizeScriptErrors::kSanitize);
+  v8::Local<v8::Value> func_rv = blink_glue::ExecuteV8ScriptAndReturnValue(
+      source, source_url, start_line, context, isolate, try_catch);
 
   if (try_catch.HasCaught()) {
     exception = new CefV8ExceptionImpl(context, try_catch.Message());
     return false;
   } else if (!func_rv.IsEmpty()) {
-    retval = new CefV8ValueImpl(isolate, context, func_rv.ToLocalChecked());
+    retval = new CefV8ValueImpl(isolate, context, func_rv);
     return true;
   }
 

@@ -56,7 +56,6 @@ CefRefPtr<CefValue> CefParseJSON(const void* json,
 CefRefPtr<CefValue> CefParseJSONAndReturnError(
     const CefString& json_string,
     cef_json_parser_options_t options,
-    cef_json_parser_error_t& error_code_out,
     CefString& error_msg_out) {
   const std::string& json = json_string.ToString();
 
@@ -70,8 +69,6 @@ CefRefPtr<CefValue> CefParseJSONAndReturnError(
             .release());
   }
 
-  error_code_out =
-      static_cast<cef_json_parser_error_t>(value_and_error.error_code);
   error_msg_out = value_and_error.error_message;
   return nullptr;
 }

@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index 934195fd77d2..8aec87d4a448 100644
+index b2139c2e9ee8..555121d711bb 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
-@@ -560,6 +560,14 @@ float RenderWidgetHostViewBase::GetDeviceScaleFactor() {
+@@ -532,6 +532,14 @@ float RenderWidgetHostViewBase::GetDeviceScaleFactor() {
    return screen_info.device_scale_factor;
  }
  
@@ -14,14 +14,14 @@ index 934195fd77d2..8aec87d4a448 100644
 +  return has_external_parent_;
 +}
 +
- uint32_t RenderWidgetHostViewBase::RendererFrameNumber() {
-   return renderer_frame_number_;
- }
+ void RenderWidgetHostViewBase::OnAutoscrollStart() {
+   if (!GetMouseWheelPhaseHandler())
+     return;
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index af80b343dcd9..507618362acd 100644
+index 5b2aa87a53fa..302626b947c6 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
-@@ -65,6 +65,7 @@ class CursorManager;
+@@ -66,6 +66,7 @@ class CursorManager;
  class MouseWheelPhaseHandler;
  class RenderWidgetHostImpl;
  class RenderWidgetHostViewBaseObserver;
@@ -29,7 +29,7 @@ index af80b343dcd9..507618362acd 100644
  class SyntheticGestureTarget;
  class TextInputManager;
  class TouchSelectionControllerClientManager;
-@@ -82,6 +83,9 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -79,6 +80,9 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
    float current_device_scale_factor() const {
      return current_device_scale_factor_;
    }
@@ -39,16 +39,16 @@ index af80b343dcd9..507618362acd 100644
  
    // Returns the focused RenderWidgetHost inside this |view|'s RWH.
    RenderWidgetHostImpl* GetFocusedWidget() const;
-@@ -116,6 +120,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -112,6 +116,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
+                         const gfx::Size& max_size) override;
    void DisableAutoResize(const gfx::Size& new_size) override;
-   bool IsScrollOffsetAtTop() override;
    float GetDeviceScaleFactor() final;
 +  void SetHasExternalParent(bool val) override;
 +  bool HasExternalParent() const override;
    TouchSelectionControllerClientManager*
    GetTouchSelectionControllerClientManager() override;
    void SetRecordContentToVisibleTimeRequest(
-@@ -439,6 +445,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -418,6 +424,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
    // helps to position the full screen widget on the correct monitor.
    virtual void InitAsFullscreen(RenderWidgetHostView* reference_host_view) = 0;
  
@@ -61,9 +61,9 @@ index af80b343dcd9..507618362acd 100644
    // Sets the cursor for this view to the one associated with the specified
    // cursor_type.
    virtual void UpdateCursor(const WebCursor& cursor) = 0;
-@@ -620,6 +632,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
-   // specific RenderWidgetHostView.
-   base::Optional<DisplayFeature> display_feature_;
+@@ -598,6 +610,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
+  protected:
+   ~RenderWidgetHostViewBase() override;
  
 +  // True if the widget has a external parent view/window outside of the
 +  // Chromium-controlled view/window hierarchy.
@@ -73,7 +73,7 @@ index af80b343dcd9..507618362acd 100644
    FRIEND_TEST_ALL_PREFIXES(
        BrowserSideFlingBrowserTest,
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index 44586cc1789a..18705ef4e6e7 100644
+index b49d2f96efec..080a49940263 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -37,6 +37,10 @@
@@ -85,9 +85,9 @@ index 44586cc1789a..18705ef4e6e7 100644
 +#endif
 +
  #if defined(OS_WIN)
- #include "content/browser/frame_host/render_frame_host_impl.h"
+ #include "content/browser/renderer_host/render_frame_host_impl.h"
  #include "ui/aura/window_tree_host.h"
-@@ -954,6 +958,14 @@ void RenderWidgetHostViewEventHandler::MoveCursorToCenter(
+@@ -956,6 +960,14 @@ void RenderWidgetHostViewEventHandler::MoveCursorToCenter(
      }
      return;
    }
@@ -103,10 +103,10 @@ index 44586cc1789a..18705ef4e6e7 100644
    synthetic_move_position_ = center_in_screen;
  }
 diff --git content/public/browser/render_widget_host_view.h content/public/browser/render_widget_host_view.h
-index a7222155f4ea..77ac1f864161 100644
+index beba7a3a40b8..941acdfbff8b 100644
 --- content/public/browser/render_widget_host_view.h
 +++ content/public/browser/render_widget_host_view.h
-@@ -243,6 +243,14 @@ class CONTENT_EXPORT RenderWidgetHostView {
+@@ -241,6 +241,14 @@ class CONTENT_EXPORT RenderWidgetHostView {
    // This must always return the same device scale factor as GetScreenInfo.
    virtual float GetDeviceScaleFactor() = 0;
  
@@ -122,10 +122,10 @@ index a7222155f4ea..77ac1f864161 100644
    // Set the view's active state (i.e., tint state of controls).
    virtual void SetActive(bool active) = 0;
 diff --git ui/base/x/x11_window.cc ui/base/x/x11_window.cc
-index 24dbb60257bb..59e731f9ba0b 100644
+index 7d151df864f4..b8f58d9294d5 100644
 --- ui/base/x/x11_window.cc
 +++ ui/base/x/x11_window.cc
-@@ -272,7 +272,8 @@ void XWindow::Init(const Configuration& config) {
+@@ -264,7 +264,8 @@ void XWindow::Init(const Configuration& config) {
    req.border_pixel = 0;
  
    bounds_in_pixels_ = SanitizeBounds(config.bounds);
@@ -156,7 +156,7 @@ index af282d4190dd..147a2cd9ac4c 100644
  
    XWindow();
 diff --git ui/platform_window/x11/x11_window.cc ui/platform_window/x11/x11_window.cc
-index c0ba5c3a156e..c12372d6e435 100644
+index 7941edf6d3cb..520af3c90e97 100644
 --- ui/platform_window/x11/x11_window.cc
 +++ ui/platform_window/x11/x11_window.cc
 @@ -93,6 +93,7 @@ ui::XWindow::Configuration ConvertInitPropertiesToXWindowConfig(
@@ -245,7 +245,7 @@ index 4b6a5a4476a3..c9881d4a716c 100644
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index e9e61a24dc87..7687ded2a82e 100644
+index 3b132d4d7618..bcb17600d7fa 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -140,8 +140,12 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
@@ -296,10 +296,10 @@ index 0229c1c41502..992f89126f7f 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index f02508580d16..a2be2ed6aa2d 100644
+index 710d52bcc34f..25608ba3d188 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
-@@ -285,7 +285,8 @@ void Widget::Init(InitParams params) {
+@@ -283,7 +283,8 @@ void Widget::Init(InitParams params) {
      params.name = params.delegate->GetContentsView()->GetClassName();
  
    params.child |= (params.type == InitParams::TYPE_CONTROL);
@@ -309,10 +309,10 @@ index f02508580d16..a2be2ed6aa2d 100644
  
    if (params.opacity == views::Widget::InitParams::WindowOpacity::kInferred &&
        params.type != views::Widget::InitParams::TYPE_WINDOW) {
-@@ -369,7 +370,12 @@ void Widget::Init(InitParams params) {
+@@ -365,7 +366,12 @@ void Widget::Init(InitParams params) {
      }
    } else if (delegate) {
-     SetContentsView(delegate->GetContentsView());
+     SetContentsView(delegate->TransferOwnershipOfContentsView());
 -    SetInitialBoundsForFramelessWindow(bounds);
 +    if (params.parent_widget != gfx::kNullAcceleratedWidget) {
 +      // Set the bounds directly instead of applying an inset.
@@ -323,7 +323,7 @@ index f02508580d16..a2be2ed6aa2d 100644
    }
  
    observer_manager_.Add(GetNativeTheme());
-@@ -1153,10 +1159,16 @@ void Widget::OnNativeWidgetDestroyed() {
+@@ -1149,10 +1155,16 @@ void Widget::OnNativeWidgetDestroyed() {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -341,10 +341,10 @@ index f02508580d16..a2be2ed6aa2d 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 032f77d5738a..085c4df9fa8c 100644
+index bb19a2cceb28..d62b6dbbecc9 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
-@@ -315,6 +315,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
+@@ -317,6 +317,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
      // the concept with bubble anchoring a la BubbleDialogDelegateView.
      gfx::NativeView parent = nullptr;
  
@@ -354,10 +354,10 @@ index 032f77d5738a..085c4df9fa8c 100644
      // the NativeWidget may specify a default size. If the parent is specified,
      // |bounds| is in the parent's coordinate system. If the parent is not
 diff --git ui/views/widget/widget_delegate.h ui/views/widget/widget_delegate.h
-index fdf697d54693..d21effca6422 100644
+index ce51f9d0f350..1121f523be23 100644
 --- ui/views/widget/widget_delegate.h
 +++ ui/views/widget/widget_delegate.h
-@@ -301,6 +301,10 @@ class VIEWS_EXPORT WidgetDelegate {
+@@ -332,6 +332,10 @@ class VIEWS_EXPORT WidgetDelegate {
    // Returns true if the title text should be centered.
    bool ShouldCenterWindowTitleText() const;
  
@@ -366,8 +366,8 @@ index fdf697d54693..d21effca6422 100644
 +  virtual bool MaybeGetMaximumSize(gfx::Size* size) const { return false; }
 +
    bool focus_traverses_out() const { return params_.focus_traverses_out; }
+   bool owned_by_widget() const { return params_.owned_by_widget; }
  
-  private:
 diff --git ui/views/widget/widget_hwnd_utils.cc ui/views/widget/widget_hwnd_utils.cc
 index 89f5b62f95df..8f6971929a12 100644
 --- ui/views/widget/widget_hwnd_utils.cc
@@ -382,10 +382,10 @@ index 89f5b62f95df..8f6971929a12 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 5e8d267d868d..414e20ad8203 100644
+index 754528f7d280..c929712cbd0d 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -3071,10 +3071,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -3074,10 +3074,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.

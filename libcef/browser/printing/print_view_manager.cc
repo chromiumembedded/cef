@@ -9,6 +9,7 @@
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/download_manager_delegate.h"
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
+#include "libcef/browser/thread_util.h"
 
 #include <map>
 #include <utility>
@@ -22,7 +23,6 @@
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/printing/print_preview_dialog_controller.h"
 #include "chrome/browser/printing/print_preview_message_handler.h"
-#include "chrome/browser/printing/print_view_manager.h"
 #include "chrome/browser/printing/printer_query.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/webui/print_preview/print_preview_ui.h"
@@ -42,7 +42,9 @@
 #include "printing/metafile_skia.h"
 #include "third_party/blink/public/common/associated_interfaces/associated_interface_provider.h"
 
-#include "libcef/browser/thread_util.h"
+#if defined(OS_LINUX)
+#include "libcef/browser/printing/print_dialog_linux.h"
+#endif
 
 using content::BrowserThread;
 
@@ -176,8 +178,7 @@ struct CefPrintViewManager::PdfPrintState {
 };
 
 CefPrintViewManager::CefPrintViewManager(content::WebContents* web_contents)
-    : WebContentsObserver(web_contents) {
-  PrintViewManager::CreateForWebContents(web_contents);
+    : PrintViewManager(web_contents) {
   PrintPreviewMessageHandler::CreateForWebContents(web_contents);
 }
 
@@ -218,10 +219,22 @@ bool CefPrintViewManager::PrintToPDF(content::RenderFrameHost* rfh,
   return true;
 }
 
-bool CefPrintViewManager::PrintPreviewNow(content::RenderFrameHost* rfh,
-                                          bool has_selection) {
-  return PrintViewManager::FromWebContents(web_contents())
-      ->PrintPreviewNow(rfh, has_selection);
+void CefPrintViewManager::GetDefaultPrintSettings(
+    GetDefaultPrintSettingsCallback callback) {
+#if defined(OS_LINUX)
+  // Send notification to the client.
+  auto browser = CefBrowserHostBase::GetBrowserForContents(web_contents());
+  if (browser) {
+    CefPrintDialogLinux::OnPrintStart(browser);
+  }
+#endif
+  PrintViewManager::GetDefaultPrintSettings(std::move(callback));
+}
+
+void CefPrintViewManager::DidShowPrintDialog() {
+  if (pdf_print_state_)
+    return;
+  PrintViewManager::DidShowPrintDialog();
 }
 
 void CefPrintViewManager::RenderFrameDeleted(
@@ -230,14 +243,17 @@ void CefPrintViewManager::RenderFrameDeleted(
       render_frame_host == pdf_print_state_->printing_rfh_) {
     TerminatePdfPrintJob();
   }
+  PrintViewManager::RenderFrameDeleted(render_frame_host);
 }
 
 void CefPrintViewManager::NavigationStopped() {
   TerminatePdfPrintJob();
+  PrintViewManager::NavigationStopped();
 }
 
 void CefPrintViewManager::RenderProcessGone(base::TerminationStatus status) {
   TerminatePdfPrintJob();
+  PrintViewManager::RenderProcessGone(status);
 }
 
 bool CefPrintViewManager::OnMessageReceived(
@@ -253,13 +269,12 @@ bool CefPrintViewManager::OnMessageReceived(
                           OnShowScriptedPrintPreview)
       IPC_MESSAGE_UNHANDLED(handled = false)
     IPC_END_MESSAGE_MAP()
-    return false;
+
+    return PrintViewManager::OnMessageReceived(message, render_frame_host);
   }
 
   IPC_BEGIN_MESSAGE_MAP_WITH_PARAM(CefPrintViewManager, message,
                                    render_frame_host)
-    IPC_MESSAGE_HANDLER(PrintHostMsg_DidShowPrintDialog,
-                        OnDidShowPrintDialog_PrintToPdf)
     IPC_MESSAGE_HANDLER(PrintHostMsg_RequestPrintPreview,
                         OnRequestPrintPreview_PrintToPdf)
     IPC_MESSAGE_HANDLER(PrintHostMsg_MetafileReadyForPrinting,
@@ -267,8 +282,35 @@ bool CefPrintViewManager::OnMessageReceived(
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
-  return handled;
+  return handled ||
+         PrintViewManager::OnMessageReceived(message, render_frame_host);
 }
+
+// static
+void CefPrintViewManager::CreateForWebContents(content::WebContents* contents) {
+  DCHECK(contents);
+  if (!FromWebContents(contents)) {
+    contents->SetUserData(PrintViewManager::UserDataKey(),
+                          base::WrapUnique(new CefPrintViewManager(contents)));
+  }
+}
+
+// static
+CefPrintViewManager* CefPrintViewManager::FromWebContents(
+    content::WebContents* contents) {
+  DCHECK(contents);
+  return static_cast<CefPrintViewManager*>(
+      contents->GetUserData(PrintViewManager::UserDataKey()));
+}
+
+// static
+const CefPrintViewManager* CefPrintViewManager::FromWebContents(
+    const content::WebContents* contents) {
+  DCHECK(contents);
+  return static_cast<const CefPrintViewManager*>(
+      contents->GetUserData(PrintViewManager::UserDataKey()));
+}
+
 void CefPrintViewManager::OnRequestPrintPreview(
     content::RenderFrameHost* rfh,
     const PrintHostMsg_RequestPrintPreview_Params&) {
@@ -280,9 +322,6 @@ void CefPrintViewManager::OnShowScriptedPrintPreview(
     bool source_is_modifiable) {
   InitializePrintPreview(rfh->GetFrameTreeNodeId());
 }
-
-void CefPrintViewManager::OnDidShowPrintDialog_PrintToPdf(
-    content::RenderFrameHost* rfh) {}
 
 void CefPrintViewManager::OnRequestPrintPreview_PrintToPdf(
     content::RenderFrameHost* rfh,
@@ -303,7 +342,7 @@ void CefPrintViewManager::OnRequestPrintPreview_PrintToPdf(
 void CefPrintViewManager::OnMetafileReadyForPrinting_PrintToPdf(
     content::RenderFrameHost* rfh,
     const mojom::DidPreviewDocumentParams& params,
-    const PrintHostMsg_PreviewIds& ids) {
+    const mojom::PreviewIds& ids) {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   StopWorker(params.document_cookie);
 
@@ -369,8 +408,6 @@ void CefPrintViewManager::InitializePrintPreview(int frame_tree_node_id) {
   PrintPreviewHelper::FromWebContents(preview_contents)
       ->Initialize(frame_tree_node_id);
 }
-
-WEB_CONTENTS_USER_DATA_KEY_IMPL(CefPrintViewManager)
 
 // CefPrintViewManager::PrintPreviewHelper
 

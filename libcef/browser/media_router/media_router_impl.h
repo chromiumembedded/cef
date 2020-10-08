@@ -9,7 +9,7 @@
 #include "include/cef_media_router.h"
 #include "libcef/browser/browser_context.h"
 
-#include "chrome/common/media_router/mojom/media_router.mojom.h"
+#include "components/media_router/common/mojom/media_router.mojom.h"
 
 class CefRegistrationImpl;
 

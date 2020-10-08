@@ -19,7 +19,6 @@
 #include "components/crash/core/common/crash_key.h"
 #include "components/crash/core/common/crash_keys.h"
 #include "content/public/common/content_switches.h"
-#include "services/service_manager/embedder/switches.h"
 
 #if defined(OS_MAC)
 #include "base/mac/foundation_util.h"
@@ -133,7 +132,7 @@ void InitCrashReporter(const base::CommandLine& command_line,
   g_crash_reporting_enabled = true;
 #else   // !defined(OS_MAC)
 
-  if (process_type != service_manager::switches::kZygoteProcess) {
+  if (process_type != switches::kZygoteProcess) {
     // Crash reporting for subprocesses created using the zygote will be
     // initialized in ZygoteForked.
     breakpad::InitCrashReporter(process_type);

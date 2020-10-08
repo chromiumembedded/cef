@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=66b734973339eb27399083e978844f7d5a6a6c44$
+// $hash=1a80e75d625c78a0ed31b6562f597cbf4d30dfb1$
 //
 
 #include <dlfcn.h>
@@ -144,7 +144,6 @@ typedef struct _cef_value_t* (
 typedef struct _cef_value_t* (*cef_parse_jsonand_return_error_ptr)(
     const cef_string_t*,
     cef_json_parser_options_t,
-    cef_json_parser_error_t*,
     cef_string_t*);
 typedef cef_string_userfree_t (*cef_write_json_ptr)(struct _cef_value_t*,
                                                     cef_json_writer_options_t);
@@ -1149,10 +1148,9 @@ NO_SANITIZE("cfi-icall")
 struct _cef_value_t* cef_parse_jsonand_return_error(
     const cef_string_t* json_string,
     cef_json_parser_options_t options,
-    cef_json_parser_error_t* error_code_out,
     cef_string_t* error_msg_out) {
-  return g_libcef_pointers.cef_parse_jsonand_return_error(
-      json_string, options, error_code_out, error_msg_out);
+  return g_libcef_pointers.cef_parse_jsonand_return_error(json_string, options,
+                                                          error_msg_out);
 }
 
 NO_SANITIZE("cfi-icall")

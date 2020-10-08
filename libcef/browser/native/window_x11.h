@@ -7,10 +7,7 @@
 #define CEF_LIBCEF_BROWSER_NATIVE_WINDOW_X11_H_
 #pragma once
 
-// Avoid including <X11/Xlib.h>
-typedef unsigned long Window;
-struct _XDisplay;
-typedef struct _XDisplay Display;
+#include <memory>
 
 #include "include/internal/cef_ptr.h"
 
@@ -19,6 +16,11 @@ typedef struct _XDisplay Display;
 #include "ui/events/platform/x11/x11_event_source.h"
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/x/x11_atom_cache.h"
+#include "ui/gfx/x/x11_types.h"
+
+namespace ui {
+class XScopedEventSelector;
+}
 
 namespace views {
 class DesktopWindowTreeHostLinux;
@@ -32,7 +34,7 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
                      public ui::XEventDispatcher {
  public:
   CefWindowX11(CefRefPtr<CefBrowserHostBase> browser,
-               ::Window parent_xwindow,
+               x11::Window parent_xwindow,
                const gfx::Rect& bounds,
                const std::string& title);
   ~CefWindowX11() override;
@@ -60,7 +62,7 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
   ui::PlatformEventDispatcher* GetPlatformEventDispatcher() override;
   bool DispatchXEvent(x11::Event* x11_event) override;
 
-  ::Window xwindow() const { return xwindow_; }
+  x11::Window xwindow() const { return xwindow_; }
   gfx::Rect bounds() const { return bounds_; }
 
   bool TopLevelAlwaysOnTop() const;
@@ -74,17 +76,20 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
   CefRefPtr<CefBrowserHostBase> browser_;
 
   // The display and the native X window hosting the root window.
-  ::Display* xdisplay_;
-  ::Window parent_xwindow_;
-  ::Window xwindow_;
+  x11::Connection* const connection_;
+  x11::Window parent_xwindow_;
+  x11::Window xwindow_;
+
+  // Events selected on |xwindow_|.
+  std::unique_ptr<ui::XScopedEventSelector> xwindow_events_;
 
   // Is the window mapped to the screen?
-  bool window_mapped_;
+  bool window_mapped_ = false;
 
   // The bounds of |xwindow_|.
   gfx::Rect bounds_;
 
-  bool focus_pending_;
+  bool focus_pending_ = false;
 
   // Tells if this dispatcher can process next translated event based on a
   // previous check in ::CheckCanDispatchNextPlatformEvent based on a XID

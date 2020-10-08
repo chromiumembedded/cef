@@ -1402,11 +1402,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginSync) {
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  if (!IsOutOfBlinkCorsEnabled()) {
-    EXPECT_TRUE(g_TestResults.got_sub_read);
-  } else {
-    EXPECT_FALSE(g_TestResults.got_sub_read);
-  }
+  EXPECT_FALSE(g_TestResults.got_sub_read);
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -1438,11 +1434,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginAsync) {
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  if (!IsOutOfBlinkCorsEnabled()) {
-    EXPECT_TRUE(g_TestResults.got_sub_read);
-  } else {
-    EXPECT_FALSE(g_TestResults.got_sub_read);
-  }
+  EXPECT_FALSE(g_TestResults.got_sub_read);
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -1474,11 +1466,7 @@ TEST(SchemeHandlerTest, CustomStandardFetchDifferentOrigin) {
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  if (!IsOutOfBlinkCorsEnabled()) {
-    EXPECT_TRUE(g_TestResults.got_sub_read);
-  } else {
-    EXPECT_FALSE(g_TestResults.got_sub_read);
-  }
+  EXPECT_FALSE(g_TestResults.got_sub_read);
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -1635,11 +1623,7 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginSync) {
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  if (!IsOutOfBlinkCorsEnabled()) {
-    EXPECT_TRUE(g_TestResults.got_sub_read);
-  } else {
-    EXPECT_FALSE(g_TestResults.got_sub_read);
-  }
+  EXPECT_FALSE(g_TestResults.got_sub_read);
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -1671,11 +1655,7 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginAsync) {
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  if (!IsOutOfBlinkCorsEnabled()) {
-    EXPECT_TRUE(g_TestResults.got_sub_read);
-  } else {
-    EXPECT_FALSE(g_TestResults.got_sub_read);
-  }
+  EXPECT_FALSE(g_TestResults.got_sub_read);
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -1707,11 +1687,7 @@ TEST(SchemeHandlerTest, HttpFetchDifferentOriginAsync) {
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  if (!IsOutOfBlinkCorsEnabled()) {
-    EXPECT_TRUE(g_TestResults.got_sub_read);
-  } else {
-    EXPECT_FALSE(g_TestResults.got_sub_read);
-  }
+  EXPECT_FALSE(g_TestResults.got_sub_read);
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -2259,11 +2235,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginRedirectSync) {
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_redirect);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  if (!IsOutOfBlinkCorsEnabled()) {
-    EXPECT_TRUE(g_TestResults.got_sub_read);
-  } else {
-    EXPECT_FALSE(g_TestResults.got_sub_read);
-  }
+  EXPECT_FALSE(g_TestResults.got_sub_read);
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -2297,11 +2269,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginRedirectAsync) {
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_redirect);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  if (!IsOutOfBlinkCorsEnabled()) {
-    EXPECT_TRUE(g_TestResults.got_sub_read);
-  } else {
-    EXPECT_FALSE(g_TestResults.got_sub_read);
-  }
+  EXPECT_FALSE(g_TestResults.got_sub_read);
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();
@@ -2336,11 +2304,7 @@ TEST(SchemeHandlerTest, CustomStandardFetchDifferentOriginRedirect) {
   EXPECT_TRUE(g_TestResults.got_output);
   EXPECT_TRUE(g_TestResults.got_sub_redirect);
   EXPECT_TRUE(g_TestResults.got_sub_request);
-  if (!IsOutOfBlinkCorsEnabled()) {
-    EXPECT_TRUE(g_TestResults.got_sub_read);
-  } else {
-    EXPECT_FALSE(g_TestResults.got_sub_read);
-  }
+  EXPECT_FALSE(g_TestResults.got_sub_read);
   EXPECT_FALSE(g_TestResults.got_sub_success);
 
   ClearTestSchemes();

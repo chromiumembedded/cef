@@ -130,6 +130,14 @@ ExecuteCodeFunction::InitResult ExecuteCodeInTabFunction::Init() {
   return set_init_result(SUCCESS);
 }
 
+bool ExecuteCodeInTabFunction::ShouldInsertCSS() const {
+  return false;
+}
+
+bool ExecuteCodeInTabFunction::ShouldRemoveCSS() const {
+  return false;
+}
+
 bool ExecuteCodeInTabFunction::CanExecuteScriptOnPage(std::string* error) {
   CHECK_GE(execute_tab_id_, 0);
 
@@ -225,11 +233,11 @@ void ExecuteCodeInTabFunction::LoadFileComplete(
   DidLoadAndLocalizeFile(file, success, std::move(data));
 }
 
-bool TabsExecuteScriptFunction::ShouldInsertCSS() const {
-  return false;
+bool TabsInsertCSSFunction::ShouldInsertCSS() const {
+  return true;
 }
 
-bool TabsInsertCSSFunction::ShouldInsertCSS() const {
+bool TabsRemoveCSSFunction::ShouldRemoveCSS() const {
   return true;
 }
 

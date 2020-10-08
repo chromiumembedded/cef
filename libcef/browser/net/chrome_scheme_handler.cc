@@ -34,7 +34,7 @@
 #include "chrome/browser/ui/webui/chrome_web_ui_controller_factory.h"
 #include "chrome/browser/ui/webui/theme_source.h"
 #include "chrome/common/url_constants.h"
-#include "content/browser/frame_host/debug_urls.h"
+#include "content/browser/renderer_host/debug_urls.h"
 #include "content/browser/webui/content_web_ui_controller_factory.h"
 #include "content/public/browser/browser_url_handler.h"
 #include "content/public/browser/content_browser_client.h"

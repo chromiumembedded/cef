@@ -77,11 +77,6 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
   void RunScriptsAtDocumentIdle(content::RenderFrame* render_frame);
 
   static bool IsStandaloneExtensionProcess();
-  static content::BrowserPluginDelegate* CreateBrowserPluginDelegate(
-      content::RenderFrame* render_frame,
-      const content::WebPluginInfo& info,
-      const std::string& mime_type,
-      const GURL& original_url);
 
  private:
   std::unique_ptr<extensions::Dispatcher> extension_dispatcher_;

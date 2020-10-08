@@ -23,9 +23,10 @@ class CefVariationsClient : public variations::VariationsClient {
     return browser_context_->IsOffTheRecord();
   }
 
-  std::string GetVariationsHeader() const override {
+  variations::mojom::VariationsHeadersPtr GetVariationsHeaders()
+      const override {
     return variations::VariationsIdsProvider::GetInstance()
-        ->GetClientDataHeader(false /* is_signed_in */);
+        ->GetClientDataHeaders(false /* is_signed_in */);
   }
 
  private:
@@ -169,5 +170,9 @@ base::Time ChromeProfileAlloy::GetCreationTime() const {
 }
 
 void ChromeProfileAlloy::SetCreationTimeForTesting(base::Time creation_time) {
+  NOTREACHED();
+}
+
+void ChromeProfileAlloy::RecordMainFrameNavigation() {
   NOTREACHED();
 }

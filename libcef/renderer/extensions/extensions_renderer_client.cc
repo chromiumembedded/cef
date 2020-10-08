@@ -21,9 +21,7 @@
 #include "extensions/renderer/dispatcher.h"
 #include "extensions/renderer/extension_frame_helper.h"
 #include "extensions/renderer/extensions_render_frame_observer.h"
-#include "extensions/renderer/guest_view/extensions_guest_view_container.h"
 #include "extensions/renderer/guest_view/extensions_guest_view_container_dispatcher.h"
-#include "extensions/renderer/guest_view/mime_handler_view/mime_handler_view_container.h"
 #include "extensions/renderer/renderer_extension_registry.h"
 #include "extensions/renderer/script_context.h"
 #include "third_party/blink/public/web/web_document.h"
@@ -175,19 +173,6 @@ void CefExtensionsRendererClient::RunScriptsAtDocumentIdle(
 bool CefExtensionsRendererClient::IsStandaloneExtensionProcess() {
   return base::CommandLine::ForCurrentProcess()->HasSwitch(
       extensions::switches::kExtensionProcess);
-}
-
-// static
-content::BrowserPluginDelegate*
-CefExtensionsRendererClient::CreateBrowserPluginDelegate(
-    content::RenderFrame* render_frame,
-    const content::WebPluginInfo& info,
-    const std::string& mime_type,
-    const GURL& original_url) {
-  if (mime_type == content::kBrowserPluginMimeType)
-    return new extensions::ExtensionsGuestViewContainer(render_frame);
-  return new extensions::MimeHandlerViewContainer(render_frame, info, mime_type,
-                                                  original_url);
 }
 
 }  // namespace extensions

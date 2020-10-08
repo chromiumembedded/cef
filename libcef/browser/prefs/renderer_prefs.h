@@ -10,10 +10,15 @@
 
 class CommandLinePrefStore;
 
+namespace blink {
+namespace web_pref {
+struct WebPreferences;
+}
+}  // namespace blink
+
 namespace content {
 class RenderViewHost;
 class WebContents;
-struct WebPreferences;
 }  // namespace content
 
 namespace user_prefs {
@@ -34,9 +39,10 @@ void SetCommandLinePrefDefaults(CommandLinePrefStore* prefs);
 // Populate WebPreferences based on a combination of command-line values,
 // PrefService and CefBrowserSettings.
 void PopulateWebPreferences(content::RenderViewHost* rvh,
-                            content::WebPreferences& web);
-bool PopulateWebPreferencesAfterNavigation(content::WebContents* web_contents,
-                                           content::WebPreferences& web);
+                            blink::web_pref::WebPreferences& web);
+bool PopulateWebPreferencesAfterNavigation(
+    content::WebContents* web_contents,
+    blink::web_pref::WebPreferences& web);
 
 }  // namespace renderer_prefs
 

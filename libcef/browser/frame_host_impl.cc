@@ -17,7 +17,7 @@
 #include "libcef/common/request_impl.h"
 #include "libcef/common/task_runner_impl.h"
 
-#include "content/browser/frame_host/frame_tree_node.h"
+#include "content/browser/renderer_host/frame_tree_node.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 

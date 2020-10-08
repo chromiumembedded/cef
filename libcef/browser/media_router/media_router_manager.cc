@@ -7,10 +7,10 @@
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/thread_util.h"
 
-#include "chrome/browser/media/router/media_router_factory.h"
-#include "chrome/browser/media/router/media_routes_observer.h"
-#include "chrome/browser/media/router/route_message_observer.h"
-#include "chrome/browser/media/router/route_message_util.h"
+#include "components/media_router/browser/media_router_factory.h"
+#include "components/media_router/browser/media_routes_observer.h"
+#include "components/media_router/browser/route_message_observer.h"
+#include "components/media_router/browser/route_message_util.h"
 
 namespace {
 

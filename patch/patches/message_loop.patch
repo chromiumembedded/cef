@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 2a286b4d269b..55ee14d93545 100644
+index 2ba623bd01aa..b7049ead1f69 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -2,6 +2,7 @@
@@ -10,10 +10,10 @@ index 2a286b4d269b..55ee14d93545 100644
  #include "base/message_loop/message_pump_win.h"
  
  #include <algorithm>
-@@ -486,7 +487,17 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
-     TRACE_EVENT1("base",
-                  "MessagePumpForUI::ProcessNextWindowsMessage PeekMessage",
-                  "sent_messages_in_queue", more_work_is_plausible);
+@@ -495,7 +496,17 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
+               ctx.event()->set_chrome_message_pump();
+           msg_pump_data->set_sent_messages_in_queue(more_work_is_plausible);
+         });
 -    has_msg = ::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) != FALSE;
 +
 +    // We should not process all window messages if we are in the context of an

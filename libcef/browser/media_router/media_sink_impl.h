@@ -8,7 +8,7 @@
 
 #include "include/cef_media_router.h"
 
-#include "chrome/common/media_router/media_sink.h"
+#include "components/media_router/common/media_sink.h"
 
 // Implementation of the CefMediaSink interface. May be created on any thread.
 class CefMediaSinkImpl : public CefMediaSink {

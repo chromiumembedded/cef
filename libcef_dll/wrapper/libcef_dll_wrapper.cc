@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7db8dbe24a2510d9ae0649f1569909711017c064$
+// $hash=a62513bd0425ca940f4a91a836b97674351c8123$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -579,7 +579,6 @@ NO_SANITIZE("cfi-icall")
 CEF_GLOBAL CefRefPtr<CefValue> CefParseJSONAndReturnError(
     const CefString& json_string,
     cef_json_parser_options_t options,
-    cef_json_parser_error_t& error_code_out,
     CefString& error_msg_out) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -590,8 +589,7 @@ CEF_GLOBAL CefRefPtr<CefValue> CefParseJSONAndReturnError(
 
   // Execute
   cef_value_t* _retval = cef_parse_jsonand_return_error(
-      json_string.GetStruct(), options, &error_code_out,
-      error_msg_out.GetWritableStruct());
+      json_string.GetStruct(), options, error_msg_out.GetWritableStruct());
 
   // Return type: refptr_same
   return CefValueCToCpp::Wrap(_retval);

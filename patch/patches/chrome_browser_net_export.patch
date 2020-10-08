@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index c7bd97a32af1..311f2c52af8d 100644
+index bf4ca6cdccc4..1b9607765313 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -10,6 +10,7 @@ import("//build/config/crypto.gni")
@@ -10,7 +10,7 @@ index c7bd97a32af1..311f2c52af8d 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/assistant/assistant.gni")
-@@ -334,6 +335,10 @@ static_library("ui") {
+@@ -330,6 +331,10 @@ static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -21,7 +21,7 @@ index c7bd97a32af1..311f2c52af8d 100644
    # Since browser and browser_ui actually depend on each other,
    # we must omit the dependency from browser_ui to browser.
    # However, this means browser_ui and browser should more or less
-@@ -355,6 +360,7 @@ static_library("ui") {
+@@ -351,6 +356,7 @@ static_library("ui") {
      "//base/allocator:buildflags",
      "//build:branding_buildflags",
      "//cc/paint",
@@ -29,23 +29,25 @@ index c7bd97a32af1..311f2c52af8d 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -1532,6 +1538,7 @@ static_library("ui") {
-       "//components/network_session_configurator/common",
+@@ -1525,6 +1531,7 @@ static_library("ui") {
        "//components/page_load_metrics/browser",
        "//components/performance_manager:site_data_proto",
+       "//components/printing/browser",
 +      "//components/printing/common:mojo_interfaces",
        "//components/profile_metrics",
        "//components/safety_check",
        "//components/search_provider_logos",
-@@ -3905,8 +3912,6 @@ static_library("ui") {
-       "views/toolbar/home_button.h",
-       "views/toolbar/reload_button.cc",
-       "views/toolbar/reload_button.h",
--      "views/toolbar/sharesheet_button.cc",
--      "views/toolbar/sharesheet_button.h",
-       "views/toolbar/toolbar_account_icon_container_view.cc",
-       "views/toolbar/toolbar_account_icon_container_view.h",
-       "views/toolbar/toolbar_action_view.cc",
+@@ -3243,7 +3250,9 @@ static_library("ui") {
+           "views/frame/browser_desktop_window_tree_host_platform.h",
+         ]
+       }
+-      sources += [ "views/frame/native_browser_frame_factory_ozone.cc" ]
++      if (!use_x11) {
++        sources += [ "views/frame/native_browser_frame_factory_ozone.cc" ]
++      }
+     }
+     if (is_desktop_linux) {
+       sources += [
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
 index f27414c41891..5ff3bfa8f724 100644
 --- chrome/browser/ui/webui/net_export_ui.cc

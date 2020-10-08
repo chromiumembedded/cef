@@ -27,15 +27,16 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/task/post_task.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/media/router/chrome_media_router_factory.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/plugins/plugin_finder.h"
 #include "components/constrained_window/constrained_window_views.h"
 #include "content/public/browser/gpu_data_manager.h"
 #include "content/public/browser/network_service_instance.h"
+#include "content/public/common/result_codes.h"
 #include "extensions/browser/extension_system.h"
 #include "extensions/common/constants.h"
 #include "net/base/net_module.h"
-#include "services/service_manager/embedder/result_codes.h"
 #include "ui/base/resource/resource_bundle.h"
 
 #if defined(USE_AURA) && defined(USE_X11)
@@ -88,7 +89,7 @@ int AlloyBrowserMainParts::PreEarlyInitialization() {
   ui::InitializeInputMethodForTesting();
 #endif
 
-  return service_manager::RESULT_CODE_NORMAL_EXIT;
+  return content::RESULT_CODE_NORMAL_EXIT;
 }
 
 void AlloyBrowserMainParts::ToolkitInitialized() {
@@ -130,6 +131,8 @@ void AlloyBrowserMainParts::PreMainMessageLoopStart() {
   // setup.exe.  In Chrome, these strings are in the locale files.
   ChromeBrowserMainPartsWin::SetupInstallerUtilStrings();
 #endif  // defined(OS_WIN)
+
+  media_router::ChromeMediaRouterFactory::DoPlatformInit();
 }
 
 void AlloyBrowserMainParts::PostMainMessageLoopStart() {

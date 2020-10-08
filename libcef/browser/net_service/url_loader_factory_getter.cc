@@ -10,7 +10,7 @@
 
 #include "base/threading/thread_task_runner_handle.h"
 #include "content/browser/devtools/devtools_instrumentation.h"
-#include "content/browser/frame_host/render_frame_host_impl.h"
+#include "content/browser/renderer_host/render_frame_host_impl.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/storage_partition.h"
 #include "content/public/common/content_client.h"
@@ -65,7 +65,7 @@ scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
   should_proxy |= browser_client->WillCreateURLLoaderFactory(
       browser_context, render_frame_host, render_process_id,
       content::ContentBrowserClient::URLLoaderFactoryType::kDocumentSubResource,
-      url::Origin(), base::nullopt /* navigation_id */,
+      url::Origin(), base::nullopt /* navigation_id */, base::UkmSourceId(),
       &maybe_proxy_factory_request, nullptr /* header_client */,
       nullptr /* bypass_redirect_checks */, nullptr /* disable_secure_dns */,
       nullptr /* factory_override */);

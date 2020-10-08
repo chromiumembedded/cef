@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c42cd0225d8e4286df471fcc622f9bbf9ed977d3$
+// $hash=b2bc3d843217869087e7b1a381d70d687b71a8ff$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -610,7 +610,6 @@ CEF_EXPORT struct _cef_value_t* cef_parse_json_buffer(
 CEF_EXPORT struct _cef_value_t* cef_parse_jsonand_return_error(
     const cef_string_t* json_string,
     cef_json_parser_options_t options,
-    cef_json_parser_error_t* error_code_out,
     cef_string_t* error_msg_out) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -618,28 +617,17 @@ CEF_EXPORT struct _cef_value_t* cef_parse_jsonand_return_error(
   DCHECK(json_string);
   if (!json_string)
     return NULL;
-  // Verify param: error_code_out; type: simple_byref
-  DCHECK(error_code_out);
-  if (!error_code_out)
-    return NULL;
   // Verify param: error_msg_out; type: string_byref
   DCHECK(error_msg_out);
   if (!error_msg_out)
     return NULL;
 
-  // Translate param: error_code_out; type: simple_byref
-  cef_json_parser_error_t error_code_outVal =
-      error_code_out ? *error_code_out : JSON_NO_ERROR;
   // Translate param: error_msg_out; type: string_byref
   CefString error_msg_outStr(error_msg_out);
 
   // Execute
   CefRefPtr<CefValue> _retval = CefParseJSONAndReturnError(
-      CefString(json_string), options, error_code_outVal, error_msg_outStr);
-
-  // Restore param: error_code_out; type: simple_byref
-  if (error_code_out)
-    *error_code_out = error_code_outVal;
+      CefString(json_string), options, error_msg_outStr);
 
   // Return type: refptr_same
   return CefValueCppToC::Wrap(_retval);

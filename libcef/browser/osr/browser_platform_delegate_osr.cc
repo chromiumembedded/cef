@@ -312,8 +312,8 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragEnter(
   base::AutoLock lock_scope(data_impl->lock());
   content::DropData* drop_data = data_impl->drop_data();
   const gfx::Point& screen_pt = GetScreenPoint(client_pt);
-  blink::WebDragOperationsMask ops =
-      static_cast<blink::WebDragOperationsMask>(allowed_ops);
+  blink::DragOperationsMask ops =
+      static_cast<blink::DragOperationsMask>(allowed_ops);
   int modifiers = TranslateWebEventModifiers(event.modifiers);
 
   current_rwh_for_drag_->FilterDropData(drop_data);
@@ -376,8 +376,8 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragOver(
   if (!drag_data_)
     return;
 
-  blink::WebDragOperationsMask ops =
-      static_cast<blink::WebDragOperationsMask>(allowed_ops);
+  blink::DragOperationsMask ops =
+      static_cast<blink::DragOperationsMask>(allowed_ops);
   int modifiers = TranslateWebEventModifiers(event.modifiers);
 
   target_rwh->DragTargetDragOver(transformed_pt, gfx::PointF(screen_pt), ops,
@@ -459,10 +459,10 @@ void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
 
 void CefBrowserPlatformDelegateOsr::StartDragging(
     const content::DropData& drop_data,
-    blink::WebDragOperationsMask allowed_ops,
+    blink::DragOperationsMask allowed_ops,
     const gfx::ImageSkia& image,
     const gfx::Vector2d& image_offset,
-    const content::DragEventSourceInfo& event_info,
+    const blink::mojom::DragEventSourceInfo& event_info,
     content::RenderWidgetHostImpl* source_rwh) {
   drag_start_rwh_ = source_rwh->GetWeakPtr();
 
@@ -480,7 +480,7 @@ void CefBrowserPlatformDelegateOsr::StartDragging(
     handled = handler->StartDragging(
         browser_, drag_data.get(),
         static_cast<CefRenderHandler::DragOperationsMask>(allowed_ops),
-        event_info.event_location.x(), event_info.event_location.y());
+        event_info.location.x(), event_info.location.y());
   }
 
   if (!handled)
@@ -488,7 +488,7 @@ void CefBrowserPlatformDelegateOsr::StartDragging(
 }
 
 void CefBrowserPlatformDelegateOsr::UpdateDragCursor(
-    blink::WebDragOperation operation) {
+    blink::DragOperation operation) {
   CefRefPtr<CefRenderHandler> handler =
       browser_->GetClient()->GetRenderHandler();
   if (handler.get()) {
@@ -512,7 +512,7 @@ void CefBrowserPlatformDelegateOsr::DragSourceEndedAt(
   content::RenderWidgetHostImpl* source_rwh = drag_start_rwh_.get();
   const gfx::Point client_loc(gfx::Point(x, y));
   const gfx::Point& screen_loc = GetScreenPoint(client_loc);
-  blink::WebDragOperation drag_op = static_cast<blink::WebDragOperation>(op);
+  blink::DragOperation drag_op = static_cast<blink::DragOperation>(op);
 
   // |client_loc| and |screen_loc| are in the root coordinate space, for
   // non-root RenderWidgetHosts they need to be transformed.

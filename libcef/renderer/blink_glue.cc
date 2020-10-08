@@ -5,6 +5,7 @@
 
 #include "libcef/renderer/blink_glue.h"
 
+#include "third_party/blink/public/mojom/v8_cache_options.mojom-blink.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url_response.h"
 #include "third_party/blink/public/web/web_document.h"
@@ -13,6 +14,8 @@
 #include "third_party/blink/public/web/web_node.h"
 #include "third_party/blink/public/web/web_view_client.h"
 
+#include "third_party/blink/renderer/bindings/core/v8/sanitize_script_errors.h"
+#include "third_party/blink/renderer/bindings/core/v8/script_evaluation_result.h"
 #include "third_party/blink/renderer/bindings/core/v8/script_source_code.h"
 #include "third_party/blink/renderer/bindings/core/v8/v8_binding_for_core.h"
 #include "third_party/blink/renderer/core/dom/document.h"
@@ -163,27 +166,25 @@ bool IsTextControlElement(const blink::WebElement& element) {
   return web_element->IsTextControl();
 }
 
-v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
+v8::Local<v8::Value> ExecuteV8ScriptAndReturnValue(
     const blink::WebString& source,
     const blink::WebString& source_url,
     int start_line,
     v8::Local<v8::Context> context,
     v8::Isolate* isolate,
-    v8::TryCatch& tryCatch,
-    blink::SanitizeScriptErrors sanitizeScriptErrors) {
+    v8::TryCatch& tryCatch) {
   // Based on ScriptController::executeScriptAndReturnValue
   DCHECK(isolate);
 
   if (start_line < 1)
     start_line = 1;
 
-  v8::MaybeLocal<v8::Value> result;
-
   blink::LocalFrame* frame = blink::ToLocalFrameIfNotDetached(context);
   if (!frame)
-    return result;
+    return v8::Local<v8::Value>();
 
-  blink::V8CacheOptions v8CacheOptions(blink::kV8CacheOptionsDefault);
+  blink::mojom::V8CacheOptions v8CacheOptions(
+      blink::mojom::V8CacheOptions::kDefault);
   if (const blink::Settings* settings = frame->GetSettings())
     v8CacheOptions = settings->GetV8CacheOptions();
 
@@ -194,15 +195,21 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
       WTF::TextPosition(WTF::OrdinalNumber::FromOneBasedInt(start_line),
                         WTF::OrdinalNumber::FromZeroBasedInt(0)));
 
-  result = blink::V8ScriptRunner::CompileAndRunScript(
+  // The Rethrow() message is unused due to kDoNotSanitize but it still needs
+  // to be non-nullopt for exceptions to be re-thrown as expected.
+  auto result = blink::V8ScriptRunner::CompileAndRunScript(
       isolate, blink::ScriptState::From(context), frame->DomWindow(), ssc,
-      ssc.Url(), sanitizeScriptErrors, blink::ScriptFetchOptions(),
-      v8CacheOptions);
-  if (result.IsEmpty()) {
-    DCHECK(tryCatch.HasCaught());
+      ssc.Url(), blink::SanitizeScriptErrors::kDoNotSanitize,
+      blink::ScriptFetchOptions(), std::move(v8CacheOptions),
+      blink::V8ScriptRunner::RethrowErrorsOption::Rethrow(""));
+
+  if (result.GetResultType() ==
+      blink::ScriptEvaluationResult::ResultType::kSuccess) {
+    return result.GetSuccessValue();
   }
 
-  return result;
+  DCHECK(tryCatch.HasCaught());
+  return v8::Local<v8::Value>();
 }
 
 bool IsScriptForbidden() {

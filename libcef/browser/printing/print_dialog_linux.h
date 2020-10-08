@@ -38,7 +38,7 @@ class CefPrintDialogLinux : public printing::PrintDialogGtkInterface,
   static gfx::Size GetPdfPaperSize(printing::PrintingContextLinux* context);
 
   // Notify the client when printing has started.
-  static void OnPrintStart(int render_process_id, int render_routing_id);
+  static void OnPrintStart(CefRefPtr<CefBrowserHostBase> browser);
 
   // PrintDialogGtkInterface implementation.
   void UseDefaultSettings() override;

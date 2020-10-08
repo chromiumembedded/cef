@@ -42,7 +42,7 @@ index 4dd9b2645d60..23b46ce1a43a 100644
    explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
    ~SyntheticGestureTargetBase() override;
 diff --git content/common/content_switches_internal.h content/common/content_switches_internal.h
-index 886bdf0edf8f..1d714000cce5 100644
+index 57072bf1263a..0a93446e4d21 100644
 --- content/common/content_switches_internal.h
 +++ content/common/content_switches_internal.h
 @@ -15,7 +15,7 @@ class CommandLine;
@@ -55,7 +55,7 @@ index 886bdf0edf8f..1d714000cce5 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 9cfeb73eb397..de5bc486f204 100644
+index 87c15e50b7f0..8f42ae4da8de 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -25,6 +25,7 @@ component("controller") {
@@ -66,22 +66,22 @@ index 9cfeb73eb397..de5bc486f204 100644
      "//third_party/blink/renderer:config",
      "//third_party/blink/renderer:inside_blink",
      "//third_party/blink/renderer:non_test_config",
-@@ -45,6 +46,8 @@ component("controller") {
-     "memory_usage_monitor.h",
-     "performance_manager/renderer_resource_coordinator_impl.cc",
-     "performance_manager/renderer_resource_coordinator_impl.h",
-+     "//cef/libcef/renderer/blink_glue.cc",
-+     "//cef/libcef/renderer/blink_glue.h",
+@@ -49,6 +50,8 @@ component("controller") {
+     "performance_manager/v8_detailed_memory_reporter_impl.h",
+     "performance_manager/v8_worker_memory_reporter.cc",
+     "performance_manager/v8_worker_memory_reporter.h",
++    "//cef/libcef/renderer/blink_glue.cc",
++    "//cef/libcef/renderer/blink_glue.h",
    ]
  
    if (is_linux || is_chromeos) {
 diff --git ui/events/keycodes/BUILD.gn ui/events/keycodes/BUILD.gn
-index 12f3abf92434..d73901dece01 100644
+index 4aae406b9ace..40ca74281b78 100644
 --- ui/events/keycodes/BUILD.gn
 +++ ui/events/keycodes/BUILD.gn
-@@ -16,6 +16,8 @@ source_set("xkb") {
- 
-   public_deps = [ "//ui/base:buildflags" ]
+@@ -19,6 +19,8 @@ source_set("xkb") {
+     "//ui/gfx/x/keysyms",
+   ]
  
 +  defines = [ "KEYCODES_X_IMPLEMENTATION" ]
 +
@@ -106,28 +106,6 @@ index a1f9b78704fb..c7d3558251d9 100644
  // Return the DomKey determined by the XKB layout result (keysym, character).
 -DomKey XKeySymToDomKey(xkb_keysym_t keysym, base::char16 character);
 +KEYCODES_X_EXPORT DomKey XKeySymToDomKey(xkb_keysym_t keysym, base::char16 character);
- 
- }  // namespace ui
- 
-diff --git ui/events/keycodes/keysym_to_unicode.h ui/events/keycodes/keysym_to_unicode.h
-index a7983d179832..2bbee48e57ac 100644
---- ui/events/keycodes/keysym_to_unicode.h
-+++ ui/events/keycodes/keysym_to_unicode.h
-@@ -5,6 +5,8 @@
- #ifndef UI_EVENTS_KEYCODES_KEYSYM_TO_UNICODE_H_
- #define UI_EVENTS_KEYCODES_KEYSYM_TO_UNICODE_H_
- 
-+#include "ui/events/keycodes/keycodes_x_export.h"
-+
- #include <stdint.h>
- 
- namespace ui {
-@@ -13,7 +15,7 @@ namespace ui {
- // |keysym| doesn't represent a printable character, returns zero.  We don't
- // support characters outside the Basic Plane, and this function returns zero
- // in that case.
--uint16_t GetUnicodeCharacterFromXKeySym(unsigned long keysym);
-+KEYCODES_X_EXPORT uint16_t GetUnicodeCharacterFromXKeySym(unsigned long keysym);
  
  }  // namespace ui
  

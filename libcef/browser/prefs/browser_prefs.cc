@@ -49,6 +49,7 @@
 #include "components/prefs/pref_service.h"
 #include "components/proxy_config/pref_proxy_config_tracker_impl.h"
 #include "components/proxy_config/proxy_config_dictionary.h"
+#include "components/safe_browsing/core/common/safe_browsing_prefs.h"
 #include "components/spellcheck/browser/pref_names.h"
 #include "components/sync_preferences/pref_service_syncable.h"
 #include "components/sync_preferences/pref_service_syncable_factory.h"
@@ -203,9 +204,10 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   // Based on chrome/browser/ui/browser_ui_prefs.cc RegisterBrowserPrefs.
   registry->RegisterBooleanPref(prefs::kAllowFileSelectionDialogs, true);
 
-  // From Chrome::RegisterBrowserUserPrefs.
+  // Based on chrome/browser/ui/browser_ui_prefs.cc RegisterBrowserUserPrefs.
   registry->RegisterBooleanPref(prefs::kPrintPreviewUseSystemDefaultPrinter,
                                 false);
+  registry->RegisterBooleanPref(prefs::kWebRTCAllowLegacyTLSProtocols, false);
 
   if (command_line->HasSwitch(switches::kEnablePreferenceTesting)) {
     // Preferences used with unit tests.
@@ -233,6 +235,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     media_router::RegisterProfilePrefs(registry.get());
     MediaDeviceIDSalt::RegisterProfilePrefs(registry.get());
     ProfileNetworkContextService::RegisterProfilePrefs(registry.get());
+    safe_browsing::RegisterProfilePrefs(registry.get());
 
     const std::string& locale =
         command_line->GetSwitchValueASCII(switches::kLang);

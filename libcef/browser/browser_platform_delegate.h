@@ -16,7 +16,8 @@
 
 #include "base/callback_forward.h"
 #include "extensions/common/view_type.h"
-#include "third_party/blink/public/common/page/web_drag_operation.h"
+#include "third_party/blink/public/common/page/drag_operation.h"
+#include "third_party/blink/public/mojom/page/drag.mojom-forward.h"
 #include "third_party/skia/include/core/SkColor.h"
 #include "ui/base/window_open_disposition.h"
 
@@ -33,7 +34,6 @@ class WebTouchEvent;
 namespace content {
 struct AXEventNotificationDetails;
 struct AXLocationChangeNotificationDetails;
-struct DragEventSourceInfo;
 struct DropData;
 struct NativeWebKeyboardEvent;
 class RenderViewHost;
@@ -320,13 +320,14 @@ class CefBrowserPlatformDelegate {
                                   cef_drag_operations_mask_t allowed_ops);
   virtual void DragTargetDragLeave();
   virtual void DragTargetDrop(const CefMouseEvent& event);
-  virtual void StartDragging(const content::DropData& drop_data,
-                             blink::WebDragOperationsMask allowed_ops,
-                             const gfx::ImageSkia& image,
-                             const gfx::Vector2d& image_offset,
-                             const content::DragEventSourceInfo& event_info,
-                             content::RenderWidgetHostImpl* source_rwh);
-  virtual void UpdateDragCursor(blink::WebDragOperation operation);
+  virtual void StartDragging(
+      const content::DropData& drop_data,
+      blink::DragOperationsMask allowed_ops,
+      const gfx::ImageSkia& image,
+      const gfx::Vector2d& image_offset,
+      const blink::mojom::DragEventSourceInfo& event_info,
+      content::RenderWidgetHostImpl* source_rwh);
+  virtual void UpdateDragCursor(blink::DragOperation operation);
   virtual void DragSourceEndedAt(int x, int y, cef_drag_operations_mask_t op);
   virtual void DragSourceSystemDragEnded();
   virtual void AccessibilityEventReceived(

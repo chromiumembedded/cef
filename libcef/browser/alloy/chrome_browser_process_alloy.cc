@@ -325,6 +325,12 @@ ChromeBrowserProcessAlloy::floc_blocklist_service() {
   return nullptr;
 }
 
+federated_learning::FlocSortingLshClustersService*
+ChromeBrowserProcessAlloy::floc_sorting_lsh_clusters_service() {
+  NOTREACHED();
+  return nullptr;
+}
+
 optimization_guide::OptimizationGuideService*
 ChromeBrowserProcessAlloy::optimization_guide_service() {
   NOTREACHED();

@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index aff8517d72f4..6ad4c7aefdff 100644
+index c5c73f805e8f..449ad9eaaf5e 100644
 --- .gn
 +++ .gn
-@@ -385,6 +385,8 @@ exec_script_whitelist =
+@@ -350,6 +350,8 @@ exec_script_whitelist =
  
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
  
@@ -12,10 +12,10 @@ index aff8517d72f4..6ad4c7aefdff 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 4e74a1d6948f..044f4016a2b6 100644
+index 39b9075b1267..f25586e6cb72 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -226,6 +226,7 @@ group("gn_all") {
+@@ -230,6 +230,7 @@ group("gn_all") {
  
    if (!is_ios && !is_fuchsia) {
      deps += [
@@ -56,7 +56,7 @@ index 982fbe8d3f0d..e757be4688f1 100644
 +         "studio path")
  }
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 5a7d02d80a89..dcc77f0e8b33 100644
+index 9323a774a565..913b5cdc6be4 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -3,6 +3,7 @@
@@ -67,7 +67,7 @@ index 5a7d02d80a89..dcc77f0e8b33 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/components/media_app_ui/media_app_ui.gni")
-@@ -315,6 +316,7 @@ template("chrome_paks") {
+@@ -325,6 +326,7 @@ template("chrome_paks") {
      }
    }
  
@@ -75,7 +75,7 @@ index 5a7d02d80a89..dcc77f0e8b33 100644
    chrome_repack_locales("${target_name}_locales") {
      forward_variables_from(invoker,
                             [
-@@ -337,14 +339,17 @@ template("chrome_paks") {
+@@ -347,14 +349,17 @@ template("chrome_paks") {
        output_locales = locales
      }
    }
