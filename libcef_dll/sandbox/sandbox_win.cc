@@ -6,6 +6,7 @@
 #include "sandbox/win/src/process_mitigations.h"
 #include "sandbox/win/src/sandbox_factory.h"
 
+#include "cef/libcef/features/features.h"
 #include "include/cef_sandbox_win.h"
 
 namespace {
@@ -39,6 +40,7 @@ void cef_sandbox_info_destroy(void* sandbox_info) {
   delete static_cast<sandbox::SandboxInterfaceInfo*>(sandbox_info);
 }
 
+#if BUILDFLAG(IS_CEF_SANDBOX_BUILD)
 // Implementation from third_party/abseil-cpp/absl/types/bad_variant_access.cc
 // to avoid bringing in absl dependencies.
 namespace absl {
@@ -48,3 +50,4 @@ void ThrowBadVariantAccess() {
 }
 }  // namespace variant_internal
 }  // namespace absl
+#endif  // BUILDFLAG(IS_CEF_SANDBOX_BUILD)

@@ -1237,7 +1237,7 @@ if (is_win) {
     sources = [ "libcef_dll/sandbox/sandbox_win.cc" ]
     # CEF sources use include paths relative to the CEF root directory.
     include_dirs = [ "." ]
-    deps = [ "//sandbox" ]
+    deps = [ "libcef/features", "//sandbox" ]
   }
 }
 
