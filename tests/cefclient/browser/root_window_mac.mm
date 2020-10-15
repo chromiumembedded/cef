@@ -897,14 +897,6 @@ scoped_refptr<RootWindow> RootWindow::GetForNSWindow(NSWindow* window) {
     }
   }
 
-  // Don't want any more delegate callbacks after we destroy ourselves.
-  window_.delegate = nil;
-  // Delete the window.
-#if !__has_feature(objc_arc)
-  [window autorelease];
-#endif  // !__has_feature(objc_arc)
-  window_ = nil;
-
   // Clean ourselves up after clearing the stack of anything that might have the
   // window on it.
   [self cleanup];
