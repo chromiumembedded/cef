@@ -68,7 +68,8 @@ void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
   EXPECT_FALSE(window->GetWindowIcon().get());
   EXPECT_FALSE(window->GetWindowAppIcon().get());
 
-  EXPECT_TRUE(window->GetDisplay().get());
+  auto display = window->GetDisplay();
+  EXPECT_TRUE(display.get());
 
   // Size will come from GetGetInitialBounds() or GetPreferredSize() on
   // initial Window creation.
@@ -83,9 +84,10 @@ void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
     EXPECT_EQ(config_.window_origin.x, client_bounds.x);
     EXPECT_EQ(config_.window_origin.y, client_bounds.y);
   } else {
-    // Default origin is (0,0).
-    EXPECT_EQ(0, client_bounds.x);
-    EXPECT_EQ(0, client_bounds.y);
+    // Default origin is the upper-left corner of the display's work area.
+    auto work_area = display->GetWorkArea();
+    EXPECT_EQ(work_area.x, client_bounds.x);
+    EXPECT_EQ(work_area.y, client_bounds.y);
   }
 
   if (config_.frameless) {
