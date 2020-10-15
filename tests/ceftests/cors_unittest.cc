@@ -1496,16 +1496,16 @@ struct PostResource : CookieResource {
     if (expected_origin != origin)
       return false;
 
-    const std::string& method = request->GetMethod();
+    const std::string& req_method = request->GetMethod();
     const bool has_post_data = request->GetPostData() != nullptr;
     if (expect_downgrade_to_get) {
       EXPECT_FALSE(has_post_data) << GetPathURL();
-      EXPECT_STREQ("GET", method.c_str()) << GetPathURL();
-      return !has_post_data && method == "GET";
+      EXPECT_STREQ("GET", req_method.c_str()) << GetPathURL();
+      return !has_post_data && req_method == "GET";
     } else {
       EXPECT_TRUE(has_post_data) << GetPathURL();
-      EXPECT_STREQ("POST", method.c_str()) << GetPathURL();
-      return has_post_data && method == "POST";
+      EXPECT_STREQ("POST", req_method.c_str()) << GetPathURL();
+      return has_post_data && req_method == "POST";
     }
   }
 };
