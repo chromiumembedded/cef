@@ -1,5 +1,5 @@
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 670a33244287..9c13775f385d 100644
+index 99b167f0aba8..c62cf17090c0 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
 @@ -373,7 +373,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)

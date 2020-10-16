@@ -44,10 +44,10 @@ index d49dc7cb85d5..dc4af48a458d 100644
  
  DocumentInit& DocumentInit::WithTypeFrom(const String& mime_type) {
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index c00d6f81db12..17c54cd0ca08 100644
+index f532469a54a4..864ef01ab4c1 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
-@@ -1698,7 +1698,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
+@@ -1703,7 +1703,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins(kNotAboutToInstantiatePlugin))
      return nullptr;
@@ -85,7 +85,7 @@ index 0608c4defc6d..54eaa2197957 100644
  
  void DevToolsSession::DispatchProtocolCommand(
 diff --git third_party/blink/renderer/core/page/page.cc third_party/blink/renderer/core/page/page.cc
-index c87fcbaaa194..2baae5c3bc64 100644
+index 8ad0fb93a8eb..c0dc1f3bc63a 100644
 --- third_party/blink/renderer/core/page/page.cc
 +++ third_party/blink/renderer/core/page/page.cc
 @@ -211,7 +211,8 @@ Page::Page(PageClients& page_clients)
@@ -149,7 +149,7 @@ index c87fcbaaa194..2baae5c3bc64 100644
        page->NotifyPluginsChanged();
      }
    }
-@@ -911,7 +932,8 @@ void Page::Trace(Visitor* visitor) const {
+@@ -916,7 +937,8 @@ void Page::Trace(Visitor* visitor) const {
    visitor->Trace(link_highlight_);
    visitor->Trace(spatial_navigation_controller_);
    visitor->Trace(main_frame_);
@@ -160,7 +160,7 @@ index c87fcbaaa194..2baae5c3bc64 100644
    visitor->Trace(agent_metrics_collector_);
    visitor->Trace(plugins_changed_observers_);
 diff --git third_party/blink/renderer/core/page/page.h third_party/blink/renderer/core/page/page.h
-index 4e4e496eb088..ed2ded8a397b 100644
+index c184b1fd46db..fb33e5a74c83 100644
 --- third_party/blink/renderer/core/page/page.h
 +++ third_party/blink/renderer/core/page/page.h
 @@ -149,7 +149,8 @@ class CORE_EXPORT Page final : public GarbageCollected<Page>,
@@ -173,7 +173,7 @@ index 4e4e496eb088..ed2ded8a397b 100644
  
    // Resets the plugin data for all pages in the renderer process and notifies
    // PluginsChangedObservers.
-@@ -426,7 +427,8 @@ class CORE_EXPORT Page final : public GarbageCollected<Page>,
+@@ -430,7 +431,8 @@ class CORE_EXPORT Page final : public GarbageCollected<Page>,
    const Member<LinkHighlight> link_highlight_;
    Member<SpatialNavigationController> spatial_navigation_controller_;
  
