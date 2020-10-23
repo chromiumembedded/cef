@@ -43,7 +43,7 @@ index c746b37d6278..b6cebc24b73e 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 3dc9e4daf46d..f5b2eb00f36f 100644
+index 26328ded8b82..fd45a2972a7c 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -615,6 +615,14 @@ void RenderText::SetWhitespaceElision(base::Optional<bool> whitespace_elision) {
@@ -61,7 +61,7 @@ index 3dc9e4daf46d..f5b2eb00f36f 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -1966,6 +1974,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -1990,6 +1998,19 @@ void RenderText::OnTextAttributeChanged() {
  
    layout_text_up_to_date_ = false;
  
@@ -82,7 +82,7 @@ index 3dc9e4daf46d..f5b2eb00f36f 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index 4b39abb9d16c..c3b5debf995b 100644
+index be9c3457df7f..ce14b5613454 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
 @@ -346,6 +346,10 @@ class GFX_EXPORT RenderText {
@@ -96,7 +96,7 @@ index 4b39abb9d16c..c3b5debf995b 100644
    const Rect& display_rect() const { return display_rect_; }
    void SetDisplayRect(const Rect& r);
  
-@@ -1049,6 +1053,8 @@ class GFX_EXPORT RenderText {
+@@ -1053,6 +1057,8 @@ class GFX_EXPORT RenderText {
    // Tell whether or not the |layout_text_| needs an update or is up to date.
    mutable bool layout_text_up_to_date_ = false;
  
