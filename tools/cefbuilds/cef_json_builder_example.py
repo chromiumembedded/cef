@@ -12,9 +12,6 @@
 # > python cef_json_builder_example.py add all 3.2704.1416.g185cd6c 51.0.2704.47
 #
 # See cef_json_builder.get_platforms() for the list of supported platforms.
-#
-# After creating an index.json file you can use the cef_html_builder.py tool to
-# create an HTML file.
 
 from __future__ import absolute_import
 from __future__ import print_function

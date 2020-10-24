@@ -76,9 +76,11 @@ class TestCefJSONBuilder(unittest.TestCase):
                      platform='linux32',
                      version='3.2704.1414.g185cd6c',
                      type='standard',
+                     channel='stable',
                      attrib_idx=0,
                      shouldfail=False):
-    name = cef_json_builder.get_file_name(version, platform, type) + '.tar.gz'
+    name = cef_json_builder.get_file_name(version, platform, type,
+                                          channel) + '.tar.gz'
 
     # Some random attribute information. sha1 must be different to trigger replacement.
     attribs = [{
@@ -113,6 +115,7 @@ class TestCefJSONBuilder(unittest.TestCase):
         'platform': platform,
         'last_modified': attribs[attrib_idx]['date_val'],
         'cef_version': version,
+        'channel': channel,
         'type': type,
         'size': attribs[attrib_idx]['size']
     }
@@ -127,10 +130,10 @@ class TestCefJSONBuilder(unittest.TestCase):
     self.assertEqual(len(files), 0)
 
   # Test add/get of a single file with the specified type.
-  def _test_add_file(self, type):
+  def _test_add_file(self, type, channel='stable'):
     builder = cef_json_builder()
 
-    expected = self._add_test_file(builder, type=type)
+    expected = self._add_test_file(builder, type=type, channel=channel)
     self._verify_write_read(builder)
 
     files = builder.get_files()
@@ -156,6 +159,26 @@ class TestCefJSONBuilder(unittest.TestCase):
   # Test add/get of a release_symbols type file.
   def test_add_release_symbols_file(self):
     self._test_add_file('release_symbols')
+
+  # Test add/get of a standard type file in beta channel.
+  def test_add_standard_file_beta(self):
+    self._test_add_file('standard', channel='beta')
+
+  # Test add/get of a minimal type file in beta channel.
+  def test_add_minimal_file_beta(self):
+    self._test_add_file('minimal', channel='beta')
+
+  # Test add/get of a client type file in beta channel.
+  def test_add_client_file_beta(self):
+    self._test_add_file('client', channel='beta')
+
+  # Test add/get of a debug_symbols type file in beta channel.
+  def test_add_debug_symbols_file_beta(self):
+    self._test_add_file('debug_symbols', channel='beta')
+
+  # Test add/get of a release_symbols type file in beta channel.
+  def test_add_release_symbols_file_beta(self):
+    self._test_add_file('release_symbols', channel='beta')
 
   # Test get_files() behavior with a single file.
   def test_get_files_single(self):

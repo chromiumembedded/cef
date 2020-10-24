@@ -125,14 +125,12 @@ class cef_json_builder:
         bool(re.compile('^' + _chromium_version_regex + '$').match(version))
 
   @staticmethod
-  def get_file_name(version, platform, type):
+  def get_file_name(version, platform, type, channel='stable'):
     """ Returns the expected distribution file name excluding extension based on
         the input parameters. """
-    if type != 'standard':
-      type_str = '_' + type
-    else:
-      type_str = ''
-    return 'cef_binary_%s_%s%s' % (version, platform, type_str)
+    type_str = '_' + type if type != 'standard' else ''
+    channel_str = '_' + channel if channel != 'stable' else ''
+    return 'cef_binary_%s_%s%s%s' % (version, platform, channel_str, type_str)
 
   def clear(self):
     """ Clear the contents of this object. """
@@ -246,7 +244,8 @@ class cef_json_builder:
     # Validate the new data's structure.
     for platform in self._data.keys():
       if not platform in new_data:
-        self._print('load: Platform %s not found' % platform)
+        if not self._silent:
+          print('load: Platform %s not found' % platform)
         continue
       if not 'versions' in new_data[platform]:
         self._print('load: Missing platform key(s) for %s' % platform)
@@ -271,8 +270,8 @@ class cef_json_builder:
             self._print('load: Missing file key(s) for %s %s' %
                         (platform, version['cef_version']))
             continue
-          (expected_platform, expected_version,
-           expected_type) = self._parse_name(file['name'])
+          (expected_platform, expected_version, expected_type,
+           expected_channel) = self._parse_name(file['name'])
           if expected_platform != platform or \
               expected_version != version['cef_version'] or \
               expected_type != file['type']:
@@ -301,6 +300,8 @@ class cef_json_builder:
               'chromium_version':
                   self.set_chromium_version(version['cef_version'],
                                             version['chromium_version']),
+              'channel':
+                  version.get('channel', 'stable'),
               'files':
                   self._sort_files(valid_files)
           })
@@ -340,6 +341,7 @@ class cef_json_builder:
     del name_parts[0]
 
     type = None
+    channel = 'stable'
 
     # Might be '<version>_<platform>_[debug|release]_symbols'.
     if name_parts[-1] == 'symbols':
@@ -358,6 +360,11 @@ class cef_json_builder:
       type = 'client'
       del name_parts[-1]
 
+    # Might be '<version>_<platform>_beta'.
+    if name_parts[-1] == 'beta':
+      del name_parts[-1]
+      channel = 'beta'
+
     # Remainder must be '<version>_<platform>'.
     if len(name_parts) != 2:
       raise Exception('Invalid filename: %s' % name)
@@ -368,7 +375,7 @@ class cef_json_builder:
     version = name_parts[0]
     platform = name_parts[1]
 
-    return [platform, version, type]
+    return [platform, version, type, channel]
 
   @staticmethod
   def _validate_args(platform, version, type, size, last_modified, sha1):
@@ -397,7 +404,7 @@ class cef_json_builder:
         file is added or False if a file with the same |name| and |sha1|
         already exists. """
     # Parse the file name.
-    (platform, version, type) = self._parse_name(name)
+    (platform, version, type, channel) = self._parse_name(name)
 
     if not isinstance(size, int):
       size = int(size)
@@ -418,10 +425,11 @@ class cef_json_builder:
 
     if version_idx == -1:
       # Add a new version record.
-      self._print('add_file: Add %s %s' % (platform, version))
+      self._print('add_file: Add %s %s %s' % (platform, version, channel))
       self._data[platform]['versions'].append({
           'cef_version': version,
           'chromium_version': self.get_chromium_version(version),
+          'channel': channel,
           'files': []
       })
       version_idx = len(self._data[platform]['versions']) - 1
@@ -480,6 +488,7 @@ class cef_json_builder:
               result_obj['platform'] = platform
               result_obj['cef_version'] = version_obj['cef_version']
               result_obj['chromium_version'] = version_obj['chromium_version']
+              result_obj['channel'] = version_obj['channel']
               results.append(result_obj)
 
     return results
