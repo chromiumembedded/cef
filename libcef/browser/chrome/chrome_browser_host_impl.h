@@ -97,8 +97,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
                             CefRefPtr<CefDictionaryValue> params) override;
   CefRefPtr<CefRegistration> AddDevToolsMessageObserver(
       CefRefPtr<CefDevToolsMessageObserver> observer) override;
-  void SetMouseCursorChangeDisabled(bool disabled) override;
-  bool IsMouseCursorChangeDisabled() override;
   bool IsWindowRenderingDisabled() override;
   void WasResized() override;
   void WasHidden(bool hidden) override;

@@ -1149,15 +1149,16 @@ class OSRTestHandler : public RoutingTestHandler,
     }
   }
 
-  void OnCursorChange(CefRefPtr<CefBrowser> browser,
+  bool OnCursorChange(CefRefPtr<CefBrowser> browser,
                       CefCursorHandle cursor,
-                      CursorType type,
+                      cef_cursor_type_t type,
                       const CefCursorInfo& custom_cursor_info) override {
     if (test_type_ == OSR_TEST_CURSOR && started()) {
       EXPECT_EQ(CT_HAND, type);
       EXPECT_EQ(nullptr, custom_cursor_info.buffer);
       DestroySucceededTestSoon();
     }
+    return true;
   }
 
   void OnImeCompositionRangeChanged(

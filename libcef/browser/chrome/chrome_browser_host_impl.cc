@@ -265,15 +265,6 @@ CefRefPtr<CefRegistration> ChromeBrowserHostImpl::AddDevToolsMessageObserver(
   return nullptr;
 }
 
-void ChromeBrowserHostImpl::SetMouseCursorChangeDisabled(bool disabled) {
-  NOTIMPLEMENTED();
-}
-
-bool ChromeBrowserHostImpl::IsMouseCursorChangeDisabled() {
-  NOTIMPLEMENTED();
-  return false;
-}
-
 bool ChromeBrowserHostImpl::IsWindowRenderingDisabled() {
   return false;
 }

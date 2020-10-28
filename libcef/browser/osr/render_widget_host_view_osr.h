@@ -328,11 +328,6 @@ class CefRenderWidgetHostViewOSR
   // opaqueness changes.
   void UpdateBackgroundColorFromRenderer(SkColor color);
 
-#if defined(USE_AURA)
-  CefCursorHandle GetPlatformCursor(ui::mojom::CursorType type);
-  CefCursorHandle ToCursorHandle(ui::PlatformCursor cursor);
-#endif
-
   // The background color of the web content.
   SkColor background_color_;
 

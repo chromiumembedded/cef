@@ -73,7 +73,7 @@ class BrowserWindowOsrMac : public BrowserWindow,
                int height) OVERRIDE;
   void OnCursorChange(CefRefPtr<CefBrowser> browser,
                       CefCursorHandle cursor,
-                      CefRenderHandler::CursorType type,
+                      cef_cursor_type_t type,
                       const CefCursorInfo& custom_cursor_info) OVERRIDE;
   bool StartDragging(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefDragData> drag_data,

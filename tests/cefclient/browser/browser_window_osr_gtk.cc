@@ -1285,7 +1285,7 @@ void BrowserWindowOsrGtk::OnPaint(CefRefPtr<CefBrowser> browser,
 void BrowserWindowOsrGtk::OnCursorChange(
     CefRefPtr<CefBrowser> browser,
     CefCursorHandle cursor,
-    CefRenderHandler::CursorType type,
+    cef_cursor_type_t type,
     const CefCursorInfo& custom_cursor_info) {
   CEF_REQUIRE_UI_THREAD();
 

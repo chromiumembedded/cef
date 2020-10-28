@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=516b55b7ea53e2de2b096e85ba0eb83f2a2693f3$
+// $hash=fa230168d79d0644b518d042bf3f9370e6eccf8c$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -619,39 +619,6 @@ browser_host_get_navigation_entries(struct _cef_browser_host_t* self,
   CefBrowserHostCppToC::Get(self)->GetNavigationEntries(
       CefNavigationEntryVisitorCToCpp::Wrap(visitor),
       current_only ? true : false);
-}
-
-void CEF_CALLBACK
-browser_host_set_mouse_cursor_change_disabled(struct _cef_browser_host_t* self,
-                                              int disabled) {
-  shutdown_checker::AssertNotShutdown();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-
-  // Execute
-  CefBrowserHostCppToC::Get(self)->SetMouseCursorChangeDisabled(
-      disabled ? true : false);
-}
-
-int CEF_CALLBACK
-browser_host_is_mouse_cursor_change_disabled(struct _cef_browser_host_t* self) {
-  shutdown_checker::AssertNotShutdown();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return 0;
-
-  // Execute
-  bool _retval = CefBrowserHostCppToC::Get(self)->IsMouseCursorChangeDisabled();
-
-  // Return type: bool
-  return _retval;
 }
 
 void CEF_CALLBACK
@@ -1367,10 +1334,6 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->add_dev_tools_message_observer =
       browser_host_add_dev_tools_message_observer;
   GetStruct()->get_navigation_entries = browser_host_get_navigation_entries;
-  GetStruct()->set_mouse_cursor_change_disabled =
-      browser_host_set_mouse_cursor_change_disabled;
-  GetStruct()->is_mouse_cursor_change_disabled =
-      browser_host_is_mouse_cursor_change_disabled;
   GetStruct()->replace_misspelling = browser_host_replace_misspelling;
   GetStruct()->add_word_to_dictionary = browser_host_add_word_to_dictionary;
   GetStruct()->is_window_rendering_disabled =

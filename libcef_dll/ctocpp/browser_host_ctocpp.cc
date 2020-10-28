@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a362e11e85ce68488bbb0f5232b01f53cffeec1d$
+// $hash=9751b66edccb575f54c07bf14da39516f52b7402$
 //
 
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
@@ -565,37 +565,6 @@ void CefBrowserHostCToCpp::GetNavigationEntries(
   // Execute
   _struct->get_navigation_entries(
       _struct, CefNavigationEntryVisitorCppToC::Wrap(visitor), current_only);
-}
-
-NO_SANITIZE("cfi-icall")
-void CefBrowserHostCToCpp::SetMouseCursorChangeDisabled(bool disabled) {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_browser_host_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_mouse_cursor_change_disabled))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  _struct->set_mouse_cursor_change_disabled(_struct, disabled);
-}
-
-NO_SANITIZE("cfi-icall")
-bool CefBrowserHostCToCpp::IsMouseCursorChangeDisabled() {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_browser_host_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_mouse_cursor_change_disabled))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  int _retval = _struct->is_mouse_cursor_change_disabled(_struct);
-
-  // Return type: bool
-  return _retval ? true : false;
 }
 
 NO_SANITIZE("cfi-icall")

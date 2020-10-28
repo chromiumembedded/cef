@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ed8882abe62f08d4746a646307ef74d4987780c4$
+// $hash=be7b5b4b7b8782c7bd3a4c52ed75bc3c9c044265$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RENDER_HANDLER_CTOCPP_H_
@@ -57,10 +57,6 @@ class CefRenderHandlerCToCpp
                           PaintElementType type,
                           const RectList& dirtyRects,
                           void* shared_handle) override;
-  void OnCursorChange(CefRefPtr<CefBrowser> browser,
-                      CefCursorHandle cursor,
-                      CursorType type,
-                      const CefCursorInfo& custom_cursor_info) override;
   bool StartDragging(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefDragData> drag_data,
                      DragOperationsMask allowed_ops,

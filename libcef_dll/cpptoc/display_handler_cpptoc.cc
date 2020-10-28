@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1e329026cfad131337e794e5501367604f62fdb6$
+// $hash=a6a81143ea8792ba5643643389f4dc2a8815174a$
 //
 
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
@@ -252,6 +252,41 @@ display_handler_on_loading_progress_change(struct _cef_display_handler_t* self,
       CefBrowserCToCpp::Wrap(browser), progress);
 }
 
+int CEF_CALLBACK display_handler_on_cursor_change(
+    struct _cef_display_handler_t* self,
+    cef_browser_t* browser,
+    cef_cursor_handle_t cursor,
+    cef_cursor_type_t type,
+    const struct _cef_cursor_info_t* custom_cursor_info) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return 0;
+  // Verify param: custom_cursor_info; type: struct_byref_const
+  DCHECK(custom_cursor_info);
+  if (!custom_cursor_info)
+    return 0;
+
+  // Translate param: custom_cursor_info; type: struct_byref_const
+  CefCursorInfo custom_cursor_infoObj;
+  if (custom_cursor_info)
+    custom_cursor_infoObj.Set(*custom_cursor_info, false);
+
+  // Execute
+  bool _retval = CefDisplayHandlerCppToC::Get(self)->OnCursorChange(
+      CefBrowserCToCpp::Wrap(browser), cursor, type, custom_cursor_infoObj);
+
+  // Return type: bool
+  return _retval;
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -268,6 +303,7 @@ CefDisplayHandlerCppToC::CefDisplayHandlerCppToC() {
   GetStruct()->on_auto_resize = display_handler_on_auto_resize;
   GetStruct()->on_loading_progress_change =
       display_handler_on_loading_progress_change;
+  GetStruct()->on_cursor_change = display_handler_on_cursor_change;
 }
 
 // DESTRUCTOR - Do not edit by hand.

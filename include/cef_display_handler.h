@@ -135,6 +135,19 @@ class CefDisplayHandler : public virtual CefBaseRefCounted {
   /*--cef()--*/
   virtual void OnLoadingProgressChange(CefRefPtr<CefBrowser> browser,
                                        double progress) {}
+
+  ///
+  // Called when the browser's cursor has changed. If |type| is CT_CUSTOM then
+  // |custom_cursor_info| will be populated with the custom cursor information.
+  // Return true if the cursor change was handled or false for default handling.
+  ///
+  /*--cef()--*/
+  virtual bool OnCursorChange(CefRefPtr<CefBrowser> browser,
+                              CefCursorHandle cursor,
+                              cef_cursor_type_t type,
+                              const CefCursorInfo& custom_cursor_info) {
+    return false;
+  }
 };
 
 #endif  // CEF_INCLUDE_CEF_DISPLAY_HANDLER_H_

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=11c971f10c02ae341f62e70dca05528f78c8d1a2$
+// $hash=16db2529b69497fdccf21d56531906127e473044$
 //
 
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
@@ -247,6 +247,34 @@ void CefDisplayHandlerCToCpp::OnLoadingProgressChange(
   // Execute
   _struct->on_loading_progress_change(_struct, CefBrowserCppToC::Wrap(browser),
                                       progress);
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefDisplayHandlerCToCpp::OnCursorChange(
+    CefRefPtr<CefBrowser> browser,
+    CefCursorHandle cursor,
+    cef_cursor_type_t type,
+    const CefCursorInfo& custom_cursor_info) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_display_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_cursor_change))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+
+  // Execute
+  int _retval =
+      _struct->on_cursor_change(_struct, CefBrowserCppToC::Wrap(browser),
+                                cursor, type, &custom_cursor_info);
+
+  // Return type: bool
+  return _retval ? true : false;
 }
 
 // CONSTRUCTOR - Do not edit by hand.

@@ -119,8 +119,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
                             CefRefPtr<CefDictionaryValue> params) override;
   CefRefPtr<CefRegistration> AddDevToolsMessageObserver(
       CefRefPtr<CefDevToolsMessageObserver> observer) override;
-  void SetMouseCursorChangeDisabled(bool disabled) override;
-  bool IsMouseCursorChangeDisabled() override;
   bool IsWindowRenderingDisabled() override;
   void WasResized() override;
   void WasHidden(bool hidden) override;
@@ -387,9 +385,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   // True if the OS window hosting the browser has been destroyed. Only accessed
   // on the UI thread.
   bool window_destroyed_ = false;
-
-  // True if mouse cursor change is disabled.
-  bool mouse_cursor_change_disabled_ = false;
 
   // Used for creating and managing file dialogs.
   std::unique_ptr<CefFileDialogManager> file_dialog_manager_;

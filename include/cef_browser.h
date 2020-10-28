@@ -593,18 +593,6 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
       bool current_only) = 0;
 
   ///
-  // Set whether mouse cursor change is disabled.
-  ///
-  /*--cef()--*/
-  virtual void SetMouseCursorChangeDisabled(bool disabled) = 0;
-
-  ///
-  // Returns true if mouse cursor change is disabled.
-  ///
-  /*--cef()--*/
-  virtual bool IsMouseCursorChangeDisabled() = 0;
-
-  ///
   // If a misspelled word is currently selected in an editable node calling
   // this method will replace it with the specified |word|.
   ///
