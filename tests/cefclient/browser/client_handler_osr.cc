@@ -118,16 +118,6 @@ void ClientHandlerOsr::OnAcceleratedPaint(
   osr_delegate_->OnAcceleratedPaint(browser, type, dirtyRects, share_handle);
 }
 
-void ClientHandlerOsr::OnCursorChange(CefRefPtr<CefBrowser> browser,
-                                      CefCursorHandle cursor,
-                                      CursorType type,
-                                      const CefCursorInfo& custom_cursor_info) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_delegate_)
-    return;
-  osr_delegate_->OnCursorChange(browser, cursor, type, custom_cursor_info);
-}
-
 bool ClientHandlerOsr::StartDragging(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDragData> drag_data,
@@ -165,6 +155,21 @@ void ClientHandlerOsr::OnAccessibilityTreeChange(CefRefPtr<CefValue> value) {
   if (!osr_delegate_)
     return;
   osr_delegate_->UpdateAccessibilityTree(value);
+}
+
+bool ClientHandlerOsr::OnCursorChange(CefRefPtr<CefBrowser> browser,
+                                      CefCursorHandle cursor,
+                                      cef_cursor_type_t type,
+                                      const CefCursorInfo& custom_cursor_info) {
+  CEF_REQUIRE_UI_THREAD();
+  if (ClientHandler::OnCursorChange(browser, cursor, type,
+                                    custom_cursor_info)) {
+    return true;
+  }
+  if (osr_delegate_) {
+    osr_delegate_->OnCursorChange(browser, cursor, type, custom_cursor_info);
+  }
+  return true;
 }
 
 void ClientHandlerOsr::OnAccessibilityLocationChange(

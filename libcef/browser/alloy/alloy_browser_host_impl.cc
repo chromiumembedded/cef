@@ -17,6 +17,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools/devtools_manager.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
+#include "libcef/browser/native/cursor_util.h"
 #include "libcef/browser/osr/osr_util.h"
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/thread_util.h"
@@ -102,10 +103,11 @@ class CefWidgetHostInterceptor
 
   // WidgetHostInterceptorForTesting method:
   void SetCursor(const ui::Cursor& cursor) override {
-    if (browser_->IsMouseCursorChangeDisabled()) {
+    if (cursor_util::OnCursorChange(browser_, cursor)) {
       // Don't change the cursor.
       return;
     }
+
     GetForwardingInterface()->SetCursor(cursor);
   }
 
@@ -641,18 +643,6 @@ CefRefPtr<CefExtension> AlloyBrowserHostImpl::GetExtension() {
 
 bool AlloyBrowserHostImpl::IsBackgroundHost() {
   return is_background_host_;
-}
-
-void AlloyBrowserHostImpl::SetMouseCursorChangeDisabled(bool disabled) {
-  base::AutoLock lock_scope(state_lock_);
-  if (mouse_cursor_change_disabled_ == disabled)
-    return;
-  mouse_cursor_change_disabled_ = disabled;
-}
-
-bool AlloyBrowserHostImpl::IsMouseCursorChangeDisabled() {
-  base::AutoLock lock_scope(state_lock_);
-  return mouse_cursor_change_disabled_;
 }
 
 bool AlloyBrowserHostImpl::IsWindowRenderingDisabled() {

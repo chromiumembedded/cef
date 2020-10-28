@@ -49,10 +49,6 @@ class ClientHandlerOsr : public ClientHandler,
         CefRenderHandler::PaintElementType type,
         const CefRenderHandler::RectList& dirtyRects,
         void* share_handle) {}
-    virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
-                                CefCursorHandle cursor,
-                                CefRenderHandler::CursorType type,
-                                const CefCursorInfo& custom_cursor_info) = 0;
     virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefDragData> drag_data,
                                CefRenderHandler::DragOperationsMask allowed_ops,
@@ -66,8 +62,13 @@ class ClientHandlerOsr : public ClientHandler,
         const CefRange& selection_range,
         const CefRenderHandler::RectList& character_bounds) = 0;
 
-    virtual void UpdateAccessibilityTree(CefRefPtr<CefValue> value) = 0;
+    // These methods match the CefDisplayHandler interface.
+    virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
+                                CefCursorHandle cursor,
+                                cef_cursor_type_t type,
+                                const CefCursorInfo& custom_cursor_info) = 0;
 
+    virtual void UpdateAccessibilityTree(CefRefPtr<CefValue> value) = 0;
     virtual void UpdateAccessibilityLocation(CefRefPtr<CefValue> value) = 0;
 
    protected:
@@ -114,10 +115,6 @@ class ClientHandlerOsr : public ClientHandler,
                           CefRenderHandler::PaintElementType type,
                           const CefRenderHandler::RectList& dirtyRects,
                           void* share_handle) OVERRIDE;
-  void OnCursorChange(CefRefPtr<CefBrowser> browser,
-                      CefCursorHandle cursor,
-                      CursorType type,
-                      const CefCursorInfo& custom_cursor_info) OVERRIDE;
   bool StartDragging(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefDragData> drag_data,
                      CefRenderHandler::DragOperationsMask allowed_ops,
@@ -129,6 +126,12 @@ class ClientHandlerOsr : public ClientHandler,
       CefRefPtr<CefBrowser> browser,
       const CefRange& selection_range,
       const CefRenderHandler::RectList& character_bounds) OVERRIDE;
+
+  // CefDisplayHandler methods.
+  bool OnCursorChange(CefRefPtr<CefBrowser> browser,
+                      CefCursorHandle cursor,
+                      cef_cursor_type_t type,
+                      const CefCursorInfo& custom_cursor_info) OVERRIDE;
 
   // CefAccessibilityHandler methods.
   void OnAccessibilityTreeChange(CefRefPtr<CefValue> value) OVERRIDE;

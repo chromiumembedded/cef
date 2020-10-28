@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f592f3806c9f87ee6c691b9f072cee4d6bb4650e$
+// $hash=b9bf8bf4ccc5ef6a43f86ef697617fc6fe8470a5$
 //
 
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
@@ -263,30 +263,6 @@ void CefRenderHandlerCToCpp::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
   // Restore param:dirtyRects; type: simple_vec_byref_const
   if (dirtyRectsList)
     delete[] dirtyRectsList;
-}
-
-NO_SANITIZE("cfi-icall")
-void CefRenderHandlerCToCpp::OnCursorChange(
-    CefRefPtr<CefBrowser> browser,
-    CefCursorHandle cursor,
-    CursorType type,
-    const CefCursorInfo& custom_cursor_info) {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_render_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_cursor_change))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser.get());
-  if (!browser.get())
-    return;
-
-  // Execute
-  _struct->on_cursor_change(_struct, CefBrowserCppToC::Wrap(browser), cursor,
-                            type, &custom_cursor_info);
 }
 
 NO_SANITIZE("cfi-icall")

@@ -152,6 +152,10 @@ class ClientHandler : public CefClient,
                         int line) OVERRIDE;
   bool OnAutoResize(CefRefPtr<CefBrowser> browser,
                     const CefSize& new_size) OVERRIDE;
+  bool OnCursorChange(CefRefPtr<CefBrowser> browser,
+                      CefCursorHandle cursor,
+                      cef_cursor_type_t type,
+                      const CefCursorInfo& custom_cursor_info) OVERRIDE;
 
   // CefDownloadHandler methods
   void OnBeforeDownload(CefRefPtr<CefBrowser> browser,

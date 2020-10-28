@@ -1323,7 +1323,7 @@ class BrowserWindowOsrMacImpl {
                int height);
   void OnCursorChange(CefRefPtr<CefBrowser> browser,
                       CefCursorHandle cursor,
-                      CefRenderHandler::CursorType type,
+                      cef_cursor_type_t type,
                       const CefCursorInfo& custom_cursor_info);
   bool StartDragging(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefDragData> drag_data,
@@ -1655,7 +1655,7 @@ void BrowserWindowOsrMacImpl::OnPaint(
 void BrowserWindowOsrMacImpl::OnCursorChange(
     CefRefPtr<CefBrowser> browser,
     CefCursorHandle cursor,
-    CefRenderHandler::CursorType type,
+    cef_cursor_type_t type,
     const CefCursorInfo& custom_cursor_info) {
   CEF_REQUIRE_UI_THREAD();
   REQUIRE_MAIN_THREAD();
@@ -1877,7 +1877,7 @@ void BrowserWindowOsrMac::OnPaint(CefRefPtr<CefBrowser> browser,
 void BrowserWindowOsrMac::OnCursorChange(
     CefRefPtr<CefBrowser> browser,
     CefCursorHandle cursor,
-    CefRenderHandler::CursorType type,
+    cef_cursor_type_t type,
     const CefCursorInfo& custom_cursor_info) {
   impl_->OnCursorChange(browser, cursor, type, custom_cursor_info);
 }

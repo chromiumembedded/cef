@@ -1,42 +1,21 @@
-// Copyright (c) 2014 The Chromium Embedded Framework Authors.
-// Portions copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright 2020 The Chromium Embedded Framework Authors. Portions copyright
+// 2012 The Chromium Authors. All rights reserved. Use of this source code is
+// governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "libcef/browser/osr/render_widget_host_view_osr.h"
+#include "libcef/browser/native/cursor_util.h"
 
 #include <windows.h>
 
 #include "libcef/common/app_manager.h"
 
+#include "ui/base/cursor/mojom/cursor_type.mojom.h"
 #include "ui/resources/grit/ui_unscaled_resources.h"
+
+namespace cursor_util {
 
 namespace {
 
-class CefCompositorHostWin : public gfx::WindowImpl {
- public:
-  CefCompositorHostWin() {
-    // Create a hidden 1x1 borderless window.
-    set_window_style(WS_POPUP | WS_SYSMENU);
-    Init(NULL, gfx::Rect(0, 0, 1, 1));
-  }
-
-  ~CefCompositorHostWin() override { DestroyWindow(hwnd()); }
-
- private:
-  CR_BEGIN_MSG_MAP_EX(CefCompositorHostWin)
-    CR_MSG_WM_PAINT(OnPaint)
-  CR_END_MSG_MAP()
-
-  CR_MSG_MAP_CLASS_DECLARATIONS(CefCompositorHostWin)
-
-  void OnPaint(HDC dc) { ValidateRect(hwnd(), NULL); }
-
-  DISALLOW_COPY_AND_ASSIGN(CefCompositorHostWin);
-};
-
 // From content/common/cursors/webcursor_win.cc.
-
 LPCWSTR ToCursorID(ui::mojom::CursorType type) {
   switch (type) {
     case ui::mojom::CursorType::kPointer:
@@ -152,8 +131,7 @@ bool IsSystemCursorID(LPCWSTR cursor_id) {
 
 }  // namespace
 
-CefCursorHandle CefRenderWidgetHostViewOSR::GetPlatformCursor(
-    ui::mojom::CursorType type) {
+cef_cursor_handle_t GetPlatformCursor(ui::mojom::CursorType type) {
   // Using a dark 1x1 bit bmp kNone cursor may still cause DWM to do composition
   // work unnecessarily. Better to totally remove it from the screen.
   // crbug.com/1069698
@@ -173,7 +151,8 @@ CefCursorHandle CefRenderWidgetHostViewOSR::GetPlatformCursor(
   return LoadCursor(module_handle, cursor_id);
 }
 
-CefCursorHandle CefRenderWidgetHostViewOSR::ToCursorHandle(
-    ui::PlatformCursor cursor) {
+cef_cursor_handle_t ToCursorHandle(ui::PlatformCursor cursor) {
   return cursor;
 }
+
+}  // namespace cursor_util

@@ -333,7 +333,7 @@ void ClientHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
 
     model->AddSeparator();
     model->AddItem(CLIENT_ID_CURSOR_CHANGE_DISABLED, "Cursor change disabled");
-    if (browser->GetHost()->IsMouseCursorChangeDisabled())
+    if (mouse_cursor_change_disabled_)
       model->SetChecked(CLIENT_ID_CURSOR_CHANGE_DISABLED, true);
 
     model->AddSeparator();
@@ -370,8 +370,7 @@ bool ClientHandler::OnContextMenuCommand(CefRefPtr<CefBrowser> browser,
       ShowSSLInformation(browser);
       return true;
     case CLIENT_ID_CURSOR_CHANGE_DISABLED:
-      browser->GetHost()->SetMouseCursorChangeDisabled(
-          !browser->GetHost()->IsMouseCursorChangeDisabled());
+      mouse_cursor_change_disabled_ = !mouse_cursor_change_disabled_;
       return true;
     case CLIENT_ID_OFFLINE:
       offline_ = !offline_;
@@ -467,6 +466,16 @@ bool ClientHandler::OnAutoResize(CefRefPtr<CefBrowser> browser,
 
   NotifyAutoResize(new_size);
   return true;
+}
+
+bool ClientHandler::OnCursorChange(CefRefPtr<CefBrowser> browser,
+                                   CefCursorHandle cursor,
+                                   cef_cursor_type_t type,
+                                   const CefCursorInfo& custom_cursor_info) {
+  CEF_REQUIRE_UI_THREAD();
+
+  // Return true to disable default handling of cursor changes.
+  return mouse_cursor_change_disabled_;
 }
 
 void ClientHandler::OnBeforeDownload(
@@ -594,10 +603,6 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     for (; it != message_handler_set_.end(); ++it)
       message_router_->AddHandler(*(it), false);
   }
-
-  // Disable mouse cursor change if requested via the command-line flag.
-  if (mouse_cursor_change_disabled_)
-    browser->GetHost()->SetMouseCursorChangeDisabled(true);
 
   // Set offline mode if requested via the command-line flag.
   if (offline_)

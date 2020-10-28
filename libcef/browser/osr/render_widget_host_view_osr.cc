@@ -604,54 +604,7 @@ void CefRenderWidgetHostViewOSR::InitAsFullscreen(
 }
 
 void CefRenderWidgetHostViewOSR::UpdateCursor(
-    const content::WebCursor& cursor) {
-  TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::UpdateCursor");
-  if (!browser_impl_.get())
-    return;
-
-  CefRefPtr<CefRenderHandler> handler =
-      browser_impl_->GetClient()->GetRenderHandler();
-  CHECK(handler);
-
-  const auto& ui_cursor = cursor.cursor();
-
-  const cef_cursor_type_t cursor_type =
-      static_cast<cef_cursor_type_t>(ui_cursor.type());
-  CefCursorInfo custom_cursor_info;
-  if (ui_cursor.type() == ui::mojom::CursorType::kCustom) {
-    custom_cursor_info.hotspot.x = ui_cursor.custom_hotspot().x();
-    custom_cursor_info.hotspot.y = ui_cursor.custom_hotspot().y();
-    custom_cursor_info.image_scale_factor = ui_cursor.image_scale_factor();
-    custom_cursor_info.buffer = ui_cursor.custom_bitmap().getPixels();
-    custom_cursor_info.size.width = ui_cursor.custom_bitmap().width();
-    custom_cursor_info.size.height = ui_cursor.custom_bitmap().height();
-  }
-
-#if defined(USE_AURA)
-  content::WebCursor web_cursor(ui_cursor);
-
-  CefCursorHandle platform_cursor;
-  if (ui_cursor.type() == ui::mojom::CursorType::kCustom) {
-    // |web_cursor| owns the resulting |platform_cursor|.
-    platform_cursor = ToCursorHandle(web_cursor.GetPlatformCursor(ui_cursor));
-  } else {
-    platform_cursor = GetPlatformCursor(ui_cursor.type());
-  }
-
-  handler->OnCursorChange(browser_impl_.get(), platform_cursor, cursor_type,
-                          custom_cursor_info);
-#elif defined(OS_MAC)
-  // |web_cursor| owns the resulting |native_cursor|.
-  content::WebCursor web_cursor(cursor);
-  CefCursorHandle native_cursor = web_cursor.GetNativeCursor();
-  handler->OnCursorChange(browser_impl_.get(), native_cursor, cursor_type,
-                          custom_cursor_info);
-#else
-  // TODO(port): Implement this method to work on other platforms as part of
-  // off-screen rendering support.
-  NOTREACHED();
-#endif
-}
+    const content::WebCursor& cursor) {}
 
 content::CursorManager* CefRenderWidgetHostViewOSR::GetCursorManager() {
   return cursor_manager_.get();

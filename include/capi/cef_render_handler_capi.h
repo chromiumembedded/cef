@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=e642fc1fe3b97a90c0eae7f0fc0a5cfd385e3e17$
+// $hash=f9806cd79f33b6a762fff25edd4189ae42bc8fd2$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RENDER_HANDLER_CAPI_H_
@@ -158,17 +158,6 @@ typedef struct _cef_render_handler_t {
                                            size_t dirtyRectsCount,
                                            cef_rect_t const* dirtyRects,
                                            void* shared_handle);
-
-  ///
-  // Called when the browser's cursor has changed. If |type| is CT_CUSTOM then
-  // |custom_cursor_info| will be populated with the custom cursor information.
-  ///
-  void(CEF_CALLBACK* on_cursor_change)(
-      struct _cef_render_handler_t* self,
-      struct _cef_browser_t* browser,
-      cef_cursor_handle_t cursor,
-      cef_cursor_type_t type,
-      const struct _cef_cursor_info_t* custom_cursor_info);
 
   ///
   // Called when the user starts dragging content in the web view. Contextual
