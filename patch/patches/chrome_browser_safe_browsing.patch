@@ -1,8 +1,16 @@
 diff --git chrome/browser/safe_browsing/BUILD.gn chrome/browser/safe_browsing/BUILD.gn
-index 7f54cacab005..b4f509b766ca 100644
+index 7f54cacab005..db469e514100 100644
 --- chrome/browser/safe_browsing/BUILD.gn
 +++ chrome/browser/safe_browsing/BUILD.gn
-@@ -251,6 +251,7 @@ static_library("safe_browsing") {
+@@ -17,6 +17,7 @@ static_library("safe_browsing") {
+ 
+   deps = [
+     "//chrome/app:generated_resources",
++    "//chrome/browser:ntp_background_proto",
+     "//chrome/common",
+     "//chrome/common:constants",
+     "//components/browser_sync",
+@@ -251,6 +252,7 @@ static_library("safe_browsing") {
          "//chrome/common/safe_browsing:download_type_util",
          "//chrome/services/file_util/public/cpp",
          "//components/content_settings/core/browser",
