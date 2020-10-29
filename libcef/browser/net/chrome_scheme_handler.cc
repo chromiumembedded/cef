@@ -91,6 +91,9 @@ const char* kAllowedWebUIHosts[] = {
     chrome::kChromeUIPrintHost,
     content::kChromeUIProcessInternalsHost,
     content::kChromeUIResourcesHost,
+#if defined(OS_WIN) || defined(OS_LINUX)
+    chrome::kChromeUISandboxHost,
+#endif
     content::kChromeUIServiceWorkerInternalsHost,
     chrome::kChromeUISystemInfoHost,
     chrome::kChromeUIThemeHost,
