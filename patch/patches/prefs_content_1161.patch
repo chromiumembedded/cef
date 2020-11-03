@@ -1,5 +1,5 @@
 diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
-index 8e810871066b..107f15b92829 100644
+index 37807f0ad754..006f6e660243 100644
 --- content/public/common/common_param_traits_macros.h
 +++ content/public/common/common_param_traits_macros.h
 @@ -174,6 +174,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
