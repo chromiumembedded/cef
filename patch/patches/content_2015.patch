@@ -253,7 +253,7 @@ index da3aceed75b1..e88601502e28 100644
  #include <utility>
  
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 27b7e117b531..80c92eed565d 100644
+index 811bc7be6b17..57128cf9c9a5 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -31,6 +31,7 @@
@@ -264,7 +264,7 @@ index 27b7e117b531..80c92eed565d 100644
  #include "content/public/common/page_visibility_state.h"
  #include "content/public/common/window_container_type.mojom-forward.h"
  #include "device/vr/buildflags/buildflags.h"
-@@ -1685,6 +1686,14 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1693,6 +1694,14 @@ class CONTENT_EXPORT ContentBrowserClient {
        const base::Optional<url::Origin>& initiating_origin,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
@@ -279,7 +279,7 @@ index 27b7e117b531..80c92eed565d 100644
    // Creates an OverlayWindow to be used for Picture-in-Picture. This window
    // will house the content shown when in Picture-in-Picture mode. This will
    // return a new OverlayWindow.
-@@ -1756,6 +1765,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1764,6 +1773,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  
@@ -354,10 +354,10 @@ index e811aec4853c..a1c857d4c6cc 100644
    if (!found)
      return nullptr;
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index 91daa69bf55a..40f79ddf47b9 100644
+index 6fae8670bf01..70ddb11f0f93 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
-@@ -636,6 +636,8 @@ void RenderThreadImpl::Init() {
+@@ -632,6 +632,8 @@ void RenderThreadImpl::Init() {
        GetContentClient()->renderer()->CreateURLLoaderThrottleProvider(
            URLLoaderThrottleProviderType::kFrame);
  
