@@ -78,7 +78,7 @@ index 8b7b6f492b3e..1085e4b1e23d 100644
  
  #endif  // defined(OS_LINUX) || defined(OS_CHROMEOS)
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index c9bf19474a2a..3c1d5eec82fa 100644
+index 19746df8b0a5..2a78bdb895d7 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -49,6 +49,7 @@
@@ -101,7 +101,7 @@ index c9bf19474a2a..3c1d5eec82fa 100644
  
    // These members must be initialized before returning from this function.
    // Android doesn't use StartupBrowserCreator.
-@@ -1613,11 +1616,13 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1615,11 +1618,13 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
    // This step is costly and is already measured in
    // Startup.StartupBrowserCreator_Start.
    // See the comment above for an explanation of |process_command_line|.

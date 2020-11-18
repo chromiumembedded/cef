@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index ea9c946036b3..1ed77f3895de 100644
+index ff8643975565..7fdb9a3ab7f7 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -10,6 +10,7 @@ import("//build/config/crypto.gni")
@@ -35,9 +35,9 @@ index ea9c946036b3..1ed77f3895de 100644
        "//components/printing/browser",
 +      "//components/printing/common:mojo_interfaces",
        "//components/profile_metrics",
+       "//components/safe_browsing/core/common:safe_browsing_policy_handler",
        "//components/safety_check",
-       "//components/search_provider_logos",
-@@ -3245,7 +3252,9 @@ static_library("ui") {
+@@ -3249,7 +3256,9 @@ static_library("ui") {
            "views/frame/browser_desktop_window_tree_host_platform.h",
          ]
        }

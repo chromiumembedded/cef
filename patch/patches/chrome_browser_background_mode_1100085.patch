@@ -35,10 +35,10 @@ index ce66d73e0fa4..cc62e05ba3ba 100644
    return dockMenu;
  }
 diff --git chrome/browser/browser_process.h chrome/browser/browser_process.h
-index b6fe1fee2cbb..84a75c6070d6 100644
+index a453e1acb6db..45ef09287f7b 100644
 --- chrome/browser/browser_process.h
 +++ chrome/browser/browser_process.h
-@@ -202,10 +202,12 @@ class BrowserProcess {
+@@ -207,10 +207,12 @@ class BrowserProcess {
    virtual DownloadStatusUpdater* download_status_updater() = 0;
    virtual DownloadRequestLimiter* download_request_limiter() = 0;
  
@@ -52,10 +52,10 @@ index b6fe1fee2cbb..84a75c6070d6 100644
    // Returns the StatusTray, which provides an API for displaying status icons
    // in the system status tray. Returns NULL if status icons are not supported
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index 443348c2de00..7486628a9912 100644
+index b56d49bdb10b..422ed84c6e45 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
-@@ -951,24 +951,19 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
+@@ -954,24 +954,19 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
    return download_request_limiter_.get();
  }
  
@@ -83,10 +83,10 @@ index 443348c2de00..7486628a9912 100644
  StatusTray* BrowserProcessImpl::status_tray() {
    DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index 8a8d8a820690..c06d97c65ec2 100644
+index 7cc470fe599d..b7dd5c71ce88 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
-@@ -163,9 +163,11 @@ class BrowserProcessImpl : public BrowserProcess,
+@@ -165,9 +165,11 @@ class BrowserProcessImpl : public BrowserProcess,
    void SetApplicationLocale(const std::string& actual_locale) override;
    DownloadStatusUpdater* download_status_updater() override;
    DownloadRequestLimiter* download_request_limiter() override;

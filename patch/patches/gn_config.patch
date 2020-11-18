@@ -95,7 +95,7 @@ index 9323a774a565..913b5cdc6be4 100644
        public_deps += [ ":${target_name}_200_percent" ]
      }
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 7c7af8c0d948..c7869c760b12 100644
+index df39ea145cc6..93401d47e437 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -5,6 +5,7 @@

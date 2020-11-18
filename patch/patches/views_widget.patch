@@ -314,11 +314,11 @@ index 0229c1c41502..992f89126f7f 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 710d52bcc34f..25608ba3d188 100644
+index d784b8eae003..eeb87fbe5f0c 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
-@@ -283,7 +283,8 @@ void Widget::Init(InitParams params) {
-     params.name = params.delegate->GetContentsView()->GetClassName();
+@@ -291,7 +291,8 @@ void Widget::Init(InitParams params) {
+   parent_ = params.parent ? GetWidgetForNativeView(params.parent) : nullptr;
  
    params.child |= (params.type == InitParams::TYPE_CONTROL);
 -  is_top_level_ = !params.child;
@@ -327,7 +327,7 @@ index 710d52bcc34f..25608ba3d188 100644
  
    if (params.opacity == views::Widget::InitParams::WindowOpacity::kInferred &&
        params.type != views::Widget::InitParams::TYPE_WINDOW) {
-@@ -365,7 +366,12 @@ void Widget::Init(InitParams params) {
+@@ -373,7 +374,12 @@ void Widget::Init(InitParams params) {
      }
    } else if (delegate) {
      SetContentsView(delegate->TransferOwnershipOfContentsView());
@@ -341,7 +341,7 @@ index 710d52bcc34f..25608ba3d188 100644
    }
  
    observer_manager_.Add(GetNativeTheme());
-@@ -1149,10 +1155,16 @@ void Widget::OnNativeWidgetDestroyed() {
+@@ -1157,10 +1163,16 @@ void Widget::OnNativeWidgetDestroyed() {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -359,7 +359,7 @@ index 710d52bcc34f..25608ba3d188 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index bb19a2cceb28..d62b6dbbecc9 100644
+index e1e380513db3..884be29aa487 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -317,6 +317,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
