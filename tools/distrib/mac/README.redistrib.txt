@@ -26,7 +26,7 @@ cefclient.app/
           cef_extensions.pak <=====^
           devtools_resources.pak <=^
           icudtl.dat <= unicode support
-          snapshot_blob.bin, v8_context_snapshot.bin <= V8 initial snapshot
+          snapshot_blob.bin, v8_context_snapshot.x86_64.bin <= V8 initial snapshot
           en.lproj/, ... <= locale-specific resources and strings
           Info.plist
       cefclient Helper.app/
