@@ -328,6 +328,8 @@ if(OS_MAC)
   # Target architecture.
   if(PROJECT_ARCH STREQUAL "x86_64")
     set(CMAKE_OSX_ARCHITECTURES "x86_64")
+  elseif(PROJECT_ARCH STREQUAL "arm64")
+    set(CMAKE_OSX_ARCHITECTURES "arm64")
   else()
     set(CMAKE_OSX_ARCHITECTURES "i386")
   endif()

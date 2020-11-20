@@ -381,7 +381,8 @@ def combine_libs(platform, build_dir, libs, dest_lib):
     # Create an intermediate object file that combines all other object files.
     # Symbols not identified above will be made private (local).
     intermediate_obj = os.path.splitext(dest_lib)[0] + '.o'
-    cmdline = 'ld -arch x86_64 -r -o "%s"' % intermediate_obj
+    arch = 'arm64' if options.arm64build else 'x86_64'
+    cmdline = 'ld -arch %s -r -o "%s"' % (arch, intermediate_obj)
     for symbol in symbols:
       cmdline += ' -exported_symbol %s' % symbol
 
@@ -410,6 +411,10 @@ def combine_libs(platform, build_dir, libs, dest_lib):
     # Verify that no C++ symbols are imported by the archive file. If the
     # archive imports C++ symbols and the client app links an incompatible C++
     # library, the result will be undefined behavior.
+    # For example, to avoid importing libc++ symbols the cef_sandbox target
+    # should have a dependency on libc++abi. This dependency can be verified
+    # with the following command:
+    # gn path out/[config] //cef:cef_sandbox //buildtools/third_party/libc++abi
     print('Verifying imported (undefined) symbols...')
     undefined_symbols = get_undefined_symbols(dest_lib)
     cpp_symbols = list(
@@ -565,10 +570,6 @@ if options.armbuild and platform != 'linux':
   print_error('--arm-build is only supported on Linux.')
   sys.exit()
 
-if options.arm64build and not platform in ('linux', 'windows'):
-  print_error('--arm64-build is only supported on Linux and Windows.')
-  sys.exit()
-
 if options.sandbox and not platform in ('mac', 'windows'):
   print_error('--sandbox is only supported on macOS and Windows.')
   sys.exit()
@@ -632,8 +633,11 @@ else:
 output_dir_base = 'cef_binary_' + cef_ver
 
 if options.distribsubdir == '':
-  # For backwards compatibility keep the old default directory name on mac.
-  platform_name = 'macosx' if platform == 'mac' else platform
+  if platform == 'mac':
+    # For backwards compatibility keep the old default directory name on mac.
+    platform_name = 'macos' + ('x' if platform_arch == '64' else '')
+  else:
+    platform_name = platform
 
   output_dir_name = output_dir_base + '_' + platform_name + platform_arch
   if options.distribsubdirsuffix != '':

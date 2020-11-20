@@ -12,7 +12,7 @@
 # distribution include:
 #
 # Linux:      Ninja, Unix Makefiles
-# MacOS:      Ninja, Xcode 8+
+# MacOS:      Ninja, Xcode 8+ (x86_64) or Xcode 12.2+ (ARM64)
 # Windows:    Ninja, Visual Studio 2015+
 #
 # Ninja is a cross-platform open-source tool for running fast builds using
@@ -48,9 +48,10 @@
 #     libgtkglext1-dev  (required by the cefclient target only)
 #
 # - MacOS requirements:
-#   Xcode 8 or newer building on MacOS 10.11 (El Capitan) or newer. Xcode 11.2
-#   and MacOS 10.14 are recommended. The Xcode command-line tools must also be
-#   installed. Only 64-bit builds are supported.
+#   Xcode 8 or newer building on MacOS 10.11 (El Capitan) or newer for x86_64.
+#   Xcode 12.2 or newer building on MacOS 10.15.4 (Catalina) or newer for ARM64.
+#   Only 64-bit builds are supported. The Xcode command-line tools must also be
+#   installed.
 #
 # - Windows requirements:
 #   Visual Studio 2015 Update 2 or newer building on Windows 7 or newer. Visual
@@ -82,6 +83,15 @@
 #
 #   Using Ninja:
 #     > cmake -G "Ninja" -DPROJECT_ARCH="x86_64" -DCMAKE_BUILD_TYPE=Debug ..
+#     > ninja cefclient cefsimple
+#
+# To perform a MacOS build using an ARM64 CEF binary distribution:
+#   Using the Xcode IDE:
+#     > cmake -G "Xcode" -DPROJECT_ARCH="arm64" ..
+#     Open build\cef.xcodeproj in Xcode and select Product > Build.
+#
+#   Using Ninja:
+#     > cmake -G "Ninja" -DPROJECT_ARCH="arm64" -DCMAKE_BUILD_TYPE=Debug ..
 #     > ninja cefclient cefsimple
 #
 # To perform a Windows build using a 32-bit CEF binary distribution:

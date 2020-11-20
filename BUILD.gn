@@ -1272,7 +1272,10 @@ if (is_mac) {
     sources = [ "libcef_dll/sandbox/sandbox_mac.mm" ]
     # CEF sources use include paths relative to the CEF root directory.
     include_dirs = [ "." ]
-    deps = [ "//sandbox/mac:seatbelt" ]
+    deps = [
+      "//build/config:executable_deps",
+      "//sandbox/mac:seatbelt"
+    ]
   }
 }
 
