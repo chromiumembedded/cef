@@ -327,11 +327,11 @@ def ValidateArgs(args):
     windows_sdk_path = GetArgValue(args, 'windows_sdk_path')
 
   # Target CPU architecture.
-  # - Windows supports "x86" and "x64".
-  # - Mac supports only "x64".
+  # - Windows supports "x86", "x64" and "arm64".
+  # - Mac supports "x64" and "arm64".
   # - Linux supports only "x64" unless using a sysroot environment.
   if platform == 'mac':
-    assert target_cpu == 'x64', 'target_cpu must be "x64"'
+    assert target_cpu in ('x64', 'arm64'), 'target_cpu must be "x64" or "arm64"'
   elif platform == 'windows':
     assert target_cpu in ('x86', 'x64',
                           'arm64'), 'target_cpu must be "x86", "x64" or "arm64"'
@@ -548,6 +548,8 @@ def GetAllPlatformConfigs(build_args):
       supported_cpus.append('arm64')
   elif platform == 'mac':
     supported_cpus = ['x64']
+    if os.environ.get('CEF_ENABLE_ARM64', '') == '1':
+      supported_cpus.append('arm64')
   else:
     raise Exception('Unsupported platform')
 

@@ -921,7 +921,8 @@ parser.add_option(
     '--distrib-subdir-suffix',
     dest='distribsubdirsuffix',
     default='',
-    help='CEF distrib dir name suffix, child of chromium/src/cef/binary_distrib')
+    help='CEF distrib dir name suffix, child of chromium/src/cef/binary_distrib'
+)
 
 (options, args) = parser.parse_args()
 
@@ -1032,16 +1033,11 @@ if options.armbuild:
     print('The ARM build option is only supported on Linux.')
     sys.exit()
 
-if options.arm64build:
-  if platform != 'linux' and platform != 'windows':
-    print('The ARM64 build option is only supported on Linux and Windows.')
-    sys.exit()
-
 deps_file = 'DEPS'
 
-if platform == 'mac' and not options.x64build:
+if platform == 'mac' and not (options.x64build or options.arm64build):
   print('32-bit MacOS builds are not supported. ' +
-        'Add --x64-build flag to generate a 64-bit build.')
+        'Add --x64-build or --arm64-build flag to generate a 64-bit build.')
   sys.exit()
 
 # Platforms that build a cef_sandbox library.
