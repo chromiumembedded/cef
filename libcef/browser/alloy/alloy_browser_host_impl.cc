@@ -364,12 +364,13 @@ bool AlloyBrowserHostImpl::TryCloseBrowser() {
 }
 
 void AlloyBrowserHostImpl::SetFocus(bool focus) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-                  base::BindOnce(&AlloyBrowserHostImpl::SetFocus, this, focus));
-    return;
-  }
+  // Always execute asynchronously to work around issue #3040.
+  CEF_POST_TASK(CEF_UIT, base::BindOnce(&AlloyBrowserHostImpl::SetFocusInternal,
+                                        this, focus));
+}
 
+void AlloyBrowserHostImpl::SetFocusInternal(bool focus) {
+  CEF_REQUIRE_UIT();
   if (focus)
     OnSetFocus(FOCUS_SOURCE_SYSTEM);
   else if (platform_delegate_)

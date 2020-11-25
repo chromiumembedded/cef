@@ -370,6 +370,8 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   void InitializeDevToolsRegistrationOnUIThread(
       CefRefPtr<CefRegistration> registration);
 
+  void SetFocusInternal(bool focus);
+
   CefWindowHandle opener_;
   const bool is_windowless_;
   const bool is_views_hosted_;
