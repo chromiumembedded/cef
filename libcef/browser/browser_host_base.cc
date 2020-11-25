@@ -454,6 +454,7 @@ void CefBrowserHostBase::GoBack() {
   auto callback = base::BindOnce(&CefBrowserHostBase::GoBack, this);
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, std::move(callback));
+    return;
   }
 
   if (browser_info_->IsNavigationLocked(std::move(callback))) {
@@ -475,6 +476,7 @@ void CefBrowserHostBase::GoForward() {
   auto callback = base::BindOnce(&CefBrowserHostBase::GoForward, this);
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, std::move(callback));
+    return;
   }
 
   if (browser_info_->IsNavigationLocked(std::move(callback))) {
@@ -496,6 +498,7 @@ void CefBrowserHostBase::Reload() {
   auto callback = base::BindOnce(&CefBrowserHostBase::Reload, this);
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, std::move(callback));
+    return;
   }
 
   if (browser_info_->IsNavigationLocked(std::move(callback))) {
@@ -512,6 +515,7 @@ void CefBrowserHostBase::ReloadIgnoreCache() {
   auto callback = base::BindOnce(&CefBrowserHostBase::ReloadIgnoreCache, this);
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, std::move(callback));
+    return;
   }
 
   if (browser_info_->IsNavigationLocked(std::move(callback))) {
@@ -528,6 +532,7 @@ void CefBrowserHostBase::StopLoad() {
   auto callback = base::BindOnce(&CefBrowserHostBase::StopLoad, this);
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, std::move(callback));
+    return;
   }
 
   if (browser_info_->IsNavigationLocked(std::move(callback))) {
