@@ -130,7 +130,9 @@ CefWebContentsViewOSR::CreateViewForChildWidget(
 
 void CefWebContentsViewOSR::SetPageTitle(const base::string16& title) {}
 
-void CefWebContentsViewOSR::RenderViewReady() {}
+void CefWebContentsViewOSR::RenderViewReady() {
+  RenderViewCreated();
+}
 
 void CefWebContentsViewOSR::RenderViewHostChanged(
     content::RenderViewHost* old_host,
