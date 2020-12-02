@@ -176,13 +176,8 @@ content::ContentBrowserClient*
 ChromeMainDelegateCef::CreateContentBrowserClient() {
   // Match the logic in the parent ChromeMainDelegate implementation, but create
   // our own object type.
-  if (chrome_content_browser_client_ == nullptr) {
-    DCHECK(!startup_data_);
-    startup_data_ = std::make_unique<StartupData>();
-
-    chrome_content_browser_client_ =
-        std::make_unique<ChromeContentBrowserClientCef>(startup_data_.get());
-  }
+  chrome_content_browser_client_ =
+      std::make_unique<ChromeContentBrowserClientCef>();
   return chrome_content_browser_client_.get();
 }
 

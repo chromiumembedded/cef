@@ -252,13 +252,14 @@ void CefBrowserPlatformDelegateAlloy::SendCaptureLostEvent() {
 
 #if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MAC))
 void CefBrowserPlatformDelegateAlloy::NotifyMoveOrResizeStarted() {
-  if (!web_contents_)
+  if (!browser_)
     return;
 
   // Dismiss any existing popups.
-  content::RenderViewHost* host = web_contents_->GetRenderViewHost();
-  if (host)
-    host->NotifyMoveOrResizeStarted();
+  auto frame = browser_->GetMainFrame();
+  if (frame && frame->IsValid()) {
+    static_cast<CefFrameHostImpl*>(frame.get())->NotifyMoveOrResizeStarted();
+  }
 }
 #endif
 

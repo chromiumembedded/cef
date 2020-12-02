@@ -8,7 +8,6 @@
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/image_impl.h"
 #include "libcef/browser/navigation_entry_impl.h"
-#include "libcef/browser/net/scheme_handler.h"
 #include "libcef/browser/thread_util.h"
 
 #include "base/logging.h"
@@ -16,6 +15,7 @@
 #include "chrome/browser/spellchecker/spellcheck_service.h"
 #include "components/favicon/core/favicon_url.h"
 #include "components/spellcheck/common/spellcheck_features.h"
+#include "components/url_formatter/url_fixer.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/download_request_utils.h"
@@ -454,6 +454,7 @@ void CefBrowserHostBase::GoBack() {
   auto callback = base::BindOnce(&CefBrowserHostBase::GoBack, this);
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, std::move(callback));
+    return;
   }
 
   if (browser_info_->IsNavigationLocked(std::move(callback))) {
@@ -475,6 +476,7 @@ void CefBrowserHostBase::GoForward() {
   auto callback = base::BindOnce(&CefBrowserHostBase::GoForward, this);
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, std::move(callback));
+    return;
   }
 
   if (browser_info_->IsNavigationLocked(std::move(callback))) {
@@ -496,6 +498,7 @@ void CefBrowserHostBase::Reload() {
   auto callback = base::BindOnce(&CefBrowserHostBase::Reload, this);
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, std::move(callback));
+    return;
   }
 
   if (browser_info_->IsNavigationLocked(std::move(callback))) {
@@ -512,6 +515,7 @@ void CefBrowserHostBase::ReloadIgnoreCache() {
   auto callback = base::BindOnce(&CefBrowserHostBase::ReloadIgnoreCache, this);
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, std::move(callback));
+    return;
   }
 
   if (browser_info_->IsNavigationLocked(std::move(callback))) {
@@ -528,6 +532,7 @@ void CefBrowserHostBase::StopLoad() {
   auto callback = base::BindOnce(&CefBrowserHostBase::StopLoad, this);
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, std::move(callback));
+    return;
   }
 
   if (browser_info_->IsNavigationLocked(std::move(callback))) {
@@ -681,11 +686,6 @@ bool CefBrowserHostBase::HasObserver(Observer* observer) const {
 
 void CefBrowserHostBase::LoadMainFrameURL(
     const content::OpenURLParams& params) {
-  if (!params.url.is_valid()) {
-    LOG(ERROR) << "Invalid URL: " << params.url.spec();
-    return;
-  }
-
   auto callback =
       base::BindOnce(&CefBrowserHostBase::LoadMainFrameURL, this, params);
   if (!CEF_CURRENTLY_ON_UIT()) {
@@ -706,8 +706,19 @@ bool CefBrowserHostBase::Navigate(const content::OpenURLParams& params) {
   CEF_REQUIRE_UIT();
   auto web_contents = GetWebContents();
   if (web_contents) {
+    // Fix common problems with user-typed text. Among other things, this:
+    // - Converts absolute file paths to "file://" URLs.
+    // - Normalizes "about:" and "chrome:" to "chrome://" URLs.
+    // - Adds the "http://" scheme if none was specified.
+    GURL gurl = url_formatter::FixupURL(params.url.possibly_invalid_spec(),
+                                        std::string());
+    if (!gurl.is_valid()) {
+      LOG(ERROR) << "Invalid URL: " << params.url.possibly_invalid_spec();
+      return false;
+    }
+
     web_contents->GetController().LoadURL(
-        params.url, params.referrer, params.transition, params.extra_headers);
+        gurl, params.referrer, params.transition, params.extra_headers);
     return true;
   }
   return false;
@@ -717,9 +728,6 @@ void CefBrowserHostBase::OnDidFinishLoad(CefRefPtr<CefFrameHostImpl> frame,
                                          const GURL& validated_url,
                                          int http_status_code) {
   frame->RefreshAttributes();
-
-  // Give internal scheme handlers an opportunity to update content.
-  scheme::DidFinishLoad(frame, validated_url);
 
   contents_delegate_->OnLoadEnd(frame, validated_url, http_status_code);
 }

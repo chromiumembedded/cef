@@ -594,12 +594,6 @@ gfx::Point CefBrowserPlatformDelegateOsr::GetParentScreenPoint(
 
 CefRenderWidgetHostViewOSR* CefBrowserPlatformDelegateOsr::GetOSRHostView()
     const {
-  CefRenderWidgetHostViewOSR* fs_view =
-      static_cast<CefRenderWidgetHostViewOSR*>(
-          web_contents_->GetFullscreenRenderWidgetHostView());
-  if (fs_view)
-    return fs_view;
-
   content::RenderViewHost* host = web_contents_->GetRenderViewHost();
   if (host) {
     return static_cast<CefRenderWidgetHostViewOSR*>(

@@ -373,59 +373,6 @@ class AccessibilityTestHandler : public TestHandler,
     EXPECT_TRUE(childIDs.get());
     EXPECT_EQ(1U, childIDs->GetSize());
 
-    // A parent Group div containing the child.
-    CefRefPtr<CefDictionaryValue> group;
-    for (size_t index = 0; index < nodes->GetSize(); index++) {
-      CefRefPtr<CefDictionaryValue> node = nodes->GetDictionary(index);
-      if (node->GetString("role").ToString() == "genericContainer") {
-        group = node;
-        break;
-      }
-    }
-    EXPECT_TRUE(group.get());
-    // Validate Group is child of root WebArea.
-    EXPECT_EQ(group->GetInt("id"), childIDs->GetInt(0));
-
-    CefRefPtr<CefListValue> parentdiv = group->GetList("child_ids");
-    EXPECT_TRUE(parentdiv.get());
-    EXPECT_EQ(3U, parentdiv->GetSize());
-
-    int tipId = parentdiv->GetInt(0);
-    int editBoxId = parentdiv->GetInt(1);
-    int buttonId = parentdiv->GetInt(2);
-
-    // A parent Group div containing the child.
-    CefRefPtr<CefDictionaryValue> tip, editbox, button;
-    for (size_t index = 0; index < nodes->GetSize(); index++) {
-      CefRefPtr<CefDictionaryValue> node = nodes->GetDictionary(index);
-      if (node->GetInt("id") == tipId) {
-        tip = node;
-      }
-      if (node->GetInt("id") == editBoxId) {
-        editbox = node;
-      }
-      if (node->GetInt("id") == buttonId) {
-        button = node;
-      }
-    }
-    EXPECT_TRUE(tip.get());
-    EXPECT_STREQ("tooltip", tip->GetString("role").ToString().c_str());
-    CefRefPtr<CefDictionaryValue> tipattr = tip->GetDictionary("attributes");
-    EXPECT_TRUE(tipattr.get());
-
-    EXPECT_TRUE(editbox.get());
-    EXPECT_STREQ("textField", editbox->GetString("role").ToString().c_str());
-    CefRefPtr<CefDictionaryValue> editattr =
-        editbox->GetDictionary("attributes");
-    // Validate ARIA Description tags for tipIdare associated with editbox.
-    EXPECT_TRUE(editattr.get());
-    EXPECT_EQ(tipId, editattr->GetList("describedbyIds")->GetInt(0));
-    EXPECT_STREQ(kTipText,
-                 editattr->GetString("description").ToString().c_str());
-
-    EXPECT_TRUE(button.get());
-    EXPECT_STREQ("button", button->GetString("role").ToString().c_str());
-
     // Now Post a delayed task to destroy the test
     // giving sufficient time for any accessibility updates to come through
     CefPostDelayedTask(

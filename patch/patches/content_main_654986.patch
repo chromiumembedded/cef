@@ -1,8 +1,8 @@
 diff --git content/app/content_main.cc content/app/content_main.cc
-index e463c4d677b1..5fbc0a732dee 100644
+index 2aba28d210db..5413f08af93d 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
-@@ -206,15 +206,10 @@ void InitializeMojo(mojo::core::Configuration* config) {
+@@ -205,15 +205,10 @@ void InitializeMojo(mojo::core::Configuration* config) {
  
  }  // namespace
  
@@ -20,7 +20,7 @@ index e463c4d677b1..5fbc0a732dee 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -300,8 +295,7 @@ int RunContentProcess(const ContentMainParams& params,
+@@ -299,8 +294,7 @@ int RunContentProcess(const ContentMainParams& params,
      // loop, but we don't want to leave them hanging around until the app quits.
      // Each "main" needs to flush this pool right before it goes into its main
      // event loop to get rid of the cruft.
@@ -30,7 +30,7 @@ index e463c4d677b1..5fbc0a732dee 100644
      InitializeMac();
  #endif
  
-@@ -311,7 +305,7 @@ int RunContentProcess(const ContentMainParams& params,
+@@ -310,7 +304,7 @@ int RunContentProcess(const ContentMainParams& params,
  
      ui::RegisterPathProvider();
      tracker = base::debug::GlobalActivityTracker::Get();
@@ -39,7 +39,7 @@ index e463c4d677b1..5fbc0a732dee 100644
  
      if (exit_code >= 0) {
        if (tracker) {
-@@ -370,8 +364,16 @@ int RunContentProcess(const ContentMainParams& params,
+@@ -369,8 +363,16 @@ int RunContentProcess(const ContentMainParams& params,
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -57,7 +57,7 @@ index e463c4d677b1..5fbc0a732dee 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -382,19 +384,33 @@ int RunContentProcess(const ContentMainParams& params,
+@@ -381,19 +383,33 @@ int RunContentProcess(const ContentMainParams& params,
        tracker->process_data().SetInt("exit-code", exit_code);
      }
    }
@@ -94,10 +94,10 @@ index e463c4d677b1..5fbc0a732dee 100644
    return RunContentProcess(params, runner.get());
  }
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index a85c25303dfc..8fdc214608fc 100644
+index 6f5d40dd324d..8fa1397f0353 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -45,6 +45,7 @@
+@@ -46,6 +46,7 @@
  #include "base/task/post_task.h"
  #include "base/task/thread_pool/thread_pool_instance.h"
  #include "base/threading/hang_watcher.h"
@@ -105,7 +105,7 @@ index a85c25303dfc..8fdc214608fc 100644
  #include "base/trace_event/trace_event.h"
  #include "components/discardable_memory/service/discardable_shared_memory_manager.h"
  #include "components/download/public/common/download_task_runner.h"
-@@ -571,7 +572,7 @@ int ContentMainRunnerImpl::Initialize(const ContentMainParams& params) {
+@@ -589,7 +590,7 @@ int ContentMainRunnerImpl::Initialize(const ContentMainParams& params) {
  #else  // !OS_WIN
  
  #if defined(OS_MAC)
@@ -114,7 +114,7 @@ index a85c25303dfc..8fdc214608fc 100644
  #endif  // defined(OS_MAC)
  
  #if defined(OS_ANDROID)
-@@ -1010,6 +1011,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1039,6 +1040,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -127,27 +127,19 @@ index a85c25303dfc..8fdc214608fc 100644
  std::unique_ptr<ContentMainRunner> ContentMainRunner::Create() {
    return ContentMainRunnerImpl::Create();
 diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
-index 3eb986f3c7d4..58d1883f7948 100644
+index 30d5515b3af8..d59b4779afef 100644
 --- content/app/content_main_runner_impl.h
 +++ content/app/content_main_runner_impl.h
-@@ -13,6 +13,7 @@
- #include "base/threading/hang_watcher.h"
- #include "build/build_config.h"
- #include "content/browser/startup_data_impl.h"
-+#include "content/common/content_export.h"
- #include "content/public/app/content_main.h"
- #include "content/public/app/content_main_runner.h"
- #include "content/public/common/main_function_params.h"
-@@ -37,7 +38,7 @@ class ContentMainDelegate;
- struct ContentMainParams;
+@@ -39,7 +39,7 @@ class ContentMainDelegate;
  class ServiceManagerEnvironment;
+ struct ContentMainParams;
  
 -class ContentMainRunnerImpl : public ContentMainRunner {
 +class CONTENT_EXPORT ContentMainRunnerImpl : public ContentMainRunner {
   public:
    static std::unique_ptr<ContentMainRunnerImpl> Create();
  
-@@ -51,6 +52,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
+@@ -53,6 +53,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
    int Run(bool start_service_manager_only) override;
    void Shutdown() override;
  
@@ -170,7 +162,7 @@ index 8b829a488773..a69a08869728 100644
    if (main_argv)
      setproctitle_init(main_argv);
 diff --git content/public/app/content_main.h content/public/app/content_main.h
-index 7384f3276f38..b84127a62b81 100644
+index 97aac3d0c758..4e7baa790252 100644
 --- content/public/app/content_main.h
 +++ content/public/app/content_main.h
 @@ -5,6 +5,7 @@
@@ -204,7 +196,7 @@ index 7384f3276f38..b84127a62b81 100644
                                       ContentMainRunner* content_main_runner);
  
  #if defined(OS_ANDROID)
-@@ -88,7 +98,7 @@ CONTENT_EXPORT ContentMainDelegate* GetContentMainDelegateForTesting();
+@@ -91,7 +101,7 @@ ContentMainDelegate* GetContentMainDelegate();
  // initial setup for every process. The embedder has a chance to customize
  // startup using the ContentMainDelegate interface. The embedder can also pass
  // in null for |delegate| if they don't want to override default startup.

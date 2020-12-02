@@ -22,9 +22,4 @@ void RegisterInternalHandlers(CefIOThreadState* iothread_state) {
   scheme::RegisterChromeDevToolsHandler(iothread_state);
 }
 
-void DidFinishLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url) {
-  if (validated_url.scheme() == content::kChromeUIScheme)
-    scheme::DidFinishChromeLoad(frame, validated_url);
-}
-
 }  // namespace scheme

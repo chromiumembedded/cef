@@ -554,12 +554,7 @@ const LogSeverity LOG_DCHECK = LOG_INFO;
 #define DCHECK_GE(val1, val2) DCHECK_OP(GE, >=, val1, val2)
 #define DCHECK_GT(val1, val2) DCHECK_OP(GT, >, val1, val2)
 
-#if defined(NDEBUG) && defined(OS_CHROMEOS)
-#define NOTREACHED() \
-  LOG(ERROR) << "NOTREACHED() hit in " << __FUNCTION__ << ". "
-#else
 #define NOTREACHED() DCHECK(false)
-#endif
 
 // Redefine the standard assert to use our nice log files
 #undef assert

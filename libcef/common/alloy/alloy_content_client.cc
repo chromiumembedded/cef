@@ -27,7 +27,6 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/pepper_flash.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/pepper_plugin_info.h"
@@ -81,103 +80,6 @@ void ComputeBuiltInPlugins(std::vector<content::PepperPluginInfo>* plugins) {
   }
 }
 
-content::PepperPluginInfo CreatePepperFlashInfo(const base::FilePath& path,
-                                                const std::string& version) {
-  content::PepperPluginInfo plugin;
-
-  plugin.is_out_of_process = true;
-  plugin.name = content::kFlashPluginName;
-  plugin.path = path;
-  plugin.permissions = kPepperFlashPermissions;
-
-  std::vector<std::string> flash_version_numbers = base::SplitString(
-      version, ".", base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
-  if (flash_version_numbers.size() < 1)
-    flash_version_numbers.push_back("11");
-  if (flash_version_numbers.size() < 2)
-    flash_version_numbers.push_back("2");
-  if (flash_version_numbers.size() < 3)
-    flash_version_numbers.push_back("999");
-  if (flash_version_numbers.size() < 4)
-    flash_version_numbers.push_back("999");
-  // E.g., "Shockwave Flash 10.2 r154":
-  plugin.description = plugin.name + " " + flash_version_numbers[0] + "." +
-                       flash_version_numbers[1] + " r" +
-                       flash_version_numbers[2];
-  plugin.version = base::JoinString(flash_version_numbers, ".");
-  content::WebPluginMimeType swf_mime_type(content::kFlashPluginSwfMimeType,
-                                           content::kFlashPluginSwfExtension,
-                                           content::kFlashPluginSwfDescription);
-  plugin.mime_types.push_back(swf_mime_type);
-  content::WebPluginMimeType spl_mime_type(content::kFlashPluginSplMimeType,
-                                           content::kFlashPluginSplExtension,
-                                           content::kFlashPluginSplDescription);
-  plugin.mime_types.push_back(spl_mime_type);
-
-  return plugin;
-}
-
-void AddPepperFlashFromCommandLine(
-    std::vector<content::PepperPluginInfo>* plugins) {
-  const base::CommandLine::StringType flash_path =
-      base::CommandLine::ForCurrentProcess()->GetSwitchValueNative(
-          switches::kPpapiFlashPath);
-  if (flash_path.empty())
-    return;
-
-  // Also get the version from the command-line. Should be something like 11.2
-  // or 11.2.123.45.
-  std::string flash_version =
-      base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
-          switches::kPpapiFlashVersion);
-
-  plugins->push_back(
-      CreatePepperFlashInfo(base::FilePath(flash_path), flash_version));
-}
-
-bool GetSystemPepperFlash(content::PepperPluginInfo* plugin) {
-  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-
-  if (!command_line->HasSwitch(switches::kEnableSystemFlash))
-    return false;
-
-  // Do not try and find System Pepper Flash if there is a specific path on
-  // the commmand-line.
-  if (command_line->HasSwitch(switches::kPpapiFlashPath))
-    return false;
-
-  base::FilePath flash_filename;
-  if (!base::PathService::Get(chrome::FILE_PEPPER_FLASH_SYSTEM_PLUGIN,
-                              &flash_filename)) {
-    return false;
-  }
-
-  base::FilePath manifest_path(
-      flash_filename.DirName().AppendASCII("manifest.json"));
-
-  std::string manifest_data;
-  if (!base::ReadFileToString(manifest_path, &manifest_data))
-    return false;
-  auto json_manifest_value =
-      base::JSONReader::Read(manifest_data, base::JSON_ALLOW_TRAILING_COMMAS);
-  if (!json_manifest_value.has_value())
-    return false;
-  std::unique_ptr<base::Value> manifest_value(
-      base::Value::ToUniquePtrValue(std::move(json_manifest_value.value())));
-  if (!manifest_value.get())
-    return false;
-  base::DictionaryValue* manifest = nullptr;
-  if (!manifest_value->GetAsDictionary(&manifest))
-    return false;
-
-  base::Version version;
-  if (!CheckPepperFlashManifest(*manifest, &version))
-    return false;
-
-  *plugin = CreatePepperFlashInfo(flash_filename, version.GetString());
-  return true;
-}
-
 }  // namespace
 
 const char AlloyContentClient::kPDFPluginPath[] = "internal-pdf-viewer";
@@ -188,11 +90,6 @@ AlloyContentClient::~AlloyContentClient() = default;
 void AlloyContentClient::AddPepperPlugins(
     std::vector<content::PepperPluginInfo>* plugins) {
   ComputeBuiltInPlugins(plugins);
-  AddPepperFlashFromCommandLine(plugins);
-
-  content::PepperPluginInfo plugin;
-  if (GetSystemPepperFlash(&plugin))
-    plugins->push_back(plugin);
 }
 
 void AlloyContentClient::AddContentDecryptionModules(

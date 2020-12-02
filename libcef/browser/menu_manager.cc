@@ -286,7 +286,7 @@ void CefMenuManager::ExecuteCommandCallback(int command_id,
 void CefMenuManager::CreateDefaultModel() {
   if (!params_.custom_items.empty()) {
     // Custom menu items originating from the renderer process. For example,
-    // plugin placeholder menu items or Flash menu items.
+    // plugin placeholder menu items.
     for (size_t i = 0; i < params_.custom_items.size(); ++i) {
       content::MenuItem menu_item = params_.custom_items[i];
       menu_item.action += MENU_ID_CUSTOM_FIRST;

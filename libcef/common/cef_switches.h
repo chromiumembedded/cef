@@ -42,7 +42,6 @@ extern const char kEnableProfanityFilter[];
 extern const char kDisableSpellChecking[];
 extern const char kEnableSpellingService[];
 extern const char kOverrideSpellCheckLang[];
-extern const char kEnableSystemFlash[];
 extern const char kDisableScrollBounce[];
 extern const char kDisablePdfExtension[];
 extern const char kWidevineCdmPath[];

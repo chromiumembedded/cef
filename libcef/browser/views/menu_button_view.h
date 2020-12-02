@@ -16,9 +16,16 @@
 // Extend views::LabelButton with a no-argument constructor as required by the
 // CefViewView template and extend views::ButtonListener as required by the
 // CefButtonView template.
-class MenuButtonEx : public views::MenuButton, public views::ButtonListener {
+class MenuButtonEx : public views::MenuButton {
  public:
-  MenuButtonEx() : views::MenuButton(this) {}
+  MenuButtonEx()
+      : views::MenuButton(base::BindRepeating(
+            [](MenuButtonEx* self, const ui::Event& event) {
+              self->ButtonPressed(event);
+            },
+            base::Unretained(this))) {}
+
+  virtual void ButtonPressed(const ui::Event& event) = 0;
 };
 
 class CefMenuButtonView
@@ -38,8 +45,8 @@ class CefMenuButtonView
   // Set the flags that control display of accelerator characters.
   void SetDrawStringsFlags(int flags);
 
-  // views::ButtonListener methods:
-  void ButtonPressed(views::Button* source, const ui::Event& event) override;
+  // MenuButtonEx methods:
+  void ButtonPressed(const ui::Event& event) override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CefMenuButtonView);

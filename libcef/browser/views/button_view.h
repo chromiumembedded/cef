@@ -42,8 +42,8 @@ CEF_BUTTON_VIEW_T class CefButtonView : public CEF_VIEW_VIEW_D {
   // views::Button methods:
   void StateChanged(views::Button::ButtonState old_state) override;
 
-  // views::ButtonListener methods:
-  void ButtonPressed(views::Button* sender, const ui::Event& event) override;
+  // LabelButtonEx methods:
+  void ButtonPressed(const ui::Event& event) override;
 };
 
 CEF_BUTTON_VIEW_T void CEF_BUTTON_VIEW_D::StateChanged(
@@ -54,7 +54,6 @@ CEF_BUTTON_VIEW_T void CEF_BUTTON_VIEW_D::StateChanged(
 }
 
 CEF_BUTTON_VIEW_T void CEF_BUTTON_VIEW_D::ButtonPressed(
-    views::Button* sender,
     const ui::Event& event) {
   // Callback may trigger new animation state.
   if (ParentClass::cef_delegate())

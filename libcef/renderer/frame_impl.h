@@ -15,7 +15,9 @@ class ListValue;
 }
 
 namespace blink {
+class ResourceLoadInfoNotifierWrapper;
 class WebLocalFrame;
+class WebURLLoader;
 class WebURLLoaderFactory;
 }  // namespace blink
 
@@ -74,7 +76,9 @@ class CefFrameImpl : public CefFrame {
                           CefRefPtr<CefProcessMessage> message) override;
 
   // Used by CefRenderURLRequest.
-  blink::WebURLLoaderFactory* GetURLLoaderFactory();
+  std::unique_ptr<blink::WebURLLoader> CreateURLLoader();
+  std::unique_ptr<blink::ResourceLoadInfoNotifierWrapper>
+  CreateResourceLoadInfoNotifierWrapper();
 
   // Forwarded from CefRenderFrameObserver.
   void OnAttached();
@@ -102,6 +106,7 @@ class CefFrameImpl : public CefFrame {
   void OnResponse(const Cef_Response_Params& params);
   void OnResponseAck(int request_id);
   void OnDidStopLoading();
+  void OnMoveOrResizeStarted();
   void OnLoadRequest(const CefMsg_LoadRequest_Params& params);
 
   CefBrowserImpl* browser_;

@@ -425,6 +425,8 @@ static_library("libcef_static") {
     "libcef/browser/alloy/alloy_content_browser_client.h",
     "libcef/browser/audio_capturer.cc",
     "libcef/browser/audio_capturer.h",
+    "libcef/browser/audio_loopback_stream_creator.cc",
+    "libcef/browser/audio_loopback_stream_creator.h",
     "libcef/browser/browser_contents_delegate.cc",
     "libcef/browser/browser_contents_delegate.h",
     "libcef/browser/browser_context.cc",
@@ -1187,6 +1189,9 @@ static_library("libcef_static") {
       if (use_x11) {
         sources += [
           # Support for UI input events.
+          # Part of //ui/base/x:test_support which is testingonly.
+          "//ui/base/x/test/x11_ui_controls_test_helper.cc",
+          "//ui/base/x/test/x11_ui_controls_test_helper.h",
           # Part of //ui/aura:test_support which is testingonly.
           "//ui/aura/test/x11_event_sender.h",
           # Part of //ui/views:test_support which is testingonly.
@@ -1364,6 +1369,7 @@ repack("pak_extensions") {
     "$root_gen_dir/extensions/extensions_renderer_resources.pak",
     "$root_gen_dir/extensions/extensions_resources.pak",
     "$root_gen_dir/mojo/public/js/mojo_bindings_resources.pak",
+    "$root_gen_dir/ui/resources/webui_generated_resources.pak",
     "$root_gen_dir/ui/resources/webui_resources.pak",
   ]
 
@@ -1377,6 +1383,7 @@ repack("pak_extensions") {
     "//extensions:extensions_renderer_resources",
     "//extensions:extensions_resources_grd",
     "//mojo/public/js:resources",
+    "//ui/resources:webui_generated_resources_grd",
     "//ui/resources:webui_resources_grd",
   ]
 
@@ -1428,10 +1435,10 @@ repack("pak") {
   # Each input pak file should also have a deps line for completeness.
   # Add associated .h files in the make_pack_header("resources") target.
   sources = [
+    "$root_gen_dir/base/tracing/protos/tracing_proto_resources.pak",
     "$root_gen_dir/chrome/browser_resources.pak",
     "$root_gen_dir/chrome/dev_ui_browser_resources.pak",
     "$root_gen_dir/chrome/net_internals_resources.pak",
-    "$root_gen_dir/chrome/print_preview_pdf_resources.pak",
     "$root_gen_dir/chrome/print_preview_resources.pak",
     "$root_gen_dir/chrome/common_resources.pak",
     "$root_gen_dir/components/components_resources.pak",
@@ -1448,11 +1455,11 @@ repack("pak") {
   # the libcef_static target. Grit deps that generate .cc files must be
   # listed both here and in the libcef_static target.
   public_deps = [
+    "//base/tracing/protos:chrome_track_event_resources",
     "//chrome/browser:dev_ui_browser_resources",
     "//chrome/browser:resources",
     "//chrome/browser/resources/net_internals:net_internals_resources",
-    "//chrome/browser/resources:print_preview_pdf_resources",
-    "//chrome/browser/resources:print_preview_resources",
+    "//chrome/browser/resources/print_preview:print_preview_resources",
     "//chrome/common:resources",
     "//components/resources:components_resources",
     "//components/resources:dev_ui_components_resources",
@@ -1498,13 +1505,13 @@ template("make_pack_header") {
 make_pack_header("resources") {
   header = "$root_out_dir/includes/include/cef_pack_resources.h"
   inputs = [
+    "$root_gen_dir/base/tracing/protos/grit/tracing_proto_resources.h",
     "$root_gen_dir/cef/grit/cef_resources.h",
     "$root_gen_dir/chrome/grit/browser_resources.h",
     "$root_gen_dir/chrome/grit/common_resources.h",
     "$root_gen_dir/chrome/grit/component_extension_resources.h",
     "$root_gen_dir/chrome/grit/dev_ui_browser_resources.h",
     "$root_gen_dir/chrome/grit/net_internals_resources.h",
-    "$root_gen_dir/chrome/grit/print_preview_pdf_resources.h",
     "$root_gen_dir/chrome/grit/print_preview_resources.h",
     "$root_gen_dir/chrome/grit/renderer_resources.h",
     "$root_gen_dir/components/grit/components_resources.h",
@@ -1519,6 +1526,7 @@ make_pack_header("resources") {
     "$root_gen_dir/net/grit/net_resources.h",
     "$root_gen_dir/third_party/blink/public/resources/grit/blink_resources.h",
     "$root_gen_dir/ui/resources/grit/ui_resources.h",
+    "$root_gen_dir/ui/resources/grit/webui_generated_resources.h",
     "$root_gen_dir/ui/resources/grit/webui_resources.h",
     "$root_gen_dir/ui/views/resources/grit/views_resources.h",
   ]
@@ -1632,7 +1640,7 @@ if (is_mac) {
       ]
       public_deps += [ "//v8" ]
       if (use_v8_context_snapshot) {
-        sources += [ "$root_out_dir/v8_context_snapshot.bin" ]
+        sources += [ "$root_out_dir/$v8_context_snapshot_filename" ]
         public_deps += [ "//tools/v8_context_snapshot" ]
       }
     }

@@ -1,8 +1,8 @@
 diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
-index 9b5a44b6dd99..e90a651f6fba 100644
+index d5fa2604e741..1337e6369373 100644
 --- content/browser/storage_partition_impl.cc
 +++ content/browser/storage_partition_impl.cc
-@@ -487,10 +487,6 @@ class LoginHandlerDelegate {
+@@ -491,10 +491,6 @@ class LoginHandlerDelegate {
      }
  
      WebContents* web_contents = web_contents_getter_.Run();
@@ -14,10 +14,10 @@ index 9b5a44b6dd99..e90a651f6fba 100644
      // WeakPtr is not strictly necessary here due to OnRequestCancelled.
      creating_login_delegate_ = true;
 @@ -547,12 +543,6 @@ void OnAuthRequiredContinuation(
-     web_contents_getter =
-         base::BindRepeating(GetWebContents, process_id, routing_id);
-   }
--  if (!web_contents_getter.Run()) {
+     mojo::PendingRemote<network::mojom::AuthChallengeResponder>
+         auth_challenge_responder,
+     base::RepeatingCallback<WebContents*(void)> web_contents_getter) {
+-  if (!web_contents_getter || !web_contents_getter.Run()) {
 -    mojo::Remote<network::mojom::AuthChallengeResponder>
 -        auth_challenge_responder_remote(std::move(auth_challenge_responder));
 -    auth_challenge_responder_remote->OnAuthCredentials(base::nullopt);
@@ -26,7 +26,7 @@ index 9b5a44b6dd99..e90a651f6fba 100644
    new LoginHandlerDelegate(std::move(auth_challenge_responder),
                             std::move(web_contents_getter), auth_info,
                             is_request_for_main_frame, process_id, routing_id,
-@@ -2421,8 +2411,12 @@ void StoragePartitionImpl::GetQuotaSettings(
+@@ -2396,8 +2386,12 @@ void StoragePartitionImpl::GetQuotaSettings(
      return;
    }
  
@@ -40,7 +40,7 @@ index 9b5a44b6dd99..e90a651f6fba 100644
        storage::GetDefaultDeviceInfoHelper(), std::move(callback));
  }
  
-@@ -2434,6 +2428,11 @@ void StoragePartitionImpl::InitNetworkContext() {
+@@ -2409,6 +2403,11 @@ void StoragePartitionImpl::InitNetworkContext() {
    GetContentClient()->browser()->ConfigureNetworkContextParams(
        browser_context_, is_in_memory_, relative_partition_path_,
        context_params.get(), cert_verifier_creation_params.get());

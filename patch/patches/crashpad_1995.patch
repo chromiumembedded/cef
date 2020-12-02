@@ -81,7 +81,7 @@ index 886372e11489..ad3bc2242883 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 2014df5fe810..3cf97e8d8e3c 100644
+index e71c5e51118b..1dca5b2c378f 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -4,6 +4,8 @@
@@ -102,7 +102,7 @@ index 2014df5fe810..3cf97e8d8e3c 100644
    static const char* const kIgnoreSwitches[] = {
      switches::kEnableLogging,
      switches::kFlagSwitchesBegin,
-@@ -82,7 +84,7 @@ static bool IsBoringSwitch(const std::string& flag) {
+@@ -80,7 +82,7 @@ static bool IsBoringSwitch(const std::string& flag) {
  }
  
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
@@ -363,7 +363,7 @@ index e1c66df6cecf..681dd496292e 100644
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/core/app/crashpad_mac.mm components/crash/core/app/crashpad_mac.mm
-index aa7c3302f2e3..c471132afe3f 100644
+index eb675321436a..4e74af742ed5 100644
 --- components/crash/core/app/crashpad_mac.mm
 +++ components/crash/core/app/crashpad_mac.mm
 @@ -16,12 +16,15 @@
@@ -412,8 +412,8 @@ index aa7c3302f2e3..c471132afe3f 100644
  
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
        // Empty means stable.
-@@ -62,12 +75,16 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
-         process_annotations["channel"] = "";
+@@ -68,12 +81,16 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
+         process_annotations["channel"] = base::SysNSStringToUTF8(channel);
        }
  
 -      NSString* version =
@@ -434,7 +434,7 @@ index aa7c3302f2e3..c471132afe3f 100644
      }  // @autoreleasepool
      return process_annotations;
    }();
-@@ -127,10 +144,10 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -133,10 +150,10 @@ base::FilePath PlatformCrashpadInitialization(
  
    if (initial_client) {
      @autoreleasepool {
@@ -449,7 +449,7 @@ index aa7c3302f2e3..c471132afe3f 100644
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -159,6 +176,12 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -165,6 +182,12 @@ base::FilePath PlatformCrashpadInitialization(
              "--reset-own-crash-exception-port-to-system-default");
        }
  

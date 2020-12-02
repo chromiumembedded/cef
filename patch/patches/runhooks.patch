@@ -1,5 +1,5 @@
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index 58bf3e8caf4e..c224432e8af2 100644
+index 47309866ca79..d27ec9b50b2b 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
 @@ -155,13 +155,17 @@ def _LoadToolchainEnv(cpu, sdk_dir, target_store):

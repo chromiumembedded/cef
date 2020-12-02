@@ -34,6 +34,11 @@ base::RefCountedStaticMemory* CefResourceBundleDelegate::LoadDataResourceBytes(
   return nullptr;
 }
 
+base::Optional<std::string> CefResourceBundleDelegate::LoadDataResourceString(
+    int resource_id) {
+  return base::nullopt;
+}
+
 bool CefResourceBundleDelegate::GetRawDataResource(
     int resource_id,
     ui::ScaleFactor scale_factor,

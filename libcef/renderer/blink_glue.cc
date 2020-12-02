@@ -6,6 +6,7 @@
 #include "libcef/renderer/blink_glue.h"
 
 #include "third_party/blink/public/mojom/v8_cache_options.mojom-blink.h"
+#include "third_party/blink/public/platform/scheduler/web_resource_loading_task_runner_handle.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url_response.h"
 #include "third_party/blink/public/web/web_document.h"
@@ -32,6 +33,7 @@
 #include "third_party/blink/renderer/platform/bindings/v8_binding.h"
 #include "third_party/blink/renderer/platform/loader/fetch/resource_response.h"
 #include "third_party/blink/renderer/platform/loader/fetch/script_fetch_options.h"
+#include "third_party/blink/renderer/platform/scheduler/public/frame_scheduler.h"
 #include "third_party/blink/renderer/platform/weborigin/scheme_registry.h"
 #undef LOG
 
@@ -243,6 +245,25 @@ bool ResponseWasCached(const blink::WebURLResponse& response) {
 bool HasPluginFrameOwner(blink::WebLocalFrame* frame) {
   blink::Frame* core_frame = blink::WebFrame::ToCoreFrame(*frame);
   return core_frame->Owner() && core_frame->Owner()->IsPlugin();
+}
+
+BLINK_EXPORT
+std::unique_ptr<blink::scheduler::WebResourceLoadingTaskRunnerHandle>
+CreateResourceLoadingTaskRunnerHandle(blink::WebLocalFrame* frame) {
+  blink::Frame* core_frame = blink::WebFrame::ToCoreFrame(*frame);
+  return blink::To<blink::LocalFrame>(core_frame)
+      ->GetFrameScheduler()
+      ->CreateResourceLoadingTaskRunnerHandle();
+}
+
+BLINK_EXPORT
+std::unique_ptr<blink::scheduler::WebResourceLoadingTaskRunnerHandle>
+CreateResourceLoadingMaybeUnfreezableTaskRunnerHandle(
+    blink::WebLocalFrame* frame) {
+  blink::Frame* core_frame = blink::WebFrame::ToCoreFrame(*frame);
+  return blink::To<blink::LocalFrame>(core_frame)
+      ->GetFrameScheduler()
+      ->CreateResourceLoadingMaybeUnfreezableTaskRunnerHandle();
 }
 
 }  // namespace blink_glue

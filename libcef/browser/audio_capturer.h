@@ -12,15 +12,12 @@
 
 #include "media/base/audio_capturer_source.h"
 
-namespace content {
-class AudioLoopbackStreamCreator;
-}  // namespace content
-
 namespace media {
 class AudioInputDevice;
 }  // namespace media
 
 class CefAudioHandler;
+class CefAudioLoopbackStreamCreator;
 class AlloyBrowserHostImpl;
 
 class CefAudioCapturer : public media::AudioCapturerSource::CaptureCallback {
@@ -44,7 +41,7 @@ class CefAudioCapturer : public media::AudioCapturerSource::CaptureCallback {
   CefAudioParameters params_;
   CefRefPtr<AlloyBrowserHostImpl> browser_;
   CefRefPtr<CefAudioHandler> audio_handler_;
-  std::unique_ptr<content::AudioLoopbackStreamCreator> audio_stream_creator_;
+  std::unique_ptr<CefAudioLoopbackStreamCreator> audio_stream_creator_;
   scoped_refptr<media::AudioInputDevice> audio_input_device_;
   bool capturing_ = false;
   int channels_ = 0;

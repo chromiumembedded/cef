@@ -8,22 +8,23 @@
 
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
-#include "libcef/common/task_runner_impl.h"
 #include "libcef/renderer/blink_glue.h"
 #include "libcef/renderer/frame_impl.h"
+#include "libcef/renderer/thread_util.h"
 
 #include "base/logging.h"
 #include "net/base/request_priority.h"
 #include "third_party/blink/public/mojom/fetch/fetch_api_request.mojom.h"
 #include "third_party/blink/public/mojom/loader/resource_load_info.mojom.h"
+#include "third_party/blink/public/platform/resource_load_info_notifier_wrapper.h"
 #include "third_party/blink/public/platform/web_security_origin.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
 #include "third_party/blink/public/platform/web_url_error.h"
 #include "third_party/blink/public/platform/web_url_loader.h"
 #include "third_party/blink/public/platform/web_url_loader_client.h"
-#include "third_party/blink/public/platform/web_url_loader_factory.h"
 #include "third_party/blink/public/platform/web_url_request.h"
+#include "third_party/blink/public/platform/web_url_request_extra_data.h"
 #include "third_party/blink/public/platform/web_url_response.h"
 
 using blink::WebString;
@@ -87,7 +88,6 @@ class CefRenderURLRequest::Context
         frame_(frame),
         request_(request),
         client_(client),
-        task_runner_(CefTaskRunnerImpl::GetCurrentTaskRunner()),
         status_(UR_IO_PENDING),
         error_code_(ERR_NONE),
         body_watcher_(FROM_HERE, mojo::SimpleWatcher::ArmingPolicy::MANUAL),
@@ -100,13 +100,7 @@ class CefRenderURLRequest::Context
     static_cast<CefRequestImpl*>(request_.get())->SetReadOnly(true);
   }
 
-  inline bool CalledOnValidThread() {
-    return task_runner_->RunsTasksInCurrentSequence();
-  }
-
   bool Start() {
-    DCHECK(CalledOnValidThread());
-
     GURL url = GURL(request_->GetURL().ToString());
     if (!url.is_valid())
       return false;
@@ -148,30 +142,17 @@ class CefRenderURLRequest::Context
       }
     }
 
-    blink::WebURLLoaderFactory* factory = nullptr;
-    if (frame_) {
-      // This factory supports all requests.
-      factory = static_cast<CefFrameImpl*>(frame_.get())->GetURLLoaderFactory();
-    }
-    if (!factory) {
-      // Global requests are not supported.
-      return false;
-    }
-
-    loader_ = factory->CreateURLLoader(
-        blink::WebURLRequest(),
-        blink::scheduler::WebResourceLoadingTaskRunnerHandle::
-            CreateUnprioritized(task_runner_.get()));
+    auto frame_impl = static_cast<CefFrameImpl*>(frame_.get());
+    loader_ = frame_impl->CreateURLLoader();
     loader_->LoadAsynchronously(
-        std::move(resource_request), nullptr /* extra_data */,
-        0 /* requestor_id */, false /* download_to_network_cache_only */,
-        false /* no_mime_sniffing */, url_client_.get());
+        std::move(resource_request), /*extra_data=*/nullptr,
+        /*requestor_id=*/0,
+        /*no_mime_sniffing=*/false,
+        frame_impl->CreateResourceLoadInfoNotifierWrapper(), url_client_.get());
     return true;
   }
 
   void Cancel() {
-    DCHECK(CalledOnValidThread());
-
     // The request may already be complete.
     if (!loader_.get() || status_ != UR_IO_PENDING)
       return;
@@ -185,8 +166,6 @@ class CefRenderURLRequest::Context
 
   void OnStopRedirect(const WebURL& redirect_url,
                       const WebURLResponse& response) {
-    DCHECK(CalledOnValidThread());
-
     response_was_cached_ = blink_glue::ResponseWasCached(response);
     response_ = CefResponse::Create();
     CefResponseImpl* responseImpl =
@@ -206,8 +185,6 @@ class CefRenderURLRequest::Context
   }
 
   void OnResponse(const WebURLResponse& response) {
-    DCHECK(CalledOnValidThread());
-
     response_was_cached_ = blink_glue::ResponseWasCached(response);
     response_ = CefResponse::Create();
     CefResponseImpl* responseImpl =
@@ -219,8 +196,6 @@ class CefRenderURLRequest::Context
   }
 
   void OnError(const WebURLError& error) {
-    DCHECK(CalledOnValidThread());
-
     if (status_ == UR_IO_PENDING) {
       status_ = UR_FAILED;
       error_code_ = static_cast<cef_errorcode_t>(error.reason());
@@ -230,8 +205,6 @@ class CefRenderURLRequest::Context
   }
 
   void OnComplete() {
-    DCHECK(CalledOnValidThread());
-
     if (body_handle_.is_valid()) {
       return;
     }
@@ -292,7 +265,6 @@ class CefRenderURLRequest::Context
 
   void OnStartLoadingResponseBody(
       mojo::ScopedDataPipeConsumerHandle response_body) {
-    DCHECK(CalledOnValidThread());
     DCHECK(response_body);
     DCHECK(!body_handle_);
     body_handle_ = std::move(response_body);
@@ -307,7 +279,6 @@ class CefRenderURLRequest::Context
   }
 
   void OnDownloadProgress(int64_t current) {
-    DCHECK(CalledOnValidThread());
     DCHECK(url_request_.get());
 
     NotifyUploadProgressIfNecessary();
@@ -318,13 +289,11 @@ class CefRenderURLRequest::Context
   }
 
   void OnDownloadData(const char* data, int dataLength) {
-    DCHECK(CalledOnValidThread());
     DCHECK(url_request_.get());
     client_->OnDownloadData(url_request_.get(), data, dataLength);
   }
 
   void OnUploadProgress(int64_t current, int64_t total) {
-    DCHECK(CalledOnValidThread());
     DCHECK(url_request_.get());
     if (current == total)
       got_upload_progress_complete_ = true;
@@ -358,7 +327,6 @@ class CefRenderURLRequest::Context
   CefRefPtr<CefFrame> frame_;
   CefRefPtr<CefRequest> request_;
   CefRefPtr<CefURLRequestClient> client_;
-  scoped_refptr<base::SingleThreadTaskRunner> task_runner_;
   CefURLRequest::Status status_;
   CefURLRequest::ErrorCode error_code_;
   CefRefPtr<CefResponse> response_;
@@ -503,7 +471,7 @@ void CefRenderURLRequest::Cancel() {
 
 bool CefRenderURLRequest::VerifyContext() {
   DCHECK(context_.get());
-  if (!context_->CalledOnValidThread()) {
+  if (!CEF_CURRENTLY_ON_RT()) {
     NOTREACHED() << "called on invalid thread";
     return false;
   }

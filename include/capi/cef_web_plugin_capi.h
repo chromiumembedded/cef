@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=f1b2b6203d45fdf76d72ea1e79fcef0bb2a26138$
+// $hash=864f1dc749e0c3f80b7f50250b21beaad37f3ef4$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_WEB_PLUGIN_CAPI_H_
@@ -58,7 +58,7 @@ typedef struct _cef_web_plugin_info_t {
   cef_base_ref_counted_t base;
 
   ///
-  // Returns the plugin name (i.e. Flash).
+  // Returns the plugin name.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_name)(

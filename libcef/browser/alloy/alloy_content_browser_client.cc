@@ -716,10 +716,6 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
         switches::kDisableScrollBounce,
         switches::kDisableSpellChecking,
         switches::kEnableSpeechInput,
-        switches::kEnableSystemFlash,
-        switches::kPpapiFlashArgs,
-        switches::kPpapiFlashPath,
-        switches::kPpapiFlashVersion,
         switches::kUncaughtExceptionStackSize,
         network::switches::kUnsafelyTreatInsecureOriginAsSecure,
     };
@@ -758,15 +754,6 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
 
 #if defined(OS_LINUX)
   if (process_type == switches::kZygoteProcess) {
-    // Propagate the following switches to the zygote command line (along with
-    // any associated values) if present in the browser command line.
-    static const char* const kSwitchNames[] = {
-        switches::kPpapiFlashPath,
-        switches::kPpapiFlashVersion,
-    };
-    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
-                                   base::size(kSwitchNames));
-
 #if BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
     if (!browser_cmd->HasSwitch(sandbox::policy::switches::kNoSandbox)) {
       // Pass the Widevine CDM path to the Zygote process. See comments in
@@ -1098,8 +1085,7 @@ AlloyContentBrowserClient::CreateLoginDelegate(
 
 void AlloyContentBrowserClient::RegisterNonNetworkNavigationURLLoaderFactories(
     int frame_tree_node_id,
-    base::UkmSourceId ukm_source_id,
-    NonNetworkURLLoaderFactoryDeprecatedMap* uniquely_owned_factories,
+    ukm::SourceIdObj ukm_source_id,
     NonNetworkURLLoaderFactoryMap* factories) {
   if (!extensions::ExtensionsEnabled())
     return;
@@ -1116,7 +1102,6 @@ void AlloyContentBrowserClient::RegisterNonNetworkNavigationURLLoaderFactories(
 void AlloyContentBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories(
     int render_process_id,
     int render_frame_id,
-    NonNetworkURLLoaderFactoryDeprecatedMap* uniquely_owned_factories,
     NonNetworkURLLoaderFactoryMap* factories) {
   if (!extensions::ExtensionsEnabled())
     return;
@@ -1172,7 +1157,7 @@ bool AlloyContentBrowserClient::WillCreateURLLoaderFactory(
     URLLoaderFactoryType type,
     const url::Origin& request_initiator,
     base::Optional<int64_t> navigation_id,
-    base::UkmSourceId ukm_source_id,
+    ukm::SourceIdObj ukm_source_id,
     mojo::PendingReceiver<network::mojom::URLLoaderFactory>* factory_receiver,
     mojo::PendingRemote<network::mojom::TrustedURLLoaderHeaderClient>*
         header_client,

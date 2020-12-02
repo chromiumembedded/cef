@@ -1,5 +1,5 @@
 diff --git chrome/browser/sharesheet/sharesheet_service_delegate.cc chrome/browser/sharesheet/sharesheet_service_delegate.cc
-index ceea6a38ca79..6e8e335222bc 100644
+index 1ddf613c138f..00c497b67533 100644
 --- chrome/browser/sharesheet/sharesheet_service_delegate.cc
 +++ chrome/browser/sharesheet/sharesheet_service_delegate.cc
 @@ -21,8 +21,10 @@ SharesheetServiceDelegate::SharesheetServiceDelegate(
@@ -53,12 +53,12 @@ index ceea6a38ca79..6e8e335222bc 100644
 +#endif
  }
  
- }  // namespace sharesheet
+ const gfx::VectorIcon* SharesheetServiceDelegate::GetVectorIcon(
 diff --git chrome/browser/sharesheet/sharesheet_service_delegate.h chrome/browser/sharesheet/sharesheet_service_delegate.h
-index 47f15a6b4093..71189bfee8b9 100644
+index e957b2c39772..80d9dc7b6c76 100644
 --- chrome/browser/sharesheet/sharesheet_service_delegate.h
 +++ chrome/browser/sharesheet/sharesheet_service_delegate.h
-@@ -59,7 +59,9 @@ class SharesheetServiceDelegate : public SharesheetController {
+@@ -64,7 +64,9 @@ class SharesheetServiceDelegate : public SharesheetController {
   private:
    const uint32_t id_;
    base::string16 active_action_;

@@ -39,7 +39,6 @@
 #include "content/browser/renderer_host/render_widget_host_input_event_router.h"
 #include "content/common/content_switches_internal.h"
 #include "content/common/input_messages.h"
-#include "content/common/view_messages.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/context_factory.h"
@@ -458,6 +457,16 @@ base::Optional<SkColor> CefRenderWidgetHostViewOSR::GetBackgroundColor() {
 }
 
 void CefRenderWidgetHostViewOSR::UpdateBackgroundColor() {}
+
+base::Optional<content::DisplayFeature>
+CefRenderWidgetHostViewOSR::GetDisplayFeature() {
+  return base::nullopt;
+}
+
+void CefRenderWidgetHostViewOSR::SetDisplayFeatureForTesting(
+    const content::DisplayFeature* display_feature) {
+  NOTREACHED();
+}
 
 blink::mojom::PointerLockResult CefRenderWidgetHostViewOSR::LockMouse(
     bool request_unadjusted_movement) {

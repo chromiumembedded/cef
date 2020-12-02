@@ -48,7 +48,7 @@
 #     libgtkglext1-dev  (required by the cefclient target only)
 #
 # - MacOS requirements:
-#   Xcode 8 or newer building on MacOS 10.10 (Yosemite) or newer. Xcode 11.2
+#   Xcode 8 or newer building on MacOS 10.11 (El Capitan) or newer. Xcode 11.2
 #   and MacOS 10.14 are recommended. The Xcode command-line tools must also be
 #   installed. Only 64-bit builds are supported.
 #

@@ -21,6 +21,10 @@
 #include "services/network/public/mojom/network_context.mojom.h"
 #include "services/network/public/mojom/url_loader_factory.mojom.h"
 
+namespace content {
+class ResourceContext;
+}
+
 namespace net_service {
 
 class InterceptedRequest;

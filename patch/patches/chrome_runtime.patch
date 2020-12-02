@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index 8b7b6f492b3e..1085e4b1e23d 100644
+index d9a02faddd91..09a349fcf2b8 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -27,6 +27,7 @@
@@ -10,7 +10,7 @@ index 8b7b6f492b3e..1085e4b1e23d 100644
  #include "chrome/browser/chrome_content_browser_client.h"
  #include "chrome/browser/chrome_resource_bundle_helper.h"
  #include "chrome/browser/defaults.h"
-@@ -379,6 +380,8 @@ struct MainFunction {
+@@ -378,6 +379,8 @@ struct MainFunction {
  
  // Initializes the user data dir. Must be called before InitializeLocalState().
  void InitializeUserDataDir(base::CommandLine* command_line) {
@@ -19,7 +19,7 @@ index 8b7b6f492b3e..1085e4b1e23d 100644
  #if defined(OS_WIN)
    // Reach out to chrome_elf for the truth on the user data directory.
    // Note that in tests, this links to chrome_elf_test_stubs.
-@@ -640,7 +643,9 @@ void ChromeMainDelegate::PostFieldTrialInitialization() {
+@@ -644,7 +647,9 @@ void ChromeMainDelegate::PostFieldTrialInitialization() {
    }
  
  #if defined(OS_WIN)
@@ -29,7 +29,7 @@ index 8b7b6f492b3e..1085e4b1e23d 100644
    base::sequence_manager::internal::ThreadControllerPowerMonitor::
        InitializeOnMainThread();
  #endif
-@@ -922,6 +927,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -926,6 +931,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    std::string process_type =
        command_line.GetSwitchValueASCII(switches::kProcessType);
  
@@ -37,7 +37,7 @@ index 8b7b6f492b3e..1085e4b1e23d 100644
    crash_reporter::InitializeCrashKeys();
  
  #if defined(OS_POSIX)
-@@ -932,6 +938,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -936,6 +942,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    InitMacCrashReporter(command_line, process_type);
    SetUpInstallerPreferences(command_line);
  #endif
@@ -45,7 +45,7 @@ index 8b7b6f492b3e..1085e4b1e23d 100644
  
  #if defined(OS_WIN)
    child_process_logging::Init();
-@@ -1056,6 +1063,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1058,6 +1065,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
          locale;
    }
  
@@ -53,7 +53,7 @@ index 8b7b6f492b3e..1085e4b1e23d 100644
  #if defined(OS_POSIX) && !defined(OS_MAC)
    // Zygote needs to call InitCrashReporter() in RunZygote().
    if (process_type != switches::kZygoteProcess) {
-@@ -1088,6 +1096,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1090,6 +1098,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    // After all the platform Breakpads have been initialized, store the command
    // line for crash reporting.
    crash_keys::SetCrashKeysFromCommandLine(command_line);
@@ -61,7 +61,7 @@ index 8b7b6f492b3e..1085e4b1e23d 100644
  
  #if BUILDFLAG(ENABLE_PDF)
    MaybeInitializeGDI();
-@@ -1186,6 +1195,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1188,6 +1197,7 @@ void ChromeMainDelegate::ZygoteForked() {
      SetUpProfilingShutdownHandler();
    }
  
@@ -69,7 +69,7 @@ index 8b7b6f492b3e..1085e4b1e23d 100644
    // Needs to be called after we have chrome::DIR_USER_DATA.  BrowserMain sets
    // this up for the browser process in a different manner.
    const base::CommandLine* command_line =
-@@ -1202,6 +1212,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1204,6 +1214,7 @@ void ChromeMainDelegate::ZygoteForked() {
  
    // Reset the command line for the newly spawned process.
    crash_keys::SetCrashKeysFromCommandLine(*command_line);
@@ -78,7 +78,7 @@ index 8b7b6f492b3e..1085e4b1e23d 100644
  
  #endif  // defined(OS_LINUX) || defined(OS_CHROMEOS)
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index c9bf19474a2a..3c1d5eec82fa 100644
+index 195da4bea79f..5f2c60e63623 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -49,6 +49,7 @@
@@ -101,7 +101,7 @@ index c9bf19474a2a..3c1d5eec82fa 100644
  
    // These members must be initialized before returning from this function.
    // Android doesn't use StartupBrowserCreator.
-@@ -1613,11 +1616,13 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1615,11 +1618,13 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
    // This step is costly and is already measured in
    // Startup.StartupBrowserCreator_Start.
    // See the comment above for an explanation of |process_command_line|.
@@ -117,10 +117,10 @@ index c9bf19474a2a..3c1d5eec82fa 100644
      // Initialize autoupdate timer. Timer callback costs basically nothing
      // when browser is not in persistent mode, so it's OK to let it ride on
 diff --git chrome/browser/notifications/notification_platform_bridge_mac.mm chrome/browser/notifications/notification_platform_bridge_mac.mm
-index c2905bfd0df7..09bfcf942a7c 100644
+index 9e8fcb9f9f91..2a9eaca0fb0d 100644
 --- chrome/browser/notifications/notification_platform_bridge_mac.mm
 +++ chrome/browser/notifications/notification_platform_bridge_mac.mm
-@@ -25,6 +25,7 @@
+@@ -24,6 +24,7 @@
  #include "base/strings/sys_string_conversions.h"
  #include "base/strings/utf_string_conversions.h"
  #include "base/system/sys_info.h"
@@ -128,7 +128,7 @@ index c2905bfd0df7..09bfcf942a7c 100644
  #include "chrome/browser/browser_features.h"
  #include "chrome/browser/notifications/notification_common.h"
  #include "chrome/browser/notifications/notification_display_service_impl.h"
-@@ -449,6 +450,12 @@ getDisplayedAlertsForProfileId:(NSString*)profileId
+@@ -451,6 +452,12 @@ getDisplayedAlertsForProfileId:(NSString*)profileId
  - (id<NotificationDelivery>)serviceProxy {
    id<NotificationDelivery> proxy = [_xpcConnection remoteObjectProxy];
  

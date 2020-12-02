@@ -23,7 +23,7 @@ namespace cef {
 
 namespace cefimpl = extensions::cef;
 
-#define EXTENSION_FUNCTION_NAME(classname) classname::function_name()
+#define EXTENSION_FUNCTION_NAME(classname) classname::static_function_name()
 
 // Maintain the same order as https://developer.chrome.com/extensions/api_index
 // so chrome://extensions-support looks nice.

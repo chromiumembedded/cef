@@ -37,31 +37,6 @@ namespace resource_util {
 
 namespace {
 
-#if defined(OS_WIN)
-
-// Gets the Flash path if installed on the system.
-bool GetSystemFlashFilename(base::FilePath* out_path) {
-  const wchar_t kPepperFlashRegistryRoot[] =
-      L"SOFTWARE\\Macromedia\\FlashPlayerPepper";
-  const wchar_t kFlashPlayerPathValueName[] = L"PlayerPath";
-
-  base::win::RegKey path_key(HKEY_LOCAL_MACHINE, kPepperFlashRegistryRoot,
-                             KEY_READ);
-  base::string16 path_str;
-  if (FAILED(path_key.ReadValue(kFlashPlayerPathValueName, &path_str)))
-    return false;
-
-  *out_path = base::FilePath(path_str);
-  return true;
-}
-
-#elif defined(OS_MAC)
-
-const base::FilePath::CharType kPepperFlashSystemBaseDirectory[] =
-    FILE_PATH_LITERAL("Internet Plug-Ins/PepperFlashPlayer");
-
-#endif
-
 #if defined(OS_LINUX)
 
 // Based on chrome/common/chrome_paths_linux.cc.
@@ -199,29 +174,6 @@ base::FilePath GetDefaultLogFilePath() {
 }
 
 #endif  // !defined(OS_MAC)
-
-void OverridePepperFlashSystemPluginPath() {
-#if defined(OS_WIN) || defined(OS_MAC)
-  base::FilePath plugin_filename;
-#if defined(OS_WIN)
-  if (!GetSystemFlashFilename(&plugin_filename))
-    return;
-#elif defined(OS_MAC)
-  if (!util_mac::GetLocalLibraryDirectory(&plugin_filename))
-    return;
-  plugin_filename = plugin_filename.Append(kPepperFlashSystemBaseDirectory)
-                        .Append(chrome::kPepperFlashPluginFilename);
-#endif  // defined(OS_MAC)
-
-  if (!plugin_filename.empty()) {
-    base::PathService::Override(chrome::FILE_PEPPER_FLASH_SYSTEM_PLUGIN,
-                                plugin_filename);
-  }
-#else  // !(defined(OS_WIN) || defined(OS_MAC))
-  // A system plugin is not available on other platforms.
-  return;
-#endif
-}
 
 void OverrideDefaultDownloadDir() {
   base::FilePath dir_default_download;

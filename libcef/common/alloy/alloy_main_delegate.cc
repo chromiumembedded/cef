@@ -374,7 +374,6 @@ void AlloyMainDelegate::PreSandboxStartup() {
     util_mac::PreSandboxStartup();
 #endif
 
-    resource_util::OverridePepperFlashSystemPluginPath();
     resource_util::OverrideDefaultDownloadDir();
     resource_util::OverrideUserDataDir(settings_, command_line);
   }

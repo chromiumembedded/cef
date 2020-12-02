@@ -4,10 +4,11 @@
 // found in the LICENSE file.
 
 #include "libcef/browser/audio_capturer.h"
+
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "libcef/browser/audio_loopback_stream_creator.h"
 
 #include "components/mirroring/service/captured_audio_input.h"
-#include "content/public/browser/audio_loopback_stream_creator.h"
 #include "media/audio/audio_input_device.h"
 
 namespace {
@@ -26,7 +27,7 @@ media::ChannelLayout TranslateChannelLayout(
 
 void StreamCreatorHelper(
     content::WebContents* source_web_contents,
-    content::AudioLoopbackStreamCreator* audio_stream_creator,
+    CefAudioLoopbackStreamCreator* audio_stream_creator,
     mojo::PendingRemote<mirroring::mojom::AudioStreamCreatorClient> client,
     const media::AudioParameters& params,
     uint32_t total_segments) {
@@ -56,8 +57,7 @@ CefAudioCapturer::CefAudioCapturer(const CefAudioParameters& params,
     : params_(params),
       browser_(browser),
       audio_handler_(audio_handler),
-      audio_stream_creator_(content::AudioLoopbackStreamCreator::
-                                CreateInProcessAudioLoopbackStreamCreator()) {
+      audio_stream_creator_(std::make_unique<CefAudioLoopbackStreamCreator>()) {
   media::AudioParameters audio_params(
       media::AudioParameters::AUDIO_PCM_LINEAR,
       TranslateChannelLayout(params.channel_layout), params.sample_rate,

@@ -48,9 +48,7 @@ void HandleExternalProtocolHelper(
 
 }  // namespace
 
-ChromeContentBrowserClientCef::ChromeContentBrowserClientCef(
-    StartupData* startup_data)
-    : ChromeContentBrowserClient(startup_data) {}
+ChromeContentBrowserClientCef::ChromeContentBrowserClientCef() = default;
 ChromeContentBrowserClientCef::~ChromeContentBrowserClientCef() = default;
 
 std::unique_ptr<content::BrowserMainParts>
@@ -154,7 +152,7 @@ bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
     URLLoaderFactoryType type,
     const url::Origin& request_initiator,
     base::Optional<int64_t> navigation_id,
-    base::UkmSourceId ukm_source_id,
+    ukm::SourceIdObj ukm_source_id,
     mojo::PendingReceiver<network::mojom::URLLoaderFactory>* factory_receiver,
     mojo::PendingRemote<network::mojom::TrustedURLLoaderHeaderClient>*
         header_client,

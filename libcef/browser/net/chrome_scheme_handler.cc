@@ -196,18 +196,8 @@ std::string GetOSType() {
   return "Windows";
 #elif defined(OS_MAC)
   return "Mac OS X";
-#elif defined(OS_CHROMEOS)
-  return "Chromium OS";
-#elif defined(OS_ANDROID)
-  return "Android";
 #elif defined(OS_LINUX)
   return "Linux";
-#elif defined(OS_FREEBSD)
-  return "FreeBSD";
-#elif defined(OS_OPENBSD)
-  return "OpenBSD";
-#elif defined(OS_SOLARIS)
-  return "Solaris";
 #else
   return "Unknown";
 #endif
@@ -384,7 +374,6 @@ bool OnVersionUI(Profile* profile,
   parser.Add("OS", GetOSType());
   parser.Add("WEBKIT", content::GetWebKitVersion());
   parser.Add("JAVASCRIPT", v8::V8::GetVersion());
-  parser.Add("FLASH", std::string());  // Value populated asynchronously.
   parser.Add(
       "USERAGENT",
       CefAppManager::Get()->GetContentClient()->browser()->GetUserAgent());
@@ -625,7 +614,6 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
 
     const auto host_id = GetChromeHostId(url.host());
     if (host_id != CHROME_UNKNOWN) {
-      // TODO(network): Use WebUI bindings to implement DidFinishChromeLoad.
       return false;
     }
 
@@ -640,11 +628,8 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
   }
 
   static void BrowserURLHandlerCreated(content::BrowserURLHandler* handler) {
-    // about: handler. Must come before chrome: handler, since it will
-    // rewrite about: urls to chrome: URLs and then expect chrome: to
-    // actually handle them.  Also relies on a preliminary fixup phase.
-    handler->SetFixupHandler(&FixupBrowserAboutURL);
-    handler->AddHandlerPair(&WillHandleBrowserAboutURL,
+    // Handler to rewrite chrome://about and chrome://sync URLs.
+    handler->AddHandlerPair(&HandleChromeAboutAndChromeSyncRewrite,
                             content::BrowserURLHandler::null_handler());
 
     // chrome: & friends.
@@ -688,38 +673,6 @@ CefWebUIControllerFactory* CefWebUIControllerFactory::GetInstance() {
   return &g_web_ui_controller_factory.Get();
 }
 
-void DidFinishChromeVersionLoad(CefRefPtr<CefFrame> frame) {
-  // Retieve Flash version information and update asynchronously.
-  class Visitor : public CefWebPluginInfoVisitor {
-   public:
-    Visitor(CefRefPtr<CefFrame> frame) : frame_(frame) {}
-
-    bool Visit(CefRefPtr<CefWebPluginInfo> info,
-               int count,
-               int total) override {
-      std::string name = info->GetName();
-      if (name == "Shockwave Flash") {
-        if (frame_->IsValid()) {
-          std::string version = info->GetVersion();
-          frame_->ExecuteJavaScript(
-              "document.getElementById('flash').innerText = '" + version + "';",
-              std::string(), 0);
-        }
-        return false;
-      }
-
-      return true;
-    }
-
-   private:
-    CefRefPtr<CefFrame> frame_;
-
-    IMPLEMENT_REFCOUNTING(Visitor);
-  };
-
-  CefVisitWebPluginInfo(new Visitor(frame));
-}
-
 }  // namespace
 
 void RegisterWebUIControllerFactory() {
@@ -733,17 +686,6 @@ void RegisterWebUIControllerFactory() {
 
 void BrowserURLHandlerCreated(content::BrowserURLHandler* handler) {
   CefWebUIControllerFactory::BrowserURLHandlerCreated(handler);
-}
-
-void DidFinishChromeLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url) {
-  ChromeHostId host_id = GetChromeHostId(validated_url.host());
-  switch (host_id) {
-    case CHROME_VERSION:
-      DidFinishChromeVersionLoad(frame);
-      break;
-    default:
-      break;
-  }
 }
 
 bool IsWebUIAllowedToMakeNetworkRequests(const url::Origin& origin) {

@@ -106,8 +106,7 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
 
   // As an additional requirement on Linux, we must set the colors for the
   // render widgets in webkit.
-  blink::mojom::RendererPreferences* prefs =
-      web_contents_->GetMutableRendererPrefs();
+  auto prefs = web_contents_->GetMutableRendererPrefs();
   prefs->focus_ring_color = SkColorSetARGB(255, 229, 151, 0);
 
   prefs->active_selection_bg_color = SkColorSetRGB(30, 144, 255);

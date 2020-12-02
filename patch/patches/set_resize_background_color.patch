@@ -1,8 +1,8 @@
 diff --git ui/views/controls/native/native_view_host.cc ui/views/controls/native/native_view_host.cc
-index d8e5cf4ddb62..59db8f266312 100644
+index f9e1aa1b455a..5795eca10540 100644
 --- ui/views/controls/native/native_view_host.cc
 +++ ui/views/controls/native/native_view_host.cc
-@@ -152,7 +152,7 @@ void NativeViewHost::OnPaint(gfx::Canvas* canvas) {
+@@ -153,7 +153,7 @@ void NativeViewHost::OnPaint(gfx::Canvas* canvas) {
    // It would be nice if this used some approximation of the page's
    // current background color.
    if (native_wrapper_->HasInstalledClip())
@@ -39,10 +39,10 @@ index 71cba0d714bd..82d3d6baa909 100644
  };
  
 diff --git ui/views/controls/webview/webview.cc ui/views/controls/webview/webview.cc
-index 61e127ee3f2b..1efc22bfcc65 100644
+index 0168540929dd..5853796d9ef3 100644
 --- ui/views/controls/webview/webview.cc
 +++ ui/views/controls/webview/webview.cc
-@@ -139,6 +139,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
+@@ -127,6 +127,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
    MaybeEnableAutoResize();
  }
  
@@ -54,10 +54,10 @@ index 61e127ee3f2b..1efc22bfcc65 100644
    if (crashed_overlay_view_ == crashed_overlay_view)
      return;
 diff --git ui/views/controls/webview/webview.h ui/views/controls/webview/webview.h
-index f18eea14290b..98b60a041720 100644
+index 1d4d5cd5e5bb..d6c405d5f6ab 100644
 --- ui/views/controls/webview/webview.h
 +++ ui/views/controls/webview/webview.h
-@@ -84,6 +84,10 @@ class WEBVIEW_EXPORT WebView : public View,
+@@ -78,6 +78,10 @@ class WEBVIEW_EXPORT WebView : public View,
    void EnableSizingFromWebContents(const gfx::Size& min_size,
                                     const gfx::Size& max_size);
  

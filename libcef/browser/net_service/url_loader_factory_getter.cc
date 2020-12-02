@@ -65,7 +65,7 @@ scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
   should_proxy |= browser_client->WillCreateURLLoaderFactory(
       browser_context, render_frame_host, render_process_id,
       content::ContentBrowserClient::URLLoaderFactoryType::kDocumentSubResource,
-      url::Origin(), base::nullopt /* navigation_id */, base::UkmSourceId(),
+      url::Origin(), base::nullopt /* navigation_id */, ukm::SourceIdObj(),
       &maybe_proxy_factory_request, nullptr /* header_client */,
       nullptr /* bypass_redirect_checks */, nullptr /* disable_secure_dns */,
       nullptr /* factory_override */);

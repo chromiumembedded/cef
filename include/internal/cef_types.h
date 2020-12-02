@@ -1670,7 +1670,7 @@ typedef enum {
   MENU_ID_ADD_TO_DICTIONARY = 206,
 
   // Custom menu items originating from the renderer process. For example,
-  // plugin placeholder menu items or Flash menu items.
+  // plugin placeholder menu items.
   MENU_ID_CUSTOM_FIRST = 220,
   MENU_ID_CUSTOM_LAST = 250,
 

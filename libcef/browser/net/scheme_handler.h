@@ -18,9 +18,6 @@ namespace scheme {
 // Register the internal scheme handlers that can be overridden.
 void RegisterInternalHandlers(CefIOThreadState* iothread_state);
 
-// Used to fire any asynchronous content updates.
-void DidFinishLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url);
-
 }  // namespace scheme
 
 #endif  // CEF_LIBCEF_BROWSER_NET_SCHEME_HANDLER_H_

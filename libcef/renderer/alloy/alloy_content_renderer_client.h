@@ -108,7 +108,7 @@ class AlloyContentRendererClient
   std::unique_ptr<content::URLLoaderThrottleProvider>
   CreateURLLoaderThrottleProvider(
       content::URLLoaderThrottleProviderType provider_type) override;
-  bool RequiresWebComponentsV0(const GURL& url) override;
+  bool RequiresHtmlImports(const GURL& url) override;
 
   // service_manager::LocalInterfaceProvider implementation.
   void GetInterface(const std::string& name,

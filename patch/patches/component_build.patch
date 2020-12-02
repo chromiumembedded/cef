@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index a8ad8c8220c8..91ca3ff02fbe 100644
+index 1d6121a4ba08..8e6735eca670 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
 @@ -12,6 +12,7 @@
@@ -10,7 +10,7 @@ index a8ad8c8220c8..91ca3ff02fbe 100644
  #include "content/common/navigation_params.mojom.h"
  #include "content/public/browser/certificate_request_result_type.h"
  #include "mojo/public/cpp/bindings/pending_receiver.h"
-@@ -74,7 +75,7 @@ bool ApplyUserAgentMetadataOverrides(
+@@ -76,7 +77,7 @@ bool ApplyUserAgentMetadataOverrides(
      FrameTreeNode* frame_tree_node,
      base::Optional<blink::UserAgentMetadata>* override_out);
  
@@ -55,18 +55,18 @@ index 57072bf1263a..0a93446e4d21 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 87c15e50b7f0..8f42ae4da8de 100644
+index c5647d2dc509..1314c30b60c7 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
-@@ -25,6 +25,7 @@ component("controller") {
- 
+@@ -26,6 +26,7 @@ component("controller") {
    configs += [
+     "//build/config/compiler:noshadowing",
      "//build/config/compiler:wexit_time_destructors",
 +    "//cef/libcef/features:config",
      "//third_party/blink/renderer:config",
      "//third_party/blink/renderer:inside_blink",
      "//third_party/blink/renderer:non_test_config",
-@@ -49,6 +50,8 @@ component("controller") {
+@@ -50,6 +51,8 @@ component("controller") {
      "performance_manager/v8_detailed_memory_reporter_impl.h",
      "performance_manager/v8_worker_memory_reporter.cc",
      "performance_manager/v8_worker_memory_reporter.h",
@@ -76,7 +76,7 @@ index 87c15e50b7f0..8f42ae4da8de 100644
  
    if (is_linux || is_chromeos) {
 diff --git ui/events/keycodes/BUILD.gn ui/events/keycodes/BUILD.gn
-index 4aae406b9ace..40ca74281b78 100644
+index 4a2d0348caeb..42742d24ebed 100644
 --- ui/events/keycodes/BUILD.gn
 +++ ui/events/keycodes/BUILD.gn
 @@ -19,6 +19,8 @@ source_set("xkb") {

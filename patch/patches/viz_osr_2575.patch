@@ -80,10 +80,10 @@ index 1026b739d283..fe562ab60ce9 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 3d3fc4f52270..a9c9c5324a62 100644
+index 92acbc3a25c6..5493e97f9160 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -183,6 +183,8 @@ viz_component("service") {
+@@ -176,6 +176,8 @@ viz_component("service") {
      "surfaces/surface_reference.cc",
      "surfaces/surface_reference.h",
      "viz_service_export.h",
@@ -93,18 +93,18 @@ index 3d3fc4f52270..a9c9c5324a62 100644
  
    defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index 2da653cc9c3c..e536a34dca33 100644
+index 54686950a28c..a62178180d51 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
-@@ -14,6 +14,7 @@
+@@ -15,6 +15,7 @@
  #include "base/threading/thread_task_runner_handle.h"
  #include "build/chromecast_buildflags.h"
  #include "cc/base/switches.h"
 +#include "cef/libcef/browser/osr/software_output_device_proxy.h"
  #include "components/viz/common/display/renderer_settings.h"
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
- #include "components/viz/service/display_embedder/gl_output_surface.h"
-@@ -225,6 +226,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+ #include "components/viz/service/display/display_compositor_memory_and_task_controller.h"
+@@ -244,6 +245,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
    if (headless_)
      return std::make_unique<SoftwareOutputDevice>();
  
@@ -142,7 +142,7 @@ index 2bb30e5318b6..535535dd6c10 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 04da825a6b5d..3c63015b9b6c 100644
+index 18f8a89820e5..ac4fec9fd947 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
 @@ -407,8 +407,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
@@ -214,7 +214,7 @@ index 6b7fbb6cf13d..e2af75168cb9 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 32cdffd116b7..d0303c7e79d9 100644
+index dc011fe48e2a..60743cbaa548 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -25,7 +25,9 @@

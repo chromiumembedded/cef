@@ -87,6 +87,10 @@ class CefFrameHostImpl : public CefFrame {
   void SetFocused(bool focused);
   void RefreshAttributes();
 
+  // Notification that a move or resize of the renderer's containing window has
+  // started. Used on Windows and Linux with the Alloy runtime.
+  void NotifyMoveOrResizeStarted();
+
   // Navigate as specified by the |params| argument.
   void Navigate(const CefNavigateParams& params);
 

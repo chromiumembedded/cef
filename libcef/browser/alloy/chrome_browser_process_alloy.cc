@@ -319,12 +319,6 @@ ChromeBrowserProcessAlloy::subresource_filter_ruleset_service() {
   return nullptr;
 }
 
-federated_learning::FlocBlocklistService*
-ChromeBrowserProcessAlloy::floc_blocklist_service() {
-  NOTREACHED();
-  return nullptr;
-}
-
 federated_learning::FlocSortingLshClustersService*
 ChromeBrowserProcessAlloy::floc_sorting_lsh_clusters_service() {
   NOTREACHED();
@@ -342,7 +336,7 @@ StartupData* ChromeBrowserProcessAlloy::startup_data() {
   return nullptr;
 }
 
-#if (defined(OS_WIN) || defined(OS_LINUX)) && !defined(OS_CHROMEOS)
+#if defined(OS_WIN) || defined(OS_LINUX)
 void ChromeBrowserProcessAlloy::StartAutoupdateTimer() {}
 #endif
 

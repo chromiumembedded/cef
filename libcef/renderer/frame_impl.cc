@@ -286,15 +286,36 @@ void CefFrameImpl::SendProcessMessage(CefProcessId target_process,
   }
 }
 
-blink::WebURLLoaderFactory* CefFrameImpl::GetURLLoaderFactory() {
+std::unique_ptr<blink::WebURLLoader> CefFrameImpl::CreateURLLoader() {
   CEF_REQUIRE_RT();
-  if (!url_loader_factory_ && frame_) {
+  if (!frame_)
+    return nullptr;
+
+  if (!url_loader_factory_) {
     auto render_frame = content::RenderFrameImpl::FromWebFrame(frame_);
     if (render_frame) {
       url_loader_factory_ = render_frame->CreateURLLoaderFactory();
     }
   }
-  return url_loader_factory_.get();
+  if (!url_loader_factory_)
+    return nullptr;
+
+  return url_loader_factory_->CreateURLLoader(
+      blink::WebURLRequest(),
+      blink_glue::CreateResourceLoadingTaskRunnerHandle(frame_),
+      blink_glue::CreateResourceLoadingMaybeUnfreezableTaskRunnerHandle(
+          frame_));
+}
+
+std::unique_ptr<blink::ResourceLoadInfoNotifierWrapper>
+CefFrameImpl::CreateResourceLoadInfoNotifierWrapper() {
+  CEF_REQUIRE_RT();
+  if (frame_) {
+    auto render_frame = content::RenderFrameImpl::FromWebFrame(frame_);
+    if (render_frame)
+      return render_frame->CreateResourceLoadInfoNotifierWrapper();
+  }
+  return nullptr;
 }
 
 void CefFrameImpl::OnAttached() {
@@ -309,6 +330,7 @@ bool CefFrameImpl::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(CefMsg_ResponseAck, OnResponseAck)
     IPC_MESSAGE_HANDLER(CefMsg_LoadRequest, OnLoadRequest)
     IPC_MESSAGE_HANDLER(CefMsg_DidStopLoading, OnDidStopLoading)
+    IPC_MESSAGE_HANDLER(CefMsg_MoveOrResizeStarted, OnMoveOrResizeStarted)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -505,6 +527,14 @@ void CefFrameImpl::OnDidStopLoading() {
   // same browser then the other occurrences will be discarded in
   // OnLoadingStateChange.
   browser_->OnLoadingStateChange(false);
+}
+
+void CefFrameImpl::OnMoveOrResizeStarted() {
+  if (frame_) {
+    auto web_view = frame_->View();
+    if (web_view)
+      web_view->CancelPagePopup();
+  }
 }
 
 void CefFrameImpl::OnLoadRequest(const CefMsg_LoadRequest_Params& params) {

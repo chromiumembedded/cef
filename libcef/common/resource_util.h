@@ -25,7 +25,6 @@ base::FilePath GetResourcesDir();
 base::FilePath GetDefaultLogFilePath();
 
 // Called from MainDelegate::PreSandboxStartup.
-void OverridePepperFlashSystemPluginPath();
 void OverrideDefaultDownloadDir();
 void OverrideUserDataDir(CefSettings* settings,
                          const base::CommandLine* command_line);

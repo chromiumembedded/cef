@@ -48,7 +48,7 @@ class CefBrowser;
 class CefWebPluginInfo : public virtual CefBaseRefCounted {
  public:
   ///
-  // Returns the plugin name (i.e. Flash).
+  // Returns the plugin name.
   ///
   /*--cef()--*/
   virtual CefString GetName() = 0;

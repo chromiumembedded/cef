@@ -24,6 +24,10 @@ class WebNode;
 class WebString;
 class WebURLResponse;
 class WebView;
+
+namespace scheduler {
+class WebResourceLoadingTaskRunnerHandle;
+}
 }  // namespace blink
 
 namespace blink_glue {
@@ -88,6 +92,15 @@ BLINK_EXPORT bool ResponseWasCached(const blink::WebURLResponse& response);
 
 // Returns true if the frame owner is a plugin.
 BLINK_EXPORT bool HasPluginFrameOwner(blink::WebLocalFrame* frame);
+
+// Used by CefFrameImpl::CreateURLLoader.
+BLINK_EXPORT
+std::unique_ptr<blink::scheduler::WebResourceLoadingTaskRunnerHandle>
+CreateResourceLoadingTaskRunnerHandle(blink::WebLocalFrame* frame);
+BLINK_EXPORT
+std::unique_ptr<blink::scheduler::WebResourceLoadingTaskRunnerHandle>
+CreateResourceLoadingMaybeUnfreezableTaskRunnerHandle(
+    blink::WebLocalFrame* frame);
 
 }  // namespace blink_glue
 

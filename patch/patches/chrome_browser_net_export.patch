@@ -1,16 +1,16 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index bf4ca6cdccc4..1b9607765313 100644
+index d4de7dc10b2a..f5b030de54f0 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -10,6 +10,7 @@ import("//build/config/crypto.gni")
- import("//build/config/features.gni")
+@@ -11,6 +11,7 @@ import("//build/config/features.gni")
  import("//build/config/linux/gtk/gtk.gni")
+ import("//build/config/ozone.gni")
  import("//build/config/ui.gni")
 +import("//cef/libcef/features/features.gni")
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/assistant/assistant.gni")
-@@ -330,6 +331,10 @@ static_library("ui") {
+@@ -323,6 +324,10 @@ static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -21,7 +21,7 @@ index bf4ca6cdccc4..1b9607765313 100644
    # Since browser and browser_ui actually depend on each other,
    # we must omit the dependency from browser_ui to browser.
    # However, this means browser_ui and browser should more or less
-@@ -351,6 +356,7 @@ static_library("ui") {
+@@ -344,6 +349,7 @@ static_library("ui") {
      "//base/allocator:buildflags",
      "//build:branding_buildflags",
      "//cc/paint",
@@ -29,15 +29,15 @@ index bf4ca6cdccc4..1b9607765313 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -1525,6 +1531,7 @@ static_library("ui") {
+@@ -1531,6 +1537,7 @@ static_library("ui") {
        "//components/page_load_metrics/browser",
        "//components/performance_manager:site_data_proto",
        "//components/printing/browser",
 +      "//components/printing/common:mojo_interfaces",
        "//components/profile_metrics",
-       "//components/safety_check",
-       "//components/search_provider_logos",
-@@ -3243,7 +3250,9 @@ static_library("ui") {
+       "//components/reading_list/features:flags",
+       "//components/safe_browsing/core/common:safe_browsing_policy_handler",
+@@ -3299,7 +3306,9 @@ static_library("ui") {
            "views/frame/browser_desktop_window_tree_host_platform.h",
          ]
        }
@@ -46,7 +46,7 @@ index bf4ca6cdccc4..1b9607765313 100644
 +        sources += [ "views/frame/native_browser_frame_factory_ozone.cc" ]
 +      }
      }
-     if (is_desktop_linux) {
+     if (is_linux) {
        sources += [
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
 index f27414c41891..5ff3bfa8f724 100644

@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 2ba623bd01aa..b7049ead1f69 100644
+index ef08004ce68e..8176517e8318 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -2,6 +2,7 @@
@@ -10,25 +10,25 @@ index 2ba623bd01aa..b7049ead1f69 100644
  #include "base/message_loop/message_pump_win.h"
  
  #include <algorithm>
-@@ -495,7 +496,17 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
-               ctx.event()->set_chrome_message_pump();
-           msg_pump_data->set_sent_messages_in_queue(more_work_is_plausible);
-         });
--    has_msg = ::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) != FALSE;
-+
-+    // We should not process all window messages if we are in the context of an
-+    // OS modal loop, i.e. in the context of a windows API call like MessageBox.
-+    // This is to ensure that these messages are peeked out by the OS modal loop.
-+    if (CurrentThread::Get()->os_modal_loop()) {
-+      // We only peek out WM_PAINT and WM_TIMER here for reasons mentioned above.
-+      has_msg = PeekMessage(&msg, NULL, WM_PAINT, WM_PAINT, PM_REMOVE) ||
-+                PeekMessage(&msg, NULL, WM_TIMER, WM_TIMER, PM_REMOVE);
-+    } else {
-+      has_msg = PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) != FALSE;
-+    }
+@@ -497,7 +498,17 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
+                 ctx.event()->set_chrome_message_pump();
+             msg_pump_data->set_sent_messages_in_queue(more_work_is_plausible);
+           });
+-      has_msg = ::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) != FALSE;
++ 
++      // We should not process all window messages if we are in the context of an
++      // OS modal loop, i.e. in the context of a windows API call like MessageBox.
++      // This is to ensure that these messages are peeked out by the OS modal loop.
++      if (CurrentThread::Get()->os_modal_loop()) {
++        // We only peek out WM_PAINT and WM_TIMER here for reasons mentioned above.
++        has_msg = PeekMessage(&msg, NULL, WM_PAINT, WM_PAINT, PM_REMOVE) ||
++                  PeekMessage(&msg, NULL, WM_TIMER, WM_TIMER, PM_REMOVE);
++      } else {
++        has_msg = PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) != FALSE;
++      }
+     }
    }
    if (has_msg)
-     more_work_is_plausible |= ProcessMessageHelper(msg);
 diff --git base/task/current_thread.cc base/task/current_thread.cc
 index 068c4f837dab..50d1e4a0b770 100644
 --- base/task/current_thread.cc

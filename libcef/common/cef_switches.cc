@@ -88,9 +88,6 @@ const char kEnableSpellingService[] = "enable-spelling-service";
 // Override the default spellchecking language which comes from locales.pak.
 const char kOverrideSpellCheckLang[] = "override-spell-check-lang";
 
-// Enable detection and use of a system-wide Pepper Flash install.
-const char kEnableSystemFlash[] = "enable-system-flash";
-
 // Disable scroll bounce (rubber-banding) on OS X Lion and newer.
 const char kDisableScrollBounce[] = "disable-scroll-bounce";
 

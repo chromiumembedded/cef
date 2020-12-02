@@ -63,7 +63,7 @@ x11::Window FindToplevelParent(x11::Window window) {
 CEF_EXPORT XDisplay* cef_get_xdisplay() {
   if (!CEF_CURRENTLY_ON(CEF_UIT))
     return nullptr;
-  return gfx::GetXDisplay();
+  return x11::Connection::Get()->GetXlibDisplay();
 }
 
 CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostBase> browser,

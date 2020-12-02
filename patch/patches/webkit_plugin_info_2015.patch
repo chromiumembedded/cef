@@ -10,12 +10,12 @@ index ff7a8ed89e94..77f44956ff22 100644
 +  GetPlugins(bool refresh, bool is_main_frame, url.mojom.Origin main_frame_origin) => (array<PluginInfo> plugins);
  };
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index 4c05fb9099e2..fadbb37d97ef 100644
+index 358f3c1d004c..43204c5d6d88 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -697,6 +697,11 @@ class BLINK_PLATFORM_EXPORT Platform {
-   // runs during Chromium's build step).
-   virtual bool IsTakingV8ContextSnapshot() { return false; }
+@@ -754,6 +754,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+   // unset pass an empty WebURL and WebString.
+   virtual void SetActiveURL(const WebURL& url, const WebString& top_url) {}
  
 +  // DevTools ------------------------------------------------------------
 +
@@ -44,10 +44,10 @@ index d49dc7cb85d5..dc4af48a458d 100644
  
  DocumentInit& DocumentInit::WithTypeFrom(const String& mime_type) {
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index c00d6f81db12..17c54cd0ca08 100644
+index 4315a68fb8d5..efcf6760b52e 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
-@@ -1698,7 +1698,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
+@@ -1795,7 +1795,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins(kNotAboutToInstantiatePlugin))
      return nullptr;
@@ -85,10 +85,10 @@ index 0608c4defc6d..54eaa2197957 100644
  
  void DevToolsSession::DispatchProtocolCommand(
 diff --git third_party/blink/renderer/core/page/page.cc third_party/blink/renderer/core/page/page.cc
-index c87fcbaaa194..2baae5c3bc64 100644
+index 5e42e49edcef..85932795bc65 100644
 --- third_party/blink/renderer/core/page/page.cc
 +++ third_party/blink/renderer/core/page/page.cc
-@@ -211,7 +211,8 @@ Page::Page(PageClients& page_clients)
+@@ -220,7 +220,8 @@ Page::Page(PageClients& page_clients)
            MakeGarbageCollected<OverscrollController>(GetVisualViewport(),
                                                       GetChromeClient())),
        link_highlight_(MakeGarbageCollected<LinkHighlight>(*this)),
@@ -98,7 +98,7 @@ index c87fcbaaa194..2baae5c3bc64 100644
        // TODO(pdr): Initialize |validation_message_client_| lazily.
        validation_message_client_(
            MakeGarbageCollected<ValidationMessageClientImpl>(*this)),
-@@ -391,21 +392,41 @@ void Page::InitialStyleChanged() {
+@@ -400,21 +401,41 @@ void Page::InitialStyleChanged() {
    }
  }
  
@@ -149,7 +149,7 @@ index c87fcbaaa194..2baae5c3bc64 100644
        page->NotifyPluginsChanged();
      }
    }
-@@ -911,7 +932,8 @@ void Page::Trace(Visitor* visitor) const {
+@@ -930,7 +951,8 @@ void Page::Trace(Visitor* visitor) const {
    visitor->Trace(link_highlight_);
    visitor->Trace(spatial_navigation_controller_);
    visitor->Trace(main_frame_);
@@ -160,10 +160,10 @@ index c87fcbaaa194..2baae5c3bc64 100644
    visitor->Trace(agent_metrics_collector_);
    visitor->Trace(plugins_changed_observers_);
 diff --git third_party/blink/renderer/core/page/page.h third_party/blink/renderer/core/page/page.h
-index 4e4e496eb088..ed2ded8a397b 100644
+index 65b72a9867bc..98569071f8b9 100644
 --- third_party/blink/renderer/core/page/page.h
 +++ third_party/blink/renderer/core/page/page.h
-@@ -149,7 +149,8 @@ class CORE_EXPORT Page final : public GarbageCollected<Page>,
+@@ -153,7 +153,8 @@ class CORE_EXPORT Page final : public GarbageCollected<Page>,
    ViewportDescription GetViewportDescription() const;
  
    // Returns the plugin data associated with |main_frame_origin|.
@@ -173,7 +173,7 @@ index 4e4e496eb088..ed2ded8a397b 100644
  
    // Resets the plugin data for all pages in the renderer process and notifies
    // PluginsChangedObservers.
-@@ -426,7 +427,8 @@ class CORE_EXPORT Page final : public GarbageCollected<Page>,
+@@ -437,7 +438,8 @@ class CORE_EXPORT Page final : public GarbageCollected<Page>,
    const Member<LinkHighlight> link_highlight_;
    Member<SpatialNavigationController> spatial_navigation_controller_;
  

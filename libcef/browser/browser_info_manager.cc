@@ -18,7 +18,6 @@
 
 #include "base/command_line.h"
 #include "base/logging.h"
-#include "content/common/view_messages.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/web_contents.h"

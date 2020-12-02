@@ -1,5 +1,5 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index 227e5b2618c1..7e7b32264b80 100644
+index 3267d8a52c8b..b01878a54539 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 @@ -10,6 +10,7 @@
@@ -24,9 +24,9 @@ index 227e5b2618c1..7e7b32264b80 100644
  #include "chrome/common/channel_info.h"
 +#include "chrome/common/chrome_switches.h"
  #include "components/prefs/pref_service.h"
- #include "components/sync/driver/about_sync_util.h"
+ #include "components/sync/driver/sync_internals_util.h"
  #include "components/sync/driver/sync_service.h"
-@@ -335,7 +338,11 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
+@@ -343,7 +346,11 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
    response->emplace(kOsVersionTag, os_version);
  #endif
  
@@ -39,7 +39,7 @@ index 227e5b2618c1..7e7b32264b80 100644
    PopulateExtensionInfoLogs(response.get());
    PopulatePowerApiLogs(response.get());
    PopulateDataReductionProxyLogs(response.get());
-@@ -430,6 +437,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
+@@ -418,6 +425,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
    if (!profile)
      return;
  
@@ -52,7 +52,7 @@ index 227e5b2618c1..7e7b32264b80 100644
    extensions::ExtensionRegistry* extension_registry =
        extensions::ExtensionRegistry::Get(profile);
    std::string extensions_list;
-@@ -536,6 +549,8 @@ void ChromeInternalLogSource::PopulateOnboardingTime(
+@@ -525,6 +538,8 @@ void ChromeInternalLogSource::PopulateOnboardingTime(
  #if defined(OS_WIN)
  void ChromeInternalLogSource::PopulateUsbKeyboardDetected(
      SystemLogsResponse* response) {
@@ -62,7 +62,7 @@ index 227e5b2618c1..7e7b32264b80 100644
    bool result =
        base::win::IsKeyboardPresentOnSlate(ui::GetHiddenWindow(), &reason);
 diff --git chrome/browser/memory_details.cc chrome/browser/memory_details.cc
-index 4071c4a4947f..8346a85413fd 100644
+index 819ef924757c..986670ac9870 100644
 --- chrome/browser/memory_details.cc
 +++ chrome/browser/memory_details.cc
 @@ -17,6 +17,7 @@

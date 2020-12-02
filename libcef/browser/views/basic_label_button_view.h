@@ -15,9 +15,17 @@
 // Extend views::LabelButton with a no-argument constructor as required by the
 // CefViewView template and extend views::ButtonListener as required by the
 // CefButtonView template.
-class LabelButtonEx : public views::LabelButton, public views::ButtonListener {
+class LabelButtonEx : public views::LabelButton {
  public:
-  LabelButtonEx() : views::LabelButton(this, base::string16()) {}
+  LabelButtonEx()
+      : views::LabelButton(base::BindRepeating(
+                               [](LabelButtonEx* self, const ui::Event& event) {
+                                 self->ButtonPressed(event);
+                               },
+                               base::Unretained(this)),
+                           base::string16()) {}
+
+  virtual void ButtonPressed(const ui::Event& event) = 0;
 };
 
 class CefBasicLabelButtonView

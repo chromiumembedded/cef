@@ -36,9 +36,6 @@ void RegisterWebUIControllerFactory();
 // Register the WebUI handler.
 void BrowserURLHandlerCreated(content::BrowserURLHandler* handler);
 
-// Used to fire any asynchronous content updates.
-void DidFinishChromeLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url);
-
 // Returns true if WebUI is allowed to make network requests.
 bool IsWebUIAllowedToMakeNetworkRequests(const url::Origin& origin);
 

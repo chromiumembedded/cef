@@ -43,7 +43,7 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::Create(
   // Create the Browser. This will indirectly create the ChomeBrowserDelegate.
   // The same params will be used to create a new Browser if the tab is dragged
   // out of the existing Browser.
-  auto browser = new Browser(chrome_params);
+  auto browser = Browser::Create(chrome_params);
 
   GURL url = params.url;
   if (url.is_empty()) {

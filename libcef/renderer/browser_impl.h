@@ -77,9 +77,6 @@ class CefBrowserImpl : public CefBrowser, public content::RenderViewObserver {
   int browser_id() const { return browser_id_; }
   bool is_popup() const { return is_popup_; }
   bool is_windowless() const { return is_windowless_; }
-  content::RenderView* render_view() const {
-    return content::RenderViewObserver::render_view();
-  }
 
   // RenderViewObserver methods.
   void OnDestruct() override;

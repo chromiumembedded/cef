@@ -143,9 +143,11 @@ IPC_MESSAGE_ROUTED1(CefMsg_ResponseAck, int /* request_id */)
 // Tells the renderer that loading has stopped.
 IPC_MESSAGE_ROUTED0(CefMsg_DidStopLoading)
 
-// Tells the render frame to load all blocked plugins with the given identifier.
-// Based on ChromeViewMsg_LoadBlockedPlugins.
-IPC_MESSAGE_ROUTED1(CefViewMsg_LoadBlockedPlugins, std::string /* identifier */)
+// Notification that a move or resize of the renderer's containing window has
+// started. Used on Windows and Linux with the Alloy runtime, and was
+// previously handled by RenderViewHost::NotifyMoveOrResizeStarted() prior to
+// that method's removal in https://crbug.com/1051648.
+IPC_MESSAGE_ROUTED0(CefMsg_MoveOrResizeStarted)
 
 // Sent to child processes to add or remove a cross-origin whitelist entry.
 IPC_MESSAGE_CONTROL2(CefProcessMsg_ModifyCrossOriginWhitelistEntry,

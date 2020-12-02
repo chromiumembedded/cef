@@ -3187,7 +3187,7 @@ class RequestTestHandler : public TestHandler {
       CefPostDelayedTask(
           TID_FILE_USER_VISIBLE,
           base::Bind(&RequestTestHandler::PostTestCompleteFileTasks, this),
-          100);
+          200);
     } else {
       TestComplete();
     }

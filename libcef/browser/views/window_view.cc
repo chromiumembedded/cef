@@ -15,7 +15,6 @@
 
 #if defined(OS_LINUX) && defined(USE_X11)
 #include "ui/base/x/x11_util.h"
-#include "ui/gfx/x/x11_types.h"
 #endif
 
 #if defined(OS_WIN)

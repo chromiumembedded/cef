@@ -51,10 +51,9 @@ void CefMenuButtonView::SetDrawStringsFlags(int flags) {
   label()->SetDrawStringsFlags(flags);
 }
 
-void CefMenuButtonView::ButtonPressed(views::Button* source,
-                                      const ui::Event& event) {
-  auto position = source->GetMenuPosition();
-  cef_delegate()->OnMenuButtonPressed(
-      GetCefMenuButton(), CefPoint(position.x(), position.y()),
-      new ButtonPressedLock(static_cast<views::MenuButton*>(source)));
+void CefMenuButtonView::ButtonPressed(const ui::Event& event) {
+  auto position = GetMenuPosition();
+  cef_delegate()->OnMenuButtonPressed(GetCefMenuButton(),
+                                      CefPoint(position.x(), position.y()),
+                                      new ButtonPressedLock(this));
 }

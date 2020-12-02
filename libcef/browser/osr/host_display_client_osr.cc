@@ -133,7 +133,7 @@ void CefHostDisplayClientOSR::CreateLayeredWindowUpdater(
   layered_window_updater_->SetActive(active_);
 }
 
-#if defined(OS_LINUX) && !defined(OS_CHROMEOS)
+#if defined(OS_LINUX)
 void CefHostDisplayClientOSR::DidCompleteSwapWithNewSize(
     const gfx::Size& size) {}
 #endif

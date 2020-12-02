@@ -74,7 +74,6 @@
 #include "content/public/common/content_paths.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
-#include "content/public/renderer/plugin_instance_throttler.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/render_view_visitor.h"
 #include "content/renderer/render_widget.h"
@@ -499,11 +498,8 @@ AlloyContentRendererClient::CreateURLLoaderThrottleProvider(
   return std::make_unique<CefURLLoaderThrottleProviderImpl>(provider_type);
 }
 
-bool AlloyContentRendererClient::RequiresWebComponentsV0(const GURL& url) {
-  // TODO(1025782): For now, file:// URLs are allowed to access Web Components
-  // v0 features. This will be removed once origin trials support file:// URLs
-  // for this purpose.
-  return url.SchemeIs(content::kChromeUIScheme) || url.SchemeIs("file");
+bool AlloyContentRendererClient::RequiresHtmlImports(const GURL& url) {
+  return url.SchemeIs(content::kChromeUIScheme);
 }
 
 void AlloyContentRendererClient::GetInterface(

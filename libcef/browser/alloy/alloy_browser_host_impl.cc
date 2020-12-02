@@ -29,12 +29,11 @@
 #include "libcef/features/runtime_checks.h"
 
 #include "base/bind.h"
-#include "base/bind_helpers.h"
+#include "base/callback_helpers.h"
 #include "base/command_line.h"
 #include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
 #include "content/browser/gpu/compositor_util.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
-#include "content/common/widget_messages.h"
 #include "content/public/browser/desktop_media_id.h"
 #include "content/public/browser/file_select_listener.h"
 #include "content/public/browser/host_zoom_map.h"
@@ -945,12 +944,6 @@ void AlloyBrowserHostImpl::RunFileChooser(
   file_dialog_manager_->RunFileChooser(params, std::move(callback));
 }
 
-bool AlloyBrowserHostImpl::EmbedsFullscreenWidget() {
-  // When using windowless rendering do not allow Flash to create its own
-  // full- screen widget.
-  return IsWindowless();
-}
-
 void AlloyBrowserHostImpl::EnterFullscreenModeForTab(
     content::RenderFrameHost* requesting_frame,
     const blink::mojom::FullscreenOptions& options) {
@@ -1548,8 +1541,7 @@ bool AlloyBrowserHostImpl::CheckMediaAccessPermission(
     content::RenderFrameHost* render_frame_host,
     const GURL& security_origin,
     blink::mojom::MediaStreamType type) {
-  // Check media access permission without prompting the user. This is called
-  // when loading the Pepper Flash plugin.
+  // Check media access permission without prompting the user.
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
   return command_line->HasSwitch(switches::kEnableMediaStream);

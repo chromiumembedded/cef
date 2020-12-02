@@ -13,7 +13,6 @@
       'include/base/cef_build.h',
       'include/base/cef_callback.h',
       'include/base/cef_callback_forward.h',
-      'include/base/cef_callback_helpers.h',
       'include/base/cef_callback_list.h',
       'include/base/cef_cancelable_callback.h',
       'include/base/cef_lock.h',
@@ -124,7 +123,6 @@
     'libcef_dll_wrapper_sources_base': [
       'libcef_dll/base/cef_atomicops_x86_gcc.cc',
       'libcef_dll/base/cef_bind_helpers.cc',
-      'libcef_dll/base/cef_callback_helpers.cc',
       'libcef_dll/base/cef_callback_internal.cc',
       'libcef_dll/base/cef_lock.cc',
       'libcef_dll/base/cef_lock_impl.cc',

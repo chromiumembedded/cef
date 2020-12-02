@@ -91,8 +91,10 @@ ExtensionFunction::ResponseAction TabsCreateFunction::Run() {
     return RespondNow(Error(error));
 
   // Return data about the newly created tab.
-  return RespondNow(has_callback() ? OneArgument(std::move(result))
-                                   : NoArguments());
+  return RespondNow(
+      has_callback()
+          ? OneArgument(base::Value::FromUniquePtrValue(std::move(result)))
+          : NoArguments());
 }
 
 ExecuteCodeInTabFunction::ExecuteCodeInTabFunction()

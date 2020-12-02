@@ -267,7 +267,7 @@ bool CefCookieManagerImpl::SetCookie(const CefString& url,
       expiration_time,
       base::Time(),  // Last access time.
       cookie.secure ? true : false, cookie.httponly ? true : false, same_site,
-      priority);
+      priority, /*same_party=*/false);
 
   if (!canonical_cookie) {
     SetCookieCallbackImpl(
