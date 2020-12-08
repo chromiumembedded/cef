@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index cef3171a9987..7819fd0cafbe 100644
+index a5fb571b38e1..4eab48d77b2e 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -2744,7 +2744,13 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {

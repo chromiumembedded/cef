@@ -137,10 +137,10 @@ index 165699ca8d92..d0db1ed1869a 100644
    TransformationMatrix device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index 4eddfdf0921a..555fb3a95139 100644
+index 318a8eb24c3d..e2d2b6aeaafb 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
-@@ -805,7 +805,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
+@@ -806,7 +806,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
  PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    NotifyPopupOpeningObservers();

@@ -1,5 +1,5 @@
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index ed1b0c3bad29..5ed2c290fd2b 100644
+index eba28717a988..88e91c0fe01a 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -19,6 +19,7 @@
@@ -10,7 +10,7 @@ index ed1b0c3bad29..5ed2c290fd2b 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -661,7 +662,19 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -662,7 +663,19 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
  
    // Configure on-disk storage for non-OTR profiles. OTR profiles just use
    // default behavior (in memory storage, default sizes).
@@ -31,7 +31,7 @@ index ed1b0c3bad29..5ed2c290fd2b 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -674,7 +687,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -675,7 +688,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
          base_cache_path.Append(chrome::kCacheDirname);
      network_context_params->http_cache_max_size =
          local_state->GetInteger(prefs::kDiskCacheSize);
@@ -42,10 +42,10 @@ index ed1b0c3bad29..5ed2c290fd2b 100644
      // change.
      network_context_params->http_server_properties_path =
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index 796d855211d9..5fac1444b3d5 100644
+index 77b0d86b38c9..44e2b4668f45 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
-@@ -469,6 +469,25 @@ void CookieMonster::SetCookieableSchemes(
+@@ -472,6 +472,25 @@ void CookieMonster::SetCookieableSchemes(
    MaybeRunCookieCallback(std::move(callback), true);
  }
  
@@ -72,7 +72,7 @@ index 796d855211d9..5fac1444b3d5 100644
  void CookieMonster::SetPersistSessionCookies(bool persist_session_cookies) {
    DCHECK(thread_checker_.CalledOnValidThread());
 diff --git net/cookies/cookie_monster.h net/cookies/cookie_monster.h
-index 2d45b2b113fd..fe0369aad18a 100644
+index 1c798ba1c784..b5ef44d5a9bd 100644
 --- net/cookies/cookie_monster.h
 +++ net/cookies/cookie_monster.h
 @@ -184,6 +184,8 @@ class NET_EXPORT CookieMonster : public CookieStore {
@@ -123,10 +123,10 @@ index 526ccf16da81..96ca62fbed3a 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 3773583bedd0..31157bbf388a 100644
+index 55ab00254624..f04ef95ed3ab 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -1936,16 +1936,27 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -1938,16 +1938,27 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
          network_service_->network_quality_estimator());
    }
  

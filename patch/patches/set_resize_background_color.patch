@@ -1,8 +1,8 @@
 diff --git ui/views/controls/native/native_view_host.cc ui/views/controls/native/native_view_host.cc
-index f9e1aa1b455a..5795eca10540 100644
+index a5a09b31bd8d..673da74e75aa 100644
 --- ui/views/controls/native/native_view_host.cc
 +++ ui/views/controls/native/native_view_host.cc
-@@ -153,7 +153,7 @@ void NativeViewHost::OnPaint(gfx::Canvas* canvas) {
+@@ -157,7 +157,7 @@ void NativeViewHost::OnPaint(gfx::Canvas* canvas) {
    // It would be nice if this used some approximation of the page's
    // current background color.
    if (native_wrapper_->HasInstalledClip())
@@ -12,10 +12,10 @@ index f9e1aa1b455a..5795eca10540 100644
  
  void NativeViewHost::VisibilityChanged(View* starting_from, bool is_visible) {
 diff --git ui/views/controls/native/native_view_host.h ui/views/controls/native/native_view_host.h
-index 71cba0d714bd..82d3d6baa909 100644
+index ab2371857a00..8dccc190fa89 100644
 --- ui/views/controls/native/native_view_host.h
 +++ ui/views/controls/native/native_view_host.h
-@@ -92,6 +92,12 @@ class VIEWS_EXPORT NativeViewHost : public View {
+@@ -95,6 +95,12 @@ class VIEWS_EXPORT NativeViewHost : public View {
    void set_fast_resize(bool fast_resize) { fast_resize_ = fast_resize; }
    bool fast_resize() const { return fast_resize_; }
  
@@ -28,7 +28,7 @@ index 71cba0d714bd..82d3d6baa909 100644
    gfx::NativeView native_view() const { return native_view_; }
  
    void NativeViewDestroyed();
-@@ -138,6 +144,9 @@ class VIEWS_EXPORT NativeViewHost : public View {
+@@ -141,6 +147,9 @@ class VIEWS_EXPORT NativeViewHost : public View {
    // in the setter/accessor above.
    bool fast_resize_ = false;
  
@@ -39,7 +39,7 @@ index 71cba0d714bd..82d3d6baa909 100644
  };
  
 diff --git ui/views/controls/webview/webview.cc ui/views/controls/webview/webview.cc
-index 0168540929dd..5853796d9ef3 100644
+index 44a8fc6ef9d0..4718e6bb94ff 100644
 --- ui/views/controls/webview/webview.cc
 +++ ui/views/controls/webview/webview.cc
 @@ -127,6 +127,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
@@ -54,7 +54,7 @@ index 0168540929dd..5853796d9ef3 100644
    if (crashed_overlay_view_ == crashed_overlay_view)
      return;
 diff --git ui/views/controls/webview/webview.h ui/views/controls/webview/webview.h
-index 1d4d5cd5e5bb..d6c405d5f6ab 100644
+index 9604515c2d5c..e51421694752 100644
 --- ui/views/controls/webview/webview.h
 +++ ui/views/controls/webview/webview.h
 @@ -78,6 +78,10 @@ class WEBVIEW_EXPORT WebView : public View,
