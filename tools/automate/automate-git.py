@@ -985,7 +985,7 @@ else:
   sys.exit()
 
 if options.clientdistrib or options.clientdistribonly:
-  if platform == 'linux':
+  if platform == 'linux' or (platform == 'windows' and options.arm64build):
     client_app = 'cefsimple'
   else:
     client_app = 'cefclient'

@@ -26,7 +26,9 @@ endif()
 
 # Determine the project architecture.
 if(NOT DEFINED PROJECT_ARCH)
-  if(CMAKE_SIZEOF_VOID_P MATCHES 8)
+  if(OS_WINDOWS AND ${CMAKE_GENERATOR_PLATFORM} STREQUAL "arm64")
+    set(PROJECT_ARCH "arm64")
+  elseif(CMAKE_SIZEOF_VOID_P MATCHES 8)
     set(PROJECT_ARCH "x86_64")
   else()
     set(PROJECT_ARCH "x86")
@@ -462,7 +464,6 @@ if(OS_WINDOWS)
   # List of CEF binary files.
   set(CEF_BINARY_FILES
     chrome_elf.dll
-    d3dcompiler_47.dll
     libcef.dll
     libEGL.dll
     libGLESv2.dll
@@ -470,6 +471,12 @@ if(OS_WINDOWS)
     v8_context_snapshot.bin
     swiftshader
     )
+
+  if(NOT PROJECT_ARCH STREQUAL "arm64")
+    list(APPEND CEF_BINARY_FILES
+      d3dcompiler_47.dll
+      )
+  endif()
 
   # List of CEF resource files.
   set(CEF_RESOURCE_FILES
@@ -490,12 +497,15 @@ if(OS_WINDOWS)
 
     # Libraries required by cef_sandbox.lib.
     set(CEF_SANDBOX_STANDARD_LIBS
+      Advapi32.lib
       dbghelp.lib
       Delayimp.lib
+      OleAut32.lib
       PowrProf.lib
       Propsys.lib
       psapi.lib
       SetupAPI.lib
+      Shell32.lib
       version.lib
       wbemuuid.lib
       winmm.lib
