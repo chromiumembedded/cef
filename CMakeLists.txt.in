@@ -115,6 +115,17 @@
 #     > "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvars64.bat"
 #     > cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug ..
 #     > ninja cefclient cefsimple
+#
+# To perform a Windows build using an ARM64 CEF binary distribution:
+#   Using the Visual Studio 2019 IDE:
+#     > cmake -G "Visual Studio 16" -A arm64 ..
+#     Open build\cef.sln in Visual Studio and select Build > Build Solution.
+#
+#   Using Ninja with Visual Studio 2019 command-line tools:
+#     (this path may be different depending on your Visual Studio installation)
+#     > "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvarsamd64_arm64.bat"
+#     > cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug ..
+#     > ninja cefsimple
 
 #
 # Global setup.

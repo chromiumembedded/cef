@@ -860,7 +860,9 @@ if platform == 'windows':
   # yapf: enable
 
   if mode == 'client':
-    binaries.append({'path': 'cefclient.exe'})
+    binaries.append({
+        'path': 'cefsimple.exe' if platform_arch == 'arm64' else 'cefclient.exe'
+    })
   else:
     binaries.append({'path': libcef_dll_lib, 'out_path': 'libcef.lib'})
 
