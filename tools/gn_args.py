@@ -384,6 +384,8 @@ def ValidateArgs(args):
     #   GYP_MSVS_OVERRIDE_PATH=<path to VS root, must match visual_studio_path>
     #   GYP_MSVS_VERSION=<VS version, must match visual_studio_version>
     #   CEF_VCVARS=none
+    #
+    # Optional environment variables (required if vcvarsall.bat does not exist):
     #   INCLUDE=<VS include paths>
     #   LIB=<VS library paths>
     #   PATH=<VS executable paths>
@@ -409,18 +411,27 @@ def ValidateArgs(args):
       assert os.environ.get('CEF_VCVARS', '') == 'none', \
         "visual_studio_path requires CEF_VCVARS=none env variable"
 
-      assert 'INCLUDE' in os.environ \
-        and 'LIB' in os.environ \
-        and 'PATH' in os.environ, \
-        "visual_studio_path requires INCLUDE, LIB and PATH env variables"
-
-      # If "%GYP_MSVS_OVERRIDE_PATH%\VC\vcvarsall.bat" exists then environment
-      # variables will be derived from there and the specified INCLUDE/LIB/PATH
-      # values will be ignored by Chromium. If this file does not exist then the
-      # INCLUDE/LIB/PATH values are also required by Chromium.
+      # If vcvarsall.bat exists then environment variables will be derived from
+      # there and any specified INCLUDE/LIB values will be ignored by Chromium
+      # (PATH is retained because it might contain required VS runtime
+      # libraries). If this file does not exist then the INCLUDE/LIB/PATH values
+      # are also required by Chromium.
       vcvars_path = os.path.join(msvs_path, 'VC', 'vcvarsall.bat')
-      if (os.path.exists(vcvars_path)):
-        msg('INCLUDE/LIB/PATH values will be derived from %s' % vcvars_path)
+      if not os.path.exists(vcvars_path):
+        vcvars_path = os.path.join(msvs_path, 'VC', 'Auxiliary', 'Build',
+                                   'vcvarsall.bat')
+      if os.path.exists(vcvars_path):
+        if 'INCLUDE' in os.environ:
+          del os.environ['INCLUDE']
+        if 'LIB' in os.environ:
+          del os.environ['LIB']
+        if 'LIBPATH' in os.environ:
+          del os.environ['LIBPATH']
+      else:
+        assert 'INCLUDE' in os.environ \
+          and 'LIB' in os.environ \
+          and 'PATH' in os.environ, \
+          "visual_studio_path requires INCLUDE, LIB and PATH env variables"
 
 
 def GetConfigArgs(args, is_debug, cpu):
