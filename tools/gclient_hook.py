@@ -56,10 +56,10 @@ if platform == 'windows':
   if not 'DEPOT_TOOLS_WIN_TOOLCHAIN' in os.environ:
     os.environ['DEPOT_TOOLS_WIN_TOOLCHAIN'] = '0'
 
-  # By default GN+Ninja on Windows expects Visual Studio to be installed on
-  # the local machine. To build when Visual Studio is extracted to a directory
-  # but not installed (e.g. via a custom toolchain) set the following
-  # environment variables:
+  # By default GN+Ninja on Windows expects Visual Studio and Windows SDK to be
+  # installed on the local machine. To build when Visual Studio and/or SDK is
+  # extracted to a directory but not installed (e.g. via a custom toolchain) set
+  # the following environment variables:
   #
   # o Enable use of a custom toolchain on Windows.
   #
@@ -78,10 +78,11 @@ if platform == 'windows':
   #   should instead be discoverable via the PATH env variable.
   #   (b) build/toolchain/win/setup_toolchain.py _LoadToolchainEnv when
   #   writing environment.* files that specify INCLUDE/LIB/PATH values. If
-  #   "%GYP_MSVS_OVERRIDE_PATH%\VC\vcvarsall.bat" exists then environment
-  #   variables will be derived from there and the specified INCLUDE/LIB/PATH
-  #   values will be ignored by Chromium. If this file does not exist then the
-  #   INCLUDE/LIB/PATH values are also required by Chromium.
+  #   vcvarsall.bat [1] exists then environment variables will be derived from
+  #   there and the specified INCLUDE/LIB values will be ignored by Chromium
+  #   (PATH is retained because it might contain required VS runtime libraries).
+  #   If this file does not exist then the INCLUDE/LIB/PATH values are also
+  #   required by Chromium.
   #   TODO(cef): Rename to VS_ROOT and VS_VERSION after Chromium cleans up GYP
   #   dependencies.
   #
@@ -93,10 +94,8 @@ if platform == 'windows':
   #   set VS_CRT_ROOT=<VS CRT root directory>
   #   set SDK_ROOT=<Platform SDK root directory>
   #
-  # o Used by various scripts as described above.
-  #   TODO(cef): Make these values optional when
-  #   "%GYP_MSVS_OVERRIDE_PATH%\VC\vcvarsall.bat" exists (use values from that
-  #   script instead).
+  # o Used by various scripts as described above. These values are optional when
+  #   vcvarsall.bat [1] exists.
   #
   #   set INCLUDE=<VS include paths>
   #   set LIB=<VS library paths>
@@ -106,6 +105,13 @@ if platform == 'windows':
   # packaging script along with required directory contents and INCLUDE/LIB/PATH
   # values.
   #
+  # [1] The vcvarsall.bat script must exist in "%GYP_MSVS_OVERRIDE_PATH%\VC\" or
+  #     "%GYP_MSVS_OVERRIDE_PATH%\VC\Auxiliary\Build\". If the Windows SDK is not
+  #     installed (e.g. not discoverable via the Windows registry) then
+  #     "%GYP_MSVS_OVERRIDE_PATH%\Common7\Tools\vsdevcmd\core\winsdk.bat" must be
+  #     patched to support discovery via SDK_ROOT as described in
+  #     https://bitbucket.org/chromiumembedded/cef/issues/2773#comment-59687474.
+  #
   if bool(int(os.environ.get('WIN_CUSTOM_TOOLCHAIN', '0'))):
     required_vars = [
         'CEF_VCVARS',
@@ -113,9 +119,6 @@ if platform == 'windows':
         'GYP_MSVS_VERSION',
         'VS_CRT_ROOT',
         'SDK_ROOT',
-        'INCLUDE',
-        'LIB',
-        'PATH',
     ]
     for var in required_vars:
       if not var in os.environ.keys():
