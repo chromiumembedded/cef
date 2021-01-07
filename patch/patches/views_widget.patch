@@ -174,7 +174,7 @@ index af282d4190dd..147a2cd9ac4c 100644
  
    XWindow();
 diff --git ui/platform_window/x11/x11_window.cc ui/platform_window/x11/x11_window.cc
-index 7941edf6d3cb..520af3c90e97 100644
+index 881bece18a41..c041ac648478 100644
 --- ui/platform_window/x11/x11_window.cc
 +++ ui/platform_window/x11/x11_window.cc
 @@ -93,6 +93,7 @@ ui::XWindow::Configuration ConvertInitPropertiesToXWindowConfig(
