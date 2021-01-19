@@ -118,10 +118,10 @@ index 845abd9ea9ab..29a5cfb36448 100644
    // Make a copy of the BrowserList to simplify the case where we need to
    // destroy a Browser during the loop.
 diff --git chrome/browser/sessions/session_service.cc chrome/browser/sessions/session_service.cc
-index 3ccad0af51e7..370475e9f5ff 100644
+index da456cbe43e5..f79173ab730e 100644
 --- chrome/browser/sessions/session_service.cc
 +++ chrome/browser/sessions/session_service.cc
-@@ -954,12 +954,19 @@ void SessionService::MaybeDeleteSessionOnlyData() {
+@@ -955,12 +955,19 @@ void SessionService::MaybeDeleteSessionOnlyData() {
    if (!profile() || profile()->AsTestingProfile())
      return;
  

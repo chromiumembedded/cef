@@ -340,10 +340,10 @@ index e9def973e93c..1fe148c4f429 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 1ad0de94d7f7..0d3a60d996aa 100644
+index c836b113e985..d88be20becb0 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -3739,7 +3739,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -3741,7 +3741,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(

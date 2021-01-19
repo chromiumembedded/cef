@@ -1,5 +1,5 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index f4efb7329132..de16a7771365 100644
+index 5dea9c7ab461..e8c90f1722ad 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
 @@ -1698,6 +1698,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForOrigin(

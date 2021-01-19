@@ -1,8 +1,8 @@
 diff --git chrome/app/generated_resources.grd chrome/app/generated_resources.grd
-index b428727e3195..7115ed56125a 100644
+index 2af89a7e76f7..9153dd8e7ea5 100644
 --- chrome/app/generated_resources.grd
 +++ chrome/app/generated_resources.grd
-@@ -5085,7 +5085,7 @@ Keep your key file in a safe place. You will need it to create new versions of y
+@@ -5091,7 +5091,7 @@ Keep your key file in a safe place. You will need it to create new versions of y
          </message>
        </if>
        <message name="IDS_PLUGIN_BLOCKED_BY_POLICY" desc="The placeholder text for a plugin blocked by enterprise policy.">

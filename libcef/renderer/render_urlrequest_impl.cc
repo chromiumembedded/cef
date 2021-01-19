@@ -53,6 +53,7 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
                         int64_t total_decoded_body_length,
                         bool should_report_corb_blocking) override;
   void DidFail(const WebURLError&,
+               base::TimeTicks finish_time,
                int64_t total_encoded_data_length,
                int64_t total_encoded_body_length,
                int64_t total_decoded_body_length) override;
@@ -378,6 +379,7 @@ void CefWebURLLoaderClient::DidFinishLoading(base::TimeTicks finish_time,
 }
 
 void CefWebURLLoaderClient::DidFail(const WebURLError& error,
+                                    base::TimeTicks finish_time,
                                     int64_t total_encoded_data_length,
                                     int64_t total_encoded_body_length,
                                     int64_t total_decoded_body_length) {
