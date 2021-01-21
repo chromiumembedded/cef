@@ -14,6 +14,7 @@
 #include "libcef/browser/views/view_impl.h"
 
 #include "base/callback_forward.h"
+#include "base/memory/weak_ptr.h"
 #include "ui/views/controls/webview/unhandled_keyboard_event_handler.h"
 
 class CefBrowserHostBase;
@@ -59,6 +60,7 @@ class CefBrowserViewImpl : public CefViewImpl<CefBrowserViewView,
 
   // CefView methods:
   CefRefPtr<CefBrowserView> AsBrowserView() override { return this; }
+  void RequestFocus() override;
   void SetBackgroundColor(cef_color_t color) override;
 
   // CefViewAdapter methods:
@@ -96,6 +98,8 @@ class CefBrowserViewImpl : public CefViewImpl<CefBrowserViewView,
   bool HandleAccelerator(const content::NativeWebKeyboardEvent& event,
                          views::FocusManager* focus_manager);
 
+  void RequestFocusInternal();
+
   std::unique_ptr<CefBrowserCreateParams> pending_browser_create_params_;
 
   CefRefPtr<CefBrowserHostBase> browser_;
@@ -104,6 +108,8 @@ class CefBrowserViewImpl : public CefViewImpl<CefBrowserViewView,
   bool ignore_next_char_event_ = false;
 
   base::RepeatingClosure on_bounds_changed_;
+
+  base::WeakPtrFactory<CefBrowserViewImpl> weak_ptr_factory_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefBrowserViewImpl);
   DISALLOW_COPY_AND_ASSIGN(CefBrowserViewImpl);
