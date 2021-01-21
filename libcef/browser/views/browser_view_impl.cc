@@ -132,6 +132,14 @@ void CefBrowserViewImpl::SetPreferAccelerators(bool prefer_accelerators) {
     root_view()->set_allow_accelerators(prefer_accelerators);
 }
 
+void CefBrowserViewImpl::RequestFocus() {
+  CEF_REQUIRE_VALID_RETURN_VOID();
+  // Always execute asynchronously to work around issue #3040.
+  CEF_POST_TASK(CEF_UIT,
+                base::BindOnce(&CefBrowserViewImpl::RequestFocusInternal,
+                               weak_ptr_factory_.GetWeakPtr()));
+}
+
 void CefBrowserViewImpl::SetBackgroundColor(cef_color_t color) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   ParentClass::SetBackgroundColor(color);
@@ -182,7 +190,7 @@ void CefBrowserViewImpl::OnBoundsChanged() {
 
 CefBrowserViewImpl::CefBrowserViewImpl(
     CefRefPtr<CefBrowserViewDelegate> delegate)
-    : ParentClass(delegate) {}
+    : ParentClass(delegate), weak_ptr_factory_(this) {}
 
 void CefBrowserViewImpl::SetPendingBrowserCreateParams(
     CefRefPtr<CefClient> client,
@@ -247,4 +255,8 @@ bool CefBrowserViewImpl::HandleAccelerator(
   }
 
   return false;
+}
+
+void CefBrowserViewImpl::RequestFocusInternal() {
+  ParentClass::RequestFocus();
 }
