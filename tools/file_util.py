@@ -30,12 +30,12 @@ def read_file(name, normalize=True):
 def write_file(name, data):
   """ Write a file. """
   try:
-    with open(name, 'w', encoding='utf-8') as f:
+    with open(name, 'wb') as f:
       # write the data
       if sys.version_info.major == 2:
-        f.write(data.decode('utf-8'))
-      else:
         f.write(data)
+      else:
+        f.write(data.encode('utf-8'))
   except IOError as e:
     (errno, strerror) = e.args
     sys.stderr.write('Failed to write file ' + name + ': ' + strerror)
