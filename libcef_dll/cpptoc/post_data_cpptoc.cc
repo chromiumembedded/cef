@@ -1,4 +1,4 @@
-// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2021 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8ef0b53920c747cb67c9ddca0082b9c36307200b$
+// $hash=67abcc878fdc07aa0b582231112579ca6ebe8b8a$
 //
 
 #include "libcef_dll/cpptoc/post_data_cpptoc.h"

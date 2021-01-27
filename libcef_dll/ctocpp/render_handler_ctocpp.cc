@@ -1,4 +1,4 @@
-// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2021 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b9bf8bf4ccc5ef6a43f86ef697617fc6fe8470a5$
+// $hash=9eb4dcf3fdacae57758ab29d6dc457e6d9ea92a9$
 //
 
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
@@ -21,8 +21,8 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefAccessibilityHandler>
-CefRenderHandlerCToCpp::GetAccessibilityHandler() {
+CefRefPtr<
+    CefAccessibilityHandler> CefRenderHandlerCToCpp::GetAccessibilityHandler() {
   shutdown_checker::AssertNotShutdown();
 
   cef_render_handler_t* _struct = GetStruct();

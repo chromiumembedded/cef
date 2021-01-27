@@ -1,4 +1,4 @@
-// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2021 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=03d79fc410f4c1f268f34abf0e13483fe4c62172$
+// $hash=f80e0608bce92dbff7e3b6377a727f4fc71ab8b2$
 //
 
 #include "libcef_dll/ctocpp/v8interceptor_ctocpp.h"

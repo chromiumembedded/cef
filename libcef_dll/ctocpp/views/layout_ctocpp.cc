@@ -1,4 +1,4 @@
-// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2021 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0acbb84fac664d4f43b0d32586dcdec0b81cd082$
+// $hash=b23ba6d5b25baf2cfe38578368fbec5ea2769907$
 //
 
 #include "libcef_dll/ctocpp/views/layout_ctocpp.h"
