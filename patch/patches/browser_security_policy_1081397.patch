@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index fed61eb62d74..af8ae804c1ff 100644
+index d403f389af0d..c8ff688fd11f 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
-@@ -1704,6 +1704,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForOrigin(
+@@ -1685,6 +1685,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForOrigin(
              // DeclarativeApiTest.PersistRules.
              if (actual_process_lock.matches_scheme(url::kDataScheme))
                return true;
@@ -13,7 +13,7 @@ index fed61eb62d74..af8ae804c1ff 100644
 +                !base::Contains(url::GetLocalSchemes(),
 +                                lock_url.scheme_piece()) &&
 +                base::Contains(schemes_okay_to_request_in_any_process_,
-+                               lock_url.scheme_piece())) {
++                               lock_url.scheme())) {
 +              return true;
 +            }
            }

@@ -29,7 +29,6 @@
 #include "libcef/browser/net_service/resource_request_handler_wrapper.h"
 #include "libcef/browser/plugins/plugin_service_filter.h"
 #include "libcef/browser/prefs/renderer_prefs.h"
-#include "libcef/browser/printing/printing_message_filter.h"
 #include "libcef/browser/speech_recognition_manager_delegate.h"
 #include "libcef/browser/ssl_info_impl.h"
 #include "libcef/browser/thread_util.h"
@@ -54,6 +53,8 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_content_browser_client.h"
 #include "chrome/browser/content_settings/cookie_settings_factory.h"
+#include "chrome/browser/net/profile_network_context_service.h"
+#include "chrome/browser/net/profile_network_context_service_factory.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/plugins/plugin_info_host_impl.h"
 #include "chrome/browser/plugins/plugin_response_interceptor_url_loader_throttle.h"
@@ -93,7 +94,6 @@
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_ui_url_loader_factory.h"
 #include "content/public/common/content_switches.h"
-#include "content/public/common/service_names.mojom.h"
 #include "content/public/common/storage_quota_params.h"
 #include "content/public/common/url_constants.h"
 #include "content/public/common/user_agent.h"
@@ -502,7 +502,6 @@ void AlloyContentBrowserClient::RenderProcessWillLaunch(
   Profile* profile = Profile::FromBrowserContext(host->GetBrowserContext());
 
   host->AddFilter(new CefBrowserMessageFilter(id));
-  host->AddFilter(new printing::CefPrintingMessageFilter(id, profile));
 
   if (extensions::ExtensionsEnabled()) {
     host->AddFilter(new extensions::ExtensionMessageFilter(id, profile));
@@ -1205,9 +1204,17 @@ void AlloyContentBrowserClient::ConfigureNetworkContextParams(
   auto cef_context = CefBrowserContext::FromBrowserContext(context);
 
   Profile* profile = cef_context->AsProfile();
-  profile->ConfigureNetworkContextParams(in_memory, relative_partition_path,
-                                         network_context_params,
-                                         cert_verifier_creation_params);
+  ProfileNetworkContextService* service =
+      ProfileNetworkContextServiceFactory::GetForContext(profile);
+  if (service) {
+    service->ConfigureNetworkContextParams(in_memory, relative_partition_path,
+                                           network_context_params,
+                                           cert_verifier_creation_params);
+  } else {
+    // Set default params.
+    network_context_params->user_agent = GetUserAgent();
+    network_context_params->accept_language = GetApplicationLocale();
+  }
 
   network_context_params->cookieable_schemes =
       cef_context->GetCookieableSchemes();

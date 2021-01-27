@@ -34,6 +34,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/renderer/render_view.h"
 #include "content/renderer/render_frame_impl.h"
+#include "third_party/blink/public/mojom/frame/frame.mojom-blink.h"
 #include "third_party/blink/public/platform/web_data.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
@@ -300,11 +301,15 @@ std::unique_ptr<blink::WebURLLoader> CefFrameImpl::CreateURLLoader() {
   if (!url_loader_factory_)
     return nullptr;
 
+  // KeepAlive is not supported.
+  mojo::PendingRemote<blink::mojom::KeepAliveHandle> keep_alive_handle =
+      mojo::NullRemote();
+
   return url_loader_factory_->CreateURLLoader(
       blink::WebURLRequest(),
       blink_glue::CreateResourceLoadingTaskRunnerHandle(frame_),
-      blink_glue::CreateResourceLoadingMaybeUnfreezableTaskRunnerHandle(
-          frame_));
+      blink_glue::CreateResourceLoadingMaybeUnfreezableTaskRunnerHandle(frame_),
+      std::move(keep_alive_handle));
 }
 
 std::unique_ptr<blink::ResourceLoadInfoNotifierWrapper>
@@ -543,7 +548,7 @@ void CefFrameImpl::OnLoadRequest(const CefMsg_LoadRequest_Params& params) {
   blink::WebURLRequest request;
   CefRequestImpl::Get(params, request);
 
-  frame_->StartNavigation(request);
+  blink_glue::StartNavigation(frame_, request);
 }
 
 // Enable deprecation warnings on Windows. See http://crbug.com/585142.

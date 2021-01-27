@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index d4de7dc10b2a..f5b030de54f0 100644
+index afee70a01862..e49e769b6366 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -11,6 +11,7 @@ import("//build/config/features.gni")
+@@ -12,6 +12,7 @@ import("//build/config/features.gni")
  import("//build/config/linux/gtk/gtk.gni")
  import("//build/config/ozone.gni")
  import("//build/config/ui.gni")
@@ -10,7 +10,7 @@ index d4de7dc10b2a..f5b030de54f0 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/assistant/assistant.gni")
-@@ -323,6 +324,10 @@ static_library("ui") {
+@@ -327,6 +328,10 @@ static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -21,15 +21,15 @@ index d4de7dc10b2a..f5b030de54f0 100644
    # Since browser and browser_ui actually depend on each other,
    # we must omit the dependency from browser_ui to browser.
    # However, this means browser_ui and browser should more or less
-@@ -344,6 +349,7 @@ static_library("ui") {
-     "//base/allocator:buildflags",
+@@ -349,6 +354,7 @@ static_library("ui") {
      "//build:branding_buildflags",
+     "//build:chromeos_buildflags",
      "//cc/paint",
 +    "//cef/libcef/features",
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -1531,6 +1537,7 @@ static_library("ui") {
+@@ -1553,6 +1559,7 @@ static_library("ui") {
        "//components/page_load_metrics/browser",
        "//components/performance_manager:site_data_proto",
        "//components/printing/browser",
@@ -37,7 +37,7 @@ index d4de7dc10b2a..f5b030de54f0 100644
        "//components/profile_metrics",
        "//components/reading_list/features:flags",
        "//components/safe_browsing/core/common:safe_browsing_policy_handler",
-@@ -3299,7 +3306,9 @@ static_library("ui") {
+@@ -3370,7 +3377,9 @@ static_library("ui") {
            "views/frame/browser_desktop_window_tree_host_platform.h",
          ]
        }
@@ -46,10 +46,10 @@ index d4de7dc10b2a..f5b030de54f0 100644
 +        sources += [ "views/frame/native_browser_frame_factory_ozone.cc" ]
 +      }
      }
-     if (is_linux) {
+     if (is_linux || is_chromeos_lacros) {
        sources += [
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
-index f27414c41891..5ff3bfa8f724 100644
+index a23323638a17..7bbfb9964415 100644
 --- chrome/browser/ui/webui/net_export_ui.cc
 +++ chrome/browser/ui/webui/net_export_ui.cc
 @@ -21,6 +21,7 @@
@@ -85,7 +85,7 @@ index f27414c41891..5ff3bfa8f724 100644
    // Cached pointer to SystemNetworkContextManager's NetExportFileWriter.
    net_log::NetExportFileWriter* file_writer_;
  
-@@ -231,6 +243,13 @@ void NetExportMessageHandler::OnStartNetLog(const base::ListValue* list) {
+@@ -230,6 +242,13 @@ void NetExportMessageHandler::OnStartNetLog(const base::ListValue* list) {
    if (UsingMobileUI()) {
      StartNetLog(base::FilePath());
    } else {
@@ -99,7 +99,7 @@ index f27414c41891..5ff3bfa8f724 100644
      base::FilePath initial_dir = last_save_dir.Pointer()->empty() ?
          DownloadPrefs::FromBrowserContext(
              web_ui()->GetWebContents()->GetBrowserContext())->DownloadPath() :
-@@ -247,6 +266,7 @@ void NetExportMessageHandler::OnStopNetLog(const base::ListValue* list) {
+@@ -246,6 +265,7 @@ void NetExportMessageHandler::OnStopNetLog(const base::ListValue* list) {
    std::unique_ptr<base::DictionaryValue> ui_thread_polled_data(
        new base::DictionaryValue());
  
@@ -107,7 +107,7 @@ index f27414c41891..5ff3bfa8f724 100644
    Profile* profile = Profile::FromWebUI(web_ui());
    SetIfNotNull(ui_thread_polled_data.get(), "prerenderInfo",
                 chrome_browser_net::GetPrerenderInfo(profile));
-@@ -256,6 +276,7 @@ void NetExportMessageHandler::OnStopNetLog(const base::ListValue* list) {
+@@ -255,6 +275,7 @@ void NetExportMessageHandler::OnStopNetLog(const base::ListValue* list) {
    SetIfNotNull(ui_thread_polled_data.get(), "serviceProviders",
                 chrome_browser_net::GetWindowsServiceProviders());
  #endif
@@ -115,7 +115,7 @@ index f27414c41891..5ff3bfa8f724 100644
  
    file_writer_->StopNetLog(std::move(ui_thread_polled_data));
  }
-@@ -373,6 +394,42 @@ void NetExportMessageHandler::ShowSelectFileDialog(
+@@ -372,6 +393,42 @@ void NetExportMessageHandler::ShowSelectFileDialog(
        &file_type_info, 0, base::FilePath::StringType(), owning_window, nullptr);
  }
  

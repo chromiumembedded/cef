@@ -1732,7 +1732,8 @@ void AlloyBrowserHostImpl::StartDragging(
   }
 }
 
-void AlloyBrowserHostImpl::UpdateDragCursor(blink::DragOperation operation) {
+void AlloyBrowserHostImpl::UpdateDragCursor(
+    ui::mojom::DragOperation operation) {
   if (platform_delegate_)
     platform_delegate_->UpdateDragCursor(operation);
 }

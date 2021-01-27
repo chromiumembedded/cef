@@ -51,6 +51,7 @@ class ChromeProfileAlloy : public Profile {
   base::Time GetCreationTime() const override;
   void SetCreationTimeForTesting(base::Time creation_time) override;
   void RecordMainFrameNavigation() override;
+  bool IsSignedIn() override;
 
  private:
   std::unique_ptr<variations::VariationsClient> variations_client_;

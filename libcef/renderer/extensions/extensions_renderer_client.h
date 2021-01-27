@@ -70,8 +70,7 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
                        const blink::WebURL& url,
                        const net::SiteForCookies& site_for_cookies,
                        const url::Origin* initiator_origin,
-                       GURL* new_url,
-                       bool* attach_same_site_cookies);
+                       GURL* new_url);
   void RunScriptsAtDocumentStart(content::RenderFrame* render_frame);
   void RunScriptsAtDocumentEnd(content::RenderFrame* render_frame);
   void RunScriptsAtDocumentIdle(content::RenderFrame* render_frame);

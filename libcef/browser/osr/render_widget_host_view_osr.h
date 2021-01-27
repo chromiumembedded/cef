@@ -143,8 +143,6 @@ class CefRenderWidgetHostViewOSR
   void ResetFallbackToFirstNavigationSurface() override;
   void InitAsPopup(content::RenderWidgetHostView* parent_host_view,
                    const gfx::Rect& pos) override;
-  void InitAsFullscreen(
-      content::RenderWidgetHostView* reference_host_view) override;
   void UpdateCursor(const content::WebCursor& cursor) override;
   void SetIsLoading(bool is_loading) override;
   void RenderProcessGone() override;
@@ -166,9 +164,6 @@ class CefRenderWidgetHostViewOSR
 #endif
 
   viz::SurfaceId GetCurrentSurfaceId() const override;
-  content::BrowserAccessibilityManager* CreateBrowserAccessibilityManager(
-      content::BrowserAccessibilityDelegate* delegate,
-      bool for_root_frame) override;
   void ImeCompositionRangeChanged(
       const gfx::Range& range,
       const std::vector<gfx::Rect>& character_bounds) override;

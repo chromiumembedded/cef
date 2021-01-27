@@ -10,6 +10,7 @@
 #include "base/bind.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/storage_partition.h"
+#include "content/public/common/url_constants.h"
 #include "net/base/load_flags.h"
 #include "net/cookies/cookie_options.h"
 #include "net/cookies/cookie_util.h"
@@ -27,6 +28,24 @@ network::mojom::CookieManager* GetCookieManager(
   CEF_REQUIRE_UIT();
   return content::BrowserContext::GetDefaultStoragePartition(browser_context)
       ->GetCookieManagerForBrowserProcess();
+}
+
+net::CookieOptions GetCookieOptions(const network::ResourceRequest& request) {
+  // Match the logic from InterceptionJob::FetchCookies and
+  // ChromeContentBrowserClient::ShouldIgnoreSameSiteCookieRestrictionsWhenTopLevel.
+  bool should_treat_as_first_party =
+      request.url.SchemeIsCryptographic() &&
+      request.site_for_cookies.scheme() == content::kChromeUIScheme;
+
+  // Match the logic from URLRequestHttpJob::AddCookieHeaderAndStart.
+  net::CookieOptions options;
+  options.set_include_httponly();
+  options.set_same_site_cookie_context(
+      net::cookie_util::ComputeSameSiteContextForRequest(
+          request.method, request.url, request.site_for_cookies,
+          request.request_initiator, should_treat_as_first_party));
+
+  return options;
 }
 
 //
@@ -174,18 +193,10 @@ void LoadCookies(content::BrowserContext* browser_context,
     return;
   }
 
-  // Match the logic in URLRequestHttpJob::AddCookieHeaderAndStart.
-  net::CookieOptions options;
-  options.set_include_httponly();
-  options.set_same_site_cookie_context(
-      net::cookie_util::ComputeSameSiteContextForRequest(
-          request.method, request.url, request.site_for_cookies,
-          request.request_initiator, request.force_ignore_site_for_cookies));
-
   CEF_POST_TASK(
-      CEF_UIT,
-      base::BindOnce(LoadCookiesOnUIThread, browser_context, request.url,
-                     options, allow_cookie_callback, std::move(done_callback)));
+      CEF_UIT, base::BindOnce(LoadCookiesOnUIThread, browser_context,
+                              request.url, GetCookieOptions(request),
+                              allow_cookie_callback, std::move(done_callback)));
 }
 
 void SaveCookies(content::BrowserContext* browser_context,
@@ -208,13 +219,6 @@ void SaveCookies(content::BrowserContext* browser_context,
   base::Time response_date;
   if (!headers->GetDateValue(&response_date))
     response_date = base::Time();
-
-  net::CookieOptions options;
-  options.set_include_httponly();
-  options.set_same_site_cookie_context(
-      net::cookie_util::ComputeSameSiteContextForRequest(
-          request.method, request.url, request.site_for_cookies,
-          request.request_initiator, request.force_ignore_site_for_cookies));
 
   const base::StringPiece name(net_service::kHTTPSetCookieHeaderName);
   std::string cookie_string;
@@ -243,8 +247,8 @@ void SaveCookies(content::BrowserContext* browser_context,
     CEF_POST_TASK(
         CEF_UIT,
         base::BindOnce(SaveCookiesOnUIThread, browser_context, request.url,
-                       options, total_count, std::move(allowed_cookies),
-                       std::move(done_callback)));
+                       GetCookieOptions(request), total_count,
+                       std::move(allowed_cookies), std::move(done_callback)));
 
   } else {
     std::move(done_callback).Run(total_count, std::move(allowed_cookies));

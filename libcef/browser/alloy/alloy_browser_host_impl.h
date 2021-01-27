@@ -201,7 +201,7 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
                      const gfx::Vector2d& image_offset,
                      const blink::mojom::DragEventSourceInfo& event_info,
                      content::RenderWidgetHostImpl* source_rwh);
-  void UpdateDragCursor(blink::DragOperation operation);
+  void UpdateDragCursor(ui::mojom::DragOperation operation);
 
   // Thread safe accessors.
   SkColor GetBackgroundColor() const;

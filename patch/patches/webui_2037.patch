@@ -1,5 +1,5 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index 3267d8a52c8b..b01878a54539 100644
+index b001aa3db63f..dd2743ca0afc 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 @@ -10,6 +10,7 @@
@@ -10,15 +10,15 @@ index 3267d8a52c8b..b01878a54539 100644
  #include "base/json/json_string_value_serializer.h"
  #include "base/logging.h"
  #include "base/path_service.h"
-@@ -21,6 +22,7 @@
- #include "base/task/thread_pool.h"
+@@ -22,6 +23,7 @@
  #include "build/branding_buildflags.h"
  #include "build/build_config.h"
+ #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/data_reduction_proxy/data_reduction_proxy_chrome_settings.h"
  #include "chrome/browser/data_reduction_proxy/data_reduction_proxy_chrome_settings_factory.h"
-@@ -28,6 +30,7 @@
+@@ -29,6 +31,7 @@
  #include "chrome/browser/profiles/profile_manager.h"
  #include "chrome/browser/sync/profile_sync_service_factory.h"
  #include "chrome/common/channel_info.h"
@@ -26,7 +26,7 @@ index 3267d8a52c8b..b01878a54539 100644
  #include "components/prefs/pref_service.h"
  #include "components/sync/driver/sync_internals_util.h"
  #include "components/sync/driver/sync_service.h"
-@@ -343,7 +346,11 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
+@@ -342,7 +345,11 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
    response->emplace(kOsVersionTag, os_version);
  #endif
  
@@ -39,7 +39,7 @@ index 3267d8a52c8b..b01878a54539 100644
    PopulateExtensionInfoLogs(response.get());
    PopulatePowerApiLogs(response.get());
    PopulateDataReductionProxyLogs(response.get());
-@@ -418,6 +425,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
+@@ -417,6 +424,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
    if (!profile)
      return;
  
@@ -52,7 +52,7 @@ index 3267d8a52c8b..b01878a54539 100644
    extensions::ExtensionRegistry* extension_registry =
        extensions::ExtensionRegistry::Get(profile);
    std::string extensions_list;
-@@ -525,6 +538,8 @@ void ChromeInternalLogSource::PopulateOnboardingTime(
+@@ -524,6 +537,8 @@ void ChromeInternalLogSource::PopulateOnboardingTime(
  #if defined(OS_WIN)
  void ChromeInternalLogSource::PopulateUsbKeyboardDetected(
      SystemLogsResponse* response) {

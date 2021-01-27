@@ -1,23 +1,23 @@
 diff --git chrome/browser/renderer_preferences_util.cc chrome/browser/renderer_preferences_util.cc
-index ed40422ac8cf..51ca618a2f09 100644
+index a0006aa682e7..b83d42c637a6 100644
 --- chrome/browser/renderer_preferences_util.cc
 +++ chrome/browser/renderer_preferences_util.cc
-@@ -34,7 +34,8 @@
+@@ -35,7 +35,8 @@
  #include "ui/base/cocoa/defaults_utils.h"
  #endif
  
--#if defined(USE_AURA) && defined(OS_LINUX) && !defined(OS_CHROMEOS)
-+#if defined(USE_AURA) && defined(OS_LINUX) && !defined(OS_CHROMEOS) && \
+-#if defined(USE_AURA) && (defined(OS_LINUX) || BUILDFLAG(IS_CHROMEOS_LACROS))
++#if defined(USE_AURA) && (defined(OS_LINUX) || BUILDFLAG(IS_CHROMEOS_LACROS)) && \
 +    defined(ENABLE_THEMES)
  #include "chrome/browser/themes/theme_service.h"
  #include "chrome/browser/themes/theme_service_factory.h"
  #include "ui/views/linux_ui/linux_ui.h"
-@@ -153,7 +154,8 @@ void UpdateFromSystemSettings(blink::RendererPreferences* prefs,
+@@ -154,7 +155,8 @@ void UpdateFromSystemSettings(blink::RendererPreferences* prefs,
      prefs->caret_blink_interval = interval;
  #endif
  
--#if defined(USE_AURA) && defined(OS_LINUX) && !defined(OS_CHROMEOS)
-+#if defined(USE_AURA) && defined(OS_LINUX) && !defined(OS_CHROMEOS) && \
+-#if defined(USE_AURA) && (defined(OS_LINUX) || BUILDFLAG(IS_CHROMEOS_LACROS))
++#if defined(USE_AURA) && (defined(OS_LINUX) || BUILDFLAG(IS_CHROMEOS_LACROS)) && \
 +    defined(ENABLE_THEMES)
    views::LinuxUI* linux_ui = views::LinuxUI::instance();
    if (linux_ui) {

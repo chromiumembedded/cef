@@ -11,16 +11,16 @@
 
 #include "ui/base/x/x11_util.h"
 #include "ui/events/platform/platform_event_source.h"
+#include "ui/events/platform/x11/x11_event_source.h"
 #include "ui/events/x/x11_event_translation.h"
-#include "ui/events/x/x11_window_event_manager.h"
 #include "ui/gfx/x/connection.h"
+#include "ui/gfx/x/x11_window_event_manager.h"
 #include "ui/gfx/x/xproto_util.h"
 #include "ui/platform_window/x11/x11_topmost_window_finder.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h"
 
 namespace {
 
-const char kAtom[] = "ATOM";
 const char kNetWMPid[] = "_NET_WM_PID";
 const char kNetWMPing[] = "_NET_WM_PING";
 const char kNetWMState[] = "_NET_WM_STATE";
@@ -47,7 +47,7 @@ x11::Window FindToplevelParent(x11::Window window) {
       break;
 
     top_level_window = window;
-    if (!ui::PropertyExists(query_tree->parent, kNetWMPid) ||
+    if (!ui::PropertyExists(query_tree->parent, x11::GetAtom(kNetWMPid)) ||
         query_tree->parent == query_tree->root) {
       break;
     }
@@ -108,19 +108,20 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostBase> browser,
   connection_->Flush();
 
   DCHECK(ui::X11EventSource::HasInstance());
-  ui::X11EventSource::GetInstance()->AddXEventDispatcher(this);
+  connection_->AddEventObserver(this);
+  ui::X11EventSource::GetInstance()->AddPlatformEventDispatcher(this);
 
   std::vector<x11::Atom> protocols = {
-      gfx::GetAtom(kWMDeleteWindow),
-      gfx::GetAtom(kNetWMPing),
+      x11::GetAtom(kWMDeleteWindow),
+      x11::GetAtom(kNetWMPing),
   };
-  ui::SetArrayProperty(xwindow_, gfx::GetAtom(kWMProtocols), x11::Atom::ATOM,
-                       protocols);
+  x11::SetArrayProperty(xwindow_, x11::GetAtom(kWMProtocols), x11::Atom::ATOM,
+                        protocols);
 
   // We need a WM_CLIENT_MACHINE value so we integrate with the desktop
   // environment.
-  ui::SetStringProperty(xwindow_, x11::Atom::WM_CLIENT_MACHINE,
-                        x11::Atom::STRING, net::GetHostName());
+  x11::SetStringProperty(xwindow_, x11::Atom::WM_CLIENT_MACHINE,
+                         x11::Atom::STRING, net::GetHostName());
 
   // Likewise, the X server needs to know this window's pid so it knows which
   // program to kill if the window hangs.
@@ -128,21 +129,22 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostBase> browser,
   static_assert(sizeof(uint32_t) >= sizeof(pid_t),
                 "pid_t should not be larger than uint32_t");
   uint32_t pid = getpid();
-  ui::SetProperty(xwindow_, gfx::GetAtom(kNetWMPid), x11::Atom::CARDINAL, pid);
+  x11::SetProperty(xwindow_, x11::GetAtom(kNetWMPid), x11::Atom::CARDINAL, pid);
 
   // Set the initial window name, if provided.
   if (!title.empty()) {
-    ui::SetStringProperty(xwindow_, x11::Atom::WM_NAME, x11::Atom::STRING,
-                          title);
-    ui::SetStringProperty(xwindow_, x11::Atom::WM_ICON_NAME, x11::Atom::STRING,
-                          title);
+    x11::SetStringProperty(xwindow_, x11::Atom::WM_NAME, x11::Atom::STRING,
+                           title);
+    x11::SetStringProperty(xwindow_, x11::Atom::WM_ICON_NAME, x11::Atom::STRING,
+                           title);
   }
 }
 
 CefWindowX11::~CefWindowX11() {
   DCHECK_EQ(xwindow_, x11::Window::None);
   DCHECK(ui::X11EventSource::HasInstance());
-  ui::X11EventSource::GetInstance()->RemoveXEventDispatcher(this);
+  connection_->RemoveEventObserver(this);
+  ui::X11EventSource::GetInstance()->RemovePlatformEventDispatcher(this);
 }
 
 void CefWindowX11::Close() {
@@ -150,8 +152,8 @@ void CefWindowX11::Close() {
     return;
 
   ui::SendClientMessage(
-      xwindow_, xwindow_, gfx::GetAtom(kWMProtocols),
-      {static_cast<uint32_t>(gfx::GetAtom(kWMDeleteWindow)),
+      xwindow_, xwindow_, x11::GetAtom(kWMProtocols),
+      {static_cast<uint32_t>(x11::GetAtom(kWMDeleteWindow)),
        static_cast<uint32_t>(x11::Time::CurrentTime), 0, 0, 0},
       x11::EventMask::NoEvent);
 
@@ -192,15 +194,15 @@ void CefWindowX11::Show() {
       // DesktopWindowTreeHostLinux. The proxy property is referenced by
       // DesktopDragDropClientAuraX11::FindWindowFor.
       x11::Window window = x11::Window::None;
-      auto dndproxy_atom = gfx::GetAtom(kXdndProxy);
-      ui::GetProperty(toplevel_window, dndproxy_atom, &window);
+      auto dndproxy_atom = x11::GetAtom(kXdndProxy);
+      x11::GetProperty(toplevel_window, dndproxy_atom, &window);
 
       if (window != child) {
         // Set the proxy target for the top-most window.
-        ui::SetProperty(toplevel_window, dndproxy_atom, x11::Atom::WINDOW,
-                        child);
+        x11::SetProperty(toplevel_window, dndproxy_atom, x11::Atom::WINDOW,
+                         child);
         // Do the same for the proxy target per the spec.
-        ui::SetProperty(child, dndproxy_atom, x11::Atom::WINDOW, child);
+        x11::SetProperty(child, dndproxy_atom, x11::Atom::WINDOW, child);
       }
     }
   }
@@ -286,38 +288,23 @@ views::DesktopWindowTreeHostLinux* CefWindowX11::GetHost() {
 }
 
 bool CefWindowX11::CanDispatchEvent(const ui::PlatformEvent& event) {
-  DCHECK_NE(xwindow_, x11::Window::None);
-  return !!current_xevent_;
+  auto* dispatching_event = connection_->dispatching_event();
+  return dispatching_event && dispatching_event->window() == xwindow_;
 }
 
 uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
   DCHECK_NE(xwindow_, x11::Window::None);
   DCHECK(event);
-  DCHECK(current_xevent_);
 
-  ProcessXEvent(current_xevent_);
+  auto* current_xevent = connection_->dispatching_event();
+  ProcessXEvent(*current_xevent);
   return ui::POST_DISPATCH_STOP_PROPAGATION;
 }
 
-// Called by X11EventSourceLibevent to determine whether this XEventDispatcher
-// implementation is able to process the next translated event sent by it.
-void CefWindowX11::CheckCanDispatchNextPlatformEvent(x11::Event* x11_event) {
-  current_xevent_ = IsTargetedBy(*x11_event) ? x11_event : nullptr;
-}
-
-void CefWindowX11::PlatformEventDispatchFinished() {
-  current_xevent_ = nullptr;
-}
-
-ui::PlatformEventDispatcher* CefWindowX11::GetPlatformEventDispatcher() {
-  return this;
-}
-
-bool CefWindowX11::DispatchXEvent(x11::Event* x11_event) {
-  if (!IsTargetedBy(*x11_event))
-    return false;
-  ProcessXEvent(x11_event);
-  return true;
+void CefWindowX11::OnEvent(const x11::Event& event) {
+  if (event.window() != xwindow_)
+    return;
+  ProcessXEvent(event);
 }
 
 void CefWindowX11::ContinueFocus() {
@@ -334,20 +321,17 @@ bool CefWindowX11::TopLevelAlwaysOnTop() const {
     return false;
 
   std::vector<x11::Atom> wm_states;
-  if (ui::GetAtomArrayProperty(toplevel_window, kNetWMState, &wm_states)) {
-    x11::Atom keep_above_atom = gfx::GetAtom(kNetWMStateKeepAbove);
+  if (x11::GetArrayProperty(toplevel_window, x11::GetAtom(kNetWMState),
+                            &wm_states)) {
+    x11::Atom keep_above_atom = x11::GetAtom(kNetWMStateKeepAbove);
     if (base::Contains(wm_states, keep_above_atom))
       return true;
   }
   return false;
 }
 
-bool CefWindowX11::IsTargetedBy(const x11::Event& x11_event) const {
-  return x11_event.window() == xwindow_;
-}
-
-void CefWindowX11::ProcessXEvent(x11::Event* event) {
-  if (auto* configure = event->As<x11::ConfigureNotifyEvent>()) {
+void CefWindowX11::ProcessXEvent(const x11::Event& event) {
+  if (auto* configure = event.As<x11::ConfigureNotifyEvent>()) {
     DCHECK_EQ(xwindow_, configure->event);
     DCHECK_EQ(xwindow_, configure->window);
     // It's possible that the X window may be resized by some other means
@@ -370,10 +354,10 @@ void CefWindowX11::ProcessXEvent(x11::Event* event) {
         browser_->NotifyMoveOrResizeStarted();
       }
     }
-  } else if (auto* client = event->As<x11::ClientMessageEvent>()) {
-    if (client->type == gfx::GetAtom(kWMProtocols)) {
+  } else if (auto* client = event.As<x11::ClientMessageEvent>()) {
+    if (client->type == x11::GetAtom(kWMProtocols)) {
       x11::Atom protocol = static_cast<x11::Atom>(client->data.data32[0]);
-      if (protocol == gfx::GetAtom(kWMDeleteWindow)) {
+      if (protocol == x11::GetAtom(kWMDeleteWindow)) {
         // We have received a close message from the window manager.
         if (!browser_ || browser_->TryCloseBrowser()) {
           // Allow the close.
@@ -389,7 +373,7 @@ void CefWindowX11::ProcessXEvent(x11::Event* event) {
 
           delete this;
         }
-      } else if (protocol == gfx::GetAtom(kNetWMPing)) {
+      } else if (protocol == x11::GetAtom(kNetWMPing)) {
         x11::ClientMessageEvent reply_event = *client;
         reply_event.window = parent_xwindow_;
         x11::SendEvent(reply_event, reply_event.window,
@@ -397,7 +381,7 @@ void CefWindowX11::ProcessXEvent(x11::Event* event) {
                            x11::EventMask::SubstructureRedirect);
       }
     }
-  } else if (auto* focus = event->As<x11::FocusEvent>()) {
+  } else if (auto* focus = event.As<x11::FocusEvent>()) {
     if (focus->opcode == x11::FocusEvent::In) {
       // This message is received first followed by a "_NET_ACTIVE_WINDOW"
       // message sent to the root window. When X11DesktopHandler handles the
@@ -418,8 +402,9 @@ void CefWindowX11::ProcessXEvent(x11::Event* event) {
       if (focus_pending_)
         focus_pending_ = false;
     }
-  } else if (auto* property = event->As<x11::PropertyNotifyEvent>()) {
-    if (property->atom == gfx::GetAtom(kNetWMState)) {
+  } else if (auto* property = event.As<x11::PropertyNotifyEvent>()) {
+    const auto& wm_state_atom = x11::GetAtom(kNetWMState);
+    if (property->atom == wm_state_atom) {
       // State change event like minimize/maximize.
       if (browser_.get()) {
         auto child = FindChild(xwindow_);
@@ -428,8 +413,9 @@ void CefWindowX11::ProcessXEvent(x11::Event* event) {
           // window so that resource usage will be reduced while the window is
           // minimized. |atom_list| may be empty.
           std::vector<x11::Atom> atom_list;
-          ui::GetAtomArrayProperty(xwindow_, kNetWMState, &atom_list);
-          ui::SetAtomArrayProperty(child, kNetWMState, kAtom, atom_list);
+          x11::GetArrayProperty(xwindow_, wm_state_atom, &atom_list);
+          x11::SetArrayProperty(child, wm_state_atom, x11::Atom::ATOM,
+                                atom_list);
         }
       }
     }

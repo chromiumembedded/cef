@@ -96,18 +96,23 @@ struct CefStringTraitsWide {
     memset(&cstr, 0, sizeof(cstr));
     cef_string_wide_to_utf16(s->str, s->length, &cstr);
     base::string16 str;
-    if (cstr.length > 0)
-      str = base::string16(cstr.str, cstr.length);
+    if (cstr.length > 0) {
+      str = base::string16(
+          reinterpret_cast<base::string16::value_type*>(cstr.str), cstr.length);
+    }
     cef_string_utf16_clear(&cstr);
     return str;
   }
   static inline bool from_string16(const base::string16& str, struct_type* s) {
-    return cef_string_utf16_to_wide(str.c_str(), str.length(), s) ? true
-                                                                  : false;
+    return cef_string_utf16_to_wide(
+               reinterpret_cast<const char16*>(str.c_str()), str.length(), s)
+               ? true
+               : false;
   }
 #else   // WCHAR_T_IS_UTF32
   static inline base::string16 to_string16(const struct_type* s) {
-    return base::string16(s->str, s->length);
+    return base::string16(
+        reinterpret_cast<const base::string16::value_type*>(s->str), s->length);
   }
   static inline bool from_string16(const base::string16& str, struct_type* s) {
     return cef_string_wide_set(str.c_str(), str.length(), s, true) ? true
@@ -169,14 +174,18 @@ struct CefStringTraitsUTF8 {
     memset(&cstr, 0, sizeof(cstr));
     cef_string_utf8_to_utf16(s->str, s->length, &cstr);
     base::string16 str;
-    if (cstr.length > 0)
-      str = base::string16(cstr.str, cstr.length);
+    if (cstr.length > 0) {
+      str = base::string16(
+          reinterpret_cast<base::string16::value_type*>(cstr.str), cstr.length);
+    }
     cef_string_utf16_clear(&cstr);
     return str;
   }
   static inline bool from_string16(const base::string16& str, struct_type* s) {
-    return cef_string_utf16_to_utf8(str.c_str(), str.length(), s) ? true
-                                                                  : false;
+    return cef_string_utf16_to_utf8(
+               reinterpret_cast<const char16*>(str.c_str()), str.length(), s)
+               ? true
+               : false;
   }
 };
 
@@ -248,11 +257,14 @@ struct CefStringTraitsUTF16 {
   }
 #endif  // WCHAR_T_IS_UTF32
   static inline base::string16 to_string16(const struct_type* s) {
-    return base::string16(s->str, s->length);
+    return base::string16(
+        reinterpret_cast<const base::string16::value_type*>(s->str), s->length);
   }
   static inline bool from_string16(const base::string16& str, struct_type* s) {
-    return cef_string_utf16_set(str.c_str(), str.length(), s, true) ? true
-                                                                    : false;
+    return cef_string_utf16_set(reinterpret_cast<const char16*>(str.c_str()),
+                                str.length(), s, true)
+               ? true
+               : false;
   }
 };
 
@@ -340,7 +352,8 @@ class CefStringBase {
   }
   CefStringBase(const char16* src) : string_(NULL), owner_(false) {
     if (src)
-      FromString16(base::string16(src));
+      FromString16(base::string16(
+          reinterpret_cast<const base::string16::value_type*>(src)));
   }
 #endif  // WCHAR_T_IS_UTF32
 
@@ -677,7 +690,8 @@ class CefStringBase {
     return *this;
   }
   CefStringBase& operator=(const char16* str) {
-    FromString16(base::string16(str));
+    FromString16(base::string16(
+        reinterpret_cast<const base::string16::value_type*>(str)));
     return *this;
   }
 #endif  // WCHAR_T_IS_UTF32

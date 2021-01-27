@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include "skia/ext/skia_utils_base.h"
 #include "ui/gfx/codec/jpeg_codec.h"
 #include "ui/gfx/codec/png_codec.h"
 #include "ui/gfx/image/image_png_rep.h"
@@ -307,7 +308,15 @@ bool CefImageImpl::AddBitmap(float scale_factor, const SkBitmap& bitmap) {
   DCHECK(bitmap.colorType() == kBGRA_8888_SkColorType ||
          bitmap.colorType() == kRGBA_8888_SkColorType);
 
-  gfx::ImageSkiaRep skia_rep(bitmap, scale_factor);
+  // Convert to N32 (e.g. native encoding) format if not already in that format.
+  // N32 is expected by the Views framework and this early conversion avoids
+  // CHECKs in ImageSkiaRep and eventual conversion to N32 at some later point
+  // in the compositing pipeline.
+  SkBitmap n32_bitmap;
+  if (!skia::SkBitmapToN32OpaqueOrPremul(bitmap, &n32_bitmap))
+    return false;
+
+  gfx::ImageSkiaRep skia_rep(n32_bitmap, scale_factor);
   base::AutoLock lock_scope(lock_);
   if (image_.IsEmpty()) {
     image_ = gfx::Image(gfx::ImageSkia(skia_rep));

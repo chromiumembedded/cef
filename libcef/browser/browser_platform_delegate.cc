@@ -318,7 +318,7 @@ void CefBrowserPlatformDelegate::StartDragging(
 }
 
 void CefBrowserPlatformDelegate::UpdateDragCursor(
-    blink::DragOperation operation) {
+    ui::mojom::DragOperation operation) {
   NOTREACHED();
 }
 

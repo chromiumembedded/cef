@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 92e5c944d44b..f27972a4e2b7 100644
+index dd16ddb90fa9..1d70818d0eff 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
-@@ -678,10 +678,12 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() {
+@@ -657,10 +657,12 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() {
  void RenderWidgetHostViewAura::UpdateBackgroundColor() {
    DCHECK(GetBackgroundColor());
  
@@ -19,10 +19,10 @@ index 92e5c944d44b..f27972a4e2b7 100644
  }
  
  base::Optional<DisplayFeature> RenderWidgetHostViewAura::GetDisplayFeature() {
-@@ -2056,6 +2058,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+@@ -2020,6 +2022,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+   // This needs to happen only after |window_| has been initialized using
    // Init(), because it needs to have the layer.
-   if (frame_sink_id_.is_valid())
-     window_->SetEmbedFrameSinkId(frame_sink_id_);
+   window_->SetEmbedFrameSinkId(frame_sink_id_);
 +
 +  // Do this after |window_| is created to avoid crashes on Win10.
 +  // See https://crbug.com/761389.

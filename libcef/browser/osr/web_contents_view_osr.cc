@@ -163,7 +163,8 @@ void CefWebContentsViewOSR::StartDragging(
   }
 }
 
-void CefWebContentsViewOSR::UpdateDragCursor(blink::DragOperation operation) {
+void CefWebContentsViewOSR::UpdateDragCursor(
+    ui::mojom::DragOperation operation) {
   CefRefPtr<AlloyBrowserHostImpl> browser = GetBrowser();
   if (browser.get())
     browser->UpdateDragCursor(operation);

@@ -158,19 +158,15 @@ void CefBrowserManager::WebKitInitialized() {
   const CefAppManager::SchemeInfoList* schemes =
       CefAppManager::Get()->GetCustomSchemes();
   if (!schemes->empty()) {
-    // Register the custom schemes. The |is_standard| value is excluded here
-    // because it's not explicitly registered with Blink.
+    // Register the custom schemes. Some attributes are excluded here because
+    // they use url/url_util.h APIs instead.
     CefAppManager::SchemeInfoList::const_iterator it = schemes->begin();
     for (; it != schemes->end(); ++it) {
       const CefSchemeInfo& info = *it;
       const blink::WebString& scheme =
           blink::WebString::FromUTF8(info.scheme_name);
-      if (info.is_local)
-        blink_glue::RegisterURLSchemeAsLocal(scheme);
       if (info.is_display_isolated)
         blink::WebSecurityPolicy::RegisterURLSchemeAsDisplayIsolated(scheme);
-      if (info.is_secure)
-        blink_glue::RegisterURLSchemeAsSecure(scheme);
       if (info.is_fetch_enabled)
         blink_glue::RegisterURLSchemeAsSupportingFetchAPI(scheme);
     }

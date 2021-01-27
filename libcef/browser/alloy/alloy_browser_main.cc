@@ -16,7 +16,6 @@
 #include "libcef/browser/extensions/extensions_browser_client.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
 #include "libcef/browser/printing/constrained_window_views_client.h"
-#include "libcef/browser/printing/printing_message_filter.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/app_manager.h"
 #include "libcef/common/extensions/extensions_client.h"
@@ -179,8 +178,6 @@ void AlloyBrowserMainParts::PreMainMessageLoopRun() {
   // Register additional KeyedService factories here. See
   // ChromeBrowserMainExtraPartsProfiles for details.
   cef::EnsureBrowserContextKeyedServiceFactoriesBuilt();
-
-  printing::CefPrintingMessageFilter::EnsureShutdownNotifierFactoryBuilt();
 
   background_task_runner_ = base::CreateSingleThreadTaskRunner(
       {base::ThreadPool(), base::TaskPriority::BEST_EFFORT,

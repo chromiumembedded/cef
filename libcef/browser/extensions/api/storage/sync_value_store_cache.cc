@@ -47,7 +47,7 @@ SyncValueStoreCache::~SyncValueStoreCache() {
 }
 
 void SyncValueStoreCache::RunWithValueStoreForExtension(
-    const StorageCallback& callback,
+    StorageCallback callback,
     scoped_refptr<const Extension> extension) {
   DCHECK(IsOnBackendSequence());
 
@@ -58,9 +58,9 @@ void SyncValueStoreCache::RunWithValueStoreForExtension(
   if (extension->permissions_data()->HasAPIPermission(
           APIPermission::kUnlimitedStorage)) {
     WeakUnlimitedSettingsStorage unlimited_storage(storage);
-    callback.Run(&unlimited_storage);
+    std::move(callback).Run(&unlimited_storage);
   } else {
-    callback.Run(storage);
+    std::move(callback).Run(storage);
   }
 }
 

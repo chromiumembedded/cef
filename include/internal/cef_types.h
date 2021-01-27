@@ -3139,8 +3139,9 @@ typedef enum {
   CEF_MRCR_NO_SUPPORTED_PROVIDER = 7,
   CEF_MRCR_CANCELLED = 8,
   CEF_MRCR_ROUTE_ALREADY_EXISTS = 9,
+  CEF_MRCR_ROUTE_ALREADY_TERMINATED = 11,
 
-  CEF_MRCR_TOTAL_COUNT = 11  // The total number of values.
+  CEF_MRCR_TOTAL_COUNT = 12  // The total number of values.
 } cef_media_route_create_result_t;
 
 ///

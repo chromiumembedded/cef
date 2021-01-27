@@ -84,8 +84,6 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
       override;
   federated_learning::FlocSortingLshClustersService*
   floc_sorting_lsh_clusters_service() override;
-  optimization_guide::OptimizationGuideService* optimization_guide_service()
-      override;
   StartupData* startup_data() override;
 
 #if defined(OS_WIN) || defined(OS_LINUX)

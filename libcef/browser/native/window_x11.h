@@ -13,11 +13,11 @@
 
 #include "base/memory/weak_ptr.h"
 #include "ui/events/platform/platform_event_dispatcher.h"
-#include "ui/events/platform/x11/x11_event_source.h"
 #include "ui/gfx/geometry/rect.h"
+#include "ui/gfx/x/connection.h"
 #include "ui/gfx/x/x11_atom_cache.h"
 
-namespace ui {
+namespace x11 {
 class XScopedEventSelector;
 }
 
@@ -30,7 +30,7 @@ class CefBrowserHostBase;
 // Object wrapper for an X11 Window.
 // Based on WindowTreeHostX11 and DesktopWindowTreeHostX11.
 class CefWindowX11 : public ui::PlatformEventDispatcher,
-                     public ui::XEventDispatcher {
+                     public x11::EventObserver {
  public:
   CefWindowX11(CefRefPtr<CefBrowserHostBase> browser,
                x11::Window parent_xwindow,
@@ -55,11 +55,8 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
   bool CanDispatchEvent(const ui::PlatformEvent& event) override;
   uint32_t DispatchEvent(const ui::PlatformEvent& event) override;
 
-  // ui::XEventDispatcher methods:
-  void CheckCanDispatchNextPlatformEvent(x11::Event* x11_event) override;
-  void PlatformEventDispatchFinished() override;
-  ui::PlatformEventDispatcher* GetPlatformEventDispatcher() override;
-  bool DispatchXEvent(x11::Event* x11_event) override;
+  // x11::EventObserver methods:
+  void OnEvent(const x11::Event& event) override;
 
   x11::Window xwindow() const { return xwindow_; }
   gfx::Rect bounds() const { return bounds_; }
@@ -69,8 +66,7 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
  private:
   void ContinueFocus();
 
-  bool IsTargetedBy(const x11::Event& x11_event) const;
-  void ProcessXEvent(x11::Event* xev);
+  void ProcessXEvent(const x11::Event& xev);
 
   CefRefPtr<CefBrowserHostBase> browser_;
 
@@ -80,7 +76,7 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
   x11::Window xwindow_;
 
   // Events selected on |xwindow_|.
-  std::unique_ptr<ui::XScopedEventSelector> xwindow_events_;
+  std::unique_ptr<x11::XScopedEventSelector> xwindow_events_;
 
   // Is the window mapped to the screen?
   bool window_mapped_ = false;
@@ -89,11 +85,6 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
   gfx::Rect bounds_;
 
   bool focus_pending_ = false;
-
-  // Tells if this dispatcher can process next translated event based on a
-  // previous check in ::CheckCanDispatchNextPlatformEvent based on a XID
-  // target.
-  x11::Event* current_xevent_ = nullptr;
 
   // Must always be the last member.
   base::WeakPtrFactory<CefWindowX11> weak_ptr_factory_;

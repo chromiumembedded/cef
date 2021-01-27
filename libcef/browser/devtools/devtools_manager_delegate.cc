@@ -107,8 +107,10 @@ void CefDevToolsManagerDelegate::StartHttpHandler(
 
   const base::CommandLine& command_line =
       *base::CommandLine::ForCurrentProcess();
-  if (command_line.HasSwitch(switches::kRemoteDebuggingPipe))
-    content::DevToolsAgentHost::StartRemoteDebuggingPipeHandler();
+  if (command_line.HasSwitch(switches::kRemoteDebuggingPipe)) {
+    content::DevToolsAgentHost::StartRemoteDebuggingPipeHandler(
+        base::OnceClosure());
+  }
 }
 
 // static

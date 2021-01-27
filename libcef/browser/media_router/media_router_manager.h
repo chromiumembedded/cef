@@ -96,8 +96,7 @@ class CefMediaRouterManager
 
     // Used if there is no RoutePresentationConnectionPtr.
     std::unique_ptr<CefRouteMessageObserver> message_observer_;
-    std::unique_ptr<media_router::PresentationConnectionStateSubscription>
-        state_subscription_;
+    base::CallbackListSubscription state_subscription_;
   };
   void CreateRouteState(
       const media_router::MediaRoute& route,

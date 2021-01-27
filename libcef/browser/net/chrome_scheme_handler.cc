@@ -607,26 +607,6 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     return false;
   }
 
-  bool UseWebUIBindingsForURL(content::BrowserContext* browser_context,
-                              const GURL& url) override {
-    if (!AllowWebUIForURL(url))
-      return false;
-
-    const auto host_id = GetChromeHostId(url.host());
-    if (host_id != CHROME_UNKNOWN) {
-      return false;
-    }
-
-    if (content::ContentWebUIControllerFactory::GetInstance()
-            ->UseWebUIBindingsForURL(browser_context, url) ||
-        ChromeWebUIControllerFactory::GetInstance()->UseWebUIBindingsForURL(
-            browser_context, url)) {
-      return true;
-    }
-
-    return false;
-  }
-
   static void BrowserURLHandlerCreated(content::BrowserURLHandler* handler) {
     // Handler to rewrite chrome://about and chrome://sync URLs.
     handler->AddHandlerPair(&HandleChromeAboutAndChromeSyncRewrite,

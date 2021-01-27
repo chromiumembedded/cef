@@ -29,6 +29,7 @@
 #include "third_party/blink/renderer/core/frame/local_frame.h"
 #include "third_party/blink/renderer/core/frame/settings.h"
 #include "third_party/blink/renderer/core/frame/web_local_frame_impl.h"
+#include "third_party/blink/renderer/core/loader/frame_load_request.h"
 #include "third_party/blink/renderer/platform/bindings/script_forbidden_scope.h"
 #include "third_party/blink/renderer/platform/bindings/v8_binding.h"
 #include "third_party/blink/renderer/platform/loader/fetch/resource_response.h"
@@ -185,11 +186,6 @@ v8::Local<v8::Value> ExecuteV8ScriptAndReturnValue(
   if (!frame)
     return v8::Local<v8::Value>();
 
-  blink::mojom::V8CacheOptions v8CacheOptions(
-      blink::mojom::V8CacheOptions::kDefault);
-  if (const blink::Settings* settings = frame->GetSettings())
-    v8CacheOptions = settings->GetV8CacheOptions();
-
   const blink::ScriptSourceCode ssc = blink::ScriptSourceCode(
       source, blink::ScriptSourceLocationType::kInternal,
       nullptr, /* cache_handler */
@@ -202,7 +198,8 @@ v8::Local<v8::Value> ExecuteV8ScriptAndReturnValue(
   auto result = blink::V8ScriptRunner::CompileAndRunScript(
       isolate, blink::ScriptState::From(context), frame->DomWindow(), ssc,
       ssc.Url(), blink::SanitizeScriptErrors::kDoNotSanitize,
-      blink::ScriptFetchOptions(), std::move(v8CacheOptions),
+      blink::ScriptFetchOptions(),
+      blink::ExecuteScriptPolicy::kExecuteScriptWhenScriptsDisabled,
       blink::V8ScriptRunner::RethrowErrorsOption::Rethrow(""));
 
   if (result.GetResultType() ==
@@ -216,14 +213,6 @@ v8::Local<v8::Value> ExecuteV8ScriptAndReturnValue(
 
 bool IsScriptForbidden() {
   return blink::ScriptForbiddenScope::IsScriptForbidden();
-}
-
-void RegisterURLSchemeAsLocal(const blink::WebString& scheme) {
-  blink::SchemeRegistry::RegisterURLSchemeAsLocal(scheme);
-}
-
-void RegisterURLSchemeAsSecure(const blink::WebString& scheme) {
-  blink::SchemeRegistry::RegisterURLSchemeAsSecure(scheme);
 }
 
 void RegisterURLSchemeAsSupportingFetchAPI(const blink::WebString& scheme) {
@@ -247,7 +236,21 @@ bool HasPluginFrameOwner(blink::WebLocalFrame* frame) {
   return core_frame->Owner() && core_frame->Owner()->IsPlugin();
 }
 
-BLINK_EXPORT
+// Based on WebLocalFrameImpl::StartNavigation which was removed in
+// https://crrev.com/de4fc2a5fe.
+void StartNavigation(blink::WebLocalFrame* frame,
+                     const blink::WebURLRequest& request) {
+  DCHECK(!request.IsNull());
+  DCHECK(!request.Url().ProtocolIs("javascript"));
+
+  blink::FrameLoadRequest frame_load_request(nullptr,
+                                             request.ToResourceRequest());
+  blink::Frame* core_frame = blink::WebFrame::ToCoreFrame(*frame);
+  blink::To<blink::LocalFrame>(core_frame)
+      ->Loader()
+      .StartNavigation(frame_load_request, blink::WebFrameLoadType::kStandard);
+}
+
 std::unique_ptr<blink::scheduler::WebResourceLoadingTaskRunnerHandle>
 CreateResourceLoadingTaskRunnerHandle(blink::WebLocalFrame* frame) {
   blink::Frame* core_frame = blink::WebFrame::ToCoreFrame(*frame);
@@ -256,7 +259,6 @@ CreateResourceLoadingTaskRunnerHandle(blink::WebLocalFrame* frame) {
       ->CreateResourceLoadingTaskRunnerHandle();
 }
 
-BLINK_EXPORT
 std::unique_ptr<blink::scheduler::WebResourceLoadingTaskRunnerHandle>
 CreateResourceLoadingMaybeUnfreezableTaskRunnerHandle(
     blink::WebLocalFrame* frame) {

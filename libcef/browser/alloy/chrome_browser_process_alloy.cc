@@ -325,12 +325,6 @@ ChromeBrowserProcessAlloy::floc_sorting_lsh_clusters_service() {
   return nullptr;
 }
 
-optimization_guide::OptimizationGuideService*
-ChromeBrowserProcessAlloy::optimization_guide_service() {
-  NOTREACHED();
-  return nullptr;
-}
-
 StartupData* ChromeBrowserProcessAlloy::startup_data() {
   NOTREACHED();
   return nullptr;

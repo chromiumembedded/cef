@@ -3,41 +3,6 @@
 # governed by a BSD-style license that can be found in the LICENSE file.
 
 import("//tools/json_schema_compiler/json_features.gni")
-#import("//tools/json_schema_compiler/json_schema_api.gni")
-
-# TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See README.txt for
-# details.
-#schema_sources = [
-#  # TODO(cef): Add CEF-specific Mojo APIs here.
-#]
-#
-#uncompiled_sources = [
-#]
-#
-#root_namespace = "extensions::api::cef::%(namespace)s"
-#schema_include_rules = "//cef/libcef/browser/extensions/api:extensions::api::cef::%(namespace)s"
-#schema_dependencies = [ "//extensions/common/api" ]
-#
-#generated_json_strings("api") {
-#  sources = schema_sources
-#  schemas = true
-#  configs = [ "//build/config:precompiled_headers" ]
-#  bundle_name = "Cef"
-#
-#  deps = schema_dependencies
-#}
-#
-#function_registration("api_registration") {
-#  sources = schema_sources
-#  impl_dir = "//cef/libcef/browser/extensions/api"
-#  configs = [ "//build/config:precompiled_headers" ]
-#  bundle_name = "Cef"
-#
-#  deps = [
-#    ":api",
-#  ]
-#  deps += schema_dependencies
-#}
 
 json_features("cef_api_features") {
   feature_type = "APIFeature"

@@ -146,7 +146,7 @@ index 5761c6b965b5..aee4e6c96033 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index 623c833fed68..af28fce9edfc 100644
+index 1d5951e8fc00..599dde825883 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -177,8 +177,8 @@ index 623c833fed68..af28fce9edfc 100644
    public_deps = [
 @@ -77,6 +89,7 @@ static_library("handler") {
      "../snapshot",
+     "../third_party/mini_chromium:chromeos_buildflags",
      "../tools:tool_support",
-     "//build:chromeos_buildflags",
 +    "//cef/libcef/features",
    ]
  
@@ -248,7 +248,7 @@ index 2ec1147d2620..8ff9a72e0bd7 100644
    //! \brief Calls ProcessPendingReports() in response to ReportPending() having
    //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index d00026605537..0fa0cacbbae2 100644
+index 737ee4e09f67..f5a8727f7e6b 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -39,6 +39,7 @@
@@ -277,7 +277,7 @@ index d00026605537..0fa0cacbbae2 100644
 +  int max_uploads;
 +  int max_database_size;
 +  int max_database_age;
- #if BUILDFLAG(IS_ASH)
+ #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
    bool use_cros_crash_reporter = false;
    base::FilePath minidump_dir_for_tests;
 @@ -577,6 +585,9 @@ int HandlerMain(int argc,
@@ -287,7 +287,7 @@ index d00026605537..0fa0cacbbae2 100644
 +    kOptionMaxUploads,
 +    kOptionMaxDatabaseSize,
 +    kOptionMaxDatabaseAge,
- #if BUILDFLAG(IS_ASH)
+ #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
      kOptionUseCrosCrashReporter,
      kOptionMinidumpDirForTests,
 @@ -678,6 +689,9 @@ int HandlerMain(int argc,
@@ -325,7 +325,7 @@ index d00026605537..0fa0cacbbae2 100644
 +        }
 +        break;
 +      }
- #if BUILDFLAG(IS_ASH)
+ #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
        case kOptionUseCrosCrashReporter: {
          options.use_cros_crash_reporter = true;
 @@ -982,8 +1017,14 @@ int HandlerMain(int argc,

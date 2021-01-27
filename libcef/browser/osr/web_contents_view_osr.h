@@ -67,7 +67,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
                      const gfx::Vector2d& image_offset,
                      const blink::mojom::DragEventSourceInfo& event_info,
                      content::RenderWidgetHostImpl* source_rwh) override;
-  void UpdateDragCursor(blink::DragOperation operation) override;
+  void UpdateDragCursor(ui::mojom::DragOperation operation) override;
   virtual void GotFocus(
       content::RenderWidgetHostImpl* render_widget_host) override;
   virtual void LostFocus(

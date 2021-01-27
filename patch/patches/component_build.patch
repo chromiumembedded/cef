@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index 1d6121a4ba08..8e6735eca670 100644
+index 36ab5d592ecb..e61236132220 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
 @@ -12,6 +12,7 @@
@@ -55,10 +55,10 @@ index 57072bf1263a..0a93446e4d21 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index c5647d2dc509..1314c30b60c7 100644
+index 8ca399274164..d241798f4f28 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
-@@ -26,6 +26,7 @@ component("controller") {
+@@ -29,6 +29,7 @@ component("controller") {
    configs += [
      "//build/config/compiler:noshadowing",
      "//build/config/compiler:wexit_time_destructors",
@@ -66,7 +66,7 @@ index c5647d2dc509..1314c30b60c7 100644
      "//third_party/blink/renderer:config",
      "//third_party/blink/renderer:inside_blink",
      "//third_party/blink/renderer:non_test_config",
-@@ -50,6 +51,8 @@ component("controller") {
+@@ -53,6 +54,8 @@ component("controller") {
      "performance_manager/v8_detailed_memory_reporter_impl.h",
      "performance_manager/v8_worker_memory_reporter.cc",
      "performance_manager/v8_worker_memory_reporter.h",
@@ -76,7 +76,7 @@ index c5647d2dc509..1314c30b60c7 100644
  
    if (is_linux || is_chromeos) {
 diff --git ui/events/keycodes/BUILD.gn ui/events/keycodes/BUILD.gn
-index 4a2d0348caeb..42742d24ebed 100644
+index 86bbf620ff0d..6c06b461c6da 100644
 --- ui/events/keycodes/BUILD.gn
 +++ ui/events/keycodes/BUILD.gn
 @@ -19,6 +19,8 @@ source_set("xkb") {
@@ -87,7 +87,7 @@ index 4a2d0348caeb..42742d24ebed 100644
 +
    deps = [
      "//base",
-     "//ui/events:dom_keycode_converter",
+     "//build:chromeos_buildflags",
 diff --git ui/events/keycodes/keyboard_code_conversion_xkb.h ui/events/keycodes/keyboard_code_conversion_xkb.h
 index a1f9b78704fb..c7d3558251d9 100644
 --- ui/events/keycodes/keyboard_code_conversion_xkb.h

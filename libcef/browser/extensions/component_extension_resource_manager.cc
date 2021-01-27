@@ -6,14 +6,30 @@
 
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "base/values.h"
+#include "chrome/browser/pdf/pdf_extension_util.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/grit/component_extension_resources_map.h"
+#include "chrome/grit/pdf_resources_map.h"
+#include "extensions/common/constants.h"
 
 namespace extensions {
 
 CefComponentExtensionResourceManager::CefComponentExtensionResourceManager() {
   AddComponentResourceEntries(kComponentExtensionResources,
                               kComponentExtensionResourcesSize);
+  AddComponentResourceEntries(kPdfResources, kPdfResourcesSize);
+
+  base::Value dict(base::Value::Type::DICTIONARY);
+  pdf_extension_util::AddStrings(
+      pdf_extension_util::PdfViewerContext::kPdfViewer, &dict);
+  pdf_extension_util::AddAdditionalData(&dict);
+
+  ui::TemplateReplacements pdf_viewer_replacements;
+  ui::TemplateReplacementsFromDictionaryValue(
+      base::Value::AsDictionaryValue(dict), &pdf_viewer_replacements);
+  template_replacements_[extension_misc::kPdfExtensionId] =
+      std::move(pdf_viewer_replacements);
 }
 
 CefComponentExtensionResourceManager::~CefComponentExtensionResourceManager() {}
@@ -44,34 +60,20 @@ bool CefComponentExtensionResourceManager::IsComponentExtensionResource(
 const ui::TemplateReplacements*
 CefComponentExtensionResourceManager::GetTemplateReplacementsForExtension(
     const std::string& extension_id) const {
-  return nullptr;
+  auto it = template_replacements_.find(extension_id);
+  return it != template_replacements_.end() ? &it->second : nullptr;
 }
 
 void CefComponentExtensionResourceManager::AddComponentResourceEntries(
     const GritResourceMap* entries,
     size_t size) {
-  base::FilePath gen_folder_path = base::FilePath().AppendASCII(
-      "@out_folder@/gen/chrome/browser/resources/");
-  gen_folder_path = gen_folder_path.NormalizePathSeparators();
-
   for (size_t i = 0; i < size; ++i) {
     base::FilePath resource_path =
         base::FilePath().AppendASCII(entries[i].name);
     resource_path = resource_path.NormalizePathSeparators();
 
-    if (!gen_folder_path.IsParent(resource_path)) {
-      DCHECK(!base::Contains(path_to_resource_info_, resource_path));
-      path_to_resource_info_[resource_path] = entries[i].value;
-    } else {
-      // If the resource is a generated file, strip the generated folder's path,
-      // so that it can be served from a normal URL (as if it were not
-      // generated).
-      base::FilePath effective_path =
-          base::FilePath().AppendASCII(resource_path.AsUTF8Unsafe().substr(
-              gen_folder_path.value().length()));
-      DCHECK(!base::Contains(path_to_resource_info_, effective_path));
-      path_to_resource_info_[effective_path] = entries[i].value;
-    }
+    DCHECK(!base::Contains(path_to_resource_info_, resource_path));
+    path_to_resource_info_[resource_path] = entries[i].value;
   }
 }
 

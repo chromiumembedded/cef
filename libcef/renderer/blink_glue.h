@@ -22,6 +22,7 @@ class WebElement;
 class WebLocalFrame;
 class WebNode;
 class WebString;
+class WebURLRequest;
 class WebURLResponse;
 class WebView;
 
@@ -69,9 +70,6 @@ BLINK_EXPORT v8::Local<v8::Value> ExecuteV8ScriptAndReturnValue(
 
 BLINK_EXPORT bool IsScriptForbidden();
 
-BLINK_EXPORT void RegisterURLSchemeAsLocal(const blink::WebString& scheme);
-BLINK_EXPORT void RegisterURLSchemeAsSecure(const blink::WebString& scheme);
-
 BLINK_EXPORT void RegisterURLSchemeAsSupportingFetchAPI(
     const blink::WebString& scheme);
 
@@ -92,6 +90,9 @@ BLINK_EXPORT bool ResponseWasCached(const blink::WebURLResponse& response);
 
 // Returns true if the frame owner is a plugin.
 BLINK_EXPORT bool HasPluginFrameOwner(blink::WebLocalFrame* frame);
+
+BLINK_EXPORT void StartNavigation(blink::WebLocalFrame* frame,
+                                  const blink::WebURLRequest& request);
 
 // Used by CefFrameImpl::CreateURLLoader.
 BLINK_EXPORT

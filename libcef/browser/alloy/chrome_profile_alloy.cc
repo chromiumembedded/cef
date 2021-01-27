@@ -176,3 +176,8 @@ void ChromeProfileAlloy::SetCreationTimeForTesting(base::Time creation_time) {
 void ChromeProfileAlloy::RecordMainFrameNavigation() {
   NOTREACHED();
 }
+
+bool ChromeProfileAlloy::IsSignedIn() {
+  NOTREACHED();
+  return false;
+}

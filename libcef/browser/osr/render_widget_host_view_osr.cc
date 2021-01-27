@@ -607,11 +607,6 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
   Show();
 }
 
-void CefRenderWidgetHostViewOSR::InitAsFullscreen(
-    content::RenderWidgetHostView* reference_host_view) {
-  NOTREACHED() << "Fullscreen widgets are not supported in OSR";
-}
-
 void CefRenderWidgetHostViewOSR::UpdateCursor(
     const content::WebCursor& cursor) {}
 
@@ -754,13 +749,6 @@ CefRenderWidgetHostViewOSR::DidUpdateVisualProperties(
 viz::SurfaceId CefRenderWidgetHostViewOSR::GetCurrentSurfaceId() const {
   return delegated_frame_host_ ? delegated_frame_host_->GetCurrentSurfaceId()
                                : viz::SurfaceId();
-}
-
-content::BrowserAccessibilityManager*
-CefRenderWidgetHostViewOSR::CreateBrowserAccessibilityManager(
-    content::BrowserAccessibilityDelegate* delegate,
-    bool for_root_frame) {
-  return nullptr;
 }
 
 void CefRenderWidgetHostViewOSR::ImeSetComposition(

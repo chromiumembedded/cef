@@ -209,12 +209,7 @@ bool CefPrintViewManager::PrintToPDF(content::RenderFrameHost* rfh,
   FillInDictionaryFromPdfPrintSettings(settings, ++next_pdf_request_id_,
                                        pdf_print_state_->settings_);
 
-  mojo::AssociatedRemote<printing::mojom::PrintRenderFrame>
-      print_render_frame_remote;
-  rfh->GetRemoteAssociatedInterfaces()->GetInterface(
-      &print_render_frame_remote);
-  print_render_frame_remote->InitiatePrintPreview({},
-                                                  !!settings.selection_only);
+  GetPrintRenderFrame(rfh)->InitiatePrintPreview({}, !!settings.selection_only);
 
   return true;
 }
@@ -235,6 +230,17 @@ void CefPrintViewManager::DidShowPrintDialog() {
   if (pdf_print_state_)
     return;
   PrintViewManager::DidShowPrintDialog();
+}
+
+void CefPrintViewManager::RequestPrintPreview(
+    mojom::RequestPrintPreviewParamsPtr params) {
+  if (!pdf_print_state_) {
+    PrintViewManager::RequestPrintPreview(std::move(params));
+    return;
+  }
+
+  GetPrintRenderFrame(pdf_print_state_->printing_rfh_)
+      ->PrintPreview(pdf_print_state_->settings_.Clone());
 }
 
 void CefPrintViewManager::RenderFrameDeleted(
@@ -261,22 +267,11 @@ bool CefPrintViewManager::OnMessageReceived(
     content::RenderFrameHost* render_frame_host) {
   bool handled = true;
   if (!pdf_print_state_) {
-    IPC_BEGIN_MESSAGE_MAP_WITH_PARAM(CefPrintViewManager, message,
-                                     render_frame_host)
-      IPC_MESSAGE_HANDLER(PrintHostMsg_RequestPrintPreview,
-                          OnRequestPrintPreview)
-      IPC_MESSAGE_HANDLER(PrintHostMsg_ShowScriptedPrintPreview,
-                          OnShowScriptedPrintPreview)
-      IPC_MESSAGE_UNHANDLED(handled = false)
-    IPC_END_MESSAGE_MAP()
-
     return PrintViewManager::OnMessageReceived(message, render_frame_host);
   }
 
   IPC_BEGIN_MESSAGE_MAP_WITH_PARAM(CefPrintViewManager, message,
                                    render_frame_host)
-    IPC_MESSAGE_HANDLER(PrintHostMsg_RequestPrintPreview,
-                        OnRequestPrintPreview_PrintToPdf)
     IPC_MESSAGE_HANDLER(PrintHostMsg_MetafileReadyForPrinting,
                         OnMetafileReadyForPrinting_PrintToPdf)
     IPC_MESSAGE_UNHANDLED(handled = false)
@@ -309,34 +304,6 @@ const CefPrintViewManager* CefPrintViewManager::FromWebContents(
   DCHECK(contents);
   return static_cast<const CefPrintViewManager*>(
       contents->GetUserData(PrintViewManager::UserDataKey()));
-}
-
-void CefPrintViewManager::OnRequestPrintPreview(
-    content::RenderFrameHost* rfh,
-    const PrintHostMsg_RequestPrintPreview_Params&) {
-  InitializePrintPreview(rfh->GetFrameTreeNodeId());
-}
-
-void CefPrintViewManager::OnShowScriptedPrintPreview(
-    content::RenderFrameHost* rfh,
-    bool source_is_modifiable) {
-  InitializePrintPreview(rfh->GetFrameTreeNodeId());
-}
-
-void CefPrintViewManager::OnRequestPrintPreview_PrintToPdf(
-    content::RenderFrameHost* rfh,
-    const PrintHostMsg_RequestPrintPreview_Params&) {
-  DCHECK_CURRENTLY_ON(BrowserThread::UI);
-  if (!pdf_print_state_)
-    return;
-
-  DCHECK_EQ(pdf_print_state_->printing_rfh_, rfh);
-
-  mojo::AssociatedRemote<printing::mojom::PrintRenderFrame>
-      print_render_frame_remote;
-  rfh->GetRemoteAssociatedInterfaces()->GetInterface(
-      &print_render_frame_remote);
-  print_render_frame_remote->PrintPreview(pdf_print_state_->settings_.Clone());
 }
 
 void CefPrintViewManager::OnMetafileReadyForPrinting_PrintToPdf(
@@ -389,71 +356,5 @@ void CefPrintViewManager::TerminatePdfPrintJob() {
   // Reset state information.
   pdf_print_state_.reset();
 }
-
-void CefPrintViewManager::InitializePrintPreview(int frame_tree_node_id) {
-  PrintPreviewDialogController* dialog_controller =
-      PrintPreviewDialogController::GetInstance();
-  if (!dialog_controller)
-    return;
-
-  dialog_controller->PrintPreview(web_contents());
-
-  content::WebContents* preview_contents =
-      dialog_controller->GetPrintPreviewForContents(web_contents());
-
-  extensions::CefExtensionWebContentsObserver::CreateForWebContents(
-      preview_contents);
-
-  PrintPreviewHelper::CreateForWebContents(preview_contents);
-  PrintPreviewHelper::FromWebContents(preview_contents)
-      ->Initialize(frame_tree_node_id);
-}
-
-// CefPrintViewManager::PrintPreviewHelper
-
-CefPrintViewManager::PrintPreviewHelper::PrintPreviewHelper(
-    content::WebContents* contents)
-    : content::WebContentsObserver(contents) {}
-
-void CefPrintViewManager::PrintPreviewHelper::Initialize(
-    int parent_frame_tree_node_id) {
-  DCHECK_EQ(parent_frame_tree_node_id_,
-            content::RenderFrameHost::kNoFrameTreeNodeId);
-  DCHECK_NE(parent_frame_tree_node_id,
-            content::RenderFrameHost::kNoFrameTreeNodeId);
-  parent_frame_tree_node_id_ = parent_frame_tree_node_id;
-
-  auto context = web_contents()->GetBrowserContext();
-  auto manager = content::BrowserContext::GetDownloadManager(context);
-
-  if (!context->GetDownloadManagerDelegate()) {
-    manager->SetDelegate(new CefDownloadManagerDelegate(manager));
-  }
-
-  auto browser_info =
-      CefBrowserInfoManager::GetInstance()->GetBrowserInfoForFrameTreeNode(
-          parent_frame_tree_node_id_);
-  DCHECK(browser_info);
-  if (!browser_info)
-    return;
-
-  // Associate guest state information with the owner browser.
-  browser_info->MaybeCreateFrame(web_contents()->GetMainFrame(),
-                                 true /* is_guest_view */);
-}
-
-void CefPrintViewManager::PrintPreviewHelper::WebContentsDestroyed() {
-  auto browser_info =
-      CefBrowserInfoManager::GetInstance()->GetBrowserInfoForFrameTreeNode(
-          parent_frame_tree_node_id_);
-  DCHECK(browser_info);
-  if (!browser_info)
-    return;
-
-  // Disassociate guest state information with the owner browser.
-  browser_info->RemoveFrame(web_contents()->GetMainFrame());
-}
-
-WEB_CONTENTS_USER_DATA_KEY_IMPL(CefPrintViewManager::PrintPreviewHelper)
 
 }  // namespace printing

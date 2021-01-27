@@ -132,7 +132,7 @@ class AccessibilityTestHandler : public TestHandler,
 
           // Ignore other events.
           if (!event.get() ||
-              event->GetString("event_type") != "layoutComplete") {
+              event->GetString("event_type") != "loadComplete") {
             break;
           }
 
@@ -154,7 +154,7 @@ class AccessibilityTestHandler : public TestHandler,
 
           // Ignore other events.
           if (!event.get() ||
-              event->GetString("event_type") != "layoutComplete") {
+              event->GetString("event_type") != "loadComplete") {
             break;
           }
 
@@ -339,7 +339,7 @@ class AccessibilityTestHandler : public TestHandler,
     EXPECT_TRUE(update.get());
 
     // Ignore other events.
-    if (!event.get() || event->GetString("event_type") != "layoutComplete") {
+    if (!event.get() || event->GetString("event_type") != "loadComplete") {
       return;
     }
 

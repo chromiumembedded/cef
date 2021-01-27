@@ -1,8 +1,8 @@
 diff --git components/viz/host/host_display_client.cc components/viz/host/host_display_client.cc
-index c80e6831d4af..3fd2f9e4f822 100644
+index 3b00759e513d..90fe332d59f5 100644
 --- components/viz/host/host_display_client.cc
 +++ components/viz/host/host_display_client.cc
-@@ -43,9 +43,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
+@@ -45,9 +45,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
  }
  #endif
  
@@ -18,7 +18,7 @@ index c80e6831d4af..3fd2f9e4f822 100644
    if (!NeedsToUseLayerWindow(widget_)) {
      DLOG(ERROR) << "HWND shouldn't be using a layered window";
      return;
-@@ -53,8 +58,8 @@ void HostDisplayClient::CreateLayeredWindowUpdater(
+@@ -55,8 +60,8 @@ void HostDisplayClient::CreateLayeredWindowUpdater(
  
    layered_window_updater_ =
        std::make_unique<LayeredWindowUpdaterImpl>(widget_, std::move(receiver));
@@ -26,13 +26,13 @@ index c80e6831d4af..3fd2f9e4f822 100644
  #endif
 +}
  
- #if defined(OS_LINUX) && !defined(OS_CHROMEOS)
- void HostDisplayClient::DidCompleteSwapWithNewSize(const gfx::Size& size) {
+ // TODO(crbug.com/1052397): Revisit the macro expression once build flag switch
+ // of lacros-chrome is complete.
 diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
-index 521ea99a35da..47d0ae89cdf1 100644
+index 5e260e13762f..1ccff27f2fdb 100644
 --- components/viz/host/host_display_client.h
 +++ components/viz/host/host_display_client.h
-@@ -31,17 +31,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
+@@ -32,17 +32,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
    mojo::PendingRemote<mojom::DisplayClient> GetBoundRemote(
        scoped_refptr<base::SingleThreadTaskRunner> task_runner);
  
@@ -51,8 +51,8 @@ index 521ea99a35da..47d0ae89cdf1 100644
        mojo::PendingReceiver<mojom::LayeredWindowUpdater> receiver) override;
 -#endif
  
- #if defined(OS_LINUX) && !defined(OS_CHROMEOS)
-   void DidCompleteSwapWithNewSize(const gfx::Size& size) override;
+ // TODO(crbug.com/1052397): Revisit the macro expression once build flag switch
+ // of lacros-chrome is complete.
 diff --git components/viz/host/layered_window_updater_impl.cc components/viz/host/layered_window_updater_impl.cc
 index b04f654fe820..131977a36591 100644
 --- components/viz/host/layered_window_updater_impl.cc
@@ -80,10 +80,10 @@ index 1026b739d283..fe562ab60ce9 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 92acbc3a25c6..5493e97f9160 100644
+index c66d791c7c9a..5c98ae02d8b7 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -176,6 +176,8 @@ viz_component("service") {
+@@ -180,6 +180,8 @@ viz_component("service") {
      "surfaces/surface_reference.cc",
      "surfaces/surface_reference.h",
      "viz_service_export.h",
@@ -93,18 +93,18 @@ index 92acbc3a25c6..5493e97f9160 100644
  
    defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index 54686950a28c..a62178180d51 100644
+index 79c800e77a16..c1593b597325 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
-@@ -15,6 +15,7 @@
- #include "base/threading/thread_task_runner_handle.h"
+@@ -16,6 +16,7 @@
  #include "build/chromecast_buildflags.h"
+ #include "build/chromeos_buildflags.h"
  #include "cc/base/switches.h"
 +#include "cef/libcef/browser/osr/software_output_device_proxy.h"
  #include "components/viz/common/display/renderer_settings.h"
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
  #include "components/viz/service/display/display_compositor_memory_and_task_controller.h"
-@@ -244,6 +245,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+@@ -245,6 +246,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
    if (headless_)
      return std::make_unique<SoftwareOutputDevice>();
  
@@ -142,10 +142,10 @@ index 2bb30e5318b6..535535dd6c10 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 18f8a89820e5..ac4fec9fd947 100644
+index 11ac1649ed0f..ab4aaf5e69b1 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
-@@ -407,8 +407,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+@@ -414,8 +414,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
    compositor_data.display_private.reset();
    root_params->display_private =
        compositor_data.display_private.BindNewEndpointAndPassReceiver();
@@ -162,10 +162,10 @@ index 18f8a89820e5..ac4fec9fd947 100644
        compositor_data.display_client->GetBoundRemote(resize_task_runner_);
  
 diff --git mojo/public/cpp/bindings/sync_call_restrictions.h mojo/public/cpp/bindings/sync_call_restrictions.h
-index c9a75d59b7eb..e4cf92fe15e8 100644
+index 4ff82130b358..6c2e3e4d3e9b 100644
 --- mojo/public/cpp/bindings/sync_call_restrictions.h
 +++ mojo/public/cpp/bindings/sync_call_restrictions.h
-@@ -29,6 +29,7 @@ class Compositor;
+@@ -33,6 +33,7 @@ class Compositor;
  
  namespace viz {
  class HostFrameSinkManager;
@@ -173,7 +173,7 @@ index c9a75d59b7eb..e4cf92fe15e8 100644
  }
  
  namespace mojo {
-@@ -81,6 +82,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
+@@ -86,6 +87,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
    // For preventing frame swaps of wrong size during resize on Windows.
    // (https://crbug.com/811945)
    friend class ui::Compositor;
@@ -214,20 +214,20 @@ index 6b7fbb6cf13d..e2af75168cb9 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index dc011fe48e2a..60743cbaa548 100644
+index e1db8f745c07..6d94047788bf 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
-@@ -25,7 +25,9 @@
- #include "cc/trees/layer_tree_host_single_thread_client.h"
+@@ -27,7 +27,9 @@
  #include "components/viz/common/frame_sinks/begin_frame_args.h"
  #include "components/viz/common/surfaces/frame_sink_id.h"
+ #include "components/viz/common/surfaces/subtree_capture_id.h"
 +#include "components/viz/host/host_display_client.h"
  #include "components/viz/host/host_frame_sink_client.h"
 +#include "components/viz/service/display/software_output_device.h"
  #include "mojo/public/cpp/bindings/pending_remote.h"
  #include "services/viz/privileged/mojom/compositing/vsync_parameter_observer.mojom-forward.h"
  #include "third_party/skia/include/core/SkColor.h"
-@@ -128,6 +130,14 @@ class COMPOSITOR_EXPORT ContextFactory {
+@@ -133,6 +135,14 @@ class COMPOSITOR_EXPORT ContextFactory {
    virtual viz::HostFrameSinkManager* GetHostFrameSinkManager() = 0;
  };
  
@@ -242,7 +242,7 @@ index dc011fe48e2a..60743cbaa548 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -162,6 +172,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -167,6 +177,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -252,7 +252,7 @@ index dc011fe48e2a..60743cbaa548 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -430,6 +443,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -435,6 +448,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
  
    std::unique_ptr<PendingBeginFrameArgs> pending_begin_frame_args_;
  

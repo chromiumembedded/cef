@@ -108,6 +108,8 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
 
 void ChromeContentBrowserClientCef::RenderProcessWillLaunch(
     content::RenderProcessHost* host) {
+  ChromeContentBrowserClient::RenderProcessWillLaunch(host);
+
   const int id = host->GetID();
   host->AddFilter(new CefBrowserMessageFilter(id));
 

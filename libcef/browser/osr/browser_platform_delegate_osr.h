@@ -81,7 +81,7 @@ class CefBrowserPlatformDelegateOsr
                      const gfx::Vector2d& image_offset,
                      const blink::mojom::DragEventSourceInfo& event_info,
                      content::RenderWidgetHostImpl* source_rwh) override;
-  void UpdateDragCursor(blink::DragOperation operation) override;
+  void UpdateDragCursor(ui::mojom::DragOperation operation) override;
   void DragSourceEndedAt(int x, int y, cef_drag_operations_mask_t op) override;
   void DragSourceSystemDragEnded() override;
   void AccessibilityEventReceived(

@@ -472,6 +472,10 @@ def GetConfigArgsSandbox(platform, args, is_debug, cpu):
       # Avoid libucrt.lib linker errors.
       'use_allocator_shim': False,
 
+      # PartitionAlloc is selected as the default allocator in some cases.
+      # We can't use it because it requires use_allocator_shim=true.
+      'use_allocator': "none",
+
       # Avoid /LTCG linker warnings and generate smaller lib files.
       'is_official_build': False,
 

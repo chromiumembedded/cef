@@ -94,10 +94,10 @@ index 2aba28d210db..5413f08af93d 100644
    return RunContentProcess(params, runner.get());
  }
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 6f5d40dd324d..8fa1397f0353 100644
+index 811017f5d455..00e4020dea17 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -46,6 +46,7 @@
+@@ -48,6 +48,7 @@
  #include "base/task/post_task.h"
  #include "base/task/thread_pool/thread_pool_instance.h"
  #include "base/threading/hang_watcher.h"
@@ -105,7 +105,7 @@ index 6f5d40dd324d..8fa1397f0353 100644
  #include "base/trace_event/trace_event.h"
  #include "components/discardable_memory/service/discardable_shared_memory_manager.h"
  #include "components/download/public/common/download_task_runner.h"
-@@ -589,7 +590,7 @@ int ContentMainRunnerImpl::Initialize(const ContentMainParams& params) {
+@@ -629,7 +630,7 @@ int ContentMainRunnerImpl::Initialize(const ContentMainParams& params) {
  #else  // !OS_WIN
  
  #if defined(OS_MAC)
@@ -114,7 +114,7 @@ index 6f5d40dd324d..8fa1397f0353 100644
  #endif  // defined(OS_MAC)
  
  #if defined(OS_ANDROID)
-@@ -1039,6 +1040,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1089,6 +1090,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -127,11 +127,11 @@ index 6f5d40dd324d..8fa1397f0353 100644
  std::unique_ptr<ContentMainRunner> ContentMainRunner::Create() {
    return ContentMainRunnerImpl::Create();
 diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
-index 30d5515b3af8..d59b4779afef 100644
+index 86c624e53cf9..090171f7db22 100644
 --- content/app/content_main_runner_impl.h
 +++ content/app/content_main_runner_impl.h
 @@ -39,7 +39,7 @@ class ContentMainDelegate;
- class ServiceManagerEnvironment;
+ class MojoIpcSupport;
  struct ContentMainParams;
  
 -class ContentMainRunnerImpl : public ContentMainRunner {
@@ -140,14 +140,14 @@ index 30d5515b3af8..d59b4779afef 100644
    static std::unique_ptr<ContentMainRunnerImpl> Create();
  
 @@ -53,6 +53,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
-   int Run(bool start_service_manager_only) override;
+   int Run(bool start_minimal_browser) override;
    void Shutdown() override;
  
 +  void ShutdownOnUIThread();
 +
   private:
-   int RunServiceManager(MainFunctionParams& main_function_params,
-                         bool start_service_manager_only);
+   int RunBrowser(MainFunctionParams& main_function_params,
+                  bool start_minimal_browser);
 diff --git content/common/set_process_title.cc content/common/set_process_title.cc
 index 8b829a488773..a69a08869728 100644
 --- content/common/set_process_title.cc

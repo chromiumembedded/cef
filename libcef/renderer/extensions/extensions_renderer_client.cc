@@ -121,35 +121,13 @@ void CefExtensionsRendererClient::WillSendRequest(
     const blink::WebURL& url,
     const net::SiteForCookies& site_for_cookies,
     const url::Origin* initiator_origin,
-    GURL* new_url,
-    bool* attach_same_site_cookies) {
-  if (initiator_origin &&
-      initiator_origin->scheme() == extensions::kExtensionScheme) {
-    const extensions::RendererExtensionRegistry* extension_registry =
-        extensions::RendererExtensionRegistry::Get();
-    const Extension* extension =
-        extension_registry->GetByID(initiator_origin->host());
-    if (extension) {
-      int tab_id = extensions::ExtensionFrameHelper::Get(
-                       content::RenderFrame::FromWebFrame(frame))
-                       ->tab_id();
-      GURL request_url(url);
-      if (extension->permissions_data()->GetPageAccess(request_url, tab_id,
-                                                       nullptr) ==
-              extensions::PermissionsData::PageAccess::kAllowed ||
-          extension->permissions_data()->GetContentScriptAccess(
-              request_url, tab_id, nullptr) ==
-              extensions::PermissionsData::PageAccess::kAllowed) {
-        *attach_same_site_cookies = true;
-      }
-    }
-  }
-
+    GURL* new_url) {
   // Check whether the request should be allowed. If not allowed, we reset the
   // URL to something invalid to prevent the request and cause an error.
   if (url.ProtocolIs(extensions::kExtensionScheme) &&
-      !resource_request_policy_->CanRequestResource(GURL(url), frame,
-                                                    transition_type)) {
+      !resource_request_policy_->CanRequestResource(
+          GURL(url), frame, transition_type,
+          base::OptionalFromPtr(initiator_origin))) {
     *new_url = GURL(chrome::kExtensionInvalidRequestURL);
   }
 }

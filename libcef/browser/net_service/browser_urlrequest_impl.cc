@@ -264,7 +264,6 @@ class CefBrowserURLRequest::Context
 
     if (request_flags & UR_FLAG_ALLOW_STORED_CREDENTIALS) {
       // Include SameSite cookies.
-      resource_request->force_ignore_site_for_cookies = true;
       resource_request->site_for_cookies =
           net::SiteForCookies::FromOrigin(*resource_request->request_initiator);
     }
@@ -301,9 +300,10 @@ class CefBrowserURLRequest::Context
     if (request_body) {
       if (request_body->elements()->size() == 1) {
         const auto& element = (*request_body->elements())[0];
-        if (element.type() == network::mojom::DataElementType::kFile) {
+        if (element.type() == network::DataElement::Tag::kFile) {
+          const auto& file_element = element.As<network::DataElementFile>();
           if (content_type.empty()) {
-            const auto& extension = element.path().Extension();
+            const auto& extension = file_element.path().Extension();
             if (!extension.empty()) {
               // Requests should not block on the disk! On POSIX this goes to
               // disk. http://code.google.com/p/chromium/issues/detail?id=59849
@@ -312,22 +312,23 @@ class CefBrowserURLRequest::Context
               net::GetMimeTypeFromExtension(extension.substr(1), &content_type);
             }
           }
-          loader_->AttachFileForUpload(element.path(), content_type);
-        } else if (element.type() == network::mojom::DataElementType::kBytes) {
+          loader_->AttachFileForUpload(file_element.path(), content_type);
+        } else if (element.type() == network::DataElement::Tag::kBytes) {
+          const auto& bytes_element = element.As<network::DataElementBytes>();
+          const auto& bytes = bytes_element.bytes();
           if (content_type.empty()) {
             content_type = net_service::kContentTypeApplicationFormURLEncoded;
           }
           loader_->AttachStringForUpload(
-              std::string(element.bytes() + element.offset(),
-                          element.length() - element.offset()),
-              content_type);
+              bytes_element.AsStringPiece().as_string(), content_type);
 
           if (request_flags & UR_FLAG_REPORT_UPLOAD_PROGRESS) {
             // Report the expected upload data size.
-            upload_data_size_ = element.length() - element.offset();
+            upload_data_size_ = bytes.size();
           }
         } else {
-          NOTIMPLEMENTED() << "Unsupported element type: " << element.type();
+          NOTIMPLEMENTED() << "Unsupported element type: "
+                           << static_cast<int>(element.type());
         }
       } else if (request_body->elements()->size() > 1) {
         NOTIMPLEMENTED() << "Multi-part form data is not supported";

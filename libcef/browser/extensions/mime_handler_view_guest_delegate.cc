@@ -11,8 +11,6 @@
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/osr/web_contents_view_osr.h"
 
-#include "content/browser/browser_plugin/browser_plugin_guest.h"
-#include "content/browser/web_contents/web_contents_impl.h"
 #include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h"
 
 namespace extensions {
@@ -67,22 +65,11 @@ void CefMimeHandlerViewGuestDelegate::OnGuestDetached() {
 bool CefMimeHandlerViewGuestDelegate::HandleContextMenu(
     content::WebContents* web_contents,
     const content::ContextMenuParams& params) {
-  content::ContextMenuParams new_params = params;
-
-  gfx::Point guest_coordinates =
-      static_cast<content::WebContentsImpl*>(web_contents)
-          ->GetBrowserPluginGuest()
-          ->GetScreenCoordinates(gfx::Point());
-
-  // Adjust (x,y) position for offset from guest to embedder.
-  new_params.x += guest_coordinates.x();
-  new_params.y += guest_coordinates.y();
-
   CefRefPtr<AlloyBrowserHostImpl> owner_browser =
       AlloyBrowserHostImpl::GetBrowserForContents(owner_web_contents_);
   DCHECK(owner_browser);
 
-  return owner_browser->HandleContextMenu(web_contents, new_params);
+  return owner_browser->HandleContextMenu(web_contents, params);
 }
 
 }  // namespace extensions

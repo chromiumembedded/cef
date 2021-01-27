@@ -76,7 +76,6 @@
 #include "content/public/common/url_constants.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/render_view_visitor.h"
-#include "content/renderer/render_widget.h"
 #include "extensions/common/switches.h"
 #include "extensions/renderer/guest_view/mime_handler_view/mime_handler_view_container_manager.h"
 #include "extensions/renderer/renderer_extension_registry.h"
@@ -99,7 +98,6 @@
 #include "third_party/blink/public/web/web_element.h"
 #include "third_party/blink/public/web/web_frame.h"
 #include "third_party/blink/public/web/web_local_frame.h"
-#include "third_party/blink/public/web/web_prerenderer_client.h"
 #include "third_party/blink/public/web/web_security_policy.h"
 #include "third_party/blink/public/web/web_view.h"
 #include "third_party/blink/renderer/platform/runtime_enabled_features.h"
@@ -111,26 +109,6 @@
 #endif
 
 namespace {
-
-// Stub implementation of blink::WebPrerendererClient.
-class CefPrerendererClient : public content::RenderViewObserver,
-                             public blink::WebPrerendererClient {
- public:
-  explicit CefPrerendererClient(content::RenderView* render_view)
-      : content::RenderViewObserver(render_view) {
-    DCHECK(render_view);
-    render_view->GetWebView()->SetPrerendererClient(this);
-  }
-
- private:
-  ~CefPrerendererClient() override {}
-
-  // RenderViewObserver methods:
-  void OnDestruct() override { delete this; }
-
-  // WebPrerendererClient methods:
-  bool IsPrefetchOnly() override { return false; }
-};
 
 bool IsStandaloneExtensionProcess() {
   return extensions::ExtensionsEnabled() &&
@@ -340,8 +318,6 @@ void AlloyContentRendererClient::RenderFrameCreated(
 
 void AlloyContentRendererClient::RenderViewCreated(
     content::RenderView* render_view) {
-  new CefPrerendererClient(render_view);
-
   bool browser_created;
   base::Optional<bool> is_windowless;
   browser_manager_->RenderViewCreated(render_view, browser_created,
@@ -417,12 +393,11 @@ void AlloyContentRendererClient::WillSendRequest(
     const blink::WebURL& url,
     const net::SiteForCookies& site_for_cookies,
     const url::Origin* initiator_origin,
-    GURL* new_url,
-    bool* attach_same_site_cookies) {
+    GURL* new_url) {
   if (extensions::ExtensionsEnabled()) {
-    extensions_renderer_client_->WillSendRequest(
-        frame, transition_type, url, site_for_cookies, initiator_origin,
-        new_url, attach_same_site_cookies);
+    extensions_renderer_client_->WillSendRequest(frame, transition_type, url,
+                                                 site_for_cookies,
+                                                 initiator_origin, new_url);
     if (!new_url->is_empty())
       return;
   }
@@ -439,8 +414,8 @@ bool AlloyContentRendererClient::IsLinkVisited(uint64_t link_hash) {
 
 bool AlloyContentRendererClient::IsOriginIsolatedPepperPlugin(
     const base::FilePath& plugin_path) {
-  return plugin_path ==
-         base::FilePath::FromUTF8Unsafe(AlloyContentClient::kPDFPluginPath);
+  // Isolate all the plugins (including the PDF plugin).
+  return true;
 }
 
 void AlloyContentRendererClient::AddSupportedKeySystems(

@@ -1,5 +1,5 @@
 diff --git third_party/widevine/cdm/BUILD.gn third_party/widevine/cdm/BUILD.gn
-index fa726c5a60fa..b84dd523542b 100644
+index 71bc09b46ad6..ddf0da9b330e 100644
 --- third_party/widevine/cdm/BUILD.gn
 +++ third_party/widevine/cdm/BUILD.gn
 @@ -6,6 +6,7 @@ import("//build/buildflag_header.gni")

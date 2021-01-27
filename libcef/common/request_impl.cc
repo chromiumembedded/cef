@@ -1271,10 +1271,13 @@ void CefPostDataElementImpl::Set(const network::DataElement& element) {
     CHECK_READONLY_RETURN_VOID();
   }
 
-  if (element.type() == network::mojom::DataElementType::kBytes) {
-    SetToBytes(element.length(), element.bytes());
-  } else if (element.type() == network::mojom::DataElementType::kFile) {
-    SetToFile(element.path().value());
+  if (element.type() == network::DataElement::Tag::kBytes) {
+    const auto& bytes_element = element.As<network::DataElementBytes>();
+    const auto& bytes = bytes_element.bytes();
+    SetToBytes(bytes.size(), bytes.data());
+  } else if (element.type() == network::DataElement::Tag::kFile) {
+    const auto& file_element = element.As<network::DataElementFile>();
+    SetToFile(file_element.path().value());
   }
 }
 

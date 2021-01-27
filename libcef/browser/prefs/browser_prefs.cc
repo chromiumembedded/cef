@@ -27,9 +27,9 @@
 #include "chrome/browser/prefs/chrome_command_line_pref_store.h"
 #include "chrome/browser/printing/print_preview_sticky_settings.h"
 #include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/renderer_host/pepper/device_id_fetcher.h"
 #include "chrome/browser/ssl/ssl_config_service_manager.h"
 #include "chrome/browser/themes/theme_service.h"
+#include "chrome/browser/ui/webui/print_preview/policy_settings.h"
 #include "chrome/common/buildflags.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/net/safe_search_util.h"
@@ -228,7 +228,6 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     // Default profile preferences.
     AccessibilityUIMessageHandler::RegisterProfilePrefs(registry.get());
     chrome_browser_net::RegisterPredictionOptionsProfilePrefs(registry.get());
-    DeviceIDFetcher::RegisterProfilePrefs(registry.get());
     extensions::ExtensionPrefs::RegisterProfilePrefs(registry.get());
     HostContentSettingsMap::RegisterProfilePrefs(registry.get());
     language::LanguagePrefs::RegisterProfilePrefs(registry.get());
@@ -254,6 +253,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     registry->RegisterStringPref(
         prefs::kPrintPreviewDefaultDestinationSelectionRules, std::string());
     registry->RegisterBooleanPref(prefs::kCloudPrintSubmitEnabled, false);
+    printing::PolicySettings::RegisterProfilePrefs(registry.get());
     printing::PrintPreviewStickySettings::RegisterProfilePrefs(registry.get());
     DownloadPrefs::RegisterProfilePrefs(registry.get());
 

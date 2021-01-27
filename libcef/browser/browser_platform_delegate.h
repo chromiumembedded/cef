@@ -19,6 +19,7 @@
 #include "third_party/blink/public/common/page/drag_operation.h"
 #include "third_party/blink/public/mojom/page/drag.mojom-forward.h"
 #include "third_party/skia/include/core/SkColor.h"
+#include "ui/base/dragdrop/mojom/drag_drop_types.mojom-forward.h"
 #include "ui/base/window_open_disposition.h"
 
 class GURL;
@@ -327,7 +328,7 @@ class CefBrowserPlatformDelegate {
       const gfx::Vector2d& image_offset,
       const blink::mojom::DragEventSourceInfo& event_info,
       content::RenderWidgetHostImpl* source_rwh);
-  virtual void UpdateDragCursor(blink::DragOperation operation);
+  virtual void UpdateDragCursor(ui::mojom::DragOperation operation);
   virtual void DragSourceEndedAt(int x, int y, cef_drag_operations_mask_t op);
   virtual void DragSourceSystemDragEnded();
   virtual void AccessibilityEventReceived(

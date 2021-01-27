@@ -488,7 +488,7 @@ void CefBrowserPlatformDelegateOsr::StartDragging(
 }
 
 void CefBrowserPlatformDelegateOsr::UpdateDragCursor(
-    blink::DragOperation operation) {
+    ui::mojom::DragOperation operation) {
   CefRefPtr<CefRenderHandler> handler =
       browser_->GetClient()->GetRenderHandler();
   if (handler.get()) {
@@ -512,7 +512,7 @@ void CefBrowserPlatformDelegateOsr::DragSourceEndedAt(
   content::RenderWidgetHostImpl* source_rwh = drag_start_rwh_.get();
   const gfx::Point client_loc(gfx::Point(x, y));
   const gfx::Point& screen_loc = GetScreenPoint(client_loc);
-  blink::DragOperation drag_op = static_cast<blink::DragOperation>(op);
+  ui::mojom::DragOperation drag_op = static_cast<ui::mojom::DragOperation>(op);
 
   // |client_loc| and |screen_loc| are in the root coordinate space, for
   // non-root RenderWidgetHosts they need to be transformed.

@@ -441,7 +441,7 @@ bool CefXmlReaderImpl::MoveToCarryingElement() {
 void CefXmlReaderImpl::AppendError(const CefString& error_str) {
   if (!error_buf_.str().empty())
     error_buf_ << L"\n";
-  error_buf_ << error_str;
+  error_buf_ << error_str.ToString();
 }
 
 bool CefXmlReaderImpl::VerifyContext() {

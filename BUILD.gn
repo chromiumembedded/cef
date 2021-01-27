@@ -628,8 +628,6 @@ static_library("libcef_static") {
     "libcef/browser/print_settings_impl.h",
     "libcef/browser/printing/constrained_window_views_client.cc",
     "libcef/browser/printing/constrained_window_views_client.h",
-    "libcef/browser/printing/printing_message_filter.cc",
-    "libcef/browser/printing/printing_message_filter.h",
     "libcef/browser/printing/print_view_manager.cc",
     "libcef/browser/printing/print_view_manager.h",
     "libcef/browser/process_util_impl.cc",
@@ -1367,6 +1365,7 @@ repack("pak_extensions") {
   # Add associated .h files in the make_pack_header("resources") target.
   sources = [
     "$root_gen_dir/chrome/component_extension_resources.pak",
+    "$root_gen_dir/chrome/pdf_resources.pak",
     "$root_gen_dir/content/browser/resources/media/media_internals_resources.pak",
     "$root_gen_dir/content/browser/webrtc/resources/webrtc_internals_resources.pak",
     "$root_gen_dir/extensions/extensions_renderer_resources.pak",
@@ -1381,6 +1380,7 @@ repack("pak_extensions") {
   # listed both here and in the libcef_static target.
   public_deps = [
     "//chrome/browser/resources:component_extension_resources",
+    "//chrome/browser/resources/pdf:pdf_resources",
     "//content/browser/resources/media:media_internals_resources",
     "//content/browser/webrtc/resources",
     "//extensions:extensions_renderer_resources",
@@ -1515,17 +1515,21 @@ make_pack_header("resources") {
     "$root_gen_dir/chrome/grit/component_extension_resources.h",
     "$root_gen_dir/chrome/grit/dev_ui_browser_resources.h",
     "$root_gen_dir/chrome/grit/net_internals_resources.h",
+    "$root_gen_dir/chrome/grit/pdf_resources.h",
     "$root_gen_dir/chrome/grit/print_preview_resources.h",
     "$root_gen_dir/chrome/grit/renderer_resources.h",
     "$root_gen_dir/components/grit/components_resources.h",
     "$root_gen_dir/components/grit/dev_ui_components_resources.h",
     "$root_gen_dir/content/browser/devtools/grit/devtools_resources.h",
+    "$root_gen_dir/content/browser/resources/media/grit/media_internals_resources.h",
     "$root_gen_dir/content/browser/tracing/grit/tracing_resources.h",
+    "$root_gen_dir/content/browser/webrtc/resources/grit/webrtc_internals_resources.h",
     "$root_gen_dir/content/grit/content_resources.h",
     "$root_gen_dir/content/grit/dev_ui_content_resources.h",
     "$root_gen_dir/extensions/grit/extensions_browser_resources.h",
     "$root_gen_dir/extensions/grit/extensions_renderer_resources.h",
     "$root_gen_dir/extensions/grit/extensions_resources.h",
+    "$root_gen_dir/mojo/public/js/grit/mojo_bindings_resources.h",
     "$root_gen_dir/net/grit/net_resources.h",
     "$root_gen_dir/third_party/blink/public/resources/grit/blink_resources.h",
     "$root_gen_dir/ui/resources/grit/ui_resources.h",
@@ -1544,6 +1548,7 @@ make_pack_header("strings") {
     "$root_gen_dir/chrome/grit/generated_resources.h",
     "$root_gen_dir/chrome/grit/locale_settings.h",
     "$root_gen_dir/chrome/grit/platform_locale_settings.h",
+    "$root_gen_dir/components/omnibox/resources/grit/omnibox_resources.h",
     "$root_gen_dir/components/strings/grit/components_chromium_strings.h",
     "$root_gen_dir/components/strings/grit/components_strings.h",
     "$root_gen_dir/extensions/strings/grit/extensions_strings.h",
@@ -1911,6 +1916,7 @@ if (is_mac) {
 
       sources = invoker.sources
 
+      public_deps = [ ":libcef_dll_wrapper" ]
       deps = [
         ":libcef_dll_wrapper",
         ":${app_name}_framework_bundle_data",

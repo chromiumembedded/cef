@@ -1,8 +1,8 @@
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 957a3e09113f..1d8a5bdac349 100644
+index 19c5989c8b67..e85ce53a22a1 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
-@@ -1052,10 +1052,6 @@ void LaunchURL(const GURL& url,
+@@ -1067,10 +1067,6 @@ void LaunchURL(const GURL& url,
    }
  }
  
@@ -13,7 +13,7 @@ index 957a3e09113f..1d8a5bdac349 100644
  void MaybeAppendSecureOriginsAllowlistSwitch(base::CommandLine* cmdline) {
    // |allowlist| combines pref/policy + cmdline switch in the browser process.
    // For renderer and utility (e.g. NetworkService) processes the switch is the
-@@ -1234,6 +1230,14 @@ const blink::UserAgentBrandList& GetBrandVersionList() {
+@@ -1258,6 +1254,14 @@ const blink::UserAgentBrandList& GetBrandVersionList() {
    return *greased_brand_version_list;
  }
  
@@ -29,10 +29,10 @@ index 957a3e09113f..1d8a5bdac349 100644
    base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
    if (command_line->HasSwitch(switches::kUserAgent)) {
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index c6f87c148d16..bdc93db224d0 100644
+index 3ef2329ac8a6..3e3ede99e042 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
-@@ -101,7 +101,8 @@ class ChromeXrIntegrationClient;
+@@ -108,7 +108,8 @@ class ChromeXrIntegrationClient;
  }
  #endif
  

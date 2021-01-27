@@ -222,12 +222,11 @@ void CefRenderFrameObserver::OnLoadError() {
         const cef_errorcode_t errorCode =
             static_cast<cef_errorcode_t>(net::ERR_ABORTED);
         const std::string& errorText = net::ErrorToString(errorCode);
-        const GURL failedUrl(frame_->GetURL().c_str());
         blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
         CefRefPtr<CefBrowserImpl> browserPtr =
             CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
         load_handler->OnLoadError(browserPtr.get(), frame_, errorCode,
-                                  errorText, failedUrl.spec());
+                                  errorText, frame_->GetURL());
       }
     }
   }

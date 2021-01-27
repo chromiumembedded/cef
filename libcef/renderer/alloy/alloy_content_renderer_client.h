@@ -92,8 +92,7 @@ class AlloyContentRendererClient
                        const blink::WebURL& url,
                        const net::SiteForCookies& site_for_cookies,
                        const url::Origin* initiator_origin,
-                       GURL* new_url,
-                       bool* attach_same_site_cookies) override;
+                       GURL* new_url) override;
   uint64_t VisitedLinkHash(const char* canonical_url, size_t length) override;
   bool IsLinkVisited(uint64_t link_hash) override;
   bool IsOriginIsolatedPepperPlugin(const base::FilePath& plugin_path) override;

@@ -42,18 +42,18 @@ index 08cafea4eb1c..e21eff668695 100644
    theme_syncable_service_.reset(new ThemeSyncableService(profile_, this));
  
 diff --git chrome/browser/themes/theme_service_factory.cc chrome/browser/themes/theme_service_factory.cc
-index caec77bbe3ba..92a813acc008 100644
+index 4f82e3d34746..b485befab711 100644
 --- chrome/browser/themes/theme_service_factory.cc
 +++ chrome/browser/themes/theme_service_factory.cc
-@@ -6,6 +6,7 @@
- 
+@@ -7,6 +7,7 @@
  #include "base/no_destructor.h"
  #include "build/build_config.h"
+ #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/extensions/extension_system_factory.h"
  #include "chrome/browser/profiles/incognito_helpers.h"
  #include "chrome/browser/profiles/profile.h"
-@@ -27,6 +28,10 @@
+@@ -30,6 +31,10 @@
  #include "ui/views/linux_ui/linux_ui.h"
  #endif
  
@@ -64,7 +64,7 @@ index caec77bbe3ba..92a813acc008 100644
  namespace {
  
  const ThemeHelper& GetThemeHelper() {
-@@ -70,7 +75,15 @@ ThemeServiceFactory::ThemeServiceFactory()
+@@ -73,7 +78,15 @@ ThemeServiceFactory::ThemeServiceFactory()
            BrowserContextDependencyManager::GetInstance()) {
    DependsOn(extensions::ExtensionRegistryFactory::GetInstance());
    DependsOn(extensions::ExtensionPrefsFactory::GetInstance());

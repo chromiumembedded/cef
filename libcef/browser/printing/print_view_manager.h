@@ -43,6 +43,7 @@ class CefPrintViewManager : public PrintViewManager {
   void GetDefaultPrintSettings(
       GetDefaultPrintSettingsCallback callback) override;
   void DidShowPrintDialog() override;
+  void RequestPrintPreview(mojom::RequestPrintPreviewParamsPtr params) override;
 
   // content::WebContentsObserver methods:
   void RenderFrameDeleted(content::RenderFrameHost* render_frame_host) override;
@@ -59,41 +60,14 @@ class CefPrintViewManager : public PrintViewManager {
   static const CefPrintViewManager* FromWebContents(
       const content::WebContents* contents);
 
-  // Used to track the lifespan of the print preview WebContents.
-  class PrintPreviewHelper
-      : public content::WebContentsObserver,
-        public content::WebContentsUserData<PrintPreviewHelper> {
-   public:
-    void Initialize(int parent_frame_tree_node_id);
-    void WebContentsDestroyed() override;
-
-   private:
-    friend class content::WebContentsUserData<PrintPreviewHelper>;
-
-    explicit PrintPreviewHelper(content::WebContents* contents);
-
-    int parent_frame_tree_node_id_ = -1;
-
-    WEB_CONTENTS_USER_DATA_KEY_DECL();
-    DISALLOW_COPY_AND_ASSIGN(PrintPreviewHelper);
-  };
-
  private:
   explicit CefPrintViewManager(content::WebContents* web_contents);
 
   // IPC Message handlers.
-  void OnRequestPrintPreview(content::RenderFrameHost* rfh,
-                             const PrintHostMsg_RequestPrintPreview_Params&);
-  void OnShowScriptedPrintPreview(content::RenderFrameHost* rfh,
-                                  bool source_is_modifiable);
-  void OnRequestPrintPreview_PrintToPdf(
-      content::RenderFrameHost* rfh,
-      const PrintHostMsg_RequestPrintPreview_Params&);
   void OnMetafileReadyForPrinting_PrintToPdf(
       content::RenderFrameHost* rfh,
       const mojom::DidPreviewDocumentParams& params,
       const mojom::PreviewIds& ids);
-  void InitializePrintPreview(int frame_tree_node_id);
   void TerminatePdfPrintJob();
 
   // Used for printing to PDF. Only accessed on the browser process UI thread.

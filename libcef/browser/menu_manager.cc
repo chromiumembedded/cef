@@ -336,7 +336,7 @@ void CefMenuManager::CreateDefaultModel() {
                                MENU_ID_SPELLCHECK_SUGGESTION_LAST;
              ++i) {
           model_->AddItem(MENU_ID_SPELLCHECK_SUGGESTION_0 + static_cast<int>(i),
-                          params_.dictionary_suggestions[i].c_str());
+                          params_.dictionary_suggestions[i]);
         }
 
         // When there are dictionary suggestions add a separator before "Add to

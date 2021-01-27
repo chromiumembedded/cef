@@ -53,6 +53,7 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
                         int64_t total_decoded_body_length,
                         bool should_report_corb_blocking) override;
   void DidFail(const WebURLError&,
+               base::TimeTicks finish_time,
                int64_t total_encoded_data_length,
                int64_t total_encoded_body_length,
                int64_t total_decoded_body_length) override;
@@ -127,7 +128,6 @@ class CefRenderURLRequest::Context
 
     if (request_->GetFlags() & UR_FLAG_ALLOW_STORED_CREDENTIALS) {
       // Include SameSite cookies.
-      resource_request->force_ignore_site_for_cookies = true;
       resource_request->site_for_cookies =
           net::SiteForCookies::FromOrigin(*resource_request->request_initiator);
     }
@@ -136,8 +136,9 @@ class CefRenderURLRequest::Context
       const auto& elements = *resource_request->request_body->elements();
       if (elements.size() > 0) {
         const auto& element = elements[0];
-        if (element.type() == network::mojom::DataElementType::kBytes) {
-          upload_data_size_ = element.length() - element.offset();
+        if (element.type() == network::DataElement::Tag::kBytes) {
+          const auto& bytes_element = element.As<network::DataElementBytes>();
+          upload_data_size_ = bytes_element.bytes().size();
         }
       }
     }
@@ -378,6 +379,7 @@ void CefWebURLLoaderClient::DidFinishLoading(base::TimeTicks finish_time,
 }
 
 void CefWebURLLoaderClient::DidFail(const WebURLError& error,
+                                    base::TimeTicks finish_time,
                                     int64_t total_encoded_data_length,
                                     int64_t total_encoded_body_length,
                                     int64_t total_decoded_body_length) {
