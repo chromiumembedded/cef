@@ -1,4 +1,4 @@
-// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2021 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1a80e75d625c78a0ed31b6562f597cbf4d30dfb1$
+// $hash=51090c9b8afc79ae98d70fe84c98bc7c8a433c3a$
 //
 
 #include <dlfcn.h>
@@ -1093,8 +1093,8 @@ int cef_create_url(const struct _cef_urlparts_t* parts, cef_string_t* url) {
 }
 
 NO_SANITIZE("cfi-icall")
-cef_string_userfree_t cef_format_url_for_security_display(
-    const cef_string_t* origin_url) {
+cef_string_userfree_t
+    cef_format_url_for_security_display(const cef_string_t* origin_url) {
   return g_libcef_pointers.cef_format_url_for_security_display(origin_url);
 }
 
@@ -1579,46 +1579,54 @@ struct _cef_translator_test_t* cef_translator_test_create() {
 }
 
 NO_SANITIZE("cfi-icall")
-struct _cef_translator_test_ref_ptr_library_t*
-cef_translator_test_ref_ptr_library_create(int value) {
+struct
+    _cef_translator_test_ref_ptr_library_t* cef_translator_test_ref_ptr_library_create(
+        int value) {
   return g_libcef_pointers.cef_translator_test_ref_ptr_library_create(value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct _cef_translator_test_ref_ptr_library_child_t*
-cef_translator_test_ref_ptr_library_child_create(int value, int other_value) {
+struct
+    _cef_translator_test_ref_ptr_library_child_t* cef_translator_test_ref_ptr_library_child_create(
+        int value,
+        int other_value) {
   return g_libcef_pointers.cef_translator_test_ref_ptr_library_child_create(
       value, other_value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct _cef_translator_test_ref_ptr_library_child_child_t*
-cef_translator_test_ref_ptr_library_child_child_create(int value,
-                                                       int other_value,
-                                                       int other_other_value) {
+struct
+    _cef_translator_test_ref_ptr_library_child_child_t* cef_translator_test_ref_ptr_library_child_child_create(
+        int value,
+        int other_value,
+        int other_other_value) {
   return g_libcef_pointers
       .cef_translator_test_ref_ptr_library_child_child_create(
           value, other_value, other_other_value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct _cef_translator_test_scoped_library_t*
-cef_translator_test_scoped_library_create(int value) {
+struct
+    _cef_translator_test_scoped_library_t* cef_translator_test_scoped_library_create(
+        int value) {
   return g_libcef_pointers.cef_translator_test_scoped_library_create(value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct _cef_translator_test_scoped_library_child_t*
-cef_translator_test_scoped_library_child_create(int value, int other_value) {
+struct
+    _cef_translator_test_scoped_library_child_t* cef_translator_test_scoped_library_child_create(
+        int value,
+        int other_value) {
   return g_libcef_pointers.cef_translator_test_scoped_library_child_create(
       value, other_value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct _cef_translator_test_scoped_library_child_child_t*
-cef_translator_test_scoped_library_child_child_create(int value,
-                                                      int other_value,
-                                                      int other_other_value) {
+struct
+    _cef_translator_test_scoped_library_child_child_t* cef_translator_test_scoped_library_child_child_create(
+        int value,
+        int other_value,
+        int other_other_value) {
   return g_libcef_pointers
       .cef_translator_test_scoped_library_child_child_create(value, other_value,
                                                              other_other_value);

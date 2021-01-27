@@ -1,4 +1,4 @@
-// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2021 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c6f680dcbbea79f362a1d7686d7af902be9f0f9b$
+// $hash=b522ba519ba41df6dd21c70ec49c385d3561d849$
 //
 
 #include "libcef_dll/ctocpp/navigation_entry_ctocpp.h"
@@ -108,7 +108,7 @@ NO_SANITIZE("cfi-icall") CefString CefNavigationEntryCToCpp::GetTitle() {
 
 NO_SANITIZE("cfi-icall")
 CefNavigationEntry::TransitionType
-CefNavigationEntryCToCpp::GetTransitionType() {
+    CefNavigationEntryCToCpp::GetTransitionType() {
   shutdown_checker::AssertNotShutdown();
 
   cef_navigation_entry_t* _struct = GetStruct();

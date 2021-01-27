@@ -1,4 +1,4 @@
-// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2021 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4ec6b7d3ac59768907b1096d463f76a6caa45c1e$
+// $hash=5f7db6dda8ac868e8ec94b93e3ae7d2dd7d0cf64$
 //
 
 #include "libcef_dll/cpptoc/register_cdm_callback_cpptoc.h"

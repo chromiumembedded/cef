@@ -1,4 +1,4 @@
-// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2021 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=34a0389265fe422b1def87bb4c94115411c77c08$
+// $hash=81e02ced6b0354b18971801f02dee14243699b79$
 //
 
 #include "libcef_dll/ctocpp/views/menu_button_pressed_lock_ctocpp.h"

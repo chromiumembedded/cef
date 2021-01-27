@@ -1,4 +1,4 @@
-// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2021 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=afc36702ea14f7e553999aad62155a4bd189b3b4$
+// $hash=e857bba04c337c16c2ea4ebce2e99c00d10280e1$
 //
 
 #include "libcef_dll/ctocpp/request_context_handler_ctocpp.h"
@@ -80,15 +80,14 @@ bool CefRequestContextHandlerCToCpp::OnBeforePluginLoad(
 }
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefResourceRequestHandler>
-CefRequestContextHandlerCToCpp::GetResourceRequestHandler(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request,
-    bool is_navigation,
-    bool is_download,
-    const CefString& request_initiator,
-    bool& disable_default_handling) {
+CefRefPtr<CefResourceRequestHandler> CefRequestContextHandlerCToCpp::
+    GetResourceRequestHandler(CefRefPtr<CefBrowser> browser,
+                              CefRefPtr<CefFrame> frame,
+                              CefRefPtr<CefRequest> request,
+                              bool is_navigation,
+                              bool is_download,
+                              const CefString& request_initiator,
+                              bool& disable_default_handling) {
   cef_request_context_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_resource_request_handler))
     return nullptr;

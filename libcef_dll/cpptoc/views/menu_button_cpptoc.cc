@@ -1,4 +1,4 @@
-// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2021 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=47415544c8e36043a2a115453055bf98b888ecf1$
+// $hash=97c8a26550af49abfe4a1fcf1d8d54193c5fb3b1$
 //
 
 #include "libcef_dll/cpptoc/views/menu_button_cpptoc.h"

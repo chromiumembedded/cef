@@ -1,4 +1,4 @@
-// Copyright (c) 2020 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2021 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7a5343c03a9b84f8831be8b9c7e5d2f35c62983c$
+// $hash=cc3fb995a3c9384fae1f1bbeb118ff6ff1d78ea2$
 //
 
 #include "libcef_dll/ctocpp/context_menu_params_ctocpp.h"
@@ -230,7 +230,7 @@ CefContextMenuParams::MediaType CefContextMenuParamsCToCpp::GetMediaType() {
 
 NO_SANITIZE("cfi-icall")
 CefContextMenuParams::MediaStateFlags
-CefContextMenuParamsCToCpp::GetMediaStateFlags() {
+    CefContextMenuParamsCToCpp::GetMediaStateFlags() {
   shutdown_checker::AssertNotShutdown();
 
   cef_context_menu_params_t* _struct = GetStruct();
@@ -351,7 +351,7 @@ bool CefContextMenuParamsCToCpp::IsSpellCheckEnabled() {
 
 NO_SANITIZE("cfi-icall")
 CefContextMenuParams::EditStateFlags
-CefContextMenuParamsCToCpp::GetEditStateFlags() {
+    CefContextMenuParamsCToCpp::GetEditStateFlags() {
   shutdown_checker::AssertNotShutdown();
 
   cef_context_menu_params_t* _struct = GetStruct();
