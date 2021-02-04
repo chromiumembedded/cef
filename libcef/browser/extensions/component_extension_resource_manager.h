@@ -35,6 +35,11 @@ class CefComponentExtensionResourceManager
   // IsComponentExtensionResource.
   std::map<base::FilePath, int> path_to_resource_info_;
 
+  // A map from an extension ID to its i18n template replacements.
+  using TemplateReplacementMap =
+      std::map<std::string, ui::TemplateReplacements>;
+  TemplateReplacementMap template_replacements_;
+
   DISALLOW_COPY_AND_ASSIGN(CefComponentExtensionResourceManager);
 };
 

@@ -6,14 +6,28 @@
 
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "base/values.h"
+#include "chrome/browser/pdf/pdf_extension_util.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/grit/component_extension_resources_map.h"
+#include "extensions/common/constants.h"
 
 namespace extensions {
 
 CefComponentExtensionResourceManager::CefComponentExtensionResourceManager() {
   AddComponentResourceEntries(kComponentExtensionResources,
                               kComponentExtensionResourcesSize);
+
+  base::Value dict(base::Value::Type::DICTIONARY);
+  pdf_extension_util::AddStrings(
+      pdf_extension_util::PdfViewerContext::kPdfViewer, &dict);
+  pdf_extension_util::AddAdditionalData(&dict);
+
+  ui::TemplateReplacements pdf_viewer_replacements;
+  ui::TemplateReplacementsFromDictionaryValue(
+      base::Value::AsDictionaryValue(dict), &pdf_viewer_replacements);
+  template_replacements_[extension_misc::kPdfExtensionId] =
+      std::move(pdf_viewer_replacements);
 }
 
 CefComponentExtensionResourceManager::~CefComponentExtensionResourceManager() {}
@@ -44,7 +58,8 @@ bool CefComponentExtensionResourceManager::IsComponentExtensionResource(
 const ui::TemplateReplacements*
 CefComponentExtensionResourceManager::GetTemplateReplacementsForExtension(
     const std::string& extension_id) const {
-  return nullptr;
+  auto it = template_replacements_.find(extension_id);
+  return it != template_replacements_.end() ? &it->second : nullptr;
 }
 
 void CefComponentExtensionResourceManager::AddComponentResourceEntries(
