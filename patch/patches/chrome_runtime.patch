@@ -78,7 +78,7 @@ index db85b6b2fcf5..bcf6867e8f4e 100644
  
  #endif  // defined(OS_LINUX) || defined(OS_CHROMEOS)
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index fee4d5f1a8ca..2e4fb506d851 100644
+index 48ac613da9e7..ee35924ef215 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -49,6 +49,7 @@

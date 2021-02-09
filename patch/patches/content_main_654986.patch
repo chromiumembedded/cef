@@ -94,7 +94,7 @@ index 2aba28d210db..5413f08af93d 100644
    return RunContentProcess(params, runner.get());
  }
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 811017f5d455..00e4020dea17 100644
+index 1f05e6351c58..4de74fb3cf50 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -48,6 +48,7 @@
@@ -105,7 +105,7 @@ index 811017f5d455..00e4020dea17 100644
  #include "base/trace_event/trace_event.h"
  #include "components/discardable_memory/service/discardable_shared_memory_manager.h"
  #include "components/download/public/common/download_task_runner.h"
-@@ -629,7 +630,7 @@ int ContentMainRunnerImpl::Initialize(const ContentMainParams& params) {
+@@ -631,7 +632,7 @@ int ContentMainRunnerImpl::Initialize(const ContentMainParams& params) {
  #else  // !OS_WIN
  
  #if defined(OS_MAC)
@@ -114,7 +114,7 @@ index 811017f5d455..00e4020dea17 100644
  #endif  // defined(OS_MAC)
  
  #if defined(OS_ANDROID)
-@@ -1089,6 +1090,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1098,6 +1099,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  

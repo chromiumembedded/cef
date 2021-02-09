@@ -359,10 +359,10 @@ index 52c1d1eb59c4..ebcbd0286a7b 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 819ea9ae89cc..1cae5eda3d5f 100644
+index 07e66170f483..dc9d58a76dd8 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
-@@ -318,6 +318,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
+@@ -317,6 +317,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
      // the concept with bubble anchoring a la BubbleDialogDelegateView.
      gfx::NativeView parent = nullptr;
  

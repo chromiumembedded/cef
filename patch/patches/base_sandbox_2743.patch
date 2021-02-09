@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 4516b3575892..db53b698a7d4 100644
+index 21e4ee1d3efb..ef289b9d5c91 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -34,6 +34,7 @@ import("//build/config/ui.gni")
@@ -23,7 +23,7 @@ index 4516b3575892..db53b698a7d4 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1867,6 +1872,12 @@ component("base") {
+@@ -1869,6 +1874,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  

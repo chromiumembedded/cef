@@ -1,5 +1,5 @@
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 19c5989c8b67..e85ce53a22a1 100644
+index 1b4dffcda417..279d8522dccd 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -1067,10 +1067,6 @@ void LaunchURL(const GURL& url,
@@ -29,7 +29,7 @@ index 19c5989c8b67..e85ce53a22a1 100644
    base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
    if (command_line->HasSwitch(switches::kUserAgent)) {
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index 3ef2329ac8a6..3e3ede99e042 100644
+index 7fd6936c4ee8..ce07e8959232 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
 @@ -108,7 +108,8 @@ class ChromeXrIntegrationClient;

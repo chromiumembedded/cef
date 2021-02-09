@@ -1,5 +1,5 @@
 diff --git chrome/browser/app_controller_mac.mm chrome/browser/app_controller_mac.mm
-index e2eb5c2c73d0..601b582c6675 100644
+index 88858a923a07..2a1d137c70f4 100644
 --- chrome/browser/app_controller_mac.mm
 +++ chrome/browser/app_controller_mac.mm
 @@ -1194,6 +1194,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
@@ -18,7 +18,7 @@ index e2eb5c2c73d0..601b582c6675 100644
  }
  
  // Same as |-commandDispatch:|, but executes commands using a disposition
-@@ -1599,6 +1601,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1600,6 +1602,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
    // TODO(rickcam): Mock out BackgroundApplicationListModel, then add unit
    // tests which use the mock in place of the profile-initialized model.
  
@@ -26,7 +26,7 @@ index e2eb5c2c73d0..601b582c6675 100644
    // Avoid breaking unit tests which have no profile.
    if (profile) {
      BackgroundApplicationListModel applications(profile);
-@@ -1625,6 +1628,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1626,6 +1629,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
        }
      }
    }
@@ -118,10 +118,10 @@ index e0cafee5eedd..06ded156be3c 100644
    // Make a copy of the BrowserList to simplify the case where we need to
    // destroy a Browser during the loop.
 diff --git chrome/browser/sessions/session_service.cc chrome/browser/sessions/session_service.cc
-index cbddcc52a8f6..02ab085c481c 100644
+index 6857a3cc5cae..c4d9db6ad7d5 100644
 --- chrome/browser/sessions/session_service.cc
 +++ chrome/browser/sessions/session_service.cc
-@@ -968,12 +968,19 @@ void SessionService::MaybeDeleteSessionOnlyData() {
+@@ -985,12 +985,19 @@ void SessionService::MaybeDeleteSessionOnlyData() {
    if (!profile() || profile()->AsTestingProfile())
      return;
  
