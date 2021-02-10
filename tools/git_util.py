@@ -16,7 +16,7 @@ else:
 
 def is_checkout(path):
   """ Returns true if the path represents a git checkout. """
-  return os.path.isdir(os.path.join(path, '.git'))
+  return os.path.exists(os.path.join(path, '.git'))
 
 
 def is_ancestor(path='.', commit1='HEAD', commit2='master'):
