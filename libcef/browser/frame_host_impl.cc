@@ -350,6 +350,13 @@ void CefFrameHostImpl::LoadURLWithExtras(const std::string& url,
   // Any necessary fixup of the URL will occur in
   // [CefBrowserHostBase|CefFrameHostImpl]::Navigate().
   GURL gurl(url);
+  if (!url.empty() && !gurl.is_valid() && !gurl.has_scheme()) {
+    std::string fixed_scheme(url::kHttpScheme);
+    fixed_scheme.append(url::kStandardSchemeSeparator);
+    std::string new_url = url;
+    new_url.insert(0, fixed_scheme);
+    gurl = GURL(new_url);
+  }
 
   if (frame_id == CefFrameHostImpl::kMainFrameId) {
     // Load via the browser using NavigationController.
