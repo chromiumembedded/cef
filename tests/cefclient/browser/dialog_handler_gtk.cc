@@ -143,10 +143,6 @@ GtkWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
   return nullptr;
 }
 
-void RunCallback(base::Callback<void(GtkWindow*)> callback, GtkWindow* window) {
-  callback.Run(window);
-}
-
 }  // namespace
 
 ClientDialogHandlerGtk::ClientDialogHandlerGtk() : gtk_dialog_(nullptr) {}
@@ -227,7 +223,7 @@ void ClientDialogHandlerGtk::OnResetDialogState(CefRefPtr<CefBrowser> browser) {
 
 void ClientDialogHandlerGtk::OnFileDialogContinue(OnFileDialogParams params,
                                                   GtkWindow* window) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
 
   ScopedGdkThreadsEnter scoped_gdk_threads;
 
@@ -367,7 +363,7 @@ void ClientDialogHandlerGtk::OnFileDialogContinue(OnFileDialogParams params,
 
 void ClientDialogHandlerGtk::OnJSDialogContinue(OnJSDialogParams params,
                                                 GtkWindow* window) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
 
   ScopedGdkThreadsEnter scoped_gdk_threads;
 
@@ -443,7 +439,7 @@ void ClientDialogHandlerGtk::GetWindowAndContinue(
 
   GtkWindow* window = GetWindow(browser);
   if (window) {
-    CefPostTask(TID_UI, base::Bind(RunCallback, callback, window));
+    callback.Run(window);
   }
 }
 
@@ -451,7 +447,7 @@ void ClientDialogHandlerGtk::GetWindowAndContinue(
 void ClientDialogHandlerGtk::OnDialogResponse(GtkDialog* dialog,
                                               gint response_id,
                                               ClientDialogHandlerGtk* handler) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
 
   DCHECK_EQ(dialog, GTK_DIALOG(handler->gtk_dialog_));
   switch (response_id) {
@@ -466,7 +462,8 @@ void ClientDialogHandlerGtk::OnDialogResponse(GtkDialog* dialog,
       NOTREACHED();
   }
 
-  handler->OnResetDialogState(nullptr);
+  CefPostTask(TID_UI, base::Bind(&ClientDialogHandlerGtk::OnResetDialogState,
+                                 handler, nullptr));
 }
 
 }  // namespace client
