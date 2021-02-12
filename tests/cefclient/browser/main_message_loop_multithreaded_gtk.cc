@@ -78,10 +78,9 @@ MainMessageLoopMultithreadedGtk::~MainMessageLoopMultithreadedGtk() {
 int MainMessageLoopMultithreadedGtk::Run() {
   DCHECK(RunsTasksOnCurrentThread());
 
-  // Chromium uses the default GLib context so we create our own context and
-  // make it the default for this thread.
-  main_context_ = g_main_context_new();
-  g_main_context_push_thread_default(main_context_);
+  // We use the default Glib context and Chromium creates its own context in
+  // MessagePumpGlib (starting in M86).
+  main_context_ = g_main_context_default();
 
   main_loop_ = g_main_loop_new(main_context_, TRUE);
 
@@ -100,8 +99,6 @@ int MainMessageLoopMultithreadedGtk::Run() {
   g_main_loop_unref(main_loop_);
   main_loop_ = nullptr;
 
-  g_main_context_pop_thread_default(main_context_);
-  g_main_context_unref(main_context_);
   main_context_ = nullptr;
 
   return 0;
