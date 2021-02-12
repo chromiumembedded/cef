@@ -94,13 +94,9 @@ void RootWindowGtk::Init(RootWindow::Delegate* delegate,
 
   initialized_ = true;
 
-  // Create the native root window on the main thread.
-  if (CURRENTLY_ON_MAIN_THREAD()) {
-    CreateRootWindow(settings, config.initially_hidden);
-  } else {
-    MAIN_POST_CLOSURE(base::Bind(&RootWindowGtk::CreateRootWindow, this,
-                                 settings, config.initially_hidden));
-  }
+  // Always post asynchronously to avoid reentrancy of the GDK lock.
+  MAIN_POST_CLOSURE(base::Bind(&RootWindowGtk::CreateRootWindow, this, settings,
+                               config.initially_hidden));
 }
 
 void RootWindowGtk::InitAsPopup(RootWindow::Delegate* delegate,
@@ -682,7 +678,7 @@ void RootWindowGtk::NotifyDestroyedIfDone(bool window_destroyed,
 gboolean RootWindowGtk::WindowFocusIn(GtkWidget* widget,
                                       GdkEventFocus* event,
                                       RootWindowGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
 
   if (event->in) {
     self->NotifySetFocus();
@@ -698,7 +694,7 @@ gboolean RootWindowGtk::WindowFocusIn(GtkWidget* widget,
 gboolean RootWindowGtk::WindowState(GtkWidget* widget,
                                     GdkEventWindowState* event,
                                     RootWindowGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
 
   // Called when the root window is iconified or restored. Hide the browser
   // window when the root window is iconified to reduce resource usage.
@@ -714,7 +710,7 @@ gboolean RootWindowGtk::WindowState(GtkWidget* widget,
 gboolean RootWindowGtk::WindowConfigure(GtkWindow* window,
                                         GdkEvent* event,
                                         RootWindowGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
   self->NotifyMoveOrResizeStarted();
   return FALSE;  // Don't stop this message.
 }
@@ -729,7 +725,7 @@ void RootWindowGtk::WindowDestroy(GtkWidget* widget, RootWindowGtk* self) {
 gboolean RootWindowGtk::WindowDelete(GtkWidget* widget,
                                      GdkEvent* event,
                                      RootWindowGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
 
   // Called to query whether the root window should be closed.
   if (self->force_close_)
@@ -769,7 +765,7 @@ void RootWindowGtk::MenubarSizeAllocated(GtkWidget* widget,
 // static
 gboolean RootWindowGtk::MenuItemActivated(GtkWidget* widget,
                                           RootWindowGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
 
   // Retrieve the menu ID set in AddMenuEntry.
   int id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), kMenuIdKey));
@@ -787,33 +783,33 @@ void RootWindowGtk::ToolbarSizeAllocated(GtkWidget* widget,
 
 // static
 void RootWindowGtk::BackButtonClicked(GtkButton* button, RootWindowGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
   self->NotifyButtonClicked(IDC_NAV_BACK);
 }
 
 // static
 void RootWindowGtk::ForwardButtonClicked(GtkButton* button,
                                          RootWindowGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
   self->NotifyButtonClicked(IDC_NAV_FORWARD);
 }
 
 // static
 void RootWindowGtk::StopButtonClicked(GtkButton* button, RootWindowGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
   self->NotifyButtonClicked(IDC_NAV_STOP);
 }
 
 // static
 void RootWindowGtk::ReloadButtonClicked(GtkButton* button,
                                         RootWindowGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
   self->NotifyButtonClicked(IDC_NAV_RELOAD);
 }
 
 // static
 void RootWindowGtk::URLEntryActivate(GtkEntry* entry, RootWindowGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
   const gchar* url = gtk_entry_get_text(entry);
   self->NotifyLoadURL(std::string(url));
 }
@@ -822,7 +818,7 @@ void RootWindowGtk::URLEntryActivate(GtkEntry* entry, RootWindowGtk* self) {
 gboolean RootWindowGtk::URLEntryButtonPress(GtkWidget* widget,
                                             GdkEventButton* event,
                                             RootWindowGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
 
   // Give focus to the GTK window. This is a work-around for bad focus-related
   // interaction between the root window managed by GTK and the browser managed
