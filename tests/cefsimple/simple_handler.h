@@ -50,6 +50,9 @@ class SimpleHandler : public CefClient,
 
   bool IsClosing() const { return is_closing_; }
 
+  // Returns true if the Chrome runtime is enabled.
+  static bool IsChromeRuntimeEnabled();
+
  private:
   // Platform-specific implementation.
   void PlatformTitleChange(CefRefPtr<CefBrowser> browser,

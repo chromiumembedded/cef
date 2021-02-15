@@ -47,6 +47,10 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
                                   const CefString& title) {
   CEF_REQUIRE_UI_THREAD();
 
+  // Allow Chrome to handle the title change.
+  if (IsChromeRuntimeEnabled())
+    return;
+
   if (use_views_) {
     // Set the title of the window using the Views framework.
     CefRefPtr<CefBrowserView> browser_view =
@@ -110,6 +114,10 @@ void SimpleHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
                                 const CefString& failedUrl) {
   CEF_REQUIRE_UI_THREAD();
 
+  // Allow Chrome to show the error page.
+  if (IsChromeRuntimeEnabled())
+    return;
+
   // Don't display an error for downloaded files.
   if (errorCode == ERR_ABORTED)
     return;
@@ -138,4 +146,15 @@ void SimpleHandler::CloseAllBrowsers(bool force_close) {
   BrowserList::const_iterator it = browser_list_.begin();
   for (; it != browser_list_.end(); ++it)
     (*it)->GetHost()->CloseBrowser(force_close);
+}
+
+// static
+bool SimpleHandler::IsChromeRuntimeEnabled() {
+  static int value = -1;
+  if (value == -1) {
+    CefRefPtr<CefCommandLine> command_line =
+        CefCommandLine::GetGlobalCommandLine();
+    value = command_line->HasSwitch("enable-chrome-runtime") ? 1 : 0;
+  }
+  return value == 1;
 }

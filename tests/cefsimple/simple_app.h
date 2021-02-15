@@ -13,13 +13,13 @@ class SimpleApp : public CefApp, public CefBrowserProcessHandler {
   SimpleApp();
 
   // CefApp methods:
-  virtual CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler()
-      OVERRIDE {
+  CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() OVERRIDE {
     return this;
   }
 
   // CefBrowserProcessHandler methods:
-  virtual void OnContextInitialized() OVERRIDE;
+  void OnContextInitialized() OVERRIDE;
+  CefRefPtr<CefClient> GetDefaultClient() OVERRIDE;
 
  private:
   // Include the default reference counting implementation.

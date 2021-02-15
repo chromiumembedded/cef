@@ -170,6 +170,13 @@ bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
     return use_proxy;
   }
 
+  // Don't intercept requests for Profiles that were not created by CEF.
+  // For example, the User Manager profile created via
+  // profiles::CreateSystemProfileForUserManager.
+  auto profile = Profile::FromBrowserContext(browser_context);
+  if (!CefBrowserContext::FromBrowserContext(profile->GetOriginalProfile()))
+    return false;
+
   auto request_handler = net_service::CreateInterceptedRequestHandler(
       browser_context, frame, render_process_id,
       type == URLLoaderFactoryType::kNavigation,
