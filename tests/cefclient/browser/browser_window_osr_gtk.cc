@@ -1089,7 +1089,6 @@ void BrowserWindowOsrGtk::SetBounds(int x, int y, size_t width, size_t height) {
 
 void BrowserWindowOsrGtk::SetFocus(bool focus) {
   REQUIRE_MAIN_THREAD();
-  ScopedGdkThreadsEnter scoped_gdk_threads;
   if (glarea_ && focus) {
     gtk_widget_grab_focus(glarea_);
   }
@@ -1314,10 +1313,10 @@ bool BrowserWindowOsrGtk::StartDragging(
     return false;
   }
 
+  ScopedGdkThreadsEnter scoped_gdk_threads;
+
   DragReset();
   drag_data_ = drag_data;
-
-  ScopedGdkThreadsEnter scoped_gdk_threads;
 
   // Begin drag.
   if (drag_trigger_event_) {
@@ -1433,7 +1432,7 @@ void BrowserWindowOsrGtk::Create(ClientWindowHandle parent_handle) {
 gint BrowserWindowOsrGtk::SizeAllocation(GtkWidget* widget,
                                          GtkAllocation* allocation,
                                          BrowserWindowOsrGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
   if (self->browser_.get()) {
     // Results in a call to GetViewRect().
     self->browser_->GetHost()->WasResized();
@@ -1445,7 +1444,7 @@ gint BrowserWindowOsrGtk::SizeAllocation(GtkWidget* widget,
 gint BrowserWindowOsrGtk::ClickEvent(GtkWidget* widget,
                                      GdkEventButton* event,
                                      BrowserWindowOsrGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
 
   if (!self->browser_.get())
     return TRUE;
@@ -1515,7 +1514,7 @@ gint BrowserWindowOsrGtk::ClickEvent(GtkWidget* widget,
 gint BrowserWindowOsrGtk::KeyEvent(GtkWidget* widget,
                                    GdkEventKey* event,
                                    BrowserWindowOsrGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
 
   if (!self->browser_.get())
     return TRUE;
@@ -1571,8 +1570,6 @@ gint BrowserWindowOsrGtk::KeyEvent(GtkWidget* widget,
 gint BrowserWindowOsrGtk::MoveEvent(GtkWidget* widget,
                                     GdkEventMotion* event,
                                     BrowserWindowOsrGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
-
   if (!self->browser_.get())
     return TRUE;
 
@@ -1628,7 +1625,7 @@ gint BrowserWindowOsrGtk::MoveEvent(GtkWidget* widget,
 gint BrowserWindowOsrGtk::ScrollEvent(GtkWidget* widget,
                                       GdkEventScroll* event,
                                       BrowserWindowOsrGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
 
   if (!self->browser_.get())
     return TRUE;
@@ -1889,7 +1886,6 @@ void BrowserWindowOsrGtk::RegisterDragDrop() {
 }
 
 void BrowserWindowOsrGtk::UnregisterDragDrop() {
-  CEF_REQUIRE_UI_THREAD();
   ScopedGdkThreadsEnter scoped_gdk_threads;
   gtk_drag_dest_unset(glarea_);
   // Drag events are unregistered in OnBeforeClose by calling
@@ -1897,7 +1893,6 @@ void BrowserWindowOsrGtk::UnregisterDragDrop() {
 }
 
 void BrowserWindowOsrGtk::DragReset() {
-  CEF_REQUIRE_UI_THREAD();
   if (drag_trigger_event_) {
     gdk_event_free(drag_trigger_event_);
     drag_trigger_event_ = nullptr;
@@ -1916,8 +1911,6 @@ void BrowserWindowOsrGtk::DragReset() {
 void BrowserWindowOsrGtk::DragBegin(GtkWidget* widget,
                                     GdkDragContext* drag_context,
                                     BrowserWindowOsrGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
-
   // Load drag icon.
   if (!self->drag_data_->HasImage()) {
     LOG(ERROR) << "Failed to set drag icon, drag image not available";
@@ -1939,6 +1932,8 @@ void BrowserWindowOsrGtk::DragBegin(GtkWidget* widget,
     LOG(ERROR) << "Failed to set drag icon, drag image error";
     return;
   }
+
+  ScopedGdkThreadsEnter scoped_gdk_threads;
 
   size_t image_size = image_binary->GetSize();
   guint8* image_buffer = (guint8*)malloc(image_size);  // must free
@@ -1987,7 +1982,7 @@ void BrowserWindowOsrGtk::DragDataGet(GtkWidget* widget,
                                       guint info,
                                       guint time,
                                       BrowserWindowOsrGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
   // No drag targets are set so this callback is never called.
 }
 
@@ -1995,7 +1990,7 @@ void BrowserWindowOsrGtk::DragDataGet(GtkWidget* widget,
 void BrowserWindowOsrGtk::DragEnd(GtkWidget* widget,
                                   GdkDragContext* drag_context,
                                   BrowserWindowOsrGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
 
   if (self->browser_) {
     // Sometimes there is DragEnd event generated without prior DragDrop.
@@ -2018,7 +2013,7 @@ gboolean BrowserWindowOsrGtk::DragMotion(GtkWidget* widget,
                                          gint y,
                                          guint time,
                                          BrowserWindowOsrGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
 
   float device_scale_factor;
   {
@@ -2078,7 +2073,7 @@ void BrowserWindowOsrGtk::DragLeave(GtkWidget* widget,
                                     GdkDragContext* drag_context,
                                     guint time,
                                     BrowserWindowOsrGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
 
   // There is no drag-enter event in GTK. The first drag-motion event
   // after drag-leave will be a drag-enter event.
@@ -2100,7 +2095,7 @@ gboolean BrowserWindowOsrGtk::DragFailed(GtkWidget* widget,
                                          GdkDragContext* drag_context,
                                          GtkDragResult result,
                                          BrowserWindowOsrGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
 
   // Send drag end coordinates and system drag ended event.
   if (self->browser_) {
@@ -2120,7 +2115,7 @@ gboolean BrowserWindowOsrGtk::DragDrop(GtkWidget* widget,
                                        gint y,
                                        guint time,
                                        BrowserWindowOsrGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
 
   // Finish GTK drag.
   gtk_drag_finish(drag_context, TRUE, FALSE, time);
@@ -2164,7 +2159,7 @@ void BrowserWindowOsrGtk::DragDataReceived(GtkWidget* widget,
                                            guint info,
                                            guint time,
                                            BrowserWindowOsrGtk* self) {
-  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
   // This callback is never called because DragDrop does not call
   // gtk_drag_get_data, as only dragging inside web view is supported.
 }
