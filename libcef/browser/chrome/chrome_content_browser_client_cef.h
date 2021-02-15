@@ -91,6 +91,8 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
       scoped_refptr<net::HttpResponseHeaders> response_headers,
       bool first_auth_attempt,
       LoginAuthRequiredCallback auth_required_callback) override;
+  void BrowserURLHandlerCreated(content::BrowserURLHandler* handler) override;
+  bool IsWebUIAllowedToMakeNetworkRequests(const url::Origin& origin) override;
 
   CefRefPtr<CefRequestContextImpl> request_context() const;
 

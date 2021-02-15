@@ -77,6 +77,18 @@ index db85b6b2fcf5..bcf6867e8f4e 100644
  }
  
  #endif  // defined(OS_LINUX) || defined(OS_CHROMEOS)
+diff --git chrome/app/theme/chrome_unscaled_resources.grd chrome/app/theme/chrome_unscaled_resources.grd
+index b4e4545e3520..29335f1614e2 100644
+--- chrome/app/theme/chrome_unscaled_resources.grd
++++ chrome/app/theme/chrome_unscaled_resources.grd
+@@ -62,6 +62,7 @@
+         </if>
+       </if>
+       <if expr="not _google_chrome">
++        <include name="IDR_CHROME_CEF_LICENSE_TXT" file="../../../cef/LICENSE.txt" type="BINDATA" />
+         <include name="IDR_PRODUCT_LOGO_64" file="chromium/product_logo_64.png" type="BINDATA" />
+         <include name="IDR_PRODUCT_LOGO_128" file="chromium/product_logo_128.png" type="BINDATA" />
+         <include name="IDR_PRODUCT_LOGO_256" file="chromium/product_logo_256.png" type="BINDATA" />
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
 index fee4d5f1a8ca..2e4fb506d851 100644
 --- chrome/browser/chrome_browser_main.cc

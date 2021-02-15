@@ -17,6 +17,7 @@
 #include "libcef/browser/net/internal_scheme_handler.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/app_manager.h"
+#include "libcef/features/runtime.h"
 
 #include "base/command_line.h"
 #include "base/files/file_util.h"
@@ -34,6 +35,7 @@
 #include "chrome/browser/ui/webui/chrome_web_ui_controller_factory.h"
 #include "chrome/browser/ui/webui/theme_source.h"
 #include "chrome/common/url_constants.h"
+#include "chrome/grit/chrome_unscaled_resources.h"
 #include "content/browser/renderer_host/debug_urls.h"
 #include "content/browser/webui/content_web_ui_controller_factory.h"
 #include "content/public/browser/browser_url_handler.h"
@@ -164,6 +166,10 @@ bool IsUnlistedHost(const std::string& host) {
 
 // Returns true if a host is WebUI and should be allowed to load.
 bool IsAllowedWebUIHost(const std::string& host) {
+  // Chrome runtime allows all WebUI hosts.
+  if (cef::IsChromeRuntimeEnabled())
+    return true;
+
   // Explicitly whitelisted WebUI hosts.
   for (size_t i = 0;
        i < sizeof(kAllowedWebUIHosts) / sizeof(kAllowedWebUIHosts[0]); ++i) {
@@ -285,6 +291,18 @@ class TemplateParser {
 };
 
 bool OnExtensionsSupportUI(std::string* mime_type, std::string* output) {
+  *mime_type = "text/html";
+
+  if (cef::IsChromeRuntimeEnabled()) {
+    // Redirect to the Chrome documentation.
+    *output =
+        "<html><head>\n"
+        "<meta http-equiv=\"refresh\" "
+        "content=\"0;URL='https://developer.chrome.com/docs/extensions/'\"/>\n"
+        "</head></html>\n";
+    return true;
+  }
+
   static const char kDevURL[] = "https://developer.chrome.com/extensions/";
 
   std::string html =
@@ -331,16 +349,22 @@ bool OnExtensionsSupportUI(std::string* mime_type, std::string* output) {
 
   html += "</ul>\n</body>\n</html>";
 
-  *mime_type = "text/html";
   *output = html;
-
   return true;
 }
 
 bool OnLicenseUI(std::string* mime_type, std::string* output) {
+  // TODO(chrome): Currently, CEF-specific resources for the Alloy runtime come
+  // from cef/libcef/resources/cef_resources.grd via cef.pak and CEF-specific
+  // resources for the Chrome runtime come from
+  // chrome/app/theme/chrome_unscaled_resources.grd via chrome_100_percent.pak.
+  // It would be better to have a single pak file (and single ID value) for
+  // CEF-specific resources and share the same *.pak files as Chrome for the
+  // other resources.
   std::string piece =
       ui::ResourceBundle::GetSharedInstance().LoadDataResourceString(
-          IDR_CEF_LICENSE_TXT);
+          cef::IsChromeRuntimeEnabled() ? IDR_CHROME_CEF_LICENSE_TXT
+                                        : IDR_CEF_LICENSE_TXT);
   if (piece.empty()) {
     NOTREACHED() << "Failed to load license txt resource.";
     return false;

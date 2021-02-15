@@ -5,6 +5,7 @@
 #include "libcef/browser/chrome/chrome_browser_main_extra_parts_cef.h"
 
 #include "libcef/browser/context.h"
+#include "libcef/browser/net/chrome_scheme_handler.h"
 
 #include "base/task/post_task.h"
 
@@ -31,4 +32,6 @@ void ChromeBrowserMainExtraPartsCef::PreMainMessageLoopRun() {
   user_blocking_task_runner_ = base::CreateSingleThreadTaskRunner(
       {base::ThreadPool(), base::TaskPriority::USER_BLOCKING,
        base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()});
+
+  scheme::RegisterWebUIControllerFactory();
 }
