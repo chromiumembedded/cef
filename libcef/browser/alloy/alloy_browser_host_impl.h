@@ -88,7 +88,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   void SetFocus(bool focus) override;
   CefWindowHandle GetWindowHandle() override;
   CefWindowHandle GetOpenerWindowHandle() override;
-  bool HasView() override;
   double GetZoomLevel() override;
   void SetZoomLevel(double zoomLevel) override;
   void RunFileDialog(FileDialogMode mode,
@@ -161,14 +160,11 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   // Returns true if windowless rendering is enabled.
   bool IsWindowless() const;
 
-  // Returns true if this browser is views-hosted.
-  bool IsViewsHosted() const;
-
   // Returns true if this browser supports picture-in-picture.
   bool IsPictureInPictureSupported() const;
 
   // Called when the OS window hosting the browser is destroyed.
-  void WindowDestroyed();
+  void WindowDestroyed() override;
 
   // Destroy the browser members. This method should only be called after the
   // native browser window is not longer processing messages.
@@ -176,16 +172,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
 
   // Cancel display of the context menu, if any.
   void CancelContextMenu();
-
-#if defined(USE_AURA)
-  // Returns the Widget owner for the browser window. Only used with windowed
-  // rendering.
-  views::Widget* GetWindowWidget() const;
-
-  // Returns the BrowserView associated with this browser. Only used with views-
-  // based browsers.
-  CefRefPtr<CefBrowserView> GetBrowserView() const;
-#endif
 
   bool MaybeAllowNavigation(content::RenderFrameHost* opener,
                             bool is_guest_view,
@@ -374,7 +360,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
 
   CefWindowHandle opener_;
   const bool is_windowless_;
-  const bool is_views_hosted_;
   CefWindowHandle host_window_handle_ = kNullWindowHandle;
   CefRefPtr<CefExtension> extension_;
   bool is_background_host_ = false;

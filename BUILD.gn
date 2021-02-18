@@ -1061,10 +1061,14 @@ static_library("libcef_static") {
     deps += [
       "//ui/views",
     ]
-  }
 
-  if (use_aura) {
     sources += [
+      "libcef/browser/chrome/views/browser_platform_delegate_chrome_views.cc",
+      "libcef/browser/chrome/views/browser_platform_delegate_chrome_views.h",
+      "libcef/browser/chrome/views/chrome_browser_frame.cc",
+      "libcef/browser/chrome/views/chrome_browser_frame.h",
+      "libcef/browser/chrome/views/chrome_browser_view.cc",
+      "libcef/browser/chrome/views/chrome_browser_view.h",
       "libcef/browser/native/window_delegate_view.cc",
       "libcef/browser/native/window_delegate_view.h",
       "libcef/browser/views/basic_label_button_impl.cc",

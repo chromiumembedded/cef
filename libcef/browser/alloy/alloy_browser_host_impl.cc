@@ -378,7 +378,7 @@ void AlloyBrowserHostImpl::SetFocusInternal(bool focus) {
 }
 
 CefWindowHandle AlloyBrowserHostImpl::GetWindowHandle() {
-  if (IsViewsHosted() && CEF_CURRENTLY_ON_UIT()) {
+  if (is_views_hosted_ && CEF_CURRENTLY_ON_UIT()) {
     // Always return the most up-to-date window handle for a views-hosted
     // browser since it may change if the view is re-parented.
     if (platform_delegate_)
@@ -389,10 +389,6 @@ CefWindowHandle AlloyBrowserHostImpl::GetWindowHandle() {
 
 CefWindowHandle AlloyBrowserHostImpl::GetOpenerWindowHandle() {
   return opener_;
-}
-
-bool AlloyBrowserHostImpl::HasView() {
-  return IsViewsHosted();
 }
 
 double AlloyBrowserHostImpl::GetZoomLevel() {
@@ -803,10 +799,6 @@ bool AlloyBrowserHostImpl::IsWindowless() const {
   return is_windowless_;
 }
 
-bool AlloyBrowserHostImpl::IsViewsHosted() const {
-  return is_views_hosted_;
-}
-
 bool AlloyBrowserHostImpl::IsPictureInPictureSupported() const {
   // Not currently supported with OSR.
   return !IsWindowless();
@@ -869,22 +861,6 @@ void AlloyBrowserHostImpl::DestroyBrowser() {
 
   CefBrowserHostBase::DestroyBrowser();
 }
-
-#if defined(USE_AURA)
-views::Widget* AlloyBrowserHostImpl::GetWindowWidget() const {
-  CEF_REQUIRE_UIT();
-  if (!platform_delegate_)
-    return nullptr;
-  return platform_delegate_->GetWindowWidget();
-}
-
-CefRefPtr<CefBrowserView> AlloyBrowserHostImpl::GetBrowserView() const {
-  CEF_REQUIRE_UIT();
-  if (IsViewsHosted() && platform_delegate_)
-    return platform_delegate_->GetBrowserView();
-  return nullptr;
-}
-#endif
 
 void AlloyBrowserHostImpl::CancelContextMenu() {
   CEF_REQUIRE_UIT();
@@ -1684,11 +1660,10 @@ AlloyBrowserHostImpl::AlloyBrowserHostImpl(
       content::WebContentsObserver(web_contents),
       opener_(kNullWindowHandle),
       is_windowless_(platform_delegate_->IsWindowless()),
-      is_views_hosted_(platform_delegate_->IsViewsHosted()),
       extension_(extension) {
   contents_delegate_->ObserveWebContents(web_contents);
 
-  if (opener.get() && !platform_delegate_->IsViewsHosted()) {
+  if (opener.get() && !is_views_hosted_) {
     // GetOpenerWindowHandle() only returns a value for non-views-hosted
     // popup browsers.
     opener_ = opener->GetWindowHandle();
@@ -1707,7 +1682,7 @@ bool AlloyBrowserHostImpl::CreateHostWindow() {
   bool success = true;
   if (!IsWindowless())
     success = platform_delegate_->CreateHostWindow();
-  if (success && !IsViewsHosted())
+  if (success && !is_views_hosted_)
     host_window_handle_ = platform_delegate_->GetHostWindowHandle();
   return success;
 }

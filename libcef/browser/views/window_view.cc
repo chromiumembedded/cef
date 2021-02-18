@@ -4,8 +4,10 @@
 
 #include "libcef/browser/views/window_view.h"
 
+#include "libcef/browser/chrome/views/chrome_browser_frame.h"
 #include "libcef/browser/image_impl.h"
 #include "libcef/browser/views/window_impl.h"
+#include "libcef/features/runtime.h"
 
 #include "third_party/skia/include/core/SkRegion.h"
 #include "ui/aura/window.h"
@@ -248,7 +250,8 @@ void CefWindowView::CreateWidget() {
 
   // |widget| is owned by the NativeWidget and will be destroyed in response to
   // a native destruction message.
-  views::Widget* widget = new views::Widget;
+  views::Widget* widget = cef::IsChromeRuntimeEnabled() ? new ChromeBrowserFrame
+                                                        : new views::Widget;
 
   views::Widget::InitParams params;
   params.delegate = this;

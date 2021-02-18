@@ -388,7 +388,7 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
     return nullptr;
   }
 
-  if (active_browser->IsViewsHosted()) {
+  if (active_browser->is_views_hosted()) {
     // The new browser will also be Views hosted.
     create_params.window_info.reset();
   }

@@ -70,6 +70,7 @@ class MainContextImpl : public MainContext {
   cef_color_t browser_background_color_;
   bool use_windowless_rendering_;
   int windowless_frame_rate_;
+  bool use_chrome_runtime_;
   bool use_views_;
   bool touch_events_enabled_;
 

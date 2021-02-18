@@ -38,6 +38,9 @@ struct CefBrowserCreateParams {
     settings = that.settings;
     request_context = that.request_context;
     extra_info = that.extra_info;
+#if defined(TOOLKIT_VIEWS)
+    browser_view = that.browser_view;
+#endif
     return *this;
   }
 
@@ -45,10 +48,9 @@ struct CefBrowserCreateParams {
   // views-hosted browser. Currently used with the alloy runtime only.
   std::unique_ptr<CefWindowInfo> window_info;
 
-#if defined(USE_AURA)
-  // The BrowserView that will own a views-hosted browser. Will be nullptr for
+#if defined(TOOLKIT_VIEWS)
+  // The BrowserView that will own a Views-hosted browser. Will be nullptr for
   // popup browsers (the BrowserView will be created later in that case).
-  // Currently used with the alloy runtime only.
   CefRefPtr<CefBrowserView> browser_view;
 #endif
 
@@ -100,6 +102,11 @@ class CefBrowserHostBase : public CefBrowserHost,
     virtual ~Observer() {}
   };
 
+  // Create a new CefBrowserHost instance of the current runtime type with
+  // owned WebContents.
+  static CefRefPtr<CefBrowserHostBase> Create(
+      CefBrowserCreateParams& create_params);
+
   // Returns the browser associated with the specified RenderViewHost.
   static CefRefPtr<CefBrowserHostBase> GetBrowserForHost(
       const content::RenderViewHost* host);
@@ -127,6 +134,10 @@ class CefBrowserHostBase : public CefBrowserHost,
   // Called on the UI thread after the associated WebContents is created.
   virtual void InitializeBrowser();
 
+  // Called on the UI thread when the OS window hosting the browser is
+  // destroyed.
+  virtual void WindowDestroyed() = 0;
+
   // Called on the UI thread after the associated WebContents is destroyed.
   // Also called from CefBrowserInfoManager::DestroyAllBrowsers if the browser
   // was not properly shut down.
@@ -136,6 +147,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   CefRefPtr<CefBrowser> GetBrowser() override;
   CefRefPtr<CefClient> GetClient() override;
   CefRefPtr<CefRequestContext> GetRequestContext() override;
+  bool HasView() override;
   void StartDownload(const CefString& url) override;
   void DownloadImage(const CefString& image_url,
                      bool is_favicon,
@@ -221,6 +233,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   CefRefPtr<CefRequestContextImpl> request_context() const {
     return request_context_;
   }
+  bool is_views_hosted() const { return is_views_hosted_; }
 
   // Accessors that must be called on the UI thread.
   content::WebContents* GetWebContents() const;
@@ -232,6 +245,16 @@ class CefBrowserHostBase : public CefBrowserHost,
     return contents_delegate_.get();
   }
 
+#if defined(TOOLKIT_VIEWS)
+  // Returns the Widget owner for the browser window. Only used with windowed
+  // rendering.
+  views::Widget* GetWindowWidget() const;
+
+  // Returns the BrowserView associated with this browser. Only used with Views-
+  // based browsers.
+  CefRefPtr<CefBrowserView> GetBrowserView() const;
+#endif
+
  protected:
   // Called from LoadMainFrameURL to perform the actual navigation.
   virtual bool Navigate(const content::OpenURLParams& params);
@@ -242,6 +265,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate_;
   scoped_refptr<CefBrowserInfo> browser_info_;
   CefRefPtr<CefRequestContextImpl> request_context_;
+  const bool is_views_hosted_;
 
   // Only accessed on the UI thread.
   std::unique_ptr<CefBrowserContentsDelegate> contents_delegate_;

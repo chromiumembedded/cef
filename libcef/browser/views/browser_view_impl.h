@@ -19,14 +19,11 @@
 
 class CefBrowserHostBase;
 
-class CefBrowserViewImpl : public CefViewImpl<CefBrowserViewView,
-                                              CefBrowserView,
-                                              CefBrowserViewDelegate>,
-                           public CefBrowserViewView::Delegate {
+class CefBrowserViewImpl
+    : public CefViewImpl<views::View, CefBrowserView, CefBrowserViewDelegate>,
+      public CefBrowserViewView::Delegate {
  public:
-  typedef CefViewImpl<CefBrowserViewView,
-                      CefBrowserView,
-                      CefBrowserViewDelegate>
+  typedef CefViewImpl<views::View, CefBrowserView, CefBrowserViewDelegate>
       ParentClass;
 
   // Create a new CefBrowserView instance. |delegate| may be nullptr.
@@ -73,6 +70,9 @@ class CefBrowserViewImpl : public CefViewImpl<CefBrowserViewView,
   void OnBrowserViewAdded() override;
   void OnBoundsChanged() override;
 
+  // Return the WebView representation of this object.
+  views::WebView* web_view() const;
+
  private:
   // Create a new implementation object.
   // Always call Initialize() after creation.
@@ -89,7 +89,7 @@ class CefBrowserViewImpl : public CefViewImpl<CefBrowserViewView,
   void SetDefaults(const CefBrowserSettings& settings);
 
   // CefViewImpl methods:
-  CefBrowserViewView* CreateRootView() override;
+  views::View* CreateRootView() override;
   void InitializeRootView() override;
 
   // Logic extracted from UnhandledKeyboardEventHandler::HandleKeyboardEvent for

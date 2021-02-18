@@ -47,10 +47,6 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
                                   const CefString& title) {
   CEF_REQUIRE_UI_THREAD();
 
-  // Allow Chrome to handle the title change.
-  if (IsChromeRuntimeEnabled())
-    return;
-
   if (use_views_) {
     // Set the title of the window using the Views framework.
     CefRefPtr<CefBrowserView> browser_view =
@@ -60,7 +56,7 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
       if (window)
         window->SetTitle(title);
     }
-  } else {
+  } else if (!IsChromeRuntimeEnabled()) {
     // Set the title of the window using platform APIs.
     PlatformTitleChange(browser, title);
   }

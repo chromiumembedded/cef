@@ -66,7 +66,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   void SetFocus(bool focus) override;
   CefWindowHandle GetWindowHandle() override;
   CefWindowHandle GetOpenerWindowHandle() override;
-  bool HasView() override;
   double GetZoomLevel() override;
   void SetZoomLevel(double zoomLevel) override;
   void RunFileDialog(FileDialogMode mode,
@@ -160,6 +159,7 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
 
   // CefBrowserHostBase methods:
   void InitializeBrowser() override;
+  void WindowDestroyed() override;
   void DestroyBrowser() override;
 
   void DoCloseBrowser(bool force_close);

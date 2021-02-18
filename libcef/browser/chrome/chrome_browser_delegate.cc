@@ -252,6 +252,11 @@ std::unique_ptr<BrowserDelegate> BrowserDelegate::Create(
       cef_params.get());
   if (params) {
     create_params = params->create_params_;
+
+    // Clear these values so they're not persisted to additional Browsers.
+#if defined(TOOLKIT_VIEWS)
+    params->create_params_.browser_view = nullptr;
+#endif
   }
 
   return std::make_unique<ChromeBrowserDelegate>(browser, create_params);

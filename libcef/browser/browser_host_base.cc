@@ -163,7 +163,8 @@ CefBrowserHostBase::CefBrowserHostBase(
       client_(client),
       platform_delegate_(std::move(platform_delegate)),
       browser_info_(browser_info),
-      request_context_(request_context) {
+      request_context_(request_context),
+      is_views_hosted_(platform_delegate_->IsViewsHosted()) {
   CEF_REQUIRE_UIT();
   DCHECK(!browser_info_->browser().get());
   browser_info_->SetBrowser(this);
@@ -203,6 +204,10 @@ CefRefPtr<CefClient> CefBrowserHostBase::GetClient() {
 
 CefRefPtr<CefRequestContext> CefBrowserHostBase::GetRequestContext() {
   return request_context_;
+}
+
+bool CefBrowserHostBase::HasView() {
+  return is_views_hosted_;
 }
 
 void CefBrowserHostBase::StartDownload(const CefString& url) {
@@ -790,3 +795,19 @@ content::BrowserContext* CefBrowserHostBase::GetBrowserContext() const {
     return web_contents->GetBrowserContext();
   return nullptr;
 }
+
+#if defined(TOOLKIT_VIEWS)
+views::Widget* CefBrowserHostBase::GetWindowWidget() const {
+  CEF_REQUIRE_UIT();
+  if (!platform_delegate_)
+    return nullptr;
+  return platform_delegate_->GetWindowWidget();
+}
+
+CefRefPtr<CefBrowserView> CefBrowserHostBase::GetBrowserView() const {
+  CEF_REQUIRE_UIT();
+  if (is_views_hosted_ && platform_delegate_)
+    return platform_delegate_->GetBrowserView();
+  return nullptr;
+}
+#endif  // defined(TOOLKIT_VIEWS)

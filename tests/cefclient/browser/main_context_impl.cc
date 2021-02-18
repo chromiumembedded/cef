@@ -93,6 +93,16 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
 #endif
   }
 
+  // Enable experimental Chrome runtime. See issue #2969 for details.
+  use_chrome_runtime_ =
+      command_line_->HasSwitch(switches::kEnableChromeRuntime);
+
+  if (use_windowless_rendering_ && use_chrome_runtime_) {
+    LOG(ERROR)
+        << "Windowless rendering is not supported with the Chrome runtime.";
+    use_chrome_runtime_ = false;
+  }
+
 #if defined(OS_WIN) || defined(OS_LINUX)
   // Whether the Views framework will be used.
   use_views_ = command_line_->HasSwitch(switches::kUseViews);
@@ -101,6 +111,14 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
     LOG(ERROR)
         << "Windowless rendering is not supported by the Views framework.";
     use_views_ = false;
+  }
+
+  if (use_chrome_runtime_ && !use_views_) {
+    // TODO(chrome): Add support for this runtime configuration (e.g. a fully
+    // styled Chrome window with cefclient menu customizations). In the mean
+    // time this can be demo'd with "cefsimple --enable-chrome-runtime".
+    LOG(WARNING) << "Chrome runtime requires the Views framework.";
+    use_views_ = true;
   }
 
   if (use_views_ && command_line->HasSwitch(switches::kHideFrame) &&
@@ -177,6 +195,9 @@ void MainContextImpl::PopulateSettings(CefSettings* settings) {
     settings->external_message_pump =
         command_line_->HasSwitch(switches::kExternalMessagePump);
   }
+
+  if (use_chrome_runtime_)
+    settings->chrome_runtime = true;
 
   CefString(&settings->cache_path) =
       command_line_->GetSwitchValue(switches::kCachePath);

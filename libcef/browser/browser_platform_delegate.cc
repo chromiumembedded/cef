@@ -112,7 +112,7 @@ CefWindowHandle CefBrowserPlatformDelegate::GetHostWindowHandle() const {
   return kNullWindowHandle;
 }
 
-#if defined(USE_AURA)
+#if defined(TOOLKIT_VIEWS)
 views::Widget* CefBrowserPlatformDelegate::GetWindowWidget() const {
   NOTREACHED();
   return nullptr;
@@ -122,7 +122,7 @@ CefRefPtr<CefBrowserView> CefBrowserPlatformDelegate::GetBrowserView() const {
   NOTREACHED();
   return nullptr;
 }
-#endif
+#endif  // defined(TOOLKIT_VIEWS)
 
 void CefBrowserPlatformDelegate::PopupWebContentsCreated(
     const CefBrowserSettings& settings,

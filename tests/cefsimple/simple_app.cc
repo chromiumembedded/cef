@@ -85,8 +85,6 @@ void SimpleApp::OnContextInitialized() {
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
 
-  const bool enable_chrome_runtime = SimpleHandler::IsChromeRuntimeEnabled();
-
 #if defined(OS_WIN) || defined(OS_LINUX)
   // Create the browser using the Views framework if "--use-views" is specified
   // via the command-line. Otherwise, create the browser using the native
@@ -111,7 +109,7 @@ void SimpleApp::OnContextInitialized() {
   if (url.empty())
     url = "http://www.google.com";
 
-  if (use_views && !enable_chrome_runtime) {
+  if (use_views) {
     // Create the BrowserView.
     CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(
         handler, url, browser_settings, nullptr, nullptr,

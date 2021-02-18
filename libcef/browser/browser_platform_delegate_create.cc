@@ -29,7 +29,8 @@
 #error A delegate implementation is not available for your platform.
 #endif
 
-#if defined(USE_AURA)
+#if defined(TOOLKIT_VIEWS)
+#include "libcef/browser/chrome/views/browser_platform_delegate_chrome_views.h"
 #include "libcef/browser/views/browser_platform_delegate_views.h"
 #endif
 
@@ -82,6 +83,13 @@ std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
     // CefWindowInfo is not used in this case.
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate =
         CreateNativeDelegate(CefWindowInfo(), background_color);
+#if defined(TOOLKIT_VIEWS)
+    if (create_params.browser_view) {
+      return std::make_unique<CefBrowserPlatformDelegateChromeViews>(
+          std::move(native_delegate),
+          static_cast<CefBrowserViewImpl*>(create_params.browser_view.get()));
+    }
+#endif
     return std::make_unique<CefBrowserPlatformDelegateChrome>(
         std::move(native_delegate));
   }
@@ -113,7 +121,7 @@ std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
     return std::make_unique<CefBrowserPlatformDelegateBackground>(
         std::move(native_delegate));
   }
-#if defined(USE_AURA)
+#if defined(TOOLKIT_VIEWS)
   else {
     // CefWindowInfo is not used in this case.
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate =
@@ -122,7 +130,7 @@ std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
         std::move(native_delegate),
         static_cast<CefBrowserViewImpl*>(create_params.browser_view.get()));
   }
-#endif  // defined(USE_AURA)
+#endif  // defined(TOOLKIT_VIEWS)
 
   NOTREACHED();
   return nullptr;

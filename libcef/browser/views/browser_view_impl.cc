@@ -4,11 +4,13 @@
 
 #include "libcef/browser/views/browser_view_impl.h"
 
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/browser_util.h"
+#include "libcef/browser/chrome/views/chrome_browser_view.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/views/window_impl.h"
+#include "libcef/features/runtime.h"
 #include "libcef/features/runtime_checks.h"
 
 #include "content/public/browser/native_web_keyboard_event.h"
@@ -29,12 +31,11 @@ CefRefPtr<CefBrowserView> CefBrowserView::CreateBrowserView(
 // static
 CefRefPtr<CefBrowserView> CefBrowserView::GetForBrowser(
     CefRefPtr<CefBrowser> browser) {
-  REQUIRE_ALLOY_RUNTIME();
   CEF_REQUIRE_UIT_RETURN(nullptr);
 
-  AlloyBrowserHostImpl* browser_impl =
-      static_cast<AlloyBrowserHostImpl*>(browser.get());
-  if (browser_impl && browser_impl->IsViewsHosted())
+  CefBrowserHostBase* browser_impl =
+      static_cast<CefBrowserHostBase*>(browser.get());
+  if (browser_impl && browser_impl->is_views_hosted())
     return browser_impl->GetBrowserView();
   return nullptr;
 }
@@ -47,7 +48,6 @@ CefRefPtr<CefBrowserViewImpl> CefBrowserViewImpl::Create(
     CefRefPtr<CefDictionaryValue> extra_info,
     CefRefPtr<CefRequestContext> request_context,
     CefRefPtr<CefBrowserViewDelegate> delegate) {
-  REQUIRE_ALLOY_RUNTIME();
   CEF_REQUIRE_UIT_RETURN(nullptr);
 
   CefRefPtr<CefBrowserViewImpl> browser_view = new CefBrowserViewImpl(delegate);
@@ -73,8 +73,8 @@ CefRefPtr<CefBrowserViewImpl> CefBrowserViewImpl::CreateForPopup(
 
 void CefBrowserViewImpl::WebContentsCreated(
     content::WebContents* web_contents) {
-  if (root_view())
-    root_view()->SetWebContents(web_contents);
+  if (web_view())
+    web_view()->SetWebContents(web_contents);
 }
 
 void CefBrowserViewImpl::BrowserCreated(
@@ -88,8 +88,8 @@ void CefBrowserViewImpl::BrowserDestroyed(CefBrowserHostBase* browser) {
   DCHECK_EQ(browser, browser_);
   browser_ = nullptr;
 
-  if (root_view())
-    root_view()->SetWebContents(nullptr);
+  if (web_view())
+    web_view()->SetWebContents(nullptr);
 }
 
 bool CefBrowserViewImpl::HandleKeyboardEvent(
@@ -128,8 +128,8 @@ CefRefPtr<CefBrowser> CefBrowserViewImpl::GetBrowser() {
 
 void CefBrowserViewImpl::SetPreferAccelerators(bool prefer_accelerators) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (root_view())
-    root_view()->set_allow_accelerators(prefer_accelerators);
+  if (web_view())
+    web_view()->set_allow_accelerators(prefer_accelerators);
 }
 
 void CefBrowserViewImpl::RequestFocus() {
@@ -143,8 +143,8 @@ void CefBrowserViewImpl::RequestFocus() {
 void CefBrowserViewImpl::SetBackgroundColor(cef_color_t color) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   ParentClass::SetBackgroundColor(color);
-  if (root_view())
-    root_view()->SetResizeBackgroundColor(color);
+  if (web_view())
+    web_view()->SetResizeBackgroundColor(color);
 }
 
 void CefBrowserViewImpl::Detach() {
@@ -154,12 +154,12 @@ void CefBrowserViewImpl::Detach() {
   DCHECK(!root_view());
 
   if (browser_) {
-    // |browser_| will disappear when WindowDestroyed() indirectly calls
-    // BrowserDestroyed() so keep a reference.
+    // With the Alloy runtime |browser_| will disappear when WindowDestroyed()
+    // indirectly calls BrowserDestroyed() so keep a reference.
     CefRefPtr<CefBrowserHostBase> browser = browser_;
 
     // Force the browser to be destroyed.
-    static_cast<AlloyBrowserHostImpl*>(browser.get())->WindowDestroyed();
+    browser->WindowDestroyed();
   }
 }
 
@@ -176,7 +176,7 @@ void CefBrowserViewImpl::OnBrowserViewAdded() {
     // hierarchy.
     pending_browser_create_params_->browser_view = this;
 
-    AlloyBrowserHostImpl::Create(*pending_browser_create_params_);
+    CefBrowserHostBase::Create(*pending_browser_create_params_);
     DCHECK(browser_);
 
     pending_browser_create_params_.reset(nullptr);
@@ -212,12 +212,28 @@ void CefBrowserViewImpl::SetDefaults(const CefBrowserSettings& settings) {
       CefContext::Get()->GetBackgroundColor(&settings, STATE_DISABLED));
 }
 
-CefBrowserViewView* CefBrowserViewImpl::CreateRootView() {
+views::View* CefBrowserViewImpl::CreateRootView() {
+  if (cef::IsChromeRuntimeEnabled()) {
+    return new ChromeBrowserView(delegate(), this);
+  }
+
   return new CefBrowserViewView(delegate(), this);
 }
 
 void CefBrowserViewImpl::InitializeRootView() {
-  static_cast<CefBrowserViewView*>(root_view())->Initialize();
+  if (cef::IsChromeRuntimeEnabled()) {
+    static_cast<ChromeBrowserView*>(root_view())->Initialize();
+  } else {
+    static_cast<CefBrowserViewView*>(root_view())->Initialize();
+  }
+}
+
+views::WebView* CefBrowserViewImpl::web_view() const {
+  if (cef::IsChromeRuntimeEnabled()) {
+    return static_cast<ChromeBrowserView*>(root_view())->contents_web_view();
+  }
+
+  return static_cast<CefBrowserViewView*>(root_view());
 }
 
 bool CefBrowserViewImpl::HandleAccelerator(

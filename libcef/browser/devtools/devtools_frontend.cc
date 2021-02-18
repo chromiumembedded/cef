@@ -251,7 +251,7 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
   }
 
   CefBrowserCreateParams create_params;
-  if (!inspected_browser->IsViewsHosted())
+  if (!inspected_browser->is_views_hosted())
     create_params.window_info.reset(new CefWindowInfo(windowInfo));
   create_params.client = client;
   create_params.settings = new_settings;

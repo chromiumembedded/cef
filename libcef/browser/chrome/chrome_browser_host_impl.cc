@@ -7,6 +7,7 @@
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/chrome/browser_platform_delegate_chrome.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/browser/views/browser_view_impl.h"
 #include "libcef/features/runtime_checks.h"
 
 #include "base/logging.h"
@@ -21,6 +22,11 @@
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/common/pref_names.h"
 #include "url/url_constants.h"
+
+#if defined(TOOLKIT_VIEWS)
+#include "libcef/browser/chrome/views/chrome_browser_frame.h"
+#include "libcef/browser/chrome/views/chrome_browser_view.h"
+#endif
 
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::Create(
@@ -40,10 +46,45 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::Create(
   // Pass |params| to cef::BrowserDelegate::Create from the Browser constructor.
   chrome_params.cef_params = base::MakeRefCounted<DelegateCreateParams>(params);
 
+#if defined(TOOLKIT_VIEWS)
+  // Configure Browser creation to use the existing Views-based
+  // Widget/BrowserFrame (ChromeBrowserFrame) and BrowserView/BrowserWindow
+  // (ChromeBrowserView). See views/chrome_browser_frame.h for related
+  // documentation.
+  ChromeBrowserView* chrome_browser_view = nullptr;
+  if (params.browser_view) {
+    // Don't show most controls.
+    chrome_params.type = Browser::TYPE_POPUP;
+    // Don't show title bar or address.
+    chrome_params.trusted_source = true;
+
+    auto view_impl =
+        static_cast<CefBrowserViewImpl*>(params.browser_view.get());
+
+    chrome_browser_view =
+        static_cast<ChromeBrowserView*>(view_impl->root_view());
+    chrome_params.window = chrome_browser_view;
+
+    auto chrome_widget =
+        static_cast<ChromeBrowserFrame*>(chrome_browser_view->GetWidget());
+    chrome_browser_view->set_frame(chrome_widget);
+  }
+#endif  // defined(TOOLKIT_VIEWS)
+
   // Create the Browser. This will indirectly create the ChomeBrowserDelegate.
   // The same params will be used to create a new Browser if the tab is dragged
-  // out of the existing Browser.
+  // out of the existing Browser. The returned Browser is owned by the
+  // associated BrowserView.
   auto browser = Browser::Create(chrome_params);
+
+#if defined(TOOLKIT_VIEWS)
+  if (chrome_browser_view) {
+    // Initialize the BrowserFrame and BrowserView and create the controls that
+    // require access to the Browser.
+    chrome_browser_view->InitBrowser(base::WrapUnique(browser),
+                                     params.browser_view);
+  }
+#endif
 
   GURL url = params.url;
   if (url.is_empty()) {
@@ -148,8 +189,9 @@ void ChromeBrowserHostImpl::CloseBrowser(bool force_close) {
 }
 
 bool ChromeBrowserHostImpl::TryCloseBrowser() {
-  NOTIMPLEMENTED();
-  return false;
+  // TODO(chrome): Handle the case where the browser may not close immediately.
+  CloseBrowser(true);
+  return true;
 }
 
 void ChromeBrowserHostImpl::SetFocus(bool focus) {
@@ -166,11 +208,6 @@ CefWindowHandle ChromeBrowserHostImpl::GetWindowHandle() {
 CefWindowHandle ChromeBrowserHostImpl::GetOpenerWindowHandle() {
   NOTIMPLEMENTED();
   return kNullWindowHandle;
-}
-
-bool ChromeBrowserHostImpl::HasView() {
-  // TODO(chrome-runtime): Support Views-hosted browsers.
-  return false;
 }
 
 double ChromeBrowserHostImpl::GetZoomLevel() {
@@ -437,10 +474,10 @@ void ChromeBrowserHostImpl::Attach(Browser* browser,
   DCHECK(browser);
   DCHECK(web_contents);
 
+  SetBrowser(browser);
+
   platform_delegate_->WebContentsCreated(web_contents,
                                          /*own_web_contents=*/false);
-
-  SetBrowser(browser);
   contents_delegate_->ObserveWebContents(web_contents);
   InitializeBrowser();
 }
@@ -467,6 +504,19 @@ void ChromeBrowserHostImpl::InitializeBrowser() {
   OnAfterCreated();
 }
 
+void ChromeBrowserHostImpl::WindowDestroyed() {
+  CEF_REQUIRE_UIT();
+#if defined(TOOLKIT_VIEWS)
+  if (browser_ && is_views_hosted_) {
+    auto chrome_browser_view =
+        static_cast<ChromeBrowserView*>(browser_->window());
+    chrome_browser_view->Destroyed();
+  }
+#endif
+
+  platform_delegate_->CloseHostWindow();
+}
+
 void ChromeBrowserHostImpl::DestroyBrowser() {
   CEF_REQUIRE_UIT();
   browser_ = nullptr;
@@ -486,6 +536,8 @@ void ChromeBrowserHostImpl::DoCloseBrowser(bool force_close) {
     // Like chrome::CloseTab() but specifying the WebContents.
     const int tab_index = GetCurrentTabIndex();
     if (tab_index != TabStripModel::kNoTab) {
+      // TODO(chrome): Handle the case where this method returns false,
+      // indicating that the contents were not closed immediately.
       browser_->tab_strip_model()->CloseWebContentsAt(
           tab_index, TabStripModel::CLOSE_CREATE_HISTORICAL_TAB |
                          TabStripModel::CLOSE_USER_GESTURE);

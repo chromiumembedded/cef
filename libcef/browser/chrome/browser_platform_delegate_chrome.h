@@ -36,6 +36,8 @@ class CefBrowserPlatformDelegateChrome
                            int deltaY) override;
   gfx::Point GetScreenPoint(const gfx::Point& view) const override;
   void ViewText(const std::string& text) override;
+  CefEventHandle GetEventHandle(
+      const content::NativeWebKeyboardEvent& event) const override;
 
   // CefBrowserPlatformDelegateNative::WindowlessHandler methods:
   CefWindowHandle GetParentWindowHandle() const override;
@@ -43,7 +45,7 @@ class CefBrowserPlatformDelegateChrome
 
   void set_chrome_browser(Browser* browser);
 
- private:
+ protected:
   std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate_;
 
   Browser* chrome_browser_ = nullptr;

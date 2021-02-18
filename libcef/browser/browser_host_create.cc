@@ -134,6 +134,12 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
   create_params.extra_info = extra_info;
   create_params.request_context = request_context;
 
+  return CefBrowserHostBase::Create(create_params);
+}
+
+// static
+CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::Create(
+    CefBrowserCreateParams& create_params) {
   if (cef::IsChromeRuntimeEnabled()) {
     auto browser = ChromeBrowserHostImpl::Create(create_params);
     return browser.get();

@@ -168,7 +168,7 @@ class CefBrowserPlatformDelegate {
   // the client, which may be NULL. May be called on multiple threads.
   virtual CefWindowHandle GetHostWindowHandle() const;
 
-#if defined(USE_AURA)
+#if defined(TOOLKIT_VIEWS)
   // Returns the Widget owner for the browser window. Only used with windowed
   // rendering.
   virtual views::Widget* GetWindowWidget() const;
