@@ -9,7 +9,7 @@
 #include "chrome/browser/platform_util.h"
 #include "components/web_modal/web_contents_modal_dialog_manager.h"
 
-#if defined(USE_AURA)
+#if defined(TOOLKIT_VIEWS)
 #include "ui/views/widget/widget.h"
 #endif
 
@@ -38,7 +38,7 @@ CefWebContentsDialogHelper::GetWebContentsModalDialogHost() {
 }
 
 gfx::NativeView CefWebContentsDialogHelper::GetHostView() const {
-#if defined(USE_AURA)
+#if defined(TOOLKIT_VIEWS)
   return browser_delegate_->GetWindowWidget()->GetNativeView();
 #else
   NOTIMPLEMENTED();

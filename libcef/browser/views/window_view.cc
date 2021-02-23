@@ -10,7 +10,6 @@
 #include "libcef/features/runtime.h"
 
 #include "third_party/skia/include/core/SkRegion.h"
-#include "ui/aura/window.h"
 #include "ui/base/hit_test.h"
 #include "ui/views/widget/widget.h"
 #include "ui/views/window/native_frame_view.h"
@@ -22,6 +21,10 @@
 #if defined(OS_WIN)
 #include "ui/display/screen.h"
 #include "ui/views/win/hwnd_util.h"
+#endif
+
+#if defined(USE_AURA)
+#include "ui/aura/window.h"
 #endif
 
 namespace {
@@ -272,7 +275,7 @@ void CefWindowView::CreateWidget() {
     if (parent_window && !parent_window->IsSame(cef_window)) {
       CefWindowImpl* parent_window_impl =
           static_cast<CefWindowImpl*>(parent_window.get());
-      params.parent = view_util::GetNativeWindow(parent_window_impl->widget());
+      params.parent = view_util::GetNativeView(parent_window_impl->widget());
       if (is_menu) {
         // Don't clip the window to parent bounds.
         params.type = views::Widget::InitParams::TYPE_MENU;

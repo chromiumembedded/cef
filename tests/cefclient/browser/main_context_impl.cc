@@ -103,7 +103,6 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
     use_chrome_runtime_ = false;
   }
 
-#if defined(OS_WIN) || defined(OS_LINUX)
   // Whether the Views framework will be used.
   use_views_ = command_line_->HasSwitch(switches::kUseViews);
 
@@ -126,7 +125,6 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
     // Use the draggable regions test as the default URL for frameless windows.
     main_url_ = "http://tests/draggable";
   }
-#endif  // defined(OS_WIN) || defined(OS_LINUX)
 
   if (command_line_->HasSwitch(switches::kBackgroundColor)) {
     // Parse the background color value.

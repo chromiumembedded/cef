@@ -29,6 +29,7 @@
 #include "content/browser/renderer_host/text_input_manager.h"
 #include "content/public/browser/render_frame_metadata_provider.h"
 #include "content/public/common/widget_type.h"
+#include "ui/base/cursor/cursor.h"
 #include "ui/base/cursor/mojom/cursor_type.mojom-shared.h"
 #include "ui/compositor/compositor.h"
 #include "ui/events/base_event_utils.h"
@@ -43,10 +44,6 @@
 
 #if defined(OS_WIN)
 #include "ui/gfx/win/window_impl.h"
-#endif
-
-#if defined(USE_AURA)
-#include "ui/base/cursor/cursor.h"
 #endif
 
 namespace content {

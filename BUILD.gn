@@ -1058,10 +1058,6 @@ static_library("libcef_static") {
   }
 
   if (toolkit_views) {
-    deps += [
-      "//ui/views",
-    ]
-
     sources += [
       "libcef/browser/chrome/views/browser_platform_delegate_chrome_views.cc",
       "libcef/browser/chrome/views/browser_platform_delegate_chrome_views.h",
@@ -1129,84 +1125,106 @@ static_library("libcef_static") {
 
       # Part of //ui/views:test_support which is testingonly.
       "//ui/views/test/desktop_test_views_delegate.h",
-      "//ui/views/test/desktop_test_views_delegate_aura.cc",
       "//ui/views/test/test_views_delegate.h",
-      "//ui/views/test/test_views_delegate_aura.cc",
 
       # Support for UI input events.
       # Part of //ui/base:test_support which is testingonly.
       "//ui/base/test/ui_controls.h",
-      "//ui/base/test/ui_controls_aura.cc",
-      "//ui/aura/test/ui_controls_factory_aura.h",
     ]
-
-    if (is_linux && !use_x11) {
-      sources += [
-        "//ui/aura/test/ui_controls_factory_ozone.cc",
-        "//ui/events/test/events_test_utils.cc"
-      ]
-    }
 
     deps += [
-      "//ui/aura",
       "//ui/events",
       "//ui/strings",
-      "//ui/wm",
-      "//ui/wm/public",
+      "//ui/views",
+      "//ui/views/controls/webview",
     ]
 
-    if (toolkit_views) {
-      deps += [
-        "//ui/views/controls/webview",
-      ]
-    }
-    
-    if (is_win) {
-      sources += [
-        # Support for UI input events.
-        # Part of //base/test:test_config which is testingonly.
-        "//base/test/test_switches.cc",
-        "//base/test/test_switches.h",
-        "//base/test/test_timeouts.cc",
-        "//base/test/test_timeouts.h",
-        # Part of //ui/aura:test_support which is testingonly.
-        "//ui/aura/test/ui_controls_factory_aurawin.cc",
-        # Part of //ui/base:test_support which is testingonly.
-        "//ui/base/test/ui_controls_internal_win.cc",
-        "//ui/base/test/ui_controls_internal_win.h",
-      ]
-    }
-
-    if (is_linux) {
-      sources += [
-        # Support for UI input events.
-        # Part of //ui/aura:test_support which is testingonly.
-        "//ui/aura/test/aura_test_utils.cc",
-        "//ui/aura/test/aura_test_utils.h",
-        # Part of //ui/events:test_support which is testingonly.
-        "//ui/events/test/x11_event_waiter.cc",
-        "//ui/events/test/x11_event_waiter.h",
-      ]
-
-      if (use_x11) {
-        sources += [
-          # Support for UI input events.
-          # Part of //ui/base/x:test_support which is testingonly.
-          "//ui/base/x/test/x11_ui_controls_test_helper.cc",
-          "//ui/base/x/test/x11_ui_controls_test_helper.h",
-          # Part of //ui/aura:test_support which is testingonly.
-          "//ui/aura/test/x11_event_sender.h",
-          # Part of //ui/views:test_support which is testingonly.
-          "//ui/views/test/ui_controls_factory_desktop_aurax11.cc",
-          "//ui/views/test/ui_controls_factory_desktop_aurax11.h",
-        ]
-      }
-    }
-
-    if (is_win || is_linux) {
+    if (use_aura) {
       sources += [
         "libcef/browser/native/browser_platform_delegate_native_aura.cc",
         "libcef/browser/native/browser_platform_delegate_native_aura.h",
+        "libcef/browser/views/view_util_aura.cc",
+
+        # Part of //ui/views:test_support which is testingonly.
+        "//ui/views/test/desktop_test_views_delegate_aura.cc",
+        "//ui/views/test/test_views_delegate_aura.cc",
+
+        # Support for UI input events.
+        # Part of //ui/base:test_support which is testingonly.
+        "//ui/base/test/ui_controls_aura.cc",
+        "//ui/aura/test/ui_controls_factory_aura.h",
+      ]
+
+      deps += [
+        "//ui/aura",
+        "//ui/wm",
+        "//ui/wm/public",
+      ]
+
+      if (is_win) {
+        sources += [
+          # Support for UI input events.
+          # Part of //base/test:test_config which is testingonly.
+          "//base/test/test_switches.cc",
+          "//base/test/test_switches.h",
+          "//base/test/test_timeouts.cc",
+          "//base/test/test_timeouts.h",
+          # Part of //ui/aura:test_support which is testingonly.
+          "//ui/aura/test/ui_controls_factory_aurawin.cc",
+          # Part of //ui/base:test_support which is testingonly.
+          "//ui/base/test/ui_controls_internal_win.cc",
+          "//ui/base/test/ui_controls_internal_win.h",
+        ]
+      }
+
+      if (is_linux) {
+        sources += [
+          # Support for UI input events.
+          # Part of //ui/aura:test_support which is testingonly.
+          "//ui/aura/test/aura_test_utils.cc",
+          "//ui/aura/test/aura_test_utils.h",
+          # Part of //ui/events:test_support which is testingonly.
+          "//ui/events/test/x11_event_waiter.cc",
+          "//ui/events/test/x11_event_waiter.h",
+        ]
+
+        if (use_x11) {
+          sources += [
+            # Support for UI input events.
+            # Part of //ui/base/x:test_support which is testingonly.
+            "//ui/base/x/test/x11_ui_controls_test_helper.cc",
+            "//ui/base/x/test/x11_ui_controls_test_helper.h",
+            # Part of //ui/aura:test_support which is testingonly.
+            "//ui/aura/test/x11_event_sender.h",
+            # Part of //ui/views:test_support which is testingonly.
+            "//ui/views/test/ui_controls_factory_desktop_aurax11.cc",
+            "//ui/views/test/ui_controls_factory_desktop_aurax11.h",
+          ]
+        } else {
+          sources += [
+            # Support for UI input events.
+            # Part of //ui/base:test_support which is testingonly.
+            "//ui/aura/test/ui_controls_factory_ozone.cc",
+            # Part of //ui//events:test_support which is testingonly.
+            "//ui/events/test/events_test_utils.cc"
+          ]
+        }
+      }
+    }
+
+    if (is_mac) {
+      sources += [
+        "libcef/browser/views/view_util_mac.mm",
+
+        # Part of //ui/views:test_support which is testingonly.
+        "//ui/views/test/desktop_test_views_delegate_mac.mm",
+        "//ui/views/test/test_views_delegate_mac.mm",
+
+        # Support for UI input events.
+        # Part of //ui/base:test_support which is testingonly.
+        "//ui/base/test/ui_controls_mac.mm",
+        # Part of //ui//events:test_support which is testingonly.
+        "//ui/events/test/cocoa_test_event_utils.mm",
       ]
     }
   } else {
@@ -2366,8 +2384,7 @@ if (is_mac) {
               gypi_paths2.shared_sources_browser +
               gypi_paths2.shared_sources_common +
               gypi_paths2.shared_sources_renderer +
-              gypi_paths2.ceftests_sources_common +
-              gypi_paths2.ceftests_sources_views
+              gypi_paths2.ceftests_sources_common
 
     deps = [
       ":libcef",

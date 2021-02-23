@@ -686,9 +686,13 @@ ViewsWindow::ViewsWindow(Delegate* delegate,
   frameless_ = command_line->HasSwitch(switches::kHideFrame) ||
                delegate_->WithExtension();
 
+#if !defined(OS_MAC)
+  // On Mac we don't show a top menu on the window. The options are available in
+  // the app menu instead.
   if (!command_line->HasSwitch(switches::kHideTopMenu)) {
     top_menu_bar_ = new ViewsMenuBar(this, ID_TOP_MENU_FIRST);
   }
+#endif
 }
 
 void ViewsWindow::SetBrowserView(CefRefPtr<CefBrowserView> browser_view) {

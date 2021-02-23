@@ -57,7 +57,7 @@ class Size;
 class Vector2d;
 }  // namespace gfx
 
-#if defined(USE_AURA)
+#if defined(TOOLKIT_VIEWS)
 namespace views {
 class Widget;
 }

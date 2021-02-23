@@ -21,8 +21,6 @@
     'ceftests_sources_common',
     'ceftests_sources_linux:LINUX',
     'ceftests_sources_mac:MAC',
-    'ceftests_sources_views:WINDOWS',
-    'ceftests_sources_views:LINUX',
     'ceftests_sources_win:WINDOWS',
   ],
 }}

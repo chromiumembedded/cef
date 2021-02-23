@@ -8,8 +8,6 @@
 
 #include "libcef/browser/views/view_adapter.h"
 
-#include "ui/aura/window.h"
-#include "ui/aura/window_tree_host.h"
 #include "ui/display/display.h"
 #include "ui/display/screen.h"
 #include "ui/gfx/geometry/point.h"
@@ -288,25 +286,6 @@ bool ConvertPointFromWindow(views::View* view, gfx::Point* point) {
   views::View::ConvertPointFromWidget(view, point);
 
   return true;
-}
-
-gfx::NativeWindow GetNativeWindow(views::Widget* widget) {
-  if (widget) {
-    aura::Window* window = widget->GetNativeWindow();
-    if (window)
-      return window->GetRootWindow();
-  }
-  return nullptr;
-}
-
-CefWindowHandle GetWindowHandle(views::Widget* widget) {
-  // Same implementation as views::HWNDForView() but cross-platform.
-  if (widget) {
-    aura::Window* window = widget->GetNativeWindow();
-    if (window && window->GetRootWindow())
-      return window->GetHost()->GetAcceleratedWidget();
-  }
-  return kNullWindowHandle;
 }
 
 }  // namespace view_util

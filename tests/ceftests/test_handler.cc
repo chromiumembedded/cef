@@ -8,19 +8,14 @@
 #include "include/base/cef_logging.h"
 #include "include/cef_command_line.h"
 #include "include/cef_stream.h"
+#include "include/views/cef_browser_view.h"
+#include "include/views/cef_window.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/ceftests/test_request.h"
 #include "tests/shared/common/client_switches.h"
 
-#if defined(USE_AURA)
-#include "include/views/cef_browser_view.h"
-#include "include/views/cef_window.h"
-#endif
-
 namespace {
-
-#if defined(USE_AURA)
 
 // Delegate implementation for the CefWindow that will host the Views-based
 // browser.
@@ -87,8 +82,6 @@ class TestBrowserViewDelegate : public CefBrowserViewDelegate {
   IMPLEMENT_REFCOUNTING(TestBrowserViewDelegate);
   DISALLOW_COPY_AND_ASSIGN(TestBrowserViewDelegate);
 };
-
-#endif  // defined(USE_AURA)
 
 }  // namespace
 
@@ -353,7 +346,6 @@ void TestHandler::OnTestTimeout(int timeout_ms, bool treat_as_error) {
 void TestHandler::CreateBrowser(const CefString& url,
                                 CefRefPtr<CefRequestContext> request_context,
                                 CefRefPtr<CefDictionaryValue> extra_info) {
-#if defined(USE_AURA)
   const bool use_views = CefCommandLine::GetGlobalCommandLine()->HasSwitch(
       client::switches::kUseViews);
   if (use_views && !CefCurrentlyOn(TID_UI)) {
@@ -362,13 +354,11 @@ void TestHandler::CreateBrowser(const CefString& url,
                                    request_context, extra_info));
     return;
   }
-#endif  // defined(USE_AURA)
 
   CefWindowInfo windowInfo;
   CefBrowserSettings settings;
   PopulateBrowserSettings(&settings);
 
-#if defined(USE_AURA)
   if (use_views) {
     // Create the BrowserView.
     CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(
@@ -377,9 +367,7 @@ void TestHandler::CreateBrowser(const CefString& url,
 
     // Create the Window. It will show itself after creation.
     TestWindowDelegate::CreateBrowserWindow(browser_view, std::string());
-  } else
-#endif  // defined(USE_AURA)
-  {
+  } else {
 #if defined(OS_WIN)
     windowInfo.SetAsPopup(nullptr, "CefUnitTest");
     windowInfo.style |= WS_VISIBLE;

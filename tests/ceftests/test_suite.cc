@@ -189,12 +189,12 @@ void CefTestSuite::PreInitialize() {
   HeapSetInformation(nullptr, HeapEnableTerminationOnCorruption, nullptr, 0);
 #endif
 
-#if defined(OS_LINUX) && defined(USE_AURA)
+#if defined(OS_LINUX)
   // When calling native char conversion functions (e.g wrctomb) we need to
   // have the locale set. In the absence of such a call the "C" locale is the
   // default. In the gtk code (below) gtk_init() implicitly sets a locale.
   setlocale(LC_ALL, "");
-#endif  // defined(OS_LINUX) && defined(USE_AURA)
+#endif  // defined(OS_LINUX)
 
   // Don't add additional code to this function. Instead add it to Initialize().
 }

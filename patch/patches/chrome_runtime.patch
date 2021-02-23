@@ -128,6 +128,44 @@ index fee4d5f1a8ca..2e4fb506d851 100644
  // TODO(crbug.com/1052397): Revisit the macro expression once build flag switch
  // of lacros-chrome is complete.
  #if defined(OS_WIN) || (defined(OS_LINUX) || BUILDFLAG(IS_CHROMEOS_LACROS))
+diff --git chrome/browser/chrome_browser_main_mac.mm chrome/browser/chrome_browser_main_mac.mm
+index c30b73c2575f..5da45a243f9b 100644
+--- chrome/browser/chrome_browser_main_mac.mm
++++ chrome/browser/chrome_browser_main_mac.mm
+@@ -16,6 +16,7 @@
+ #include "base/path_service.h"
+ #include "base/strings/sys_string_conversions.h"
+ #include "build/branding_buildflags.h"
++#include "cef/libcef/features/features.h"
+ #import "chrome/browser/app_controller_mac.h"
+ #include "chrome/browser/apps/app_shim/app_shim_listener.h"
+ #include "chrome/browser/browser_process.h"
+@@ -111,6 +112,7 @@
+     }
+   }
+ 
++#if !BUILDFLAG(ENABLE_CEF)
+   // Create the app delegate. This object is intentionally leaked as a global
+   // singleton. It is accessed through -[NSApp delegate].
+   AppController* app_controller = [[AppController alloc] init];
+@@ -119,6 +121,7 @@
+   chrome::BuildMainMenu(NSApp, app_controller,
+                         l10n_util::GetStringUTF16(IDS_PRODUCT_NAME), false);
+   [app_controller mainMenuCreated];
++#endif  // BUILDFLAG(ENABLE_CEF)
+ 
+   PrefService* local_state = g_browser_process->local_state();
+   DCHECK(local_state);
+@@ -175,7 +178,9 @@
+ }
+ 
+ void ChromeBrowserMainPartsMac::DidEndMainMessageLoop() {
++#if !BUILDFLAG(ENABLE_CEF)
+   AppController* appController =
+       base::mac::ObjCCastStrict<AppController>([NSApp delegate]);
+   [appController didEndMainMessageLoop];
++#endif
+ }
 diff --git chrome/browser/notifications/notification_platform_bridge_mac.mm chrome/browser/notifications/notification_platform_bridge_mac.mm
 index 9e8fcb9f9f91..2a9eaca0fb0d 100644
 --- chrome/browser/notifications/notification_platform_bridge_mac.mm
@@ -140,7 +178,7 @@ index 9e8fcb9f9f91..2a9eaca0fb0d 100644
  #include "chrome/browser/browser_features.h"
  #include "chrome/browser/notifications/notification_common.h"
  #include "chrome/browser/notifications/notification_display_service_impl.h"
-@@ -451,6 +452,12 @@ getDisplayedAlertsForProfileId:(NSString*)profileId
+@@ -451,6 +452,12 @@ - (void)notificationClick:(NSDictionary*)notificationResponseData {
  - (id<NotificationDelivery>)serviceProxy {
    id<NotificationDelivery> proxy = [_xpcConnection remoteObjectProxy];
  

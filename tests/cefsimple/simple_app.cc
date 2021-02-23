@@ -85,15 +85,10 @@ void SimpleApp::OnContextInitialized() {
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
 
-#if defined(OS_WIN) || defined(OS_LINUX)
   // Create the browser using the Views framework if "--use-views" is specified
   // via the command-line. Otherwise, create the browser using the native
-  // platform framework. The Views framework is currently only supported on
-  // Windows and Linux.
+  // platform framework.
   const bool use_views = command_line->HasSwitch("use-views");
-#else
-  const bool use_views = false;
-#endif
 
   // SimpleHandler implements browser-level callbacks.
   CefRefPtr<SimpleHandler> handler(new SimpleHandler(use_views));

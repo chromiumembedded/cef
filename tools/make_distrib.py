@@ -995,8 +995,6 @@ if platform == 'windows':
                         'tests/ceftests/', ceftests_dir, options.quiet)
     transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_resources_win'], \
                         'tests/ceftests/', ceftests_dir, options.quiet)
-    transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_views'], \
-                        'tests/ceftests/', ceftests_dir, options.quiet)
 
   if not options.nodocs:
     # generate doc files
@@ -1256,8 +1254,6 @@ elif platform == 'linux':
 
     # transfer ceftests files
     transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_linux'], \
-                        'tests/ceftests/', ceftests_dir, options.quiet)
-    transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_views'], \
                         'tests/ceftests/', ceftests_dir, options.quiet)
 
 if not options.noarchive:

@@ -1,8 +1,16 @@
 diff --git chrome/browser/app_controller_mac.mm chrome/browser/app_controller_mac.mm
-index e2eb5c2c73d0..601b582c6675 100644
+index e2eb5c2c73d0..d08b0a9a2a54 100644
 --- chrome/browser/app_controller_mac.mm
 +++ chrome/browser/app_controller_mac.mm
-@@ -1194,6 +1194,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -29,6 +29,7 @@
+ #include "base/task/thread_pool.h"
+ #include "base/threading/scoped_blocking_call.h"
+ #include "build/branding_buildflags.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/app/chrome_command_ids.h"
+ #include "chrome/browser/apps/app_shim/app_shim_manager_mac.h"
+ #include "chrome/browser/apps/app_shim/app_shim_termination_manager.h"
+@@ -1194,6 +1195,7 @@ - (void)commandDispatch:(id)sender {
  
  // Run a (background) application in a new tab.
  - (void)executeApplication:(id)sender {
@@ -10,7 +18,7 @@ index e2eb5c2c73d0..601b582c6675 100644
    NSInteger tag = [sender tag];
    Profile* profile = [self lastProfile];
    DCHECK(profile);
-@@ -1202,6 +1203,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1202,6 +1204,7 @@ - (void)executeApplication:(id)sender {
           tag < static_cast<int>(applications.size()));
    const extensions::Extension* extension = applications.GetExtension(tag);
    BackgroundModeManager::LaunchBackgroundApplication(profile, extension);
@@ -18,7 +26,7 @@ index e2eb5c2c73d0..601b582c6675 100644
  }
  
  // Same as |-commandDispatch:|, but executes commands using a disposition
-@@ -1599,6 +1601,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1599,6 +1602,7 @@ - (NSMenu*)applicationDockMenu:(NSApplication*)sender {
    // TODO(rickcam): Mock out BackgroundApplicationListModel, then add unit
    // tests which use the mock in place of the profile-initialized model.
  
@@ -26,7 +34,7 @@ index e2eb5c2c73d0..601b582c6675 100644
    // Avoid breaking unit tests which have no profile.
    if (profile) {
      BackgroundApplicationListModel applications(profile);
-@@ -1625,6 +1628,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1625,6 +1629,7 @@ - (NSMenu*)applicationDockMenu:(NSApplication*)sender {
        }
      }
    }
@@ -34,6 +42,20 @@ index e2eb5c2c73d0..601b582c6675 100644
  
    return dockMenu;
  }
+@@ -1835,11 +1840,13 @@ - (void)handoffActiveURLChanged:(content::WebContents*)webContents {
+ namespace {
+ 
+ void UpdateProfileInUse(Profile* profile, Profile::CreateStatus status) {
++#if !BUILDFLAG(ENABLE_CEF)
+   if (status == Profile::CREATE_STATUS_INITIALIZED) {
+     AppController* controller =
+         base::mac::ObjCCastStrict<AppController>([NSApp delegate]);
+     [controller windowChangedToProfile:profile];
+   }
++#endif  // !BUILDFLAG(ENABLE_CEF)
+ }
+ 
+ }  // namespace
 diff --git chrome/browser/browser_process.h chrome/browser/browser_process.h
 index 1ea08a7ad6ae..473ebde08451 100644
 --- chrome/browser/browser_process.h

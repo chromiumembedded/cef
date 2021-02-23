@@ -117,6 +117,9 @@ bool ConvertPointFromWindow(views::View* view, gfx::Point* point);
 // Returns the native window handle for |widget|. May return nullptr.
 gfx::NativeWindow GetNativeWindow(views::Widget* widget);
 
+// Returns the native view handle for |widget|. May return nullptr.
+gfx::NativeView GetNativeView(views::Widget* widget);
+
 // Returns the platform window handle for |widget|. May return nullptr.
 CefWindowHandle GetWindowHandle(views::Widget* widget);
 
