@@ -632,11 +632,16 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
   }
 
   static void BrowserURLHandlerCreated(content::BrowserURLHandler* handler) {
-    // Handler to rewrite chrome://about and chrome://sync URLs.
-    handler->AddHandlerPair(&HandleChromeAboutAndChromeSyncRewrite,
-                            content::BrowserURLHandler::null_handler());
+    // For Chrome runtime this is registered in
+    // ChromeContentBrowserClient::BrowserURLHandlerCreated().
+    if (cef::IsAlloyRuntimeEnabled()) {
+      // Handler to rewrite chrome://about and chrome://sync URLs.
+      handler->AddHandlerPair(&HandleChromeAboutAndChromeSyncRewrite,
+                              content::BrowserURLHandler::null_handler());
+    }
 
-    // chrome: & friends.
+    // chrome: & friends. For Chrome runtime the default registration is
+    // disabled is ChromeContentBrowserClient::BrowserURLHandlerCreated().
     handler->AddHandlerPair(&HandleWebUI, &HandleWebUIReverse);
   }
 

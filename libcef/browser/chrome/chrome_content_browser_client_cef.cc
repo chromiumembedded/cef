@@ -286,8 +286,9 @@ ChromeContentBrowserClientCef::CreateLoginDelegate(
 
 void ChromeContentBrowserClientCef::BrowserURLHandlerCreated(
     content::BrowserURLHandler* handler) {
-  scheme::BrowserURLHandlerCreated(handler);
+  // Register the Chrome handlers first for proper URL rewriting.
   ChromeContentBrowserClient::BrowserURLHandlerCreated(handler);
+  scheme::BrowserURLHandlerCreated(handler);
 }
 
 bool ChromeContentBrowserClientCef::IsWebUIAllowedToMakeNetworkRequests(
