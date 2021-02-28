@@ -20,11 +20,9 @@ cefclient.app/
           libswiftshader_libEGL.dylib <= swiftshader support libraries
           libswiftshader_libGLESv2.dylib <=^
         Resources/
-          cef.pak <= non-localized resources and strings
-          cef_100_percent.pak <====^
-          cef_200_percent.pak <====^
-          cef_extensions.pak <=====^
-          devtools_resources.pak <=^
+          chrome_100_percent.pak <= non-localized resources and strings
+          chrome_200_percent.pak <=^
+          resources.pak          <=^
           icudtl.dat <= unicode support
           snapshot_blob.bin, v8_context_snapshot.[x86_64|arm64].bin <= V8 initial snapshot
           en.lproj/, ... <= locale-specific resources and strings
@@ -87,21 +85,11 @@ run but any related functionality may become broken or disabled.
   Pack file loading can be disabled completely using
   CefSettings.pack_loading_disabled.
 
-  * Chromium Embedded Framework.framework/Resources/cef.pak
-  * Chromium Embedded Framework.framework/Resources/cef_100_percent.pak
-  * Chromium Embedded Framework.framework/Resources/cef_200_percent.pak
+  * Chromium Embedded Framework.framework/Resources/chrome_100_percent.pak
+  * Chromium Embedded Framework.framework/Resources/chrome_200_percent.pak
+  * Chromium Embedded Framework.framework/Resources/resources.pak
     These files contain non-localized resources used by CEF, Chromium and Blink.
     Without these files arbitrary Web components may display incorrectly.
-
-  * Chromium Embedded Framework.framework/Resources/cef_extensions.pak
-    This file contains non-localized resources required for extension loading.
-    Pass the `--disable-extensions` command-line flag to disable use of this
-    file. Without this file components that depend on the extension system,
-    such as the PDF viewer, will not function.
-
-  * Chromium Embedded Framework.framework/Resources/devtools_resources.pak
-    This file contains non-localized resources required for Chrome Developer
-    Tools. Without this file Chrome Developer Tools will not function.
 
 * Angle support.
   * Chromium Embedded Framework.framework/Libraries/libEGL.dylib

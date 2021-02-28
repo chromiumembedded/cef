@@ -79,7 +79,7 @@ index 839144aa1e9b..29c8ab32398a 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 6ad9c87a3adf..33716990c792 100644
+index 6ad9c87a3adf..a47694446b9a 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -4,6 +4,7 @@
@@ -90,33 +90,40 @@ index 6ad9c87a3adf..33716990c792 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/resources/pdf/ink/ink.gni")
  import("//chrome/common/features.gni")
-@@ -344,6 +345,7 @@ template("chrome_paks") {
+@@ -255,6 +256,10 @@ template("chrome_extra_paks") {
+         "//chrome/browser/resources/welcome:welcome_resources",
+       ]
      }
-   }
- 
-+  if (!enable_cef) {
-   chrome_repack_locales("${target_name}_locales") {
-     forward_variables_from(invoker,
-                            [
-@@ -366,14 +368,17 @@ template("chrome_paks") {
-       output_locales = locales
-     }
-   }
-+  }  # !enable_cef
- 
-   group(target_name) {
-     forward_variables_from(invoker, [ "deps" ])
-     public_deps = [
-       ":${target_name}_100_percent",
-       ":${target_name}_extra",
--      ":${target_name}_locales",
-     ]
-+    if (!enable_cef) {
-+      public_deps += [ ":${target_name}_locales" ]
++    if (enable_cef) {
++      sources += [ "$root_gen_dir/cef/cef_resources.pak" ]
++      deps += [ "//cef:cef_resources" ]
 +    }
-     if (enable_hidpi) {
-       public_deps += [ ":${target_name}_200_percent" ]
+     if (enable_extensions) {
+       sources += [
+         "$root_gen_dir/chrome/extensions_resources.pak",
+diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
+index a64a23560460..b08eee1f789a 100644
+--- chrome/chrome_repack_locales.gni
++++ chrome/chrome_repack_locales.gni
+@@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
+ import("//build/config/chromeos/ui_mode.gni")
+ import("//build/config/features.gni")
+ import("//build/config/ui.gni")
++import("//cef/libcef/features/features.gni")
+ import("//extensions/buildflags/buildflags.gni")
+ import("//tools/grit/repack.gni")
+ 
+@@ -83,6 +84,10 @@ template("chrome_repack_locales") {
+       ]
+       compress = true
      }
++    if (enable_cef) {
++      source_patterns += [ "${root_gen_dir}/cef/cef_strings_" ]
++      deps += [ "//cef:cef_strings" ]
++    }
+     if (enable_extensions) {
+       source_patterns +=
+           [ "${root_gen_dir}/extensions/strings/extensions_strings_" ]
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
 index 5f5cb1c752f2..ef0a01caf9cd 100644
 --- chrome/installer/mini_installer/BUILD.gn

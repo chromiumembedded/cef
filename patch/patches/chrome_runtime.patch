@@ -77,18 +77,6 @@ index db85b6b2fcf5..bcf6867e8f4e 100644
  }
  
  #endif  // defined(OS_LINUX) || defined(OS_CHROMEOS)
-diff --git chrome/app/theme/chrome_unscaled_resources.grd chrome/app/theme/chrome_unscaled_resources.grd
-index b4e4545e3520..29335f1614e2 100644
---- chrome/app/theme/chrome_unscaled_resources.grd
-+++ chrome/app/theme/chrome_unscaled_resources.grd
-@@ -62,6 +62,7 @@
-         </if>
-       </if>
-       <if expr="not _google_chrome">
-+        <include name="IDR_CHROME_CEF_LICENSE_TXT" file="../../../cef/LICENSE.txt" type="BINDATA" />
-         <include name="IDR_PRODUCT_LOGO_64" file="chromium/product_logo_64.png" type="BINDATA" />
-         <include name="IDR_PRODUCT_LOGO_128" file="chromium/product_logo_128.png" type="BINDATA" />
-         <include name="IDR_PRODUCT_LOGO_256" file="chromium/product_logo_256.png" type="BINDATA" />
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
 index fee4d5f1a8ca..2e4fb506d851 100644
 --- chrome/browser/chrome_browser_main.cc
@@ -140,7 +128,7 @@ index c30b73c2575f..5da45a243f9b 100644
  #import "chrome/browser/app_controller_mac.h"
  #include "chrome/browser/apps/app_shim/app_shim_listener.h"
  #include "chrome/browser/browser_process.h"
-@@ -111,6 +112,7 @@
+@@ -111,6 +112,7 @@ void ChromeBrowserMainPartsMac::PreMainMessageLoopStart() {
      }
    }
  
@@ -148,7 +136,7 @@ index c30b73c2575f..5da45a243f9b 100644
    // Create the app delegate. This object is intentionally leaked as a global
    // singleton. It is accessed through -[NSApp delegate].
    AppController* app_controller = [[AppController alloc] init];
-@@ -119,6 +121,7 @@
+@@ -119,6 +121,7 @@ void ChromeBrowserMainPartsMac::PreMainMessageLoopStart() {
    chrome::BuildMainMenu(NSApp, app_controller,
                          l10n_util::GetStringUTF16(IDS_PRODUCT_NAME), false);
    [app_controller mainMenuCreated];
@@ -156,7 +144,7 @@ index c30b73c2575f..5da45a243f9b 100644
  
    PrefService* local_state = g_browser_process->local_state();
    DCHECK(local_state);
-@@ -175,7 +178,9 @@
+@@ -175,7 +178,9 @@ void ChromeBrowserMainPartsMac::PostProfileInit() {
  }
  
  void ChromeBrowserMainPartsMac::DidEndMainMessageLoop() {
@@ -178,7 +166,7 @@ index 9e8fcb9f9f91..2a9eaca0fb0d 100644
  #include "chrome/browser/browser_features.h"
  #include "chrome/browser/notifications/notification_common.h"
  #include "chrome/browser/notifications/notification_display_service_impl.h"
-@@ -451,6 +452,12 @@ - (void)notificationClick:(NSDictionary*)notificationResponseData {
+@@ -451,6 +452,12 @@ getDisplayedAlertsForProfileId:(NSString*)profileId
  - (id<NotificationDelivery>)serviceProxy {
    id<NotificationDelivery> proxy = [_xpcConnection remoteObjectProxy];
  

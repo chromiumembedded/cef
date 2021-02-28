@@ -98,7 +98,6 @@ import("//build/config/features.gni")
 import("//build/config/locales.gni")
 import("//build/config/sanitizers/sanitizers.gni")
 import("//build/config/ui.gni")
-import("//cef/cef_repack_locales.gni")
 import("//chrome/common/features.gni")
 import("//content/public/app/mac_helpers.gni")
 import("//extensions/buildflags/buildflags.gni")
@@ -1303,121 +1302,8 @@ if (is_mac) {
 # Resource grit/pack targets.
 #
 
-# Helper for generating scaled resource packs.
-template("cef_pak_scaled") {
-  percent = invoker.percent
-
-  repack("pak_${target_name}") {
-    # Each input pak file should also have a deps line for completeness.
-    # Add associated .h files in the make_pack_header("resources") target.
-    sources = [
-      "$root_gen_dir/chrome/renderer_resources_${percent}_percent.pak",
-      "$root_gen_dir/components/components_resources_${percent}_percent.pak",
-      "$root_gen_dir/content/app/resources/content_resources_${percent}_percent.pak",
-      "$root_gen_dir/extensions/extensions_browser_resources_${percent}_percent.pak",
-      "$root_gen_dir/third_party/blink/public/resources/blink_scaled_resources_${percent}_percent.pak",
-      "$root_gen_dir/ui/resources/ui_resources_${percent}_percent.pak",
-    ]
-
-    # Use public_deps so that generated grit headers are discoverable from
-    # the libcef_static target. Grit deps that generate .cc files must be
-    # listed both here and in the libcef_static target.
-    public_deps = [
-      "//chrome/renderer:resources",
-      "//components/resources:components_scaled_resources",
-      "//content/app/resources",
-      "//extensions:extensions_browser_resources",
-      "//third_party/blink/public:scaled_resources",
-      "//ui/resources:ui_resources_grd",
-    ]
-
-    deps = [
-      # This repack target generates the blink_scaled_resources_*_percent.pak
-      # file but doesn't expose the public_deps required by make_pack_header.
-      "//third_party/blink/public:scaled_resources_${percent}_percent",
-    ]
-
-    if (toolkit_views) {
-      sources += [
-        "$root_gen_dir/ui/views/resources/views_resources_${percent}_percent.pak"
-      ]
-
-      public_deps += [
-        "//ui/views/resources:resources_grd"
-      ]
-    }
-
-    output = "$root_out_dir/cef_${percent}_percent.pak"
-  }
-}
-
-# Generate cef_100_percent.pak.
-cef_pak_scaled("100_percent") {
-  percent = "100"
-}
-
-# Generate cef_200_percent.pak.
-cef_pak_scaled("200_percent") {
-  percent = "200"
-}
-
-# Generate devtools_resources.pak.
-repack("pak_devtools") {
-  # Each input pak file should also have a deps line for completeness.
-  # Add associated .h files in the make_pack_header("resources") target.
-  sources = [
-    "$root_gen_dir/content/browser/devtools/devtools_resources.pak",
-    "$root_gen_dir/third_party/blink/public/resources/inspector_overlay_resources.pak",
-  ]
-
-  # Use public_deps so that generated grit headers are discoverable from
-  # the libcef_static target. Grit deps that generate .cc files must be
-  # listed both here and in the libcef_static target.
-  public_deps = [
-    "//content/browser/devtools:devtools_resources",
-    "//third_party/blink/public:devtools_inspector_resources",
-  ]
-
-  output = "$root_out_dir/devtools_resources.pak"
-}
-
-# Generate cef_extensions.pak.
-repack("pak_extensions") {
-  # Each input pak file should also have a deps line for completeness.
-  # Add associated .h files in the make_pack_header("resources") target.
-  sources = [
-    "$root_gen_dir/chrome/component_extension_resources.pak",
-    "$root_gen_dir/chrome/pdf_resources.pak",
-    "$root_gen_dir/content/browser/resources/media/media_internals_resources.pak",
-    "$root_gen_dir/content/browser/webrtc/resources/webrtc_internals_resources.pak",
-    "$root_gen_dir/extensions/extensions_renderer_resources.pak",
-    "$root_gen_dir/extensions/extensions_resources.pak",
-    "$root_gen_dir/mojo/public/js/mojo_bindings_resources.pak",
-    "$root_gen_dir/ui/resources/webui_generated_resources.pak",
-    "$root_gen_dir/ui/resources/webui_resources.pak",
-  ]
-
-  # Use public_deps so that generated grit headers are discoverable from
-  # the libcef_static target. Grit deps that generate .cc files must be
-  # listed both here and in the libcef_static target.
-  public_deps = [
-    "//chrome/browser/resources:component_extension_resources",
-    "//chrome/browser/resources/pdf:pdf_resources",
-    "//content/browser/resources/media:media_internals_resources",
-    "//content/browser/webrtc/resources",
-    "//extensions:extensions_renderer_resources",
-    "//extensions:extensions_resources_grd",
-    "//mojo/public/js:resources",
-    "//ui/resources:webui_generated_resources_grd",
-    "//ui/resources:webui_resources_grd",
-  ]
-
-  output = "$root_out_dir/cef_extensions.pak"
-}
-
+# Included in locales/*.pak via //chrome/chrome_repack_locales.gni.
 grit("cef_strings") {
-  visibility = [ ":*" ]
-
   source = "libcef/resources/cef_strings.grd"
   outputs = [
     "grit/cef_strings.h",
@@ -1428,22 +1314,8 @@ grit("cef_strings") {
   }
 }
 
-# Generate locales/<locale>.pak.
-# See cef_repack_locales.gni for the list of input pak files and deps.
-cef_repack_locales("repack_locales_pack") {
-  visibility = [ ":*" ]
-
-  input_locales = locales
-
-  if (is_mac) {
-    output_locales = locales_as_mac_outputs
-  } else {
-    output_locales = locales
-  }
-}
-
+# Included in resources.pak via //chrome/chrome_paks.gni.
 grit("cef_resources") {
-  visibility = [ ":*" ]
   source = "libcef/resources/cef_resources.grd"
   outputs = [
     "grit/cef_resources.h",
@@ -1455,54 +1327,11 @@ grit("cef_resources") {
   ]
 }
 
-# Generate cef.pak.
-repack("pak") {
-  # Each input pak file should also have a deps line for completeness.
-  # Add associated .h files in the make_pack_header("resources") target.
-  sources = [
-    "$root_gen_dir/base/tracing/protos/tracing_proto_resources.pak",
-    "$root_gen_dir/chrome/browser_resources.pak",
-    "$root_gen_dir/chrome/dev_ui_browser_resources.pak",
-    "$root_gen_dir/chrome/net_internals_resources.pak",
-    "$root_gen_dir/chrome/print_preview_resources.pak",
-    "$root_gen_dir/chrome/common_resources.pak",
-    "$root_gen_dir/components/components_resources.pak",
-    "$root_gen_dir/components/dev_ui_components_resources.pak",
-    "$root_gen_dir/cef/cef_resources.pak",
-    "$root_gen_dir/content/browser/tracing/tracing_resources.pak",
-    "$root_gen_dir/content/content_resources.pak",
-    "$root_gen_dir/content/dev_ui_content_resources.pak",
-    "$root_gen_dir/net/net_resources.pak",
-    "$root_gen_dir/third_party/blink/public/resources/blink_resources.pak",
-  ]
-
-  # Use public_deps so that generated grit headers are discoverable from
-  # the libcef_static target. Grit deps that generate .cc files must be
-  # listed both here and in the libcef_static target.
-  public_deps = [
-    "//base/tracing/protos:chrome_track_event_resources",
-    "//chrome/browser:dev_ui_browser_resources",
-    "//chrome/browser:resources",
-    "//chrome/browser/resources/net_internals:net_internals_resources",
-    "//chrome/browser/resources/print_preview:print_preview_resources",
-    "//chrome/common:resources",
-    "//components/resources:components_resources",
-    "//components/resources:dev_ui_components_resources",
-    ":cef_resources",
-    "//content/browser/tracing:resources",
-    "//content:content_resources",
-    "//content:dev_ui_content_resources",
-    "//net:net_resources",
-    "//third_party/blink/public:resources",
-  ]
-
-  output = "$root_out_dir/cef.pak"
-}
-
 # Helper for generating pack header files.
 template("make_pack_header") {
   assert(defined(invoker.header))
   assert(defined(invoker.inputs))
+  assert(defined(invoker.deps))
 
   action("make_pack_header_${target_name}") {
     script = "tools/make_pack_header.py"
@@ -1513,16 +1342,7 @@ template("make_pack_header") {
     args = rebase_path(outputs, root_build_dir) +
            rebase_path(inputs, root_build_dir)
 
-    deps = [
-      # List all targets that generate pack files here. The grit targets that
-      # generate |inputs| will be picked up via public_deps.
-      ":pak",
-      ":pak_100_percent",
-      ":pak_200_percent",
-      ":pak_devtools",
-      ":pak_extensions",
-      ":repack_locales_pack",
-    ]
+    deps = invoker.deps
   }
 }
 
@@ -1557,8 +1377,42 @@ make_pack_header("resources") {
     "$root_gen_dir/ui/resources/grit/ui_resources.h",
     "$root_gen_dir/ui/resources/grit/webui_generated_resources.h",
     "$root_gen_dir/ui/resources/grit/webui_resources.h",
-    "$root_gen_dir/ui/views/resources/grit/views_resources.h",
   ]
+
+  deps = [
+    ":cef_resources",
+    "//base/tracing/protos:chrome_track_event_resources",
+    "//chrome/browser:dev_ui_browser_resources",
+    "//chrome/browser:resources",
+    "//chrome/browser/resources:component_extension_resources",
+    "//chrome/browser/resources/net_internals:net_internals_resources",
+    "//chrome/browser/resources/pdf:pdf_resources",
+    "//chrome/browser/resources/print_preview:print_preview_resources",
+    "//chrome/common:resources",
+    "//chrome/renderer:resources",
+    "//components/resources:components_resources",
+    "//components/resources:dev_ui_components_resources",
+    "//content/browser/devtools:devtools_resources",
+    "//content/browser/resources/media:media_internals_resources",
+    "//content/browser/tracing:resources",
+    "//content/browser/webrtc/resources",
+    "//content:content_resources",
+    "//content:dev_ui_content_resources",
+    "//extensions:extensions_browser_resources",
+    "//extensions:extensions_renderer_resources",
+    "//extensions:extensions_resources_grd",
+    "//mojo/public/js:resources",
+    "//net:net_resources",
+    "//third_party/blink/public:resources",
+    "//ui/resources:ui_resources_grd",
+    "//ui/resources:webui_generated_resources_grd",
+    "//ui/resources:webui_resources_grd",
+  ]
+
+  if (toolkit_views) {
+    inputs += [ "$root_gen_dir/ui/views/resources/grit/views_resources.h" ]
+    deps += [ "//ui/views/resources:resources_grd" ]
+  }
 }
 
 # Generate cef_pack_strings.h.
@@ -1577,6 +1431,23 @@ make_pack_header("strings") {
     "$root_gen_dir/services/strings/grit/services_strings.h",
     "$root_gen_dir/third_party/blink/public/strings/grit/blink_strings.h",
     "$root_gen_dir/ui/strings/grit/ui_strings.h",
+  ]
+
+  deps = [
+    ":cef_strings",
+    "//chrome/app:chromium_strings",
+    "//chrome/app:generated_resources",
+    "//chrome/app/resources:locale_settings",
+    "//chrome/app/resources:platform_locale_settings",
+    "//components/omnibox/resources:omnibox_resources",
+    "//components/strings:components_chromium_strings",
+    "//components/strings:components_locale_settings",
+    "//components/strings:components_strings",
+    "//extensions/strings",
+    "//services/strings",
+    "//third_party/blink/public/strings",
+    "//ui/strings:app_locale_settings",
+    "//ui/strings:ui_strings",
   ]
 }
 
@@ -1627,37 +1498,9 @@ if (is_mac) {
     ]
   }
 
-  bundle_data("cef_framework_locales") {
-    sources = []
-    foreach(locale, locales_as_mac_outputs) {
-      sources += [ "$root_gen_dir/repack/locales/$locale.pak" ]
-    }
-
-    public_deps = [
-      ":repack_locales_pack",
-    ]
-
-    outputs = [
-      "{{bundle_resources_dir}}/{{source_name_part}}.lproj/locale.pak",
-    ]
-  }
-
   bundle_data("cef_framework_resources") {
-    sources = [
-      "$root_out_dir/cef.pak",
-      "$root_out_dir/cef_100_percent.pak",
-      "$root_out_dir/cef_200_percent.pak",
-      "$root_out_dir/cef_extensions.pak",
-      "$root_out_dir/devtools_resources.pak",
-    ]
-
-    public_deps = [
-      ":pak",
-      ":pak_100_percent",
-      ":pak_200_percent",
-      ":pak_devtools",
-      ":pak_extensions",
-    ]
+    sources = []
+    public_deps = []
 
     if (icu_use_data_file) {
       sources += [ "$root_out_dir/icudtl.dat" ]
@@ -1748,7 +1591,6 @@ if (is_mac) {
 
     deps = [
       ":cef_framework_angle_library",
-      ":cef_framework_locales",
       ":cef_framework_resources",
       ":cef_framework_swiftshader_library",
       ":libcef_static",

@@ -342,10 +342,10 @@ typedef struct _cef_settings_t {
 
   ///
   // The fully qualified path for the resources directory. If this value is
-  // empty the cef.pak and/or devtools_resources.pak files must be located in
-  // the module directory on Windows/Linux or the app bundle Resources directory
-  // on Mac OS X. If this value is non-empty then it must be an absolute path.
-  // Also configurable using the "resources-dir-path" command-line switch.
+  // empty the *.pak files must be located in the module directory on
+  // Windows/Linux or the app bundle Resources directory on Mac OS X. If this
+  // value is non-empty then it must be an absolute path. Also configurable
+  // using the "resources-dir-path" command-line switch.
   ///
   cef_string_t resources_dir_path;
 

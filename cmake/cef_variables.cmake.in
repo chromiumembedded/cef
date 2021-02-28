@@ -228,11 +228,9 @@ if(OS_LINUX)
 
   # List of CEF resource files.
   set(CEF_RESOURCE_FILES
-    cef.pak
-    cef_100_percent.pak
-    cef_200_percent.pak
-    cef_extensions.pak
-    devtools_resources.pak
+    chrome_100_percent.pak
+    chrome_200_percent.pak
+    resources.pak
     icudtl.dat
     locales
     )
@@ -480,11 +478,9 @@ if(OS_WINDOWS)
 
   # List of CEF resource files.
   set(CEF_RESOURCE_FILES
-    cef.pak
-    cef_100_percent.pak
-    cef_200_percent.pak
-    cef_extensions.pak
-    devtools_resources.pak
+    chrome_100_percent.pak
+    chrome_200_percent.pak
+    resources.pak
     icudtl.dat
     locales
     )

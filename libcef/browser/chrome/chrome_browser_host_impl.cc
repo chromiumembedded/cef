@@ -21,6 +21,7 @@
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/common/pref_names.h"
+#include "components/url_formatter/url_fixer.h"
 #include "url/url_constants.h"
 
 #if defined(TOOLKIT_VIEWS)
@@ -435,13 +436,24 @@ bool ChromeBrowserHostImpl::Navigate(const content::OpenURLParams& params) {
   }
 
   if (browser_) {
+    // Fix common problems with user-typed text. Among other things, this:
+    // - Converts absolute file paths to "file://" URLs.
+    // - Normalizes "about:" and "chrome:" to "chrome://" URLs.
+    // - Adds the "http://" scheme if none was specified.
+    GURL gurl = url_formatter::FixupURL(params.url.possibly_invalid_spec(),
+                                        std::string());
+    if (!gurl.is_valid()) {
+      LOG(ERROR) << "Invalid URL: " << params.url.possibly_invalid_spec();
+      return false;
+    }
+
     // This is generally equivalent to calling Browser::OpenURL, except:
     // 1. It doesn't trigger a call to CefRequestHandler::OnOpenURLFromTab, and
     // 2. It navigates in this CefBrowserHost's WebContents instead of
     //    (a) creating a new WebContents, or (b) using the Browser's active
     //    WebContents (which may not be the same), and
     // 3. There is no risk of triggering chrome's popup blocker.
-    NavigateParams nav_params(browser_, params.url, params.transition);
+    NavigateParams nav_params(browser_, gurl, params.transition);
     nav_params.FillNavigateParamsFromOpenURLParams(params);
 
     // Always navigate in the current tab.

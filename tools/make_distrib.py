@@ -868,11 +868,9 @@ if platform == 'windows':
 
   # yapf: disable
   resources = [
-      {'path': 'cef.pak'},
-      {'path': 'cef_100_percent.pak'},
-      {'path': 'cef_200_percent.pak'},
-      {'path': 'cef_extensions.pak'},
-      {'path': 'devtools_resources.pak'},
+      {'path': 'chrome_100_percent.pak'},
+      {'path': 'chrome_200_percent.pak'},
+      {'path': 'resources.pak'},
       {'path': 'icudtl.dat'},
       {'path': 'locales', 'delete': '*.info'},
   ]
@@ -1185,11 +1183,9 @@ elif platform == 'linux':
 
   # yapf: disable
   resources = [
-      {'path': 'cef.pak'},
-      {'path': 'cef_100_percent.pak'},
-      {'path': 'cef_200_percent.pak'},
-      {'path': 'cef_extensions.pak'},
-      {'path': 'devtools_resources.pak'},
+      {'path': 'chrome_100_percent.pak'},
+      {'path': 'chrome_200_percent.pak'},
+      {'path': 'resources.pak'},
       {'path': 'icudtl.dat'},
       {'path': 'locales', 'delete': '*.info'},
   ]

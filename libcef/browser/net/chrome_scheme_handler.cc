@@ -35,7 +35,6 @@
 #include "chrome/browser/ui/webui/chrome_web_ui_controller_factory.h"
 #include "chrome/browser/ui/webui/theme_source.h"
 #include "chrome/common/url_constants.h"
-#include "chrome/grit/chrome_unscaled_resources.h"
 #include "content/browser/renderer_host/debug_urls.h"
 #include "content/browser/webui/content_web_ui_controller_factory.h"
 #include "content/public/browser/browser_url_handler.h"
@@ -354,17 +353,9 @@ bool OnExtensionsSupportUI(std::string* mime_type, std::string* output) {
 }
 
 bool OnLicenseUI(std::string* mime_type, std::string* output) {
-  // TODO(chrome): Currently, CEF-specific resources for the Alloy runtime come
-  // from cef/libcef/resources/cef_resources.grd via cef.pak and CEF-specific
-  // resources for the Chrome runtime come from
-  // chrome/app/theme/chrome_unscaled_resources.grd via chrome_100_percent.pak.
-  // It would be better to have a single pak file (and single ID value) for
-  // CEF-specific resources and share the same *.pak files as Chrome for the
-  // other resources.
   std::string piece =
       ui::ResourceBundle::GetSharedInstance().LoadDataResourceString(
-          cef::IsChromeRuntimeEnabled() ? IDR_CHROME_CEF_LICENSE_TXT
-                                        : IDR_CEF_LICENSE_TXT);
+          IDR_CEF_LICENSE_TXT);
   if (piece.empty()) {
     NOTREACHED() << "Failed to load license txt resource.";
     return false;

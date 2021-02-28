@@ -486,9 +486,8 @@ AlloyMainDelegate::GetWebWorkerTaskRunner() {
 void AlloyMainDelegate::InitializeResourceBundle() {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
-  base::FilePath cef_pak_file, cef_100_percent_pak_file,
-      cef_200_percent_pak_file, cef_extensions_pak_file, devtools_pak_file,
-      locales_dir;
+  base::FilePath resources_pak_file, chrome_100_percent_pak_file,
+      chrome_200_percent_pak_file, locales_dir;
 
   base::FilePath resources_dir;
   if (command_line->HasSwitch(switches::kResourcesDirPath)) {
@@ -503,15 +502,12 @@ void AlloyMainDelegate::InitializeResourceBundle() {
   if (!resource_bundle_delegate_.pack_loading_disabled()) {
     if (!resources_dir.empty()) {
       CHECK(resources_dir.IsAbsolute());
-      cef_pak_file = resources_dir.Append(FILE_PATH_LITERAL("cef.pak"));
-      cef_100_percent_pak_file =
-          resources_dir.Append(FILE_PATH_LITERAL("cef_100_percent.pak"));
-      cef_200_percent_pak_file =
-          resources_dir.Append(FILE_PATH_LITERAL("cef_200_percent.pak"));
-      cef_extensions_pak_file =
-          resources_dir.Append(FILE_PATH_LITERAL("cef_extensions.pak"));
-      devtools_pak_file =
-          resources_dir.Append(FILE_PATH_LITERAL("devtools_resources.pak"));
+      resources_pak_file =
+          resources_dir.Append(FILE_PATH_LITERAL("resources.pak"));
+      chrome_100_percent_pak_file =
+          resources_dir.Append(FILE_PATH_LITERAL("chrome_100_percent.pak"));
+      chrome_200_percent_pak_file =
+          resources_dir.Append(FILE_PATH_LITERAL("chrome_200_percent.pak"));
     }
 
     if (command_line->HasSwitch(switches::kLocalesDirPath))
@@ -539,54 +535,36 @@ void AlloyMainDelegate::InitializeResourceBundle() {
 
     resource_bundle_delegate_.set_allow_pack_file_load(true);
 
-    if (base::PathExists(cef_pak_file)) {
-      resource_bundle.AddDataPackFromPath(cef_pak_file, ui::SCALE_FACTOR_NONE);
+    if (base::PathExists(resources_pak_file)) {
+      resource_bundle.AddDataPackFromPath(resources_pak_file,
+                                          ui::SCALE_FACTOR_NONE);
     } else {
-      LOG(ERROR) << "Could not load cef.pak";
+      LOG(ERROR) << "Could not load resources.pak";
     }
 
-    // On OS X and Linux/Aura always load the 1x data pack first as the 2x data
-    // pack contains both 1x and 2x images.
-    const bool load_100_percent =
-#if defined(OS_WIN)
-        resource_util::IsScaleFactorSupported(ui::SCALE_FACTOR_100P);
-#else
-        true;
-#endif
-
-    if (load_100_percent) {
-      if (base::PathExists(cef_100_percent_pak_file)) {
-        resource_bundle.AddDataPackFromPath(cef_100_percent_pak_file,
+    // Always load the 1x data pack first as the 2x data pack contains both 1x
+    // and 2x images. The 1x data pack only has 1x images, thus passes in an
+    // accurate scale factor to gfx::ImageSkia::AddRepresentation.
+    if (resource_util::IsScaleFactorSupported(ui::SCALE_FACTOR_100P)) {
+      if (base::PathExists(chrome_100_percent_pak_file)) {
+        resource_bundle.AddDataPackFromPath(chrome_100_percent_pak_file,
                                             ui::SCALE_FACTOR_100P);
       } else {
-        LOG(ERROR) << "Could not load cef_100_percent.pak";
+        LOG(ERROR) << "Could not load chrome_100_percent.pak";
       }
     }
 
     if (resource_util::IsScaleFactorSupported(ui::SCALE_FACTOR_200P)) {
-      if (base::PathExists(cef_200_percent_pak_file)) {
-        resource_bundle.AddDataPackFromPath(cef_200_percent_pak_file,
+      if (base::PathExists(chrome_200_percent_pak_file)) {
+        resource_bundle.AddDataPackFromPath(chrome_200_percent_pak_file,
                                             ui::SCALE_FACTOR_200P);
       } else {
-        LOG(ERROR) << "Could not load cef_200_percent.pak";
+        LOG(ERROR) << "Could not load chrome_200_percent.pak";
       }
     }
 
-    if (extensions::ExtensionsEnabled() ||
-        !command_line->HasSwitch(switches::kDisablePlugins)) {
-      if (base::PathExists(cef_extensions_pak_file)) {
-        resource_bundle.AddDataPackFromPath(cef_extensions_pak_file,
-                                            ui::SCALE_FACTOR_NONE);
-      } else {
-        LOG(ERROR) << "Could not load cef_extensions.pak";
-      }
-    }
-
-    if (base::PathExists(devtools_pak_file)) {
-      resource_bundle.AddDataPackFromPath(devtools_pak_file,
-                                          ui::SCALE_FACTOR_NONE);
-    }
-
+    // Skip the default pak file loading that would otherwise occur in
+    // ResourceBundle::LoadChromeResources().
     resource_bundle_delegate_.set_allow_pack_file_load(false);
   }
 }
