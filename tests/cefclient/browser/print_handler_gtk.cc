@@ -539,7 +539,7 @@ struct ClientPrintHandlerGtk::PrintHandler {
     }
   }
 
-  void OnJobCompleted(GtkPrintJob* print_job, GError* error) {
+  void OnJobCompleted(GtkPrintJob* print_job, const GError* error) {
     // Continue() will result in a call to ClientPrintHandlerGtk::OnPrintReset
     // which deletes |this|. Execute it asnychronously so the call stack has a
     // chance to unwind.
@@ -556,7 +556,7 @@ struct ClientPrintHandlerGtk::PrintHandler {
 
   static void OnJobCompletedThunk(GtkPrintJob* print_job,
                                   void* handler,
-                                  GError* error) {
+                                  const GError* error) {
     static_cast<PrintHandler*>(handler)->OnJobCompleted(print_job, error);
   }
 

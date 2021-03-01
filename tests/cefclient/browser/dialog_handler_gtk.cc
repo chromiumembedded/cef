@@ -135,10 +135,10 @@ GtkWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
   scoped_refptr<RootWindow> root_window =
       RootWindow::GetForBrowser(browser->GetIdentifier());
   if (root_window) {
-    GtkWindow* window = GTK_WINDOW(root_window->GetWindowHandle());
+    GtkWidget* window = root_window->GetWindowHandle();
     if (!window)
       LOG(ERROR) << "No GtkWindow for browser";
-    return window;
+    return GTK_WINDOW(window);
   }
   return nullptr;
 }
@@ -238,13 +238,13 @@ void ClientDialogHandlerGtk::OnFileDialogContinue(OnFileDialogParams params,
 
   if (mode_type == FILE_DIALOG_OPEN || mode_type == FILE_DIALOG_OPEN_MULTIPLE) {
     action = GTK_FILE_CHOOSER_ACTION_OPEN;
-    accept_button = GTK_STOCK_OPEN;
+    accept_button = "_Open";
   } else if (mode_type == FILE_DIALOG_OPEN_FOLDER) {
     action = GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER;
-    accept_button = GTK_STOCK_OPEN;
+    accept_button = "_Open";
   } else if (mode_type == FILE_DIALOG_SAVE) {
     action = GTK_FILE_CHOOSER_ACTION_SAVE;
-    accept_button = GTK_STOCK_SAVE;
+    accept_button = "_Save";
   } else {
     NOTREACHED();
     params.callback->Cancel();
@@ -274,7 +274,7 @@ void ClientDialogHandlerGtk::OnFileDialogContinue(OnFileDialogParams params,
   }
 
   GtkWidget* dialog = gtk_file_chooser_dialog_new(
-      title_str.c_str(), GTK_WINDOW(window), action, GTK_STOCK_CANCEL,
+      title_str.c_str(), GTK_WINDOW(window), action, "_Cancel",
       GTK_RESPONSE_CANCEL, accept_button, GTK_RESPONSE_ACCEPT, NULL);
 
   if (mode_type == FILE_DIALOG_OPEN_MULTIPLE)
@@ -406,8 +406,8 @@ void ClientDialogHandlerGtk::OnJSDialogContinue(OnJSDialogParams params,
 
   gtk_window_set_title(GTK_WINDOW(gtk_dialog_), title.c_str());
 
-  GtkWidget* ok_button = gtk_dialog_add_button(GTK_DIALOG(gtk_dialog_),
-                                               GTK_STOCK_OK, GTK_RESPONSE_OK);
+  GtkWidget* ok_button =
+      gtk_dialog_add_button(GTK_DIALOG(gtk_dialog_), "_OK", GTK_RESPONSE_OK);
 
   if (params.dialog_type != JSDIALOGTYPE_PROMPT)
     gtk_widget_grab_focus(ok_button);

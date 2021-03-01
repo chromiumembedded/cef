@@ -29,6 +29,36 @@ namespace {
 
 const char kMenuIdKey[] = "menu_id";
 
+void UseDefaultX11VisualForGtk(GtkWidget* widget) {
+#if GTK_CHECK_VERSION(3, 15, 1)
+  // GTK+ > 3.15.1 uses an X11 visual optimized for GTK+'s OpenGL stuff
+  // since revid dae447728d: https://github.com/GNOME/gtk/commit/dae447728d
+  // However, it breaks CEF: https://github.com/cztomczak/cefcapi/issues/9
+  // Let's use the default X11 visual instead of the GTK's blessed one.
+  // Copied from: https://github.com/cztomczak/cefcapi.
+  GdkScreen* screen = gdk_screen_get_default();
+  GList* visuals = gdk_screen_list_visuals(screen);
+
+  GdkX11Screen* x11_screen = GDK_X11_SCREEN(screen);
+  if (x11_screen == NULL)
+    return;
+
+  Visual* default_xvisual = DefaultVisual(GDK_SCREEN_XDISPLAY(x11_screen),
+                                          GDK_SCREEN_XNUMBER(x11_screen));
+  GList* cursor = visuals;
+  while (cursor != NULL) {
+    GdkVisual* visual = GDK_X11_VISUAL(cursor->data);
+    if (default_xvisual->visualid ==
+        gdk_x11_visual_get_xvisual(visual)->visualid) {
+      gtk_widget_set_visual(widget, visual);
+      break;
+    }
+    cursor = cursor->next;
+  }
+  g_list_free(visuals);
+#endif
+}
+
 bool IsWindowMaximized(GtkWindow* window) {
   GdkWindow* gdk_window = gtk_widget_get_window(GTK_WIDGET(window));
   gint state = gdk_window_get_state(gdk_window);
@@ -143,6 +173,7 @@ void RootWindowGtk::Show(ShowMode mode) {
   ScopedGdkThreadsEnter scoped_gdk_threads;
 
   // Show the GTK window.
+  UseDefaultX11VisualForGtk(GTK_WIDGET(window_));
   gtk_widget_show_all(window_);
 
   if (mode == ShowMinimized)
@@ -290,23 +321,34 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings,
                    G_CALLBACK(&RootWindowGtk::WindowDelete), this);
 
   const cef_color_t background_color = MainContext::Get()->GetBackgroundColor();
-  GdkColor color = {0};
-  color.red = CefColorGetR(background_color) * 65535 / 255;
-  color.green = CefColorGetG(background_color) * 65535 / 255;
-  color.blue = CefColorGetB(background_color) * 65535 / 255;
-  gtk_widget_modify_bg(window_, GTK_STATE_NORMAL, &color);
+  GdkRGBA rgba = {0};
+  rgba.red = CefColorGetR(background_color) * 65535 / 255;
+  rgba.green = CefColorGetG(background_color) * 65535 / 255;
+  rgba.blue = CefColorGetB(background_color) * 65535 / 255;
+  rgba.alpha = 1;
 
-  GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
-  g_signal_connect(vbox, "size-allocate",
-                   G_CALLBACK(&RootWindowGtk::VboxSizeAllocated), this);
-  gtk_container_add(GTK_CONTAINER(window_), vbox);
+  gchar* css = g_strdup_printf("#* { background-color: %s; }",
+                               gdk_rgba_to_string(&rgba));
+  GtkCssProvider* provider = gtk_css_provider_new();
+  gtk_css_provider_load_from_data(provider, css, -1, nullptr);
+  g_free(css);
+  gtk_style_context_add_provider(gtk_widget_get_style_context(window_),
+                                 GTK_STYLE_PROVIDER(provider),
+                                 GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+  g_object_unref(provider);
+
+  GtkWidget* grid = gtk_grid_new();
+  gtk_grid_set_column_homogeneous(GTK_GRID(grid), TRUE);
+  g_signal_connect(grid, "size-allocate",
+                   G_CALLBACK(&RootWindowGtk::GridSizeAllocated), this);
+  gtk_container_add(GTK_CONTAINER(window_), grid);
 
   if (with_controls_) {
     GtkWidget* menu_bar = CreateMenuBar();
     g_signal_connect(menu_bar, "size-allocate",
                      G_CALLBACK(&RootWindowGtk::MenubarSizeAllocated), this);
 
-    gtk_box_pack_start(GTK_BOX(vbox), menu_bar, FALSE, FALSE, 0);
+    gtk_grid_attach(GTK_GRID(grid), menu_bar, 0, 0, 1, 1);
 
     GtkWidget* toolbar = gtk_toolbar_new();
     // Turn off the labels on the toolbar buttons.
@@ -314,22 +356,26 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings,
     g_signal_connect(toolbar, "size-allocate",
                      G_CALLBACK(&RootWindowGtk::ToolbarSizeAllocated), this);
 
-    back_button_ = gtk_tool_button_new_from_stock(GTK_STOCK_GO_BACK);
+    back_button_ = gtk_tool_button_new(
+        gtk_image_new_from_icon_name("go-previous", GTK_ICON_SIZE_MENU), NULL);
     g_signal_connect(back_button_, "clicked",
                      G_CALLBACK(&RootWindowGtk::BackButtonClicked), this);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), back_button_, -1 /* append */);
 
-    forward_button_ = gtk_tool_button_new_from_stock(GTK_STOCK_GO_FORWARD);
+    forward_button_ = gtk_tool_button_new(
+        gtk_image_new_from_icon_name("go-next", GTK_ICON_SIZE_MENU), NULL);
     g_signal_connect(forward_button_, "clicked",
                      G_CALLBACK(&RootWindowGtk::ForwardButtonClicked), this);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), forward_button_, -1 /* append */);
 
-    reload_button_ = gtk_tool_button_new_from_stock(GTK_STOCK_REFRESH);
+    reload_button_ = gtk_tool_button_new(
+        gtk_image_new_from_icon_name("view-refresh", GTK_ICON_SIZE_MENU), NULL);
     g_signal_connect(reload_button_, "clicked",
                      G_CALLBACK(&RootWindowGtk::ReloadButtonClicked), this);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), reload_button_, -1 /* append */);
 
-    stop_button_ = gtk_tool_button_new_from_stock(GTK_STOCK_STOP);
+    stop_button_ = gtk_tool_button_new(
+        gtk_image_new_from_icon_name("process-stop", GTK_ICON_SIZE_MENU), NULL);
     g_signal_connect(stop_button_, "clicked",
                      G_CALLBACK(&RootWindowGtk::StopButtonClicked), this);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), stop_button_, -1 /* append */);
@@ -345,7 +391,8 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings,
     gtk_tool_item_set_expand(tool_item, TRUE);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tool_item, -1);  // append
 
-    gtk_box_pack_start(GTK_BOX(vbox), toolbar, FALSE, FALSE, 0);
+    gtk_grid_attach_next_to(GTK_GRID(grid), toolbar, menu_bar, GTK_POS_BOTTOM,
+                            1, 1);
   }
 
   // Realize (show) the GTK widget. This must be done before the browser is
@@ -360,8 +407,8 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings,
 
   // Windowed browsers are parented to the X11 Window underlying the GtkWindow*
   // and must be sized manually. The OSR GTK widget, on the other hand, can be
-  // added to the Vbox container for automatic layout-based sizing.
-  GtkWidget* parent = with_osr_ ? vbox : window_;
+  // added to the grid container for automatic layout-based sizing.
+  GtkWidget* parent = with_osr_ ? grid : window_;
 
   // Set the Display associated with the browser.
   ::Display* xdisplay = GDK_WINDOW_XDISPLAY(gtk_widget_get_window(window_));
@@ -746,7 +793,7 @@ gboolean RootWindowGtk::WindowDelete(GtkWidget* widget,
 }
 
 // static
-void RootWindowGtk::VboxSizeAllocated(GtkWidget* widget,
+void RootWindowGtk::GridSizeAllocated(GtkWidget* widget,
                                       GtkAllocation* allocation,
                                       RootWindowGtk* self) {
   // May be called on the main thread and the UI thread.

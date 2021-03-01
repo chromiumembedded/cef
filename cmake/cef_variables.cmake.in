@@ -95,6 +95,7 @@ if(OS_LINUX)
     -Wno-unused-parameter           # Don't warn about unused parameters
     -Wno-error=comment              # Don't warn about code in comments
     -Wno-comment                    # Don't warn about code in comments
+    -Wno-deprecated-declarations    # Don't warn about using deprecated methods
     )
   list(APPEND CEF_C_COMPILER_FLAGS
     -std=c99                        # Use the C99 language standard

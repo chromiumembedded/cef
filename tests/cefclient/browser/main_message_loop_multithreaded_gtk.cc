@@ -5,7 +5,7 @@
 #include "tests/cefclient/browser/main_message_loop_multithreaded_gtk.h"
 
 #include <X11/Xlib.h>
-#include <gtk/gtkmain.h>
+#include <gtk/gtk.h>
 
 #include "include/base/cef_bind.h"
 #include "include/base/cef_logging.h"

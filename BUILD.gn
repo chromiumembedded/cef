@@ -2035,16 +2035,10 @@ if (is_mac) {
     pkg_config("gtk") {
       packages = [
         "gmodule-2.0",
-        "gtk+-2.0",
+        "gtk+-3.0",
         "gthread-2.0",
-        "gtk+-unix-print-2.0",
+        "gtk+-unix-print-3.0",
         "xi",
-      ]
-    }
-
-    pkg_config("gtkglext") {
-      packages = [
-        "gtkglext-1.0",
       ]
     }
   }
@@ -2127,13 +2121,13 @@ if (is_mac) {
       ]
 
       libs = [
+        "GL",
         "X11",
       ]
 
       if (cef_use_gtk) {
         configs += [
           ":gtk",
-          ":gtkglext",
         ]
       }
 

@@ -97,7 +97,7 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
                                RootWindowGtk* self);
 
   // Signal handlers for the GTK Vbox containing all UX elements.
-  static void VboxSizeAllocated(GtkWidget* widget,
+  static void GridSizeAllocated(GtkWidget* widget,
                                 GtkAllocation* allocation,
                                 RootWindowGtk* self);
 

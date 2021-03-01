@@ -117,8 +117,10 @@ class BrowserWindowOsrGtk : public BrowserWindow,
   static gint FocusEvent(GtkWidget* widget,
                          GdkEventFocus* event,
                          BrowserWindowOsrGtk* self);
+  static gboolean TouchEvent(GtkWidget* widget,
+                             GdkEventTouch* event,
+                             BrowserWindowOsrGtk* self);
 
-  void TouchEvent(CefXIDeviceEvent event);
   void RegisterTouch();
 
   bool IsOverPopupWidget(int x, int y) const;
@@ -176,7 +178,6 @@ class BrowserWindowOsrGtk : public BrowserWindow,
   static GdkFilterReturn EventFilter(GdkXEvent* gdk_xevent,
                                      GdkEvent* event,
                                      gpointer data);
-  static void InitializeXinput(XDisplay* xdisplay);
 
   XDisplay* xdisplay_;
 

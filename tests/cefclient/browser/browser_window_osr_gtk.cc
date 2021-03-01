@@ -6,16 +6,14 @@
 
 #include <GL/gl.h>
 #include <gdk/gdk.h>
-#include <gdk/gdkkeysyms.h>
+#include <gdk/gdkkeysyms-compat.h>
 #include <gdk/gdkx.h>
 #include <glib-object.h>
 #include <gtk/gtk.h>
-#include <gtk/gtkgl.h>
 
 #define XK_3270  // for XK_3270_BackTab
 #include <X11/XF86keysym.h>
 #include <X11/Xcursor/Xcursor.h>
-#include <X11/extensions/XInput2.h>
 #include <X11/keysym.h>
 
 #include "include/base/cef_logging.h"
@@ -29,16 +27,9 @@ namespace client {
 
 namespace {
 
-// Major opcode of XInputExtension, or -1 if XInput 2.2 is not available.
-int g_xinput_extension = -1;
-
 // Static BrowserWindowOsrGtk::EventFilter needs to forward touch events
 // to correct browser, so we maintain a vector of all windows.
 std::vector<BrowserWindowOsrGtk*> g_browser_windows;
-
-bool IsTouchAvailable() {
-  return g_xinput_extension != -1;
-}
 
 int GetCefStateModifiers(guint state) {
   int modifiers = 0;
@@ -57,20 +48,6 @@ int GetCefStateModifiers(guint state) {
   if (state & GDK_BUTTON3_MASK)
     modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
   return modifiers;
-}
-
-int GetCefStateModifiers(XIModifierState mods, XIButtonState buttons) {
-  guint state = mods.effective;
-  if (buttons.mask_len >= 1) {
-    if (XIMaskIsSet(buttons.mask, 1))
-      state |= GDK_BUTTON1_MASK;
-    if (XIMaskIsSet(buttons.mask, 2))
-      state |= GDK_BUTTON2_MASK;
-    if (XIMaskIsSet(buttons.mask, 3))
-      state |= GDK_BUTTON3_MASK;
-  }
-
-  return GetCefStateModifiers(state);
 }
 
 // From ui/events/keycodes/keyboard_codes_posix.h.
@@ -894,17 +871,20 @@ void GetWidgetRectInScreen(GtkWidget* widget, GdkRectangle* r) {
   // Get parent's left-top screen coordinates.
   gdk_window_get_root_origin(window, &x, &y);
   // Get parent's width and height.
-  gdk_drawable_get_size(window, &w, &h);
+  w = gdk_window_get_width(window);
+  h = gdk_window_get_height(window);
   // Get parent's extents including decorations.
   gdk_window_get_frame_extents(window, &extents);
 
   // X and Y calculations assume that left, right and bottom border sizes are
   // all the same.
   const gint border = (extents.width - w) / 2;
-  r->x = x + border + widget->allocation.x;
-  r->y = y + (extents.height - h) - border + widget->allocation.y;
-  r->width = widget->allocation.width;
-  r->height = widget->allocation.height;
+  GtkAllocation allocation;
+  gtk_widget_get_allocation(widget, &allocation);
+  r->x = x + border + allocation.x;
+  r->y = y + (extents.height - h) - border + allocation.y;
+  r->width = allocation.width;
+  r->height = allocation.height;
 }
 
 CefBrowserHost::DragOperationsMask GetDragOperationsMask(
@@ -925,30 +905,25 @@ CefBrowserHost::DragOperationsMask GetDragOperationsMask(
 class ScopedGLContext {
  public:
   ScopedGLContext(GtkWidget* widget, bool swap_buffers)
-      : swap_buffers_(swap_buffers) {
-    GdkGLContext* glcontext = gtk_widget_get_gl_context(widget);
-    gldrawable_ = gtk_widget_get_gl_drawable(widget);
-    is_valid_ = gdk_gl_drawable_gl_begin(gldrawable_, glcontext);
+      : swap_buffers_(swap_buffers), widget_(widget) {
+    gtk_gl_area_make_current(GTK_GL_AREA(widget));
+    is_valid_ = gtk_gl_area_get_error(GTK_GL_AREA(widget)) == NULL;
+    if (swap_buffers_ && is_valid_) {
+      gtk_gl_area_queue_render(GTK_GL_AREA(widget_));
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(widget));
+    }
   }
 
   virtual ~ScopedGLContext() {
-    if (is_valid_) {
-      gdk_gl_drawable_gl_end(gldrawable_);
-
-      if (swap_buffers_) {
-        if (gdk_gl_drawable_is_double_buffered(gldrawable_))
-          gdk_gl_drawable_swap_buffers(gldrawable_);
-        else
-          glFlush();
-      }
-    }
+    if (swap_buffers_ && is_valid_)
+      glFlush();
   }
 
   bool IsValid() const { return is_valid_; }
 
  private:
   bool swap_buffers_;
-  GdkGLDrawable* gldrawable_;
+  GtkWidget* const widget_;
   bool is_valid_;
   ScopedGdkThreadsEnter scoped_gdk_threads_;
 };
@@ -1013,11 +988,11 @@ void BrowserWindowOsrGtk::CreateBrowser(
   // Retrieve the X11 Window ID for the GTK parent window.
   GtkWidget* window =
       gtk_widget_get_ancestor(GTK_WIDGET(parent_handle), GTK_TYPE_WINDOW);
-  ::Window xwindow = GDK_WINDOW_XID(gtk_widget_get_window(window));
-  DCHECK(xwindow);
+  CefWindowHandle handle = GDK_WINDOW_XID(gtk_widget_get_window(window));
+  DCHECK(handle);
 
   CefWindowInfo window_info;
-  window_info.SetAsWindowless(xwindow);
+  window_info.SetAsWindowless(handle);
 
   // Create the browser asynchronously.
   CefBrowserHost::CreateBrowser(window_info, client_handler_,
@@ -1172,11 +1147,12 @@ void BrowserWindowOsrGtk::GetViewRect(CefRefPtr<CefBrowser> browser,
 
   // The simulated screen and view rectangle are the same. This is necessary
   // for popup menus to be located and sized inside the view.
-  rect.width = DeviceToLogical(glarea_->allocation.width, device_scale_factor);
+  GtkAllocation allocation;
+  gtk_widget_get_allocation(glarea_, &allocation);
+  rect.width = DeviceToLogical(allocation.width, device_scale_factor);
   if (rect.width == 0)
     rect.width = 1;
-  rect.height =
-      DeviceToLogical(glarea_->allocation.height, device_scale_factor);
+  rect.height = DeviceToLogical(allocation.height, device_scale_factor);
   if (rect.height == 0)
     rect.height = 1;
 }
@@ -1373,17 +1349,12 @@ void BrowserWindowOsrGtk::Create(ClientWindowHandle parent_handle) {
 
   ScopedGdkThreadsEnter scoped_gdk_threads;
 
-  glarea_ = gtk_drawing_area_new();
+  glarea_ = gtk_gl_area_new();
   DCHECK(glarea_);
 
-  GdkGLConfig* glconfig =
-      gdk_gl_config_new_by_mode(static_cast<GdkGLConfigMode>(
-          GDK_GL_MODE_RGB | GDK_GL_MODE_DEPTH | GDK_GL_MODE_DOUBLE));
-  DCHECK(glconfig);
-
-  gtk_widget_set_gl_capability(glarea_, glconfig, NULL, TRUE, GDK_GL_RGBA_TYPE);
-
   gtk_widget_set_can_focus(glarea_, TRUE);
+
+  gtk_gl_area_set_auto_render(GTK_GL_AREA(glarea_), FALSE);
 
   g_signal_connect(G_OBJECT(glarea_), "size_allocate",
                    G_CALLBACK(&BrowserWindowOsrGtk::SizeAllocation), this);
@@ -1414,18 +1385,16 @@ void BrowserWindowOsrGtk::Create(ClientWindowHandle parent_handle) {
                    G_CALLBACK(&BrowserWindowOsrGtk::FocusEvent), this);
   g_signal_connect(G_OBJECT(glarea_), "focus_out_event",
                    G_CALLBACK(&BrowserWindowOsrGtk::FocusEvent), this);
+  g_signal_connect(G_OBJECT(glarea_), "touch-event",
+                   G_CALLBACK(&BrowserWindowOsrGtk::TouchEvent), this);
 
   RegisterDragDrop();
 
-  gtk_container_add(GTK_CONTAINER(parent_handle), glarea_);
+  gtk_widget_set_vexpand(glarea_, TRUE);
+  gtk_grid_attach(GTK_GRID(parent_handle), glarea_, 0, 3, 1, 1);
 
   // Make the GlArea visible in the parent container.
   gtk_widget_show_all(parent_handle);
-
-  InitializeXinput(xdisplay_);
-
-  if (IsTouchAvailable())
-    RegisterTouch();
 }
 
 // static
@@ -1661,6 +1630,9 @@ gint BrowserWindowOsrGtk::ScrollEvent(GtkWidget* widget,
     case GDK_SCROLL_RIGHT:
       deltaX = -scrollbarPixelsPerGtkTick;
       break;
+    case GDK_SCROLL_SMOOTH:
+      NOTIMPLEMENTED();
+      break;
   }
 
   host->SendMouseWheelEvent(mouse_event, deltaX, deltaY);
@@ -1677,106 +1649,49 @@ gint BrowserWindowOsrGtk::FocusEvent(GtkWidget* widget,
   return TRUE;
 }
 
-void BrowserWindowOsrGtk::TouchEvent(CefXIDeviceEvent event) {
-  if (!browser_.get())
-    return;
+// static
+gboolean BrowserWindowOsrGtk::TouchEvent(GtkWidget* widget,
+                                         GdkEventTouch* event,
+                                         BrowserWindowOsrGtk* self) {
+  REQUIRE_MAIN_THREAD();
 
-  XIDeviceEvent* ev = static_cast<XIDeviceEvent*>(event);
-  CefTouchEvent cef_event;
-  switch (ev->evtype) {
-    case XI_TouchBegin:
-      cef_event.type = CEF_TET_PRESSED;
+  if (!self->browser_.get())
+    return TRUE;
+
+  CefRefPtr<CefBrowserHost> host = self->browser_->GetHost();
+
+  float device_scale_factor;
+  {
+    base::AutoLock lock_scope(self->lock_);
+    device_scale_factor = self->device_scale_factor_;
+  }
+
+  CefTouchEvent touch_event;
+  switch (event->type) {
+    case GDK_TOUCH_BEGIN:
+      touch_event.type = CEF_TET_PRESSED;
       break;
-    case XI_TouchUpdate:
-      cef_event.type = CEF_TET_MOVED;
+    case GDK_TOUCH_UPDATE:
+      touch_event.type = CEF_TET_MOVED;
       break;
-    case XI_TouchEnd:
-      cef_event.type = CEF_TET_RELEASED;
+    case GDK_TOUCH_END:
+      touch_event.type = CEF_TET_RELEASED;
       break;
     default:
-      return;
+      return TRUE;
   }
 
-  cef_event.id = ev->detail;
-  cef_event.x = ev->event_x;
-  cef_event.y = ev->event_y;
-  cef_event.radius_x = 0;
-  cef_event.radius_y = 0;
-  cef_event.rotation_angle = 0;
-  cef_event.pressure = 0;
-  cef_event.modifiers = GetCefStateModifiers(ev->mods, ev->buttons);
+  touch_event.x = event->x;
+  touch_event.y = event->y;
+  touch_event.radius_x = 0;
+  touch_event.radius_y = 0;
+  touch_event.rotation_angle = 0;
+  touch_event.pressure = 0;
+  DeviceToLogical(touch_event, device_scale_factor);
+  touch_event.modifiers = GetCefStateModifiers(event->state);
 
-  browser_->GetHost()->SendTouchEvent(cef_event);
-}
-
-void BrowserWindowOsrGtk::RegisterTouch() {
-  GdkWindow* glwindow = gtk_widget_get_window(glarea_);
-  ::Window xwindow = GDK_WINDOW_XID(glwindow);
-  uint32_t bitMask = XI_TouchBeginMask | XI_TouchUpdateMask | XI_TouchEndMask;
-
-  XIEventMask mask;
-  mask.deviceid = XIAllMasterDevices;
-  mask.mask = reinterpret_cast<unsigned char*>(&bitMask);
-  mask.mask_len = sizeof(bitMask);
-  XISelectEvents(xdisplay_, xwindow, &mask, 1);
-}
-
-// static
-GdkFilterReturn BrowserWindowOsrGtk::EventFilter(GdkXEvent* gdk_xevent,
-                                                 GdkEvent* event,
-                                                 gpointer data) {
-  XEvent* xevent = static_cast<XEvent*>(gdk_xevent);
-  if (xevent->type == GenericEvent &&
-      xevent->xgeneric.extension == g_xinput_extension) {
-    XGetEventData(xevent->xcookie.display, &xevent->xcookie);
-    XIDeviceEvent* ev = static_cast<XIDeviceEvent*>(xevent->xcookie.data);
-
-    if (!ev)
-      return GDK_FILTER_REMOVE;
-
-    for (BrowserWindowOsrGtk* browser_window : g_browser_windows) {
-      GtkWidget* widget = browser_window->GetWindowHandle();
-      ::Window xwindow = GDK_WINDOW_XID(gtk_widget_get_window(widget));
-      if (xwindow == ev->event) {
-        browser_window->TouchEvent(ev);
-        break;
-      }
-    }
-
-    XFreeEventData(xevent->xcookie.display, &xevent->xcookie);
-    // Even if we didn't find a consumer for this event, we will make sure Gdk
-    // doesn't attempt to process the event, since it can't parse GenericEvents
-    return GDK_FILTER_REMOVE;
-  }
-
-  return GDK_FILTER_CONTINUE;
-}
-
-// static
-void BrowserWindowOsrGtk::InitializeXinput(XDisplay* xdisplay) {
-  static bool initialized = false;
-  if (initialized)
-    return;
-  initialized = true;
-
-  int firstEvent, firstError;
-  if (XQueryExtension(xdisplay, "XInputExtension", &g_xinput_extension,
-                      &firstEvent, &firstError)) {
-    int major = 2, minor = 2;
-    // X Input Extension 2.2 is needed for multitouch events.
-    if (XIQueryVersion(xdisplay, &major, &minor) == Success) {
-      // Ideally we would add an event filter for each glarea_ window
-      // separately, but unfortunately GDK can't parse X GenericEvents
-      // which have the target window stored in different way compared
-      // to other X events. That is why we add this global event filter
-      // just once, and dispatch the event to correct BrowserWindowOsrGtk
-      // manually.
-      gdk_window_add_filter(nullptr, &BrowserWindowOsrGtk::EventFilter,
-                            nullptr);
-    } else {
-      g_xinput_extension = -1;
-    }
-  }
+  host->SendTouchEvent(touch_event);
+  return TRUE;
 }
 
 bool BrowserWindowOsrGtk::IsOverPopupWidget(int x, int y) const {

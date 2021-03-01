@@ -3,7 +3,6 @@
 // can be found in the LICENSE file.
 
 #include <gtk/gtk.h>
-#include <gtk/gtkgl.h>
 
 #include <X11/Xlib.h>
 #undef Success     // Definition conflicts with cef_message_router.h
@@ -98,6 +97,13 @@ int RunMain(int argc, char* argv[]) {
   // Populate the settings based on command line arguments.
   context->PopulateSettings(&settings);
 
+  if (settings.windowless_rendering_enabled) {
+    // Force the app to use OpenGL <= 3.1 when off-screen rendering is enabled.
+    // TODO(cefclient): Rewrite OSRRenderer to use shaders instead of the
+    // fixed-function pipeline which was removed in OpenGL 3.2 (back in 2009).
+    setenv("MESA_GL_VERSION_OVERRIDE", "3.1", /*overwrite=*/0);
+  }
+
   // Create the main message loop object.
   scoped_ptr<MainMessageLoop> message_loop;
   if (settings.multi_threaded_message_loop)
@@ -110,12 +116,12 @@ int RunMain(int argc, char* argv[]) {
   // Initialize CEF.
   context->Initialize(main_args, settings, app, nullptr);
 
+  // Force Gtk to use Xwayland (in case a Wayland compositor is being used).
+  gdk_set_allowed_backends("x11");
+
   // The Chromium sandbox requires that there only be a single thread during
   // initialization. Therefore initialize GTK after CEF.
   gtk_init(&argc, &argv_copy);
-
-  // Perform gtkglext initialization required by the OSR example.
-  gtk_gl_init(&argc, &argv_copy);
 
   // Install xlib error handlers so that the application won't be terminated
   // on non-fatal errors. Must be done after initializing GTK.
