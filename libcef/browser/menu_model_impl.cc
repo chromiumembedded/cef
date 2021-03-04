@@ -12,7 +12,7 @@
 
 #include "base/bind.h"
 #include "base/logging.h"
-#include "content/public/common/menu_item.h"
+#include "third_party/blink/public/mojom/context_menu/context_menu.mojom.h"
 #include "ui/base/accelerators/accelerator.h"
 #include "ui/base/models/image_model.h"
 #include "ui/gfx/geometry/point.h"
@@ -927,37 +927,40 @@ bool CefMenuModelImpl::VerifyRefCount() {
   return true;
 }
 
-void CefMenuModelImpl::AddMenuItem(const content::MenuItem& menu_item) {
+void CefMenuModelImpl::AddMenuItem(
+    const blink::mojom::CustomContextMenuItem& menu_item) {
   const int command_id = static_cast<int>(menu_item.action);
 
   switch (menu_item.type) {
-    case content::MenuItem::OPTION:
+    case blink::mojom::CustomContextMenuItemType::kOption:
       AddItem(command_id, menu_item.label);
       break;
-    case content::MenuItem::CHECKABLE_OPTION:
+    case blink::mojom::CustomContextMenuItemType::kCheckableOption:
       AddCheckItem(command_id, menu_item.label);
       break;
-    case content::MenuItem::GROUP:
+    case blink::mojom::CustomContextMenuItemType::kGroup:
       AddRadioItem(command_id, menu_item.label, 0);
       break;
-    case content::MenuItem::SEPARATOR:
+    case blink::mojom::CustomContextMenuItemType::kSeparator:
       AddSeparator();
       break;
-    case content::MenuItem::SUBMENU: {
+    case blink::mojom::CustomContextMenuItemType::kSubMenu: {
       CefRefPtr<CefMenuModelImpl> sub_menu = static_cast<CefMenuModelImpl*>(
           AddSubMenu(command_id, menu_item.label).get());
       for (size_t i = 0; i < menu_item.submenu.size(); ++i)
-        sub_menu->AddMenuItem(menu_item.submenu[i]);
+        sub_menu->AddMenuItem(*menu_item.submenu[i]);
       break;
     }
   }
 
-  if (!menu_item.enabled && menu_item.type != content::MenuItem::SEPARATOR)
+  if (!menu_item.enabled &&
+      menu_item.type != blink::mojom::CustomContextMenuItemType::kSeparator)
     SetEnabled(command_id, false);
 
   if (menu_item.checked &&
-      (menu_item.type == content::MenuItem::CHECKABLE_OPTION ||
-       menu_item.type == content::MenuItem::GROUP)) {
+      (menu_item.type ==
+           blink::mojom::CustomContextMenuItemType::kCheckableOption ||
+       menu_item.type == blink::mojom::CustomContextMenuItemType::kGroup)) {
     SetChecked(command_id, true);
   }
 }

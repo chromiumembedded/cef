@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cc3fb995a3c9384fae1f1bbeb118ff6ff1d78ea2$
+// $hash=dad7a3eb64c0bc6c4eddd2935513af61f7e8b510$
 //
 
 #include "libcef_dll/ctocpp/context_menu_params_ctocpp.h"
@@ -230,7 +230,7 @@ CefContextMenuParams::MediaType CefContextMenuParamsCToCpp::GetMediaType() {
 
 NO_SANITIZE("cfi-icall")
 CefContextMenuParams::MediaStateFlags
-    CefContextMenuParamsCToCpp::GetMediaStateFlags() {
+CefContextMenuParamsCToCpp::GetMediaStateFlags() {
   shutdown_checker::AssertNotShutdown();
 
   cef_context_menu_params_t* _struct = GetStruct();
@@ -351,7 +351,7 @@ bool CefContextMenuParamsCToCpp::IsSpellCheckEnabled() {
 
 NO_SANITIZE("cfi-icall")
 CefContextMenuParams::EditStateFlags
-    CefContextMenuParamsCToCpp::GetEditStateFlags() {
+CefContextMenuParamsCToCpp::GetEditStateFlags() {
   shutdown_checker::AssertNotShutdown();
 
   cef_context_menu_params_t* _struct = GetStruct();
@@ -379,22 +379,6 @@ NO_SANITIZE("cfi-icall") bool CefContextMenuParamsCToCpp::IsCustomMenu() {
 
   // Execute
   int _retval = _struct->is_custom_menu(_struct);
-
-  // Return type: bool
-  return _retval ? true : false;
-}
-
-NO_SANITIZE("cfi-icall") bool CefContextMenuParamsCToCpp::IsPepperMenu() {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_context_menu_params_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_pepper_menu))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  int _retval = _struct->is_pepper_menu(_struct);
 
   // Return type: bool
   return _retval ? true : false;

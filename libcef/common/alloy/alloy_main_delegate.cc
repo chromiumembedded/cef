@@ -30,6 +30,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/utility/chrome_content_utility_client.h"
 #include "components/content_settings/core/common/content_settings_pattern.h"
+#include "components/embedder_support/switches.h"
 #include "components/viz/common/features.h"
 #include "content/browser/browser_process_sub_thread.h"
 #include "content/public/common/content_features.h"
@@ -147,7 +148,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
       command_line->AppendSwitch(sandbox::policy::switches::kNoSandbox);
 
     if (settings_->user_agent.length > 0) {
-      command_line->AppendSwitchASCII(switches::kUserAgent,
+      command_line->AppendSwitchASCII(embedder_support::kUserAgent,
                                       CefString(&settings_->user_agent));
     } else if (settings_->product_version.length > 0) {
       command_line->AppendSwitchASCII(switches::kProductVersion,

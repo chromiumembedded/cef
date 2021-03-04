@@ -407,7 +407,7 @@ ServiceWorkerManager* CefExtensionSystem::service_worker_manager() {
   return service_worker_manager_.get();
 }
 
-SharedUserScriptManager* CefExtensionSystem::shared_user_script_manager() {
+UserScriptManager* CefExtensionSystem::user_script_manager() {
   return nullptr;
 }
 

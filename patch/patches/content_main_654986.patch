@@ -111,18 +111,18 @@ index 2aba28d210db..00edc202e2c4 100644
    return RunContentProcess(params, runner.get());
  }
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 811017f5d455..57055727e83d 100644
+index 7873fad0a61b..425c30a56699 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -48,6 +48,7 @@
- #include "base/task/post_task.h"
+@@ -44,6 +44,7 @@
  #include "base/task/thread_pool/thread_pool_instance.h"
  #include "base/threading/hang_watcher.h"
+ #include "base/threading/platform_thread.h"
 +#include "base/threading/thread_restrictions.h"
+ #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
- #include "components/discardable_memory/service/discardable_shared_memory_manager.h"
- #include "components/download/public/common/download_task_runner.h"
-@@ -1089,6 +1090,11 @@ void ContentMainRunnerImpl::Shutdown() {
+ #include "build/build_config.h"
+@@ -1092,6 +1093,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  

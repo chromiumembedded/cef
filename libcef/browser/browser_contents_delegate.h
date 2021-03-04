@@ -108,7 +108,6 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   void RenderFrameHostChanged(content::RenderFrameHost* old_host,
                               content::RenderFrameHost* new_host) override;
   void RenderFrameDeleted(content::RenderFrameHost* render_frame_host) override;
-  void RenderViewCreated(content::RenderViewHost* render_view_host) override;
   void RenderViewDeleted(content::RenderViewHost* render_view_host) override;
   void RenderViewReady() override;
   void RenderProcessGone(base::TerminationStatus status) override;

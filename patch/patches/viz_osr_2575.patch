@@ -80,12 +80,12 @@ index 1026b739d283..fe562ab60ce9 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index c66d791c7c9a..5c98ae02d8b7 100644
+index 898571527429..5e31b5ceafc3 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -180,6 +180,8 @@ viz_component("service") {
-     "surfaces/surface_reference.cc",
-     "surfaces/surface_reference.h",
+@@ -198,6 +198,8 @@ viz_component("service") {
+     "transitions/transferable_resource_tracker.cc",
+     "transitions/transferable_resource_tracker.h",
      "viz_service_export.h",
 +    "//cef/libcef/browser/osr/software_output_device_proxy.cc",
 +    "//cef/libcef/browser/osr/software_output_device_proxy.h",
@@ -214,10 +214,10 @@ index 6b7fbb6cf13d..e2af75168cb9 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index e1db8f745c07..6d94047788bf 100644
+index e4ff4cb0a2ec..5023c6139f4e 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
-@@ -27,7 +27,9 @@
+@@ -28,7 +28,9 @@
  #include "components/viz/common/frame_sinks/begin_frame_args.h"
  #include "components/viz/common/surfaces/frame_sink_id.h"
  #include "components/viz/common/surfaces/subtree_capture_id.h"
@@ -227,7 +227,7 @@ index e1db8f745c07..6d94047788bf 100644
  #include "mojo/public/cpp/bindings/pending_remote.h"
  #include "services/viz/privileged/mojom/compositing/vsync_parameter_observer.mojom-forward.h"
  #include "third_party/skia/include/core/SkColor.h"
-@@ -133,6 +135,14 @@ class COMPOSITOR_EXPORT ContextFactory {
+@@ -134,6 +136,14 @@ class COMPOSITOR_EXPORT ContextFactory {
    virtual viz::HostFrameSinkManager* GetHostFrameSinkManager() = 0;
  };
  
@@ -242,7 +242,7 @@ index e1db8f745c07..6d94047788bf 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -167,6 +177,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -169,6 +179,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -252,7 +252,7 @@ index e1db8f745c07..6d94047788bf 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -435,6 +448,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -440,6 +453,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
  
    std::unique_ptr<PendingBeginFrameArgs> pending_begin_frame_args_;
  

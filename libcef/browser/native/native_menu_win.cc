@@ -304,7 +304,7 @@ class CefNativeMenuWin::MenuHostWindow {
         DCHECK(type != ui::MenuModel::TYPE_CHECK);
         std::unique_ptr<SkCanvas> canvas = skia::CreatePlatformCanvas(
             skia_icon.width(), skia_icon.height(), false);
-        canvas->drawBitmap(*skia_icon.bitmap(), 0, 0);
+        canvas->drawImage(skia_icon.bitmap()->asImage(), 0, 0);
         DrawToNativeContext(
             canvas.get(), dc, draw_item_struct->rcItem.left + kItemLeftMargin,
             draw_item_struct->rcItem.top +

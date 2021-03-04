@@ -41,9 +41,7 @@ void CefBrowserContentsDelegate::ObserveWebContents(
                     content::Source<content::NavigationController>(
                         &new_contents->GetController()));
 
-    // Make sure RenderViewCreated is called at least one time.
-    RenderViewCreated(new_contents->GetRenderViewHost());
-
+    // Make sure RenderFrameCreated is called at least one time.
     // Create the frame representation before OnAfterCreated is called for a new
     // browser. Additionally, RenderFrameCreated is otherwise not called at all
     // for new popup browsers.
@@ -229,6 +227,18 @@ bool CefBrowserContentsDelegate::HandleKeyboardEvent(
 void CefBrowserContentsDelegate::RenderFrameCreated(
     content::RenderFrameHost* render_frame_host) {
   browser_info_->MaybeCreateFrame(render_frame_host, false /* is_guest_view */);
+
+  if (render_frame_host->GetParent() == nullptr) {
+    // May be already registered if the renderer crashed previously.
+    auto render_view_host = render_frame_host->GetRenderViewHost();
+    if (!registrar_->IsRegistered(
+            this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
+            content::Source<content::RenderViewHost>(render_view_host))) {
+      registrar_->Add(
+          this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
+          content::Source<content::RenderViewHost>(render_view_host));
+    }
+  }
 }
 
 void CefBrowserContentsDelegate::RenderFrameHostChanged(
@@ -246,17 +256,6 @@ void CefBrowserContentsDelegate::RenderFrameDeleted(
   if (focused_frame_ && focused_frame_->GetIdentifier() == frame_id) {
     focused_frame_ = nullptr;
     OnStateChanged(State::kFocusedFrame);
-  }
-}
-
-void CefBrowserContentsDelegate::RenderViewCreated(
-    content::RenderViewHost* render_view_host) {
-  // May be already registered if the renderer crashed previously.
-  if (!registrar_->IsRegistered(
-          this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
-          content::Source<content::RenderViewHost>(render_view_host))) {
-    registrar_->Add(this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
-                    content::Source<content::RenderViewHost>(render_view_host));
   }
 }
 

@@ -1104,7 +1104,7 @@ bool CefV8ContextImpl::Eval(const CefString& code,
   try_catch.SetVerbose(true);
 
   v8::Local<v8::Value> func_rv = blink_glue::ExecuteV8ScriptAndReturnValue(
-      source, source_url, start_line, context, isolate, try_catch);
+      source, source_url, start_line, context, try_catch);
 
   if (try_catch.HasCaught()) {
     exception = new CefV8ExceptionImpl(context, try_catch.Message());

@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index 36ab5d592ecb..e61236132220 100644
+index 572f521ae88c..995d17a90f0d 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
 @@ -12,6 +12,7 @@
@@ -20,7 +20,7 @@ index 36ab5d592ecb..e61236132220 100644
      bool is_navigation,
      bool is_download,
 diff --git content/browser/renderer_host/input/synthetic_gesture_target_base.h content/browser/renderer_host/input/synthetic_gesture_target_base.h
-index 4dd9b2645d60..23b46ce1a43a 100644
+index eef661b3e095..6c0dacfa4bc3 100644
 --- content/browser/renderer_host/input/synthetic_gesture_target_base.h
 +++ content/browser/renderer_host/input/synthetic_gesture_target_base.h
 @@ -9,6 +9,7 @@

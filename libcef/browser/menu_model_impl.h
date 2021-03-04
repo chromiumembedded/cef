@@ -13,12 +13,9 @@
 #include "include/cef_menu_model_delegate.h"
 
 #include "base/threading/platform_thread.h"
+#include "third_party/blink/public/mojom/context_menu/context_menu.mojom-forward.h"
 #include "ui/base/models/menu_model.h"
 #include "ui/gfx/font_list.h"
-
-namespace content {
-struct MenuItem;
-}
 
 class CefMenuModelImpl : public CefMenuModel {
  public:
@@ -176,7 +173,7 @@ class CefMenuModelImpl : public CefMenuModel {
   bool VerifyRefCount();
 
   // Helper for adding custom menu items originating from the renderer process.
-  void AddMenuItem(const content::MenuItem& menu_item);
+  void AddMenuItem(const blink::mojom::CustomContextMenuItem& menu_item);
 
   ui::MenuModel* model() const { return model_.get(); }
 

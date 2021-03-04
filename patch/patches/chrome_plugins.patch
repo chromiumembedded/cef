@@ -1,5 +1,5 @@
 diff --git chrome/browser/plugins/plugin_info_host_impl.cc chrome/browser/plugins/plugin_info_host_impl.cc
-index dfa34db9255e..0a79d11c7e0c 100644
+index 6de814c6ed1e..302d6dcc789a 100644
 --- chrome/browser/plugins/plugin_info_host_impl.cc
 +++ chrome/browser/plugins/plugin_info_host_impl.cc
 @@ -18,6 +18,7 @@
@@ -56,17 +56,7 @@ index dfa34db9255e..0a79d11c7e0c 100644
  }
  
  PluginInfoHostImpl::Context::~Context() {}
-@@ -207,7 +220,8 @@ void PluginInfoHostImpl::PluginsLoaded(
-         plugin_metadata->identifier(), &output->status);
-   }
- 
--  if (output->status == chrome::mojom::PluginStatus::kNotFound) {
-+  if (!cef::IsAlloyRuntimeEnabled() &&
-+      output->status == chrome::mojom::PluginStatus::kNotFound) {
-     // Check to see if the component updater can fetch an implementation.
-     std::unique_ptr<component_updater::ComponentInfo> cus_plugin_info =
-         g_browser_process->component_updater()->GetComponentForMimeType(
-@@ -228,6 +242,15 @@ void PluginInfoHostImpl::Context::DecidePluginStatus(
+@@ -218,6 +231,15 @@ void PluginInfoHostImpl::Context::DecidePluginStatus(
      PluginMetadata::SecurityStatus security_status,
      const std::string& plugin_identifier,
      chrome::mojom::PluginStatus* status) const {
@@ -82,7 +72,7 @@ index dfa34db9255e..0a79d11c7e0c 100644
    if (security_status == PluginMetadata::SECURITY_STATUS_FULLY_TRUSTED) {
      *status = chrome::mojom::PluginStatus::kAllowed;
      return;
-@@ -344,17 +367,41 @@ bool PluginInfoHostImpl::Context::FindEnabledPlugin(
+@@ -334,17 +356,41 @@ bool PluginInfoHostImpl::Context::FindEnabledPlugin(
      return false;
    }
  
@@ -163,7 +153,7 @@ index e547d5f00617..831d5794ecde 100644
    Profile* profile = Profile::FromBrowserContext(browser_context);
    const std::vector<std::string>& allowlist =
 diff --git chrome/common/google_url_loader_throttle.cc chrome/common/google_url_loader_throttle.cc
-index ce40f0039fe0..c8cbecb61455 100644
+index 6555dfc37d5c..d54030b6f236 100644
 --- chrome/common/google_url_loader_throttle.cc
 +++ chrome/common/google_url_loader_throttle.cc
 @@ -7,6 +7,7 @@
@@ -174,9 +164,9 @@ index ce40f0039fe0..c8cbecb61455 100644
  #include "chrome/common/chrome_features.h"
  #include "chrome/common/net/safe_search_util.h"
  #include "components/google/core/common/google_util.h"
-@@ -14,6 +15,10 @@
- #include "services/network/public/mojom/url_response_head.mojom.h"
- #include "services/network/public/mojom/x_frame_options.mojom.h"
+@@ -18,6 +19,10 @@
+ #include "ui/base/device_form_factor.h"
+ #endif
  
 +#if BUILDFLAG(ENABLE_CEF)
 +#include "cef/libcef/common/extensions/extensions_util.h"
@@ -185,7 +175,7 @@ index ce40f0039fe0..c8cbecb61455 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "extensions/common/extension_urls.h"
  #endif
-@@ -153,6 +158,11 @@ void GoogleURLLoaderThrottle::WillProcessResponse(
+@@ -168,6 +173,11 @@ void GoogleURLLoaderThrottle::WillProcessResponse(
      const GURL& response_url,
      network::mojom::URLResponseHead* response_head,
      bool* defer) {
@@ -198,10 +188,10 @@ index ce40f0039fe0..c8cbecb61455 100644
    // that the X-Frame-Options protection mechanism is set to either DENY or
    // SAMEORIGIN.
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index a1c26dfbd5cc..aaf96b069c32 100644
+index b6fe493a6ddc..bc2f6487044f 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
-@@ -848,6 +848,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -858,6 +858,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
  
      if ((status == chrome::mojom::PluginStatus::kUnauthorized ||
           status == chrome::mojom::PluginStatus::kBlocked) &&
@@ -209,7 +199,7 @@ index a1c26dfbd5cc..aaf96b069c32 100644
          content_settings_agent_delegate->IsPluginTemporarilyAllowed(
              identifier)) {
        status = chrome::mojom::PluginStatus::kAllowed;
-@@ -1046,7 +1047,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1053,7 +1054,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
          render_frame->GetRemoteAssociatedInterfaces()->GetInterface(
              plugin_auth_host.BindNewEndpointAndPassReceiver());
          plugin_auth_host->BlockedUnauthorizedPlugin(group_name, identifier);
@@ -219,7 +209,7 @@ index a1c26dfbd5cc..aaf96b069c32 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlocked: {
-@@ -1055,7 +1057,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1062,7 +1064,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, group_name));
          placeholder->AllowLoading();
          RenderThread::Get()->RecordAction(UserMetricsAction("Plugin_Blocked"));
@@ -229,7 +219,7 @@ index a1c26dfbd5cc..aaf96b069c32 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedByPolicy: {
-@@ -1065,7 +1068,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1072,7 +1075,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
                                         group_name));
          RenderThread::Get()->RecordAction(
              UserMetricsAction("Plugin_BlockedByPolicy"));
@@ -239,7 +229,7 @@ index a1c26dfbd5cc..aaf96b069c32 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedNoLoading: {
-@@ -1073,7 +1077,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1080,7 +1084,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              IDR_BLOCKED_PLUGIN_HTML,
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED_NO_LOADING,
                                         group_name));
@@ -248,7 +238,7 @@ index a1c26dfbd5cc..aaf96b069c32 100644
 +          content_settings_agent->DidBlockContentType(content_type);
          break;
        }
-       case chrome::mojom::PluginStatus::kComponentUpdateRequired: {
+     }
 diff --git content/browser/browser_plugin/browser_plugin_guest.h content/browser/browser_plugin/browser_plugin_guest.h
 index 06b6875bd37e..13c197b532ad 100644
 --- content/browser/browser_plugin/browser_plugin_guest.h

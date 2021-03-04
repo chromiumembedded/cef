@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a8f51263f539c707f45abb95a6fb1f9f3bfef3b3$
+// $hash=4ff1017b303be65e38e293470384dc891bb26b15$
 //
 
 #include "libcef_dll/cpptoc/context_menu_params_cpptoc.h"
@@ -383,23 +383,6 @@ context_menu_params_is_custom_menu(struct _cef_context_menu_params_t* self) {
   return _retval;
 }
 
-int CEF_CALLBACK
-context_menu_params_is_pepper_menu(struct _cef_context_menu_params_t* self) {
-  shutdown_checker::AssertNotShutdown();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return 0;
-
-  // Execute
-  bool _retval = CefContextMenuParamsCppToC::Get(self)->IsPepperMenu();
-
-  // Return type: bool
-  return _retval;
-}
-
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -429,7 +412,6 @@ CefContextMenuParamsCppToC::CefContextMenuParamsCppToC() {
       context_menu_params_is_spell_check_enabled;
   GetStruct()->get_edit_state_flags = context_menu_params_get_edit_state_flags;
   GetStruct()->is_custom_menu = context_menu_params_is_custom_menu;
-  GetStruct()->is_pepper_menu = context_menu_params_is_pepper_menu;
 }
 
 // DESTRUCTOR - Do not edit by hand.

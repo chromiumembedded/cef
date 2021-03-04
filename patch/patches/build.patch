@@ -1,8 +1,8 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index 5928c561b5a3..6f342bb0e036 100644
+index 266b74b3b50a..f242e8b08ec1 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
-@@ -1779,8 +1779,6 @@ config("thin_archive") {
+@@ -1824,8 +1824,6 @@ config("thin_archive") {
    # archives.
    if ((is_posix && !is_nacl && (!is_apple || use_lld)) || is_fuchsia) {
      arflags = [ "-T" ]

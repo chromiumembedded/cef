@@ -68,7 +68,7 @@ bool ResponseFilterWrapper::CreateOutputHandle(
   }
 
   mojo::ScopedDataPipeProducerHandle forwarding_handle;
-  if (CreateDataPipe(nullptr, &forwarding_handle, output_handle) !=
+  if (CreateDataPipe(nullptr, forwarding_handle, *output_handle) !=
       MOJO_RESULT_OK) {
     *output_handle = std::move(source_handle_);
     return false;

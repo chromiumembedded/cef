@@ -263,7 +263,7 @@ void CefMenuManager::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
 
   // Notify the host after closing the context menu.
   web_contents()->SetShowingContextMenu(false);
-  web_contents()->NotifyContextMenuClosed(params_.custom_context);
+  web_contents()->NotifyContextMenuClosed(params_.link_followed);
 }
 
 bool CefMenuManager::FormatLabel(CefRefPtr<CefMenuModelImpl> source,
@@ -287,11 +287,11 @@ void CefMenuManager::CreateDefaultModel() {
   if (!params_.custom_items.empty()) {
     // Custom menu items originating from the renderer process. For example,
     // plugin placeholder menu items.
-    for (size_t i = 0; i < params_.custom_items.size(); ++i) {
-      content::MenuItem menu_item = params_.custom_items[i];
-      menu_item.action += MENU_ID_CUSTOM_FIRST;
-      DCHECK_LE(static_cast<int>(menu_item.action), MENU_ID_CUSTOM_LAST);
-      model_->AddMenuItem(menu_item);
+    for (auto& item : params_.custom_items) {
+      auto new_item = item->Clone();
+      new_item->action += MENU_ID_CUSTOM_FIRST;
+      DCHECK_LE(static_cast<int>(new_item->action), MENU_ID_CUSTOM_LAST);
+      model_->AddMenuItem(*new_item);
     }
     return;
   }
@@ -375,7 +375,7 @@ void CefMenuManager::ExecuteDefaultCommand(int command_id) {
   if (IsCustomContextMenuCommand(command_id)) {
     if (web_contents()) {
       web_contents()->ExecuteCustomContextMenuCommand(
-          command_id - MENU_ID_CUSTOM_FIRST, params_.custom_context);
+          command_id - MENU_ID_CUSTOM_FIRST, params_.link_followed);
     }
     return;
   }
@@ -465,7 +465,7 @@ bool CefMenuManager::IsCustomContextMenuCommand(int command_id) {
   // Verify that the specific command ID was passed from the renderer process.
   if (!params_.custom_items.empty()) {
     for (size_t i = 0; i < params_.custom_items.size(); ++i) {
-      if (static_cast<int>(params_.custom_items[i].action) == command_id)
+      if (static_cast<int>(params_.custom_items[i]->action) == command_id)
         return true;
     }
   }

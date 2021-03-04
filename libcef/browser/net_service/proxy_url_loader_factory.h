@@ -16,8 +16,8 @@
 #include "base/strings/string_piece.h"
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/browser/web_contents.h"
-#include "mojo/public/cpp/bindings/binding_set.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
+#include "mojo/public/cpp/bindings/receiver_set.h"
 #include "services/network/public/mojom/network_context.mojom.h"
 #include "services/network/public/mojom/url_loader_factory.mojom.h"
 
@@ -203,9 +203,9 @@ class ProxyURLLoaderFactory
   void RemoveRequest(InterceptedRequest* request);
   void MaybeDestroySelf();
 
-  mojo::BindingSet<network::mojom::URLLoaderFactory> proxy_bindings_;
-  network::mojom::URLLoaderFactoryPtr target_factory_;
-  mojo::Binding<network::mojom::TrustedURLLoaderHeaderClient>
+  mojo::ReceiverSet<network::mojom::URLLoaderFactory> proxy_receivers_;
+  mojo::Remote<network::mojom::URLLoaderFactory> target_factory_;
+  mojo::Receiver<network::mojom::TrustedURLLoaderHeaderClient>
       url_loader_header_client_receiver_{this};
 
   std::unique_ptr<InterceptedRequestHandler> request_handler_;

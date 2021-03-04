@@ -422,6 +422,8 @@ void CefBrowserInfoManager::RenderProcessHostDestroyed(
     content::RenderProcessHost* host) {
   CEF_REQUIRE_UIT();
 
+  host->RemoveObserver(this);
+
   const int render_process_id = host->GetID();
   DCHECK_GT(render_process_id, 0);
 

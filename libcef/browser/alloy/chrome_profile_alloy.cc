@@ -109,10 +109,6 @@ bool ChromeProfileAlloy::IsChild() const {
   return false;
 }
 
-bool ChromeProfileAlloy::IsLegacySupervised() const {
-  return false;
-}
-
 ExtensionSpecialStoragePolicy*
 ChromeProfileAlloy::GetExtensionSpecialStoragePolicy() {
   NOTREACHED();

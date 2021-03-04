@@ -19,6 +19,7 @@
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/web_contents.h"
 #include "mojo/public/cpp/base/big_buffer.h"
+#include "mojo/public/cpp/bindings/receiver.h"
 #include "net/http/http_status_code.h"
 #include "net/url_request/redirect_util.h"
 #include "net/url_request/url_request.h"
@@ -274,7 +275,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
   void OnURLLoaderError(uint32_t custom_reason, const std::string& description);
 
   // Call OnComplete on |target_client_|. If |wait_for_loader_error| is true
-  // then this object will wait for |proxied_loader_binding_| to have a
+  // then this object will wait for |proxied_loader_receiver_| to have a
   // connection error before destructing.
   void CallOnComplete(const network::URLLoaderCompletionStatus& status,
                       bool wait_for_loader_error);
@@ -319,12 +320,13 @@ class InterceptedRequest : public network::mojom::URLLoader,
   GURL header_client_redirect_url_;
   const net::MutableNetworkTrafficAnnotationTag traffic_annotation_;
 
-  mojo::Binding<network::mojom::URLLoader> proxied_loader_binding_;
-  network::mojom::URLLoaderClientPtr target_client_;
+  mojo::Receiver<network::mojom::URLLoader> proxied_loader_receiver_;
+  mojo::Remote<network::mojom::URLLoaderClient> target_client_;
 
-  mojo::Binding<network::mojom::URLLoaderClient> proxied_client_binding_;
-  network::mojom::URLLoaderPtr target_loader_;
-  network::mojom::URLLoaderFactoryPtr target_factory_;
+  mojo::Receiver<network::mojom::URLLoaderClient> proxied_client_receiver_{
+      this};
+  mojo::Remote<network::mojom::URLLoader> target_loader_;
+  mojo::Remote<network::mojom::URLLoaderFactory> target_factory_;
 
   bool current_request_uses_header_client_ = false;
   OnHeadersReceivedCallback on_headers_received_callback_;
@@ -387,9 +389,8 @@ InterceptedRequest::InterceptedRequest(
       options_(options),
       request_(request),
       traffic_annotation_(traffic_annotation),
-      proxied_loader_binding_(this, std::move(loader_receiver)),
+      proxied_loader_receiver_(this, std::move(loader_receiver)),
       target_client_(std::move(client)),
-      proxied_client_binding_(this),
       target_factory_(std::move(target_factory)),
       weak_factory_(this) {
   status_ = network::URLLoaderCompletionStatus(net::OK);
@@ -400,11 +401,10 @@ InterceptedRequest::InterceptedRequest(
                           &removed_headers);
 
   // If there is a client error, clean up the request.
-  target_client_.set_connection_error_handler(base::BindOnce(
+  target_client_.set_disconnect_handler(base::BindOnce(
       &InterceptedRequest::OnURLLoaderClientError, base::Unretained(this)));
-  proxied_loader_binding_.set_connection_error_with_reason_handler(
-      base::BindOnce(&InterceptedRequest::OnURLLoaderError,
-                     base::Unretained(this)));
+  proxied_loader_receiver_.set_disconnect_with_reason_handler(base::BindOnce(
+      &InterceptedRequest::OnURLLoaderError, base::Unretained(this)));
 }
 
 InterceptedRequest::~InterceptedRequest() {
@@ -418,8 +418,8 @@ InterceptedRequest::~InterceptedRequest() {
 
 void InterceptedRequest::Restart() {
   stream_loader_ = nullptr;
-  if (proxied_client_binding_.is_bound()) {
-    proxied_client_binding_.Unbind();
+  if (proxied_client_receiver_.is_bound()) {
+    proxied_client_receiver_.reset();
     target_loader_.reset();
   }
 
@@ -427,7 +427,7 @@ void InterceptedRequest::Restart() {
     ignore_result(header_client_receiver_.Unbind());
 
   current_request_uses_header_client_ =
-      !!factory_->url_loader_header_client_receiver_;
+      factory_->url_loader_header_client_receiver_.is_bound();
 
   if (request_.request_initiator &&
       network::cors::ShouldCheckCors(request_.url, request_.request_initiator,
@@ -501,8 +501,8 @@ void InterceptedRequest::OnBeforeSendHeaders(
   std::move(callback).Run(net::OK, base::nullopt);
 
   // Resume handling of client messages after continuing from an async callback.
-  if (proxied_client_binding_)
-    proxied_client_binding_.ResumeIncomingMethodCallProcessing();
+  if (proxied_client_receiver_.is_bound())
+    proxied_client_receiver_.Resume();
 }
 
 void InterceptedRequest::OnHeadersReceived(
@@ -661,7 +661,7 @@ void InterceptedRequest::FollowRedirect(
                           &removed_headers);
 
   // If |OnURLLoaderClientError| was called then we're just waiting for the
-  // connection error handler of |proxied_loader_binding_|. Don't restart the
+  // connection error handler of |proxied_loader_receiver_|. Don't restart the
   // job since that'll create another URLLoader.
   if (!target_client_)
     return;
@@ -772,32 +772,26 @@ void InterceptedRequest::InterceptResponseReceived(
 
 void InterceptedRequest::ContinueAfterIntercept() {
   if (!target_loader_ && target_factory_) {
-    network::mojom::URLLoaderClientPtr proxied_client;
-    proxied_client_binding_.Bind(mojo::MakeRequest(&proxied_client));
-
     // Even if this request does not use the header client, future redirects
     // might, so we need to set the option on the loader.
     uint32_t options = options_ | network::mojom::kURLLoadOptionUseHeaderClient;
     target_factory_->CreateLoaderAndStart(
-        mojo::MakeRequest(&target_loader_), id_.routing_id(), id_.request_id(),
-        options, request_, proxied_client.PassInterface(), traffic_annotation_);
+        target_loader_.BindNewPipeAndPassReceiver(), id_.routing_id(),
+        id_.request_id(), options, request_,
+        proxied_client_receiver_.BindNewPipeAndPassRemote(),
+        traffic_annotation_);
   }
 }
 
 void InterceptedRequest::ContinueAfterInterceptWithOverride(
     std::unique_ptr<ResourceResponse> response) {
-  network::mojom::URLLoaderClientPtr proxied_client;
-  proxied_client_binding_.Bind(mojo::MakeRequest(&proxied_client));
-
   // StreamReaderURLLoader will synthesize TrustedHeaderClient callbacks to
   // avoid having Set-Cookie headers stripped by the IPC layer.
   current_request_uses_header_client_ = true;
-  network::mojom::TrustedHeaderClientPtr header_client;
-  header_client_receiver_.Bind(mojo::MakeRequest(&header_client));
 
   stream_loader_ = new StreamReaderURLLoader(
-      id_, request_, std::move(proxied_client), std::move(header_client),
-      traffic_annotation_,
+      id_, request_, proxied_client_receiver_.BindNewPipeAndPassRemote(),
+      header_client_receiver_.BindNewPipeAndPassRemote(), traffic_annotation_,
       std::make_unique<InterceptDelegate>(std::move(response),
                                           weak_factory_.GetWeakPtr()));
   stream_loader_->Start();
@@ -820,8 +814,8 @@ void InterceptedRequest::HandleResponseOrRedirectHeaders(
       id_, request_, redirect_url_, headers.get());
 
   // Pause handling of client messages before waiting on an async callback.
-  if (proxied_client_binding_)
-    proxied_client_binding_.PauseIncomingMethodCallProcessing();
+  if (proxied_client_receiver_.is_bound())
+    proxied_client_receiver_.Pause();
 
   factory_->request_handler_->OnRequestResponse(
       id_, &request_, headers.get(), redirect_info,
@@ -872,8 +866,8 @@ void InterceptedRequest::ContinueToHandleOverrideHeaders(int error_code) {
   redirect_url_ = GURL();
 
   // Resume handling of client messages after continuing from an async callback.
-  if (proxied_client_binding_)
-    proxied_client_binding_.ResumeIncomingMethodCallProcessing();
+  if (proxied_client_receiver_.is_bound())
+    proxied_client_receiver_.Resume();
 }
 
 net::RedirectInfo InterceptedRequest::MakeRedirectResponseAndInfo(
@@ -918,8 +912,8 @@ void InterceptedRequest::ContinueToBeforeRedirect(
   redirect_url_ = GURL();
 
   // Resume handling of client messages after continuing from an async callback.
-  if (proxied_client_binding_)
-    proxied_client_binding_.ResumeIncomingMethodCallProcessing();
+  if (proxied_client_receiver_.is_bound())
+    proxied_client_receiver_.Resume();
 
   const auto original_url = request_.url;
   const auto original_method = request_.method;
@@ -1023,8 +1017,8 @@ void InterceptedRequest::ContinueToResponseStarted(int error_code) {
 
     // Resume handling of client messages after continuing from an async
     // callback.
-    if (proxied_client_binding_)
-      proxied_client_binding_.ResumeIncomingMethodCallProcessing();
+    if (proxied_client_receiver_.is_bound())
+      proxied_client_receiver_.Resume();
 
     target_client_->OnReceiveResponse(std::move(current_response_));
   }
@@ -1086,9 +1080,9 @@ void InterceptedRequest::CallOnComplete(
   if (target_client_)
     target_client_->OnComplete(status);
 
-  if (proxied_loader_binding_ &&
+  if (proxied_loader_receiver_.is_bound() &&
       (wait_for_loader_error && !got_loader_error_)) {
-    // Don't delete |this| yet, in case the |proxied_loader_binding_|'s
+    // Don't delete |this| yet, in case the |proxied_loader_receiver_|'s
     // error_handler is called with a reason to indicate an error which we want
     // to send to the client bridge. Also reset |target_client_| so we don't
     // get its error_handler called and then delete |this|.
@@ -1096,7 +1090,7 @@ void InterceptedRequest::CallOnComplete(
 
     // Since the original client is gone no need to continue loading the
     // request.
-    proxied_client_binding_.Close();
+    proxied_client_receiver_.reset();
     header_client_receiver_.reset();
     target_loader_.reset();
 
@@ -1198,11 +1192,11 @@ ProxyURLLoaderFactory::ProxyURLLoaderFactory(
   // Actual creation of the factory.
   if (target_factory_info) {
     target_factory_.Bind(std::move(target_factory_info));
-    target_factory_.set_connection_error_handler(base::BindOnce(
+    target_factory_.set_disconnect_handler(base::BindOnce(
         &ProxyURLLoaderFactory::OnTargetFactoryError, base::Unretained(this)));
   }
-  proxy_bindings_.AddBinding(this, std::move(factory_receiver));
-  proxy_bindings_.set_connection_error_handler(base::BindRepeating(
+  proxy_receivers_.Add(this, std::move(factory_receiver));
+  proxy_receivers_.set_disconnect_handler(base::BindRepeating(
       &ProxyURLLoaderFactory::OnProxyBindingError, base::Unretained(this)));
 
   if (header_client_receiver)
@@ -1330,7 +1324,7 @@ void ProxyURLLoaderFactory::CreateLoaderAndStart(
 void ProxyURLLoaderFactory::Clone(
     mojo::PendingReceiver<network::mojom::URLLoaderFactory> factory) {
   CEF_REQUIRE_IOT();
-  proxy_bindings_.AddBinding(this, std::move(factory));
+  proxy_receivers_.Add(this, std::move(factory));
 }
 
 void ProxyURLLoaderFactory::OnLoaderCreated(
@@ -1352,13 +1346,13 @@ void ProxyURLLoaderFactory::OnLoaderForCorsPreflightCreated(
 void ProxyURLLoaderFactory::OnTargetFactoryError() {
   // Stop calls to CreateLoaderAndStart() when |target_factory_| is invalid.
   target_factory_.reset();
-  proxy_bindings_.CloseAllBindings();
+  proxy_receivers_.Clear();
 
   MaybeDestroySelf();
 }
 
 void ProxyURLLoaderFactory::OnProxyBindingError() {
-  if (proxy_bindings_.empty())
+  if (proxy_receivers_.empty())
     target_factory_.reset();
 
   MaybeDestroySelf();

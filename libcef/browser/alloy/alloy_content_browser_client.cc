@@ -51,7 +51,6 @@
 #include "base/threading/thread_restrictions.h"
 #include "cef/grit/cef_resources.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/chrome_content_browser_client.h"
 #include "chrome/browser/content_settings/cookie_settings_factory.h"
 #include "chrome/browser/net/profile_network_context_service.h"
 #include "chrome/browser/net/profile_network_context_service_factory.h"
@@ -74,6 +73,8 @@
 #include "chrome/grit/generated_resources.h"
 #include "chrome/services/printing/printing_service.h"
 #include "components/content_settings/core/browser/cookie_settings.h"
+#include "components/embedder_support/switches.h"
+#include "components/embedder_support/user_agent_utils.h"
 #include "components/spellcheck/common/spellcheck.mojom.h"
 #include "components/version_info/version_info.h"
 #include "content/browser/plugin_service_impl.h"
@@ -696,7 +697,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
       switches::kLogSeverity,
       switches::kProductVersion,
       switches::kResourcesDirPath,
-      switches::kUserAgent,
+      embedder_support::kUserAgent,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
                                    base::size(kSwitchNames));
@@ -950,8 +951,10 @@ bool AlloyContentBrowserClient::CanCreateWindow(
 }
 
 void AlloyContentBrowserClient::OverrideWebkitPrefs(
-    content::RenderViewHost* rvh,
+    content::WebContents* web_contents,
     blink::web_pref::WebPreferences* prefs) {
+  auto rvh = web_contents->GetRenderViewHost();
+
   // Using RVH instead of RFH here because rvh->GetMainFrame() may be nullptr
   // when this method is called.
   renderer_prefs::PopulateWebPreferences(rvh, *prefs);
@@ -1009,7 +1012,7 @@ AlloyContentBrowserClient::CreateURLLoaderThrottles(
 
   // Used to substitute View ID for PDF contents when using the PDF plugin.
   result.push_back(std::make_unique<PluginResponseInterceptorURLLoaderThrottle>(
-      request.resource_type, frame_tree_node_id));
+      request.destination, frame_tree_node_id));
 
   Profile* profile = Profile::FromBrowserContext(browser_context);
 
@@ -1034,13 +1037,6 @@ void AlloyContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
   }
 }
 #endif  // defined(OS_LINUX)
-
-#if defined(OS_WIN)
-bool AlloyContentBrowserClient::PreSpawnRenderer(sandbox::TargetPolicy* policy,
-                                                 RendererSpawnFlags flags) {
-  return true;
-}
-#endif  // defined(OS_WIN)
 
 void AlloyContentBrowserClient::ExposeInterfacesToRenderer(
     service_manager::BinderRegistry* registry,
@@ -1191,7 +1187,8 @@ void AlloyContentBrowserClient::ConfigureNetworkContextParams(
     bool in_memory,
     const base::FilePath& relative_partition_path,
     network::mojom::NetworkContextParams* network_context_params,
-    network::mojom::CertVerifierCreationParams* cert_verifier_creation_params) {
+    cert_verifier::mojom::CertVerifierCreationParams*
+        cert_verifier_creation_params) {
   // This method may be called during shutdown when using multi-threaded
   // message loop mode. In that case exit early to avoid crashes.
   if (!SystemNetworkContextManager::GetInstance()) {
@@ -1325,8 +1322,7 @@ AlloyContentBrowserClient::GetSandboxedStorageServiceDataDirectory() {
 }
 
 std::string AlloyContentBrowserClient::GetProduct() {
-  // Match the logic in chrome_content_browser_client.cc GetProduct().
-  return ::GetProduct();
+  return embedder_support::GetProduct();
 }
 
 std::string AlloyContentBrowserClient::GetChromeProduct() {
@@ -1334,8 +1330,7 @@ std::string AlloyContentBrowserClient::GetChromeProduct() {
 }
 
 std::string AlloyContentBrowserClient::GetUserAgent() {
-  // Match the logic in chrome_content_browser_client.cc GetUserAgent().
-  return ::GetUserAgent();
+  return embedder_support::GetUserAgent();
 }
 
 blink::UserAgentMetadata AlloyContentBrowserClient::GetUserAgentMetadata() {

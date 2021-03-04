@@ -237,12 +237,6 @@ void AlloyContentRendererClient::RenderThreadStarted() {
     pdf::PepperPDFHost::SetPrintClient(pdf_print_client_.get());
   }
 
-  for (auto& origin_or_hostname_pattern :
-       network::SecureOriginAllowlist::GetInstance().GetCurrentAllowlist()) {
-    blink::WebSecurityPolicy::AddOriginToTrustworthySafelist(
-        blink::WebString::FromUTF8(origin_or_hostname_pattern));
-  }
-
   if (extensions::ExtensionsEnabled())
     extensions_renderer_client_->RenderThreadStarted();
 }

@@ -35,6 +35,7 @@
 #include "content/public/renderer/render_view.h"
 #include "content/renderer/render_frame_impl.h"
 #include "third_party/blink/public/mojom/frame/frame.mojom-blink.h"
+#include "third_party/blink/public/platform/web_back_forward_cache_loader_helper.h"
 #include "third_party/blink/public/platform/web_data.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
@@ -98,8 +99,7 @@ void CefFrameImpl::ViewSource() {
 void CefFrameImpl::GetSource(CefRefPtr<CefStringVisitor> visitor) {
   CEF_REQUIRE_RT_RETURN_VOID();
   if (frame_) {
-    const CefString& content =
-        std::string(blink::WebFrameContentDumper::DumpAsMarkup(frame_).Utf8());
+    const CefString& content = blink_glue::DumpDocumentMarkup(frame_);
     visitor->Visit(content);
   }
 }
@@ -309,7 +309,7 @@ std::unique_ptr<blink::WebURLLoader> CefFrameImpl::CreateURLLoader() {
       blink::WebURLRequest(),
       blink_glue::CreateResourceLoadingTaskRunnerHandle(frame_),
       blink_glue::CreateResourceLoadingMaybeUnfreezableTaskRunnerHandle(frame_),
-      std::move(keep_alive_handle));
+      std::move(keep_alive_handle), blink::WebBackForwardCacheLoaderHelper());
 }
 
 std::unique_ptr<blink::ResourceLoadInfoNotifierWrapper>
@@ -490,7 +490,7 @@ void CefFrameImpl::OnRequest(const Cef_Request_Params& params) {
     DCHECK(!command.empty());
 
     if (base::LowerCaseEqualsASCII(command, "getsource")) {
-      response = blink::WebFrameContentDumper::DumpAsMarkup(frame_).Utf8();
+      response = blink_glue::DumpDocumentMarkup(frame_);
       success = true;
     } else if (base::LowerCaseEqualsASCII(command, "gettext")) {
       response = blink_glue::DumpDocumentText(frame_);

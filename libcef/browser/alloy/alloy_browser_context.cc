@@ -298,6 +298,7 @@ AlloyBrowserContext::GetClientHintsControllerDelegate() {
 }
 
 void AlloyBrowserContext::SetCorsOriginAccessListForOrigin(
+    TargetBrowserContexts target_mode,
     const url::Origin& source_origin,
     std::vector<network::mojom::CorsOriginPatternPtr> allow_patterns,
     std::vector<network::mojom::CorsOriginPatternPtr> block_patterns,
@@ -435,6 +436,11 @@ const policy::ProfilePolicyConnector*
 AlloyBrowserContext::GetProfilePolicyConnector() const {
   NOTREACHED();
   return nullptr;
+}
+
+bool AlloyBrowserContext::IsNewProfile() const {
+  NOTREACHED();
+  return false;
 }
 
 void AlloyBrowserContext::RebuildTable(

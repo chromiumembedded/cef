@@ -182,7 +182,7 @@ void SetExtensionPrefs(content::RenderViewHost* rvh,
   // correct scheme. Without this check, chrome-guest:// schemes used by webview
   // tags as well as hosts that happen to match the id of an installed extension
   // would get the wrong preferences.
-  const GURL& site_url = rvh->GetSiteInstance()->GetSiteURL();
+  const GURL& site_url = rvh->GetMainFrame()->GetSiteInstance()->GetSiteURL();
   if (!site_url.SchemeIs(extensions::kExtensionScheme))
     return;
 
@@ -416,8 +416,8 @@ void PopulateWebPreferences(content::RenderViewHost* rvh,
       break;
   }
 
-  UpdatePreferredColorScheme(&web, rvh->GetSiteInstance()->GetSiteURL(),
-                             native_theme);
+  UpdatePreferredColorScheme(
+      &web, rvh->GetMainFrame()->GetSiteInstance()->GetSiteURL(), native_theme);
 
   // Set preferences based on the extension.
   SetExtensionPrefs(rvh, web);

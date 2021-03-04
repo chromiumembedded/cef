@@ -41,9 +41,9 @@ void CefSyntheticGestureTargetOSR::DispatchWebMouseEventToPlatform(
                                                          latency_info);
 }
 
-content::SyntheticGestureParams::GestureSourceType
+content::mojom::GestureSourceType
 CefSyntheticGestureTargetOSR::GetDefaultSyntheticGestureSourceType() const {
-  return content::SyntheticGestureParams::MOUSE_INPUT;
+  return content::mojom::GestureSourceType::kMouseInput;
 }
 
 float CefSyntheticGestureTargetOSR::GetTouchSlopInDips() const {

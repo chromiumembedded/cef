@@ -38,7 +38,6 @@
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/browser/renderer_host/render_widget_host_input_event_router.h"
 #include "content/common/content_switches_internal.h"
-#include "content/common/input_messages.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/context_factory.h"
@@ -101,8 +100,9 @@ class CefDelegatedFrameHostClient : public content::DelegatedFrameHostClient {
     return *view_->GetBackgroundColor();
   }
 
-  void OnFrameTokenChanged(uint32_t frame_token) override {
-    view_->render_widget_host()->DidProcessFrame(frame_token);
+  void OnFrameTokenChanged(uint32_t frame_token,
+                           base::TimeTicks activation_time) override {
+    view_->render_widget_host()->DidProcessFrame(frame_token, activation_time);
   }
 
   float GetDeviceScaleFactor() const override {
@@ -207,7 +207,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
   DCHECK(render_widget_host_);
   DCHECK(!render_widget_host_->GetView());
 
-  current_device_scale_factor_ = kDefaultScaleFactor;
+  set_current_device_scale_factor(kDefaultScaleFactor);
 
   if (parent_host_view_) {
     browser_impl_ = parent_host_view_->browser_impl();
@@ -667,7 +667,7 @@ void CefRenderWidgetHostViewOSR::SetTooltipText(
 
 gfx::Size CefRenderWidgetHostViewOSR::GetCompositorViewportPixelSize() {
   return gfx::ScaleToCeiledSize(GetRequestedRendererSize(),
-                                current_device_scale_factor_);
+                                current_device_scale_factor());
 }
 
 uint32_t CefRenderWidgetHostViewOSR::GetCaptureSequenceNumber() const {
@@ -903,7 +903,8 @@ void CefRenderWidgetHostViewOSR::OnFrameComplete(
   // TODO(cef): is there something we need to track with this notification?
 }
 
-void CefRenderWidgetHostViewOSR::OnRenderFrameMetadataChangedAfterActivation() {
+void CefRenderWidgetHostViewOSR::OnRenderFrameMetadataChangedAfterActivation(
+    base::TimeTicks activation_time) {
   auto metadata =
       host_->render_frame_metadata_provider()->LastRenderFrameMetadata();
 
@@ -1393,7 +1394,7 @@ void CefRenderWidgetHostViewOSR::UpdateFrameRate() {
 
 gfx::Size CefRenderWidgetHostViewOSR::SizeInPixels() {
   return gfx::ScaleToCeiledSize(GetViewBounds().size(),
-                                current_device_scale_factor_);
+                                current_device_scale_factor());
 }
 
 #if defined(OS_MAC)
@@ -1480,18 +1481,21 @@ bool CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
   DCHECK(!hold_resize_);
 
   const float new_scale_factor = ::GetDeviceScaleFactor(browser_impl_.get());
-  if (new_scale_factor == current_device_scale_factor_)
+  if (new_scale_factor == current_device_scale_factor())
     return false;
 
-  current_device_scale_factor_ = new_scale_factor;
+  set_current_device_scale_factor(new_scale_factor);
 
   // Notify the guest hosts if any.
   for (auto guest_host_view : guest_host_views_) {
     content::RenderWidgetHostImpl* rwhi = guest_host_view->render_widget_host();
     if (!rwhi)
       continue;
-    if (rwhi->GetView())
-      rwhi->GetView()->set_current_device_scale_factor(new_scale_factor);
+    auto guest_view_osr =
+        static_cast<CefRenderWidgetHostViewOSR*>(rwhi->GetView());
+    if (guest_view_osr) {
+      guest_view_osr->set_current_device_scale_factor(new_scale_factor);
+    }
   }
 
   return true;
@@ -1524,7 +1528,7 @@ bool CefRenderWidgetHostViewOSR::SetRootLayerSize(bool force) {
   if (compositor_) {
     compositor_local_surface_id_allocator_.GenerateId();
     compositor_->SetScaleAndSize(
-        current_device_scale_factor_, SizeInPixels(),
+        current_device_scale_factor(), SizeInPixels(),
         compositor_local_surface_id_allocator_.GetCurrentLocalSurfaceId());
   }
 

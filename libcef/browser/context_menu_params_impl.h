@@ -38,7 +38,6 @@ class CefContextMenuParamsImpl
   bool IsSpellCheckEnabled() override;
   EditStateFlags GetEditStateFlags() override;
   bool IsCustomMenu() override;
-  bool IsPepperMenu() override;
 
   DISALLOW_COPY_AND_ASSIGN(CefContextMenuParamsImpl);
 };

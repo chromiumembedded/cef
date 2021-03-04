@@ -79,8 +79,7 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
   void GetCrashOptionalArguments(std::vector<std::string>* arguments) override;
 
 #if defined(OS_WIN)
-  base::string16 GetCrashExternalHandler(
-      const base::string16& exe_dir) override;
+  std::wstring GetCrashExternalHandler(const std::wstring& exe_dir) override;
   bool HasCrashExternalHandler() const;
 #endif
 

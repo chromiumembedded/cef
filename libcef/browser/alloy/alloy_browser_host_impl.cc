@@ -1251,6 +1251,11 @@ void AlloyBrowserHostImpl::CloseContents(content::WebContents* source) {
       // destroyed.
       CefRefPtr<AlloyBrowserHostImpl> browser(this);
 
+      if (source) {
+        // Try to fast shutdown the associated process.
+        source->GetMainFrame()->GetProcess()->FastShutdownIfPossible(1, false);
+      }
+
       // No window exists. Destroy the browser immediately. Don't call other
       // browser methods after calling DestroyBrowser().
       DestroyBrowser();
@@ -1549,11 +1554,13 @@ void AlloyBrowserHostImpl::ExitPictureInPicture() {
 // content::WebContentsObserver methods.
 // -----------------------------------------------------------------------------
 
-void AlloyBrowserHostImpl::RenderViewCreated(
-    content::RenderViewHost* render_view_host) {
-  new CefWidgetHostInterceptor(this, render_view_host);
-
-  platform_delegate_->RenderViewCreated(render_view_host);
+void AlloyBrowserHostImpl::RenderFrameCreated(
+    content::RenderFrameHost* render_frame_host) {
+  if (render_frame_host->GetParent() == nullptr) {
+    auto render_view_host = render_frame_host->GetRenderViewHost();
+    new CefWidgetHostInterceptor(this, render_view_host);
+    platform_delegate_->RenderViewCreated(render_view_host);
+  }
 }
 
 void AlloyBrowserHostImpl::RenderViewReady() {
@@ -1672,8 +1679,8 @@ AlloyBrowserHostImpl::AlloyBrowserHostImpl(
   // Associate the platform delegate with this browser.
   platform_delegate_->BrowserCreated(this);
 
-  // Make sure RenderViewCreated is called at least one time.
-  RenderViewCreated(web_contents->GetRenderViewHost());
+  // Make sure RenderFrameCreated is called at least one time.
+  RenderFrameCreated(web_contents->GetMainFrame());
 }
 
 bool AlloyBrowserHostImpl::CreateHostWindow() {

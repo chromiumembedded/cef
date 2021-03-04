@@ -1,5 +1,5 @@
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index 0ccb74571b85..b4785ae3e875 100644
+index 33681db05353..646e875a6235 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -20,6 +20,7 @@
@@ -10,7 +10,7 @@ index 0ccb74571b85..b4785ae3e875 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -682,7 +683,19 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -683,7 +684,19 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
  
    // Configure on-disk storage for non-OTR profiles. OTR profiles just use
    // default behavior (in memory storage, default sizes).
@@ -31,7 +31,7 @@ index 0ccb74571b85..b4785ae3e875 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -695,7 +708,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -696,7 +709,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
          base_cache_path.Append(chrome::kCacheDirname);
      network_context_params->http_cache_max_size =
          local_state->GetInteger(prefs::kDiskCacheSize);
@@ -42,10 +42,10 @@ index 0ccb74571b85..b4785ae3e875 100644
      // change.
      network_context_params->http_server_properties_path =
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index 9d5391e0c853..ebc6a10466fb 100644
+index e8e5c326c794..9ed417d9d20d 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
-@@ -471,6 +471,25 @@ void CookieMonster::SetCookieableSchemes(
+@@ -475,6 +475,25 @@ void CookieMonster::SetCookieableSchemes(
    MaybeRunCookieCallback(std::move(callback), true);
  }
  
@@ -72,7 +72,7 @@ index 9d5391e0c853..ebc6a10466fb 100644
  void CookieMonster::SetPersistSessionCookies(bool persist_session_cookies) {
    DCHECK(thread_checker_.CalledOnValidThread());
 diff --git net/cookies/cookie_monster.h net/cookies/cookie_monster.h
-index 990869da1c30..22c047b1ea25 100644
+index 426507596516..2ae97326e653 100644
 --- net/cookies/cookie_monster.h
 +++ net/cookies/cookie_monster.h
 @@ -184,6 +184,8 @@ class NET_EXPORT CookieMonster : public CookieStore {
@@ -123,10 +123,10 @@ index f91ffe61dba5..f3482e68cd11 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index a75980730046..a0c104d88545 100644
+index cbef8450741b..c0177e62cdc4 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2014,16 +2014,27 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -1987,16 +1987,27 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
          network_service_->network_quality_estimator());
    }
  
@@ -157,10 +157,10 @@ index a75980730046..a0c104d88545 100644
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
  
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 294b04445bd3..f1f81e44986f 100644
+index 5aca8515f5ce..bbbb982ae52e 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -288,6 +288,9 @@ struct NetworkContextParams {
+@@ -251,6 +251,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  

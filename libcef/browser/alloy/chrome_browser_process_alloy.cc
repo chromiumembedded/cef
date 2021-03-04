@@ -128,11 +128,6 @@ metrics::MetricsService* ChromeBrowserProcessAlloy::metrics_service() {
   return nullptr;
 }
 
-rappor::RapporServiceImpl* ChromeBrowserProcessAlloy::rappor_service() {
-  // Called from PluginInfoHostImpl::ReportMetrics.
-  return nullptr;
-}
-
 SystemNetworkContextManager*
 ChromeBrowserProcessAlloy::system_network_context_manager() {
   DCHECK(SystemNetworkContextManager::GetInstance());

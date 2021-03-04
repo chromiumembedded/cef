@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index ef08004ce68e..8176517e8318 100644
+index 9f6dfb1d1c00..b48c1d45aa11 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -2,6 +2,7 @@
@@ -30,7 +30,7 @@ index ef08004ce68e..8176517e8318 100644
    }
    if (has_msg)
 diff --git base/task/current_thread.cc base/task/current_thread.cc
-index 068c4f837dab..50d1e4a0b770 100644
+index bc572011b138..ccb208620402 100644
 --- base/task/current_thread.cc
 +++ base/task/current_thread.cc
 @@ -47,6 +47,8 @@ void CurrentThread::AddDestructionObserver(
@@ -43,10 +43,10 @@ index 068c4f837dab..50d1e4a0b770 100644
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/task/current_thread.h base/task/current_thread.h
-index 52c2dbec3cac..9c8d475f50ad 100644
+index 3f64b403c7eb..1130936a5f1f 100644
 --- base/task/current_thread.h
 +++ base/task/current_thread.h
-@@ -122,6 +122,12 @@ class BASE_EXPORT CurrentThread {
+@@ -127,6 +127,12 @@ class BASE_EXPORT CurrentThread {
    // posted tasks.
    void SetAddQueueTimeToTasks(bool enable);
  
@@ -59,7 +59,7 @@ index 52c2dbec3cac..9c8d475f50ad 100644
    // Enables nested task processing in scope of an upcoming native message loop.
    // Some unwanted message loops may occur when using common controls or printer
    // functions. Hence, nested task processing is disabled by default to avoid
-@@ -187,6 +193,13 @@ class BASE_EXPORT CurrentThread {
+@@ -192,6 +198,13 @@ class BASE_EXPORT CurrentThread {
    friend class web::WebTaskEnvironment;
  
    sequence_manager::internal::SequenceManagerImpl* current_;

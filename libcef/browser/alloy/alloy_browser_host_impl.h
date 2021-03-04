@@ -306,7 +306,7 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
 
   // content::WebContentsObserver methods.
   using content::WebContentsObserver::BeforeUnloadFired;
-  void RenderViewCreated(content::RenderViewHost* render_view_host) override;
+  void RenderFrameCreated(content::RenderFrameHost* render_frame_host) override;
   void RenderViewReady() override;
   void DidFinishNavigation(
       content::NavigationHandle* navigation_handle) override;

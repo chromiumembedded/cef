@@ -492,6 +492,9 @@ def GetConfigArgsSandbox(platform, args, is_debug, cpu):
     # build with MSVC libc++.
     add_args['enable_base_tracing'] = False
 
+    # Don't enable -Wmax-tokens in combination with MSVC libc++.
+    add_args['enable_wmax_tokens'] = False
+
   result = MergeDicts(args, add_args, {
       'is_debug': is_debug,
       'target_cpu': cpu,

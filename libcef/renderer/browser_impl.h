@@ -19,19 +19,23 @@
 #include "libcef/common/tracker.h"
 #include "libcef/renderer/frame_impl.h"
 
-#include "content/public/renderer/render_view_observer.h"
+#include "third_party/blink/public/web/web_view_observer.h"
 
 namespace blink {
 class WebFrame;
 class WebNode;
 }  // namespace blink
 
+namespace content {
+class RenderView;
+}
+
 // Renderer plumbing for CEF features. There is a one-to-one relationship
 // between RenderView on the renderer side and RenderViewHost on the browser
 // side.
 //
 // RenderViewObserver: Interface for observing RenderView notifications.
-class CefBrowserImpl : public CefBrowser, public content::RenderViewObserver {
+class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
  public:
   // Returns the browser associated with the specified RenderView.
   static CefRefPtr<CefBrowserImpl> GetBrowserForView(content::RenderView* view);
@@ -78,7 +82,7 @@ class CefBrowserImpl : public CefBrowser, public content::RenderViewObserver {
   bool is_popup() const { return is_popup_; }
   bool is_windowless() const { return is_windowless_; }
 
-  // RenderViewObserver methods.
+  // blink::WebViewObserver methods.
   void OnDestruct() override;
   void FrameDetached(int64_t frame_id);
 

@@ -480,8 +480,8 @@ std::ostream& operator<<(std::ostream& out, const RequestId& request_id) {
 StreamReaderURLLoader::StreamReaderURLLoader(
     const RequestId& request_id,
     const network::ResourceRequest& request,
-    network::mojom::URLLoaderClientPtr client,
-    network::mojom::TrustedHeaderClientPtr header_client,
+    mojo::PendingRemote<network::mojom::URLLoaderClient> client,
+    mojo::PendingRemote<network::mojom::TrustedHeaderClient> header_client,
     const net::MutableNetworkTrafficAnnotationTag& traffic_annotation,
     std::unique_ptr<Delegate> response_delegate)
     : request_id_(request_id),
@@ -496,7 +496,7 @@ StreamReaderURLLoader::StreamReaderURLLoader(
       weak_factory_(this) {
   DCHECK(response_delegate_);
   // If there is a client error, clean up the request.
-  client_.set_connection_error_handler(
+  client_.set_disconnect_handler(
       base::BindOnce(&StreamReaderURLLoader::RequestComplete,
                      weak_factory_.GetWeakPtr(), net::ERR_ABORTED));
 
@@ -734,8 +734,8 @@ void StreamReaderURLLoader::SendBody() {
   DCHECK(thread_checker_.CalledOnValidThread());
 
   mojo::ScopedDataPipeConsumerHandle consumer_handle;
-  if (CreateDataPipe(nullptr /*options*/, &producer_handle_,
-                     &consumer_handle) != MOJO_RESULT_OK) {
+  if (CreateDataPipe(nullptr /*options*/, producer_handle_, consumer_handle) !=
+      MOJO_RESULT_OK) {
     RequestComplete(net::ERR_FAILED);
     return;
   }

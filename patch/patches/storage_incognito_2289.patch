@@ -13,10 +13,10 @@ index 676c2cc22bac..e6f9642e1cba 100644
            {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
             base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index de8ee48c4c74..62105a814870 100644
+index 8b053971dea9..170f5c1b3863 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
-@@ -246,7 +246,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
+@@ -235,7 +235,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
        GetStoragePartitionMap(browser_context);
  
    auto config_to_use = storage_partition_config;
@@ -25,7 +25,7 @@ index de8ee48c4c74..62105a814870 100644
      config_to_use = storage_partition_config.CopyWithInMemorySet();
  
    return partition_map->Get(config_to_use, can_create);
-@@ -556,7 +556,7 @@ media::VideoDecodePerfHistory* BrowserContext::GetVideoDecodePerfHistory() {
+@@ -540,7 +540,7 @@ media::VideoDecodePerfHistory* BrowserContext::GetVideoDecodePerfHistory() {
          kUseInMemoryDBDefault);
  
      std::unique_ptr<media::VideoDecodeStatsDB> stats_db;
@@ -35,15 +35,15 @@ index de8ee48c4c74..62105a814870 100644
            std::make_unique<media::InMemoryVideoDecodeStatsDBImpl>(nullptr);
      } else {
 diff --git storage/browser/database/database_tracker.cc storage/browser/database/database_tracker.cc
-index fdf4b2466077..938df52d348e 100644
+index cb40db947624..807a7c24bc6d 100644
 --- storage/browser/database/database_tracker.cc
 +++ storage/browser/database/database_tracker.cc
-@@ -508,7 +508,7 @@ bool DatabaseTracker::LazyInit() {
+@@ -495,7 +495,7 @@ bool DatabaseTracker::LazyInit() {
+     databases_table_.reset(new DatabasesTable(db_.get()));
      meta_table_.reset(new sql::MetaTable());
  
-     is_initialized_ =
--        base::CreateDirectory(db_dir_) &&
-+        (is_off_the_record_ ? true : base::CreateDirectory(db_dir_)) &&
-         (db_->is_open() ||
-          (is_off_the_record_ ? db_->OpenInMemory()
-                              : db_->Open(kTrackerDatabaseFullPath))) &&
+-    is_initialized_ = base::CreateDirectory(db_dir_) &&
++    is_initialized_ = (is_incognito_ ? true : base::CreateDirectory(db_dir_)) &&
+                       (db_->is_open() ||
+                        (is_incognito_ ? db_->OpenInMemory()
+                                       : db_->Open(kTrackerDatabaseFullPath))) &&

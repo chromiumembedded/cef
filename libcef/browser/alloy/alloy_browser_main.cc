@@ -52,7 +52,6 @@
 #include "chrome/browser/chrome_browser_main_win.h"
 #include "chrome/browser/win/parental_controls.h"
 #include "components/os_crypt/os_crypt.h"
-#include "ui/base/cursor/cursor_loader_win.h"
 #endif
 #endif  // defined(USE_AURA)
 
@@ -97,11 +96,6 @@ void AlloyBrowserMainParts::ToolkitInitialized() {
   CHECK(aura::Env::GetInstance());
 
   wm_state_.reset(new wm::WMState);
-
-#if defined(OS_WIN)
-  ui::CursorLoaderWin::SetCursorResourceModule(
-      CefAppManager::Get()->GetResourceDllName());
-#endif
 #endif  // defined(USE_AURA)
 
 #if defined(TOOLKIT_VIEWS)

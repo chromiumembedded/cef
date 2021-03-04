@@ -20,7 +20,7 @@ CefExtensionHostDelegate::~CefExtensionHostDelegate() {}
 void CefExtensionHostDelegate::OnExtensionHostCreated(
     content::WebContents* web_contents) {}
 
-void CefExtensionHostDelegate::OnRenderViewCreatedForBackgroundPage(
+void CefExtensionHostDelegate::OnMainFrameCreatedForBackgroundPage(
     ExtensionHost* host) {}
 
 content::JavaScriptDialogManager*

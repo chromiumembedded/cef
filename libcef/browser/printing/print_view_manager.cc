@@ -22,12 +22,10 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/printing/print_preview_dialog_controller.h"
-#include "chrome/browser/printing/print_preview_message_handler.h"
 #include "chrome/browser/printing/printer_query.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/webui/print_preview/print_preview_ui.h"
 #include "components/printing/common/print.mojom.h"
-#include "components/printing/common/print_messages.h"
 #include "content/browser/download/download_manager_impl.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_task_traits.h"
@@ -178,9 +176,7 @@ struct CefPrintViewManager::PdfPrintState {
 };
 
 CefPrintViewManager::CefPrintViewManager(content::WebContents* web_contents)
-    : PrintViewManager(web_contents) {
-  PrintPreviewMessageHandler::CreateForWebContents(web_contents);
-}
+    : PrintViewManager(web_contents) {}
 
 CefPrintViewManager::~CefPrintViewManager() {
   TerminatePdfPrintJob();
@@ -209,7 +205,13 @@ bool CefPrintViewManager::PrintToPDF(content::RenderFrameHost* rfh,
   FillInDictionaryFromPdfPrintSettings(settings, ++next_pdf_request_id_,
                                        pdf_print_state_->settings_);
 
-  GetPrintRenderFrame(rfh)->InitiatePrintPreview({}, !!settings.selection_only);
+  auto& print_render_frame = GetPrintRenderFrame(rfh);
+  if (!pdf_print_receiver_.is_bound()) {
+    print_render_frame->SetPrintPreviewUI(
+        pdf_print_receiver_.BindNewEndpointAndPassRemote());
+  }
+
+  print_render_frame->InitiatePrintPreview({}, !!settings.selection_only);
 
   return true;
 }
@@ -243,6 +245,59 @@ void CefPrintViewManager::RequestPrintPreview(
       ->PrintPreview(pdf_print_state_->settings_.Clone());
 }
 
+void CefPrintViewManager::CheckForCancel(int32_t preview_ui_id,
+                                         int32_t request_id,
+                                         CheckForCancelCallback callback) {
+  if (!pdf_print_state_) {
+    return PrintViewManager::CheckForCancel(preview_ui_id, request_id,
+                                            std::move(callback));
+  }
+
+  std::move(callback).Run(/*cancel=*/false);
+}
+
+void CefPrintViewManager::MetafileReadyForPrinting(
+    mojom::DidPreviewDocumentParamsPtr params,
+    int32_t request_id) {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+  StopWorker(params->document_cookie);
+
+  if (!pdf_print_state_)
+    return;
+
+  GetPrintRenderFrame(pdf_print_state_->printing_rfh_)
+      ->OnPrintPreviewDialogClosed();
+
+  auto shared_buf = base::RefCountedSharedMemoryMapping::CreateFromWholeRegion(
+      params->content->metafile_data_region);
+  if (!shared_buf) {
+    TerminatePdfPrintJob();
+    return;
+  }
+
+  const base::FilePath output_path = pdf_print_state_->output_path_;
+  const PdfPrintCallback print_callback = pdf_print_state_->callback_;
+
+  // Reset state information.
+  pdf_print_state_.reset();
+  pdf_print_receiver_.reset();
+
+  // Save the PDF file to disk and then execute the callback.
+  CEF_POST_USER_VISIBLE_TASK(
+      base::Bind(&SavePdfFile, shared_buf, output_path, print_callback));
+}
+
+void CefPrintViewManager::PrintPreviewFailed(int32_t document_cookie,
+                                             int32_t request_id) {
+  TerminatePdfPrintJob();
+}
+
+void CefPrintViewManager::PrintPreviewCancelled(int32_t document_cookie,
+                                                int32_t request_id) {
+  // Should never be canceled by CheckForCancel().
+  NOTREACHED();
+}
+
 void CefPrintViewManager::RenderFrameDeleted(
     content::RenderFrameHost* render_frame_host) {
   if (pdf_print_state_ &&
@@ -260,25 +315,6 @@ void CefPrintViewManager::NavigationStopped() {
 void CefPrintViewManager::RenderProcessGone(base::TerminationStatus status) {
   TerminatePdfPrintJob();
   PrintViewManager::RenderProcessGone(status);
-}
-
-bool CefPrintViewManager::OnMessageReceived(
-    const IPC::Message& message,
-    content::RenderFrameHost* render_frame_host) {
-  bool handled = true;
-  if (!pdf_print_state_) {
-    return PrintViewManager::OnMessageReceived(message, render_frame_host);
-  }
-
-  IPC_BEGIN_MESSAGE_MAP_WITH_PARAM(CefPrintViewManager, message,
-                                   render_frame_host)
-    IPC_MESSAGE_HANDLER(PrintHostMsg_MetafileReadyForPrinting,
-                        OnMetafileReadyForPrinting_PrintToPdf)
-    IPC_MESSAGE_UNHANDLED(handled = false)
-  IPC_END_MESSAGE_MAP()
-
-  return handled ||
-         PrintViewManager::OnMessageReceived(message, render_frame_host);
 }
 
 // static
@@ -306,42 +342,6 @@ const CefPrintViewManager* CefPrintViewManager::FromWebContents(
       contents->GetUserData(PrintViewManager::UserDataKey()));
 }
 
-void CefPrintViewManager::OnMetafileReadyForPrinting_PrintToPdf(
-    content::RenderFrameHost* rfh,
-    const mojom::DidPreviewDocumentParams& params,
-    const mojom::PreviewIds& ids) {
-  DCHECK_CURRENTLY_ON(BrowserThread::UI);
-  StopWorker(params.document_cookie);
-
-  if (!pdf_print_state_)
-    return;
-
-  DCHECK_EQ(pdf_print_state_->printing_rfh_, rfh);
-
-  mojo::AssociatedRemote<printing::mojom::PrintRenderFrame>
-      print_render_frame_remote;
-  rfh->GetRemoteAssociatedInterfaces()->GetInterface(
-      &print_render_frame_remote);
-  print_render_frame_remote->OnPrintPreviewDialogClosed();
-
-  auto shared_buf = base::RefCountedSharedMemoryMapping::CreateFromWholeRegion(
-      params.content->metafile_data_region);
-  if (!shared_buf) {
-    TerminatePdfPrintJob();
-    return;
-  }
-
-  const base::FilePath output_path = pdf_print_state_->output_path_;
-  const PdfPrintCallback print_callback = pdf_print_state_->callback_;
-
-  // Reset state information.
-  pdf_print_state_.reset();
-
-  // Save the PDF file to disk and then execute the callback.
-  CEF_POST_USER_VISIBLE_TASK(
-      base::Bind(&SavePdfFile, shared_buf, output_path, print_callback));
-}
-
 void CefPrintViewManager::TerminatePdfPrintJob() {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   if (!pdf_print_state_)
@@ -355,6 +355,7 @@ void CefPrintViewManager::TerminatePdfPrintJob() {
 
   // Reset state information.
   pdf_print_state_.reset();
+  pdf_print_receiver_.reset();
 }
 
 }  // namespace printing

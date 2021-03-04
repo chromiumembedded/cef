@@ -1,0 +1,23 @@
+diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
+index cf596ae9aae8..7c1869000cf3 100644
+--- components/embedder_support/user_agent_utils.cc
++++ components/embedder_support/user_agent_utils.cc
+@@ -7,6 +7,7 @@
+ #include "base/command_line.h"
+ #include "base/strings/strcat.h"
+ #include "build/branding_buildflags.h"
++#include "chrome/common/chrome_switches.h"
+ #include "components/embedder_support/switches.h"
+ #include "components/version_info/version_info.h"
+ #include "content/public/browser/web_contents.h"
+@@ -20,6 +21,10 @@
+ namespace embedder_support {
+ 
+ std::string GetProduct() {
++  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
++  if (command_line->HasSwitch(switches::kProductVersion))
++    return command_line->GetSwitchValueASCII(switches::kProductVersion);
++
+   return version_info::GetProductNameAndVersionForUserAgent();
+ }
+ 

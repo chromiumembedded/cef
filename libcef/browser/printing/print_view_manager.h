@@ -26,7 +26,8 @@ struct PrintHostMsg_RequestPrintPreview_Params;
 namespace printing {
 
 // CEF handler for print commands.
-class CefPrintViewManager : public PrintViewManager {
+class CefPrintViewManager : public PrintViewManager,
+                            public mojom::PrintPreviewUI {
  public:
   ~CefPrintViewManager() override;
 
@@ -44,13 +45,35 @@ class CefPrintViewManager : public PrintViewManager {
       GetDefaultPrintSettingsCallback callback) override;
   void DidShowPrintDialog() override;
   void RequestPrintPreview(mojom::RequestPrintPreviewParamsPtr params) override;
+  void CheckForCancel(int32_t preview_ui_id,
+                      int32_t request_id,
+                      CheckForCancelCallback callback) override;
+
+  // printing::mojo::PrintPreviewUI methods:
+  void SetOptionsFromDocument(const mojom::OptionsFromDocumentParamsPtr params,
+                              int32_t request_id) override {}
+  void DidPrepareDocumentForPreview(int32_t document_cookie,
+                                    int32_t request_id) override {}
+  void DidPreviewPage(mojom::DidPreviewPageParamsPtr params,
+                      int32_t request_id) override {}
+  void MetafileReadyForPrinting(mojom::DidPreviewDocumentParamsPtr params,
+                                int32_t request_id) override;
+  void PrintPreviewFailed(int32_t document_cookie, int32_t request_id) override;
+  void PrintPreviewCancelled(int32_t document_cookie,
+                             int32_t request_id) override;
+  void PrinterSettingsInvalid(int32_t document_cookie,
+                              int32_t request_id) override {}
+  void DidGetDefaultPageLayout(mojom::PageSizeMarginsPtr page_layout_in_points,
+                               const gfx::Rect& printable_area_in_points,
+                               bool has_custom_page_size_style,
+                               int32_t request_id) override {}
+  void DidStartPreview(mojom::DidStartPreviewParamsPtr params,
+                       int32_t request_id) override {}
 
   // content::WebContentsObserver methods:
   void RenderFrameDeleted(content::RenderFrameHost* render_frame_host) override;
   void NavigationStopped() override;
   void RenderProcessGone(base::TerminationStatus status) override;
-  bool OnMessageReceived(const IPC::Message& message,
-                         content::RenderFrameHost* render_frame_host) override;
 
   // Inline versions of the content::WebContentsUserData methods to avoid
   // ambiguous warnings due to the PrintViewManager base class also extending
@@ -63,17 +86,13 @@ class CefPrintViewManager : public PrintViewManager {
  private:
   explicit CefPrintViewManager(content::WebContents* web_contents);
 
-  // IPC Message handlers.
-  void OnMetafileReadyForPrinting_PrintToPdf(
-      content::RenderFrameHost* rfh,
-      const mojom::DidPreviewDocumentParams& params,
-      const mojom::PreviewIds& ids);
   void TerminatePdfPrintJob();
 
   // Used for printing to PDF. Only accessed on the browser process UI thread.
   int next_pdf_request_id_ = content::RenderFrameHost::kNoFrameTreeNodeId;
   struct PdfPrintState;
   std::unique_ptr<PdfPrintState> pdf_print_state_;
+  mojo::AssociatedReceiver<mojom::PrintPreviewUI> pdf_print_receiver_{this};
 
   DISALLOW_COPY_AND_ASSIGN(CefPrintViewManager);
 };

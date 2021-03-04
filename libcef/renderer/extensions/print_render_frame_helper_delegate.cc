@@ -15,7 +15,7 @@
 #include "chrome/common/url_constants.h"
 #include "content/public/renderer/render_frame.h"
 #include "extensions/common/constants.h"
-#include "extensions/renderer/guest_view/mime_handler_view/mime_handler_view_container.h"
+#include "extensions/renderer/guest_view/mime_handler_view/post_message_support.h"
 #include "services/service_manager/public/cpp/interface_provider.h"
 #include "third_party/blink/public/web/web_document.h"
 #include "third_party/blink/public/web/web_element.h"

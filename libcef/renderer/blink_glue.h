@@ -42,6 +42,8 @@ BLINK_EXPORT void GoForward(blink::WebView* view);
 
 // Returns the text of the document element.
 BLINK_EXPORT std::string DumpDocumentText(blink::WebLocalFrame* frame);
+// Returns the markup of the document element.
+BLINK_EXPORT std::string DumpDocumentMarkup(blink::WebLocalFrame* frame);
 
 // Expose additional actions on WebNode.
 BLINK_EXPORT cef_dom_node_type_t GetNodeType(const blink::WebNode& node);
@@ -65,7 +67,6 @@ BLINK_EXPORT v8::Local<v8::Value> ExecuteV8ScriptAndReturnValue(
     const blink::WebString& source_url,
     int start_line,
     v8::Local<v8::Context> context,
-    v8::Isolate* isolate,
     v8::TryCatch& tryCatch);
 
 BLINK_EXPORT bool IsScriptForbidden();

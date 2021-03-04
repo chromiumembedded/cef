@@ -7,6 +7,7 @@
 #include "libcef/browser/browser_host_base.h"
 
 #include "content/common/cursors/webcursor.h"
+#include "ui/base/cursor/cursor_factory.h"
 #include "ui/base/cursor/mojom/cursor_type.mojom.h"
 
 namespace cursor_util {
@@ -34,19 +35,24 @@ bool OnCursorChange(CefBrowserHostBase* browser, const ui::Cursor& ui_cursor) {
   bool handled = false;
 
 #if defined(USE_AURA)
-  content::WebCursor web_cursor(ui_cursor);
-
   CefCursorHandle platform_cursor;
+  ui::PlatformCursor image_cursor = nullptr;
+
   if (ui_cursor.type() == ui::mojom::CursorType::kCustom) {
-    // |web_cursor| owns the resulting |platform_cursor|.
-    platform_cursor =
-        cursor_util::ToCursorHandle(web_cursor.GetPlatformCursor(ui_cursor));
+    image_cursor = ui::CursorFactory::GetInstance()->CreateImageCursor(
+        ui::mojom::CursorType::kCustom, ui_cursor.custom_bitmap(),
+        ui_cursor.custom_hotspot());
+    platform_cursor = cursor_util::ToCursorHandle(image_cursor);
   } else {
     platform_cursor = cursor_util::GetPlatformCursor(ui_cursor.type());
   }
 
   handled = handler->OnCursorChange(browser, platform_cursor, cursor_type,
                                     custom_cursor_info);
+
+  if (image_cursor) {
+    ui::CursorFactory::GetInstance()->UnrefImageCursor(image_cursor);
+  }
 #elif defined(OS_MAC)
   // |web_cursor| owns the resulting |native_cursor|.
   content::WebCursor web_cursor(ui_cursor);

@@ -305,7 +305,7 @@ bool GetDefaultUserDataDirectory(std::wstring* result,
   // This environment variable should be set on Windows Vista and later
   // (https://msdn.microsoft.com/library/windows/desktop/dd378457.aspx).
   std::wstring user_data_dir =
-      install_static::GetEnvironmentString16(L"LOCALAPPDATA");
+      install_static::GetEnvironmentString(L"LOCALAPPDATA");
 
   if (user_data_dir.empty()) {
     // LOCALAPPDATA was not set; fallback to the temporary files path.
@@ -558,11 +558,11 @@ void CefCrashReporterClient::InitializeCrashReportingForProcess() {
         !g_crash_reporter_client->HasCrashExternalHandler();
     if (embedded_handler) {
       crash_reporter::InitializeCrashpadWithEmbeddedHandler(
-          process_type.empty(), install_static::UTF16ToUTF8(process_type),
+          process_type.empty(), install_static::WideToUTF8(process_type),
           std::string(), base::FilePath());
     } else {
       crash_reporter::InitializeCrashpad(
-          process_type.empty(), install_static::UTF16ToUTF8(process_type));
+          process_type.empty(), install_static::WideToUTF8(process_type));
     }
   }
 }
@@ -571,8 +571,7 @@ bool CefCrashReporterClient::GetAlternativeCrashDumpLocation(
     base::string16* crash_dir) {
   // By setting the BREAKPAD_DUMP_LOCATION environment variable, an alternate
   // location to write breakpad crash dumps can be set.
-  *crash_dir =
-      install_static::GetEnvironmentString16(L"BREAKPAD_DUMP_LOCATION");
+  *crash_dir = install_static::GetEnvironmentString(L"BREAKPAD_DUMP_LOCATION");
   return !crash_dir->empty();
 }
 
@@ -701,14 +700,14 @@ void CefCrashReporterClient::GetCrashOptionalArguments(
 
 #if defined(OS_WIN)
 
-base::string16 CefCrashReporterClient::GetCrashExternalHandler(
-    const base::string16& exe_dir) {
+std::wstring CefCrashReporterClient::GetCrashExternalHandler(
+    const std::wstring& exe_dir) {
   if (external_handler_.empty())
     return CrashReporterClient::GetCrashExternalHandler(exe_dir);
   if (isAbsolutePath(external_handler_))
-    return base::UTF8ToUTF16(external_handler_);
+    return base::UTF8ToWide(external_handler_);
   return base::UTF8ToWide(
-      joinPath(base::UTF16ToUTF8(exe_dir), external_handler_));
+      joinPath(base::WideToUTF8(exe_dir), external_handler_));
 }
 
 bool CefCrashReporterClient::HasCrashExternalHandler() const {

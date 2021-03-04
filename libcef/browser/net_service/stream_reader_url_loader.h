@@ -160,8 +160,8 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
   StreamReaderURLLoader(
       const RequestId& request_id,
       const network::ResourceRequest& request,
-      network::mojom::URLLoaderClientPtr client,
-      network::mojom::TrustedHeaderClientPtr header_client,
+      mojo::PendingRemote<network::mojom::URLLoaderClient> client,
+      mojo::PendingRemote<network::mojom::TrustedHeaderClient> header_client,
       const net::MutableNetworkTrafficAnnotationTag& traffic_annotation,
       std::unique_ptr<Delegate> response_delegate);
   ~StreamReaderURLLoader() override;
@@ -214,8 +214,8 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
 
   net::HttpByteRange byte_range_;
   network::ResourceRequest request_;
-  network::mojom::URLLoaderClientPtr client_;
-  network::mojom::TrustedHeaderClientPtr header_client_;
+  mojo::Remote<network::mojom::URLLoaderClient> client_;
+  mojo::Remote<network::mojom::TrustedHeaderClient> header_client_;
   const net::MutableNetworkTrafficAnnotationTag traffic_annotation_;
   std::unique_ptr<Delegate> response_delegate_;
   scoped_refptr<InputStreamReader> input_stream_reader_;

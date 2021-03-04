@@ -41,10 +41,10 @@ index cc4b13a7b9c6..84f3b9ed7cf4 100644
  
  }  // namespace content
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index e23394ae63cd..3d8e02a0b189 100644
+index b8e3f8e88495..9dcc23f28781 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -2915,6 +2915,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
+@@ -2892,6 +2892,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
        GetProcess(), bad_message::INPUT_ROUTER_INVALID_EVENT_SOURCE);
  }
  
@@ -57,10 +57,10 @@ index e23394ae63cd..3d8e02a0b189 100644
      const WebInputEvent& event) {
    if ((base::FeatureList::IsEnabled(
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 3dd95dcf37cb..024cc350fe96 100644
+index dcc44adc51d8..ab20b3f355e7 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -743,6 +743,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -737,6 +737,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();

@@ -33,10 +33,10 @@
 #include "content/public/renderer/render_frame.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
-#include "content/public/renderer/render_view_observer.h"
 #include "services/network/public/mojom/cors_origin_pattern.mojom.h"
 #include "third_party/blink/public/web/web_security_policy.h"
 #include "third_party/blink/public/web/web_view.h"
+#include "third_party/blink/public/web/web_view_observer.h"
 
 namespace {
 
@@ -45,12 +45,12 @@ CefBrowserManager* g_manager = nullptr;
 }  // namespace
 
 // Placeholder object for guest views.
-class CefGuestView : public content::RenderViewObserver {
+class CefGuestView : public blink::WebViewObserver {
  public:
   CefGuestView(CefBrowserManager* manager,
                content::RenderView* render_view,
                bool is_windowless)
-      : content::RenderViewObserver(render_view),
+      : blink::WebViewObserver(render_view->GetWebView()),
         manager_(manager),
         is_windowless_(is_windowless) {}
 
@@ -138,9 +138,8 @@ CefRefPtr<CefBrowserImpl> CefBrowserManager::GetBrowserForMainFrame(
     blink::WebFrame* frame) {
   BrowserMap::const_iterator it = browsers_.begin();
   for (; it != browsers_.end(); ++it) {
-    content::RenderView* render_view = it->second->render_view();
-    if (render_view && render_view->GetWebView() &&
-        render_view->GetWebView()->MainFrame() == frame) {
+    auto web_view = it->second->GetWebView();
+    if (web_view && web_view->MainFrame() == frame) {
       return it->second;
     }
   }

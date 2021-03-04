@@ -1,0 +1,160 @@
+diff --git cpp/src/phonenumbers/encoding_utils.h cpp/src/phonenumbers/encoding_utils.h
+index d4271832..0c65d2bf 100644
+--- cpp/src/phonenumbers/encoding_utils.h
++++ cpp/src/phonenumbers/encoding_utils.h
+@@ -29,7 +29,7 @@ class EncodingUtils {
+   // the function stores 0xFFFD in the output variable and returns 1.
+   static inline int DecodeUTF8Char(const char* in, char32* out) {
+     Rune r;
+-    int len = chartorune(&r, in);
++    int len = _chartorune(&r, in);
+     *out = r;
+     return len;
+   }
+diff --git cpp/src/phonenumbers/utf/rune.c cpp/src/phonenumbers/utf/rune.c
+index b4aa93b5..6f7b0358 100644
+--- cpp/src/phonenumbers/utf/rune.c
++++ cpp/src/phonenumbers/utf/rune.c
+@@ -64,7 +64,7 @@ enum
+  * reasons, we return 1 instead of 0.
+  */
+ int
+-charntorune(Rune *rune, const char *str, int length)
++_charntorune(Rune *rune, const char *str, int length)
+ {
+ 	int c, c1, c2, c3;
+ 	long l;
+@@ -167,7 +167,7 @@ badlen:
+  * null-terminated strings.
+  */
+ int
+-chartorune(Rune *rune, const char *str)
++_chartorune(Rune *rune, const char *str)
+ {
+ 	int c, c1, c2, c3;
+ 	long l;
+@@ -247,12 +247,12 @@ bad:
+ int
+ isvalidcharntorune(const char* str, int length, Rune* rune, int* consumed)
+ {
+-	*consumed = charntorune(rune, str, length);
++	*consumed = _charntorune(rune, str, length);
+ 	return *rune != Runeerror || *consumed == 3;
+ }
+ 
+ int
+-runetochar(char *str, const Rune *rune)
++_runetochar(char *str, const Rune *rune)
+ {
+ 	/* Runes are signed, so convert to unsigned for range check. */
+ 	unsigned long c;
+@@ -311,15 +311,15 @@ runetochar(char *str, const Rune *rune)
+ }
+ 
+ int
+-runelen(Rune rune)
++_runelen(Rune rune)
+ {
+ 	char str[10];
+ 
+-	return runetochar(str, &rune);
++	return _runetochar(str, &rune);
+ }
+ 
+ int
+-runenlen(const Rune *r, int nrune)
++_runenlen(const Rune *r, int nrune)
+ {
+ 	int nb, c;
+ 
+@@ -339,7 +339,7 @@ runenlen(const Rune *r, int nrune)
+ }
+ 
+ int
+-fullrune(const char *str, int n)
++_fullrune(const char *str, int n)
+ {
+ 	if (n > 0) {
+ 		int c = *(uchar*)str;
+diff --git cpp/src/phonenumbers/utf/unicodetext.cc cpp/src/phonenumbers/utf/unicodetext.cc
+index 11f68f76..86504a31 100644
+--- cpp/src/phonenumbers/utf/unicodetext.cc
++++ cpp/src/phonenumbers/utf/unicodetext.cc
+@@ -362,7 +362,7 @@ void UnicodeText::push_back(char32 c) {
+   if (UniLib::IsValidCodepoint(c)) {
+     char buf[UTFmax];
+     Rune rune = c;
+-    int len = runetochar(buf, &rune);
++    int len = _runetochar(buf, &rune);
+     if (UniLib::IsInterchangeValid(buf, len)) {
+       repr_.append(buf, len);
+     } else {
+diff --git cpp/src/phonenumbers/utf/unilib.cc cpp/src/phonenumbers/utf/unilib.cc
+index e890f974..ce549363 100644
+--- cpp/src/phonenumbers/utf/unilib.cc
++++ cpp/src/phonenumbers/utf/unilib.cc
+@@ -50,7 +50,7 @@ int SpanInterchangeValid(const char* begin, int byte_length) {
+   const char* p = begin;
+   const char* end = begin + byte_length;
+   while (p < end) {
+-    int bytes_consumed = charntorune(&rune, p, end - p);
++    int bytes_consumed = _charntorune(&rune, p, end - p);
+     // We want to accept Runeerror == U+FFFD as a valid char, but it is used
+     // by chartorune to indicate error. Luckily, the real codepoint is size 3
+     // while errors return bytes_consumed <= 1.
+diff --git cpp/src/phonenumbers/utf/utf.h cpp/src/phonenumbers/utf/utf.h
+index 72d01ed6..35fd0ea9 100644
+--- cpp/src/phonenumbers/utf/utf.h
++++ cpp/src/phonenumbers/utf/utf.h
+@@ -46,7 +46,7 @@ extern "C" {
+ // runetochar copies (encodes) one rune, pointed to by r, to at most
+ // UTFmax bytes starting at s and returns the number of bytes generated.
+ 
+-int runetochar(char* s, const Rune* r);
++int _runetochar(char* s, const Rune* r);
+ 
+ 
+ // chartorune copies (decodes) at most UTFmax bytes starting at s to
+@@ -59,7 +59,7 @@ int runetochar(char* s, const Rune* r);
+ // Unicode value 0 (i.e., ASCII NULL). A byte value of 0 is illegal
+ // anywhere else in a UTF sequence.
+ 
+-int chartorune(Rune* r, const char* s);
++int _chartorune(Rune* r, const char* s);
+ 
+ 
+ // charntorune is like chartorune, except that it will access at most
+@@ -69,7 +69,7 @@ int chartorune(Rune* r, const char* s);
+ //
+ // Added 2004-09-24 by Wei-Hwa Huang
+ 
+-int charntorune(Rune* r, const char* s, int n);
++int _charntorune(Rune* r, const char* s, int n);
+ 
+ // isvalidcharntorune(str, n, r, consumed)
+ // is a convenience function that calls "*consumed = charntorune(r, str, n)"
+@@ -80,13 +80,13 @@ int isvalidcharntorune(const char* str, int n, Rune* r, int* consumed);
+ 
+ // runelen returns the number of bytes required to convert r into UTF.
+ 
+-int runelen(Rune r);
++int _runelen(Rune r);
+ 
+ 
+ // runenlen returns the number of bytes required to convert the n
+ // runes pointed to by r into UTF.
+ 
+-int runenlen(const Rune* r, int n);
++int _runenlen(const Rune* r, int n);
+ 
+ 
+ // fullrune returns 1 if the string s of length n is long enough to be
+@@ -95,7 +95,7 @@ int runenlen(const Rune* r, int n);
+ // by programs that obtain input one byte at a time and need to know
+ // when a full rune has arrived.
+ 
+-int fullrune(const char* s, int n);
++int _fullrune(const char* s, int n);
+ 
+ // The following routines are analogous to the corresponding string
+ // routines with "utf" substituted for "str", and "rune" substituted

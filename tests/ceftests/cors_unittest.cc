@@ -41,7 +41,9 @@ std::string GetOrigin(HandlerType handler) {
     case HandlerType::SERVER:
       return test_server::kServerOrigin;
     case HandlerType::HTTP_SCHEME:
-      return "http://corstest.com";
+      // Use HTTPS because requests from HTTP to the loopback address will be
+      // blocked by https://chromestatus.com/feature/5436853517811712.
+      return "https://corstest.com";
     case HandlerType::CUSTOM_STANDARD_SCHEME:
       // Standard scheme that is CORS and fetch enabled.
       // Registered in scheme_handler_unittest.cc.
@@ -1122,6 +1124,19 @@ void SetupExecRequest(ExecMode mode,
                                std::string());
       preflight_resource->InitPreflight(main_handler);
       setup->AddResource(preflight_resource);
+
+      if (main_handler == HandlerType::CUSTOM_NONSTANDARD_SCHEME &&
+          add_header) {
+        setup->AddConsoleMessage(
+            "The website requested a subresource from a network that it could "
+            "only access because of its users' privileged network position. "
+            "These requests expose non-public devices and servers to the "
+            "internet, increasing the risk of a cross-site request forgery "
+            "(CSRF) attack, and/or information leakage. To mitigate these "
+            "risks, Chrome deprecates requests to non-public subresources when "
+            "initiated from non-secure contexts, and will start blocking them "
+            "in Chrome 92 (July 2021)");
+      }
     } else {
       // The server will not handle the preflight request. Expect the
       // cross-origin XHR to be blocked.

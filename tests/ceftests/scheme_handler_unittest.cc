@@ -2581,15 +2581,20 @@ TEST(SchemeHandlerTest, AcceptLanguage) {
 void RegisterSchemeHandlerCustomSchemes(
     CefRawPtr<CefSchemeRegistrar> registrar,
     std::vector<CefString>& cookiable_schemes) {
+  // Registering the custom standard schemes as secure because requests from
+  // non-secure origins to the loopback address will be blocked by
+  // https://chromestatus.com/feature/5436853517811712.
+
   // Add a custom standard scheme.
-  registrar->AddCustomScheme(
-      "customstd", CEF_SCHEME_OPTION_STANDARD | CEF_SCHEME_OPTION_CORS_ENABLED);
+  registrar->AddCustomScheme("customstd", CEF_SCHEME_OPTION_STANDARD |
+                                              CEF_SCHEME_OPTION_SECURE |
+                                              CEF_SCHEME_OPTION_CORS_ENABLED);
   cookiable_schemes.push_back("customstd");
   // Also used in cors_unittest.cc.
-  registrar->AddCustomScheme("customstdfetch",
-                             CEF_SCHEME_OPTION_STANDARD |
-                                 CEF_SCHEME_OPTION_CORS_ENABLED |
-                                 CEF_SCHEME_OPTION_FETCH_ENABLED);
+  registrar->AddCustomScheme(
+      "customstdfetch", CEF_SCHEME_OPTION_STANDARD | CEF_SCHEME_OPTION_SECURE |
+                            CEF_SCHEME_OPTION_CORS_ENABLED |
+                            CEF_SCHEME_OPTION_FETCH_ENABLED);
   cookiable_schemes.push_back("customstdfetch");
   // Add a custom non-standard scheme.
   registrar->AddCustomScheme("customnonstd", CEF_SCHEME_OPTION_NONE);

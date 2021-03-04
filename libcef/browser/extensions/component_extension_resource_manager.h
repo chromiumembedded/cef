@@ -11,7 +11,9 @@
 #include "base/macros.h"
 #include "extensions/browser/component_extension_resource_manager.h"
 
-struct GritResourceMap;
+namespace webui {
+struct ResourcePath;
+}
 
 namespace extensions {
 
@@ -29,7 +31,8 @@ class CefComponentExtensionResourceManager
       const std::string& extension_id) const override;
 
  private:
-  void AddComponentResourceEntries(const GritResourceMap* entries, size_t size);
+  void AddComponentResourceEntries(const webui::ResourcePath* entries,
+                                   size_t size);
 
   // A map from a resource path to the resource ID.  Used by
   // IsComponentExtensionResource.

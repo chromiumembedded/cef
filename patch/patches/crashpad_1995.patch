@@ -209,10 +209,10 @@ index 9ea80370a842..3043f7d32f33 100644
  extern void InitCrashKeysForTesting();
  
 diff --git components/crash/core/app/crash_reporter_client.cc components/crash/core/app/crash_reporter_client.cc
-index 1d0fb4f2a633..8226a3d792be 100644
+index 89b4bfccd5d3..7cb0a85470d2 100644
 --- components/crash/core/app/crash_reporter_client.cc
 +++ components/crash/core/app/crash_reporter_client.cc
-@@ -88,7 +88,7 @@ int CrashReporterClient::GetResultCodeRespawnFailed() {
+@@ -87,7 +87,7 @@ int CrashReporterClient::GetResultCodeRespawnFailed() {
  }
  #endif
  
@@ -221,7 +221,7 @@ index 1d0fb4f2a633..8226a3d792be 100644
  void CrashReporterClient::GetProductNameAndVersion(const char** product_name,
                                                     const char** version) {
  }
-@@ -97,6 +97,7 @@ void CrashReporterClient::GetProductNameAndVersion(std::string* product_name,
+@@ -96,6 +96,7 @@ void CrashReporterClient::GetProductNameAndVersion(std::string* product_name,
                                                     std::string* version,
                                                     std::string* channel) {}
  
@@ -229,15 +229,15 @@ index 1d0fb4f2a633..8226a3d792be 100644
  base::FilePath CrashReporterClient::GetReporterLogFilename() {
    return base::FilePath();
  }
-@@ -106,6 +107,7 @@ bool CrashReporterClient::HandleCrashDump(const char* crashdump_filename,
+@@ -105,6 +106,7 @@ bool CrashReporterClient::HandleCrashDump(const char* crashdump_filename,
    return false;
  }
  #endif
 +#endif
  
  #if defined(OS_WIN)
- bool CrashReporterClient::GetCrashDumpLocation(base::string16* crash_dir) {
-@@ -140,6 +142,28 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
+ bool CrashReporterClient::GetCrashDumpLocation(std::wstring* crash_dir) {
+@@ -139,6 +141,28 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
    return false;
  }
  
@@ -251,8 +251,8 @@ index 1d0fb4f2a633..8226a3d792be 100644
 +}
 +
 +#if defined(OS_WIN)
-+base::string16 CrashReporterClient::GetCrashExternalHandler(
-+    const base::string16& exe_dir) {
++std::wstring CrashReporterClient::GetCrashExternalHandler(
++    const std::wstring& exe_dir) {
 +  return exe_dir + L"\\crashpad_handler.exe";
 +}
 +#endif
@@ -266,7 +266,7 @@ index 1d0fb4f2a633..8226a3d792be 100644
  #if defined(OS_ANDROID)
  unsigned int CrashReporterClient::GetCrashDumpPercentage() {
    return 100;
-@@ -202,9 +226,11 @@ bool CrashReporterClient::ShouldMonitorCrashHandlerExpensively() {
+@@ -201,9 +225,11 @@ bool CrashReporterClient::ShouldMonitorCrashHandlerExpensively() {
    return false;
  }
  
@@ -282,7 +282,7 @@ index 1d0fb4f2a633..8226a3d792be 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crash_reporter_client.h components/crash/core/app/crash_reporter_client.h
-index aaa9ad1d58d7..14b98b2e6598 100644
+index 39557cce4744..236806090021 100644
 --- components/crash/core/app/crash_reporter_client.h
 +++ components/crash/core/app/crash_reporter_client.h
 @@ -5,7 +5,9 @@
@@ -293,9 +293,9 @@ index aaa9ad1d58d7..14b98b2e6598 100644
  #include <string>
 +#include <vector>
  
- #include "base/strings/string16.h"
  #include "build/build_config.h"
-@@ -88,7 +90,7 @@ class CrashReporterClient {
+ 
+@@ -87,7 +89,7 @@ class CrashReporterClient {
    virtual int GetResultCodeRespawnFailed();
  #endif
  
@@ -304,7 +304,7 @@ index aaa9ad1d58d7..14b98b2e6598 100644
    // Returns a textual description of the product type and version to include
    // in the crash report. Neither out parameter should be set to NULL.
    // TODO(jperaza): Remove the 2-parameter overload of this method once all
-@@ -99,6 +101,7 @@ class CrashReporterClient {
+@@ -98,6 +100,7 @@ class CrashReporterClient {
                                          std::string* version,
                                          std::string* channel);
  
@@ -312,7 +312,7 @@ index aaa9ad1d58d7..14b98b2e6598 100644
    virtual base::FilePath GetReporterLogFilename();
  
    // Custom crash minidump handler after the minidump is generated.
-@@ -108,6 +111,7 @@ class CrashReporterClient {
+@@ -107,6 +110,7 @@ class CrashReporterClient {
    // libc nor allocate memory normally.
    virtual bool HandleCrashDump(const char* crashdump_filename,
                                 uint64_t crash_pid);
@@ -320,7 +320,7 @@ index aaa9ad1d58d7..14b98b2e6598 100644
  #endif
  
    // The location where minidump files should be written. Returns true if
-@@ -205,6 +209,27 @@ class CrashReporterClient {
+@@ -204,6 +208,27 @@ class CrashReporterClient {
  
    // Returns true if breakpad should run in the given process type.
    virtual bool EnableBreakpadForProcess(const std::string& process_type);
@@ -330,7 +330,7 @@ index aaa9ad1d58d7..14b98b2e6598 100644
 +
 +#if defined(OS_WIN)
 +  // Returns the absolute path to the external crash handler exe.
-+  virtual base::string16 GetCrashExternalHandler(const base::string16& exe_dir);
++  virtual std::wstring GetCrashExternalHandler(const std::wstring& exe_dir);
 +#endif
 +
 +#if defined(OS_MAC)
@@ -349,7 +349,7 @@ index aaa9ad1d58d7..14b98b2e6598 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crashpad.cc components/crash/core/app/crashpad.cc
-index 64ca38330be7..4de20a66cd99 100644
+index 5117ded1e214..0d86e0363315 100644
 --- components/crash/core/app/crashpad.cc
 +++ components/crash/core/app/crashpad.cc
 @@ -152,7 +152,8 @@ void InitializeCrashpadImpl(bool initial_client,
@@ -463,23 +463,23 @@ index eb675321436a..4e74af742ed5 100644
            handler_path, database_path, metrics_path, url,
            GetProcessSimpleAnnotations(), arguments, true, false);
 diff --git components/crash/core/app/crashpad_win.cc components/crash/core/app/crashpad_win.cc
-index c199b467ffeb..1037a285b74c 100644
+index c66a6dfc6f5d..2d80782ab341 100644
 --- components/crash/core/app/crashpad_win.cc
 +++ components/crash/core/app/crashpad_win.cc
 @@ -36,8 +36,8 @@ void GetPlatformCrashpadAnnotations(
-   base::string16 product_name, version, special_build, channel_name;
+   std::wstring product_name, version, special_build, channel_name;
    crash_reporter_client->GetProductNameAndVersion(
        exe_file, &product_name, &version, &special_build, &channel_name);
--  (*annotations)["prod"] = base::UTF16ToUTF8(product_name);
--  (*annotations)["ver"] = base::UTF16ToUTF8(version);
-+  (*annotations)["product"] = base::UTF16ToUTF8(product_name);
-+  (*annotations)["version"] = base::UTF16ToUTF8(version);
+-  (*annotations)["prod"] = base::WideToUTF8(product_name);
+-  (*annotations)["ver"] = base::WideToUTF8(version);
++  (*annotations)["product"] = base::WideToUTF8(product_name);
++  (*annotations)["version"] = base::WideToUTF8(version);
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
    // Empty means stable.
    const bool allow_empty_channel = true;
 @@ -49,9 +49,9 @@ void GetPlatformCrashpadAnnotations(
    if (!special_build.empty())
-     (*annotations)["special"] = base::UTF16ToUTF8(special_build);
+     (*annotations)["special"] = base::WideToUTF8(special_build);
  #if defined(ARCH_CPU_X86)
 -  (*annotations)["plat"] = std::string("Win32");
 +  (*annotations)["platform"] = std::string("win32");

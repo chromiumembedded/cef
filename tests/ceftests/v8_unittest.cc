@@ -2932,7 +2932,8 @@ class V8TestHandler : public TestHandler {
     }
 
     // Time out the test after a reasonable period of time.
-    SetTestTimeout();
+    SetTestTimeout(test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS ? 10000
+                                                                        : 5000);
   }
 
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {

@@ -8,7 +8,6 @@
 #include "libcef/common/net/net_resource_provider.h"
 
 #include "base/no_destructor.h"
-#include "mojo/public/cpp/bindings/strong_binding.h"
 #include "net/base/net_module.h"
 #include "services/service_manager/public/cpp/connector.h"
 #include "third_party/blink/public/common/associated_interfaces/associated_interface_registry.h"

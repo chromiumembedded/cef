@@ -220,16 +220,20 @@ class PluginTestHandler : public RoutingTestHandler,
     return "document.getElementsByTagName('embed')[0]";
   }
 
-  void WaitForNavigatorPlugins(CefRefPtr<CefFrame> frame) const {
-    // Test if the `navigator.plugins` list includes the PDF extension.
-    const std::string& code =
-        " if (navigator.plugins['Chrome PDF Viewer'].filename == "
-        "       'mhjfbmdgcfjbbpaeojofohoefgiehjai') {"
-        "  window.testQuery({request:'pdf_plugin_found'});"
-        "} else {"
-        "  window.testQuery({request:'pdf_plugin_missing'});"
-        "}";
-    frame->ExecuteJavaScript(code, frame->GetURL(), 0);
+  void WaitForNavigatorPlugins(CefRefPtr<CefFrame> frame) {
+    // We can no longer test for navigator.plugins because it returns empty
+    // as of https://www.chromestatus.com/feature/5741884322349056.
+    if (HasNoList()) {
+      // The plugin will not load. End the test.
+      EndTest();
+    } else if (HasBlock() || HasDisable()) {
+      // Wait for the plugin placeholder for the first PDF file to load. The
+      // test will continue from OnQuery.
+      WaitForPlaceholderLoad(frame);
+    } else {
+      // Wait for the first PDF file to load.
+      WaitForPluginLoad(frame);
+    }
   }
 
   void WaitForPlaceholderLoad(CefRefPtr<CefFrame> frame) {
@@ -383,24 +387,7 @@ class PluginTestHandler : public RoutingTestHandler,
                const CefString& request,
                bool persistent,
                CefRefPtr<Callback> callback) override {
-    if (request == "pdf_plugin_found" || request == "pdf_plugin_missing") {
-      if (request == "pdf_plugin_found")
-        got_pdf_plugin_found_.yes();
-      else
-        got_pdf_plugin_missing_.yes();
-
-      if (HasNoList()) {
-        // The plugin will not load. End the test.
-        EndTest();
-      } else if (HasBlock() || HasDisable()) {
-        // Wait for the plugin placeholder for the first PDF file to load. The
-        // test will continue from OnQuery.
-        WaitForPlaceholderLoad(frame);
-      } else {
-        // Wait for the first PDF file to load.
-        WaitForPluginLoad(frame);
-      }
-    } else if (request == "placeholder_loaded") {
+    if (request == "placeholder_loaded") {
       EXPECT_FALSE(got_placeholder_loaded_);
       EXPECT_FALSE(got_placeholder_hidden_);
       got_placeholder_loaded_.yes();
@@ -429,9 +416,15 @@ class PluginTestHandler : public RoutingTestHandler,
   void TriggerContextMenu(CefRefPtr<CefBrowser> browser) {
     CefMouseEvent mouse_event;
 
-    // Somewhere in the first plugin.
-    mouse_event.x = 100;
-    mouse_event.y = 100;
+    if (HasDirectPluginLoad()) {
+      // Somewhere in the main PDF viewing area (avoid left preview bar).
+      mouse_event.x = 400;
+      mouse_event.y = 200;
+    } else {
+      // Somewhere in the first plugin.
+      mouse_event.x = 100;
+      mouse_event.y = 100;
+    }
 
     // Send right-click mouse down and mouse up to tigger context menu.
     browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_RIGHT, false, 1);
@@ -514,14 +507,10 @@ class PluginTestHandler : public RoutingTestHandler,
 
     if (HasNoList()) {
       EXPECT_TRUE(got_on_before_plugin_empty_origin2_);
-      EXPECT_FALSE(got_pdf_plugin_found_);
-      EXPECT_TRUE(got_pdf_plugin_missing_);
       EXPECT_FALSE(got_run_context_menu_);
       EXPECT_FALSE(got_context_menu_dismissed_);
     } else {
       EXPECT_FALSE(got_on_before_plugin_empty_origin2_);
-      EXPECT_TRUE(got_pdf_plugin_found_);
-      EXPECT_FALSE(got_pdf_plugin_missing_);
       EXPECT_TRUE(got_run_context_menu_);
       EXPECT_TRUE(got_context_menu_dismissed_);
     }
@@ -569,8 +558,6 @@ class PluginTestHandler : public RoutingTestHandler,
   TrackCallback got_on_load_end_html_;
   TrackCallback got_on_load_end_pdf1_;
   TrackCallback got_on_load_end_pdf2_;
-  TrackCallback got_pdf_plugin_found_;
-  TrackCallback got_pdf_plugin_missing_;
   TrackCallback got_placeholder_loaded_;
   TrackCallback got_placeholder_hidden_;
   TrackCallback got_run_context_menu_;

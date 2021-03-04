@@ -22,6 +22,9 @@
 #include "base/logging.h"
 #include "base/memory/weak_ptr.h"
 #include "base/strings/string_util.h"
+#include "content/browser/renderer_host/render_frame_host_impl.h"
+#include "content/browser/storage_partition_impl.h"
+#include "content/public/browser/browser_context.h"
 #include "content/public/browser/global_request_id.h"
 #include "content/public/browser/render_frame_host.h"
 #include "net/base/mime_util.h"
@@ -47,6 +50,10 @@ const int32_t kInitialRequestID = -2;
 int32_t MakeRequestID() {
   static int32_t request_id = kInitialRequestID;
   return --request_id;
+}
+
+bool IsValidRequestID(int32_t request_id) {
+  return request_id < kInitialRequestID;
 }
 
 // Manages the mapping of request IDs to request objects.
@@ -190,9 +197,16 @@ class CefBrowserURLRequest::Context
     CefBrowserContext* cef_browser_context =
         request_context_impl->GetBrowserContext();
     DCHECK(cef_browser_context);
+    auto browser_context = cef_browser_context->AsBrowserContext();
 
     int render_frame_id = MSG_ROUTING_NONE;
     scoped_refptr<net_service::URLLoaderFactoryGetter> loader_factory_getter;
+
+    // Used to route authentication and certificate callbacks through the
+    // associated StoragePartition instance.
+    mojo::PendingRemote<network::mojom::AuthenticationAndCertificateObserver>
+        auth_cert_observer;
+
     if (frame) {
       // The request will be associated with this frame/browser if it's valid,
       // otherwise the request will be canceled.
@@ -207,26 +221,35 @@ class CefBrowserURLRequest::Context
         // network::mojom::kBrowserProcessId (value 0) for these requests.
         render_frame_id = rfh->GetFrameTreeNodeId();
 
-        loader_factory_getter = net_service::URLLoaderFactoryGetter::Create(
-            rfh, cef_browser_context->AsBrowserContext());
+        loader_factory_getter =
+            net_service::URLLoaderFactoryGetter::Create(rfh, browser_context);
+        auth_cert_observer = static_cast<content::RenderFrameHostImpl*>(rfh)
+                                 ->CreateAuthAndCertObserver();
       }
     } else {
-      loader_factory_getter = net_service::URLLoaderFactoryGetter::Create(
-          nullptr, cef_browser_context->AsBrowserContext());
+      loader_factory_getter =
+          net_service::URLLoaderFactoryGetter::Create(nullptr, browser_context);
+      auth_cert_observer =
+          static_cast<content::StoragePartitionImpl*>(
+              content::BrowserContext::GetDefaultStoragePartition(
+                  browser_context))
+              ->CreateAuthCertObserverForServiceWorker();
     }
 
     task_runner->PostTask(
         FROM_HERE,
         base::BindOnce(
             &CefBrowserURLRequest::Context::ContinueOnOriginatingThread, self,
-            render_frame_id, MakeRequestID(), loader_factory_getter));
+            render_frame_id, MakeRequestID(), loader_factory_getter,
+            std::move(auth_cert_observer)));
   }
 
   void ContinueOnOriginatingThread(
       int render_frame_id,
       int32_t request_id,
-      scoped_refptr<net_service::URLLoaderFactoryGetter>
-          loader_factory_getter) {
+      scoped_refptr<net_service::URLLoaderFactoryGetter> loader_factory_getter,
+      mojo::PendingRemote<network::mojom::AuthenticationAndCertificateObserver>
+          auth_cert_observer) {
     DCHECK(CalledOnValidThread());
 
     // The request may have been canceled.
@@ -266,6 +289,13 @@ class CefBrowserURLRequest::Context
       // Include SameSite cookies.
       resource_request->site_for_cookies =
           net::SiteForCookies::FromOrigin(*resource_request->request_initiator);
+    }
+
+    if (auth_cert_observer) {
+      resource_request->trusted_params =
+          network::ResourceRequest::TrustedParams();
+      resource_request->trusted_params->auth_cert_observer =
+          std::move(auth_cert_observer);
     }
 
     // SimpleURLLoader is picky about the body contents. Try to populate them
@@ -573,17 +603,17 @@ class CefBrowserURLRequest::Context
 // static
 base::Optional<CefBrowserURLRequest::RequestInfo>
 CefBrowserURLRequest::FromRequestID(int32_t request_id) {
-  return g_manager.Get().Get(request_id);
+  if (IsValidRequestID(request_id)) {
+    return g_manager.Get().Get(request_id);
+  }
+  return base::nullopt;
 }
 
 // static
 base::Optional<CefBrowserURLRequest::RequestInfo>
 CefBrowserURLRequest::FromRequestID(
     const content::GlobalRequestID& request_id) {
-  if (request_id.child_id == network::mojom::kBrowserProcessId) {
-    return FromRequestID(request_id.request_id);
-  }
-  return base::nullopt;
+  return FromRequestID(request_id.request_id);
 }
 
 CefBrowserURLRequest::CefBrowserURLRequest(

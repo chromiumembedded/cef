@@ -294,27 +294,42 @@ class TracingTestHandler : public CefEndTracingCallback,
             1000, "arg1", 1);
         break;
       case TT_TRACE_EVENT_ASYNC_END0:
+        TRACE_EVENT_ASYNC_BEGIN0(kTraceTestCategory,
+                                 "TT_TRACE_EVENT_ASYNC_END0", 100);
         TRACE_EVENT_ASYNC_END0(kTraceTestCategory, "TT_TRACE_EVENT_ASYNC_END0",
                                100);
         break;
       case TT_TRACE_EVENT_ASYNC_END1:
+        TRACE_EVENT_ASYNC_BEGIN1(kTraceTestCategory,
+                                 "TT_TRACE_EVENT_ASYNC_END1", 100, "arg1", 1);
         TRACE_EVENT_ASYNC_END1(kTraceTestCategory, "TT_TRACE_EVENT_ASYNC_END1",
                                100, "arg1", 1);
         break;
       case TT_TRACE_EVENT_ASYNC_END2:
+        TRACE_EVENT_ASYNC_BEGIN2(kTraceTestCategory,
+                                 "TT_TRACE_EVENT_ASYNC_END2", 100, "arg1", 1,
+                                 "arg2", 2);
         TRACE_EVENT_ASYNC_END2(kTraceTestCategory, "TT_TRACE_EVENT_ASYNC_END2",
                                100, "arg1", 1, "arg2", 2);
         break;
       case TT_TRACE_EVENT_COPY_ASYNC_END0:
+        TRACE_EVENT_COPY_ASYNC_BEGIN0(kTraceTestCategory,
+                                      "TT_TRACE_EVENT_COPY_ASYNC_END0", 100);
         TRACE_EVENT_COPY_ASYNC_END0(kTraceTestCategory,
                                     "TT_TRACE_EVENT_COPY_ASYNC_END0", 100);
         break;
       case TT_TRACE_EVENT_COPY_ASYNC_END1:
+        TRACE_EVENT_COPY_ASYNC_BEGIN1(kTraceTestCategory,
+                                      "TT_TRACE_EVENT_COPY_ASYNC_END1", 100,
+                                      "arg1", 1);
         TRACE_EVENT_COPY_ASYNC_END1(kTraceTestCategory,
                                     "TT_TRACE_EVENT_COPY_ASYNC_END1", 100,
                                     "arg1", 1);
         break;
       case TT_TRACE_EVENT_COPY_ASYNC_END2:
+        TRACE_EVENT_COPY_ASYNC_BEGIN2(kTraceTestCategory,
+                                      "TT_TRACE_EVENT_COPY_ASYNC_END2", 100,
+                                      "arg1", 1, "arg2", 2);
         TRACE_EVENT_COPY_ASYNC_END2(kTraceTestCategory,
                                     "TT_TRACE_EVENT_COPY_ASYNC_END2", 100,
                                     "arg1", 1, "arg2", 2);
@@ -411,6 +426,8 @@ TRACING_TEST(TraceEventAsyncEnd0, TT_TRACE_EVENT_ASYNC_END0)
 TRACING_TEST(TraceEventAsyncEnd1, TT_TRACE_EVENT_ASYNC_END1)
 TRACING_TEST(TraceEventAsyncEnd2, TT_TRACE_EVENT_ASYNC_END2)
 TRACING_TEST(TraceEventCopyAsyncEnd0, TT_TRACE_EVENT_COPY_ASYNC_END0)
+TRACING_TEST(TraceEventCopyAsyncEnd1, TT_TRACE_EVENT_COPY_ASYNC_END1)
+TRACING_TEST(TraceEventCopyAsyncEnd2, TT_TRACE_EVENT_COPY_ASYNC_END2)
 
 TEST(TracingTest, NowFromSystemTraceTime) {
   int64 val = CefNowFromSystemTraceTime();

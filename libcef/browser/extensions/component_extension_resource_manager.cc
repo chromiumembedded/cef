@@ -65,15 +65,15 @@ CefComponentExtensionResourceManager::GetTemplateReplacementsForExtension(
 }
 
 void CefComponentExtensionResourceManager::AddComponentResourceEntries(
-    const GritResourceMap* entries,
+    const webui::ResourcePath* entries,
     size_t size) {
   for (size_t i = 0; i < size; ++i) {
     base::FilePath resource_path =
-        base::FilePath().AppendASCII(entries[i].name);
+        base::FilePath().AppendASCII(entries[i].path);
     resource_path = resource_path.NormalizePathSeparators();
 
     DCHECK(!base::Contains(path_to_resource_info_, resource_path));
-    path_to_resource_info_[resource_path] = entries[i].value;
+    path_to_resource_info_[resource_path] = entries[i].id;
   }
 }
 

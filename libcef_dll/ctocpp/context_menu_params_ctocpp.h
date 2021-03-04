@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=326bac53cf2af1a1f80e036cbbb3bd643ef6f7dd$
+// $hash=7de11c340a42046de92ca4cb8c5852269f3a3101$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_CONTEXT_MENU_PARAMS_CTOCPP_H_
@@ -56,7 +56,6 @@ class CefContextMenuParamsCToCpp
   bool IsSpellCheckEnabled() OVERRIDE;
   EditStateFlags GetEditStateFlags() OVERRIDE;
   bool IsCustomMenu() OVERRIDE;
-  bool IsPepperMenu() OVERRIDE;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_CONTEXT_MENU_PARAMS_CTOCPP_H_

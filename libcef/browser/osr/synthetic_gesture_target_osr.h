@@ -29,8 +29,8 @@ class CefSyntheticGestureTargetOSR
       const ui::LatencyInfo& latency_info) override;
 
   // SyntheticGestureTarget:
-  content::SyntheticGestureParams::GestureSourceType
-  GetDefaultSyntheticGestureSourceType() const override;
+  content::mojom::GestureSourceType GetDefaultSyntheticGestureSourceType()
+      const override;
   float GetTouchSlopInDips() const override;
   float GetSpanSlopInDips() const override;
   float GetMinScalingSpanInDips() const override;

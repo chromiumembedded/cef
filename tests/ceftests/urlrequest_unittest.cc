@@ -3182,24 +3182,12 @@ class RequestTestHandler : public TestHandler {
     got_on_test_complete_.yes();
 
     if (!context_tmpdir_.IsEmpty()) {
-      // Wait a bit for cache file handles to close after browser or request
-      // context destruction.
-      CefPostDelayedTask(
-          TID_FILE_USER_VISIBLE,
-          base::Bind(&RequestTestHandler::PostTestCompleteFileTasks, this),
-          200);
-    } else {
-      TestComplete();
+      // Delete the temp directory on application shutdown.
+      CefTestSuite::GetInstance()->RegisterTempDirectory(
+          context_tmpdir_.Take());
     }
-  }
 
-  void PostTestCompleteFileTasks() {
-    EXPECT_TRUE(CefCurrentlyOn(TID_FILE_USER_VISIBLE));
-
-    EXPECT_TRUE(context_tmpdir_.Delete());
-    EXPECT_TRUE(context_tmpdir_.IsEmpty());
-
-    CefPostTask(TID_UI, base::Bind(&RequestTestHandler::TestComplete, this));
+    TestComplete();
   }
 
  private:

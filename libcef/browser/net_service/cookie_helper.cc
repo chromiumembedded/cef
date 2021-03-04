@@ -36,6 +36,10 @@ net::CookieOptions GetCookieOptions(const network::ResourceRequest& request) {
   bool should_treat_as_first_party =
       request.url.SchemeIsCryptographic() &&
       request.site_for_cookies.scheme() == content::kChromeUIScheme;
+  bool is_main_frame_navigation =
+      request.trusted_params &&
+      request.trusted_params->isolation_info.request_type() ==
+          net::IsolationInfo::RequestType::kMainFrame;
 
   // Match the logic from URLRequestHttpJob::AddCookieHeaderAndStart.
   net::CookieOptions options;
@@ -43,7 +47,8 @@ net::CookieOptions GetCookieOptions(const network::ResourceRequest& request) {
   options.set_same_site_cookie_context(
       net::cookie_util::ComputeSameSiteContextForRequest(
           request.method, request.url, request.site_for_cookies,
-          request.request_initiator, should_treat_as_first_party));
+          request.request_initiator, is_main_frame_navigation,
+          should_treat_as_first_party));
 
   return options;
 }

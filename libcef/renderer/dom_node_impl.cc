@@ -390,8 +390,8 @@ CefRect CefDOMNodeImpl::GetElementBounds() {
   }
 
   WebElement element = node_.To<blink::WebElement>();
-  blink::WebRect rc = element.BoundsInViewport();
-  rect.Set(rc.x, rc.y, rc.width, rc.height);
+  const auto& rc = element.BoundsInViewport();
+  rect.Set(rc.x(), rc.y(), rc.width(), rc.height());
 
   return rect;
 }

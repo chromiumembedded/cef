@@ -30,12 +30,7 @@
     },
     {
       "channel": "stable",
-      "extension_types": ["platform_app"],
-      "whitelist": [
-        "AE27D69DBE571F4B1694F05C89B710C646792231", // Published ADT.
-        // TODO(grv): clean up once Apps developer tool is published.
-        "5107DE9024C329EEA9C9A72D94C16723790C6422"  // Apps Developer Tool.
-      ]
+      "extension_types": ["platform_app"]
     }
   ]
 }

@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 0c25000917fb..cdaf3a6799c2 100644
+index 01b2f70c1378..a14dd637774e 100644
 --- .gn
 +++ .gn
-@@ -275,6 +275,8 @@ exec_script_whitelist =
+@@ -190,6 +190,8 @@ exec_script_whitelist =
  
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
  
@@ -12,7 +12,7 @@ index 0c25000917fb..cdaf3a6799c2 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 86c82ac5cf8a..ea0959f631b4 100644
+index 6df566bd7df4..d8f539493342 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -16,6 +16,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -23,8 +23,8 @@ index 86c82ac5cf8a..ea0959f631b4 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/media/router/features.gni")
  import("//components/nacl/features.gni")
-@@ -244,6 +245,9 @@ group("gn_all") {
-       "//third_party/angle/src/tests:angle_white_box_tests",
+@@ -247,6 +248,9 @@ group("gn_all") {
+       "//media/cast:cast_unittests",
        "//third_party/catapult/telemetry:bitmaptools($host_toolchain)",
      ]
 +    if (enable_cef) {
@@ -79,7 +79,7 @@ index 839144aa1e9b..29c8ab32398a 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 6ad9c87a3adf..a47694446b9a 100644
+index 63e7ca2c10c1..14f777c10cd6 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -4,6 +4,7 @@
@@ -90,8 +90,8 @@ index 6ad9c87a3adf..a47694446b9a 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/resources/pdf/ink/ink.gni")
  import("//chrome/common/features.gni")
-@@ -255,6 +256,10 @@ template("chrome_extra_paks") {
-         "//chrome/browser/resources/welcome:welcome_resources",
+@@ -269,6 +270,10 @@ template("chrome_extra_paks") {
+         "//chrome/browser/resources/welcome:resources",
        ]
      }
 +    if (enable_cef) {
@@ -125,7 +125,7 @@ index a64a23560460..b08eee1f789a 100644
        source_patterns +=
            [ "${root_gen_dir}/extensions/strings/extensions_strings_" ]
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 5f5cb1c752f2..ef0a01caf9cd 100644
+index ae43217ef207..2f0b95687263 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -6,6 +6,7 @@ import("//build/config/compiler/compiler.gni")

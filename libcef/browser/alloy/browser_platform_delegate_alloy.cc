@@ -206,7 +206,7 @@ void CefBrowserPlatformDelegateAlloy::CreateExtensionHost(
     extension_host_ = new extensions::CefExtensionViewHost(
         alloy_browser, extension, web_contents_, url, host_type);
     // Trigger load of the extension URL.
-    extension_host_->CreateRenderViewSoon();
+    extension_host_->CreateRendererSoon();
   } else if (host_type == extensions::VIEW_TYPE_EXTENSION_BACKGROUND_PAGE) {
     is_background_host_ = true;
     alloy_browser->is_background_host_ = true;

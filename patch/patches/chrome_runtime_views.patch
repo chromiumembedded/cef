@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/frame/browser_frame.cc chrome/browser/ui/views/frame/browser_frame.cc
-index 5c03f250e500..ecfce9c2c7c7 100644
+index 7c0229c202ca..67320e907526 100644
 --- chrome/browser/ui/views/frame/browser_frame.cc
 +++ chrome/browser/ui/views/frame/browser_frame.cc
-@@ -63,15 +63,23 @@ bool IsUsingGtkTheme(Profile* profile) {
+@@ -64,15 +64,23 @@ bool IsUsingGtkTheme(Profile* profile) {
  ////////////////////////////////////////////////////////////////////////////////
  // BrowserFrame, public:
  
@@ -28,7 +28,7 @@ index 5c03f250e500..ecfce9c2c7c7 100644
  }
  
  BrowserFrame::~BrowserFrame() {}
-@@ -133,6 +141,12 @@ gfx::Rect BrowserFrame::GetBoundsForTabStripRegion(
+@@ -131,6 +139,12 @@ gfx::Rect BrowserFrame::GetBoundsForTabStripRegion(
  }
  
  int BrowserFrame::GetTopInset() const {
@@ -41,7 +41,7 @@ index 5c03f250e500..ecfce9c2c7c7 100644
    return browser_frame_view_->GetTopInset(false);
  }
  
-@@ -167,15 +181,21 @@ void BrowserFrame::GetWindowPlacement(gfx::Rect* bounds,
+@@ -165,15 +179,21 @@ void BrowserFrame::GetWindowPlacement(gfx::Rect* bounds,
  
  content::KeyboardEventProcessingResult BrowserFrame::PreHandleKeyboardEvent(
      const content::NativeWebKeyboardEvent& event) {
@@ -63,7 +63,7 @@ index 5c03f250e500..ecfce9c2c7c7 100644
    browser_frame_view_->OnBrowserViewInitViewsComplete();
  }
  
-@@ -208,7 +228,8 @@ const ui::ThemeProvider* BrowserFrame::GetThemeProvider() const {
+@@ -206,7 +226,8 @@ const ui::ThemeProvider* BrowserFrame::GetThemeProvider() const {
  }
  
  const ui::NativeTheme* BrowserFrame::GetNativeTheme() const {
@@ -74,7 +74,7 @@ index 5c03f250e500..ecfce9c2c7c7 100644
            ->UsingDefaultTheme()) {
      return ui::NativeTheme::GetInstanceForDarkUI();
 diff --git chrome/browser/ui/views/frame/browser_frame.h chrome/browser/ui/views/frame/browser_frame.h
-index 3a1314f21ce4..f9464abc97a7 100644
+index 050c0e05e4e3..0bbcf4af9a92 100644
 --- chrome/browser/ui/views/frame/browser_frame.h
 +++ chrome/browser/ui/views/frame/browser_frame.h
 @@ -53,7 +53,9 @@ enum class TabDragKind {
@@ -88,12 +88,12 @@ index 3a1314f21ce4..f9464abc97a7 100644
  
    // Initialize the frame (creates the underlying native window).
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index c4d99326bacf..3c7b45b99186 100644
+index 7d93faeadd2c..9b10c7f86c5c 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
-@@ -545,16 +545,26 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
- // static
- const char BrowserView::kViewClassName[] = "BrowserView";
+@@ -557,11 +557,22 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
+ ///////////////////////////////////////////////////////////////////////////////
+ // BrowserView, public:
  
 +BrowserView::BrowserView() : BrowserView(nullptr) {}
 +
@@ -113,14 +113,17 @@ index c4d99326bacf..3c7b45b99186 100644
 +  immersive_mode_controller_ = chrome::CreateImmersiveModeController();
 +
    SetShowIcon(::ShouldShowWindowIcon(browser_.get()));
-   SetHasWindowSizeControls(!chrome::IsRunningInForcedAppMode());
+ 
+   // In forced app mode, all size controls are always disabled. Otherwise, use
+@@ -575,7 +586,6 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
+   }
  
    browser_->tab_strip_model()->AddObserver(this);
 -  immersive_mode_controller_ = chrome::CreateImmersiveModeController();
  
    // Top container holds tab strip region and toolbar and lives at the front of
    // the view hierarchy.
-@@ -1340,6 +1350,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
+@@ -1368,6 +1378,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
    if (immersive_mode_controller_->IsEnabled())
      return false;
  
@@ -129,7 +132,7 @@ index c4d99326bacf..3c7b45b99186 100644
    return frame_->GetFrameView()->ShouldHideTopUIForFullscreen();
  }
  
-@@ -2357,7 +2369,8 @@ BrowserView::GetNativeViewHostsForTopControlsSlide() const {
+@@ -2393,7 +2405,8 @@ BrowserView::GetNativeViewHostsForTopControlsSlide() const {
  }
  
  void BrowserView::ReparentTopContainerForEndOfImmersive() {
@@ -139,7 +142,7 @@ index c4d99326bacf..3c7b45b99186 100644
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -2804,7 +2817,8 @@ void BrowserView::Layout() {
+@@ -2841,7 +2854,8 @@ void BrowserView::Layout() {
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
        IsToolbarVisible() ? FocusBehavior::ALWAYS : FocusBehavior::NEVER);
@@ -149,7 +152,7 @@ index c4d99326bacf..3c7b45b99186 100644
  
    // Some of the situations when the BrowserView is laid out are:
    // - Enter/exit immersive fullscreen mode.
-@@ -2907,7 +2921,8 @@ void BrowserView::AddedToWidget() {
+@@ -2944,7 +2958,8 @@ void BrowserView::AddedToWidget() {
      SetToolbarButtonProvider(toolbar_);
  
    frame_->OnBrowserViewInitViewsComplete();
@@ -160,24 +163,24 @@ index c4d99326bacf..3c7b45b99186 100644
  
    MaybeInitializeWebUITabStrip();
 diff --git chrome/browser/ui/views/frame/browser_view.h chrome/browser/ui/views/frame/browser_view.h
-index 986798357dbc..2793bf7b184e 100644
+index e4955ccbb929..e678754ee361 100644
 --- chrome/browser/ui/views/frame/browser_view.h
 +++ chrome/browser/ui/views/frame/browser_view.h
-@@ -117,7 +117,9 @@ class BrowserView : public BrowserWindow,
-   // The browser view's class name.
-   static const char kViewClassName[];
- 
+@@ -114,7 +114,9 @@ class BrowserView : public BrowserWindow,
+                     public webapps::AppBannerManager::Observer {
+  public:
+   METADATA_HEADER(BrowserView);
 +  BrowserView();
    explicit BrowserView(std::unique_ptr<Browser> browser);
 +  void InitBrowser(std::unique_ptr<Browser> browser);
+   BrowserView(const BrowserView&) = delete;
+   BrowserView& operator=(const BrowserView&) = delete;
    ~BrowserView() override;
- 
-   void set_frame(BrowserFrame* frame) { frame_ = frame; }
 diff --git chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
-index 824acb2c7c8a..cd81e0e3f4d3 100644
+index 975817e079eb..f77c24d294bc 100644
 --- chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
 +++ chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
-@@ -578,37 +578,53 @@ gfx::Range BrowserTabStripController::ListTabsInGroup(
+@@ -571,37 +571,53 @@ gfx::Range BrowserTabStripController::ListTabsInGroup(
  }
  
  bool BrowserTabStripController::IsFrameCondensed() const {

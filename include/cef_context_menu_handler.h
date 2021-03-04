@@ -281,12 +281,6 @@ class CefContextMenuParams : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual bool IsCustomMenu() = 0;
-
-  ///
-  // Returns true if the context menu was invoked from a pepper plugin.
-  ///
-  /*--cef()--*/
-  virtual bool IsPepperMenu() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_CONTEXT_MENU_HANDLER_H_

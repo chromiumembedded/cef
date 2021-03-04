@@ -5,6 +5,7 @@
 #include "libcef/browser/context_menu_params_impl.h"
 
 #include "base/logging.h"
+#include "third_party/blink/public/mojom/context_menu/context_menu.mojom.h"
 
 CefContextMenuParamsImpl::CefContextMenuParamsImpl(
     content::ContextMenuParams* value)
@@ -145,9 +146,4 @@ CefContextMenuParamsImpl::GetEditStateFlags() {
 bool CefContextMenuParamsImpl::IsCustomMenu() {
   CEF_VALUE_VERIFY_RETURN(false, false);
   return !const_value().custom_items.empty();
-}
-
-bool CefContextMenuParamsImpl::IsPepperMenu() {
-  CEF_VALUE_VERIFY_RETURN(false, false);
-  return const_value().custom_context.is_pepper_menu;
 }
