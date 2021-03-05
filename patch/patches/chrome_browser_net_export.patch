@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index b89946d77d8d..2063273f7a9f 100644
+index ae28f5ea7dbb..e77a72e28821 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -12,6 +12,7 @@ import("//build/config/features.gni")
@@ -21,7 +21,7 @@ index b89946d77d8d..2063273f7a9f 100644
    # Since browser and browser_ui actually depend on each other,
    # we must omit the dependency from browser_ui to browser.
    # However, this means browser_ui and browser should more or less
-@@ -349,6 +354,7 @@ static_library("ui") {
+@@ -350,6 +355,7 @@ static_library("ui") {
      "//build:branding_buildflags",
      "//build:chromeos_buildflags",
      "//cc/paint",
@@ -29,7 +29,7 @@ index b89946d77d8d..2063273f7a9f 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -1553,6 +1559,7 @@ static_library("ui") {
+@@ -1554,6 +1560,7 @@ static_library("ui") {
        "//components/page_load_metrics/browser",
        "//components/performance_manager:site_data_proto",
        "//components/printing/browser",
@@ -37,7 +37,7 @@ index b89946d77d8d..2063273f7a9f 100644
        "//components/profile_metrics",
        "//components/reading_list/features:flags",
        "//components/safe_browsing/core/common:safe_browsing_policy_handler",
-@@ -3370,7 +3377,9 @@ static_library("ui") {
+@@ -3371,7 +3378,9 @@ static_library("ui") {
            "views/frame/browser_desktop_window_tree_host_platform.h",
          ]
        }

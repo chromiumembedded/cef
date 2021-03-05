@@ -44,10 +44,10 @@ index 570678bc648c..42d979f2a496 100644
  
  DocumentInit& DocumentInit::WithTypeFrom(const String& mime_type) {
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index dfd7e20c2665..d7ff4836b1c9 100644
+index 4ceaa30497d2..632f57d63592 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
-@@ -1864,7 +1864,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
+@@ -1866,7 +1866,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins())
      return nullptr;
@@ -85,7 +85,7 @@ index 0608c4defc6d..54eaa2197957 100644
  
  void DevToolsSession::DispatchProtocolCommand(
 diff --git third_party/blink/renderer/core/page/page.cc third_party/blink/renderer/core/page/page.cc
-index 022b95ec4ecc..ba58b796e35e 100644
+index 917971802305..9023649857ec 100644
 --- third_party/blink/renderer/core/page/page.cc
 +++ third_party/blink/renderer/core/page/page.cc
 @@ -212,7 +212,8 @@ Page::Page(PageClients& page_clients)
@@ -98,7 +98,7 @@ index 022b95ec4ecc..ba58b796e35e 100644
        // TODO(pdr): Initialize |validation_message_client_| lazily.
        validation_message_client_(
            MakeGarbageCollected<ValidationMessageClientImpl>(*this)),
-@@ -395,21 +396,41 @@ void Page::InitialStyleChanged() {
+@@ -396,21 +397,41 @@ void Page::InitialStyleChanged() {
    }
  }
  
@@ -149,7 +149,7 @@ index 022b95ec4ecc..ba58b796e35e 100644
        page->NotifyPluginsChanged();
      }
    }
-@@ -921,7 +942,8 @@ void Page::Trace(Visitor* visitor) const {
+@@ -922,7 +943,8 @@ void Page::Trace(Visitor* visitor) const {
    visitor->Trace(link_highlight_);
    visitor->Trace(spatial_navigation_controller_);
    visitor->Trace(main_frame_);

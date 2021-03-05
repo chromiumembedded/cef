@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index f246df9270f8..89e95f41987c 100644
+index 508e6780855e..bf5e601743eb 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -12,6 +12,7 @@ import("//build/config/crypto.gni")
@@ -29,7 +29,7 @@ index f246df9270f8..89e95f41987c 100644
    if (is_android) {
      sources += [
        "after_startup_task_utils_android.cc",
-@@ -5105,7 +5111,7 @@ static_library("browser") {
+@@ -5103,7 +5109,7 @@ static_library("browser") {
        ]
      }
  

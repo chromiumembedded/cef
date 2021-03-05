@@ -1,8 +1,8 @@
 diff --git chrome/browser/app_controller_mac.mm chrome/browser/app_controller_mac.mm
-index 88858a923a07..2a1d137c70f4 100644
+index 3422b6409e40..f96e205a31a0 100644
 --- chrome/browser/app_controller_mac.mm
 +++ chrome/browser/app_controller_mac.mm
-@@ -1194,6 +1194,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1220,6 +1220,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
  
  // Run a (background) application in a new tab.
  - (void)executeApplication:(id)sender {
@@ -10,7 +10,7 @@ index 88858a923a07..2a1d137c70f4 100644
    NSInteger tag = [sender tag];
    Profile* profile = [self lastProfile];
    DCHECK(profile);
-@@ -1202,6 +1203,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1228,6 +1229,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
           tag < static_cast<int>(applications.size()));
    const extensions::Extension* extension = applications.GetExtension(tag);
    BackgroundModeManager::LaunchBackgroundApplication(profile, extension);
@@ -18,7 +18,7 @@ index 88858a923a07..2a1d137c70f4 100644
  }
  
  // Same as |-commandDispatch:|, but executes commands using a disposition
-@@ -1600,6 +1602,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1617,6 +1619,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
    // TODO(rickcam): Mock out BackgroundApplicationListModel, then add unit
    // tests which use the mock in place of the profile-initialized model.
  
@@ -26,7 +26,7 @@ index 88858a923a07..2a1d137c70f4 100644
    // Avoid breaking unit tests which have no profile.
    if (profile) {
      BackgroundApplicationListModel applications(profile);
-@@ -1626,6 +1629,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1643,6 +1646,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
        }
      }
    }
