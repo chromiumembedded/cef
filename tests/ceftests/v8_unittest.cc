@@ -577,13 +577,18 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
                        ->GetArrayBufferReleaseCallback()
                        .get()) == release_callback);
 
+      // |neuteredValue| buffer is explicitly freed by NeuterArrayBuffer().
+      EXPECT_FALSE(neuteredReleaseBufferCalled);
       EXPECT_TRUE(neuteredValue->NeuterArrayBuffer());
+      EXPECT_TRUE(neuteredReleaseBufferCalled);
+
+      // |value| buffer is implicitly freed when the value goes out of scope.
+      EXPECT_FALSE(releaseBufferCalled);
     }
     // Exit the V8 context.
     EXPECT_TRUE(destructorCalled);
     EXPECT_TRUE(releaseBufferCalled);
     EXPECT_TRUE(neuteredDestructorCalled);
-    EXPECT_FALSE(neuteredReleaseBufferCalled);
     EXPECT_TRUE(context->Exit());
     DestroyTest();
   }
