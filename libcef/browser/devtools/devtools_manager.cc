@@ -6,6 +6,7 @@
 
 #include "libcef/browser/devtools/devtools_controller.h"
 #include "libcef/browser/devtools/devtools_frontend.h"
+#include "libcef/features/runtime.h"
 
 #include "content/public/browser/web_contents.h"
 
@@ -31,7 +32,7 @@ class CefDevToolsRegistrationImpl : public CefRegistration,
     controller_->RemoveObserver(this);
   }
 
-  void Initialize(AlloyBrowserHostImpl* browser,
+  void Initialize(CefBrowserHostBase* browser,
                   base::WeakPtr<CefDevToolsController> controller) {
     CEF_REQUIRE_UIT();
     DCHECK(browser && controller);
@@ -83,7 +84,7 @@ class CefDevToolsRegistrationImpl : public CefRegistration,
 
   CefRefPtr<CefDevToolsMessageObserver> observer_;
 
-  AlloyBrowserHostImpl* browser_ = nullptr;
+  CefBrowserHostBase* browser_ = nullptr;
   base::WeakPtr<CefDevToolsController> controller_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefDevToolsRegistrationImpl);
@@ -92,7 +93,7 @@ class CefDevToolsRegistrationImpl : public CefRegistration,
 
 }  // namespace
 
-CefDevToolsManager::CefDevToolsManager(AlloyBrowserHostImpl* inspected_browser)
+CefDevToolsManager::CefDevToolsManager(CefBrowserHostBase* inspected_browser)
     : inspected_browser_(inspected_browser), weak_ptr_factory_(this) {
   CEF_REQUIRE_UIT();
 }
@@ -115,10 +116,15 @@ void CefDevToolsManager::ShowDevTools(const CefWindowInfo& windowInfo,
     return;
   }
 
-  devtools_frontend_ = CefDevToolsFrontend::Show(
-      inspected_browser_, windowInfo, client, settings, inspect_element_at,
-      base::BindOnce(&CefDevToolsManager::OnFrontEndDestroyed,
-                     weak_ptr_factory_.GetWeakPtr()));
+  if (cef::IsChromeRuntimeEnabled()) {
+    NOTIMPLEMENTED();
+  } else {
+    auto alloy_browser = static_cast<AlloyBrowserHostImpl*>(inspected_browser_);
+    devtools_frontend_ = CefDevToolsFrontend::Show(
+        alloy_browser, windowInfo, client, settings, inspect_element_at,
+        base::BindOnce(&CefDevToolsManager::OnFrontEndDestroyed,
+                       weak_ptr_factory_.GetWeakPtr()));
+  }
 }
 
 void CefDevToolsManager::CloseDevTools() {
@@ -193,8 +199,8 @@ void CefDevToolsManager::OnFrontEndDestroyed() {
 
 bool CefDevToolsManager::EnsureController() {
   if (!devtools_controller_) {
-    devtools_controller_.reset(
-        new CefDevToolsController(inspected_browser_->web_contents()));
+    devtools_controller_.reset(new CefDevToolsController(
+        inspected_browser_->contents_delegate()->web_contents()));
   }
   return true;
 }

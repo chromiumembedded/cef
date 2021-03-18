@@ -283,26 +283,6 @@ bool ChromeBrowserHostImpl::HasDevTools() {
   return false;
 }
 
-bool ChromeBrowserHostImpl::SendDevToolsMessage(const void* message,
-                                                size_t message_size) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-int ChromeBrowserHostImpl::ExecuteDevToolsMethod(
-    int message_id,
-    const CefString& method,
-    CefRefPtr<CefDictionaryValue> params) {
-  NOTIMPLEMENTED();
-  return 0;
-}
-
-CefRefPtr<CefRegistration> ChromeBrowserHostImpl::AddDevToolsMessageObserver(
-    CefRefPtr<CefDevToolsMessageObserver> observer) {
-  NOTIMPLEMENTED();
-  return nullptr;
-}
-
 bool ChromeBrowserHostImpl::IsWindowRenderingDisabled() {
   return false;
 }

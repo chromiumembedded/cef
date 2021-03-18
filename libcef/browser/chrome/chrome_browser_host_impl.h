@@ -90,12 +90,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
                     const CefPoint& inspect_element_at) override;
   void CloseDevTools() override;
   bool HasDevTools() override;
-  bool SendDevToolsMessage(const void* message, size_t message_size) override;
-  int ExecuteDevToolsMethod(int message_id,
-                            const CefString& method,
-                            CefRefPtr<CefDictionaryValue> params) override;
-  CefRefPtr<CefRegistration> AddDevToolsMessageObserver(
-      CefRefPtr<CefDevToolsMessageObserver> observer) override;
   bool IsWindowRenderingDisabled() override;
   void WasResized() override;
   void WasHidden(bool hidden) override;

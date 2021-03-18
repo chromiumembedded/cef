@@ -31,7 +31,6 @@
 
 class CefAudioCapturer;
 class CefBrowserInfo;
-class CefDevToolsManager;
 class SiteInstance;
 
 // CefBrowser implementation for the alloy runtime. Method calls are delegated
@@ -112,12 +111,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
                     const CefPoint& inspect_element_at) override;
   void CloseDevTools() override;
   bool HasDevTools() override;
-  bool SendDevToolsMessage(const void* message, size_t message_size) override;
-  int ExecuteDevToolsMethod(int message_id,
-                            const CefString& method,
-                            CefRefPtr<CefDictionaryValue> params) override;
-  CefRefPtr<CefRegistration> AddDevToolsMessageObserver(
-      CefRefPtr<CefDevToolsMessageObserver> observer) override;
   bool IsWindowRenderingDisabled() override;
   void WasResized() override;
   void WasHidden(bool hidden) override;
@@ -352,10 +345,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   void StartAudioCapturer();
   void OnRecentlyAudibleTimerFired();
 
-  bool EnsureDevToolsManager();
-  void InitializeDevToolsRegistrationOnUIThread(
-      CefRefPtr<CefRegistration> registration);
-
   void SetFocusInternal(bool focus);
 
   CefWindowHandle opener_;
@@ -380,9 +369,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
 
   // Used for creating and managing context menus.
   std::unique_ptr<CefMenuManager> menu_manager_;
-
-  // Used for creating and managing DevTools instances.
-  std::unique_ptr<CefDevToolsManager> devtools_manager_;
 
   // Used for capturing audio for CefAudioHandler.
   std::unique_ptr<CefAudioCapturer> audio_capturer_;

@@ -185,6 +185,8 @@ void CefBrowserHostBase::InitializeBrowser() {
 void CefBrowserHostBase::DestroyBrowser() {
   CEF_REQUIRE_UIT();
 
+  devtools_manager_.reset(nullptr);
+
   platform_delegate_.reset(nullptr);
 
   contents_delegate_->RemoveObserver(this);
@@ -287,6 +289,54 @@ void CefBrowserHostBase::DownloadImage(
                 image_url.spec(), http_status_code, image_impl.get());
           },
           max_image_size, callback));
+}
+
+bool CefBrowserHostBase::SendDevToolsMessage(const void* message,
+                                             size_t message_size) {
+  if (!message || message_size == 0)
+    return false;
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    std::string message_str(static_cast<const char*>(message), message_size);
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::BindOnce(
+            [](CefRefPtr<CefBrowserHostBase> self, std::string message_str) {
+              self->SendDevToolsMessage(message_str.data(), message_str.size());
+            },
+            CefRefPtr<CefBrowserHostBase>(this), std::move(message_str)));
+    return false;
+  }
+
+  if (!EnsureDevToolsManager())
+    return false;
+  return devtools_manager_->SendDevToolsMessage(message, message_size);
+}
+
+int CefBrowserHostBase::ExecuteDevToolsMethod(
+    int message_id,
+    const CefString& method,
+    CefRefPtr<CefDictionaryValue> params) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT, base::BindOnce(base::IgnoreResult(
+                                    &CefBrowserHostBase::ExecuteDevToolsMethod),
+                                this, message_id, method, params));
+    return 0;
+  }
+
+  if (!EnsureDevToolsManager())
+    return 0;
+  return devtools_manager_->ExecuteDevToolsMethod(message_id, method, params);
+}
+
+CefRefPtr<CefRegistration> CefBrowserHostBase::AddDevToolsMessageObserver(
+    CefRefPtr<CefDevToolsMessageObserver> observer) {
+  if (!observer)
+    return nullptr;
+  auto registration = CefDevToolsManager::CreateRegistration(observer);
+  InitializeDevToolsRegistrationOnUIThread(registration);
+  return registration.get();
 }
 
 void CefBrowserHostBase::GetNavigationEntries(
@@ -811,3 +861,30 @@ CefRefPtr<CefBrowserView> CefBrowserHostBase::GetBrowserView() const {
   return nullptr;
 }
 #endif  // defined(TOOLKIT_VIEWS)
+
+bool CefBrowserHostBase::EnsureDevToolsManager() {
+  CEF_REQUIRE_UIT();
+  if (!contents_delegate_->web_contents())
+    return false;
+
+  if (!devtools_manager_) {
+    devtools_manager_.reset(new CefDevToolsManager(this));
+  }
+  return true;
+}
+
+void CefBrowserHostBase::InitializeDevToolsRegistrationOnUIThread(
+    CefRefPtr<CefRegistration> registration) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::BindOnce(
+            &CefBrowserHostBase::InitializeDevToolsRegistrationOnUIThread, this,
+            registration));
+    return;
+  }
+
+  if (!EnsureDevToolsManager())
+    return;
+  devtools_manager_->InitializeRegistrationOnUIThread(registration);
+}

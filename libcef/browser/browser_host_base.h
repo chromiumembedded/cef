@@ -12,6 +12,7 @@
 #include "libcef/browser/browser_contents_delegate.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_platform_delegate.h"
+#include "libcef/browser/devtools/devtools_manager.h"
 #include "libcef/browser/frame_host_impl.h"
 #include "libcef/browser/request_context_impl.h"
 
@@ -165,6 +166,12 @@ class CefBrowserHostBase : public CefBrowserHost,
   void SendMouseWheelEvent(const CefMouseEvent& event,
                            int deltaX,
                            int deltaY) override;
+  bool SendDevToolsMessage(const void* message, size_t message_size) override;
+  int ExecuteDevToolsMethod(int message_id,
+                            const CefString& method,
+                            CefRefPtr<CefDictionaryValue> params) override;
+  CefRefPtr<CefRegistration> AddDevToolsMessageObserver(
+      CefRefPtr<CefDevToolsMessageObserver> observer) override;
   void GetNavigationEntries(CefRefPtr<CefNavigationEntryVisitor> visitor,
                             bool current_only) override;
   CefRefPtr<CefNavigationEntry> GetVisibleNavigationEntry() override;
@@ -256,6 +263,10 @@ class CefBrowserHostBase : public CefBrowserHost,
 #endif
 
  protected:
+  bool EnsureDevToolsManager();
+  void InitializeDevToolsRegistrationOnUIThread(
+      CefRefPtr<CefRegistration> registration);
+
   // Called from LoadMainFrameURL to perform the actual navigation.
   virtual bool Navigate(const content::OpenURLParams& params);
 
@@ -283,6 +294,9 @@ class CefBrowserHostBase : public CefBrowserHost,
   bool has_document_ = false;
   bool is_fullscreen_ = false;
   CefRefPtr<CefFrameHostImpl> focused_frame_;
+
+  // Used for creating and managing DevTools instances.
+  std::unique_ptr<CefDevToolsManager> devtools_manager_;
 
  private:
   IMPLEMENT_REFCOUNTING(CefBrowserHostBase);

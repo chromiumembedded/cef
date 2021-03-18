@@ -528,82 +528,6 @@ bool AlloyBrowserHostImpl::HasDevTools() {
   return devtools_manager_->HasDevTools();
 }
 
-bool AlloyBrowserHostImpl::SendDevToolsMessage(const void* message,
-                                               size_t message_size) {
-  if (!message || message_size == 0)
-    return false;
-
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    std::string message_str(static_cast<const char*>(message), message_size);
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::BindOnce(
-            [](CefRefPtr<AlloyBrowserHostImpl> self, std::string message_str) {
-              self->SendDevToolsMessage(message_str.data(), message_str.size());
-            },
-            CefRefPtr<AlloyBrowserHostImpl>(this), std::move(message_str)));
-    return false;
-  }
-
-  if (!EnsureDevToolsManager())
-    return false;
-  return devtools_manager_->SendDevToolsMessage(message, message_size);
-}
-
-int AlloyBrowserHostImpl::ExecuteDevToolsMethod(
-    int message_id,
-    const CefString& method,
-    CefRefPtr<CefDictionaryValue> params) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::BindOnce(
-            base::IgnoreResult(&AlloyBrowserHostImpl::ExecuteDevToolsMethod),
-            this, message_id, method, params));
-    return 0;
-  }
-
-  if (!EnsureDevToolsManager())
-    return 0;
-  return devtools_manager_->ExecuteDevToolsMethod(message_id, method, params);
-}
-
-CefRefPtr<CefRegistration> AlloyBrowserHostImpl::AddDevToolsMessageObserver(
-    CefRefPtr<CefDevToolsMessageObserver> observer) {
-  if (!observer)
-    return nullptr;
-  auto registration = CefDevToolsManager::CreateRegistration(observer);
-  InitializeDevToolsRegistrationOnUIThread(registration);
-  return registration.get();
-}
-
-bool AlloyBrowserHostImpl::EnsureDevToolsManager() {
-  CEF_REQUIRE_UIT();
-  if (!web_contents())
-    return false;
-
-  if (!devtools_manager_) {
-    devtools_manager_.reset(new CefDevToolsManager(this));
-  }
-  return true;
-}
-
-void AlloyBrowserHostImpl::InitializeDevToolsRegistrationOnUIThread(
-    CefRefPtr<CefRegistration> registration) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::BindOnce(
-            &AlloyBrowserHostImpl::InitializeDevToolsRegistrationOnUIThread,
-            this, registration));
-    return;
-  }
-
-  if (!EnsureDevToolsManager())
-    return;
-  devtools_manager_->InitializeRegistrationOnUIThread(registration);
-}
-
 void AlloyBrowserHostImpl::SetAccessibilityState(
     cef_state_t accessibility_state) {
   if (!CEF_CURRENTLY_ON_UIT()) {
@@ -856,8 +780,6 @@ void AlloyBrowserHostImpl::DestroyBrowser() {
   // Delete the audio capturer
   recently_audible_timer_.Stop();
   audio_capturer_.reset(nullptr);
-
-  devtools_manager_.reset(nullptr);
 
   CefBrowserHostBase::DestroyBrowser();
 }
