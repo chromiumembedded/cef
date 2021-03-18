@@ -115,23 +115,46 @@ def make_libcef_dll_dylib_impl(header):
   # Build the final output.
   result = get_copyright() + """
 
-#include <dlfcn.h>
 #include <stdio.h>
+#include <system_error>
 
 """ + "\n".join(sorted(includes)) + """
 #include "include/wrapper/cef_library_loader.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
+#else
+#include <dlfcn.h>
+#endif
 
 // GLOBAL WRAPPER FUNCTIONS - Do not edit by hand.
 
 namespace {
 
+#if defined(OS_WIN)
+inline std::string get_last_error_message() {
+  DWORD error_code = ::GetLastError();
+  return std::system_category().message(error_code);
+}
+#endif
+
 void* g_libcef_handle = nullptr;
 
-void* libcef_get_ptr(const char* path, const char* name) {
+void* libcef_get_ptr(const CEF_PATH_CHAR_T* path, const char* name) {
+
+#if defined(OS_WIN)
+  void* ptr = ::GetProcAddress((HMODULE)g_libcef_handle, name);
+  if (!ptr) {
+    fprintf(stderr, "GetProcAddress %ls: %s\\n",
+            path, get_last_error_message().c_str());
+  }
+#else
   void* ptr = dlsym(g_libcef_handle, name);
   if (!ptr) {
     fprintf(stderr, "dlsym %s: %s\\n", path, dlerror());
   }
+#endif
+
   return ptr;
 }
 
@@ -147,22 +170,33 @@ struct libcef_pointers {
     return 0; \
   }
 
-int libcef_init_pointers(const char* path) {
+int libcef_init_pointers(const CEF_PATH_CHAR_T* path) {
 """ + ptr_init + """
   return 1;
 }
 
 }  // namespace
 
-int cef_load_library(const char* path) {
+int cef_load_library(const CEF_PATH_CHAR_T* path) {
   if (g_libcef_handle)
     return 0;
 
+#if defined(OS_WIN)
+  g_libcef_handle = ::LoadLibraryExW(path, nullptr,
+                                     LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR |
+                                     LOAD_LIBRARY_SEARCH_SYSTEM32);
+  if (!g_libcef_handle) {
+    fprintf(stderr, "LoadLibraryExW %ls: %s\\n",
+            path, get_last_error_message().c_str());
+    return 0;
+  }
+#else
   g_libcef_handle = dlopen(path, RTLD_LAZY | RTLD_LOCAL | RTLD_FIRST);
   if (!g_libcef_handle) {
     fprintf(stderr, "dlopen %s: %s\\n", path, dlerror());
     return 0;
   }
+#endif
 
   if (!libcef_init_pointers(path)) {
     cef_unload_library();
@@ -175,10 +209,20 @@ int cef_load_library(const char* path) {
 int cef_unload_library() {
   int result = 0;
   if (g_libcef_handle) {
+
+#if defined(OS_WIN)
+    result = FreeLibrary((HMODULE)g_libcef_handle);
+    if (!result) {
+      fprintf(stderr, "FreeLibrary failed: %s\\n",
+              get_last_error_message().c_str());
+    }
+#else
     result = !dlclose(g_libcef_handle);
     if (!result) {
       fprintf(stderr, "dlclose: %s\\n", dlerror());
     }
+#endif
+
     g_libcef_handle = nullptr;
   }
   return result;

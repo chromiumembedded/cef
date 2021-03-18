@@ -33,6 +33,12 @@
 
 #include "include/base/cef_build.h"
 
+#if defined(OS_WIN)
+  #define CEF_PATH_CHAR_T wchar_t
+#else
+  #define CEF_PATH_CHAR_T char
+#endif
+
 #ifdef __cplusplus
 #include <string>
 
@@ -45,7 +51,7 @@ extern "C" {
 // Load the CEF library at the specified |path|. Returns true (1) on
 // success and false (0) on failure.
 ///
-int cef_load_library(const char* path);
+int cef_load_library(const CEF_PATH_CHAR_T* path);
 
 ///
 // Unload the CEF library that was previously loaded. Returns true (1)
