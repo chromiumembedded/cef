@@ -10,15 +10,13 @@ namespace {
 
 // The rate at which new calls to OnPaint will be generated.
 const int kDefaultFrameRate = 30;
-const int kMaximumFrameRate = 60;
 
 }  // namespace
 
 int ClampFrameRate(int frame_rate) {
   if (frame_rate < 1)
     return kDefaultFrameRate;
-  else if (frame_rate > kMaximumFrameRate)
-    return kMaximumFrameRate;
+
   return frame_rate;
 }
 
