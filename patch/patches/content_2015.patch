@@ -240,7 +240,7 @@ index 4bb04980b544..4e1e448a8bfc 100644
                              std::string /* mime_type */,
                              bool /* found */,
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index 64493c6a92a3..f4ffb03b1c63 100644
+index c84ae68f2f27..f90cdd146210 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
 @@ -9,7 +9,7 @@
@@ -253,7 +253,7 @@ index 64493c6a92a3..f4ffb03b1c63 100644
  #include <utility>
  
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 2cfb4a2bb17d..be665a224f63 100644
+index c4fc708ab278..2c9f4e1f4dfe 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -32,6 +32,7 @@
@@ -264,7 +264,7 @@ index 2cfb4a2bb17d..be665a224f63 100644
  #include "content/public/common/page_visibility_state.h"
  #include "content/public/common/window_container_type.mojom-forward.h"
  #include "device/vr/buildflags/buildflags.h"
-@@ -1713,6 +1714,14 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1714,6 +1715,14 @@ class CONTENT_EXPORT ContentBrowserClient {
        const base::Optional<url::Origin>& initiating_origin,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
@@ -279,7 +279,7 @@ index 2cfb4a2bb17d..be665a224f63 100644
    // Creates an OverlayWindow to be used for Picture-in-Picture. This window
    // will house the content shown when in Picture-in-Picture mode. This will
    // return a new OverlayWindow.
-@@ -1784,6 +1793,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1785,6 +1794,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  
@@ -340,7 +340,7 @@ index a4695ba832fc..3eb41cb569b1 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index a401af64fad7..229b79fb71d7 100644
+index d59a55cc4ec2..3a3e5b7336df 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
 @@ -3639,7 +3639,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
