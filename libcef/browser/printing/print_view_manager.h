@@ -26,7 +26,8 @@ struct PrintHostMsg_RequestPrintPreview_Params;
 namespace printing {
 
 // CEF handler for print commands.
-class CefPrintViewManager : public PrintViewManager {
+class CefPrintViewManager : public PrintViewManager,
+                            public mojom::PrintPreviewUI {
  public:
   ~CefPrintViewManager() override;
 
@@ -44,6 +45,18 @@ class CefPrintViewManager : public PrintViewManager {
       GetDefaultPrintSettingsCallback callback) override;
   void DidShowPrintDialog() override;
   void RequestPrintPreview(mojom::RequestPrintPreviewParamsPtr params) override;
+  void CheckForCancel(int32_t preview_ui_id,
+                      int32_t request_id,
+                      CheckForCancelCallback callback) override;
+
+  // printing::mojo::PrintPreviewUI methods:
+  void SetOptionsFromDocument(const mojom::OptionsFromDocumentParamsPtr params,
+                              int32_t request_id) override {}
+  void PrintPreviewFailed(int32_t document_cookie, int32_t request_id) override;
+  void PrintPreviewCancelled(int32_t document_cookie,
+                             int32_t request_id) override;
+  void PrinterSettingsInvalid(int32_t document_cookie,
+                              int32_t request_id) override {}
 
   // content::WebContentsObserver methods:
   void RenderFrameDeleted(content::RenderFrameHost* render_frame_host) override;
@@ -74,6 +87,7 @@ class CefPrintViewManager : public PrintViewManager {
   int next_pdf_request_id_ = content::RenderFrameHost::kNoFrameTreeNodeId;
   struct PdfPrintState;
   std::unique_ptr<PdfPrintState> pdf_print_state_;
+  mojo::AssociatedReceiver<mojom::PrintPreviewUI> pdf_print_receiver_{this};
 
   DISALLOW_COPY_AND_ASSIGN(CefPrintViewManager);
 };

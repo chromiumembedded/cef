@@ -209,7 +209,13 @@ bool CefPrintViewManager::PrintToPDF(content::RenderFrameHost* rfh,
   FillInDictionaryFromPdfPrintSettings(settings, ++next_pdf_request_id_,
                                        pdf_print_state_->settings_);
 
-  GetPrintRenderFrame(rfh)->InitiatePrintPreview({}, !!settings.selection_only);
+  auto& print_render_frame = GetPrintRenderFrame(rfh);
+  if (!pdf_print_receiver_.is_bound()) {
+    print_render_frame->SetPrintPreviewUI(
+        pdf_print_receiver_.BindNewEndpointAndPassRemote());
+  }
+
+  print_render_frame->InitiatePrintPreview({}, !!settings.selection_only);
 
   return true;
 }
@@ -241,6 +247,28 @@ void CefPrintViewManager::RequestPrintPreview(
 
   GetPrintRenderFrame(pdf_print_state_->printing_rfh_)
       ->PrintPreview(pdf_print_state_->settings_.Clone());
+}
+
+void CefPrintViewManager::CheckForCancel(int32_t preview_ui_id,
+                                         int32_t request_id,
+                                         CheckForCancelCallback callback) {
+  if (!pdf_print_state_) {
+    return PrintViewManager::CheckForCancel(preview_ui_id, request_id,
+                                            std::move(callback));
+  }
+
+  std::move(callback).Run(/*cancel=*/false);
+}
+
+void CefPrintViewManager::PrintPreviewFailed(int32_t document_cookie,
+                                             int32_t request_id) {
+  TerminatePdfPrintJob();
+}
+
+void CefPrintViewManager::PrintPreviewCancelled(int32_t document_cookie,
+                                                int32_t request_id) {
+  // Should never be canceled by CheckForCancel().
+  NOTREACHED();
 }
 
 void CefPrintViewManager::RenderFrameDeleted(
@@ -336,6 +364,7 @@ void CefPrintViewManager::OnMetafileReadyForPrinting_PrintToPdf(
 
   // Reset state information.
   pdf_print_state_.reset();
+  pdf_print_receiver_.reset();
 
   // Save the PDF file to disk and then execute the callback.
   CEF_POST_USER_VISIBLE_TASK(
@@ -355,6 +384,7 @@ void CefPrintViewManager::TerminatePdfPrintJob() {
 
   // Reset state information.
   pdf_print_state_.reset();
+  pdf_print_receiver_.reset();
 }
 
 }  // namespace printing
