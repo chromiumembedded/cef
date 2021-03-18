@@ -1112,8 +1112,6 @@ elif platform == 'mac':
                         'include/', include_dir, options.quiet)
     transfer_gypi_files(cef_dir, cef_paths2['includes_mac_capi'], \
                         'include/', include_dir, options.quiet)
-    transfer_gypi_files(cef_dir, cef_paths2['includes_wrapper_mac'], \
-                        'include/', include_dir, options.quiet)
 
     # transfer libcef_dll_wrapper files
     transfer_gypi_files(cef_dir, cef_paths2['libcef_dll_wrapper_sources_mac'], \

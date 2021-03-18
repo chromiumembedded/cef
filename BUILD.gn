@@ -1847,7 +1847,6 @@ if (is_mac) {
     helper_sources = includes_common +
                      includes_mac +
                      gypi_paths2.includes_wrapper +
-                     gypi_paths2.includes_wrapper_mac +
                      gypi_paths2.shared_sources_common +
                      gypi_paths2.shared_sources_renderer +
                      gypi_paths2.shared_sources_mac_helper +
@@ -1861,7 +1860,6 @@ if (is_mac) {
     sources = includes_common +
               includes_mac +
               gypi_paths2.includes_wrapper +
-              gypi_paths2.includes_wrapper_mac +
               gypi_paths2.shared_sources_browser +
               gypi_paths2.shared_sources_common +
               gypi_paths2.shared_sources_mac +
@@ -1920,7 +1918,6 @@ if (is_mac) {
     helper_sources = includes_common +
                      includes_mac +
                      gypi_paths2.includes_wrapper +
-                     gypi_paths2.includes_wrapper_mac +
                      gypi_paths2.cefsimple_sources_mac_helper
     helper_defines = [
       "CEF_USE_SANDBOX",
@@ -1930,7 +1927,6 @@ if (is_mac) {
     sources = includes_common +
               includes_mac +
               gypi_paths2.includes_wrapper +
-              gypi_paths2.includes_wrapper_mac +
               gypi_paths2.cefsimple_sources_common +
               gypi_paths2.cefsimple_sources_mac
     deps = [
@@ -1997,7 +1993,6 @@ if (is_mac) {
     sources = includes_common +
               includes_mac +
               gypi_paths2.includes_wrapper +
-              gypi_paths2.includes_wrapper_mac +
               gypi_paths2.shared_sources_browser +
               gypi_paths2.shared_sources_common +
               gypi_paths2.shared_sources_mac +
