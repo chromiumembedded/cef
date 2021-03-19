@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index 72d91d05c23a..bfa8860bcd89 100644
+index b20b829650c3..a9becc2af0ad 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -12,6 +12,7 @@ import("//build/config/crypto.gni")
@@ -10,7 +10,7 @@ index 72d91d05c23a..bfa8860bcd89 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/downgrade/buildflags.gni")
  import("//chrome/common/features.gni")
-@@ -1964,6 +1965,7 @@ static_library("browser") {
+@@ -1962,6 +1963,7 @@ static_library("browser") {
      "//build:chromeos_buildflags",
      "//build/config/compiler:compiler_buildflags",
      "//cc",
@@ -18,7 +18,7 @@ index 72d91d05c23a..bfa8860bcd89 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2504,6 +2506,10 @@ static_library("browser") {
+@@ -2502,6 +2504,10 @@ static_library("browser") {
      ]
    }
  
@@ -29,7 +29,7 @@ index 72d91d05c23a..bfa8860bcd89 100644
    if (is_android) {
      sources += [
        "after_startup_task_utils_android.cc",
-@@ -5166,7 +5172,7 @@ static_library("browser") {
+@@ -5170,7 +5176,7 @@ static_library("browser") {
        ]
      }
  

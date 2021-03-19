@@ -58,7 +58,7 @@ index fa088bfa0019..7f00e2a2154f 100644
    // Add an entry to the map.
    preview_dialog_map_[preview_dialog] = initiator;
 diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index 81df8a2cb0c3..ae4dcf5beb16 100644
+index bdfa513542e5..364ee827c63e 100644
 --- chrome/browser/printing/print_view_manager_base.cc
 +++ chrome/browser/printing/print_view_manager_base.cc
 @@ -21,6 +21,7 @@
@@ -343,7 +343,7 @@ index 5beb6ac1f575..56e0fca6f317 100644
  
  void PrintPreviewHandler::UnregisterForGaiaCookieChanges() {
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index 60b1fe2311c0..74ee97dbbf6d 100644
+index 0351787fc0e0..997f92ca8779 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -30,6 +30,7 @@

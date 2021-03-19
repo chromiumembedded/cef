@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 588ad8311491..7aa76b084da5 100644
+index 7564e1373371..472b2c12b0af 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -2749,6 +2749,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
@@ -39,7 +39,7 @@ index 588ad8311491..7aa76b084da5 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -7277,6 +7293,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -7286,6 +7302,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // This is an outermost WebContents.
      SetAsFocusedWebContentsIfNecessary();
    }
@@ -62,7 +62,7 @@ index f1dcf53ea481..192f7c0ddd04 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index f1bdd0c7bad8..46a33d9094e1 100644
+index f7c4564d7ab0..ca42dfbcbd03 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -87,8 +87,10 @@ class BrowserContext;
@@ -88,7 +88,7 @@ index f1bdd0c7bad8..46a33d9094e1 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 9075cda6487f..c7deaa1c9752 100644
+index e752b5bd6893..f95807e06e5f 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -60,10 +60,12 @@ class EyeDropperListener;

@@ -188,10 +188,10 @@ index 632ae86c6fd6..55b749ec1242 100644
                            const std::vector<WebPluginInfo>& all_plugins);
  
 diff --git content/browser/renderer_host/render_frame_host_impl.cc content/browser/renderer_host/render_frame_host_impl.cc
-index ea74ff6875fd..0c14ce034b96 100644
+index a3b189c18812..50a69d50e8e7 100644
 --- content/browser/renderer_host/render_frame_host_impl.cc
 +++ content/browser/renderer_host/render_frame_host_impl.cc
-@@ -10452,6 +10452,7 @@ void RenderFrameHostImpl::BindHungDetectorHost(
+@@ -10465,6 +10465,7 @@ void RenderFrameHostImpl::BindHungDetectorHost(
  }
  
  void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
@@ -199,7 +199,7 @@ index ea74ff6875fd..0c14ce034b96 100644
                                          const url::Origin& main_frame_origin,
                                          const std::string& mime_type,
                                          GetPluginInfoCallback callback) {
-@@ -10459,7 +10460,8 @@ void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
+@@ -10472,7 +10473,8 @@ void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
    WebPluginInfo info;
    std::string actual_mime_type;
    bool found = PluginServiceImpl::GetInstance()->GetPluginInfo(
@@ -210,7 +210,7 @@ index ea74ff6875fd..0c14ce034b96 100644
    std::move(callback).Run(found, info, actual_mime_type);
  }
 diff --git content/browser/renderer_host/render_frame_host_impl.h content/browser/renderer_host/render_frame_host_impl.h
-index 6f7b14d24a4d..8b34229944a8 100644
+index ec502841c067..0279d0405d55 100644
 --- content/browser/renderer_host/render_frame_host_impl.h
 +++ content/browser/renderer_host/render_frame_host_impl.h
 @@ -2234,6 +2234,7 @@ class CONTENT_EXPORT RenderFrameHostImpl
@@ -234,7 +234,7 @@ index a415743ed665..5115a2407a8b 100644
                  string mime_type) =>
                 (bool found,
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index c8926e0e832d..d50adb22082e 100644
+index 3c75742d4ade..082827dee6de 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
 @@ -9,7 +9,7 @@
@@ -247,7 +247,7 @@ index c8926e0e832d..d50adb22082e 100644
  #include <utility>
  
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 3aed911c525b..1ac73a132e3c 100644
+index 944f98d0f979..815580ccec5a 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -32,6 +32,7 @@
@@ -258,7 +258,7 @@ index 3aed911c525b..1ac73a132e3c 100644
  #include "content/public/common/page_visibility_state.h"
  #include "content/public/common/window_container_type.mojom-forward.h"
  #include "device/vr/buildflags/buildflags.h"
-@@ -1731,6 +1732,14 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1735,6 +1736,14 @@ class CONTENT_EXPORT ContentBrowserClient {
        const base::Optional<url::Origin>& initiating_origin,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
@@ -273,7 +273,7 @@ index 3aed911c525b..1ac73a132e3c 100644
    // Creates an OverlayWindow to be used for Picture-in-Picture. This window
    // will house the content shown when in Picture-in-Picture mode. This will
    // return a new OverlayWindow.
-@@ -1802,6 +1811,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1806,6 +1815,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  
@@ -334,10 +334,10 @@ index 007e4df297a8..52017e661809 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 0c9fc86e80a1..6653b5de4385 100644
+index 47e13366517c..27f359155fa9 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -3564,7 +3564,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -3566,7 +3566,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    WebPluginInfo info;
    std::string mime_type;
    bool found = false;

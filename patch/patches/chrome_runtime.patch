@@ -155,7 +155,7 @@ index 8a33ce57766c..ca69a37eee22 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 29ba5f21b38f..3ce05420eb78 100644
+index 6a94d1ec0122..211aee12cb12 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -37,6 +37,7 @@
@@ -166,7 +166,7 @@ index 29ba5f21b38f..3ce05420eb78 100644
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/accessibility_labels_service_factory.h"
  #include "chrome/browser/accessibility/caption_util.h"
-@@ -3591,9 +3592,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -3594,9 +3595,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // defined(OS_ANDROID)
  
