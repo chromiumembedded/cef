@@ -1774,6 +1774,7 @@ if (is_mac) {
 
       public_deps = [ ":libcef_dll_wrapper" ]
       deps = [
+        ":cef_make_headers",
         ":libcef_dll_wrapper",
         ":${app_name}_framework_bundle_data",
       ]
