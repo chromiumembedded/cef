@@ -322,7 +322,8 @@ class V8TrackArrayBuffer : public CefTrackNode {
       CefRefPtr<CefV8ArrayBufferReleaseCallback> release_callback)
       : isolate_(isolate),
         buffer_(buffer),
-        release_callback_(release_callback) {
+        release_callback_(release_callback),
+        weak_ptr_factory_(this) {
     DCHECK(isolate_);
     isolate_->AdjustAmountOfExternalAllocatedMemory(
         static_cast<int>(sizeof(V8TrackArrayBuffer)));
@@ -365,10 +366,16 @@ class V8TrackArrayBuffer : public CefTrackNode {
     return nullptr;
   }
 
+  base::WeakPtr<V8TrackArrayBuffer> GetWeakPtr() const {
+    return weak_ptr_factory_.GetWeakPtr();
+  }
+
  private:
   v8::Isolate* isolate_;
   void* buffer_;
   CefRefPtr<CefV8ArrayBufferReleaseCallback> release_callback_;
+
+  base::WeakPtrFactory<V8TrackArrayBuffer> weak_ptr_factory_;
 };
 
 // Object wrapped in a v8::External and passed as the Data argument to
@@ -1416,15 +1423,24 @@ CefRefPtr<CefV8Value> CefV8Value::CreateArrayBuffer(
   V8TrackArrayBuffer* tracker =
       new V8TrackArrayBuffer(isolate, buffer, release_callback);
 
+  struct WeakPtrWrapper {
+    WeakPtrWrapper(V8TrackArrayBuffer* tracker) {
+      weak_ptr_ = tracker->GetWeakPtr();
+    }
+    base::WeakPtr<V8TrackArrayBuffer> weak_ptr_;
+  };
+
   auto deleter = [](void* data, size_t length, void* deleter_data) {
-    auto* tracker = reinterpret_cast<V8TrackArrayBuffer*>(deleter_data);
-    if (tracker) {
-      tracker->ReleaseBuffer();
+    auto* wrapper = reinterpret_cast<WeakPtrWrapper*>(deleter_data);
+    if (wrapper) {
+      if (wrapper->weak_ptr_)
+        wrapper->weak_ptr_->ReleaseBuffer();
+      delete wrapper;
     }
   };
 
-  std::unique_ptr<v8::BackingStore> backing =
-      v8::ArrayBuffer::NewBackingStore(buffer, length, deleter, tracker);
+  std::unique_ptr<v8::BackingStore> backing = v8::ArrayBuffer::NewBackingStore(
+      buffer, length, deleter, new WeakPtrWrapper(tracker));
   v8::Local<v8::ArrayBuffer> ab =
       v8::ArrayBuffer::New(isolate, std::move(backing));
 
