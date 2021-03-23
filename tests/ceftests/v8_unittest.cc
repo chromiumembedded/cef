@@ -547,48 +547,32 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     bool destructorCalled = false;
     bool releaseBufferCalled = false;
-
-    bool neuteredDestructorCalled = false;
-    bool neuteredReleaseBufferCalled = false;
     // Enter the V8 context.
     EXPECT_TRUE(context->Enter());
     {
       int static_data[16];
-      CefRefPtr<CefV8Value> value;
       CefRefPtr<TestArrayBufferReleaseCallback> release_callback =
           new TestArrayBufferReleaseCallback(&destructorCalled,
                                              &releaseBufferCalled);
-
-      CefRefPtr<CefV8Value> neuteredValue;
-      CefRefPtr<TestArrayBufferReleaseCallback> neuteredReleaseCallback =
-          new TestArrayBufferReleaseCallback(&neuteredDestructorCalled,
-                                             &neuteredReleaseBufferCalled);
-      value = CefV8Value::CreateArrayBuffer(static_data, sizeof(static_data),
-                                            release_callback);
-      neuteredValue = CefV8Value::CreateArrayBuffer(
-          static_data, sizeof(static_data), neuteredReleaseCallback);
+      CefRefPtr<CefV8Value> value = CefV8Value::CreateArrayBuffer(
+          static_data, sizeof(static_data), release_callback);
       EXPECT_TRUE(value.get());
       EXPECT_TRUE(value->IsArrayBuffer());
       EXPECT_TRUE(value->IsObject());
       EXPECT_FALSE(value->HasValue(0));
-      EXPECT_FALSE(destructorCalled);
       EXPECT_TRUE(value->GetArrayBufferReleaseCallback().get() != nullptr);
       EXPECT_TRUE(((TestArrayBufferReleaseCallback*)value
                        ->GetArrayBufferReleaseCallback()
                        .get()) == release_callback);
 
-      // |neuteredValue| buffer is explicitly freed by NeuterArrayBuffer().
-      EXPECT_FALSE(neuteredReleaseBufferCalled);
-      EXPECT_TRUE(neuteredValue->NeuterArrayBuffer());
-      EXPECT_TRUE(neuteredReleaseBufferCalled);
-
-      // |value| buffer is implicitly freed when the value goes out of scope.
+      // |Value| buffer is explicitly freed by NeuterArrayBuffer().
+      EXPECT_FALSE(destructorCalled);
       EXPECT_FALSE(releaseBufferCalled);
+      EXPECT_TRUE(value->NeuterArrayBuffer());
+      EXPECT_TRUE(releaseBufferCalled);
     }
     // Exit the V8 context.
     EXPECT_TRUE(destructorCalled);
-    EXPECT_TRUE(releaseBufferCalled);
-    EXPECT_TRUE(neuteredDestructorCalled);
     EXPECT_TRUE(context->Exit());
     DestroyTest();
   }
