@@ -318,18 +318,14 @@ class V8TrackArrayBuffer : public CefTrackNode {
  public:
   explicit V8TrackArrayBuffer(
       v8::Isolate* isolate,
-      void* buffer,
       CefRefPtr<CefV8ArrayBufferReleaseCallback> release_callback)
-      : isolate_(isolate),
-        buffer_(buffer),
-        release_callback_(release_callback) {
+      : isolate_(isolate), release_callback_(release_callback) {
     DCHECK(isolate_);
     isolate_->AdjustAmountOfExternalAllocatedMemory(
         static_cast<int>(sizeof(V8TrackArrayBuffer)));
   }
 
   ~V8TrackArrayBuffer() {
-    ReleaseBuffer();
     isolate_->AdjustAmountOfExternalAllocatedMemory(
         -static_cast<int>(sizeof(V8TrackArrayBuffer)));
   }
@@ -337,15 +333,6 @@ class V8TrackArrayBuffer : public CefTrackNode {
   CefRefPtr<CefV8ArrayBufferReleaseCallback> GetReleaseCallback() {
     return release_callback_;
   }
-
-  void ReleaseBuffer() {
-    if (buffer_ && release_callback_) {
-      release_callback_->ReleaseBuffer(buffer_);
-    }
-    Detach();
-  }
-
-  void Detach() { buffer_ = nullptr; }
 
   // Attach this track object to the specified V8 object.
   void AttachTo(v8::Local<v8::Context> context,
@@ -367,7 +354,6 @@ class V8TrackArrayBuffer : public CefTrackNode {
 
  private:
   v8::Isolate* isolate_;
-  void* buffer_;
   CefRefPtr<CefV8ArrayBufferReleaseCallback> release_callback_;
 };
 
@@ -1414,17 +1400,22 @@ CefRefPtr<CefV8Value> CefV8Value::CreateArrayBuffer(
   // Create a tracker object that will cause the user data reference to be
   // released when the V8 object is destroyed.
   V8TrackArrayBuffer* tracker =
-      new V8TrackArrayBuffer(isolate, buffer, release_callback);
+      new V8TrackArrayBuffer(isolate, release_callback);
+
+  if (release_callback)
+    release_callback->AddRef();
 
   auto deleter = [](void* data, size_t length, void* deleter_data) {
-    auto* tracker = reinterpret_cast<V8TrackArrayBuffer*>(deleter_data);
-    if (tracker) {
-      tracker->ReleaseBuffer();
+    auto* release_callback =
+        reinterpret_cast<CefV8ArrayBufferReleaseCallback*>(deleter_data);
+    if (release_callback) {
+      release_callback->ReleaseBuffer(data);
+      release_callback->Release();
     }
   };
 
-  std::unique_ptr<v8::BackingStore> backing =
-      v8::ArrayBuffer::NewBackingStore(buffer, length, deleter, tracker);
+  std::unique_ptr<v8::BackingStore> backing = v8::ArrayBuffer::NewBackingStore(
+      buffer, length, deleter, release_callback.get());
   v8::Local<v8::ArrayBuffer> ab =
       v8::ArrayBuffer::New(isolate, std::move(backing));
 
@@ -2302,8 +2293,6 @@ bool CefV8ValueImpl::NeuterArrayBuffer() {
     return false;
   }
   arr->Detach();
-  V8TrackArrayBuffer* tracker = V8TrackArrayBuffer::Unwrap(context, obj);
-  tracker->Detach();
 
   return true;
 }
