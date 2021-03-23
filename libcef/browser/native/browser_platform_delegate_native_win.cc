@@ -487,8 +487,7 @@ gfx::Vector2d CefBrowserPlatformDelegateNativeWin::GetUiWheelEventOffset(
 }
 
 base::TimeTicks CefBrowserPlatformDelegateNativeWin::GetEventTimeStamp() const {
-  return base::TimeTicks() +
-         base::TimeDelta::FromMilliseconds(GetMessageTime());
+  return base::TimeTicks::Now();
 }
 
 // static
