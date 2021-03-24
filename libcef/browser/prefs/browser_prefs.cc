@@ -253,6 +253,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     registry->RegisterStringPref(
         prefs::kPrintPreviewDefaultDestinationSelectionRules, std::string());
     registry->RegisterBooleanPref(prefs::kCloudPrintSubmitEnabled, false);
+    registry->RegisterBooleanPref(prefs::kEnableMediaRouter, true);
     printing::PolicySettings::RegisterProfilePrefs(registry.get());
     printing::PrintPreviewStickySettings::RegisterProfilePrefs(registry.get());
     DownloadPrefs::RegisterProfilePrefs(registry.get());
