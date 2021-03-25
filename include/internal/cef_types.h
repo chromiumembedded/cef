@@ -586,14 +586,6 @@ typedef struct _cef_browser_settings_t {
   cef_state_t file_access_from_file_urls;
 
   ///
-  // Controls whether web security restrictions (same-origin policy) will be
-  // enforced. Disabling this setting is not recommend as it will allow risky
-  // security behavior such as cross-site scripting (XSS). Also configurable
-  // using the "disable-web-security" command-line switch.
-  ///
-  cef_state_t web_security;
-
-  ///
   // Controls whether image URLs will be loaded from the network. A cached image
   // will still be rendered if requested. Also configurable using the
   // "disable-image-loading" command-line switch.
