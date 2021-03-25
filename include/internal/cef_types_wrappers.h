@@ -705,7 +705,6 @@ struct CefBrowserSettingsTraits {
     target->universal_access_from_file_urls =
         src->universal_access_from_file_urls;
     target->file_access_from_file_urls = src->file_access_from_file_urls;
-    target->web_security = src->web_security;
     target->image_loading = src->image_loading;
     target->image_shrink_standalone_to_fit =
         src->image_shrink_standalone_to_fit;

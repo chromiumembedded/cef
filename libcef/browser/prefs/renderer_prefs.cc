@@ -253,7 +253,6 @@ void SetCefPrefs(const CefBrowserSettings& cef,
             web.allow_universal_access_from_file_urls);
   SET_STATE(cef.file_access_from_file_urls,
             web.allow_file_access_from_file_urls);
-  SET_STATE(cef.web_security, web.web_security_enabled);
   SET_STATE(cef.image_loading, web.loads_images_automatically);
   SET_STATE(cef.image_shrink_standalone_to_fit,
             web.shrinks_standalone_images_to_fit);
