@@ -574,23 +574,13 @@ struct ClientPrintHandlerGtk::PrintHandler {
 ClientPrintHandlerGtk::ClientPrintHandlerGtk() {}
 
 ClientPrintHandlerGtk::~ClientPrintHandlerGtk() {
-  DCHECK(print_handler_map_.empty());
+  DCHECK(!print_handler_);
 }
 
 void ClientPrintHandlerGtk::OnPrintStart(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
-
-  const int browser_id = browser->GetIdentifier();
-
-#ifndef _NDEBUG
-  // Print handler should not already exist for the browser.
-  PrintHandlerMap::const_iterator it = print_handler_map_.find(browser_id);
-  DCHECK(it == print_handler_map_.end());
-#endif
-
-  // Create a new print handler.
-  PrintHandler* ph = new PrintHandler(browser);
-  print_handler_map_.insert(std::make_pair(browser_id, ph));
+  DCHECK(!print_handler_);
+  print_handler_ = std::make_unique<PrintHandler>(browser);
 }
 
 void ClientPrintHandlerGtk::OnPrintSettings(
@@ -599,7 +589,7 @@ void ClientPrintHandlerGtk::OnPrintSettings(
     bool get_defaults) {
   CEF_REQUIRE_UI_THREAD();
 
-  GetPrintHandler(browser)->OnPrintSettings(settings, get_defaults);
+  print_handler_->OnPrintSettings(settings, get_defaults);
 }
 
 bool ClientPrintHandlerGtk::OnPrintDialog(
@@ -608,10 +598,10 @@ bool ClientPrintHandlerGtk::OnPrintDialog(
     CefRefPtr<CefPrintDialogCallback> callback) {
   CEF_REQUIRE_UI_THREAD();
 
-  PrintHandler* print_handler = GetPrintHandler(browser);
-  GetWindowAndContinue(browser, base::Bind(&PrintHandler::OnPrintDialog,
-                                           base::Unretained(print_handler),
-                                           has_selection, callback));
+  GetWindowAndContinue(
+      browser, base::Bind(&PrintHandler::OnPrintDialog,
+                          base::Unretained(print_handler_.get()), has_selection,
+                          callback));
   return true;
 }
 
@@ -622,19 +612,14 @@ bool ClientPrintHandlerGtk::OnPrintJob(
     CefRefPtr<CefPrintJobCallback> callback) {
   CEF_REQUIRE_UI_THREAD();
 
-  return GetPrintHandler(browser)->OnPrintJob(document_name, pdf_file_path,
-                                              callback);
+  return print_handler_->OnPrintJob(document_name, pdf_file_path, callback);
 }
 
 void ClientPrintHandlerGtk::OnPrintReset(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
 
   // Delete the print handler.
-  PrintHandlerMap::iterator it =
-      print_handler_map_.find(browser->GetIdentifier());
-  DCHECK(it != print_handler_map_.end());
-  delete it->second;
-  print_handler_map_.erase(it);
+  print_handler_.reset();
 }
 
 CefSize ClientPrintHandlerGtk::GetPdfPaperSize(CefRefPtr<CefBrowser> browser,
@@ -651,14 +636,6 @@ CefSize ClientPrintHandlerGtk::GetPdfPaperSize(CefRefPtr<CefBrowser> browser,
   g_object_unref(page_setup);
 
   return CefSize(width * device_units_per_inch, height * device_units_per_inch);
-}
-
-ClientPrintHandlerGtk::PrintHandler* ClientPrintHandlerGtk::GetPrintHandler(
-    CefRefPtr<CefBrowser> browser) {
-  PrintHandlerMap::const_iterator it =
-      print_handler_map_.find(browser->GetIdentifier());
-  DCHECK(it != print_handler_map_.end());
-  return it->second;
 }
 
 }  // namespace client

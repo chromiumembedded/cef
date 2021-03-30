@@ -7,7 +7,7 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_PRINT_HANDLER_GTK_H_
 #pragma once
 
-#include <map>
+#include <memory>
 
 #include "include/cef_print_handler.h"
 
@@ -37,11 +37,7 @@ class ClientPrintHandlerGtk : public CefPrintHandler {
  private:
   // Print handler.
   struct PrintHandler;
-  PrintHandler* GetPrintHandler(CefRefPtr<CefBrowser> browser);
-
-  // Map of browser ID to print handler.
-  typedef std::map<int, PrintHandler*> PrintHandlerMap;
-  PrintHandlerMap print_handler_map_;
+  std::unique_ptr<PrintHandler> print_handler_;
 
   IMPLEMENT_REFCOUNTING(ClientPrintHandlerGtk);
   DISALLOW_COPY_AND_ASSIGN(ClientPrintHandlerGtk);
