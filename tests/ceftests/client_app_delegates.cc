@@ -120,11 +120,6 @@ void ClientAppBrowser::CreateDelegates(DelegateSet& delegates) {
 }
 
 // static
-CefRefPtr<CefPrintHandler> ClientAppBrowser::CreatePrintHandler() {
-  return nullptr;
-}
-
-// static
 void ClientAppRenderer::CreateDelegates(DelegateSet& delegates) {
   ::CreateRenderDelegates(delegates);
 }

@@ -637,7 +637,8 @@ void ClientPrintHandlerGtk::OnPrintReset(CefRefPtr<CefBrowser> browser) {
   print_handler_map_.erase(it);
 }
 
-CefSize ClientPrintHandlerGtk::GetPdfPaperSize(int device_units_per_inch) {
+CefSize ClientPrintHandlerGtk::GetPdfPaperSize(CefRefPtr<CefBrowser> browser,
+                                               int device_units_per_inch) {
   CEF_REQUIRE_UI_THREAD();
 
   ScopedGdkThreadsEnter scoped_gdk_threads;

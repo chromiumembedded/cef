@@ -41,7 +41,6 @@
 #include "include/cef_base.h"
 #include "include/cef_client.h"
 #include "include/cef_command_line.h"
-#include "include/cef_print_handler.h"
 #include "include/cef_values.h"
 
 ///
@@ -85,13 +84,6 @@ class CefBrowserProcessHandler : public virtual CefBaseRefCounted {
   /*--cef()--*/
   virtual void OnBeforeChildProcessLaunch(
       CefRefPtr<CefCommandLine> command_line) {}
-
-  ///
-  // Return the handler for printing on Linux. If a print handler is not
-  // provided then printing will not be supported on the Linux platform.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefPrintHandler> GetPrintHandler() { return nullptr; }
 
   ///
   // Called from any thread when work has been scheduled for the browser process

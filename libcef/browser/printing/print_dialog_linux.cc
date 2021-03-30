@@ -105,18 +105,15 @@ gfx::Size CefPrintDialogLinux::GetPdfPaperSize(
 
   gfx::Size size;
 
-  CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
-  if (app.get()) {
-    CefRefPtr<CefBrowserProcessHandler> browser_handler =
-        app->GetBrowserProcessHandler();
-    if (browser_handler.get()) {
-      CefRefPtr<CefPrintHandler> handler = browser_handler->GetPrintHandler();
-      if (handler.get()) {
-        const printing::PrintSettings& settings = context->settings();
-        CefSize cef_size =
-            handler->GetPdfPaperSize(settings.device_units_per_inch());
-        size.SetSize(cef_size.width, cef_size.height);
-      }
+  auto browser = extensions::GetOwnerBrowserForFrameRoute(
+      context->render_process_id(), context->render_frame_id(), nullptr);
+  DCHECK(browser);
+  if (browser && browser->GetClient()) {
+    if (auto handler = browser->GetClient()->GetPrintHandler()) {
+      const printing::PrintSettings& settings = context->settings();
+      CefSize cef_size = handler->GetPdfPaperSize(
+          browser.get(), settings.device_units_per_inch());
+      size.SetSize(cef_size.width, cef_size.height);
     }
   }
 
@@ -131,11 +128,9 @@ gfx::Size CefPrintDialogLinux::GetPdfPaperSize(
 void CefPrintDialogLinux::OnPrintStart(CefRefPtr<CefBrowserHostBase> browser) {
   CEF_REQUIRE_UIT();
   DCHECK(browser);
-  if (auto app = CefAppManager::Get()->GetApplication()) {
-    if (auto browser_handler = app->GetBrowserProcessHandler()) {
-      if (auto print_handler = browser_handler->GetPrintHandler()) {
-        print_handler->OnPrintStart(browser.get());
-      }
+  if (browser && browser->GetClient()) {
+    if (auto handler = browser->GetClient()->GetPrintHandler()) {
+      handler->OnPrintStart(browser.get());
     }
   }
 }
@@ -235,12 +230,8 @@ void CefPrintDialogLinux::SetHandler() {
   if (handler_.get())
     return;
 
-  CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
-  if (app.get()) {
-    CefRefPtr<CefBrowserProcessHandler> browser_handler =
-        app->GetBrowserProcessHandler();
-    if (browser_handler.get())
-      handler_ = browser_handler->GetPrintHandler();
+  if (browser_ && browser_->GetClient()) {
+    handler_ = browser_->GetClient()->GetPrintHandler();
   }
 }
 

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=59d3b3767f39bd3078bdeeeca09f0f29486b53f6$
+// $hash=bdbe1ed03a5ab0ca22668417c329555a3b0d9cea$
 //
 
 #include "libcef_dll/cpptoc/client_cpptoc.h"
@@ -25,6 +25,7 @@
 #include "libcef_dll/cpptoc/keyboard_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/load_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/print_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/request_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
@@ -227,6 +228,22 @@ client_get_load_handler(struct _cef_client_t* self) {
   return CefLoadHandlerCppToC::Wrap(_retval);
 }
 
+struct _cef_print_handler_t* CEF_CALLBACK
+client_get_print_handler(struct _cef_client_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefPrintHandler> _retval =
+      CefClientCppToC::Get(self)->GetPrintHandler();
+
+  // Return type: refptr_same
+  return CefPrintHandlerCppToC::Wrap(_retval);
+}
+
 struct _cef_render_handler_t* CEF_CALLBACK
 client_get_render_handler(struct _cef_client_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -309,6 +326,7 @@ CefClientCppToC::CefClientCppToC() {
   GetStruct()->get_keyboard_handler = client_get_keyboard_handler;
   GetStruct()->get_life_span_handler = client_get_life_span_handler;
   GetStruct()->get_load_handler = client_get_load_handler;
+  GetStruct()->get_print_handler = client_get_print_handler;
   GetStruct()->get_render_handler = client_get_render_handler;
   GetStruct()->get_request_handler = client_get_request_handler;
   GetStruct()->on_process_message_received = client_on_process_message_received;

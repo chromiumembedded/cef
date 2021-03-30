@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e82aefc18c6f1869a4ff61b21e040dc2df69bfc9$
+// $hash=19d21957d8b7f66de8c88b9085abb2a08718582d$
 //
 
 #include "libcef_dll/ctocpp/client_ctocpp.h"
@@ -28,6 +28,7 @@
 #include "libcef_dll/ctocpp/keyboard_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/load_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/print_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
 
@@ -212,6 +213,21 @@ CefRefPtr<CefLoadHandler> CefClientCToCpp::GetLoadHandler() {
 
   // Return type: refptr_same
   return CefLoadHandlerCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefPrintHandler> CefClientCToCpp::GetPrintHandler() {
+  cef_client_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_print_handler))
+    return nullptr;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_print_handler_t* _retval = _struct->get_print_handler(_struct);
+
+  // Return type: refptr_same
+  return CefPrintHandlerCToCpp::Wrap(_retval);
 }
 
 NO_SANITIZE("cfi-icall")
