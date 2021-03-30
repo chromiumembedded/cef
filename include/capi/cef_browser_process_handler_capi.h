@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=f0cd169568e9ea5bcc8bf2aa891691b76c05356d$
+// $hash=54c5210924095c7e43173a2843bd28729645922b$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_PROCESS_HANDLER_CAPI_H_
@@ -43,7 +43,6 @@
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_client_capi.h"
 #include "include/capi/cef_command_line_capi.h"
-#include "include/capi/cef_print_handler_capi.h"
 #include "include/capi/cef_values_capi.h"
 
 #ifdef __cplusplus
@@ -97,13 +96,6 @@ typedef struct _cef_browser_process_handler_t {
   void(CEF_CALLBACK* on_before_child_process_launch)(
       struct _cef_browser_process_handler_t* self,
       struct _cef_command_line_t* command_line);
-
-  ///
-  // Return the handler for printing on Linux. If a print handler is not
-  // provided then printing will not be supported on the Linux platform.
-  ///
-  struct _cef_print_handler_t*(CEF_CALLBACK* get_print_handler)(
-      struct _cef_browser_process_handler_t* self);
 
   ///
   // Called from any thread when work has been scheduled for the browser process

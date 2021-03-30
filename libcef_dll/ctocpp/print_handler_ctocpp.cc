@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=af80c710cd11dc6a92ca2ed5923ff4787ee97e86$
+// $hash=5c1f65c2b1b111d248d5b7b27ddcb59b06594923$
 //
 
 #include "libcef_dll/ctocpp/print_handler_ctocpp.h"
@@ -159,7 +159,8 @@ void CefPrintHandlerCToCpp::OnPrintReset(CefRefPtr<CefBrowser> browser) {
 }
 
 NO_SANITIZE("cfi-icall")
-CefSize CefPrintHandlerCToCpp::GetPdfPaperSize(int device_units_per_inch) {
+CefSize CefPrintHandlerCToCpp::GetPdfPaperSize(CefRefPtr<CefBrowser> browser,
+                                               int device_units_per_inch) {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_handler_t* _struct = GetStruct();
@@ -168,9 +169,14 @@ CefSize CefPrintHandlerCToCpp::GetPdfPaperSize(int device_units_per_inch) {
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return CefSize();
+
   // Execute
-  cef_size_t _retval =
-      _struct->get_pdf_paper_size(_struct, device_units_per_inch);
+  cef_size_t _retval = _struct->get_pdf_paper_size(
+      _struct, CefBrowserCppToC::Wrap(browser), device_units_per_inch);
 
   // Return type: simple
   return _retval;

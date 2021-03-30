@@ -259,6 +259,7 @@ ClientHandler::ClientHandler(Delegate* delegate,
 #if defined(OS_LINUX)
   // Provide the GTK-based dialog implementation on Linux.
   dialog_handler_ = new ClientDialogHandlerGtk();
+  print_handler_ = new ClientPrintHandlerGtk();
 #endif
 
   resource_manager_ = new CefResourceManager();

@@ -9,13 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a2e25ad75313e9b264bce1b1525c7766e625ea17$
+// $hash=f70d18a15f7c01ce5171d781577312fa7d2fb93b$
 //
 
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
-#include "libcef_dll/ctocpp/print_handler_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -80,21 +79,6 @@ void CefBrowserProcessHandlerCToCpp::OnBeforeChildProcessLaunch(
   // Execute
   _struct->on_before_child_process_launch(
       _struct, CefCommandLineCppToC::Wrap(command_line));
-}
-
-NO_SANITIZE("cfi-icall")
-CefRefPtr<CefPrintHandler> CefBrowserProcessHandlerCToCpp::GetPrintHandler() {
-  cef_browser_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_print_handler))
-    return nullptr;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_print_handler_t* _retval = _struct->get_print_handler(_struct);
-
-  // Return type: refptr_same
-  return CefPrintHandlerCToCpp::Wrap(_retval);
 }
 
 NO_SANITIZE("cfi-icall")

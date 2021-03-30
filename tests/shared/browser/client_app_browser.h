@@ -40,10 +40,6 @@ class ClientAppBrowser : public ClientApp, public CefBrowserProcessHandler {
   // client_app_delegates_browser.cc
   static void CreateDelegates(DelegateSet& delegates);
 
-  // Create the Linux print handler. Implemented by cefclient in
-  // client_app_delegates_browser.cc
-  static CefRefPtr<CefPrintHandler> CreatePrintHandler();
-
   // CefApp methods.
   void OnBeforeCommandLineProcessing(
       const CefString& process_type,
@@ -58,15 +54,10 @@ class ClientAppBrowser : public ClientApp, public CefBrowserProcessHandler {
   void OnContextInitialized() OVERRIDE;
   void OnBeforeChildProcessLaunch(
       CefRefPtr<CefCommandLine> command_line) OVERRIDE;
-  CefRefPtr<CefPrintHandler> GetPrintHandler() OVERRIDE {
-    return print_handler_;
-  }
   void OnScheduleMessagePumpWork(int64 delay) OVERRIDE;
 
   // Set of supported Delegates.
   DelegateSet delegates_;
-
-  CefRefPtr<CefPrintHandler> print_handler_;
 
   IMPLEMENT_REFCOUNTING(ClientAppBrowser);
   DISALLOW_COPY_AND_ASSIGN(ClientAppBrowser);

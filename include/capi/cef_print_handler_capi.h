@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=54ed1e16c5c1d133bcd097350c5f5871228efd4f$
+// $hash=84fc58b3898f25476d9cdd260553390ba5e0b30b$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_PRINT_HANDLER_CAPI_H_
@@ -148,6 +148,7 @@ typedef struct _cef_print_handler_t {
   ///
   cef_size_t(CEF_CALLBACK* get_pdf_paper_size)(
       struct _cef_print_handler_t* self,
+      struct _cef_browser_t* browser,
       int device_units_per_inch);
 } cef_print_handler_t;
 

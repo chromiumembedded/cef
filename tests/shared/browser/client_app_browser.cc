@@ -67,8 +67,6 @@ void ClientAppBrowser::GetCookieableSchemes(std::vector<CefString>& schemes,
 }
 
 void ClientAppBrowser::OnContextInitialized() {
-  print_handler_ = CreatePrintHandler();
-
   DelegateSet::iterator it = delegates_.begin();
   for (; it != delegates_.end(); ++it)
     (*it)->OnContextInitialized(this);

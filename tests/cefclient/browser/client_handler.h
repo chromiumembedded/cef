@@ -18,6 +18,7 @@
 
 #if defined(OS_LINUX)
 #include "tests/cefclient/browser/dialog_handler_gtk.h"
+#include "tests/cefclient/browser/print_handler_gtk.h"
 #endif
 
 namespace client {
@@ -121,6 +122,9 @@ class ClientHandler : public CefClient,
   }
   CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE {
     return dialog_handler_;
+  }
+  CefRefPtr<CefPrintHandler> GetPrintHandler() OVERRIDE {
+    return print_handler_;
   }
 #endif
 
@@ -372,6 +376,7 @@ class ClientHandler : public CefClient,
 #if defined(OS_LINUX)
   // Custom dialog handler for GTK.
   CefRefPtr<ClientDialogHandlerGtk> dialog_handler_;
+  CefRefPtr<ClientPrintHandlerGtk> print_handler_;
 #endif
 
   // Handles the browser side of query routing. The renderer side is handled
