@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index c9220d6a6039..51db1a006562 100644
+index 4dbdfc0c32c6..2ee57c2baf8d 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -12,6 +12,7 @@ import("//build/config/features.gni")
@@ -29,7 +29,7 @@ index c9220d6a6039..51db1a006562 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -1586,6 +1592,7 @@ static_library("ui") {
+@@ -1589,6 +1595,7 @@ static_library("ui") {
        "//components/page_load_metrics/browser",
        "//components/performance_manager:site_data_proto",
        "//components/printing/browser",
@@ -37,7 +37,7 @@ index c9220d6a6039..51db1a006562 100644
        "//components/profile_metrics",
        "//components/reading_list/features:flags",
        "//components/safe_browsing/core/common:safe_browsing_policy_handler",
-@@ -3397,7 +3404,9 @@ static_library("ui") {
+@@ -3400,7 +3407,9 @@ static_library("ui") {
            "views/frame/browser_desktop_window_tree_host_platform.h",
          ]
        }

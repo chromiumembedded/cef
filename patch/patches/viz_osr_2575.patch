@@ -80,10 +80,10 @@ index 1026b739d283..fe562ab60ce9 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 898571527429..5e31b5ceafc3 100644
+index ec5ca2cc80a3..15cad7884ca4 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -198,6 +198,8 @@ viz_component("service") {
+@@ -200,6 +200,8 @@ viz_component("service") {
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
      "viz_service_export.h",
@@ -183,10 +183,10 @@ index 4ff82130b358..6c2e3e4d3e9b 100644
    // running in the same process, so it won't block anything.
    // TODO(159346933) Remove once the origin isolation logic is moved outside of
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index 0c9686f3c807..6fc92dda1072 100644
+index 7e471b159cac..dd5fb89667a3 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
-@@ -80,12 +80,14 @@ interface DisplayPrivate {
+@@ -85,12 +85,14 @@ interface DisplayPrivate {
  };
  
  interface DisplayClient {
