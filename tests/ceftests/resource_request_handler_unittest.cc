@@ -528,7 +528,13 @@ class BasicResponseTest : public TestHandler {
     }
     EXPECT_TRUE(frame->IsMain());
 
-    EXPECT_FALSE(user_gesture);
+    if (IsChromeRuntimeEnabled()) {
+      // With the Chrome runtime this is true on initial navigation via
+      // chrome::AddTabAt() and also true for clicked links.
+      EXPECT_TRUE(user_gesture);
+    } else {
+      EXPECT_FALSE(user_gesture);
+    }
     if (on_before_browse_ct_ == 0 || mode_ == RESTART_RESOURCE_RESPONSE) {
       EXPECT_FALSE(is_redirect) << on_before_browse_ct_;
     } else {
@@ -957,7 +963,13 @@ class BasicResponseTest : public TestHandler {
     EXPECT_EQ(resource_handler_created_ct_, resource_handler_destroyed_ct_);
 
     if (IsAborted()) {
-      EXPECT_EQ(0, on_resource_load_complete_ct_);
+      if (IsChromeRuntimeEnabled()) {
+        // Using the Chrome runtime OnResourceLoadComplete may be called with
+        // UR_FAILED.
+        EXPECT_NEAR(0, on_resource_load_complete_ct_, 1);
+      } else {
+        EXPECT_EQ(0, on_resource_load_complete_ct_);
+      }
     } else {
       EXPECT_EQ(1, on_resource_load_complete_ct_);
     }
@@ -1520,16 +1532,24 @@ class SubresourceResponseTest : public RoutingTestHandler {
       EXPECT_EQ(browser_id_, browser->GetIdentifier());
     }
 
-    if (IsMainURL(request->GetURL())) {
+    const std::string& url = request->GetURL();
+    if (IsMainURL(url)) {
       EXPECT_TRUE(frame->IsMain());
-    } else if (IsSubURL(request->GetURL())) {
+    } else if (IsSubURL(url)) {
       EXPECT_FALSE(frame->IsMain());
       EXPECT_TRUE(subframe_);
     } else {
       EXPECT_FALSE(true);  // Not reached.
     }
 
-    EXPECT_FALSE(user_gesture);
+    if (IsChromeRuntimeEnabled() && IsMainURL(url)) {
+      // With the Chrome runtime this is true on initial navigation via
+      // chrome::AddTabAt() and also true for clicked links.
+      EXPECT_TRUE(user_gesture);
+    } else {
+      EXPECT_FALSE(user_gesture);
+    }
+
     EXPECT_FALSE(is_redirect);
 
     on_before_browse_ct_++;

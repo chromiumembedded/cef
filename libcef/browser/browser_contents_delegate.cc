@@ -105,6 +105,7 @@ void CefBrowserContentsDelegate::LoadingStateChanged(
 
   if (auto c = client()) {
     if (auto handler = c->GetLoadHandler()) {
+      auto navigation_lock = browser_info_->CreateNavigationLock();
       handler->OnLoadingStateChange(browser(), is_loading, can_go_back,
                                     can_go_forward);
     }
@@ -507,6 +508,7 @@ void CefBrowserContentsDelegate::OnLoadEnd(CefRefPtr<CefFrame> frame,
                                            int http_status_code) {
   if (auto c = client()) {
     if (auto handler = c->GetLoadHandler()) {
+      auto navigation_lock = browser_info_->CreateNavigationLock();
       handler->OnLoadEnd(browser(), frame, http_status_code);
     }
   }
@@ -565,6 +567,7 @@ void CefBrowserContentsDelegate::OnLoadStart(
     ui::PageTransition transition_type) {
   if (auto c = client()) {
     if (auto handler = c->GetLoadHandler()) {
+      auto navigation_lock = browser_info_->CreateNavigationLock();
       // On the handler that loading has started.
       handler->OnLoadStart(browser(), frame,
                            static_cast<cef_transition_type_t>(transition_type));

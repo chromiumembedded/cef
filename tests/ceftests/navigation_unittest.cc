@@ -1824,11 +1824,17 @@ class LoadNavTestHandler : public TestHandler {
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
     if (mode_ == LOAD || request->GetURL() == kLoadNav1) {
       EXPECT_EQ(kTransitionExplicitLoad, request->GetTransitionType());
-      EXPECT_FALSE(user_gesture);
+      if (IsChromeRuntimeEnabled()) {
+        // With the Chrome runtime this is true on initial navigation via
+        // chrome::AddTabAt() and also true for clicked links.
+        EXPECT_TRUE(user_gesture);
+      } else {
+        EXPECT_FALSE(user_gesture);
+      }
     } else {
       EXPECT_EQ(ExpectedOpenURLTransitionType(), request->GetTransitionType());
 
-      if (mode_ == LEFT_CLICK) {
+      if (mode_ == LEFT_CLICK || IsChromeRuntimeEnabled()) {
         EXPECT_TRUE(user_gesture);
       } else {
         EXPECT_FALSE(user_gesture);
