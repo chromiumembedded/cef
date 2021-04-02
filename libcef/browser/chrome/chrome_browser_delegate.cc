@@ -16,6 +16,7 @@
 
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
+#include "chrome/browser/ui/browser_tabstrip.h"
 #include "content/public/browser/keyboard_event_processing_result.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 
@@ -65,7 +66,7 @@ void ChromeBrowserDelegate::SetAsDelegate(content::WebContents* web_contents,
           create_params_.request_context);
 
   CreateBrowser(web_contents, create_params_.settings, create_params_.client,
-                std::move(platform_delegate), browser_info,
+                std::move(platform_delegate), browser_info, /*opener=*/nullptr,
                 request_context_impl);
 }
 
@@ -103,7 +104,28 @@ void ChromeBrowserDelegate::WebContentsCreated(
   // We don't officially own |new_contents| until AddNewContents() is called.
   // However, we need to install observers/delegates here.
   CreateBrowser(new_contents, settings, client, std::move(platform_delegate),
-                browser_info, request_context_impl);
+                browser_info, opener, request_context_impl);
+}
+
+void ChromeBrowserDelegate::AddNewContents(
+    content::WebContents* source_contents,
+    std::unique_ptr<content::WebContents> new_contents,
+    const GURL& target_url,
+    WindowOpenDisposition disposition,
+    const gfx::Rect& initial_rect,
+    bool user_gesture,
+    bool* was_blocked) {
+  auto new_browser =
+      ChromeBrowserHostImpl::GetBrowserForContents(new_contents.get());
+  if (new_browser) {
+    // Create a new Browser and give it ownership of the WebContents.
+    new_browser->AddNewContents(std::move(new_contents));
+    return;
+  }
+
+  // Fall back to default behavior from Browser::AddNewContents.
+  chrome::AddWebContents(browser_, source_contents, std::move(new_contents),
+                         target_url, disposition, initial_rect);
 }
 
 content::WebContents* ChromeBrowserDelegate::OpenURLFromTab(
@@ -195,12 +217,16 @@ void ChromeBrowserDelegate::CreateBrowser(
     CefRefPtr<CefClient> client,
     std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
     scoped_refptr<CefBrowserInfo> browser_info,
+    CefRefPtr<ChromeBrowserHostImpl> opener,
     CefRefPtr<CefRequestContextImpl> request_context_impl) {
   CEF_REQUIRE_UIT();
   DCHECK(web_contents);
   DCHECK(platform_delegate);
   DCHECK(browser_info);
   DCHECK(request_context_impl);
+
+  // If |opener| is non-nullptr it must be a popup window.
+  DCHECK(!opener.get() || browser_info->is_popup());
 
   if (!client) {
     if (auto app = CefAppManager::Get()->GetApplication()) {
@@ -226,7 +252,12 @@ void ChromeBrowserDelegate::CreateBrowser(
   CefRefPtr<ChromeBrowserHostImpl> browser_host =
       new ChromeBrowserHostImpl(settings, client, std::move(platform_delegate),
                                 browser_info, request_context_impl);
-  browser_host->Attach(browser_, web_contents);
+  browser_host->Attach(web_contents, opener);
+
+  // The Chrome browser for a popup won't be created until AddNewContents().
+  if (!opener) {
+    browser_host->SetBrowser(browser_);
+  }
 }
 
 CefBrowserContentsDelegate* ChromeBrowserDelegate::GetDelegateForWebContents(

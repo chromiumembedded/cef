@@ -142,17 +142,24 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
       scoped_refptr<CefBrowserInfo> browser_info,
       CefRefPtr<CefRequestContextImpl> request_context);
 
-  // Called from ChromeBrowserDelegate::SetAsDelegate when this object is first
-  // created. Must be called on the UI thread.
-  void Attach(Browser* browser, content::WebContents* web_contents);
+  // Create a new Browser without initializing the WebContents.
+  static Browser* CreateBrowser(const CefBrowserCreateParams& params);
 
-  // Called from ChromeBrowserDelegate::SetAsDelegate when this object changes
-  // Browser ownership (e.g. dragging between windows). The old Browser will be
-  // cleared before the new Browser is added. Must be called on the UI thread.
+  // Called from ChromeBrowserDelegate::CreateBrowser when this object is first
+  // created. Must be called on the UI thread.
+  void Attach(content::WebContents* web_contents,
+              CefRefPtr<ChromeBrowserHostImpl> opener);
+
+  // Called from ChromeBrowserDelegate::AddNewContents to take ownership of a
+  // popup WebContents.
+  void AddNewContents(std::unique_ptr<content::WebContents> contents);
+
+  // Called when this object changes Browser ownership (e.g. initially created,
+  // dragging between windows, etc). The old Browser, if any, will be cleared
+  // before the new Browser is added. Must be called on the UI thread.
   void SetBrowser(Browser* browser);
 
   // CefBrowserHostBase methods:
-  void InitializeBrowser() override;
   void WindowDestroyed() override;
   void DestroyBrowser() override;
 

@@ -181,8 +181,11 @@ bool CefBrowserInfoManager::CanCreateWindow(
   if (allow) {
     CefBrowserCreateParams create_params;
 
-    if (!browser->HasView())
+    if (browser->HasView()) {
+      create_params.popup_with_views_hosted_opener = true;
+    } else {
       create_params.window_info = std::move(window_info);
+    }
 
     create_params.settings = pending_popup->settings;
     create_params.client = pending_popup->client;

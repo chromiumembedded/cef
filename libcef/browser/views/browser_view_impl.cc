@@ -10,8 +10,6 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/views/window_impl.h"
-#include "libcef/features/runtime.h"
-#include "libcef/features/runtime_checks.h"
 
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "ui/content_accelerators/accelerator_util.h"
@@ -62,7 +60,6 @@ CefRefPtr<CefBrowserViewImpl> CefBrowserViewImpl::Create(
 CefRefPtr<CefBrowserViewImpl> CefBrowserViewImpl::CreateForPopup(
     const CefBrowserSettings& settings,
     CefRefPtr<CefBrowserViewDelegate> delegate) {
-  REQUIRE_ALLOY_RUNTIME();
   CEF_REQUIRE_UIT_RETURN(nullptr);
 
   CefRefPtr<CefBrowserViewImpl> browser_view = new CefBrowserViewImpl(delegate);

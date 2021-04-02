@@ -20,22 +20,6 @@ using client::ClientAppRenderer;
 
 namespace {
 
-// Browser-side app delegate.
-class NavigationBrowserTest : public client::ClientAppBrowser::Delegate {
- public:
-  NavigationBrowserTest() {}
-
-  void OnBeforeCommandLineProcessing(
-      CefRefPtr<client::ClientAppBrowser> app,
-      CefRefPtr<CefCommandLine> command_line) override {
-    // Disable popup blocking for the chrome runtime.
-    command_line->AppendSwitch("disable-popup-blocking");
-  }
-
- private:
-  IMPLEMENT_REFCOUNTING(NavigationBrowserTest);
-};
-
 const char kHNav1[] = "http://tests-hnav.com/nav1.html";
 const char kHNav2[] = "http://tests-hnav.com/nav2.html";
 const char kHNav3[] = "http://tests-hnav.com/nav3.html";
@@ -3547,11 +3531,4 @@ void CreateNavigationRendererTests(ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new OrderNavRendererTest);
   delegates.insert(new LoadNavRendererTest);
   delegates.insert(new ExtraInfoNavRendererTest);
-}
-
-// Entry point for creating plugin browser test objects.
-// Called from client_app_delegates.cc.
-void CreateNavigationBrowserTests(
-    client::ClientAppBrowser::DelegateSet& delegates) {
-  delegates.insert(new NavigationBrowserTest);
 }
