@@ -51,8 +51,13 @@ struct CefBrowserCreateParams {
 
 #if defined(TOOLKIT_VIEWS)
   // The BrowserView that will own a Views-hosted browser. Will be nullptr for
-  // popup browsers (the BrowserView will be created later in that case).
+  // popup browsers.
   CefRefPtr<CefBrowserView> browser_view;
+
+  // True if this browser is a popup and has a Views-hosted opener, in which
+  // case the BrowserView for this browser will be created later (from
+  // PopupWebContentsCreated).
+  bool popup_with_views_hosted_opener = false;
 #endif
 
   // Client implementation. May be nullptr.

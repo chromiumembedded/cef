@@ -84,7 +84,8 @@ std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate =
         CreateNativeDelegate(CefWindowInfo(), background_color);
 #if defined(TOOLKIT_VIEWS)
-    if (create_params.browser_view) {
+    if (create_params.browser_view ||
+        create_params.popup_with_views_hosted_opener) {
       return std::make_unique<CefBrowserPlatformDelegateChromeViews>(
           std::move(native_delegate),
           static_cast<CefBrowserViewImpl*>(create_params.browser_view.get()));

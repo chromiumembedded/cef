@@ -32,60 +32,7 @@
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::Create(
     const CefBrowserCreateParams& params) {
-  // Get or create the request context and profile.
-  CefRefPtr<CefRequestContextImpl> request_context_impl =
-      CefRequestContextImpl::GetOrCreateForRequestContext(
-          params.request_context);
-  CHECK(request_context_impl);
-  auto cef_browser_context = request_context_impl->GetBrowserContext();
-  CHECK(cef_browser_context);
-  auto profile = cef_browser_context->AsProfile();
-
-  Browser::CreateParams chrome_params =
-      Browser::CreateParams(profile, /*user_gesture=*/false);
-
-  // Pass |params| to cef::BrowserDelegate::Create from the Browser constructor.
-  chrome_params.cef_params = base::MakeRefCounted<DelegateCreateParams>(params);
-
-#if defined(TOOLKIT_VIEWS)
-  // Configure Browser creation to use the existing Views-based
-  // Widget/BrowserFrame (ChromeBrowserFrame) and BrowserView/BrowserWindow
-  // (ChromeBrowserView). See views/chrome_browser_frame.h for related
-  // documentation.
-  ChromeBrowserView* chrome_browser_view = nullptr;
-  if (params.browser_view) {
-    // Don't show most controls.
-    chrome_params.type = Browser::TYPE_POPUP;
-    // Don't show title bar or address.
-    chrome_params.trusted_source = true;
-
-    auto view_impl =
-        static_cast<CefBrowserViewImpl*>(params.browser_view.get());
-
-    chrome_browser_view =
-        static_cast<ChromeBrowserView*>(view_impl->root_view());
-    chrome_params.window = chrome_browser_view;
-
-    auto chrome_widget =
-        static_cast<ChromeBrowserFrame*>(chrome_browser_view->GetWidget());
-    chrome_browser_view->set_frame(chrome_widget);
-  }
-#endif  // defined(TOOLKIT_VIEWS)
-
-  // Create the Browser. This will indirectly create the ChomeBrowserDelegate.
-  // The same params will be used to create a new Browser if the tab is dragged
-  // out of the existing Browser. The returned Browser is owned by the
-  // associated BrowserView.
-  auto browser = Browser::Create(chrome_params);
-
-#if defined(TOOLKIT_VIEWS)
-  if (chrome_browser_view) {
-    // Initialize the BrowserFrame and BrowserView and create the controls that
-    // require access to the Browser.
-    chrome_browser_view->InitBrowser(base::WrapUnique(browser),
-                                     params.browser_view);
-  }
-#endif
+  auto browser = CreateBrowser(params);
 
   GURL url = params.url;
   if (url.is_empty()) {
@@ -98,7 +45,8 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::Create(
   // Add a new tab. This will indirectly create a new tab WebContents and
   // call ChromeBrowserDelegate::OnWebContentsCreated to create the associated
   // ChromeBrowserHostImpl.
-  chrome::AddTabAt(browser, url, /*idx=*/-1, /*foreground=*/true);
+  chrome::AddTabAt(browser, url, /*index=*/TabStripModel::kNoTab,
+                   /*foreground=*/true);
 
   // The new tab WebContents.
   auto web_contents = browser->tab_strip_model()->GetActiveWebContents();
@@ -158,6 +106,34 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForFrameRoute(
 }
 
 ChromeBrowserHostImpl::~ChromeBrowserHostImpl() = default;
+
+void ChromeBrowserHostImpl::AddNewContents(
+    std::unique_ptr<content::WebContents> contents) {
+  DCHECK(contents);
+  DCHECK(!browser_);
+
+  // We should already be associated with the WebContents.
+  DCHECK_EQ(GetWebContents(), contents.get());
+
+  CefBrowserCreateParams params;
+  params.request_context = request_context();
+#if defined(TOOLKIT_VIEWS)
+  params.browser_view = GetBrowserView();
+#endif
+
+  // Create the new Browser representation.
+  auto browser = CreateBrowser(params);
+
+  // Add the WebContents to the Browser.
+  browser->tab_strip_model()->AddWebContents(
+      std::move(contents), /*index=*/TabStripModel::kNoTab,
+      ui::PageTransition::PAGE_TRANSITION_AUTO_TOPLEVEL,
+      TabStripModel::ADD_ACTIVE);
+
+  SetBrowser(browser);
+
+  browser->window()->Show();
+}
 
 void ChromeBrowserHostImpl::OnWebContentsDestroyed(
     content::WebContents* web_contents) {
@@ -461,17 +437,112 @@ ChromeBrowserHostImpl::ChromeBrowserHostImpl(
                          browser_info,
                          request_context) {}
 
-void ChromeBrowserHostImpl::Attach(Browser* browser,
-                                   content::WebContents* web_contents) {
-  DCHECK(browser);
+// static
+Browser* ChromeBrowserHostImpl::CreateBrowser(
+    const CefBrowserCreateParams& params) {
+  // Get or create the request context and profile.
+  CefRefPtr<CefRequestContextImpl> request_context_impl =
+      CefRequestContextImpl::GetOrCreateForRequestContext(
+          params.request_context);
+  CHECK(request_context_impl);
+  auto cef_browser_context = request_context_impl->GetBrowserContext();
+  CHECK(cef_browser_context);
+  auto profile = cef_browser_context->AsProfile();
+
+  Browser::CreateParams chrome_params =
+      Browser::CreateParams(profile, /*user_gesture=*/false);
+
+  // Pass |params| to cef::BrowserDelegate::Create from the Browser constructor.
+  chrome_params.cef_params = base::MakeRefCounted<DelegateCreateParams>(params);
+
+#if defined(TOOLKIT_VIEWS)
+  // Configure Browser creation to use the existing Views-based
+  // Widget/BrowserFrame (ChromeBrowserFrame) and BrowserView/BrowserWindow
+  // (ChromeBrowserView). See views/chrome_browser_frame.h for related
+  // documentation.
+  ChromeBrowserView* chrome_browser_view = nullptr;
+  if (params.browser_view) {
+    // Don't show most controls.
+    chrome_params.type = Browser::TYPE_POPUP;
+    // Don't show title bar or address.
+    chrome_params.trusted_source = true;
+
+    auto view_impl =
+        static_cast<CefBrowserViewImpl*>(params.browser_view.get());
+
+    chrome_browser_view =
+        static_cast<ChromeBrowserView*>(view_impl->root_view());
+    chrome_params.window = chrome_browser_view;
+
+    auto chrome_widget =
+        static_cast<ChromeBrowserFrame*>(chrome_browser_view->GetWidget());
+    chrome_browser_view->set_frame(chrome_widget);
+  }
+#endif  // defined(TOOLKIT_VIEWS)
+
+  // Create the Browser. This will indirectly create the ChomeBrowserDelegate.
+  // The same params will be used to create a new Browser if the tab is dragged
+  // out of the existing Browser. The returned Browser is owned by the
+  // associated BrowserView.
+  auto browser = Browser::Create(chrome_params);
+
+#if defined(TOOLKIT_VIEWS)
+  if (chrome_browser_view) {
+    // Initialize the BrowserFrame and BrowserView and create the controls that
+    // require access to the Browser.
+    chrome_browser_view->InitBrowser(base::WrapUnique(browser),
+                                     params.browser_view);
+  }
+#endif
+
+  return browser;
+}
+
+void ChromeBrowserHostImpl::Attach(content::WebContents* web_contents,
+                                   CefRefPtr<ChromeBrowserHostImpl> opener) {
   DCHECK(web_contents);
 
-  SetBrowser(browser);
+  if (opener) {
+    // Give the opener browser's platform delegate an opportunity to modify the
+    // new browser's platform delegate.
+    opener->platform_delegate_->PopupWebContentsCreated(
+        settings_, client_, web_contents, platform_delegate_.get(),
+        /*is_devtools_popup=*/false);
+  }
 
   platform_delegate_->WebContentsCreated(web_contents,
                                          /*own_web_contents=*/false);
   contents_delegate_->ObserveWebContents(web_contents);
+
+  // Associate the platform delegate with this browser.
+  platform_delegate_->BrowserCreated(this);
+
+  // Associate the base class with the WebContents.
   InitializeBrowser();
+
+  // Notify that the browser has been created. These must be delivered in the
+  // expected order.
+
+  // 1. Notify the browser's LifeSpanHandler. This must always be the first
+  // notification for the browser.
+  {
+    // The WebContents won't be added to the Browser's TabStripModel until later
+    // in the current call stack. Block navigation until that time.
+    auto navigation_lock = browser_info_->CreateNavigationLock();
+    OnAfterCreated();
+  }
+
+  // 2. Notify the platform delegate. With Views this will result in a call to
+  // CefBrowserViewDelegate::OnBrowserCreated().
+  platform_delegate_->NotifyBrowserCreated();
+
+  if (opener && opener->platform_delegate_) {
+    // 3. Notify the opener browser's platform delegate. With Views this will
+    // result in a call to CefBrowserViewDelegate::OnPopupBrowserViewCreated().
+    opener->platform_delegate_->PopupBrowserCreated(
+        this,
+        /*is_devtools_popup=*/false);
+  }
 }
 
 void ChromeBrowserHostImpl::SetBrowser(Browser* browser) {
@@ -479,21 +550,6 @@ void ChromeBrowserHostImpl::SetBrowser(Browser* browser) {
   browser_ = browser;
   static_cast<CefBrowserPlatformDelegateChrome*>(platform_delegate_.get())
       ->set_chrome_browser(browser);
-}
-
-void ChromeBrowserHostImpl::InitializeBrowser() {
-  CEF_REQUIRE_UIT();
-  DCHECK(browser_);
-
-  // Associate the platform delegate with this browser.
-  platform_delegate_->BrowserCreated(this);
-
-  CefBrowserHostBase::InitializeBrowser();
-
-  // The WebContents won't be added to the Browser's TabStripModel until later
-  // in the current call stack. Block navigation until that time.
-  auto navigation_lock = browser_info_->CreateNavigationLock();
-  OnAfterCreated();
 }
 
 void ChromeBrowserHostImpl::WindowDestroyed() {

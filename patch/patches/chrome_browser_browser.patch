@@ -13,7 +13,7 @@ index ba0c5c3fc044..b4df9af95ecd 100644
    return false;
  }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index f225525e74eb..ee5932936215 100644
+index f225525e74eb..2f3d13b087b0 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -256,6 +256,20 @@
@@ -102,7 +102,23 @@ index f225525e74eb..ee5932936215 100644
    NavigateParams nav_params(this, params.url, params.transition);
    nav_params.FillNavigateParamsFromOpenURLParams(params);
    nav_params.source_contents = source;
-@@ -1651,6 +1698,8 @@ void Browser::LoadingStateChanged(WebContents* source,
+@@ -1633,6 +1680,15 @@ void Browser::AddNewContents(WebContents* source,
+                                                         source, disposition);
+   }
+ 
++#if BUILDFLAG(ENABLE_CEF)
++  if (cef_browser_delegate_) {
++    cef_browser_delegate_->AddNewContents(
++        source, std::move(new_contents), target_url, disposition, initial_rect,
++        user_gesture, was_blocked);
++    return;
++  }
++#endif
++
+   chrome::AddWebContents(this, source, std::move(new_contents), target_url,
+                          disposition, initial_rect);
+ }
+@@ -1651,6 +1707,8 @@ void Browser::LoadingStateChanged(WebContents* source,
                                    bool to_different_document) {
    ScheduleUIUpdate(source, content::INVALIDATE_TYPE_LOAD);
    UpdateWindowForLoadingStateChanged(source, to_different_document);
@@ -111,7 +127,7 @@ index f225525e74eb..ee5932936215 100644
  }
  
  void Browser::CloseContents(WebContents* source) {
-@@ -1678,6 +1727,8 @@ void Browser::SetContentsBounds(WebContents* source, const gfx::Rect& bounds) {
+@@ -1678,6 +1736,8 @@ void Browser::SetContentsBounds(WebContents* source, const gfx::Rect& bounds) {
  }
  
  void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
@@ -120,7 +136,7 @@ index f225525e74eb..ee5932936215 100644
    if (!GetStatusBubble())
      return;
  
-@@ -1685,6 +1736,17 @@ void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
+@@ -1685,6 +1745,17 @@ void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
      GetStatusBubble()->SetURL(url);
  }
  
@@ -138,7 +154,7 @@ index f225525e74eb..ee5932936215 100644
  void Browser::ContentsMouseEvent(WebContents* source,
                                   bool motion,
                                   bool exited) {
-@@ -1801,6 +1863,10 @@ void Browser::WebContentsCreated(WebContents* source_contents,
+@@ -1801,6 +1872,10 @@ void Browser::WebContentsCreated(WebContents* source_contents,
  
    // Make the tab show up in the task manager.
    task_manager::WebContentsTags::CreateForTabContents(new_contents);
@@ -149,7 +165,7 @@ index f225525e74eb..ee5932936215 100644
  }
  
  void Browser::PortalWebContentsCreated(WebContents* portal_web_contents) {
-@@ -1837,6 +1903,8 @@ void Browser::RendererResponsive(
+@@ -1837,6 +1912,8 @@ void Browser::RendererResponsive(
  void Browser::DidNavigateMainFramePostCommit(WebContents* web_contents) {
    if (web_contents == tab_strip_model_->GetActiveWebContents())
      UpdateBookmarkBarState(BOOKMARK_BAR_STATE_CHANGE_TAB_STATE);
@@ -158,7 +174,7 @@ index f225525e74eb..ee5932936215 100644
  }
  
  content::JavaScriptDialogManager* Browser::GetJavaScriptDialogManager(
-@@ -1883,11 +1951,15 @@ void Browser::EnterFullscreenModeForTab(
+@@ -1883,11 +1960,15 @@ void Browser::EnterFullscreenModeForTab(
      const blink::mojom::FullscreenOptions& options) {
    exclusive_access_manager_->fullscreen_controller()->EnterFullscreenModeForTab(
        requesting_frame, options.display_id);
@@ -174,7 +190,7 @@ index f225525e74eb..ee5932936215 100644
  }
  
  bool Browser::IsFullscreenForTabOrPending(const WebContents* web_contents) {
-@@ -2730,6 +2802,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
+@@ -2730,6 +2811,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
      content_translate_driver->RemoveTranslationObserver(this);
      BookmarkTabHelper::FromWebContents(web_contents)->RemoveObserver(this);
    }
