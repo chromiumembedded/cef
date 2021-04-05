@@ -15,8 +15,33 @@
 #include "tests/ceftests/test_request.h"
 #include "tests/ceftests/test_server.h"
 #include "tests/ceftests/test_util.h"
+#include "tests/shared/browser/client_app_browser.h"
 
 namespace {
+
+// Browser-side app delegate.
+class CorsBrowserTest : public client::ClientAppBrowser::Delegate {
+ public:
+  CorsBrowserTest() {}
+
+  void OnContextInitialized(CefRefPtr<client::ClientAppBrowser> app) override {
+    if (IsChromeRuntimeEnabled()) {
+      // Disable InsecureFormNavigationThrottle which blocks 307 redirect of
+      // POST requests from HTTPS to custom non-standard scheme causing the
+      // CorsTest.RedirectPost307HttpSchemeToCustomNonStandardScheme test to
+      // fail.
+      CefRefPtr<CefValue> value = CefValue::Create();
+      value->SetBool(false);
+      CefString error;
+      bool result = CefRequestContext::GetGlobalContext()->SetPreference(
+          "profile.mixed_forms_warnings", value, error);
+      CHECK(result) << error.ToString();
+    }
+  }
+
+ private:
+  IMPLEMENT_REFCOUNTING(CorsBrowserTest);
+};
 
 const char kMimeTypeHtml[] = "text/html";
 const char kMimeTypeText[] = "text/plain";
@@ -1633,3 +1658,9 @@ void SetupRedirectPostRequest(RedirectMode mode,
 // Redirect GET requests.
 CORS_TEST_REDIRECT_POST_ALL(302, MODE_302)
 CORS_TEST_REDIRECT_POST_ALL(307, MODE_307)
+
+// Entry point for creating plugin browser test objects.
+// Called from client_app_delegates.cc.
+void CreateCorsBrowserTests(client::ClientAppBrowser::DelegateSet& delegates) {
+  delegates.insert(new CorsBrowserTest);
+}
