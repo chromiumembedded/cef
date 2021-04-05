@@ -14,6 +14,10 @@ void CreateBrowserDelegates(ClientAppBrowser::DelegateSet& delegates) {
   CreateAudioOutputTests(delegates);
 
   // Bring in the plugin tests.
+  extern void CreateCorsBrowserTests(ClientAppBrowser::DelegateSet & delegates);
+  CreateCorsBrowserTests(delegates);
+
+  // Bring in the plugin tests.
   extern void CreatePluginBrowserTests(ClientAppBrowser::DelegateSet &
                                        delegates);
   CreatePluginBrowserTests(delegates);
