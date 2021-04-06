@@ -612,7 +612,19 @@ CefRequestContextImpl::GetOrCreateRequestContext(const Config& config) {
   }
 
   // The new context will be initialized later by EnsureBrowserContext().
-  return new CefRequestContextImpl(config);
+  CefRefPtr<CefRequestContextImpl> context = new CefRequestContextImpl(config);
+
+  if (config.handler) {
+    // Keep the context alive until OnRequestContextInitialized is called.
+    if (CEF_CURRENTLY_ON_UIT()) {
+      context->Initialize();
+    } else {
+      CEF_POST_TASK(
+          CEF_UIT, base::BindOnce(&CefRequestContextImpl::Initialize, context));
+    }
+  }
+
+  return context;
 }
 
 CefRequestContextImpl::CefRequestContextImpl(
@@ -645,16 +657,20 @@ void CefRequestContextImpl::Initialize() {
     }
   }
 
+  auto initialized_cb =
+      base::BindOnce(&CefRequestContextImpl::BrowserContextInitialized, this);
+
   if (!browser_context_) {
     // Create a new CefBrowserContext instance. If the cache path is non-
     // empty then this new instance will become the globally registered
     // CefBrowserContext for that path. Otherwise, this new instance will
     // be a completely isolated "incognito mode" context.
-    browser_context_ =
-        CefAppManager::Get()->CreateNewBrowserContext(config_.settings);
+    browser_context_ = CefAppManager::Get()->CreateNewBrowserContext(
+        config_.settings, std::move(initialized_cb));
   } else {
     // Share the same settings as the existing context.
     config_.settings = browser_context_->settings();
+    std::move(initialized_cb).Run();
   }
 
   // We'll disassociate from |browser_context_| on destruction.
@@ -666,9 +682,16 @@ void CefRequestContextImpl::Initialize() {
     // IsSharedWith().
     config_.other = nullptr;
   }
+}
 
-  if (config_.handler)
-    config_.handler->OnRequestContextInitialized(this);
+void CefRequestContextImpl::BrowserContextInitialized() {
+  if (config_.handler) {
+    // Always execute asynchronously so the current call stack can unwind.
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::BindOnce(&CefRequestContextHandler::OnRequestContextInitialized,
+                       config_.handler, CefRefPtr<CefRequestContext>(this)));
+  }
 }
 
 void CefRequestContextImpl::EnsureBrowserContext() {

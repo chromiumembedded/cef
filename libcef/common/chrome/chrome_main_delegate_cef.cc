@@ -15,6 +15,7 @@
 
 #include "base/command_line.h"
 #include "base/lazy_instance.h"
+#include "chrome/common/chrome_switches.h"
 #include "content/public/common/content_switches.h"
 #include "sandbox/policy/switches.h"
 
@@ -194,9 +195,10 @@ CefRefPtr<CefRequestContext> ChromeMainDelegateCef::GetGlobalRequestContext() {
 }
 
 CefBrowserContext* ChromeMainDelegateCef::CreateNewBrowserContext(
-    const CefRequestContextSettings& settings) {
+    const CefRequestContextSettings& settings,
+    base::OnceClosure initialized_cb) {
   auto context = new ChromeBrowserContext(settings);
-  context->Initialize();
+  context->InitializeAsync(std::move(initialized_cb));
   return context;
 }
 

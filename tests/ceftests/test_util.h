@@ -99,7 +99,8 @@ CefRefPtr<CefRequestContext> CreateTestRequestContext(
     CefScopedTempDir scoped_temp_dir;                                  \
     std::string cache_path;                                            \
     if (with_cache_path) {                                             \
-      EXPECT_TRUE(scoped_temp_dir.CreateUniqueTempDir());              \
+      EXPECT_TRUE(scoped_temp_dir.CreateUniqueTempDirUnderPath(        \
+          CefTestSuite::GetInstance()->root_cache_path()));            \
       cache_path = scoped_temp_dir.GetPath();                          \
     }                                                                  \
     CefRefPtr<test_class> handler =                                    \
@@ -107,8 +108,7 @@ CefRefPtr<CefRequestContext> CreateTestRequestContext(
     handler->ExecuteTest();                                            \
     ReleaseAndWaitForDestructor(handler);                              \
     if (!scoped_temp_dir.IsEmpty()) {                                  \
-      CefTestSuite::GetInstance()->RegisterTempDirectory(              \
-          scoped_temp_dir.Take());                                     \
+      scoped_temp_dir.Take();                                          \
     }                                                                  \
   }
 

@@ -26,9 +26,8 @@ ExtensionTestHandler::ExtensionTestHandler(
 
 ExtensionTestHandler::~ExtensionTestHandler() {
   if (!request_context_temp_dir_.IsEmpty()) {
-    // Delete temporary directories on shutdown.
-    CefTestSuite::GetInstance()->RegisterTempDirectory(
-        request_context_temp_dir_.Take());
+    // Temporary directory will be deleted on shutdown.
+    request_context_temp_dir_.Take();
   }
 }
 
@@ -65,7 +64,8 @@ void ExtensionTestHandler::RunTest() {
 
     if (request_context_on_disk()) {
       // Create a new temporary directory.
-      EXPECT_TRUE(request_context_temp_dir_.CreateUniqueTempDir());
+      EXPECT_TRUE(request_context_temp_dir_.CreateUniqueTempDirUnderPath(
+          CefTestSuite::GetInstance()->root_cache_path()));
       CefString(&settings.cache_path) = request_context_temp_dir_.GetPath();
     }
 

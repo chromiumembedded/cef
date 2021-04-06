@@ -1,3 +1,50 @@
+diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
+index 8e8a7abdcf17..89c47d18d379 100644
+--- chrome/browser/profiles/profile.cc
++++ chrome/browser/profiles/profile.cc
+@@ -77,6 +77,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
+ 
+ namespace {
+ 
++const char kCEFOTRProfileIDPrefix[] = "CEF::BrowserContext";
+ const char kDevToolsOTRProfileIDPrefix[] = "Devtools::BrowserContext";
+ const char kMediaRouterOTRProfileIDPrefix[] = "MediaRouter::Presentation";
+ 
+@@ -90,6 +91,8 @@ bool Profile::OTRProfileID::AllowsBrowserWindows() const {
+   // DevTools::BrowserContext and MediaRouter::Presentation are an
+   // exception to this ban.
+   return *this == PrimaryID() ||
++         base::StartsWith(profile_id_, kCEFOTRProfileIDPrefix,
++                          base::CompareCase::SENSITIVE) ||
+          base::StartsWith(profile_id_, kDevToolsOTRProfileIDPrefix,
+                           base::CompareCase::SENSITIVE) ||
+          base::StartsWith(profile_id_, kMediaRouterOTRProfileIDPrefix,
+@@ -111,6 +114,11 @@ Profile::OTRProfileID Profile::OTRProfileID::CreateUnique(
+                                          first_unused_index_++));
+ }
+ 
++// static
++Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForCEF() {
++  return CreateUnique(kCEFOTRProfileIDPrefix);
++}
++
+ // static
+ Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
+   return CreateUnique(kDevToolsOTRProfileIDPrefix);
+diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
+index e77f4b15ce32..13569302c96b 100644
+--- chrome/browser/profiles/profile.h
++++ chrome/browser/profiles/profile.h
+@@ -116,6 +116,9 @@ class Profile : public content::BrowserContext {
+     // Creates a unique OTR profile id with the given profile id prefix.
+     static OTRProfileID CreateUnique(const std::string& profile_id_prefix);
+ 
++    // Creates a unique OTR profile id to be used for CEF browser contexts.
++    static OTRProfileID CreateUniqueForCEF();
++
+     // Creates a unique OTR profile id to be used for DevTools browser contexts.
+     static OTRProfileID CreateUniqueForDevTools();
+ 
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
 index 7037c1375d9c..2b1c7911e597 100644
 --- chrome/browser/profiles/profile_manager.cc

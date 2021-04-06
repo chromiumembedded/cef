@@ -47,6 +47,11 @@ class URLRequestBrowserTest : public client::ClientAppBrowser::Delegate {
       CefRefPtr<CefCommandLine> command_line) override {
     // Delegate auth callbacks to GetAuthCredentials with the chrome runtime.
     command_line->AppendSwitch("disable-chrome-login-prompt");
+
+    // Disable component extensions that require creation of a background
+    // WebContents because they slow down test runs.
+    command_line->AppendSwitch(
+        "disable-component-extensions-with-background-pages");
   }
 
  private:
@@ -2843,7 +2848,7 @@ class RequestTestHandler : public TestHandler {
 
   void RunTest() override {
     // Time out the test after a reasonable period of time.
-    SetTestTimeout();
+    SetTestTimeout(IsChromeRuntimeEnabled() ? 10000 : 5000);
 
     // Start pre-setup actions.
     PreSetupStart();
@@ -2858,7 +2863,8 @@ class RequestTestHandler : public TestHandler {
     EXPECT_TRUE(CefCurrentlyOn(TID_FILE_USER_VISIBLE));
 
     if (context_mode_ == CONTEXT_ONDISK) {
-      EXPECT_TRUE(context_tmpdir_.CreateUniqueTempDir());
+      EXPECT_TRUE(context_tmpdir_.CreateUniqueTempDirUnderPath(
+          CefTestSuite::GetInstance()->root_cache_path()));
       context_tmpdir_path_ = context_tmpdir_.GetPath();
       EXPECT_FALSE(context_tmpdir_path_.empty());
     }
@@ -2894,26 +2900,29 @@ class RequestTestHandler : public TestHandler {
         CefString(&settings.cache_path) = context_tmpdir_path_;
       }
 
-      // Create a new temporary request context.
-      CefRefPtr<CefRequestContext> request_context =
-          CefRequestContext::CreateContext(settings,
-                                           new RequestContextHandler(this));
-      EXPECT_TRUE(request_context.get());
-      test_runner_->SetRequestContext(request_context);
+      // Create a new temporary request context. Calls OnContextInitialized.
+      CefRequestContext::CreateContext(settings,
+                                       new RequestContextHandler(this));
+    }
+  }
 
-      if (!test_server_backend_) {
-        // Set the schemes that are allowed to store cookies.
-        std::vector<CefString> supported_schemes;
-        supported_schemes.push_back(GetRequestScheme(false));
+  void OnContextInitialized(CefRefPtr<CefRequestContext> request_context) {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    EXPECT_TRUE(request_context.get());
+    test_runner_->SetRequestContext(request_context);
 
-        // Continue the test once supported schemes has been set.
-        request_context->GetCookieManager(nullptr)->SetSupportedSchemes(
-            supported_schemes, true,
-            new TestCompletionCallback(
-                base::Bind(&RequestTestHandler::PreSetupComplete, this)));
-      } else {
-        PreSetupComplete();
-      }
+    if (!test_server_backend_) {
+      // Set the schemes that are allowed to store cookies.
+      std::vector<CefString> supported_schemes;
+      supported_schemes.push_back(GetRequestScheme(false));
+
+      // Continue the test once supported schemes has been set.
+      request_context->GetCookieManager(nullptr)->SetSupportedSchemes(
+          supported_schemes, true,
+          new TestCompletionCallback(
+              base::Bind(&RequestTestHandler::PreSetupComplete, this)));
+    } else {
+      PreSetupComplete();
     }
   }
 
@@ -3182,9 +3191,8 @@ class RequestTestHandler : public TestHandler {
     got_on_test_complete_.yes();
 
     if (!context_tmpdir_.IsEmpty()) {
-      // Delete the temp directory on application shutdown.
-      CefTestSuite::GetInstance()->RegisterTempDirectory(
-          context_tmpdir_.Take());
+      // Temp directory will be deleted on application shutdown.
+      context_tmpdir_.Take();
     }
 
     TestComplete();
@@ -3198,6 +3206,11 @@ class RequestTestHandler : public TestHandler {
     explicit RequestContextHandler(CefRefPtr<RequestTestHandler> test_handler)
         : test_handler_(test_handler) {}
     ~RequestContextHandler() override { test_handler_->OnTestComplete(); }
+
+    void OnRequestContextInitialized(
+        CefRefPtr<CefRequestContext> request_context) override {
+      test_handler_->OnContextInitialized(request_context);
+    }
 
    private:
     CefRefPtr<RequestTestHandler> test_handler_;

@@ -11,6 +11,7 @@
 #include "include/cef_app.h"
 #include "include/cef_request_context.h"
 
+#include "base/callback.h"
 #include "base/macros.h"
 #include "build/build_config.h"
 #include "content/public/common/content_client.h"
@@ -44,10 +45,12 @@ class CefAppManager {
 
   // The following methods are only available in the main (browser) process.
 
-  // Called from CefRequestContextImpl.
+  // Called from CefRequestContextImpl. |initialized_cb| may be executed
+  // synchronously or asynchronously.
   virtual CefRefPtr<CefRequestContext> GetGlobalRequestContext() = 0;
   virtual CefBrowserContext* CreateNewBrowserContext(
-      const CefRequestContextSettings& settings) = 0;
+      const CefRequestContextSettings& settings,
+      base::OnceClosure initialized_cb) = 0;
 
 #if defined(OS_WIN)
   // Returns the module name (usually libcef.dll).

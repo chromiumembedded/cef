@@ -262,8 +262,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       browser_context_ = browser_context;
 
       auto profile = Profile::FromBrowserContext(browser_context);
-      auto cef_browser_context =
-          CefBrowserContext::FromBrowserContext(profile->GetOriginalProfile());
+      auto cef_browser_context = CefBrowserContext::FromProfile(profile);
       iothread_state_ = cef_browser_context->iothread_state();
       DCHECK(iothread_state_);
       cookieable_schemes_ = cef_browser_context->GetCookieableSchemes();

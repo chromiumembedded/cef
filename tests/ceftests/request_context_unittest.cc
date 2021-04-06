@@ -136,7 +136,8 @@ TEST(RequestContextTest, BasicCreateSharedGlobal) {
 
 TEST(RequestContextTest, BasicCreateSharedOnDisk) {
   CefScopedTempDir tempdir;
-  EXPECT_TRUE(tempdir.CreateUniqueTempDir());
+  EXPECT_TRUE(tempdir.CreateUniqueTempDirUnderPath(
+      CefTestSuite::GetInstance()->root_cache_path()));
 
   CefRequestContextSettings settings;
   CefString(&settings.cache_path) = tempdir.GetPath();

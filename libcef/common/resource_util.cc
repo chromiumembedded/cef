@@ -8,6 +8,8 @@
 #include <dlfcn.h>
 #endif
 
+#include "libcef/features/runtime.h"
+
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
@@ -80,8 +82,21 @@ bool GetDefaultUserDataDirectory(base::FilePath* result) {
 base::FilePath GetUserDataPath(CefSettings* settings,
                                const base::CommandLine* command_line) {
   // |settings| will be non-nullptr in the main process only.
-  if (settings && settings->user_data_path.length > 0)
-    return base::FilePath(CefString(&settings->user_data_path));
+  if (settings) {
+    // With the Chrome runtime Profile paths must always be relative to the
+    // user data directory, so defaulting to |root_cache_path| first is
+    // appropriate.
+    CefString user_data_path;
+    if (cef::IsChromeRuntimeEnabled() && settings->root_cache_path.length > 0) {
+      user_data_path = CefString(&settings->root_cache_path);
+    }
+    if (user_data_path.empty() && settings->user_data_path.length > 0) {
+      user_data_path = CefString(&settings->user_data_path);
+    }
+    if (!user_data_path.empty()) {
+      return base::FilePath(user_data_path);
+    }
+  }
 
   // This may be set for sub-processes.
   base::FilePath result =
