@@ -103,6 +103,7 @@ class CefBrowserContext {
   // Returns the underlying CefBrowserContext if any.
   static CefBrowserContext* FromBrowserContext(
       const content::BrowserContext* context);
+  static CefBrowserContext* FromProfile(const Profile* profile);
 
   // Returns all existing CefBrowserContext.
   static std::vector<CefBrowserContext*> GetAll();

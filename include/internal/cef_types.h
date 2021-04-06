@@ -242,7 +242,9 @@ typedef struct _cef_settings_t {
   // in-memory caches are used for storage and no data is persisted to disk.
   // HTML5 databases such as localStorage will only persist across sessions if a
   // cache path is specified. Can be overridden for individual CefRequestContext
-  // instances via the CefRequestContextSettings.cache_path value.
+  // instances via the CefRequestContextSettings.cache_path value. When using
+  // the Chrome runtime the "default" profile will be used if |cache_path| and
+  // |root_cache_path| have the same value.
   ///
   cef_string_t cache_path;
 
@@ -264,7 +266,8 @@ typedef struct _cef_settings_t {
   // directory on Linux, "~/Library/Application Support/CEF/User Data" directory
   // on Mac OS X, "Local Settings\Application Data\CEF\User Data" directory
   // under the user profile directory on Windows). If this value is non-empty
-  // then it must be an absolute path.
+  // then it must be an absolute path. When using the Chrome runtime this value
+  // will be ignored in favor of the |root_cache_path| value.
   ///
   cef_string_t user_data_path;
 

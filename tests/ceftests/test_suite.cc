@@ -5,6 +5,7 @@
 #include "tests/ceftests/test_suite.h"
 
 #include "include/cef_file_util.h"
+#include "include/wrapper/cef_scoped_temp_dir.h"
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/common/client_switches.h"
 
@@ -92,6 +93,18 @@ CefTestSuite::CefTestSuite(int argc, char** argv)
 #else
   command_line_->InitFromArgv(argc, argv);
 #endif
+
+  if (!command_line_->HasSwitch("type")) {
+    // Initialize in the main process only.
+    root_cache_path_ =
+        command_line_->GetSwitchValue(client::switches::kCachePath);
+    if (root_cache_path_.empty()) {
+      CefScopedTempDir temp_dir;
+      CHECK(temp_dir.CreateUniqueTempDir());
+      root_cache_path_ = temp_dir.Take();
+      RegisterTempDirectory(root_cache_path_);
+    }
+  }
 }
 
 CefTestSuite::~CefTestSuite() {
@@ -133,8 +146,9 @@ void CefTestSuite::GetSettings(CefSettings& settings) const {
         command_line_->HasSwitch(client::switches::kExternalMessagePump);
   }
 
-  CefString(&settings.cache_path) =
-      command_line_->GetSwitchValue(client::switches::kCachePath);
+  CefString(&settings.cache_path) = root_cache_path_;
+  CefString(&settings.root_cache_path) = root_cache_path_;
+  CefString(&settings.user_data_path) = root_cache_path_;
 
   // Always expose the V8 gc() function to give tests finer-grained control over
   // memory management.
@@ -154,17 +168,6 @@ void CefTestSuite::GetSettings(CefSettings& settings) const {
 
   // For Accept-Language test
   CefString(&settings.accept_language_list) = CEF_SETTINGS_ACCEPT_LANGUAGE;
-}
-
-// static
-bool CefTestSuite::GetCachePath(std::string& path) const {
-  if (command_line_->HasSwitch(client::switches::kCachePath)) {
-    // Set the cache_path value.
-    path = command_line_->GetSwitchValue(client::switches::kCachePath);
-    return true;
-  }
-
-  return false;
 }
 
 void CefTestSuite::RegisterTempDirectory(const CefString& directory) {

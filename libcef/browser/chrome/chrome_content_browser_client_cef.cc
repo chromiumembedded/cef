@@ -175,7 +175,7 @@ bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
   // For example, the User Manager profile created via
   // profiles::CreateSystemProfileForUserManager.
   auto profile = Profile::FromBrowserContext(browser_context);
-  if (!CefBrowserContext::FromBrowserContext(profile->GetOriginalProfile()))
+  if (!CefBrowserContext::FromProfile(profile))
     return false;
 
   auto request_handler = net_service::CreateInterceptedRequestHandler(

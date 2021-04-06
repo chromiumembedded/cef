@@ -128,6 +128,7 @@ class CefRequestContextImpl : public CefRequestContext {
   explicit CefRequestContextImpl(const Config& config);
 
   void Initialize();
+  void BrowserContextInitialized();
 
   // Make sure the browser context exists. Only called on the UI thread.
   void EnsureBrowserContext();

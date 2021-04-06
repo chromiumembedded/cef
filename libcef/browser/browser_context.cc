@@ -12,11 +12,13 @@
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
+#include "libcef/features/runtime.h"
 
 #include "base/files/file_util.h"
 #include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/strings/string_util.h"
+#include "chrome/browser/profiles/profile.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
@@ -227,6 +229,25 @@ CefBrowserContext* CefBrowserContext::FromIDs(int render_process_id,
 CefBrowserContext* CefBrowserContext::FromBrowserContext(
     const content::BrowserContext* context) {
   return g_manager.Get().GetImplFromBrowserContext(context);
+}
+
+// static
+CefBrowserContext* CefBrowserContext::FromProfile(const Profile* profile) {
+  auto* cef_context = FromBrowserContext(profile);
+  if (cef_context)
+    return cef_context;
+
+  if (cef::IsChromeRuntimeEnabled()) {
+    auto* original_profile = profile->GetOriginalProfile();
+    if (original_profile != profile) {
+      // With the Chrome runtime if the user launches an incognito window via
+      // the UI we might be associated with the original Profile instead of the
+      // (current) incognito profile.
+      return FromBrowserContext(original_profile);
+    }
+  }
+
+  return nullptr;
 }
 
 // static

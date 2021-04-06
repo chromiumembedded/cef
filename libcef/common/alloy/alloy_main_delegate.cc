@@ -443,9 +443,11 @@ CefRefPtr<CefRequestContext> AlloyMainDelegate::GetGlobalRequestContext() {
 }
 
 CefBrowserContext* AlloyMainDelegate::CreateNewBrowserContext(
-    const CefRequestContextSettings& settings) {
+    const CefRequestContextSettings& settings,
+    base::OnceClosure initialized_cb) {
   auto context = new AlloyBrowserContext(settings);
   context->Initialize();
+  std::move(initialized_cb).Run();
   return context;
 }
 
