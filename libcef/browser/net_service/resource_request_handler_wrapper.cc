@@ -264,7 +264,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       auto profile = Profile::FromBrowserContext(browser_context);
       auto cef_browser_context = CefBrowserContext::FromProfile(profile);
       iothread_state_ = cef_browser_context->iothread_state();
-      DCHECK(iothread_state_);
+      CHECK(iothread_state_);
       cookieable_schemes_ = cef_browser_context->GetCookieableSchemes();
 
       // We register to be notified of CEF context or browser destruction so
@@ -314,7 +314,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
     CefRefPtr<CefBrowserHostBase> browser_;
     CefRefPtr<CefFrame> frame_;
-    CefIOThreadState* iothread_state_ = nullptr;
+    scoped_refptr<CefIOThreadState> iothread_state_;
     CefBrowserContext::CookieableSchemes cookieable_schemes_;
     int render_process_id_ = 0;
     int render_frame_id_ = -1;
