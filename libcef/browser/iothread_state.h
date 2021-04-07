@@ -12,15 +12,18 @@
 
 #include "libcef/browser/request_context_handler_map.h"
 
+#include "content/public/browser/browser_thread.h"
+
 class GURL;
 
 // Stores state that will be accessed on the IO thread. Life span is controlled
 // by CefBrowserContext. Created on the UI thread but accessed and destroyed on
 // the IO thread. See browser_context.h for an object relationship diagram.
-class CefIOThreadState {
+class CefIOThreadState : public base::RefCountedThreadSafe<
+                             CefIOThreadState,
+                             content::BrowserThread::DeleteOnIOThread> {
  public:
   CefIOThreadState();
-  virtual ~CefIOThreadState();
 
   // See comments in CefRequestContextHandlerMap.
   void AddHandler(int render_process_id,
@@ -44,6 +47,12 @@ class CefIOThreadState {
   CefRefPtr<CefSchemeHandlerFactory> GetSchemeHandlerFactory(const GURL& url);
 
  private:
+  friend struct content::BrowserThread::DeleteOnThread<
+      content::BrowserThread::IO>;
+  friend class base::DeleteHelper<CefIOThreadState>;
+
+  ~CefIOThreadState();
+
   void InitOnIOThread();
 
   // Map IDs to CefRequestContextHandler objects.

@@ -23,7 +23,9 @@ CefIOThreadState::CefIOThreadState() {
                                     base::Unretained(this)));
 }
 
-CefIOThreadState::~CefIOThreadState() {}
+CefIOThreadState::~CefIOThreadState() {
+  CEF_REQUIRE_IOT();
+}
 
 void CefIOThreadState::AddHandler(int render_process_id,
                                   int render_frame_id,

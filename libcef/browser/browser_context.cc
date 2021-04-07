@@ -7,7 +7,6 @@
 #include <map>
 #include <utility>
 
-#include "libcef/browser/iothread_state.h"
 #include "libcef/browser/media_router/media_router_manager.h"
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/thread_util.h"
@@ -156,13 +155,6 @@ CefBrowserContext::~CefBrowserContext() {
 #if DCHECK_IS_ON()
   DCHECK(is_shutdown_);
 #endif
-
-  if (iothread_state_) {
-    // Destruction of the CefIOThreadState will trigger destruction of all
-    // associated network requests.
-    content::BrowserThread::DeleteSoon(content::BrowserThread::IO, FROM_HERE,
-                                       iothread_state_.release());
-  }
 }
 
 void CefBrowserContext::Initialize() {
@@ -171,7 +163,7 @@ void CefBrowserContext::Initialize() {
   if (!cache_path_.empty())
     g_manager.Get().SetImplPath(this, cache_path_);
 
-  iothread_state_ = std::make_unique<CefIOThreadState>();
+  iothread_state_ = base::MakeRefCounted<CefIOThreadState>();
 }
 
 void CefBrowserContext::Shutdown() {
@@ -275,15 +267,10 @@ void CefBrowserContext::OnRenderFrameCreated(
     handler_map_.AddHandler(render_process_id, render_frame_id,
                             frame_tree_node_id, handler);
 
-    if (iothread_state_) {
-      // Using base::Unretained() is safe because both this callback and
-      // possible deletion of |iothread_state_| will execute on the IO thread,
-      // and this callback will be executed first.
-      CEF_POST_TASK(CEF_IOT, base::Bind(&CefIOThreadState::AddHandler,
-                                        base::Unretained(iothread_state_.get()),
-                                        render_process_id, render_frame_id,
-                                        frame_tree_node_id, handler));
-    }
+    CEF_POST_TASK(CEF_IOT,
+                  base::Bind(&CefIOThreadState::AddHandler, iothread_state_,
+                             render_process_id, render_frame_id,
+                             frame_tree_node_id, handler));
   }
 }
 
@@ -313,15 +300,9 @@ void CefBrowserContext::OnRenderFrameDeleted(
     handler_map_.RemoveHandler(render_process_id, render_frame_id,
                                frame_tree_node_id);
 
-    if (iothread_state_) {
-      // Using base::Unretained() is safe because both this callback and
-      // possible deletion of |iothread_state_| will execute on the IO thread,
-      // and this callback will be executed first.
-      CEF_POST_TASK(CEF_IOT, base::Bind(&CefIOThreadState::RemoveHandler,
-                                        base::Unretained(iothread_state_.get()),
-                                        render_process_id, render_frame_id,
-                                        frame_tree_node_id));
-    }
+    CEF_POST_TASK(CEF_IOT, base::Bind(&CefIOThreadState::RemoveHandler,
+                                      iothread_state_, render_process_id,
+                                      render_frame_id, frame_tree_node_id));
   }
 
   if (is_main_frame) {
@@ -425,26 +406,15 @@ void CefBrowserContext::RegisterSchemeHandlerFactory(
     const CefString& scheme_name,
     const CefString& domain_name,
     CefRefPtr<CefSchemeHandlerFactory> factory) {
-  if (iothread_state_) {
-    // Using base::Unretained() is safe because both this callback and possible
-    // deletion of |iothread_state_| will execute on the IO thread, and this
-    // callback will be executed first.
-    CEF_POST_TASK(CEF_IOT,
-                  base::Bind(&CefIOThreadState::RegisterSchemeHandlerFactory,
-                             base::Unretained(iothread_state_.get()),
-                             scheme_name, domain_name, factory));
-  }
+  CEF_POST_TASK(CEF_IOT,
+                base::Bind(&CefIOThreadState::RegisterSchemeHandlerFactory,
+                           iothread_state_, scheme_name, domain_name, factory));
 }
 
 void CefBrowserContext::ClearSchemeHandlerFactories() {
-  if (iothread_state_) {
-    // Using base::Unretained() is safe because both this callback and possible
-    // deletion of |iothread_state_| will execute on the IO thread, and this
-    // callback will be executed first.
-    CEF_POST_TASK(CEF_IOT,
-                  base::Bind(&CefIOThreadState::ClearSchemeHandlerFactories,
-                             base::Unretained(iothread_state_.get())));
-  }
+  CEF_POST_TASK(CEF_IOT,
+                base::Bind(&CefIOThreadState::ClearSchemeHandlerFactories,
+                           iothread_state_));
 }
 
 void CefBrowserContext::LoadExtension(

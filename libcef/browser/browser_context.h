@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "include/cef_request_context_handler.h"
+#include "libcef/browser/iothread_state.h"
 #include "libcef/browser/request_context_handler_map.h"
 
 #include "base/callback.h"
@@ -80,7 +81,6 @@ class BrowserContext;
 
 class CefMediaRouterManager;
 class CefRequestContextImpl;
-class CefIOThreadState;
 class Profile;
 
 // Main entry point for configuring behavior on a per-RequestContext basis. The
@@ -208,7 +208,9 @@ class CefBrowserContext {
   // change during this object's lifespan.
   const CefRequestContextSettings& settings() const { return settings_; }
   base::FilePath cache_path() const { return cache_path_; }
-  CefIOThreadState* iothread_state() const { return iothread_state_.get(); }
+  scoped_refptr<CefIOThreadState> iothread_state() const {
+    return iothread_state_;
+  }
 
   // Used to hold a WeakPtr reference to this this object. The Getter returns
   // nullptr if this object has already been destroyed.
@@ -231,7 +233,7 @@ class CefBrowserContext {
   base::FilePath cache_path_;
 
  private:
-  std::unique_ptr<CefIOThreadState> iothread_state_;
+  scoped_refptr<CefIOThreadState> iothread_state_;
   CookieableSchemes cookieable_schemes_;
   std::unique_ptr<CefMediaRouterManager> media_router_manager_;
 
