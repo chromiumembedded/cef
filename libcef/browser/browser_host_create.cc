@@ -10,6 +10,8 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/features/runtime.h"
 
+#include "components/url_formatter/url_fixer.h"
+
 namespace {
 
 class CreateBrowserHelper {
@@ -127,7 +129,10 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
   create_params.url = GURL(url.ToString());
   if (!url.empty() && !create_params.url.is_valid() &&
       !create_params.url.has_scheme()) {
-    std::string new_url = std::string("http://") + url.ToString();
+    std::string fixed_scheme(url::kHttpScheme);
+    fixed_scheme.append(url::kStandardSchemeSeparator);
+    std::string new_url = url;
+    new_url.insert(0, fixed_scheme);
     create_params.url = GURL(new_url);
   }
   create_params.settings = settings;
@@ -140,6 +145,22 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
 // static
 CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::Create(
     CefBrowserCreateParams& create_params) {
+  if (!create_params.url.is_empty()) {
+    // Fix common problems with user-typed text. Among other things, this:
+    // - Converts absolute file paths to "file://" URLs.
+    // - Normalizes "about:" and "chrome:" to "chrome://" URLs.
+    // - Adds the "http://" scheme if none was specified.
+    GURL gurl = url_formatter::FixupURL(
+        create_params.url.possibly_invalid_spec(), std::string());
+    if (gurl.is_valid()) {
+      create_params.url = gurl;
+    } else {
+      LOG(ERROR) << "Invalid URL: "
+                 << create_params.url.possibly_invalid_spec();
+      create_params.url = GURL();
+    }
+  }
+
   if (cef::IsChromeRuntimeEnabled()) {
     auto browser = ChromeBrowserHostImpl::Create(create_params);
     return browser.get();
