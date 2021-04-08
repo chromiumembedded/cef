@@ -171,6 +171,10 @@ cef_color_t MainContextImpl::GetBackgroundColor() {
   return background_color_;
 }
 
+bool MainContextImpl::UseChromeRuntime() {
+  return use_chrome_runtime_;
+}
+
 bool MainContextImpl::UseViews() {
   return use_views_;
 }

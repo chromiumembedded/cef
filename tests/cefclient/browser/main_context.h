@@ -38,6 +38,9 @@ class MainContext {
   // Returns the background color.
   virtual cef_color_t GetBackgroundColor() = 0;
 
+  // Returns true if the Chrome runtime will be used.
+  virtual bool UseChromeRuntime() = 0;
+
   // Returns true if the Views framework will be used.
   virtual bool UseViews() = 0;
 

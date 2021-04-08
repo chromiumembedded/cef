@@ -4,6 +4,7 @@
 
 #include "libcef/browser/chrome/chrome_browser_main_extra_parts_cef.h"
 
+#include "libcef/browser/chrome/chrome_context_menu_handler.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
 
@@ -34,4 +35,5 @@ void ChromeBrowserMainExtraPartsCef::PreMainMessageLoopRun() {
        base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()});
 
   scheme::RegisterWebUIControllerFactory();
+  context_menu::RegisterMenuCreatedCallback();
 }

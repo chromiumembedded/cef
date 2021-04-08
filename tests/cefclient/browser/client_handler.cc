@@ -321,24 +321,32 @@ void ClientHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
     if (model->GetCount() > 0)
       model->AddSeparator();
 
-    // Add DevTools items to all context menus.
-    model->AddItem(CLIENT_ID_SHOW_DEVTOOLS, "&Show DevTools");
-    model->AddItem(CLIENT_ID_CLOSE_DEVTOOLS, "Close DevTools");
-    model->AddSeparator();
-    model->AddItem(CLIENT_ID_INSPECT_ELEMENT, "Inspect Element");
+    const bool use_chrome_runtime = MainContext::Get()->UseChromeRuntime();
+    if (!use_chrome_runtime) {
+      // TODO(chrome-runtime): Add support for this.
+      // Add DevTools items to all context menus.
+      model->AddItem(CLIENT_ID_SHOW_DEVTOOLS, "&Show DevTools");
+      model->AddItem(CLIENT_ID_CLOSE_DEVTOOLS, "Close DevTools");
+      model->AddSeparator();
+      model->AddItem(CLIENT_ID_INSPECT_ELEMENT, "Inspect Element");
+    }
 
     if (HasSSLInformation(browser)) {
       model->AddSeparator();
       model->AddItem(CLIENT_ID_SHOW_SSL_INFO, "Show SSL information");
     }
 
-    model->AddSeparator();
-    model->AddItem(CLIENT_ID_CURSOR_CHANGE_DISABLED, "Cursor change disabled");
-    if (mouse_cursor_change_disabled_)
-      model->SetChecked(CLIENT_ID_CURSOR_CHANGE_DISABLED, true);
+    if (!use_chrome_runtime) {
+      // TODO(chrome-runtime): Add support for this.
+      model->AddSeparator();
+      model->AddCheckItem(CLIENT_ID_CURSOR_CHANGE_DISABLED,
+                          "Cursor change disabled");
+      if (mouse_cursor_change_disabled_)
+        model->SetChecked(CLIENT_ID_CURSOR_CHANGE_DISABLED, true);
+    }
 
     model->AddSeparator();
-    model->AddItem(CLIENT_ID_OFFLINE, "Offline mode");
+    model->AddCheckItem(CLIENT_ID_OFFLINE, "Offline mode");
     if (offline_)
       model->SetChecked(CLIENT_ID_OFFLINE, true);
 
