@@ -27,6 +27,7 @@ class MainContextImpl : public MainContext {
   std::string GetAppWorkingDirectory() OVERRIDE;
   std::string GetMainURL() OVERRIDE;
   cef_color_t GetBackgroundColor() OVERRIDE;
+  bool UseChromeRuntime() OVERRIDE;
   bool UseViews() OVERRIDE;
   bool UseWindowlessRendering() OVERRIDE;
   bool TouchEventsEnabled() OVERRIDE;

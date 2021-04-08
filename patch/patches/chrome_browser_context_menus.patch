@@ -1,0 +1,214 @@
+diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
+index b88a6eabbfed..6076c812a481 100644
+--- chrome/browser/renderer_context_menu/render_view_context_menu.cc
++++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
+@@ -253,6 +253,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
+   return callback.get();
+ }
+ 
++
++RenderViewContextMenu::MenuCreatedCallback* GetMenuCreatedCallback() {
++  static base::NoDestructor<RenderViewContextMenu::MenuCreatedCallback>
++      callback;
++  return callback.get();
++}
++
+ enum class UmaEnumIdLookupType {
+   GeneralEnumId,
+   ContextSpecificEnumId,
+@@ -461,6 +468,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
+   if (ContextMenuMatcher::IsExtensionsCustomCommandId(id))
+     return 1;
+ 
++  // Match the MENU_ID_USER_FIRST to MENU_ID_USER_LAST range from cef_types.h.
++  if (id >= 26500 && id <= 28500)
++    return 1;
++
+   id = CollapseCommandsForUMA(id);
+   const auto& map = GetIdcToUmaMap(type);
+   auto it = map.find(id);
+@@ -616,6 +627,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+   }
+   set_content_type(
+       ContextMenuContentTypeFactory::Create(source_web_contents_, params));
++
++  auto* cb = GetMenuCreatedCallback();
++  if (!cb->is_null()) {
++    first_observer_ = cb->Run(this);
++    if (first_observer_) {
++      observers_.AddObserver(first_observer_.get());
++    }
++  }
+ }
+ 
+ RenderViewContextMenu::~RenderViewContextMenu() = default;
+@@ -966,6 +985,12 @@ void RenderViewContextMenu::InitMenu() {
+   // menu, meaning that each menu item added/removed in this function will cause
+   // it to visibly jump on the screen (see b/173569669).
+   AppendQuickAnswersItems();
++
++  if (first_observer_) {
++    // Do this last so that the observer can optionally modify previously
++    // created items.
++    first_observer_->InitMenu(params_);
++  }
+ }
+ 
+ Profile* RenderViewContextMenu::GetProfile() const {
+@@ -2590,6 +2615,12 @@ void RenderViewContextMenu::RegisterMenuShownCallbackForTesting(
+   *GetMenuShownCallback() = std::move(cb);
+ }
+ 
++// static
++void RenderViewContextMenu::RegisterMenuCreatedCallback(
++    MenuCreatedCallback cb) {
++  *GetMenuCreatedCallback() = cb;
++}
++
+ ProtocolHandlerRegistry::ProtocolHandlerList
+ RenderViewContextMenu::GetHandlersForLinkUrl() {
+   ProtocolHandlerRegistry::ProtocolHandlerList handlers =
+diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
+index 25f331b10b01..5ea2e8ba1c7a 100644
+--- chrome/browser/renderer_context_menu/render_view_context_menu.h
++++ chrome/browser/renderer_context_menu/render_view_context_menu.h
+@@ -92,6 +92,12 @@ class RenderViewContextMenu : public RenderViewContextMenuBase {
+   static void RegisterMenuShownCallbackForTesting(
+       base::OnceCallback<void(RenderViewContextMenu*)> cb);
+ 
++  // Registers a callback that will be called each time a context menu is
++  // created.
++  using MenuCreatedCallback = base::RepeatingCallback<
++      std::unique_ptr<RenderViewContextMenuObserver>(RenderViewContextMenu*)>;
++  static void RegisterMenuCreatedCallback(MenuCreatedCallback cb);
++
+  protected:
+   Profile* GetProfile() const;
+ 
+@@ -266,6 +272,9 @@ class RenderViewContextMenu : public RenderViewContextMenuBase {
+   ui::SimpleMenuModel protocol_handler_submenu_model_;
+   ProtocolHandlerRegistry* protocol_handler_registry_;
+ 
++  // An observer returned via MenuCreatedCallback that will be called first.
++  std::unique_ptr<RenderViewContextMenuObserver> first_observer_;
++
+   // An observer that handles spelling suggestions, "Add to dictionary", and
+   // "Use enhanced spell check" items.
+   std::unique_ptr<SpellingMenuObserver> spelling_suggestions_menu_observer_;
+diff --git chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
+index f6ff626c408e..b9300419672d 100644
+--- chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
++++ chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
+@@ -136,6 +136,9 @@ void RenderViewContextMenuViews::RunMenuAt(views::Widget* parent,
+ bool RenderViewContextMenuViews::GetAcceleratorForCommandId(
+     int command_id,
+     ui::Accelerator* accel) const {
++  if (RenderViewContextMenu::GetAcceleratorForCommandId(command_id, accel))
++    return true;
++
+   // There are no formally defined accelerators we can query so we assume
+   // that Ctrl+C, Ctrl+V, Ctrl+X, Ctrl-A, etc do what they normally do.
+   switch (command_id) {
+diff --git components/renderer_context_menu/render_view_context_menu_base.cc components/renderer_context_menu/render_view_context_menu_base.cc
+index 2c60b2bf719d..8c8d18e8a887 100644
+--- components/renderer_context_menu/render_view_context_menu_base.cc
++++ components/renderer_context_menu/render_view_context_menu_base.cc
+@@ -358,6 +358,17 @@ bool RenderViewContextMenuBase::IsCommandIdChecked(int id) const {
+   return false;
+ }
+ 
++bool RenderViewContextMenuBase::GetAcceleratorForCommandId(
++    int id,
++    ui::Accelerator* accelerator) const {
++  for (auto& observer : observers_) {
++    if (observer.IsCommandIdSupported(id))
++      return observer.GetAccelerator(id, accelerator);
++  }
++
++  return false;
++}
++
+ void RenderViewContextMenuBase::ExecuteCommand(int id, int event_flags) {
+   command_executed_ = true;
+   RecordUsedItem(id);
+diff --git components/renderer_context_menu/render_view_context_menu_base.h components/renderer_context_menu/render_view_context_menu_base.h
+index 2dca58a6553e..1d139e77da21 100644
+--- components/renderer_context_menu/render_view_context_menu_base.h
++++ components/renderer_context_menu/render_view_context_menu_base.h
+@@ -82,6 +82,9 @@ class RenderViewContextMenuBase : public ui::SimpleMenuModel::Delegate,
+ 
+   const ui::SimpleMenuModel& menu_model() const { return menu_model_; }
+   const content::ContextMenuParams& params() const { return params_; }
++  content::WebContents* source_web_contents() const {
++    return source_web_contents_;
++  }
+ 
+   // Returns true if the specified command id is known and valid for
+   // this menu. If the command is known |enabled| is set to indicate
+@@ -90,6 +93,9 @@ class RenderViewContextMenuBase : public ui::SimpleMenuModel::Delegate,
+ 
+   // SimpleMenuModel::Delegate implementation.
+   bool IsCommandIdChecked(int command_id) const override;
++  bool GetAcceleratorForCommandId(
++      int command_id,
++      ui::Accelerator* accelerator) const override;
+   void ExecuteCommand(int command_id, int event_flags) override;
+   void OnMenuWillShow(ui::SimpleMenuModel* source) override;
+   void MenuClosed(ui::SimpleMenuModel* source) override;
+@@ -119,6 +125,9 @@ class RenderViewContextMenuBase : public ui::SimpleMenuModel::Delegate,
+   content::WebContents* GetWebContents() const override;
+   content::BrowserContext* GetBrowserContext() const override;
+ 
++  // May return nullptr if the frame was deleted while the menu was open.
++  content::RenderFrameHost* GetRenderFrameHost() const;
++
+  protected:
+   friend class RenderViewContextMenuTest;
+   friend class RenderViewContextMenuPrefsTest;
+@@ -156,9 +165,6 @@ class RenderViewContextMenuBase : public ui::SimpleMenuModel::Delegate,
+   // TODO(oshima): Remove this.
+   virtual void AppendPlatformEditableItems() {}
+ 
+-  // May return nullptr if the frame was deleted while the menu was open.
+-  content::RenderFrameHost* GetRenderFrameHost() const;
+-
+   bool IsCustomItemChecked(int id) const;
+   bool IsCustomItemEnabled(int id) const;
+ 
+diff --git components/renderer_context_menu/render_view_context_menu_observer.cc components/renderer_context_menu/render_view_context_menu_observer.cc
+index 2e2d05f91c64..85b256b2be9b 100644
+--- components/renderer_context_menu/render_view_context_menu_observer.cc
++++ components/renderer_context_menu/render_view_context_menu_observer.cc
+@@ -15,3 +15,8 @@ bool RenderViewContextMenuObserver::IsCommandIdChecked(int command_id) {
+ bool RenderViewContextMenuObserver::IsCommandIdEnabled(int command_id) {
+   return false;
+ }
++
++bool RenderViewContextMenuObserver::GetAccelerator(int command_id,
++                                                   ui::Accelerator* accel) {
++  return false;
++}
+diff --git components/renderer_context_menu/render_view_context_menu_observer.h components/renderer_context_menu/render_view_context_menu_observer.h
+index b360a8eb4e82..6f9023a62904 100644
+--- components/renderer_context_menu/render_view_context_menu_observer.h
++++ components/renderer_context_menu/render_view_context_menu_observer.h
+@@ -11,6 +11,10 @@ namespace content {
+ struct ContextMenuParams;
+ }
+ 
++namespace ui {
++class Accelerator;
++}
++
+ // The interface used for implementing context-menu items. The following
+ // instruction describe how to implement a context-menu item with this
+ // interface.
+@@ -100,6 +104,8 @@ class RenderViewContextMenuObserver {
+   virtual bool IsCommandIdChecked(int command_id);
+   virtual bool IsCommandIdEnabled(int command_id);
+ 
++  virtual bool GetAccelerator(int command_id, ui::Accelerator* accel);
++
+   // Called when a user selects the specified context-menu item. This is
+   // only called when the observer returns true for IsCommandIdSupported()
+   // for that |command_id|.
