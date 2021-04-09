@@ -23,9 +23,6 @@ class CefCookieManagerImpl : public CefCookieManager {
                   CefRefPtr<CefCompletionCallback> callback);
 
   // CefCookieManager methods.
-  void SetSupportedSchemes(const std::vector<CefString>& schemes,
-                           bool include_defaults,
-                           CefRefPtr<CefCompletionCallback> callback) override;
   bool VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) override;
   bool VisitUrlCookies(const CefString& url,
                        bool includeHttpOnly,
@@ -37,9 +34,6 @@ class CefCookieManagerImpl : public CefCookieManager {
                      const CefString& cookie_name,
                      CefRefPtr<CefDeleteCookiesCallback> callback) override;
   bool FlushStore(CefRefPtr<CefCompletionCallback> callback) override;
-
-  using CookieableSchemes = base::Optional<std::vector<std::string>>;
-  static CookieableSchemes GetGlobalCookieableSchemes();
 
  private:
   // Only accessed on the UI thread. Will be non-null after Initialize().

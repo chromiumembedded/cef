@@ -35,7 +35,17 @@ class ClientAppBrowser : public ClientApp, public CefBrowserProcessHandler {
 
   ClientAppBrowser();
 
+  // Called to populate |settings| based on |command_line| and other global
+  // state.
+  static void PopulateSettings(CefRefPtr<CefCommandLine> command_line,
+                               CefSettings& settings);
+
  private:
+  // Registers cookieable schemes. Implemented by cefclient in
+  // client_app_delegates_browser.cc
+  static void RegisterCookieableSchemes(
+      std::vector<std::string>& cookieable_schemes);
+
   // Creates all of the Delegate objects. Implemented by cefclient in
   // client_app_delegates_browser.cc
   static void CreateDelegates(DelegateSet& delegates);
@@ -49,8 +59,6 @@ class ClientAppBrowser : public ClientApp, public CefBrowserProcessHandler {
   }
 
   // CefBrowserProcessHandler methods.
-  void GetCookieableSchemes(std::vector<CefString>& schemes,
-                            bool& include_defaults) OVERRIDE;
   void OnContextInitialized() OVERRIDE;
   void OnBeforeChildProcessLaunch(
       CefRefPtr<CefCommandLine> command_line) OVERRIDE;

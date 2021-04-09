@@ -1,5 +1,20 @@
+diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
+index 6a9d6e152136..8d710c7617df 100644
+--- chrome/browser/profiles/off_the_record_profile_impl.cc
++++ chrome/browser/profiles/off_the_record_profile_impl.cc
+@@ -618,7 +618,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
+ #endif
+   if (!profile)
+     profile.reset(new OffTheRecordProfileImpl(parent, otr_profile_id));
+-  profile->Init();
++  // With CEF we want to delay initialization.
++  if (!otr_profile_id.IsUniqueForCEF())
++    profile->Init();
+   return std::move(profile);
+ }
+ 
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index 8e8a7abdcf17..89c47d18d379 100644
+index 8e8a7abdcf17..15822ab615eb 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
 @@ -77,6 +77,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
@@ -19,7 +34,7 @@ index 8e8a7abdcf17..89c47d18d379 100644
           base::StartsWith(profile_id_, kDevToolsOTRProfileIDPrefix,
                            base::CompareCase::SENSITIVE) ||
           base::StartsWith(profile_id_, kMediaRouterOTRProfileIDPrefix,
-@@ -111,6 +114,11 @@ Profile::OTRProfileID Profile::OTRProfileID::CreateUnique(
+@@ -111,6 +114,16 @@ Profile::OTRProfileID Profile::OTRProfileID::CreateUnique(
                                           first_unused_index_++));
  }
  
@@ -28,23 +43,62 @@ index 8e8a7abdcf17..89c47d18d379 100644
 +  return CreateUnique(kCEFOTRProfileIDPrefix);
 +}
 +
++bool Profile::OTRProfileID::IsUniqueForCEF() const {
++  return base::StartsWith(profile_id_, kCEFOTRProfileIDPrefix,
++                          base::CompareCase::SENSITIVE);
++}
++
  // static
  Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
    return CreateUnique(kDevToolsOTRProfileIDPrefix);
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index e77f4b15ce32..13569302c96b 100644
+index e77f4b15ce32..3f5d61aeabe5 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
-@@ -116,6 +116,9 @@ class Profile : public content::BrowserContext {
+@@ -116,6 +116,10 @@ class Profile : public content::BrowserContext {
      // Creates a unique OTR profile id with the given profile id prefix.
      static OTRProfileID CreateUnique(const std::string& profile_id_prefix);
  
 +    // Creates a unique OTR profile id to be used for CEF browser contexts.
 +    static OTRProfileID CreateUniqueForCEF();
++    bool IsUniqueForCEF() const;
 +
      // Creates a unique OTR profile id to be used for DevTools browser contexts.
      static OTRProfileID CreateUniqueForDevTools();
  
+@@ -523,6 +527,8 @@ class Profile : public content::BrowserContext {
+       std::vector<network::mojom::CorsOriginPatternPtr> block_patterns,
+       base::OnceClosure closure) override;
+ 
++  void NotifyOffTheRecordProfileCreated(Profile* off_the_record);
++
+  protected:
+   void set_is_guest_profile(bool is_guest_profile) {
+     is_guest_profile_ = is_guest_profile;
+@@ -542,8 +548,6 @@ class Profile : public content::BrowserContext {
+   static PrefStore* CreateExtensionPrefStore(Profile*,
+                                              bool incognito_pref_store);
+ 
+-  void NotifyOffTheRecordProfileCreated(Profile* off_the_record);
+-
+   // Returns whether the user has signed in this profile to an account.
+   virtual bool IsSignedIn() = 0;
+ 
+diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
+index e33b9cff8827..50b89735481e 100644
+--- chrome/browser/profiles/profile_impl.cc
++++ chrome/browser/profiles/profile_impl.cc
+@@ -953,7 +953,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(
+ 
+   otr_profiles_[otr_profile_id] = std::move(otr_profile);
+ 
+-  NotifyOffTheRecordProfileCreated(raw_otr_profile);
++  // With CEF we want to delay initialization.
++  if (!otr_profile_id.IsUniqueForCEF())
++    NotifyOffTheRecordProfileCreated(raw_otr_profile);
+ 
+   return raw_otr_profile;
+ }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
 index 71730949d2bd..eedcde617f01 100644
 --- chrome/browser/profiles/profile_manager.cc

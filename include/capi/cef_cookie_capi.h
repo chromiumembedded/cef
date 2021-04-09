@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=20ba58ac3e861344ee738b58433869223c757e24$
+// $hash=b19ef1c8a781f8d59276357609fe64370bb8a107$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_COOKIE_CAPI_H_
@@ -60,21 +60,6 @@ typedef struct _cef_cookie_manager_t {
   // Base structure.
   ///
   cef_base_ref_counted_t base;
-
-  ///
-  // Set the schemes supported by this manager. If |include_defaults| is true
-  // (1) the default schemes ("http", "https", "ws" and "wss") will also be
-  // supported. Calling this function with an NULL |schemes| value and
-  // |include_defaults| set to false (0) will disable all loading and saving of
-  // cookies for this manager. If |callback| is non-NULL it will be executed
-  // asnychronously on the UI thread after the change has been applied. Must be
-  // called before any cookies are accessed.
-  ///
-  void(CEF_CALLBACK* set_supported_schemes)(
-      struct _cef_cookie_manager_t* self,
-      cef_string_list_t schemes,
-      int include_defaults,
-      struct _cef_completion_callback_t* callback);
 
   ///
   // Visit all cookies on the UI thread. The returned cookies are ordered by

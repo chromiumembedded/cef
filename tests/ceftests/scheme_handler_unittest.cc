@@ -2579,8 +2579,7 @@ TEST(SchemeHandlerTest, AcceptLanguage) {
 // Entry point for registering custom schemes.
 // Called from client_app_delegates.cc.
 void RegisterSchemeHandlerCustomSchemes(
-    CefRawPtr<CefSchemeRegistrar> registrar,
-    std::vector<CefString>& cookiable_schemes) {
+    CefRawPtr<CefSchemeRegistrar> registrar) {
   // Registering the custom standard schemes as secure because requests from
   // non-secure origins to the loopback address will be blocked by
   // https://chromestatus.com/feature/5436853517811712.
@@ -2589,15 +2588,22 @@ void RegisterSchemeHandlerCustomSchemes(
   registrar->AddCustomScheme("customstd", CEF_SCHEME_OPTION_STANDARD |
                                               CEF_SCHEME_OPTION_SECURE |
                                               CEF_SCHEME_OPTION_CORS_ENABLED);
-  cookiable_schemes.push_back("customstd");
   // Also used in cors_unittest.cc.
   registrar->AddCustomScheme(
       "customstdfetch", CEF_SCHEME_OPTION_STANDARD | CEF_SCHEME_OPTION_SECURE |
                             CEF_SCHEME_OPTION_CORS_ENABLED |
                             CEF_SCHEME_OPTION_FETCH_ENABLED);
-  cookiable_schemes.push_back("customstdfetch");
   // Add a custom non-standard scheme.
   registrar->AddCustomScheme("customnonstd", CEF_SCHEME_OPTION_NONE);
   registrar->AddCustomScheme("customnonstdfetch",
                              CEF_SCHEME_OPTION_FETCH_ENABLED);
+}
+
+// Entry point for registering cookieable schemes.
+// Called from client_app_delegates.cc.
+void RegisterSchemeHandlerCookieableSchemes(
+    std::vector<std::string>& cookieable_schemes) {
+  cookieable_schemes.push_back("customstd");
+  // Also used in cors_unittest.cc.
+  cookieable_schemes.push_back("customstdfetch");
 }

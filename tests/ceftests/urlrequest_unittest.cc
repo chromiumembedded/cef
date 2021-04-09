@@ -2900,6 +2900,11 @@ class RequestTestHandler : public TestHandler {
         CefString(&settings.cache_path) = context_tmpdir_path_;
       }
 
+      if (!test_server_backend_) {
+        // Set the schemes that are allowed to store cookies.
+        CefString(&settings.cookieable_schemes_list) = GetRequestScheme(false);
+      }
+
       // Create a new temporary request context. Calls OnContextInitialized.
       CefRequestContext::CreateContext(settings,
                                        new RequestContextHandler(this));
@@ -2910,20 +2915,7 @@ class RequestTestHandler : public TestHandler {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
     EXPECT_TRUE(request_context.get());
     test_runner_->SetRequestContext(request_context);
-
-    if (!test_server_backend_) {
-      // Set the schemes that are allowed to store cookies.
-      std::vector<CefString> supported_schemes;
-      supported_schemes.push_back(GetRequestScheme(false));
-
-      // Continue the test once supported schemes has been set.
-      request_context->GetCookieManager(nullptr)->SetSupportedSchemes(
-          supported_schemes, true,
-          new TestCompletionCallback(
-              base::Bind(&RequestTestHandler::PreSetupComplete, this)));
-    } else {
-      PreSetupComplete();
-    }
+    PreSetupComplete();
   }
 
   void PreSetupComplete() {
@@ -3269,13 +3261,18 @@ void CreateURLRequestRendererTests(ClientAppRenderer::DelegateSet& delegates) {
 
 // Entry point for registering custom schemes.
 // Called from client_app_delegates.cc.
-void RegisterURLRequestCustomSchemes(
-    CefRawPtr<CefSchemeRegistrar> registrar,
-    std::vector<CefString>& cookiable_schemes) {
+void RegisterURLRequestCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar) {
   const std::string& scheme = GetRequestScheme(false);
   registrar->AddCustomScheme(
       scheme, CEF_SCHEME_OPTION_STANDARD | CEF_SCHEME_OPTION_CORS_ENABLED);
-  cookiable_schemes.push_back(scheme);
+}
+
+// Entry point for registering cookieable schemes.
+// Called from client_app_delegates.cc.
+void RegisterURLRequestCookieableSchemes(
+    std::vector<std::string>& cookieable_schemes) {
+  const std::string& scheme = GetRequestScheme(false);
+  cookieable_schemes.push_back(scheme);
 }
 
 // Helpers for defining URLRequest tests.

@@ -9,6 +9,10 @@
 namespace client {
 
 // static
+void ClientAppBrowser::RegisterCookieableSchemes(
+    std::vector<std::string>& cookieable_schemes) {}
+
+// static
 void ClientAppBrowser::CreateDelegates(DelegateSet& delegates) {
   browser::CreateDelegates(delegates);
 }

@@ -65,21 +65,6 @@ class CefCookieManager : public virtual CefBaseRefCounted {
       CefRefPtr<CefCompletionCallback> callback);
 
   ///
-  // Set the schemes supported by this manager. If |include_defaults| is true
-  // the default schemes ("http", "https", "ws" and "wss") will also be
-  // supported. Calling this method with an empty |schemes| value and
-  // |include_defaults| set to false will disable all loading and saving of
-  // cookies for this manager. If |callback| is non-NULL it will be executed
-  // asnychronously on the UI thread after the change has been applied. Must be
-  // called before any cookies are accessed.
-  ///
-  /*--cef(optional_param=callback)--*/
-  virtual void SetSupportedSchemes(
-      const std::vector<CefString>& schemes,
-      bool include_defaults,
-      CefRefPtr<CefCompletionCallback> callback) = 0;
-
-  ///
   // Visit all cookies on the UI thread. The returned cookies are ordered by
   // longest path, then by earliest creation date. Returns false if cookies
   // cannot be accessed.

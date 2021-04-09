@@ -423,6 +423,20 @@ typedef struct _cef_settings_t {
   cef_string_t accept_language_list;
 
   ///
+  // Comma delimited list of schemes supported by the associated
+  // CefCookieManager. If |cookieable_schemes_exclude_defaults| is false (0) the
+  // default schemes ("http", "https", "ws" and "wss") will also be supported.
+  // Specifying a |cookieable_schemes_list| value and setting
+  // |cookieable_schemes_exclude_defaults| to true (1) will disable all loading
+  // and saving of cookies for this manager. Can be overridden
+  // for individual CefRequestContext instances via the
+  // CefRequestContextSettings.cookieable_schemes_list and
+  // CefRequestContextSettings.cookieable_schemes_exclude_defaults values.
+  ///
+  cef_string_t cookieable_schemes_list;
+  int cookieable_schemes_exclude_defaults;
+
+  ///
   // GUID string used for identifying the application. This is passed to the
   // system AV function for scanning downloaded files. By default, the GUID
   // will be an empty string and the file will be treated as an untrusted
@@ -490,6 +504,18 @@ typedef struct _cef_request_context_settings_t {
   // ignored if |cache_path| matches the CefSettings.cache_path value.
   ///
   cef_string_t accept_language_list;
+
+  ///
+  // Comma delimited list of schemes supported by the associated
+  // CefCookieManager. If |cookieable_schemes_exclude_defaults| is false (0) the
+  // default schemes ("http", "https", "ws" and "wss") will also be supported.
+  // Specifying a |cookieable_schemes_list| value and setting
+  // |cookieable_schemes_exclude_defaults| to true (1) will disable all loading
+  // and saving of cookies for this manager. These values will be ignored if
+  // |cache_path| matches the CefSettings.cache_path value.
+  ///
+  cef_string_t cookieable_schemes_list;
+  int cookieable_schemes_exclude_defaults;
 } cef_request_context_settings_t;
 
 ///
@@ -654,7 +680,7 @@ typedef struct _cef_browser_settings_t {
   ///
   // Comma delimited ordered list of language codes without any whitespace that
   // will be used in the "Accept-Language" HTTP header. May be set globally
-  // using the CefBrowserSettings.accept_language_list value. If both values are
+  // using the CefSettings.accept_language_list value. If both values are
   // empty then "en-US,en" will be used.
   ///
   cef_string_t accept_language_list;

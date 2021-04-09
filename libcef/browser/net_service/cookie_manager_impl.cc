@@ -4,13 +4,11 @@
 
 #include "libcef/browser/net_service/cookie_manager_impl.h"
 
-#include "libcef/common/app_manager.h"
 #include "libcef/common/net_service/net_service_util.h"
 #include "libcef/common/time_util.h"
 
 #include "base/bind.h"
 #include "base/logging.h"
-#include "base/no_destructor.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/storage_partition.h"
 #include "services/network/public/mojom/cookie_manager.mojom.h"
@@ -117,25 +115,6 @@ void GetCookiesCallbackImpl(
   GetAllCookiesCallbackImpl(visitor, browser_context_getter, cookies);
 }
 
-CefCookieManagerImpl::CookieableSchemes MakeSupportedSchemes(
-    const std::vector<CefString>& schemes,
-    bool include_defaults) {
-  std::vector<std::string> all_schemes;
-  for (const auto& scheme : schemes)
-    all_schemes.push_back(scheme);
-
-  if (include_defaults) {
-    // Add default schemes that should always support cookies.
-    // This list should match CookieMonster::kDefaultCookieableSchemes.
-    all_schemes.push_back("http");
-    all_schemes.push_back("https");
-    all_schemes.push_back("ws");
-    all_schemes.push_back("wss");
-  }
-
-  return base::make_optional(all_schemes);
-}
-
 }  // namespace
 
 CefCookieManagerImpl::CefCookieManagerImpl() {}
@@ -147,29 +126,6 @@ void CefCookieManagerImpl::Initialize(
   DCHECK(!browser_context_getter.is_null());
   DCHECK(browser_context_getter_.is_null());
   browser_context_getter_ = browser_context_getter;
-  RunAsyncCompletionOnUIThread(callback);
-}
-
-void CefCookieManagerImpl::SetSupportedSchemes(
-    const std::vector<CefString>& schemes,
-    bool include_defaults,
-    CefRefPtr<CefCompletionCallback> callback) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-                  base::Bind(&CefCookieManagerImpl::SetSupportedSchemes, this,
-                             schemes, include_defaults, callback));
-    return;
-  }
-
-  auto browser_context = GetBrowserContext(browser_context_getter_);
-  if (!browser_context)
-    return;
-
-  // This will be forwarded to the CookieMonster that lives in the
-  // NetworkService process when the NetworkContext is created via
-  // AlloyContentBrowserClient::CreateNetworkContext.
-  browser_context->set_cookieable_schemes(
-      MakeSupportedSchemes(schemes, include_defaults));
   RunAsyncCompletionOnUIThread(callback);
 }
 
@@ -350,26 +306,6 @@ bool CefCookieManagerImpl::FlushStore(
   GetCookieManager(browser_context)
       ->FlushCookieStore(base::Bind(RunAsyncCompletionOnUIThread, callback));
   return true;
-}
-
-// static
-CefCookieManagerImpl::CookieableSchemes
-CefCookieManagerImpl::GetGlobalCookieableSchemes() {
-  CEF_REQUIRE_UIT();
-
-  static base::NoDestructor<CookieableSchemes> schemes(
-      []() -> CefCookieManagerImpl::CookieableSchemes {
-        if (auto application = CefAppManager::Get()->GetApplication()) {
-          if (auto handler = application->GetBrowserProcessHandler()) {
-            std::vector<CefString> schemes;
-            bool include_defaults = true;
-            handler->GetCookieableSchemes(schemes, include_defaults);
-            return MakeSupportedSchemes(schemes, include_defaults);
-          }
-        }
-        return base::nullopt;
-      }());
-  return *schemes;
 }
 
 // CefCookieManager methods ----------------------------------------------------

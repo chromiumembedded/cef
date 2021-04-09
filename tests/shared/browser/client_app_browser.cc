@@ -15,6 +15,32 @@ ClientAppBrowser::ClientAppBrowser() {
   CreateDelegates(delegates_);
 }
 
+// static
+void ClientAppBrowser::PopulateSettings(CefRefPtr<CefCommandLine> command_line,
+                                        CefSettings& settings) {
+#if (defined(OS_WIN) || defined(OS_LINUX))
+  settings.multi_threaded_message_loop =
+      command_line->HasSwitch(client::switches::kMultiThreadedMessageLoop);
+#endif
+
+  if (!settings.multi_threaded_message_loop) {
+    settings.external_message_pump =
+        command_line->HasSwitch(client::switches::kExternalMessagePump);
+  }
+
+  std::vector<std::string> cookieable_schemes;
+  RegisterCookieableSchemes(cookieable_schemes);
+  if (!cookieable_schemes.empty()) {
+    std::string list_str;
+    for (const auto& scheme : cookieable_schemes) {
+      if (!list_str.empty())
+        list_str += ",";
+      list_str += scheme;
+    }
+    CefString(&settings.cookieable_schemes_list) = list_str;
+  }
+}
+
 void ClientAppBrowser::OnBeforeCommandLineProcessing(
     const CefString& process_type,
     CefRefPtr<CefCommandLine> command_line) {
@@ -58,14 +84,6 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
     DelegateSet::iterator it = delegates_.begin();
     for (; it != delegates_.end(); ++it)
       (*it)->OnBeforeCommandLineProcessing(this, command_line);
-  }
-}
-
-void ClientAppBrowser::GetCookieableSchemes(std::vector<CefString>& schemes,
-                                            bool& include_defaults) {
-  if (!cookieable_schemes_.empty()) {
-    schemes = cookieable_schemes_;
-    include_defaults = true;
   }
 }
 

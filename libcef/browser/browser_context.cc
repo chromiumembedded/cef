@@ -7,6 +7,7 @@
 #include <map>
 #include <utility>
 
+#include "libcef/browser/context.h"
 #include "libcef/browser/media_router/media_router_manager.h"
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/thread_util.h"
@@ -16,6 +17,8 @@
 #include "base/files/file_util.h"
 #include "base/lazy_instance.h"
 #include "base/logging.h"
+#include "base/no_destructor.h"
+#include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
 #include "chrome/browser/profiles/profile.h"
 #include "content/public/browser/browser_context.h"
@@ -142,6 +145,28 @@ CefBrowserContext* GetSelf(base::WeakPtr<CefBrowserContext> self) {
   return self.get();
 }
 
+CefBrowserContext::CookieableSchemes MakeSupportedSchemes(
+    const CefString& schemes_list,
+    bool include_defaults) {
+  std::vector<std::string> all_schemes;
+  if (!schemes_list.empty()) {
+    all_schemes =
+        base::SplitString(schemes_list.ToString(), std::string(","),
+                          base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
+  }
+
+  if (include_defaults) {
+    // Add default schemes that should always support cookies.
+    // This list should match CookieMonster::kDefaultCookieableSchemes.
+    all_schemes.push_back("http");
+    all_schemes.push_back("https");
+    all_schemes.push_back("ws");
+    all_schemes.push_back("wss");
+  }
+
+  return base::make_optional(all_schemes);
+}
+
 }  // namespace
 
 CefBrowserContext::CefBrowserContext(const CefRequestContextSettings& settings)
@@ -164,6 +189,13 @@ void CefBrowserContext::Initialize() {
     g_manager.Get().SetImplPath(this, cache_path_);
 
   iothread_state_ = base::MakeRefCounted<CefIOThreadState>();
+
+  if (settings_.cookieable_schemes_list.length > 0 ||
+      settings_.cookieable_schemes_exclude_defaults) {
+    cookieable_schemes_ =
+        MakeSupportedSchemes(CefString(&settings_.cookieable_schemes_list),
+                             !settings_.cookieable_schemes_exclude_defaults);
+  }
 }
 
 void CefBrowserContext::Shutdown() {
@@ -468,5 +500,24 @@ CefBrowserContext::CookieableSchemes CefBrowserContext::GetCookieableSchemes()
   if (cookieable_schemes_)
     return cookieable_schemes_;
 
-  return CefCookieManagerImpl::GetGlobalCookieableSchemes();
+  return GetGlobalCookieableSchemes();
+}
+
+// static
+CefBrowserContext::CookieableSchemes
+CefBrowserContext::GetGlobalCookieableSchemes() {
+  CEF_REQUIRE_UIT();
+
+  static base::NoDestructor<CookieableSchemes> schemes(
+      []() -> CookieableSchemes {
+        const auto& settings = CefContext::Get()->settings();
+        if (settings.cookieable_schemes_list.length > 0 ||
+            settings.cookieable_schemes_exclude_defaults) {
+          return MakeSupportedSchemes(
+              CefString(&settings.cookieable_schemes_list),
+              !settings.cookieable_schemes_exclude_defaults);
+        }
+        return base::nullopt;
+      }());
+  return *schemes;
 }

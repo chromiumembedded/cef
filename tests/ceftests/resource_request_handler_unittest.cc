@@ -3943,8 +3943,7 @@ TEST(ResourceRequestHandlerTest, FilterError) {
 // Entry point for registering custom schemes.
 // Called from client_app_delegates.cc.
 void RegisterResourceRequestHandlerCustomSchemes(
-    CefRawPtr<CefSchemeRegistrar> registrar,
-    std::vector<CefString>& cookiable_schemes) {
+    CefRawPtr<CefSchemeRegistrar> registrar) {
   // Add a custom standard scheme.
   registrar->AddCustomScheme(
       "rrhcustom", CEF_SCHEME_OPTION_STANDARD | CEF_SCHEME_OPTION_CORS_ENABLED);

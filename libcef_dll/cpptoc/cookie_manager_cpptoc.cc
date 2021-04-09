@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5136747d18b12c6b1d50f74d7f74dbad147c4401$
+// $hash=0307287ed355556f7c6dab1e4a4fd188ce11d919$
 //
 
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
@@ -17,7 +17,6 @@
 #include "libcef_dll/ctocpp/cookie_visitor_ctocpp.h"
 #include "libcef_dll/ctocpp/delete_cookies_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/set_cookie_callback_ctocpp.h"
-#include "libcef_dll/transfer_util.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -38,32 +37,6 @@ CEF_EXPORT cef_cookie_manager_t* cef_cookie_manager_get_global_manager(
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
-
-void CEF_CALLBACK
-cookie_manager_set_supported_schemes(struct _cef_cookie_manager_t* self,
-                                     cef_string_list_t schemes,
-                                     int include_defaults,
-                                     cef_completion_callback_t* callback) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-  // Verify param: schemes; type: string_vec_byref_const
-  DCHECK(schemes);
-  if (!schemes)
-    return;
-  // Unverified params: callback
-
-  // Translate param: schemes; type: string_vec_byref_const
-  std::vector<CefString> schemesList;
-  transfer_string_list_contents(schemes, schemesList);
-
-  // Execute
-  CefCookieManagerCppToC::Get(self)->SetSupportedSchemes(
-      schemesList, include_defaults ? true : false,
-      CefCompletionCallbackCToCpp::Wrap(callback));
-}
 
 int CEF_CALLBACK
 cookie_manager_visit_all_cookies(struct _cef_cookie_manager_t* self,
@@ -191,7 +164,6 @@ cookie_manager_flush_store(struct _cef_cookie_manager_t* self,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefCookieManagerCppToC::CefCookieManagerCppToC() {
-  GetStruct()->set_supported_schemes = cookie_manager_set_supported_schemes;
   GetStruct()->visit_all_cookies = cookie_manager_visit_all_cookies;
   GetStruct()->visit_url_cookies = cookie_manager_visit_url_cookies;
   GetStruct()->set_cookie = cookie_manager_set_cookie;

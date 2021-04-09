@@ -6,6 +6,7 @@
 
 #include "include/cef_parser.h"
 #include "include/cef_web_plugin.h"
+#include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/common/client_switches.h"
 
 namespace client {
@@ -188,15 +189,7 @@ bool MainContextImpl::TouchEventsEnabled() {
 }
 
 void MainContextImpl::PopulateSettings(CefSettings* settings) {
-#if defined(OS_WIN) || defined(OS_LINUX)
-  settings->multi_threaded_message_loop =
-      command_line_->HasSwitch(switches::kMultiThreadedMessageLoop);
-#endif
-
-  if (!settings->multi_threaded_message_loop) {
-    settings->external_message_pump =
-        command_line_->HasSwitch(switches::kExternalMessagePump);
-  }
+  client::ClientAppBrowser::PopulateSettings(command_line_, *settings);
 
   if (use_chrome_runtime_)
     settings->chrome_runtime = true;

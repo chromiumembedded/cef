@@ -7,6 +7,7 @@
 #include "include/cef_file_util.h"
 #include "include/wrapper/cef_scoped_temp_dir.h"
 #include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/common/client_switches.h"
 
 namespace {
@@ -132,19 +133,11 @@ int CefTestSuite::Run() {
 }
 
 void CefTestSuite::GetSettings(CefSettings& settings) const {
+  client::ClientAppBrowser::PopulateSettings(command_line_, settings);
+
   // Enable the experimental Chrome runtime. See issue #2969 for details.
   settings.chrome_runtime =
       command_line_->HasSwitch(client::switches::kEnableChromeRuntime);
-
-#if (defined(OS_WIN) || defined(OS_LINUX))
-  settings.multi_threaded_message_loop =
-      command_line_->HasSwitch(client::switches::kMultiThreadedMessageLoop);
-#endif
-
-  if (!settings.multi_threaded_message_loop) {
-    settings.external_message_pump =
-        command_line_->HasSwitch(client::switches::kExternalMessagePump);
-  }
 
   CefString(&settings.cache_path) = root_cache_path_;
   CefString(&settings.root_cache_path) = root_cache_path_;

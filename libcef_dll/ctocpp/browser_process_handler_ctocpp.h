@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e6881fab8b5f8b46c08f0b472abdc8508edaed52$
+// $hash=719a890627d0b2ba0746415c0dd8631e387567fe$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_PROCESS_HANDLER_CTOCPP_H_
@@ -20,7 +20,6 @@
 #error This file can be included DLL-side only
 #endif
 
-#include <vector>
 #include "include/capi/cef_browser_process_handler_capi.h"
 #include "include/cef_browser_process_handler.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
@@ -36,8 +35,6 @@ class CefBrowserProcessHandlerCToCpp
   virtual ~CefBrowserProcessHandlerCToCpp();
 
   // CefBrowserProcessHandler methods.
-  void GetCookieableSchemes(std::vector<CefString>& schemes,
-                            bool& include_defaults) override;
   void OnContextInitialized() override;
   void OnBeforeChildProcessLaunch(
       CefRefPtr<CefCommandLine> command_line) override;
