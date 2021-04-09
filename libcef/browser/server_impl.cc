@@ -595,7 +595,7 @@ void CefServerImpl::ShutdownOnUIThread() {
   if (thread_) {
     // Stop the handler thread as a background task so the UI thread isn't
     // blocked.
-    CEF_POST_BACKGROUND_TASK(BindOnce(
+    auto task = base::BindOnce(
         [](std::unique_ptr<base::Thread> thread) {
           // Calling PlatformThread::Join() on the UI thread is otherwise
           // disallowed.
@@ -603,7 +603,15 @@ void CefServerImpl::ShutdownOnUIThread() {
               scoped_allow_sync_primitives;
           thread.reset();
         },
-        std::move(thread_)));
+        std::move(thread_));
+
+    // Make sure the task is executed on shutdown. Otherwise, |thread| might
+    // be released outside of the correct scope.
+    base::PostTask(
+        FROM_HERE,
+        {base::ThreadPool(), base::TaskPriority::BEST_EFFORT,
+         base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()},
+        std::move(task));
 
     // Release the reference that was added in StartupOnUIThread().
     Release();
