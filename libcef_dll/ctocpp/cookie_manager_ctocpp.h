@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f90075499dbca71125c6ec1746fd2d3168699ee1$
+// $hash=86450b60ca929d794339574809c956ab0fec709e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_COOKIE_MANAGER_CTOCPP_H_
@@ -20,7 +20,6 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include <vector>
 #include "include/capi/cef_cookie_capi.h"
 #include "include/cef_cookie.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
@@ -36,9 +35,6 @@ class CefCookieManagerCToCpp
   virtual ~CefCookieManagerCToCpp();
 
   // CefCookieManager methods.
-  void SetSupportedSchemes(const std::vector<CefString>& schemes,
-                           bool include_defaults,
-                           CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
   bool VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;
   bool VisitUrlCookies(const CefString& url,
                        bool includeHttpOnly,

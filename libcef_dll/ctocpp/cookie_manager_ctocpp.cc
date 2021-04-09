@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ca2d5effc1d414cebf46e33d1282a8e6d04bc317$
+// $hash=2682019770bd002410e9e292747e861c907d3c0c$
 //
 
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
@@ -17,7 +17,6 @@
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/delete_cookies_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/set_cookie_callback_cpptoc.h"
-#include "libcef_dll/transfer_util.h"
 
 // STATIC METHODS - Body may be edited by hand.
 
@@ -37,34 +36,6 @@ CefRefPtr<CefCookieManager> CefCookieManager::GetGlobalManager(
 }
 
 // VIRTUAL METHODS - Body may be edited by hand.
-
-NO_SANITIZE("cfi-icall")
-void CefCookieManagerCToCpp::SetSupportedSchemes(
-    const std::vector<CefString>& schemes,
-    bool include_defaults,
-    CefRefPtr<CefCompletionCallback> callback) {
-  cef_cookie_manager_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_supported_schemes))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: callback
-
-  // Translate param: schemes; type: string_vec_byref_const
-  cef_string_list_t schemesList = cef_string_list_alloc();
-  DCHECK(schemesList);
-  if (schemesList)
-    transfer_string_list_contents(schemes, schemesList);
-
-  // Execute
-  _struct->set_supported_schemes(_struct, schemesList, include_defaults,
-                                 CefCompletionCallbackCppToC::Wrap(callback));
-
-  // Restore param:schemes; type: string_vec_byref_const
-  if (schemesList)
-    cef_string_list_free(schemesList);
-}
 
 NO_SANITIZE("cfi-icall")
 bool CefCookieManagerCToCpp::VisitAllCookies(

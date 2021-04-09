@@ -258,7 +258,7 @@ void ChromeContentBrowserClientCef::ConfigureNetworkContextParams(
   auto cef_context = CefBrowserContext::FromBrowserContext(context);
   network_context_params->cookieable_schemes =
       cef_context ? cef_context->GetCookieableSchemes()
-                  : CefCookieManagerImpl::GetGlobalCookieableSchemes();
+                  : CefBrowserContext::GetGlobalCookieableSchemes();
 }
 
 std::unique_ptr<content::LoginDelegate>

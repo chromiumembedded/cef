@@ -9,54 +9,16 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=deb93b82f75f2e3f59cccf3a82ce8e47b400f5c1$
+// $hash=160f499a80898e5b6934960c4f41764c0610458e$
 //
 
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/client_cpptoc.h"
 #include "libcef_dll/ctocpp/command_line_ctocpp.h"
-#include "libcef_dll/transfer_util.h"
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
-
-void CEF_CALLBACK browser_process_handler_get_cookieable_schemes(
-    struct _cef_browser_process_handler_t* self,
-    cef_string_list_t schemes,
-    int* include_defaults) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-  // Verify param: schemes; type: string_vec_byref
-  DCHECK(schemes);
-  if (!schemes)
-    return;
-  // Verify param: include_defaults; type: bool_byref
-  DCHECK(include_defaults);
-  if (!include_defaults)
-    return;
-
-  // Translate param: schemes; type: string_vec_byref
-  std::vector<CefString> schemesList;
-  transfer_string_list_contents(schemes, schemesList);
-  // Translate param: include_defaults; type: bool_byref
-  bool include_defaultsBool =
-      (include_defaults && *include_defaults) ? true : false;
-
-  // Execute
-  CefBrowserProcessHandlerCppToC::Get(self)->GetCookieableSchemes(
-      schemesList, include_defaultsBool);
-
-  // Restore param: schemes; type: string_vec_byref
-  cef_string_list_clear(schemes);
-  transfer_string_list_contents(schemesList, schemes);
-  // Restore param: include_defaults; type: bool_byref
-  if (include_defaults)
-    *include_defaults = include_defaultsBool ? true : false;
-}
 
 void CEF_CALLBACK browser_process_handler_on_context_initialized(
     struct _cef_browser_process_handler_t* self) {
@@ -123,8 +85,6 @@ struct _cef_client_t* CEF_CALLBACK browser_process_handler_get_default_client(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefBrowserProcessHandlerCppToC::CefBrowserProcessHandlerCppToC() {
-  GetStruct()->get_cookieable_schemes =
-      browser_process_handler_get_cookieable_schemes;
   GetStruct()->on_context_initialized =
       browser_process_handler_on_context_initialized;
   GetStruct()->on_before_child_process_launch =

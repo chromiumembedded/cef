@@ -28,6 +28,11 @@ const char* kTestPath = "/path/to/cookietest";
 
 const int kIgnoreNumDeleted = -2;
 
+bool IgnoreURL(const std::string& url) {
+  return IsChromeRuntimeEnabled() &&
+         url.find("/favicon.ico") != std::string::npos;
+}
+
 typedef std::vector<CefCookie> CookieVector;
 
 class TestCompletionCallback : public CefCompletionCallback {
@@ -843,34 +848,29 @@ class CookieTestSchemeHandler : public TestHandler {
     } else {
       // Create the request context that will use an in-memory cache.
       CefRequestContextSettings settings;
+
+      if (scheme_ == kCustomCookieScheme || block_cookies_) {
+        if (!block_cookies_) {
+          CefString(&settings.cookieable_schemes_list) = kCustomCookieScheme;
+        } else {
+          settings.cookieable_schemes_exclude_defaults = true;
+        }
+      }
+
       request_context_ = CefRequestContext::CreateContext(settings, nullptr);
     }
 
     // Register the scheme handler.
     request_context_->RegisterSchemeHandlerFactory(
         scheme_, "cookie-tests", new SchemeHandlerFactory(this));
-    manager_ = request_context_->GetCookieManager(nullptr);
-    if (!use_global_ && (scheme_ == kCustomCookieScheme || block_cookies_)) {
-      std::vector<CefString> schemes;
-      if (!block_cookies_)
-        schemes.push_back(kCustomCookieScheme);
 
-      // Need to wait for completion before creating the browser.
-      manager_->SetSupportedSchemes(
-          schemes, !block_cookies_ /* include_defaults */,
-          new CompletionCallback(base::Bind(
-              &CookieTestSchemeHandler::CreateBrowserContinue, this)));
-    } else {
-      CreateBrowserContinue();
-    }
+    manager_ = request_context_->GetCookieManager(nullptr);
+
+    // Create the browser.
+    CreateBrowser(url1_, request_context_);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
-  }
-
-  void CreateBrowserContinue() {
-    // Create the browser.
-    CreateBrowser(url1_, request_context_);
   }
 
   // Go to the next URL.
@@ -1220,7 +1220,9 @@ class CookieAccessSchemeHandlerFactory : public CefSchemeHandlerFactory,
     }
 
     // Unknown test.
-    ADD_FAILURE() << "Unexpected url: " << url;
+    if (!IgnoreURL(url)) {
+      ADD_FAILURE() << "Unexpected url: " << url;
+    }
     return nullptr;
   }
 
@@ -1253,8 +1255,6 @@ class CookieAccessServerHandler : public test_server::ObserverHelper,
  public:
   CookieAccessServerHandler()
       : initialized_(false),
-        expected_connection_ct_(-1),
-        actual_connection_ct_(0),
         expected_http_request_ct_(-1),
         actual_http_request_ct_(0) {}
 
@@ -1269,7 +1269,7 @@ class CookieAccessServerHandler : public test_server::ObserverHelper,
   // Must be called before CreateServer().
   void SetExpectedRequestCount(int count) {
     EXPECT_FALSE(initialized_);
-    expected_connection_ct_ = expected_http_request_ct_ = count;
+    expected_http_request_ct_ = count;
   }
 
   // |complete_callback| will be executed on the UI thread after the server is
@@ -1277,7 +1277,7 @@ class CookieAccessServerHandler : public test_server::ObserverHelper,
   void CreateServer(const base::Closure& complete_callback) {
     EXPECT_UI_THREAD();
 
-    if (expected_connection_ct_ < 0) {
+    if (expected_http_request_ct_ < 0) {
       // Default to the assumption of one request per registered URL.
       SetExpectedRequestCount(static_cast<int>(data_map_.size()));
     }
@@ -1325,36 +1325,11 @@ class CookieAccessServerHandler : public test_server::ObserverHelper,
     delete this;
   }
 
-  bool OnClientConnected(CefRefPtr<CefServer> server,
-                         int connection_id) override {
-    EXPECT_UI_THREAD();
-
-    EXPECT_TRUE(connection_id_set_.find(connection_id) ==
-                connection_id_set_.end());
-    connection_id_set_.insert(connection_id);
-
-    actual_connection_ct_++;
-
-    return true;
-  }
-
-  bool OnClientDisconnected(CefRefPtr<CefServer> server,
-                            int connection_id) override {
-    EXPECT_UI_THREAD();
-
-    ConnectionIdSet::iterator it = connection_id_set_.find(connection_id);
-    EXPECT_TRUE(it != connection_id_set_.end());
-    connection_id_set_.erase(it);
-
-    return true;
-  }
-
   bool OnHttpRequest(CefRefPtr<CefServer> server,
                      int connection_id,
                      const CefString& client_address,
                      CefRefPtr<CefRequest> request) override {
     EXPECT_UI_THREAD();
-    EXPECT_TRUE(VerifyConnection(connection_id));
     EXPECT_FALSE(client_address.empty());
 
     // Log the requests for better error reporting.
@@ -1369,15 +1344,9 @@ class CookieAccessServerHandler : public test_server::ObserverHelper,
   }
 
  private:
-  bool VerifyConnection(int connection_id) {
-    return connection_id_set_.find(connection_id) != connection_id_set_.end();
-  }
-
   void VerifyResults() {
     EXPECT_TRUE(got_server_created_);
     EXPECT_TRUE(got_server_destroyed_);
-    EXPECT_TRUE(connection_id_set_.empty());
-    EXPECT_EQ(expected_connection_ct_, actual_connection_ct_) << request_log_;
     EXPECT_EQ(expected_http_request_ct_, actual_http_request_ct_)
         << request_log_;
   }
@@ -1400,7 +1369,9 @@ class CookieAccessServerHandler : public test_server::ObserverHelper,
                    it->second->response_data);
     } else {
       // Unknown test.
-      ADD_FAILURE() << "Unexpected url: " << url;
+      if (!IgnoreURL(url)) {
+        ADD_FAILURE() << "Unexpected url: " << url;
+      }
       server->SendHttp500Response(connection_id, "Unknown test");
     }
   }
@@ -1461,11 +1432,6 @@ class CookieAccessServerHandler : public test_server::ObserverHelper,
   TrackCallback got_server_created_;
   TrackCallback got_server_destroyed_;
 
-  typedef std::set<int> ConnectionIdSet;
-  ConnectionIdSet connection_id_set_;
-
-  int expected_connection_ct_;
-  int actual_connection_ct_;
   int expected_http_request_ct_;
   int actual_http_request_ct_;
 
@@ -1484,9 +1450,9 @@ class CookieAccessTestHandler : public RoutingTestHandler,
     BLOCK_READ_WRITE = BLOCK_READ | BLOCK_WRITE,
     ALLOW_NO_FILTER = 1 << 2,
 
-    // Block all cookies using SetSupportedSchemes. Can only be used with a
-    // non-global request context because it's too late (during test execution)
-    // to call this method on the global context.
+    // Block all cookies using CefRequestContextSettings. Can only be used with
+    // a non-global request context because it's too late (during test
+    // execution) to call this method on the global context.
     BLOCK_ALL_COOKIES = 1 << 3,
 
     // Return nullptr from GetResourceRequestHandler. Can only be used in
@@ -1528,27 +1494,23 @@ class CookieAccessTestHandler : public RoutingTestHandler,
     } else {
       // Create the request context that will use an in-memory cache.
       CefRequestContextSettings settings;
+
+      const bool block_cookies = (test_mode_ == BLOCK_ALL_COOKIES);
+      if (scheme_ == kCustomCookieScheme || block_cookies) {
+        if (!block_cookies) {
+          CefString(&settings.cookieable_schemes_list) = kCustomCookieScheme;
+        } else {
+          settings.cookieable_schemes_exclude_defaults = true;
+        }
+      }
+
       context_ = CefRequestContext::CreateContext(settings, nullptr);
     }
 
-    cookie_manager_ = context_->GetCookieManager(nullptr);
-
     SetTestTimeout();
 
-    const bool block_cookies = (test_mode_ == BLOCK_ALL_COOKIES);
-    if (!use_global_ && (scheme_ == kCustomCookieScheme || block_cookies)) {
-      std::vector<CefString> schemes;
-      if (!block_cookies)
-        schemes.push_back(kCustomCookieScheme);
-
-      // Need to wait for completion before creating the browser.
-      cookie_manager_->SetSupportedSchemes(
-          schemes, !block_cookies /* include_defaults */,
-          new CompletionCallback(base::Bind(
-              &CookieAccessTestHandler::RunTestSetupContinue, this)));
-    } else {
-      RunTestSetupContinue();
-    }
+    cookie_manager_ = context_->GetCookieManager(nullptr);
+    RunTestSetupContinue();
   }
 
   void DestroyTest() override {
@@ -1665,7 +1627,7 @@ class CookieAccessTestHandler : public RoutingTestHandler,
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request) override {
-    if (test_backend_ == RESOURCE_HANDLER) {
+    if (test_backend_ == RESOURCE_HANDLER && scheme_factory_) {
       return scheme_factory_->Create(browser, frame, scheme_, request);
     }
 
@@ -1681,7 +1643,7 @@ class CookieAccessTestHandler : public RoutingTestHandler,
     const std::string& url = request->GetURL();
     if (url == GetCookieAccessUrl2(scheme_, test_backend_ == SERVER)) {
       can_send_cookie2_ct_++;
-    } else {
+    } else if (!IgnoreURL(url)) {
       ADD_FAILURE() << "Unexpected url: " << url;
     }
 
@@ -1702,7 +1664,7 @@ class CookieAccessTestHandler : public RoutingTestHandler,
     const std::string& url = request->GetURL();
     if (url == GetCookieAccessUrl1(scheme_, test_backend_ == SERVER)) {
       can_save_cookie1_ct_++;
-    } else {
+    } else if (!IgnoreURL(url)) {
       ADD_FAILURE() << "Unexpected url: " << url;
     }
 
@@ -2367,11 +2329,17 @@ TEST(CookieTest, RestartInMemory) {
 
 // Entry point for registering custom schemes.
 // Called from client_app_delegates.cc.
-void RegisterCookieCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar,
-                                 std::vector<CefString>& cookiable_schemes) {
+void RegisterCookieCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar) {
   // Used by GetCookieManagerCustom* tests.
   registrar->AddCustomScheme(
       kCustomCookieScheme,
       CEF_SCHEME_OPTION_STANDARD | CEF_SCHEME_OPTION_CORS_ENABLED);
-  cookiable_schemes.push_back(kCustomCookieScheme);
+}
+
+// Entry point for registering cookieable schemes.
+// Called from client_app_delegates.cc.
+void RegisterCookieCookieableSchemes(
+    std::vector<std::string>& cookieable_schemes) {
+  // Used by GetCookieManagerCustom* tests.
+  cookieable_schemes.push_back(kCustomCookieScheme);
 }

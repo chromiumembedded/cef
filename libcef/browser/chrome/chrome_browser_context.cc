@@ -7,6 +7,7 @@
 #include "libcef/browser/prefs/browser_prefs.h"
 
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/profiles/off_the_record_profile_impl.h"
 
 ChromeBrowserContext::ChromeBrowserContext(
     const CefRequestContextSettings& settings)
@@ -33,8 +34,9 @@ void ChromeBrowserContext::InitializeAsync(base::OnceClosure initialized_cb) {
 
     if (cache_path_ == user_data_dir) {
       // Use the default disk-based profile.
-      ProfileCreated(profile_manager->GetActiveUserProfile(),
-                     Profile::CreateStatus::CREATE_STATUS_INITIALIZED);
+      auto profile = profile_manager->GetActiveUserProfile();
+      ProfileCreated(profile, Profile::CreateStatus::CREATE_STATUS_CREATED);
+      ProfileCreated(profile, Profile::CreateStatus::CREATE_STATUS_INITIALIZED);
       return;
     } else if (cache_path_.DirName() == user_data_dir) {
       // Create or load a specific disk-based profile. May continue
@@ -69,25 +71,40 @@ void ChromeBrowserContext::Shutdown() {
 
 void ChromeBrowserContext::ProfileCreated(Profile* profile,
                                           Profile::CreateStatus status) {
+  Profile* parent_profile = nullptr;
+  OffTheRecordProfileImpl* otr_profile = nullptr;
+
   if (status != Profile::CreateStatus::CREATE_STATUS_CREATED &&
       status != Profile::CreateStatus::CREATE_STATUS_INITIALIZED) {
     DCHECK(!profile);
+    DCHECK(!profile_);
 
     // Creation of a disk-based profile failed for some reason. Create a
     // new/unique OffTheRecord profile instead.
     const auto& profile_id = Profile::OTRProfileID::CreateUniqueForCEF();
-    profile = g_browser_process->profile_manager()
-                  ->GetActiveUserProfile()
-                  ->GetOffTheRecordProfile(profile_id);
+    parent_profile =
+        g_browser_process->profile_manager()->GetActiveUserProfile();
+    profile_ = parent_profile->GetOffTheRecordProfile(profile_id);
+    otr_profile = static_cast<OffTheRecordProfileImpl*>(profile_);
     status = Profile::CreateStatus::CREATE_STATUS_INITIALIZED;
     should_destroy_ = true;
   }
 
-  if (status == Profile::CreateStatus::CREATE_STATUS_INITIALIZED) {
+  if (status == Profile::CreateStatus::CREATE_STATUS_CREATED) {
     DCHECK(profile);
     DCHECK(!profile_);
     profile_ = profile;
+  } else if (status == Profile::CreateStatus::CREATE_STATUS_INITIALIZED) {
+    DCHECK(profile_);
     browser_prefs::SetLanguagePrefs(profile_);
+
+    // Must set |profile_| before Init() calls
+    // ChromeContentBrowserClientCef::ConfigureNetworkContextParams so that
+    // CefBrowserContext::FromBrowserContext can find us.
+    if (otr_profile) {
+      otr_profile->Init();
+      parent_profile->NotifyOffTheRecordProfileCreated(otr_profile);
+    }
 
     std::move(initialized_cb_).Run();
   }

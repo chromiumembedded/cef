@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=54c5210924095c7e43173a2843bd28729645922b$
+// $hash=ade537f836add7fe0b5fd94ceba26d678abb3e43$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_PROCESS_HANDLER_CAPI_H_
@@ -59,25 +59,6 @@ typedef struct _cef_browser_process_handler_t {
   // Base structure.
   ///
   cef_base_ref_counted_t base;
-
-  ///
-  // Called on the browser process UI thread to retrieve the list of schemes
-  // that should support cookies. If |include_defaults| is true (1) the default
-  // schemes ("http", "https", "ws" and "wss") will also be supported. Providing
-  // an NULL |schemes| value and setting |include_defaults| to false (0) will
-  // disable all loading and saving of cookies.
-  //
-  // This state will apply to the cef_cookie_manager_t associated with the
-  // global cef_request_context_t. It will also be used as the initial state for
-  // any new cef_request_context_ts created by the client. After creating a new
-  // cef_request_context_t the cef_cookie_manager_t::SetSupportedSchemes
-  // function may be called on the associated cef_cookie_manager_t to futher
-  // override these values.
-  ///
-  void(CEF_CALLBACK* get_cookieable_schemes)(
-      struct _cef_browser_process_handler_t* self,
-      cef_string_list_t schemes,
-      int* include_defaults);
 
   ///
   // Called on the browser process UI thread immediately after the CEF context

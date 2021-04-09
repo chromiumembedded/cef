@@ -84,31 +84,43 @@ void CreateRenderDelegates(ClientAppRenderer::DelegateSet& delegates) {
   CreateV8RendererTests(delegates);
 }
 
-void RegisterCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar,
-                           std::vector<CefString>& cookiable_schemes) {
+void RegisterCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar) {
   // Bring in the scheme handler tests.
   extern void RegisterSchemeHandlerCustomSchemes(
-      CefRawPtr<CefSchemeRegistrar> registrar,
-      std::vector<CefString> & cookiable_schemes);
-  RegisterSchemeHandlerCustomSchemes(registrar, cookiable_schemes);
+      CefRawPtr<CefSchemeRegistrar> registrar);
+  RegisterSchemeHandlerCustomSchemes(registrar);
 
   // Bring in the cookie tests.
   extern void RegisterCookieCustomSchemes(
-      CefRawPtr<CefSchemeRegistrar> registrar,
-      std::vector<CefString> & cookiable_schemes);
-  RegisterCookieCustomSchemes(registrar, cookiable_schemes);
+      CefRawPtr<CefSchemeRegistrar> registrar);
+  RegisterCookieCustomSchemes(registrar);
 
   // Bring in the URLRequest tests.
   extern void RegisterURLRequestCustomSchemes(
-      CefRawPtr<CefSchemeRegistrar> registrar,
-      std::vector<CefString> & cookiable_schemes);
-  RegisterURLRequestCustomSchemes(registrar, cookiable_schemes);
+      CefRawPtr<CefSchemeRegistrar> registrar);
+  RegisterURLRequestCustomSchemes(registrar);
 
   // Bring in the resource request handler tests.
   extern void RegisterResourceRequestHandlerCustomSchemes(
-      CefRawPtr<CefSchemeRegistrar> registrar,
-      std::vector<CefString> & cookiable_schemes);
-  RegisterResourceRequestHandlerCustomSchemes(registrar, cookiable_schemes);
+      CefRawPtr<CefSchemeRegistrar> registrar);
+  RegisterResourceRequestHandlerCustomSchemes(registrar);
+}
+
+void RegisterCookieableSchemes(std::vector<std::string>& cookieable_schemes) {
+  // Bring in the scheme handler tests.
+  extern void RegisterSchemeHandlerCookieableSchemes(std::vector<std::string> &
+                                                     cookieable_schemes);
+  RegisterSchemeHandlerCookieableSchemes(cookieable_schemes);
+
+  // Bring in the cookie tests.
+  extern void RegisterCookieCookieableSchemes(std::vector<std::string> &
+                                              cookieable_schemes);
+  RegisterCookieCookieableSchemes(cookieable_schemes);
+
+  // Bring in the URLRequest tests.
+  extern void RegisterURLRequestCookieableSchemes(std::vector<std::string> &
+                                                  cookieable_schemes);
+  RegisterURLRequestCookieableSchemes(cookieable_schemes);
 }
 
 namespace client {
@@ -124,10 +136,14 @@ void ClientAppRenderer::CreateDelegates(DelegateSet& delegates) {
 }
 
 // static
-void ClientApp::RegisterCustomSchemes(
-    CefRawPtr<CefSchemeRegistrar> registrar,
-    std::vector<CefString>& cookiable_schemes) {
-  ::RegisterCustomSchemes(registrar, cookiable_schemes);
+void ClientApp::RegisterCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar) {
+  ::RegisterCustomSchemes(registrar);
+}
+
+// static
+void ClientAppBrowser::RegisterCookieableSchemes(
+    std::vector<std::string>& cookieable_schemes) {
+  ::RegisterCookieableSchemes(cookieable_schemes);
 }
 
 }  // namespace client

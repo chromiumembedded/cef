@@ -436,6 +436,11 @@ void CefContext::PopulateGlobalRequestContextSettings(
       command_line->HasSwitch(switches::kIgnoreCertificateErrors);
   CefString(&settings->accept_language_list) =
       CefString(&settings_.accept_language_list);
+
+  CefString(&settings->cookieable_schemes_list) =
+      CefString(&settings_.cookieable_schemes_list);
+  settings->cookieable_schemes_exclude_defaults =
+      settings_.cookieable_schemes_exclude_defaults;
 }
 
 void CefContext::NormalizeRequestContextSettings(

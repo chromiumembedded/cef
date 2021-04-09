@@ -27,15 +27,10 @@ class ClientApp : public CefApp {
   // Determine the process type based on command-line arguments.
   static ProcessType GetProcessType(CefRefPtr<CefCommandLine> command_line);
 
- protected:
-  // Schemes that will be registered with the global cookie manager.
-  std::vector<CefString> cookieable_schemes_;
-
  private:
   // Registers custom schemes. Implemented by cefclient in
   // client_app_delegates_common.cc
-  static void RegisterCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar,
-                                    std::vector<CefString>& cookiable_schemes);
+  static void RegisterCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar);
 
   // CefApp methods.
   void OnRegisterCustomSchemes(
