@@ -84,6 +84,9 @@ bool TestOldResourceAPI();
 // Returns true if the Chrome runtime is enabled.
 bool IsChromeRuntimeEnabled();
 
+// Returns true if requests for |url| should be ignored by tests.
+bool IgnoreURL(const std::string& url);
+
 // Return a RequestContext object matching the specified |mode|.
 // |cache_path| may be specified for CUSTOM modes.
 // Use the RC_TEST_GROUP_BASE macro to test all valid combinations.
