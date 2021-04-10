@@ -424,10 +424,13 @@ class FrameNavTestHandler : public TestHandler {
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request) override {
+    const std::string& url = request->GetURL();
+    if (IgnoreURL(url))
+      return nullptr;
+
     EXPECT_TRUE(expectations_->GetResourceHandler(browser, frame))
         << "nav = " << nav_;
 
-    const std::string& url = request->GetURL();
     const std::string& content = expectations_->GetContentForURL(url);
     EXPECT_TRUE(!content.empty()) << "nav = " << nav_;
 

@@ -101,6 +101,9 @@ class NetNotifyTestHandler : public TestHandler {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     const std::string& url = request->GetURL();
+    if (IgnoreURL(url))
+      return RV_CONTINUE;
+
     if (url.find(url1_) == 0)
       got_before_resource_load1_.yes();
     else if (url.find(url2_) == 0)
@@ -118,6 +121,9 @@ class NetNotifyTestHandler : public TestHandler {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     const std::string& url = request->GetURL();
+    if (IgnoreURL(url))
+      return nullptr;
+
     if (url.find(url1_) == 0)
       got_get_resource_handler1_.yes();
     else if (url.find(url2_) == 0)
@@ -135,9 +141,12 @@ class NetNotifyTestHandler : public TestHandler {
                               URLRequestStatus status,
                               int64 received_content_length) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
-    EXPECT_EQ(UR_SUCCESS, status);
 
     const std::string& url = request->GetURL();
+    if (IgnoreURL(url))
+      return;
+
+    EXPECT_EQ(UR_SUCCESS, status);
     if (url.find(url1_) == 0) {
       got_resource_load_complete1_.yes();
       EXPECT_EQ(response_length1_, received_content_length);

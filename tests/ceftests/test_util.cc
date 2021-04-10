@@ -291,6 +291,11 @@ bool IsChromeRuntimeEnabled() {
   return state ? true : false;
 }
 
+bool IgnoreURL(const std::string& url) {
+  return IsChromeRuntimeEnabled() &&
+         url.find("/favicon.ico") != std::string::npos;
+}
+
 CefRefPtr<CefRequestContext> CreateTestRequestContext(
     TestRequestContextMode mode,
     const std::string& cache_path) {

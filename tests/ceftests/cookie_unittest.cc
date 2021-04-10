@@ -28,11 +28,6 @@ const char* kTestPath = "/path/to/cookietest";
 
 const int kIgnoreNumDeleted = -2;
 
-bool IgnoreURL(const std::string& url) {
-  return IsChromeRuntimeEnabled() &&
-         url.find("/favicon.ico") != std::string::npos;
-}
-
 typedef std::vector<CefCookie> CookieVector;
 
 class TestCompletionCallback : public CefCompletionCallback {
