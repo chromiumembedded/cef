@@ -11,6 +11,7 @@ namespace base {
 class FilePath;
 }
 
+class PrefRegistrySimple;
 class PrefService;
 class Profile;
 
@@ -18,6 +19,9 @@ namespace browser_prefs {
 
 // Name for the user prefs JSON file.
 extern const char kUserPrefsFileName[];
+
+// Register preferences specific to CEF.
+void RegisterProfilePrefs(PrefRegistrySimple* registry);
 
 // Create the PrefService used to manage pref registration and storage.
 // |profile| will be nullptr for the system-level PrefService.
