@@ -31,6 +31,11 @@ const char kPrefString[] = "string";
 const char kPrefList[] = "list";
 const char kPrefDict[] = "dict";
 
+std::string* PendingAction() {
+  static std::string str;
+  return &str;
+}
+
 // Browser-side app delegate.
 class PreferenceBrowserTest : public client::ClientAppBrowser::Delegate {
  public:
@@ -77,7 +82,7 @@ void ValidateBool(CefRefPtr<CefRequestContext> context,
   value = context->GetPreference(name);
   EXPECT_TRUE(value.get());
   EXPECT_EQ(VTYPE_BOOL, value->GetType());
-  EXPECT_EQ(expected, value->GetBool());
+  EXPECT_EQ(expected, value->GetBool()) << *PendingAction();
 }
 
 void ValidateInt(CefRefPtr<CefRequestContext> context,
@@ -100,7 +105,7 @@ void ValidateInt(CefRefPtr<CefRequestContext> context,
   value = context->GetPreference(name);
   EXPECT_TRUE(value.get());
   EXPECT_EQ(VTYPE_INT, value->GetType());
-  EXPECT_EQ(expected, value->GetInt());
+  EXPECT_EQ(expected, value->GetInt()) << *PendingAction();
 }
 
 void ValidateDouble(CefRefPtr<CefRequestContext> context,
@@ -123,7 +128,7 @@ void ValidateDouble(CefRefPtr<CefRequestContext> context,
   value = context->GetPreference(name);
   EXPECT_TRUE(value.get());
   EXPECT_EQ(VTYPE_DOUBLE, value->GetType());
-  EXPECT_EQ(expected, value->GetDouble());
+  EXPECT_EQ(expected, value->GetDouble()) << *PendingAction();
 }
 
 void ValidateString(CefRefPtr<CefRequestContext> context,
@@ -146,7 +151,8 @@ void ValidateString(CefRefPtr<CefRequestContext> context,
   value = context->GetPreference(name);
   EXPECT_TRUE(value.get());
   EXPECT_EQ(VTYPE_STRING, value->GetType());
-  EXPECT_STREQ(expected.c_str(), value->GetString().ToString().c_str());
+  EXPECT_STREQ(expected.c_str(), value->GetString().ToString().c_str())
+      << *PendingAction();
 }
 
 void ValidateList(CefRefPtr<CefRequestContext> context,
@@ -216,7 +222,7 @@ void ValidateNoExist(CefRefPtr<CefRequestContext> context,
   }
 
   value = context->GetPreference(name);
-  EXPECT_FALSE(value.get());
+  EXPECT_FALSE(value.get()) << *PendingAction();
 }
 
 void PopulateRootDefaults(CefRefPtr<CefDictionaryValue> val) {
@@ -448,23 +454,37 @@ TEST(PreferenceTest, GlobalSetGetShared) {
   CefRequestContextSettings settings;
   CefRefPtr<CefRequestContext> context4 =
       CefRequestContext::CreateContext(settings, nullptr);
-  EXPECT_TRUE(context.get());
+  EXPECT_TRUE(context4.get());
 
   // Set/get the values on the first context.
+  *PendingAction() = "Set/get the values on the first context";
   ValidateSetGet(context, event);
   event->Wait();
 
   // Get the values from the 2nd and 3rd contexts. They should be the same.
+  *PendingAction() = "Get the values from the 2nd context.";
   ValidateGet(context2, event);
   event->Wait();
+  *PendingAction() = "Get the values from the 3rd context.";
   ValidateGet(context3, event);
   event->Wait();
 
-  // Get the values from the 4th context. They should be at the default.
-  ValidateDefaults(context4, false, event);
+  // Get the values from the 4th context.
+  *PendingAction() = "Get the values from the 4th context.";
+  if (IsChromeRuntimeEnabled()) {
+    // With the Chrome runtime, prefs set via an incognito profile will become
+    // an overlay on top of the global (parent) profile. The incognito profile
+    // shares the prefs in this case because they were set via the global
+    // profile.
+    ValidateGet(context4, event);
+  } else {
+    // They should be at the default.
+    ValidateDefaults(context4, false, event);
+  }
   event->Wait();
 
   // Reset to the default values.
+  *PendingAction() = "Reset to the default values.";
   ValidateDefaults(context, true, event);
   event->Wait();
 }
@@ -524,23 +544,30 @@ TEST(PreferenceTest, CustomSetGetShared) {
   // Unassociated context.
   CefRefPtr<CefRequestContext> context4 =
       CefRequestContext::CreateContext(settings, nullptr);
-  EXPECT_TRUE(context.get());
+  EXPECT_TRUE(context4.get());
 
   // Set/get the values on the first context.
+  *PendingAction() = "Set/get the values on the first context";
   ValidateSetGet(context, event);
   event->Wait();
 
   // Get the values from the 2nd and 3d contexts. They should be the same.
+  *PendingAction() = "Get the values from the 2nd context.";
   ValidateGet(context2, event);
   event->Wait();
+  *PendingAction() = "Get the values from the 3rd context.";
   ValidateGet(context3, event);
   event->Wait();
 
   // Get the values from the 4th context. They should be at the default.
+  // This works with the Chrome runtime because the preference changes only
+  // exist in the other incognito profile's overlay.
+  *PendingAction() = "Get the values from the 4th context.";
   ValidateDefaults(context4, false, event);
   event->Wait();
 
   // Reset to the default values.
+  *PendingAction() = "Reset to the default values.";
   ValidateDefaults(context, true, event);
   event->Wait();
 }

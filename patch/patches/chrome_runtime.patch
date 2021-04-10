@@ -178,3 +178,37 @@ index 29ba5f21b38f..3ce05420eb78 100644
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
+diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
+index fbfeff04ce25..f5ab9f9bb8cf 100644
+--- chrome/browser/prefs/browser_prefs.cc
++++ chrome/browser/prefs/browser_prefs.cc
+@@ -10,6 +10,7 @@
+ #include "build/branding_buildflags.h"
+ #include "build/build_config.h"
+ #include "build/chromeos_buildflags.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/about_flags.h"
+ #include "chrome/browser/accessibility/accessibility_labels_service.h"
+ #include "chrome/browser/accessibility/accessibility_ui.h"
+@@ -160,6 +161,10 @@
+ #include "chrome/browser/background/background_mode_manager.h"
+ #endif
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/browser/prefs/browser_prefs.h"
++#endif
++
+ #if BUILDFLAG(ENABLE_EXTENSIONS)
+ #include "chrome/browser/accessibility/animation_policy_prefs.h"
+ #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
+@@ -959,6 +964,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+   RegisterSessionServiceLogProfilePrefs(registry);
+ #endif
+ 
++#if BUILDFLAG(ENABLE_CEF)
++  browser_prefs::RegisterProfilePrefs(registry);
++#endif
++
+ #if BUILDFLAG(ENABLE_EXTENSIONS)
+   ExtensionWebUI::RegisterProfilePrefs(registry);
+   RegisterAnimationPolicyPrefs(registry);

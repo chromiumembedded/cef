@@ -88,6 +88,20 @@ std::string GetAcceptLanguageList(Profile* profile) {
 const char kUserPrefsFileName[] = "UserPrefs.json";
 const char kLocalPrefsFileName[] = "LocalPrefs.json";
 
+void RegisterProfilePrefs(PrefRegistrySimple* registry) {
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kEnablePreferenceTesting)) {
+    // Preferences used with unit tests.
+    registry->RegisterBooleanPref("test.bool", true);
+    registry->RegisterIntegerPref("test.int", 2);
+    registry->RegisterDoublePref("test.double", 5.0);
+    registry->RegisterStringPref("test.string", "default");
+    registry->RegisterListPref("test.list");
+    registry->RegisterDictionaryPref("test.dict");
+  }
+}
+
 std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
                                                const base::FilePath& cache_path,
                                                bool persist_user_preferences) {
@@ -209,16 +223,6 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
                                 false);
   registry->RegisterBooleanPref(prefs::kWebRTCAllowLegacyTLSProtocols, false);
 
-  if (command_line->HasSwitch(switches::kEnablePreferenceTesting)) {
-    // Preferences used with unit tests.
-    registry->RegisterBooleanPref("test.bool", true);
-    registry->RegisterIntegerPref("test.int", 2);
-    registry->RegisterDoublePref("test.double", 5.0);
-    registry->RegisterStringPref("test.string", "default");
-    registry->RegisterListPref("test.list");
-    registry->RegisterDictionaryPref("test.dict");
-  }
-
   if (profile) {
     // Call RegisterProfilePrefs() for all services listed by
     // EnsureBrowserContextKeyedServiceFactoriesBuilt().
@@ -235,6 +239,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     MediaDeviceIDSalt::RegisterProfilePrefs(registry.get());
     ProfileNetworkContextService::RegisterProfilePrefs(registry.get());
     safe_browsing::RegisterProfilePrefs(registry.get());
+    RegisterProfilePrefs(registry.get());
 
     const std::string& locale =
         command_line->GetSwitchValueASCII(switches::kLang);
