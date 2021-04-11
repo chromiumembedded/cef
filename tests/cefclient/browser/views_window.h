@@ -128,6 +128,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   bool OnPopupBrowserViewCreated(CefRefPtr<CefBrowserView> browser_view,
                                  CefRefPtr<CefBrowserView> popup_browser_view,
                                  bool is_devtools) OVERRIDE;
+  ChromeToolbarType GetChromeToolbarType() override;
 
   // CefButtonDelegate methods:
   void OnButtonPressed(CefRefPtr<CefButton> button) OVERRIDE;
@@ -164,6 +165,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   CefSize GetMinimumSize(CefRefPtr<CefView> view) OVERRIDE;
   void OnFocus(CefRefPtr<CefView> view) OVERRIDE;
   void OnBlur(CefRefPtr<CefView> view) OVERRIDE;
+  void OnWindowChanged(CefRefPtr<CefView> view, bool added) OVERRIDE;
 
   // ViewsMenuBar::Delegate methods:
   void MenuBarExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
@@ -208,10 +210,13 @@ class ViewsWindow : public CefBrowserViewDelegate,
   CefRefPtr<CefBrowserView> browser_view_;
   bool frameless_;
   bool with_controls_;
+  ChromeToolbarType chrome_toolbar_type_;
   CefRefPtr<CefWindow> window_;
 
   CefRefPtr<CefMenuModel> button_menu_model_;
   CefRefPtr<ViewsMenuBar> top_menu_bar_;
+  CefRefPtr<CefView> top_toolbar_;
+  CefRefPtr<CefView> location_;
   bool menu_has_focus_;
   int last_focused_view_;
 

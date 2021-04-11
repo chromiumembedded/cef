@@ -25,8 +25,9 @@ CEF_LABEL_BUTTON_VIEW_T class CefLabelButtonView : public CEF_BUTTON_VIEW_D {
   typedef CEF_BUTTON_VIEW_D ParentClass;
 
   // |cef_delegate| may be nullptr.
-  explicit CefLabelButtonView(CefViewDelegateClass* cef_delegate)
-      : ParentClass(cef_delegate) {}
+  template <typename... Args>
+  explicit CefLabelButtonView(CefViewDelegateClass* cef_delegate, Args... args)
+      : ParentClass(cef_delegate, args...) {}
 
   void Initialize() override {
     ParentClass::Initialize();

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=041bb67146f8e803a9eeb7790528441f2f8ceb28$
+// $hash=a201b988556a825fffe39f58e378664b93795c72$
 //
 
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
@@ -452,6 +452,27 @@ window_delegate_on_child_view_changed(struct _cef_view_delegate_t* self,
                            CefViewCToCpp::Wrap(child));
 }
 
+void CEF_CALLBACK
+window_delegate_on_window_changed(struct _cef_view_delegate_t* self,
+                                  cef_view_t* view,
+                                  int added) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: view; type: refptr_diff
+  DCHECK(view);
+  if (!view)
+    return;
+
+  // Execute
+  CefWindowDelegateCppToC::Get(reinterpret_cast<cef_window_delegate_t*>(self))
+      ->OnWindowChanged(CefViewCToCpp::Wrap(view), added ? true : false);
+}
+
 void CEF_CALLBACK window_delegate_on_focus(struct _cef_view_delegate_t* self,
                                            cef_view_t* view) {
   shutdown_checker::AssertNotShutdown();
@@ -516,6 +537,7 @@ CefWindowDelegateCppToC::CefWindowDelegateCppToC() {
       window_delegate_on_parent_view_changed;
   GetStruct()->base.base.on_child_view_changed =
       window_delegate_on_child_view_changed;
+  GetStruct()->base.base.on_window_changed = window_delegate_on_window_changed;
   GetStruct()->base.base.on_focus = window_delegate_on_focus;
   GetStruct()->base.base.on_blur = window_delegate_on_blur;
 }

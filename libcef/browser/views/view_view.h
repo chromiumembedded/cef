@@ -34,8 +34,9 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
   // Do not call complex views::View-derived methods from a CefViewView-derived
   // constructor as they may attempt to call back into CefViewImpl before
   // registration has been performed. |cef_delegate| may be nullptr.
-  explicit CefViewView(CefViewDelegateClass* cef_delegate)
-      : cef_delegate_(cef_delegate) {}
+  template <typename... Args>
+  explicit CefViewView(CefViewDelegateClass* cef_delegate, Args... args)
+      : ParentClass(args...), cef_delegate_(cef_delegate) {}
 
   // Should be called from InitializeRootView() in the CefViewImpl-derived
   // class that created this object. This method will be called after
@@ -70,6 +71,8 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
   void Layout() override;
   void ViewHierarchyChanged(
       const views::ViewHierarchyChangedDetails& details) override;
+  void AddedToWidget() override;
+  void RemovedFromWidget() override;
   void OnFocus() override;
   void OnBlur() override;
 
@@ -84,7 +87,7 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
       const views::ViewHierarchyChangedDetails& details);
 
   // Not owned by this object.
-  CefViewDelegateClass* cef_delegate_;
+  CefViewDelegateClass* const cef_delegate_;
 };
 
 CEF_VIEW_VIEW_T gfx::Size CEF_VIEW_VIEW_D::CalculatePreferredSize() const {
@@ -160,6 +163,18 @@ CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::ViewHierarchyChanged(
   NotifyChildViewChanged(details);
   NotifyParentViewChanged(details);
   ParentClass::ViewHierarchyChanged(details);
+}
+
+CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::AddedToWidget() {
+  ParentClass::AddedToWidget();
+  if (cef_delegate())
+    cef_delegate()->OnWindowChanged(GetCefView(), /*added=*/true);
+}
+
+CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::RemovedFromWidget() {
+  if (cef_delegate())
+    cef_delegate()->OnWindowChanged(GetCefView(), /*added=*/false);
+  ParentClass::RemovedFromWidget();
 }
 
 CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::OnFocus() {

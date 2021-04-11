@@ -123,6 +123,15 @@ CefRefPtr<CefBrowser> CefBrowserViewImpl::GetBrowser() {
   return browser_;
 }
 
+CefRefPtr<CefView> CefBrowserViewImpl::GetChromeToolbar() {
+  CEF_REQUIRE_VALID_RETURN(nullptr);
+  if (cef::IsChromeRuntimeEnabled()) {
+    return static_cast<ChromeBrowserView*>(root_view())->cef_toolbar();
+  }
+
+  return nullptr;
+}
+
 void CefBrowserViewImpl::SetPreferAccelerators(bool prefer_accelerators) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   if (web_view())

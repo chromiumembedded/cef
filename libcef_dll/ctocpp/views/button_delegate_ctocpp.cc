@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3dcc24823032b36d6566eea42fd3ccdcee286e92$
+// $hash=fc962d2832eeb3dee99e9a201f234d4a4b4d6f0f$
 //
 
 #include "libcef_dll/ctocpp/views/button_delegate_ctocpp.h"
@@ -208,6 +208,27 @@ void CefButtonDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
   // Execute
   _struct->on_child_view_changed(_struct, CefViewCppToC::Wrap(view), added,
                                  CefViewCppToC::Wrap(child));
+}
+
+NO_SANITIZE("cfi-icall")
+void CefButtonDelegateCToCpp::OnWindowChanged(CefRefPtr<CefView> view,
+                                              bool added) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, on_window_changed))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: view; type: refptr_diff
+  DCHECK(view.get());
+  if (!view.get())
+    return;
+
+  // Execute
+  _struct->on_window_changed(_struct, CefViewCppToC::Wrap(view), added);
 }
 
 NO_SANITIZE("cfi-icall")

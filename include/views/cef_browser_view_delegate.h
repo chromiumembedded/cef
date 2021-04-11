@@ -52,6 +52,8 @@ class CefBrowserView;
 /*--cef(source=client)--*/
 class CefBrowserViewDelegate : public CefViewDelegate {
  public:
+  typedef cef_chrome_toolbar_type_t ChromeToolbarType;
+
   ///
   // Called when |browser| associated with |browser_view| is created. This
   // method will be called after CefLifeSpanHandler::OnAfterCreated() is called
@@ -104,6 +106,14 @@ class CefBrowserViewDelegate : public CefViewDelegate {
       bool is_devtools) {
     return false;
   }
+
+  ///
+  // Returns the Chrome toolbar type that will be available via
+  // CefBrowserView::GetChromeToolbar(). See that method for related
+  // documentation.
+  ///
+  /*--cef(default_retval=CEF_CTT_NONE)--*/
+  virtual ChromeToolbarType GetChromeToolbarType() { return CEF_CTT_NONE; }
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_BROWSER_VIEW_DELEGATE_H_

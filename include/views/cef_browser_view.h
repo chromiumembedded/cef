@@ -81,6 +81,17 @@ class CefBrowserView : public CefView {
   virtual CefRefPtr<CefBrowser> GetBrowser() = 0;
 
   ///
+  // Returns the Chrome toolbar associated with this BrowserView. Only supported
+  // when using the Chrome runtime. The CefBrowserViewDelegate::
+  // GetChromeToolbarType() method must return a value other than
+  // CEF_CTT_NONE and the toolbar will not be available until after this
+  // BrowserView is added to a CefWindow and CefViewDelegate::OnWindowChanged()
+  // has been called.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefView> GetChromeToolbar() = 0;
+
+  ///
   // Sets whether accelerators registered with CefWindow::SetAccelerator are
   // triggered before or after the event is sent to the CefBrowser. If
   // |prefer_accelerators| is true then the matching accelerator will be

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=37bbfadf761b3a1996276885d593d27d3fed5f8d$
+// $hash=220a126af3682f716f10b9019e8d1461702aa7c9$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_BROWSER_VIEW_DELEGATE_CAPI_H_
@@ -112,6 +112,14 @@ typedef struct _cef_browser_view_delegate_t {
       struct _cef_browser_view_t* browser_view,
       struct _cef_browser_view_t* popup_browser_view,
       int is_devtools);
+
+  ///
+  // Returns the Chrome toolbar type that will be available via
+  // cef_browser_view_t::get_chrome_toolbar(). See that function for related
+  // documentation.
+  ///
+  cef_chrome_toolbar_type_t(CEF_CALLBACK* get_chrome_toolbar_type)(
+      struct _cef_browser_view_delegate_t* self);
 } cef_browser_view_delegate_t;
 
 #ifdef __cplusplus

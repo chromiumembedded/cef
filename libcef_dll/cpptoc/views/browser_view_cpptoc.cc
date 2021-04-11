@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d69aae0b968db9610e29d956d629f1789eca922d$
+// $hash=312985bb5cc971d1fe9d77af1f985f6a544e9db5$
 //
 
 #include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
@@ -100,6 +100,24 @@ browser_view_get_browser(struct _cef_browser_view_t* self) {
 
   // Return type: refptr_same
   return CefBrowserCppToC::Wrap(_retval);
+}
+
+struct _cef_view_t* CEF_CALLBACK
+browser_view_get_chrome_toolbar(struct _cef_browser_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefView> _retval =
+      CefBrowserViewCppToC::Get(self)->GetChromeToolbar();
+
+  // Return type: refptr_same
+  return CefViewCppToC::Wrap(_retval);
 }
 
 void CEF_CALLBACK
@@ -1075,6 +1093,7 @@ int CEF_CALLBACK browser_view_convert_point_from_view(struct _cef_view_t* self,
 
 CefBrowserViewCppToC::CefBrowserViewCppToC() {
   GetStruct()->get_browser = browser_view_get_browser;
+  GetStruct()->get_chrome_toolbar = browser_view_get_chrome_toolbar;
   GetStruct()->set_prefer_accelerators = browser_view_set_prefer_accelerators;
   GetStruct()->base.as_browser_view = browser_view_as_browser_view;
   GetStruct()->base.as_button = browser_view_as_button;

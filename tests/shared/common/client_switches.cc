@@ -45,6 +45,7 @@ const char kCRLSetsPath[] = "crl-sets-path";
 const char kLoadExtension[] = "load-extension";
 const char kNoActivate[] = "no-activate";
 const char kEnableChromeRuntime[] = "enable-chrome-runtime";
+const char kShowChromeToolbar[] = "show-chrome-toolbar";
 
 }  // namespace switches
 }  // namespace client

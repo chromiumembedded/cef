@@ -3214,6 +3214,15 @@ typedef enum {
   CEF_TFC_SELECT_ALL,
 } cef_text_field_commands_t;
 
+///
+// Supported Chrome toolbar types.
+///
+typedef enum {
+  CEF_CTT_NONE = 1,
+  CEF_CTT_NORMAL,
+  CEF_CTT_LOCATION,
+} cef_chrome_toolbar_type_t;
+
 #ifdef __cplusplus
 }
 #endif

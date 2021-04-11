@@ -68,3 +68,31 @@ void ChromeBrowserView::OnBoundsChanged(const gfx::Rect& previous_bounds) {
   ParentClass::OnBoundsChanged(previous_bounds);
   browser_view_delegate_->OnBoundsChanged();
 }
+
+ToolbarView* ChromeBrowserView::OverrideCreateToolbar(
+    Browser* browser,
+    BrowserView* browser_view) {
+  if (cef_delegate()) {
+    auto toolbar_type = cef_delegate()->GetChromeToolbarType();
+    base::Optional<ToolbarView::DisplayMode> display_mode;
+    switch (toolbar_type) {
+      case CEF_CTT_NORMAL:
+        display_mode = ToolbarView::DisplayMode::NORMAL;
+        break;
+      case CEF_CTT_LOCATION:
+        display_mode = ToolbarView::DisplayMode::LOCATION;
+        break;
+      default:
+        break;
+    }
+    if (display_mode) {
+      cef_toolbar_ = CefToolbarViewImpl::Create(nullptr, browser, browser_view,
+                                                display_mode);
+      // Ownership will be taken by BrowserView.
+      view_util::PassOwnership(cef_toolbar_).release();
+      return cef_toolbar_->root_view();
+    }
+  }
+
+  return nullptr;
+}
