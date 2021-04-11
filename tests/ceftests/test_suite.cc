@@ -7,7 +7,6 @@
 #include "include/cef_file_util.h"
 #include "include/wrapper/cef_scoped_temp_dir.h"
 #include "tests/gtest/include/gtest/gtest.h"
-#include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/common/client_switches.h"
 
 namespace {
@@ -133,8 +132,6 @@ int CefTestSuite::Run() {
 }
 
 void CefTestSuite::GetSettings(CefSettings& settings) const {
-  client::ClientAppBrowser::PopulateSettings(command_line_, settings);
-
   // Enable the experimental Chrome runtime. See issue #2969 for details.
   settings.chrome_runtime =
       command_line_->HasSwitch(client::switches::kEnableChromeRuntime);
