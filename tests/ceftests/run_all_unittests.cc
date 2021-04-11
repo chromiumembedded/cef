@@ -169,6 +169,8 @@ int main(int argc, char* argv[]) {
   settings.no_sandbox = true;
 #endif
 
+  client::ClientAppBrowser::PopulateSettings(test_suite.command_line(),
+                                             settings);
   test_suite.GetSettings(settings);
 
 #if defined(OS_MAC)

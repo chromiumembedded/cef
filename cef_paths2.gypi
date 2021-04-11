@@ -563,6 +563,7 @@
       'tests/ceftests/audio_output_unittest.cc',
       'tests/ceftests/client_app_delegates.cc',
       'tests/ceftests/cookie_unittest.cc',
+      'tests/ceftests/cors_unittest.cc',
       'tests/ceftests/dom_unittest.cc',
       'tests/ceftests/frame_unittest.cc',
       'tests/ceftests/message_router_unittest.cc',
