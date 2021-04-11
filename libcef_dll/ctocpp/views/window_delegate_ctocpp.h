@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=22e538be2af31decaefcfc0b3e2879586530ad71$
+// $hash=4e5e470d6aa929b3b2d4286eb4bcdc90dba052dc$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_WINDOW_DELEGATE_CTOCPP_H_
@@ -65,6 +65,7 @@ class CefWindowDelegateCToCpp
   void OnChildViewChanged(CefRefPtr<CefView> view,
                           bool added,
                           CefRefPtr<CefView> child) override;
+  void OnWindowChanged(CefRefPtr<CefView> view, bool added) override;
   void OnFocus(CefRefPtr<CefView> view) override;
   void OnBlur(CefRefPtr<CefView> view) override;
 };

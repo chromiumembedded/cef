@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=83b4092b1523348b483a411ad80d64fa8b9db63d$
+// $hash=20b067cabc4baa4c9edecaffb38a2ebb28524ccc$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BROWSER_VIEW_DELEGATE_CTOCPP_H_
@@ -51,6 +51,7 @@ class CefBrowserViewDelegateCToCpp
   bool OnPopupBrowserViewCreated(CefRefPtr<CefBrowserView> browser_view,
                                  CefRefPtr<CefBrowserView> popup_browser_view,
                                  bool is_devtools) override;
+  ChromeToolbarType GetChromeToolbarType() override;
 
   // CefViewDelegate methods.
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override;
@@ -63,6 +64,7 @@ class CefBrowserViewDelegateCToCpp
   void OnChildViewChanged(CefRefPtr<CefView> view,
                           bool added,
                           CefRefPtr<CefView> child) override;
+  void OnWindowChanged(CefRefPtr<CefView> view, bool added) override;
   void OnFocus(CefRefPtr<CefView> view) override;
   void OnBlur(CefRefPtr<CefView> view) override;
 };

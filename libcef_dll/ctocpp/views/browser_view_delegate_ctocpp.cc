@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=902dae801096930c473e8cd7c86945fc0e703a98$
+// $hash=9aed01b6014f1c22815e7847eba321d75dbfa45d$
 //
 
 #include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
@@ -75,11 +75,12 @@ void CefBrowserViewDelegateCToCpp::OnBrowserDestroyed(
 }
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefBrowserViewDelegate> CefBrowserViewDelegateCToCpp::
-    GetDelegateForPopupBrowserView(CefRefPtr<CefBrowserView> browser_view,
-                                   const CefBrowserSettings& settings,
-                                   CefRefPtr<CefClient> client,
-                                   bool is_devtools) {
+CefRefPtr<CefBrowserViewDelegate>
+CefBrowserViewDelegateCToCpp::GetDelegateForPopupBrowserView(
+    CefRefPtr<CefBrowserView> browser_view,
+    const CefBrowserSettings& settings,
+    CefRefPtr<CefClient> client,
+    bool is_devtools) {
   shutdown_checker::AssertNotShutdown();
 
   cef_browser_view_delegate_t* _struct = GetStruct();
@@ -139,8 +140,26 @@ bool CefBrowserViewDelegateCToCpp::OnPopupBrowserViewCreated(
 }
 
 NO_SANITIZE("cfi-icall")
-CefSize
-    CefBrowserViewDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
+CefBrowserViewDelegate::ChromeToolbarType
+CefBrowserViewDelegateCToCpp::GetChromeToolbarType() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_view_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_chrome_toolbar_type))
+    return CEF_CTT_NONE;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_chrome_toolbar_type_t _retval = _struct->get_chrome_toolbar_type(_struct);
+
+  // Return type: simple
+  return _retval;
+}
+
+NO_SANITIZE("cfi-icall")
+CefSize CefBrowserViewDelegateCToCpp::GetPreferredSize(
+    CefRefPtr<CefView> view) {
   shutdown_checker::AssertNotShutdown();
 
   cef_view_delegate_t* _struct =
@@ -290,6 +309,27 @@ void CefBrowserViewDelegateCToCpp::OnChildViewChanged(
   // Execute
   _struct->on_child_view_changed(_struct, CefViewCppToC::Wrap(view), added,
                                  CefViewCppToC::Wrap(child));
+}
+
+NO_SANITIZE("cfi-icall")
+void CefBrowserViewDelegateCToCpp::OnWindowChanged(CefRefPtr<CefView> view,
+                                                   bool added) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, on_window_changed))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: view; type: refptr_diff
+  DCHECK(view.get());
+  if (!view.get())
+    return;
+
+  // Execute
+  _struct->on_window_changed(_struct, CefViewCppToC::Wrap(view), added);
 }
 
 NO_SANITIZE("cfi-icall")

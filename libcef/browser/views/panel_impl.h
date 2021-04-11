@@ -113,12 +113,14 @@ CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::AddChildView(CefRefPtr<CefView> view) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   DCHECK(view.get());
   DCHECK(view->IsValid());
-  DCHECK(!view->IsAttached());
-  if (!view.get() || !view->IsValid() || view->IsAttached())
+  if (!view.get() || !view->IsValid())
     return;
 
-  std::unique_ptr<views::View> view_ptr = view_util::PassOwnership(view);
-  ParentClass::content_view()->AddChildView(view_ptr.release());
+  auto* view_ptr = view->IsAttached()
+                       ? view_util::GetFor(view)
+                       : view_util::PassOwnership(view).release();
+  DCHECK(view_ptr);
+  ParentClass::content_view()->AddChildView(view_ptr);
 }
 
 CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::AddChildViewAt(CefRefPtr<CefView> view,
@@ -126,18 +128,20 @@ CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::AddChildViewAt(CefRefPtr<CefView> view,
   CEF_REQUIRE_VALID_RETURN_VOID();
   DCHECK(view.get());
   DCHECK(view->IsValid());
-  DCHECK(!view->IsAttached());
   DCHECK_GE(index, 0);
   DCHECK_LE(static_cast<unsigned int>(index),
             ParentClass::content_view()->children().size());
-  if (!view.get() || !view->IsValid() || view->IsAttached() || index < 0 ||
+  if (!view.get() || !view->IsValid() || index < 0 ||
       (static_cast<unsigned int>(index) >
        ParentClass::content_view()->children().size())) {
     return;
   }
 
-  std::unique_ptr<views::View> view_ptr = view_util::PassOwnership(view);
-  ParentClass::content_view()->AddChildViewAt(view_ptr.release(), index);
+  auto* view_ptr = view->IsAttached()
+                       ? view_util::GetFor(view)
+                       : view_util::PassOwnership(view).release();
+  DCHECK(view_ptr);
+  ParentClass::content_view()->AddChildViewAt(view_ptr, index);
 }
 
 CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::ReorderChildView(

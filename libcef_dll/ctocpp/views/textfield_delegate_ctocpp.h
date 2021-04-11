@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5e71b48999ec32b734dad95bfe8ce37e29a02537$
+// $hash=3a83b906a29ba302874b73804e457680d2b7251e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_TEXTFIELD_DELEGATE_CTOCPP_H_
@@ -52,6 +52,7 @@ class CefTextfieldDelegateCToCpp
   void OnChildViewChanged(CefRefPtr<CefView> view,
                           bool added,
                           CefRefPtr<CefView> child) override;
+  void OnWindowChanged(CefRefPtr<CefView> view, bool added) override;
   void OnFocus(CefRefPtr<CefView> view) override;
   void OnBlur(CefRefPtr<CefView> view) override;
 };

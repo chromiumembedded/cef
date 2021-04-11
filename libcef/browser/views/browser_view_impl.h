@@ -53,6 +53,7 @@ class CefBrowserViewImpl
 
   // CefBrowserView methods:
   CefRefPtr<CefBrowser> GetBrowser() override;
+  CefRefPtr<CefView> GetChromeToolbar() override;
   void SetPreferAccelerators(bool prefer_accelerators) override;
 
   // CefView methods:

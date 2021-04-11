@@ -200,7 +200,7 @@ index f225525e74eb..2f3d13b087b0 100644
  
  void Browser::CloseFrame() {
 diff --git chrome/browser/ui/browser.h chrome/browser/ui/browser.h
-index 3a0202c2139b..700de9a44461 100644
+index 3a0202c2139b..5b950c1146d0 100644
 --- chrome/browser/ui/browser.h
 +++ chrome/browser/ui/browser.h
 @@ -22,6 +22,7 @@
@@ -234,7 +234,21 @@ index 3a0202c2139b..700de9a44461 100644
     private:
      friend class Browser;
      friend class WindowSizerChromeOSTest;
-@@ -403,6 +413,12 @@ class Browser : public TabStripModelObserver,
+@@ -345,6 +355,13 @@ class Browser : public TabStripModelObserver,
+ 
+   bool is_focus_mode() const { return is_focus_mode_; }
+ 
++  // Return true if CEF will expose the toolbar to the client. This value is
++  // used to selectively enable toolbar behaviors such as command processing
++  // and omnibox focus without also including the toolbar in BrowserView layout
++  // calculations.
++  void set_toolbar_overridden(bool val) { toolbar_overridden_ = val; }
++  bool toolbar_overridden() const { return toolbar_overridden_; }
++
+   // Accessors ////////////////////////////////////////////////////////////////
+ 
+   const CreateParams& create_params() const { return create_params_; }
+@@ -403,6 +420,12 @@ class Browser : public TabStripModelObserver,
  
    base::WeakPtr<Browser> AsWeakPtr();
  
@@ -247,7 +261,7 @@ index 3a0202c2139b..700de9a44461 100644
    // Get the FindBarController for this browser, creating it if it does not
    // yet exist.
    FindBarController* GetFindBarController();
-@@ -783,6 +799,11 @@ class Browser : public TabStripModelObserver,
+@@ -783,6 +806,11 @@ class Browser : public TabStripModelObserver,
    void SetContentsBounds(content::WebContents* source,
                           const gfx::Rect& bounds) override;
    void UpdateTargetURL(content::WebContents* source, const GURL& url) override;
@@ -259,7 +273,16 @@ index 3a0202c2139b..700de9a44461 100644
    void ContentsMouseEvent(content::WebContents* source,
                            bool motion,
                            bool exited) override;
-@@ -1242,6 +1263,10 @@ class Browser : public TabStripModelObserver,
+@@ -1182,6 +1210,8 @@ class Browser : public TabStripModelObserver,
+   const std::string initial_workspace_;
+   bool initial_visible_on_all_workspaces_state_;
+ 
++  bool toolbar_overridden_ = false;
++
+   // Tracks when this browser is being created by session restore.
+   bool is_session_restore_;
+ 
+@@ -1242,6 +1272,10 @@ class Browser : public TabStripModelObserver,
        extension_browser_window_helper_;
  #endif
  

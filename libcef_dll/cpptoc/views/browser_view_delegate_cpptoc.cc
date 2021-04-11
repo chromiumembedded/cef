@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=dceaf28fbed0456dce3c34fcbc8177f3c2537cec$
+// $hash=8e8daae6a8ed718582045ea42e16906813b77337$
 //
 
 #include "libcef_dll/cpptoc/views/browser_view_delegate_cpptoc.h"
@@ -146,6 +146,25 @@ int CEF_CALLBACK browser_view_delegate_on_popup_browser_view_created(
           is_devtools ? true : false);
 
   // Return type: bool
+  return _retval;
+}
+
+cef_chrome_toolbar_type_t CEF_CALLBACK
+browser_view_delegate_get_chrome_toolbar_type(
+    struct _cef_browser_view_delegate_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return CEF_CTT_NONE;
+
+  // Execute
+  cef_chrome_toolbar_type_t _retval =
+      CefBrowserViewDelegateCppToC::Get(self)->GetChromeToolbarType();
+
+  // Return type: simple
   return _retval;
 }
 
@@ -303,6 +322,28 @@ browser_view_delegate_on_child_view_changed(struct _cef_view_delegate_t* self,
 }
 
 void CEF_CALLBACK
+browser_view_delegate_on_window_changed(struct _cef_view_delegate_t* self,
+                                        cef_view_t* view,
+                                        int added) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: view; type: refptr_diff
+  DCHECK(view);
+  if (!view)
+    return;
+
+  // Execute
+  CefBrowserViewDelegateCppToC::Get(
+      reinterpret_cast<cef_browser_view_delegate_t*>(self))
+      ->OnWindowChanged(CefViewCToCpp::Wrap(view), added ? true : false);
+}
+
+void CEF_CALLBACK
 browser_view_delegate_on_focus(struct _cef_view_delegate_t* self,
                                cef_view_t* view) {
   shutdown_checker::AssertNotShutdown();
@@ -356,6 +397,8 @@ CefBrowserViewDelegateCppToC::CefBrowserViewDelegateCppToC() {
       browser_view_delegate_get_delegate_for_popup_browser_view;
   GetStruct()->on_popup_browser_view_created =
       browser_view_delegate_on_popup_browser_view_created;
+  GetStruct()->get_chrome_toolbar_type =
+      browser_view_delegate_get_chrome_toolbar_type;
   GetStruct()->base.get_preferred_size =
       browser_view_delegate_get_preferred_size;
   GetStruct()->base.get_minimum_size = browser_view_delegate_get_minimum_size;
@@ -366,6 +409,7 @@ CefBrowserViewDelegateCppToC::CefBrowserViewDelegateCppToC() {
       browser_view_delegate_on_parent_view_changed;
   GetStruct()->base.on_child_view_changed =
       browser_view_delegate_on_child_view_changed;
+  GetStruct()->base.on_window_changed = browser_view_delegate_on_window_changed;
   GetStruct()->base.on_focus = browser_view_delegate_on_focus;
   GetStruct()->base.on_blur = browser_view_delegate_on_blur;
 }

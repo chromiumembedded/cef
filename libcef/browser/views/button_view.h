@@ -28,8 +28,9 @@ CEF_BUTTON_VIEW_T class CefButtonView : public CEF_VIEW_VIEW_D {
   typedef CEF_VIEW_VIEW_D ParentClass;
 
   // |cef_delegate| may be nullptr.
-  explicit CefButtonView(CefViewDelegateClass* cef_delegate)
-      : ParentClass(cef_delegate) {}
+  template <typename... Args>
+  explicit CefButtonView(CefViewDelegateClass* cef_delegate, Args... args)
+      : ParentClass(cef_delegate, args...) {}
 
   // Returns the CefButton associated with this view. See comments on
   // CefViewView::GetCefView.

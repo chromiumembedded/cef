@@ -68,9 +68,12 @@ content::WebContents* CefBrowserContentsDelegate::OpenURLFromTab(
 
   if (auto c = client()) {
     if (auto handler = c->GetRequestHandler()) {
+      // May return nullptr for omnibox navigations.
+      auto frame = browser()->GetFrame(params.frame_tree_node_id);
+      if (!frame)
+        frame = browser()->GetMainFrame();
       cancel = handler->OnOpenURLFromTab(
-          browser(), browser()->GetFrame(params.frame_tree_node_id),
-          params.url.spec(),
+          browser(), frame, params.url.spec(),
           static_cast<cef_window_open_disposition_t>(params.disposition),
           params.user_gesture);
     }

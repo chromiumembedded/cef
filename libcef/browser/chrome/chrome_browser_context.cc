@@ -34,7 +34,7 @@ void ChromeBrowserContext::InitializeAsync(base::OnceClosure initialized_cb) {
 
     if (cache_path_ == user_data_dir) {
       // Use the default disk-based profile.
-      auto profile = profile_manager->GetActiveUserProfile();
+      auto profile = profile_manager->GetPrimaryUserProfile();
       ProfileCreated(profile, Profile::CreateStatus::CREATE_STATUS_CREATED);
       ProfileCreated(profile, Profile::CreateStatus::CREATE_STATUS_INITIALIZED);
       return;
@@ -63,7 +63,7 @@ void ChromeBrowserContext::Shutdown() {
   // |g_browser_process| may be nullptr during shutdown.
   if (should_destroy_ && g_browser_process) {
     g_browser_process->profile_manager()
-        ->GetActiveUserProfile()
+        ->GetPrimaryUserProfile()
         ->DestroyOffTheRecordProfile(profile_);
   }
   profile_ = nullptr;
@@ -83,7 +83,7 @@ void ChromeBrowserContext::ProfileCreated(Profile* profile,
     // new/unique OffTheRecord profile instead.
     const auto& profile_id = Profile::OTRProfileID::CreateUniqueForCEF();
     parent_profile =
-        g_browser_process->profile_manager()->GetActiveUserProfile();
+        g_browser_process->profile_manager()->GetPrimaryUserProfile();
     profile_ = parent_profile->GetOffTheRecordProfile(profile_id);
     otr_profile = static_cast<OffTheRecordProfileImpl*>(profile_);
     status = Profile::CreateStatus::CREATE_STATUS_INITIALIZED;

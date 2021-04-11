@@ -4,6 +4,7 @@
 
 #include "libcef/browser/views/view_adapter.h"
 
+#include "libcef/browser/chrome/views/toolbar_view_impl.h"
 #include "libcef/browser/views/basic_label_button_impl.h"
 #include "libcef/browser/views/basic_panel_impl.h"
 #include "libcef/browser/views/browser_view_impl.h"
@@ -40,6 +41,9 @@ CefViewAdapter* CefViewAdapter::GetFor(CefRefPtr<CefView> view) {
     adapter = static_cast<CefScrollViewImpl*>(view->AsScrollView().get());
   } else if (view->AsTextfield()) {
     adapter = static_cast<CefTextfieldImpl*>(view->AsTextfield().get());
+  } else if (view->GetTypeString().ToString() ==
+             CefToolbarViewImpl::kTypeString) {
+    adapter = static_cast<CefToolbarViewImpl*>(view.get());
   }
 
   DCHECK(adapter);
