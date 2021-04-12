@@ -128,7 +128,7 @@ index 8a33ce57766c..ca69a37eee22 100644
  #import "chrome/browser/app_controller_mac.h"
  #include "chrome/browser/apps/app_shim/app_shim_listener.h"
  #include "chrome/browser/browser_process.h"
-@@ -110,6 +111,7 @@ void ChromeBrowserMainPartsMac::PreMainMessageLoopStart() {
+@@ -110,6 +111,7 @@
      }
    }
  
@@ -136,7 +136,7 @@ index 8a33ce57766c..ca69a37eee22 100644
    // Create the app delegate. This object is intentionally leaked as a global
    // singleton. It is accessed through -[NSApp delegate].
    AppController* app_controller = [[AppController alloc] init];
-@@ -118,6 +120,7 @@ void ChromeBrowserMainPartsMac::PreMainMessageLoopStart() {
+@@ -118,6 +120,7 @@
    chrome::BuildMainMenu(NSApp, app_controller,
                          l10n_util::GetStringUTF16(IDS_PRODUCT_NAME), false);
    [app_controller mainMenuCreated];
@@ -144,7 +144,7 @@ index 8a33ce57766c..ca69a37eee22 100644
  
    PrefService* local_state = g_browser_process->local_state();
    DCHECK(local_state);
-@@ -170,7 +173,9 @@ void ChromeBrowserMainPartsMac::PostProfileInit() {
+@@ -170,7 +173,9 @@
  }
  
  void ChromeBrowserMainPartsMac::DidEndMainMessageLoop() {
@@ -178,6 +178,31 @@ index 29ba5f21b38f..3ce05420eb78 100644
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
+diff --git chrome/browser/notifications/alert_dispatcher_xpc.mm chrome/browser/notifications/alert_dispatcher_xpc.mm
+index d126ddd3a24d..5e8c5ae7c093 100644
+--- chrome/browser/notifications/alert_dispatcher_xpc.mm
++++ chrome/browser/notifications/alert_dispatcher_xpc.mm
+@@ -19,6 +19,7 @@
+ #include "base/mac/scoped_nsobject.h"
+ #include "base/metrics/histogram_functions.h"
+ #include "base/strings/sys_string_conversions.h"
++#include "cef/libcef/features/runtime.h"
+ #include "chrome/browser/notifications/notification_platform_bridge_mac_utils.h"
+ #import "chrome/browser/ui/cocoa/notifications/notification_delivery.h"
+ #include "chrome/browser/ui/cocoa/notifications/xpc_mach_port.h"
+@@ -180,6 +181,12 @@ - (void)notificationClick:(NSDictionary*)notificationResponseData {
+ - (id<NotificationDelivery>)serviceProxy {
+   id<NotificationDelivery> proxy = [_xpcConnection remoteObjectProxy];
+ 
++  // Skip exception port configuration when running CEF with crash reporting disabled.
++  if (!_setExceptionPort && cef::IsChromeRuntimeEnabled() &&
++      !cef::IsCrashReportingEnabled()) {
++    _setExceptionPort = YES;
++  }
++
+   if (!_setExceptionPort) {
+     base::mac::ScopedMachSendRight exceptionPort(
+         crash_reporter::GetCrashpadClient().GetHandlerMachPort());
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
 index fbfeff04ce25..f5ab9f9bb8cf 100644
 --- chrome/browser/prefs/browser_prefs.cc
