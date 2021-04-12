@@ -59,6 +59,7 @@ enum class HandlerType {
   HTTP_SCHEME,
   CUSTOM_STANDARD_SCHEME,
   CUSTOM_NONSTANDARD_SCHEME,
+  CUSTOM_UNREGISTERED_SCHEME,
 };
 
 std::string GetOrigin(HandlerType handler) {
@@ -70,16 +71,29 @@ std::string GetOrigin(HandlerType handler) {
       // blocked by https://chromestatus.com/feature/5436853517811712.
       return "https://corstest.com";
     case HandlerType::CUSTOM_STANDARD_SCHEME:
-      // Standard scheme that is CORS and fetch enabled.
+      // Standard scheme that's registered as CORS and fetch enabled.
       // Registered in scheme_handler_unittest.cc.
       return "customstdfetch://corstest";
     case HandlerType::CUSTOM_NONSTANDARD_SCHEME:
-      // Non-sandard scheme that is not CORS or fetch enabled.
+      // Non-standard schemes are not CORS or fetch enabled.
       // Registered in scheme_handler_unittest.cc.
       return "customnonstd:corstest";
+    case HandlerType::CUSTOM_UNREGISTERED_SCHEME:
+      // A scheme that isn't registered anywhere is treated as a non-standard
+      // scheme.
+      return "customstdunregistered://corstest";
   }
   NOTREACHED();
   return std::string();
+}
+
+bool IsNonStandardType(HandlerType handler) {
+  return handler == HandlerType::CUSTOM_NONSTANDARD_SCHEME ||
+         handler == HandlerType::CUSTOM_UNREGISTERED_SCHEME;
+}
+
+bool IsStandardType(HandlerType handler) {
+  return !IsNonStandardType(handler);
 }
 
 std::string GetPathURL(HandlerType handler, const std::string& path) {
@@ -700,8 +714,7 @@ void SetupCookieExpectations(CookieTestSetup* setup,
                              CookieResource* main_resource,
                              CookieResource* sub_resource) {
   // All schemes except custom non-standard support cookies.
-  const bool supports_cookies =
-      main_resource->handler != HandlerType::CUSTOM_NONSTANDARD_SCHEME;
+  const bool supports_cookies = IsStandardType(main_resource->handler);
 
   // The main resource may set the cookie (if cookies are supported), but should
   // not receive one.
@@ -765,8 +778,7 @@ void SetupIframeRequest(CookieTestSetup* setup,
         HasSandboxAttrib(sandbox_attribs, "allow-same-origin");
     if (!has_same_origin ||
         (has_same_origin &&
-         (main_handler == HandlerType::CUSTOM_NONSTANDARD_SCHEME ||
-          main_handler != iframe_handler))) {
+         (IsNonStandardType(main_handler) || main_handler != iframe_handler))) {
       // Expect parent frame scripting to fail if:
       // - "allow-same-origin" is not specified;
       // - the main frame is a non-standard scheme (e.g. CORS disabled);
@@ -774,8 +786,7 @@ void SetupIframeRequest(CookieTestSetup* setup,
       // The reported origin will be "null" if "allow-same-origin" is not
       // specified, or if the iframe is hosted on a non-standard scheme.
       const std::string& origin =
-          !has_same_origin ||
-                  iframe_handler == HandlerType::CUSTOM_NONSTANDARD_SCHEME
+          !has_same_origin || IsNonStandardType(iframe_handler)
               ? "null"
               : GetOrigin(iframe_handler);
       setup->AddConsoleMessage("SecurityError: Blocked a frame with origin \"" +
@@ -819,6 +830,8 @@ void SetupIframeRequest(CookieTestSetup* setup,
                    CUSTOM_STANDARD_SCHEME, sandbox_attribs)                    \
   CORS_TEST_IFRAME(name##ServerToCustomNonStandardScheme, SERVER,              \
                    CUSTOM_NONSTANDARD_SCHEME, sandbox_attribs)                 \
+  CORS_TEST_IFRAME(name##ServerToCustomUnregisteredScheme, SERVER,             \
+                   CUSTOM_UNREGISTERED_SCHEME, sandbox_attribs)                \
   CORS_TEST_IFRAME(name##HttpSchemeToServer, HTTP_SCHEME, SERVER,              \
                    sandbox_attribs)                                            \
   CORS_TEST_IFRAME(name##HttpSchemeToHttpScheme, HTTP_SCHEME, HTTP_SCHEME,     \
@@ -827,6 +840,8 @@ void SetupIframeRequest(CookieTestSetup* setup,
                    CUSTOM_STANDARD_SCHEME, sandbox_attribs)                    \
   CORS_TEST_IFRAME(name##HttpSchemeToCustomNonStandardScheme, HTTP_SCHEME,     \
                    CUSTOM_NONSTANDARD_SCHEME, sandbox_attribs)                 \
+  CORS_TEST_IFRAME(name##HttpSchemeToCustomUnregisteredScheme, HTTP_SCHEME,    \
+                   CUSTOM_UNREGISTERED_SCHEME, sandbox_attribs)                \
   CORS_TEST_IFRAME(name##CustomStandardSchemeToServer, CUSTOM_STANDARD_SCHEME, \
                    SERVER, sandbox_attribs)                                    \
   CORS_TEST_IFRAME(name##CustomStandardSchemeToHttpScheme,                     \
@@ -837,6 +852,9 @@ void SetupIframeRequest(CookieTestSetup* setup,
   CORS_TEST_IFRAME(name##CustomStandardSchemeToCustomNonStandardScheme,        \
                    CUSTOM_STANDARD_SCHEME, CUSTOM_NONSTANDARD_SCHEME,          \
                    sandbox_attribs)                                            \
+  CORS_TEST_IFRAME(name##CustomStandardSchemeToCustomUnregisteredScheme,       \
+                   CUSTOM_STANDARD_SCHEME, CUSTOM_UNREGISTERED_SCHEME,         \
+                   sandbox_attribs)                                            \
   CORS_TEST_IFRAME(name##CustomNonStandardSchemeToServer,                      \
                    CUSTOM_NONSTANDARD_SCHEME, SERVER, sandbox_attribs)         \
   CORS_TEST_IFRAME(name##CustomNonStandardSchemeToHttpScheme,                  \
@@ -846,6 +864,22 @@ void SetupIframeRequest(CookieTestSetup* setup,
                    sandbox_attribs)                                            \
   CORS_TEST_IFRAME(name##CustomNonStandardSchemeToCustomNonStandardScheme,     \
                    CUSTOM_NONSTANDARD_SCHEME, CUSTOM_NONSTANDARD_SCHEME,       \
+                   sandbox_attribs)                                            \
+  CORS_TEST_IFRAME(name##CustomNonStandardSchemeToCustomUnregisteredScheme,    \
+                   CUSTOM_NONSTANDARD_SCHEME, CUSTOM_UNREGISTERED_SCHEME,      \
+                   sandbox_attribs)                                            \
+  CORS_TEST_IFRAME(name##CustomUnregisteredSchemeToServer,                     \
+                   CUSTOM_UNREGISTERED_SCHEME, SERVER, sandbox_attribs)        \
+  CORS_TEST_IFRAME(name##CustomUnregisteredSchemeToHttpScheme,                 \
+                   CUSTOM_UNREGISTERED_SCHEME, HTTP_SCHEME, sandbox_attribs)   \
+  CORS_TEST_IFRAME(name##CustomUnregisteredSchemeToCustomStandardScheme,       \
+                   CUSTOM_UNREGISTERED_SCHEME, CUSTOM_STANDARD_SCHEME,         \
+                   sandbox_attribs)                                            \
+  CORS_TEST_IFRAME(name##CustomUnregisteredSchemeToCustomNonStandardScheme,    \
+                   CUSTOM_UNREGISTERED_SCHEME, CUSTOM_NONSTANDARD_SCHEME,      \
+                   sandbox_attribs)                                            \
+  CORS_TEST_IFRAME(name##CustomUnregisteredSchemeToCustomUnregisteredScheme,   \
+                   CUSTOM_UNREGISTERED_SCHEME, CUSTOM_UNREGISTERED_SCHEME,     \
                    sandbox_attribs)
 
 // Everything is blocked.
@@ -877,13 +911,12 @@ struct SubResource : CookieResource {
     method = kSubRequestMethod;
 
     // Origin is always "null" for non-standard schemes.
-    main_origin = main_handler == HandlerType::CUSTOM_NONSTANDARD_SCHEME
-                      ? "null"
-                      : GetOrigin(main_handler);
+    main_origin =
+        IsNonStandardType(main_handler) ? "null" : GetOrigin(main_handler);
 
     // True if cross-origin requests are allowed. XHR requests to non-standard
     // schemes are not allowed (due to the "null" origin).
-    supports_cors = handler != HandlerType::CUSTOM_NONSTANDARD_SCHEME;
+    supports_cors = IsStandardType(handler);
     if (!supports_cors) {
       // Don't expect the xhr request.
       expected_response_ct = 0;
@@ -892,9 +925,9 @@ struct SubResource : CookieResource {
     // True if the request is considered cross-origin. Any requests between
     // non-standard schemes are considered cross-origin (due to the "null"
     // origin).
-    is_cross_origin = main_handler != handler ||
-                      (main_handler == HandlerType::CUSTOM_NONSTANDARD_SCHEME &&
-                       handler == main_handler);
+    is_cross_origin =
+        main_handler != handler ||
+        (IsNonStandardType(main_handler) && handler == main_handler);
 
     if (is_cross_origin && add_header) {
       response->SetHeaderByName("Access-Control-Allow-Origin", main_origin,
@@ -938,9 +971,8 @@ struct PreflightResource : Resource {
     EXPECT_EQ(HandlerType::SERVER, handler);
 
     // Origin is always "null" for non-standard schemes.
-    main_origin = main_handler == HandlerType::CUSTOM_NONSTANDARD_SCHEME
-                      ? "null"
-                      : GetOrigin(main_handler);
+    main_origin =
+        IsNonStandardType(main_handler) ? "null" : GetOrigin(main_handler);
 
     method = "OPTIONS";
     response->SetHeaderByName("Access-Control-Allow-Methods",
@@ -1150,8 +1182,7 @@ void SetupExecRequest(ExecMode mode,
       preflight_resource->InitPreflight(main_handler);
       setup->AddResource(preflight_resource);
 
-      if (main_handler == HandlerType::CUSTOM_NONSTANDARD_SCHEME &&
-          add_header) {
+      if (IsNonStandardType(main_handler) && add_header) {
         setup->AddConsoleMessage(
             "The website requested a subresource from a network that it could "
             "only access because of its users' privileged network position. "
@@ -1218,6 +1249,8 @@ void SetupExecRequest(ExecMode mode,
                 CUSTOM_STANDARD_SCHEME, add_header)                            \
   CORS_TEST_XHR(name##ServerToCustomNonStandardScheme, SERVER,                 \
                 CUSTOM_NONSTANDARD_SCHEME, add_header)                         \
+  CORS_TEST_XHR(name##ServerToCustomUnregisteredScheme, SERVER,                \
+                CUSTOM_UNREGISTERED_SCHEME, add_header)                        \
   CORS_TEST_XHR(name##HttpSchemeToServer, HTTP_SCHEME, SERVER, add_header)     \
   CORS_TEST_XHR(name##HttpSchemeToHttpScheme, HTTP_SCHEME, HTTP_SCHEME,        \
                 add_header)                                                    \
@@ -1225,6 +1258,8 @@ void SetupExecRequest(ExecMode mode,
                 CUSTOM_STANDARD_SCHEME, add_header)                            \
   CORS_TEST_XHR(name##HttpSchemeToCustomNonStandardScheme, HTTP_SCHEME,        \
                 CUSTOM_NONSTANDARD_SCHEME, add_header)                         \
+  CORS_TEST_XHR(name##HttpSchemeToCustomUnregisteredScheme, HTTP_SCHEME,       \
+                CUSTOM_UNREGISTERED_SCHEME, add_header)                        \
   CORS_TEST_XHR(name##CustomStandardSchemeToServer, CUSTOM_STANDARD_SCHEME,    \
                 SERVER, add_header)                                            \
   CORS_TEST_XHR(name##CustomStandardSchemeToHttpScheme,                        \
@@ -1233,6 +1268,9 @@ void SetupExecRequest(ExecMode mode,
                 CUSTOM_STANDARD_SCHEME, CUSTOM_STANDARD_SCHEME, add_header)    \
   CORS_TEST_XHR(name##CustomStandardSchemeToCustomNonStandardScheme,           \
                 CUSTOM_STANDARD_SCHEME, CUSTOM_NONSTANDARD_SCHEME, add_header) \
+  CORS_TEST_XHR(name##CustomStandardSchemeToCustomUnregisteredScheme,          \
+                CUSTOM_STANDARD_SCHEME, CUSTOM_UNREGISTERED_SCHEME,            \
+                add_header)                                                    \
   CORS_TEST_XHR(name##CustomNonStandardSchemeToServer,                         \
                 CUSTOM_NONSTANDARD_SCHEME, SERVER, add_header)                 \
   CORS_TEST_XHR(name##CustomNonStandardSchemeToHttpScheme,                     \
@@ -1241,6 +1279,22 @@ void SetupExecRequest(ExecMode mode,
                 CUSTOM_NONSTANDARD_SCHEME, CUSTOM_STANDARD_SCHEME, add_header) \
   CORS_TEST_XHR(name##CustomNonStandardSchemeToCustomNonStandardScheme,        \
                 CUSTOM_NONSTANDARD_SCHEME, CUSTOM_NONSTANDARD_SCHEME,          \
+                add_header)                                                    \
+  CORS_TEST_XHR(name##CustomNonStandardSchemeToCustomUnregisteredScheme,       \
+                CUSTOM_NONSTANDARD_SCHEME, CUSTOM_UNREGISTERED_SCHEME,         \
+                add_header)                                                    \
+  CORS_TEST_XHR(name##CustomUnregisteredSchemeToServer,                        \
+                CUSTOM_UNREGISTERED_SCHEME, SERVER, add_header)                \
+  CORS_TEST_XHR(name##CustomUnregisteredSchemeToHttpScheme,                    \
+                CUSTOM_UNREGISTERED_SCHEME, HTTP_SCHEME, add_header)           \
+  CORS_TEST_XHR(name##CustomUnregisteredSchemeToCustomStandardScheme,          \
+                CUSTOM_UNREGISTERED_SCHEME, CUSTOM_STANDARD_SCHEME,            \
+                add_header)                                                    \
+  CORS_TEST_XHR(name##CustomUnregisteredSchemeToCustomNonStandardScheme,       \
+                CUSTOM_UNREGISTERED_SCHEME, CUSTOM_NONSTANDARD_SCHEME,         \
+                add_header)                                                    \
+  CORS_TEST_XHR(name##CustomUnregisteredSchemeToCustomUnregisteredScheme,      \
+                CUSTOM_UNREGISTERED_SCHEME, CUSTOM_UNREGISTERED_SCHEME,        \
                 add_header)
 
 // XHR requests without the "Access-Control-Allow-Origin" header.
@@ -1304,6 +1358,8 @@ CORS_TEST_XHR_NO_PREFLIGHT_SERVER(WithHeaderNoPreflight, true)
                   CUSTOM_STANDARD_SCHEME, add_header)                         \
   CORS_TEST_FETCH(name##ServerToCustomNonStandardScheme, SERVER,              \
                   CUSTOM_NONSTANDARD_SCHEME, add_header)                      \
+  CORS_TEST_FETCH(name##ServerToCustomUnregisteredScheme, SERVER,             \
+                  CUSTOM_UNREGISTERED_SCHEME, add_header)                     \
   CORS_TEST_FETCH(name##HttpSchemeToServer, HTTP_SCHEME, SERVER, add_header)  \
   CORS_TEST_FETCH(name##HttpSchemeToHttpScheme, HTTP_SCHEME, HTTP_SCHEME,     \
                   add_header)                                                 \
@@ -1311,6 +1367,8 @@ CORS_TEST_XHR_NO_PREFLIGHT_SERVER(WithHeaderNoPreflight, true)
                   CUSTOM_STANDARD_SCHEME, add_header)                         \
   CORS_TEST_FETCH(name##HttpSchemeToCustomNonStandardScheme, HTTP_SCHEME,     \
                   CUSTOM_NONSTANDARD_SCHEME, add_header)                      \
+  CORS_TEST_FETCH(name##HttpSchemeToCustomUnregisteredScheme, HTTP_SCHEME,    \
+                  CUSTOM_UNREGISTERED_SCHEME, add_header)                     \
   CORS_TEST_FETCH(name##CustomStandardSchemeToServer, CUSTOM_STANDARD_SCHEME, \
                   SERVER, add_header)                                         \
   CORS_TEST_FETCH(name##CustomStandardSchemeToHttpScheme,                     \
@@ -1319,6 +1377,9 @@ CORS_TEST_XHR_NO_PREFLIGHT_SERVER(WithHeaderNoPreflight, true)
                   CUSTOM_STANDARD_SCHEME, CUSTOM_STANDARD_SCHEME, add_header) \
   CORS_TEST_FETCH(name##CustomStandardSchemeToCustomNonStandardScheme,        \
                   CUSTOM_STANDARD_SCHEME, CUSTOM_NONSTANDARD_SCHEME,          \
+                  add_header)                                                 \
+  CORS_TEST_FETCH(name##CustomStandardSchemeToCustomUnregisteredScheme,       \
+                  CUSTOM_STANDARD_SCHEME, CUSTOM_UNREGISTERED_SCHEME,         \
                   add_header)                                                 \
   CORS_TEST_FETCH(name##CustomNonStandardSchemeToServer,                      \
                   CUSTOM_NONSTANDARD_SCHEME, SERVER, add_header)              \
@@ -1329,6 +1390,22 @@ CORS_TEST_XHR_NO_PREFLIGHT_SERVER(WithHeaderNoPreflight, true)
                   add_header)                                                 \
   CORS_TEST_FETCH(name##CustomNonStandardSchemeToCustomNonStandardScheme,     \
                   CUSTOM_NONSTANDARD_SCHEME, CUSTOM_NONSTANDARD_SCHEME,       \
+                  add_header)                                                 \
+  CORS_TEST_FETCH(name##CustomNonStandardSchemeToCustomUnregisteredScheme,    \
+                  CUSTOM_NONSTANDARD_SCHEME, CUSTOM_UNREGISTERED_SCHEME,      \
+                  add_header)                                                 \
+  CORS_TEST_FETCH(name##CustomUnregisteredSchemeToServer,                     \
+                  CUSTOM_UNREGISTERED_SCHEME, SERVER, add_header)             \
+  CORS_TEST_FETCH(name##CustomUnregisteredSchemeToHttpScheme,                 \
+                  CUSTOM_UNREGISTERED_SCHEME, HTTP_SCHEME, add_header)        \
+  CORS_TEST_FETCH(name##CustomUnregisteredSchemeToCustomStandardScheme,       \
+                  CUSTOM_UNREGISTERED_SCHEME, CUSTOM_STANDARD_SCHEME,         \
+                  add_header)                                                 \
+  CORS_TEST_FETCH(name##CustomUnregisteredSchemeToCustomNonStandardScheme,    \
+                  CUSTOM_UNREGISTERED_SCHEME, CUSTOM_NONSTANDARD_SCHEME,      \
+                  add_header)                                                 \
+  CORS_TEST_FETCH(name##CustomUnregisteredSchemeToCustomUnregisteredScheme,   \
+                  CUSTOM_UNREGISTERED_SCHEME, CUSTOM_UNREGISTERED_SCHEME,     \
                   add_header)
 
 // Fetch requests without the "Access-Control-Allow-Origin" header.
@@ -1456,6 +1533,8 @@ void SetupRedirectGetRequest(RedirectMode mode,
                          CUSTOM_STANDARD_SCHEME)                               \
   CORS_TEST_REDIRECT_GET(name##ServerToCustomNonStandardScheme, mode, SERVER,  \
                          CUSTOM_NONSTANDARD_SCHEME)                            \
+  CORS_TEST_REDIRECT_GET(name##ServerToCustomUnregisteredScheme, mode, SERVER, \
+                         CUSTOM_UNREGISTERED_SCHEME)                           \
   CORS_TEST_REDIRECT_GET(name##HttpSchemeToServer, mode, HTTP_SCHEME, SERVER)  \
   CORS_TEST_REDIRECT_GET(name##HttpSchemeToHttpScheme, mode, HTTP_SCHEME,      \
                          HTTP_SCHEME)                                          \
@@ -1463,6 +1542,8 @@ void SetupRedirectGetRequest(RedirectMode mode,
                          HTTP_SCHEME, CUSTOM_STANDARD_SCHEME)                  \
   CORS_TEST_REDIRECT_GET(name##HttpSchemeToCustomNonStandardScheme, mode,      \
                          HTTP_SCHEME, CUSTOM_NONSTANDARD_SCHEME)               \
+  CORS_TEST_REDIRECT_GET(name##HttpSchemeToCustomUnregisteredScheme, mode,     \
+                         HTTP_SCHEME, CUSTOM_UNREGISTERED_SCHEME)              \
   CORS_TEST_REDIRECT_GET(name##CustomStandardSchemeToServer, mode,             \
                          CUSTOM_STANDARD_SCHEME, SERVER)                       \
   CORS_TEST_REDIRECT_GET(name##CustomStandardSchemeToHttpScheme, mode,         \
@@ -1472,6 +1553,9 @@ void SetupRedirectGetRequest(RedirectMode mode,
   CORS_TEST_REDIRECT_GET(name##CustomStandardSchemeToCustomNonStandardScheme,  \
                          mode, CUSTOM_STANDARD_SCHEME,                         \
                          CUSTOM_NONSTANDARD_SCHEME)                            \
+  CORS_TEST_REDIRECT_GET(name##CustomStandardSchemeToCustomUnregisteredScheme, \
+                         mode, CUSTOM_STANDARD_SCHEME,                         \
+                         CUSTOM_UNREGISTERED_SCHEME)                           \
   CORS_TEST_REDIRECT_GET(name##CustomNonStandardSchemeToServer, mode,          \
                          CUSTOM_NONSTANDARD_SCHEME, SERVER)                    \
   CORS_TEST_REDIRECT_GET(name##CustomNonStandardSchemeToHttpScheme, mode,      \
@@ -1481,7 +1565,23 @@ void SetupRedirectGetRequest(RedirectMode mode,
                          CUSTOM_STANDARD_SCHEME)                               \
   CORS_TEST_REDIRECT_GET(                                                      \
       name##CustomNonStandardSchemeToCustomNonStandardScheme, mode,            \
-      CUSTOM_NONSTANDARD_SCHEME, CUSTOM_NONSTANDARD_SCHEME)
+      CUSTOM_NONSTANDARD_SCHEME, CUSTOM_NONSTANDARD_SCHEME)                    \
+  CORS_TEST_REDIRECT_GET(                                                      \
+      name##CustomNonStandardSchemeToCustomUnregisteredScheme, mode,           \
+      CUSTOM_NONSTANDARD_SCHEME, CUSTOM_UNREGISTERED_SCHEME)                   \
+  CORS_TEST_REDIRECT_GET(name##CustomUnregisteredSchemeToServer, mode,         \
+                         CUSTOM_UNREGISTERED_SCHEME, SERVER)                   \
+  CORS_TEST_REDIRECT_GET(name##CustomUnregisteredSchemeToHttpScheme, mode,     \
+                         CUSTOM_UNREGISTERED_SCHEME, HTTP_SCHEME)              \
+  CORS_TEST_REDIRECT_GET(name##CustomUnregisteredSchemeToCustomStandardScheme, \
+                         mode, CUSTOM_UNREGISTERED_SCHEME,                     \
+                         CUSTOM_STANDARD_SCHEME)                               \
+  CORS_TEST_REDIRECT_GET(                                                      \
+      name##CustomUnregisteredSchemeToCustomNonStandardScheme, mode,           \
+      CUSTOM_UNREGISTERED_SCHEME, CUSTOM_NONSTANDARD_SCHEME)                   \
+  CORS_TEST_REDIRECT_GET(                                                      \
+      name##CustomUnregisteredSchemeToCustomUnregisteredScheme, mode,          \
+      CUSTOM_UNREGISTERED_SCHEME, CUSTOM_UNREGISTERED_SCHEME)
 
 // Redirect GET requests.
 CORS_TEST_REDIRECT_GET_ALL(302, MODE_302)
@@ -1502,7 +1602,7 @@ struct PostResource : CookieResource {
     // Origin is always "null" for non-HTTP(S) schemes.
     // This should only be "null" for non-standard schemes, but Blink is likely
     // using SchemeIsHTTPOrHTTPS() when submitting the form request.
-    main_origin = main_handler == HandlerType::CUSTOM_NONSTANDARD_SCHEME ||
+    main_origin = IsNonStandardType(main_handler) ||
                           main_handler == HandlerType::CUSTOM_STANDARD_SCHEME
                       ? "null"
                       : GetOrigin(main_handler);
@@ -1510,9 +1610,9 @@ struct PostResource : CookieResource {
     // True if the request is considered cross-origin. Any requests between
     // non-standard schemes are considered cross-origin (due to the "null"
     // origin).
-    is_cross_origin = main_handler != handler ||
-                      (main_handler == HandlerType::CUSTOM_NONSTANDARD_SCHEME &&
-                       handler == main_handler);
+    is_cross_origin =
+        main_handler != handler ||
+        (IsNonStandardType(main_handler) && handler == main_handler);
   }
 
   bool VerifyRequest(CefRefPtr<CefRequest> request) const override {
@@ -1627,6 +1727,8 @@ void SetupRedirectPostRequest(RedirectMode mode,
                           CUSTOM_STANDARD_SCHEME)                              \
   CORS_TEST_REDIRECT_POST(name##ServerToCustomNonStandardScheme, mode, SERVER, \
                           CUSTOM_NONSTANDARD_SCHEME)                           \
+  CORS_TEST_REDIRECT_POST(name##ServerToCustomUnregisteredScheme, mode,        \
+                          SERVER, CUSTOM_UNREGISTERED_SCHEME)                  \
   CORS_TEST_REDIRECT_POST(name##HttpSchemeToServer, mode, HTTP_SCHEME, SERVER) \
   CORS_TEST_REDIRECT_POST(name##HttpSchemeToHttpScheme, mode, HTTP_SCHEME,     \
                           HTTP_SCHEME)                                         \
@@ -1634,6 +1736,8 @@ void SetupRedirectPostRequest(RedirectMode mode,
                           HTTP_SCHEME, CUSTOM_STANDARD_SCHEME)                 \
   CORS_TEST_REDIRECT_POST(name##HttpSchemeToCustomNonStandardScheme, mode,     \
                           HTTP_SCHEME, CUSTOM_NONSTANDARD_SCHEME)              \
+  CORS_TEST_REDIRECT_POST(name##HttpSchemeToCustomUnregisteredScheme, mode,    \
+                          HTTP_SCHEME, CUSTOM_UNREGISTERED_SCHEME)             \
   CORS_TEST_REDIRECT_POST(name##CustomStandardSchemeToServer, mode,            \
                           CUSTOM_STANDARD_SCHEME, SERVER)                      \
   CORS_TEST_REDIRECT_POST(name##CustomStandardSchemeToHttpScheme, mode,        \
@@ -1644,6 +1748,9 @@ void SetupRedirectPostRequest(RedirectMode mode,
   CORS_TEST_REDIRECT_POST(name##CustomStandardSchemeToCustomNonStandardScheme, \
                           mode, CUSTOM_STANDARD_SCHEME,                        \
                           CUSTOM_NONSTANDARD_SCHEME)                           \
+  CORS_TEST_REDIRECT_POST(                                                     \
+      name##CustomStandardSchemeToCustomUnregisteredScheme, mode,              \
+      CUSTOM_STANDARD_SCHEME, CUSTOM_UNREGISTERED_SCHEME)                      \
   CORS_TEST_REDIRECT_POST(name##CustomNonStandardSchemeToServer, mode,         \
                           CUSTOM_NONSTANDARD_SCHEME, SERVER)                   \
   CORS_TEST_REDIRECT_POST(name##CustomNonStandardSchemeToHttpScheme, mode,     \
@@ -1653,7 +1760,23 @@ void SetupRedirectPostRequest(RedirectMode mode,
                           CUSTOM_STANDARD_SCHEME)                              \
   CORS_TEST_REDIRECT_POST(                                                     \
       name##CustomNonStandardSchemeToCustomNonStandardScheme, mode,            \
-      CUSTOM_NONSTANDARD_SCHEME, CUSTOM_NONSTANDARD_SCHEME)
+      CUSTOM_NONSTANDARD_SCHEME, CUSTOM_NONSTANDARD_SCHEME)                    \
+  CORS_TEST_REDIRECT_POST(                                                     \
+      name##CustomNonStandardSchemeToCustomUnregisteredScheme, mode,           \
+      CUSTOM_NONSTANDARD_SCHEME, CUSTOM_UNREGISTERED_SCHEME)                   \
+  CORS_TEST_REDIRECT_POST(name##CustomUnregisteredSchemeToServer, mode,        \
+                          CUSTOM_UNREGISTERED_SCHEME, SERVER)                  \
+  CORS_TEST_REDIRECT_POST(name##CustomUnregisteredSchemeToHttpScheme, mode,    \
+                          CUSTOM_UNREGISTERED_SCHEME, HTTP_SCHEME)             \
+  CORS_TEST_REDIRECT_POST(                                                     \
+      name##CustomUnregisteredSchemeToCustomStandardScheme, mode,              \
+      CUSTOM_UNREGISTERED_SCHEME, CUSTOM_STANDARD_SCHEME)                      \
+  CORS_TEST_REDIRECT_POST(                                                     \
+      name##CustomUnregisteredSchemeToCustomNonStandardScheme, mode,           \
+      CUSTOM_UNREGISTERED_SCHEME, CUSTOM_NONSTANDARD_SCHEME)                   \
+  CORS_TEST_REDIRECT_POST(                                                     \
+      name##CustomUnregisteredSchemeToCustomUnregisteredScheme, mode,          \
+      CUSTOM_UNREGISTERED_SCHEME, CUSTOM_UNREGISTERED_SCHEME)
 
 // Redirect GET requests.
 CORS_TEST_REDIRECT_POST_ALL(302, MODE_302)

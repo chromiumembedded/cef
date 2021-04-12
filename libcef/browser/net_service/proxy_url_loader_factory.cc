@@ -1302,16 +1302,19 @@ void ProxyURLLoaderFactory::CreateLoaderAndStart(
   bool pass_through = false;
   if (pass_through) {
     // This is the so-called pass-through, no-op option.
-    target_factory_->CreateLoaderAndStart(
-        std::move(receiver), routing_id, request_id, options, request,
-        std::move(client), traffic_annotation);
+    if (target_factory_) {
+      target_factory_->CreateLoaderAndStart(
+          std::move(receiver), routing_id, request_id, options, request,
+          std::move(client), traffic_annotation);
+    }
     return;
   }
 
   mojo::PendingRemote<network::mojom::URLLoaderFactory> target_factory_clone;
-  if (target_factory_)
+  if (target_factory_) {
     target_factory_->Clone(
         target_factory_clone.InitWithNewPipeAndPassReceiver());
+  }
 
   InterceptedRequest* req = new InterceptedRequest(
       this, RequestId(request_id, routing_id), options, request,
