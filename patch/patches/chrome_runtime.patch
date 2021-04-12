@@ -178,6 +178,31 @@ index 6a94d1ec0122..211aee12cb12 100644
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
+diff --git chrome/browser/notifications/alert_dispatcher_xpc.mm chrome/browser/notifications/alert_dispatcher_xpc.mm
+index d126ddd3a24d..5e8c5ae7c093 100644
+--- chrome/browser/notifications/alert_dispatcher_xpc.mm
++++ chrome/browser/notifications/alert_dispatcher_xpc.mm
+@@ -19,6 +19,7 @@
+ #include "base/mac/scoped_nsobject.h"
+ #include "base/metrics/histogram_functions.h"
+ #include "base/strings/sys_string_conversions.h"
++#include "cef/libcef/features/runtime.h"
+ #include "chrome/browser/notifications/notification_platform_bridge_mac_utils.h"
+ #import "chrome/browser/ui/cocoa/notifications/notification_delivery.h"
+ #include "chrome/browser/ui/cocoa/notifications/xpc_mach_port.h"
+@@ -180,6 +181,12 @@ void RecordXPCEvent(XPCConnectionEvent event) {
+ - (id<NotificationDelivery>)serviceProxy {
+   id<NotificationDelivery> proxy = [_xpcConnection remoteObjectProxy];
+ 
++  // Skip exception port configuration when running CEF with crash reporting disabled.
++  if (!_setExceptionPort && cef::IsChromeRuntimeEnabled() &&
++      !cef::IsCrashReportingEnabled()) {
++    _setExceptionPort = YES;
++  }
++
+   if (!_setExceptionPort) {
+     base::mac::ScopedMachSendRight exceptionPort(
+         crash_reporter::GetCrashpadClient().GetHandlerMachPort());
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
 index 853eff92d210..2f66813e9b13 100644
 --- chrome/browser/prefs/browser_prefs.cc
