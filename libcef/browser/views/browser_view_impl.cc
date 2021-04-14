@@ -8,6 +8,7 @@
 #include "libcef/browser/browser_util.h"
 #include "libcef/browser/chrome/views/chrome_browser_view.h"
 #include "libcef/browser/context.h"
+#include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/views/window_impl.h"
 
@@ -47,6 +48,18 @@ CefRefPtr<CefBrowserViewImpl> CefBrowserViewImpl::Create(
     CefRefPtr<CefRequestContext> request_context,
     CefRefPtr<CefBrowserViewDelegate> delegate) {
   CEF_REQUIRE_UIT_RETURN(nullptr);
+
+  if (!request_context) {
+    request_context = CefRequestContext::GetGlobalContext();
+  }
+
+  // Verify that the browser context is valid. Do this here instead of risking
+  // potential browser creation failure when this view is added to the window.
+  auto request_context_impl =
+      static_cast<CefRequestContextImpl*>(request_context.get());
+  if (!request_context_impl->VerifyBrowserContext()) {
+    return nullptr;
+  }
 
   CefRefPtr<CefBrowserViewImpl> browser_view = new CefBrowserViewImpl(delegate);
   browser_view->SetPendingBrowserCreateParams(client, url, settings, extra_info,
@@ -207,7 +220,7 @@ void CefBrowserViewImpl::SetPendingBrowserCreateParams(
   DCHECK(!pending_browser_create_params_);
   pending_browser_create_params_.reset(new CefBrowserCreateParams());
   pending_browser_create_params_->client = client;
-  pending_browser_create_params_->url = GURL(url.ToString());
+  pending_browser_create_params_->url = url;
   pending_browser_create_params_->settings = settings;
   pending_browser_create_params_->extra_info = extra_info;
   pending_browser_create_params_->request_context = request_context;

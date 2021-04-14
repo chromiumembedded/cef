@@ -36,8 +36,29 @@ class CefCookieManagerImpl : public CefCookieManager {
   bool FlushStore(CefRefPtr<CefCompletionCallback> callback) override;
 
  private:
+  bool VisitAllCookiesInternal(CefRefPtr<CefCookieVisitor> visitor);
+  bool VisitUrlCookiesInternal(const GURL& url,
+                               bool includeHttpOnly,
+                               CefRefPtr<CefCookieVisitor> visitor);
+  bool SetCookieInternal(const GURL& url,
+                         const CefCookie& cookie,
+                         CefRefPtr<CefSetCookieCallback> callback);
+  bool DeleteCookiesInternal(const GURL& url,
+                             const CefString& cookie_name,
+                             CefRefPtr<CefDeleteCookiesCallback> callback);
+  bool FlushStoreInternal(CefRefPtr<CefCompletionCallback> callback);
+
+  // If the context is fully initialized execute |callback|, otherwise
+  // store it until the context is fully initialized.
+  void StoreOrTriggerInitCallback(base::OnceClosure callback);
+
+  bool ValidContext() const;
+
   // Only accessed on the UI thread. Will be non-null after Initialize().
   CefBrowserContext::Getter browser_context_getter_;
+
+  bool initialized_ = false;
+  std::vector<base::OnceClosure> init_callbacks_;
 
   IMPLEMENT_REFCOUNTING(CefCookieManagerImpl);
   DISALLOW_COPY_AND_ASSIGN(CefCookieManagerImpl);

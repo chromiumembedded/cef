@@ -144,12 +144,18 @@ class CefBrowserURLRequest::Context
     if (!url.is_valid())
       return false;
 
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::BindOnce(
-            &CefBrowserURLRequest::Context::GetURLLoaderFactoryGetterOnUIThread,
-            frame_, request_context_, weak_ptr_factory_.GetWeakPtr(),
-            task_runner_));
+    if (!request_context_) {
+      request_context_ = CefRequestContext::GetGlobalContext();
+    }
+
+    auto request_context_impl =
+        static_cast<CefRequestContextImpl*>(request_context_.get());
+
+    // Wait for the browser context to be initialized before continuing.
+    request_context_impl->ExecuteWhenBrowserContextInitialized(base::BindOnce(
+        &CefBrowserURLRequest::Context::GetURLLoaderFactoryGetterOnUIThread,
+        frame_, request_context_, weak_ptr_factory_.GetWeakPtr(),
+        task_runner_));
 
     return true;
   }
@@ -193,11 +199,12 @@ class CefBrowserURLRequest::Context
     // Get or create the request context and browser context.
     CefRefPtr<CefRequestContextImpl> request_context_impl =
         CefRequestContextImpl::GetOrCreateForRequestContext(request_context);
-    DCHECK(request_context_impl);
+    CHECK(request_context_impl);
     CefBrowserContext* cef_browser_context =
         request_context_impl->GetBrowserContext();
-    DCHECK(cef_browser_context);
+    CHECK(cef_browser_context);
     auto browser_context = cef_browser_context->AsBrowserContext();
+    CHECK(browser_context);
 
     int render_frame_id = MSG_ROUTING_NONE;
     scoped_refptr<net_service::URLLoaderFactoryGetter> loader_factory_getter;

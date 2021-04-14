@@ -113,6 +113,18 @@ AlloyBrowserContext::~AlloyBrowserContext() {
   }
 }
 
+bool AlloyBrowserContext::IsInitialized() const {
+  CEF_REQUIRE_UIT();
+  return !!key_;
+}
+
+void AlloyBrowserContext::StoreOrTriggerInitCallback(
+    base::OnceClosure callback) {
+  CEF_REQUIRE_UIT();
+  // Initialization is always synchronous.
+  std::move(callback).Run();
+}
+
 void AlloyBrowserContext::Initialize() {
   CefBrowserContext::Initialize();
 

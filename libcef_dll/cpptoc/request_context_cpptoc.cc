@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3e91639f70988c2a48470e380c7317db5f27153e$
+// $hash=38ae668703b71d27d2bcd7cd9230817edd5b8f41$
 //
 
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
@@ -542,16 +542,19 @@ request_context_get_extension(struct _cef_request_context_t* self,
 }
 
 cef_media_router_t* CEF_CALLBACK
-request_context_get_media_router(struct _cef_request_context_t* self) {
+request_context_get_media_router(struct _cef_request_context_t* self,
+                                 cef_completion_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return NULL;
+  // Unverified params: callback
 
   // Execute
   CefRefPtr<CefMediaRouter> _retval =
-      CefRequestContextCppToC::Get(self)->GetMediaRouter();
+      CefRequestContextCppToC::Get(self)->GetMediaRouter(
+          CefCompletionCallbackCToCpp::Wrap(callback));
 
   // Return type: refptr_same
   return CefMediaRouterCppToC::Wrap(_retval);

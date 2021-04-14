@@ -9,26 +9,31 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3deccadb24380ee63afe228ca2a91b90e96affca$
+// $hash=f60f51701b15100a8ad9463adfe0deb37c2d6b4f$
 //
 
 #include "libcef_dll/cpptoc/media_router_cpptoc.h"
 #include "libcef_dll/cpptoc/media_sink_cpptoc.h"
 #include "libcef_dll/cpptoc/media_source_cpptoc.h"
 #include "libcef_dll/cpptoc/registration_cpptoc.h"
+#include "libcef_dll/ctocpp/completion_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/media_observer_ctocpp.h"
 #include "libcef_dll/ctocpp/media_route_create_callback_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
-CEF_EXPORT cef_media_router_t* cef_media_router_get_global() {
+CEF_EXPORT cef_media_router_t* cef_media_router_get_global(
+    cef_completion_callback_t* callback) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+  // Unverified params: callback
+
   // Execute
-  CefRefPtr<CefMediaRouter> _retval = CefMediaRouter::GetGlobalMediaRouter();
+  CefRefPtr<CefMediaRouter> _retval = CefMediaRouter::GetGlobalMediaRouter(
+      CefCompletionCallbackCToCpp::Wrap(callback));
 
   // Return type: refptr_same
   return CefMediaRouterCppToC::Wrap(_retval);

@@ -42,6 +42,8 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
   // CefBrowserContext overrides.
   content::BrowserContext* AsBrowserContext() override { return this; }
   Profile* AsProfile() override { return this; }
+  bool IsInitialized() const override;
+  void StoreOrTriggerInitCallback(base::OnceClosure callback) override;
   void Initialize() override;
   void Shutdown() override;
   void RemoveCefRequestContext(CefRequestContextImpl* context) override;

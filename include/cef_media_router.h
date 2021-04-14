@@ -40,6 +40,7 @@
 
 #include <vector>
 #include "include/cef_base.h"
+#include "include/cef_callback.h"
 #include "include/cef_registration.h"
 
 class CefMediaObserver;
@@ -59,11 +60,13 @@ class CefMediaRouter : public virtual CefBaseRefCounted {
  public:
   ///
   // Returns the MediaRouter object associated with the global request context.
-  // Equivalent to calling
-  // CefRequestContext::GetGlobalContext()->GetMediaRouter().
+  // If |callback| is non-NULL it will be executed asnychronously on the UI
+  // thread after the manager's storage has been initialized. Equivalent to
+  // calling CefRequestContext::GetGlobalContext()->GetMediaRouter().
   ///
-  /*--cef()--*/
-  static CefRefPtr<CefMediaRouter> GetGlobalMediaRouter();
+  /*--cef(optional_param=callback)--*/
+  static CefRefPtr<CefMediaRouter> GetGlobalMediaRouter(
+      CefRefPtr<CefCompletionCallback> callback);
 
   ///
   // Add an observer for MediaRouter events. The observer will remain registered

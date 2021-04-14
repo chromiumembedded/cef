@@ -5,6 +5,7 @@
 #include "libcef/browser/chrome/chrome_browser_context.h"
 
 #include "libcef/browser/prefs/browser_prefs.h"
+#include "libcef/browser/thread_util.h"
 
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profiles/off_the_record_profile_impl.h"
@@ -23,8 +24,23 @@ Profile* ChromeBrowserContext::AsProfile() {
   return profile_;
 }
 
+bool ChromeBrowserContext::IsInitialized() const {
+  CEF_REQUIRE_UIT();
+  return !!profile_;
+}
+
+void ChromeBrowserContext::StoreOrTriggerInitCallback(
+    base::OnceClosure callback) {
+  CEF_REQUIRE_UIT();
+  if (IsInitialized()) {
+    std::move(callback).Run();
+  } else {
+    init_callbacks_.emplace_back(std::move(callback));
+  }
+}
+
 void ChromeBrowserContext::InitializeAsync(base::OnceClosure initialized_cb) {
-  initialized_cb_ = std::move(initialized_cb);
+  init_callbacks_.emplace_back(std::move(initialized_cb));
 
   CefBrowserContext::Initialize();
 
@@ -106,6 +122,11 @@ void ChromeBrowserContext::ProfileCreated(Profile* profile,
       parent_profile->NotifyOffTheRecordProfileCreated(otr_profile);
     }
 
-    std::move(initialized_cb_).Run();
+    if (!init_callbacks_.empty()) {
+      for (auto& callback : init_callbacks_) {
+        std::move(callback).Run();
+      }
+      init_callbacks_.clear();
+    }
   }
 }
