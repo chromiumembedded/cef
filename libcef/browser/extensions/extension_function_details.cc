@@ -366,7 +366,7 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
     return nullptr;
 
   CefBrowserCreateParams create_params;
-  create_params.url = url;
+  create_params.url = url.spec();
   create_params.request_context = request_context;
   create_params.window_info.reset(new CefWindowInfo);
 
@@ -381,9 +381,9 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
   CefRefPtr<CefExtensionHandler> handler = cef_extension->GetHandler();
   if (handler.get() &&
       handler->OnBeforeBrowser(cef_extension, sender_browser.get(),
-                               active_browser.get(), index, url.spec(), active,
-                               *create_params.window_info, create_params.client,
-                               create_params.settings)) {
+                               active_browser.get(), index, create_params.url,
+                               active, *create_params.window_info,
+                               create_params.client, create_params.settings)) {
     // Cancel the browser creation.
     return nullptr;
   }

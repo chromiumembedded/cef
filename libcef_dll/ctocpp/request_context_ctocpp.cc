@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fde747bf60e627912a0f242a2475af69be80f298$
+// $hash=67bc021917c8f7d1e386859bbfae6e007b292f45$
 //
 
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
@@ -527,15 +527,19 @@ CefRefPtr<CefExtension> CefRequestContextCToCpp::GetExtension(
 }
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefMediaRouter> CefRequestContextCToCpp::GetMediaRouter() {
+CefRefPtr<CefMediaRouter> CefRequestContextCToCpp::GetMediaRouter(
+    CefRefPtr<CefCompletionCallback> callback) {
   cef_request_context_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_media_router))
     return nullptr;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+  // Unverified params: callback
+
   // Execute
-  cef_media_router_t* _retval = _struct->get_media_router(_struct);
+  cef_media_router_t* _retval = _struct->get_media_router(
+      _struct, CefCompletionCallbackCppToC::Wrap(callback));
 
   // Return type: refptr_same
   return CefMediaRouterCToCpp::Wrap(_retval);

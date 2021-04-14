@@ -22,6 +22,8 @@ class ChromeBrowserContext : public CefBrowserContext {
   // CefBrowserContext overrides.
   content::BrowserContext* AsBrowserContext() override;
   Profile* AsProfile() override;
+  bool IsInitialized() const override;
+  void StoreOrTriggerInitCallback(base::OnceClosure callback) override;
   void Shutdown() override;
 
  private:
@@ -32,6 +34,8 @@ class ChromeBrowserContext : public CefBrowserContext {
   base::OnceClosure initialized_cb_;
   Profile* profile_ = nullptr;
   bool should_destroy_ = false;
+
+  std::vector<base::OnceClosure> init_callbacks_;
 
   base::WeakPtrFactory<ChromeBrowserContext> weak_ptr_factory_;
 

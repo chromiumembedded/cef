@@ -30,17 +30,27 @@ class CefRequestContextImpl : public CefRequestContext {
   static CefRefPtr<CefRequestContextImpl> GetOrCreateForRequestContext(
       CefRefPtr<CefRequestContext> request_context);
 
-  // Returns the browser context object. Can only be called on the UI thread.
+  // Verify that the browser context can be directly accessed (e.g. on the UI
+  // thread and initialized).
+  bool VerifyBrowserContext() const;
+
+  // Returns the browser context object. Can only be called on the UI thread
+  // after the browser context has been initialized.
   CefBrowserContext* GetBrowserContext();
 
-  // Executes |callback| either synchronously or asynchronously with the browser
-  // context object when it's available. If |task_runner| is NULL the callback
-  // will be executed on the originating thread. The resulting context object
-  // can only be accessed on the UI thread.
-  typedef base::Callback<void(CefBrowserContext*)> BrowserContextCallback;
+  // If the context is fully initialized execute |callback|, otherwise
+  // store it until the context is fully initialized.
+  void ExecuteWhenBrowserContextInitialized(base::OnceClosure callback);
+
+  // Executes |callback| either synchronously or asynchronously after the
+  // browser context object has been initialized. If |task_runner| is NULL the
+  // callback will be executed on the originating thread. The resulting getter
+  // can only be executed on the UI thread.
+  using BrowserContextCallback =
+      base::OnceCallback<void(CefBrowserContext::Getter)>;
   void GetBrowserContext(
       scoped_refptr<base::SingleThreadTaskRunner> task_runner,
-      const BrowserContextCallback& callback);
+      BrowserContextCallback callback);
 
   bool IsSame(CefRefPtr<CefRequestContext> other) override;
   bool IsSharingWith(CefRefPtr<CefRequestContext> other) override;
@@ -77,7 +87,8 @@ class CefRequestContextImpl : public CefRequestContext {
   bool HasExtension(const CefString& extension_id) override;
   bool GetExtensions(std::vector<CefString>& extension_ids) override;
   CefRefPtr<CefExtension> GetExtension(const CefString& extension_id) override;
-  CefRefPtr<CefMediaRouter> GetMediaRouter() override;
+  CefRefPtr<CefMediaRouter> GetMediaRouter(
+      CefRefPtr<CefCompletionCallback> callback) override;
 
   const CefRequestContextSettings& settings() const { return config_.settings; }
 
@@ -133,29 +144,27 @@ class CefRequestContextImpl : public CefRequestContext {
   // Make sure the browser context exists. Only called on the UI thread.
   void EnsureBrowserContext();
 
-  void GetBrowserContextOnUIThread(
-      scoped_refptr<base::SingleThreadTaskRunner> task_runner,
-      const BrowserContextCallback& callback);
-
-  void PurgePluginListCacheInternal(bool reload_pages,
-                                    CefBrowserContext* browser_context);
+  void PurgePluginListCacheInternal(
+      bool reload_pages,
+      CefBrowserContext::Getter browser_context_getter);
   void ClearCertificateExceptionsInternal(
       CefRefPtr<CefCompletionCallback> callback,
-      CefBrowserContext* browser_context);
+      CefBrowserContext::Getter browser_context_getter);
   void ClearHttpAuthCredentialsInternal(
       CefRefPtr<CefCompletionCallback> callback,
-      CefBrowserContext* browser_context);
-  void CloseAllConnectionsInternal(CefRefPtr<CefCompletionCallback> callback,
-                                   CefBrowserContext* browser_context);
+      CefBrowserContext::Getter browser_context_getter);
+  void CloseAllConnectionsInternal(
+      CefRefPtr<CefCompletionCallback> callback,
+      CefBrowserContext::Getter browser_context_getter);
   void ResolveHostInternal(const CefString& origin,
                            CefRefPtr<CefResolveCallback> callback,
-                           CefBrowserContext* browser_context);
+                           CefBrowserContext::Getter browser_context_getter);
 
-  void InitializeCookieManagerOnUIThread(
+  void InitializeCookieManagerInternal(
       CefRefPtr<CefCookieManagerImpl> cookie_manager,
       CefRefPtr<CefCompletionCallback> callback);
-  void InitializeMediaRouterOnUIThread(
-      CefRefPtr<CefMediaRouterImpl> media_router);
+  void InitializeMediaRouterInternal(CefRefPtr<CefMediaRouterImpl> media_router,
+                                     CefRefPtr<CefCompletionCallback> callback);
 
   CefBrowserContext* browser_context() const;
 

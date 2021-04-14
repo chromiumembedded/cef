@@ -10,8 +10,6 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/features/runtime.h"
 
-#include "components/url_formatter/url_fixer.h"
-
 namespace {
 
 class CreateBrowserHelper {
@@ -28,6 +26,11 @@ class CreateBrowserHelper {
         settings_(settings),
         extra_info_(extra_info),
         request_context_(request_context) {}
+
+  void Run() {
+    CefBrowserHost::CreateBrowserSync(window_info_, client_, url_, settings_,
+                                      extra_info_, request_context_);
+  }
 
   CefWindowInfo window_info_;
   CefRefPtr<CefClient> client_;
@@ -73,19 +76,20 @@ bool CefBrowserHost::CreateBrowser(
                   "reduced performance or runtime errors.";
   }
 
-  // Create the browser on the UI thread.
-  CreateBrowserHelper* helper = new CreateBrowserHelper(
+  if (!request_context) {
+    request_context = CefRequestContext::GetGlobalContext();
+  }
+
+  auto helper = std::make_unique<CreateBrowserHelper>(
       windowInfo, client, url, settings, extra_info, request_context);
-  CEF_POST_TASK(CEF_UIT, base::BindOnce(
-                             [](CreateBrowserHelper* helper) {
-                               CefBrowserHost::CreateBrowserSync(
-                                   helper->window_info_, helper->client_,
-                                   helper->url_, helper->settings_,
-                                   helper->extra_info_,
-                                   helper->request_context_);
-                               delete helper;
-                             },
-                             helper));
+
+  auto request_context_impl =
+      static_cast<CefRequestContextImpl*>(request_context.get());
+
+  // Wait for the browser context to be initialized before creating the browser.
+  request_context_impl->ExecuteWhenBrowserContextInitialized(base::BindOnce(
+      [](std::unique_ptr<CreateBrowserHelper> helper) { helper->Run(); },
+      std::move(helper)));
 
   return true;
 }
@@ -110,9 +114,10 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     return nullptr;
   }
 
-  // Verify that this method is being called on the UI thread.
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+  // Verify that the browser context is valid.
+  auto request_context_impl =
+      static_cast<CefRequestContextImpl*>(request_context.get());
+  if (!request_context_impl->VerifyBrowserContext()) {
     return nullptr;
   }
 
@@ -126,15 +131,7 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
   CefBrowserCreateParams create_params;
   create_params.window_info.reset(new CefWindowInfo(windowInfo));
   create_params.client = client;
-  create_params.url = GURL(url.ToString());
-  if (!url.empty() && !create_params.url.is_valid() &&
-      !create_params.url.has_scheme()) {
-    std::string fixed_scheme(url::kHttpScheme);
-    fixed_scheme.append(url::kStandardSchemeSeparator);
-    std::string new_url = url;
-    new_url.insert(0, fixed_scheme);
-    create_params.url = GURL(new_url);
-  }
+  create_params.url = url;
   create_params.settings = settings;
   create_params.extra_info = extra_info;
   create_params.request_context = request_context;
@@ -145,22 +142,6 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
 // static
 CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::Create(
     CefBrowserCreateParams& create_params) {
-  if (!create_params.url.is_empty()) {
-    // Fix common problems with user-typed text. Among other things, this:
-    // - Converts absolute file paths to "file://" URLs.
-    // - Normalizes "about:" and "chrome:" to "chrome://" URLs.
-    // - Adds the "http://" scheme if none was specified.
-    GURL gurl = url_formatter::FixupURL(
-        create_params.url.possibly_invalid_spec(), std::string());
-    if (gurl.is_valid()) {
-      create_params.url = gurl;
-    } else {
-      LOG(ERROR) << "Invalid URL: "
-                 << create_params.url.possibly_invalid_spec();
-      create_params.url = GURL();
-    }
-  }
-
   if (cef::IsChromeRuntimeEnabled()) {
     auto browser = ChromeBrowserHostImpl::Create(create_params);
     return browser.get();

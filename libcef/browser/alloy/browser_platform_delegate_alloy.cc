@@ -12,6 +12,7 @@
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
 #include "libcef/browser/printing/print_view_manager.h"
 #include "libcef/common/extensions/extensions_util.h"
+#include "libcef/common/net/url_util.h"
 #include "libcef/features/runtime_checks.h"
 
 #include "base/logging.h"
@@ -58,12 +59,13 @@ content::WebContents* CefBrowserPlatformDelegateAlloy::CreateWebContents(
   }
 
   scoped_refptr<content::SiteInstance> site_instance;
-  if (extensions::ExtensionsEnabled() && !create_params.url.is_empty()) {
+  if (extensions::ExtensionsEnabled() && !create_params.url.empty()) {
+    GURL gurl = url_util::MakeGURL(create_params.url, /*fixup=*/true);
     if (!create_params.extension) {
       // We might be loading an extension app view where the extension URL is
       // provided by the client.
       create_params.extension =
-          extensions::GetExtensionForUrl(browser_context, create_params.url);
+          extensions::GetExtensionForUrl(browser_context, gurl);
     }
     if (create_params.extension) {
       if (create_params.extension_host_type == extensions::VIEW_TYPE_INVALID) {
@@ -79,7 +81,7 @@ content::WebContents* CefBrowserPlatformDelegateAlloy::CreateWebContents(
       // ExtensionProtocolHandler::MaybeCreateJob will return false resulting in
       // ERR_BLOCKED_BY_CLIENT).
       site_instance = extensions::ProcessManager::Get(browser_context)
-                          ->GetSiteInstanceForURL(create_params.url);
+                          ->GetSiteInstanceForURL(gurl);
       DCHECK(site_instance);
     }
   }

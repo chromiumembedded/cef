@@ -20,7 +20,8 @@ class CefMediaRouterImpl : public CefMediaRouter {
 
   // Called on the UI thread after object creation and before any other object
   // methods are executed on the UI thread.
-  void Initialize(const CefBrowserContext::Getter& browser_context_getter);
+  void Initialize(const CefBrowserContext::Getter& browser_context_getter,
+                  CefRefPtr<CefCompletionCallback> callback);
 
   // CefMediaRouter methods.
   CefRefPtr<CefRegistration> AddObserver(
@@ -33,14 +34,28 @@ class CefMediaRouterImpl : public CefMediaRouter {
   void NotifyCurrentRoutes() override;
 
  private:
-  void InitializeRegistrationOnUIThread(
+  void InitializeRegistrationInternal(
       CefRefPtr<CefRegistrationImpl> registration);
+  void NotifyCurrentSinksInternal();
+  void CreateRouteInternal(CefRefPtr<CefMediaSource> source,
+                           CefRefPtr<CefMediaSink> sink,
+                           CefRefPtr<CefMediaRouteCreateCallback> callback);
+  void NotifyCurrentRoutesInternal();
 
   void CreateRouteCallback(CefRefPtr<CefMediaRouteCreateCallback> callback,
                            const media_router::RouteRequestResult& result);
 
+  // If the context is fully initialized execute |callback|, otherwise
+  // store it until the context is fully initialized.
+  void StoreOrTriggerInitCallback(base::OnceClosure callback);
+
+  bool ValidContext() const;
+
   // Only accessed on the UI thread. Will be non-null after Initialize().
   CefBrowserContext::Getter browser_context_getter_;
+
+  bool initialized_ = false;
+  std::vector<base::OnceClosure> init_callbacks_;
 
   IMPLEMENT_REFCOUNTING(CefMediaRouterImpl);
   DISALLOW_COPY_AND_ASSIGN(CefMediaRouterImpl);

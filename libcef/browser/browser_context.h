@@ -112,6 +112,13 @@ class CefBrowserContext {
   virtual content::BrowserContext* AsBrowserContext() = 0;
   virtual Profile* AsProfile() = 0;
 
+  // Returns true if the context is fully initialized.
+  virtual bool IsInitialized() const = 0;
+
+  // If the context is fully initialized execute |callback|, otherwise
+  // store it until the context is fully initialized.
+  virtual void StoreOrTriggerInitCallback(base::OnceClosure callback) = 0;
+
   // Called from CefRequestContextImpl to track associated objects. This
   // object will delete itself when the count reaches zero.
   void AddCefRequestContext(CefRequestContextImpl* context);

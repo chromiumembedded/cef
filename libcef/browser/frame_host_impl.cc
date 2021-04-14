@@ -13,11 +13,11 @@
 #include "libcef/browser/net_service/browser_urlrequest_impl.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/frame_util.h"
+#include "libcef/common/net/url_util.h"
 #include "libcef/common/process_message_impl.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/task_runner_impl.h"
 
-#include "components/url_formatter/url_fixer.h"
 #include "content/browser/renderer_host/frame_tree_node.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
@@ -310,16 +310,9 @@ void CefFrameHostImpl::NotifyMoveOrResizeStarted() {
 void CefFrameHostImpl::Navigate(const CefNavigateParams& params) {
   CefMsg_LoadRequest_Params request;
 
-  // Fix common problems with user-typed text. Among other things, this:
-  // - Converts absolute file paths to "file://" URLs.
-  // - Normalizes "about:" and "chrome:" to "chrome://" URLs.
-  // - Adds the "http://" scheme if none was specified.
-  request.url = url_formatter::FixupURL(params.url.possibly_invalid_spec(),
-                                        std::string());
-  if (!request.url.is_valid()) {
-    LOG(ERROR) << "Invalid URL: " << params.url.possibly_invalid_spec();
+  request.url = params.url;
+  if (!url_util::FixupGURL(request.url))
     return;
-  }
 
   request.method = params.method;
   request.referrer = params.referrer.url;
@@ -347,16 +340,8 @@ void CefFrameHostImpl::LoadURLWithExtras(const std::string& url,
   if (frame_id < CefFrameHostImpl::kMainFrameId)
     return;
 
-  // Any necessary fixup of the URL will occur in
-  // [CefBrowserHostBase|CefFrameHostImpl]::Navigate().
-  GURL gurl(url);
-  if (!url.empty() && !gurl.is_valid() && !gurl.has_scheme()) {
-    std::string fixed_scheme(url::kHttpScheme);
-    fixed_scheme.append(url::kStandardSchemeSeparator);
-    std::string new_url = url;
-    new_url.insert(0, fixed_scheme);
-    gurl = GURL(new_url);
-  }
+  // Any necessary fixup will occur in Navigate.
+  GURL gurl = url_util::MakeGURL(url, /*fixup=*/false);
 
   if (frame_id == CefFrameHostImpl::kMainFrameId) {
     // Load via the browser using NavigationController.

@@ -9,13 +9,13 @@
 #include "libcef/browser/image_impl.h"
 #include "libcef/browser/navigation_entry_impl.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/net/url_util.h"
 
 #include "base/logging.h"
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_service.h"
 #include "components/favicon/core/favicon_url.h"
 #include "components/spellcheck/common/spellcheck_features.h"
-#include "components/url_formatter/url_fixer.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/download_request_utils.h"
@@ -761,16 +761,9 @@ bool CefBrowserHostBase::Navigate(const content::OpenURLParams& params) {
   CEF_REQUIRE_UIT();
   auto web_contents = GetWebContents();
   if (web_contents) {
-    // Fix common problems with user-typed text. Among other things, this:
-    // - Converts absolute file paths to "file://" URLs.
-    // - Normalizes "about:" and "chrome:" to "chrome://" URLs.
-    // - Adds the "http://" scheme if none was specified.
-    GURL gurl = url_formatter::FixupURL(params.url.possibly_invalid_spec(),
-                                        std::string());
-    if (!gurl.is_valid()) {
-      LOG(ERROR) << "Invalid URL: " << params.url.possibly_invalid_spec();
+    GURL gurl = params.url;
+    if (!url_util::FixupGURL(gurl))
       return false;
-    }
 
     web_contents->GetController().LoadURL(
         gurl, params.referrer, params.transition, params.extra_headers);

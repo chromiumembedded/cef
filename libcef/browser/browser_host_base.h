@@ -65,7 +65,7 @@ struct CefBrowserCreateParams {
 
   // Initial URL to load. May be empty. If this is a valid extension URL then
   // the browser will be created as an app view extension host.
-  GURL url;
+  CefString url;
 
   // Browser settings.
   CefBrowserSettings settings;

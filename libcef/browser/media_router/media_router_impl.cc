@@ -144,11 +144,27 @@ CefMediaRouterImpl::CefMediaRouterImpl() {
 }
 
 void CefMediaRouterImpl::Initialize(
-    const CefBrowserContext::Getter& browser_context_getter) {
+    const CefBrowserContext::Getter& browser_context_getter,
+    CefRefPtr<CefCompletionCallback> callback) {
   CEF_REQUIRE_UIT();
+  DCHECK(!initialized_);
   DCHECK(!browser_context_getter.is_null());
   DCHECK(browser_context_getter_.is_null());
   browser_context_getter_ = browser_context_getter;
+
+  initialized_ = true;
+  if (!init_callbacks_.empty()) {
+    for (auto& callback : init_callbacks_) {
+      std::move(callback).Run();
+    }
+    init_callbacks_.clear();
+  }
+
+  if (callback) {
+    // Execute client callback asynchronously for consistency.
+    CEF_POST_TASK(CEF_UIT, base::Bind(&CefCompletionCallback::OnComplete,
+                                      callback.get()));
+  }
 }
 
 CefRefPtr<CefRegistration> CefMediaRouterImpl::AddObserver(
@@ -157,7 +173,8 @@ CefRefPtr<CefRegistration> CefMediaRouterImpl::AddObserver(
     return nullptr;
   CefRefPtr<CefRegistrationImpl> registration =
       new CefRegistrationImpl(observer);
-  InitializeRegistrationOnUIThread(registration);
+  StoreOrTriggerInitCallback(base::BindOnce(
+      &CefMediaRouterImpl::InitializeRegistrationInternal, this, registration));
   return registration.get();
 }
 
@@ -181,11 +198,32 @@ CefRefPtr<CefMediaSource> CefMediaRouterImpl::GetSource(const CefString& urn) {
 }
 
 void CefMediaRouterImpl::NotifyCurrentSinks() {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(
-        CEF_UIT, base::BindOnce(&CefMediaRouterImpl::NotifyCurrentSinks, this));
-    return;
-  }
+  StoreOrTriggerInitCallback(
+      base::BindOnce(&CefMediaRouterImpl::NotifyCurrentSinksInternal, this));
+}
+
+void CefMediaRouterImpl::CreateRoute(
+    CefRefPtr<CefMediaSource> source,
+    CefRefPtr<CefMediaSink> sink,
+    CefRefPtr<CefMediaRouteCreateCallback> callback) {
+  StoreOrTriggerInitCallback(base::BindOnce(
+      &CefMediaRouterImpl::CreateRouteInternal, this, source, sink, callback));
+}
+
+void CefMediaRouterImpl::NotifyCurrentRoutes() {
+  StoreOrTriggerInitCallback(
+      base::BindOnce(&CefMediaRouterImpl::NotifyCurrentRoutesInternal, this));
+}
+
+void CefMediaRouterImpl::InitializeRegistrationInternal(
+    CefRefPtr<CefRegistrationImpl> registration) {
+  DCHECK(ValidContext());
+
+  registration->Initialize(browser_context_getter_);
+}
+
+void CefMediaRouterImpl::NotifyCurrentSinksInternal() {
+  DCHECK(ValidContext());
 
   auto browser_context = GetBrowserContext(browser_context_getter_);
   if (!browser_context)
@@ -194,21 +232,17 @@ void CefMediaRouterImpl::NotifyCurrentSinks() {
   browser_context->GetMediaRouterManager()->NotifyCurrentSinks();
 }
 
-void CefMediaRouterImpl::CreateRoute(
+void CefMediaRouterImpl::CreateRouteInternal(
     CefRefPtr<CefMediaSource> source,
     CefRefPtr<CefMediaSink> sink,
     CefRefPtr<CefMediaRouteCreateCallback> callback) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefMediaRouterImpl::CreateRoute,
-                                          this, source, sink, callback));
-    return;
-  }
+  DCHECK(ValidContext());
 
   std::string error;
 
   auto browser_context = GetBrowserContext(browser_context_getter_);
   if (!browser_context) {
-    error = "Context has already been destroyed";
+    error = "Context is not valid";
   } else if (!source) {
     error = "Source is empty or invalid";
   } else if (!sink) {
@@ -234,12 +268,8 @@ void CefMediaRouterImpl::CreateRoute(
       base::BindOnce(&CefMediaRouterImpl::CreateRouteCallback, this, callback));
 }
 
-void CefMediaRouterImpl::NotifyCurrentRoutes() {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, base::BindOnce(
-                               &CefMediaRouterImpl::NotifyCurrentRoutes, this));
-    return;
-  }
+void CefMediaRouterImpl::NotifyCurrentRoutesInternal() {
+  DCHECK(ValidContext());
 
   auto browser_context = GetBrowserContext(browser_context_getter_);
   if (!browser_context)
@@ -248,22 +278,10 @@ void CefMediaRouterImpl::NotifyCurrentRoutes() {
   browser_context->GetMediaRouterManager()->NotifyCurrentRoutes();
 }
 
-void CefMediaRouterImpl::InitializeRegistrationOnUIThread(
-    CefRefPtr<CefRegistrationImpl> registration) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::BindOnce(&CefMediaRouterImpl::InitializeRegistrationOnUIThread,
-                       this, registration));
-    return;
-  }
-  registration->Initialize(browser_context_getter_);
-}
-
 void CefMediaRouterImpl::CreateRouteCallback(
     CefRefPtr<CefMediaRouteCreateCallback> callback,
     const media_router::RouteRequestResult& result) {
-  CEF_REQUIRE_UIT();
+  DCHECK(ValidContext());
 
   if (result.result_code() != media_router::RouteRequestResult::OK) {
     LOG(WARNING) << "Media route creation failed: " << result.error() << " ("
@@ -284,7 +302,30 @@ void CefMediaRouterImpl::CreateRouteCallback(
       result.error(), route);
 }
 
+void CefMediaRouterImpl::StoreOrTriggerInitCallback(
+    base::OnceClosure callback) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT, base::BindOnce(&CefMediaRouterImpl::StoreOrTriggerInitCallback,
+                                this, std::move(callback)));
+    return;
+  }
+
+  if (initialized_) {
+    std::move(callback).Run();
+  } else {
+    init_callbacks_.emplace_back(std::move(callback));
+  }
+}
+
+bool CefMediaRouterImpl::ValidContext() const {
+  return CEF_CURRENTLY_ON_UIT() && initialized_;
+}
+
+// CefMediaRouter methods ------------------------------------------------------
+
 // static
-CefRefPtr<CefMediaRouter> CefMediaRouter::GetGlobalMediaRouter() {
-  return CefRequestContext::GetGlobalContext()->GetMediaRouter();
+CefRefPtr<CefMediaRouter> CefMediaRouter::GetGlobalMediaRouter(
+    CefRefPtr<CefCompletionCallback> callback) {
+  return CefRequestContext::GetGlobalContext()->GetMediaRouter(callback);
 }

@@ -8,6 +8,7 @@
 #include "libcef/browser/chrome/browser_platform_delegate_chrome.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/views/browser_view_impl.h"
+#include "libcef/common/net/url_util.h"
 #include "libcef/features/runtime_checks.h"
 
 #include "base/logging.h"
@@ -21,8 +22,6 @@
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/common/pref_names.h"
-#include "components/url_formatter/url_fixer.h"
-#include "url/url_constants.h"
 
 #if defined(TOOLKIT_VIEWS)
 #include "libcef/browser/chrome/views/chrome_browser_frame.h"
@@ -34,7 +33,7 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::Create(
     const CefBrowserCreateParams& params) {
   auto browser = CreateBrowser(params);
 
-  GURL url = params.url;
+  GURL url = url_util::MakeGURL(params.url, /*fixup=*/true);
   if (url.is_empty()) {
     // Chrome will navigate to kChromeUINewTabURL by default. We want to keep
     // the current CEF behavior of not navigating at all. Use a special URL that
@@ -392,16 +391,9 @@ bool ChromeBrowserHostImpl::Navigate(const content::OpenURLParams& params) {
   }
 
   if (browser_) {
-    // Fix common problems with user-typed text. Among other things, this:
-    // - Converts absolute file paths to "file://" URLs.
-    // - Normalizes "about:" and "chrome:" to "chrome://" URLs.
-    // - Adds the "http://" scheme if none was specified.
-    GURL gurl = url_formatter::FixupURL(params.url.possibly_invalid_spec(),
-                                        std::string());
-    if (!gurl.is_valid()) {
-      LOG(ERROR) << "Invalid URL: " << params.url.possibly_invalid_spec();
+    GURL gurl = params.url;
+    if (!url_util::FixupGURL(gurl))
       return false;
-    }
 
     // This is generally equivalent to calling Browser::OpenURL, except:
     // 1. It doesn't trigger a call to CefRequestHandler::OnOpenURLFromTab, and
@@ -448,6 +440,7 @@ Browser* ChromeBrowserHostImpl::CreateBrowser(
   auto cef_browser_context = request_context_impl->GetBrowserContext();
   CHECK(cef_browser_context);
   auto profile = cef_browser_context->AsProfile();
+  CHECK(profile);
 
   Browser::CreateParams chrome_params =
       Browser::CreateParams(profile, /*user_gesture=*/false);

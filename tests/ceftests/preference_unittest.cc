@@ -398,6 +398,19 @@ void ValidateGet(CefRefPtr<CefRequestContext> context,
 class TestRequestContextHandler : public CefRequestContextHandler {
  public:
   TestRequestContextHandler() {}
+  explicit TestRequestContextHandler(CefRefPtr<CefWaitableEvent> event)
+      : event_(event) {}
+
+  void OnRequestContextInitialized(
+      CefRefPtr<CefRequestContext> context) override {
+    if (event_) {
+      event_->Signal();
+      event_ = nullptr;
+    }
+  }
+
+ private:
+  CefRefPtr<CefWaitableEvent> event_;
 
   IMPLEMENT_REFCOUNTING(TestRequestContextHandler);
 };
@@ -452,9 +465,11 @@ TEST(PreferenceTest, GlobalSetGetShared) {
 
   // Unassociated context.
   CefRequestContextSettings settings;
-  CefRefPtr<CefRequestContext> context4 =
-      CefRequestContext::CreateContext(settings, nullptr);
+  CefRefPtr<CefRequestContext> context4 = CefRequestContext::CreateContext(
+      settings, new TestRequestContextHandler(event));
   EXPECT_TRUE(context4.get());
+  // Wait for the context to be fully initialized.
+  event->Wait();
 
   // Set/get the values on the first context.
   *PendingAction() = "Set/get the values on the first context";
@@ -495,9 +510,11 @@ TEST(PreferenceTest, CustomDefaults) {
       CefWaitableEvent::CreateWaitableEvent(true, false);
 
   CefRequestContextSettings settings;
-  CefRefPtr<CefRequestContext> context =
-      CefRequestContext::CreateContext(settings, nullptr);
+  CefRefPtr<CefRequestContext> context = CefRequestContext::CreateContext(
+      settings, new TestRequestContextHandler(event));
   EXPECT_TRUE(context.get());
+  // Wait for the context to be fully initialized.
+  event->Wait();
 
   ValidateDefaults(context, false, event);
   event->Wait();
@@ -509,9 +526,11 @@ TEST(PreferenceTest, CustomSetGet) {
       CefWaitableEvent::CreateWaitableEvent(true, false);
 
   CefRequestContextSettings settings;
-  CefRefPtr<CefRequestContext> context =
-      CefRequestContext::CreateContext(settings, nullptr);
+  CefRefPtr<CefRequestContext> context = CefRequestContext::CreateContext(
+      settings, new TestRequestContextHandler(event));
   EXPECT_TRUE(context.get());
+  // Wait for the context to be fully initialized.
+  event->Wait();
 
   ValidateSetGet(context, event);
   event->Wait();
@@ -527,9 +546,11 @@ TEST(PreferenceTest, CustomSetGetShared) {
       CefWaitableEvent::CreateWaitableEvent(true, false);
 
   CefRequestContextSettings settings;
-  CefRefPtr<CefRequestContext> context =
-      CefRequestContext::CreateContext(settings, nullptr);
+  CefRefPtr<CefRequestContext> context = CefRequestContext::CreateContext(
+      settings, new TestRequestContextHandler(event));
   EXPECT_TRUE(context.get());
+  // Wait for the context to be fully initialized.
+  event->Wait();
 
   // Sharing storage.
   CefRefPtr<CefRequestContext> context2 =
@@ -542,9 +563,11 @@ TEST(PreferenceTest, CustomSetGetShared) {
   EXPECT_TRUE(context3.get());
 
   // Unassociated context.
-  CefRefPtr<CefRequestContext> context4 =
-      CefRequestContext::CreateContext(settings, nullptr);
+  CefRefPtr<CefRequestContext> context4 = CefRequestContext::CreateContext(
+      settings, new TestRequestContextHandler(event));
   EXPECT_TRUE(context4.get());
+  // Wait for the context to be fully initialized.
+  event->Wait();
 
   // Set/get the values on the first context.
   *PendingAction() = "Set/get the values on the first context";

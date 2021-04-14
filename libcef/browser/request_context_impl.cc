@@ -228,17 +228,67 @@ CefRequestContextImpl::GetOrCreateForRequestContext(
   return CefRequestContextImpl::GetOrCreateRequestContext(config);
 }
 
+bool CefRequestContextImpl::VerifyBrowserContext() const {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    NOTREACHED() << "called on invalid thread";
+    return false;
+  }
+
+  if (!browser_context() || !browser_context()->IsInitialized()) {
+    NOTREACHED() << "Uninitialized context";
+    return false;
+  }
+
+  return true;
+}
+
 CefBrowserContext* CefRequestContextImpl::GetBrowserContext() {
-  EnsureBrowserContext();
+  CHECK(VerifyBrowserContext());
   return browser_context();
+}
+
+void CefRequestContextImpl::ExecuteWhenBrowserContextInitialized(
+    base::OnceClosure callback) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::BindOnce(
+            &CefRequestContextImpl::ExecuteWhenBrowserContextInitialized, this,
+            std::move(callback)));
+    return;
+  }
+
+  EnsureBrowserContext();
+  browser_context()->StoreOrTriggerInitCallback(std::move(callback));
 }
 
 void CefRequestContextImpl::GetBrowserContext(
     scoped_refptr<base::SingleThreadTaskRunner> task_runner,
-    const BrowserContextCallback& callback) {
+    BrowserContextCallback callback) {
   if (!task_runner.get())
     task_runner = CefTaskRunnerImpl::GetCurrentTaskRunner();
-  GetBrowserContextOnUIThread(task_runner, callback);
+
+  ExecuteWhenBrowserContextInitialized(base::BindOnce(
+      [](CefRefPtr<CefRequestContextImpl> context,
+         scoped_refptr<base::SingleThreadTaskRunner> task_runner,
+         BrowserContextCallback callback) {
+        CEF_REQUIRE_UIT();
+
+        auto browser_context = context->browser_context();
+        DCHECK(browser_context->IsInitialized());
+
+        if (task_runner->BelongsToCurrentThread()) {
+          // Execute the callback immediately.
+          std::move(callback).Run(browser_context->getter());
+        } else {
+          // Execute the callback on the target thread.
+          task_runner->PostTask(
+              FROM_HERE,
+              base::BindOnce(std::move(callback), browser_context->getter()));
+        }
+      },
+      CefRefPtr<CefRequestContextImpl>(this), task_runner,
+      std::move(callback)));
 }
 
 bool CefRequestContextImpl::IsSame(CefRefPtr<CefRequestContext> other) {
@@ -312,7 +362,7 @@ CefString CefRequestContextImpl::GetCachePath() {
 CefRefPtr<CefCookieManager> CefRequestContextImpl::GetCookieManager(
     CefRefPtr<CefCompletionCallback> callback) {
   CefRefPtr<CefCookieManagerImpl> cookie_manager = new CefCookieManagerImpl();
-  InitializeCookieManagerOnUIThread(cookie_manager, callback);
+  InitializeCookieManagerInternal(cookie_manager, callback);
   return cookie_manager.get();
 }
 
@@ -320,56 +370,45 @@ bool CefRequestContextImpl::RegisterSchemeHandlerFactory(
     const CefString& scheme_name,
     const CefString& domain_name,
     CefRefPtr<CefSchemeHandlerFactory> factory) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-                  base::BindOnce(
-                      base::IgnoreResult(
-                          &CefRequestContextImpl::RegisterSchemeHandlerFactory),
-                      this, scheme_name, domain_name, factory));
-    return true;
-  }
+  GetBrowserContext(
+      content::GetUIThreadTaskRunner({}),
+      base::BindOnce(
+          [](const CefString& scheme_name, const CefString& domain_name,
+             CefRefPtr<CefSchemeHandlerFactory> factory,
+             CefBrowserContext::Getter browser_context_getter) {
+            auto browser_context = browser_context_getter.Run();
+            if (browser_context) {
+              browser_context->RegisterSchemeHandlerFactory(
+                  scheme_name, domain_name, factory);
+            }
+          },
+          scheme_name, domain_name, factory));
 
-  // Make sure the browser context exists.
-  EnsureBrowserContext();
-
-  browser_context()->RegisterSchemeHandlerFactory(scheme_name, domain_name,
-                                                  factory);
   return true;
 }
 
 bool CefRequestContextImpl::ClearSchemeHandlerFactories() {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::BindOnce(base::IgnoreResult(
-                           &CefRequestContextImpl::ClearSchemeHandlerFactories),
-                       this));
-    return true;
-  }
+  GetBrowserContext(
+      content::GetUIThreadTaskRunner({}),
+      base::BindOnce([](CefBrowserContext::Getter browser_context_getter) {
+        auto browser_context = browser_context_getter.Run();
+        if (browser_context)
+          browser_context->ClearSchemeHandlerFactories();
+      }));
 
-  // Make sure the browser context exists.
-  EnsureBrowserContext();
-
-  browser_context()->ClearSchemeHandlerFactories();
   return true;
 }
 
 void CefRequestContextImpl::PurgePluginListCache(bool reload_pages) {
   GetBrowserContext(
       content::GetUIThreadTaskRunner({}),
-      base::Bind(&CefRequestContextImpl::PurgePluginListCacheInternal, this,
-                 reload_pages));
+      base::BindOnce(&CefRequestContextImpl::PurgePluginListCacheInternal, this,
+                     reload_pages));
 }
 
 bool CefRequestContextImpl::HasPreference(const CefString& name) {
-  // Verify that this method is being called on the UI thread.
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+  if (!VerifyBrowserContext())
     return false;
-  }
-
-  // Make sure the browser context exists.
-  EnsureBrowserContext();
 
   PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
   return (pref_service->FindPreference(name) != nullptr);
@@ -377,14 +416,8 @@ bool CefRequestContextImpl::HasPreference(const CefString& name) {
 
 CefRefPtr<CefValue> CefRequestContextImpl::GetPreference(
     const CefString& name) {
-  // Verify that this method is being called on the UI thread.
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+  if (!VerifyBrowserContext())
     return nullptr;
-  }
-
-  // Make sure the browser context exists.
-  EnsureBrowserContext();
 
   PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
   const PrefService::Preference* pref = pref_service->FindPreference(name);
@@ -395,14 +428,8 @@ CefRefPtr<CefValue> CefRequestContextImpl::GetPreference(
 
 CefRefPtr<CefDictionaryValue> CefRequestContextImpl::GetAllPreferences(
     bool include_defaults) {
-  // Verify that this method is being called on the UI thread.
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+  if (!VerifyBrowserContext())
     return nullptr;
-  }
-
-  // Make sure the browser context exists.
-  EnsureBrowserContext();
 
   PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
 
@@ -419,14 +446,8 @@ CefRefPtr<CefDictionaryValue> CefRequestContextImpl::GetAllPreferences(
 }
 
 bool CefRequestContextImpl::CanSetPreference(const CefString& name) {
-  // Verify that this method is being called on the UI thread.
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+  if (!VerifyBrowserContext())
     return false;
-  }
-
-  // Make sure the browser context exists.
-  EnsureBrowserContext();
 
   PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
   const PrefService::Preference* pref = pref_service->FindPreference(name);
@@ -436,14 +457,8 @@ bool CefRequestContextImpl::CanSetPreference(const CefString& name) {
 bool CefRequestContextImpl::SetPreference(const CefString& name,
                                           CefRefPtr<CefValue> value,
                                           CefString& error) {
-  // Verify that this method is being called on the UI thread.
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+  if (!VerifyBrowserContext())
     return false;
-  }
-
-  // Make sure the browser context exists.
-  EnsureBrowserContext();
 
   PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
 
@@ -492,49 +507,53 @@ void CefRequestContextImpl::ClearCertificateExceptions(
     CefRefPtr<CefCompletionCallback> callback) {
   GetBrowserContext(
       content::GetUIThreadTaskRunner({}),
-      base::Bind(&CefRequestContextImpl::ClearCertificateExceptionsInternal,
-                 this, callback));
+      base::BindOnce(&CefRequestContextImpl::ClearCertificateExceptionsInternal,
+                     this, callback));
 }
 
 void CefRequestContextImpl::ClearHttpAuthCredentials(
     CefRefPtr<CefCompletionCallback> callback) {
   GetBrowserContext(
       content::GetUIThreadTaskRunner({}),
-      base::Bind(&CefRequestContextImpl::ClearHttpAuthCredentialsInternal, this,
-                 callback));
+      base::BindOnce(&CefRequestContextImpl::ClearHttpAuthCredentialsInternal,
+                     this, callback));
 }
 
 void CefRequestContextImpl::CloseAllConnections(
     CefRefPtr<CefCompletionCallback> callback) {
   GetBrowserContext(
       content::GetUIThreadTaskRunner({}),
-      base::Bind(&CefRequestContextImpl::CloseAllConnectionsInternal, this,
-                 callback));
+      base::BindOnce(&CefRequestContextImpl::CloseAllConnectionsInternal, this,
+                     callback));
 }
 
 void CefRequestContextImpl::ResolveHost(
     const CefString& origin,
     CefRefPtr<CefResolveCallback> callback) {
   GetBrowserContext(content::GetUIThreadTaskRunner({}),
-                    base::Bind(&CefRequestContextImpl::ResolveHostInternal,
-                               this, origin, callback));
+                    base::BindOnce(&CefRequestContextImpl::ResolveHostInternal,
+                                   this, origin, callback));
 }
 
 void CefRequestContextImpl::LoadExtension(
     const CefString& root_directory,
     CefRefPtr<CefDictionaryValue> manifest,
     CefRefPtr<CefExtensionHandler> handler) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-                  base::BindOnce(&CefRequestContextImpl::LoadExtension, this,
-                                 root_directory, manifest, handler));
-    return;
-  }
-
-  // Make sure the browser context exists.
-  EnsureBrowserContext();
-
-  browser_context()->LoadExtension(root_directory, manifest, handler, this);
+  GetBrowserContext(content::GetUIThreadTaskRunner({}),
+                    base::BindOnce(
+                        [](const CefString& root_directory,
+                           CefRefPtr<CefDictionaryValue> manifest,
+                           CefRefPtr<CefExtensionHandler> handler,
+                           CefRefPtr<CefRequestContextImpl> self,
+                           CefBrowserContext::Getter browser_context_getter) {
+                          auto browser_context = browser_context_getter.Run();
+                          if (browser_context) {
+                            browser_context->LoadExtension(
+                                root_directory, manifest, handler, self);
+                          }
+                        },
+                        root_directory, manifest, handler,
+                        CefRefPtr<CefRequestContextImpl>(this)));
 }
 
 bool CefRequestContextImpl::DidLoadExtension(const CefString& extension_id) {
@@ -551,33 +570,24 @@ bool CefRequestContextImpl::GetExtensions(
     std::vector<CefString>& extension_ids) {
   extension_ids.clear();
 
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+  if (!VerifyBrowserContext())
     return false;
-  }
-
-  // Make sure the browser context exists.
-  EnsureBrowserContext();
 
   return browser_context()->GetExtensions(extension_ids);
 }
 
 CefRefPtr<CefExtension> CefRequestContextImpl::GetExtension(
     const CefString& extension_id) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+  if (!VerifyBrowserContext())
     return nullptr;
-  }
-
-  // Make sure the browser context exists.
-  EnsureBrowserContext();
 
   return browser_context()->GetExtension(extension_id);
 }
 
-CefRefPtr<CefMediaRouter> CefRequestContextImpl::GetMediaRouter() {
+CefRefPtr<CefMediaRouter> CefRequestContextImpl::GetMediaRouter(
+    CefRefPtr<CefCompletionCallback> callback) {
   CefRefPtr<CefMediaRouterImpl> media_router = new CefMediaRouterImpl();
-  InitializeMediaRouterOnUIThread(media_router);
+  InitializeMediaRouterInternal(media_router, callback);
   return media_router.get();
 }
 
@@ -614,14 +624,12 @@ CefRequestContextImpl::GetOrCreateRequestContext(const Config& config) {
   // The new context will be initialized later by EnsureBrowserContext().
   CefRefPtr<CefRequestContextImpl> context = new CefRequestContextImpl(config);
 
-  if (config.handler) {
-    // Keep the context alive until OnRequestContextInitialized is called.
-    if (CEF_CURRENTLY_ON_UIT()) {
-      context->Initialize();
-    } else {
-      CEF_POST_TASK(
-          CEF_UIT, base::BindOnce(&CefRequestContextImpl::Initialize, context));
-    }
+  // Initialize ASAP so that any tasks blocked on initialization will execute.
+  if (CEF_CURRENTLY_ON_UIT()) {
+    context->Initialize();
+  } else {
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefRequestContextImpl::Initialize, context));
   }
 
   return context;
@@ -638,8 +646,8 @@ void CefRequestContextImpl::Initialize() {
 
   if (config_.other) {
     // Share storage with |config_.other|.
-    browser_context_ = config_.other->GetBrowserContext();
-    DCHECK(browser_context_);
+    browser_context_ = config_.other->browser_context();
+    CHECK(browser_context_);
   }
 
   if (!browser_context_) {
@@ -670,7 +678,7 @@ void CefRequestContextImpl::Initialize() {
   } else {
     // Share the same settings as the existing context.
     config_.settings = browser_context_->settings();
-    std::move(initialized_cb).Run();
+    browser_context_->StoreOrTriggerInitCallback(std::move(initialized_cb));
   }
 
   // We'll disassociate from |browser_context_| on destruction.
@@ -701,32 +709,13 @@ void CefRequestContextImpl::EnsureBrowserContext() {
   DCHECK(browser_context());
 }
 
-void CefRequestContextImpl::GetBrowserContextOnUIThread(
-    scoped_refptr<base::SingleThreadTaskRunner> task_runner,
-    const BrowserContextCallback& callback) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(
-        CEF_UIT, base::Bind(&CefRequestContextImpl::GetBrowserContextOnUIThread,
-                            this, task_runner, callback));
-    return;
-  }
-
-  // Make sure the browser context exists.
-  EnsureBrowserContext();
-
-  if (task_runner->BelongsToCurrentThread()) {
-    // Execute the callback immediately.
-    callback.Run(browser_context());
-  } else {
-    // Execute the callback on the target thread.
-    task_runner->PostTask(FROM_HERE, base::Bind(callback, browser_context()));
-  }
-}
-
 void CefRequestContextImpl::PurgePluginListCacheInternal(
     bool reload_pages,
-    CefBrowserContext* browser_context) {
-  CEF_REQUIRE_UIT();
+    CefBrowserContext::Getter browser_context_getter) {
+  auto browser_context = browser_context_getter.Run();
+  if (!browser_context)
+    return;
+
   browser_context->ClearPluginLoadDecision(-1);
   content::PluginService::GetInstance()->PurgePluginListCache(
       browser_context->AsBrowserContext(), false);
@@ -734,8 +723,10 @@ void CefRequestContextImpl::PurgePluginListCacheInternal(
 
 void CefRequestContextImpl::ClearCertificateExceptionsInternal(
     CefRefPtr<CefCompletionCallback> callback,
-    CefBrowserContext* browser_context) {
-  CEF_REQUIRE_UIT();
+    CefBrowserContext::Getter browser_context_getter) {
+  auto browser_context = browser_context_getter.Run();
+  if (!browser_context)
+    return;
 
   content::SSLHostStateDelegate* ssl_delegate =
       browser_context->AsBrowserContext()->GetSSLHostStateDelegate();
@@ -750,8 +741,10 @@ void CefRequestContextImpl::ClearCertificateExceptionsInternal(
 
 void CefRequestContextImpl::ClearHttpAuthCredentialsInternal(
     CefRefPtr<CefCompletionCallback> callback,
-    CefBrowserContext* browser_context) {
-  CEF_REQUIRE_UIT();
+    CefBrowserContext::Getter browser_context_getter) {
+  auto browser_context = browser_context_getter.Run();
+  if (!browser_context)
+    return;
 
   browser_context->GetNetworkContext()->ClearHttpAuthCache(
       /*start_time=*/base::Time(), /*end_time=*/base::Time::Max(),
@@ -760,8 +753,10 @@ void CefRequestContextImpl::ClearHttpAuthCredentialsInternal(
 
 void CefRequestContextImpl::CloseAllConnectionsInternal(
     CefRefPtr<CefCompletionCallback> callback,
-    CefBrowserContext* browser_context) {
-  CEF_REQUIRE_UIT();
+    CefBrowserContext::Getter browser_context_getter) {
+  auto browser_context = browser_context_getter.Run();
+  if (!browser_context)
+    return;
 
   browser_context->GetNetworkContext()->CloseAllConnections(
       base::Bind(&CefCompletionCallback::OnComplete, callback));
@@ -770,41 +765,42 @@ void CefRequestContextImpl::CloseAllConnectionsInternal(
 void CefRequestContextImpl::ResolveHostInternal(
     const CefString& origin,
     CefRefPtr<CefResolveCallback> callback,
-    CefBrowserContext* browser_context) {
-  CEF_REQUIRE_UIT();
+    CefBrowserContext::Getter browser_context_getter) {
+  auto browser_context = browser_context_getter.Run();
+  if (!browser_context)
+    return;
 
   // |helper| will be deleted in ResolveHostHelper::OnComplete().
   ResolveHostHelper* helper = new ResolveHostHelper(callback);
   helper->Start(browser_context, origin);
 }
 
-void CefRequestContextImpl::InitializeCookieManagerOnUIThread(
+void CefRequestContextImpl::InitializeCookieManagerInternal(
     CefRefPtr<CefCookieManagerImpl> cookie_manager,
     CefRefPtr<CefCompletionCallback> callback) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::Bind(&CefRequestContextImpl::InitializeCookieManagerOnUIThread,
-                   this, cookie_manager, callback));
-    return;
-  }
-
-  auto browser_context = GetBrowserContext();
-  cookie_manager->Initialize(browser_context->getter(), callback);
+  GetBrowserContext(content::GetUIThreadTaskRunner({}),
+                    base::BindOnce(
+                        [](CefRefPtr<CefCookieManagerImpl> cookie_manager,
+                           CefRefPtr<CefCompletionCallback> callback,
+                           CefBrowserContext::Getter browser_context_getter) {
+                          cookie_manager->Initialize(browser_context_getter,
+                                                     callback);
+                        },
+                        cookie_manager, callback));
 }
 
-void CefRequestContextImpl::InitializeMediaRouterOnUIThread(
-    CefRefPtr<CefMediaRouterImpl> media_router) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::Bind(&CefRequestContextImpl::InitializeMediaRouterOnUIThread,
-                   this, media_router));
-    return;
-  }
-
-  auto browser_context = GetBrowserContext();
-  media_router->Initialize(browser_context->getter());
+void CefRequestContextImpl::InitializeMediaRouterInternal(
+    CefRefPtr<CefMediaRouterImpl> media_router,
+    CefRefPtr<CefCompletionCallback> callback) {
+  GetBrowserContext(content::GetUIThreadTaskRunner({}),
+                    base::BindOnce(
+                        [](CefRefPtr<CefMediaRouterImpl> media_router,
+                           CefRefPtr<CefCompletionCallback> callback,
+                           CefBrowserContext::Getter browser_context_getter) {
+                          media_router->Initialize(browser_context_getter,
+                                                   callback);
+                        },
+                        media_router, callback));
 }
 
 CefBrowserContext* CefRequestContextImpl::browser_context() const {

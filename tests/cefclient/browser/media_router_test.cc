@@ -543,7 +543,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     }
 
     CefRefPtr<CefMediaRouter> media_router =
-        browser->GetHost()->GetRequestContext()->GetMediaRouter();
+        browser->GetHost()->GetRequestContext()->GetMediaRouter(nullptr);
 
     SubscriptionState* state = new SubscriptionState();
     state->query_id = query_id;

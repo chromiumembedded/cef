@@ -9,10 +9,11 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ae6ec27ec52df5eb0db397c27b0df4969474dc0c$
+// $hash=8e7b2e3e8124ede620b8a04116656550949f89f1$
 //
 
 #include "libcef_dll/ctocpp/media_router_ctocpp.h"
+#include "libcef_dll/cpptoc/completion_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/media_observer_cpptoc.h"
 #include "libcef_dll/cpptoc/media_route_create_callback_cpptoc.h"
 #include "libcef_dll/ctocpp/media_sink_ctocpp.h"
@@ -23,13 +24,17 @@
 // STATIC METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefMediaRouter> CefMediaRouter::GetGlobalMediaRouter() {
+CefRefPtr<CefMediaRouter> CefMediaRouter::GetGlobalMediaRouter(
+    CefRefPtr<CefCompletionCallback> callback) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+  // Unverified params: callback
+
   // Execute
-  cef_media_router_t* _retval = cef_media_router_get_global();
+  cef_media_router_t* _retval =
+      cef_media_router_get_global(CefCompletionCallbackCppToC::Wrap(callback));
 
   // Return type: refptr_same
   return CefMediaRouterCToCpp::Wrap(_retval);

@@ -24,6 +24,7 @@
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/drag_data_impl.h"
+#include "libcef/common/net/url_util.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/values_impl.h"
 #include "libcef/features/runtime_checks.h"
@@ -175,12 +176,13 @@ CefRefPtr<AlloyBrowserHostImpl> AlloyBrowserHostImpl::Create(
   if (!browser)
     return nullptr;
 
+  GURL url = url_util::MakeGURL(create_params.url, /*fixup=*/true);
+
   if (create_params.extension) {
     platform_delegate_ptr->CreateExtensionHost(
-        create_params.extension, create_params.url,
-        create_params.extension_host_type);
-  } else if (!create_params.url.is_empty()) {
-    content::OpenURLParams params(create_params.url, content::Referrer(),
+        create_params.extension, url, create_params.extension_host_type);
+  } else if (!url.is_empty()) {
+    content::OpenURLParams params(url, content::Referrer(),
                                   WindowOpenDisposition::CURRENT_TAB,
                                   CefFrameHostImpl::kPageTransitionExplicit,
                                   /*is_renderer_initiated=*/false);

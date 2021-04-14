@@ -5,6 +5,7 @@
 #include "libcef/browser/context.h"
 
 #include "libcef/browser/browser_info_manager.h"
+#include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/trace_subscriber.h"
 #include "libcef/common/cef_switches.h"
@@ -474,12 +475,19 @@ bool CefContext::HasObserver(Observer* observer) const {
 void CefContext::OnContextInitialized() {
   CEF_REQUIRE_UIT();
 
-  // Notify the handler.
   if (application_) {
-    CefRefPtr<CefBrowserProcessHandler> handler =
-        application_->GetBrowserProcessHandler();
-    if (handler)
-      handler->OnContextInitialized();
+    // Notify the handler after the global browser context has initialized.
+    CefRefPtr<CefRequestContext> request_context =
+        CefRequestContext::GetGlobalContext();
+    auto impl = static_cast<CefRequestContextImpl*>(request_context.get());
+    impl->ExecuteWhenBrowserContextInitialized(base::BindOnce(
+        [](CefRefPtr<CefApp> app) {
+          CefRefPtr<CefBrowserProcessHandler> handler =
+              app->GetBrowserProcessHandler();
+          if (handler)
+            handler->OnContextInitialized();
+        },
+        application_));
   }
 }
 

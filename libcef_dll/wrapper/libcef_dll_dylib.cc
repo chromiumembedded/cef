@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=51090c9b8afc79ae98d70fe84c98bc7c8a433c3a$
+// $hash=9fbe1de9cf7f32c551c535e190d4c82b4947765d$
 //
 
 #include <dlfcn.h>
@@ -203,7 +203,8 @@ typedef struct _cef_cookie_manager_t* (
     struct _cef_completion_callback_t*);
 typedef struct _cef_drag_data_t* (*cef_drag_data_create_ptr)();
 typedef struct _cef_image_t* (*cef_image_create_ptr)();
-typedef struct _cef_media_router_t* (*cef_media_router_get_global_ptr)();
+typedef struct _cef_media_router_t* (*cef_media_router_get_global_ptr)(
+    struct _cef_completion_callback_t*);
 typedef struct _cef_menu_model_t* (*cef_menu_model_create_ptr)(
     struct _cef_menu_model_delegate_t*);
 typedef struct _cef_print_settings_t* (*cef_print_settings_create_ptr)();
@@ -1093,8 +1094,8 @@ int cef_create_url(const struct _cef_urlparts_t* parts, cef_string_t* url) {
 }
 
 NO_SANITIZE("cfi-icall")
-cef_string_userfree_t
-    cef_format_url_for_security_display(const cef_string_t* origin_url) {
+cef_string_userfree_t cef_format_url_for_security_display(
+    const cef_string_t* origin_url) {
   return g_libcef_pointers.cef_format_url_for_security_display(origin_url);
 }
 
@@ -1315,8 +1316,9 @@ NO_SANITIZE("cfi-icall") struct _cef_image_t* cef_image_create() {
 }
 
 NO_SANITIZE("cfi-icall")
-struct _cef_media_router_t* cef_media_router_get_global() {
-  return g_libcef_pointers.cef_media_router_get_global();
+struct _cef_media_router_t* cef_media_router_get_global(
+    struct _cef_completion_callback_t* callback) {
+  return g_libcef_pointers.cef_media_router_get_global(callback);
 }
 
 NO_SANITIZE("cfi-icall")
@@ -1579,54 +1581,46 @@ struct _cef_translator_test_t* cef_translator_test_create() {
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_ref_ptr_library_t* cef_translator_test_ref_ptr_library_create(
-        int value) {
+struct _cef_translator_test_ref_ptr_library_t*
+cef_translator_test_ref_ptr_library_create(int value) {
   return g_libcef_pointers.cef_translator_test_ref_ptr_library_create(value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_ref_ptr_library_child_t* cef_translator_test_ref_ptr_library_child_create(
-        int value,
-        int other_value) {
+struct _cef_translator_test_ref_ptr_library_child_t*
+cef_translator_test_ref_ptr_library_child_create(int value, int other_value) {
   return g_libcef_pointers.cef_translator_test_ref_ptr_library_child_create(
       value, other_value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_ref_ptr_library_child_child_t* cef_translator_test_ref_ptr_library_child_child_create(
-        int value,
-        int other_value,
-        int other_other_value) {
+struct _cef_translator_test_ref_ptr_library_child_child_t*
+cef_translator_test_ref_ptr_library_child_child_create(int value,
+                                                       int other_value,
+                                                       int other_other_value) {
   return g_libcef_pointers
       .cef_translator_test_ref_ptr_library_child_child_create(
           value, other_value, other_other_value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_scoped_library_t* cef_translator_test_scoped_library_create(
-        int value) {
+struct _cef_translator_test_scoped_library_t*
+cef_translator_test_scoped_library_create(int value) {
   return g_libcef_pointers.cef_translator_test_scoped_library_create(value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_scoped_library_child_t* cef_translator_test_scoped_library_child_create(
-        int value,
-        int other_value) {
+struct _cef_translator_test_scoped_library_child_t*
+cef_translator_test_scoped_library_child_create(int value, int other_value) {
   return g_libcef_pointers.cef_translator_test_scoped_library_child_create(
       value, other_value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct
-    _cef_translator_test_scoped_library_child_child_t* cef_translator_test_scoped_library_child_child_create(
-        int value,
-        int other_value,
-        int other_other_value) {
+struct _cef_translator_test_scoped_library_child_child_t*
+cef_translator_test_scoped_library_child_child_create(int value,
+                                                      int other_value,
+                                                      int other_other_value) {
   return g_libcef_pointers
       .cef_translator_test_scoped_library_child_child_create(value, other_value,
                                                              other_other_value);

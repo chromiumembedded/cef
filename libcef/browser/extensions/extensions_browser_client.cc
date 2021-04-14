@@ -251,13 +251,13 @@ bool CefExtensionsBrowserClient::CreateBackgroundExtensionHost(
   }
 
   CefBrowserCreateParams create_params;
-  create_params.url = url;
+  create_params.url = url.spec();
   create_params.request_context = request_context;
 
   CefRefPtr<CefExtensionHandler> handler = cef_extension->GetHandler();
   if (handler.get() && handler->OnBeforeBackgroundBrowser(
-                           cef_extension, url.spec(), create_params.client,
-                           create_params.settings)) {
+                           cef_extension, create_params.url,
+                           create_params.client, create_params.settings)) {
     // Cancel the background host creation.
     return true;
   }
