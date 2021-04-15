@@ -51,7 +51,6 @@ void ChromeBrowserContext::InitializeAsync(base::OnceClosure initialized_cb) {
     if (cache_path_ == user_data_dir) {
       // Use the default disk-based profile.
       auto profile = profile_manager->GetPrimaryUserProfile();
-      ProfileCreated(profile, Profile::CreateStatus::CREATE_STATUS_CREATED);
       ProfileCreated(profile, Profile::CreateStatus::CREATE_STATUS_INITIALIZED);
       return;
     } else if (cache_path_.DirName() == user_data_dir) {
@@ -92,8 +91,8 @@ void ChromeBrowserContext::ProfileCreated(Profile* profile,
 
   if (status != Profile::CreateStatus::CREATE_STATUS_CREATED &&
       status != Profile::CreateStatus::CREATE_STATUS_INITIALIZED) {
-    DCHECK(!profile);
-    DCHECK(!profile_);
+    CHECK(!profile);
+    CHECK(!profile_);
 
     // Creation of a disk-based profile failed for some reason. Create a
     // new/unique OffTheRecord profile instead.
@@ -104,14 +103,15 @@ void ChromeBrowserContext::ProfileCreated(Profile* profile,
     otr_profile = static_cast<OffTheRecordProfileImpl*>(profile_);
     status = Profile::CreateStatus::CREATE_STATUS_INITIALIZED;
     should_destroy_ = true;
+  } else if (profile && !profile_) {
+    // May be CREATE_STATUS_CREATED or CREATE_STATUS_INITIALIZED since
+    // *CREATED isn't always sent for a disk-based profile that already
+    // exists.
+    profile_ = profile;
   }
 
-  if (status == Profile::CreateStatus::CREATE_STATUS_CREATED) {
-    DCHECK(profile);
-    DCHECK(!profile_);
-    profile_ = profile;
-  } else if (status == Profile::CreateStatus::CREATE_STATUS_INITIALIZED) {
-    DCHECK(profile_);
+  if (status == Profile::CreateStatus::CREATE_STATUS_INITIALIZED) {
+    CHECK(profile_);
     browser_prefs::SetLanguagePrefs(profile_);
 
     // Must set |profile_| before Init() calls
