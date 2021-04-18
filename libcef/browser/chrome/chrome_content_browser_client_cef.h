@@ -40,6 +40,8 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
                        bool user_gesture,
                        bool opener_suppressed,
                        bool* no_javascript_access) override;
+  void OverrideWebkitPrefs(content::WebContents* web_contents,
+                           blink::web_pref::WebPreferences* prefs) override;
   bool WillCreateURLLoaderFactory(
       content::BrowserContext* browser_context,
       content::RenderFrameHost* frame,
