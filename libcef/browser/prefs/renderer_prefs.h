@@ -36,6 +36,15 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
 // for these preferences.
 void SetCommandLinePrefDefaults(CommandLinePrefStore* prefs);
 
+// Set default values based on CEF command-line flags for preferences that are
+// not available via the PrefService. Chromium command-line flags should not
+// exist for these preferences.
+void SetDefaultPrefs(blink::web_pref::WebPreferences& web);
+
+// Set preferences based on CefBrowserSettings.
+void SetCefPrefs(const CefBrowserSettings& cef,
+                 blink::web_pref::WebPreferences& web);
+
 // Populate WebPreferences based on a combination of command-line values,
 // PrefService and CefBrowserSettings.
 void PopulateWebPreferences(content::RenderViewHost* rvh,

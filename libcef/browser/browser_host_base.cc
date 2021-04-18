@@ -6,6 +6,7 @@
 
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_platform_delegate.h"
+#include "libcef/browser/context.h"
 #include "libcef/browser/image_impl.h"
 #include "libcef/browser/navigation_entry_impl.h"
 #include "libcef/browser/thread_util.h"
@@ -824,6 +825,16 @@ void CefBrowserHostBase::OnBrowserDestroyed() {
 
 int CefBrowserHostBase::browser_id() const {
   return browser_info_->browser_id();
+}
+
+SkColor CefBrowserHostBase::GetBackgroundColor() const {
+  // Don't use |platform_delegate_| because it's not thread-safe.
+  return CefContext::Get()->GetBackgroundColor(
+      &settings_, IsWindowless() ? STATE_ENABLED : STATE_DISABLED);
+}
+
+bool CefBrowserHostBase::IsWindowless() const {
+  return false;
 }
 
 content::WebContents* CefBrowserHostBase::GetWebContents() const {

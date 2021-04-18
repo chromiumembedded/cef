@@ -812,12 +812,6 @@ bool AlloyBrowserHostImpl::MaybeAllowNavigation(
   return true;
 }
 
-SkColor AlloyBrowserHostImpl::GetBackgroundColor() const {
-  // Don't use |platform_delegate_| because it's not thread-safe.
-  return CefContext::Get()->GetBackgroundColor(
-      &settings_, is_windowless_ ? STATE_ENABLED : STATE_DISABLED);
-}
-
 extensions::ExtensionHost* AlloyBrowserHostImpl::GetExtensionHost() const {
   CEF_REQUIRE_UIT();
   DCHECK(platform_delegate_);

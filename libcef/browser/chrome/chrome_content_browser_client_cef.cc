@@ -7,13 +7,16 @@
 
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_message_filter.h"
+#include "libcef/browser/chrome/chrome_browser_host_impl.h"
 #include "libcef/browser/chrome/chrome_browser_main_extra_parts_cef.h"
+#include "libcef/browser/context.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
 #include "libcef/browser/net/throttle_handler.h"
 #include "libcef/browser/net_service/cookie_manager_impl.h"
 #include "libcef/browser/net_service/login_delegate.h"
 #include "libcef/browser/net_service/proxy_url_loader_factory.h"
 #include "libcef/browser/net_service/resource_request_handler_wrapper.h"
+#include "libcef/browser/prefs/renderer_prefs.h"
 #include "libcef/common/app_manager.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
@@ -25,7 +28,11 @@
 #include "chrome/common/chrome_switches.h"
 #include "content/public/browser/navigation_throttle.h"
 #include "content/public/browser/render_process_host.h"
+#include "content/public/browser/render_view_host.h"
+#include "content/public/browser/render_widget_host.h"
+#include "content/public/browser/render_widget_host_view.h"
 #include "content/public/common/content_switches.h"
+#include "third_party/blink/public/common/web_preferences/web_preferences.h"
 #include "third_party/blink/public/mojom/loader/resource_load_info.mojom-shared.h"
 
 namespace {
@@ -146,6 +153,33 @@ bool ChromeContentBrowserClientCef::CanCreateWindow(
   return CefBrowserInfoManager::GetInstance()->CanCreateWindow(
       opener, target_url, referrer, frame_name, disposition, features,
       user_gesture, opener_suppressed, no_javascript_access);
+}
+
+void ChromeContentBrowserClientCef::OverrideWebkitPrefs(
+    content::WebContents* web_contents,
+    blink::web_pref::WebPreferences* prefs) {
+  renderer_prefs::SetDefaultPrefs(*prefs);
+
+  ChromeContentBrowserClient::OverrideWebkitPrefs(web_contents, prefs);
+
+  auto browser = ChromeBrowserHostImpl::GetBrowserForContents(web_contents);
+  if (browser) {
+    renderer_prefs::SetCefPrefs(browser->settings(), *prefs);
+
+    // Set the background color for the WebView.
+    prefs->base_background_color = browser->GetBackgroundColor();
+  } else {
+    // We don't know for sure that the browser will be windowless but assume
+    // that the global windowless state is likely to be accurate.
+    prefs->base_background_color =
+        CefContext::Get()->GetBackgroundColor(nullptr, STATE_DEFAULT);
+  }
+
+  auto rvh = web_contents->GetRenderViewHost();
+  if (rvh->GetWidget()->GetView()) {
+    rvh->GetWidget()->GetView()->SetBackgroundColor(
+        prefs->base_background_color);
+  }
 }
 
 bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(

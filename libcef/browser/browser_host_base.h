@@ -246,6 +246,10 @@ class CefBrowserHostBase : public CefBrowserHost,
     return request_context_;
   }
   bool is_views_hosted() const { return is_views_hosted_; }
+  SkColor GetBackgroundColor() const;
+
+  // Returns true if windowless rendering is enabled.
+  virtual bool IsWindowless() const;
 
   // Accessors that must be called on the UI thread.
   content::WebContents* GetWebContents() const;

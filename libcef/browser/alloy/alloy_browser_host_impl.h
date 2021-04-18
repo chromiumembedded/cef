@@ -151,7 +151,7 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   bool IsBackgroundHost() override;
 
   // Returns true if windowless rendering is enabled.
-  bool IsWindowless() const;
+  bool IsWindowless() const override;
 
   // Returns true if this browser supports picture-in-picture.
   bool IsPictureInPictureSupported() const;
@@ -181,9 +181,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
                      const blink::mojom::DragEventSourceInfo& event_info,
                      content::RenderWidgetHostImpl* source_rwh);
   void UpdateDragCursor(ui::mojom::DragOperation operation);
-
-  // Thread safe accessors.
-  SkColor GetBackgroundColor() const;
 
   // Accessors that must be called on the UI thread.
   extensions::ExtensionHost* GetExtensionHost() const;
