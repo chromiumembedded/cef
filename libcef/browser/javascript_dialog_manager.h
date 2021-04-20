@@ -31,8 +31,8 @@ class CefJavaScriptDialogManager : public content::JavaScriptDialogManager {
   void RunJavaScriptDialog(content::WebContents* web_contents,
                            content::RenderFrameHost* render_frame_host,
                            content::JavaScriptDialogType message_type,
-                           const base::string16& message_text,
-                           const base::string16& default_prompt_text,
+                           const std::u16string& message_text,
+                           const std::u16string& default_prompt_text,
                            DialogClosedCallback callback,
                            bool* did_suppress_message) override;
   void RunBeforeUnloadDialog(content::WebContents* web_contents,
@@ -46,7 +46,7 @@ class CefJavaScriptDialogManager : public content::JavaScriptDialogManager {
   // Method executed by the callback passed to CefJavaScriptDialogRunner::Run.
   void DialogClosed(DialogClosedCallback callback,
                     bool success,
-                    const base::string16& user_input);
+                    const std::u16string& user_input);
 
   // AlloyBrowserHostImpl pointer is guaranteed to outlive this object.
   AlloyBrowserHostImpl* browser_;

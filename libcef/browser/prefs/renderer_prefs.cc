@@ -165,12 +165,9 @@ void SetExtensionPrefs(content::RenderViewHost* rvh,
   if (!site_url.SchemeIs(extensions::kExtensionScheme))
     return;
 
-  content::WebContents* web_contents =
-      content::WebContents::FromRenderViewHost(rvh);
-  extensions::ViewType view_type = extensions::GetViewType(web_contents);
   const extensions::Extension* extension =
       registry->enabled_extensions().GetByID(site_url.host());
-  extension_webkit_preferences::SetPreferences(extension, view_type, &web);
+  extension_webkit_preferences::SetPreferences(extension, &web);
 }
 
 void SetString(CommandLinePrefStore* prefs,

@@ -91,7 +91,7 @@ void CefDevToolsController::RemoveObserver(Observer* observer) {
 void CefDevToolsController::DispatchProtocolMessage(
     content::DevToolsAgentHost* agent_host,
     base::span<const uint8_t> message) {
-  if (!observers_.might_have_observers())
+  if (observers_.empty())
     return;
 
   base::StringPiece str_message(reinterpret_cast<const char*>(message.data()),

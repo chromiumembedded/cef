@@ -20,6 +20,7 @@
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/task/post_task.h"
+#include "base/task/thread_pool.h"
 #include "components/navigation_interception/navigation_params.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_switches.h"
@@ -76,8 +77,8 @@ class BytesElementReader : public net::UploadBytesElementReader {
 };
 
 scoped_refptr<base::SequencedTaskRunner> GetFileTaskRunner() {
-  return base::CreateSequencedTaskRunner(
-      {base::ThreadPool(), base::MayBlock(), base::TaskPriority::USER_VISIBLE});
+  return base::ThreadPool::CreateSequencedTaskRunner(
+      {base::MayBlock(), base::TaskPriority::USER_VISIBLE});
 }
 
 // A subclass of net::UploadFileElementReader that keeps the associated
@@ -171,7 +172,7 @@ blink::WebString FilePathStringToWebString(
 #if defined(OS_POSIX)
   return blink::WebString::FromUTF8(str);
 #elif defined(OS_WIN)
-  return blink::WebString::FromUTF16(str);
+  return blink::WebString::FromUTF16(base::WideToUTF16(str));
 #endif
 }
 
@@ -632,9 +633,8 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
   }
 
   if (params.upload_data.get()) {
-    const base::string16& method = request.HttpMethod().Utf16();
-    if (method == base::ASCIIToUTF16("GET") ||
-        method == base::ASCIIToUTF16("HEAD")) {
+    const std::u16string& method = request.HttpMethod().Utf16();
+    if (method == u"GET" || method == u"HEAD") {
       request.SetHttpMethod(blink::WebString::FromASCII("POST"));
     }
 

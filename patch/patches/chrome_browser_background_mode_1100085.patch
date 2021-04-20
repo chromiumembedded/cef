@@ -1,8 +1,8 @@
 diff --git chrome/browser/app_controller_mac.mm chrome/browser/app_controller_mac.mm
-index 596eabd15f44..b9b24760b7c2 100644
+index 3f0c080690084..52d0d8eb43c3e 100644
 --- chrome/browser/app_controller_mac.mm
 +++ chrome/browser/app_controller_mac.mm
-@@ -30,6 +30,7 @@
+@@ -31,6 +31,7 @@
  #include "base/threading/scoped_blocking_call.h"
  #include "base/threading/thread_restrictions.h"
  #include "build/branding_buildflags.h"
@@ -10,7 +10,7 @@ index 596eabd15f44..b9b24760b7c2 100644
  #include "chrome/app/chrome_command_ids.h"
  #include "chrome/browser/apps/app_shim/app_shim_manager_mac.h"
  #include "chrome/browser/apps/app_shim/app_shim_termination_manager.h"
-@@ -1219,6 +1220,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1211,6 +1212,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
  
  // Run a (background) application in a new tab.
  - (void)executeApplication:(id)sender {
@@ -18,7 +18,7 @@ index 596eabd15f44..b9b24760b7c2 100644
    NSInteger tag = [sender tag];
    Profile* profile = [self lastProfile];
    DCHECK(profile);
-@@ -1227,6 +1229,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1219,6 +1221,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
           tag < static_cast<int>(applications.size()));
    const extensions::Extension* extension = applications.GetExtension(tag);
    BackgroundModeManager::LaunchBackgroundApplication(profile, extension);
@@ -26,7 +26,7 @@ index 596eabd15f44..b9b24760b7c2 100644
  }
  
  // Same as |-commandDispatch:|, but executes commands using a disposition
-@@ -1614,6 +1617,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1606,6 +1609,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
    // TODO(rickcam): Mock out BackgroundApplicationListModel, then add unit
    // tests which use the mock in place of the profile-initialized model.
  
@@ -34,7 +34,7 @@ index 596eabd15f44..b9b24760b7c2 100644
    // Avoid breaking unit tests which have no profile.
    if (profile) {
      BackgroundApplicationListModel applications(profile);
-@@ -1640,6 +1644,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1632,6 +1636,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
        }
      }
    }
@@ -42,7 +42,7 @@ index 596eabd15f44..b9b24760b7c2 100644
  
    return dockMenu;
  }
-@@ -1850,11 +1855,13 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1861,11 +1866,13 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
  namespace {
  
  void UpdateProfileInUse(Profile* profile, Profile::CreateStatus status) {
@@ -57,7 +57,7 @@ index 596eabd15f44..b9b24760b7c2 100644
  
  }  // namespace
 diff --git chrome/browser/browser_process.h chrome/browser/browser_process.h
-index 3d634db18900..96e44ad48e5e 100644
+index 3d634db18900a..96e44ad48e5e5 100644
 --- chrome/browser/browser_process.h
 +++ chrome/browser/browser_process.h
 @@ -197,9 +197,9 @@ class BrowserProcess {
@@ -72,10 +72,10 @@ index 3d634db18900..96e44ad48e5e 100644
        std::unique_ptr<BackgroundModeManager> manager) = 0;
  #endif
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index 067873339ce4..4bc021eb8c9a 100644
+index 89a682d5c9352..946ccbda587c7 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
-@@ -943,18 +943,14 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
+@@ -947,18 +947,14 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
    return download_request_limiter_.get();
  }
  
@@ -96,7 +96,7 @@ index 067873339ce4..4bc021eb8c9a 100644
      std::unique_ptr<BackgroundModeManager> manager) {
    background_mode_manager_ = std::move(manager);
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index b4ceefbccd08..7d60206c83b1 100644
+index b4ceefbccd083..7d60206c83b13 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
 @@ -169,8 +169,8 @@ class BrowserProcessImpl : public BrowserProcess,
@@ -110,7 +110,7 @@ index b4ceefbccd08..7d60206c83b1 100644
        std::unique_ptr<BackgroundModeManager> manager) override;
  #endif
 diff --git chrome/browser/lifetime/browser_close_manager.cc chrome/browser/lifetime/browser_close_manager.cc
-index e0cafee5eedd..06ded156be3c 100644
+index e0cafee5eedd6..06ded156be3cc 100644
 --- chrome/browser/lifetime/browser_close_manager.cc
 +++ chrome/browser/lifetime/browser_close_manager.cc
 @@ -148,12 +148,14 @@ void BrowserCloseManager::CloseBrowsers() {
@@ -128,11 +128,29 @@ index e0cafee5eedd..06ded156be3c 100644
  
    // Make a copy of the BrowserList to simplify the case where we need to
    // destroy a Browser during the loop.
+diff --git chrome/browser/sessions/app_session_service.cc chrome/browser/sessions/app_session_service.cc
+index 071884fe257bb..47160e3e47bdb 100644
+--- chrome/browser/sessions/app_session_service.cc
++++ chrome/browser/sessions/app_session_service.cc
+@@ -90,8 +90,11 @@ void AppSessionService::MaybeDeleteSessionOnlyData() {
+   // Clear session data if the last window for a profile has been closed and
+   // closing the last window would normally close Chrome, unless background mode
+   // is active.  Tests don't have a background_mode_manager.
+-  if (browser_defaults::kBrowserAliveWithNoWindows ||
+-      g_browser_process->background_mode_manager()->IsBackgroundModeActive()) {
++  if (browser_defaults::kBrowserAliveWithNoWindows
++#if BUILDFLAG(ENABLE_BACKGROUND_MODE)
++      || g_browser_process->background_mode_manager()->IsBackgroundModeActive()
++#endif
++      ) {
+     return;
+   }
+ 
 diff --git chrome/browser/sessions/session_service.cc chrome/browser/sessions/session_service.cc
-index 867da7e78e1a..de849b67b1e3 100644
+index e5074800fbb00..e6c59d05ee204 100644
 --- chrome/browser/sessions/session_service.cc
 +++ chrome/browser/sessions/session_service.cc
-@@ -1047,12 +1047,19 @@ void SessionService::MaybeDeleteSessionOnlyData() {
+@@ -553,12 +553,19 @@ void SessionService::MaybeDeleteSessionOnlyData() {
    if (profile()->AsTestingProfile())
      return;
  

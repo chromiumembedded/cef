@@ -47,12 +47,16 @@ LPCWSTR ToCursorID(ui::mojom::CursorType type) {
       return IDC_SIZENESW;
     case ui::mojom::CursorType::kWestResize:
       return IDC_SIZEWE;
+    case ui::mojom::CursorType::kNorthSouthNoResize:
     case ui::mojom::CursorType::kNorthSouthResize:
       return IDC_SIZENS;
+    case ui::mojom::CursorType::kEastWestNoResize:
     case ui::mojom::CursorType::kEastWestResize:
       return IDC_SIZEWE;
+    case ui::mojom::CursorType::kNorthEastSouthWestNoResize:
     case ui::mojom::CursorType::kNorthEastSouthWestResize:
       return IDC_SIZENESW;
+    case ui::mojom::CursorType::kNorthWestSouthEastNoResize:
     case ui::mojom::CursorType::kNorthWestSouthEastResize:
       return IDC_SIZENWSE;
     case ui::mojom::CursorType::kColumnResize:

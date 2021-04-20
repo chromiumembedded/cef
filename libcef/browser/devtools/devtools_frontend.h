@@ -76,7 +76,8 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   // WebContentsObserver overrides
   void ReadyToCommitNavigation(
       content::NavigationHandle* navigation_handle) override;
-  void DocumentAvailableInMainFrame() override;
+  void DocumentAvailableInMainFrame(
+      content::RenderFrameHost* render_frame_host) override;
   void WebContentsDestroyed() override;
 
   void SendMessageAck(int request_id, const base::Value* arg1);

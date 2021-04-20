@@ -39,7 +39,7 @@ INT_PTR CALLBACK CefJavaScriptDialogRunnerWin::DialogProc(HWND dialog,
           reinterpret_cast<CefJavaScriptDialogRunnerWin*>(
               GetWindowLongPtr(dialog, DWLP_USER));
       if (owner) {
-        owner->CloseDialog(false, base::string16());
+        owner->CloseDialog(false, std::wstring());
 
         // No need for the system to call DestroyWindow() because it will be
         // called by the Cancel() method.
@@ -51,7 +51,7 @@ INT_PTR CALLBACK CefJavaScriptDialogRunnerWin::DialogProc(HWND dialog,
       CefJavaScriptDialogRunnerWin* owner =
           reinterpret_cast<CefJavaScriptDialogRunnerWin*>(
               GetWindowLongPtr(dialog, DWLP_USER));
-      base::string16 user_input;
+      std::wstring user_input;
       bool finish = false;
       bool result = false;
       switch (LOWORD(wparam)) {
@@ -62,8 +62,9 @@ INT_PTR CALLBACK CefJavaScriptDialogRunnerWin::DialogProc(HWND dialog,
             size_t length =
                 GetWindowTextLength(GetDlgItem(dialog, IDC_PROMPTEDIT)) + 1;
             if (length > 1) {
-              GetDlgItemText(dialog, IDC_PROMPTEDIT,
-                             base::WriteInto(&user_input, length), length);
+              user_input.reserve(length);
+              user_input.resize(length - 1);
+              GetDlgItemText(dialog, IDC_PROMPTEDIT, &user_input[0], length);
             }
           }
           break;
@@ -93,15 +94,15 @@ CefJavaScriptDialogRunnerWin::~CefJavaScriptDialogRunnerWin() {
 void CefJavaScriptDialogRunnerWin::Run(
     AlloyBrowserHostImpl* browser,
     content::JavaScriptDialogType message_type,
-    const base::string16& display_url,
-    const base::string16& message_text,
-    const base::string16& default_prompt_text,
+    const std::u16string& display_url,
+    const std::u16string& message_text,
+    const std::u16string& default_prompt_text,
     DialogClosedCallback callback) {
   DCHECK(!dialog_win_);
 
   message_type_ = message_type;
-  message_text_ = message_text;
-  default_prompt_text_ = default_prompt_text;
+  message_text_ = base::UTF16ToWide(message_text);
+  default_prompt_text_ = base::UTF16ToWide(default_prompt_text);
   callback_ = std::move(callback);
 
   InstallMessageHook();
@@ -135,11 +136,11 @@ void CefJavaScriptDialogRunnerWin::Run(
 
   if (!display_url.empty()) {
     // Add the display URL to the window title.
-    TCHAR text[64];
-    GetWindowText(dialog_win_, text, sizeof(text) / sizeof(TCHAR));
+    wchar_t text[64];
+    GetWindowText(dialog_win_, text, sizeof(text) / sizeof(wchar_t));
 
-    base::string16 new_window_text =
-        text + base::ASCIIToUTF16(" - ") + display_url;
+    std::wstring new_window_text =
+        std::wstring(text) + L" - " + base::UTF16ToWide(display_url);
     SetWindowText(dialog_win_, new_window_text.c_str());
   }
 
@@ -170,14 +171,13 @@ void CefJavaScriptDialogRunnerWin::Cancel() {
   }
 }
 
-void CefJavaScriptDialogRunnerWin::CloseDialog(
-    bool success,
-    const base::string16& user_input) {
+void CefJavaScriptDialogRunnerWin::CloseDialog(bool success,
+                                               const std::wstring& user_input) {
   // Run the callback first so that RenderProcessHostImpl::IsBlocked is
   // cleared. Otherwise, RenderWidgetHostImpl::IsIgnoringInputEvents will
   // return true and RenderWidgetHostViewAura::OnWindowFocused will fail to
   // re-assign browser focus.
-  std::move(callback_).Run(success, user_input);
+  std::move(callback_).Run(success, base::WideToUTF16(user_input));
   Cancel();
 }
 

@@ -6,9 +6,9 @@
 #define CEF_LIBCEF_BROWSER_MENU_RUNNER_H_
 
 #include <memory>
+#include <string>
 
 #include "base/macros.h"
-#include "base/strings/string16.h"
 
 namespace content {
 struct ContextMenuParams;
@@ -24,7 +24,7 @@ class CefMenuRunner {
                               CefMenuModelImpl* model,
                               const content::ContextMenuParams& params) = 0;
   virtual void CancelContextMenu() {}
-  virtual bool FormatLabel(base::string16& label) { return false; }
+  virtual bool FormatLabel(std::u16string& label) { return false; }
 
  protected:
   // Allow deletion via scoped_ptr only.

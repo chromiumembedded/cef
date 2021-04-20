@@ -64,7 +64,7 @@ class CefSimpleMenuModel : public ui::MenuModel {
     return impl_->GetCommandIdAt(index);
   }
 
-  base::string16 GetLabelAt(int index) const override {
+  std::u16string GetLabelAt(int index) const override {
     return impl_->GetFormattedLabelAt(index);
   }
 
@@ -886,8 +886,8 @@ void CefMenuModelImpl::MenuWillClose() {
       FROM_HERE, base::Bind(&CefMenuModelImpl::OnMenuClosed, this));
 }
 
-base::string16 CefMenuModelImpl::GetFormattedLabelAt(int index) {
-  base::string16 label = GetLabelAt(index).ToString16();
+std::u16string CefMenuModelImpl::GetFormattedLabelAt(int index) {
+  std::u16string label = GetLabelAt(index).ToString16();
   if (delegate_)
     delegate_->FormatLabel(this, label);
   if (menu_model_delegate_) {

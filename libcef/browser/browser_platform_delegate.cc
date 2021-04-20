@@ -76,7 +76,7 @@ void CefBrowserPlatformDelegate::BrowserCreated(CefBrowserHostBase* browser) {
 void CefBrowserPlatformDelegate::CreateExtensionHost(
     const extensions::Extension* extension,
     const GURL& url,
-    extensions::ViewType host_type) {
+    extensions::mojom::ViewType host_type) {
   NOTREACHED();
 }
 

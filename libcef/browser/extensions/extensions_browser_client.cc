@@ -264,8 +264,7 @@ bool CefExtensionsBrowserClient::CreateBackgroundExtensionHost(
 
   // This triggers creation of the background host.
   create_params.extension = extension;
-  create_params.extension_host_type =
-      extensions::VIEW_TYPE_EXTENSION_BACKGROUND_PAGE;
+  create_params.extension_host_type = mojom::ViewType::kExtensionBackgroundPage;
 
   // Browser creation may fail under certain rare circumstances. Fail the
   // background host creation in that case.

@@ -35,7 +35,7 @@ class CefResourceBundleDelegate : public ui::ResourceBundle::Delegate {
   bool GetRawDataResource(int resource_id,
                           ui::ScaleFactor scale_factor,
                           base::StringPiece* value) const override;
-  bool GetLocalizedString(int message_id, base::string16* value) const override;
+  bool GetLocalizedString(int message_id, std::u16string* value) const override;
 
  private:
   bool pack_loading_disabled_ = false;

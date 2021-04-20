@@ -309,16 +309,6 @@ AlloyBrowserContext::GetClientHintsControllerDelegate() {
   return nullptr;
 }
 
-void AlloyBrowserContext::SetCorsOriginAccessListForOrigin(
-    TargetBrowserContexts target_mode,
-    const url::Origin& source_origin,
-    std::vector<network::mojom::CorsOriginPatternPtr> allow_patterns,
-    std::vector<network::mojom::CorsOriginPatternPtr> block_patterns,
-    base::OnceClosure closure) {
-  // This method is called for Extension support.
-  base::ThreadTaskRunnerHandle::Get()->PostTask(FROM_HERE, std::move(closure));
-}
-
 ChromeZoomLevelPrefs* AlloyBrowserContext::GetZoomLevelPrefs() {
   return static_cast<ChromeZoomLevelPrefs*>(
       GetStoragePartition(this, nullptr)->GetZoomLevelDelegate());

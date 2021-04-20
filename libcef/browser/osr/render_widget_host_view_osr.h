@@ -134,6 +134,12 @@ class CefRenderWidgetHostViewOSR
   void ShowDefinitionForSelection() override;
   void SpeakSelection() override;
   void SetWindowFrameInScreen(const gfx::Rect& rect) override;
+  void ShowSharePicker(
+      const std::string& title,
+      const std::string& text,
+      const std::string& url,
+      const std::vector<std::string>& file_paths,
+      blink::mojom::ShareService::ShareCallback callback) override;
 #endif  // defined(OS_MAC)
 
   // RenderWidgetHostViewBase implementation.
@@ -144,7 +150,7 @@ class CefRenderWidgetHostViewOSR
   void SetIsLoading(bool is_loading) override;
   void RenderProcessGone() override;
   void Destroy() override;
-  void SetTooltipText(const base::string16& tooltip_text) override;
+  void SetTooltipText(const std::u16string& tooltip_text) override;
   content::CursorManager* GetCursorManager() override;
   gfx::Size GetCompositorViewportPixelSize() override;
   void CopyFromSurface(
@@ -171,7 +177,7 @@ class CefRenderWidgetHostViewOSR
       RenderWidgetHostViewBase* target_view,
       gfx::PointF* transformed_point) override;
   void DidNavigate() override;
-  void SelectionChanged(const base::string16& text,
+  void SelectionChanged(const std::u16string& text,
                         size_t offset,
                         const gfx::Range& range) override;
   const viz::LocalSurfaceId& GetLocalSurfaceId() const override;

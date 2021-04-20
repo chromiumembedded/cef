@@ -20,7 +20,7 @@ class CefMenuRunnerViews : public CefMenuRunner {
                       CefMenuModelImpl* model,
                       const content::ContextMenuParams& params) override;
   void CancelContextMenu() override;
-  bool FormatLabel(base::string16& label) override;
+  bool FormatLabel(std::u16string& label) override;
 
  private:
   CefBrowserViewImpl* browser_view_;

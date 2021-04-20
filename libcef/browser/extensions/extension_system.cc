@@ -547,7 +547,8 @@ scoped_refptr<const Extension> CefExtensionSystem::CreateExtension(
       // Tests should continue to use the Manifest::COMMAND_LINE value here
       // Some Chrome APIs will cause undesired effects if this is incorrect
       // e.g.: alarms API has 1 minute minimum applied to Packed Extensions
-      info.internal ? Manifest::COMPONENT : Manifest::COMMAND_LINE,
+      info.internal ? mojom::ManifestLocation::kComponent
+                    : mojom::ManifestLocation::kCommandLine,
       *info.manifest, flags, utf8_error);
 }
 

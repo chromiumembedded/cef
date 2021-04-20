@@ -205,7 +205,8 @@ def create_fuzed_gtest(tests_dir):
 
   # gtest LICENSE file at tests/gtest/LICENSE
   copy_file(
-      os.path.join(src_gtest_dir, 'LICENSE'), target_gtest_dir, options.quiet)
+      os.path.join(src_gtest_dir, os.pardir, 'LICENSE'), target_gtest_dir,
+      options.quiet)
 
   # CEF README file at tests/gtest/README.cef
   copy_file(

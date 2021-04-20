@@ -69,8 +69,8 @@ std::wstring FormatFilterForExtensions(
     bool include_all_files) {
   const std::wstring all_ext = L"*.*";
   const std::wstring all_desc =
-      l10n_util::GetStringUTF16(IDS_APP_SAVEAS_ALL_FILES) + L" (" + all_ext +
-      L")";
+      base::UTF16ToWide(l10n_util::GetStringUTF16(IDS_APP_SAVEAS_ALL_FILES)) +
+      L" (" + all_ext + L")";
 
   DCHECK(file_ext.size() >= ext_desc.size());
 
@@ -97,7 +97,8 @@ std::wstring FormatFilterForExtensions(
         ext += L";" + std::wstring(*it);
       }
       std::wstring desc =
-          l10n_util::GetStringUTF16(IDS_CUSTOM_FILES) + L" (" + ext + L")";
+          base::UTF16ToWide(l10n_util::GetStringUTF16(IDS_CUSTOM_FILES)) +
+          L" (" + ext + L")";
 
       result.append(desc.c_str(), desc.size() + 1);  // Append NULL too.
       result.append(ext.c_str(), ext.size() + 1);
@@ -167,34 +168,36 @@ std::wstring GetDescriptionFromMimeType(const std::string& mime_type) {
   };
 
   for (size_t i = 0; i < base::size(kWildCardMimeTypes); ++i) {
-    if (mime_type == std::string(kWildCardMimeTypes[i].mime_type) + "/*")
-      return l10n_util::GetStringUTF16(kWildCardMimeTypes[i].string_id);
+    if (mime_type == std::string(kWildCardMimeTypes[i].mime_type) + "/*") {
+      return base::UTF16ToWide(
+          l10n_util::GetStringUTF16(kWildCardMimeTypes[i].string_id));
+    }
   }
 
   return std::wstring();
 }
 
 std::wstring GetFilterString(
-    const std::vector<base::string16>& accept_filters) {
+    const std::vector<std::u16string>& accept_filters) {
   std::vector<std::wstring> extensions;
   std::vector<std::wstring> descriptions;
 
   for (size_t i = 0; i < accept_filters.size(); ++i) {
-    const base::string16& filter = accept_filters[i];
+    const std::wstring& filter = base::UTF16ToWide(accept_filters[i]);
     if (filter.empty())
       continue;
 
-    size_t sep_index = filter.find('|');
-    if (sep_index != base::string16::npos) {
+    size_t sep_index = filter.find(L'|');
+    if (sep_index != std::wstring::npos) {
       // Treat as a filter of the form "Filter Name|.ext1;.ext2;.ext3".
-      const base::string16& desc = filter.substr(0, sep_index);
-      const std::vector<base::string16>& ext = base::SplitString(
-          filter.substr(sep_index + 1), base::ASCIIToUTF16(";"),
+      const std::wstring& desc = filter.substr(0, sep_index);
+      const std::vector<std::u16string>& ext = base::SplitString(
+          base::WideToUTF16(filter.substr(sep_index + 1)), u";",
           base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
       std::wstring ext_str;
       for (size_t x = 0; x < ext.size(); ++x) {
-        const base::string16& file_ext = ext[x];
-        if (!file_ext.empty() && file_ext[0] == '.') {
+        const std::wstring& file_ext = base::UTF16ToWide(ext[x]);
+        if (!file_ext.empty() && file_ext[0] == L'.') {
           if (!ext_str.empty())
             ext_str += L";";
           ext_str += L"*" + file_ext;
@@ -210,7 +213,7 @@ std::wstring GetFilterString(
       descriptions.push_back(std::wstring());
     } else {
       // Otherwise convert mime type to one or more extensions.
-      const std::string& ascii = base::UTF16ToASCII(filter);
+      const std::string& ascii = base::WideToASCII(filter);
       std::vector<base::FilePath::StringType> ext;
       std::wstring ext_str;
       net::GetExtensionsForMimeType(ascii, &ext);
@@ -264,10 +267,12 @@ bool RunOpenFileDialog(const CefFileDialogRunner::FileChooserParams& params,
     ofn.lpstrInitialDir = directory.c_str();
 
   std::wstring title;
-  if (!params.title.empty())
-    title = params.title;
-  else
-    title = l10n_util::GetStringUTF16(IDS_OPEN_FILE_DIALOG_TITLE);
+  if (!params.title.empty()) {
+    title = base::UTF16ToWide(params.title);
+  } else {
+    title = base::UTF16ToWide(
+        l10n_util::GetStringUTF16(IDS_OPEN_FILE_DIALOG_TITLE));
+  }
   if (!title.empty())
     ofn.lpstrTitle = title.c_str();
 
@@ -326,10 +331,12 @@ bool RunOpenMultiFileDialog(
     ofn.lpstrInitialDir = directory.c_str();
 
   std::wstring title;
-  if (!params.title.empty())
-    title = params.title;
-  else
-    title = l10n_util::GetStringUTF16(IDS_OPEN_FILES_DIALOG_TITLE);
+  if (!params.title.empty()) {
+    title = base::UTF16ToWide(params.title);
+  } else {
+    title = base::UTF16ToWide(
+        l10n_util::GetStringUTF16(IDS_OPEN_FILES_DIALOG_TITLE));
+  }
   if (!title.empty())
     ofn.lpstrTitle = title.c_str();
 
@@ -404,10 +411,12 @@ bool RunOpenFolderDialog(const CefFileDialogRunner::FileChooserParams& params,
   browse_info.ulFlags = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
 
   std::wstring title;
-  if (!params.title.empty())
-    title = params.title;
-  else
-    title = l10n_util::GetStringUTF16(IDS_SELECT_FOLDER_DIALOG_TITLE);
+  if (!params.title.empty()) {
+    title = base::UTF16ToWide(params.title);
+  } else {
+    title = base::UTF16ToWide(
+        l10n_util::GetStringUTF16(IDS_SELECT_FOLDER_DIALOG_TITLE));
+  }
   if (!title.empty())
     browse_info.lpszTitle = title.c_str();
 
@@ -479,10 +488,12 @@ bool RunSaveFileDialog(const CefFileDialogRunner::FileChooserParams& params,
     ofn.lpstrInitialDir = directory.c_str();
 
   std::wstring title;
-  if (!params.title.empty())
-    title = params.title;
-  else
-    title = l10n_util::GetStringUTF16(IDS_SAVE_AS_DIALOG_TITLE);
+  if (!params.title.empty()) {
+    title = base::UTF16ToWide(params.title);
+  } else {
+    title =
+        base::UTF16ToWide(l10n_util::GetStringUTF16(IDS_SAVE_AS_DIALOG_TITLE));
+  }
   if (!title.empty())
     ofn.lpstrTitle = title.c_str();
 

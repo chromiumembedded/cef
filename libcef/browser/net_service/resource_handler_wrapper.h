@@ -10,14 +10,13 @@
 
 namespace net_service {
 
-class RequestId;
 class ResourceResponse;
 
 // Create a ResourceResponse that delegates to |handler|.
 // The resulting object should be passed to
 // InterceptedRequestHandler::ShouldInterceptRequestResultCallback.
 std::unique_ptr<ResourceResponse> CreateResourceResponse(
-    const RequestId& request_id,
+    int32_t request_id,
     CefRefPtr<CefResourceHandler> handler);
 
 }  // namespace net_service

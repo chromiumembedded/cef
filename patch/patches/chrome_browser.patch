@@ -1,16 +1,16 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index 72d91d05c23a..bfa8860bcd89 100644
+index c7970e581a976..045e18b4313b5 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
-@@ -12,6 +12,7 @@ import("//build/config/crypto.gni")
- import("//build/config/features.gni")
+@@ -13,6 +13,7 @@ import("//build/config/features.gni")
  import("//build/config/linux/gtk/gtk.gni")
+ import("//build/config/python.gni")
  import("//build/config/ui.gni")
 +import("//cef/libcef/features/features.gni")
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/downgrade/buildflags.gni")
  import("//chrome/common/features.gni")
-@@ -1964,6 +1965,7 @@ static_library("browser") {
+@@ -1902,6 +1903,7 @@ static_library("browser") {
      "//build:chromeos_buildflags",
      "//build/config/compiler:compiler_buildflags",
      "//cc",
@@ -18,7 +18,7 @@ index 72d91d05c23a..bfa8860bcd89 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2504,6 +2506,10 @@ static_library("browser") {
+@@ -2450,6 +2452,10 @@ static_library("browser") {
      ]
    }
  
@@ -29,12 +29,3 @@ index 72d91d05c23a..bfa8860bcd89 100644
    if (is_android) {
      sources += [
        "after_startup_task_utils_android.cc",
-@@ -5166,7 +5172,7 @@ static_library("browser") {
-       ]
-     }
- 
--    if (use_ozone) {
-+    if (use_ozone && !use_x11) {
-       sources += [
-         "fullscreen_ozone.cc",
-         "media/webrtc/window_icon_util_ozone.cc",

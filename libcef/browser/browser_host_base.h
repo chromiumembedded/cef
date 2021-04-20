@@ -18,7 +18,7 @@
 
 #include "base/observer_list.h"
 #include "base/synchronization/lock.h"
-#include "extensions/common/view_type.h"
+#include "extensions/common/mojom/view_type.mojom.h"
 
 namespace extensions {
 class Extension;
@@ -86,7 +86,8 @@ struct CefBrowserCreateParams {
   // ProcessManager::CreateBackgroundHost. Currently used with the alloy
   // runtime only.
   const extensions::Extension* extension = nullptr;
-  extensions::ViewType extension_host_type = extensions::VIEW_TYPE_INVALID;
+  extensions::mojom::ViewType extension_host_type =
+      extensions::mojom::ViewType::kInvalid;
 };
 
 // Base class for CefBrowserHost implementations. Includes functionality that is

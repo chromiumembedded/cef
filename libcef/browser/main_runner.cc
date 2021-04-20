@@ -99,7 +99,7 @@ int RunAsCrashpadHandler(const base::CommandLine& command_line) {
   storage.reserve(argv.size());
   for (size_t i = 0; i < argv.size(); ++i) {
 #if defined(OS_WIN)
-    storage.push_back(base::UTF16ToUTF8(argv[i]));
+    storage.push_back(base::WideToUTF8(argv[i]));
 #else
     storage.push_back(argv[i]);
 #endif

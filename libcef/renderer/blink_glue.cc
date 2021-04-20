@@ -48,15 +48,13 @@ const int64_t kInvalidFrameId = -1;
 bool CanGoBack(blink::WebView* view) {
   if (!view)
     return false;
-  blink::WebViewImpl* impl = reinterpret_cast<blink::WebViewImpl*>(view);
-  return (impl->Client()->HistoryBackListCount() > 0);
+  return view->HistoryBackListCount() > 0;
 }
 
 bool CanGoForward(blink::WebView* view) {
   if (!view)
     return false;
-  blink::WebViewImpl* impl = reinterpret_cast<blink::WebViewImpl*>(view);
-  return (impl->Client()->HistoryForwardListCount() > 0);
+  return view->HistoryForwardListCount() > 0;
 }
 
 void GoBack(blink::WebView* view) {
@@ -65,8 +63,7 @@ void GoBack(blink::WebView* view) {
 
   blink::WebFrame* main_frame = view->MainFrame();
   if (main_frame && main_frame->IsWebLocalFrame()) {
-    blink::WebViewImpl* view_impl = reinterpret_cast<blink::WebViewImpl*>(view);
-    if (view_impl->Client()->HistoryBackListCount() > 0) {
+    if (view->HistoryBackListCount() > 0) {
       blink::Frame* core_frame = blink::WebFrame::ToCoreFrame(*main_frame);
       blink::To<blink::LocalFrame>(core_frame)
           ->GetLocalFrameHostRemote()
@@ -81,8 +78,7 @@ void GoForward(blink::WebView* view) {
 
   blink::WebFrame* main_frame = view->MainFrame();
   if (main_frame && main_frame->IsWebLocalFrame()) {
-    blink::WebViewImpl* view_impl = reinterpret_cast<blink::WebViewImpl*>(view);
-    if (view_impl->Client()->HistoryForwardListCount() > 0) {
+    if (view->HistoryForwardListCount() > 0) {
       blink::Frame* core_frame = blink::WebFrame::ToCoreFrame(*main_frame);
       blink::To<blink::LocalFrame>(core_frame)
           ->GetLocalFrameHostRemote()

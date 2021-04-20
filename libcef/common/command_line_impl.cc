@@ -43,7 +43,7 @@ void CefCommandLineImpl::InitFromArgv(int argc, const char* const* argv) {
 void CefCommandLineImpl::InitFromString(const CefString& command_line) {
 #if defined(OS_WIN)
   CEF_VALUE_VERIFY_RETURN_VOID(true);
-  const base::string16& str16 = command_line;
+  const std::wstring& str16 = command_line;
   mutable_value()->ParseFromString(str16);
 #else
   NOTREACHED() << "method not supported on this platform";

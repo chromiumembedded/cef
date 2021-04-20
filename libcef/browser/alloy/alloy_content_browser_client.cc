@@ -988,9 +988,9 @@ void AlloyContentBrowserClient::DidCreatePpapiPlugin(
           new ChromeBrowserPepperHostFactory(browser_host)));
 }
 
-content::DevToolsManagerDelegate*
-AlloyContentBrowserClient::GetDevToolsManagerDelegate() {
-  return new CefDevToolsManagerDelegate();
+std::unique_ptr<content::DevToolsManagerDelegate>
+AlloyContentBrowserClient::CreateDevToolsManagerDelegate() {
+  return std::make_unique<CefDevToolsManagerDelegate>();
 }
 
 std::vector<std::unique_ptr<content::NavigationThrottle>>
@@ -1244,6 +1244,7 @@ bool AlloyContentBrowserClient::HandleExternalProtocol(
     const GURL& url,
     content::WebContents::OnceGetter web_contents_getter,
     int child_id,
+    int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
     bool is_main_frame,
     ui::PageTransition page_transition,

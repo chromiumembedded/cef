@@ -104,10 +104,9 @@ class AlloyContentRendererClient
   void RunScriptsAtDocumentIdle(content::RenderFrame* render_frame) override;
   void DevToolsAgentAttached() override;
   void DevToolsAgentDetached() override;
-  std::unique_ptr<content::URLLoaderThrottleProvider>
+  std::unique_ptr<blink::URLLoaderThrottleProvider>
   CreateURLLoaderThrottleProvider(
-      content::URLLoaderThrottleProviderType provider_type) override;
-  bool RequiresHtmlImports(const GURL& url) override;
+      blink::URLLoaderThrottleProviderType provider_type) override;
 
   // service_manager::LocalInterfaceProvider implementation.
   void GetInterface(const std::string& name,

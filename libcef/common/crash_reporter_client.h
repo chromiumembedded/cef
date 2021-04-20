@@ -43,14 +43,14 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
   // the module address space.
   static void InitializeCrashReportingForProcess();
 
-  bool GetAlternativeCrashDumpLocation(base::string16* crash_dir) override;
-  void GetProductNameAndVersion(const base::string16& exe_path,
-                                base::string16* product_name,
-                                base::string16* version,
-                                base::string16* special_build,
-                                base::string16* channel_name) override;
-  bool GetCrashDumpLocation(base::string16* crash_dir) override;
-  bool GetCrashMetricsLocation(base::string16* metrics_dir) override;
+  bool GetAlternativeCrashDumpLocation(std::wstring* crash_dir) override;
+  void GetProductNameAndVersion(const std::wstring& exe_path,
+                                std::wstring* product_name,
+                                std::wstring* version,
+                                std::wstring* special_build,
+                                std::wstring* channel_name) override;
+  bool GetCrashDumpLocation(std::wstring* crash_dir) override;
+  bool GetCrashMetricsLocation(std::wstring* metrics_dir) override;
 #elif defined(OS_POSIX)
   void GetProductNameAndVersion(const char** product_name,
                                 const char** version) override;

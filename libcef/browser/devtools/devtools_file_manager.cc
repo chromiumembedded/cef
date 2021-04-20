@@ -15,6 +15,7 @@
 #include "base/path_service.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/task/post_task.h"
+#include "base/task/thread_pool.h"
 #include "base/threading/sequenced_task_runner_handle.h"
 #include "base/util/values/values_util.h"
 #include "base/values.h"
@@ -44,8 +45,8 @@ CefDevToolsFileManager::CefDevToolsFileManager(
     PrefService* prefs)
     : browser_impl_(browser_impl),
       prefs_(prefs),
-      file_task_runner_(base::CreateSequencedTaskRunner(
-          {base::ThreadPool(), base::MayBlock()})),
+      file_task_runner_(
+          base::ThreadPool::CreateSequencedTaskRunner({base::MayBlock()})),
       weak_factory_(this) {}
 
 void CefDevToolsFileManager::SaveToFile(const std::string& url,

@@ -31,8 +31,8 @@ void CefMenuRunnerViews::CancelContextMenu() {
     window->CancelMenu();
 }
 
-bool CefMenuRunnerViews::FormatLabel(base::string16& label) {
+bool CefMenuRunnerViews::FormatLabel(std::u16string& label) {
   // Remove the accelerator indicator (&) from label strings.
-  const base::string16::value_type replace[] = {L'&', 0};
-  return base::ReplaceChars(label, replace, base::string16(), &label);
+  const std::u16string::value_type replace[] = {L'&', 0};
+  return base::ReplaceChars(label, replace, std::u16string(), &label);
 }

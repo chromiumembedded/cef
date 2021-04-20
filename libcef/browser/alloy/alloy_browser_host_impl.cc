@@ -1191,9 +1191,9 @@ void AlloyBrowserHostImpl::UpdateTargetURL(content::WebContents* source,
 bool AlloyBrowserHostImpl::DidAddMessageToConsole(
     content::WebContents* source,
     blink::mojom::ConsoleMessageLevel level,
-    const base::string16& message,
+    const std::u16string& message,
     int32_t line_no,
-    const base::string16& source_id) {
+    const std::u16string& source_id) {
   return contents_delegate_->DidAddMessageToConsole(source, level, message,
                                                     line_no, source_id);
 }

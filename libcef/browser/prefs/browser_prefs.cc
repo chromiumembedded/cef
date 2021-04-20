@@ -15,6 +15,7 @@
 #include "base/files/file_path.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/task/post_task.h"
+#include "base/task/thread_pool.h"
 #include "base/values.h"
 #include "chrome/browser/accessibility/accessibility_ui.h"
 #include "chrome/browser/download/download_prefs.h"
@@ -128,9 +129,8 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     // Get sequenced task runner for making sure that file operations are
     // executed in expected order (what was previously assured by the FILE
     // thread).
-    sequenced_task_runner = base::CreateSequencedTaskRunner(
-        {base::ThreadPool(), base::MayBlock(),
-         base::TaskShutdownBehavior::BLOCK_SHUTDOWN});
+    sequenced_task_runner = base::ThreadPool::CreateSequencedTaskRunner(
+        {base::MayBlock(), base::TaskShutdownBehavior::BLOCK_SHUTDOWN});
   }
 
   // Used to store user preferences.

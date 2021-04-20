@@ -60,6 +60,7 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
       const GURL& url,
       content::WebContents::OnceGetter web_contents_getter,
       int child_id,
+      int frame_tree_node_id,
       content::NavigationUIData* navigation_data,
       bool is_main_frame,
       ui::PageTransition page_transition,

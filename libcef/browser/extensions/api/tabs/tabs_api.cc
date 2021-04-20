@@ -128,7 +128,8 @@ ExecuteCodeFunction::InitResult ExecuteCodeInTabFunction::Init() {
 
   execute_tab_id_ = browser->GetIdentifier();
   details_ = std::move(details);
-  set_host_id(HostID(HostID::EXTENSIONS, extension()->id()));
+  set_host_id(
+      mojom::HostID(mojom::HostID::HostType::kExtensions, extension()->id()));
   return set_init_result(SUCCESS);
 }
 
@@ -182,7 +183,7 @@ bool ExecuteCodeInTabFunction::CanExecuteScriptOnPage(std::string* error) {
                                                       execute_tab_id_, error)) {
     if (is_about_url &&
         extension()->permissions_data()->active_permissions().HasAPIPermission(
-            APIPermission::kTab)) {
+            mojom::APIPermissionID::kTab)) {
       *error = ErrorUtils::FormatErrorMessage(
           manifest_errors::kCannotAccessAboutUrl,
           rfh->GetLastCommittedURL().spec(),

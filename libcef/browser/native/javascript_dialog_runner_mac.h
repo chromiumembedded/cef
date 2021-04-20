@@ -26,14 +26,14 @@ class CefJavaScriptDialogRunnerMac : public CefJavaScriptDialogRunner {
   // CefJavaScriptDialogRunner methods:
   void Run(AlloyBrowserHostImpl* browser,
            content::JavaScriptDialogType message_type,
-           const base::string16& display_url,
-           const base::string16& message_text,
-           const base::string16& default_prompt_text,
+           const std::u16string& display_url,
+           const std::u16string& message_text,
+           const std::u16string& default_prompt_text,
            DialogClosedCallback callback) override;
   void Cancel() override;
 
   // Callback from CefJavaScriptDialogHelper when the dialog is closed.
-  void DialogClosed(bool success, const base::string16& user_input);
+  void DialogClosed(bool success, const std::u16string& user_input);
 
  private:
   DialogClosedCallback callback_;

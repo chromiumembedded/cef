@@ -8,7 +8,6 @@
 #pragma once
 
 #include "base/callback.h"
-#include "base/strings/string16.h"
 #include "content/public/common/javascript_dialog_type.h"
 
 class AlloyBrowserHostImpl;
@@ -16,15 +15,15 @@ class AlloyBrowserHostImpl;
 class CefJavaScriptDialogRunner {
  public:
   typedef base::OnceCallback<void(bool /* success */,
-                                  const base::string16& /* user_input */)>
+                                  const std::u16string& /* user_input */)>
       DialogClosedCallback;
 
   // Run the dialog. Execute |callback| on completion.
   virtual void Run(AlloyBrowserHostImpl* browser,
                    content::JavaScriptDialogType message_type,
-                   const base::string16& display_url,
-                   const base::string16& message_text,
-                   const base::string16& default_prompt_text,
+                   const std::u16string& display_url,
+                   const std::u16string& message_text,
+                   const std::u16string& default_prompt_text,
                    DialogClosedCallback callback) = 0;
 
   // Cancel a dialog mid-flight.

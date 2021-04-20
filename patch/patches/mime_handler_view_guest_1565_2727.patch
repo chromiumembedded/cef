@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index 954e32c842a5..7563507d52d0 100644
+index cdbc0273838e5..ee2809a0bb98a 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
-@@ -23,7 +23,7 @@ struct DropData;
+@@ -22,7 +22,7 @@ struct DropData;
  // The WebContentsView is an interface that is implemented by the platform-
  // dependent web contents views. The WebContents uses this interface to talk to
  // them.
@@ -12,10 +12,10 @@ index 954e32c842a5..7563507d52d0 100644
    virtual ~WebContentsView() {}
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 8f4c53f3f3ca..ecc27f3f224c 100644
+index e2b5240255bfd..fc0037f552ec1 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -207,6 +207,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -205,6 +205,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -24,7 +24,7 @@ index 8f4c53f3f3ca..ecc27f3f224c 100644
    // TODO(erikchen): Fix ownership semantics for guest views.
    // https://crbug.com/832879.
    std::move(callback).Run(
-@@ -217,6 +219,9 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -215,6 +217,9 @@ void MimeHandlerViewGuest::CreateWebContents(
  }
  
  void MimeHandlerViewGuest::DidAttachToEmbedder() {
@@ -34,7 +34,7 @@ index 8f4c53f3f3ca..ecc27f3f224c 100644
    DCHECK(stream_->handler_url().SchemeIs(extensions::kExtensionScheme));
    web_contents()->GetController().LoadURL(
        stream_->handler_url(), content::Referrer(),
-@@ -247,6 +252,11 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
+@@ -245,6 +250,11 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
    return true;
  }
  
@@ -47,10 +47,10 @@ index 8f4c53f3f3ca..ecc27f3f224c 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index d9e22ce31927..e02b791a19f1 100644
+index 7d27e12c4e9a7..55c307b5e86ae 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-@@ -129,6 +129,7 @@ class MimeHandlerViewGuest
+@@ -130,6 +130,7 @@ class MimeHandlerViewGuest
    void EmbedderFullscreenToggled(bool entered_fullscreen) final;
    bool ZoomPropagatesFromEmbedderToGuest() const final;
    bool ShouldDestroyOnDetach() const final;
@@ -59,7 +59,7 @@ index d9e22ce31927..e02b791a19f1 100644
    // WebContentsDelegate implementation.
    content::WebContents* OpenURLFromTab(
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
-index 98689e261460..a1b08274f455 100644
+index 98689e2614604..a1b08274f4556 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 @@ -8,9 +8,9 @@

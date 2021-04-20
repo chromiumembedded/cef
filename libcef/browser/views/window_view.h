@@ -57,7 +57,7 @@ class CefWindowView
   bool CanResize() const override;
   bool CanMinimize() const override;
   bool CanMaximize() const override;
-  base::string16 GetWindowTitle() const override;
+  std::u16string GetWindowTitle() const override;
   gfx::ImageSkia GetWindowIcon() override;
   gfx::ImageSkia GetWindowAppIcon() override;
   void WindowClosing() override;
@@ -79,8 +79,8 @@ class CefWindowView
   display::Display GetDisplay() const;
 
   // Set/get the window title.
-  void SetTitle(const base::string16& title);
-  base::string16 title() const { return title_; }
+  void SetTitle(const std::u16string& title);
+  std::u16string title() const { return title_; }
 
   // Set/get the window icon. This should be a 16x16 icon suitable for use in
   // the Windows's title bar.
@@ -108,7 +108,7 @@ class CefWindowView
   // True if the window is frameless. It might still be resizable and draggable.
   bool is_frameless_;
 
-  base::string16 title_;
+  std::u16string title_;
   CefRefPtr<CefImage> window_icon_;
   CefRefPtr<CefImage> window_app_icon_;
 

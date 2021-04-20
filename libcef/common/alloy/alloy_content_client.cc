@@ -106,8 +106,8 @@ void AlloyContentClient::AddAdditionalSchemes(Schemes* schemes) {
   CefAppManager::Get()->AddAdditionalSchemes(schemes);
 }
 
-base::string16 AlloyContentClient::GetLocalizedString(int message_id) {
-  base::string16 value =
+std::u16string AlloyContentClient::GetLocalizedString(int message_id) {
+  std::u16string value =
       ui::ResourceBundle::GetSharedInstance().GetLocalizedString(message_id);
   if (value.empty())
     LOG(ERROR) << "No localized string available for id " << message_id;
@@ -115,10 +115,10 @@ base::string16 AlloyContentClient::GetLocalizedString(int message_id) {
   return value;
 }
 
-base::string16 AlloyContentClient::GetLocalizedString(
+std::u16string AlloyContentClient::GetLocalizedString(
     int message_id,
-    const base::string16& replacement) {
-  base::string16 value = l10n_util::GetStringFUTF16(message_id, replacement);
+    const std::u16string& replacement) {
+  std::u16string value = l10n_util::GetStringFUTF16(message_id, replacement);
   if (value.empty())
     LOG(ERROR) << "No localized string available for id " << message_id;
 

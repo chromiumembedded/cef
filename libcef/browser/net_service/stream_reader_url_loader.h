@@ -63,54 +63,6 @@ class InputStream {
                     ReadCallback callback) = 0;
 };
 
-// Unique identifier for RequestHandler callbacks.
-// Based on components/viz/common/surfaces/frame_sink_id.h
-class RequestId {
- public:
-  constexpr RequestId() : request_id_(0), routing_id_(0) {}
-
-  constexpr RequestId(const RequestId& other)
-      : request_id_(other.request_id_), routing_id_(other.routing_id_) {}
-
-  constexpr RequestId(uint32_t request_id, uint32_t routing_id)
-      : request_id_(request_id), routing_id_(routing_id) {}
-
-  constexpr bool is_valid() const {
-    return request_id_ != 0 || routing_id_ != 0;
-  }
-
-  constexpr uint32_t request_id() const { return request_id_; }
-
-  constexpr uint32_t routing_id() const { return routing_id_; }
-
-  bool operator==(const RequestId& other) const {
-    return request_id_ == other.request_id_ && routing_id_ == other.routing_id_;
-  }
-
-  bool operator!=(const RequestId& other) const { return !(*this == other); }
-
-  bool operator<(const RequestId& other) const {
-    return std::tie(request_id_, routing_id_) <
-           std::tie(other.request_id_, other.routing_id_);
-  }
-
-  size_t hash() const { return base::HashInts(request_id_, routing_id_); }
-
-  std::string ToString() const;
-
-  std::string ToString(base::StringPiece debug_label) const;
-
- private:
-  uint32_t request_id_;
-  uint32_t routing_id_;
-};
-
-std::ostream& operator<<(std::ostream& out, const RequestId& request_id);
-
-struct RequestIdHash {
-  size_t operator()(const RequestId& key) const { return key.hash(); }
-};
-
 // Abstract class for handling intercepted resource responses. All methods are
 // called on the IO thread unless otherwise indicated.
 class ResourceResponse {
@@ -125,13 +77,13 @@ class ResourceResponse {
   // |callback| to continue the request. Return false to cancel the request.
   // |request| may be different from the request used to create the
   // StreamReaderURLLoader if a redirect was followed.
-  virtual bool OpenInputStream(const RequestId& id,
+  virtual bool OpenInputStream(int32_t request_id,
                                const network::ResourceRequest& request,
                                OpenCallback callback) = 0;
 
   // This method is called to populate the response headers.
   using HeaderMap = std::multimap<std::string, std::string>;
-  virtual void GetResponseHeaders(const RequestId& id,
+  virtual void GetResponseHeaders(int32_t request_id,
                                   int* status_code,
                                   std::string* reason_phrase,
                                   std::string* mime_type,
@@ -153,12 +105,12 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
     // This method is called if the result of calling OpenInputStream was null.
     // The |restarted| parameter is set to true if the request was restarted
     // with a new loader.
-    virtual void OnInputStreamOpenFailed(const RequestId& id,
+    virtual void OnInputStreamOpenFailed(int32_t request_id,
                                          bool* restarted) = 0;
   };
 
   StreamReaderURLLoader(
-      const RequestId& request_id,
+      int32_t request_id,
       const network::ResourceRequest& request,
       mojo::PendingRemote<network::mojom::URLLoaderClient> client,
       mojo::PendingRemote<network::mojom::TrustedHeaderClient> header_client,
@@ -207,7 +159,7 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
   bool ParseRange(const net::HttpRequestHeaders& headers);
   bool byte_range_valid() const;
 
-  const RequestId request_id_;
+  const int32_t request_id_;
 
   size_t header_length_ = 0;
   int64_t total_bytes_read_ = 0;

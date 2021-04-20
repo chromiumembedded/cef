@@ -14,6 +14,7 @@
 #include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
 #include "base/task/post_task.h"
+#include "base/task/thread_pool.h"
 #include "base/threading/thread.h"
 #include "base/threading/thread_task_runner_handle.h"
 #include "content/public/browser/browser_thread.h"
@@ -37,7 +38,7 @@ class OpenInputStreamWrapper
   static base::OnceClosure Open(
       std::unique_ptr<StreamReaderURLLoader::Delegate> delegate,
       scoped_refptr<base::SequencedTaskRunner> work_thread_task_runner,
-      const RequestId& request_id,
+      int32_t request_id,
       const network::ResourceRequest& request,
       OnInputStreamOpenedCallback callback) WARN_UNUSED_RESULT {
     scoped_refptr<OpenInputStreamWrapper> wrapper = new OpenInputStreamWrapper(
@@ -62,8 +63,7 @@ class OpenInputStreamWrapper
         callback_(std::move(callback)) {}
   virtual ~OpenInputStreamWrapper() {}
 
-  void Start(const RequestId& request_id,
-             const network::ResourceRequest& request) {
+  void Start(int32_t request_id, const network::ResourceRequest& request) {
     work_thread_task_runner_->PostTask(
         FROM_HERE,
         base::BindOnce(&OpenInputStreamWrapper::OpenOnWorkThread,
@@ -95,7 +95,7 @@ class OpenInputStreamWrapper
     OnCallback(nullptr);
   }
 
-  void OpenOnWorkThread(const RequestId& request_id,
+  void OpenOnWorkThread(int32_t request_id,
                         const network::ResourceRequest& request) {
     DCHECK(work_thread_task_runner_->RunsTasksInCurrentSequence());
     if (is_canceled_)
@@ -456,29 +456,11 @@ void InputStreamReader::RunReadCallbackOnJobThread(
 }
 
 //==============================
-// RequestId
-//==============================
-
-std::string RequestId::ToString() const {
-  return base::StringPrintf("RequestId(%u, %u)", request_id_, routing_id_);
-}
-
-std::string RequestId::ToString(base::StringPiece debug_label) const {
-  return base::StringPrintf("RequestId[%s](%u, %u)",
-                            debug_label.as_string().c_str(), request_id_,
-                            routing_id_);
-}
-
-std::ostream& operator<<(std::ostream& out, const RequestId& request_id) {
-  return out << request_id.ToString();
-}
-
-//==============================
 // StreamReaderURLLoader
 //=============================
 
 StreamReaderURLLoader::StreamReaderURLLoader(
-    const RequestId& request_id,
+    int32_t request_id,
     const network::ResourceRequest& request,
     mojo::PendingRemote<network::mojom::URLLoaderClient> client,
     mojo::PendingRemote<network::mojom::TrustedHeaderClient> header_client,
@@ -502,7 +484,7 @@ StreamReaderURLLoader::StreamReaderURLLoader(
 
   // All InputStream work will be performed on this task runner.
   stream_work_task_runner_ =
-      base::CreateSequencedTaskRunner({base::ThreadPool(), base::MayBlock()});
+      base::ThreadPool::CreateSequencedTaskRunner({base::MayBlock()});
 }
 
 StreamReaderURLLoader::~StreamReaderURLLoader() {

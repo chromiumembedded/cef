@@ -52,7 +52,7 @@ class CefJSDialogCallbackImpl : public CefJSDialogCallback {
  private:
   static void CancelNow(CallbackType callback) {
     CEF_REQUIRE_UIT();
-    std::move(callback).Run(false, base::string16());
+    std::move(callback).Run(false, std::u16string());
   }
 
   CallbackType callback_;
@@ -82,8 +82,8 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
     content::WebContents* web_contents,
     content::RenderFrameHost* render_frame_host,
     content::JavaScriptDialogType message_type,
-    const base::string16& message_text,
-    const base::string16& default_prompt_text,
+    const std::u16string& message_text,
+    const std::u16string& default_prompt_text,
     DialogClosedCallback callback,
     bool* did_suppress_message) {
   const GURL& origin_url = render_frame_host->GetLastCommittedURL();
@@ -128,7 +128,7 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
 
   dialog_running_ = true;
 
-  const base::string16& display_url =
+  const std::u16string& display_url =
       url_formatter::FormatUrlForSecurityDisplay(origin_url);
 
   DCHECK(!callback.is_null());
@@ -147,12 +147,11 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
       AlloyBrowserHostImpl::DESTRUCTION_STATE_ACCEPTED) {
     // Currently destroying the browser. Accept the unload without showing
     // the prompt.
-    std::move(callback).Run(true, base::string16());
+    std::move(callback).Run(true, std::u16string());
     return;
   }
 
-  const base::string16& message_text =
-      base::ASCIIToUTF16("Is it OK to leave/reload this page?");
+  const std::u16string& message_text = u"Is it OK to leave/reload this page?";
 
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
@@ -179,7 +178,7 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
       LOG(WARNING) << "No javascript dialog runner available for this platform";
     // Suppress the dialog if there is no platform runner or if the dialog is
     // currently running.
-    std::move(callback).Run(true, base::string16());
+    std::move(callback).Run(true, std::u16string());
     return;
   }
 
@@ -188,9 +187,9 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
   DCHECK(!callback.is_null());
   runner_->Run(
       browser_, content::JAVASCRIPT_DIALOG_TYPE_CONFIRM,
-      base::string16(),  // display_url
+      std::u16string(),  // display_url
       message_text,
-      base::string16(),  // default_prompt_text
+      std::u16string(),  // default_prompt_text
       base::BindOnce(&CefJavaScriptDialogManager::DialogClosed,
                      weak_ptr_factory_.GetWeakPtr(), std::move(callback)));
 }
@@ -216,7 +215,7 @@ void CefJavaScriptDialogManager::CancelDialogs(
 void CefJavaScriptDialogManager::DialogClosed(
     DialogClosedCallback callback,
     bool success,
-    const base::string16& user_input) {
+    const std::u16string& user_input) {
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
     CefRefPtr<CefJSDialogHandler> handler = client->GetJSDialogHandler();

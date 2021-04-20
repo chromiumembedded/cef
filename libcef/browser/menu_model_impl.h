@@ -47,7 +47,7 @@ class CefMenuModelImpl : public CefMenuModel {
 
     // Allows the delegate to modify a menu item label before it's displayed.
     virtual bool FormatLabel(CefRefPtr<CefMenuModelImpl> source,
-                             base::string16& label) = 0;
+                             std::u16string& label) = 0;
 
    protected:
     virtual ~Delegate() {}
@@ -166,7 +166,7 @@ class CefMenuModelImpl : public CefMenuModel {
                           SkColor* override_color) const;
   void MenuWillShow();
   void MenuWillClose();
-  base::string16 GetFormattedLabelAt(int index);
+  std::u16string GetFormattedLabelAt(int index);
   const gfx::FontList* GetLabelFontListAt(int index) const;
 
   // Verify that only a single reference exists to all CefMenuModelImpl objects.

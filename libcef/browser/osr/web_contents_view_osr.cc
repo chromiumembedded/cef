@@ -128,7 +128,7 @@ CefWebContentsViewOSR::CreateViewForChildWidget(
                                         render_widget_host, view);
 }
 
-void CefWebContentsViewOSR::SetPageTitle(const base::string16& title) {}
+void CefWebContentsViewOSR::SetPageTitle(const std::u16string& title) {}
 
 void CefWebContentsViewOSR::RenderViewReady() {
   RenderViewCreated();

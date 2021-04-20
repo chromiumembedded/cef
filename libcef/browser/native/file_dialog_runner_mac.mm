@@ -25,7 +25,7 @@
 
 namespace {
 
-base::string16 GetDescriptionFromMimeType(const std::string& mime_type) {
+std::u16string GetDescriptionFromMimeType(const std::string& mime_type) {
   // Check for wild card mime types and return an appropriate description.
   static const struct {
     const char* mime_type;
@@ -42,31 +42,31 @@ base::string16 GetDescriptionFromMimeType(const std::string& mime_type) {
       return l10n_util::GetStringUTF16(kWildCardMimeTypes[i].string_id);
   }
 
-  return base::string16();
+  return std::u16string();
 }
 
 void AddFilters(NSPopUpButton* button,
-                const std::vector<base::string16>& accept_filters,
+                const std::vector<std::u16string>& accept_filters,
                 bool include_all_files,
-                std::vector<std::vector<base::string16>>* all_extensions) {
+                std::vector<std::vector<std::u16string>>* all_extensions) {
   for (size_t i = 0; i < accept_filters.size(); ++i) {
-    const base::string16& filter = accept_filters[i];
+    const std::u16string& filter = accept_filters[i];
     if (filter.empty())
       continue;
 
-    std::vector<base::string16> extensions;
-    base::string16 description;
+    std::vector<std::u16string> extensions;
+    std::u16string description;
 
     size_t sep_index = filter.find('|');
     if (sep_index != std::string::npos) {
       // Treat as a filter of the form "Filter Name|.ext1;.ext2;.ext3".
       description = filter.substr(0, sep_index);
 
-      const std::vector<base::string16>& ext = base::SplitString(
-          filter.substr(sep_index + 1), base::ASCIIToUTF16(";"),
-          base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
+      const std::vector<std::u16string>& ext =
+          base::SplitString(filter.substr(sep_index + 1), u";",
+                            base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
       for (size_t x = 0; x < ext.size(); ++x) {
-        const base::string16& file_ext = ext[x];
+        const std::u16string& file_ext = ext[x];
         if (!file_ext.empty() && file_ext[0] == '.')
           extensions.push_back(file_ext);
       }
@@ -80,7 +80,7 @@ void AddFilters(NSPopUpButton* button,
       net::GetExtensionsForMimeType(ascii, &ext);
       if (!ext.empty()) {
         for (size_t x = 0; x < ext.size(); ++x)
-          extensions.push_back(base::ASCIIToUTF16("." + ext[x]));
+          extensions.push_back(u"." + base::ASCIIToUTF16(ext[x]));
         description = GetDescriptionFromMimeType(ascii);
       }
     }
@@ -92,22 +92,21 @@ void AddFilters(NSPopUpButton* button,
     // will keep growing.
     const size_t kMaxExtensions = 10;
 
-    base::string16 ext_str;
+    std::u16string ext_str;
     for (size_t x = 0; x < std::min(kMaxExtensions, extensions.size()); ++x) {
-      const base::string16& pattern = base::ASCIIToUTF16("*") + extensions[x];
+      const std::u16string& pattern = u"*" + extensions[x];
       if (x != 0)
-        ext_str += base::ASCIIToUTF16(";");
+        ext_str += u";";
       ext_str += pattern;
     }
 
     if (extensions.size() > kMaxExtensions)
-      ext_str += base::ASCIIToUTF16(";...");
+      ext_str += u";...";
 
     if (description.empty()) {
       description = ext_str;
     } else {
-      description +=
-          base::ASCIIToUTF16(" (") + ext_str + base::ASCIIToUTF16(")");
+      description += u" (" + ext_str + u")";
     }
 
     [button addItemWithTitle:base::SysUTF16ToNSString(description)];
@@ -119,7 +118,7 @@ void AddFilters(NSPopUpButton* button,
   // is implied).
   if (include_all_files && !all_extensions->empty()) {
     [button addItemWithTitle:base::SysUTF8ToNSString("All Files (*)")];
-    all_extensions->push_back(std::vector<base::string16>());
+    all_extensions->push_back(std::vector<std::u16string>());
   }
 }
 
@@ -129,11 +128,11 @@ void AddFilters(NSPopUpButton* button,
 @interface CefFilterDelegate : NSObject {
  @private
   NSSavePanel* panel_;
-  std::vector<std::vector<base::string16>> extensions_;
+  std::vector<std::vector<std::u16string>> extensions_;
   int selected_index_;
 }
 - (id)initWithPanel:(NSSavePanel*)panel
-    andAcceptFilters:(const std::vector<base::string16>&)accept_filters
+    andAcceptFilters:(const std::vector<std::u16string>&)accept_filters
       andFilterIndex:(int)index;
 - (void)setFilter:(int)index;
 - (int)filter;
@@ -144,7 +143,7 @@ void AddFilters(NSPopUpButton* button,
 @implementation CefFilterDelegate
 
 - (id)initWithPanel:(NSSavePanel*)panel
-    andAcceptFilters:(const std::vector<base::string16>&)accept_filters
+    andAcceptFilters:(const std::vector<std::u16string>&)accept_filters
       andFilterIndex:(int)index {
   if (self = [super init]) {
     DCHECK(panel);
@@ -204,7 +203,7 @@ void AddFilters(NSPopUpButton* button,
 
 // Set the extension on the currently selected file name.
 - (void)setFileExtension {
-  const std::vector<base::string16>& filter = extensions_[selected_index_];
+  const std::vector<std::u16string>& filter = extensions_[selected_index_];
   if (filter.empty()) {
     // All extensions are allowed so don't change anything.
     return;
@@ -214,7 +213,7 @@ void AddFilters(NSPopUpButton* button,
 
   // If the file name currently includes an extension from |filter| then don't
   // change anything.
-  base::string16 extension = base::UTF8ToUTF16(path.Extension());
+  std::u16string extension = base::UTF8ToUTF16(path.Extension());
   if (!extension.empty()) {
     for (size_t i = 0; i < filter.size(); ++i) {
       if (filter[i] == extension)
@@ -259,7 +258,7 @@ void CefFileDialogRunnerMac::RunOpenFileDialog(
     int filter_index) {
   NSOpenPanel* openPanel = [NSOpenPanel openPanel];
 
-  base::string16 title;
+  std::u16string title;
   if (!params.title.empty()) {
     title = params.title;
   } else {
@@ -347,7 +346,7 @@ void CefFileDialogRunnerMac::RunSaveFileDialog(
     int filter_index) {
   NSSavePanel* savePanel = [NSSavePanel savePanel];
 
-  base::string16 title;
+  std::u16string title;
   if (!params.title.empty())
     title = params.title;
   else

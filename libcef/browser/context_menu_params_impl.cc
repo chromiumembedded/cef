@@ -119,7 +119,7 @@ bool CefContextMenuParamsImpl::GetDictionarySuggestions(
   if (const_value().dictionary_suggestions.empty())
     return false;
 
-  std::vector<base::string16>::const_iterator it =
+  std::vector<std::u16string>::const_iterator it =
       const_value().dictionary_suggestions.begin();
   for (; it != const_value().dictionary_suggestions.end(); ++it)
     suggestions.push_back(*it);

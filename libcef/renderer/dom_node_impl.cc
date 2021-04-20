@@ -118,7 +118,7 @@ CefString CefDOMNodeImpl::GetFormControlElementType() {
       const WebFormControlElement& formElement =
           node_.ToConst<WebFormControlElement>();
 
-      const base::string16& form_control_type =
+      const std::u16string& form_control_type =
           formElement.FormControlType().Utf16();
       str = form_control_type;
     }
@@ -162,14 +162,14 @@ CefString CefDOMNodeImpl::GetValue() {
       const WebFormControlElement& formElement =
           node_.ToConst<WebFormControlElement>();
 
-      base::string16 value;
-      const base::string16& form_control_type =
+      std::u16string value;
+      const std::u16string& form_control_type =
           formElement.FormControlType().Utf16();
-      if (form_control_type == base::ASCIIToUTF16("text")) {
+      if (form_control_type == u"text") {
         const WebInputElement& input_element =
             formElement.ToConst<WebInputElement>();
         value = input_element.Value().Utf16();
-      } else if (form_control_type == base::ASCIIToUTF16("select-one")) {
+      } else if (form_control_type == u"select-one") {
         const WebSelectElement& select_element =
             formElement.ToConst<WebSelectElement>();
         value = select_element.Value().Utf16();
@@ -339,8 +339,8 @@ void CefDOMNodeImpl::GetElementAttributes(AttributeMap& attrMap) {
     return;
 
   for (unsigned int i = 0; i < len; ++i) {
-    base::string16 name = element.AttributeLocalName(i).Utf16();
-    base::string16 value = element.AttributeValue(i).Utf16();
+    std::u16string name = element.AttributeLocalName(i).Utf16();
+    std::u16string value = element.AttributeValue(i).Utf16();
     attrMap.insert(std::make_pair(name, value));
   }
 }

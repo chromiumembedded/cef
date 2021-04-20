@@ -206,13 +206,12 @@ class CefBrowserURLRequest::Context
     auto browser_context = cef_browser_context->AsBrowserContext();
     CHECK(browser_context);
 
-    int render_frame_id = MSG_ROUTING_NONE;
     scoped_refptr<net_service::URLLoaderFactoryGetter> loader_factory_getter;
 
     // Used to route authentication and certificate callbacks through the
     // associated StoragePartition instance.
-    mojo::PendingRemote<network::mojom::AuthenticationAndCertificateObserver>
-        auth_cert_observer;
+    mojo::PendingRemote<network::mojom::URLLoaderNetworkServiceObserver>
+        url_loader_network_observer;
 
     if (frame) {
       // The request will be associated with this frame/browser if it's valid,
@@ -220,23 +219,16 @@ class CefBrowserURLRequest::Context
       content::RenderFrameHost* rfh =
           static_cast<CefFrameHostImpl*>(frame.get())->GetRenderFrameHost();
       if (rfh) {
-        // In cases where authentication is required this value will be passed
-        // as the |routing_id| parameter to
-        // NetworkServiceClient::OnAuthRequired. Despite the naming the
-        // GetWebContents method in network_service_client.cc expects it to be a
-        // FrameTreeNodeId. The |process_id| parameter will always be
-        // network::mojom::kBrowserProcessId (value 0) for these requests.
-        render_frame_id = rfh->GetFrameTreeNodeId();
-
         loader_factory_getter =
             net_service::URLLoaderFactoryGetter::Create(rfh, browser_context);
-        auth_cert_observer = static_cast<content::RenderFrameHostImpl*>(rfh)
-                                 ->CreateAuthAndCertObserver();
+        url_loader_network_observer =
+            static_cast<content::RenderFrameHostImpl*>(rfh)
+                ->CreateURLLoaderNetworkObserver();
       }
     } else {
       loader_factory_getter =
           net_service::URLLoaderFactoryGetter::Create(nullptr, browser_context);
-      auth_cert_observer =
+      url_loader_network_observer =
           static_cast<content::StoragePartitionImpl*>(
               content::BrowserContext::GetDefaultStoragePartition(
                   browser_context))
@@ -247,16 +239,15 @@ class CefBrowserURLRequest::Context
         FROM_HERE,
         base::BindOnce(
             &CefBrowserURLRequest::Context::ContinueOnOriginatingThread, self,
-            render_frame_id, MakeRequestID(), loader_factory_getter,
-            std::move(auth_cert_observer)));
+            MakeRequestID(), loader_factory_getter,
+            std::move(url_loader_network_observer)));
   }
 
   void ContinueOnOriginatingThread(
-      int render_frame_id,
       int32_t request_id,
       scoped_refptr<net_service::URLLoaderFactoryGetter> loader_factory_getter,
-      mojo::PendingRemote<network::mojom::AuthenticationAndCertificateObserver>
-          auth_cert_observer) {
+      mojo::PendingRemote<network::mojom::URLLoaderNetworkServiceObserver>
+          url_loader_network_observer) {
     DCHECK(CalledOnValidThread());
 
     // The request may have been canceled.
@@ -282,8 +273,6 @@ class CefBrowserURLRequest::Context
     static_cast<CefRequestImpl*>(request_.get())
         ->Get(resource_request.get(), false);
 
-    resource_request->render_frame_id = render_frame_id;
-
     // Behave the same as a subresource load.
     resource_request->resource_type =
         static_cast<int>(blink::mojom::ResourceType::kSubResource);
@@ -298,11 +287,11 @@ class CefBrowserURLRequest::Context
           net::SiteForCookies::FromOrigin(*resource_request->request_initiator);
     }
 
-    if (auth_cert_observer) {
+    if (url_loader_network_observer) {
       resource_request->trusted_params =
           network::ResourceRequest::TrustedParams();
-      resource_request->trusted_params->auth_cert_observer =
-          std::move(auth_cert_observer);
+      resource_request->trusted_params->url_loader_network_observer =
+          std::move(url_loader_network_observer);
     }
 
     // SimpleURLLoader is picky about the body contents. Try to populate them

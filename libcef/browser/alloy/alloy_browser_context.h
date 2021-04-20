@@ -60,12 +60,6 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
   content::ResourceContext* GetResourceContext() override;
   content::ClientHintsControllerDelegate* GetClientHintsControllerDelegate()
       override;
-  void SetCorsOriginAccessListForOrigin(
-      TargetBrowserContexts target_mode,
-      const url::Origin& source_origin,
-      std::vector<network::mojom::CorsOriginPatternPtr> allow_patterns,
-      std::vector<network::mojom::CorsOriginPatternPtr> block_patterns,
-      base::OnceClosure closure) override;
   base::FilePath GetPath() override;
   base::FilePath GetPath() const override;
   std::unique_ptr<content::ZoomLevelDelegate> CreateZoomLevelDelegate(

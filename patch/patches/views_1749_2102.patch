@@ -1,8 +1,8 @@
 diff --git ui/base/models/menu_model.h ui/base/models/menu_model.h
-index bf7988cab13a..1c58c54bc7b6 100644
+index 2f8dd2c08a95b..e2ca02b74ffba 100644
 --- ui/base/models/menu_model.h
 +++ ui/base/models/menu_model.h
-@@ -12,8 +12,11 @@
+@@ -13,8 +13,11 @@
  #include "ui/base/models/menu_separator_types.h"
  #include "ui/gfx/native_widget_types.h"
  
@@ -14,7 +14,7 @@ index bf7988cab13a..1c58c54bc7b6 100644
  }
  
  namespace ui {
-@@ -137,6 +140,27 @@ class COMPONENT_EXPORT(UI_BASE) MenuModel
+@@ -138,6 +141,27 @@ class COMPONENT_EXPORT(UI_BASE) MenuModel
    // |event_flags| is a bit mask of ui::EventFlags.
    virtual void ActivatedAt(int index, int event_flags);
  
@@ -43,10 +43,10 @@ index bf7988cab13a..1c58c54bc7b6 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 8b6064d15996..5004292484ef 100644
+index c80c92f084177..609a2681a4c6d 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
-@@ -617,6 +617,14 @@ void RenderText::SetWhitespaceElision(base::Optional<bool> whitespace_elision) {
+@@ -623,6 +623,14 @@ void RenderText::SetWhitespaceElision(base::Optional<bool> whitespace_elision) {
    }
  }
  
@@ -61,7 +61,7 @@ index 8b6064d15996..5004292484ef 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -2003,6 +2011,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -2009,6 +2017,19 @@ void RenderText::OnTextAttributeChanged() {
  
    layout_text_up_to_date_ = false;
  
@@ -82,10 +82,10 @@ index 8b6064d15996..5004292484ef 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index bb7ce1ca82b4..a1c0d16b6fea 100644
+index b4e825ddfb6bd..3b894beade251 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
-@@ -346,6 +346,10 @@ class GFX_EXPORT RenderText {
+@@ -345,6 +345,10 @@ class GFX_EXPORT RenderText {
      return whitespace_elision_;
    }
  
@@ -96,7 +96,7 @@ index bb7ce1ca82b4..a1c0d16b6fea 100644
    const Rect& display_rect() const { return display_rect_; }
    void SetDisplayRect(const Rect& r);
  
-@@ -1054,6 +1058,8 @@ class GFX_EXPORT RenderText {
+@@ -1053,6 +1057,8 @@ class GFX_EXPORT RenderText {
    // Tell whether or not the |layout_text_| needs an update or is up to date.
    mutable bool layout_text_up_to_date_ = false;
  
@@ -106,7 +106,7 @@ index bb7ce1ca82b4..a1c0d16b6fea 100644
  };
  
 diff --git ui/views/animation/ink_drop_host_view.h ui/views/animation/ink_drop_host_view.h
-index 8c8f77fc26db..0a9f50df07c1 100644
+index 8c8f77fc26db3..0a9f50df07c1d 100644
 --- ui/views/animation/ink_drop_host_view.h
 +++ ui/views/animation/ink_drop_host_view.h
 @@ -142,6 +142,8 @@ class VIEWS_EXPORT InkDropHostView : public View {
@@ -119,10 +119,10 @@ index 8c8f77fc26db..0a9f50df07c1 100644
    // Size used for the default SquareInkDropRipple.
    static constexpr gfx::Size kDefaultInkDropSize = gfx::Size(24, 24);
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index e8b6cd6b290d..3293e3f081b9 100644
+index 7e744be3c39e2..0150a0e347111 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -506,6 +506,12 @@ void LabelButton::OnThemeChanged() {
+@@ -498,6 +498,12 @@ void LabelButton::OnThemeChanged() {
    SchedulePaint();
  }
  
@@ -136,7 +136,7 @@ index e8b6cd6b290d..3293e3f081b9 100644
    Button::StateChanged(old_state);
    ResetLabelEnabledColor();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 39887eb2625c..727c1ff325f7 100644
+index 1ad627bb786b8..624061e6ba3c7 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
 @@ -133,6 +133,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
@@ -150,7 +150,7 @@ index 39887eb2625c..727c1ff325f7 100644
    ImageView* image() const { return image_; }
    Label* label() const { return label_; }
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index d7f4226a37fe..d8fd16500b3c 100644
+index 382b0ea115a5c..32d213250c938 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -49,12 +49,27 @@ enum LabelPropertyKey {
@@ -167,7 +167,7 @@ index d7f4226a37fe..d8fd16500b3c 100644
 +// Strips accelerator character prefixes in |text| if needed, based on |flags|.
 +// Returns a range in |text| to underline or Range::InvalidRange() if
 +// underlining is not needed.
-+gfx::Range StripAcceleratorChars(int flags, base::string16* text) {
++gfx::Range StripAcceleratorChars(int flags, std::u16string* text) {
 +  if (flags & (gfx::Canvas::SHOW_PREFIX | gfx::Canvas::HIDE_PREFIX)) {
 +    int char_pos = -1;
 +    int char_span = 0;
@@ -181,8 +181,8 @@ index d7f4226a37fe..d8fd16500b3c 100644
  }  // namespace
  
  namespace views {
-@@ -413,6 +428,15 @@ base::string16 Label::GetTooltipText() const {
-   return tooltip_text_;
+@@ -409,6 +424,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
+   OnPropertyChanged(&elide_behavior_, kPropertyEffectsPreferredSizeChanged);
  }
  
 +void Label::SetDrawStringsFlags(int flags) {
@@ -194,15 +194,15 @@ index d7f4226a37fe..d8fd16500b3c 100644
 +                    kPropertyEffectsPreferredSizeChanged);
 +}
 +
- void Label::SetTooltipText(const base::string16& tooltip_text) {
-   DCHECK(handles_tooltips_);
-   if (tooltip_text_ == tooltip_text)
+ std::u16string Label::GetTooltipText() const {
+   return tooltip_text_;
+ }
 @@ -706,6 +730,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
        render_text->SelectRange(stored_selection_range_);
    }
  
 +  if (draw_strings_flags_ != 0) {
-+    base::string16 text_str = GetText();
++    auto text_str = GetText();
 +    gfx::Range range = StripAcceleratorChars(draw_strings_flags_, &text_str);
 +    render_text->SetText(text_str);
 +    if (range.IsValid()) {
@@ -215,7 +215,7 @@ index d7f4226a37fe..d8fd16500b3c 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 793189681a67..92397be97b0e 100644
+index 269425ed7c04a..5dea3a3dbd652 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -225,6 +225,10 @@ class VIEWS_EXPORT Label : public View,
@@ -238,10 +238,10 @@ index 793189681a67..92397be97b0e 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 3beb5516e121..36d9f5e42460 100644
+index 7c081b7d8a4e1..36c5bb5e8f93a 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2738,8 +2738,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2748,8 +2748,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -256,7 +256,7 @@ index 3beb5516e121..36d9f5e42460 100644
    MenuItemView* to_select = nullptr;
    if (!item->GetSubmenu()->GetMenuItems().empty())
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2758,8 +2763,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2768,8 +2773,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -269,10 +269,10 @@ index 3beb5516e121..36d9f5e42460 100644
      SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
    else if (item->GetParentMenuItem()->GetParentMenuItem())
 diff --git ui/views/controls/menu/menu_delegate.h ui/views/controls/menu/menu_delegate.h
-index d863d6f874aa..f0310ca3b776 100644
+index a280e9d74016e..59a8eda9b1d84 100644
 --- ui/views/controls/menu/menu_delegate.h
 +++ ui/views/controls/menu/menu_delegate.h
-@@ -81,6 +81,22 @@ class VIEWS_EXPORT MenuDelegate {
+@@ -79,6 +79,22 @@ class VIEWS_EXPORT MenuDelegate {
    // parts of |style| or leave it unmodified.
    virtual void GetLabelStyle(int id, LabelStyle* style) const;
  
@@ -294,8 +294,8 @@ index d863d6f874aa..f0310ca3b776 100644
 +
    // The tooltip shown for the menu item. This is invoked when the user
    // hovers over the item, and no tooltip text has been set for that item.
-   virtual base::string16 GetTooltipText(int id,
-@@ -209,6 +225,11 @@ class VIEWS_EXPORT MenuDelegate {
+   virtual std::u16string GetTooltipText(int id,
+@@ -207,6 +223,11 @@ class VIEWS_EXPORT MenuDelegate {
                                         bool* has_mnemonics,
                                         MenuButton** button);
  
@@ -308,10 +308,10 @@ index d863d6f874aa..f0310ca3b776 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 89f6c657d0a6..6d1a0673f94f 100644
+index e12fe2ac6ad80..347174b8c21a3 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1097,6 +1097,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1087,6 +1087,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -327,7 +327,7 @@ index 89f6c657d0a6..6d1a0673f94f 100644
    } else if (render_selection) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == Type::kActionableSubMenu) {
-@@ -1164,6 +1173,13 @@ void MenuItemView::PaintMinorIconAndText(
+@@ -1154,6 +1163,13 @@ void MenuItemView::PaintMinorIconAndText(
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool render_selection) const {
@@ -342,7 +342,7 @@ index 89f6c657d0a6..6d1a0673f94f 100644
        GetMenuController() && GetMenuController()->use_touchable_layout()
            ? style::CONTEXT_TOUCH_MENU
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index 5dd4a9bbb8cf..33894ceb408f 100644
+index fbd30c4914bbe..851d03a9d45e8 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
 @@ -242,6 +242,77 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
@@ -424,7 +424,7 @@ index 5dd4a9bbb8cf..33894ceb408f 100644
    // Look up the menu model for this menu.
    const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
 diff --git ui/views/controls/menu/menu_model_adapter.h ui/views/controls/menu/menu_model_adapter.h
-index 78f832fd3acf..cb030c991614 100644
+index c7aaf7286b74d..2ba3a9c10fe03 100644
 --- ui/views/controls/menu/menu_model_adapter.h
 +++ ui/views/controls/menu/menu_model_adapter.h
 @@ -84,6 +84,20 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate,
@@ -449,10 +449,10 @@ index 78f832fd3acf..cb030c991614 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 8e21f427f6af..2dd8451c0fdc 100644
+index 3f9f76315def1..9f0e0c791eb0e 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
-@@ -211,6 +211,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
+@@ -234,6 +234,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
    scroll_down_button_ =
        AddChildView(std::make_unique<MenuScrollButton>(content_view, false));
  
@@ -465,7 +465,7 @@ index 8e21f427f6af..2dd8451c0fdc 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aurax11.cc ui/views/test/ui_controls_factory_desktop_aurax11.cc
-index 64e09ff4359a..714e8e9ff661 100644
+index 64e09ff4359a8..714e8e9ff6610 100644
 --- ui/views/test/ui_controls_factory_desktop_aurax11.cc
 +++ ui/views/test/ui_controls_factory_desktop_aurax11.cc
 @@ -89,10 +89,6 @@ class UIControlsDesktopX11 : public UIControlsAura {
@@ -480,7 +480,7 @@ index 64e09ff4359a..714e8e9ff661 100644
          x11_ui_controls_test_helper_.ButtonDownMask() == 0) {
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
 diff --git ui/views/view.h ui/views/view.h
-index 0ae7efa30827..51f3ff3ebeae 100644
+index b13e80f12a5c1..5c19ea1854e65 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -25,6 +25,7 @@
@@ -491,7 +491,7 @@ index 0ae7efa30827..51f3ff3ebeae 100644
  #include "build/build_config.h"
  #include "third_party/skia/include/core/SkPath.h"
  #include "ui/accessibility/ax_enums.mojom-forward.h"
-@@ -272,6 +273,7 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -273,6 +274,7 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
                            public ui::EventTarget,
                            public ui::EventHandler,
                            public ui::PropertyHandler,

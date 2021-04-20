@@ -87,9 +87,9 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   void UpdateTargetURL(content::WebContents* source, const GURL& url) override;
   bool DidAddMessageToConsole(content::WebContents* source,
                               blink::mojom::ConsoleMessageLevel log_level,
-                              const base::string16& message,
+                              const std::u16string& message,
                               int32_t line_no,
-                              const base::string16& source_id) override;
+                              const std::u16string& source_id) override;
   void DidNavigateMainFramePostCommit(
       content::WebContents* web_contents) override;
   void EnterFullscreenModeForTab(
@@ -112,7 +112,8 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   void RenderViewReady() override;
   void RenderProcessGone(base::TerminationStatus status) override;
   void OnFrameFocused(content::RenderFrameHost* render_frame_host) override;
-  void DocumentAvailableInMainFrame() override;
+  void DocumentAvailableInMainFrame(
+      content::RenderFrameHost* render_frame_host) override;
   void LoadProgressChanged(double progress) override;
   void DidStopLoading() override;
   void DidFinishNavigation(
@@ -163,7 +164,7 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   void OnLoadStart(CefRefPtr<CefFrame> frame,
                    ui::PageTransition transition_type);
   void OnLoadError(CefRefPtr<CefFrame> frame, const GURL& url, int error_code);
-  void OnTitleChange(const base::string16& title);
+  void OnTitleChange(const std::u16string& title);
   void OnFullscreenModeChange(bool fullscreen);
 
   void OnStateChanged(State state_changed);

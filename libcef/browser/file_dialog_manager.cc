@@ -274,7 +274,7 @@ void CefFileDialogManager::RunFileChooserInternal(
       if (params.hidereadonly)
         mode |= FILE_DIALOG_HIDEREADONLY_FLAG;
 
-      std::vector<base::string16>::const_iterator it;
+      std::vector<std::u16string>::const_iterator it;
 
       std::vector<CefString> accept_filters;
       it = params.accept_types.begin();
@@ -357,7 +357,7 @@ void CefFileDialogManager::OnRunFileChooserDelegateCallback(
     // Convert FilePath list to SelectedFileInfo list.
     for (size_t i = 0; i < file_paths.size(); ++i) {
       auto info = blink::mojom::FileChooserFileInfo::NewNativeFile(
-          blink::mojom::NativeFileInfo::New(file_paths[i], base::string16()));
+          blink::mojom::NativeFileInfo::New(file_paths[i], std::u16string()));
       selected_files.push_back(std::move(info));
     }
   }

@@ -19,21 +19,21 @@ class CefJavaScriptDialogRunnerWin : public CefJavaScriptDialogRunner {
   // CefJavaScriptDialogRunner methods:
   void Run(AlloyBrowserHostImpl* browser,
            content::JavaScriptDialogType message_type,
-           const base::string16& display_url,
-           const base::string16& message_text,
-           const base::string16& default_prompt_text,
+           const std::u16string& display_url,
+           const std::u16string& message_text,
+           const std::u16string& default_prompt_text,
            DialogClosedCallback callback) override;
   void Cancel() override;
 
  private:
-  void CloseDialog(bool success, const base::string16& user_input);
+  void CloseDialog(bool success, const std::wstring& user_input);
 
   HWND dialog_win_;
   HWND parent_win_;
 
   content::JavaScriptDialogType message_type_;
-  base::string16 message_text_;
-  base::string16 default_prompt_text_;
+  std::wstring message_text_;
+  std::wstring default_prompt_text_;
   DialogClosedCallback callback_;
 
   bool hook_installed_;

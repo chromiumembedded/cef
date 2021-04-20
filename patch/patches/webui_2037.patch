@@ -1,5 +1,5 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index 44e96c687520..cb81d3f0bb92 100644
+index b180f511a9f07..e08dcb1520308 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 @@ -10,6 +10,7 @@
@@ -62,7 +62,7 @@ index 44e96c687520..cb81d3f0bb92 100644
    bool result =
        base::win::IsKeyboardPresentOnSlate(ui::GetHiddenWindow(), &reason);
 diff --git chrome/browser/memory_details.cc chrome/browser/memory_details.cc
-index 819ef924757c..986670ac9870 100644
+index 3f5b288edf3c6..46e189a2ceedd 100644
 --- chrome/browser/memory_details.cc
 +++ chrome/browser/memory_details.cc
 @@ -17,6 +17,7 @@
@@ -73,7 +73,7 @@ index 819ef924757c..986670ac9870 100644
  #include "components/nacl/common/nacl_process_type.h"
  #include "components/strings/grit/components_strings.h"
  #include "content/public/browser/browser_child_process_host_iterator.h"
-@@ -252,8 +253,11 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
+@@ -260,8 +261,11 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
  
  #if BUILDFLAG(ENABLE_EXTENSIONS)
      // Determine if this is an extension process.

@@ -372,7 +372,7 @@ void CallProcessRequestOnIOThread(
 
 class ResourceResponseWrapper : public ResourceResponse {
  public:
-  ResourceResponseWrapper(const RequestId request_id,
+  ResourceResponseWrapper(const int32_t request_id,
                           CefRefPtr<CefResourceHandler> handler)
       : request_id_(request_id),
         handler_provider_(new HandlerProvider(handler)) {}
@@ -383,7 +383,7 @@ class ResourceResponseWrapper : public ResourceResponse {
   }
 
   // ResourceResponse methods:
-  bool OpenInputStream(const RequestId& request_id,
+  bool OpenInputStream(int32_t request_id,
                        const network::ResourceRequest& request,
                        OpenCallback callback) override {
     DCHECK_EQ(request_id, request_id_);
@@ -396,7 +396,7 @@ class ResourceResponseWrapper : public ResourceResponse {
 
     // May be recreated on redirect.
     request_ = new CefRequestImpl();
-    request_->Set(&request, request_id.hash());
+    request_->Set(&request, request_id);
     request_->SetReadOnly(true);
 
     CefRefPtr<OpenCallbackWrapper> callbackWrapper = new OpenCallbackWrapper(
@@ -426,7 +426,7 @@ class ResourceResponseWrapper : public ResourceResponse {
     return true;
   }
 
-  void GetResponseHeaders(const RequestId& request_id,
+  void GetResponseHeaders(int32_t request_id,
                           int* status_code,
                           std::string* reason_phrase,
                           std::string* mime_type,
@@ -487,7 +487,7 @@ class ResourceResponseWrapper : public ResourceResponse {
   }
 
  private:
-  const RequestId request_id_;
+  const int32_t request_id_;
 
   CefRefPtr<CefRequestImpl> request_;
   scoped_refptr<HandlerProvider> handler_provider_;
@@ -498,7 +498,7 @@ class ResourceResponseWrapper : public ResourceResponse {
 }  // namespace
 
 std::unique_ptr<ResourceResponse> CreateResourceResponse(
-    const RequestId& request_id,
+    int32_t request_id,
     CefRefPtr<CefResourceHandler> handler) {
   return std::make_unique<ResourceResponseWrapper>(request_id, handler);
 }

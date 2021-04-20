@@ -40,13 +40,15 @@ namespace {
 void HandleExternalProtocolHelper(
     ChromeContentBrowserClientCef* self,
     content::WebContents::OnceGetter web_contents_getter,
+    int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
     const network::ResourceRequest& resource_request) {
   // Match the logic of the original call in
   // NavigationURLLoaderImpl::PrepareForNonInterceptedRequest.
   self->HandleExternalProtocol(
       resource_request.url, std::move(web_contents_getter),
-      content::ChildProcessHost::kInvalidUniqueID, navigation_data,
+      content::ChildProcessHost::kInvalidUniqueID, frame_tree_node_id,
+      navigation_data,
       resource_request.resource_type ==
           static_cast<int>(blink::mojom::ResourceType::kMainFrame),
       static_cast<ui::PageTransition>(resource_request.transition_type),
@@ -227,6 +229,7 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
     const GURL& url,
     content::WebContents::OnceGetter web_contents_getter,
     int child_id,
+    int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
     bool is_main_frame,
     ui::PageTransition page_transition,
@@ -244,9 +247,9 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
   // HandleExternalProtocolHelper. Forward to the chrome layer for default
   // handling.
   return ChromeContentBrowserClient::HandleExternalProtocol(
-      url, std::move(web_contents_getter), child_id, navigation_data,
-      is_main_frame, page_transition, has_user_gesture, initiating_origin,
-      nullptr);
+      url, std::move(web_contents_getter), child_id, frame_tree_node_id,
+      navigation_data, is_main_frame, page_transition, has_user_gesture,
+      initiating_origin, nullptr);
 }
 
 bool ChromeContentBrowserClientCef::HandleExternalProtocol(
@@ -262,7 +265,8 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
   auto request_handler = net_service::CreateInterceptedRequestHandler(
       web_contents_getter, frame_tree_node_id, resource_request,
       base::Bind(HandleExternalProtocolHelper, base::Unretained(this),
-                 web_contents_getter, navigation_data, resource_request));
+                 web_contents_getter, frame_tree_node_id, navigation_data,
+                 resource_request));
 
   net_service::ProxyURLLoaderFactory::CreateProxy(
       web_contents_getter, std::move(receiver), std::move(request_handler));

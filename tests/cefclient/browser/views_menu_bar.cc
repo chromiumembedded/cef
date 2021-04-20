@@ -19,7 +19,7 @@ const int kMenuBarGroupId = 100;
 // If the mnemonic is capital I and the UI language is Turkish, lowercasing it
 // results in 'small dotless i', which is different from a 'dotted i'. Similar
 // issues may exist for az and lt locales.
-base::char16 ToLower(base::char16 c) {
+char16 ToLower(char16 c) {
   CefStringUTF16 str16;
   cef_string_utf16_to_lower(&c, 1, str16.GetWritableStruct());
   return str16.length() > 0 ? str16.c_str()[0] : 0;
@@ -27,16 +27,16 @@ base::char16 ToLower(base::char16 c) {
 
 // Extract the mnemonic character from |title|. For example, if |title| is
 // "&Test" then the mnemonic character is 'T'.
-base::char16 GetMnemonic(const base::string16& title) {
+char16 GetMnemonic(const std::u16string& title) {
   size_t index = 0;
   do {
     index = title.find('&', index);
-    if (index != base::string16::npos) {
+    if (index != std::u16string::npos) {
       if (index + 1 != title.size() && title[index + 1] != '&')
         return ToLower(title[index + 1]);
       index++;
     }
-  } while (index != base::string16::npos);
+  } while (index != std::u16string::npos);
   return 0;
 }
 
@@ -89,7 +89,7 @@ CefRefPtr<CefMenuModel> ViewsMenuBar::CreateMenuModel(const CefString& label,
   panel_->AddChildView(button);
 
   // Extract the mnemonic that triggers the menu, if any.
-  base::char16 mnemonic = GetMnemonic(label);
+  char16 mnemonic = GetMnemonic(label);
   if (mnemonic != 0)
     mnemonics_.insert(std::make_pair(mnemonic, new_menu_id));
 

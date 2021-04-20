@@ -1,8 +1,8 @@
 diff --git ui/views/controls/native/native_view_host.cc ui/views/controls/native/native_view_host.cc
-index a5a09b31bd8d..673da74e75aa 100644
+index 52f9b871022de..4cad419a8e373 100644
 --- ui/views/controls/native/native_view_host.cc
 +++ ui/views/controls/native/native_view_host.cc
-@@ -157,7 +157,7 @@ void NativeViewHost::OnPaint(gfx::Canvas* canvas) {
+@@ -161,7 +161,7 @@ void NativeViewHost::OnPaint(gfx::Canvas* canvas) {
    // It would be nice if this used some approximation of the page's
    // current background color.
    if (native_wrapper_->HasInstalledClip())
@@ -12,7 +12,7 @@ index a5a09b31bd8d..673da74e75aa 100644
  
  void NativeViewHost::VisibilityChanged(View* starting_from, bool is_visible) {
 diff --git ui/views/controls/native/native_view_host.h ui/views/controls/native/native_view_host.h
-index ab2371857a00..8dccc190fa89 100644
+index ab2371857a00a..8dccc190fa896 100644
 --- ui/views/controls/native/native_view_host.h
 +++ ui/views/controls/native/native_view_host.h
 @@ -95,6 +95,12 @@ class VIEWS_EXPORT NativeViewHost : public View {
@@ -39,10 +39,10 @@ index ab2371857a00..8dccc190fa89 100644
  };
  
 diff --git ui/views/controls/webview/webview.cc ui/views/controls/webview/webview.cc
-index 2ade47b0077d..7d64510adebb 100644
+index 9cb29421a3df9..a5ed399820a81 100644
 --- ui/views/controls/webview/webview.cc
 +++ ui/views/controls/webview/webview.cc
-@@ -129,6 +129,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
+@@ -130,6 +130,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
      MaybeEnableAutoResize(web_contents()->GetMainFrame());
  }
  
@@ -54,7 +54,7 @@ index 2ade47b0077d..7d64510adebb 100644
    if (crashed_overlay_view_ == crashed_overlay_view)
      return;
 diff --git ui/views/controls/webview/webview.h ui/views/controls/webview/webview.h
-index 94e25679eab8..3943f8c4866f 100644
+index 1bb2399d0d139..5bb1fcde4e3bc 100644
 --- ui/views/controls/webview/webview.h
 +++ ui/views/controls/webview/webview.h
 @@ -78,6 +78,10 @@ class WEBVIEW_EXPORT WebView : public View,

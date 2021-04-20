@@ -93,7 +93,7 @@ HFONT CreateNativeFont(const gfx::Font& font) {
                       italic, underline, FALSE, DEFAULT_CHARSET,
                       OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
                       DEFAULT_PITCH | FF_DONTCARE,
-                      base::UTF8ToUTF16(font.GetFontName()).c_str());
+                      base::UTF8ToWide(font.GetFontName()).c_str());
 }
 
 }  // namespace
@@ -102,7 +102,7 @@ struct CefNativeMenuWin::ItemData {
   // The Windows API requires that whoever creates the menus must own the
   // strings used for labels, and keep them around for the lifetime of the
   // created menu. So be it.
-  base::string16 label;
+  std::wstring label;
 
   // Someone needs to own submenus, it may as well be us.
   std::unique_ptr<Menu2> submenu;
@@ -204,14 +204,14 @@ class CefNativeMenuWin::MenuHostWindow {
     if (data) {
       gfx::FontList font_list;
       measure_item_struct->itemWidth =
-          gfx::GetStringWidth(data->label, font_list) + kIconWidth +
-          kItemLeftMargin + kItemLabelSpacing -
+          gfx::GetStringWidth(base::WideToUTF16(data->label), font_list) +
+          kIconWidth + kItemLeftMargin + kItemLabelSpacing -
           GetSystemMetrics(SM_CXMENUCHECK);
       if (data->submenu.get())
         measure_item_struct->itemWidth += kArrowWidth;
       // If the label contains an accelerator, make room for tab.
-      if (data->label.find(L'\t') != base::string16::npos)
-        measure_item_struct->itemWidth += gfx::GetStringWidth(L" ", font_list);
+      if (data->label.find(L'\t') != std::wstring::npos)
+        measure_item_struct->itemWidth += gfx::GetStringWidth(u" ", font_list);
       measure_item_struct->itemHeight =
           font_list.GetHeight() + kItemBottomMargin + kItemTopMargin;
     } else {
@@ -267,10 +267,10 @@ class CefNativeMenuWin::MenuHostWindow {
       // left and the accelerator on the right.
       // TODO(jungshik): This will break in RTL UI. Currently, he/ar use the
       //                 window system UI font and will not hit here.
-      base::string16 label = data->label;
-      base::string16 accel;
-      base::string16::size_type tab_pos = label.find(L'\t');
-      if (tab_pos != base::string16::npos) {
+      std::wstring label = data->label;
+      std::wstring accel;
+      std::wstring::size_type tab_pos = label.find(L'\t');
+      if (tab_pos != std::wstring::npos) {
         accel = label.substr(tab_pos);
         label = label.substr(0, tab_pos);
       }
@@ -527,7 +527,7 @@ void CefNativeMenuWin::UpdateStates() {
     if (model_->IsItemDynamicAt(model_index)) {
       // TODO(atwilson): Update the icon as well (http://crbug.com/66508).
       SetMenuItemLabel(menu_index, model_index,
-                       model_->GetLabelAt(model_index));
+                       base::UTF16ToWide(model_->GetLabelAt(model_index)));
     }
     Menu2* submenu = (*it)->submenu.get();
     if (submenu)
@@ -643,7 +643,7 @@ void CefNativeMenuWin::AddMenuItemAt(int menu_index, int model_index) {
     mii.fType = MFT_OWNERDRAW;
 
   std::unique_ptr<ItemData> item_data = std::make_unique<ItemData>();
-  item_data->label = base::string16();
+  item_data->label = std::wstring();
   ui::MenuModel::ItemType type = model_->GetTypeAt(model_index);
   if (type == ui::MenuModel::TYPE_SUBMENU) {
     item_data->submenu.reset(new Menu2(model_->GetSubmenuModelAt(model_index)));
@@ -659,8 +659,8 @@ void CefNativeMenuWin::AddMenuItemAt(int menu_index, int model_index) {
   item_data->model_index = model_index;
   mii.dwItemData = reinterpret_cast<ULONG_PTR>(item_data.get());
   items_.insert(items_.begin() + model_index, std::move(item_data));
-  UpdateMenuItemInfoForString(&mii, model_index,
-                              model_->GetLabelAt(model_index));
+  UpdateMenuItemInfoForString(
+      &mii, model_index, base::UTF16ToWide(model_->GetLabelAt(model_index)));
   InsertMenuItem(menu_, menu_index, TRUE, &mii);
 }
 
@@ -697,7 +697,7 @@ void CefNativeMenuWin::SetMenuItemState(int menu_index,
 
 void CefNativeMenuWin::SetMenuItemLabel(int menu_index,
                                         int model_index,
-                                        const base::string16& label) {
+                                        const std::wstring& label) {
   if (IsSeparatorItemAt(menu_index))
     return;
 
@@ -707,11 +707,10 @@ void CefNativeMenuWin::SetMenuItemLabel(int menu_index,
   SetMenuItemInfo(menu_, menu_index, MF_BYPOSITION, &mii);
 }
 
-void CefNativeMenuWin::UpdateMenuItemInfoForString(
-    MENUITEMINFO* mii,
-    int model_index,
-    const base::string16& label) {
-  base::string16 formatted = label;
+void CefNativeMenuWin::UpdateMenuItemInfoForString(MENUITEMINFO* mii,
+                                                   int model_index,
+                                                   const std::wstring& label) {
+  std::wstring formatted = label;
   ui::MenuModel::ItemType type = model_->GetTypeAt(model_index);
   // Strip out any tabs, otherwise they get interpreted as accelerators and can
   // lead to weird behavior.
@@ -721,7 +720,7 @@ void CefNativeMenuWin::UpdateMenuItemInfoForString(
     ui::Accelerator accelerator(ui::VKEY_UNKNOWN, ui::EF_NONE);
     if (model_->GetAcceleratorAt(model_index, &accelerator)) {
       formatted += L"\t";
-      formatted += accelerator.GetShortcutText();
+      formatted += base::UTF16ToWide(accelerator.GetShortcutText());
     }
   }
 

@@ -25,7 +25,7 @@ CefExtensionViewHost::CefExtensionViewHost(AlloyBrowserHostImpl* browser,
                                            const Extension* extension,
                                            content::WebContents* host_contents,
                                            const GURL& url,
-                                           ViewType host_type)
+                                           mojom::ViewType host_type)
     : ExtensionHost(new CefExtensionHostDelegate(browser),
                     extension,
                     host_contents->GetBrowserContext(),
@@ -33,8 +33,8 @@ CefExtensionViewHost::CefExtensionViewHost(AlloyBrowserHostImpl* browser,
                     url,
                     host_type) {
   // Only used for dialogs and popups.
-  DCHECK(host_type == VIEW_TYPE_EXTENSION_DIALOG ||
-         host_type == VIEW_TYPE_EXTENSION_POPUP);
+  DCHECK(host_type == mojom::ViewType::kExtensionDialog ||
+         host_type == mojom::ViewType::kExtensionPopup);
 }
 
 CefExtensionViewHost::~CefExtensionViewHost() {}
@@ -76,7 +76,7 @@ bool CefExtensionViewHost::PreHandleGestureEvent(
 }
 
 WebContents* CefExtensionViewHost::GetVisibleWebContents() const {
-  if (extension_host_type() == VIEW_TYPE_EXTENSION_POPUP)
+  if (extension_host_type() == mojom::ViewType::kExtensionPopup)
     return host_contents();
   return nullptr;
 }

@@ -125,7 +125,6 @@ if (is_mac) {
   import("//build/config/mac/rules.gni")
   import("//build/util/version.gni")
   import("//media/cdm/library_cdm/cdm_paths.gni")
-  import("//build/config/mac/base_rules.gni")
 
   # Template to compile .xib and .storyboard files.
   #

@@ -9,6 +9,7 @@
 #include "base/location.h"
 #include "base/logging.h"
 #include "base/task/post_task.h"
+#include "base/task/thread_pool.h"
 #include "base/threading/scoped_blocking_call.h"
 #include "base/threading/thread_restrictions.h"
 #include "content/public/browser/browser_task_traits.h"
@@ -55,11 +56,11 @@
 // Sequenced runners at various priorities that always execute all pending tasks
 // before shutdown are available via CefTaskRunnerManager and exposed by the CEF
 // API.
-#define CEF_POST_BLOCKING_TASK(priority, task)                          \
-  base::PostTask(                                                       \
-      FROM_HERE,                                                        \
-      {base::ThreadPool(), priority,                                    \
-       base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN, base::MayBlock()}, \
+#define CEF_POST_BLOCKING_TASK(priority, task)                 \
+  base::ThreadPool::PostTask(                                  \
+      FROM_HERE,                                               \
+      {priority, base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN, \
+       base::MayBlock()},                                      \
       task)
 
 // Post a blocking task that affects UI or responsiveness of future user

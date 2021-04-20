@@ -12,6 +12,7 @@
 #include "base/format_macros.h"
 #include "base/memory/ptr_util.h"
 #include "base/strings/stringprintf.h"
+#include "base/task/thread_pool.h"
 #include "base/threading/thread.h"
 #include "net/base/net_errors.h"
 #include "net/http/http_request_headers.h"
@@ -607,9 +608,9 @@ void CefServerImpl::ShutdownOnUIThread() {
 
     // Make sure the task is executed on shutdown. Otherwise, |thread| might
     // be released outside of the correct scope.
-    base::PostTask(
+    base::ThreadPool::PostTask(
         FROM_HERE,
-        {base::ThreadPool(), base::TaskPriority::BEST_EFFORT,
+        {base::TaskPriority::BEST_EFFORT,
          base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()},
         std::move(task));
 

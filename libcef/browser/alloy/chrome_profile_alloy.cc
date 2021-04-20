@@ -71,7 +71,8 @@ std::string ChromeProfileAlloy::GetProfileUserName() const {
 }
 
 Profile* ChromeProfileAlloy::GetOffTheRecordProfile(
-    const Profile::OTRProfileID& otr_profile_id) {
+    const Profile::OTRProfileID& otr_profile_id,
+    bool create_if_needed) {
   NOTREACHED();
   return nullptr;
 }

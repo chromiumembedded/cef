@@ -50,7 +50,7 @@ class AlloyBrowserMainParts : public content::BrowserMainParts {
   void PreMainMessageLoopStart() override;
   void PostMainMessageLoopStart() override;
   int PreCreateThreads() override;
-  void PreMainMessageLoopRun() override;
+  int PreMainMessageLoopRun() override;
   void PostMainMessageLoopRun() override;
   void PostDestroyThreads() override;
 

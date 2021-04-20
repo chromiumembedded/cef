@@ -68,10 +68,11 @@ content::WebContents* CefBrowserPlatformDelegateAlloy::CreateWebContents(
           extensions::GetExtensionForUrl(browser_context, gurl);
     }
     if (create_params.extension) {
-      if (create_params.extension_host_type == extensions::VIEW_TYPE_INVALID) {
+      if (create_params.extension_host_type ==
+          extensions::mojom::ViewType::kInvalid) {
         // Default to dialog behavior.
         create_params.extension_host_type =
-            extensions::VIEW_TYPE_EXTENSION_DIALOG;
+            extensions::mojom::ViewType::kExtensionDialog;
       }
 
       // Extension resources will fail to load if we don't use a SiteInstance
@@ -191,7 +192,7 @@ void CefBrowserPlatformDelegateAlloy::BrowserCreated(
 void CefBrowserPlatformDelegateAlloy::CreateExtensionHost(
     const extensions::Extension* extension,
     const GURL& url,
-    extensions::ViewType host_type) {
+    extensions::mojom::ViewType host_type) {
   REQUIRE_ALLOY_RUNTIME();
   DCHECK(primary_);
 
@@ -202,14 +203,15 @@ void CefBrowserPlatformDelegateAlloy::CreateExtensionHost(
 
   auto alloy_browser = static_cast<AlloyBrowserHostImpl*>(browser_);
 
-  if (host_type == extensions::VIEW_TYPE_EXTENSION_DIALOG ||
-      host_type == extensions::VIEW_TYPE_EXTENSION_POPUP) {
+  if (host_type == extensions::mojom::ViewType::kExtensionDialog ||
+      host_type == extensions::mojom::ViewType::kExtensionPopup) {
     // Create an extension host that we own.
     extension_host_ = new extensions::CefExtensionViewHost(
         alloy_browser, extension, web_contents_, url, host_type);
     // Trigger load of the extension URL.
     extension_host_->CreateRendererSoon();
-  } else if (host_type == extensions::VIEW_TYPE_EXTENSION_BACKGROUND_PAGE) {
+  } else if (host_type ==
+             extensions::mojom::ViewType::kExtensionBackgroundPage) {
     is_background_host_ = true;
     alloy_browser->is_background_host_ = true;
     // Create an extension host that will be owned by ProcessManager.
@@ -451,7 +453,7 @@ void CefBrowserPlatformDelegateAlloy::DestroyExtensionHost() {
   if (!extension_host_)
     return;
   if (extension_host_->extension_host_type() ==
-      extensions::VIEW_TYPE_EXTENSION_BACKGROUND_PAGE) {
+      extensions::mojom::ViewType::kExtensionBackgroundPage) {
     DCHECK(is_background_host_);
     // Close notification for background pages arrives via CloseContents.
     // The extension host will be deleted by

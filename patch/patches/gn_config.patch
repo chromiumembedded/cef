@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 01b2f70c1378..a14dd637774e 100644
+index 5b010cc8b0147..6f7dce7dd8e4b 100644
 --- .gn
 +++ .gn
-@@ -190,6 +190,8 @@ exec_script_whitelist =
+@@ -184,6 +184,8 @@ exec_script_whitelist =
  
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
  
@@ -12,7 +12,7 @@ index 01b2f70c1378..a14dd637774e 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 6df566bd7df4..d8f539493342 100644
+index 106e853ef8179..2d2fa6b9c284f 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -16,6 +16,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -23,7 +23,7 @@ index 6df566bd7df4..d8f539493342 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/media/router/features.gni")
  import("//components/nacl/features.gni")
-@@ -247,6 +248,9 @@ group("gn_all") {
+@@ -251,6 +252,9 @@ group("gn_all") {
        "//media/cast:cast_unittests",
        "//third_party/catapult/telemetry:bitmaptools($host_toolchain)",
      ]
@@ -34,7 +34,7 @@ index 6df566bd7df4..d8f539493342 100644
      deps += [
        "//ios:all",
 diff --git build/config/win/visual_studio_version.gni build/config/win/visual_studio_version.gni
-index 982fbe8d3f0d..e757be4688f1 100644
+index 982fbe8d3f0d0..e757be4688f10 100644
 --- build/config/win/visual_studio_version.gni
 +++ build/config/win/visual_studio_version.gni
 @@ -12,9 +12,8 @@ declare_args() {
@@ -66,7 +66,7 @@ index 982fbe8d3f0d..e757be4688f1 100644
 +         "studio path")
  }
 diff --git chrome/app/framework.order chrome/app/framework.order
-index 839144aa1e9b..29c8ab32398a 100644
+index 839144aa1e9bd..29c8ab32398a7 100644
 --- chrome/app/framework.order
 +++ chrome/app/framework.order
 @@ -28,3 +28,8 @@ _ChromeMain
@@ -79,7 +79,7 @@ index 839144aa1e9b..29c8ab32398a 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 63e7ca2c10c1..14f777c10cd6 100644
+index 8e17878f175bf..3d8fc8848fe9c 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -4,6 +4,7 @@
@@ -90,7 +90,7 @@ index 63e7ca2c10c1..14f777c10cd6 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/resources/pdf/ink/ink.gni")
  import("//chrome/common/features.gni")
-@@ -269,6 +270,10 @@ template("chrome_extra_paks") {
+@@ -277,6 +278,10 @@ template("chrome_extra_paks") {
          "//chrome/browser/resources/welcome:resources",
        ]
      }
@@ -102,7 +102,7 @@ index 63e7ca2c10c1..14f777c10cd6 100644
        sources += [
          "$root_gen_dir/chrome/extensions_resources.pak",
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index a64a23560460..b08eee1f789a 100644
+index a64a23560460a..b08eee1f789a7 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
 @@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
@@ -125,7 +125,7 @@ index a64a23560460..b08eee1f789a 100644
        source_patterns +=
            [ "${root_gen_dir}/extensions/strings/extensions_strings_" ]
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index ae43217ef207..2f0b95687263 100644
+index ae43217ef2075..2f0b956872631 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -6,6 +6,7 @@ import("//build/config/compiler/compiler.gni")
@@ -151,3 +151,29 @@ index ae43217ef207..2f0b95687263 100644
  
    outputs = [
      # See also chrome.packed.7z conditionally added below.
+diff --git tools/grit/grit_defines.gni tools/grit/grit_defines.gni
+index 5b92d7a6cd920..ceb274146131c 100644
+--- tools/grit/grit_defines.gni
++++ tools/grit/grit_defines.gni
+@@ -5,6 +5,7 @@
+ import("//build/config/chrome_build.gni")
+ import("//build/config/chromeos/ui_mode.gni")
+ import("//build/config/crypto.gni")
++import("//build/config/locales.gni")
+ import("//build/config/ui.gni")
+ 
+ grit_defines = [
+@@ -104,6 +105,13 @@ if (is_android) {
+   ]
+ }
+ 
++if (enable_pseudolocales) {
++  grit_defines += [
++    "-D",
++    "enable_pseudolocales",
++  ]
++}
++
+ # When cross-compiling, explicitly pass the target system to grit.
+ if (current_toolchain != host_toolchain) {
+   if (is_android) {

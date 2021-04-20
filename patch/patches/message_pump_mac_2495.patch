@@ -1,8 +1,8 @@
 diff --git base/message_loop/message_pump_mac.mm base/message_loop/message_pump_mac.mm
-index 1d0ac66a9174..4ddaca449e8b 100644
+index 5846dcf03078b..b8d8d9e684161 100644
 --- base/message_loop/message_pump_mac.mm
 +++ base/message_loop/message_pump_mac.mm
-@@ -644,7 +644,8 @@ void MessagePumpUIApplication::Detach() {
+@@ -670,7 +670,8 @@ void MessagePumpUIApplication::Detach() {
  #else
  
  ScopedPumpMessagesInPrivateModes::ScopedPumpMessagesInPrivateModes() {
@@ -12,7 +12,7 @@ index 1d0ac66a9174..4ddaca449e8b 100644
    DCHECK_EQ(kNSApplicationModalSafeModeMask, g_app_pump->GetModeMask());
    // Pumping events in private runloop modes is known to interact badly with
    // app modal windows like NSAlert.
-@@ -654,7 +655,8 @@ ScopedPumpMessagesInPrivateModes::ScopedPumpMessagesInPrivateModes() {
+@@ -680,7 +681,8 @@ ScopedPumpMessagesInPrivateModes::ScopedPumpMessagesInPrivateModes() {
  }
  
  ScopedPumpMessagesInPrivateModes::~ScopedPumpMessagesInPrivateModes() {

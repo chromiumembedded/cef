@@ -46,7 +46,7 @@ net::CookieOptions GetCookieOptions(const network::ResourceRequest& request) {
   options.set_include_httponly();
   options.set_same_site_cookie_context(
       net::cookie_util::ComputeSameSiteContextForRequest(
-          request.method, request.url, request.site_for_cookies,
+          request.method, {request.url}, request.site_for_cookies,
           request.request_initiator, is_main_frame_navigation,
           should_treat_as_first_party));
 

@@ -359,7 +359,7 @@ bool CefWindowView::CanMaximize() const {
   return cef_delegate()->CanMaximize(GetCefWindow());
 }
 
-base::string16 CefWindowView::GetWindowTitle() const {
+std::u16string CefWindowView::GetWindowTitle() const {
   return title_;
 }
 
@@ -471,7 +471,7 @@ display::Display CefWindowView::GetDisplay() const {
   return display::Display();
 }
 
-void CefWindowView::SetTitle(const base::string16& title) {
+void CefWindowView::SetTitle(const std::u16string& title) {
   title_ = title;
   views::Widget* widget = GetWidget();
   if (widget)

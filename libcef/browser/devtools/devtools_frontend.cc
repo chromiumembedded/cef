@@ -338,7 +338,8 @@ void CefDevToolsFrontend::ReadyToCommitNavigation(
   content::DevToolsFrontendHost::SetupExtensionsAPI(frame, script);
 }
 
-void CefDevToolsFrontend::DocumentAvailableInMainFrame() {
+void CefDevToolsFrontend::DocumentAvailableInMainFrame(
+    content::RenderFrameHost* render_frame_host) {
   // Don't call AttachClient multiple times for the same DevToolsAgentHost.
   // Otherwise it will call AgentHostClosed which closes the DevTools window.
   // This may happen in cases where the DevTools content fails to load.
@@ -390,8 +391,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
         this, base::as_bytes(base::make_span(protocol_message)));
   } else if (method == "loadCompleted") {
     web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
-        base::ASCIIToUTF16("DevToolsAPI.setUseSoftMenu(true);"),
-        base::NullCallback());
+        u"DevToolsAPI.setUseSoftMenu(true);", base::NullCallback());
   } else if (method == "loadNetworkResource" && params->GetSize() == 3) {
     // TODO(pfeldman): handle some of the embedder messages in content.
     std::string url;
@@ -461,7 +461,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
       SendMessageAck(request_id, &response);
       return;
     } else {
-      auto* partition = content::BrowserContext::GetStoragePartitionForSite(
+      auto* partition = content::BrowserContext::GetStoragePartitionForUrl(
           web_contents()->GetBrowserContext(), gurl);
       url_loader_factory = partition->GetURLLoaderFactoryForBrowserProcess();
     }
@@ -493,8 +493,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     update.Get()->RemoveWithoutPathExpansion(name, nullptr);
   } else if (method == "requestFileSystems") {
     web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
-        base::ASCIIToUTF16("DevToolsAPI.fileSystemsLoaded([]);"),
-        base::NullCallback());
+        u"DevToolsAPI.fileSystemsLoaded([]);", base::NullCallback());
   } else if (method == "reattach") {
     if (!agent_host_)
       return;
@@ -550,7 +549,7 @@ void CefDevToolsFrontend::DispatchProtocolMessage(
     std::string param;
     base::EscapeJSONString(str_message, true, &param);
     std::string code = "DevToolsAPI.dispatchMessage(" + param + ");";
-    base::string16 javascript = base::UTF8ToUTF16(code);
+    std::u16string javascript = base::UTF8ToUTF16(code);
     web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
         javascript, base::NullCallback());
     return;
@@ -564,7 +563,7 @@ void CefDevToolsFrontend::DispatchProtocolMessage(
                            &param);
     std::string code = "DevToolsAPI.dispatchMessageChunk(" + param + "," +
                        std::to_string(pos ? 0 : total_size) + ");";
-    base::string16 javascript = base::UTF8ToUTF16(code);
+    std::u16string javascript = base::UTF8ToUTF16(code);
     web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
         javascript, base::NullCallback());
   }

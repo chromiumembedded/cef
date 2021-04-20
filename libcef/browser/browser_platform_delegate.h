@@ -15,7 +15,7 @@
 #include "include/views/cef_browser_view.h"
 
 #include "base/callback_forward.h"
-#include "extensions/common/view_type.h"
+#include "extensions/common/mojom/view_type.mojom-forward.h"
 #include "third_party/blink/public/common/page/drag_operation.h"
 #include "third_party/blink/public/mojom/page/drag.mojom-forward.h"
 #include "third_party/skia/include/core/SkColor.h"
@@ -134,7 +134,7 @@ class CefBrowserPlatformDelegate {
   // Called from AlloyBrowserHostImpl::Create.
   virtual void CreateExtensionHost(const extensions::Extension* extension,
                                    const GURL& url,
-                                   extensions::ViewType host_type);
+                                   extensions::mojom::ViewType host_type);
 
   // Returns the current extension host.
   virtual extensions::ExtensionHost* GetExtensionHost() const;

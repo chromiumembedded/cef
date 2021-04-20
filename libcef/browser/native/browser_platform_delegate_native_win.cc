@@ -69,7 +69,7 @@ const int kMaxAddressLengthChars = 2048;
 bool HasExternalHandler(const std::string& scheme) {
   base::win::RegKey key;
   const std::wstring registry_path =
-      base::ASCIIToUTF16(scheme + "\\shell\\open\\command");
+      base::ASCIIToWide(scheme + "\\shell\\open\\command");
   key.Open(HKEY_CLASSES_ROOT, registry_path.c_str(), KEY_READ);
   if (key.Valid()) {
     DWORD size = 0;

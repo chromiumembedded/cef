@@ -67,7 +67,7 @@ bool CefResourceBundleDelegate::GetRawDataResource(
 
 bool CefResourceBundleDelegate::GetLocalizedString(
     int message_id,
-    base::string16* value) const {
+    std::u16string* value) const {
   auto application = CefAppManager::Get()->GetApplication();
   if (application) {
     CefRefPtr<CefResourceBundleHandler> handler =

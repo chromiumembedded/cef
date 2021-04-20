@@ -57,10 +57,8 @@ void ChromeBrowserContext::InitializeAsync(base::OnceClosure initialized_cb) {
       // Create or load a specific disk-based profile. May continue
       // synchronously or asynchronously.
       profile_manager->CreateProfileAsync(
-          cache_path_,
-          base::Bind(&ChromeBrowserContext::ProfileCreated,
-                     weak_ptr_factory_.GetWeakPtr()),
-          /*name=*/base::string16(), /*icon_url=*/std::string());
+          cache_path_, base::Bind(&ChromeBrowserContext::ProfileCreated,
+                                  weak_ptr_factory_.GetWeakPtr()));
       return;
     } else {
       // All profile directories must be relative to |user_data_dir|.

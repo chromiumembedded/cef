@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 70911a215498..52aea5cc2e70 100644
+index f9e098611a176..f956745c27fbe 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -34,6 +34,7 @@ import("//build/config/ui.gni")
@@ -10,7 +10,7 @@ index 70911a215498..52aea5cc2e70 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  import("//third_party/icu/config.gni")
-@@ -1731,7 +1732,11 @@ component("base") {
+@@ -1742,7 +1743,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index 70911a215498..52aea5cc2e70 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1938,6 +1943,12 @@ component("base") {
+@@ -1951,6 +1956,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -37,7 +37,7 @@ index 70911a215498..52aea5cc2e70 100644
      configs += [ "//build/config/compiler:no_size_t_to_int_warning" ]
  
 diff --git base/hash/md5.h base/hash/md5.h
-index 8a49f08dcb04..2f03d7a6d1b3 100644
+index 8a49f08dcb04d..2f03d7a6d1b34 100644
 --- base/hash/md5.h
 +++ base/hash/md5.h
 @@ -10,8 +10,9 @@
@@ -51,3 +51,18 @@ index 8a49f08dcb04..2f03d7a6d1b3 100644
  #include "base/hash/md5_nacl.h"
  #else
  #include "base/hash/md5_boringssl.h"
+diff --git base/hash/sha1.h base/hash/sha1.h
+index 5bb10fe069850..206344d0fd3b1 100644
+--- base/hash/sha1.h
++++ base/hash/sha1.h
+@@ -14,7 +14,9 @@
+ #include "base/containers/span.h"
+ #include "base/strings/string_piece.h"
+ #include "build/build_config.h"
+-#if defined(OS_NACL)
++#include "cef/libcef/features/features.h"
++
++#if defined(OS_NACL) || BUILDFLAG(IS_CEF_SANDBOX_BUILD)
+ #include "base/hash/sha1_nacl.h"
+ #else
+ #include "base/hash/sha1_boringssl.h"

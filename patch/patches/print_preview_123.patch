@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index 4e04a86c2d06..6d82d55acd15 100644
+index a95103026c8c3..ae6c676defcc6 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -24,6 +24,7 @@
@@ -34,7 +34,7 @@ index 4e04a86c2d06..6d82d55acd15 100644
  }
  
 diff --git chrome/browser/printing/print_preview_dialog_controller.cc chrome/browser/printing/print_preview_dialog_controller.cc
-index fa088bfa0019..7f00e2a2154f 100644
+index 74536431f6649..3fc69b6560298 100644
 --- chrome/browser/printing/print_preview_dialog_controller.cc
 +++ chrome/browser/printing/print_preview_dialog_controller.cc
 @@ -17,6 +17,7 @@
@@ -58,7 +58,7 @@ index fa088bfa0019..7f00e2a2154f 100644
    // Add an entry to the map.
    preview_dialog_map_[preview_dialog] = initiator;
 diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index 81df8a2cb0c3..ae4dcf5beb16 100644
+index 9aa99b764ad86..c45424d20315a 100644
 --- chrome/browser/printing/print_view_manager_base.cc
 +++ chrome/browser/printing/print_view_manager_base.cc
 @@ -21,6 +21,7 @@
@@ -97,7 +97,7 @@ index 81df8a2cb0c3..ae4dcf5beb16 100644
  
  void NotifySystemDialogCancelled(int render_process_id, int routing_id) {
 diff --git chrome/browser/printing/print_view_manager_base.h chrome/browser/printing/print_view_manager_base.h
-index 93103940036e..1b12b91cdf4b 100644
+index a96e5a33643e4..def5bced1c965 100644
 --- chrome/browser/printing/print_view_manager_base.h
 +++ chrome/browser/printing/print_view_manager_base.h
 @@ -122,9 +122,6 @@ class PrintViewManagerBase : public content::NotificationObserver,
@@ -111,7 +111,7 @@ index 93103940036e..1b12b91cdf4b 100644
    void Observe(int type,
                 const content::NotificationSource& source,
 diff --git chrome/browser/resources/print_preview/ui/destination_dialog.html chrome/browser/resources/print_preview/ui/destination_dialog.html
-index df858712d3be..cd146ea0f26b 100644
+index df858712d3be8..cd146ea0f26b4 100644
 --- chrome/browser/resources/print_preview/ui/destination_dialog.html
 +++ chrome/browser/resources/print_preview/ui/destination_dialog.html
 @@ -25,10 +25,7 @@
@@ -127,7 +127,7 @@ index df858712d3be..cd146ea0f26b 100644
        $i18n{cancel}
      </cr-button>
 diff --git chrome/browser/resources/print_preview/ui/destination_select.html chrome/browser/resources/print_preview/ui/destination_select.html
-index 6d3d49c902e7..4769176b9550 100644
+index 6d3d49c902e7b..4769176b9550c 100644
 --- chrome/browser/resources/print_preview/ui/destination_select.html
 +++ chrome/browser/resources/print_preview/ui/destination_select.html
 @@ -20,10 +20,6 @@
@@ -142,7 +142,7 @@ index 6d3d49c902e7..4769176b9550 100644
                hidden$="[[!noDestinations]]" selected$="[[noDestinations]]">
          $i18n{noDestinationsMessage}
 diff --git chrome/browser/ui/webui/constrained_web_dialog_ui.cc chrome/browser/ui/webui/constrained_web_dialog_ui.cc
-index 3d415a60d436..807ab41ee6ef 100644
+index 3d415a60d4361..807ab41ee6ef1 100644
 --- chrome/browser/ui/webui/constrained_web_dialog_ui.cc
 +++ chrome/browser/ui/webui/constrained_web_dialog_ui.cc
 @@ -26,6 +26,8 @@
@@ -166,7 +166,7 @@ index 3d415a60d436..807ab41ee6ef 100644
  
  ConstrainedWebDialogUI::~ConstrainedWebDialogUI() {
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
-index e64ac255c18f..ef40c08e3373 100644
+index 6c43d5381f7c8..d5373865c9850 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 +++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 @@ -22,6 +22,7 @@
@@ -178,7 +178,7 @@ index e64ac255c18f..ef40c08e3373 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/download/download_prefs.h"
 @@ -55,6 +56,10 @@
- #include "chrome/browser/chromeos/drive/drive_integration_service.h"
+ #include "chrome/browser/ash/drive/drive_integration_service.h"
  #endif
  
 +#if BUILDFLAG(ENABLE_CEF)
@@ -268,18 +268,18 @@ index e64ac255c18f..ef40c08e3373 100644
  #if BUILDFLAG(IS_CHROMEOS_ASH)
    drive::DriveIntegrationService* drive_service =
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.h chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
-index d796486f6b74..1a7b0d23128d 100644
+index 9730721279eff..cd3ec0c7e0af6 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
 +++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
-@@ -12,6 +12,7 @@
+@@ -11,6 +11,7 @@
+ #include "base/memory/ref_counted.h"
  #include "base/memory/weak_ptr.h"
- #include "base/strings/string16.h"
  #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/ui/webui/print_preview/printer_handler.h"
  #include "ui/shell_dialogs/select_file_dialog.h"
  
-@@ -89,6 +90,15 @@ class PdfPrinterHandler : public PrinterHandler,
+@@ -88,6 +89,15 @@ class PdfPrinterHandler : public PrinterHandler,
    void OnDirectorySelected(const base::FilePath& filename,
                             const base::FilePath& directory);
  
@@ -296,10 +296,10 @@ index d796486f6b74..1a7b0d23128d 100644
    base::FilePath GetSaveLocation() const;
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_handler.cc chrome/browser/ui/webui/print_preview/print_preview_handler.cc
-index 5beb6ac1f575..56e0fca6f317 100644
+index 5c8ae1be08334..e7074994d89d0 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_handler.cc
-@@ -25,6 +25,7 @@
+@@ -24,6 +24,7 @@
  #include "base/values.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
@@ -307,7 +307,7 @@ index 5beb6ac1f575..56e0fca6f317 100644
  #include "chrome/browser/account_manager_facade_factory.h"
  #include "chrome/browser/app_mode/app_mode_utils.h"
  #include "chrome/browser/bad_message.h"
-@@ -1081,7 +1082,7 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
+@@ -1076,7 +1077,7 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
      }
      return extension_printer_handler_.get();
    }
@@ -316,7 +316,7 @@ index 5beb6ac1f575..56e0fca6f317 100644
    if (printer_type == PrinterType::kPrivet &&
        GetPrefs()->GetBoolean(prefs::kForceEnablePrivetPrinting)) {
      if (!privet_printer_handler_) {
-@@ -1090,6 +1091,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
+@@ -1085,6 +1086,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
      }
      return privet_printer_handler_.get();
    }
@@ -326,7 +326,7 @@ index 5beb6ac1f575..56e0fca6f317 100644
  #endif
    if (printer_type == PrinterType::kPdf) {
      if (!pdf_printer_handler_) {
-@@ -1152,6 +1156,7 @@ void PrintPreviewHandler::OnPrintResult(const std::string& callback_id,
+@@ -1147,6 +1151,7 @@ void PrintPreviewHandler::OnPrintResult(const std::string& callback_id,
  }
  
  void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
@@ -334,7 +334,7 @@ index 5beb6ac1f575..56e0fca6f317 100644
    DCHECK(!identity_manager_);
    cloud_print_enabled_ =
        !base::Contains(printer_type_deny_list_, PrinterType::kCloud) &&
-@@ -1168,6 +1173,7 @@ void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
+@@ -1163,6 +1168,7 @@ void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
  
    identity_manager_ = IdentityManagerFactory::GetForProfile(profile);
    identity_manager_->AddObserver(this);
@@ -343,7 +343,7 @@ index 5beb6ac1f575..56e0fca6f317 100644
  
  void PrintPreviewHandler::UnregisterForGaiaCookieChanges() {
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index 60b1fe2311c0..74ee97dbbf6d 100644
+index eb353375b0549..45b14ee354677 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -30,6 +30,7 @@

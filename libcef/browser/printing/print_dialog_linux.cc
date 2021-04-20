@@ -186,7 +186,7 @@ void CefPrintDialogLinux::ShowDialog(
 
 void CefPrintDialogLinux::PrintDocument(
     const printing::MetafilePlayer& metafile,
-    const base::string16& document_name) {
+    const std::u16string& document_name) {
   // This runs on the print worker thread, does not block the UI thread.
   DCHECK(!CEF_CURRENTLY_ON_UIT());
 
@@ -260,7 +260,7 @@ bool CefPrintDialogLinux::UpdateSettings(
 }
 
 void CefPrintDialogLinux::SendDocumentToPrinter(
-    const base::string16& document_name) {
+    const std::u16string& document_name) {
   CEF_REQUIRE_UIT();
 
   if (!handler_.get()) {

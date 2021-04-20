@@ -75,7 +75,6 @@ typedef unsigned short uint16;
 #endif
 
 // UTF-16 character type.
-// This should be kept synchronized with base/strings/string16.h
 #ifndef char16
 #if defined(WCHAR_T_IS_UTF16)
 typedef wchar_t char16;

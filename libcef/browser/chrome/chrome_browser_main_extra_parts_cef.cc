@@ -9,6 +9,7 @@
 #include "libcef/browser/net/chrome_scheme_handler.h"
 
 #include "base/task/post_task.h"
+#include "base/task/thread_pool.h"
 
 ChromeBrowserMainExtraPartsCef::ChromeBrowserMainExtraPartsCef() = default;
 
@@ -24,14 +25,14 @@ void ChromeBrowserMainExtraPartsCef::PostProfileInit() {
 }
 
 void ChromeBrowserMainExtraPartsCef::PreMainMessageLoopRun() {
-  background_task_runner_ = base::CreateSingleThreadTaskRunner(
-      {base::ThreadPool(), base::TaskPriority::BEST_EFFORT,
+  background_task_runner_ = base::ThreadPool::CreateSingleThreadTaskRunner(
+      {base::TaskPriority::BEST_EFFORT,
        base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()});
-  user_visible_task_runner_ = base::CreateSingleThreadTaskRunner(
-      {base::ThreadPool(), base::TaskPriority::USER_VISIBLE,
+  user_visible_task_runner_ = base::ThreadPool::CreateSingleThreadTaskRunner(
+      {base::TaskPriority::USER_VISIBLE,
        base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()});
-  user_blocking_task_runner_ = base::CreateSingleThreadTaskRunner(
-      {base::ThreadPool(), base::TaskPriority::USER_BLOCKING,
+  user_blocking_task_runner_ = base::ThreadPool::CreateSingleThreadTaskRunner(
+      {base::TaskPriority::USER_BLOCKING,
        base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()});
 
   scheme::RegisterWebUIControllerFactory();

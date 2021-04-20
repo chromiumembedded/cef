@@ -17,7 +17,7 @@ CefExtensionBackgroundHost::CefExtensionBackgroundHost(
     const Extension* extension,
     content::WebContents* host_contents,
     const GURL& url,
-    ViewType host_type)
+    mojom::ViewType host_type)
     : ExtensionHost(new CefExtensionHostDelegate(browser),
                     extension,
                     host_contents->GetBrowserContext(),
@@ -28,7 +28,7 @@ CefExtensionBackgroundHost::CefExtensionBackgroundHost(
   DCHECK(!deleted_callback_.is_null());
 
   // Only used for background pages.
-  DCHECK(host_type == VIEW_TYPE_EXTENSION_BACKGROUND_PAGE);
+  DCHECK(host_type == mojom::ViewType::kExtensionBackgroundPage);
 }
 
 CefExtensionBackgroundHost::~CefExtensionBackgroundHost() {

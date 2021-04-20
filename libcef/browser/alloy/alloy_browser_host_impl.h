@@ -22,12 +22,11 @@
 #include "libcef/browser/menu_manager.h"
 #include "libcef/browser/request_context_impl.h"
 
-#include "base/strings/string16.h"
 #include "base/synchronization/lock.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
-#include "extensions/common/view_type.h"
+#include "extensions/common/mojom/view_type.mojom-forward.h"
 
 class CefAudioCapturer;
 class CefBrowserInfo;
@@ -222,9 +221,9 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   void UpdateTargetURL(content::WebContents* source, const GURL& url) override;
   bool DidAddMessageToConsole(content::WebContents* source,
                               blink::mojom::ConsoleMessageLevel log_level,
-                              const base::string16& message,
+                              const std::u16string& message,
                               int32_t line_no,
-                              const base::string16& source_id) override;
+                              const std::u16string& source_id) override;
   void BeforeUnloadFired(content::WebContents* source,
                          bool proceed,
                          bool* proceed_to_fire_unload) override;

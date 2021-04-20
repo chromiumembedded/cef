@@ -33,7 +33,7 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
   void BrowserCreated(CefBrowserHostBase* browser) override;
   void CreateExtensionHost(const extensions::Extension* extension,
                            const GURL& url,
-                           extensions::ViewType host_type) override;
+                           extensions::mojom::ViewType host_type) override;
   extensions::ExtensionHost* GetExtensionHost() const override;
   void BrowserDestroyed(CefBrowserHostBase* browser) override;
   void SendCaptureLostEvent() override;

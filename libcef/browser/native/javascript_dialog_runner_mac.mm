@@ -65,7 +65,7 @@
     return;
 
   bool success = returnCode == NSAlertFirstButtonReturn;
-  base::string16 input;
+  std::u16string input;
   if (textField_)
     input = base::SysNSStringToUTF16([textField_ stringValue]);
 
@@ -89,9 +89,9 @@ CefJavaScriptDialogRunnerMac::~CefJavaScriptDialogRunnerMac() {
 void CefJavaScriptDialogRunnerMac::Run(
     AlloyBrowserHostImpl* browser,
     content::JavaScriptDialogType message_type,
-    const base::string16& display_url,
-    const base::string16& message_text,
-    const base::string16& default_prompt_text,
+    const std::u16string& display_url,
+    const std::u16string& message_text,
+    const std::u16string& default_prompt_text,
     DialogClosedCallback callback) {
   DCHECK(!helper_.get());
   callback_ = std::move(callback);
@@ -114,20 +114,20 @@ void CefJavaScriptDialogRunnerMac::Run(
   [alert setDelegate:helper_];
   [alert setInformativeText:base::SysUTF16ToNSString(message_text)];
 
-  base::string16 label;
+  std::u16string label;
   switch (message_type) {
     case content::JAVASCRIPT_DIALOG_TYPE_ALERT:
-      label = base::ASCIIToUTF16("JavaScript Alert");
+      label = u"JavaScript Alert";
       break;
     case content::JAVASCRIPT_DIALOG_TYPE_PROMPT:
-      label = base::ASCIIToUTF16("JavaScript Prompt");
+      label = u"JavaScript Prompt";
       break;
     case content::JAVASCRIPT_DIALOG_TYPE_CONFIRM:
-      label = base::ASCIIToUTF16("JavaScript Confirm");
+      label = u"JavaScript Confirm";
       break;
   }
   if (!display_url.empty())
-    label += base::ASCIIToUTF16(" - ") + display_url;
+    label += u" - " + display_url;
 
   [alert setMessageText:base::SysUTF16ToNSString(label)];
 
@@ -165,7 +165,7 @@ void CefJavaScriptDialogRunnerMac::Cancel() {
 
 void CefJavaScriptDialogRunnerMac::DialogClosed(
     bool success,
-    const base::string16& user_input) {
+    const std::u16string& user_input) {
   helper_.reset(nil);
   std::move(callback_).Run(success, user_input);
 }

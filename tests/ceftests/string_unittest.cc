@@ -5,7 +5,6 @@
 #include <map>
 #include <vector>
 
-#include "include/base/cef_string16.h"
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_string_list.h"
 #include "include/internal/cef_string_map.h"
@@ -126,12 +125,12 @@ TEST(StringTest, Wide) {
   EXPECT_EQ(str1, str2);
 }
 
-// Test base::string16 convertion to/from CefString types.
+// Test std::u16string convertion to/from CefString types.
 TEST(StringTest, string16) {
   CefStringUTF8 str8("Test String 1"), str8b;
   CefStringUTF16 str16("Test String 2"), str16b;
   CefStringWide strwide("Test String 3"), strwideb;
-  base::string16 base_str;
+  std::u16string base_str;
 
   base_str = str8;
   str8b = base_str;

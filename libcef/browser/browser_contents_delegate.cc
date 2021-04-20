@@ -16,6 +16,7 @@
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/render_view_host.h"
+#include "third_party/blink/public/mojom/favicon/favicon_url.mojom.h"
 
 using content::KeyboardEventProcessingResult;
 
@@ -127,9 +128,9 @@ void CefBrowserContentsDelegate::UpdateTargetURL(content::WebContents* source,
 bool CefBrowserContentsDelegate::DidAddMessageToConsole(
     content::WebContents* source,
     blink::mojom::ConsoleMessageLevel log_level,
-    const base::string16& message,
+    const std::u16string& message,
     int32_t line_no,
-    const base::string16& source_id) {
+    const std::u16string& source_id) {
   if (auto c = client()) {
     if (auto handler = c->GetDisplayHandler()) {
       // Use LOGSEVERITY_DEBUG for unrecognized |level| values.
@@ -328,7 +329,8 @@ void CefBrowserContentsDelegate::OnFrameFocused(
   OnStateChanged(State::kFocusedFrame);
 }
 
-void CefBrowserContentsDelegate::DocumentAvailableInMainFrame() {
+void CefBrowserContentsDelegate::DocumentAvailableInMainFrame(
+    content::RenderFrameHost* render_frame_host) {
   has_document_ = true;
   OnStateChanged(State::kDocument);
 
@@ -592,7 +594,7 @@ void CefBrowserContentsDelegate::OnLoadError(CefRefPtr<CefFrame> frame,
   }
 }
 
-void CefBrowserContentsDelegate::OnTitleChange(const base::string16& title) {
+void CefBrowserContentsDelegate::OnTitleChange(const std::u16string& title) {
   if (auto c = client()) {
     if (auto handler = c->GetDisplayHandler()) {
       handler->OnTitleChange(browser(), title);

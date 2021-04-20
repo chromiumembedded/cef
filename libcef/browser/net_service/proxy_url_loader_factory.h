@@ -46,7 +46,7 @@ class InterceptedRequestHandler {
       base::OnceCallback<void(bool /* intercept_request */,
                               bool /* intercept_only */)>;
   using CancelRequestCallback = base::OnceCallback<void(int /* error_code */)>;
-  virtual void OnBeforeRequest(const RequestId& id,
+  virtual void OnBeforeRequest(int32_t request_id,
                                network::ResourceRequest* request,
                                bool request_was_redirected,
                                OnBeforeRequestResultCallback callback,
@@ -57,7 +57,7 @@ class InterceptedRequestHandler {
   using ShouldInterceptRequestResultCallback =
       base::OnceCallback<void(std::unique_ptr<ResourceResponse>)>;
   virtual void ShouldInterceptRequest(
-      const RequestId& id,
+      int32_t request_id,
       network::ResourceRequest* request,
       ShouldInterceptRequestResultCallback callback);
 
@@ -68,7 +68,7 @@ class InterceptedRequestHandler {
   // values will be merged first, and then any |removed_headers| values will be
   // removed. This comparison is case sensitive.
   virtual void ProcessRequestHeaders(
-      const RequestId& id,
+      int32_t request_id,
       const network::ResourceRequest& request,
       const GURL& redirect_url,
       net::HttpRequestHeaders* modified_headers,
@@ -79,7 +79,7 @@ class InterceptedRequestHandler {
   // method is called in response to a redirect. Even though |head| is const the
   // |head.headers| value is non-const and any changes will be passed to the
   // client.
-  virtual void ProcessResponseHeaders(const RequestId& id,
+  virtual void ProcessResponseHeaders(int32_t request_id,
                                       const network::ResourceRequest& request,
                                       const GURL& redirect_url,
                                       net::HttpResponseHeaders* headers) {}
@@ -101,7 +101,7 @@ class InterceptedRequestHandler {
       scoped_refptr<net::HttpResponseHeaders> /* override_headers */,
       const GURL& /* redirect_url */)>;
   virtual void OnRequestResponse(
-      const RequestId& id,
+      int32_t request_id,
       network::ResourceRequest* request,
       net::HttpResponseHeaders* headers,
       base::Optional<net::RedirectInfo> redirect_info,
@@ -109,18 +109,18 @@ class InterceptedRequestHandler {
 
   // Called to optionally filter the response body.
   virtual mojo::ScopedDataPipeConsumerHandle OnFilterResponseBody(
-      const RequestId& id,
+      int32_t request_id,
       const network::ResourceRequest& request,
       mojo::ScopedDataPipeConsumerHandle body);
 
   // Called on completion notification from the loader (successful or not).
   virtual void OnRequestComplete(
-      const RequestId& id,
+      int32_t request_id,
       const network::ResourceRequest& request,
       const network::URLLoaderCompletionStatus& status) {}
 
   // Called on error.
-  virtual void OnRequestError(const RequestId& id,
+  virtual void OnRequestError(int32_t request_id,
                               const network::ResourceRequest& request,
                               int error_code,
                               bool safebrowsing_hit) {}
@@ -156,7 +156,6 @@ class ProxyURLLoaderFactory
   // mojom::URLLoaderFactory methods:
   void CreateLoaderAndStart(
       mojo::PendingReceiver<network::mojom::URLLoader> receiver,
-      int32_t routing_id,
       int32_t request_id,
       uint32_t options,
       const network::ResourceRequest& request,

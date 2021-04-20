@@ -131,12 +131,12 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
   };
 
   struct PendingRequest {
-    PendingRequest(const RequestId& id,
+    PendingRequest(int32_t request_id,
                    network::ResourceRequest* request,
                    bool request_was_redirected,
                    OnBeforeRequestResultCallback callback,
                    CancelRequestCallback cancel_callback)
-        : id_(id),
+        : id_(request_id),
           request_(request),
           request_was_redirected_(request_was_redirected),
           callback_(std::move(callback)),
@@ -153,7 +153,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                             std::move(callback_), std::move(cancel_callback_));
     }
 
-    const RequestId id_;
+    const int32_t id_;
     network::ResourceRequest* const request_;
     const bool request_was_redirected_;
     OnBeforeRequestResultCallback callback_;
@@ -251,7 +251,6 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                     CefRefPtr<CefBrowserHostBase> browser,
                     CefRefPtr<CefFrame> frame,
                     int render_process_id,
-                    int render_frame_id,
                     int frame_tree_node_id,
                     bool is_navigation,
                     bool is_download,
@@ -280,7 +279,6 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       }
 
       render_process_id_ = render_process_id;
-      render_frame_id_ = render_frame_id;
       frame_tree_node_id_ = frame_tree_node_id;
       is_navigation_ = is_navigation;
       is_download_ = is_download;
@@ -317,7 +315,6 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     scoped_refptr<CefIOThreadState> iothread_state_;
     CefBrowserContext::CookieableSchemes cookieable_schemes_;
     int render_process_id_ = 0;
-    int render_frame_id_ = -1;
     int frame_tree_node_id_ = -1;
     bool is_navigation_ = true;
     bool is_download_ = false;
@@ -413,7 +410,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
   }
 
   // InterceptedRequestHandler methods:
-  void OnBeforeRequest(const RequestId& id,
+  void OnBeforeRequest(int32_t request_id,
                        network::ResourceRequest* request,
                        bool request_was_redirected,
                        OnBeforeRequestResultCallback callback,
@@ -429,13 +426,13 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     if (!init_state_) {
       // Queue requests until we're initialized.
       pending_requests_.push_back(std::make_unique<PendingRequest>(
-          id, request, request_was_redirected, std::move(callback),
+          request_id, request, request_was_redirected, std::move(callback),
           std::move(cancel_callback)));
       return;
     }
 
     // State may already exist for restarted requests.
-    RequestState* state = GetOrCreateState(id);
+    RequestState* state = GetOrCreateState(request_id);
 
     // Add standard headers, if currently unspecified.
     request->headers.SetHeaderIfMissing(
@@ -451,12 +448,12 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
     CefRefPtr<CefRequestImpl> requestPtr;
     CefRefPtr<CefResourceRequestHandler> handler =
-        GetHandler(id, request, &intercept_only, requestPtr);
+        GetHandler(request_id, request, &intercept_only, requestPtr);
 
     CefRefPtr<CefSchemeHandlerFactory> scheme_factory =
         init_state_->iothread_state_->GetSchemeHandlerFactory(request->url);
     if (scheme_factory && !requestPtr) {
-      requestPtr = MakeRequest(request, id.hash(), true);
+      requestPtr = MakeRequest(request, request_id, true);
     }
 
     // True if there's a possibility that the client might handle the request.
@@ -483,10 +480,10 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       return;
     }
 
-    MaybeLoadCookies(id, state, request, std::move(exec_callback));
+    MaybeLoadCookies(request_id, state, request, std::move(exec_callback));
   }
 
-  void MaybeLoadCookies(const RequestId& id,
+  void MaybeLoadCookies(int32_t request_id,
                         RequestState* state,
                         network::ResourceRequest* request,
                         base::OnceClosure callback) {
@@ -505,12 +502,13 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
         state->cookie_filter_
             ? base::BindRepeating(
                   &InterceptedRequestHandlerWrapper::AllowCookieLoad,
-                  weak_ptr_factory_.GetWeakPtr(), id)
+                  weak_ptr_factory_.GetWeakPtr(), request_id)
             : base::BindRepeating(
                   &InterceptedRequestHandlerWrapper::AllowCookieAlways);
     auto done_cookie_callback = base::BindOnce(
         &InterceptedRequestHandlerWrapper::ContinueWithLoadedCookies,
-        weak_ptr_factory_.GetWeakPtr(), id, request, std::move(callback));
+        weak_ptr_factory_.GetWeakPtr(), request_id, request,
+        std::move(callback));
     cookie_helper::LoadCookies(init_state_->browser_context_, *request,
                                allow_cookie_callback,
                                std::move(done_cookie_callback));
@@ -521,12 +519,12 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     *allow = true;
   }
 
-  void AllowCookieLoad(const RequestId& id,
+  void AllowCookieLoad(int32_t request_id,
                        const net::CanonicalCookie& cookie,
                        bool* allow) {
     CEF_REQUIRE_IOT();
 
-    RequestState* state = GetState(id);
+    RequestState* state = GetState(request_id);
     if (!state) {
       // The request may have been canceled while the async callback was
       // pending.
@@ -543,14 +541,14 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     }
   }
 
-  void ContinueWithLoadedCookies(const RequestId& id,
+  void ContinueWithLoadedCookies(int32_t request_id,
                                  network::ResourceRequest* request,
                                  base::OnceClosure callback,
                                  int total_count,
                                  net::CookieList allowed_cookies) {
     CEF_REQUIRE_IOT();
 
-    RequestState* state = GetState(id);
+    RequestState* state = GetState(request_id);
     if (!state) {
       // The request may have been canceled while the async callback was
       // pending.
@@ -579,12 +577,12 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
   }
 
   void ShouldInterceptRequest(
-      const RequestId& id,
+      int32_t request_id,
       network::ResourceRequest* request,
       ShouldInterceptRequestResultCallback callback) override {
     CEF_REQUIRE_IOT();
 
-    RequestState* state = GetState(id);
+    RequestState* state = GetState(request_id);
     if (!state) {
       // The request may have been canceled during destruction.
       return;
@@ -603,8 +601,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       CefRefPtr<RequestCallbackWrapper> callbackPtr =
           new RequestCallbackWrapper(base::BindOnce(
               &InterceptedRequestHandlerWrapper::ContinueShouldInterceptRequest,
-              weak_ptr_factory_.GetWeakPtr(), id, base::Unretained(request),
-              std::move(callback)));
+              weak_ptr_factory_.GetWeakPtr(), request_id,
+              base::Unretained(request), std::move(callback)));
 
       cef_return_value_t retval = state->handler_->OnBeforeResourceLoad(
           init_state_->browser_, init_state_->frame_,
@@ -615,18 +613,19 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       }
     } else {
       // The scheme factory may choose to handle it.
-      ContinueShouldInterceptRequest(id, request, std::move(callback), true);
+      ContinueShouldInterceptRequest(request_id, request, std::move(callback),
+                                     true);
     }
   }
 
   void ContinueShouldInterceptRequest(
-      const RequestId& id,
+      int32_t request_id,
       network::ResourceRequest* request,
       ShouldInterceptRequestResultCallback callback,
       bool allow) {
     CEF_REQUIRE_IOT();
 
-    RequestState* state = GetState(id);
+    RequestState* state = GetState(request_id);
     if (!state) {
       // The request may have been canceled while the async callback was
       // pending.
@@ -685,7 +684,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
     std::unique_ptr<ResourceResponse> resource_response;
     if (resource_handler) {
-      resource_response = CreateResourceResponse(id, resource_handler);
+      resource_response = CreateResourceResponse(request_id, resource_handler);
       DCHECK(resource_response);
       state->was_custom_handled_ = true;
     } else {
@@ -699,13 +698,13 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     std::move(callback).Run(std::move(resource_response));
   }
 
-  void ProcessResponseHeaders(const RequestId& id,
+  void ProcessResponseHeaders(int32_t request_id,
                               const network::ResourceRequest& request,
                               const GURL& redirect_url,
                               net::HttpResponseHeaders* headers) override {
     CEF_REQUIRE_IOT();
 
-    RequestState* state = GetState(id);
+    RequestState* state = GetState(request_id);
     if (!state) {
       // The request may have been canceled during destruction.
       return;
@@ -725,14 +724,14 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     state->pending_response_->SetReadOnly(true);
   }
 
-  void OnRequestResponse(const RequestId& id,
+  void OnRequestResponse(int32_t request_id,
                          network::ResourceRequest* request,
                          net::HttpResponseHeaders* headers,
                          base::Optional<net::RedirectInfo> redirect_info,
                          OnRequestResponseResultCallback callback) override {
     CEF_REQUIRE_IOT();
 
-    RequestState* state = GetState(id);
+    RequestState* state = GetState(request_id);
     if (!state) {
       // The request may have been canceled during destruction.
       return;
@@ -746,7 +745,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     if (!state->handler_) {
       // Cookies may come from a scheme handler.
       MaybeSaveCookies(
-          id, state, request, headers,
+          request_id, state, request, headers,
           base::BindOnce(
               std::move(callback), ResponseMode::CONTINUE, nullptr,
               redirect_info.has_value() ? redirect_info->new_url : GURL()));
@@ -757,14 +756,14 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     DCHECK(state->pending_response_);
 
     if (redirect_info.has_value()) {
-      HandleRedirect(id, state, request, headers, *redirect_info,
+      HandleRedirect(request_id, state, request, headers, *redirect_info,
                      std::move(callback));
     } else {
-      HandleResponse(id, state, request, headers, std::move(callback));
+      HandleResponse(request_id, state, request, headers, std::move(callback));
     }
   }
 
-  void HandleRedirect(const RequestId& id,
+  void HandleRedirect(int32_t request_id,
                       RequestState* state,
                       network::ResourceRequest* request,
                       net::HttpResponseHeaders* headers,
@@ -797,10 +796,11 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     auto exec_callback = base::BindOnce(
         std::move(callback), ResponseMode::CONTINUE, nullptr, new_url);
 
-    MaybeSaveCookies(id, state, request, headers, std::move(exec_callback));
+    MaybeSaveCookies(request_id, state, request, headers,
+                     std::move(exec_callback));
   }
 
-  void HandleResponse(const RequestId& id,
+  void HandleResponse(int32_t request_id,
                       RequestState* state,
                       network::ResourceRequest* request,
                       net::HttpResponseHeaders* headers,
@@ -846,10 +846,11 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       return;
     }
 
-    MaybeSaveCookies(id, state, request, headers, std::move(exec_callback));
+    MaybeSaveCookies(request_id, state, request, headers,
+                     std::move(exec_callback));
   }
 
-  void MaybeSaveCookies(const RequestId& id,
+  void MaybeSaveCookies(int32_t request_id,
                         RequestState* state,
                         network::ResourceRequest* request,
                         net::HttpResponseHeaders* headers,
@@ -875,23 +876,23 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
         state->cookie_filter_
             ? base::BindRepeating(
                   &InterceptedRequestHandlerWrapper::AllowCookieSave,
-                  weak_ptr_factory_.GetWeakPtr(), id)
+                  weak_ptr_factory_.GetWeakPtr(), request_id)
             : base::BindRepeating(
                   &InterceptedRequestHandlerWrapper::AllowCookieAlways);
     auto done_cookie_callback = base::BindOnce(
         &InterceptedRequestHandlerWrapper::ContinueWithSavedCookies,
-        weak_ptr_factory_.GetWeakPtr(), id, std::move(callback));
+        weak_ptr_factory_.GetWeakPtr(), request_id, std::move(callback));
     cookie_helper::SaveCookies(init_state_->browser_context_, *request, headers,
                                allow_cookie_callback,
                                std::move(done_cookie_callback));
   }
 
-  void AllowCookieSave(const RequestId& id,
+  void AllowCookieSave(int32_t request_id,
                        const net::CanonicalCookie& cookie,
                        bool* allow) {
     CEF_REQUIRE_IOT();
 
-    RequestState* state = GetState(id);
+    RequestState* state = GetState(request_id);
     if (!state) {
       // The request may have been canceled while the async callback was
       // pending.
@@ -909,7 +910,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     }
   }
 
-  void ContinueWithSavedCookies(const RequestId& id,
+  void ContinueWithSavedCookies(int32_t request_id,
                                 base::OnceClosure callback,
                                 int total_count,
                                 net::CookieList allowed_cookies) {
@@ -918,12 +919,12 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
   }
 
   mojo::ScopedDataPipeConsumerHandle OnFilterResponseBody(
-      const RequestId& id,
+      int32_t request_id,
       const network::ResourceRequest& request,
       mojo::ScopedDataPipeConsumerHandle body) override {
     CEF_REQUIRE_IOT();
 
-    RequestState* state = GetState(id);
+    RequestState* state = GetState(request_id);
     if (!state) {
       // The request may have been canceled during destruction.
       return body;
@@ -937,17 +938,17 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
         return CreateResponseFilterHandler(
             filter, std::move(body),
             base::BindOnce(&InterceptedRequestHandlerWrapper::OnFilterError,
-                           weak_ptr_factory_.GetWeakPtr(), id));
+                           weak_ptr_factory_.GetWeakPtr(), request_id));
       }
     }
 
     return body;
   }
 
-  void OnFilterError(const RequestId& id) {
+  void OnFilterError(int32_t request_id) {
     CEF_REQUIRE_IOT();
 
-    RequestState* state = GetState(id);
+    RequestState* state = GetState(request_id);
     if (!state) {
       // The request may have been canceled while the async callback was
       // pending.
@@ -960,12 +961,12 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
   }
 
   void OnRequestComplete(
-      const RequestId& id,
+      int32_t request_id,
       const network::ResourceRequest& request,
       const network::URLLoaderCompletionStatus& status) override {
     CEF_REQUIRE_IOT();
 
-    RequestState* state = GetState(id);
+    RequestState* state = GetState(request_id);
     if (!state) {
       // The request may have been aborted during initialization or canceled
       // during destruction. This method will always be called before a request
@@ -974,7 +975,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       if (!pending_requests_.empty()) {
         PendingRequests::iterator it = pending_requests_.begin();
         for (; it != pending_requests_.end(); ++it) {
-          if ((*it)->id_ == id) {
+          if ((*it)->id_ == request_id) {
             pending_requests_.erase(it);
             break;
           }
@@ -1011,7 +1012,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       }
     }
 
-    RemoveState(id);
+    RemoveState(request_id);
   }
 
  private:
@@ -1045,13 +1046,11 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
   // Returns the handler, if any, that should be used for this request.
   CefRefPtr<CefResourceRequestHandler> GetHandler(
-      const RequestId& id,
+      int32_t request_id,
       network::ResourceRequest* request,
       bool* intercept_only,
       CefRefPtr<CefRequestImpl>& requestPtr) const {
     CefRefPtr<CefResourceRequestHandler> handler;
-
-    const int64 request_id = id.hash();
 
     if (init_state_->browser_) {
       // Maybe the browser's client wants to handle it?
@@ -1075,8 +1074,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       // Maybe the request context wants to handle it?
       CefRefPtr<CefRequestContextHandler> context_handler =
           init_state_->iothread_state_->GetHandler(
-              init_state_->render_process_id_, request->render_frame_id,
-              init_state_->frame_tree_node_id_, false);
+              init_state_->render_process_id_, MSG_ROUTING_NONE,
+              init_state_->frame_tree_node_id_, /*require_frame_match=*/false);
       if (context_handler) {
         if (!requestPtr)
           requestPtr = MakeRequest(request, request_id, true);
@@ -1091,24 +1090,24 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     return handler;
   }
 
-  RequestState* GetOrCreateState(const RequestId& id) {
-    RequestState* state = GetState(id);
+  RequestState* GetOrCreateState(int32_t request_id) {
+    RequestState* state = GetState(request_id);
     if (!state) {
       state = new RequestState();
-      request_map_.insert(std::make_pair(id, base::WrapUnique(state)));
+      request_map_.insert(std::make_pair(request_id, base::WrapUnique(state)));
     }
     return state;
   }
 
-  RequestState* GetState(const RequestId& id) const {
-    RequestMap::const_iterator it = request_map_.find(id);
+  RequestState* GetState(int32_t request_id) const {
+    RequestMap::const_iterator it = request_map_.find(request_id);
     if (it != request_map_.end())
       return it->second.get();
     return nullptr;
   }
 
-  void RemoveState(const RequestId& id) {
-    RequestMap::iterator it = request_map_.find(id);
+  void RemoveState(int32_t request_id) {
+    RequestMap::iterator it = request_map_.find(request_id);
     DCHECK(it != request_map_.end());
     if (it != request_map_.end())
       request_map_.erase(it);
@@ -1186,7 +1185,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
   bool shutting_down_ = false;
 
-  using RequestMap = std::map<RequestId, std::unique_ptr<RequestState>>;
+  using RequestMap = std::map<int32_t, std::unique_ptr<RequestState>>;
   RequestMap request_map_;
 
   using PendingRequests = std::vector<std::unique_ptr<PendingRequest>>;
@@ -1220,27 +1219,21 @@ void InitOnUIThread(
 
   content::RenderFrameHost* frame = nullptr;
 
-  if (request.render_frame_id >= 0) {
-    // TODO(network): Are these main frame checks equivalent?
-    if (request.is_main_frame ||
-        static_cast<blink::mojom::ResourceType>(request.resource_type) ==
-            blink::mojom::ResourceType::kMainFrame) {
+  if (request.is_main_frame ||
+      static_cast<blink::mojom::ResourceType>(request.resource_type) ==
+          blink::mojom::ResourceType::kMainFrame) {
+    frame = web_contents->GetMainFrame();
+    DCHECK(frame);
+  } else {
+    if (frame_tree_node_id >= 0) {
+      // May return null for frames in inner WebContents.
+      frame = web_contents->FindFrameByFrameTreeNodeId(frame_tree_node_id,
+                                                       render_process_id);
+    }
+    if (!frame) {
+      // Use the main frame for the CefBrowserHost.
       frame = web_contents->GetMainFrame();
       DCHECK(frame);
-    } else {
-      // May return null for newly created iframes.
-      frame = content::RenderFrameHost::FromID(render_process_id,
-                                               request.render_frame_id);
-      if (!frame && frame_tree_node_id >= 0) {
-        // May return null for frames in inner WebContents.
-        frame = web_contents->FindFrameByFrameTreeNodeId(frame_tree_node_id,
-                                                         render_process_id);
-      }
-      if (!frame) {
-        // Use the main frame for the CefBrowserHost.
-        frame = web_contents->GetMainFrame();
-        DCHECK(frame);
-      }
     }
   }
 
@@ -1270,9 +1263,9 @@ void InitOnUIThread(
   auto init_state =
       std::make_unique<InterceptedRequestHandlerWrapper::InitState>();
   init_state->Initialize(browser_context, browserPtr, framePtr,
-                         render_process_id, request.render_frame_id,
-                         frame_tree_node_id, is_navigation, is_download,
-                         request_initiator, unhandled_request_callback);
+                         render_process_id, frame_tree_node_id, is_navigation,
+                         is_download, request_initiator,
+                         unhandled_request_callback);
 
   init_helper->MaybeSetInitialized(std::move(init_state));
 }
@@ -1289,12 +1282,10 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
   CEF_REQUIRE_UIT();
   CefRefPtr<CefBrowserHostBase> browserPtr;
   CefRefPtr<CefFrame> framePtr;
-  int render_frame_id = -1;
   int frame_tree_node_id = -1;
 
   // |frame| may be null for service worker requests.
   if (frame) {
-    render_frame_id = frame->GetRoutingID();
     frame_tree_node_id = frame->GetFrameTreeNodeId();
 
     // May return nullptr for requests originating from guest views.
@@ -1308,9 +1299,8 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
   auto init_state =
       std::make_unique<InterceptedRequestHandlerWrapper::InitState>();
   init_state->Initialize(browser_context, browserPtr, framePtr,
-                         render_process_id, render_frame_id, frame_tree_node_id,
-                         is_navigation, is_download, request_initiator,
-                         base::Closure());
+                         render_process_id, frame_tree_node_id, is_navigation,
+                         is_download, request_initiator, base::Closure());
 
   auto wrapper = std::make_unique<InterceptedRequestHandlerWrapper>();
   wrapper->init_helper()->MaybeSetInitialized(std::move(init_state));

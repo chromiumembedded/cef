@@ -180,7 +180,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
  public:
   InterceptedRequest(
       ProxyURLLoaderFactory* factory,
-      RequestId id,
+      int32_t id,
       uint32_t options,
       const network::ResourceRequest& request,
       const net::MutableNetworkTrafficAnnotationTag& traffic_annotation,
@@ -207,6 +207,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
                          OnHeadersReceivedCallback callback) override;
 
   // mojom::URLLoaderClient methods:
+  void OnReceiveEarlyHints(network::mojom::EarlyHintsPtr early_hints) override;
   void OnReceiveResponse(network::mojom::URLResponseHeadPtr head) override;
   void OnReceiveRedirect(const net::RedirectInfo& redirect_info,
                          network::mojom::URLResponseHeadPtr head) override;
@@ -230,7 +231,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
   void PauseReadingBodyFromNet() override;
   void ResumeReadingBodyFromNet() override;
 
-  const RequestId id() const { return id_; }
+  int32_t id() const { return id_; }
 
  private:
   // Helpers for determining the request handler.
@@ -289,7 +290,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
   void OnUploadProgressACK();
 
   ProxyURLLoaderFactory* const factory_;
-  const RequestId id_;
+  const int32_t id_;
   const uint32_t options_;
   bool input_stream_previously_failed_ = false;
   bool request_was_redirected_ = false;
@@ -346,19 +347,18 @@ class InterceptDelegate : public StreamReaderURLLoader::Delegate {
                              base::WeakPtr<InterceptedRequest> request)
       : response_(std::move(response)), request_(request) {}
 
-  bool OpenInputStream(const RequestId& request_id,
+  bool OpenInputStream(int32_t request_id,
                        const network::ResourceRequest& request,
                        OpenCallback callback) override {
     return response_->OpenInputStream(request_id, request, std::move(callback));
   }
 
-  void OnInputStreamOpenFailed(const RequestId& request_id,
-                               bool* restarted) override {
+  void OnInputStreamOpenFailed(int32_t request_id, bool* restarted) override {
     request_->InputStreamFailed(false /* restart_needed */);
     *restarted = false;
   }
 
-  void GetResponseHeaders(const RequestId& request_id,
+  void GetResponseHeaders(int32_t request_id,
                           int* status_code,
                           std::string* reason_phrase,
                           std::string* mime_type,
@@ -377,7 +377,7 @@ class InterceptDelegate : public StreamReaderURLLoader::Delegate {
 
 InterceptedRequest::InterceptedRequest(
     ProxyURLLoaderFactory* factory,
-    RequestId id,
+    int32_t id,
     uint32_t options,
     const network::ResourceRequest& request,
     const net::MutableNetworkTrafficAnnotationTag& traffic_annotation,
@@ -532,6 +532,11 @@ void InterceptedRequest::OnHeadersReceived(
 }
 
 // URLLoaderClient methods.
+
+void InterceptedRequest::OnReceiveEarlyHints(
+    network::mojom::EarlyHintsPtr early_hints) {
+  target_client_->OnReceiveEarlyHints(std::move(early_hints));
+}
 
 void InterceptedRequest::OnReceiveResponse(
     network::mojom::URLResponseHeadPtr head) {
@@ -776,8 +781,7 @@ void InterceptedRequest::ContinueAfterIntercept() {
     // might, so we need to set the option on the loader.
     uint32_t options = options_ | network::mojom::kURLLoadOptionUseHeaderClient;
     target_factory_->CreateLoaderAndStart(
-        target_loader_.BindNewPipeAndPassReceiver(), id_.routing_id(),
-        id_.request_id(), options, request_,
+        target_loader_.BindNewPipeAndPassReceiver(), id_, options, request_,
         proxied_client_receiver_.BindNewPipeAndPassRemote(),
         traffic_annotation_);
   }
@@ -1141,7 +1145,7 @@ InterceptedRequestHandler::InterceptedRequestHandler() {}
 InterceptedRequestHandler::~InterceptedRequestHandler() {}
 
 void InterceptedRequestHandler::OnBeforeRequest(
-    const RequestId& id,
+    int32_t request_id,
     network::ResourceRequest* request,
     bool request_was_redirected,
     OnBeforeRequestResultCallback callback,
@@ -1150,14 +1154,14 @@ void InterceptedRequestHandler::OnBeforeRequest(
 }
 
 void InterceptedRequestHandler::ShouldInterceptRequest(
-    const RequestId& id,
+    int32_t request_id,
     network::ResourceRequest* request,
     ShouldInterceptRequestResultCallback callback) {
   std::move(callback).Run(nullptr);
 }
 
 void InterceptedRequestHandler::OnRequestResponse(
-    const RequestId& id,
+    int32_t request_id,
     network::ResourceRequest* request,
     net::HttpResponseHeaders* headers,
     base::Optional<net::RedirectInfo> redirect_info,
@@ -1169,7 +1173,7 @@ void InterceptedRequestHandler::OnRequestResponse(
 
 mojo::ScopedDataPipeConsumerHandle
 InterceptedRequestHandler::OnFilterResponseBody(
-    const RequestId& id,
+    int32_t request_id,
     const network::ResourceRequest& request,
     mojo::ScopedDataPipeConsumerHandle body) {
   return body;
@@ -1287,7 +1291,6 @@ void ProxyURLLoaderFactory::CreateProxy(
 
 void ProxyURLLoaderFactory::CreateLoaderAndStart(
     mojo::PendingReceiver<network::mojom::URLLoader> receiver,
-    int32_t routing_id,
     int32_t request_id,
     uint32_t options,
     const network::ResourceRequest& request,
@@ -1303,9 +1306,9 @@ void ProxyURLLoaderFactory::CreateLoaderAndStart(
   if (pass_through) {
     // This is the so-called pass-through, no-op option.
     if (target_factory_) {
-      target_factory_->CreateLoaderAndStart(
-          std::move(receiver), routing_id, request_id, options, request,
-          std::move(client), traffic_annotation);
+      target_factory_->CreateLoaderAndStart(std::move(receiver), request_id,
+                                            options, request, std::move(client),
+                                            traffic_annotation);
     }
     return;
   }
@@ -1317,9 +1320,8 @@ void ProxyURLLoaderFactory::CreateLoaderAndStart(
   }
 
   InterceptedRequest* req = new InterceptedRequest(
-      this, RequestId(request_id, routing_id), options, request,
-      traffic_annotation, std::move(receiver), std::move(client),
-      std::move(target_factory_clone));
+      this, request_id, options, request, traffic_annotation,
+      std::move(receiver), std::move(client), std::move(target_factory_clone));
   requests_.insert(std::make_pair(request_id, base::WrapUnique(req)));
   req->Restart();
 }
@@ -1362,7 +1364,7 @@ void ProxyURLLoaderFactory::OnProxyBindingError() {
 }
 
 void ProxyURLLoaderFactory::RemoveRequest(InterceptedRequest* request) {
-  auto it = requests_.find(request->id().request_id());
+  auto it = requests_.find(request->id());
   DCHECK(it != requests_.end());
   requests_.erase(it);
 

@@ -23,7 +23,7 @@ class LabelButtonEx : public views::LabelButton {
                                  self->ButtonPressed(event);
                                },
                                base::Unretained(this)),
-                           base::string16()) {}
+                           std::u16string()) {}
 
   virtual void ButtonPressed(const ui::Event& event) = 0;
 };

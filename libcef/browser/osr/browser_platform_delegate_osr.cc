@@ -325,8 +325,9 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragEnter(
     return;
   }
 
-  current_rwh_for_drag_->DragTargetDragEnter(
-      *drop_data, transformed_pt, gfx::PointF(screen_pt), ops, modifiers);
+  current_rwh_for_drag_->DragTargetDragEnter(*drop_data, transformed_pt,
+                                             gfx::PointF(screen_pt), ops,
+                                             modifiers, base::DoNothing());
 }
 
 void CefBrowserPlatformDelegateOsr::DragTargetDragOver(
@@ -381,7 +382,7 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragOver(
   int modifiers = TranslateWebEventModifiers(event.modifiers);
 
   target_rwh->DragTargetDragOver(transformed_pt, gfx::PointF(screen_pt), ops,
-                                 modifiers);
+                                 modifiers, base::DoNothing());
 }
 
 void CefBrowserPlatformDelegateOsr::DragTargetDragLeave() {
@@ -451,7 +452,8 @@ void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
     int modifiers = TranslateWebEventModifiers(event.modifiers);
 
     target_rwh->DragTargetDrop(*drop_data, transformed_pt,
-                               gfx::PointF(screen_pt), modifiers);
+                               gfx::PointF(screen_pt), modifiers,
+                               base::DoNothing());
   }
 
   drag_data_ = nullptr;

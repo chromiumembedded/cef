@@ -12,6 +12,7 @@
 
 #include "base/strings/utf_string_conversions.h"
 #include "base/task/post_task.h"
+#include "base/task/thread_pool.h"
 #include "chrome/browser/extensions/api/tabs/tabs_constants.h"
 #include "chrome/browser/extensions/extension_tab_util.h"
 #include "chrome/browser/profiles/profile.h"
@@ -81,10 +82,9 @@ class CefGetExtensionLoadFileCallbackImpl
       return;
     }
 
-    base::PostTaskAndReplyWithResult(
+    base::ThreadPool::PostTaskAndReplyWithResult(
         FROM_HERE,
-        {base::ThreadPool(), base::MayBlock(),
-         base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN},
+        {base::MayBlock(), base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN},
         base::BindOnce(LoadFileFromStream, file, stream), std::move(callback));
   }
 

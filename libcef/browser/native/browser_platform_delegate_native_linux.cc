@@ -295,7 +295,7 @@ ui::KeyEvent CefBrowserPlatformDelegateNativeLinux::TranslateUiKeyEvent(
       ui::KeycodeConverter::NativeKeycodeToDomCode(key_event.native_key_code);
   int keysym = ui::XKeysymForWindowsKeyCode(
       key_code, !!(key_event.modifiers & EVENTFLAG_SHIFT_DOWN));
-  base::char16 character = ui::GetUnicodeCharacterFromXKeySym(keysym);
+  char16_t character = ui::GetUnicodeCharacterFromXKeySym(keysym);
   base::TimeTicks time_stamp = GetEventTimeStamp();
 
   if (key_event.type == KEYEVENT_CHAR) {

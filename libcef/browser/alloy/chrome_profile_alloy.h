@@ -26,8 +26,8 @@ class ChromeProfileAlloy : public Profile {
   variations::VariationsClient* GetVariationsClient() override;
   scoped_refptr<base::SequencedTaskRunner> GetIOTaskRunner() override;
   std::string GetProfileUserName() const override;
-  Profile* GetOffTheRecordProfile(
-      const Profile::OTRProfileID& otr_profile_id) override;
+  Profile* GetOffTheRecordProfile(const Profile::OTRProfileID& otr_profile_id,
+                                  bool create_if_needed) override;
   std::vector<Profile*> GetAllOffTheRecordProfiles() override;
   void DestroyOffTheRecordProfile(Profile* otr_profile) override;
   bool HasOffTheRecordProfile(

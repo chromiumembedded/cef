@@ -31,7 +31,7 @@ class CefExtensionViewHost : public ExtensionHost,
                        const Extension* extension,
                        content::WebContents* host_contents,
                        const GURL& url,
-                       ViewType host_type);
+                       mojom::ViewType host_type);
   ~CefExtensionViewHost() override;
 
   // ExtensionHost methods:

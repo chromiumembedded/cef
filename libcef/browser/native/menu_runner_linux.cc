@@ -37,8 +37,8 @@ void CefMenuRunnerLinux::CancelContextMenu() {
     menu_->Cancel();
 }
 
-bool CefMenuRunnerLinux::FormatLabel(base::string16& label) {
+bool CefMenuRunnerLinux::FormatLabel(std::u16string& label) {
   // Remove the accelerator indicator (&) from label strings.
-  const base::string16::value_type replace[] = {L'&', 0};
-  return base::ReplaceChars(label, replace, base::string16(), &label);
+  const std::u16string::value_type replace[] = {u'&', 0};
+  return base::ReplaceChars(label, replace, std::u16string(), &label);
 }

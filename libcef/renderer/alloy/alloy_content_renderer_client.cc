@@ -461,14 +461,10 @@ void AlloyContentRendererClient::DevToolsAgentDetached() {
   browser_manager_->DevToolsAgentDetached();
 }
 
-std::unique_ptr<content::URLLoaderThrottleProvider>
+std::unique_ptr<blink::URLLoaderThrottleProvider>
 AlloyContentRendererClient::CreateURLLoaderThrottleProvider(
-    content::URLLoaderThrottleProviderType provider_type) {
+    blink::URLLoaderThrottleProviderType provider_type) {
   return std::make_unique<CefURLLoaderThrottleProviderImpl>(provider_type);
-}
-
-bool AlloyContentRendererClient::RequiresHtmlImports(const GURL& url) {
-  return url.SchemeIs(content::kChromeUIScheme);
 }
 
 void AlloyContentRendererClient::GetInterface(

@@ -14,7 +14,6 @@
 #include "base/macros.h"
 #include "base/memory/weak_ptr.h"
 #include "base/observer_list.h"
-#include "base/strings/string16.h"
 
 namespace ui {
 class MenuModel;
@@ -73,7 +72,7 @@ class CefNativeMenuWin : public MenuWrapper {
   // Sets the label of the item at the specified index.
   void SetMenuItemLabel(int menu_index,
                         int model_index,
-                        const base::string16& label);
+                        const std::wstring& label);
 
   // Updates the local data structure with the correctly formatted version of
   // |label| at the specified model_index, and adds string data to |mii| if
@@ -81,7 +80,7 @@ class CefNativeMenuWin : public MenuWrapper {
   // of the peculiarities of the Windows menu API.
   void UpdateMenuItemInfoForString(MENUITEMINFO* mii,
                                    int model_index,
-                                   const base::string16& label);
+                                   const std::wstring& label);
 
   // Returns the alignment flags to be passed to TrackPopupMenuEx, based on the
   // supplied alignment and the UI text direction.

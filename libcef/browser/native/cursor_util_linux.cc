@@ -15,7 +15,7 @@ namespace cursor_util {
 cef_cursor_handle_t GetPlatformCursor(ui::mojom::CursorType type) {
   auto cursor = ui::CursorFactory::GetInstance()->GetDefaultCursor(type);
   if (cursor) {
-    return ToCursorHandle(*cursor);
+    return ToCursorHandle(cursor);
   }
   return 0;
 }

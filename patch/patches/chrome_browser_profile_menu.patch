@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/profile_window.cc chrome/browser/profiles/profile_window.cc
-index 691ac8eea4fd..eda2d1c1f224 100644
+index 69d6f442d1208..46f2be62e0466 100644
 --- chrome/browser/profiles/profile_window.cc
 +++ chrome/browser/profiles/profile_window.cc
-@@ -335,7 +335,9 @@ void BubbleViewModeFromAvatarBubbleMode(BrowserWindow::AvatarBubbleMode mode,
+@@ -262,7 +262,9 @@ void BubbleViewModeFromAvatarBubbleMode(BrowserWindow::AvatarBubbleMode mode,
        *bubble_view_mode = BUBBLE_VIEW_MODE_PROFILE_CHOOSER;
        return;
      case BrowserWindow::AVATAR_BUBBLE_MODE_DEFAULT:
@@ -14,7 +14,7 @@ index 691ac8eea4fd..eda2d1c1f224 100644
                                : profiles::BUBBLE_VIEW_MODE_PROFILE_CHOOSER;
    }
 diff --git chrome/browser/ui/views/profiles/incognito_menu_view.cc chrome/browser/ui/views/profiles/incognito_menu_view.cc
-index f8285d1b6ec1..1f526a44a0b6 100644
+index b6ce61c8f4b03..dc5d111325b1f 100644
 --- chrome/browser/ui/views/profiles/incognito_menu_view.cc
 +++ chrome/browser/ui/views/profiles/incognito_menu_view.cc
 @@ -37,7 +37,9 @@
@@ -29,7 +29,7 @@ index f8285d1b6ec1..1f526a44a0b6 100644
  
    chrome::RecordDialogCreation(
 diff --git chrome/browser/ui/views/profiles/profile_menu_view_base.cc chrome/browser/ui/views/profiles/profile_menu_view_base.cc
-index c35334dea810..e1e9b453462f 100644
+index 319404417dc43..795dccb655e07 100644
 --- chrome/browser/ui/views/profiles/profile_menu_view_base.cc
 +++ chrome/browser/ui/views/profiles/profile_menu_view_base.cc
 @@ -494,7 +494,9 @@ void ProfileMenuViewBase::ShowBubble(

@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 9f6dfb1d1c00..b48c1d45aa11 100644
+index 0a3f329f4a524..9546c5add9c8c 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -2,6 +2,7 @@
@@ -10,7 +10,7 @@ index 9f6dfb1d1c00..b48c1d45aa11 100644
  #include "base/message_loop/message_pump_win.h"
  
  #include <algorithm>
-@@ -497,7 +498,17 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
+@@ -493,7 +494,17 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
                  ctx.event()->set_chrome_message_pump();
              msg_pump_data->set_sent_messages_in_queue(more_work_is_plausible);
            });
@@ -30,10 +30,10 @@ index 9f6dfb1d1c00..b48c1d45aa11 100644
    }
    if (has_msg)
 diff --git base/task/current_thread.cc base/task/current_thread.cc
-index bc572011b138..ccb208620402 100644
+index 9641285fde742..51cc852fcc165 100644
 --- base/task/current_thread.cc
 +++ base/task/current_thread.cc
-@@ -47,6 +47,8 @@ void CurrentThread::AddDestructionObserver(
+@@ -48,6 +48,8 @@ void CurrentThread::AddDestructionObserver(
  
  void CurrentThread::RemoveDestructionObserver(
      DestructionObserver* destruction_observer) {
@@ -43,7 +43,7 @@ index bc572011b138..ccb208620402 100644
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/task/current_thread.h base/task/current_thread.h
-index 3f64b403c7eb..1130936a5f1f 100644
+index bdcd661bfa282..823a1d02ca858 100644
 --- base/task/current_thread.h
 +++ base/task/current_thread.h
 @@ -127,6 +127,12 @@ class BASE_EXPORT CurrentThread {

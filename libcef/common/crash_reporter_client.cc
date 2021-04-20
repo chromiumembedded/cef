@@ -13,7 +13,6 @@
 #include "base/environment.h"
 #include "base/logging.h"
 #include "base/stl_util.h"
-#include "base/strings/string16.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_piece.h"
 #include "base/strings/string_split.h"
@@ -53,7 +52,7 @@
 namespace {
 
 #if defined(OS_WIN)
-typedef base::string16 PathString;
+typedef std::wstring PathString;
 const char kPathSep = '\\';
 #else
 typedef std::string PathString;
@@ -568,7 +567,7 @@ void CefCrashReporterClient::InitializeCrashReportingForProcess() {
 }
 
 bool CefCrashReporterClient::GetAlternativeCrashDumpLocation(
-    base::string16* crash_dir) {
+    std::wstring* crash_dir) {
   // By setting the BREAKPAD_DUMP_LOCATION environment variable, an alternate
   // location to write breakpad crash dumps can be set.
   *crash_dir = install_static::GetEnvironmentString(L"BREAKPAD_DUMP_LOCATION");
@@ -576,29 +575,29 @@ bool CefCrashReporterClient::GetAlternativeCrashDumpLocation(
 }
 
 void CefCrashReporterClient::GetProductNameAndVersion(
-    const base::string16& exe_path,
-    base::string16* product_name,
-    base::string16* version,
-    base::string16* special_build,
-    base::string16* channel_name) {
-  *product_name = base::ASCIIToUTF16(product_name_);
-  *version = base::ASCIIToUTF16(product_version_);
-  *special_build = base::string16();
-  *channel_name = base::string16();
+    const std::wstring& exe_path,
+    std::wstring* product_name,
+    std::wstring* version,
+    std::wstring* special_build,
+    std::wstring* channel_name) {
+  *product_name = base::ASCIIToWide(product_name_);
+  *version = base::ASCIIToWide(product_version_);
+  *special_build = std::wstring();
+  *channel_name = std::wstring();
 }
 
-bool CefCrashReporterClient::GetCrashDumpLocation(base::string16* crash_dir) {
+bool CefCrashReporterClient::GetCrashDumpLocation(std::wstring* crash_dir) {
   // By setting the BREAKPAD_DUMP_LOCATION environment variable, an alternate
   // location to write breakpad crash dumps can be set.
   if (GetAlternativeCrashDumpLocation(crash_dir))
     return true;
 
-  return GetDefaultCrashDumpLocation(crash_dir, base::UTF8ToUTF16(app_name_));
+  return GetDefaultCrashDumpLocation(crash_dir, base::UTF8ToWide(app_name_));
 }
 
 bool CefCrashReporterClient::GetCrashMetricsLocation(
-    base::string16* metrics_dir) {
-  return GetDefaultUserDataDirectory(metrics_dir, base::UTF8ToUTF16(app_name_));
+    std::wstring* metrics_dir) {
+  return GetDefaultUserDataDirectory(metrics_dir, base::UTF8ToWide(app_name_));
 }
 
 #elif defined(OS_POSIX)

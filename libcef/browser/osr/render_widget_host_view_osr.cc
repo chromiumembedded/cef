@@ -653,7 +653,7 @@ void CefRenderWidgetHostViewOSR::Destroy() {
 }
 
 void CefRenderWidgetHostViewOSR::SetTooltipText(
-    const base::string16& tooltip_text) {
+    const std::u16string& tooltip_text) {
   if (!browser_impl_.get())
     return;
 
@@ -817,7 +817,7 @@ void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
   RequestImeCompositionUpdate(false);
 }
 
-void CefRenderWidgetHostViewOSR::SelectionChanged(const base::string16& text,
+void CefRenderWidgetHostViewOSR::SelectionChanged(const std::u16string& text,
                                                   size_t offset,
                                                   const gfx::Range& range) {
   RenderWidgetHostViewBase::SelectionChanged(text, offset, range);
@@ -1405,6 +1405,15 @@ void CefRenderWidgetHostViewOSR::ShowDefinitionForSelection() {}
 void CefRenderWidgetHostViewOSR::SpeakSelection() {}
 
 void CefRenderWidgetHostViewOSR::SetWindowFrameInScreen(const gfx::Rect& rect) {
+}
+
+void CefRenderWidgetHostViewOSR::ShowSharePicker(
+    const std::string& title,
+    const std::string& text,
+    const std::string& url,
+    const std::vector<std::string>& file_paths,
+    blink::mojom::ShareService::ShareCallback callback) {
+  std::move(callback).Run(blink::mojom::ShareError::INTERNAL_ERROR);
 }
 #endif  // defined(OS_MAC)
 

@@ -18,7 +18,7 @@
 #include "third_party/blink/public/platform/web_url.h"
 
 CefURLLoaderThrottleProviderImpl::CefURLLoaderThrottleProviderImpl(
-    content::URLLoaderThrottleProviderType type)
+    blink::URLLoaderThrottleProviderType type)
     : type_(type) {
   DETACH_FROM_THREAD(thread_checker_);
 }
@@ -33,19 +33,19 @@ CefURLLoaderThrottleProviderImpl::CefURLLoaderThrottleProviderImpl(
   DETACH_FROM_THREAD(thread_checker_);
 }
 
-std::unique_ptr<content::URLLoaderThrottleProvider>
+std::unique_ptr<blink::URLLoaderThrottleProvider>
 CefURLLoaderThrottleProviderImpl::Clone() {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
   return base::WrapUnique(new CefURLLoaderThrottleProviderImpl(*this));
 }
 
-std::vector<std::unique_ptr<blink::URLLoaderThrottle>>
+blink::WebVector<std::unique_ptr<blink::URLLoaderThrottle>>
 CefURLLoaderThrottleProviderImpl::CreateThrottles(
     int render_frame_id,
     const blink::WebURLRequest& request) {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
 
-  std::vector<std::unique_ptr<blink::URLLoaderThrottle>> throttles;
+  blink::WebVector<std::unique_ptr<blink::URLLoaderThrottle>> throttles;
 
   const network::mojom::RequestDestination request_destination =
       request.GetRequestDestination();
@@ -56,9 +56,9 @@ CefURLLoaderThrottleProviderImpl::CreateThrottles(
       blink::IsRequestDestinationFrame(request_destination);
 
   DCHECK(!is_frame_resource ||
-         type_ == content::URLLoaderThrottleProviderType::kFrame);
+         type_ == blink::URLLoaderThrottleProviderType::kFrame);
 
-  throttles.push_back(std::make_unique<GoogleURLLoaderThrottle>(
+  throttles.emplace_back(std::make_unique<GoogleURLLoaderThrottle>(
       AlloyRenderThreadObserver::GetDynamicParams()));
 
   return throttles;

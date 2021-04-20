@@ -25,6 +25,7 @@
 #include "base/bind.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/task/post_task.h"
+#include "base/task/thread_pool.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/media/router/chrome_media_router_factory.h"
 #include "chrome/browser/net/system_network_context_manager.h"
@@ -152,7 +153,7 @@ int AlloyBrowserMainParts::PreCreateThreads() {
   return 0;
 }
 
-void AlloyBrowserMainParts::PreMainMessageLoopRun() {
+int AlloyBrowserMainParts::PreMainMessageLoopRun() {
 #if defined(USE_AURA)
   display::Screen::SetScreenInstance(views::CreateDesktopScreen());
 #endif
@@ -173,14 +174,14 @@ void AlloyBrowserMainParts::PreMainMessageLoopRun() {
   // ChromeBrowserMainExtraPartsProfiles for details.
   cef::EnsureBrowserContextKeyedServiceFactoriesBuilt();
 
-  background_task_runner_ = base::CreateSingleThreadTaskRunner(
-      {base::ThreadPool(), base::TaskPriority::BEST_EFFORT,
+  background_task_runner_ = base::ThreadPool::CreateSingleThreadTaskRunner(
+      {base::TaskPriority::BEST_EFFORT,
        base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()});
-  user_visible_task_runner_ = base::CreateSingleThreadTaskRunner(
-      {base::ThreadPool(), base::TaskPriority::USER_VISIBLE,
+  user_visible_task_runner_ = base::ThreadPool::CreateSingleThreadTaskRunner(
+      {base::TaskPriority::USER_VISIBLE,
        base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()});
-  user_blocking_task_runner_ = base::CreateSingleThreadTaskRunner(
-      {base::ThreadPool(), base::TaskPriority::USER_BLOCKING,
+  user_blocking_task_runner_ = base::ThreadPool::CreateSingleThreadTaskRunner(
+      {base::TaskPriority::USER_BLOCKING,
        base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()});
 
   CefRequestContextSettings settings;
@@ -204,6 +205,8 @@ void AlloyBrowserMainParts::PreMainMessageLoopRun() {
   PluginFinder::GetInstance()->Init();
 
   scheme::RegisterWebUIControllerFactory();
+
+  return content::RESULT_CODE_NORMAL_EXIT;
 }
 
 void AlloyBrowserMainParts::PostMainMessageLoopRun() {

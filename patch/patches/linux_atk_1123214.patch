@@ -1,5 +1,5 @@
 diff --git build/config/linux/atk/BUILD.gn build/config/linux/atk/BUILD.gn
-index bc8e27894732..5d06ce988f25 100644
+index bc8e27894732a..5d06ce988f25f 100644
 --- build/config/linux/atk/BUILD.gn
 +++ build/config/linux/atk/BUILD.gn
 @@ -12,7 +12,7 @@ import("//build/config/ui.gni")
@@ -12,7 +12,7 @@ index bc8e27894732..5d06ce988f25 100644
  if (use_atk) {
    assert(use_glib, "use_atk=true requires that use_glib=true")
 diff --git build/config/linux/atspi2/BUILD.gn build/config/linux/atspi2/BUILD.gn
-index 988a99568136..1791ea607550 100644
+index 988a995681361..1791ea607550e 100644
 --- build/config/linux/atspi2/BUILD.gn
 +++ build/config/linux/atspi2/BUILD.gn
 @@ -6,7 +6,7 @@ import("//build/config/linux/pkg_config.gni")

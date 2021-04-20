@@ -1,5 +1,5 @@
 diff --git chrome/browser/sharesheet/sharesheet_service_delegate.cc chrome/browser/sharesheet/sharesheet_service_delegate.cc
-index 0b22a38aefb2..c7be7da822f6 100644
+index 3cb0c531e382e..a40b50e060483 100644
 --- chrome/browser/sharesheet/sharesheet_service_delegate.cc
 +++ chrome/browser/sharesheet/sharesheet_service_delegate.cc
 @@ -19,8 +19,10 @@ SharesheetServiceDelegate::SharesheetServiceDelegate(
@@ -13,25 +13,38 @@ index 0b22a38aefb2..c7be7da822f6 100644
        sharesheet_service_(sharesheet_service) {}
  
  SharesheetServiceDelegate::~SharesheetServiceDelegate() = default;
-@@ -36,21 +38,27 @@ void SharesheetServiceDelegate::ShowBubble(
+@@ -36,8 +38,10 @@ void SharesheetServiceDelegate::ShowBubble(
      }
      return;
    }
 +#if defined(OS_CHROMEOS)
    sharesheet_bubble_view_->ShowBubble(std::move(targets), std::move(intent),
-                                       std::move(close_callback));
+                                       std::move(delivered_callback));
 +#endif
    is_bubble_open_ = true;
  }
  
+@@ -52,15 +56,19 @@ void SharesheetServiceDelegate::ShowNearbyShareBubble(
+     }
+     return;
+   }
++#if defined(OS_CHROMEOS)
+   sharesheet_bubble_view_->ShowNearbyShareBubble(std::move(intent),
+                                                  std::move(delivered_callback));
++#endif
+   is_bubble_open_ = true;
+ }
+ #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
+ 
  void SharesheetServiceDelegate::OnBubbleClosed(
-     const base::string16& active_action) {
+     const std::u16string& active_action) {
 +#if defined(OS_CHROMEOS)
    sharesheet_bubble_view_.release();
 +#endif
    sharesheet_service_->OnBubbleClosed(native_window_, active_action);
    // This object is now deleted and nothing can be accessed any more.
    // Therefore there is no need to set is_bubble_open_ to false.
+@@ -82,7 +90,9 @@ bool SharesheetServiceDelegate::OnAcceleratorPressed(
  }
  
  void SharesheetServiceDelegate::OnActionLaunched() {
@@ -40,8 +53,8 @@ index 0b22a38aefb2..c7be7da822f6 100644
 +#endif
  }
  
- void SharesheetServiceDelegate::OnTargetSelected(
-@@ -74,11 +82,15 @@ void SharesheetServiceDelegate::SetSharesheetSize(const int& width,
+ const gfx::VectorIcon* SharesheetServiceDelegate::GetVectorIcon(
+@@ -102,11 +112,15 @@ void SharesheetServiceDelegate::SetSharesheetSize(const int& width,
                                                    const int& height) {
    DCHECK_GT(width, 0);
    DCHECK_GT(height, 0);
@@ -56,15 +69,15 @@ index 0b22a38aefb2..c7be7da822f6 100644
 +#endif
  }
  
- const gfx::VectorIcon* SharesheetServiceDelegate::GetVectorIcon(
+ }  // namespace sharesheet
 diff --git chrome/browser/sharesheet/sharesheet_service_delegate.h chrome/browser/sharesheet/sharesheet_service_delegate.h
-index 164a3a35a3f5..82b8c15820c9 100644
+index cba3392d1057c..b307678693797 100644
 --- chrome/browser/sharesheet/sharesheet_service_delegate.h
 +++ chrome/browser/sharesheet/sharesheet_service_delegate.h
-@@ -65,7 +65,9 @@ class SharesheetServiceDelegate : public SharesheetController {
+@@ -72,7 +72,9 @@ class SharesheetServiceDelegate : public SharesheetController {
    gfx::NativeWindow native_window_;
  
-   base::string16 active_action_;
+   std::u16string active_action_;
 +#if defined(OS_CHROMEOS)
    std::unique_ptr<SharesheetBubbleView> sharesheet_bubble_view_;
 +#endif

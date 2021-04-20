@@ -115,7 +115,7 @@ std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
     }
     return std::move(native_delegate);
   } else if (create_params.extension_host_type ==
-             extensions::VIEW_TYPE_EXTENSION_BACKGROUND_PAGE) {
+             extensions::mojom::ViewType::kExtensionBackgroundPage) {
     // Creating a background extension host without a window.
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate =
         CreateNativeDelegate(CefWindowInfo(), background_color);
