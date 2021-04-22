@@ -576,11 +576,11 @@ const Extension* CefExtensionSystem::LoadExtension(
   // Insert first so that callbacks can retrieve the loaded extension.
   extension_map_.insert(std::make_pair(extension->id(), cef_extension));
 
-  cef_extension->OnExtensionLoaded();
-
   // This may trigger additional callbacks.
   registry_->AddEnabled(extension.get());
   NotifyExtensionLoaded(extension.get());
+
+  cef_extension->OnExtensionLoaded();
 
   return extension.get();
 }
