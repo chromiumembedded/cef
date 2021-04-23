@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 94e40ecd52276..597810f96ba53 100644
+index 5c150b1b020e..acd30a6f485d 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -12,6 +12,7 @@ import("//build/config/features.gni")
@@ -38,7 +38,7 @@ index 94e40ecd52276..597810f96ba53 100644
        "//components/reading_list/features:flags",
        "//components/safe_browsing/core/common:safe_browsing_policy_handler",
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
-index a12ad7b5e7eb6..9dba0f6642313 100644
+index a12ad7b5e7eb..9dba0f664231 100644
 --- chrome/browser/ui/webui/net_export_ui.cc
 +++ chrome/browser/ui/webui/net_export_ui.cc
 @@ -21,6 +21,7 @@

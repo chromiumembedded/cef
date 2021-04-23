@@ -1,5 +1,5 @@
 diff --git base/trace_event/builtin_categories.h base/trace_event/builtin_categories.h
-index c697f7ced74e8..0982cd85150bc 100644
+index c697f7ced74e..0982cd85150b 100644
 --- base/trace_event/builtin_categories.h
 +++ base/trace_event/builtin_categories.h
 @@ -59,6 +59,8 @@

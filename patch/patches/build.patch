@@ -1,5 +1,5 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index 72ea590d69681..0c34d20addfa8 100644
+index 72ea590d6968..0c34d20addfa 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
 @@ -1834,8 +1834,6 @@ config("thin_archive") {

@@ -1,8 +1,8 @@
 diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
-index 2a08f566a353e..d361989b60567 100644
+index c2f073c62d9f..e5c9ba1577bf 100644
 --- content/browser/storage_partition_impl.cc
 +++ content/browser/storage_partition_impl.cc
-@@ -489,10 +489,6 @@ class LoginHandlerDelegate {
+@@ -490,10 +490,6 @@ class LoginHandlerDelegate {
      }
  
      WebContents* web_contents = web_contents_getter_.Run();
@@ -13,7 +13,7 @@ index 2a08f566a353e..d361989b60567 100644
  
      // WeakPtr is not strictly necessary here due to OnRequestCancelled.
      creating_login_delegate_ = true;
-@@ -545,12 +541,6 @@ void OnAuthRequiredContinuation(
+@@ -546,12 +542,6 @@ void OnAuthRequiredContinuation(
      mojo::PendingRemote<network::mojom::AuthChallengeResponder>
          auth_challenge_responder,
      base::RepeatingCallback<WebContents*(void)> web_contents_getter) {
@@ -26,7 +26,7 @@ index 2a08f566a353e..d361989b60567 100644
    new LoginHandlerDelegate(std::move(auth_challenge_responder),
                             std::move(web_contents_getter), auth_info,
                             is_request_for_main_frame, process_id, routing_id,
-@@ -2502,8 +2492,12 @@ void StoragePartitionImpl::GetQuotaSettings(
+@@ -2521,8 +2511,12 @@ void StoragePartitionImpl::GetQuotaSettings(
      return;
    }
  
@@ -40,7 +40,7 @@ index 2a08f566a353e..d361989b60567 100644
        storage::GetDefaultDeviceInfoHelper(), std::move(callback));
  }
  
-@@ -2516,6 +2510,11 @@ void StoragePartitionImpl::InitNetworkContext() {
+@@ -2535,6 +2529,11 @@ void StoragePartitionImpl::InitNetworkContext() {
    GetContentClient()->browser()->ConfigureNetworkContextParams(
        browser_context_, is_in_memory_, relative_partition_path_,
        context_params.get(), cert_verifier_creation_params.get());

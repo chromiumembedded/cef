@@ -1,5 +1,5 @@
 diff --git chrome/browser/app_controller_mac.mm chrome/browser/app_controller_mac.mm
-index 3f0c080690084..52d0d8eb43c3e 100644
+index 8fd9ba22110e..327c788df2d3 100644
 --- chrome/browser/app_controller_mac.mm
 +++ chrome/browser/app_controller_mac.mm
 @@ -31,6 +31,7 @@
@@ -26,7 +26,7 @@ index 3f0c080690084..52d0d8eb43c3e 100644
  }
  
  // Same as |-commandDispatch:|, but executes commands using a disposition
-@@ -1606,6 +1609,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1607,6 +1610,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
    // TODO(rickcam): Mock out BackgroundApplicationListModel, then add unit
    // tests which use the mock in place of the profile-initialized model.
  
@@ -34,7 +34,7 @@ index 3f0c080690084..52d0d8eb43c3e 100644
    // Avoid breaking unit tests which have no profile.
    if (profile) {
      BackgroundApplicationListModel applications(profile);
-@@ -1632,6 +1636,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1633,6 +1637,7 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
        }
      }
    }
@@ -42,7 +42,7 @@ index 3f0c080690084..52d0d8eb43c3e 100644
  
    return dockMenu;
  }
-@@ -1861,11 +1866,13 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
+@@ -1862,11 +1867,13 @@ static base::mac::ScopedObjCClassSwizzler* g_swizzle_imk_input_session;
  namespace {
  
  void UpdateProfileInUse(Profile* profile, Profile::CreateStatus status) {
@@ -57,7 +57,7 @@ index 3f0c080690084..52d0d8eb43c3e 100644
  
  }  // namespace
 diff --git chrome/browser/browser_process.h chrome/browser/browser_process.h
-index 3d634db18900a..96e44ad48e5e5 100644
+index 3d634db18900..96e44ad48e5e 100644
 --- chrome/browser/browser_process.h
 +++ chrome/browser/browser_process.h
 @@ -197,9 +197,9 @@ class BrowserProcess {
@@ -72,7 +72,7 @@ index 3d634db18900a..96e44ad48e5e5 100644
        std::unique_ptr<BackgroundModeManager> manager) = 0;
  #endif
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index 89a682d5c9352..946ccbda587c7 100644
+index 89a682d5c935..946ccbda587c 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
 @@ -947,18 +947,14 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
@@ -96,7 +96,7 @@ index 89a682d5c9352..946ccbda587c7 100644
      std::unique_ptr<BackgroundModeManager> manager) {
    background_mode_manager_ = std::move(manager);
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index b4ceefbccd083..7d60206c83b13 100644
+index b4ceefbccd08..7d60206c83b1 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
 @@ -169,8 +169,8 @@ class BrowserProcessImpl : public BrowserProcess,
@@ -110,7 +110,7 @@ index b4ceefbccd083..7d60206c83b13 100644
        std::unique_ptr<BackgroundModeManager> manager) override;
  #endif
 diff --git chrome/browser/lifetime/browser_close_manager.cc chrome/browser/lifetime/browser_close_manager.cc
-index e0cafee5eedd6..06ded156be3cc 100644
+index e0cafee5eedd..06ded156be3c 100644
 --- chrome/browser/lifetime/browser_close_manager.cc
 +++ chrome/browser/lifetime/browser_close_manager.cc
 @@ -148,12 +148,14 @@ void BrowserCloseManager::CloseBrowsers() {
@@ -129,10 +129,10 @@ index e0cafee5eedd6..06ded156be3cc 100644
    // Make a copy of the BrowserList to simplify the case where we need to
    // destroy a Browser during the loop.
 diff --git chrome/browser/sessions/app_session_service.cc chrome/browser/sessions/app_session_service.cc
-index 071884fe257bb..47160e3e47bdb 100644
+index cb12e5b6e8d9..ae24f7ad5f5d 100644
 --- chrome/browser/sessions/app_session_service.cc
 +++ chrome/browser/sessions/app_session_service.cc
-@@ -90,8 +90,11 @@ void AppSessionService::MaybeDeleteSessionOnlyData() {
+@@ -165,8 +165,11 @@ void AppSessionService::MaybeDeleteSessionOnlyData() {
    // Clear session data if the last window for a profile has been closed and
    // closing the last window would normally close Chrome, unless background mode
    // is active.  Tests don't have a background_mode_manager.
@@ -147,10 +147,10 @@ index 071884fe257bb..47160e3e47bdb 100644
    }
  
 diff --git chrome/browser/sessions/session_service.cc chrome/browser/sessions/session_service.cc
-index e5074800fbb00..e6c59d05ee204 100644
+index 24a6b1a3634d..abcb36d783de 100644
 --- chrome/browser/sessions/session_service.cc
 +++ chrome/browser/sessions/session_service.cc
-@@ -553,12 +553,19 @@ void SessionService::MaybeDeleteSessionOnlyData() {
+@@ -516,12 +516,19 @@ void SessionService::MaybeDeleteSessionOnlyData() {
    if (profile()->AsTestingProfile())
      return;
  

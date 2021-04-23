@@ -1,5 +1,5 @@
 diff --git ui/base/models/menu_model.h ui/base/models/menu_model.h
-index 2f8dd2c08a95b..e2ca02b74ffba 100644
+index 2f8dd2c08a95..e2ca02b74ffb 100644
 --- ui/base/models/menu_model.h
 +++ ui/base/models/menu_model.h
 @@ -13,8 +13,11 @@
@@ -43,7 +43,7 @@ index 2f8dd2c08a95b..e2ca02b74ffba 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index c80c92f084177..609a2681a4c6d 100644
+index c80c92f08417..609a2681a4c6 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -623,6 +623,14 @@ void RenderText::SetWhitespaceElision(base::Optional<bool> whitespace_elision) {
@@ -82,7 +82,7 @@ index c80c92f084177..609a2681a4c6d 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index b4e825ddfb6bd..3b894beade251 100644
+index b4e825ddfb6b..3b894beade25 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
 @@ -345,6 +345,10 @@ class GFX_EXPORT RenderText {
@@ -106,7 +106,7 @@ index b4e825ddfb6bd..3b894beade251 100644
  };
  
 diff --git ui/views/animation/ink_drop_host_view.h ui/views/animation/ink_drop_host_view.h
-index 8c8f77fc26db3..0a9f50df07c1d 100644
+index 8c8f77fc26db..0a9f50df07c1 100644
 --- ui/views/animation/ink_drop_host_view.h
 +++ ui/views/animation/ink_drop_host_view.h
 @@ -142,6 +142,8 @@ class VIEWS_EXPORT InkDropHostView : public View {
@@ -119,7 +119,7 @@ index 8c8f77fc26db3..0a9f50df07c1d 100644
    // Size used for the default SquareInkDropRipple.
    static constexpr gfx::Size kDefaultInkDropSize = gfx::Size(24, 24);
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 7e744be3c39e2..0150a0e347111 100644
+index 7e744be3c39e..0150a0e34711 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
 @@ -498,6 +498,12 @@ void LabelButton::OnThemeChanged() {
@@ -136,7 +136,7 @@ index 7e744be3c39e2..0150a0e347111 100644
    Button::StateChanged(old_state);
    ResetLabelEnabledColor();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 1ad627bb786b8..624061e6ba3c7 100644
+index 1ad627bb786b..624061e6ba3c 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
 @@ -133,6 +133,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
@@ -150,7 +150,7 @@ index 1ad627bb786b8..624061e6ba3c7 100644
    ImageView* image() const { return image_; }
    Label* label() const { return label_; }
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 382b0ea115a5c..32d213250c938 100644
+index 382b0ea115a5..32d213250c93 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -49,12 +49,27 @@ enum LabelPropertyKey {
@@ -215,7 +215,7 @@ index 382b0ea115a5c..32d213250c938 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 269425ed7c04a..5dea3a3dbd652 100644
+index 269425ed7c04..5dea3a3dbd65 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -225,6 +225,10 @@ class VIEWS_EXPORT Label : public View,
@@ -238,7 +238,7 @@ index 269425ed7c04a..5dea3a3dbd652 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 7c081b7d8a4e1..36c5bb5e8f93a 100644
+index 7c081b7d8a4e..36c5bb5e8f93 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -2748,8 +2748,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
@@ -269,7 +269,7 @@ index 7c081b7d8a4e1..36c5bb5e8f93a 100644
      SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
    else if (item->GetParentMenuItem()->GetParentMenuItem())
 diff --git ui/views/controls/menu/menu_delegate.h ui/views/controls/menu/menu_delegate.h
-index a280e9d74016e..59a8eda9b1d84 100644
+index a280e9d74016..59a8eda9b1d8 100644
 --- ui/views/controls/menu/menu_delegate.h
 +++ ui/views/controls/menu/menu_delegate.h
 @@ -79,6 +79,22 @@ class VIEWS_EXPORT MenuDelegate {
@@ -308,7 +308,7 @@ index a280e9d74016e..59a8eda9b1d84 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index e12fe2ac6ad80..347174b8c21a3 100644
+index e12fe2ac6ad8..347174b8c21a 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
 @@ -1087,6 +1087,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
@@ -342,7 +342,7 @@ index e12fe2ac6ad80..347174b8c21a3 100644
        GetMenuController() && GetMenuController()->use_touchable_layout()
            ? style::CONTEXT_TOUCH_MENU
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index fbd30c4914bbe..851d03a9d45e8 100644
+index fbd30c4914bb..851d03a9d45e 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
 @@ -242,6 +242,77 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
@@ -424,7 +424,7 @@ index fbd30c4914bbe..851d03a9d45e8 100644
    // Look up the menu model for this menu.
    const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
 diff --git ui/views/controls/menu/menu_model_adapter.h ui/views/controls/menu/menu_model_adapter.h
-index c7aaf7286b74d..2ba3a9c10fe03 100644
+index c7aaf7286b74..2ba3a9c10fe0 100644
 --- ui/views/controls/menu/menu_model_adapter.h
 +++ ui/views/controls/menu/menu_model_adapter.h
 @@ -84,6 +84,20 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate,
@@ -449,7 +449,7 @@ index c7aaf7286b74d..2ba3a9c10fe03 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 3f9f76315def1..9f0e0c791eb0e 100644
+index 3f9f76315def..9f0e0c791eb0 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -234,6 +234,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
@@ -465,7 +465,7 @@ index 3f9f76315def1..9f0e0c791eb0e 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aurax11.cc ui/views/test/ui_controls_factory_desktop_aurax11.cc
-index 64e09ff4359a8..714e8e9ff6610 100644
+index 64e09ff4359a..714e8e9ff661 100644
 --- ui/views/test/ui_controls_factory_desktop_aurax11.cc
 +++ ui/views/test/ui_controls_factory_desktop_aurax11.cc
 @@ -89,10 +89,6 @@ class UIControlsDesktopX11 : public UIControlsAura {
@@ -480,7 +480,7 @@ index 64e09ff4359a8..714e8e9ff6610 100644
          x11_ui_controls_test_helper_.ButtonDownMask() == 0) {
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
 diff --git ui/views/view.h ui/views/view.h
-index b13e80f12a5c1..5c19ea1854e65 100644
+index b13e80f12a5c..5c19ea1854e6 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -25,6 +25,7 @@

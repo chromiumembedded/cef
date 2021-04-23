@@ -1,5 +1,5 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index b180f511a9f07..e08dcb1520308 100644
+index b180f511a9f0..e08dcb152030 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 @@ -10,6 +10,7 @@
@@ -62,7 +62,7 @@ index b180f511a9f07..e08dcb1520308 100644
    bool result =
        base::win::IsKeyboardPresentOnSlate(ui::GetHiddenWindow(), &reason);
 diff --git chrome/browser/memory_details.cc chrome/browser/memory_details.cc
-index 3f5b288edf3c6..46e189a2ceedd 100644
+index 3f5b288edf3c..46e189a2ceed 100644
 --- chrome/browser/memory_details.cc
 +++ chrome/browser/memory_details.cc
 @@ -17,6 +17,7 @@
