@@ -580,7 +580,7 @@ ClientPrintHandlerGtk::~ClientPrintHandlerGtk() {
 void ClientPrintHandlerGtk::OnPrintStart(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
   DCHECK(!print_handler_);
-  print_handler_ = std::make_unique<PrintHandler>(browser);
+  print_handler_.reset(new PrintHandler(browser));
 }
 
 void ClientPrintHandlerGtk::OnPrintSettings(
