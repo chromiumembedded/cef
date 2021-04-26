@@ -480,10 +480,6 @@ def GetConfigArgsSandbox(platform, args, is_debug, cpu):
       'is_cef_sandbox_build': True,
   }
 
-  if is_debug:
-    # Enable iterator debugging (_ITERATOR_DEBUG_LEVEL=2).
-    add_args['enable_iterator_debugging'] = True
-
   if platform == 'windows':
     # Avoid Debug build linker errors caused by custom libc++.
     add_args['use_custom_libcxx'] = False
