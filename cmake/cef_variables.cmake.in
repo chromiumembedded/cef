@@ -491,6 +491,9 @@ if(OS_WINDOWS)
       PSAPI_VERSION=1   # Required by cef_sandbox.lib
       CEF_USE_SANDBOX   # Used by apps to test if the sandbox is enabled
       )
+    list(APPEND CEF_COMPILER_DEFINES_DEBUG
+      _HAS_ITERATOR_DEBUGGING=0   # Disable iterator debugging
+      )
 
     # Libraries required by cef_sandbox.lib.
     set(CEF_SANDBOX_STANDARD_LIBS
