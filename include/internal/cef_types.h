@@ -304,9 +304,9 @@ typedef struct _cef_settings_t {
   // Value that will be inserted as the product portion of the default
   // User-Agent string. If empty the Chromium product version will be used. If
   // |userAgent| is specified this value will be ignored. Also configurable
-  // using the "product-version" command-line switch.
+  // using the "user-agent-product" command-line switch.
   ///
-  cef_string_t product_version;
+  cef_string_t user_agent_product;
 
   ///
   // The locale string that will be passed to WebKit. If empty the default

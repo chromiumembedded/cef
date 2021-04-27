@@ -91,6 +91,16 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
 
   const base::CommandLine* browser_cmd = base::CommandLine::ForCurrentProcess();
 
+  {
+    // Propagate the following switches to all command lines (along with any
+    // associated values) if present in the browser command line.
+    static const char* const kSwitchNames[] = {
+        switches::kUserAgentProductAndVersion,
+    };
+    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
+                                   base::size(kSwitchNames));
+  }
+
   const std::string& process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
   if (process_type == switches::kRendererProcess) {

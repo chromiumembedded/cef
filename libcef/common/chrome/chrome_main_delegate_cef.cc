@@ -16,8 +16,10 @@
 #include "base/command_line.h"
 #include "base/lazy_instance.h"
 #include "chrome/common/chrome_switches.h"
+#include "components/embedder_support/switches.h"
 #include "content/public/common/content_switches.h"
 #include "sandbox/policy/switches.h"
+#include "ui/base/ui_base_switches.h"
 
 #if defined(OS_MAC)
 #include "libcef/common/util_mac.h"
@@ -77,6 +79,22 @@ bool ChromeMainDelegateCef::BasicStartupComplete(int* exit_code) {
 
     if (no_sandbox) {
       command_line->AppendSwitch(sandbox::policy::switches::kNoSandbox);
+    }
+
+    if (settings_->user_agent.length > 0) {
+      command_line->AppendSwitchASCII(embedder_support::kUserAgent,
+                                      CefString(&settings_->user_agent));
+    } else if (settings_->user_agent_product.length > 0) {
+      command_line->AppendSwitchASCII(
+          switches::kUserAgentProductAndVersion,
+          CefString(&settings_->user_agent_product));
+    }
+
+    if (settings_->locale.length > 0) {
+      command_line->AppendSwitchASCII(switches::kLang,
+                                      CefString(&settings_->locale));
+    } else if (!command_line->HasSwitch(switches::kLang)) {
+      command_line->AppendSwitchASCII(switches::kLang, "en-US");
     }
 
     if (settings_->javascript_flags.length > 0) {
