@@ -695,9 +695,9 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
       switches::kLocalesDirPath,
       switches::kLogFile,
       switches::kLogSeverity,
-      switches::kProductVersion,
       switches::kResourcesDirPath,
       embedder_support::kUserAgent,
+      switches::kUserAgentProductAndVersion,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
                                    base::size(kSwitchNames));
