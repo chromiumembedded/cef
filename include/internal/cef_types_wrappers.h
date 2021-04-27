@@ -548,7 +548,7 @@ struct CefSettingsTraits {
     cef_string_clear(&s->root_cache_path);
     cef_string_clear(&s->user_data_path);
     cef_string_clear(&s->user_agent);
-    cef_string_clear(&s->product_version);
+    cef_string_clear(&s->user_agent_product);
     cef_string_clear(&s->locale);
     cef_string_clear(&s->log_file);
     cef_string_clear(&s->javascript_flags);
@@ -587,8 +587,8 @@ struct CefSettingsTraits {
 
     cef_string_set(src->user_agent.str, src->user_agent.length,
                    &target->user_agent, copy);
-    cef_string_set(src->product_version.str, src->product_version.length,
-                   &target->product_version, copy);
+    cef_string_set(src->user_agent_product.str, src->user_agent_product.length,
+                   &target->user_agent_product, copy);
     cef_string_set(src->locale.str, src->locale.length, &target->locale, copy);
 
     cef_string_set(src->log_file.str, src->log_file.length, &target->log_file,

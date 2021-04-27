@@ -150,9 +150,10 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
     if (settings_->user_agent.length > 0) {
       command_line->AppendSwitchASCII(embedder_support::kUserAgent,
                                       CefString(&settings_->user_agent));
-    } else if (settings_->product_version.length > 0) {
-      command_line->AppendSwitchASCII(switches::kProductVersion,
-                                      CefString(&settings_->product_version));
+    } else if (settings_->user_agent_product.length > 0) {
+      command_line->AppendSwitchASCII(
+          switches::kUserAgentProductAndVersion,
+          CefString(&settings_->user_agent_product));
     }
 
     if (settings_->locale.length > 0) {

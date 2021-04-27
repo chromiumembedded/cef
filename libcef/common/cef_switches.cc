@@ -126,6 +126,9 @@ const char kEnableChromeRuntime[] = "enable-chrome-runtime";
 // using the Chrome runtime.
 const char kDisableChromeLoginPrompt[] = "disable-chrome-login-prompt";
 
+// Override the product component of the default User-Agent string.
+const char kUserAgentProductAndVersion[] = "user-agent-product";
+
 #if defined(OS_MAC)
 // Path to the framework directory.
 const char kFrameworkDirPath[] = "framework-dir-path";
