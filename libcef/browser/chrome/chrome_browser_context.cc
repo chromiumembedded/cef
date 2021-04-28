@@ -4,7 +4,6 @@
 
 #include "libcef/browser/chrome/chrome_browser_context.h"
 
-#include "libcef/browser/prefs/browser_prefs.h"
 #include "libcef/browser/thread_util.h"
 
 #include "chrome/browser/browser_process.h"
@@ -112,7 +111,6 @@ void ChromeBrowserContext::ProfileCreated(Profile* profile,
 
   if (status == Profile::CreateStatus::CREATE_STATUS_INITIALIZED) {
     CHECK(profile_);
-    browser_prefs::SetLanguagePrefs(profile_);
 
     // Must set |profile_| before Init() calls
     // ChromeContentBrowserClientCef::ConfigureNetworkContextParams so that

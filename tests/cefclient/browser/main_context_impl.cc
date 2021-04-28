@@ -202,6 +202,12 @@ void MainContextImpl::PopulateSettings(CefSettings* settings) {
 
   if (browser_background_color_ != 0)
     settings->background_color = browser_background_color_;
+
+  if (command_line_->HasSwitch("lang")) {
+    // Use the same locale for the Accept-Language HTTP request header.
+    CefString(&settings->accept_language_list) =
+        command_line_->GetSwitchValue("lang");
+  }
 }
 
 void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {
