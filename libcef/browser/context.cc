@@ -435,8 +435,6 @@ void CefContext::PopulateGlobalRequestContextSettings(
   settings->ignore_certificate_errors =
       settings_.ignore_certificate_errors ||
       command_line->HasSwitch(switches::kIgnoreCertificateErrors);
-  CefString(&settings->accept_language_list) =
-      CefString(&settings_.accept_language_list);
 
   CefString(&settings->cookieable_schemes_list) =
       CefString(&settings_.cookieable_schemes_list);
@@ -449,12 +447,6 @@ void CefContext::NormalizeRequestContextSettings(
   // The |root_cache_path| value was already normalized in Initialize.
   const base::FilePath& root_cache_path = CefString(&settings_.root_cache_path);
   NormalizeCachePathAndSet(settings->cache_path, root_cache_path);
-
-  if (settings->accept_language_list.length == 0) {
-    // Use the global language list setting.
-    CefString(&settings->accept_language_list) =
-        CefString(&settings_.accept_language_list);
-  }
 }
 
 void CefContext::AddObserver(Observer* observer) {

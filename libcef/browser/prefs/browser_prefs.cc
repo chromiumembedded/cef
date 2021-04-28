@@ -5,6 +5,8 @@
 #include "libcef/browser/prefs/browser_prefs.h"
 
 #include "libcef/browser/browser_context.h"
+#include "libcef/browser/browser_host_base.h"
+#include "libcef/browser/context.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/prefs/pref_store.h"
 #include "libcef/browser/prefs/renderer_prefs.h"
@@ -58,6 +60,7 @@
 #include "content/public/browser/browser_thread.h"
 #include "extensions/browser/extension_prefs.h"
 #include "extensions/buildflags/buildflags.h"
+#include "net/http/http_util.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/ui_base_switches.h"
 
@@ -75,12 +78,35 @@ namespace browser_prefs {
 
 namespace {
 
-std::string GetAcceptLanguageList(Profile* profile) {
-  const CefRequestContextSettings& context_settings =
-      CefBrowserContext::FromBrowserContext(profile)->settings();
-  if (context_settings.accept_language_list.length > 0) {
-    return CefString(&context_settings.accept_language_list);
+// Match the logic in chrome/browser/net/profile_network_context_service.cc.
+std::string ComputeAcceptLanguageFromPref(const std::string& language_pref) {
+  std::string accept_languages_str =
+      net::HttpUtil::ExpandLanguageList(language_pref);
+  return net::HttpUtil::GenerateAcceptLanguageHeader(accept_languages_str);
+}
+
+// Return the most relevant setting based on |browser_context| and |browser|.
+std::string GetAcceptLanguageListSetting(CefBrowserContext* browser_context,
+                                         CefBrowserHostBase* browser) {
+  if (browser) {
+    const auto& settings = browser->settings();
+    if (settings.accept_language_list.length > 0) {
+      return CefString(&settings.accept_language_list);
+    }
   }
+
+  if (browser_context) {
+    const auto& settings = browser_context->settings();
+    if (settings.accept_language_list.length > 0) {
+      return CefString(&settings.accept_language_list);
+    }
+  }
+
+  const auto& settings = CefContext::Get()->settings();
+  if (settings.accept_language_list.length > 0) {
+    return CefString(&settings.accept_language_list);
+  }
+
   return std::string();
 }
 
@@ -295,7 +321,8 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
 
     // Language preferences. Used by ProfileNetworkContextService and
     // InterceptedRequestHandlerWrapper.
-    const std::string& accept_language_list = GetAcceptLanguageList(profile);
+    const std::string& accept_language_list = GetAcceptLanguageListSetting(
+        CefBrowserContext::FromProfile(profile), /*browser=*/nullptr);
     if (!accept_language_list.empty()) {
       registry->SetDefaultPrefValue(language::prefs::kAcceptLanguages,
                                     base::Value(accept_language_list));
@@ -307,12 +334,26 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   return factory.CreateSyncable(registry.get());
 }
 
-void SetLanguagePrefs(Profile* profile) {
-  const std::string& accept_language_list = GetAcceptLanguageList(profile);
-  if (!accept_language_list.empty()) {
-    profile->GetPrefs()->SetString(language::prefs::kAcceptLanguages,
-                                   accept_language_list);
+std::string GetAcceptLanguageList(CefBrowserContext* browser_context,
+                                  CefBrowserHostBase* browser,
+                                  bool expand) {
+  // Always prefer to the CEF settings configuration, if specified.
+  std::string accept_language_list =
+      GetAcceptLanguageListSetting(browser_context, browser);
+  if (accept_language_list.empty() && browser_context) {
+    // Fall back to the preference value. For the Alloy runtime the default
+    // value comes from browser_prefs::CreatePrefService() above. For the Chrome
+    // runtime the default value comes from the configured locale
+    // (IDS_ACCEPT_LANGUAGES) which is then overridden by the user preference in
+    // chrome://settings/languages, all managed by language::LanguagePrefs.
+    auto prefs = browser_context->AsProfile()->GetPrefs();
+    accept_language_list = prefs->GetString(language::prefs::kAcceptLanguages);
   }
+
+  if (!accept_language_list.empty() && expand) {
+    return ComputeAcceptLanguageFromPref(accept_language_list);
+  }
+  return std::string();
 }
 
 }  // namespace browser_prefs
