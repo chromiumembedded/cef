@@ -11,6 +11,7 @@
 #include "libcef/browser/net_service/proxy_url_loader_factory.h"
 #include "libcef/browser/net_service/resource_handler_wrapper.h"
 #include "libcef/browser/net_service/response_filter_wrapper.h"
+#include "libcef/browser/prefs/browser_prefs.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/app_manager.h"
 #include "libcef/common/net/scheme_registration.h"
@@ -28,7 +29,6 @@
 #include "content/public/browser/web_contents.h"
 #include "net/base/load_flags.h"
 #include "net/http/http_status_code.h"
-#include "net/http/http_util.h"
 #include "third_party/blink/public/mojom/loader/resource_load_info.mojom-shared.h"
 #include "ui/base/page_transition_types.h"
 #include "url/origin.h"
@@ -77,28 +77,6 @@ class RequestCallbackWrapper : public CefRequestCallback {
   IMPLEMENT_REFCOUNTING(RequestCallbackWrapper);
   DISALLOW_COPY_AND_ASSIGN(RequestCallbackWrapper);
 };
-
-std::string GetAcceptLanguageList(content::BrowserContext* browser_context,
-                                  CefRefPtr<CefBrowserHostBase> browser) {
-  if (browser) {
-    const CefBrowserSettings& browser_settings = browser->settings();
-    if (browser_settings.accept_language_list.length > 0) {
-      return CefString(&browser_settings.accept_language_list);
-    }
-  }
-
-  // This defaults to the value from CefRequestContextSettings via
-  // browser_prefs::CreatePrefService().
-  auto prefs = Profile::FromBrowserContext(browser_context)->GetPrefs();
-  return prefs->GetString(language::prefs::kAcceptLanguages);
-}
-
-// Match the logic in chrome/browser/net/profile_network_context_service.cc.
-std::string ComputeAcceptLanguageFromPref(const std::string& language_pref) {
-  std::string accept_languages_str =
-      net::HttpUtil::ExpandLanguageList(language_pref);
-  return net::HttpUtil::GenerateAcceptLanguageHeader(accept_languages_str);
-}
 
 class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
  public:
@@ -286,8 +264,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       unhandled_request_callback_ = unhandled_request_callback;
 
       // Default values for standard headers.
-      accept_language_ = ComputeAcceptLanguageFromPref(
-          GetAcceptLanguageList(browser_context, browser));
+      accept_language_ = browser_prefs::GetAcceptLanguageList(
+          cef_browser_context, browser.get(), /*expand=*/true);
       DCHECK(!accept_language_.empty());
       user_agent_ =
           CefAppManager::Get()->GetContentClient()->browser()->GetUserAgent();

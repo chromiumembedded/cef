@@ -16,6 +16,7 @@
 #include "libcef/browser/net_service/login_delegate.h"
 #include "libcef/browser/net_service/proxy_url_loader_factory.h"
 #include "libcef/browser/net_service/resource_request_handler_wrapper.h"
+#include "libcef/browser/prefs/browser_prefs.h"
 #include "libcef/browser/prefs/renderer_prefs.h"
 #include "libcef/common/app_manager.h"
 #include "libcef/common/cef_switches.h"
@@ -307,6 +308,17 @@ void ChromeContentBrowserClientCef::ConfigureNetworkContextParams(
   network_context_params->cookieable_schemes =
       cef_context ? cef_context->GetCookieableSchemes()
                   : CefBrowserContext::GetGlobalCookieableSchemes();
+
+  // Prefer the CEF settings configuration, if specified, instead of the
+  // kAcceptLanguages preference which is controlled by the
+  // chrome://settings/languages configuration.
+  const std::string& accept_language_list =
+      browser_prefs::GetAcceptLanguageList(cef_context, /*browser=*/nullptr,
+                                           /*expand=*/true);
+  if (!accept_language_list.empty() &&
+      accept_language_list != network_context_params->accept_language) {
+    network_context_params->accept_language = accept_language_list;
+  }
 }
 
 std::unique_ptr<content::LoginDelegate>
