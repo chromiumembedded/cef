@@ -20,10 +20,10 @@ index a91e7c720acc..f0534e67f723 100644
  
            // TODO(wjmaclean): We should update the ProcessLock comparison API
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index dae1c91d2d72..c48bd5ea1fb7 100644
+index ec741e3bdb50..cb80d4063f16 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -4871,6 +4871,12 @@ url::Origin NavigationRequest::GetOriginForURLLoaderFactory() {
+@@ -4887,6 +4887,12 @@ url::Origin NavigationRequest::GetOriginForURLLoaderFactory() {
  
    // Calculate an approximation of the origin. The sandbox/csp are ignored.
    url::Origin origin = GetOriginForURLLoaderFactoryUnchecked(this);
