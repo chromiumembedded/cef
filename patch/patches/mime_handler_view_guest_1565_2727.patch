@@ -12,7 +12,7 @@ index cdbc0273838e5..ee2809a0bb98a 100644
    virtual ~WebContentsView() {}
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index e2b5240255bfd..fc0037f552ec1 100644
+index e2b5240255bfd..da0648c1eabc4 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 @@ -205,6 +205,8 @@ void MimeHandlerViewGuest::CreateWebContents(
@@ -24,22 +24,23 @@ index e2b5240255bfd..fc0037f552ec1 100644
    // TODO(erikchen): Fix ownership semantics for guest views.
    // https://crbug.com/832879.
    std::move(callback).Run(
-@@ -215,6 +217,9 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -215,6 +217,10 @@ void MimeHandlerViewGuest::CreateWebContents(
  }
  
  void MimeHandlerViewGuest::DidAttachToEmbedder() {
++  is_guest_attached_ = true;
 +  if (delegate_)
 +    delegate_->OnGuestAttached();
 +
    DCHECK(stream_->handler_url().SchemeIs(extensions::kExtensionScheme));
    web_contents()->GetController().LoadURL(
        stream_->handler_url(), content::Referrer(),
-@@ -245,6 +250,11 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
+@@ -245,6 +251,11 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
    return true;
  }
  
 +void MimeHandlerViewGuest::WillDestroy() {
-+  if (delegate_)
++  if (is_guest_attached_ && delegate_)
 +    delegate_->OnGuestDetached();
 +}
 +
@@ -47,7 +48,7 @@ index e2b5240255bfd..fc0037f552ec1 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index 7d27e12c4e9a7..55c307b5e86ae 100644
+index 7d27e12c4e9a7..fc234840104ea 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 @@ -130,6 +130,7 @@ class MimeHandlerViewGuest
@@ -58,6 +59,14 @@ index 7d27e12c4e9a7..55c307b5e86ae 100644
  
    // WebContentsDelegate implementation.
    content::WebContents* OpenURLFromTab(
+@@ -188,6 +189,7 @@ class MimeHandlerViewGuest
+       content::ChildProcessHost::kInvalidUniqueID, MSG_ROUTING_NONE};
+   int embedder_widget_routing_id_ = MSG_ROUTING_NONE;
+ 
++  bool is_guest_attached_ = false;
+   bool is_guest_fullscreen_ = false;
+   bool is_embedder_fullscreen_ = false;
+   bool plugin_can_save_ = false;
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 index 98689e2614604..a1b08274f4556 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
