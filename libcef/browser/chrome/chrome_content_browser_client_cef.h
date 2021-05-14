@@ -96,6 +96,13 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
       LoginAuthRequiredCallback auth_required_callback) override;
   void BrowserURLHandlerCreated(content::BrowserURLHandler* handler) override;
   bool IsWebUIAllowedToMakeNetworkRequests(const url::Origin& origin) override;
+  void ExposeInterfacesToRenderer(
+      service_manager::BinderRegistry* registry,
+      blink::AssociatedInterfaceRegistry* associated_registry,
+      content::RenderProcessHost* render_process_host) override;
+  void RegisterBrowserInterfaceBindersForFrame(
+      content::RenderFrameHost* render_frame_host,
+      mojo::BinderMapWithContext<content::RenderFrameHost*>* map) override;
 
   CefRefPtr<CefRequestContextImpl> request_context() const;
 

@@ -14,7 +14,9 @@
 
 #include "libcef/browser/browser_info.h"
 
+#include "base/sequenced_task_runner.h"
 #include "base/synchronization/lock.h"
+#include "cef/libcef/common/mojom/cef.mojom.h"
 #include "content/public/browser/render_process_host_observer.h"
 #include "third_party/blink/public/mojom/window_features/window_features.mojom.h"
 #include "ui/base/window_open_disposition.h"
@@ -32,10 +34,6 @@ class RenderViewHostDelegateView;
 class WebContents;
 class WebContentsView;
 }  // namespace content
-
-namespace IPC {
-class Message;
-}
 
 class CefBrowserHostBase;
 class CefBrowserPlatformDelegate;
@@ -97,16 +95,17 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
       std::unique_ptr<CefBrowserPlatformDelegate>& platform_delegate,
       CefRefPtr<CefDictionaryValue>& extra_info);
 
-  // Called from CefBrowserMessageFilter::OnGetNewBrowserInfo for delivering
+  // Called from CefBrowserManager::GetNewBrowserInfo for delivering
   // browser info to the renderer process. If the browser info already exists
   // the response will be sent immediately. Otherwise, the response will be sent
   // when CreatePopupBrowserInfo creates the browser info. The info will already
   // exist for explicitly created browsers and guest views. It may sometimes
   // already exist for traditional popup browsers depending on timing. See
   // comments on PendingPopup for more information.
-  void OnGetNewBrowserInfo(int render_process_id,
-                           int render_routing_id,
-                           IPC::Message* reply_msg);
+  void OnGetNewBrowserInfo(
+      int render_process_id,
+      int render_routing_id,
+      cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback);
 
   // Called from CefBrowserHostBase::DestroyBrowser() when a browser is
   // destroyed.
@@ -163,7 +162,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   //   Creates the OSR views for windowless popups.
   // - WebContentsCreated (UIT):
   //   Creates the CefBrowserHost representation for the popup.
-  // - CefBrowserMessageFilter::OnGetNewBrowserInfo (IOT)
+  // - CefBrowserManager::GetNewBrowserInfo (IOT)
   //   Passes information about the popup to the renderer process.
   struct PendingPopup {
     // Track the last method that modified this PendingPopup instance. There may
@@ -209,18 +208,23 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
       int render_process_id,
       scoped_refptr<CefBrowserInfo> browser_info,
       bool is_guest_view,
-      IPC::Message* reply_msg);
-
-  // Time out a response if it's still pending.
-  static void TimeoutNewBrowserInfoResponse(int64_t frame_id, int timeout_id);
+      cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback,
+      scoped_refptr<base::SequencedTaskRunner> callback_runner);
 
   // Pending request for OnGetNewBrowserInfo.
   struct PendingNewBrowserInfo {
     int render_process_id;
     int render_routing_id;
     int timeout_id;
-    IPC::Message* reply_msg;
+    cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback;
+    scoped_refptr<base::SequencedTaskRunner> callback_runner;
   };
+
+  // Cancel a response that is still pending.
+  static void CancelNewBrowserInfoResponse(PendingNewBrowserInfo* pending_info);
+
+  // Time out a response if it's still pending.
+  static void TimeoutNewBrowserInfoResponse(int64_t frame_id, int timeout_id);
 
   mutable base::Lock browser_info_lock_;
 

@@ -24,19 +24,18 @@
 #include "libcef/browser/context.h"
 #include "libcef/common/alloy/alloy_content_client.h"
 #include "libcef/common/app_manager.h"
-#include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/extensions/extensions_client.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/features/runtime_checks.h"
-#include "libcef/renderer/alloy/alloy_render_frame_observer.h"
 #include "libcef/renderer/alloy/alloy_render_thread_observer.h"
 #include "libcef/renderer/alloy/url_loader_throttle_provider_impl.h"
 #include "libcef/renderer/browser_impl.h"
-#include "libcef/renderer/browser_manager.h"
 #include "libcef/renderer/extensions/extensions_renderer_client.h"
 #include "libcef/renderer/extensions/print_render_frame_helper_delegate.h"
+#include "libcef/renderer/render_frame_observer.h"
+#include "libcef/renderer/render_manager.h"
 #include "libcef/renderer/thread_util.h"
 
 #include "base/command_line.h"
@@ -120,7 +119,7 @@ bool IsStandaloneExtensionProcess() {
 
 AlloyContentRendererClient::AlloyContentRendererClient()
     : main_entry_time_(base::TimeTicks::Now()),
-      browser_manager_(new CefBrowserManager) {
+      render_manager_(new CefRenderManager) {
   if (extensions::ExtensionsEnabled()) {
     extensions_client_.reset(new extensions::CefExtensionsClient);
     extensions::ExtensionsClient::Set(extensions_client_.get());
@@ -260,6 +259,8 @@ void AlloyContentRendererClient::ExposeInterfacesToBrowser(
             base::Unretained(spellcheck_.get())),
         task_runner);
   }
+
+  render_manager_->ExposeInterfacesToBrowser(binders);
 }
 
 void AlloyContentRendererClient::RenderThreadConnected() {
@@ -267,25 +268,23 @@ void AlloyContentRendererClient::RenderThreadConnected() {
   content::RenderThread* thread = content::RenderThread::Get();
   thread->RegisterExtension(extensions_v8::LoadTimesExtension::Get());
 
-  browser_manager_->RenderThreadConnected();
+  render_manager_->RenderThreadConnected();
 }
 
 void AlloyContentRendererClient::RenderFrameCreated(
     content::RenderFrame* render_frame) {
-  AlloyRenderFrameObserver* render_frame_observer =
-      new AlloyRenderFrameObserver(render_frame);
-  service_manager::BinderRegistry* registry = render_frame_observer->registry();
+  auto render_frame_observer = new CefRenderFrameObserver(render_frame);
 
   new PepperHelper(render_frame);
 
   if (extensions::ExtensionsEnabled()) {
-    extensions_renderer_client_->RenderFrameCreated(render_frame, registry);
+    extensions_renderer_client_->RenderFrameCreated(
+        render_frame, render_frame_observer->registry());
 
-    blink::AssociatedInterfaceRegistry* associated_interfaces =
-        render_frame_observer->associated_interfaces();
-    associated_interfaces->AddInterface(base::BindRepeating(
-        &extensions::MimeHandlerViewContainerManager::BindReceiver,
-        render_frame->GetRoutingID()));
+    render_frame_observer->associated_interfaces()->AddInterface(
+        base::BindRepeating(
+            &extensions::MimeHandlerViewContainerManager::BindReceiver,
+            render_frame->GetRoutingID()));
   }
 
   const base::CommandLine* command_line =
@@ -296,8 +295,8 @@ void AlloyContentRendererClient::RenderFrameCreated(
 
   bool browser_created;
   base::Optional<bool> is_windowless;
-  browser_manager_->RenderFrameCreated(render_frame, render_frame_observer,
-                                       browser_created, is_windowless);
+  render_manager_->RenderFrameCreated(render_frame, render_frame_observer,
+                                      browser_created, is_windowless);
   if (browser_created) {
     OnBrowserCreated(render_frame->GetRenderView(), is_windowless);
   }
@@ -314,8 +313,8 @@ void AlloyContentRendererClient::RenderViewCreated(
     content::RenderView* render_view) {
   bool browser_created;
   base::Optional<bool> is_windowless;
-  browser_manager_->RenderViewCreated(render_view, browser_created,
-                                      is_windowless);
+  render_manager_->RenderViewCreated(render_view, browser_created,
+                                     is_windowless);
   if (browser_created) {
     OnBrowserCreated(render_view, is_windowless);
   }
@@ -445,7 +444,7 @@ void AlloyContentRendererClient::DevToolsAgentAttached() {
     return;
   }
 
-  browser_manager_->DevToolsAgentAttached();
+  render_manager_->DevToolsAgentAttached();
 }
 
 void AlloyContentRendererClient::DevToolsAgentDetached() {
@@ -458,7 +457,7 @@ void AlloyContentRendererClient::DevToolsAgentDetached() {
     return;
   }
 
-  browser_manager_->DevToolsAgentDetached();
+  render_manager_->DevToolsAgentDetached();
 }
 
 std::unique_ptr<blink::URLLoaderThrottleProvider>

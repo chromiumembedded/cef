@@ -180,18 +180,23 @@ void CefRenderFrameObserver::OnDestruct() {
   delete this;
 }
 
-bool CefRenderFrameObserver::OnMessageReceived(const IPC::Message& message) {
-  if (frame_) {
-    return frame_->OnMessageReceived(message);
-  }
-  return false;
+void CefRenderFrameObserver::OnInterfaceRequestForFrame(
+    const std::string& interface_name,
+    mojo::ScopedMessagePipeHandle* interface_pipe) {
+  registry_.TryBindInterface(interface_name, interface_pipe);
+}
+
+bool CefRenderFrameObserver::OnAssociatedInterfaceRequestForFrame(
+    const std::string& interface_name,
+    mojo::ScopedInterfaceEndpointHandle* handle) {
+  return associated_interfaces_.TryBindInterface(interface_name, handle);
 }
 
 void CefRenderFrameObserver::AttachFrame(CefFrameImpl* frame) {
   DCHECK(frame);
   DCHECK(!frame_);
   frame_ = frame;
-  frame_->OnAttached();
+  frame_->OnAttached(&registry_);
 }
 
 void CefRenderFrameObserver::OnLoadStart() {

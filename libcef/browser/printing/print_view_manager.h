@@ -21,8 +21,6 @@ class WebContentsObserver;
 
 class CefBrowserInfo;
 
-struct PrintHostMsg_RequestPrintPreview_Params;
-
 namespace printing {
 
 // CEF handler for print commands.

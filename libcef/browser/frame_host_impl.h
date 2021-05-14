@@ -11,9 +11,11 @@
 #include <string>
 
 #include "include/cef_frame.h"
-#include "libcef/common/response_manager.h"
 
 #include "base/synchronization/lock.h"
+#include "cef/libcef/common/mojom/cef.mojom.h"
+#include "mojo/public/cpp/bindings/receiver_set.h"
+#include "mojo/public/cpp/bindings/remote.h"
 #include "ui/base/page_transition_types.h"
 
 namespace content {
@@ -21,22 +23,14 @@ class RenderFrameHost;
 struct Referrer;
 }  // namespace content
 
-namespace IPC {
-class Message;
-}
-
 class GURL;
 
-struct Cef_DraggableRegion_Params;
-struct Cef_Request_Params;
-struct Cef_Response_Params;
 class CefBrowserInfo;
 class CefBrowserHostBase;
-struct CefNavigateParams;
 
 // Implementation of CefFrame. CefFrameHostImpl objects should always be created
 // or retrieved via CefBrowerInfo.
-class CefFrameHostImpl : public CefFrame {
+class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
  public:
   // Create a temporary frame.
   CefFrameHostImpl(scoped_refptr<CefBrowserInfo> browser_info,
@@ -91,8 +85,8 @@ class CefFrameHostImpl : public CefFrame {
   // started. Used on Windows and Linux with the Alloy runtime.
   void NotifyMoveOrResizeStarted();
 
-  // Navigate as specified by the |params| argument.
-  void Navigate(const CefNavigateParams& params);
+  // Load the specified request.
+  void LoadRequest(cef::mojom::RequestParamsPtr params);
 
   // Load the specified URL.
   void LoadURLWithExtras(const std::string& url,
@@ -101,26 +95,19 @@ class CefFrameHostImpl : public CefFrame {
                          const std::string& extra_headers);
 
   // Send a command to the renderer for execution.
-  void SendCommand(const std::string& command,
-                   CefRefPtr<CefResponseManager::Handler> responseHandler);
-
-  // Send code to the renderer for execution.
-  void SendCode(bool is_javascript,
-                const std::string& code,
-                const std::string& script_url,
-                int script_start_line,
-                CefRefPtr<CefResponseManager::Handler> responseHandler);
+  void SendCommand(const std::string& command);
+  void SendCommandWithResponse(
+      const std::string& command,
+      cef::mojom::RenderFrame::SendCommandWithResponseCallback
+          response_callback);
 
   // Send JavaScript to the renderer for execution.
-  void SendJavaScript(const std::string& jsCode,
+  void SendJavaScript(const std::u16string& jsCode,
                       const std::string& scriptUrl,
                       int startLine);
 
   // Called from CefBrowserHostBase::DidStopLoading.
   void MaybeSendDidStopLoading();
-
-  // Called from CefBrowserHostBase::OnMessageReceived.
-  bool OnMessageReceived(const IPC::Message& message);
 
   void ExecuteJavaScriptWithUserGestureForTests(const CefString& javascript);
 
@@ -132,6 +119,15 @@ class CefFrameHostImpl : public CefFrame {
   // RenderFrame is deleted. Temporary frame objects will be detached
   // implicitly via CefBrowserInfo::browser() returning nullptr.
   void Detach();
+
+  // cef::mojom::BrowserFrame methods forwarded from CefBrowserFrame.
+  void SendMessage(const std::string& name, base::Value arguments) override;
+  void FrameAttached() override;
+  void DidFinishFrameLoad(const GURL& validated_url,
+                          int32_t http_status_code) override;
+  void UpdateDraggableRegions(
+      base::Optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions)
+      override;
 
   static int64_t MakeFrameId(const content::RenderFrameHost* host);
   static int64_t MakeFrameId(int32_t render_process_id,
@@ -151,17 +147,14 @@ class CefFrameHostImpl : public CefFrame {
   int64 GetFrameId() const;
   CefRefPtr<CefBrowserHostBase> GetBrowserHostBase() const;
 
-  // OnMessageReceived message handlers.
-  void OnAttached();
-  void OnDidFinishLoad(const GURL& validated_url, int http_status_code);
-  void OnUpdateDraggableRegions(
-      const std::vector<Cef_DraggableRegion_Params>& regions);
-  void OnRequest(const Cef_Request_Params& params);
-  void OnResponse(const Cef_Response_Params& params);
-  void OnResponseAck(int request_id);
+  // Returns the remote RenderFrame object.
+  using RenderFrameType = mojo::Remote<cef::mojom::RenderFrame>;
+  const RenderFrameType& GetRenderFrame();
 
-  // Send a message to the RenderFrameHost associated with this frame.
-  void Send(IPC::Message* message);
+  // Send an action to the remote RenderFrame. This will queue the action if the
+  // remote frame is not yet attached.
+  using RenderFrameAction = base::OnceCallback<void(const RenderFrameType&)>;
+  void SendToRenderFrame(RenderFrameAction action);
 
   const bool is_main_frame_;
 
@@ -180,11 +173,9 @@ class CefFrameHostImpl : public CefFrame {
 
   bool is_attached_ = false;
 
-  // Qeueud messages to send when the renderer process attaches.
-  std::queue<std::unique_ptr<IPC::Message>> queued_messages_;
+  std::queue<RenderFrameAction> queued_actions_;
 
-  // Manages response registrations.
-  std::unique_ptr<CefResponseManager> response_manager_;
+  mojo::Remote<cef::mojom::RenderFrame> render_frame_;
 
   IMPLEMENT_REFCOUNTING(CefFrameHostImpl);
   DISALLOW_COPY_AND_ASSIGN(CefFrameHostImpl);

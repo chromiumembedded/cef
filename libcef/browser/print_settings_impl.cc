@@ -11,12 +11,12 @@
 CefPrintSettingsImpl::CefPrintSettingsImpl(
     std::unique_ptr<printing::PrintSettings> settings,
     bool read_only)
-    : CefValueBase<CefPrintSettings, printing::PrintSettings>(settings.get(),
-                                                              nullptr,
-                                                              kOwnerNoDelete,
-                                                              read_only,
-                                                              nullptr),
-      settings_(std::move(settings)) {}
+    : CefValueBase<CefPrintSettings, printing::PrintSettings>(
+          settings.release(),
+          nullptr,
+          kOwnerWillDelete,
+          read_only,
+          nullptr) {}
 
 bool CefPrintSettingsImpl::IsValid() {
   return !detached();
@@ -152,8 +152,7 @@ CefPrintSettings::DuplexMode CefPrintSettingsImpl::GetDuplexMode() {
 }
 
 std::unique_ptr<printing::PrintSettings> CefPrintSettingsImpl::TakeOwnership() {
-  Detach(nullptr);
-  return std::move(settings_);
+  return base::WrapUnique(Detach(nullptr));
 }
 
 // CefPrintSettings implementation.

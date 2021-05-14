@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "libcef/renderer/browser_manager.h"
+#include "libcef/renderer/render_manager.h"
 
 #include "base/compiler_specific.h"
 
@@ -18,7 +18,6 @@
 #endif
 
 #include "libcef/common/app_manager.h"
-#include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/net/scheme_info.h"
 #include "libcef/common/values_impl.h"
@@ -30,24 +29,28 @@
 
 #include "base/command_line.h"
 #include "base/strings/string_number_conversions.h"
+#include "cef/libcef/common/mojom/cef.mojom.h"
 #include "content/public/renderer/render_frame.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
+#include "mojo/public/cpp/bindings/binder_map.h"
 #include "services/network/public/mojom/cors_origin_pattern.mojom.h"
+#include "third_party/blink/public/platform/web_string.h"
+#include "third_party/blink/public/platform/web_url.h"
 #include "third_party/blink/public/web/web_security_policy.h"
 #include "third_party/blink/public/web/web_view.h"
 #include "third_party/blink/public/web/web_view_observer.h"
 
 namespace {
 
-CefBrowserManager* g_manager = nullptr;
+CefRenderManager* g_manager = nullptr;
 
 }  // namespace
 
 // Placeholder object for guest views.
 class CefGuestView : public blink::WebViewObserver {
  public:
-  CefGuestView(CefBrowserManager* manager,
+  CefGuestView(CefRenderManager* manager,
                content::RenderView* render_view,
                bool is_windowless)
       : blink::WebViewObserver(render_view->GetWebView()),
@@ -60,39 +63,40 @@ class CefGuestView : public blink::WebViewObserver {
   // RenderViewObserver methods.
   void OnDestruct() override { manager_->OnGuestViewDestroyed(this); }
 
-  CefBrowserManager* const manager_;
+  CefRenderManager* const manager_;
   const bool is_windowless_;
 };
 
-CefBrowserManager::CefBrowserManager() {
+CefRenderManager::CefRenderManager() {
   DCHECK(!g_manager);
   g_manager = this;
 }
 
-CefBrowserManager::~CefBrowserManager() {
+CefRenderManager::~CefRenderManager() {
   g_manager = nullptr;
 }
 
 // static
-CefBrowserManager* CefBrowserManager::Get() {
+CefRenderManager* CefRenderManager::Get() {
   CEF_REQUIRE_RT_RETURN(nullptr);
   return g_manager;
 }
 
-void CefBrowserManager::RenderThreadConnected() {
-  content::RenderThread* thread = content::RenderThread::Get();
-
+void CefRenderManager::RenderThreadConnected() {
   // Retrieve the new render thread information synchronously.
-  CefProcessHostMsg_GetNewRenderThreadInfo_Params params;
-  thread->Send(new CefProcessHostMsg_GetNewRenderThreadInfo(&params));
+  auto params = cef::mojom::NewRenderThreadInfo::New();
+  GetBrowserManager()->GetNewRenderThreadInfo(&params);
 
   // Cross-origin entries need to be added after WebKit is initialized.
-  cross_origin_whitelist_entries_ = params.cross_origin_whitelist_entries;
+  if (params->cross_origin_whitelist_entries) {
+    cross_origin_whitelist_entries_.swap(
+        *params->cross_origin_whitelist_entries);
+  }
 
   WebKitInitialized();
 }
 
-void CefBrowserManager::RenderFrameCreated(
+void CefRenderManager::RenderFrameCreated(
     content::RenderFrame* render_frame,
     CefRenderFrameObserver* render_frame_observer,
     bool& browser_created,
@@ -106,18 +110,18 @@ void CefBrowserManager::RenderFrameCreated(
   }
 }
 
-void CefBrowserManager::RenderViewCreated(content::RenderView* render_view,
-                                          bool& browser_created,
-                                          base::Optional<bool>& is_windowless) {
+void CefRenderManager::RenderViewCreated(content::RenderView* render_view,
+                                         bool& browser_created,
+                                         base::Optional<bool>& is_windowless) {
   MaybeCreateBrowser(render_view, render_view->GetMainRenderFrame(),
                      &browser_created, &is_windowless);
 }
 
-void CefBrowserManager::DevToolsAgentAttached() {
+void CefRenderManager::DevToolsAgentAttached() {
   ++devtools_agent_count_;
 }
 
-void CefBrowserManager::DevToolsAgentDetached() {
+void CefRenderManager::DevToolsAgentDetached() {
   --devtools_agent_count_;
   if (devtools_agent_count_ == 0 && uncaught_exception_stack_size_ > 0) {
     // When the last DevToolsAgent is detached the stack size is set to 0.
@@ -126,7 +130,20 @@ void CefBrowserManager::DevToolsAgentDetached() {
   }
 }
 
-CefRefPtr<CefBrowserImpl> CefBrowserManager::GetBrowserForView(
+void CefRenderManager::ExposeInterfacesToBrowser(mojo::BinderMap* binders) {
+  auto task_runner = base::SequencedTaskRunnerHandle::Get();
+
+  binders->Add(
+      base::BindRepeating(
+          [](CefRenderManager* render_manager,
+             mojo::PendingReceiver<cef::mojom::RenderManager> receiver) {
+            render_manager->BindReceiver(std::move(receiver));
+          },
+          base::Unretained(this)),
+      task_runner);
+}
+
+CefRefPtr<CefBrowserImpl> CefRenderManager::GetBrowserForView(
     content::RenderView* view) {
   BrowserMap::const_iterator it = browsers_.find(view);
   if (it != browsers_.end())
@@ -134,7 +151,7 @@ CefRefPtr<CefBrowserImpl> CefBrowserManager::GetBrowserForView(
   return nullptr;
 }
 
-CefRefPtr<CefBrowserImpl> CefBrowserManager::GetBrowserForMainFrame(
+CefRefPtr<CefBrowserImpl> CefRenderManager::GetBrowserForMainFrame(
     blink::WebFrame* frame) {
   BrowserMap::const_iterator it = browsers_.begin();
   for (; it != browsers_.end(); ++it) {
@@ -147,7 +164,44 @@ CefRefPtr<CefBrowserImpl> CefBrowserManager::GetBrowserForMainFrame(
   return nullptr;
 }
 
-void CefBrowserManager::WebKitInitialized() {
+mojo::Remote<cef::mojom::BrowserManager>&
+CefRenderManager::GetBrowserManager() {
+  if (!browser_manager_) {
+    content::RenderThread::Get()->BindHostReceiver(
+        browser_manager_.BindNewPipeAndPassReceiver());
+  }
+  return browser_manager_;
+}
+
+void CefRenderManager::BindReceiver(
+    mojo::PendingReceiver<cef::mojom::RenderManager> receiver) {
+  receivers_.Add(this, std::move(receiver));
+}
+
+void CefRenderManager::ModifyCrossOriginWhitelistEntry(
+    bool add,
+    cef::mojom::CrossOriginWhiteListEntryPtr entry) {
+  GURL gurl = GURL(entry->source_origin);
+  if (add) {
+    blink::WebSecurityPolicy::AddOriginAccessAllowListEntry(
+        gurl, blink::WebString::FromUTF8(entry->target_protocol),
+        blink::WebString::FromUTF8(entry->target_domain),
+        /*destination_port=*/0,
+        entry->allow_target_subdomains
+            ? network::mojom::CorsDomainMatchMode::kAllowSubdomains
+            : network::mojom::CorsDomainMatchMode::kDisallowSubdomains,
+        network::mojom::CorsPortMatchMode::kAllowAnyPort,
+        network::mojom::CorsOriginAccessMatchPriority::kDefaultPriority);
+  } else {
+    blink::WebSecurityPolicy::ClearOriginAccessListForOrigin(gurl);
+  }
+}
+
+void CefRenderManager::ClearCrossOriginWhitelist() {
+  blink::WebSecurityPolicy::ClearOriginAccessList();
+}
+
+void CefRenderManager::WebKitInitialized() {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
 
@@ -173,19 +227,8 @@ void CefBrowserManager::WebKitInitialized() {
 
   if (!cross_origin_whitelist_entries_.empty()) {
     // Add the cross-origin white list entries.
-    for (size_t i = 0; i < cross_origin_whitelist_entries_.size(); ++i) {
-      const Cef_CrossOriginWhiteListEntry_Params& entry =
-          cross_origin_whitelist_entries_[i];
-      GURL gurl = GURL(entry.source_origin);
-      blink::WebSecurityPolicy::AddOriginAccessAllowListEntry(
-          gurl, blink::WebString::FromUTF8(entry.target_protocol),
-          blink::WebString::FromUTF8(entry.target_domain),
-          /*destination_port=*/0,
-          entry.allow_target_subdomains
-              ? network::mojom::CorsDomainMatchMode::kAllowSubdomains
-              : network::mojom::CorsDomainMatchMode::kDisallowSubdomains,
-          network::mojom::CorsPortMatchMode::kAllowAnyPort,
-          network::mojom::CorsOriginAccessMatchPriority::kDefaultPriority);
+    for (auto& entry : cross_origin_whitelist_entries_) {
+      ModifyCrossOriginWhitelistEntry(/*add=*/true, std::move(entry));
     }
     cross_origin_whitelist_entries_.clear();
   }
@@ -213,7 +256,7 @@ void CefBrowserManager::WebKitInitialized() {
   }
 }
 
-CefRefPtr<CefBrowserImpl> CefBrowserManager::MaybeCreateBrowser(
+CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
     content::RenderView* render_view,
     content::RenderFrame* render_frame,
     bool* browser_created,
@@ -246,30 +289,29 @@ CefRefPtr<CefBrowserImpl> CefBrowserManager::MaybeCreateBrowser(
 
   // Retrieve the browser information synchronously. This will also register
   // the routing ids with the browser info object in the browser process.
-  CefProcessHostMsg_GetNewBrowserInfo_Params params;
-  content::RenderThread::Get()->Send(new CefProcessHostMsg_GetNewBrowserInfo(
-      render_frame_routing_id, &params));
+  auto params = cef::mojom::NewBrowserInfo::New();
+  GetBrowserManager()->GetNewBrowserInfo(render_frame_routing_id, &params);
 
   if (is_windowless) {
-    *is_windowless = params.is_windowless;
+    *is_windowless = params->is_windowless;
   }
 
-  if (params.browser_id == 0) {
+  if (params->browser_id == 0) {
     // The popup may have been canceled during creation.
     return nullptr;
   }
 
-  if (params.is_guest_view || params.browser_id < 0) {
+  if (params->is_guest_view || params->browser_id < 0) {
     // Don't create a CefBrowser for guest views, or if the new browser info
     // response has timed out.
     guest_views_.insert(std::make_pair(
         render_view, std::make_unique<CefGuestView>(this, render_view,
-                                                    params.is_windowless)));
+                                                    params->is_windowless)));
     return nullptr;
   }
 
-  browser = new CefBrowserImpl(render_view, params.browser_id, params.is_popup,
-                               params.is_windowless);
+  browser = new CefBrowserImpl(render_view, params->browser_id,
+                               params->is_popup, params->is_windowless);
   browsers_.insert(std::make_pair(render_view, browser));
 
   // Notify the render process handler.
@@ -278,10 +320,16 @@ CefRefPtr<CefBrowserImpl> CefBrowserManager::MaybeCreateBrowser(
     CefRefPtr<CefRenderProcessHandler> handler =
         application->GetRenderProcessHandler();
     if (handler.get()) {
-      CefRefPtr<CefDictionaryValueImpl> dictValuePtr(
-          new CefDictionaryValueImpl(&params.extra_info, false, true));
+      CefRefPtr<CefDictionaryValueImpl> dictValuePtr;
+      if (params->extra_info) {
+        auto& dict_value = base::Value::AsDictionaryValue(*params->extra_info);
+        dictValuePtr = new CefDictionaryValueImpl(
+            const_cast<base::DictionaryValue*>(&dict_value),
+            /*will_delete=*/false, /*read_only=*/true);
+      }
       handler->OnBrowserCreated(browser.get(), dictValuePtr.get());
-      dictValuePtr->Detach(nullptr);
+      if (dictValuePtr)
+        ignore_result(dictValuePtr->Detach(nullptr));
     }
   }
 
@@ -291,7 +339,7 @@ CefRefPtr<CefBrowserImpl> CefBrowserManager::MaybeCreateBrowser(
   return browser;
 }
 
-void CefBrowserManager::OnBrowserDestroyed(CefBrowserImpl* browser) {
+void CefRenderManager::OnBrowserDestroyed(CefBrowserImpl* browser) {
   BrowserMap::iterator it = browsers_.begin();
   for (; it != browsers_.end(); ++it) {
     if (it->second.get() == browser) {
@@ -304,8 +352,7 @@ void CefBrowserManager::OnBrowserDestroyed(CefBrowserImpl* browser) {
   NOTREACHED();
 }
 
-CefGuestView* CefBrowserManager::GetGuestViewForView(
-    content::RenderView* view) {
+CefGuestView* CefRenderManager::GetGuestViewForView(content::RenderView* view) {
   CEF_REQUIRE_RT_RETURN(nullptr);
 
   GuestViewMap::const_iterator it = guest_views_.find(view);
@@ -314,7 +361,7 @@ CefGuestView* CefBrowserManager::GetGuestViewForView(
   return nullptr;
 }
 
-void CefBrowserManager::OnGuestViewDestroyed(CefGuestView* guest_view) {
+void CefRenderManager::OnGuestViewDestroyed(CefGuestView* guest_view) {
   GuestViewMap::iterator it = guest_views_.begin();
   for (; it != guest_views_.end(); ++it) {
     if (it->second.get() == guest_view) {

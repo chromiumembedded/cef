@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4cc516704229f90c49852b46f932b8882b4bf8d4$
+// $hash=ef73c2a273a05144f419aca52f32ae4b3e12882a$
 //
 
 #include "libcef_dll/ctocpp/render_process_handler_ctocpp.h"
@@ -51,10 +51,7 @@ void CefRenderProcessHandlerCToCpp::OnBrowserCreated(
   DCHECK(browser.get());
   if (!browser.get())
     return;
-  // Verify param: extra_info; type: refptr_diff
-  DCHECK(extra_info.get());
-  if (!extra_info.get())
-    return;
+  // Unverified params: extra_info
 
   // Execute
   _struct->on_browser_created(_struct, CefBrowserCppToC::Wrap(browser),

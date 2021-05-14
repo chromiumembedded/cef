@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4fc8972b57ed97feef5f00dcfa77e32b8d63cb9a$
+// $hash=a668847c77e8d15cab3c8e2db9ef68b3f43882c8$
 //
 
 #include "libcef_dll/cpptoc/render_process_handler_cpptoc.h"
@@ -52,10 +52,7 @@ void CEF_CALLBACK render_process_handler_on_browser_created(
   DCHECK(browser);
   if (!browser)
     return;
-  // Verify param: extra_info; type: refptr_diff
-  DCHECK(extra_info);
-  if (!extra_info)
-    return;
+  // Unverified params: extra_info
 
   // Execute
   CefRenderProcessHandlerCppToC::Get(self)->OnBrowserCreated(

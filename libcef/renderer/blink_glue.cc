@@ -87,21 +87,20 @@ void GoForward(blink::WebView* view) {
   }
 }
 
-std::string DumpDocumentText(blink::WebLocalFrame* frame) {
+blink::WebString DumpDocumentText(blink::WebLocalFrame* frame) {
   // We use the document element's text instead of the body text here because
   // not all documents have a body, such as XML documents.
   blink::WebElement document_element = frame->GetDocument().DocumentElement();
   if (document_element.IsNull())
-    return std::string();
+    return blink::WebString();
 
   blink::Element* web_element = document_element.Unwrap<blink::Element>();
-  return blink::WebString(web_element->innerText()).Utf8();
+  return blink::WebString(web_element->innerText());
 }
 
-std::string DumpDocumentMarkup(blink::WebLocalFrame* frame) {
-  const auto& string = blink::CreateMarkup(
+blink::WebString DumpDocumentMarkup(blink::WebLocalFrame* frame) {
+  return blink::CreateMarkup(
       blink::To<blink::WebLocalFrameImpl>(frame)->GetFrame()->GetDocument());
-  return string.Utf8();
 }
 
 cef_dom_node_type_t GetNodeType(const blink::WebNode& node) {

@@ -2467,7 +2467,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
   void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefDictionaryValue> extra_info) override {
-    if (extra_info->HasKey(kV8TestCmdKey)) {
+    if (extra_info && extra_info->HasKey(kV8TestCmdKey)) {
       test_mode_ = static_cast<V8TestMode>(extra_info->GetInt(kV8TestCmdKey));
     }
     if (test_mode_ > V8TEST_NONE)

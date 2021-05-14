@@ -278,7 +278,7 @@ class FrameNavRendererTest : public ClientAppRenderer::Delegate,
   void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefDictionaryValue> extra_info) override {
-    if (!extra_info->HasKey(kFrameNavTestCmdKey))
+    if (!extra_info || !extra_info->HasKey(kFrameNavTestCmdKey))
       return;
 
     FrameNavFactoryId factory_id =

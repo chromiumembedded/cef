@@ -37,7 +37,6 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
 #include "extensions/common/constants.h"
-#include "ipc/ipc_buildflags.h"
 #include "net/base/features.h"
 #include "pdf/pdf_ppapi.h"
 #include "sandbox/policy/switches.h"
@@ -49,14 +48,6 @@
 
 #if defined(OS_MAC)
 #include "libcef/common/util_mac.h"
-#endif
-
-#if BUILDFLAG(IPC_MESSAGE_LOG_ENABLED)
-#define IPC_MESSAGE_MACROS_LOG_ENABLED
-#include "content/public/common/content_ipc_logging.h"
-#define IPC_LOG_TABLE_ADD_ENTRY(msg_id, logger) \
-  content::RegisterIPCLogger(msg_id, logger)
-#include "libcef/common/cef_message_generator.h"
 #endif
 
 namespace {
@@ -302,7 +293,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
         new CefCommandLineImpl(command_line, false, false));
     application_->OnBeforeCommandLineProcessing(CefString(process_type),
                                                 commandLinePtr.get());
-    commandLinePtr->Detach(nullptr);
+    ignore_result(commandLinePtr->Detach(nullptr));
   }
 
   // Initialize logging.

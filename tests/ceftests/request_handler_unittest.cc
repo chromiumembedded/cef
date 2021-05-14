@@ -401,7 +401,7 @@ class NetNotifyRendererTest : public ClientAppRenderer::Delegate,
   void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefDictionaryValue> extra_info) override {
-    run_test_ = extra_info->HasKey(kNetNotifyTestCmdKey);
+    run_test_ = extra_info && extra_info->HasKey(kNetNotifyTestCmdKey);
   }
 
   CefRefPtr<CefLoadHandler> GetLoadHandler(

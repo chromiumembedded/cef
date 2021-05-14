@@ -5,15 +5,14 @@
 
 #include "libcef/renderer/chrome/chrome_content_renderer_client_cef.h"
 
-#include "libcef/renderer/browser_manager.h"
 #include "libcef/renderer/render_frame_observer.h"
-#include "libcef/renderer/render_thread_observer.h"
+#include "libcef/renderer/render_manager.h"
 #include "libcef/renderer/thread_util.h"
 
 #include "content/public/renderer/render_thread.h"
 
 ChromeContentRendererClientCef::ChromeContentRendererClientCef()
-    : browser_manager_(new CefBrowserManager) {}
+    : render_manager_(new CefRenderManager) {}
 
 ChromeContentRendererClientCef::~ChromeContentRendererClientCef() = default;
 
@@ -29,16 +28,12 @@ void ChromeContentRendererClientCef::RenderThreadStarted() {
   ChromeContentRendererClient::RenderThreadStarted();
 
   render_task_runner_ = base::ThreadTaskRunnerHandle::Get();
-  observer_ = std::make_unique<CefRenderThreadObserver>();
-
-  content::RenderThread* thread = content::RenderThread::Get();
-  thread->AddObserver(observer_.get());
 }
 
 void ChromeContentRendererClientCef::RenderThreadConnected() {
   ChromeContentRendererClient::RenderThreadConnected();
 
-  browser_manager_->RenderThreadConnected();
+  render_manager_->RenderThreadConnected();
 }
 
 void ChromeContentRendererClientCef::RenderFrameCreated(
@@ -51,8 +46,8 @@ void ChromeContentRendererClientCef::RenderFrameCreated(
 
   bool browser_created;
   base::Optional<bool> is_windowless;
-  browser_manager_->RenderFrameCreated(render_frame, render_frame_observer,
-                                       browser_created, is_windowless);
+  render_manager_->RenderFrameCreated(render_frame, render_frame_observer,
+                                      browser_created, is_windowless);
   if (is_windowless.has_value() && *is_windowless) {
     LOG(ERROR) << "The chrome runtime does not support windowless browsers";
   }
@@ -64,8 +59,8 @@ void ChromeContentRendererClientCef::RenderViewCreated(
 
   bool browser_created;
   base::Optional<bool> is_windowless;
-  browser_manager_->RenderViewCreated(render_view, browser_created,
-                                      is_windowless);
+  render_manager_->RenderViewCreated(render_view, browser_created,
+                                     is_windowless);
   if (is_windowless.has_value() && *is_windowless) {
     LOG(ERROR) << "The chrome runtime does not support windowless browsers";
   }
@@ -81,7 +76,7 @@ void ChromeContentRendererClientCef::DevToolsAgentAttached() {
     return;
   }
 
-  browser_manager_->DevToolsAgentAttached();
+  render_manager_->DevToolsAgentAttached();
 }
 
 void ChromeContentRendererClientCef::DevToolsAgentDetached() {
@@ -94,5 +89,12 @@ void ChromeContentRendererClientCef::DevToolsAgentDetached() {
     return;
   }
 
-  browser_manager_->DevToolsAgentDetached();
+  render_manager_->DevToolsAgentDetached();
+}
+
+void ChromeContentRendererClientCef::ExposeInterfacesToBrowser(
+    mojo::BinderMap* binders) {
+  ChromeContentRendererClient::ExposeInterfacesToBrowser(binders);
+
+  render_manager_->ExposeInterfacesToBrowser(binders);
 }

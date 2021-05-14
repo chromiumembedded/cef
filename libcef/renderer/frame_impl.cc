@@ -18,11 +18,10 @@
 #endif
 
 #include "libcef/common/app_manager.h"
-#include "libcef/common/cef_messages.h"
 #include "libcef/common/net/http_header_utils.h"
 #include "libcef/common/process_message_impl.h"
 #include "libcef/common/request_impl.h"
-#include "libcef/common/response_manager.h"
+#include "libcef/common/string_util.h"
 #include "libcef/renderer/blink_glue.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/dom_document_impl.h"
@@ -51,10 +50,7 @@
 CefFrameImpl::CefFrameImpl(CefBrowserImpl* browser,
                            blink::WebLocalFrame* frame,
                            int64_t frame_id)
-    : browser_(browser),
-      frame_(frame),
-      frame_id_(frame_id),
-      response_manager_(new CefResponseManager) {}
+    : browser_(browser), frame_(frame), frame_id_(frame_id) {}
 
 CefFrameImpl::~CefFrameImpl() {}
 
@@ -65,31 +61,31 @@ bool CefFrameImpl::IsValid() {
 }
 
 void CefFrameImpl::Undo() {
-  ExecuteCommand("Undo");
+  SendCommand("Undo");
 }
 
 void CefFrameImpl::Redo() {
-  ExecuteCommand("Redo");
+  SendCommand("Redo");
 }
 
 void CefFrameImpl::Cut() {
-  ExecuteCommand("Cut");
+  SendCommand("Cut");
 }
 
 void CefFrameImpl::Copy() {
-  ExecuteCommand("Copy");
+  SendCommand("Copy");
 }
 
 void CefFrameImpl::Paste() {
-  ExecuteCommand("Paste");
+  SendCommand("Paste");
 }
 
 void CefFrameImpl::Delete() {
-  ExecuteCommand("Delete");
+  SendCommand("Delete");
 }
 
 void CefFrameImpl::SelectAll() {
-  ExecuteCommand("SelectAll");
+  SendCommand("SelectAll");
 }
 
 void CefFrameImpl::ViewSource() {
@@ -99,7 +95,8 @@ void CefFrameImpl::ViewSource() {
 void CefFrameImpl::GetSource(CefRefPtr<CefStringVisitor> visitor) {
   CEF_REQUIRE_RT_RETURN_VOID();
   if (frame_) {
-    const CefString& content = blink_glue::DumpDocumentMarkup(frame_);
+    CefString content;
+    string_util::GetCefString(blink_glue::DumpDocumentMarkup(frame_), content);
     visitor->Visit(content);
   }
 }
@@ -107,7 +104,8 @@ void CefFrameImpl::GetSource(CefRefPtr<CefStringVisitor> visitor) {
 void CefFrameImpl::GetText(CefRefPtr<CefStringVisitor> visitor) {
   CEF_REQUIRE_RT_RETURN_VOID();
   if (frame_) {
-    const CefString& content = blink_glue::DumpDocumentText(frame_);
+    CefString content;
+    string_util::GetCefString(blink_glue::DumpDocumentText(frame_), content);
     visitor->Visit(content);
   }
 }
@@ -118,27 +116,9 @@ void CefFrameImpl::LoadRequest(CefRefPtr<CefRequest> request) {
   if (!frame_)
     return;
 
-  CefMsg_LoadRequest_Params params;
-  params.url = GURL(std::string(request->GetURL()));
-  params.method = request->GetMethod();
-  params.site_for_cookies = net::SiteForCookies::FromUrl(
-      GURL(request->GetFirstPartyForCookies().ToString()));
-
-  CefRequest::HeaderMap headerMap;
-  request->GetHeaderMap(headerMap);
-  if (!headerMap.empty())
-    params.headers = HttpHeaderUtils::GenerateHeaders(headerMap);
-
-  CefRefPtr<CefPostData> postData = request->GetPostData();
-  if (postData.get()) {
-    CefPostDataImpl* impl = static_cast<CefPostDataImpl*>(postData.get());
-    params.upload_data = new net::UploadData();
-    impl->Get(*params.upload_data.get());
-  }
-
-  params.load_flags = request->GetFlags();
-
-  OnLoadRequest(params);
+  auto params = cef::mojom::RequestParams::New();
+  static_cast<CefRequestImpl*>(request.get())->Get(params);
+  LoadRequest(std::move(params));
 }
 
 void CefFrameImpl::LoadURL(const CefString& url) {
@@ -147,28 +127,16 @@ void CefFrameImpl::LoadURL(const CefString& url) {
   if (!frame_)
     return;
 
-  CefMsg_LoadRequest_Params params;
-  params.url = GURL(url.ToString());
-  params.method = "GET";
-
-  OnLoadRequest(params);
+  auto params = cef::mojom::RequestParams::New();
+  params->url = GURL(url.ToString());
+  params->method = "GET";
+  LoadRequest(std::move(params));
 }
 
 void CefFrameImpl::ExecuteJavaScript(const CefString& jsCode,
                                      const CefString& scriptUrl,
                                      int startLine) {
-  CEF_REQUIRE_RT_RETURN_VOID();
-
-  if (jsCode.empty())
-    return;
-  if (startLine < 1)
-    startLine = 1;
-
-  if (frame_) {
-    GURL gurl = GURL(scriptUrl.ToString());
-    frame_->ExecuteScript(blink::WebScriptSource(
-        blink::WebString::FromUTF16(jsCode.ToString16()), gurl, startLine));
-  }
+  SendJavaScript(jsCode, scriptUrl, startLine);
 }
 
 bool CefFrameImpl::IsMain() {
@@ -279,12 +247,21 @@ CefRefPtr<CefURLRequest> CefFrameImpl::CreateURLRequest(
 
 void CefFrameImpl::SendProcessMessage(CefProcessId target_process,
                                       CefRefPtr<CefProcessMessage> message) {
-  Cef_Request_Params params;
-  CefProcessMessageImpl* impl =
-      static_cast<CefProcessMessageImpl*>(message.get());
-  if (impl->CopyTo(params)) {
-    SendProcessMessage(target_process, params.name, &params.arguments, true);
-  }
+  CEF_REQUIRE_RT_RETURN_VOID();
+  DCHECK_EQ(PID_BROWSER, target_process);
+  DCHECK(message && message->IsValid());
+  if (!message || !message->IsValid())
+    return;
+
+  if (!frame_)
+    return;
+
+  auto& browser_frame = GetBrowserFrame();
+  if (!browser_frame)
+    return;
+
+  auto impl = static_cast<CefProcessMessageImpl*>(message.get());
+  browser_frame->SendMessage(impl->GetName(), impl->TakeArgumentList());
 }
 
 std::unique_ptr<blink::WebURLLoader> CefFrameImpl::CreateURLLoader() {
@@ -323,22 +300,15 @@ CefFrameImpl::CreateResourceLoadInfoNotifierWrapper() {
   return nullptr;
 }
 
-void CefFrameImpl::OnAttached() {
-  Send(new CefHostMsg_FrameAttached(MSG_ROUTING_NONE));
-}
+void CefFrameImpl::OnAttached(service_manager::BinderRegistry* registry) {
+  // Called indirectly from RenderFrameCreated.
+  registry->AddInterface(base::BindRepeating(
+      &CefFrameImpl::BindRenderFrameReceiver, weak_ptr_factory_.GetWeakPtr()));
 
-bool CefFrameImpl::OnMessageReceived(const IPC::Message& message) {
-  bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(CefFrameImpl, message)
-    IPC_MESSAGE_HANDLER(CefMsg_Request, OnRequest)
-    IPC_MESSAGE_HANDLER(CefMsg_Response, OnResponse)
-    IPC_MESSAGE_HANDLER(CefMsg_ResponseAck, OnResponseAck)
-    IPC_MESSAGE_HANDLER(CefMsg_LoadRequest, OnLoadRequest)
-    IPC_MESSAGE_HANDLER(CefMsg_DidStopLoading, OnDidStopLoading)
-    IPC_MESSAGE_HANDLER(CefMsg_MoveOrResizeStarted, OnMoveOrResizeStarted)
-    IPC_MESSAGE_UNHANDLED(handled = false)
-  IPC_END_MESSAGE_MAP()
-  return handled;
+  auto& browser_frame = GetBrowserFrame();
+  if (browser_frame) {
+    browser_frame->FrameAttached();
+  }
 }
 
 void CefFrameImpl::OnDidFinishLoad() {
@@ -349,8 +319,10 @@ void CefFrameImpl::OnDidFinishLoad() {
 
   blink::WebDocumentLoader* dl = frame_->GetDocumentLoader();
   const int http_status_code = dl->GetResponse().HttpStatusCode();
-  Send(new CefHostMsg_DidFinishLoad(MSG_ROUTING_NONE, dl->GetUrl(),
-                                    http_status_code));
+  auto& browser_frame = GetBrowserFrame();
+  if (browser_frame) {
+    browser_frame->DidFinishFrameLoad(dl->GetUrl(), http_status_code);
+  }
 
   CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
   if (app) {
@@ -367,188 +339,129 @@ void CefFrameImpl::OnDidFinishLoad() {
 void CefFrameImpl::OnDraggableRegionsChanged() {
   blink::WebVector<blink::WebDraggableRegion> webregions =
       frame_->GetDocument().DraggableRegions();
-  std::vector<Cef_DraggableRegion_Params> regions;
-  for (size_t i = 0; i < webregions.size(); ++i) {
-    Cef_DraggableRegion_Params region;
+  std::vector<cef::mojom::DraggableRegionEntryPtr> regions;
+  if (!webregions.empty()) {
     auto render_frame = content::RenderFrameImpl::FromWebFrame(frame_);
-    render_frame->ConvertViewportToWindow(&webregions[i].bounds);
-    region.bounds = webregions[i].bounds;
-    region.draggable = webregions[i].draggable;
-    regions.push_back(region);
+
+    regions.reserve(webregions.size());
+    for (const auto& webregion : webregions) {
+      auto region = cef::mojom::DraggableRegionEntry::New(webregion.bounds,
+                                                          webregion.draggable);
+      render_frame->ConvertViewportToWindow(&region->bounds);
+      regions.push_back(std::move(region));
+    }
   }
-  Send(new CefHostMsg_UpdateDraggableRegions(MSG_ROUTING_NONE, regions));
+
+  auto& browser_frame = GetBrowserFrame();
+  if (browser_frame) {
+    browser_frame->UpdateDraggableRegions(
+        regions.empty() ? base::nullopt
+                        : base::make_optional(std::move(regions)));
+  }
 }
 
 void CefFrameImpl::OnDetached() {
+  // Called when this frame has been detached from the view. This *will* be
+  // called for child frames when a parent frame is detached.
   // The browser may hold the last reference to |this|. Take a reference here to
   // keep |this| alive until after this method returns.
   CefRefPtr<CefFrameImpl> self = this;
 
   browser_->FrameDetached(frame_id_);
 
+  receivers_.Clear();
+  browser_frame_.reset();
   browser_ = nullptr;
   frame_ = nullptr;
   url_loader_factory_.reset();
-  response_manager_.reset();
 }
 
-void CefFrameImpl::ExecuteCommand(const std::string& command) {
-  CEF_REQUIRE_RT_RETURN_VOID();
-  if (frame_)
-    frame_->ExecuteCommand(blink::WebString::FromUTF8(command));
-}
-
-void CefFrameImpl::SendProcessMessage(CefProcessId target_process,
-                                      const std::string& name,
-                                      base::ListValue* arguments,
-                                      bool user_initiated) {
-  DCHECK_EQ(PID_BROWSER, target_process);
-  DCHECK(!name.empty());
-
-  if (!frame_)
-    return;
-
-  Cef_Request_Params params;
-  params.name = name;
-  if (arguments)
-    params.arguments.Swap(arguments);
-  params.user_initiated = user_initiated;
-  params.request_id = -1;
-  params.expect_response = false;
-
-  Send(new CefHostMsg_Request(MSG_ROUTING_NONE, params));
-}
-
-void CefFrameImpl::Send(IPC::Message* message) {
-  if (!frame_) {
-    delete message;
-    return;
+const mojo::Remote<cef::mojom::BrowserFrame>& CefFrameImpl::GetBrowserFrame() {
+  if (!browser_frame_.is_bound()) {
+    auto render_frame = content::RenderFrameImpl::FromWebFrame(frame_);
+    if (render_frame) {
+      // Triggers creation of a CefBrowserFrame in the browser process.
+      render_frame->GetBrowserInterfaceBroker()->GetInterface(
+          browser_frame_.BindNewPipeAndPassReceiver());
+    }
   }
-
-  auto render_frame = content::RenderFrame::FromWebFrame(frame_);
-  message->set_routing_id(render_frame->GetRoutingID());
-  render_frame->Send(message);
+  return browser_frame_;
 }
 
-void CefFrameImpl::OnRequest(const Cef_Request_Params& params) {
-  DCHECK(browser_);
-  DCHECK(frame_);
+void CefFrameImpl::BindRenderFrameReceiver(
+    mojo::PendingReceiver<cef::mojom::RenderFrame> receiver) {
+  receivers_.Add(this, std::move(receiver));
+}
 
-  bool success = false;
-  std::string response;
-  bool expect_response_ack = false;
-
-  TRACE_EVENT2("cef", "CefBrowserImpl::OnRequest", "request_id",
-               params.request_id, "expect_response",
-               params.expect_response ? 1 : 0);
-
-  if (params.user_initiated) {
-    // Give the user a chance to handle the request.
-    CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
-    if (app.get()) {
-      CefRefPtr<CefRenderProcessHandler> handler =
-          app->GetRenderProcessHandler();
-      if (handler.get()) {
-        CefRefPtr<CefProcessMessageImpl> message(new CefProcessMessageImpl(
-            const_cast<Cef_Request_Params*>(&params), false, true));
-        success = handler->OnProcessMessageReceived(browser_, this, PID_BROWSER,
-                                                    message.get());
-        message->Detach(nullptr);
-      }
+void CefFrameImpl::SendMessage(const std::string& name, base::Value arguments) {
+  if (auto app = CefAppManager::Get()->GetApplication()) {
+    if (auto handler = app->GetRenderProcessHandler()) {
+      auto& list_value = base::Value::AsListValue(arguments);
+      CefRefPtr<CefProcessMessageImpl> message(new CefProcessMessageImpl(
+          name, const_cast<base::ListValue*>(&list_value), /*read_only=*/true));
+      handler->OnProcessMessageReceived(browser_, this, PID_BROWSER,
+                                        message.get());
+      message->Detach();
     }
-  } else if (params.name == "execute-code") {
-    // Execute code.
-    DCHECK_EQ(params.arguments.GetSize(), (size_t)4);
+  }
+}
 
-    bool is_javascript = false;
-    std::string code, script_url;
-    int script_start_line = 0;
+void CefFrameImpl::SendCommand(const std::string& command) {
+  CEF_REQUIRE_RT_RETURN_VOID();
+  if (frame_) {
+    frame_->ExecuteCommand(blink::WebString::FromUTF8(command));
+  }
+}
 
-    params.arguments.GetBoolean(0, &is_javascript);
-    params.arguments.GetString(1, &code);
-    DCHECK(!code.empty());
-    params.arguments.GetString(2, &script_url);
-    params.arguments.GetInteger(3, &script_start_line);
-    DCHECK_GE(script_start_line, 0);
+void CefFrameImpl::SendCommandWithResponse(
+    const std::string& command,
+    cef::mojom::RenderFrame::SendCommandWithResponseCallback callback) {
+  blink::WebString response;
 
-    if (is_javascript) {
-      frame_->ExecuteScript(
-          blink::WebScriptSource(blink::WebString::FromUTF8(code),
-                                 GURL(script_url), script_start_line));
-      success = true;
-    } else {
-      // TODO(cef): implement support for CSS code.
-      NOTIMPLEMENTED();
-    }
-  } else if (params.name == "execute-command") {
-    // Execute command.
-    DCHECK_EQ(params.arguments.GetSize(), (size_t)1);
-
-    std::string command;
-
-    params.arguments.GetString(0, &command);
-    DCHECK(!command.empty());
-
+  if (frame_) {
     if (base::LowerCaseEqualsASCII(command, "getsource")) {
       response = blink_glue::DumpDocumentMarkup(frame_);
-      success = true;
     } else if (base::LowerCaseEqualsASCII(command, "gettext")) {
       response = blink_glue::DumpDocumentText(frame_);
-      success = true;
-    } else if (frame_->ExecuteCommand(blink::WebString::FromUTF8(command))) {
-      success = true;
     }
-  } else {
-    // Invalid request.
-    NOTREACHED();
   }
 
-  if (params.expect_response) {
-    DCHECK_GE(params.request_id, 0);
+  std::move(callback).Run(string_util::CreateSharedMemoryRegion(response));
+}
 
-    // Send a response to the browser.
-    Cef_Response_Params response_params;
-    response_params.request_id = params.request_id;
-    response_params.success = success;
-    response_params.response = response;
-    response_params.expect_response_ack = expect_response_ack;
-    Send(new CefHostMsg_Response(MSG_ROUTING_NONE, response_params));
+void CefFrameImpl::SendJavaScript(const std::u16string& jsCode,
+                                  const std::string& scriptUrl,
+                                  int32_t startLine) {
+  CEF_REQUIRE_RT_RETURN_VOID();
+  if (frame_) {
+    frame_->ExecuteScript(blink::WebScriptSource(
+        blink::WebString::FromUTF16(jsCode), GURL(scriptUrl), startLine));
   }
 }
 
-void CefFrameImpl::OnResponse(const Cef_Response_Params& params) {
-  response_manager_->RunHandler(params);
-  if (params.expect_response_ack)
-    Send(new CefHostMsg_ResponseAck(MSG_ROUTING_NONE, params.request_id));
+void CefFrameImpl::LoadRequest(cef::mojom::RequestParamsPtr params) {
+  CEF_REQUIRE_RT_RETURN_VOID();
+  if (frame_) {
+    blink::WebURLRequest request;
+    CefRequestImpl::Get(params, request);
+    blink_glue::StartNavigation(frame_, request);
+  }
 }
 
-void CefFrameImpl::OnResponseAck(int request_id) {
-  response_manager_->RunAckHandler(request_id);
-}
-
-void CefFrameImpl::OnDidStopLoading() {
+void CefFrameImpl::DidStopLoading() {
   // We should only receive this notification for the highest-level LocalFrame
-  // in this frame's in-process subtree. If there are multiple of these for the
-  // same browser then the other occurrences will be discarded in
+  // in this frame's in-process subtree. If there are multiple of these for
+  // the same browser then the other occurrences will be discarded in
   // OnLoadingStateChange.
   browser_->OnLoadingStateChange(false);
 }
 
-void CefFrameImpl::OnMoveOrResizeStarted() {
+void CefFrameImpl::MoveOrResizeStarted() {
   if (frame_) {
     auto web_view = frame_->View();
     if (web_view)
       web_view->CancelPagePopup();
   }
-}
-
-void CefFrameImpl::OnLoadRequest(const CefMsg_LoadRequest_Params& params) {
-  DCHECK(frame_);
-
-  blink::WebURLRequest request;
-  CefRequestImpl::Get(params, request);
-
-  blink_glue::StartNavigation(frame_, request);
 }
 
 // Enable deprecation warnings on Windows. See http://crbug.com/585142.

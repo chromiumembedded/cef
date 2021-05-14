@@ -12,9 +12,10 @@
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/alloy/alloy_browser_main.h"
 #include "libcef/browser/browser_context.h"
+#include "libcef/browser/browser_frame.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_info_manager.h"
-#include "libcef/browser/browser_message_filter.h"
+#include "libcef/browser/browser_manager.h"
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools/devtools_manager_delegate.h"
@@ -35,7 +36,6 @@
 #include "libcef/browser/x509_certificate_impl.h"
 #include "libcef/common/alloy/alloy_content_client.h"
 #include "libcef/common/app_manager.h"
-#include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
 #include "libcef/common/extensions/extensions_util.h"
@@ -502,8 +502,6 @@ void AlloyContentBrowserClient::RenderProcessWillLaunch(
   const int id = host->GetID();
   Profile* profile = Profile::FromBrowserContext(host->GetBrowserContext());
 
-  host->AddFilter(new CefBrowserMessageFilter(id));
-
   if (extensions::ExtensionsEnabled()) {
     host->AddFilter(new extensions::ExtensionMessageFilter(id, profile));
     host->AddFilter(
@@ -782,7 +780,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
       CefRefPtr<CefCommandLineImpl> commandLinePtr(
           new CefCommandLineImpl(command_line, false, false));
       handler->OnBeforeChildProcessLaunch(commandLinePtr.get());
-      commandLinePtr->Detach(nullptr);
+      ignore_result(commandLinePtr->Detach(nullptr));
     }
   }
 }
@@ -1044,6 +1042,9 @@ void AlloyContentBrowserClient::ExposeInterfacesToRenderer(
     content::RenderProcessHost* host) {
   associated_registry->AddInterface(
       base::BindRepeating(&BindPluginInfoHost, host->GetID()));
+
+  CefBrowserManager::ExposeInterfacesToRenderer(registry, associated_registry,
+                                                host);
 }
 
 std::unique_ptr<net::ClientCertStore>
@@ -1292,6 +1293,8 @@ void AlloyContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
     content::RenderFrameHost* render_frame_host,
     mojo::BinderMapWithContext<content::RenderFrameHost*>* map) {
   PopulateChromeFrameBinders(map);
+  CefBrowserFrame::RegisterBrowserInterfaceBindersForFrame(render_frame_host,
+                                                           map);
 
   if (!extensions::ExtensionsEnabled())
     return;

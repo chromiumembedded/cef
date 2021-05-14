@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=41339414bca54054046a8f7fbce402a0e0dd8020$
+// $hash=131544be2c5e916381f80854451538ad64a687a2$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RENDER_PROCESS_HANDLER_CAPI_H_
@@ -73,7 +73,7 @@ typedef struct _cef_render_process_handler_t {
   ///
   // Called after a browser has been created. When browsing cross-origin a new
   // browser will be created before the old browser with the same identifier is
-  // destroyed. |extra_info| is a read-only value originating from
+  // destroyed. |extra_info| is an optional read-only value originating from
   // cef_browser_host_t::cef_browser_host_create_browser(),
   // cef_browser_host_t::cef_browser_host_create_browser_sync(),
   // cef_life_span_handler_t::on_before_popup() or

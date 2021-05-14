@@ -41,9 +41,9 @@ BLINK_EXPORT void GoBack(blink::WebView* view);
 BLINK_EXPORT void GoForward(blink::WebView* view);
 
 // Returns the text of the document element.
-BLINK_EXPORT std::string DumpDocumentText(blink::WebLocalFrame* frame);
+BLINK_EXPORT blink::WebString DumpDocumentText(blink::WebLocalFrame* frame);
 // Returns the markup of the document element.
-BLINK_EXPORT std::string DumpDocumentMarkup(blink::WebLocalFrame* frame);
+BLINK_EXPORT blink::WebString DumpDocumentMarkup(blink::WebLocalFrame* frame);
 
 // Expose additional actions on WebNode.
 BLINK_EXPORT cef_dom_node_type_t GetNodeType(const blink::WebNode& node);

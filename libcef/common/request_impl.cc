@@ -8,19 +8,15 @@
 #include <utility>
 #include <vector>
 
-#include "libcef/browser/navigate_params.h"
-#include "libcef/common/cef_messages.h"
 #include "libcef/common/net/http_header_utils.h"
-#include "libcef/common/net/upload_data.h"
 #include "libcef/common/net_service/net_service_util.h"
 #include "libcef/common/request_impl.h"
 
 #include "base/command_line.h"
 #include "base/logging.h"
+#include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
-#include "base/task/post_task.h"
-#include "base/task/thread_pool.h"
 #include "components/navigation_interception/navigation_params.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_switches.h"
@@ -45,6 +41,7 @@
 #include "third_party/blink/public/platform/web_url.h"
 #include "third_party/blink/public/platform/web_url_error.h"
 #include "third_party/blink/public/platform/web_url_request.h"
+#include "third_party/blink/public/platform/web_url_request_util.h"
 #include "third_party/blink/public/web/web_security_policy.h"
 
 namespace {
@@ -58,50 +55,6 @@ const char kCacheControlDirectiveOnlyIfCachedLowerCase[] = "only-if-cached";
 // Mask of values that configure the cache policy.
 const int kURCachePolicyMask =
     (UR_FLAG_SKIP_CACHE | UR_FLAG_ONLY_FROM_CACHE | UR_FLAG_DISABLE_CACHE);
-
-// A subclass of net::UploadBytesElementReader that keeps the associated
-// UploadElement alive until the request completes.
-class BytesElementReader : public net::UploadBytesElementReader {
- public:
-  explicit BytesElementReader(std::unique_ptr<net::UploadElement> element)
-      : net::UploadBytesElementReader(element->bytes(),
-                                      element->bytes_length()),
-        element_(std::move(element)) {
-    DCHECK_EQ(net::UploadElement::TYPE_BYTES, element_->type());
-  }
-
- private:
-  std::unique_ptr<net::UploadElement> element_;
-
-  DISALLOW_COPY_AND_ASSIGN(BytesElementReader);
-};
-
-scoped_refptr<base::SequencedTaskRunner> GetFileTaskRunner() {
-  return base::ThreadPool::CreateSequencedTaskRunner(
-      {base::MayBlock(), base::TaskPriority::USER_VISIBLE});
-}
-
-// A subclass of net::UploadFileElementReader that keeps the associated
-// UploadElement alive until the request completes.
-class FileElementReader : public net::UploadFileElementReader {
- public:
-  explicit FileElementReader(std::unique_ptr<net::UploadElement> element)
-      : net::UploadFileElementReader(
-            GetFileTaskRunner().get(),
-            element->file_path(),
-            element->file_range_offset(),
-            element->file_range_length(),
-            element->expected_file_modification_time()),
-        element_(std::move(element)) {
-    DCHECK_EQ(net::UploadElement::TYPE_FILE, element_->type());
-  }
-
- private:
-  scoped_refptr<base::SequencedTaskRunner> task_runner_;
-  std::unique_ptr<net::UploadElement> element_;
-
-  DISALLOW_COPY_AND_ASSIGN(FileElementReader);
-};
 
 // Returns the cef_urlrequest_flags_t policy specified by the Cache-Control
 // request header directives, if any. The directives are case-insensitive and
@@ -167,15 +120,6 @@ blink::mojom::FetchCacheMode GetFetchCacheMode(int ur_flags) {
   return blink::mojom::FetchCacheMode::kDefault;
 }
 
-blink::WebString FilePathStringToWebString(
-    const base::FilePath::StringType& str) {
-#if defined(OS_POSIX)
-  return blink::WebString::FromUTF8(str);
-#elif defined(OS_WIN)
-  return blink::WebString::FromUTF16(base::WideToUTF16(str));
-#endif
-}
-
 // Read |headers| into |map|.
 void GetHeaderMap(const net::HttpRequestHeaders& headers,
                   CefRequest::HeaderMap& map) {
@@ -208,10 +152,6 @@ void GetHeaderMap(const CefRequest::HeaderMap& source,
       map.insert(std::make_pair(name, it->second));
   }
 }
-
-// Type used in UploadDataStream.
-typedef std::vector<std::unique_ptr<net::UploadElementReader>>
-    UploadElementReaders;
 
 }  // namespace
 
@@ -601,30 +541,28 @@ void CefRequestImpl::Set(
 }
 
 // static
-void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
+void CefRequestImpl::Get(const cef::mojom::RequestParamsPtr& params,
                          blink::WebURLRequest& request) {
-  request.SetUrl(params.url);
-  request.SetRequestorOrigin(blink::WebSecurityOrigin::Create(params.url));
-  if (!params.method.empty())
-    request.SetHttpMethod(blink::WebString::FromASCII(params.method));
+  request.SetUrl(params->url);
+  request.SetRequestorOrigin(blink::WebSecurityOrigin::Create(params->url));
+  if (!params->method.empty())
+    request.SetHttpMethod(blink::WebString::FromASCII(params->method));
 
-  if (params.referrer.is_valid()) {
+  if (params->referrer && params->referrer->url.is_valid()) {
     const blink::WebString& referrer =
         blink::WebSecurityPolicy::GenerateReferrerHeader(
-            NetReferrerPolicyToBlinkReferrerPolicy(
-                static_cast<cef_referrer_policy_t>(params.referrer_policy)),
-            params.url, blink::WebString::FromUTF8(params.referrer.spec()));
+            params->referrer->policy, params->url,
+            blink::WebString::FromUTF8(params->referrer->url.spec()));
     if (!referrer.IsEmpty()) {
       request.SetReferrerString(referrer);
-      request.SetReferrerPolicy(NetReferrerPolicyToBlinkReferrerPolicy(
-          static_cast<cef_referrer_policy_t>(params.referrer_policy)));
+      request.SetReferrerPolicy(params->referrer->policy);
     }
   }
 
   CefRequest::HeaderMap headerMap;
-  if (!params.headers.empty()) {
-    for (net::HttpUtil::HeadersIterator i(params.headers.begin(),
-                                          params.headers.end(), "\n\r");
+  if (!params->headers.empty()) {
+    for (net::HttpUtil::HeadersIterator i(params->headers.begin(),
+                                          params->headers.end(), "\n\r");
          i.GetNext();) {
       request.AddHttpHeaderField(blink::WebString::FromUTF8(i.name()),
                                  blink::WebString::FromUTF8(i.values()));
@@ -632,7 +570,7 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
     }
   }
 
-  if (params.upload_data.get()) {
+  if (params->upload_data) {
     const std::u16string& method = request.HttpMethod().Utf16();
     if (method == u"GET" || method == u"HEAD") {
       request.SetHttpMethod(blink::WebString::FromASCII("POST"));
@@ -649,31 +587,14 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
               net_service::kContentTypeApplicationFormURLEncoded));
     }
 
-    blink::WebHTTPBody body;
-    body.Initialize();
-
-    for (const auto& element : params.upload_data->elements()) {
-      if (element->type() == net::UploadElement::TYPE_BYTES) {
-        blink::WebData data;
-        data.Assign(element->bytes(), element->bytes_length());
-        body.AppendData(data);
-      } else if (element->type() == net::UploadElement::TYPE_FILE) {
-        body.AppendFileRange(
-            FilePathStringToWebString(element->file_path().value()),
-            element->file_range_offset(), element->file_range_length(),
-            element->expected_file_modification_time());
-      } else {
-        NOTREACHED();
-      }
-    }
-
-    request.SetHttpBody(body);
+    request.SetHttpBody(
+        blink::GetWebHTTPBodyForRequestBody(*params->upload_data));
   }
 
-  if (!params.site_for_cookies.IsNull())
-    request.SetSiteForCookies(params.site_for_cookies);
+  if (!params->site_for_cookies.IsNull())
+    request.SetSiteForCookies(params->site_for_cookies);
 
-  int flags = params.load_flags;
+  int flags = params->load_flags;
   if (!(flags & kURCachePolicyMask)) {
     // Only consider the Cache-Control directives when a cache policy is not
     // explicitly set on the request.
@@ -681,34 +602,32 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
   }
   request.SetCacheMode(GetFetchCacheMode(flags));
 
-  SETBOOLFLAG(request, params.load_flags, SetAllowStoredCredentials,
+  SETBOOLFLAG(request, params->load_flags, SetAllowStoredCredentials,
               UR_FLAG_ALLOW_STORED_CREDENTIALS);
-  SETBOOLFLAG(request, params.load_flags, SetReportUploadProgress,
+  SETBOOLFLAG(request, params->load_flags, SetReportUploadProgress,
               UR_FLAG_REPORT_UPLOAD_PROGRESS);
 }
 
-void CefRequestImpl::Get(CefNavigateParams& params) const {
+void CefRequestImpl::Get(cef::mojom::RequestParamsPtr& params) const {
   base::AutoLock lock_scope(lock_);
 
-  params.url = url_;
-  params.method = method_;
+  params->url = url_;
+  params->method = method_;
 
   // Referrer policy will be applied later in the request pipeline.
-  params.referrer.url = referrer_url_;
-  params.referrer.policy =
-      NetReferrerPolicyToBlinkReferrerPolicy(referrer_policy_);
+  params->referrer = blink::mojom::Referrer::New(
+      referrer_url_, NetReferrerPolicyToBlinkReferrerPolicy(referrer_policy_));
 
   if (!headermap_.empty())
-    params.headers = HttpHeaderUtils::GenerateHeaders(headermap_);
+    params->headers = HttpHeaderUtils::GenerateHeaders(headermap_);
 
   if (postdata_) {
     CefPostDataImpl* impl = static_cast<CefPostDataImpl*>(postdata_.get());
-    params.upload_data = new net::UploadData();
-    impl->Get(*params.upload_data.get());
+    params->upload_data = impl->GetBody();
   }
 
-  params.site_for_cookies = site_for_cookies_;
-  params.load_flags = flags_;
+  params->site_for_cookies = site_for_cookies_;
+  params->load_flags = flags_;
 }
 
 void CefRequestImpl::SetReadOnly(bool read_only) {
@@ -1048,70 +967,6 @@ scoped_refptr<network::ResourceRequestBody> CefPostDataImpl::GetBody() const {
   return body;
 }
 
-void CefPostDataImpl::Set(const net::UploadData& data) {
-  {
-    base::AutoLock lock_scope(lock_);
-    CHECK_READONLY_RETURN_VOID();
-  }
-
-  CefRefPtr<CefPostDataElement> postelem;
-
-  for (const auto& element : data.elements()) {
-    postelem = CefPostDataElement::Create();
-    static_cast<CefPostDataElementImpl*>(postelem.get())->Set(*element);
-    AddElement(postelem);
-  }
-}
-
-void CefPostDataImpl::Set(const net::UploadDataStream& data_stream) {
-  {
-    base::AutoLock lock_scope(lock_);
-    CHECK_READONLY_RETURN_VOID();
-  }
-
-  CefRefPtr<CefPostDataElement> postelem;
-
-  const UploadElementReaders* elements = data_stream.GetElementReaders();
-  if (elements) {
-    UploadElementReaders::const_iterator it = elements->begin();
-    for (; it != elements->end(); ++it) {
-      postelem = CefPostDataElement::Create();
-      static_cast<CefPostDataElementImpl*>(postelem.get())->Set(**it);
-      if (postelem->GetType() != PDE_TYPE_EMPTY)
-        AddElement(postelem);
-      else if (!has_excluded_elements_)
-        has_excluded_elements_ = true;
-    }
-  }
-}
-
-void CefPostDataImpl::Get(net::UploadData& data) const {
-  base::AutoLock lock_scope(lock_);
-
-  net::UploadData::ElementsVector data_elements;
-  for (const auto& element : elements_) {
-    std::unique_ptr<net::UploadElement> data_element =
-        std::make_unique<net::UploadElement>();
-    static_cast<CefPostDataElementImpl*>(element.get())
-        ->Get(*data_element.get());
-    data_elements.push_back(std::move(data_element));
-  }
-  data.swap_elements(&data_elements);
-}
-
-std::unique_ptr<net::UploadDataStream> CefPostDataImpl::Get() const {
-  base::AutoLock lock_scope(lock_);
-
-  UploadElementReaders element_readers;
-  for (const auto& element : elements_) {
-    element_readers.push_back(
-        static_cast<CefPostDataElementImpl*>(element.get())->Get());
-  }
-
-  return std::make_unique<net::ElementsUploadDataStream>(
-      std::move(element_readers), 0);
-}
-
 void CefPostDataImpl::SetReadOnly(bool read_only) {
   base::AutoLock lock_scope(lock_);
   if (read_only_ == read_only)
@@ -1292,78 +1147,6 @@ void CefPostDataElementImpl::Get(network::ResourceRequestBody& body) const {
                          base::Time());
   } else {
     NOTREACHED();
-  }
-}
-
-void CefPostDataElementImpl::Set(const net::UploadElement& element) {
-  {
-    base::AutoLock lock_scope(lock_);
-    CHECK_READONLY_RETURN_VOID();
-  }
-
-  if (element.type() == net::UploadElement::TYPE_BYTES) {
-    SetToBytes(element.bytes_length(), element.bytes());
-  } else if (element.type() == net::UploadElement::TYPE_FILE) {
-    SetToFile(element.file_path().value());
-  } else {
-    NOTREACHED();
-  }
-}
-
-void CefPostDataElementImpl::Set(
-    const net::UploadElementReader& element_reader) {
-  {
-    base::AutoLock lock_scope(lock_);
-    CHECK_READONLY_RETURN_VOID();
-  }
-
-  const net::UploadBytesElementReader* bytes_reader =
-      element_reader.AsBytesReader();
-  if (bytes_reader) {
-    SetToBytes(bytes_reader->length(), bytes_reader->bytes());
-    return;
-  }
-
-  const net::UploadFileElementReader* file_reader =
-      element_reader.AsFileReader();
-  if (file_reader) {
-    SetToFile(file_reader->path().value());
-    return;
-  }
-
-  // Chunked uploads cannot currently be represented.
-  SetToEmpty();
-}
-
-void CefPostDataElementImpl::Get(net::UploadElement& element) const {
-  base::AutoLock lock_scope(lock_);
-
-  if (type_ == PDE_TYPE_BYTES) {
-    element.SetToBytes(static_cast<char*>(data_.bytes.bytes), data_.bytes.size);
-  } else if (type_ == PDE_TYPE_FILE) {
-    base::FilePath path = base::FilePath(CefString(&data_.filename));
-    element.SetToFilePath(path);
-  } else {
-    NOTREACHED();
-  }
-}
-
-std::unique_ptr<net::UploadElementReader> CefPostDataElementImpl::Get() const {
-  base::AutoLock lock_scope(lock_);
-
-  if (type_ == PDE_TYPE_BYTES) {
-    net::UploadElement* element = new net::UploadElement();
-    element->SetToBytes(static_cast<char*>(data_.bytes.bytes),
-                        data_.bytes.size);
-    return std::make_unique<BytesElementReader>(base::WrapUnique(element));
-  } else if (type_ == PDE_TYPE_FILE) {
-    net::UploadElement* element = new net::UploadElement();
-    base::FilePath path = base::FilePath(CefString(&data_.filename));
-    element->SetToFilePath(path);
-    return std::make_unique<FileElementReader>(base::WrapUnique(element));
-  } else {
-    NOTREACHED();
-    return nullptr;
   }
 }
 

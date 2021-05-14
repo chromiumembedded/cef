@@ -9,10 +9,9 @@
 #include <vector>
 
 #include "libcef/common/app_manager.h"
-#include "libcef/common/cef_messages.h"
 #include "libcef/renderer/blink_glue.h"
-#include "libcef/renderer/browser_manager.h"
 #include "libcef/renderer/render_frame_util.h"
+#include "libcef/renderer/render_manager.h"
 #include "libcef/renderer/thread_util.h"
 
 #include "base/strings/string_util.h"
@@ -37,13 +36,13 @@
 // static
 CefRefPtr<CefBrowserImpl> CefBrowserImpl::GetBrowserForView(
     content::RenderView* view) {
-  return CefBrowserManager::Get()->GetBrowserForView(view);
+  return CefRenderManager::Get()->GetBrowserForView(view);
 }
 
 // static
 CefRefPtr<CefBrowserImpl> CefBrowserImpl::GetBrowserForMainFrame(
     blink::WebFrame* frame) {
-  return CefBrowserManager::Get()->GetBrowserForMainFrame(frame);
+  return CefRenderManager::Get()->GetBrowserForMainFrame(frame);
 }
 
 // CefBrowser methods.
@@ -350,7 +349,7 @@ void CefBrowserImpl::OnDestruct() {
       handler->OnBrowserDestroyed(this);
   }
 
-  CefBrowserManager::Get()->OnBrowserDestroyed(this);
+  CefRenderManager::Get()->OnBrowserDestroyed(this);
 }
 
 void CefBrowserImpl::FrameDetached(int64_t frame_id) {

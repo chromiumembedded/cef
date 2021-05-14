@@ -3,68 +3,71 @@
 // can be found in the LICENSE file.
 
 #include "libcef/common/process_message_impl.h"
-#include "libcef/common/cef_messages.h"
 #include "libcef/common/values_impl.h"
 
 #include "base/logging.h"
-
-namespace {
-
-void CopyValue(const Cef_Request_Params& source, Cef_Request_Params& target) {
-  target.name = source.name;
-  auto copy = source.arguments.CreateDeepCopy();
-  target.arguments.Swap(copy.get());
-}
-
-}  // namespace
+#include "base/memory/ptr_util.h"
 
 // static
 CefRefPtr<CefProcessMessage> CefProcessMessage::Create(const CefString& name) {
-  Cef_Request_Params* params = new Cef_Request_Params();
-  params->name = name;
-  return new CefProcessMessageImpl(params, true, false);
+  return new CefProcessMessageImpl(name, CefListValue::Create());
 }
 
-CefProcessMessageImpl::CefProcessMessageImpl(Cef_Request_Params* value,
-                                             bool will_delete,
-                                             bool read_only)
-    : CefValueBase<CefProcessMessage, Cef_Request_Params>(
-          value,
-          nullptr,
-          will_delete ? kOwnerWillDelete : kOwnerNoDelete,
-          read_only,
-          nullptr) {}
+CefProcessMessageImpl::CefProcessMessageImpl(const CefString& name,
+                                             CefRefPtr<CefListValue> arguments)
+    : name_(name), arguments_(arguments) {
+  DCHECK(!name_.empty());
+  DCHECK(arguments_);
+}
 
-bool CefProcessMessageImpl::CopyTo(Cef_Request_Params& target) {
-  CEF_VALUE_VERIFY_RETURN(false, false);
-  CopyValue(const_value(), target);
-  return true;
+CefProcessMessageImpl::CefProcessMessageImpl(const CefString& name,
+                                             base::ListValue* arguments,
+                                             bool read_only)
+    : name_(name),
+      arguments_(
+          new CefListValueImpl(arguments, /*will_delete=*/false, read_only)),
+      should_detach_(true) {
+  DCHECK(!name_.empty());
+}
+
+CefProcessMessageImpl::~CefProcessMessageImpl() {
+  DCHECK(!should_detach_ || !arguments_->IsValid());
+}
+
+void CefProcessMessageImpl::Detach() {
+  DCHECK(IsValid());
+  DCHECK(should_detach_);
+  CefListValueImpl* value_impl =
+      static_cast<CefListValueImpl*>(arguments_.get());
+  ignore_result(value_impl->Detach(nullptr));
+}
+
+base::ListValue CefProcessMessageImpl::TakeArgumentList() {
+  DCHECK(IsValid());
+  CefListValueImpl* value_impl =
+      static_cast<CefListValueImpl*>(arguments_.get());
+  auto value = base::WrapUnique(value_impl->CopyOrDetachValue(nullptr));
+  return std::move(*value);
 }
 
 bool CefProcessMessageImpl::IsValid() {
-  return !detached();
+  return arguments_->IsValid();
 }
 
 bool CefProcessMessageImpl::IsReadOnly() {
-  return read_only();
+  return arguments_->IsReadOnly();
 }
 
 CefRefPtr<CefProcessMessage> CefProcessMessageImpl::Copy() {
-  CEF_VALUE_VERIFY_RETURN(false, nullptr);
-  Cef_Request_Params* params = new Cef_Request_Params();
-  CopyValue(const_value(), *params);
-  return new CefProcessMessageImpl(params, true, false);
+  if (!IsValid())
+    return nullptr;
+  return new CefProcessMessageImpl(name_, arguments_->Copy());
 }
 
 CefString CefProcessMessageImpl::GetName() {
-  CEF_VALUE_VERIFY_RETURN(false, CefString());
-  return const_value().name;
+  return name_;
 }
 
 CefRefPtr<CefListValue> CefProcessMessageImpl::GetArgumentList() {
-  CEF_VALUE_VERIFY_RETURN(false, nullptr);
-  return CefListValueImpl::GetOrCreateRef(
-      const_cast<base::ListValue*>(&(const_value().arguments)),
-      const_cast<Cef_Request_Params*>(&const_value()), read_only(),
-      controller());
+  return arguments_;
 }

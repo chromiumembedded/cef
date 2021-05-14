@@ -1,0 +1,50 @@
+// Copyright 2021 The Chromium Embedded Framework Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#ifndef CEF_LIBCEF_BROWSER_BROWSER_FRAME_H_
+#define CEF_LIBCEF_BROWSER_BROWSER_FRAME_H_
+#pragma once
+
+#include "libcef/browser/frame_host_impl.h"
+
+#include "cef/libcef/common/mojom/cef.mojom.h"
+#include "content/public/browser/frame_service_base.h"
+#include "mojo/public/cpp/bindings/binder_map.h"
+
+// Implementation of the BrowserFrame mojo interface.
+// This is implemented separately from CefFrameHostImpl to better manage the
+// association with the RenderFrameHost (which may be speculative, etc.), and so
+// that messages are always routed to the most appropriate CefFrameHostImpl
+// instance. Lifespan is tied to the RFH via FrameServiceBase.
+class CefBrowserFrame
+    : public content::FrameServiceBase<cef::mojom::BrowserFrame> {
+ public:
+  CefBrowserFrame(content::RenderFrameHost* render_frame_host,
+                  mojo::PendingReceiver<cef::mojom::BrowserFrame> receiver);
+  ~CefBrowserFrame() override;
+
+  // Called from the ContentBrowserClient method of the same name.
+  static void RegisterBrowserInterfaceBindersForFrame(
+      content::RenderFrameHost* render_frame_host,
+      mojo::BinderMapWithContext<content::RenderFrameHost*>* map);
+
+ private:
+  // cef::mojom::BrowserFrame methods:
+  void SendMessage(const std::string& name, base::Value arguments) override;
+  void FrameAttached() override;
+  void DidFinishFrameLoad(const GURL& validated_url,
+                          int32_t http_status_code) override;
+  void UpdateDraggableRegions(
+      base::Optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions)
+      override;
+
+  // FrameServiceBase methods:
+  bool ShouldCloseOnFinishNavigation() const override { return false; }
+
+  CefRefPtr<CefFrameHostImpl> GetFrameHost() const;
+
+  DISALLOW_COPY_AND_ASSIGN(CefBrowserFrame);
+};
+
+#endif  // CEF_LIBCEF_BROWSER_BROWSER_FRAME_H_

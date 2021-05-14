@@ -10,6 +10,13 @@
 #include "include/cef_frame.h"
 #include "include/cef_v8.h"
 
+#include "base/memory/weak_ptr.h"
+#include "cef/libcef/common/mojom/cef.mojom.h"
+#include "mojo/public/cpp/bindings/pending_receiver.h"
+#include "mojo/public/cpp/bindings/receiver_set.h"
+#include "mojo/public/cpp/bindings/remote.h"
+#include "services/service_manager/public/cpp/binder_registry.h"
+
 namespace base {
 class ListValue;
 }
@@ -21,22 +28,14 @@ class WebURLLoader;
 class WebURLLoaderFactory;
 }  // namespace blink
 
-namespace IPC {
-class Message;
-}
-
 class GURL;
 
 class CefBrowserImpl;
-class CefResponseManager;
-struct CefMsg_LoadRequest_Params;
-struct Cef_Request_Params;
-struct Cef_Response_Params;
 
 // Implementation of CefFrame. CefFrameImpl objects are owned by the
 // CefBrowerImpl and will be detached when the browser is notified that the
 // associated renderer WebFrame will close.
-class CefFrameImpl : public CefFrame {
+class CefFrameImpl : public CefFrame, public cef::mojom::RenderFrame {
  public:
   CefFrameImpl(CefBrowserImpl* browser,
                blink::WebLocalFrame* frame,
@@ -81,8 +80,7 @@ class CefFrameImpl : public CefFrame {
   CreateResourceLoadInfoNotifierWrapper();
 
   // Forwarded from CefRenderFrameObserver.
-  void OnAttached();
-  bool OnMessageReceived(const IPC::Message& message);
+  void OnAttached(service_manager::BinderRegistry* registry);
   void OnDidFinishLoad();
   void OnDraggableRegionsChanged();
   void OnDetached();
@@ -90,24 +88,25 @@ class CefFrameImpl : public CefFrame {
   blink::WebLocalFrame* web_frame() const { return frame_; }
 
  private:
-  void ExecuteCommand(const std::string& command);
+  // Returns the remote BrowserFrame object.
+  const mojo::Remote<cef::mojom::BrowserFrame>& GetBrowserFrame();
 
-  // Avoids unnecessary string type conversions.
-  void SendProcessMessage(CefProcessId target_process,
-                          const std::string& name,
-                          base::ListValue* arguments,
-                          bool user_initiated);
+  void BindRenderFrameReceiver(
+      mojo::PendingReceiver<cef::mojom::RenderFrame> receiver);
 
-  // Send a message to the RenderFrame associated with this frame.
-  void Send(IPC::Message* message);
-
-  // OnMessageReceived message handlers.
-  void OnRequest(const Cef_Request_Params& params);
-  void OnResponse(const Cef_Response_Params& params);
-  void OnResponseAck(int request_id);
-  void OnDidStopLoading();
-  void OnMoveOrResizeStarted();
-  void OnLoadRequest(const CefMsg_LoadRequest_Params& params);
+  // cef::mojom::RenderFrame methods:
+  void SendMessage(const std::string& name, base::Value arguments) override;
+  void SendCommand(const std::string& command) override;
+  void SendCommandWithResponse(
+      const std::string& command,
+      cef::mojom::RenderFrame::SendCommandWithResponseCallback callback)
+      override;
+  void SendJavaScript(const std::u16string& jsCode,
+                      const std::string& scriptUrl,
+                      int32_t startLine) override;
+  void LoadRequest(cef::mojom::RequestParamsPtr params) override;
+  void DidStopLoading() override;
+  void MoveOrResizeStarted() override;
 
   CefBrowserImpl* browser_;
   blink::WebLocalFrame* frame_;
@@ -115,8 +114,11 @@ class CefFrameImpl : public CefFrame {
 
   std::unique_ptr<blink::WebURLLoaderFactory> url_loader_factory_;
 
-  // Manages response registrations.
-  std::unique_ptr<CefResponseManager> response_manager_;
+  mojo::ReceiverSet<cef::mojom::RenderFrame> receivers_;
+
+  mojo::Remote<cef::mojom::BrowserFrame> browser_frame_;
+
+  base::WeakPtrFactory<CefFrameImpl> weak_ptr_factory_{this};
 
   IMPLEMENT_REFCOUNTING(CefFrameImpl);
   DISALLOW_COPY_AND_ASSIGN(CefFrameImpl);

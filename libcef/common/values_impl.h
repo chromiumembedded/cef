@@ -140,11 +140,12 @@ class CefBinaryValueImpl : public CefValueBase<CefBinaryValue, base::Value> {
   CefBinaryValueImpl(char* data, size_t data_size);
 
   // Return a copy of the value.
-  base::Value* CopyValue();
+  base::Value* CopyValue() WARN_UNUSED_RESULT;
 
   // If this value is a reference then return a copy. Otherwise, detach and
   // transfer ownership of the value.
-  base::Value* CopyOrDetachValue(CefValueController* new_controller);
+  base::Value* CopyOrDetachValue(CefValueController* new_controller)
+      WARN_UNUSED_RESULT;
 
   bool IsSameValue(const base::Value* that);
   bool IsEqualValue(const base::Value* that);
@@ -195,11 +196,12 @@ class CefDictionaryValueImpl
                          bool read_only);
 
   // Return a copy of the value.
-  base::DictionaryValue* CopyValue();
+  base::DictionaryValue* CopyValue() WARN_UNUSED_RESULT;
 
   // If this value is a reference then return a copy. Otherwise, detach and
   // transfer ownership of the value.
-  base::DictionaryValue* CopyOrDetachValue(CefValueController* new_controller);
+  base::DictionaryValue* CopyOrDetachValue(CefValueController* new_controller)
+      WARN_UNUSED_RESULT;
 
   bool IsSameValue(const base::DictionaryValue* that);
   bool IsEqualValue(const base::DictionaryValue* that);
@@ -273,11 +275,12 @@ class CefListValueImpl : public CefValueBase<CefListValue, base::ListValue> {
   CefListValueImpl(base::ListValue* value, bool will_delete, bool read_only);
 
   // Return a copy of the value.
-  base::ListValue* CopyValue();
+  base::ListValue* CopyValue() WARN_UNUSED_RESULT;
 
   // If this value is a reference then return a copy. Otherwise, detach and
   // transfer ownership of the value.
-  base::ListValue* CopyOrDetachValue(CefValueController* new_controller);
+  base::ListValue* CopyOrDetachValue(CefValueController* new_controller)
+      WARN_UNUSED_RESULT;
 
   bool IsSameValue(const base::ListValue* that);
   bool IsEqualValue(const base::ListValue* that);

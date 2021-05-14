@@ -246,10 +246,12 @@ class CefFrame : public virtual CefBaseRefCounted {
       CefRefPtr<CefURLRequestClient> client) = 0;
 
   ///
-  // Send a message to the specified |target_process|. Message delivery is not
-  // guaranteed in all cases (for example, if the browser is closing,
-  // navigating, or if the target process crashes). Send an ACK message back
-  // from the target process if confirmation is required.
+  // Send a message to the specified |target_process|. Ownership of the message
+  // contents will be transferred and the |message| reference will be
+  // invalidated. Message delivery is not guaranteed in all cases (for example,
+  // if the browser is closing, navigating, or if the target process crashes).
+  // Send an ACK message back from the target process if confirmation is
+  // required.
   ///
   /*--cef()--*/
   virtual void SendProcessMessage(CefProcessId target_process,

@@ -42,8 +42,8 @@ namespace web_cache {
 class WebCacheImpl;
 }
 
-class CefBrowserManager;
-class CefRenderThreadObserver;
+class AlloyRenderThreadObserver;
+class CefRenderManager;
 class ChromePDFPrintClient;
 class SpellCheck;
 
@@ -126,10 +126,10 @@ class AlloyContentRendererClient
   // which the RendererMain function was entered.
   base::TimeTicks main_entry_time_;
 
-  std::unique_ptr<CefBrowserManager> browser_manager_;
+  std::unique_ptr<CefRenderManager> render_manager_;
 
   scoped_refptr<base::SingleThreadTaskRunner> render_task_runner_;
-  std::unique_ptr<CefRenderThreadObserver> observer_;
+  std::unique_ptr<AlloyRenderThreadObserver> observer_;
   std::unique_ptr<web_cache::WebCacheImpl> web_cache_impl_;
   std::unique_ptr<SpellCheck> spellcheck_;
   std::unique_ptr<visitedlink::VisitedLinkReader> visited_link_slave_;

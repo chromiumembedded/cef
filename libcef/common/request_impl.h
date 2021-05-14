@@ -13,6 +13,7 @@
 #include "include/cef_request.h"
 
 #include "base/synchronization/lock.h"
+#include "cef/libcef/common/mojom/cef.mojom.h"
 #include "net/cookies/site_for_cookies.h"
 #include "services/network/public/mojom/referrer_policy.mojom-shared.h"
 #include "url/gurl.h"
@@ -28,10 +29,6 @@ class NavigationParams;
 namespace net {
 class HttpRequestHeaders;
 struct RedirectInfo;
-class UploadData;
-class UploadDataStream;
-class UploadElement;
-class UploadElementReader;
 }  // namespace net
 
 namespace network {
@@ -39,9 +36,6 @@ class DataElement;
 struct ResourceRequest;
 class ResourceRequestBody;
 }  // namespace network
-
-struct CefMsg_LoadRequest_Params;
-struct CefNavigateParams;
 
 // Implementation of CefRequest
 class CefRequestImpl : public CefRequest {
@@ -110,12 +104,12 @@ class CefRequestImpl : public CefRequest {
 
   // Populate the WebURLRequest object based on the contents of |params|.
   // Called from CefBrowserImpl::LoadRequest().
-  static void Get(const CefMsg_LoadRequest_Params& params,
+  static void Get(const cef::mojom::RequestParamsPtr& params,
                   blink::WebURLRequest& request);
 
-  // Populate the CefNavigateParams object from this object.
+  // Populate the RequestParams object from this object.
   // Called from CefFrameHostImpl::LoadRequest().
-  void Get(CefNavigateParams& params) const;
+  void Get(cef::mojom::RequestParamsPtr& params) const;
 
   void SetReadOnly(bool read_only);
 
@@ -208,10 +202,6 @@ class CefPostDataImpl : public CefPostData {
 
   void Set(const network::ResourceRequestBody& body);
   scoped_refptr<network::ResourceRequestBody> GetBody() const;
-  void Set(const net::UploadData& data);
-  void Set(const net::UploadDataStream& data_stream);
-  void Get(net::UploadData& data) const;
-  std::unique_ptr<net::UploadDataStream> Get() const;
 
   void SetReadOnly(bool read_only);
 
@@ -259,10 +249,6 @@ class CefPostDataElementImpl : public CefPostDataElement {
 
   void Set(const network::DataElement& element);
   void Get(network::ResourceRequestBody& body) const;
-  void Set(const net::UploadElement& element);
-  void Set(const net::UploadElementReader& element_reader);
-  void Get(net::UploadElement& element) const;
-  std::unique_ptr<net::UploadElementReader> Get() const;
 
   void SetReadOnly(bool read_only);
 

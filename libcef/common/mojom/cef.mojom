@@ -1,0 +1,129 @@
+// Copyright 2021 The Chromium Embedded Framework Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+module cef.mojom;
+
+import "mojo/public/mojom/base/shared_memory.mojom";
+import "mojo/public/mojom/base/string16.mojom";
+import "mojo/public/mojom/base/values.mojom";
+import "services/network/public/mojom/site_for_cookies.mojom";
+import "services/network/public/mojom/url_request.mojom";
+import "third_party/blink/public/mojom/loader/referrer.mojom";
+import "ui/gfx/geometry/mojom/geometry.mojom";
+import "url/mojom/url.mojom";
+
+// Structure passed to UpdateDraggableRegions().
+struct DraggableRegionEntry {
+  gfx.mojom.Rect bounds;
+  bool draggable;
+};
+
+// Interface for communicating with a frame in the browser process.
+interface BrowserFrame {
+  // Send a message to the browser process.
+  SendMessage(string name, mojo_base.mojom.ListValue arguments);
+
+  // The render frame is ready to begin handling actions.
+  FrameAttached();
+
+  // The render frame has finished loading.
+  DidFinishFrameLoad(url.mojom.Url validated_url, int32 http_status_code);
+
+  // Draggable regions have updated.
+  UpdateDraggableRegions(array<DraggableRegionEntry>? regions);
+};
+
+// Structure passed to LoadRequest().
+struct RequestParams {
+  // Request method.
+  string method;
+
+  // The URL to be loaded.
+  url.mojom.Url url;
+
+  // The referrer for the request.
+  blink.mojom.Referrer referrer;
+
+  // Usually the URL of the document in the top-level window, which may be
+  // checked by the third-party cookie blocking policy. Leaving it empty may
+  // lead to undesired cookie blocking. Third-party cookie blocking can be
+  // bypassed by setting site_for_cookies = url, but this should ideally
+  // only be done if there really is no way to determine the correct value.
+  network.mojom.SiteForCookies site_for_cookies;
+
+  // Additional HTTP request headers.
+  string headers;
+
+  // net::URLRequest load flags (0 by default).
+  int32 load_flags;
+
+  // Upload data (may be empty).
+  network.mojom.URLRequestBody? upload_data;
+};
+
+// Interface for communicating with a frame in the renderer process.
+interface RenderFrame {
+  // Send a message to the render process.
+  SendMessage(string name, mojo_base.mojom.ListValue arguments);
+
+  // Send a command.
+  SendCommand(string command);
+
+  // Send a command that returns an async response.
+  // The returned |response| format is command-specific and will be invalid if
+  // an error occurred.
+  SendCommandWithResponse(string command) =>
+      (mojo_base.mojom.ReadOnlySharedMemoryRegion? response);
+
+  // Send JavaScript for execution.
+  SendJavaScript(mojo_base.mojom.String16 jsCode, string scriptUrl,
+                 int32 startLine);
+
+  // Load a request.
+  LoadRequest(RequestParams params);
+
+  // Loading has stopped.
+  DidStopLoading();
+
+  // Move or resize of the renderer's containing window has started. Used on
+  // Windows and Linux with the Alloy runtime.
+  MoveOrResizeStarted();
+};
+
+struct CrossOriginWhiteListEntry {
+  string source_origin;
+  string target_protocol;
+  string target_domain;
+  bool allow_target_subdomains;
+};
+
+struct NewRenderThreadInfo {
+  array<CrossOriginWhiteListEntry>? cross_origin_whitelist_entries;
+};
+
+struct NewBrowserInfo {
+  int32 browser_id;
+  bool is_popup;
+  bool is_windowless;
+  bool is_guest_view;
+  mojo_base.mojom.DictionaryValue? extra_info;
+};
+
+// Interface for communicating with browser management in the browser process.
+interface BrowserManager {
+  // Retrieve info for a new RenderThread.
+  [Sync]
+  GetNewRenderThreadInfo() => (NewRenderThreadInfo info);
+
+  // Retrieve info for a new CefBrowser.
+  [Sync]
+  GetNewBrowserInfo(int32 render_frame_routing_id) => (NewBrowserInfo info);
+};
+
+// Interface for communicating with browser management to the render process.
+interface RenderManager {
+  // Manage cross-origin whitelist contents during the render process lifespan.
+  ModifyCrossOriginWhitelistEntry(bool add, CrossOriginWhiteListEntry entry);
+  ClearCrossOriginWhitelist();
+};

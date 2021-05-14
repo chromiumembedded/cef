@@ -426,18 +426,6 @@ void CefBrowserContentsDelegate::DidFailLoad(
   OnLoadEnd(frame, validated_url, error_code);
 }
 
-bool CefBrowserContentsDelegate::OnMessageReceived(
-    const IPC::Message& message,
-    content::RenderFrameHost* render_frame_host) {
-  // Messages may arrive after a frame is detached. Ignore those messages.
-  auto frame = browser_info_->GetFrameForHost(render_frame_host);
-  if (frame) {
-    return static_cast<CefFrameHostImpl*>(frame.get())
-        ->OnMessageReceived(message);
-  }
-  return false;
-}
-
 void CefBrowserContentsDelegate::TitleWasSet(content::NavigationEntry* entry) {
   // |entry| may be NULL if a popup is created via window.open and never
   // navigated.

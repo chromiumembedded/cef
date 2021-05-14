@@ -5,8 +5,11 @@
 #ifndef CEF_LIBCEF_BROWSER_ORIGIN_WHITELIST_IMPL_H_
 #define CEF_LIBCEF_BROWSER_ORIGIN_WHITELIST_IMPL_H_
 
-#include <list>
 #include <vector>
+
+#include "base/optional.h"
+
+#include "cef/libcef/common/mojom/cef.mojom-forward.h"
 
 namespace content {
 class RenderProcessHost;
@@ -16,12 +19,13 @@ namespace url {
 class Origin;
 }
 
-struct Cef_CrossOriginWhiteListEntry_Params;
+using CrossOriginWhiteList =
+    std::vector<cef::mojom::CrossOriginWhiteListEntryPtr>;
 
 // Called to retrieve the current list of cross-origin white list entries. This
 // method is thread safe.
 void GetCrossOriginWhitelistEntries(
-    std::vector<Cef_CrossOriginWhiteListEntry_Params>* entries);
+    base::Optional<CrossOriginWhiteList>* entries);
 
 // Returns true if |source| can access |target| based on the cross-origin white
 // list settings.

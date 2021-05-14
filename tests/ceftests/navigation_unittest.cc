@@ -67,7 +67,7 @@ class HistoryNavRendererTest : public ClientAppRenderer::Delegate,
   void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefDictionaryValue> extra_info) override {
-    run_test_ = extra_info->HasKey(kHistoryNavTestCmdKey);
+    run_test_ = extra_info && extra_info->HasKey(kHistoryNavTestCmdKey);
   }
 
   CefRefPtr<CefLoadHandler> GetLoadHandler(
@@ -1147,7 +1147,7 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
   void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefDictionaryValue> extra_info) override {
-    run_test_ = extra_info->HasKey(kOrderNavTestCmdKey);
+    run_test_ = extra_info && extra_info->HasKey(kOrderNavTestCmdKey);
     if (!run_test_)
       return;
 
@@ -1619,7 +1619,7 @@ class LoadNavRendererTest : public ClientAppRenderer::Delegate,
   void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefDictionaryValue> extra_info) override {
-    run_test_ = extra_info->HasKey(kLoadNavTestCmdKey);
+    run_test_ = extra_info && extra_info->HasKey(kLoadNavTestCmdKey);
     if (!run_test_)
       return;
 
@@ -3394,7 +3394,7 @@ class ExtraInfoNavRendererTest : public ClientAppRenderer::Delegate {
   void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefDictionaryValue> extra_info) override {
-    run_test_ = extra_info->HasKey(kExtraInfoTestCmdKey);
+    run_test_ = extra_info && extra_info->HasKey(kExtraInfoTestCmdKey);
     if (!run_test_)
       return;
 

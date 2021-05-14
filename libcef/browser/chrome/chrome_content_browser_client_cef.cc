@@ -5,8 +5,9 @@
 
 #include "libcef/browser/chrome/chrome_content_browser_client_cef.h"
 
+#include "libcef/browser/browser_frame.h"
 #include "libcef/browser/browser_info_manager.h"
-#include "libcef/browser/browser_message_filter.h"
+#include "libcef/browser/browser_manager.h"
 #include "libcef/browser/chrome/chrome_browser_host_impl.h"
 #include "libcef/browser/chrome/chrome_browser_main_extra_parts_cef.h"
 #include "libcef/browser/context.h"
@@ -122,7 +123,7 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
       CefRefPtr<CefCommandLineImpl> commandLinePtr(
           new CefCommandLineImpl(command_line, false, false));
       handler->OnBeforeChildProcessLaunch(commandLinePtr.get());
-      commandLinePtr->Detach(nullptr);
+      ignore_result(commandLinePtr->Detach(nullptr));
     }
   }
 }
@@ -130,9 +131,6 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
 void ChromeContentBrowserClientCef::RenderProcessWillLaunch(
     content::RenderProcessHost* host) {
   ChromeContentBrowserClient::RenderProcessWillLaunch(host);
-
-  const int id = host->GetID();
-  host->AddFilter(new CefBrowserMessageFilter(id));
 
   // If the renderer process crashes then the host may already have
   // CefBrowserInfoManager as an observer. Try to remove it first before adding
@@ -355,6 +353,27 @@ void ChromeContentBrowserClientCef::BrowserURLHandlerCreated(
 bool ChromeContentBrowserClientCef::IsWebUIAllowedToMakeNetworkRequests(
     const url::Origin& origin) {
   return scheme::IsWebUIAllowedToMakeNetworkRequests(origin);
+}
+
+void ChromeContentBrowserClientCef::ExposeInterfacesToRenderer(
+    service_manager::BinderRegistry* registry,
+    blink::AssociatedInterfaceRegistry* associated_registry,
+    content::RenderProcessHost* host) {
+  ChromeContentBrowserClient::ExposeInterfacesToRenderer(
+      registry, associated_registry, host);
+
+  CefBrowserManager::ExposeInterfacesToRenderer(registry, associated_registry,
+                                                host);
+}
+
+void ChromeContentBrowserClientCef::RegisterBrowserInterfaceBindersForFrame(
+    content::RenderFrameHost* render_frame_host,
+    mojo::BinderMapWithContext<content::RenderFrameHost*>* map) {
+  ChromeContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
+      render_frame_host, map);
+
+  CefBrowserFrame::RegisterBrowserInterfaceBindersForFrame(render_frame_host,
+                                                           map);
 }
 
 CefRefPtr<CefRequestContextImpl>

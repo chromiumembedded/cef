@@ -7,7 +7,6 @@
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/extensions/extension_system.h"
-#include "libcef/browser/navigate_params.h"
 #include "libcef/browser/thread_util.h"
 
 #include "base/strings/utf_string_conversions.h"

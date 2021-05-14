@@ -8,13 +8,14 @@
 #include <vector>
 
 #include "include/cef_origin_whitelist.h"
+#include "libcef/browser/browser_manager.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/common/cef_messages.h"
 
 #include "base/bind.h"
 #include "base/lazy_instance.h"
 #include "base/synchronization/lock.h"
+#include "cef/libcef/common/mojom/cef.mojom.h"
 #include "chrome/common/webui_url_constants.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/url_constants.h"
@@ -36,23 +37,22 @@ class CefOriginWhitelistManager {
                       const std::string& target_protocol,
                       const std::string& target_domain,
                       bool allow_target_subdomains) {
-    Cef_CrossOriginWhiteListEntry_Params info;
-    info.source_origin = source_origin;
-    info.target_protocol = target_protocol;
-    info.target_domain = target_domain;
-    info.allow_target_subdomains = allow_target_subdomains;
+    auto info = cef::mojom::CrossOriginWhiteListEntry::New();
+    info->source_origin = source_origin;
+    info->target_protocol = target_protocol;
+    info->target_domain = target_domain;
+    info->allow_target_subdomains = allow_target_subdomains;
 
     {
       base::AutoLock lock_scope(lock_);
 
       // Verify that the origin entry doesn't already exist.
-      OriginList::const_iterator it = origin_list_.begin();
-      for (; it != origin_list_.end(); ++it) {
-        if (IsEqual(*it, info))
+      for (const auto& entry : origin_list_) {
+        if (entry == info)
           return false;
       }
 
-      origin_list_.push_back(info);
+      origin_list_.push_back(info->Clone());
     }
 
     SendModifyCrossOriginWhitelistEntry(true, info);
@@ -63,20 +63,20 @@ class CefOriginWhitelistManager {
                          const std::string& target_protocol,
                          const std::string& target_domain,
                          bool allow_target_subdomains) {
-    Cef_CrossOriginWhiteListEntry_Params info;
-    info.source_origin = source_origin;
-    info.target_protocol = target_protocol;
-    info.target_domain = target_domain;
-    info.allow_target_subdomains = allow_target_subdomains;
+    auto info = cef::mojom::CrossOriginWhiteListEntry::New();
+    info->source_origin = source_origin;
+    info->target_protocol = target_protocol;
+    info->target_domain = target_domain;
+    info->allow_target_subdomains = allow_target_subdomains;
 
     bool found = false;
 
     {
       base::AutoLock lock_scope(lock_);
 
-      OriginList::iterator it = origin_list_.begin();
+      CrossOriginWhiteList::iterator it = origin_list_.begin();
       for (; it != origin_list_.end(); ++it) {
-        if (IsEqual(*it, info)) {
+        if (*it == info) {
           origin_list_.erase(it);
           found = true;
           break;
@@ -101,12 +101,30 @@ class CefOriginWhitelistManager {
   }
 
   void GetCrossOriginWhitelistEntries(
-      std::vector<Cef_CrossOriginWhiteListEntry_Params>* entries) {
+      base::Optional<CrossOriginWhiteList>* entries) const {
     base::AutoLock lock_scope(lock_);
 
-    if (origin_list_.empty())
-      return;
-    entries->insert(entries->end(), origin_list_.begin(), origin_list_.end());
+    if (!origin_list_.empty()) {
+      CrossOriginWhiteList vec;
+      for (const auto& entry : origin_list_) {
+        vec.push_back(entry->Clone());
+      }
+      *entries = std::move(vec);
+    }
+  }
+
+  bool HasCrossOriginWhitelistEntry(const url::Origin& source,
+                                    const url::Origin& target) const {
+    base::AutoLock lock_scope(lock_);
+
+    if (!origin_list_.empty()) {
+      for (const auto& entry : origin_list_) {
+        if (IsMatch(source, target, entry))
+          return true;
+      }
+    }
+
+    return false;
   }
 
  private:
@@ -114,14 +132,15 @@ class CefOriginWhitelistManager {
   // existing hosts.
   static void SendModifyCrossOriginWhitelistEntry(
       bool add,
-      Cef_CrossOriginWhiteListEntry_Params& params) {
+      const cef::mojom::CrossOriginWhiteListEntryPtr& info) {
     CEF_REQUIRE_UIT();
 
     content::RenderProcessHost::iterator i(
         content::RenderProcessHost::AllHostsIterator());
     for (; !i.IsAtEnd(); i.Advance()) {
-      i.GetCurrentValue()->Send(
-          new CefProcessMsg_ModifyCrossOriginWhitelistEntry(add, params));
+      auto render_manager =
+          CefBrowserManager::GetRenderManagerForProcess(i.GetCurrentValue());
+      render_manager->ModifyCrossOriginWhitelistEntry(add, info->Clone());
     }
   }
 
@@ -133,23 +152,44 @@ class CefOriginWhitelistManager {
     content::RenderProcessHost::iterator i(
         content::RenderProcessHost::AllHostsIterator());
     for (; !i.IsAtEnd(); i.Advance()) {
-      i.GetCurrentValue()->Send(new CefProcessMsg_ClearCrossOriginWhitelist);
+      auto render_manager =
+          CefBrowserManager::GetRenderManagerForProcess(i.GetCurrentValue());
+      render_manager->ClearCrossOriginWhitelist();
     }
   }
 
-  static bool IsEqual(const Cef_CrossOriginWhiteListEntry_Params& param1,
-                      const Cef_CrossOriginWhiteListEntry_Params& param2) {
-    return (param1.source_origin == param2.source_origin &&
-            param1.target_protocol == param2.target_protocol &&
-            param1.target_domain == param2.target_domain &&
-            param1.allow_target_subdomains == param2.allow_target_subdomains);
+  static bool IsMatch(const url::Origin& source_origin,
+                      const url::Origin& target_origin,
+                      const cef::mojom::CrossOriginWhiteListEntryPtr& param) {
+    if (!source_origin.IsSameOriginWith(
+            url::Origin::Create(GURL(param->source_origin)))) {
+      // Source origin does not match.
+      return false;
+    }
+
+    if (target_origin.scheme() != param->target_protocol) {
+      // Target scheme does not match.
+      return false;
+    }
+
+    if (param->allow_target_subdomains) {
+      if (param->target_domain.empty()) {
+        // Any domain will match.
+        return true;
+      } else {
+        // Match sub-domains.
+        return target_origin.DomainIs(param->target_domain.c_str());
+      }
+    } else {
+      // Match full domain.
+      return (target_origin.host() == param->target_domain);
+    }
   }
 
-  base::Lock lock_;
+  mutable base::Lock lock_;
 
   // List of registered origins. Access must be protected by |lock_|.
-  typedef std::vector<Cef_CrossOriginWhiteListEntry_Params> OriginList;
-  OriginList origin_list_;
+  CrossOriginWhiteList origin_list_;
 
   DISALLOW_COPY_AND_ASSIGN(CefOriginWhitelistManager);
 };
@@ -159,34 +199,6 @@ base::LazyInstance<CefOriginWhitelistManager>::Leaky g_manager =
 
 CefOriginWhitelistManager* CefOriginWhitelistManager::GetInstance() {
   return g_manager.Pointer();
-}
-
-bool IsMatch(const url::Origin& source_origin,
-             const url::Origin& target_origin,
-             const Cef_CrossOriginWhiteListEntry_Params& param) {
-  if (!source_origin.IsSameOriginWith(
-          url::Origin::Create(GURL(param.source_origin)))) {
-    // Source origin does not match.
-    return false;
-  }
-
-  if (target_origin.scheme() != param.target_protocol) {
-    // Target scheme does not match.
-    return false;
-  }
-
-  if (param.allow_target_subdomains) {
-    if (param.target_domain.empty()) {
-      // Any domain will match.
-      return true;
-    } else {
-      // Match sub-domains.
-      return target_origin.DomainIs(param.target_domain.c_str());
-    }
-  } else {
-    // Match full domain.
-    return (target_origin.host() == param.target_domain);
-  }
 }
 
 }  // namespace
@@ -271,7 +283,7 @@ bool CefClearCrossOriginWhitelist() {
 }
 
 void GetCrossOriginWhitelistEntries(
-    std::vector<Cef_CrossOriginWhiteListEntry_Params>* entries) {
+    base::Optional<CrossOriginWhiteList>* entries) {
   CefOriginWhitelistManager::GetInstance()->GetCrossOriginWhitelistEntries(
       entries);
 }
@@ -288,19 +300,6 @@ bool HasCrossOriginWhitelistEntry(const url::Origin& source,
     return true;
   }
 
-  std::vector<Cef_CrossOriginWhiteListEntry_Params> params;
-  CefOriginWhitelistManager::GetInstance()->GetCrossOriginWhitelistEntries(
-      &params);
-
-  if (params.empty())
-    return false;
-
-  std::vector<Cef_CrossOriginWhiteListEntry_Params>::const_iterator it =
-      params.begin();
-  for (; it != params.end(); ++it) {
-    if (IsMatch(source, target, *it))
-      return true;
-  }
-
-  return false;
+  return CefOriginWhitelistManager::GetInstance()->HasCrossOriginWhitelistEntry(
+      source, target);
 }

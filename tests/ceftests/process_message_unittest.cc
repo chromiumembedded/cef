@@ -78,8 +78,6 @@ class SendRecvTestHandler : public TestHandler {
       : send_thread_(send_thread) {}
 
   void RunTest() override {
-    message_ = CreateTestMessage();
-
     AddResource(kSendRecvUrl, "<html><body>TEST</body></html>", "text/html");
     CreateBrowser(kSendRecvUrl);
 
@@ -113,7 +111,7 @@ class SendRecvTestHandler : public TestHandler {
     EXPECT_TRUE(message->IsReadOnly());
 
     // Verify that the recieved message is the same as the sent message.
-    TestProcessMessageEqual(message_, message);
+    TestProcessMessageEqual(CreateTestMessage(), message);
 
     got_message_.yes();
 
@@ -132,12 +130,10 @@ class SendRecvTestHandler : public TestHandler {
  private:
   void SendMessage(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame) {
     EXPECT_TRUE(CefCurrentlyOn(send_thread_));
-    frame->SendProcessMessage(PID_RENDERER, message_);
+    frame->SendProcessMessage(PID_RENDERER, CreateTestMessage());
   }
 
   cef_thread_id_t send_thread_;
-
-  CefRefPtr<CefProcessMessage> message_;
   TrackCallback got_message_;
 
   IMPLEMENT_REFCOUNTING(SendRecvTestHandler);
@@ -171,7 +167,7 @@ TEST(ProcessMessageTest, Create) {
   CefRefPtr<CefListValue> args = message->GetArgumentList();
   EXPECT_TRUE(args.get());
   EXPECT_TRUE(args->IsValid());
-  EXPECT_TRUE(args->IsOwned());
+  EXPECT_FALSE(args->IsOwned());
   EXPECT_FALSE(args->IsReadOnly());
 }
 

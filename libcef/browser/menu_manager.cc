@@ -173,7 +173,7 @@ bool CefMenuManager::CreateContextMenu(
       }
 
       // Do not keep references to the parameters in the callback.
-      paramsPtr->Detach(nullptr);
+      ignore_result(paramsPtr->Detach(nullptr));
       DCHECK(paramsPtr->HasOneRef());
       DCHECK(model_->VerifyRefCount());
 
@@ -215,7 +215,7 @@ void CefMenuManager::ExecuteCommand(CefRefPtr<CefMenuModelImpl> source,
           event_flags);
 
       // Do not keep references to the parameters in the callback.
-      paramsPtr->Detach(nullptr);
+      ignore_result(paramsPtr->Detach(nullptr));
       DCHECK(paramsPtr->HasOneRef());
 
       if (handled)

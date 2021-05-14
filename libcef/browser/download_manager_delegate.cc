@@ -289,7 +289,7 @@ void CefDownloadManagerDelegate::OnDownloadUpdated(DownloadItem* download) {
 
     handler->OnDownloadUpdated(browser.get(), download_item.get(), callback);
 
-    download_item->Detach(nullptr);
+    ignore_result(download_item->Detach(nullptr));
   }
 }
 
@@ -384,7 +384,7 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
     handler->OnBeforeDownload(browser.get(), download_item.get(),
                               suggested_name.value(), callbackObj);
 
-    download_item->Detach(nullptr);
+    ignore_result(download_item->Detach(nullptr));
   }
 
   return true;

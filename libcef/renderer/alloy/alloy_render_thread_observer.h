@@ -8,8 +8,6 @@
 
 #include <memory>
 
-#include "libcef/renderer/render_thread_observer.h"
-
 #include "base/compiler_specific.h"
 #include "chrome/common/renderer_configuration.mojom.h"
 #include "components/content_settings/core/common/content_settings.h"
@@ -17,7 +15,7 @@
 #include "mojo/public/cpp/bindings/associated_receiver_set.h"
 
 // This class sends and receives control messages in the renderer process.
-class AlloyRenderThreadObserver : public CefRenderThreadObserver,
+class AlloyRenderThreadObserver : public content::RenderThreadObserver,
                                   public chrome::mojom::RendererConfiguration {
  public:
   AlloyRenderThreadObserver();

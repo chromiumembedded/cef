@@ -122,7 +122,7 @@ bool ChromeMainDelegateCef::BasicStartupComplete(int* exit_code) {
         new CefCommandLineImpl(command_line, false, false));
     application_->OnBeforeCommandLineProcessing(process_type,
                                                 commandLinePtr.get());
-    commandLinePtr->Detach(nullptr);
+    ignore_result(commandLinePtr->Detach(nullptr));
   }
 
 #if defined(OS_MAC)

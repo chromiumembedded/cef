@@ -367,7 +367,7 @@ void CefBrowserHostBase::GetNavigationEntries(
     CefRefPtr<CefNavigationEntryImpl> entry =
         new CefNavigationEntryImpl(controller.GetEntryAtIndex(current));
     visitor->Visit(entry.get(), true, current, total);
-    entry->Detach(nullptr);
+    ignore_result(entry->Detach(nullptr));
   } else {
     // Visit all entries.
     bool cont = true;
@@ -375,7 +375,7 @@ void CefBrowserHostBase::GetNavigationEntries(
       CefRefPtr<CefNavigationEntryImpl> entry =
           new CefNavigationEntryImpl(controller.GetEntryAtIndex(i));
       cont = visitor->Visit(entry.get(), (i == current), i, total);
-      entry->Detach(nullptr);
+      ignore_result(entry->Detach(nullptr));
     }
   }
 }

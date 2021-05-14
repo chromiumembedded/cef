@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_RENDERER_BROWSER_MANAGER_H_
-#define CEF_LIBCEF_RENDERER_BROWSER_MANAGER_H_
+#ifndef CEF_LIBCEF_RENDERER_RENDER_MANAGER_H_
+#define CEF_LIBCEF_RENDERER_RENDER_MANAGER_H_
 #pragma once
 
 #include <map>
@@ -12,6 +12,10 @@
 #include "include/internal/cef_ptr.h"
 
 #include "base/optional.h"
+#include "cef/libcef/common/mojom/cef.mojom.h"
+#include "mojo/public/cpp/bindings/pending_receiver.h"
+#include "mojo/public/cpp/bindings/receiver_set.h"
+#include "mojo/public/cpp/bindings/remote.h"
 
 namespace blink {
 class WebFrame;
@@ -22,20 +26,23 @@ class RenderFrame;
 class RenderView;
 }  // namespace content
 
-struct Cef_CrossOriginWhiteListEntry_Params;
+namespace mojo {
+class BinderMap;
+}  // namespace mojo
+
 class CefBrowserImpl;
 class CefGuestView;
 class CefRenderFrameObserver;
 
 // Singleton object for managing BrowserImpl instances. Only accessed on the
 // main renderer thread.
-class CefBrowserManager {
+class CefRenderManager : public cef::mojom::RenderManager {
  public:
-  CefBrowserManager();
-  ~CefBrowserManager();
+  CefRenderManager();
+  ~CefRenderManager();
 
   // Returns this singleton instance of this class.
-  static CefBrowserManager* Get();
+  static CefRenderManager* Get();
 
   // Called from ContentRendererClient methods of the same name.
   void RenderThreadConnected();
@@ -48,6 +55,7 @@ class CefBrowserManager {
                          base::Optional<bool>& is_windowless);
   void DevToolsAgentAttached();
   void DevToolsAgentDetached();
+  void ExposeInterfacesToBrowser(mojo::BinderMap* binders);
 
   // Returns the browser associated with the specified RenderView.
   CefRefPtr<CefBrowserImpl> GetBrowserForView(content::RenderView* view);
@@ -55,9 +63,21 @@ class CefBrowserManager {
   // Returns the browser associated with the specified main WebFrame.
   CefRefPtr<CefBrowserImpl> GetBrowserForMainFrame(blink::WebFrame* frame);
 
+  // Connects to CefBrowserManager in the browser process.
+  mojo::Remote<cef::mojom::BrowserManager>& GetBrowserManager();
+
  private:
   friend class CefBrowserImpl;
   friend class CefGuestView;
+
+  // Binds receivers for the RenderManager interface.
+  void BindReceiver(mojo::PendingReceiver<cef::mojom::RenderManager> receiver);
+
+  // cef::mojom::RenderManager methods:
+  void ModifyCrossOriginWhitelistEntry(
+      bool add,
+      cef::mojom::CrossOriginWhiteListEntryPtr entry) override;
+  void ClearCrossOriginWhitelist() override;
 
   void WebKitInitialized();
 
@@ -88,13 +108,17 @@ class CefBrowserManager {
   GuestViewMap guest_views_;
 
   // Cross-origin white list entries that need to be registered with WebKit.
-  typedef std::vector<Cef_CrossOriginWhiteListEntry_Params> CrossOriginList;
-  CrossOriginList cross_origin_whitelist_entries_;
+  std::vector<cef::mojom::CrossOriginWhiteListEntryPtr>
+      cross_origin_whitelist_entries_;
 
   int devtools_agent_count_ = 0;
   int uncaught_exception_stack_size_ = 0;
 
-  DISALLOW_COPY_AND_ASSIGN(CefBrowserManager);
+  mojo::ReceiverSet<cef::mojom::RenderManager> receivers_;
+
+  mojo::Remote<cef::mojom::BrowserManager> browser_manager_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefRenderManager);
 };
 
-#endif  // CEF_LIBCEF_RENDERER_BROWSER_MANAGER_H_
+#endif  // CEF_LIBCEF_RENDERER_RENDER_MANAGER_H_

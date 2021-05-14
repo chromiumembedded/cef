@@ -1,0 +1,71 @@
+// Copyright 2021 The Chromium Embedded Framework Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#include "libcef/browser/browser_frame.h"
+
+#include "libcef/browser/browser_host_base.h"
+#include "libcef/browser/thread_util.h"
+
+#include "content/public/browser/render_frame_host.h"
+#include "content/public/browser/render_process_host.h"
+#include "content/public/browser/web_contents.h"
+#include "content/public/browser/web_contents_observer.h"
+#include "mojo/public/cpp/bindings/self_owned_receiver.h"
+
+CefBrowserFrame::CefBrowserFrame(
+    content::RenderFrameHost* render_frame_host,
+    mojo::PendingReceiver<cef::mojom::BrowserFrame> receiver)
+    : FrameServiceBase(render_frame_host, std::move(receiver)) {}
+
+CefBrowserFrame::~CefBrowserFrame() = default;
+
+// static
+void CefBrowserFrame::RegisterBrowserInterfaceBindersForFrame(
+    content::RenderFrameHost* render_frame_host,
+    mojo::BinderMapWithContext<content::RenderFrameHost*>* map) {
+  map->Add<cef::mojom::BrowserFrame>(base::BindRepeating(
+      [](content::RenderFrameHost* frame_host,
+         mojo::PendingReceiver<cef::mojom::BrowserFrame> receiver) {
+        // This object is bound to the lifetime of |frame_host| and the mojo
+        // connection. See FrameServiceBase for details.
+        new CefBrowserFrame(frame_host, std::move(receiver));
+      }));
+}
+
+void CefBrowserFrame::SendMessage(const std::string& name,
+                                  base::Value arguments) {
+  if (auto host = GetFrameHost()) {
+    host->SendMessage(name, std::move(arguments));
+  }
+}
+
+void CefBrowserFrame::FrameAttached() {
+  if (auto host = GetFrameHost()) {
+    host->FrameAttached();
+  }
+}
+
+void CefBrowserFrame::DidFinishFrameLoad(const GURL& validated_url,
+                                         int http_status_code) {
+  if (auto host = GetFrameHost()) {
+    host->DidFinishFrameLoad(validated_url, http_status_code);
+  }
+}
+
+void CefBrowserFrame::UpdateDraggableRegions(
+    base::Optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions) {
+  if (auto host = GetFrameHost()) {
+    host->UpdateDraggableRegions(std::move(regions));
+  }
+}
+
+CefRefPtr<CefFrameHostImpl> CefBrowserFrame::GetFrameHost() const {
+  CEF_REQUIRE_UIT();
+  auto rfh = render_frame_host();
+  if (auto browser = CefBrowserHostBase::GetBrowserForHost(rfh)) {
+    return browser->browser_info()->GetFrameForHost(rfh);
+  }
+  NOTREACHED();
+  return nullptr;
+}

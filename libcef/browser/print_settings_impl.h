@@ -47,8 +47,6 @@ class CefPrintSettingsImpl
   std::unique_ptr<printing::PrintSettings> TakeOwnership() WARN_UNUSED_RESULT;
 
  private:
-  std::unique_ptr<printing::PrintSettings> settings_;
-
   DISALLOW_COPY_AND_ASSIGN(CefPrintSettingsImpl);
 };
 
