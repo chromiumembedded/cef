@@ -1458,7 +1458,6 @@ typedef enum {
   // CefShutdown() are guaranteed to run.
   ///
   TID_FILE_BACKGROUND,
-  TID_FILE = TID_FILE_BACKGROUND,
 
   ///
   // Used for blocking tasks (e.g. file system access) that affect UI or

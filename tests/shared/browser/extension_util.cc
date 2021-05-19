@@ -70,9 +70,9 @@ void RunManifestCallback(const ManifestCallback& callback,
 // Asynchronously reads the manifest and executes |callback| on the UI thread.
 void GetInternalManifest(const std::string& extension_path,
                          const ManifestCallback& callback) {
-  if (!CefCurrentlyOn(TID_FILE)) {
+  if (!CefCurrentlyOn(TID_FILE_USER_BLOCKING)) {
     // Execute on the browser FILE thread.
-    CefPostTask(TID_FILE,
+    CefPostTask(TID_FILE_USER_BLOCKING,
                 base::Bind(GetInternalManifest, extension_path, callback));
     return;
   }
@@ -149,7 +149,7 @@ std::string GetExtensionResourcePath(const std::string& extension_path,
 
 bool GetExtensionResourceContents(const std::string& extension_path,
                                   std::string& contents) {
-  CEF_REQUIRE_FILE_THREAD();
+  CEF_REQUIRE_FILE_USER_BLOCKING_THREAD();
 
   if (IsInternalExtension(extension_path)) {
     const std::string& contents_path =

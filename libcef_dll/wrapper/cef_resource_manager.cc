@@ -116,8 +116,9 @@ class DirectoryProvider : public CefResourceManager::Provider {
     const std::string& file_path = GetFilePath(url);
 
     // Open |file_path| on the FILE thread.
-    CefPostTask(TID_FILE, base::Bind(&DirectoryProvider::OpenOnFileThread,
-                                     file_path, request));
+    CefPostTask(
+        TID_FILE_USER_BLOCKING,
+        base::Bind(&DirectoryProvider::OpenOnFileThread, file_path, request));
 
     return true;
   }
@@ -134,7 +135,7 @@ class DirectoryProvider : public CefResourceManager::Provider {
   static void OpenOnFileThread(
       const std::string& file_path,
       scoped_refptr<CefResourceManager::Request> request) {
-    CEF_REQUIRE_FILE_THREAD();
+    CEF_REQUIRE_FILE_USER_BLOCKING_THREAD();
 
     CefRefPtr<CefStreamReader> stream =
         CefStreamReader::CreateForFile(file_path);
@@ -198,9 +199,10 @@ class ArchiveProvider : public CefResourceManager::Provider {
       pending_requests_.push_back(request);
 
       // Load the archive file on the FILE thread.
-      CefPostTask(TID_FILE, base::Bind(&ArchiveProvider::LoadOnFileThread,
-                                       weak_ptr_factory_.GetWeakPtr(),
-                                       archive_path_, password_));
+      CefPostTask(
+          TID_FILE_USER_BLOCKING,
+          base::Bind(&ArchiveProvider::LoadOnFileThread,
+                     weak_ptr_factory_.GetWeakPtr(), archive_path_, password_));
       return true;
     }
 
@@ -218,7 +220,7 @@ class ArchiveProvider : public CefResourceManager::Provider {
   static void LoadOnFileThread(base::WeakPtr<ArchiveProvider> ptr,
                                const std::string& archive_path,
                                const std::string& password) {
-    CEF_REQUIRE_FILE_THREAD();
+    CEF_REQUIRE_FILE_USER_BLOCKING_THREAD();
 
     CefRefPtr<CefZipArchive> archive;
 

@@ -48,7 +48,12 @@
 
 #define CEF_REQUIRE_UI_THREAD() DCHECK(CefCurrentlyOn(TID_UI));
 #define CEF_REQUIRE_IO_THREAD() DCHECK(CefCurrentlyOn(TID_IO));
-#define CEF_REQUIRE_FILE_THREAD() DCHECK(CefCurrentlyOn(TID_FILE));
+#define CEF_REQUIRE_FILE_BACKGROUND_THREAD() \
+  DCHECK(CefCurrentlyOn(TID_FILE_BACKGROUND));
+#define CEF_REQUIRE_FILE_USER_VISIBLE_THREAD() \
+  DCHECK(CefCurrentlyOn(TID_FILE_USER_VISIBLE));
+#define CEF_REQUIRE_FILE_USER_BLOCKING_THREAD() \
+  DCHECK(CefCurrentlyOn(TID_FILE_USER_BLOCKING));
 #define CEF_REQUIRE_RENDERER_THREAD() DCHECK(CefCurrentlyOn(TID_RENDERER));
 
 // Use this struct in conjuction with refcounted types to ensure that an
@@ -86,7 +91,12 @@ struct CefDeleteOnThread {
 
 struct CefDeleteOnUIThread : public CefDeleteOnThread<TID_UI> {};
 struct CefDeleteOnIOThread : public CefDeleteOnThread<TID_IO> {};
-struct CefDeleteOnFileThread : public CefDeleteOnThread<TID_FILE> {};
+struct CefDeleteOnFileBackgroundThread
+    : public CefDeleteOnThread<TID_FILE_BACKGROUND> {};
+struct CefDeleteOnFileUserVisibleThread
+    : public CefDeleteOnThread<TID_FILE_USER_VISIBLE> {};
+struct CefDeleteOnFileUserBlockingThread
+    : public CefDeleteOnThread<TID_FILE_USER_BLOCKING> {};
 struct CefDeleteOnRendererThread : public CefDeleteOnThread<TID_RENDERER> {};
 
 // Same as IMPLEMENT_REFCOUNTING() but using the specified Destructor.
@@ -113,7 +123,6 @@ struct CefDeleteOnRendererThread : public CefDeleteOnThread<TID_RENDERER> {};
 
 #define IMPLEMENT_REFCOUNTING_DELETE_ON_IOT(ClassName) \
   IMPLEMENT_REFCOUNTING_EX(ClassName, CefDeleteOnIOThread)
-
 
 ///
 // Helper class to manage a scoped copy of |argv|.

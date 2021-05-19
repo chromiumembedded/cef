@@ -168,7 +168,7 @@ ImageCache::ImageType ImageCache::GetImageType(const std::string& path) {
 void ImageCache::LoadMissing(const ImageInfoSet& image_info,
                              const ImageSet& images,
                              const LoadImagesCallback& callback) {
-  DCHECK(!CefCurrentlyOn(TID_UI) && !CefCurrentlyOn(TID_IO));
+  CEF_REQUIRE_FILE_USER_BLOCKING_THREAD();
 
   DCHECK_EQ(image_info.size(), images.size());
 
@@ -195,7 +195,7 @@ void ImageCache::LoadMissing(const ImageInfoSet& image_info,
 // static
 bool ImageCache::LoadImageContents(const ImageInfo& info,
                                    ImageContent* content) {
-  DCHECK(!CefCurrentlyOn(TID_UI) && !CefCurrentlyOn(TID_IO));
+  CEF_REQUIRE_FILE_USER_BLOCKING_THREAD();
 
   ImageRepSet::const_iterator it = info.reps_.begin();
   for (; it != info.reps_.end(); ++it) {
@@ -220,7 +220,7 @@ bool ImageCache::LoadImageContents(const std::string& path,
                                    bool internal,
                                    ImageType* type,
                                    std::string* contents) {
-  DCHECK(!CefCurrentlyOn(TID_UI) && !CefCurrentlyOn(TID_IO));
+  CEF_REQUIRE_FILE_USER_BLOCKING_THREAD();
 
   *type = GetImageType(path);
   if (*type == TYPE_NONE)
