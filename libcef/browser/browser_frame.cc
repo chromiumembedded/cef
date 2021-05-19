@@ -41,7 +41,9 @@ void CefBrowserFrame::SendMessage(const std::string& name,
 }
 
 void CefBrowserFrame::FrameAttached() {
-  if (auto host = GetFrameHost()) {
+  // Always send to the newly created RFH, which may be speculative when
+  // navigating cross-origin.
+  if (auto host = GetFrameHost(/*prefer_speculative=*/true)) {
     host->FrameAttached();
   }
 }
@@ -60,11 +62,13 @@ void CefBrowserFrame::UpdateDraggableRegions(
   }
 }
 
-CefRefPtr<CefFrameHostImpl> CefBrowserFrame::GetFrameHost() const {
+CefRefPtr<CefFrameHostImpl> CefBrowserFrame::GetFrameHost(
+    bool prefer_speculative) const {
   CEF_REQUIRE_UIT();
   auto rfh = render_frame_host();
   if (auto browser = CefBrowserHostBase::GetBrowserForHost(rfh)) {
-    return browser->browser_info()->GetFrameForHost(rfh);
+    return browser->browser_info()->GetFrameForHost(rfh, nullptr,
+                                                    prefer_speculative);
   }
   NOTREACHED();
   return nullptr;

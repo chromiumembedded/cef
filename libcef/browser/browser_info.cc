@@ -86,14 +86,10 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host,
     if (!info->is_guest_view_ && info->is_speculative_ && !is_speculative) {
       // Upgrade the frame info from speculative to non-speculative.
       if (info->is_main_frame_) {
-        if (main_frame_) {
-          // Update the existing main frame object.
-          main_frame_->SetRenderFrameHost(host);
-          info->frame_ = main_frame_;
-        } else {
-          // Set the main frame object.
-          main_frame_ = info->frame_;
-        }
+        // Set the main frame object.
+        if (main_frame_)
+          main_frame_->Detach();
+        main_frame_ = info->frame_;
       }
       info->is_speculative_ = false;
       MaybeUpdateFrameTreeNodeIdMap(info);
@@ -200,20 +196,23 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::CreateTempSubFrame(
 
 CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForHost(
     const content::RenderFrameHost* host,
-    bool* is_guest_view) const {
+    bool* is_guest_view,
+    bool prefer_speculative) const {
   if (is_guest_view)
     *is_guest_view = false;
 
   if (!host)
     return nullptr;
 
-  return GetFrameForId(CefFrameHostImpl::MakeFrameId(host), is_guest_view);
+  return GetFrameForId(CefFrameHostImpl::MakeFrameId(host), is_guest_view,
+                       prefer_speculative);
 }
 
 CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForRoute(
     int32_t render_process_id,
     int32_t render_routing_id,
-    bool* is_guest_view) const {
+    bool* is_guest_view,
+    bool prefer_speculative) const {
   if (is_guest_view)
     *is_guest_view = false;
 
@@ -222,12 +221,13 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForRoute(
 
   return GetFrameForId(
       CefFrameHostImpl::MakeFrameId(render_process_id, render_routing_id),
-      is_guest_view);
+      is_guest_view, prefer_speculative);
 }
 
 CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForId(
     int64_t frame_id,
-    bool* is_guest_view) const {
+    bool* is_guest_view,
+    bool prefer_speculative) const {
   if (is_guest_view)
     *is_guest_view = false;
 
@@ -246,7 +246,7 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForId(
       return nullptr;
     }
 
-    if (info->is_speculative_) {
+    if (info->is_speculative_ && !prefer_speculative) {
       if (info->is_main_frame_ && main_frame_) {
         // Always prefer the non-speculative main frame.
         return main_frame_;

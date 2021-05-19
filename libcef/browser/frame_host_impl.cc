@@ -89,6 +89,7 @@ void CefFrameHostImpl::SetRenderFrameHost(content::RenderFrameHost* host) {
   CHECK(browser_info_);
 
   render_frame_.reset();
+  is_attached_ = false;
 
   render_frame_host_ = host;
   frame_id_ = MakeFrameId(host);
@@ -534,6 +535,7 @@ void CefFrameHostImpl::SendMessage(const std::string& name,
 }
 
 void CefFrameHostImpl::FrameAttached() {
+  DCHECK(!is_attached_);
   if (!is_attached_) {
     is_attached_ = true;
 

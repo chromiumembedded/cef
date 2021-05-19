@@ -42,7 +42,8 @@ class CefBrowserFrame
   // FrameServiceBase methods:
   bool ShouldCloseOnFinishNavigation() const override { return false; }
 
-  CefRefPtr<CefFrameHostImpl> GetFrameHost() const;
+  CefRefPtr<CefFrameHostImpl> GetFrameHost(
+      bool prefer_speculative = false) const;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserFrame);
 };

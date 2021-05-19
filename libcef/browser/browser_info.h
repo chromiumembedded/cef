@@ -88,7 +88,8 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   // UI thread.
   CefRefPtr<CefFrameHostImpl> GetFrameForHost(
       const content::RenderFrameHost* host,
-      bool* is_guest_view = nullptr) const;
+      bool* is_guest_view = nullptr,
+      bool prefer_speculative = false) const;
 
   // Returns the frame object matching the specified IDs or nullptr if no match
   // is found. Nullptr will also be returned if a guest view match is found
@@ -98,7 +99,8 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   CefRefPtr<CefFrameHostImpl> GetFrameForRoute(
       int32_t render_process_id,
       int32_t render_routing_id,
-      bool* is_guest_view = nullptr) const;
+      bool* is_guest_view = nullptr,
+      bool prefer_speculative = false) const;
 
   // Returns the frame object matching the specified ID or nullptr if no match
   // is found. Nullptr will also be returned if a guest view match is found
@@ -107,7 +109,8 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   // thread.
   CefRefPtr<CefFrameHostImpl> GetFrameForId(
       int64_t frame_id,
-      bool* is_guest_view = nullptr) const;
+      bool* is_guest_view = nullptr,
+      bool prefer_speculative = false) const;
 
   // Returns the frame object matching the specified ID or nullptr if no match
   // is found. Nullptr will also be returned if a guest view match is found

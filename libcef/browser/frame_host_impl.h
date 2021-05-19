@@ -41,7 +41,9 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   CefFrameHostImpl(scoped_refptr<CefBrowserInfo> browser_info,
                    content::RenderFrameHost* render_frame_host);
 
-  // Update an existing main frame object.
+  // Update an existing main frame object on creation or for same-origin
+  // navigations. A new CefFrameHostImpl will be created for cross-origin
+  // navigations.
   void SetRenderFrameHost(content::RenderFrameHost* host);
 
   ~CefFrameHostImpl() override;
