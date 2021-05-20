@@ -15,22 +15,20 @@ class ListValue;
 // CefProcessMessage implementation.
 class CefProcessMessageImpl : public CefProcessMessage {
  public:
-  // Constructor for an owned list of arguments.
+  // Constructor for referencing existing |arguments|.
   CefProcessMessageImpl(const CefString& name,
                         CefRefPtr<CefListValue> arguments);
 
-  // Constructor for an unowned list of arguments.
-  // Call Detach() when |arguments| is no longer valid.
+  // Constructor for creating a new CefListValue that takes ownership of
+  // |arguments|.
   CefProcessMessageImpl(const CefString& name,
-                        base::ListValue* arguments,
+                        base::ListValue arguments,
                         bool read_only);
 
   ~CefProcessMessageImpl() override;
 
-  // Stop referencing the underlying argument list (which we never owned).
-  void Detach();
-
-  // Transfer ownership of the underlying argument list to the caller.
+  // Transfer ownership of the underlying argument list to the caller, or create
+  // a copy if the argument list is already owned by something else.
   // TODO: Pass by reference instead of ownership if/when Mojo adds support
   // for that.
   base::ListValue TakeArgumentList() WARN_UNUSED_RESULT;
@@ -45,7 +43,6 @@ class CefProcessMessageImpl : public CefProcessMessage {
  private:
   const CefString name_;
   CefRefPtr<CefListValue> arguments_;
-  const bool should_detach_ = false;
 
   IMPLEMENT_REFCOUNTING(CefProcessMessageImpl);
   DISALLOW_COPY_AND_ASSIGN(CefProcessMessageImpl);

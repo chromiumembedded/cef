@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=14eca959988209ba8f95037a47192fd50d64f2f1$
+// $hash=547d03e9514a30b62d5aa11834deab87052dd6bd$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_CLIENT_CAPI_H_
@@ -168,8 +168,8 @@ typedef struct _cef_client_t {
 
   ///
   // Called when a new message is received from a different process. Return true
-  // (1) if the message was handled or false (0) otherwise. Do not keep a
-  // reference to or attempt to access the message outside of this callback.
+  // (1) if the message was handled or false (0) otherwise.  It is safe to keep
+  // a reference to |message| outside of this callback.
   ///
   int(CEF_CALLBACK* on_process_message_received)(
       struct _cef_client_t* self,

@@ -526,10 +526,10 @@ void CefFrameHostImpl::SendMessage(const std::string& name,
     if (auto client = browser->GetClient()) {
       auto& list_value = base::Value::AsListValue(arguments);
       CefRefPtr<CefProcessMessageImpl> message(new CefProcessMessageImpl(
-          name, const_cast<base::ListValue*>(&list_value), /*read_only=*/true));
+          name, std::move(const_cast<base::ListValue&>(list_value)),
+          /*read_only=*/true));
       browser->GetClient()->OnProcessMessageReceived(
           browser.get(), this, PID_RENDERER, message.get());
-      message->Detach();
     }
   }
 }

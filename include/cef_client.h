@@ -161,8 +161,8 @@ class CefClient : public virtual CefBaseRefCounted {
 
   ///
   // Called when a new message is received from a different process. Return true
-  // if the message was handled or false otherwise. Do not keep a reference to
-  // or attempt to access the message outside of this callback.
+  // if the message was handled or false otherwise.  It is safe to keep a
+  // reference to |message| outside of this callback.
   ///
   /*--cef()--*/
   virtual bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,

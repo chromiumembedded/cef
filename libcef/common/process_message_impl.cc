@@ -3,6 +3,9 @@
 // can be found in the LICENSE file.
 
 #include "libcef/common/process_message_impl.h"
+
+#include <memory>
+
 #include "libcef/common/values_impl.h"
 
 #include "base/logging.h"
@@ -17,30 +20,22 @@ CefProcessMessageImpl::CefProcessMessageImpl(const CefString& name,
                                              CefRefPtr<CefListValue> arguments)
     : name_(name), arguments_(arguments) {
   DCHECK(!name_.empty());
-  DCHECK(arguments_);
+  DCHECK(arguments_ && arguments_->IsValid());
 }
 
 CefProcessMessageImpl::CefProcessMessageImpl(const CefString& name,
-                                             base::ListValue* arguments,
+                                             base::ListValue arguments,
                                              bool read_only)
-    : name_(name),
-      arguments_(
-          new CefListValueImpl(arguments, /*will_delete=*/false, read_only)),
-      should_detach_(true) {
+    : name_(name) {
   DCHECK(!name_.empty());
+
+  auto new_obj = std::make_unique<base::ListValue>();
+  *new_obj = std::move(arguments);
+  arguments_ =
+      new CefListValueImpl(new_obj.release(), /*will_delete=*/true, read_only);
 }
 
-CefProcessMessageImpl::~CefProcessMessageImpl() {
-  DCHECK(!should_detach_ || !arguments_->IsValid());
-}
-
-void CefProcessMessageImpl::Detach() {
-  DCHECK(IsValid());
-  DCHECK(should_detach_);
-  CefListValueImpl* value_impl =
-      static_cast<CefListValueImpl*>(arguments_.get());
-  ignore_result(value_impl->Detach(nullptr));
-}
+CefProcessMessageImpl::~CefProcessMessageImpl() = default;
 
 base::ListValue CefProcessMessageImpl::TakeArgumentList() {
   DCHECK(IsValid());
