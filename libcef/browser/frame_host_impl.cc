@@ -248,13 +248,16 @@ void CefFrameHostImpl::SendProcessMessage(
   if (!message || !message->IsValid())
     return;
 
+  // Invalidate the message object immediately by taking the argument list.
+  auto argument_list =
+      static_cast<CefProcessMessageImpl*>(message.get())->TakeArgumentList();
+
   SendToRenderFrame(base::BindOnce(
-      [](CefRefPtr<CefProcessMessage> message,
+      [](const CefString& name, base::ListValue argument_list,
          const RenderFrameType& render_frame) {
-        auto impl = static_cast<CefProcessMessageImpl*>(message.get());
-        render_frame->SendMessage(impl->GetName(), impl->TakeArgumentList());
+        render_frame->SendMessage(name, std::move(argument_list));
       },
-      message));
+      message->GetName(), std::move(argument_list)));
 }
 
 void CefFrameHostImpl::SetFocused(bool focused) {
