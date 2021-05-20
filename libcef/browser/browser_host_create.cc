@@ -119,6 +119,10 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     return nullptr;
   }
 
+  if (!request_context) {
+    request_context = CefRequestContext::GetGlobalContext();
+  }
+
   // Verify that the browser context is valid.
   auto request_context_impl =
       static_cast<CefRequestContextImpl*>(request_context.get());
