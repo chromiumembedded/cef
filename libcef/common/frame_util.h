@@ -13,6 +13,9 @@ namespace frame_util {
 // and |render_routing_id|.
 int64_t MakeFrameId(int32_t render_process_id, int32_t render_routing_id);
 
+// Returns a human-readable version of |frame_id|.
+std::string GetFrameDebugString(int64_t frame_id);
+
 }  // namespace frame_util
 
 #endif  // CEF_LIBCEF_COMMON_FRAME_UTIL_H_

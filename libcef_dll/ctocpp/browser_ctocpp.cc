@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7d80a2edec79db9cb7be6bc23a1103a9f55c66c1$
+// $hash=48329460e314f041d387c854c47608fc04759d1c$
 //
 
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
@@ -20,6 +20,22 @@
 #include "libcef_dll/transfer_util.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
+
+NO_SANITIZE("cfi-icall") bool CefBrowserCToCpp::IsValid() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_valid))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->is_valid(_struct);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
 
 NO_SANITIZE("cfi-icall") CefRefPtr<CefBrowserHost> CefBrowserCToCpp::GetHost() {
   shutdown_checker::AssertNotShutdown();

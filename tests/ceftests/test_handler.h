@@ -181,8 +181,8 @@ class TestHandler : public CefClient,
                                  TerminationStatus status) override;
 
   // These methods should only be used if at most one non-popup browser exists.
-  CefRefPtr<CefBrowser> GetBrowser();
-  int GetBrowserId();
+  CefRefPtr<CefBrowser> GetBrowser() const;
+  int GetBrowserId() const;
 
   // Copies the map of all the currently existing browsers into |map|. Must be
   // called on the UI thread.

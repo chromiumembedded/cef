@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0413031a4d40137ab08d1bd99af0216e88ebf6ea$
+// $hash=b87b59400a1b0693d9f4ac37546c7d0ce5190ff7$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_CTOCPP_H_
@@ -36,6 +36,7 @@ class CefBrowserCToCpp
   virtual ~CefBrowserCToCpp();
 
   // CefBrowser methods.
+  bool IsValid() OVERRIDE;
   CefRefPtr<CefBrowserHost> GetHost() OVERRIDE;
   bool CanGoBack() OVERRIDE;
   void GoBack() OVERRIDE;

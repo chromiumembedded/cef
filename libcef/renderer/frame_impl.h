@@ -83,11 +83,19 @@ class CefFrameImpl : public CefFrame, public cef::mojom::RenderFrame {
   void OnAttached(service_manager::BinderRegistry* registry);
   void OnDidFinishLoad();
   void OnDraggableRegionsChanged();
+  void OnContextCreated();
   void OnDetached();
 
   blink::WebLocalFrame* web_frame() const { return frame_; }
 
  private:
+  // Execute an action on the associated WebLocalFrame. This will queue the
+  // action if the JavaScript context is not yet created.
+  using LocalFrameAction =
+      base::OnceCallback<void(blink::WebLocalFrame* frame)>;
+  void ExecuteOnLocalFrame(const std::string& function_name,
+                           LocalFrameAction action);
+
   // Returns the remote BrowserFrame object.
   const mojo::Remote<cef::mojom::BrowserFrame>& GetBrowserFrame();
 
@@ -111,6 +119,9 @@ class CefFrameImpl : public CefFrame, public cef::mojom::RenderFrame {
   CefBrowserImpl* browser_;
   blink::WebLocalFrame* frame_;
   const int64 frame_id_;
+
+  bool context_created_ = false;
+  std::queue<std::pair<std::string, LocalFrameAction>> queued_actions_;
 
   std::unique_ptr<blink::WebURLLoaderFactory> url_loader_factory_;
 

@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_BROWSER_INFO_H_
 #pragma once
 
+#include <queue>
 #include <set>
 #include <unordered_map>
 
@@ -24,6 +25,7 @@ class RenderFrameHost;
 }
 
 class CefBrowserHostBase;
+class CefFrameHandler;
 class CefFrameHostImpl;
 
 // CefBrowserInfo is used to associate a browser ID and render view/process
@@ -149,6 +151,16 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   // thread.
   bool IsNavigationLocked(base::OnceClosure pending_action);
 
+  using FrameNotifyOnceAction =
+      base::OnceCallback<void(CefRefPtr<CefFrameHandler>)>;
+
+  // Specifies a CefFrameHandler notification action whose execution may need
+  // to be blocked on release of a potentially held NotificationStateLock. If no
+  // CefFrameHandler exists then the action will be discarded without executing.
+  // If the NotificationStateLock is not currently held then the action will be
+  // executed immediately.
+  void MaybeExecuteFrameNotification(FrameNotifyOnceAction pending_action);
+
  private:
   friend class base::RefCountedThreadSafe<CefBrowserInfo>;
 
@@ -156,6 +168,10 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
 
   struct FrameInfo {
     ~FrameInfo();
+
+    inline bool IsCurrentMainFrame() const {
+      return frame_ && is_main_frame_ && !is_speculative_;
+    }
 
     content::RenderFrameHost* host_;
     int64_t frame_id_;  // Combination of render_process_id + render_routing_id.
@@ -172,7 +188,17 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
       int frame_tree_node_id,
       bool* is_guest_view = nullptr) const;
 
-  void RemoveAllFrames();
+  void SetMainFrame(CefRefPtr<CefBrowserHostBase> browser,
+                    CefRefPtr<CefFrameHostImpl> frame);
+
+  void MaybeNotifyFrameCreated(CefRefPtr<CefFrameHostImpl> frame);
+  void MaybeNotifyFrameDetached(CefRefPtr<CefBrowserHostBase> browser,
+                                CefRefPtr<CefFrameHostImpl> frame);
+  void MaybeNotifyMainFrameChanged(CefRefPtr<CefBrowserHostBase> browser,
+                                   CefRefPtr<CefFrameHostImpl> old_frame,
+                                   CefRefPtr<CefFrameHostImpl> new_frame);
+
+  void RemoveAllFrames(CefRefPtr<CefBrowserHostBase> old_browser);
 
   int browser_id_;
   bool is_popup_;
@@ -182,6 +208,29 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   // Navigation will be blocked while |navigation_lock_| exists.
   // Only accessed on the UI thread.
   base::WeakPtr<NavigationLock> navigation_lock_;
+
+  // Used instead of |base::AutoLock(lock_)| in situations that might generate
+  // CefFrameHandler notifications. Any notifications passed to
+  // MaybeExecuteFrameNotification() will be queued until the lock is released,
+  // and then executed in order.
+  class NotificationStateLock final {
+   public:
+    explicit NotificationStateLock(CefBrowserInfo* browser_info);
+    ~NotificationStateLock();
+
+   protected:
+    friend class CefBrowserInfo;
+    CefBrowserInfo* const browser_info_;
+    CefRefPtr<CefFrameHandler> frame_handler_;
+    std::unique_ptr<base::AutoLock> browser_info_lock_scope_;
+    std::queue<FrameNotifyOnceAction> queue_;
+  };
+
+  mutable base::Lock notification_lock_;
+
+  // These members must be protected by |notification_lock_|.
+  NotificationStateLock* notification_state_lock_ = nullptr;
+  CefRefPtr<CefFrameHandler> frame_handler_;
 
   mutable base::Lock lock_;
 

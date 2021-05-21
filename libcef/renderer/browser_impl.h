@@ -44,6 +44,7 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
       blink::WebFrame* frame);
 
   // CefBrowser methods.
+  bool IsValid() override;
   CefRefPtr<CefBrowserHost> GetHost() override;
   bool CanGoBack() override;
   void GoBack() override;

@@ -18,6 +18,7 @@
 #endif
 
 #include "libcef/common/app_manager.h"
+#include "libcef/common/frame_util.h"
 #include "libcef/common/net/http_header_utils.h"
 #include "libcef/common/process_message_impl.h"
 #include "libcef/common/request_impl.h"
@@ -360,6 +361,17 @@ void CefFrameImpl::OnDraggableRegionsChanged() {
   }
 }
 
+void CefFrameImpl::OnContextCreated() {
+  context_created_ = true;
+
+  CHECK(frame_);
+  while (!queued_actions_.empty()) {
+    auto& action = queued_actions_.front();
+    std::move(action.second).Run(frame_);
+    queued_actions_.pop();
+  }
+}
+
 void CefFrameImpl::OnDetached() {
   // Called when this frame has been detached from the view. This *will* be
   // called for child frames when a parent frame is detached.
@@ -374,6 +386,33 @@ void CefFrameImpl::OnDetached() {
   browser_ = nullptr;
   frame_ = nullptr;
   url_loader_factory_.reset();
+
+  // In case we're destroyed without the context being created.
+  while (!queued_actions_.empty()) {
+    auto& action = queued_actions_.front();
+    LOG(WARNING) << action.first << " sent to detached frame "
+                 << frame_util::GetFrameDebugString(frame_id_)
+                 << " will be ignored";
+    queued_actions_.pop();
+  }
+}
+
+void CefFrameImpl::ExecuteOnLocalFrame(const std::string& function_name,
+                                       LocalFrameAction action) {
+  CEF_REQUIRE_RT_RETURN_VOID();
+
+  if (!context_created_) {
+    queued_actions_.push(std::make_pair(function_name, std::move(action)));
+    return;
+  }
+
+  if (frame_) {
+    std::move(action).Run(frame_);
+  } else {
+    LOG(WARNING) << function_name << " sent to detached frame "
+                 << frame_util::GetFrameDebugString(frame_id_)
+                 << " will be ignored";
+  }
 }
 
 const mojo::Remote<cef::mojom::BrowserFrame>& CefFrameImpl::GetBrowserFrame() {
@@ -407,45 +446,63 @@ void CefFrameImpl::SendMessage(const std::string& name, base::Value arguments) {
 }
 
 void CefFrameImpl::SendCommand(const std::string& command) {
-  CEF_REQUIRE_RT_RETURN_VOID();
-  if (frame_) {
-    frame_->ExecuteCommand(blink::WebString::FromUTF8(command));
-  }
+  ExecuteOnLocalFrame(
+      __FUNCTION__,
+      base::BindOnce(
+          [](const std::string& command, blink::WebLocalFrame* frame) {
+            frame->ExecuteCommand(blink::WebString::FromUTF8(command));
+          },
+          command));
 }
 
 void CefFrameImpl::SendCommandWithResponse(
     const std::string& command,
     cef::mojom::RenderFrame::SendCommandWithResponseCallback callback) {
-  blink::WebString response;
+  ExecuteOnLocalFrame(
+      __FUNCTION__,
+      base::BindOnce(
+          [](const std::string& command,
+             cef::mojom::RenderFrame::SendCommandWithResponseCallback callback,
+             blink::WebLocalFrame* frame) {
+            blink::WebString response;
 
-  if (frame_) {
-    if (base::LowerCaseEqualsASCII(command, "getsource")) {
-      response = blink_glue::DumpDocumentMarkup(frame_);
-    } else if (base::LowerCaseEqualsASCII(command, "gettext")) {
-      response = blink_glue::DumpDocumentText(frame_);
-    }
-  }
+            if (base::LowerCaseEqualsASCII(command, "getsource")) {
+              response = blink_glue::DumpDocumentMarkup(frame);
+            } else if (base::LowerCaseEqualsASCII(command, "gettext")) {
+              response = blink_glue::DumpDocumentText(frame);
+            }
 
-  std::move(callback).Run(string_util::CreateSharedMemoryRegion(response));
+            std::move(callback).Run(
+                string_util::CreateSharedMemoryRegion(response));
+          },
+          command, std::move(callback)));
 }
 
 void CefFrameImpl::SendJavaScript(const std::u16string& jsCode,
                                   const std::string& scriptUrl,
                                   int32_t startLine) {
-  CEF_REQUIRE_RT_RETURN_VOID();
-  if (frame_) {
-    frame_->ExecuteScript(blink::WebScriptSource(
-        blink::WebString::FromUTF16(jsCode), GURL(scriptUrl), startLine));
-  }
+  ExecuteOnLocalFrame(
+      __FUNCTION__,
+      base::BindOnce(
+          [](const std::u16string& jsCode, const std::string& scriptUrl,
+             int32_t startLine, blink::WebLocalFrame* frame) {
+            frame->ExecuteScript(
+                blink::WebScriptSource(blink::WebString::FromUTF16(jsCode),
+                                       GURL(scriptUrl), startLine));
+          },
+          jsCode, scriptUrl, startLine));
 }
 
 void CefFrameImpl::LoadRequest(cef::mojom::RequestParamsPtr params) {
-  CEF_REQUIRE_RT_RETURN_VOID();
-  if (frame_) {
-    blink::WebURLRequest request;
-    CefRequestImpl::Get(params, request);
-    blink_glue::StartNavigation(frame_, request);
-  }
+  ExecuteOnLocalFrame(
+      __FUNCTION__,
+      base::BindOnce(
+          [](cef::mojom::RequestParamsPtr params, blink::WebLocalFrame* frame) {
+            blink::WebURLRequest request;
+            CefRequestImpl::Get(params, request);
+            blink_glue::StartNavigation(frame, request);
+          },
+          std::move(params)));
 }
 
 void CefFrameImpl::DidStopLoading() {

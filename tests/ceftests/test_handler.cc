@@ -276,11 +276,11 @@ void TestHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
   LOG(WARNING) << "OnRenderProcessTerminated: status = " << status << ".";
 }
 
-CefRefPtr<CefBrowser> TestHandler::GetBrowser() {
+CefRefPtr<CefBrowser> TestHandler::GetBrowser() const {
   return first_browser_;
 }
 
-int TestHandler::GetBrowserId() {
+int TestHandler::GetBrowserId() const {
   return first_browser_id_;
 }
 

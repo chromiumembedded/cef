@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=09b6ebd4116e983b4af634f1efa17b326a3fc517$
+// $hash=bb01bd8418e5fb715a7a6bd53e962e11a0d04993$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -57,16 +57,22 @@ struct _cef_browser_host_t;
 struct _cef_client_t;
 
 ///
-// Structure used to represent a browser window. When used in the browser
-// process the functions of this structure may be called on any thread unless
-// otherwise indicated in the comments. When used in the render process the
-// functions of this structure may only be called on the main thread.
+// Structure used to represent a browser. When used in the browser process the
+// functions of this structure may be called on any thread unless otherwise
+// indicated in the comments. When used in the render process the functions of
+// this structure may only be called on the main thread.
 ///
 typedef struct _cef_browser_t {
   ///
   // Base structure.
   ///
   cef_base_ref_counted_t base;
+
+  ///
+  // True if this object is currently valid. This will return false (0) after
+  // cef_life_span_handler_t::OnBeforeClose is called.
+  ///
+  int(CEF_CALLBACK* is_valid)(struct _cef_browser_t* self);
 
   ///
   // Returns the browser host object. This function can only be called in the
@@ -129,7 +135,7 @@ typedef struct _cef_browser_t {
                              struct _cef_browser_t* that);
 
   ///
-  // Returns true (1) if the window is a popup window.
+  // Returns true (1) if the browser is a popup.
   ///
   int(CEF_CALLBACK* is_popup)(struct _cef_browser_t* self);
 
@@ -139,13 +145,17 @@ typedef struct _cef_browser_t {
   int(CEF_CALLBACK* has_document)(struct _cef_browser_t* self);
 
   ///
-  // Returns the main (top-level) frame for the browser window.
+  // Returns the main (top-level) frame for the browser. In the browser process
+  // this will return a valid object until after
+  // cef_life_span_handler_t::OnBeforeClose is called. The main frame object
+  // will change during cross-origin navigation or re-navigation after renderer
+  // process termination (due to crashes, etc).
   ///
   struct _cef_frame_t*(CEF_CALLBACK* get_main_frame)(
       struct _cef_browser_t* self);
 
   ///
-  // Returns the focused frame for the browser window.
+  // Returns the focused frame for the browser.
   ///
   struct _cef_frame_t*(CEF_CALLBACK* get_focused_frame)(
       struct _cef_browser_t* self);
@@ -274,10 +284,10 @@ typedef struct _cef_download_image_callback_t {
 } cef_download_image_callback_t;
 
 ///
-// Structure used to represent the browser process aspects of a browser window.
-// The functions of this structure can only be called in the browser process.
-// They may be called on any thread in that process unless otherwise indicated
-// in the comments.
+// Structure used to represent the browser process aspects of a browser. The
+// functions of this structure can only be called in the browser process. They
+// may be called on any thread in that process unless otherwise indicated in the
+// comments.
 ///
 typedef struct _cef_browser_host_t {
   ///
@@ -306,11 +316,12 @@ typedef struct _cef_browser_host_t {
 
   ///
   // Helper for closing a browser. Call this function from the top-level window
-  // close handler. Internally this calls CloseBrowser(false (0)) if the close
-  // has not yet been initiated. This function returns false (0) while the close
-  // is pending and true (1) after the close has completed. See close_browser()
-  // and cef_life_span_handler_t::do_close() documentation for additional usage
-  // information. This function must be called on the browser process UI thread.
+  // close handler (if any). Internally this calls CloseBrowser(false (0)) if
+  // the close has not yet been initiated. This function returns false (0) while
+  // the close is pending and true (1) after the close has completed. See
+  // close_browser() and cef_life_span_handler_t::do_close() documentation for
+  // additional usage information. This function must be called on the browser
+  // process UI thread.
   ///
   int(CEF_CALLBACK* try_close_browser)(struct _cef_browser_host_t* self);
 
@@ -320,18 +331,19 @@ typedef struct _cef_browser_host_t {
   void(CEF_CALLBACK* set_focus)(struct _cef_browser_host_t* self, int focus);
 
   ///
-  // Retrieve the window handle for this browser. If this browser is wrapped in
-  // a cef_browser_view_t this function should be called on the browser process
-  // UI thread and it will return the handle for the top-level native window.
+  // Retrieve the window handle (if any) for this browser. If this browser is
+  // wrapped in a cef_browser_view_t this function should be called on the
+  // browser process UI thread and it will return the handle for the top-level
+  // native window.
   ///
   cef_window_handle_t(CEF_CALLBACK* get_window_handle)(
       struct _cef_browser_host_t* self);
 
   ///
-  // Retrieve the window handle of the browser that opened this browser. Will
-  // return NULL for non-popup windows or if this browser is wrapped in a
-  // cef_browser_view_t. This function can be used in combination with custom
-  // handling of modal windows.
+  // Retrieve the window handle (if any) of the browser that opened this
+  // browser. Will return NULL for non-popup browsers or if this browser is
+  // wrapped in a cef_browser_view_t. This function can be used in combination
+  // with custom handling of modal windows.
   ///
   cef_window_handle_t(CEF_CALLBACK* get_opener_window_handle)(
       struct _cef_browser_host_t* self);
@@ -909,9 +921,9 @@ typedef struct _cef_browser_host_t {
 } cef_browser_host_t;
 
 ///
-// Create a new browser window using the window parameters specified by
-// |windowInfo|. All values will be copied internally and the actual window will
-// be created on the UI thread. If |request_context| is NULL the global request
+// Create a new browser using the window parameters specified by |windowInfo|.
+// All values will be copied internally and the actual window (if any) will be
+// created on the UI thread. If |request_context| is NULL the global request
 // context will be used. This function can be called on any browser process
 // thread and will not block. The optional |extra_info| parameter provides an
 // opportunity to specify extra information specific to the created browser that
@@ -927,11 +939,11 @@ CEF_EXPORT int cef_browser_host_create_browser(
     struct _cef_request_context_t* request_context);
 
 ///
-// Create a new browser window using the window parameters specified by
-// |windowInfo|. If |request_context| is NULL the global request context will be
-// used. This function can only be called on the browser process UI thread. The
-// optional |extra_info| parameter provides an opportunity to specify extra
-// information specific to the created browser that will be passed to
+// Create a new browser using the window parameters specified by |windowInfo|.
+// If |request_context| is NULL the global request context will be used. This
+// function can only be called on the browser process UI thread. The optional
+// |extra_info| parameter provides an opportunity to specify extra information
+// specific to the created browser that will be passed to
 // cef_render_process_handler_t::on_browser_created() in the render process.
 ///
 CEF_EXPORT cef_browser_t* cef_browser_host_create_browser_sync(

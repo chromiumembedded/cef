@@ -471,6 +471,7 @@
       'tests/ceftests/extensions/extension_test_handler.h',
       'tests/ceftests/extensions/view_unittest.cc',
       'tests/ceftests/file_util_unittest.cc',
+      'tests/ceftests/frame_handler_unittest.cc',
       'tests/ceftests/frame_unittest.cc',
       'tests/ceftests/image_unittest.cc',
       'tests/ceftests/image_util.cc',

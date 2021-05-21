@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=547d03e9514a30b62d5aa11834deab87052dd6bd$
+// $hash=845a1d1dda63a06f4ae33ed39acfd2599b46a885$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_CLIENT_CAPI_H_
@@ -49,6 +49,7 @@
 #include "include/capi/cef_drag_handler_capi.h"
 #include "include/capi/cef_find_handler_capi.h"
 #include "include/capi/cef_focus_handler_capi.h"
+#include "include/capi/cef_frame_handler_capi.h"
 #include "include/capi/cef_jsdialog_handler_capi.h"
 #include "include/capi/cef_keyboard_handler_capi.h"
 #include "include/capi/cef_life_span_handler_capi.h"
@@ -120,6 +121,14 @@ typedef struct _cef_client_t {
   // Return the handler for focus events.
   ///
   struct _cef_focus_handler_t*(CEF_CALLBACK* get_focus_handler)(
+      struct _cef_client_t* self);
+
+  ///
+  // Return the handler for events related to cef_frame_t lifespan. This
+  // function will be called once during cef_browser_t creation and the result
+  // will be cached for performance reasons.
+  ///
+  struct _cef_frame_handler_t*(CEF_CALLBACK* get_frame_handler)(
       struct _cef_client_t* self);
 
   ///

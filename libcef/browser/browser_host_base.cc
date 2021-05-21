@@ -497,6 +497,10 @@ void CefBrowserHostBase::SendMouseWheelEvent(const CefMouseEvent& event,
   }
 }
 
+bool CefBrowserHostBase::IsValid() {
+  return browser_info_->browser() == this;
+}
+
 CefRefPtr<CefBrowserHost> CefBrowserHostBase::GetHost() {
   return this;
 }

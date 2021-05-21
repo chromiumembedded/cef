@@ -15,10 +15,12 @@
 #include "ipc/ipc_message.h"
 
 CefBrowserInfo::FrameInfo::~FrameInfo() {
-  if (frame_ && !is_main_frame_) {
-    // Disassociate sub-frames from the browser.
-    frame_->Detach();
+#if DCHECK_IS_ON()
+  if (frame_ && !IsCurrentMainFrame()) {
+    // Should already be Detached.
+    DCHECK(!frame_->GetRenderFrameHost());
   }
+#endif
 }
 
 CefBrowserInfo::CefBrowserInfo(int browser_id,
@@ -32,7 +34,9 @@ CefBrowserInfo::CefBrowserInfo(int browser_id,
   DCHECK_GT(browser_id, 0);
 }
 
-CefBrowserInfo::~CefBrowserInfo() {}
+CefBrowserInfo::~CefBrowserInfo() {
+  DCHECK(frame_info_set_.empty());
+}
 
 CefRefPtr<CefBrowserHostBase> CefBrowserInfo::browser() const {
   base::AutoLock lock_scope(lock_);
@@ -40,11 +44,29 @@ CefRefPtr<CefBrowserHostBase> CefBrowserInfo::browser() const {
 }
 
 void CefBrowserInfo::SetBrowser(CefRefPtr<CefBrowserHostBase> browser) {
-  base::AutoLock lock_scope(lock_);
+  NotificationStateLock lock_scope(this);
+
+  if (browser) {
+    DCHECK(!browser_);
+
+    // Cache the associated frame handler.
+    if (auto client = browser->GetClient()) {
+      frame_handler_ = client->GetFrameHandler();
+    }
+  } else {
+    DCHECK(browser_);
+  }
+
+  auto old_browser = browser_;
   browser_ = browser;
 
-  if (!browser) {
-    RemoveAllFrames();
+  if (!browser_) {
+    RemoveAllFrames(old_browser);
+
+    // Any future calls to MaybeExecuteFrameNotification will now fail.
+    // NotificationStateLock already took a reference for the delivery of any
+    // notifications that are currently queued due to RemoveAllFrames.
+    frame_handler_ = nullptr;
   }
 }
 
@@ -68,7 +90,7 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host,
                                    ->render_manager()
                                    ->current_frame_host() != host);
 
-  base::AutoLock lock_scope(lock_);
+  NotificationStateLock lock_scope(this);
   DCHECK(browser_);
 
   const auto it = frame_id_map_.find(frame_id);
@@ -87,9 +109,7 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host,
       // Upgrade the frame info from speculative to non-speculative.
       if (info->is_main_frame_) {
         // Set the main frame object.
-        if (main_frame_)
-          main_frame_->Detach();
-        main_frame_ = info->frame_;
+        SetMainFrame(browser_, info->frame_);
       }
       info->is_speculative_ = false;
       MaybeUpdateFrameTreeNodeIdMap(info);
@@ -107,17 +127,13 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host,
 
   // Guest views don't get their own CefBrowser or CefFrame objects.
   if (!is_guest_view) {
-    if (is_main_frame && main_frame_ && !is_speculative) {
-      // Update the existing main frame object.
-      main_frame_->SetRenderFrameHost(host);
-      frame_info->frame_ = main_frame_;
-    } else {
-      // Create a new frame object.
-      frame_info->frame_ = new CefFrameHostImpl(this, host);
-      if (is_main_frame && !is_speculative) {
-        main_frame_ = frame_info->frame_;
-      }
+    // Create a new frame object.
+    frame_info->frame_ = new CefFrameHostImpl(this, host);
+    MaybeNotifyFrameCreated(frame_info->frame_);
+    if (is_main_frame && !is_speculative) {
+      SetMainFrame(browser_, frame_info->frame_);
     }
+
 #if DCHECK_IS_ON()
     // Check that the frame info hasn't changed unexpectedly.
     DCHECK_EQ(frame_id, frame_info->frame_->GetIdentifier());
@@ -140,7 +156,7 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host,
 void CefBrowserInfo::RemoveFrame(content::RenderFrameHost* host) {
   CEF_REQUIRE_UIT();
 
-  base::AutoLock lock_scope(lock_);
+  NotificationStateLock lock_scope(this);
 
   const auto frame_id = CefFrameHostImpl::MakeFrameId(host);
 
@@ -170,19 +186,25 @@ void CefBrowserInfo::RemoveFrame(content::RenderFrameHost* host) {
   // And finally delete the frame info.
   {
     auto it2 = frame_info_set_.find(frame_info);
+
+    // Explicitly Detach everything but the current main frame.
+    const auto& frame_info = *it2;
+    if (frame_info->frame_ && !frame_info->IsCurrentMainFrame()) {
+      frame_info->frame_->Detach();
+      MaybeNotifyFrameDetached(browser_, frame_info->frame_);
+    }
+
     frame_info_set_.erase(it2);
   }
 }
 
 CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetMainFrame() {
-  base::AutoLock lock_scope(lock_);
-  DCHECK(browser_);
-  if (!main_frame_) {
-    // Create a temporary object that will eventually be updated with real
-    // routing information.
-    main_frame_ =
-        new CefFrameHostImpl(this, true, CefFrameHostImpl::kInvalidFrameId);
-  }
+  NotificationStateLock lock_scope(this);
+  // Early exit if called post-destruction.
+  if (!browser_)
+    return nullptr;
+
+  CHECK(main_frame_);
   return main_frame_;
 }
 
@@ -191,7 +213,8 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::CreateTempSubFrame(
   CefRefPtr<CefFrameHostImpl> parent = GetFrameForId(parent_frame_id);
   if (!parent)
     parent = GetMainFrame();
-  return new CefFrameHostImpl(this, false, parent->GetIdentifier());
+  // Intentionally not notifying for temporary frames.
+  return new CefFrameHostImpl(this, parent->GetIdentifier());
 }
 
 CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForHost(
@@ -328,6 +351,30 @@ bool CefBrowserInfo::IsNavigationLocked(base::OnceClosure pending_action) {
   return false;
 }
 
+void CefBrowserInfo::MaybeExecuteFrameNotification(
+    FrameNotifyOnceAction pending_action) {
+  CefRefPtr<CefFrameHandler> frame_handler;
+
+  {
+    base::AutoLock lock_scope_(notification_lock_);
+    if (!frame_handler_) {
+      // No notifications will be executed.
+      return;
+    }
+
+    if (notification_state_lock_) {
+      // Queue the notification until the lock is released.
+      notification_state_lock_->queue_.push(std::move(pending_action));
+      return;
+    }
+
+    frame_handler = frame_handler_;
+  }
+
+  // Execute immediately if not locked.
+  std::move(pending_action).Run(frame_handler);
+}
+
 void CefBrowserInfo::MaybeUpdateFrameTreeNodeIdMap(FrameInfo* info) {
   lock_.AssertAcquired();
 
@@ -381,24 +428,150 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForFrameTreeNodeInternal(
   return nullptr;
 }
 
-void CefBrowserInfo::RemoveAllFrames() {
+// Passing in |browser| here because |browser_| may already be cleared.
+void CefBrowserInfo::SetMainFrame(CefRefPtr<CefBrowserHostBase> browser,
+                                  CefRefPtr<CefFrameHostImpl> frame) {
   lock_.AssertAcquired();
+  DCHECK(browser);
+  DCHECK(!frame || frame->IsMain());
+
+  CefRefPtr<CefFrameHostImpl> old_frame;
+  if (main_frame_) {
+    old_frame = main_frame_;
+    old_frame->Detach();
+    MaybeNotifyFrameDetached(browser, old_frame);
+  }
+
+  main_frame_ = frame;
+
+  MaybeNotifyMainFrameChanged(browser, old_frame, main_frame_);
+}
+
+void CefBrowserInfo::MaybeNotifyFrameCreated(
+    CefRefPtr<CefFrameHostImpl> frame) {
+  CEF_REQUIRE_UIT();
+
+  // Never notify for temporary objects.
+  DCHECK(!frame->is_temporary());
+
+  MaybeExecuteFrameNotification(base::BindOnce(
+      [](scoped_refptr<CefBrowserInfo> self, CefRefPtr<CefFrameHostImpl> frame,
+         CefRefPtr<CefFrameHandler> handler) {
+        if (auto browser = self->browser()) {
+          handler->OnFrameCreated(browser, frame);
+        }
+      },
+      scoped_refptr<CefBrowserInfo>(this), frame));
+}
+
+// Passing in |browser| here because |browser_| may already be cleared.
+void CefBrowserInfo::MaybeNotifyFrameDetached(
+    CefRefPtr<CefBrowserHostBase> browser,
+    CefRefPtr<CefFrameHostImpl> frame) {
+  CEF_REQUIRE_UIT();
+
+  // Never notify for temporary objects.
+  DCHECK(!frame->is_temporary());
+
+  MaybeExecuteFrameNotification(base::BindOnce(
+      [](CefRefPtr<CefBrowserHostBase> browser,
+         CefRefPtr<CefFrameHostImpl> frame,
+         CefRefPtr<CefFrameHandler> handler) {
+        handler->OnFrameDetached(browser, frame);
+      },
+      browser, frame));
+}
+
+// Passing in |browser| here because |browser_| may already be cleared.
+void CefBrowserInfo::MaybeNotifyMainFrameChanged(
+    CefRefPtr<CefBrowserHostBase> browser,
+    CefRefPtr<CefFrameHostImpl> old_frame,
+    CefRefPtr<CefFrameHostImpl> new_frame) {
+  CEF_REQUIRE_UIT();
+
+  // Never notify for temporary objects.
+  DCHECK(!old_frame || !old_frame->is_temporary());
+  DCHECK(!new_frame || !new_frame->is_temporary());
+
+  MaybeExecuteFrameNotification(base::BindOnce(
+      [](CefRefPtr<CefBrowserHostBase> browser,
+         CefRefPtr<CefFrameHostImpl> old_frame,
+         CefRefPtr<CefFrameHostImpl> new_frame,
+         CefRefPtr<CefFrameHandler> handler) {
+        handler->OnMainFrameChanged(browser, old_frame, new_frame);
+      },
+      browser, old_frame, new_frame));
+}
+
+void CefBrowserInfo::RemoveAllFrames(
+    CefRefPtr<CefBrowserHostBase> old_browser) {
+  lock_.AssertAcquired();
+
+  // Make sure any callbacks will see the correct state (e.g. like
+  // CefBrowser::GetMainFrame returning nullptr and CefBrowser::IsValid
+  // returning false).
+  DCHECK(!browser_);
+  DCHECK(old_browser);
 
   // Clear the lookup maps.
   frame_id_map_.clear();
   frame_tree_node_id_map_.clear();
 
-  // Explicitly Detach main frames.
+  // Explicitly Detach everything but the current main frame.
   for (auto& info : frame_info_set_) {
-    if (info->frame_ && info->is_main_frame_)
+    if (info->frame_ && !info->IsCurrentMainFrame()) {
       info->frame_->Detach();
+      MaybeNotifyFrameDetached(old_browser, info->frame_);
+    }
   }
 
-  if (main_frame_) {
-    main_frame_->Detach();
-    main_frame_ = nullptr;
-  }
+  if (main_frame_)
+    SetMainFrame(old_browser, nullptr);
 
   // And finally delete the frame info.
   frame_info_set_.clear();
+}
+
+CefBrowserInfo::NotificationStateLock::NotificationStateLock(
+    CefBrowserInfo* browser_info)
+    : browser_info_(browser_info) {
+  // Take the navigation state lock.
+  {
+    base::AutoLock lock_scope_(browser_info_->notification_lock_);
+    CHECK(!browser_info_->notification_state_lock_);
+    browser_info_->notification_state_lock_ = this;
+    // We may need this on destruction, and the original might be cleared.
+    frame_handler_ = browser_info_->frame_handler_;
+  }
+
+  // Take the browser info state lock.
+  browser_info_lock_scope_.reset(new base::AutoLock(browser_info_->lock_));
+}
+
+CefBrowserInfo::NotificationStateLock::~NotificationStateLock() {
+  // Unlock in reverse order.
+  browser_info_lock_scope_.reset();
+
+  {
+    base::AutoLock lock_scope_(browser_info_->notification_lock_);
+    CHECK_EQ(this, browser_info_->notification_state_lock_);
+    browser_info_->notification_state_lock_ = nullptr;
+  }
+
+  if (!queue_.empty()) {
+    DCHECK(frame_handler_);
+
+    scoped_refptr<NavigationLock> nav_lock;
+    if (CEF_CURRENTLY_ON_UIT()) {
+      // Don't navigate while inside callbacks.
+      nav_lock = browser_info_->CreateNavigationLock();
+    }
+
+    // Empty the queue of pending actions. Any of these actions might result in
+    // the acquisition of a new NotificationStateLock.
+    while (!queue_.empty()) {
+      std::move(queue_.front()).Run(frame_handler_);
+      queue_.pop();
+    }
+  }
 }

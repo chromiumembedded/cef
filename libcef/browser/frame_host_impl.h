@@ -32,19 +32,13 @@ class CefBrowserHostBase;
 // or retrieved via CefBrowerInfo.
 class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
  public:
-  // Create a temporary frame.
+  // Create a temporary sub-frame.
   CefFrameHostImpl(scoped_refptr<CefBrowserInfo> browser_info,
-                   bool is_main_frame,
                    int64_t parent_frame_id);
 
   // Create a frame backed by a RFH and owned by CefBrowserInfo.
   CefFrameHostImpl(scoped_refptr<CefBrowserInfo> browser_info,
                    content::RenderFrameHost* render_frame_host);
-
-  // Update an existing main frame object on creation or for same-origin
-  // navigations. A new CefFrameHostImpl will be created for cross-origin
-  // navigations.
-  void SetRenderFrameHost(content::RenderFrameHost* host);
 
   ~CefFrameHostImpl() override;
 
@@ -79,6 +73,8 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
       CefRefPtr<CefURLRequestClient> client) override;
   void SendProcessMessage(CefProcessId target_process,
                           CefRefPtr<CefProcessMessage> message) override;
+
+  bool is_temporary() const { return frame_id_ == kInvalidFrameId; }
 
   void SetFocused(bool focused);
   void RefreshAttributes();
@@ -147,6 +143,7 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
 
  private:
   int64 GetFrameId() const;
+  scoped_refptr<CefBrowserInfo> GetBrowserInfo() const;
   CefRefPtr<CefBrowserHostBase> GetBrowserHostBase() const;
 
   // Returns the remote RenderFrame object.
@@ -156,7 +153,8 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   // Send an action to the remote RenderFrame. This will queue the action if the
   // remote frame is not yet attached.
   using RenderFrameAction = base::OnceCallback<void(const RenderFrameType&)>;
-  void SendToRenderFrame(RenderFrameAction action);
+  void SendToRenderFrame(const std::string& function_name,
+                         RenderFrameAction action);
 
   const bool is_main_frame_;
 
@@ -175,7 +173,7 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
 
   bool is_attached_ = false;
 
-  std::queue<RenderFrameAction> queued_actions_;
+  std::queue<std::pair<std::string, RenderFrameAction>> queued_actions_;
 
   mojo::Remote<cef::mojom::RenderFrame> render_frame_;
 

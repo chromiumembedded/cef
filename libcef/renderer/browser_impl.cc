@@ -48,6 +48,11 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::GetBrowserForMainFrame(
 // CefBrowser methods.
 // -----------------------------------------------------------------------------
 
+bool CefBrowserImpl::IsValid() {
+  CEF_REQUIRE_RT_RETURN(false);
+  return !!GetWebView();
+}
+
 CefRefPtr<CefBrowserHost> CefBrowserImpl::GetHost() {
   NOTREACHED() << "GetHost cannot be called from the render process";
   return nullptr;

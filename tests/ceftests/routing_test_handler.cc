@@ -57,7 +57,8 @@ class RoutingRenderDelegate : public ClientAppRenderer::Delegate {
 
 }  // namespace
 
-RoutingTestHandler::RoutingTestHandler() {}
+RoutingTestHandler::RoutingTestHandler(CompletionState* completion_state)
+    : TestHandler(completion_state) {}
 
 void RoutingTestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   if (!message_router_.get()) {

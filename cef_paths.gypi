@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=f1877c7a493342351e284cb6c14e6f223461facb$
+# $hash=d723a9f6637cec523b158a6750d3a64698b407c3$
 #
 
 {
@@ -40,6 +40,7 @@
       'include/cef_find_handler.h',
       'include/cef_focus_handler.h',
       'include/cef_frame.h',
+      'include/cef_frame_handler.h',
       'include/cef_image.h',
       'include/cef_jsdialog_handler.h',
       'include/cef_keyboard_handler.h',
@@ -137,6 +138,7 @@
       'include/capi/cef_find_handler_capi.h',
       'include/capi/cef_focus_handler_capi.h',
       'include/capi/cef_frame_capi.h',
+      'include/capi/cef_frame_handler_capi.h',
       'include/capi/cef_image_capi.h',
       'include/capi/cef_jsdialog_handler_capi.h',
       'include/capi/cef_keyboard_handler_capi.h',
@@ -300,6 +302,8 @@
       'libcef_dll/ctocpp/focus_handler_ctocpp.h',
       'libcef_dll/cpptoc/frame_cpptoc.cc',
       'libcef_dll/cpptoc/frame_cpptoc.h',
+      'libcef_dll/ctocpp/frame_handler_ctocpp.cc',
+      'libcef_dll/ctocpp/frame_handler_ctocpp.h',
       'libcef_dll/cpptoc/get_extension_resource_callback_cpptoc.cc',
       'libcef_dll/cpptoc/get_extension_resource_callback_cpptoc.h',
       'libcef_dll/cpptoc/image_cpptoc.cc',
@@ -610,6 +614,8 @@
       'libcef_dll/cpptoc/focus_handler_cpptoc.h',
       'libcef_dll/ctocpp/frame_ctocpp.cc',
       'libcef_dll/ctocpp/frame_ctocpp.h',
+      'libcef_dll/cpptoc/frame_handler_cpptoc.cc',
+      'libcef_dll/cpptoc/frame_handler_cpptoc.h',
       'libcef_dll/ctocpp/get_extension_resource_callback_ctocpp.cc',
       'libcef_dll/ctocpp/get_extension_resource_callback_ctocpp.h',
       'libcef_dll/ctocpp/image_ctocpp.cc',

@@ -47,6 +47,7 @@
 #include "include/cef_drag_handler.h"
 #include "include/cef_find_handler.h"
 #include "include/cef_focus_handler.h"
+#include "include/cef_frame_handler.h"
 #include "include/cef_jsdialog_handler.h"
 #include "include/cef_keyboard_handler.h"
 #include "include/cef_life_span_handler.h"
@@ -114,6 +115,14 @@ class CefClient : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefFocusHandler> GetFocusHandler() { return nullptr; }
+
+  ///
+  // Return the handler for events related to CefFrame lifespan. This method
+  // will be called once during CefBrowser creation and the result will be
+  // cached for performance reasons.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefFrameHandler> GetFrameHandler() { return nullptr; }
 
   ///
   // Return the handler for JavaScript dialogs. If no handler is provided the

@@ -49,9 +49,8 @@ void ViewTextCallback(CefRefPtr<CefFrameHostImpl> frame,
 }  // namespace
 
 CefFrameHostImpl::CefFrameHostImpl(scoped_refptr<CefBrowserInfo> browser_info,
-                                   bool is_main_frame,
                                    int64_t parent_frame_id)
-    : is_main_frame_(is_main_frame),
+    : is_main_frame_(false),
       frame_id_(kInvalidFrameId),
       browser_info_(browser_info),
       is_focused_(is_main_frame_),  // The main frame always starts focused.
@@ -69,32 +68,22 @@ CefFrameHostImpl::CefFrameHostImpl(scoped_refptr<CefBrowserInfo> browser_info,
 CefFrameHostImpl::CefFrameHostImpl(scoped_refptr<CefBrowserInfo> browser_info,
                                    content::RenderFrameHost* render_frame_host)
     : is_main_frame_(render_frame_host->GetParent() == nullptr),
+      frame_id_(MakeFrameId(render_frame_host)),
       browser_info_(browser_info),
       is_focused_(is_main_frame_),  // The main frame always starts focused.
+      url_(render_frame_host->GetLastCommittedURL().spec()),
+      name_(render_frame_host->GetFrameName()),
       parent_frame_id_(is_main_frame_
                            ? kInvalidFrameId
-                           : MakeFrameId(render_frame_host->GetParent())) {
+                           : MakeFrameId(render_frame_host->GetParent())),
+      render_frame_host_(render_frame_host) {
   DCHECK(browser_info_);
-  SetRenderFrameHost(render_frame_host);
 }
 
-CefFrameHostImpl::~CefFrameHostImpl() {}
-
-void CefFrameHostImpl::SetRenderFrameHost(content::RenderFrameHost* host) {
-  CEF_REQUIRE_UIT();
-
-  base::AutoLock lock_scope(state_lock_);
-
-  // We should not be detached.
-  CHECK(browser_info_);
-
-  render_frame_.reset();
-  is_attached_ = false;
-
-  render_frame_host_ = host;
-  frame_id_ = MakeFrameId(host);
-  url_ = host->GetLastCommittedURL().spec();
-  name_ = host->GetFrameName();
+CefFrameHostImpl::~CefFrameHostImpl() {
+  // Should have been Detached.
+  DCHECK(!browser_info_);
+  DCHECK(!render_frame_host_);
 }
 
 bool CefFrameHostImpl::IsValid() {
@@ -252,12 +241,14 @@ void CefFrameHostImpl::SendProcessMessage(
   auto argument_list =
       static_cast<CefProcessMessageImpl*>(message.get())->TakeArgumentList();
 
-  SendToRenderFrame(base::BindOnce(
-      [](const CefString& name, base::ListValue argument_list,
-         const RenderFrameType& render_frame) {
-        render_frame->SendMessage(name, std::move(argument_list));
-      },
-      message->GetName(), std::move(argument_list)));
+  SendToRenderFrame(__FUNCTION__,
+                    base::BindOnce(
+                        [](const CefString& name, base::ListValue argument_list,
+                           const RenderFrameType& render_frame) {
+                          render_frame->SendMessage(name,
+                                                    std::move(argument_list));
+                        },
+                        message->GetName(), std::move(argument_list)));
 }
 
 void CefFrameHostImpl::SetFocused(bool focused) {
@@ -290,21 +281,23 @@ void CefFrameHostImpl::RefreshAttributes() {
 }
 
 void CefFrameHostImpl::NotifyMoveOrResizeStarted() {
-  SendToRenderFrame(base::BindOnce([](const RenderFrameType& render_frame) {
-    render_frame->MoveOrResizeStarted();
-  }));
+  SendToRenderFrame(__FUNCTION__,
+                    base::BindOnce([](const RenderFrameType& render_frame) {
+                      render_frame->MoveOrResizeStarted();
+                    }));
 }
 
 void CefFrameHostImpl::LoadRequest(cef::mojom::RequestParamsPtr params) {
   if (!url_util::FixupGURL(params->url))
     return;
 
-  SendToRenderFrame(base::BindOnce(
-      [](cef::mojom::RequestParamsPtr params,
-         const RenderFrameType& render_frame) {
-        render_frame->LoadRequest(std::move(params));
-      },
-      std::move(params)));
+  SendToRenderFrame(__FUNCTION__,
+                    base::BindOnce(
+                        [](cef::mojom::RequestParamsPtr params,
+                           const RenderFrameType& render_frame) {
+                          render_frame->LoadRequest(std::move(params));
+                        },
+                        std::move(params)));
 
   auto browser = GetBrowserHostBase();
   if (browser)
@@ -346,11 +339,12 @@ void CefFrameHostImpl::LoadURLWithExtras(const std::string& url,
 
 void CefFrameHostImpl::SendCommand(const std::string& command) {
   DCHECK(!command.empty());
-  SendToRenderFrame(base::BindOnce(
-      [](const std::string& command, const RenderFrameType& render_frame) {
-        render_frame->SendCommand(command);
-      },
-      command));
+  SendToRenderFrame(__FUNCTION__, base::BindOnce(
+                                      [](const std::string& command,
+                                         const RenderFrameType& render_frame) {
+                                        render_frame->SendCommand(command);
+                                      },
+                                      command));
 }
 
 void CefFrameHostImpl::SendCommandWithResponse(
@@ -358,15 +352,17 @@ void CefFrameHostImpl::SendCommandWithResponse(
     cef::mojom::RenderFrame::SendCommandWithResponseCallback
         response_callback) {
   DCHECK(!command.empty());
-  SendToRenderFrame(base::BindOnce(
-      [](const std::string& command,
-         cef::mojom::RenderFrame::SendCommandWithResponseCallback
-             response_callback,
-         const RenderFrameType& render_frame) {
-        render_frame->SendCommandWithResponse(command,
-                                              std::move(response_callback));
-      },
-      command, std::move(response_callback)));
+  SendToRenderFrame(
+      __FUNCTION__,
+      base::BindOnce(
+          [](const std::string& command,
+             cef::mojom::RenderFrame::SendCommandWithResponseCallback
+                 response_callback,
+             const RenderFrameType& render_frame) {
+            render_frame->SendCommandWithResponse(command,
+                                                  std::move(response_callback));
+          },
+          command, std::move(response_callback)));
 }
 
 void CefFrameHostImpl::SendJavaScript(const std::u16string& jsCode,
@@ -381,12 +377,14 @@ void CefFrameHostImpl::SendJavaScript(const std::u16string& jsCode,
     startLine = 1;
   }
 
-  SendToRenderFrame(base::BindOnce(
-      [](const std::u16string& jsCode, const std::string& scriptUrl,
-         int startLine, const RenderFrameType& render_frame) {
-        render_frame->SendJavaScript(jsCode, scriptUrl, startLine);
-      },
-      jsCode, scriptUrl, startLine));
+  SendToRenderFrame(
+      __FUNCTION__,
+      base::BindOnce(
+          [](const std::u16string& jsCode, const std::string& scriptUrl,
+             int startLine, const RenderFrameType& render_frame) {
+            render_frame->SendJavaScript(jsCode, scriptUrl, startLine);
+          },
+          jsCode, scriptUrl, startLine));
 }
 
 void CefFrameHostImpl::MaybeSendDidStopLoading() {
@@ -402,9 +400,10 @@ void CefFrameHostImpl::MaybeSendDidStopLoading() {
     return;
   }
 
-  SendToRenderFrame(base::BindOnce([](const RenderFrameType& render_frame) {
-    render_frame->DidStopLoading();
-  }));
+  SendToRenderFrame(__FUNCTION__,
+                    base::BindOnce([](const RenderFrameType& render_frame) {
+                      render_frame->DidStopLoading();
+                    }));
 }
 
 void CefFrameHostImpl::ExecuteJavaScriptWithUserGestureForTests(
@@ -431,8 +430,14 @@ content::RenderFrameHost* CefFrameHostImpl::GetRenderFrameHost() const {
 void CefFrameHostImpl::Detach() {
   CEF_REQUIRE_UIT();
 
+  // Should not be called for temporary frames.
+  DCHECK(!is_temporary());
+
   {
     base::AutoLock lock_scope(state_lock_);
+
+    // Should be called only once.
+    DCHECK(browser_info_);
     browser_info_ = nullptr;
   }
 
@@ -443,6 +448,7 @@ void CefFrameHostImpl::Detach() {
 
   render_frame_.reset();
   render_frame_host_ = nullptr;
+  is_attached_ = false;
 }
 
 // static
@@ -475,10 +481,14 @@ int64 CefFrameHostImpl::GetFrameId() const {
   return is_main_frame_ ? kMainFrameId : frame_id_;
 }
 
-CefRefPtr<CefBrowserHostBase> CefFrameHostImpl::GetBrowserHostBase() const {
+scoped_refptr<CefBrowserInfo> CefFrameHostImpl::GetBrowserInfo() const {
   base::AutoLock lock_scope(state_lock_);
-  if (browser_info_)
-    return browser_info_->browser();
+  return browser_info_;
+}
+
+CefRefPtr<CefBrowserHostBase> CefFrameHostImpl::GetBrowserHostBase() const {
+  if (auto browser_info = GetBrowserInfo())
+    return browser_info->browser();
   return nullptr;
 }
 
@@ -496,23 +506,32 @@ CefFrameHostImpl::GetRenderFrame() {
   return render_frame_;
 }
 
-void CefFrameHostImpl::SendToRenderFrame(RenderFrameAction action) {
+void CefFrameHostImpl::SendToRenderFrame(const std::string& function_name,
+                                         RenderFrameAction action) {
   if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefFrameHostImpl::SendToRenderFrame,
-                                          this, std::move(action)));
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefFrameHostImpl::SendToRenderFrame, this,
+                                 function_name, std::move(action)));
     return;
   }
 
-  if (!render_frame_host_) {
-    // Either we're a placeholder frame without a renderer representation, or
-    // we've been detached.
+  if (is_temporary()) {
+    LOG(WARNING) << function_name
+                 << " sent to temporary subframe will be ignored.";
+    return;
+  } else if (!render_frame_host_) {
+    // We've been detached.
+    LOG(WARNING) << function_name << " sent to detached "
+                 << (is_main_frame_ ? "main" : "sub") << "frame "
+                 << frame_util::GetFrameDebugString(frame_id_)
+                 << " will be ignored";
     return;
   }
 
   if (!is_attached_) {
     // Queue actions until we're notified by the renderer that it's ready to
     // handle them.
-    queued_actions_.push(std::move(action));
+    queued_actions_.push(std::make_pair(function_name, std::move(action)));
     return;
   }
 
@@ -538,6 +557,8 @@ void CefFrameHostImpl::SendMessage(const std::string& name,
 }
 
 void CefFrameHostImpl::FrameAttached() {
+  CEF_REQUIRE_UIT();
+
   DCHECK(!is_attached_);
   if (!is_attached_) {
     is_attached_ = true;
@@ -545,10 +566,19 @@ void CefFrameHostImpl::FrameAttached() {
     auto& render_frame = GetRenderFrame();
     while (!queued_actions_.empty()) {
       if (render_frame) {
-        std::move(queued_actions_.front()).Run(render_frame);
+        std::move(queued_actions_.front().second).Run(render_frame);
       }
       queued_actions_.pop();
     }
+
+    GetBrowserInfo()->MaybeExecuteFrameNotification(base::BindOnce(
+        [](CefRefPtr<CefFrameHostImpl> self,
+           CefRefPtr<CefFrameHandler> handler) {
+          if (auto browser = self->GetBrowserHostBase()) {
+            handler->OnFrameAttached(browser, self);
+          }
+        },
+        CefRefPtr<CefFrameHostImpl>(this)));
   }
 }
 

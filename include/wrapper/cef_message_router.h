@@ -46,7 +46,7 @@
 // The below classes implement support for routing aynchronous messages between
 // JavaScript running in the renderer process and C++ running in the browser
 // process. An application interacts with the router by passing it data from
-// standard CEF C++ callbacks (OnBeforeBrowse, OnProcessMessageRecieved,
+// standard CEF C++ callbacks (OnBeforeBrowse, OnProcessMessageReceived,
 // OnContextCreated, etc). The renderer-side router supports generic JavaScript
 // callback registration and execution while the browser-side router supports
 // application-specific logic via one or more application-provided Handler

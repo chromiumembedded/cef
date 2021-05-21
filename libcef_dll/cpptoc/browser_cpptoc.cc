@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b573d2840558cbf17908a16d3e92c3196c84b1c7$
+// $hash=f2b6ec1af9292dc180975a7566296b019c25772f$
 //
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
@@ -22,6 +22,22 @@
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
+
+int CEF_CALLBACK browser_is_valid(struct _cef_browser_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefBrowserCppToC::Get(self)->IsValid();
+
+  // Return type: bool
+  return _retval;
+}
 
 struct _cef_browser_host_t* CEF_CALLBACK
 browser_get_host(struct _cef_browser_t* self) {
@@ -378,6 +394,7 @@ void CEF_CALLBACK browser_get_frame_names(struct _cef_browser_t* self,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefBrowserCppToC::CefBrowserCppToC() {
+  GetStruct()->is_valid = browser_is_valid;
   GetStruct()->get_host = browser_get_host;
   GetStruct()->can_go_back = browser_can_go_back;
   GetStruct()->go_back = browser_go_back;

@@ -140,6 +140,9 @@ void CefRenderFrameObserver::DidCreateScriptContext(
   CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(isolate, context));
 
   handler->OnContextCreated(browserPtr.get(), framePtr.get(), contextPtr);
+
+  // Do this last, in case the client callback modified the window object.
+  framePtr->OnContextCreated();
 }
 
 void CefRenderFrameObserver::WillReleaseScriptContext(

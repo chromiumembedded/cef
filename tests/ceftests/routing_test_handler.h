@@ -15,7 +15,7 @@
 class RoutingTestHandler : public TestHandler,
                            public CefMessageRouterBrowserSide::Handler {
  public:
-  RoutingTestHandler();
+  RoutingTestHandler(CompletionState* completion_state = nullptr);
 
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;

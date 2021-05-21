@@ -183,6 +183,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   CefRefPtr<CefNavigationEntry> GetVisibleNavigationEntry() override;
 
   // CefBrowser methods:
+  bool IsValid() override;
   CefRefPtr<CefBrowserHost> GetHost() override;
   bool CanGoBack() override;
   void GoBack() override;
