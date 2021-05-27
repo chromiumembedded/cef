@@ -111,7 +111,7 @@ index a96e5a33643e..def5bced1c96 100644
    void Observe(int type,
                 const content::NotificationSource& source,
 diff --git chrome/browser/resources/print_preview/ui/destination_dialog.html chrome/browser/resources/print_preview/ui/destination_dialog.html
-index df858712d3be..cd146ea0f26b 100644
+index 920f646f0648..76c0b5e5ee04 100644
 --- chrome/browser/resources/print_preview/ui/destination_dialog.html
 +++ chrome/browser/resources/print_preview/ui/destination_dialog.html
 @@ -25,10 +25,7 @@
@@ -126,21 +126,6 @@ index df858712d3be..cd146ea0f26b 100644
      <cr-button class="cancel-button" on-click="onCancelButtonClick_">
        $i18n{cancel}
      </cr-button>
-diff --git chrome/browser/resources/print_preview/ui/destination_select.html chrome/browser/resources/print_preview/ui/destination_select.html
-index 6d3d49c902e7..4769176b9550 100644
---- chrome/browser/resources/print_preview/ui/destination_select.html
-+++ chrome/browser/resources/print_preview/ui/destination_select.html
-@@ -20,10 +20,6 @@
-       <option value="[[pdfDestinationKey_]]" hidden$="[[pdfPrinterDisabled]]">
-         $i18n{printToPDF}
-       </option>
--      <option value="[[driveDestinationKey]]"
--          hidden$="[[!driveDestinationKey]]">
--        $i18n{printToGoogleDrive}
--      </option>
-       <option value="noDestinations"
-               hidden$="[[!noDestinations]]" selected$="[[noDestinations]]">
-         $i18n{noDestinationsMessage}
 diff --git chrome/browser/ui/webui/constrained_web_dialog_ui.cc chrome/browser/ui/webui/constrained_web_dialog_ui.cc
 index 3d415a60d436..807ab41ee6ef 100644
 --- chrome/browser/ui/webui/constrained_web_dialog_ui.cc
@@ -296,7 +281,7 @@ index 9730721279ef..cd3ec0c7e0af 100644
    base::FilePath GetSaveLocation() const;
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_handler.cc chrome/browser/ui/webui/print_preview/print_preview_handler.cc
-index 5c8ae1be0833..e7074994d89d 100644
+index 82a2ac9bc0e5..280e465d2aea 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 @@ -24,6 +24,7 @@
@@ -307,7 +292,7 @@ index 5c8ae1be0833..e7074994d89d 100644
  #include "chrome/browser/account_manager_facade_factory.h"
  #include "chrome/browser/app_mode/app_mode_utils.h"
  #include "chrome/browser/bad_message.h"
-@@ -1076,7 +1077,7 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
+@@ -1025,7 +1026,7 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
      }
      return extension_printer_handler_.get();
    }
@@ -316,7 +301,7 @@ index 5c8ae1be0833..e7074994d89d 100644
    if (printer_type == PrinterType::kPrivet &&
        GetPrefs()->GetBoolean(prefs::kForceEnablePrivetPrinting)) {
      if (!privet_printer_handler_) {
-@@ -1085,6 +1086,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
+@@ -1034,6 +1035,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
      }
      return privet_printer_handler_.get();
    }
@@ -326,24 +311,8 @@ index 5c8ae1be0833..e7074994d89d 100644
  #endif
    if (printer_type == PrinterType::kPdf) {
      if (!pdf_printer_handler_) {
-@@ -1147,6 +1151,7 @@ void PrintPreviewHandler::OnPrintResult(const std::string& callback_id,
- }
- 
- void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
-+#if !BUILDFLAG(ENABLE_CEF)
-   DCHECK(!identity_manager_);
-   cloud_print_enabled_ =
-       !base::Contains(printer_type_deny_list_, PrinterType::kCloud) &&
-@@ -1163,6 +1168,7 @@ void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
- 
-   identity_manager_ = IdentityManagerFactory::GetForProfile(profile);
-   identity_manager_->AddObserver(this);
-+#endif
- }
- 
- void PrintPreviewHandler::UnregisterForGaiaCookieChanges() {
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index eb353375b054..45b14ee35467 100644
+index a6cd4b390fed..00d6e5c3d024 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -30,6 +30,7 @@

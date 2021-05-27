@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 77cd0e129e6d..5276cf79c605 100644
+index 5efcb22b4169..ee20ed1d9dc5 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -2739,6 +2739,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2740,6 +2740,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    frame_tree_.Init(site_instance.get(), params.renderer_initiated_creation,
                     params.main_frame_name, type);
  
@@ -15,7 +15,7 @@ index 77cd0e129e6d..5276cf79c605 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -2749,6 +2755,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2750,6 +2756,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
      view_.reset(CreateWebContentsView(this, delegate,
                                        &render_view_host_delegate_view_));
    }
@@ -23,7 +23,7 @@ index 77cd0e129e6d..5276cf79c605 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -3598,6 +3605,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
+@@ -3599,6 +3606,15 @@ RenderFrameHostDelegate* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -39,7 +39,7 @@ index 77cd0e129e6d..5276cf79c605 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -7268,6 +7284,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -7269,6 +7285,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // This is an outermost WebContents.
      SetAsFocusedWebContentsIfNecessary();
    }
@@ -62,7 +62,7 @@ index f1dcf53ea481..192f7c0ddd04 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index fe5bc4ade5cd..266a37c66001 100644
+index 7b2836816e92..2a8127b7c260 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -88,8 +88,10 @@ class BrowserContext;

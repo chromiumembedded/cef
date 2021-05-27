@@ -221,7 +221,7 @@ index e0339379e1a8..b31f4ac179f6 100644
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index c8c26cfacffb..703fe69604b5 100644
+index 6a804c0d36a9..2c18f4b9ce0b 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -140,8 +140,12 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
@@ -238,7 +238,7 @@ index c8c26cfacffb..703fe69604b5 100644
  
    remove_standard_frame_ = params.remove_standard_frame;
    has_non_client_view_ = Widget::RequiresNonClientView(params.type);
-@@ -925,11 +929,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -928,11 +932,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -272,7 +272,7 @@ index 5642a689cb3f..126184e619cc 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 59f7da0e3c1a..3c3b03767a97 100644
+index 69612ac67472..aa1db83db413 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -314,7 +314,8 @@ void Widget::Init(InitParams params) {
@@ -299,7 +299,7 @@ index 59f7da0e3c1a..3c3b03767a97 100644
    }
  
    observation_.Observe(GetNativeTheme());
-@@ -1203,10 +1209,16 @@ void Widget::OnNativeWidgetDestroyed() {
+@@ -1206,10 +1212,16 @@ void Widget::OnNativeWidgetDestroyed() {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -358,10 +358,10 @@ index 89f5b62f95df..8f6971929a12 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 8bcb03a45d2f..bc8062171c81 100644
+index df245fc92202..27ec78c13357 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -3108,10 +3108,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -3116,10 +3116,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.

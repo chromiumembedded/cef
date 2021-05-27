@@ -78,7 +78,7 @@ index 94e871ea16b0..69929718b270 100644
  
  #endif  // defined(OS_LINUX) || defined(OS_CHROMEOS)
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index 86b9a324e5da..b4e1bfebe116 100644
+index 576a12102934..ed2719558569 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -49,6 +49,7 @@
@@ -89,7 +89,7 @@ index 86b9a324e5da..b4e1bfebe116 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/active_use_util.h"
  #include "chrome/browser/after_startup_task_utils.h"
-@@ -896,8 +897,10 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
+@@ -914,8 +915,10 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
  #if !defined(OS_ANDROID)
    // Create the RunLoop for MainMessageLoopRun() to use, and pass a copy of
    // its QuitClosure to the BrowserProcessImpl to call when it is time to exit.
@@ -101,7 +101,7 @@ index 86b9a324e5da..b4e1bfebe116 100644
  
    // These members must be initialized before returning from this function.
    // Android doesn't use StartupBrowserCreator.
-@@ -1639,11 +1642,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1657,11 +1660,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
    // This step is costly and is already measured in
    // Startup.StartupBrowserCreator_Start.
    // See the comment above for an explanation of |process_command_line|.
@@ -156,7 +156,7 @@ index 8a33ce57766c..ca69a37eee22 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 02b5855f9f95..1d25f15ec778 100644
+index 038944fa1d04..22b79e9259ee 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -37,6 +37,7 @@
@@ -167,7 +167,7 @@ index 02b5855f9f95..1d25f15ec778 100644
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/accessibility_labels_service_factory.h"
  #include "chrome/browser/accessibility/caption_util.h"
-@@ -3653,9 +3654,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -3667,9 +3668,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // defined(OS_ANDROID)
  
@@ -205,7 +205,7 @@ index d126ddd3a24d..5e8c5ae7c093 100644
      base::mac::ScopedMachSendRight exceptionPort(
          crash_reporter::GetCrashpadClient().GetHandlerMachPort());
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 7f814486ab67..512dbd488d75 100644
+index 2d7245565413..0932480573e4 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -10,6 +10,7 @@
@@ -227,7 +227,7 @@ index 7f814486ab67..512dbd488d75 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -974,6 +979,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -976,6 +981,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
    RegisterSessionServiceLogProfilePrefs(registry);
  #endif
  

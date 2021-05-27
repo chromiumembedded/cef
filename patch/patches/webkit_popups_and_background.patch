@@ -77,7 +77,7 @@ index 209067240ccc..55d642f88ad3 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 4b7adb536a28..92ccace351db 100644
+index b236663d8f01..dd1681e6b71b 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -242,8 +242,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
@@ -96,7 +96,7 @@ index 4b7adb536a28..92ccace351db 100644
  }
  
  namespace {
-@@ -552,6 +557,7 @@ WebViewImpl::WebViewImpl(
+@@ -550,6 +555,7 @@ WebViewImpl::WebViewImpl(
        chrome_client_(MakeGarbageCollected<ChromeClientImpl>(this)),
        minimum_zoom_level_(PageZoomFactorToZoomLevel(kMinimumPageZoomFactor)),
        maximum_zoom_level_(PageZoomFactorToZoomLevel(kMaximumPageZoomFactor)),
@@ -104,7 +104,7 @@ index 4b7adb536a28..92ccace351db 100644
        does_composite_(does_composite),
        fullscreen_controller_(std::make_unique<FullscreenController>(this)),
        receiver_(this,
-@@ -1770,6 +1776,8 @@ void WebView::ApplyWebPreferences(const web_pref::WebPreferences& prefs,
+@@ -1768,6 +1774,8 @@ void WebView::ApplyWebPreferences(const web_pref::WebPreferences& prefs,
  
    RuntimeEnabledFeatures::SetTranslateServiceEnabled(
        prefs.translate_service_available);

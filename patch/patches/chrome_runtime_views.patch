@@ -278,10 +278,10 @@ index 56ef53cf379d..f0f1057896bd 100644
    bool toolbar_visible = delegate_->IsToolbarVisible();
    int height = toolbar_visible ? toolbar_->GetPreferredSize().height() : 0;
 diff --git chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
-index 9220245ea195..90dd93503b57 100644
+index 8f35534df18f..c29ebc024aa2 100644
 --- chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
 +++ chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
-@@ -571,37 +571,53 @@ gfx::Range BrowserTabStripController::ListTabsInGroup(
+@@ -580,37 +580,53 @@ gfx::Range BrowserTabStripController::ListTabsInGroup(
  }
  
  bool BrowserTabStripController::IsFrameCondensed() const {

@@ -308,7 +308,7 @@ index a280e9d74016..59a8eda9b1d8 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index e12fe2ac6ad8..347174b8c21a 100644
+index ef778c706f68..3256f3f38fe3 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
 @@ -1087,6 +1087,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
