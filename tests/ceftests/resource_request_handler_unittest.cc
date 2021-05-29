@@ -1567,20 +1567,27 @@ class SubresourceResponseTest : public RoutingTestHandler {
     EXPECT_IO_THREAD();
     EXPECT_EQ(browser_id_, browser->GetIdentifier());
 
-    if (IsMainURL(request->GetURL())) {
+    const std::string& url = request->GetURL();
+    if (IgnoreURL(url))
+      return nullptr;
+
+    const bool is_main_url = IsMainURL(url);
+    const bool is_sub_url = IsSubURL(url);
+
+    if (is_main_url) {
       EXPECT_TRUE(frame->IsMain());
-    } else if (IsSubURL(request->GetURL())) {
+    } else if (is_sub_url) {
       EXPECT_FALSE(frame->IsMain());
       EXPECT_TRUE(subframe_);
     }
 
-    if (IsMainURL(request->GetURL()) || IsSubURL(request->GetURL())) {
+    if (is_main_url || is_sub_url) {
       // Track the frame ID that we'll expect for resource callbacks.
       // Do this here instead of OnBeforeBrowse because OnBeforeBrowse may
       // return -4 (kInvalidFrameId) for the initial navigation.
       if (frame_id_ == 0) {
         if (subframe_) {
-          if (IsSubURL(request->GetURL()))
+          if (is_sub_url)
             frame_id_ = frame->GetIdentifier();
         } else {
           frame_id_ = frame->GetIdentifier();
@@ -1626,10 +1633,14 @@ class SubresourceResponseTest : public RoutingTestHandler {
     EXPECT_IO_THREAD();
     EXPECT_EQ(browser_id_, browser->GetIdentifier());
 
-    if (IsMainURL(request->GetURL())) {
+    const std::string& url = request->GetURL();
+    if (IgnoreURL(url))
+      return nullptr;
+
+    if (IsMainURL(url)) {
       EXPECT_TRUE(frame->IsMain());
       return nullptr;
-    } else if (IsSubURL(request->GetURL())) {
+    } else if (IsSubURL(url)) {
       EXPECT_FALSE(frame->IsMain());
       EXPECT_TRUE(subframe_);
       return nullptr;
