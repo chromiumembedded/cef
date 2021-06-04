@@ -9,6 +9,7 @@
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/url_constants.h"
+#include "third_party/blink/public/common/chrome_debug_urls.h"
 
 namespace extensions {
 
@@ -45,7 +46,7 @@ void CefExtensionWebContentsObserver::RenderFrameCreated(
   if ((extension->is_extension() || extension->is_platform_app()) &&
       Manifest::IsComponentLocation(extension->location())) {
     policy->GrantRequestOrigin(
-        process_id, url::Origin::Create(GURL(content::kChromeUIResourcesURL)));
+        process_id, url::Origin::Create(GURL(blink::kChromeUIResourcesURL)));
     policy->GrantRequestOrigin(
         process_id, url::Origin::Create(GURL(chrome::kChromeUIThemeURL)));
   }

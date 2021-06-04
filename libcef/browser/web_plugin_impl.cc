@@ -39,9 +39,9 @@ void DeliverWidevineCdmError(const std::string& error_message,
   if (callback.get()) {
     CEF_POST_TASK(
         CEF_UIT,
-        base::Bind(&CefRegisterCdmCallback::OnCdmRegistrationComplete,
-                   callback.get(), CEF_CDM_REGISTRATION_ERROR_NOT_SUPPORTED,
-                   error_message));
+        base::BindOnce(&CefRegisterCdmCallback::OnCdmRegistrationComplete,
+                       callback.get(), CEF_CDM_REGISTRATION_ERROR_NOT_SUPPORTED,
+                       error_message));
   }
 }
 
@@ -87,10 +87,10 @@ void CefVisitWebPluginInfo(CefRefPtr<CefWebPluginInfoVisitor> visitor) {
 
   if (CEF_CURRENTLY_ON_UIT()) {
     content::PluginServiceImpl::GetInstance()->GetPlugins(
-        base::Bind(PluginsCallbackImpl, visitor));
+        base::BindOnce(PluginsCallbackImpl, visitor));
   } else {
     // Execute on the UI thread.
-    CEF_POST_TASK(CEF_UIT, base::Bind(CefVisitWebPluginInfo, visitor));
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(CefVisitWebPluginInfo, visitor));
   }
 }
 
@@ -139,7 +139,7 @@ void CefRegisterWebPluginCrash(const CefString& path) {
         base::FilePath(path));
   } else {
     // Execute on the IO thread.
-    CEF_POST_TASK(CEF_IOT, base::Bind(CefRegisterWebPluginCrash, path));
+    CEF_POST_TASK(CEF_IOT, base::BindOnce(CefRegisterWebPluginCrash, path));
   }
 }
 
@@ -162,7 +162,8 @@ void CefIsWebPluginUnstable(const CefString& path,
                   base::FilePath(path)));
   } else {
     // Execute on the IO thread.
-    CEF_POST_TASK(CEF_IOT, base::Bind(CefIsWebPluginUnstable, path, callback));
+    CEF_POST_TASK(CEF_IOT,
+                  base::BindOnce(CefIsWebPluginUnstable, path, callback));
   }
 }
 

@@ -207,7 +207,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
   DCHECK(render_widget_host_);
   DCHECK(!render_widget_host_->GetView());
 
-  set_current_device_scale_factor(kDefaultScaleFactor);
+  SetCurrentDeviceScaleFactor(kDefaultScaleFactor);
 
   if (parent_host_view_) {
     browser_impl_ = parent_host_view_->browser_impl();
@@ -432,7 +432,7 @@ bool CefRenderWidgetHostViewOSR::IsShowing() {
 void CefRenderWidgetHostViewOSR::EnsureSurfaceSynchronizedForWebTest() {
   ++latest_capture_sequence_number_;
   SynchronizeVisualProperties(cc::DeadlinePolicy::UseInfiniteDeadline(),
-                              base::nullopt);
+                              absl::nullopt);
 }
 
 gfx::Rect CefRenderWidgetHostViewOSR::GetViewBounds() {
@@ -452,15 +452,15 @@ void CefRenderWidgetHostViewOSR::SetBackgroundColor(SkColor color) {
   content::RenderWidgetHostViewBase::SetBackgroundColor(color);
 }
 
-base::Optional<SkColor> CefRenderWidgetHostViewOSR::GetBackgroundColor() {
+absl::optional<SkColor> CefRenderWidgetHostViewOSR::GetBackgroundColor() {
   return background_color_;
 }
 
 void CefRenderWidgetHostViewOSR::UpdateBackgroundColor() {}
 
-base::Optional<content::DisplayFeature>
+absl::optional<content::DisplayFeature>
 CefRenderWidgetHostViewOSR::GetDisplayFeature() {
-  return base::nullopt;
+  return absl::nullopt;
 }
 
 void CefRenderWidgetHostViewOSR::SetDisplayFeatureForTesting(
@@ -524,7 +524,7 @@ CefRenderWidgetHostViewOSR::GetCurrentLocalSurfaceId() const {
 }
 
 void CefRenderWidgetHostViewOSR::UpdateLocalSurfaceIdFromEmbeddedClient(
-    const base::Optional<viz::LocalSurfaceId>&
+    const absl::optional<viz::LocalSurfaceId>&
         embedded_client_local_surface_id) {
   if (embedded_client_local_surface_id) {
     parent_local_surface_id_allocator_->UpdateFromChild(
@@ -652,7 +652,7 @@ void CefRenderWidgetHostViewOSR::Destroy() {
   delete this;
 }
 
-void CefRenderWidgetHostViewOSR::SetTooltipText(
+void CefRenderWidgetHostViewOSR::UpdateTooltipUnderCursor(
     const std::u16string& tooltip_text) {
   if (!browser_impl_.get())
     return;
@@ -667,7 +667,7 @@ void CefRenderWidgetHostViewOSR::SetTooltipText(
 
 gfx::Size CefRenderWidgetHostViewOSR::GetCompositorViewportPixelSize() {
   return gfx::ScaleToCeiledSize(GetRequestedRendererSize(),
-                                current_device_scale_factor());
+                                GetCurrentDeviceScaleFactor());
 }
 
 uint32_t CefRenderWidgetHostViewOSR::GetCaptureSequenceNumber() const {
@@ -890,7 +890,7 @@ void CefRenderWidgetHostViewOSR::DidNavigate() {
                                   GetLocalSurfaceId());
     } else {
       SynchronizeVisualProperties(cc::DeadlinePolicy::UseExistingDeadline(),
-                                  base::nullopt);
+                                  absl::nullopt);
     }
   }
   if (delegated_frame_host_)
@@ -927,8 +927,8 @@ void CefRenderWidgetHostViewOSR::OnRenderFrameMetadataChangedAfterActivation(
       // Send the notification asynchronously.
       CEF_POST_TASK(
           CEF_UIT,
-          base::Bind(&CefRenderWidgetHostViewOSR::OnScrollOffsetChanged,
-                     weak_ptr_factory_.GetWeakPtr()));
+          base::BindOnce(&CefRenderWidgetHostViewOSR::OnScrollOffsetChanged,
+                         weak_ptr_factory_.GetWeakPtr()));
     }
   }
 }
@@ -961,12 +961,12 @@ void CefRenderWidgetHostViewOSR::WasResized() {
   }
 
   SynchronizeVisualProperties(cc::DeadlinePolicy::UseExistingDeadline(),
-                              base::nullopt);
+                              absl::nullopt);
 }
 
 void CefRenderWidgetHostViewOSR::SynchronizeVisualProperties(
     const cc::DeadlinePolicy& deadline_policy,
-    const base::Optional<viz::LocalSurfaceId>& child_local_surface_id) {
+    const absl::optional<viz::LocalSurfaceId>& child_local_surface_id) {
   SetFrameRate();
 
   const bool resized = ResizeRootLayer();
@@ -1005,7 +1005,7 @@ void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
     return;
 
   SynchronizeVisualProperties(cc::DeadlinePolicy::UseDefaultDeadline(),
-                              base::nullopt);
+                              absl::nullopt);
 
   if (render_widget_host_->delegate())
     render_widget_host_->delegate()->SendScreenRects();
@@ -1180,8 +1180,8 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
         // some other callback.
         CEF_POST_TASK(
             CEF_UIT,
-            base::Bind(&CefRenderWidgetHostViewOSR::CancelWidget,
-                       popup_host_view_->weak_ptr_factory_.GetWeakPtr()));
+            base::BindOnce(&CefRenderWidgetHostViewOSR::CancelWidget,
+                           popup_host_view_->weak_ptr_factory_.GetWeakPtr()));
       }
     } else if (!guest_host_views_.empty()) {
       for (auto guest_host_view : guest_host_views_) {
@@ -1394,7 +1394,7 @@ void CefRenderWidgetHostViewOSR::UpdateFrameRate() {
 
 gfx::Size CefRenderWidgetHostViewOSR::SizeInPixels() {
   return gfx::ScaleToCeiledSize(GetViewBounds().size(),
-                                current_device_scale_factor());
+                                GetCurrentDeviceScaleFactor());
 }
 
 #if defined(OS_MAC)
@@ -1490,10 +1490,10 @@ bool CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
   DCHECK(!hold_resize_);
 
   const float new_scale_factor = ::GetDeviceScaleFactor(browser_impl_.get());
-  if (new_scale_factor == current_device_scale_factor())
+  if (new_scale_factor == GetCurrentDeviceScaleFactor())
     return false;
 
-  set_current_device_scale_factor(new_scale_factor);
+  SetCurrentDeviceScaleFactor(new_scale_factor);
 
   // Notify the guest hosts if any.
   for (auto guest_host_view : guest_host_views_) {
@@ -1503,11 +1503,23 @@ bool CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
     auto guest_view_osr =
         static_cast<CefRenderWidgetHostViewOSR*>(rwhi->GetView());
     if (guest_view_osr) {
-      guest_view_osr->set_current_device_scale_factor(new_scale_factor);
+      guest_view_osr->SetCurrentDeviceScaleFactor(new_scale_factor);
     }
   }
 
   return true;
+}
+
+void CefRenderWidgetHostViewOSR::SetCurrentDeviceScaleFactor(float scale) {
+  // Initialize a display struct as needed, to cache the scale factor.
+  if (display_list_.displays().empty()) {
+    display_list_ = display::DisplayList(
+        {display::Display(display::kDefaultDisplayId)},
+        display::kDefaultDisplayId, display::kDefaultDisplayId);
+  }
+  display::Display current_display = display_list_.GetCurrentDisplay();
+  current_display.set_device_scale_factor(scale);
+  display_list_.UpdateDisplay(current_display);
 }
 
 bool CefRenderWidgetHostViewOSR::SetViewBounds() {
@@ -1537,7 +1549,7 @@ bool CefRenderWidgetHostViewOSR::SetRootLayerSize(bool force) {
   if (compositor_) {
     compositor_local_surface_id_allocator_.GenerateId();
     compositor_->SetScaleAndSize(
-        current_device_scale_factor(), SizeInPixels(),
+        GetCurrentDeviceScaleFactor(), SizeInPixels(),
         compositor_local_surface_id_allocator_.GetCurrentLocalSurfaceId());
   }
 
@@ -1566,8 +1578,9 @@ void CefRenderWidgetHostViewOSR::ReleaseResizeHold() {
   hold_resize_ = false;
   if (pending_resize_) {
     pending_resize_ = false;
-    CEF_POST_TASK(CEF_UIT, base::Bind(&CefRenderWidgetHostViewOSR::WasResized,
-                                      weak_ptr_factory_.GetWeakPtr()));
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefRenderWidgetHostViewOSR::WasResized,
+                                 weak_ptr_factory_.GetWeakPtr()));
   }
 }
 

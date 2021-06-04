@@ -23,7 +23,7 @@ class CefSimpleMenuModelImpl : public CefMenuModel {
    public:
     virtual void SetChecked(int command_id, bool checked) = 0;
     virtual void SetAccelerator(int command_id,
-                                base::Optional<ui::Accelerator> accel) = 0;
+                                absl::optional<ui::Accelerator> accel) = 0;
 
    protected:
     virtual ~StateDelegate() {}

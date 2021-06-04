@@ -39,7 +39,7 @@ class AlloyMainDelegate : public content::ContentMainDelegate,
   ~AlloyMainDelegate() override;
 
   // content::ContentMainDelegate overrides.
-  void PreCreateMainMessageLoop() override;
+  void PreBrowserMain() override;
   bool BasicStartupComplete(int* exit_code) override;
   void PreSandboxStartup() override;
   void SandboxInitialized(const std::string& process_type) override;

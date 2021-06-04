@@ -1,5 +1,5 @@
 diff --git third_party/blink/common/web_preferences/web_preferences.cc third_party/blink/common/web_preferences/web_preferences.cc
-index 1363ee73abdfb..dca6c5b9bf66f 100644
+index 8a1315f7f8958..8101f4994a214 100644
 --- third_party/blink/common/web_preferences/web_preferences.cc
 +++ third_party/blink/common/web_preferences/web_preferences.cc
 @@ -153,6 +153,7 @@ WebPreferences::WebPreferences()
@@ -11,7 +11,7 @@ index 1363ee73abdfb..dca6c5b9bf66f 100644
        text_track_margin_percentage(0.0f),
        immersive_mode_enabled(false),
 diff --git third_party/blink/common/web_preferences/web_preferences_mojom_traits.cc third_party/blink/common/web_preferences/web_preferences_mojom_traits.cc
-index 7fa49dd367b28..af16c09d0b85f 100644
+index ab2d320a40733..f1f3066eabfaa 100644
 --- third_party/blink/common/web_preferences/web_preferences_mojom_traits.cc
 +++ third_party/blink/common/web_preferences/web_preferences_mojom_traits.cc
 @@ -159,6 +159,7 @@ bool StructTraits<blink::mojom::WebPreferencesDataView,
@@ -23,10 +23,10 @@ index 7fa49dd367b28..af16c09d0b85f 100644
    out->text_track_margin_percentage = data.text_track_margin_percentage();
    out->immersive_mode_enabled = data.immersive_mode_enabled();
 diff --git third_party/blink/public/common/web_preferences/web_preferences.h third_party/blink/public/common/web_preferences/web_preferences.h
-index c457698eba5dc..5e1e6b80cee3c 100644
+index 84736bea7ac7b..7cc68805d76c9 100644
 --- third_party/blink/public/common/web_preferences/web_preferences.h
 +++ third_party/blink/public/common/web_preferences/web_preferences.h
-@@ -177,6 +177,8 @@ struct BLINK_COMMON_EXPORT WebPreferences {
+@@ -176,6 +176,8 @@ struct BLINK_COMMON_EXPORT WebPreferences {
  
    bool user_gesture_required_for_presentation;
  
@@ -36,7 +36,7 @@ index c457698eba5dc..5e1e6b80cee3c 100644
  
    // These fields specify the foreground and background color for WebVTT text
 diff --git third_party/blink/public/common/web_preferences/web_preferences_mojom_traits.h third_party/blink/public/common/web_preferences/web_preferences_mojom_traits.h
-index e35980e72f5d7..92f222bb29d06 100644
+index 90a2bb1a13afd..72516aedeaa9a 100644
 --- third_party/blink/public/common/web_preferences/web_preferences_mojom_traits.h
 +++ third_party/blink/public/common/web_preferences/web_preferences_mojom_traits.h
 @@ -465,6 +465,11 @@ struct BLINK_COMMON_EXPORT StructTraits<blink::mojom::WebPreferencesDataView,
@@ -52,7 +52,7 @@ index e35980e72f5d7..92f222bb29d06 100644
      return r.text_tracks_enabled;
    }
 diff --git third_party/blink/public/mojom/webpreferences/web_preferences.mojom third_party/blink/public/mojom/webpreferences/web_preferences.mojom
-index 3e2aae1d92b1c..2c0ed243eedec 100644
+index db9994ca72f24..b5a9f25906849 100644
 --- third_party/blink/public/mojom/webpreferences/web_preferences.mojom
 +++ third_party/blink/public/mojom/webpreferences/web_preferences.mojom
 @@ -227,6 +227,8 @@ struct WebPreferences {
@@ -65,10 +65,10 @@ index 3e2aae1d92b1c..2c0ed243eedec 100644
  
    // These fields specify the foreground and background color for WebVTT text
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index 209067240ccce..55d642f88ad30 100644
+index 7acd3f2bf4961..e140182c2a8f0 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
-@@ -315,6 +315,7 @@ class WebView {
+@@ -331,6 +331,7 @@ class WebView {
  
    // Sets whether select popup menus should be rendered by the browser.
    BLINK_EXPORT static void SetUseExternalPopupMenus(bool);
@@ -77,10 +77,10 @@ index 209067240ccce..55d642f88ad30 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index f8ac3ecb711fa..eb59f73583dca 100644
+index efb33160ba488..73d0425096bfb 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -241,8 +241,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
+@@ -243,8 +243,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
    g_should_use_external_popup_menus = use_external_popup_menus;
  }
  
@@ -96,7 +96,7 @@ index f8ac3ecb711fa..eb59f73583dca 100644
  }
  
  namespace {
-@@ -551,6 +556,7 @@ WebViewImpl::WebViewImpl(
+@@ -555,6 +560,7 @@ WebViewImpl::WebViewImpl(
        chrome_client_(MakeGarbageCollected<ChromeClientImpl>(this)),
        minimum_zoom_level_(PageZoomFactorToZoomLevel(kMinimumPageZoomFactor)),
        maximum_zoom_level_(PageZoomFactorToZoomLevel(kMaximumPageZoomFactor)),
@@ -104,7 +104,7 @@ index f8ac3ecb711fa..eb59f73583dca 100644
        does_composite_(does_composite),
        fullscreen_controller_(std::make_unique<FullscreenController>(this)),
        receiver_(this,
-@@ -1769,6 +1775,8 @@ void WebView::ApplyWebPreferences(const web_pref::WebPreferences& prefs,
+@@ -1788,6 +1794,8 @@ void WebView::ApplyWebPreferences(const web_pref::WebPreferences& prefs,
  
    RuntimeEnabledFeatures::SetTranslateServiceEnabled(
        prefs.translate_service_available);
@@ -114,10 +114,10 @@ index f8ac3ecb711fa..eb59f73583dca 100644
  
  void WebViewImpl::ThemeChanged() {
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index ace66b559cdc5..130638e2dfaba 100644
+index c2e704e745d38..fbee6b4cde1ca 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
-@@ -128,7 +128,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -129,7 +129,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    static HashSet<WebViewImpl*>& AllInstances();
    // Returns true if popup menus should be rendered by the browser, false if
    // they should be rendered by WebKit (which is the default).
@@ -127,7 +127,7 @@ index ace66b559cdc5..130638e2dfaba 100644
  
    // Returns whether frames under this WebView are backed by a compositor.
    bool does_composite() const { return does_composite_; }
-@@ -749,6 +750,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -777,6 +778,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_ = 0.f;
    bool fake_page_scale_animation_use_anchor_ = false;
  
@@ -137,10 +137,10 @@ index ace66b559cdc5..130638e2dfaba 100644
    TransformationMatrix device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index 4e33591b87e15..f3381f4436024 100644
+index 69a5ddb01d95c..c6a2afb0df1e1 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
-@@ -811,7 +811,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
+@@ -821,7 +821,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
  PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    NotifyPopupOpeningObservers();

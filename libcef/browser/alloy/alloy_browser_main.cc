@@ -109,7 +109,7 @@ void AlloyBrowserMainParts::ToolkitInitialized() {
 #endif  // defined(TOOLKIT_VIEWS)
 }
 
-void AlloyBrowserMainParts::PreMainMessageLoopStart() {
+void AlloyBrowserMainParts::PreCreateMainMessageLoop() {
 #if defined(USE_AURA) && defined(USE_X11)
   ui::TouchFactory::SetTouchDeviceListFromCommandLine();
 #endif
@@ -129,7 +129,7 @@ void AlloyBrowserMainParts::PreMainMessageLoopStart() {
   media_router::ChromeMediaRouterFactory::DoPlatformInit();
 }
 
-void AlloyBrowserMainParts::PostMainMessageLoopStart() {
+void AlloyBrowserMainParts::PostCreateMainMessageLoop() {
 #if defined(OS_LINUX)
   printing::PrintingContextLinux::SetCreatePrintDialogFunction(
       &CefPrintDialogLinux::CreatePrintDialog);
@@ -155,7 +155,8 @@ int AlloyBrowserMainParts::PreCreateThreads() {
 
 int AlloyBrowserMainParts::PreMainMessageLoopRun() {
 #if defined(USE_AURA)
-  display::Screen::SetScreenInstance(views::CreateDesktopScreen());
+  screen_ = views::CreateDesktopScreen();
+  display::Screen::SetScreenInstance(screen_.get());
 #endif
 
   if (extensions::ExtensionsEnabled()) {

@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index efb7c635e6885..cbbf37a092441 100644
+index d548b3d7e0a0a..cb93301271cda 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
-@@ -1728,6 +1728,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForOrigin(
+@@ -1719,6 +1719,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForOrigin(
              // DeclarativeApiTest.PersistRules.
              if (actual_process_lock.matches_scheme(url::kDataScheme))
                return true;
@@ -20,10 +20,10 @@ index efb7c635e6885..cbbf37a092441 100644
  
            // TODO(wjmaclean): We should update the ProcessLock comparison API
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 12132d0bc651a..4c4b7821d9131 100644
+index 751ee13227ae6..d4676b47955f8 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -5304,6 +5304,12 @@ url::Origin NavigationRequest::GetOriginForURLLoaderFactory() {
+@@ -5314,6 +5314,12 @@ url::Origin NavigationRequest::GetOriginForURLLoaderFactory() {
  
    // Calculate an approximation of the origin. The sandbox/csp are ignored.
    url::Origin origin = GetOriginForURLLoaderFactoryUnchecked(this);

@@ -147,7 +147,6 @@ class CefRenderURLRequest::Context
     loader_ = frame_impl->CreateURLLoader();
     loader_->LoadAsynchronously(
         std::move(resource_request), /*extra_data=*/nullptr,
-        /*requestor_id=*/0,
         /*no_mime_sniffing=*/false,
         frame_impl->CreateResourceLoadInfoNotifierWrapper(), url_client_.get());
     return true;

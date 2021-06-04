@@ -160,7 +160,7 @@ void LogProtocolMessage(const base::FilePath& log_file,
   WriteTimestamp(stream);
   stream << ": " << type_label << ": " << to_log << "\n";
   const std::string& str = stream.str();
-  if (!base::AppendToFile(log_file, str.c_str(), str.size())) {
+  if (!base::AppendToFile(log_file, base::StringPiece(str))) {
     LOG(ERROR) << "Failed to write file " << log_file.value();
     log_error = true;
   }
@@ -294,8 +294,8 @@ void CefDevToolsFrontend::InspectElementAt(int x, int y) {
 
 void CefDevToolsFrontend::Close() {
   base::PostTask(FROM_HERE, {content::BrowserThread::UI},
-                 base::Bind(&AlloyBrowserHostImpl::CloseBrowser,
-                            frontend_browser_.get(), true));
+                 base::BindOnce(&AlloyBrowserHostImpl::CloseBrowser,
+                                frontend_browser_.get(), true));
 }
 
 CefDevToolsFrontend::CefDevToolsFrontend(
@@ -323,8 +323,8 @@ void CefDevToolsFrontend::ReadyToCommitNavigation(
   content::RenderFrameHost* frame = navigation_handle->GetRenderFrameHost();
   if (navigation_handle->IsInMainFrame()) {
     frontend_host_ = content::DevToolsFrontendHost::Create(
-        frame,
-        base::Bind(&CefDevToolsFrontend::HandleMessageFromDevToolsFrontend,
+        frame, base::BindRepeating(
+                   &CefDevToolsFrontend::HandleMessageFromDevToolsFrontend,
                    base::Unretained(this)));
     return;
   }
@@ -367,13 +367,11 @@ void CefDevToolsFrontend::WebContentsDestroyed() {
 }
 
 void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
-    const std::string& message) {
+    base::Value message) {
   std::string method;
   base::ListValue* params = nullptr;
   base::DictionaryValue* dict = nullptr;
-  base::Optional<base::Value> parsed_message = base::JSONReader::Read(message);
-  if (!parsed_message || !parsed_message->GetAsDictionary(&dict) ||
-      !dict->GetString("method", &method)) {
+  if (!message.GetAsDictionary(&dict) || !dict->GetString("method", &method)) {
     return;
   }
   int request_id = 0;
@@ -461,8 +459,8 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
       SendMessageAck(request_id, &response);
       return;
     } else {
-      auto* partition = content::BrowserContext::GetStoragePartitionForUrl(
-          web_contents()->GetBrowserContext(), gurl);
+      auto* partition =
+          web_contents()->GetBrowserContext()->GetStoragePartitionForUrl(gurl);
       url_loader_factory = partition->GetURLLoaderFactoryForBrowserProcess();
     }
 
@@ -608,7 +606,7 @@ void CefDevToolsFrontend::LogProtocolMessage(ProtocolMessageType type,
                                              const base::StringPiece& message) {
   DCHECK(ProtocolLoggingEnabled());
 
-  std::string to_log = message.substr(0, kMaxLogLineLength).as_string();
+  std::string to_log(message.substr(0, kMaxLogLineLength));
 
   // Execute in an ordered context that allows blocking.
   auto task_runner = CefTaskRunnerManager::Get()->GetBackgroundTaskRunner();

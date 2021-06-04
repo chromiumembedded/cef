@@ -35,21 +35,21 @@ const cef_event_flags_t kEmptyEventFlags = static_cast<cef_event_flags_t>(0);
 
 class CefRunContextMenuCallbackImpl : public CefRunContextMenuCallback {
  public:
-  typedef base::Callback<void(int, cef_event_flags_t)> Callback;
+  typedef base::OnceCallback<void(int, cef_event_flags_t)> Callback;
 
-  explicit CefRunContextMenuCallbackImpl(const Callback& callback)
-      : callback_(callback) {}
+  explicit CefRunContextMenuCallbackImpl(Callback callback)
+      : callback_(std::move(callback)) {}
 
   ~CefRunContextMenuCallbackImpl() {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
       if (CEF_CURRENTLY_ON_UIT()) {
-        RunNow(callback_, kInvalidCommandId, kEmptyEventFlags);
+        RunNow(std::move(callback_), kInvalidCommandId, kEmptyEventFlags);
       } else {
-        CEF_POST_TASK(
-            CEF_UIT,
-            base::Bind(&CefRunContextMenuCallbackImpl::RunNow, callback_,
-                       kInvalidCommandId, kEmptyEventFlags));
+        CEF_POST_TASK(CEF_UIT,
+                      base::BindOnce(&CefRunContextMenuCallbackImpl::RunNow,
+                                     std::move(callback_), kInvalidCommandId,
+                                     kEmptyEventFlags));
       }
     }
   }
@@ -57,13 +57,13 @@ class CefRunContextMenuCallbackImpl : public CefRunContextMenuCallback {
   void Continue(int command_id, cef_event_flags_t event_flags) override {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (!callback_.is_null()) {
-        RunNow(callback_, command_id, event_flags);
+        RunNow(std::move(callback_), command_id, event_flags);
         callback_.Reset();
       }
     } else {
       CEF_POST_TASK(CEF_UIT,
-                    base::Bind(&CefRunContextMenuCallbackImpl::Continue, this,
-                               command_id, event_flags));
+                    base::BindOnce(&CefRunContextMenuCallbackImpl::Continue,
+                                   this, command_id, event_flags));
     }
   }
 
@@ -72,11 +72,11 @@ class CefRunContextMenuCallbackImpl : public CefRunContextMenuCallback {
   void Disconnect() { callback_.Reset(); }
 
  private:
-  static void RunNow(const Callback& callback,
+  static void RunNow(Callback callback,
                      int command_id,
                      cef_event_flags_t event_flags) {
     CEF_REQUIRE_UIT();
-    callback.Run(command_id, event_flags);
+    std::move(callback).Run(command_id, event_flags);
   }
 
   Callback callback_;
@@ -154,8 +154,8 @@ bool CefMenuManager::CreateContextMenu(
       if (model_->GetCount() > 0) {
         CefRefPtr<CefRunContextMenuCallbackImpl> callbackImpl(
             new CefRunContextMenuCallbackImpl(
-                base::Bind(&CefMenuManager::ExecuteCommandCallback,
-                           weak_ptr_factory_.GetWeakPtr())));
+                base::BindOnce(&CefMenuManager::ExecuteCommandCallback,
+                               weak_ptr_factory_.GetWeakPtr())));
 
         // This reference will be cleared when the callback is executed or
         // the callback object is deleted.

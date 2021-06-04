@@ -197,7 +197,7 @@ void CefFileDialogManager::RunFileDialog(
       params.accept_types.push_back(*it);
   }
 
-  RunFileChooser(params, base::Bind(RunFileDialogDismissed, callback));
+  RunFileChooser(params, base::BindOnce(RunFileDialogDismissed, callback));
 }
 
 void CefFileDialogManager::RunFileChooser(

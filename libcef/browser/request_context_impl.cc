@@ -47,8 +47,6 @@ const char* GetTypeString(base::Value::Type type) {
       return "DICTIONARY";
     case base::Value::Type::LIST:
       return "LIST";
-    case base::Value::Type::DEAD:
-      return "DEAD";
   }
 
   NOTREACHED();
@@ -62,7 +60,7 @@ struct ResolveHostHelperOld {
 
   void OnResolveCompleted(int result) {
     std::vector<CefString> resolved_ips;
-    base::Optional<net::AddressList> maybe_address_list =
+    absl::optional<net::AddressList> maybe_address_list =
         request_->GetAddressResults();
     if (maybe_address_list) {
       net::AddressList::const_iterator iter = maybe_address_list->begin();
@@ -71,8 +69,8 @@ struct ResolveHostHelperOld {
     }
     CEF_POST_TASK(
         CEF_UIT,
-        base::Bind(&CefResolveCallback::OnResolveCompleted, callback_,
-                   static_cast<cef_errorcode_t>(result), resolved_ips));
+        base::BindOnce(&CefResolveCallback::OnResolveCompleted, callback_,
+                       static_cast<cef_errorcode_t>(result), resolved_ips));
 
     delete this;
   }
@@ -90,11 +88,11 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
     CEF_REQUIRE_UIT();
 
     browser_context->GetNetworkContext()->CreateHostResolver(
-        base::nullopt, host_resolver_.BindNewPipeAndPassReceiver());
+        absl::nullopt, host_resolver_.BindNewPipeAndPassReceiver());
 
     host_resolver_.set_disconnect_handler(base::BindOnce(
         &ResolveHostHelper::OnComplete, base::Unretained(this), net::ERR_FAILED,
-        net::ResolveErrorInfo(net::ERR_FAILED), base::nullopt));
+        net::ResolveErrorInfo(net::ERR_FAILED), absl::nullopt));
 
     host_resolver_->ResolveHost(
         net::HostPortPair::FromURL(GURL(origin.ToString())),
@@ -106,7 +104,7 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
   void OnComplete(
       int32_t result,
       const ::net::ResolveErrorInfo& resolve_error_info,
-      const base::Optional<net::AddressList>& resolved_addresses) override {
+      const absl::optional<net::AddressList>& resolved_addresses) override {
     CEF_REQUIRE_UIT();
 
     host_resolver_.reset();
@@ -731,11 +729,11 @@ void CefRequestContextImpl::ClearCertificateExceptionsInternal(
   content::SSLHostStateDelegate* ssl_delegate =
       browser_context->AsBrowserContext()->GetSSLHostStateDelegate();
   if (ssl_delegate)
-    ssl_delegate->Clear(base::Callback<bool(const std::string&)>());
+    ssl_delegate->Clear(base::NullCallback());
 
   if (callback) {
     CEF_POST_TASK(CEF_UIT,
-                  base::Bind(&CefCompletionCallback::OnComplete, callback));
+                  base::BindOnce(&CefCompletionCallback::OnComplete, callback));
   }
 }
 
@@ -748,7 +746,7 @@ void CefRequestContextImpl::ClearHttpAuthCredentialsInternal(
 
   browser_context->GetNetworkContext()->ClearHttpAuthCache(
       /*start_time=*/base::Time(), /*end_time=*/base::Time::Max(),
-      base::Bind(&CefCompletionCallback::OnComplete, callback));
+      base::BindOnce(&CefCompletionCallback::OnComplete, callback));
 }
 
 void CefRequestContextImpl::CloseAllConnectionsInternal(
@@ -759,7 +757,7 @@ void CefRequestContextImpl::CloseAllConnectionsInternal(
     return;
 
   browser_context->GetNetworkContext()->CloseAllConnections(
-      base::Bind(&CefCompletionCallback::OnComplete, callback));
+      base::BindOnce(&CefCompletionCallback::OnComplete, callback));
 }
 
 void CefRequestContextImpl::ResolveHostInternal(

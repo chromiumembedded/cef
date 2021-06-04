@@ -66,7 +66,7 @@ void CefVideoConsumerOSR::SizeChanged(const gfx::Size& size_in_pixels) {
 }
 
 void CefVideoConsumerOSR::RequestRefreshFrame(
-    const base::Optional<gfx::Rect>& bounds_in_pixels) {
+    const absl::optional<gfx::Rect>& bounds_in_pixels) {
   bounds_in_pixels_ = bounds_in_pixels;
   video_capturer_->RequestRefreshFrame();
 }
@@ -112,7 +112,7 @@ void CefVideoConsumerOSR::OnFrameCaptured(
     // Use the bounds passed to RequestRefreshFrame().
     damage_rect = gfx::Rect(info->coded_size);
     damage_rect.Intersect(*bounds_in_pixels_);
-    bounds_in_pixels_ = base::nullopt;
+    bounds_in_pixels_ = absl::nullopt;
   } else {
     // Retrieve the rectangular region of the frame that has changed since the
     // frame with the directly preceding CAPTURE_COUNTER. If that frame was not

@@ -153,7 +153,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
           suggested_path, DownloadItem::TARGET_DISPOSITION_OVERWRITE,
           download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
           download::DownloadItem::MixedContentStatus::UNKNOWN, suggested_path,
-          base::nullopt /*download_schedule*/,
+          absl::nullopt /*download_schedule*/,
           download::DOWNLOAD_INTERRUPT_REASON_NONE);
     }
   }
@@ -172,7 +172,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
     std::move(callback).Run(path, DownloadItem::TARGET_DISPOSITION_OVERWRITE,
                             download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
                             download::DownloadItem::MixedContentStatus::UNKNOWN,
-                            path, base::nullopt /*download_schedule*/,
+                            path, absl::nullopt /*download_schedule*/,
                             download::DOWNLOAD_INTERRUPT_REASON_NONE);
   }
 
@@ -195,17 +195,17 @@ class CefDownloadItemCallbackImpl : public CefDownloadItemCallback {
 
   void Cancel() override {
     CEF_POST_TASK(CEF_UIT,
-                  base::Bind(&CefDownloadItemCallbackImpl::DoCancel, this));
+                  base::BindOnce(&CefDownloadItemCallbackImpl::DoCancel, this));
   }
 
   void Pause() override {
     CEF_POST_TASK(CEF_UIT,
-                  base::Bind(&CefDownloadItemCallbackImpl::DoPause, this));
+                  base::BindOnce(&CefDownloadItemCallbackImpl::DoPause, this));
   }
 
   void Resume() override {
     CEF_POST_TASK(CEF_UIT,
-                  base::Bind(&CefDownloadItemCallbackImpl::DoResume, this));
+                  base::BindOnce(&CefDownloadItemCallbackImpl::DoResume, this));
   }
 
  private:
@@ -358,7 +358,7 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
         item->GetForcedFilePath(), DownloadItem::TARGET_DISPOSITION_OVERWRITE,
         download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
         download::DownloadItem::MixedContentStatus::UNKNOWN,
-        item->GetForcedFilePath(), base::nullopt /*download_schedule*/,
+        item->GetForcedFilePath(), absl::nullopt /*download_schedule*/,
         download::DOWNLOAD_INTERRUPT_REASON_NONE);
     return true;
   }

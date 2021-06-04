@@ -356,7 +356,7 @@ void CefFrameImpl::OnDraggableRegionsChanged() {
   auto& browser_frame = GetBrowserFrame();
   if (browser_frame) {
     browser_frame->UpdateDraggableRegions(
-        regions.empty() ? base::nullopt
+        regions.empty() ? absl::nullopt
                         : base::make_optional(std::move(regions)));
   }
 }

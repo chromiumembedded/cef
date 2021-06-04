@@ -1176,7 +1176,7 @@ void CefV8ValueImpl::Handle::SetWeakIfNecessary() {
   if (!BelongsToCurrentThread()) {
     task_runner()->PostTask(
         FROM_HERE,
-        base::Bind(&CefV8ValueImpl::Handle::SetWeakIfNecessary, this));
+        base::BindOnce(&CefV8ValueImpl::Handle::SetWeakIfNecessary, this));
     return;
   }
 

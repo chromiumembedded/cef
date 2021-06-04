@@ -40,7 +40,7 @@ index 07a70980f12af..ddf7f17325fed 100644
    virtual ~PruneCondition() {}
  
 diff --git third_party/crashpad/crashpad/client/settings.cc third_party/crashpad/crashpad/client/settings.cc
-index 0aa525f1b4c00..2ddb73e7dd0cb 100644
+index 3855b9b6a4b20..263f985043716 100644
 --- third_party/crashpad/crashpad/client/settings.cc
 +++ third_party/crashpad/crashpad/client/settings.cc
 @@ -86,7 +86,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
@@ -146,7 +146,7 @@ index 5761c6b965b5c..aee4e6c96033e 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index 1d5951e8fc00c..599dde825883e 100644
+index a697b338e8eeb..96d4b45c5aa51 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -157,7 +157,7 @@ index 1d5951e8fc00c..599dde825883e 100644
  import("../build/crashpad_buildconfig.gni")
  
  static_library("handler") {
-@@ -64,6 +65,17 @@ static_library("handler") {
+@@ -58,6 +59,17 @@ static_library("handler") {
      ]
    }
  
@@ -175,7 +175,7 @@ index 1d5951e8fc00c..599dde825883e 100644
    public_configs = [ "..:crashpad_config" ]
  
    public_deps = [
-@@ -77,6 +89,7 @@ static_library("handler") {
+@@ -73,6 +85,7 @@ static_library("handler") {
      "../snapshot",
      "../third_party/mini_chromium:chromeos_buildflags",
      "../tools:tool_support",

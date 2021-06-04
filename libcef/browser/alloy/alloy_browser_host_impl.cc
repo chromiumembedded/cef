@@ -639,7 +639,7 @@ void AlloyBrowserHostImpl::SendExternalBeginFrame() {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(
         CEF_UIT,
-        base::Bind(&AlloyBrowserHostImpl::SendExternalBeginFrame, this));
+        base::BindOnce(&AlloyBrowserHostImpl::SendExternalBeginFrame, this));
     return;
   }
 
@@ -654,8 +654,8 @@ void AlloyBrowserHostImpl::SendTouchEvent(const CefTouchEvent& event) {
   }
 
   if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, base::Bind(&AlloyBrowserHostImpl::SendTouchEvent,
-                                      this, event));
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(&AlloyBrowserHostImpl::SendTouchEvent,
+                                          this, event));
     return;
   }
 
@@ -800,10 +800,10 @@ bool AlloyBrowserHostImpl::MaybeAllowNavigation(
     // The PDF viewer will load the PDF extension in the guest view, and print
     // preview will load chrome://print in the guest view. All other navigations
     // are passed to the owner browser.
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::Bind(base::IgnoreResult(&AlloyBrowserHostImpl::OpenURLFromTab),
-                   this, nullptr, params));
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(
+                      base::IgnoreResult(&AlloyBrowserHostImpl::OpenURLFromTab),
+                      this, nullptr, params));
 
     return false;
   }
@@ -1077,8 +1077,8 @@ void AlloyBrowserHostImpl::DragSourceEndedAt(
 
 void AlloyBrowserHostImpl::SetAudioMuted(bool mute) {
   if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-                  base::Bind(&AlloyBrowserHostImpl::SetAudioMuted, this, mute));
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(&AlloyBrowserHostImpl::SetAudioMuted,
+                                          this, mute));
     return;
   }
   if (!web_contents())

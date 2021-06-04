@@ -16,9 +16,9 @@
 #include "base/callback.h"
 #include "base/files/file_path.h"
 #include "base/memory/weak_ptr.h"
-#include "base/optional.h"
 #include "chrome/common/plugin.mojom.h"
 #include "services/network/public/mojom/network_context.mojom.h"
+#include "third_party/abseil-cpp/absl/types/optional.h"
 #include "url/origin.h"
 
 /*
@@ -200,7 +200,7 @@ class CefBrowserContext {
 
   CefMediaRouterManager* GetMediaRouterManager();
 
-  using CookieableSchemes = base::Optional<std::vector<std::string>>;
+  using CookieableSchemes = absl::optional<std::vector<std::string>>;
 
   // Returns the schemes associated with this context specifically, or the
   // global configuration if unset.

@@ -8,6 +8,7 @@
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/browser_util.h"
 
+#include "content/public/browser/focused_node_details.h"
 #include "content/public/browser/keyboard_event_processing_result.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/navigation_entry.h"
@@ -17,6 +18,7 @@
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/render_view_host.h"
 #include "third_party/blink/public/mojom/favicon/favicon_url.mojom.h"
+#include "third_party/blink/public/mojom/input/focus_type.mojom-blink.h"
 
 using content::KeyboardEventProcessingResult;
 
@@ -232,18 +234,6 @@ bool CefBrowserContentsDelegate::HandleKeyboardEvent(
 void CefBrowserContentsDelegate::RenderFrameCreated(
     content::RenderFrameHost* render_frame_host) {
   browser_info_->MaybeCreateFrame(render_frame_host, false /* is_guest_view */);
-
-  if (render_frame_host->GetParent() == nullptr) {
-    // May be already registered if the renderer crashed previously.
-    auto render_view_host = render_frame_host->GetRenderViewHost();
-    if (!registrar_->IsRegistered(
-            this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
-            content::Source<content::RenderViewHost>(render_view_host))) {
-      registrar_->Add(
-          this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
-          content::Source<content::RenderViewHost>(render_view_host));
-    }
-  }
 }
 
 void CefBrowserContentsDelegate::RenderFrameHostChanged(
@@ -261,17 +251,6 @@ void CefBrowserContentsDelegate::RenderFrameDeleted(
   if (focused_frame_ && focused_frame_->GetIdentifier() == frame_id) {
     focused_frame_ = nullptr;
     OnStateChanged(State::kFocusedFrame);
-  }
-}
-
-void CefBrowserContentsDelegate::RenderViewDeleted(
-    content::RenderViewHost* render_view_host) {
-  if (registrar_->IsRegistered(
-          this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
-          content::Source<content::RenderViewHost>(render_view_host))) {
-    registrar_->Remove(
-        this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
-        content::Source<content::RenderViewHost>(render_view_host));
   }
 }
 
@@ -472,6 +451,13 @@ void CefBrowserContentsDelegate::OnWebContentsFocused(
   }
 }
 
+void CefBrowserContentsDelegate::OnFocusChangedInPage(
+    content::FocusedNodeDetails* details) {
+  focus_on_editable_field_ =
+      details->focus_type != blink::mojom::blink::FocusType::kNone &&
+      details->is_editable_node;
+}
+
 void CefBrowserContentsDelegate::WebContentsDestroyed() {
   auto wc = web_contents();
   ObserveWebContents(nullptr);
@@ -484,15 +470,12 @@ void CefBrowserContentsDelegate::Observe(
     int type,
     const content::NotificationSource& source,
     const content::NotificationDetails& details) {
-  DCHECK(type == content::NOTIFICATION_LOAD_STOP ||
-         type == content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE);
+  DCHECK_EQ(type, content::NOTIFICATION_LOAD_STOP);
 
   if (type == content::NOTIFICATION_LOAD_STOP) {
     content::NavigationController* controller =
         content::Source<content::NavigationController>(source).ptr();
     OnTitleChange(controller->GetWebContents()->GetTitle());
-  } else if (type == content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE) {
-    focus_on_editable_field_ = *content::Details<bool>(details).ptr();
   }
 }
 

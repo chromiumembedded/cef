@@ -48,7 +48,7 @@ void CefWindowDelegateView::Init(gfx::AcceleratedWidget parent_widget,
   params.remove_standard_frame = true;
   // Cause WidgetDelegate::CanActivate to return true. See comments in
   // AlloyBrowserHostImpl::PlatformSetFocus.
-  params.activatable = views::Widget::InitParams::ACTIVATABLE_YES;
+  params.activatable = views::Widget::InitParams::Activatable::kYes;
 
   params.z_order = always_on_top_ ? ui::ZOrderLevel::kFloatingWindow
                                   : ui::ZOrderLevel::kNormal;

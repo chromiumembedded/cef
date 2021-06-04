@@ -100,7 +100,7 @@ void CefRenderManager::RenderFrameCreated(
     content::RenderFrame* render_frame,
     CefRenderFrameObserver* render_frame_observer,
     bool& browser_created,
-    base::Optional<bool>& is_windowless) {
+    absl::optional<bool>& is_windowless) {
   auto browser = MaybeCreateBrowser(render_frame->GetRenderView(), render_frame,
                                     &browser_created, &is_windowless);
   if (browser) {
@@ -112,7 +112,7 @@ void CefRenderManager::RenderFrameCreated(
 
 void CefRenderManager::RenderViewCreated(content::RenderView* render_view,
                                          bool& browser_created,
-                                         base::Optional<bool>& is_windowless) {
+                                         absl::optional<bool>& is_windowless) {
   MaybeCreateBrowser(render_view, render_view->GetMainRenderFrame(),
                      &browser_created, &is_windowless);
 }
@@ -260,7 +260,7 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
     content::RenderView* render_view,
     content::RenderFrame* render_frame,
     bool* browser_created,
-    base::Optional<bool>* is_windowless) {
+    absl::optional<bool>* is_windowless) {
   if (browser_created)
     *browser_created = false;
 

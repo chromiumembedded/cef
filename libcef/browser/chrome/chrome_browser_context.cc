@@ -56,8 +56,9 @@ void ChromeBrowserContext::InitializeAsync(base::OnceClosure initialized_cb) {
       // Create or load a specific disk-based profile. May continue
       // synchronously or asynchronously.
       profile_manager->CreateProfileAsync(
-          cache_path_, base::Bind(&ChromeBrowserContext::ProfileCreated,
-                                  weak_ptr_factory_.GetWeakPtr()));
+          cache_path_,
+          base::BindRepeating(&ChromeBrowserContext::ProfileCreated,
+                              weak_ptr_factory_.GetWeakPtr()));
       return;
     } else {
       // All profile directories must be relative to |user_data_dir|.
@@ -96,7 +97,8 @@ void ChromeBrowserContext::ProfileCreated(Profile* profile,
     const auto& profile_id = Profile::OTRProfileID::CreateUniqueForCEF();
     parent_profile =
         g_browser_process->profile_manager()->GetPrimaryUserProfile();
-    profile_ = parent_profile->GetOffTheRecordProfile(profile_id);
+    profile_ = parent_profile->GetOffTheRecordProfile(
+        profile_id, /*create_if_needed=*/true);
     otr_profile = static_cast<OffTheRecordProfileImpl*>(profile_);
     status = Profile::CreateStatus::CREATE_STATUS_INITIALIZED;
     should_destroy_ = true;

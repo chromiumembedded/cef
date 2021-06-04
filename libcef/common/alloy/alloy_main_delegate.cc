@@ -32,7 +32,6 @@
 #include "components/content_settings/core/common/content_settings_pattern.h"
 #include "components/embedder_support/switches.h"
 #include "components/viz/common/features.h"
-#include "content/browser/browser_process_sub_thread.h"
 #include "content/public/common/content_features.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
@@ -75,8 +74,8 @@ AlloyMainDelegate::AlloyMainDelegate(CefMainRunnerHandler* runner,
 
 AlloyMainDelegate::~AlloyMainDelegate() {}
 
-void AlloyMainDelegate::PreCreateMainMessageLoop() {
-  runner_->PreCreateMainMessageLoop();
+void AlloyMainDelegate::PreBrowserMain() {
+  runner_->PreBrowserMain();
 }
 
 bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
@@ -139,17 +138,18 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
       command_line->AppendSwitch(sandbox::policy::switches::kNoSandbox);
 
     if (settings_->user_agent.length > 0) {
-      command_line->AppendSwitchASCII(embedder_support::kUserAgent,
-                                      CefString(&settings_->user_agent));
+      command_line->AppendSwitchASCII(
+          embedder_support::kUserAgent,
+          CefString(&settings_->user_agent).ToString());
     } else if (settings_->user_agent_product.length > 0) {
       command_line->AppendSwitchASCII(
           switches::kUserAgentProductAndVersion,
-          CefString(&settings_->user_agent_product));
+          CefString(&settings_->user_agent_product).ToString());
     }
 
     if (settings_->locale.length > 0) {
       command_line->AppendSwitchASCII(switches::kLang,
-                                      CefString(&settings_->locale));
+                                      CefString(&settings_->locale).ToString());
     } else if (!command_line->HasSwitch(switches::kLang)) {
       command_line->AppendSwitchASCII(switches::kLang, "en-US");
     }
@@ -198,8 +198,9 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
     }
 
     if (settings_->javascript_flags.length > 0) {
-      command_line->AppendSwitchASCII(switches::kJavaScriptFlags,
-                                      CefString(&settings_->javascript_flags));
+      command_line->AppendSwitchASCII(
+          switches::kJavaScriptFlags,
+          CefString(&settings_->javascript_flags).ToString());
     }
 
     if (settings_->pack_loading_disabled) {

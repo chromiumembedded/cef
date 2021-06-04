@@ -1,5 +1,5 @@
 diff --git ui/views/controls/native/native_view_host.cc ui/views/controls/native/native_view_host.cc
-index 52f9b871022de..4cad419a8e373 100644
+index 1a85a7b4a8305..66817eaecd86b 100644
 --- ui/views/controls/native/native_view_host.cc
 +++ ui/views/controls/native/native_view_host.cc
 @@ -161,7 +161,7 @@ void NativeViewHost::OnPaint(gfx::Canvas* canvas) {
@@ -39,10 +39,10 @@ index ab2371857a00a..8dccc190fa896 100644
  };
  
 diff --git ui/views/controls/webview/webview.cc ui/views/controls/webview/webview.cc
-index 9cb29421a3df9..a5ed399820a81 100644
+index 75c1f03c6efff..5ed55bb974958 100644
 --- ui/views/controls/webview/webview.cc
 +++ ui/views/controls/webview/webview.cc
-@@ -130,6 +130,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
+@@ -131,6 +131,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
      MaybeEnableAutoResize(web_contents()->GetMainFrame());
  }
  

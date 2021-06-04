@@ -82,24 +82,26 @@ bool ChromeMainDelegateCef::BasicStartupComplete(int* exit_code) {
     }
 
     if (settings_->user_agent.length > 0) {
-      command_line->AppendSwitchASCII(embedder_support::kUserAgent,
-                                      CefString(&settings_->user_agent));
+      command_line->AppendSwitchASCII(
+          embedder_support::kUserAgent,
+          CefString(&settings_->user_agent).ToString());
     } else if (settings_->user_agent_product.length > 0) {
       command_line->AppendSwitchASCII(
           switches::kUserAgentProductAndVersion,
-          CefString(&settings_->user_agent_product));
+          CefString(&settings_->user_agent_product).ToString());
     }
 
     if (settings_->locale.length > 0) {
       command_line->AppendSwitchASCII(switches::kLang,
-                                      CefString(&settings_->locale));
+                                      CefString(&settings_->locale).ToString());
     } else if (!command_line->HasSwitch(switches::kLang)) {
       command_line->AppendSwitchASCII(switches::kLang, "en-US");
     }
 
     if (settings_->javascript_flags.length > 0) {
-      command_line->AppendSwitchASCII(switches::kJavaScriptFlags,
-                                      CefString(&settings_->javascript_flags));
+      command_line->AppendSwitchASCII(
+          switches::kJavaScriptFlags,
+          CefString(&settings_->javascript_flags).ToString());
     }
 
     if (settings_->remote_debugging_port >= 1024 &&
@@ -157,11 +159,11 @@ void ChromeMainDelegateCef::PreSandboxStartup() {
   crash_reporting::PreSandboxStartup(*command_line, process_type);
 }
 
-void ChromeMainDelegateCef::PreCreateMainMessageLoop() {
+void ChromeMainDelegateCef::PreBrowserMain() {
   // The parent ChromeMainDelegate implementation creates the NSApplication
   // instance on macOS, and we intentionally don't want to do that here.
   // TODO(macos): Do we need l10n_util::OverrideLocaleWithCocoaLocale()?
-  runner_->PreCreateMainMessageLoop();
+  runner_->PreBrowserMain();
 }
 
 int ChromeMainDelegateCef::RunProcess(

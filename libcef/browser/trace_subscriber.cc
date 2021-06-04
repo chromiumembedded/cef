@@ -17,12 +17,13 @@ namespace {
 // represented by |message_loop_proxy|.
 void CreateTemporaryFileOnBackgroundThread(
     scoped_refptr<base::SequencedTaskRunner> message_loop_proxy,
-    base::Callback<void(const base::FilePath&)> callback) {
+    base::OnceCallback<void(const base::FilePath&)> callback) {
   CEF_REQUIRE_BLOCKING();
   base::FilePath file_path;
   if (!base::CreateTemporaryFile(&file_path))
     LOG(ERROR) << "Failed to create temporary file.";
-  message_loop_proxy->PostTask(FROM_HERE, base::Bind(callback, file_path));
+  message_loop_proxy->PostTask(FROM_HERE,
+                               base::BindOnce(std::move(callback), file_path));
 }
 
 // Release the wrapped callback object after completion.
@@ -102,19 +103,20 @@ bool CefTraceSubscriber::EndTracing(const base::FilePath& tracing_file,
   if (tracing_file.empty()) {
     // Create a new temporary file path on the FILE thread, then continue.
     CEF_POST_USER_VISIBLE_TASK(
-        base::Bind(CreateTemporaryFileOnBackgroundThread,
-                   base::ThreadTaskRunnerHandle::Get(),
-                   base::Bind(&CefTraceSubscriber::ContinueEndTracing,
-                              weak_factory_.GetWeakPtr(), callback)));
+        base::BindOnce(CreateTemporaryFileOnBackgroundThread,
+                       base::ThreadTaskRunnerHandle::Get(),
+                       base::BindOnce(&CefTraceSubscriber::ContinueEndTracing,
+                                      weak_factory_.GetWeakPtr(), callback)));
     return true;
   }
 
-  base::Closure result_callback =
-      base::Bind(&CefTraceSubscriber::OnTracingFileResult,
-                 weak_factory_.GetWeakPtr(), callback, tracing_file);
+  auto result_callback =
+      base::BindOnce(&CefTraceSubscriber::OnTracingFileResult,
+                     weak_factory_.GetWeakPtr(), callback, tracing_file);
 
   TracingController::GetInstance()->StopTracing(
-      TracingController::CreateFileEndpoint(tracing_file, result_callback));
+      TracingController::CreateFileEndpoint(tracing_file,
+                                            std::move(result_callback)));
   return true;
 }
 

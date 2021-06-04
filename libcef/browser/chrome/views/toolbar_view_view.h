@@ -18,7 +18,7 @@ class CefToolbarViewView : public CefViewView<ToolbarView, CefViewDelegate> {
   explicit CefToolbarViewView(CefViewDelegate* cef_delegate,
                               Browser* browser,
                               BrowserView* browser_view,
-                              base::Optional<DisplayMode> display_mode);
+                              absl::optional<DisplayMode> display_mode);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CefToolbarViewView);

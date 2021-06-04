@@ -6,6 +6,7 @@
 #include "libcef/browser/alloy/chrome_profile_alloy.h"
 
 #include "base/no_destructor.h"
+#include "components/profile_metrics/browser_profile_type.h"
 #include "components/variations/variations_client.h"
 #include "components/variations/variations_ids_provider.h"
 #include "net/url_request/url_request_context.h"
@@ -35,7 +36,10 @@ class CefVariationsClient : public variations::VariationsClient {
 
 }  // namespace
 
-ChromeProfileAlloy::ChromeProfileAlloy() {}
+ChromeProfileAlloy::ChromeProfileAlloy() {
+  profile_metrics::SetBrowserProfileType(
+      this, profile_metrics::BrowserProfileType::kRegular);
+}
 
 ChromeProfileAlloy::~ChromeProfileAlloy() {}
 
@@ -44,13 +48,15 @@ bool ChromeProfileAlloy::IsOffTheRecord() {
 }
 
 bool ChromeProfileAlloy::IsOffTheRecord() const {
+  // Alloy contexts are never flagged as off-the-record. It causes problems
+  // for the extension system.
   return false;
 }
 
 const Profile::OTRProfileID& ChromeProfileAlloy::GetOTRProfileID() const {
   NOTREACHED();
   static base::NoDestructor<Profile::OTRProfileID> otr_profile_id(
-      "ProfileImp::NoOTRProfileID");
+      Profile::OTRProfileID::PrimaryID());
   return *otr_profile_id;
 }
 
@@ -112,11 +118,6 @@ bool ChromeProfileAlloy::IsChild() const {
 
 ExtensionSpecialStoragePolicy*
 ChromeProfileAlloy::GetExtensionSpecialStoragePolicy() {
-  NOTREACHED();
-  return nullptr;
-}
-
-PrefService* ChromeProfileAlloy::GetOffTheRecordPrefs() {
   NOTREACHED();
   return nullptr;
 }

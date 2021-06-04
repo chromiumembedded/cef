@@ -124,7 +124,7 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   void DidFinishFrameLoad(const GURL& validated_url,
                           int32_t http_status_code) override;
   void UpdateDraggableRegions(
-      base::Optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions)
+      absl::optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions)
       override;
 
   static int64_t MakeFrameId(const content::RenderFrameHost* host);

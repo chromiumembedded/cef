@@ -13,6 +13,7 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_util.h"
 
+#include "base/bind.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
@@ -446,10 +447,10 @@ void CefExtensionSystem::RegisterExtensionWithRequestContexts(
   // manifest settings.
   content::GetIOThreadTaskRunner({})->PostTaskAndReply(
       FROM_HERE,
-      base::Bind(&InfoMap::AddExtension, info_map(),
-                 base::RetainedRef(extension), base::Time::Now(),
-                 true,    // incognito_enabled
-                 false),  // notifications_disabled
+      base::BindOnce(&InfoMap::AddExtension, info_map(),
+                     base::RetainedRef(extension), base::Time::Now(),
+                     true,    // incognito_enabled
+                     false),  // notifications_disabled
       std::move(callback));
 }
 
@@ -459,8 +460,8 @@ void CefExtensionSystem::UnregisterExtensionWithRequestContexts(
     const std::string& extension_id,
     const UnloadedExtensionReason reason) {
   content::GetIOThreadTaskRunner({})->PostTask(
-      FROM_HERE,
-      base::Bind(&InfoMap::RemoveExtension, info_map(), extension_id, reason));
+      FROM_HERE, base::BindOnce(&InfoMap::RemoveExtension, info_map(),
+                                extension_id, reason));
 }
 
 const base::OneShotEvent& CefExtensionSystem::ready() const {
@@ -634,9 +635,9 @@ void CefExtensionSystem::NotifyExtensionLoaded(const Extension* extension) {
   // extension.
   RegisterExtensionWithRequestContexts(
       extension,
-      base::Bind(&CefExtensionSystem::OnExtensionRegisteredWithRequestContexts,
-                 weak_ptr_factory_.GetWeakPtr(),
-                 base::WrapRefCounted(extension)));
+      base::BindOnce(
+          &CefExtensionSystem::OnExtensionRegisteredWithRequestContexts,
+          weak_ptr_factory_.GetWeakPtr(), base::WrapRefCounted(extension)));
 
   // Tell renderers about the loaded extension.
   renderer_helper_->OnExtensionLoaded(*extension);

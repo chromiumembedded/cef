@@ -1317,8 +1317,8 @@ TEST(SchemeHandlerTest, CustomNonStandardFetchSameOrigin) {
   SetUpFetch(settings);
 
   g_TestResults.console_messages.push_back(
-      "Fetch API cannot load customnonstd:xhr%20value. URL scheme must be "
-      "\"http\" or \"https\" for CORS request.");
+      "Fetch API cannot load customnonstd:xhr%20value. URL scheme "
+      "\"customnonstd\" is not supported.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();

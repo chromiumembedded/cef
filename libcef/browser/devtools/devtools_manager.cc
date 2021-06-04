@@ -62,7 +62,7 @@ class CefDevToolsRegistrationImpl : public CefRegistration,
   void OnDevToolsEvent(const base::StringPiece& method,
                        const base::StringPiece& params) override {
     CEF_REQUIRE_UIT();
-    observer_->OnDevToolsEvent(browser_, method.as_string(), params.data(),
+    observer_->OnDevToolsEvent(browser_, std::string(method), params.data(),
                                params.size());
   }
 

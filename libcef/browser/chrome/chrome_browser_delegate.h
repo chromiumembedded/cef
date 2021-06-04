@@ -12,7 +12,7 @@
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/chrome/browser_delegate.h"
 
-#include "base/optional.h"
+#include "third_party/abseil-cpp/absl/types/optional.h"
 
 class CefBrowserContentsDelegate;
 class CefRequestContextImpl;

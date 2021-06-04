@@ -156,8 +156,8 @@ cef_cursor_handle_t GetPlatformCursor(ui::mojom::CursorType type) {
   return LoadCursor(module_handle, cursor_id);
 }
 
-cef_cursor_handle_t ToCursorHandle(ui::PlatformCursor cursor) {
-  return static_cast<ui::WinCursor*>(cursor)->hcursor();
+cef_cursor_handle_t ToCursorHandle(scoped_refptr<ui::PlatformCursor> cursor) {
+  return ui::WinCursor::FromPlatformCursor(cursor)->hcursor();
 }
 
 }  // namespace cursor_util

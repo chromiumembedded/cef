@@ -508,13 +508,13 @@ void StreamReaderURLLoader::Start() {
         base::BindOnce(&StreamReaderURLLoader::ContinueWithRequestHeaders,
                        weak_factory_.GetWeakPtr()));
   } else {
-    ContinueWithRequestHeaders(net::OK, base::nullopt);
+    ContinueWithRequestHeaders(net::OK, absl::nullopt);
   }
 }
 
 void StreamReaderURLLoader::ContinueWithRequestHeaders(
     int32_t result,
-    const base::Optional<net::HttpRequestHeaders>& headers) {
+    const absl::optional<net::HttpRequestHeaders>& headers) {
   if (result != net::OK) {
     RequestComplete(result);
     return;
@@ -540,7 +540,7 @@ void StreamReaderURLLoader::FollowRedirect(
     const std::vector<std::string>& removed_headers,
     const net::HttpRequestHeaders& modified_headers,
     const net::HttpRequestHeaders& modified_cors_exempt_headers,
-    const base::Optional<GURL>& new_url) {
+    const absl::optional<GURL>& new_url) {
   NOTREACHED();
 }
 
@@ -651,15 +651,15 @@ void StreamReaderURLLoader::HeadersComplete(int orig_status_code,
                        std::move(pending_response)));
   } else {
     ContinueWithResponseHeaders(std::move(pending_response), net::OK,
-                                base::nullopt, base::nullopt);
+                                absl::nullopt, absl::nullopt);
   }
 }
 
 void StreamReaderURLLoader::ContinueWithResponseHeaders(
     network::mojom::URLResponseHeadPtr pending_response,
     int32_t result,
-    const base::Optional<std::string>& headers,
-    const base::Optional<GURL>& redirect_url) {
+    const absl::optional<std::string>& headers,
+    const absl::optional<GURL>& redirect_url) {
   if (result != net::OK) {
     RequestComplete(result);
     return;

@@ -426,7 +426,7 @@ bool CefMainRunner::ContentMainRun(bool* initialized,
   return true;
 }
 
-void CefMainRunner::PreCreateMainMessageLoop() {
+void CefMainRunner::PreBrowserMain() {
   if (external_message_pump_) {
     InitExternalMessagePumpFactoryForUI();
   }
@@ -439,7 +439,7 @@ int CefMainRunner::RunMainProcess(
     browser_runner_ = content::BrowserMainRunner::Create();
 
     // Initialize browser process state. Results in a call to
-    // AlloyBrowserMain::PreMainMessageLoopStart() which creates the UI message
+    // AlloyBrowserMain::PreBrowserMain() which creates the UI message
     // loop.
     int exit_code = browser_runner_->Initialize(main_function_params);
     if (exit_code >= 0)

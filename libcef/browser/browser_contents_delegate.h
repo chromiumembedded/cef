@@ -10,6 +10,7 @@
 
 #include "libcef/browser/frame_host_impl.h"
 
+#include "base/callback_list.h"
 #include "base/observer_list.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
@@ -108,7 +109,6 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   void RenderFrameHostChanged(content::RenderFrameHost* old_host,
                               content::RenderFrameHost* new_host) override;
   void RenderFrameDeleted(content::RenderFrameHost* render_frame_host) override;
-  void RenderViewDeleted(content::RenderViewHost* render_view_host) override;
   void RenderViewReady() override;
   void RenderProcessGone(base::TerminationStatus status) override;
   void OnFrameFocused(content::RenderFrameHost* render_frame_host) override;
@@ -129,6 +129,7 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
       const std::vector<blink::mojom::FaviconURLPtr>& candidates) override;
   void OnWebContentsFocused(
       content::RenderWidgetHost* render_widget_host) override;
+  void OnFocusChangedInPage(content::FocusedNodeDetails* details) override;
   void WebContentsDestroyed() override;
 
   // NotificationObserver methods.

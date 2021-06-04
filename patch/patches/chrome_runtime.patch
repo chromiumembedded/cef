@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index 94e871ea16b08..69929718b2704 100644
+index c64f406ba5b8f..75453789a6052 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -29,6 +29,7 @@
@@ -19,7 +19,7 @@ index 94e871ea16b08..69929718b2704 100644
  #if defined(OS_WIN)
    // Reach out to chrome_elf for the truth on the user data directory.
    // Note that in tests, this links to chrome_elf_test_stubs.
-@@ -662,7 +665,9 @@ void ChromeMainDelegate::PostFieldTrialInitialization() {
+@@ -666,7 +669,9 @@ void ChromeMainDelegate::PostFieldTrialInitialization() {
    }
  
  #if defined(OS_WIN)
@@ -29,7 +29,7 @@ index 94e871ea16b08..69929718b2704 100644
    base::sequence_manager::internal::ThreadControllerPowerMonitor::
        InitializeOnMainThread();
  #endif
-@@ -955,6 +960,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -959,6 +964,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    std::string process_type =
        command_line.GetSwitchValueASCII(switches::kProcessType);
  
@@ -37,7 +37,7 @@ index 94e871ea16b08..69929718b2704 100644
    crash_reporter::InitializeCrashKeys();
  
  #if defined(OS_POSIX)
-@@ -965,6 +971,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -969,6 +975,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    InitMacCrashReporter(command_line, process_type);
    SetUpInstallerPreferences(command_line);
  #endif
@@ -45,7 +45,7 @@ index 94e871ea16b08..69929718b2704 100644
  
  #if defined(OS_WIN)
    child_process_logging::Init();
-@@ -1088,6 +1095,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1092,6 +1099,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
          locale;
    }
  
@@ -53,7 +53,7 @@ index 94e871ea16b08..69929718b2704 100644
  #if defined(OS_POSIX) && !defined(OS_MAC)
    // Zygote needs to call InitCrashReporter() in RunZygote().
    if (process_type != switches::kZygoteProcess) {
-@@ -1120,6 +1128,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1124,6 +1132,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    // After all the platform Breakpads have been initialized, store the command
    // line for crash reporting.
    crash_keys::SetCrashKeysFromCommandLine(command_line);
@@ -61,7 +61,7 @@ index 94e871ea16b08..69929718b2704 100644
  
  #if BUILDFLAG(ENABLE_PDF)
    MaybeInitializeGDI();
-@@ -1218,6 +1227,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1222,6 +1231,7 @@ void ChromeMainDelegate::ZygoteForked() {
      SetUpProfilingShutdownHandler();
    }
  
@@ -69,7 +69,7 @@ index 94e871ea16b08..69929718b2704 100644
    // Needs to be called after we have chrome::DIR_USER_DATA.  BrowserMain sets
    // this up for the browser process in a different manner.
    const base::CommandLine* command_line =
-@@ -1234,6 +1244,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1238,6 +1248,7 @@ void ChromeMainDelegate::ZygoteForked() {
  
    // Reset the command line for the newly spawned process.
    crash_keys::SetCrashKeysFromCommandLine(*command_line);
@@ -78,7 +78,7 @@ index 94e871ea16b08..69929718b2704 100644
  
  #endif  // defined(OS_LINUX) || defined(OS_CHROMEOS)
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index 86b9a324e5da5..b4e1bfebe1162 100644
+index cf7f295bf92f6..1a7859d698a8c 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -49,6 +49,7 @@
@@ -89,7 +89,7 @@ index 86b9a324e5da5..b4e1bfebe1162 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/active_use_util.h"
  #include "chrome/browser/after_startup_task_utils.h"
-@@ -896,8 +897,10 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
+@@ -906,8 +907,10 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
  #if !defined(OS_ANDROID)
    // Create the RunLoop for MainMessageLoopRun() to use, and pass a copy of
    // its QuitClosure to the BrowserProcessImpl to call when it is time to exit.
@@ -101,7 +101,7 @@ index 86b9a324e5da5..b4e1bfebe1162 100644
  
    // These members must be initialized before returning from this function.
    // Android doesn't use StartupBrowserCreator.
-@@ -1639,11 +1642,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1665,11 +1668,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
    // This step is costly and is already measured in
    // Startup.StartupBrowserCreator_Start.
    // See the comment above for an explanation of |process_command_line|.
@@ -118,7 +118,7 @@ index 86b9a324e5da5..b4e1bfebe1162 100644
  // of lacros-chrome is complete.
  #if defined(OS_WIN) || (defined(OS_LINUX) || BUILDFLAG(IS_CHROMEOS_LACROS))
 diff --git chrome/browser/chrome_browser_main_mac.mm chrome/browser/chrome_browser_main_mac.mm
-index 8a33ce57766c5..ca69a37eee22b 100644
+index 95d1ebc190910..13cdfa52db108 100644
 --- chrome/browser/chrome_browser_main_mac.mm
 +++ chrome/browser/chrome_browser_main_mac.mm
 @@ -16,6 +16,7 @@
@@ -129,7 +129,7 @@ index 8a33ce57766c5..ca69a37eee22b 100644
  #import "chrome/browser/app_controller_mac.h"
  #include "chrome/browser/apps/app_shim/app_shim_listener.h"
  #include "chrome/browser/browser_process.h"
-@@ -110,6 +111,7 @@ void ChromeBrowserMainPartsMac::PreMainMessageLoopStart() {
+@@ -110,6 +111,7 @@ void ChromeBrowserMainPartsMac::PreCreateMainMessageLoop() {
      }
    }
  
@@ -137,7 +137,7 @@ index 8a33ce57766c5..ca69a37eee22b 100644
    // Create the app delegate. This object is intentionally leaked as a global
    // singleton. It is accessed through -[NSApp delegate].
    AppController* app_controller = [[AppController alloc] init];
-@@ -118,6 +120,7 @@ void ChromeBrowserMainPartsMac::PreMainMessageLoopStart() {
+@@ -118,6 +120,7 @@ void ChromeBrowserMainPartsMac::PreCreateMainMessageLoop() {
    chrome::BuildMainMenu(NSApp, app_controller,
                          l10n_util::GetStringUTF16(IDS_PRODUCT_NAME), false);
    [app_controller mainMenuCreated];
@@ -156,7 +156,7 @@ index 8a33ce57766c5..ca69a37eee22b 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 3f152fd798e8c..19346821464f5 100644
+index af089ae5fa35a..b7498d1a2ee79 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -37,6 +37,7 @@
@@ -166,8 +166,8 @@ index 3f152fd798e8c..19346821464f5 100644
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/accessibility_labels_service_factory.h"
- #include "chrome/browser/accessibility/caption_util.h"
-@@ -3643,9 +3644,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+ #include "chrome/browser/after_startup_task_utils.h"
+@@ -3590,9 +3591,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // defined(OS_ANDROID)
  
@@ -180,7 +180,7 @@ index 3f152fd798e8c..19346821464f5 100644
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
 diff --git chrome/browser/notifications/alert_dispatcher_xpc.mm chrome/browser/notifications/alert_dispatcher_xpc.mm
-index d126ddd3a24dd..5e8c5ae7c093a 100644
+index ab4c2b03755d3..8e813496f9df6 100644
 --- chrome/browser/notifications/alert_dispatcher_xpc.mm
 +++ chrome/browser/notifications/alert_dispatcher_xpc.mm
 @@ -19,6 +19,7 @@
@@ -191,7 +191,7 @@ index d126ddd3a24dd..5e8c5ae7c093a 100644
  #include "chrome/browser/notifications/notification_platform_bridge_mac_utils.h"
  #import "chrome/browser/ui/cocoa/notifications/notification_delivery.h"
  #include "chrome/browser/ui/cocoa/notifications/xpc_mach_port.h"
-@@ -180,6 +181,12 @@ void RecordXPCEvent(XPCConnectionEvent event) {
+@@ -179,6 +180,12 @@ void RecordXPCEvent(XPCConnectionEvent event) {
  - (id<NotificationDelivery>)serviceProxy {
    id<NotificationDelivery> proxy = [_xpcConnection remoteObjectProxy];
  
@@ -205,7 +205,7 @@ index d126ddd3a24dd..5e8c5ae7c093a 100644
      base::mac::ScopedMachSendRight exceptionPort(
          crash_reporter::GetCrashpadClient().GetHandlerMachPort());
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 7f814486ab674..512dbd488d752 100644
+index b18cc56bb82b0..4760db368c6e0 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -10,6 +10,7 @@
@@ -216,7 +216,7 @@ index 7f814486ab674..512dbd488d752 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/accessibility_ui.h"
-@@ -159,6 +160,10 @@
+@@ -161,6 +162,10 @@
  #include "chrome/browser/background/background_mode_manager.h"
  #endif
  
@@ -227,8 +227,8 @@ index 7f814486ab674..512dbd488d752 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -974,6 +979,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
-   RegisterSessionServiceLogProfilePrefs(registry);
+@@ -1019,6 +1024,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+   SessionDataService::RegisterProfilePrefs(registry);
  #endif
  
 +#if BUILDFLAG(ENABLE_CEF)

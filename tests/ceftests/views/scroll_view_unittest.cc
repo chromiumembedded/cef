@@ -101,7 +101,9 @@ void RunScrollViewLayout(bool with_delegate, CefRefPtr<CefWindow> window) {
   EXPECT_TRUE(scroll_view->HasVerticalScrollbar());
 
   if (with_delegate) {
-    EXPECT_TRUE(scroll_view_delegate->got_get_preferred_size_);
+    // Layout() of the ScrollView no longer needs to call us for the size,
+    // see https://crrev.com/2701734b44.
+    EXPECT_FALSE(scroll_view_delegate->got_get_preferred_size_);
     EXPECT_TRUE(panel_delegate->got_get_preferred_size_);
   }
 

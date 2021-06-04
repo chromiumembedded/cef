@@ -107,8 +107,9 @@ void CreateThrottlesForNavigation(content::NavigationHandle* navigation_handle,
   std::unique_ptr<content::NavigationThrottle> throttle =
       std::make_unique<navigation_interception::InterceptNavigationThrottle>(
           navigation_handle,
-          base::Bind(&NavigationOnUIThread, is_main_frame, frame_id,
-                     parent_frame_id, navigation_handle->GetFrameTreeNodeId()),
+          base::BindRepeating(&NavigationOnUIThread, is_main_frame, frame_id,
+                              parent_frame_id,
+                              navigation_handle->GetFrameTreeNodeId()),
           navigation_interception::SynchronyMode::kSync);
   throttles.push_back(std::move(throttle));
 }

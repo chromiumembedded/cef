@@ -199,7 +199,7 @@ bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
     int render_process_id,
     URLLoaderFactoryType type,
     const url::Origin& request_initiator,
-    base::Optional<int64_t> navigation_id,
+    absl::optional<int64_t> navigation_id,
     ukm::SourceIdObj ukm_source_id,
     mojo::PendingReceiver<network::mojom::URLLoaderFactory>* factory_receiver,
     mojo::PendingRemote<network::mojom::TrustedURLLoaderHeaderClient>*
@@ -243,7 +243,7 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
     bool is_main_frame,
     ui::PageTransition page_transition,
     bool has_user_gesture,
-    const base::Optional<url::Origin>& initiating_origin,
+    const absl::optional<url::Origin>& initiating_origin,
     mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory) {
   // |out_factory| will be non-nullptr when this method is initially called
   // from NavigationURLLoaderImpl::PrepareForNonInterceptedRequest.
@@ -273,9 +273,9 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
   // HandleExternalProtocolHelper may be called if nothing handles the request.
   auto request_handler = net_service::CreateInterceptedRequestHandler(
       web_contents_getter, frame_tree_node_id, resource_request,
-      base::Bind(HandleExternalProtocolHelper, base::Unretained(this),
-                 web_contents_getter, frame_tree_node_id, navigation_data,
-                 resource_request));
+      base::BindRepeating(HandleExternalProtocolHelper, base::Unretained(this),
+                          web_contents_getter, frame_tree_node_id,
+                          navigation_data, resource_request));
 
   net_service::ProxyURLLoaderFactory::CreateProxy(
       web_contents_getter, std::move(receiver), std::move(request_handler));

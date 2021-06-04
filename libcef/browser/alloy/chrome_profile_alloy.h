@@ -38,7 +38,6 @@ class ChromeProfileAlloy : public Profile {
   bool IsSupervised() const override;
   bool IsChild() const override;
   ExtensionSpecialStoragePolicy* GetExtensionSpecialStoragePolicy() override;
-  PrefService* GetOffTheRecordPrefs() override;
   bool IsSameOrParent(Profile* profile) override;
   base::Time GetStartTime() const override;
   base::FilePath last_selected_directory() override;

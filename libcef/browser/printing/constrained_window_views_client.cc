@@ -7,6 +7,7 @@
 #include "base/logging.h"
 #include "base/macros.h"
 #include "base/memory/ptr_util.h"
+#include "base/notreached.h"
 #include "chrome/browser/platform_util.h"
 #include "chrome/browser/ui/browser_finder.h"
 #include "components/web_modal/web_contents_modal_dialog_host.h"

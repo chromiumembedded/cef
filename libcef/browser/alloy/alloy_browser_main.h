@@ -24,6 +24,9 @@ class ExtensionsClient;
 }  // namespace extensions
 
 #if defined(USE_AURA)
+namespace display {
+class Screen;
+}
 namespace wm {
 class WMState;
 }
@@ -47,8 +50,8 @@ class AlloyBrowserMainParts : public content::BrowserMainParts {
 
   int PreEarlyInitialization() override;
   void ToolkitInitialized() override;
-  void PreMainMessageLoopStart() override;
-  void PostMainMessageLoopStart() override;
+  void PreCreateMainMessageLoop() override;
+  void PostCreateMainMessageLoop() override;
   int PreCreateThreads() override;
   int PreMainMessageLoopRun() override;
   void PostMainMessageLoopRun() override;
@@ -91,6 +94,7 @@ class AlloyBrowserMainParts : public content::BrowserMainParts {
   scoped_refptr<base::SingleThreadTaskRunner> user_blocking_task_runner_;
 
 #if defined(USE_AURA)
+  std::unique_ptr<display::Screen> screen_;
   std::unique_ptr<wm::WMState> wm_state_;
 #endif
 

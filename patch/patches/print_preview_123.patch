@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index a95103026c8c3..ae6c676defcc6 100644
+index f5ce4b6b6649f..32a176a7cc8fe 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -24,6 +24,7 @@
@@ -30,7 +30,7 @@ index a95103026c8c3..ae6c676defcc6 100644
 +    return static_cast<AlloyBrowserContext*>(context)->GetDownloadPrefs();
 +  }
 +#endif
-   return FromDownloadManager(BrowserContext::GetDownloadManager(context));
+   return FromDownloadManager(context->GetDownloadManager());
  }
  
 diff --git chrome/browser/printing/print_preview_dialog_controller.cc chrome/browser/printing/print_preview_dialog_controller.cc
@@ -58,7 +58,7 @@ index 74536431f6649..3fc69b6560298 100644
    // Add an entry to the map.
    preview_dialog_map_[preview_dialog] = initiator;
 diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index 9aa99b764ad86..c45424d20315a 100644
+index 376f426b7bab4..c6039e0481712 100644
 --- chrome/browser/printing/print_view_manager_base.cc
 +++ chrome/browser/printing/print_view_manager_base.cc
 @@ -21,6 +21,7 @@
@@ -80,7 +80,7 @@ index 9aa99b764ad86..c45424d20315a 100644
  #if BUILDFLAG(ENABLE_PRINT_PREVIEW)
  #include "chrome/browser/printing/print_error_dialog.h"
  #include "chrome/browser/printing/print_view_manager.h"
-@@ -198,8 +203,13 @@ PrintViewManager* GetPrintViewManager(int render_process_id,
+@@ -237,8 +242,13 @@ PrintViewManager* GetPrintViewManager(int render_process_id,
    DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
    content::WebContents* web_contents =
        GetWebContentsForRenderFrame(render_process_id, render_frame_id);
@@ -97,10 +97,10 @@ index 9aa99b764ad86..c45424d20315a 100644
  
  void NotifySystemDialogCancelled(int render_process_id, int routing_id) {
 diff --git chrome/browser/printing/print_view_manager_base.h chrome/browser/printing/print_view_manager_base.h
-index a96e5a33643e4..def5bced1c965 100644
+index 62f4dc6083a13..1371b43f6208a 100644
 --- chrome/browser/printing/print_view_manager_base.h
 +++ chrome/browser/printing/print_view_manager_base.h
-@@ -122,9 +122,6 @@ class PrintViewManagerBase : public content::NotificationObserver,
+@@ -124,9 +124,6 @@ class PrintViewManagerBase : public content::NotificationObserver,
    // Manages the low-level talk to the printer.
    scoped_refptr<PrintJob> print_job_;
  
@@ -111,7 +111,7 @@ index a96e5a33643e4..def5bced1c965 100644
    void Observe(int type,
                 const content::NotificationSource& source,
 diff --git chrome/browser/resources/print_preview/ui/destination_dialog.html chrome/browser/resources/print_preview/ui/destination_dialog.html
-index df858712d3be8..cd146ea0f26b4 100644
+index 920f646f06484..76c0b5e5ee04b 100644
 --- chrome/browser/resources/print_preview/ui/destination_dialog.html
 +++ chrome/browser/resources/print_preview/ui/destination_dialog.html
 @@ -25,10 +25,7 @@
@@ -126,21 +126,6 @@ index df858712d3be8..cd146ea0f26b4 100644
      <cr-button class="cancel-button" on-click="onCancelButtonClick_">
        $i18n{cancel}
      </cr-button>
-diff --git chrome/browser/resources/print_preview/ui/destination_select.html chrome/browser/resources/print_preview/ui/destination_select.html
-index 6d3d49c902e7b..4769176b9550c 100644
---- chrome/browser/resources/print_preview/ui/destination_select.html
-+++ chrome/browser/resources/print_preview/ui/destination_select.html
-@@ -20,10 +20,6 @@
-       <option value="[[pdfDestinationKey_]]" hidden$="[[pdfPrinterDisabled]]">
-         $i18n{printToPDF}
-       </option>
--      <option value="[[driveDestinationKey]]"
--          hidden$="[[!driveDestinationKey]]">
--        $i18n{printToGoogleDrive}
--      </option>
-       <option value="noDestinations"
-               hidden$="[[!noDestinations]]" selected$="[[noDestinations]]">
-         $i18n{noDestinationsMessage}
 diff --git chrome/browser/ui/webui/constrained_web_dialog_ui.cc chrome/browser/ui/webui/constrained_web_dialog_ui.cc
 index 3d415a60d4361..807ab41ee6ef1 100644
 --- chrome/browser/ui/webui/constrained_web_dialog_ui.cc
@@ -166,10 +151,10 @@ index 3d415a60d4361..807ab41ee6ef1 100644
  
  ConstrainedWebDialogUI::~ConstrainedWebDialogUI() {
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
-index 6c43d5381f7c8..d5373865c9850 100644
+index bb1a2238af55c..b825289863d57 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 +++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
-@@ -22,6 +22,7 @@
+@@ -21,6 +21,7 @@
  #include "base/values.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
@@ -177,8 +162,8 @@ index 6c43d5381f7c8..d5373865c9850 100644
  #include "chrome/browser/app_mode/app_mode_utils.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/download/download_prefs.h"
-@@ -55,6 +56,10 @@
- #include "chrome/browser/ash/drive/drive_integration_service.h"
+@@ -61,6 +62,10 @@
+ #include "chromeos/lacros/lacros_service.h"
  #endif
  
 +#if BUILDFLAG(ENABLE_CEF)
@@ -188,7 +173,7 @@ index 6c43d5381f7c8..d5373865c9850 100644
  namespace printing {
  
  namespace {
-@@ -378,10 +383,27 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
+@@ -421,10 +426,27 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
    // If the directory is empty there is no reason to create it or use the
    // default location.
    if (path.empty()) {
@@ -216,7 +201,7 @@ index 6c43d5381f7c8..d5373865c9850 100644
    // Get default download directory. This will be used as a fallback if the
    // save directory does not exist.
    DownloadPrefs* download_prefs = DownloadPrefs::FromBrowserContext(profile_);
-@@ -389,8 +411,7 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
+@@ -432,8 +454,7 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
    base::ThreadPool::PostTaskAndReplyWithResult(
        FROM_HERE, {base::MayBlock(), base::TaskPriority::BEST_EFFORT},
        base::BindOnce(&SelectSaveDirectory, path, default_path),
@@ -226,7 +211,7 @@ index 6c43d5381f7c8..d5373865c9850 100644
  }
  
  void PdfPrinterHandler::PostPrintToPdfTask() {
-@@ -431,6 +452,40 @@ void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
+@@ -479,6 +500,40 @@ void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
        platform_util::GetTopLevel(preview_web_contents_->GetNativeView()), NULL);
  }
  
@@ -248,8 +233,8 @@ index 6c43d5381f7c8..d5373865c9850 100644
 +  params.accept_types.push_back(CefString(path.Extension()));
 +
 +  cef_browser->RunFileChooser(
-+      params, base::Bind(&PdfPrinterHandler::SaveAsDialogDismissed,
-+                         weak_ptr_factory_.GetWeakPtr()));
++      params, base::BindOnce(&PdfPrinterHandler::SaveAsDialogDismissed,
++                             weak_ptr_factory_.GetWeakPtr()));
 +}
 +
 +void PdfPrinterHandler::SaveAsDialogDismissed(
@@ -268,7 +253,7 @@ index 6c43d5381f7c8..d5373865c9850 100644
  #if BUILDFLAG(IS_CHROMEOS_ASH)
    drive::DriveIntegrationService* drive_service =
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.h chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
-index 9730721279eff..cd3ec0c7e0af6 100644
+index 143c97225fac7..90b6e9549589e 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
 +++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
 @@ -11,6 +11,7 @@
@@ -279,7 +264,7 @@ index 9730721279eff..cd3ec0c7e0af6 100644
  #include "chrome/browser/ui/webui/print_preview/printer_handler.h"
  #include "ui/shell_dialogs/select_file_dialog.h"
  
-@@ -88,6 +89,15 @@ class PdfPrinterHandler : public PrinterHandler,
+@@ -91,6 +92,15 @@ class PdfPrinterHandler : public PrinterHandler,
    void OnDirectorySelected(const base::FilePath& filename,
                             const base::FilePath& directory);
  
@@ -296,10 +281,10 @@ index 9730721279eff..cd3ec0c7e0af6 100644
    base::FilePath GetSaveLocation() const;
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_handler.cc chrome/browser/ui/webui/print_preview/print_preview_handler.cc
-index 5c8ae1be08334..e7074994d89d0 100644
+index 058c76f2a3f8c..3eda3a8f46d9a 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_handler.cc
-@@ -24,6 +24,7 @@
+@@ -25,6 +25,7 @@
  #include "base/values.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
@@ -307,7 +292,7 @@ index 5c8ae1be08334..e7074994d89d0 100644
  #include "chrome/browser/account_manager_facade_factory.h"
  #include "chrome/browser/app_mode/app_mode_utils.h"
  #include "chrome/browser/bad_message.h"
-@@ -1076,7 +1077,7 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
+@@ -1107,7 +1108,7 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
      }
      return extension_printer_handler_.get();
    }
@@ -316,7 +301,7 @@ index 5c8ae1be08334..e7074994d89d0 100644
    if (printer_type == PrinterType::kPrivet &&
        GetPrefs()->GetBoolean(prefs::kForceEnablePrivetPrinting)) {
      if (!privet_printer_handler_) {
-@@ -1085,6 +1086,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
+@@ -1116,6 +1117,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
      }
      return privet_printer_handler_.get();
    }
@@ -326,48 +311,38 @@ index 5c8ae1be08334..e7074994d89d0 100644
  #endif
    if (printer_type == PrinterType::kPdf) {
      if (!pdf_printer_handler_) {
-@@ -1147,6 +1151,7 @@ void PrintPreviewHandler::OnPrintResult(const std::string& callback_id,
- }
- 
- void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
-+#if !BUILDFLAG(ENABLE_CEF)
-   DCHECK(!identity_manager_);
-   cloud_print_enabled_ =
-       !base::Contains(printer_type_deny_list_, PrinterType::kCloud) &&
-@@ -1163,6 +1168,7 @@ void PrintPreviewHandler::RegisterForGaiaCookieChanges() {
- 
-   identity_manager_ = IdentityManagerFactory::GetForProfile(profile);
-   identity_manager_->AddObserver(this);
-+#endif
- }
- 
- void PrintPreviewHandler::UnregisterForGaiaCookieChanges() {
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index eb353375b0549..45b14ee354677 100644
+index f98201bb37881..7e4d2f2ee19ff 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-@@ -30,6 +30,7 @@
+@@ -29,6 +29,7 @@
  #include "base/values.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
-+#include "cef/libcef/features/features.h"
++#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/pdf/pdf_extension_util.h"
  #include "chrome/browser/printing/background_printing_manager.h"
-@@ -91,12 +92,16 @@ namespace printing {
- 
- namespace {
- 
-+#if BUILDFLAG(ENABLE_CEF)
-+const char kBasicPrintShortcut[] = "";
-+#else
- #if defined(OS_MAC)
- // U+0028 U+21E7 U+2318 U+0050 U+0029 in UTF8
- const char kBasicPrintShortcut[] = "\x28\xE2\x8c\xA5\xE2\x8C\x98\x50\x29";
- #elif !BUILDFLAG(IS_CHROMEOS_ASH)
- const char kBasicPrintShortcut[] = "(Ctrl+Shift+P)";
+@@ -96,6 +97,13 @@ const char16_t kBasicPrintShortcut[] = u"\u0028\u21e7\u2318\u0050\u0029";
+ const char16_t kBasicPrintShortcut[] = u"(Ctrl+Shift+P)";
  #endif
-+#endif  // !BUILDFLAG(ENABLE_CEF)
  
++const char16_t* GetBasicPrintShortcut() {
++  if (cef::IsAlloyRuntimeEnabled()) {
++    return u"";
++  }
++  return kBasicPrintShortcut;
++}
++
  constexpr char kInvalidArgsForDidStartPreview[] =
      "Invalid arguments for DidStartPreview";
+ constexpr char kInvalidPageNumberForDidPreviewPage[] =
+@@ -381,7 +389,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
+                     chrome::kCloudPrintCertificateErrorLearnMoreURL);
+ 
+ #if !defined(OS_CHROMEOS)
+-  const std::u16string shortcut_text(kBasicPrintShortcut);
++  const std::u16string shortcut_text(GetBasicPrintShortcut());
+   source->AddString("systemDialogOption",
+                     l10n_util::GetStringFUTF16(
+                         IDS_PRINT_PREVIEW_SYSTEM_DIALOG_OPTION, shortcut_text));

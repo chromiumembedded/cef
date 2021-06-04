@@ -379,12 +379,12 @@ void CefBrowserPlatformDelegateAlloy::PrintToPDF(
     return;
   printing::CefPrintViewManager::PdfPrintCallback pdf_callback;
   if (callback.get()) {
-    pdf_callback = base::Bind(&CefPdfPrintCallback::OnPdfPrintFinished,
-                              callback.get(), path);
+    pdf_callback = base::BindOnce(&CefPdfPrintCallback::OnPdfPrintFinished,
+                                  callback.get(), path);
   }
   GetPrintViewManager(actionable_contents)
       ->PrintToPDF(actionable_contents->GetMainFrame(), base::FilePath(path),
-                   settings, pdf_callback);
+                   settings, std::move(pdf_callback));
 }
 
 void CefBrowserPlatformDelegateAlloy::Find(int identifier,

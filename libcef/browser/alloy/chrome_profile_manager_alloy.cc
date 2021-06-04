@@ -56,10 +56,3 @@ bool ChromeProfileManagerAlloy::IsValidProfile(const void* profile) {
   return !!CefBrowserContext::FromBrowserContext(
       static_cast<const content::BrowserContext*>(profile));
 }
-
-Profile* ChromeProfileManagerAlloy::GetLastUsedProfile(
-    const base::FilePath& user_data_dir) {
-  // Override this method to avoid having to register prefs::kProfileLastUsed,
-  // usage of which doesn't make sense for CEF.
-  return GetActiveBrowserContext()->AsProfile();
-}

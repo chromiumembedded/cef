@@ -87,6 +87,23 @@ std::string GetOrigin(HandlerType handler) {
   return std::string();
 }
 
+std::string GetScheme(HandlerType handler) {
+  switch (handler) {
+    case HandlerType::SERVER:
+      return test_server::kServerScheme;
+    case HandlerType::HTTP_SCHEME:
+      return "https";
+    case HandlerType::CUSTOM_STANDARD_SCHEME:
+      return "customstdfetch";
+    case HandlerType::CUSTOM_NONSTANDARD_SCHEME:
+      return "customnonstd";
+    case HandlerType::CUSTOM_UNREGISTERED_SCHEME:
+      return "customstdunregistered";
+  }
+  NOTREACHED();
+  return std::string();
+}
+
 bool IsNonStandardType(HandlerType handler) {
   return handler == HandlerType::CUSTOM_NONSTANDARD_SCHEME ||
          handler == HandlerType::CUSTOM_UNREGISTERED_SCHEME;
@@ -1159,9 +1176,9 @@ void SetupExecRequest(ExecMode mode,
           "' has been blocked by CORS policy: Cross origin requests are only "
           "supported for protocol schemes:");
     } else {
-      setup->AddConsoleMessage(
-          "Fetch API cannot load " + sub_url +
-          ". URL scheme must be \"http\" or \"https\" for CORS request.");
+      setup->AddConsoleMessage("Fetch API cannot load " + sub_url +
+                               ". URL scheme \"" + GetScheme(sub_handler) +
+                               "\" is not supported.");
     }
   } else {
     // Expect the (possibly cross-origin) XHR to be allowed.
@@ -1181,18 +1198,6 @@ void SetupExecRequest(ExecMode mode,
                                std::string());
       preflight_resource->InitPreflight(main_handler);
       setup->AddResource(preflight_resource);
-
-      if (IsNonStandardType(main_handler) && add_header) {
-        setup->AddConsoleMessage(
-            "The website requested a subresource from a network that it could "
-            "only access because of its users' privileged network position. "
-            "These requests expose non-public devices and servers to the "
-            "internet, increasing the risk of a cross-site request forgery "
-            "(CSRF) attack, and/or information leakage. To mitigate these "
-            "risks, Chrome deprecates requests to non-public subresources when "
-            "initiated from non-secure contexts, and will start blocking them "
-            "in Chrome 92 (July 2021)");
-      }
     } else {
       // The server will not handle the preflight request. Expect the
       // cross-origin XHR to be blocked.

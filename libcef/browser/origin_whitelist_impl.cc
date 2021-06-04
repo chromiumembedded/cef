@@ -101,7 +101,7 @@ class CefOriginWhitelistManager {
   }
 
   void GetCrossOriginWhitelistEntries(
-      base::Optional<CrossOriginWhiteList>* entries) const {
+      absl::optional<CrossOriginWhiteList>* entries) const {
     base::AutoLock lock_scope(lock_);
 
     if (!origin_list_.empty()) {
@@ -226,9 +226,9 @@ bool CefAddCrossOriginWhitelistEntry(const CefString& source_origin,
   } else {
     CEF_POST_TASK(
         CEF_UIT,
-        base::Bind(base::IgnoreResult(&CefAddCrossOriginWhitelistEntry),
-                   source_origin, target_protocol, target_domain,
-                   allow_target_subdomains));
+        base::BindOnce(base::IgnoreResult(&CefAddCrossOriginWhitelistEntry),
+                       source_origin, target_protocol, target_domain,
+                       allow_target_subdomains));
   }
 
   return true;
@@ -257,9 +257,9 @@ bool CefRemoveCrossOriginWhitelistEntry(const CefString& source_origin,
   } else {
     CEF_POST_TASK(
         CEF_UIT,
-        base::Bind(base::IgnoreResult(&CefRemoveCrossOriginWhitelistEntry),
-                   source_origin, target_protocol, target_domain,
-                   allow_target_subdomains));
+        base::BindOnce(base::IgnoreResult(&CefRemoveCrossOriginWhitelistEntry),
+                       source_origin, target_protocol, target_domain,
+                       allow_target_subdomains));
   }
 
   return true;
@@ -276,14 +276,15 @@ bool CefClearCrossOriginWhitelist() {
     CefOriginWhitelistManager::GetInstance()->ClearOrigins();
   } else {
     CEF_POST_TASK(
-        CEF_UIT, base::Bind(base::IgnoreResult(&CefClearCrossOriginWhitelist)));
+        CEF_UIT,
+        base::BindOnce(base::IgnoreResult(&CefClearCrossOriginWhitelist)));
   }
 
   return true;
 }
 
 void GetCrossOriginWhitelistEntries(
-    base::Optional<CrossOriginWhiteList>* entries) {
+    absl::optional<CrossOriginWhiteList>* entries) {
   CefOriginWhitelistManager::GetInstance()->GetCrossOriginWhitelistEntries(
       entries);
 }

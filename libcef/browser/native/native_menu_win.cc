@@ -487,8 +487,8 @@ void CefNativeMenuWin::RunMenuAt(const gfx::Point& point, int alignment) {
     // does.
     menu_to_select_factory_.InvalidateWeakPtrs();
     base::ThreadTaskRunnerHandle::Get()->PostTask(
-        FROM_HERE, base::Bind(&CefNativeMenuWin::DelayedSelect,
-                              menu_to_select_factory_.GetWeakPtr()));
+        FROM_HERE, base::BindOnce(&CefNativeMenuWin::DelayedSelect,
+                                  menu_to_select_factory_.GetWeakPtr()));
     menu_action_ = MENU_ACTION_SELECTED;
   }
   // Send MenuWillClose after we schedule the select, otherwise MenuWillClose is

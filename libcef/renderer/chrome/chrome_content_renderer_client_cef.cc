@@ -45,7 +45,7 @@ void ChromeContentRendererClientCef::RenderFrameCreated(
       new CefRenderFrameObserver(render_frame);
 
   bool browser_created;
-  base::Optional<bool> is_windowless;
+  absl::optional<bool> is_windowless;
   render_manager_->RenderFrameCreated(render_frame, render_frame_observer,
                                       browser_created, is_windowless);
   if (is_windowless.has_value() && *is_windowless) {
@@ -58,7 +58,7 @@ void ChromeContentRendererClientCef::RenderViewCreated(
   ChromeContentRendererClient::RenderViewCreated(render_view);
 
   bool browser_created;
-  base::Optional<bool> is_windowless;
+  absl::optional<bool> is_windowless;
   render_manager_->RenderViewCreated(render_view, browser_created,
                                      is_windowless);
   if (is_windowless.has_value() && *is_windowless) {

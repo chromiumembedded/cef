@@ -1,5 +1,5 @@
 diff --git content/browser/child_process_launcher_helper_linux.cc content/browser/child_process_launcher_helper_linux.cc
-index f3d40b628ec20..7efc41048b3c1 100644
+index bbc1d4d057291..a7c7d75f61df6 100644
 --- content/browser/child_process_launcher_helper_linux.cc
 +++ content/browser/child_process_launcher_helper_linux.cc
 @@ -162,7 +162,7 @@ void ChildProcessLauncherHelper::SetProcessPriorityOnLauncherThread(
@@ -12,7 +12,7 @@ index f3d40b628ec20..7efc41048b3c1 100644
    base::File file(exe_dir.Append(path),
                    base::File::FLAG_OPEN | base::File::FLAG_READ);
 diff --git sandbox/linux/suid/client/setuid_sandbox_host.cc sandbox/linux/suid/client/setuid_sandbox_host.cc
-index 0aaed76c1dda2..517c3d8b57725 100644
+index f88c5077c6d63..8a010b882f2b7 100644
 --- sandbox/linux/suid/client/setuid_sandbox_host.cc
 +++ sandbox/linux/suid/client/setuid_sandbox_host.cc
 @@ -120,7 +120,7 @@ bool SetuidSandboxHost::IsDisabledViaEnvironment() {

@@ -7,6 +7,7 @@
 
 #include "include/internal/cef_types_wrappers.h"
 
+#include "base/callback_forward.h"
 #include "base/macros.h"
 #include "chrome/browser/printing/print_view_manager.h"
 #include "components/printing/common/print.mojom-forward.h"
@@ -30,13 +31,13 @@ class CefPrintViewManager : public PrintViewManager,
   ~CefPrintViewManager() override;
 
   // Callback executed on PDF printing completion.
-  typedef base::Callback<void(bool /*ok*/)> PdfPrintCallback;
+  typedef base::OnceCallback<void(bool /*ok*/)> PdfPrintCallback;
 
   // Print the current document to a PDF file. Execute |callback| on completion.
   bool PrintToPDF(content::RenderFrameHost* rfh,
                   const base::FilePath& path,
                   const CefPdfPrintSettings& settings,
-                  const PdfPrintCallback& callback);
+                  PdfPrintCallback callback);
 
   // mojom::PrintManagerHost methods:
   void GetDefaultPrintSettings(

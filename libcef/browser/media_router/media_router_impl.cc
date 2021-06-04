@@ -162,8 +162,8 @@ void CefMediaRouterImpl::Initialize(
 
   if (callback) {
     // Execute client callback asynchronously for consistency.
-    CEF_POST_TASK(CEF_UIT, base::Bind(&CefCompletionCallback::OnComplete,
-                                      callback.get()));
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefCompletionCallback::OnComplete,
+                                          callback.get()));
   }
 }
 

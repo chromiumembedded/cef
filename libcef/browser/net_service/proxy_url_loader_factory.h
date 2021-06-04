@@ -12,7 +12,6 @@
 #include "base/containers/unique_ptr_adapters.h"
 #include "base/hash/hash.h"
 #include "base/macros.h"
-#include "base/optional.h"
 #include "base/strings/string_piece.h"
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/browser/web_contents.h"
@@ -20,6 +19,7 @@
 #include "mojo/public/cpp/bindings/receiver_set.h"
 #include "services/network/public/mojom/network_context.mojom.h"
 #include "services/network/public/mojom/url_loader_factory.mojom.h"
+#include "third_party/abseil-cpp/absl/types/optional.h"
 
 namespace content {
 class ResourceContext;
@@ -104,7 +104,7 @@ class InterceptedRequestHandler {
       int32_t request_id,
       network::ResourceRequest* request,
       net::HttpResponseHeaders* headers,
-      base::Optional<net::RedirectInfo> redirect_info,
+      absl::optional<net::RedirectInfo> redirect_info,
       OnRequestResponseResultCallback callback);
 
   // Called to optionally filter the response body.

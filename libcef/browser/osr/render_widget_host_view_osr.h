@@ -19,7 +19,6 @@
 #include "libcef/browser/osr/motion_event_osr.h"
 
 #include "base/memory/weak_ptr.h"
-#include "base/optional.h"
 #include "build/build_config.h"
 #include "cc/layers/deadline_policy.h"
 #include "components/viz/common/frame_sinks/begin_frame_source.h"
@@ -29,6 +28,7 @@
 #include "content/browser/renderer_host/text_input_manager.h"
 #include "content/public/browser/render_frame_metadata_provider.h"
 #include "content/public/common/widget_type.h"
+#include "third_party/abseil-cpp/absl/types/optional.h"
 #include "ui/base/cursor/cursor.h"
 #include "ui/base/cursor/mojom/cursor_type.mojom-shared.h"
 #include "ui/compositor/compositor.h"
@@ -117,9 +117,9 @@ class CefRenderWidgetHostViewOSR
   void EnsureSurfaceSynchronizedForWebTest() override;
   gfx::Rect GetViewBounds() override;
   void SetBackgroundColor(SkColor color) override;
-  base::Optional<SkColor> GetBackgroundColor() override;
+  absl::optional<SkColor> GetBackgroundColor() override;
   void UpdateBackgroundColor() override;
-  base::Optional<content::DisplayFeature> GetDisplayFeature() override;
+  absl::optional<content::DisplayFeature> GetDisplayFeature() override;
   void SetDisplayFeatureForTesting(
       const content::DisplayFeature* display_feature) override;
   blink::mojom::PointerLockResult LockMouse(
@@ -150,7 +150,7 @@ class CefRenderWidgetHostViewOSR
   void SetIsLoading(bool is_loading) override;
   void RenderProcessGone() override;
   void Destroy() override;
-  void SetTooltipText(const std::u16string& tooltip_text) override;
+  void UpdateTooltipUnderCursor(const std::u16string& tooltip_text) override;
   content::CursorManager* GetCursorManager() override;
   gfx::Size GetCompositorViewportPixelSize() override;
   void CopyFromSurface(
@@ -215,7 +215,7 @@ class CefRenderWidgetHostViewOSR
   void WasResized();
   void SynchronizeVisualProperties(
       const cc::DeadlinePolicy& deadline_policy,
-      const base::Optional<viz::LocalSurfaceId>& child_local_surface_id);
+      const absl::optional<viz::LocalSurfaceId>& child_local_surface_id);
   void OnScreenInfoChanged();
   void Invalidate(CefBrowserHost::PaintElementType type);
   void SendExternalBeginFrame();
@@ -277,6 +277,7 @@ class CefRenderWidgetHostViewOSR
  private:
   void SetFrameRate();
   bool SetDeviceScaleFactor();
+  void SetCurrentDeviceScaleFactor(float scale);
   bool SetViewBounds();
   bool SetRootLayerSize(bool force);
 
@@ -315,7 +316,7 @@ class CefRenderWidgetHostViewOSR
   // has allocated one. Also sets child sequence number component of the
   // viz::LocalSurfaceId allocator.
   void UpdateLocalSurfaceIdFromEmbeddedClient(
-      const base::Optional<viz::LocalSurfaceId>& local_surface_id);
+      const absl::optional<viz::LocalSurfaceId>& local_surface_id);
 
   // Returns the current viz::LocalSurfaceIdAllocation.
   const viz::LocalSurfaceId& GetOrCreateLocalSurfaceId();

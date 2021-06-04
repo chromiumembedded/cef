@@ -104,7 +104,7 @@ const char kCdmSupportedEncryptionSchemeCbcs[] = "cbcs";
 struct CdmInfoArgs {
   base::FilePath path;
   std::string version;
-  content::CdmCapability capability;
+  media::CdmCapability capability;
 };
 
 std::unique_ptr<base::DictionaryValue> ParseManifestFile(
@@ -389,10 +389,11 @@ void DeliverWidevineCdmCallback(cef_cdm_registration_error_t result,
 }
 
 content::CdmInfo MakeCdmInfo(const CdmInfoArgs& args) {
-  return content::CdmInfo(kWidevineCdmDisplayName, kWidevineCdmGuid,
-                          base::Version(args.version), args.path,
-                          kWidevineCdmFileSystemId, args.capability,
-                          kWidevineKeySystem, false);
+  return content::CdmInfo(
+      kWidevineKeySystem, content::CdmInfo::Robustness::kSoftwareSecure,
+      std::move(args.capability), /*supports_sub_key_systems=*/false,
+      kWidevineCdmDisplayName, kWidevineCdmGuid, base::Version(args.version),
+      args.path, kWidevineCdmFileSystemId);
 }
 
 void RegisterWidevineCdmOnUIThread(std::unique_ptr<CdmInfoArgs> args,

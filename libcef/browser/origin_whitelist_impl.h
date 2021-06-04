@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include "base/optional.h"
+#include "third_party/abseil-cpp/absl/types/optional.h"
 
 #include "cef/libcef/common/mojom/cef.mojom-forward.h"
 
@@ -25,7 +25,7 @@ using CrossOriginWhiteList =
 // Called to retrieve the current list of cross-origin white list entries. This
 // method is thread safe.
 void GetCrossOriginWhitelistEntries(
-    base::Optional<CrossOriginWhiteList>* entries);
+    absl::optional<CrossOriginWhiteList>* entries);
 
 // Returns true if |source| can access |target| based on the cross-origin white
 // list settings.

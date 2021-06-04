@@ -36,31 +36,31 @@ class CefDevToolsFileManager {
 
  private:
   // SaveToFile implementation:
-  typedef base::Callback<void(const std::string&)> SaveCallback;
-  typedef base::Callback<void()> CancelCallback;
+  typedef base::OnceCallback<void(const std::string&)> SaveCallback;
+  typedef base::OnceCallback<void()> CancelCallback;
   void Save(const std::string& url,
             const std::string& content,
             bool save_as,
-            const SaveCallback& saveCallback,
-            const CancelCallback& cancelCallback);
+            SaveCallback saveCallback,
+            CancelCallback cancelCallback);
   void SaveAsDialogDismissed(const std::string& url,
                              const std::string& content,
-                             const SaveCallback& saveCallback,
-                             const CancelCallback& cancelCallback,
+                             SaveCallback saveCallback,
+                             CancelCallback cancelCallback,
                              int selected_accept_filter,
                              const std::vector<base::FilePath>& file_paths);
   void SaveAsFileSelected(const std::string& url,
                           const std::string& content,
-                          const SaveCallback& callback,
+                          SaveCallback callback,
                           const base::FilePath& path);
   void FileSavedAs(const std::string& url, const std::string& file_system_path);
   void CanceledFileSaveAs(const std::string& url);
 
   // AppendToFile implementation:
-  typedef base::Callback<void(void)> AppendCallback;
+  typedef base::OnceCallback<void(void)> AppendCallback;
   void Append(const std::string& url,
               const std::string& content,
-              const AppendCallback& callback);
+              AppendCallback callback);
   void AppendedTo(const std::string& url);
 
   void CallClientFunction(const std::string& function_name,

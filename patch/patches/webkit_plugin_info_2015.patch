@@ -10,12 +10,12 @@ index ff7a8ed89e94a..77f44956ff22f 100644
 +  GetPlugins(bool refresh, bool is_main_frame, url.mojom.Origin main_frame_origin) => (array<PluginInfo> plugins);
  };
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index b5904a748f70b..a936bd95229b7 100644
+index d0df35ea0be1f..895006a02a35d 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -774,6 +774,11 @@ class BLINK_PLATFORM_EXPORT Platform {
-   // Returns a sad page bitmap used when the child frame has crashed.
-   virtual SkBitmap* GetSadPageBitmap() { return nullptr; }
+@@ -873,6 +873,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+     return nullptr;
+   }
  
 +  // DevTools ------------------------------------------------------------
 +
@@ -26,10 +26,10 @@ index b5904a748f70b..a936bd95229b7 100644
    static void InitializeMainThreadCommon(Platform* platform,
                                           std::unique_ptr<Thread> main_thread);
 diff --git third_party/blink/renderer/core/dom/document_init.cc third_party/blink/renderer/core/dom/document_init.cc
-index a43dcce78e486..46bbd086516f8 100644
+index 463e3e5e73419..97aaf0da2b9a5 100644
 --- third_party/blink/renderer/core/dom/document_init.cc
 +++ third_party/blink/renderer/core/dom/document_init.cc
-@@ -185,11 +185,11 @@ PluginData* DocumentInit::GetPluginData(LocalFrame* frame, const KURL& url) {
+@@ -177,11 +177,11 @@ PluginData* DocumentInit::GetPluginData(LocalFrame* frame, const KURL& url) {
    // frame()->tree().top()->securityContext() returns nullptr.
    // For that reason, the origin must be retrieved directly from |url|.
    if (frame->IsMainFrame())
@@ -44,10 +44,10 @@ index a43dcce78e486..46bbd086516f8 100644
  
  DocumentInit& DocumentInit::WithTypeFrom(const String& mime_type) {
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index 4da1c9cbfdbf6..acd69b393cfc0 100644
+index fab2d2cbc446c..0292471023cdb 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
-@@ -1967,7 +1967,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
+@@ -2087,7 +2087,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins())
      return nullptr;
@@ -85,10 +85,10 @@ index 242653b4e7237..385e4b4d3f075 100644
  
  void DevToolsSession::DispatchProtocolCommand(
 diff --git third_party/blink/renderer/core/page/page.cc third_party/blink/renderer/core/page/page.cc
-index 415b29342170a..5aebc6d6379a5 100644
+index 4ae29426622ff..d8fe3d0720f9d 100644
 --- third_party/blink/renderer/core/page/page.cc
 +++ third_party/blink/renderer/core/page/page.cc
-@@ -210,7 +210,8 @@ Page::Page(PageClients& page_clients,
+@@ -212,7 +212,8 @@ Page::Page(base::PassKey<Page>,
            MakeGarbageCollected<OverscrollController>(GetVisualViewport(),
                                                       GetChromeClient())),
        link_highlight_(MakeGarbageCollected<LinkHighlight>(*this)),
@@ -98,7 +98,7 @@ index 415b29342170a..5aebc6d6379a5 100644
        // TODO(pdr): Initialize |validation_message_client_| lazily.
        validation_message_client_(
            MakeGarbageCollected<ValidationMessageClientImpl>(*this)),
-@@ -402,21 +403,41 @@ void Page::InitialStyleChanged() {
+@@ -404,21 +405,41 @@ void Page::InitialStyleChanged() {
    }
  }
  
@@ -149,7 +149,7 @@ index 415b29342170a..5aebc6d6379a5 100644
        page->NotifyPluginsChanged();
      }
    }
-@@ -928,7 +949,8 @@ void Page::Trace(Visitor* visitor) const {
+@@ -929,7 +950,8 @@ void Page::Trace(Visitor* visitor) const {
    visitor->Trace(link_highlight_);
    visitor->Trace(spatial_navigation_controller_);
    visitor->Trace(main_frame_);
@@ -160,10 +160,10 @@ index 415b29342170a..5aebc6d6379a5 100644
    visitor->Trace(plugins_changed_observers_);
    visitor->Trace(next_related_page_);
 diff --git third_party/blink/renderer/core/page/page.h third_party/blink/renderer/core/page/page.h
-index d2efc89d1305e..4934e23c3b085 100644
+index 9a219bef35564..e42009509bb12 100644
 --- third_party/blink/renderer/core/page/page.h
 +++ third_party/blink/renderer/core/page/page.h
-@@ -156,7 +156,8 @@ class CORE_EXPORT Page final : public GarbageCollected<Page>,
+@@ -147,7 +147,8 @@ class CORE_EXPORT Page final : public GarbageCollected<Page>,
    ViewportDescription GetViewportDescription() const;
  
    // Returns the plugin data associated with |main_frame_origin|.
@@ -173,7 +173,7 @@ index d2efc89d1305e..4934e23c3b085 100644
  
    // Resets the plugin data for all pages in the renderer process and notifies
    // PluginsChangedObservers.
-@@ -435,7 +436,8 @@ class CORE_EXPORT Page final : public GarbageCollected<Page>,
+@@ -428,7 +429,8 @@ class CORE_EXPORT Page final : public GarbageCollected<Page>,
    const Member<LinkHighlight> link_highlight_;
    Member<SpatialNavigationController> spatial_navigation_controller_;
  
@@ -212,7 +212,7 @@ index 89beb74dae8a9..63bfa84b45b72 100644
      auto* plugin_info = MakeGarbageCollected<PluginInfo>(
          plugin->name, FilePathToWebString(plugin->filename),
 diff --git third_party/blink/renderer/core/page/plugin_data.h third_party/blink/renderer/core/page/plugin_data.h
-index fe5aa20243d89..c2b3540d3bb54 100644
+index 8dc24f5d25ace..7203ddcedf877 100644
 --- third_party/blink/renderer/core/page/plugin_data.h
 +++ third_party/blink/renderer/core/page/plugin_data.h
 @@ -97,7 +97,8 @@ class CORE_EXPORT PluginData final : public GarbageCollected<PluginData> {

@@ -294,10 +294,12 @@ void CefSetOSModalLoop(bool osModalLoop) {
     return;
   }
 
-  if (CEF_CURRENTLY_ON_UIT())
-    base::CurrentThread::Get()->set_os_modal_loop(osModalLoop);
-  else
-    CEF_POST_TASK(CEF_UIT, base::Bind(CefSetOSModalLoop, osModalLoop));
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(CefSetOSModalLoop, osModalLoop));
+    return;
+  }
+
+  base::CurrentThread::Get()->set_os_modal_loop(osModalLoop);
 #endif  // defined(OS_WIN)
 }
 

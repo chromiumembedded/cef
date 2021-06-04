@@ -42,7 +42,7 @@ CefRefPtr<CefValue> CefParseJSON(const void* json,
                                  cef_json_parser_options_t options) {
   if (!json || json_size == 0)
     return nullptr;
-  base::Optional<base::Value> parse_result = base::JSONReader::Read(
+  absl::optional<base::Value> parse_result = base::JSONReader::Read(
       base::StringPiece(static_cast<const char*>(json), json_size),
       GetJSONReaderOptions(options));
   if (parse_result) {

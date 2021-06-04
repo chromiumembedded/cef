@@ -233,7 +233,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                     bool is_navigation,
                     bool is_download,
                     const url::Origin& request_initiator,
-                    const base::Closure& unhandled_request_callback) {
+                    const base::RepeatingClosure& unhandled_request_callback) {
       CEF_REQUIRE_UIT();
 
       browser_context_ = browser_context;
@@ -297,7 +297,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     bool is_navigation_ = true;
     bool is_download_ = false;
     CefString request_initiator_;
-    base::Closure unhandled_request_callback_;
+    base::RepeatingClosure unhandled_request_callback_;
 
     // Default values for standard headers.
     std::string accept_language_;
@@ -705,7 +705,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
   void OnRequestResponse(int32_t request_id,
                          network::ResourceRequest* request,
                          net::HttpResponseHeaders* headers,
-                         base::Optional<net::RedirectInfo> redirect_info,
+                         absl::optional<net::RedirectInfo> redirect_info,
                          OnRequestResponseResultCallback callback) override {
     CEF_REQUIRE_IOT();
 
@@ -1179,7 +1179,7 @@ void InitOnUIThread(
     content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
     const network::ResourceRequest& request,
-    const base::Closure& unhandled_request_callback) {
+    const base::RepeatingClosure& unhandled_request_callback) {
   CEF_REQUIRE_UIT();
 
   // May return nullptr if the WebContents was destroyed while this callback was
@@ -1278,7 +1278,8 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
       std::make_unique<InterceptedRequestHandlerWrapper::InitState>();
   init_state->Initialize(browser_context, browserPtr, framePtr,
                          render_process_id, frame_tree_node_id, is_navigation,
-                         is_download, request_initiator, base::Closure());
+                         is_download, request_initiator,
+                         base::RepeatingClosure());
 
   auto wrapper = std::make_unique<InterceptedRequestHandlerWrapper>();
   wrapper->init_helper()->MaybeSetInitialized(std::move(init_state));
@@ -1290,7 +1291,7 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
     content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
     const network::ResourceRequest& request,
-    const base::Closure& unhandled_request_callback) {
+    const base::RepeatingClosure& unhandled_request_callback) {
   auto wrapper = std::make_unique<InterceptedRequestHandlerWrapper>();
   CEF_POST_TASK(CEF_UIT, base::BindOnce(InitOnUIThread, wrapper->init_helper(),
                                         web_contents_getter, frame_tree_node_id,

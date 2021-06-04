@@ -74,7 +74,7 @@ ToolbarView* ChromeBrowserView::OverrideCreateToolbar(
     BrowserView* browser_view) {
   if (cef_delegate()) {
     auto toolbar_type = cef_delegate()->GetChromeToolbarType();
-    base::Optional<ToolbarView::DisplayMode> display_mode;
+    absl::optional<ToolbarView::DisplayMode> display_mode;
     switch (toolbar_type) {
       case CEF_CTT_NORMAL:
         display_mode = ToolbarView::DisplayMode::NORMAL;

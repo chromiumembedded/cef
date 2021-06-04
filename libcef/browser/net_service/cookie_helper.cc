@@ -26,7 +26,7 @@ namespace {
 network::mojom::CookieManager* GetCookieManager(
     content::BrowserContext* browser_context) {
   CEF_REQUIRE_UIT();
-  return content::BrowserContext::GetDefaultStoragePartition(browser_context)
+  return browser_context->GetDefaultStoragePartition()
       ->GetCookieManagerForBrowserProcess();
 }
 
@@ -164,7 +164,7 @@ void SaveCookiesOnUIThread(content::BrowserContext* browser_context,
 
 bool IsCookieableScheme(
     const GURL& url,
-    const base::Optional<std::vector<std::string>>& cookieable_schemes) {
+    const absl::optional<std::vector<std::string>>& cookieable_schemes) {
   if (!url.has_scheme())
     return false;
 

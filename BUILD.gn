@@ -363,6 +363,9 @@ if (is_win) {
 
       # Required by content_switches.cc
       "//media:media_buildflags",
+
+      # Required by crash_keys.cc (from base/stl_util.h)
+      "//third_party/abseil-cpp:absl",
     ]
   }
 }
@@ -796,6 +799,10 @@ static_library("libcef_static") {
     # For Chrome runtime support.
     "//chrome/app/chrome_main_delegate.cc",
     "//chrome/app/chrome_main_delegate.h",
+
+    # Part of //content//test::test_support which is testingonly.
+    "//content/public/test/scoped_web_ui_controller_factory_registration.cc",
+    "//content/public/test/scoped_web_ui_controller_factory_registration.h",
   ]
 
   configs += [

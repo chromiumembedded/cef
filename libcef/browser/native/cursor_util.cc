@@ -36,7 +36,7 @@ bool OnCursorChange(CefBrowserHostBase* browser, const ui::Cursor& ui_cursor) {
 
 #if defined(USE_AURA)
   CefCursorHandle platform_cursor;
-  ui::PlatformCursor image_cursor = nullptr;
+  scoped_refptr<ui::PlatformCursor> image_cursor;
 
   if (ui_cursor.type() == ui::mojom::CursorType::kCustom) {
     image_cursor = ui::CursorFactory::GetInstance()->CreateImageCursor(
@@ -49,10 +49,6 @@ bool OnCursorChange(CefBrowserHostBase* browser, const ui::Cursor& ui_cursor) {
 
   handled = handler->OnCursorChange(browser, platform_cursor, cursor_type,
                                     custom_cursor_info);
-
-  if (image_cursor) {
-    ui::CursorFactory::GetInstance()->UnrefImageCursor(image_cursor);
-  }
 #elif defined(OS_MAC)
   // |web_cursor| owns the resulting |native_cursor|.
   content::WebCursor web_cursor(ui_cursor);

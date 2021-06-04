@@ -9,7 +9,7 @@ CefRefPtr<CefToolbarViewImpl> CefToolbarViewImpl::Create(
     CefRefPtr<CefViewDelegate> delegate,
     Browser* browser,
     BrowserView* browser_view,
-    base::Optional<ToolbarView::DisplayMode> display_mode) {
+    absl::optional<ToolbarView::DisplayMode> display_mode) {
   CEF_REQUIRE_UIT_RETURN(nullptr);
   CefRefPtr<CefToolbarViewImpl> view =
       new CefToolbarViewImpl(delegate, browser, browser_view, display_mode);
@@ -24,7 +24,7 @@ CefToolbarViewImpl::CefToolbarViewImpl(
     CefRefPtr<CefViewDelegate> delegate,
     Browser* browser,
     BrowserView* browser_view,
-    base::Optional<ToolbarView::DisplayMode> display_mode)
+    absl::optional<ToolbarView::DisplayMode> display_mode)
     : ParentClass(delegate),
       browser_(browser),
       browser_view_(browser_view),

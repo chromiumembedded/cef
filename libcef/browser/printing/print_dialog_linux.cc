@@ -39,8 +39,9 @@ class CefPrintDialogCallbackImpl : public CefPrintDialogCallback {
         dialog_ = nullptr;
       }
     } else {
-      CEF_POST_TASK(CEF_UIT, base::Bind(&CefPrintDialogCallbackImpl::Continue,
-                                        this, settings));
+      CEF_POST_TASK(CEF_UIT,
+                    base::BindOnce(&CefPrintDialogCallbackImpl::Continue, this,
+                                   settings));
     }
   }
 
@@ -52,7 +53,7 @@ class CefPrintDialogCallbackImpl : public CefPrintDialogCallback {
       }
     } else {
       CEF_POST_TASK(CEF_UIT,
-                    base::Bind(&CefPrintDialogCallbackImpl::Cancel, this));
+                    base::BindOnce(&CefPrintDialogCallbackImpl::Cancel, this));
     }
   }
 
@@ -78,7 +79,7 @@ class CefPrintJobCallbackImpl : public CefPrintJobCallback {
       }
     } else {
       CEF_POST_TASK(CEF_UIT,
-                    base::Bind(&CefPrintJobCallbackImpl::Continue, this));
+                    base::BindOnce(&CefPrintJobCallbackImpl::Continue, this));
     }
   }
 
@@ -214,8 +215,9 @@ void CefPrintDialogLinux::PrintDocument(
   }
 
   // No errors, continue printing.
-  CEF_POST_TASK(CEF_UIT, base::Bind(&CefPrintDialogLinux::SendDocumentToPrinter,
-                                    this, document_name));
+  CEF_POST_TASK(
+      CEF_UIT, base::BindOnce(&CefPrintDialogLinux::SendDocumentToPrinter, this,
+                              document_name));
 }
 
 void CefPrintDialogLinux::AddRefToDialog() {

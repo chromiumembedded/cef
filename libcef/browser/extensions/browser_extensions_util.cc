@@ -54,8 +54,8 @@ void GetAllGuestsForOwnerContents(content::WebContents* owner,
                                   std::vector<content::WebContents*>* guests) {
   content::BrowserPluginGuestManager* plugin_guest_manager =
       owner->GetBrowserContext()->GetGuestManager();
-  plugin_guest_manager->ForEachGuest(owner,
-                                     base::Bind(InsertWebContents, guests));
+  plugin_guest_manager->ForEachGuest(
+      owner, base::BindRepeating(InsertWebContents, guests));
 }
 
 content::WebContents* GetOwnerForGuestContents(content::WebContents* guest) {

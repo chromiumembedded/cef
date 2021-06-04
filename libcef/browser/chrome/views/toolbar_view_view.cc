@@ -7,5 +7,5 @@
 CefToolbarViewView::CefToolbarViewView(CefViewDelegate* cef_delegate,
                                        Browser* browser,
                                        BrowserView* browser_view,
-                                       base::Optional<DisplayMode> display_mode)
+                                       absl::optional<DisplayMode> display_mode)
     : ParentClass(cef_delegate, browser, browser_view, display_mode) {}

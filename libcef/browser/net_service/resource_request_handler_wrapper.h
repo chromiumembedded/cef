@@ -43,7 +43,7 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
     content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
     const network::ResourceRequest& request,
-    const base::Closure& unhandled_request_callback);
+    const base::RepeatingClosure& unhandled_request_callback);
 
 }  // namespace net_service
 

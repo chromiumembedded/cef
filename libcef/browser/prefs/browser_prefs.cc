@@ -249,6 +249,10 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
                                 false);
   registry->RegisterBooleanPref(prefs::kWebRTCAllowLegacyTLSProtocols, false);
 
+  // Profile preferences.
+  // Based on chrome/browser/profiles/profiles_state.cc RegisterPrefs.
+  registry->RegisterStringPref(prefs::kProfileLastUsed, std::string());
+
   if (profile) {
     // Call RegisterProfilePrefs() for all services listed by
     // EnsureBrowserContextKeyedServiceFactoriesBuilt().
@@ -309,10 +313,6 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
         base::Value(enable_spelling_service_));
     registry->SetDefaultPrefValue(spellcheck::prefs::kSpellCheckEnable,
                                   base::Value(!enable_spelling_service_));
-
-    // Pepper flash preferences.
-    // Modify defaults from DeviceIDFetcher::RegisterProfilePrefs.
-    registry->SetDefaultPrefValue(prefs::kEnableDRM, base::Value(false));
 
     // DevTools preferences.
     // Based on DevToolsWindow::RegisterProfilePrefs.

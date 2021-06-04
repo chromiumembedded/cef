@@ -11,11 +11,11 @@
 
 #include "include/internal/cef_ptr.h"
 
-#include "base/optional.h"
 #include "cef/libcef/common/mojom/cef.mojom.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
 #include "mojo/public/cpp/bindings/receiver_set.h"
 #include "mojo/public/cpp/bindings/remote.h"
+#include "third_party/abseil-cpp/absl/types/optional.h"
 
 namespace blink {
 class WebFrame;
@@ -49,10 +49,10 @@ class CefRenderManager : public cef::mojom::RenderManager {
   void RenderFrameCreated(content::RenderFrame* render_frame,
                           CefRenderFrameObserver* render_frame_observer,
                           bool& browser_created,
-                          base::Optional<bool>& is_windowless);
+                          absl::optional<bool>& is_windowless);
   void RenderViewCreated(content::RenderView* render_view,
                          bool& browser_created,
-                         base::Optional<bool>& is_windowless);
+                         absl::optional<bool>& is_windowless);
   void DevToolsAgentAttached();
   void DevToolsAgentDetached();
   void ExposeInterfacesToBrowser(mojo::BinderMap* binders);
@@ -87,7 +87,7 @@ class CefRenderManager : public cef::mojom::RenderManager {
       content::RenderView* render_view,
       content::RenderFrame* render_frame,
       bool* browser_created,
-      base::Optional<bool>* is_windowless);
+      absl::optional<bool>* is_windowless);
 
   // Called from CefBrowserImpl::OnDestruct().
   void OnBrowserDestroyed(CefBrowserImpl* browser);

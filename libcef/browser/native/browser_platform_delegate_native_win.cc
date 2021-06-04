@@ -349,7 +349,7 @@ void CefBrowserPlatformDelegateNativeWin::ViewText(const std::string& text) {
   std::string str = text;
   scoped_refptr<base::RefCountedString> str_ref =
       base::RefCountedString::TakeString(&str);
-  CEF_POST_USER_VISIBLE_TASK(base::Bind(WriteTempFileAndView, str_ref));
+  CEF_POST_USER_VISIBLE_TASK(base::BindOnce(WriteTempFileAndView, str_ref));
 }
 
 bool CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
@@ -395,7 +395,7 @@ bool CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
 
 // static
 void CefBrowserPlatformDelegate::HandleExternalProtocol(const GURL& url) {
-  CEF_POST_USER_VISIBLE_TASK(base::Bind(ExecuteExternalProtocol, url));
+  CEF_POST_USER_VISIBLE_TASK(base::BindOnce(ExecuteExternalProtocol, url));
 }
 
 CefEventHandle CefBrowserPlatformDelegateNativeWin::GetEventHandle(

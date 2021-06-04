@@ -1,5 +1,5 @@
 diff --git third_party/widevine/cdm/BUILD.gn third_party/widevine/cdm/BUILD.gn
-index e5009f30f6f5a..8190a72bd450b 100644
+index 24668a4acf22d..ac1f02c0779e4 100644
 --- third_party/widevine/cdm/BUILD.gn
 +++ third_party/widevine/cdm/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/chrome_build.gni")

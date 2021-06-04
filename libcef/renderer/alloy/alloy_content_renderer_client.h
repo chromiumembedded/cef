@@ -117,7 +117,7 @@ class AlloyContentRendererClient
 
  private:
   void OnBrowserCreated(content::RenderView* render_view,
-                        base::Optional<bool> is_windowless);
+                        absl::optional<bool> is_windowless);
 
   // Perform cleanup work for single-process mode.
   void RunSingleProcessCleanupOnUIThread();

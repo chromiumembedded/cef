@@ -19,8 +19,8 @@ CefIOThreadState::CefIOThreadState() {
   // Using base::Unretained() is safe because both this callback and possible
   // deletion of |this| will execute on the IO thread, and this callback will
   // be executed first.
-  CEF_POST_TASK(CEF_IOT, base::Bind(&CefIOThreadState::InitOnIOThread,
-                                    base::Unretained(this)));
+  CEF_POST_TASK(CEF_IOT, base::BindOnce(&CefIOThreadState::InitOnIOThread,
+                                        base::Unretained(this)));
 }
 
 CefIOThreadState::~CefIOThreadState() {

@@ -371,17 +371,16 @@ index 27f5504d544a3..fd901ccd5b759 100644
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/core/app/crashpad_mac.mm components/crash/core/app/crashpad_mac.mm
-index 2be2fd857bc5f..04ebef6442af2 100644
+index e3fc1fb2bcab3..56395d7100f94 100644
 --- components/crash/core/app/crashpad_mac.mm
 +++ components/crash/core/app/crashpad_mac.mm
-@@ -16,12 +16,15 @@
+@@ -16,11 +16,14 @@
  #include "base/files/file_path.h"
  #include "base/mac/bundle_locations.h"
  #include "base/mac/foundation_util.h"
 +#include "base/path_service.h"
  #include "base/strings/string_number_conversions.h"
  #include "base/strings/string_piece.h"
- #include "base/strings/stringprintf.h"
  #include "base/strings/sys_string_conversions.h"
  #include "build/branding_buildflags.h"
  #include "components/crash/core/app/crash_reporter_client.h"
@@ -390,7 +389,7 @@ index 2be2fd857bc5f..04ebef6442af2 100644
  #include "third_party/crashpad/crashpad/client/crash_report_database.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -39,14 +42,24 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
+@@ -38,14 +41,24 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
      std::map<std::string, std::string> process_annotations;
      @autoreleasepool {
        NSBundle* outer_bundle = base::mac::OuterBundle();
@@ -420,7 +419,7 @@ index 2be2fd857bc5f..04ebef6442af2 100644
  
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
        // Empty means stable.
-@@ -77,12 +90,20 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
+@@ -76,12 +89,20 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
          }
        }
  
@@ -446,7 +445,7 @@ index 2be2fd857bc5f..04ebef6442af2 100644
      }  // @autoreleasepool
      return process_annotations;
    }();
-@@ -142,10 +163,10 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -141,10 +162,10 @@ base::FilePath PlatformCrashpadInitialization(
  
    if (initial_client) {
      @autoreleasepool {
@@ -461,7 +460,7 @@ index 2be2fd857bc5f..04ebef6442af2 100644
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -174,6 +195,12 @@ base::FilePath PlatformCrashpadInitialization(
+@@ -173,6 +194,12 @@ base::FilePath PlatformCrashpadInitialization(
              "--reset-own-crash-exception-port-to-system-default");
        }
  

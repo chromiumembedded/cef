@@ -311,13 +311,12 @@ AlloyBrowserContext::GetClientHintsControllerDelegate() {
 
 ChromeZoomLevelPrefs* AlloyBrowserContext::GetZoomLevelPrefs() {
   return static_cast<ChromeZoomLevelPrefs*>(
-      GetStoragePartition(this, nullptr)->GetZoomLevelDelegate());
+      GetStoragePartition(nullptr)->GetZoomLevelDelegate());
 }
 
 scoped_refptr<network::SharedURLLoaderFactory>
 AlloyBrowserContext::GetURLLoaderFactory() {
-  return GetDefaultStoragePartition(this)
-      ->GetURLLoaderFactoryForBrowserProcess();
+  return GetDefaultStoragePartition()->GetURLLoaderFactoryForBrowserProcess();
 }
 
 base::FilePath AlloyBrowserContext::GetPath() {
@@ -339,18 +338,11 @@ AlloyBrowserContext::CreateZoomLevelDelegate(
       zoom::ZoomEventManager::GetForBrowserContext(this)->GetWeakPtr()));
 }
 
-bool AlloyBrowserContext::IsOffTheRecord() const {
-  // Alloy contexts are never flagged as off-the-record. It causes problems
-  // for the extension system.
-  return false;
-}
-
 content::DownloadManagerDelegate*
 AlloyBrowserContext::GetDownloadManagerDelegate() {
   if (!download_manager_delegate_) {
-    content::DownloadManager* manager =
-        BrowserContext::GetDownloadManager(this);
-    download_manager_delegate_.reset(new CefDownloadManagerDelegate(manager));
+    download_manager_delegate_.reset(
+        new CefDownloadManagerDelegate(GetDownloadManager()));
   }
   return download_manager_delegate_.get();
 }

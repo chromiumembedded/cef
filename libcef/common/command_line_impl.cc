@@ -108,16 +108,16 @@ void CefCommandLineImpl::GetSwitches(SwitchMap& switches) {
 
 void CefCommandLineImpl::AppendSwitch(const CefString& name) {
   CEF_VALUE_VERIFY_RETURN_VOID(true);
-  mutable_value()->AppendSwitch(name);
+  mutable_value()->AppendSwitch(name.ToString());
 }
 
 void CefCommandLineImpl::AppendSwitchWithValue(const CefString& name,
                                                const CefString& value) {
   CEF_VALUE_VERIFY_RETURN_VOID(true);
 #if defined(OS_WIN)
-  mutable_value()->AppendSwitchNative(name, value.ToWString());
+  mutable_value()->AppendSwitchNative(name.ToString(), value.ToWString());
 #else
-  mutable_value()->AppendSwitchNative(name, value.ToString());
+  mutable_value()->AppendSwitchNative(name.ToString(), value.ToString());
 #endif
 }
 
@@ -136,12 +136,20 @@ void CefCommandLineImpl::GetArguments(ArgumentList& arguments) {
 
 void CefCommandLineImpl::AppendArgument(const CefString& argument) {
   CEF_VALUE_VERIFY_RETURN_VOID(true);
-  mutable_value()->AppendArgNative(argument);
+#if defined(OS_WIN)
+  mutable_value()->AppendArgNative(argument.ToWString());
+#else
+  mutable_value()->AppendArgNative(argument.ToString());
+#endif
 }
 
 void CefCommandLineImpl::PrependWrapper(const CefString& wrapper) {
   CEF_VALUE_VERIFY_RETURN_VOID(true);
-  mutable_value()->PrependWrapper(wrapper);
+#if defined(OS_WIN)
+  mutable_value()->PrependWrapper(wrapper.ToWString());
+#else
+  mutable_value()->PrependWrapper(wrapper.ToString());
+#endif
 }
 
 // CefCommandLine implementation.

@@ -1,12 +1,12 @@
 diff --git base/strings/string_piece.h base/strings/string_piece.h
-index f4f37ad5242b2..ddb9b3fd87474 100644
+index 85a63d103a7f7..c17412d9c191a 100644
 --- base/strings/string_piece.h
 +++ base/strings/string_piece.h
-@@ -24,6 +24,7 @@
+@@ -23,6 +23,7 @@
  
  #include <stddef.h>
  
 +#include <algorithm>
  #include <iosfwd>
+ #include <limits>
  #include <ostream>
- #include <string>

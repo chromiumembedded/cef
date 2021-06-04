@@ -785,8 +785,8 @@ void CefMenuModelImpl::MouseOutsideMenu(const gfx::Point& screen_point) {
   // Allow the callstack to unwind before notifying the delegate since it may
   // result in the menu being destroyed.
   CefTaskRunnerImpl::GetCurrentTaskRunner()->PostTask(
-      FROM_HERE,
-      base::Bind(&CefMenuModelImpl::OnMouseOutsideMenu, this, screen_point));
+      FROM_HERE, base::BindOnce(&CefMenuModelImpl::OnMouseOutsideMenu, this,
+                                screen_point));
 }
 
 void CefMenuModelImpl::UnhandledOpenSubmenu(bool is_rtl) {
@@ -797,7 +797,7 @@ void CefMenuModelImpl::UnhandledOpenSubmenu(bool is_rtl) {
   // result in the menu being destroyed.
   CefTaskRunnerImpl::GetCurrentTaskRunner()->PostTask(
       FROM_HERE,
-      base::Bind(&CefMenuModelImpl::OnUnhandledOpenSubmenu, this, is_rtl));
+      base::BindOnce(&CefMenuModelImpl::OnUnhandledOpenSubmenu, this, is_rtl));
 }
 
 void CefMenuModelImpl::UnhandledCloseSubmenu(bool is_rtl) {
@@ -808,7 +808,7 @@ void CefMenuModelImpl::UnhandledCloseSubmenu(bool is_rtl) {
   // result in the menu being destroyed.
   CefTaskRunnerImpl::GetCurrentTaskRunner()->PostTask(
       FROM_HERE,
-      base::Bind(&CefMenuModelImpl::OnUnhandledCloseSubmenu, this, is_rtl));
+      base::BindOnce(&CefMenuModelImpl::OnUnhandledCloseSubmenu, this, is_rtl));
 }
 
 bool CefMenuModelImpl::GetTextColor(int index,
@@ -883,7 +883,7 @@ void CefMenuModelImpl::MenuWillClose() {
   // called after this.  It's more convenient for the delegate to be called
   // afterwards, though, so post a task.
   CefTaskRunnerImpl::GetCurrentTaskRunner()->PostTask(
-      FROM_HERE, base::Bind(&CefMenuModelImpl::OnMenuClosed, this));
+      FROM_HERE, base::BindOnce(&CefMenuModelImpl::OnMenuClosed, this));
 }
 
 std::u16string CefMenuModelImpl::GetFormattedLabelAt(int index) {

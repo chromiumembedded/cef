@@ -108,23 +108,9 @@ class ZoomAPIFunction : public ExtensionFunction {
   // may set |error_|.
   content::WebContents* GetWebContents(int tab_id);
 
-  virtual bool RunAsync() = 0;
-
-  // Responds with success/failure. |results_| or |error_| should be set
-  // accordingly.
-  void SendResponse(bool success);
-
-  // Exposed versions of ExtensionFunction::results_ and
-  // ExtensionFunction::error_ that are curried into the response.
-  // These need to keep the same name to avoid breaking existing
-  // implementations, but this should be temporary with crbug.com/648275
-  // and crbug.com/634140.
-  std::unique_ptr<base::ListValue> results_;
   std::string error_;
 
  private:
-  ResponseAction Run() final;
-
   const CefExtensionFunctionDetails cef_details_;
 };
 
@@ -132,7 +118,7 @@ class TabsSetZoomFunction : public ZoomAPIFunction {
  private:
   ~TabsSetZoomFunction() override {}
 
-  bool RunAsync() override;
+  ResponseAction Run() override;
 
   DECLARE_EXTENSION_FUNCTION("tabs.setZoom", TABS_SETZOOM)
 };
@@ -141,7 +127,7 @@ class TabsGetZoomFunction : public ZoomAPIFunction {
  private:
   ~TabsGetZoomFunction() override {}
 
-  bool RunAsync() override;
+  ResponseAction Run() override;
 
   DECLARE_EXTENSION_FUNCTION("tabs.getZoom", TABS_GETZOOM)
 };
@@ -150,7 +136,7 @@ class TabsSetZoomSettingsFunction : public ZoomAPIFunction {
  private:
   ~TabsSetZoomSettingsFunction() override {}
 
-  bool RunAsync() override;
+  ResponseAction Run() override;
 
   DECLARE_EXTENSION_FUNCTION("tabs.setZoomSettings", TABS_SETZOOMSETTINGS)
 };
@@ -159,7 +145,7 @@ class TabsGetZoomSettingsFunction : public ZoomAPIFunction {
  private:
   ~TabsGetZoomSettingsFunction() override {}
 
-  bool RunAsync() override;
+  ResponseAction Run() override;
 
   DECLARE_EXTENSION_FUNCTION("tabs.getZoomSettings", TABS_GETZOOMSETTINGS)
 };

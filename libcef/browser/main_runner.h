@@ -60,7 +60,7 @@ class CefMainRunner : public CefMainRunnerHandler {
   bool ContentMainRun(bool* initialized, base::OnceClosure context_initialized);
 
   // CefMainRunnerHandler methods:
-  void PreCreateMainMessageLoop() override;
+  void PreBrowserMain() override;
   int RunMainProcess(
       const content::MainFunctionParams& main_function_params) override;
 

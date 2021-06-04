@@ -83,7 +83,7 @@ TEST(DevToolsUtil, ProtocolParser_Initialize_IsEvent) {
   EXPECT_TRUE(parser.Initialize(message));
   EXPECT_TRUE(parser.IsInitialized());
   EXPECT_TRUE(parser.IsEvent());
-  EXPECT_STREQ("Test.myMethod", parser.method_.as_string().data());
+  EXPECT_STREQ("Test.myMethod", parser.method_.data());
   EXPECT_TRUE(parser.params_.empty());
 
   parser.Reset();
@@ -94,8 +94,8 @@ TEST(DevToolsUtil, ProtocolParser_Initialize_IsEvent) {
   EXPECT_TRUE(parser.Initialize(message));
   EXPECT_TRUE(parser.IsInitialized());
   EXPECT_TRUE(parser.IsEvent());
-  EXPECT_STREQ("Test.myMethod2", parser.method_.as_string().data());
-  EXPECT_STREQ("{}", parser.params_.as_string().data());
+  EXPECT_STREQ("Test.myMethod2", parser.method_.data());
+  EXPECT_STREQ("{}", parser.params_.data());
 
   parser.Reset();
   EXPECT_FALSE(parser.IsInitialized());
@@ -105,8 +105,8 @@ TEST(DevToolsUtil, ProtocolParser_Initialize_IsEvent) {
   EXPECT_TRUE(parser.Initialize(message));
   EXPECT_TRUE(parser.IsInitialized());
   EXPECT_TRUE(parser.IsEvent());
-  EXPECT_STREQ("Test.myMethod3", parser.method_.as_string().data());
-  EXPECT_STREQ("{\"foo\":\"bar\"}", parser.params_.as_string().data());
+  EXPECT_STREQ("Test.myMethod3", parser.method_.data());
+  EXPECT_STREQ("{\"foo\":\"bar\"}", parser.params_.data());
 }
 
 TEST(DevToolsUtil, ProtocolParser_Initialize_IsFailure_ResultMalformed) {
@@ -162,7 +162,7 @@ TEST(DevToolsUtil, ProtocolParser_Initialize_IsResult_Result) {
   EXPECT_TRUE(parser.IsResult());
   EXPECT_EQ(1, parser.message_id_);
   EXPECT_TRUE(parser.success_);
-  EXPECT_STREQ("{}", parser.params_.as_string().data());
+  EXPECT_STREQ("{}", parser.params_.data());
 
   parser.Reset();
   EXPECT_FALSE(parser.IsInitialized());
@@ -174,7 +174,7 @@ TEST(DevToolsUtil, ProtocolParser_Initialize_IsResult_Result) {
   EXPECT_TRUE(parser.IsResult());
   EXPECT_EQ(2, parser.message_id_);
   EXPECT_TRUE(parser.success_);
-  EXPECT_STREQ("{\"foo\":\"bar\"}", parser.params_.as_string().data());
+  EXPECT_STREQ("{\"foo\":\"bar\"}", parser.params_.data());
 }
 
 TEST(DevToolsUtil, ProtocolParser_Initialize_IsResult_Error) {
@@ -188,7 +188,7 @@ TEST(DevToolsUtil, ProtocolParser_Initialize_IsResult_Error) {
   EXPECT_TRUE(parser.IsResult());
   EXPECT_EQ(1, parser.message_id_);
   EXPECT_FALSE(parser.success_);
-  EXPECT_STREQ("{}", parser.params_.as_string().data());
+  EXPECT_STREQ("{}", parser.params_.data());
 
   parser.Reset();
   EXPECT_FALSE(parser.IsInitialized());
@@ -200,5 +200,5 @@ TEST(DevToolsUtil, ProtocolParser_Initialize_IsResult_Error) {
   EXPECT_TRUE(parser.IsResult());
   EXPECT_EQ(2, parser.message_id_);
   EXPECT_FALSE(parser.success_);
-  EXPECT_STREQ("{\"foo\":\"bar\"}", parser.params_.as_string().data());
+  EXPECT_STREQ("{\"foo\":\"bar\"}", parser.params_.data());
 }

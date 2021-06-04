@@ -13,6 +13,7 @@
 #include "libcef/browser/views/window_view.h"
 
 #include "ui/base/test/ui_controls.h"
+#include "ui/compositor/compositor.h"
 #include "ui/gfx/geometry/rect.h"
 #include "ui/views/controls/button/menu_button.h"
 #include "ui/views/controls/menu/menu_runner.h"
@@ -434,11 +435,11 @@ void CefWindowImpl::ShowMenu(views::MenuButton* menu_button,
   // We'll send the MenuClosed notification manually for better accuracy.
   menu_model_->set_auto_notify_menu_closed(false);
 
-  menu_runner_.reset(
-      new views::MenuRunner(menu_model_impl->model(),
-                            menu_button ? views::MenuRunner::HAS_MNEMONICS
-                                        : views::MenuRunner::CONTEXT_MENU,
-                            base::Bind(&CefWindowImpl::MenuClosed, this)));
+  menu_runner_.reset(new views::MenuRunner(
+      menu_model_impl->model(),
+      menu_button ? views::MenuRunner::HAS_MNEMONICS
+                  : views::MenuRunner::CONTEXT_MENU,
+      base::BindRepeating(&CefWindowImpl::MenuClosed, this)));
 
   menu_runner_->RunMenuAt(
       widget_, menu_button ? menu_button->button_controller() : nullptr,

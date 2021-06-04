@@ -95,14 +95,14 @@ class CefImageImpl : public CefImage {
 
   // The |bitmap| argument will be RGBA or BGRA and either opaque or transparent
   // with post-multiplied alpha. Writes the compressed output into |compressed|.
-  typedef base::Callback<bool(const SkBitmap& /*bitmap*/,
-                              std::vector<unsigned char>* /*compressed*/)>
+  typedef base::OnceCallback<bool(const SkBitmap& /*bitmap*/,
+                                  std::vector<unsigned char>* /*compressed*/)>
       CompressionMethod;
 
   // Write |bitmap| into |compressed| using |method|.
   static bool WriteCompressedFormat(const SkBitmap& bitmap,
                                     std::vector<unsigned char>* compressed,
-                                    const CompressionMethod& method);
+                                    CompressionMethod method);
 
   // Write |bitmap| into |compressed| using PNG encoding.
   static bool WritePNG(const SkBitmap& bitmap,

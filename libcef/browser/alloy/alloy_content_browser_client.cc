@@ -98,6 +98,7 @@
 #include "content/public/common/storage_quota_params.h"
 #include "content/public/common/url_constants.h"
 #include "content/public/common/user_agent.h"
+#include "extensions/browser/event_router.h"
 #include "extensions/browser/extension_message_filter.h"
 #include "extensions/browser/extension_protocols.h"
 #include "extensions/browser/extension_registry.h"
@@ -238,9 +239,10 @@ class CefAllowCertificateErrorCallbackImpl : public CefRequestCallback {
         RunNow(std::move(callback_), allow);
       }
     } else {
-      CEF_POST_TASK(CEF_UIT,
-                    base::Bind(&CefAllowCertificateErrorCallbackImpl::Continue,
-                               this, allow));
+      CEF_POST_TASK(
+          CEF_UIT,
+          base::BindOnce(&CefAllowCertificateErrorCallbackImpl::Continue, this,
+                         allow));
     }
   }
 
@@ -1043,6 +1045,11 @@ void AlloyContentBrowserClient::ExposeInterfacesToRenderer(
   associated_registry->AddInterface(
       base::BindRepeating(&BindPluginInfoHost, host->GetID()));
 
+  if (extensions::ExtensionsEnabled()) {
+    associated_registry->AddInterface(base::BindRepeating(
+        &extensions::EventRouter::BindForRenderer, host->GetID()));
+  }
+
   CefBrowserManager::ExposeInterfacesToRenderer(registry, associated_registry,
                                                 host);
 }
@@ -1152,7 +1159,7 @@ bool AlloyContentBrowserClient::WillCreateURLLoaderFactory(
     int render_process_id,
     URLLoaderFactoryType type,
     const url::Origin& request_initiator,
-    base::Optional<int64_t> navigation_id,
+    absl::optional<int64_t> navigation_id,
     ukm::SourceIdObj ukm_source_id,
     mojo::PendingReceiver<network::mojom::URLLoaderFactory>* factory_receiver,
     mojo::PendingRemote<network::mojom::TrustedURLLoaderHeaderClient>*
@@ -1250,7 +1257,7 @@ bool AlloyContentBrowserClient::HandleExternalProtocol(
     bool is_main_frame,
     ui::PageTransition page_transition,
     bool has_user_gesture,
-    const base::Optional<url::Origin>& initiating_origin,
+    const absl::optional<url::Origin>& initiating_origin,
     mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory) {
   // Call the other HandleExternalProtocol variant.
   return false;
@@ -1269,8 +1276,8 @@ bool AlloyContentBrowserClient::HandleExternalProtocol(
   // nothing handles the request.
   auto request_handler = net_service::CreateInterceptedRequestHandler(
       web_contents_getter, frame_tree_node_id, resource_request,
-      base::Bind(CefBrowserPlatformDelegate::HandleExternalProtocol,
-                 resource_request.url));
+      base::BindRepeating(CefBrowserPlatformDelegate::HandleExternalProtocol,
+                          resource_request.url));
 
   net_service::ProxyURLLoaderFactory::CreateProxy(
       web_contents_getter, std::move(receiver), std::move(request_handler));
@@ -1366,7 +1373,7 @@ bool AlloyContentBrowserClient::ArePersistentMediaDeviceIDsAllowed(
     content::BrowserContext* browser_context,
     const GURL& url,
     const GURL& site_for_cookies,
-    const base::Optional<url::Origin>& top_frame_origin) {
+    const absl::optional<url::Origin>& top_frame_origin) {
   // Persistent MediaDevice IDs are allowed if cookies are allowed.
   return CookieSettingsFactory::GetForProfile(
              Profile::FromBrowserContext(browser_context))

@@ -300,9 +300,9 @@ void CefBrowserContext::OnRenderFrameCreated(
                             frame_tree_node_id, handler);
 
     CEF_POST_TASK(CEF_IOT,
-                  base::Bind(&CefIOThreadState::AddHandler, iothread_state_,
-                             render_process_id, render_frame_id,
-                             frame_tree_node_id, handler));
+                  base::BindOnce(&CefIOThreadState::AddHandler, iothread_state_,
+                                 render_process_id, render_frame_id,
+                                 frame_tree_node_id, handler));
   }
 }
 
@@ -332,9 +332,9 @@ void CefBrowserContext::OnRenderFrameDeleted(
     handler_map_.RemoveHandler(render_process_id, render_frame_id,
                                frame_tree_node_id);
 
-    CEF_POST_TASK(CEF_IOT, base::Bind(&CefIOThreadState::RemoveHandler,
-                                      iothread_state_, render_process_id,
-                                      render_frame_id, frame_tree_node_id));
+    CEF_POST_TASK(CEF_IOT, base::BindOnce(&CefIOThreadState::RemoveHandler,
+                                          iothread_state_, render_process_id,
+                                          render_frame_id, frame_tree_node_id));
   }
 
   if (is_main_frame) {
@@ -438,15 +438,16 @@ void CefBrowserContext::RegisterSchemeHandlerFactory(
     const CefString& scheme_name,
     const CefString& domain_name,
     CefRefPtr<CefSchemeHandlerFactory> factory) {
-  CEF_POST_TASK(CEF_IOT,
-                base::Bind(&CefIOThreadState::RegisterSchemeHandlerFactory,
-                           iothread_state_, scheme_name, domain_name, factory));
+  CEF_POST_TASK(
+      CEF_IOT,
+      base::BindOnce(&CefIOThreadState::RegisterSchemeHandlerFactory,
+                     iothread_state_, scheme_name, domain_name, factory));
 }
 
 void CefBrowserContext::ClearSchemeHandlerFactories() {
   CEF_POST_TASK(CEF_IOT,
-                base::Bind(&CefIOThreadState::ClearSchemeHandlerFactories,
-                           iothread_state_));
+                base::BindOnce(&CefIOThreadState::ClearSchemeHandlerFactories,
+                               iothread_state_));
 }
 
 void CefBrowserContext::LoadExtension(
@@ -482,8 +483,7 @@ bool CefBrowserContext::IsPrintPreviewSupported() const {
 network::mojom::NetworkContext* CefBrowserContext::GetNetworkContext() {
   CEF_REQUIRE_UIT();
   auto browser_context = AsBrowserContext();
-  return browser_context->GetDefaultStoragePartition(browser_context)
-      ->GetNetworkContext();
+  return browser_context->GetDefaultStoragePartition()->GetNetworkContext();
 }
 
 CefMediaRouterManager* CefBrowserContext::GetMediaRouterManager() {
@@ -517,7 +517,7 @@ CefBrowserContext::GetGlobalCookieableSchemes() {
               CefString(&settings.cookieable_schemes_list),
               !settings.cookieable_schemes_exclude_defaults);
         }
-        return base::nullopt;
+        return absl::nullopt;
       }());
   return *schemes;
 }

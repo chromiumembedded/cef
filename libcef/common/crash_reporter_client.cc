@@ -234,7 +234,7 @@ CefCrashReporterClient* g_crash_reporter_client = nullptr;
 const char kKeyMapDelim = ',';
 
 std::string NormalizeCrashKey(const base::StringPiece& key) {
-  std::string str = key.as_string();
+  std::string str(key);
   std::replace(str.begin(), str.end(), kKeyMapDelim, '-');
   if (str.length() > crashpad::Annotation::kNameMaxLength) {
     return str.substr(0, crashpad::Annotation::kNameMaxLength);

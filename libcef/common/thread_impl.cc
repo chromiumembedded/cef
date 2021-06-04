@@ -49,7 +49,7 @@ CefThreadImpl::~CefThreadImpl() {
       // Delete |thread_| on the correct thread.
       owner_task_runner_->PostTask(
           FROM_HERE,
-          base::Bind(StopAndDestroy, base::Unretained(thread_.release())));
+          base::BindOnce(StopAndDestroy, base::Unretained(thread_.release())));
     } else {
       StopAndDestroy(thread_.release());
     }

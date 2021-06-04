@@ -1,5 +1,5 @@
 diff --git content/browser/blob_storage/chrome_blob_storage_context.cc content/browser/blob_storage/chrome_blob_storage_context.cc
-index 676c2cc22baca..e6f9642e1cba5 100644
+index 4960b1067e1c4..2686fa5bc550b 100644
 --- content/browser/blob_storage/chrome_blob_storage_context.cc
 +++ content/browser/blob_storage/chrome_blob_storage_context.cc
 @@ -120,7 +120,8 @@ ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
@@ -13,19 +13,19 @@ index 676c2cc22baca..e6f9642e1cba5 100644
            {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
             base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index eb88768c1e1c2..2c6c143d4660e 100644
+index a7734981fc762..7137c46a38d5c 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
-@@ -152,7 +152,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
-     BrowserContext* self,
+@@ -141,7 +141,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
+ StoragePartition* BrowserContext::GetStoragePartition(
      const StoragePartitionConfig& storage_partition_config,
      bool can_create) {
--  if (self->IsOffTheRecord()) {
-+  if (self->IsOffTheRecord() || self->GetPath().empty()) {
+-  if (IsOffTheRecord()) {
++  if (IsOffTheRecord() || GetPath().empty()) {
      // An off the record profile MUST only use in memory storage partitions.
      CHECK(storage_partition_config.in_memory());
    }
-@@ -430,7 +430,8 @@ BrowserContext::CreateVideoDecodePerfHistory() {
+@@ -385,7 +385,8 @@ BrowserContext::CreateVideoDecodePerfHistory() {
    const bool kUseInMemoryDBDefault = false;
    bool use_in_memory_db = base::GetFieldTrialParamByFeatureAsBool(
        media::kMediaCapabilitiesWithParameters, kUseInMemoryDBParamName,
@@ -36,7 +36,7 @@ index eb88768c1e1c2..2c6c143d4660e 100644
    std::unique_ptr<media::VideoDecodeStatsDB> stats_db;
    if (use_in_memory_db) {
 diff --git content/public/browser/storage_partition_config.cc content/public/browser/storage_partition_config.cc
-index 9d87aa95e9300..ae82242746e45 100644
+index 0095de1d05fd1..0e651cbcbe541 100644
 --- content/public/browser/storage_partition_config.cc
 +++ content/public/browser/storage_partition_config.cc
 @@ -7,6 +7,7 @@
@@ -58,10 +58,10 @@ index 9d87aa95e9300..ae82242746e45 100644
  
  // static
 diff --git storage/browser/database/database_tracker.cc storage/browser/database/database_tracker.cc
-index 806e42d494176..1f16adce58383 100644
+index 2bdd932ceb3a0..5a35d16ccd5aa 100644
 --- storage/browser/database/database_tracker.cc
 +++ storage/browser/database/database_tracker.cc
-@@ -494,7 +494,7 @@ bool DatabaseTracker::LazyInit() {
+@@ -495,7 +495,7 @@ bool DatabaseTracker::LazyInit() {
      databases_table_ = std::make_unique<DatabasesTable>(db_.get());
      meta_table_ = std::make_unique<sql::MetaTable>();
  

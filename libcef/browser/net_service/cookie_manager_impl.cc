@@ -30,8 +30,8 @@ CefBrowserContext* GetBrowserContext(const CefBrowserContext::Getter& getter) {
 // Do not keep a reference to the object returned by this method.
 CookieManager* GetCookieManager(CefBrowserContext* browser_context) {
   CEF_REQUIRE_UIT();
-  return content::BrowserContext::GetDefaultStoragePartition(
-             browser_context->AsBrowserContext())
+  return browser_context->AsBrowserContext()
+      ->GetDefaultStoragePartition()
       ->GetCookieManagerForBrowserProcess();
 }
 
@@ -39,8 +39,8 @@ CookieManager* GetCookieManager(CefBrowserContext* browser_context) {
 void RunAsyncCompletionOnUIThread(CefRefPtr<CefCompletionCallback> callback) {
   if (!callback.get())
     return;
-  CEF_POST_TASK(CEF_UIT,
-                base::Bind(&CefCompletionCallback::OnComplete, callback.get()));
+  CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefCompletionCallback::OnComplete,
+                                        callback.get()));
 }
 
 // Always execute the callback asynchronously.
@@ -53,8 +53,8 @@ void SetCookieCallbackImpl(CefRefPtr<CefSetCookieCallback> callback,
     LOG(WARNING) << "SetCookie failed with reason: "
                  << access_result.status.GetDebugString();
   }
-  CEF_POST_TASK(CEF_UIT, base::Bind(&CefSetCookieCallback::OnComplete,
-                                    callback.get(), is_include));
+  CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefSetCookieCallback::OnComplete,
+                                        callback.get(), is_include));
 }
 
 // Always execute the callback asynchronously.
@@ -62,8 +62,8 @@ void DeleteCookiesCallbackImpl(CefRefPtr<CefDeleteCookiesCallback> callback,
                                uint32_t num_deleted) {
   if (!callback.get())
     return;
-  CEF_POST_TASK(CEF_UIT, base::Bind(&CefDeleteCookiesCallback::OnComplete,
-                                    callback.get(), num_deleted));
+  CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefDeleteCookiesCallback::OnComplete,
+                                        callback.get(), num_deleted));
 }
 
 void ExecuteVisitor(CefRefPtr<CefCookieVisitor> visitor,
@@ -99,8 +99,8 @@ void GetAllCookiesCallbackImpl(
     CefRefPtr<CefCookieVisitor> visitor,
     const CefBrowserContext::Getter& browser_context_getter,
     const net::CookieList& cookies) {
-  CEF_POST_TASK(CEF_UIT, base::Bind(&ExecuteVisitor, visitor,
-                                    browser_context_getter, cookies));
+  CEF_POST_TASK(CEF_UIT, base::BindOnce(&ExecuteVisitor, visitor,
+                                        browser_context_getter, cookies));
 }
 
 void GetCookiesCallbackImpl(
@@ -233,8 +233,8 @@ bool CefCookieManagerImpl::VisitAllCookiesInternal(
     return false;
 
   GetCookieManager(browser_context)
-      ->GetAllCookies(base::Bind(&GetAllCookiesCallbackImpl, visitor,
-                                 browser_context_getter_));
+      ->GetAllCookies(base::BindOnce(&GetAllCookiesCallbackImpl, visitor,
+                                     browser_context_getter_));
   return true;
 }
 
@@ -258,8 +258,8 @@ bool CefCookieManagerImpl::VisitUrlCookiesInternal(
 
   GetCookieManager(browser_context)
       ->GetCookieList(url, options,
-                      base::Bind(&GetCookiesCallbackImpl, visitor,
-                                 browser_context_getter_));
+                      base::BindOnce(&GetCookiesCallbackImpl, visitor,
+                                     browser_context_getter_));
   return true;
 }
 
@@ -311,7 +311,7 @@ bool CefCookieManagerImpl::SetCookieInternal(
 
   GetCookieManager(browser_context)
       ->SetCanonicalCookie(*canonical_cookie, url, options,
-                           base::Bind(SetCookieCallbackImpl, callback));
+                           base::BindOnce(SetCookieCallbackImpl, callback));
   return true;
 }
 
@@ -342,7 +342,7 @@ bool CefCookieManagerImpl::DeleteCookiesInternal(
 
   GetCookieManager(browser_context)
       ->DeleteCookies(std::move(deletion_filter),
-                      base::Bind(DeleteCookiesCallbackImpl, callback));
+                      base::BindOnce(DeleteCookiesCallbackImpl, callback));
   return true;
 }
 
@@ -355,7 +355,8 @@ bool CefCookieManagerImpl::FlushStoreInternal(
     return false;
 
   GetCookieManager(browser_context)
-      ->FlushCookieStore(base::Bind(RunAsyncCompletionOnUIThread, callback));
+      ->FlushCookieStore(
+          base::BindOnce(RunAsyncCompletionOnUIThread, callback));
   return true;
 }
 

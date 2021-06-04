@@ -1,18 +1,18 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index d106889e860ff..af57383e609b8 100644
+index 7edfd5dd9c140..f018b8f085e65 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
-@@ -12,6 +12,7 @@
+@@ -11,6 +11,7 @@
+ 
  #include <vector>
  
- #include "base/optional.h"
 +#include "content/common/content_export.h"
  #include "content/common/navigation_params.mojom.h"
  #include "content/public/browser/certificate_request_result_type.h"
  #include "mojo/public/cpp/bindings/pending_receiver.h"
 @@ -81,7 +82,7 @@ bool ApplyUserAgentMetadataOverrides(
      FrameTreeNode* frame_tree_node,
-     base::Optional<blink::UserAgentMetadata>* override_out);
+     absl::optional<blink::UserAgentMetadata>* override_out);
  
 -bool WillCreateURLLoaderFactory(
 +CONTENT_EXPORT bool WillCreateURLLoaderFactory(
@@ -89,18 +89,18 @@ index 86bbf620ff0d9..6c06b461c6da1 100644
      "//base",
      "//build:chromeos_buildflags",
 diff --git ui/events/keycodes/keyboard_code_conversion_xkb.h ui/events/keycodes/keyboard_code_conversion_xkb.h
-index 8f56878d4bb42..f0d2457f6a29d 100644
+index e1fefa4cead9e..8213402ff263d 100644
 --- ui/events/keycodes/keyboard_code_conversion_xkb.h
 +++ ui/events/keycodes/keyboard_code_conversion_xkb.h
-@@ -10,6 +10,7 @@
- #include <string>
+@@ -9,6 +9,7 @@
+ 
  
  #include "ui/events/keycodes/dom/dom_key.h"
 +#include "ui/events/keycodes/keycodes_x_export.h"
  #include "ui/events/keycodes/xkb_keysym.h"
  
  namespace ui {
-@@ -25,7 +26,7 @@ DomKey NonPrintableXKeySymToDomKey(xkb_keysym_t keysym);
+@@ -24,7 +25,7 @@ DomKey NonPrintableXKeySymToDomKey(xkb_keysym_t keysym);
  // char16_t DeadXKeySymToCombiningCharacter(xkb_keysym_t keysym);
  
  // Return the DomKey determined by the XKB layout result (keysym, character).

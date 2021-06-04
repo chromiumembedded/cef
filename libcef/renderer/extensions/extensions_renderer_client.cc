@@ -110,8 +110,8 @@ bool CefExtensionsRendererClient::OverrideCreatePlugin(
 
   bool guest_view_api_available = false;
   extension_dispatcher_->script_context_set_iterator()->ForEach(
-      render_frame, base::Bind(&IsGuestViewApiAvailableToScriptContext,
-                               &guest_view_api_available));
+      render_frame, base::BindRepeating(&IsGuestViewApiAvailableToScriptContext,
+                                        &guest_view_api_available));
   return !guest_view_api_available;
 }
 

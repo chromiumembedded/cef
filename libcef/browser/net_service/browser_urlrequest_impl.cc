@@ -82,16 +82,16 @@ class RequestManager {
     map_.erase(it);
   }
 
-  base::Optional<CefBrowserURLRequest::RequestInfo> Get(int32_t request_id) {
+  absl::optional<CefBrowserURLRequest::RequestInfo> Get(int32_t request_id) {
     if (request_id > kInitialRequestID)
-      return base::nullopt;
+      return absl::nullopt;
 
     base::AutoLock lock_scope(lock_);
     RequestMap::const_iterator it = map_.find(request_id);
     if (it != map_.end()) {
       return it->second;
     }
-    return base::nullopt;
+    return absl::nullopt;
   }
 
  private:
@@ -230,8 +230,7 @@ class CefBrowserURLRequest::Context
           net_service::URLLoaderFactoryGetter::Create(nullptr, browser_context);
       url_loader_network_observer =
           static_cast<content::StoragePartitionImpl*>(
-              content::BrowserContext::GetDefaultStoragePartition(
-                  browser_context))
+              browser_context->GetDefaultStoragePartition())
               ->CreateAuthCertObserverForServiceWorker();
     }
 
@@ -346,7 +345,7 @@ class CefBrowserURLRequest::Context
             content_type = net_service::kContentTypeApplicationFormURLEncoded;
           }
           loader_->AttachStringForUpload(
-              bytes_element.AsStringPiece().as_string(), content_type);
+              std::string(bytes_element.AsStringPiece()), content_type);
 
           if (request_flags & UR_FLAG_REPORT_UPLOAD_PROGRESS) {
             // Report the expected upload data size.
@@ -376,14 +375,14 @@ class CefBrowserURLRequest::Context
     if (request_flags & UR_FLAG_STOP_ON_REDIRECT) {
       // The request will be canceled in OnRedirect.
       loader_->SetOnRedirectCallback(
-          base::Bind(&CefBrowserURLRequest::Context::OnRedirect,
-                     weak_ptr_factory_.GetWeakPtr()));
+          base::BindRepeating(&CefBrowserURLRequest::Context::OnRedirect,
+                              weak_ptr_factory_.GetWeakPtr()));
     }
 
     if (request_flags & UR_FLAG_REPORT_UPLOAD_PROGRESS) {
       loader_->SetOnUploadProgressCallback(
-          base::Bind(&CefBrowserURLRequest::Context::OnUploadProgress,
-                     weak_ptr_factory_.GetWeakPtr()));
+          base::BindRepeating(&CefBrowserURLRequest::Context::OnUploadProgress,
+                              weak_ptr_factory_.GetWeakPtr()));
     }
 
     if ((request_flags & UR_FLAG_NO_DOWNLOAD_DATA) || method == "HEAD") {
@@ -395,9 +394,9 @@ class CefBrowserURLRequest::Context
       loader_->SetOnResponseStartedCallback(
           base::BindOnce(&CefBrowserURLRequest::Context::OnResponseStarted,
                          weak_ptr_factory_.GetWeakPtr()));
-      loader_->SetOnDownloadProgressCallback(
-          base::Bind(&CefBrowserURLRequest::Context::OnDownloadProgress,
-                     weak_ptr_factory_.GetWeakPtr()));
+      loader_->SetOnDownloadProgressCallback(base::BindRepeating(
+          &CefBrowserURLRequest::Context::OnDownloadProgress,
+          weak_ptr_factory_.GetWeakPtr()));
 
       loader_->DownloadAsStream(loader_factory.get(), this);
     }
@@ -597,16 +596,16 @@ class CefBrowserURLRequest::Context
 // CefBrowserURLRequest -------------------------------------------------------
 
 // static
-base::Optional<CefBrowserURLRequest::RequestInfo>
+absl::optional<CefBrowserURLRequest::RequestInfo>
 CefBrowserURLRequest::FromRequestID(int32_t request_id) {
   if (IsValidRequestID(request_id)) {
     return g_manager.Get().Get(request_id);
   }
-  return base::nullopt;
+  return absl::nullopt;
 }
 
 // static
-base::Optional<CefBrowserURLRequest::RequestInfo>
+absl::optional<CefBrowserURLRequest::RequestInfo>
 CefBrowserURLRequest::FromRequestID(
     const content::GlobalRequestID& request_id) {
   return FromRequestID(request_id.request_id);

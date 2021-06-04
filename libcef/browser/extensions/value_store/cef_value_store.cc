@@ -100,8 +100,8 @@ ValueStore::WriteResult CefValueStore::Set(
         !old_value->Equals(&it.value())) {
       changes.emplace_back(it.key(),
                            old_value
-                               ? base::Optional<base::Value>(old_value->Clone())
-                               : base::nullopt,
+                               ? absl::optional<base::Value>(old_value->Clone())
+                               : absl::nullopt,
                            it.value().Clone());
       storage_.SetWithoutPathExpansion(it.key(), it.value().CreateDeepCopy());
     }
@@ -123,7 +123,7 @@ ValueStore::WriteResult CefValueStore::Remove(
   for (auto it = keys.cbegin(); it != keys.cend(); ++it) {
     std::unique_ptr<base::Value> old_value;
     if (storage_.RemoveWithoutPathExpansion(*it, &old_value)) {
-      changes.emplace_back(*it, std::move(*old_value), base::nullopt);
+      changes.emplace_back(*it, std::move(*old_value), absl::nullopt);
     }
   }
   return WriteResult(std::move(changes), CreateStatusCopy(status_));

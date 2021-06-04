@@ -32,9 +32,8 @@ scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
   // initialize additional state, and that should be done on the UI thread
   // instead of potentially racing with the WillCreateURLLoaderFactory
   // implementation.
-  auto loader_factory =
-      content::BrowserContext::GetDefaultStoragePartition(browser_context)
-          ->GetURLLoaderFactoryForBrowserProcess();
+  auto loader_factory = browser_context->GetDefaultStoragePartition()
+                            ->GetURLLoaderFactoryForBrowserProcess();
 
   network::mojom::URLLoaderFactoryPtrInfo proxy_factory_ptr_info;
   network::mojom::URLLoaderFactoryRequest proxy_factory_request;
@@ -65,7 +64,7 @@ scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
   should_proxy |= browser_client->WillCreateURLLoaderFactory(
       browser_context, render_frame_host, render_process_id,
       content::ContentBrowserClient::URLLoaderFactoryType::kDocumentSubResource,
-      url::Origin(), base::nullopt /* navigation_id */, ukm::SourceIdObj(),
+      url::Origin(), absl::nullopt /* navigation_id */, ukm::SourceIdObj(),
       &maybe_proxy_factory_request, nullptr /* header_client */,
       nullptr /* bypass_redirect_checks */, nullptr /* disable_secure_dns */,
       nullptr /* factory_override */);

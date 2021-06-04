@@ -53,8 +53,8 @@ CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetState(cef_button_state_t state) {
   views::Button::ButtonState new_state =
       static_cast<views::Button::ButtonState>(state);
 
-  if (ParentClass::root_view()->ink_drop_mode() !=
-          views::Button::InkDropMode::OFF &&
+  if (ParentClass::root_view()->ink_drop()->ink_drop_mode() !=
+          views::InkDropHost::InkDropMode::OFF &&
       !ParentClass::root_view()->IsFocusable()) {
     // Ink drop state does not get set properly on state change when the button
     // is non-focusable.
@@ -64,7 +64,7 @@ CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetState(cef_button_state_t state) {
     } else if (old_state == views::Button::STATE_PRESSED) {
       ink_state = views::InkDropState::DEACTIVATED;
     }
-    ParentClass::root_view()->AnimateInkDrop(ink_state, nullptr);
+    ParentClass::root_view()->ink_drop()->AnimateToState(ink_state, nullptr);
   }
 
   ParentClass::root_view()->SetState(new_state);
@@ -77,11 +77,11 @@ CEF_BUTTON_IMPL_T cef_button_state_t CEF_BUTTON_IMPL_D::GetState() {
 
 CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetInkDropEnabled(bool enabled) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  ParentClass::root_view()->SetInkDropMode(
-      enabled ? views::InkDropHostView::InkDropMode::ON
-              : views::InkDropHostView::InkDropMode::OFF);
+  ParentClass::root_view()->ink_drop()->SetMode(
+      enabled ? views::InkDropHost::InkDropMode::ON
+              : views::InkDropHost::InkDropMode::OFF);
   if (enabled) {
-    ParentClass::root_view()->SetInkDropBaseColor(
+    ParentClass::root_view()->ink_drop()->SetBaseColor(
         color_utils::BlendTowardMaxContrast(
             ParentClass::root_view()->background()->get_color(), 0x61));
   }

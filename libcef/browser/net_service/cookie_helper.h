@@ -28,10 +28,11 @@ namespace cookie_helper {
 // cookieable, which may intentionally exclude standard schemes.
 bool IsCookieableScheme(
     const GURL& url,
-    const base::Optional<std::vector<std::string>>& cookieable_schemes);
+    const absl::optional<std::vector<std::string>>& cookieable_schemes);
 
 using AllowCookieCallback =
-    base::Callback<void(const net::CanonicalCookie&, bool* /* allow */)>;
+    base::RepeatingCallback<void(const net::CanonicalCookie&,
+                                 bool* /* allow */)>;
 using DoneCookieCallback =
     base::OnceCallback<void(int /* total_count */,
                             net::CookieList /* allowed_cookies */)>;

@@ -33,8 +33,8 @@ def main():
       os.path.abspath(args.output),
       os.path.abspath(args.input)
   ]
-  ibtool_section_re = re.compile(r'/\*.*\*/')
-  ibtool_re = re.compile(r'.*note:.*is clipping its content')
+  ibtool_section_re = re.compile(rb'/\*.*\*/')
+  ibtool_re = re.compile(rb'.*note:.*is clipping its content')
   try:
     stdout = subprocess.check_output(ibtool_args)
   except subprocess.CalledProcessError as e:

@@ -11,10 +11,9 @@
 
 #include "libcef/browser/views/panel_view.h"
 
+#include "third_party/skia/include/core/SkRegion.h"
 #include "ui/display/display.h"
 #include "ui/views/widget/widget_delegate.h"
-
-class SkRegion;
 
 // Manages the views-based root window. This object will be deleted
 // automatically when the associated root window is destroyed.

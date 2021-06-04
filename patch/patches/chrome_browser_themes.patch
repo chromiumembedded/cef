@@ -1,5 +1,5 @@
 diff --git chrome/browser/themes/theme_service.cc chrome/browser/themes/theme_service.cc
-index e48400619537d..635959d7ba9a7 100644
+index ca830ceefd5d5..8b3af9620670d 100644
 --- chrome/browser/themes/theme_service.cc
 +++ chrome/browser/themes/theme_service.cc
 @@ -27,6 +27,7 @@
@@ -9,9 +9,9 @@ index e48400619537d..635959d7ba9a7 100644
 +#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/extensions/extension_service.h"
  #include "chrome/browser/extensions/theme_installed_infobar_delegate.h"
- #include "chrome/browser/infobars/infobar_service.h"
-@@ -57,6 +58,10 @@
- #include "extensions/common/extension_set.h"
+ #include "chrome/browser/profiles/profile.h"
+@@ -59,6 +60,10 @@
+ #include "third_party/abseil-cpp/absl/types/optional.h"
  #include "ui/base/layout.h"
  
 +#if BUILDFLAG(ENABLE_CEF)
@@ -19,9 +19,9 @@ index e48400619537d..635959d7ba9a7 100644
 +#endif
 +
  #if BUILDFLAG(ENABLE_EXTENSIONS)
- #include "base/scoped_observer.h"
+ #include "base/scoped_observation.h"
  #include "extensions/browser/extension_registry_observer.h"
-@@ -280,11 +285,19 @@ void ThemeService::Init() {
+@@ -281,11 +286,19 @@ void ThemeService::Init() {
    // OnExtensionServiceReady. Otherwise, the ThemeObserver won't be
    // constructed in time to observe the corresponding events.
  #if BUILDFLAG(ENABLE_EXTENSIONS)

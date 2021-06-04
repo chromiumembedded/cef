@@ -9,6 +9,7 @@
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/thread_util.h"
 
+#include "net/base/network_interfaces.h"
 #include "ui/base/x/x11_util.h"
 #include "ui/events/platform/platform_event_source.h"
 #include "ui/events/platform/x11/x11_event_source.h"
@@ -391,8 +392,8 @@ void CefWindowX11::ProcessXEvent(const x11::Event& event) {
       if (!focus_pending_) {
         focus_pending_ = true;
         CEF_POST_DELAYED_TASK(CEF_UIT,
-                              base::Bind(&CefWindowX11::ContinueFocus,
-                                         weak_ptr_factory_.GetWeakPtr()),
+                              base::BindOnce(&CefWindowX11::ContinueFocus,
+                                             weak_ptr_factory_.GetWeakPtr()),
                               100);
       }
     } else {

@@ -34,9 +34,9 @@ base::RefCountedStaticMemory* CefResourceBundleDelegate::LoadDataResourceBytes(
   return nullptr;
 }
 
-base::Optional<std::string> CefResourceBundleDelegate::LoadDataResourceString(
+absl::optional<std::string> CefResourceBundleDelegate::LoadDataResourceString(
     int resource_id) {
-  return base::nullopt;
+  return absl::nullopt;
 }
 
 bool CefResourceBundleDelegate::GetRawDataResource(

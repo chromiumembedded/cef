@@ -127,7 +127,7 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
       const std::vector<std::string>& removed_headers,
       const net::HttpRequestHeaders& modified_headers,
       const net::HttpRequestHeaders& modified_cors_exempt_headers,
-      const base::Optional<GURL>& new_url) override;
+      const absl::optional<GURL>& new_url) override;
   void SetPriority(net::RequestPriority priority,
                    int intra_priority_value) override;
   void PauseReadingBodyFromNet() override;
@@ -136,7 +136,7 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
  private:
   void ContinueWithRequestHeaders(
       int32_t result,
-      const base::Optional<net::HttpRequestHeaders>& headers);
+      const absl::optional<net::HttpRequestHeaders>& headers);
   void OnInputStreamOpened(std::unique_ptr<Delegate> returned_delegate,
                            std::unique_ptr<InputStream> input_stream);
 
@@ -145,8 +145,8 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
   void ContinueWithResponseHeaders(
       network::mojom::URLResponseHeadPtr pending_response,
       int32_t result,
-      const base::Optional<std::string>& headers,
-      const base::Optional<GURL>& redirect_url);
+      const absl::optional<std::string>& headers,
+      const absl::optional<GURL>& redirect_url);
 
   void SendBody();
   void ReadMore();

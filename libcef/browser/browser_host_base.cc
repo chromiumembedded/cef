@@ -232,8 +232,7 @@ void CefBrowserHostBase::StartDownload(const CefString& url) {
   if (!browser_context)
     return;
 
-  content::DownloadManager* manager =
-      content::BrowserContext::GetDownloadManager(browser_context);
+  content::DownloadManager* manager = browser_context->GetDownloadManager();
   if (!manager)
     return;
 

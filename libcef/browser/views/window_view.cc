@@ -9,7 +9,6 @@
 #include "libcef/browser/views/window_impl.h"
 #include "libcef/features/runtime.h"
 
-#include "third_party/skia/include/core/SkRegion.h"
 #include "ui/base/hit_test.h"
 #include "ui/views/widget/widget.h"
 #include "ui/views/window/native_frame_view.h"
@@ -285,7 +284,7 @@ void CefWindowView::CreateWidget() {
 
         can_activate = can_activate_menu;
         if (can_activate_menu)
-          params.activatable = views::Widget::InitParams::ACTIVATABLE_YES;
+          params.activatable = views::Widget::InitParams::Activatable::kYes;
       }
     }
   }
