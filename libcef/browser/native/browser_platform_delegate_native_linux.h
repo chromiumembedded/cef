@@ -41,7 +41,6 @@ class CefBrowserPlatformDelegateNativeLinux
   ui::KeyEvent TranslateUiKeyEvent(const CefKeyEvent& key_event) const override;
   content::NativeWebKeyboardEvent TranslateWebKeyEvent(
       const CefKeyEvent& key_event) const override;
-  base::TimeTicks GetEventTimeStamp() const override;
 
  private:
   // True if the host window has been created.
