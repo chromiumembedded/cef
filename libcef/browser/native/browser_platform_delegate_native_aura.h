@@ -66,9 +66,9 @@ class CefBrowserPlatformDelegateNativeAura
       int deltaX,
       int deltaY) const;
   virtual gfx::Vector2d GetUiWheelEventOffset(int deltaX, int deltaY) const;
-  virtual base::TimeTicks GetEventTimeStamp() const = 0;
 
  protected:
+  static base::TimeTicks GetEventTimeStamp();
   static int TranslateUiEventModifiers(uint32 cef_modifiers);
   static int TranslateUiChangedButtonFlags(uint32 cef_modifiers);
 

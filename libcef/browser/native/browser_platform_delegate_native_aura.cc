@@ -183,6 +183,11 @@ gfx::Vector2d CefBrowserPlatformDelegateNativeAura::GetUiWheelEventOffset(
 }
 
 // static
+base::TimeTicks CefBrowserPlatformDelegateNativeAura::GetEventTimeStamp() {
+  return base::TimeTicks::Now();
+}
+
+// static
 int CefBrowserPlatformDelegateNativeAura::TranslateUiEventModifiers(
     uint32 cef_modifiers) {
   int result = 0;

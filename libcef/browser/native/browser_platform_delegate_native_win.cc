@@ -486,10 +486,6 @@ gfx::Vector2d CefBrowserPlatformDelegateNativeWin::GetUiWheelEventOffset(
   return gfx::Vector2d(scrollDeltaX, scrollDeltaY);
 }
 
-base::TimeTicks CefBrowserPlatformDelegateNativeWin::GetEventTimeStamp() const {
-  return base::TimeTicks::Now();
-}
-
 // static
 void CefBrowserPlatformDelegateNativeWin::RegisterWindowClass() {
   static bool registered = false;

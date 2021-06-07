@@ -41,7 +41,6 @@ class CefBrowserPlatformDelegateNativeWin
   // CefBrowserPlatformDelegateNativeAura methods:
   ui::KeyEvent TranslateUiKeyEvent(const CefKeyEvent& key_event) const override;
   gfx::Vector2d GetUiWheelEventOffset(int deltaX, int deltaY) const override;
-  base::TimeTicks GetEventTimeStamp() const override;
 
  private:
   static void RegisterWindowClass();

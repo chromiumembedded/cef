@@ -4,8 +4,6 @@
 
 #include "libcef/browser/native/browser_platform_delegate_native_linux.h"
 
-#include <sys/sysinfo.h>
-
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/native/menu_runner_linux.h"
@@ -29,18 +27,6 @@
 #include "libcef/browser/native/window_x11.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h"
 #endif
-
-namespace {
-
-// Returns the number of seconds since system boot.
-long GetSystemUptime() {
-  struct sysinfo info;
-  if (sysinfo(&info) == 0)
-    return info.uptime;
-  return 0;
-}
-
-}  // namespace
 
 CefBrowserPlatformDelegateNativeLinux::CefBrowserPlatformDelegateNativeLinux(
     const CefWindowInfo& window_info,
@@ -327,9 +313,4 @@ CefBrowserPlatformDelegateNativeLinux::TranslateWebKeyEvent(
     return content::NativeWebKeyboardEvent(ui_event, key_event.character);
   }
   return content::NativeWebKeyboardEvent(ui_event);
-}
-
-base::TimeTicks CefBrowserPlatformDelegateNativeLinux::GetEventTimeStamp()
-    const {
-  return base::TimeTicks() + base::TimeDelta::FromSeconds(GetSystemUptime());
 }
