@@ -163,7 +163,7 @@ class MRRenderDelegate : public ClientAppRenderer::Delegate {
                                 CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
-    const std::string& url = browser->GetMainFrame()->GetURL();
+    const std::string& url = frame->GetURL();
     if (url.find(kTestDomainRoot) != 0)
       return false;
 
