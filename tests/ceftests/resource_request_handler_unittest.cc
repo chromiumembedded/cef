@@ -801,7 +801,7 @@ class BasicResponseTest : public TestHandler {
 
     VerifyState(kOnResourceLoadComplete, request, response);
 
-    if (unhandled_ || IsIncomplete() || IsAborted()) {
+    if (unhandled_ || IsIncomplete() || (IsAborted() && status == UR_FAILED)) {
       EXPECT_EQ(UR_FAILED, status);
       EXPECT_EQ(0, received_content_length);
     } else {
@@ -945,43 +945,40 @@ class BasicResponseTest : public TestHandler {
       }
     } else if (IsAborted()) {
       EXPECT_EQ(1, on_before_browse_ct_);
-      if (custom_scheme_) {
-        EXPECT_EQ(0, get_resource_request_handler_ct_);
-        EXPECT_EQ(0, get_cookie_access_filter_ct_);
-      } else {
-        // The callbacks executed for standard schemes may vary based on timing.
-      }
-      EXPECT_EQ(0, on_before_resource_load_ct_);
-      EXPECT_EQ(0, get_resource_handler_ct_);
+      // The callbacks executed may vary based on timing.
+      EXPECT_NEAR(0, get_resource_request_handler_ct_, 1);
+      EXPECT_NEAR(0, get_cookie_access_filter_ct_, 1);
+      EXPECT_NEAR(0, on_before_resource_load_ct_, 1);
+      EXPECT_NEAR(0, get_resource_handler_ct_, 1);
+      EXPECT_NEAR(0, get_resource_response_filter_ct_, 1);
+      EXPECT_NEAR(0, on_resource_response_ct_, 1);
       EXPECT_EQ(0, on_resource_redirect_ct_);
-      EXPECT_EQ(0, get_resource_response_filter_ct_);
-      EXPECT_EQ(0, on_resource_response_ct_);
     } else {
       NOTREACHED();
     }
 
-    EXPECT_EQ(resource_handler_created_ct_, resource_handler_destroyed_ct_);
-
     if (IsAborted()) {
-      if (IsChromeRuntimeEnabled()) {
-        // Using the Chrome runtime OnResourceLoadComplete may be called with
-        // UR_FAILED.
-        EXPECT_NEAR(0, on_resource_load_complete_ct_, 1);
-      } else {
-        EXPECT_EQ(0, on_resource_load_complete_ct_);
-      }
+      // The callbacks executed may vary based on timing.
+      EXPECT_NEAR(0, on_load_end_ct_, 1);
+      EXPECT_NEAR(resource_handler_created_ct_, resource_handler_destroyed_ct_,
+                  1);
+      EXPECT_NEAR(0, on_resource_load_complete_ct_, 1);
     } else {
+      EXPECT_EQ(resource_handler_created_ct_, resource_handler_destroyed_ct_);
       EXPECT_EQ(1, on_resource_load_complete_ct_);
     }
 
-    if (IsIncomplete() || IsAborted()) {
+    if (IsIncomplete()) {
       EXPECT_EQ(0, on_load_end_ct_);
-    } else {
+    } else if (!IsAborted()) {
       EXPECT_EQ(1, on_load_end_ct_);
     }
 
     if (custom_scheme_ && unhandled_ && !(IsIncomplete() || IsAborted())) {
       EXPECT_EQ(1, on_protocol_execution_ct_);
+    } else if (IsAborted()) {
+      // The callbacks executed may vary based on timing.
+      EXPECT_NEAR(0, on_protocol_execution_ct_, 1);
     } else {
       EXPECT_EQ(0, on_protocol_execution_ct_);
     }
@@ -1263,6 +1260,8 @@ class BasicResponseTest : public TestHandler {
 
   void VerifyOKResponse(Callback callback,
                         CefRefPtr<CefResponse> response) const {
+    const auto error_code = response->GetError();
+
     // True for the first response in cases where we're redirecting/restarting
     // from inside OnResourceResponse (e.g. the first response always succeeds).
     const bool override_unhandled = unhandled_ &&
@@ -1275,14 +1274,12 @@ class BasicResponseTest : public TestHandler {
     const bool incomplete_unhandled =
         (mode_ == INCOMPLETE_BEFORE_RESOURCE_LOAD ||
          mode_ == INCOMPLETE_REQUEST_HANDLER_OPEN ||
-         (IsAborted() && !custom_scheme_));
+         (IsAborted() && !custom_scheme_ && error_code != ERR_NONE));
 
     if ((unhandled_ && !override_unhandled) || incomplete_unhandled) {
-      if (incomplete_unhandled) {
-        EXPECT_EQ(ERR_ABORTED, response->GetError()) << callback;
-      } else {
-        EXPECT_EQ(ERR_UNKNOWN_URL_SCHEME, response->GetError()) << callback;
-      }
+      EXPECT_TRUE(ERR_ABORTED == error_code ||
+                  ERR_UNKNOWN_URL_SCHEME == error_code)
+          << callback << error_code;
       EXPECT_EQ(0, response->GetStatus()) << callback;
       EXPECT_STREQ("", response->GetStatusText().ToString().c_str())
           << callback;
@@ -1291,7 +1288,8 @@ class BasicResponseTest : public TestHandler {
       EXPECT_STREQ("", response->GetCharset().ToString().c_str()) << callback;
     } else {
       if ((mode_ == INCOMPLETE_REQUEST_HANDLER_READ || IsAborted()) &&
-          callback == kOnResourceLoadComplete) {
+          callback == kOnResourceLoadComplete &&
+          response->GetError() != ERR_NONE) {
         // We got a response, but we also got aborted.
         EXPECT_EQ(ERR_ABORTED, response->GetError()) << callback;
       } else {
