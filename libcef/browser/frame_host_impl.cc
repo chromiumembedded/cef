@@ -559,6 +559,12 @@ void CefFrameHostImpl::SendMessage(const std::string& name,
 void CefFrameHostImpl::FrameAttached() {
   CEF_REQUIRE_UIT();
 
+  auto browser_info = GetBrowserInfo();
+  if (!browser_info) {
+    // Already Detached.
+    return;
+  }
+
   DCHECK(!is_attached_);
   if (!is_attached_) {
     is_attached_ = true;
@@ -571,7 +577,7 @@ void CefFrameHostImpl::FrameAttached() {
       queued_actions_.pop();
     }
 
-    GetBrowserInfo()->MaybeExecuteFrameNotification(base::BindOnce(
+    browser_info->MaybeExecuteFrameNotification(base::BindOnce(
         [](CefRefPtr<CefFrameHostImpl> self,
            CefRefPtr<CefFrameHandler> handler) {
           if (auto browser = self->GetBrowserHostBase()) {
