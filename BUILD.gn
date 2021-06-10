@@ -261,12 +261,6 @@ if (is_clang) {
   assert(!clang_use_chrome_plugins)
 }
 
-if (is_mac) {
-  # Always generate dSYM files. The make_distrib script will fail if
-  # enable_dsyms=true is not explicitly set when is_official_build=false.
-  assert(enable_dsyms)
-}
-
 
 #
 # Local variables.
