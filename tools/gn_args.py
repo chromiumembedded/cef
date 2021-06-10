@@ -277,11 +277,6 @@ def GetRequiredArgs():
     # can't be enforced by assert().
     result['enable_linux_installer'] = False
 
-  if platform == 'mac':
-    # Always generate dSYM files. The make_distrib script will fail if
-    # enable_dsyms=true is not explicitly set when is_official_build=false.
-    result['enable_dsyms'] = True
-
   return result
 
 
