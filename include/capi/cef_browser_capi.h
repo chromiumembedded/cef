@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=09b6ebd4116e983b4af634f1efa17b326a3fc517$
+// $hash=92c4d38f6895018f72fbafeecb13c47320ef0b1d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -139,7 +139,11 @@ typedef struct _cef_browser_t {
   int(CEF_CALLBACK* has_document)(struct _cef_browser_t* self);
 
   ///
-  // Returns the main (top-level) frame for the browser window.
+  // Returns the main (top-level) frame for the browser window. In the browser
+  // process this will return a valid object until after
+  // cef_life_span_handler_t::OnBeforeClose is called. In the renderer process
+  // this will return NULL if the main frame is hosted in a different renderer
+  // process (e.g. for cross-origin sub-frames).
   ///
   struct _cef_frame_t*(CEF_CALLBACK* get_main_frame)(
       struct _cef_browser_t* self);
