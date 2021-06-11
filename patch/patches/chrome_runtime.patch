@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index c64f406ba5b8f..75453789a6052 100644
+index c64f406ba5b8..75453789a605 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -29,6 +29,7 @@
@@ -78,7 +78,7 @@ index c64f406ba5b8f..75453789a6052 100644
  
  #endif  // defined(OS_LINUX) || defined(OS_CHROMEOS)
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index cf7f295bf92f6..1a7859d698a8c 100644
+index c832319917cb..603cf7a0ef17 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -49,6 +49,7 @@
@@ -89,7 +89,7 @@ index cf7f295bf92f6..1a7859d698a8c 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/active_use_util.h"
  #include "chrome/browser/after_startup_task_utils.h"
-@@ -906,8 +907,10 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
+@@ -924,8 +925,10 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
  #if !defined(OS_ANDROID)
    // Create the RunLoop for MainMessageLoopRun() to use, and pass a copy of
    // its QuitClosure to the BrowserProcessImpl to call when it is time to exit.
@@ -101,7 +101,7 @@ index cf7f295bf92f6..1a7859d698a8c 100644
  
    // These members must be initialized before returning from this function.
    // Android doesn't use StartupBrowserCreator.
-@@ -1665,11 +1668,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1683,11 +1686,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
    // This step is costly and is already measured in
    // Startup.StartupBrowserCreator_Start.
    // See the comment above for an explanation of |process_command_line|.
@@ -118,7 +118,7 @@ index cf7f295bf92f6..1a7859d698a8c 100644
  // of lacros-chrome is complete.
  #if defined(OS_WIN) || (defined(OS_LINUX) || BUILDFLAG(IS_CHROMEOS_LACROS))
 diff --git chrome/browser/chrome_browser_main_mac.mm chrome/browser/chrome_browser_main_mac.mm
-index 95d1ebc190910..13cdfa52db108 100644
+index 95d1ebc19091..13cdfa52db10 100644
 --- chrome/browser/chrome_browser_main_mac.mm
 +++ chrome/browser/chrome_browser_main_mac.mm
 @@ -16,6 +16,7 @@
@@ -156,7 +156,7 @@ index 95d1ebc190910..13cdfa52db108 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index af089ae5fa35a..b7498d1a2ee79 100644
+index 71a78730b9d1..00da54de4260 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -37,6 +37,7 @@
@@ -167,7 +167,7 @@ index af089ae5fa35a..b7498d1a2ee79 100644
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/accessibility_labels_service_factory.h"
  #include "chrome/browser/after_startup_task_utils.h"
-@@ -3590,9 +3591,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -3599,9 +3600,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // defined(OS_ANDROID)
  
@@ -180,7 +180,7 @@ index af089ae5fa35a..b7498d1a2ee79 100644
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
 diff --git chrome/browser/notifications/alert_dispatcher_xpc.mm chrome/browser/notifications/alert_dispatcher_xpc.mm
-index ab4c2b03755d3..8e813496f9df6 100644
+index ab4c2b03755d..8e813496f9df 100644
 --- chrome/browser/notifications/alert_dispatcher_xpc.mm
 +++ chrome/browser/notifications/alert_dispatcher_xpc.mm
 @@ -19,6 +19,7 @@
@@ -205,7 +205,7 @@ index ab4c2b03755d3..8e813496f9df6 100644
      base::mac::ScopedMachSendRight exceptionPort(
          crash_reporter::GetCrashpadClient().GetHandlerMachPort());
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index b18cc56bb82b0..4760db368c6e0 100644
+index b18cc56bb82b..4760db368c6e 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -10,6 +10,7 @@

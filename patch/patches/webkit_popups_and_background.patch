@@ -1,5 +1,5 @@
 diff --git third_party/blink/common/web_preferences/web_preferences.cc third_party/blink/common/web_preferences/web_preferences.cc
-index 8a1315f7f8958..8101f4994a214 100644
+index 8a1315f7f895..8101f4994a21 100644
 --- third_party/blink/common/web_preferences/web_preferences.cc
 +++ third_party/blink/common/web_preferences/web_preferences.cc
 @@ -153,6 +153,7 @@ WebPreferences::WebPreferences()
@@ -11,7 +11,7 @@ index 8a1315f7f8958..8101f4994a214 100644
        text_track_margin_percentage(0.0f),
        immersive_mode_enabled(false),
 diff --git third_party/blink/common/web_preferences/web_preferences_mojom_traits.cc third_party/blink/common/web_preferences/web_preferences_mojom_traits.cc
-index ab2d320a40733..f1f3066eabfaa 100644
+index ab2d320a4073..f1f3066eabfa 100644
 --- third_party/blink/common/web_preferences/web_preferences_mojom_traits.cc
 +++ third_party/blink/common/web_preferences/web_preferences_mojom_traits.cc
 @@ -159,6 +159,7 @@ bool StructTraits<blink::mojom::WebPreferencesDataView,
@@ -23,7 +23,7 @@ index ab2d320a40733..f1f3066eabfaa 100644
    out->text_track_margin_percentage = data.text_track_margin_percentage();
    out->immersive_mode_enabled = data.immersive_mode_enabled();
 diff --git third_party/blink/public/common/web_preferences/web_preferences.h third_party/blink/public/common/web_preferences/web_preferences.h
-index 84736bea7ac7b..7cc68805d76c9 100644
+index 84736bea7ac7..7cc68805d76c 100644
 --- third_party/blink/public/common/web_preferences/web_preferences.h
 +++ third_party/blink/public/common/web_preferences/web_preferences.h
 @@ -176,6 +176,8 @@ struct BLINK_COMMON_EXPORT WebPreferences {
@@ -36,7 +36,7 @@ index 84736bea7ac7b..7cc68805d76c9 100644
  
    // These fields specify the foreground and background color for WebVTT text
 diff --git third_party/blink/public/common/web_preferences/web_preferences_mojom_traits.h third_party/blink/public/common/web_preferences/web_preferences_mojom_traits.h
-index 90a2bb1a13afd..72516aedeaa9a 100644
+index 90a2bb1a13af..72516aedeaa9 100644
 --- third_party/blink/public/common/web_preferences/web_preferences_mojom_traits.h
 +++ third_party/blink/public/common/web_preferences/web_preferences_mojom_traits.h
 @@ -465,6 +465,11 @@ struct BLINK_COMMON_EXPORT StructTraits<blink::mojom::WebPreferencesDataView,
@@ -52,7 +52,7 @@ index 90a2bb1a13afd..72516aedeaa9a 100644
      return r.text_tracks_enabled;
    }
 diff --git third_party/blink/public/mojom/webpreferences/web_preferences.mojom third_party/blink/public/mojom/webpreferences/web_preferences.mojom
-index db9994ca72f24..b5a9f25906849 100644
+index db9994ca72f2..b5a9f2590684 100644
 --- third_party/blink/public/mojom/webpreferences/web_preferences.mojom
 +++ third_party/blink/public/mojom/webpreferences/web_preferences.mojom
 @@ -227,6 +227,8 @@ struct WebPreferences {
@@ -65,7 +65,7 @@ index db9994ca72f24..b5a9f25906849 100644
  
    // These fields specify the foreground and background color for WebVTT text
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index 7acd3f2bf4961..e140182c2a8f0 100644
+index 7acd3f2bf496..e140182c2a8f 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
 @@ -331,6 +331,7 @@ class WebView {
@@ -77,7 +77,7 @@ index 7acd3f2bf4961..e140182c2a8f0 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index efb33160ba488..73d0425096bfb 100644
+index efb33160ba48..73d0425096bf 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -243,8 +243,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
@@ -114,7 +114,7 @@ index efb33160ba488..73d0425096bfb 100644
  
  void WebViewImpl::ThemeChanged() {
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index c2e704e745d38..fbee6b4cde1ca 100644
+index c2e704e745d3..fbee6b4cde1c 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
 @@ -129,7 +129,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
@@ -137,10 +137,10 @@ index c2e704e745d38..fbee6b4cde1ca 100644
    TransformationMatrix device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index 69a5ddb01d95c..c6a2afb0df1e1 100644
+index 196303d8224d..dc849d5817bf 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
-@@ -821,7 +821,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
+@@ -839,7 +839,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
  PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    NotifyPopupOpeningObservers();

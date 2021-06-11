@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/input/fling_scheduler.cc content/browser/renderer_host/input/fling_scheduler.cc
-index c7a4f1f0c3d00..7e6e3b4e56d42 100644
+index c7a4f1f0c3d0..7e6e3b4e56d4 100644
 --- content/browser/renderer_host/input/fling_scheduler.cc
 +++ content/browser/renderer_host/input/fling_scheduler.cc
 @@ -68,6 +68,9 @@ void FlingScheduler::ProgressFlingOnBeginFrameIfneeded(
@@ -13,7 +13,7 @@ index c7a4f1f0c3d00..7e6e3b4e56d42 100644
    if (host_->GetView() && host_->GetView()->GetNativeView() &&
        host_->GetView()->GetNativeView()->GetHost() &&
 diff --git content/browser/renderer_host/input/fling_scheduler_base.h content/browser/renderer_host/input/fling_scheduler_base.h
-index cc4b13a7b9c67..84f3b9ed7cf49 100644
+index cc4b13a7b9c6..84f3b9ed7cf4 100644
 --- content/browser/renderer_host/input/fling_scheduler_base.h
 +++ content/browser/renderer_host/input/fling_scheduler_base.h
 @@ -7,12 +7,23 @@
@@ -41,10 +41,10 @@ index cc4b13a7b9c67..84f3b9ed7cf49 100644
  
  }  // namespace content
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index b38b11e555791..5d8da2cef9b2d 100644
+index 6a784277073d..247014b1b700 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -3037,6 +3037,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
+@@ -3043,6 +3043,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
        GetProcess(), bad_message::INPUT_ROUTER_INVALID_EVENT_SOURCE);
  }
  
@@ -57,10 +57,10 @@ index b38b11e555791..5d8da2cef9b2d 100644
      const WebInputEvent& event) {
    if ((base::FeatureList::IsEnabled(
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index ce8aa5ba1f4f5..460dc054a0bcf 100644
+index bc4800b72f8b..6873c0bdf387 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -758,6 +758,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -759,6 +759,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();

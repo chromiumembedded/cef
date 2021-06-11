@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index adadb4264e6b7..b7c910f035fe6 100644
+index 71810d671161..5bc6eaf53fa0 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -12,6 +12,7 @@ import("//build/config/features.gni")
@@ -29,7 +29,7 @@ index adadb4264e6b7..b7c910f035fe6 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -4774,6 +4780,7 @@ static_library("ui") {
+@@ -4782,6 +4788,7 @@ static_library("ui") {
    if (enable_basic_printing) {
      deps += [
        "//components/printing/browser",
@@ -38,7 +38,7 @@ index adadb4264e6b7..b7c910f035fe6 100644
      ]
      if (use_cups) {
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
-index fcd1f66b3a7a4..4f135460de918 100644
+index fcd1f66b3a7a..4f135460de91 100644
 --- chrome/browser/ui/webui/net_export_ui.cc
 +++ chrome/browser/ui/webui/net_export_ui.cc
 @@ -21,6 +21,7 @@

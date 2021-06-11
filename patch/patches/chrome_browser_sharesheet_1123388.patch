@@ -1,5 +1,5 @@
 diff --git chrome/browser/sharesheet/sharesheet_service_delegate.cc chrome/browser/sharesheet/sharesheet_service_delegate.cc
-index f250b1b444de0..d0b7efeadbe18 100644
+index f250b1b444de..d0b7efeadbe1 100644
 --- chrome/browser/sharesheet/sharesheet_service_delegate.cc
 +++ chrome/browser/sharesheet/sharesheet_service_delegate.cc
 @@ -19,8 +19,10 @@ SharesheetServiceDelegate::SharesheetServiceDelegate(
@@ -51,7 +51,7 @@ index f250b1b444de0..d0b7efeadbe18 100644
  
  }  // namespace sharesheet
 diff --git chrome/browser/sharesheet/sharesheet_service_delegate.h chrome/browser/sharesheet/sharesheet_service_delegate.h
-index 24dc55adca062..236eb65db6a45 100644
+index 24dc55adca06..236eb65db6a4 100644
 --- chrome/browser/sharesheet/sharesheet_service_delegate.h
 +++ chrome/browser/sharesheet/sharesheet_service_delegate.h
 @@ -77,7 +77,9 @@ class SharesheetServiceDelegate : public SharesheetController {

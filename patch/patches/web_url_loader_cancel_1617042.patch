@@ -1,5 +1,5 @@
 diff --git third_party/blink/public/platform/web_url_loader.h third_party/blink/public/platform/web_url_loader.h
-index 042a383fe1771..310f25700ebfb 100644
+index 042a383fe177..310f25700ebf 100644
 --- third_party/blink/public/platform/web_url_loader.h
 +++ third_party/blink/public/platform/web_url_loader.h
 @@ -160,12 +160,14 @@ class BLINK_PLATFORM_EXPORT WebURLLoader {

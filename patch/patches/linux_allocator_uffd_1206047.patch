@@ -1,8 +1,8 @@
 diff --git base/allocator/partition_allocator/partition_alloc_config.h base/allocator/partition_allocator/partition_alloc_config.h
-index c5ccd81..6d15bfd 100644
+index 254476f9eaa4..1cdddaa3b93f 100644
 --- base/allocator/partition_allocator/partition_alloc_config.h
 +++ base/allocator/partition_allocator/partition_alloc_config.h
-@@ -33,9 +33,12 @@
+@@ -36,9 +36,12 @@ static_assert(sizeof(void*) != 8, "");
  
  #if defined(PA_HAS_64_BITS_POINTERS) && \
      (defined(OS_LINUX) || defined(OS_ANDROID))

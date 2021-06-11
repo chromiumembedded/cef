@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 5dc3f95a5db5d..e47d915d0712c 100644
+index 4ce56f505ce4..5aaf21c115b4 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -2883,6 +2883,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
@@ -39,7 +39,7 @@ index 5dc3f95a5db5d..e47d915d0712c 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -7460,6 +7476,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -7468,6 +7484,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // This is an outermost WebContents.
      SetAsFocusedWebContentsIfNecessary();
    }
@@ -50,7 +50,7 @@ index 5dc3f95a5db5d..e47d915d0712c 100644
  
  void WebContentsImpl::DidCallFocus() {
 diff --git content/public/browser/web_contents.cc content/public/browser/web_contents.cc
-index f1dcf53ea481b..192f7c0ddd04f 100644
+index f1dcf53ea481..192f7c0ddd04 100644
 --- content/public/browser/web_contents.cc
 +++ content/public/browser/web_contents.cc
 @@ -29,6 +29,7 @@ WebContents::CreateParams::CreateParams(BrowserContext* context,
@@ -62,7 +62,7 @@ index f1dcf53ea481b..192f7c0ddd04f 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 67006dfc4c4fa..125ee29267177 100644
+index 67006dfc4c4f..125ee2926717 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -85,10 +85,12 @@ class BrowserContext;
@@ -90,7 +90,7 @@ index 67006dfc4c4fa..125ee29267177 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index b1cfa654259d4..84d678815994e 100644
+index b1cfa654259d..84d678815994 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -59,10 +59,12 @@ class EyeDropperListener;
@@ -122,7 +122,7 @@ index b1cfa654259d4..84d678815994e 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index 6c2b6e48f769d..f6b17dbe493bf 100644
+index 6c2b6e48f769..f6b17dbe493b 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
 @@ -666,6 +666,10 @@ class CONTENT_EXPORT WebContentsObserver : public IPC::Listener {
