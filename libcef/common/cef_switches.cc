@@ -129,6 +129,11 @@ const char kDisableChromeLoginPrompt[] = "disable-chrome-login-prompt";
 // Override the product component of the default User-Agent string.
 const char kUserAgentProductAndVersion[] = "user-agent-product";
 
+// Disable request handling in CEF to faciliate debugging of network-related
+// issues.
+const char kDisableRequestHandlingForTesting[] =
+    "disable-request-handling-for-testing";
+
 #if defined(OS_MAC)
 // Path to the framework directory.
 const char kFrameworkDirPath[] = "framework-dir-path";

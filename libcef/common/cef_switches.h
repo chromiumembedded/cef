@@ -56,6 +56,7 @@ extern const char kDevToolsProtocolLogFile[];
 extern const char kEnableChromeRuntime[];
 extern const char kDisableChromeLoginPrompt[];
 extern const char kUserAgentProductAndVersion[];
+extern const char kDisableRequestHandlingForTesting[];
 
 #if defined(OS_MAC)
 extern const char kFrameworkDirPath[];
