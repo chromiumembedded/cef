@@ -207,9 +207,6 @@ def GetRecommendedDefaultArgs():
       # distribution.
       'is_component_build': False,
 
-      # Don't enforce component builds in debug mode.
-      'forbid_non_component_debug_builds': False,
-
       # Specify the current PGO phase. Default is 0 (turned off) for normal
       # builds and 2 (used during the optimization phase) for official Windows
       # and macOS builds. Currently turned off for CEF because it requires
@@ -227,6 +224,12 @@ def GetRecommendedDefaultArgs():
       # "//chrome:chrome_dll" target, which will fail to build with CEF.
       'enable_resource_allowlist_generation': False,
   }
+
+  if platform != 'windows':
+    # Only allow non-component Debug builds on non-Windows platforms. These
+    # builds will fail on Windows due to linker issues (running out of memory,
+    # etc). See https://bitbucket.org/chromiumembedded/cef/issues/2679.
+    result['forbid_non_component_debug_builds'] = False
 
   if platform == 'linux':
     # Use a sysroot environment. Default is true. False is recommended for local
