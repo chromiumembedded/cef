@@ -6,6 +6,23 @@
 
 #include "base/macros.h"
 
+#if defined(OS_WIN)
+#include <limits>
+
+namespace {
+
+// From MSDN, FILETIME "Contains a 64-bit value representing the number of
+// 100-nanosecond intervals since January 1, 1601 (UTC)." This value must
+// be less than 0x8000000000000000. Otherwise, the function
+// FileTimeToSystemTime fails.
+// From base/time/time_win.cc:
+bool CanConvertToFileTime(int64_t us) {
+  return us >= 0 && us <= (std::numeric_limits<int64_t>::max() / 10);
+}
+
+}  // namespace
+#endif  // defined(OS_WIN)
+
 void cef_time_to_basetime(const cef_time_t& cef_time, base::Time& time) {
   base::Time::Exploded exploded;
   exploded.year = cef_time.year;
@@ -22,11 +39,7 @@ void cef_time_to_basetime(const cef_time_t& cef_time, base::Time& time) {
 void cef_time_from_basetime(const base::Time& time, cef_time_t& cef_time) {
 #if defined(OS_WIN)
   int64_t t = time.ToDeltaSinceWindowsEpoch().InMicroseconds();
-  // From MSDN, FILETIME "Contains a 64-bit value representing the number of
-  // 100-nanosecond intervals since January 1, 1601 (UTC)." This value must
-  // be less than 0x8000000000000000. Otherwise, the function
-  // FileTimeToSystemTime fails.
-  if (t < 0 || static_cast<uint64_t>(t * 10) >= 0x8000000000000000)
+  if (!CanConvertToFileTime(t))
     return;
 #endif
 
