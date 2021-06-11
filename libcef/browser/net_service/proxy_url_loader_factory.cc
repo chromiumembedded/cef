@@ -8,10 +8,12 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/origin_whitelist_impl.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/cef_switches.h"
 #include "libcef/common/net/scheme_registration.h"
 #include "libcef/common/net_service/net_service_util.h"
 
 #include "base/barrier_closure.h"
+#include "base/command_line.h"
 #include "base/strings/string_number_conversions.h"
 #include "components/safe_browsing/core/common/safebrowsing_constants.h"
 #include "content/public/browser/browser_context.h"
@@ -50,6 +52,14 @@ void CreateProxyHelper(
   ProxyURLLoaderFactory::CreateProxy(web_contents_getter,
                                      std::move(loader_receiver),
                                      std::move(request_handler));
+}
+
+bool DisableRequestHandlingForTesting() {
+  static bool disabled([]() -> bool {
+    return base::CommandLine::ForCurrentProcess()->HasSwitch(
+        switches::kDisableRequestHandlingForTesting);
+  }());
+  return disabled;
 }
 
 }  // namespace
@@ -1302,8 +1312,7 @@ void ProxyURLLoaderFactory::CreateLoaderAndStart(
     return;
   }
 
-  bool pass_through = false;
-  if (pass_through) {
+  if (DisableRequestHandlingForTesting()) {
     // This is the so-called pass-through, no-op option.
     if (target_factory_) {
       target_factory_->CreateLoaderAndStart(std::move(receiver), request_id,
