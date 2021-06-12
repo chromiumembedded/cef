@@ -489,6 +489,9 @@ def GetConfigArgsSandbox(platform, args, is_debug, cpu):
     # Don't enable -Wmax-tokens in combination with MSVC libc++.
     add_args['enable_wmax_tokens'] = False
 
+    # Allow non-component Debug builds for the sandbox.
+    add_args['forbid_non_component_debug_builds'] = False
+
   result = MergeDicts(args, add_args, {
       'is_debug': is_debug,
       'target_cpu': cpu,
