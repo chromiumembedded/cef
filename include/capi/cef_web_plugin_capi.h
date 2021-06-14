@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=d8b5b641cc036a9cd9375442254d558b066ada69$
+// $hash=f74bf4d33914d56d760f1bf5aadcf2651740c711$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_WEB_PLUGIN_CAPI_H_
@@ -214,7 +214,7 @@ CEF_EXPORT void cef_is_web_plugin_unstable(
 //   D. "x-cdm-interface-versions": Interface API version (e.g. "8").
 //   E. "x-cdm-host-versions": Host API version (e.g. "8").
 //   F. "version": CDM version (e.g. "1.4.8.903").
-//   G. "x-cdm-codecs": List of supported codecs (e.g. "vp8,vp9.0,avc1").
+//   G. "x-cdm-codecs": List of supported codecs (e.g. "vp8,vp09,avc1").
 //
 // A through E are used to verify compatibility with the current Chromium
 // version. If the CDM is not compatible the registration will fail and

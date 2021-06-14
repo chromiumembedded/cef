@@ -90,7 +90,7 @@ const char kCdmSupportedEncryptionSchemesName[] =
 // The following strings are used to specify supported codecs in the
 // parameter |kCdmCodecsListName|.
 const char kCdmSupportedCodecVp8[] = "vp8";
-const char kCdmSupportedCodecVp9[] = "vp9.0";
+const char kCdmSupportedCodecVp9[] = "vp09";
 #if BUILDFLAG(USE_PROPRIETARY_CODECS)
 const char kCdmSupportedCodecAvc1[] = "avc1";
 #endif
