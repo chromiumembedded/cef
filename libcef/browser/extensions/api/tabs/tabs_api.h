@@ -42,6 +42,37 @@ class TabsCreateFunction : public ExtensionFunction {
   const CefExtensionFunctionDetails cef_details_;
 };
 
+class BaseAPIFunction : public ExtensionFunction {
+ public:
+  BaseAPIFunction();
+
+ protected:
+  ~BaseAPIFunction() override {}
+
+  // Gets the WebContents for |tab_id| if it is specified. Otherwise get the
+  // WebContents for the active tab in the current window. Calling this function
+  // may set |error_|.
+  content::WebContents* GetWebContents(int tab_id);
+
+  std::string error_;
+  const CefExtensionFunctionDetails cef_details_;
+};
+
+class TabsUpdateFunction : public BaseAPIFunction {
+ private:
+  ~TabsUpdateFunction() override {}
+
+  ResponseAction Run() override;
+
+  bool UpdateURL(const std::string& url, int tab_id, std::string* error);
+  ResponseValue GetResult();
+
+  DECLARE_EXTENSION_FUNCTION("tabs.update", TABS_UPDATE)
+
+  int tab_id_ = -1;
+  content::WebContents* web_contents_ = nullptr;
+};
+
 // Implement API calls tabs.executeScript, tabs.insertCSS, and tabs.removeCSS.
 class ExecuteCodeInTabFunction : public ExecuteCodeFunction {
  public:
@@ -114,7 +145,7 @@ class ZoomAPIFunction : public ExtensionFunction {
   const CefExtensionFunctionDetails cef_details_;
 };
 
-class TabsSetZoomFunction : public ZoomAPIFunction {
+class TabsSetZoomFunction : public BaseAPIFunction {
  private:
   ~TabsSetZoomFunction() override {}
 
@@ -123,7 +154,7 @@ class TabsSetZoomFunction : public ZoomAPIFunction {
   DECLARE_EXTENSION_FUNCTION("tabs.setZoom", TABS_SETZOOM)
 };
 
-class TabsGetZoomFunction : public ZoomAPIFunction {
+class TabsGetZoomFunction : public BaseAPIFunction {
  private:
   ~TabsGetZoomFunction() override {}
 
@@ -132,7 +163,7 @@ class TabsGetZoomFunction : public ZoomAPIFunction {
   DECLARE_EXTENSION_FUNCTION("tabs.getZoom", TABS_GETZOOM)
 };
 
-class TabsSetZoomSettingsFunction : public ZoomAPIFunction {
+class TabsSetZoomSettingsFunction : public BaseAPIFunction {
  private:
   ~TabsSetZoomSettingsFunction() override {}
 
@@ -141,7 +172,7 @@ class TabsSetZoomSettingsFunction : public ZoomAPIFunction {
   DECLARE_EXTENSION_FUNCTION("tabs.setZoomSettings", TABS_SETZOOMSETTINGS)
 };
 
-class TabsGetZoomSettingsFunction : public ZoomAPIFunction {
+class TabsGetZoomSettingsFunction : public BaseAPIFunction {
  private:
   ~TabsGetZoomSettingsFunction() override {}
 
