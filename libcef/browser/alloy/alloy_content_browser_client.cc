@@ -255,7 +255,7 @@ class CefAllowCertificateErrorCallbackImpl : public CefRequestCallback {
     CEF_REQUIRE_UIT();
     std::move(callback).Run(
         allow ? content::CERTIFICATE_REQUEST_RESULT_TYPE_CONTINUE
-              : content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL);
+              : content::CERTIFICATE_REQUEST_RESULT_TYPE_DENY);
   }
 
   CallbackType callback_;
@@ -855,7 +855,7 @@ void AlloyContentBrowserClient::AllowCertificateError(
     // A sub-resource has a certificate error. The user doesn't really
     // have a context for making the right decision, so block the request
     // hard.
-    std::move(callback).Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL);
+    std::move(callback).Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_DENY);
     return;
   }
 
@@ -882,7 +882,7 @@ void AlloyContentBrowserClient::AllowCertificateError(
     // |callback| may be null if the user executed it despite returning false.
     callback = callbackImpl->Disconnect();
     if (!callback.is_null()) {
-      std::move(callback).Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL);
+      std::move(callback).Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_DENY);
     }
   }
 }
