@@ -318,22 +318,10 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
   GURL url;
   if (params.url.get()) {
     std::string url_string = *params.url;
-    url = ExtensionTabUtil::ResolvePossiblyRelativeURL(url_string,
-                                                       function()->extension());
-    if (!url.is_valid()) {
-      if (error_message) {
-        *error_message =
-            ErrorUtils::FormatErrorMessage(keys::kInvalidUrlError, url_string);
-      }
+    if (!ExtensionTabUtil::PrepareURLForNavigation(
+            url_string, function()->extension(), &url, error_message)) {
       return nullptr;
     }
-  }
-
-  // Don't let extensions crash the browser or renderers.
-  if (ExtensionTabUtil::IsKillURL(url)) {
-    if (error_message)
-      *error_message = keys::kNoCrashBrowserError;
-    return nullptr;
   }
 
   // Default to foreground for the new tab. The presence of 'active' property

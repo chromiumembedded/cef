@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/streams_private/streams_private_api.cc chrome/browser/extensions/api/streams_private/streams_private_api.cc
-index 5c903a13a14e..d385c6c0c95c 100644
+index 5c903a13a14e..c85964a7bab1 100644
 --- chrome/browser/extensions/api/streams_private/streams_private_api.cc
 +++ chrome/browser/extensions/api/streams_private/streams_private_api.cc
 @@ -6,6 +6,7 @@
@@ -10,7 +10,18 @@ index 5c903a13a14e..d385c6c0c95c 100644
  #include "chrome/browser/extensions/extension_tab_util.h"
  #include "chrome/browser/prefetch/no_state_prefetch/chrome_no_state_prefetch_contents_delegate.h"
  #include "components/no_state_prefetch/browser/no_state_prefetch_contents.h"
-@@ -42,6 +43,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+@@ -18,6 +19,10 @@
+ #include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h"
+ #include "extensions/common/manifest_handlers/mime_types_handler.h"
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/browser/extensions/alloy_extensions_util.h"
++#endif
++
+ namespace extensions {
+ 
+ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+@@ -42,6 +47,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
    if (!web_contents)
      return;
  
@@ -18,7 +29,7 @@ index 5c903a13a14e..d385c6c0c95c 100644
    // If the request was for NoStatePrefetch, abort the prefetcher and do not
    // continue. This is because plugins cancel NoStatePrefetch, see
    // http://crbug.com/343590.
-@@ -52,6 +54,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+@@ -52,6 +58,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
      no_state_prefetch_contents->Destroy(prerender::FINAL_STATUS_DOWNLOAD);
      return;
    }
@@ -26,6 +37,28 @@ index 5c903a13a14e..d385c6c0c95c 100644
  
    auto* browser_context = web_contents->GetBrowserContext();
  
+@@ -78,9 +85,18 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+   // forms of zooming won't work).
+   // TODO(1042323): Present a coherent representation of a tab id for portal
+   // contents.
+-  int tab_id = web_contents->GetOuterWebContents()
+-                   ? SessionID::InvalidValue().id()
+-                   : ExtensionTabUtil::GetTabId(web_contents);
++  int tab_id;
++  if (web_contents->GetOuterWebContents()) {
++    tab_id = SessionID::InvalidValue().id();
++  } else
++#if BUILDFLAG(ENABLE_CEF)
++  if (cef::IsAlloyRuntimeEnabled()) {
++    tab_id = alloy::GetTabIdForWebContents(web_contents);
++  } else
++#endif  // BUILDFLAG(ENABLE_CEF)
++  {
++    tab_id = ExtensionTabUtil::GetTabId(web_contents);
++  }
+ 
+   std::unique_ptr<StreamContainer> stream_container(
+       new StreamContainer(tab_id, embedded, handler_url, extension_id,
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
 index 7e38155c3b69..78768b28d8c9 100644
 --- extensions/browser/extension_host.cc

@@ -6,10 +6,15 @@
 
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
 
+#include "base/notreached.h"
 #include "base/strings/string_number_conversions.h"
 #include "chrome/browser/extensions/api/tabs/tabs_constants.h"
+#include "chrome/browser/extensions/extension_tab_util.h"
 #include "components/zoom/zoom_controller.h"
+#include "content/public/browser/navigation_controller.h"
+#include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/render_frame_host.h"
+#include "content/public/browser/site_instance.h"
 #include "extensions/browser/extension_api_frame_id_map.h"
 #include "extensions/browser/extension_zoom_request_client.h"
 #include "extensions/common/error_utils.h"
@@ -97,6 +102,148 @@ ExtensionFunction::ResponseAction TabsCreateFunction::Run() {
       has_callback()
           ? OneArgument(base::Value::FromUniquePtrValue(std::move(result)))
           : NoArguments());
+}
+
+BaseAPIFunction::BaseAPIFunction() : cef_details_(this) {}
+
+content::WebContents* BaseAPIFunction::GetWebContents(int tab_id) {
+  // Find a browser that we can access, or set |error_| and return nullptr.
+  CefRefPtr<AlloyBrowserHostImpl> browser =
+      cef_details_.GetBrowserForTabIdFirstTime(tab_id, &error_);
+  if (!browser)
+    return nullptr;
+
+  return browser->web_contents();
+}
+
+ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+  std::unique_ptr<tabs::Update::Params> params(
+      tabs::Update::Params::Create(*args_));
+  EXTENSION_FUNCTION_VALIDATE(params.get());
+
+  tab_id_ = params->tab_id ? *params->tab_id : -1;
+  content::WebContents* web_contents = GetWebContents(tab_id_);
+  if (!web_contents)
+    return RespondNow(Error(std::move(error_)));
+
+  web_contents_ = web_contents;
+
+  // TODO(rafaelw): handle setting remaining tab properties:
+  // -title
+  // -favIconUrl
+
+  // Navigate the tab to a new location if the url is different.
+  if (params->update_properties.url.get()) {
+    std::string updated_url = *params->update_properties.url;
+    if (!UpdateURL(updated_url, tab_id_, &error_))
+      return RespondNow(Error(std::move(error_)));
+  }
+
+  bool active = false;
+  // TODO(rafaelw): Setting |active| from js doesn't make much sense.
+  // Move tab selection management up to window.
+  if (params->update_properties.selected.get())
+    active = *params->update_properties.selected;
+
+  // The 'active' property has replaced 'selected'.
+  if (params->update_properties.active.get())
+    active = *params->update_properties.active;
+
+  if (active) {
+    // TODO: Activate the tab at |tab_id_|.
+    NOTIMPLEMENTED();
+    return RespondNow(Error(tabs_constants::kTabStripNotEditableError));
+  }
+
+  if (params->update_properties.highlighted.get() &&
+      *params->update_properties.highlighted) {
+    // TODO: Highlight the tab at |tab_id_|.
+    NOTIMPLEMENTED();
+    return RespondNow(Error(tabs_constants::kTabStripNotEditableError));
+  }
+
+  if (params->update_properties.pinned.get() &&
+      *params->update_properties.pinned) {
+    // TODO: Pin the tab at |tab_id_|.
+    NOTIMPLEMENTED();
+    return RespondNow(Error(tabs_constants::kTabStripNotEditableError));
+  }
+
+  if (params->update_properties.muted.get()) {
+    // TODO: Mute/unmute the tab at |tab_id_|.
+    NOTIMPLEMENTED();
+    return RespondNow(Error(ErrorUtils::FormatErrorMessage(
+        tabs_constants::kCannotUpdateMuteCaptured,
+        base::NumberToString(tab_id_))));
+  }
+
+  if (params->update_properties.opener_tab_id.get()) {
+    int opener_id = *params->update_properties.opener_tab_id;
+    if (opener_id == tab_id_)
+      return RespondNow(Error("Cannot set a tab's opener to itself."));
+
+    // TODO: Set the opener for the tab at |tab_id_|.
+    NOTIMPLEMENTED();
+    return RespondNow(Error(tabs_constants::kTabStripNotEditableError));
+  }
+
+  if (params->update_properties.auto_discardable.get()) {
+    // TODO: Set auto-discardable state for the tab at |tab_id_|.
+    NOTIMPLEMENTED();
+  }
+
+  return RespondNow(GetResult());
+}
+
+bool TabsUpdateFunction::UpdateURL(const std::string& url_string,
+                                   int tab_id,
+                                   std::string* error) {
+  GURL url;
+  if (!ExtensionTabUtil::PrepareURLForNavigation(url_string, extension(), &url,
+                                                 error)) {
+    return false;
+  }
+
+  const bool is_javascript_scheme = url.SchemeIs(url::kJavaScriptScheme);
+  // JavaScript URLs are forbidden in chrome.tabs.update().
+  if (is_javascript_scheme) {
+    *error = tabs_constants::kJavaScriptUrlsNotAllowedInTabsUpdate;
+    return false;
+  }
+
+  content::NavigationController::LoadURLParams load_params(url);
+
+  // Treat extension-initiated navigations as renderer-initiated so that the URL
+  // does not show in the omnibox until it commits.  This avoids URL spoofs
+  // since URLs can be opened on behalf of untrusted content.
+  load_params.is_renderer_initiated = true;
+  // All renderer-initiated navigations need to have an initiator origin.
+  load_params.initiator_origin = extension()->origin();
+  // |source_site_instance| needs to be set so that a renderer process
+  // compatible with |initiator_origin| is picked by Site Isolation.
+  load_params.source_site_instance = content::SiteInstance::CreateForURL(
+      web_contents_->GetBrowserContext(),
+      load_params.initiator_origin->GetURL());
+
+  // Marking the navigation as initiated via an API means that the focus
+  // will stay in the omnibox - see https://crbug.com/1085779.
+  load_params.transition_type = ui::PAGE_TRANSITION_FROM_API;
+
+  web_contents_->GetController().LoadURLWithParams(load_params);
+
+  DCHECK_EQ(url,
+            web_contents_->GetController().GetPendingEntry()->GetVirtualURL());
+
+  return true;
+}
+
+ExtensionFunction::ResponseValue TabsUpdateFunction::GetResult() {
+  if (!has_callback())
+    return NoArguments();
+
+  return ArgumentList(tabs::Get::Results::Create(*cef_details_.CreateTabObject(
+      AlloyBrowserHostImpl::GetBrowserForContents(web_contents_),
+      /*opener_browser_id=*/-1, /*active=*/true, tab_id_)));
 }
 
 ExecuteCodeInTabFunction::ExecuteCodeInTabFunction()
@@ -244,18 +391,6 @@ bool TabsInsertCSSFunction::ShouldInsertCSS() const {
 
 bool TabsRemoveCSSFunction::ShouldRemoveCSS() const {
   return true;
-}
-
-ZoomAPIFunction::ZoomAPIFunction() : cef_details_(this) {}
-
-content::WebContents* ZoomAPIFunction::GetWebContents(int tab_id) {
-  // Find a browser that we can access, or set |error_| and return nullptr.
-  CefRefPtr<AlloyBrowserHostImpl> browser =
-      cef_details_.GetBrowserForTabIdFirstTime(tab_id, &error_);
-  if (!browser)
-    return nullptr;
-
-  return browser->web_contents();
 }
 
 ExtensionFunction::ResponseAction TabsSetZoomFunction::Run() {

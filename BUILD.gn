@@ -486,6 +486,8 @@ static_library("libcef_static") {
     "libcef/browser/extensions/api/storage/sync_value_store_cache.h",
     "libcef/browser/extensions/api/tabs/tabs_api.cc",
     "libcef/browser/extensions/api/tabs/tabs_api.h",
+    "libcef/browser/extensions/alloy_extensions_util.cc",
+    "libcef/browser/extensions/alloy_extensions_util.h",
     "libcef/browser/extensions/browser_extensions_util.cc",
     "libcef/browser/extensions/browser_extensions_util.h",
     "libcef/browser/extensions/browser_platform_delegate_background.cc",
