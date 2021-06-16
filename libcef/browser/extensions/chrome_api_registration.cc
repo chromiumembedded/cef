@@ -51,6 +51,7 @@ const char* const kSupportedAPIs[] = {
     "tabs",
     EXTENSION_FUNCTION_NAME(cefimpl::TabsGetFunction),
     EXTENSION_FUNCTION_NAME(cefimpl::TabsCreateFunction),
+    EXTENSION_FUNCTION_NAME(cefimpl::TabsUpdateFunction),
     EXTENSION_FUNCTION_NAME(cefimpl::TabsExecuteScriptFunction),
     EXTENSION_FUNCTION_NAME(cefimpl::TabsInsertCSSFunction),
     EXTENSION_FUNCTION_NAME(cefimpl::TabsRemoveCSSFunction),
@@ -95,6 +96,7 @@ void ChromeFunctionRegistry::RegisterAll(ExtensionFunctionRegistry* registry) {
   registry->RegisterFunction<cefimpl::TabsRemoveCSSFunction>();
   registry->RegisterFunction<cefimpl::TabsGetFunction>();
   registry->RegisterFunction<cefimpl::TabsCreateFunction>();
+  registry->RegisterFunction<cefimpl::TabsUpdateFunction>();
   registry->RegisterFunction<cefimpl::TabsSetZoomFunction>();
   registry->RegisterFunction<cefimpl::TabsGetZoomFunction>();
   registry->RegisterFunction<cefimpl::TabsSetZoomSettingsFunction>();
