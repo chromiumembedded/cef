@@ -1,5 +1,4 @@
-// Copyright (c) 2014 Marshall A. Greenblatt. Portions copyright (c) 2011
-// Google Inc. All rights reserved.
+// Copyright (c) 2013 Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -28,38 +27,40 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef INCLUDE_BASE_CEF_CALLBACK_FORWARD_H_
-#define INCLUDE_BASE_CEF_CALLBACK_FORWARD_H_
-#pragma once
+// Do not include this header file directly. Use base/mac/scoped_block.h
+// instead.
 
-#if defined(USING_CHROMIUM_INCLUDES)
-// When building CEF include the Chromium header directly.
-#include "base/callback_forward.h"
-#else  // !USING_CHROMIUM_INCLUDES
-// The following is substantially similar to the Chromium implementation.
-// If the Chromium implementation diverges the below implementation should be
-// updated to match.
+#ifndef CEF_INCLUDE_BASE_INTERNAL_CEF_SCOPED_BLOCK_MAC_H_
+#define CEF_INCLUDE_BASE_INTERNAL_CEF_SCOPED_BLOCK_MAC_H_
+
+#include <Block.h>
+
+#include "include/base/cef_scoped_typeref_mac.h"
+
+#if defined(__has_feature) && __has_feature(objc_arc)
+#error "Cannot include include/base/internal/cef_scoped_block_mac.h in file built with ARC."
+#endif
 
 namespace base {
+namespace mac {
 
-template <typename Signature>
-class OnceCallback;
+namespace internal {
 
-template <typename Signature>
-class RepeatingCallback;
+template <typename B>
+struct ScopedBlockTraits {
+  static B InvalidValue() { return nullptr; }
+  static B Retain(B block) { return Block_copy(block); }
+  static void Release(B block) { Block_release(block); }
+};
 
-template <typename Signature>
-using Callback = RepeatingCallback<Signature>;
+}  // namespace internal
 
-// Syntactic sugar to make OnceClosure<void()> and RepeatingClosure<void()>
-// easier to declare since they will be used in a lot of APIs with delayed
-// execution.
-using OnceClosure = OnceCallback<void()>;
-using RepeatingClosure = RepeatingCallback<void()>;
-using Closure = Callback<void()>;
+// ScopedBlock<> is patterned after ScopedCFTypeRef<>, but uses Block_copy() and
+// Block_release() instead of CFRetain() and CFRelease().
+template <typename B>
+using ScopedBlock = ScopedTypeRef<B, internal::ScopedBlockTraits<B>>;
 
+}  // namespace mac
 }  // namespace base
 
-#endif  // !!USING_CHROMIUM_INCLUDES
-
-#endif  // INCLUDE_BASE_CEF_CALLBACK_FORWARD_H_
+#endif  // CEF_INCLUDE_BASE_INTERNAL_CEF_SCOPED_BLOCK_MAC_H_

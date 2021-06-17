@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Marshall A. Greenblatt. Portions copyright (c) 2012
+// Copyright (c) 2021 Marshall A. Greenblatt. Portions copyright (c) 2015
 // Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,51 +28,31 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CEF_INCLUDE_BASE_CEF_MACROS_H_
-#define CEF_INCLUDE_BASE_CEF_MACROS_H_
+#ifndef INCLUDE_BASE_CEF_PTR_UTIL_H_
+#define INCLUDE_BASE_CEF_PTR_UTIL_H_
 #pragma once
 
 #if defined(USING_CHROMIUM_INCLUDES)
 // When building CEF include the Chromium header directly.
-#include "base/macros.h"
-
+#include "base/memory/ptr_util.h"
 #else  // !USING_CHROMIUM_INCLUDES
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.
 
-// ALL DISALLOW_xxx MACROS ARE DEPRECATED; DO NOT USE IN NEW CODE.
-// Use explicit deletions instead.  See the section on copyability/movability in
-// //styleguide/c++/c++-dos-and-donts.md for more information.
+#include <memory>
+#include <utility>
 
-// DEPRECATED: See above. Makes a class uncopyable.
-#define DISALLOW_COPY(TypeName) TypeName(const TypeName&) = delete
+namespace base {
 
-// DEPRECATED: See above. Makes a class unassignable.
-#define DISALLOW_ASSIGN(TypeName) TypeName& operator=(const TypeName&) = delete
-
-// DEPRECATED: See above. Makes a class uncopyable and unassignable.
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  DISALLOW_COPY(TypeName);                 \
-  DISALLOW_ASSIGN(TypeName)
-
-// DEPRECATED: See above. Disallow all implicit constructors, namely the
-// default constructor, copy constructor and operator= functions.
-#define DISALLOW_IMPLICIT_CONSTRUCTORS(TypeName) \
-  TypeName() = delete;                           \
-  DISALLOW_COPY_AND_ASSIGN(TypeName)
-
-// Used to explicitly mark the return value of a function as unused. If you are
-// really sure you don't want to do anything with the return value of a function
-// that has been marked WARN_UNUSED_RESULT, wrap it with this. Example:
-//
-//   std::unique_ptr<MyType> my_var = ...;
-//   if (TakeOwnership(my_var.get()) == SUCCESS)
-//     ignore_result(my_var.release());
-//
+// Helper to transfer ownership of a raw pointer to a std::unique_ptr<T>.
+// Note that std::unique_ptr<T> has very different semantics from
+// std::unique_ptr<T[]>: do not use this helper for array allocations.
 template <typename T>
-inline void ignore_result(const T&) {}
+std::unique_ptr<T> WrapUnique(T* ptr) {
+  return std::unique_ptr<T>(ptr);
+}
 
-#endif  // !USING_CHROMIUM_INCLUDES
+}  // namespace base
 
-#endif  // CEF_INCLUDE_BASE_CEF_MACROS_H_
+#endif  // INCLUDE_BASE_CEF_PTR_UTIL_H_

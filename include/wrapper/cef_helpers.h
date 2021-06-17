@@ -83,8 +83,8 @@ struct CefDeleteOnThread {
     if (CefCurrentlyOn(thread)) {
       delete x;
     } else {
-      CefPostTask(thread,
-                  base::Bind(&CefDeleteOnThread<thread>::Destruct<T>, x));
+      CefPostTask(thread, base::Bind(&CefDeleteOnThread<thread>::Destruct<T>,
+                                     base::Unretained(x)));
     }
   }
 };
@@ -102,16 +102,16 @@ struct CefDeleteOnRendererThread : public CefDeleteOnThread<TID_RENDERER> {};
 // Same as IMPLEMENT_REFCOUNTING() but using the specified Destructor.
 #define IMPLEMENT_REFCOUNTING_EX(ClassName, Destructor)              \
  public:                                                             \
-  void AddRef() const OVERRIDE { ref_count_.AddRef(); }              \
-  bool Release() const OVERRIDE {                                    \
+  void AddRef() const override { ref_count_.AddRef(); }              \
+  bool Release() const override {                                    \
     if (ref_count_.Release()) {                                      \
       Destructor::Destruct(this);                                    \
       return true;                                                   \
     }                                                                \
     return false;                                                    \
   }                                                                  \
-  bool HasOneRef() const OVERRIDE { return ref_count_.HasOneRef(); } \
-  bool HasAtLeastOneRef() const OVERRIDE {                           \
+  bool HasOneRef() const override { return ref_count_.HasOneRef(); } \
+  bool HasAtLeastOneRef() const override {                           \
     return ref_count_.HasAtLeastOneRef();                            \
   }                                                                  \
                                                                      \

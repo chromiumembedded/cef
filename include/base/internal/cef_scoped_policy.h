@@ -1,5 +1,4 @@
-// Copyright (c) 2014 Marshall A. Greenblatt. Portions copyright (c) 2011
-// Google Inc. All rights reserved.
+// Copyright (c) 2012 Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -28,38 +27,27 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef INCLUDE_BASE_CEF_CALLBACK_FORWARD_H_
-#define INCLUDE_BASE_CEF_CALLBACK_FORWARD_H_
-#pragma once
+// Do not include this header file directly. Use base/memory/scoped_policy.h
+// instead.
 
-#if defined(USING_CHROMIUM_INCLUDES)
-// When building CEF include the Chromium header directly.
-#include "base/callback_forward.h"
-#else  // !USING_CHROMIUM_INCLUDES
-// The following is substantially similar to the Chromium implementation.
-// If the Chromium implementation diverges the below implementation should be
-// updated to match.
+#ifndef CEF_INCLUDE_BASE_INTERNAL_CEF_SCOPED_POLICY_H_
+#define CEF_INCLUDE_BASE_INTERNAL_CEF_SCOPED_POLICY_H_
 
 namespace base {
+namespace scoped_policy {
 
-template <typename Signature>
-class OnceCallback;
+// Defines the ownership policy for a scoped object.
+enum OwnershipPolicy {
+  // The scoped object takes ownership of an object by taking over an existing
+  // ownership claim.
+  ASSUME,
 
-template <typename Signature>
-class RepeatingCallback;
+  // The scoped object will retain the object and any initial ownership is
+  // not changed.
+  RETAIN
+};
 
-template <typename Signature>
-using Callback = RepeatingCallback<Signature>;
-
-// Syntactic sugar to make OnceClosure<void()> and RepeatingClosure<void()>
-// easier to declare since they will be used in a lot of APIs with delayed
-// execution.
-using OnceClosure = OnceCallback<void()>;
-using RepeatingClosure = RepeatingCallback<void()>;
-using Closure = Callback<void()>;
-
+}  // namespace scoped_policy
 }  // namespace base
 
-#endif  // !!USING_CHROMIUM_INCLUDES
-
-#endif  // INCLUDE_BASE_CEF_CALLBACK_FORWARD_H_
+#endif  // CEF_INCLUDE_BASE_INTERNAL_CEF_SCOPED_POLICY_H_

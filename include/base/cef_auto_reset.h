@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Marshall A. Greenblatt. Portions copyright (c) 2012
+// Copyright (c) 2014 Marshall A. Greenblatt. Portions copyright (c) 2011
 // Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,51 +28,62 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CEF_INCLUDE_BASE_CEF_MACROS_H_
-#define CEF_INCLUDE_BASE_CEF_MACROS_H_
+// base::AutoReset<> is useful for setting a variable to a new value only within
+// a particular scope. An base::AutoReset<> object resets a variable to its
+// original value upon destruction, making it an alternative to writing
+// "var = false;" or "var = old_val;" at all of a block's exit points.
+//
+// This should be obvious, but note that an base::AutoReset<> instance should
+// have a shorter lifetime than its scoped_variable, to prevent invalid memory
+// writes when the base::AutoReset<> object is destroyed.
+
+#ifndef CEF_INCLUDE_BASE_CEF_AUTO_RESET_H_
+#define CEF_INCLUDE_BASE_CEF_AUTO_RESET_H_
 #pragma once
 
 #if defined(USING_CHROMIUM_INCLUDES)
 // When building CEF include the Chromium header directly.
-#include "base/macros.h"
-
+#include "base/auto_reset.h"
 #else  // !USING_CHROMIUM_INCLUDES
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.
 
-// ALL DISALLOW_xxx MACROS ARE DEPRECATED; DO NOT USE IN NEW CODE.
-// Use explicit deletions instead.  See the section on copyability/movability in
-// //styleguide/c++/c++-dos-and-donts.md for more information.
+#include <utility>
 
-// DEPRECATED: See above. Makes a class uncopyable.
-#define DISALLOW_COPY(TypeName) TypeName(const TypeName&) = delete
+namespace base {
 
-// DEPRECATED: See above. Makes a class unassignable.
-#define DISALLOW_ASSIGN(TypeName) TypeName& operator=(const TypeName&) = delete
-
-// DEPRECATED: See above. Makes a class uncopyable and unassignable.
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  DISALLOW_COPY(TypeName);                 \
-  DISALLOW_ASSIGN(TypeName)
-
-// DEPRECATED: See above. Disallow all implicit constructors, namely the
-// default constructor, copy constructor and operator= functions.
-#define DISALLOW_IMPLICIT_CONSTRUCTORS(TypeName) \
-  TypeName() = delete;                           \
-  DISALLOW_COPY_AND_ASSIGN(TypeName)
-
-// Used to explicitly mark the return value of a function as unused. If you are
-// really sure you don't want to do anything with the return value of a function
-// that has been marked WARN_UNUSED_RESULT, wrap it with this. Example:
-//
-//   std::unique_ptr<MyType> my_var = ...;
-//   if (TakeOwnership(my_var.get()) == SUCCESS)
-//     ignore_result(my_var.release());
-//
 template <typename T>
-inline void ignore_result(const T&) {}
+class AutoReset {
+ public:
+  template <typename U>
+  AutoReset(T* scoped_variable, U&& new_value)
+      : scoped_variable_(scoped_variable),
+        original_value_(
+            std::exchange(*scoped_variable_, std::forward<U>(new_value))) {}
+
+  AutoReset(AutoReset&& other)
+      : scoped_variable_(std::exchange(other.scoped_variable_, nullptr)),
+        original_value_(std::move(other.original_value_)) {}
+
+  AutoReset& operator=(AutoReset&& rhs) {
+    scoped_variable_ = std::exchange(rhs.scoped_variable_, nullptr);
+    original_value_ = std::move(rhs.original_value_);
+    return *this;
+  }
+
+  ~AutoReset() {
+    if (scoped_variable_)
+      *scoped_variable_ = std::move(original_value_);
+  }
+
+ private:
+  T* scoped_variable_;
+  T original_value_;
+};
+
+}  // namespace base
 
 #endif  // !USING_CHROMIUM_INCLUDES
 
-#endif  // CEF_INCLUDE_BASE_CEF_MACROS_H_
+#endif  // CEF_INCLUDE_BASE_CEF_AUTO_RESET_H_

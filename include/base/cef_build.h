@@ -27,61 +27,128 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// This file adds defines about the platform we're currently building on.
+//
+//  Operating System:
+//    OS_AIX / OS_ANDROID / OS_ASMJS / OS_FREEBSD / OS_FUCHSIA / OS_IOS /
+//    OS_LINUX / OS_MAC / OS_NACL (SFI or NONSFI) / OS_NETBSD / OS_OPENBSD /
+//    OS_QNX / OS_SOLARIS / OS_WIN
+//  Operating System family:
+//    OS_APPLE: IOS or MAC
+//    OS_BSD: FREEBSD or NETBSD or OPENBSD
+//    OS_POSIX: AIX or ANDROID or ASMJS or CHROMEOS or FREEBSD or IOS or LINUX
+//              or MAC or NACL or NETBSD or OPENBSD or QNX or SOLARIS
+//
+//  /!\ Note: OS_CHROMEOS is set by the build system, not this file
+//
+//  Compiler:
+//    COMPILER_MSVC / COMPILER_GCC
+//
+//  Processor:
+//    ARCH_CPU_ARM64 / ARCH_CPU_ARMEL / ARCH_CPU_MIPS / ARCH_CPU_MIPS64 /
+//    ARCH_CPU_MIPS64EL / ARCH_CPU_MIPSEL / ARCH_CPU_PPC64 / ARCH_CPU_S390 /
+//    ARCH_CPU_S390X / ARCH_CPU_X86 / ARCH_CPU_X86_64
+//  Processor family:
+//    ARCH_CPU_ARM_FAMILY: ARMEL or ARM64
+//    ARCH_CPU_MIPS_FAMILY: MIPS64EL or MIPSEL or MIPS64 or MIPS
+//    ARCH_CPU_PPC64_FAMILY: PPC64
+//    ARCH_CPU_S390_FAMILY: S390 or S390X
+//    ARCH_CPU_X86_FAMILY: X86 or X86_64
+//  Processor features:
+//    ARCH_CPU_31_BITS / ARCH_CPU_32_BITS / ARCH_CPU_64_BITS
+//    ARCH_CPU_BIG_ENDIAN / ARCH_CPU_LITTLE_ENDIAN
+
 #ifndef CEF_INCLUDE_BASE_CEF_BUILD_H_
 #define CEF_INCLUDE_BASE_CEF_BUILD_H_
 #pragma once
 
 #if defined(USING_CHROMIUM_INCLUDES)
 // When building CEF include the Chromium header directly.
-#include "base/compiler_specific.h"
+#include "build/build_config.h"
 #else  // !USING_CHROMIUM_INCLUDES
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.
 
-#if defined(_WIN32)
-#ifndef OS_WIN
-#define OS_WIN 1
-#endif
+// A set of macros to use for platform detection.
+#if defined(ANDROID)
+#define OS_ANDROID 1
 #elif defined(__APPLE__)
-// New platform defines after https://crbug.com/1105907.
-#ifndef OS_MAC
+// Only include TargetConditionals after testing ANDROID as some Android builds
+// on the Mac have this header available and it's not needed unless the target
+// is really an Apple platform.
+#include <TargetConditionals.h>
+#if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+#define OS_IOS 1
+#else
 #define OS_MAC 1
+// For backwards compatibility.
+#define OS_MACOSX 1
+#endif  // defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+#elif defined(__linux__)
+#if !defined(OS_CHROMEOS)
+// Do not define OS_LINUX on Chrome OS build.
+// The OS_CHROMEOS macro is defined in GN.
+#define OS_LINUX 1
+#endif  // !defined(OS_CHROMEOS)
+// Include a system header to pull in features.h for glibc/uclibc macros.
+#include <unistd.h>
+#if defined(__GLIBC__) && !defined(__UCLIBC__)
+// We really are using glibc, not uClibc pretending to be glibc.
+#define LIBC_GLIBC 1
 #endif
-#ifndef OS_APPLE
+#elif defined(_WIN32)
+#define OS_WIN 1
+#elif defined(__Fuchsia__)
+#define OS_FUCHSIA 1
+#elif defined(__FreeBSD__)
+#define OS_FREEBSD 1
+#elif defined(__NetBSD__)
+#define OS_NETBSD 1
+#elif defined(__OpenBSD__)
+#define OS_OPENBSD 1
+#elif defined(__sun)
+#define OS_SOLARIS 1
+#elif defined(__QNXNTO__)
+#define OS_QNX 1
+#elif defined(_AIX)
+#define OS_AIX 1
+#elif defined(__asmjs__) || defined(__wasm__)
+#define OS_ASMJS 1
+#else
+#error Please add support for your platform in include/base/cef_build.h
+#endif
+// NOTE: Adding a new port? Please follow
+// https://chromium.googlesource.com/chromium/src/+/master/docs/new_port_policy.md
+
+#if defined(OS_MAC) || defined(OS_IOS)
 #define OS_APPLE 1
 #endif
-// Old platform defines retained for backwards compatibility.
-#ifndef OS_MACOSX
-#define OS_MACOSX 1
-#endif
-#elif defined(__linux__)
-#ifndef OS_LINUX
-#define OS_LINUX 1
-#endif
-#else
-#error Please add support for your platform in cef_build.h
+
+// For access to standard BSD features, use OS_BSD instead of a
+// more specific macro.
+#if defined(OS_FREEBSD) || defined(OS_NETBSD) || defined(OS_OPENBSD)
+#define OS_BSD 1
 #endif
 
 // For access to standard POSIXish features, use OS_POSIX instead of a
 // more specific macro.
-#if defined(OS_MAC) || defined(OS_LINUX)
-#ifndef OS_POSIX
+#if defined(OS_AIX) || defined(OS_ANDROID) || defined(OS_ASMJS) ||  \
+    defined(OS_FREEBSD) || defined(OS_IOS) || defined(OS_LINUX) ||  \
+    defined(OS_CHROMEOS) || defined(OS_MAC) || defined(OS_NACL) ||  \
+    defined(OS_NETBSD) || defined(OS_OPENBSD) || defined(OS_QNX) || \
+    defined(OS_SOLARIS)
 #define OS_POSIX 1
 #endif
-#endif
 
-// Compiler detection.
+// Compiler detection. Note: clang masquerades as GCC on POSIX and as MSVC on
+// Windows.
 #if defined(__GNUC__)
-#ifndef COMPILER_GCC
 #define COMPILER_GCC 1
-#endif
 #elif defined(_MSC_VER)
-#ifndef COMPILER_MSVC
 #define COMPILER_MSVC 1
-#endif
 #else
-#error Please add support for your compiler in cef_build.h
+#error Please add support for your compiler in build/build_config.h
 #endif
 
 // Processor architecture detection.  For more info on what's defined, see:
@@ -98,6 +165,26 @@
 #define ARCH_CPU_X86 1
 #define ARCH_CPU_32_BITS 1
 #define ARCH_CPU_LITTLE_ENDIAN 1
+#elif defined(__s390x__)
+#define ARCH_CPU_S390_FAMILY 1
+#define ARCH_CPU_S390X 1
+#define ARCH_CPU_64_BITS 1
+#define ARCH_CPU_BIG_ENDIAN 1
+#elif defined(__s390__)
+#define ARCH_CPU_S390_FAMILY 1
+#define ARCH_CPU_S390 1
+#define ARCH_CPU_31_BITS 1
+#define ARCH_CPU_BIG_ENDIAN 1
+#elif (defined(__PPC64__) || defined(__PPC__)) && defined(__BIG_ENDIAN__)
+#define ARCH_CPU_PPC64_FAMILY 1
+#define ARCH_CPU_PPC64 1
+#define ARCH_CPU_64_BITS 1
+#define ARCH_CPU_BIG_ENDIAN 1
+#elif defined(__PPC64__)
+#define ARCH_CPU_PPC64_FAMILY 1
+#define ARCH_CPU_PPC64 1
+#define ARCH_CPU_64_BITS 1
+#define ARCH_CPU_LITTLE_ENDIAN 1
 #elif defined(__ARMEL__)
 #define ARCH_CPU_ARM_FAMILY 1
 #define ARCH_CPU_ARMEL 1
@@ -108,21 +195,42 @@
 #define ARCH_CPU_ARM64 1
 #define ARCH_CPU_64_BITS 1
 #define ARCH_CPU_LITTLE_ENDIAN 1
-#elif defined(__pnacl__)
+#elif defined(__pnacl__) || defined(__asmjs__) || defined(__wasm__)
 #define ARCH_CPU_32_BITS 1
 #define ARCH_CPU_LITTLE_ENDIAN 1
 #elif defined(__MIPSEL__)
+#if defined(__LP64__)
+#define ARCH_CPU_MIPS_FAMILY 1
+#define ARCH_CPU_MIPS64EL 1
+#define ARCH_CPU_64_BITS 1
+#define ARCH_CPU_LITTLE_ENDIAN 1
+#else
 #define ARCH_CPU_MIPS_FAMILY 1
 #define ARCH_CPU_MIPSEL 1
 #define ARCH_CPU_32_BITS 1
 #define ARCH_CPU_LITTLE_ENDIAN 1
+#endif
+#elif defined(__MIPSEB__)
+#if defined(__LP64__)
+#define ARCH_CPU_MIPS_FAMILY 1
+#define ARCH_CPU_MIPS64 1
+#define ARCH_CPU_64_BITS 1
+#define ARCH_CPU_BIG_ENDIAN 1
 #else
-#error Please add support for your architecture in cef_build.h
+#define ARCH_CPU_MIPS_FAMILY 1
+#define ARCH_CPU_MIPS 1
+#define ARCH_CPU_32_BITS 1
+#define ARCH_CPU_BIG_ENDIAN 1
+#endif
+#else
+#error Please add support for your architecture in include/base/cef_build.h
 #endif
 
 // Type detection for wchar_t.
 #if defined(OS_WIN)
 #define WCHAR_T_IS_UTF16
+#elif defined(OS_FUCHSIA)
+#define WCHAR_T_IS_UTF32
 #elif defined(OS_POSIX) && defined(COMPILER_GCC) && defined(__WCHAR_MAX__) && \
     (__WCHAR_MAX__ == 0x7fffffff || __WCHAR_MAX__ == 0xffffffff)
 #define WCHAR_T_IS_UTF32
@@ -134,82 +242,18 @@
 // short wchar works for them.
 #define WCHAR_T_IS_UTF16
 #else
-#error Please add support for your compiler in cef_build.h
+#error Please add support for your compiler in include/base/cef_build.h
 #endif
 
-// Annotate a function indicating the caller must examine the return value.
-// Use like:
-//   int foo() WARN_UNUSED_RESULT;
-// To explicitly ignore a result, see |ignore_result()| in <base/macros.h>.
-#ifndef WARN_UNUSED_RESULT
-#if defined(COMPILER_GCC)
-#define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
-#else
-#define WARN_UNUSED_RESULT
-#endif
-#endif  // WARN_UNUSED_RESULT
-
-// Annotate a typedef or function indicating it's ok if it's not used.
-// Use like:
-//   typedef Foo Bar ALLOW_UNUSED_TYPE;
-#ifndef ALLOW_UNUSED_TYPE
-#if defined(COMPILER_GCC)
-#define ALLOW_UNUSED_TYPE __attribute__((unused))
-#else
-#define ALLOW_UNUSED_TYPE
-#endif
-#endif  // ALLOW_UNUSED_TYPE
-
-// Annotate a variable indicating it's ok if the variable is not used.
-// (Typically used to silence a compiler warning when the assignment
-// is important for some other reason.)
-// Use like:
-//   int x = ...;
-//   ALLOW_UNUSED_LOCAL(x);
-#ifndef ALLOW_UNUSED_LOCAL
-#define ALLOW_UNUSED_LOCAL(x) false ? (void)x : (void)0
-#endif
-
-// Sanitizers annotations.
-#if defined(__has_attribute)
-#if __has_attribute(no_sanitize)
-#define NO_SANITIZE(what) __attribute__((no_sanitize(what)))
-#endif
-#endif
-#if !defined(NO_SANITIZE)
-#define NO_SANITIZE(what)
+#if defined(OS_ANDROID)
+// The compiler thinks std::string::const_iterator and "const char*" are
+// equivalent types.
+#define STD_STRING_ITERATOR_IS_CHAR_POINTER
+// The compiler thinks std::u16string::const_iterator and "char16*" are
+// equivalent types.
+#define BASE_STRING16_ITERATOR_IS_CHAR16_POINTER
 #endif
 
 #endif  // !USING_CHROMIUM_INCLUDES
-
-// Annotate a virtual method indicating it must be overriding a virtual method
-// in the parent class.
-// Use like:
-//   void foo() OVERRIDE;
-// NOTE: This define should only be used in classes exposed to the client since
-// C++11 support may not be enabled in client applications. CEF internal classes
-// should use the `override` keyword directly.
-#ifndef OVERRIDE
-#if defined(__clang__)
-#define OVERRIDE override
-#elif defined(COMPILER_MSVC) && _MSC_VER >= 1600
-// Visual Studio 2010 and later support override.
-#define OVERRIDE override
-#elif defined(COMPILER_GCC) && __cplusplus >= 201103 && \
-    (__GNUC__ * 10000 + __GNUC_MINOR__ * 100) >= 40700
-// GCC 4.7 supports explicit virtual overrides when C++11 support is enabled.
-#define OVERRIDE override
-#else
-#define OVERRIDE
-#endif
-#endif  // OVERRIDE
-
-// Check for C++11 template alias support which was added in VS2013 and GCC4.7.
-// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2258.pdf
-#if __cplusplus > 199711L || (defined(_MSC_VER) && _MSC_VER >= 1800) || \
-    (defined(__GNUC__) &&                                               \
-     (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ >= 40700))
-#define HAS_CPP11_TEMPLATE_ALIAS_SUPPORT
-#endif
 
 #endif  // CEF_INCLUDE_BASE_CEF_BUILD_H_

@@ -58,11 +58,11 @@ class CefByteReadHandler : public CefReadHandler {
                      CefRefPtr<CefBaseRefCounted> source);
 
   // CefReadHandler methods.
-  virtual size_t Read(void* ptr, size_t size, size_t n) OVERRIDE;
-  virtual int Seek(int64 offset, int whence) OVERRIDE;
-  virtual int64 Tell() OVERRIDE;
-  virtual int Eof() OVERRIDE;
-  virtual bool MayBlock() OVERRIDE { return false; }
+  virtual size_t Read(void* ptr, size_t size, size_t n) override;
+  virtual int Seek(int64 offset, int whence) override;
+  virtual int64 Tell() override;
+  virtual int Eof() override;
+  virtual bool MayBlock() override { return false; }
 
  private:
   const unsigned char* bytes_;

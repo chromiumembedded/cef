@@ -64,15 +64,15 @@ class CefStreamResourceHandler : public CefResourceHandler {
   // CefResourceHandler methods.
   bool Open(CefRefPtr<CefRequest> request,
             bool& handle_request,
-            CefRefPtr<CefCallback> callback) OVERRIDE;
+            CefRefPtr<CefCallback> callback) override;
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
                           int64& response_length,
-                          CefString& redirectUrl) OVERRIDE;
+                          CefString& redirectUrl) override;
   bool Read(void* data_out,
             int bytes_to_read,
             int& bytes_read,
-            CefRefPtr<CefResourceReadCallback> callback) OVERRIDE;
-  void Cancel() OVERRIDE;
+            CefRefPtr<CefResourceReadCallback> callback) override;
+  void Cancel() override;
 
  private:
   const int status_code_;

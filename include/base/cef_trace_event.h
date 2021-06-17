@@ -140,12 +140,7 @@
 #define CEF_INCLUDE_BASE_CEF_TRACE_EVENT_H_
 #pragma once
 
-#if defined(TRACE_EVENT0)
-// Do nothing if the macros provided by this header already exist.
-// This can happen in cases where Chromium code is used directly by the
-// client application. When using Chromium code directly always include
-// the Chromium header first to avoid type conflicts.
-#elif defined(USING_CHROMIUM_INCLUDES)
+#if defined(USING_CHROMIUM_INCLUDES)
 // When building CEF include the Chromium header directly.
 #include "base/trace_event/trace_event.h"
 #else  // !USING_CHROMIUM_INCLUDES

@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Marshall A. Greenblatt. Portions copyright (c) 2012
+// Copyright (c) 2014 Marshall A. Greenblatt. Portions copyright (c) 2011
 // Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,51 +28,60 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CEF_INCLUDE_BASE_CEF_MACROS_H_
-#define CEF_INCLUDE_BASE_CEF_MACROS_H_
+#ifndef CEF_INCLUDE_BASE_CEF_ATOMIC_FLAG_H_
+#define CEF_INCLUDE_BASE_CEF_ATOMIC_FLAG_H_
 #pragma once
 
 #if defined(USING_CHROMIUM_INCLUDES)
 // When building CEF include the Chromium header directly.
-#include "base/macros.h"
+#include "base/synchronization/atomic_flag.h"
 
 #else  // !USING_CHROMIUM_INCLUDES
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.
 
-// ALL DISALLOW_xxx MACROS ARE DEPRECATED; DO NOT USE IN NEW CODE.
-// Use explicit deletions instead.  See the section on copyability/movability in
-// //styleguide/c++/c++-dos-and-donts.md for more information.
+#include <stdint.h>
 
-// DEPRECATED: See above. Makes a class uncopyable.
-#define DISALLOW_COPY(TypeName) TypeName(const TypeName&) = delete
+#include <atomic>
 
-// DEPRECATED: See above. Makes a class unassignable.
-#define DISALLOW_ASSIGN(TypeName) TypeName& operator=(const TypeName&) = delete
+#include "include/base/cef_macros.h"
+#include "include/base/cef_thread_checker.h"
 
-// DEPRECATED: See above. Makes a class uncopyable and unassignable.
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  DISALLOW_COPY(TypeName);                 \
-  DISALLOW_ASSIGN(TypeName)
+namespace base {
 
-// DEPRECATED: See above. Disallow all implicit constructors, namely the
-// default constructor, copy constructor and operator= functions.
-#define DISALLOW_IMPLICIT_CONSTRUCTORS(TypeName) \
-  TypeName() = delete;                           \
-  DISALLOW_COPY_AND_ASSIGN(TypeName)
-
-// Used to explicitly mark the return value of a function as unused. If you are
-// really sure you don't want to do anything with the return value of a function
-// that has been marked WARN_UNUSED_RESULT, wrap it with this. Example:
+// A flag that can safely be set from one thread and read from other threads.
 //
-//   std::unique_ptr<MyType> my_var = ...;
-//   if (TakeOwnership(my_var.get()) == SUCCESS)
-//     ignore_result(my_var.release());
-//
-template <typename T>
-inline void ignore_result(const T&) {}
+// This class IS NOT intended for synchronization between threads.
+class AtomicFlag {
+ public:
+  AtomicFlag();
+  ~AtomicFlag();
+
+  // Set the flag. Must always be called from the same thread.
+  void Set();
+
+  // Returns true iff the flag was set. If this returns true, the current thread
+  // is guaranteed to be synchronized with all memory operations on the thread
+  // which invoked Set() up until at least the first call to Set() on it.
+  bool IsSet() const {
+    // Inline here: this has a measurable performance impact on base::WeakPtr.
+    return flag_.load(std::memory_order_acquire) != 0;
+  }
+
+  // Resets the flag. Be careful when using this: callers might not expect
+  // IsSet() to return false after returning true once.
+  void UnsafeResetForTesting();
+
+ private:
+  std::atomic<uint_fast8_t> flag_{0};
+  base::ThreadChecker set_thread_checker_;
+
+  DISALLOW_COPY_AND_ASSIGN(AtomicFlag);
+};
+
+}  // namespace base
 
 #endif  // !USING_CHROMIUM_INCLUDES
 
-#endif  // CEF_INCLUDE_BASE_CEF_MACROS_H_
+#endif  // CEF_INCLUDE_BASE_CEF_ATOMIC_FLAG_H_

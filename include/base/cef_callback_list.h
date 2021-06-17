@@ -28,16 +28,60 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// OVERVIEW:
+//
+// A container for a list of callbacks. Provides callers the ability to manually
+// or automatically unregister callbacks at any time, including during callback
+// notification.
+//
+// TYPICAL USAGE:
+//
+// class MyWidget {
+//  public:
+//   using CallbackList = base::RepeatingCallbackList<void(const Foo&)>;
+//
+//   // Registers |cb| to be called whenever NotifyFoo() is executed.
+//   CallbackListSubscription RegisterCallback(CallbackList::CallbackType cb) {
+//     return callback_list_.Add(std::move(cb));
+//   }
+//
+//  private:
+//   // Calls all registered callbacks, with |foo| as the supplied arg.
+//   void NotifyFoo(const Foo& foo) {
+//     callback_list_.Notify(foo);
+//   }
+//
+//   CallbackList callback_list_;
+// };
+//
+//
+// class MyWidgetListener {
+//  private:
+//   void OnFoo(const Foo& foo) {
+//     // Called whenever MyWidget::NotifyFoo() is executed, unless
+//     // |foo_subscription_| has been destroyed.
+//   }
+//
+//   // Automatically deregisters the callback when deleted (e.g. in
+//   // ~MyWidgetListener()).  Unretained(this) is safe here since the
+//   // ScopedClosureRunner does not outlive |this|.
+//   CallbackListSubscription foo_subscription_ =
+//       MyWidget::Get()->RegisterCallback(
+//           base::BindRepeating(&MyWidgetListener::OnFoo,
+//                               base::Unretained(this)));
+// };
+//
+// UNSUPPORTED:
+//
+// * Destroying the CallbackList during callback notification.
+//
+// This is possible to support, but not currently necessary.
+
 #ifndef CEF_INCLUDE_BASE_CEF_CALLBACK_LIST_H_
 #define CEF_INCLUDE_BASE_CEF_CALLBACK_LIST_H_
 #pragma once
 
-#if defined(BASE_CALLBACK_LIST_H_)
-// Do nothing if the Chromium header has already been included.
-// This can happen in cases where Chromium code is used directly by the
-// client application. When using Chromium code directly always include
-// the Chromium header first to avoid type conflicts.
-#elif defined(USING_CHROMIUM_INCLUDES)
+#if defined(USING_CHROMIUM_INCLUDES)
 // When building CEF include the Chromium header directly.
 #include "base/callback_list.h"
 #else  // !USING_CHROMIUM_INCLUDES
@@ -45,402 +89,304 @@
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.
 
+#include <algorithm>
 #include <list>
+#include <memory>
+#include <utility>
 
-#include "include/base/cef_basictypes.h"
-#include "include/base/cef_build.h"
+#include "include/base/cef_auto_reset.h"
+#include "include/base/cef_bind.h"
 #include "include/base/cef_callback.h"
+#include "include/base/cef_callback_helpers.h"
+#include "include/base/cef_compiler_specific.h"
 #include "include/base/cef_logging.h"
-#include "include/base/cef_macros.h"
-#include "include/base/cef_scoped_ptr.h"
-#include "include/base/internal/cef_callback_internal.h"
-
-// OVERVIEW:
-//
-// A container for a list of callbacks.  Unlike a normal STL vector or list,
-// this container can be modified during iteration without invalidating the
-// iterator. It safely handles the case of a callback removing itself
-// or another callback from the list while callbacks are being run.
-//
-// TYPICAL USAGE:
-//
-// class MyWidget {
-//  public:
-//   ...
-//
-//   typedef base::Callback<void(const Foo&)> OnFooCallback;
-//
-//   scoped_ptr<base::CallbackList<void(const Foo&)>::Subscription>
-//   RegisterCallback(const OnFooCallback& cb) {
-//     return callback_list_.Add(cb);
-//   }
-//
-//  private:
-//   void NotifyFoo(const Foo& foo) {
-//      callback_list_.Notify(foo);
-//   }
-//
-//   base::CallbackList<void(const Foo&)> callback_list_;
-//
-//   DISALLOW_COPY_AND_ASSIGN(MyWidget);
-// };
-//
-//
-// class MyWidgetListener {
-//  public:
-//   MyWidgetListener::MyWidgetListener() {
-//     foo_subscription_ = MyWidget::GetCurrent()->RegisterCallback(
-//             base::Bind(&MyWidgetListener::OnFoo, this)));
-//   }
-//
-//   MyWidgetListener::~MyWidgetListener() {
-//      // Subscription gets deleted automatically and will deregister
-//      // the callback in the process.
-//   }
-//
-//  private:
-//   void OnFoo(const Foo& foo) {
-//     // Do something.
-//   }
-//
-//   scoped_ptr<base::CallbackList<void(const Foo&)>::Subscription>
-//       foo_subscription_;
-//
-//   DISALLOW_COPY_AND_ASSIGN(MyWidgetListener);
-// };
+#include "include/base/cef_weak_ptr.h"
 
 namespace base {
+namespace internal {
+template <typename CallbackListImpl>
+class CallbackListBase;
+}  // namespace internal
 
-namespace cef_internal {
+template <typename Signature>
+class OnceCallbackList;
 
-template <typename CallbackType>
+template <typename Signature>
+class RepeatingCallbackList;
+
+// A trimmed-down version of ScopedClosureRunner that can be used to guarantee a
+// closure is run on destruction. This is designed to be used by
+// CallbackListBase to run CancelCallback() when this subscription dies;
+// consumers can avoid callbacks on dead objects by ensuring the subscription
+// returned by CallbackListBase::Add() does not outlive the bound object in the
+// callback. A typical way to do this is to bind a callback to a member function
+// on `this` and store the returned subscription as a member variable.
+class CallbackListSubscription {
+ public:
+  CallbackListSubscription();
+  CallbackListSubscription(CallbackListSubscription&& subscription);
+  CallbackListSubscription& operator=(CallbackListSubscription&& subscription);
+  ~CallbackListSubscription();
+
+  explicit operator bool() const { return !!closure_; }
+
+ private:
+  template <typename T>
+  friend class internal::CallbackListBase;
+
+  explicit CallbackListSubscription(base::OnceClosure closure);
+
+  void Run();
+
+  OnceClosure closure_;
+};
+
+namespace internal {
+
+// From base/stl_util.h.
+template <class T, class Allocator, class Predicate>
+size_t EraseIf(std::list<T, Allocator>& container, Predicate pred) {
+  size_t old_size = container.size();
+  container.remove_if(pred);
+  return old_size - container.size();
+}
+
+// A traits class to break circular type dependencies between CallbackListBase
+// and its subclasses.
+template <typename CallbackList>
+struct CallbackListTraits;
+
+// NOTE: It's important that Callbacks provide iterator stability when items are
+// added to the end, so e.g. a std::vector<> is not suitable here.
+template <typename Signature>
+struct CallbackListTraits<OnceCallbackList<Signature>> {
+  using CallbackType = OnceCallback<Signature>;
+  using Callbacks = std::list<CallbackType>;
+};
+template <typename Signature>
+struct CallbackListTraits<RepeatingCallbackList<Signature>> {
+  using CallbackType = RepeatingCallback<Signature>;
+  using Callbacks = std::list<CallbackType>;
+};
+
+template <typename CallbackListImpl>
 class CallbackListBase {
  public:
-  class Subscription {
-   public:
-    Subscription(CallbackListBase<CallbackType>* list,
-                 typename std::list<CallbackType>::iterator iter)
-        : list_(list), iter_(iter) {}
+  using CallbackType =
+      typename CallbackListTraits<CallbackListImpl>::CallbackType;
+  static_assert(IsBaseCallback<CallbackType>::value, "");
 
-    ~Subscription() {
-      if (list_->active_iterator_count_) {
-        iter_->Reset();
-      } else {
-        list_->callbacks_.erase(iter_);
-        if (!list_->removal_callback_.is_null())
-          list_->removal_callback_.Run();
-      }
+  // TODO(crbug.com/1103086): Update references to use this directly and by
+  // value, then remove.
+  using Subscription = CallbackListSubscription;
+
+  CallbackListBase() = default;
+  CallbackListBase(const CallbackListBase&) = delete;
+  CallbackListBase& operator=(const CallbackListBase&) = delete;
+
+  ~CallbackListBase() {
+    // Destroying the list during iteration is unsupported and will cause a UAF.
+    CHECK(!iterating_);
+  }
+
+  // Registers |cb| for future notifications. Returns a CallbackListSubscription
+  // whose destruction will cancel |cb|.
+  CallbackListSubscription Add(CallbackType cb) WARN_UNUSED_RESULT {
+    DCHECK(!cb.is_null());
+    return CallbackListSubscription(base::BindOnce(
+        &CallbackListBase::CancelCallback, weak_ptr_factory_.GetWeakPtr(),
+        callbacks_.insert(callbacks_.end(), std::move(cb))));
+  }
+
+  // Registers |cb| for future notifications. Provides no way for the caller to
+  // cancel, so this is only safe for cases where the callback is guaranteed to
+  // live at least as long as this list (e.g. if it's bound on the same object
+  // that owns the list).
+  // TODO(pkasting): Attempt to use Add() instead and see if callers can relax
+  // other lifetime/ordering mechanisms as a result.
+  void AddUnsafe(CallbackType cb) {
+    DCHECK(!cb.is_null());
+    callbacks_.push_back(std::move(cb));
+  }
+
+  // Registers |removal_callback| to be run after elements are removed from the
+  // list of registered callbacks.
+  void set_removal_callback(const RepeatingClosure& removal_callback) {
+    removal_callback_ = removal_callback;
+  }
+
+  // Returns whether the list of registered callbacks is empty (from an external
+  // perspective -- meaning no remaining callbacks are live).
+  bool empty() const {
+    return std::all_of(callbacks_.cbegin(), callbacks_.cend(),
+                       [](const auto& callback) { return callback.is_null(); });
+  }
+
+  // Calls all registered callbacks that are not canceled beforehand. If any
+  // callbacks are unregistered, notifies any registered removal callback at the
+  // end.
+  //
+  // Arguments must be copyable, since they must be supplied to all callbacks.
+  // Move-only types would be destructively modified by passing them to the
+  // first callback and not reach subsequent callbacks as intended.
+  //
+  // Notify() may be called re-entrantly, in which case the nested call
+  // completes before the outer one continues. Callbacks are only ever added at
+  // the end and canceled callbacks are not pruned from the list until the
+  // outermost iteration completes, so existing iterators should never be
+  // invalidated. However, this does mean that a callback added during a nested
+  // call can be notified by outer calls -- meaning it will be notified about
+  // things that happened before it was added -- if its subscription outlives
+  // the reentrant Notify() call.
+  template <typename... RunArgs>
+  void Notify(RunArgs&&... args) {
+    if (empty())
+      return;  // Nothing to do.
+
+    {
+      AutoReset<bool> iterating(&iterating_, true);
+
+      // Skip any callbacks that are canceled during iteration.
+      // NOTE: Since RunCallback() may call Add(), it's not safe to cache the
+      // value of callbacks_.end() across loop iterations.
+      const auto next_valid = [this](const auto it) {
+        return std::find_if_not(it, callbacks_.end(), [](const auto& callback) {
+          return callback.is_null();
+        });
+      };
+      for (auto it = next_valid(callbacks_.begin()); it != callbacks_.end();
+           it = next_valid(it))
+        // NOTE: Intentionally does not call std::forward<RunArgs>(args)...,
+        // since that would allow move-only arguments.
+        static_cast<CallbackListImpl*>(this)->RunCallback(it++, args...);
     }
 
-   private:
-    CallbackListBase<CallbackType>* list_;
-    typename std::list<CallbackType>::iterator iter_;
+    // Re-entrant invocations shouldn't prune anything from the list. This can
+    // invalidate iterators from underneath higher call frames. It's safe to
+    // simply do nothing, since the outermost frame will continue through here
+    // and prune all null callbacks below.
+    if (iterating_)
+      return;
 
-    DISALLOW_COPY_AND_ASSIGN(Subscription);
-  };
+    // Any null callbacks remaining in the list were canceled due to
+    // Subscription destruction during iteration, and can safely be erased now.
+    const size_t erased_callbacks =
+        EraseIf(callbacks_, [](const auto& cb) { return cb.is_null(); });
 
-  // Add a callback to the list. The callback will remain registered until the
-  // returned Subscription is destroyed, which must occur before the
-  // CallbackList is destroyed.
-  scoped_ptr<Subscription> Add(const CallbackType& cb) WARN_UNUSED_RESULT {
-    DCHECK(!cb.is_null());
-    return scoped_ptr<Subscription>(
-        new Subscription(this, callbacks_.insert(callbacks_.end(), cb)));
-  }
-
-  // Sets a callback which will be run when a subscription list is changed.
-  void set_removal_callback(const Closure& callback) {
-    removal_callback_ = callback;
-  }
-
-  // Returns true if there are no subscriptions. This is only valid to call when
-  // not looping through the list.
-  bool empty() {
-    DCHECK_EQ(0, active_iterator_count_);
-    return callbacks_.empty();
+    // Run |removal_callback_| if any callbacks were canceled. Note that we
+    // cannot simply compare list sizes before and after iterating, since
+    // notification may result in Add()ing new callbacks as well as canceling
+    // them. Also note that if this is a OnceCallbackList, the OnceCallbacks
+    // that were executed above have all been removed regardless of whether
+    // they're counted in |erased_callbacks_|.
+    if (removal_callback_ &&
+        (erased_callbacks || IsOnceCallback<CallbackType>::value))
+      removal_callback_.Run();  // May delete |this|!
   }
 
  protected:
-  // An iterator class that can be used to access the list of callbacks.
-  class Iterator {
-   public:
-    explicit Iterator(CallbackListBase<CallbackType>* list)
-        : list_(list), list_iter_(list_->callbacks_.begin()) {
-      ++list_->active_iterator_count_;
-    }
+  using Callbacks = typename CallbackListTraits<CallbackListImpl>::Callbacks;
 
-    Iterator(const Iterator& iter)
-        : list_(iter.list_), list_iter_(iter.list_iter_) {
-      ++list_->active_iterator_count_;
-    }
-
-    ~Iterator() {
-      if (list_ && --list_->active_iterator_count_ == 0) {
-        list_->Compact();
-      }
-    }
-
-    CallbackType* GetNext() {
-      while ((list_iter_ != list_->callbacks_.end()) && list_iter_->is_null())
-        ++list_iter_;
-
-      CallbackType* cb = NULL;
-      if (list_iter_ != list_->callbacks_.end()) {
-        cb = &(*list_iter_);
-        ++list_iter_;
-      }
-      return cb;
-    }
-
-   private:
-    CallbackListBase<CallbackType>* list_;
-    typename std::list<CallbackType>::iterator list_iter_;
-  };
-
-  CallbackListBase() : active_iterator_count_(0) {}
-
-  ~CallbackListBase() {
-    DCHECK_EQ(0, active_iterator_count_);
-    DCHECK_EQ(0U, callbacks_.size());
-  }
-
-  // Returns an instance of a CallbackListBase::Iterator which can be used
-  // to run callbacks.
-  Iterator GetIterator() { return Iterator(this); }
-
-  // Compact the list: remove any entries which were NULLed out during
-  // iteration.
-  void Compact() {
-    typename std::list<CallbackType>::iterator it = callbacks_.begin();
-    bool updated = false;
-    while (it != callbacks_.end()) {
-      if ((*it).is_null()) {
-        updated = true;
-        it = callbacks_.erase(it);
-      } else {
-        ++it;
-      }
-
-      if (updated && !removal_callback_.is_null())
-        removal_callback_.Run();
-    }
-  }
+  // Holds non-null callbacks, which will be called during Notify().
+  Callbacks callbacks_;
 
  private:
-  std::list<CallbackType> callbacks_;
-  int active_iterator_count_;
-  Closure removal_callback_;
+  // Cancels the callback pointed to by |it|, which is guaranteed to be valid.
+  void CancelCallback(const typename Callbacks::iterator& it) {
+    if (static_cast<CallbackListImpl*>(this)->CancelNullCallback(it))
+      return;
 
-  DISALLOW_COPY_AND_ASSIGN(CallbackListBase);
-};
-
-}  // namespace cef_internal
-
-template <typename Sig>
-class CallbackList;
-
-template <>
-class CallbackList<void(void)>
-    : public cef_internal::CallbackListBase<Callback<void(void)>> {
- public:
-  typedef Callback<void(void)> CallbackType;
-
-  CallbackList() {}
-
-  void Notify() {
-    cef_internal::CallbackListBase<CallbackType>::Iterator it =
-        this->GetIterator();
-    CallbackType* cb;
-    while ((cb = it.GetNext()) != NULL) {
-      cb->Run();
+    if (iterating_) {
+      // Calling erase() here is unsafe, since the loop in Notify() may be
+      // referencing this same iterator, e.g. if adjacent callbacks'
+      // Subscriptions are both destroyed when the first one is Run().  Just
+      // reset the callback and let Notify() clean it up at the end.
+      it->Reset();
+    } else {
+      callbacks_.erase(it);
+      if (removal_callback_)
+        removal_callback_.Run();  // May delete |this|!
     }
   }
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(CallbackList);
+  // Set while Notify() is traversing |callbacks_|.  Used primarily to avoid
+  // invalidating iterators that may be in use.
+  bool iterating_ = false;
+
+  // Called after elements are removed from |callbacks_|.
+  RepeatingClosure removal_callback_;
+
+  WeakPtrFactory<CallbackListBase> weak_ptr_factory_{this};
 };
 
-template <typename A1>
-class CallbackList<void(A1)>
-    : public cef_internal::CallbackListBase<Callback<void(A1)>> {
- public:
-  typedef Callback<void(A1)> CallbackType;
+}  // namespace internal
 
-  CallbackList() {}
+template <typename Signature>
+class OnceCallbackList
+    : public internal::CallbackListBase<OnceCallbackList<Signature>> {
+ private:
+  friend internal::CallbackListBase<OnceCallbackList>;
+  using Traits = internal::CallbackListTraits<OnceCallbackList>;
 
-  void Notify(typename cef_internal::CallbackParamTraits<A1>::ForwardType a1) {
-    typename cef_internal::CallbackListBase<CallbackType>::Iterator it =
-        this->GetIterator();
-    CallbackType* cb;
-    while ((cb = it.GetNext()) != NULL) {
-      cb->Run(a1);
-    }
+  // Runs the current callback, which may cancel it or any other callbacks.
+  template <typename... RunArgs>
+  void RunCallback(typename Traits::Callbacks::iterator it, RunArgs&&... args) {
+    // OnceCallbacks still have Subscriptions with outstanding iterators;
+    // splice() removes them from |callbacks_| without invalidating those.
+    null_callbacks_.splice(null_callbacks_.end(), this->callbacks_, it);
+
+    // NOTE: Intentionally does not call std::forward<RunArgs>(args)...; see
+    // comments in Notify().
+    std::move(*it).Run(args...);
   }
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(CallbackList);
-};
-
-template <typename A1, typename A2>
-class CallbackList<void(A1, A2)>
-    : public cef_internal::CallbackListBase<Callback<void(A1, A2)>> {
- public:
-  typedef Callback<void(A1, A2)> CallbackType;
-
-  CallbackList() {}
-
-  void Notify(typename cef_internal::CallbackParamTraits<A1>::ForwardType a1,
-              typename cef_internal::CallbackParamTraits<A2>::ForwardType a2) {
-    typename cef_internal::CallbackListBase<CallbackType>::Iterator it =
-        this->GetIterator();
-    CallbackType* cb;
-    while ((cb = it.GetNext()) != NULL) {
-      cb->Run(a1, a2);
+  // If |it| refers to an already-canceled callback, does any necessary cleanup
+  // and returns true.  Otherwise returns false.
+  bool CancelNullCallback(const typename Traits::Callbacks::iterator& it) {
+    if (it->is_null()) {
+      null_callbacks_.erase(it);
+      return true;
     }
+    return false;
   }
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(CallbackList);
+  // Holds null callbacks whose Subscriptions are still alive, so the
+  // Subscriptions will still contain valid iterators.  Only needed for
+  // OnceCallbacks, since RepeatingCallbacks are not canceled except by
+  // Subscription destruction.
+  typename Traits::Callbacks null_callbacks_;
 };
 
-template <typename A1, typename A2, typename A3>
-class CallbackList<void(A1, A2, A3)>
-    : public cef_internal::CallbackListBase<Callback<void(A1, A2, A3)>> {
- public:
-  typedef Callback<void(A1, A2, A3)> CallbackType;
-
-  CallbackList() {}
-
-  void Notify(typename cef_internal::CallbackParamTraits<A1>::ForwardType a1,
-              typename cef_internal::CallbackParamTraits<A2>::ForwardType a2,
-              typename cef_internal::CallbackParamTraits<A3>::ForwardType a3) {
-    typename cef_internal::CallbackListBase<CallbackType>::Iterator it =
-        this->GetIterator();
-    CallbackType* cb;
-    while ((cb = it.GetNext()) != NULL) {
-      cb->Run(a1, a2, a3);
-    }
+template <typename Signature>
+class RepeatingCallbackList
+    : public internal::CallbackListBase<RepeatingCallbackList<Signature>> {
+ private:
+  friend internal::CallbackListBase<RepeatingCallbackList>;
+  using Traits = internal::CallbackListTraits<RepeatingCallbackList>;
+  // Runs the current callback, which may cancel it or any other callbacks.
+  template <typename... RunArgs>
+  void RunCallback(typename Traits::Callbacks::iterator it, RunArgs&&... args) {
+    // NOTE: Intentionally does not call std::forward<RunArgs>(args)...; see
+    // comments in Notify().
+    it->Run(args...);
   }
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(CallbackList);
-};
-
-template <typename A1, typename A2, typename A3, typename A4>
-class CallbackList<void(A1, A2, A3, A4)>
-    : public cef_internal::CallbackListBase<Callback<void(A1, A2, A3, A4)>> {
- public:
-  typedef Callback<void(A1, A2, A3, A4)> CallbackType;
-
-  CallbackList() {}
-
-  void Notify(typename cef_internal::CallbackParamTraits<A1>::ForwardType a1,
-              typename cef_internal::CallbackParamTraits<A2>::ForwardType a2,
-              typename cef_internal::CallbackParamTraits<A3>::ForwardType a3,
-              typename cef_internal::CallbackParamTraits<A4>::ForwardType a4) {
-    typename cef_internal::CallbackListBase<CallbackType>::Iterator it =
-        this->GetIterator();
-    CallbackType* cb;
-    while ((cb = it.GetNext()) != NULL) {
-      cb->Run(a1, a2, a3, a4);
-    }
+  // If |it| refers to an already-canceled callback, does any necessary cleanup
+  // and returns true.  Otherwise returns false.
+  bool CancelNullCallback(const typename Traits::Callbacks::iterator& it) {
+    // Because at most one Subscription can point to a given callback, and
+    // RepeatingCallbacks are only reset by CancelCallback(), no one should be
+    // able to request cancellation of a canceled RepeatingCallback.
+    DCHECK(!it->is_null());
+    return false;
   }
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CallbackList);
 };
 
-template <typename A1, typename A2, typename A3, typename A4, typename A5>
-class CallbackList<void(A1, A2, A3, A4, A5)>
-    : public cef_internal::CallbackListBase<
-          Callback<void(A1, A2, A3, A4, A5)>> {
- public:
-  typedef Callback<void(A1, A2, A3, A4, A5)> CallbackType;
-
-  CallbackList() {}
-
-  void Notify(typename cef_internal::CallbackParamTraits<A1>::ForwardType a1,
-              typename cef_internal::CallbackParamTraits<A2>::ForwardType a2,
-              typename cef_internal::CallbackParamTraits<A3>::ForwardType a3,
-              typename cef_internal::CallbackParamTraits<A4>::ForwardType a4,
-              typename cef_internal::CallbackParamTraits<A5>::ForwardType a5) {
-    typename cef_internal::CallbackListBase<CallbackType>::Iterator it =
-        this->GetIterator();
-    CallbackType* cb;
-    while ((cb = it.GetNext()) != NULL) {
-      cb->Run(a1, a2, a3, a4, a5);
-    }
-  }
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CallbackList);
-};
-
-template <typename A1,
-          typename A2,
-          typename A3,
-          typename A4,
-          typename A5,
-          typename A6>
-class CallbackList<void(A1, A2, A3, A4, A5, A6)>
-    : public cef_internal::CallbackListBase<
-          Callback<void(A1, A2, A3, A4, A5, A6)>> {
- public:
-  typedef Callback<void(A1, A2, A3, A4, A5, A6)> CallbackType;
-
-  CallbackList() {}
-
-  void Notify(typename cef_internal::CallbackParamTraits<A1>::ForwardType a1,
-              typename cef_internal::CallbackParamTraits<A2>::ForwardType a2,
-              typename cef_internal::CallbackParamTraits<A3>::ForwardType a3,
-              typename cef_internal::CallbackParamTraits<A4>::ForwardType a4,
-              typename cef_internal::CallbackParamTraits<A5>::ForwardType a5,
-              typename cef_internal::CallbackParamTraits<A6>::ForwardType a6) {
-    typename cef_internal::CallbackListBase<CallbackType>::Iterator it =
-        this->GetIterator();
-    CallbackType* cb;
-    while ((cb = it.GetNext()) != NULL) {
-      cb->Run(a1, a2, a3, a4, a5, a6);
-    }
-  }
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CallbackList);
-};
-
-template <typename A1,
-          typename A2,
-          typename A3,
-          typename A4,
-          typename A5,
-          typename A6,
-          typename A7>
-class CallbackList<void(A1, A2, A3, A4, A5, A6, A7)>
-    : public cef_internal::CallbackListBase<
-          Callback<void(A1, A2, A3, A4, A5, A6, A7)>> {
- public:
-  typedef Callback<void(A1, A2, A3, A4, A5, A6, A7)> CallbackType;
-
-  CallbackList() {}
-
-  void Notify(typename cef_internal::CallbackParamTraits<A1>::ForwardType a1,
-              typename cef_internal::CallbackParamTraits<A2>::ForwardType a2,
-              typename cef_internal::CallbackParamTraits<A3>::ForwardType a3,
-              typename cef_internal::CallbackParamTraits<A4>::ForwardType a4,
-              typename cef_internal::CallbackParamTraits<A5>::ForwardType a5,
-              typename cef_internal::CallbackParamTraits<A6>::ForwardType a6,
-              typename cef_internal::CallbackParamTraits<A7>::ForwardType a7) {
-    typename cef_internal::CallbackListBase<CallbackType>::Iterator it =
-        this->GetIterator();
-    CallbackType* cb;
-    while ((cb = it.GetNext()) != NULL) {
-      cb->Run(a1, a2, a3, a4, a5, a6, a7);
-    }
-  }
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CallbackList);
-};
+// Syntactic sugar to parallel that used for Callbacks.
+// ClosureList explicitly not provided since it is not used, and CallbackList
+// is deprecated. {Once,Repeating}ClosureList should instead be used.
+using OnceClosureList = OnceCallbackList<void()>;
+using RepeatingClosureList = RepeatingCallbackList<void()>;
 
 }  // namespace base
 

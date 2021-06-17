@@ -90,32 +90,30 @@ class CefBaseScoped {
 ///
 class CefRefCount {
  public:
-  CefRefCount() : ref_count_(0) {}
+  CefRefCount() {}
 
   ///
   // Increment the reference count.
   ///
-  void AddRef() const { base::AtomicRefCountInc(&ref_count_); }
+  void AddRef() const { ref_count_.Increment(); }
 
   ///
   // Decrement the reference count. Returns true if the reference count is 0.
   ///
-  bool Release() const { return !base::AtomicRefCountDec(&ref_count_); }
+  bool Release() const { return !ref_count_.Decrement(); }
 
   ///
   // Returns true if the reference count is 1.
   ///
-  bool HasOneRef() const { return base::AtomicRefCountIsOne(&ref_count_); }
+  bool HasOneRef() const { return ref_count_.IsOne(); }
 
   ///
   // Returns true if the reference count is at least 1.
   ///
-  bool HasAtLeastOneRef() const {
-    return !base::AtomicRefCountIsZero(&ref_count_);
-  }
+  bool HasAtLeastOneRef() const { return !ref_count_.IsZero(); }
 
  private:
-  mutable base::AtomicRefCount ref_count_;
+  mutable base::AtomicRefCount ref_count_{0};
   DISALLOW_COPY_AND_ASSIGN(CefRefCount);
 };
 
@@ -125,70 +123,20 @@ class CefRefCount {
 ///
 #define IMPLEMENT_REFCOUNTING(ClassName)                             \
  public:                                                             \
-  void AddRef() const OVERRIDE { ref_count_.AddRef(); }              \
-  bool Release() const OVERRIDE {                                    \
+  void AddRef() const override { ref_count_.AddRef(); }              \
+  bool Release() const override {                                    \
     if (ref_count_.Release()) {                                      \
       delete static_cast<const ClassName*>(this);                    \
       return true;                                                   \
     }                                                                \
     return false;                                                    \
   }                                                                  \
-  bool HasOneRef() const OVERRIDE { return ref_count_.HasOneRef(); } \
-  bool HasAtLeastOneRef() const OVERRIDE {                           \
+  bool HasOneRef() const override { return ref_count_.HasOneRef(); } \
+  bool HasAtLeastOneRef() const override {                           \
     return ref_count_.HasAtLeastOneRef();                            \
   }                                                                  \
                                                                      \
  private:                                                            \
   CefRefCount ref_count_
-
-///
-// Macro that provides a locking implementation. Use the Lock() and Unlock()
-// methods to protect a section of code from simultaneous access by multiple
-// threads. The AutoLock class is a helper that will hold the lock while in
-// scope.
-//
-// THIS MACRO IS DEPRECATED. Use an explicit base::Lock member variable and
-// base::AutoLock instead. For example:
-//
-// #include "include/base/cef_lock.h"
-//
-// // Class declaration.
-// class MyClass : public CefBaseRefCounted {
-//  public:
-//   MyClass() : value_(0) {}
-//   // Method that may be called on multiple threads.
-//   void IncrementValue();
-//  private:
-//   // Value that may be accessed on multiple theads.
-//   int value_;
-//   // Lock used to protect access to |value_|.
-//   base::Lock lock_;
-//   IMPLEMENT_REFCOUNTING(MyClass);
-// };
-//
-// // Class implementation.
-// void MyClass::IncrementValue() {
-//   // Acquire the lock for the scope of this method.
-//   base::AutoLock lock_scope(lock_);
-//   // |value_| can now be modified safely.
-//   value_++;
-// }
-///
-#define IMPLEMENT_LOCKING(ClassName)                                    \
- public:                                                                \
-  class AutoLock {                                                      \
-   public:                                                              \
-    explicit AutoLock(ClassName* base) : base_(base) { base_->Lock(); } \
-    ~AutoLock() { base_->Unlock(); }                                    \
-                                                                        \
-   private:                                                             \
-    ClassName* base_;                                                   \
-    DISALLOW_COPY_AND_ASSIGN(AutoLock);                                 \
-  };                                                                    \
-  void Lock() { lock_.Acquire(); }                                      \
-  void Unlock() { lock_.Release(); }                                    \
-                                                                        \
- private:                                                               \
-  base::Lock lock_;
 
 #endif  // CEF_INCLUDE_CEF_BASE_H_

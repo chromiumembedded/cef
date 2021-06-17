@@ -32,12 +32,7 @@
 #define CEF_INCLUDE_BASE_CEF_LOCK_H_
 #pragma once
 
-#if defined(BASE_SYNCHRONIZATION_LOCK_H_)
-// Do nothing if the Chromium header has already been included.
-// This can happen in cases where Chromium code is used directly by the
-// client application. When using Chromium code directly always include
-// the Chromium header first to avoid type conflicts.
-#elif defined(USING_CHROMIUM_INCLUDES)
+#if defined(USING_CHROMIUM_INCLUDES)
 // When building CEF include the Chromium header directly.
 #include "base/synchronization/lock.h"
 #else  // !USING_CHROMIUM_INCLUDES

@@ -39,6 +39,7 @@
 
 #include <list>
 
+#include "include/base/cef_callback.h"
 #include "include/base/cef_macros.h"
 #include "include/base/cef_ref_counted.h"
 #include "include/base/cef_scoped_ptr.h"

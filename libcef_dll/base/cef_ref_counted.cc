@@ -4,54 +4,96 @@
 
 #include "include/base/cef_ref_counted.h"
 
-namespace base {
+#include <limits>
+#include <type_traits>
 
-namespace cef_subtle {
+namespace base {
+namespace {
+
+#if DCHECK_IS_ON()
+std::atomic_int g_cross_thread_ref_count_access_allow_count(0);
+#endif
+
+}  // namespace
+
+namespace subtle {
 
 bool RefCountedThreadSafeBase::HasOneRef() const {
-  return AtomicRefCountIsOne(
-      &const_cast<RefCountedThreadSafeBase*>(this)->ref_count_);
+  return ref_count_.IsOne();
 }
 
 bool RefCountedThreadSafeBase::HasAtLeastOneRef() const {
-  return !AtomicRefCountIsZero(
-      &const_cast<RefCountedThreadSafeBase*>(this)->ref_count_);
+  return !ref_count_.IsZero();
 }
 
-RefCountedThreadSafeBase::RefCountedThreadSafeBase() : ref_count_(0) {
 #if DCHECK_IS_ON()
-  in_dtor_ = false;
-#endif
-}
-
 RefCountedThreadSafeBase::~RefCountedThreadSafeBase() {
-#if DCHECK_IS_ON()
   DCHECK(in_dtor_) << "RefCountedThreadSafe object deleted without "
                       "calling Release()";
+}
 #endif
+
+// For security and correctness, we check the arithmetic on ref counts.
+//
+// In an attempt to avoid binary bloat (from inlining the `CHECK`), we define
+// these functions out-of-line. However, compilers are wily. Further testing may
+// show that `NOINLINE` helps or hurts.
+//
+#if defined(ARCH_CPU_64_BITS)
+void RefCountedBase::AddRefImpl() const {
+  // An attacker could induce use-after-free bugs, and potentially exploit them,
+  // by creating so many references to a ref-counted object that the reference
+  // count overflows. On 32-bit architectures, there is not enough address space
+  // to succeed. But on 64-bit architectures, it might indeed be possible.
+  // Therefore, we can elide the check for arithmetic overflow on 32-bit, but we
+  // must check on 64-bit.
+  //
+  // Make sure the addition didn't wrap back around to 0. This form of check
+  // works because we assert that `ref_count_` is an unsigned integer type.
+  CHECK(++ref_count_ != 0);
 }
 
-void RefCountedThreadSafeBase::AddRef() const {
-#if DCHECK_IS_ON()
-  DCHECK(!in_dtor_);
-#endif
-  AtomicRefCountInc(&ref_count_);
+void RefCountedBase::ReleaseImpl() const {
+  // Make sure the subtraction didn't wrap back around from 0 to the max value.
+  // That could cause memory leaks, and may induce application-semantic
+  // correctness or safety bugs. (E.g. what if we really needed that object to
+  // be destroyed at the right time?)
+  //
+  // Note that unlike with overflow, underflow could also happen on 32-bit
+  // architectures. Arguably, we should do this check on32-bit machines too.
+  CHECK(--ref_count_ != std::numeric_limits<decltype(ref_count_)>::max());
 }
+#endif
 
+#if !defined(ARCH_CPU_X86_FAMILY)
 bool RefCountedThreadSafeBase::Release() const {
-#if DCHECK_IS_ON()
-  DCHECK(!in_dtor_);
-  DCHECK(!AtomicRefCountIsZero(&ref_count_));
+  return ReleaseImpl();
+}
+void RefCountedThreadSafeBase::AddRef() const {
+  AddRefImpl();
+}
+void RefCountedThreadSafeBase::AddRefWithCheck() const {
+  AddRefWithCheckImpl();
+}
 #endif
-  if (!AtomicRefCountDec(&ref_count_)) {
+
 #if DCHECK_IS_ON()
-    in_dtor_ = true;
+bool RefCountedBase::CalledOnValidThread() const {
+  return thread_checker_.CalledOnValidThread() ||
+         g_cross_thread_ref_count_access_allow_count.load() != 0;
+}
 #endif
-    return true;
-  }
-  return false;
+
+}  // namespace subtle
+
+#if DCHECK_IS_ON()
+ScopedAllowCrossThreadRefCountAccess::ScopedAllowCrossThreadRefCountAccess() {
+  ++g_cross_thread_ref_count_access_allow_count;
 }
 
-}  // namespace cef_subtle
+ScopedAllowCrossThreadRefCountAccess::~ScopedAllowCrossThreadRefCountAccess() {
+  --g_cross_thread_ref_count_access_allow_count;
+}
+#endif
 
 }  // namespace base
