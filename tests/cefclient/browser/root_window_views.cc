@@ -4,8 +4,9 @@
 
 #include "tests/cefclient/browser/root_window_views.h"
 
-#include "include/base/cef_bind.h"
 #include "include/base/cef_build.h"
+#include "include/base/cef_callback.h"
+#include "include/base/cef_cxx17_backports.h"
 #include "include/cef_app.h"
 #include "include/wrapper/cef_helpers.h"
 #include "tests/cefclient/browser/client_handler_std.h"
@@ -178,7 +179,7 @@ ClientWindowHandle RootWindowViews::GetWindowHandle() const {
   REQUIRE_MAIN_THREAD();
 #if defined(OS_LINUX)
   // ClientWindowHandle is a GtkWidget* on Linux and we don't have one of those.
-  return NULL;
+  return nullptr;
 #else
   if (browser_)
     return browser_->GetHost()->GetWindowHandle();
@@ -490,7 +491,7 @@ void RootWindowViews::InitOnUIThread(
 
   // Populate the default image cache.
   ImageCache::ImageInfoSet image_set;
-  for (size_t i = 0U; i < arraysize(kDefaultImageCache); ++i)
+  for (size_t i = 0U; i < base::size(kDefaultImageCache); ++i)
     image_set.push_back(ImageCache::ImageInfo::Create2x(kDefaultImageCache[i]));
 
   image_cache_->LoadImages(
@@ -508,8 +509,8 @@ void RootWindowViews::CreateViewsWindow(
 
 #ifndef NDEBUG
   // Make sure the default images loaded successfully.
-  DCHECK_EQ(images.size(), arraysize(kDefaultImageCache));
-  for (size_t i = 0U; i < arraysize(kDefaultImageCache); ++i) {
+  DCHECK_EQ(images.size(), base::size(kDefaultImageCache));
+  for (size_t i = 0U; i < base::size(kDefaultImageCache); ++i) {
     DCHECK(images[i]) << "Default image " << i << " failed to load";
   }
 #endif

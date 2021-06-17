@@ -4,7 +4,7 @@
 
 #include "tests/cefclient/browser/main_message_loop_multithreaded_win.h"
 
-#include "include/base/cef_bind.h"
+#include "include/base/cef_callback.h"
 #include "include/base/cef_logging.h"
 #include "include/cef_app.h"
 #include "tests/cefclient/browser/resource.h"
@@ -22,8 +22,8 @@ const wchar_t kTaskMessageName[] = L"Client_CustomTask";
 MainMessageLoopMultithreadedWin::MainMessageLoopMultithreadedWin()
     : thread_id_(base::PlatformThread::CurrentId()),
       task_message_id_(RegisterWindowMessage(kTaskMessageName)),
-      dialog_hwnd_(NULL),
-      message_hwnd_(NULL) {}
+      dialog_hwnd_(nullptr),
+      message_hwnd_(nullptr) {}
 
 MainMessageLoopMultithreadedWin::~MainMessageLoopMultithreadedWin() {
   DCHECK(RunsTasksOnCurrentThread());
@@ -34,7 +34,7 @@ MainMessageLoopMultithreadedWin::~MainMessageLoopMultithreadedWin() {
 int MainMessageLoopMultithreadedWin::Run() {
   DCHECK(RunsTasksOnCurrentThread());
 
-  HINSTANCE hInstance = ::GetModuleHandle(NULL);
+  HINSTANCE hInstance = ::GetModuleHandle(nullptr);
 
   {
     base::AutoLock lock_scope(lock_);
@@ -59,7 +59,7 @@ int MainMessageLoopMultithreadedWin::Run() {
   MSG msg;
 
   // Run the application message loop.
-  while (GetMessage(&msg, NULL, 0, 0)) {
+  while (GetMessage(&msg, nullptr, 0, 0)) {
     // Allow processing of dialog messages.
     if (dialog_hwnd_ && IsDialogMessage(dialog_hwnd_, &msg))
       continue;
@@ -75,7 +75,7 @@ int MainMessageLoopMultithreadedWin::Run() {
 
     // Destroy the message window.
     DestroyWindow(message_hwnd_);
-    message_hwnd_ = NULL;
+    message_hwnd_ = nullptr;
   }
 
   return static_cast<int>(msg.wParam);
@@ -142,7 +142,7 @@ MainMessageLoopMultithreadedWin::MessageWndProc(HWND hWnd,
     switch (message) {
       case WM_NCDESTROY:
         // Clear the reference to |self|.
-        SetUserDataPtr(hWnd, NULL);
+        SetUserDataPtr(hWnd, nullptr);
         break;
     }
   }

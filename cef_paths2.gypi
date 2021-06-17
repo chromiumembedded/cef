@@ -136,7 +136,6 @@
       'libcef_dll/cpptoc/cpptoc_scoped.h',
       'libcef_dll/ctocpp/ctocpp_ref_counted.h',
       'libcef_dll/ctocpp/ctocpp_scoped.h',
-      'libcef_dll/ptr_util.h',
       'libcef_dll/shutdown_checker.cc',
       'libcef_dll/shutdown_checker.h',
       'libcef_dll/transfer_util.cc',

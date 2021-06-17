@@ -4,11 +4,11 @@
 
 #include <list>
 #include <map>
+#include <memory>
 #include <set>
 
-#include "include/base/cef_bind.h"
+#include "include/base/cef_callback.h"
 #include "include/base/cef_ref_counted.h"
-#include "include/base/cef_scoped_ptr.h"
 #include "include/cef_command_line.h"
 #include "include/cef_server.h"
 #include "include/cef_task.h"
@@ -117,7 +117,8 @@ class TestServerHandler : public CefServerHandler {
   }
 
   // Must be called before CreateServer().
-  void AddHttpRequestHandler(scoped_ptr<HttpRequestHandler> request_handler) {
+  void AddHttpRequestHandler(
+      std::unique_ptr<HttpRequestHandler> request_handler) {
     EXPECT_FALSE(initialized_);
     EXPECT_TRUE(request_handler);
     http_request_handler_list_.push_back(request_handler.release());
@@ -130,7 +131,7 @@ class TestServerHandler : public CefServerHandler {
   }
 
   // Must be called before CreateServer().
-  void AddWsRequestHandler(scoped_ptr<WsRequestHandler> request_handler) {
+  void AddWsRequestHandler(std::unique_ptr<WsRequestHandler> request_handler) {
     EXPECT_FALSE(initialized_);
     EXPECT_TRUE(request_handler);
     ws_request_handler_list_.push_back(request_handler.release());
@@ -479,7 +480,7 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
     virtual ~RequestRunner() {}
 
     // Create the server-side handler for the request.
-    virtual scoped_ptr<TestServerHandler::HttpRequestHandler>
+    virtual std::unique_ptr<TestServerHandler::HttpRequestHandler>
     CreateHttpRequestHandler() = 0;
 
     // Run the request and execute |complete_callback| on completion.
@@ -505,7 +506,7 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
       destroy_event_->Signal();
   }
 
-  void AddRequestRunner(scoped_ptr<RequestRunner> request_runner) {
+  void AddRequestRunner(std::unique_ptr<RequestRunner> request_runner) {
     EXPECT_FALSE(initialized_);
     request_runner_map_.insert(
         std::make_pair(++next_request_id_, request_runner.release()));
@@ -675,7 +676,7 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
   TrackCallback got_all_requests_;
   TrackCallback got_server_destroyed_;
 
-  scoped_ptr<TestHandler::UIThreadHelper> ui_thread_helper_;
+  std::unique_ptr<TestHandler::UIThreadHelper> ui_thread_helper_;
 
   DISALLOW_COPY_AND_ASSIGN(HttpTestRunner);
 };
@@ -930,7 +931,7 @@ class StaticHttpRequestRunner : public HttpTestRunner::RequestRunner {
                           const HttpServerResponse& response)
       : request_(request), response_(response) {}
 
-  static scoped_ptr<HttpTestRunner::RequestRunner> Create200(
+  static std::unique_ptr<HttpTestRunner::RequestRunner> Create200(
       const std::string& path,
       bool with_content = true) {
     CefRefPtr<CefRequest> request = CreateTestServerRequest(path, "GET");
@@ -938,30 +939,27 @@ class StaticHttpRequestRunner : public HttpTestRunner::RequestRunner {
     response.content_type = "text/html";
     if (with_content)
       response.content = "<html>200 response content</html>";
-    return make_scoped_ptr<HttpTestRunner::RequestRunner>(
-        new StaticHttpRequestRunner(request, response));
+    return std::make_unique<StaticHttpRequestRunner>(request, response);
   }
 
-  static scoped_ptr<HttpTestRunner::RequestRunner> Create404(
+  static std::unique_ptr<HttpTestRunner::RequestRunner> Create404(
       const std::string& path) {
     CefRefPtr<CefRequest> request = CreateTestServerRequest(path, "GET");
     HttpServerResponse response(HttpServerResponse::TYPE_404);
-    return make_scoped_ptr<HttpTestRunner::RequestRunner>(
-        new StaticHttpRequestRunner(request, response));
+    return std::make_unique<StaticHttpRequestRunner>(request, response);
   }
 
-  static scoped_ptr<HttpTestRunner::RequestRunner> Create500(
+  static std::unique_ptr<HttpTestRunner::RequestRunner> Create500(
       const std::string& path) {
     CefRefPtr<CefRequest> request = CreateTestServerRequest(path, "GET");
     // Don't retry the request.
     request->SetFlags(UR_FLAG_NO_RETRY_ON_5XX);
     HttpServerResponse response(HttpServerResponse::TYPE_500);
     response.error_message = "Something went wrong!";
-    return make_scoped_ptr<HttpTestRunner::RequestRunner>(
-        new StaticHttpRequestRunner(request, response));
+    return std::make_unique<StaticHttpRequestRunner>(request, response);
   }
 
-  static scoped_ptr<HttpTestRunner::RequestRunner> CreateCustom(
+  static std::unique_ptr<HttpTestRunner::RequestRunner> CreateCustom(
       const std::string& path,
       bool with_content = true,
       bool with_content_length = true) {
@@ -985,16 +983,15 @@ class StaticHttpRequestRunner : public HttpTestRunner::RequestRunner {
     response.extra_headers.insert(
         std::make_pair("x-response-custom2", "My Value 2"));
 
-    return make_scoped_ptr<HttpTestRunner::RequestRunner>(
-        new StaticHttpRequestRunner(request, response));
+    return std::make_unique<StaticHttpRequestRunner>(request, response);
   }
 
-  scoped_ptr<TestServerHandler::HttpRequestHandler> CreateHttpRequestHandler()
-      override {
+  std::unique_ptr<TestServerHandler::HttpRequestHandler>
+  CreateHttpRequestHandler() override {
     EXPECT_FALSE(got_create_handler_);
     got_create_handler_.yes();
-    return make_scoped_ptr<TestServerHandler::HttpRequestHandler>(
-        new StaticHttpServerRequestHandler(request_, 1, response_));
+    return std::make_unique<StaticHttpServerRequestHandler>(request_, 1,
+                                                            response_);
   }
 
   void RunRequest(const base::Closure& complete_callback) override {
@@ -1428,11 +1425,10 @@ class EchoWebSocketTestHandler : public WebSocketTestHandler {
     handler->SetExpectedWsConnectedCount(connection_ct_);
     handler->SetExpectedWsMessageCount(connection_ct_ * message_ct_);
 
-    EchoWebSocketRequestHandler* echo_handler =
-        new EchoWebSocketRequestHandler(connection_ct_ * message_ct_);
+    auto echo_handler = std::make_unique<EchoWebSocketRequestHandler>(
+        connection_ct_ * message_ct_);
     ws_url_ = echo_handler->GetWebSocketUrl();
-    handler->AddWsRequestHandler(
-        make_scoped_ptr<TestServerHandler::WsRequestHandler>(echo_handler));
+    handler->AddWsRequestHandler(std::move(echo_handler));
   }
 
   void OnDoneMessage(const std::string& result) override {

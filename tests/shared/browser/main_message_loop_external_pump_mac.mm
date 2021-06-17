@@ -7,6 +7,8 @@
 #import <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>
 
+#include <memory>
+
 #include "include/cef_app.h"
 
 @class EventHandler;
@@ -173,9 +175,9 @@ void MainMessageLoopExternalPumpMac::KillTimer() {
 }
 
 // static
-scoped_ptr<MainMessageLoopExternalPump> MainMessageLoopExternalPump::Create() {
-  return scoped_ptr<MainMessageLoopExternalPump>(
-      new MainMessageLoopExternalPumpMac());
+std::unique_ptr<MainMessageLoopExternalPump>
+MainMessageLoopExternalPump::Create() {
+  return std::make_unique<MainMessageLoopExternalPumpMac>();
 }
 
 }  // namespace client

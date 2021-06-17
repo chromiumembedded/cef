@@ -19,10 +19,10 @@ extern const char kPathSep;
 // false on error.  In case of I/O error, |contents| holds the data that could
 // be read from the file before the error occurred.  When the file size exceeds
 // max_size|, the function returns false with |contents| holding the file
-// truncated to |max_size|. |contents| may be NULL, in which case this function
-// is useful for its side effect of priming the disk cache (could be used for
-// unit tests). Calling this function on the browser process UI or IO threads is
-// not allowed.
+// truncated to |max_size|. |contents| may be nullptr, in which case this
+// function is useful for its side effect of priming the disk cache (could be
+// used for unit tests). Calling this function on the browser process UI or IO
+// threads is not allowed.
 bool ReadFileToString(const std::string& path,
                       std::string* contents,
                       size_t max_size = std::numeric_limits<size_t>::max());

@@ -71,7 +71,7 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
 }
 
 - (void)detach {
-  browser_ = NULL;
+  browser_ = nullptr;
 }
 
 - (NSArray*)validAttributesForMarkedText {
@@ -226,8 +226,8 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
 
 - (NSRect)firstRectForCharacterRange:(NSRange)theRange
                          actualRange:(NSRangePointer)actualRange {
-  NSRect rect =
-      [self firstViewRectForCharacterRange:theRange actualRange:actualRange];
+  NSRect rect = [self firstViewRectForCharacterRange:theRange
+                                         actualRange:actualRange];
 
   // Convert into screen coordinates for return.
   rect = [self screenRectFromViewRect:rect];

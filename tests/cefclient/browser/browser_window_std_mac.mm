@@ -88,7 +88,7 @@ ClientWindowHandle BrowserWindowStdMac::GetWindowHandle() const {
 
   if (browser_)
     return browser_->GetHost()->GetWindowHandle();
-  return NULL;
+  return nullptr;
 }
 
 }  // namespace client

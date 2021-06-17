@@ -6,8 +6,8 @@
 
 #include <algorithm>
 
-#include "include/base/cef_bind.h"
 #include "include/base/cef_build.h"
+#include "include/base/cef_callback.h"
 #include "include/cef_app.h"
 #include "include/views/cef_box_layout.h"
 #include "include/wrapper/cef_helpers.h"
@@ -313,7 +313,7 @@ void ViewsWindow::OnExtensionsChanged(const ExtensionSet& extensions) {
       image_set.push_back(
           ImageCache::ImageInfo::Create1x(icon_path, icon_path, internal));
     } else {
-      // Get a NULL image and use the default icon.
+      // Get a nullptr image and use the default icon.
       image_set.push_back(ImageCache::ImageInfo::Empty());
     }
   }

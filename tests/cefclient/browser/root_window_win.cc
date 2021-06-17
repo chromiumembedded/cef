@@ -6,8 +6,8 @@
 
 #include <shellscalingapi.h>
 
-#include "include/base/cef_bind.h"
 #include "include/base/cef_build.h"
+#include "include/base/cef_callback.h"
 #include "include/cef_app.h"
 #include "tests/cefclient/browser/browser_window_osr_win.h"
 #include "tests/cefclient/browser/browser_window_std_win.h"
@@ -109,19 +109,19 @@ RootWindowWin::RootWindowWin()
       is_popup_(false),
       start_rect_(),
       initialized_(false),
-      hwnd_(NULL),
-      draggable_region_(NULL),
-      font_(NULL),
+      hwnd_(nullptr),
+      draggable_region_(nullptr),
+      font_(nullptr),
       font_height_(0),
-      back_hwnd_(NULL),
-      forward_hwnd_(NULL),
-      reload_hwnd_(NULL),
-      stop_hwnd_(NULL),
-      edit_hwnd_(NULL),
-      edit_wndproc_old_(NULL),
-      find_hwnd_(NULL),
+      back_hwnd_(nullptr),
+      forward_hwnd_(nullptr),
+      reload_hwnd_(nullptr),
+      stop_hwnd_(nullptr),
+      edit_hwnd_(nullptr),
+      edit_wndproc_old_(nullptr),
+      find_hwnd_(nullptr),
       find_message_id_(0),
-      find_wndproc_old_(NULL),
+      find_wndproc_old_(nullptr),
       find_state_(),
       find_next_(false),
       find_match_case_last_(false),
@@ -248,7 +248,7 @@ void RootWindowWin::SetBounds(int x, int y, size_t width, size_t height) {
   REQUIRE_MAIN_THREAD();
 
   if (hwnd_) {
-    SetWindowPos(hwnd_, NULL, x, y, static_cast<int>(width),
+    SetWindowPos(hwnd_, nullptr, x, y, static_cast<int>(width),
                  static_cast<int>(height), SWP_NOZORDER);
   }
 }
@@ -319,7 +319,7 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings,
   REQUIRE_MAIN_THREAD();
   DCHECK(!hwnd_);
 
-  HINSTANCE hInstance = GetModuleHandle(NULL);
+  HINSTANCE hInstance = GetModuleHandle(nullptr);
 
   // Load strings from the resource file.
   const std::wstring& window_title = GetResourceString(IDS_APP_TITLE);
@@ -367,7 +367,7 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings,
 
   // Create the main window initially hidden.
   CreateWindowEx(dwExStyle, window_class.c_str(), window_title.c_str(), dwStyle,
-                 x, y, width, height, NULL, NULL, hInstance, this);
+                 x, y, width, height, nullptr, nullptr, hInstance, this);
   CHECK(hwnd_);
 
   if (!called_enable_non_client_dpi_scaling_ && IsProcessPerMonitorDpiAware()) {
@@ -408,7 +408,7 @@ void RootWindowWin::RegisterRootClass(HINSTANCE hInstance,
   wcex.cbWndExtra = 0;
   wcex.hInstance = hInstance;
   wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_CEFCLIENT));
-  wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+  wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
   wcex.hbrBackground = background_brush;
   wcex.lpszMenuName = MAKEINTRESOURCE(IDC_CEFCLIENT);
   wcex.lpszClassName = window_class.c_str();
@@ -447,8 +447,8 @@ LRESULT CALLBACK RootWindowWin::EditWndProc(HWND hWnd,
       break;
     case WM_NCDESTROY:
       // Clear the reference to |self|.
-      SetUserDataPtr(hWnd, NULL);
-      self->edit_hwnd_ = NULL;
+      SetUserDataPtr(hWnd, nullptr);
+      self->edit_hwnd_ = nullptr;
       break;
   }
 
@@ -469,13 +469,13 @@ LRESULT CALLBACK RootWindowWin::FindWndProc(HWND hWnd,
   switch (message) {
     case WM_ACTIVATE:
       // Set this dialog as current when activated.
-      MainMessageLoop::Get()->SetCurrentModelessDialog(wParam == 0 ? NULL
+      MainMessageLoop::Get()->SetCurrentModelessDialog(wParam == 0 ? nullptr
                                                                    : hWnd);
       return FALSE;
     case WM_NCDESTROY:
       // Clear the reference to |self|.
-      SetUserDataPtr(hWnd, NULL);
-      self->find_hwnd_ = NULL;
+      SetUserDataPtr(hWnd, nullptr);
+      self->find_hwnd_ = nullptr;
       break;
   }
 
@@ -607,8 +607,8 @@ LRESULT CALLBACK RootWindowWin::RootWndProc(HWND hWnd,
 
     case WM_NCDESTROY:
       // Clear the reference to |self|.
-      SetUserDataPtr(hWnd, NULL);
-      self->hwnd_ = NULL;
+      SetUserDataPtr(hWnd, nullptr);
+      self->hwnd_ = nullptr;
       self->OnDestroyed();
       break;
   }
@@ -683,30 +683,30 @@ void RootWindowWin::OnSize(bool minimized) {
 
     int x_offset = rect.left;
 
-    // |browser_hwnd| may be NULL if the browser has not yet been created.
-    HWND browser_hwnd = NULL;
+    // |browser_hwnd| may be nullptr if the browser has not yet been created.
+    HWND browser_hwnd = nullptr;
     if (browser_window_)
       browser_hwnd = browser_window_->GetWindowHandle();
 
     // Resize all controls.
     HDWP hdwp = BeginDeferWindowPos(browser_hwnd ? 6 : 5);
-    hdwp = DeferWindowPos(hdwp, back_hwnd_, NULL, x_offset, 0, button_width,
+    hdwp = DeferWindowPos(hdwp, back_hwnd_, nullptr, x_offset, 0, button_width,
                           urlbar_height, SWP_NOZORDER);
     x_offset += button_width;
-    hdwp = DeferWindowPos(hdwp, forward_hwnd_, NULL, x_offset, 0, button_width,
+    hdwp = DeferWindowPos(hdwp, forward_hwnd_, nullptr, x_offset, 0,
+                          button_width, urlbar_height, SWP_NOZORDER);
+    x_offset += button_width;
+    hdwp = DeferWindowPos(hdwp, reload_hwnd_, nullptr, x_offset, 0,
+                          button_width, urlbar_height, SWP_NOZORDER);
+    x_offset += button_width;
+    hdwp = DeferWindowPos(hdwp, stop_hwnd_, nullptr, x_offset, 0, button_width,
                           urlbar_height, SWP_NOZORDER);
     x_offset += button_width;
-    hdwp = DeferWindowPos(hdwp, reload_hwnd_, NULL, x_offset, 0, button_width,
-                          urlbar_height, SWP_NOZORDER);
-    x_offset += button_width;
-    hdwp = DeferWindowPos(hdwp, stop_hwnd_, NULL, x_offset, 0, button_width,
-                          urlbar_height, SWP_NOZORDER);
-    x_offset += button_width;
-    hdwp = DeferWindowPos(hdwp, edit_hwnd_, NULL, x_offset, 0,
+    hdwp = DeferWindowPos(hdwp, edit_hwnd_, nullptr, x_offset, 0,
                           rect.right - x_offset, urlbar_height, SWP_NOZORDER);
 
     if (browser_hwnd) {
-      hdwp = DeferWindowPos(hdwp, browser_hwnd, NULL, rect.left, rect.top,
+      hdwp = DeferWindowPos(hdwp, browser_hwnd, nullptr, rect.left, rect.top,
                             rect.right - rect.left, rect.bottom - rect.top,
                             SWP_NOZORDER);
     }
@@ -849,7 +849,7 @@ void RootWindowWin::OnFindEvent() {
 
 void RootWindowWin::OnAbout() {
   // Show the about box.
-  DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_ABOUTBOX), hwnd_,
+  DialogBox(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDD_ABOUTBOX), hwnd_,
             AboutWndProc);
 }
 
@@ -936,7 +936,7 @@ void RootWindowWin::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     }
   } else {
     // No controls so also remove the default menu.
-    ::SetMenu(hwnd_, NULL);
+    ::SetMenu(hwnd_, nullptr);
   }
 
   const float device_scale_factor = GetWindowScaleFactor(hwnd_);
@@ -1032,7 +1032,7 @@ void RootWindowWin::OnSetFullscreen(bool fullscreen) {
 
   CefRefPtr<CefBrowser> browser = GetBrowser();
   if (browser) {
-    scoped_ptr<window_test::WindowTestRunnerWin> test_runner(
+    std::unique_ptr<window_test::WindowTestRunnerWin> test_runner(
         new window_test::WindowTestRunnerWin());
     if (fullscreen)
       test_runner->Maximize(browser);
@@ -1058,7 +1058,7 @@ void RootWindowWin::OnAutoResize(const CefSize& new_size) {
                LogicalToDevice(new_size.height, device_scale_factor)};
   DWORD style = GetWindowLong(hwnd_, GWL_STYLE);
   DWORD ex_style = GetWindowLong(hwnd_, GWL_EXSTYLE);
-  bool has_menu = !(style & WS_CHILD) && (GetMenu(hwnd_) != NULL);
+  bool has_menu = !(style & WS_CHILD) && (GetMenu(hwnd_) != nullptr);
 
   // The size value is for the client area. Calculate the whole window size
   // based on the current style.
@@ -1066,7 +1066,7 @@ void RootWindowWin::OnAutoResize(const CefSize& new_size) {
 
   // Size the window. The left/top values may be negative.
   // Also show the window if it's not currently visible.
-  SetWindowPos(hwnd_, NULL, 0, 0, rect.right - rect.left,
+  SetWindowPos(hwnd_, nullptr, 0, 0, rect.right - rect.left,
                rect.bottom - rect.top,
                SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 }

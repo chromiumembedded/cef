@@ -8,7 +8,7 @@
 
 #include <string>
 
-#include "include/base/cef_bind.h"
+#include "include/base/cef_callback.h"
 #include "include/cef_registration.h"
 #include "include/cef_request.h"
 #include "include/cef_response.h"

@@ -16,6 +16,7 @@
 #include <X11/Xcursor/Xcursor.h>
 #include <X11/keysym.h>
 
+#include "include/base/cef_cxx17_backports.h"
 #include "include/base/cef_logging.h"
 #include "include/base/cef_macros.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -788,7 +789,7 @@ KeyboardCode GdkEventToWindowsKeyCode(const GdkEventKey* event) {
   if (windows_key_code)
     return windows_key_code;
 
-  if (event->hardware_keycode < arraysize(kHardwareCodeToGDKKeyval)) {
+  if (event->hardware_keycode < base::size(kHardwareCodeToGDKKeyval)) {
     int keyval = kHardwareCodeToGDKKeyval[event->hardware_keycode];
     if (keyval)
       return KeyboardCodeFromXKeysym(keyval);
@@ -907,7 +908,7 @@ class ScopedGLContext {
   ScopedGLContext(GtkWidget* widget, bool swap_buffers)
       : swap_buffers_(swap_buffers), widget_(widget) {
     gtk_gl_area_make_current(GTK_GL_AREA(widget));
-    is_valid_ = gtk_gl_area_get_error(GTK_GL_AREA(widget)) == NULL;
+    is_valid_ = gtk_gl_area_get_error(GTK_GL_AREA(widget)) == nullptr;
     if (swap_buffers_ && is_valid_) {
       gtk_gl_area_queue_render(GTK_GL_AREA(widget_));
       gtk_gl_area_attach_buffers(GTK_GL_AREA(widget));
@@ -939,12 +940,12 @@ BrowserWindowOsrGtk::BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
       gl_enabled_(false),
       painting_popup_(false),
       hidden_(false),
-      glarea_(NULL),
+      glarea_(nullptr),
       drag_trigger_event_(nullptr),
       drag_data_(nullptr),
       drag_operation_(DRAG_OPERATION_NONE),
       drag_context_(nullptr),
-      drag_targets_(gtk_target_list_new(NULL, 0)),
+      drag_targets_(gtk_target_list_new(nullptr, 0)),
       drag_leave_(false),
       drag_drop_(false),
       device_scale_factor_(1.0f) {
@@ -1115,8 +1116,8 @@ void BrowserWindowOsrGtk::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   UnregisterDragDrop();
 
   // Disconnect all signal handlers that reference |this|.
-  g_signal_handlers_disconnect_matched(glarea_, G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-                                       NULL, this);
+  g_signal_handlers_disconnect_matched(glarea_, G_SIGNAL_MATCH_DATA, 0, 0,
+                                       nullptr, nullptr, this);
 
   DisableGL();
 }
@@ -1775,7 +1776,8 @@ void BrowserWindowOsrGtk::RegisterDragDrop() {
   // Default values for drag threshold are set to 8 pixels in both GTK and
   // Chromium, but doesn't work as expected.
   // --OFF--
-  // gtk_drag_source_set(glarea_, GDK_BUTTON1_MASK, NULL, 0, GDK_ACTION_COPY);
+  // gtk_drag_source_set(glarea_, GDK_BUTTON1_MASK, nullptr, 0,
+  // GDK_ACTION_COPY);
 
   // Source widget events.
   g_signal_connect(G_OBJECT(glarea_), "drag_begin",
@@ -1786,7 +1788,7 @@ void BrowserWindowOsrGtk::RegisterDragDrop() {
                    G_CALLBACK(&BrowserWindowOsrGtk::DragEnd), this);
 
   // Destination widget and its events.
-  gtk_drag_dest_set(glarea_, (GtkDestDefaults)0, (GtkTargetEntry*)NULL, 0,
+  gtk_drag_dest_set(glarea_, (GtkDestDefaults)0, (GtkTargetEntry*)nullptr, 0,
                     (GdkDragAction)GDK_ACTION_COPY);
   g_signal_connect(G_OBJECT(glarea_), "drag_motion",
                    G_CALLBACK(&BrowserWindowOsrGtk::DragMotion), this);
@@ -1859,9 +1861,10 @@ void BrowserWindowOsrGtk::DragBegin(GtkWidget* widget,
   gboolean success = FALSE;
   loader = gdk_pixbuf_loader_new_with_type("png", &error);
   if (error == nullptr && loader) {
-    success = gdk_pixbuf_loader_write(loader, image_buffer, image_size, NULL);
+    success =
+        gdk_pixbuf_loader_write(loader, image_buffer, image_size, nullptr);
     if (success) {
-      success = gdk_pixbuf_loader_close(loader, NULL);
+      success = gdk_pixbuf_loader_close(loader, nullptr);
       if (success) {
         pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
         if (pixbuf) {

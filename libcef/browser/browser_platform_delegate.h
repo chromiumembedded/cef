@@ -356,7 +356,7 @@ class CefBrowserPlatformDelegate {
   virtual void StopFinding(bool clearSelection);
 
  protected:
-  // Allow deletion via scoped_ptr only.
+  // Allow deletion via std::unique_ptr only.
   friend std::default_delete<CefBrowserPlatformDelegate>;
 
   CefBrowserPlatformDelegate();

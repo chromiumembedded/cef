@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9fbe1de9cf7f32c551c535e190d4c82b4947765d$
+// $hash=85426bf2da9016443939636319265fff616f1cb4$
 //
 
 #include <dlfcn.h>
 #include <stdio.h>
 
+#include "include/base/cef_compiler_specific.h"
 #include "include/capi/cef_app_capi.h"
 #include "include/capi/cef_browser_capi.h"
 #include "include/capi/cef_command_line_capi.h"

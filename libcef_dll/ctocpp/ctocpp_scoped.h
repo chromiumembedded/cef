@@ -10,7 +10,6 @@
 #include "include/base/cef_macros.h"
 #include "include/capi/cef_base_capi.h"
 #include "include/cef_base.h"
-#include "libcef_dll/ptr_util.h"
 #include "libcef_dll/wrapper_types.h"
 
 // Wrap a C structure with a C++ class. This is used when the implementation
@@ -49,7 +48,7 @@ class CefCToCppScoped : public BaseName {
   //
   // void MyMethod(CefOwnPtr<MyType> obj) {
   //   // Ownership of the underlying MyType object is passed to my_method().
-  //   my_method(MyTypeCToCpp::UnwrapOwn(obj.Pass()));
+  //   my_method(MyTypeCToCpp::UnwrapOwn(std::move(obj)));
   //   // |obj| is now NULL.
   // }
   static StructName* UnwrapOwn(CefOwnPtr<BaseName> c);
@@ -129,7 +128,7 @@ StructName* CefCToCppScoped<ClassName, BaseName, StructName>::UnwrapOwn(
   // If the type does not match this object then we need to unwrap as the
   // derived type.
   if (wrapperStruct->type_ != kWrapperType)
-    return UnwrapDerivedOwn(wrapperStruct->type_, OWN_PASS(c));
+    return UnwrapDerivedOwn(wrapperStruct->type_, std::move(c));
 
   StructName* orig_struct = wrapperStruct->struct_;
 

@@ -47,11 +47,11 @@ class ViewsMenuBar : public CefMenuButtonDelegate, public CefMenuModelDelegate {
   // Returns the CefPanel that represents the menu bar.
   CefRefPtr<CefPanel> GetMenuPanel();
 
-  // Create a new menu with the specified |label|. If |menu_id| is non-NULL it
-  // will be populated with the new menu ID.
+  // Create a new menu with the specified |label|. If |menu_id| is non-nullptr
+  // it will be populated with the new menu ID.
   CefRefPtr<CefMenuModel> CreateMenuModel(const CefString& label, int* menu_id);
 
-  // Returns the menu with the specified |menu_id|, or NULL if no such menu
+  // Returns the menu with the specified |menu_id|, or nullptr if no such menu
   // exists.
   CefRefPtr<CefMenuModel> GetMenuModel(int menu_id) const;
 

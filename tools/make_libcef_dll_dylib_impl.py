@@ -60,7 +60,10 @@ def make_libcef_dll_dylib_impl_func(func):
 
 def make_libcef_dll_dylib_impl(header):
   filenames = []
-  includes = []
+  includes = [
+      '#include "include/base/cef_compiler_specific.h"',
+      '#include "include/wrapper/cef_library_loader.h"',
+  ]
   ptr_typedef = ''
   ptr_declare = ''
   ptr_init = ''
@@ -119,7 +122,6 @@ def make_libcef_dll_dylib_impl(header):
 #include <stdio.h>
 
 """ + "\n".join(sorted(includes)) + """
-#include "include/wrapper/cef_library_loader.h"
 
 // GLOBAL WRAPPER FUNCTIONS - Do not edit by hand.
 

@@ -65,7 +65,7 @@ void SetPosImpl(CefRefPtr<CefBrowser> browser,
     ::ShowWindow(root_hwnd, SW_RESTORE);
   } else {
     // Set the window position.
-    ::SetWindowPos(root_hwnd, NULL, window_rect.x, window_rect.y,
+    ::SetWindowPos(root_hwnd, nullptr, window_rect.x, window_rect.y,
                    window_rect.width, window_rect.height, SWP_NOZORDER);
   }
 }

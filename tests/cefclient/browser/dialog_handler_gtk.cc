@@ -275,7 +275,7 @@ void ClientDialogHandlerGtk::OnFileDialogContinue(OnFileDialogParams params,
 
   GtkWidget* dialog = gtk_file_chooser_dialog_new(
       title_str.c_str(), GTK_WINDOW(window), action, "_Cancel",
-      GTK_RESPONSE_CANCEL, accept_button, GTK_RESPONSE_ACCEPT, NULL);
+      GTK_RESPONSE_CANCEL, accept_button, GTK_RESPONSE_ACCEPT, nullptr);
 
   if (mode_type == FILE_DIALOG_OPEN_MULTIPLE)
     gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
@@ -402,7 +402,7 @@ void ClientDialogHandlerGtk::OnJSDialogContinue(OnJSDialogParams params,
                                        gtk_message_type, buttons, "%s",
                                        params.message_text.ToString().c_str());
   g_signal_connect(gtk_dialog_, "delete-event",
-                   G_CALLBACK(gtk_widget_hide_on_delete), NULL);
+                   G_CALLBACK(gtk_widget_hide_on_delete), nullptr);
 
   gtk_window_set_title(GTK_WINDOW(gtk_dialog_), title.c_str());
 

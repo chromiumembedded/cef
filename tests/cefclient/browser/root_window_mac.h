@@ -6,9 +6,9 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_ROOT_WINDOW_MAC_H_
 #pragma once
 
+#include <memory>
 #include <string>
 
-#include "include/base/cef_scoped_ptr.h"
 #include "tests/cefclient/browser/browser_window.h"
 #include "tests/cefclient/browser/root_window.h"
 

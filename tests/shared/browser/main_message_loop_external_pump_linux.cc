@@ -6,9 +6,10 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <glib.h>
 #include <math.h>
 
-#include <glib.h>
+#include <memory>
 
 #include "include/base/cef_logging.h"
 #include "include/cef_app.h"
@@ -100,8 +101,9 @@ class MainMessageLoopExternalPumpLinux : public MainMessageLoopExternalPump {
   int wakeup_pipe_read_;
   int wakeup_pipe_write_;
 
-  // Use a scoped_ptr to avoid needing the definition of GPollFD in the header.
-  scoped_ptr<GPollFD> wakeup_gpollfd_;
+  // Use a std::unique_ptr to avoid needing the definition of GPollFD in the
+  // header.
+  std::unique_ptr<GPollFD> wakeup_gpollfd_;
 };
 
 // Return a timeout suitable for the glib loop, -1 to block forever,
@@ -150,7 +152,7 @@ gboolean WorkSourceDispatch(GSource* source,
 
 // I wish these could be const, but g_source_new wants non-const.
 GSourceFuncs WorkSourceFuncs = {WorkSourcePrepare, WorkSourceCheck,
-                                WorkSourceDispatch, NULL};
+                                WorkSourceDispatch, nullptr};
 
 MainMessageLoopExternalPumpLinux::MainMessageLoopExternalPumpLinux()
     : should_quit_(false),
@@ -292,9 +294,9 @@ bool MainMessageLoopExternalPumpLinux::IsTimerPending() {
 }  // namespace
 
 // static
-scoped_ptr<MainMessageLoopExternalPump> MainMessageLoopExternalPump::Create() {
-  return scoped_ptr<MainMessageLoopExternalPump>(
-      new MainMessageLoopExternalPumpLinux());
+std::unique_ptr<MainMessageLoopExternalPump>
+MainMessageLoopExternalPump::Create() {
+  return std::make_unique<MainMessageLoopExternalPumpLinux>();
 }
 
 }  // namespace client

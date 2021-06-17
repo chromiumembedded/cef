@@ -10,10 +10,10 @@
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <memory>
 #include <string>
 
 #include "include/base/cef_logging.h"
-#include "include/base/cef_scoped_ptr.h"
 #include "include/cef_app.h"
 #include "include/cef_command_line.h"
 #include "include/wrapper/cef_helpers.h"
@@ -83,7 +83,7 @@ int RunMain(int argc, char* argv[]) {
     return exit_code;
 
   // Create the main context object.
-  scoped_ptr<MainContextImpl> context(new MainContextImpl(command_line, true));
+  auto context = std::make_unique<MainContextImpl>(command_line, true);
 
   CefSettings settings;
 
@@ -105,7 +105,7 @@ int RunMain(int argc, char* argv[]) {
   }
 
   // Create the main message loop object.
-  scoped_ptr<MainMessageLoop> message_loop;
+  std::unique_ptr<MainMessageLoop> message_loop;
   if (settings.multi_threaded_message_loop)
     message_loop.reset(new MainMessageLoopMultithreadedGtk);
   else if (settings.external_message_pump)

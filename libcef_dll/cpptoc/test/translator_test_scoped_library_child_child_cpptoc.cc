@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2f64a37b4735c7d91035aec2fffa263d7d27942b$
+// $hash=1fa64c4f005a9ce3af83148fa5eeccaf45706200$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_scoped_library_child_child_cpptoc.h"
@@ -29,7 +29,7 @@ cef_translator_test_scoped_library_child_child_create(int value,
 
   // Return type: ownptr_same
   return CefTranslatorTestScopedLibraryChildChildCppToC::WrapOwn(
-      OWN_PASS(_retval));
+      std::move(_retval));
 }
 
 namespace {

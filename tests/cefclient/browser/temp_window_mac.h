@@ -22,13 +22,13 @@ class TempWindowMac {
  private:
   // A single instance will be created/owned by RootWindowManager.
   friend class RootWindowManager;
-  // Allow deletion via scoped_ptr only.
-  friend struct base::DefaultDeleter<TempWindowMac>;
+  // Allow deletion via std::unique_ptr only.
+  friend std::default_delete<TempWindowMac>;
 
   TempWindowMac();
   ~TempWindowMac();
 
-  scoped_ptr<TempWindowMacImpl> impl_;
+  std::unique_ptr<TempWindowMacImpl> impl_;
 
   DISALLOW_COPY_AND_ASSIGN(TempWindowMac);
 };

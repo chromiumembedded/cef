@@ -1615,7 +1615,7 @@ void CefRenderWidgetHostViewOSR::CancelWidget() {
   if (render_widget_host_ && !is_destroyed_) {
     is_destroyed_ = true;
 
-    // Don't delete the RWHI manually while owned by a scoped_ptr in RVHI.
+    // Don't delete the RWHI manually while owned by a std::unique_ptr in RVHI.
     // This matches a CHECK() in RenderWidgetHostImpl::Destroy().
     const bool also_delete = !render_widget_host_->owner_delegate();
 

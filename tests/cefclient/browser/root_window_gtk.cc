@@ -11,7 +11,7 @@
 #undef Success     // Definition conflicts with cef_message_router.h
 #undef RootWindow  // Definition conflicts with root_window.h
 
-#include "include/base/cef_bind.h"
+#include "include/base/cef_callback.h"
 #include "include/cef_app.h"
 #include "tests/cefclient/browser/browser_window_osr_gtk.h"
 #include "tests/cefclient/browser/browser_window_std_gtk.h"
@@ -40,13 +40,13 @@ void UseDefaultX11VisualForGtk(GtkWidget* widget) {
   GList* visuals = gdk_screen_list_visuals(screen);
 
   GdkX11Screen* x11_screen = GDK_X11_SCREEN(screen);
-  if (x11_screen == NULL)
+  if (x11_screen == nullptr)
     return;
 
   Visual* default_xvisual = DefaultVisual(GDK_SCREEN_XDISPLAY(x11_screen),
                                           GDK_SCREEN_XNUMBER(x11_screen));
   GList* cursor = visuals;
-  while (cursor != NULL) {
+  while (cursor != nullptr) {
     GdkVisual* visual = GDK_X11_VISUAL(cursor->data);
     if (default_xvisual->visualid ==
         gdk_x11_visual_get_xvisual(visual)->visualid) {
@@ -357,25 +357,28 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings,
                      G_CALLBACK(&RootWindowGtk::ToolbarSizeAllocated), this);
 
     back_button_ = gtk_tool_button_new(
-        gtk_image_new_from_icon_name("go-previous", GTK_ICON_SIZE_MENU), NULL);
+        gtk_image_new_from_icon_name("go-previous", GTK_ICON_SIZE_MENU),
+        nullptr);
     g_signal_connect(back_button_, "clicked",
                      G_CALLBACK(&RootWindowGtk::BackButtonClicked), this);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), back_button_, -1 /* append */);
 
     forward_button_ = gtk_tool_button_new(
-        gtk_image_new_from_icon_name("go-next", GTK_ICON_SIZE_MENU), NULL);
+        gtk_image_new_from_icon_name("go-next", GTK_ICON_SIZE_MENU), nullptr);
     g_signal_connect(forward_button_, "clicked",
                      G_CALLBACK(&RootWindowGtk::ForwardButtonClicked), this);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), forward_button_, -1 /* append */);
 
     reload_button_ = gtk_tool_button_new(
-        gtk_image_new_from_icon_name("view-refresh", GTK_ICON_SIZE_MENU), NULL);
+        gtk_image_new_from_icon_name("view-refresh", GTK_ICON_SIZE_MENU),
+        nullptr);
     g_signal_connect(reload_button_, "clicked",
                      G_CALLBACK(&RootWindowGtk::ReloadButtonClicked), this);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), reload_button_, -1 /* append */);
 
     stop_button_ = gtk_tool_button_new(
-        gtk_image_new_from_icon_name("process-stop", GTK_ICON_SIZE_MENU), NULL);
+        gtk_image_new_from_icon_name("process-stop", GTK_ICON_SIZE_MENU),
+        nullptr);
     g_signal_connect(stop_button_, "clicked",
                      G_CALLBACK(&RootWindowGtk::StopButtonClicked), this);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), stop_button_, -1 /* append */);
@@ -496,7 +499,7 @@ void RootWindowGtk::OnSetFullscreen(bool fullscreen) {
 
   CefRefPtr<CefBrowser> browser = GetBrowser();
   if (browser) {
-    scoped_ptr<window_test::WindowTestRunnerGtk> test_runner(
+    std::unique_ptr<window_test::WindowTestRunnerGtk> test_runner(
         new window_test::WindowTestRunnerGtk());
     if (fullscreen)
       test_runner->Maximize(browser);

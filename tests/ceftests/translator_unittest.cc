@@ -394,7 +394,7 @@ TEST(TranslatorTest, OwnPtrLibrary) {
       CefTranslatorTestScopedLibrary::Create(kTestVal);
   EXPECT_TRUE(test_obj.get());
   EXPECT_EQ(kTestVal, test_obj->GetValue());
-  int retval = obj->SetOwnPtrLibrary(test_obj.Pass());
+  int retval = obj->SetOwnPtrLibrary(std::move(test_obj));
   EXPECT_EQ(kTestVal, retval);
   EXPECT_FALSE(test_obj.get());
 
@@ -403,7 +403,7 @@ TEST(TranslatorTest, OwnPtrLibrary) {
       obj->GetOwnPtrLibrary(kTestVal2);
   EXPECT_TRUE(test_obj2.get());
   EXPECT_EQ(kTestVal2, test_obj2->GetValue());
-  int retval2 = obj->SetOwnPtrLibrary(test_obj2.Pass());
+  int retval2 = obj->SetOwnPtrLibrary(std::move(test_obj2));
   EXPECT_EQ(kTestVal2, retval2);
   EXPECT_FALSE(test_obj2.get());
 
@@ -422,20 +422,19 @@ TEST(TranslatorTest, OwnPtrLibraryInherit) {
   EXPECT_TRUE(test_obj.get());
   EXPECT_EQ(kTestVal, test_obj->GetValue());
   EXPECT_EQ(kTestVal2, test_obj->GetOtherValue());
-  int retval =
-      obj->SetOwnPtrLibrary(test_obj.PassAs<CefTranslatorTestScopedLibrary>());
+  int retval = obj->SetOwnPtrLibrary(std::move(test_obj));
   EXPECT_EQ(kTestVal, retval);
   EXPECT_FALSE(test_obj.get());
 
   test_obj = CefTranslatorTestScopedLibraryChild::Create(kTestVal, kTestVal2);
   EXPECT_TRUE(test_obj.get());
-  EXPECT_EQ(kTestVal, obj->SetChildOwnPtrLibrary(test_obj.Pass()));
+  EXPECT_EQ(kTestVal, obj->SetChildOwnPtrLibrary(std::move(test_obj)));
   EXPECT_FALSE(test_obj.get());
 
   test_obj = CefTranslatorTestScopedLibraryChild::Create(kTestVal, kTestVal2);
   EXPECT_TRUE(test_obj.get());
   CefOwnPtr<CefTranslatorTestScopedLibrary> test_obj_parent =
-      obj->SetChildOwnPtrLibraryAndReturnParent(test_obj.Pass());
+      obj->SetChildOwnPtrLibraryAndReturnParent(std::move(test_obj));
   EXPECT_FALSE(test_obj.get());
   EXPECT_TRUE(test_obj_parent.get());
   EXPECT_EQ(kTestVal, test_obj_parent->GetValue());
@@ -448,22 +447,19 @@ TEST(TranslatorTest, OwnPtrLibraryInherit) {
   EXPECT_EQ(kTestVal, test_obj2->GetValue());
   EXPECT_EQ(kTestVal2, test_obj2->GetOtherValue());
   EXPECT_EQ(kTestVal3, test_obj2->GetOtherOtherValue());
-  int retval2 =
-      obj->SetOwnPtrLibrary(test_obj2.PassAs<CefTranslatorTestScopedLibrary>());
+  int retval2 = obj->SetOwnPtrLibrary(std::move(test_obj2));
   EXPECT_EQ(kTestVal, retval2);
   EXPECT_FALSE(test_obj2.get());
 
   test_obj2 = CefTranslatorTestScopedLibraryChildChild::Create(
       kTestVal, kTestVal2, kTestVal3);
-  EXPECT_EQ(kTestVal,
-            obj->SetChildOwnPtrLibrary(
-                test_obj2.PassAs<CefTranslatorTestScopedLibraryChild>()));
+  EXPECT_EQ(kTestVal, obj->SetChildOwnPtrLibrary(std::move(test_obj2)));
   EXPECT_FALSE(test_obj2.get());
 
   test_obj2 = CefTranslatorTestScopedLibraryChildChild::Create(
       kTestVal, kTestVal2, kTestVal3);
-  test_obj_parent = obj->SetChildOwnPtrLibraryAndReturnParent(
-      test_obj2.PassAs<CefTranslatorTestScopedLibraryChild>());
+  test_obj_parent =
+      obj->SetChildOwnPtrLibraryAndReturnParent(std::move(test_obj2));
   EXPECT_FALSE(test_obj2.get());
   EXPECT_TRUE(test_obj_parent.get());
   EXPECT_EQ(kTestVal, test_obj_parent->GetValue());
@@ -523,14 +519,14 @@ TEST(TranslatorTest, OwnPtrClient) {
   CefOwnPtr<CefTranslatorTestScopedClient> test_obj(
       new TranslatorTestScopedClient(kTestVal, &got_delete));
   EXPECT_EQ(kTestVal, test_obj->GetValue());
-  EXPECT_EQ(kTestVal, obj->SetOwnPtrClient(test_obj.Pass()));
+  EXPECT_EQ(kTestVal, obj->SetOwnPtrClient(std::move(test_obj)));
   EXPECT_FALSE(test_obj.get());
   EXPECT_TRUE(got_delete);
 
   got_delete.reset();
   test_obj.reset(new TranslatorTestScopedClient(kTestVal, &got_delete));
   CefOwnPtr<CefTranslatorTestScopedClient> handler =
-      obj->SetOwnPtrClientAndReturn(test_obj.Pass());
+      obj->SetOwnPtrClientAndReturn(std::move(test_obj));
   EXPECT_FALSE(test_obj.get());
   EXPECT_TRUE(handler.get());
   EXPECT_FALSE(got_delete);
@@ -554,15 +550,14 @@ TEST(TranslatorTest, OwnPtrClientInherit) {
       new TranslatorTestScopedClientChild(kTestVal, kTestVal2, &got_delete));
   EXPECT_EQ(kTestVal, test_obj->GetValue());
   EXPECT_EQ(kTestVal2, test_obj->GetOtherValue());
-  EXPECT_EQ(kTestVal, obj->SetOwnPtrClient(
-                          test_obj.PassAs<CefTranslatorTestScopedClient>()));
+  EXPECT_EQ(kTestVal, obj->SetOwnPtrClient(std::move(test_obj)));
   EXPECT_FALSE(test_obj.get());
   EXPECT_TRUE(got_delete);
 
   got_delete.reset();
   test_obj.reset(
       new TranslatorTestScopedClientChild(kTestVal, kTestVal2, &got_delete));
-  EXPECT_EQ(kTestVal, obj->SetChildOwnPtrClient(test_obj.Pass()));
+  EXPECT_EQ(kTestVal, obj->SetChildOwnPtrClient(std::move(test_obj)));
   EXPECT_FALSE(test_obj.get());
   EXPECT_TRUE(got_delete);
 
@@ -570,7 +565,7 @@ TEST(TranslatorTest, OwnPtrClientInherit) {
   test_obj.reset(
       new TranslatorTestScopedClientChild(kTestVal, kTestVal2, &got_delete));
   CefOwnPtr<CefTranslatorTestScopedClient> handler(
-      obj->SetChildOwnPtrClientAndReturnParent(test_obj.Pass()));
+      obj->SetChildOwnPtrClientAndReturnParent(std::move(test_obj)));
   EXPECT_EQ(kTestVal, handler->GetValue());
   EXPECT_FALSE(test_obj.get());
   EXPECT_FALSE(got_delete);

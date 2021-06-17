@@ -4,13 +4,12 @@
 
 #include "tests/shared/browser/file_util.h"
 
-#include "include/base/cef_build.h"
-#include "include/base/cef_scoped_ptr.h"
-#include "include/cef_task.h"
-
 #include <algorithm>
 #include <cstdio>
 #include <memory>
+
+#include "include/base/cef_build.h"
+#include "include/cef_task.h"
 
 namespace client {
 namespace file_util {
@@ -46,7 +45,7 @@ bool ReadFileToString(const std::string& path,
     return false;
 
   const size_t kBufferSize = 1 << 16;
-  scoped_ptr<char[]> buf(new char[kBufferSize]);
+  std::unique_ptr<char[]> buf(new char[kBufferSize]);
   size_t len;
   size_t size = 0;
   bool read_status = true;

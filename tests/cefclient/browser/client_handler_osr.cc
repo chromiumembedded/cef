@@ -4,7 +4,7 @@
 
 #include "tests/cefclient/browser/client_handler_osr.h"
 
-#include "include/base/cef_bind.h"
+#include "include/base/cef_callback.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
 

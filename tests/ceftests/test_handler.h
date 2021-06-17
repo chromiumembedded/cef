@@ -8,11 +8,11 @@
 
 #include <list>
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 
-#include "include/base/cef_bind.h"
-#include "include/base/cef_scoped_ptr.h"
+#include "include/base/cef_callback.h"
 #include "include/cef_browser.h"
 #include "include/cef_client.h"
 #include "include/cef_frame.h"
@@ -293,7 +293,7 @@ class TestHandler : public CefClient,
   bool destroy_test_expected_;
   bool destroy_test_called_;
 
-  scoped_ptr<UIThreadHelper> ui_thread_helper_;
+  std::unique_ptr<UIThreadHelper> ui_thread_helper_;
 
   // Used to track the number of currently existing browser windows.
   static int browser_count_;

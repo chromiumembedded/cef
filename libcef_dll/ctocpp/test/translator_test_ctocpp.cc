@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ff27c226ced0b2651b858eadea688d164dfa777e$
+// $hash=210590ae794f6690729538f2e6ca59d264cb1dc9$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_ctocpp.h"
@@ -1161,7 +1161,7 @@ int CefTranslatorTestCToCpp::SetOwnPtrLibrary(
 
   // Execute
   int _retval = _struct->set_own_ptr_library(
-      _struct, CefTranslatorTestScopedLibraryCToCpp::UnwrapOwn(OWN_PASS(val)));
+      _struct, CefTranslatorTestScopedLibraryCToCpp::UnwrapOwn(std::move(val)));
 
   // Return type: simple
   return _retval;
@@ -1187,7 +1187,7 @@ CefOwnPtr<CefTranslatorTestScopedLibrary> CefTranslatorTestCToCpp::
   cef_translator_test_scoped_library_t* _retval =
       _struct->set_own_ptr_library_and_return(
           _struct,
-          CefTranslatorTestScopedLibraryCToCpp::UnwrapOwn(OWN_PASS(val)));
+          CefTranslatorTestScopedLibraryCToCpp::UnwrapOwn(std::move(val)));
 
   // Return type: ownptr_same
   return CefTranslatorTestScopedLibraryCToCpp::Wrap(_retval);
@@ -1212,7 +1212,7 @@ int CefTranslatorTestCToCpp::SetChildOwnPtrLibrary(
   // Execute
   int _retval = _struct->set_child_own_ptr_library(
       _struct,
-      CefTranslatorTestScopedLibraryChildCToCpp::UnwrapOwn(OWN_PASS(val)));
+      CefTranslatorTestScopedLibraryChildCToCpp::UnwrapOwn(std::move(val)));
 
   // Return type: simple
   return _retval;
@@ -1239,7 +1239,7 @@ CefOwnPtr<CefTranslatorTestScopedLibrary> CefTranslatorTestCToCpp::
   cef_translator_test_scoped_library_t* _retval =
       _struct->set_child_own_ptr_library_and_return_parent(
           _struct,
-          CefTranslatorTestScopedLibraryChildCToCpp::UnwrapOwn(OWN_PASS(val)));
+          CefTranslatorTestScopedLibraryChildCToCpp::UnwrapOwn(std::move(val)));
 
   // Return type: ownptr_same
   return CefTranslatorTestScopedLibraryCToCpp::Wrap(_retval);
@@ -1263,7 +1263,7 @@ int CefTranslatorTestCToCpp::SetOwnPtrClient(
 
   // Execute
   int _retval = _struct->set_own_ptr_client(
-      _struct, CefTranslatorTestScopedClientCppToC::WrapOwn(OWN_PASS(val)));
+      _struct, CefTranslatorTestScopedClientCppToC::WrapOwn(std::move(val)));
 
   // Return type: simple
   return _retval;
@@ -1288,7 +1288,8 @@ CefOwnPtr<CefTranslatorTestScopedClient> CefTranslatorTestCToCpp::
   // Execute
   cef_translator_test_scoped_client_t* _retval =
       _struct->set_own_ptr_client_and_return(
-          _struct, CefTranslatorTestScopedClientCppToC::WrapOwn(OWN_PASS(val)));
+          _struct,
+          CefTranslatorTestScopedClientCppToC::WrapOwn(std::move(val)));
 
   // Return type: ownptr_diff
   return CefTranslatorTestScopedClientCppToC::UnwrapOwn(_retval);
@@ -1313,7 +1314,7 @@ int CefTranslatorTestCToCpp::SetChildOwnPtrClient(
   // Execute
   int _retval = _struct->set_child_own_ptr_client(
       _struct,
-      CefTranslatorTestScopedClientChildCppToC::WrapOwn(OWN_PASS(val)));
+      CefTranslatorTestScopedClientChildCppToC::WrapOwn(std::move(val)));
 
   // Return type: simple
   return _retval;
@@ -1340,7 +1341,7 @@ CefOwnPtr<CefTranslatorTestScopedClient> CefTranslatorTestCToCpp::
   cef_translator_test_scoped_client_t* _retval =
       _struct->set_child_own_ptr_client_and_return_parent(
           _struct,
-          CefTranslatorTestScopedClientChildCppToC::WrapOwn(OWN_PASS(val)));
+          CefTranslatorTestScopedClientChildCppToC::WrapOwn(std::move(val)));
 
   // Return type: ownptr_diff
   return CefTranslatorTestScopedClientCppToC::UnwrapOwn(_retval);

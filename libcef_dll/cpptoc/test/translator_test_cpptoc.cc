@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a102f383e3ecac5237310b2e5aa5b2fd37474188$
+// $hash=982f16fd8ec5c6a195f24f6aaeac41b2e1373f68$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_cpptoc.h"
@@ -1152,7 +1152,7 @@ translator_test_get_own_ptr_library(struct _cef_translator_test_t* self,
       CefTranslatorTestCppToC::Get(self)->GetOwnPtrLibrary(val);
 
   // Return type: ownptr_same
-  return CefTranslatorTestScopedLibraryCppToC::WrapOwn(OWN_PASS(_retval));
+  return CefTranslatorTestScopedLibraryCppToC::WrapOwn(std::move(_retval));
 }
 
 int CEF_CALLBACK translator_test_set_own_ptr_library(
@@ -1200,7 +1200,7 @@ translator_test_set_own_ptr_library_and_return(
           CefTranslatorTestScopedLibraryCppToC::UnwrapOwn(val));
 
   // Return type: ownptr_same
-  return CefTranslatorTestScopedLibraryCppToC::WrapOwn(OWN_PASS(_retval));
+  return CefTranslatorTestScopedLibraryCppToC::WrapOwn(std::move(_retval));
 }
 
 int CEF_CALLBACK translator_test_set_child_own_ptr_library(
@@ -1248,7 +1248,7 @@ translator_test_set_child_own_ptr_library_and_return_parent(
           CefTranslatorTestScopedLibraryChildCppToC::UnwrapOwn(val));
 
   // Return type: ownptr_same
-  return CefTranslatorTestScopedLibraryCppToC::WrapOwn(OWN_PASS(_retval));
+  return CefTranslatorTestScopedLibraryCppToC::WrapOwn(std::move(_retval));
 }
 
 int CEF_CALLBACK translator_test_set_own_ptr_client(
@@ -1272,7 +1272,7 @@ int CEF_CALLBACK translator_test_set_own_ptr_client(
 
   // Execute
   int _retval =
-      CefTranslatorTestCppToC::Get(self)->SetOwnPtrClient(OWN_PASS(valPtr));
+      CefTranslatorTestCppToC::Get(self)->SetOwnPtrClient(std::move(valPtr));
 
   // Return type: simple
   return _retval;
@@ -1301,10 +1301,10 @@ translator_test_set_own_ptr_client_and_return(
   // Execute
   CefOwnPtr<CefTranslatorTestScopedClient> _retval =
       CefTranslatorTestCppToC::Get(self)->SetOwnPtrClientAndReturn(
-          OWN_PASS(valPtr));
+          std::move(valPtr));
 
   // Return type: ownptr_diff
-  return CefTranslatorTestScopedClientCToCpp::UnwrapOwn(OWN_PASS(_retval));
+  return CefTranslatorTestScopedClientCToCpp::UnwrapOwn(std::move(_retval));
 }
 
 int CEF_CALLBACK translator_test_set_child_own_ptr_client(
@@ -1328,7 +1328,7 @@ int CEF_CALLBACK translator_test_set_child_own_ptr_client(
 
   // Execute
   int _retval = CefTranslatorTestCppToC::Get(self)->SetChildOwnPtrClient(
-      OWN_PASS(valPtr));
+      std::move(valPtr));
 
   // Return type: simple
   return _retval;
@@ -1357,10 +1357,10 @@ translator_test_set_child_own_ptr_client_and_return_parent(
   // Execute
   CefOwnPtr<CefTranslatorTestScopedClient> _retval =
       CefTranslatorTestCppToC::Get(self)->SetChildOwnPtrClientAndReturnParent(
-          OWN_PASS(valPtr));
+          std::move(valPtr));
 
   // Return type: ownptr_diff
-  return CefTranslatorTestScopedClientCToCpp::UnwrapOwn(OWN_PASS(_retval));
+  return CefTranslatorTestScopedClientCToCpp::UnwrapOwn(std::move(_retval));
 }
 
 int CEF_CALLBACK translator_test_set_raw_ptr_library(

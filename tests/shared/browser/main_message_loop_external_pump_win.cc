@@ -6,6 +6,8 @@
 
 #include <CommCtrl.h>
 
+#include <memory>
+
 #include "include/cef_app.h"
 #include "tests/shared/browser/util_win.h"
 
@@ -49,8 +51,8 @@ class MainMessageLoopExternalPumpWin : public MainMessageLoopExternalPump {
 };
 
 MainMessageLoopExternalPumpWin::MainMessageLoopExternalPumpWin()
-    : timer_pending_(false), main_thread_target_(NULL) {
-  HINSTANCE hInstance = GetModuleHandle(NULL);
+    : timer_pending_(false), main_thread_target_(nullptr) {
+  HINSTANCE hInstance = GetModuleHandle(nullptr);
   const wchar_t* const kClassName = L"CEFMainTargetHWND";
 
   WNDCLASSEX wcex = {};
@@ -62,8 +64,8 @@ MainMessageLoopExternalPumpWin::MainMessageLoopExternalPumpWin()
 
   // Create the message handling window.
   main_thread_target_ =
-      CreateWindowW(kClassName, NULL, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0,
-                    HWND_MESSAGE, NULL, hInstance, NULL);
+      CreateWindowW(kClassName, nullptr, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0,
+                    HWND_MESSAGE, nullptr, hInstance, nullptr);
   DCHECK(main_thread_target_);
   SetUserDataPtr(main_thread_target_, this);
 }
@@ -75,13 +77,13 @@ MainMessageLoopExternalPumpWin::~MainMessageLoopExternalPumpWin() {
 }
 
 void MainMessageLoopExternalPumpWin::Quit() {
-  PostMessage(NULL, WM_QUIT, 0, 0);
+  PostMessage(nullptr, WM_QUIT, 0, 0);
 }
 
 int MainMessageLoopExternalPumpWin::Run() {
   // Run the message loop.
   MSG msg;
-  while (GetMessage(&msg, NULL, 0, 0)) {
+  while (GetMessage(&msg, nullptr, 0, 0)) {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
   }
@@ -111,7 +113,7 @@ void MainMessageLoopExternalPumpWin::SetTimer(int64 delay_ms) {
   DCHECK(!timer_pending_);
   DCHECK_GT(delay_ms, 0);
   timer_pending_ = true;
-  ::SetTimer(main_thread_target_, 1, static_cast<UINT>(delay_ms), NULL);
+  ::SetTimer(main_thread_target_, 1, static_cast<UINT>(delay_ms), nullptr);
 }
 
 void MainMessageLoopExternalPumpWin::KillTimer() {
@@ -144,9 +146,9 @@ LRESULT CALLBACK MainMessageLoopExternalPumpWin::WndProc(HWND hwnd,
 }  // namespace
 
 // static
-scoped_ptr<MainMessageLoopExternalPump> MainMessageLoopExternalPump::Create() {
-  return scoped_ptr<MainMessageLoopExternalPump>(
-      new MainMessageLoopExternalPumpWin());
+std::unique_ptr<MainMessageLoopExternalPump>
+MainMessageLoopExternalPump::Create() {
+  return std::make_unique<MainMessageLoopExternalPumpWin>();
 }
 
 }  // namespace client

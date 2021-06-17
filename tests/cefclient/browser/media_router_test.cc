@@ -74,7 +74,7 @@ class MediaRouteCreateCallback : public CefMediaRouteCreateCallback {
     } else {
       SendFailure(create_callback_, kRequestFailedError + result, error);
     }
-    create_callback_ = NULL;
+    create_callback_ = nullptr;
   }
 
  private:
@@ -257,7 +257,7 @@ class MediaObserver : public CefMediaObserver {
   CefRefPtr<CefMediaSource> GetSource(const std::string& source_urn) {
     CefRefPtr<CefMediaSource> source = media_router_->GetSource(source_urn);
     if (!source)
-      return NULL;
+      return nullptr;
     return source;
   }
 
@@ -265,7 +265,7 @@ class MediaObserver : public CefMediaObserver {
     SinkInfoMap::const_iterator it = sink_info_map_.find(sink_id);
     if (it != sink_info_map_.end())
       return it->second->sink;
-    return NULL;
+    return nullptr;
   }
 
   void ClearSinkInfoMap() {
@@ -299,7 +299,7 @@ class MediaObserver : public CefMediaObserver {
     RouteMap::const_iterator it = route_map_.find(route_id);
     if (it != route_map_.end())
       return it->second;
-    return NULL;
+    return nullptr;
   }
 
   void SendResponse(const std::string& name,
@@ -574,7 +574,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     if (it != subscription_state_map_.end()) {
       return it->second->observer;
     }
-    return NULL;
+    return nullptr;
   }
 
   // Map of browser ID to SubscriptionState object.

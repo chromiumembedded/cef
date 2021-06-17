@@ -8,7 +8,7 @@
 #include <sstream>
 #include <string>
 
-#include "include/base/cef_bind.h"
+#include "include/base/cef_callback.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/routing_test_handler.h"
 #include "tests/ceftests/test_handler.h"
@@ -1483,18 +1483,19 @@ class ParentOrderMainTestHandler : public OrderMainTestHandler {
                              CefRefPtr<PopupOrderMainTestHandler> popup_handler)
       : OrderMainTestHandler(completion_state), popup_handler_(popup_handler) {}
 
-  bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
-                     CefRefPtr<CefFrame> frame,
-                     const CefString& target_url,
-                     const CefString& target_frame_name,
-                     CefLifeSpanHandler::WindowOpenDisposition target_disposition,
-                     bool user_gesture,
-                     const CefPopupFeatures& popupFeatures,
-                     CefWindowInfo& windowInfo,
-                     CefRefPtr<CefClient>& client,
-                     CefBrowserSettings& settings,
-                     CefRefPtr<CefDictionaryValue>& extra_info,
-                     bool* no_javascript_access) override {
+  bool OnBeforePopup(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      const CefString& target_url,
+      const CefString& target_frame_name,
+      CefLifeSpanHandler::WindowOpenDisposition target_disposition,
+      bool user_gesture,
+      const CefPopupFeatures& popupFeatures,
+      CefWindowInfo& windowInfo,
+      CefRefPtr<CefClient>& client,
+      CefBrowserSettings& settings,
+      CefRefPtr<CefDictionaryValue>& extra_info,
+      bool* no_javascript_access) override {
     // Intentionally not calling the parent class method.
     EXPECT_FALSE(got_on_before_popup_);
     got_on_before_popup_.yes();
@@ -1541,8 +1542,8 @@ void RunOrderMainPopupTest(bool cross_origin) {
   CefRefPtr<ParentOrderMainTestHandler> parent_handler =
       new ParentOrderMainTestHandler(&completion_state, popup_handler);
 
-  collection.AddTestHandler(popup_handler);
-  collection.AddTestHandler(parent_handler);
+  collection.AddTestHandler(popup_handler.get());
+  collection.AddTestHandler(parent_handler.get());
   collection.ExecuteTests();
 
   ReleaseAndWaitForDestructor(parent_handler);

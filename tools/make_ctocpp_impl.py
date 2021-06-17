@@ -207,7 +207,8 @@ def make_ctocpp_function_impl_new(clsname, name, func, base_scoped):
       params.append(ptr_class + 'CToCpp::Unwrap(' + arg_name + ')')
     elif arg_type == 'ownptr_same':
       ptr_class = arg.get_type().get_ptr_type()
-      params.append(ptr_class + 'CToCpp::UnwrapOwn(OWN_PASS(' + arg_name + '))')
+      params.append(ptr_class + 'CToCpp::UnwrapOwn(std::move(' + arg_name +
+                    '))')
     elif arg_type == 'rawptr_same':
       ptr_class = arg.get_type().get_ptr_type()
       params.append(ptr_class + 'CToCpp::UnwrapRaw(' + arg_name + ')')
@@ -216,7 +217,7 @@ def make_ctocpp_function_impl_new(clsname, name, func, base_scoped):
       params.append(ptr_class + 'CppToC::Wrap(' + arg_name + ')')
     elif arg_type == 'ownptr_diff':
       ptr_class = arg.get_type().get_ptr_type()
-      params.append(ptr_class + 'CppToC::WrapOwn(OWN_PASS(' + arg_name + '))')
+      params.append(ptr_class + 'CppToC::WrapOwn(std::move(' + arg_name + '))')
     elif arg_type == 'rawptr_diff':
       ptr_class = arg.get_type().get_ptr_type()
       result += comment+\
@@ -557,7 +558,7 @@ def make_ctocpp_unwrap_derived(header, cls, base_scoped):
                  '  }\n'
       impl[1] += '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
                  '    return reinterpret_cast<'+get_capi_name(cls.get_name(), True)+'*>('+\
-                 clsname+'CToCpp::UnwrapRaw(CefRawPtr<'+clsname+'>(reinterpret_cast<'+clsname+'*>(CEF_RAW_PTR_GET(c)))));\n'+\
+                 clsname+'CToCpp::UnwrapRaw(CefRawPtr<'+clsname+'>(reinterpret_cast<'+clsname+'*>(c))));\n'+\
                  '  }\n'
   else:
     impl = ''

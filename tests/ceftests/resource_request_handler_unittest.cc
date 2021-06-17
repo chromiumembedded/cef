@@ -4,11 +4,11 @@
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
 #include <sstream>
 #include <string>
 
-#include "include/base/cef_bind.h"
-#include "include/base/cef_scoped_ptr.h"
+#include "include/base/cef_callback.h"
 #include "include/cef_request_context_handler.h"
 #include "include/cef_scheme.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -3184,7 +3184,7 @@ class RedirectResponseTest : public TestHandler {
   const bool via_request_context_handler_;
 
   int browser_id_ = 0;
-  scoped_ptr<ResourceTest> resource_test_;
+  std::unique_ptr<ResourceTest> resource_test_;
   CefRefPtr<ResourceRequestHandler> resource_request_handler_;
 
   IMPLEMENT_REFCOUNTING(RedirectResponseTest);
@@ -3432,8 +3432,8 @@ const char kInputHeader[] = "<html><head></head><body>";
 const char kInputFooter[] = "</body></html>";
 
 // Repeat |content| the minimum number of times necessary to satisfy
-// |desired_min_size|. If |calculated_repeat_ct| is non-NULL it will be set to
-// the number of times that |content| was repeated.
+// |desired_min_size|. If |calculated_repeat_ct| is non-nullptr it will be set
+// to the number of times that |content| was repeated.
 std::string CreateInput(const std::string& content,
                         size_t desired_min_size,
                         size_t* calculated_repeat_ct = nullptr) {

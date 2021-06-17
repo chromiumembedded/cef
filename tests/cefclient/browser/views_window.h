@@ -174,7 +174,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
 
  private:
   // |delegate| is guaranteed to outlive this object.
-  // |browser_view| may be NULL, in which case SetBrowserView() will be called.
+  // |browser_view| may be nullptr, in which case SetBrowserView() will be
+  // called.
   ViewsWindow(Delegate* delegate, CefRefPtr<CefBrowserView> browser_view);
 
   void SetBrowserView(CefRefPtr<CefBrowserView> browser_view);

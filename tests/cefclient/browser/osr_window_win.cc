@@ -85,7 +85,7 @@ OsrWindowWin::OsrWindowWin(Delegate* delegate,
                            const OsrRendererSettings& settings)
     : delegate_(delegate),
       settings_(settings),
-      hwnd_(NULL),
+      hwnd_(nullptr),
       device_scale_factor_(0),
       hidden_(false),
       last_mouse_pos_(),
@@ -235,7 +235,7 @@ void OsrWindowWin::SetBounds(int x, int y, size_t width, size_t height) {
 
   if (hwnd_) {
     // Set the browser window bounds.
-    ::SetWindowPos(hwnd_, NULL, x, y, static_cast<int>(width),
+    ::SetWindowPos(hwnd_, nullptr, x, y, static_cast<int>(width),
                    static_cast<int>(height), SWP_NOZORDER);
   }
 }
@@ -277,7 +277,7 @@ void OsrWindowWin::Create(HWND parent_hwnd, const RECT& rect) {
   DCHECK(parent_hwnd);
   DCHECK(!::IsRectEmpty(&rect));
 
-  HINSTANCE hInst = ::GetModuleHandle(NULL);
+  HINSTANCE hInst = ::GetModuleHandle(nullptr);
 
   const cef_color_t background_color = MainContext::Get()->GetBackgroundColor();
   const HBRUSH background_brush = CreateSolidBrush(
@@ -327,7 +327,7 @@ void OsrWindowWin::Create(HWND parent_hwnd, const RECT& rect) {
 
 void OsrWindowWin::Destroy() {
   CEF_REQUIRE_UI_THREAD();
-  DCHECK(hwnd_ != NULL);
+  DCHECK(hwnd_ != nullptr);
 
 #if defined(CEF_USE_ATL)
   // Revoke/delete the drag&drop handler.
@@ -340,7 +340,7 @@ void OsrWindowWin::Destroy() {
   // Destroy the native window.
   ::DestroyWindow(hwnd_);
   ime_handler_.reset();
-  hwnd_ = NULL;
+  hwnd_ = nullptr;
 }
 
 void OsrWindowWin::NotifyNativeWindowCreated(HWND hwnd) {
@@ -371,10 +371,10 @@ void OsrWindowWin::RegisterOsrClass(HINSTANCE hInstance,
   wcex.cbClsExtra = 0;
   wcex.cbWndExtra = 0;
   wcex.hInstance = hInstance;
-  wcex.hIcon = NULL;
-  wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+  wcex.hIcon = nullptr;
+  wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
   wcex.hbrBackground = background_brush;
-  wcex.lpszMenuName = NULL;
+  wcex.lpszMenuName = nullptr;
   wcex.lpszClassName = kWndClass;
   wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
@@ -552,8 +552,8 @@ LRESULT CALLBACK OsrWindowWin::OsrWndProc(HWND hWnd,
 
     case WM_NCDESTROY:
       // Clear the reference to |self|.
-      SetUserDataPtr(hWnd, NULL);
-      self->hwnd_ = NULL;
+      SetUserDataPtr(hWnd, nullptr);
+      self->hwnd_ = nullptr;
       break;
   }
 

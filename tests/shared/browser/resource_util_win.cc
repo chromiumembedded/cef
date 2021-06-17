@@ -14,7 +14,7 @@ namespace client {
 namespace {
 
 bool LoadBinaryResource(int binaryId, DWORD& dwSize, LPBYTE& pBytes) {
-  HINSTANCE hInst = GetModuleHandle(NULL);
+  HINSTANCE hInst = GetModuleHandle(nullptr);
   HRSRC hRes =
       FindResource(hInst, MAKEINTRESOURCE(binaryId), MAKEINTRESOURCE(256));
   if (hRes) {

@@ -10,9 +10,9 @@
 
 #include <commdlg.h>
 
+#include <memory>
 #include <string>
 
-#include "include/base/cef_scoped_ptr.h"
 #include "tests/cefclient/browser/browser_window.h"
 #include "tests/cefclient/browser/root_window.h"
 
@@ -117,7 +117,7 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
   bool with_extension_;
   bool is_popup_;
   RECT start_rect_;
-  scoped_ptr<BrowserWindow> browser_window_;
+  std::unique_ptr<BrowserWindow> browser_window_;
   CefBrowserSettings browser_settings_;
   bool initialized_;
 

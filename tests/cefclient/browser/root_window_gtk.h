@@ -7,9 +7,9 @@
 #pragma once
 
 #include <gtk/gtk.h>
+#include <memory>
 #include <string>
 
-#include "include/base/cef_scoped_ptr.h"
 #include "tests/cefclient/browser/browser_window.h"
 #include "tests/cefclient/browser/root_window.h"
 
@@ -130,7 +130,7 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
   bool with_extension_;
   bool is_popup_;
   CefRect start_rect_;
-  scoped_ptr<BrowserWindow> browser_window_;
+  std::unique_ptr<BrowserWindow> browser_window_;
   bool initialized_;
 
   // Main window.

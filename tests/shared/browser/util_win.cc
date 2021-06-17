@@ -34,7 +34,7 @@ void SetUserDataPtr(HWND hWnd, void* ptr) {
 WNDPROC SetWndProcPtr(HWND hWnd, WNDPROC wndProc) {
   WNDPROC old =
       reinterpret_cast<WNDPROC>(::GetWindowLongPtr(hWnd, GWLP_WNDPROC));
-  CHECK(old != NULL);
+  CHECK(old != nullptr);
   LONG_PTR result = ::SetWindowLongPtr(hWnd, GWLP_WNDPROC,
                                        reinterpret_cast<LONG_PTR>(wndProc));
   CHECK(result != 0 || GetLastError() == ERROR_SUCCESS);
@@ -44,7 +44,7 @@ WNDPROC SetWndProcPtr(HWND hWnd, WNDPROC wndProc) {
 std::wstring GetResourceString(UINT id) {
 #define MAX_LOADSTRING 100
   TCHAR buff[MAX_LOADSTRING] = {0};
-  LoadString(::GetModuleHandle(NULL), id, buff, MAX_LOADSTRING);
+  LoadString(::GetModuleHandle(nullptr), id, buff, MAX_LOADSTRING);
   return buff;
 }
 
@@ -163,10 +163,10 @@ float GetDeviceScaleFactor() {
     // This value is safe to cache for the life time of the app since the user
     // must logout to change the DPI setting. This value also applies to all
     // screens.
-    HDC screen_dc = ::GetDC(NULL);
+    HDC screen_dc = ::GetDC(nullptr);
     int dpi_x = GetDeviceCaps(screen_dc, LOGPIXELSX);
     scale_factor = static_cast<float>(dpi_x) / 96.0f;
-    ::ReleaseDC(NULL, screen_dc);
+    ::ReleaseDC(nullptr, screen_dc);
     initialized = true;
   }
 

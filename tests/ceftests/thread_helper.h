@@ -6,7 +6,7 @@
 #define CEF_TESTS_CEFTESTS_THREAD_HELPER_H_
 #pragma once
 
-#include "include/base/cef_bind.h"
+#include "include/base/cef_callback.h"
 #include "include/cef_task.h"
 #include "include/cef_waitable_event.h"
 

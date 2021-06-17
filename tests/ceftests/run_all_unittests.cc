@@ -16,7 +16,7 @@
 #include <unistd.h>
 #endif
 
-#include "include/base/cef_bind.h"
+#include "include/base/cef_callback.h"
 #include "include/cef_app.h"
 #include "include/cef_task.h"
 #include "include/cef_thread.h"
@@ -187,7 +187,7 @@ int main(int argc, char* argv[]) {
 #endif
 
   // Create the MessageLoop.
-  scoped_ptr<client::MainMessageLoop> message_loop;
+  std::unique_ptr<client::MainMessageLoop> message_loop;
   if (!settings.multi_threaded_message_loop) {
     if (settings.external_message_pump)
       message_loop = client::MainMessageLoopExternalPump::Create();

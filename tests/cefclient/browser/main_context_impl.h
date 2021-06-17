@@ -6,7 +6,8 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_MAIN_CONTEXT_IMPL_H_
 #pragma once
 
-#include "include/base/cef_scoped_ptr.h"
+#include <memory>
+
 #include "include/base/cef_thread_checker.h"
 #include "include/cef_app.h"
 #include "include/cef_command_line.h"
@@ -48,8 +49,8 @@ class MainContextImpl : public MainContext {
   void Shutdown();
 
  private:
-  // Allow deletion via scoped_ptr only.
-  friend struct base::DefaultDeleter<MainContextImpl>;
+  // Allow deletion via std::unique_ptr only.
+  friend std::default_delete<MainContextImpl>;
 
   ~MainContextImpl();
 
@@ -75,7 +76,7 @@ class MainContextImpl : public MainContext {
   bool use_views_;
   bool touch_events_enabled_;
 
-  scoped_ptr<RootWindowManager> root_window_manager_;
+  std::unique_ptr<RootWindowManager> root_window_manager_;
 
 #if defined(OS_WIN)
   bool shared_texture_enabled_;

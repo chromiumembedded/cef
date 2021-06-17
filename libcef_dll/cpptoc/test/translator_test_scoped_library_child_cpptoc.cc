@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cd7a42714195bed68aef8a200c7e1a38681558f2$
+// $hash=a5c43bc178aa01efbf560be47b1429fd4540d27f$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_scoped_library_child_cpptoc.h"
@@ -26,7 +26,7 @@ cef_translator_test_scoped_library_child_create(int value, int other_value) {
       CefTranslatorTestScopedLibraryChild::Create(value, other_value);
 
   // Return type: ownptr_same
-  return CefTranslatorTestScopedLibraryChildCppToC::WrapOwn(OWN_PASS(_retval));
+  return CefTranslatorTestScopedLibraryChildCppToC::WrapOwn(std::move(_retval));
 }
 
 namespace {
@@ -122,11 +122,8 @@ CefCppToCScoped<CefTranslatorTestScopedLibraryChildCppToC,
     UnwrapDerivedOwn(CefWrapperType type,
                      cef_translator_test_scoped_library_child_t* s) {
   if (type == WT_TRANSLATOR_TEST_SCOPED_LIBRARY_CHILD_CHILD) {
-    return OWN_RETURN_AS(
-        CefTranslatorTestScopedLibraryChildChildCppToC::UnwrapOwn(
-            reinterpret_cast<cef_translator_test_scoped_library_child_child_t*>(
-                s)),
-        CefTranslatorTestScopedLibraryChild);
+    return CefTranslatorTestScopedLibraryChildChildCppToC::UnwrapOwn(
+        reinterpret_cast<cef_translator_test_scoped_library_child_child_t*>(s));
   }
   NOTREACHED() << "Unexpected class type: " << type;
   return CefOwnPtr<CefTranslatorTestScopedLibraryChild>();

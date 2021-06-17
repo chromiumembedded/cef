@@ -33,8 +33,8 @@ std::string GetInternalExtensionResourcePath(const std::string& extension_path);
 // will be the full file path on disk. For internal extensions this will be the
 // relative path expected by LoadBinaryResource (uses '/' as path separator on
 // all platforms). Internal extensions must be on the hard-coded list enforced
-// by IsInternalExtension. If |internal| is non-NULL it will be set to true if
-// the extension is handled internally.
+// by IsInternalExtension. If |internal| is non-nullptr it will be set to true
+// if the extension is handled internally.
 std::string GetExtensionResourcePath(const std::string& extension_path,
                                      bool* internal);
 
@@ -69,7 +69,7 @@ std::string GetExtensionOrigin(const std::string& extension_id);
 std::string GetExtensionURL(CefRefPtr<CefExtension> extension);
 
 // Look for a browser_action.default_icon manifest value and return the resource
-// path. If |internal| is non-NULL it will be set to true if the extension is
+// path. If |internal| is non-nullptr it will be set to true if the extension is
 // handled internally.
 std::string GetExtensionIconPath(CefRefPtr<CefExtension> extension,
                                  bool* internal);

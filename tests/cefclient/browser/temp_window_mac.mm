@@ -13,7 +13,7 @@ namespace client {
 
 namespace {
 
-TempWindowMac* g_temp_window = NULL;
+TempWindowMac* g_temp_window = nullptr;
 
 }  // namespace
 
@@ -46,7 +46,7 @@ TempWindowMac::TempWindowMac() {
 
 TempWindowMac::~TempWindowMac() {
   impl_.reset();
-  g_temp_window = NULL;
+  g_temp_window = nullptr;
 }
 
 // static

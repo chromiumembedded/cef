@@ -27,7 +27,7 @@ class CefMenuRunner {
   virtual bool FormatLabel(std::u16string& label) { return false; }
 
  protected:
-  // Allow deletion via scoped_ptr only.
+  // Allow deletion via std::unique_ptr only.
   friend std::default_delete<CefMenuRunner>;
 
   CefMenuRunner() {}

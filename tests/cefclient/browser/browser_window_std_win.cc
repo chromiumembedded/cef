@@ -62,7 +62,7 @@ void BrowserWindowStdWin::ShowPopup(ClientWindowHandle parent_handle,
   HWND hwnd = GetWindowHandle();
   if (hwnd) {
     SetParent(hwnd, parent_handle);
-    SetWindowPos(hwnd, NULL, x, y, static_cast<int>(width),
+    SetWindowPos(hwnd, nullptr, x, y, static_cast<int>(width),
                  static_cast<int>(height), SWP_NOZORDER | SWP_NOACTIVATE);
 
     const bool no_activate =
@@ -86,7 +86,7 @@ void BrowserWindowStdWin::Hide() {
   if (hwnd) {
     // When the frame window is minimized set the browser window size to 0x0 to
     // reduce resource usage.
-    SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
+    SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
                  SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
   }
 }
@@ -97,7 +97,7 @@ void BrowserWindowStdWin::SetBounds(int x, int y, size_t width, size_t height) {
   HWND hwnd = GetWindowHandle();
   if (hwnd) {
     // Set the browser window bounds.
-    SetWindowPos(hwnd, NULL, x, y, static_cast<int>(width),
+    SetWindowPos(hwnd, nullptr, x, y, static_cast<int>(width),
                  static_cast<int>(height), SWP_NOZORDER);
   }
 }
@@ -114,7 +114,7 @@ ClientWindowHandle BrowserWindowStdWin::GetWindowHandle() const {
 
   if (browser_)
     return browser_->GetHost()->GetWindowHandle();
-  return NULL;
+  return nullptr;
 }
 
 }  // namespace client

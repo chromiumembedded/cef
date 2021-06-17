@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "include/base/cef_bind.h"
+#include "include/base/cef_callback.h"
 #include "include/wrapper/cef_closure_task.h"
 
 #include "tests/ceftests/routing_test_handler.h"
@@ -312,7 +312,7 @@ class OsrPopupJSOtherCefClient : public CefClient,
                                  public CefLifeSpanHandler,
                                  public CefRenderHandler {
  public:
-  OsrPopupJSOtherCefClient() { handler_ = NULL; }
+  OsrPopupJSOtherCefClient() { handler_ = nullptr; }
 
   void SetHandler(CefRefPtr<OsrPopupJSOtherClientTestHandler> handler) {
     handler_ = handler;

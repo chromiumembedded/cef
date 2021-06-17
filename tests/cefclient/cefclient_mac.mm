@@ -381,7 +381,7 @@ int RunMain(int argc, char* argv[]) {
       app = new ClientAppBrowser();
 
     // Create the main context object.
-    scoped_ptr<MainContextImpl> context(
+    std::unique_ptr<MainContextImpl> context(
         new MainContextImpl(command_line, true));
 
     CefSettings settings;
@@ -397,14 +397,14 @@ int RunMain(int argc, char* argv[]) {
     context->PopulateSettings(&settings);
 
     // Create the main message loop object.
-    scoped_ptr<MainMessageLoop> message_loop;
+    std::unique_ptr<MainMessageLoop> message_loop;
     if (settings.external_message_pump)
       message_loop = MainMessageLoopExternalPump::Create();
     else
       message_loop.reset(new MainMessageLoopStd);
 
     // Initialize CEF.
-    context->Initialize(main_args, settings, app, NULL);
+    context->Initialize(main_args, settings, app, nullptr);
 
     // Register scheme handlers.
     test_runner::RegisterSchemeHandlers();

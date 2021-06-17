@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-#include "include/base/cef_bind.h"
+#include "include/base/cef_callback.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/test_runner.h"
@@ -39,18 +39,18 @@ const char kMessageMaximizeName[] = "WindowTest.Maximize";
 const char kMessageRestoreName[] = "WindowTest.Restore";
 
 // Create the appropriate platform test runner object.
-scoped_ptr<WindowTestRunner> CreateWindowTestRunner() {
+std::unique_ptr<WindowTestRunner> CreateWindowTestRunner() {
 #if defined(OS_WIN) || defined(OS_LINUX)
   if (MainContext::Get()->UseViews())
-    return scoped_ptr<WindowTestRunner>(new WindowTestRunnerViews());
+    return std::make_unique<WindowTestRunnerViews>();
 #endif
 
 #if defined(OS_WIN)
-  return scoped_ptr<WindowTestRunner>(new WindowTestRunnerWin());
+  return std::make_unique<WindowTestRunnerWin>();
 #elif defined(OS_LINUX)
-  return scoped_ptr<WindowTestRunner>(new WindowTestRunnerGtk());
+  return std::make_unique<WindowTestRunnerGtk>();
 #elif defined(OS_MAC)
-  return scoped_ptr<WindowTestRunner>(new WindowTestRunnerMac());
+  return std::make_unique<WindowTestRunnerMac>();
 #else
 #error "No implementation available for your platform."
 #endif
@@ -109,7 +109,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
   }
 
  private:
-  scoped_ptr<WindowTestRunner> runner_;
+  std::unique_ptr<WindowTestRunner> runner_;
 };
 
 }  // namespace

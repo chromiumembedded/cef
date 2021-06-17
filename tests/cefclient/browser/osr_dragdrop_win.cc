@@ -62,7 +62,7 @@ void GetStorageForBytes(STGMEDIUM* storage, const void* data, size_t bytes) {
 
   storage->hGlobal = handle;
   storage->tymed = TYMED_HGLOBAL;
-  storage->pUnkForRelease = NULL;
+  storage->pUnkForRelease = nullptr;
 }
 
 template <typename T>
@@ -86,7 +86,7 @@ void GetStorageForFileDescriptor(STGMEDIUM* storage,
 
   storage->tymed = TYMED_HGLOBAL;
   storage->hGlobal = hdata;
-  storage->pUnkForRelease = NULL;
+  storage->pUnkForRelease = nullptr;
 }
 
 // Helper method for converting from text/html to MS CF_HTML.
@@ -202,7 +202,7 @@ void CFHtmlToHtml(const std::string& cf_html,
   size_t frag_start = std::string::npos;
   size_t frag_end = std::string::npos;
 
-  CFHtmlExtractMetadata(cf_html, base_url, NULL, &frag_start, &frag_end);
+  CFHtmlExtractMetadata(cf_html, base_url, nullptr, &frag_start, &frag_end);
 
   if (html && frag_start != std::string::npos &&
       frag_end != std::string::npos) {
@@ -221,7 +221,7 @@ bool DragDataToDataObject(CefRefPtr<CefDragData> drag_data,
   const int kMaxDataObjects = 10;
   FORMATETC fmtetcs[kMaxDataObjects];
   STGMEDIUM stgmeds[kMaxDataObjects];
-  FORMATETC fmtetc = {0, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
+  FORMATETC fmtetc = {0, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
   int curr_index = 0;
   CefString text = drag_data->GetFragmentText();
   if (!text.empty()) {
@@ -249,7 +249,7 @@ bool DragDataToDataObject(CefRefPtr<CefDragData> drag_data,
     curr_index++;
   }
 
-  size_t bufferSize = drag_data->GetFileContents(NULL);
+  size_t bufferSize = drag_data->GetFileContents(nullptr);
   if (bufferSize) {
     CefRefPtr<BytesWriteHandler> handler = new BytesWriteHandler(bufferSize);
     CefRefPtr<CefStreamWriter> writer =
@@ -559,7 +559,7 @@ HRESULT DataObjectWin::QueryGetData(FORMATETC* pFormatEtc) {
 
 HRESULT DataObjectWin::GetCanonicalFormatEtc(FORMATETC* pFormatEct,
                                              FORMATETC* pFormatEtcOut) {
-  pFormatEtcOut->ptd = NULL;
+  pFormatEtcOut->ptd = nullptr;
   return E_NOTIMPL;
 }
 

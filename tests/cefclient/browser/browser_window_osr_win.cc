@@ -11,7 +11,7 @@ namespace client {
 BrowserWindowOsrWin::BrowserWindowOsrWin(BrowserWindow::Delegate* delegate,
                                          const std::string& startup_url,
                                          const OsrRendererSettings& settings)
-    : BrowserWindow(delegate), osr_hwnd_(NULL), device_scale_factor_(0) {
+    : BrowserWindow(delegate), osr_hwnd_(nullptr), device_scale_factor_(0) {
   osr_window_ = new OsrWindowWin(this, settings);
   client_handler_ = new ClientHandlerOsr(this, osr_window_.get(), startup_url);
 }

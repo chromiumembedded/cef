@@ -6,7 +6,7 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_OSR_WINDOW_WIN_H_
 #pragma once
 
-#include "include/base/cef_bind.h"
+#include "include/base/cef_callback.h"
 #include "include/base/cef_ref_counted.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
@@ -173,10 +173,10 @@ class OsrWindowWin
 
   const OsrRendererSettings settings_;
   HWND hwnd_;
-  scoped_ptr<OsrRenderHandlerWin> render_handler_;
+  std::unique_ptr<OsrRenderHandlerWin> render_handler_;
 
   // Class that encapsulates IMM32 APIs and controls IMEs attached to a window.
-  scoped_ptr<OsrImeHandlerWin> ime_handler_;
+  std::unique_ptr<OsrImeHandlerWin> ime_handler_;
 
   RECT client_rect_;
   float device_scale_factor_;
@@ -189,7 +189,7 @@ class OsrWindowWin
 
   // Class that abstracts the accessibility information received from the
   // renderer.
-  scoped_ptr<OsrAccessibilityHelper> accessibility_handler_;
+  std::unique_ptr<OsrAccessibilityHelper> accessibility_handler_;
   IAccessible* accessibility_root_;
 #endif
 

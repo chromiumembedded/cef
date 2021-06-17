@@ -142,8 +142,8 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (void)detach {
-  renderer_ = NULL;
-  browser_window_ = NULL;
+  renderer_ = nullptr;
+  browser_window_ = nullptr;
   if (text_input_client_)
     [text_input_client_ detach];
 }
@@ -151,7 +151,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 - (CefRefPtr<CefBrowser>)getBrowser {
   if (browser_window_)
     return browser_window_->GetBrowser();
-  return NULL;
+  return nullptr;
 }
 
 - (void)setFrame:(NSRect)frameRect {
@@ -475,12 +475,12 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 
 - (BOOL)canBecomeKeyView {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  return (browser.get() != NULL);
+  return (browser.get() != nullptr);
 }
 
 - (BOOL)acceptsFirstResponder {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  return (browser.get() != NULL);
+  return (browser.get() != nullptr);
 }
 
 - (BOOL)becomeFirstResponder {
@@ -836,7 +836,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   if (!current_drag_data_)
     return nil;
 
-  size_t expected_size = current_drag_data_->GetFileContents(NULL);
+  size_t expected_size = current_drag_data_->GetFileContents(nullptr);
   if (expected_size == 0)
     return nil;
 
@@ -969,7 +969,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 
     // File contents.
   } else if ([type isEqualToString:fileUTI_]) {
-    size_t size = current_drag_data_->GetFileContents(NULL);
+    size_t size = current_drag_data_->GetFileContents(nullptr);
     DCHECK_GT(size, 0U);
     CefRefPtr<client::BytesWriteHandler> handler =
         new client::BytesWriteHandler(size);
@@ -1025,7 +1025,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
     // Add Root as first Kid
     NSMutableArray* kids = [NSMutableArray arrayWithCapacity:1];
     NSObject* child = CAST_CEF_NATIVE_ACCESSIBLE_TO_NSOBJECT(
-        node->GetNativeAccessibleObject(NULL));
+        node->GetNativeAccessibleObject(nullptr));
     [kids addObject:child];
     return NSAccessibilityUnignoredChildren(kids);
   } else {
@@ -1037,7 +1037,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   if (accessibility_helper_) {
     client::OsrAXNode* node = accessibility_helper_->GetFocusedNode();
     return node ? CAST_CEF_NATIVE_ACCESSIBLE_TO_NSOBJECT(
-                      node->GetNativeAccessibleObject(NULL))
+                      node->GetNativeAccessibleObject(nullptr))
                 : nil;
   }
   return nil;
@@ -1047,7 +1047,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 - (void)resetDragDrop {
   current_drag_op_ = NSDragOperationNone;
   current_allowed_ops_ = NSDragOperationNone;
-  current_drag_data_ = NULL;
+  current_drag_data_ = nullptr;
   if (fileUTI_) {
 #if !__has_feature(objc_arc)
     [fileUTI_ release];
@@ -1079,7 +1079,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 
   // MIME type.
   CefString mimeType;
-  size_t contents_size = current_drag_data_->GetFileContents(NULL);
+  size_t contents_size = current_drag_data_->GetFileContents(nullptr);
   CefString download_metadata = current_drag_data_->GetLinkMetadata();
   CefString file_name = current_drag_data_->GetFileName();
 
@@ -1097,7 +1097,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
                                              mimeType.ToString().c_str(),
                                              kCFStringEncodingUTF8);
       fileUTI_ = (__bridge NSString*)UTTypeCreatePreferredIdentifierForTag(
-          kUTTagClassMIMEType, mimeTypeCF, NULL);
+          kUTTagClassMIMEType, mimeTypeCF, nullptr);
       CFRelease(mimeTypeCF);
       // File (HFS) promise.
       NSArray* fileUTIList = @[ fileUTI_ ];

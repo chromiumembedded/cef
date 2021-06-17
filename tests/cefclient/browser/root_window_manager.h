@@ -6,9 +6,9 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_ROOT_WINDOW_MANAGER_H_
 #pragma once
 
+#include <memory>
 #include <set>
 
-#include "include/base/cef_scoped_ptr.h"
 #include "include/cef_command_line.h"
 #include "include/cef_request_context_handler.h"
 #include "tests/cefclient/browser/image_cache.h"
@@ -62,12 +62,12 @@ class RootWindowManager : public RootWindow::Delegate {
   // called on the main thread.
   scoped_refptr<RootWindow> GetWindowForBrowser(int browser_id) const;
 
-  // Returns the currently active/foreground RootWindow. May return NULL. Must
-  // be called on the main thread.
+  // Returns the currently active/foreground RootWindow. May return nullptr.
+  // Must be called on the main thread.
   scoped_refptr<RootWindow> GetActiveRootWindow() const;
 
-  // Returns the currently active/foreground browser. May return NULL. Safe to
-  // call from any thread.
+  // Returns the currently active/foreground browser. May return nullptr. Safe
+  // to call from any thread.
   CefRefPtr<CefBrowser> GetActiveBrowser() const;
 
   // Close all existing windows. If |force| is true onunload handlers will not
@@ -83,8 +83,8 @@ class RootWindowManager : public RootWindow::Delegate {
   }
 
  private:
-  // Allow deletion via scoped_ptr only.
-  friend struct base::DefaultDeleter<RootWindowManager>;
+  // Allow deletion via std::unique_ptr only.
+  friend std::default_delete<RootWindowManager>;
 
   ~RootWindowManager();
 
@@ -127,7 +127,7 @@ class RootWindowManager : public RootWindow::Delegate {
   CefRefPtr<CefBrowser> active_browser_;
 
   // Singleton window used as the temporary parent for popup browsers.
-  scoped_ptr<TempWindow> temp_window_;
+  std::unique_ptr<TempWindow> temp_window_;
 
   CefRefPtr<CefRequestContext> shared_request_context_;
 

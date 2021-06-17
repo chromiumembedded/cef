@@ -4,7 +4,7 @@
 
 #include <vector>
 
-#include "include/base/cef_bind.h"
+#include "include/base/cef_callback.h"
 #include "include/cef_file_util.h"
 #include "include/cef_waitable_event.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -997,10 +997,11 @@ class EchoProvider : public CefResourceManager::Provider {
         static_cast<void*>(const_cast<char*>(content.data())),
         content.length());
 
+    CefRefPtr<CefStreamResourceHandler> handler(
+        new CefStreamResourceHandler("text/html", stream));
     CefPostDelayedTask(
         TID_IO,
-        base::Bind(&CefResourceManager::Request::Continue, request,
-                   new CefStreamResourceHandler("text/html", stream)),
+        base::Bind(&CefResourceManager::Request::Continue, request, handler),
         delay);
 
     return true;

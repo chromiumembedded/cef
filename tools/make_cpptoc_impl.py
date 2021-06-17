@@ -220,7 +220,7 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
       result += comment+\
                 '\n  CefOwnPtr<'+ptr_class+'> '+arg_name+'Ptr('+ptr_class+'CToCpp::Wrap('+arg_name+'));'
       if arg_type == 'ownptr_diff':
-        params.append('OWN_PASS(' + arg_name + 'Ptr)')
+        params.append('std::move(' + arg_name + 'Ptr)')
       else:
         params.append(arg_name + 'Ptr.get()')
     elif arg_type == 'refptr_same_byref' or arg_type == 'refptr_diff_byref':
@@ -441,10 +441,10 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
       result += '\n  return ' + ptr_class + 'CToCpp::Unwrap(_retval);'
     elif retval_type == 'ownptr_same':
       ptr_class = retval.get_type().get_ptr_type()
-      result += '\n  return ' + ptr_class + 'CppToC::WrapOwn(OWN_PASS(_retval));'
+      result += '\n  return ' + ptr_class + 'CppToC::WrapOwn(std::move(_retval));'
     elif retval_type == 'ownptr_diff':
       ptr_class = retval.get_type().get_ptr_type()
-      result += '\n  return ' + ptr_class + 'CToCpp::UnwrapOwn(OWN_PASS(_retval));'
+      result += '\n  return ' + ptr_class + 'CToCpp::UnwrapOwn(std::move(_retval));'
     else:
       raise Exception('Unsupported return type %s in %s' % (retval_type, name))
 
@@ -545,8 +545,8 @@ def make_cpptoc_unwrap_derived(header, cls, base_scoped):
     impl = ['', '']
     for clsname in derived_classes:
       impl[0] += '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
-                 '    return OWN_RETURN_AS('+clsname+'CppToC::UnwrapOwn(reinterpret_cast<'+\
-                 get_capi_name(clsname, True)+'*>(s)), '+cur_clsname+');\n'+\
+                 '    return '+clsname+'CppToC::UnwrapOwn(reinterpret_cast<'+\
+                 get_capi_name(clsname, True)+'*>(s));\n'+\
                  '  }\n'
       impl[1] += '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
                  '    return '+clsname+'CppToC::UnwrapRaw(reinterpret_cast<'+\

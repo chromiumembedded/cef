@@ -97,7 +97,7 @@ void OsrAXNode::UpdateValue(CefRefPtr<CefDictionaryValue> value) {
 CefWindowHandle OsrAXNode::GetWindowHandle() const {
   if (accessibility_helper_)
     return accessibility_helper_->GetWindowHandle();
-  return NULL;
+  return nullptr;
 }
 
 CefRefPtr<CefBrowser> OsrAXNode::GetBrowser() const {

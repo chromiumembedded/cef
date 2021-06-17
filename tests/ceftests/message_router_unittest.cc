@@ -7,7 +7,7 @@
 #include <sstream>
 #include <vector>
 
-#include "include/base/cef_bind.h"
+#include "include/base/cef_callback.h"
 #include "include/base/cef_weak_ptr.h"
 #include "include/cef_v8.h"
 #include "include/wrapper/cef_closure_task.h"

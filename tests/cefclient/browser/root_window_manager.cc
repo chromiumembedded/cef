@@ -6,7 +6,7 @@
 
 #include <sstream>
 
-#include "include/base/cef_bind.h"
+#include "include/base/cef_callback.h"
 #include "include/base/cef_logging.h"
 #include "include/wrapper/cef_helpers.h"
 #include "tests/cefclient/browser/main_context.h"
@@ -196,9 +196,7 @@ bool RootWindowManager::HasRootWindowAsExtension(
     CefRefPtr<CefExtension> extension) {
   REQUIRE_MAIN_THREAD();
 
-  RootWindowSet::const_iterator it = root_windows_.begin();
-  for (; it != root_windows_.end(); ++it) {
-    const RootWindow* root_window = (*it);
+  for (auto root_window : root_windows_) {
     if (!root_window->WithExtension())
       continue;
 
@@ -220,11 +218,10 @@ scoped_refptr<RootWindow> RootWindowManager::GetWindowForBrowser(
     int browser_id) const {
   REQUIRE_MAIN_THREAD();
 
-  RootWindowSet::const_iterator it = root_windows_.begin();
-  for (; it != root_windows_.end(); ++it) {
-    CefRefPtr<CefBrowser> browser = (*it)->GetBrowser();
+  for (auto root_window : root_windows_) {
+    CefRefPtr<CefBrowser> browser = root_window->GetBrowser();
     if (browser.get() && browser->GetIdentifier() == browser_id)
-      return *it;
+      return root_window;
   }
   return nullptr;
 }
@@ -254,9 +251,9 @@ void RootWindowManager::CloseAllWindows(bool force) {
   // in OnRootWindowDestroyed while iterating.
   RootWindowSet root_windows = root_windows_;
 
-  RootWindowSet::const_iterator it = root_windows.begin();
-  for (; it != root_windows.end(); ++it)
-    (*it)->Close(force);
+  for (auto root_window : root_windows_) {
+    root_window->Close(force);
+  }
 }
 
 void RootWindowManager::AddExtension(CefRefPtr<CefExtension> extension) {
@@ -298,7 +295,7 @@ void RootWindowManager::OnRootWindowCreated(
     if (root_windows_.size() == 1U) {
       // The first non-extension root window should be considered the active
       // window.
-      OnRootWindowActivated(root_window);
+      OnRootWindowActivated(root_window.get());
     }
   }
 }
@@ -306,9 +303,7 @@ void RootWindowManager::OnRootWindowCreated(
 void RootWindowManager::NotifyExtensionsChanged() {
   REQUIRE_MAIN_THREAD();
 
-  RootWindowSet::const_iterator it = root_windows_.begin();
-  for (; it != root_windows_.end(); ++it) {
-    RootWindow* root_window = *it;
+  for (auto root_window : root_windows_) {
     if (!root_window->WithExtension())
       root_window->OnExtensionsChanged(extensions_);
   }
@@ -335,7 +330,7 @@ CefRefPtr<CefRequestContext> RootWindowManager::GetRequestContext(
         // isolated context objects.
         std::stringstream ss;
         ss << command_line->GetSwitchValue(switches::kCachePath).ToString()
-           << file_util::kPathSep << time(NULL);
+           << file_util::kPathSep << time(nullptr);
         CefString(&settings.cache_path) = ss.str();
       }
     }
@@ -410,7 +405,7 @@ void RootWindowManager::OnRootWindowActivated(RootWindow* root_window) {
 
   {
     base::AutoLock lock_scope(active_browser_lock_);
-    // May be NULL at this point, in which case we'll make the association in
+    // May be nullptr at this point, in which case we'll make the association in
     // OnBrowserCreated.
     active_browser_ = active_root_window_->GetBrowser();
   }

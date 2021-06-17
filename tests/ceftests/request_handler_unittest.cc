@@ -4,12 +4,12 @@
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
 
-#include "include/base/cef_bind.h"
-#include "include/base/cef_scoped_ptr.h"
+#include "include/base/cef_callback.h"
 #include "include/cef_cookie.h"
 #include "include/cef_request_context_handler.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -467,7 +467,7 @@ void RunNetNotifyTest(NetNotifyTestType test_type,
   for (size_t i = 0U; i < count; ++i) {
     CefRefPtr<NetNotifyTestHandler> handler =
         new NetNotifyTestHandler(&completion_state, test_type, same_origin);
-    collection.AddTestHandler(handler);
+    collection.AddTestHandler(handler.get());
     handlers.push_back(handler);
   }
 

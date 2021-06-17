@@ -23,7 +23,7 @@ class MainMessageLoopExternalPump : public MainMessageLoopStd {
  public:
   // Creates the singleton instance of this object. Must be called on the main
   // application thread.
-  static scoped_ptr<MainMessageLoopExternalPump> Create();
+  static std::unique_ptr<MainMessageLoopExternalPump> Create();
 
   // Returns the singleton instance of this object. Safe to call from any
   // thread.
@@ -35,8 +35,8 @@ class MainMessageLoopExternalPump : public MainMessageLoopStd {
   virtual void OnScheduleMessagePumpWork(int64 delay_ms) = 0;
 
  protected:
-  // Only allow deletion via scoped_ptr.
-  friend struct base::DefaultDeleter<MainMessageLoopExternalPump>;
+  // Only allow deletion via std::unique_ptr.
+  friend std::default_delete<MainMessageLoopExternalPump>;
 
   // Construct and destruct this object on the main application thread.
   MainMessageLoopExternalPump();

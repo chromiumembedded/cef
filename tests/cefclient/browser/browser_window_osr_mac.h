@@ -91,7 +91,7 @@ class BrowserWindowOsrMac : public BrowserWindow,
   void UpdateAccessibilityLocation(CefRefPtr<CefValue> value) override;
 
  private:
-  scoped_ptr<BrowserWindowOsrMacImpl> impl_;
+  std::unique_ptr<BrowserWindowOsrMacImpl> impl_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserWindowOsrMac);
 

@@ -6,7 +6,8 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_BROWSER_WINDOW_H_
 #pragma once
 
-#include "include/base/cef_scoped_ptr.h"
+#include <memory>
+
 #include "include/cef_browser.h"
 #include "tests/cefclient/browser/client_handler.h"
 #include "tests/cefclient/browser/client_types.h"
@@ -110,8 +111,8 @@ class BrowserWindow : public ClientHandler::Delegate {
   bool IsClosing() const;
 
  protected:
-  // Allow deletion via scoped_ptr only.
-  friend struct base::DefaultDeleter<BrowserWindow>;
+  // Allow deletion via std::unique_ptr only.
+  friend std::default_delete<BrowserWindow>;
 
   // Constructor may be called on any thread.
   // |delegate| must outlive this object.

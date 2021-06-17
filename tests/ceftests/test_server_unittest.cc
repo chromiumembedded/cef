@@ -4,6 +4,7 @@
 
 #include <sstream>
 
+#include "include/base/cef_cxx17_backports.h"
 #include "include/cef_task.h"
 #include "include/cef_waitable_event.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -237,7 +238,7 @@ TEST(TestServerTest, ObserverHelperMultiple) {
 
   TestState states[3];
   size_t count = 0;
-  const size_t size = arraysize(states);
+  const size_t size = base::size(states);
 
   const base::Closure& done_callback =
       base::Bind(SignalIfDone, event, base::Unretained(&count), size);

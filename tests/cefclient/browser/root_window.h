@@ -76,7 +76,7 @@ class RootWindow
   class Delegate {
    public:
     // Called to retrieve the CefRequestContext for browser. Only called for
-    // non-popup browsers. May return NULL.
+    // non-popup browsers. May return nullptr.
     virtual CefRefPtr<CefRequestContext> GetRequestContext(
         RootWindow* root_window) = 0;
 
@@ -129,7 +129,7 @@ class RootWindow
 
   // Initialize as a normal window. This will create and show a native window
   // hosting a single browser instance. This method may be called on any thread.
-  // |delegate| must be non-NULL and outlive this object.
+  // |delegate| must be non-nullptr and outlive this object.
   // Use RootWindowManager::CreateRootWindow() instead of calling this method
   // directly.
   virtual void Init(RootWindow::Delegate* delegate,
@@ -139,9 +139,9 @@ class RootWindow
   // Initialize as a popup window. This is used to attach a new native window to
   // a single browser instance that will be created later. The native window
   // will be created and shown once the browser is available. This method may be
-  // called on any thread. |delegate| must be non-NULL and outlive this object.
-  // Use RootWindowManager::CreateRootWindowAsPopup() instead of calling this
-  // method directly. Called on the UI thread.
+  // called on any thread. |delegate| must be non-nullptr and outlive this
+  // object. Use RootWindowManager::CreateRootWindowAsPopup() instead of calling
+  // this method directly. Called on the UI thread.
   virtual void InitAsPopup(RootWindow::Delegate* delegate,
                            bool with_controls,
                            bool with_osr,

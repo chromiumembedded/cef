@@ -5,7 +5,8 @@
 #include <algorithm>
 #include <sstream>
 
-#include "include/base/cef_bind.h"
+#include "include/base/cef_callback.h"
+#include "include/base/cef_callback_helpers.h"
 #include "include/cef_callback.h"
 #include "include/cef_devtools_message_observer.h"
 #include "include/cef_parser.h"
@@ -281,7 +282,7 @@ class DevToolsMessageTestHandler : public TestHandler {
     // STEP 3: Page domain notifications are enabled. Now start a new
     // navigation (but do nothing on method result) and wait for the
     // "Page.frameNavigated" event.
-    ExecuteMethod("Page.navigate", params.str(), base::Bind(base::DoNothing),
+    ExecuteMethod("Page.navigate", params.str(), base::DoNothing(),
                   /*expected_result=*/"{\"frameId\":");
   }
 
