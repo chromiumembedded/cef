@@ -51,7 +51,9 @@ const char kWidevineCdmArch[] =
     "ia32";  // This differs from the component updater which uses "x86".
 #elif defined(ARCH_CPU_X86_64)
     "x64";
-#else  // TODO(viettrungluu): Support an ARM check?
+#elif defined(ARCH_CPU_ARM64)
+    "arm64";
+#else
     "???";
 #endif
 
