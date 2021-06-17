@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=be5aeaffe84056cb5b1f032eaa8db30142b5916b$
+// $hash=65e0e380522652b9b6a24d2da247db99d52ca6a5$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DOMDOCUMENT_CTOCPP_H_
@@ -34,20 +34,20 @@ class CefDOMDocumentCToCpp : public CefCToCppRefCounted<CefDOMDocumentCToCpp,
   virtual ~CefDOMDocumentCToCpp();
 
   // CefDOMDocument methods.
-  Type GetType() OVERRIDE;
-  CefRefPtr<CefDOMNode> GetDocument() OVERRIDE;
-  CefRefPtr<CefDOMNode> GetBody() OVERRIDE;
-  CefRefPtr<CefDOMNode> GetHead() OVERRIDE;
-  CefString GetTitle() OVERRIDE;
-  CefRefPtr<CefDOMNode> GetElementById(const CefString& id) OVERRIDE;
-  CefRefPtr<CefDOMNode> GetFocusedNode() OVERRIDE;
-  bool HasSelection() OVERRIDE;
-  int GetSelectionStartOffset() OVERRIDE;
-  int GetSelectionEndOffset() OVERRIDE;
-  CefString GetSelectionAsMarkup() OVERRIDE;
-  CefString GetSelectionAsText() OVERRIDE;
-  CefString GetBaseURL() OVERRIDE;
-  CefString GetCompleteURL(const CefString& partialURL) OVERRIDE;
+  Type GetType() override;
+  CefRefPtr<CefDOMNode> GetDocument() override;
+  CefRefPtr<CefDOMNode> GetBody() override;
+  CefRefPtr<CefDOMNode> GetHead() override;
+  CefString GetTitle() override;
+  CefRefPtr<CefDOMNode> GetElementById(const CefString& id) override;
+  CefRefPtr<CefDOMNode> GetFocusedNode() override;
+  bool HasSelection() override;
+  int GetSelectionStartOffset() override;
+  int GetSelectionEndOffset() override;
+  CefString GetSelectionAsMarkup() override;
+  CefString GetSelectionAsText() override;
+  CefString GetBaseURL() override;
+  CefString GetCompleteURL(const CefString& partialURL) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DOMDOCUMENT_CTOCPP_H_

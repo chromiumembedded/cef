@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0e1ecc65bf21127a32292fe7e84378bacbf649ed$
+// $hash=4db8632a3ac7ba81921e32dd92f5c81e30b4c959$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_SERVER_CTOCPP_H_
@@ -33,31 +33,31 @@ class CefServerCToCpp
   virtual ~CefServerCToCpp();
 
   // CefServer methods.
-  CefRefPtr<CefTaskRunner> GetTaskRunner() OVERRIDE;
-  void Shutdown() OVERRIDE;
-  bool IsRunning() OVERRIDE;
-  CefString GetAddress() OVERRIDE;
-  bool HasConnection() OVERRIDE;
-  bool IsValidConnection(int connection_id) OVERRIDE;
+  CefRefPtr<CefTaskRunner> GetTaskRunner() override;
+  void Shutdown() override;
+  bool IsRunning() override;
+  CefString GetAddress() override;
+  bool HasConnection() override;
+  bool IsValidConnection(int connection_id) override;
   void SendHttp200Response(int connection_id,
                            const CefString& content_type,
                            const void* data,
-                           size_t data_size) OVERRIDE;
-  void SendHttp404Response(int connection_id) OVERRIDE;
+                           size_t data_size) override;
+  void SendHttp404Response(int connection_id) override;
   void SendHttp500Response(int connection_id,
-                           const CefString& error_message) OVERRIDE;
+                           const CefString& error_message) override;
   void SendHttpResponse(int connection_id,
                         int response_code,
                         const CefString& content_type,
                         int64 content_length,
-                        const HeaderMap& extra_headers) OVERRIDE;
+                        const HeaderMap& extra_headers) override;
   void SendRawData(int connection_id,
                    const void* data,
-                   size_t data_size) OVERRIDE;
-  void CloseConnection(int connection_id) OVERRIDE;
+                   size_t data_size) override;
+  void CloseConnection(int connection_id) override;
   void SendWebSocketMessage(int connection_id,
                             const void* data,
-                            size_t data_size) OVERRIDE;
+                            size_t data_size) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_SERVER_CTOCPP_H_

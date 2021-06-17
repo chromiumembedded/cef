@@ -124,53 +124,53 @@ class ViewsWindow : public CefBrowserViewDelegate,
       CefRefPtr<CefBrowserView> browser_view,
       const CefBrowserSettings& settings,
       CefRefPtr<CefClient> client,
-      bool is_devtools) OVERRIDE;
+      bool is_devtools) override;
   bool OnPopupBrowserViewCreated(CefRefPtr<CefBrowserView> browser_view,
                                  CefRefPtr<CefBrowserView> popup_browser_view,
-                                 bool is_devtools) OVERRIDE;
+                                 bool is_devtools) override;
   ChromeToolbarType GetChromeToolbarType() override;
 
   // CefButtonDelegate methods:
-  void OnButtonPressed(CefRefPtr<CefButton> button) OVERRIDE;
+  void OnButtonPressed(CefRefPtr<CefButton> button) override;
 
   // CefMenuButtonDelegate methods:
   void OnMenuButtonPressed(
       CefRefPtr<CefMenuButton> menu_button,
       const CefPoint& screen_point,
-      CefRefPtr<CefMenuButtonPressedLock> button_pressed_lock) OVERRIDE;
+      CefRefPtr<CefMenuButtonPressedLock> button_pressed_lock) override;
 
   // CefMenuModelDelegate methods:
   void ExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
                       int command_id,
-                      cef_event_flags_t event_flags) OVERRIDE;
+                      cef_event_flags_t event_flags) override;
 
   // CefTextfieldDelegate methods:
   bool OnKeyEvent(CefRefPtr<CefTextfield> textfield,
-                  const CefKeyEvent& event) OVERRIDE;
+                  const CefKeyEvent& event) override;
 
   // CefWindowDelegate methods:
-  void OnWindowCreated(CefRefPtr<CefWindow> window) OVERRIDE;
-  void OnWindowDestroyed(CefRefPtr<CefWindow> window) OVERRIDE;
+  void OnWindowCreated(CefRefPtr<CefWindow> window) override;
+  void OnWindowDestroyed(CefRefPtr<CefWindow> window) override;
   CefRefPtr<CefWindow> GetParentWindow(CefRefPtr<CefWindow> window,
                                        bool* is_menu,
-                                       bool* can_activate_menu) OVERRIDE;
-  bool IsFrameless(CefRefPtr<CefWindow> window) OVERRIDE;
-  bool CanResize(CefRefPtr<CefWindow> window) OVERRIDE;
-  bool CanClose(CefRefPtr<CefWindow> window) OVERRIDE;
-  bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) OVERRIDE;
+                                       bool* can_activate_menu) override;
+  bool IsFrameless(CefRefPtr<CefWindow> window) override;
+  bool CanResize(CefRefPtr<CefWindow> window) override;
+  bool CanClose(CefRefPtr<CefWindow> window) override;
+  bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) override;
   bool OnKeyEvent(CefRefPtr<CefWindow> window,
-                  const CefKeyEvent& event) OVERRIDE;
+                  const CefKeyEvent& event) override;
 
   // CefViewDelegate methods:
-  CefSize GetMinimumSize(CefRefPtr<CefView> view) OVERRIDE;
-  void OnFocus(CefRefPtr<CefView> view) OVERRIDE;
-  void OnBlur(CefRefPtr<CefView> view) OVERRIDE;
-  void OnWindowChanged(CefRefPtr<CefView> view, bool added) OVERRIDE;
+  CefSize GetMinimumSize(CefRefPtr<CefView> view) override;
+  void OnFocus(CefRefPtr<CefView> view) override;
+  void OnBlur(CefRefPtr<CefView> view) override;
+  void OnWindowChanged(CefRefPtr<CefView> view, bool added) override;
 
   // ViewsMenuBar::Delegate methods:
   void MenuBarExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
                              int command_id,
-                             cef_event_flags_t event_flags) OVERRIDE;
+                             cef_event_flags_t event_flags) override;
 
  private:
   // |delegate| is guaranteed to outlive this object.

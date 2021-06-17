@@ -34,7 +34,7 @@ class ClientApp : public CefApp {
 
   // CefApp methods.
   void OnRegisterCustomSchemes(
-      CefRawPtr<CefSchemeRegistrar> registrar) OVERRIDE;
+      CefRawPtr<CefSchemeRegistrar> registrar) override;
 
   DISALLOW_COPY_AND_ASSIGN(ClientApp);
 };

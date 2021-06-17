@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=398e1f63c0456dac74d288e3dc7a7b23e488b78a$
+// $hash=1e52bb7bf186d7368b281fd2d40d69894701895b$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_FRAME_CTOCPP_H_
@@ -39,36 +39,36 @@ class CefFrameCToCpp
   virtual ~CefFrameCToCpp();
 
   // CefFrame methods.
-  bool IsValid() OVERRIDE;
-  void Undo() OVERRIDE;
-  void Redo() OVERRIDE;
-  void Cut() OVERRIDE;
-  void Copy() OVERRIDE;
-  void Paste() OVERRIDE;
-  void Delete() OVERRIDE;
-  void SelectAll() OVERRIDE;
-  void ViewSource() OVERRIDE;
-  void GetSource(CefRefPtr<CefStringVisitor> visitor) OVERRIDE;
-  void GetText(CefRefPtr<CefStringVisitor> visitor) OVERRIDE;
-  void LoadRequest(CefRefPtr<CefRequest> request) OVERRIDE;
-  void LoadURL(const CefString& url) OVERRIDE;
+  bool IsValid() override;
+  void Undo() override;
+  void Redo() override;
+  void Cut() override;
+  void Copy() override;
+  void Paste() override;
+  void Delete() override;
+  void SelectAll() override;
+  void ViewSource() override;
+  void GetSource(CefRefPtr<CefStringVisitor> visitor) override;
+  void GetText(CefRefPtr<CefStringVisitor> visitor) override;
+  void LoadRequest(CefRefPtr<CefRequest> request) override;
+  void LoadURL(const CefString& url) override;
   void ExecuteJavaScript(const CefString& code,
                          const CefString& script_url,
-                         int start_line) OVERRIDE;
-  bool IsMain() OVERRIDE;
-  bool IsFocused() OVERRIDE;
-  CefString GetName() OVERRIDE;
-  int64 GetIdentifier() OVERRIDE;
-  CefRefPtr<CefFrame> GetParent() OVERRIDE;
-  CefString GetURL() OVERRIDE;
-  CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
-  CefRefPtr<CefV8Context> GetV8Context() OVERRIDE;
-  void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) OVERRIDE;
+                         int start_line) override;
+  bool IsMain() override;
+  bool IsFocused() override;
+  CefString GetName() override;
+  int64 GetIdentifier() override;
+  CefRefPtr<CefFrame> GetParent() override;
+  CefString GetURL() override;
+  CefRefPtr<CefBrowser> GetBrowser() override;
+  CefRefPtr<CefV8Context> GetV8Context() override;
+  void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) override;
   CefRefPtr<CefURLRequest> CreateURLRequest(
       CefRefPtr<CefRequest> request,
-      CefRefPtr<CefURLRequestClient> client) OVERRIDE;
+      CefRefPtr<CefURLRequestClient> client) override;
   void SendProcessMessage(CefProcessId target_process,
-                          CefRefPtr<CefProcessMessage> message) OVERRIDE;
+                          CefRefPtr<CefProcessMessage> message) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_FRAME_CTOCPP_H_

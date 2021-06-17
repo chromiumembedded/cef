@@ -78,7 +78,7 @@ void RunGetSourceTest(CefRefPtr<CefBrowser> browser) {
   class Visitor : public CefStringVisitor {
    public:
     explicit Visitor(CefRefPtr<CefBrowser> browser) : browser_(browser) {}
-    virtual void Visit(const CefString& string) OVERRIDE {
+    virtual void Visit(const CefString& string) override {
       std::string source = StringReplace(string, "<", "&lt;");
       source = StringReplace(source, ">", "&gt;");
       std::stringstream ss;
@@ -99,7 +99,7 @@ void RunGetTextTest(CefRefPtr<CefBrowser> browser) {
   class Visitor : public CefStringVisitor {
    public:
     explicit Visitor(CefRefPtr<CefBrowser> browser) : browser_(browser) {}
-    virtual void Visit(const CefString& string) OVERRIDE {
+    virtual void Visit(const CefString& string) override {
       std::string text = StringReplace(string, "<", "&lt;");
       text = StringReplace(text, ">", "&gt;");
       std::stringstream ss;
@@ -181,7 +181,7 @@ void RunPluginInfoTest(CefRefPtr<CefBrowser> browser) {
 
     virtual bool Visit(CefRefPtr<CefWebPluginInfo> info,
                        int count,
-                       int total) OVERRIDE {
+                       int total) override {
       html_ += "\n<br/><br/>Name: " + info->GetName().ToString() +
                "\n<br/>Description: " + info->GetDescription().ToString() +
                "\n<br/>Version: " + info->GetVersion().ToString() +
@@ -223,7 +223,7 @@ class PromptHandler : public CefMessageRouterBrowserSide::Handler {
                        int64 query_id,
                        const CefString& request,
                        bool persistent,
-                       CefRefPtr<Callback> callback) OVERRIDE {
+                       CefRefPtr<Callback> callback) override {
     // Parse |request| which takes the form "Prompt.[type]:[value]".
     const std::string& request_str = request;
     if (request_str.find(kPrompt) != 0)
@@ -359,7 +359,7 @@ void EndTracing(CefRefPtr<CefBrowser> browser) {
 
     void OnFileDialogDismissed(
         int selected_accept_filter,
-        const std::vector<CefString>& file_paths) OVERRIDE {
+        const std::vector<CefString>& file_paths) override {
       if (!file_paths.empty()) {
         // File selected. Results in a call to OnEndTracingComplete.
         CefEndTracing(file_paths.front(), this);
@@ -369,7 +369,7 @@ void EndTracing(CefRefPtr<CefBrowser> browser) {
       }
     }
 
-    void OnEndTracingComplete(const CefString& tracing_file) OVERRIDE {
+    void OnEndTracingComplete(const CefString& tracing_file) override {
       Alert(browser_,
             "File \"" + tracing_file.ToString() + "\" saved successfully.");
     }
@@ -417,7 +417,7 @@ void PrintToPDF(CefRefPtr<CefBrowser> browser) {
 
     void OnFileDialogDismissed(
         int selected_accept_filter,
-        const std::vector<CefString>& file_paths) OVERRIDE {
+        const std::vector<CefString>& file_paths) override {
       if (!file_paths.empty()) {
         CefPdfPrintSettings settings;
 
@@ -431,7 +431,7 @@ void PrintToPDF(CefRefPtr<CefBrowser> browser) {
       }
     }
 
-    void OnPdfPrintFinished(const CefString& path, bool ok) OVERRIDE {
+    void OnPdfPrintFinished(const CefString& path, bool ok) override {
       Alert(browser_, "File \"" + path.ToString() + "\" " +
                           (ok ? "saved successfully." : "failed to save."));
     }
@@ -461,7 +461,7 @@ class RequestDumpResourceProvider : public CefResourceManager::Provider {
     DCHECK(!url.empty());
   }
 
-  bool OnRequest(scoped_refptr<CefResourceManager::Request> request) OVERRIDE {
+  bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     CEF_REQUIRE_IO_THREAD();
 
     const std::string& url = request->url();
@@ -495,7 +495,7 @@ class StringResourceProvider : public CefResourceManager::Provider {
     DCHECK(!pages.empty());
   }
 
-  bool OnRequest(scoped_refptr<CefResourceManager::Request> request) OVERRIDE {
+  bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     CEF_REQUIRE_IO_THREAD();
 
     const std::string& url = request->url();

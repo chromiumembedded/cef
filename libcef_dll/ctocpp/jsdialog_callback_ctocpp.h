@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=036ba78ec1797ee75002a5562fd0b0b97dff7392$
+// $hash=75100859481e72f7edaf81e712969eab01d34869$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_JSDIALOG_CALLBACK_CTOCPP_H_
@@ -35,7 +35,7 @@ class CefJSDialogCallbackCToCpp
   virtual ~CefJSDialogCallbackCToCpp();
 
   // CefJSDialogCallback methods.
-  void Continue(bool success, const CefString& user_input) OVERRIDE;
+  void Continue(bool success, const CefString& user_input) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_JSDIALOG_CALLBACK_CTOCPP_H_

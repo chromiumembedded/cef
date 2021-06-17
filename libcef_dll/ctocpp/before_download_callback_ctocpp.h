@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b54f6ec001036bb2cab243ced337eafd7cf22ec8$
+// $hash=8f3bfa6fc1b6966f7f5f9f27ac8fa914cda67ffb$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BEFORE_DOWNLOAD_CALLBACK_CTOCPP_H_
@@ -35,7 +35,7 @@ class CefBeforeDownloadCallbackCToCpp
   virtual ~CefBeforeDownloadCallbackCToCpp();
 
   // CefBeforeDownloadCallback methods.
-  void Continue(const CefString& download_path, bool show_dialog) OVERRIDE;
+  void Continue(const CefString& download_path, bool show_dialog) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BEFORE_DOWNLOAD_CALLBACK_CTOCPP_H_

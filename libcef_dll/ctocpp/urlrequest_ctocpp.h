@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7751e600cb13017cbdfac3eae39dc7c94d2afec9$
+// $hash=7d81111a5bee29ff62a7778678e72085f9bd97d5$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_URLREQUEST_CTOCPP_H_
@@ -34,13 +34,13 @@ class CefURLRequestCToCpp : public CefCToCppRefCounted<CefURLRequestCToCpp,
   virtual ~CefURLRequestCToCpp();
 
   // CefURLRequest methods.
-  CefRefPtr<CefRequest> GetRequest() OVERRIDE;
-  CefRefPtr<CefURLRequestClient> GetClient() OVERRIDE;
-  Status GetRequestStatus() OVERRIDE;
-  ErrorCode GetRequestError() OVERRIDE;
-  CefRefPtr<CefResponse> GetResponse() OVERRIDE;
-  bool ResponseWasCached() OVERRIDE;
-  void Cancel() OVERRIDE;
+  CefRefPtr<CefRequest> GetRequest() override;
+  CefRefPtr<CefURLRequestClient> GetClient() override;
+  Status GetRequestStatus() override;
+  ErrorCode GetRequestError() override;
+  CefRefPtr<CefResponse> GetResponse() override;
+  bool ResponseWasCached() override;
+  void Cancel() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_URLREQUEST_CTOCPP_H_

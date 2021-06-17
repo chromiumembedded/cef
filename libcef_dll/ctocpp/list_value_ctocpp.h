@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=643127d0c9772dbab1980c797ceef47a12f00f48$
+// $hash=c73d2be6db899adb20faa9e1e6d6bf095f9ef2f0$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_LIST_VALUE_CTOCPP_H_
@@ -34,35 +34,35 @@ class CefListValueCToCpp : public CefCToCppRefCounted<CefListValueCToCpp,
   virtual ~CefListValueCToCpp();
 
   // CefListValue methods.
-  bool IsValid() OVERRIDE;
-  bool IsOwned() OVERRIDE;
-  bool IsReadOnly() OVERRIDE;
-  bool IsSame(CefRefPtr<CefListValue> that) OVERRIDE;
-  bool IsEqual(CefRefPtr<CefListValue> that) OVERRIDE;
-  CefRefPtr<CefListValue> Copy() OVERRIDE;
-  bool SetSize(size_t size) OVERRIDE;
-  size_t GetSize() OVERRIDE;
-  bool Clear() OVERRIDE;
-  bool Remove(size_t index) OVERRIDE;
-  CefValueType GetType(size_t index) OVERRIDE;
-  CefRefPtr<CefValue> GetValue(size_t index) OVERRIDE;
-  bool GetBool(size_t index) OVERRIDE;
-  int GetInt(size_t index) OVERRIDE;
-  double GetDouble(size_t index) OVERRIDE;
-  CefString GetString(size_t index) OVERRIDE;
-  CefRefPtr<CefBinaryValue> GetBinary(size_t index) OVERRIDE;
-  CefRefPtr<CefDictionaryValue> GetDictionary(size_t index) OVERRIDE;
-  CefRefPtr<CefListValue> GetList(size_t index) OVERRIDE;
-  bool SetValue(size_t index, CefRefPtr<CefValue> value) OVERRIDE;
-  bool SetNull(size_t index) OVERRIDE;
-  bool SetBool(size_t index, bool value) OVERRIDE;
-  bool SetInt(size_t index, int value) OVERRIDE;
-  bool SetDouble(size_t index, double value) OVERRIDE;
-  bool SetString(size_t index, const CefString& value) OVERRIDE;
-  bool SetBinary(size_t index, CefRefPtr<CefBinaryValue> value) OVERRIDE;
+  bool IsValid() override;
+  bool IsOwned() override;
+  bool IsReadOnly() override;
+  bool IsSame(CefRefPtr<CefListValue> that) override;
+  bool IsEqual(CefRefPtr<CefListValue> that) override;
+  CefRefPtr<CefListValue> Copy() override;
+  bool SetSize(size_t size) override;
+  size_t GetSize() override;
+  bool Clear() override;
+  bool Remove(size_t index) override;
+  CefValueType GetType(size_t index) override;
+  CefRefPtr<CefValue> GetValue(size_t index) override;
+  bool GetBool(size_t index) override;
+  int GetInt(size_t index) override;
+  double GetDouble(size_t index) override;
+  CefString GetString(size_t index) override;
+  CefRefPtr<CefBinaryValue> GetBinary(size_t index) override;
+  CefRefPtr<CefDictionaryValue> GetDictionary(size_t index) override;
+  CefRefPtr<CefListValue> GetList(size_t index) override;
+  bool SetValue(size_t index, CefRefPtr<CefValue> value) override;
+  bool SetNull(size_t index) override;
+  bool SetBool(size_t index, bool value) override;
+  bool SetInt(size_t index, int value) override;
+  bool SetDouble(size_t index, double value) override;
+  bool SetString(size_t index, const CefString& value) override;
+  bool SetBinary(size_t index, CefRefPtr<CefBinaryValue> value) override;
   bool SetDictionary(size_t index,
-                     CefRefPtr<CefDictionaryValue> value) OVERRIDE;
-  bool SetList(size_t index, CefRefPtr<CefListValue> value) OVERRIDE;
+                     CefRefPtr<CefDictionaryValue> value) override;
+  bool SetList(size_t index, CefRefPtr<CefListValue> value) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_LIST_VALUE_CTOCPP_H_

@@ -230,7 +230,7 @@ class ClientDownloadImageCallback : public CefDownloadImageCallback {
 
   void OnDownloadImageFinished(const CefString& image_url,
                                int http_status_code,
-                               CefRefPtr<CefImage> image) OVERRIDE {
+                               CefRefPtr<CefImage> image) override {
     if (image)
       client_handler_->NotifyFavicon(image);
   }

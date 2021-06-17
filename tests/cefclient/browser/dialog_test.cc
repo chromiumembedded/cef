@@ -46,7 +46,7 @@ class DialogCallback : public CefRunFileDialogCallback {
 
   virtual void OnFileDialogDismissed(
       int last_selected_filter,
-      const std::vector<CefString>& file_paths) OVERRIDE {
+      const std::vector<CefString>& file_paths) override {
     CEF_REQUIRE_UI_THREAD();
     DCHECK(dialog_state_->pending_);
 
@@ -100,7 +100,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
                        int64 query_id,
                        const CefString& request,
                        bool persistent,
-                       CefRefPtr<Callback> callback) OVERRIDE {
+                       CefRefPtr<Callback> callback) override {
     CEF_REQUIRE_UI_THREAD();
 
     // Only handle messages from the test URL.

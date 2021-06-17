@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2741cab25f5633f178ba1f924abe58e418f1f084$
+// $hash=b543831782043e1651b8adfa907a60b553267ca7$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BUTTON_CTOCPP_H_
@@ -35,62 +35,62 @@ class CefButtonCToCpp
   virtual ~CefButtonCToCpp();
 
   // CefButton methods.
-  CefRefPtr<CefLabelButton> AsLabelButton() OVERRIDE;
-  void SetState(cef_button_state_t state) OVERRIDE;
-  cef_button_state_t GetState() OVERRIDE;
-  void SetInkDropEnabled(bool enabled) OVERRIDE;
-  void SetTooltipText(const CefString& tooltip_text) OVERRIDE;
-  void SetAccessibleName(const CefString& name) OVERRIDE;
+  CefRefPtr<CefLabelButton> AsLabelButton() override;
+  void SetState(cef_button_state_t state) override;
+  cef_button_state_t GetState() override;
+  void SetInkDropEnabled(bool enabled) override;
+  void SetTooltipText(const CefString& tooltip_text) override;
+  void SetAccessibleName(const CefString& name) override;
 
   // CefView methods.
-  CefRefPtr<CefBrowserView> AsBrowserView() OVERRIDE;
-  CefRefPtr<CefButton> AsButton() OVERRIDE;
-  CefRefPtr<CefPanel> AsPanel() OVERRIDE;
-  CefRefPtr<CefScrollView> AsScrollView() OVERRIDE;
-  CefRefPtr<CefTextfield> AsTextfield() OVERRIDE;
-  CefString GetTypeString() OVERRIDE;
-  CefString ToString(bool include_children) OVERRIDE;
-  bool IsValid() OVERRIDE;
-  bool IsAttached() OVERRIDE;
-  bool IsSame(CefRefPtr<CefView> that) OVERRIDE;
-  CefRefPtr<CefViewDelegate> GetDelegate() OVERRIDE;
-  CefRefPtr<CefWindow> GetWindow() OVERRIDE;
-  int GetID() OVERRIDE;
-  void SetID(int id) OVERRIDE;
-  int GetGroupID() OVERRIDE;
-  void SetGroupID(int group_id) OVERRIDE;
-  CefRefPtr<CefView> GetParentView() OVERRIDE;
-  CefRefPtr<CefView> GetViewForID(int id) OVERRIDE;
-  void SetBounds(const CefRect& bounds) OVERRIDE;
-  CefRect GetBounds() OVERRIDE;
-  CefRect GetBoundsInScreen() OVERRIDE;
-  void SetSize(const CefSize& size) OVERRIDE;
-  CefSize GetSize() OVERRIDE;
-  void SetPosition(const CefPoint& position) OVERRIDE;
-  CefPoint GetPosition() OVERRIDE;
-  CefSize GetPreferredSize() OVERRIDE;
-  void SizeToPreferredSize() OVERRIDE;
-  CefSize GetMinimumSize() OVERRIDE;
-  CefSize GetMaximumSize() OVERRIDE;
-  int GetHeightForWidth(int width) OVERRIDE;
-  void InvalidateLayout() OVERRIDE;
-  void SetVisible(bool visible) OVERRIDE;
-  bool IsVisible() OVERRIDE;
-  bool IsDrawn() OVERRIDE;
-  void SetEnabled(bool enabled) OVERRIDE;
-  bool IsEnabled() OVERRIDE;
-  void SetFocusable(bool focusable) OVERRIDE;
-  bool IsFocusable() OVERRIDE;
-  bool IsAccessibilityFocusable() OVERRIDE;
-  void RequestFocus() OVERRIDE;
-  void SetBackgroundColor(cef_color_t color) OVERRIDE;
-  cef_color_t GetBackgroundColor() OVERRIDE;
-  bool ConvertPointToScreen(CefPoint& point) OVERRIDE;
-  bool ConvertPointFromScreen(CefPoint& point) OVERRIDE;
-  bool ConvertPointToWindow(CefPoint& point) OVERRIDE;
-  bool ConvertPointFromWindow(CefPoint& point) OVERRIDE;
-  bool ConvertPointToView(CefRefPtr<CefView> view, CefPoint& point) OVERRIDE;
-  bool ConvertPointFromView(CefRefPtr<CefView> view, CefPoint& point) OVERRIDE;
+  CefRefPtr<CefBrowserView> AsBrowserView() override;
+  CefRefPtr<CefButton> AsButton() override;
+  CefRefPtr<CefPanel> AsPanel() override;
+  CefRefPtr<CefScrollView> AsScrollView() override;
+  CefRefPtr<CefTextfield> AsTextfield() override;
+  CefString GetTypeString() override;
+  CefString ToString(bool include_children) override;
+  bool IsValid() override;
+  bool IsAttached() override;
+  bool IsSame(CefRefPtr<CefView> that) override;
+  CefRefPtr<CefViewDelegate> GetDelegate() override;
+  CefRefPtr<CefWindow> GetWindow() override;
+  int GetID() override;
+  void SetID(int id) override;
+  int GetGroupID() override;
+  void SetGroupID(int group_id) override;
+  CefRefPtr<CefView> GetParentView() override;
+  CefRefPtr<CefView> GetViewForID(int id) override;
+  void SetBounds(const CefRect& bounds) override;
+  CefRect GetBounds() override;
+  CefRect GetBoundsInScreen() override;
+  void SetSize(const CefSize& size) override;
+  CefSize GetSize() override;
+  void SetPosition(const CefPoint& position) override;
+  CefPoint GetPosition() override;
+  CefSize GetPreferredSize() override;
+  void SizeToPreferredSize() override;
+  CefSize GetMinimumSize() override;
+  CefSize GetMaximumSize() override;
+  int GetHeightForWidth(int width) override;
+  void InvalidateLayout() override;
+  void SetVisible(bool visible) override;
+  bool IsVisible() override;
+  bool IsDrawn() override;
+  void SetEnabled(bool enabled) override;
+  bool IsEnabled() override;
+  void SetFocusable(bool focusable) override;
+  bool IsFocusable() override;
+  bool IsAccessibilityFocusable() override;
+  void RequestFocus() override;
+  void SetBackgroundColor(cef_color_t color) override;
+  cef_color_t GetBackgroundColor() override;
+  bool ConvertPointToScreen(CefPoint& point) override;
+  bool ConvertPointFromScreen(CefPoint& point) override;
+  bool ConvertPointToWindow(CefPoint& point) override;
+  bool ConvertPointFromWindow(CefPoint& point) override;
+  bool ConvertPointToView(CefRefPtr<CefView> view, CefPoint& point) override;
+  bool ConvertPointFromView(CefRefPtr<CefView> view, CefPoint& point) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_VIEWS_BUTTON_CTOCPP_H_

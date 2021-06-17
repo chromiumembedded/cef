@@ -118,18 +118,18 @@ class BrowserWindow : public ClientHandler::Delegate {
   explicit BrowserWindow(Delegate* delegate);
 
   // ClientHandler::Delegate methods.
-  void OnBrowserCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  void OnBrowserClosing(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  void OnBrowserClosed(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  void OnSetAddress(const std::string& url) OVERRIDE;
-  void OnSetTitle(const std::string& title) OVERRIDE;
-  void OnSetFullscreen(bool fullscreen) OVERRIDE;
-  void OnAutoResize(const CefSize& new_size) OVERRIDE;
+  void OnBrowserCreated(CefRefPtr<CefBrowser> browser) override;
+  void OnBrowserClosing(CefRefPtr<CefBrowser> browser) override;
+  void OnBrowserClosed(CefRefPtr<CefBrowser> browser) override;
+  void OnSetAddress(const std::string& url) override;
+  void OnSetTitle(const std::string& title) override;
+  void OnSetFullscreen(bool fullscreen) override;
+  void OnAutoResize(const CefSize& new_size) override;
   void OnSetLoadingState(bool isLoading,
                          bool canGoBack,
-                         bool canGoForward) OVERRIDE;
+                         bool canGoForward) override;
   void OnSetDraggableRegions(
-      const std::vector<CefDraggableRegion>& regions) OVERRIDE;
+      const std::vector<CefDraggableRegion>& regions) override;
 
   Delegate* delegate_;
   CefRefPtr<CefBrowser> browser_;

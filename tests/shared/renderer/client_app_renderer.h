@@ -80,34 +80,34 @@ class ClientAppRenderer : public ClientApp, public CefRenderProcessHandler {
   static void CreateDelegates(DelegateSet& delegates);
 
   // CefApp methods.
-  CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() OVERRIDE {
+  CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() override {
     return this;
   }
 
   // CefRenderProcessHandler methods.
-  void OnWebKitInitialized() OVERRIDE;
+  void OnWebKitInitialized() override;
   void OnBrowserCreated(CefRefPtr<CefBrowser> browser,
-                        CefRefPtr<CefDictionaryValue> extra_info) OVERRIDE;
-  void OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE;
+                        CefRefPtr<CefDictionaryValue> extra_info) override;
+  void OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) override;
+  CefRefPtr<CefLoadHandler> GetLoadHandler() override;
   void OnContextCreated(CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefFrame> frame,
-                        CefRefPtr<CefV8Context> context) OVERRIDE;
+                        CefRefPtr<CefV8Context> context) override;
   void OnContextReleased(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
-                         CefRefPtr<CefV8Context> context) OVERRIDE;
+                         CefRefPtr<CefV8Context> context) override;
   void OnUncaughtException(CefRefPtr<CefBrowser> browser,
                            CefRefPtr<CefFrame> frame,
                            CefRefPtr<CefV8Context> context,
                            CefRefPtr<CefV8Exception> exception,
-                           CefRefPtr<CefV8StackTrace> stackTrace) OVERRIDE;
+                           CefRefPtr<CefV8StackTrace> stackTrace) override;
   void OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
                             CefRefPtr<CefFrame> frame,
-                            CefRefPtr<CefDOMNode> node) OVERRIDE;
+                            CefRefPtr<CefDOMNode> node) override;
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
-                                CefRefPtr<CefProcessMessage> message) OVERRIDE;
+                                CefRefPtr<CefProcessMessage> message) override;
 
  private:
   // Set of supported Delegates.

@@ -65,7 +65,7 @@ class MediaRouteCreateCallback : public CefMediaRouteCreateCallback {
   // CefMediaRouteCreateCallback method:
   void OnMediaRouteCreateFinished(RouteCreateResult result,
                                   const CefString& error,
-                                  CefRefPtr<CefMediaRoute> route) OVERRIDE {
+                                  CefRefPtr<CefMediaRoute> route) override {
     CEF_REQUIRE_UI_THREAD();
     if (result == CEF_MRCR_OK) {
       CefRefPtr<CefDictionaryValue> dict = CefDictionaryValue::Create();
@@ -98,7 +98,7 @@ class MediaObserver : public CefMediaObserver {
         pending_sink_query_id_(-1),
         pending_sink_callbacks_(0U) {}
 
-  ~MediaObserver() OVERRIDE { ClearSinkInfoMap(); }
+  ~MediaObserver() override { ClearSinkInfoMap(); }
 
   bool CreateRoute(const std::string& source_urn,
                    const std::string& sink_id,
@@ -157,7 +157,7 @@ class MediaObserver : public CefMediaObserver {
         : sink_id_(sink_id), callback_(callback) {}
 
     void OnMediaSinkDeviceInfo(
-        const CefMediaSinkDeviceInfo& device_info) OVERRIDE {
+        const CefMediaSinkDeviceInfo& device_info) override {
       CEF_REQUIRE_UI_THREAD();
       callback_.Run(sink_id_, device_info);
       callback_.Reset();
@@ -172,7 +172,7 @@ class MediaObserver : public CefMediaObserver {
   };
 
   // CefMediaObserver methods:
-  void OnSinks(const MediaSinkVector& sinks) OVERRIDE {
+  void OnSinks(const MediaSinkVector& sinks) override {
     CEF_REQUIRE_UI_THREAD();
 
     ClearSinkInfoMap();
@@ -204,7 +204,7 @@ class MediaObserver : public CefMediaObserver {
     }
   }
 
-  void OnRoutes(const MediaRouteVector& routes) OVERRIDE {
+  void OnRoutes(const MediaRouteVector& routes) override {
     CEF_REQUIRE_UI_THREAD();
 
     route_map_.clear();
@@ -231,7 +231,7 @@ class MediaObserver : public CefMediaObserver {
   }
 
   void OnRouteStateChanged(CefRefPtr<CefMediaRoute> route,
-                           ConnectionState state) OVERRIDE {
+                           ConnectionState state) override {
     CEF_REQUIRE_UI_THREAD();
 
     CefRefPtr<CefDictionaryValue> payload = CefDictionaryValue::Create();
@@ -242,7 +242,7 @@ class MediaObserver : public CefMediaObserver {
 
   void OnRouteMessageReceived(CefRefPtr<CefMediaRoute> route,
                               const void* message,
-                              size_t message_size) OVERRIDE {
+                              size_t message_size) override {
     CEF_REQUIRE_UI_THREAD();
 
     std::string message_str(static_cast<const char*>(message), message_size);
@@ -386,7 +386,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
                int64 query_id,
                const CefString& request,
                bool persistent,
-               CefRefPtr<Callback> callback) OVERRIDE {
+               CefRefPtr<Callback> callback) override {
     CEF_REQUIRE_UI_THREAD();
 
     // Only handle messages from the test URL.
@@ -490,7 +490,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
   void OnQueryCanceled(CefRefPtr<CefBrowser> browser,
                        CefRefPtr<CefFrame> frame,
-                       int64 query_id) OVERRIDE {
+                       int64 query_id) override {
     CEF_REQUIRE_UI_THREAD();
     RemoveSubscription(browser->GetIdentifier(), query_id);
   }

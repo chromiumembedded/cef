@@ -23,17 +23,17 @@ class MainMessageLoopExternalPumpWin : public MainMessageLoopExternalPump {
   ~MainMessageLoopExternalPumpWin();
 
   // MainMessageLoopStd methods:
-  void Quit() OVERRIDE;
-  int Run() OVERRIDE;
+  void Quit() override;
+  int Run() override;
 
   // MainMessageLoopExternalPump methods:
-  void OnScheduleMessagePumpWork(int64 delay_ms) OVERRIDE;
+  void OnScheduleMessagePumpWork(int64 delay_ms) override;
 
  protected:
   // MainMessageLoopExternalPump methods:
-  void SetTimer(int64 delay_ms) OVERRIDE;
-  void KillTimer() OVERRIDE;
-  bool IsTimerPending() OVERRIDE { return timer_pending_; }
+  void SetTimer(int64 delay_ms) override;
+  void KillTimer() override;
+  bool IsTimerPending() override { return timer_pending_; }
 
  private:
   static LRESULT CALLBACK WndProc(HWND hwnd,

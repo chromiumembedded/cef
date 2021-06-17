@@ -31,7 +31,7 @@ class ClientRequestContextHandler : public CefRequestContextHandler,
                           bool is_main_frame,
                           const CefString& top_origin_url,
                           CefRefPtr<CefWebPluginInfo> plugin_info,
-                          PluginPolicy* plugin_policy) OVERRIDE {
+                          PluginPolicy* plugin_policy) override {
     // Always allow the PDF plugin to load.
     if (*plugin_policy != PLUGIN_POLICY_ALLOW &&
         mime_type == "application/pdf") {
@@ -43,7 +43,7 @@ class ClientRequestContextHandler : public CefRequestContextHandler,
   }
 
   void OnRequestContextInitialized(
-      CefRefPtr<CefRequestContext> request_context) OVERRIDE {
+      CefRefPtr<CefRequestContext> request_context) override {
     CEF_REQUIRE_UI_THREAD();
 
     CefRefPtr<CefCommandLine> command_line =
@@ -75,14 +75,14 @@ class ClientRequestContextHandler : public CefRequestContextHandler,
   }
 
   // CefExtensionHandler methods:
-  void OnExtensionLoaded(CefRefPtr<CefExtension> extension) OVERRIDE {
+  void OnExtensionLoaded(CefRefPtr<CefExtension> extension) override {
     CEF_REQUIRE_UI_THREAD();
     MainContext::Get()->GetRootWindowManager()->AddExtension(extension);
   }
 
   CefRefPtr<CefBrowser> GetActiveBrowser(CefRefPtr<CefExtension> extension,
                                          CefRefPtr<CefBrowser> browser,
-                                         bool include_incognito) OVERRIDE {
+                                         bool include_incognito) override {
     CEF_REQUIRE_UI_THREAD();
 
     // Return the browser for the active/foreground window.

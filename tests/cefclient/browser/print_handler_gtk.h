@@ -19,20 +19,20 @@ class ClientPrintHandlerGtk : public CefPrintHandler {
   virtual ~ClientPrintHandlerGtk();
 
   // CefPrintHandler methods.
-  void OnPrintStart(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  void OnPrintStart(CefRefPtr<CefBrowser> browser) override;
   void OnPrintSettings(CefRefPtr<CefBrowser> browser,
                        CefRefPtr<CefPrintSettings> settings,
-                       bool get_defaults) OVERRIDE;
+                       bool get_defaults) override;
   bool OnPrintDialog(CefRefPtr<CefBrowser> browser,
                      bool has_selection,
-                     CefRefPtr<CefPrintDialogCallback> callback) OVERRIDE;
+                     CefRefPtr<CefPrintDialogCallback> callback) override;
   bool OnPrintJob(CefRefPtr<CefBrowser> browser,
                   const CefString& document_name,
                   const CefString& pdf_file_path,
-                  CefRefPtr<CefPrintJobCallback> callback) OVERRIDE;
-  void OnPrintReset(CefRefPtr<CefBrowser> browser) OVERRIDE;
+                  CefRefPtr<CefPrintJobCallback> callback) override;
+  void OnPrintReset(CefRefPtr<CefBrowser> browser) override;
   CefSize GetPdfPaperSize(CefRefPtr<CefBrowser> browser,
-                          int device_units_per_inch) OVERRIDE;
+                          int device_units_per_inch) override;
 
  private:
   // Print handler.

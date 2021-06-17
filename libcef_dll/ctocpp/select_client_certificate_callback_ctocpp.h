@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=868c4d33bd4776ca5f2044d2707f2a78f16bd074$
+// $hash=b7a7db875552563fc36a922f280f61611284ad6c$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_SELECT_CLIENT_CERTIFICATE_CALLBACK_CTOCPP_H_
@@ -35,7 +35,7 @@ class CefSelectClientCertificateCallbackCToCpp
   virtual ~CefSelectClientCertificateCallbackCToCpp();
 
   // CefSelectClientCertificateCallback methods.
-  void Select(CefRefPtr<CefX509Certificate> cert) OVERRIDE;
+  void Select(CefRefPtr<CefX509Certificate> cert) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_SELECT_CLIENT_CERTIFICATE_CALLBACK_CTOCPP_H_

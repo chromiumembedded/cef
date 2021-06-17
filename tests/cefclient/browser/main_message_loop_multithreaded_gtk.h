@@ -26,10 +26,10 @@ class MainMessageLoopMultithreadedGtk : public MainMessageLoop {
   ~MainMessageLoopMultithreadedGtk();
 
   // MainMessageLoop methods.
-  int Run() OVERRIDE;
-  void Quit() OVERRIDE;
-  void PostTask(CefRefPtr<CefTask> task) OVERRIDE;
-  bool RunsTasksOnCurrentThread() const OVERRIDE;
+  int Run() override;
+  void Quit() override;
+  void PostTask(CefRefPtr<CefTask> task) override;
+  bool RunsTasksOnCurrentThread() const override;
 
  private:
   static int TriggerRunTasks(void* self);

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e5f6f5e49687972c21461aa8055a17aa73d9f5dc$
+// $hash=a42a14c436bb2c32de18d7c5b9a1e3a5b76db0b3$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RESOURCE_SKIP_CALLBACK_CTOCPP_H_
@@ -35,7 +35,7 @@ class CefResourceSkipCallbackCToCpp
   virtual ~CefResourceSkipCallbackCToCpp();
 
   // CefResourceSkipCallback methods.
-  void Continue(int64 bytes_skipped) OVERRIDE;
+  void Continue(int64 bytes_skipped) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_RESOURCE_SKIP_CALLBACK_CTOCPP_H_

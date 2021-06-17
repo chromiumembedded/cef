@@ -997,7 +997,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Get(const CefString& name,
                        const CefRefPtr<CefV8Value> object,
                        CefRefPtr<CefV8Value>& retval,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         EXPECT_TRUE(name.ToString() == kName1 || name.ToString() == kName2 ||
                     name.ToString() == kName3);
 
@@ -1024,7 +1024,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Get(int index,
                        const CefRefPtr<CefV8Value> object,
                        CefRefPtr<CefV8Value>& retval,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         EXPECT_TRUE(index >= 0 && index < 3);
 
         EXPECT_TRUE(object.get());
@@ -1042,7 +1042,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Set(const CefString& name,
                        const CefRefPtr<CefV8Value> object,
                        const CefRefPtr<CefV8Value> value,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         EXPECT_TRUE(name.ToString() == kName1 || name.ToString() == kName2 ||
                     name.ToString() == kName3);
 
@@ -1069,7 +1069,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Set(int index,
                        const CefRefPtr<CefV8Value> object,
                        const CefRefPtr<CefV8Value> value,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         EXPECT_TRUE(index >= 0 && index < 3);
 
         EXPECT_TRUE(object.get());
@@ -1199,7 +1199,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Get(const CefString& name,
                        const CefRefPtr<CefV8Value> object,
                        CefRefPtr<CefV8Value>& retval,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         got_get_byname_.yes();
         StringMap::iterator it = string_map_.find(name.ToString());
         if (it != string_map_.end()) {
@@ -1211,7 +1211,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Get(int index,
                        const CefRefPtr<CefV8Value> object,
                        CefRefPtr<CefV8Value>& retval,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         got_get_byindex_.yes();
         IntMap::iterator it = int_map_.find(index);
         if (it != int_map_.end()) {
@@ -1223,7 +1223,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Set(const CefString& name,
                        const CefRefPtr<CefV8Value> object,
                        const CefRefPtr<CefV8Value> value,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         EXPECT_TRUE(value->IsInt());
         got_set_byname_.yes();
         string_map_[name.ToString()] = value->GetIntValue();
@@ -1233,7 +1233,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Set(int index,
                        const CefRefPtr<CefV8Value> object,
                        const CefRefPtr<CefV8Value> value,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         EXPECT_TRUE(value->IsInt());
         got_set_byindex_.yes();
         int_map_[index] = value->GetIntValue();
@@ -1337,7 +1337,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Get(const CefString& name,
                        const CefRefPtr<CefV8Value> object,
                        CefRefPtr<CefV8Value>& retval,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         got_get_byname_.yes();
         exception = kGetByNameException;
         return true;
@@ -1346,7 +1346,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Get(int index,
                        const CefRefPtr<CefV8Value> object,
                        CefRefPtr<CefV8Value>& retval,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         got_get_byindex_.yes();
         exception = kGetByIndexException;
         return true;
@@ -1355,7 +1355,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Set(const CefString& name,
                        const CefRefPtr<CefV8Value> object,
                        const CefRefPtr<CefV8Value> value,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         got_set_byname_.yes();
         exception = kSetByNameException;
         return true;
@@ -1364,7 +1364,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Set(int index,
                        const CefRefPtr<CefV8Value> object,
                        const CefRefPtr<CefV8Value> value,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         got_set_byindex_.yes();
         exception = kSetByIndexException;
         return true;
@@ -1453,7 +1453,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Get(const CefString& name,
                        const CefRefPtr<CefV8Value> object,
                        CefRefPtr<CefV8Value>& retval,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         EXPECT_FALSE(retval.get());
         got_get_byname_.yes();
         if (name.ToString() == kInterceptorName) {
@@ -1465,7 +1465,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Get(int index,
                        const CefRefPtr<CefV8Value> object,
                        CefRefPtr<CefV8Value>& retval,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         got_get_byindex_.yes();
         return true;
       }
@@ -1473,7 +1473,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Set(const CefString& name,
                        const CefRefPtr<CefV8Value> object,
                        const CefRefPtr<CefV8Value> value,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         got_set_byname_.yes();
         return true;
       }
@@ -1481,7 +1481,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Set(int index,
                        const CefRefPtr<CefV8Value> object,
                        const CefRefPtr<CefV8Value> value,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         got_set_byindex_.yes();
         return true;
       }
@@ -1500,7 +1500,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Get(const CefString& name,
                        const CefRefPtr<CefV8Value> object,
                        CefRefPtr<CefV8Value>& retval,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         got_get_.yes();
         retval = CefV8Value::CreateInt(kAccessorValue);
         return true;
@@ -1509,7 +1509,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       virtual bool Set(const CefString& name,
                        const CefRefPtr<CefV8Value> object,
                        const CefRefPtr<CefV8Value> value,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
         got_set_.yes();
         return true;
       }

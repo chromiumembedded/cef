@@ -25,11 +25,11 @@ class MainMessageLoopMultithreadedWin : public MainMessageLoop {
   ~MainMessageLoopMultithreadedWin();
 
   // MainMessageLoop methods.
-  int Run() OVERRIDE;
-  void Quit() OVERRIDE;
-  void PostTask(CefRefPtr<CefTask> task) OVERRIDE;
-  bool RunsTasksOnCurrentThread() const OVERRIDE;
-  void SetCurrentModelessDialog(HWND hWndDialog) OVERRIDE;
+  int Run() override;
+  void Quit() override;
+  void PostTask(CefRefPtr<CefTask> task) override;
+  bool RunsTasksOnCurrentThread() const override;
+  void SetCurrentModelessDialog(HWND hWndDialog) override;
 
  private:
   // Create the message window.

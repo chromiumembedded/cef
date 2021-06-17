@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=293e9949e304f81acfd28e41be9b43000feb2bca$
+// $hash=21dabd0e5523be4bcb1b2256cd0392142d9e0eb7$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8STACK_TRACE_CTOCPP_H_
@@ -34,9 +34,9 @@ class CefV8StackTraceCToCpp : public CefCToCppRefCounted<CefV8StackTraceCToCpp,
   virtual ~CefV8StackTraceCToCpp();
 
   // CefV8StackTrace methods.
-  bool IsValid() OVERRIDE;
-  int GetFrameCount() OVERRIDE;
-  CefRefPtr<CefV8StackFrame> GetFrame(int index) OVERRIDE;
+  bool IsValid() override;
+  int GetFrameCount() override;
+  CefRefPtr<CefV8StackFrame> GetFrame(int index) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_V8STACK_TRACE_CTOCPP_H_

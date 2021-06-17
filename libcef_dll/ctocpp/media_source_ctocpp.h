@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0f4a7c8d49d309dfcd2bbb739d0497c9e805678b$
+// $hash=004e00a9ab65a362343bd3df93bc6f32b6445611$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_MEDIA_SOURCE_CTOCPP_H_
@@ -34,9 +34,9 @@ class CefMediaSourceCToCpp : public CefCToCppRefCounted<CefMediaSourceCToCpp,
   virtual ~CefMediaSourceCToCpp();
 
   // CefMediaSource methods.
-  CefString GetId() OVERRIDE;
-  bool IsCastSource() OVERRIDE;
-  bool IsDialSource() OVERRIDE;
+  CefString GetId() override;
+  bool IsCastSource() override;
+  bool IsDialSource() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_MEDIA_SOURCE_CTOCPP_H_

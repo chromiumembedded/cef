@@ -12,7 +12,7 @@ class CefClosureTask : public CefTask {
   explicit CefClosureTask(const base::Closure& closure) : closure_(closure) {}
 
   // CefTask method
-  virtual void Execute() OVERRIDE {
+  virtual void Execute() override {
     closure_.Run();
     closure_.Reset();
   }

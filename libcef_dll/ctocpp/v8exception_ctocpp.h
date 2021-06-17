@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b6fc50fa3a6e0156743a5c3fce97b1a683e1720a$
+// $hash=a2b61cff85a5bf35797134b63606e4a043003f45$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8EXCEPTION_CTOCPP_H_
@@ -34,14 +34,14 @@ class CefV8ExceptionCToCpp : public CefCToCppRefCounted<CefV8ExceptionCToCpp,
   virtual ~CefV8ExceptionCToCpp();
 
   // CefV8Exception methods.
-  CefString GetMessage() OVERRIDE;
-  CefString GetSourceLine() OVERRIDE;
-  CefString GetScriptResourceName() OVERRIDE;
-  int GetLineNumber() OVERRIDE;
-  int GetStartPosition() OVERRIDE;
-  int GetEndPosition() OVERRIDE;
-  int GetStartColumn() OVERRIDE;
-  int GetEndColumn() OVERRIDE;
+  CefString GetMessage() override;
+  CefString GetSourceLine() override;
+  CefString GetScriptResourceName() override;
+  int GetLineNumber() override;
+  int GetStartPosition() override;
+  int GetEndPosition() override;
+  int GetStartColumn() override;
+  int GetEndColumn() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_V8EXCEPTION_CTOCPP_H_

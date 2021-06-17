@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ba444818045821388677e80af1f848b3938a7f1b$
+// $hash=d45a64d75c33d05c4fc07445cb809d6eedd9a597$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_XML_READER_CTOCPP_H_
@@ -34,37 +34,37 @@ class CefXmlReaderCToCpp : public CefCToCppRefCounted<CefXmlReaderCToCpp,
   virtual ~CefXmlReaderCToCpp();
 
   // CefXmlReader methods.
-  bool MoveToNextNode() OVERRIDE;
-  bool Close() OVERRIDE;
-  bool HasError() OVERRIDE;
-  CefString GetError() OVERRIDE;
-  NodeType GetType() OVERRIDE;
-  int GetDepth() OVERRIDE;
-  CefString GetLocalName() OVERRIDE;
-  CefString GetPrefix() OVERRIDE;
-  CefString GetQualifiedName() OVERRIDE;
-  CefString GetNamespaceURI() OVERRIDE;
-  CefString GetBaseURI() OVERRIDE;
-  CefString GetXmlLang() OVERRIDE;
-  bool IsEmptyElement() OVERRIDE;
-  bool HasValue() OVERRIDE;
-  CefString GetValue() OVERRIDE;
-  bool HasAttributes() OVERRIDE;
-  size_t GetAttributeCount() OVERRIDE;
-  CefString GetAttribute(int index) OVERRIDE;
-  CefString GetAttribute(const CefString& qualifiedName) OVERRIDE;
+  bool MoveToNextNode() override;
+  bool Close() override;
+  bool HasError() override;
+  CefString GetError() override;
+  NodeType GetType() override;
+  int GetDepth() override;
+  CefString GetLocalName() override;
+  CefString GetPrefix() override;
+  CefString GetQualifiedName() override;
+  CefString GetNamespaceURI() override;
+  CefString GetBaseURI() override;
+  CefString GetXmlLang() override;
+  bool IsEmptyElement() override;
+  bool HasValue() override;
+  CefString GetValue() override;
+  bool HasAttributes() override;
+  size_t GetAttributeCount() override;
+  CefString GetAttribute(int index) override;
+  CefString GetAttribute(const CefString& qualifiedName) override;
   CefString GetAttribute(const CefString& localName,
-                         const CefString& namespaceURI) OVERRIDE;
-  CefString GetInnerXml() OVERRIDE;
-  CefString GetOuterXml() OVERRIDE;
-  int GetLineNumber() OVERRIDE;
-  bool MoveToAttribute(int index) OVERRIDE;
-  bool MoveToAttribute(const CefString& qualifiedName) OVERRIDE;
+                         const CefString& namespaceURI) override;
+  CefString GetInnerXml() override;
+  CefString GetOuterXml() override;
+  int GetLineNumber() override;
+  bool MoveToAttribute(int index) override;
+  bool MoveToAttribute(const CefString& qualifiedName) override;
   bool MoveToAttribute(const CefString& localName,
-                       const CefString& namespaceURI) OVERRIDE;
-  bool MoveToFirstAttribute() OVERRIDE;
-  bool MoveToNextAttribute() OVERRIDE;
-  bool MoveToCarryingElement() OVERRIDE;
+                       const CefString& namespaceURI) override;
+  bool MoveToFirstAttribute() override;
+  bool MoveToNextAttribute() override;
+  bool MoveToCarryingElement() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_XML_READER_CTOCPP_H_

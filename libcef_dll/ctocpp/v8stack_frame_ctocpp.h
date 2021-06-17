@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d8338dcb3a42fe51b2be32870283801bf5c3367b$
+// $hash=6287d21581cc9cf0593134eaa1de4dd97628f495$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8STACK_FRAME_CTOCPP_H_
@@ -34,14 +34,14 @@ class CefV8StackFrameCToCpp : public CefCToCppRefCounted<CefV8StackFrameCToCpp,
   virtual ~CefV8StackFrameCToCpp();
 
   // CefV8StackFrame methods.
-  bool IsValid() OVERRIDE;
-  CefString GetScriptName() OVERRIDE;
-  CefString GetScriptNameOrSourceURL() OVERRIDE;
-  CefString GetFunctionName() OVERRIDE;
-  int GetLineNumber() OVERRIDE;
-  int GetColumn() OVERRIDE;
-  bool IsEval() OVERRIDE;
-  bool IsConstructor() OVERRIDE;
+  bool IsValid() override;
+  CefString GetScriptName() override;
+  CefString GetScriptNameOrSourceURL() override;
+  CefString GetFunctionName() override;
+  int GetLineNumber() override;
+  int GetColumn() override;
+  bool IsEval() override;
+  bool IsConstructor() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_V8STACK_FRAME_CTOCPP_H_

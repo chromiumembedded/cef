@@ -84,58 +84,58 @@ class ClientHandlerOsr : public ClientHandler,
   void DetachOsrDelegate();
 
   // CefClient methods.
-  CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE { return this; }
-  CefRefPtr<CefAccessibilityHandler> GetAccessibilityHandler() OVERRIDE {
+  CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
+  CefRefPtr<CefAccessibilityHandler> GetAccessibilityHandler() override {
     return this;
   }
 
   // CefLifeSpanHandler methods.
-  void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
 
   // CefRenderHandler methods.
-  bool GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
-  void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
+  bool GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
+  void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
   bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
                       int viewX,
                       int viewY,
                       int& screenX,
-                      int& screenY) OVERRIDE;
+                      int& screenY) override;
   bool GetScreenInfo(CefRefPtr<CefBrowser> browser,
-                     CefScreenInfo& screen_info) OVERRIDE;
-  void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) OVERRIDE;
-  void OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect) OVERRIDE;
+                     CefScreenInfo& screen_info) override;
+  void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) override;
+  void OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect) override;
   void OnPaint(CefRefPtr<CefBrowser> browser,
                CefRenderHandler::PaintElementType type,
                const CefRenderHandler::RectList& dirtyRects,
                const void* buffer,
                int width,
-               int height) OVERRIDE;
+               int height) override;
   void OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
                           CefRenderHandler::PaintElementType type,
                           const CefRenderHandler::RectList& dirtyRects,
-                          void* share_handle) OVERRIDE;
+                          void* share_handle) override;
   bool StartDragging(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefDragData> drag_data,
                      CefRenderHandler::DragOperationsMask allowed_ops,
                      int x,
-                     int y) OVERRIDE;
+                     int y) override;
   void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
-                        CefRenderHandler::DragOperation operation) OVERRIDE;
+                        CefRenderHandler::DragOperation operation) override;
   void OnImeCompositionRangeChanged(
       CefRefPtr<CefBrowser> browser,
       const CefRange& selection_range,
-      const CefRenderHandler::RectList& character_bounds) OVERRIDE;
+      const CefRenderHandler::RectList& character_bounds) override;
 
   // CefDisplayHandler methods.
   bool OnCursorChange(CefRefPtr<CefBrowser> browser,
                       CefCursorHandle cursor,
                       cef_cursor_type_t type,
-                      const CefCursorInfo& custom_cursor_info) OVERRIDE;
+                      const CefCursorInfo& custom_cursor_info) override;
 
   // CefAccessibilityHandler methods.
-  void OnAccessibilityTreeChange(CefRefPtr<CefValue> value) OVERRIDE;
-  void OnAccessibilityLocationChange(CefRefPtr<CefValue> value) OVERRIDE;
+  void OnAccessibilityTreeChange(CefRefPtr<CefValue> value) override;
+  void OnAccessibilityLocationChange(CefRefPtr<CefValue> value) override;
 
  private:
   // Only accessed on the UI thread.

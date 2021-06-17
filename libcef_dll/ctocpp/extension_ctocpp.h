@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=faae935a841ecb55281ac5c8ff3621b2624c048f$
+// $hash=f22147c7417a396f35b486dc9a0df309cd3cf8b7$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_EXTENSION_CTOCPP_H_
@@ -38,14 +38,14 @@ class CefExtensionCToCpp : public CefCToCppRefCounted<CefExtensionCToCpp,
   virtual ~CefExtensionCToCpp();
 
   // CefExtension methods.
-  CefString GetIdentifier() OVERRIDE;
-  CefString GetPath() OVERRIDE;
-  CefRefPtr<CefDictionaryValue> GetManifest() OVERRIDE;
-  bool IsSame(CefRefPtr<CefExtension> that) OVERRIDE;
-  CefRefPtr<CefExtensionHandler> GetHandler() OVERRIDE;
-  CefRefPtr<CefRequestContext> GetLoaderContext() OVERRIDE;
-  bool IsLoaded() OVERRIDE;
-  void Unload() OVERRIDE;
+  CefString GetIdentifier() override;
+  CefString GetPath() override;
+  CefRefPtr<CefDictionaryValue> GetManifest() override;
+  bool IsSame(CefRefPtr<CefExtension> that) override;
+  CefRefPtr<CefExtensionHandler> GetHandler() override;
+  CefRefPtr<CefRequestContext> GetLoaderContext() override;
+  bool IsLoaded() override;
+  void Unload() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_EXTENSION_CTOCPP_H_

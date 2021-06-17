@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cd0189f46038a0f941bfd592127ce29866257b40$
+// $hash=8eaed0b915f9e9c2ec6b83705c05de88abfa4225$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_MEDIA_SINK_CTOCPP_H_
@@ -34,15 +34,15 @@ class CefMediaSinkCToCpp : public CefCToCppRefCounted<CefMediaSinkCToCpp,
   virtual ~CefMediaSinkCToCpp();
 
   // CefMediaSink methods.
-  CefString GetId() OVERRIDE;
-  CefString GetName() OVERRIDE;
-  CefString GetDescription() OVERRIDE;
-  IconType GetIconType() OVERRIDE;
+  CefString GetId() override;
+  CefString GetName() override;
+  CefString GetDescription() override;
+  IconType GetIconType() override;
   void GetDeviceInfo(
-      CefRefPtr<CefMediaSinkDeviceInfoCallback> callback) OVERRIDE;
-  bool IsCastSink() OVERRIDE;
-  bool IsDialSink() OVERRIDE;
-  bool IsCompatibleWith(CefRefPtr<CefMediaSource> source) OVERRIDE;
+      CefRefPtr<CefMediaSinkDeviceInfoCallback> callback) override;
+  bool IsCastSink() override;
+  bool IsDialSink() override;
+  bool IsCompatibleWith(CefRefPtr<CefMediaSource> source) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_MEDIA_SINK_CTOCPP_H_

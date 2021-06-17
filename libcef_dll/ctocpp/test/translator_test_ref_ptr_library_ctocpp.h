@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=abede61a749b1cbb1f546918c32601cb707a6ed7$
+// $hash=7a3c15a7c8e1ddda031365bffdfb723af307e5a4$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_REF_PTR_LIBRARY_CTOCPP_H_
@@ -35,8 +35,8 @@ class CefTranslatorTestRefPtrLibraryCToCpp
   virtual ~CefTranslatorTestRefPtrLibraryCToCpp();
 
   // CefTranslatorTestRefPtrLibrary methods.
-  int GetValue() OVERRIDE;
-  void SetValue(int value) OVERRIDE;
+  int GetValue() override;
+  void SetValue(int value) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_REF_PTR_LIBRARY_CTOCPP_H_

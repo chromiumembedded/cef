@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=00c386274cefb6ae461544f93cea6df7d2a6f367$
+// $hash=69743695174bd4a3b85f3afc0b5ba9f0d4460e2f$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RESOURCE_BUNDLE_CTOCPP_H_
@@ -35,11 +35,11 @@ class CefResourceBundleCToCpp
   virtual ~CefResourceBundleCToCpp();
 
   // CefResourceBundle methods.
-  CefString GetLocalizedString(int string_id) OVERRIDE;
-  CefRefPtr<CefBinaryValue> GetDataResource(int resource_id) OVERRIDE;
+  CefString GetLocalizedString(int string_id) override;
+  CefRefPtr<CefBinaryValue> GetDataResource(int resource_id) override;
   CefRefPtr<CefBinaryValue> GetDataResourceForScale(
       int resource_id,
-      ScaleFactor scale_factor) OVERRIDE;
+      ScaleFactor scale_factor) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_RESOURCE_BUNDLE_CTOCPP_H_

@@ -108,62 +108,62 @@ class OsrWindowWin
   void ApplyPopupOffset(int& x, int& y) const;
 
   // ClientHandlerOsr::OsrDelegate methods.
-  void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  bool GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
-  void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
+  bool GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
+  void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
   bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
                       int viewX,
                       int viewY,
                       int& screenX,
-                      int& screenY) OVERRIDE;
+                      int& screenY) override;
   bool GetScreenInfo(CefRefPtr<CefBrowser> browser,
-                     CefScreenInfo& screen_info) OVERRIDE;
-  void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) OVERRIDE;
-  void OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect) OVERRIDE;
+                     CefScreenInfo& screen_info) override;
+  void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) override;
+  void OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect) override;
   void OnPaint(CefRefPtr<CefBrowser> browser,
                CefRenderHandler::PaintElementType type,
                const CefRenderHandler::RectList& dirtyRects,
                const void* buffer,
                int width,
-               int height) OVERRIDE;
+               int height) override;
   void OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
                           CefRenderHandler::PaintElementType type,
                           const CefRenderHandler::RectList& dirtyRects,
-                          void* share_handle) OVERRIDE;
+                          void* share_handle) override;
   void OnCursorChange(CefRefPtr<CefBrowser> browser,
                       CefCursorHandle cursor,
                       cef_cursor_type_t type,
-                      const CefCursorInfo& custom_cursor_info) OVERRIDE;
+                      const CefCursorInfo& custom_cursor_info) override;
   bool StartDragging(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefDragData> drag_data,
                      CefRenderHandler::DragOperationsMask allowed_ops,
                      int x,
-                     int y) OVERRIDE;
+                     int y) override;
   void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
-                        CefRenderHandler::DragOperation operation) OVERRIDE;
+                        CefRenderHandler::DragOperation operation) override;
   void OnImeCompositionRangeChanged(
       CefRefPtr<CefBrowser> browser,
       const CefRange& selection_range,
-      const CefRenderHandler::RectList& character_bounds) OVERRIDE;
+      const CefRenderHandler::RectList& character_bounds) override;
 
-  void UpdateAccessibilityTree(CefRefPtr<CefValue> value) OVERRIDE;
+  void UpdateAccessibilityTree(CefRefPtr<CefValue> value) override;
 
-  void UpdateAccessibilityLocation(CefRefPtr<CefValue> value) OVERRIDE;
+  void UpdateAccessibilityLocation(CefRefPtr<CefValue> value) override;
 
 #if defined(CEF_USE_ATL)
   // OsrDragEvents methods.
   CefBrowserHost::DragOperationsMask OnDragEnter(
       CefRefPtr<CefDragData> drag_data,
       CefMouseEvent ev,
-      CefBrowserHost::DragOperationsMask effect) OVERRIDE;
+      CefBrowserHost::DragOperationsMask effect) override;
   CefBrowserHost::DragOperationsMask OnDragOver(
       CefMouseEvent ev,
-      CefBrowserHost::DragOperationsMask effect) OVERRIDE;
-  void OnDragLeave() OVERRIDE;
+      CefBrowserHost::DragOperationsMask effect) override;
+  void OnDragLeave() override;
   CefBrowserHost::DragOperationsMask OnDrop(
       CefMouseEvent ev,
-      CefBrowserHost::DragOperationsMask effect) OVERRIDE;
+      CefBrowserHost::DragOperationsMask effect) override;
 #endif  // defined(CEF_USE_ATL)
 
   void EnsureRenderHandler();

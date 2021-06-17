@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=77fee821efba296de9f9c01aa42f77596fb381d1$
+// $hash=c4051f19be6db04a41ea69d0ee95286ac5b85d20$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CTOCPP_H_
@@ -33,34 +33,34 @@ class CefRequestCToCpp
   virtual ~CefRequestCToCpp();
 
   // CefRequest methods.
-  bool IsReadOnly() OVERRIDE;
-  CefString GetURL() OVERRIDE;
-  void SetURL(const CefString& url) OVERRIDE;
-  CefString GetMethod() OVERRIDE;
-  void SetMethod(const CefString& method) OVERRIDE;
+  bool IsReadOnly() override;
+  CefString GetURL() override;
+  void SetURL(const CefString& url) override;
+  CefString GetMethod() override;
+  void SetMethod(const CefString& method) override;
   void SetReferrer(const CefString& referrer_url,
-                   ReferrerPolicy policy) OVERRIDE;
-  CefString GetReferrerURL() OVERRIDE;
-  ReferrerPolicy GetReferrerPolicy() OVERRIDE;
-  CefRefPtr<CefPostData> GetPostData() OVERRIDE;
-  void SetPostData(CefRefPtr<CefPostData> postData) OVERRIDE;
-  void GetHeaderMap(HeaderMap& headerMap) OVERRIDE;
-  void SetHeaderMap(const HeaderMap& headerMap) OVERRIDE;
-  CefString GetHeaderByName(const CefString& name) OVERRIDE;
+                   ReferrerPolicy policy) override;
+  CefString GetReferrerURL() override;
+  ReferrerPolicy GetReferrerPolicy() override;
+  CefRefPtr<CefPostData> GetPostData() override;
+  void SetPostData(CefRefPtr<CefPostData> postData) override;
+  void GetHeaderMap(HeaderMap& headerMap) override;
+  void SetHeaderMap(const HeaderMap& headerMap) override;
+  CefString GetHeaderByName(const CefString& name) override;
   void SetHeaderByName(const CefString& name,
                        const CefString& value,
-                       bool overwrite) OVERRIDE;
+                       bool overwrite) override;
   void Set(const CefString& url,
            const CefString& method,
            CefRefPtr<CefPostData> postData,
-           const HeaderMap& headerMap) OVERRIDE;
-  int GetFlags() OVERRIDE;
-  void SetFlags(int flags) OVERRIDE;
-  CefString GetFirstPartyForCookies() OVERRIDE;
-  void SetFirstPartyForCookies(const CefString& url) OVERRIDE;
-  ResourceType GetResourceType() OVERRIDE;
-  TransitionType GetTransitionType() OVERRIDE;
-  uint64 GetIdentifier() OVERRIDE;
+           const HeaderMap& headerMap) override;
+  int GetFlags() override;
+  void SetFlags(int flags) override;
+  CefString GetFirstPartyForCookies() override;
+  void SetFirstPartyForCookies(const CefString& url) override;
+  ResourceType GetResourceType() override;
+  TransitionType GetTransitionType() override;
+  uint64 GetIdentifier() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_REQUEST_CTOCPP_H_

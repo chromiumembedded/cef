@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f57b9f72a806aecacaa984faf584fdf7c1c99301$
+// $hash=e907d476bdd6717660c7e35f55ab9a1679f0f1fb$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_TEXTFIELD_CTOCPP_H_
@@ -34,89 +34,89 @@ class CefTextfieldCToCpp : public CefCToCppRefCounted<CefTextfieldCToCpp,
   virtual ~CefTextfieldCToCpp();
 
   // CefTextfield methods.
-  void SetPasswordInput(bool password_input) OVERRIDE;
-  bool IsPasswordInput() OVERRIDE;
-  void SetReadOnly(bool read_only) OVERRIDE;
-  bool IsReadOnly() OVERRIDE;
-  CefString GetText() OVERRIDE;
-  void SetText(const CefString& text) OVERRIDE;
-  void AppendText(const CefString& text) OVERRIDE;
-  void InsertOrReplaceText(const CefString& text) OVERRIDE;
-  bool HasSelection() OVERRIDE;
-  CefString GetSelectedText() OVERRIDE;
-  void SelectAll(bool reversed) OVERRIDE;
-  void ClearSelection() OVERRIDE;
-  CefRange GetSelectedRange() OVERRIDE;
-  void SelectRange(const CefRange& range) OVERRIDE;
-  size_t GetCursorPosition() OVERRIDE;
-  void SetTextColor(cef_color_t color) OVERRIDE;
-  cef_color_t GetTextColor() OVERRIDE;
-  void SetSelectionTextColor(cef_color_t color) OVERRIDE;
-  cef_color_t GetSelectionTextColor() OVERRIDE;
-  void SetSelectionBackgroundColor(cef_color_t color) OVERRIDE;
-  cef_color_t GetSelectionBackgroundColor() OVERRIDE;
-  void SetFontList(const CefString& font_list) OVERRIDE;
-  void ApplyTextColor(cef_color_t color, const CefRange& range) OVERRIDE;
+  void SetPasswordInput(bool password_input) override;
+  bool IsPasswordInput() override;
+  void SetReadOnly(bool read_only) override;
+  bool IsReadOnly() override;
+  CefString GetText() override;
+  void SetText(const CefString& text) override;
+  void AppendText(const CefString& text) override;
+  void InsertOrReplaceText(const CefString& text) override;
+  bool HasSelection() override;
+  CefString GetSelectedText() override;
+  void SelectAll(bool reversed) override;
+  void ClearSelection() override;
+  CefRange GetSelectedRange() override;
+  void SelectRange(const CefRange& range) override;
+  size_t GetCursorPosition() override;
+  void SetTextColor(cef_color_t color) override;
+  cef_color_t GetTextColor() override;
+  void SetSelectionTextColor(cef_color_t color) override;
+  cef_color_t GetSelectionTextColor() override;
+  void SetSelectionBackgroundColor(cef_color_t color) override;
+  cef_color_t GetSelectionBackgroundColor() override;
+  void SetFontList(const CefString& font_list) override;
+  void ApplyTextColor(cef_color_t color, const CefRange& range) override;
   void ApplyTextStyle(cef_text_style_t style,
                       bool add,
-                      const CefRange& range) OVERRIDE;
-  bool IsCommandEnabled(cef_text_field_commands_t command_id) OVERRIDE;
-  void ExecuteCommand(cef_text_field_commands_t command_id) OVERRIDE;
-  void ClearEditHistory() OVERRIDE;
-  void SetPlaceholderText(const CefString& text) OVERRIDE;
-  CefString GetPlaceholderText() OVERRIDE;
-  void SetPlaceholderTextColor(cef_color_t color) OVERRIDE;
-  void SetAccessibleName(const CefString& name) OVERRIDE;
+                      const CefRange& range) override;
+  bool IsCommandEnabled(cef_text_field_commands_t command_id) override;
+  void ExecuteCommand(cef_text_field_commands_t command_id) override;
+  void ClearEditHistory() override;
+  void SetPlaceholderText(const CefString& text) override;
+  CefString GetPlaceholderText() override;
+  void SetPlaceholderTextColor(cef_color_t color) override;
+  void SetAccessibleName(const CefString& name) override;
 
   // CefView methods.
-  CefRefPtr<CefBrowserView> AsBrowserView() OVERRIDE;
-  CefRefPtr<CefButton> AsButton() OVERRIDE;
-  CefRefPtr<CefPanel> AsPanel() OVERRIDE;
-  CefRefPtr<CefScrollView> AsScrollView() OVERRIDE;
-  CefRefPtr<CefTextfield> AsTextfield() OVERRIDE;
-  CefString GetTypeString() OVERRIDE;
-  CefString ToString(bool include_children) OVERRIDE;
-  bool IsValid() OVERRIDE;
-  bool IsAttached() OVERRIDE;
-  bool IsSame(CefRefPtr<CefView> that) OVERRIDE;
-  CefRefPtr<CefViewDelegate> GetDelegate() OVERRIDE;
-  CefRefPtr<CefWindow> GetWindow() OVERRIDE;
-  int GetID() OVERRIDE;
-  void SetID(int id) OVERRIDE;
-  int GetGroupID() OVERRIDE;
-  void SetGroupID(int group_id) OVERRIDE;
-  CefRefPtr<CefView> GetParentView() OVERRIDE;
-  CefRefPtr<CefView> GetViewForID(int id) OVERRIDE;
-  void SetBounds(const CefRect& bounds) OVERRIDE;
-  CefRect GetBounds() OVERRIDE;
-  CefRect GetBoundsInScreen() OVERRIDE;
-  void SetSize(const CefSize& size) OVERRIDE;
-  CefSize GetSize() OVERRIDE;
-  void SetPosition(const CefPoint& position) OVERRIDE;
-  CefPoint GetPosition() OVERRIDE;
-  CefSize GetPreferredSize() OVERRIDE;
-  void SizeToPreferredSize() OVERRIDE;
-  CefSize GetMinimumSize() OVERRIDE;
-  CefSize GetMaximumSize() OVERRIDE;
-  int GetHeightForWidth(int width) OVERRIDE;
-  void InvalidateLayout() OVERRIDE;
-  void SetVisible(bool visible) OVERRIDE;
-  bool IsVisible() OVERRIDE;
-  bool IsDrawn() OVERRIDE;
-  void SetEnabled(bool enabled) OVERRIDE;
-  bool IsEnabled() OVERRIDE;
-  void SetFocusable(bool focusable) OVERRIDE;
-  bool IsFocusable() OVERRIDE;
-  bool IsAccessibilityFocusable() OVERRIDE;
-  void RequestFocus() OVERRIDE;
-  void SetBackgroundColor(cef_color_t color) OVERRIDE;
-  cef_color_t GetBackgroundColor() OVERRIDE;
-  bool ConvertPointToScreen(CefPoint& point) OVERRIDE;
-  bool ConvertPointFromScreen(CefPoint& point) OVERRIDE;
-  bool ConvertPointToWindow(CefPoint& point) OVERRIDE;
-  bool ConvertPointFromWindow(CefPoint& point) OVERRIDE;
-  bool ConvertPointToView(CefRefPtr<CefView> view, CefPoint& point) OVERRIDE;
-  bool ConvertPointFromView(CefRefPtr<CefView> view, CefPoint& point) OVERRIDE;
+  CefRefPtr<CefBrowserView> AsBrowserView() override;
+  CefRefPtr<CefButton> AsButton() override;
+  CefRefPtr<CefPanel> AsPanel() override;
+  CefRefPtr<CefScrollView> AsScrollView() override;
+  CefRefPtr<CefTextfield> AsTextfield() override;
+  CefString GetTypeString() override;
+  CefString ToString(bool include_children) override;
+  bool IsValid() override;
+  bool IsAttached() override;
+  bool IsSame(CefRefPtr<CefView> that) override;
+  CefRefPtr<CefViewDelegate> GetDelegate() override;
+  CefRefPtr<CefWindow> GetWindow() override;
+  int GetID() override;
+  void SetID(int id) override;
+  int GetGroupID() override;
+  void SetGroupID(int group_id) override;
+  CefRefPtr<CefView> GetParentView() override;
+  CefRefPtr<CefView> GetViewForID(int id) override;
+  void SetBounds(const CefRect& bounds) override;
+  CefRect GetBounds() override;
+  CefRect GetBoundsInScreen() override;
+  void SetSize(const CefSize& size) override;
+  CefSize GetSize() override;
+  void SetPosition(const CefPoint& position) override;
+  CefPoint GetPosition() override;
+  CefSize GetPreferredSize() override;
+  void SizeToPreferredSize() override;
+  CefSize GetMinimumSize() override;
+  CefSize GetMaximumSize() override;
+  int GetHeightForWidth(int width) override;
+  void InvalidateLayout() override;
+  void SetVisible(bool visible) override;
+  bool IsVisible() override;
+  bool IsDrawn() override;
+  void SetEnabled(bool enabled) override;
+  bool IsEnabled() override;
+  void SetFocusable(bool focusable) override;
+  bool IsFocusable() override;
+  bool IsAccessibilityFocusable() override;
+  void RequestFocus() override;
+  void SetBackgroundColor(cef_color_t color) override;
+  cef_color_t GetBackgroundColor() override;
+  bool ConvertPointToScreen(CefPoint& point) override;
+  bool ConvertPointFromScreen(CefPoint& point) override;
+  bool ConvertPointToWindow(CefPoint& point) override;
+  bool ConvertPointFromWindow(CefPoint& point) override;
+  bool ConvertPointToView(CefRefPtr<CefView> view, CefPoint& point) override;
+  bool ConvertPointFromView(CefRefPtr<CefView> view, CefPoint& point) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_VIEWS_TEXTFIELD_CTOCPP_H_

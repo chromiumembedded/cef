@@ -30,7 +30,7 @@ class ClientSchemeHandler : public CefResourceHandler {
 
   bool Open(CefRefPtr<CefRequest> request,
             bool& handle_request,
-            CefRefPtr<CefCallback> callback) OVERRIDE {
+            CefRefPtr<CefCallback> callback) override {
     DCHECK(!CefCurrentlyOn(TID_UI) && !CefCurrentlyOn(TID_IO));
 
     // The request will be continued or canceled based on the return value.
@@ -79,7 +79,7 @@ class ClientSchemeHandler : public CefResourceHandler {
 
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
                           int64& response_length,
-                          CefString& redirectUrl) OVERRIDE {
+                          CefString& redirectUrl) override {
     CEF_REQUIRE_IO_THREAD();
 
     DCHECK(!data_.empty());
@@ -91,12 +91,12 @@ class ClientSchemeHandler : public CefResourceHandler {
     response_length = data_.length();
   }
 
-  void Cancel() OVERRIDE { CEF_REQUIRE_IO_THREAD(); }
+  void Cancel() override { CEF_REQUIRE_IO_THREAD(); }
 
   bool Read(void* data_out,
             int bytes_to_read,
             int& bytes_read,
-            CefRefPtr<CefResourceReadCallback> callback) OVERRIDE {
+            CefRefPtr<CefResourceReadCallback> callback) override {
     DCHECK(!CefCurrentlyOn(TID_UI) && !CefCurrentlyOn(TID_IO));
 
     bool has_data = false;
@@ -134,7 +134,7 @@ class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {
   CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
                                        CefRefPtr<CefFrame> frame,
                                        const CefString& scheme_name,
-                                       CefRefPtr<CefRequest> request) OVERRIDE {
+                                       CefRefPtr<CefRequest> request) override {
     CEF_REQUIRE_IO_THREAD();
     return new ClientSchemeHandler();
   }

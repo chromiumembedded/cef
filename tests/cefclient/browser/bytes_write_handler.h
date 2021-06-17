@@ -16,11 +16,11 @@ class BytesWriteHandler : public CefWriteHandler {
   explicit BytesWriteHandler(size_t grow);
   ~BytesWriteHandler();
 
-  size_t Write(const void* ptr, size_t size, size_t n) OVERRIDE;
-  int Seek(int64 offset, int whence) OVERRIDE;
-  int64 Tell() OVERRIDE;
-  int Flush() OVERRIDE;
-  bool MayBlock() OVERRIDE { return false; }
+  size_t Write(const void* ptr, size_t size, size_t n) override;
+  int Seek(int64 offset, int whence) override;
+  int64 Tell() override;
+  int Flush() override;
+  bool MayBlock() override { return false; }
 
   void* GetData() { return data_; }
   int64 GetDataSize() { return offset_; }

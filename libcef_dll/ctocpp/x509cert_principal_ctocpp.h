@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4bf290893db30f92b41162cf2cd47457f94b9940$
+// $hash=2f81d385c4a2501d7bca5ead500d66e2c8038942$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_X509CERT_PRINCIPAL_CTOCPP_H_
@@ -36,15 +36,15 @@ class CefX509CertPrincipalCToCpp
   virtual ~CefX509CertPrincipalCToCpp();
 
   // CefX509CertPrincipal methods.
-  CefString GetDisplayName() OVERRIDE;
-  CefString GetCommonName() OVERRIDE;
-  CefString GetLocalityName() OVERRIDE;
-  CefString GetStateOrProvinceName() OVERRIDE;
-  CefString GetCountryName() OVERRIDE;
-  void GetStreetAddresses(std::vector<CefString>& addresses) OVERRIDE;
-  void GetOrganizationNames(std::vector<CefString>& names) OVERRIDE;
-  void GetOrganizationUnitNames(std::vector<CefString>& names) OVERRIDE;
-  void GetDomainComponents(std::vector<CefString>& components) OVERRIDE;
+  CefString GetDisplayName() override;
+  CefString GetCommonName() override;
+  CefString GetLocalityName() override;
+  CefString GetStateOrProvinceName() override;
+  CefString GetCountryName() override;
+  void GetStreetAddresses(std::vector<CefString>& addresses) override;
+  void GetOrganizationNames(std::vector<CefString>& names) override;
+  void GetOrganizationUnitNames(std::vector<CefString>& names) override;
+  void GetDomainComponents(std::vector<CefString>& components) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_X509CERT_PRINCIPAL_CTOCPP_H_

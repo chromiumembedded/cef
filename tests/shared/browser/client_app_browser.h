@@ -53,16 +53,16 @@ class ClientAppBrowser : public ClientApp, public CefBrowserProcessHandler {
   // CefApp methods.
   void OnBeforeCommandLineProcessing(
       const CefString& process_type,
-      CefRefPtr<CefCommandLine> command_line) OVERRIDE;
-  CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() OVERRIDE {
+      CefRefPtr<CefCommandLine> command_line) override;
+  CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() override {
     return this;
   }
 
   // CefBrowserProcessHandler methods.
-  void OnContextInitialized() OVERRIDE;
+  void OnContextInitialized() override;
   void OnBeforeChildProcessLaunch(
-      CefRefPtr<CefCommandLine> command_line) OVERRIDE;
-  void OnScheduleMessagePumpWork(int64 delay) OVERRIDE;
+      CefRefPtr<CefCommandLine> command_line) override;
+  void OnScheduleMessagePumpWork(int64 delay) override;
 
   // Set of supported Delegates.
   DelegateSet delegates_;

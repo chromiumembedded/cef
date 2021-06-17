@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0c54d50effa8f690b879fd6ba0cdc1b3221c1cf5$
+// $hash=b4a040a4be651d7b8522b328d37b3baf78a67e58$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_PRINT_JOB_CALLBACK_CTOCPP_H_
@@ -35,7 +35,7 @@ class CefPrintJobCallbackCToCpp
   virtual ~CefPrintJobCallbackCToCpp();
 
   // CefPrintJobCallback methods.
-  void Continue() OVERRIDE;
+  void Continue() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_PRINT_JOB_CALLBACK_CTOCPP_H_

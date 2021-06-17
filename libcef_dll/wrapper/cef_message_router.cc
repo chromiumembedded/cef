@@ -82,7 +82,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
       DCHECK(!router_);
     }
 
-    void Success(const CefString& response) OVERRIDE {
+    void Success(const CefString& response) override {
       if (!CefCurrentlyOn(TID_UI)) {
         // Must execute on the UI thread to access member variables.
         CefPostTask(TID_UI, base::Bind(&CallbackImpl::Success, this, response));
@@ -102,7 +102,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
       }
     }
 
-    void Failure(int error_code, const CefString& error_message) OVERRIDE {
+    void Failure(int error_code, const CefString& error_message) override {
       if (!CefCurrentlyOn(TID_UI)) {
         // Must execute on the UI thread to access member variables.
         CefPostTask(TID_UI, base::Bind(&CallbackImpl::Failure, this, error_code,
@@ -148,7 +148,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     DCHECK(browser_query_info_map_.empty());
   }
 
-  bool AddHandler(Handler* handler, bool first) OVERRIDE {
+  bool AddHandler(Handler* handler, bool first) override {
     CEF_REQUIRE_UI_THREAD();
     if (handler_set_.find(handler) == handler_set_.end()) {
       handler_set_.insert(first ? handler_set_.begin() : handler_set_.end(),
@@ -158,7 +158,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     return false;
   }
 
-  bool RemoveHandler(Handler* handler) OVERRIDE {
+  bool RemoveHandler(Handler* handler) override {
     CEF_REQUIRE_UI_THREAD();
     if (handler_set_.erase(handler) > 0) {
       CancelPendingFor(nullptr, handler, true);
@@ -167,12 +167,12 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     return false;
   }
 
-  void CancelPending(CefRefPtr<CefBrowser> browser, Handler* handler) OVERRIDE {
+  void CancelPending(CefRefPtr<CefBrowser> browser, Handler* handler) override {
     CancelPendingFor(browser, handler, true);
   }
 
   int GetPendingCount(CefRefPtr<CefBrowser> browser,
-                      Handler* handler) OVERRIDE {
+                      Handler* handler) override {
     CEF_REQUIRE_UI_THREAD();
 
     if (browser_query_info_map_.empty())
@@ -187,7 +187,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
         bool OnNextInfo(int browser_id,
                         InfoIdType info_id,
                         InfoObjectType info,
-                        bool* remove) OVERRIDE {
+                        bool* remove) override {
           if (info->handler == handler_)
             count_++;
           return true;
@@ -221,16 +221,16 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     return 0;
   }
 
-  void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE {
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
     CancelPendingFor(browser, nullptr, false);
   }
 
-  void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser) OVERRIDE {
+  void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser) override {
     CancelPendingFor(browser, nullptr, false);
   }
 
   void OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
-                      CefRefPtr<CefFrame> frame) OVERRIDE {
+                      CefRefPtr<CefFrame> frame) override {
     if (frame->IsMain())
       CancelPendingFor(browser, nullptr, false);
   }
@@ -238,7 +238,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
-                                CefRefPtr<CefProcessMessage> message) OVERRIDE {
+                                CefRefPtr<CefProcessMessage> message) override {
     CEF_REQUIRE_UI_THREAD();
 
     const std::string& message_name = message->GetName();
@@ -359,7 +359,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
       bool OnNextInfo(int browser_id,
                       InfoIdType info_id,
                       InfoObjectType info,
-                      bool* remove) OVERRIDE {
+                      bool* remove) override {
         *remove = removed_ = (always_remove_ || !info->persistent);
         return true;
       }
@@ -503,7 +503,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
       bool OnNextInfo(int browser_id,
                       InfoIdType info_id,
                       InfoObjectType info,
-                      bool* remove) OVERRIDE {
+                      bool* remove) override {
         if (!handler_ || info->handler == handler_) {
           *remove = true;
           router_->CancelQuery(info_id, info, notify_renderer_);
@@ -542,7 +542,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
       bool OnNextInfo(int browser_id,
                       InfoIdType info_id,
                       InfoObjectType info,
-                      bool* remove) OVERRIDE {
+                      bool* remove) override {
         if (info->context_id == context_id_ &&
             (request_id_ == kReservedId || info->request_id == request_id_)) {
           *remove = true;
@@ -599,7 +599,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
                  CefRefPtr<CefV8Value> object,
                  const CefV8ValueList& arguments,
                  CefRefPtr<CefV8Value>& retval,
-                 CefString& exception) OVERRIDE {
+                 CefString& exception) override {
       if (name == config_.js_query_function) {
         if (arguments.size() != 1 || !arguments[0]->IsObject()) {
           exception = "Invalid arguments; expecting a single object";
@@ -707,7 +707,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
   virtual ~CefMessageRouterRendererSideImpl() {}
 
   int GetPendingCount(CefRefPtr<CefBrowser> browser,
-                      CefRefPtr<CefV8Context> context) OVERRIDE {
+                      CefRefPtr<CefV8Context> context) override {
     CEF_REQUIRE_RENDERER_THREAD();
 
     if (browser_request_info_map_.empty())
@@ -726,7 +726,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
         bool OnNextInfo(int browser_id,
                         InfoIdType info_id,
                         InfoObjectType info,
-                        bool* remove) OVERRIDE {
+                        bool* remove) override {
           if (info_id.first == context_id_)
             count_++;
           return true;
@@ -762,7 +762,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
 
   void OnContextCreated(CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefFrame> frame,
-                        CefRefPtr<CefV8Context> context) OVERRIDE {
+                        CefRefPtr<CefV8Context> context) override {
     CEF_REQUIRE_RENDERER_THREAD();
 
     // Register function handlers with the 'window' object.
@@ -787,7 +787,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
 
   void OnContextReleased(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
-                         CefRefPtr<CefV8Context> context) OVERRIDE {
+                         CefRefPtr<CefV8Context> context) override {
     CEF_REQUIRE_RENDERER_THREAD();
 
     // Get the context ID and remove the context from the map.
@@ -801,7 +801,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
-                                CefRefPtr<CefProcessMessage> message) OVERRIDE {
+                                CefRefPtr<CefProcessMessage> message) override {
     CEF_REQUIRE_RENDERER_THREAD();
 
     const std::string& message_name = message->GetName();
@@ -870,7 +870,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
       bool OnNextInfo(int browser_id,
                       InfoIdType info_id,
                       InfoObjectType info,
-                      bool* remove) OVERRIDE {
+                      bool* remove) override {
         *remove = removed_ = (always_remove_ || !info->persistent);
         return true;
       }
@@ -955,7 +955,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
         bool OnNextInfo(int browser_id,
                         InfoIdType info_id,
                         InfoObjectType info,
-                        bool* remove) OVERRIDE {
+                        bool* remove) override {
           if (info_id.first == context_id_) {
             *remove = true;
             delete info;

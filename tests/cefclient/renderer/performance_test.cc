@@ -35,7 +35,7 @@ class V8Handler : public CefV8Handler {
                        CefRefPtr<CefV8Value> object,
                        const CefV8ValueList& arguments,
                        CefRefPtr<CefV8Value>& retval,
-                       CefString& exception) OVERRIDE {
+                       CefString& exception) override {
     if (name == kRunPerfTest) {
       if (arguments.size() == 1 && arguments[0]->IsString()) {
         // Run the specified perf test.
@@ -133,7 +133,7 @@ class RenderDelegate : public ClientAppRenderer::Delegate {
   virtual void OnContextCreated(CefRefPtr<ClientAppRenderer> app,
                                 CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
-                                CefRefPtr<CefV8Context> context) OVERRIDE {
+                                CefRefPtr<CefV8Context> context) override {
     CefRefPtr<CefV8Value> object = context->GetGlobal();
 
     CefRefPtr<CefV8Handler> handler = new V8Handler();

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=67c710cc8e62052d841bcadb7aacc1ccddb4b54f$
+// $hash=b7b3e79350d42ab829eff401d6b4486ba4039267$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_THREAD_CTOCPP_H_
@@ -33,10 +33,10 @@ class CefThreadCToCpp
   virtual ~CefThreadCToCpp();
 
   // CefThread methods.
-  CefRefPtr<CefTaskRunner> GetTaskRunner() OVERRIDE;
-  cef_platform_thread_id_t GetPlatformThreadId() OVERRIDE;
-  void Stop() OVERRIDE;
-  bool IsRunning() OVERRIDE;
+  CefRefPtr<CefTaskRunner> GetTaskRunner() override;
+  cef_platform_thread_id_t GetPlatformThreadId() override;
+  void Stop() override;
+  bool IsRunning() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_THREAD_CTOCPP_H_

@@ -28,7 +28,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
                        int64 query_id,
                        const CefString& request,
                        bool persistent,
-                       CefRefPtr<Callback> callback) OVERRIDE {
+                       CefRefPtr<Callback> callback) override {
     // Only handle messages from the test URL.
     const std::string& url = frame->GetURL();
     if (!test_runner::IsTestURL(url, kTestUrlPath))

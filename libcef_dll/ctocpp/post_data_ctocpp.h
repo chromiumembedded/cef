@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4f27c0931e83f3f5b140eaeeffaf976dd751b1d2$
+// $hash=cfac126645b325004b278b70c2f305312346d6ae$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_POST_DATA_CTOCPP_H_
@@ -34,13 +34,13 @@ class CefPostDataCToCpp : public CefCToCppRefCounted<CefPostDataCToCpp,
   virtual ~CefPostDataCToCpp();
 
   // CefPostData methods.
-  bool IsReadOnly() OVERRIDE;
-  bool HasExcludedElements() OVERRIDE;
-  size_t GetElementCount() OVERRIDE;
-  void GetElements(ElementVector& elements) OVERRIDE;
-  bool RemoveElement(CefRefPtr<CefPostDataElement> element) OVERRIDE;
-  bool AddElement(CefRefPtr<CefPostDataElement> element) OVERRIDE;
-  void RemoveElements() OVERRIDE;
+  bool IsReadOnly() override;
+  bool HasExcludedElements() override;
+  size_t GetElementCount() override;
+  void GetElements(ElementVector& elements) override;
+  bool RemoveElement(CefRefPtr<CefPostDataElement> element) override;
+  bool AddElement(CefRefPtr<CefPostDataElement> element) override;
+  void RemoveElements() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_POST_DATA_CTOCPP_H_

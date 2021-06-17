@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6722d4d826fa46825fe93093de549794e765cbbe$
+// $hash=bff737f2a6f0c099ce559ef4f80a8cc3c0dbef25$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BINARY_VALUE_CTOCPP_H_
@@ -34,13 +34,13 @@ class CefBinaryValueCToCpp : public CefCToCppRefCounted<CefBinaryValueCToCpp,
   virtual ~CefBinaryValueCToCpp();
 
   // CefBinaryValue methods.
-  bool IsValid() OVERRIDE;
-  bool IsOwned() OVERRIDE;
-  bool IsSame(CefRefPtr<CefBinaryValue> that) OVERRIDE;
-  bool IsEqual(CefRefPtr<CefBinaryValue> that) OVERRIDE;
-  CefRefPtr<CefBinaryValue> Copy() OVERRIDE;
-  size_t GetSize() OVERRIDE;
-  size_t GetData(void* buffer, size_t buffer_size, size_t data_offset) OVERRIDE;
+  bool IsValid() override;
+  bool IsOwned() override;
+  bool IsSame(CefRefPtr<CefBinaryValue> that) override;
+  bool IsEqual(CefRefPtr<CefBinaryValue> that) override;
+  CefRefPtr<CefBinaryValue> Copy() override;
+  size_t GetSize() override;
+  size_t GetData(void* buffer, size_t buffer_size, size_t data_offset) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BINARY_VALUE_CTOCPP_H_

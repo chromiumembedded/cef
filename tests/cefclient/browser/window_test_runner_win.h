@@ -21,10 +21,10 @@ class WindowTestRunnerWin : public WindowTestRunner {
               int x,
               int y,
               int width,
-              int height) OVERRIDE;
-  void Minimize(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  void Maximize(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  void Restore(CefRefPtr<CefBrowser> browser) OVERRIDE;
+              int height) override;
+  void Minimize(CefRefPtr<CefBrowser> browser) override;
+  void Maximize(CefRefPtr<CefBrowser> browser) override;
+  void Restore(CefRefPtr<CefBrowser> browser) override;
 };
 
 }  // namespace window_test

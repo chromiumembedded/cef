@@ -93,19 +93,19 @@ class RootWindowManager : public RootWindow::Delegate {
 
   // RootWindow::Delegate methods.
   CefRefPtr<CefRequestContext> GetRequestContext(
-      RootWindow* root_window) OVERRIDE;
-  scoped_refptr<ImageCache> GetImageCache() OVERRIDE;
-  void OnTest(RootWindow* root_window, int test_id) OVERRIDE;
-  void OnExit(RootWindow* root_window) OVERRIDE;
-  void OnRootWindowDestroyed(RootWindow* root_window) OVERRIDE;
-  void OnRootWindowActivated(RootWindow* root_window) OVERRIDE;
+      RootWindow* root_window) override;
+  scoped_refptr<ImageCache> GetImageCache() override;
+  void OnTest(RootWindow* root_window, int test_id) override;
+  void OnExit(RootWindow* root_window) override;
+  void OnRootWindowDestroyed(RootWindow* root_window) override;
+  void OnRootWindowActivated(RootWindow* root_window) override;
   void OnBrowserCreated(RootWindow* root_window,
-                        CefRefPtr<CefBrowser> browser) OVERRIDE;
+                        CefRefPtr<CefBrowser> browser) override;
   void CreateExtensionWindow(CefRefPtr<CefExtension> extension,
                              const CefRect& source_bounds,
                              CefRefPtr<CefWindow> parent_window,
                              const base::Closure& close_callback,
-                             bool with_osr) OVERRIDE;
+                             bool with_osr) override;
 
   void CleanupOnUIThread();
 

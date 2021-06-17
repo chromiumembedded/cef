@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7de11c340a42046de92ca4cb8c5852269f3a3101$
+// $hash=5b36f9d1883cdf85a1a9167d058cbf9e2081b2b9$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_CONTEXT_MENU_PARAMS_CTOCPP_H_
@@ -36,26 +36,26 @@ class CefContextMenuParamsCToCpp
   virtual ~CefContextMenuParamsCToCpp();
 
   // CefContextMenuParams methods.
-  int GetXCoord() OVERRIDE;
-  int GetYCoord() OVERRIDE;
-  TypeFlags GetTypeFlags() OVERRIDE;
-  CefString GetLinkUrl() OVERRIDE;
-  CefString GetUnfilteredLinkUrl() OVERRIDE;
-  CefString GetSourceUrl() OVERRIDE;
-  bool HasImageContents() OVERRIDE;
-  CefString GetTitleText() OVERRIDE;
-  CefString GetPageUrl() OVERRIDE;
-  CefString GetFrameUrl() OVERRIDE;
-  CefString GetFrameCharset() OVERRIDE;
-  MediaType GetMediaType() OVERRIDE;
-  MediaStateFlags GetMediaStateFlags() OVERRIDE;
-  CefString GetSelectionText() OVERRIDE;
-  CefString GetMisspelledWord() OVERRIDE;
-  bool GetDictionarySuggestions(std::vector<CefString>& suggestions) OVERRIDE;
-  bool IsEditable() OVERRIDE;
-  bool IsSpellCheckEnabled() OVERRIDE;
-  EditStateFlags GetEditStateFlags() OVERRIDE;
-  bool IsCustomMenu() OVERRIDE;
+  int GetXCoord() override;
+  int GetYCoord() override;
+  TypeFlags GetTypeFlags() override;
+  CefString GetLinkUrl() override;
+  CefString GetUnfilteredLinkUrl() override;
+  CefString GetSourceUrl() override;
+  bool HasImageContents() override;
+  CefString GetTitleText() override;
+  CefString GetPageUrl() override;
+  CefString GetFrameUrl() override;
+  CefString GetFrameCharset() override;
+  MediaType GetMediaType() override;
+  MediaStateFlags GetMediaStateFlags() override;
+  CefString GetSelectionText() override;
+  CefString GetMisspelledWord() override;
+  bool GetDictionarySuggestions(std::vector<CefString>& suggestions) override;
+  bool IsEditable() override;
+  bool IsSpellCheckEnabled() override;
+  EditStateFlags GetEditStateFlags() override;
+  bool IsCustomMenu() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_CONTEXT_MENU_PARAMS_CTOCPP_H_

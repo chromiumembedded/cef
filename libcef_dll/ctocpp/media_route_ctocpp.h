@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2332af38a85b938ce097ee671f957fa20622004e$
+// $hash=d09579b361d57b35a9e1a4db01fa783a08aa69af$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_MEDIA_ROUTE_CTOCPP_H_
@@ -34,11 +34,11 @@ class CefMediaRouteCToCpp : public CefCToCppRefCounted<CefMediaRouteCToCpp,
   virtual ~CefMediaRouteCToCpp();
 
   // CefMediaRoute methods.
-  CefString GetId() OVERRIDE;
-  CefRefPtr<CefMediaSource> GetSource() OVERRIDE;
-  CefRefPtr<CefMediaSink> GetSink() OVERRIDE;
-  void SendRouteMessage(const void* message, size_t message_size) OVERRIDE;
-  void Terminate() OVERRIDE;
+  CefString GetId() override;
+  CefRefPtr<CefMediaSource> GetSource() override;
+  CefRefPtr<CefMediaSink> GetSink() override;
+  void SendRouteMessage(const void* message, size_t message_size) override;
+  void Terminate() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_MEDIA_ROUTE_CTOCPP_H_

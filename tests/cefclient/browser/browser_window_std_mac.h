@@ -24,21 +24,21 @@ class BrowserWindowStdMac : public BrowserWindow {
                      const CefRect& rect,
                      const CefBrowserSettings& settings,
                      CefRefPtr<CefDictionaryValue> extra_info,
-                     CefRefPtr<CefRequestContext> request_context) OVERRIDE;
+                     CefRefPtr<CefRequestContext> request_context) override;
   void GetPopupConfig(CefWindowHandle temp_handle,
                       CefWindowInfo& windowInfo,
                       CefRefPtr<CefClient>& client,
-                      CefBrowserSettings& settings) OVERRIDE;
+                      CefBrowserSettings& settings) override;
   void ShowPopup(ClientWindowHandle parent_handle,
                  int x,
                  int y,
                  size_t width,
-                 size_t height) OVERRIDE;
-  void Show() OVERRIDE;
-  void Hide() OVERRIDE;
-  void SetBounds(int x, int y, size_t width, size_t height) OVERRIDE;
-  void SetFocus(bool focus) OVERRIDE;
-  ClientWindowHandle GetWindowHandle() const OVERRIDE;
+                 size_t height) override;
+  void Show() override;
+  void Hide() override;
+  void SetBounds(int x, int y, size_t width, size_t height) override;
+  void SetFocus(bool focus) override;
+  ClientWindowHandle GetWindowHandle() const override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(BrowserWindowStdMac);

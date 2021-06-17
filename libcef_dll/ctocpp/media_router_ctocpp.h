@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f17d39aa48d464eddc04143796492dd36563f773$
+// $hash=5c27e169e908799d879f108e14f7857a2a54d15e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_MEDIA_ROUTER_CTOCPP_H_
@@ -35,13 +35,13 @@ class CefMediaRouterCToCpp : public CefCToCppRefCounted<CefMediaRouterCToCpp,
 
   // CefMediaRouter methods.
   CefRefPtr<CefRegistration> AddObserver(
-      CefRefPtr<CefMediaObserver> observer) OVERRIDE;
-  CefRefPtr<CefMediaSource> GetSource(const CefString& urn) OVERRIDE;
-  void NotifyCurrentSinks() OVERRIDE;
+      CefRefPtr<CefMediaObserver> observer) override;
+  CefRefPtr<CefMediaSource> GetSource(const CefString& urn) override;
+  void NotifyCurrentSinks() override;
   void CreateRoute(CefRefPtr<CefMediaSource> source,
                    CefRefPtr<CefMediaSink> sink,
-                   CefRefPtr<CefMediaRouteCreateCallback> callback) OVERRIDE;
-  void NotifyCurrentRoutes() OVERRIDE;
+                   CefRefPtr<CefMediaRouteCreateCallback> callback) override;
+  void NotifyCurrentRoutes() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_MEDIA_ROUTER_CTOCPP_H_

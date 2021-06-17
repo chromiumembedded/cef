@@ -22,19 +22,19 @@ class MainContextImpl : public MainContext {
                   bool terminate_when_all_windows_closed);
 
   // MainContext members.
-  std::string GetConsoleLogPath() OVERRIDE;
-  std::string GetDownloadPath(const std::string& file_name) OVERRIDE;
-  std::string GetAppWorkingDirectory() OVERRIDE;
-  std::string GetMainURL() OVERRIDE;
-  cef_color_t GetBackgroundColor() OVERRIDE;
-  bool UseChromeRuntime() OVERRIDE;
-  bool UseViews() OVERRIDE;
-  bool UseWindowlessRendering() OVERRIDE;
-  bool TouchEventsEnabled() OVERRIDE;
-  void PopulateSettings(CefSettings* settings) OVERRIDE;
-  void PopulateBrowserSettings(CefBrowserSettings* settings) OVERRIDE;
-  void PopulateOsrSettings(OsrRendererSettings* settings) OVERRIDE;
-  RootWindowManager* GetRootWindowManager() OVERRIDE;
+  std::string GetConsoleLogPath() override;
+  std::string GetDownloadPath(const std::string& file_name) override;
+  std::string GetAppWorkingDirectory() override;
+  std::string GetMainURL() override;
+  cef_color_t GetBackgroundColor() override;
+  bool UseChromeRuntime() override;
+  bool UseViews() override;
+  bool UseWindowlessRendering() override;
+  bool TouchEventsEnabled() override;
+  void PopulateSettings(CefSettings* settings) override;
+  void PopulateBrowserSettings(CefBrowserSettings* settings) override;
+  void PopulateOsrSettings(OsrRendererSettings* settings) override;
+  RootWindowManager* GetRootWindowManager() override;
 
   // Initialize CEF and associated main context state. This method must be
   // called on the same thread that created this object.

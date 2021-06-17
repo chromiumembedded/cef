@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=10d0f381490e63f0b95af48a93ea47e92459b5a3$
+// $hash=3b118172f4f6ca9d2bc1bdde515ef7642db50b25$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_COMMAND_LINE_CTOCPP_H_
@@ -35,27 +35,27 @@ class CefCommandLineCToCpp : public CefCToCppRefCounted<CefCommandLineCToCpp,
   virtual ~CefCommandLineCToCpp();
 
   // CefCommandLine methods.
-  bool IsValid() OVERRIDE;
-  bool IsReadOnly() OVERRIDE;
-  CefRefPtr<CefCommandLine> Copy() OVERRIDE;
-  void InitFromArgv(int argc, const char* const* argv) OVERRIDE;
-  void InitFromString(const CefString& command_line) OVERRIDE;
-  void Reset() OVERRIDE;
-  void GetArgv(std::vector<CefString>& argv) OVERRIDE;
-  CefString GetCommandLineString() OVERRIDE;
-  CefString GetProgram() OVERRIDE;
-  void SetProgram(const CefString& program) OVERRIDE;
-  bool HasSwitches() OVERRIDE;
-  bool HasSwitch(const CefString& name) OVERRIDE;
-  CefString GetSwitchValue(const CefString& name) OVERRIDE;
-  void GetSwitches(SwitchMap& switches) OVERRIDE;
-  void AppendSwitch(const CefString& name) OVERRIDE;
+  bool IsValid() override;
+  bool IsReadOnly() override;
+  CefRefPtr<CefCommandLine> Copy() override;
+  void InitFromArgv(int argc, const char* const* argv) override;
+  void InitFromString(const CefString& command_line) override;
+  void Reset() override;
+  void GetArgv(std::vector<CefString>& argv) override;
+  CefString GetCommandLineString() override;
+  CefString GetProgram() override;
+  void SetProgram(const CefString& program) override;
+  bool HasSwitches() override;
+  bool HasSwitch(const CefString& name) override;
+  CefString GetSwitchValue(const CefString& name) override;
+  void GetSwitches(SwitchMap& switches) override;
+  void AppendSwitch(const CefString& name) override;
   void AppendSwitchWithValue(const CefString& name,
-                             const CefString& value) OVERRIDE;
-  bool HasArguments() OVERRIDE;
-  void GetArguments(ArgumentList& arguments) OVERRIDE;
-  void AppendArgument(const CefString& argument) OVERRIDE;
-  void PrependWrapper(const CefString& wrapper) OVERRIDE;
+                             const CefString& value) override;
+  bool HasArguments() override;
+  void GetArguments(ArgumentList& arguments) override;
+  void AppendArgument(const CefString& argument) override;
+  void PrependWrapper(const CefString& wrapper) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_COMMAND_LINE_CTOCPP_H_

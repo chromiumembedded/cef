@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ce3dfac0c94806a0e33ba0783482c3c3f2dada1c$
+// $hash=390ce86c2295d2714c06379183d4d3ef458dba77$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_SSLINFO_CTOCPP_H_
@@ -33,8 +33,8 @@ class CefSSLInfoCToCpp
   virtual ~CefSSLInfoCToCpp();
 
   // CefSSLInfo methods.
-  cef_cert_status_t GetCertStatus() OVERRIDE;
-  CefRefPtr<CefX509Certificate> GetX509Certificate() OVERRIDE;
+  cef_cert_status_t GetCertStatus() override;
+  CefRefPtr<CefX509Certificate> GetX509Certificate() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_SSLINFO_CTOCPP_H_

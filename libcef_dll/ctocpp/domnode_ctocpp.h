@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0261f2feb842f255f84c013f69076056e9710d98$
+// $hash=76e4928368797aa342ddaec6b62b59e8b4a42052$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DOMNODE_CTOCPP_H_
@@ -33,33 +33,33 @@ class CefDOMNodeCToCpp
   virtual ~CefDOMNodeCToCpp();
 
   // CefDOMNode methods.
-  Type GetType() OVERRIDE;
-  bool IsText() OVERRIDE;
-  bool IsElement() OVERRIDE;
-  bool IsEditable() OVERRIDE;
-  bool IsFormControlElement() OVERRIDE;
-  CefString GetFormControlElementType() OVERRIDE;
-  bool IsSame(CefRefPtr<CefDOMNode> that) OVERRIDE;
-  CefString GetName() OVERRIDE;
-  CefString GetValue() OVERRIDE;
-  bool SetValue(const CefString& value) OVERRIDE;
-  CefString GetAsMarkup() OVERRIDE;
-  CefRefPtr<CefDOMDocument> GetDocument() OVERRIDE;
-  CefRefPtr<CefDOMNode> GetParent() OVERRIDE;
-  CefRefPtr<CefDOMNode> GetPreviousSibling() OVERRIDE;
-  CefRefPtr<CefDOMNode> GetNextSibling() OVERRIDE;
-  bool HasChildren() OVERRIDE;
-  CefRefPtr<CefDOMNode> GetFirstChild() OVERRIDE;
-  CefRefPtr<CefDOMNode> GetLastChild() OVERRIDE;
-  CefString GetElementTagName() OVERRIDE;
-  bool HasElementAttributes() OVERRIDE;
-  bool HasElementAttribute(const CefString& attrName) OVERRIDE;
-  CefString GetElementAttribute(const CefString& attrName) OVERRIDE;
-  void GetElementAttributes(AttributeMap& attrMap) OVERRIDE;
+  Type GetType() override;
+  bool IsText() override;
+  bool IsElement() override;
+  bool IsEditable() override;
+  bool IsFormControlElement() override;
+  CefString GetFormControlElementType() override;
+  bool IsSame(CefRefPtr<CefDOMNode> that) override;
+  CefString GetName() override;
+  CefString GetValue() override;
+  bool SetValue(const CefString& value) override;
+  CefString GetAsMarkup() override;
+  CefRefPtr<CefDOMDocument> GetDocument() override;
+  CefRefPtr<CefDOMNode> GetParent() override;
+  CefRefPtr<CefDOMNode> GetPreviousSibling() override;
+  CefRefPtr<CefDOMNode> GetNextSibling() override;
+  bool HasChildren() override;
+  CefRefPtr<CefDOMNode> GetFirstChild() override;
+  CefRefPtr<CefDOMNode> GetLastChild() override;
+  CefString GetElementTagName() override;
+  bool HasElementAttributes() override;
+  bool HasElementAttribute(const CefString& attrName) override;
+  CefString GetElementAttribute(const CefString& attrName) override;
+  void GetElementAttributes(AttributeMap& attrMap) override;
   bool SetElementAttribute(const CefString& attrName,
-                           const CefString& value) OVERRIDE;
-  CefString GetElementInnerText() OVERRIDE;
-  CefRect GetElementBounds() OVERRIDE;
+                           const CefString& value) override;
+  CefString GetElementInnerText() override;
+  CefRect GetElementBounds() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DOMNODE_CTOCPP_H_

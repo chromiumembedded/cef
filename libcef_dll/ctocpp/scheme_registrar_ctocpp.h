@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ca1012f1234d42169d2f513c39f05866cdc24f02$
+// $hash=fe59dade993ec9725d0145c56d5c5c819e51f25e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_SCHEME_REGISTRAR_CTOCPP_H_
@@ -35,7 +35,7 @@ class CefSchemeRegistrarCToCpp
   virtual ~CefSchemeRegistrarCToCpp();
 
   // CefSchemeRegistrar methods.
-  bool AddCustomScheme(const CefString& scheme_name, int options) OVERRIDE;
+  bool AddCustomScheme(const CefString& scheme_name, int options) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_SCHEME_REGISTRAR_CTOCPP_H_

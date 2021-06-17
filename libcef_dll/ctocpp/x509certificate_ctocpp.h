@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=96506815984e01c7670fededdc24ea0b5b6b4cee$
+// $hash=75aea2f12bf3761e97b99ebccc2f9cce6685fc70$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_X509CERTIFICATE_CTOCPP_H_
@@ -35,16 +35,16 @@ class CefX509CertificateCToCpp
   virtual ~CefX509CertificateCToCpp();
 
   // CefX509Certificate methods.
-  CefRefPtr<CefX509CertPrincipal> GetSubject() OVERRIDE;
-  CefRefPtr<CefX509CertPrincipal> GetIssuer() OVERRIDE;
-  CefRefPtr<CefBinaryValue> GetSerialNumber() OVERRIDE;
-  CefTime GetValidStart() OVERRIDE;
-  CefTime GetValidExpiry() OVERRIDE;
-  CefRefPtr<CefBinaryValue> GetDEREncoded() OVERRIDE;
-  CefRefPtr<CefBinaryValue> GetPEMEncoded() OVERRIDE;
-  size_t GetIssuerChainSize() OVERRIDE;
-  void GetDEREncodedIssuerChain(IssuerChainBinaryList& chain) OVERRIDE;
-  void GetPEMEncodedIssuerChain(IssuerChainBinaryList& chain) OVERRIDE;
+  CefRefPtr<CefX509CertPrincipal> GetSubject() override;
+  CefRefPtr<CefX509CertPrincipal> GetIssuer() override;
+  CefRefPtr<CefBinaryValue> GetSerialNumber() override;
+  CefTime GetValidStart() override;
+  CefTime GetValidExpiry() override;
+  CefRefPtr<CefBinaryValue> GetDEREncoded() override;
+  CefRefPtr<CefBinaryValue> GetPEMEncoded() override;
+  size_t GetIssuerChainSize() override;
+  void GetDEREncodedIssuerChain(IssuerChainBinaryList& chain) override;
+  void GetPEMEncodedIssuerChain(IssuerChainBinaryList& chain) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_X509CERTIFICATE_CTOCPP_H_

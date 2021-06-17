@@ -36,7 +36,7 @@ class FindReplaceResponseFilter : public CefResponseFilter {
         replace_overflow_size_(0U),
         replace_count_(0U) {}
 
-  bool InitFilter() OVERRIDE {
+  bool InitFilter() override {
     const size_t find_size = sizeof(kFindString) - 1;
     const size_t replace_size = sizeof(kReplaceString) - 1;
 
@@ -54,7 +54,7 @@ class FindReplaceResponseFilter : public CefResponseFilter {
                       size_t& data_in_read,
                       void* data_out,
                       size_t data_out_size,
-                      size_t& data_out_written) OVERRIDE {
+                      size_t& data_out_written) override {
     DCHECK((data_in_size == 0U && !data_in) || (data_in_size > 0U && data_in));
     DCHECK_EQ(data_in_read, 0U);
     DCHECK(data_out);
@@ -176,14 +176,14 @@ class PassThruResponseFilter : public CefResponseFilter {
  public:
   PassThruResponseFilter() {}
 
-  bool InitFilter() OVERRIDE { return true; }
+  bool InitFilter() override { return true; }
 
   FilterStatus Filter(void* data_in,
                       size_t data_in_size,
                       size_t& data_in_read,
                       void* data_out,
                       size_t data_out_size,
-                      size_t& data_out_written) OVERRIDE {
+                      size_t& data_out_written) override {
     DCHECK((data_in_size == 0U && !data_in) || (data_in_size > 0U && data_in));
     DCHECK_EQ(data_in_read, 0U);
     DCHECK(data_out);

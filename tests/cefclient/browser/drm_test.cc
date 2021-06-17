@@ -30,7 +30,7 @@ class CdmCallback : public CefRegisterCdmCallback {
       : callback_(callback) {}
 
   void OnCdmRegistrationComplete(cef_cdm_registration_error_t result,
-                                 const CefString& error_message) OVERRIDE {
+                                 const CefString& error_message) override {
     if (result == CEF_CDM_REGISTRATION_ERROR_NONE)
       callback_->Success("");
     else
@@ -56,7 +56,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
                        int64 query_id,
                        const CefString& request,
                        bool persistent,
-                       CefRefPtr<Callback> callback) OVERRIDE {
+                       CefRefPtr<Callback> callback) override {
     // Only handle messages from the test URL.
     const std::string& url = frame->GetURL();
     if (!test_runner::IsTestURL(url, kTestUrlPath))

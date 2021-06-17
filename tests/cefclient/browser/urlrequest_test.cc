@@ -41,7 +41,7 @@ class RequestClient : public CefURLRequestClient {
       callback_.Reset();
   }
 
-  void OnRequestComplete(CefRefPtr<CefURLRequest> request) OVERRIDE {
+  void OnRequestComplete(CefRefPtr<CefURLRequest> request) override {
     CEF_REQUIRE_UI_THREAD();
     if (!callback_.is_null()) {
       callback_.Run(request->GetRequestError(), download_data_);
@@ -51,15 +51,15 @@ class RequestClient : public CefURLRequestClient {
 
   void OnUploadProgress(CefRefPtr<CefURLRequest> request,
                         int64 current,
-                        int64 total) OVERRIDE {}
+                        int64 total) override {}
 
   void OnDownloadProgress(CefRefPtr<CefURLRequest> request,
                           int64 current,
-                          int64 total) OVERRIDE {}
+                          int64 total) override {}
 
   void OnDownloadData(CefRefPtr<CefURLRequest> request,
                       const void* data,
-                      size_t data_length) OVERRIDE {
+                      size_t data_length) override {
     CEF_REQUIRE_UI_THREAD();
     download_data_ += std::string(static_cast<const char*>(data), data_length);
   }
@@ -69,7 +69,7 @@ class RequestClient : public CefURLRequestClient {
                           int port,
                           const CefString& realm,
                           const CefString& scheme,
-                          CefRefPtr<CefAuthCallback> callback) OVERRIDE {
+                          CefRefPtr<CefAuthCallback> callback) override {
     return false;
   }
 
@@ -94,7 +94,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
                int64 query_id,
                const CefString& request,
                bool persistent,
-               CefRefPtr<Callback> callback) OVERRIDE {
+               CefRefPtr<Callback> callback) override {
     CEF_REQUIRE_UI_THREAD();
 
     // Only handle messages from the test URL.

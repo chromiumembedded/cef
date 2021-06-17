@@ -15,7 +15,7 @@ def make_function_body_block(cls):
     if cls.is_client_side():
       impl += ' override;\n'
     else:
-      impl += ' OVERRIDE;\n'
+      impl += ' override;\n'
 
   return impl
 

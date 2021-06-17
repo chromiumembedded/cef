@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a3876890dd91d430af51c1f0ce639e8449453bc3$
+// $hash=4455818cc5cea47d69ccc7656f04aa39c9fc60e5$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_SSLSTATUS_CTOCPP_H_
@@ -34,11 +34,11 @@ class CefSSLStatusCToCpp : public CefCToCppRefCounted<CefSSLStatusCToCpp,
   virtual ~CefSSLStatusCToCpp();
 
   // CefSSLStatus methods.
-  bool IsSecureConnection() OVERRIDE;
-  cef_cert_status_t GetCertStatus() OVERRIDE;
-  cef_ssl_version_t GetSSLVersion() OVERRIDE;
-  cef_ssl_content_status_t GetContentStatus() OVERRIDE;
-  CefRefPtr<CefX509Certificate> GetX509Certificate() OVERRIDE;
+  bool IsSecureConnection() override;
+  cef_cert_status_t GetCertStatus() override;
+  cef_ssl_version_t GetSSLVersion() override;
+  cef_ssl_content_status_t GetContentStatus() override;
+  CefRefPtr<CefX509Certificate> GetX509Certificate() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_SSLSTATUS_CTOCPP_H_
