@@ -495,11 +495,7 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
   HttpTestRunner(bool parallel_requests)
       : parallel_requests_(parallel_requests),
         initialized_(false),
-        next_request_id_(0) {
-    handler_ = new TestServerHandler(
-        base::Bind(&HttpTestRunner::OnServerStarted, this),
-        base::Bind(&HttpTestRunner::OnServerDestroyed, this));
-  }
+        next_request_id_(0) {}
 
   virtual ~HttpTestRunner() {
     if (destroy_event_)
@@ -515,6 +511,10 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
   // Blocks until the test has completed or timed out.
   void ExecuteTest() {
     EXPECT_FALSE(CefCurrentlyOn(TID_UI));
+
+    handler_ = new TestServerHandler(
+        base::Bind(&HttpTestRunner::OnServerStarted, this),
+        base::Bind(&HttpTestRunner::OnServerDestroyed, this));
 
     run_event_ = CefWaitableEvent::CreateWaitableEvent(false, false);
 

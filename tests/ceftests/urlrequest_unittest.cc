@@ -1553,7 +1553,9 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     owner_task_runner_ = CefTaskRunner::GetForCurrentThread();
     EXPECT_TRUE(owner_task_runner_.get());
     EXPECT_TRUE(owner_task_runner_->BelongsToCurrentThread());
+  }
 
+  void Initialize() {
 // Helper macro for registering test callbacks.
 #define REGISTER_TEST(test_mode, setup_method, run_method)                    \
   RegisterTest(test_mode, base::Bind(&RequestTestRunner::setup_method, this), \
@@ -2744,6 +2746,7 @@ class RequestRendererTest : public ClientAppRenderer::Delegate {
       test_runner_ = new RequestTestRunner(
           false, args->GetBool(1), use_frame_method, false,
           base::Bind(&RequestRendererTest::OnIncompleteRequest, this));
+      test_runner_->Initialize();
 
       // Setup the test. This will create the objects that we test against but
       // not register any backend (because we're in the render process).
@@ -2879,6 +2882,7 @@ class RequestTestHandler : public TestHandler {
     test_runner_ = new RequestTestRunner(
         true, test_server_backend_, test_frame_method_, test_in_browser_,
         base::Bind(&RequestTestHandler::OnIncompleteRequest, this));
+    test_runner_->Initialize();
 
     // Get or create the request context.
     if (context_mode_ == CONTEXT_GLOBAL) {
