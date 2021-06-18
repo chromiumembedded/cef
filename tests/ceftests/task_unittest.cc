@@ -108,7 +108,7 @@ void PostTaskEvent1(bool* ran_test,
   event->Signal();
 }
 
-void PostTask1(bool* ran_test, CefRefPtr<CefWaitableEvent> event) {
+void PostOnceTask1(bool* ran_test, CefRefPtr<CefWaitableEvent> event) {
   // Currently on the FILE thread.
   CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
   EXPECT_TRUE(runner.get());
@@ -116,17 +116,41 @@ void PostTask1(bool* ran_test, CefRefPtr<CefWaitableEvent> event) {
   EXPECT_TRUE(runner->BelongsToThread(TID_IO));
 
   runner->PostTask(CefCreateClosureTask(
-      base::Bind(&PostTaskEvent1, ran_test, event, runner)));
+      base::BindOnce(&PostTaskEvent1, ran_test, event, runner)));
 }
 
-void PostDelayedTask1(bool* ran_test, CefRefPtr<CefWaitableEvent> event) {
+void PostRepeatingTask1(bool* ran_test, CefRefPtr<CefWaitableEvent> event) {
   // Currently on the FILE thread.
   CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
   EXPECT_TRUE(runner.get());
   EXPECT_FALSE(runner->BelongsToCurrentThread());
   EXPECT_TRUE(runner->BelongsToThread(TID_IO));
 
-  runner->PostDelayedTask(CefCreateClosureTask(base::Bind(
+  runner->PostTask(CefCreateClosureTask(
+      base::BindRepeating(&PostTaskEvent1, ran_test, event, runner)));
+}
+
+void PostOnceDelayedTask1(bool* ran_test, CefRefPtr<CefWaitableEvent> event) {
+  // Currently on the FILE thread.
+  CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
+  EXPECT_TRUE(runner.get());
+  EXPECT_FALSE(runner->BelongsToCurrentThread());
+  EXPECT_TRUE(runner->BelongsToThread(TID_IO));
+
+  runner->PostDelayedTask(CefCreateClosureTask(base::BindOnce(
+                              &PostTaskEvent1, ran_test, event, runner)),
+                          0);
+}
+
+void PostRepeatingDelayedTask1(bool* ran_test,
+                               CefRefPtr<CefWaitableEvent> event) {
+  // Currently on the FILE thread.
+  CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
+  EXPECT_TRUE(runner.get());
+  EXPECT_FALSE(runner->BelongsToCurrentThread());
+  EXPECT_TRUE(runner->BelongsToThread(TID_IO));
+
+  runner->PostDelayedTask(CefCreateClosureTask(base::BindRepeating(
                               &PostTaskEvent1, ran_test, event, runner)),
                           0);
 }
@@ -139,82 +163,169 @@ void PostTaskEvent2(bool* ran_test, CefRefPtr<CefWaitableEvent> event) {
   event->Signal();
 }
 
-void PostTask2(bool* ran_test, CefRefPtr<CefWaitableEvent> event) {
+void PostOnceTask2(bool* ran_test, CefRefPtr<CefWaitableEvent> event) {
   // Currently on the FILE thread.
   EXPECT_FALSE(CefCurrentlyOn(TID_IO));
 
   CefPostTask(TID_IO, CefCreateClosureTask(
-                          base::Bind(&PostTaskEvent2, ran_test, event)));
+                          base::BindOnce(&PostTaskEvent2, ran_test, event)));
 }
 
-void PostDelayedTask2(bool* ran_test, CefRefPtr<CefWaitableEvent> event) {
+void PostRepeatingTask2(bool* ran_test, CefRefPtr<CefWaitableEvent> event) {
+  // Currently on the FILE thread.
+  EXPECT_FALSE(CefCurrentlyOn(TID_IO));
+
+  CefPostTask(TID_IO, CefCreateClosureTask(base::BindRepeating(
+                          &PostTaskEvent2, ran_test, event)));
+}
+
+void PostOnceDelayedTask2(bool* ran_test, CefRefPtr<CefWaitableEvent> event) {
   // Currently on the FILE thread.
   EXPECT_FALSE(CefCurrentlyOn(TID_IO));
 
   CefPostDelayedTask(
       TID_IO,
-      CefCreateClosureTask(base::Bind(&PostTaskEvent2, ran_test, event)), 0);
+      CefCreateClosureTask(base::BindOnce(&PostTaskEvent2, ran_test, event)),
+      0);
+}
+
+void PostRepeatingDelayedTask2(bool* ran_test,
+                               CefRefPtr<CefWaitableEvent> event) {
+  // Currently on the FILE thread.
+  EXPECT_FALSE(CefCurrentlyOn(TID_IO));
+
+  CefPostDelayedTask(TID_IO,
+                     CefCreateClosureTask(
+                         base::BindRepeating(&PostTaskEvent2, ran_test, event)),
+                     0);
 }
 
 }  // namespace
 
-TEST(TaskTest, GetForCurrentThread) {
+TEST(TaskTest, GetOnceForCurrentThread) {
   bool ran_test = false;
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
-  CefPostTask(
-      TID_FILE_USER_VISIBLE,
-      CefCreateClosureTask(base::Bind(&GetForCurrentThread, &ran_test, event)));
+  CefPostTask(TID_FILE_USER_VISIBLE,
+              CefCreateClosureTask(
+                  base::BindOnce(&GetForCurrentThread, &ran_test, event)));
   WaitForEvent(event);
   EXPECT_TRUE(ran_test);
 }
 
-TEST(TaskTest, GetForThread) {
+TEST(TaskTest, GetRepeatingForCurrentThread) {
   bool ran_test = false;
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
-  CefPostTask(TID_FILE_USER_VISIBLE, CefCreateClosureTask(base::Bind(
+  CefPostTask(TID_FILE_USER_VISIBLE,
+              CefCreateClosureTask(
+                  base::BindRepeating(&GetForCurrentThread, &ran_test, event)));
+  WaitForEvent(event);
+  EXPECT_TRUE(ran_test);
+}
+
+TEST(TaskTest, GetOnceForThread) {
+  bool ran_test = false;
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
+  CefPostTask(TID_FILE_USER_VISIBLE, CefCreateClosureTask(base::BindOnce(
                                          &GetForThread, &ran_test, event)));
   WaitForEvent(event);
   EXPECT_TRUE(ran_test);
 }
 
-TEST(TaskTest, PostTask1) {
+TEST(TaskTest, GetRepeatingForThread) {
+  bool ran_test = false;
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
+  CefPostTask(TID_FILE_USER_VISIBLE, CefCreateClosureTask(base::BindRepeating(
+                                         &GetForThread, &ran_test, event)));
+  WaitForEvent(event);
+  EXPECT_TRUE(ran_test);
+}
+
+TEST(TaskTest, PostOnceTask1) {
+  bool ran_test = false;
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
+  CefPostTask(TID_FILE_USER_VISIBLE, CefCreateClosureTask(base::BindOnce(
+                                         &PostOnceTask1, &ran_test, event)));
+  WaitForEvent(event);
+  EXPECT_TRUE(ran_test);
+}
+
+TEST(TaskTest, PostRepeatingTask1) {
   bool ran_test = false;
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
   CefPostTask(TID_FILE_USER_VISIBLE,
-              CefCreateClosureTask(base::Bind(&PostTask1, &ran_test, event)));
+              CefCreateClosureTask(
+                  base::BindRepeating(&PostRepeatingTask1, &ran_test, event)));
   WaitForEvent(event);
   EXPECT_TRUE(ran_test);
 }
 
-TEST(TaskTest, PostDelayedTask1) {
-  bool ran_test = false;
-  CefRefPtr<CefWaitableEvent> event =
-      CefWaitableEvent::CreateWaitableEvent(true, false);
-  CefPostTask(TID_FILE_USER_VISIBLE, CefCreateClosureTask(base::Bind(
-                                         &PostDelayedTask1, &ran_test, event)));
-  WaitForEvent(event);
-  EXPECT_TRUE(ran_test);
-}
-
-TEST(TaskTest, PostTask2) {
+TEST(TaskTest, PostOnceDelayedTask1) {
   bool ran_test = false;
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
   CefPostTask(TID_FILE_USER_VISIBLE,
-              CefCreateClosureTask(base::Bind(&PostTask2, &ran_test, event)));
+              CefCreateClosureTask(
+                  base::BindOnce(&PostOnceDelayedTask1, &ran_test, event)));
   WaitForEvent(event);
   EXPECT_TRUE(ran_test);
 }
 
-TEST(TaskTest, PostDelayedTask2) {
+TEST(TaskTest, PostRepeatingDelayedTask1) {
   bool ran_test = false;
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
-  CefPostTask(TID_FILE_USER_VISIBLE, CefCreateClosureTask(base::Bind(
-                                         &PostDelayedTask2, &ran_test, event)));
+  CefPostTask(TID_FILE_USER_VISIBLE,
+              CefCreateClosureTask(base::BindRepeating(
+                  &PostRepeatingDelayedTask1, &ran_test, event)));
+  WaitForEvent(event);
+  EXPECT_TRUE(ran_test);
+}
+
+TEST(TaskTest, PostOnceTask2) {
+  bool ran_test = false;
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
+  CefPostTask(TID_FILE_USER_VISIBLE, CefCreateClosureTask(base::BindOnce(
+                                         &PostOnceTask2, &ran_test, event)));
+  WaitForEvent(event);
+  EXPECT_TRUE(ran_test);
+}
+
+TEST(TaskTest, PostRepeatingTask2) {
+  bool ran_test = false;
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
+  CefPostTask(TID_FILE_USER_VISIBLE,
+              CefCreateClosureTask(
+                  base::BindRepeating(&PostRepeatingTask2, &ran_test, event)));
+  WaitForEvent(event);
+  EXPECT_TRUE(ran_test);
+}
+
+TEST(TaskTest, PostOnceDelayedTask2) {
+  bool ran_test = false;
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
+  CefPostTask(TID_FILE_USER_VISIBLE,
+              CefCreateClosureTask(
+                  base::BindOnce(&PostOnceDelayedTask2, &ran_test, event)));
+  WaitForEvent(event);
+  EXPECT_TRUE(ran_test);
+}
+
+TEST(TaskTest, PostRepeatingDelayedTask2) {
+  bool ran_test = false;
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
+  CefPostTask(TID_FILE_USER_VISIBLE,
+              CefCreateClosureTask(base::BindRepeating(
+                  &PostRepeatingDelayedTask2, &ran_test, event)));
   WaitForEvent(event);
   EXPECT_TRUE(ran_test);
 }
