@@ -46,9 +46,9 @@
 #include <type_traits>
 #include <utility>
 
+#include "include/base/cef_compiler_specific.h"
 #include "include/base/cef_logging.h"
 #include "include/base/cef_macros.h"
-#include "include/base/cef_compiler_specific.h"
 
 template <class T>
 class scoped_refptr;
@@ -71,7 +71,7 @@ class BasePromise;
 
 }  // namespace internal
 
-namespace subtle {
+namespace cef_subtle {
 
 enum AdoptRefTag { kAdoptRefTag };
 enum StartRefCountFromZeroTag { kStartRefCountFromZeroTag };
@@ -96,7 +96,7 @@ constexpr bool IsRefCountPreferenceOverridden(...) {
   return false;
 }
 
-}  // namespace subtle
+}  // namespace cef_subtle
 
 // Creates a scoped_refptr from a raw pointer without incrementing the reference
 // count. Use this only for a newly created object whose reference count starts
@@ -104,16 +104,16 @@ constexpr bool IsRefCountPreferenceOverridden(...) {
 template <typename T>
 scoped_refptr<T> AdoptRef(T* obj) {
   using Tag = std::decay_t<decltype(T::kRefCountPreference)>;
-  static_assert(std::is_same<subtle::StartRefCountFromOneTag, Tag>::value,
+  static_assert(std::is_same<cef_subtle::StartRefCountFromOneTag, Tag>::value,
                 "Use AdoptRef only if the reference count starts from one.");
 
   DCHECK(obj);
   DCHECK(obj->HasOneRef());
   obj->Adopted();
-  return scoped_refptr<T>(obj, subtle::kAdoptRefTag);
+  return scoped_refptr<T>(obj, cef_subtle::kAdoptRefTag);
 }
 
-namespace subtle {
+namespace cef_subtle {
 
 template <typename T>
 scoped_refptr<T> AdoptRefIfNeeded(T* obj, StartRefCountFromZeroTag) {
@@ -125,14 +125,14 @@ scoped_refptr<T> AdoptRefIfNeeded(T* obj, StartRefCountFromOneTag) {
   return AdoptRef(obj);
 }
 
-}  // namespace subtle
+}  // namespace cef_subtle
 
 // Constructs an instance of T, which is a ref counted type, and wraps the
 // object into a scoped_refptr<T>.
 template <typename T, typename... Args>
 scoped_refptr<T> MakeRefCounted(Args&&... args) {
   T* obj = new T(std::forward<Args>(args)...);
-  return subtle::AdoptRefIfNeeded(obj, T::kRefCountPreference);
+  return cef_subtle::AdoptRefIfNeeded(obj, T::kRefCountPreference);
 }
 
 // Takes an instance of T, which is a ref counted type, and wraps the object
@@ -250,7 +250,7 @@ class TRIVIAL_ABI scoped_refptr {
   }
 
   ~scoped_refptr() {
-    static_assert(!base::subtle::IsRefCountPreferenceOverridden(
+    static_assert(!base::cef_subtle::IsRefCountPreferenceOverridden(
                       static_cast<T*>(nullptr), static_cast<T*>(nullptr)),
                   "It's unsafe to override the ref count preference."
                   " Please remove REQUIRE_ADOPTION_FOR_REFCOUNTED_TYPE"
@@ -324,7 +324,7 @@ class TRIVIAL_ABI scoped_refptr {
   friend class ::base::internal::BasePromise;
   friend class ::base::WrappedPromise;
 
-  scoped_refptr(T* p, base::subtle::AdoptRefTag) : ptr_(p) {}
+  scoped_refptr(T* p, base::cef_subtle::AdoptRefTag) : ptr_(p) {}
 
   // Friend required for move constructors that set r.ptr_ to null.
   template <typename U>

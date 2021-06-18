@@ -16,7 +16,7 @@ std::atomic_int g_cross_thread_ref_count_access_allow_count(0);
 
 }  // namespace
 
-namespace subtle {
+namespace cef_subtle {
 
 bool RefCountedThreadSafeBase::HasOneRef() const {
   return ref_count_.IsOne();
@@ -84,8 +84,6 @@ bool RefCountedBase::CalledOnValidThread() const {
 }
 #endif
 
-}  // namespace subtle
-
 #if DCHECK_IS_ON()
 ScopedAllowCrossThreadRefCountAccess::ScopedAllowCrossThreadRefCountAccess() {
   ++g_cross_thread_ref_count_access_allow_count;
@@ -96,4 +94,5 @@ ScopedAllowCrossThreadRefCountAccess::~ScopedAllowCrossThreadRefCountAccess() {
 }
 #endif
 
+}  // namespace cef_subtle
 }  // namespace base

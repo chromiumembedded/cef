@@ -55,7 +55,7 @@
 #include "include/base/cef_thread_checker.h"
 
 namespace base {
-namespace subtle {
+namespace cef_subtle {
 
 class RefCountedBase {
  public:
@@ -263,8 +263,6 @@ class RefCountedThreadSafeBase {
   DISALLOW_COPY_AND_ASSIGN(RefCountedThreadSafeBase);
 };
 
-}  // namespace subtle
-
 // ScopedAllowCrossThreadRefCountAccess disables the check documented on
 // RefCounted below for rare pre-existing use cases where thread-safety was
 // guaranteed through other means (e.g. explicit sequencing of calls across
@@ -285,6 +283,11 @@ class ScopedAllowCrossThreadRefCountAccess final {
   ~ScopedAllowCrossThreadRefCountAccess() {}
 #endif
 };
+
+}  // namespace cef_subtle
+
+using ScopedAllowCrossThreadRefCountAccess =
+    cef_subtle::ScopedAllowCrossThreadRefCountAccess;
 
 //
 // A base class for reference counted classes.  Otherwise, known as a cheap
@@ -332,9 +335,9 @@ class ScopedAllowCrossThreadRefCountAccess final {
 //    And start-from-one ref count is a step to merge WTF::RefCounted into
 //    base::RefCounted.
 //
-#define REQUIRE_ADOPTION_FOR_REFCOUNTED_TYPE()             \
-  static constexpr ::base::subtle::StartRefCountFromOneTag \
-      kRefCountPreference = ::base::subtle::kStartRefCountFromOneTag
+#define REQUIRE_ADOPTION_FOR_REFCOUNTED_TYPE()                 \
+  static constexpr ::base::cef_subtle::StartRefCountFromOneTag \
+      kRefCountPreference = ::base::cef_subtle::kStartRefCountFromOneTag
 
 template <class T, typename Traits>
 class RefCounted;
@@ -347,17 +350,17 @@ struct DefaultRefCountedTraits {
 };
 
 template <class T, typename Traits = DefaultRefCountedTraits<T>>
-class RefCounted : public subtle::RefCountedBase {
+class RefCounted : public cef_subtle::RefCountedBase {
  public:
-  static constexpr subtle::StartRefCountFromZeroTag kRefCountPreference =
-      subtle::kStartRefCountFromZeroTag;
+  static constexpr cef_subtle::StartRefCountFromZeroTag kRefCountPreference =
+      cef_subtle::kStartRefCountFromZeroTag;
 
-  RefCounted() : subtle::RefCountedBase(T::kRefCountPreference) {}
+  RefCounted() : cef_subtle::RefCountedBase(T::kRefCountPreference) {}
 
-  void AddRef() const { subtle::RefCountedBase::AddRef(); }
+  void AddRef() const { cef_subtle::RefCountedBase::AddRef(); }
 
   void Release() const {
-    if (subtle::RefCountedBase::Release()) {
+    if (cef_subtle::RefCountedBase::Release()) {
       // Prune the code paths which the static analyzer may take to simulate
       // object destruction. Use-after-free errors aren't possible given the
       // lifetime guarantees of the refcounting system.
@@ -413,18 +416,18 @@ struct DefaultRefCountedThreadSafeTraits {
 // We can use REQUIRE_ADOPTION_FOR_REFCOUNTED_TYPE() with RefCountedThreadSafe
 // too. See the comment above the RefCounted definition for details.
 template <class T, typename Traits = DefaultRefCountedThreadSafeTraits<T>>
-class RefCountedThreadSafe : public subtle::RefCountedThreadSafeBase {
+class RefCountedThreadSafe : public cef_subtle::RefCountedThreadSafeBase {
  public:
-  static constexpr subtle::StartRefCountFromZeroTag kRefCountPreference =
-      subtle::kStartRefCountFromZeroTag;
+  static constexpr cef_subtle::StartRefCountFromZeroTag kRefCountPreference =
+      cef_subtle::kStartRefCountFromZeroTag;
 
   explicit RefCountedThreadSafe()
-      : subtle::RefCountedThreadSafeBase(T::kRefCountPreference) {}
+      : cef_subtle::RefCountedThreadSafeBase(T::kRefCountPreference) {}
 
   void AddRef() const { AddRefImpl(T::kRefCountPreference); }
 
   void Release() const {
-    if (subtle::RefCountedThreadSafeBase::Release()) {
+    if (cef_subtle::RefCountedThreadSafeBase::Release()) {
       ANALYZER_SKIP_THIS_PATH();
       Traits::Destruct(static_cast<const T*>(this));
     }
@@ -440,12 +443,12 @@ class RefCountedThreadSafe : public subtle::RefCountedThreadSafeBase {
     delete x;
   }
 
-  void AddRefImpl(subtle::StartRefCountFromZeroTag) const {
-    subtle::RefCountedThreadSafeBase::AddRef();
+  void AddRefImpl(cef_subtle::StartRefCountFromZeroTag) const {
+    cef_subtle::RefCountedThreadSafeBase::AddRef();
   }
 
-  void AddRefImpl(subtle::StartRefCountFromOneTag) const {
-    subtle::RefCountedThreadSafeBase::AddRefWithCheck();
+  void AddRefImpl(cef_subtle::StartRefCountFromOneTag) const {
+    cef_subtle::RefCountedThreadSafeBase::AddRefWithCheck();
   }
 
   DISALLOW_COPY_AND_ASSIGN(RefCountedThreadSafe);
