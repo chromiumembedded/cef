@@ -66,14 +66,15 @@ class CefResourceManager
   // file extension. |url| will be fully qualified and may contain query or
   // fragment components.
   ///
-  typedef base::Callback<std::string(const std::string& /*url*/)> UrlFilter;
+  using UrlFilter =
+      base::RepeatingCallback<std::string(const std::string& /*url*/)>;
 
   ///
   // Used to resolve mime types for URLs, usually based on the file extension.
   // |url| will be fully qualified and may contain query or fragment components.
   ///
-  typedef base::Callback<std::string(const std::string& /*url*/)>
-      MimeTypeResolver;
+  using MimeTypeResolver =
+      base::RepeatingCallback<std::string(const std::string& /*url*/)>;
 
  private:
   // Values that stay with a request as it moves between providers.

@@ -83,8 +83,9 @@ struct CefDeleteOnThread {
     if (CefCurrentlyOn(thread)) {
       delete x;
     } else {
-      CefPostTask(thread, base::Bind(&CefDeleteOnThread<thread>::Destruct<T>,
-                                     base::Unretained(x)));
+      CefPostTask(thread,
+                  base::BindOnce(&CefDeleteOnThread<thread>::Destruct<T>,
+                                 base::Unretained(x)));
     }
   }
 };

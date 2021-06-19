@@ -7,7 +7,6 @@
 #include <map>
 #include <set>
 
-#include "include/base/cef_bind.h"
 #include "include/base/cef_callback.h"
 #include "include/base/cef_macros.h"
 #include "include/cef_task.h"
@@ -86,15 +85,16 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     void Success(const CefString& response) override {
       if (!CefCurrentlyOn(TID_UI)) {
         // Must execute on the UI thread to access member variables.
-        CefPostTask(TID_UI, base::Bind(&CallbackImpl::Success, this, response));
+        CefPostTask(TID_UI,
+                    base::BindOnce(&CallbackImpl::Success, this, response));
         return;
       }
 
       if (router_) {
         CefPostTask(
             TID_UI,
-            base::Bind(&CefMessageRouterBrowserSideImpl::OnCallbackSuccess,
-                       router_.get(), browser_id_, query_id_, response));
+            base::BindOnce(&CefMessageRouterBrowserSideImpl::OnCallbackSuccess,
+                           router_.get(), browser_id_, query_id_, response));
 
         if (!persistent_) {
           // Non-persistent callbacks are only good for a single use.
@@ -106,17 +106,17 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     void Failure(int error_code, const CefString& error_message) override {
       if (!CefCurrentlyOn(TID_UI)) {
         // Must execute on the UI thread to access member variables.
-        CefPostTask(TID_UI, base::Bind(&CallbackImpl::Failure, this, error_code,
-                                       error_message));
+        CefPostTask(TID_UI, base::BindOnce(&CallbackImpl::Failure, this,
+                                           error_code, error_message));
         return;
       }
 
       if (router_) {
         CefPostTask(
             TID_UI,
-            base::Bind(&CefMessageRouterBrowserSideImpl::OnCallbackFailure,
-                       router_.get(), browser_id_, query_id_, error_code,
-                       error_message));
+            base::BindOnce(&CefMessageRouterBrowserSideImpl::OnCallbackFailure,
+                           router_.get(), browser_id_, query_id_, error_code,
+                           error_message));
 
         // Failure always invalidates the callback.
         router_ = nullptr;
@@ -483,9 +483,10 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
                         bool notify_renderer) {
     if (!CefCurrentlyOn(TID_UI)) {
       // Must execute on the UI thread.
-      CefPostTask(TID_UI,
-                  base::Bind(&CefMessageRouterBrowserSideImpl::CancelPendingFor,
-                             this, browser, handler, notify_renderer));
+      CefPostTask(
+          TID_UI,
+          base::BindOnce(&CefMessageRouterBrowserSideImpl::CancelPendingFor,
+                         this, browser, handler, notify_renderer));
       return;
     }
 
@@ -819,7 +820,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
         const CefString& response = args->GetString(3);
         CefPostTask(
             TID_RENDERER,
-            base::Bind(
+            base::BindOnce(
                 &CefMessageRouterRendererSideImpl::ExecuteSuccessCallback, this,
                 browser->GetIdentifier(), context_id, request_id, response));
       } else {
@@ -828,7 +829,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
         const CefString& error_message = args->GetString(4);
         CefPostTask(
             TID_RENDERER,
-            base::Bind(
+            base::BindOnce(
                 &CefMessageRouterRendererSideImpl::ExecuteFailureCallback, this,
                 browser->GetIdentifier(), context_id, request_id, error_code,
                 error_message));

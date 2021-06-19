@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <vector>
 
+#include "include/base/cef_callback.h"
 #include "include/base/cef_macros.h"
 #include "include/base/cef_weak_ptr.h"
 #include "include/cef_parser.h"
@@ -116,9 +117,9 @@ class DirectoryProvider : public CefResourceManager::Provider {
     const std::string& file_path = GetFilePath(url);
 
     // Open |file_path| on the FILE thread.
-    CefPostTask(
-        TID_FILE_USER_BLOCKING,
-        base::Bind(&DirectoryProvider::OpenOnFileThread, file_path, request));
+    CefPostTask(TID_FILE_USER_BLOCKING,
+                base::BindOnce(&DirectoryProvider::OpenOnFileThread, file_path,
+                               request));
 
     return true;
   }
@@ -141,8 +142,9 @@ class DirectoryProvider : public CefResourceManager::Provider {
         CefStreamReader::CreateForFile(file_path);
 
     // Continue loading on the IO thread.
-    CefPostTask(TID_IO, base::Bind(&DirectoryProvider::ContinueOpenOnIOThread,
-                                   request, stream));
+    CefPostTask(TID_IO,
+                base::BindOnce(&DirectoryProvider::ContinueOpenOnIOThread,
+                               request, stream));
   }
 
   static void ContinueOpenOnIOThread(
@@ -199,10 +201,10 @@ class ArchiveProvider : public CefResourceManager::Provider {
       pending_requests_.push_back(request);
 
       // Load the archive file on the FILE thread.
-      CefPostTask(
-          TID_FILE_USER_BLOCKING,
-          base::Bind(&ArchiveProvider::LoadOnFileThread,
-                     weak_ptr_factory_.GetWeakPtr(), archive_path_, password_));
+      CefPostTask(TID_FILE_USER_BLOCKING,
+                  base::BindOnce(&ArchiveProvider::LoadOnFileThread,
+                                 weak_ptr_factory_.GetWeakPtr(), archive_path_,
+                                 password_));
       return true;
     }
 
@@ -236,8 +238,8 @@ class ArchiveProvider : public CefResourceManager::Provider {
       DLOG(WARNING) << "Failed to load archive file: " << archive_path;
     }
 
-    CefPostTask(TID_IO,
-                base::Bind(&ArchiveProvider::ContinueOnIOThread, ptr, archive));
+    CefPostTask(TID_IO, base::BindOnce(&ArchiveProvider::ContinueOnIOThread,
+                                       ptr, archive));
   }
 
   void ContinueOnIOThread(CefRefPtr<CefZipArchive> archive) {
@@ -330,8 +332,8 @@ CefResourceManager::RequestState::~RequestState() {
 void CefResourceManager::Request::Continue(
     CefRefPtr<CefResourceHandler> handler) {
   if (!CefCurrentlyOn(TID_IO)) {
-    CefPostTask(TID_IO, base::Bind(&CefResourceManager::Request::Continue, this,
-                                   handler));
+    CefPostTask(TID_IO, base::BindOnce(&CefResourceManager::Request::Continue,
+                                       this, handler));
     return;
   }
 
@@ -342,13 +344,14 @@ void CefResourceManager::Request::Continue(
   // not called unexpectedly if Provider::OnRequest calls this method and then
   // calls CefResourceManager::Remove*.
   CefPostTask(TID_IO,
-              base::Bind(&CefResourceManager::Request::ContinueOnIOThread,
-                         base::Passed(&state_), handler));
+              base::BindOnce(&CefResourceManager::Request::ContinueOnIOThread,
+                             std::move(state_), handler));
 }
 
 void CefResourceManager::Request::Stop() {
   if (!CefCurrentlyOn(TID_IO)) {
-    CefPostTask(TID_IO, base::Bind(&CefResourceManager::Request::Stop, this));
+    CefPostTask(TID_IO,
+                base::BindOnce(&CefResourceManager::Request::Stop, this));
     return;
   }
 
@@ -358,8 +361,9 @@ void CefResourceManager::Request::Stop() {
   // Disassociate |state_| immediately so that Provider::OnRequestCanceled is
   // not called unexpectedly if Provider::OnRequest calls this method and then
   // calls CefResourceManager::Remove*.
-  CefPostTask(TID_IO, base::Bind(&CefResourceManager::Request::StopOnIOThread,
-                                 base::Passed(&state_)));
+  CefPostTask(TID_IO,
+              base::BindOnce(&CefResourceManager::Request::StopOnIOThread,
+                             std::move(state_)));
 }
 
 CefResourceManager::Request::Request(std::unique_ptr<RequestState> state)
@@ -417,8 +421,8 @@ void CefResourceManager::Request::StopOnIOThread(
 // CefResourceManager implementation.
 
 CefResourceManager::CefResourceManager()
-    : url_filter_(base::Bind(GetFilteredUrl)),
-      mime_type_resolver_(base::Bind(GetMimeType)) {}
+    : url_filter_(base::BindRepeating(GetFilteredUrl)),
+      mime_type_resolver_(base::BindRepeating(GetMimeType)) {}
 
 CefResourceManager::~CefResourceManager() {
   CEF_REQUIRE_IO_THREAD();
@@ -467,8 +471,8 @@ void CefResourceManager::AddProvider(Provider* provider,
     return;
 
   if (!CefCurrentlyOn(TID_IO)) {
-    CefPostTask(TID_IO, base::Bind(&CefResourceManager::AddProvider, this,
-                                   provider, order, identifier));
+    CefPostTask(TID_IO, base::BindOnce(&CefResourceManager::AddProvider, this,
+                                       provider, order, identifier));
     return;
   }
 
@@ -492,8 +496,8 @@ void CefResourceManager::AddProvider(Provider* provider,
 
 void CefResourceManager::RemoveProviders(const std::string& identifier) {
   if (!CefCurrentlyOn(TID_IO)) {
-    CefPostTask(TID_IO, base::Bind(&CefResourceManager::RemoveProviders, this,
-                                   identifier));
+    CefPostTask(TID_IO, base::BindOnce(&CefResourceManager::RemoveProviders,
+                                       this, identifier));
     return;
   }
 
@@ -512,7 +516,7 @@ void CefResourceManager::RemoveProviders(const std::string& identifier) {
 void CefResourceManager::RemoveAllProviders() {
   if (!CefCurrentlyOn(TID_IO)) {
     CefPostTask(TID_IO,
-                base::Bind(&CefResourceManager::RemoveAllProviders, this));
+                base::BindOnce(&CefResourceManager::RemoveAllProviders, this));
     return;
   }
 
@@ -526,28 +530,28 @@ void CefResourceManager::RemoveAllProviders() {
 
 void CefResourceManager::SetMimeTypeResolver(const MimeTypeResolver& resolver) {
   if (!CefCurrentlyOn(TID_IO)) {
-    CefPostTask(TID_IO, base::Bind(&CefResourceManager::SetMimeTypeResolver,
-                                   this, resolver));
+    CefPostTask(TID_IO, base::BindOnce(&CefResourceManager::SetMimeTypeResolver,
+                                       this, resolver));
     return;
   }
 
   if (!resolver.is_null())
     mime_type_resolver_ = resolver;
   else
-    mime_type_resolver_ = base::Bind(GetMimeType);
+    mime_type_resolver_ = base::BindRepeating(GetMimeType);
 }
 
 void CefResourceManager::SetUrlFilter(const UrlFilter& filter) {
   if (!CefCurrentlyOn(TID_IO)) {
-    CefPostTask(TID_IO,
-                base::Bind(&CefResourceManager::SetUrlFilter, this, filter));
+    CefPostTask(TID_IO, base::BindOnce(&CefResourceManager::SetUrlFilter, this,
+                                       filter));
     return;
   }
 
   if (!filter.is_null())
     url_filter_ = filter;
   else
-    url_filter_ = base::Bind(GetFilteredUrl);
+    url_filter_ = base::BindRepeating(GetFilteredUrl);
 }
 
 cef_return_value_t CefResourceManager::OnBeforeResourceLoad(
