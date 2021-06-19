@@ -76,7 +76,7 @@ class BackgroundLoadUnloadTestHandler : public ExtensionTestHandler {
     // Will close the browser windows.
     CefPostTask(
         TID_UI,
-        base::Bind(&BackgroundLoadUnloadTestHandler::DestroyTest, this));
+        base::BindOnce(&BackgroundLoadUnloadTestHandler::DestroyTest, this));
   }
 
   bool OnBeforeBackgroundBrowser(CefRefPtr<CefExtension> extension,
@@ -239,9 +239,9 @@ class BackgroundLoadUnloadTestHandler : public ExtensionTestHandler {
 
   virtual void TriggerDestroyTest() {
     // Execute asynchronously so call stacks have a chance to unwind.
-    CefPostTask(TID_UI,
-                base::Bind(&BackgroundLoadUnloadTestHandler::UnloadExtension,
-                           this, extension_));
+    CefPostTask(TID_UI, base::BindOnce(
+                            &BackgroundLoadUnloadTestHandler::UnloadExtension,
+                            this, extension_));
   }
 
   CefRefPtr<CefExtension> extension_;

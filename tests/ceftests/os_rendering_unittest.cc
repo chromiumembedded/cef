@@ -1402,8 +1402,9 @@ class OSRTestHandler : public RoutingTestHandler,
   void DestroySucceededTestSoon() {
     if (succeeded())
       return;
-    if (++event_count_ == event_total_)
-      CefPostTask(TID_UI, base::Bind(&OSRTestHandler::DestroyTest, this));
+    if (++event_count_ == event_total_) {
+      CefPostTask(TID_UI, base::BindOnce(&OSRTestHandler::DestroyTest, this));
+    }
   }
 
   void DestroyTest() override {

@@ -161,8 +161,8 @@ class LifeSpanTestHandler : public RoutingTestHandler {
     // This test will call DestroyTest().
     SetDestroyTestExpected(true);
 
-    CefPostDelayedTask(TID_UI,
-                       base::Bind(&LifeSpanTestHandler::DelayClose, this), 100);
+    CefPostDelayedTask(
+        TID_UI, base::BindOnce(&LifeSpanTestHandler::DelayClose, this), 100);
   }
 
   void DelayClose() {

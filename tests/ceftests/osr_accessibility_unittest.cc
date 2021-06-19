@@ -101,8 +101,8 @@ class AccessibilityTestHandler : public TestHandler,
         // Post a delayed task to disable Accessibility
         CefPostDelayedTask(
             TID_UI,
-            base::Bind(&AccessibilityTestHandler::DisableAccessibility, this,
-                       browser),
+            base::BindOnce(&AccessibilityTestHandler::DisableAccessibility,
+                           this, browser),
             200);
       } break;
       // Delayed task will posted later after we have initial details
@@ -139,10 +139,11 @@ class AccessibilityTestHandler : public TestHandler,
           SetEditBoxIdAndRect(update);
           EXPECT_NE(edit_box_id_, -1);
           // Post a delayed task to hide the span and trigger location change
-          CefPostDelayedTask(TID_UI,
-                             base::Bind(&AccessibilityTestHandler::HideEditBox,
-                                        this, GetBrowser()),
-                             200);
+          CefPostDelayedTask(
+              TID_UI,
+              base::BindOnce(&AccessibilityTestHandler::HideEditBox, this,
+                             GetBrowser()),
+              200);
         }
       } break;
       case TEST_FOCUS_CHANGE: {
@@ -164,8 +165,8 @@ class AccessibilityTestHandler : public TestHandler,
 
           CefPostDelayedTask(
               TID_UI,
-              base::Bind(&AccessibilityTestHandler::SetFocusOnEditBox, this,
-                         GetBrowser()),
+              base::BindOnce(&AccessibilityTestHandler::SetFocusOnEditBox, this,
+                             GetBrowser()),
               200);
         } else {
           // Retrieve the "focus" event.
@@ -180,7 +181,8 @@ class AccessibilityTestHandler : public TestHandler,
           // Now Post a delayed task to destroy the test giving
           // sufficient time for any accessibility updates to come through
           CefPostDelayedTask(
-              TID_UI, base::Bind(&AccessibilityTestHandler::DestroyTest, this),
+              TID_UI,
+              base::BindOnce(&AccessibilityTestHandler::DestroyTest, this),
               500);
         }
       } break;
@@ -203,7 +205,7 @@ class AccessibilityTestHandler : public TestHandler,
     if (got_hide_edit_box_) {
       // Now destroy the test.
       CefPostTask(TID_UI,
-                  base::Bind(&AccessibilityTestHandler::DestroyTest, this));
+                  base::BindOnce(&AccessibilityTestHandler::DestroyTest, this));
     }
   }
 
@@ -251,7 +253,8 @@ class AccessibilityTestHandler : public TestHandler,
     // Now Post a delayed task to destroy the test
     // giving sufficient time for any accessibility updates to come through
     CefPostDelayedTask(
-        TID_UI, base::Bind(&AccessibilityTestHandler::DestroyTest, this), 500);
+        TID_UI, base::BindOnce(&AccessibilityTestHandler::DestroyTest, this),
+        500);
   }
 
   static CefRefPtr<CefListValue> GetUpdateList(CefRefPtr<CefValue> value) {
@@ -376,7 +379,8 @@ class AccessibilityTestHandler : public TestHandler,
     // Now Post a delayed task to destroy the test
     // giving sufficient time for any accessibility updates to come through
     CefPostDelayedTask(
-        TID_UI, base::Bind(&AccessibilityTestHandler::DestroyTest, this), 500);
+        TID_UI, base::BindOnce(&AccessibilityTestHandler::DestroyTest, this),
+        500);
   }
 
   // Find Edit box Id in accessibility tree.

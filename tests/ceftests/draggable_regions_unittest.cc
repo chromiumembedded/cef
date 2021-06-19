@@ -2,6 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "include/base/cef_callback.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
@@ -139,7 +140,8 @@ class DraggableRegionsTestHandler : public TestHandler, public CefDragHandler {
         frame->LoadURL(kTestURLWithoutRegions);
         // Needed because this test doesn't call OnDraggableRegionsChanged.
         CefPostDelayedTask(
-            TID_UI, base::Bind(&DraggableRegionsTestHandler::DestroyTest, this),
+            TID_UI,
+            base::BindOnce(&DraggableRegionsTestHandler::DestroyTest, this),
             500);
         break;
       case kStepWithoutRegions: {

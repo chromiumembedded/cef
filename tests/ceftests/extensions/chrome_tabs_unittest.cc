@@ -68,7 +68,7 @@ class TabsTestHandler : public ExtensionTestHandler {
 
     // Execute asynchronously so call stacks have a chance to unwind.
     // Will close the browser windows.
-    CefPostTask(TID_UI, base::Bind(&TabsTestHandler::DestroyTest, this));
+    CefPostTask(TID_UI, base::BindOnce(&TabsTestHandler::DestroyTest, this));
   }
 
   CefRefPtr<CefBrowser> GetActiveBrowser(CefRefPtr<CefExtension> extension,
@@ -272,8 +272,8 @@ class TabsTestHandler : public ExtensionTestHandler {
 
   virtual void TriggerDestroyTest() {
     // Execute asynchronously so call stacks have a chance to unwind.
-    CefPostTask(TID_UI, base::Bind(&TabsTestHandler::UnloadExtension, this,
-                                   extension_));
+    CefPostTask(TID_UI, base::BindOnce(&TabsTestHandler::UnloadExtension, this,
+                                       extension_));
   }
 
   CefRefPtr<CefExtension> extension() const { return extension_; }

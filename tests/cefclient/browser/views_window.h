@@ -78,7 +78,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
     virtual void CreateExtensionWindow(CefRefPtr<CefExtension> extension,
                                        const CefRect& source_bounds,
                                        CefRefPtr<CefWindow> parent_window,
-                                       const base::Closure& close_callback) = 0;
+                                       base::OnceClosure close_callback) = 0;
 
     // Called to execute a test. See resource.h for |test_id| values.
     virtual void OnTest(int test_id) = 0;

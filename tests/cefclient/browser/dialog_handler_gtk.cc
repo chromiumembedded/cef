@@ -167,8 +167,8 @@ bool ClientDialogHandlerGtk::OnFileDialog(
   params.callback = callback;
 
   GetWindowAndContinue(
-      browser,
-      base::Bind(&ClientDialogHandlerGtk::OnFileDialogContinue, this, params));
+      browser, base::BindOnce(&ClientDialogHandlerGtk::OnFileDialogContinue,
+                              this, params));
   return true;
 }
 
@@ -190,8 +190,8 @@ bool ClientDialogHandlerGtk::OnJSDialog(CefRefPtr<CefBrowser> browser,
   params.callback = callback;
 
   GetWindowAndContinue(
-      browser,
-      base::Bind(&ClientDialogHandlerGtk::OnJSDialogContinue, this, params));
+      browser, base::BindOnce(&ClientDialogHandlerGtk::OnJSDialogContinue, this,
+                              params));
   return true;
 }
 
@@ -430,16 +430,17 @@ void ClientDialogHandlerGtk::OnJSDialogContinue(OnJSDialogParams params,
 
 void ClientDialogHandlerGtk::GetWindowAndContinue(
     CefRefPtr<CefBrowser> browser,
-    base::Callback<void(GtkWindow*)> callback) {
+    base::OnceCallback<void(GtkWindow*)> callback) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
-    MAIN_POST_CLOSURE(base::Bind(&ClientDialogHandlerGtk::GetWindowAndContinue,
-                                 this, browser, callback));
+    MAIN_POST_CLOSURE(
+        base::BindOnce(&ClientDialogHandlerGtk::GetWindowAndContinue, this,
+                       browser, std::move(callback)));
     return;
   }
 
   GtkWindow* window = GetWindow(browser);
   if (window) {
-    callback.Run(window);
+    std::move(callback).Run(window);
   }
 }
 
@@ -462,8 +463,9 @@ void ClientDialogHandlerGtk::OnDialogResponse(GtkDialog* dialog,
       NOTREACHED();
   }
 
-  CefPostTask(TID_UI, base::Bind(&ClientDialogHandlerGtk::OnResetDialogState,
-                                 handler, nullptr));
+  CefPostTask(TID_UI,
+              base::BindOnce(&ClientDialogHandlerGtk::OnResetDialogState,
+                             handler, nullptr));
 }
 
 }  // namespace client

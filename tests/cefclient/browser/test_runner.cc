@@ -152,10 +152,11 @@ void RunRequestTest(CefRefPtr<CefBrowser> browser) {
 }
 
 void RunNewWindowTest(CefRefPtr<CefBrowser> browser) {
-  RootWindowConfig config;
-  config.with_controls = true;
-  config.with_osr = browser->GetHost()->IsWindowRenderingDisabled();
-  MainContext::Get()->GetRootWindowManager()->CreateRootWindow(config);
+  auto config = std::make_unique<RootWindowConfig>();
+  config->with_controls = true;
+  config->with_osr = browser->GetHost()->IsWindowRenderingDisabled();
+  MainContext::Get()->GetRootWindowManager()->CreateRootWindow(
+      std::move(config));
 }
 
 void RunPopupWindowTest(CefRefPtr<CefBrowser> browser) {
@@ -201,7 +202,7 @@ void RunPluginInfoTest(CefRefPtr<CefBrowser> browser) {
 void ModifyZoom(CefRefPtr<CefBrowser> browser, double delta) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&ModifyZoom, browser, delta));
+    CefPostTask(TID_UI, base::BindOnce(&ModifyZoom, browser, delta));
     return;
   }
 
@@ -264,7 +265,7 @@ class PromptHandler : public CefMessageRouterBrowserSide::Handler {
 
   void SetDSF(CefRefPtr<CefBrowser> browser, float dsf) {
     MainMessageLoop::Get()->PostClosure(
-        base::Bind(&PromptHandler::SetDSFOnMainThread, browser, dsf));
+        base::BindOnce(&PromptHandler::SetDSFOnMainThread, browser, dsf));
   }
 
   static void SetDSFOnMainThread(CefRefPtr<CefBrowser> browser, float dsf) {
@@ -291,7 +292,7 @@ void Prompt(CefRefPtr<CefBrowser> browser,
 void PromptFPS(CefRefPtr<CefBrowser> browser) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&PromptFPS, browser));
+    CefPostTask(TID_UI, base::BindOnce(&PromptFPS, browser));
     return;
   }
 
@@ -305,7 +306,7 @@ void PromptFPS(CefRefPtr<CefBrowser> browser) {
 void PromptDSF(CefRefPtr<CefBrowser> browser) {
   if (!MainMessageLoop::Get()->RunsTasksOnCurrentThread()) {
     // Execute on the main thread.
-    MainMessageLoop::Get()->PostClosure(base::Bind(&PromptDSF, browser));
+    MainMessageLoop::Get()->PostClosure(base::BindOnce(&PromptDSF, browser));
     return;
   }
 
@@ -320,7 +321,7 @@ void PromptDSF(CefRefPtr<CefBrowser> browser) {
 void BeginTracing() {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&BeginTracing));
+    CefPostTask(TID_UI, base::BindOnce(&BeginTracing));
     return;
   }
 
@@ -330,7 +331,7 @@ void BeginTracing() {
 void EndTracing(CefRefPtr<CefBrowser> browser) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&EndTracing, browser));
+    CefPostTask(TID_UI, base::BindOnce(&EndTracing, browser));
     return;
   }
 
@@ -386,7 +387,7 @@ void EndTracing(CefRefPtr<CefBrowser> browser) {
 void PrintToPDF(CefRefPtr<CefBrowser> browser) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&PrintToPDF, browser));
+    CefPostTask(TID_UI, base::BindOnce(&PrintToPDF, browser));
     return;
   }
 
@@ -799,15 +800,15 @@ void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager,
                           StringResourceMap* string_resource_map) {
   if (!CefCurrentlyOn(TID_IO)) {
     // Execute on the browser IO thread.
-    CefPostTask(TID_IO, base::Bind(SetupResourceManager, resource_manager,
-                                   string_resource_map));
+    CefPostTask(TID_IO, base::BindOnce(SetupResourceManager, resource_manager,
+                                       string_resource_map));
     return;
   }
 
   const std::string& test_origin = kTestOrigin;
 
   // Add the URL filter.
-  resource_manager->SetUrlFilter(base::Bind(RequestUrlFilter));
+  resource_manager->SetUrlFilter(base::BindRepeating(RequestUrlFilter));
 
   // Add provider for resource dumps.
   resource_manager->AddProvider(

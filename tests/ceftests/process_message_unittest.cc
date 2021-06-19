@@ -99,8 +99,9 @@ class SendRecvTestHandler : public TestHandler {
 
     // Send the message to the renderer process.
     if (!CefCurrentlyOn(send_thread_)) {
-      CefPostTask(send_thread_, base::Bind(&SendRecvTestHandler::SendMessage,
-                                           this, browser, frame));
+      CefPostTask(send_thread_,
+                  base::BindOnce(&SendRecvTestHandler::SendMessage, this,
+                                 browser, frame));
     } else {
       SendMessage(browser, frame);
     }

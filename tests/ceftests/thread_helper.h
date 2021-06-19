@@ -35,15 +35,15 @@ void WaitForThread(CefRefPtr<CefTaskRunner> task_runner, int64 delay_ms = 0);
 // Executes |test_impl| on the specified |thread_id|. |event| will be signaled
 // once execution is complete.
 void RunOnThread(CefThreadId thread_id,
-                 const base::Callback<void(void)>& test_impl,
+                 base::OnceClosure test_impl,
                  CefRefPtr<CefWaitableEvent> event);
 
-#define NAMED_THREAD_TEST(thread_id, test_case_name, test_name) \
-  TEST(test_case_name, test_name) {                             \
-    CefRefPtr<CefWaitableEvent> event =                         \
-        CefWaitableEvent::CreateWaitableEvent(true, false);     \
-    RunOnThread(thread_id, base::Bind(test_name##Impl), event); \
-    event->Wait();                                              \
+#define NAMED_THREAD_TEST(thread_id, test_case_name, test_name)     \
+  TEST(test_case_name, test_name) {                                 \
+    CefRefPtr<CefWaitableEvent> event =                             \
+        CefWaitableEvent::CreateWaitableEvent(true, false);         \
+    RunOnThread(thread_id, base::BindOnce(test_name##Impl), event); \
+    event->Wait();                                                  \
   }
 
 // Execute "test_case_name.test_name" test on the named thread. The test
@@ -54,15 +54,15 @@ void RunOnThread(CefThreadId thread_id,
 // Like RunOnThread() but |test_impl| is responsible for signaling |event|.
 void RunOnThreadAsync(
     CefThreadId thread_id,
-    const base::Callback<void(CefRefPtr<CefWaitableEvent>)>& test_impl,
+    base::OnceCallback<void(CefRefPtr<CefWaitableEvent>)> test_impl,
     CefRefPtr<CefWaitableEvent>);
 
-#define NAMED_THREAD_TEST_ASYNC(thread_id, test_case_name, test_name) \
-  TEST(test_case_name, test_name) {                                   \
-    CefRefPtr<CefWaitableEvent> event =                               \
-        CefWaitableEvent::CreateWaitableEvent(true, false);           \
-    RunOnThreadAsync(thread_id, base::Bind(test_name##Impl), event);  \
-    event->Wait();                                                    \
+#define NAMED_THREAD_TEST_ASYNC(thread_id, test_case_name, test_name)    \
+  TEST(test_case_name, test_name) {                                      \
+    CefRefPtr<CefWaitableEvent> event =                                  \
+        CefWaitableEvent::CreateWaitableEvent(true, false);              \
+    RunOnThreadAsync(thread_id, base::BindOnce(test_name##Impl), event); \
+    event->Wait();                                                       \
   }
 
 // Execute "test_case_name.test_name" test on the named thread. The test

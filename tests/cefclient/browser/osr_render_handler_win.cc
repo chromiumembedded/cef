@@ -69,8 +69,8 @@ void OsrRenderHandlerWin::TriggerBeginFrame(uint64_t last_time_us,
 
   // Trigger again after the necessary delay to maintain the desired frame rate.
   CefPostDelayedTask(TID_UI,
-                     base::Bind(&OsrRenderHandlerWin::TriggerBeginFrame,
-                                weak_factory_.GetWeakPtr(), now, delay_us),
+                     base::BindOnce(&OsrRenderHandlerWin::TriggerBeginFrame,
+                                    weak_factory_.GetWeakPtr(), now, delay_us),
                      int64(offset / 1000.0));
 
   if (settings_.external_begin_frame_enabled && browser_) {

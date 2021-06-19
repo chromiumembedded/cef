@@ -83,7 +83,7 @@ int MainMessageLoopMultithreadedWin::Run() {
 
 void MainMessageLoopMultithreadedWin::Quit() {
   // Execute PostQuitMessage(0) on the main thread.
-  PostClosure(base::Bind(::PostQuitMessage, 0));
+  PostClosure(base::BindOnce(::PostQuitMessage, 0));
 }
 
 void MainMessageLoopMultithreadedWin::PostTask(CefRefPtr<CefTask> task) {

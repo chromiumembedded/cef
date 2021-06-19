@@ -21,19 +21,19 @@ extern const uint16 kServerPort;
 extern const char kServerScheme[];
 extern const char kServerOrigin[];
 
-typedef base::Closure DoneCallback;
+using DoneCallback = base::OnceClosure;
 
-typedef base::Callback<void(const std::string& server_origin)>
-    StartDoneCallback;
+using StartDoneCallback =
+    base::OnceCallback<void(const std::string& server_origin)>;
 
 // Starts the server if it is not currently running, and executes |callback| on
 // the UI thread. This method should be called by each test case that relies on
 // the server.
-void Start(const StartDoneCallback& callback);
+void Start(StartDoneCallback callback);
 
 // Stops the server if it is currently running, and executes |callback| on the
 // UI thread. This method will be called by the test framework on shutdown.
-void Stop(const DoneCallback& callback);
+void Stop(DoneCallback callback);
 
 // Observer for CefServerHandler callbacks. Methods will be called on the UI
 // thread.
@@ -70,12 +70,11 @@ class Observer {
 // it handled the callback. |callback| will be executed on the UI thread after
 // registration is complete.
 CefRefPtr<CefRegistration> AddObserver(Observer* observer,
-                                       const DoneCallback& callback);
+                                       DoneCallback callback);
 
 // Combination of AddObserver() followed by Start().
-CefRefPtr<CefRegistration> AddObserverAndStart(
-    Observer* observer,
-    const StartDoneCallback& callback);
+CefRefPtr<CefRegistration> AddObserverAndStart(Observer* observer,
+                                               StartDoneCallback callback);
 
 // Helper for sending a fully qualified response.
 void SendResponse(CefRefPtr<CefServer> server,

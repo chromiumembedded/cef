@@ -56,7 +56,7 @@ class AlarmsTestHandler : public ExtensionTestHandler {
 
     // Execute asynchronously so call stacks have a chance to unwind.
     // Will close the browser windows.
-    CefPostTask(TID_UI, base::Bind(&AlarmsTestHandler::DestroyTest, this));
+    CefPostTask(TID_UI, base::BindOnce(&AlarmsTestHandler::DestroyTest, this));
   }
 
   // CefLoadHandler methods:
@@ -167,8 +167,8 @@ class AlarmsTestHandler : public ExtensionTestHandler {
 
   virtual void TriggerDestroyTest() {
     // Execute asynchronously so call stacks have a chance to unwind.
-    CefPostTask(TID_UI, base::Bind(&AlarmsTestHandler::UnloadExtension, this,
-                                   extension_));
+    CefPostTask(TID_UI, base::BindOnce(&AlarmsTestHandler::UnloadExtension,
+                                       this, extension_));
   }
 
   CefRefPtr<CefExtension> extension() const { return extension_; }

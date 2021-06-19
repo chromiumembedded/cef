@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <map>
+#include <memory>
 #include <sstream>
 
 #include "include/base/cef_callback.h"
@@ -201,9 +202,9 @@ struct RequestRunSettings {
   // Used only with the server backend.
   int expected_receive_count = -1;
 
-  typedef base::Callback<void(int /* next_send_count */,
-                              const base::Closure& /* complete_callback */)>
-      NextRequestCallback;
+  using NextRequestCallback =
+      base::OnceCallback<void(int /* next_send_count */,
+                              base::OnceClosure /* complete_callback */)>;
 
   // If non-null this callback will be executed before subsequent requests are
   // sent.
@@ -307,18 +308,15 @@ class RequestDataMap {
 
 class TestCompletionCallback : public CefCompletionCallback {
  public:
-  explicit TestCompletionCallback(const base::Closure& complete_callback)
-      : complete_callback_(complete_callback) {
+  explicit TestCompletionCallback(base::OnceClosure complete_callback)
+      : complete_callback_(std::move(complete_callback)) {
     EXPECT_FALSE(complete_callback_.is_null());
   }
 
-  void OnComplete() override {
-    complete_callback_.Run();
-    complete_callback_.Reset();
-  }
+  void OnComplete() override { std::move(complete_callback_).Run(); }
 
  private:
-  base::Closure complete_callback_;
+  base::OnceClosure complete_callback_;
 
   IMPLEMENT_REFCOUNTING(TestCompletionCallback);
 };
@@ -381,21 +379,21 @@ void GetUploadData(CefRefPtr<CefRequest> request, std::string& data) {
 // Set a cookie so that we can test if it's sent with the request.
 void SetTestCookie(CefRefPtr<CefRequestContext> request_context,
                    bool server_backend,
-                   const base::Closure& callback) {
+                   base::OnceClosure callback) {
   class Callback : public CefSetCookieCallback {
    public:
-    explicit Callback(const base::Closure& callback) : callback_(callback) {
+    explicit Callback(base::OnceClosure callback)
+        : callback_(std::move(callback)) {
       EXPECT_FALSE(callback_.is_null());
     }
 
     void OnComplete(bool success) override {
       EXPECT_TRUE(success);
-      callback_.Run();
-      callback_.Reset();
+      std::move(callback_).Run();
     }
 
    private:
-    base::Closure callback_;
+    base::OnceClosure callback_;
 
     IMPLEMENT_REFCOUNTING(Callback);
   };
@@ -407,23 +405,25 @@ void SetTestCookie(CefRefPtr<CefRequestContext> request_context,
   CefString(&cookie.path) = "/";
   cookie.has_expires = false;
   EXPECT_TRUE(request_context->GetCookieManager(nullptr)->SetCookie(
-      GetRequestOrigin(server_backend), cookie, new Callback(callback)));
+      GetRequestOrigin(server_backend), cookie,
+      new Callback(std::move(callback))));
 }
 
-typedef base::Callback<void(bool /* cookie exists */)> GetTestCookieCallback;
+using GetTestCookieCallback =
+    base::OnceCallback<void(bool /* cookie exists */)>;
 
 // Tests if the save cookie has been set. If set, it will be deleted at the same
 // time.
 void GetTestCookie(CefRefPtr<CefRequestContext> request_context,
                    bool server_backend,
-                   const GetTestCookieCallback& callback) {
+                   GetTestCookieCallback callback) {
   class Visitor : public CefCookieVisitor {
    public:
-    explicit Visitor(const GetTestCookieCallback& callback)
-        : callback_(callback), cookie_exists_(false) {
+    explicit Visitor(GetTestCookieCallback callback)
+        : callback_(std::move(callback)), cookie_exists_(false) {
       EXPECT_FALSE(callback_.is_null());
     }
-    ~Visitor() override { callback_.Run(cookie_exists_); }
+    ~Visitor() override { std::move(callback_).Run(cookie_exists_); }
 
     bool Visit(const CefCookie& cookie,
                int count,
@@ -448,7 +448,7 @@ void GetTestCookie(CefRefPtr<CefRequestContext> request_context,
   CefRefPtr<CefCookieManager> cookie_manager =
       request_context->GetCookieManager(nullptr);
   cookie_manager->VisitUrlCookies(GetRequestOrigin(server_backend), true,
-                                  new Visitor(callback));
+                                  new Visitor(std::move(callback)));
 }
 
 std::string GetHeaderValue(const CefRequest::HeaderMap& header_map,
@@ -573,12 +573,12 @@ bool IsAuthorized(CefRefPtr<CefRequest> request,
 class RequestSchemeHandlerOld : public CefResourceHandler {
  public:
   RequestSchemeHandlerOld(RequestRunSettings* settings,
-                          const base::Closure& destroy_callback)
-      : settings_(settings), destroy_callback_(destroy_callback) {}
+                          base::OnceClosure destroy_callback)
+      : settings_(settings), destroy_callback_(std::move(destroy_callback)) {}
 
   ~RequestSchemeHandlerOld() override {
     EXPECT_EQ(1, cancel_ct_);
-    destroy_callback_.Run();
+    std::move(destroy_callback_).Run();
   }
 
   bool ProcessRequest(CefRefPtr<CefRequest> request,
@@ -635,7 +635,7 @@ class RequestSchemeHandlerOld : public CefResourceHandler {
  private:
   // |settings_| is not owned by this object.
   RequestRunSettings* settings_;
-  base::Closure destroy_callback_;
+  base::OnceClosure destroy_callback_;
 
   std::string response_data_;
   size_t offset_ = 0;
@@ -649,12 +649,12 @@ class RequestSchemeHandlerOld : public CefResourceHandler {
 class RequestSchemeHandler : public CefResourceHandler {
  public:
   RequestSchemeHandler(RequestRunSettings* settings,
-                       const base::Closure& destroy_callback)
-      : settings_(settings), destroy_callback_(destroy_callback) {}
+                       base::OnceClosure destroy_callback)
+      : settings_(settings), destroy_callback_(std::move(destroy_callback)) {}
 
   ~RequestSchemeHandler() override {
     EXPECT_EQ(1, cancel_ct_);
-    destroy_callback_.Run();
+    std::move(destroy_callback_).Run();
   }
 
   bool Open(CefRefPtr<CefRequest> request,
@@ -743,7 +743,7 @@ class RequestSchemeHandler : public CefResourceHandler {
  private:
   // |settings_| is not owned by this object.
   RequestRunSettings* settings_;
-  base::Closure destroy_callback_;
+  base::OnceClosure destroy_callback_;
 
   std::string response_data_;
   size_t offset_ = 0;
@@ -759,14 +759,14 @@ class RequestRedirectSchemeHandlerOld : public CefResourceHandler {
  public:
   RequestRedirectSchemeHandlerOld(CefRefPtr<CefRequest> request,
                                   CefRefPtr<CefResponse> response,
-                                  const base::Closure& destroy_callback)
+                                  base::OnceClosure destroy_callback)
       : request_(request),
         response_(response),
-        destroy_callback_(destroy_callback) {}
+        destroy_callback_(std::move(destroy_callback)) {}
 
   ~RequestRedirectSchemeHandlerOld() override {
     EXPECT_EQ(1, cancel_ct_);
-    destroy_callback_.Run();
+    std::move(destroy_callback_).Run();
   }
 
   bool ProcessRequest(CefRefPtr<CefRequest> request,
@@ -814,7 +814,7 @@ class RequestRedirectSchemeHandlerOld : public CefResourceHandler {
  private:
   CefRefPtr<CefRequest> request_;
   CefRefPtr<CefResponse> response_;
-  base::Closure destroy_callback_;
+  base::OnceClosure destroy_callback_;
 
   int cancel_ct_ = 0;
 
@@ -826,14 +826,14 @@ class RequestRedirectSchemeHandler : public CefResourceHandler {
  public:
   RequestRedirectSchemeHandler(CefRefPtr<CefRequest> request,
                                CefRefPtr<CefResponse> response,
-                               const base::Closure& destroy_callback)
+                               base::OnceClosure destroy_callback)
       : request_(request),
         response_(response),
-        destroy_callback_(destroy_callback) {}
+        destroy_callback_(std::move(destroy_callback)) {}
 
   ~RequestRedirectSchemeHandler() override {
     EXPECT_EQ(1, cancel_ct_);
-    destroy_callback_.Run();
+    std::move(destroy_callback_).Run();
   }
 
   bool Open(CefRefPtr<CefRequest> request,
@@ -897,7 +897,7 @@ class RequestRedirectSchemeHandler : public CefResourceHandler {
  private:
   CefRefPtr<CefRequest> request_;
   CefRefPtr<CefResponse> response_;
-  base::Closure destroy_callback_;
+  base::OnceClosure destroy_callback_;
 
   int cancel_ct_ = 0;
 
@@ -910,8 +910,8 @@ class RequestRedirectSchemeHandler : public CefResourceHandler {
 class IncompleteSchemeHandlerOld : public CefResourceHandler {
  public:
   IncompleteSchemeHandlerOld(RequestRunSettings* settings,
-                             const base::Closure& destroy_callback)
-      : settings_(settings), destroy_callback_(destroy_callback) {
+                             base::OnceClosure destroy_callback)
+      : settings_(settings), destroy_callback_(std::move(destroy_callback)) {
     EXPECT_NE(settings_->incomplete_type, RequestRunSettings::INCOMPLETE_NONE);
   }
 
@@ -928,7 +928,7 @@ class IncompleteSchemeHandlerOld : public CefResourceHandler {
       EXPECT_EQ(0, read_response_ct_);
     }
 
-    destroy_callback_.Run();
+    std::move(destroy_callback_).Run();
   }
 
   bool ProcessRequest(CefRefPtr<CefRequest> request,
@@ -990,7 +990,7 @@ class IncompleteSchemeHandlerOld : public CefResourceHandler {
 
  private:
   RequestRunSettings* const settings_;
-  const base::Closure destroy_callback_;
+  base::OnceClosure destroy_callback_;
 
   int process_request_ct_ = 0;
   int get_response_headers_ct_ = 0;
@@ -1006,8 +1006,8 @@ class IncompleteSchemeHandlerOld : public CefResourceHandler {
 class IncompleteSchemeHandler : public CefResourceHandler {
  public:
   IncompleteSchemeHandler(RequestRunSettings* settings,
-                          const base::Closure& destroy_callback)
-      : settings_(settings), destroy_callback_(destroy_callback) {
+                          base::OnceClosure destroy_callback)
+      : settings_(settings), destroy_callback_(std::move(destroy_callback)) {
     EXPECT_NE(settings_->incomplete_type, RequestRunSettings::INCOMPLETE_NONE);
   }
 
@@ -1024,7 +1024,7 @@ class IncompleteSchemeHandler : public CefResourceHandler {
       EXPECT_EQ(0, read_ct_);
     }
 
-    destroy_callback_.Run();
+    std::move(destroy_callback_).Run();
   }
 
   bool Open(CefRefPtr<CefRequest> request,
@@ -1103,7 +1103,7 @@ class IncompleteSchemeHandler : public CefResourceHandler {
 
  private:
   RequestRunSettings* const settings_;
-  const base::Closure destroy_callback_;
+  base::OnceClosure destroy_callback_;
 
   int open_ct_ = 0;
   int get_response_headers_ct_ = 0;
@@ -1128,30 +1128,36 @@ class RequestSchemeHandlerFactory : public CefSchemeHandlerFactory {
     EXPECT_IO_THREAD();
 
     handler_create_ct_++;
-    const base::Closure destroy_callback =
-        base::Bind(&RequestSchemeHandlerFactory::OnHandlerDestroyed, this);
+    auto destroy_callback =
+        base::BindOnce(&RequestSchemeHandlerFactory::OnHandlerDestroyed, this);
 
     RequestDataMap::Entry entry = data_map_.Find(request->GetURL());
     if (entry.type == RequestDataMap::Entry::TYPE_NORMAL) {
       if (entry.settings->incomplete_type ==
           RequestRunSettings::INCOMPLETE_NONE) {
         if (TestOldResourceAPI()) {
-          return new RequestSchemeHandlerOld(entry.settings, destroy_callback);
+          return new RequestSchemeHandlerOld(entry.settings,
+                                             std::move(destroy_callback));
         }
-        return new RequestSchemeHandler(entry.settings, destroy_callback);
+        return new RequestSchemeHandler(entry.settings,
+                                        std::move(destroy_callback));
       }
 
       if (TestOldResourceAPI()) {
-        return new IncompleteSchemeHandlerOld(entry.settings, destroy_callback);
+        return new IncompleteSchemeHandlerOld(entry.settings,
+                                              std::move(destroy_callback));
       }
-      return new IncompleteSchemeHandler(entry.settings, destroy_callback);
+      return new IncompleteSchemeHandler(entry.settings,
+                                         std::move(destroy_callback));
     } else if (entry.type == RequestDataMap::Entry::TYPE_REDIRECT) {
       if (TestOldResourceAPI()) {
-        return new RequestRedirectSchemeHandlerOld(
-            entry.redirect_request, entry.redirect_response, destroy_callback);
+        return new RequestRedirectSchemeHandlerOld(entry.redirect_request,
+                                                   entry.redirect_response,
+                                                   std::move(destroy_callback));
       }
-      return new RequestRedirectSchemeHandler(
-          entry.redirect_request, entry.redirect_response, destroy_callback);
+      return new RequestRedirectSchemeHandler(entry.redirect_request,
+                                              entry.redirect_response,
+                                              std::move(destroy_callback));
     }
 
     // Unknown test.
@@ -1181,9 +1187,9 @@ class RequestSchemeHandlerFactory : public CefSchemeHandlerFactory {
 
   void OnHandlerDestroyed() {
     if (!CefCurrentlyOn(TID_IO)) {
-      CefPostTask(
-          TID_IO,
-          base::Bind(&RequestSchemeHandlerFactory::OnHandlerDestroyed, this));
+      CefPostTask(TID_IO,
+                  base::BindOnce(
+                      &RequestSchemeHandlerFactory::OnHandlerDestroyed, this));
       return;
     }
 
@@ -1192,15 +1198,15 @@ class RequestSchemeHandlerFactory : public CefSchemeHandlerFactory {
     MaybeShutdown();
   }
 
-  void Shutdown(const base::Closure& complete_callback) {
+  void Shutdown(base::OnceClosure complete_callback) {
     if (!CefCurrentlyOn(TID_IO)) {
-      CefPostTask(TID_IO, base::Bind(&RequestSchemeHandlerFactory::Shutdown,
-                                     this, complete_callback));
+      CefPostTask(TID_IO, base::BindOnce(&RequestSchemeHandlerFactory::Shutdown,
+                                         this, std::move(complete_callback)));
       return;
     }
 
     EXPECT_TRUE(shutdown_callback_.is_null());
-    shutdown_callback_ = complete_callback;
+    shutdown_callback_ = std::move(complete_callback);
 
     data_map_.SetOwnerTaskRunner(nullptr);
 
@@ -1211,8 +1217,7 @@ class RequestSchemeHandlerFactory : public CefSchemeHandlerFactory {
   void MaybeShutdown() {
     if (!shutdown_callback_.is_null() &&
         handler_create_ct_ == handler_destroy_ct_) {
-      shutdown_callback_.Run();
-      shutdown_callback_.Reset();
+      std::move(shutdown_callback_).Run();
     }
   }
 
@@ -1220,7 +1225,7 @@ class RequestSchemeHandlerFactory : public CefSchemeHandlerFactory {
 
   int handler_create_ct_ = 0;
   int handler_destroy_ct_ = 0;
-  base::Closure shutdown_callback_;
+  base::OnceClosure shutdown_callback_;
 
   IMPLEMENT_REFCOUNTING(RequestSchemeHandlerFactory);
   DISALLOW_COPY_AND_ASSIGN(RequestSchemeHandlerFactory);
@@ -1254,7 +1259,7 @@ class RequestServerHandler : public test_server::ObserverHelper {
 
   // |complete_callback| will be executed on the UI thread after the server is
   // started.
-  void CreateServer(const base::Closure& complete_callback) {
+  void CreateServer(base::OnceClosure complete_callback) {
     EXPECT_UI_THREAD();
 
     if (expected_connection_ct_ < 0) {
@@ -1266,18 +1271,18 @@ class RequestServerHandler : public test_server::ObserverHelper {
     initialized_ = true;
 
     EXPECT_TRUE(complete_callback_.is_null());
-    complete_callback_ = complete_callback;
+    complete_callback_ = std::move(complete_callback);
 
     Initialize();
   }
 
   // Results in a call to VerifyResults() and eventual execution of the
   // |complete_callback| on the UI thread via RequestServerHandler destruction.
-  void ShutdownServer(const base::Closure& complete_callback) {
+  void ShutdownServer(base::OnceClosure complete_callback) {
     EXPECT_UI_THREAD();
 
     EXPECT_TRUE(complete_callback_.is_null());
-    complete_callback_ = complete_callback;
+    complete_callback_ = std::move(complete_callback);
 
     Shutdown();
   }
@@ -1461,8 +1466,8 @@ class RequestServerHandler : public test_server::ObserverHelper {
     CefRefPtr<CefTaskRunner> task_runner = server->GetTaskRunner();
     if (!task_runner->BelongsToCurrentThread()) {
       task_runner->PostTask(CefCreateClosureTask(
-          base::Bind(RequestServerHandler::SendResponse, server, connection_id,
-                     response, response_data)));
+          base::BindOnce(RequestServerHandler::SendResponse, server,
+                         connection_id, response, response_data)));
       return;
     }
 
@@ -1505,8 +1510,7 @@ class RequestServerHandler : public test_server::ObserverHelper {
     }
 
     EXPECT_FALSE(complete_callback_.is_null());
-    complete_callback_.Run();
-    complete_callback_.Reset();
+    std::move(complete_callback_).Run();
   }
 
   RequestDataMap data_map_;
@@ -1514,7 +1518,7 @@ class RequestServerHandler : public test_server::ObserverHelper {
   bool initialized_;
 
   // Only accessed on the UI thread.
-  base::Closure complete_callback_;
+  base::OnceClosure complete_callback_;
 
   // After initialization the below members are only accessed on the server
   // thread.
@@ -1538,18 +1542,18 @@ class RequestServerHandler : public test_server::ObserverHelper {
 // Executes the tests.
 class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
  public:
-  typedef base::Callback<void(const base::Closure&)> TestCallback;
+  using TestCallback = base::RepeatingCallback<void(base::OnceClosure)>;
 
   RequestTestRunner(bool is_browser_process,
                     bool is_server_backend,
                     bool use_frame_method,
                     bool run_in_browser_process,
-                    const base::Closure& incomplete_request_callback)
+                    base::OnceClosure incomplete_request_callback)
       : is_browser_process_(is_browser_process),
         is_server_backend_(is_server_backend),
         use_frame_method_(use_frame_method),
         run_in_browser_process_(run_in_browser_process),
-        incomplete_request_callback_(incomplete_request_callback) {
+        incomplete_request_callback_(std::move(incomplete_request_callback)) {
     owner_task_runner_ = CefTaskRunner::GetForCurrentThread();
     EXPECT_TRUE(owner_task_runner_.get());
     EXPECT_TRUE(owner_task_runner_->BelongsToCurrentThread());
@@ -1557,9 +1561,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
   void Initialize() {
 // Helper macro for registering test callbacks.
-#define REGISTER_TEST(test_mode, setup_method, run_method)                    \
-  RegisterTest(test_mode, base::Bind(&RequestTestRunner::setup_method, this), \
-               base::Bind(&RequestTestRunner::run_method, this));
+#define REGISTER_TEST(test_mode, setup_method, run_method)                  \
+  RegisterTest(test_mode,                                                   \
+               base::BindRepeating(&RequestTestRunner::setup_method, this), \
+               base::BindRepeating(&RequestTestRunner::run_method, this));
 
     // Register the test callbacks.
     REGISTER_TEST(REQTEST_GET, SetupGetTest, SingleRunTest);
@@ -1626,76 +1631,79 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
   // Called in both the browser and render process to setup the test.
   void SetupTest(RequestTestMode test_mode,
-                 const base::Closure& complete_callback) {
+                 base::OnceClosure complete_callback) {
     EXPECT_TRUE(owner_task_runner_->BelongsToCurrentThread());
-
-    const base::Closure& safe_complete_callback = base::Bind(
-        &RequestTestRunner::CompleteOnCorrectThread, this, complete_callback);
 
     TestMap::const_iterator it = test_map_.find(test_mode);
     if (it != test_map_.end()) {
-      it->second.setup.Run(base::Bind(&RequestTestRunner::SetupContinue, this,
-                                      safe_complete_callback));
+      auto safe_complete_callback =
+          base::BindOnce(&RequestTestRunner::CompleteOnCorrectThread, this,
+                         std::move(complete_callback));
+      it->second.setup.Run(base::BindOnce(&RequestTestRunner::SetupContinue,
+                                          this,
+                                          std::move(safe_complete_callback)));
     } else {
       // Unknown test.
       ADD_FAILURE();
-      complete_callback.Run();
+      std::move(complete_callback).Run();
     }
   }
 
   // Called in either the browser or render process to run the test.
   void RunTest(RequestTestMode test_mode,
                CefRefPtr<CefFrame> frame,
-               const base::Closure& complete_callback) {
+               base::OnceClosure complete_callback) {
     EXPECT_TRUE(owner_task_runner_->BelongsToCurrentThread());
 
     frame_ = frame;
 
-    const base::Closure& safe_complete_callback = base::Bind(
-        &RequestTestRunner::CompleteOnCorrectThread, this, complete_callback);
-
     TestMap::const_iterator it = test_map_.find(test_mode);
     if (it != test_map_.end()) {
-      it->second.run.Run(safe_complete_callback);
+      auto safe_complete_callback =
+          base::BindOnce(&RequestTestRunner::CompleteOnCorrectThread, this,
+                         std::move(complete_callback));
+      it->second.run.Run(std::move(safe_complete_callback));
     } else {
       // Unknown test.
       ADD_FAILURE();
-      complete_callback.Run();
+      std::move(complete_callback).Run();
     }
   }
 
   // Called in both the browser and render process to shut down the test.
-  void ShutdownTest(const base::Closure& complete_callback) {
+  void ShutdownTest(base::OnceClosure complete_callback) {
     EXPECT_TRUE(owner_task_runner_->BelongsToCurrentThread());
 
-    const base::Closure& safe_complete_callback = base::Bind(
-        &RequestTestRunner::CompleteOnCorrectThread, this, complete_callback);
+    auto safe_complete_callback =
+        base::BindOnce(&RequestTestRunner::CompleteOnCorrectThread, this,
+                       std::move(complete_callback));
 
     if (!post_file_tmpdir_.IsEmpty()) {
       EXPECT_TRUE(is_browser_process_);
       CefPostTask(TID_FILE_USER_VISIBLE,
-                  base::Bind(&RequestTestRunner::RunDeleteTempDirectory, this,
-                             safe_complete_callback));
+                  base::BindOnce(&RequestTestRunner::RunDeleteTempDirectory,
+                                 this, std::move(safe_complete_callback)));
       return;
     }
 
     // Continue with test shutdown.
-    RunShutdown(safe_complete_callback);
+    RunShutdown(std::move(safe_complete_callback));
   }
 
  private:
   // Continued after |settings_| is populated for the test.
-  void SetupContinue(const base::Closure& complete_callback) {
+  void SetupContinue(base::OnceClosure complete_callback) {
     if (!owner_task_runner_->BelongsToCurrentThread()) {
-      owner_task_runner_->PostTask(CefCreateClosureTask(base::Bind(
-          &RequestTestRunner::SetupContinue, this, complete_callback)));
+      owner_task_runner_->PostTask(CefCreateClosureTask(
+          base::BindOnce(&RequestTestRunner::SetupContinue, this,
+                         std::move(complete_callback))));
       return;
     }
 
     if (is_browser_process_) {
-      SetupTestBackend(complete_callback);
+      SetupTestBackend(std::move(complete_callback));
     } else {
-      complete_callback.Run();
+      std::move(complete_callback).Run();
     }
   }
 
@@ -1724,12 +1732,12 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.response_data = "GET TEST SUCCESS";
   }
 
-  void SetupGetTest(const base::Closure& complete_callback) {
+  void SetupGetTest(base::OnceClosure complete_callback) {
     SetupGetTestShared();
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupGetNoDataTest(const base::Closure& complete_callback) {
+  void SetupGetNoDataTest(base::OnceClosure complete_callback) {
     // Start with the normal get test.
     SetupGetTestShared();
 
@@ -1738,10 +1746,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     settings_.expect_download_data = false;
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupGetPartialContentTest(const base::Closure& complete_callback) {
+  void SetupGetPartialContentTest(base::OnceClosure complete_callback) {
     // Start with the normal get test.
     SetupGetTestShared();
 
@@ -1752,10 +1760,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.response->SetStatusText("Partial Content");
     settings_.expected_download_offset = 4;
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupGetAllowCookiesTest(const base::Closure& complete_callback) {
+  void SetupGetAllowCookiesTest(base::OnceClosure complete_callback) {
     // Start with the normal get test.
     SetupGetTestShared();
 
@@ -1765,10 +1773,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.expect_save_cookie = true;
     settings_.expect_send_cookie = true;
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupGetRedirectTest(const base::Closure& complete_callback) {
+  void SetupGetRedirectTest(base::OnceClosure complete_callback) {
     // Start with the normal get test.
     SetupGetTestShared();
 
@@ -1786,10 +1794,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     headerMap.insert(std::make_pair("Location", settings_.request->GetURL()));
     settings_.redirect_response->SetHeaderMap(headerMap);
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupGetRedirectStopTest(const base::Closure& complete_callback) {
+  void SetupGetRedirectStopTest(base::OnceClosure complete_callback) {
     settings_.request = CefRequest::Create();
     settings_.request->SetURL(GetTestURL("GetTest.html"));
     settings_.request->SetMethod("GET");
@@ -1824,10 +1832,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.expected_send_count = 1;
     settings_.expected_receive_count = 1;
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupGetRedirectLocationTest(const base::Closure& complete_callback) {
+  void SetupGetRedirectLocationTest(base::OnceClosure complete_callback) {
     // Start with the normal get test.
     SetupGetTestShared();
 
@@ -1845,10 +1853,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     headerMap.insert(std::make_pair("LoCaTioN", GetTestPath("GetTest.html")));
     settings_.redirect_response->SetHeaderMap(headerMap);
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupGetReferrerTest(const base::Closure& complete_callback) {
+  void SetupGetReferrerTest(base::OnceClosure complete_callback) {
     settings_.request = CefRequest::Create();
     settings_.request->SetURL(GetTestURL("GetTest.html"));
     settings_.request->SetMethod("GET");
@@ -1865,10 +1873,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     settings_.response_data = "GET TEST SUCCESS";
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupGetAuthTest(const base::Closure& complete_callback) {
+  void SetupGetAuthTest(base::OnceClosure complete_callback) {
     // Start with the normal get test.
     SetupGetTestShared();
 
@@ -1887,7 +1895,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.expected_receive_count = 2;
     settings_.expected_send_count = 2;
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
   void SetupPostTestShared() {
@@ -1904,12 +1912,12 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.response_data = "POST TEST SUCCESS";
   }
 
-  void SetupPostTest(const base::Closure& complete_callback) {
+  void SetupPostTest(base::OnceClosure complete_callback) {
     SetupPostTestShared();
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupPostFileTest(const base::Closure& complete_callback) {
+  void SetupPostFileTest(base::OnceClosure complete_callback) {
     // This test is only supported in the browser process.
     EXPECT_TRUE(is_browser_process_);
 
@@ -1925,11 +1933,11 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.response_data = "POST TEST SUCCESS";
 
     CefPostTask(TID_FILE_USER_VISIBLE,
-                base::Bind(&RequestTestRunner::SetupPostFileTestContinue, this,
-                           complete_callback));
+                base::BindOnce(&RequestTestRunner::SetupPostFileTestContinue,
+                               this, std::move(complete_callback)));
   }
 
-  void SetupPostFileTestContinue(const base::Closure& complete_callback) {
+  void SetupPostFileTestContinue(base::OnceClosure complete_callback) {
     EXPECT_TRUE(CefCurrentlyOn(TID_FILE_USER_VISIBLE));
 
     EXPECT_TRUE(post_file_tmpdir_.CreateUniqueTempDir());
@@ -1941,10 +1949,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     EXPECT_EQ(static_cast<int>(sizeof(content) - 1), write_ct);
     SetUploadFile(settings_.request, path);
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupPostWithProgressTest(const base::Closure& complete_callback) {
+  void SetupPostWithProgressTest(base::OnceClosure complete_callback) {
     // Start with the normal post test.
     SetupPostTestShared();
 
@@ -1953,10 +1961,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     settings_.expect_upload_progress = true;
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupPostRedirectTest(const base::Closure& complete_callback) {
+  void SetupPostRedirectTest(base::OnceClosure complete_callback) {
     // Start with the normal post test.
     SetupPostTestShared();
 
@@ -1976,10 +1984,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     headerMap.insert(std::make_pair("Location", settings_.request->GetURL()));
     settings_.redirect_response->SetHeaderMap(headerMap);
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupPostRedirectToGetTest(const base::Closure& complete_callback) {
+  void SetupPostRedirectToGetTest(base::OnceClosure complete_callback) {
     // Start with the normal post test.
     SetupPostTestShared();
 
@@ -2005,10 +2013,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     headerMap.insert(std::make_pair("Location", settings_.request->GetURL()));
     settings_.redirect_response->SetHeaderMap(headerMap);
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupHeadTest(const base::Closure& complete_callback) {
+  void SetupHeadTest(base::OnceClosure complete_callback) {
     settings_.request = CefRequest::Create();
     settings_.request->SetURL(GetTestURL("HeadTest.html"));
     settings_.request->SetMethod("HEAD");
@@ -2024,7 +2032,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.expect_download_progress = false;
     settings_.expect_download_data = false;
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
   void SetupCacheShared(const std::string& name, bool with_cache_control) {
@@ -2042,7 +2050,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     }
   }
 
-  void SetupCacheWithControlTest(const base::Closure& complete_callback) {
+  void SetupCacheWithControlTest(base::OnceClosure complete_callback) {
     SetupCacheShared("CacheWithControlTest.html", true);
 
     // Send multiple requests. With the Cache-Control response header the 2nd+
@@ -2050,24 +2058,24 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.expected_send_count = 3;
     settings_.expected_receive_count = 1;
     settings_.setup_next_request =
-        base::Bind(&RequestTestRunner::SetupCacheWithControlTestNext, this);
+        base::BindOnce(&RequestTestRunner::SetupCacheWithControlTestNext, this);
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
   void SetupCacheWithControlTestNext(int next_send_count,
-                                     const base::Closure& complete_callback) {
+                                     base::OnceClosure complete_callback) {
     // Only handle from the cache.
     settings_.expect_response_was_cached = true;
 
     // The following requests will use the same setup, so no more callbacks
     // are required.
-    settings_.setup_next_request.Reset();
+    EXPECT_TRUE(settings_.setup_next_request.is_null());
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupCacheWithoutControlTest(const base::Closure& complete_callback) {
+  void SetupCacheWithoutControlTest(base::OnceClosure complete_callback) {
     SetupCacheShared("CacheWithoutControlTest.html", false);
 
     // Send multiple requests. Without the Cache-Control response header all
@@ -2075,10 +2083,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.expected_send_count = 3;
     settings_.expected_receive_count = 3;
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupCacheSkipFlagTest(const base::Closure& complete_callback) {
+  void SetupCacheSkipFlagTest(base::OnceClosure complete_callback) {
     SetupCacheShared("CacheSkipFlagTest.html", true);
 
     // Skip the cache despite the the Cache-Control response header.
@@ -2092,13 +2100,13 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.expected_send_count = 3;
     settings_.expected_receive_count = 2;
     settings_.setup_next_request =
-        base::Bind(&RequestTestRunner::SetupCacheSkipFlagTestNext, this);
+        base::BindOnce(&RequestTestRunner::SetupCacheSkipFlagTestNext, this);
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
   void SetupCacheSkipFlagTestNext(int next_send_count,
-                                  const base::Closure& complete_callback) {
+                                  base::OnceClosure complete_callback) {
     // Recreate the request object because the existing object will now be
     // read-only.
     EXPECT_TRUE(settings_.request->IsReadOnly());
@@ -2107,13 +2115,13 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     // Expect a cached response.
     settings_.expect_response_was_cached = true;
     settings_.setup_next_request =
-        base::Bind(&RequestTestRunner::SetupCacheSkipFlagTestLast, this);
+        base::BindOnce(&RequestTestRunner::SetupCacheSkipFlagTestLast, this);
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
   void SetupCacheSkipFlagTestLast(int next_send_count,
-                                  const base::Closure& complete_callback) {
+                                  base::OnceClosure complete_callback) {
     // Recreate the request object because the existing object will now be
     // read-only.
     EXPECT_TRUE(settings_.request->IsReadOnly());
@@ -2124,12 +2132,12 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     // Expect the cache to be skipped.
     settings_.expect_response_was_cached = false;
-    settings_.setup_next_request.Reset();
+    EXPECT_TRUE(settings_.setup_next_request.is_null());
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupCacheSkipHeaderTest(const base::Closure& complete_callback) {
+  void SetupCacheSkipHeaderTest(base::OnceClosure complete_callback) {
     SetupCacheShared("CacheSkipHeaderTest.html", true);
 
     // Skip the cache despite the the Cache-Control response header.
@@ -2145,13 +2153,13 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.expected_send_count = 3;
     settings_.expected_receive_count = 2;
     settings_.setup_next_request =
-        base::Bind(&RequestTestRunner::SetupCacheSkipHeaderTestNext, this);
+        base::BindOnce(&RequestTestRunner::SetupCacheSkipHeaderTestNext, this);
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
   void SetupCacheSkipHeaderTestNext(int next_send_count,
-                                    const base::Closure& complete_callback) {
+                                    base::OnceClosure complete_callback) {
     // Recreate the request object because the existing object will now be
     // read-only.
     EXPECT_TRUE(settings_.request->IsReadOnly());
@@ -2160,13 +2168,13 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     // Expect a cached response.
     settings_.expect_response_was_cached = true;
     settings_.setup_next_request =
-        base::Bind(&RequestTestRunner::SetupCacheSkipHeaderTestLast, this);
+        base::BindOnce(&RequestTestRunner::SetupCacheSkipHeaderTestLast, this);
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
   void SetupCacheSkipHeaderTestLast(int next_send_count,
-                                    const base::Closure& complete_callback) {
+                                    base::OnceClosure complete_callback) {
     // Recreate the request object because the existing object will now be
     // read-only.
     EXPECT_TRUE(settings_.request->IsReadOnly());
@@ -2177,12 +2185,12 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     // Expect the cache to be skipped.
     settings_.expect_response_was_cached = false;
-    settings_.setup_next_request.Reset();
+    EXPECT_TRUE(settings_.setup_next_request.is_null());
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupCacheOnlyFailureFlagTest(const base::Closure& complete_callback) {
+  void SetupCacheOnlyFailureFlagTest(base::OnceClosure complete_callback) {
     SetupCacheShared("CacheOnlyFailureFlagTest.html", true);
 
     // Only handle from the cache.
@@ -2196,10 +2204,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     // The request is expected to fail.
     settings_.SetRequestFailureExpected(ERR_CACHE_MISS);
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupCacheOnlyFailureHeaderTest(const base::Closure& complete_callback) {
+  void SetupCacheOnlyFailureHeaderTest(base::OnceClosure complete_callback) {
     SetupCacheShared("CacheOnlyFailureFlagTest.html", true);
 
     // Only handle from the cache.
@@ -2215,10 +2223,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     // The request is expected to fail.
     settings_.SetRequestFailureExpected(ERR_CACHE_MISS);
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupCacheOnlySuccessFlagTest(const base::Closure& complete_callback) {
+  void SetupCacheOnlySuccessFlagTest(base::OnceClosure complete_callback) {
     SetupCacheShared("CacheOnlySuccessFlagTest.html", false);
 
     // Send multiple requests. The 1st request will be handled normally. The
@@ -2227,13 +2235,13 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.expected_send_count = 3;
     settings_.expected_receive_count = 1;
     settings_.setup_next_request =
-        base::Bind(&RequestTestRunner::SetupCacheOnlySuccessFlagNext, this);
+        base::BindOnce(&RequestTestRunner::SetupCacheOnlySuccessFlagNext, this);
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
   void SetupCacheOnlySuccessFlagNext(int next_send_count,
-                                     const base::Closure& complete_callback) {
+                                     base::OnceClosure complete_callback) {
     // Recreate the request object because the existing object will now be
     // read-only.
     EXPECT_TRUE(settings_.request->IsReadOnly());
@@ -2245,12 +2253,12 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     // The following requests will use the same setup, so no more callbacks
     // are required.
-    settings_.setup_next_request.Reset();
+    EXPECT_TRUE(settings_.setup_next_request.is_null());
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupCacheOnlySuccessHeaderTest(const base::Closure& complete_callback) {
+  void SetupCacheOnlySuccessHeaderTest(base::OnceClosure complete_callback) {
     SetupCacheShared("CacheOnlySuccessHeaderTest.html", false);
 
     // Send multiple requests. The 1st request will be handled normally. The
@@ -2258,14 +2266,14 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     // require cached data.
     settings_.expected_send_count = 3;
     settings_.expected_receive_count = 1;
-    settings_.setup_next_request =
-        base::Bind(&RequestTestRunner::SetupCacheOnlySuccessHeaderNext, this);
+    settings_.setup_next_request = base::BindOnce(
+        &RequestTestRunner::SetupCacheOnlySuccessHeaderNext, this);
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
   void SetupCacheOnlySuccessHeaderNext(int next_send_count,
-                                       const base::Closure& complete_callback) {
+                                       base::OnceClosure complete_callback) {
     // Recreate the request object because the existing object will now be
     // read-only.
     EXPECT_TRUE(settings_.request->IsReadOnly());
@@ -2279,12 +2287,12 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     // The following requests will use the same setup, so no more callbacks
     // are required.
-    settings_.setup_next_request.Reset();
+    EXPECT_TRUE(settings_.setup_next_request.is_null());
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupCacheDisableFlagTest(const base::Closure& complete_callback) {
+  void SetupCacheDisableFlagTest(base::OnceClosure complete_callback) {
     SetupCacheShared("CacheDisableFlagTest.html", true);
 
     // Disable the cache despite the the Cache-Control response header.
@@ -2297,13 +2305,13 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.expected_send_count = 3;
     settings_.expected_receive_count = 1;
     settings_.setup_next_request =
-        base::Bind(&RequestTestRunner::SetupCacheDisableFlagTestNext, this);
+        base::BindOnce(&RequestTestRunner::SetupCacheDisableFlagTestNext, this);
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
   void SetupCacheDisableFlagTestNext(int next_send_count,
-                                     const base::Closure& complete_callback) {
+                                     base::OnceClosure complete_callback) {
     // Recreate the request object because the existing object will now be
     // read-only.
     EXPECT_TRUE(settings_.request->IsReadOnly());
@@ -2317,12 +2325,12 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     // The following requests will use the same setup, so no more callbacks
     // are required.
-    settings_.setup_next_request.Reset();
+    EXPECT_TRUE(settings_.setup_next_request.is_null());
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupCacheDisableHeaderTest(const base::Closure& complete_callback) {
+  void SetupCacheDisableHeaderTest(base::OnceClosure complete_callback) {
     SetupCacheShared("CacheDisableHeaderTest.html", true);
 
     // Disable the cache despite the the Cache-Control response header.
@@ -2336,14 +2344,14 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     // from the cache should fail.
     settings_.expected_send_count = 3;
     settings_.expected_receive_count = 1;
-    settings_.setup_next_request =
-        base::Bind(&RequestTestRunner::SetupCacheDisableHeaderTestNext, this);
+    settings_.setup_next_request = base::BindOnce(
+        &RequestTestRunner::SetupCacheDisableHeaderTestNext, this);
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
   void SetupCacheDisableHeaderTestNext(int next_send_count,
-                                       const base::Closure& complete_callback) {
+                                       base::OnceClosure complete_callback) {
     // Recreate the request object because the existing object will now be
     // read-only.
     EXPECT_TRUE(settings_.request->IsReadOnly());
@@ -2359,13 +2367,12 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     // The following requests will use the same setup, so no more callbacks
     // are required.
-    settings_.setup_next_request.Reset();
+    EXPECT_TRUE(settings_.setup_next_request.is_null());
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupIncompleteProcessRequestTest(
-      const base::Closure& complete_callback) {
+  void SetupIncompleteProcessRequestTest(base::OnceClosure complete_callback) {
     // Start with the normal get test.
     SetupGetTestShared();
 
@@ -2379,10 +2386,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.expect_download_progress = false;
     settings_.expect_download_data = false;
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void SetupIncompleteReadResponseTest(const base::Closure& complete_callback) {
+  void SetupIncompleteReadResponseTest(base::OnceClosure complete_callback) {
     // Start with the normal get test.
     SetupGetTestShared();
 
@@ -2399,11 +2406,11 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     settings_.expect_download_progress = is_browser_process_;
     settings_.expect_download_data = false;
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
   // Send a request. |complete_callback| will be executed on request completion.
-  void SendRequest(const test_request::RequestDoneCallback& done_callback) {
+  void SendRequest(test_request::RequestDoneCallback done_callback) {
     if (!is_browser_process_) {
       // Render process requests must use CefFrame::CreateURLRequest.
       EXPECT_TRUE(use_frame_method_);
@@ -2431,11 +2438,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
       config.request_context_ = request_context_;
     }
 
-    test_request::Send(config, done_callback);
+    test_request::Send(config, std::move(done_callback));
 
     if (settings_.incomplete_type != RequestRunSettings::INCOMPLETE_NONE) {
-      incomplete_request_callback_.Run();
-      incomplete_request_callback_.Reset();
+      std::move(incomplete_request_callback_).Run();
     }
   }
 
@@ -2508,32 +2514,32 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
   }
 
   // Run a test with a single request.
-  void SingleRunTest(const base::Closure& complete_callback) {
-    SendRequest(base::Bind(&RequestTestRunner::SingleRunTestComplete, this,
-                           complete_callback));
+  void SingleRunTest(base::OnceClosure complete_callback) {
+    SendRequest(base::BindOnce(&RequestTestRunner::SingleRunTestComplete, this,
+                               std::move(complete_callback)));
   }
 
-  void SingleRunTestComplete(const base::Closure& complete_callback,
+  void SingleRunTestComplete(base::OnceClosure complete_callback,
                              const test_request::State& completed_client) {
     VerifyResponse(&completed_client);
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
   // Run a test with multiple requests.
-  void MultipleRunTest(const base::Closure& complete_callback) {
+  void MultipleRunTest(base::OnceClosure complete_callback) {
     EXPECT_GT(settings_.expected_send_count, 0);
     EXPECT_GE(settings_.expected_receive_count, 0);
-    MultipleRunTestContinue(complete_callback, 1);
+    MultipleRunTestContinue(std::move(complete_callback), 1);
   }
 
-  void MultipleRunTestContinue(const base::Closure& complete_callback,
+  void MultipleRunTestContinue(base::OnceClosure complete_callback,
                                int send_count) {
     // Send the next request.
-    SendRequest(base::Bind(&RequestTestRunner::MultipleRunTestNext, this,
-                           complete_callback, send_count));
+    SendRequest(base::BindOnce(&RequestTestRunner::MultipleRunTestNext, this,
+                               std::move(complete_callback), send_count));
   }
 
-  void MultipleRunTestNext(const base::Closure& complete_callback,
+  void MultipleRunTestNext(base::OnceClosure complete_callback,
                            int send_count,
                            const test_request::State& completed_client) {
     // Verify the completed request.
@@ -2541,24 +2547,21 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     if (send_count == settings_.expected_send_count) {
       // All requests complete.
-      complete_callback.Run();
+      std::move(complete_callback).Run();
       return;
     }
 
     const int next_send_count = send_count + 1;
-    const base::Closure& continue_callback =
-        base::Bind(&RequestTestRunner::MultipleRunTestContinue, this,
-                   complete_callback, next_send_count);
+    auto continue_callback =
+        base::BindOnce(&RequestTestRunner::MultipleRunTestContinue, this,
+                       std::move(complete_callback), next_send_count);
 
     if (!settings_.setup_next_request.is_null()) {
       // Provide an opportunity to modify expectations before the next request.
-      // Copy the callback object in case |settings_.setup_next_request| is
-      // modified as a result of the call.
-      RequestRunSettings::NextRequestCallback next_callback =
-          settings_.setup_next_request;
-      next_callback.Run(next_send_count, continue_callback);
+      std::move(settings_.setup_next_request)
+          .Run(next_send_count, std::move(continue_callback));
     } else {
-      continue_callback.Run();
+      std::move(continue_callback).Run();
     }
   }
 
@@ -2570,43 +2573,44 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     test_map_.insert(std::make_pair(test_mode, entry));
   }
 
-  void CompleteOnCorrectThread(const base::Closure& complete_callback) {
+  void CompleteOnCorrectThread(base::OnceClosure complete_callback) {
     if (!owner_task_runner_->BelongsToCurrentThread()) {
       owner_task_runner_->PostTask(CefCreateClosureTask(
-          base::Bind(&RequestTestRunner::CompleteOnCorrectThread, this,
-                     complete_callback)));
+          base::BindOnce(&RequestTestRunner::CompleteOnCorrectThread, this,
+                         std::move(complete_callback))));
       return;
     }
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
-  void RunDeleteTempDirectory(const base::Closure& complete_callback) {
+  void RunDeleteTempDirectory(base::OnceClosure complete_callback) {
     EXPECT_TRUE(CefCurrentlyOn(TID_FILE_USER_VISIBLE));
 
     EXPECT_TRUE(post_file_tmpdir_.Delete());
     EXPECT_TRUE(post_file_tmpdir_.IsEmpty());
 
     // Continue with test shutdown.
-    RunShutdown(complete_callback);
+    RunShutdown(std::move(complete_callback));
   }
 
-  void RunShutdown(const base::Closure& complete_callback) {
+  void RunShutdown(base::OnceClosure complete_callback) {
     if (!owner_task_runner_->BelongsToCurrentThread()) {
-      owner_task_runner_->PostTask(CefCreateClosureTask(base::Bind(
-          &RequestTestRunner::RunShutdown, this, complete_callback)));
+      owner_task_runner_->PostTask(CefCreateClosureTask(
+          base::BindOnce(&RequestTestRunner::RunShutdown, this,
+                         std::move(complete_callback))));
       return;
     }
 
     if (is_browser_process_) {
-      ShutdownTestBackend(complete_callback);
+      ShutdownTestBackend(std::move(complete_callback));
     } else {
-      complete_callback.Run();
+      std::move(complete_callback).Run();
     }
   }
 
   // Create the backend for the current test. Called during test setup.
-  void SetupTestBackend(const base::Closure& complete_callback) {
+  void SetupTestBackend(base::OnceClosure complete_callback) {
     // Backends are only created in the browser process.
     EXPECT_TRUE(is_browser_process_);
 
@@ -2614,13 +2618,14 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     EXPECT_TRUE(settings_.response.get() ||
                 settings_.expected_status == UR_FAILED);
 
-    if (is_server_backend_)
-      StartServer(complete_callback);
-    else
-      AddSchemeHandler(complete_callback);
+    if (is_server_backend_) {
+      StartServer(std::move(complete_callback));
+    } else {
+      AddSchemeHandler(std::move(complete_callback));
+    }
   }
 
-  void StartServer(const base::Closure& complete_callback) {
+  void StartServer(base::OnceClosure complete_callback) {
     EXPECT_FALSE(server_handler_);
 
     server_handler_ = new RequestServerHandler();
@@ -2631,10 +2636,10 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
           settings_.expected_receive_count);
     }
 
-    server_handler_->CreateServer(complete_callback);
+    server_handler_->CreateServer(std::move(complete_callback));
   }
 
-  void AddSchemeHandler(const base::Closure& complete_callback) {
+  void AddSchemeHandler(base::OnceClosure complete_callback) {
     EXPECT_FALSE(scheme_factory_);
 
     // Add the factory registration.
@@ -2648,34 +2653,35 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     // Any further calls will come from the IO thread.
     scheme_factory_->SetOwnerTaskRunner(CefTaskRunner::GetForThread(TID_IO));
 
-    complete_callback.Run();
+    std::move(complete_callback).Run();
   }
 
   // Shutdown the backend for the current test. Called during test shutdown.
-  void ShutdownTestBackend(const base::Closure& complete_callback) {
+  void ShutdownTestBackend(base::OnceClosure complete_callback) {
     // Backends are only created in the browser process.
     EXPECT_TRUE(is_browser_process_);
-    if (is_server_backend_)
-      ShutdownServer(complete_callback);
-    else
-      RemoveSchemeHandler(complete_callback);
+    if (is_server_backend_) {
+      ShutdownServer(std::move(complete_callback));
+    } else {
+      RemoveSchemeHandler(std::move(complete_callback));
+    }
   }
 
-  void ShutdownServer(const base::Closure& complete_callback) {
+  void ShutdownServer(base::OnceClosure complete_callback) {
     EXPECT_TRUE(server_handler_);
 
     // |server_handler_| will delete itself after shutdown.
-    server_handler_->ShutdownServer(complete_callback);
+    server_handler_->ShutdownServer(std::move(complete_callback));
     server_handler_ = nullptr;
   }
 
-  void RemoveSchemeHandler(const base::Closure& complete_callback) {
+  void RemoveSchemeHandler(base::OnceClosure complete_callback) {
     EXPECT_TRUE(scheme_factory_);
 
     // Remove the factory registration.
     request_context_->RegisterSchemeHandlerFactory(
         GetRequestScheme(false), GetRequestHost(false, false), nullptr);
-    scheme_factory_->Shutdown(complete_callback);
+    scheme_factory_->Shutdown(std::move(complete_callback));
     scheme_factory_ = nullptr;
   }
 
@@ -2685,7 +2691,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
   const bool run_in_browser_process_;
 
   // Used with incomplete request tests.
-  base::Closure incomplete_request_callback_;
+  base::OnceClosure incomplete_request_callback_;
 
   // Primary thread runner for the object that owns us. In the browser process
   // this will be the UI thread and in the renderer process this will be the
@@ -2745,13 +2751,14 @@ class RequestRendererTest : public ClientAppRenderer::Delegate {
       test_mode_ = static_cast<RequestTestMode>(args->GetInt(0));
       test_runner_ = new RequestTestRunner(
           false, args->GetBool(1), use_frame_method, false,
-          base::Bind(&RequestRendererTest::OnIncompleteRequest, this));
+          base::BindOnce(&RequestRendererTest::OnIncompleteRequest, this));
       test_runner_->Initialize();
 
       // Setup the test. This will create the objects that we test against but
       // not register any backend (because we're in the render process).
       test_runner_->SetupTest(
-          test_mode_, base::Bind(&RequestRendererTest::OnSetupComplete, this));
+          test_mode_,
+          base::BindOnce(&RequestRendererTest::OnSetupComplete, this));
 
       return true;
     }
@@ -2767,7 +2774,7 @@ class RequestRendererTest : public ClientAppRenderer::Delegate {
     // Run the test.
     test_runner_->RunTest(
         test_mode_, frame_,
-        base::Bind(&RequestRendererTest::OnRunComplete, this));
+        base::BindOnce(&RequestRendererTest::OnRunComplete, this));
   }
 
   void OnRunComplete() {
@@ -2775,7 +2782,7 @@ class RequestRendererTest : public ClientAppRenderer::Delegate {
 
     // Shutdown the test.
     test_runner_->ShutdownTest(
-        base::Bind(&RequestRendererTest::OnShutdownComplete, this));
+        base::BindOnce(&RequestRendererTest::OnShutdownComplete, this));
   }
 
   void OnIncompleteRequest() {
@@ -2859,7 +2866,7 @@ class RequestTestHandler : public TestHandler {
 
   void PreSetupStart() {
     CefPostTask(TID_FILE_USER_VISIBLE,
-                base::Bind(&RequestTestHandler::PreSetupFileTasks, this));
+                base::BindOnce(&RequestTestHandler::PreSetupFileTasks, this));
   }
 
   void PreSetupFileTasks() {
@@ -2873,7 +2880,7 @@ class RequestTestHandler : public TestHandler {
     }
 
     CefPostTask(TID_UI,
-                base::Bind(&RequestTestHandler::PreSetupContinue, this));
+                base::BindOnce(&RequestTestHandler::PreSetupContinue, this));
   }
 
   void PreSetupContinue() {
@@ -2881,7 +2888,7 @@ class RequestTestHandler : public TestHandler {
 
     test_runner_ = new RequestTestRunner(
         true, test_server_backend_, test_frame_method_, test_in_browser_,
-        base::Bind(&RequestTestHandler::OnIncompleteRequest, this));
+        base::BindOnce(&RequestTestHandler::OnIncompleteRequest, this));
     test_runner_->Initialize();
 
     // Get or create the request context.
@@ -2925,27 +2932,27 @@ class RequestTestHandler : public TestHandler {
   void PreSetupComplete() {
     if (!CefCurrentlyOn(TID_UI)) {
       CefPostTask(TID_UI,
-                  base::Bind(&RequestTestHandler::PreSetupComplete, this));
+                  base::BindOnce(&RequestTestHandler::PreSetupComplete, this));
       return;
     }
 
     // Setup the test. This will create the objects that we test against and
     // register the backend.
     test_runner_->SetupTest(
-        test_mode_, base::Bind(&RequestTestHandler::OnSetupComplete, this));
+        test_mode_, base::BindOnce(&RequestTestHandler::OnSetupComplete, this));
   }
 
   // Browser process setup is complete.
   void OnSetupComplete() {
     // Start post-setup actions.
     SetTestCookie(test_runner_->GetRequestContext(), test_server_backend_,
-                  base::Bind(&RequestTestHandler::PostSetupComplete, this));
+                  base::BindOnce(&RequestTestHandler::PostSetupComplete, this));
   }
 
   void PostSetupComplete() {
     if (!CefCurrentlyOn(TID_UI)) {
       CefPostTask(TID_UI,
-                  base::Bind(&RequestTestHandler::PostSetupComplete, this));
+                  base::BindOnce(&RequestTestHandler::PostSetupComplete, this));
       return;
     }
 
@@ -2961,7 +2968,7 @@ class RequestTestHandler : public TestHandler {
         test_running_ = true;
         test_runner_->RunTest(
             test_mode_, nullptr /* frame */,
-            base::Bind(&RequestTestHandler::OnRunComplete, this));
+            base::BindOnce(&RequestTestHandler::OnRunComplete, this));
       }
     } else {
       AddResource(test_url_, "<html><body>TEST</body></html>", "text/html");
@@ -3013,7 +3020,7 @@ class RequestTestHandler : public TestHandler {
       test_running_ = true;
       test_runner_->RunTest(
           test_mode_, frame,
-          base::Bind(&RequestTestHandler::OnRunComplete, this));
+          base::BindOnce(&RequestTestHandler::OnRunComplete, this));
       return;
     }
 
@@ -3080,8 +3087,8 @@ class RequestTestHandler : public TestHandler {
   // close to abort in-progress requests.
   void OnIncompleteRequest() {
     if (!CefCurrentlyOn(TID_UI)) {
-      CefPostTask(TID_UI,
-                  base::Bind(&RequestTestHandler::OnIncompleteRequest, this));
+      CefPostTask(TID_UI, base::BindOnce(
+                              &RequestTestHandler::OnIncompleteRequest, this));
       return;
     }
 
@@ -3093,20 +3100,20 @@ class RequestTestHandler : public TestHandler {
     // triggered by browser destruction.
     SetSignalCompletionWhenAllBrowsersClose(false);
     CefPostDelayedTask(
-        TID_UI, base::Bind(&TestHandler::CloseBrowser, GetBrowser(), false),
+        TID_UI, base::BindOnce(&TestHandler::CloseBrowser, GetBrowser(), false),
         1000);
   }
 
   // Test run is complete. It ran in either the browser or render process.
   void OnRunComplete() {
     GetTestCookie(test_runner_->GetRequestContext(), test_server_backend_,
-                  base::Bind(&RequestTestHandler::PostRunComplete, this));
+                  base::BindOnce(&RequestTestHandler::PostRunComplete, this));
   }
 
   void PostRunComplete(bool has_save_cookie) {
     if (!CefCurrentlyOn(TID_UI)) {
-      CefPostTask(TID_UI, base::Bind(&RequestTestHandler::PostRunComplete, this,
-                                     has_save_cookie));
+      CefPostTask(TID_UI, base::BindOnce(&RequestTestHandler::PostRunComplete,
+                                         this, has_save_cookie));
       return;
     }
 
@@ -3114,7 +3121,7 @@ class RequestTestHandler : public TestHandler {
 
     // Shut down the browser side of the test.
     test_runner_->ShutdownTest(
-        base::Bind(&RequestTestHandler::MaybeClearAuthCredentials, this));
+        base::BindOnce(&RequestTestHandler::MaybeClearAuthCredentials, this));
   }
 
   void MaybeClearAuthCredentials() {
@@ -3124,7 +3131,7 @@ class RequestTestHandler : public TestHandler {
       // test runs when using the global request context.
       test_runner_->GetRequestContext()->ClearHttpAuthCredentials(
           new TestCompletionCallback(
-              base::Bind(&RequestTestHandler::DestroyTest, this)));
+              base::BindOnce(&RequestTestHandler::DestroyTest, this)));
       return;
     }
 
@@ -3179,7 +3186,7 @@ class RequestTestHandler : public TestHandler {
   void OnTestComplete() {
     if (!CefCurrentlyOn(TID_UI)) {
       CefPostTask(TID_UI,
-                  base::Bind(&RequestTestHandler::OnTestComplete, this));
+                  base::BindOnce(&RequestTestHandler::OnTestComplete, this));
       return;
     }
 
@@ -3475,7 +3482,8 @@ class InvalidURLTestClient : public CefURLRequestClient {
   }
 
   void RunTest() {
-    CefPostTask(TID_UI, base::Bind(&InvalidURLTestClient::RunOnUIThread, this));
+    CefPostTask(TID_UI,
+                base::BindOnce(&InvalidURLTestClient::RunOnUIThread, this));
 
     // Wait for the test to complete.
     event_->Wait();
@@ -3486,8 +3494,8 @@ class InvalidURLTestClient : public CefURLRequestClient {
     EXPECT_EQ(ERR_UNKNOWN_URL_SCHEME, client->GetRequestError());
 
     // Let the call stack unwind before signaling completion.
-    CefPostTask(TID_UI,
-                base::Bind(&InvalidURLTestClient::CompleteOnUIThread, this));
+    CefPostTask(TID_UI, base::BindOnce(
+                            &InvalidURLTestClient::CompleteOnUIThread, this));
   }
 
   void OnUploadProgress(CefRefPtr<CefURLRequest> request,

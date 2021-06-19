@@ -149,18 +149,17 @@ class MediaObserver : public CefMediaObserver {
   class DeviceInfoCallback : public CefMediaSinkDeviceInfoCallback {
    public:
     // Callback to be executed when the device info is available.
-    typedef base::Callback<void(const std::string& sink_id,
-                                const CefMediaSinkDeviceInfo& device_info)>
-        CallbackType;
+    using CallbackType =
+        base::OnceCallback<void(const std::string& sink_id,
+                                const CefMediaSinkDeviceInfo& device_info)>;
 
-    DeviceInfoCallback(const std::string& sink_id, const CallbackType& callback)
-        : sink_id_(sink_id), callback_(callback) {}
+    DeviceInfoCallback(const std::string& sink_id, CallbackType callback)
+        : sink_id_(sink_id), callback_(std::move(callback)) {}
 
     void OnMediaSinkDeviceInfo(
         const CefMediaSinkDeviceInfo& device_info) override {
       CEF_REQUIRE_UI_THREAD();
-      callback_.Run(sink_id_, device_info);
-      callback_.Reset();
+      std::move(callback_).Run(sink_id_, device_info);
     }
 
    private:
@@ -187,9 +186,6 @@ class MediaObserver : public CefMediaObserver {
       return;
     }
 
-    DeviceInfoCallback::CallbackType callback = base::Bind(
-        &MediaObserver::OnSinkDeviceInfo, this, pending_sink_query_id_);
-
     MediaSinkVector::const_iterator it = sinks.begin();
     for (size_t idx = 0; it != sinks.end(); ++it, ++idx) {
       CefRefPtr<CefMediaSink> sink = *it;
@@ -200,7 +196,9 @@ class MediaObserver : public CefMediaObserver {
 
       // Request the device info asynchronously. Send the response once all
       // callbacks have executed.
-      sink->GetDeviceInfo(new DeviceInfoCallback(sink_id, callback));
+      auto callback = base::BindOnce(&MediaObserver::OnSinkDeviceInfo, this,
+                                     pending_sink_query_id_);
+      sink->GetDeviceInfo(new DeviceInfoCallback(sink_id, std::move(callback)));
     }
   }
 

@@ -146,32 +146,32 @@ RootWindowWin::~RootWindowWin() {
 }
 
 void RootWindowWin::Init(RootWindow::Delegate* delegate,
-                         const RootWindowConfig& config,
+                         std::unique_ptr<RootWindowConfig> config,
                          const CefBrowserSettings& settings) {
   DCHECK(delegate);
   DCHECK(!initialized_);
 
   delegate_ = delegate;
-  with_controls_ = config.with_controls;
-  always_on_top_ = config.always_on_top;
-  with_osr_ = config.with_osr;
-  with_extension_ = config.with_extension;
+  with_controls_ = config->with_controls;
+  always_on_top_ = config->always_on_top;
+  with_osr_ = config->with_osr;
+  with_extension_ = config->with_extension;
 
-  start_rect_.left = config.bounds.x;
-  start_rect_.top = config.bounds.y;
-  start_rect_.right = config.bounds.x + config.bounds.width;
-  start_rect_.bottom = config.bounds.y + config.bounds.height;
+  start_rect_.left = config->bounds.x;
+  start_rect_.top = config->bounds.y;
+  start_rect_.right = config->bounds.x + config->bounds.width;
+  start_rect_.bottom = config->bounds.y + config->bounds.height;
 
-  CreateBrowserWindow(config.url);
+  CreateBrowserWindow(config->url);
 
   initialized_ = true;
 
   // Create the native root window on the main thread.
   if (CURRENTLY_ON_MAIN_THREAD()) {
-    CreateRootWindow(settings, config.initially_hidden);
+    CreateRootWindow(settings, config->initially_hidden);
   } else {
-    MAIN_POST_CLOSURE(base::Bind(&RootWindowWin::CreateRootWindow, this,
-                                 settings, config.initially_hidden));
+    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowWin::CreateRootWindow, this,
+                                     settings, config->initially_hidden));
   }
 }
 

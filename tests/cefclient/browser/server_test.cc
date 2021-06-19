@@ -5,6 +5,7 @@
 #include "tests/cefclient/browser/server_test.h"
 
 #include <algorithm>
+#include <memory>
 #include <string>
 
 #include "include/base/cef_callback.h"
@@ -42,25 +43,25 @@ const char kDefaultPath[] = "websocket.html";
 // Handles the HTTP/WebSocket server.
 class ServerHandler : public CefServerHandler {
  public:
-  typedef base::Callback<void(bool /* success */)> CompleteCallback;
+  using CompleteCallback = base::OnceCallback<void(bool /* success */)>;
 
   ServerHandler() {}
 
   // |complete_callback| will be executed on the UI thread after completion.
-  void StartServer(int port, const CompleteCallback& complete_callback) {
+  void StartServer(int port, CompleteCallback complete_callback) {
     CEF_REQUIRE_UI_THREAD();
     DCHECK(!server_);
     DCHECK(port >= 1025 && port <= 65535);
     port_ = port;
-    complete_callback_ = complete_callback;
+    complete_callback_ = std::move(complete_callback);
     CefServer::CreateServer(kServerAddress, port, kServerBacklog, this);
   }
 
   // |complete_callback| will be executed on the UI thread after completion.
-  void StopServer(const CompleteCallback& complete_callback) {
+  void StopServer(CompleteCallback complete_callback) {
     CEF_REQUIRE_UI_THREAD();
     DCHECK(server_);
-    complete_callback_ = complete_callback;
+    complete_callback_ = std::move(complete_callback);
     server_->Shutdown();
   }
 
@@ -159,14 +160,13 @@ class ServerHandler : public CefServerHandler {
  private:
   void RunCompleteCallback(bool success) {
     if (!CefCurrentlyOn(TID_UI)) {
-      CefPostTask(TID_UI, base::Bind(&ServerHandler::RunCompleteCallback, this,
-                                     success));
+      CefPostTask(TID_UI, base::BindOnce(&ServerHandler::RunCompleteCallback,
+                                         this, success));
       return;
     }
 
     if (!complete_callback_.is_null()) {
-      complete_callback_.Run(success);
-      complete_callback_.Reset();
+      std::move(complete_callback_).Run(success);
     }
   }
 
@@ -292,9 +292,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     handler_ = new ServerHandler();
 
     // Start the server. OnComplete will be executed upon completion.
-    handler_->StartServer(port,
-                          base::Bind(&Handler::OnStartComplete,
-                                     weak_ptr_factory_.GetWeakPtr(), callback));
+    handler_->StartServer(
+        port, base::BindOnce(&Handler::OnStartComplete,
+                             weak_ptr_factory_.GetWeakPtr(), callback));
   }
 
   // Stop the server.
@@ -306,8 +306,8 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     }
 
     // Stop the server. OnComplete will be executed upon completion.
-    handler_->StopServer(base::Bind(&Handler::OnStopComplete,
-                                    weak_ptr_factory_.GetWeakPtr(), callback));
+    handler_->StopServer(base::BindOnce(
+        &Handler::OnStopComplete, weak_ptr_factory_.GetWeakPtr(), callback));
 
     handler_ = nullptr;
   }

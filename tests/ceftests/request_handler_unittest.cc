@@ -284,8 +284,8 @@ class NetNotifyTestHandler : public TestHandler {
       explicit TestVisitor(NetNotifyTestHandler* handler) : handler_(handler) {}
       ~TestVisitor() override {
         // Destroy the test.
-        CefPostTask(TID_UI,
-                    base::Bind(&NetNotifyTestHandler::DestroyTest, handler_));
+        CefPostTask(TID_UI, base::BindOnce(&NetNotifyTestHandler::DestroyTest,
+                                           handler_));
       }
 
       bool Visit(const CefCookie& cookie,

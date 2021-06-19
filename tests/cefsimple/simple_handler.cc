@@ -131,8 +131,8 @@ void SimpleHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 void SimpleHandler::CloseAllBrowsers(bool force_close) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&SimpleHandler::CloseAllBrowsers, this,
-                                   force_close));
+    CefPostTask(TID_UI, base::BindOnce(&SimpleHandler::CloseAllBrowsers, this,
+                                       force_close));
     return;
   }
 

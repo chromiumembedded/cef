@@ -6,6 +6,7 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_ROOT_WINDOW_H_
 #pragma once
 
+#include <memory>
 #include <set>
 #include <string>
 
@@ -57,7 +58,7 @@ struct RootWindowConfig {
 
   // Callback to be executed when the window is closed. Will be executed on the
   // main thread. This is currently only implemented for Views-based windows.
-  base::Closure close_callback;
+  base::OnceClosure close_callback;
 
   // Initial URL to load.
   std::string url;
@@ -104,7 +105,7 @@ class RootWindow
     virtual void CreateExtensionWindow(CefRefPtr<CefExtension> extension,
                                        const CefRect& source_bounds,
                                        CefRefPtr<CefWindow> parent_window,
-                                       const base::Closure& close_callback,
+                                       base::OnceClosure close_callback,
                                        bool with_osr) = 0;
 
    protected:
@@ -133,7 +134,7 @@ class RootWindow
   // Use RootWindowManager::CreateRootWindow() instead of calling this method
   // directly.
   virtual void Init(RootWindow::Delegate* delegate,
-                    const RootWindowConfig& config,
+                    std::unique_ptr<RootWindowConfig> config,
                     const CefBrowserSettings& settings) = 0;
 
   // Initialize as a popup window. This is used to attach a new native window to

@@ -106,7 +106,7 @@ const int kMaxMultiNavNavigations = 4;
 // Abstract base class representing expectations that result from a navigation.
 class FrameNavExpectations {
  public:
-  typedef base::Callback<void(CefRefPtr<CefBrowser>, CefRefPtr<CefFrame>)>
+  typedef base::OnceCallback<void(CefRefPtr<CefBrowser>, CefRefPtr<CefFrame>)>
       CompletionCallback;
 
   FrameNavExpectations(int nav, bool renderer)
@@ -137,9 +137,9 @@ class FrameNavExpectations {
     if (!completion_callback_.is_null()) {
       // Execute the callback asynchronously to avoid any issues with what's
       // currently on the stack.
-      CefPostTask((renderer_ ? TID_RENDERER : TID_UI),
-                  base::Bind(completion_callback_, browser, frame));
-      completion_callback_.Reset();
+      CefPostTask(
+          (renderer_ ? TID_RENDERER : TID_UI),
+          base::BindOnce(std::move(completion_callback_), browser, frame));
     }
   }
 
@@ -153,8 +153,8 @@ class FrameNavExpectations {
   // Returns true if this is a renderer-side expectation object.
   bool renderer() const { return renderer_; }
 
-  void set_completion_callback(const CompletionCallback& completion_callback) {
-    completion_callback_ = completion_callback;
+  void set_completion_callback(CompletionCallback completion_callback) {
+    completion_callback_ = std::move(completion_callback);
   }
 
  private:
@@ -235,9 +235,9 @@ class FrameNavExpectationsFactoryBrowser : public FrameNavExpectationsFactory {
 
   std::unique_ptr<FrameNavExpectationsBrowser> Create(
       int nav,
-      const FrameNavExpectations::CompletionCallback& completion_callback) {
+      FrameNavExpectations::CompletionCallback completion_callback) {
     auto expectations = Create(nav);
-    expectations->set_completion_callback(completion_callback);
+    expectations->set_completion_callback(std::move(completion_callback));
     return expectations;
   }
 
@@ -257,9 +257,9 @@ class FrameNavExpectationsFactoryRenderer : public FrameNavExpectationsFactory {
 
   std::unique_ptr<FrameNavExpectationsRenderer> Create(
       int nav,
-      const FrameNavExpectations::CompletionCallback& completion_callback) {
+      FrameNavExpectations::CompletionCallback completion_callback) {
     auto expectations = Create(nav);
-    expectations->set_completion_callback(completion_callback);
+    expectations->set_completion_callback(std::move(completion_callback));
     return expectations;
   }
 
@@ -327,7 +327,7 @@ class FrameNavRendererTest : public ClientAppRenderer::Delegate,
     if (expectations_)
       return;
     expectations_ = factory_->Create(
-        nav_, base::Bind(&FrameNavRendererTest::SendTestResults, this));
+        nav_, base::BindOnce(&FrameNavRendererTest::SendTestResults, this));
   }
 
   // Send the test results.
@@ -378,7 +378,7 @@ class FrameNavTestHandler : public TestHandler {
   void RunTest() override {
     // Create the first expectations object.
     expectations_ = factory_->Create(
-        nav_, base::Bind(&FrameNavTestHandler::RunNextNav, this));
+        nav_, base::BindOnce(&FrameNavTestHandler::RunNextNav, this));
 
     CefRefPtr<CefDictionaryValue> extra_info = CefDictionaryValue::Create();
     extra_info->SetInt(kFrameNavTestCmdKey, factory_->GetID());
@@ -407,7 +407,7 @@ class FrameNavTestHandler : public TestHandler {
 
     // Create the next expectations object.
     expectations_ = factory_->Create(
-        nav_, base::Bind(&FrameNavTestHandler::RunNextNav, this));
+        nav_, base::BindOnce(&FrameNavTestHandler::RunNextNav, this));
 
     // Load the main URL.
     browser->GetMainFrame()->LoadURL(expectations_->GetMainURL());

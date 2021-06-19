@@ -217,7 +217,7 @@ void RunLabelButtonClick(bool with_text,
   window->Show();
 
   // Wait a bit before trying to click the button.
-  CefPostDelayedTask(TID_UI, base::Bind(ClickButton, window, kButtonID),
+  CefPostDelayedTask(TID_UI, base::BindOnce(ClickButton, window, kButtonID),
                      kClickDelayMS);
 }
 
@@ -225,12 +225,12 @@ void LabelButtonClick(CefRefPtr<CefWaitableEvent> event,
                       bool with_button_frame,
                       bool with_button_text,
                       bool with_button_image) {
-  TestWindowDelegate::Config config;
-  config.on_window_created =
-      base::Bind(RunLabelButtonClick, with_button_text, with_button_image);
-  config.frameless = false;
-  config.close_window = false;
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created =
+      base::BindOnce(RunLabelButtonClick, with_button_text, with_button_image);
+  config->frameless = false;
+  config->close_window = false;
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 void LabelButtonClickFramedWithTextWithImageFramelessWindowImpl(
@@ -393,7 +393,7 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
     EXPECT_FALSE(model->SetFontList(4, font));
 
     // Wait a bit before trying to click the menu item.
-    CefPostDelayedTask(TID_UI, base::Bind(ClickMenuItem, menu_button),
+    CefPostDelayedTask(TID_UI, base::BindOnce(ClickMenuItem, menu_button),
                        kClickDelayMS);
 
     menu_button->ShowMenu(model, screen_point, CEF_MENU_ANCHOR_TOPLEFT);
@@ -453,7 +453,7 @@ void RunMenuButtonClick(bool with_text,
   window->Show();
 
   // Wait a bit before trying to click the button.
-  CefPostDelayedTask(TID_UI, base::Bind(ClickButton, window, kButtonID),
+  CefPostDelayedTask(TID_UI, base::BindOnce(ClickButton, window, kButtonID),
                      kClickDelayMS);
 }
 
@@ -461,12 +461,12 @@ void MenuButtonClick(CefRefPtr<CefWaitableEvent> event,
                      bool with_button_frame,
                      bool with_button_text,
                      bool with_button_image) {
-  TestWindowDelegate::Config config;
-  config.on_window_created =
-      base::Bind(RunMenuButtonClick, with_button_text, with_button_image);
-  config.frameless = false;
-  config.close_window = false;
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created =
+      base::BindOnce(RunMenuButtonClick, with_button_text, with_button_image);
+  config->frameless = false;
+  config->close_window = false;
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 void MenuButtonClickFramedWithTextWithImageFramelessWindowImpl(
@@ -549,7 +549,7 @@ class TestMenuButtonCustomPopupDelegate : public CefMenuButtonDelegate,
     popup_window_->Show();
 
     // Wait a bit before trying to click the popup button.
-    CefPostDelayedTask(TID_UI, base::Bind(ClickMenuItem, menu_button),
+    CefPostDelayedTask(TID_UI, base::BindOnce(ClickMenuItem, menu_button),
                        kClickDelayMS);
   }
 
@@ -614,17 +614,17 @@ void RunMenuButtonCustomPopupClick(bool can_activate,
   window->Show();
 
   // Wait a bit before trying to click the button.
-  CefPostDelayedTask(TID_UI, base::Bind(ClickButton, window, kButtonID),
+  CefPostDelayedTask(TID_UI, base::BindOnce(ClickButton, window, kButtonID),
                      kClickDelayMS);
 }
 
 void MenuButtonCustomPopupClick(CefRefPtr<CefWaitableEvent> event,
                                 bool can_activate) {
-  TestWindowDelegate::Config config;
-  config.on_window_created =
-      base::Bind(RunMenuButtonCustomPopupClick, can_activate);
-  config.close_window = false;
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created =
+      base::BindOnce(RunMenuButtonCustomPopupClick, can_activate);
+  config->close_window = false;
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 void MenuButtonCustomPopupActivateImpl(CefRefPtr<CefWaitableEvent> event) {

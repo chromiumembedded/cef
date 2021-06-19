@@ -136,8 +136,8 @@ class JSDialogTestHandler : public TestHandler {
       callback->Continue(success_, user_input_);
     } else if (mode_ == MODE_RUN_DELAYED) {
       // Continue asynchronously.
-      CefPostTask(TID_UI,
-                  base::Bind(&JSDialogTestHandler::Continue, this, callback));
+      CefPostTask(TID_UI, base::BindOnce(&JSDialogTestHandler::Continue, this,
+                                         callback));
     }
 
     return true;
@@ -162,8 +162,8 @@ class JSDialogTestHandler : public TestHandler {
       callback->Continue(success_, user_input_);
     } else if (mode_ == MODE_RUN_DELAYED) {
       // Continue asynchronously.
-      CefPostTask(TID_UI,
-                  base::Bind(&JSDialogTestHandler::Continue, this, callback));
+      CefPostTask(TID_UI, base::BindOnce(&JSDialogTestHandler::Continue, this,
+                                         callback));
     }
 
     return true;

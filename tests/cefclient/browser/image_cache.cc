@@ -89,13 +89,13 @@ struct ImageCache::ImageContent {
 };
 
 void ImageCache::LoadImages(const ImageInfoSet& image_info,
-                            const LoadImagesCallback& callback) {
+                            LoadImagesCallback callback) {
   DCHECK(!image_info.empty());
   DCHECK(!callback.is_null());
 
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::Bind(&ImageCache::LoadImages, this, image_info,
-                                   callback));
+    CefPostTask(TID_UI, base::BindOnce(&ImageCache::LoadImages, this,
+                                       image_info, std::move(callback)));
     return;
   }
 
@@ -132,10 +132,10 @@ void ImageCache::LoadImages(const ImageInfoSet& image_info,
 
   if (missing_images) {
     CefPostTask(TID_FILE_USER_BLOCKING,
-                base::Bind(&ImageCache::LoadMissing, this, image_info, images,
-                           callback));
+                base::BindOnce(&ImageCache::LoadMissing, this, image_info,
+                               images, std::move(callback)));
   } else {
-    callback.Run(images);
+    std::move(callback).Run(images);
   }
 }
 
@@ -167,7 +167,7 @@ ImageCache::ImageType ImageCache::GetImageType(const std::string& path) {
 
 void ImageCache::LoadMissing(const ImageInfoSet& image_info,
                              const ImageSet& images,
-                             const LoadImagesCallback& callback) {
+                             LoadImagesCallback callback) {
   CEF_REQUIRE_FILE_USER_BLOCKING_THREAD();
 
   DCHECK_EQ(image_info.size(), images.size());
@@ -188,8 +188,8 @@ void ImageCache::LoadMissing(const ImageInfoSet& image_info,
     contents.push_back(content);
   }
 
-  CefPostTask(TID_UI, base::Bind(&ImageCache::UpdateCache, this, image_info,
-                                 contents, callback));
+  CefPostTask(TID_UI, base::BindOnce(&ImageCache::UpdateCache, this, image_info,
+                                     contents, std::move(callback)));
 }
 
 // static
@@ -238,7 +238,7 @@ bool ImageCache::LoadImageContents(const std::string& path,
 
 void ImageCache::UpdateCache(const ImageInfoSet& image_info,
                              const ImageContentSet& contents,
-                             const LoadImagesCallback& callback) {
+                             LoadImagesCallback callback) {
   CEF_REQUIRE_UI_THREAD();
 
   DCHECK_EQ(image_info.size(), contents.size());
@@ -262,7 +262,7 @@ void ImageCache::UpdateCache(const ImageInfoSet& image_info,
     }
   }
 
-  callback.Run(images);
+  std::move(callback).Run(images);
 }
 
 // static

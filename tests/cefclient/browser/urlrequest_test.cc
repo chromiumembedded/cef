@@ -4,6 +4,7 @@
 
 #include "tests/cefclient/browser/urlrequest_test.h"
 
+#include <memory>
 #include <string>
 
 #include "include/base/cef_callback.h"
@@ -25,11 +26,11 @@ const char kTestMessageName[] = "URLRequestTest";
 class RequestClient : public CefURLRequestClient {
  public:
   // Callback to be executed on request completion.
-  typedef base::Callback<void(CefURLRequest::ErrorCode /*error_code*/,
-                              const std::string& /*download_data*/)>
-      Callback;
+  using Callback =
+      base::OnceCallback<void(CefURLRequest::ErrorCode /*error_code*/,
+                              const std::string& /*download_data*/)>;
 
-  explicit RequestClient(const Callback& callback) : callback_(callback) {
+  explicit RequestClient(Callback callback) : callback_(std::move(callback)) {
     CEF_REQUIRE_UI_THREAD();
     DCHECK(!callback_.is_null());
   }
@@ -43,8 +44,7 @@ class RequestClient : public CefURLRequestClient {
   void OnRequestComplete(CefRefPtr<CefURLRequest> request) override {
     CEF_REQUIRE_UI_THREAD();
     if (!callback_.is_null()) {
-      callback_.Run(request->GetRequestError(), download_data_);
-      callback_.Reset();
+      std::move(callback_).Run(request->GetRequestError(), download_data_);
     }
   }
 
@@ -122,13 +122,13 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       // It's safe to use base::Unretained() here because there is only one
       // RequestClient pending at any given time and we explicitly detach the
       // callback in the Handler destructor.
-      const RequestClient::Callback& request_callback =
-          base::Bind(&Handler::OnRequestComplete, base::Unretained(this));
+      auto request_callback =
+          base::BindOnce(&Handler::OnRequestComplete, base::Unretained(this));
 
       // Create and start a new CefURLRequest associated with the frame, so
       // that it shares authentication with ClientHandler::GetAuthCredentials.
       urlrequest_ = frame->CreateURLRequest(
-          cef_request, new RequestClient(request_callback));
+          cef_request, new RequestClient(std::move(request_callback)));
 
       return true;
     }

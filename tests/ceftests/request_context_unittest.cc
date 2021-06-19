@@ -336,7 +336,7 @@ class PopupTestHandler : public TestHandler {
       ~TestVisitor() override {
         // Destroy the test.
         CefPostTask(TID_UI,
-                    base::Bind(&PopupTestHandler::DestroyTest, handler_));
+                    base::BindOnce(&PopupTestHandler::DestroyTest, handler_));
       }
 
       bool Visit(const CefCookie& cookie,
@@ -593,7 +593,8 @@ class PopupNavTestHandler : public TestHandler {
       if (mode_ == DENY) {
         // Wait a bit to make sure the popup window isn't created.
         CefPostDelayedTask(
-            TID_UI, base::Bind(&PopupNavTestHandler::DestroyTest, this), 200);
+            TID_UI, base::BindOnce(&PopupNavTestHandler::DestroyTest, this),
+            200);
       }
     } else if (url == kPopupNavPopupUrl) {
       EXPECT_FALSE(got_popup_load_end_);
@@ -644,7 +645,8 @@ class PopupNavTestHandler : public TestHandler {
     }
 
     if (destroy_test) {
-      CefPostTask(TID_UI, base::Bind(&PopupNavTestHandler::DestroyTest, this));
+      CefPostTask(TID_UI,
+                  base::BindOnce(&PopupNavTestHandler::DestroyTest, this));
     }
   }
 

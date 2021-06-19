@@ -68,7 +68,7 @@ TEST(WaitableEventTest, WaitAndDelete) {
   CefRefPtr<CefThread> thread = CefThread::CreateThread("waitable_event_test");
   thread->GetTaskRunner()->PostDelayedTask(
       CefCreateClosureTask(
-          base::Bind(SignalEvent, base::Unretained(event.get()))),
+          base::BindOnce(SignalEvent, base::Unretained(event.get()))),
       10);
 
   event->Wait();

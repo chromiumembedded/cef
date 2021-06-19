@@ -108,25 +108,25 @@ RootWindowGtk::~RootWindowGtk() {
 }
 
 void RootWindowGtk::Init(RootWindow::Delegate* delegate,
-                         const RootWindowConfig& config,
+                         std::unique_ptr<RootWindowConfig> config,
                          const CefBrowserSettings& settings) {
   DCHECK(delegate);
   DCHECK(!initialized_);
 
   delegate_ = delegate;
-  with_controls_ = config.with_controls;
-  always_on_top_ = config.always_on_top;
-  with_osr_ = config.with_osr;
-  with_extension_ = config.with_extension;
-  start_rect_ = config.bounds;
+  with_controls_ = config->with_controls;
+  always_on_top_ = config->always_on_top;
+  with_osr_ = config->with_osr;
+  with_extension_ = config->with_extension;
+  start_rect_ = config->bounds;
 
-  CreateBrowserWindow(config.url);
+  CreateBrowserWindow(config->url);
 
   initialized_ = true;
 
   // Always post asynchronously to avoid reentrancy of the GDK lock.
-  MAIN_POST_CLOSURE(base::Bind(&RootWindowGtk::CreateRootWindow, this, settings,
-                               config.initially_hidden));
+  MAIN_POST_CLOSURE(base::BindOnce(&RootWindowGtk::CreateRootWindow, this,
+                                   settings, config->initially_hidden));
 }
 
 void RootWindowGtk::InitAsPopup(RootWindow::Delegate* delegate,
@@ -450,7 +450,7 @@ void RootWindowGtk::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {
 void RootWindowGtk::OnBrowserWindowClosing() {
   if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI,
-                base::Bind(&RootWindowGtk::OnBrowserWindowClosing, this));
+                base::BindOnce(&RootWindowGtk::OnBrowserWindowClosing, this));
     return;
   }
 
@@ -552,7 +552,7 @@ void RootWindowGtk::OnSetDraggableRegions(
 void RootWindowGtk::NotifyMoveOrResizeStarted() {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     MAIN_POST_CLOSURE(
-        base::Bind(&RootWindowGtk::NotifyMoveOrResizeStarted, this));
+        base::BindOnce(&RootWindowGtk::NotifyMoveOrResizeStarted, this));
     return;
   }
 
@@ -569,7 +569,7 @@ void RootWindowGtk::NotifyMoveOrResizeStarted() {
 
 void RootWindowGtk::NotifySetFocus() {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
-    MAIN_POST_CLOSURE(base::Bind(&RootWindowGtk::NotifySetFocus, this));
+    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowGtk::NotifySetFocus, this));
     return;
   }
 
@@ -583,7 +583,7 @@ void RootWindowGtk::NotifySetFocus() {
 void RootWindowGtk::NotifyVisibilityChange(bool show) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     MAIN_POST_CLOSURE(
-        base::Bind(&RootWindowGtk::NotifyVisibilityChange, this, show));
+        base::BindOnce(&RootWindowGtk::NotifyVisibilityChange, this, show));
     return;
   }
 
@@ -599,7 +599,7 @@ void RootWindowGtk::NotifyVisibilityChange(bool show) {
 void RootWindowGtk::NotifyMenuBarHeight(int height) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     MAIN_POST_CLOSURE(
-        base::Bind(&RootWindowGtk::NotifyMenuBarHeight, this, height));
+        base::BindOnce(&RootWindowGtk::NotifyMenuBarHeight, this, height));
     return;
   }
 
@@ -608,8 +608,8 @@ void RootWindowGtk::NotifyMenuBarHeight(int height) {
 
 void RootWindowGtk::NotifyContentBounds(int x, int y, int width, int height) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
-    MAIN_POST_CLOSURE(base::Bind(&RootWindowGtk::NotifyContentBounds, this, x,
-                                 y, width, height));
+    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowGtk::NotifyContentBounds, this,
+                                     x, y, width, height));
     return;
   }
 
@@ -632,7 +632,7 @@ void RootWindowGtk::NotifyContentBounds(int x, int y, int width, int height) {
 
 void RootWindowGtk::NotifyLoadURL(const std::string& url) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
-    MAIN_POST_CLOSURE(base::Bind(&RootWindowGtk::NotifyLoadURL, this, url));
+    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowGtk::NotifyLoadURL, this, url));
     return;
   }
 
@@ -645,7 +645,7 @@ void RootWindowGtk::NotifyLoadURL(const std::string& url) {
 void RootWindowGtk::NotifyButtonClicked(int id) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     MAIN_POST_CLOSURE(
-        base::Bind(&RootWindowGtk::NotifyButtonClicked, this, id));
+        base::BindOnce(&RootWindowGtk::NotifyButtonClicked, this, id));
     return;
   }
 
@@ -673,7 +673,7 @@ void RootWindowGtk::NotifyButtonClicked(int id) {
 
 void RootWindowGtk::NotifyMenuItem(int id) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
-    MAIN_POST_CLOSURE(base::Bind(&RootWindowGtk::NotifyMenuItem, this, id));
+    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowGtk::NotifyMenuItem, this, id));
     return;
   }
 
@@ -684,7 +684,7 @@ void RootWindowGtk::NotifyMenuItem(int id) {
 
 void RootWindowGtk::NotifyForceClose() {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::Bind(&RootWindowGtk::NotifyForceClose, this));
+    CefPostTask(TID_UI, base::BindOnce(&RootWindowGtk::NotifyForceClose, this));
     return;
   }
 
@@ -693,7 +693,7 @@ void RootWindowGtk::NotifyForceClose() {
 
 void RootWindowGtk::NotifyCloseBrowser() {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
-    MAIN_POST_CLOSURE(base::Bind(&RootWindowGtk::NotifyCloseBrowser, this));
+    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowGtk::NotifyCloseBrowser, this));
     return;
   }
 
@@ -709,8 +709,9 @@ void RootWindowGtk::NotifyDestroyedIfDone(bool window_destroyed,
   DCHECK_EQ(1, window_destroyed + browser_destroyed);
 
   if (!CURRENTLY_ON_MAIN_THREAD()) {
-    MAIN_POST_CLOSURE(base::Bind(&RootWindowGtk::NotifyDestroyedIfDone, this,
-                                 window_destroyed, browser_destroyed));
+    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowGtk::NotifyDestroyedIfDone,
+                                     this, window_destroyed,
+                                     browser_destroyed));
     return;
   }
 

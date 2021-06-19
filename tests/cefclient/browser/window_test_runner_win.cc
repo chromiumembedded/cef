@@ -104,7 +104,7 @@ void WindowTestRunnerWin::SetPos(CefRefPtr<CefBrowser> browser,
     SetPosImpl(browser, x, y, width, height);
   } else {
     // Execute on the main application thread.
-    MAIN_POST_CLOSURE(base::Bind(SetPosImpl, browser, x, y, width, height));
+    MAIN_POST_CLOSURE(base::BindOnce(SetPosImpl, browser, x, y, width, height));
   }
 }
 
@@ -113,7 +113,7 @@ void WindowTestRunnerWin::Minimize(CefRefPtr<CefBrowser> browser) {
     MinimizeImpl(browser);
   } else {
     // Execute on the main application thread.
-    MAIN_POST_CLOSURE(base::Bind(MinimizeImpl, browser));
+    MAIN_POST_CLOSURE(base::BindOnce(MinimizeImpl, browser));
   }
 }
 
@@ -122,7 +122,7 @@ void WindowTestRunnerWin::Maximize(CefRefPtr<CefBrowser> browser) {
     MaximizeImpl(browser);
   } else {
     // Execute on the main application thread.
-    MAIN_POST_CLOSURE(base::Bind(MaximizeImpl, browser));
+    MAIN_POST_CLOSURE(base::BindOnce(MaximizeImpl, browser));
   }
 }
 
@@ -131,7 +131,7 @@ void WindowTestRunnerWin::Restore(CefRefPtr<CefBrowser> browser) {
     RestoreImpl(browser);
   } else {
     // Execute on the main application thread.
-    MAIN_POST_CLOSURE(base::Bind(RestoreImpl, browser));
+    MAIN_POST_CLOSURE(base::BindOnce(RestoreImpl, browser));
   }
 }
 

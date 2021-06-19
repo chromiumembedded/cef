@@ -586,7 +586,7 @@ class TypeTestHandler : public TestHandler {
         get_expectations_.IsDone(false)) {
       completed_browser_side_ = true;
       // Destroy the test on the UI thread.
-      CefPostTask(TID_UI, base::Bind(&TypeTestHandler::DestroyTest, this));
+      CefPostTask(TID_UI, base::BindOnce(&TypeTestHandler::DestroyTest, this));
     }
 
     return TestHandler::GetResourceHandler(browser, frame, request);

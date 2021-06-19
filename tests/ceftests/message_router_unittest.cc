@@ -522,8 +522,9 @@ class SingleQueryTestHandler : public SingleLoadTestHandler {
       if (sync_callback_) {
         ExecuteCallback();
       } else {
-        CefPostTask(TID_UI,
-                    base::Bind(&SingleQueryTestHandler::ExecuteCallback, this));
+        CefPostTask(
+            TID_UI,
+            base::BindOnce(&SingleQueryTestHandler::ExecuteCallback, this));
       }
     }
 
@@ -761,8 +762,8 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
       } else {
         CefPostTask(
             TID_UI,
-            base::Bind(&SinglePersistentQueryTestHandler::ExecuteCallback,
-                       this));
+            base::BindOnce(&SinglePersistentQueryTestHandler::ExecuteCallback,
+                           this));
       }
     }
 
@@ -1902,9 +1903,9 @@ class MultiQuerySingleFrameTestHandler : public SingleLoadTestHandler,
 
     if (!SignalCompletionWhenAllBrowsersClose()) {
       // Complete asynchronously so the call stack has a chance to unwind.
-      CefPostTask(
-          TID_UI,
-          base::Bind(&MultiQuerySingleFrameTestHandler::TestComplete, this));
+      CefPostTask(TID_UI,
+                  base::BindOnce(
+                      &MultiQuerySingleFrameTestHandler::TestComplete, this));
     }
   }
 

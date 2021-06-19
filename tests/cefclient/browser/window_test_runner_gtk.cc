@@ -115,19 +115,19 @@ void WindowTestRunnerGtk::SetPos(CefRefPtr<CefBrowser> browser,
                                  int y,
                                  int width,
                                  int height) {
-  MAIN_POST_CLOSURE(base::Bind(SetPosImpl, browser, x, y, width, height));
+  MAIN_POST_CLOSURE(base::BindOnce(SetPosImpl, browser, x, y, width, height));
 }
 
 void WindowTestRunnerGtk::Minimize(CefRefPtr<CefBrowser> browser) {
-  MAIN_POST_CLOSURE(base::Bind(MinimizeImpl, browser));
+  MAIN_POST_CLOSURE(base::BindOnce(MinimizeImpl, browser));
 }
 
 void WindowTestRunnerGtk::Maximize(CefRefPtr<CefBrowser> browser) {
-  MAIN_POST_CLOSURE(base::Bind(MaximizeImpl, browser));
+  MAIN_POST_CLOSURE(base::BindOnce(MaximizeImpl, browser));
 }
 
 void WindowTestRunnerGtk::Restore(CefRefPtr<CefBrowser> browser) {
-  MAIN_POST_CLOSURE(base::Bind(RestoreImpl, browser));
+  MAIN_POST_CLOSURE(base::BindOnce(RestoreImpl, browser));
 }
 
 }  // namespace window_test

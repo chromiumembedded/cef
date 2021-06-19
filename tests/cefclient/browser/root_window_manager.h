@@ -27,7 +27,8 @@ class RootWindowManager : public RootWindow::Delegate {
 
   // Create a new top-level native window. This method can be called from
   // anywhere.
-  scoped_refptr<RootWindow> CreateRootWindow(const RootWindowConfig& config);
+  scoped_refptr<RootWindow> CreateRootWindow(
+      std::unique_ptr<RootWindowConfig> config);
 
   // Create a new native popup window.
   // If |with_controls| is true the window will show controls.
@@ -50,7 +51,7 @@ class RootWindowManager : public RootWindow::Delegate {
       CefRefPtr<CefExtension> extension,
       const CefRect& source_bounds,
       CefRefPtr<CefWindow> parent_window,
-      const base::Closure& close_callback,
+      base::OnceClosure close_callback,
       bool with_controls,
       bool with_osr);
 
@@ -104,7 +105,7 @@ class RootWindowManager : public RootWindow::Delegate {
   void CreateExtensionWindow(CefRefPtr<CefExtension> extension,
                              const CefRect& source_bounds,
                              CefRefPtr<CefWindow> parent_window,
-                             const base::Closure& close_callback,
+                             base::OnceClosure close_callback,
                              bool with_osr) override;
 
   void CleanupOnUIThread();

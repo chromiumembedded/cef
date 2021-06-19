@@ -306,9 +306,9 @@ class ClientSchemeHandlerOld : public CefResourceHandler {
     if (handled) {
       if (test_results_->delay > 0) {
         // Continue after the delay.
-        CefPostDelayedTask(TID_IO,
-                           base::Bind(&CefCallback::Continue, callback.get()),
-                           test_results_->delay);
+        CefPostDelayedTask(
+            TID_IO, base::BindOnce(&CefCallback::Continue, callback.get()),
+            test_results_->delay);
       } else {
         // Continue immediately.
         callback->Continue();
@@ -372,8 +372,8 @@ class ClientSchemeHandlerOld : public CefResourceHandler {
         // Continue after a delay.
         CefPostDelayedTask(
             TID_IO,
-            base::Bind(&ClientSchemeHandlerOld::ContinueAfterDelay, this,
-                       callback),
+            base::BindOnce(&ClientSchemeHandlerOld::ContinueAfterDelay, this,
+                           callback),
             test_results_->delay);
         bytes_read = 0;
         return true;
@@ -487,9 +487,10 @@ class ClientSchemeHandler : public CefResourceHandler {
       if (test_results_->delay > 0) {
         // Continue after the delay.
         handle_request = false;
-        CefPostDelayedTask(TID_FILE_USER_BLOCKING,
-                           base::Bind(&CefCallback::Continue, callback.get()),
-                           test_results_->delay);
+        CefPostDelayedTask(
+            TID_FILE_USER_BLOCKING,
+            base::BindOnce(&CefCallback::Continue, callback.get()),
+            test_results_->delay);
       }
       return true;
     } else if (test_results_->response_error_code != ERR_NONE) {
@@ -558,10 +559,11 @@ class ClientSchemeHandler : public CefResourceHandler {
     if (test_results_->delay > 0) {
       if (!has_delayed_) {
         // Continue after a delay.
-        CefPostDelayedTask(TID_FILE_USER_BLOCKING,
-                           base::Bind(&ClientSchemeHandler::ContinueAfterDelay,
-                                      this, data_out, bytes_to_read, callback),
-                           test_results_->delay);
+        CefPostDelayedTask(
+            TID_FILE_USER_BLOCKING,
+            base::BindOnce(&ClientSchemeHandler::ContinueAfterDelay, this,
+                           data_out, bytes_to_read, callback),
+            test_results_->delay);
         bytes_read = 0;
         return true;
       }

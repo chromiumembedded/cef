@@ -90,7 +90,7 @@ class TitleTestHandler : public TestHandler {
     // NextIfReady.
     got_loading_state_change_ = true;
     CefPostTask(TID_UI,
-                base::Bind(&TitleTestHandler::NextIfReady, this, browser));
+                base::BindOnce(&TitleTestHandler::NextIfReady, this, browser));
   }
 
  private:

@@ -80,7 +80,8 @@ class TracingTestHandler : public CefEndTracingCallback,
 
   void ExecuteTest() {
     // Run the test.
-    CefPostTask(TID_UI, base::Bind(&TracingTestHandler::BeginTracing, this));
+    CefPostTask(TID_UI,
+                base::BindOnce(&TracingTestHandler::BeginTracing, this));
 
     // Wait for the test to complete.
     completion_event_->Wait();
@@ -102,8 +103,8 @@ class TracingTestHandler : public CefEndTracingCallback,
     EXPECT_UI_THREAD();
 
     // Add some delay to avoid timing-related test failures.
-    CefPostDelayedTask(TID_UI,
-                       base::Bind(&TracingTestHandler::TestTracing, this), 50);
+    CefPostDelayedTask(
+        TID_UI, base::BindOnce(&TracingTestHandler::TestTracing, this), 50);
   }
 
   void TestTracing() {
@@ -343,9 +344,9 @@ class TracingTestHandler : public CefEndTracingCallback,
   void OnEndTracingComplete(const CefString& tracing_file) override {
     EXPECT_UI_THREAD();
 
-    CefPostTask(
-        TID_FILE_USER_VISIBLE,
-        base::Bind(&TracingTestHandler::ReadTracingFile, this, tracing_file));
+    CefPostTask(TID_FILE_USER_VISIBLE,
+                base::BindOnce(&TracingTestHandler::ReadTracingFile, this,
+                               tracing_file));
   }
 
   void ReadTracingFile(const std::string& file_path) {

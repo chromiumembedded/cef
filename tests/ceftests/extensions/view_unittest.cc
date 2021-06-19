@@ -63,7 +63,7 @@ class ViewLoadUnloadTestHandler : public ExtensionTestHandler {
     // Execute asynchronously so call stacks have a chance to unwind.
     // Will close the browser windows.
     CefPostTask(TID_UI,
-                base::Bind(&ViewLoadUnloadTestHandler::DestroyTest, this));
+                base::BindOnce(&ViewLoadUnloadTestHandler::DestroyTest, this));
   }
 
   // CefLoadHandler methods:
@@ -194,8 +194,9 @@ class ViewLoadUnloadTestHandler : public ExtensionTestHandler {
 
   virtual void TriggerDestroyTest() {
     // Execute asynchronously so call stacks have a chance to unwind.
-    CefPostTask(TID_UI, base::Bind(&ViewLoadUnloadTestHandler::UnloadExtension,
-                                   this, extension_));
+    CefPostTask(TID_UI,
+                base::BindOnce(&ViewLoadUnloadTestHandler::UnloadExtension,
+                               this, extension_));
   }
 
   CefRefPtr<CefExtension> extension_;

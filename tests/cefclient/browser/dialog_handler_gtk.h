@@ -65,7 +65,7 @@ class ClientDialogHandlerGtk : public CefDialogHandler,
   void OnJSDialogContinue(OnJSDialogParams params, GtkWindow* window);
 
   void GetWindowAndContinue(CefRefPtr<CefBrowser> browser,
-                            base::Callback<void(GtkWindow*)> callback);
+                            base::OnceCallback<void(GtkWindow*)> callback);
 
   static void OnDialogResponse(GtkDialog* dialog,
                                gint response_id,

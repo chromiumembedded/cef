@@ -45,7 +45,7 @@ struct State {
   bool response_was_cached_ = false;
 };
 
-typedef base::Callback<void(const State& state)> RequestDoneCallback;
+using RequestDoneCallback = base::OnceCallback<void(const State& state)>;
 
 struct SendConfig {
   // Send using |frame_| or |request_context_| if non-nullptr.
@@ -64,7 +64,7 @@ struct SendConfig {
 
 // Send a request. |callback| will be executed on the calling thread after the
 // request completes.
-void Send(const SendConfig& config, const RequestDoneCallback& callback);
+void Send(const SendConfig& config, RequestDoneCallback callback);
 
 // Removes query and/or fragment components from |url|.
 std::string GetPathURL(const std::string& url);
@@ -74,14 +74,15 @@ CefRefPtr<CefResourceHandler> CreateResourceHandler(
     CefRefPtr<CefResponse> response,
     const std::string& response_data);
 
-typedef std::vector<CefCookie> CookieVector;
-typedef base::Callback<void(const CookieVector& cookies)> CookieDoneCallback;
+using CookieVector = std::vector<CefCookie>;
+using CookieDoneCallback =
+    base::OnceCallback<void(const CookieVector& cookies)>;
 
 // Retrieves all cookies from |manager| and executes |callback| upon completion.
 // If |deleteCookies| is true the cookies will also be deleted.
 void GetAllCookies(CefRefPtr<CefCookieManager> manager,
                    bool deleteCookies,
-                   const CookieDoneCallback& callback);
+                   CookieDoneCallback callback);
 
 // Retrieves URL cookies from |manager| and executes |callback| upon completion.
 // If |deleteCookies| is true the cookies will also be deleted.
@@ -89,7 +90,7 @@ void GetUrlCookies(CefRefPtr<CefCookieManager> manager,
                    const CefString& url,
                    bool includeHttpOnly,
                    bool deleteCookies,
-                   const CookieDoneCallback& callback);
+                   CookieDoneCallback callback);
 
 }  // namespace test_request
 

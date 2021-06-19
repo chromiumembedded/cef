@@ -219,13 +219,13 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
     }
   }
 
-  client::RootWindowConfig window_config;
-  window_config.with_controls = with_controls_;
-  window_config.with_osr = with_osr_;
+  auto window_config = std::make_unique<client::RootWindowConfig>();
+  window_config->with_controls = with_controls_;
+  window_config->with_osr = with_osr_;
 
   // Create the first window.
   client::MainContext::Get()->GetRootWindowManager()->CreateRootWindow(
-      window_config);
+      std::move(window_config));
 }
 
 - (void)tryToTerminateApplication:(NSApplication*)app {

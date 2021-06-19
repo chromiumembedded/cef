@@ -78,14 +78,14 @@ void RunTestsOnTestThread() {
     sleep(100);
 
   // Wait for the test server to stop, and then quit the CEF message loop.
-  test_server::Stop(base::Bind(QuitMessageLoop));
+  test_server::Stop(base::BindOnce(QuitMessageLoop));
 }
 
 // Called on the UI thread.
 void ContinueOnUIThread(CefRefPtr<CefTaskRunner> test_task_runner) {
   // Run the test suite on the test thread.
   test_task_runner->PostTask(
-      CefCreateClosureTask(base::Bind(&RunTestsOnTestThread)));
+      CefCreateClosureTask(base::BindOnce(&RunTestsOnTestThread)));
 }
 
 #if defined(OS_LINUX) && defined(CEF_X11)
@@ -210,7 +210,7 @@ int main(int argc, char* argv[]) {
     // Wait for the test server to stop.
     CefRefPtr<CefWaitableEvent> event =
         CefWaitableEvent::CreateWaitableEvent(true, false);
-    test_server::Stop(base::Bind(&CefWaitableEvent::Signal, event));
+    test_server::Stop(base::BindOnce(&CefWaitableEvent::Signal, event));
     event->Wait();
   } else {
     // Create and start the test thread.
@@ -221,7 +221,7 @@ int main(int argc, char* argv[]) {
     // Start the tests from the UI thread so that any pending UI tasks get a
     // chance to execute first.
     CefPostTask(TID_UI,
-                base::Bind(&ContinueOnUIThread, thread->GetTaskRunner()));
+                base::BindOnce(&ContinueOnUIThread, thread->GetTaskRunner()));
 
     // Run the CEF message loop.
     message_loop->Run();

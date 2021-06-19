@@ -29,7 +29,7 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
 
   // RootWindow methods.
   void Init(RootWindow::Delegate* delegate,
-            const RootWindowConfig& config,
+            std::unique_ptr<RootWindowConfig> config,
             const CefBrowserSettings& settings) override;
   void InitAsPopup(RootWindow::Delegate* delegate,
                    bool with_controls,

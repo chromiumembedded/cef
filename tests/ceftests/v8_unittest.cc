@@ -2580,10 +2580,10 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
                      CefRefPtr<CefV8Value>& retval,
                      CefString& exception) override {
           if (name == "notify_test_done") {
-            CefPostDelayedTask(
-                TID_RENDERER,
-                base::Bind(&V8RendererTest::DestroyTest, renderer_test_.get()),
-                1000);
+            CefPostDelayedTask(TID_RENDERER,
+                               base::BindOnce(&V8RendererTest::DestroyTest,
+                                              renderer_test_.get()),
+                               1000);
             return true;
           }
 
@@ -2685,7 +2685,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     const std::string& message_name = message->GetName();
     if (message_name == kV8RunTestMsg) {
       // Run the test asynchronously.
-      CefPostTask(TID_RENDERER, base::Bind(&V8RendererTest::RunTest, this));
+      CefPostTask(TID_RENDERER, base::BindOnce(&V8RendererTest::RunTest, this));
       return true;
     }
     return false;
@@ -2736,8 +2736,8 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     // is no longer possible.
     CefPostDelayedTask(
         TID_RENDERER,
-        base::Bind(&CefFrame::ExecuteJavaScript, frame.get(),
-                   "window.DevToolsLoaded()", frame->GetURL(), 0),
+        base::BindOnce(&CefFrame::ExecuteJavaScript, frame.get(),
+                       "window.DevToolsLoaded()", frame->GetURL(), 0),
         500);
   }
 

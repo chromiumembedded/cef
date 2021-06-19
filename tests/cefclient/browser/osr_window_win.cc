@@ -127,7 +127,7 @@ void OsrWindowWin::CreateBrowser(HWND parent_hwnd,
     CreateBrowserHelper* helper =
         new CreateBrowserHelper(parent_hwnd, rect, handler, startup_url,
                                 settings, extra_info, request_context, this);
-    CefPostTask(TID_UI, base::Bind(CreateBrowserWithHelper, helper));
+    CefPostTask(TID_UI, base::BindOnce(CreateBrowserWithHelper, helper));
     return;
   }
 
@@ -158,8 +158,8 @@ void OsrWindowWin::ShowPopup(HWND parent_hwnd,
                              size_t height) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&OsrWindowWin::ShowPopup, this, parent_hwnd,
-                                   x, y, width, height));
+    CefPostTask(TID_UI, base::BindOnce(&OsrWindowWin::ShowPopup, this,
+                                       parent_hwnd, x, y, width, height));
     return;
   }
 
@@ -184,7 +184,7 @@ void OsrWindowWin::ShowPopup(HWND parent_hwnd,
 void OsrWindowWin::Show() {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&OsrWindowWin::Show, this));
+    CefPostTask(TID_UI, base::BindOnce(&OsrWindowWin::Show, this));
     return;
   }
 
@@ -208,7 +208,7 @@ void OsrWindowWin::Show() {
 void OsrWindowWin::Hide() {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&OsrWindowWin::Hide, this));
+    CefPostTask(TID_UI, base::BindOnce(&OsrWindowWin::Hide, this));
     return;
   }
 
@@ -228,8 +228,8 @@ void OsrWindowWin::Hide() {
 void OsrWindowWin::SetBounds(int x, int y, size_t width, size_t height) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&OsrWindowWin::SetBounds, this, x, y, width,
-                                   height));
+    CefPostTask(TID_UI, base::BindOnce(&OsrWindowWin::SetBounds, this, x, y,
+                                       width, height));
     return;
   }
 
@@ -243,7 +243,7 @@ void OsrWindowWin::SetBounds(int x, int y, size_t width, size_t height) {
 void OsrWindowWin::SetFocus() {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&OsrWindowWin::SetFocus, this));
+    CefPostTask(TID_UI, base::BindOnce(&OsrWindowWin::SetFocus, this));
     return;
   }
 
@@ -256,8 +256,8 @@ void OsrWindowWin::SetFocus() {
 void OsrWindowWin::SetDeviceScaleFactor(float device_scale_factor) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&OsrWindowWin::SetDeviceScaleFactor, this,
-                                   device_scale_factor));
+    CefPostTask(TID_UI, base::BindOnce(&OsrWindowWin::SetDeviceScaleFactor,
+                                       this, device_scale_factor));
     return;
   }
 
@@ -347,7 +347,7 @@ void OsrWindowWin::NotifyNativeWindowCreated(HWND hwnd) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     // Execute this method on the main thread.
     MAIN_POST_CLOSURE(
-        base::Bind(&OsrWindowWin::NotifyNativeWindowCreated, this, hwnd));
+        base::BindOnce(&OsrWindowWin::NotifyNativeWindowCreated, this, hwnd));
     return;
   }
 
@@ -921,7 +921,7 @@ void OsrWindowWin::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   if (hwnd_) {
     // Show the browser window. Called asynchronously so that the browser has
     // time to create associated internal objects.
-    CefPostTask(TID_UI, base::Bind(&OsrWindowWin::Show, this));
+    CefPostTask(TID_UI, base::BindOnce(&OsrWindowWin::Show, this));
   }
 }
 

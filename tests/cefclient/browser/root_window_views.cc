@@ -4,6 +4,8 @@
 
 #include "tests/cefclient/browser/root_window_views.h"
 
+#include <memory>
+
 #include "include/base/cef_build.h"
 #include "include/base/cef_callback.h"
 #include "include/base/cef_cxx17_backports.h"
@@ -20,48 +22,35 @@ static const char* kDefaultImageCache[] = {"menu_icon", "window_icon"};
 
 }  // namespace
 
-RootWindowViews::RootWindowViews()
-    : with_controls_(false),
-      always_on_top_(false),
-      with_extension_(false),
-      initially_hidden_(false),
-      is_popup_(false),
-      position_on_resize_(false),
-      initialized_(false),
-      window_destroyed_(false),
-      browser_destroyed_(false) {}
+RootWindowViews::RootWindowViews() = default;
 
 RootWindowViews::~RootWindowViews() {
   REQUIRE_MAIN_THREAD();
 }
 
 void RootWindowViews::Init(RootWindow::Delegate* delegate,
-                           const RootWindowConfig& config,
+                           std::unique_ptr<RootWindowConfig> config,
                            const CefBrowserSettings& settings) {
   DCHECK(delegate);
-  DCHECK(!config.with_osr);  // Windowless rendering is not supported.
+  DCHECK(!config->with_osr);  // Windowless rendering is not supported.
   DCHECK(!initialized_);
 
   delegate_ = delegate;
-  with_controls_ = config.with_controls;
-  always_on_top_ = config.always_on_top;
-  with_extension_ = config.with_extension;
-  initially_hidden_ = config.initially_hidden;
-  if (initially_hidden_ && !config.source_bounds.IsEmpty()) {
+  config_ = std::move(config);
+
+  if (config_->initially_hidden && !config_->source_bounds.IsEmpty()) {
     // The window will be sized and positioned in OnAutoResize().
-    initial_bounds_ = config.source_bounds;
+    initial_bounds_ = config_->source_bounds;
     position_on_resize_ = true;
   } else {
-    initial_bounds_ = config.bounds;
+    initial_bounds_ = config_->bounds;
   }
-  parent_window_ = config.parent_window;
-  close_callback_ = config.close_callback;
 
-  CreateClientHandler(config.url);
+  CreateClientHandler(config_->url);
   initialized_ = true;
 
   // Continue initialization on the UI thread.
-  InitOnUIThread(settings, config.url, delegate_->GetRequestContext(this));
+  InitOnUIThread(settings, config_->url, delegate_->GetRequestContext(this));
 }
 
 void RootWindowViews::InitAsPopup(RootWindow::Delegate* delegate,
@@ -78,7 +67,8 @@ void RootWindowViews::InitAsPopup(RootWindow::Delegate* delegate,
   DCHECK(!initialized_);
 
   delegate_ = delegate;
-  with_controls_ = with_controls;
+  config_ = std::make_unique<RootWindowConfig>();
+  config_->with_controls = with_controls;
   is_popup_ = true;
 
   if (popupFeatures.xSet)
@@ -100,7 +90,7 @@ void RootWindowViews::InitAsPopup(RootWindow::Delegate* delegate,
 void RootWindowViews::Show(ShowMode mode) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&RootWindowViews::Show, this, mode));
+    CefPostTask(TID_UI, base::BindOnce(&RootWindowViews::Show, this, mode));
     return;
   }
 
@@ -124,7 +114,7 @@ void RootWindowViews::Show(ShowMode mode) {
 void RootWindowViews::Hide() {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&RootWindowViews::Hide, this));
+    CefPostTask(TID_UI, base::BindOnce(&RootWindowViews::Hide, this));
     return;
   }
 
@@ -135,8 +125,8 @@ void RootWindowViews::Hide() {
 void RootWindowViews::SetBounds(int x, int y, size_t width, size_t height) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&RootWindowViews::SetBounds, this, x, y,
-                                   width, height));
+    CefPostTask(TID_UI, base::BindOnce(&RootWindowViews::SetBounds, this, x, y,
+                                       width, height));
     return;
   }
 
@@ -149,7 +139,7 @@ void RootWindowViews::SetBounds(int x, int y, size_t width, size_t height) {
 void RootWindowViews::Close(bool force) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&RootWindowViews::Close, this, force));
+    CefPostTask(TID_UI, base::BindOnce(&RootWindowViews::Close, this, force));
     return;
   }
 
@@ -189,24 +179,24 @@ ClientWindowHandle RootWindowViews::GetWindowHandle() const {
 
 bool RootWindowViews::WithExtension() const {
   DCHECK(initialized_);
-  return with_extension_;
+  return config_->with_extension;
 }
 
 bool RootWindowViews::WithControls() {
   DCHECK(initialized_);
-  return with_controls_;
+  return config_->with_controls;
 }
 
 bool RootWindowViews::WithExtension() {
   DCHECK(initialized_);
-  return with_extension_;
+  return config_->with_extension;
 }
 
 void RootWindowViews::OnExtensionsChanged(const ExtensionSet& extensions) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&RootWindowViews::OnExtensionsChanged, this,
-                                   extensions));
+    CefPostTask(TID_UI, base::BindOnce(&RootWindowViews::OnExtensionsChanged,
+                                       this, extensions));
     return;
   }
 
@@ -220,12 +210,12 @@ void RootWindowViews::OnExtensionsChanged(const ExtensionSet& extensions) {
 
 bool RootWindowViews::InitiallyHidden() {
   CEF_REQUIRE_UI_THREAD();
-  return initially_hidden_;
+  return config_->initially_hidden;
 }
 
 CefRefPtr<CefWindow> RootWindowViews::GetParentWindow() {
   CEF_REQUIRE_UI_THREAD();
-  return parent_window_;
+  return config_->parent_window;
 }
 
 CefRect RootWindowViews::GetWindowBounds() {
@@ -242,7 +232,7 @@ void RootWindowViews::OnViewsWindowCreated(CefRefPtr<ViewsWindow> window) {
   CEF_REQUIRE_UI_THREAD();
   DCHECK(!window_);
   window_ = window;
-  window_->SetAlwaysOnTop(always_on_top_);
+  window_->SetAlwaysOnTop(config_->always_on_top);
 
   if (!pending_extensions_.empty()) {
     window_->OnExtensionsChanged(pending_extensions_);
@@ -256,7 +246,7 @@ void RootWindowViews::OnViewsWindowDestroyed(CefRefPtr<ViewsWindow> window) {
 
   // Continue on the main thread.
   MAIN_POST_CLOSURE(
-      base::Bind(&RootWindowViews::NotifyViewsWindowDestroyed, this));
+      base::BindOnce(&RootWindowViews::NotifyViewsWindowDestroyed, this));
 }
 
 void RootWindowViews::OnViewsWindowActivated(CefRefPtr<ViewsWindow> window) {
@@ -264,7 +254,7 @@ void RootWindowViews::OnViewsWindowActivated(CefRefPtr<ViewsWindow> window) {
 
   // Continue on the main thread.
   MAIN_POST_CLOSURE(
-      base::Bind(&RootWindowViews::NotifyViewsWindowActivated, this));
+      base::BindOnce(&RootWindowViews::NotifyViewsWindowActivated, this));
 }
 
 ViewsWindow::Delegate* RootWindowViews::GetDelegateForPopup(
@@ -281,27 +271,26 @@ ViewsWindow::Delegate* RootWindowViews::GetDelegateForPopup(
   return root_window;
 }
 
-void RootWindowViews::CreateExtensionWindow(
-    CefRefPtr<CefExtension> extension,
-    const CefRect& source_bounds,
-    CefRefPtr<CefWindow> parent_window,
-    const base::Closure& close_callback) {
+void RootWindowViews::CreateExtensionWindow(CefRefPtr<CefExtension> extension,
+                                            const CefRect& source_bounds,
+                                            CefRefPtr<CefWindow> parent_window,
+                                            base::OnceClosure close_callback) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     // Execute this method on the main thread.
-    MAIN_POST_CLOSURE(base::Bind(&RootWindowViews::CreateExtensionWindow, this,
-                                 extension, source_bounds, parent_window,
-                                 close_callback));
+    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowViews::CreateExtensionWindow,
+                                     this, extension, source_bounds,
+                                     parent_window, std::move(close_callback)));
     return;
   }
 
   delegate_->CreateExtensionWindow(extension, source_bounds, parent_window,
-                                   close_callback, false);
+                                   std::move(close_callback), false);
 }
 
 void RootWindowViews::OnTest(int test_id) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     // Execute this method on the main thread.
-    MAIN_POST_CLOSURE(base::Bind(&RootWindowViews::OnTest, this, test_id));
+    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowViews::OnTest, this, test_id));
     return;
   }
 
@@ -311,7 +300,7 @@ void RootWindowViews::OnTest(int test_id) {
 void RootWindowViews::OnExit() {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     // Execute this method on the main thread.
-    MAIN_POST_CLOSURE(base::Bind(&RootWindowViews::OnExit, this));
+    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowViews::OnExit, this));
     return;
   }
 
@@ -347,18 +336,20 @@ void RootWindowViews::OnBrowserClosed(CefRefPtr<CefBrowser> browser) {
 void RootWindowViews::OnSetAddress(const std::string& url) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&RootWindowViews::OnSetAddress, this, url));
+    CefPostTask(TID_UI,
+                base::BindOnce(&RootWindowViews::OnSetAddress, this, url));
     return;
   }
 
-  if (window_ && with_controls_)
+  if (window_ && config_->with_controls)
     window_->SetAddress(url);
 }
 
 void RootWindowViews::OnSetTitle(const std::string& title) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&RootWindowViews::OnSetTitle, this, title));
+    CefPostTask(TID_UI,
+                base::BindOnce(&RootWindowViews::OnSetTitle, this, title));
     return;
   }
 
@@ -370,7 +361,7 @@ void RootWindowViews::OnSetFavicon(CefRefPtr<CefImage> image) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
     CefPostTask(TID_UI,
-                base::Bind(&RootWindowViews::OnSetFavicon, this, image));
+                base::BindOnce(&RootWindowViews::OnSetFavicon, this, image));
     return;
   }
 
@@ -381,8 +372,8 @@ void RootWindowViews::OnSetFavicon(CefRefPtr<CefImage> image) {
 void RootWindowViews::OnSetFullscreen(bool fullscreen) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&RootWindowViews::OnSetFullscreen, this,
-                                   fullscreen));
+    CefPostTask(TID_UI, base::BindOnce(&RootWindowViews::OnSetFullscreen, this,
+                                       fullscreen));
     return;
   }
 
@@ -394,7 +385,7 @@ void RootWindowViews::OnAutoResize(const CefSize& new_size) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
     CefPostTask(TID_UI,
-                base::Bind(&RootWindowViews::OnAutoResize, this, new_size));
+                base::BindOnce(&RootWindowViews::OnAutoResize, this, new_size));
     return;
   }
 
@@ -422,13 +413,14 @@ void RootWindowViews::OnSetLoadingState(bool isLoading,
                                         bool canGoForward) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&RootWindowViews::OnSetLoadingState, this,
-                                   isLoading, canGoBack, canGoForward));
+    CefPostTask(TID_UI,
+                base::BindOnce(&RootWindowViews::OnSetLoadingState, this,
+                               isLoading, canGoBack, canGoForward));
     return;
   }
 
   if (window_) {
-    if (with_controls_)
+    if (config_->with_controls)
       window_->SetLoadingState(isLoading, canGoBack, canGoForward);
 
     if (isLoading) {
@@ -443,8 +435,8 @@ void RootWindowViews::OnSetDraggableRegions(
     const std::vector<CefDraggableRegion>& regions) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&RootWindowViews::OnSetDraggableRegions,
-                                   this, regions));
+    CefPostTask(TID_UI, base::BindOnce(&RootWindowViews::OnSetDraggableRegions,
+                                       this, regions));
     return;
   }
 
@@ -455,7 +447,8 @@ void RootWindowViews::OnSetDraggableRegions(
 void RootWindowViews::OnTakeFocus(bool next) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&RootWindowViews::OnTakeFocus, this, next));
+    CefPostTask(TID_UI,
+                base::BindOnce(&RootWindowViews::OnTakeFocus, this, next));
     return;
   }
 
@@ -482,8 +475,8 @@ void RootWindowViews::InitOnUIThread(
     CefRefPtr<CefRequestContext> request_context) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&RootWindowViews::InitOnUIThread, this,
-                                   settings, startup_url, request_context));
+    CefPostTask(TID_UI, base::BindOnce(&RootWindowViews::InitOnUIThread, this,
+                                       settings, startup_url, request_context));
     return;
   }
 
@@ -495,8 +488,8 @@ void RootWindowViews::InitOnUIThread(
     image_set.push_back(ImageCache::ImageInfo::Create2x(kDefaultImageCache[i]));
 
   image_cache_->LoadImages(
-      image_set, base::Bind(&RootWindowViews::CreateViewsWindow, this, settings,
-                            startup_url, request_context));
+      image_set, base::BindOnce(&RootWindowViews::CreateViewsWindow, this,
+                                settings, startup_url, request_context));
 }
 
 void RootWindowViews::CreateViewsWindow(
@@ -535,8 +528,8 @@ void RootWindowViews::NotifyDestroyedIfDone() {
   // Notify once both the window and the browser have been destroyed.
   if (window_destroyed_ && browser_destroyed_) {
     delegate_->OnRootWindowDestroyed(this);
-    if (!close_callback_.is_null())
-      close_callback_.Run();
+    if (!config_->close_callback.is_null())
+      std::move(config_->close_callback).Run();
   }
 }
 

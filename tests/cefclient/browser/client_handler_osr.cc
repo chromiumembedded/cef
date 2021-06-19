@@ -20,7 +20,8 @@ ClientHandlerOsr::ClientHandlerOsr(Delegate* delegate,
 void ClientHandlerOsr::DetachOsrDelegate() {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&ClientHandlerOsr::DetachOsrDelegate, this));
+    CefPostTask(TID_UI,
+                base::BindOnce(&ClientHandlerOsr::DetachOsrDelegate, this));
     return;
   }
 

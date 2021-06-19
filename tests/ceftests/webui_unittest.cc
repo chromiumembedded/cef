@@ -2,6 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <memory>
+
 #include "include/base/cef_callback.h"
 #include "include/cef_callback.h"
 #include "include/cef_parser.h"
@@ -37,18 +39,18 @@ class WebUITestHandler : public TestHandler {
   }
 
   void NextNav() {
-    base::Closure next_action;
+    base::OnceClosure next_action;
 
     if (++url_index_ < url_list_.size()) {
-      next_action =
-          base::Bind(&WebUITestHandler::LoadURL, this, url_list_[url_index_]);
+      next_action = base::BindOnce(&WebUITestHandler::LoadURL, this,
+                                   url_list_[url_index_]);
     } else {
-      next_action = base::Bind(&WebUITestHandler::DestroyTest, this);
+      next_action = base::BindOnce(&WebUITestHandler::DestroyTest, this);
     }
 
     // Wait a bit for the WebUI content to finish loading before performing the
     // next action.
-    CefPostDelayedTask(TID_UI, next_action, 200);
+    CefPostDelayedTask(TID_UI, std::move(next_action), 200);
   }
 
   void LoadURL(const std::string& url) {

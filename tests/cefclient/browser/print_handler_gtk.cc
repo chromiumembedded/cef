@@ -5,6 +5,7 @@
 
 #include "tests/cefclient/browser/print_handler_gtk.h"
 
+#include <memory>
 #include <vector>
 
 #include <gtk/gtk.h>
@@ -282,20 +283,17 @@ GtkWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
   return nullptr;
 }
 
-void RunCallback(base::Callback<void(GtkWindow*)> callback, GtkWindow* window) {
-  callback.Run(window);
-}
-
 void GetWindowAndContinue(CefRefPtr<CefBrowser> browser,
-                          base::Callback<void(GtkWindow*)> callback) {
+                          base::OnceCallback<void(GtkWindow*)> callback) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
-    MAIN_POST_CLOSURE(base::Bind(GetWindowAndContinue, browser, callback));
+    MAIN_POST_CLOSURE(
+        base::BindOnce(GetWindowAndContinue, browser, std::move(callback)));
     return;
   }
 
   GtkWindow* window = GetWindow(browser);
   if (window) {
-    CefPostTask(TID_UI, base::Bind(RunCallback, callback, window));
+    CefPostTask(TID_UI, base::BindOnce(std::move(callback), window));
   }
 }
 
@@ -543,8 +541,8 @@ struct ClientPrintHandlerGtk::PrintHandler {
     // Continue() will result in a call to ClientPrintHandlerGtk::OnPrintReset
     // which deletes |this|. Execute it asnychronously so the call stack has a
     // chance to unwind.
-    CefPostTask(TID_UI, base::Bind(&CefPrintJobCallback::Continue,
-                                   job_callback_.get()));
+    CefPostTask(TID_UI, base::BindOnce(&CefPrintJobCallback::Continue,
+                                       job_callback_.get()));
     job_callback_ = nullptr;
   }
 
@@ -598,10 +596,10 @@ bool ClientPrintHandlerGtk::OnPrintDialog(
     CefRefPtr<CefPrintDialogCallback> callback) {
   CEF_REQUIRE_UI_THREAD();
 
-  GetWindowAndContinue(
-      browser, base::Bind(&PrintHandler::OnPrintDialog,
-                          base::Unretained(print_handler_.get()), has_selection,
-                          callback));
+  GetWindowAndContinue(browser,
+                       base::BindOnce(&PrintHandler::OnPrintDialog,
+                                      base::Unretained(print_handler_.get()),
+                                      has_selection, callback));
   return true;
 }
 

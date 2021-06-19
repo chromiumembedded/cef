@@ -105,7 +105,7 @@ int MainMessageLoopMultithreadedGtk::Run() {
 }
 
 void MainMessageLoopMultithreadedGtk::Quit() {
-  PostTask(CefCreateClosureTask(base::Bind(
+  PostTask(CefCreateClosureTask(base::BindOnce(
       &MainMessageLoopMultithreadedGtk::DoQuit, base::Unretained(this))));
 }
 

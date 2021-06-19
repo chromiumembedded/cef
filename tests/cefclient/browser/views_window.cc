@@ -320,7 +320,7 @@ void ViewsWindow::OnExtensionsChanged(const ExtensionSet& extensions) {
 
   delegate_->GetImageCache()->LoadImages(
       image_set,
-      base::Bind(&ViewsWindow::OnExtensionIconsLoaded, this, extensions));
+      base::BindOnce(&ViewsWindow::OnExtensionIconsLoaded, this, extensions));
 }
 
 CefRefPtr<CefBrowserViewDelegate> ViewsWindow::GetDelegateForPopupBrowserView(
@@ -423,7 +423,7 @@ void ViewsWindow::OnMenuButtonPressed(
     // Create a window for the extension.
     delegate_->CreateExtensionWindow(
         extensions_[extension_idx].extension_, menu_button->GetBoundsInScreen(),
-        window_, base::Bind(&ViewsWindow::OnExtensionWindowClosed, this));
+        window_, base::BindOnce(&ViewsWindow::OnExtensionWindowClosed, this));
     return;
   }
 
@@ -983,8 +983,8 @@ void ViewsWindow::OnExtensionIconsLoaded(const ExtensionSet& extensions,
                                          const ImageCache::ImageSet& images) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&ViewsWindow::OnExtensionIconsLoaded, this,
-                                   extensions, images));
+    CefPostTask(TID_UI, base::BindOnce(&ViewsWindow::OnExtensionIconsLoaded,
+                                       this, extensions, images));
     return;
   }
 
@@ -1008,7 +1008,7 @@ void ViewsWindow::OnExtensionWindowClosed() {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
     CefPostTask(TID_UI,
-                base::Bind(&ViewsWindow::OnExtensionWindowClosed, this));
+                base::BindOnce(&ViewsWindow::OnExtensionWindowClosed, this));
     return;
   }
 

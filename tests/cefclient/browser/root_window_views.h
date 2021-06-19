@@ -28,7 +28,7 @@ class RootWindowViews : public RootWindow,
 
   // RootWindow methods:
   void Init(RootWindow::Delegate* delegate,
-            const RootWindowConfig& config,
+            std::unique_ptr<RootWindowConfig> config,
             const CefBrowserSettings& settings) override;
   void InitAsPopup(RootWindow::Delegate* delegate,
                    bool with_controls,
@@ -64,7 +64,7 @@ class RootWindowViews : public RootWindow,
   void CreateExtensionWindow(CefRefPtr<CefExtension> extension,
                              const CefRect& source_bounds,
                              CefRefPtr<CefWindow> parent_window,
-                             const base::Closure& close_callback) override;
+                             base::OnceClosure close_callback) override;
   void OnTest(int test_id) override;
   void OnExit() override;
 
@@ -104,20 +104,15 @@ class RootWindowViews : public RootWindow,
   // After initialization all members are only accessed on the main thread
   // unless otherwise indicated.
   // Members set during initialization.
-  bool with_controls_;
-  bool always_on_top_;
-  bool with_extension_;
-  bool initially_hidden_;
-  CefRefPtr<CefWindow> parent_window_;
-  bool is_popup_;
+  std::unique_ptr<RootWindowConfig> config_;
+  bool is_popup_ = false;
   CefRect initial_bounds_;
-  base::Closure close_callback_;
-  bool position_on_resize_;
+  bool position_on_resize_ = false;
   CefRefPtr<ClientHandler> client_handler_;
 
-  bool initialized_;
-  bool window_destroyed_;
-  bool browser_destroyed_;
+  bool initialized_ = false;
+  bool window_destroyed_ = false;
+  bool browser_destroyed_ = false;
 
   CefRefPtr<CefBrowser> browser_;
 

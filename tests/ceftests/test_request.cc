@@ -5,6 +5,7 @@
 #include "tests/ceftests/test_request.h"
 
 #include <algorithm>
+#include <memory>
 
 #include "include/cef_stream.h"
 #include "include/cef_urlrequest.h"
@@ -22,11 +23,11 @@ class RequestClient : public CefURLRequestClient, public State {
   RequestClient(const bool has_credentials,
                 const std::string& username,
                 const std::string& password,
-                const RequestDoneCallback& done_callback)
+                RequestDoneCallback done_callback)
       : has_credentials_(has_credentials),
         username_(username),
         password_(password),
-        done_callback_(done_callback) {
+        done_callback_(std::move(done_callback)) {
     DCHECK(!done_callback_.is_null());
   }
 
@@ -84,14 +85,14 @@ class RequestClient : public CefURLRequestClient, public State {
       DCHECK(response_->IsReadOnly());
     }
 
-    done_callback_.Run(*this);
+    std::move(done_callback_).Run(*this);
   }
 
  private:
   const bool has_credentials_;
   const std::string username_;
   const std::string password_;
-  const RequestDoneCallback done_callback_;
+  RequestDoneCallback done_callback_;
 
   IMPLEMENT_REFCOUNTING(RequestClient);
   DISALLOW_COPY_AND_ASSIGN(RequestClient);
@@ -100,14 +101,14 @@ class RequestClient : public CefURLRequestClient, public State {
 // Implementation that collects all cookies, and optionally deletes them.
 class CookieVisitor : public CefCookieVisitor {
  public:
-  CookieVisitor(bool deleteCookies, const CookieDoneCallback& callback)
-      : delete_cookies_(deleteCookies), callback_(callback) {
+  CookieVisitor(bool deleteCookies, CookieDoneCallback callback)
+      : delete_cookies_(deleteCookies), callback_(std::move(callback)) {
     DCHECK(!callback_.is_null());
   }
 
   ~CookieVisitor() override {
     CEF_REQUIRE_UI_THREAD();
-    callback_.Run(cookies_);
+    std::move(callback_).Run(cookies_);
   }
 
   bool Visit(const CefCookie& cookie,
@@ -132,10 +133,11 @@ class CookieVisitor : public CefCookieVisitor {
 
 }  // namespace
 
-void Send(const SendConfig& config, const RequestDoneCallback& callback) {
+void Send(const SendConfig& config, RequestDoneCallback callback) {
   DCHECK(config.request_);
-  CefRefPtr<RequestClient> client = new RequestClient(
-      config.has_credentials_, config.username_, config.password_, callback);
+  CefRefPtr<RequestClient> client =
+      new RequestClient(config.has_credentials_, config.username_,
+                        config.password_, std::move(callback));
   if (config.frame_) {
     config.frame_->CreateURLRequest(config.request_, client.get());
   } else {
@@ -181,9 +183,9 @@ CefRefPtr<CefResourceHandler> CreateResourceHandler(
 
 void GetAllCookies(CefRefPtr<CefCookieManager> manager,
                    bool deleteCookies,
-                   const CookieDoneCallback& callback) {
-  bool result =
-      manager->VisitAllCookies(new CookieVisitor(deleteCookies, callback));
+                   CookieDoneCallback callback) {
+  bool result = manager->VisitAllCookies(
+      new CookieVisitor(deleteCookies, std::move(callback)));
   DCHECK(result);
 }
 
@@ -193,9 +195,10 @@ void GetUrlCookies(CefRefPtr<CefCookieManager> manager,
                    const CefString& url,
                    bool includeHttpOnly,
                    bool deleteCookies,
-                   const CookieDoneCallback& callback) {
+                   CookieDoneCallback callback) {
   bool result = manager->VisitUrlCookies(
-      url, includeHttpOnly, new CookieVisitor(deleteCookies, callback));
+      url, includeHttpOnly,
+      new CookieVisitor(deleteCookies, std::move(callback)));
   DCHECK(result);
 }
 

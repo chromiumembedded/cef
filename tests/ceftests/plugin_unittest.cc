@@ -285,19 +285,19 @@ class PluginTestHandler : public RoutingTestHandler,
     if (got_context_menu_dismissed_) {
       // After context menu display. Destroy the test.
       CefPostDelayedTask(TID_UI,
-                         base::Bind(&PluginTestHandler::DestroyTest, this),
+                         base::BindOnce(&PluginTestHandler::DestroyTest, this),
                          kPdfLoadDelayMs);
     } else {
       // Trigger the context menu.
       CefPostDelayedTask(TID_UI,
-                         base::Bind(&PluginTestHandler::TriggerContextMenu,
-                                    this, frame->GetBrowser()),
+                         base::BindOnce(&PluginTestHandler::TriggerContextMenu,
+                                        this, frame->GetBrowser()),
                          kPdfLoadDelayMs);
     }
   }
 
   void EndTest() {
-    CefPostTask(TID_UI, base::Bind(&PluginTestHandler::DestroyTest, this));
+    CefPostTask(TID_UI, base::BindOnce(&PluginTestHandler::DestroyTest, this));
   }
 
   CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override {

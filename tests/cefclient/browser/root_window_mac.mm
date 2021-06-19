@@ -86,7 +86,7 @@ class RootWindowMacImpl
 
   // RootWindow methods.
   void Init(RootWindow::Delegate* delegate,
-            const RootWindowConfig& config,
+            std::unique_ptr<RootWindowConfig> config,
             const CefBrowserSettings& settings);
   void InitAsPopup(RootWindow::Delegate* delegate,
                    bool with_controls,
@@ -170,25 +170,25 @@ RootWindowMacImpl::~RootWindowMacImpl() {
 }
 
 void RootWindowMacImpl::Init(RootWindow::Delegate* delegate,
-                             const RootWindowConfig& config,
+                             std::unique_ptr<RootWindowConfig> config,
                              const CefBrowserSettings& settings) {
   DCHECK(!initialized_);
 
-  with_controls_ = config.with_controls;
-  with_osr_ = config.with_osr;
-  with_extension_ = config.with_extension;
-  start_rect_ = config.bounds;
+  with_controls_ = config->with_controls;
+  with_osr_ = config->with_osr;
+  with_extension_ = config->with_extension;
+  start_rect_ = config->bounds;
 
-  CreateBrowserWindow(config.url);
+  CreateBrowserWindow(config->url);
 
   initialized_ = true;
 
   // Create the native root window on the main thread.
   if (CURRENTLY_ON_MAIN_THREAD()) {
-    CreateRootWindow(settings, config.initially_hidden);
+    CreateRootWindow(settings, config->initially_hidden);
   } else {
-    MAIN_POST_CLOSURE(base::Bind(&RootWindowMacImpl::CreateRootWindow, this,
-                                 settings, config.initially_hidden));
+    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowMacImpl::CreateRootWindow, this,
+                                     settings, config->initially_hidden));
   }
 }
 
@@ -644,11 +644,11 @@ RootWindow::Delegate* RootWindowMac::delegate() const {
 }
 
 void RootWindowMac::Init(RootWindow::Delegate* delegate,
-                         const RootWindowConfig& config,
+                         std::unique_ptr<RootWindowConfig> config,
                          const CefBrowserSettings& settings) {
   DCHECK(delegate);
   delegate_ = delegate;
-  impl_->Init(delegate, config, settings);
+  impl_->Init(delegate, std::move(config), settings);
 }
 
 void RootWindowMac::InitAsPopup(RootWindow::Delegate* delegate,

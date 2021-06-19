@@ -37,14 +37,14 @@ void ExpectCloseRects(const CefRect& expected,
 }
 
 void WindowCreateImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::Config config;
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 void WindowCreateFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::Config config;
-  config.frameless = true;
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->frameless = true;
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 void RunWindowShow(CefRefPtr<CefWindow> window) {
@@ -56,10 +56,10 @@ void RunWindowShow(CefRefPtr<CefWindow> window) {
 }
 
 void WindowCreateWithOriginImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::Config config;
-  config.window_origin = {100, 200};
-  config.on_window_created = base::Bind(RunWindowShow);
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->window_origin = {100, 200};
+  config->on_window_created = base::BindOnce(RunWindowShow);
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 void RunWindowShowHide(CefRefPtr<CefWindow> window) {
@@ -70,16 +70,16 @@ void RunWindowShowHide(CefRefPtr<CefWindow> window) {
 }
 
 void WindowShowHideImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::Config config;
-  config.on_window_created = base::Bind(RunWindowShowHide);
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowShowHide);
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 void WindowShowHideFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::Config config;
-  config.on_window_created = base::Bind(RunWindowShowHide);
-  config.frameless = true;
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowShowHide);
+  config->frameless = true;
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 const int kWPanel1ID = 1;
@@ -203,16 +203,16 @@ void RunWindowLayoutAndCoords(CefRefPtr<CefWindow> window) {
 }
 
 void WindowLayoutAndCoordsImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::Config config;
-  config.on_window_created = base::Bind(RunWindowLayoutAndCoords);
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowLayoutAndCoords);
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 void WindowLayoutAndCoordsFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::Config config;
-  config.on_window_created = base::Bind(RunWindowLayoutAndCoords);
-  config.frameless = true;
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowLayoutAndCoords);
+  config->frameless = true;
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 void VerifyRestore(CefRefPtr<CefWindow> window) {
@@ -234,7 +234,8 @@ void VerifyMaximize(CefRefPtr<CefWindow> window) {
   EXPECT_TRUE(window->IsDrawn());
 
   window->Restore();
-  CefPostDelayedTask(TID_UI, base::Bind(VerifyRestore, window), kStateDelayMS);
+  CefPostDelayedTask(TID_UI, base::BindOnce(VerifyRestore, window),
+                     kStateDelayMS);
 }
 
 void RunWindowMaximize(CefRefPtr<CefWindow> window) {
@@ -247,22 +248,23 @@ void RunWindowMaximize(CefRefPtr<CefWindow> window) {
   EXPECT_TRUE(window->IsDrawn());
 
   window->Maximize();
-  CefPostDelayedTask(TID_UI, base::Bind(VerifyMaximize, window), kStateDelayMS);
+  CefPostDelayedTask(TID_UI, base::BindOnce(VerifyMaximize, window),
+                     kStateDelayMS);
 }
 
 void WindowMaximizeImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::Config config;
-  config.on_window_created = base::Bind(RunWindowMaximize);
-  config.close_window = false;
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowMaximize);
+  config->close_window = false;
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 void WindowMaximizeFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::Config config;
-  config.on_window_created = base::Bind(RunWindowMaximize);
-  config.frameless = true;
-  config.close_window = false;
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowMaximize);
+  config->frameless = true;
+  config->close_window = false;
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 void VerifyMinimize(CefRefPtr<CefWindow> window) {
@@ -276,7 +278,8 @@ void VerifyMinimize(CefRefPtr<CefWindow> window) {
   EXPECT_TRUE(window->IsDrawn());
 
   window->Restore();
-  CefPostDelayedTask(TID_UI, base::Bind(VerifyRestore, window), kStateDelayMS);
+  CefPostDelayedTask(TID_UI, base::BindOnce(VerifyRestore, window),
+                     kStateDelayMS);
 }
 
 void RunWindowMinimize(CefRefPtr<CefWindow> window) {
@@ -289,22 +292,23 @@ void RunWindowMinimize(CefRefPtr<CefWindow> window) {
   EXPECT_TRUE(window->IsDrawn());
 
   window->Minimize();
-  CefPostDelayedTask(TID_UI, base::Bind(VerifyMinimize, window), kStateDelayMS);
+  CefPostDelayedTask(TID_UI, base::BindOnce(VerifyMinimize, window),
+                     kStateDelayMS);
 }
 
 void WindowMinimizeImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::Config config;
-  config.on_window_created = base::Bind(RunWindowMinimize);
-  config.close_window = false;
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowMinimize);
+  config->close_window = false;
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 void WindowMinimizeFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::Config config;
-  config.on_window_created = base::Bind(RunWindowMinimize);
-  config.frameless = true;
-  config.close_window = false;
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowMinimize);
+  config->frameless = true;
+  config->close_window = false;
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 void VerifyFullscreenExit(CefRefPtr<CefWindow> window) {
@@ -326,7 +330,7 @@ void VerifyFullscreen(CefRefPtr<CefWindow> window) {
   EXPECT_TRUE(window->IsDrawn());
 
   window->SetFullscreen(false);
-  CefPostDelayedTask(TID_UI, base::Bind(VerifyFullscreenExit, window),
+  CefPostDelayedTask(TID_UI, base::BindOnce(VerifyFullscreenExit, window),
                      kStateDelayMS);
 }
 
@@ -340,23 +344,23 @@ void RunWindowFullscreen(CefRefPtr<CefWindow> window) {
   EXPECT_TRUE(window->IsDrawn());
 
   window->SetFullscreen(true);
-  CefPostDelayedTask(TID_UI, base::Bind(VerifyFullscreen, window),
+  CefPostDelayedTask(TID_UI, base::BindOnce(VerifyFullscreen, window),
                      kStateDelayMS);
 }
 
 void WindowFullscreenImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::Config config;
-  config.on_window_created = base::Bind(RunWindowFullscreen);
-  config.close_window = false;
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowFullscreen);
+  config->close_window = false;
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 void WindowFullscreenFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::Config config;
-  config.on_window_created = base::Bind(RunWindowFullscreen);
-  config.frameless = true;
-  config.close_window = false;
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowFullscreen);
+  config->frameless = true;
+  config->close_window = false;
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 void RunWindowIcon(CefRefPtr<CefWindow> window) {
@@ -376,16 +380,16 @@ void RunWindowIcon(CefRefPtr<CefWindow> window) {
 }
 
 void WindowIconImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::Config config;
-  config.on_window_created = base::Bind(RunWindowIcon);
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowIcon);
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 void WindowIconFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::Config config;
-  config.on_window_created = base::Bind(RunWindowIcon);
-  config.frameless = true;
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowIcon);
+  config->frameless = true;
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 const int kChar = 'A';
@@ -456,7 +460,7 @@ void RunWindowAccelerator(CefRefPtr<CefWindow> window) {
   window->SetAccelerator(kCloseWindowId, kChar, false, false, true);
   window->Show();
 
-  CefPostDelayedTask(TID_UI, base::Bind(TriggerAccelerator, window),
+  CefPostDelayedTask(TID_UI, base::BindOnce(TriggerAccelerator, window),
                      kStateDelayMS);
 }
 
@@ -476,13 +480,13 @@ void WindowAcceleratorImpl(CefRefPtr<CefWaitableEvent> event) {
   got_key_event_alt_count = 0;
   got_key_event_char = false;
 
-  TestWindowDelegate::Config config;
-  config.on_window_created = base::Bind(RunWindowAccelerator);
-  config.on_window_destroyed = base::Bind(VerifyWindowAccelerator);
-  config.on_accelerator = base::Bind(OnAccelerator);
-  config.on_key_event = base::Bind(OnKeyEvent);
-  config.close_window = false;
-  TestWindowDelegate::RunTest(event, config);
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunWindowAccelerator);
+  config->on_window_destroyed = base::BindOnce(VerifyWindowAccelerator);
+  config->on_accelerator = base::BindRepeating(OnAccelerator);
+  config->on_key_event = base::BindRepeating(OnKeyEvent);
+  config->close_window = false;
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 }  // namespace

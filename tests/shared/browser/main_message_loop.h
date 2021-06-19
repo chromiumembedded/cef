@@ -48,7 +48,8 @@ class MainMessageLoop {
 #endif
 
   // Post a closure for execution on the main message loop.
-  void PostClosure(const base::Closure& closure);
+  void PostClosure(base::OnceClosure closure);
+  void PostClosure(const base::RepeatingClosure& closure);
 
  protected:
   // Only allow deletion via std::unique_ptr.
@@ -97,8 +98,8 @@ struct DeleteOnMainThread {
     if (CURRENTLY_ON_MAIN_THREAD()) {
       delete x;
     } else {
-      client::MainMessageLoop::Get()->PostClosure(
-          base::Bind(&DeleteOnMainThread::Destruct<T>, base::Unretained(x)));
+      client::MainMessageLoop::Get()->PostClosure(base::BindOnce(
+          &DeleteOnMainThread::Destruct<T>, base::Unretained(x)));
     }
   }
 };

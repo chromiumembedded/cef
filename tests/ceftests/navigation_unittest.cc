@@ -1792,7 +1792,8 @@ class LoadNavTestHandler : public TestHandler {
         // The next navigation should not occur. Therefore call DestroyTest()
         // after a reasonable timeout.
         CefPostDelayedTask(
-            TID_UI, base::Bind(&LoadNavTestHandler::DestroyTest, this), 500);
+            TID_UI, base::BindOnce(&LoadNavTestHandler::DestroyTest, this),
+            500);
       }
     } else {
       // Done with the test.
@@ -2962,7 +2963,7 @@ class CancelBeforeNavTestHandler : public TestHandler {
     got_get_resource_handler_.yes();
 
     CefPostTask(TID_UI,
-                base::Bind(&CancelBeforeNavTestHandler::CancelLoad, this));
+                base::BindOnce(&CancelBeforeNavTestHandler::CancelLoad, this));
 
     return new UnstartedSchemeHandler();
   }
@@ -3207,7 +3208,8 @@ class CancelAfterNavTestHandler : public TestHandler {
 
     // The required delay is longer when browser-side navigation is enabled.
     CefPostDelayedTask(
-        TID_UI, base::Bind(&CancelAfterNavTestHandler::CancelLoad, this), 1000);
+        TID_UI, base::BindOnce(&CancelAfterNavTestHandler::CancelLoad, this),
+        1000);
 
     return new StalledSchemeHandler();
   }

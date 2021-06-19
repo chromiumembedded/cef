@@ -116,12 +116,13 @@ class TestHandler : public CefClient,
     // be executed only if TestHandler::DestroyTest has not yet been called.
     // For example:
     //    GetUIThreadHelper()->PostTask(
-    //        base::Bind(&TestHandler::DoSomething, base::Unretained(this)));
-    void PostTask(const base::Closure& task);
-    void PostDelayedTask(const base::Closure& task, int delay_ms);
+    //        base::BindOnce(&TestHandler::DoSomething,
+    //        base::Unretained(this)));
+    void PostTask(base::OnceClosure task);
+    void PostDelayedTask(base::OnceClosure task, int delay_ms);
 
    private:
-    void TaskHelper(const base::Closure& task);
+    void TaskHelper(base::OnceClosure task);
 
     // Must be the last member.
     base::WeakPtrFactory<UIThreadHelper> weak_ptr_factory_;

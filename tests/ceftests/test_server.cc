@@ -120,17 +120,17 @@ class ServerManager {
     g_manager = nullptr;
   }
 
-  void Start(const StartDoneCallback& callback) {
+  void Start(StartDoneCallback callback) {
     CEF_REQUIRE_UI_THREAD();
     if (!origin_.empty()) {
       // The server is already running.
-      callback.Run(origin_);
+      std::move(callback).Run(origin_);
       return;
     }
 
     // If tests run in parallel, and the server is starting, then there may be
     // multiple pending callbacks.
-    start_callback_list_.push_back(callback);
+    start_callback_list_.push_back(std::move(callback));
 
     // Only create the handler a single time.
     if (!handler_) {
@@ -138,17 +138,17 @@ class ServerManager {
     }
   }
 
-  void Stop(const DoneCallback& callback) {
+  void Stop(DoneCallback callback) {
     CEF_REQUIRE_UI_THREAD();
     if (!handler_) {
       // The server is not currently running.
-      callback.Run();
+      std::move(callback).Run();
       return;
     }
 
     // Only 1 stop callback supported.
     DCHECK(stop_callback_.is_null());
-    stop_callback_ = callback;
+    stop_callback_ = std::move(callback);
 
     handler_->Shutdown();
   }
@@ -178,9 +178,8 @@ class ServerManager {
     DCHECK(origin_.empty());
     origin_ = server_origin;
 
-    StartDoneCallbackList::const_iterator it = start_callback_list_.begin();
-    for (; it != start_callback_list_.end(); ++it) {
-      (*it).Run(origin_);
+    for (auto& callback : start_callback_list_) {
+      std::move(callback).Run(origin_);
     }
     start_callback_list_.clear();
   }
@@ -197,8 +196,7 @@ class ServerManager {
     CEF_REQUIRE_UI_THREAD();
 
     DCHECK(!stop_callback_.is_null());
-    stop_callback_.Run();
-    stop_callback_.Reset();
+    std::move(stop_callback_).Run();
 
     delete this;
   }
@@ -279,12 +277,12 @@ class ServerManager {
   CefRefPtr<ServerHandler> handler_;
   std::string origin_;
 
-  typedef std::vector<StartDoneCallback> StartDoneCallbackList;
+  using StartDoneCallbackList = std::vector<StartDoneCallback>;
   StartDoneCallbackList start_callback_list_;
 
   DoneCallback stop_callback_;
 
-  typedef std::vector<Observer*> ObserverList;
+  using ObserverList = std::vector<Observer*>;
   ObserverList observer_list_;
 
   DISALLOW_COPY_AND_ASSIGN(ServerManager);
@@ -305,8 +303,8 @@ ServerManager* GetOrCreateServerManager() {
 // static
 void ServerHandler::NotifyServerCreated(const std::string& server_origin) {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI,
-                base::Bind(ServerHandler::NotifyServerCreated, server_origin));
+    CefPostTask(TID_UI, base::BindOnce(ServerHandler::NotifyServerCreated,
+                                       server_origin));
     return;
   }
 
@@ -316,7 +314,7 @@ void ServerHandler::NotifyServerCreated(const std::string& server_origin) {
 // static
 void ServerHandler::NotifyServerDestroyed() {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::Bind(ServerHandler::NotifyServerDestroyed));
+    CefPostTask(TID_UI, base::BindOnce(ServerHandler::NotifyServerDestroyed));
     return;
   }
 
@@ -326,7 +324,8 @@ void ServerHandler::NotifyServerDestroyed() {
 // static
 void ServerHandler::NotifyServerHandlerDeleted() {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::Bind(ServerHandler::NotifyServerHandlerDeleted));
+    CefPostTask(TID_UI,
+                base::BindOnce(ServerHandler::NotifyServerHandlerDeleted));
     return;
   }
 
@@ -337,8 +336,8 @@ void ServerHandler::NotifyServerHandlerDeleted() {
 void ServerHandler::NotifyClientConnected(CefRefPtr<CefServer> server,
                                           int connection_id) {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::Bind(ServerHandler::NotifyClientConnected, server,
-                                   connection_id));
+    CefPostTask(TID_UI, base::BindOnce(ServerHandler::NotifyClientConnected,
+                                       server, connection_id));
     return;
   }
 
@@ -349,8 +348,8 @@ void ServerHandler::NotifyClientConnected(CefRefPtr<CefServer> server,
 void ServerHandler::NotifyClientDisconnected(CefRefPtr<CefServer> server,
                                              int connection_id) {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::Bind(ServerHandler::NotifyClientDisconnected,
-                                   server, connection_id));
+    CefPostTask(TID_UI, base::BindOnce(ServerHandler::NotifyClientDisconnected,
+                                       server, connection_id));
     return;
   }
 
@@ -363,8 +362,8 @@ void ServerHandler::NotifyHttpRequest(CefRefPtr<CefServer> server,
                                       const CefString& client_address,
                                       CefRefPtr<CefRequest> request) {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::Bind(ServerHandler::NotifyHttpRequest, server,
-                                   connection_id, client_address, request));
+    CefPostTask(TID_UI, base::BindOnce(ServerHandler::NotifyHttpRequest, server,
+                                       connection_id, client_address, request));
     return;
   }
 
@@ -404,10 +403,10 @@ class ObserverRegistration : public CefRegistration {
 };
 
 void InitializeRegistration(CefRefPtr<ObserverRegistration> registration,
-                            const DoneCallback& callback) {
+                            DoneCallback callback) {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI,
-                base::Bind(InitializeRegistration, registration, callback));
+    CefPostTask(TID_UI, base::BindOnce(InitializeRegistration, registration,
+                                       std::move(callback)));
     return;
   }
 
@@ -415,27 +414,27 @@ void InitializeRegistration(CefRefPtr<ObserverRegistration> registration,
 
   registration->Initialize();
   if (!callback.is_null())
-    callback.Run();
+    std::move(callback).Run();
 }
 
 }  // namespace
 
-void Start(const StartDoneCallback& callback) {
+void Start(StartDoneCallback callback) {
   DCHECK(!callback.is_null());
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::Bind(Start, callback));
+    CefPostTask(TID_UI, base::BindOnce(Start, std::move(callback)));
     return;
   }
 
   DCHECK(!g_stopping);
 
-  GetOrCreateServerManager()->Start(callback);
+  GetOrCreateServerManager()->Start(std::move(callback));
 }
 
-void Stop(const DoneCallback& callback) {
+void Stop(DoneCallback callback) {
   DCHECK(!callback.is_null());
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::Bind(Stop, callback));
+    CefPostTask(TID_UI, base::BindOnce(Stop, std::move(callback)));
     return;
   }
 
@@ -445,25 +444,24 @@ void Stop(const DoneCallback& callback) {
 
   ServerManager* manager = GetServerManager();
   if (manager) {
-    manager->Stop(callback);
+    manager->Stop(std::move(callback));
   } else {
-    callback.Run();
+    std::move(callback).Run();
   }
 }
 
 CefRefPtr<CefRegistration> AddObserver(Observer* observer,
-                                       const DoneCallback& callback) {
+                                       DoneCallback callback) {
   DCHECK(observer);
   CefRefPtr<ObserverRegistration> registration =
       new ObserverRegistration(observer);
-  InitializeRegistration(registration, callback);
+  InitializeRegistration(registration, std::move(callback));
   return registration.get();
 }
 
-CefRefPtr<CefRegistration> AddObserverAndStart(
-    Observer* observer,
-    const StartDoneCallback& callback) {
-  return AddObserver(observer, base::Bind(Start, callback));
+CefRefPtr<CefRegistration> AddObserverAndStart(Observer* observer,
+                                               StartDoneCallback callback) {
+  return AddObserver(observer, base::BindOnce(Start, std::move(callback)));
 }
 
 void SendResponse(CefRefPtr<CefServer> server,
@@ -501,9 +499,9 @@ void ObserverHelper::Initialize() {
   CEF_REQUIRE_UI_THREAD();
   DCHECK(state_ == State::NONE);
   state_ = State::INITIALIZING;
-  registration_ = AddObserverAndStart(
-      this,
-      base::Bind(&ObserverHelper::OnStartDone, weak_ptr_factory_.GetWeakPtr()));
+  registration_ =
+      AddObserverAndStart(this, base::BindOnce(&ObserverHelper::OnStartDone,
+                                               weak_ptr_factory_.GetWeakPtr()));
 }
 
 void ObserverHelper::Shutdown() {

@@ -42,10 +42,10 @@ class TestServerObserver : public test_server::ObserverHelper {
  public:
   TestServerObserver(TestState* state,
                      const std::string& path,
-                     const base::Closure& done_callback)
+                     base::OnceClosure done_callback)
       : state_(state),
         path_(path),
-        done_callback_(done_callback),
+        done_callback_(std::move(done_callback)),
         weak_ptr_factory_(this) {
     DCHECK(state);
     DCHECK(!path.empty());
@@ -53,7 +53,7 @@ class TestServerObserver : public test_server::ObserverHelper {
     Initialize();
   }
 
-  ~TestServerObserver() override { done_callback_.Run(); }
+  ~TestServerObserver() override { std::move(done_callback_).Run(); }
 
   void OnInitialized(const std::string& server_origin) override {
     CEF_REQUIRE_UI_THREAD();
@@ -73,8 +73,8 @@ class TestServerObserver : public test_server::ObserverHelper {
     config.request_ = CefRequest::Create();
     config.request_->SetURL(url_);
     test_request::Send(config,
-                       base::Bind(&TestServerObserver::OnRequestResponse,
-                                  weak_ptr_factory_.GetWeakPtr()));
+                       base::BindOnce(&TestServerObserver::OnRequestResponse,
+                                      weak_ptr_factory_.GetWeakPtr()));
   }
 
   bool OnClientConnected(CefRefPtr<CefServer> server,
@@ -143,8 +143,8 @@ class TestServerObserver : public test_server::ObserverHelper {
     EXPECT_STREQ(kResponseData, state.download_data_.c_str());
 
     // Trigger shutdown asynchronously.
-    CefPostTask(TID_UI, base::Bind(&TestServerObserver::Shutdown,
-                                   weak_ptr_factory_.GetWeakPtr()));
+    CefPostTask(TID_UI, base::BindOnce(&TestServerObserver::Shutdown,
+                                       weak_ptr_factory_.GetWeakPtr()));
   }
 
   bool OnClientDisconnected(CefRefPtr<CefServer> server,
@@ -187,7 +187,7 @@ class TestServerObserver : public test_server::ObserverHelper {
  private:
   TestState* const state_;
   const std::string path_;
-  const base::Closure done_callback_;
+  base::OnceClosure done_callback_;
 
   std::string url_;
   int connection_id_ = -1;
@@ -199,15 +199,15 @@ class TestServerObserver : public test_server::ObserverHelper {
 
 void CreateObserverOnUIThread(TestState* state,
                               const std::string& path,
-                              const base::Closure& done_callback) {
+                              base::OnceClosure done_callback) {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI,
-                base::Bind(CreateObserverOnUIThread, base::Unretained(state),
-                           path, done_callback));
+    CefPostTask(TID_UI, base::BindOnce(CreateObserverOnUIThread,
+                                       base::Unretained(state), path,
+                                       std::move(done_callback)));
     return;
   }
 
-  new TestServerObserver(state, path, done_callback);
+  new TestServerObserver(state, path, std::move(done_callback));
 }
 
 void SignalIfDone(CefRefPtr<CefWaitableEvent> event,
@@ -226,7 +226,7 @@ TEST(TestServerTest, ObserverHelperSingle) {
 
   TestState state;
   CreateObserverOnUIThread(&state, "/TestServerTest.ObserverHelperSingle",
-                           base::Bind(&CefWaitableEvent::Signal, event));
+                           base::BindOnce(&CefWaitableEvent::Signal, event));
   event->TimedWait(2000);
 
   EXPECT_TRUE(state.ExpectAll());
@@ -240,13 +240,12 @@ TEST(TestServerTest, ObserverHelperMultiple) {
   size_t count = 0;
   const size_t size = base::size(states);
 
-  const base::Closure& done_callback =
-      base::Bind(SignalIfDone, event, base::Unretained(&count), size);
-
   for (size_t i = 0; i < size; ++i) {
     std::stringstream ss;
     ss << "/TestServerTest.ObserverHelperMultiple" << i;
-    CreateObserverOnUIThread(&states[i], ss.str(), done_callback);
+    auto done_callback =
+        base::BindOnce(SignalIfDone, event, base::Unretained(&count), size);
+    CreateObserverOnUIThread(&states[i], ss.str(), std::move(done_callback));
   }
 
   event->TimedWait(2000);

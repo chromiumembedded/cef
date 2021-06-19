@@ -115,8 +115,8 @@ class DialogTestHandler : public TestHandler {
     TestStringVectorEqual(config_.accept_types, accept_types);
 
     if (config_.callback_async) {
-      CefPostTask(TID_UI, base::Bind(&DialogTestHandler::ExecuteCallback, this,
-                                     callback));
+      CefPostTask(TID_UI, base::BindOnce(&DialogTestHandler::ExecuteCallback,
+                                         this, callback));
     } else {
       ExecuteCallback(callback);
     }

@@ -72,11 +72,11 @@ class TestServerHandler : public CefServerHandler {
   // started.
   // |destroy_callback| will be executed on the UI thread after this handler
   // object is destroyed.
-  TestServerHandler(const base::Closure& start_callback,
-                    const base::Closure& destroy_callback)
+  TestServerHandler(base::OnceClosure start_callback,
+                    base::OnceClosure destroy_callback)
       : initialized_(false),
-        start_callback_(start_callback),
-        destroy_callback_(destroy_callback),
+        start_callback_(std::move(start_callback)),
+        destroy_callback_(std::move(destroy_callback)),
         expected_connection_ct_(0),
         actual_connection_ct_(0),
         expected_http_request_ct_(0),
@@ -107,7 +107,7 @@ class TestServerHandler : public CefServerHandler {
         delete *it;
     }
 
-    destroy_callback_.Run();
+    std::move(destroy_callback_).Run();
   }
 
   // Must be called before CreateServer().
@@ -411,13 +411,12 @@ class TestServerHandler : public CefServerHandler {
   void RunStartCallback() {
     if (!CefCurrentlyOn(TID_UI)) {
       CefPostTask(TID_UI,
-                  base::Bind(&TestServerHandler::RunStartCallback, this));
+                  base::BindOnce(&TestServerHandler::RunStartCallback, this));
       return;
     }
 
     EXPECT_FALSE(start_callback_.is_null());
-    start_callback_.Run();
-    start_callback_.Reset();
+    std::move(start_callback_).Run();
   }
 
   CefRefPtr<CefServer> server_;
@@ -425,8 +424,8 @@ class TestServerHandler : public CefServerHandler {
   bool initialized_;
 
   // After initialization only accessed on the UI thread.
-  base::Closure start_callback_;
-  base::Closure destroy_callback_;
+  base::OnceClosure start_callback_;
+  base::OnceClosure destroy_callback_;
 
   // After initialization the below members are only accessed on the server
   // thread.
@@ -484,7 +483,7 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
     CreateHttpRequestHandler() = 0;
 
     // Run the request and execute |complete_callback| on completion.
-    virtual void RunRequest(const base::Closure& complete_callback) = 0;
+    virtual void RunRequest(base::OnceClosure complete_callback) = 0;
 
     virtual bool VerifyResults() = 0;
     virtual std::string ToString() = 0;
@@ -513,12 +512,12 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
     EXPECT_FALSE(CefCurrentlyOn(TID_UI));
 
     handler_ = new TestServerHandler(
-        base::Bind(&HttpTestRunner::OnServerStarted, this),
-        base::Bind(&HttpTestRunner::OnServerDestroyed, this));
+        base::BindOnce(&HttpTestRunner::OnServerStarted, this),
+        base::BindOnce(&HttpTestRunner::OnServerDestroyed, this));
 
     run_event_ = CefWaitableEvent::CreateWaitableEvent(false, false);
 
-    CefPostTask(TID_UI, base::Bind(&HttpTestRunner::RunTest, this));
+    CefPostTask(TID_UI, base::BindOnce(&HttpTestRunner::RunTest, this));
 
     // Block until test completion.
     run_event_->Wait();
@@ -567,7 +566,7 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
     got_server_destroyed_.yes();
 
     // Allow the call stack to unwind.
-    CefPostTask(TID_UI, base::Bind(&HttpTestRunner::DestroyTest, this));
+    CefPostTask(TID_UI, base::BindOnce(&HttpTestRunner::DestroyTest, this));
   }
 
   // Run all requests in parallel.
@@ -575,7 +574,7 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
     RequestRunnerMap::const_iterator it = request_runner_map_.begin();
     for (; it != request_runner_map_.end(); ++it) {
       it->second->RunRequest(
-          base::Bind(&HttpTestRunner::OnRequestComplete, this, it->first));
+          base::BindOnce(&HttpTestRunner::OnRequestComplete, this, it->first));
     }
   }
 
@@ -583,14 +582,15 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
   void RunNextRequest() {
     RequestRunnerMap::const_iterator it = request_runner_map_.begin();
     it->second->RunRequest(
-        base::Bind(&HttpTestRunner::OnRequestComplete, this, it->first));
+        base::BindOnce(&HttpTestRunner::OnRequestComplete, this, it->first));
   }
 
   void OnRequestComplete(int request_id) {
     EXPECT_UI_THREAD()
     // Allow the call stack to unwind.
-    CefPostTask(TID_UI, base::Bind(&HttpTestRunner::OnRequestCompleteContinue,
-                                   this, request_id));
+    CefPostTask(TID_UI,
+                base::BindOnce(&HttpTestRunner::OnRequestCompleteContinue, this,
+                               request_id));
   }
 
   void OnRequestCompleteContinue(int request_id) {
@@ -648,8 +648,8 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
     // Use a weak reference to |this| via UIThreadHelper so that the
     // test runner can be destroyed before the timeout expires.
     GetUIThreadHelper()->PostDelayedTask(
-        base::Bind(&HttpTestRunner::OnTestTimeout, base::Unretained(this),
-                   timeout_ms),
+        base::BindOnce(&HttpTestRunner::OnTestTimeout, base::Unretained(this),
+                       timeout_ms),
         timeout_ms);
   }
 
@@ -866,16 +866,16 @@ class StaticHttpServerRequestHandler
 // response.
 class StaticHttpURLRequestClient : public CefURLRequestClient {
  public:
-  typedef base::Callback<void(cef_errorcode_t /* error */,
+  using ResponseCallback =
+      base::OnceCallback<void(cef_errorcode_t /* error */,
                               CefRefPtr<CefResponse> /* response */,
-                              const std::string& /* data */)>
-      ResponseCallback;
+                              const std::string& /* data */)>;
 
   // |response_callback| will be executed on the UI thread when the response
   // is complete.
   StaticHttpURLRequestClient(CefRefPtr<CefRequest> request,
-                             const ResponseCallback& response_callback)
-      : request_(request), response_callback_(response_callback) {
+                             ResponseCallback response_callback)
+      : request_(request), response_callback_(std::move(response_callback)) {
     EXPECT_TRUE(request_);
     EXPECT_FALSE(response_callback_.is_null());
   }
@@ -887,9 +887,8 @@ class StaticHttpURLRequestClient : public CefURLRequestClient {
 
   void OnRequestComplete(CefRefPtr<CefURLRequest> request) override {
     EXPECT_FALSE(response_callback_.is_null());
-    response_callback_.Run(request->GetRequestError(), request->GetResponse(),
-                           data_);
-    response_callback_.Reset();
+    std::move(response_callback_)
+        .Run(request->GetRequestError(), request->GetResponse(), data_);
   }
 
   void OnUploadProgress(CefRefPtr<CefURLRequest> request,
@@ -994,17 +993,17 @@ class StaticHttpRequestRunner : public HttpTestRunner::RequestRunner {
                                                             response_);
   }
 
-  void RunRequest(const base::Closure& complete_callback) override {
+  void RunRequest(base::OnceClosure complete_callback) override {
     EXPECT_UI_THREAD();
 
     EXPECT_FALSE(got_run_request_);
     got_run_request_.yes();
 
-    complete_callback_ = complete_callback;
+    complete_callback_ = std::move(complete_callback);
 
     request_client_ = new StaticHttpURLRequestClient(
-        request_, base::Bind(&StaticHttpRequestRunner::OnResponseComplete,
-                             base::Unretained(this)));
+        request_, base::BindOnce(&StaticHttpRequestRunner::OnResponseComplete,
+                                 base::Unretained(this)));
     request_client_->RunRequest();
   }
 
@@ -1032,15 +1031,14 @@ class StaticHttpRequestRunner : public HttpTestRunner::RequestRunner {
     if (error == ERR_NONE)
       VerifyHttpServerResponse(response_, response, data);
 
-    complete_callback_.Run();
-    complete_callback_.Reset();
+    std::move(complete_callback_).Run();
   }
 
   CefRefPtr<CefRequest> request_;
   HttpServerResponse response_;
 
   CefRefPtr<StaticHttpURLRequestClient> request_client_;
-  base::Closure complete_callback_;
+  base::OnceClosure complete_callback_;
 
   TrackCallback got_run_request_;
   TrackCallback got_create_handler_;
@@ -1176,8 +1174,8 @@ class WebSocketTestHandler : public RoutingTestHandler {
 
   void RunTest() override {
     handler_ = new TestServerHandler(
-        base::Bind(&WebSocketTestHandler::OnServerStarted, this),
-        base::Bind(&WebSocketTestHandler::OnServerDestroyed, this));
+        base::BindOnce(&WebSocketTestHandler::OnServerStarted, this),
+        base::BindOnce(&WebSocketTestHandler::OnServerDestroyed, this));
     OnHandlerCreated(handler_);
 
     handler_->CreateServer();
@@ -1256,7 +1254,8 @@ class WebSocketTestHandler : public RoutingTestHandler {
   void DestroyTestIfDone() {
     if (got_server_destroyed_ && got_done_message_) {
       // Allow the call stack to unwind.
-      CefPostTask(TID_UI, base::Bind(&WebSocketTestHandler::DestroyTest, this));
+      CefPostTask(TID_UI,
+                  base::BindOnce(&WebSocketTestHandler::DestroyTest, this));
     }
   }
 

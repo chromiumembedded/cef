@@ -33,7 +33,7 @@ class ImageCache
     // Image scale factor (usually 1.0f or 2.0f).
     float scale_factor_;
   };
-  typedef std::vector<ImageRep> ImageRepSet;
+  using ImageRepSet = std::vector<ImageRep>;
 
   // Unique image that may have multiple representations.
   struct ImageInfo {
@@ -67,16 +67,16 @@ class ImageCache
     // True to force reload.
     bool force_reload_;
   };
-  typedef std::vector<ImageInfo> ImageInfoSet;
+  using ImageInfoSet = std::vector<ImageInfo>;
 
-  typedef std::vector<CefRefPtr<CefImage>> ImageSet;
+  using ImageSet = std::vector<CefRefPtr<CefImage>>;
 
-  typedef base::Callback<void(const ImageSet& /*images*/)> LoadImagesCallback;
+  using LoadImagesCallback =
+      base::OnceCallback<void(const ImageSet& /*images*/)>;
 
   // Loads the images represented by |image_info|. Executes |callback|
   // either synchronously or asychronously on the UI thread after completion.
-  void LoadImages(const ImageInfoSet& image_info,
-                  const LoadImagesCallback& callback);
+  void LoadImages(const ImageInfoSet& image_info, LoadImagesCallback callback);
 
   // Returns an image that has already been cached. Must be called on the
   // UI thread.
@@ -98,12 +98,12 @@ class ImageCache
   static ImageType GetImageType(const std::string& path);
 
   struct ImageContent;
-  typedef std::vector<ImageContent> ImageContentSet;
+  using ImageContentSet = std::vector<ImageContent>;
 
   // Load missing image contents on the FILE thread.
   void LoadMissing(const ImageInfoSet& image_info,
                    const ImageSet& images,
-                   const LoadImagesCallback& callback);
+                   LoadImagesCallback callback);
   static bool LoadImageContents(const ImageInfo& info, ImageContent* content);
   static bool LoadImageContents(const std::string& path,
                                 bool internal,
@@ -113,12 +113,12 @@ class ImageCache
   // Create missing CefImage representations on the UI thread.
   void UpdateCache(const ImageInfoSet& image_info,
                    const ImageContentSet& contents,
-                   const LoadImagesCallback& callback);
+                   LoadImagesCallback callback);
   static CefRefPtr<CefImage> CreateImage(const std::string& image_id,
                                          const ImageContent& content);
 
   // Map image ID to image representation. Only accessed on the UI thread.
-  typedef std::map<std::string, CefRefPtr<CefImage>> ImageMap;
+  using ImageMap = std::map<std::string, CefRefPtr<CefImage>>;
   ImageMap image_map_;
 };
 
