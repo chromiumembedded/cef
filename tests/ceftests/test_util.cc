@@ -3,6 +3,9 @@
 // can be found in the LICENSE file.
 
 #include "tests/ceftests/test_util.h"
+
+#include <algorithm>
+
 #include "include/cef_command_line.h"
 #include "include/cef_request_context_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"

@@ -4,6 +4,8 @@
 
 #include "tests/cefclient/browser/image_cache.h"
 
+#include <algorithm>
+
 #include "tests/shared/browser/file_util.h"
 #include "tests/shared/browser/resource_util.h"
 

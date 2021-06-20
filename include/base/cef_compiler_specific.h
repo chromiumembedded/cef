@@ -67,6 +67,15 @@
 #define HAS_BUILTIN(x) 0
 #endif
 
+// __has_feature and __has_attribute don't exist for MSVC.
+#if !defined(__has_feature)
+#define __has_feature(x) 0
+#endif  // !defined(__has_feature)
+
+#if !defined(__has_attribute)
+#define __has_attribute(x) 0
+#endif  // !defined(__has_attribute)
+
 // Annotate a variable indicating it's ok if the variable is not used.
 // (Typically used to silence a compiler warning when the assignment
 // is important for some other reason.)

@@ -16,6 +16,8 @@
 #include <X11/Xcursor/Xcursor.h>
 #include <X11/keysym.h>
 
+#include <algorithm>
+
 #include "include/base/cef_cxx17_backports.h"
 #include "include/base/cef_logging.h"
 #include "include/base/cef_macros.h"

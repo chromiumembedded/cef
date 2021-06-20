@@ -4,6 +4,8 @@
 
 #include "tests/cefclient/browser/main_context_impl.h"
 
+#include <algorithm>
+
 #include "include/cef_parser.h"
 #include "include/cef_web_plugin.h"
 #include "tests/shared/browser/client_app_browser.h"

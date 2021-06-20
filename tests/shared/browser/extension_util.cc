@@ -4,6 +4,7 @@
 
 #include "tests/shared/browser/extension_util.h"
 
+#include <algorithm>
 #include <memory>
 
 #include "include/base/cef_callback.h"

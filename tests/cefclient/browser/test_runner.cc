@@ -4,6 +4,7 @@
 
 #include "tests/cefclient/browser/test_runner.h"
 
+#include <algorithm>
 #include <map>
 #include <set>
 #include <sstream>

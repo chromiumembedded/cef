@@ -407,6 +407,7 @@ if(OS_WINDOWS)
     /wd4100       # Ignore "unreferenced formal parameter" warning
     /wd4127       # Ignore "conditional expression is constant" warning
     /wd4244       # Ignore "conversion possible loss of data" warning
+    /wd4324       # Ignore "structure was padded due to alignment specifier" warning
     /wd4481       # Ignore "nonstandard extension used: override" warning
     /wd4512       # Ignore "assignment operator could not be generated" warning
     /wd4701       # Ignore "potentially uninitialized local variable" warning
