@@ -6,6 +6,10 @@ set(CEF_TARGET "cef_gtest")
 
 set(GTEST_SRCS
   src/gtest-all.cc
+  teamcity/include/teamcity_gtest.h
+  teamcity/src/teamcity_gtest.cpp
+  teamcity/src/teamcity_messages.cpp
+  teamcity/src/teamcity_messages.h
   )
 source_group(cef_gtest FILES ${GTEST_SRCS})
 

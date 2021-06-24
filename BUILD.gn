@@ -1654,6 +1654,29 @@ if (is_mac) {
 # Executable/app targets.
 #
 
+# Source files for TeamCity GTest integration.
+# See tests/gtest/teamcity/README.cef for details.
+source_set("gtest_teamcity") {
+  testonly = true
+
+  sources = [
+    "tests/gtest/teamcity/include/teamcity_gtest.h",
+    "tests/gtest/teamcity/src/teamcity_gtest.cpp",
+    "tests/gtest/teamcity/src/teamcity_gtest.h",
+    "tests/gtest/teamcity/src/teamcity_messages.cpp",
+    "tests/gtest/teamcity/src/teamcity_messages.h",
+  ]
+
+  deps = [
+    "//testing/gtest",
+  ]
+
+  configs += [
+    "libcef/features:config",
+    "//build/config:precompiled_headers",
+  ]
+}
+
 if (is_mac) {
   # Helper for generating the CEF app bundle.
   template("cef_app") {
@@ -2001,6 +2024,7 @@ if (is_mac) {
       ":ceftests_resources_bundle_data",
       ":ceftests_resources_bundle_data_english",
       ":ceftests_xibs",
+      ":gtest_teamcity",
       "//testing/gtest",
     ]
     frameworks = [
@@ -2219,6 +2243,7 @@ if (is_mac) {
     deps = [
       ":libcef",
       ":libcef_dll_wrapper",
+      ":gtest_teamcity",
       "//testing/gtest",
     ]
 

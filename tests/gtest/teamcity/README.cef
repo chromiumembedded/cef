@@ -1,0 +1,14 @@
+Name: TeamCity C++ Unit Test Reporting 
+Short Name: teamcity-cpp
+URL: https://github.com/JetBrains/teamcity-cpp
+Version: 1.8 (commit b2c95c5)
+License: Apache 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+
+Description:
+GTest integration for reporting to TeamCity Continuous Integration Server.
+
+See the project URL for related documentation.
+
+Local Modifications:
+1. Copy necessary C++ files only.
+1. Use absolute include paths.

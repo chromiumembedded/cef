@@ -7,6 +7,7 @@
 #include "include/cef_file_util.h"
 #include "include/wrapper/cef_scoped_temp_dir.h"
 #include "tests/gtest/include/gtest/gtest.h"
+#include "tests/gtest/teamcity/include/teamcity_gtest.h"
 #include "tests/shared/common/client_switches.h"
 
 namespace {
@@ -121,6 +122,12 @@ void CefTestSuite::InitMainProcess() {
 
   // This will modify |argc_| and |argv_|.
   testing::InitGoogleTest(&argc_, argv_.array());
+
+  if (jetbrains::teamcity::underTeamcity()) {
+    auto& listeners = ::testing::UnitTest::GetInstance()->listeners();
+    listeners.Append(
+        new jetbrains::teamcity::TeamcityGoogleTestEventListener());
+  }
 }
 
 // Don't add additional code to this method. Instead add it to Initialize().

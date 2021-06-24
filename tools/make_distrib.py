@@ -213,6 +213,11 @@ def create_fuzed_gtest(tests_dir):
       os.path.join(cef_dir, 'tests', 'gtest', 'README.cef.in'),
       os.path.join(target_gtest_dir, 'README.cef'), options.quiet)
 
+  # Copy tests/gtest/teamcity files
+  copy_dir(
+      os.path.join(cef_dir, 'tests', 'gtest', 'teamcity'),
+      os.path.join(target_gtest_dir, 'teamcity'), options.quiet)
+
 
 def transfer_gypi_files(src_dir, gypi_paths, gypi_path_prefix, dst_dir, quiet):
   """ Transfer files from one location to another. """
