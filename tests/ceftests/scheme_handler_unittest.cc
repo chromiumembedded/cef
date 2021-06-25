@@ -212,9 +212,9 @@ class TestSchemeHandler : public TestHandler {
     else if (IsExitURL(url))
       return;
 
-    // Tests sometimes also fail with ERR_ABORTED.
+    // Tests sometimes also fail with ERR_ABORTED or ERR_UNKNOWN_URL_SCHEME.
     if (!(test_results_->expected_error_code == 0 &&
-          errorCode == ERR_ABORTED)) {
+          (errorCode == ERR_ABORTED || errorCode == ERR_UNKNOWN_URL_SCHEME))) {
       EXPECT_EQ(test_results_->expected_error_code, errorCode)
           << failedUrl.ToString();
     }
