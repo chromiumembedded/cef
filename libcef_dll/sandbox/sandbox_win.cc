@@ -41,13 +41,24 @@ void cef_sandbox_info_destroy(void* sandbox_info) {
 }
 
 #if BUILDFLAG(IS_CEF_SANDBOX_BUILD)
-// Implementation from third_party/abseil-cpp/absl/types/bad_variant_access.cc
-// to avoid bringing in absl dependencies.
+// Avoid bringing in absl dependencies.
 namespace absl {
+
+// From third_party/abseil-cpp/absl/types/bad_optional_access.cc
+namespace optional_internal {
+void throw_bad_optional_access() {
+  LOG(FATAL) << "Bad optional access";
+  abort();
+}
+}  // namespace optional_internal
+
+// From third_party/abseil-cpp/absl/types/bad_variant_access.cc
 namespace variant_internal {
 void ThrowBadVariantAccess() {
   LOG(FATAL) << "Bad variant access";
+  abort();
 }
 }  // namespace variant_internal
+
 }  // namespace absl
 #endif  // BUILDFLAG(IS_CEF_SANDBOX_BUILD)
