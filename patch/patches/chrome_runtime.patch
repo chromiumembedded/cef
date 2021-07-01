@@ -205,7 +205,7 @@ index ab4c2b03755d..8e813496f9df 100644
      base::mac::ScopedMachSendRight exceptionPort(
          crash_reporter::GetCrashpadClient().GetHandlerMachPort());
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index b18cc56bb82b..4760db368c6e 100644
+index 6a1866ce6d6b..f4124005eadb 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -10,6 +10,7 @@
@@ -216,7 +216,7 @@ index b18cc56bb82b..4760db368c6e 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/accessibility_ui.h"
-@@ -161,6 +162,10 @@
+@@ -162,6 +163,10 @@
  #include "chrome/browser/background/background_mode_manager.h"
  #endif
  
@@ -227,7 +227,7 @@ index b18cc56bb82b..4760db368c6e 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -1019,6 +1024,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -1022,6 +1027,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
    SessionDataService::RegisterProfilePrefs(registry);
  #endif
  
