@@ -192,26 +192,30 @@ int CefBrowserPlatformDelegateNativeAura::TranslateUiEventModifiers(
     uint32 cef_modifiers) {
   int result = 0;
   // Set modifiers based on key state.
+  if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON)
+    result |= ui::EF_CAPS_LOCK_ON;
   if (cef_modifiers & EVENTFLAG_SHIFT_DOWN)
     result |= ui::EF_SHIFT_DOWN;
   if (cef_modifiers & EVENTFLAG_CONTROL_DOWN)
     result |= ui::EF_CONTROL_DOWN;
   if (cef_modifiers & EVENTFLAG_ALT_DOWN)
     result |= ui::EF_ALT_DOWN;
-  if (cef_modifiers & EVENTFLAG_COMMAND_DOWN)
-    result |= ui::EF_COMMAND_DOWN;
   if (cef_modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
     result |= ui::EF_LEFT_MOUSE_BUTTON;
   if (cef_modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
     result |= ui::EF_MIDDLE_MOUSE_BUTTON;
   if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
     result |= ui::EF_RIGHT_MOUSE_BUTTON;
-  if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON)
-    result |= ui::EF_CAPS_LOCK_ON;
+  if (cef_modifiers & EVENTFLAG_COMMAND_DOWN)
+    result |= ui::EF_COMMAND_DOWN;
   if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON)
     result |= ui::EF_NUM_LOCK_ON;
+  if (cef_modifiers & EVENTFLAG_IS_KEY_PAD)
+    result |= ui::EF_IS_EXTENDED_KEY;
   if (cef_modifiers & EVENTFLAG_ALTGR_DOWN)
     result |= ui::EF_ALTGR_DOWN;
+  if (cef_modifiers & EVENTFLAG_IS_REPEAT)
+    result |= ui::EF_IS_REPEAT;
   return result;
 }
 

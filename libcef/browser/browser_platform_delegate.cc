@@ -397,29 +397,33 @@ int CefBrowserPlatformDelegate::TranslateWebEventModifiers(
     uint32 cef_modifiers) {
   int result = 0;
   // Set modifiers based on key state.
+  if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON)
+      result |= blink::WebInputEvent::kCapsLockOn;
   if (cef_modifiers & EVENTFLAG_SHIFT_DOWN)
     result |= blink::WebInputEvent::kShiftKey;
   if (cef_modifiers & EVENTFLAG_CONTROL_DOWN)
     result |= blink::WebInputEvent::kControlKey;
   if (cef_modifiers & EVENTFLAG_ALT_DOWN)
     result |= blink::WebInputEvent::kAltKey;
-  if (cef_modifiers & EVENTFLAG_COMMAND_DOWN)
-    result |= blink::WebInputEvent::kMetaKey;
   if (cef_modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
     result |= blink::WebInputEvent::kLeftButtonDown;
   if (cef_modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
     result |= blink::WebInputEvent::kMiddleButtonDown;
   if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
     result |= blink::WebInputEvent::kRightButtonDown;
-  if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON)
-    result |= blink::WebInputEvent::kCapsLockOn;
+  if (cef_modifiers & EVENTFLAG_COMMAND_DOWN)
+      result |= blink::WebInputEvent::kMetaKey;
   if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON)
     result |= blink::WebInputEvent::kNumLockOn;
+  if (cef_modifiers & EVENTFLAG_IS_KEY_PAD)
+    result |= blink::WebInputEvent::kIsKeyPad;
   if (cef_modifiers & EVENTFLAG_IS_LEFT)
     result |= blink::WebInputEvent::kIsLeft;
   if (cef_modifiers & EVENTFLAG_IS_RIGHT)
     result |= blink::WebInputEvent::kIsRight;
-  if (cef_modifiers & EVENTFLAG_IS_KEY_PAD)
-    result |= blink::WebInputEvent::kIsKeyPad;
+  if (cef_modifiers & EVENTFLAG_ALTGR_DOWN)
+    result |= blink::WebInputEvent::kAltGrKey;
+  if (cef_modifiers & EVENTFLAG_IS_REPEAT)
+    result |= blink::WebInputEvent::kIsAutoRepeat;
   return result;
 }

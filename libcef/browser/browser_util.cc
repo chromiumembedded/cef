@@ -38,6 +38,14 @@ bool GetCefKeyEvent(const content::NativeWebKeyboardEvent& event,
     cef_event.modifiers |= EVENTFLAG_COMMAND_DOWN;
   if (event.GetModifiers() & blink::WebKeyboardEvent::kIsKeyPad)
     cef_event.modifiers |= EVENTFLAG_IS_KEY_PAD;
+  if (event.GetModifiers() & blink::WebKeyboardEvent::kIsLeft)
+    cef_event.modifiers |= EVENTFLAG_IS_LEFT;
+  if (event.GetModifiers() & blink::WebKeyboardEvent::kIsRight)
+    cef_event.modifiers |= EVENTFLAG_IS_RIGHT;
+  if (event.GetModifiers() & blink::WebKeyboardEvent::kAltGrKey)
+    cef_event.modifiers |= EVENTFLAG_ALTGR_DOWN;
+  if (event.GetModifiers() & blink::WebKeyboardEvent::kIsAutoRepeat)
+    cef_event.modifiers |= EVENTFLAG_IS_REPEAT;
 
   cef_event.windows_key_code = event.windows_key_code;
   cef_event.native_key_code = event.native_key_code;
