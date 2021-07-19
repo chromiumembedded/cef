@@ -801,10 +801,12 @@ void OsrWindowWin::OnKeyEvent(UINT message, WPARAM wParam, LPARAM lParam) {
     // https://docs.microsoft.com/en-gb/windows/win32/api/winuser/nf-winuser-vkkeyscanexw
     // ... high-order byte contains the shift state,
     // which can be a combination of the following flag bits.
+    // 1 Either SHIFT key is pressed.
     // 2 Either CTRL key is pressed.
     // 4 Either ALT key is pressed.
     SHORT scan_res = ::VkKeyScanExW(wParam, current_layout);
-    if (((scan_res >> 8) & 0xFF) == (2 | 4)) {  // ctrl-alt pressed
+    constexpr auto ctrlAlt = (2 | 4);
+    if (((scan_res >> 8) & ctrlAlt) == ctrlAlt) {  // ctrl-alt pressed
       event.modifiers &= ~(EVENTFLAG_CONTROL_DOWN | EVENTFLAG_ALT_DOWN);
       event.modifiers |= EVENTFLAG_ALTGR_DOWN;
     }
