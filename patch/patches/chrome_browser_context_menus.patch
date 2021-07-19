@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index cfe46eee2a8f..3db70c7c3149 100644
+index b590b86c8d77..469c213ca4da 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -264,6 +264,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
@@ -55,7 +55,7 @@ index cfe46eee2a8f..3db70c7c3149 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -2637,6 +2662,12 @@ void RenderViewContextMenu::RegisterMenuShownCallbackForTesting(
+@@ -2641,6 +2666,12 @@ void RenderViewContextMenu::RegisterMenuShownCallbackForTesting(
    *GetMenuShownCallback() = std::move(cb);
  }
  
@@ -69,10 +69,10 @@ index cfe46eee2a8f..3db70c7c3149 100644
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index b6d55e7322c4..014d89c4c7bf 100644
+index f4bc78469e2e..398d2194bf62 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
-@@ -92,6 +92,12 @@ class RenderViewContextMenu : public RenderViewContextMenuBase {
+@@ -95,6 +95,12 @@ class RenderViewContextMenu : public RenderViewContextMenuBase,
    static void RegisterMenuShownCallbackForTesting(
        base::OnceCallback<void(RenderViewContextMenu*)> cb);
  
@@ -85,9 +85,9 @@ index b6d55e7322c4..014d89c4c7bf 100644
   protected:
    Profile* GetProfile() const;
  
-@@ -266,6 +272,9 @@ class RenderViewContextMenu : public RenderViewContextMenuBase {
-   ui::SimpleMenuModel protocol_handler_submenu_model_;
-   ProtocolHandlerRegistry* protocol_handler_registry_;
+@@ -283,6 +289,9 @@ class RenderViewContextMenu : public RenderViewContextMenuBase,
+   //   built.
+   bool is_protocol_submenu_valid_ = false;
  
 +  // An observer returned via MenuCreatedCallback that will be called first.
 +  std::unique_ptr<RenderViewContextMenuObserver> first_observer_;
