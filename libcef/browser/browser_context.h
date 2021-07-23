@@ -16,6 +16,7 @@
 #include "base/callback.h"
 #include "base/files/file_path.h"
 #include "base/memory/weak_ptr.h"
+#include "base/sequenced_task_runner_helpers.h"
 #include "chrome/common/plugin.mojom.h"
 #include "services/network/public/mojom/network_context.mojom.h"
 #include "third_party/abseil-cpp/absl/types/optional.h"
@@ -236,6 +237,9 @@ class CefBrowserContext {
   base::FilePath cache_path_;
 
  private:
+  // For DeleteSoon().
+  friend class base::DeleteHelper<CefBrowserContext>;
+
   scoped_refptr<CefIOThreadState> iothread_state_;
   CookieableSchemes cookieable_schemes_;
   std::unique_ptr<CefMediaRouterManager> media_router_manager_;

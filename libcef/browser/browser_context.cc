@@ -229,7 +229,9 @@ void CefBrowserContext::RemoveCefRequestContext(
   // Delete ourselves when the reference count reaches zero.
   if (request_context_set_.empty()) {
     Shutdown();
-    delete this;
+
+    // Allow the current call stack to unwind before deleting |this|.
+    content::BrowserThread::DeleteSoon(CEF_UIT, FROM_HERE, this);
   }
 }
 
