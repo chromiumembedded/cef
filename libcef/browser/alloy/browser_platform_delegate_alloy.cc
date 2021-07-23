@@ -24,6 +24,7 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
 #include "extensions/browser/process_manager.h"
+#include "printing/mojom/print.mojom.h"
 #include "third_party/blink/public/mojom/frame/find_in_page.mojom.h"
 
 namespace {
@@ -141,10 +142,12 @@ void CefBrowserPlatformDelegateAlloy::AddNewContents(
   }
 }
 
-bool CefBrowserPlatformDelegateAlloy::ShouldTransferNavigation(
-    bool is_main_frame_navigation) {
+bool CefBrowserPlatformDelegateAlloy::
+    ShouldAllowRendererInitiatedCrossProcessNavigation(
+        bool is_main_frame_navigation) {
   if (extension_host_) {
-    return extension_host_->ShouldTransferNavigation(is_main_frame_navigation);
+    return extension_host_->ShouldAllowRendererInitiatedCrossProcessNavigation(
+        is_main_frame_navigation);
   }
   return true;
 }

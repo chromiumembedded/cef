@@ -1,9 +1,9 @@
 diff --git build/config/linux/atk/BUILD.gn build/config/linux/atk/BUILD.gn
-index bc8e27894732a..5d06ce988f25f 100644
+index 92baff2a9b6ee..fdf40cd38ad3a 100644
 --- build/config/linux/atk/BUILD.gn
 +++ build/config/linux/atk/BUILD.gn
-@@ -12,7 +12,7 @@ import("//build/config/ui.gni")
- assert(!is_chromeos_ash)
+@@ -11,7 +11,7 @@ import("//build/config/ui.gni")
+ assert(!is_chromeos)
  
  # These packages should _only_ be expected when building for a target.
 -assert(current_toolchain == default_toolchain)

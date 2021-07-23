@@ -9,16 +9,16 @@
 #include "libcef/browser/frame_host_impl.h"
 
 #include "cef/libcef/common/mojom/cef.mojom.h"
-#include "content/public/browser/frame_service_base.h"
+#include "content/public/browser/document_service_base.h"
 #include "mojo/public/cpp/bindings/binder_map.h"
 
 // Implementation of the BrowserFrame mojo interface.
 // This is implemented separately from CefFrameHostImpl to better manage the
 // association with the RenderFrameHost (which may be speculative, etc.), and so
 // that messages are always routed to the most appropriate CefFrameHostImpl
-// instance. Lifespan is tied to the RFH via FrameServiceBase.
+// instance. Lifespan is tied to the RFH via DocumentServiceBase.
 class CefBrowserFrame
-    : public content::FrameServiceBase<cef::mojom::BrowserFrame> {
+    : public content::DocumentServiceBase<cef::mojom::BrowserFrame> {
  public:
   CefBrowserFrame(content::RenderFrameHost* render_frame_host,
                   mojo::PendingReceiver<cef::mojom::BrowserFrame> receiver);
@@ -39,7 +39,7 @@ class CefBrowserFrame
       absl::optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions)
       override;
 
-  // FrameServiceBase methods:
+  // DocumentServiceBase methods:
   bool ShouldCloseOnFinishNavigation() const override { return false; }
 
   CefRefPtr<CefFrameHostImpl> GetFrameHost(

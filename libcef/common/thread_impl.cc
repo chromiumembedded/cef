@@ -105,7 +105,7 @@ bool CefThreadImpl::Create(const CefString& display_name,
   }
 #endif
 
-  if (!thread_->StartWithOptions(options)) {
+  if (!thread_->StartWithOptions(std::move(options))) {
     thread_.reset();
     return false;
   }

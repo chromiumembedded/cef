@@ -473,9 +473,7 @@ void CefBrowserContentsDelegate::Observe(
   DCHECK_EQ(type, content::NOTIFICATION_LOAD_STOP);
 
   if (type == content::NOTIFICATION_LOAD_STOP) {
-    content::NavigationController* controller =
-        content::Source<content::NavigationController>(source).ptr();
-    OnTitleChange(controller->GetWebContents()->GetTitle());
+    OnTitleChange(web_contents()->GetTitle());
   }
 }
 

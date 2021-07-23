@@ -40,7 +40,8 @@ class CefExtensionViewHost : public ExtensionHost,
   bool IsBackgroundPage() const override;
 
   // content::WebContentsDelegate methods:
-  bool ShouldTransferNavigation(bool is_main_frame_navigation) override;
+  bool ShouldAllowRendererInitiatedCrossProcessNavigation(
+      bool is_main_frame_navigation) override;
   bool PreHandleGestureEvent(content::WebContents* source,
                              const blink::WebGestureEvent& event) override;
 

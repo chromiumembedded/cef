@@ -121,7 +121,6 @@
 #include "services/service_manager/public/mojom/connector.mojom.h"
 #include "storage/browser/quota/quota_settings.h"
 #include "third_party/blink/public/common/web_preferences/web_preferences.h"
-#include "third_party/blink/public/mojom/insecure_input/insecure_input_service.mojom.h"
 #include "third_party/blink/public/mojom/prerender/prerender.mojom.h"
 #include "third_party/blink/public/web/web_window_features.h"
 #include "third_party/widevine/cdm/buildflags.h"
@@ -463,23 +462,6 @@ base::FilePath GetRootCachePath() {
   // cache_path values be either equal to or a child of root_cache_path.
   return base::FilePath(
       CefString(&CefContext::Get()->settings().root_cache_path));
-}
-
-// Register BrowserInterfaceBroker's GetInterface() handler callbacks for
-// chrome-specific document-scoped interfaces.
-// Stub implementations to silence "Empty binder for interface
-// blink.mojom.[Name] for the frame/document scope" errors.
-// Based on chrome/browser/chrome_browser_interface_binders.cc.
-void PopulateChromeFrameBinders(
-    mojo::BinderMapWithContext<content::RenderFrameHost*>* map) {
-  map->Add<blink::mojom::InsecureInputService>(base::BindRepeating(
-      [](content::RenderFrameHost* frame_host,
-         mojo::PendingReceiver<blink::mojom::InsecureInputService> receiver) {
-      }));
-
-  map->Add<blink::mojom::PrerenderProcessor>(base::BindRepeating(
-      [](content::RenderFrameHost* frame_host,
-         mojo::PendingReceiver<blink::mojom::PrerenderProcessor> receiver) {}));
 }
 
 }  // namespace
@@ -957,11 +939,13 @@ void AlloyContentBrowserClient::OverrideWebkitPrefs(
 
   // Using RVH instead of RFH here because rvh->GetMainFrame() may be nullptr
   // when this method is called.
-  renderer_prefs::PopulateWebPreferences(rvh, *prefs);
+  SkColor base_background_color;
+  renderer_prefs::PopulateWebPreferences(rvh, *prefs, base_background_color);
+
+  web_contents->SetPageBaseBackgroundColor(base_background_color);
 
   if (rvh->GetWidget()->GetView()) {
-    rvh->GetWidget()->GetView()->SetBackgroundColor(
-        prefs->base_background_color);
+    rvh->GetWidget()->GetView()->SetBackgroundColor(base_background_color);
   }
 }
 
@@ -1250,7 +1234,7 @@ AlloyContentBrowserClient::GetNetworkContextsParentDirectory() {
 
 bool AlloyContentBrowserClient::HandleExternalProtocol(
     const GURL& url,
-    content::WebContents::OnceGetter web_contents_getter,
+    content::WebContents::Getter web_contents_getter,
     int child_id,
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
@@ -1299,7 +1283,6 @@ AlloyContentBrowserClient::CreateWindowForPictureInPicture(
 void AlloyContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
     content::RenderFrameHost* render_frame_host,
     mojo::BinderMapWithContext<content::RenderFrameHost*>* map) {
-  PopulateChromeFrameBinders(map);
   CefBrowserFrame::RegisterBrowserInterfaceBindersForFrame(render_frame_host,
                                                            map);
 
@@ -1377,7 +1360,7 @@ bool AlloyContentBrowserClient::ArePersistentMediaDeviceIDsAllowed(
   // Persistent MediaDevice IDs are allowed if cookies are allowed.
   return CookieSettingsFactory::GetForProfile(
              Profile::FromBrowserContext(browser_context))
-      ->IsCookieAccessAllowed(url, site_for_cookies, top_frame_origin);
+      ->IsFullCookieAccessAllowed(url, site_for_cookies, top_frame_origin);
 }
 
 bool AlloyContentBrowserClient::ShouldAllowPluginCreation(

@@ -110,11 +110,19 @@ void CefRenderManager::RenderFrameCreated(
   }
 }
 
-void CefRenderManager::RenderViewCreated(content::RenderView* render_view,
-                                         bool& browser_created,
-                                         absl::optional<bool>& is_windowless) {
-  MaybeCreateBrowser(render_view, render_view->GetMainRenderFrame(),
-                     &browser_created, &is_windowless);
+void CefRenderManager::WebViewCreated(blink::WebView* web_view,
+                                      bool& browser_created,
+                                      absl::optional<bool>& is_windowless) {
+  auto render_view = content::RenderView::FromWebView(web_view);
+  CHECK(render_view);
+  content::RenderFrame* render_frame = nullptr;
+  if (web_view->MainFrame()->IsWebLocalFrame()) {
+    render_frame = content::RenderFrame::FromWebFrame(
+        web_view->MainFrame()->ToWebLocalFrame());
+  }
+
+  MaybeCreateBrowser(render_view, render_frame, &browser_created,
+                     &is_windowless);
 }
 
 void CefRenderManager::DevToolsAgentAttached() {

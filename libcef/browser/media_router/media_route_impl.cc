@@ -38,7 +38,11 @@ CefRefPtr<CefMediaSource> CefMediaRouteImpl::GetSource() {
 }
 
 CefRefPtr<CefMediaSink> CefMediaRouteImpl::GetSink() {
-  return new CefMediaSinkImpl(route_.media_sink_id(), route_.media_sink_name());
+  return new CefMediaSinkImpl(
+      route_.media_sink_id(), route_.media_sink_name(),
+      route_.media_source().IsDialSource()
+          ? media_router::mojom::MediaRouteProviderId::DIAL
+          : media_router::mojom::MediaRouteProviderId::CAST);
 }
 
 void CefMediaRouteImpl::SendRouteMessage(const void* message,

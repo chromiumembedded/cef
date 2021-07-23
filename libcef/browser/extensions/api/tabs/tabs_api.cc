@@ -8,6 +8,7 @@
 
 #include "base/notreached.h"
 #include "base/strings/string_number_conversions.h"
+#include "base/strings/stringprintf.h"
 #include "chrome/browser/extensions/api/tabs/tabs_constants.h"
 #include "chrome/browser/extensions/extension_tab_util.h"
 #include "components/zoom/zoom_controller.h"
@@ -381,8 +382,16 @@ bool ExecuteCodeInTabFunction::LoadFile(const std::string& file,
 void ExecuteCodeInTabFunction::LoadFileComplete(
     const std::string& file,
     std::unique_ptr<std::string> data) {
+  std::vector<std::unique_ptr<std::string>> data_list;
+  absl::optional<std::string> error;
   const bool success = !!data.get();
-  DidLoadAndLocalizeFile(file, success, std::move(data));
+  if (success) {
+    DCHECK(data);
+    data_list.push_back(std::move(data));
+  } else {
+    error = base::StringPrintf("Failed to load file '%s'.", file.c_str());
+  }
+  DidLoadAndLocalizeFile(file, std::move(data_list), std::move(error));
 }
 
 bool TabsInsertCSSFunction::ShouldInsertCSS() const {

@@ -18,6 +18,7 @@
 #include "components/pdf/browser/pdf_web_contents_helper.h"
 #include "components/zoom/zoom_controller.h"
 #include "extensions/browser/guest_view/extensions_guest_view_manager_delegate.h"
+#include "printing/mojom/print.mojom.h"
 
 namespace extensions {
 

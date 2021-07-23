@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index adadb4264e6b7..b7c910f035fe6 100644
+index ac4bc7b9021ee..fefdb822c5b71 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -12,6 +12,7 @@ import("//build/config/features.gni")
+@@ -11,6 +11,7 @@ import("//build/config/features.gni")
  import("//build/config/linux/gtk/gtk.gni")
  import("//build/config/ozone.gni")
  import("//build/config/ui.gni")
@@ -10,7 +10,7 @@ index adadb4264e6b7..b7c910f035fe6 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/assistant/assistant.gni")
-@@ -329,6 +330,10 @@ static_library("ui") {
+@@ -344,6 +345,10 @@ static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -21,7 +21,7 @@ index adadb4264e6b7..b7c910f035fe6 100644
    # Since browser and browser_ui actually depend on each other,
    # we must omit the dependency from browser_ui to browser.
    # However, this means browser_ui and browser should more or less
-@@ -351,6 +356,7 @@ static_library("ui") {
+@@ -366,6 +371,7 @@ static_library("ui") {
      "//build:branding_buildflags",
      "//build:chromeos_buildflags",
      "//cc/paint",
@@ -29,7 +29,7 @@ index adadb4264e6b7..b7c910f035fe6 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -4774,6 +4780,7 @@ static_library("ui") {
+@@ -4878,6 +4884,7 @@ static_library("ui") {
    if (enable_basic_printing) {
      deps += [
        "//components/printing/browser",
@@ -38,7 +38,7 @@ index adadb4264e6b7..b7c910f035fe6 100644
      ]
      if (use_cups) {
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
-index fcd1f66b3a7a4..4f135460de918 100644
+index fcd1f66b3a7a4..70ded321f5498 100644
 --- chrome/browser/ui/webui/net_export_ui.cc
 +++ chrome/browser/ui/webui/net_export_ui.cc
 @@ -21,6 +21,7 @@
@@ -54,7 +54,7 @@ index fcd1f66b3a7a4..4f135460de918 100644
  #include "ui/shell_dialogs/select_file_dialog.h"
  
 +#if BUILDFLAG(ENABLE_CEF)
-+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
++#include "cef/libcef/browser/alloy/alloy_dialog_util.h"
 +#endif
 +
  #if defined(OS_ANDROID)
@@ -104,7 +104,7 @@ index fcd1f66b3a7a4..4f135460de918 100644
  
    file_writer_->StopNetLog(std::move(ui_thread_polled_data));
  }
-@@ -373,6 +394,42 @@ void NetExportMessageHandler::ShowSelectFileDialog(
+@@ -373,6 +394,38 @@ void NetExportMessageHandler::ShowSelectFileDialog(
        &file_type_info, 0, base::FilePath::StringType(), owning_window, nullptr);
  }
  
@@ -112,25 +112,21 @@ index fcd1f66b3a7a4..4f135460de918 100644
 +
 +void NetExportMessageHandler::ShowCefSaveAsDialog(
 +    content::WebContents* web_contents) {
-+  CefRefPtr<AlloyBrowserHostImpl> cef_browser =
-+      AlloyBrowserHostImpl::GetBrowserForContents(web_contents);
-+  if (!cef_browser)
-+    return;
-+
 +  base::FilePath initial_dir;
 +  if (!last_save_dir.Pointer()->empty())
 +    initial_dir = *last_save_dir.Pointer();
 +  base::FilePath initial_path =
 +      initial_dir.Append(FILE_PATH_LITERAL("chrome-net-export-log.json"));
 +
-+  CefFileDialogRunner::FileChooserParams params;
++  blink::mojom::FileChooserParams params;
 +  params.mode = blink::mojom::FileChooserParams::Mode::kSave;
 +  params.default_file_name = initial_path;
-+  params.accept_types.push_back(CefString(initial_path.Extension()));
++  params.accept_types.push_back(
++      alloy::FilePathTypeToString16(initial_path.Extension()));
 +
-+  cef_browser->RunFileChooser(
-+      params, base::BindOnce(&NetExportMessageHandler::SaveAsDialogDismissed,
-+                             weak_ptr_factory_.GetWeakPtr()));
++  alloy::RunFileChooser(web_contents, params,
++      base::BindOnce(&NetExportMessageHandler::SaveAsDialogDismissed,
++                     weak_ptr_factory_.GetWeakPtr()));
 +}
 +
 +void NetExportMessageHandler::SaveAsDialogDismissed(

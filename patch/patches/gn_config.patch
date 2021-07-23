@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index a7c8ed4b4d7ed..26629eaefc234 100644
+index 1c7897a648315..39324a6c6c6f2 100644
 --- .gn
 +++ .gn
-@@ -176,6 +176,8 @@ exec_script_whitelist =
+@@ -150,6 +150,8 @@ exec_script_whitelist =
  
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
  
@@ -12,7 +12,7 @@ index a7c8ed4b4d7ed..26629eaefc234 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 19aee8c70e7a6..94be39e1137fe 100644
+index aa2cb7b4583a3..260067ac3c871 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -16,6 +16,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -23,10 +23,10 @@ index 19aee8c70e7a6..94be39e1137fe 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/media/router/features.gni")
  import("//components/nacl/features.gni")
-@@ -257,6 +258,9 @@ group("gn_all") {
-       "//media/cast:cast_unittests",
-       "//third_party/catapult/telemetry:bitmaptools($host_toolchain)",
-     ]
+@@ -264,6 +265,9 @@ group("gn_all") {
+         deps += [ "//chrome/test:telemetry_perf_unittests${_target_suffix}" ]
+       }
+     }
 +    if (enable_cef) {
 +      deps += [ "//cef" ]
 +    }
@@ -66,10 +66,10 @@ index 982fbe8d3f0d0..e757be4688f10 100644
 +         "studio path")
  }
 diff --git chrome/app/framework.order chrome/app/framework.order
-index 839144aa1e9bd..29c8ab32398a7 100644
+index d2266b28b33f8..a7ff6d9b68f38 100644
 --- chrome/app/framework.order
 +++ chrome/app/framework.order
-@@ -28,3 +28,8 @@ _ChromeMain
+@@ -72,3 +72,8 @@ _ChromeMain
  _lprofDirMode
  ___llvm_profile_filename
  ___llvm_profile_raw_version
@@ -79,7 +79,7 @@ index 839144aa1e9bd..29c8ab32398a7 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 95378c12ca6d9..f8fed0d6c3418 100644
+index 66084f63cd04a..a4997689c68cd 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -4,6 +4,7 @@
@@ -90,8 +90,8 @@ index 95378c12ca6d9..f8fed0d6c3418 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//extensions/buildflags/buildflags.gni")
-@@ -287,6 +288,10 @@ template("chrome_extra_paks") {
-         "//chrome/browser/resources/welcome:resources",
+@@ -71,6 +72,10 @@ template("chrome_repack_percent") {
+         "//ui/chromeos/resources",
        ]
      }
 +    if (enable_cef) {
@@ -99,10 +99,10 @@ index 95378c12ca6d9..f8fed0d6c3418 100644
 +      deps += [ "//cef:cef_resources" ]
 +    }
      if (enable_extensions) {
-       sources += [
-         "$root_gen_dir/chrome/extensions_resources.pak",
+       sources += [ "$root_gen_dir/extensions/extensions_browser_resources_${percent}_percent.pak" ]
+       deps += [ "//extensions:extensions_browser_resources" ]
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index a64a23560460a..b08eee1f789a7 100644
+index 203d54004d324..39ec05bffcf5c 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
 @@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
@@ -113,7 +113,7 @@ index a64a23560460a..b08eee1f789a7 100644
  import("//extensions/buildflags/buildflags.gni")
  import("//tools/grit/repack.gni")
  
-@@ -83,6 +84,10 @@ template("chrome_repack_locales") {
+@@ -88,6 +89,10 @@ template("chrome_repack_locales") {
        ]
        compress = true
      }

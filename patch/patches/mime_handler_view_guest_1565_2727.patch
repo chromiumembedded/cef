@@ -12,10 +12,10 @@ index cdbc0273838e5..ee2809a0bb98a 100644
    virtual ~WebContentsView() {}
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index a28112a99dfdc..bcd58be410e10 100644
+index 2dc016e4be765..fb052a3a0bf21 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -205,6 +205,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -211,6 +211,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -24,7 +24,7 @@ index a28112a99dfdc..bcd58be410e10 100644
    // TODO(erikchen): Fix ownership semantics for guest views.
    // https://crbug.com/832879.
    std::move(callback).Run(
-@@ -215,6 +217,10 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -221,6 +223,10 @@ void MimeHandlerViewGuest::CreateWebContents(
  }
  
  void MimeHandlerViewGuest::DidAttachToEmbedder() {
@@ -35,7 +35,7 @@ index a28112a99dfdc..bcd58be410e10 100644
    DCHECK(stream_->handler_url().SchemeIs(extensions::kExtensionScheme));
    web_contents()->GetController().LoadURL(
        stream_->handler_url(), content::Referrer(),
-@@ -245,6 +251,11 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
+@@ -251,6 +257,11 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
    return true;
  }
  
@@ -48,7 +48,7 @@ index a28112a99dfdc..bcd58be410e10 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index 7d27e12c4e9a7..fc234840104ea 100644
+index bb90319f768ed..b0ba7bfa08c03 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 @@ -130,6 +130,7 @@ class MimeHandlerViewGuest

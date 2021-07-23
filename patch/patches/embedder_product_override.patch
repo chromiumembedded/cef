@@ -1,16 +1,16 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index 1f8de242c42d0..4ba07378b94a3 100644
+index 46f67d07365ca..069b96b9b4b8b 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
-@@ -8,6 +8,7 @@
- #include "base/no_destructor.h"
- #include "base/strings/strcat.h"
+@@ -10,6 +10,7 @@
+ #include "base/strings/stringprintf.h"
+ #include "base/system/sys_info.h"
  #include "build/branding_buildflags.h"
 +#include "cef/libcef/common/cef_switches.h"
  #include "components/embedder_support/switches.h"
  #include "components/version_info/version_info.h"
  #include "content/public/browser/web_contents.h"
-@@ -21,6 +22,12 @@
+@@ -23,6 +24,12 @@
  namespace embedder_support {
  
  std::string GetProduct() {

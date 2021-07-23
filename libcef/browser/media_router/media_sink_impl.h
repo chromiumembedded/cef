@@ -15,7 +15,8 @@ class CefMediaSinkImpl : public CefMediaSink {
  public:
   explicit CefMediaSinkImpl(const media_router::MediaSink& sink);
   CefMediaSinkImpl(const media_router::MediaSink::Id& sink_id,
-                   const std::string& sink_name);
+                   const std::string& sink_name,
+                   media_router::mojom::MediaRouteProviderId provider_id);
 
   // CefMediaSink methods.
   CefString GetId() override;

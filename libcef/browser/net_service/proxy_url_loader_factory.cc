@@ -27,6 +27,7 @@
 #include "net/url_request/url_request.h"
 #include "services/network/public/cpp/cors/cors.h"
 #include "services/network/public/cpp/features.h"
+#include "services/network/public/mojom/early_hints.mojom.h"
 
 namespace net_service {
 
@@ -963,7 +964,7 @@ void InterceptedRequest::ContinueToBeforeRedirect(
   bool should_clear_upload;
   net::RedirectUtil::UpdateHttpRequest(original_url, original_method,
                                        new_redirect_info,
-                                       base::make_optional(remove_headers),
+                                       absl::make_optional(remove_headers),
                                        /*modified_headers=*/absl::nullopt,
                                        &request_.headers, &should_clear_upload);
 

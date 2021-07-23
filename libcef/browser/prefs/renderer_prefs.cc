@@ -371,7 +371,8 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
 }
 
 void PopulateWebPreferences(content::RenderViewHost* rvh,
-                            blink::web_pref::WebPreferences& web) {
+                            blink::web_pref::WebPreferences& web,
+                            SkColor& base_background_color) {
   REQUIRE_ALLOY_RUNTIME();
   CefRefPtr<AlloyBrowserHostImpl> browser = static_cast<AlloyBrowserHostImpl*>(
       extensions::GetOwnerBrowserForHost(rvh, nullptr).get());
@@ -421,11 +422,11 @@ void PopulateWebPreferences(content::RenderViewHost* rvh,
     web.picture_in_picture_enabled = browser->IsPictureInPictureSupported();
 
     // Set the background color for the WebView.
-    web.base_background_color = browser->GetBackgroundColor();
+    base_background_color = browser->GetBackgroundColor();
   } else {
     // We don't know for sure that the browser will be windowless but assume
     // that the global windowless state is likely to be accurate.
-    web.base_background_color =
+    base_background_color =
         CefContext::Get()->GetBackgroundColor(nullptr, STATE_DEFAULT);
   }
 }

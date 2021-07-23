@@ -1,8 +1,8 @@
 diff --git content/app/content_main.cc content/app/content_main.cc
-index e953579110eb9..1caa761f4297c 100644
+index df88067d61a6d..cf0c735c8d3d9 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
-@@ -209,15 +209,10 @@ void InitializeMojo(mojo::core::Configuration* config) {
+@@ -215,15 +215,10 @@ void InitializeMojo(mojo::core::Configuration* config) {
  
  }  // namespace
  
@@ -20,7 +20,7 @@ index e953579110eb9..1caa761f4297c 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -299,12 +294,6 @@ int RunContentProcess(const ContentMainParams& params,
+@@ -305,12 +300,6 @@ int RunContentProcess(const ContentMainParams& params,
  #endif
  
  #if defined(OS_MAC)
@@ -33,7 +33,7 @@ index e953579110eb9..1caa761f4297c 100644
      InitializeMac();
  #endif
  
-@@ -318,7 +307,7 @@ int RunContentProcess(const ContentMainParams& params,
+@@ -324,7 +313,7 @@ int RunContentProcess(const ContentMainParams& params,
  
      ui::RegisterPathProvider();
      tracker = base::debug::GlobalActivityTracker::Get();
@@ -42,7 +42,7 @@ index e953579110eb9..1caa761f4297c 100644
  
      if (exit_code >= 0) {
        if (tracker) {
-@@ -377,8 +366,16 @@ int RunContentProcess(const ContentMainParams& params,
+@@ -383,8 +372,16 @@ int RunContentProcess(const ContentMainParams& params,
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -60,7 +60,7 @@ index e953579110eb9..1caa761f4297c 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -389,19 +386,45 @@ int RunContentProcess(const ContentMainParams& params,
+@@ -395,19 +392,45 @@ int RunContentProcess(const ContentMainParams& params,
        tracker->process_data().SetInt("exit-code", exit_code);
      }
    }
@@ -111,7 +111,7 @@ index e953579110eb9..1caa761f4297c 100644
    return RunContentProcess(params, runner.get());
  }
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 8b557bdeb4b8f..49580985176ea 100644
+index 81638b94331aa..3a36c1629b158 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -43,6 +43,7 @@
@@ -122,7 +122,7 @@ index 8b557bdeb4b8f..49580985176ea 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1110,6 +1111,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1114,6 +1115,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  

@@ -98,6 +98,7 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
   resource_coordinator::ResourceCoordinatorParts* resource_coordinator_parts()
       override;
   BuildState* GetBuildState() override;
+  SerialPolicyAllowedPorts* serial_policy_allowed_ports() override;
 
  private:
   bool initialized_;

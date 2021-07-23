@@ -41,14 +41,14 @@ namespace {
 
 void HandleExternalProtocolHelper(
     ChromeContentBrowserClientCef* self,
-    content::WebContents::OnceGetter web_contents_getter,
+    content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
     const network::ResourceRequest& resource_request) {
   // Match the logic of the original call in
   // NavigationURLLoaderImpl::PrepareForNonInterceptedRequest.
   self->HandleExternalProtocol(
-      resource_request.url, std::move(web_contents_getter),
+      resource_request.url, web_contents_getter,
       content::ChildProcessHost::kInvalidUniqueID, frame_tree_node_id,
       navigation_data,
       resource_request.resource_type ==
@@ -173,23 +173,25 @@ void ChromeContentBrowserClientCef::OverrideWebkitPrefs(
 
   ChromeContentBrowserClient::OverrideWebkitPrefs(web_contents, prefs);
 
+  SkColor base_background_color;
   auto browser = ChromeBrowserHostImpl::GetBrowserForContents(web_contents);
   if (browser) {
     renderer_prefs::SetCefPrefs(browser->settings(), *prefs);
 
     // Set the background color for the WebView.
-    prefs->base_background_color = browser->GetBackgroundColor();
+    base_background_color = browser->GetBackgroundColor();
   } else {
     // We don't know for sure that the browser will be windowless but assume
     // that the global windowless state is likely to be accurate.
-    prefs->base_background_color =
+    base_background_color =
         CefContext::Get()->GetBackgroundColor(nullptr, STATE_DEFAULT);
   }
 
+  web_contents->SetPageBaseBackgroundColor(base_background_color);
+
   auto rvh = web_contents->GetRenderViewHost();
   if (rvh->GetWidget()->GetView()) {
-    rvh->GetWidget()->GetView()->SetBackgroundColor(
-        prefs->base_background_color);
+    rvh->GetWidget()->GetView()->SetBackgroundColor(base_background_color);
   }
 }
 
@@ -236,7 +238,7 @@ bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
 
 bool ChromeContentBrowserClientCef::HandleExternalProtocol(
     const GURL& url,
-    content::WebContents::OnceGetter web_contents_getter,
+    content::WebContents::Getter web_contents_getter,
     int child_id,
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
@@ -256,9 +258,9 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
   // HandleExternalProtocolHelper. Forward to the chrome layer for default
   // handling.
   return ChromeContentBrowserClient::HandleExternalProtocol(
-      url, std::move(web_contents_getter), child_id, frame_tree_node_id,
-      navigation_data, is_main_frame, page_transition, has_user_gesture,
-      initiating_origin, nullptr);
+      url, web_contents_getter, child_id, frame_tree_node_id, navigation_data,
+      is_main_frame, page_transition, has_user_gesture, initiating_origin,
+      nullptr);
 }
 
 bool ChromeContentBrowserClientCef::HandleExternalProtocol(

@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index d548b3d7e0a0a..cb93301271cda 100644
+index eefad1a677606..7318d223a63d0 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
-@@ -1719,6 +1719,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForOrigin(
+@@ -1721,6 +1721,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForOrigin(
              // DeclarativeApiTest.PersistRules.
              if (actual_process_lock.matches_scheme(url::kDataScheme))
                return true;
@@ -20,11 +20,11 @@ index d548b3d7e0a0a..cb93301271cda 100644
  
            // TODO(wjmaclean): We should update the ProcessLock comparison API
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 751ee13227ae6..d4676b47955f8 100644
+index 5b830ecbb4a47..39b32f681233e 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -5314,6 +5314,12 @@ url::Origin NavigationRequest::GetOriginForURLLoaderFactory() {
- 
+@@ -5606,6 +5606,12 @@ url::Origin
+ NavigationRequest::GetOriginForURLLoaderFactoryWithoutFinalFrameHost() {
    // Calculate an approximation of the origin. The sandbox/csp are ignored.
    url::Origin origin = GetOriginForURLLoaderFactoryUnchecked(this);
 +  if (!origin.GetURL().IsStandard()) {
@@ -36,3 +36,19 @@ index 751ee13227ae6..d4676b47955f8 100644
  
    // Apply sandbox flags.
    // See https://html.spec.whatwg.org/#sandboxed-origin-browsing-context-flag
+@@ -5639,6 +5645,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithFinalFrameHost() {
+   if (IsSameDocument() || IsPageActivation())
+     return GetRenderFrameHost()->GetLastCommittedOrigin();
+ 
++  // Calculate an approximation of the origin. The sandbox/csp are ignored.
++  url::Origin unchecked_origin = GetOriginForURLLoaderFactoryUnchecked(this);
++  if (!unchecked_origin.GetURL().IsStandard()) {
++    // Always return an opaque origin for non-standard URLs. Otherwise, the
++    // below CanAccessDataForOrigin() check may fail for unregistered custom
++    // scheme requests in CEF.
++    return unchecked_origin.DeriveNewOpaqueOrigin();
++  }
++
+   url::Origin origin = GetOriginForURLLoaderFactoryWithoutFinalFrameHost();
+ 
+   // MHTML documents should commit as an opaque origin. They should not be able

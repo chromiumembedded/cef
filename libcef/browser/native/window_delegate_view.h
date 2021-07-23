@@ -34,7 +34,6 @@ class CefWindowDelegateView : public views::WidgetDelegateView {
   void InitContent();
 
   // WidgetDelegateView methods:
-  bool CanResize() const override { return true; }
   bool CanMaximize() const override { return true; }
   View* GetContentsView() override { return this; }
 

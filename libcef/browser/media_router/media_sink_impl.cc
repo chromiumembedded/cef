@@ -85,9 +85,14 @@ void GetDeviceInfo(const media_router::MediaSink::Id& sink_id,
 CefMediaSinkImpl::CefMediaSinkImpl(const media_router::MediaSink& sink)
     : sink_(sink) {}
 
-CefMediaSinkImpl::CefMediaSinkImpl(const media_router::MediaSink::Id& sink_id,
-                                   const std::string& sink_name)
-    : sink_(sink_id, sink_name, media_router::SinkIconType::GENERIC) {}
+CefMediaSinkImpl::CefMediaSinkImpl(
+    const media_router::MediaSink::Id& sink_id,
+    const std::string& sink_name,
+    media_router::mojom::MediaRouteProviderId provider_id)
+    : sink_(sink_id,
+            sink_name,
+            media_router::SinkIconType::GENERIC,
+            provider_id) {}
 
 CefString CefMediaSinkImpl::GetId() {
   return sink_.id();
@@ -116,11 +121,11 @@ void CefMediaSinkImpl::GetDeviceInfo(
 }
 
 bool CefMediaSinkImpl::IsCastSink() {
-  return sink_.provider_id() == media_router::CAST;
+  return sink_.provider_id() == media_router::mojom::MediaRouteProviderId::CAST;
 }
 
 bool CefMediaSinkImpl::IsDialSink() {
-  return sink_.provider_id() == media_router::DIAL;
+  return sink_.provider_id() == media_router::mojom::MediaRouteProviderId::DIAL;
 }
 
 bool CefMediaSinkImpl::IsCompatibleWith(CefRefPtr<CefMediaSource> source) {

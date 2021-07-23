@@ -19,7 +19,8 @@
 
 namespace blink {
 class WebFrame;
-}
+class WebView;
+}  // namespace blink
 
 namespace content {
 class RenderFrame;
@@ -50,9 +51,9 @@ class CefRenderManager : public cef::mojom::RenderManager {
                           CefRenderFrameObserver* render_frame_observer,
                           bool& browser_created,
                           absl::optional<bool>& is_windowless);
-  void RenderViewCreated(content::RenderView* render_view,
-                         bool& browser_created,
-                         absl::optional<bool>& is_windowless);
+  void WebViewCreated(blink::WebView* web_view,
+                      bool& browser_created,
+                      absl::optional<bool>& is_windowless);
   void DevToolsAgentAttached();
   void DevToolsAgentDetached();
   void ExposeInterfacesToBrowser(mojo::BinderMap* binders);

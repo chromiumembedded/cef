@@ -160,7 +160,7 @@ index 305726557f2ea..caa4b798a013e 100644
    // A pointer to the current or speculative main frame in `host_contents_`. We
    // can't access this frame through the `host_contents_` directly as it does
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index 216e445c0488b..cd6502cc3f059 100644
+index 530de7eea3649..3af4fb0179aa1 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
 @@ -27,6 +27,7 @@
@@ -171,7 +171,7 @@ index 216e445c0488b..cd6502cc3f059 100644
  class PrefService;
  
  namespace base {
-@@ -62,6 +63,7 @@ class ComponentExtensionResourceManager;
+@@ -66,6 +67,7 @@ class ComponentExtensionResourceManager;
  class Extension;
  class ExtensionCache;
  class ExtensionError;
@@ -179,7 +179,7 @@ index 216e445c0488b..cd6502cc3f059 100644
  class ExtensionHostDelegate;
  class ExtensionSet;
  class ExtensionSystem;
-@@ -204,6 +206,14 @@ class ExtensionsBrowserClient {
+@@ -207,6 +209,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  

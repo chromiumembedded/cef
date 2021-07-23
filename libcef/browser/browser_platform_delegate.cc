@@ -54,8 +54,9 @@ void CefBrowserPlatformDelegate::WebContentsDestroyed(
   web_contents_ = nullptr;
 }
 
-bool CefBrowserPlatformDelegate::ShouldTransferNavigation(
-    bool is_main_frame_navigation) {
+bool CefBrowserPlatformDelegate::
+    ShouldAllowRendererInitiatedCrossProcessNavigation(
+        bool is_main_frame_navigation) {
   return true;
 }
 
@@ -398,7 +399,7 @@ int CefBrowserPlatformDelegate::TranslateWebEventModifiers(
   int result = 0;
   // Set modifiers based on key state.
   if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON)
-      result |= blink::WebInputEvent::kCapsLockOn;
+    result |= blink::WebInputEvent::kCapsLockOn;
   if (cef_modifiers & EVENTFLAG_SHIFT_DOWN)
     result |= blink::WebInputEvent::kShiftKey;
   if (cef_modifiers & EVENTFLAG_CONTROL_DOWN)
@@ -412,7 +413,7 @@ int CefBrowserPlatformDelegate::TranslateWebEventModifiers(
   if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
     result |= blink::WebInputEvent::kRightButtonDown;
   if (cef_modifiers & EVENTFLAG_COMMAND_DOWN)
-      result |= blink::WebInputEvent::kMetaKey;
+    result |= blink::WebInputEvent::kMetaKey;
   if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON)
     result |= blink::WebInputEvent::kNumLockOn;
   if (cef_modifiers & EVENTFLAG_IS_KEY_PAD)

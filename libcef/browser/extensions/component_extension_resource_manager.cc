@@ -4,6 +4,7 @@
 
 #include "libcef/browser/extensions/component_extension_resource_manager.h"
 
+#include "base/containers/contains.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/values.h"

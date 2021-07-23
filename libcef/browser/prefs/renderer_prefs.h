@@ -8,6 +8,8 @@
 
 #include "include/internal/cef_types_wrappers.h"
 
+#include "third_party/skia/include/core/SkColor.h"
+
 class CommandLinePrefStore;
 
 namespace blink {
@@ -48,7 +50,8 @@ void SetCefPrefs(const CefBrowserSettings& cef,
 // Populate WebPreferences based on a combination of command-line values,
 // PrefService and CefBrowserSettings.
 void PopulateWebPreferences(content::RenderViewHost* rvh,
-                            blink::web_pref::WebPreferences& web);
+                            blink::web_pref::WebPreferences& web,
+                            SkColor& base_background_color);
 bool PopulateWebPreferencesAfterNavigation(
     content::WebContents* web_contents,
     blink::web_pref::WebPreferences& web);

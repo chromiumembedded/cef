@@ -10,12 +10,12 @@ index ff7a8ed89e94a..77f44956ff22f 100644
 +  GetPlugins(bool refresh, bool is_main_frame, url.mojom.Origin main_frame_origin) => (array<PluginInfo> plugins);
  };
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index d0df35ea0be1f..895006a02a35d 100644
+index 9d96af5c4c9b5..fee49109c35d3 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -873,6 +873,11 @@ class BLINK_PLATFORM_EXPORT Platform {
-     return nullptr;
-   }
+@@ -875,6 +875,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+       const WebURL& url,
+       blink::WebVector<blink::WebContentSecurityPolicyHeader>* csp) {}
  
 +  // DevTools ------------------------------------------------------------
 +
@@ -44,10 +44,10 @@ index 463e3e5e73419..97aaf0da2b9a5 100644
  
  DocumentInit& DocumentInit::WithTypeFrom(const String& mime_type) {
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index fab2d2cbc446c..0292471023cdb 100644
+index c0f2ba8de2f77..745dfcb704ad2 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
-@@ -2087,7 +2087,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
+@@ -1879,7 +1879,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins())
      return nullptr;
@@ -57,7 +57,7 @@ index fab2d2cbc446c..0292471023cdb 100644
  }
  
 diff --git third_party/blink/renderer/core/inspector/devtools_session.cc third_party/blink/renderer/core/inspector/devtools_session.cc
-index 242653b4e7237..385e4b4d3f075 100644
+index 881b5a6234586..c28e864b98bc1 100644
 --- third_party/blink/renderer/core/inspector/devtools_session.cc
 +++ third_party/blink/renderer/core/inspector/devtools_session.cc
 @@ -8,6 +8,7 @@
@@ -68,7 +68,7 @@ index 242653b4e7237..385e4b4d3f075 100644
  #include "third_party/blink/renderer/bindings/core/v8/script_controller.h"
  #include "third_party/blink/renderer/core/frame/local_frame.h"
  #include "third_party/blink/renderer/core/inspector/devtools_agent.h"
-@@ -144,6 +145,7 @@ DevToolsSession::DevToolsSession(
+@@ -145,6 +146,7 @@ DevToolsSession::DevToolsSession(
      for (wtf_size_t i = 0; i < agents_.size(); i++)
        agents_[i]->Restore();
    }
@@ -76,7 +76,7 @@ index 242653b4e7237..385e4b4d3f075 100644
  }
  
  DevToolsSession::~DevToolsSession() {
-@@ -184,6 +186,7 @@ void DevToolsSession::Detach() {
+@@ -185,6 +187,7 @@ void DevToolsSession::Detach() {
    agents_.clear();
    v8_session_.reset();
    agent_->client_->DebuggerTaskFinished();
@@ -85,7 +85,7 @@ index 242653b4e7237..385e4b4d3f075 100644
  
  void DevToolsSession::DispatchProtocolCommand(
 diff --git third_party/blink/renderer/core/page/page.cc third_party/blink/renderer/core/page/page.cc
-index 4ae29426622ff..d8fe3d0720f9d 100644
+index 3afca2407df4b..6127652fb5f42 100644
 --- third_party/blink/renderer/core/page/page.cc
 +++ third_party/blink/renderer/core/page/page.cc
 @@ -212,7 +212,8 @@ Page::Page(base::PassKey<Page>,
@@ -160,10 +160,10 @@ index 4ae29426622ff..d8fe3d0720f9d 100644
    visitor->Trace(plugins_changed_observers_);
    visitor->Trace(next_related_page_);
 diff --git third_party/blink/renderer/core/page/page.h third_party/blink/renderer/core/page/page.h
-index 9a219bef35564..e42009509bb12 100644
+index 72e214c315acf..c89b578f7d6d5 100644
 --- third_party/blink/renderer/core/page/page.h
 +++ third_party/blink/renderer/core/page/page.h
-@@ -147,7 +147,8 @@ class CORE_EXPORT Page final : public GarbageCollected<Page>,
+@@ -148,7 +148,8 @@ class CORE_EXPORT Page final : public GarbageCollected<Page>,
    ViewportDescription GetViewportDescription() const;
  
    // Returns the plugin data associated with |main_frame_origin|.
@@ -173,7 +173,7 @@ index 9a219bef35564..e42009509bb12 100644
  
    // Resets the plugin data for all pages in the renderer process and notifies
    // PluginsChangedObservers.
-@@ -428,7 +429,8 @@ class CORE_EXPORT Page final : public GarbageCollected<Page>,
+@@ -433,7 +434,8 @@ class CORE_EXPORT Page final : public GarbageCollected<Page>,
    const Member<LinkHighlight> link_highlight_;
    Member<SpatialNavigationController> spatial_navigation_controller_;
  
@@ -212,10 +212,10 @@ index 89beb74dae8a9..63bfa84b45b72 100644
      auto* plugin_info = MakeGarbageCollected<PluginInfo>(
          plugin->name, FilePathToWebString(plugin->filename),
 diff --git third_party/blink/renderer/core/page/plugin_data.h third_party/blink/renderer/core/page/plugin_data.h
-index 8dc24f5d25ace..7203ddcedf877 100644
+index 310319d4595be..491b7705a006c 100644
 --- third_party/blink/renderer/core/page/plugin_data.h
 +++ third_party/blink/renderer/core/page/plugin_data.h
-@@ -97,7 +97,8 @@ class CORE_EXPORT PluginData final : public GarbageCollected<PluginData> {
+@@ -98,7 +98,8 @@ class CORE_EXPORT PluginData final : public GarbageCollected<PluginData> {
    const HeapVector<Member<PluginInfo>>& Plugins() const { return plugins_; }
    const HeapVector<Member<MimeClassInfo>>& Mimes() const { return mimes_; }
    const SecurityOrigin* Origin() const { return main_frame_origin_.get(); }

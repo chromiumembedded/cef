@@ -49,16 +49,12 @@ class CefWindowView
   // CefViewView::GetCefView.
   CefRefPtr<CefWindow> GetCefWindow() const;
 
-  // views::WidgetDelegateView methods:
-  void DeleteDelegate() override;
-
   // views::WidgetDelegate methods:
-  bool CanResize() const override;
   bool CanMinimize() const override;
   bool CanMaximize() const override;
   std::u16string GetWindowTitle() const override;
-  gfx::ImageSkia GetWindowIcon() override;
-  gfx::ImageSkia GetWindowAppIcon() override;
+  ui::ImageModel GetWindowIcon() override;
+  ui::ImageModel GetWindowAppIcon() override;
   void WindowClosing() override;
   views::View* GetContentsView() override;
   views::ClientView* CreateClientView(views::Widget* widget) override;
@@ -101,6 +97,9 @@ class CefWindowView
   views::NonClientFrameView* GetNonClientFrameView() const;
 
  private:
+  // Called when removed from the Widget and before |this| is deleted.
+  void DeleteDelegate();
+
   // Not owned by this object.
   Delegate* window_delegate_;
 

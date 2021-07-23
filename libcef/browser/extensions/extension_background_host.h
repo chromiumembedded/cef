@@ -33,7 +33,8 @@ class CefExtensionBackgroundHost : public ExtensionHost {
   ~CefExtensionBackgroundHost() override;
 
   // content::WebContentsDelegate methods:
-  bool ShouldTransferNavigation(bool is_main_frame_navigation) override;
+  bool ShouldAllowRendererInitiatedCrossProcessNavigation(
+      bool is_main_frame_navigation) override;
 
  private:
   // Callback that will be executed on host deletion.

@@ -12,10 +12,10 @@ index 1a85a7b4a8305..66817eaecd86b 100644
  
  void NativeViewHost::VisibilityChanged(View* starting_from, bool is_visible) {
 diff --git ui/views/controls/native/native_view_host.h ui/views/controls/native/native_view_host.h
-index ab2371857a00a..8dccc190fa896 100644
+index 3ed75e4c9b11e..c4a7318de5dd7 100644
 --- ui/views/controls/native/native_view_host.h
 +++ ui/views/controls/native/native_view_host.h
-@@ -95,6 +95,12 @@ class VIEWS_EXPORT NativeViewHost : public View {
+@@ -94,6 +94,12 @@ class VIEWS_EXPORT NativeViewHost : public View {
    void set_fast_resize(bool fast_resize) { fast_resize_ = fast_resize; }
    bool fast_resize() const { return fast_resize_; }
  
@@ -28,7 +28,7 @@ index ab2371857a00a..8dccc190fa896 100644
    gfx::NativeView native_view() const { return native_view_; }
  
    void NativeViewDestroyed();
-@@ -141,6 +147,9 @@ class VIEWS_EXPORT NativeViewHost : public View {
+@@ -140,6 +146,9 @@ class VIEWS_EXPORT NativeViewHost : public View {
    // in the setter/accessor above.
    bool fast_resize_ = false;
  
@@ -54,7 +54,7 @@ index 75c1f03c6efff..5ed55bb974958 100644
    if (crashed_overlay_view_ == crashed_overlay_view)
      return;
 diff --git ui/views/controls/webview/webview.h ui/views/controls/webview/webview.h
-index 1bb2399d0d139..5bb1fcde4e3bc 100644
+index 71883873f5028..def24d95736fb 100644
 --- ui/views/controls/webview/webview.h
 +++ ui/views/controls/webview/webview.h
 @@ -78,6 +78,10 @@ class WEBVIEW_EXPORT WebView : public View,

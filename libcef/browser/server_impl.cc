@@ -522,7 +522,7 @@ void CefServerImpl::StartOnUIThread(const std::string& address,
       new base::Thread(base::StringPrintf("%s:%d", address.c_str(), port)));
   base::Thread::Options options;
   options.message_pump_type = base::MessagePumpType::IO;
-  if (thread->StartWithOptions(options)) {
+  if (thread->StartWithOptions(std::move(options))) {
     // Add a reference that will be released in ShutdownOnUIThread().
     AddRef();
 

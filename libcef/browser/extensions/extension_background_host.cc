@@ -35,8 +35,9 @@ CefExtensionBackgroundHost::~CefExtensionBackgroundHost() {
   std::move(deleted_callback_).Run();
 }
 
-bool CefExtensionBackgroundHost::ShouldTransferNavigation(
-    bool is_main_frame_navigation) {
+bool CefExtensionBackgroundHost::
+    ShouldAllowRendererInitiatedCrossProcessNavigation(
+        bool is_main_frame_navigation) {
   // Block navigations that cause the main frame to navigate to non-extension
   // content (i.e. to web content).
   return !is_main_frame_navigation;

@@ -483,8 +483,8 @@ class OSRTestHandler : public RoutingTestHandler,
             EXPECT_EQ(kExpandedSelectRect.width, rect.width);
             EXPECT_EQ(kExpandedSelectRect.height, rect.height);
           } else {
-            EXPECT_GT(rect.width, kExpandedSelectRect.width);
-            EXPECT_GT(rect.height, kExpandedSelectRect.height);
+            EXPECT_GE(rect.width, kExpandedSelectRect.width);
+            EXPECT_GE(rect.height, kExpandedSelectRect.height);
           }
           DestroySucceededTestSoon();
           break;
@@ -1385,18 +1385,14 @@ class OSRTestHandler : public RoutingTestHandler,
   }
 
   bool ExpectComputedPopupSize() const {
-#if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MAC))
-    // On Windows the device scale factor is ignored in Blink when computing
+    // The device scale factor is ignored in Blink when computing
     // the default form control font size (see https://crbug.com/674663#c11).
     // This results in better font size display but also means that we won't
     // get the expected (scaled) width/height value for non-1.0 scale factor
     // select popups.
-    // On both Windows and Linux the non-1.0 scale factor size is off by a few
-    // pixels so we can't perform an exact comparison.
+    // The non-1.0 scale factor size is off by a few pixels so we can't perform
+    // an exact comparison.
     return scale_factor_ == 1.0;
-#else
-    return true;
-#endif
   }
 
   void DestroySucceededTestSoon() {

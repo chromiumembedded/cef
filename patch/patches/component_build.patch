@@ -1,16 +1,8 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index 7edfd5dd9c140..f018b8f085e65 100644
+index eec7a23a657a4..982efc615ab06 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
-@@ -11,6 +11,7 @@
- 
- #include <vector>
- 
-+#include "content/common/content_export.h"
- #include "content/common/navigation_params.mojom.h"
- #include "content/public/browser/certificate_request_result_type.h"
- #include "mojo/public/cpp/bindings/pending_receiver.h"
-@@ -81,7 +82,7 @@ bool ApplyUserAgentMetadataOverrides(
+@@ -87,7 +87,7 @@ bool ApplyUserAgentMetadataOverrides(
      FrameTreeNode* frame_tree_node,
      absl::optional<blink::UserAgentMetadata>* override_out);
  

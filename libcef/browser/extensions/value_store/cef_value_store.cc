@@ -60,11 +60,10 @@ ValueStore::ReadResult CefValueStore::Get(
     return ReadResult(CreateStatusCopy(status_));
 
   auto settings = std::make_unique<base::DictionaryValue>();
-  for (std::vector<std::string>::const_iterator it = keys.begin();
-       it != keys.end(); ++it) {
-    base::Value* value = nullptr;
-    if (storage_.GetWithoutPathExpansion(*it, &value)) {
-      settings->SetWithoutPathExpansion(*it, value->CreateDeepCopy());
+  for (const auto& key : keys) {
+    base::Value* value = storage_.FindKey(key);
+    if (value) {
+      settings->SetKey(key, value->Clone());
     }
   }
   return ReadResult(std::move(settings), CreateStatusCopy(status_));
@@ -95,15 +94,14 @@ ValueStore::WriteResult CefValueStore::Set(
   ValueStoreChangeList changes;
   for (base::DictionaryValue::Iterator it(settings); !it.IsAtEnd();
        it.Advance()) {
-    base::Value* old_value = NULL;
-    if (!storage_.GetWithoutPathExpansion(it.key(), &old_value) ||
-        !old_value->Equals(&it.value())) {
+    base::Value* old_value = storage_.FindKey(it.key());
+    if (!old_value || *old_value != it.value()) {
       changes.emplace_back(it.key(),
                            old_value
                                ? absl::optional<base::Value>(old_value->Clone())
                                : absl::nullopt,
                            it.value().Clone());
-      storage_.SetWithoutPathExpansion(it.key(), it.value().CreateDeepCopy());
+      storage_.SetKey(it.key(), it.value().Clone());
     }
   }
   return WriteResult(std::move(changes), CreateStatusCopy(status_));
@@ -120,10 +118,10 @@ ValueStore::WriteResult CefValueStore::Remove(
     return WriteResult(CreateStatusCopy(status_));
 
   ValueStoreChangeList changes;
-  for (auto it = keys.cbegin(); it != keys.cend(); ++it) {
-    std::unique_ptr<base::Value> old_value;
-    if (storage_.RemoveWithoutPathExpansion(*it, &old_value)) {
-      changes.emplace_back(*it, std::move(*old_value), absl::nullopt);
+  for (auto const& key : keys) {
+    absl::optional<base::Value> old_value = storage_.ExtractKey(key);
+    if (old_value.has_value()) {
+      changes.emplace_back(key, std::move(*old_value), absl::nullopt);
     }
   }
   return WriteResult(std::move(changes), CreateStatusCopy(status_));

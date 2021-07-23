@@ -1114,9 +1114,10 @@ content::WebContents* AlloyBrowserHostImpl::OpenURLFromTab(
   return nullptr;
 }
 
-bool AlloyBrowserHostImpl::ShouldTransferNavigation(
+bool AlloyBrowserHostImpl::ShouldAllowRendererInitiatedCrossProcessNavigation(
     bool is_main_frame_navigation) {
-  return platform_delegate_->ShouldTransferNavigation(is_main_frame_navigation);
+  return platform_delegate_->ShouldAllowRendererInitiatedCrossProcessNavigation(
+      is_main_frame_navigation);
 }
 
 void AlloyBrowserHostImpl::AddNewContents(

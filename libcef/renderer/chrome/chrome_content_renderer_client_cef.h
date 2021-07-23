@@ -34,7 +34,7 @@ class ChromeContentRendererClientCef : public ChromeContentRendererClient {
   void RenderThreadStarted() override;
   void RenderThreadConnected() override;
   void RenderFrameCreated(content::RenderFrame* render_frame) override;
-  void RenderViewCreated(content::RenderView* render_view) override;
+  void WebViewCreated(blink::WebView* web_view) override;
   void DevToolsAgentAttached() override;
   void DevToolsAgentDetached() override;
   void ExposeInterfacesToBrowser(mojo::BinderMap* binders) override;

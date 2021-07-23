@@ -27,7 +27,8 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
                       const gfx::Rect& initial_rect,
                       bool user_gesture,
                       bool* was_blocked) override;
-  bool ShouldTransferNavigation(bool is_main_frame_navigation) override;
+  bool ShouldAllowRendererInitiatedCrossProcessNavigation(
+      bool is_main_frame_navigation) override;
   void RenderViewCreated(content::RenderViewHost* render_view_host) override;
   void RenderViewReady() override;
   void BrowserCreated(CefBrowserHostBase* browser) override;

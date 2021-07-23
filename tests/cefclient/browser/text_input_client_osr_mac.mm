@@ -45,8 +45,11 @@ void ExtractUnderlines(NSAttributedString* string,
         color = CefColorFromNSColor(
             [colorAttr colorUsingColorSpaceName:NSDeviceRGBColorSpace]);
       }
-      cef_composition_underline_t line = {
-          {range.location, NSMaxRange(range)}, color, 0, [style intValue] > 1};
+      cef_composition_underline_t line = {{static_cast<int>(range.location),
+                                           static_cast<int>(NSMaxRange(range))},
+                                          color,
+                                          0,
+                                          [style intValue] > 1};
       underlines->push_back(line);
     }
     i = range.location + range.length;
@@ -105,8 +108,8 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
   if (handlingKeyDown_) {
     textToBeInserted_.append([im_text UTF8String]);
   } else {
-    cef_range_t range = {replacementRange.location,
-                         NSMaxRange(replacementRange)};
+    cef_range_t range = {static_cast<int>(replacementRange.location),
+                         static_cast<int>(NSMaxRange(replacementRange))};
     browser_->GetHost()->ImeCommitText([im_text UTF8String], range, 0);
   }
 
@@ -149,8 +152,9 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
   // ongoing composition. Our input method backend will automatically cancel an
   // ongoing composition when we send empty text.
   if (handlingKeyDown_) {
-    setMarkedTextReplacementRange_ = {replacementRange.location,
-                                      NSMaxRange(replacementRange)};
+    setMarkedTextReplacementRange_ = {
+        static_cast<int>(replacementRange.location),
+        static_cast<int>(NSMaxRange(replacementRange))};
   } else if (!handlingKeyDown_) {
     CefRange replacement_range(replacementRange.location,
                                NSMaxRange(replacementRange));

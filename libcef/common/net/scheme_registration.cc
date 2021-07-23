@@ -8,7 +8,7 @@
 #include "libcef/common/net/scheme_info.h"
 #include "libcef/features/runtime.h"
 
-#include "base/stl_util.h"
+#include "base/containers/contains.h"
 #include "content/public/common/url_constants.h"
 #include "extensions/common/constants.h"
 #include "net/net_buildflags.h"

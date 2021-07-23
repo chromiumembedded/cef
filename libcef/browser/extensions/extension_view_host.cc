@@ -61,7 +61,7 @@ bool CefExtensionViewHost::IsBackgroundPage() const {
   return false;
 }
 
-bool CefExtensionViewHost::ShouldTransferNavigation(
+bool CefExtensionViewHost::ShouldAllowRendererInitiatedCrossProcessNavigation(
     bool is_main_frame_navigation) {
   // Block navigations that cause the main frame to navigate to non-extension
   // content (i.e. to web content).

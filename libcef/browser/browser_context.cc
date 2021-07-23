@@ -164,7 +164,7 @@ CefBrowserContext::CookieableSchemes MakeSupportedSchemes(
     all_schemes.push_back("wss");
   }
 
-  return base::make_optional(all_schemes);
+  return absl::make_optional(all_schemes);
 }
 
 }  // namespace

@@ -16,7 +16,7 @@
 CefBrowserFrame::CefBrowserFrame(
     content::RenderFrameHost* render_frame_host,
     mojo::PendingReceiver<cef::mojom::BrowserFrame> receiver)
-    : FrameServiceBase(render_frame_host, std::move(receiver)) {}
+    : DocumentServiceBase(render_frame_host, std::move(receiver)) {}
 
 CefBrowserFrame::~CefBrowserFrame() = default;
 
@@ -28,7 +28,7 @@ void CefBrowserFrame::RegisterBrowserInterfaceBindersForFrame(
       [](content::RenderFrameHost* frame_host,
          mojo::PendingReceiver<cef::mojom::BrowserFrame> receiver) {
         // This object is bound to the lifetime of |frame_host| and the mojo
-        // connection. See FrameServiceBase for details.
+        // connection. See DocumentServiceBase for details.
         new CefBrowserFrame(frame_host, std::move(receiver));
       }));
 }

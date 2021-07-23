@@ -59,7 +59,7 @@ void FillInDictionaryFromPdfPrintSettings(
     base::DictionaryValue& print_settings) {
   // Fixed settings.
   print_settings.SetIntKey(kSettingPrinterType,
-                           static_cast<int>(PrinterType::kPdf));
+                           static_cast<int>(mojom::PrinterType::kPdf));
   print_settings.SetInteger(kSettingColor,
                             static_cast<int>(mojom::ColorModel::kGray));
   print_settings.SetInteger(kSettingDuplexMode,

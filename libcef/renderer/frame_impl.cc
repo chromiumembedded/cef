@@ -279,15 +279,12 @@ std::unique_ptr<blink::WebURLLoader> CefFrameImpl::CreateURLLoader() {
   if (!url_loader_factory_)
     return nullptr;
 
-  // KeepAlive is not supported.
-  mojo::PendingRemote<blink::mojom::KeepAliveHandle> keep_alive_handle =
-      mojo::NullRemote();
-
   return url_loader_factory_->CreateURLLoader(
       blink::WebURLRequest(),
       blink_glue::CreateResourceLoadingTaskRunnerHandle(frame_),
       blink_glue::CreateResourceLoadingMaybeUnfreezableTaskRunnerHandle(frame_),
-      std::move(keep_alive_handle), blink::WebBackForwardCacheLoaderHelper());
+      /*keep_alive_handle=*/mojo::NullRemote(),
+      blink::WebBackForwardCacheLoaderHelper());
 }
 
 std::unique_ptr<blink::ResourceLoadInfoNotifierWrapper>
@@ -357,7 +354,7 @@ void CefFrameImpl::OnDraggableRegionsChanged() {
   if (browser_frame) {
     browser_frame->UpdateDraggableRegions(
         regions.empty() ? absl::nullopt
-                        : base::make_optional(std::move(regions)));
+                        : absl::make_optional(std::move(regions)));
   }
 }
 

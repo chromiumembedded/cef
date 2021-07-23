@@ -298,6 +298,9 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     registry->RegisterFilePathPref(prefs::kDiskCacheDir, cache_path);
     registry->RegisterIntegerPref(prefs::kDiskCacheSize, 0);
 
+    // Based on Profile::RegisterProfilePrefs.
+    registry->RegisterBooleanPref(prefs::kSearchSuggestEnabled, false);
+
     // Spell checking preferences.
     // Modify defaults from SpellcheckServiceFactory::RegisterProfilePrefs.
     std::string spellcheck_lang =

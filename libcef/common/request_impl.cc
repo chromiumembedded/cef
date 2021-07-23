@@ -102,9 +102,9 @@ int GetCacheControlHeaderPolicy(CefRequest::HeaderMap headerMap) {
 
 // Convert cef_urlrequest_flags_t to blink::WebCachePolicy.
 blink::mojom::FetchCacheMode GetFetchCacheMode(int ur_flags) {
-  const bool skip_cache{ur_flags & UR_FLAG_SKIP_CACHE};
-  const bool only_from_cache{ur_flags & UR_FLAG_ONLY_FROM_CACHE};
-  const bool disable_cache{ur_flags & UR_FLAG_DISABLE_CACHE};
+  const bool skip_cache{!!(ur_flags & UR_FLAG_SKIP_CACHE)};
+  const bool only_from_cache{!!(ur_flags & UR_FLAG_ONLY_FROM_CACHE)};
+  const bool disable_cache{!!(ur_flags & UR_FLAG_DISABLE_CACHE)};
   if (only_from_cache && (skip_cache || disable_cache)) {
     // The request will always fail because only_from_cache and
     // skip_cache/disable_cache are mutually exclusive.

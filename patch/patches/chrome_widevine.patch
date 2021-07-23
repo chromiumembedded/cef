@@ -1,11 +1,11 @@
 diff --git third_party/widevine/cdm/BUILD.gn third_party/widevine/cdm/BUILD.gn
-index 24668a4acf22d..ac1f02c0779e4 100644
+index 91bcefa2f0698..9a5759239e590 100644
 --- third_party/widevine/cdm/BUILD.gn
 +++ third_party/widevine/cdm/BUILD.gn
-@@ -7,6 +7,7 @@ import("//build/config/chrome_build.gni")
- import("//build/config/chromeos/ui_mode.gni")
+@@ -8,6 +8,7 @@ import("//build/config/chromeos/ui_mode.gni")
  import("//build/config/chromeos/ui_mode.gni")
  import("//build/config/features.gni")
+ import("//build/toolchain/toolchain.gni")
 +import("//cef/libcef/features/features.gni")
  import("//media/cdm/library_cdm/cdm_paths.gni")
  import("//media/media_options.gni")

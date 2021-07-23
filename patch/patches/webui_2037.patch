@@ -1,5 +1,5 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index 70cf0998fc4af..cdf1421f33dd6 100644
+index 462eb546fbd94..f75ea77326f33 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 @@ -10,6 +10,7 @@
@@ -20,13 +20,13 @@ index 70cf0998fc4af..cdf1421f33dd6 100644
  #include "chrome/browser/data_reduction_proxy/data_reduction_proxy_chrome_settings_factory.h"
 @@ -29,6 +31,7 @@
  #include "chrome/browser/profiles/profile_manager.h"
- #include "chrome/browser/sync/profile_sync_service_factory.h"
+ #include "chrome/browser/sync/sync_service_factory.h"
  #include "chrome/common/channel_info.h"
 +#include "chrome/common/chrome_switches.h"
  #include "components/prefs/pref_service.h"
  #include "components/sync/driver/sync_internals_util.h"
  #include "components/sync/driver/sync_service.h"
-@@ -336,7 +339,11 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
+@@ -334,7 +337,11 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
    response->emplace(kOsVersionTag, os_version);
  #endif
  
@@ -39,7 +39,7 @@ index 70cf0998fc4af..cdf1421f33dd6 100644
    PopulateExtensionInfoLogs(response.get());
    PopulatePowerApiLogs(response.get());
    PopulateDataReductionProxyLogs(response.get());
-@@ -410,6 +417,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
+@@ -408,6 +415,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
    if (!profile)
      return;
  
@@ -52,7 +52,7 @@ index 70cf0998fc4af..cdf1421f33dd6 100644
    extensions::ExtensionRegistry* extension_registry =
        extensions::ExtensionRegistry::Get(profile);
    std::string extensions_list;
-@@ -517,6 +530,8 @@ void ChromeInternalLogSource::PopulateOnboardingTime(
+@@ -515,6 +528,8 @@ void ChromeInternalLogSource::PopulateOnboardingTime(
  #if defined(OS_WIN)
  void ChromeInternalLogSource::PopulateUsbKeyboardDetected(
      SystemLogsResponse* response) {
@@ -62,7 +62,7 @@ index 70cf0998fc4af..cdf1421f33dd6 100644
    bool result =
        base::win::IsKeyboardPresentOnSlate(ui::GetHiddenWindow(), &reason);
 diff --git chrome/browser/memory_details.cc chrome/browser/memory_details.cc
-index 8e508bf8372ac..ef890e84ffe0f 100644
+index 77538809e177d..256ab01bf7704 100644
 --- chrome/browser/memory_details.cc
 +++ chrome/browser/memory_details.cc
 @@ -17,6 +17,7 @@

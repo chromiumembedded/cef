@@ -45,6 +45,7 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/common/content_switches.h"
 #include "media/base/video_frame.h"
+#include "media/capture/mojom/video_capture_buffer.mojom.h"
 #include "ui/compositor/compositor.h"
 #include "ui/events/blink/blink_event_util.h"
 #include "ui/events/gesture_detection/gesture_provider_config_helper.h"
@@ -60,8 +61,8 @@ const size_t kMaxDamageRects = 10;
 
 const float kDefaultScaleFactor = 1.0;
 
-blink::ScreenInfo ScreenInfoFrom(const CefScreenInfo& src) {
-  blink::ScreenInfo screenInfo;
+display::ScreenInfo ScreenInfoFrom(const CefScreenInfo& src) {
+  display::ScreenInfo screenInfo;
   screenInfo.device_scale_factor = src.device_scale_factor;
   screenInfo.depth = src.depth;
   screenInfo.depth_per_component = src.depth_per_component;
@@ -684,7 +685,7 @@ void CefRenderWidgetHostViewOSR::CopyFromSurface(
   }
 }
 
-void CefRenderWidgetHostViewOSR::GetScreenInfo(blink::ScreenInfo* results) {
+void CefRenderWidgetHostViewOSR::GetScreenInfo(display::ScreenInfo* results) {
   if (!browser_impl_.get())
     return;
 

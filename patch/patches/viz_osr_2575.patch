@@ -80,10 +80,10 @@ index 1026b739d283f..fe562ab60ce98 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 2ff8732060011..21c94aacc96ef 100644
+index 4e93b8609553e..97f52868bb68a 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -204,6 +204,8 @@ viz_component("service") {
+@@ -206,6 +206,8 @@ viz_component("service") {
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
      "viz_service_export.h",
@@ -93,7 +93,7 @@ index 2ff8732060011..21c94aacc96ef 100644
  
    defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index bd64ee19f7169..2f5bae8a7c1b4 100644
+index 827084542417d..73f44ba997497 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
 @@ -16,6 +16,7 @@
@@ -104,7 +104,7 @@ index bd64ee19f7169..2f5bae8a7c1b4 100644
  #include "components/viz/common/display/renderer_settings.h"
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
  #include "components/viz/service/display/display_compositor_memory_and_task_controller.h"
-@@ -256,6 +257,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+@@ -255,6 +256,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
    if (headless_)
      return std::make_unique<SoftwareOutputDevice>();
  
@@ -142,7 +142,7 @@ index 599b06c1765ef..e8ae98b0b1320 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 83a23404d1c02..7870327028592 100644
+index 50ff2c9facc2a..c34d1f28d2e90 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
 @@ -395,8 +395,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
@@ -214,10 +214,10 @@ index 6b7fbb6cf13dc..e2af75168cb91 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index fe4e33a62087c..503965e575df3 100644
+index dfb0c89dc7bd8..4b54ea85c0298 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
-@@ -28,7 +28,9 @@
+@@ -29,7 +29,9 @@
  #include "components/viz/common/frame_sinks/begin_frame_args.h"
  #include "components/viz/common/surfaces/frame_sink_id.h"
  #include "components/viz/common/surfaces/subtree_capture_id.h"
@@ -226,8 +226,8 @@ index fe4e33a62087c..503965e575df3 100644
 +#include "components/viz/service/display/software_output_device.h"
  #include "mojo/public/cpp/bindings/pending_remote.h"
  #include "services/viz/privileged/mojom/compositing/vsync_parameter_observer.mojom-forward.h"
- #include "third_party/skia/include/core/SkColor.h"
-@@ -136,6 +138,14 @@ class COMPOSITOR_EXPORT ContextFactory {
+ #include "skia/ext/skia_matrix_44.h"
+@@ -137,6 +139,14 @@ class COMPOSITOR_EXPORT ContextFactory {
    virtual viz::HostFrameSinkManager* GetHostFrameSinkManager() = 0;
  };
  
@@ -242,7 +242,7 @@ index fe4e33a62087c..503965e575df3 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -171,6 +181,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -172,6 +182,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -252,7 +252,7 @@ index fe4e33a62087c..503965e575df3 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -442,6 +455,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -443,6 +456,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
  
    std::unique_ptr<PendingBeginFrameArgs> pending_begin_frame_args_;
  

@@ -372,3 +372,9 @@ BuildState* ChromeBrowserProcessAlloy::GetBuildState() {
   NOTREACHED();
   return nullptr;
 }
+
+SerialPolicyAllowedPorts*
+ChromeBrowserProcessAlloy::serial_policy_allowed_ports() {
+  NOTREACHED();
+  return nullptr;
+}

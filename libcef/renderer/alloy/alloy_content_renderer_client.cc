@@ -64,7 +64,6 @@
 #include "components/spellcheck/renderer/spellcheck_provider.h"
 #include "components/visitedlink/renderer/visitedlink_reader.h"
 #include "components/web_cache/renderer/web_cache_impl.h"
-#include "content/common/frame_messages.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_process_host.h"
@@ -309,13 +308,13 @@ void AlloyContentRendererClient::RenderFrameCreated(
   }
 }
 
-void AlloyContentRendererClient::RenderViewCreated(
-    content::RenderView* render_view) {
+void AlloyContentRendererClient::WebViewCreated(blink::WebView* web_view) {
   bool browser_created;
   absl::optional<bool> is_windowless;
-  render_manager_->RenderViewCreated(render_view, browser_created,
-                                     is_windowless);
+  render_manager_->WebViewCreated(web_view, browser_created, is_windowless);
   if (browser_created) {
+    auto render_view = content::RenderView::FromWebView(web_view);
+    CHECK(render_view);
     OnBrowserCreated(render_view, is_windowless);
   }
 }

@@ -138,7 +138,7 @@ class CaptionlessFrameView : public views::NonClientFrameView {
     // fullscreen, as it can't be resized in those states.
     int resize_border_thickness = ResizeBorderThickness();
     int frame_component = GetHTComponentForFrame(
-        point, resize_border_thickness, resize_border_thickness,
+        point, gfx::Insets(resize_border_thickness, resize_border_thickness),
         kResizeAreaCornerSize, kResizeAreaCornerSize, can_ever_resize);
     if (frame_component != HTNOWHERE)
       return frame_component;
@@ -260,12 +260,20 @@ void CefWindowView::CreateWidget() {
   params.type = views::Widget::InitParams::TYPE_WINDOW;
   bool can_activate = true;
 
+  // WidgetDelegate::DeleteDelegate() will delete |this| after executing the
+  // registered callback.
+  SetOwnedByWidget(true);
+  RegisterDeleteDelegateCallback(
+      base::BindOnce(&CefWindowView::DeleteDelegate, base::Unretained(this)));
+
   if (cef_delegate()) {
     CefRefPtr<CefWindow> cef_window = GetCefWindow();
     is_frameless_ = cef_delegate()->IsFrameless(cef_window);
 
     auto bounds = cef_delegate()->GetInitialBounds(cef_window);
     params.bounds = gfx::Rect(bounds.x, bounds.y, bounds.width, bounds.height);
+
+    SetCanResize(cef_delegate()->CanResize(cef_window));
 
     bool is_menu = false;
     bool can_activate_menu = true;
@@ -335,15 +343,6 @@ void CefWindowView::DeleteDelegate() {
   RemoveAllChildViews(true);
 
   window_delegate_->OnWindowViewDeleted();
-
-  // Deletes |this|.
-  views::WidgetDelegateView::DeleteDelegate();
-}
-
-bool CefWindowView::CanResize() const {
-  if (!cef_delegate())
-    return true;
-  return cef_delegate()->CanResize(GetCefWindow());
 }
 
 bool CefWindowView::CanMinimize() const {
@@ -362,18 +361,22 @@ std::u16string CefWindowView::GetWindowTitle() const {
   return title_;
 }
 
-gfx::ImageSkia CefWindowView::GetWindowIcon() {
+ui::ImageModel CefWindowView::GetWindowIcon() {
   if (!window_icon_)
     return ParentClass::GetWindowIcon();
-  return static_cast<CefImageImpl*>(window_icon_.get())
-      ->GetForced1xScaleRepresentation(GetDisplay().device_scale_factor());
+  auto image_skia =
+      static_cast<CefImageImpl*>(window_icon_.get())
+          ->GetForced1xScaleRepresentation(GetDisplay().device_scale_factor());
+  return ui::ImageModel::FromImageSkia(image_skia);
 }
 
-gfx::ImageSkia CefWindowView::GetWindowAppIcon() {
+ui::ImageModel CefWindowView::GetWindowAppIcon() {
   if (!window_app_icon_)
     return ParentClass::GetWindowAppIcon();
-  return static_cast<CefImageImpl*>(window_app_icon_.get())
-      ->GetForced1xScaleRepresentation(GetDisplay().device_scale_factor());
+  auto image_skia =
+      static_cast<CefImageImpl*>(window_app_icon_.get())
+          ->GetForced1xScaleRepresentation(GetDisplay().device_scale_factor());
+  return ui::ImageModel::FromImageSkia(image_skia);
 }
 
 void CefWindowView::WindowClosing() {

@@ -101,14 +101,14 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   prefs->inactive_selection_fg_color = SkColorSetRGB(50, 50, 50);
 
   // Set font-related attributes.
-  static const base::NoDestructor<gfx::FontRenderParams> params(
+  static const gfx::FontRenderParams params(
       gfx::GetFontRenderParams(gfx::FontRenderParamsQuery(), nullptr));
-  prefs->should_antialias_text = params->antialiasing;
-  prefs->use_subpixel_positioning = params->subpixel_positioning;
-  prefs->hinting = params->hinting;
-  prefs->use_autohinter = params->autohinter;
-  prefs->use_bitmaps = params->use_bitmaps;
-  prefs->subpixel_rendering = params->subpixel_rendering;
+  prefs->should_antialias_text = params.antialiasing;
+  prefs->use_subpixel_positioning = params.subpixel_positioning;
+  prefs->hinting = params.hinting;
+  prefs->use_autohinter = params.autohinter;
+  prefs->use_bitmaps = params.use_bitmaps;
+  prefs->subpixel_rendering = params.subpixel_rendering;
 
   web_contents_->SyncRendererPrefs();
 

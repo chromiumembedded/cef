@@ -110,7 +110,9 @@ void CefAudioCapturer::Capture(const media::AudioBus* source,
                                       pts.InMilliseconds());
 }
 
-void CefAudioCapturer::OnCaptureError(const std::string& message) {
+void CefAudioCapturer::OnCaptureError(
+    media::AudioCapturerSource::ErrorCode code,
+    const std::string& message) {
   audio_handler_->OnAudioStreamError(browser_, message);
   StopStream();
 }

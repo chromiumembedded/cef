@@ -1,5 +1,5 @@
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index 99455d0c26355..d64e53232822a 100644
+index bae294fef1f8b..06d2dfcecc956 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -21,6 +21,7 @@
@@ -42,10 +42,10 @@ index 99455d0c26355..d64e53232822a 100644
      // change.
      network_context_params->http_server_properties_path =
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index 4183288fd5da1..2ecb3ed351bba 100644
+index e2e1e9acb3605..f0b22ab2dce9d 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
-@@ -515,6 +515,25 @@ void CookieMonster::SetCookieableSchemes(
+@@ -506,6 +506,25 @@ void CookieMonster::SetCookieableSchemes(
    MaybeRunCookieCallback(std::move(callback), true);
  }
  
@@ -72,7 +72,7 @@ index 4183288fd5da1..2ecb3ed351bba 100644
  void CookieMonster::SetPersistSessionCookies(bool persist_session_cookies) {
    DCHECK(thread_checker_.CalledOnValidThread());
 diff --git net/cookies/cookie_monster.h net/cookies/cookie_monster.h
-index ef391b3cb94f1..8962106d08688 100644
+index 4b24d429aabb4..fbfa765aba86a 100644
 --- net/cookies/cookie_monster.h
 +++ net/cookies/cookie_monster.h
 @@ -182,6 +182,8 @@ class NET_EXPORT CookieMonster : public CookieStore {
@@ -123,10 +123,10 @@ index a397306372054..8a1bacea8d70c 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index e606e81f99451..89c29adfb3a09 100644
+index a38eeaf6e58af..02ec2034afc8a 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2003,16 +2003,27 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2052,16 +2052,27 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
          network_service_->network_quality_estimator());
    }
  
@@ -157,10 +157,10 @@ index e606e81f99451..89c29adfb3a09 100644
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
  
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index e24ec4cb3c49a..b8d3aec99d8af 100644
+index 25d6c99d4f6be..2c6cf5a907d16 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -252,6 +252,9 @@ struct NetworkContextParams {
+@@ -249,6 +249,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  

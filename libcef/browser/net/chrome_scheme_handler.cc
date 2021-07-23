@@ -44,7 +44,6 @@
 #include "content/public/common/url_constants.h"
 #include "content/public/common/url_utils.h"
 #include "content/public/common/user_agent.h"
-#include "content/public/test/scoped_web_ui_controller_factory_registration.h"
 #include "ipc/ipc_channel.h"
 #include "third_party/blink/public/common/chrome_debug_urls.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -641,9 +640,7 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
   static CefWebUIControllerFactory* GetInstance();
 
  protected:
-  CefWebUIControllerFactory()
-      : remove_content_registration_(
-            content::ContentWebUIControllerFactory::GetInstance()) {}
+  CefWebUIControllerFactory() {}
   ~CefWebUIControllerFactory() override {}
 
  private:
@@ -666,9 +663,6 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     return false;
   }
 
-  content::ScopedWebUIControllerFactoryRegistration
-      remove_content_registration_;
-
   DISALLOW_COPY_AND_ASSIGN(CefWebUIControllerFactory);
 };
 
@@ -684,6 +678,9 @@ CefWebUIControllerFactory* CefWebUIControllerFactory::GetInstance() {
 
 void RegisterWebUIControllerFactory() {
   // Channel all WebUI handling through CefWebUIControllerFactory.
+  content::WebUIControllerFactory::UnregisterFactoryForTesting(
+      content::ContentWebUIControllerFactory::GetInstance());
+
   content::WebUIControllerFactory::RegisterFactory(
       CefWebUIControllerFactory::GetInstance());
 }
