@@ -10,10 +10,13 @@
 
 #include "base/memory/weak_ptr.h"
 #include "chrome/browser/profiles/profile_manager.h"
+#include "chrome/browser/profiles/profile_observer.h"
+
+class ScopedProfileKeepAlive;
 
 // See CefBrowserContext documentation for usage. Only accessed on the UI thread
 // unless otherwise indicated.
-class ChromeBrowserContext : public CefBrowserContext {
+class ChromeBrowserContext : public CefBrowserContext, public ProfileObserver {
  public:
   explicit ChromeBrowserContext(const CefRequestContextSettings& settings);
 
@@ -26,6 +29,9 @@ class ChromeBrowserContext : public CefBrowserContext {
   void StoreOrTriggerInitCallback(base::OnceClosure callback) override;
   void Shutdown() override;
 
+  // ProfileObserver overrides.
+  void OnProfileWillBeDestroyed(Profile* profile) override;
+
  private:
   ~ChromeBrowserContext() override;
 
@@ -34,6 +40,9 @@ class ChromeBrowserContext : public CefBrowserContext {
   base::OnceClosure initialized_cb_;
   Profile* profile_ = nullptr;
   bool should_destroy_ = false;
+
+  bool destroyed_ = false;
+  std::unique_ptr<ScopedProfileKeepAlive> profile_keep_alive_;
 
   std::vector<base::OnceClosure> init_callbacks_;
 

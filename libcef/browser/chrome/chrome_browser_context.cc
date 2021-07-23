@@ -8,6 +8,8 @@
 
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profiles/off_the_record_profile_impl.h"
+#include "chrome/browser/profiles/profile_keep_alive_types.h"
+#include "chrome/browser/profiles/scoped_profile_keep_alive.h"
 
 ChromeBrowserContext::ChromeBrowserContext(
     const CefRequestContextSettings& settings)
@@ -16,15 +18,18 @@ ChromeBrowserContext::ChromeBrowserContext(
 ChromeBrowserContext::~ChromeBrowserContext() = default;
 
 content::BrowserContext* ChromeBrowserContext::AsBrowserContext() {
+  CHECK(!destroyed_);
   return profile_;
 }
 
 Profile* ChromeBrowserContext::AsProfile() {
+  CHECK(!destroyed_);
   return profile_;
 }
 
 bool ChromeBrowserContext::IsInitialized() const {
   CEF_REQUIRE_UIT();
+  CHECK(!destroyed_);
   return !!profile_;
 }
 
@@ -73,13 +78,21 @@ void ChromeBrowserContext::InitializeAsync(base::OnceClosure initialized_cb) {
 
 void ChromeBrowserContext::Shutdown() {
   CefBrowserContext::Shutdown();
+
+  // Allow potential deletion of the Profile at some future point (controlled
+  // by ProfileManager).
+  profile_keep_alive_.reset();
+
   // |g_browser_process| may be nullptr during shutdown.
-  if (should_destroy_ && g_browser_process) {
-    g_browser_process->profile_manager()
-        ->GetPrimaryUserProfile()
-        ->DestroyOffTheRecordProfile(profile_);
+  if (g_browser_process) {
+    if (should_destroy_) {
+      g_browser_process->profile_manager()
+          ->GetPrimaryUserProfile()
+          ->DestroyOffTheRecordProfile(profile_);
+    } else if (profile_) {
+      OnProfileWillBeDestroyed(profile_);
+    }
   }
-  profile_ = nullptr;
 }
 
 void ChromeBrowserContext::ProfileCreated(Profile* profile,
@@ -107,6 +120,9 @@ void ChromeBrowserContext::ProfileCreated(Profile* profile,
     // *CREATED isn't always sent for a disk-based profile that already
     // exists.
     profile_ = profile;
+    profile_->AddObserver(this);
+    profile_keep_alive_.reset(new ScopedProfileKeepAlive(
+        profile_, ProfileKeepAliveOrigin::kAppWindow));
   }
 
   if (status == Profile::CreateStatus::CREATE_STATUS_INITIALIZED) {
@@ -127,4 +143,11 @@ void ChromeBrowserContext::ProfileCreated(Profile* profile,
       init_callbacks_.clear();
     }
   }
+}
+
+void ChromeBrowserContext::OnProfileWillBeDestroyed(Profile* profile) {
+  CHECK_EQ(profile_, profile);
+  profile_->RemoveObserver(this);
+  profile_ = nullptr;
+  destroyed_ = true;
 }
