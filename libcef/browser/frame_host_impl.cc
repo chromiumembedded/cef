@@ -427,18 +427,22 @@ content::RenderFrameHost* CefFrameHostImpl::GetRenderFrameHost() const {
   return render_frame_host_;
 }
 
-void CefFrameHostImpl::Detach() {
+bool CefFrameHostImpl::Detach() {
   CEF_REQUIRE_UIT();
+
+  // May be called multiple times (e.g. from CefBrowserInfo SetMainFrame and
+  // RemoveFrame).
+  bool first_detach = false;
 
   // Should not be called for temporary frames.
   DCHECK(!is_temporary());
 
   {
     base::AutoLock lock_scope(state_lock_);
-
-    // Should be called only once.
-    DCHECK(browser_info_);
-    browser_info_ = nullptr;
+    if (browser_info_) {
+      first_detach = true;
+      browser_info_ = nullptr;
+    }
   }
 
   // In case we never attached, clean up.
@@ -449,6 +453,8 @@ void CefFrameHostImpl::Detach() {
   render_frame_.reset();
   render_frame_host_ = nullptr;
   is_attached_ = false;
+
+  return first_detach;
 }
 
 // static

@@ -115,8 +115,9 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
 
   // Owned frame objects will be detached explicitly when the associated
   // RenderFrame is deleted. Temporary frame objects will be detached
-  // implicitly via CefBrowserInfo::browser() returning nullptr.
-  void Detach();
+  // implicitly via CefBrowserInfo::browser() returning nullptr. Returns true
+  // if this was the first call to Detach() for the frame.
+  bool Detach();
 
   // cef::mojom::BrowserFrame methods forwarded from CefBrowserFrame.
   void SendMessage(const std::string& name, base::Value arguments) override;
