@@ -4,6 +4,7 @@
 
 #include <limits>
 #include <map>
+#include <memory>
 #include <queue>
 #include <sstream>
 #include <string>
@@ -101,9 +102,18 @@ struct FrameStatus {
   int64 frame_id() const { return frame_id_; }
   bool is_main() const { return is_main_; }
 
-  bool AllQueriesDelivered() const {
+  bool AllQueriesDelivered(std::string* msg = nullptr) const {
     EXPECT_UI_THREAD();
-    return delivered_query_ct_ == expected_query_ct_;
+    const int expected_ct = is_temporary_ ? 0 : expected_query_ct_;
+#if VERBOSE_DEBUGGING
+    if (msg) {
+      std::stringstream ss;
+      ss << ident_str_ << "(expected=" << expected_ct
+         << " delivered=" << delivered_query_ct_ << ")";
+      *msg += ss.str();
+    }
+#endif
+    return delivered_query_ct_ == expected_ct;
   }
   int QueriesDeliveredCount() const {
     EXPECT_UI_THREAD();
@@ -114,7 +124,22 @@ struct FrameStatus {
     return frame->GetIdentifier() == frame_id();
   }
 
-  bool IsLoaded() const { return got_callback_[LOAD_END]; }
+  bool IsLoaded(std::string* msg = nullptr) const {
+#if VERBOSE_DEBUGGING
+    if (msg) {
+      std::stringstream ss;
+      ss << ident_str_ << "(";
+      for (int i = 0; i <= LOAD_END; ++i) {
+        ss << GetCallbackName(i) << "=" << got_callback_[i];
+        if (i < LOAD_END)
+          ss << " ";
+      }
+      ss << ")";
+      *msg += ss.str();
+    }
+#endif
+    return got_callback_[LOAD_END];
+  }
   bool IsDetached() const { return got_callback_[FRAME_DETACHED]; }
 
   void SetIsFirstMain(bool val) {
@@ -129,6 +154,12 @@ struct FrameStatus {
     EXPECT_TRUE(is_main_);
     is_last_main_ = val;
   }
+
+  void SetIsTemporary(bool val) {
+    EXPECT_FALSE(is_main_);
+    is_temporary_ = val;
+  }
+  bool IsTemporary() const { return is_temporary_; }
 
   void SetAdditionalDebugInfo(const std::string& debug_info) {
     debug_info_ = debug_info;
@@ -297,13 +328,19 @@ struct FrameStatus {
     // Verify that all expected callbacks have executed.
     VerifyCallbackStatus(__FUNCTION__, CALLBACK_LAST + 1);
 
-    // Verify that all expected messages have been sent and received.
-    EXPECT_EQ(expected_query_ct_, delivered_query_ct_);
-    EXPECT_EQ(0U, pending_queries_.size());
-    while (!pending_queries_.empty()) {
-      ADD_FAILURE() << "Query sent but not received: "
-                    << pending_queries_.front();
-      pending_queries_.pop();
+    if (is_temporary_) {
+      // Should not receive any queries.
+      EXPECT_FALSE(is_main_);
+      EXPECT_EQ(0, delivered_query_ct_);
+    } else {
+      // Verify that all expected messages have been sent and received.
+      EXPECT_EQ(expected_query_ct_, delivered_query_ct_);
+      EXPECT_EQ(0U, pending_queries_.size());
+      while (!pending_queries_.empty()) {
+        ADD_FAILURE() << "Query sent but not received: "
+                      << pending_queries_.front();
+        pending_queries_.pop();
+      }
     }
   }
 
@@ -340,6 +377,14 @@ struct FrameStatus {
       if (callback == MAIN_FRAME_CHANGED_REMOVED && is_last_main_) {
         return false;
       }
+    } else if (is_temporary_) {
+      // For cross-process sub-frame navigation a sub-frame is first created in
+      // the parent's renderer process. That sub-frame is then discarded after
+      // the real cross-origin sub-frame is created in a different renderer
+      // process. These discarded sub-frames will get OnFrameCreated/
+      // OnFrameAttached immediately followed by OnFrameDetached.
+      return callback == FRAME_CREATED || callback == FRAME_ATTACHED ||
+             callback == FRAME_DETACHED;
     }
 
     return true;
@@ -442,6 +487,7 @@ struct FrameStatus {
 
   bool is_first_main_ = false;
   bool is_last_main_ = false;
+  bool is_temporary_ = false;
   std::string debug_info_;
 
   bool got_before_close_ = false;
@@ -642,22 +688,35 @@ class OrderMainTestHandler : public RoutingTestHandler, public CefFrameHandler {
 
   virtual std::string GetAdditionalDebugInfo() const { return std::string(); }
 
-  virtual bool AllQueriesDelivered() const {
+  virtual bool AllQueriesDelivered(std::string* msg = nullptr) const {
     EXPECT_UI_THREAD();
     if (pending_main_frame_)
       return false;
-    return current_main_frame_->AllQueriesDelivered();
+    return current_main_frame_->AllQueriesDelivered(msg);
   }
 
-  virtual bool AllFramesLoaded() const {
+  virtual bool AllFramesLoaded(std::string* msg = nullptr) const {
     EXPECT_UI_THREAD();
     if (pending_main_frame_)
       return false;
-    return current_main_frame_->IsLoaded();
+    return current_main_frame_->IsLoaded(msg);
   }
 
   void MaybeDestroyTest() {
+#if VERBOSE_DEBUGGING
+    std::string delivered_msg, loaded_msg;
+    const bool all_queries_delivered = AllQueriesDelivered(&delivered_msg);
+    const bool all_frames_loaded = AllFramesLoaded(&loaded_msg);
+    LOG(INFO) << (current_main_frame_ ? current_main_frame_->GetDebugString()
+                                      : "")
+              << " AllQueriesDelivered=" << all_queries_delivered << " {"
+              << delivered_msg << "}"
+              << " AllFramesLoaded=" << all_frames_loaded << " {" << loaded_msg
+              << "}";
+    if (all_queries_delivered && all_frames_loaded) {
+#else
     if (AllQueriesDelivered() && AllFramesLoaded()) {
+#endif
       const std::string& next_url = GetNextMainURL();
       if (!next_url.empty()) {
         if (!IsCrossOrigin()) {
@@ -818,8 +877,14 @@ class FrameStatusMap {
       : expected_frame_ct_(expected_frame_ct) {}
   ~FrameStatusMap() { EXPECT_TRUE(frame_map_.empty()); }
 
+  bool Contains(CefRefPtr<CefFrame> frame) const {
+    return frame_map_.find(frame->GetIdentifier()) != frame_map_.end();
+  }
+
   FrameStatus* CreateFrameStatus(CefRefPtr<CefFrame> frame) {
     EXPECT_UI_THREAD();
+
+    EXPECT_LT(size(), expected_frame_ct_);
 
     const int64 id = frame->GetIdentifier();
     EXPECT_NE(kInvalidFrameId, id);
@@ -854,27 +919,57 @@ class FrameStatusMap {
     }
   }
 
-  bool AllQueriesDelivered() const {
-    if (size() != expected_frame_ct_)
+  bool AllQueriesDelivered(std::string* msg = nullptr) const {
+    if (size() != expected_frame_ct_) {
+#if VERBOSE_DEBUGGING
+      if (msg) {
+        std::stringstream ss;
+        ss << " SUB COUNT MISMATCH! size=" << size()
+           << " expected=" << expected_frame_ct_;
+        *msg += ss.str();
+      }
+#endif
       return false;
+    }
 
     Map::const_iterator it = frame_map_.begin();
     for (; it != frame_map_.end(); ++it) {
-      if (!it->second->AllQueriesDelivered())
+      if (!it->second->AllQueriesDelivered(msg)) {
+#if VERBOSE_DEBUGGING
+        if (msg) {
+          *msg += " " + it->second->GetDebugString() + " PENDING";
+        }
+#endif
         return false;
+      }
     }
 
     return true;
   }
 
-  bool AllFramesLoaded() const {
-    if (size() != expected_frame_ct_)
+  bool AllFramesLoaded(std::string* msg = nullptr) const {
+    if (size() != expected_frame_ct_) {
+#if VERBOSE_DEBUGGING
+      if (msg) {
+        std::stringstream ss;
+        ss << " SUB COUNT MISMATCH! size=" << size()
+           << " expected=" << expected_frame_ct_;
+        *msg += ss.str();
+      }
+#endif
       return false;
+    }
 
     Map::const_iterator it = frame_map_.begin();
     for (; it != frame_map_.end(); ++it) {
-      if (!it->second->IsLoaded())
+      if (!it->second->IsTemporary() && !it->second->IsLoaded(msg)) {
+#if VERBOSE_DEBUGGING
+        if (msg) {
+          *msg += " " + it->second->GetDebugString() + " PENDING";
+        }
+#endif
         return false;
+      }
     }
 
     return true;
@@ -923,14 +1018,14 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
     SUBFRAME_CHILDREN,
   };
 
-  OrderSubTestHandler(bool cross_origin, int additional_nav_ct, TestMode mode)
+  OrderSubTestHandler(bool cross_origin,
+                      int additional_nav_ct,
+                      TestMode mode,
+                      size_t expected_frame_ct = 2U)
       : NavigateOrderMainTestHandler(cross_origin, additional_nav_ct),
         test_mode_(mode),
-        expected_frame_ct_(2U) {}
-  ~OrderSubTestHandler() override {
-    EXPECT_FALSE(current_frame_map_);
-    EXPECT_FALSE(previous_frame_map_);
-  }
+        expected_frame_ct_(expected_frame_ct) {}
+  ~OrderSubTestHandler() override { EXPECT_TRUE(frame_maps_.empty()); }
 
   void RunTest() override {
     for (int i = 0; i <= additional_nav_ct(); i++) {
@@ -944,9 +1039,9 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
     NavigateOrderMainTestHandler::OnBeforeClose(browser);
 
-    if (previous_frame_map_) {
+    for (auto& map : frame_maps_) {
       // Also need to notify any sub-frames.
-      previous_frame_map_->OnBeforeClose(browser);
+      map->OnBeforeClose(browser);
     }
   }
 
@@ -957,7 +1052,8 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
                bool persistent,
                CefRefPtr<Callback> callback) override {
     if (!frame->IsMain()) {
-      auto status = current_frame_map_->GetFrameStatus(frame);
+      auto map = GetFrameMap(frame);
+      auto status = map->GetFrameStatus(frame);
       status->OnQuery(browser, frame, request);
       if (status->AllQueriesDelivered()) {
         MaybeDestroyTest();
@@ -973,9 +1069,8 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
                       CefRefPtr<CefFrame> frame) override {
     if (!frame->IsMain()) {
       // Potentially the first notification of a new sub-frame after navigation.
-      MaybeCreateFrameMap();
-
-      auto status = current_frame_map_->CreateFrameStatus(frame);
+      auto map = GetOrCreateFrameMap(frame);
+      auto status = map->CreateFrameStatus(frame);
       status->SetAdditionalDebugInfo(GetAdditionalDebugInfo());
       status->OnFrameCreated(browser, frame);
       return;
@@ -987,7 +1082,8 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
   void OnFrameAttached(CefRefPtr<CefBrowser> browser,
                        CefRefPtr<CefFrame> frame) override {
     if (!frame->IsMain()) {
-      auto status = current_frame_map_->GetFrameStatus(frame);
+      auto map = GetFrameMap(frame);
+      auto status = map->GetFrameStatus(frame);
       status->OnFrameAttached(browser, frame);
       return;
     }
@@ -1000,14 +1096,13 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
     if (!frame->IsMain()) {
       // Potentially the last notification for an old sub-frame after
       // navigation.
-      MaybeSwapFrameMap();
-
-      auto status = previous_frame_map_->GetFrameStatus(frame);
+      auto map = GetFrameMap(frame);
+      auto status = map->GetFrameStatus(frame);
       status->OnFrameDetached(browser, frame);
 
-      if (AllFramesDetached()) {
+      if (map->AllFramesDetached()) {
         // Verify results from the previous navigation.
-        VerifyAndClearSubFrameTestResults();
+        VerifyAndClearSubFrameTestResults(map);
       }
       return;
     }
@@ -1019,7 +1114,8 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
                    CefRefPtr<CefFrame> frame,
                    TransitionType transition_type) override {
     if (!frame->IsMain()) {
-      auto status = current_frame_map_->GetFrameStatus(frame);
+      auto map = GetFrameMap(frame);
+      auto status = map->GetFrameStatus(frame);
       status->OnLoadStart(browser, frame);
       return;
     }
@@ -1031,7 +1127,8 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
     if (!frame->IsMain()) {
-      auto status = current_frame_map_->GetFrameStatus(frame);
+      auto map = GetFrameMap(frame);
+      auto status = map->GetFrameStatus(frame);
       status->OnLoadEnd(browser, frame);
       return;
     }
@@ -1072,59 +1169,105 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
     return std::string();
   }
 
-  bool AllQueriesDelivered() const override {
-    if (!NavigateOrderMainTestHandler::AllQueriesDelivered())
+  bool AllQueriesDelivered(std::string* msg = nullptr) const override {
+    if (!NavigateOrderMainTestHandler::AllQueriesDelivered(msg)) {
+#if VERBOSE_DEBUGGING
+      if (msg)
+        *msg += " MAIN PENDING";
+#endif
       return false;
+    }
 
-    if (!current_frame_map_)
+    if (frame_maps_.empty()) {
+#if VERBOSE_DEBUGGING
+      if (msg)
+        *msg += " NO SUBS";
+#endif
       return false;
-    return current_frame_map_->AllQueriesDelivered();
+    }
+
+    if (!frame_maps_.back()->AllQueriesDelivered(msg)) {
+#if VERBOSE_DEBUGGING
+      if (msg)
+        *msg += " SUBS PENDING";
+#endif
+      return false;
+    }
+    return true;
   }
 
-  bool AllFramesLoaded() const override {
-    if (!NavigateOrderMainTestHandler::AllFramesLoaded())
+  bool AllFramesLoaded(std::string* msg = nullptr) const override {
+    if (!NavigateOrderMainTestHandler::AllFramesLoaded(msg)) {
+#if VERBOSE_DEBUGGING
+      if (msg)
+        *msg += " MAIN PENDING";
+#endif
       return false;
+    }
 
-    if (!current_frame_map_)
+    if (frame_maps_.empty()) {
+#if VERBOSE_DEBUGGING
+      if (msg)
+        *msg += " NO SUBS";
+#endif
       return false;
-    return current_frame_map_->AllFramesLoaded();
+    }
+
+    if (!frame_maps_.back()->AllFramesLoaded(msg)) {
+#if VERBOSE_DEBUGGING
+      if (msg)
+        *msg += " SUBS PENDING";
+#endif
+      return false;
+    }
+    return true;
   }
 
   void VerifyTestResults() override {
     NavigateOrderMainTestHandler::VerifyTestResults();
-    EXPECT_FALSE(current_frame_map_);
-    EXPECT_FALSE(previous_frame_map_);
+    EXPECT_TRUE(frame_maps_.empty());
   }
 
-  // All sub-frame objects should already have received all callbacks.
-  void VerifyAndClearSubFrameTestResults() {
-    EXPECT_TRUE(previous_frame_map_);
-    previous_frame_map_->VerifyAndClearTestResults();
-    delete previous_frame_map_;
-    previous_frame_map_ = nullptr;
-  }
-
-  FrameStatusMap* current_frame_map() const { return current_frame_map_; }
-  FrameStatusMap* previous_frame_map() const { return previous_frame_map_; }
   size_t expected_frame_ct() const { return expected_frame_ct_; }
 
- private:
-  void MaybeCreateFrameMap() {
-    if (!current_frame_map_)
-      current_frame_map_ = new FrameStatusMap(expected_frame_ct_);
-  }
-
-  void MaybeSwapFrameMap() {
-    if (!previous_frame_map_) {
-      EXPECT_TRUE(current_frame_map_);
-      previous_frame_map_ = current_frame_map_;
-      current_frame_map_ = nullptr;
+  FrameStatusMap* GetFrameMap(CefRefPtr<CefFrame> frame) const {
+    for (auto& map : frame_maps_) {
+      if (map->Contains(frame))
+        return map.get();
     }
+    return nullptr;
   }
 
-  bool AllFramesDetached() const {
-    EXPECT_TRUE(previous_frame_map_);
-    return previous_frame_map_->AllFramesDetached();
+ private:
+  // All sub-frame objects should already have received all callbacks.
+  void VerifyAndClearSubFrameTestResults(FrameStatusMap* map) {
+    map->VerifyAndClearTestResults();
+
+    bool found = false;
+    FrameStatusMapVector::iterator it = frame_maps_.begin();
+    for (; it != frame_maps_.end(); ++it) {
+      if ((*it).get() == map) {
+        frame_maps_.erase(it);
+        found = true;
+        break;
+      }
+    }
+
+    EXPECT_TRUE(found);
+  }
+
+  FrameStatusMap* GetOrCreateFrameMap(CefRefPtr<CefFrame> frame) {
+    if (auto map = GetFrameMap(frame))
+      return map;
+
+    if (frame_maps_.empty() ||
+        frame_maps_.back()->size() >= expected_frame_ct_) {
+      // Start a new frame map.
+      auto map = std::make_unique<FrameStatusMap>(expected_frame_ct_);
+      frame_maps_.push_back(std::move(map));
+    }
+
+    return frame_maps_.back().get();
   }
 
   const TestMode test_mode_;
@@ -1132,8 +1275,8 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
   // The expected number of sub-frames.
   const size_t expected_frame_ct_;
 
-  FrameStatusMap* current_frame_map_ = nullptr;
-  FrameStatusMap* previous_frame_map_ = nullptr;
+  using FrameStatusMapVector = std::vector<std::unique_ptr<FrameStatusMap>>;
+  FrameStatusMapVector frame_maps_;
 };
 
 }  // namespace
@@ -1202,7 +1345,10 @@ namespace {
 class CrossOriginOrderSubTestHandler : public OrderSubTestHandler {
  public:
   CrossOriginOrderSubTestHandler(int additional_nav_ct, TestMode mode)
-      : OrderSubTestHandler(/*cross_origin=*/true, additional_nav_ct, mode) {}
+      : OrderSubTestHandler(/*cross_origin=*/true,
+                            additional_nav_ct,
+                            mode,
+                            /*expected_frame_ct=*/4U) {}
 
   void OnFrameDetached(CefRefPtr<CefBrowser> browser,
                        CefRefPtr<CefFrame> frame) override {
@@ -1212,26 +1358,11 @@ class CrossOriginOrderSubTestHandler : public OrderSubTestHandler {
     // get OnFrameCreated/OnFrameAttached immediately followed by
     // OnFrameDetached.
     if (!frame->IsMain()) {
-      FrameStatus* status = nullptr;
-      if (current_frame_map())
-        status = current_frame_map()->GetFrameStatus(frame);
-      if (!status && previous_frame_map())
-        status = previous_frame_map()->GetFrameStatus(frame);
+      auto map = GetFrameMap(frame);
+      auto status = map->GetFrameStatus(frame);
       if (status && !status->DidGetCallback(FrameStatus::LOAD_START)) {
+        status->SetIsTemporary(true);
         temp_frame_detached_ct_++;
-
-#if VERBOSE_DEBUGGING
-        LOG(INFO) << status->GetDebugString()
-                  << " callback OnFrameDetached(discarded)";
-#endif
-        EXPECT_TRUE(status->DidGetCallback(FrameStatus::FRAME_CREATED));
-        EXPECT_TRUE(status->DidGetCallback(FrameStatus::FRAME_ATTACHED));
-
-        // Should not receive any queries.
-        EXPECT_EQ(status->QueriesDeliveredCount(), 0);
-
-        current_frame_map()->RemoveFrameStatus(frame);
-        return;
       }
     }
 
@@ -1255,7 +1386,7 @@ class CrossOriginOrderSubTestHandler : public OrderSubTestHandler {
     OrderSubTestHandler::VerifyTestResults();
 
     const size_t expected_temp_ct =
-        expected_frame_ct() * (1U + additional_nav_ct());
+        (expected_frame_ct() / 2U) * (1U + additional_nav_ct());
     EXPECT_EQ(expected_temp_ct, temp_frame_detached_ct_);
   }
 

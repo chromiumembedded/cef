@@ -243,6 +243,13 @@ void CefBrowserContentsDelegate::RenderFrameHostChanged(
   RenderFrameCreated(new_host);
 }
 
+void CefBrowserContentsDelegate::RenderFrameHostStateChanged(
+    content::RenderFrameHost* host,
+    content::RenderFrameHost::LifecycleState old_state,
+    content::RenderFrameHost::LifecycleState new_state) {
+  browser_info_->FrameHostStateChanged(host, old_state, new_state);
+}
+
 void CefBrowserContentsDelegate::RenderFrameDeleted(
     content::RenderFrameHost* render_frame_host) {
   const auto frame_id = CefFrameHostImpl::MakeFrameId(render_frame_host);

@@ -19,10 +19,7 @@
 #include "base/memory/weak_ptr.h"
 #include "base/synchronization/lock.h"
 #include "base/values.h"
-
-namespace content {
-class RenderFrameHost;
-}
+#include "content/public/browser/render_frame_host.h"
 
 class CefBrowserHostBase;
 class CefFrameHandler;
@@ -61,6 +58,13 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   // false) or CefMimeHandlerViewGuestDelegate::OnGuestAttached (is_guest_view =
   // true).
   void MaybeCreateFrame(content::RenderFrameHost* host, bool is_guest_view);
+
+  // Used to track state changes such as entering/exiting the BackForwardCache.
+  // Called from CefBrowserContentsDelegate::RenderFrameHostStateChanged.
+  void FrameHostStateChanged(
+      content::RenderFrameHost* host,
+      content::RenderFrameHost::LifecycleState old_state,
+      content::RenderFrameHost::LifecycleState new_state);
 
   // Remove the frame record for |host|. Called for the main frame when the
   // RenderView is destroyed, or for a sub-frame when the associated RenderFrame
@@ -170,7 +174,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
     ~FrameInfo();
 
     inline bool IsCurrentMainFrame() const {
-      return frame_ && is_main_frame_ && !is_speculative_;
+      return frame_ && is_main_frame_ && !is_speculative_ && !is_in_bfcache_;
     }
 
     content::RenderFrameHost* host_;
@@ -179,6 +183,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
     bool is_guest_view_;
     bool is_main_frame_;
     bool is_speculative_;
+    bool is_in_bfcache_ = false;
     CefRefPtr<CefFrameHostImpl> frame_;
   };
 

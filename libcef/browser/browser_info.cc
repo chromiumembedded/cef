@@ -153,6 +153,32 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host,
   frame_info_set_.insert(base::WrapUnique(frame_info));
 }
 
+void CefBrowserInfo::FrameHostStateChanged(
+    content::RenderFrameHost* host,
+    content::RenderFrameHost::LifecycleState old_state,
+    content::RenderFrameHost::LifecycleState new_state) {
+  CEF_REQUIRE_UIT();
+
+  // We currently only care about BackForwardCache state changes.
+  bool added_to_bfcache =
+      new_state ==
+      content::RenderFrameHost::LifecycleState::kInBackForwardCache;
+  bool removed_from_bfcache =
+      old_state ==
+      content::RenderFrameHost::LifecycleState::kInBackForwardCache;
+  if (!added_to_bfcache && !removed_from_bfcache)
+    return;
+
+  base::AutoLock lock_scope(lock_);
+
+  const auto frame_id = CefFrameHostImpl::MakeFrameId(host);
+  auto it = frame_id_map_.find(frame_id);
+  DCHECK(it != frame_id_map_.end());
+  DCHECK((!it->second->is_in_bfcache_ && added_to_bfcache) ||
+         (it->second->is_in_bfcache_ && removed_from_bfcache));
+  it->second->is_in_bfcache_ = added_to_bfcache;
+}
+
 void CefBrowserInfo::RemoveFrame(content::RenderFrameHost* host) {
   CEF_REQUIRE_UIT();
 
@@ -190,8 +216,8 @@ void CefBrowserInfo::RemoveFrame(content::RenderFrameHost* host) {
     // Explicitly Detach everything but the current main frame.
     const auto& frame_info = *it2;
     if (frame_info->frame_ && !frame_info->IsCurrentMainFrame()) {
-      frame_info->frame_->Detach();
-      MaybeNotifyFrameDetached(browser_, frame_info->frame_);
+      if (frame_info->frame_->Detach())
+        MaybeNotifyFrameDetached(browser_, frame_info->frame_);
     }
 
     frame_info_set_.erase(it2);
@@ -314,8 +340,9 @@ CefBrowserInfo::FrameHostList CefBrowserInfo::GetAllFrames() const {
   base::AutoLock lock_scope(lock_);
   FrameHostList frames;
   for (const auto& info : frame_info_set_) {
-    if (info->frame_ && !info->is_speculative_)
+    if (info->frame_ && !info->is_speculative_ && !info->is_in_bfcache_) {
       frames.insert(info->frame_);
+    }
   }
   return frames;
 }
@@ -438,8 +465,8 @@ void CefBrowserInfo::SetMainFrame(CefRefPtr<CefBrowserHostBase> browser,
   CefRefPtr<CefFrameHostImpl> old_frame;
   if (main_frame_) {
     old_frame = main_frame_;
-    old_frame->Detach();
-    MaybeNotifyFrameDetached(browser, old_frame);
+    if (old_frame->Detach())
+      MaybeNotifyFrameDetached(browser, old_frame);
   }
 
   main_frame_ = frame;
@@ -520,8 +547,8 @@ void CefBrowserInfo::RemoveAllFrames(
   // Explicitly Detach everything but the current main frame.
   for (auto& info : frame_info_set_) {
     if (info->frame_ && !info->IsCurrentMainFrame()) {
-      info->frame_->Detach();
-      MaybeNotifyFrameDetached(old_browser, info->frame_);
+      if (info->frame_->Detach())
+        MaybeNotifyFrameDetached(old_browser, info->frame_);
     }
   }
 
