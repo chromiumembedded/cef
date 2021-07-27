@@ -81,28 +81,28 @@ class DraggableRegionsTestHandler : public TestHandler, public CefDragHandler {
       case kStepWithRegions:
       case kStepWithChangingRegions1:
         EXPECT_EQ(2U, regions.size());
-        EXPECT_EQ(50, regions[0].bounds.x);
-        EXPECT_EQ(50, regions[0].bounds.y);
-        EXPECT_EQ(200, regions[0].bounds.width);
-        EXPECT_EQ(200, regions[0].bounds.height);
+        EXPECT_NEAR(50, regions[0].bounds.x, 1);
+        EXPECT_NEAR(50, regions[0].bounds.y, 1);
+        EXPECT_NEAR(200, regions[0].bounds.width, 1);
+        EXPECT_NEAR(200, regions[0].bounds.height, 1);
         EXPECT_EQ(1, regions[0].draggable);
-        EXPECT_EQ(125, regions[1].bounds.x);
-        EXPECT_EQ(125, regions[1].bounds.y);
-        EXPECT_EQ(50, regions[1].bounds.width);
-        EXPECT_EQ(50, regions[1].bounds.height);
+        EXPECT_NEAR(125, regions[1].bounds.x, 1);
+        EXPECT_NEAR(125, regions[1].bounds.y, 1);
+        EXPECT_NEAR(50, regions[1].bounds.width, 1);
+        EXPECT_NEAR(50, regions[1].bounds.height, 1);
         EXPECT_EQ(0, regions[1].draggable);
         break;
       case kStepWithChangingRegions2:
         EXPECT_EQ(2U, regions.size());
         EXPECT_EQ(0, regions[0].bounds.x);
         EXPECT_EQ(0, regions[0].bounds.y);
-        EXPECT_EQ(200, regions[0].bounds.width);
-        EXPECT_EQ(200, regions[0].bounds.height);
+        EXPECT_NEAR(200, regions[0].bounds.width, 1);
+        EXPECT_NEAR(200, regions[0].bounds.height, 1);
         EXPECT_EQ(1, regions[0].draggable);
-        EXPECT_EQ(75, regions[1].bounds.x);
-        EXPECT_EQ(75, regions[1].bounds.y);
-        EXPECT_EQ(50, regions[1].bounds.width);
-        EXPECT_EQ(50, regions[1].bounds.height);
+        EXPECT_NEAR(75, regions[1].bounds.x, 1);
+        EXPECT_NEAR(75, regions[1].bounds.y, 1);
+        EXPECT_NEAR(50, regions[1].bounds.width, 2);
+        EXPECT_NEAR(50, regions[1].bounds.height, 2);
         EXPECT_EQ(0, regions[1].draggable);
         break;
       case kStepWithoutRegions:
