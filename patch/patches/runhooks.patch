@@ -1,3 +1,16 @@
+diff --git .vpython3 .vpython3
+index 14faab39343e8..0aeeb03f79bdd 100644
+--- .vpython3
++++ .vpython3
+@@ -204,7 +204,7 @@ wheel <
+ 
+ wheel <
+   name: "infra/python/wheels/py-py2_py3"
+-  version: "version:1.5.3"
++  version: "version:1.10.0"
+ >
+ 
+ wheel <
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
 index c1d2fa2ce0aa2..d1d215f35ac12 100644
 --- build/toolchain/win/setup_toolchain.py
