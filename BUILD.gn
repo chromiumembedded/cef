@@ -2004,6 +2004,7 @@ if (is_mac) {
                      gypi_paths2.shared_sources_mac_helper +
                      gypi_paths2.ceftests_sources_mac_helper
     helper_deps = [
+      ":gtest_teamcity",
       "//testing/gtest",
     ]
     helper_defines = [
