@@ -1263,7 +1263,8 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
     if (frame_maps_.empty() ||
         frame_maps_.back()->size() >= expected_frame_ct_) {
       // Start a new frame map.
-      auto map = std::make_unique<FrameStatusMap>(expected_frame_ct_);
+      auto map = std::unique_ptr<FrameStatusMap>(
+          new FrameStatusMap(expected_frame_ct_));
       frame_maps_.push_back(std::move(map));
     }
 
