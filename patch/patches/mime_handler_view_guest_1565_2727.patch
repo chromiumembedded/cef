@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index cdbc0273838e5..ee2809a0bb98a 100644
+index cdbc0273838e..ee2809a0bb98 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
 @@ -22,7 +22,7 @@ struct DropData;
@@ -12,7 +12,7 @@ index cdbc0273838e5..ee2809a0bb98a 100644
    virtual ~WebContentsView() {}
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 2dc016e4be765..fb052a3a0bf21 100644
+index 2dc016e4be76..fb052a3a0bf2 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 @@ -211,6 +211,8 @@ void MimeHandlerViewGuest::CreateWebContents(
@@ -48,7 +48,7 @@ index 2dc016e4be765..fb052a3a0bf21 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index bb90319f768ed..b0ba7bfa08c03 100644
+index bb90319f768e..b0ba7bfa08c0 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 @@ -130,6 +130,7 @@ class MimeHandlerViewGuest
@@ -68,7 +68,7 @@ index bb90319f768ed..b0ba7bfa08c03 100644
    bool is_embedder_fullscreen_ = false;
    bool plugin_can_save_ = false;
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
-index 98689e2614604..a1b08274f4556 100644
+index 98689e261460..a1b08274f455 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 @@ -8,9 +8,9 @@

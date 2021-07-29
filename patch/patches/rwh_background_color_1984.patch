@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 2e653492a9093..05fb213ad423f 100644
+index 2e653492a909..05fb213ad423 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -645,10 +645,12 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() {

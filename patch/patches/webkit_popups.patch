@@ -1,5 +1,5 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index f54b993e9fb9f..ec081f68adddb 100644
+index f54b993e9fb9..ec081f68addd 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
 @@ -338,6 +338,7 @@ class WebView {
@@ -11,7 +11,7 @@ index f54b993e9fb9f..ec081f68adddb 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 2f9022d37ab98..5637137cafc50 100644
+index 2f9022d37ab9..5637137cafc5 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -244,8 +244,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
@@ -39,7 +39,7 @@ index 2f9022d37ab98..5637137cafc50 100644
        fullscreen_controller_(std::make_unique<FullscreenController>(this)),
        page_base_background_color_(
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 97e3d30f1427b..284bd30aa95e1 100644
+index 97e3d30f1427..284bd30aa95e 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
 @@ -131,7 +131,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
@@ -62,7 +62,7 @@ index 97e3d30f1427b..284bd30aa95e1 100644
    TransformationMatrix device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index 7528cfa4793e9..35a37668930a7 100644
+index 7528cfa4793e..35a37668930a 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
 @@ -839,7 +839,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {

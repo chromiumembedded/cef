@@ -1,5 +1,5 @@
 diff --git third_party/widevine/cdm/BUILD.gn third_party/widevine/cdm/BUILD.gn
-index 91bcefa2f0698..9a5759239e590 100644
+index 91bcefa2f069..9a5759239e59 100644
 --- third_party/widevine/cdm/BUILD.gn
 +++ third_party/widevine/cdm/BUILD.gn
 @@ -8,6 +8,7 @@ import("//build/config/chromeos/ui_mode.gni")

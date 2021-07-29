@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 576bd49a6198f..d5872f293f7cc 100644
+index 576bd49a6198..d5872f293f7c 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -34,6 +34,7 @@ import("//build/config/ui.gni")
@@ -37,7 +37,7 @@ index 576bd49a6198f..d5872f293f7cc 100644
      configs += [ "//build/config/compiler:no_size_t_to_int_warning" ]
  
 diff --git base/hash/md5.h base/hash/md5.h
-index 8a49f08dcb04d..2f03d7a6d1b34 100644
+index 8a49f08dcb04..2f03d7a6d1b3 100644
 --- base/hash/md5.h
 +++ base/hash/md5.h
 @@ -10,8 +10,9 @@
@@ -52,7 +52,7 @@ index 8a49f08dcb04d..2f03d7a6d1b34 100644
  #else
  #include "base/hash/md5_boringssl.h"
 diff --git base/hash/sha1.h base/hash/sha1.h
-index 5bb10fe069850..206344d0fd3b1 100644
+index 5bb10fe06985..206344d0fd3b 100644
 --- base/hash/sha1.h
 +++ base/hash/sha1.h
 @@ -14,7 +14,9 @@
