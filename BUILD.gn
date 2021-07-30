@@ -1732,6 +1732,10 @@ if (is_mac) {
 
         info_plist_target = ":${app_name}_helper_plist"
 
+        if (defined(invoker.helper_frameworks)) {
+          frameworks = invoker.helper_frameworks
+        }
+
         if (defined(invoker.helper_defines)) {
           defines = invoker.helper_defines
         }
@@ -1746,6 +1750,9 @@ if (is_mac) {
         helper_sources = invoker.helper_sources
         if (defined(invoker.helper_deps)) {
           helper_deps = invoker.helper_deps
+        }
+        if (defined(invoker.helper_frameworks)) {
+          helper_frameworks = invoker.helper_frameworks
         }
         if (defined(invoker.helper_defines)) {
           helper_defines = invoker.helper_defines
@@ -2004,6 +2011,9 @@ if (is_mac) {
     helper_deps = [
       ":gtest_teamcity",
       "//testing/gtest",
+    ]
+    helper_frameworks = [
+      "AppKit.framework",
     ]
     helper_defines = [
       "CEF_USE_SANDBOX",
