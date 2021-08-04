@@ -154,6 +154,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   CefRefPtr<CefWindow> GetParentWindow(CefRefPtr<CefWindow> window,
                                        bool* is_menu,
                                        bool* can_activate_menu) override;
+  CefRect GetInitialBounds(CefRefPtr<CefWindow> window) override;
   bool IsFrameless(CefRefPtr<CefWindow> window) override;
   bool CanResize(CefRefPtr<CefWindow> window) override;
   bool CanClose(CefRefPtr<CefWindow> window) override;
@@ -206,6 +207,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
   void OnExtensionIconsLoaded(const ExtensionSet& extensions,
                               const ImageCache::ImageSet& images);
   void OnExtensionWindowClosed();
+
+  CefRect GetInitialBounds() const;
 
   Delegate* delegate_;  // Not owned by this object.
   CefRefPtr<CefBrowserView> browser_view_;
