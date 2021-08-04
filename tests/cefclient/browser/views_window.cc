@@ -488,13 +488,7 @@ void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
 
   delegate_->OnViewsWindowCreated(this);
 
-  CefRect bounds = delegate_->GetWindowBounds();
-  if (bounds.IsEmpty()) {
-    // Use the default size.
-    bounds.width = 800;
-    bounds.height = 600;
-  }
-
+  const CefRect bounds = GetInitialBounds();
   if (bounds.x == 0 && bounds.y == 0) {
     // Size the Window and center it.
     window_->CenterWindow(CefSize(bounds.width, bounds.height));
@@ -567,6 +561,18 @@ CefRefPtr<CefWindow> ViewsWindow::GetParentWindow(CefRefPtr<CefWindow> window,
     *can_activate_menu = true;
   }
   return parent_window;
+}
+
+CefRect ViewsWindow::GetInitialBounds(CefRefPtr<CefWindow> window) {
+  CEF_REQUIRE_UI_THREAD();
+  if (frameless_) {
+    // Need to provide a size for frameless windows that will be centered.
+    const CefRect bounds = GetInitialBounds();
+    if (bounds.x == 0 && bounds.y == 0) {
+      return bounds;
+    }
+  }
+  return CefRect();
 }
 
 bool ViewsWindow::IsFrameless(CefRefPtr<CefWindow> window) {
@@ -1014,6 +1020,17 @@ void ViewsWindow::OnExtensionWindowClosed() {
 
   // Restore the button state.
   extension_button_pressed_lock_ = nullptr;
+}
+
+CefRect ViewsWindow::GetInitialBounds() const {
+  CEF_REQUIRE_UI_THREAD();
+  CefRect bounds = delegate_->GetWindowBounds();
+  if (bounds.IsEmpty()) {
+    // Use the default size.
+    bounds.width = 800;
+    bounds.height = 600;
+  }
+  return bounds;
 }
 
 }  // namespace client
