@@ -6,6 +6,7 @@
 
 #include "libcef/browser/thread_util.h"
 
+#include "base/threading/thread_restrictions.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profiles/off_the_record_profile_impl.h"
 #include "chrome/browser/profiles/profile_keep_alive_types.h"
@@ -104,6 +105,9 @@ void ChromeBrowserContext::ProfileCreated(Profile* profile,
       status != Profile::CreateStatus::CREATE_STATUS_INITIALIZED) {
     CHECK(!profile);
     CHECK(!profile_);
+
+    // Profile creation may access the filesystem.
+    base::ScopedAllowBlockingForTesting allow_blocking;
 
     // Creation of a disk-based profile failed for some reason. Create a
     // new/unique OffTheRecord profile instead.
