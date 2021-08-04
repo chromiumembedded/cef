@@ -1,0 +1,12 @@
+diff --git third_party/blink/renderer/platform/loader/fetch/url_loader/web_url_loader.cc third_party/blink/renderer/platform/loader/fetch/url_loader/web_url_loader.cc
+index c346490cdf4f..fff11e84cce5 100644
+--- third_party/blink/renderer/platform/loader/fetch/url_loader/web_url_loader.cc
++++ third_party/blink/renderer/platform/loader/fetch/url_loader/web_url_loader.cc
+@@ -250,7 +250,6 @@ void SetSecurityStyleAndDetails(const GURL& url,
+     sct_list[i] = NetSCTToBlinkSCT(ssl_info.signed_certificate_timestamps[i]);
+ 
+   if (!ssl_info.cert) {
+-    NOTREACHED();
+     response->SetSecurityStyle(SecurityStyle::kUnknown);
+     return;
+   }
