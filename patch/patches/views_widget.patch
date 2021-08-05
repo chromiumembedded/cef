@@ -272,7 +272,7 @@ index 20bcac8ebadf..f36e48dbf654 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index a742d7d7f5d5..ac66f0cb1800 100644
+index 4b7f2bbe19ab..2ddfa798af91 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -332,7 +332,8 @@ void Widget::Init(InitParams params) {
@@ -317,7 +317,7 @@ index a742d7d7f5d5..ac66f0cb1800 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index d6ce8c4934ed..773125ba2dd5 100644
+index 4a1527951ae3..893682be9bff 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -326,6 +326,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,

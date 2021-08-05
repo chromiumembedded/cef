@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 576bd49a6198..d5872f293f7c 100644
+index 1c989c7e9221..b8b637397f61 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -34,6 +34,7 @@ import("//build/config/ui.gni")
@@ -10,7 +10,7 @@ index 576bd49a6198..d5872f293f7c 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  import("//third_party/icu/config.gni")
-@@ -1731,7 +1732,11 @@ component("base") {
+@@ -1733,7 +1734,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index 576bd49a6198..d5872f293f7c 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1978,6 +1983,12 @@ component("base") {
+@@ -1980,6 +1985,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  

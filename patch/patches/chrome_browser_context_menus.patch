@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index 00cffaf573b2..e324126c2dae 100644
+index 7029436a258c..99e09f3b6523 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -274,6 +274,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
@@ -42,7 +42,7 @@ index 00cffaf573b2..e324126c2dae 100644
  }
  
  RenderViewContextMenu::~RenderViewContextMenu() = default;
-@@ -1024,6 +1043,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1025,6 +1044,12 @@ void RenderViewContextMenu::InitMenu() {
    // menu, meaning that each menu item added/removed in this function will cause
    // it to visibly jump on the screen (see b/173569669).
    AppendQuickAnswersItems();
@@ -55,7 +55,7 @@ index 00cffaf573b2..e324126c2dae 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -2744,6 +2769,12 @@ void RenderViewContextMenu::RegisterMenuShownCallbackForTesting(
+@@ -2745,6 +2770,12 @@ void RenderViewContextMenu::RegisterMenuShownCallbackForTesting(
    *GetMenuShownCallback() = std::move(cb);
  }
  
@@ -69,7 +69,7 @@ index 00cffaf573b2..e324126c2dae 100644
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index 34b6152a222e..b03c81bd076b 100644
+index 7b6f19105c8e..277b2f4e95a4 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
 @@ -101,6 +101,12 @@ class RenderViewContextMenu : public RenderViewContextMenuBase,
@@ -85,7 +85,7 @@ index 34b6152a222e..b03c81bd076b 100644
   protected:
    Profile* GetProfile() const;
  
-@@ -296,6 +302,9 @@ class RenderViewContextMenu : public RenderViewContextMenuBase,
+@@ -297,6 +303,9 @@ class RenderViewContextMenu : public RenderViewContextMenuBase,
    //   built.
    bool is_protocol_submenu_valid_ = false;
  

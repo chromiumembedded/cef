@@ -58,7 +58,7 @@ index 4ff73fd2d9ec..d56686d8284b 100644
    // Add an entry to the map.
    preview_dialog_map_[preview_dialog] = initiator;
 diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index 867227684ddb..98986fdad1e7 100644
+index e345c611cac0..373b1b92cc55 100644
 --- chrome/browser/printing/print_view_manager_base.cc
 +++ chrome/browser/printing/print_view_manager_base.cc
 @@ -21,6 +21,7 @@
@@ -97,10 +97,10 @@ index 867227684ddb..98986fdad1e7 100644
  
  void NotifySystemDialogCancelled(int render_process_id, int routing_id) {
 diff --git chrome/browser/printing/print_view_manager_base.h chrome/browser/printing/print_view_manager_base.h
-index 48e2baa05cdf..b4da112845d8 100644
+index eaa0e162a339..8e030d2ab399 100644
 --- chrome/browser/printing/print_view_manager_base.h
 +++ chrome/browser/printing/print_view_manager_base.h
-@@ -124,9 +124,6 @@ class PrintViewManagerBase : public content::NotificationObserver,
+@@ -126,9 +126,6 @@ class PrintViewManagerBase : public content::NotificationObserver,
    // Manages the low-level talk to the printer.
    scoped_refptr<PrintJob> print_job_;
  
@@ -304,7 +304,7 @@ index e326047aef5e..4fc8898e95b6 100644
    base::FilePath GetSaveLocation() const;
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_handler.cc chrome/browser/ui/webui/print_preview/print_preview_handler.cc
-index 5cebaa1d75b7..3c2fae113c67 100644
+index 83707d6c0c68..3c17f84d0fa7 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_handler.cc
 @@ -25,6 +25,7 @@
@@ -315,7 +315,7 @@ index 5cebaa1d75b7..3c2fae113c67 100644
  #include "chrome/browser/account_manager_facade_factory.h"
  #include "chrome/browser/app_mode/app_mode_utils.h"
  #include "chrome/browser/bad_message.h"
-@@ -1151,6 +1152,7 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
+@@ -1154,6 +1155,7 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
    }
  #if BUILDFLAG(ENABLE_SERVICE_DISCOVERY)
    if (printer_type == mojom::PrinterType::kPrivet &&
@@ -323,7 +323,7 @@ index 5cebaa1d75b7..3c2fae113c67 100644
        GetPrefs()->GetBoolean(prefs::kForceEnablePrivetPrinting)) {
      if (!privet_printer_handler_) {
        privet_printer_handler_ =
-@@ -1158,6 +1160,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
+@@ -1161,6 +1163,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
      }
      return privet_printer_handler_.get();
    }

@@ -120,7 +120,7 @@ index 0ce7abdeb7d9..8197a6bb7da9 100644
  
    // Initialize the frame (creates the underlying native window).
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 338c049c8116..6a1a97b37573 100644
+index 18c19c28cddd..c07387019480 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -589,11 +589,22 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
