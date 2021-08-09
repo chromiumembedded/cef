@@ -20,6 +20,7 @@
 #include "base/task/thread_pool.h"
 #include "base/values.h"
 #include "chrome/browser/accessibility/accessibility_ui.h"
+#include "chrome/browser/component_updater/chrome_component_updater_configurator.h"
 #include "chrome/browser/download/download_prefs.h"
 #include "chrome/browser/media/media_device_id_salt.h"
 #include "chrome/browser/media/router/media_router_feature.h"
@@ -230,6 +231,8 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   update_client::RegisterPrefs(registry.get());
 
   if (!profile) {
+    component_updater::RegisterPrefsForChromeComponentUpdaterConfigurator(
+        registry.get());
     SystemNetworkContextManager::RegisterPrefs(registry.get());
 #if defined(OS_WIN)
     OSCrypt::RegisterLocalPrefs(registry.get());

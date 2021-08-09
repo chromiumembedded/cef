@@ -7,7 +7,6 @@
 
 #include "libcef/browser/alloy/chrome_browser_process_alloy.h"
 #include "libcef/common/alloy/alloy_main_delegate.h"
-#include "libcef/common/widevine_loader.h"
 #include "libcef/renderer/alloy/alloy_content_renderer_client.h"
 
 #include "content/public/browser/render_process_host.h"
@@ -38,10 +37,6 @@ void AlloyMainRunnerDelegate::BeforeMainThreadRun() {
 }
 
 void AlloyMainRunnerDelegate::AfterUIThreadInitialize() {
-#if BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
-  CefWidevineLoader::GetInstance()->OnContextInitialized();
-#endif
-
   static_cast<ChromeBrowserProcessAlloy*>(g_browser_process)
       ->OnContextInitialized();
 }

@@ -6,7 +6,6 @@
 
 #include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/common/widevine_loader.h"
 
 #include "base/bind.h"
 #include "base/files/file_path.h"
@@ -29,23 +28,6 @@ void PluginsCallbackImpl(
       break;
   }
 }
-
-#if !(BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)) || \
-    defined(OS_LINUX)
-
-void DeliverWidevineCdmError(const std::string& error_message,
-                             CefRefPtr<CefRegisterCdmCallback> callback) {
-  LOG(ERROR) << error_message;
-  if (callback.get()) {
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::BindOnce(&CefRegisterCdmCallback::OnCdmRegistrationComplete,
-                       callback.get(), CEF_CDM_REGISTRATION_ERROR_NOT_SUPPORTED,
-                       error_message));
-  }
-}
-
-#endif
 
 }  // namespace
 
@@ -165,25 +147,4 @@ void CefIsWebPluginUnstable(const CefString& path,
     CEF_POST_TASK(CEF_IOT,
                   base::BindOnce(CefIsWebPluginUnstable, path, callback));
   }
-}
-
-void CefRegisterWidevineCdm(const CefString& path,
-                            CefRefPtr<CefRegisterCdmCallback> callback) {
-#if BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
-#if defined(OS_LINUX)
-  // Enforce the requirement that CefRegisterWidevineCdm() is called before
-  // CefInitialize() on Linux. See comments in
-  // CefWidevineLoader::AddPepperPlugins for details.
-  if (CONTEXT_STATE_VALID()) {
-    DeliverWidevineCdmError(
-        "Widevine registration is not supported after context initialization",
-        callback);
-    return;
-  }
-#endif  // defined(OS_LINUX)
-
-  CefWidevineLoader::GetInstance()->LoadWidevineCdm(path, callback);
-#else
-  DeliverWidevineCdmError("Widevine registration is not supported", callback);
-#endif  // BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
 }

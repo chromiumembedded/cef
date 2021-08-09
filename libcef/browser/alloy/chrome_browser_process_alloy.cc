@@ -13,12 +13,15 @@
 #include "libcef/common/cef_switches.h"
 
 #include "base/command_line.h"
+#include "chrome/browser/component_updater/chrome_component_updater_configurator.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/policy/chrome_browser_policy_connector.h"
 #include "chrome/browser/printing/background_printing_manager.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/printing/print_preview_dialog_controller.h"
 #include "chrome/browser/ui/prefs/pref_watcher.h"
+#include "components/component_updater/component_updater_service.h"
+#include "components/component_updater/timer_update_scheduler.h"
 #include "components/net_log/chrome_net_log.h"
 #include "components/prefs/pref_service.h"
 #include "content/browser/startup_helper.h"
@@ -331,8 +334,23 @@ void ChromeBrowserProcessAlloy::StartAutoupdateTimer() {}
 
 component_updater::ComponentUpdateService*
 ChromeBrowserProcessAlloy::component_updater() {
-  NOTREACHED();
-  return nullptr;
+  if (component_updater_)
+    return component_updater_.get();
+
+  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
+    return nullptr;
+  }
+
+  std::unique_ptr<component_updater::UpdateScheduler> scheduler =
+      std::make_unique<component_updater::TimerUpdateScheduler>();
+
+  component_updater_ = component_updater::ComponentUpdateServiceFactory(
+      component_updater::MakeChromeComponentUpdaterConfigurator(
+          base::CommandLine::ForCurrentProcess(),
+          g_browser_process->local_state()),
+      std::move(scheduler));
+
+  return component_updater_.get();
 }
 
 MediaFileSystemRegistry*

@@ -29,6 +29,7 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/utility/chrome_content_utility_client.h"
+#include "components/component_updater/component_updater_paths.h"
 #include "components/content_settings/core/common/content_settings_pattern.h"
 #include "components/embedder_support/switches.h"
 #include "components/viz/common/features.h"
@@ -369,8 +370,9 @@ void AlloyMainDelegate::PreSandboxStartup() {
 #endif
 
     resource_util::OverrideDefaultDownloadDir();
-    resource_util::OverrideUserDataDir(settings_, command_line);
   }
+
+  resource_util::OverrideUserDataDir(settings_, command_line);
 
   if (command_line->HasSwitch(switches::kDisablePackLoading))
     resource_bundle_delegate_.set_pack_loading_disabled(true);
@@ -378,6 +380,11 @@ void AlloyMainDelegate::PreSandboxStartup() {
   // Initialize crash reporting state for this process/module.
   // chrome::DIR_CRASH_DUMPS must be configured before calling this function.
   crash_reporting::PreSandboxStartup(*command_line, process_type);
+
+  // Register the component_updater PathProvider.
+  component_updater::RegisterPathProvider(chrome::DIR_COMPONENTS,
+                                          chrome::DIR_INTERNAL_PLUGINS,
+                                          chrome::DIR_USER_DATA);
 
   InitializeResourceBundle();
   MaybeInitializeGDI();

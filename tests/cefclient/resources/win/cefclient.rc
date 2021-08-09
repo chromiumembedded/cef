@@ -32,7 +32,6 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 IDS_BINDING_HTML BINARY "..\\binding.html"
 IDS_DIALOGS_HTML BINARY "..\\dialogs.html"
 IDS_DRAGGABLE_HTML BINARY "..\\draggable.html"
-IDS_DRM_HTML BINARY "..\\drm.html"
 IDS_LOCALSTORAGE_HTML BINARY "..\\localstorage.html"
 IDS_LOGO_PNG BINARY "..\\logo.png"
 IDS_MEDIA_ROUTER_HTML BINARY "..\\media_router.html"

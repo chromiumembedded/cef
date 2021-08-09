@@ -8,6 +8,7 @@
 
 #include "libcef/browser/request_context_impl.h"
 
+#include "base/command_line.h"
 #include "base/macros.h"
 #include "base/strings/string_piece.h"
 #include "build/build_config.h"

@@ -39,7 +39,6 @@ const char kHideFrame[] = "hide-frame";
 const char kHideControls[] = "hide-controls";
 const char kAlwaysOnTop[] = "always-on-top";
 const char kHideTopMenu[] = "hide-top-menu";
-const char kWidevineCdmPath[] = "widevine-cdm-path";
 const char kSslClientCertificate[] = "ssl-client-certificate";
 const char kCRLSetsPath[] = "crl-sets-path";
 const char kLoadExtension[] = "load-extension";

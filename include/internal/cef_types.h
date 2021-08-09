@@ -264,10 +264,10 @@ typedef struct _cef_settings_t {
   // be stored on disk. If this value is empty then the default
   // platform-specific user data directory will be used ("~/.cef_user_data"
   // directory on Linux, "~/Library/Application Support/CEF/User Data" directory
-  // on Mac OS X, "Local Settings\Application Data\CEF\User Data" directory
-  // under the user profile directory on Windows). If this value is non-empty
-  // then it must be an absolute path. When using the Chrome runtime this value
-  // will be ignored in favor of the |root_cache_path| value.
+  // on Mac OS X, "AppData\Local\CEF\User Data" directory under the user profile
+  // directory on Windows). If this value is non-empty then it must be an
+  // absolute path. When using the Chrome runtime this value will be ignored in
+  // favor of the |root_cache_path| value.
   ///
   cef_string_t user_data_path;
 
@@ -2947,31 +2947,6 @@ typedef enum {
   ///
   CEF_SCHEME_OPTION_FETCH_ENABLED = 1 << 6,
 } cef_scheme_options_t;
-
-///
-// Error codes for CDM registration. See cef_web_plugin.h for details.
-///
-typedef enum {
-  ///
-  // No error. Registration completed successfully.
-  ///
-  CEF_CDM_REGISTRATION_ERROR_NONE,
-
-  ///
-  // Required files or manifest contents are missing.
-  ///
-  CEF_CDM_REGISTRATION_ERROR_INCORRECT_CONTENTS,
-
-  ///
-  // The CDM is incompatible with the current Chromium version.
-  ///
-  CEF_CDM_REGISTRATION_ERROR_INCOMPATIBLE,
-
-  ///
-  // CDM registration is not supported at this time.
-  ///
-  CEF_CDM_REGISTRATION_ERROR_NOT_SUPPORTED,
-} cef_cdm_registration_error_t;
 
 ///
 // Composition underline style.

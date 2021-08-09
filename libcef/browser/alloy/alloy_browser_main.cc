@@ -30,6 +30,7 @@
 #include "chrome/browser/media/router/chrome_media_router_factory.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/plugins/plugin_finder.h"
+#include "chrome/common/chrome_switches.h"
 #include "components/constrained_window/constrained_window_views.h"
 #include "content/public/browser/gpu_data_manager.h"
 #include "content/public/browser/network_service_instance.h"
@@ -37,6 +38,7 @@
 #include "extensions/browser/extension_system.h"
 #include "extensions/common/constants.h"
 #include "net/base/net_module.h"
+#include "third_party/widevine/cdm/buildflags.h"
 #include "ui/base/resource/resource_bundle.h"
 
 #if defined(USE_AURA) && defined(USE_X11)
@@ -71,6 +73,14 @@
 
 #if defined(OS_LINUX)
 #include "libcef/browser/printing/print_dialog_linux.h"
+#endif
+
+#if BUILDFLAG(ENABLE_MEDIA_FOUNDATION_WIDEVINE_CDM)
+#include "chrome/browser/component_updater/media_foundation_widevine_cdm_component_installer.h"
+#endif
+
+#if BUILDFLAG(ENABLE_WIDEVINE_CDM_COMPONENT)
+#include "chrome/browser/component_updater/widevine_cdm_component_installer.h"
 #endif
 
 AlloyBrowserMainParts::AlloyBrowserMainParts(
@@ -206,6 +216,20 @@ int AlloyBrowserMainParts::PreMainMessageLoopRun() {
   PluginFinder::GetInstance()->Init();
 
   scheme::RegisterWebUIControllerFactory();
+
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  if (!command_line->HasSwitch(switches::kDisableComponentUpdate)) {
+    auto* const cus = g_browser_process->component_updater();
+
+#if BUILDFLAG(ENABLE_MEDIA_FOUNDATION_WIDEVINE_CDM)
+    RegisterMediaFoundationWidevineCdmComponent(cus);
+#endif
+
+#if BUILDFLAG(ENABLE_WIDEVINE_CDM_COMPONENT)
+    RegisterWidevineCdmComponent(cus);
+#endif
+  }
 
   return content::RESULT_CODE_NORMAL_EXIT;
 }

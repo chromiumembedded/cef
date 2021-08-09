@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b2f22315d4021be203ececa54d5bb8c651f60dfc$
+// $hash=232cd54c28334b9a3d98ebfb5a291643f0a7db62$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -47,7 +47,6 @@
 #include "libcef_dll/ctocpp/app_ctocpp.h"
 #include "libcef_dll/ctocpp/completion_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/end_tracing_callback_ctocpp.h"
-#include "libcef_dll/ctocpp/register_cdm_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
 #include "libcef_dll/ctocpp/task_ctocpp.h"
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
@@ -890,22 +889,6 @@ CEF_EXPORT void cef_is_web_plugin_unstable(
   // Execute
   CefIsWebPluginUnstable(CefString(path),
                          CefWebPluginUnstableCallbackCToCpp::Wrap(callback));
-}
-
-CEF_EXPORT void cef_register_widevine_cdm(
-    const cef_string_t* path,
-    struct _cef_register_cdm_callback_t* callback) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: path; type: string_byref_const
-  DCHECK(path);
-  if (!path)
-    return;
-  // Unverified params: callback
-
-  // Execute
-  CefRegisterWidevineCdm(CefString(path),
-                         CefRegisterCdmCallbackCToCpp::Wrap(callback));
 }
 
 CEF_EXPORT void cef_execute_java_script_with_user_gesture_for_tests(

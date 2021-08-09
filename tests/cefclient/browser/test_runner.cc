@@ -19,7 +19,6 @@
 #include "tests/cefclient/browser/binding_test.h"
 #include "tests/cefclient/browser/client_handler.h"
 #include "tests/cefclient/browser/dialog_test.h"
-#include "tests/cefclient/browser/drm_test.h"
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/media_router_test.h"
 #include "tests/cefclient/browser/preferences_test.h"
@@ -881,9 +880,6 @@ void CreateMessageHandlers(MessageHandlerSet& handlers) {
 
   // Create the dialog test handlers.
   dialog_test::CreateMessageHandlers(handlers);
-
-  // Create the drm test handlers.
-  drm_test::CreateMessageHandlers(handlers);
 
   // Create the media router test handlers.
   media_router_test::CreateMessageHandlers(handlers);

@@ -27,6 +27,8 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/media/cdm_registration.h"
+#include "content/public/common/cdm_info.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/pepper_plugin_info.h"
@@ -35,8 +37,8 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
 
-#if defined(OS_LINUX)
-#include "libcef/common/widevine_loader.h"
+#if BUILDFLAG(ENABLE_CDM_HOST_VERIFICATION)
+#include "chrome/common/media/cdm_host_file_path.h"
 #endif
 
 namespace {
@@ -95,10 +97,12 @@ void AlloyContentClient::AddPepperPlugins(
 void AlloyContentClient::AddContentDecryptionModules(
     std::vector<content::CdmInfo>* cdms,
     std::vector<media::CdmHostFilePath>* cdm_host_file_paths) {
-#if defined(OS_LINUX)
-#if BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
-  CefWidevineLoader::AddContentDecryptionModules(cdms, cdm_host_file_paths);
-#endif
+  if (cdms)
+    RegisterCdmInfo(cdms);
+
+#if BUILDFLAG(ENABLE_CDM_HOST_VERIFICATION)
+  if (cdm_host_file_paths)
+    AddCdmHostFilePaths(cdm_host_file_paths);
 #endif
 }
 

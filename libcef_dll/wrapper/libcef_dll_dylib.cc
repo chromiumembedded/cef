@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=85426bf2da9016443939636319265fff616f1cb4$
+// $hash=01fb8dd98e44b937595c1e1f987f5e4850bff64d$
 //
 
 #include <dlfcn.h>
@@ -177,9 +177,6 @@ typedef void (*cef_register_web_plugin_crash_ptr)(const cef_string_t*);
 typedef void (*cef_is_web_plugin_unstable_ptr)(
     const cef_string_t*,
     struct _cef_web_plugin_unstable_callback_t*);
-typedef void (*cef_register_widevine_cdm_ptr)(
-    const cef_string_t*,
-    struct _cef_register_cdm_callback_t*);
 typedef void (*cef_execute_java_script_with_user_gesture_for_tests_ptr)(
     struct _cef_frame_t*,
     const cef_string_t*);
@@ -570,7 +567,6 @@ struct libcef_pointers {
   cef_unregister_internal_web_plugin_ptr cef_unregister_internal_web_plugin;
   cef_register_web_plugin_crash_ptr cef_register_web_plugin_crash;
   cef_is_web_plugin_unstable_ptr cef_is_web_plugin_unstable;
-  cef_register_widevine_cdm_ptr cef_register_widevine_cdm;
   cef_execute_java_script_with_user_gesture_for_tests_ptr
       cef_execute_java_script_with_user_gesture_for_tests;
   cef_browser_host_create_browser_ptr cef_browser_host_create_browser;
@@ -787,7 +783,6 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_unregister_internal_web_plugin);
   INIT_ENTRY(cef_register_web_plugin_crash);
   INIT_ENTRY(cef_is_web_plugin_unstable);
-  INIT_ENTRY(cef_register_widevine_cdm);
   INIT_ENTRY(cef_execute_java_script_with_user_gesture_for_tests);
   INIT_ENTRY(cef_browser_host_create_browser);
   INIT_ENTRY(cef_browser_host_create_browser_sync);
@@ -1253,12 +1248,6 @@ void cef_is_web_plugin_unstable(
     const cef_string_t* path,
     struct _cef_web_plugin_unstable_callback_t* callback) {
   g_libcef_pointers.cef_is_web_plugin_unstable(path, callback);
-}
-
-NO_SANITIZE("cfi-icall")
-void cef_register_widevine_cdm(const cef_string_t* path,
-                               struct _cef_register_cdm_callback_t* callback) {
-  g_libcef_pointers.cef_register_widevine_cdm(path, callback);
 }
 
 NO_SANITIZE("cfi-icall")
