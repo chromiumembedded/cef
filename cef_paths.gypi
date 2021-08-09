@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=d723a9f6637cec523b158a6750d3a64698b407c3$
+# $hash=f6950d026a9c92fbb58da3fe0cbcf0050c12ecf0$
 #
 
 {
@@ -374,8 +374,6 @@
       'libcef_dll/cpptoc/process_message_cpptoc.h',
       'libcef_dll/ctocpp/read_handler_ctocpp.cc',
       'libcef_dll/ctocpp/read_handler_ctocpp.h',
-      'libcef_dll/ctocpp/register_cdm_callback_ctocpp.cc',
-      'libcef_dll/ctocpp/register_cdm_callback_ctocpp.h',
       'libcef_dll/cpptoc/registration_cpptoc.cc',
       'libcef_dll/cpptoc/registration_cpptoc.h',
       'libcef_dll/ctocpp/render_handler_ctocpp.cc',
@@ -686,8 +684,6 @@
       'libcef_dll/ctocpp/process_message_ctocpp.h',
       'libcef_dll/cpptoc/read_handler_cpptoc.cc',
       'libcef_dll/cpptoc/read_handler_cpptoc.h',
-      'libcef_dll/cpptoc/register_cdm_callback_cpptoc.cc',
-      'libcef_dll/cpptoc/register_cdm_callback_cpptoc.h',
       'libcef_dll/ctocpp/registration_ctocpp.cc',
       'libcef_dll/ctocpp/registration_ctocpp.h',
       'libcef_dll/cpptoc/render_handler_cpptoc.cc',

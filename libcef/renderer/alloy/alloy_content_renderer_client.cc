@@ -53,7 +53,6 @@
 #include "chrome/renderer/chrome_content_renderer_client.h"
 #include "chrome/renderer/extensions/chrome_extensions_renderer_client.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
-#include "chrome/renderer/media/chrome_key_systems.h"
 #include "chrome/renderer/pepper/chrome_pdf_print_client.h"
 #include "chrome/renderer/pepper/pepper_helper.h"
 #include "chrome/renderer/plugins/chrome_plugin_placeholder.h"
@@ -412,7 +411,11 @@ bool AlloyContentRendererClient::IsOriginIsolatedPepperPlugin(
 
 void AlloyContentRendererClient::AddSupportedKeySystems(
     std::vector<std::unique_ptr<::media::KeySystemProperties>>* key_systems) {
-  AddChromeKeySystems(key_systems);
+  key_systems_provider_.AddSupportedKeySystems(key_systems);
+}
+
+bool AlloyContentRendererClient::IsKeySystemsUpdateNeeded() {
+  return key_systems_provider_.IsKeySystemsUpdateNeeded();
 }
 
 void AlloyContentRendererClient::RunScriptsAtDocumentStart(

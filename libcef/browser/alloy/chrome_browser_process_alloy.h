@@ -119,6 +119,8 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
       browser_policy_connector_;
   std::unique_ptr<base::FieldTrialList> field_trial_list_;
 
+  std::unique_ptr<component_updater::ComponentUpdateService> component_updater_;
+
   DISALLOW_COPY_AND_ASSIGN(ChromeBrowserProcessAlloy);
 };
 

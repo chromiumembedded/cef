@@ -33,7 +33,6 @@ extern const char kHideFrame[];
 extern const char kHideControls[];
 extern const char kAlwaysOnTop[];
 extern const char kHideTopMenu[];
-extern const char kWidevineCdmPath[];
 extern const char kSslClientCertificate[];
 extern const char kCRLSetsPath[];
 extern const char kLoadExtension[];

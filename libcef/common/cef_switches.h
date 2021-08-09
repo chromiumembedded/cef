@@ -44,7 +44,6 @@ extern const char kEnableSpellingService[];
 extern const char kOverrideSpellCheckLang[];
 extern const char kDisableScrollBounce[];
 extern const char kDisablePdfExtension[];
-extern const char kWidevineCdmPath[];
 extern const char kPluginPolicy[];
 extern const char kPluginPolicy_Allow[];
 extern const char kPluginPolicy_Detect[];

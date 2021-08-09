@@ -17,7 +17,6 @@ int GetResourceId(const char* resource_name) {
       {"binding.html", IDS_BINDING_HTML},
       {"dialogs.html", IDS_DIALOGS_HTML},
       {"draggable.html", IDS_DRAGGABLE_HTML},
-      {"drm.html", IDS_DRM_HTML},
       {"extensions/set_page_color/icon.png",
        IDS_EXTENSIONS_SET_PAGE_COLOR_ICON_PNG},
       {"extensions/set_page_color/manifest.json",

@@ -123,15 +123,10 @@
 #include "third_party/blink/public/common/web_preferences/web_preferences.h"
 #include "third_party/blink/public/mojom/prerender/prerender.mojom.h"
 #include "third_party/blink/public/web/web_window_features.h"
-#include "third_party/widevine/cdm/buildflags.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_switches.h"
 #include "url/gurl.h"
-
-#if defined(OS_LINUX)
-#include "libcef/common/widevine_loader.h"
-#endif
 
 #if defined(OS_POSIX) && !defined(OS_MAC)
 #include "base/debug/leak_annotations.h"
@@ -734,18 +729,15 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
                                    base::size(kSwitchNames));
   }
 
+  // Necessary to populate DIR_USER_DATA in sub-processes.
+  // See resource_util.cc GetUserDataPath.
+  base::FilePath user_data_dir;
+  if (base::PathService::Get(chrome::DIR_USER_DATA, &user_data_dir)) {
+    command_line->AppendSwitchPath(switches::kUserDataDir, user_data_dir);
+  }
+
 #if defined(OS_LINUX)
   if (process_type == switches::kZygoteProcess) {
-#if BUILDFLAG(ENABLE_WIDEVINE) && BUILDFLAG(ENABLE_LIBRARY_CDMS)
-    if (!browser_cmd->HasSwitch(sandbox::policy::switches::kNoSandbox)) {
-      // Pass the Widevine CDM path to the Zygote process. See comments in
-      // CefWidevineLoader::AddContentDecryptionModules.
-      const base::FilePath& cdm_path = CefWidevineLoader::GetInstance()->path();
-      if (!cdm_path.empty())
-        command_line->AppendSwitchPath(switches::kWidevineCdmPath, cdm_path);
-    }
-#endif
-
     if (browser_cmd->HasSwitch(switches::kBrowserSubprocessPath)) {
       // Force use of the sub-process executable path for the zygote process.
       const base::FilePath& subprocess_path =

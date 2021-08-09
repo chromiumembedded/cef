@@ -19,6 +19,7 @@
 #include "base/single_thread_task_runner.h"
 #include "base/task/current_thread.h"
 #include "chrome/common/plugin.mojom.h"
+#include "chrome/renderer/media/chrome_key_systems_provider.h"
 #include "content/public/renderer/content_renderer_client.h"
 #include "content/public/renderer/render_thread.h"
 #include "mojo/public/cpp/bindings/generic_pending_receiver.h"
@@ -99,6 +100,7 @@ class AlloyContentRendererClient
   void AddSupportedKeySystems(
       std::vector<std::unique_ptr<::media::KeySystemProperties>>* key_systems)
       override;
+  bool IsKeySystemsUpdateNeeded() override;
   void RunScriptsAtDocumentStart(content::RenderFrame* render_frame) override;
   void RunScriptsAtDocumentEnd(content::RenderFrame* render_frame) override;
   void RunScriptsAtDocumentIdle(content::RenderFrame* render_frame) override;
@@ -139,6 +141,10 @@ class AlloyContentRendererClient
   std::unique_ptr<extensions::ExtensionsClient> extensions_client_;
   std::unique_ptr<extensions::CefExtensionsRendererClient>
       extensions_renderer_client_;
+
+  // Used to refresh the list of supported key systems after Widevine is
+  // installed as a component update.
+  ChromeKeySystemsProvider key_systems_provider_;
 
   // Used in single-process mode to test when cleanup is complete.
   // Access must be protected by |single_process_cleanup_lock_|.
