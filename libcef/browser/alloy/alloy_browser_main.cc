@@ -217,6 +217,8 @@ int AlloyBrowserMainParts::PreMainMessageLoopRun() {
 
   scheme::RegisterWebUIControllerFactory();
 
+#if BUILDFLAG(ENABLE_MEDIA_FOUNDATION_WIDEVINE_CDM) || \
+    BUILDFLAG(ENABLE_WIDEVINE_CDM_COMPONENT)
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
   if (!command_line->HasSwitch(switches::kDisableComponentUpdate)) {
@@ -230,6 +232,7 @@ int AlloyBrowserMainParts::PreMainMessageLoopRun() {
     RegisterWidevineCdmComponent(cus);
 #endif
   }
+#endif
 
   return content::RESULT_CODE_NORMAL_EXIT;
 }
