@@ -43,10 +43,8 @@ namespace {
 
 // Based on chrome/common/chrome_paths_linux.cc.
 // See http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
-// for a spec on where config files go.  The net effect for most
-// systems is we use ~/.config/chromium/ for Chromium and
-// ~/.config/google-chrome/ for official builds.
-// (This also helps us sidestep issues with other apps grabbing ~/.chromium .)
+// for a spec on where config files go. The net result on most systems is that
+// we use "~/.config/cef_user_data".
 bool GetDefaultUserDataDirectory(base::FilePath* result) {
   std::unique_ptr<base::Environment> env(base::Environment::Create());
   base::FilePath config_dir(base::nix::GetXDGDirectory(
@@ -214,7 +212,8 @@ void OverrideUserDataDir(CefSettings* settings,
 
   // Path used for spell checking dictionary files.
   base::PathService::OverrideAndCreateIfNeeded(
-      chrome::DIR_APP_DICTIONARIES, user_data_path.AppendASCII("Dictionaries"),
+      chrome::DIR_APP_DICTIONARIES,
+      user_data_path.Append(FILE_PATH_LITERAL("Dictionaries")),
       false,  // May not be an absolute path.
       true);  // Create if necessary.
 }
