@@ -260,14 +260,14 @@ typedef struct _cef_settings_t {
   cef_string_t root_cache_path;
 
   ///
-  // The location where user data such as spell checking dictionary files will
-  // be stored on disk. If this value is empty then the default
-  // platform-specific user data directory will be used ("~/.cef_user_data"
-  // directory on Linux, "~/Library/Application Support/CEF/User Data" directory
-  // on Mac OS X, "AppData\Local\CEF\User Data" directory under the user profile
-  // directory on Windows). If this value is non-empty then it must be an
-  // absolute path. When using the Chrome runtime this value will be ignored in
-  // favor of the |root_cache_path| value.
+  // The location where user data such as the Widevine CDM module and spell
+  // checking dictionary files will be stored on disk. If this value is empty
+  // then the default platform-specific user data directory will be used
+  // ("~/.config/cef_user_data" directory on Linux, "~/Library/Application
+  // Support/CEF/User Data" directory on MacOS, "AppData\Local\CEF\User Data"
+  // directory under the user profile directory on Windows). If this value is
+  // non-empty then it must be an absolute path. When using the Chrome runtime
+  // this value will be ignored in favor of the |root_cache_path| value.
   ///
   cef_string_t user_data_path;
 
@@ -320,7 +320,7 @@ typedef struct _cef_settings_t {
   ///
   // The directory and file name to use for the debug log. If empty a default
   // log file name and location will be used. On Windows and Linux a "debug.log"
-  // file will be written in the main executable directory. On Mac OS X a
+  // file will be written in the main executable directory. On MacOS a
   // "~/Library/Logs/<app name>_debug.log" file will be written where <app name>
   // is the name of the main app executable. Also configurable using the
   // "log-file" command-line switch.
@@ -346,7 +346,7 @@ typedef struct _cef_settings_t {
   ///
   // The fully qualified path for the resources directory. If this value is
   // empty the *.pak files must be located in the module directory on
-  // Windows/Linux or the app bundle Resources directory on Mac OS X. If this
+  // Windows/Linux or the app bundle Resources directory on MacOS. If this
   // value is non-empty then it must be an absolute path. Also configurable
   // using the "resources-dir-path" command-line switch.
   ///
@@ -356,9 +356,9 @@ typedef struct _cef_settings_t {
   // The fully qualified path for the locales directory. If this value is empty
   // the locales directory must be located in the module directory. If this
   // value is non-empty then it must be an absolute path. This value is ignored
-  // on Mac OS X where pack files are always loaded from the app bundle
-  // Resources directory. Also configurable using the "locales-dir-path"
-  // command-line switch.
+  // on MacOS where pack files are always loaded from the app bundle Resources
+  // directory. Also configurable using the "locales-dir-path" command-line
+  // switch.
   ///
   cef_string_t locales_dir_path;
 
@@ -918,7 +918,7 @@ typedef enum {
 
   ///
   // "Application Data" directory under the user profile directory on Windows
-  // and "~/Library/Application Support" directory on Mac OS X.
+  // and "~/Library/Application Support" directory on MacOS.
   ///
   PK_USER_DATA,
 
