@@ -62,7 +62,7 @@ index 6e2d09885b45..da23a0211754 100644
  #endif
  
 diff --git content/browser/devtools/devtools_http_handler.cc content/browser/devtools/devtools_http_handler.cc
-index 38f24359a5a2..3c724e29facb 100644
+index dc4db573977d..489ed518257c 100644
 --- content/browser/devtools/devtools_http_handler.cc
 +++ content/browser/devtools/devtools_http_handler.cc
 @@ -575,7 +575,7 @@ void DevToolsHttpHandler::OnJsonRequest(
@@ -188,10 +188,10 @@ index 632ae86c6fd6..55b749ec1242 100644
                            const std::vector<WebPluginInfo>& all_plugins);
  
 diff --git content/browser/renderer_host/render_frame_host_impl.cc content/browser/renderer_host/render_frame_host_impl.cc
-index ee638fbd09ad..ef1a5567a0fa 100644
+index 4f87e25cc2e5..b6ce02f290b1 100644
 --- content/browser/renderer_host/render_frame_host_impl.cc
 +++ content/browser/renderer_host/render_frame_host_impl.cc
-@@ -11960,6 +11960,7 @@ void RenderFrameHostImpl::BindHungDetectorHost(
+@@ -11989,6 +11989,7 @@ void RenderFrameHostImpl::BindHungDetectorHost(
  }
  
  void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
@@ -199,7 +199,7 @@ index ee638fbd09ad..ef1a5567a0fa 100644
                                          const url::Origin& main_frame_origin,
                                          const std::string& mime_type,
                                          GetPluginInfoCallback callback) {
-@@ -11967,7 +11968,8 @@ void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
+@@ -11996,7 +11997,8 @@ void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
    WebPluginInfo info;
    std::string actual_mime_type;
    bool found = PluginServiceImpl::GetInstance()->GetPluginInfo(
@@ -210,10 +210,10 @@ index ee638fbd09ad..ef1a5567a0fa 100644
    std::move(callback).Run(found, info, actual_mime_type);
  }
 diff --git content/browser/renderer_host/render_frame_host_impl.h content/browser/renderer_host/render_frame_host_impl.h
-index e63f3085b846..f2a4cf1f37ef 100644
+index f67902441798..c5a0be030b00 100644
 --- content/browser/renderer_host/render_frame_host_impl.h
 +++ content/browser/renderer_host/render_frame_host_impl.h
-@@ -2531,6 +2531,7 @@ class CONTENT_EXPORT RenderFrameHostImpl
+@@ -2535,6 +2535,7 @@ class CONTENT_EXPORT RenderFrameHostImpl
        int32_t plugin_child_id,
        const base::FilePath& path) override;
    void GetPluginInfo(const GURL& url,
@@ -334,10 +334,10 @@ index 7ec0901cf6ba..db5b5529a4cd 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 5f7a44233f04..4667ca90a8f2 100644
+index c8139a90c462..67bc19479ff0 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -3309,7 +3309,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -3314,7 +3314,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    WebPluginInfo info;
    std::string mime_type;
    bool found = false;

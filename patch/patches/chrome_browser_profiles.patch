@@ -135,7 +135,7 @@ index 915a95e287c5..0424e8bdd7d8 100644
    // Returns the directory where the first created profile is stored,
    // relative to the user data directory currently in use.
 diff --git chrome/browser/profiles/renderer_updater.cc chrome/browser/profiles/renderer_updater.cc
-index 5e71c1f56da1..db5c46cb5f85 100644
+index c8771e1d5072..4ce60104e0c6 100644
 --- chrome/browser/profiles/renderer_updater.cc
 +++ chrome/browser/profiles/renderer_updater.cc
 @@ -8,6 +8,7 @@
@@ -143,10 +143,10 @@ index 5e71c1f56da1..db5c46cb5f85 100644
  #include "base/bind.h"
  #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/runtime.h"
+ #include "chrome/browser/content_settings/content_settings_manager_delegate.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
  #include "chrome/browser/profiles/profile.h"
- #include "chrome/browser/signin/identity_manager_factory.h"
-@@ -57,8 +58,12 @@ void GetGuestViewDefaultContentSettingRules(
+@@ -60,8 +61,12 @@ void GetGuestViewDefaultContentSettingRules(
  }  // namespace
  
  RendererUpdater::RendererUpdater(Profile* profile) : profile_(profile) {
