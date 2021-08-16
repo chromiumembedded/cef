@@ -486,7 +486,7 @@ struct FunctorTraits<R (^)(Args...)> {
 
   template <typename BlockType, typename... RunArgs>
   static R Invoke(BlockType&& block, RunArgs&&... args) {
-    // According to LLVM documentation (ยง 6.3), "local variables of automatic
+    // According to LLVM documentation (6.3), "local variables of automatic
     // storage duration do not have precise lifetime." Use objc_precise_lifetime
     // to ensure that the Objective-C block is not deallocated until it has
     // finished executing even if the Callback<> is destroyed during the block
