@@ -126,20 +126,20 @@ void CefRenderFrameObserver::DidCreateScriptContext(
   CefRefPtr<CefApp> application = CefAppManager::Get()->GetApplication();
   if (application)
     handler = application->GetRenderProcessHandler();
-  if (!handler)
-    return;
 
   CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
-  v8::Isolate* isolate = blink::MainThreadIsolate();
-  v8::HandleScope handle_scope(isolate);
-  v8::Context::Scope scope(context);
-  v8::MicrotasksScope microtasks_scope(isolate,
-                                       v8::MicrotasksScope::kRunMicrotasks);
+  if (handler) {
+    v8::Isolate* isolate = blink::MainThreadIsolate();
+    v8::HandleScope handle_scope(isolate);
+    v8::Context::Scope scope(context);
+    v8::MicrotasksScope microtasks_scope(isolate,
+                                         v8::MicrotasksScope::kRunMicrotasks);
 
-  CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(isolate, context));
+    CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(isolate, context));
 
-  handler->OnContextCreated(browserPtr.get(), framePtr.get(), contextPtr);
+    handler->OnContextCreated(browserPtr.get(), framePtr.get(), contextPtr);
+  }
 
   // Do this last, in case the client callback modified the window object.
   framePtr->OnContextCreated();
