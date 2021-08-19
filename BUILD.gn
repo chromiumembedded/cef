@@ -489,6 +489,8 @@ static_library("libcef_static") {
     "libcef/browser/download_manager_delegate.h",
     "libcef/browser/extension_impl.cc",
     "libcef/browser/extension_impl.h",
+    "libcef/browser/extensions/api/file_system/cef_file_system_delegate.cc",
+    "libcef/browser/extensions/api/file_system/cef_file_system_delegate.h",
     "libcef/browser/extensions/api/storage/sync_value_store_cache.cc",
     "libcef/browser/extensions/api/storage/sync_value_store_cache.h",
     "libcef/browser/extensions/api/tabs/tabs_api.cc",

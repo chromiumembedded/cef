@@ -25,6 +25,7 @@ class CefExtensionsAPIClient : public ExtensionsAPIClient {
       MimeHandlerViewGuest* guest) const override;
   void AttachWebContentsHelpers(
       content::WebContents* web_contents) const override;
+  FileSystemDelegate* GetFileSystemDelegate() override;
 
   // Storage API support.
 
@@ -37,6 +38,9 @@ class CefExtensionsAPIClient : public ExtensionsAPIClient {
           observers,
       std::map<settings_namespace::Namespace, ValueStoreCache*>* caches)
       override;
+
+ private:
+  std::unique_ptr<FileSystemDelegate> file_system_delegate_;
 };
 
 }  // namespace extensions

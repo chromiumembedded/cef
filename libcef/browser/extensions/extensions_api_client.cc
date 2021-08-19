@@ -7,6 +7,7 @@
 
 #include "include/internal/cef_types_wrappers.h"
 #include "libcef/browser/browser_context.h"
+#include "libcef/browser/extensions/api/file_system/cef_file_system_delegate.h"
 #include "libcef/browser/extensions/api/storage/sync_value_store_cache.h"
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
 #include "libcef/browser/extensions/mime_handler_view_guest_delegate.h"
@@ -72,6 +73,12 @@ void CefExtensionsAPIClient::AddAdditionalValueStoreCaches(
   // chrome.storage.sync as if Chrome were permanently offline, by using a local
   // store see: https://developer.chrome.com/apps/storage for more information
   (*caches)[settings_namespace::SYNC] = new cef::SyncValueStoreCache(factory);
+}
+
+FileSystemDelegate* CefExtensionsAPIClient::GetFileSystemDelegate() {
+  if (!file_system_delegate_)
+    file_system_delegate_ = std::make_unique<cef::CefFileSystemDelegate>();
+  return file_system_delegate_.get();
 }
 
 }  // namespace extensions
