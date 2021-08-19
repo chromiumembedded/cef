@@ -12,6 +12,7 @@
 #include "include/cef_request_context_handler.h"
 
 #include "base/macros.h"
+#include "content/public/browser/global_routing_id.h"
 
 // Tracks CefRequestContextHandler associations on a single thread.
 class CefRequestContextHandlerMap {
@@ -23,37 +24,25 @@ class CefRequestContextHandlerMap {
   // originates from frame create/delete notifications in
   // CefBrowserContentsDelegate or CefMimeHandlerViewGuestDelegate which are
   // forwarded via CefRequestContextImpl and CefBrowserContext.
-  void AddHandler(int render_process_id,
-                  int render_frame_id,
-                  int frame_tree_node_id,
+  void AddHandler(const content::GlobalRenderFrameHostId& global_id,
                   CefRefPtr<CefRequestContextHandler> handler);
-  void RemoveHandler(int render_process_id,
-                     int render_frame_id,
-                     int frame_tree_node_id);
+  void RemoveHandler(const content::GlobalRenderFrameHostId& global_id);
 
-  // Returns the handler that matches the specified IDs. Pass -1 for unknown
-  // values. If |require_frame_match| is true only exact matches will be
-  // returned. If |require_frame_match| is false, and there is not an exact
-  // match, then the first handler for the same |render_process_id| will be
-  // returned.
+  // Returns the handler that matches the specified IDs. If
+  // |require_frame_match| is true only exact matches will be returned. If
+  // |require_frame_match| is false, and there is not an exact match, then the
+  // first handler for the same |global_id.child_id| will be returned.
   CefRefPtr<CefRequestContextHandler> GetHandler(
-      int render_process_id,
-      int render_frame_id,
-      int frame_tree_node_id,
+      const content::GlobalRenderFrameHostId& global_id,
       bool require_frame_match) const;
 
  private:
-  // Map of (render_process_id, render_frame_id) to handler.
-  typedef std::map<std::pair<int, int>, CefRefPtr<CefRequestContextHandler>>
-      RenderIdHandlerMap;
+  // Map of global ID to handler. These IDs are guaranteed to uniquely
+  // identify a RFH for its complete lifespan. See documentation on
+  // RenderFrameHost::GetFrameTreeNodeId() for background.
+  using RenderIdHandlerMap = std::map<content::GlobalRenderFrameHostId,
+                                      CefRefPtr<CefRequestContextHandler>>;
   RenderIdHandlerMap render_id_handler_map_;
-
-  // Map of frame_tree_node_id to handler. Keeping this map is necessary
-  // because, when navigating the main frame, a new (pre-commit) network request
-  // will be created before the RenderFrameHost. Consequently we can't rely
-  // on valid render IDs. See https://crbug.com/776884 for background.
-  typedef std::map<int, CefRefPtr<CefRequestContextHandler>> NodeIdHandlerMap;
-  NodeIdHandlerMap node_id_handler_map_;
 
   DISALLOW_COPY_AND_ASSIGN(CefRequestContextHandlerMap);
 };

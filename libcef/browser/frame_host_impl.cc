@@ -68,14 +68,15 @@ CefFrameHostImpl::CefFrameHostImpl(scoped_refptr<CefBrowserInfo> browser_info,
 CefFrameHostImpl::CefFrameHostImpl(scoped_refptr<CefBrowserInfo> browser_info,
                                    content::RenderFrameHost* render_frame_host)
     : is_main_frame_(render_frame_host->GetParent() == nullptr),
-      frame_id_(MakeFrameId(render_frame_host)),
+      frame_id_(frame_util::MakeFrameId(render_frame_host->GetGlobalId())),
       browser_info_(browser_info),
       is_focused_(is_main_frame_),  // The main frame always starts focused.
       url_(render_frame_host->GetLastCommittedURL().spec()),
       name_(render_frame_host->GetFrameName()),
-      parent_frame_id_(is_main_frame_
-                           ? kInvalidFrameId
-                           : MakeFrameId(render_frame_host->GetParent())),
+      parent_frame_id_(
+          is_main_frame_ ? kInvalidFrameId
+                         : frame_util::MakeFrameId(
+                               render_frame_host->GetParent()->GetGlobalId())),
       render_frame_host_(render_frame_host) {
   DCHECK(browser_info_);
 }
@@ -276,8 +277,10 @@ void CefFrameHostImpl::RefreshAttributes() {
     }
   }
 
-  if (!is_main_frame_)
-    parent_frame_id_ = MakeFrameId(render_frame_host_->GetParent());
+  if (!is_main_frame_) {
+    parent_frame_id_ =
+        frame_util::MakeFrameId(render_frame_host_->GetParent()->GetGlobalId());
+  }
 }
 
 void CefFrameHostImpl::NotifyMoveOrResizeStarted() {
@@ -455,20 +458,6 @@ bool CefFrameHostImpl::Detach() {
   is_attached_ = false;
 
   return first_detach;
-}
-
-// static
-int64_t CefFrameHostImpl::MakeFrameId(const content::RenderFrameHost* host) {
-  CEF_REQUIRE_UIT();
-  auto host_nonconst = const_cast<content::RenderFrameHost*>(host);
-  return MakeFrameId(host_nonconst->GetProcess()->GetID(),
-                     host_nonconst->GetRoutingID());
-}
-
-// static
-int64_t CefFrameHostImpl::MakeFrameId(int32_t render_process_id,
-                                      int32_t render_routing_id) {
-  return frame_util::MakeFrameId(render_process_id, render_routing_id);
 }
 
 // kMainFrameId must be -1 to align with renderer expectations.

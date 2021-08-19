@@ -78,7 +78,8 @@
 
 namespace content {
 class BrowserContext;
-}
+struct GlobalRenderFrameHostId;
+}  // namespace content
 
 class CefMediaRouterManager;
 class CefRequestContextImpl;
@@ -96,10 +97,9 @@ class CefBrowserContext {
 
   // Returns the existing instance, if any, associated with the specified IDs.
   // See comments on IsAssociatedContext() for usage.
-  static CefBrowserContext* FromIDs(int render_process_id,
-                                    int render_frame_id,
-                                    int frame_tree_node_id,
-                                    bool require_frame_match);
+  static CefBrowserContext* FromGlobalId(
+      const content::GlobalRenderFrameHostId& global_id,
+      bool require_frame_match);
 
   // Returns the underlying CefBrowserContext if any.
   static CefBrowserContext* FromBrowserContext(
@@ -127,17 +127,13 @@ class CefBrowserContext {
 
   // Called from CefRequestContextImpl::OnRenderFrameCreated.
   void OnRenderFrameCreated(CefRequestContextImpl* request_context,
-                            int render_process_id,
-                            int render_frame_id,
-                            int frame_tree_node_id,
+                            const content::GlobalRenderFrameHostId& global_id,
                             bool is_main_frame,
                             bool is_guest_view);
 
   // Called from CefRequestContextImpl::OnRenderFrameDeleted.
   void OnRenderFrameDeleted(CefRequestContextImpl* request_context,
-                            int render_process_id,
-                            int render_frame_id,
-                            int frame_tree_node_id,
+                            const content::GlobalRenderFrameHostId& global_id,
                             bool is_main_frame,
                             bool is_guest_view);
 
@@ -147,18 +143,14 @@ class CefBrowserContext {
   // match, then the first handler for the same |render_process_id| will be
   // returned.
   CefRefPtr<CefRequestContextHandler> GetHandler(
-      int render_process_id,
-      int render_frame_id,
-      int frame_tree_node_id,
+      const content::GlobalRenderFrameHostId& global_id,
       bool require_frame_match) const;
 
   // Returns true if this context is associated with the specified IDs. Pass -1
   // for unknown values. If |require_frame_match| is true only exact matches
   // will qualify. If |require_frame_match| is false, and there is not an exact
   // match, then any match for |render_process_id| will qualify.
-  bool IsAssociatedContext(int render_process_id,
-                           int render_frame_id,
-                           int frame_tree_node_id,
+  bool IsAssociatedContext(const content::GlobalRenderFrameHostId& global_id,
                            bool require_frame_match) const;
 
   // Remember the plugin load decision for plugin status requests that arrive
@@ -175,7 +167,8 @@ class CefBrowserContext {
                              chrome::mojom::PluginStatus* status) const;
 
   // Clear the plugin load decisions associated with |render_process_id|, or all
-  // plugin load decisions if |render_process_id| is -1.
+  // plugin load decisions if |render_process_id| is
+  // content::ChildProcessHost::kInvalidUniqueID.
   void ClearPluginLoadDecision(int render_process_id);
 
   // Called from CefRequestContextImpl methods of the same name.
@@ -258,17 +251,9 @@ class CefBrowserContext {
       PluginLoadDecisionMap;
   PluginLoadDecisionMap plugin_load_decision_map_;
 
-  // Set of (render_process_id, render_frame_id) associated with this context.
-  typedef std::set<std::pair<int, int>> RenderIdSet;
+  // Set of global IDs associated with this context.
+  typedef std::set<content::GlobalRenderFrameHostId> RenderIdSet;
   RenderIdSet render_id_set_;
-
-  // Set of frame_tree_node_id associated with this context. Keeping this list
-  // is necessary because, when navigating the main frame, a new (pre-commit)
-  // network request will be created before the RenderFrameHost. Consequently we
-  // can't rely on valid render IDs. See https://crbug.com/776884 for
-  // background.
-  typedef std::set<int> NodeIdSet;
-  NodeIdSet node_id_set_;
 
 #if DCHECK_IS_ON()
   bool is_shutdown_ = false;

@@ -86,21 +86,10 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForContents(
 }
 
 // static
-CefRefPtr<ChromeBrowserHostImpl>
-ChromeBrowserHostImpl::GetBrowserForFrameTreeNode(int frame_tree_node_id) {
+CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForGlobalId(
+    const content::GlobalRenderFrameHostId& global_id) {
   REQUIRE_CHROME_RUNTIME();
-  auto browser =
-      CefBrowserHostBase::GetBrowserForFrameTreeNode(frame_tree_node_id);
-  return static_cast<ChromeBrowserHostImpl*>(browser.get());
-}
-
-// static
-CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForFrameRoute(
-    int render_process_id,
-    int render_routing_id) {
-  REQUIRE_CHROME_RUNTIME();
-  auto browser = CefBrowserHostBase::GetBrowserForFrameRoute(render_process_id,
-                                                             render_routing_id);
+  auto browser = CefBrowserHostBase::GetBrowserForGlobalId(global_id);
   return static_cast<ChromeBrowserHostImpl*>(browser.get());
 }
 

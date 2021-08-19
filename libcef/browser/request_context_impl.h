@@ -12,6 +12,10 @@
 #include "libcef/browser/net_service/cookie_manager_impl.h"
 #include "libcef/browser/thread_util.h"
 
+namespace content {
+struct GlobalRenderFrameHostId;
+}
+
 class CefBrowserContext;
 
 // Implementation of the CefRequestContext interface. All methods are thread-
@@ -95,18 +99,14 @@ class CefRequestContextImpl : public CefRequestContext {
   // Called from CefBrowserContentsDelegate::RenderFrameCreated or
   // CefMimeHandlerViewGuestDelegate::OnGuestAttached when a render frame is
   // created.
-  void OnRenderFrameCreated(int render_process_id,
-                            int render_frame_id,
-                            int frame_tree_node_id,
+  void OnRenderFrameCreated(const content::GlobalRenderFrameHostId& global_id,
                             bool is_main_frame,
                             bool is_guest_view);
 
   // Called from CefBrowserContentsDelegate::RenderFrameDeleted or
   // CefMimeHandlerViewGuestDelegate::OnGuestDetached when a render frame is
   // deleted.
-  void OnRenderFrameDeleted(int render_process_id,
-                            int render_frame_id,
-                            int frame_tree_node_id,
+  void OnRenderFrameDeleted(const content::GlobalRenderFrameHostId& global_id,
                             bool is_main_frame,
                             bool is_guest_view);
 

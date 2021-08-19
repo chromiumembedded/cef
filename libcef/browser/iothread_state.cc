@@ -14,6 +14,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "content/browser/resource_context_impl.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/global_routing_id.h"
 
 CefIOThreadState::CefIOThreadState() {
   // Using base::Unretained() is safe because both this callback and possible
@@ -27,31 +28,24 @@ CefIOThreadState::~CefIOThreadState() {
   CEF_REQUIRE_IOT();
 }
 
-void CefIOThreadState::AddHandler(int render_process_id,
-                                  int render_frame_id,
-                                  int frame_tree_node_id,
-                                  CefRefPtr<CefRequestContextHandler> handler) {
+void CefIOThreadState::AddHandler(
+    const content::GlobalRenderFrameHostId& global_id,
+    CefRefPtr<CefRequestContextHandler> handler) {
   CEF_REQUIRE_IOT();
-  handler_map_.AddHandler(render_process_id, render_frame_id,
-                          frame_tree_node_id, handler);
+  handler_map_.AddHandler(global_id, handler);
 }
 
-void CefIOThreadState::RemoveHandler(int render_process_id,
-                                     int render_frame_id,
-                                     int frame_tree_node_id) {
+void CefIOThreadState::RemoveHandler(
+    const content::GlobalRenderFrameHostId& global_id) {
   CEF_REQUIRE_IOT();
-  handler_map_.RemoveHandler(render_process_id, render_frame_id,
-                             frame_tree_node_id);
+  handler_map_.RemoveHandler(global_id);
 }
 
 CefRefPtr<CefRequestContextHandler> CefIOThreadState::GetHandler(
-    int render_process_id,
-    int render_frame_id,
-    int frame_tree_node_id,
+    const content::GlobalRenderFrameHostId& global_id,
     bool require_frame_match) const {
   CEF_REQUIRE_IOT();
-  return handler_map_.GetHandler(render_process_id, render_frame_id,
-                                 frame_tree_node_id, require_frame_match);
+  return handler_map_.GetHandler(global_id, require_frame_match);
 }
 
 void CefIOThreadState::RegisterSchemeHandlerFactory(

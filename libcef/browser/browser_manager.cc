@@ -6,6 +6,7 @@
 
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/origin_whitelist_impl.h"
+#include "libcef/common/frame_util.h"
 
 #include "content/public/browser/render_process_host.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
@@ -52,5 +53,6 @@ void CefBrowserManager::GetNewBrowserInfo(
     int32_t render_frame_routing_id,
     cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback) {
   CefBrowserInfoManager::GetInstance()->OnGetNewBrowserInfo(
-      render_process_id_, render_frame_routing_id, std::move(callback));
+      frame_util::MakeGlobalId(render_process_id_, render_frame_routing_id),
+      std::move(callback));
 }

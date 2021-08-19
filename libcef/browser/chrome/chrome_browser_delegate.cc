@@ -13,10 +13,12 @@
 #include "libcef/browser/chrome/chrome_browser_host_impl.h"
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/common/app_manager.h"
+#include "libcef/common/frame_util.h"
 
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_tabstrip.h"
+#include "content/public/browser/global_routing_id.h"
 #include "content/public/browser/keyboard_event_processing_result.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 
@@ -83,8 +85,10 @@ void ChromeBrowserDelegate::WebContentsCreated(
   CefRefPtr<CefDictionaryValue> extra_info;
 
   CefBrowserInfoManager::GetInstance()->WebContentsCreated(
-      target_url, opener_render_process_id, opener_render_frame_id, settings,
-      client, platform_delegate, extra_info);
+      target_url,
+      frame_util::MakeGlobalId(opener_render_process_id,
+                               opener_render_frame_id),
+      settings, client, platform_delegate, extra_info);
 
   auto opener = ChromeBrowserHostImpl::GetBrowserForContents(source_contents);
   if (!opener) {

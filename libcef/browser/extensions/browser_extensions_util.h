@@ -13,6 +13,7 @@
 
 namespace content {
 class BrowserContext;
+struct GlobalRenderFrameHostId;
 class RenderFrameHost;
 class RenderViewHost;
 class WebContents;
@@ -37,12 +38,11 @@ void GetAllGuestsForOwnerContents(content::WebContents* owner,
 content::WebContents* GetOwnerForGuestContents(content::WebContents* guest);
 
 // Returns the CefBrowserHostBase that owns the host identified by the specified
-// routing IDs, if any. |is_guest_view| will be set to true if the IDs
-// match a guest view associated with the returned browser instead of the
+// global ID, if any. |is_guest_view| will be set to true if the ID
+// matches a guest view associated with the returned browser instead of the
 // browser itself.
-CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForFrameRoute(
-    int render_process_id,
-    int render_routing_id,
+CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForGlobalId(
+    const content::GlobalRenderFrameHostId& global_id,
     bool* is_guest_view);
 
 // Returns the CefBrowserHostBase that owns the specified |host|, if any.

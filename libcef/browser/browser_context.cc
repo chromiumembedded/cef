@@ -12,6 +12,7 @@
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
+#include "libcef/common/frame_util.h"
 #include "libcef/features/runtime.h"
 
 #include "base/files/file_util.h"
@@ -67,15 +68,12 @@ class ImplManager {
     return GetImplPos(impl) != all_.end();
   }
 
-  CefBrowserContext* GetImplFromIDs(int render_process_id,
-                                    int render_frame_id,
-                                    int frame_tree_node_id,
-                                    bool require_frame_match) {
+  CefBrowserContext* GetImplFromGlobalId(
+      const content::GlobalRenderFrameHostId& global_id,
+      bool require_frame_match) {
     CEF_REQUIRE_UIT();
     for (const auto& context : all_) {
-      if (context->IsAssociatedContext(render_process_id, render_frame_id,
-                                       frame_tree_node_id,
-                                       require_frame_match)) {
+      if (context->IsAssociatedContext(global_id, require_frame_match)) {
         return context;
       }
     }
@@ -242,13 +240,10 @@ CefBrowserContext* CefBrowserContext::FromCachePath(
 }
 
 // static
-CefBrowserContext* CefBrowserContext::FromIDs(int render_process_id,
-                                              int render_frame_id,
-                                              int frame_tree_node_id,
-                                              bool require_frame_match) {
-  return g_manager.Get().GetImplFromIDs(render_process_id, render_frame_id,
-                                        frame_tree_node_id,
-                                        require_frame_match);
+CefBrowserContext* CefBrowserContext::FromGlobalId(
+    const content::GlobalRenderFrameHostId& global_id,
+    bool require_frame_match) {
+  return g_manager.Get().GetImplFromGlobalId(global_id, require_frame_match);
 }
 
 // static
@@ -283,100 +278,70 @@ std::vector<CefBrowserContext*> CefBrowserContext::GetAll() {
 
 void CefBrowserContext::OnRenderFrameCreated(
     CefRequestContextImpl* request_context,
-    int render_process_id,
-    int render_frame_id,
-    int frame_tree_node_id,
+    const content::GlobalRenderFrameHostId& global_id,
     bool is_main_frame,
     bool is_guest_view) {
   CEF_REQUIRE_UIT();
-  DCHECK_GE(render_process_id, 0);
-  DCHECK_GE(render_frame_id, 0);
-  DCHECK_GE(frame_tree_node_id, 0);
+  DCHECK(frame_util::IsValidGlobalId(global_id));
 
-  render_id_set_.insert(std::make_pair(render_process_id, render_frame_id));
-  node_id_set_.insert(frame_tree_node_id);
+  render_id_set_.insert(global_id);
 
   CefRefPtr<CefRequestContextHandler> handler = request_context->GetHandler();
   if (handler) {
-    handler_map_.AddHandler(render_process_id, render_frame_id,
-                            frame_tree_node_id, handler);
+    handler_map_.AddHandler(global_id, handler);
 
-    CEF_POST_TASK(CEF_IOT,
-                  base::BindOnce(&CefIOThreadState::AddHandler, iothread_state_,
-                                 render_process_id, render_frame_id,
-                                 frame_tree_node_id, handler));
+    CEF_POST_TASK(CEF_IOT, base::BindOnce(&CefIOThreadState::AddHandler,
+                                          iothread_state_, global_id, handler));
   }
 }
 
 void CefBrowserContext::OnRenderFrameDeleted(
     CefRequestContextImpl* request_context,
-    int render_process_id,
-    int render_frame_id,
-    int frame_tree_node_id,
+    const content::GlobalRenderFrameHostId& global_id,
     bool is_main_frame,
     bool is_guest_view) {
   CEF_REQUIRE_UIT();
-  DCHECK_GE(render_process_id, 0);
-  DCHECK_GE(render_frame_id, 0);
-  DCHECK_GE(frame_tree_node_id, 0);
+  DCHECK(frame_util::IsValidGlobalId(global_id));
 
-  auto it1 =
-      render_id_set_.find(std::make_pair(render_process_id, render_frame_id));
+  auto it1 = render_id_set_.find(global_id);
   if (it1 != render_id_set_.end())
     render_id_set_.erase(it1);
 
-  auto it2 = node_id_set_.find(frame_tree_node_id);
-  if (it2 != node_id_set_.end())
-    node_id_set_.erase(it2);
-
   CefRefPtr<CefRequestContextHandler> handler = request_context->GetHandler();
   if (handler) {
-    handler_map_.RemoveHandler(render_process_id, render_frame_id,
-                               frame_tree_node_id);
+    handler_map_.RemoveHandler(global_id);
 
     CEF_POST_TASK(CEF_IOT, base::BindOnce(&CefIOThreadState::RemoveHandler,
-                                          iothread_state_, render_process_id,
-                                          render_frame_id, frame_tree_node_id));
+                                          iothread_state_, global_id));
   }
 
   if (is_main_frame) {
-    ClearPluginLoadDecision(render_process_id);
+    ClearPluginLoadDecision(global_id.child_id);
   }
 }
 
 CefRefPtr<CefRequestContextHandler> CefBrowserContext::GetHandler(
-    int render_process_id,
-    int render_frame_id,
-    int frame_tree_node_id,
+    const content::GlobalRenderFrameHostId& global_id,
     bool require_frame_match) const {
   CEF_REQUIRE_UIT();
-  return handler_map_.GetHandler(render_process_id, render_frame_id,
-                                 frame_tree_node_id, require_frame_match);
+  return handler_map_.GetHandler(global_id, require_frame_match);
 }
 
-bool CefBrowserContext::IsAssociatedContext(int render_process_id,
-                                            int render_frame_id,
-                                            int frame_tree_node_id,
-                                            bool require_frame_match) const {
+bool CefBrowserContext::IsAssociatedContext(
+    const content::GlobalRenderFrameHostId& global_id,
+    bool require_frame_match) const {
   CEF_REQUIRE_UIT();
 
-  if (render_process_id >= 0 && render_frame_id >= 0) {
-    const auto it1 =
-        render_id_set_.find(std::make_pair(render_process_id, render_frame_id));
+  if (frame_util::IsValidGlobalId(global_id)) {
+    const auto it1 = render_id_set_.find(global_id);
     if (it1 != render_id_set_.end())
       return true;
   }
 
-  if (frame_tree_node_id >= 0) {
-    const auto it2 = node_id_set_.find(frame_tree_node_id);
-    if (it2 != node_id_set_.end())
-      return true;
-  }
-
-  if (render_process_id >= 0 && !require_frame_match) {
+  if (frame_util::IsValidChildId(global_id.child_id) && !require_frame_match) {
     // Choose an arbitrary handler for the same process.
     for (const auto& render_ids : render_id_set_) {
-      if (render_ids.first == render_process_id)
+      if (render_ids.child_id == global_id.child_id)
         return true;
     }
   }
@@ -407,7 +372,7 @@ bool CefBrowserContext::HasPluginLoadDecision(
     const url::Origin& main_frame_origin,
     chrome::mojom::PluginStatus* status) const {
   CEF_REQUIRE_UIT();
-  DCHECK_GE(render_process_id, 0);
+  DCHECK(frame_util::IsValidChildId(render_process_id));
   DCHECK(!plugin_path.empty());
 
   PluginLoadDecisionMap::const_iterator it = plugin_load_decision_map_.find(
@@ -423,7 +388,7 @@ bool CefBrowserContext::HasPluginLoadDecision(
 void CefBrowserContext::ClearPluginLoadDecision(int render_process_id) {
   CEF_REQUIRE_UIT();
 
-  if (render_process_id == -1) {
+  if (!frame_util::IsValidChildId(render_process_id)) {
     plugin_load_decision_map_.clear();
   } else {
     PluginLoadDecisionMap::iterator it = plugin_load_decision_map_.begin();

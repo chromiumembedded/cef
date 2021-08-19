@@ -39,6 +39,7 @@
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
 #include "libcef/common/extensions/extensions_util.h"
+#include "libcef/common/frame_util.h"
 #include "libcef/common/net/scheme_registration.h"
 #include "libcef/common/request_impl.h"
 
@@ -346,13 +347,11 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
     bool handled = false;
 
     CefRefPtr<AlloyBrowserHostImpl> browser =
-        AlloyBrowserHostImpl::GetBrowserForFrameRoute(render_process_id,
-                                                      params.render_frame_id);
-    if (browser.get()) {
-      CefRefPtr<CefClient> client = browser->GetClient();
-      if (client.get()) {
-        CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
-        if (handler.get()) {
+        AlloyBrowserHostImpl::GetBrowserForGlobalId(frame_util::MakeGlobalId(
+            render_process_id, params.render_frame_id));
+    if (browser) {
+      if (auto client = browser->GetClient()) {
+        if (auto handler = client->GetRequestHandler()) {
           CefRefPtr<CefQuotaCallbackImpl> callbackImpl(
               new CefQuotaCallbackImpl(std::move(callback)));
           handled = handler->OnQuotaRequest(

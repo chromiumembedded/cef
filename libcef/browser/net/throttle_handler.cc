@@ -7,6 +7,7 @@
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/frame_host_impl.h"
+#include "libcef/common/frame_util.h"
 #include "libcef/common/request_impl.h"
 
 #include "components/navigation_interception/intercept_navigation_throttle.h"
@@ -25,9 +26,8 @@ namespace {
 // |is_main_frame| argument once this problem is fixed.
 bool NavigationOnUIThread(
     bool is_main_frame,
-    int64_t frame_id,
-    int64_t parent_frame_id,
-    int frame_tree_node_id,
+    const content::GlobalRenderFrameHostId& global_id,
+    const content::GlobalRenderFrameHostId& parent_global_id,
     content::WebContents* source,
     const navigation_interception::NavigationParams& params) {
   CEF_REQUIRE_UIT();
@@ -53,16 +53,13 @@ bool NavigationOnUIThread(
         CefRefPtr<CefFrame> frame;
         if (is_main_frame) {
           frame = browser->GetMainFrame();
-        } else if (frame_id >= 0) {
-          frame = browser->GetFrame(frame_id);
-        }
-        if (!frame && frame_tree_node_id >= 0) {
-          frame = browser->GetFrameForFrameTreeNode(frame_tree_node_id);
+        } else {
+          frame = browser->GetFrameForGlobalId(global_id);
         }
         if (!frame) {
           // Create a temporary frame object for navigation of sub-frames that
           // don't yet exist.
-          frame = browser->browser_info()->CreateTempSubFrame(parent_frame_id);
+          frame = browser->browser_info()->CreateTempSubFrame(parent_global_id);
         }
 
         CefRefPtr<CefRequestImpl> request = new CefRequestImpl();
@@ -90,26 +87,20 @@ void CreateThrottlesForNavigation(content::NavigationHandle* navigation_handle,
   CEF_REQUIRE_UIT();
 
   const bool is_main_frame = navigation_handle->IsInMainFrame();
+  const auto global_id = frame_util::GetGlobalId(navigation_handle);
 
   // Identify the RenderFrameHost that originated the navigation.
-  const int64_t parent_frame_id =
-      !is_main_frame
-          ? CefFrameHostImpl::MakeFrameId(navigation_handle->GetParentFrame())
-          : CefFrameHostImpl::kInvalidFrameId;
-
-  const int64_t frame_id = !is_main_frame && navigation_handle->HasCommitted()
-                               ? CefFrameHostImpl::MakeFrameId(
-                                     navigation_handle->GetRenderFrameHost())
-                               : CefFrameHostImpl::kInvalidFrameId;
+  const auto parent_global_id =
+      !is_main_frame ? navigation_handle->GetParentFrame()->GetGlobalId()
+                     : frame_util::InvalidGlobalId();
 
   // Must use SynchronyMode::kSync to ensure that OnBeforeBrowse is always
   // called before OnBeforeResourceLoad.
   std::unique_ptr<content::NavigationThrottle> throttle =
       std::make_unique<navigation_interception::InterceptNavigationThrottle>(
           navigation_handle,
-          base::BindRepeating(&NavigationOnUIThread, is_main_frame, frame_id,
-                              parent_frame_id,
-                              navigation_handle->GetFrameTreeNodeId()),
+          base::BindRepeating(&NavigationOnUIThread, is_main_frame, global_id,
+                              parent_global_id),
           navigation_interception::SynchronyMode::kSync);
   throttles.push_back(std::move(throttle));
 }

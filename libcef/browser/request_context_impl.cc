@@ -18,6 +18,7 @@
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/plugin_service.h"
 #include "content/public/browser/ssl_host_state_delegate.h"
+#include "content/public/common/child_process_host.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
 #include "mojo/public/cpp/bindings/remote.h"
 #include "services/network/public/cpp/resolve_host_client_base.h"
@@ -589,24 +590,20 @@ CefRefPtr<CefMediaRouter> CefRequestContextImpl::GetMediaRouter(
   return media_router.get();
 }
 
-void CefRequestContextImpl::OnRenderFrameCreated(int render_process_id,
-                                                 int render_frame_id,
-                                                 int frame_tree_node_id,
-                                                 bool is_main_frame,
-                                                 bool is_guest_view) {
-  browser_context_->OnRenderFrameCreated(this, render_process_id,
-                                         render_frame_id, frame_tree_node_id,
-                                         is_main_frame, is_guest_view);
+void CefRequestContextImpl::OnRenderFrameCreated(
+    const content::GlobalRenderFrameHostId& global_id,
+    bool is_main_frame,
+    bool is_guest_view) {
+  browser_context_->OnRenderFrameCreated(this, global_id, is_main_frame,
+                                         is_guest_view);
 }
 
-void CefRequestContextImpl::OnRenderFrameDeleted(int render_process_id,
-                                                 int render_frame_id,
-                                                 int frame_tree_node_id,
-                                                 bool is_main_frame,
-                                                 bool is_guest_view) {
-  browser_context_->OnRenderFrameDeleted(this, render_process_id,
-                                         render_frame_id, frame_tree_node_id,
-                                         is_main_frame, is_guest_view);
+void CefRequestContextImpl::OnRenderFrameDeleted(
+    const content::GlobalRenderFrameHostId& global_id,
+    bool is_main_frame,
+    bool is_guest_view) {
+  browser_context_->OnRenderFrameDeleted(this, global_id, is_main_frame,
+                                         is_guest_view);
 }
 
 // static
@@ -714,7 +711,8 @@ void CefRequestContextImpl::PurgePluginListCacheInternal(
   if (!browser_context)
     return;
 
-  browser_context->ClearPluginLoadDecision(-1);
+  browser_context->ClearPluginLoadDecision(
+      content::ChildProcessHost::kInvalidUniqueID);
   content::PluginService::GetInstance()->PurgePluginListCache(
       browser_context->AsBrowserContext(), false);
 }

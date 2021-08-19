@@ -19,6 +19,7 @@
 #include "base/memory/weak_ptr.h"
 #include "base/synchronization/lock.h"
 #include "base/values.h"
+#include "content/public/browser/global_routing_id.h"
 #include "content/public/browser/render_frame_host.h"
 
 class CefBrowserHostBase;
@@ -85,7 +86,8 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   // is invalid the current main frame will be specified as the parent.
   // Temporary frame objects are not tracked but will be implicitly detached
   // on browser destruction.
-  CefRefPtr<CefFrameHostImpl> CreateTempSubFrame(int64_t parent_frame_id);
+  CefRefPtr<CefFrameHostImpl> CreateTempSubFrame(
+      const content::GlobalRenderFrameHostId& parent_global_id);
 
   // Returns the frame object matching the specified host or nullptr if no match
   // is found. Nullptr will also be returned if a guest view match is found
@@ -97,35 +99,15 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
       bool* is_guest_view = nullptr,
       bool prefer_speculative = false) const;
 
-  // Returns the frame object matching the specified IDs or nullptr if no match
-  // is found. Nullptr will also be returned if a guest view match is found
-  // because we don't create frame objects for guest views. If |is_guest_view|
-  // is non-nullptr it will be set to true in this case. Safe to call from any
-  // thread.
-  CefRefPtr<CefFrameHostImpl> GetFrameForRoute(
-      int32_t render_process_id,
-      int32_t render_routing_id,
-      bool* is_guest_view = nullptr,
-      bool prefer_speculative = false) const;
-
   // Returns the frame object matching the specified ID or nullptr if no match
   // is found. Nullptr will also be returned if a guest view match is found
   // because we don't create frame objects for guest views. If |is_guest_view|
   // is non-nullptr it will be set to true in this case. Safe to call from any
   // thread.
-  CefRefPtr<CefFrameHostImpl> GetFrameForId(
-      int64_t frame_id,
+  CefRefPtr<CefFrameHostImpl> GetFrameForGlobalId(
+      const content::GlobalRenderFrameHostId& global_id,
       bool* is_guest_view = nullptr,
       bool prefer_speculative = false) const;
-
-  // Returns the frame object matching the specified ID or nullptr if no match
-  // is found. Nullptr will also be returned if a guest view match is found
-  // because we don't create frame objects for guest views. If |is_guest_view|
-  // is non-nullptr it will be set to true in this case. Safe to call from any
-  // thread.
-  CefRefPtr<CefFrameHostImpl> GetFrameForFrameTreeNode(
-      int frame_tree_node_id,
-      bool* is_guest_view = nullptr) const;
 
   // Returns all non-speculative frame objects that currently exist. Guest views
   // will be excluded because they don't have a frame object. Safe to call from
@@ -178,20 +160,13 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
     }
 
     content::RenderFrameHost* host_;
-    int64_t frame_id_;  // Combination of render_process_id + render_routing_id.
-    int frame_tree_node_id_;
+    content::GlobalRenderFrameHostId global_id_;
     bool is_guest_view_;
     bool is_main_frame_;
     bool is_speculative_;
     bool is_in_bfcache_ = false;
     CefRefPtr<CefFrameHostImpl> frame_;
   };
-
-  void MaybeUpdateFrameTreeNodeIdMap(FrameInfo* info);
-
-  CefRefPtr<CefFrameHostImpl> GetFrameForFrameTreeNodeInternal(
-      int frame_tree_node_id,
-      bool* is_guest_view = nullptr) const;
 
   void SetMainFrame(CefRefPtr<CefBrowserHostBase> browser,
                     CefRefPtr<CefFrameHostImpl> frame);
@@ -244,17 +219,17 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   CefRefPtr<CefBrowserHostBase> browser_;
 
   // Owner of FrameInfo structs.
-  typedef std::set<std::unique_ptr<FrameInfo>, base::UniquePtrComparator>
-      FrameInfoSet;
+  using FrameInfoSet =
+      std::set<std::unique_ptr<FrameInfo>, base::UniquePtrComparator>;
   FrameInfoSet frame_info_set_;
 
-  // Map a frame ID (e.g. MakeFrameId(process_id, routing_id)) to one frame.
-  typedef std::unordered_map<int64_t, FrameInfo*> FrameIDMap;
+  // Map a global ID to one frame. These IDs are guaranteed to uniquely
+  // identify a RFH for its complete lifespan. See documentation on
+  // RenderFrameHost::GetFrameTreeNodeId() for background.
+  using FrameIDMap = std::unordered_map<content::GlobalRenderFrameHostId,
+                                        FrameInfo*,
+                                        content::GlobalRenderFrameHostIdHasher>;
   FrameIDMap frame_id_map_;
-
-  // Map a frame_tree_node_id to one frame.
-  typedef std::unordered_map<int, FrameInfo*> FrameTreeNodeIDMap;
-  FrameTreeNodeIDMap frame_tree_node_id_map_;
 
   // The current main frame.
   CefRefPtr<CefFrameHostImpl> main_frame_;

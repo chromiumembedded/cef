@@ -10,6 +10,7 @@
 #include "libcef/browser/image_impl.h"
 #include "libcef/browser/navigation_entry_impl.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/frame_util.h"
 #include "libcef/common/net/url_util.h"
 
 #include "base/logging.h"
@@ -101,52 +102,30 @@ CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::GetBrowserForContents(
 }
 
 // static
-CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::GetBrowserForFrameTreeNode(
-    int frame_tree_node_id) {
-  // Use the thread-safe approach.
-  auto info =
-      CefBrowserInfoManager::GetInstance()->GetBrowserInfoForFrameTreeNode(
-          frame_tree_node_id);
-  if (info) {
-    auto browser = info->browser();
-    if (!browser) {
-      LOG(WARNING) << "Found browser id " << info->browser_id()
-                   << " but no browser object matching frame tree node id "
-                   << frame_tree_node_id;
-    }
-    return browser;
-  }
-
-  return nullptr;
-}
-
-// static
-CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::GetBrowserForFrameRoute(
-    int render_process_id,
-    int render_routing_id) {
-  if (render_process_id == -1 || render_routing_id == MSG_ROUTING_NONE)
+CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::GetBrowserForGlobalId(
+    const content::GlobalRenderFrameHostId& global_id) {
+  if (!frame_util::IsValidGlobalId(global_id)) {
     return nullptr;
+  }
 
   if (CEF_CURRENTLY_ON_UIT()) {
     // Use the non-thread-safe but potentially faster approach.
     content::RenderFrameHost* render_frame_host =
-        content::RenderFrameHost::FromID(render_process_id, render_routing_id);
+        content::RenderFrameHost::FromID(global_id);
     if (!render_frame_host)
       return nullptr;
     return GetBrowserForHost(render_frame_host);
   } else {
     // Use the thread-safe approach.
     bool is_guest_view = false;
-    auto info =
-        CefBrowserInfoManager::GetInstance()->GetBrowserInfoForFrameRoute(
-            render_process_id, render_routing_id, &is_guest_view);
+    auto info = CefBrowserInfoManager::GetInstance()->GetBrowserInfo(
+        global_id, &is_guest_view);
     if (info && !is_guest_view) {
       auto browser = info->browser();
       if (!browser) {
         LOG(WARNING) << "Found browser id " << info->browser_id()
-                     << " but no browser object matching frame process id "
-                     << render_process_id << " and routing id "
-                     << render_routing_id;
+                     << " but no browser object matching frame "
+                     << frame_util::GetFrameDebugString(global_id);
       }
       return browser;
     }
@@ -644,7 +623,8 @@ CefRefPtr<CefFrame> CefBrowserHostBase::GetFrame(int64 identifier) {
     return focused_frame_;
   }
 
-  return browser_info_->GetFrameForId(identifier);
+  return browser_info_->GetFrameForGlobalId(
+      frame_util::MakeGlobalId(identifier));
 }
 
 CefRefPtr<CefFrame> CefBrowserHostBase::GetFrame(const CefString& name) {
@@ -723,9 +703,9 @@ CefRefPtr<CefFrame> CefBrowserHostBase::GetFrameForHost(
   return browser_info_->GetFrameForHost(host);
 }
 
-CefRefPtr<CefFrame> CefBrowserHostBase::GetFrameForFrameTreeNode(
-    int frame_tree_node_id) {
-  return browser_info_->GetFrameForFrameTreeNode(frame_tree_node_id, nullptr);
+CefRefPtr<CefFrame> CefBrowserHostBase::GetFrameForGlobalId(
+    const content::GlobalRenderFrameHostId& global_id) {
+  return browser_info_->GetFrameForGlobalId(global_id, nullptr);
 }
 
 void CefBrowserHostBase::AddObserver(Observer* observer) {

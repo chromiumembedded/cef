@@ -23,6 +23,7 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/drag_data_impl.h"
+#include "libcef/common/frame_util.h"
 #include "libcef/common/net/url_util.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/values_impl.h"
@@ -288,21 +289,10 @@ CefRefPtr<AlloyBrowserHostImpl> AlloyBrowserHostImpl::GetBrowserForContents(
 }
 
 // static
-CefRefPtr<AlloyBrowserHostImpl>
-AlloyBrowserHostImpl::GetBrowserForFrameTreeNode(int frame_tree_node_id) {
+CefRefPtr<AlloyBrowserHostImpl> AlloyBrowserHostImpl::GetBrowserForGlobalId(
+    const content::GlobalRenderFrameHostId& global_id) {
   REQUIRE_ALLOY_RUNTIME();
-  auto browser =
-      CefBrowserHostBase::GetBrowserForFrameTreeNode(frame_tree_node_id);
-  return static_cast<AlloyBrowserHostImpl*>(browser.get());
-}
-
-// static
-CefRefPtr<AlloyBrowserHostImpl> AlloyBrowserHostImpl::GetBrowserForFrameRoute(
-    int render_process_id,
-    int render_routing_id) {
-  REQUIRE_ALLOY_RUNTIME();
-  auto browser = CefBrowserHostBase::GetBrowserForFrameRoute(render_process_id,
-                                                             render_routing_id);
+  auto browser = CefBrowserHostBase::GetBrowserForGlobalId(global_id);
   return static_cast<AlloyBrowserHostImpl*>(browser.get());
 }
 
@@ -1279,8 +1269,10 @@ void AlloyBrowserHostImpl::GetCustomWebContentsView(
     content::WebContentsView** view,
     content::RenderViewHostDelegateView** delegate_view) {
   CefBrowserInfoManager::GetInstance()->GetCustomWebContentsView(
-      target_url, opener_render_process_id, opener_render_frame_id, view,
-      delegate_view);
+      target_url,
+      frame_util::MakeGlobalId(opener_render_process_id,
+                               opener_render_frame_id),
+      view, delegate_view);
 }
 
 void AlloyBrowserHostImpl::WebContentsCreated(
@@ -1296,8 +1288,10 @@ void AlloyBrowserHostImpl::WebContentsCreated(
   CefRefPtr<CefDictionaryValue> extra_info;
 
   CefBrowserInfoManager::GetInstance()->WebContentsCreated(
-      target_url, opener_render_process_id, opener_render_frame_id, settings,
-      client, platform_delegate, extra_info);
+      target_url,
+      frame_util::MakeGlobalId(opener_render_process_id,
+                               opener_render_frame_id),
+      settings, client, platform_delegate, extra_info);
 
   scoped_refptr<CefBrowserInfo> info =
       CefBrowserInfoManager::GetInstance()->CreatePopupBrowserInfo(

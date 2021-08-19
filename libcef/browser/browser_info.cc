@@ -6,6 +6,7 @@
 
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/frame_util.h"
 #include "libcef/common/values_impl.h"
 
 #include "base/logging.h"
@@ -74,8 +75,7 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host,
                                       bool is_guest_view) {
   CEF_REQUIRE_UIT();
 
-  const auto frame_id = CefFrameHostImpl::MakeFrameId(host);
-  const int frame_tree_node_id = host->GetFrameTreeNodeId();
+  const auto global_id = host->GetGlobalId();
   const bool is_main_frame = (host->GetParent() == nullptr);
 
   // A speculative RFH will be created in response to a browser-initiated
@@ -93,14 +93,13 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host,
   NotificationStateLock lock_scope(this);
   DCHECK(browser_);
 
-  const auto it = frame_id_map_.find(frame_id);
+  const auto it = frame_id_map_.find(global_id);
   if (it != frame_id_map_.end()) {
     auto info = it->second;
 
 #if DCHECK_IS_ON()
     // Check that the frame info hasn't changed unexpectedly.
-    DCHECK_EQ(info->frame_id_, frame_id);
-    DCHECK_EQ(info->frame_tree_node_id_, frame_tree_node_id);
+    DCHECK_EQ(info->global_id_, global_id);
     DCHECK_EQ(info->is_guest_view_, is_guest_view);
     DCHECK_EQ(info->is_main_frame_, is_main_frame);
 #endif
@@ -112,15 +111,13 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host,
         SetMainFrame(browser_, info->frame_);
       }
       info->is_speculative_ = false;
-      MaybeUpdateFrameTreeNodeIdMap(info);
     }
     return;
   }
 
   auto frame_info = new FrameInfo;
   frame_info->host_ = host;
-  frame_info->frame_id_ = frame_id;
-  frame_info->frame_tree_node_id_ = frame_tree_node_id;
+  frame_info->global_id_ = global_id;
   frame_info->is_guest_view_ = is_guest_view;
   frame_info->is_main_frame_ = is_main_frame;
   frame_info->is_speculative_ = is_speculative;
@@ -136,18 +133,17 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host,
 
 #if DCHECK_IS_ON()
     // Check that the frame info hasn't changed unexpectedly.
-    DCHECK_EQ(frame_id, frame_info->frame_->GetIdentifier());
+    DCHECK_EQ(frame_util::MakeFrameId(global_id),
+              frame_info->frame_->GetIdentifier());
     DCHECK_EQ(frame_info->is_main_frame_, frame_info->frame_->IsMain());
 #endif
   }
 
-  browser_->request_context()->OnRenderFrameCreated(
-      host->GetProcess()->GetID(), host->GetRoutingID(), frame_tree_node_id,
-      is_main_frame, is_guest_view);
+  browser_->request_context()->OnRenderFrameCreated(global_id, is_main_frame,
+                                                    is_guest_view);
 
   // Populate the lookup maps.
-  frame_id_map_.insert(std::make_pair(frame_id, frame_info));
-  MaybeUpdateFrameTreeNodeIdMap(frame_info);
+  frame_id_map_.insert(std::make_pair(global_id, frame_info));
 
   // And finally set the ownership.
   frame_info_set_.insert(base::WrapUnique(frame_info));
@@ -171,8 +167,7 @@ void CefBrowserInfo::FrameHostStateChanged(
 
   base::AutoLock lock_scope(lock_);
 
-  const auto frame_id = CefFrameHostImpl::MakeFrameId(host);
-  auto it = frame_id_map_.find(frame_id);
+  auto it = frame_id_map_.find(host->GetGlobalId());
   DCHECK(it != frame_id_map_.end());
   DCHECK((!it->second->is_in_bfcache_ && added_to_bfcache) ||
          (it->second->is_in_bfcache_ && removed_from_bfcache));
@@ -184,30 +179,17 @@ void CefBrowserInfo::RemoveFrame(content::RenderFrameHost* host) {
 
   NotificationStateLock lock_scope(this);
 
-  const auto frame_id = CefFrameHostImpl::MakeFrameId(host);
-
-  auto it = frame_id_map_.find(frame_id);
+  const auto global_id = host->GetGlobalId();
+  auto it = frame_id_map_.find(global_id);
   DCHECK(it != frame_id_map_.end());
 
   auto frame_info = it->second;
 
   browser_->request_context()->OnRenderFrameDeleted(
-      host->GetProcess()->GetID(), host->GetRoutingID(),
-      frame_info->frame_tree_node_id_, frame_info->is_main_frame_,
-      frame_info->is_guest_view_);
+      global_id, frame_info->is_main_frame_, frame_info->is_guest_view_);
 
   // Remove from the lookup maps.
   frame_id_map_.erase(it);
-
-  // A new RFH with the same node ID may be added before the old RFH is deleted,
-  // or this might be a speculative RFH. Therefore only delete the map entry if
-  // it's currently pointing to the to-be-deleted frame info object.
-  {
-    auto it2 = frame_tree_node_id_map_.find(frame_info->frame_tree_node_id_);
-    if (it2 != frame_tree_node_id_map_.end() && it2->second == frame_info) {
-      frame_tree_node_id_map_.erase(frame_info->frame_tree_node_id_);
-    }
-  }
 
   // And finally delete the frame info.
   {
@@ -235,8 +217,8 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetMainFrame() {
 }
 
 CefRefPtr<CefFrameHostImpl> CefBrowserInfo::CreateTempSubFrame(
-    int64_t parent_frame_id) {
-  CefRefPtr<CefFrameHostImpl> parent = GetFrameForId(parent_frame_id);
+    const content::GlobalRenderFrameHostId& parent_global_id) {
+  CefRefPtr<CefFrameHostImpl> parent = GetFrameForGlobalId(parent_global_id);
   if (!parent)
     parent = GetMainFrame();
   // Intentionally not notifying for temporary frames.
@@ -253,39 +235,24 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForHost(
   if (!host)
     return nullptr;
 
-  return GetFrameForId(CefFrameHostImpl::MakeFrameId(host), is_guest_view,
-                       prefer_speculative);
+  return GetFrameForGlobalId(
+      const_cast<content::RenderFrameHost*>(host)->GetGlobalId(), is_guest_view,
+      prefer_speculative);
 }
 
-CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForRoute(
-    int32_t render_process_id,
-    int32_t render_routing_id,
+CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForGlobalId(
+    const content::GlobalRenderFrameHostId& global_id,
     bool* is_guest_view,
     bool prefer_speculative) const {
   if (is_guest_view)
     *is_guest_view = false;
 
-  if (render_process_id < 0 || render_routing_id < 0)
-    return nullptr;
-
-  return GetFrameForId(
-      CefFrameHostImpl::MakeFrameId(render_process_id, render_routing_id),
-      is_guest_view, prefer_speculative);
-}
-
-CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForId(
-    int64_t frame_id,
-    bool* is_guest_view,
-    bool prefer_speculative) const {
-  if (is_guest_view)
-    *is_guest_view = false;
-
-  if (frame_id < 0)
+  if (!frame_util::IsValidGlobalId(global_id))
     return nullptr;
 
   base::AutoLock lock_scope(lock_);
 
-  const auto it = frame_id_map_.find(frame_id);
+  const auto it = frame_id_map_.find(global_id);
   if (it != frame_id_map_.end()) {
     const auto info = it->second;
 
@@ -299,21 +266,10 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForId(
       if (info->is_main_frame_ && main_frame_) {
         // Always prefer the non-speculative main frame.
         return main_frame_;
-      } else {
-        // Always prefer an existing non-speculative frame for the same node ID.
-        bool is_guest_view_tmp;
-        auto frame = GetFrameForFrameTreeNodeInternal(info->frame_tree_node_id_,
-                                                      &is_guest_view_tmp);
-        if (is_guest_view_tmp) {
-          if (is_guest_view)
-            *is_guest_view = true;
-          return nullptr;
-        }
-        if (frame)
-          return frame;
       }
 
-      LOG(WARNING) << "Returning a speculative frame for frame id " << frame_id;
+      LOG(WARNING) << "Returning a speculative frame for "
+                   << frame_util::GetFrameDebugString(global_id);
     }
 
     DCHECK(info->frame_);
@@ -321,19 +277,6 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForId(
   }
 
   return nullptr;
-}
-
-CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForFrameTreeNode(
-    int frame_tree_node_id,
-    bool* is_guest_view) const {
-  if (is_guest_view)
-    *is_guest_view = false;
-
-  if (frame_tree_node_id < 0)
-    return nullptr;
-
-  base::AutoLock lock_scope(lock_);
-  return GetFrameForFrameTreeNodeInternal(frame_tree_node_id, is_guest_view);
 }
 
 CefBrowserInfo::FrameHostList CefBrowserInfo::GetAllFrames() const {
@@ -400,59 +343,6 @@ void CefBrowserInfo::MaybeExecuteFrameNotification(
 
   // Execute immediately if not locked.
   std::move(pending_action).Run(frame_handler);
-}
-
-void CefBrowserInfo::MaybeUpdateFrameTreeNodeIdMap(FrameInfo* info) {
-  lock_.AssertAcquired();
-
-  auto it = frame_tree_node_id_map_.find(info->frame_tree_node_id_);
-  const bool has_entry = (it != frame_tree_node_id_map_.end());
-
-  if (has_entry && it->second == info) {
-    // Already mapping to |info|.
-    return;
-  }
-
-  // Don't replace an existing node ID entry with a speculative RFH, but do
-  // add an entry if one doesn't already exist.
-  if (!info->is_speculative_ || !has_entry) {
-    // A new RFH with the same node ID may be added before the old RFH is
-    // deleted. To avoid duplicate entries in the map remove the old entry, if
-    // any, before adding the new entry.
-    if (has_entry)
-      frame_tree_node_id_map_.erase(it);
-
-    frame_tree_node_id_map_.insert(
-        std::make_pair(info->frame_tree_node_id_, info));
-  }
-}
-
-CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForFrameTreeNodeInternal(
-    int frame_tree_node_id,
-    bool* is_guest_view) const {
-  if (is_guest_view)
-    *is_guest_view = false;
-
-  lock_.AssertAcquired();
-
-  const auto it = frame_tree_node_id_map_.find(frame_tree_node_id);
-  if (it != frame_tree_node_id_map_.end()) {
-    const auto info = it->second;
-
-    LOG_IF(WARNING, info->is_speculative_)
-        << "Returning a speculative frame for node id " << frame_tree_node_id;
-
-    if (info->is_guest_view_) {
-      if (is_guest_view)
-        *is_guest_view = true;
-      return nullptr;
-    }
-
-    DCHECK(info->frame_);
-    return info->frame_;
-  }
-
-  return nullptr;
 }
 
 // Passing in |browser| here because |browser_| may already be cleared.
@@ -542,7 +432,6 @@ void CefBrowserInfo::RemoveAllFrames(
 
   // Clear the lookup maps.
   frame_id_map_.clear();
-  frame_tree_node_id_map_.clear();
 
   // Explicitly Detach everything but the current main frame.
   for (auto& info : frame_info_set_) {
