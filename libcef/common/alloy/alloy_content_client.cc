@@ -131,7 +131,7 @@ std::u16string AlloyContentClient::GetLocalizedString(
 
 base::StringPiece AlloyContentClient::GetDataResource(
     int resource_id,
-    ui::ScaleFactor scale_factor) {
+    ui::ResourceScaleFactor scale_factor) {
   base::StringPiece value =
       ui::ResourceBundle::GetSharedInstance().GetRawDataResourceForScale(
           resource_id, scale_factor);

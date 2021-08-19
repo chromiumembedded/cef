@@ -4,7 +4,7 @@
 
 base::FilePath CefResourceBundleDelegate::GetPathForResourcePack(
     const base::FilePath& pack_path,
-    ui::ScaleFactor scale_factor) {
+    ui::ResourceScaleFactor scale_factor) {
   // Only allow the cef pack file to load.
   if (!pack_loading_disabled_ && allow_pack_file_load_) {
     return pack_path;
@@ -30,7 +30,7 @@ gfx::Image CefResourceBundleDelegate::GetNativeImageNamed(int resource_id) {
 
 base::RefCountedStaticMemory* CefResourceBundleDelegate::LoadDataResourceBytes(
     int resource_id,
-    ui::ScaleFactor scale_factor) {
+    ui::ResourceScaleFactor scale_factor) {
   return nullptr;
 }
 
@@ -41,7 +41,7 @@ absl::optional<std::string> CefResourceBundleDelegate::LoadDataResourceString(
 
 bool CefResourceBundleDelegate::GetRawDataResource(
     int resource_id,
-    ui::ScaleFactor scale_factor,
+    ui::ResourceScaleFactor scale_factor,
     base::StringPiece* value) const {
   auto application = CefAppManager::Get()->GetApplication();
   if (application) {

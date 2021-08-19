@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index eefad1a677606..7318d223a63d0 100644
+index 8b338161af4bc..e0c4e36f9f140 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
-@@ -1721,6 +1721,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForOrigin(
+@@ -1734,6 +1734,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForOrigin(
              // DeclarativeApiTest.PersistRules.
              if (actual_process_lock.matches_scheme(url::kDataScheme))
                return true;
@@ -20,11 +20,11 @@ index eefad1a677606..7318d223a63d0 100644
  
            // TODO(wjmaclean): We should update the ProcessLock comparison API
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 5b830ecbb4a47..39b32f681233e 100644
+index b4d827ec6b9ca..5168da29c5d4d 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -5606,6 +5606,12 @@ url::Origin
- NavigationRequest::GetOriginForURLLoaderFactoryWithoutFinalFrameHost() {
+@@ -5686,6 +5686,12 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithoutFinalFrameHost(
+     network::mojom::WebSandboxFlags sandbox_flags) {
    // Calculate an approximation of the origin. The sandbox/csp are ignored.
    url::Origin origin = GetOriginForURLLoaderFactoryUnchecked(this);
 +  if (!origin.GetURL().IsStandard()) {
@@ -36,7 +36,7 @@ index 5b830ecbb4a47..39b32f681233e 100644
  
    // Apply sandbox flags.
    // See https://html.spec.whatwg.org/#sandboxed-origin-browsing-context-flag
-@@ -5639,6 +5645,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithFinalFrameHost() {
+@@ -5719,6 +5725,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithFinalFrameHost() {
    if (IsSameDocument() || IsPageActivation())
      return GetRenderFrameHost()->GetLastCommittedOrigin();
  
@@ -49,6 +49,6 @@ index 5b830ecbb4a47..39b32f681233e 100644
 +    return unchecked_origin.DeriveNewOpaqueOrigin();
 +  }
 +
-   url::Origin origin = GetOriginForURLLoaderFactoryWithoutFinalFrameHost();
+   url::Origin origin = GetOriginForURLLoaderFactoryWithoutFinalFrameHost(
+       sandbox_flags_to_commit_.value());
  
-   // MHTML documents should commit as an opaque origin. They should not be able

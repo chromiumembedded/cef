@@ -23,7 +23,6 @@
 #include "base/strings/string_util.h"
 #include "base/synchronization/waitable_event.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/media/router/media_router_feature.h"
 #include "chrome/child/pdf_child_init.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
@@ -237,16 +236,15 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
           base::NumberToString(settings_->uncaught_exception_stack_size));
     }
 
+#if defined(OS_WIN)
     std::vector<std::string> disable_features;
 
-#if defined(OS_WIN)
     if (features::kCalculateNativeWinOcclusion.default_state ==
         base::FEATURE_ENABLED_BY_DEFAULT) {
       // TODO: Add support for occlusion detection in combination with native
       // parent windows (see issue #2805).
       disable_features.push_back(features::kCalculateNativeWinOcclusion.name);
     }
-#endif  // defined(OS_WIN)
 
     if (!disable_features.empty()) {
       DCHECK(!base::FeatureList::GetInstance());
@@ -260,33 +258,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
       command_line->AppendSwitchASCII(switches::kDisableFeatures,
                                       disable_features_str);
     }
-
-    std::vector<std::string> enable_features;
-
-    if (media_router::kDialMediaRouteProvider.default_state ==
-        base::FEATURE_DISABLED_BY_DEFAULT) {
-      // Enable discovery of DIAL devices.
-      enable_features.push_back(media_router::kDialMediaRouteProvider.name);
-    }
-
-    if (media_router::kCastMediaRouteProvider.default_state ==
-        base::FEATURE_DISABLED_BY_DEFAULT) {
-      // Enable discovery of Cast devices.
-      enable_features.push_back(media_router::kCastMediaRouteProvider.name);
-    }
-
-    if (!enable_features.empty()) {
-      DCHECK(!base::FeatureList::GetInstance());
-      std::string enable_features_str =
-          command_line->GetSwitchValueASCII(switches::kEnableFeatures);
-      for (auto feature_str : enable_features) {
-        if (!enable_features_str.empty())
-          enable_features_str += ",";
-        enable_features_str += feature_str;
-      }
-      command_line->AppendSwitchASCII(switches::kEnableFeatures,
-                                      enable_features_str);
-    }
+#endif  // defined(OS_WIN)
   }
 
   if (application_) {

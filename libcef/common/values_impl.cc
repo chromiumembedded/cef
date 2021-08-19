@@ -1026,7 +1026,7 @@ CefListValueImpl::CefListValueImpl(base::ListValue* value,
 
 base::ListValue* CefListValueImpl::CopyValue() {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
-  return const_value().DeepCopy();
+  return static_cast<base::ListValue*>(const_value().DeepCopy());
 }
 
 base::ListValue* CefListValueImpl::CopyOrDetachValue(
@@ -1099,9 +1099,9 @@ bool CefListValueImpl::IsEqual(CefRefPtr<CefListValue> that) {
 CefRefPtr<CefListValue> CefListValueImpl::Copy() {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
 
-  return new CefListValueImpl(const_value().DeepCopy(), nullptr,
-                              CefListValueImpl::kOwnerWillDelete, false,
-                              nullptr);
+  return new CefListValueImpl(
+      static_cast<base::ListValue*>(const_value().DeepCopy()), nullptr,
+      CefListValueImpl::kOwnerWillDelete, false, nullptr);
 }
 
 bool CefListValueImpl::SetSize(size_t size) {

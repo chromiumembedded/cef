@@ -182,6 +182,19 @@ CefPrintViewManager::~CefPrintViewManager() {
   TerminatePdfPrintJob();
 }
 
+// static
+void CefPrintViewManager::BindPrintManagerHost(
+    mojo::PendingAssociatedReceiver<mojom::PrintManagerHost> receiver,
+    content::RenderFrameHost* rfh) {
+  auto* web_contents = content::WebContents::FromRenderFrameHost(rfh);
+  if (!web_contents)
+    return;
+  auto* print_manager = CefPrintViewManager::FromWebContents(web_contents);
+  if (!print_manager)
+    return;
+  print_manager->BindReceiver(std::move(receiver), rfh);
+}
+
 bool CefPrintViewManager::PrintToPDF(content::RenderFrameHost* rfh,
                                      const base::FilePath& path,
                                      const CefPdfPrintSettings& settings,

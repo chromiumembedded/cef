@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index ce65fbf4c4e62..6b05415374c87 100644
+index 3170d101acf0b..8a15712e741b8 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -2878,6 +2878,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2881,6 +2881,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    frame_tree_.Init(site_instance.get(), params.renderer_initiated_creation,
                     params.main_frame_name);
  
@@ -15,7 +15,7 @@ index ce65fbf4c4e62..6b05415374c87 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -2888,6 +2894,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2891,6 +2897,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
      view_.reset(CreateWebContentsView(this, delegate,
                                        &render_view_host_delegate_view_));
    }
@@ -23,7 +23,7 @@ index ce65fbf4c4e62..6b05415374c87 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -3719,6 +3726,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+@@ -3713,6 +3720,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -39,7 +39,7 @@ index ce65fbf4c4e62..6b05415374c87 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -7468,6 +7484,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -7531,6 +7547,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // This is an outermost WebContents.
      SetAsFocusedWebContentsIfNecessary();
    }
@@ -62,7 +62,7 @@ index f1dcf53ea481b..192f7c0ddd04f 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 279d292d96507..496e48d666a36 100644
+index 0ccd96cb9b840..26ba3f571e343 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -85,10 +85,12 @@ class BrowserContext;
@@ -90,7 +90,7 @@ index 279d292d96507..496e48d666a36 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 0574d390dc94a..7ad9c7bc6e456 100644
+index a0da74d5cbe4a..1d6e4673a610f 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -59,10 +59,12 @@ class EyeDropperListener;
@@ -106,7 +106,7 @@ index 0574d390dc94a..7ad9c7bc6e456 100644
  struct ContextMenuParams;
  struct DropData;
  struct MediaPlayerWatchTime;
-@@ -338,6 +340,14 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -335,6 +337,14 @@ class CONTENT_EXPORT WebContentsDelegate {
        const StoragePartitionId& partition_id,
        SessionStorageNamespace* session_storage_namespace);
  

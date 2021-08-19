@@ -31,10 +31,15 @@
 
 namespace {
 
-void TextfieldContentsImpl() {
+void RunTextfieldContents(CefRefPtr<CefWindow> window) {
   CefRefPtr<CefTextfield> textfield = CefTextfield::CreateTextfield(nullptr);
   EXPECT_TRUE(textfield.get());
   EXPECT_TRUE(textfield->AsTextfield().get());
+
+  // Must be added to a parent window before retrieving the style to avoid
+  // a CHECK() in View::GetNativeTheme(). See https://crbug.com/1056756.
+  window->AddChildView(textfield);
+  window->Layout();
 
   // Test defaults.
   EXPECT_TRUE(textfield->GetText().empty());
@@ -107,9 +112,20 @@ void TextfieldContentsImpl() {
   textfield->ClearEditHistory();
 }
 
-void TextfieldStyleImpl() {
+void TextfieldContentsImpl(CefRefPtr<CefWaitableEvent> event) {
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunTextfieldContents);
+  TestWindowDelegate::RunTest(event, std::move(config));
+}
+
+void RunTextfieldStyle(CefRefPtr<CefWindow> window) {
   CefRefPtr<CefTextfield> textfield = CefTextfield::CreateTextfield(nullptr);
   EXPECT_TRUE(textfield.get());
+
+  // Must be added to a parent window before retrieving the style to avoid
+  // a CHECK() in View::GetNativeTheme(). See https://crbug.com/1056756.
+  window->AddChildView(textfield);
+  window->Layout();
 
   // Test defaults.
   EXPECT_FALSE(textfield->IsPasswordInput());
@@ -160,11 +176,17 @@ void TextfieldStyleImpl() {
   textfield->SetAccessibleName("MyTextfield");
 }
 
+void TextfieldStyleImpl(CefRefPtr<CefWaitableEvent> event) {
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunTextfieldStyle);
+  TestWindowDelegate::RunTest(event, std::move(config));
+}
+
 }  // namespace
 
 // Test Textfield getters/setters.
-TEXTFIELD_TEST(TextfieldContents)
-TEXTFIELD_TEST(TextfieldStyle)
+TEXTFIELD_TEST_ASYNC(TextfieldContents)
+TEXTFIELD_TEST_ASYNC(TextfieldStyle)
 
 namespace {
 

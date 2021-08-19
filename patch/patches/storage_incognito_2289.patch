@@ -13,10 +13,10 @@ index 4960b1067e1c4..2686fa5bc550b 100644
            {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
             base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index 42f3b85ab0485..d8b50c18afd0e 100644
+index f7a2f30d3748a..098ff6540d8ea 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
-@@ -136,7 +136,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
+@@ -137,7 +137,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
  StoragePartition* BrowserContext::GetStoragePartition(
      const StoragePartitionConfig& storage_partition_config,
      bool can_create) {
@@ -25,7 +25,7 @@ index 42f3b85ab0485..d8b50c18afd0e 100644
      // An off the record profile MUST only use in memory storage partitions.
      CHECK(storage_partition_config.in_memory());
    }
-@@ -386,7 +386,8 @@ BrowserContext::CreateVideoDecodePerfHistory() {
+@@ -387,7 +387,8 @@ BrowserContext::CreateVideoDecodePerfHistory() {
    const bool kUseInMemoryDBDefault = false;
    bool use_in_memory_db = base::GetFieldTrialParamByFeatureAsBool(
        media::kMediaCapabilitiesWithParameters, kUseInMemoryDBParamName,
@@ -36,7 +36,7 @@ index 42f3b85ab0485..d8b50c18afd0e 100644
    std::unique_ptr<media::VideoDecodeStatsDB> stats_db;
    if (use_in_memory_db) {
 diff --git content/public/browser/storage_partition_config.cc content/public/browser/storage_partition_config.cc
-index 0095de1d05fd1..0e651cbcbe541 100644
+index b430ebb66bb5f..8fc54d2e7d713 100644
 --- content/public/browser/storage_partition_config.cc
 +++ content/public/browser/storage_partition_config.cc
 @@ -7,6 +7,7 @@
@@ -47,7 +47,7 @@ index 0095de1d05fd1..0e651cbcbe541 100644
  #include "base/strings/string_number_conversions.h"
  #include "content/public/browser/browser_context.h"
  #include "url/gurl.h"
-@@ -36,7 +37,8 @@ StoragePartitionConfig& StoragePartitionConfig::operator=(
+@@ -37,7 +38,8 @@ StoragePartitionConfig& StoragePartitionConfig::operator=(
  // static
  StoragePartitionConfig StoragePartitionConfig::CreateDefault(
      BrowserContext* browser_context) {

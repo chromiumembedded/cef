@@ -219,9 +219,8 @@ void OverrideUserDataDir(CefSettings* settings,
 }
 
 // Same as ui::ResourceBundle::IsScaleFactorSupported.
-bool IsScaleFactorSupported(ui::ScaleFactor scale_factor) {
-  const std::vector<ui::ScaleFactor>& supported_scale_factors =
-      ui::GetSupportedScaleFactors();
+bool IsScaleFactorSupported(ui::ResourceScaleFactor scale_factor) {
+  const auto& supported_scale_factors = ui::GetSupportedResourceScaleFactors();
   return std::find(supported_scale_factors.begin(),
                    supported_scale_factors.end(),
                    scale_factor) != supported_scale_factors.end();

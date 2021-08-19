@@ -170,10 +170,10 @@ bool ChromeBrowserDelegate::DidAddMessageToConsole(
   return false;
 }
 
-void ChromeBrowserDelegate::DidNavigateMainFramePostCommit(
+void ChromeBrowserDelegate::DidNavigatePrimaryMainFramePostCommit(
     content::WebContents* web_contents) {
   if (auto delegate = GetDelegateForWebContents(web_contents)) {
-    delegate->DidNavigateMainFramePostCommit(web_contents);
+    delegate->DidNavigatePrimaryMainFramePostCommit(web_contents);
   }
 }
 

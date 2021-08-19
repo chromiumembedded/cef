@@ -350,8 +350,6 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
       prefs::kEnableDoNotTrack, false,
       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
   registry->RegisterBooleanPref(prefs::kCaretBrowsingEnabled, false);
-  registry->RegisterBooleanPref(prefs::kCloudPrintDeprecationWarningsSuppressed,
-                                false);
 
   registry->RegisterStringPref(prefs::kWebRTCIPHandlingPolicy,
                                blink::kWebRTCIPHandlingDefault);
@@ -406,6 +404,9 @@ void PopulateWebPreferences(content::RenderViewHost* rvh,
       break;
     case ui::NativeTheme::PreferredContrast::kLess:
       web.preferred_contrast = blink::mojom::PreferredContrast::kLess;
+      break;
+    case ui::NativeTheme::PreferredContrast::kCustom:
+      web.preferred_contrast = blink::mojom::PreferredContrast::kCustom;
       break;
   }
 

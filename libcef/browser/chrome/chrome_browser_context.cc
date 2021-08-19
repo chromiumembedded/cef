@@ -74,7 +74,7 @@ void ChromeBrowserContext::InitializeAsync(base::OnceClosure initialized_cb) {
   }
 
   // Default to creating a new/unique OffTheRecord profile.
-  ProfileCreated(nullptr, Profile::CreateStatus::CREATE_STATUS_CANCELED);
+  ProfileCreated(nullptr, Profile::CreateStatus::CREATE_STATUS_LOCAL_FAIL);
 }
 
 void ChromeBrowserContext::Shutdown() {

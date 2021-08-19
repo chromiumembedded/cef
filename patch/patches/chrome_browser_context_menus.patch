@@ -1,8 +1,8 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index 408566907e832..1266687ccd665 100644
+index 9e358b1cde224..67ccd6ca0c50d 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
-@@ -273,6 +273,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
+@@ -279,6 +279,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
    return callback.get();
  }
  
@@ -16,7 +16,7 @@ index 408566907e832..1266687ccd665 100644
  enum class UmaEnumIdLookupType {
    GeneralEnumId,
    ContextSpecificEnumId,
-@@ -484,6 +491,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
+@@ -490,6 +497,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
    if (ContextMenuMatcher::IsExtensionsCustomCommandId(id))
      return 1;
  
@@ -27,7 +27,7 @@ index 408566907e832..1266687ccd665 100644
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -656,6 +667,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -666,6 +677,14 @@ RenderViewContextMenu::RenderViewContextMenu(
    system_app_type_ = GetBrowser() && GetBrowser()->app_controller()
                           ? GetBrowser()->app_controller()->system_app_type()
                           : absl::nullopt;
@@ -42,7 +42,7 @@ index 408566907e832..1266687ccd665 100644
  }
  
  RenderViewContextMenu::~RenderViewContextMenu() = default;
-@@ -1022,6 +1041,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1032,6 +1051,12 @@ void RenderViewContextMenu::InitMenu() {
    // menu, meaning that each menu item added/removed in this function will cause
    // it to visibly jump on the screen (see b/173569669).
    AppendQuickAnswersItems();
@@ -55,7 +55,7 @@ index 408566907e832..1266687ccd665 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -2742,6 +2767,12 @@ void RenderViewContextMenu::RegisterMenuShownCallbackForTesting(
+@@ -2816,6 +2841,12 @@ void RenderViewContextMenu::RegisterMenuShownCallbackForTesting(
    *GetMenuShownCallback() = std::move(cb);
  }
  
@@ -69,10 +69,10 @@ index 408566907e832..1266687ccd665 100644
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index 34b6152a222ec..b03c81bd076b8 100644
+index fbcde566b8c90..261b1b3e05dfc 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
-@@ -101,6 +101,12 @@ class RenderViewContextMenu : public RenderViewContextMenuBase,
+@@ -106,6 +106,12 @@ class RenderViewContextMenu : public RenderViewContextMenuBase,
    static void RegisterMenuShownCallbackForTesting(
        base::OnceCallback<void(RenderViewContextMenu*)> cb);
  
@@ -85,7 +85,7 @@ index 34b6152a222ec..b03c81bd076b8 100644
   protected:
    Profile* GetProfile() const;
  
-@@ -296,6 +302,9 @@ class RenderViewContextMenu : public RenderViewContextMenuBase,
+@@ -304,6 +310,9 @@ class RenderViewContextMenu : public RenderViewContextMenuBase,
    //   built.
    bool is_protocol_submenu_valid_ = false;
  
@@ -110,7 +110,7 @@ index 13a65de79e185..0901c4cade4f1 100644
    // that Ctrl+C, Ctrl+V, Ctrl+X, Ctrl-A, etc do what they normally do.
    switch (command_id) {
 diff --git components/renderer_context_menu/render_view_context_menu_base.cc components/renderer_context_menu/render_view_context_menu_base.cc
-index b2513d5ca3ead..f1894f4e05385 100644
+index f40f15c23bfb2..06d4d197ce137 100644
 --- components/renderer_context_menu/render_view_context_menu_base.cc
 +++ components/renderer_context_menu/render_view_context_menu_base.cc
 @@ -376,6 +376,17 @@ bool RenderViewContextMenuBase::IsCommandIdChecked(int id) const {

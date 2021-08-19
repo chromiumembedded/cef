@@ -161,7 +161,7 @@ bool CefBrowserContentsDelegate::DidAddMessageToConsole(
   return false;
 }
 
-void CefBrowserContentsDelegate::DidNavigateMainFramePostCommit(
+void CefBrowserContentsDelegate::DidNavigatePrimaryMainFramePostCommit(
     content::WebContents* web_contents) {
   has_document_ = false;
   OnStateChanged(State::kDocument);

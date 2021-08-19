@@ -66,17 +66,22 @@
 
 namespace {
 
+// This constant should be in sync with the constant in
+// chrome/browser/devtools/devtools_ui_bindings.cc.
+constexpr size_t kMaxMessageChunkSize = IPC::Channel::kMaximumMessageSize / 4;
+
+constexpr int kMaxLogLineLength = 1024;
+
 static std::string GetFrontendURL() {
   return base::StringPrintf("%s://%s/devtools_app.html",
                             content::kChromeDevToolsScheme,
                             scheme::kChromeDevToolsHost);
 }
 
-std::unique_ptr<base::DictionaryValue> BuildObjectForResponse(
-    const net::HttpResponseHeaders* rh,
-    bool success,
-    int net_error) {
-  auto response = std::make_unique<base::DictionaryValue>();
+base::DictionaryValue BuildObjectForResponse(const net::HttpResponseHeaders* rh,
+                                             bool success,
+                                             int net_error) {
+  base::DictionaryValue response;
   int responseCode = 200;
   if (rh) {
     responseCode = rh->response_code();
@@ -84,9 +89,9 @@ std::unique_ptr<base::DictionaryValue> BuildObjectForResponse(
     // In case of no headers, assume file:// URL and failed to load
     responseCode = 404;
   }
-  response->SetInteger("statusCode", responseCode);
-  response->SetInteger("netError", net_error);
-  response->SetString("netErrorName", net::ErrorToString(net_error));
+  response.SetInteger("statusCode", responseCode);
+  response.SetInteger("netError", net_error);
+  response.SetString("netErrorName", net::ErrorToString(net_error));
 
   auto headers = std::make_unique<base::DictionaryValue>();
   size_t iterator = 0;
@@ -97,11 +102,9 @@ std::unique_ptr<base::DictionaryValue> BuildObjectForResponse(
   while (rh && rh->EnumerateHeaderLines(&iterator, &name, &value))
     headers->SetString(name, value);
 
-  response->Set("headers", std::move(headers));
+  response.Set("headers", std::move(headers));
   return response;
 }
-
-const int kMaxLogLineLength = 1024;
 
 void WriteTimestamp(std::stringstream& stream) {
 #if defined(OS_WIN)
@@ -206,15 +209,16 @@ class CefDevToolsFrontend::NetworkResourceLoader
     base::Value id(stream_id_);
     base::Value encodedValue(encoded);
 
-    bindings_->CallClientFunction("DevToolsAPI.streamWrite", &id, &chunkValue,
-                                  &encodedValue);
+    bindings_->CallClientFunction("DevToolsAPI", "streamWrite", std::move(id),
+                                  std::move(chunkValue),
+                                  std::move(encodedValue));
     std::move(resume).Run();
   }
 
   void OnComplete(bool success) override {
     auto response = BuildObjectForResponse(response_headers_.get(), success,
                                            loader_->NetError());
-    bindings_->SendMessageAck(request_id_, response.get());
+    bindings_->SendMessageAck(request_id_, std::move(response));
 
     bindings_->loaders_.erase(bindings_->loaders_.find(this));
   }
@@ -229,10 +233,6 @@ class CefDevToolsFrontend::NetworkResourceLoader
 
   DISALLOW_COPY_AND_ASSIGN(NetworkResourceLoader);
 };
-
-// This constant should be in sync with
-// the constant at devtools_ui_bindings.cc.
-const size_t kMaxMessageChunkSize = IPC::Channel::kMaximumMessageSize / 4;
 
 // static
 CefDevToolsFrontend* CefDevToolsFrontend::Show(
@@ -368,44 +368,53 @@ void CefDevToolsFrontend::WebContentsDestroyed() {
 
 void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     base::Value message) {
-  std::string method;
-  base::ListValue* params = nullptr;
-  base::DictionaryValue* dict = nullptr;
-  if (!message.GetAsDictionary(&dict) || !dict->GetString("method", &method)) {
+  if (!message.is_dict())
     return;
-  }
-  int request_id = 0;
-  dict->GetInteger("id", &request_id);
-  dict->GetList("params", &params);
+  const std::string* method = message.FindStringKey("method");
+  if (!method)
+    return;
 
-  if (method == "dispatchProtocolMessage" && params && params->GetSize() == 1) {
-    std::string protocol_message;
-    if (!agent_host_ || !params->GetString(0, &protocol_message))
+  int request_id = message.FindIntKey("id").value_or(0);
+  base::Value* params_value = message.FindListKey("params");
+
+  // Since we've received message by value, we can take the list.
+  base::Value::ListStorage params;
+  if (params_value) {
+    params = std::move(*params_value).TakeList();
+  }
+
+  if (*method == "dispatchProtocolMessage") {
+    if (params.size() < 1)
+      return;
+    const std::string* protocol_message = params[0].GetIfString();
+    if (!agent_host_ || !protocol_message)
       return;
     if (ProtocolLoggingEnabled()) {
-      LogProtocolMessage(ProtocolMessageType::METHOD, protocol_message);
+      LogProtocolMessage(ProtocolMessageType::METHOD, *protocol_message);
     }
     agent_host_->DispatchProtocolMessage(
-        this, base::as_bytes(base::make_span(protocol_message)));
-  } else if (method == "loadCompleted") {
+        this, base::as_bytes(base::make_span(*protocol_message)));
+  } else if (*method == "loadCompleted") {
     web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
         u"DevToolsAPI.setUseSoftMenu(true);", base::NullCallback());
-  } else if (method == "loadNetworkResource" && params->GetSize() == 3) {
+  } else if (*method == "loadNetworkResource") {
+    if (params.size() < 3)
+      return;
+
     // TODO(pfeldman): handle some of the embedder messages in content.
-    std::string url;
-    std::string headers;
-    int stream_id;
-    if (!params->GetString(0, &url) || !params->GetString(1, &headers) ||
-        !params->GetInteger(2, &stream_id)) {
+    const std::string* url = params[0].GetIfString();
+    const std::string* headers = params[1].GetIfString();
+    absl::optional<const int> stream_id = params[2].GetIfInt();
+    if (!url || !headers || !stream_id.has_value()) {
       return;
     }
 
-    GURL gurl(url);
+    GURL gurl(*url);
     if (!gurl.is_valid()) {
       base::DictionaryValue response;
       response.SetInteger("statusCode", 404);
       response.SetBoolean("urlValid", false);
-      SendMessageAck(request_id, &response);
+      SendMessageAck(request_id, std::move(response));
       return;
     }
 
@@ -442,7 +451,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     // implementation. We really need to pass proper first party origin from
     // the front-end.
     resource_request->site_for_cookies = net::SiteForCookies::FromUrl(gurl);
-    resource_request->headers.AddHeadersFromString(headers);
+    resource_request->headers.AddHeadersFromString(*headers);
 
     scoped_refptr<network::SharedURLLoaderFactory> url_loader_factory;
     if (gurl.SchemeIsFile()) {
@@ -456,7 +465,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     } else if (content::HasWebUIScheme(gurl)) {
       base::DictionaryValue response;
       response.SetInteger("statusCode", 403);
-      SendMessageAck(request_id, &response);
+      SendMessageAck(request_id, std::move(response));
       return;
     } else {
       auto* partition =
@@ -467,64 +476,71 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     auto simple_url_loader = network::SimpleURLLoader::Create(
         std::move(resource_request), traffic_annotation);
     auto resource_loader = std::make_unique<NetworkResourceLoader>(
-        stream_id, this, std::move(simple_url_loader), url_loader_factory.get(),
-        request_id);
+        *stream_id, this, std::move(simple_url_loader),
+        url_loader_factory.get(), request_id);
     loaders_.insert(std::move(resource_loader));
     return;
-  } else if (method == "getPreferences") {
-    SendMessageAck(request_id,
-                   GetPrefs()->GetDictionary(prefs::kDevToolsPreferences));
+  } else if (*method == "getPreferences") {
+    SendMessageAck(
+        request_id,
+        GetPrefs()->GetDictionary(prefs::kDevToolsPreferences)->Clone());
     return;
-  } else if (method == "setPreference") {
-    std::string name;
-    std::string value;
-    if (!params->GetString(0, &name) || !params->GetString(1, &value)) {
+  } else if (*method == "setPreference") {
+    if (params.size() < 2)
       return;
-    }
+    const std::string* name = params[0].GetIfString();
+
+    // We're just setting params[1] as a value anyways, so just make sure it's
+    // the type we want, but don't worry about getting it.
+    if (!name || !params[1].is_string())
+      return;
+
     DictionaryPrefUpdate update(GetPrefs(), prefs::kDevToolsPreferences);
-    update.Get()->SetKey(name, base::Value(value));
-  } else if (method == "removePreference") {
-    std::string name;
-    if (!params->GetString(0, &name))
+    update.Get()->SetKey(*name, std::move(params[1]));
+  } else if (*method == "removePreference") {
+    const std::string* name = params[0].GetIfString();
+    if (!name)
       return;
     DictionaryPrefUpdate update(GetPrefs(), prefs::kDevToolsPreferences);
-    update.Get()->RemoveWithoutPathExpansion(name, nullptr);
-  } else if (method == "requestFileSystems") {
+    update.Get()->RemoveKey(*name);
+  } else if (*method == "requestFileSystems") {
     web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
         u"DevToolsAPI.fileSystemsLoaded([]);", base::NullCallback());
-  } else if (method == "reattach") {
+  } else if (*method == "reattach") {
     if (!agent_host_)
       return;
     agent_host_->DetachClient(this);
     agent_host_->AttachClient(this);
-  } else if (method == "registerExtensionsAPI") {
-    std::string origin;
-    std::string script;
-    if (!params->GetString(0, &origin) || !params->GetString(1, &script))
+  } else if (*method == "registerExtensionsAPI") {
+    if (params.size() < 2)
       return;
-    extensions_api_[origin + "/"] = script;
-  } else if (method == "save" && params->GetSize() == 3) {
-    std::string url;
-    std::string content;
-    bool save_as;
-    if (!params->GetString(0, &url) || !params->GetString(1, &content) ||
-        !params->GetBoolean(2, &save_as)) {
+    const std::string* origin = params[0].GetIfString();
+    const std::string* script = params[1].GetIfString();
+    if (!origin || !script)
       return;
-    }
-    file_manager_.SaveToFile(url, content, save_as);
-  } else if (method == "append" && params->GetSize() == 2) {
-    std::string url;
-    std::string content;
-    if (!params->GetString(0, &url) || !params->GetString(1, &content)) {
+    extensions_api_[*origin + "/"] = *script;
+  } else if (*method == "save") {
+    if (params.size() < 3)
       return;
-    }
-    file_manager_.AppendToFile(url, content);
+    const std::string* url = params[0].GetIfString();
+    const std::string* content = params[1].GetIfString();
+    absl::optional<bool> save_as = params[2].GetIfBool();
+    if (!url || !content || !save_as.has_value())
+      return;
+    file_manager_.SaveToFile(*url, *content, *save_as);
+  } else if (*method == "append") {
+    if (params.size() < 2)
+      return;
+    const std::string* url = params[0].GetIfString();
+    const std::string* content = params[1].GetIfString();
+    if (!url || !content)
+      return file_manager_.AppendToFile(*url, *content);
   } else {
     return;
   }
 
   if (request_id)
-    SendMessageAck(request_id, nullptr);
+    SendMessageAck(request_id, base::Value());
 }
 
 void CefDevToolsFrontend::DispatchProtocolMessage(
@@ -545,57 +561,54 @@ void CefDevToolsFrontend::DispatchProtocolMessage(
                            : ProtocolMessageType::RESULT,
                        str_message);
   }
-  if (str_message.length() < kMaxMessageChunkSize) {
-    std::string param;
-    base::EscapeJSONString(str_message, true, &param);
-    std::string code = "DevToolsAPI.dispatchMessage(" + param + ");";
-    std::u16string javascript = base::UTF8ToUTF16(code);
-    web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
-        javascript, base::NullCallback());
-    return;
-  }
 
-  size_t total_size = str_message.length();
-  for (size_t pos = 0; pos < str_message.length();
-       pos += kMaxMessageChunkSize) {
-    std::string param;
-    base::EscapeJSONString(str_message.substr(pos, kMaxMessageChunkSize), true,
-                           &param);
-    std::string code = "DevToolsAPI.dispatchMessageChunk(" + param + "," +
-                       std::to_string(pos ? 0 : total_size) + ");";
-    std::u16string javascript = base::UTF8ToUTF16(code);
-    web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
-        javascript, base::NullCallback());
+  if (str_message.length() < kMaxMessageChunkSize) {
+    CallClientFunction("DevToolsAPI", "dispatchMessage",
+                       base::Value(std::string(str_message)));
+  } else {
+    size_t total_size = str_message.length();
+    for (size_t pos = 0; pos < str_message.length();
+         pos += kMaxMessageChunkSize) {
+      base::StringPiece str_message_chunk =
+          str_message.substr(pos, kMaxMessageChunkSize);
+
+      CallClientFunction(
+          "DevToolsAPI", "dispatchMessageChunk",
+          base::Value(std::string(str_message_chunk)),
+          base::Value(base::NumberToString(pos ? 0 : total_size)));
+    }
   }
 }
 
-void CefDevToolsFrontend::CallClientFunction(const std::string& function_name,
-                                             const base::Value* arg1,
-                                             const base::Value* arg2,
-                                             const base::Value* arg3) {
-  std::string javascript = function_name + "(";
-  if (arg1) {
-    std::string json;
-    base::JSONWriter::Write(*arg1, &json);
-    javascript.append(json);
-    if (arg2) {
-      base::JSONWriter::Write(*arg2, &json);
-      javascript.append(", ").append(json);
-      if (arg3) {
-        base::JSONWriter::Write(*arg3, &json);
-        javascript.append(", ").append(json);
+void CefDevToolsFrontend::CallClientFunction(
+    const std::string& object_name,
+    const std::string& method_name,
+    base::Value arg1,
+    base::Value arg2,
+    base::Value arg3,
+    base::OnceCallback<void(base::Value)> cb) {
+  std::string javascript;
+
+  web_contents()->GetMainFrame()->AllowInjectingJavaScript();
+
+  base::Value arguments(base::Value::Type::LIST);
+  if (!arg1.is_none()) {
+    arguments.Append(std::move(arg1));
+    if (!arg2.is_none()) {
+      arguments.Append(std::move(arg2));
+      if (!arg3.is_none()) {
+        arguments.Append(std::move(arg3));
       }
     }
   }
-  javascript.append(");");
-  web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
-      base::UTF8ToUTF16(javascript), base::NullCallback());
+  web_contents()->GetMainFrame()->ExecuteJavaScriptMethod(
+      base::ASCIIToUTF16(object_name), base::ASCIIToUTF16(method_name),
+      std::move(arguments), std::move(cb));
 }
 
-void CefDevToolsFrontend::SendMessageAck(int request_id,
-                                         const base::Value* arg) {
-  base::Value id_value(request_id);
-  CallClientFunction("DevToolsAPI.embedderMessageAck", &id_value, arg, nullptr);
+void CefDevToolsFrontend::SendMessageAck(int request_id, base::Value arg) {
+  CallClientFunction("DevToolsAPI", "embedderMessageAck",
+                     base::Value(request_id), std::move(arg));
 }
 
 bool CefDevToolsFrontend::ProtocolLoggingEnabled() const {

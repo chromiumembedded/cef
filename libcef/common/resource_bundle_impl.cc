@@ -29,7 +29,7 @@ CefRefPtr<CefBinaryValue> CefResourceBundleImpl::GetDataResourceForScale(
 
   base::RefCountedMemory* result =
       ui::ResourceBundle::GetSharedInstance().LoadDataResourceBytesForScale(
-          resource_id, static_cast<ui::ScaleFactor>(scale_factor));
+          resource_id, static_cast<ui::ResourceScaleFactor>(scale_factor));
   if (!result)
     return nullptr;
 

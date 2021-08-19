@@ -37,8 +37,9 @@ class AlloyRenderThreadObserver : public content::RenderThreadObserver,
   // chrome::mojom::RendererConfiguration:
   void SetInitialConfiguration(
       bool is_incognito_process,
-      mojo::PendingReceiver<chrome::mojom::ChromeOSListener> chromeos_listener)
-      override;
+      mojo::PendingReceiver<chrome::mojom::ChromeOSListener> chromeos_listener,
+      mojo::PendingRemote<content_settings::mojom::ContentSettingsManager>
+          content_settings_manager) override;
   void SetConfiguration(chrome::mojom::DynamicParamsPtr params) override;
   void SetContentSettingRules(
       const RendererContentSettingRules& rules) override;

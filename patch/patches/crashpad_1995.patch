@@ -81,7 +81,7 @@ index 886372e114899..ad3bc2242883b 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 41cb4fdea7320..7bca01cf303c8 100644
+index 68ddd337e4dfa..687e869afd5c7 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -4,6 +4,8 @@
@@ -93,21 +93,30 @@ index 41cb4fdea7320..7bca01cf303c8 100644
  #include "base/base_switches.h"
  #include "base/command_line.h"
  #include "base/cxx17_backports.h"
-@@ -28,7 +30,7 @@
- namespace crash_keys {
+@@ -46,8 +48,10 @@ void HandleEnableDisableFeatures(const base::CommandLine& command_line) {
+ }
+ #endif
  
++}  // namespace
++
  // Return true if we DON'T want to upload this flag to the crash server.
--static bool IsBoringSwitch(const std::string& flag) {
+-bool IsBoringSwitch(const std::string& flag) {
 +bool IsBoringChromeSwitch(const std::string& flag) {
    static const char* const kIgnoreSwitches[] = {
      switches::kEnableLogging,
      switches::kFlagSwitchesBegin,
-@@ -81,7 +83,7 @@ static bool IsBoringSwitch(const std::string& flag) {
+@@ -107,13 +111,11 @@ bool IsBoringSwitch(const std::string& flag) {
+   return false;
  }
  
+-}  // namespace
+-
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
--  return SetSwitchesFromCommandLine(command_line, &IsBoringSwitch);
-+  return SetSwitchesFromCommandLine(command_line, &IsBoringChromeSwitch);
+ #if defined(OS_CHROMEOS)
+   HandleEnableDisableFeatures(command_line);
+ #endif
+-  SetSwitchesFromCommandLine(command_line, &IsBoringSwitch);
++  SetSwitchesFromCommandLine(command_line, &IsBoringChromeSwitch);
  }
  
  void SetActiveExtensions(const std::set<std::string>& extensions) {

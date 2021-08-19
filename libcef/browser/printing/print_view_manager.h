@@ -13,6 +13,7 @@
 #include "components/printing/common/print.mojom-forward.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/browser/web_contents_user_data.h"
+#include "printing/mojom/print.mojom.h"
 
 namespace content {
 class RenderFrameHost;
@@ -29,6 +30,10 @@ class CefPrintViewManager : public PrintViewManager,
                             public mojom::PrintPreviewUI {
  public:
   ~CefPrintViewManager() override;
+
+  static void BindPrintManagerHost(
+      mojo::PendingAssociatedReceiver<mojom::PrintManagerHost> receiver,
+      content::RenderFrameHost* rfh);
 
   // Callback executed on PDF printing completion.
   typedef base::OnceCallback<void(bool /*ok*/)> PdfPrintCallback;

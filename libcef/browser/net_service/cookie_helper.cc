@@ -237,7 +237,8 @@ void SaveCookies(content::BrowserContext* browser_context,
     net::CookieInclusionStatus returned_status;
     std::unique_ptr<net::CanonicalCookie> cookie = net::CanonicalCookie::Create(
         request.url, cookie_string, base::Time::Now(),
-        absl::make_optional(response_date), &returned_status);
+        absl::make_optional(response_date), net::CookiePartitionKey::Todo(),
+        &returned_status);
     if (!returned_status.IsInclude()) {
       continue;
     }

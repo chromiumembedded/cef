@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index d282ff9e1e7be..f698a1b235cca 100644
+index 50aec56adb4b6..c36996e06ebee 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -24,6 +24,7 @@
@@ -58,7 +58,7 @@ index 4ff73fd2d9ec3..d56686d8284ba 100644
    // Add an entry to the map.
    preview_dialog_map_[preview_dialog] = initiator;
 diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index 867227684ddba..98986fdad1e7f 100644
+index e4cacbf9a82da..3f137e18b8087 100644
 --- chrome/browser/printing/print_view_manager_base.cc
 +++ chrome/browser/printing/print_view_manager_base.cc
 @@ -21,6 +21,7 @@
@@ -80,7 +80,7 @@ index 867227684ddba..98986fdad1e7f 100644
  #if BUILDFLAG(ENABLE_PRINT_PREVIEW)
  #include "chrome/browser/printing/print_error_dialog.h"
  #include "chrome/browser/printing/print_view_manager.h"
-@@ -215,8 +220,13 @@ PrintViewManager* GetPrintViewManager(int render_process_id,
+@@ -216,8 +221,13 @@ PrintViewManager* GetPrintViewManager(int render_process_id,
    DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
    content::WebContents* web_contents =
        GetWebContentsForRenderFrame(render_process_id, render_frame_id);
@@ -97,10 +97,10 @@ index 867227684ddba..98986fdad1e7f 100644
  
  void NotifySystemDialogCancelled(int render_process_id, int routing_id) {
 diff --git chrome/browser/printing/print_view_manager_base.h chrome/browser/printing/print_view_manager_base.h
-index 48e2baa05cdf6..b4da112845d86 100644
+index eaa0e162a339b..8e030d2ab3995 100644
 --- chrome/browser/printing/print_view_manager_base.h
 +++ chrome/browser/printing/print_view_manager_base.h
-@@ -124,9 +124,6 @@ class PrintViewManagerBase : public content::NotificationObserver,
+@@ -126,9 +126,6 @@ class PrintViewManagerBase : public content::NotificationObserver,
    // Manages the low-level talk to the printer.
    scoped_refptr<PrintJob> print_job_;
  
@@ -151,7 +151,7 @@ index dd3512b303c40..0627aa331492c 100644
  
  ConstrainedWebDialogUI::~ConstrainedWebDialogUI() = default;
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
-index 32c3e9c3cb267..011b333602bfb 100644
+index 1b18146a4ba8f..9094f488642fc 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 +++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 @@ -21,6 +21,7 @@
@@ -173,7 +173,7 @@ index 32c3e9c3cb267..011b333602bfb 100644
  namespace printing {
  
  namespace {
-@@ -414,16 +419,18 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
+@@ -411,16 +416,18 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
      service->GetRemote<crosapi::mojom::DriveIntegrationService>()
          ->GetMountPointPath(
              base::BindOnce(&PdfPrinterHandler::OnSaveLocationReady,
@@ -194,7 +194,7 @@ index 32c3e9c3cb267..011b333602bfb 100644
      const base::FilePath& default_filename,
      bool prompt_user,
      const base::FilePath& path) {
-@@ -441,10 +448,27 @@ void PdfPrinterHandler::OnSaveLocationReady(
+@@ -438,10 +445,27 @@ void PdfPrinterHandler::OnSaveLocationReady(
    // If the directory is empty there is no reason to create it or use the
    // default location.
    if (path.empty()) {
@@ -222,7 +222,7 @@ index 32c3e9c3cb267..011b333602bfb 100644
    // Get default download directory. This will be used as a fallback if the
    // save directory does not exist.
    DownloadPrefs* download_prefs = DownloadPrefs::FromBrowserContext(profile_);
-@@ -452,8 +476,7 @@ void PdfPrinterHandler::OnSaveLocationReady(
+@@ -449,8 +473,7 @@ void PdfPrinterHandler::OnSaveLocationReady(
    base::ThreadPool::PostTaskAndReplyWithResult(
        FROM_HERE, {base::MayBlock(), base::TaskPriority::BEST_EFFORT},
        base::BindOnce(&SelectSaveDirectory, path, default_path),
@@ -232,7 +232,7 @@ index 32c3e9c3cb267..011b333602bfb 100644
  }
  
  void PdfPrinterHandler::PostPrintToPdfTask() {
-@@ -499,6 +522,36 @@ void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
+@@ -496,6 +519,36 @@ void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
        platform_util::GetTopLevel(preview_web_contents_->GetNativeView()), NULL);
  }
  
@@ -303,38 +303,8 @@ index e326047aef5e9..4fc8898e95b6f 100644
    // Return save location as the Drive mount or fetch from Download Preferences.
    base::FilePath GetSaveLocation() const;
  
-diff --git chrome/browser/ui/webui/print_preview/print_preview_handler.cc chrome/browser/ui/webui/print_preview/print_preview_handler.cc
-index 5cebaa1d75b74..3c2fae113c678 100644
---- chrome/browser/ui/webui/print_preview/print_preview_handler.cc
-+++ chrome/browser/ui/webui/print_preview/print_preview_handler.cc
-@@ -25,6 +25,7 @@
- #include "base/values.h"
- #include "build/build_config.h"
- #include "build/chromeos_buildflags.h"
-+#include "cef/libcef/features/runtime.h"
- #include "chrome/browser/account_manager_facade_factory.h"
- #include "chrome/browser/app_mode/app_mode_utils.h"
- #include "chrome/browser/bad_message.h"
-@@ -1151,6 +1152,7 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
-   }
- #if BUILDFLAG(ENABLE_SERVICE_DISCOVERY)
-   if (printer_type == mojom::PrinterType::kPrivet &&
-+      !cef::IsAlloyRuntimeEnabled() &&
-       GetPrefs()->GetBoolean(prefs::kForceEnablePrivetPrinting)) {
-     if (!privet_printer_handler_) {
-       privet_printer_handler_ =
-@@ -1158,6 +1160,9 @@ PrinterHandler* PrintPreviewHandler::GetPrinterHandler(
-     }
-     return privet_printer_handler_.get();
-   }
-+#else  // !BUILDFLAG(ENABLE_SERVICE_DISCOVERY)
-+  if (printer_type == PrinterType::kPrivet)
-+    return nullptr;
- #endif
-   if (printer_type == mojom::PrinterType::kPdf) {
-     if (!pdf_printer_handler_) {
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index 7d68582201d35..899df572ef835 100644
+index 424ee9168d93a..aa6266ccf443c 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -29,6 +29,7 @@

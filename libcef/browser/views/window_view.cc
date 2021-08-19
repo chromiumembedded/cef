@@ -341,7 +341,7 @@ CefRefPtr<CefWindow> CefWindowView::GetCefWindow() const {
 void CefWindowView::DeleteDelegate() {
   // Remove all child Views before deleting the Window so that notifications
   // resolve correctly.
-  RemoveAllChildViews(true);
+  RemoveAllChildViews();
 
   window_delegate_->OnWindowViewDeleted();
 }

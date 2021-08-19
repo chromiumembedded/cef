@@ -29,10 +29,10 @@ index 3b00759e513dc..90fe332d59f5b 100644
  // TODO(crbug.com/1052397): Revisit the macro expression once build flag switch
  // of lacros-chrome is complete.
 diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
-index 5e260e13762f6..1ccff27f2fdbe 100644
+index 94c5293d528a6..d89a986ed0def 100644
 --- components/viz/host/host_display_client.h
 +++ components/viz/host/host_display_client.h
-@@ -32,17 +32,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
+@@ -31,17 +31,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
    mojo::PendingRemote<mojom::DisplayClient> GetBoundRemote(
        scoped_refptr<base::SingleThreadTaskRunner> task_runner);
  
@@ -80,10 +80,10 @@ index 1026b739d283f..fe562ab60ce98 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 4e93b8609553e..97f52868bb68a 100644
+index f0eb025056501..823b7fcb55efc 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -206,6 +206,8 @@ viz_component("service") {
+@@ -208,6 +208,8 @@ viz_component("service") {
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
      "viz_service_export.h",
@@ -162,10 +162,10 @@ index 50ff2c9facc2a..c34d1f28d2e90 100644
        compositor_data.display_client->GetBoundRemote(resize_task_runner_);
  
 diff --git mojo/public/cpp/bindings/sync_call_restrictions.h mojo/public/cpp/bindings/sync_call_restrictions.h
-index fd962645ec69c..a29cdd8f86c04 100644
+index fc4142741f793..ae797aaeff5f2 100644
 --- mojo/public/cpp/bindings/sync_call_restrictions.h
 +++ mojo/public/cpp/bindings/sync_call_restrictions.h
-@@ -39,6 +39,7 @@ class Compositor;
+@@ -43,6 +43,7 @@ class Compositor;
  }  // namespace ui
  
  namespace viz {
@@ -173,7 +173,7 @@ index fd962645ec69c..a29cdd8f86c04 100644
  class GpuHostImpl;
  class HostFrameSinkManager;
  class HostGpuMemoryBufferManager;
-@@ -97,6 +98,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
+@@ -101,6 +102,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
    // For preventing frame swaps of wrong size during resize on Windows.
    // (https://crbug.com/811945)
    friend class ui::Compositor;

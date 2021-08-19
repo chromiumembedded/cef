@@ -802,9 +802,6 @@ static_library("libcef_static") {
   configs += [
     "libcef/features:config",
     "//build/config:precompiled_headers",
-
-    # TODO(jschuh): crbug.com/167187 fix size_t to int truncations.
-    "//build/config/compiler:no_size_t_to_int_warning",
   ]
 
   public_configs = [
@@ -1237,6 +1234,16 @@ static_library("libcef_static") {
 # libcef_dll_wrapper static targets.
 #
 
+# Configuration that will be applied to all targets that build autogen files.
+config("libcef_autogen_config") {
+  if (is_clang) {
+    cflags = [
+      # Disable clang warnings related to CEF's translation layer templates.
+      "-Wno-undefined-var-template",
+    ]
+  }
+}
+
 # Configuration that will be applied to all targets that depend on
 # libcef_dll_wrapper.
 config("libcef_dll_wrapper_config") {
@@ -1247,6 +1254,8 @@ config("libcef_dll_wrapper_config") {
     # They will be copied to the include/ directory in the binary distribution.
     "$root_out_dir/includes",
   ]
+
+  configs = [ ":libcef_autogen_config" ]
 }
 
 # libcef_dll_wrapper target.
@@ -1586,6 +1595,10 @@ if (is_mac) {
       ":libcef_static",
     ]
 
+    configs += [
+      ":libcef_autogen_config",
+    ]
+
     # We don't link the framework so just use the path from the main executable.
     ldflags = [
       "-Wl,-install_name,@executable_path/../Frameworks/$output_name.framework/$output_name",
@@ -1619,6 +1632,10 @@ if (is_mac) {
 
     deps = [
       ":libcef_static",
+    ]
+
+    configs += [
+      ":libcef_autogen_config",
     ]
 
     if (is_win) {

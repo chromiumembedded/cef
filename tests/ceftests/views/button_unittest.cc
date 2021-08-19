@@ -115,31 +115,47 @@ class EmptyMenuButtonDelegate : public CefMenuButtonDelegate {
   DISALLOW_COPY_AND_ASSIGN(EmptyMenuButtonDelegate);
 };
 
-void LabelButtonStyle() {
+void RunLabelButtonStyle(CefRefPtr<CefWindow> window) {
   CefRefPtr<CefLabelButton> button = CefLabelButton::CreateLabelButton(
       new EmptyMenuButtonDelegate(), kButtonText);
+
+  // Must be added to a parent window before retrieving the style to avoid
+  // a CHECK() in View::GetNativeTheme(). See https://crbug.com/1056756.
+  window->AddChildView(button);
+  window->Layout();
+
   VerifyLabelButtonStyle(button);
 }
 
-void LabelButtonStyleFramelessImpl() {
-  LabelButtonStyle();
+void LabelButtonStyleImpl(CefRefPtr<CefWaitableEvent> event) {
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunLabelButtonStyle);
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
-void MenuButtonStyle() {
+void RunMenuButtonStyle(CefRefPtr<CefWindow> window) {
   CefRefPtr<CefMenuButton> button = CefMenuButton::CreateMenuButton(
       new EmptyMenuButtonDelegate(), kButtonText);
+
+  // Must be added to a parent window before retrieving the style to avoid
+  // a CHECK() in View::GetNativeTheme(). See https://crbug.com/1056756.
+  window->AddChildView(button);
+  window->Layout();
+
   VerifyMenuButtonStyle(button);
 }
 
-void MenuButtonStyleFramelessImpl() {
-  MenuButtonStyle();
+void MenuButtonStyleImpl(CefRefPtr<CefWaitableEvent> event) {
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  config->on_window_created = base::BindOnce(RunMenuButtonStyle);
+  TestWindowDelegate::RunTest(event, std::move(config));
 }
 
 }  // namespace
 
 // Test Button getters/setters.
-BUTTON_TEST(LabelButtonStyleFrameless)
-BUTTON_TEST(MenuButtonStyleFrameless)
+BUTTON_TEST_ASYNC(LabelButtonStyle)
+BUTTON_TEST_ASYNC(MenuButtonStyle)
 
 namespace {
 

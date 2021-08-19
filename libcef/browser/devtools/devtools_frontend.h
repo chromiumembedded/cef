@@ -54,10 +54,13 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   void InspectElementAt(int x, int y);
   void Close();
 
-  void CallClientFunction(const std::string& function_name,
-                          const base::Value* arg1,
-                          const base::Value* arg2,
-                          const base::Value* arg3);
+  void CallClientFunction(
+      const std::string& object_name,
+      const std::string& method_name,
+      const base::Value arg1 = {},
+      const base::Value arg2 = {},
+      const base::Value arg3 = {},
+      base::OnceCallback<void(base::Value)> cb = base::NullCallback());
 
  private:
   CefDevToolsFrontend(AlloyBrowserHostImpl* frontend_browser,
@@ -80,7 +83,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
       content::RenderFrameHost* render_frame_host) override;
   void WebContentsDestroyed() override;
 
-  void SendMessageAck(int request_id, const base::Value* arg1);
+  void SendMessageAck(int request_id, base::Value arg);
 
   bool ProtocolLoggingEnabled() const;
   void LogProtocolMessage(ProtocolMessageType type,

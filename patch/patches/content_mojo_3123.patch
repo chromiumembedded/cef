@@ -1,8 +1,8 @@
 diff --git content/public/browser/document_service_base.h content/public/browser/document_service_base.h
-index a7d9457f7561a..3296e65dcb0f5 100644
+index e92c412a44c62..520338835afa8 100644
 --- content/public/browser/document_service_base.h
 +++ content/public/browser/document_service_base.h
-@@ -83,6 +83,8 @@ class DocumentServiceBase : public Interface, public WebContentsObserver {
+@@ -80,6 +80,8 @@ class DocumentServiceBase : public Interface, public WebContentsObserver {
  
    void DidFinishNavigation(NavigationHandle* navigation_handle) final {
      DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
@@ -11,7 +11,7 @@ index a7d9457f7561a..3296e65dcb0f5 100644
  
      if (!navigation_handle->HasCommitted() ||
          navigation_handle->IsSameDocument() ||
-@@ -96,6 +98,9 @@ class DocumentServiceBase : public Interface, public WebContentsObserver {
+@@ -98,6 +100,9 @@ class DocumentServiceBase : public Interface, public WebContentsObserver {
      }
    }
  

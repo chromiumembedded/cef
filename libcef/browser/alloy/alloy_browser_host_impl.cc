@@ -1316,9 +1316,9 @@ void AlloyBrowserHostImpl::WebContentsCreated(
                      std::move(platform_delegate), /*cef_extension=*/nullptr);
 }
 
-void AlloyBrowserHostImpl::DidNavigateMainFramePostCommit(
+void AlloyBrowserHostImpl::DidNavigatePrimaryMainFramePostCommit(
     content::WebContents* web_contents) {
-  contents_delegate_->DidNavigateMainFramePostCommit(web_contents);
+  contents_delegate_->DidNavigatePrimaryMainFramePostCommit(web_contents);
 }
 
 content::JavaScriptDialogManager*
