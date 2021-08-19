@@ -123,13 +123,9 @@ class CefBrowserHostBase : public CefBrowserHost,
   // Returns the browser associated with the specified WebContents.
   static CefRefPtr<CefBrowserHostBase> GetBrowserForContents(
       const content::WebContents* contents);
-  // Returns the browser associated with the specified FrameTreeNode ID.
-  static CefRefPtr<CefBrowserHostBase> GetBrowserForFrameTreeNode(
-      int frame_tree_node_id);
-  // Returns the browser associated with the specified frame routing IDs.
-  static CefRefPtr<CefBrowserHostBase> GetBrowserForFrameRoute(
-      int render_process_id,
-      int render_routing_id);
+  // Returns the browser associated with the specified global ID.
+  static CefRefPtr<CefBrowserHostBase> GetBrowserForGlobalId(
+      const content::GlobalRenderFrameHostId& global_id);
 
   CefBrowserHostBase(
       const CefBrowserSettings& settings,
@@ -212,8 +208,11 @@ class CefBrowserHostBase : public CefBrowserHost,
   // Returns the frame associated with the specified RenderFrameHost.
   CefRefPtr<CefFrame> GetFrameForHost(const content::RenderFrameHost* host);
 
-  // Returns the frame associated with the specified FrameTreeNode ID.
-  CefRefPtr<CefFrame> GetFrameForFrameTreeNode(int frame_tree_node_id);
+  // Returns the frame associated with the specified global ID. See
+  // documentation on RenderFrameHost::GetFrameTreeNodeId() for why the global
+  // ID is preferred.
+  CefRefPtr<CefFrame> GetFrameForGlobalId(
+      const content::GlobalRenderFrameHostId& global_id);
 
   // Manage observer objects. The observer must either outlive this object or
   // be removed before destruction. Must be called on the UI thread.

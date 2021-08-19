@@ -22,6 +22,7 @@
 #include "chrome/browser/profiles/profile.h"
 #include "components/language/core/browser/pref_names.h"
 #include "components/prefs/pref_service.h"
+#include "content/browser/renderer_host/frame_tree_node.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
@@ -228,8 +229,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     void Initialize(content::BrowserContext* browser_context,
                     CefRefPtr<CefBrowserHostBase> browser,
                     CefRefPtr<CefFrame> frame,
-                    int render_process_id,
-                    int frame_tree_node_id,
+                    const content::GlobalRenderFrameHostId& global_id,
                     bool is_navigation,
                     bool is_download,
                     const url::Origin& request_initiator,
@@ -256,8 +256,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
         frame_ = frame;
       }
 
-      render_process_id_ = render_process_id;
-      frame_tree_node_id_ = frame_tree_node_id;
+      global_id_ = global_id;
       is_navigation_ = is_navigation;
       is_download_ = is_download;
       request_initiator_ = request_initiator.Serialize();
@@ -292,8 +291,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     CefRefPtr<CefFrame> frame_;
     scoped_refptr<CefIOThreadState> iothread_state_;
     CefBrowserContext::CookieableSchemes cookieable_schemes_;
-    int render_process_id_ = 0;
-    int frame_tree_node_id_ = -1;
+    content::GlobalRenderFrameHostId global_id_;
     bool is_navigation_ = true;
     bool is_download_ = false;
     CefString request_initiator_;
@@ -1052,8 +1050,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       // Maybe the request context wants to handle it?
       CefRefPtr<CefRequestContextHandler> context_handler =
           init_state_->iothread_state_->GetHandler(
-              init_state_->render_process_id_, MSG_ROUTING_NONE,
-              init_state_->frame_tree_node_id_, /*require_frame_match=*/false);
+              init_state_->global_id_, /*require_frame_match=*/false);
       if (context_handler) {
         if (!requestPtr)
           requestPtr = MakeRequest(request, request_id, true);
@@ -1174,80 +1171,6 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
   DISALLOW_COPY_AND_ASSIGN(InterceptedRequestHandlerWrapper);
 };
 
-void InitOnUIThread(
-    scoped_refptr<InterceptedRequestHandlerWrapper::InitHelper> init_helper,
-    content::WebContents::Getter web_contents_getter,
-    int frame_tree_node_id,
-    const network::ResourceRequest& request,
-    const base::RepeatingClosure& unhandled_request_callback) {
-  CEF_REQUIRE_UIT();
-
-  // May return nullptr if the WebContents was destroyed while this callback was
-  // in-flight.
-  content::WebContents* web_contents = web_contents_getter.Run();
-  if (!web_contents) {
-    return;
-  }
-
-  content::BrowserContext* browser_context = web_contents->GetBrowserContext();
-  DCHECK(browser_context);
-
-  const int render_process_id =
-      web_contents->GetRenderViewHost()->GetProcess()->GetID();
-
-  content::RenderFrameHost* frame = nullptr;
-
-  if (request.is_main_frame ||
-      static_cast<blink::mojom::ResourceType>(request.resource_type) ==
-          blink::mojom::ResourceType::kMainFrame) {
-    frame = web_contents->GetMainFrame();
-    DCHECK(frame);
-  } else {
-    if (frame_tree_node_id >= 0) {
-      // May return null for frames in inner WebContents.
-      frame = web_contents->FindFrameByFrameTreeNodeId(frame_tree_node_id,
-                                                       render_process_id);
-    }
-    if (!frame) {
-      // Use the main frame for the CefBrowserHost.
-      frame = web_contents->GetMainFrame();
-      DCHECK(frame);
-    }
-  }
-
-  CefRefPtr<CefBrowserHostBase> browserPtr;
-  CefRefPtr<CefFrame> framePtr;
-
-  // |frame| may be null for service worker requests.
-  if (frame) {
-    // May return nullptr for requests originating from guest views.
-    browserPtr = CefBrowserHostBase::GetBrowserForHost(frame);
-    if (browserPtr) {
-      framePtr = browserPtr->GetFrameForHost(frame);
-      if (frame_tree_node_id < 0)
-        frame_tree_node_id = frame->GetFrameTreeNodeId();
-      DCHECK(framePtr);
-    }
-  }
-
-  const bool is_navigation = ui::PageTransitionIsNewNavigation(
-      static_cast<ui::PageTransition>(request.transition_type));
-  // TODO(navigation): Can we determine the |is_download| value?
-  const bool is_download = false;
-  url::Origin request_initiator;
-  if (request.request_initiator.has_value())
-    request_initiator = *request.request_initiator;
-
-  auto init_state =
-      std::make_unique<InterceptedRequestHandlerWrapper::InitState>();
-  init_state->Initialize(browser_context, browserPtr, framePtr,
-                         render_process_id, frame_tree_node_id, is_navigation,
-                         is_download, request_initiator,
-                         unhandled_request_callback);
-
-  init_helper->MaybeSetInitialized(std::move(init_state));
-}
-
 }  // namespace
 
 std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
@@ -1258,27 +1181,31 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
     bool is_download,
     const url::Origin& request_initiator) {
   CEF_REQUIRE_UIT();
+  CHECK(browser_context);
+
   CefRefPtr<CefBrowserHostBase> browserPtr;
   CefRefPtr<CefFrame> framePtr;
-  int frame_tree_node_id = -1;
 
-  // |frame| may be null for service worker requests.
+  // Default to handlers for the same process in case |frame| doesn't have an
+  // associated CefBrowserHost.
+  content::GlobalRenderFrameHostId global_id(render_process_id,
+                                             MSG_ROUTING_NONE);
+
+  // |frame| may be nullptr for service worker requests.
   if (frame) {
-    frame_tree_node_id = frame->GetFrameTreeNodeId();
-
     // May return nullptr for requests originating from guest views.
     browserPtr = CefBrowserHostBase::GetBrowserForHost(frame);
     if (browserPtr) {
       framePtr = browserPtr->GetFrameForHost(frame);
-      DCHECK(framePtr);
+      CHECK(framePtr);
+      global_id = frame->GetGlobalId();
     }
   }
 
   auto init_state =
       std::make_unique<InterceptedRequestHandlerWrapper::InitState>();
-  init_state->Initialize(browser_context, browserPtr, framePtr,
-                         render_process_id, frame_tree_node_id, is_navigation,
-                         is_download, request_initiator,
+  init_state->Initialize(browser_context, browserPtr, framePtr, global_id,
+                         is_navigation, is_download, request_initiator,
                          base::RepeatingClosure());
 
   auto wrapper = std::make_unique<InterceptedRequestHandlerWrapper>();
@@ -1292,10 +1219,74 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
     int frame_tree_node_id,
     const network::ResourceRequest& request,
     const base::RepeatingClosure& unhandled_request_callback) {
+  CEF_REQUIRE_UIT();
+
+  content::WebContents* web_contents = web_contents_getter.Run();
+  CHECK(web_contents);
+
+  content::BrowserContext* browser_context = web_contents->GetBrowserContext();
+  CHECK(browser_context);
+
+  content::RenderFrameHost* frame = nullptr;
+
+  if (request.is_main_frame ||
+      static_cast<blink::mojom::ResourceType>(request.resource_type) ==
+          blink::mojom::ResourceType::kMainFrame) {
+    frame = web_contents->GetMainFrame();
+    CHECK(frame);
+  } else {
+    // May return nullptr for frames in inner WebContents.
+    auto node = content::FrameTreeNode::GloballyFindByID(frame_tree_node_id);
+    if (node) {
+      frame = node->current_frame_host();
+
+      // RFHs can move between FrameTreeNodes. Make sure this one hasn't. See
+      // documentation on RenderFrameHost::GetFrameTreeNodeId() for background.
+      if (content::WebContents::FromRenderFrameHost(frame) != web_contents) {
+        frame = nullptr;
+      }
+    }
+
+    if (!frame) {
+      // Use the main frame for the CefBrowserHost.
+      frame = web_contents->GetMainFrame();
+      CHECK(frame);
+    }
+  }
+
+  CefRefPtr<CefBrowserHostBase> browserPtr;
+  CefRefPtr<CefFrame> framePtr;
+
+  // Default to handlers for the same process in case |frame| doesn't have an
+  // associated CefBrowserHost.
+  content::GlobalRenderFrameHostId global_id(frame->GetProcess()->GetID(),
+                                             MSG_ROUTING_NONE);
+
+  // May return nullptr for requests originating from guest views.
+  browserPtr = CefBrowserHostBase::GetBrowserForHost(frame);
+  if (browserPtr) {
+    framePtr = browserPtr->GetFrameForHost(frame);
+    DCHECK(framePtr);
+    global_id = frame->GetGlobalId();
+  }
+
+  const bool is_navigation = ui::PageTransitionIsNewNavigation(
+      static_cast<ui::PageTransition>(request.transition_type));
+  // TODO(navigation): Can we determine the |is_download| value?
+  const bool is_download = false;
+  url::Origin request_initiator;
+  if (request.request_initiator.has_value())
+    request_initiator = *request.request_initiator;
+
+  auto init_state =
+      std::make_unique<InterceptedRequestHandlerWrapper::InitState>();
+  init_state->Initialize(browser_context, browserPtr, framePtr, global_id,
+                         is_navigation, is_download, request_initiator,
+                         unhandled_request_callback);
+
   auto wrapper = std::make_unique<InterceptedRequestHandlerWrapper>();
-  CEF_POST_TASK(CEF_UIT, base::BindOnce(InitOnUIThread, wrapper->init_helper(),
-                                        web_contents_getter, frame_tree_node_id,
-                                        request, unhandled_request_callback));
+  wrapper->init_helper()->MaybeSetInitialized(std::move(init_state));
+
   return wrapper;
 }
 

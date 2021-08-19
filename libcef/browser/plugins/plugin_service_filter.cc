@@ -9,6 +9,7 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/web_plugin_impl.h"
 #include "libcef/common/alloy/alloy_content_client.h"
+#include "libcef/common/frame_util.h"
 
 #include "extensions/common/constants.h"
 
@@ -88,12 +89,12 @@ bool CefPluginServiceFilter::IsPluginAvailable(
     return true;
   }
 
-  auto browser_context =
-      CefBrowserContext::FromIDs(render_process_id, render_frame_id, -1, false);
+  const auto global_id = frame_util::MakeGlobalId(
+      render_process_id, render_frame_id, /*allow_invalid_frame_id=*/true);
+  auto browser_context = CefBrowserContext::FromGlobalId(global_id, false);
   CefRefPtr<CefRequestContextHandler> handler;
   if (browser_context) {
-    handler = browser_context->GetHandler(render_process_id, render_frame_id,
-                                          -1, false);
+    handler = browser_context->GetHandler(global_id, false);
   }
 
   if (!handler) {

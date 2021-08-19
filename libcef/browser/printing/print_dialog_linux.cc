@@ -12,6 +12,7 @@
 #include "libcef/browser/print_settings_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/app_manager.h"
+#include "libcef/common/frame_util.h"
 
 #include "base/bind.h"
 #include "base/files/file_util.h"
@@ -19,6 +20,7 @@
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/values.h"
+#include "content/public/browser/global_routing_id.h"
 #include "printing/metafile.h"
 #include "printing/print_job_constants.h"
 #include "printing/print_settings.h"
@@ -106,8 +108,10 @@ gfx::Size CefPrintDialogLinux::GetPdfPaperSize(
 
   gfx::Size size;
 
-  auto browser = extensions::GetOwnerBrowserForFrameRoute(
-      context->render_process_id(), context->render_frame_id(), nullptr);
+  auto browser = extensions::GetOwnerBrowserForGlobalId(
+      frame_util::MakeGlobalId(context->render_process_id(),
+                               context->render_frame_id()),
+      nullptr);
   DCHECK(browser);
   if (browser && browser->GetClient()) {
     if (auto handler = browser->GetClient()->GetPrintHandler()) {
@@ -139,8 +143,10 @@ void CefPrintDialogLinux::OnPrintStart(CefRefPtr<CefBrowserHostBase> browser) {
 CefPrintDialogLinux::CefPrintDialogLinux(PrintingContextLinux* context)
     : context_(context) {
   DCHECK(context_);
-  browser_ = extensions::GetOwnerBrowserForFrameRoute(
-      context_->render_process_id(), context_->render_frame_id(), nullptr);
+  browser_ = extensions::GetOwnerBrowserForGlobalId(
+      frame_util::MakeGlobalId(context_->render_process_id(),
+                               context_->render_frame_id()),
+      nullptr);
   DCHECK(browser_);
 }
 

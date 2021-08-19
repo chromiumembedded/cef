@@ -10,6 +10,7 @@
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_util.h"
+#include "libcef/common/frame_util.h"
 #include "libcef/features/runtime_checks.h"
 
 #include "chrome/browser/browser_process.h"
@@ -73,29 +74,27 @@ content::WebContents* GetOwnerForGuestContents(content::WebContents* guest) {
   return print_preview_controller->GetInitiator(guest);
 }
 
-CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForFrameRoute(
-    int render_process_id,
-    int render_routing_id,
+CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForGlobalId(
+    const content::GlobalRenderFrameHostId& global_id,
     bool* is_guest_view) {
   if (CEF_CURRENTLY_ON_UIT()) {
     // Use the non-thread-safe but potentially faster approach.
     content::RenderFrameHost* host =
-        content::RenderFrameHost::FromID(render_process_id, render_routing_id);
+        content::RenderFrameHost::FromID(global_id);
     if (host)
       return GetOwnerBrowserForHost(host, is_guest_view);
     return nullptr;
   } else {
     // Use the thread-safe approach.
     scoped_refptr<CefBrowserInfo> info =
-        CefBrowserInfoManager::GetInstance()->GetBrowserInfoForFrameRoute(
-            render_process_id, render_routing_id, is_guest_view);
+        CefBrowserInfoManager::GetInstance()->GetBrowserInfo(global_id,
+                                                             is_guest_view);
     if (info.get()) {
       CefRefPtr<CefBrowserHostBase> browser = info->browser();
       if (!browser.get()) {
         LOG(WARNING) << "Found browser id " << info->browser_id()
-                     << " but no browser object matching view process id "
-                     << render_process_id << " and frame routing id "
-                     << render_routing_id;
+                     << " but no browser object matching frame "
+                     << frame_util::GetFrameDebugString(global_id);
       }
       return browser;
     }

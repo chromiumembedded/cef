@@ -7,6 +7,7 @@
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/browser_util.h"
+#include "libcef/common/frame_util.h"
 
 #include "content/public/browser/focused_node_details.h"
 #include "content/public/browser/keyboard_event_processing_result.h"
@@ -252,7 +253,8 @@ void CefBrowserContentsDelegate::RenderFrameHostStateChanged(
 
 void CefBrowserContentsDelegate::RenderFrameDeleted(
     content::RenderFrameHost* render_frame_host) {
-  const auto frame_id = CefFrameHostImpl::MakeFrameId(render_frame_host);
+  const auto frame_id =
+      frame_util::MakeFrameId(render_frame_host->GetGlobalId());
   browser_info_->RemoveFrame(render_frame_host);
 
   if (focused_frame_ && focused_frame_->GetIdentifier() == frame_id) {
@@ -358,6 +360,7 @@ void CefBrowserContentsDelegate::DidFinishNavigation(
     return;
 
   const bool is_main_frame = navigation_handle->IsInMainFrame();
+  const auto global_id = frame_util::GetGlobalId(navigation_handle);
   const GURL& url =
       (error_code == net::OK ? navigation_handle->GetURL() : GURL());
 
@@ -365,14 +368,13 @@ void CefBrowserContentsDelegate::DidFinishNavigation(
 
   // May return NULL when starting a new navigation if the previous navigation
   // caused the renderer process to crash during load.
-  CefRefPtr<CefFrameHostImpl> frame = browser_info->GetFrameForFrameTreeNode(
-      navigation_handle->GetFrameTreeNodeId());
+  CefRefPtr<CefFrameHostImpl> frame =
+      browser_info->GetFrameForGlobalId(global_id);
   if (!frame) {
     if (is_main_frame) {
       frame = browser_info->GetMainFrame();
     } else {
-      frame =
-          browser_info->CreateTempSubFrame(CefFrameHostImpl::kInvalidFrameId);
+      frame = browser_info->CreateTempSubFrame(frame_util::InvalidGlobalId());
     }
   }
   frame->RefreshAttributes();

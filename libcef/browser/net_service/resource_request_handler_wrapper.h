@@ -38,7 +38,7 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
 
 // Create an InterceptedRequestHandler that will delegate to a
 // CefResourceRequestHandler. The resulting object should be passed to
-// ProxyURLLoaderFactory::CreateProxy. Called on the IO thread only.
+// ProxyURLLoaderFactory::CreateProxy. Called on the UI thread only.
 std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
     content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,

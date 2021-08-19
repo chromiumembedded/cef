@@ -14,6 +14,10 @@
 
 #include "content/public/browser/browser_thread.h"
 
+namespace content {
+struct GlobalRenderFrameHostId;
+}
+
 class GURL;
 
 // Stores state that will be accessed on the IO thread. Life span is controlled
@@ -26,17 +30,11 @@ class CefIOThreadState : public base::RefCountedThreadSafe<
   CefIOThreadState();
 
   // See comments in CefRequestContextHandlerMap.
-  void AddHandler(int render_process_id,
-                  int render_frame_id,
-                  int frame_tree_node_id,
+  void AddHandler(const content::GlobalRenderFrameHostId& global_id,
                   CefRefPtr<CefRequestContextHandler> handler);
-  void RemoveHandler(int render_process_id,
-                     int render_frame_id,
-                     int frame_tree_node_id);
+  void RemoveHandler(const content::GlobalRenderFrameHostId& global_id);
   CefRefPtr<CefRequestContextHandler> GetHandler(
-      int render_process_id,
-      int render_frame_id,
-      int frame_tree_node_id,
+      const content::GlobalRenderFrameHostId& global_id,
       bool require_frame_match) const;
 
   // Manage scheme handler factories associated with this context.

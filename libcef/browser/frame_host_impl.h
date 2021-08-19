@@ -128,10 +128,6 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
       absl::optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions)
       override;
 
-  static int64_t MakeFrameId(const content::RenderFrameHost* host);
-  static int64_t MakeFrameId(int32_t render_process_id,
-                             int32_t render_routing_id);
-
   static const int64_t kMainFrameId;
   static const int64_t kFocusedFrameId;
   static const int64_t kUnspecifiedFrameId;
