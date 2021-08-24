@@ -4,11 +4,14 @@ URL: https://github.com/google/googletest
 License: BSD (see LICENSE file)
 
 Description:
-Fuzed (single header/source file) version of GoogleTest. Generated from the
-Chromium source checkout with the following command:
+Fuzed (single header/source file) version of GoogleTest. Generated from a
+Chromium version 93.0.4577.51 source checkout with the following command:
 
 cd /path/to/chromium/src/third_party/googletest/src/googletest/scripts
 ./fuse_gtest_files.py <out_directory>
+
+This script was removed from GTest in
+https://github.com/google/googletest/commit/47f819c3ca.
 
 Local Modifications:
 None.

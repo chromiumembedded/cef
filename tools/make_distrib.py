@@ -174,43 +174,35 @@ def create_readme():
     sys.stdout.write('Creating README.TXT file.\n')
 
 
-def create_fuzed_gtest(tests_dir):
-  """ Generate a fuzed version of gtest and build the expected directory structure. """
-  src_gtest_dir = os.path.join(src_dir, 'third_party', 'googletest', 'src',
-                               'googletest')
-  run('%s fuse_gtest_files.py \"%s\"' % (sys.executable, tests_dir),
-      os.path.join(src_gtest_dir, 'scripts'))
-
+def copy_gtest(tests_dir):
+  """ Copy GTest files to the expected directory structure. """
   if not options.quiet:
     sys.stdout.write('Building gtest directory structure.\n')
 
+  src_gtest_dir = os.path.join(cef_dir, 'tools', 'distrib', 'gtest')
   target_gtest_dir = os.path.join(tests_dir, 'gtest')
-  gtest_header = os.path.join(target_gtest_dir, 'gtest.h')
-  gtest_cpp = os.path.join(target_gtest_dir, 'gtest-all.cc')
-
-  if not os.path.exists(gtest_header):
-    raise Exception('Generated file not found: %s' % gtest_header)
-  if not os.path.exists(gtest_cpp):
-    raise Exception('Generated file not found: %s' % gtest_cpp)
 
   # gtest header file at tests/gtest/include/gtest/gtest.h
   target_gtest_header_dir = os.path.join(target_gtest_dir, 'include', 'gtest')
   make_dir(target_gtest_header_dir, options.quiet)
-  move_file(gtest_header, target_gtest_header_dir, options.quiet)
+  copy_file(
+      os.path.join(src_gtest_dir, 'gtest.h'), target_gtest_header_dir,
+      options.quiet)
 
   # gtest source file at tests/gtest/src/gtest-all.cc
   target_gtest_cpp_dir = os.path.join(target_gtest_dir, 'src')
   make_dir(target_gtest_cpp_dir, options.quiet)
-  move_file(gtest_cpp, target_gtest_cpp_dir, options.quiet)
+  copy_file(
+      os.path.join(src_gtest_dir, 'gtest-all.cc'), target_gtest_cpp_dir,
+      options.quiet)
 
   # gtest LICENSE file at tests/gtest/LICENSE
   copy_file(
-      os.path.join(src_gtest_dir, os.pardir, 'LICENSE'), target_gtest_dir,
-      options.quiet)
+      os.path.join(src_gtest_dir, 'LICENSE'), target_gtest_dir, options.quiet)
 
   # CEF README file at tests/gtest/README.cef
   copy_file(
-      os.path.join(cef_dir, 'tests', 'gtest', 'README.cef.in'),
+      os.path.join(src_gtest_dir, 'README.cef'),
       os.path.join(target_gtest_dir, 'README.cef'), options.quiet)
 
   # Copy tests/gtest/teamcity files
@@ -824,8 +816,8 @@ if mode == 'standard':
   transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_common'], \
                       'tests/ceftests/', ceftests_dir, options.quiet)
 
-  # create the fuzed gtest version
-  create_fuzed_gtest(tests_dir)
+  # copy GTest files
+  copy_gtest(tests_dir)
 
   # process cmake templates
   if not options.ozone:
