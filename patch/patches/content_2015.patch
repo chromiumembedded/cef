@@ -1,8 +1,8 @@
 diff --git chrome/browser/download/download_target_determiner.cc chrome/browser/download/download_target_determiner.cc
-index 1891a950448c9..cf6cdb676edc9 100644
+index 2e0bcdd47dea9..79cc0943c5dc9 100644
 --- chrome/browser/download/download_target_determiner.cc
 +++ chrome/browser/download/download_target_determiner.cc
-@@ -677,7 +677,7 @@ void IsHandledBySafePlugin(int render_process_id,
+@@ -678,7 +678,7 @@ void IsHandledBySafePlugin(int render_process_id,
    content::PluginService* plugin_service =
        content::PluginService::GetInstance();
    bool plugin_found = plugin_service->GetPluginInfo(
@@ -188,10 +188,10 @@ index 632ae86c6fd69..55b749ec12421 100644
                            const std::vector<WebPluginInfo>& all_plugins);
  
 diff --git content/browser/renderer_host/render_frame_host_impl.cc content/browser/renderer_host/render_frame_host_impl.cc
-index 714fd5889f254..9dc0414f02c55 100644
+index 3bfb10467c5c8..399f939fd32c6 100644
 --- content/browser/renderer_host/render_frame_host_impl.cc
 +++ content/browser/renderer_host/render_frame_host_impl.cc
-@@ -12008,6 +12008,7 @@ void RenderFrameHostImpl::BindHungDetectorHost(
+@@ -12009,6 +12009,7 @@ void RenderFrameHostImpl::BindHungDetectorHost(
  }
  
  void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
@@ -199,7 +199,7 @@ index 714fd5889f254..9dc0414f02c55 100644
                                          const url::Origin& main_frame_origin,
                                          const std::string& mime_type,
                                          GetPluginInfoCallback callback) {
-@@ -12015,7 +12016,8 @@ void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
+@@ -12016,7 +12017,8 @@ void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
    WebPluginInfo info;
    std::string actual_mime_type;
    bool found = PluginServiceImpl::GetInstance()->GetPluginInfo(

@@ -13,7 +13,7 @@ index ba0c5c3fc0446..b4df9af95ecd1 100644
    return false;
  }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index b6a5989bbee66..10c942ddc793c 100644
+index b6a5989bbee66..622e68ccecc70 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -262,6 +262,20 @@

@@ -144,7 +144,7 @@ index 9d0bc6966680f..152c6f01059b6 100644
    req.y = bounds_in_pixels_.y();
    req.width = bounds_in_pixels_.width();
 diff --git ui/views/widget/desktop_aura/desktop_screen_win.cc ui/views/widget/desktop_aura/desktop_screen_win.cc
-index 7c352dd0d992d..cf1a0c3e6db63 100644
+index 7c352dd0d992d..516623a91b0e1 100644
 --- ui/views/widget/desktop_aura/desktop_screen_win.cc
 +++ ui/views/widget/desktop_aura/desktop_screen_win.cc
 @@ -20,6 +20,8 @@ DesktopScreenWin::~DesktopScreenWin() {
