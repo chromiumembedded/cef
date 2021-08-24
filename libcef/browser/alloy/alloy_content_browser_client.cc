@@ -744,6 +744,14 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
       if (!subprocess_path.empty())
         command_line->SetProgram(subprocess_path);
     }
+
+    // Propagate the following switches to the zygote command line (along with
+    // any associated values) if present in the browser command line.
+    static const char* const kSwitchNames[] = {
+        switches::kLogFile,
+    };
+    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
+                                   base::size(kSwitchNames));
   }
 #endif  // defined(OS_LINUX)
 
