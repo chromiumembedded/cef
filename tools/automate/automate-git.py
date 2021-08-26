@@ -369,23 +369,23 @@ def get_chromium_channel_version(os, channel):
   return get_chromium_channel_data(os, channel, 'current_version')
 
 
-def get_chromium_master_position(commit):
-  """ Returns the closest master position for the specified Chromium commit. """
+def get_chromium_main_position(commit):
+  """ Returns the closest main position for the specified Chromium commit. """
   # Using -2 because a "Publish DEPS" commit which does not have a master
   # position may be first.
   cmd = "%s log -2 %s" % (git_exe, commit)
   result = exec_cmd(cmd, chromium_src_dir)
   if result['out'] != '':
-    match = re.search(r'refs/heads/master@{#([\d]+)}', result['out'])
+    match = re.search(r'refs/heads/(?:master|main)@{#([\d]+)}', result['out'])
     assert match != None, 'Failed to find position'
     return int(match.groups()[0])
   return None
 
 
-def get_chromium_master_commit(position):
-  """ Returns the master commit for the specified Chromium commit position. """
-  cmd = '%s log -1 --grep=refs/heads/master@{#%s} origin/master' % (
-      git_exe, str(position))
+def get_chromium_main_commit(position):
+  """ Returns the main commit for the specified Chromium commit position. """
+  cmd = '%s log -1 --grep=refs/heads/master@{#%s} --grep=refs/heads/main@{#%s} origin/main' % (
+      git_exe, str(position), str(position))
   result = exec_cmd(cmd, chromium_src_dir)
   if result['out'] != '':
     match = re.search(r'^commit ([a-f0-9]+)', result['out'])
@@ -428,13 +428,13 @@ def get_chromium_target_version(os='win', channel='canary', target_distance=0):
       # Closest version may not align with the compat position, so adjust the
       # commit to match.
       compat_commit = get_git_hash(chromium_src_dir, compat_version)
-  compat_position = get_chromium_master_position(compat_commit)
+  compat_position = get_chromium_main_position(compat_commit)
   compat_date = get_git_date(chromium_src_dir, compat_commit)
 
   # The most recent channel version from the Chromium website.
   channel_version = 'refs/tags/' + get_chromium_channel_version(os, channel)
   channel_commit = get_chromium_channel_commit(os, channel)
-  channel_position = get_chromium_master_position(channel_commit)
+  channel_position = get_chromium_main_position(channel_commit)
   channel_date = get_git_date(chromium_src_dir, channel_commit)
 
   if compat_position >= channel_position:
@@ -452,14 +452,14 @@ def get_chromium_target_version(os='win', channel='canary', target_distance=0):
   else:
     # Find an intermediary version that's within the target distance.
     target_position = compat_position + target_distance
-    target_commit = get_chromium_master_commit(target_position)
+    target_commit = get_chromium_main_commit(target_position)
     versions = get_chromium_versions(target_commit)
     if len(versions) > 0:
       target_version = 'refs/tags/' + versions[0]
       # Closest version may not align with the target position, so adjust the
       # commit and position to match.
       target_commit = get_git_hash(chromium_src_dir, target_version)
-      target_position = get_chromium_master_position(target_commit)
+      target_position = get_chromium_main_position(target_commit)
     else:
       target_version = target_commit
     target_date = get_git_date(chromium_src_dir, target_commit)
@@ -516,10 +516,10 @@ def log_chromium_changes():
     if os.path.exists(out_file):
       os.remove(out_file)
 
-    old_commit = get_chromium_master_commit(
-        get_chromium_master_position(chromium_compat_version))
-    new_commit = get_chromium_master_commit(
-        get_chromium_master_position(chromium_checkout))
+    old_commit = get_chromium_main_commit(
+        get_chromium_main_position(chromium_compat_version))
+    new_commit = get_chromium_main_commit(
+        get_chromium_main_position(chromium_checkout))
 
     cmd = '%s diff --relative --no-prefix %s..%s -- %s' % (
         git_exe, old_commit, new_commit, ' '.join(config['files']))
