@@ -265,6 +265,8 @@
       'tests/cefclient/browser/urlrequest_test.h',
       'tests/cefclient/browser/views_menu_bar.cc',
       'tests/cefclient/browser/views_menu_bar.h',
+      'tests/cefclient/browser/views_overlay_controls.cc',
+      'tests/cefclient/browser/views_overlay_controls.h',
       'tests/cefclient/browser/views_style.cc',
       'tests/cefclient/browser/views_style.h',
       'tests/cefclient/browser/views_window.cc',

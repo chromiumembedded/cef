@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e907d476bdd6717660c7e35f55ab9a1679f0f1fb$
+// $hash=b5dc694168601801e87d3b92544f3eb9ea3cecc9$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_TEXTFIELD_CTOCPP_H_
@@ -94,6 +94,8 @@ class CefTextfieldCToCpp : public CefCToCppRefCounted<CefTextfieldCToCpp,
   CefSize GetSize() override;
   void SetPosition(const CefPoint& position) override;
   CefPoint GetPosition() override;
+  void SetInsets(const CefInsets& insets) override;
+  CefInsets GetInsets() override;
   CefSize GetPreferredSize() override;
   void SizeToPreferredSize() override;
   CefSize GetMinimumSize() override;

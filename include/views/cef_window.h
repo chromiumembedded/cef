@@ -41,6 +41,7 @@
 #include "include/cef_image.h"
 #include "include/cef_menu_model.h"
 #include "include/views/cef_display.h"
+#include "include/views/cef_overlay_controller.h"
 #include "include/views/cef_panel.h"
 #include "include/views/cef_window_delegate.h"
 
@@ -210,6 +211,40 @@ class CefWindow : public CefPanel {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefImage> GetWindowAppIcon() = 0;
+
+  ///
+  // Add a View that will be overlayed on the Window contents with absolute
+  // positioning and high z-order. Positioning is controlled by |docking_mode|
+  // as described below. The returned CefOverlayController object is used to
+  // control the overlay. Overlays are hidden by default.
+  //
+  // With CEF_DOCKING_MODE_CUSTOM:
+  //   1. The overlay is initially hidden, sized to |view|'s preferred size, and
+  //      positioned in the top-left corner.
+  //   2. Optionally change the overlay position and/or size by calling
+  //      CefOverlayController methods.
+  //   3. Call CefOverlayController::SetVisible(true) to show the overlay.
+  //   4. The overlay will be automatically re-sized if |view|'s layout changes.
+  //      Optionally change the overlay position and/or size when
+  //      OnLayoutChanged is called on the Window's delegate to indicate a
+  //      change in Window bounds.
+  //
+  // With other docking modes:
+  //   1. The overlay is initially hidden, sized to |view|'s preferred size, and
+  //      positioned based on |docking_mode|.
+  //   2. Call CefOverlayController::SetVisible(true) to show the overlay.
+  //   3. The overlay will be automatically re-sized if |view|'s layout changes
+  //      and re-positioned as appropriate when the Window resizes.
+  //
+  // Overlays created by this method will receive a higher z-order then any
+  // child Views added previously. It is therefore recommended to call this
+  // method last after all other child Views have been added so that the overlay
+  // displays as the top-most child of the Window.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefOverlayController> AddOverlayView(
+      CefRefPtr<CefView> view,
+      cef_docking_mode_t docking_mode) = 0;
 
   ///
   // Show a menu with contents |menu_model|. |screen_point| specifies the menu

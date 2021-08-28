@@ -223,6 +223,20 @@ class CefView : public CefBaseRefCounted {
   virtual CefPoint GetPosition() = 0;
 
   ///
+  // Sets the insets for this View. |insets| is in parent coordinates, or DIP
+  // screen coordinates if there is no parent.
+  ///
+  /*--cef()--*/
+  virtual void SetInsets(const CefInsets& insets) = 0;
+
+  ///
+  // Returns the insets for this View in parent coordinates, or DIP screen
+  // coordinates if there is no parent.
+  ///
+  /*--cef()--*/
+  virtual CefInsets GetInsets() = 0;
+
+  ///
   // Returns the size this View would like to be if enough space is available.
   // Size is in parent coordinates, or DIP screen coordinates if there is no
   // parent.

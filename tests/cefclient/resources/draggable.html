@@ -2,6 +2,24 @@
 <head>
 <title>Draggable Regions Test</title>
 <style>
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+.draggable-title {
+  -webkit-app-region: drag;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 34px;
+  background-color: white;
+  opacity: .5;
+}
+.content {
+  margin-top: 34px;
+  background-color: white;
+}
 .draggable {
   -webkit-app-region: drag;
   position: absolute;
@@ -23,10 +41,13 @@
 }
 </style>
 </head>
-<body bgcolor="white">
+<body>
+  <div class="draggable-title"></div>
+  <div class="content">
   Draggable regions can be defined using the -webkit-app-region CSS property.
   <br/>In the below example the red region is draggable and the blue sub-region is non-draggable.
   <br/>Windows can be resized by default and closed using JavaScript <a href="#" onClick="window.close(); return false;">window.close()</a>.
+  </div>
   <div class="draggable">
     <div class="nondraggable"></div>
   </div>

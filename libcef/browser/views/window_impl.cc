@@ -12,6 +12,7 @@
 #include "libcef/browser/views/view_util.h"
 #include "libcef/browser/views/window_view.h"
 
+#include "base/i18n/rtl.h"
 #include "ui/base/test/ui_controls.h"
 #include "ui/compositor/compositor.h"
 #include "ui/gfx/geometry/rect.h"
@@ -275,6 +276,15 @@ CefRefPtr<CefImage> CefWindowImpl::GetWindowAppIcon() {
   CEF_REQUIRE_VALID_RETURN(nullptr);
   if (root_view())
     return root_view()->window_app_icon();
+  return nullptr;
+}
+
+CefRefPtr<CefOverlayController> CefWindowImpl::AddOverlayView(
+    CefRefPtr<CefView> view,
+    cef_docking_mode_t docking_mode) {
+  CEF_REQUIRE_VALID_RETURN(nullptr);
+  if (root_view())
+    return root_view()->AddOverlayView(view, docking_mode);
   return nullptr;
 }
 

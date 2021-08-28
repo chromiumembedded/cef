@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fd6b1cf787b563525dac101a765b7c399356e00c$
+// $hash=41aa4a08d59759dd53429976da36299374a554d7$
 //
 
 #include "libcef_dll/cpptoc/views/textfield_cpptoc.h"
@@ -1035,6 +1035,46 @@ cef_point_t CEF_CALLBACK textfield_get_position(struct _cef_view_t* self) {
   return _retval;
 }
 
+void CEF_CALLBACK textfield_set_insets(struct _cef_view_t* self,
+                                       const cef_insets_t* insets) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: insets; type: simple_byref_const
+  DCHECK(insets);
+  if (!insets)
+    return;
+
+  // Translate param: insets; type: simple_byref_const
+  CefInsets insetsVal = insets ? *insets : CefInsets();
+
+  // Execute
+  CefTextfieldCppToC::Get(reinterpret_cast<cef_textfield_t*>(self))
+      ->SetInsets(insetsVal);
+}
+
+cef_insets_t CEF_CALLBACK textfield_get_insets(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return CefInsets();
+
+  // Execute
+  cef_insets_t _retval =
+      CefTextfieldCppToC::Get(reinterpret_cast<cef_textfield_t*>(self))
+          ->GetInsets();
+
+  // Return type: simple
+  return _retval;
+}
+
 cef_size_t CEF_CALLBACK textfield_get_preferred_size(struct _cef_view_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -1572,6 +1612,8 @@ CefTextfieldCppToC::CefTextfieldCppToC() {
   GetStruct()->base.get_size = textfield_get_size;
   GetStruct()->base.set_position = textfield_set_position;
   GetStruct()->base.get_position = textfield_get_position;
+  GetStruct()->base.set_insets = textfield_set_insets;
+  GetStruct()->base.get_insets = textfield_get_insets;
   GetStruct()->base.get_preferred_size = textfield_get_preferred_size;
   GetStruct()->base.size_to_preferred_size = textfield_size_to_preferred_size;
   GetStruct()->base.get_minimum_size = textfield_get_minimum_size;

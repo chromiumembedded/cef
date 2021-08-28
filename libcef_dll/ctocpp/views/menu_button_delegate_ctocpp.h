@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7836ec7b53349057b1d1d75c6ba8506620bed53d$
+// $hash=34037ec75b18dacfafd978da854131cfa0560d7d$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_MENU_BUTTON_DELEGATE_CTOCPP_H_
@@ -58,6 +58,8 @@ class CefMenuButtonDelegateCToCpp
                           bool added,
                           CefRefPtr<CefView> child) override;
   void OnWindowChanged(CefRefPtr<CefView> view, bool added) override;
+  void OnLayoutChanged(CefRefPtr<CefView> view,
+                       const CefRect& new_bounds) override;
   void OnFocus(CefRefPtr<CefView> view) override;
   void OnBlur(CefRefPtr<CefView> view) override;
 };

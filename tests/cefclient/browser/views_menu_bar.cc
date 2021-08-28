@@ -4,6 +4,7 @@
 
 #include "tests/cefclient/browser/views_menu_bar.h"
 
+#include "include/cef_i18n_util.h"
 #include "include/views/cef_box_layout.h"
 #include "include/views/cef_window.h"
 #include "tests/cefclient/browser/views_style.h"
@@ -153,9 +154,13 @@ void ViewsMenuBar::OnMenuButtonPressed(
     CefRefPtr<CefMenuButtonPressedLock> button_pressed_lock) {
   CefRefPtr<CefMenuModel> menu_model = GetMenuModel(menu_button->GetID());
 
-  // Adjust menu position left by button width.
+  // Adjust menu position to align with the button.
   CefPoint point = screen_point;
-  point.x -= menu_button->GetBounds().width - 4;
+  if (CefIsRTL()) {
+    point.x += menu_button->GetBounds().width - 4;
+  } else {
+    point.x -= menu_button->GetBounds().width - 4;
+  }
 
   // Keep track of the current |last_nav_with_keyboard_| status and restore it
   // after displaying the new menu.
@@ -211,6 +216,11 @@ void ViewsMenuBar::MouseOutsideMenu(CefRefPtr<CefMenuModel> menu_model,
 
     CefRefPtr<CefView> button = panel_->GetViewForID(id);
     CefRect button_bounds = button->GetBounds();
+    if (CefIsRTL()) {
+      // Adjust for right-to-left button layout.
+      button_bounds.x =
+          panel_bounds.width - button_bounds.x - button_bounds.width;
+    }
     if (button_bounds.Contains(window_point)) {
       // Trigger the hovered MenuButton.
       TriggerMenuButton(button);

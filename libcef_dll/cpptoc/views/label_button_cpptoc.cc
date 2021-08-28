@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f723bc389e8df80f926a3e1952d9ba0241fcb494$
+// $hash=4831a878243309dc259eea8ac107a2654b0da9fd$
 //
 
 #include "libcef_dll/cpptoc/views/label_button_cpptoc.h"
@@ -826,6 +826,46 @@ cef_point_t CEF_CALLBACK label_button_get_position(struct _cef_view_t* self) {
   return _retval;
 }
 
+void CEF_CALLBACK label_button_set_insets(struct _cef_view_t* self,
+                                          const cef_insets_t* insets) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: insets; type: simple_byref_const
+  DCHECK(insets);
+  if (!insets)
+    return;
+
+  // Translate param: insets; type: simple_byref_const
+  CefInsets insetsVal = insets ? *insets : CefInsets();
+
+  // Execute
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+      ->SetInsets(insetsVal);
+}
+
+cef_insets_t CEF_CALLBACK label_button_get_insets(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return CefInsets();
+
+  // Execute
+  cef_insets_t _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->GetInsets();
+
+  // Return type: simple
+  return _retval;
+}
+
 cef_size_t CEF_CALLBACK
 label_button_get_preferred_size(struct _cef_view_t* self) {
   shutdown_checker::AssertNotShutdown();
@@ -1355,6 +1395,8 @@ CefLabelButtonCppToC::CefLabelButtonCppToC() {
   GetStruct()->base.base.get_size = label_button_get_size;
   GetStruct()->base.base.set_position = label_button_set_position;
   GetStruct()->base.base.get_position = label_button_get_position;
+  GetStruct()->base.base.set_insets = label_button_set_insets;
+  GetStruct()->base.base.get_insets = label_button_get_insets;
   GetStruct()->base.base.get_preferred_size = label_button_get_preferred_size;
   GetStruct()->base.base.size_to_preferred_size =
       label_button_size_to_preferred_size;

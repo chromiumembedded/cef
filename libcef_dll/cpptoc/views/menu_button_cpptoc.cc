@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=97c8a26550af49abfe4a1fcf1d8d54193c5fb3b1$
+// $hash=17a2490a2076439fca2ee7e6c2984f9307b880fc$
 //
 
 #include "libcef_dll/cpptoc/views/menu_button_cpptoc.h"
@@ -878,6 +878,46 @@ cef_point_t CEF_CALLBACK menu_button_get_position(struct _cef_view_t* self) {
   return _retval;
 }
 
+void CEF_CALLBACK menu_button_set_insets(struct _cef_view_t* self,
+                                         const cef_insets_t* insets) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: insets; type: simple_byref_const
+  DCHECK(insets);
+  if (!insets)
+    return;
+
+  // Translate param: insets; type: simple_byref_const
+  CefInsets insetsVal = insets ? *insets : CefInsets();
+
+  // Execute
+  CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
+      ->SetInsets(insetsVal);
+}
+
+cef_insets_t CEF_CALLBACK menu_button_get_insets(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return CefInsets();
+
+  // Execute
+  cef_insets_t _retval =
+      CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
+          ->GetInsets();
+
+  // Return type: simple
+  return _retval;
+}
+
 cef_size_t CEF_CALLBACK
 menu_button_get_preferred_size(struct _cef_view_t* self) {
   shutdown_checker::AssertNotShutdown();
@@ -1407,6 +1447,8 @@ CefMenuButtonCppToC::CefMenuButtonCppToC() {
   GetStruct()->base.base.base.get_size = menu_button_get_size;
   GetStruct()->base.base.base.set_position = menu_button_set_position;
   GetStruct()->base.base.base.get_position = menu_button_get_position;
+  GetStruct()->base.base.base.set_insets = menu_button_set_insets;
+  GetStruct()->base.base.base.get_insets = menu_button_get_insets;
   GetStruct()->base.base.base.get_preferred_size =
       menu_button_get_preferred_size;
   GetStruct()->base.base.base.size_to_preferred_size =

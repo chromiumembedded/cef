@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c2d630805de3dbcb47933c566b791c0e2fb7e6d7$
+// $hash=a6e6ceefb7e403c46c00c59dd86104787ab77f7a$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_PANEL_CTOCPP_H_
@@ -81,6 +81,8 @@ class CefPanelCToCpp
   CefSize GetSize() override;
   void SetPosition(const CefPoint& position) override;
   CefPoint GetPosition() override;
+  void SetInsets(const CefInsets& insets) override;
+  CefInsets GetInsets() override;
   CefSize GetPreferredSize() override;
   void SizeToPreferredSize() override;
   CefSize GetMinimumSize() override;

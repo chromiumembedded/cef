@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a0060b09d6eb4bbeeb69e4b80dccccee394d600e$
+// $hash=328f5caabb9eb92f668961216f9812b2a9bc3ee7$
 //
 
 #include "libcef_dll/cpptoc/views/button_cpptoc.h"
@@ -580,6 +580,45 @@ cef_point_t CEF_CALLBACK button_get_position(struct _cef_view_t* self) {
   return _retval;
 }
 
+void CEF_CALLBACK button_set_insets(struct _cef_view_t* self,
+                                    const cef_insets_t* insets) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: insets; type: simple_byref_const
+  DCHECK(insets);
+  if (!insets)
+    return;
+
+  // Translate param: insets; type: simple_byref_const
+  CefInsets insetsVal = insets ? *insets : CefInsets();
+
+  // Execute
+  CefButtonCppToC::Get(reinterpret_cast<cef_button_t*>(self))
+      ->SetInsets(insetsVal);
+}
+
+cef_insets_t CEF_CALLBACK button_get_insets(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return CefInsets();
+
+  // Execute
+  cef_insets_t _retval =
+      CefButtonCppToC::Get(reinterpret_cast<cef_button_t*>(self))->GetInsets();
+
+  // Return type: simple
+  return _retval;
+}
+
 cef_size_t CEF_CALLBACK button_get_preferred_size(struct _cef_view_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -1076,6 +1115,8 @@ CefButtonCppToC::CefButtonCppToC() {
   GetStruct()->base.get_size = button_get_size;
   GetStruct()->base.set_position = button_set_position;
   GetStruct()->base.get_position = button_get_position;
+  GetStruct()->base.set_insets = button_set_insets;
+  GetStruct()->base.get_insets = button_get_insets;
   GetStruct()->base.get_preferred_size = button_get_preferred_size;
   GetStruct()->base.size_to_preferred_size = button_size_to_preferred_size;
   GetStruct()->base.get_minimum_size = button_get_minimum_size;

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1d17ae751431af3baf83b3386f1cab410964a17f$
+// $hash=180f352b0c01effd2e61c3879b81dcd3b0989d0a$
 //
 
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
@@ -21,6 +21,7 @@
 #include "libcef_dll/cpptoc/views/display_cpptoc.h"
 #include "libcef_dll/cpptoc/views/fill_layout_cpptoc.h"
 #include "libcef_dll/cpptoc/views/layout_cpptoc.h"
+#include "libcef_dll/cpptoc/views/overlay_controller_cpptoc.h"
 #include "libcef_dll/cpptoc/views/panel_cpptoc.h"
 #include "libcef_dll/cpptoc/views/scroll_view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/textfield_cpptoc.h"
@@ -412,6 +413,31 @@ window_get_window_app_icon(struct _cef_window_t* self) {
 
   // Return type: refptr_same
   return CefImageCppToC::Wrap(_retval);
+}
+
+cef_overlay_controller_t* CEF_CALLBACK
+window_add_overlay_view(struct _cef_window_t* self,
+                        cef_view_t* view,
+                        cef_docking_mode_t docking_mode) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+  // Verify param: view; type: refptr_same
+  DCHECK(view);
+  if (!view)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefOverlayController> _retval =
+      CefWindowCppToC::Get(self)->AddOverlayView(CefViewCppToC::Unwrap(view),
+                                                 docking_mode);
+
+  // Return type: refptr_same
+  return CefOverlayControllerCppToC::Wrap(_retval);
 }
 
 void CEF_CALLBACK window_show_menu(struct _cef_window_t* self,
@@ -1309,6 +1335,45 @@ cef_point_t CEF_CALLBACK window_get_position(struct _cef_view_t* self) {
   return _retval;
 }
 
+void CEF_CALLBACK window_set_insets(struct _cef_view_t* self,
+                                    const cef_insets_t* insets) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: insets; type: simple_byref_const
+  DCHECK(insets);
+  if (!insets)
+    return;
+
+  // Translate param: insets; type: simple_byref_const
+  CefInsets insetsVal = insets ? *insets : CefInsets();
+
+  // Execute
+  CefWindowCppToC::Get(reinterpret_cast<cef_window_t*>(self))
+      ->SetInsets(insetsVal);
+}
+
+cef_insets_t CEF_CALLBACK window_get_insets(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return CefInsets();
+
+  // Execute
+  cef_insets_t _retval =
+      CefWindowCppToC::Get(reinterpret_cast<cef_window_t*>(self))->GetInsets();
+
+  // Return type: simple
+  return _retval;
+}
+
 cef_size_t CEF_CALLBACK window_get_preferred_size(struct _cef_view_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -1798,6 +1863,7 @@ CefWindowCppToC::CefWindowCppToC() {
   GetStruct()->get_window_icon = window_get_window_icon;
   GetStruct()->set_window_app_icon = window_set_window_app_icon;
   GetStruct()->get_window_app_icon = window_get_window_app_icon;
+  GetStruct()->add_overlay_view = window_add_overlay_view;
   GetStruct()->show_menu = window_show_menu;
   GetStruct()->cancel_menu = window_cancel_menu;
   GetStruct()->get_display = window_get_display;
@@ -1848,6 +1914,8 @@ CefWindowCppToC::CefWindowCppToC() {
   GetStruct()->base.base.get_size = window_get_size;
   GetStruct()->base.base.set_position = window_set_position;
   GetStruct()->base.base.get_position = window_get_position;
+  GetStruct()->base.base.set_insets = window_set_insets;
+  GetStruct()->base.base.get_insets = window_get_insets;
   GetStruct()->base.base.get_preferred_size = window_get_preferred_size;
   GetStruct()->base.base.size_to_preferred_size = window_size_to_preferred_size;
   GetStruct()->base.base.get_minimum_size = window_get_minimum_size;

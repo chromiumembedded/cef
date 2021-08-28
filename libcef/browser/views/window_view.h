@@ -6,19 +6,24 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_WINDOW_VIEW_H_
 #pragma once
 
+#include <vector>
+
 #include "include/views/cef_window.h"
 #include "include/views/cef_window_delegate.h"
 
+#include "libcef/browser/views/overlay_view_host.h"
 #include "libcef/browser/views/panel_view.h"
 
 #include "third_party/skia/include/core/SkRegion.h"
 #include "ui/display/display.h"
 #include "ui/views/widget/widget_delegate.h"
+#include "ui/views/widget/widget_observer.h"
 
 // Manages the views-based root window. This object will be deleted
 // automatically when the associated root window is destroyed.
 class CefWindowView
-    : public CefPanelView<views::WidgetDelegateView, CefWindowDelegate> {
+    : public CefPanelView<views::WidgetDelegateView, CefWindowDelegate>,
+      public views::WidgetObserver {
  public:
   typedef CefPanelView<views::WidgetDelegateView, CefWindowDelegate>
       ParentClass;
@@ -70,6 +75,10 @@ class CefWindowView
   void ViewHierarchyChanged(
       const views::ViewHierarchyChangedDetails& details) override;
 
+  // views::WidgetObserver methods:
+  void OnWidgetBoundsChanged(views::Widget* widget,
+                             const gfx::Rect& new_bounds) override;
+
   // Returns the Display containing this Window.
   display::Display GetDisplay() const;
 
@@ -89,6 +98,10 @@ class CefWindowView
   void SetWindowAppIcon(CefRefPtr<CefImage> window_app_icon);
   CefRefPtr<CefImage> window_app_icon() const { return window_app_icon_; }
 
+  CefRefPtr<CefOverlayController> AddOverlayView(
+      CefRefPtr<CefView> view,
+      cef_docking_mode_t docking_mode);
+
   // Set/get the draggable regions.
   void SetDraggableRegions(const std::vector<CefDraggableRegion>& regions);
   SkRegion* draggable_region() const { return draggable_region_.get(); }
@@ -99,6 +112,8 @@ class CefWindowView
  private:
   // Called when removed from the Widget and before |this| is deleted.
   void DeleteDelegate();
+
+  void MoveOverlaysIfNecessary();
 
   // Not owned by this object.
   Delegate* window_delegate_;
@@ -111,6 +126,9 @@ class CefWindowView
   CefRefPtr<CefImage> window_app_icon_;
 
   std::unique_ptr<SkRegion> draggable_region_;
+
+  // Hosts for overlay widgets.
+  std::vector<std::unique_ptr<CefOverlayViewHost>> overlay_hosts_;
 
   DISALLOW_COPY_AND_ASSIGN(CefWindowView);
 };

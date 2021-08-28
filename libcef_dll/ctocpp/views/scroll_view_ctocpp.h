@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=20f4f752402507b4573596d6759c93cd1bc7a982$
+// $hash=cc3bfb5c57f0b7b31997bfb5226dd3dd77f6d40c$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_SCROLL_VIEW_CTOCPP_H_
@@ -68,6 +68,8 @@ class CefScrollViewCToCpp : public CefCToCppRefCounted<CefScrollViewCToCpp,
   CefSize GetSize() override;
   void SetPosition(const CefPoint& position) override;
   CefPoint GetPosition() override;
+  void SetInsets(const CefInsets& insets) override;
+  CefInsets GetInsets() override;
   CefSize GetPreferredSize() override;
   void SizeToPreferredSize() override;
   CefSize GetMinimumSize() override;

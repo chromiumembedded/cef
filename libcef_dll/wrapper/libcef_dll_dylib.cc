@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=01fb8dd98e44b937595c1e1f987f5e4850bff64d$
+// $hash=e3347463db785cc5e6c0aa840dedcef116a11043$
 //
 
 #include <dlfcn.h>
@@ -23,6 +23,7 @@
 #include "include/capi/cef_crash_util_capi.h"
 #include "include/capi/cef_drag_data_capi.h"
 #include "include/capi/cef_file_util_capi.h"
+#include "include/capi/cef_i18n_util_capi.h"
 #include "include/capi/cef_image_capi.h"
 #include "include/capi/cef_media_router_capi.h"
 #include "include/capi/cef_menu_model_capi.h"
@@ -115,6 +116,7 @@ typedef int (*cef_zip_directory_ptr)(const cef_string_t*,
                                      const cef_string_t*,
                                      int);
 typedef void (*cef_load_crlsets_file_ptr)(const cef_string_t*);
+typedef int (*cef_is_rtl_ptr)();
 typedef int (*cef_add_cross_origin_whitelist_entry_ptr)(const cef_string_t*,
                                                         const cef_string_t*,
                                                         const cef_string_t*,
@@ -533,6 +535,7 @@ struct libcef_pointers {
   cef_delete_file_ptr cef_delete_file;
   cef_zip_directory_ptr cef_zip_directory;
   cef_load_crlsets_file_ptr cef_load_crlsets_file;
+  cef_is_rtl_ptr cef_is_rtl;
   cef_add_cross_origin_whitelist_entry_ptr cef_add_cross_origin_whitelist_entry;
   cef_remove_cross_origin_whitelist_entry_ptr
       cef_remove_cross_origin_whitelist_entry;
@@ -750,6 +753,7 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_delete_file);
   INIT_ENTRY(cef_zip_directory);
   INIT_ENTRY(cef_load_crlsets_file);
+  INIT_ENTRY(cef_is_rtl);
   INIT_ENTRY(cef_add_cross_origin_whitelist_entry);
   INIT_ENTRY(cef_remove_cross_origin_whitelist_entry);
   INIT_ENTRY(cef_clear_cross_origin_whitelist);
@@ -1055,6 +1059,10 @@ int cef_zip_directory(const cef_string_t* src_dir,
 
 NO_SANITIZE("cfi-icall") void cef_load_crlsets_file(const cef_string_t* path) {
   g_libcef_pointers.cef_load_crlsets_file(path);
+}
+
+NO_SANITIZE("cfi-icall") int cef_is_rtl() {
+  return g_libcef_pointers.cef_is_rtl();
 }
 
 NO_SANITIZE("cfi-icall")

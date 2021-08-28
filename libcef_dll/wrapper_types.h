@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=abd4c6d471c9ff3d7113b6125a6cfb2a26d58304$
+// $hash=e09286ac977f5f06cf356eb8a5e04b48b0836523$
 //
 
 #ifndef CEF_LIBCEF_DLL_WRAPPER_TYPES_H_
@@ -90,6 +90,7 @@ enum CefWrapperType {
   WT_MENU_MODEL_DELEGATE,
   WT_NAVIGATION_ENTRY,
   WT_NAVIGATION_ENTRY_VISITOR,
+  WT_OVERLAY_CONTROLLER,
   WT_PANEL,
   WT_PANEL_DELEGATE,
   WT_PDF_PRINT_CALLBACK,

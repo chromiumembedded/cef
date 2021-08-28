@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=dda345b957ac58c71770da1cf4813ce16ea568b8$
+// $hash=1035cc694edfd110c5a64b042a6e7ca2e975003a$
 //
 
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
@@ -455,6 +455,27 @@ void CefWindowDelegateCToCpp::OnWindowChanged(CefRefPtr<CefView> view,
 
   // Execute
   _struct->on_window_changed(_struct, CefViewCppToC::Wrap(view), added);
+}
+
+NO_SANITIZE("cfi-icall")
+void CefWindowDelegateCToCpp::OnLayoutChanged(CefRefPtr<CefView> view,
+                                              const CefRect& new_bounds) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, on_layout_changed))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: view; type: refptr_diff
+  DCHECK(view.get());
+  if (!view.get())
+    return;
+
+  // Execute
+  _struct->on_layout_changed(_struct, CefViewCppToC::Wrap(view), &new_bounds);
 }
 
 NO_SANITIZE("cfi-icall")

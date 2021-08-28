@@ -58,6 +58,9 @@ class CefWindowImpl
   CefRefPtr<CefImage> GetWindowIcon() override;
   void SetWindowAppIcon(CefRefPtr<CefImage> image) override;
   CefRefPtr<CefImage> GetWindowAppIcon() override;
+  CefRefPtr<CefOverlayController> AddOverlayView(
+      CefRefPtr<CefView> view,
+      cef_docking_mode_t docking_mode) override;
   void ShowMenu(CefRefPtr<CefMenuModel> menu_model,
                 const CefPoint& screen_point,
                 cef_menu_anchor_position_t anchor_position) override;

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1c713db1e73d434b6bce3aea8e3a6dddbc547b61$
+// $hash=93f91329a1d2db5d20805cb10ee30e1fcd6c3185$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BROWSER_VIEW_CTOCPP_H_
@@ -64,6 +64,8 @@ class CefBrowserViewCToCpp : public CefCToCppRefCounted<CefBrowserViewCToCpp,
   CefSize GetSize() override;
   void SetPosition(const CefPoint& position) override;
   CefPoint GetPosition() override;
+  void SetInsets(const CefInsets& insets) override;
+  CefInsets GetInsets() override;
   CefSize GetPreferredSize() override;
   void SizeToPreferredSize() override;
   CefSize GetMinimumSize() override;

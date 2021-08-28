@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f2fbf4be1755ed8793c2d471d65eddbdf4ba148b$
+// $hash=9f4b4ed83102b989f2f436e56d311b4dcb8abe54$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_WINDOW_CTOCPP_H_
@@ -58,6 +58,9 @@ class CefWindowCToCpp
   CefRefPtr<CefImage> GetWindowIcon() override;
   void SetWindowAppIcon(CefRefPtr<CefImage> image) override;
   CefRefPtr<CefImage> GetWindowAppIcon() override;
+  CefRefPtr<CefOverlayController> AddOverlayView(
+      CefRefPtr<CefView> view,
+      cef_docking_mode_t docking_mode) override;
   void ShowMenu(CefRefPtr<CefMenuModel> menu_model,
                 const CefPoint& screen_point,
                 cef_menu_anchor_position_t anchor_position) override;
@@ -121,6 +124,8 @@ class CefWindowCToCpp
   CefSize GetSize() override;
   void SetPosition(const CefPoint& position) override;
   CefPoint GetPosition() override;
+  void SetInsets(const CefInsets& insets) override;
+  CefInsets GetInsets() override;
   CefSize GetPreferredSize() override;
   void SizeToPreferredSize() override;
   CefSize GetMinimumSize() override;
