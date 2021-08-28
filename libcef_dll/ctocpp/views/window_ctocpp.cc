@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6480777364c6c194652bf69ef2bb087c0805eddf$
+// $hash=e4088be2354bf7a1151044c472b2a98e8130acb7$
 //
 
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
@@ -23,6 +23,7 @@
 #include "libcef_dll/ctocpp/views/display_ctocpp.h"
 #include "libcef_dll/ctocpp/views/fill_layout_ctocpp.h"
 #include "libcef_dll/ctocpp/views/layout_ctocpp.h"
+#include "libcef_dll/ctocpp/views/overlay_controller_ctocpp.h"
 #include "libcef_dll/ctocpp/views/panel_ctocpp.h"
 #include "libcef_dll/ctocpp/views/scroll_view_ctocpp.h"
 #include "libcef_dll/ctocpp/views/textfield_ctocpp.h"
@@ -406,6 +407,31 @@ CefRefPtr<CefImage> CefWindowCToCpp::GetWindowAppIcon() {
 
   // Return type: refptr_same
   return CefImageCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefOverlayController> CefWindowCToCpp::AddOverlayView(
+    CefRefPtr<CefView> view,
+    cef_docking_mode_t docking_mode) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, add_overlay_view))
+    return nullptr;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: view; type: refptr_same
+  DCHECK(view.get());
+  if (!view.get())
+    return nullptr;
+
+  // Execute
+  cef_overlay_controller_t* _retval = _struct->add_overlay_view(
+      _struct, CefViewCToCpp::Unwrap(view), docking_mode);
+
+  // Return type: refptr_same
+  return CefOverlayControllerCToCpp::Wrap(_retval);
 }
 
 NO_SANITIZE("cfi-icall")
@@ -1224,6 +1250,36 @@ NO_SANITIZE("cfi-icall") CefPoint CefWindowCToCpp::GetPosition() {
 
   // Execute
   cef_point_t _retval = _struct->get_position(_struct);
+
+  // Return type: simple
+  return _retval;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefWindowCToCpp::SetInsets(const CefInsets& insets) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, set_insets))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->set_insets(_struct, &insets);
+}
+
+NO_SANITIZE("cfi-icall") CefInsets CefWindowCToCpp::GetInsets() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, get_insets))
+    return CefInsets();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_insets_t _retval = _struct->get_insets(_struct);
 
   // Return type: simple
   return _retval;

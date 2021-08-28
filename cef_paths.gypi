@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=f6950d026a9c92fbb58da3fe0cbcf0050c12ecf0$
+# $hash=216bf0511bdceca67cdbdcf30f8316db2d00e276$
 #
 
 {
@@ -41,6 +41,7 @@
       'include/cef_focus_handler.h',
       'include/cef_frame.h',
       'include/cef_frame_handler.h',
+      'include/cef_i18n_util.h',
       'include/cef_image.h',
       'include/cef_jsdialog_handler.h',
       'include/cef_keyboard_handler.h',
@@ -101,6 +102,7 @@
       'include/views/cef_layout.h',
       'include/views/cef_menu_button.h',
       'include/views/cef_menu_button_delegate.h',
+      'include/views/cef_overlay_controller.h',
       'include/views/cef_panel.h',
       'include/views/cef_panel_delegate.h',
       'include/views/cef_scroll_view.h',
@@ -139,6 +141,7 @@
       'include/capi/cef_focus_handler_capi.h',
       'include/capi/cef_frame_capi.h',
       'include/capi/cef_frame_handler_capi.h',
+      'include/capi/cef_i18n_util_capi.h',
       'include/capi/cef_image_capi.h',
       'include/capi/cef_jsdialog_handler_capi.h',
       'include/capi/cef_keyboard_handler_capi.h',
@@ -199,6 +202,7 @@
       'include/capi/views/cef_layout_capi.h',
       'include/capi/views/cef_menu_button_capi.h',
       'include/capi/views/cef_menu_button_delegate_capi.h',
+      'include/capi/views/cef_overlay_controller_capi.h',
       'include/capi/views/cef_panel_capi.h',
       'include/capi/views/cef_panel_delegate_capi.h',
       'include/capi/views/cef_scroll_view_capi.h',
@@ -352,6 +356,8 @@
       'libcef_dll/cpptoc/navigation_entry_cpptoc.h',
       'libcef_dll/ctocpp/navigation_entry_visitor_ctocpp.cc',
       'libcef_dll/ctocpp/navigation_entry_visitor_ctocpp.h',
+      'libcef_dll/cpptoc/views/overlay_controller_cpptoc.cc',
+      'libcef_dll/cpptoc/views/overlay_controller_cpptoc.h',
       'libcef_dll/cpptoc/views/panel_cpptoc.cc',
       'libcef_dll/cpptoc/views/panel_cpptoc.h',
       'libcef_dll/ctocpp/views/panel_delegate_ctocpp.cc',
@@ -662,6 +668,8 @@
       'libcef_dll/ctocpp/navigation_entry_ctocpp.h',
       'libcef_dll/cpptoc/navigation_entry_visitor_cpptoc.cc',
       'libcef_dll/cpptoc/navigation_entry_visitor_cpptoc.h',
+      'libcef_dll/ctocpp/views/overlay_controller_ctocpp.cc',
+      'libcef_dll/ctocpp/views/overlay_controller_ctocpp.h',
       'libcef_dll/ctocpp/views/panel_ctocpp.cc',
       'libcef_dll/ctocpp/views/panel_ctocpp.h',
       'libcef_dll/cpptoc/views/panel_delegate_cpptoc.cc',

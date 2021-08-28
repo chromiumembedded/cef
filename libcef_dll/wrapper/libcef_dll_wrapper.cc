@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7fef7aaa85b96ed7c7fc82542cd393210e1d89ee$
+// $hash=e71ff10558002c5a09d9348d2b128facd881b869$
 //
 
 #include "include/capi/cef_app_capi.h"
 #include "include/capi/cef_crash_util_capi.h"
 #include "include/capi/cef_file_util_capi.h"
+#include "include/capi/cef_i18n_util_capi.h"
 #include "include/capi/cef_origin_whitelist_capi.h"
 #include "include/capi/cef_parser_capi.h"
 #include "include/capi/cef_path_util_capi.h"
@@ -30,6 +31,7 @@
 #include "include/cef_app.h"
 #include "include/cef_crash_util.h"
 #include "include/cef_file_util.h"
+#include "include/cef_i18n_util.h"
 #include "include/cef_origin_whitelist.h"
 #include "include/cef_parser.h"
 #include "include/cef_path_util.h"
@@ -307,6 +309,16 @@ CEF_GLOBAL void CefLoadCRLSetsFile(const CefString& path) {
 
   // Execute
   cef_load_crlsets_file(path.GetStruct());
+}
+
+NO_SANITIZE("cfi-icall") CEF_GLOBAL bool CefIsRTL() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = cef_is_rtl();
+
+  // Return type: bool
+  return _retval ? true : false;
 }
 
 NO_SANITIZE("cfi-icall")

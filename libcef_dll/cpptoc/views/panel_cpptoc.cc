@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=46ba2afdb3ede88d0eb37df2726ab5ff33fb6983$
+// $hash=6a2e3823506ccfeeff53ac719edf6e912056e3a3$
 //
 
 #include "libcef_dll/cpptoc/views/panel_cpptoc.h"
@@ -713,6 +713,45 @@ cef_point_t CEF_CALLBACK panel_get_position(struct _cef_view_t* self) {
   return _retval;
 }
 
+void CEF_CALLBACK panel_set_insets(struct _cef_view_t* self,
+                                   const cef_insets_t* insets) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: insets; type: simple_byref_const
+  DCHECK(insets);
+  if (!insets)
+    return;
+
+  // Translate param: insets; type: simple_byref_const
+  CefInsets insetsVal = insets ? *insets : CefInsets();
+
+  // Execute
+  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))
+      ->SetInsets(insetsVal);
+}
+
+cef_insets_t CEF_CALLBACK panel_get_insets(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return CefInsets();
+
+  // Execute
+  cef_insets_t _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->GetInsets();
+
+  // Return type: simple
+  return _retval;
+}
+
 cef_size_t CEF_CALLBACK panel_get_preferred_size(struct _cef_view_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -1210,6 +1249,8 @@ CefPanelCppToC::CefPanelCppToC() {
   GetStruct()->base.get_size = panel_get_size;
   GetStruct()->base.set_position = panel_set_position;
   GetStruct()->base.get_position = panel_get_position;
+  GetStruct()->base.set_insets = panel_set_insets;
+  GetStruct()->base.get_insets = panel_get_insets;
   GetStruct()->base.get_preferred_size = panel_get_preferred_size;
   GetStruct()->base.size_to_preferred_size = panel_size_to_preferred_size;
   GetStruct()->base.get_minimum_size = panel_get_minimum_size;

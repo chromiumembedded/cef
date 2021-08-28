@@ -20,6 +20,11 @@
 #include "ui/display/win/screen_win.h"
 #endif
 
+#if defined(USE_AURA)
+#include "ui/aura/window.h"
+#include "ui/views/view_constants_aura.h"
+#endif
+
 namespace view_util {
 
 namespace {
@@ -159,6 +164,18 @@ void ResumeOwnership(CefRefPtr<CefView> view) {
 
 CefRefPtr<CefWindow> GetWindowFor(views::Widget* widget) {
   CefRefPtr<CefWindow> window;
+
+#if defined(USE_AURA)
+  // Retrieve the parent Widget for an overlay.
+  if (widget) {
+    // See matching logic in CefOverlayViewHost::Init.
+    auto widget_view =
+        widget->GetNativeView()->GetProperty(views::kHostViewKey);
+    if (widget_view) {
+      widget = widget_view->GetWidget();
+    }
+  }
+#endif  // defined(USE_AURA)
 
   if (widget) {
     // The views::WidgetDelegate should be a CefWindowView and |content_view|

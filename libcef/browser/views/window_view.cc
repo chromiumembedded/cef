@@ -312,6 +312,7 @@ void CefWindowView::CreateWidget() {
 #endif
 
   widget->Init(std::move(params));
+  widget->AddObserver(this);
 
   // |widget| should now be associated with |this|.
   DCHECK_EQ(widget, GetWidget());
@@ -465,6 +466,11 @@ void CefWindowView::ViewHierarchyChanged(
   ParentClass::ViewHierarchyChanged(details);
 }
 
+void CefWindowView::OnWidgetBoundsChanged(views::Widget* widget,
+                                          const gfx::Rect& new_bounds) {
+  MoveOverlaysIfNecessary();
+}
+
 display::Display CefWindowView::GetDisplay() const {
   const views::Widget* widget = GetWidget();
   if (widget) {
@@ -498,6 +504,39 @@ void CefWindowView::SetWindowAppIcon(CefRefPtr<CefImage> window_app_icon) {
   views::Widget* widget = GetWidget();
   if (widget)
     widget->UpdateWindowIcon();
+}
+
+CefRefPtr<CefOverlayController> CefWindowView::AddOverlayView(
+    CefRefPtr<CefView> view,
+    cef_docking_mode_t docking_mode) {
+  DCHECK(view.get());
+  DCHECK(view->IsValid());
+  if (!view.get() || !view->IsValid())
+    return nullptr;
+
+  views::Widget* widget = GetWidget();
+  if (widget) {
+    // Owned by the View hierarchy. Acts as a z-order reference for the overlay.
+    auto overlay_host_view = AddChildView(std::make_unique<views::View>());
+
+    overlay_hosts_.push_back(
+        std::make_unique<CefOverlayViewHost>(this, docking_mode));
+
+    auto& overlay_host = overlay_hosts_.back();
+    overlay_host->Init(overlay_host_view, view);
+
+    return overlay_host->controller();
+  }
+
+  return nullptr;
+}
+
+void CefWindowView::MoveOverlaysIfNecessary() {
+  if (overlay_hosts_.empty())
+    return;
+  for (auto& overlay_host : overlay_hosts_) {
+    overlay_host->MoveIfNecessary();
+  }
 }
 
 void CefWindowView::SetDraggableRegions(

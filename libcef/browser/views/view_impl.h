@@ -299,6 +299,7 @@
 #include "base/logging.h"
 #include "base/values.h"
 #include "ui/views/background.h"
+#include "ui/views/border.h"
 #include "ui/views/view.h"
 
 // Helpers for template boiler-plate.
@@ -384,6 +385,8 @@ CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter, public CefViewClass {
   CefSize GetSize() override;
   void SetPosition(const CefPoint& position) override;
   CefPoint GetPosition() override;
+  void SetInsets(const CefInsets& insets) override;
+  CefInsets GetInsets() override;
   CefSize GetPreferredSize() override;
   void SizeToPreferredSize() override;
   CefSize GetMinimumSize() override;
@@ -569,6 +572,20 @@ CEF_VIEW_IMPL_T CefPoint CEF_VIEW_IMPL_D::GetPosition() {
   // Call GetBounds() since child classes may override it.
   const CefRect& bounds = GetBounds();
   return CefPoint(bounds.x, bounds.y);
+}
+
+CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::SetInsets(const CefInsets& insets) {
+  CEF_REQUIRE_VALID_RETURN_VOID();
+  gfx::Insets gfx_insets(insets.top, insets.left, insets.bottom, insets.right);
+  root_view()->SetBorder(
+      gfx_insets.IsEmpty() ? nullptr : views::CreateEmptyBorder(gfx_insets));
+}
+
+CEF_VIEW_IMPL_T CefInsets CEF_VIEW_IMPL_D::GetInsets() {
+  CEF_REQUIRE_VALID_RETURN(CefInsets());
+  const auto insets = root_view()->GetInsets();
+  return CefInsets(insets.top(), insets.left(), insets.bottom(),
+                   insets.right());
 }
 
 CEF_VIEW_IMPL_T CefSize CEF_VIEW_IMPL_D::GetPreferredSize() {

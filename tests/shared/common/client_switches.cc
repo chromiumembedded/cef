@@ -37,6 +37,7 @@ const char kFilterURL[] = "filter-url";
 const char kUseViews[] = "use-views";
 const char kHideFrame[] = "hide-frame";
 const char kHideControls[] = "hide-controls";
+const char kHideOverlays[] = "hide-overlays";
 const char kAlwaysOnTop[] = "always-on-top";
 const char kHideTopMenu[] = "hide-top-menu";
 const char kSslClientCertificate[] = "ssl-client-certificate";

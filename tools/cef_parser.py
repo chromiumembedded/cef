@@ -398,6 +398,7 @@ _simpletypes = {
     ],
     'CefEventHandle': ['cef_event_handle_t', 'kNullEventHandle'],
     'CefWindowHandle': ['cef_window_handle_t', 'kNullWindowHandle'],
+    'CefInsets': ['cef_insets_t', 'CefInsets()'],
     'CefPoint': ['cef_point_t', 'CefPoint()'],
     'CefRect': ['cef_rect_t', 'CefRect()'],
     'CefSize': ['cef_size_t', 'CefSize()'],

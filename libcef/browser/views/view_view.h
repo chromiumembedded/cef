@@ -156,6 +156,13 @@ CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::Layout() {
   // If Layout() did not provide a size then use the preferred size.
   if (ParentClass::size().IsEmpty())
     ParentClass::SizeToPreferredSize();
+
+  if (cef_delegate()) {
+    const auto new_bounds = ParentClass::bounds();
+    CefRect new_rect(new_bounds.x(), new_bounds.y(), new_bounds.width(),
+                     new_bounds.height());
+    cef_delegate()->OnLayoutChanged(GetCefView(), new_rect);
+  }
 }
 
 CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::ViewHierarchyChanged(
@@ -202,8 +209,9 @@ CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::NotifyChildViewChanged(
   // Only notify for children that have a known CEF root view. For example,
   // don't notify when ScrollView adds child scroll bars.
   CefRefPtr<CefView> child = view_util::GetFor(details.child, false);
-  if (child)
+  if (child) {
     cef_delegate()->OnChildViewChanged(GetCefView(), details.is_add, child);
+  }
 }
 
 CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::NotifyParentViewChanged(
@@ -217,10 +225,11 @@ CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::NotifyParentViewChanged(
     return;
 
   // The immediate parent might be an intermediate view so find the closest
-  // known CEF root view.
+  // known CEF root view. |parent| might be nullptr for overlays.
   CefRefPtr<CefView> parent = view_util::GetFor(details.parent, true);
-  DCHECK(parent);
-  cef_delegate()->OnParentViewChanged(GetCefView(), details.is_add, parent);
+  if (parent) {
+    cef_delegate()->OnParentViewChanged(GetCefView(), details.is_add, parent);
+  }
 }
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_VIEW_VIEW_H_

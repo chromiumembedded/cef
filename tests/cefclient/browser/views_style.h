@@ -19,6 +19,7 @@ namespace views_style {
 bool IsSet();
 
 // Apply style to views objects.
+void ApplyBackgroundTo(CefRefPtr<CefView> view);
 void ApplyTo(CefRefPtr<CefPanel> panel);
 void ApplyTo(CefRefPtr<CefLabelButton> label_button);
 void ApplyTo(CefRefPtr<CefTextfield> textfield);

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=90b4b0b803eaeef6873d455a2686dfd9f56a9fc3$
+// $hash=3b4a2266f93b3c3623b0f29831a7a7d57c52a628$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_MENU_BUTTON_CTOCPP_H_
@@ -87,6 +87,8 @@ class CefMenuButtonCToCpp : public CefCToCppRefCounted<CefMenuButtonCToCpp,
   CefSize GetSize() override;
   void SetPosition(const CefPoint& position) override;
   CefPoint GetPosition() override;
+  void SetInsets(const CefInsets& insets) override;
+  CefInsets GetInsets() override;
   CefSize GetPreferredSize() override;
   void SizeToPreferredSize() override;
   CefSize GetMinimumSize() override;

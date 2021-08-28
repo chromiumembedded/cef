@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ef0338428bd0261ccfc0235718d8d1bd81e30315$
+// $hash=bb881cc52836308013fb9737d645077b623d55df$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_LABEL_BUTTON_CTOCPP_H_
@@ -83,6 +83,8 @@ class CefLabelButtonCToCpp : public CefCToCppRefCounted<CefLabelButtonCToCpp,
   CefSize GetSize() override;
   void SetPosition(const CefPoint& position) override;
   CefPoint GetPosition() override;
+  void SetInsets(const CefInsets& insets) override;
+  CefInsets GetInsets() override;
   CefSize GetPreferredSize() override;
   void SizeToPreferredSize() override;
   CefSize GetMinimumSize() override;

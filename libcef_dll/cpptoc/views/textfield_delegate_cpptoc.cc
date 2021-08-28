@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e35b635ec442c8910b02aca64d48760b1360c868$
+// $hash=9c22ccd70661c2c23bc5bbb6f80f4b04d42c90fe$
 //
 
 #include "libcef_dll/cpptoc/views/textfield_delegate_cpptoc.h"
@@ -249,6 +249,35 @@ textfield_delegate_on_window_changed(struct _cef_view_delegate_t* self,
       ->OnWindowChanged(CefViewCToCpp::Wrap(view), added ? true : false);
 }
 
+void CEF_CALLBACK
+textfield_delegate_on_layout_changed(struct _cef_view_delegate_t* self,
+                                     cef_view_t* view,
+                                     const cef_rect_t* new_bounds) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: view; type: refptr_diff
+  DCHECK(view);
+  if (!view)
+    return;
+  // Verify param: new_bounds; type: simple_byref_const
+  DCHECK(new_bounds);
+  if (!new_bounds)
+    return;
+
+  // Translate param: new_bounds; type: simple_byref_const
+  CefRect new_boundsVal = new_bounds ? *new_bounds : CefRect();
+
+  // Execute
+  CefTextfieldDelegateCppToC::Get(
+      reinterpret_cast<cef_textfield_delegate_t*>(self))
+      ->OnLayoutChanged(CefViewCToCpp::Wrap(view), new_boundsVal);
+}
+
 void CEF_CALLBACK textfield_delegate_on_focus(struct _cef_view_delegate_t* self,
                                               cef_view_t* view) {
   shutdown_checker::AssertNotShutdown();
@@ -306,6 +335,7 @@ CefTextfieldDelegateCppToC::CefTextfieldDelegateCppToC() {
   GetStruct()->base.on_child_view_changed =
       textfield_delegate_on_child_view_changed;
   GetStruct()->base.on_window_changed = textfield_delegate_on_window_changed;
+  GetStruct()->base.on_layout_changed = textfield_delegate_on_layout_changed;
   GetStruct()->base.on_focus = textfield_delegate_on_focus;
   GetStruct()->base.on_blur = textfield_delegate_on_blur;
 }

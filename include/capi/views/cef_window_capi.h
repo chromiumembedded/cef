@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=15f88e3521ca96947fe8b1f91f251eb3405fb293$
+// $hash=0f5dad3572a20ee7395cb861b5c970cff382b61c$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_CAPI_H_
@@ -43,6 +43,7 @@
 #include "include/capi/cef_image_capi.h"
 #include "include/capi/cef_menu_model_capi.h"
 #include "include/capi/views/cef_display_capi.h"
+#include "include/capi/views/cef_overlay_controller_capi.h"
 #include "include/capi/views/cef_panel_capi.h"
 #include "include/capi/views/cef_window_delegate_capi.h"
 
@@ -196,6 +197,40 @@ typedef struct _cef_window_t {
   ///
   struct _cef_image_t*(CEF_CALLBACK* get_window_app_icon)(
       struct _cef_window_t* self);
+
+  ///
+  // Add a View that will be overlayed on the Window contents with absolute
+  // positioning and high z-order. Positioning is controlled by |docking_mode|
+  // as described below. The returned cef_overlay_controller_t object is used to
+  // control the overlay. Overlays are hidden by default.
+  //
+  // With CEF_DOCKING_MODE_CUSTOM:
+  //   1. The overlay is initially hidden, sized to |view|'s preferred size, and
+  //      positioned in the top-left corner.
+  //   2. Optionally change the overlay position and/or size by calling
+  //      CefOverlayController methods.
+  //   3. Call CefOverlayController::SetVisible(true) to show the overlay.
+  //   4. The overlay will be automatically re-sized if |view|'s layout changes.
+  //      Optionally change the overlay position and/or size when
+  //      OnLayoutChanged is called on the Window's delegate to indicate a
+  //      change in Window bounds.
+  //
+  // With other docking modes:
+  //   1. The overlay is initially hidden, sized to |view|'s preferred size, and
+  //      positioned based on |docking_mode|.
+  //   2. Call CefOverlayController::SetVisible(true) to show the overlay.
+  //   3. The overlay will be automatically re-sized if |view|'s layout changes
+  //      and re-positioned as appropriate when the Window resizes.
+  //
+  // Overlays created by this function will receive a higher z-order then any
+  // child Views added previously. It is therefore recommended to call this
+  // function last after all other child Views have been added so that the
+  // overlay displays as the top-most child of the Window.
+  ///
+  struct _cef_overlay_controller_t*(CEF_CALLBACK* add_overlay_view)(
+      struct _cef_window_t* self,
+      struct _cef_view_t* view,
+      cef_docking_mode_t docking_mode);
 
   ///
   // Show a menu with contents |menu_model|. |screen_point| specifies the menu

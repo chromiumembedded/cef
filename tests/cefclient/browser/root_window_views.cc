@@ -341,7 +341,7 @@ void RootWindowViews::OnSetAddress(const std::string& url) {
     return;
   }
 
-  if (window_ && config_->with_controls)
+  if (window_)
     window_->SetAddress(url);
 }
 
@@ -420,8 +420,7 @@ void RootWindowViews::OnSetLoadingState(bool isLoading,
   }
 
   if (window_) {
-    if (config_->with_controls)
-      window_->SetLoadingState(isLoading, canGoBack, canGoForward);
+    window_->SetLoadingState(isLoading, canGoBack, canGoForward);
 
     if (isLoading) {
       // Reset to the default window icon when loading begins.

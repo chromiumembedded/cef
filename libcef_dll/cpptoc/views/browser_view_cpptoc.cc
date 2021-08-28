@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=312985bb5cc971d1fe9d77af1f985f6a544e9db5$
+// $hash=7cbe7d4732eae535d759b62e718f5ab2de570f0a$
 //
 
 #include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
@@ -606,6 +606,46 @@ cef_point_t CEF_CALLBACK browser_view_get_position(struct _cef_view_t* self) {
   return _retval;
 }
 
+void CEF_CALLBACK browser_view_set_insets(struct _cef_view_t* self,
+                                          const cef_insets_t* insets) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: insets; type: simple_byref_const
+  DCHECK(insets);
+  if (!insets)
+    return;
+
+  // Translate param: insets; type: simple_byref_const
+  CefInsets insetsVal = insets ? *insets : CefInsets();
+
+  // Execute
+  CefBrowserViewCppToC::Get(reinterpret_cast<cef_browser_view_t*>(self))
+      ->SetInsets(insetsVal);
+}
+
+cef_insets_t CEF_CALLBACK browser_view_get_insets(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return CefInsets();
+
+  // Execute
+  cef_insets_t _retval =
+      CefBrowserViewCppToC::Get(reinterpret_cast<cef_browser_view_t*>(self))
+          ->GetInsets();
+
+  // Return type: simple
+  return _retval;
+}
+
 cef_size_t CEF_CALLBACK
 browser_view_get_preferred_size(struct _cef_view_t* self) {
   shutdown_checker::AssertNotShutdown();
@@ -1120,6 +1160,8 @@ CefBrowserViewCppToC::CefBrowserViewCppToC() {
   GetStruct()->base.get_size = browser_view_get_size;
   GetStruct()->base.set_position = browser_view_set_position;
   GetStruct()->base.get_position = browser_view_get_position;
+  GetStruct()->base.set_insets = browser_view_set_insets;
+  GetStruct()->base.get_insets = browser_view_get_insets;
   GetStruct()->base.get_preferred_size = browser_view_get_preferred_size;
   GetStruct()->base.size_to_preferred_size =
       browser_view_size_to_preferred_size;

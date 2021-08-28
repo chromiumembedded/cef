@@ -49,6 +49,13 @@ bool IsSet() {
   return g_background_color != 0;
 }
 
+void ApplyBackgroundTo(CefRefPtr<CefView> view) {
+  if (!IsSet())
+    return;
+
+  view->SetBackgroundColor(g_background_color);
+}
+
 void ApplyTo(CefRefPtr<CefPanel> panel) {
   if (!IsSet())
     return;
