@@ -1,5 +1,5 @@
 diff --git chrome/chrome_elf/BUILD.gn chrome/chrome_elf/BUILD.gn
-index 9b08e23e921b0..49182504ae361 100644
+index 9b08e23e921b..49182504ae36 100644
 --- chrome/chrome_elf/BUILD.gn
 +++ chrome/chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -47,7 +47,7 @@ index 9b08e23e921b0..49182504ae361 100644
  
  source_set("dll_hash") {
 diff --git chrome/chrome_elf/crash/crash_helper.cc chrome/chrome_elf/crash/crash_helper.cc
-index 886372e114899..ad3bc2242883b 100644
+index 886372e11489..ad3bc2242883 100644
 --- chrome/chrome_elf/crash/crash_helper.cc
 +++ chrome/chrome_elf/crash/crash_helper.cc
 @@ -11,12 +11,17 @@
@@ -81,7 +81,7 @@ index 886372e114899..ad3bc2242883b 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 68ddd337e4dfa..687e869afd5c7 100644
+index 68ddd337e4df..687e869afd5c 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -4,6 +4,8 @@
@@ -121,7 +121,7 @@ index 68ddd337e4dfa..687e869afd5c7 100644
  
  void SetActiveExtensions(const std::set<std::string>& extensions) {
 diff --git chrome/common/crash_keys.h chrome/common/crash_keys.h
-index bcf172e645a23..f879aa745adfc 100644
+index bcf172e645a2..f879aa745adf 100644
 --- chrome/common/crash_keys.h
 +++ chrome/common/crash_keys.h
 @@ -17,6 +17,10 @@ class CommandLine;
@@ -136,7 +136,7 @@ index bcf172e645a23..f879aa745adfc 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git components/crash/core/app/breakpad_linux.cc components/crash/core/app/breakpad_linux.cc
-index 00009dacdc2b0..e6454d5b1a23d 100644
+index 00009dacdc2b..e6454d5b1a23 100644
 --- components/crash/core/app/breakpad_linux.cc
 +++ components/crash/core/app/breakpad_linux.cc
 @@ -28,6 +28,7 @@
@@ -212,7 +212,7 @@ index 00009dacdc2b0..e6454d5b1a23d 100644
        writer.Flush();
      }
 diff --git components/crash/core/app/breakpad_linux.h components/crash/core/app/breakpad_linux.h
-index 9ea80370a842c..3043f7d32f33d 100644
+index 9ea80370a842..3043f7d32f33 100644
 --- components/crash/core/app/breakpad_linux.h
 +++ components/crash/core/app/breakpad_linux.h
 @@ -20,6 +20,9 @@ extern void InitCrashReporter(const std::string& process_type);
@@ -226,7 +226,7 @@ index 9ea80370a842c..3043f7d32f33d 100644
  extern void InitCrashKeysForTesting();
  
 diff --git components/crash/core/app/crash_reporter_client.cc components/crash/core/app/crash_reporter_client.cc
-index 89b4bfccd5d32..7cb0a85470d2f 100644
+index 89b4bfccd5d3..7cb0a85470d2 100644
 --- components/crash/core/app/crash_reporter_client.cc
 +++ components/crash/core/app/crash_reporter_client.cc
 @@ -87,7 +87,7 @@ int CrashReporterClient::GetResultCodeRespawnFailed() {
@@ -299,7 +299,7 @@ index 89b4bfccd5d32..7cb0a85470d2f 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crash_reporter_client.h components/crash/core/app/crash_reporter_client.h
-index 39557cce47443..236806090021a 100644
+index 39557cce4744..236806090021 100644
 --- components/crash/core/app/crash_reporter_client.h
 +++ components/crash/core/app/crash_reporter_client.h
 @@ -5,7 +5,9 @@
@@ -366,7 +366,7 @@ index 39557cce47443..236806090021a 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crashpad.cc components/crash/core/app/crashpad.cc
-index 42938c3994679..3e8eaeebd7b2b 100644
+index 42938c399467..3e8eaeebd7b2 100644
 --- components/crash/core/app/crashpad.cc
 +++ components/crash/core/app/crashpad.cc
 @@ -152,7 +152,8 @@ void InitializeCrashpadImpl(bool initial_client,
@@ -380,7 +380,7 @@ index 42938c3994679..3e8eaeebd7b2b 100644
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/core/app/crashpad_mac.mm components/crash/core/app/crashpad_mac.mm
-index e3fc1fb2bcab3..56395d7100f94 100644
+index e3fc1fb2bcab..56395d7100f9 100644
 --- components/crash/core/app/crashpad_mac.mm
 +++ components/crash/core/app/crashpad_mac.mm
 @@ -16,11 +16,14 @@
@@ -483,7 +483,7 @@ index e3fc1fb2bcab3..56395d7100f94 100644
            handler_path, database_path, metrics_path, url,
            GetProcessSimpleAnnotations(), arguments, true, false);
 diff --git components/crash/core/app/crashpad_win.cc components/crash/core/app/crashpad_win.cc
-index 7dd251b2fdda8..3d358889ea6f2 100644
+index 7dd251b2fdda..3d358889ea6f 100644
 --- components/crash/core/app/crashpad_win.cc
 +++ components/crash/core/app/crashpad_win.cc
 @@ -36,8 +36,8 @@ void GetPlatformCrashpadAnnotations(

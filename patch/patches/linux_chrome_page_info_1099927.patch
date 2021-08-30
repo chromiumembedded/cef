@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/page_info/chrome_page_info_client.cc chrome/browser/ui/page_info/chrome_page_info_client.cc
-index e2972da9e548d..2f356616ed97c 100644
+index e2972da9e548..2f356616ed97 100644
 --- chrome/browser/ui/page_info/chrome_page_info_client.cc
 +++ chrome/browser/ui/page_info/chrome_page_info_client.cc
 @@ -17,5 +17,9 @@ std::unique_ptr<PageInfoDelegate> ChromePageInfoClient::CreatePageInfoDelegate(

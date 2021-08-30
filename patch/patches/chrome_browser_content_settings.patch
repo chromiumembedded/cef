@@ -1,5 +1,5 @@
 diff --git chrome/browser/content_settings/host_content_settings_map_factory.cc chrome/browser/content_settings/host_content_settings_map_factory.cc
-index 173582c7c4904..bbf57904b6de9 100644
+index 173582c7c490..bbf57904b6de 100644
 --- chrome/browser/content_settings/host_content_settings_map_factory.cc
 +++ chrome/browser/content_settings/host_content_settings_map_factory.cc
 @@ -8,6 +8,7 @@
@@ -54,7 +54,7 @@ index 173582c7c4904..bbf57904b6de9 100644
  #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
    SupervisedUserSettingsService* supervised_service =
 diff --git components/content_settings/renderer/content_settings_agent_impl.cc components/content_settings/renderer/content_settings_agent_impl.cc
-index e410df38c0b44..3d5701b9918ac 100644
+index e410df38c0b4..3d5701b9918a 100644
 --- components/content_settings/renderer/content_settings_agent_impl.cc
 +++ components/content_settings/renderer/content_settings_agent_impl.cc
 @@ -170,7 +170,7 @@ ContentSetting GetContentSettingFromRulesImpl(

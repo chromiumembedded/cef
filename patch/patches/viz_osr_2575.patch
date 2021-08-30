@@ -1,5 +1,5 @@
 diff --git components/viz/host/host_display_client.cc components/viz/host/host_display_client.cc
-index 3b00759e513dc..90fe332d59f5b 100644
+index 3b00759e513d..90fe332d59f5 100644
 --- components/viz/host/host_display_client.cc
 +++ components/viz/host/host_display_client.cc
 @@ -45,9 +45,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
@@ -29,7 +29,7 @@ index 3b00759e513dc..90fe332d59f5b 100644
  // TODO(crbug.com/1052397): Revisit the macro expression once build flag switch
  // of lacros-chrome is complete.
 diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
-index 94c5293d528a6..d89a986ed0def 100644
+index 94c5293d528a..d89a986ed0de 100644
 --- components/viz/host/host_display_client.h
 +++ components/viz/host/host_display_client.h
 @@ -31,17 +31,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
@@ -54,7 +54,7 @@ index 94c5293d528a6..d89a986ed0def 100644
  // TODO(crbug.com/1052397): Revisit the macro expression once build flag switch
  // of lacros-chrome is complete.
 diff --git components/viz/host/layered_window_updater_impl.cc components/viz/host/layered_window_updater_impl.cc
-index b04f654fe820f..131977a36591d 100644
+index b04f654fe820..131977a36591 100644
 --- components/viz/host/layered_window_updater_impl.cc
 +++ components/viz/host/layered_window_updater_impl.cc
 @@ -44,7 +44,7 @@ void LayeredWindowUpdaterImpl::OnAllocatedSharedMemory(
@@ -67,7 +67,7 @@ index b04f654fe820f..131977a36591d 100644
  
    if (!canvas_) {
 diff --git components/viz/host/layered_window_updater_impl.h components/viz/host/layered_window_updater_impl.h
-index 1026b739d283f..fe562ab60ce98 100644
+index 1026b739d283..fe562ab60ce9 100644
 --- components/viz/host/layered_window_updater_impl.h
 +++ components/viz/host/layered_window_updater_impl.h
 @@ -35,7 +35,7 @@ class VIZ_HOST_EXPORT LayeredWindowUpdaterImpl
@@ -80,7 +80,7 @@ index 1026b739d283f..fe562ab60ce98 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index f0eb025056501..823b7fcb55efc 100644
+index f0eb02505650..823b7fcb55ef 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -208,6 +208,8 @@ viz_component("service") {
@@ -93,7 +93,7 @@ index f0eb025056501..823b7fcb55efc 100644
  
    defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index 827084542417d..73f44ba997497 100644
+index 827084542417..73f44ba99749 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
 @@ -16,6 +16,7 @@
@@ -126,7 +126,7 @@ index 827084542417d..73f44ba997497 100644
    return CreateSoftwareOutputDeviceWin(surface_handle, &output_device_backing_,
                                         display_client);
 diff --git components/viz/service/display_embedder/software_output_device_win.cc components/viz/service/display_embedder/software_output_device_win.cc
-index 599b06c1765ef..e8ae98b0b1320 100644
+index 599b06c1765e..e8ae98b0b132 100644
 --- components/viz/service/display_embedder/software_output_device_win.cc
 +++ components/viz/service/display_embedder/software_output_device_win.cc
 @@ -191,8 +191,9 @@ void SoftwareOutputDeviceWinProxy::EndPaintDelegated(
@@ -142,7 +142,7 @@ index 599b06c1765ef..e8ae98b0b1320 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 50ff2c9facc2a..c34d1f28d2e90 100644
+index 50ff2c9facc2..c34d1f28d2e9 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
 @@ -395,8 +395,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
@@ -162,7 +162,7 @@ index 50ff2c9facc2a..c34d1f28d2e90 100644
        compositor_data.display_client->GetBoundRemote(resize_task_runner_);
  
 diff --git mojo/public/cpp/bindings/sync_call_restrictions.h mojo/public/cpp/bindings/sync_call_restrictions.h
-index fc4142741f793..ae797aaeff5f2 100644
+index fc4142741f79..ae797aaeff5f 100644
 --- mojo/public/cpp/bindings/sync_call_restrictions.h
 +++ mojo/public/cpp/bindings/sync_call_restrictions.h
 @@ -43,6 +43,7 @@ class Compositor;
@@ -183,7 +183,7 @@ index fc4142741f793..ae797aaeff5f2 100644
    // running in the same process, so it won't block anything.
    // TODO(159346933) Remove once the origin isolation logic is moved outside of
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index 409115f95787e..278354c126a0c 100644
+index 409115f95787..278354c126a0 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
 @@ -85,12 +85,14 @@ interface DisplayPrivate {
@@ -203,7 +203,7 @@ index 409115f95787e..278354c126a0c 100644
  
    // Notifies that a swap has occurred and provides information about the pixel
 diff --git services/viz/privileged/mojom/compositing/layered_window_updater.mojom services/viz/privileged/mojom/compositing/layered_window_updater.mojom
-index 6b7fbb6cf13dc..e2af75168cb91 100644
+index 6b7fbb6cf13d..e2af75168cb9 100644
 --- services/viz/privileged/mojom/compositing/layered_window_updater.mojom
 +++ services/viz/privileged/mojom/compositing/layered_window_updater.mojom
 @@ -26,5 +26,5 @@ interface LayeredWindowUpdater {
@@ -214,7 +214,7 @@ index 6b7fbb6cf13dc..e2af75168cb91 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index dfb0c89dc7bd8..4b54ea85c0298 100644
+index dfb0c89dc7bd..4b54ea85c029 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -29,7 +29,9 @@

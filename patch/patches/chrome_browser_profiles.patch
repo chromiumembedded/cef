@@ -1,5 +1,5 @@
 diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
-index baef951fe2535..a72b08b21c606 100644
+index baef951fe253..a72b08b21c60 100644
 --- chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ chrome/browser/profiles/off_the_record_profile_impl.cc
 @@ -628,7 +628,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
@@ -14,7 +14,7 @@ index baef951fe2535..a72b08b21c606 100644
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index 403c59f81857a..d73fb2d6fa88b 100644
+index 403c59f81857..d73fb2d6fa88 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
 @@ -86,6 +86,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
@@ -52,7 +52,7 @@ index 403c59f81857a..d73fb2d6fa88b 100644
  Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
    return CreateUnique(kDevToolsOTRProfileIDPrefix);
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index 4d0cc18bd6a85..76adcbd9b7fcc 100644
+index 4d0cc18bd6a8..76adcbd9b7fc 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
 @@ -112,6 +112,10 @@ class Profile : public content::BrowserContext {
@@ -85,7 +85,7 @@ index 4d0cc18bd6a85..76adcbd9b7fcc 100644
    virtual bool IsSignedIn() = 0;
  
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index 569a2780dab4c..b46ff6fa0b2b7 100644
+index 569a2780dab4..b46ff6fa0b2b 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
 @@ -985,7 +985,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
@@ -100,7 +100,7 @@ index 569a2780dab4c..b46ff6fa0b2b7 100644
    return raw_otr_profile;
  }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 04aab51e9b179..532e719058f4b 100644
+index 04aab51e9b17..532e719058f4 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
 @@ -495,7 +495,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
@@ -113,7 +113,7 @@ index 04aab51e9b179..532e719058f4b 100644
  }
  
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index 915a95e287c58..0424e8bdd7d84 100644
+index 915a95e287c5..0424e8bdd7d8 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
 @@ -119,7 +119,7 @@ class ProfileManager : public Profile::Delegate {
@@ -135,7 +135,7 @@ index 915a95e287c58..0424e8bdd7d84 100644
    // Returns the directory where the first created profile is stored,
    // relative to the user data directory currently in use.
 diff --git chrome/browser/profiles/renderer_updater.cc chrome/browser/profiles/renderer_updater.cc
-index 0757d75a24b28..bd916bdaf820f 100644
+index 0757d75a24b2..bd916bdaf820 100644
 --- chrome/browser/profiles/renderer_updater.cc
 +++ chrome/browser/profiles/renderer_updater.cc
 @@ -8,6 +8,7 @@

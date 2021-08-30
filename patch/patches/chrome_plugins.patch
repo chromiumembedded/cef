@@ -1,5 +1,5 @@
 diff --git chrome/browser/plugins/plugin_info_host_impl.cc chrome/browser/plugins/plugin_info_host_impl.cc
-index 4cb831441aed4..ed0092720b63f 100644
+index 4cb831441aed..ed0092720b63 100644
 --- chrome/browser/plugins/plugin_info_host_impl.cc
 +++ chrome/browser/plugins/plugin_info_host_impl.cc
 @@ -18,6 +18,7 @@
@@ -115,7 +115,7 @@ index 4cb831441aed4..ed0092720b63f 100644
    bool enabled = i < matching_plugins.size();
    if (!enabled) {
 diff --git chrome/browser/plugins/plugin_utils.cc chrome/browser/plugins/plugin_utils.cc
-index a0b3175223f3e..a1117001ad1fc 100644
+index a0b3175223f3..a1117001ad1f 100644
 --- chrome/browser/plugins/plugin_utils.cc
 +++ chrome/browser/plugins/plugin_utils.cc
 @@ -5,6 +5,7 @@
@@ -151,7 +151,7 @@ index a0b3175223f3e..a1117001ad1fc 100644
    Profile* profile = Profile::FromBrowserContext(browser_context);
    const std::vector<std::string>& allowlist =
 diff --git chrome/common/google_url_loader_throttle.cc chrome/common/google_url_loader_throttle.cc
-index 8c2547056ec26..2ab3252dca708 100644
+index 8c2547056ec2..2ab3252dca70 100644
 --- chrome/common/google_url_loader_throttle.cc
 +++ chrome/common/google_url_loader_throttle.cc
 @@ -7,6 +7,7 @@
@@ -186,7 +186,7 @@ index 8c2547056ec26..2ab3252dca708 100644
    // that the X-Frame-Options protection mechanism is set to either DENY or
    // SAMEORIGIN.
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index fc4ae8abac329..73083d8ba64d6 100644
+index fc4ae8abac32..73083d8ba64d 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
 @@ -931,6 +931,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
@@ -238,7 +238,7 @@ index fc4ae8abac329..73083d8ba64d6 100644
        }
      }
 diff --git content/browser/browser_plugin/browser_plugin_guest.h content/browser/browser_plugin/browser_plugin_guest.h
-index bc13113e725e0..2bc15de23ec4a 100644
+index bc13113e725e..2bc15de23ec4 100644
 --- content/browser/browser_plugin/browser_plugin_guest.h
 +++ content/browser/browser_plugin/browser_plugin_guest.h
 @@ -113,6 +113,8 @@ class CONTENT_EXPORT BrowserPluginGuest : public GuestHost,

@@ -1,5 +1,5 @@
 diff --git chrome/common/media/component_widevine_cdm_hint_file_linux.cc chrome/common/media/component_widevine_cdm_hint_file_linux.cc
-index 44a89a2e7f6e4..447c1a635eadd 100644
+index 44a89a2e7f6e..447c1a635ead 100644
 --- chrome/common/media/component_widevine_cdm_hint_file_linux.cc
 +++ chrome/common/media/component_widevine_cdm_hint_file_linux.cc
 @@ -16,6 +16,7 @@

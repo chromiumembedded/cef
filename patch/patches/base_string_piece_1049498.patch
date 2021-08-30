@@ -1,5 +1,5 @@
 diff --git base/strings/string_piece.h base/strings/string_piece.h
-index 5ceb3a40eb01b..89476bfa41e9b 100644
+index 5ceb3a40eb01..89476bfa41e9 100644
 --- base/strings/string_piece.h
 +++ base/strings/string_piece.h
 @@ -23,6 +23,7 @@

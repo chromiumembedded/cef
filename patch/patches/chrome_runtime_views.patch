@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/browser_command_controller.cc chrome/browser/ui/browser_command_controller.cc
-index 9188154824c4d..d01f610a64135 100644
+index 9188154824c4..d01f610a6413 100644
 --- chrome/browser/ui/browser_command_controller.cc
 +++ chrome/browser/ui/browser_command_controller.cc
 @@ -351,8 +351,10 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
@@ -31,7 +31,7 @@ index 9188154824c4d..d01f610a64135 100644
  
  void BrowserCommandController::InitCommandState() {
 diff --git chrome/browser/ui/views/frame/browser_frame.cc chrome/browser/ui/views/frame/browser_frame.cc
-index 2c4624fb0cd05..57c087dcbaaee 100644
+index 2c4624fb0cd0..57c087dcbaae 100644
 --- chrome/browser/ui/views/frame/browser_frame.cc
 +++ chrome/browser/ui/views/frame/browser_frame.cc
 @@ -69,15 +69,23 @@ bool IsUsingGtkTheme(Profile* profile) {
@@ -106,7 +106,7 @@ index 2c4624fb0cd05..57c087dcbaaee 100644
      // or not we always use the dark ui instance.
      if (base::FeatureList::IsEnabled(
 diff --git chrome/browser/ui/views/frame/browser_frame.h chrome/browser/ui/views/frame/browser_frame.h
-index 0ce7abdeb7d9f..8197a6bb7da98 100644
+index 0ce7abdeb7d9..8197a6bb7da9 100644
 --- chrome/browser/ui/views/frame/browser_frame.h
 +++ chrome/browser/ui/views/frame/browser_frame.h
 @@ -54,7 +54,9 @@ enum class TabDragKind {
@@ -120,7 +120,7 @@ index 0ce7abdeb7d9f..8197a6bb7da98 100644
  
    // Initialize the frame (creates the underlying native window).
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index f0b0bd645a3ce..0d8475b411512 100644
+index f0b0bd645a3c..0d8475b41151 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -593,11 +593,22 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
@@ -234,7 +234,7 @@ index f0b0bd645a3ce..0d8475b411512 100644
  
    MaybeInitializeWebUITabStrip();
 diff --git chrome/browser/ui/views/frame/browser_view.h chrome/browser/ui/views/frame/browser_view.h
-index 021f04720e567..8c4f2cbf34f25 100644
+index 021f04720e56..8c4f2cbf34f2 100644
 --- chrome/browser/ui/views/frame/browser_view.h
 +++ chrome/browser/ui/views/frame/browser_view.h
 @@ -114,7 +114,9 @@ class BrowserView : public BrowserWindow,
@@ -261,7 +261,7 @@ index 021f04720e567..8c4f2cbf34f25 100644
    // Do not friend BrowserViewLayout. Use the BrowserViewLayoutDelegate
    // interface to keep these two classes decoupled and testable.
 diff --git chrome/browser/ui/views/frame/browser_view_layout.cc chrome/browser/ui/views/frame/browser_view_layout.cc
-index 18a85f436bd97..0d6e4c9f916e7 100644
+index 18a85f436bd9..0d6e4c9f916e 100644
 --- chrome/browser/ui/views/frame/browser_view_layout.cc
 +++ chrome/browser/ui/views/frame/browser_view_layout.cc
 @@ -441,6 +441,12 @@ int BrowserViewLayout::LayoutWebUITabStrip(int top) {
@@ -278,7 +278,7 @@ index 18a85f436bd97..0d6e4c9f916e7 100644
    bool toolbar_visible = delegate_->IsToolbarVisible();
    int height = toolbar_visible ? toolbar_->GetPreferredSize().height() : 0;
 diff --git chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
-index 5e516ea5873ca..b9890fbe050af 100644
+index 5e516ea5873c..b9890fbe050a 100644
 --- chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
 +++ chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
 @@ -587,37 +587,53 @@ gfx::Range BrowserTabStripController::ListTabsInGroup(
@@ -336,7 +336,7 @@ index 5e516ea5873ca..b9890fbe050af 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index 7bc5cd3dabf7d..ea706584db609 100644
+index 7bc5cd3dabf7..ea706584db60 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
 @@ -162,12 +162,13 @@ auto& GetViewCommandMap() {
@@ -365,7 +365,7 @@ index 7bc5cd3dabf7d..ea706584db609 100644
    size_animation_.Reset(1);
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.h chrome/browser/ui/views/toolbar/toolbar_view.h
-index 8346b612cfbe6..d7fc5440af829 100644
+index 8346b612cfbe..d7fc5440af82 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.h
 +++ chrome/browser/ui/views/toolbar/toolbar_view.h
 @@ -90,7 +90,8 @@ class ToolbarView : public views::AccessiblePaneView,

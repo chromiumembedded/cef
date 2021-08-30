@@ -1,5 +1,5 @@
 diff --git third_party/blink/renderer/build/scripts/templates/runtime_enabled_features.h.tmpl third_party/blink/renderer/build/scripts/templates/runtime_enabled_features.h.tmpl
-index 0325bd26a5058..8fec0a124a55c 100644
+index 0325bd26a505..8fec0a124a55 100644
 --- third_party/blink/renderer/build/scripts/templates/runtime_enabled_features.h.tmpl
 +++ third_party/blink/renderer/build/scripts/templates/runtime_enabled_features.h.tmpl
 @@ -12,6 +12,8 @@

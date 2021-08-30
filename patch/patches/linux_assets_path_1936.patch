@@ -1,5 +1,5 @@
 diff --git content/browser/child_process_launcher_helper_linux.cc content/browser/child_process_launcher_helper_linux.cc
-index bbc1d4d057291..a7c7d75f61df6 100644
+index bbc1d4d05729..a7c7d75f61df 100644
 --- content/browser/child_process_launcher_helper_linux.cc
 +++ content/browser/child_process_launcher_helper_linux.cc
 @@ -162,7 +162,7 @@ void ChildProcessLauncherHelper::SetProcessPriorityOnLauncherThread(
@@ -12,7 +12,7 @@ index bbc1d4d057291..a7c7d75f61df6 100644
    base::File file(exe_dir.Append(path),
                    base::File::FLAG_OPEN | base::File::FLAG_READ);
 diff --git sandbox/linux/suid/client/setuid_sandbox_host.cc sandbox/linux/suid/client/setuid_sandbox_host.cc
-index 7022a65e03578..c9aaf5d76e4a1 100644
+index 7022a65e0357..c9aaf5d76e4a 100644
 --- sandbox/linux/suid/client/setuid_sandbox_host.cc
 +++ sandbox/linux/suid/client/setuid_sandbox_host.cc
 @@ -120,7 +120,7 @@ bool SetuidSandboxHost::IsDisabledViaEnvironment() {
@@ -25,7 +25,7 @@ index 7022a65e03578..c9aaf5d76e4a1 100644
      if (base::PathExists(sandbox_candidate))
        sandbox_binary = sandbox_candidate;
 diff --git ui/gl/init/gl_initializer_linux_x11.cc ui/gl/init/gl_initializer_linux_x11.cc
-index 016046d6caa4f..116e4919cda08 100644
+index 016046d6caa4..116e4919cda0 100644
 --- ui/gl/init/gl_initializer_linux_x11.cc
 +++ ui/gl/init/gl_initializer_linux_x11.cc
 @@ -82,7 +82,7 @@ bool InitializeStaticEGLInternalFromLibrary(GLImplementation implementation) {

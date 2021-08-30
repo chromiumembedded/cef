@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index bafc85477602d..7672916319fa9 100644
+index bafc85477602..7672916319fa 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -34,6 +34,7 @@ import("//build/config/ui.gni")
@@ -37,7 +37,7 @@ index bafc85477602d..7672916319fa9 100644
        "cfgmgr32.lib",
        "powrprof.lib",
 diff --git base/hash/md5.h base/hash/md5.h
-index 8a49f08dcb04d..2f03d7a6d1b34 100644
+index 8a49f08dcb04..2f03d7a6d1b3 100644
 --- base/hash/md5.h
 +++ base/hash/md5.h
 @@ -10,8 +10,9 @@
@@ -52,7 +52,7 @@ index 8a49f08dcb04d..2f03d7a6d1b34 100644
  #else
  #include "base/hash/md5_boringssl.h"
 diff --git base/hash/sha1.h base/hash/sha1.h
-index 5bb10fe069850..206344d0fd3b1 100644
+index 5bb10fe06985..206344d0fd3b 100644
 --- base/hash/sha1.h
 +++ base/hash/sha1.h
 @@ -14,7 +14,9 @@
@@ -67,7 +67,7 @@ index 5bb10fe069850..206344d0fd3b1 100644
  #else
  #include "base/hash/sha1_boringssl.h"
 diff --git base/unguessable_token.cc base/unguessable_token.cc
-index d156be5597625..fc753a2ceb88a 100644
+index d156be559762..fc753a2ceb88 100644
 --- base/unguessable_token.cc
 +++ base/unguessable_token.cc
 @@ -9,8 +9,9 @@

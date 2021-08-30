@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index 50aec56adb4b6..c36996e06ebee 100644
+index 50aec56adb4b..c36996e06ebe 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -24,6 +24,7 @@
@@ -34,7 +34,7 @@ index 50aec56adb4b6..c36996e06ebee 100644
  }
  
 diff --git chrome/browser/printing/print_preview_dialog_controller.cc chrome/browser/printing/print_preview_dialog_controller.cc
-index 4ff73fd2d9ec3..d56686d8284ba 100644
+index 4ff73fd2d9ec..d56686d8284b 100644
 --- chrome/browser/printing/print_preview_dialog_controller.cc
 +++ chrome/browser/printing/print_preview_dialog_controller.cc
 @@ -15,6 +15,7 @@
@@ -58,7 +58,7 @@ index 4ff73fd2d9ec3..d56686d8284ba 100644
    // Add an entry to the map.
    preview_dialog_map_[preview_dialog] = initiator;
 diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index e4cacbf9a82da..3f137e18b8087 100644
+index e4cacbf9a82d..3f137e18b808 100644
 --- chrome/browser/printing/print_view_manager_base.cc
 +++ chrome/browser/printing/print_view_manager_base.cc
 @@ -21,6 +21,7 @@
@@ -97,7 +97,7 @@ index e4cacbf9a82da..3f137e18b8087 100644
  
  void NotifySystemDialogCancelled(int render_process_id, int routing_id) {
 diff --git chrome/browser/printing/print_view_manager_base.h chrome/browser/printing/print_view_manager_base.h
-index eaa0e162a339b..8e030d2ab3995 100644
+index eaa0e162a339..8e030d2ab399 100644
 --- chrome/browser/printing/print_view_manager_base.h
 +++ chrome/browser/printing/print_view_manager_base.h
 @@ -126,9 +126,6 @@ class PrintViewManagerBase : public content::NotificationObserver,
@@ -111,7 +111,7 @@ index eaa0e162a339b..8e030d2ab3995 100644
    void Observe(int type,
                 const content::NotificationSource& source,
 diff --git chrome/browser/resources/print_preview/ui/destination_dialog.html chrome/browser/resources/print_preview/ui/destination_dialog.html
-index 920f646f06484..76c0b5e5ee04b 100644
+index 920f646f0648..76c0b5e5ee04 100644
 --- chrome/browser/resources/print_preview/ui/destination_dialog.html
 +++ chrome/browser/resources/print_preview/ui/destination_dialog.html
 @@ -25,10 +25,7 @@
@@ -127,7 +127,7 @@ index 920f646f06484..76c0b5e5ee04b 100644
        $i18n{cancel}
      </cr-button>
 diff --git chrome/browser/ui/webui/constrained_web_dialog_ui.cc chrome/browser/ui/webui/constrained_web_dialog_ui.cc
-index dd3512b303c40..0627aa331492c 100644
+index dd3512b303c4..0627aa331492 100644
 --- chrome/browser/ui/webui/constrained_web_dialog_ui.cc
 +++ chrome/browser/ui/webui/constrained_web_dialog_ui.cc
 @@ -26,6 +26,8 @@
@@ -151,7 +151,7 @@ index dd3512b303c40..0627aa331492c 100644
  
  ConstrainedWebDialogUI::~ConstrainedWebDialogUI() = default;
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
-index 1b18146a4ba8f..9094f488642fc 100644
+index 1b18146a4ba8..9094f488642f 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 +++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 @@ -21,6 +21,7 @@
@@ -270,7 +270,7 @@ index 1b18146a4ba8f..9094f488642fc 100644
  #if BUILDFLAG(IS_CHROMEOS_ASH)
    drive::DriveIntegrationService* drive_service =
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.h chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
-index e326047aef5e9..4fc8898e95b6f 100644
+index e326047aef5e..4fc8898e95b6 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
 +++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.h
 @@ -11,6 +11,7 @@
@@ -304,7 +304,7 @@ index e326047aef5e9..4fc8898e95b6f 100644
    base::FilePath GetSaveLocation() const;
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index 424ee9168d93a..aa6266ccf443c 100644
+index 424ee9168d93..aa6266ccf443 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -29,6 +29,7 @@

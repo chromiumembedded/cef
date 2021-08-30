@@ -1,5 +1,5 @@
 diff --git content/public/browser/document_service_base.h content/public/browser/document_service_base.h
-index e92c412a44c62..520338835afa8 100644
+index e92c412a44c6..520338835afa 100644
 --- content/public/browser/document_service_base.h
 +++ content/public/browser/document_service_base.h
 @@ -80,6 +80,8 @@ class DocumentServiceBase : public Interface, public WebContentsObserver {

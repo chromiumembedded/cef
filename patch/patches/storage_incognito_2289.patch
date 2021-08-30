@@ -1,5 +1,5 @@
 diff --git content/browser/blob_storage/chrome_blob_storage_context.cc content/browser/blob_storage/chrome_blob_storage_context.cc
-index 4960b1067e1c4..2686fa5bc550b 100644
+index 4960b1067e1c..2686fa5bc550 100644
 --- content/browser/blob_storage/chrome_blob_storage_context.cc
 +++ content/browser/blob_storage/chrome_blob_storage_context.cc
 @@ -120,7 +120,8 @@ ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
@@ -13,7 +13,7 @@ index 4960b1067e1c4..2686fa5bc550b 100644
            {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
             base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index f7a2f30d3748a..098ff6540d8ea 100644
+index f7a2f30d3748..098ff6540d8e 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
 @@ -137,7 +137,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
@@ -36,7 +36,7 @@ index f7a2f30d3748a..098ff6540d8ea 100644
    std::unique_ptr<media::VideoDecodeStatsDB> stats_db;
    if (use_in_memory_db) {
 diff --git content/public/browser/storage_partition_config.cc content/public/browser/storage_partition_config.cc
-index b430ebb66bb5f..8fc54d2e7d713 100644
+index b430ebb66bb5..8fc54d2e7d71 100644
 --- content/public/browser/storage_partition_config.cc
 +++ content/public/browser/storage_partition_config.cc
 @@ -7,6 +7,7 @@
@@ -58,7 +58,7 @@ index b430ebb66bb5f..8fc54d2e7d713 100644
  
  // static
 diff --git storage/browser/database/database_tracker.cc storage/browser/database/database_tracker.cc
-index c96e3fad1a70f..302b2be31d8dc 100644
+index c96e3fad1a70..302b2be31d8d 100644
 --- storage/browser/database/database_tracker.cc
 +++ storage/browser/database/database_tracker.cc
 @@ -562,7 +562,7 @@ bool DatabaseTracker::LazyInit() {

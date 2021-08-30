@@ -1,5 +1,5 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index 8b338161af4bc..e0c4e36f9f140 100644
+index 8b338161af4b..e0c4e36f9f14 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
 @@ -1734,6 +1734,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForOrigin(
@@ -20,7 +20,7 @@ index 8b338161af4bc..e0c4e36f9f140 100644
  
            // TODO(wjmaclean): We should update the ProcessLock comparison API
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index b4d827ec6b9ca..5168da29c5d4d 100644
+index b4d827ec6b9c..5168da29c5d4 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
 @@ -5686,6 +5686,12 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithoutFinalFrameHost(

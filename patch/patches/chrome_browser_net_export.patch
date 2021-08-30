@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 839907dd232a2..38edcddb6d755 100644
+index 839907dd232a..38edcddb6d75 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/features.gni")
@@ -38,7 +38,7 @@ index 839907dd232a2..38edcddb6d755 100644
      ]
      if (use_cups) {
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
-index fcd1f66b3a7a4..70ded321f5498 100644
+index fcd1f66b3a7a..70ded321f549 100644
 --- chrome/browser/ui/webui/net_export_ui.cc
 +++ chrome/browser/ui/webui/net_export_ui.cc
 @@ -21,6 +21,7 @@

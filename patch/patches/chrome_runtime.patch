@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index 73d78a39dacfe..53e0a980ec8a4 100644
+index 73d78a39dacf..53e0a980ec8a 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -29,6 +29,7 @@
@@ -78,7 +78,7 @@ index 73d78a39dacfe..53e0a980ec8a4 100644
  
  #endif  // defined(OS_LINUX) || defined(OS_CHROMEOS)
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index e07aca88fdf9e..9aa092498c861 100644
+index e07aca88fdf9..9aa092498c86 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -50,6 +50,7 @@
@@ -118,7 +118,7 @@ index e07aca88fdf9e..9aa092498c861 100644
  // of lacros-chrome is complete.
  #if defined(OS_WIN) || (defined(OS_LINUX) || BUILDFLAG(IS_CHROMEOS_LACROS))
 diff --git chrome/browser/chrome_browser_main_mac.mm chrome/browser/chrome_browser_main_mac.mm
-index 95d1ebc190910..13cdfa52db108 100644
+index 95d1ebc19091..13cdfa52db10 100644
 --- chrome/browser/chrome_browser_main_mac.mm
 +++ chrome/browser/chrome_browser_main_mac.mm
 @@ -16,6 +16,7 @@
@@ -156,7 +156,7 @@ index 95d1ebc190910..13cdfa52db108 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index ef7caebafd36e..d9708e25c9505 100644
+index ef7caebafd36..d9708e25c950 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -28,6 +28,7 @@
@@ -180,7 +180,7 @@ index ef7caebafd36e..d9708e25c9505 100644
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 8fadd3a4d4ebe..2fad4e8704410 100644
+index 8fadd3a4d4eb..2fad4e870441 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -10,6 +10,7 @@

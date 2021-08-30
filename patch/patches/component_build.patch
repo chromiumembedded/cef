@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index 2619022a1d89c..572a495004def 100644
+index 2619022a1d89..572a495004de 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
 @@ -89,7 +89,7 @@ bool ApplyUserAgentMetadataOverrides(
@@ -12,7 +12,7 @@ index 2619022a1d89c..572a495004def 100644
      bool is_navigation,
      bool is_download,
 diff --git content/browser/renderer_host/input/synthetic_gesture_target_base.h content/browser/renderer_host/input/synthetic_gesture_target_base.h
-index eef661b3e0950..6c0dacfa4bc3a 100644
+index eef661b3e095..6c0dacfa4bc3 100644
 --- content/browser/renderer_host/input/synthetic_gesture_target_base.h
 +++ content/browser/renderer_host/input/synthetic_gesture_target_base.h
 @@ -9,6 +9,7 @@
@@ -34,7 +34,7 @@ index eef661b3e0950..6c0dacfa4bc3a 100644
    explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
    ~SyntheticGestureTargetBase() override;
 diff --git content/common/content_switches_internal.h content/common/content_switches_internal.h
-index 57072bf1263ae..0a93446e4d21c 100644
+index 57072bf1263a..0a93446e4d21 100644
 --- content/common/content_switches_internal.h
 +++ content/common/content_switches_internal.h
 @@ -15,7 +15,7 @@ class CommandLine;
@@ -47,7 +47,7 @@ index 57072bf1263ae..0a93446e4d21c 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 8003cd409ff37..8ac3fefade6de 100644
+index 8003cd409ff3..8ac3fefade6d 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -29,6 +29,7 @@ component("controller") {
@@ -68,7 +68,7 @@ index 8003cd409ff37..8ac3fefade6de 100644
  
    if (is_linux || is_chromeos) {
 diff --git ui/events/keycodes/BUILD.gn ui/events/keycodes/BUILD.gn
-index 86bbf620ff0d9..6c06b461c6da1 100644
+index 86bbf620ff0d..6c06b461c6da 100644
 --- ui/events/keycodes/BUILD.gn
 +++ ui/events/keycodes/BUILD.gn
 @@ -19,6 +19,8 @@ source_set("xkb") {
@@ -81,7 +81,7 @@ index 86bbf620ff0d9..6c06b461c6da1 100644
      "//base",
      "//build:chromeos_buildflags",
 diff --git ui/events/keycodes/keyboard_code_conversion_xkb.h ui/events/keycodes/keyboard_code_conversion_xkb.h
-index e1fefa4cead9e..8213402ff263d 100644
+index e1fefa4cead9..8213402ff263 100644
 --- ui/events/keycodes/keyboard_code_conversion_xkb.h
 +++ ui/events/keycodes/keyboard_code_conversion_xkb.h
 @@ -9,6 +9,7 @@

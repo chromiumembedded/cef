@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index beaa6476fe5d8..beb1179214223 100644
+index beaa6476fe5d..beb117921422 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -638,6 +638,14 @@ float RenderWidgetHostViewBase::GetDeviceScaleFactor() {
@@ -18,7 +18,7 @@ index beaa6476fe5d8..beb1179214223 100644
    if (!GetMouseWheelPhaseHandler())
      return;
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 21669355ec8d1..e0dd842c5a69c 100644
+index 21669355ec8d..e0dd842c5a69 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -67,6 +67,7 @@ class CursorManager;
@@ -63,7 +63,7 @@ index 21669355ec8d1..e0dd842c5a69c 100644
    FRIEND_TEST_ALL_PREFIXES(
        BrowserSideFlingBrowserTest,
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index 9043a181d4c04..a72a96e015e9d 100644
+index 9043a181d4c0..a72a96e015e9 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -49,6 +49,10 @@ namespace {
@@ -111,7 +111,7 @@ index 9043a181d4c04..a72a96e015e9d 100644
    if (host_ && set_focus_on_mouse_down_or_key_event_) {
      set_focus_on_mouse_down_or_key_event_ = false;
 diff --git content/public/browser/render_widget_host_view.h content/public/browser/render_widget_host_view.h
-index 7a8ceb1916434..01d0ca9a19316 100644
+index 7a8ceb191643..01d0ca9a1931 100644
 --- content/public/browser/render_widget_host_view.h
 +++ content/public/browser/render_widget_host_view.h
 @@ -249,6 +249,14 @@ class CONTENT_EXPORT RenderWidgetHostView {
@@ -130,7 +130,7 @@ index 7a8ceb1916434..01d0ca9a19316 100644
    // Set the view's active state (i.e., tint state of controls).
    virtual void SetActive(bool active) = 0;
 diff --git ui/platform_window/x11/x11_window.cc ui/platform_window/x11/x11_window.cc
-index 9d0bc6966680f..152c6f01059b6 100644
+index 9d0bc6966680..152c6f01059b 100644
 --- ui/platform_window/x11/x11_window.cc
 +++ ui/platform_window/x11/x11_window.cc
 @@ -1671,7 +1671,8 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
@@ -144,7 +144,7 @@ index 9d0bc6966680f..152c6f01059b6 100644
    req.y = bounds_in_pixels_.y();
    req.width = bounds_in_pixels_.width();
 diff --git ui/views/widget/desktop_aura/desktop_screen_win.cc ui/views/widget/desktop_aura/desktop_screen_win.cc
-index 7c352dd0d992d..516623a91b0e1 100644
+index 7c352dd0d992..516623a91b0e 100644
 --- ui/views/widget/desktop_aura/desktop_screen_win.cc
 +++ ui/views/widget/desktop_aura/desktop_screen_win.cc
 @@ -20,6 +20,8 @@ DesktopScreenWin::~DesktopScreenWin() {
@@ -157,7 +157,7 @@ index 7c352dd0d992d..516623a91b0e1 100644
    return host ? host->GetAcceleratedWidget() : nullptr;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
-index 6e09038a0fffa..0400f99c5de22 100644
+index 6e09038a0fff..0400f99c5de2 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
 @@ -226,6 +226,18 @@ Widget::MoveLoopResult DesktopWindowTreeHostLinux::RunMoveLoop(
@@ -189,7 +189,7 @@ index 6e09038a0fffa..0400f99c5de22 100644
    properties->x11_extension_delegate = this;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
-index dec3dd21f77b2..5c22c512e002e 100644
+index dec3dd21f77b..5c22c512e002 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
 @@ -77,6 +77,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
@@ -221,7 +221,7 @@ index dec3dd21f77b2..5c22c512e002e 100644
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 042fb2b5d1653..5ee040b8c26f4 100644
+index 042fb2b5d165..5ee040b8c26f 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -180,8 +180,12 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
@@ -257,7 +257,7 @@ index 042fb2b5d1653..5ee040b8c26f4 100644
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-index db1299089169f..a9c331c37b210 100644
+index db1299089169..a9c331c37b21 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 @@ -317,6 +317,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
@@ -272,7 +272,7 @@ index db1299089169f..a9c331c37b210 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 37047c631afc3..aafa6a6fd0b38 100644
+index 37047c631afc..aafa6a6fd0b3 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -359,7 +359,8 @@ void Widget::Init(InitParams params) {
@@ -317,7 +317,7 @@ index 37047c631afc3..aafa6a6fd0b38 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 6ab943e4b7319..4ab76edb1e39f 100644
+index 6ab943e4b731..4ab76edb1e39 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -327,6 +327,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
@@ -330,7 +330,7 @@ index 6ab943e4b7319..4ab76edb1e39f 100644
      // the NativeWidget may specify a default size. If the parent is specified,
      // |bounds| is in the parent's coordinate system. If the parent is not
 diff --git ui/views/widget/widget_delegate.h ui/views/widget/widget_delegate.h
-index 16245ed7e0b44..99592a5359fbd 100644
+index 16245ed7e0b4..99592a5359fb 100644
 --- ui/views/widget/widget_delegate.h
 +++ ui/views/widget/widget_delegate.h
 @@ -381,6 +381,10 @@ class VIEWS_EXPORT WidgetDelegate {
@@ -345,7 +345,7 @@ index 16245ed7e0b44..99592a5359fbd 100644
    bool enable_arrow_key_traversal() const {
      return params_.enable_arrow_key_traversal;
 diff --git ui/views/widget/widget_hwnd_utils.cc ui/views/widget/widget_hwnd_utils.cc
-index c23259757d984..450b2610e34d1 100644
+index c23259757d98..450b2610e34d 100644
 --- ui/views/widget/widget_hwnd_utils.cc
 +++ ui/views/widget/widget_hwnd_utils.cc
 @@ -67,7 +67,7 @@ void CalculateWindowStylesFromInitParams(
@@ -358,7 +358,7 @@ index c23259757d984..450b2610e34d1 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index c471f43c6da9e..251e2b2089bde 100644
+index c471f43c6da9..251e2b2089bd 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
 @@ -3117,10 +3117,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,

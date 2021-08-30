@@ -1,5 +1,5 @@
 diff --git net/base/load_flags_list.h net/base/load_flags_list.h
-index 96d1a51ec1078..e8120a818b1f2 100644
+index 96d1a51ec107..e8120a818b1f 100644
 --- net/base/load_flags_list.h
 +++ net/base/load_flags_list.h
 @@ -101,3 +101,6 @@ LOAD_FLAG(RESTRICTED_PREFETCH, 1 << 15)
@@ -10,7 +10,7 @@ index 96d1a51ec1078..e8120a818b1f2 100644
 +// This load will not send any cookies. For CEF usage.
 +LOAD_FLAG(DO_NOT_SEND_COOKIES, 1 << 17)
 diff --git net/url_request/url_request_http_job.cc net/url_request/url_request_http_job.cc
-index a6cd1ef45ab03..4c947b9118e52 100644
+index a6cd1ef45ab0..4c947b9118e5 100644
 --- net/url_request/url_request_http_job.cc
 +++ net/url_request/url_request_http_job.cc
 @@ -561,7 +561,8 @@ void URLRequestHttpJob::AddCookieHeaderAndStart() {
@@ -24,7 +24,7 @@ index a6cd1ef45ab03..4c947b9118e52 100644
          request_->force_ignore_site_for_cookies();
      if (cookie_store->cookie_access_delegate() &&
 diff --git services/network/public/cpp/resource_request.cc services/network/public/cpp/resource_request.cc
-index e2e170ab85f39..0f4052dcd6767 100644
+index e2e170ab85f3..0f4052dcd676 100644
 --- services/network/public/cpp/resource_request.cc
 +++ services/network/public/cpp/resource_request.cc
 @@ -253,7 +253,8 @@ bool ResourceRequest::EqualsForTesting(const ResourceRequest& request) const {
