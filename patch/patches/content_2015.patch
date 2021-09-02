@@ -188,10 +188,10 @@ index 632ae86c6fd6..55b749ec1242 100644
                            const std::vector<WebPluginInfo>& all_plugins);
  
 diff --git content/browser/renderer_host/render_frame_host_impl.cc content/browser/renderer_host/render_frame_host_impl.cc
-index 98af6bf02266..d064da8c6ada 100644
+index 9bf31d2cb714..d3f72ef80fb5 100644
 --- content/browser/renderer_host/render_frame_host_impl.cc
 +++ content/browser/renderer_host/render_frame_host_impl.cc
-@@ -12031,6 +12031,7 @@ void RenderFrameHostImpl::BindHungDetectorHost(
+@@ -12028,6 +12028,7 @@ void RenderFrameHostImpl::BindHungDetectorHost(
  }
  
  void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
@@ -199,7 +199,7 @@ index 98af6bf02266..d064da8c6ada 100644
                                          const url::Origin& main_frame_origin,
                                          const std::string& mime_type,
                                          GetPluginInfoCallback callback) {
-@@ -12038,7 +12039,8 @@ void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
+@@ -12035,7 +12036,8 @@ void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
    WebPluginInfo info;
    std::string actual_mime_type;
    bool found = PluginServiceImpl::GetInstance()->GetPluginInfo(
@@ -334,10 +334,10 @@ index 7ec0901cf6ba..db5b5529a4cd 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 9ba385b9f541..859f9aa88f1e 100644
+index d88901876c14..c43ef8798c3a 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -3307,7 +3307,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
+@@ -3306,7 +3306,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
    WebPluginInfo info;
    std::string mime_type;
    bool found = false;
@@ -348,7 +348,7 @@ index 9ba385b9f541..859f9aa88f1e 100644
                                   &mime_type);
    if (!found)
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index 7e1d2199e024..1a25e37314c8 100644
+index c2b1d0d10b52..adeb8b318d3a 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
 @@ -609,6 +609,8 @@ void RenderThreadImpl::Init() {
@@ -361,10 +361,10 @@ index 7e1d2199e024..1a25e37314c8 100644
        &RenderThreadImpl::OnRendererInterfaceReceiver, base::Unretained(this)));
  
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index 272d5c2d7aa7..08cc3b31c2c4 100644
+index 2ca27e17e9e1..e4b443d28af3 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -1115,6 +1115,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
+@@ -1107,6 +1107,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
  
  //------------------------------------------------------------------------------
  
@@ -381,10 +381,10 @@ index 272d5c2d7aa7..08cc3b31c2c4 100644
    if (!code_cache_host_) {
      code_cache_host_ = mojo::SharedRemote<blink::mojom::CodeCacheHost>(
 diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
-index 918400762b2b..1a8f737074c6 100644
+index cb8770a47a80..34df834f31b8 100644
 --- content/renderer/renderer_blink_platform_impl.h
 +++ content/renderer/renderer_blink_platform_impl.h
-@@ -259,6 +259,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
+@@ -258,6 +258,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
        const blink::WebURL& url,
        blink::WebVector<blink::WebContentSecurityPolicyHeader>* csp) override;
  

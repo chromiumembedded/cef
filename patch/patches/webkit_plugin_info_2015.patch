@@ -10,10 +10,10 @@ index ff7a8ed89e94..77f44956ff22 100644
 +  GetPlugins(bool refresh, bool is_main_frame, url.mojom.Origin main_frame_origin) => (array<PluginInfo> plugins);
  };
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index 1fc4708c4ac1..db42867e8b13 100644
+index 9d96af5c4c9b..fee49109c35d 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -876,6 +876,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -875,6 +875,11 @@ class BLINK_PLATFORM_EXPORT Platform {
        const WebURL& url,
        blink::WebVector<blink::WebContentSecurityPolicyHeader>* csp) {}
  

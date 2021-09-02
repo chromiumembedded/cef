@@ -156,7 +156,7 @@ index 95d1ebc19091..13cdfa52db10 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index ef7caebafd36..d9708e25c950 100644
+index 99aadfa065fa..54fedf941b37 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -28,6 +28,7 @@
@@ -167,7 +167,7 @@ index ef7caebafd36..d9708e25c950 100644
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/accessibility_labels_service_factory.h"
  #include "chrome/browser/after_startup_task_utils.h"
-@@ -3481,9 +3482,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -3495,9 +3496,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // defined(OS_ANDROID)
  
@@ -180,7 +180,7 @@ index ef7caebafd36..d9708e25c950 100644
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 8fadd3a4d4eb..2fad4e870441 100644
+index 8cdb9027574e..29256b34166c 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -10,6 +10,7 @@
@@ -202,7 +202,7 @@ index 8fadd3a4d4eb..2fad4e870441 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -1147,6 +1152,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -1148,6 +1153,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
    SessionDataService::RegisterProfilePrefs(registry);
  #endif
  

@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 3170d101acf0..8a15712e741b 100644
+index aac8edf20fc6..8b03e53cf7c0 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -2881,6 +2881,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2885,6 +2885,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    frame_tree_.Init(site_instance.get(), params.renderer_initiated_creation,
                     params.main_frame_name);
  
@@ -15,7 +15,7 @@ index 3170d101acf0..8a15712e741b 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -2891,6 +2897,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2895,6 +2901,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
      view_.reset(CreateWebContentsView(this, delegate,
                                        &render_view_host_delegate_view_));
    }
@@ -23,7 +23,7 @@ index 3170d101acf0..8a15712e741b 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -3713,6 +3720,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+@@ -3717,6 +3724,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -39,7 +39,7 @@ index 3170d101acf0..8a15712e741b 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -7531,6 +7547,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -7535,6 +7551,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // This is an outermost WebContents.
      SetAsFocusedWebContentsIfNecessary();
    }
@@ -62,10 +62,10 @@ index f1dcf53ea481..192f7c0ddd04 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 0ccd96cb9b84..26ba3f571e34 100644
+index 91c8bb57fb04..8d371378c394 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
-@@ -85,10 +85,12 @@ class BrowserContext;
+@@ -86,10 +86,12 @@ class BrowserContext;
  class BrowserPluginGuestDelegate;
  class RenderFrameHost;
  class RenderViewHost;
@@ -78,7 +78,7 @@ index 0ccd96cb9b84..26ba3f571e34 100644
  class WebUI;
  struct DropData;
  struct MHTMLGenerationParams;
-@@ -221,6 +223,10 @@ class WebContents : public PageNavigator,
+@@ -222,6 +224,10 @@ class WebContents : public PageNavigator,
      // Sandboxing flags set on the new WebContents.
      network::mojom::WebSandboxFlags starting_sandbox_flags;
  
