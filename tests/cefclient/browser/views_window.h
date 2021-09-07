@@ -157,6 +157,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
                                        bool* is_menu,
                                        bool* can_activate_menu) override;
   CefRect GetInitialBounds(CefRefPtr<CefWindow> window) override;
+  cef_show_state_t GetInitialShowState(CefRefPtr<CefWindow> window) override;
   bool IsFrameless(CefRefPtr<CefWindow> window) override;
   bool CanResize(CefRefPtr<CefWindow> window) override;
   bool CanClose(CefRefPtr<CefWindow> window) override;
@@ -236,6 +237,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   int last_focused_view_;
 
   CefSize minimum_window_size_;
+  cef_show_state_t initial_show_state_ = CEF_SHOW_STATE_NORMAL;
 
   CefRefPtr<ViewsOverlayControls> overlay_controls_;
 

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b43e6106fde84f3bab4dd566efab23a50adaf94d$
+// $hash=839098c445b1d3203bc482fc5d1555e1f9b87646$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
@@ -96,6 +96,13 @@ typedef struct _cef_window_delegate_t {
   // previous window bounds.
   ///
   cef_rect_t(CEF_CALLBACK* get_initial_bounds)(
+      struct _cef_window_delegate_t* self,
+      struct _cef_window_t* window);
+
+  ///
+  // Return the initial show state for |window|.
+  ///
+  cef_show_state_t(CEF_CALLBACK* get_initial_show_state)(
       struct _cef_window_delegate_t* self,
       struct _cef_window_t* window);
 

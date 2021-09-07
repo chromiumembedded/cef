@@ -92,6 +92,14 @@ class CefWindowDelegate : public CefPanelDelegate {
   }
 
   ///
+  // Return the initial show state for |window|.
+  ///
+  /*--cef(default_retval=CEF_SHOW_STATE_NORMAL)--*/
+  virtual cef_show_state_t GetInitialShowState(CefRefPtr<CefWindow> window) {
+    return CEF_SHOW_STATE_NORMAL;
+  }
+
+  ///
   // Return true if |window| should be created without a frame or title bar. The
   // window will be resizable if CanResize() returns true. Use
   // CefWindow::SetDraggableRegions() to specify draggable regions.
