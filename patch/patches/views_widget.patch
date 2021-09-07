@@ -272,7 +272,7 @@ index db1299089169f..a9c331c37b210 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 37047c631afc3..aafa6a6fd0b38 100644
+index 37047c631afc3..bcfe411fc6838 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -359,7 +359,8 @@ void Widget::Init(InitParams params) {
@@ -285,7 +285,16 @@ index 37047c631afc3..aafa6a6fd0b38 100644
  
    if (params.opacity == views::Widget::InitParams::WindowOpacity::kInferred &&
        params.type != views::Widget::InitParams::TYPE_WINDOW) {
-@@ -441,7 +442,12 @@ void Widget::Init(InitParams params) {
+@@ -435,13 +436,21 @@ void Widget::Init(InitParams params) {
+ 
+     if (show_state == ui::SHOW_STATE_MAXIMIZED) {
+       Maximize();
++      saved_show_state_ = ui::SHOW_STATE_MAXIMIZED;
+     } else if (show_state == ui::SHOW_STATE_MINIMIZED) {
+       Minimize();
+       saved_show_state_ = ui::SHOW_STATE_MINIMIZED;
++    } else if (show_state == ui::SHOW_STATE_FULLSCREEN) {
++      SetFullscreen(true);
      }
    } else if (delegate) {
      SetContentsView(delegate->TransferOwnershipOfContentsView());
@@ -299,7 +308,7 @@ index 37047c631afc3..aafa6a6fd0b38 100644
    }
  
    native_theme_observation_.Observe(GetNativeTheme());
-@@ -1418,10 +1424,16 @@ void Widget::OnNativeWidgetDestroyed() {
+@@ -1418,10 +1427,16 @@ void Widget::OnNativeWidgetDestroyed() {
  }
  
  gfx::Size Widget::GetMinimumSize() const {

@@ -56,8 +56,6 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::Create(
       ChromeBrowserHostImpl::GetBrowserForContents(web_contents);
   CHECK(browser_host);
 
-  browser->window()->Show();
-
   return browser_host;
 }
 

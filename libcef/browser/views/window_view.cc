@@ -276,6 +276,22 @@ void CefWindowView::CreateWidget() {
 
     SetCanResize(cef_delegate()->CanResize(cef_window));
 
+    const auto show_state = cef_delegate()->GetInitialShowState(cef_window);
+    switch (show_state) {
+      case CEF_SHOW_STATE_NORMAL:
+        params.show_state = ui::SHOW_STATE_NORMAL;
+        break;
+      case CEF_SHOW_STATE_MINIMIZED:
+        params.show_state = ui::SHOW_STATE_MINIMIZED;
+        break;
+      case CEF_SHOW_STATE_MAXIMIZED:
+        params.show_state = ui::SHOW_STATE_MAXIMIZED;
+        break;
+      case CEF_SHOW_STATE_FULLSCREEN:
+        params.show_state = ui::SHOW_STATE_FULLSCREEN;
+        break;
+    }
+
     bool is_menu = false;
     bool can_activate_menu = true;
     CefRefPtr<CefWindow> parent_window = cef_delegate()->GetParentWindow(
