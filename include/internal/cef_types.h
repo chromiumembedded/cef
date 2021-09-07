@@ -1159,7 +1159,7 @@ typedef enum {
   // A resource that a plugin requested.
   ///
   RT_PLUGIN_RESOURCE,
-  
+
   ///
   // A main-frame service worker navigation preload request.
   ///
@@ -3218,6 +3218,16 @@ typedef enum {
   CEF_DOCKING_MODE_BOTTOM_RIGHT,
   CEF_DOCKING_MODE_CUSTOM,
 } cef_docking_mode_t;
+
+///
+// Show states supported by CefWindowDelegate::GetInitialShowState.
+///
+typedef enum {
+  CEF_SHOW_STATE_NORMAL = 1,
+  CEF_SHOW_STATE_MINIMIZED,
+  CEF_SHOW_STATE_MAXIMIZED,
+  CEF_SHOW_STATE_FULLSCREEN,
+} cef_show_state_t;
 
 #ifdef __cplusplus
 }

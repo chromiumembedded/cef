@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8a77494e63a8e06241f675c020532ac20fbaaab0$
+// $hash=eb73d2c218d13a126f8cb3b9b5b70454c2d31ec9$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_WINDOW_DELEGATE_CTOCPP_H_
@@ -43,6 +43,7 @@ class CefWindowDelegateCToCpp
                                        bool* is_menu,
                                        bool* can_activate_menu) override;
   CefRect GetInitialBounds(CefRefPtr<CefWindow> window) override;
+  cef_show_state_t GetInitialShowState(CefRefPtr<CefWindow> window) override;
   bool IsFrameless(CefRefPtr<CefWindow> window) override;
   bool CanResize(CefRefPtr<CefWindow> window) override;
   bool CanMaximize(CefRefPtr<CefWindow> window) override;

@@ -133,7 +133,7 @@ void ViewsWindow::Show() {
   CEF_REQUIRE_UI_THREAD();
   if (window_)
     window_->Show();
-  if (browser_view_) {
+  if (browser_view_ && !window_->IsMinimized()) {
     // Give keyboard focus to the BrowserView.
     browser_view_->RequestFocus();
   }
@@ -529,6 +529,11 @@ void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
 
     // Add keyboard accelerators to the Window.
     AddAccelerators();
+
+    // Hide the top controls while in full-screen mode.
+    if (initial_show_state_ == CEF_SHOW_STATE_FULLSCREEN) {
+      ShowTopControls(false);
+    }
   } else {
     // Add the BrowserView as the only child of the Window.
     window_->AddChildView(browser_view_);
@@ -597,6 +602,11 @@ CefRect ViewsWindow::GetInitialBounds(CefRefPtr<CefWindow> window) {
     }
   }
   return CefRect();
+}
+
+cef_show_state_t ViewsWindow::GetInitialShowState(CefRefPtr<CefWindow> window) {
+  CEF_REQUIRE_UI_THREAD();
+  return initial_show_state_;
 }
 
 bool ViewsWindow::IsFrameless(CefRefPtr<CefWindow> window) {
@@ -784,6 +794,16 @@ ViewsWindow::ViewsWindow(Delegate* delegate,
     }
   } else {
     chrome_toolbar_type_ = CEF_CTT_NONE;
+  }
+
+  const std::string& show_state =
+      command_line->GetSwitchValue(switches::kInitialShowState);
+  if (show_state == "minimized") {
+    initial_show_state_ = CEF_SHOW_STATE_MINIMIZED;
+  } else if (show_state == "maximized") {
+    initial_show_state_ = CEF_SHOW_STATE_MAXIMIZED;
+  } else if (show_state == "fullscreen") {
+    initial_show_state_ = CEF_SHOW_STATE_FULLSCREEN;
   }
 
 #if !defined(OS_MAC)
