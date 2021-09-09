@@ -77,6 +77,7 @@
 #include "components/content_settings/core/browser/cookie_settings.h"
 #include "components/embedder_support/switches.h"
 #include "components/embedder_support/user_agent_utils.h"
+#include "components/pdf/browser/pdf_web_contents_helper.h"
 #include "components/spellcheck/common/spellcheck.mojom.h"
 #include "components/version_info/version_info.h"
 #include "content/browser/plugin_service_impl.h"
@@ -991,6 +992,13 @@ bool AlloyContentBrowserClient::BindAssociatedReceiverFromFrame(
   if (interface_name == printing::mojom::PrintManagerHost::Name_) {
     printing::CefPrintViewManager::BindPrintManagerHost(
         mojo::PendingAssociatedReceiver<printing::mojom::PrintManagerHost>(
+            std::move(*handle)),
+        render_frame_host);
+    return true;
+  }
+  if (interface_name == pdf::mojom::PdfService::Name_) {
+    pdf::PDFWebContentsHelper::BindPdfService(
+        mojo::PendingAssociatedReceiver<pdf::mojom::PdfService>(
             std::move(*handle)),
         render_frame_host);
     return true;
