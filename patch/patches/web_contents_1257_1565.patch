@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index ce65fbf4c4e6..6b05415374c8 100644
+index ce65fbf4c4e62..6b05415374c87 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -2878,6 +2878,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
@@ -50,7 +50,7 @@ index ce65fbf4c4e6..6b05415374c8 100644
  
  void WebContentsImpl::DidCallFocus() {
 diff --git content/public/browser/web_contents.cc content/public/browser/web_contents.cc
-index f1dcf53ea481..192f7c0ddd04 100644
+index f1dcf53ea481b..192f7c0ddd04f 100644
 --- content/public/browser/web_contents.cc
 +++ content/public/browser/web_contents.cc
 @@ -29,6 +29,7 @@ WebContents::CreateParams::CreateParams(BrowserContext* context,
@@ -62,7 +62,7 @@ index f1dcf53ea481..192f7c0ddd04 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 279d292d9650..496e48d666a3 100644
+index 279d292d96507..496e48d666a36 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -85,10 +85,12 @@ class BrowserContext;
@@ -90,7 +90,7 @@ index 279d292d9650..496e48d666a3 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 0574d390dc94..7ad9c7bc6e45 100644
+index 0574d390dc94a..7ad9c7bc6e456 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -59,10 +59,12 @@ class EyeDropperListener;
@@ -122,7 +122,7 @@ index 0574d390dc94..7ad9c7bc6e45 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index 264f4fa3ded2..d2e6e02f5172 100644
+index 264f4fa3ded25..d2e6e02f51727 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
 @@ -705,6 +705,10 @@ class CONTENT_EXPORT WebContentsObserver {

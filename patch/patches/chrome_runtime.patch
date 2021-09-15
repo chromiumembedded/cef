@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index 495893eec970..e967494683f1 100644
+index 495893eec9704..e967494683f19 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -29,6 +29,7 @@
@@ -78,7 +78,7 @@ index 495893eec970..e967494683f1 100644
  
  #endif  // defined(OS_LINUX) || defined(OS_CHROMEOS)
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index dff0a32062f0..9378b2a0be47 100644
+index dff0a32062f0e..9378b2a0be47f 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -49,6 +49,7 @@
@@ -118,7 +118,7 @@ index dff0a32062f0..9378b2a0be47 100644
  // of lacros-chrome is complete.
  #if defined(OS_WIN) || (defined(OS_LINUX) || BUILDFLAG(IS_CHROMEOS_LACROS))
 diff --git chrome/browser/chrome_browser_main_mac.mm chrome/browser/chrome_browser_main_mac.mm
-index 95d1ebc19091..13cdfa52db10 100644
+index 95d1ebc190910..13cdfa52db108 100644
 --- chrome/browser/chrome_browser_main_mac.mm
 +++ chrome/browser/chrome_browser_main_mac.mm
 @@ -16,6 +16,7 @@
@@ -156,7 +156,7 @@ index 95d1ebc19091..13cdfa52db10 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 8650dd04f9c4..45ab4913bbe0 100644
+index 8650dd04f9c44..45ab4913bbe04 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -38,6 +38,7 @@
@@ -180,7 +180,7 @@ index 8650dd04f9c4..45ab4913bbe0 100644
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
 diff --git chrome/browser/notifications/alert_dispatcher_xpc.mm chrome/browser/notifications/alert_dispatcher_xpc.mm
-index ab4c2b03755d..8e813496f9df 100644
+index ab4c2b03755d3..8e813496f9df6 100644
 --- chrome/browser/notifications/alert_dispatcher_xpc.mm
 +++ chrome/browser/notifications/alert_dispatcher_xpc.mm
 @@ -19,6 +19,7 @@
@@ -205,7 +205,7 @@ index ab4c2b03755d..8e813496f9df 100644
      base::mac::ScopedMachSendRight exceptionPort(
          crash_reporter::GetCrashpadClient().GetHandlerMachPort());
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 3de6df64935e..78a2bf3896e7 100644
+index 73a940e67d22e..ba2611585d8e4 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -10,6 +10,7 @@
@@ -227,7 +227,7 @@ index 3de6df64935e..78a2bf3896e7 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -1134,6 +1139,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -1135,6 +1140,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
    SessionDataService::RegisterProfilePrefs(registry);
  #endif
  

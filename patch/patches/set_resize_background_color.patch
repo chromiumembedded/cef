@@ -1,5 +1,5 @@
 diff --git ui/views/controls/native/native_view_host.cc ui/views/controls/native/native_view_host.cc
-index 1a85a7b4a830..66817eaecd86 100644
+index 1a85a7b4a8305..66817eaecd86b 100644
 --- ui/views/controls/native/native_view_host.cc
 +++ ui/views/controls/native/native_view_host.cc
 @@ -161,7 +161,7 @@ void NativeViewHost::OnPaint(gfx::Canvas* canvas) {
@@ -12,7 +12,7 @@ index 1a85a7b4a830..66817eaecd86 100644
  
  void NativeViewHost::VisibilityChanged(View* starting_from, bool is_visible) {
 diff --git ui/views/controls/native/native_view_host.h ui/views/controls/native/native_view_host.h
-index 3ed75e4c9b11..c4a7318de5dd 100644
+index 3ed75e4c9b11e..c4a7318de5dd7 100644
 --- ui/views/controls/native/native_view_host.h
 +++ ui/views/controls/native/native_view_host.h
 @@ -94,6 +94,12 @@ class VIEWS_EXPORT NativeViewHost : public View {
@@ -39,7 +39,7 @@ index 3ed75e4c9b11..c4a7318de5dd 100644
  };
  
 diff --git ui/views/controls/webview/webview.cc ui/views/controls/webview/webview.cc
-index 75c1f03c6eff..5ed55bb97495 100644
+index 75c1f03c6efff..5ed55bb974958 100644
 --- ui/views/controls/webview/webview.cc
 +++ ui/views/controls/webview/webview.cc
 @@ -131,6 +131,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
@@ -54,7 +54,7 @@ index 75c1f03c6eff..5ed55bb97495 100644
    if (crashed_overlay_view_ == crashed_overlay_view)
      return;
 diff --git ui/views/controls/webview/webview.h ui/views/controls/webview/webview.h
-index 71883873f502..def24d95736f 100644
+index 71883873f5028..def24d95736fb 100644
 --- ui/views/controls/webview/webview.h
 +++ ui/views/controls/webview/webview.h
 @@ -78,6 +78,10 @@ class WEBVIEW_EXPORT WebView : public View,

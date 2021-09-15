@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/prefs/pref_watcher.h chrome/browser/ui/prefs/pref_watcher.h
-index 78d5b763970c..de98bd0b325b 100644
+index 78d5b763970c2..de98bd0b325b1 100644
 --- chrome/browser/ui/prefs/pref_watcher.h
 +++ chrome/browser/ui/prefs/pref_watcher.h
 @@ -29,10 +29,10 @@ class PrefWatcher : public KeyedService {

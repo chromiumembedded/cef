@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_preferences_util.cc chrome/browser/renderer_preferences_util.cc
-index f61123b6cf98..b2d3b3619b93 100644
+index f61123b6cf989..b2d3b3619b93c 100644
 --- chrome/browser/renderer_preferences_util.cc
 +++ chrome/browser/renderer_preferences_util.cc
 @@ -42,7 +42,8 @@
