@@ -289,6 +289,8 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
       const viz::SurfaceId& surface_id,
       const gfx::Size& natural_size) override;
   void ExitPictureInPicture() override;
+  bool IsBackForwardCacheSupported() override;
+  bool IsPrerender2Supported() override;
 
   // content::WebContentsObserver methods.
   using content::WebContentsObserver::BeforeUnloadFired;
