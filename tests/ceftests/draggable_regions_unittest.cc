@@ -9,7 +9,6 @@
 
 namespace {
 
-const char kTestURLWithRegions[] = "http://test.com/regions";
 const char kTestHTMLWithRegions[] =
     "<html>"
     "  <body>"
@@ -23,10 +22,8 @@ const char kTestHTMLWithRegions[] =
     "  </body>"
     "</html>";
 
-const char kTestURLWithoutRegions[] = "http://test.com/no-regions";
 const char kTestHTMLWithoutRegions[] = "<html><body>Hello World!</body></html>";
 
-const char kTestURLWithChangingRegions[] = "http://test.com/changing-regions";
 const char kTestHTMLWithChangingRegions[] =
     "<html>"
     "  <body>"
@@ -48,39 +45,64 @@ const char kTestHTMLWithChangingRegions[] =
     "  </body>"
     "</html>";
 
-class DraggableRegionsTestHandler : public TestHandler, public CefDragHandler {
+class DraggableRegionsTestHandler : public TestHandler,
+                                    public CefDragHandler,
+                                    public CefFrameHandler {
  public:
-  DraggableRegionsTestHandler() : step_(kStepWithRegions) {}
+  // Test steps executed in order.
+  enum Step {
+    // Nav 1: Two regions (get notification).
+    kStepWithRegions = 1,
+    // Nav 2: Starts with the same region as Nav 1 (no notification),
+    // then a changed region (get notification).
+    kStepWithChangingRegions,
+    // Nav 3: No regions (get notification).
+    kStepWithoutRegions,
+    // GoBack: Two regions (get notification), then a changed region (get
+    // notification). Note the first notification is not sent if
+    // BackForwardCache is enabled.
+    kStepWithChangingRegions2,
+    kStepWithChangingRegions3,
+    // GoForward: No regions (get notification).
+    kStepWithoutRegions2,
+
+    kStepMax = kStepWithoutRegions2,
+  };
+
+  explicit DraggableRegionsTestHandler(bool same_origin)
+      : same_origin_(same_origin) {}
 
   void RunTest() override {
     // Add HTML documents with and without draggable regions.
-    AddResource(kTestURLWithRegions, kTestHTMLWithRegions, "text/html");
-    AddResource(kTestURLWithoutRegions, kTestHTMLWithoutRegions, "text/html");
-    AddResource(kTestURLWithChangingRegions, kTestHTMLWithChangingRegions,
+    AddResource(GetURL(kStepWithRegions), kTestHTMLWithRegions, "text/html");
+    AddResource(GetURL(kStepWithChangingRegions), kTestHTMLWithChangingRegions,
+                "text/html");
+    AddResource(GetURL(kStepWithoutRegions), kTestHTMLWithoutRegions,
                 "text/html");
 
     // Create the browser
-    CreateBrowser(kTestURLWithRegions);
+    CreateBrowser(GetURL(kStepWithRegions));
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
   }
 
   CefRefPtr<CefDragHandler> GetDragHandler() override { return this; }
+  CefRefPtr<CefFrameHandler> GetFrameHandler() override { return this; }
 
   void OnDraggableRegionsChanged(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       const std::vector<CefDraggableRegion>& regions) override {
-    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    EXPECT_UI_THREAD();
     EXPECT_TRUE(browser->IsSame(GetBrowser()));
     EXPECT_TRUE(frame->IsMain());
 
-    did_call_on_draggable_regions_changed_.yes();
+    draggable_regions_changed_ct_++;
 
     switch (step_) {
       case kStepWithRegions:
-      case kStepWithChangingRegions1:
+      case kStepWithChangingRegions2:
         EXPECT_EQ(2U, regions.size());
         EXPECT_NEAR(50, regions[0].bounds.x, 1);
         EXPECT_NEAR(50, regions[0].bounds.y, 1);
@@ -93,7 +115,8 @@ class DraggableRegionsTestHandler : public TestHandler, public CefDragHandler {
         EXPECT_NEAR(50, regions[1].bounds.height, 1);
         EXPECT_EQ(0, regions[1].draggable);
         break;
-      case kStepWithChangingRegions2:
+      case kStepWithChangingRegions:
+      case kStepWithChangingRegions3:
         EXPECT_EQ(2U, regions.size());
         EXPECT_EQ(0, regions[0].bounds.x);
         EXPECT_EQ(0, regions[0].bounds.y);
@@ -107,16 +130,35 @@ class DraggableRegionsTestHandler : public TestHandler, public CefDragHandler {
         EXPECT_EQ(0, regions[1].draggable);
         break;
       case kStepWithoutRegions:
-        // Should not be reached.
-        EXPECT_TRUE(false);
+      case kStepWithoutRegions2:
+        EXPECT_TRUE(regions.empty());
         break;
     }
 
     NextTest(browser);
   }
 
+  void OnFrameAttached(CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefFrame> frame,
+                       bool reattached) override {
+    EXPECT_UI_THREAD();
+    EXPECT_TRUE(browser->IsSame(GetBrowser()));
+    EXPECT_TRUE(frame->IsMain());
+
+    if (reattached) {
+      // When BackForwardCache is enabled and we go back to
+      // kTestHTMLWithChangingRegions, draggable regions will already be in the
+      // final position because the page content is not reloaded.
+      if (step_ == kStepWithChangingRegions2) {
+        step_ = kStepWithChangingRegions3;
+        expected_draggable_regions_changed_ct_--;
+      }
+    }
+  }
+
   void DestroyTest() override {
-    EXPECT_FALSE(did_call_on_draggable_regions_changed_);
+    EXPECT_EQ(expected_draggable_regions_changed_ct_,
+              draggable_regions_changed_ct_);
 
     TestHandler::DestroyTest();
   }
@@ -125,51 +167,79 @@ class DraggableRegionsTestHandler : public TestHandler, public CefDragHandler {
   void NextTest(CefRefPtr<CefBrowser> browser) {
     CefRefPtr<CefFrame> frame(browser->GetMainFrame());
 
-    did_call_on_draggable_regions_changed_.reset();
-
     switch (step_) {
       case kStepWithRegions:
-        step_ = kStepWithChangingRegions1;
-        frame->LoadURL(kTestURLWithChangingRegions);
+        step_ = kStepWithChangingRegions;
+        frame->LoadURL(GetURL(kStepWithChangingRegions));
         break;
-      case kStepWithChangingRegions1:
-        step_ = kStepWithChangingRegions2;
-        break;
-      case kStepWithChangingRegions2:
+      case kStepWithChangingRegions:
         step_ = kStepWithoutRegions;
-        frame->LoadURL(kTestURLWithoutRegions);
-        // Needed because this test doesn't call OnDraggableRegionsChanged.
-        CefPostDelayedTask(
-            TID_UI,
-            base::BindOnce(&DraggableRegionsTestHandler::DestroyTest, this),
-            500);
+        frame->LoadURL(GetURL(kStepWithoutRegions));
         break;
       case kStepWithoutRegions: {
-        // Should not be reached.
-        EXPECT_TRUE(false);
+        step_ = kStepWithChangingRegions2;
+        browser->GoBack();
+        break;
+      }
+      case kStepWithChangingRegions2: {
+        step_ = kStepWithChangingRegions3;
+        break;
+      }
+      case kStepWithChangingRegions3: {
+        step_ = kStepWithoutRegions2;
+        browser->GoForward();
+        break;
+      }
+      case kStepWithoutRegions2: {
+        DestroyTest();
         break;
       }
     }
   }
 
-  enum Step {
-    kStepWithRegions,
-    kStepWithChangingRegions1,
-    kStepWithChangingRegions2,
-    kStepWithoutRegions,
-  } step_;
+  std::string GetURL(Step step) const {
+    // When |same_origin_| is true every other URL gets a different origin.
+    switch (step) {
+      case kStepWithRegions:
+        return same_origin_ ? "http://test.com/regions"
+                            : "http://test2.com/regions";
+      case kStepWithChangingRegions:
+      case kStepWithChangingRegions2:
+      case kStepWithChangingRegions3:
+        return "http://test.com/changing-regions";
+      case kStepWithoutRegions:
+      case kStepWithoutRegions2:
+        return same_origin_ ? "http://test.com/no-regions"
+                            : "http://test2.com/no-regions";
+    }
 
-  TrackCallback did_call_on_draggable_regions_changed_;
+    NOTREACHED();
+    return "";
+  }
+
+  const bool same_origin_;
+
+  Step step_ = kStepWithRegions;
+  int draggable_regions_changed_ct_ = 0;
+  int expected_draggable_regions_changed_ct_ = kStepMax;
 
   IMPLEMENT_REFCOUNTING(DraggableRegionsTestHandler);
 };
 
 }  // namespace
 
-// Verify that draggable regions work.
-TEST(DraggableRegionsTest, DraggableRegions) {
+// Verify that draggable regions work in the same origin.
+TEST(DraggableRegionsTest, DraggableRegionsSameOrigin) {
   CefRefPtr<DraggableRegionsTestHandler> handler =
-      new DraggableRegionsTestHandler();
+      new DraggableRegionsTestHandler(/*same_origin=*/true);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Verify that draggable regions work cross-origin.
+TEST(DraggableRegionsTest, DraggableRegionsCrossOrigin) {
+  CefRefPtr<DraggableRegionsTestHandler> handler =
+      new DraggableRegionsTestHandler(/*same_origin=*/false);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }

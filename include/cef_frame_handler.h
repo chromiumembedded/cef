@@ -132,11 +132,14 @@ class CefFrameHandler : public virtual CefBaseRefCounted {
 
   ///
   // Called when a frame can begin routing commands to/from the associated
-  // renderer process. Any commands that were queued have now been dispatched.
+  // renderer process. |reattached| will be true if the frame was re-attached
+  // after exiting the BackForwardCache. Any commands that were queued have now
+  // been dispatched.
   ///
   /*--cef()--*/
   virtual void OnFrameAttached(CefRefPtr<CefBrowser> browser,
-                               CefRefPtr<CefFrame> frame) {}
+                               CefRefPtr<CefFrame> frame,
+                               bool reattached) {}
 
   ///
   // Called when a frame loses its connection to the renderer process and will

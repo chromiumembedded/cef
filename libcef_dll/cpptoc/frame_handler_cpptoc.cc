@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4d483792f68dc51dbc52722820a15795c4a1baad$
+// $hash=55d17a525f5a5a35a3b75f3636ddecb10bf37b99$
 //
 
 #include "libcef_dll/cpptoc/frame_handler_cpptoc.h"
@@ -49,7 +49,8 @@ frame_handler_on_frame_created(struct _cef_frame_handler_t* self,
 void CEF_CALLBACK
 frame_handler_on_frame_attached(struct _cef_frame_handler_t* self,
                                 cef_browser_t* browser,
-                                cef_frame_t* frame) {
+                                cef_frame_t* frame,
+                                int reattached) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -68,7 +69,8 @@ frame_handler_on_frame_attached(struct _cef_frame_handler_t* self,
 
   // Execute
   CefFrameHandlerCppToC::Get(self)->OnFrameAttached(
-      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame));
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
+      reattached ? true : false);
 }
 
 void CEF_CALLBACK

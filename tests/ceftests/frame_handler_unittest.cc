@@ -607,7 +607,8 @@ class OrderMainTestHandler : public RoutingTestHandler, public CefFrameHandler {
   }
 
   void OnFrameAttached(CefRefPtr<CefBrowser> browser,
-                       CefRefPtr<CefFrame> frame) override {
+                       CefRefPtr<CefFrame> frame,
+                       bool reattached) override {
     EXPECT_UI_THREAD();
 
     // May arrive before or after OnMainFrameChanged switches the frame (after
@@ -1080,7 +1081,8 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
   }
 
   void OnFrameAttached(CefRefPtr<CefBrowser> browser,
-                       CefRefPtr<CefFrame> frame) override {
+                       CefRefPtr<CefFrame> frame,
+                       bool reattached) override {
     if (!frame->IsMain()) {
       auto map = GetFrameMap(frame);
       auto status = map->GetFrameStatus(frame);
@@ -1088,7 +1090,7 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
       return;
     }
 
-    NavigateOrderMainTestHandler::OnFrameAttached(browser, frame);
+    NavigateOrderMainTestHandler::OnFrameAttached(browser, frame, reattached);
   }
 
   void OnFrameDetached(CefRefPtr<CefBrowser> browser,
@@ -1507,14 +1509,15 @@ class PopupOrderMainTestHandler : public OrderMainTestHandler {
   }
 
   void OnFrameAttached(CefRefPtr<CefBrowser> browser,
-                       CefRefPtr<CefFrame> frame) override {
+                       CefRefPtr<CefFrame> frame,
+                       bool reattached) override {
     if (temp_main_frame_ && temp_main_frame_->IsSame(frame)) {
       EXPECT_TRUE(cross_origin_);
       temp_main_frame_->OnFrameAttached(browser, frame);
       return;
     }
 
-    OrderMainTestHandler::OnFrameAttached(browser, frame);
+    OrderMainTestHandler::OnFrameAttached(browser, frame, reattached);
   }
 
   void OnMainFrameChanged(CefRefPtr<CefBrowser> browser,

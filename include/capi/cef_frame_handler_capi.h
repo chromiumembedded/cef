@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=503984bf98aa52ff67ce52f26a560bbb1d4439bc$
+// $hash=f6be5f7509ee3ccfe16f226470897223cc131014$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_FRAME_HANDLER_CAPI_H_
@@ -147,11 +147,14 @@ typedef struct _cef_frame_handler_t {
 
   ///
   // Called when a frame can begin routing commands to/from the associated
-  // renderer process. Any commands that were queued have now been dispatched.
+  // renderer process. |reattached| will be true (1) if the frame was re-
+  // attached after exiting the BackForwardCache. Any commands that were queued
+  // have now been dispatched.
   ///
   void(CEF_CALLBACK* on_frame_attached)(struct _cef_frame_handler_t* self,
                                         struct _cef_browser_t* browser,
-                                        struct _cef_frame_t* frame);
+                                        struct _cef_frame_t* frame,
+                                        int reattached);
 
   ///
   // Called when a frame loses its connection to the renderer process and will

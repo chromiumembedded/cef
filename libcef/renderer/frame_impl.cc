@@ -335,6 +335,12 @@ void CefFrameImpl::OnDidFinishLoad() {
 }
 
 void CefFrameImpl::OnDraggableRegionsChanged() {
+  // Match the behavior in ChromeRenderFrameObserver::DraggableRegionsChanged.
+  // Only the main frame is allowed to control draggable regions, to avoid other
+  // frames manipulate the regions in the browser process.
+  if (frame_->Parent() != nullptr)
+    return;
+
   blink::WebVector<blink::WebDraggableRegion> webregions =
       frame_->GetDocument().DraggableRegions();
   std::vector<cef::mojom::DraggableRegionEntryPtr> regions;
@@ -508,6 +514,11 @@ void CefFrameImpl::DidStopLoading() {
   // the same browser then the other occurrences will be discarded in
   // OnLoadingStateChange.
   browser_->OnLoadingStateChange(false);
+
+  // Refresh draggable regions. Otherwise, we may not receive updated regions
+  // after navigation because LocalFrameView::UpdateDocumentAnnotatedRegion
+  // lacks sufficient context.
+  OnDraggableRegionsChanged();
 }
 
 void CefFrameImpl::MoveOrResizeStarted() {

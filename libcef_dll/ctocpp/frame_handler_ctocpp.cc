@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1b752686dc1743bed6957503b1cd6999f9a2a4f1$
+// $hash=08e97b352e24a9d677d4f7f6e8c71d681bc41f76$
 //
 
 #include "libcef_dll/ctocpp/frame_handler_ctocpp.h"
@@ -46,7 +46,8 @@ void CefFrameHandlerCToCpp::OnFrameCreated(CefRefPtr<CefBrowser> browser,
 
 NO_SANITIZE("cfi-icall")
 void CefFrameHandlerCToCpp::OnFrameAttached(CefRefPtr<CefBrowser> browser,
-                                            CefRefPtr<CefFrame> frame) {
+                                            CefRefPtr<CefFrame> frame,
+                                            bool reattached) {
   shutdown_checker::AssertNotShutdown();
 
   cef_frame_handler_t* _struct = GetStruct();
@@ -66,7 +67,7 @@ void CefFrameHandlerCToCpp::OnFrameAttached(CefRefPtr<CefBrowser> browser,
 
   // Execute
   _struct->on_frame_attached(_struct, CefBrowserCppToC::Wrap(browser),
-                             CefFrameCppToC::Wrap(frame));
+                             CefFrameCppToC::Wrap(frame), reattached);
 }
 
 NO_SANITIZE("cfi-icall")
