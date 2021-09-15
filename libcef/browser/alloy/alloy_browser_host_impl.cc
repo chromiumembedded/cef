@@ -1463,6 +1463,14 @@ void AlloyBrowserHostImpl::ExitPictureInPicture() {
   PictureInPictureWindowManager::GetInstance()->ExitPictureInPicture();
 }
 
+bool AlloyBrowserHostImpl::IsBackForwardCacheSupported() {
+  return true;
+}
+
+bool AlloyBrowserHostImpl::IsPrerender2Supported() {
+  return true;
+}
+
 // content::WebContentsObserver methods.
 // -----------------------------------------------------------------------------
 
