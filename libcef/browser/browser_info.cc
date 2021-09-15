@@ -155,7 +155,26 @@ void CefBrowserInfo::FrameHostStateChanged(
     content::RenderFrameHost::LifecycleState new_state) {
   CEF_REQUIRE_UIT();
 
-  // We currently only care about BackForwardCache state changes.
+  if ((old_state == content::RenderFrameHost::LifecycleState::kPrerendering ||
+       old_state ==
+           content::RenderFrameHost::LifecycleState::kInBackForwardCache) &&
+      new_state == content::RenderFrameHost::LifecycleState::kActive) {
+    if (auto frame = GetFrameForHost(host)) {
+      // Update the associated RFH, which may have changed.
+      frame->MaybeReAttach(this, host);
+
+      if (frame->IsMain()) {
+        // Update the main frame object.
+        NotificationStateLock lock_scope(this);
+        SetMainFrame(browser_, frame);
+      }
+
+      // Update draggable regions.
+      frame->MaybeSendDidStopLoading();
+    }
+  }
+
+  // Update BackForwardCache state.
   bool added_to_bfcache =
       new_state ==
       content::RenderFrameHost::LifecycleState::kInBackForwardCache;
@@ -345,12 +364,38 @@ void CefBrowserInfo::MaybeExecuteFrameNotification(
   std::move(pending_action).Run(frame_handler);
 }
 
+void CefBrowserInfo::MaybeNotifyDraggableRegionsChanged(
+    CefRefPtr<CefBrowserHostBase> browser,
+    CefRefPtr<CefFrameHostImpl> frame,
+    std::vector<CefDraggableRegion> draggable_regions) {
+  CEF_REQUIRE_UIT();
+  DCHECK(frame->IsMain());
+
+  if (draggable_regions == draggable_regions_)
+    return;
+
+  draggable_regions_ = std::move(draggable_regions);
+
+  if (auto client = browser->GetClient()) {
+    if (auto handler = client->GetDragHandler()) {
+      handler->OnDraggableRegionsChanged(browser.get(), frame,
+                                         draggable_regions_);
+    }
+  }
+}
+
 // Passing in |browser| here because |browser_| may already be cleared.
 void CefBrowserInfo::SetMainFrame(CefRefPtr<CefBrowserHostBase> browser,
                                   CefRefPtr<CefFrameHostImpl> frame) {
   lock_.AssertAcquired();
   DCHECK(browser);
   DCHECK(!frame || frame->IsMain());
+
+  if (frame && main_frame_ &&
+      frame->GetIdentifier() == main_frame_->GetIdentifier()) {
+    // Nothing to do.
+    return;
+  }
 
   CefRefPtr<CefFrameHostImpl> old_frame;
   if (main_frame_) {

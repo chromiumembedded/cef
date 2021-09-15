@@ -119,6 +119,12 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   // if this was the first call to Detach() for the frame.
   bool Detach();
 
+  // A frame has swapped to active status from prerendering or the back-forward
+  // cache. We may need to re-attach if the RFH has changed. See
+  // https://crbug.com/1179502#c8 for additional background.
+  void MaybeReAttach(scoped_refptr<CefBrowserInfo> browser_info,
+                     content::RenderFrameHost* render_frame_host);
+
   // cef::mojom::BrowserFrame methods forwarded from CefBrowserFrame.
   void SendMessage(const std::string& name, base::Value arguments) override;
   void FrameAttached() override;
@@ -152,6 +158,8 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   using RenderFrameAction = base::OnceCallback<void(const RenderFrameType&)>;
   void SendToRenderFrame(const std::string& function_name,
                          RenderFrameAction action);
+
+  void FrameAttachedInternal(bool reattached);
 
   const bool is_main_frame_;
 

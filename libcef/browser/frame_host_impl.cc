@@ -460,6 +460,36 @@ bool CefFrameHostImpl::Detach() {
   return first_detach;
 }
 
+void CefFrameHostImpl::MaybeReAttach(
+    scoped_refptr<CefBrowserInfo> browser_info,
+    content::RenderFrameHost* render_frame_host) {
+  CEF_REQUIRE_UIT();
+  if (is_attached_ && render_frame_host_ == render_frame_host) {
+    // Nothing to do here.
+    return;
+  }
+
+  // We expect that Detach() was called previously.
+  CHECK(!is_temporary());
+  CHECK(!is_attached_);
+  CHECK(!render_frame_host_);
+
+  // The RFH may change but the GlobalId should remain the same.
+  CHECK_EQ(frame_id_,
+           frame_util::MakeFrameId(render_frame_host->GetGlobalId()));
+
+  {
+    base::AutoLock lock_scope(state_lock_);
+    browser_info_ = browser_info;
+  }
+
+  render_frame_host_ = render_frame_host;
+  RefreshAttributes();
+
+  // Restore the RenderFrame connection.
+  FrameAttachedInternal(/*reattached=*/true);
+}
+
 // kMainFrameId must be -1 to align with renderer expectations.
 const int64_t CefFrameHostImpl::kMainFrameId = -1;
 const int64_t CefFrameHostImpl::kFocusedFrameId = -2;
@@ -552,6 +582,10 @@ void CefFrameHostImpl::SendMessage(const std::string& name,
 }
 
 void CefFrameHostImpl::FrameAttached() {
+  FrameAttachedInternal(/*reattached=*/false);
+}
+
+void CefFrameHostImpl::FrameAttachedInternal(bool reattached) {
   CEF_REQUIRE_UIT();
 
   auto browser_info = GetBrowserInfo();
@@ -573,13 +607,13 @@ void CefFrameHostImpl::FrameAttached() {
     }
 
     browser_info->MaybeExecuteFrameNotification(base::BindOnce(
-        [](CefRefPtr<CefFrameHostImpl> self,
+        [](CefRefPtr<CefFrameHostImpl> self, bool reattached,
            CefRefPtr<CefFrameHandler> handler) {
           if (auto browser = self->GetBrowserHostBase()) {
-            handler->OnFrameAttached(browser, self);
+            handler->OnFrameAttached(browser, self, reattached);
           }
         },
-        CefRefPtr<CefFrameHostImpl>(this)));
+        CefRefPtr<CefFrameHostImpl>(this), reattached));
   }
 }
 
@@ -596,13 +630,6 @@ void CefFrameHostImpl::UpdateDraggableRegions(
   if (!browser)
     return;
 
-  CefRefPtr<CefDragHandler> handler;
-  auto client = browser->GetClient();
-  if (client)
-    handler = client->GetDragHandler();
-  if (!handler)
-    return;
-
   std::vector<CefDraggableRegion> draggable_regions;
   if (regions) {
     draggable_regions.reserve(regions->size());
@@ -615,7 +642,10 @@ void CefFrameHostImpl::UpdateDraggableRegions(
     }
   }
 
-  handler->OnDraggableRegionsChanged(browser.get(), this, draggable_regions);
+  // Delegate to BrowserInfo so that current state is maintained with
+  // cross-origin navigation.
+  browser_info_->MaybeNotifyDraggableRegionsChanged(
+      browser, this, std::move(draggable_regions));
 }
 
 void CefExecuteJavaScriptWithUserGestureForTests(CefRefPtr<CefFrame> frame,

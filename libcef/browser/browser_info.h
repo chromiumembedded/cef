@@ -147,6 +147,11 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   // executed immediately.
   void MaybeExecuteFrameNotification(FrameNotifyOnceAction pending_action);
 
+  void MaybeNotifyDraggableRegionsChanged(
+      CefRefPtr<CefBrowserHostBase> browser,
+      CefRefPtr<CefFrameHostImpl> frame,
+      std::vector<CefDraggableRegion> draggable_regions);
+
  private:
   friend class base::RefCountedThreadSafe<CefBrowserInfo>;
 
@@ -233,6 +238,9 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
 
   // The current main frame.
   CefRefPtr<CefFrameHostImpl> main_frame_;
+
+  // Only accessed on the UI thread.
+  std::vector<CefDraggableRegion> draggable_regions_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserInfo);
 };
