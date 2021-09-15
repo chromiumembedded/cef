@@ -798,6 +798,7 @@ void CefBrowserHostBase::OnBeforeClose() {
       handler->OnBeforeClose(this);
     }
   }
+  browser_info_->SetClosing();
 }
 
 void CefBrowserHostBase::OnBrowserDestroyed() {

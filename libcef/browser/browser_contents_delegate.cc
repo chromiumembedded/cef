@@ -365,6 +365,10 @@ void CefBrowserContentsDelegate::DidFinishNavigation(
       (error_code == net::OK ? navigation_handle->GetURL() : GURL());
 
   auto browser_info = browser_info_;
+  if (!browser_info->browser()) {
+    // Ignore notifications when the browser is closing.
+    return;
+  }
 
   // May return NULL when starting a new navigation if the previous navigation
   // caused the renderer process to crash during load.

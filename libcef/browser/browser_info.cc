@@ -41,7 +41,9 @@ CefBrowserInfo::~CefBrowserInfo() {
 
 CefRefPtr<CefBrowserHostBase> CefBrowserInfo::browser() const {
   base::AutoLock lock_scope(lock_);
-  return browser_;
+  if (!is_closing_)
+    return browser_;
+  return nullptr;
 }
 
 void CefBrowserInfo::SetBrowser(CefRefPtr<CefBrowserHostBase> browser) {
@@ -69,6 +71,12 @@ void CefBrowserInfo::SetBrowser(CefRefPtr<CefBrowserHostBase> browser) {
     // notifications that are currently queued due to RemoveAllFrames.
     frame_handler_ = nullptr;
   }
+}
+
+void CefBrowserInfo::SetClosing() {
+  base::AutoLock lock_scope(lock_);
+  DCHECK(!is_closing_);
+  is_closing_ = true;
 }
 
 void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host,
@@ -228,7 +236,7 @@ void CefBrowserInfo::RemoveFrame(content::RenderFrameHost* host) {
 CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetMainFrame() {
   NotificationStateLock lock_scope(this);
   // Early exit if called post-destruction.
-  if (!browser_)
+  if (!browser_ || is_closing_)
     return nullptr;
 
   CHECK(main_frame_);
