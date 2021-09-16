@@ -1,5 +1,5 @@
 diff --git ui/base/cocoa/underlay_opengl_hosting_window.h ui/base/cocoa/underlay_opengl_hosting_window.h
-index ec1c6c972ee8..9f7334205132 100644
+index ec1c6c972ee8d..9f73342051325 100644
 --- ui/base/cocoa/underlay_opengl_hosting_window.h
 +++ ui/base/cocoa/underlay_opengl_hosting_window.h
 @@ -12,7 +12,7 @@

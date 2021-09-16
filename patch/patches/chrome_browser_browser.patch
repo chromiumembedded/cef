@@ -1,5 +1,5 @@
 diff --git chrome/browser/browser_about_handler.cc chrome/browser/browser_about_handler.cc
-index ba0c5c3fc044..b4df9af95ecd 100644
+index ba0c5c3fc0446..b4df9af95ecd1 100644
 --- chrome/browser/browser_about_handler.cc
 +++ chrome/browser/browser_about_handler.cc
 @@ -70,6 +70,9 @@ bool HandleNonNavigationAboutURL(const GURL& url) {
@@ -13,7 +13,7 @@ index ba0c5c3fc044..b4df9af95ecd 100644
    return false;
  }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index 7e29403699d5..c08ffc779e1c 100644
+index 7e29403699d56..c08ffc779e1c8 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -262,6 +262,20 @@
@@ -200,7 +200,7 @@ index 7e29403699d5..c08ffc779e1c 100644
  
  void Browser::TabDetachedAtImpl(content::WebContents* contents,
 diff --git chrome/browser/ui/browser.h chrome/browser/ui/browser.h
-index 7649c59dde3f..a3b719f5c673 100644
+index 7649c59dde3f5..a3b719f5c673a 100644
 --- chrome/browser/ui/browser.h
 +++ chrome/browser/ui/browser.h
 @@ -21,6 +21,7 @@
@@ -294,7 +294,7 @@ index 7649c59dde3f..a3b719f5c673 100644
  
    // The following factory is used for chrome update coalescing.
 diff --git chrome/browser/ui/browser_navigator.cc chrome/browser/ui/browser_navigator.cc
-index a4af0836da1a..bdf26e401d56 100644
+index a4af0836da1aa..bdf26e401d563 100644
 --- chrome/browser/ui/browser_navigator.cc
 +++ chrome/browser/ui/browser_navigator.cc
 @@ -456,6 +456,13 @@ std::unique_ptr<content::WebContents> CreateTargetContents(
@@ -312,7 +312,7 @@ index a4af0836da1a..bdf26e401d56 100644
    // tab helpers, so the entire set of tab helpers needs to be set up
    // immediately.
 diff --git chrome/browser/ui/browser_tabstrip.cc chrome/browser/ui/browser_tabstrip.cc
-index 40907675219d..19e1093947ed 100644
+index 40907675219d3..19e1093947ed0 100644
 --- chrome/browser/ui/browser_tabstrip.cc
 +++ chrome/browser/ui/browser_tabstrip.cc
 @@ -30,9 +30,13 @@ void AddTabAt(Browser* browser,
