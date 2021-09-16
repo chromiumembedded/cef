@@ -207,7 +207,7 @@ void CefBrowserInfo::RemoveFrame(content::RenderFrameHost* host) {
 }
 
 CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetMainFrame() {
-  NotificationStateLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   // Early exit if called post-destruction.
   if (!browser_)
     return nullptr;
@@ -451,6 +451,8 @@ void CefBrowserInfo::RemoveAllFrames(
 CefBrowserInfo::NotificationStateLock::NotificationStateLock(
     CefBrowserInfo* browser_info)
     : browser_info_(browser_info) {
+  CEF_REQUIRE_UIT();
+
   // Take the navigation state lock.
   {
     base::AutoLock lock_scope_(browser_info_->notification_lock_);
@@ -465,6 +467,8 @@ CefBrowserInfo::NotificationStateLock::NotificationStateLock(
 }
 
 CefBrowserInfo::NotificationStateLock::~NotificationStateLock() {
+  CEF_REQUIRE_UIT();
+
   // Unlock in reverse order.
   browser_info_lock_scope_.reset();
 
@@ -477,11 +481,8 @@ CefBrowserInfo::NotificationStateLock::~NotificationStateLock() {
   if (!queue_.empty()) {
     DCHECK(frame_handler_);
 
-    scoped_refptr<NavigationLock> nav_lock;
-    if (CEF_CURRENTLY_ON_UIT()) {
-      // Don't navigate while inside callbacks.
-      nav_lock = browser_info_->CreateNavigationLock();
-    }
+    // Don't navigate while inside callbacks.
+    auto nav_lock = browser_info_->CreateNavigationLock();
 
     // Empty the queue of pending actions. Any of these actions might result in
     // the acquisition of a new NotificationStateLock.

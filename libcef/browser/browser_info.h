@@ -192,7 +192,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   // Used instead of |base::AutoLock(lock_)| in situations that might generate
   // CefFrameHandler notifications. Any notifications passed to
   // MaybeExecuteFrameNotification() will be queued until the lock is released,
-  // and then executed in order.
+  // and then executed in order. Only accessed on the UI thread.
   class NotificationStateLock final {
    public:
     explicit NotificationStateLock(CefBrowserInfo* browser_info);
