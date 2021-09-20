@@ -208,13 +208,14 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
   std::string GetProduct() override;
   std::string GetChromeProduct() override;
   std::string GetUserAgent() override;
+  std::string GetReducedUserAgent() override;
   blink::UserAgentMetadata GetUserAgentMetadata() override;
   base::flat_set<std::string> GetPluginMimeTypesWithExternalHandlers(
       content::BrowserContext* browser_context) override;
   bool ArePersistentMediaDeviceIDsAllowed(
       content::BrowserContext* browser_context,
       const GURL& scope,
-      const GURL& site_for_cookies,
+      const net::SiteForCookies& site_for_cookies,
       const absl::optional<url::Origin>& top_frame_origin) override;
   bool ShouldAllowPluginCreation(
       const url::Origin& embedder_origin,

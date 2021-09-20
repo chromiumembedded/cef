@@ -356,6 +356,11 @@ storage::SpecialStoragePolicy* AlloyBrowserContext::GetSpecialStoragePolicy() {
   return nullptr;
 }
 
+content::PlatformNotificationService*
+AlloyBrowserContext::GetPlatformNotificationService() {
+  return nullptr;
+}
+
 content::PushMessagingService* AlloyBrowserContext::GetPushMessagingService() {
   return nullptr;
 }

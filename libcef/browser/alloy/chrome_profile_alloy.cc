@@ -171,7 +171,7 @@ void ChromeProfileAlloy::SetCreationTimeForTesting(base::Time creation_time) {
   NOTREACHED();
 }
 
-void ChromeProfileAlloy::RecordMainFrameNavigation() {
+void ChromeProfileAlloy::RecordPrimaryMainFrameNavigation() {
   NOTREACHED();
 }
 

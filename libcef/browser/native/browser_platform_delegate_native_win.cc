@@ -357,7 +357,7 @@ bool CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
   // Any unhandled keyboard/character messages are sent to DefWindowProc so that
   // shortcut keys work correctly.
   if (event.os_event) {
-    const MSG& msg = event.os_event->native_event();
+    const auto& msg = event.os_event->native_event();
     return !DefWindowProc(msg.hwnd, msg.message, msg.wParam, msg.lParam);
   } else {
     MSG msg = {};
@@ -402,7 +402,8 @@ CefEventHandle CefBrowserPlatformDelegateNativeWin::GetEventHandle(
     const content::NativeWebKeyboardEvent& event) const {
   if (!event.os_event)
     return NULL;
-  return const_cast<CefEventHandle>(&event.os_event->native_event());
+  return ChromeToWindowsType(
+      const_cast<CHROME_MSG*>(&event.os_event->native_event()));
 }
 
 std::unique_ptr<CefFileDialogRunner>

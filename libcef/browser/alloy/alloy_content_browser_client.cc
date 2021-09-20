@@ -118,12 +118,14 @@
 #include "mojo/public/cpp/bindings/self_owned_associated_receiver.h"
 #include "net/base/auth.h"
 #include "net/ssl/ssl_cert_request_info.h"
+#include "net/ssl/ssl_private_key.h"
 #include "ppapi/host/ppapi_host.h"
 #include "sandbox/policy/switches.h"
 #include "services/network/public/cpp/network_switches.h"
 #include "services/proxy_resolver/public/mojom/proxy_resolver.mojom.h"
 #include "services/service_manager/public/mojom/connector.mojom.h"
 #include "storage/browser/quota/quota_settings.h"
+#include "third_party/blink/public/common/associated_interfaces/associated_interface_registry.h"
 #include "third_party/blink/public/common/web_preferences/web_preferences.h"
 #include "third_party/blink/public/mojom/prerender/prerender.mojom.h"
 #include "third_party/blink/public/web/web_window_features.h"
@@ -1357,6 +1359,10 @@ std::string AlloyContentBrowserClient::GetUserAgent() {
   return embedder_support::GetUserAgent();
 }
 
+std::string AlloyContentBrowserClient::GetReducedUserAgent() {
+  return embedder_support::GetReducedUserAgent();
+}
+
 blink::UserAgentMetadata AlloyContentBrowserClient::GetUserAgentMetadata() {
   blink::UserAgentMetadata metadata;
 
@@ -1385,7 +1391,7 @@ AlloyContentBrowserClient::GetPluginMimeTypesWithExternalHandlers(
 bool AlloyContentBrowserClient::ArePersistentMediaDeviceIDsAllowed(
     content::BrowserContext* browser_context,
     const GURL& url,
-    const GURL& site_for_cookies,
+    const net::SiteForCookies& site_for_cookies,
     const absl::optional<url::Origin>& top_frame_origin) {
   // Persistent MediaDevice IDs are allowed if cookies are allowed.
   return CookieSettingsFactory::GetForProfile(

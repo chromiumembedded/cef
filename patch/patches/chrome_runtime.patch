@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index 73d78a39dacfe..53e0a980ec8a4 100644
+index f12e393e0f9bb..51f4898fc25d5 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -29,6 +29,7 @@
@@ -60,7 +60,7 @@ index 73d78a39dacfe..53e0a980ec8a4 100644
 +  }  // !cef::IsChromeRuntimeEnabled()
  
  #if BUILDFLAG(ENABLE_PDF)
-   MaybeInitializeGDI();
+   MaybePatchGdiGetFontData();
 @@ -1266,6 +1275,7 @@ void ChromeMainDelegate::ZygoteForked() {
      SetUpProfilingShutdownHandler();
    }
@@ -78,7 +78,7 @@ index 73d78a39dacfe..53e0a980ec8a4 100644
  
  #endif  // defined(OS_LINUX) || defined(OS_CHROMEOS)
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index e07aca88fdf9e..9aa092498c861 100644
+index 3f433969229eb..560f1e830a4e7 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -50,6 +50,7 @@
@@ -89,7 +89,7 @@ index e07aca88fdf9e..9aa092498c861 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/active_use_util.h"
  #include "chrome/browser/after_startup_task_utils.h"
-@@ -910,8 +911,10 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
+@@ -911,8 +912,10 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
  #if !defined(OS_ANDROID)
    // Create the RunLoop for MainMessageLoopRun() to use, and pass a copy of
    // its QuitClosure to the BrowserProcessImpl to call when it is time to exit.
@@ -101,7 +101,7 @@ index e07aca88fdf9e..9aa092498c861 100644
  
    // These members must be initialized before returning from this function.
    // Android doesn't use StartupBrowserCreator.
-@@ -1663,11 +1666,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1686,11 +1689,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
    // This step is costly and is already measured in
    // Startup.StartupBrowserCreator_Start.
    // See the comment above for an explanation of |process_command_line|.
@@ -156,7 +156,7 @@ index 95d1ebc190910..13cdfa52db108 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 69b31dd94edae..e5931622edb3c 100644
+index 93a402f34c0da..92d30ea06b5f1 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -28,6 +28,7 @@
@@ -167,7 +167,7 @@ index 69b31dd94edae..e5931622edb3c 100644
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/accessibility_labels_service_factory.h"
  #include "chrome/browser/after_startup_task_utils.h"
-@@ -3475,9 +3476,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -3500,9 +3501,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // defined(OS_ANDROID)
  
@@ -180,7 +180,7 @@ index 69b31dd94edae..e5931622edb3c 100644
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 8fadd3a4d4ebe..2fad4e8704410 100644
+index ce875b5837a36..2ee3cf28b2e6f 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -10,6 +10,7 @@
@@ -202,7 +202,7 @@ index 8fadd3a4d4ebe..2fad4e8704410 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -1147,6 +1152,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -1177,6 +1182,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
    SessionDataService::RegisterProfilePrefs(registry);
  #endif
  

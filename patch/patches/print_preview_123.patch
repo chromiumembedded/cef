@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index 50aec56adb4b6..c36996e06ebee 100644
+index 8f2e9445c9207..eccf2a3684650 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -24,6 +24,7 @@
@@ -127,7 +127,7 @@ index 920f646f06484..76c0b5e5ee04b 100644
        $i18n{cancel}
      </cr-button>
 diff --git chrome/browser/ui/webui/constrained_web_dialog_ui.cc chrome/browser/ui/webui/constrained_web_dialog_ui.cc
-index dd3512b303c40..0627aa331492c 100644
+index 1b6b4e93b45d2..b51f277453529 100644
 --- chrome/browser/ui/webui/constrained_web_dialog_ui.cc
 +++ chrome/browser/ui/webui/constrained_web_dialog_ui.cc
 @@ -26,6 +26,8 @@

@@ -393,7 +393,10 @@ class PluginTestHandler : public RoutingTestHandler,
       got_placeholder_loaded_.yes();
 
       // The plugin placeholder has loaded. Trigger the context menu.
-      TriggerContextMenu(frame->GetBrowser());
+      CefPostDelayedTask(
+          TID_UI,
+          base::BindOnce(&PluginTestHandler::TriggerContextMenu, this, browser),
+          kPdfLoadDelayMs / 5);
     } else if (request == "placeholder_hidden") {
       EXPECT_TRUE(got_placeholder_loaded_);
       EXPECT_FALSE(got_placeholder_hidden_);

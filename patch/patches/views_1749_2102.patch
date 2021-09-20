@@ -43,7 +43,7 @@ index f095bfc301151..f4eab5e49b61c 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 32efa9df61814..3b06181586935 100644
+index dd24fd131a50d..3b8c7e04a0d21 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -650,6 +650,14 @@ void RenderText::SetWhitespaceElision(absl::optional<bool> whitespace_elision) {
@@ -61,7 +61,7 @@ index 32efa9df61814..3b06181586935 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -2035,6 +2043,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -1994,6 +2002,19 @@ void RenderText::OnTextAttributeChanged() {
  
    layout_text_up_to_date_ = false;
  
@@ -82,7 +82,7 @@ index 32efa9df61814..3b06181586935 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index 78e0d9ca85c02..937e627edc00a 100644
+index bb01b826dbe52..642ab5609368a 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
 @@ -343,6 +343,10 @@ class GFX_EXPORT RenderText {
@@ -96,7 +96,7 @@ index 78e0d9ca85c02..937e627edc00a 100644
    const Rect& display_rect() const { return display_rect_; }
    void SetDisplayRect(const Rect& r);
  
-@@ -1049,6 +1053,8 @@ class GFX_EXPORT RenderText {
+@@ -1052,6 +1056,8 @@ class GFX_EXPORT RenderText {
  
    // Tell whether or not the |layout_text_| needs an update or is up to date.
    mutable bool layout_text_up_to_date_ = false;
@@ -238,10 +238,10 @@ index 5bad0a8cd8cbc..da57021f0cefa 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 84332b5e94401..cf92a29a823c9 100644
+index 6905cbd8354ef..86d56579b066a 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2804,8 +2804,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2852,8 +2852,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -256,7 +256,7 @@ index 84332b5e94401..cf92a29a823c9 100644
    MenuItemView* to_select = nullptr;
    if (!item->GetSubmenu()->GetMenuItems().empty())
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2824,8 +2829,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2872,8 +2877,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -465,33 +465,32 @@ index 713b41c83e923..6f5502a98ea65 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aurax11.cc ui/views/test/ui_controls_factory_desktop_aurax11.cc
-index 64e09ff4359a8..714e8e9ff6610 100644
+index e467f11ada887..be8545f3b39a2 100644
 --- ui/views/test/ui_controls_factory_desktop_aurax11.cc
 +++ ui/views/test/ui_controls_factory_desktop_aurax11.cc
-@@ -89,10 +89,6 @@ class UIControlsDesktopX11 : public UIControlsAura {
+@@ -89,9 +89,6 @@ class UIControlsDesktopX11 : public UIControlsAura {
          aura::test::QueryLatestMousePositionRequestInHost(host);
      host->ConvertPixelsToDIP(&root_current_location);
  
--    auto* screen = views::test::TestDesktopScreenX11::GetInstance();
--    DCHECK_EQ(screen, display::Screen::GetScreen());
--    screen->set_cursor_screen_point(gfx::Point(screen_x, screen_y));
+-    auto* screen = display::Screen::GetScreen();
+-    screen->SetCursorScreenPointForTesting(gfx::Point(screen_x, screen_y));
 -
      if (root_location != root_current_location &&
          x11_ui_controls_test_helper_.ButtonDownMask() == 0) {
        // Move the cursor because EnterNotify/LeaveNotify are generated with the
 diff --git ui/views/view.h ui/views/view.h
-index e18f104b8c075..2f2e22dc97910 100644
+index f5f5e2db9ed4e..fc1b401d1fefd 100644
 --- ui/views/view.h
 +++ ui/views/view.h
-@@ -20,6 +20,7 @@
- #include "base/compiler_specific.h"
+@@ -21,6 +21,7 @@
+ #include "base/gtest_prod_util.h"
  #include "base/memory/ptr_util.h"
  #include "base/strings/string_piece.h"
 +#include "base/supports_user_data.h"
  #include "build/build_config.h"
  #include "third_party/abseil-cpp/absl/types/optional.h"
  #include "third_party/skia/include/core/SkPath.h"
-@@ -268,7 +269,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -269,7 +270,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
                            public ui::EventTarget,
                            public ui::EventHandler,
                            public ui::PropertyHandler,

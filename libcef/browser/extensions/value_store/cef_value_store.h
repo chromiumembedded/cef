@@ -15,25 +15,29 @@
 #include "base/macros.h"
 #include "extensions/browser/value_store/value_store.h"
 
-// Implementation Based on TestingValueStore
-// ValueStore with an in-memory storage but the ability to
-// optionally fail all operations.
+namespace value_store {
+
+// Implementation Based on TestingValueStore.
+// ValueStore with an in-memory storage but the ability to optionally fail all
+// operations.
 class CefValueStore : public ValueStore {
  public:
   CefValueStore();
   ~CefValueStore() override;
+  CefValueStore(const CefValueStore&) = delete;
+  CefValueStore& operator=(const CefValueStore&) = delete;
+
+  // Sets the error code for requests. If OK, errors won't be thrown.
+  // Defaults to OK.
+  void set_status_code(StatusCode status_code);
 
   // Accessors for the number of reads/writes done by this value store. Each
   // Get* operation (except for the BytesInUse ones) counts as one read, and
   // each Set*/Remove/Clear operation counts as one write. This is useful in
   // tests seeking to assert that some number of reads/writes to their
   // underlying value store have (or have not) happened.
-  int read_count() const { return read_count_; }
-  int write_count() const { return write_count_; }
-
-  // Sets the error code for requests. If OK, errors won't be thrown.
-  // Defaults to OK.
-  void set_status_code(StatusCode status_code);
+  int read_count() { return read_count_; }
+  int write_count() { return write_count_; }
 
   // ValueStore implementation.
   size_t GetBytesInUse(const std::string& key) override;
@@ -53,11 +57,11 @@ class CefValueStore : public ValueStore {
 
  private:
   base::DictionaryValue storage_;
-  int read_count_;
-  int write_count_;
+  int read_count_ = 0;
+  int write_count_ = 0;
   ValueStore::Status status_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefValueStore);
 };
+
+}  // namespace value_store
 
 #endif  // CEF_LIBCEF_BROWSER_EXTENSIONS_VALUE_STORE_CEF_VALUE_STORE_H_

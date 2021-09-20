@@ -123,7 +123,7 @@ index a26c5c2e053ed..c88c4c1b81f9b 100644
    return RunContentProcess(params, runner.get());
  }
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 095bc943529c3..a8c1febd913f8 100644
+index 7e7a16e6f9cb1..1989de7847811 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -45,6 +45,7 @@

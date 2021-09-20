@@ -10,10 +10,10 @@ index ff7a8ed89e94a..77f44956ff22f 100644
 +  GetPlugins(bool refresh, bool is_main_frame, url.mojom.Origin main_frame_origin) => (array<PluginInfo> plugins);
  };
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index 1fc4708c4ac12..db42867e8b130 100644
+index f9be3480ae7c9..913d327af7a85 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -876,6 +876,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -872,6 +872,11 @@ class BLINK_PLATFORM_EXPORT Platform {
        const WebURL& url,
        blink::WebVector<blink::WebContentSecurityPolicyHeader>* csp) {}
  
@@ -44,7 +44,7 @@ index 463e3e5e73419..97aaf0da2b9a5 100644
  
  DocumentInit& DocumentInit::WithTypeFrom(const String& mime_type) {
 diff --git third_party/blink/renderer/core/frame/local_frame.cc third_party/blink/renderer/core/frame/local_frame.cc
-index 16c679be469ab..75985bf7d9c72 100644
+index cf505929c9f6e..ad6d5b603223f 100644
 --- third_party/blink/renderer/core/frame/local_frame.cc
 +++ third_party/blink/renderer/core/frame/local_frame.cc
 @@ -1853,7 +1853,7 @@ WebContentSettingsClient* LocalFrame::GetContentSettingsClient() {

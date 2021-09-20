@@ -1,17 +1,17 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index d9cd3f7c287ad..834c345710aaf 100644
+index dfa5022f7636e..fa880d2ea9acd 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
-@@ -10,6 +10,7 @@
- #include "base/strings/stringprintf.h"
+@@ -12,6 +12,7 @@
  #include "base/system/sys_info.h"
  #include "build/branding_buildflags.h"
+ #include "build/build_config.h"
 +#include "cef/libcef/common/cef_switches.h"
  #include "components/embedder_support/switches.h"
  #include "components/version_info/version_info.h"
  #include "content/public/browser/web_contents.h"
-@@ -23,6 +24,12 @@
- namespace embedder_support {
+@@ -113,6 +114,12 @@ std::string GetUniversalApiContractVersion() {
+ #endif  // defined(OS_WIN)
  
  std::string GetProduct() {
 +  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();

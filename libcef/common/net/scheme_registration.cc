@@ -11,7 +11,6 @@
 #include "base/containers/contains.h"
 #include "content/public/common/url_constants.h"
 #include "extensions/common/constants.h"
-#include "net/net_buildflags.h"
 #include "url/url_constants.h"
 #include "url/url_util.h"
 
@@ -56,22 +55,19 @@ void AddInternalSchemes(content::ContentClient::Schemes* schemes) {
 
 bool IsInternalHandledScheme(const std::string& scheme) {
   static const char* schemes[] = {
-    url::kAboutScheme,
-    url::kBlobScheme,
-    content::kChromeDevToolsScheme,
-    content::kChromeUIScheme,
-    url::kDataScheme,
-    extensions::kExtensionScheme,
-    url::kFileScheme,
-    url::kFileSystemScheme,
-#if !BUILDFLAG(DISABLE_FTP_SUPPORT)
-    url::kFtpScheme,
-#endif
-    url::kHttpScheme,
-    url::kHttpsScheme,
-    url::kJavaScriptScheme,
-    url::kWsScheme,
-    url::kWssScheme,
+      url::kAboutScheme,
+      url::kBlobScheme,
+      content::kChromeDevToolsScheme,
+      content::kChromeUIScheme,
+      url::kDataScheme,
+      extensions::kExtensionScheme,
+      url::kFileScheme,
+      url::kFileSystemScheme,
+      url::kHttpScheme,
+      url::kHttpsScheme,
+      url::kJavaScriptScheme,
+      url::kWsScheme,
+      url::kWssScheme,
   };
 
   for (size_t i = 0; i < sizeof(schemes) / sizeof(schemes[0]); ++i) {

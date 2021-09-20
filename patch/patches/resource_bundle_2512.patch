@@ -1,11 +1,11 @@
 diff --git ui/base/resource/resource_bundle.cc ui/base/resource/resource_bundle.cc
-index 276ef65251647..bf2a3e07b98ce 100644
+index 65585cd5cb5a5..d5d669f2a63dc 100644
 --- ui/base/resource/resource_bundle.cc
 +++ ui/base/resource/resource_bundle.cc
 @@ -838,6 +838,12 @@ ResourceBundle::ResourceBundle(Delegate* delegate)
      : delegate_(delegate),
        locale_resources_data_lock_(new base::Lock),
-       max_scale_factor_(SCALE_FACTOR_100P) {
+       max_scale_factor_(k100Percent) {
 +  // With CEF's multi-threaded mode the ResourceBundle may be created on the
 +  // main thread and then accessed on the UI thread. Allow the SequenceChecker
 +  // to re-bind on the UI thread when CalledOnValidSequence() is called for the
@@ -28,7 +28,7 @@ index 276ef65251647..bf2a3e07b98ce 100644
  void ResourceBundle::InitSharedInstance(Delegate* delegate) {
    DCHECK(g_shared_instance_ == nullptr) << "ResourceBundle initialized twice";
 diff --git ui/base/resource/resource_bundle.h ui/base/resource/resource_bundle.h
-index c1aee3d5f8557..215073ae0e712 100644
+index 21274f68fb04d..0e134919b3b8b 100644
 --- ui/base/resource/resource_bundle.h
 +++ ui/base/resource/resource_bundle.h
 @@ -191,6 +191,11 @@ class COMPONENT_EXPORT(UI_BASE) ResourceBundle {

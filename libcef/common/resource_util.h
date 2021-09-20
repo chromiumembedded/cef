@@ -8,7 +8,7 @@
 
 #include "include/cef_base.h"
 
-#include "ui/base/resource/scale_factor.h"
+#include "ui/base/resource/resource_scale_factor.h"
 
 namespace base {
 class CommandLine;

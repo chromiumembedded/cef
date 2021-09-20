@@ -30,7 +30,6 @@ class CefExtensionsRendererClient;
 class Dispatcher;
 class DispatcherDelegate;
 class ExtensionsClient;
-class ExtensionsGuestViewContainerDispatcher;
 class ExtensionsRendererClient;
 class ResourceRequestPolicy;
 }  // namespace extensions

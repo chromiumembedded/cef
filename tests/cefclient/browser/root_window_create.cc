@@ -28,9 +28,9 @@ scoped_refptr<RootWindow> RootWindow::Create(bool use_views) {
   return new RootWindowGtk();
 #elif defined(OS_MAC)
   return new RootWindowMac();
+#else
+#error Unsupported platform
 #endif
-
-  return nullptr;
 }
 
 }  // namespace client

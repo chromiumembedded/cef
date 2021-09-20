@@ -5,11 +5,13 @@
 
 #include "libcef/browser/extensions/value_store/cef_value_store.h"
 
+#include <memory>
+#include <ostream>
 #include <utility>
 
-#include "base/logging.h"
-#include "base/memory/ptr_util.h"
 #include "base/notreached.h"
+
+namespace value_store {
 
 namespace {
 
@@ -23,9 +25,8 @@ ValueStore::Status CreateStatusCopy(const ValueStore::Status& status) {
 
 }  // namespace
 
-CefValueStore::CefValueStore() : read_count_(0), write_count_(0) {}
-
-CefValueStore::~CefValueStore() {}
+CefValueStore::CefValueStore() = default;
+CefValueStore::~CefValueStore() = default;
 
 void CefValueStore::set_status_code(StatusCode status_code) {
   status_ = ValueStore::Status(status_code, kGenericErrorMessage);
@@ -33,19 +34,19 @@ void CefValueStore::set_status_code(StatusCode status_code) {
 
 size_t CefValueStore::GetBytesInUse(const std::string& key) {
   // Let SettingsStorageQuotaEnforcer implement this.
-  NOTREACHED();
+  NOTREACHED() << "Not implemented";
   return 0;
 }
 
 size_t CefValueStore::GetBytesInUse(const std::vector<std::string>& keys) {
   // Let SettingsStorageQuotaEnforcer implement this.
-  NOTREACHED();
+  NOTREACHED() << "Not implemented";
   return 0;
 }
 
 size_t CefValueStore::GetBytesInUse() {
   // Let SettingsStorageQuotaEnforcer implement this.
-  NOTREACHED();
+  NOTREACHED() << "Not implemented";
   return 0;
 }
 
@@ -80,7 +81,7 @@ ValueStore::WriteResult CefValueStore::Set(WriteOptions options,
                                            const std::string& key,
                                            const base::Value& value) {
   base::DictionaryValue settings;
-  settings.SetWithoutPathExpansion(key, value.CreateDeepCopy());
+  settings.SetKey(key, value.Clone());
   return Set(options, settings);
 }
 
@@ -135,3 +136,5 @@ ValueStore::WriteResult CefValueStore::Clear() {
   }
   return Remove(keys);
 }
+
+}  // namespace value_store

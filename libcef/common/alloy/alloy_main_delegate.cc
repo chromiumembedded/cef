@@ -359,7 +359,7 @@ void AlloyMainDelegate::PreSandboxStartup() {
                                           chrome::DIR_USER_DATA);
 
   InitializeResourceBundle();
-  MaybeInitializeGDI();
+  MaybePatchGdiGetFontData();
 }
 
 void AlloyMainDelegate::SandboxInitialized(const std::string& process_type) {
@@ -512,7 +512,7 @@ void AlloyMainDelegate::InitializeResourceBundle() {
 
     if (base::PathExists(resources_pak_file)) {
       resource_bundle.AddDataPackFromPath(resources_pak_file,
-                                          ui::SCALE_FACTOR_NONE);
+                                          ui::kScaleFactorNone);
     } else {
       LOG(ERROR) << "Could not load resources.pak";
     }
@@ -520,19 +520,19 @@ void AlloyMainDelegate::InitializeResourceBundle() {
     // Always load the 1x data pack first as the 2x data pack contains both 1x
     // and 2x images. The 1x data pack only has 1x images, thus passes in an
     // accurate scale factor to gfx::ImageSkia::AddRepresentation.
-    if (resource_util::IsScaleFactorSupported(ui::SCALE_FACTOR_100P)) {
+    if (resource_util::IsScaleFactorSupported(ui::k100Percent)) {
       if (base::PathExists(chrome_100_percent_pak_file)) {
         resource_bundle.AddDataPackFromPath(chrome_100_percent_pak_file,
-                                            ui::SCALE_FACTOR_100P);
+                                            ui::k100Percent);
       } else {
         LOG(ERROR) << "Could not load chrome_100_percent.pak";
       }
     }
 
-    if (resource_util::IsScaleFactorSupported(ui::SCALE_FACTOR_200P)) {
+    if (resource_util::IsScaleFactorSupported(ui::k200Percent)) {
       if (base::PathExists(chrome_200_percent_pak_file)) {
         resource_bundle.AddDataPackFromPath(chrome_200_percent_pak_file,
-                                            ui::SCALE_FACTOR_200P);
+                                            ui::k200Percent);
       } else {
         LOG(ERROR) << "Could not load chrome_200_percent.pak";
       }

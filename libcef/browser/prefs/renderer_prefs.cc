@@ -143,7 +143,8 @@ void SetChromePrefs(Profile* profile, blink::web_pref::WebPreferences& web) {
 
 // Extension preferences.
 // Should match ChromeContentBrowserClientExtensionsPart::OverrideWebkitPrefs.
-void SetExtensionPrefs(content::RenderViewHost* rvh,
+void SetExtensionPrefs(content::WebContents* web_contents,
+                       content::RenderViewHost* rvh,
                        blink::web_pref::WebPreferences& web) {
   if (!extensions::ExtensionsEnabled())
     return;
@@ -161,7 +162,8 @@ void SetExtensionPrefs(content::RenderViewHost* rvh,
   // correct scheme. Without this check, chrome-guest:// schemes used by webview
   // tags as well as hosts that happen to match the id of an installed extension
   // would get the wrong preferences.
-  const GURL& site_url = rvh->GetMainFrame()->GetSiteInstance()->GetSiteURL();
+  const GURL& site_url =
+      web_contents->GetMainFrame()->GetSiteInstance()->GetSiteURL();
   if (!site_url.SchemeIs(extensions::kExtensionScheme))
     return;
 
@@ -410,11 +412,13 @@ void PopulateWebPreferences(content::RenderViewHost* rvh,
       break;
   }
 
+  auto web_contents = content::WebContents::FromRenderViewHost(rvh);
   UpdatePreferredColorScheme(
-      &web, rvh->GetMainFrame()->GetSiteInstance()->GetSiteURL(), native_theme);
+      &web, web_contents->GetMainFrame()->GetSiteInstance()->GetSiteURL(),
+      native_theme);
 
   // Set preferences based on the extension.
-  SetExtensionPrefs(rvh, web);
+  SetExtensionPrefs(web_contents, rvh, web);
 
   if (browser) {
     // Set preferences based on CefBrowserSettings.

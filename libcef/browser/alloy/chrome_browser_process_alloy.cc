@@ -396,3 +396,9 @@ ChromeBrowserProcessAlloy::serial_policy_allowed_ports() {
   NOTREACHED();
   return nullptr;
 }
+
+breadcrumbs::BreadcrumbPersistentStorageManager*
+ChromeBrowserProcessAlloy::GetBreadcrumbPersistentStorageManager() {
+  NOTREACHED();
+  return nullptr;
+}

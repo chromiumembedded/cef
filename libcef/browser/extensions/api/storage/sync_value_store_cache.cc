@@ -8,9 +8,11 @@
 #include <stddef.h>
 
 #include <limits>
+#include <utility>
 
 #include "content/public/browser/browser_thread.h"
 #include "extensions/browser/api/storage/backend_task_runner.h"
+#include "extensions/browser/api/storage/value_store_util.h"
 #include "extensions/browser/api/storage/weak_unlimited_settings_storage.h"
 #include "extensions/browser/value_store/value_store_factory.h"
 #include "extensions/common/api/storage.h"
@@ -37,8 +39,8 @@ SettingsStorageQuotaEnforcer::Limits GetLocalQuotaLimits() {
 }  // namespace
 
 SyncValueStoreCache::SyncValueStoreCache(
-    const scoped_refptr<ValueStoreFactory>& factory)
-    : storage_factory_(factory), quota_(GetLocalQuotaLimits()) {
+    scoped_refptr<value_store::ValueStoreFactory> factory)
+    : storage_factory_(std::move(factory)), quota_(GetLocalQuotaLimits()) {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
 }
 
@@ -51,7 +53,7 @@ void SyncValueStoreCache::RunWithValueStoreForExtension(
     scoped_refptr<const Extension> extension) {
   DCHECK(IsOnBackendSequence());
 
-  ValueStore* storage = GetStorage(extension.get());
+  value_store::ValueStore* storage = GetStorage(extension.get());
 
   // A neat way to implement unlimited storage; if the extension has the
   // unlimited storage permission, force through all calls to Set().
@@ -67,29 +69,34 @@ void SyncValueStoreCache::RunWithValueStoreForExtension(
 void SyncValueStoreCache::DeleteStorageSoon(const std::string& extension_id) {
   DCHECK(IsOnBackendSequence());
   storage_map_.erase(extension_id);
-  storage_factory_->DeleteSettings(settings_namespace::SYNC,
-                                   ValueStoreFactory::ModelType::APP,
-                                   extension_id);
-  storage_factory_->DeleteSettings(settings_namespace::SYNC,
-                                   ValueStoreFactory::ModelType::EXTENSION,
-                                   extension_id);
+
+  value_store_util::DeleteValueStore(settings_namespace::SYNC,
+                                     value_store_util::ModelType::APP,
+                                     extension_id, storage_factory_);
+
+  value_store_util::DeleteValueStore(settings_namespace::SYNC,
+                                     value_store_util::ModelType::EXTENSION,
+                                     extension_id, storage_factory_);
 }
 
-ValueStore* SyncValueStoreCache::GetStorage(const Extension* extension) {
-  StorageMap::iterator iter = storage_map_.find(extension->id());
+value_store::ValueStore* SyncValueStoreCache::GetStorage(
+    const Extension* extension) {
+  auto iter = storage_map_.find(extension->id());
   if (iter != storage_map_.end())
     return iter->second.get();
 
-  ValueStoreFactory::ModelType model_type =
-      extension->is_app() ? ValueStoreFactory::ModelType::APP
-                          : ValueStoreFactory::ModelType::EXTENSION;
-  std::unique_ptr<ValueStore> store = storage_factory_->CreateSettingsStore(
-      settings_namespace::SYNC, model_type, extension->id());
+  value_store_util::ModelType model_type =
+      extension->is_app() ? value_store_util::ModelType::APP
+                          : value_store_util::ModelType::EXTENSION;
+  std::unique_ptr<value_store::ValueStore> store =
+      value_store_util::CreateSettingsStore(settings_namespace::LOCAL,
+                                            model_type, extension->id(),
+                                            storage_factory_);
   std::unique_ptr<SettingsStorageQuotaEnforcer> storage(
       new SettingsStorageQuotaEnforcer(quota_, std::move(store)));
   DCHECK(storage.get());
 
-  ValueStore* storage_ptr = storage.get();
+  value_store::ValueStore* storage_ptr = storage.get();
   storage_map_[extension->id()] = std::move(storage);
   return storage_ptr;
 }

@@ -493,8 +493,18 @@ class DownloadTestHandler : public TestHandler {
     mouse_event.x = 20;
     mouse_event.y = 20;
     mouse_event.modifiers = modifiers;
-    browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_LEFT, false, 1);
-    browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_LEFT, true, 1);
+
+    // Add some delay to avoid having events dropped or rate limited.
+    CefPostDelayedTask(
+        TID_UI,
+        base::BindOnce(&CefBrowserHost::SendMouseClickEvent, browser->GetHost(),
+                       mouse_event, MBT_LEFT, false, 1),
+        50);
+    CefPostDelayedTask(
+        TID_UI,
+        base::BindOnce(&CefBrowserHost::SendMouseClickEvent, browser->GetHost(),
+                       mouse_event, MBT_LEFT, true, 1),
+        100);
   }
 
   const TestMode test_mode_;

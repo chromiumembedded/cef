@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 3170d101acf0b..8a15712e741b8 100644
+index 55a636ca71a25..41dcccd02b4fa 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -2881,6 +2881,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
@@ -39,7 +39,7 @@ index 3170d101acf0b..8a15712e741b8 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -7531,6 +7547,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -7500,6 +7516,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // This is an outermost WebContents.
      SetAsFocusedWebContentsIfNecessary();
    }
@@ -50,7 +50,7 @@ index 3170d101acf0b..8a15712e741b8 100644
  
  void WebContentsImpl::DidCallFocus() {
 diff --git content/public/browser/web_contents.cc content/public/browser/web_contents.cc
-index f1dcf53ea481b..192f7c0ddd04f 100644
+index e40e14fd4913f..2ca3b08277e3d 100644
 --- content/public/browser/web_contents.cc
 +++ content/public/browser/web_contents.cc
 @@ -29,6 +29,7 @@ WebContents::CreateParams::CreateParams(BrowserContext* context,
@@ -62,10 +62,10 @@ index f1dcf53ea481b..192f7c0ddd04f 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 0ccd96cb9b840..26ba3f571e343 100644
+index aa3ecdb440db8..bedc9eee352f0 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
-@@ -85,10 +85,12 @@ class BrowserContext;
+@@ -86,10 +86,12 @@ class BrowserContext;
  class BrowserPluginGuestDelegate;
  class RenderFrameHost;
  class RenderViewHost;
@@ -78,7 +78,7 @@ index 0ccd96cb9b840..26ba3f571e343 100644
  class WebUI;
  struct DropData;
  struct MHTMLGenerationParams;
-@@ -221,6 +223,10 @@ class WebContents : public PageNavigator,
+@@ -222,6 +224,10 @@ class WebContents : public PageNavigator,
      // Sandboxing flags set on the new WebContents.
      network::mojom::WebSandboxFlags starting_sandbox_flags;
  
@@ -122,7 +122,7 @@ index a0da74d5cbe4a..1d6e4673a610f 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index 264f4fa3ded25..d2e6e02f51727 100644
+index d6f20a6c8d283..8cd985c25196b 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
 @@ -705,6 +705,10 @@ class CONTENT_EXPORT WebContentsObserver {

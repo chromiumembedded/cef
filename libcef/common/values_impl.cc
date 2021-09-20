@@ -1107,7 +1107,7 @@ CefRefPtr<CefListValue> CefListValueImpl::Copy() {
 bool CefListValueImpl::SetSize(size_t size) {
   CEF_VALUE_VERIFY_RETURN(true, false);
 
-  size_t current_size = const_value().GetSize();
+  size_t current_size = const_value().GetList().size();
   if (size < current_size) {
     // Clean up any values above the requested size.
     for (size_t i = current_size - 1; i >= size; --i)
@@ -1121,7 +1121,7 @@ bool CefListValueImpl::SetSize(size_t size) {
 
 size_t CefListValueImpl::GetSize() {
   CEF_VALUE_VERIFY_RETURN(false, 0);
-  return const_value().GetSize();
+  return const_value().GetList().size();
 }
 
 bool CefListValueImpl::Clear() {

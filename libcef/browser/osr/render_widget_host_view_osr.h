@@ -145,7 +145,8 @@ class CefRenderWidgetHostViewOSR
   // RenderWidgetHostViewBase implementation.
   void ResetFallbackToFirstNavigationSurface() override;
   void InitAsPopup(content::RenderWidgetHostView* parent_host_view,
-                   const gfx::Rect& pos) override;
+                   const gfx::Rect& bounds,
+                   const gfx::Rect& anchor_rect) override;
   void UpdateCursor(const content::WebCursor& cursor) override;
   void SetIsLoading(bool is_loading) override;
   void RenderProcessGone() override;

@@ -572,7 +572,8 @@ void CefRenderWidgetHostViewOSR::ResetFallbackToFirstNavigationSurface() {
 
 void CefRenderWidgetHostViewOSR::InitAsPopup(
     content::RenderWidgetHostView* parent_host_view,
-    const gfx::Rect& pos) {
+    const gfx::Rect& bounds,
+    const gfx::Rect& anchor_rect) {
   DCHECK_EQ(parent_host_view_, parent_host_view);
   DCHECK(browser_impl_);
 
@@ -591,8 +592,8 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
 
   CefRect view_rect;
   handler->GetViewRect(browser_impl_.get(), view_rect);
-  gfx::Rect client_pos(pos.x() - view_rect.x, pos.y() - view_rect.y,
-                       pos.width(), pos.height());
+  gfx::Rect client_pos(bounds.x() - view_rect.x, bounds.y() - view_rect.y,
+                       bounds.width(), bounds.height());
 
   popup_position_ = client_pos;
 

@@ -48,7 +48,7 @@ class ChromeProfileAlloy : public Profile {
   ExitType GetLastSessionExitType() const override;
   base::Time GetCreationTime() const override;
   void SetCreationTimeForTesting(base::Time creation_time) override;
-  void RecordMainFrameNavigation() override;
+  void RecordPrimaryMainFrameNavigation() override;
   bool IsSignedIn() override;
 
  private:

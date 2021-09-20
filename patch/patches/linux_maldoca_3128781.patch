@@ -1,0 +1,12 @@
+diff --git third_party/maldoca/BUILD.gn third_party/maldoca/BUILD.gn
+index 3fb5c5962c07b..20e5809263398 100644
+--- third_party/maldoca/BUILD.gn
++++ third_party/maldoca/BUILD.gn
+@@ -276,6 +276,7 @@ static_library("maldoca") {
+     "//third_party/boringssl",
+     "//third_party/libxml",
+     "//third_party/protobuf:protobuf_lite",
++    "//third_party/re2"
+   ]
+ 
+   public_deps = [

@@ -205,8 +205,9 @@ gfx::Point CefBrowserPlatformDelegateNativeLinux::GetScreenPoint(
   const gfx::Rect& bounds_in_screen = window_x11_->GetBoundsInScreen();
   return gfx::Point(bounds_in_screen.x() + view.x(),
                     bounds_in_screen.y() + view.y());
-#endif  // defined(USE_X11)
+#else  // !defined(USE_X11)
   return gfx::Point();
+#endif
 }
 
 void CefBrowserPlatformDelegateNativeLinux::ViewText(const std::string& text) {

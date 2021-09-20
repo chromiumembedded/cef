@@ -8,90 +8,54 @@
 
 #include <map>
 #include <memory>
-#include <set>
 
 #include "base/files/file_path.h"
 #include "extensions/browser/value_store/value_store_factory.h"
-#include "extensions/common/extension_id.h"
+
+namespace value_store {
 
 class ValueStore;
 
-namespace extensions {
-
-// Will either open a database on disk (if path provided) returning a
-// |LeveldbValueStore|. Otherwise a new |CefValueStore| instance will be
-// returned.
+// Based on TestValueStoreFactory. Will either open a database on disk (if path
+// provided) returning a |LeveldbValueStore|. Otherwise a new |CefingValueStore|
+// instance will be returned.
 class CefValueStoreFactory : public ValueStoreFactory {
  public:
   CefValueStoreFactory();
   explicit CefValueStoreFactory(const base::FilePath& db_path);
+  CefValueStoreFactory(const CefValueStoreFactory&) = delete;
+  CefValueStoreFactory& operator=(const CefValueStoreFactory&) = delete;
 
   // ValueStoreFactory
-  std::unique_ptr<ValueStore> CreateRulesStore() override;
-  std::unique_ptr<ValueStore> CreateStateStore() override;
-  std::unique_ptr<ValueStore> CreateSettingsStore(
-      settings_namespace::Namespace settings_namespace,
-      ModelType model_type,
-      const ExtensionId& extension_id) override;
-  void DeleteSettings(settings_namespace::Namespace settings_namespace,
-                      ModelType model_type,
-                      const ExtensionId& extension_id) override;
-  bool HasSettings(settings_namespace::Namespace settings_namespace,
-                   ModelType model_type,
-                   const ExtensionId& extension_id) override;
-  std::set<ExtensionId> GetKnownExtensionIDs(
-      settings_namespace::Namespace settings_namespace,
-      ModelType model_type) const override;
+  std::unique_ptr<ValueStore> CreateValueStore(
+      const base::FilePath& directory,
+      const std::string& uma_client_name) override;
+  void DeleteValueStore(const base::FilePath& directory) override;
+  bool HasValueStore(const base::FilePath& directory) override;
 
   // Return the last created |ValueStore|. Use with caution as this may return
   // a dangling pointer since the creator now owns the ValueStore which can be
   // deleted at any time.
   ValueStore* LastCreatedStore() const;
-  // Return a previously created |ValueStore| for an extension.
-  ValueStore* GetExisting(const ExtensionId& extension_id) const;
+  // Return the previously created |ValueStore| in the given directory.
+  ValueStore* GetExisting(const base::FilePath& directory) const;
   // Reset this class (as if just created).
   void Reset();
 
  private:
-  // Manages a collection of |ValueStore|'s created for an app/extension.
-  // One of these exists for each setting type.
-  class StorageHelper {
-   public:
-    StorageHelper();
-    ~StorageHelper();
-    std::set<ExtensionId> GetKnownExtensionIDs(ModelType model_type) const;
-    ValueStore* AddValueStore(const ExtensionId& extension_id,
-                              ValueStore* value_store,
-                              ModelType model_type);
-    void DeleteSettings(const ExtensionId& extension_id, ModelType model_type);
-    bool HasSettings(const ExtensionId& extension_id,
-                     ModelType model_type) const;
-    void Reset();
-    ValueStore* GetExisting(const ExtensionId& extension_id) const;
-
-   private:
-    std::map<ExtensionId, ValueStore*> app_stores_;
-    std::map<ExtensionId, ValueStore*> extension_stores_;
-
-    DISALLOW_COPY_AND_ASSIGN(StorageHelper);
-  };
-
-  StorageHelper& GetStorageHelper(
-      settings_namespace::Namespace settings_namespace);
-
   ~CefValueStoreFactory() override;
+
+  std::unique_ptr<ValueStore> CreateStore();
+
   base::FilePath db_path_;
   ValueStore* last_created_store_ = nullptr;
 
-  // None of these value stores are owned by this factory, so care must be
-  // taken when calling GetExisting.
-  StorageHelper local_helper_;
-  StorageHelper sync_helper_;
-  StorageHelper managed_helper_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefValueStoreFactory);
+  // A mapping from directories to their ValueStore. None of these value
+  // stores are owned by this factory, so care must be taken when calling
+  // GetExisting.
+  std::map<base::FilePath, ValueStore*> value_store_map_;
 };
 
-}  // namespace extensions
+}  // namespace value_store
 
 #endif  // CEF_LIBCEF_BROWSER_EXTENSIONS_VALUE_STORE_CEF_VALUE_STORE_FACTORY_H_

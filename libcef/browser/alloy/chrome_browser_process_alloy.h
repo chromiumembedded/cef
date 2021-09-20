@@ -99,6 +99,8 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
       override;
   BuildState* GetBuildState() override;
   SerialPolicyAllowedPorts* serial_policy_allowed_ports() override;
+  breadcrumbs::BreadcrumbPersistentStorageManager*
+  GetBreadcrumbPersistentStorageManager() override;
 
  private:
   bool initialized_;

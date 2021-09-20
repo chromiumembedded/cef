@@ -420,7 +420,8 @@ StateStore* CefExtensionSystem::rules_store() {
   return rules_store_.get();
 }
 
-scoped_refptr<ValueStoreFactory> CefExtensionSystem::store_factory() {
+scoped_refptr<value_store::ValueStoreFactory>
+CefExtensionSystem::store_factory() {
   return store_factory_;
 }
 
@@ -518,18 +519,19 @@ CefExtensionSystem::ComponentExtensionInfo::ComponentExtensionInfo(
 }
 
 void CefExtensionSystem::InitPrefs() {
-  store_factory_ = new CefValueStoreFactory(browser_context_->GetPath());
+  store_factory_ =
+      new value_store::CefValueStoreFactory(browser_context_->GetPath());
 
   Profile* profile = Profile::FromBrowserContext(browser_context_);
 
   // Two state stores. The latter, which contains declarative rules, must be
   // loaded immediately so that the rules are ready before we issue network
   // requests.
-  state_store_.reset(new StateStore(
-      profile, store_factory_, ValueStoreFrontend::BackendType::STATE, true));
+  state_store_ = std::make_unique<StateStore>(
+      profile, store_factory_, StateStore::BackendType::STATE, true);
 
-  rules_store_.reset(new StateStore(
-      profile, store_factory_, ValueStoreFrontend::BackendType::RULES, false));
+  rules_store_ = std::make_unique<StateStore>(
+      profile, store_factory_, StateStore::BackendType::RULES, false);
 }
 
 // Implementation based on ComponentLoader::CreateExtension.

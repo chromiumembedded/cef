@@ -39,10 +39,10 @@ index 7995eb16a7cf6..1c007cbf08f32 100644
        fullscreen_controller_(std::make_unique<FullscreenController>(this)),
        page_base_background_color_(
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index e7b0409bd60df..445b9eee5fd71 100644
+index 293e146acb025..67c265a64ad04 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
-@@ -131,7 +131,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -132,7 +132,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    static HashSet<WebViewImpl*>& AllInstances();
    // Returns true if popup menus should be rendered by the browser, false if
    // they should be rendered by WebKit (which is the default).
@@ -52,7 +52,7 @@ index e7b0409bd60df..445b9eee5fd71 100644
  
    // Returns whether frames under this WebView are backed by a compositor.
    bool does_composite() const { return does_composite_; }
-@@ -791,6 +792,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -792,6 +793,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_ = 0.f;
    bool fake_page_scale_animation_use_anchor_ = false;
  
@@ -62,10 +62,10 @@ index e7b0409bd60df..445b9eee5fd71 100644
    TransformationMatrix device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index fdeb0ffd7c5f5..cc03daf4f705a 100644
+index 724a67a401175..a505e5ed16b9f 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
-@@ -842,7 +842,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
+@@ -851,7 +851,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
  PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    NotifyPopupOpeningObservers();

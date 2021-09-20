@@ -50,7 +50,7 @@ bool CefResourceBundleDelegate::GetRawDataResource(
     if (handler.get()) {
       void* data = nullptr;
       size_t data_size = 0;
-      if (scale_factor != ui::SCALE_FACTOR_NONE) {
+      if (scale_factor != ui::kScaleFactorNone) {
         if (handler->GetDataResourceForScale(
                 resource_id, static_cast<cef_scale_factor_t>(scale_factor),
                 data, data_size)) {

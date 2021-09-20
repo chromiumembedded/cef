@@ -215,11 +215,9 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     } else if (browser.get()) {
       return static_cast<int>(
           browser_query_info_map_.size(browser->GetIdentifier()));
-    } else {
-      return static_cast<int>(browser_query_info_map_.size());
     }
 
-    return 0;
+    return static_cast<int>(browser_query_info_map_.size());
   }
 
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
@@ -755,11 +753,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
     } else if (browser.get()) {
       return static_cast<int>(
           browser_request_info_map_.size(browser->GetIdentifier()));
-    } else {
-      return static_cast<int>(browser_request_info_map_.size());
     }
 
-    return 0;
+    return static_cast<int>(browser_request_info_map_.size());
   }
 
   void OnContextCreated(CefRefPtr<CefBrowser> browser,

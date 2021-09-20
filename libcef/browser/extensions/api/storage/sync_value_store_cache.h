@@ -14,10 +14,11 @@
 #include "extensions/browser/api/storage/settings_storage_quota_enforcer.h"
 #include "extensions/browser/api/storage/value_store_cache.h"
 
-namespace extensions {
-
+namespace value_store {
 class ValueStoreFactory;
+}
 
+namespace extensions {
 namespace cef {
 
 // Based on LocalValueStoreCache
@@ -25,7 +26,8 @@ namespace cef {
 // another for extensions. Each backend takes care of persistence.
 class SyncValueStoreCache : public ValueStoreCache {
  public:
-  explicit SyncValueStoreCache(const scoped_refptr<ValueStoreFactory>& factory);
+  explicit SyncValueStoreCache(
+      scoped_refptr<value_store::ValueStoreFactory> factory);
   ~SyncValueStoreCache() override;
 
   // ValueStoreCache implementation:
@@ -35,12 +37,13 @@ class SyncValueStoreCache : public ValueStoreCache {
   void DeleteStorageSoon(const std::string& extension_id) override;
 
  private:
-  using StorageMap = std::map<std::string, std::unique_ptr<ValueStore>>;
+  using StorageMap =
+      std::map<std::string, std::unique_ptr<value_store::ValueStore>>;
 
-  ValueStore* GetStorage(const Extension* extension);
+  value_store::ValueStore* GetStorage(const Extension* extension);
 
   // The Factory to use for creating new ValueStores.
-  const scoped_refptr<ValueStoreFactory> storage_factory_;
+  const scoped_refptr<value_store::ValueStoreFactory> storage_factory_;
 
   // Quota limits (see SettingsStorageQuotaEnforcer).
   const SettingsStorageQuotaEnforcer::Limits quota_;
@@ -50,6 +53,7 @@ class SyncValueStoreCache : public ValueStoreCache {
 
   DISALLOW_COPY_AND_ASSIGN(SyncValueStoreCache);
 };
+
 }  // namespace cef
 }  // namespace extensions
 
