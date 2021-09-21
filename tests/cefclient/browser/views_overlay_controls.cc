@@ -29,6 +29,8 @@ std::string GetLabel(ViewsOverlayControls::Command command, bool maximized) {
     case ViewsOverlayControls::Command::kClose:
       return "X";
   }
+  NOTREACHED();
+  return std::string();
 }
 
 }  // namespace
