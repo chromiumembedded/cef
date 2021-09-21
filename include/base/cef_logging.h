@@ -203,19 +203,19 @@ const LogSeverity LOG_DFATAL = LOG_FATAL;
 // by LOG() and LOG_IF, etc. Since these are used all over our code, it's
 // better to have compact code for these operations.
 #define COMPACT_GOOGLE_LOG_EX_INFO(ClassName, ...)                    \
-  cef::logging::ClassName(__FILE__, __LINE__, cef::logging::LOG_INFO, \
+  ::cef::logging::ClassName(__FILE__, __LINE__, ::cef::logging::LOG_INFO, \
                           ##__VA_ARGS__)
 #define COMPACT_GOOGLE_LOG_EX_WARNING(ClassName, ...)                    \
-  cef::logging::ClassName(__FILE__, __LINE__, cef::logging::LOG_WARNING, \
+  ::cef::logging::ClassName(__FILE__, __LINE__, ::cef::logging::LOG_WARNING, \
                           ##__VA_ARGS__)
 #define COMPACT_GOOGLE_LOG_EX_ERROR(ClassName, ...)                    \
-  cef::logging::ClassName(__FILE__, __LINE__, cef::logging::LOG_ERROR, \
+  ::cef::logging::ClassName(__FILE__, __LINE__, ::cef::logging::LOG_ERROR, \
                           ##__VA_ARGS__)
 #define COMPACT_GOOGLE_LOG_EX_FATAL(ClassName, ...)                    \
-  cef::logging::ClassName(__FILE__, __LINE__, cef::logging::LOG_FATAL, \
+  ::cef::logging::ClassName(__FILE__, __LINE__, ::cef::logging::LOG_FATAL, \
                           ##__VA_ARGS__)
 #define COMPACT_GOOGLE_LOG_EX_DFATAL(ClassName, ...)                    \
-  cef::logging::ClassName(__FILE__, __LINE__, cef::logging::LOG_DFATAL, \
+  ::cef::logging::ClassName(__FILE__, __LINE__, ::cef::logging::LOG_DFATAL, \
                           ##__VA_ARGS__)
 
 #define COMPACT_GOOGLE_LOG_INFO COMPACT_GOOGLE_LOG_EX_INFO(LogMessage)
