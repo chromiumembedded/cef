@@ -4,6 +4,7 @@
 
 #include "tests/cefclient/browser/views_overlay_controls.h"
 
+#include <algorithm>
 #include <string>
 
 #include "include/views/cef_box_layout.h"
