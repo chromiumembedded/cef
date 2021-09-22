@@ -49,6 +49,10 @@
 #include "libcef/common/util_mac.h"
 #endif
 
+#if defined(OS_WIN)
+#include "ui/base/resource/resource_bundle_win.h"
+#endif
+
 namespace {
 
 const char* const kNonWildcardDomainNonPortSchemes[] = {
@@ -491,6 +495,20 @@ void AlloyMainDelegate::InitializeResourceBundle() {
     if (!locales_dir.empty())
       base::PathService::Override(ui::DIR_LOCALES, locales_dir);
   }
+  
+#if defined(OS_WIN)
+  // From chrome/app/chrome_main_delegate.cc
+  // Throbber icons and cursors are still stored in chrome.dll,
+  // this can be killed once those are merged into resources.pak. See
+  // GlassBrowserFrameView::InitThrobberIcons(), https://crbug.com/368327 and
+  // https://crbug.com/1178117.
+  auto module_handle =
+      ::GetModuleHandle(CefAppManager::Get()->GetResourceDllName());
+  if (!module_handle)
+    module_handle = ::GetModuleHandle(NULL);
+
+  ui::SetResourcesDataDLL(module_handle);
+#endif
 
   std::string locale = command_line->GetSwitchValueASCII(switches::kLang);
   DCHECK(!locale.empty());
