@@ -275,6 +275,11 @@ class CefRenderWidgetHostViewOSR
 
   void ReleaseCompositor();
 
+  // Marks the current viz::LocalSurfaceId as invalid. AllocateLocalSurfaceId
+  // must be called before submitting new CompositorFrames. May be called by
+  // content::DelegatedFrameHostClient::InvalidateLocalSurfaceIdOnEviction.
+  void InvalidateLocalSurfaceId();
+
  private:
   void SetFrameRate();
   bool SetDeviceScaleFactor();
@@ -321,10 +326,6 @@ class CefRenderWidgetHostViewOSR
 
   // Returns the current viz::LocalSurfaceIdAllocation.
   const viz::LocalSurfaceId& GetOrCreateLocalSurfaceId();
-
-  // Marks the current viz::LocalSurfaceId as invalid. AllocateLocalSurfaceId
-  // must be called before submitting new CompositorFrames.
-  void InvalidateLocalSurfaceId();
 
   void AddDamageRect(uint32_t sequence, const gfx::Rect& rect);
 
