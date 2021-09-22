@@ -120,10 +120,10 @@ index e06cd6c3d83db..1f7da7cf79979 100644
  
    // Initialize the frame (creates the underlying native window).
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 84044530181a8..737c41a0d01a5 100644
+index 63922bed46718..e8dca023a8150 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
-@@ -281,11 +281,10 @@ using content::WebContents;
+@@ -284,11 +284,10 @@ using content::WebContents;
  using views::ColumnSet;
  using web_modal::WebContentsModalDialogHost;
  
@@ -138,7 +138,7 @@ index 84044530181a8..737c41a0d01a5 100644
  
  #if BUILDFLAG(IS_CHROMEOS_ASH)
  // UMA histograms that record animation smoothness for tab loading animation.
-@@ -600,11 +599,22 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
+@@ -603,11 +602,22 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
  ///////////////////////////////////////////////////////////////////////////////
  // BrowserView, public:
  
@@ -162,7 +162,7 @@ index 84044530181a8..737c41a0d01a5 100644
    SetShowIcon(::ShouldShowWindowIcon(browser_.get()));
  
    // In forced app mode, all size controls are always disabled. Otherwise, use
-@@ -618,7 +628,6 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
+@@ -621,7 +631,6 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
    }
  
    browser_->tab_strip_model()->AddObserver(this);
@@ -170,7 +170,7 @@ index 84044530181a8..737c41a0d01a5 100644
  
    // Top container holds tab strip region and toolbar and lives at the front of
    // the view hierarchy.
-@@ -662,8 +671,15 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
+@@ -665,8 +674,15 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
    contents_container->SetLayoutManager(std::make_unique<ContentsLayoutManager>(
        devtools_web_view_, contents_web_view_));
  
@@ -188,7 +188,7 @@ index 84044530181a8..737c41a0d01a5 100644
  
    contents_separator_ =
        top_container_->AddChildView(std::make_unique<ContentsSeparator>());
-@@ -1454,6 +1470,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
+@@ -1465,6 +1481,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
    if (immersive_mode_controller_->IsEnabled())
      return false;
  
@@ -197,7 +197,7 @@ index 84044530181a8..737c41a0d01a5 100644
    return frame_->GetFrameView()->ShouldHideTopUIForFullscreen();
  }
  
-@@ -2527,7 +2545,8 @@ BrowserView::GetNativeViewHostsForTopControlsSlide() const {
+@@ -2538,7 +2556,8 @@ BrowserView::GetNativeViewHostsForTopControlsSlide() const {
  }
  
  void BrowserView::ReparentTopContainerForEndOfImmersive() {
@@ -207,7 +207,7 @@ index 84044530181a8..737c41a0d01a5 100644
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -2979,8 +2998,10 @@ void BrowserView::Layout() {
+@@ -2990,8 +3009,10 @@ void BrowserView::Layout() {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -220,7 +220,7 @@ index 84044530181a8..737c41a0d01a5 100644
  
    // Some of the situations when the BrowserView is laid out are:
    // - Enter/exit immersive fullscreen mode.
-@@ -3043,6 +3064,11 @@ void BrowserView::AddedToWidget() {
+@@ -3054,6 +3075,11 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->profile());
  #endif
  
@@ -232,7 +232,7 @@ index 84044530181a8..737c41a0d01a5 100644
    toolbar_->Init();
  
  #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
-@@ -3078,13 +3104,9 @@ void BrowserView::AddedToWidget() {
+@@ -3089,13 +3115,9 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -249,10 +249,10 @@ index 84044530181a8..737c41a0d01a5 100644
  
    MaybeInitializeWebUITabStrip();
 diff --git chrome/browser/ui/views/frame/browser_view.h chrome/browser/ui/views/frame/browser_view.h
-index 4709cdd1f29d1..3d79400cbf4a7 100644
+index a9ba4f9841ef4..a373c1a1f1e90 100644
 --- chrome/browser/ui/views/frame/browser_view.h
 +++ chrome/browser/ui/views/frame/browser_view.h
-@@ -118,11 +118,16 @@ class BrowserView : public BrowserWindow,
+@@ -121,11 +121,16 @@ class BrowserView : public BrowserWindow,
                      public webapps::AppBannerManager::Observer {
   public:
    METADATA_HEADER(BrowserView);
@@ -269,7 +269,7 @@ index 4709cdd1f29d1..3d79400cbf4a7 100644
    void set_frame(BrowserFrame* frame) { frame_ = frame; }
    BrowserFrame* frame() const { return frame_; }
  
-@@ -679,6 +684,12 @@ class BrowserView : public BrowserWindow,
+@@ -684,6 +689,12 @@ class BrowserView : public BrowserWindow,
      return accessibility_focus_highlight_.get();
    }
  
