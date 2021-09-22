@@ -114,7 +114,9 @@ class CefDelegatedFrameHostClient : public content::DelegatedFrameHostClient {
     return view_->render_widget_host()->CollectSurfaceIdsForEviction();
   }
 
-  void InvalidateLocalSurfaceIdOnEviction() override {}
+  void InvalidateLocalSurfaceIdOnEviction() override {
+    view_->InvalidateLocalSurfaceId();
+  }
 
   bool ShouldShowStaleContentOnEviction() override { return false; }
 
