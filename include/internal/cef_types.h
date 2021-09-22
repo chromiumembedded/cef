@@ -1159,6 +1159,16 @@ typedef enum {
   // A resource that a plugin requested.
   ///
   RT_PLUGIN_RESOURCE,
+  
+  ///
+  // A main-frame service worker navigation preload request.
+  ///
+  RT_NAVIGATION_PRELOAD_MAIN_FRAME = 19,
+
+  ///
+  // A sub-frame service worker navigation preload request.
+  ///
+  RT_NAVIGATION_PRELOAD_SUB_FRAME,
 } cef_resource_type_t;
 
 ///
