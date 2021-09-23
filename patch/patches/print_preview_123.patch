@@ -58,7 +58,7 @@ index 4ff73fd2d9ec3..d56686d8284ba 100644
    // Add an entry to the map.
    preview_dialog_map_[preview_dialog] = initiator;
 diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index e4cacbf9a82da..3f137e18b8087 100644
+index e4cacbf9a82da..260fdc00ab860 100644
 --- chrome/browser/printing/print_view_manager_base.cc
 +++ chrome/browser/printing/print_view_manager_base.cc
 @@ -21,6 +21,7 @@
@@ -96,6 +96,16 @@ index e4cacbf9a82da..3f137e18b8087 100644
  }
  
  void NotifySystemDialogCancelled(int render_process_id, int routing_id) {
+@@ -273,8 +283,7 @@ void UpdatePrintSettingsOnIO(
+   DCHECK_CURRENTLY_ON(content::BrowserThread::IO);
+   std::unique_ptr<PrinterQuery> printer_query = queue->PopPrinterQuery(cookie);
+   if (!printer_query) {
+-    printer_query = queue->CreatePrinterQuery(
+-        content::ChildProcessHost::kInvalidUniqueID, MSG_ROUTING_NONE);
++    printer_query = queue->CreatePrinterQuery(process_id, routing_id);
+   }
+   auto* printer_query_ptr = printer_query.get();
+   printer_query_ptr->SetSettings(
 diff --git chrome/browser/printing/print_view_manager_base.h chrome/browser/printing/print_view_manager_base.h
 index eaa0e162a339b..8e030d2ab3995 100644
 --- chrome/browser/printing/print_view_manager_base.h
