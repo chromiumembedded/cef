@@ -273,10 +273,6 @@ void ChromeBrowserHostImpl::SendTouchEvent(const CefTouchEvent& event) {
   NOTIMPLEMENTED();
 }
 
-void ChromeBrowserHostImpl::SendFocusEvent(bool setFocus) {
-  NOTIMPLEMENTED();
-}
-
 void ChromeBrowserHostImpl::SendCaptureLostEvent() {
   NOTIMPLEMENTED();
 }

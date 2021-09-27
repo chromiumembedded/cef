@@ -365,7 +365,7 @@ void AlloyBrowserHostImpl::SetFocusInternal(bool focus) {
   if (focus)
     OnSetFocus(FOCUS_SOURCE_SYSTEM);
   else if (platform_delegate_)
-    platform_delegate_->SendFocusEvent(false);
+    platform_delegate_->SetFocus(false);
 }
 
 CefWindowHandle AlloyBrowserHostImpl::GetWindowHandle() {
@@ -653,10 +653,6 @@ void AlloyBrowserHostImpl::SendTouchEvent(const CefTouchEvent& event) {
     platform_delegate_->SendTouchEvent(event);
 }
 
-void AlloyBrowserHostImpl::SendFocusEvent(bool setFocus) {
-  SetFocus(setFocus);
-}
-
 void AlloyBrowserHostImpl::SendCaptureLostEvent() {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(
@@ -818,7 +814,7 @@ void AlloyBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
     return;
 
   if (platform_delegate_)
-    platform_delegate_->SendFocusEvent(true);
+    platform_delegate_->SetFocus(true);
 }
 
 void AlloyBrowserHostImpl::RunFileChooser(

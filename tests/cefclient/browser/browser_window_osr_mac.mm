@@ -486,7 +486,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 - (BOOL)becomeFirstResponder {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
   if (browser.get()) {
-    browser->GetHost()->SendFocusEvent(true);
+    browser->GetHost()->SetFocus(true);
     return [super becomeFirstResponder];
   }
 
@@ -496,7 +496,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 - (BOOL)resignFirstResponder {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
   if (browser.get()) {
-    browser->GetHost()->SendFocusEvent(false);
+    browser->GetHost()->SetFocus(false);
     return [super resignFirstResponder];
   }
 
@@ -1431,7 +1431,7 @@ void BrowserWindowOsrMacImpl::Show() {
   }
 
   // Give focus to the browser.
-  browser_window_.browser_->GetHost()->SendFocusEvent(true);
+  browser_window_.browser_->GetHost()->SetFocus(true);
 }
 
 void BrowserWindowOsrMacImpl::Hide() {
@@ -1441,7 +1441,7 @@ void BrowserWindowOsrMacImpl::Hide() {
     return;
 
   // Remove focus from the browser.
-  browser_window_.browser_->GetHost()->SendFocusEvent(false);
+  browser_window_.browser_->GetHost()->SetFocus(false);
 
   if (!hidden_) {
     // Set the browser as hidden.

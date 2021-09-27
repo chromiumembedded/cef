@@ -548,7 +548,7 @@ class OSRTestHandler : public RoutingTestHandler,
       case OSR_TEST_FOCUS:
         if (StartTest()) {
           // body.onfocus will make LI00 red
-          browser->GetHost()->SendFocusEvent(true);
+          browser->GetHost()->SetFocus(true);
         }
         break;
       case OSR_TEST_TAKE_FOCUS:
@@ -566,7 +566,7 @@ class OSRTestHandler : public RoutingTestHandler,
         break;
       case OSR_TEST_GOT_FOCUS:
         if (StartTest()) {
-          browser->GetHost()->SendFocusEvent(true);
+          browser->GetHost()->SetFocus(true);
         }
         break;
       case OSR_TEST_CURSOR:
@@ -750,7 +750,7 @@ class OSRTestHandler : public RoutingTestHandler,
           ExpandDropDown();
           // Wait for the first popup paint to occur
         } else if (type == PET_POPUP) {
-          browser->GetHost()->SendFocusEvent(false);
+          browser->GetHost()->SetFocus(false);
         }
         break;
       case OSR_TEST_POPUP_HIDE_ON_ESC:
@@ -1422,7 +1422,7 @@ class OSRTestHandler : public RoutingTestHandler,
   }
 
   void ExpandDropDown() {
-    GetBrowser()->GetHost()->SendFocusEvent(true);
+    GetBrowser()->GetHost()->SetFocus(true);
     CefMouseEvent mouse_event;
 
     const CefRect& LI11select = GetElementBounds("LI11select");

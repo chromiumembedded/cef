@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e53c3c194d40a9bdee41a348a1c9fd65822e4ba9$
+// $hash=791e5fd2deefd0e040143477a6ae53593886e706$
 //
 
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
@@ -764,20 +764,6 @@ void CefBrowserHostCToCpp::SendTouchEvent(const CefTouchEvent& event) {
   _struct->send_touch_event(_struct, &event);
 }
 
-NO_SANITIZE("cfi-icall")
-void CefBrowserHostCToCpp::SendFocusEvent(bool setFocus) {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_browser_host_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, send_focus_event))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  _struct->send_focus_event(_struct, setFocus);
-}
-
 NO_SANITIZE("cfi-icall") void CefBrowserHostCToCpp::SendCaptureLostEvent() {
   shutdown_checker::AssertNotShutdown();
 
@@ -1015,8 +1001,8 @@ void CefBrowserHostCToCpp::DragSourceSystemDragEnded() {
 }
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<
-    CefNavigationEntry> CefBrowserHostCToCpp::GetVisibleNavigationEntry() {
+CefRefPtr<CefNavigationEntry>
+CefBrowserHostCToCpp::GetVisibleNavigationEntry() {
   shutdown_checker::AssertNotShutdown();
 
   cef_browser_host_t* _struct = GetStruct();

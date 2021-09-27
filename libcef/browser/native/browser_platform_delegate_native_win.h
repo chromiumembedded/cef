@@ -22,7 +22,7 @@ class CefBrowserPlatformDelegateNativeWin
   void CloseHostWindow() override;
   CefWindowHandle GetHostWindowHandle() const override;
   views::Widget* GetWindowWidget() const override;
-  void SendFocusEvent(bool setFocus) override;
+  void SetFocus(bool setFocus) override;
   void NotifyMoveOrResizeStarted() override;
   void SizeTo(int width, int height) override;
   gfx::Point GetScreenPoint(const gfx::Point& view) const override;

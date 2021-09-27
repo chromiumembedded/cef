@@ -161,10 +161,10 @@ void CefBrowserPlatformDelegateOsr::SendTouchEvent(const CefTouchEvent& event) {
     view->SendTouchEvent(event);
 }
 
-void CefBrowserPlatformDelegateOsr::SendFocusEvent(bool setFocus) {
+void CefBrowserPlatformDelegateOsr::SetFocus(bool setFocus) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
   if (view)
-    view->SendFocusEvent(setFocus);
+    view->SetFocus(setFocus);
 }
 
 gfx::Point CefBrowserPlatformDelegateOsr::GetScreenPoint(

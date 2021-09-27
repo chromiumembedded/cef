@@ -243,7 +243,7 @@ views::Widget* CefBrowserPlatformDelegateNativeWin::GetWindowWidget() const {
   return window_widget_;
 }
 
-void CefBrowserPlatformDelegateNativeWin::SendFocusEvent(bool setFocus) {
+void CefBrowserPlatformDelegateNativeWin::SetFocus(bool setFocus) {
   if (!setFocus)
     return;
 
