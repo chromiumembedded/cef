@@ -310,7 +310,7 @@ void CefBrowserPlatformDelegateNativeMac::SendTouchEvent(
   NOTIMPLEMENTED();
 }
 
-void CefBrowserPlatformDelegateNativeMac::SendFocusEvent(bool setFocus) {
+void CefBrowserPlatformDelegateNativeMac::SetFocus(bool setFocus) {
   auto view = GetHostView();
   if (view) {
     view->SetActive(setFocus);

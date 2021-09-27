@@ -133,7 +133,7 @@ views::Widget* CefBrowserPlatformDelegateNativeLinux::GetWindowWidget() const {
   return window_widget_;
 }
 
-void CefBrowserPlatformDelegateNativeLinux::SendFocusEvent(bool setFocus) {
+void CefBrowserPlatformDelegateNativeLinux::SetFocus(bool setFocus) {
   if (!setFocus)
     return;
 

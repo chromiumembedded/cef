@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0109529f61a92116f73bc6c0ff47bfd0423b6f07$
+// $hash=08a83d2956014971961d1cf3f93afbc1dae48f76$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -875,20 +875,6 @@ browser_host_send_touch_event(struct _cef_browser_host_t* self,
 }
 
 void CEF_CALLBACK
-browser_host_send_focus_event(struct _cef_browser_host_t* self, int setFocus) {
-  shutdown_checker::AssertNotShutdown();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-
-  // Execute
-  CefBrowserHostCppToC::Get(self)->SendFocusEvent(setFocus ? true : false);
-}
-
-void CEF_CALLBACK
 browser_host_send_capture_lost_event(struct _cef_browser_host_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -1350,7 +1336,6 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->send_mouse_move_event = browser_host_send_mouse_move_event;
   GetStruct()->send_mouse_wheel_event = browser_host_send_mouse_wheel_event;
   GetStruct()->send_touch_event = browser_host_send_touch_event;
-  GetStruct()->send_focus_event = browser_host_send_focus_event;
   GetStruct()->send_capture_lost_event = browser_host_send_capture_lost_event;
   GetStruct()->notify_move_or_resize_started =
       browser_host_notify_move_or_resize_started;

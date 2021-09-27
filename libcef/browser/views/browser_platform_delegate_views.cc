@@ -217,7 +217,7 @@ void CefBrowserPlatformDelegateViews::SendTouchEvent(
   native_delegate_->SendTouchEvent(event);
 }
 
-void CefBrowserPlatformDelegateViews::SendFocusEvent(bool setFocus) {
+void CefBrowserPlatformDelegateViews::SetFocus(bool setFocus) {
   // Will activate the Widget and result in a call to WebContents::Focus().
   if (setFocus && browser_view_->root_view()) {
     if (auto widget = GetWindowWidget()) {

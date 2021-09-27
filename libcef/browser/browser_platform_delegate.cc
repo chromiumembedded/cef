@@ -172,7 +172,7 @@ void CefBrowserPlatformDelegate::SendTouchEvent(const CefTouchEvent& event) {
   NOTIMPLEMENTED();
 }
 
-void CefBrowserPlatformDelegate::SendFocusEvent(bool setFocus) {
+void CefBrowserPlatformDelegate::SetFocus(bool setFocus) {
   NOTIMPLEMENTED();
 }
 

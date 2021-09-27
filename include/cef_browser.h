@@ -709,12 +709,6 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   virtual void SendTouchEvent(const CefTouchEvent& event) = 0;
 
   ///
-  // Send a focus event to the browser.
-  ///
-  /*--cef()--*/
-  virtual void SendFocusEvent(bool setFocus) = 0;
-
-  ///
   // Send a capture lost event to the browser.
   ///
   /*--cef()--*/

@@ -1041,7 +1041,7 @@ void BrowserWindowOsrGtk::Show() {
   }
 
   // Give focus to the browser.
-  browser_->GetHost()->SendFocusEvent(true);
+  browser_->GetHost()->SetFocus(true);
 }
 
 void BrowserWindowOsrGtk::Hide() {
@@ -1051,7 +1051,7 @@ void BrowserWindowOsrGtk::Hide() {
     return;
 
   // Remove focus from the browser.
-  browser_->GetHost()->SendFocusEvent(false);
+  browser_->GetHost()->SetFocus(false);
 
   if (!hidden_) {
     // Set the browser as hidden.
@@ -1648,7 +1648,7 @@ gint BrowserWindowOsrGtk::FocusEvent(GtkWidget* widget,
                                      BrowserWindowOsrGtk* self) {
   // May be called on the main thread and the UI thread.
   if (self->browser_.get())
-    self->browser_->GetHost()->SendFocusEvent(event->in == TRUE);
+    self->browser_->GetHost()->SetFocus(event->in == TRUE);
   return TRUE;
 }
 

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=6e192c6e8a59c37e98e458578a287dd36b8ed90f$
+// $hash=b83b96e2b90124bba8084e2df7f66cc6749df872$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -680,12 +680,6 @@ typedef struct _cef_browser_host_t {
   ///
   void(CEF_CALLBACK* send_touch_event)(struct _cef_browser_host_t* self,
                                        const struct _cef_touch_event_t* event);
-
-  ///
-  // Send a focus event to the browser.
-  ///
-  void(CEF_CALLBACK* send_focus_event)(struct _cef_browser_host_t* self,
-                                       int setFocus);
 
   ///
   // Send a capture lost event to the browser.

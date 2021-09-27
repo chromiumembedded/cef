@@ -1305,7 +1305,7 @@ bool CefRenderWidgetHostViewOSR::ShouldRouteEvents() const {
   return !!render_widget_host_->delegate()->GetInputEventRouter();
 }
 
-void CefRenderWidgetHostViewOSR::SendFocusEvent(bool focus) {
+void CefRenderWidgetHostViewOSR::SetFocus(bool focus) {
   if (!render_widget_host_)
     return;
 

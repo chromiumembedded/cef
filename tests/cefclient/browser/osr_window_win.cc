@@ -202,7 +202,7 @@ void OsrWindowWin::Show() {
   }
 
   // Give focus to the browser.
-  browser_->GetHost()->SendFocusEvent(true);
+  browser_->GetHost()->SetFocus(true);
 }
 
 void OsrWindowWin::Hide() {
@@ -216,7 +216,7 @@ void OsrWindowWin::Hide() {
     return;
 
   // Remove focus from the browser.
-  browser_->GetHost()->SendFocusEvent(false);
+  browser_->GetHost()->SetFocus(false);
 
   if (!hidden_) {
     // Set the browser as hidden.
@@ -762,7 +762,7 @@ void OsrWindowWin::OnSize() {
 
 void OsrWindowWin::OnFocus(bool setFocus) {
   if (browser_)
-    browser_->GetHost()->SendFocusEvent(setFocus);
+    browser_->GetHost()->SetFocus(setFocus);
 }
 
 void OsrWindowWin::OnCaptureLost() {

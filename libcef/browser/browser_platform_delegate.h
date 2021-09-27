@@ -225,7 +225,7 @@ class CefBrowserPlatformDelegate {
 
   // Send focus event. The browser's WebContents may be NULL when this method is
   // called.
-  virtual void SendFocusEvent(bool setFocus);
+  virtual void SetFocus(bool setFocus);
 
   // Send capture lost event.
   virtual void SendCaptureLostEvent();

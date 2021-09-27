@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0de1d0125514efd66096e5e900938b6481f0ec1d$
+// $hash=1c231cf78fe94d9e395fe8bee9c0c848d81f3ef5$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_
@@ -102,7 +102,6 @@ class CefBrowserHostCToCpp : public CefCToCppRefCounted<CefBrowserHostCToCpp,
                            int deltaX,
                            int deltaY) override;
   void SendTouchEvent(const CefTouchEvent& event) override;
-  void SendFocusEvent(bool setFocus) override;
   void SendCaptureLostEvent() override;
   void NotifyMoveOrResizeStarted() override;
   int GetWindowlessFrameRate() override;

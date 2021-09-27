@@ -77,7 +77,7 @@ void CefBrowserPlatformDelegateBackground::SendTouchEvent(
   // Nothing to do here.
 }
 
-void CefBrowserPlatformDelegateBackground::SendFocusEvent(bool setFocus) {
+void CefBrowserPlatformDelegateBackground::SetFocus(bool setFocus) {
   // Nothing to do here.
 }
 

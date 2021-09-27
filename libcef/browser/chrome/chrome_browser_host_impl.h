@@ -93,7 +93,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   void Invalidate(PaintElementType type) override;
   void SendExternalBeginFrame() override;
   void SendTouchEvent(const CefTouchEvent& event) override;
-  void SendFocusEvent(bool setFocus) override;
   void SendCaptureLostEvent() override;
   void NotifyMoveOrResizeStarted() override;
   int GetWindowlessFrameRate() override;

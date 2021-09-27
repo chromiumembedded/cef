@@ -225,7 +225,7 @@ class CefRenderWidgetHostViewOSR
   void SendMouseWheelEvent(const blink::WebMouseWheelEvent& event);
   void SendTouchEvent(const CefTouchEvent& event);
   bool ShouldRouteEvents() const;
-  void SendFocusEvent(bool focus);
+  void SetFocus(bool focus);
   void UpdateFrameRate();
 
   gfx::Size SizeInPixels();

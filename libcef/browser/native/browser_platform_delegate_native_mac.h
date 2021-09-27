@@ -33,7 +33,7 @@ class CefBrowserPlatformDelegateNativeMac
                            int deltaX,
                            int deltaY) override;
   void SendTouchEvent(const CefTouchEvent& event) override;
-  void SendFocusEvent(bool setFocus) override;
+  void SetFocus(bool setFocus) override;
   gfx::Point GetScreenPoint(const gfx::Point& view) const override;
   void ViewText(const std::string& text) override;
   bool HandleKeyboardEvent(
