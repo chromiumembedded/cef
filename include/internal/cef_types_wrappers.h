@@ -717,7 +717,6 @@ struct CefBrowserSettingsTraits {
     target->tab_to_links = src->tab_to_links;
     target->local_storage = src->local_storage;
     target->databases = src->databases;
-    target->application_cache = src->application_cache;
     target->webgl = src->webgl;
 
     target->background_color = src->background_color;

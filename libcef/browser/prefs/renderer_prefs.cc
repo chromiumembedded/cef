@@ -261,6 +261,8 @@ void SetDefaultPrefs(blink::web_pref::WebPreferences& web) {
       !command_line->HasSwitch(switches::kDisableJavascriptAccessClipboard);
   web.allow_universal_access_from_file_urls =
       command_line->HasSwitch(switches::kAllowUniversalAccessFromFileUrls);
+  web.allow_file_access_from_file_urls =
+      command_line->HasSwitch(switches::kAllowFileAccessFromFileUrls);
   web.shrinks_standalone_images_to_fit =
       command_line->HasSwitch(switches::kImageShrinkStandaloneToFit);
   web.text_areas_are_resizable =
@@ -332,7 +334,6 @@ void SetCefPrefs(const CefBrowserSettings& cef,
   SET_STATE(cef.tab_to_links, web.tabs_to_links);
   SET_STATE(cef.local_storage, web.local_storage_enabled);
   SET_STATE(cef.databases, web.databases_enabled);
-  SET_STATE(cef.application_cache, web.application_cache_enabled);
 
   // Never explicitly enable GPU-related functions in this method because the
   // GPU blacklist is not being checked here.
