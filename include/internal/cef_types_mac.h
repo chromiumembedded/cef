@@ -35,6 +35,7 @@
 
 #if defined(OS_MAC)
 #include "include/internal/cef_string.h"
+#include "include/internal/cef_types_geometry.h"
 
 // Handle types.
 // Actually NSCursor*
@@ -85,10 +86,11 @@ typedef struct _cef_main_args_t {
 ///
 typedef struct _cef_window_info_t {
   cef_string_t window_name;
-  int x;
-  int y;
-  int width;
-  int height;
+
+  ///
+  // Initial window bounds.
+  ///
+  cef_rect_t bounds;
 
   ///
   // Set to true (1) to create the view initially hidden.

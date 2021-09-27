@@ -35,6 +35,7 @@
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_string_list.h"
 #include "include/internal/cef_time.h"
+#include "include/internal/cef_types_geometry.h"
 
 // Bring in platform-specific definitions.
 #if defined(OS_WIN)
@@ -1372,51 +1373,6 @@ typedef enum {
   UR_FAILED,
 } cef_urlrequest_status_t;
 
-///
-// Structure representing a point.
-///
-typedef struct _cef_point_t {
-  int x;
-  int y;
-} cef_point_t;
-
-///
-// Structure representing a rectangle.
-///
-typedef struct _cef_rect_t {
-  int x;
-  int y;
-  int width;
-  int height;
-} cef_rect_t;
-
-///
-// Structure representing a size.
-///
-typedef struct _cef_size_t {
-  int width;
-  int height;
-} cef_size_t;
-
-///
-// Structure representing a range.
-///
-typedef struct _cef_range_t {
-  int from;
-  int to;
-} cef_range_t;
-
-///
-// Structure representing insets.
-///
-typedef struct _cef_insets_t {
-  int top;
-  int left;
-  int bottom;
-  int right;
-} cef_insets_t;
-
-///
 // Structure representing a draggable region.
 ///
 typedef struct _cef_draggable_region_t {
@@ -2957,6 +2913,14 @@ typedef enum {
   ///
   CEF_SCHEME_OPTION_FETCH_ENABLED = 1 << 6,
 } cef_scheme_options_t;
+
+///
+// Structure representing a range.
+///
+typedef struct _cef_range_t {
+  int from;
+  int to;
+} cef_range_t;
 
 ///
 // Composition underline style.

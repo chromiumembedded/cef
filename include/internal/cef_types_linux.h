@@ -43,6 +43,7 @@ typedef struct _XDisplay XDisplay;
 
 #include "include/internal/cef_export.h"
 #include "include/internal/cef_string.h"
+#include "include/internal/cef_types_geometry.h"
 
 // Handle types.
 #if defined(CEF_X11)
@@ -93,10 +94,10 @@ typedef struct _cef_window_info_t {
   ///
   cef_string_t window_name;
 
-  unsigned int x;
-  unsigned int y;
-  unsigned int width;
-  unsigned int height;
+  ///
+  // Initial window bounds.
+  ///
+  cef_rect_t bounds;
 
   ///
   // Pointer for the parent window.

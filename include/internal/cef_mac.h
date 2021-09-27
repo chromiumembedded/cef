@@ -81,10 +81,7 @@ struct CefWindowInfoTraits {
                          bool copy) {
     cef_string_set(src->window_name.str, src->window_name.length,
                    &target->window_name, copy);
-    target->x = src->x;
-    target->y = src->y;
-    target->width = src->width;
-    target->height = src->height;
+    target->bounds = src->bounds;
     target->hidden = src->hidden;
     target->parent_view = src->parent_view;
     target->windowless_rendering_enabled = src->windowless_rendering_enabled;
@@ -106,12 +103,9 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
   ///
   // Create the browser as a child view.
   ///
-  void SetAsChild(CefWindowHandle parent, int x, int y, int width, int height) {
+  void SetAsChild(CefWindowHandle parent, const CefRect& bounds) {
     parent_view = parent;
-    this->x = x;
-    this->y = y;
-    this->width = width;
-    this->height = height;
+    this->bounds = bounds;
     hidden = false;
   }
 

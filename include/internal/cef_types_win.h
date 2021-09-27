@@ -35,7 +35,9 @@
 
 #if defined(OS_WIN)
 #include <windows.h>
+
 #include "include/internal/cef_string.h"
+#include "include/internal/cef_types_geometry.h"
 
 // Handle types.
 #define cef_cursor_handle_t HCURSOR
@@ -53,7 +55,9 @@ extern "C" {
 ///
 // Structure representing CefExecuteProcess arguments.
 ///
-typedef struct _cef_main_args_t { HINSTANCE instance; } cef_main_args_t;
+typedef struct _cef_main_args_t {
+  HINSTANCE instance;
+} cef_main_args_t;
 
 ///
 // Structure representing window information.
@@ -63,10 +67,7 @@ typedef struct _cef_window_info_t {
   DWORD ex_style;
   cef_string_t window_name;
   DWORD style;
-  int x;
-  int y;
-  int width;
-  int height;
+  cef_rect_t bounds;
   cef_window_handle_t parent_window;
   HMENU menu;
 
