@@ -24,8 +24,7 @@ void BrowserWindowStdWin::CreateBrowser(
   REQUIRE_MAIN_THREAD();
 
   CefWindowInfo window_info;
-  RECT wnd_rect = {rect.x, rect.y, rect.x + rect.width, rect.y + rect.height};
-  window_info.SetAsChild(parent_handle, wnd_rect);
+  window_info.SetAsChild(parent_handle, rect);
 
   if (GetWindowLongPtr(parent_handle, GWL_EXSTYLE) & WS_EX_NOACTIVATE) {
     // Don't activate the browser window on creation.
@@ -44,7 +43,7 @@ void BrowserWindowStdWin::GetPopupConfig(CefWindowHandle temp_handle,
   CEF_REQUIRE_UI_THREAD();
 
   // The window will be properly sized after the browser is created.
-  windowInfo.SetAsChild(temp_handle, RECT());
+  windowInfo.SetAsChild(temp_handle, CefRect());
 
   // Don't activate the hidden browser window on creation.
   windowInfo.ex_style |= WS_EX_NOACTIVATE;

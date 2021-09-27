@@ -48,13 +48,13 @@ void CefBrowserPlatformDelegateNativeLinux::BrowserDestroyed(
 bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   DCHECK(!window_widget_);
 
-  if (window_info_.width == 0)
-    window_info_.width = 800;
-  if (window_info_.height == 0)
-    window_info_.height = 600;
+  if (window_info_.bounds.width == 0)
+    window_info_.bounds.width = 800;
+  if (window_info_.bounds.height == 0)
+    window_info_.bounds.height = 600;
 
-  gfx::Rect rect(window_info_.x, window_info_.y, window_info_.width,
-                 window_info_.height);
+  gfx::Rect rect(window_info_.bounds.x, window_info_.bounds.y,
+                 window_info_.bounds.width, window_info_.bounds.height);
 
 #if defined(USE_X11)
   DCHECK(!window_x11_);

@@ -148,10 +148,10 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
 
   // Create the new browser window.
   CreateWindowEx(window_info_.ex_style, GetWndClass(), windowName.c_str(),
-                 window_info_.style, window_info_.x, window_info_.y,
-                 window_info_.width, window_info_.height,
-                 window_info_.parent_window, window_info_.menu,
-                 ::GetModuleHandle(NULL), this);
+                 window_info_.style, window_info_.bounds.x,
+                 window_info_.bounds.y, window_info_.bounds.width,
+                 window_info_.bounds.height, window_info_.parent_window,
+                 window_info_.menu, ::GetModuleHandle(NULL), this);
 
   // It's possible for CreateWindowEx to fail if the parent window was
   // destroyed between the call to CreateBrowser and the above one.

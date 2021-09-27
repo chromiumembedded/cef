@@ -166,18 +166,18 @@ bool CefBrowserPlatformDelegateNativeMac::CreateHostWindow() {
 
   NSView* parentView =
       CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(window_info_.parent_view);
-  NSRect contentRect = {{static_cast<CGFloat>(window_info_.x),
-                         static_cast<CGFloat>(window_info_.y)},
-                        {static_cast<CGFloat>(window_info_.width),
-                         static_cast<CGFloat>(window_info_.height)}};
+  NSRect contentRect = {{static_cast<CGFloat>(window_info_.bounds.x),
+                         static_cast<CGFloat>(window_info_.bounds.y)},
+                        {static_cast<CGFloat>(window_info_.bounds.width),
+                         static_cast<CGFloat>(window_info_.bounds.height)}};
   if (parentView == nil) {
     // Create a new window.
     NSRect screen_rect = [[NSScreen mainScreen] visibleFrame];
     NSRect window_rect = {
-        {static_cast<CGFloat>(window_info_.x),
-         screen_rect.size.height - static_cast<CGFloat>(window_info_.y)},
-        {static_cast<CGFloat>(window_info_.width),
-         static_cast<CGFloat>(window_info_.height)}};
+        {static_cast<CGFloat>(window_info_.bounds.x),
+         screen_rect.size.height - static_cast<CGFloat>(window_info_.bounds.y)},
+        {static_cast<CGFloat>(window_info_.bounds.width),
+         static_cast<CGFloat>(window_info_.bounds.height)}};
     if (window_rect.size.width == 0)
       window_rect.size.width = 750;
     if (window_rect.size.height == 0)

@@ -81,10 +81,7 @@ struct CefWindowInfoTraits {
     cef_string_set(src->window_name.str, src->window_name.length,
                    &target->window_name, copy);
     target->style = src->style;
-    target->x = src->x;
-    target->y = src->y;
-    target->width = src->width;
-    target->height = src->height;
+    target->bounds = src->bounds;
     target->parent_window = src->parent_window;
     target->menu = src->menu;
     target->windowless_rendering_enabled = src->windowless_rendering_enabled;
@@ -108,14 +105,11 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
   ///
   // Create the browser as a child window.
   ///
-  void SetAsChild(CefWindowHandle parent, RECT windowRect) {
+  void SetAsChild(CefWindowHandle parent, const CefRect& bounds) {
     style =
         WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_TABSTOP | WS_VISIBLE;
     parent_window = parent;
-    x = windowRect.left;
-    y = windowRect.top;
-    width = windowRect.right - windowRect.left;
-    height = windowRect.bottom - windowRect.top;
+    this->bounds = bounds;
   }
 
   ///
@@ -125,10 +119,10 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
     style =
         WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE;
     parent_window = parent;
-    x = CW_USEDEFAULT;
-    y = CW_USEDEFAULT;
-    width = CW_USEDEFAULT;
-    height = CW_USEDEFAULT;
+    bounds.x = CW_USEDEFAULT;
+    bounds.y = CW_USEDEFAULT;
+    bounds.width = CW_USEDEFAULT;
+    bounds.height = CW_USEDEFAULT;
 
     cef_string_copy(windowName.c_str(), windowName.length(), &window_name);
   }

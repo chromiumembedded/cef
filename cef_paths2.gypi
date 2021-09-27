@@ -56,6 +56,7 @@
       'include/internal/cef_time.h',
       'include/internal/cef_trace_event_internal.h',
       'include/internal/cef_types.h',
+      'include/internal/cef_types_geometry.h',
     ],
     'includes_capi': [
       'include/capi/cef_base_capi.h',
