@@ -771,13 +771,16 @@ bool ClientHandler::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
 bool ClientHandler::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
                                    const CefString& origin_url,
                                    int64 new_size,
-                                   CefRefPtr<CefRequestCallback> callback) {
+                                   CefRefPtr<CefCallback> callback) {
   CEF_REQUIRE_IO_THREAD();
 
   static const int64 max_size = 1024 * 1024 * 20;  // 20mb.
 
   // Grant the quota request if the size is reasonable.
-  callback->Continue(new_size <= max_size);
+  if (new_size <= max_size)
+    callback->Continue();
+  else
+    callback->Cancel();
   return true;
 }
 
@@ -785,13 +788,13 @@ bool ClientHandler::OnCertificateError(CefRefPtr<CefBrowser> browser,
                                        ErrorCode cert_error,
                                        const CefString& request_url,
                                        CefRefPtr<CefSSLInfo> ssl_info,
-                                       CefRefPtr<CefRequestCallback> callback) {
+                                       CefRefPtr<CefCallback> callback) {
   CEF_REQUIRE_UI_THREAD();
 
   if (cert_error == ERR_CERT_AUTHORITY_INVALID &&
       request_url.ToString().find("https://www.magpcss.org/") == 0U) {
     // Allow the CEF Forum to load. It has a self-signed certificate.
-    callback->Continue(true);
+    callback->Continue();
     return true;
   }
 
@@ -887,7 +890,7 @@ cef_return_value_t ClientHandler::OnBeforeResourceLoad(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request,
-    CefRefPtr<CefRequestCallback> callback) {
+    CefRefPtr<CefCallback> callback) {
   CEF_REQUIRE_IO_THREAD();
 
   return resource_manager_->OnBeforeResourceLoad(browser, frame, request,

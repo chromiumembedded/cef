@@ -9,13 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a53f4f53f8063044f5c82870f2cef1ef89a91d83$
+// $hash=f2ef36943d3cb292573201d2b15b4406d9aaeab4$
 //
 
 #include "libcef_dll/ctocpp/resource_request_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include "libcef_dll/cpptoc/callback_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
-#include "libcef_dll/cpptoc/request_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/response_cpptoc.h"
 #include "libcef_dll/ctocpp/cookie_access_filter_ctocpp.h"
@@ -25,10 +25,11 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefCookieAccessFilter> CefResourceRequestHandlerCToCpp::
-    GetCookieAccessFilter(CefRefPtr<CefBrowser> browser,
-                          CefRefPtr<CefFrame> frame,
-                          CefRefPtr<CefRequest> request) {
+CefRefPtr<CefCookieAccessFilter>
+CefResourceRequestHandlerCToCpp::GetCookieAccessFilter(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request) {
   cef_resource_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_cookie_access_filter))
     return nullptr;
@@ -52,11 +53,11 @@ CefRefPtr<CefCookieAccessFilter> CefResourceRequestHandlerCToCpp::
 
 NO_SANITIZE("cfi-icall")
 CefResourceRequestHandler::ReturnValue
-    CefResourceRequestHandlerCToCpp::OnBeforeResourceLoad(
-        CefRefPtr<CefBrowser> browser,
-        CefRefPtr<CefFrame> frame,
-        CefRefPtr<CefRequest> request,
-        CefRefPtr<CefRequestCallback> callback) {
+CefResourceRequestHandlerCToCpp::OnBeforeResourceLoad(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request,
+    CefRefPtr<CefCallback> callback) {
   cef_resource_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_before_resource_load))
     return RV_CONTINUE;
@@ -76,18 +77,18 @@ CefResourceRequestHandler::ReturnValue
   // Execute
   cef_return_value_t _retval = _struct->on_before_resource_load(
       _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
-      CefRequestCppToC::Wrap(request),
-      CefRequestCallbackCppToC::Wrap(callback));
+      CefRequestCppToC::Wrap(request), CefCallbackCppToC::Wrap(callback));
 
   // Return type: simple
   return _retval;
 }
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefResourceHandler> CefResourceRequestHandlerCToCpp::
-    GetResourceHandler(CefRefPtr<CefBrowser> browser,
-                       CefRefPtr<CefFrame> frame,
-                       CefRefPtr<CefRequest> request) {
+CefRefPtr<CefResourceHandler>
+CefResourceRequestHandlerCToCpp::GetResourceHandler(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request) {
   cef_resource_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_resource_handler))
     return nullptr;
@@ -171,11 +172,12 @@ bool CefResourceRequestHandlerCToCpp::OnResourceResponse(
 }
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefResponseFilter> CefResourceRequestHandlerCToCpp::
-    GetResourceResponseFilter(CefRefPtr<CefBrowser> browser,
-                              CefRefPtr<CefFrame> frame,
-                              CefRefPtr<CefRequest> request,
-                              CefRefPtr<CefResponse> response) {
+CefRefPtr<CefResponseFilter>
+CefResourceRequestHandlerCToCpp::GetResourceResponseFilter(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request,
+    CefRefPtr<CefResponse> response) {
   cef_resource_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_resource_response_filter))
     return nullptr;

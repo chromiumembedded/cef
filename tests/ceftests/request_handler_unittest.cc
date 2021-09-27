@@ -97,7 +97,7 @@ class NetNotifyTestHandler : public TestHandler {
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
-      CefRefPtr<CefRequestCallback> callback) override {
+      CefRefPtr<CefCallback> callback) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     const std::string& url = request->GetURL();

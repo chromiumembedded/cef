@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=216bf0511bdceca67cdbdcf30f8316db2d00e276$
+# $hash=42b9ae0a0ee20489699d69dcdbcbf8ad3265f821$
 #
 
 {
@@ -62,7 +62,6 @@
       'include/cef_render_handler.h',
       'include/cef_render_process_handler.h',
       'include/cef_request.h',
-      'include/cef_request_callback.h',
       'include/cef_request_context.h',
       'include/cef_request_context_handler.h',
       'include/cef_request_handler.h',
@@ -162,7 +161,6 @@
       'include/capi/cef_render_handler_capi.h',
       'include/capi/cef_render_process_handler_capi.h',
       'include/capi/cef_request_capi.h',
-      'include/capi/cef_request_callback_capi.h',
       'include/capi/cef_request_context_capi.h',
       'include/capi/cef_request_context_handler_capi.h',
       'include/capi/cef_request_handler_capi.h',
@@ -388,8 +386,6 @@
       'libcef_dll/ctocpp/render_process_handler_ctocpp.h',
       'libcef_dll/cpptoc/request_cpptoc.cc',
       'libcef_dll/cpptoc/request_cpptoc.h',
-      'libcef_dll/cpptoc/request_callback_cpptoc.cc',
-      'libcef_dll/cpptoc/request_callback_cpptoc.h',
       'libcef_dll/cpptoc/request_context_cpptoc.cc',
       'libcef_dll/cpptoc/request_context_cpptoc.h',
       'libcef_dll/ctocpp/request_context_handler_ctocpp.cc',
@@ -700,8 +696,6 @@
       'libcef_dll/cpptoc/render_process_handler_cpptoc.h',
       'libcef_dll/ctocpp/request_ctocpp.cc',
       'libcef_dll/ctocpp/request_ctocpp.h',
-      'libcef_dll/ctocpp/request_callback_ctocpp.cc',
-      'libcef_dll/ctocpp/request_callback_ctocpp.h',
       'libcef_dll/ctocpp/request_context_ctocpp.cc',
       'libcef_dll/ctocpp/request_context_ctocpp.h',
       'libcef_dll/cpptoc/request_context_handler_cpptoc.cc',

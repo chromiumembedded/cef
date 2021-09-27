@@ -41,7 +41,7 @@ namespace {
 const int kLoadNoCookiesFlags =
     net::LOAD_DO_NOT_SEND_COOKIES | net::LOAD_DO_NOT_SAVE_COOKIES;
 
-class RequestCallbackWrapper : public CefRequestCallback {
+class RequestCallbackWrapper : public CefCallback {
  public:
   using Callback = base::OnceCallback<void(bool /* allow */)>;
   explicit RequestCallbackWrapper(Callback callback)
@@ -56,11 +56,16 @@ class RequestCallbackWrapper : public CefRequestCallback {
     }
   }
 
-  void Continue(bool allow) override {
+  void Continue() override { ContinueNow(true); }
+
+  void Cancel() override { ContinueNow(false); }
+
+ private:
+  void ContinueNow(bool allow) {
     if (!work_thread_task_runner_->RunsTasksInCurrentSequence()) {
       work_thread_task_runner_->PostTask(
           FROM_HERE,
-          base::BindOnce(&RequestCallbackWrapper::Continue, this, allow));
+          base::BindOnce(&RequestCallbackWrapper::ContinueNow, this, allow));
       return;
     }
     if (!callback_.is_null()) {
@@ -68,9 +73,6 @@ class RequestCallbackWrapper : public CefRequestCallback {
     }
   }
 
-  void Cancel() override { Continue(false); }
-
- private:
   Callback callback_;
 
   scoped_refptr<base::SequencedTaskRunner> work_thread_task_runner_;
@@ -584,8 +586,13 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
           init_state_->browser_, init_state_->frame_,
           state->pending_request_.get(), callbackPtr.get());
       if (retval != RV_CONTINUE_ASYNC) {
-        // Continue or cancel the request immediately.
-        callbackPtr->Continue(retval == RV_CONTINUE);
+        if (retval == RV_CONTINUE) {
+          // Continue the request immediately.
+          callbackPtr->Continue();
+        } else {
+          // Cancel the request immediately.
+          callbackPtr->Cancel();
+        }
       }
     } else {
       // The scheme factory may choose to handle it.

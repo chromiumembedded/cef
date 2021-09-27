@@ -324,7 +324,7 @@ struct CefResourceManager::ProviderEntry {
 CefResourceManager::RequestState::~RequestState() {
   // Always execute the callback.
   if (callback_.get())
-    callback_->Continue(true);
+    callback_->Continue();
 }
 
 // CefResourceManager::Request implementation.
@@ -558,7 +558,7 @@ cef_return_value_t CefResourceManager::OnBeforeResourceLoad(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request,
-    CefRefPtr<CefRequestCallback> callback) {
+    CefRefPtr<CefCallback> callback) {
   CEF_REQUIRE_IO_THREAD();
 
   // Find the first provider that is not pending deletion.
