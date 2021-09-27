@@ -16,8 +16,10 @@
 #include "libcef/browser/native/window_delegate_view.h"
 #include "libcef/browser/thread_util.h"
 
+#include "base/base_paths_win.h"
 #include "base/files/file_util.h"
 #include "base/memory/ref_counted_memory.h"
+#include "base/path_service.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/win/registry.h"
 #include "base/win/win_util.h"
@@ -60,12 +62,6 @@ void WriteTempFileAndView(scoped_refptr<base::RefCountedString> str) {
   ui::win::OpenFileViaShell(tmp_file);
 }
 
-// According to Mozilla in uriloader/exthandler/win/nsOSHelperAppService.cpp:
-// "Some versions of windows (Win2k before SP3, Win XP before SP1) crash in
-// ShellExecute on long URLs (bug 161357 on bugzilla.mozilla.org). IE 5 and 6
-// support URLS of 2083 chars in length, 2K is safe."
-const int kMaxAddressLengthChars = 2048;
-
 bool HasExternalHandler(const std::string& scheme) {
   base::win::RegKey key;
   const std::wstring registry_path =
@@ -84,17 +80,48 @@ bool HasExternalHandler(const std::string& scheme) {
   return false;
 }
 
+// Match the logic in chrome/browser/platform_util_win.cc
+// OpenExternalOnWorkerThread.
 void ExecuteExternalProtocol(const GURL& url) {
   CEF_REQUIRE_BLOCKING();
 
   if (!HasExternalHandler(url.scheme()))
     return;
 
-  const std::string& address = url.spec();
-  if (address.length() > kMaxAddressLengthChars)
+  // Quote the input scheme to be sure that the command does not have
+  // parameters unexpected by the external program. This url should already
+  // have been escaped.
+  std::string escaped_url = url.spec();
+  escaped_url.insert(0, "\"");
+  escaped_url += "\"";
+
+  // According to Mozilla in uriloader/exthandler/win/nsOSHelperAppService.cpp:
+  // "Some versions of windows (Win2k before SP3, Win XP before SP1) crash in
+  // ShellExecute on long URLs (bug 161357 on bugzilla.mozilla.org). IE 5 and 6
+  // support URLS of 2083 chars in length, 2K is safe."
+  //
+  // It may be possible to increase this. https://crbug.com/727909
+  const size_t kMaxUrlLength = 2048;
+  if (escaped_url.length() > kMaxUrlLength)
     return;
 
-  ShellExecuteA(NULL, "open", address.c_str(), NULL, NULL, SW_SHOWNORMAL);
+  // Specify %windir%\system32 as the CWD so that any new proc spawned does not
+  // inherit this proc's CWD. Without this, uninstalls may be broken by a
+  // long-lived child proc that holds a handle to the browser's version
+  // directory (the browser's CWD). A process's CWD is in the standard list of
+  // directories to search when loading a DLL, and precedes the system directory
+  // when safe DLL search mode is disabled (not the default). Setting the CWD to
+  // the system directory is a nice way to mitigate a potential DLL search order
+  // hijack for processes that don't implement their own mitigation.
+  base::FilePath system_dir;
+  base::PathService::Get(base::DIR_SYSTEM, &system_dir);
+  if (reinterpret_cast<ULONG_PTR>(ShellExecuteA(
+          NULL, "open", escaped_url.c_str(), NULL,
+          system_dir.AsUTF8Unsafe().c_str(), SW_SHOWNORMAL)) <= 32) {
+    // On failure, it may be good to display a message to the user.
+    // https://crbug.com/727913
+    return;
+  }
 }
 
 // DPI value for 1x scale factor.
