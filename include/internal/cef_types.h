@@ -604,18 +604,6 @@ typedef struct _cef_browser_settings_t {
   cef_state_t plugins;
 
   ///
-  // Controls whether file URLs will have access to all URLs. Also configurable
-  // using the "allow-universal-access-from-files" command-line switch.
-  ///
-  cef_state_t universal_access_from_file_urls;
-
-  ///
-  // Controls whether file URLs will have access to other file URLs. Also
-  // configurable using the "allow-file-access-from-files" command-line switch.
-  ///
-  cef_state_t file_access_from_file_urls;
-
-  ///
   // Controls whether image URLs will be loaded from the network. A cached image
   // will still be rendered if requested. Also configurable using the
   // "disable-image-loading" command-line switch.

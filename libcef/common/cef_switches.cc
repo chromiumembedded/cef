@@ -48,9 +48,6 @@ const char kDisableJavascriptDomPaste[] = "disable-javascript-dom-paste";
 const char kAllowUniversalAccessFromFileUrls[] =
     "allow-universal-access-from-files";
 
-// Allow access from file URLs.
-const char kAllowFileAccessFromFileUrls[] = "allow-file-access-from-files";
-
 // Disable loading of images from the network. A cached image will still be
 // rendered if requested.
 const char kDisableImageLoading[] = "disable-image-loading";

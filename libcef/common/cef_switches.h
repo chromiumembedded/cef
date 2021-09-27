@@ -29,7 +29,6 @@ extern const char kDisableJavascriptCloseWindows[];
 extern const char kDisableJavascriptAccessClipboard[];
 extern const char kDisableJavascriptDomPaste[];
 extern const char kAllowUniversalAccessFromFileUrls[];
-extern const char kAllowFileAccessFromFileUrls[];
 extern const char kDisableImageLoading[];
 extern const char kImageShrinkStandaloneToFit[];
 extern const char kDisableTextAreaResize[];
