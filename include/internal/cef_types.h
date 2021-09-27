@@ -391,17 +391,6 @@ typedef struct _cef_settings_t {
   int uncaught_exception_stack_size;
 
   ///
-  // Set to true (1) to ignore errors related to invalid SSL certificates.
-  // Enabling this setting can lead to potential security vulnerabilities like
-  // "man in the middle" attacks. Applications that load content from the
-  // internet should not enable this setting. Also configurable using the
-  // "ignore-certificate-errors" command-line switch. Can be overridden for
-  // individual CefRequestContext instances via the
-  // CefRequestContextSettings.ignore_certificate_errors value.
-  ///
-  int ignore_certificate_errors;
-
-  ///
   // Background color used for the browser before a document is loaded and when
   // no document color is specified. The alpha component must be either fully
   // opaque (0xFF) or fully transparent (0x00). If the alpha component is fully
@@ -485,16 +474,6 @@ typedef struct _cef_request_context_settings_t {
   // |cache_path| is empty or if it matches the CefSettings.cache_path value.
   ///
   int persist_user_preferences;
-
-  ///
-  // Set to true (1) to ignore errors related to invalid SSL certificates.
-  // Enabling this setting can lead to potential security vulnerabilities like
-  // "man in the middle" attacks. Applications that load content from the
-  // internet should not enable this setting. Can be set globally using the
-  // CefSettings.ignore_certificate_errors value. This value will be ignored if
-  // |cache_path| matches the CefSettings.cache_path value.
-  ///
-  int ignore_certificate_errors;
 
   ///
   // Comma delimited ordered list of language codes without any whitespace that
