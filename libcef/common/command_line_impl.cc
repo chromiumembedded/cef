@@ -6,6 +6,7 @@
 
 #include "base/files/file_path.h"
 #include "base/logging.h"
+#include "base/strings/string_util.h"
 
 CefCommandLineImpl::CefCommandLineImpl(base::CommandLine* value,
                                        bool will_delete,
@@ -90,12 +91,13 @@ bool CefCommandLineImpl::HasSwitches() {
 
 bool CefCommandLineImpl::HasSwitch(const CefString& name) {
   CEF_VALUE_VERIFY_RETURN(false, false);
-  return const_value().HasSwitch(name.ToString());
+  return const_value().HasSwitch(base::ToLowerASCII(name.ToString()));
 }
 
 CefString CefCommandLineImpl::GetSwitchValue(const CefString& name) {
   CEF_VALUE_VERIFY_RETURN(false, CefString());
-  return const_value().GetSwitchValueNative(name.ToString());
+  return const_value().GetSwitchValueNative(
+      base::ToLowerASCII(name.ToString()));
 }
 
 void CefCommandLineImpl::GetSwitches(SwitchMap& switches) {
