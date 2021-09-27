@@ -434,9 +434,6 @@ void CefContext::PopulateGlobalRequestContextSettings(
   settings->persist_user_preferences =
       settings_.persist_user_preferences ||
       command_line->HasSwitch(switches::kPersistUserPreferences);
-  settings->ignore_certificate_errors =
-      settings_.ignore_certificate_errors ||
-      command_line->HasSwitch(switches::kIgnoreCertificateErrors);
 
   CefString(&settings->cookieable_schemes_list) =
       CefString(&settings_.cookieable_schemes_list);
