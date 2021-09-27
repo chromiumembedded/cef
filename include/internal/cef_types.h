@@ -611,7 +611,7 @@ typedef struct _cef_browser_settings_t {
 
   ///
   // Controls whether file URLs will have access to other file URLs. Also
-  // configurable using the "allow-access-from-files" command-line switch.
+  // configurable using the "allow-file-access-from-files" command-line switch.
   ///
   cef_state_t file_access_from_file_urls;
 
@@ -652,12 +652,6 @@ typedef struct _cef_browser_settings_t {
   // "disable-databases" command-line switch.
   ///
   cef_state_t databases;
-
-  ///
-  // Controls whether the application cache can be used. Also configurable using
-  // the "disable-application-cache" command-line switch.
-  ///
-  cef_state_t application_cache;
 
   ///
   // Controls whether WebGL can be used. Note that WebGL requires hardware
