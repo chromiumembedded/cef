@@ -113,7 +113,7 @@ index b6c4eee4c9d1a..c8158ff856167 100644
  }
  
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index c4d9b563a2bc1..13de953c75ad2 100644
+index 126faf0da6c27..b9acfa7144650 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
 @@ -119,7 +119,7 @@ class ProfileManager : public Profile::Delegate {

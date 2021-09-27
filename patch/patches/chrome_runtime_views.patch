@@ -120,7 +120,7 @@ index e06cd6c3d83db..1f7da7cf79979 100644
  
    // Initialize the frame (creates the underlying native window).
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 63922bed46718..e8dca023a8150 100644
+index e7081ab3ec3e8..eb533496ef91c 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -284,11 +284,10 @@ using content::WebContents;
@@ -188,7 +188,7 @@ index 63922bed46718..e8dca023a8150 100644
  
    contents_separator_ =
        top_container_->AddChildView(std::make_unique<ContentsSeparator>());
-@@ -1465,6 +1481,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
+@@ -1472,6 +1488,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
    if (immersive_mode_controller_->IsEnabled())
      return false;
  
@@ -197,7 +197,7 @@ index 63922bed46718..e8dca023a8150 100644
    return frame_->GetFrameView()->ShouldHideTopUIForFullscreen();
  }
  
-@@ -2538,7 +2556,8 @@ BrowserView::GetNativeViewHostsForTopControlsSlide() const {
+@@ -2545,7 +2563,8 @@ BrowserView::GetNativeViewHostsForTopControlsSlide() const {
  }
  
  void BrowserView::ReparentTopContainerForEndOfImmersive() {
@@ -207,7 +207,7 @@ index 63922bed46718..e8dca023a8150 100644
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -2990,8 +3009,10 @@ void BrowserView::Layout() {
+@@ -2997,8 +3016,10 @@ void BrowserView::Layout() {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -220,7 +220,7 @@ index 63922bed46718..e8dca023a8150 100644
  
    // Some of the situations when the BrowserView is laid out are:
    // - Enter/exit immersive fullscreen mode.
-@@ -3054,6 +3075,11 @@ void BrowserView::AddedToWidget() {
+@@ -3061,6 +3082,11 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->profile());
  #endif
  
@@ -232,7 +232,7 @@ index 63922bed46718..e8dca023a8150 100644
    toolbar_->Init();
  
  #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
-@@ -3089,13 +3115,9 @@ void BrowserView::AddedToWidget() {
+@@ -3096,13 +3122,9 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -368,7 +368,7 @@ index 140c0df49ea46..7d4ac470dcc9a 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index f290b0d5ea521..31ffa7e61e69f 100644
+index aeda031a86169..229b12b48f975 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
 @@ -162,12 +162,13 @@ auto& GetViewCommandMap() {
@@ -397,7 +397,7 @@ index f290b0d5ea521..31ffa7e61e69f 100644
    size_animation_.Reset(1);
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.h chrome/browser/ui/views/toolbar/toolbar_view.h
-index ec77ff5a0611a..0c8d95120d0c5 100644
+index 1da8e4f42dc99..3c86aad64f014 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.h
 +++ chrome/browser/ui/views/toolbar/toolbar_view.h
 @@ -91,7 +91,8 @@ class ToolbarView : public views::AccessiblePaneView,

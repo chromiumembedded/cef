@@ -348,10 +348,10 @@ index 173952d4545d5..2f311b988c380 100644
                                   &mime_type);
    if (!found)
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index 52c02371bf373..3cd441e5d9a0d 100644
+index c0a004136c09c..5fbf7092b07ad 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
-@@ -610,6 +610,8 @@ void RenderThreadImpl::Init() {
+@@ -616,6 +616,8 @@ void RenderThreadImpl::Init() {
        GetContentClient()->renderer()->CreateURLLoaderThrottleProvider(
            blink::URLLoaderThrottleProviderType::kFrame);
  
