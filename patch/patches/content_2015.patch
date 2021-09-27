@@ -188,10 +188,10 @@ index 632ae86c6fd69..55b749ec12421 100644
                            const std::vector<WebPluginInfo>& all_plugins);
  
 diff --git content/browser/renderer_host/render_frame_host_impl.cc content/browser/renderer_host/render_frame_host_impl.cc
-index a0cfdfbe05515..e6230526ab321 100644
+index 3e7b18a7f9ba4..b4ffb4b2a78ac 100644
 --- content/browser/renderer_host/render_frame_host_impl.cc
 +++ content/browser/renderer_host/render_frame_host_impl.cc
-@@ -12074,6 +12074,7 @@ void RenderFrameHostImpl::BindHungDetectorHost(
+@@ -12082,6 +12082,7 @@ void RenderFrameHostImpl::BindHungDetectorHost(
  }
  
  void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
@@ -199,7 +199,7 @@ index a0cfdfbe05515..e6230526ab321 100644
                                          const url::Origin& main_frame_origin,
                                          const std::string& mime_type,
                                          GetPluginInfoCallback callback) {
-@@ -12081,7 +12082,8 @@ void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
+@@ -12089,7 +12090,8 @@ void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
    WebPluginInfo info;
    std::string actual_mime_type;
    bool found = PluginServiceImpl::GetInstance()->GetPluginInfo(
