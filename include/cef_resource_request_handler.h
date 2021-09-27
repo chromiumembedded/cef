@@ -40,9 +40,9 @@
 
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
+#include "include/cef_callback.h"
 #include "include/cef_frame.h"
 #include "include/cef_request.h"
-#include "include/cef_request_callback.h"
 #include "include/cef_resource_handler.h"
 #include "include/cef_response.h"
 #include "include/cef_response_filter.h"
@@ -81,18 +81,17 @@ class CefResourceRequestHandler : public virtual CefBaseRefCounted {
   // requests originating from service workers or CefURLRequest. To redirect or
   // change the resource load optionally modify |request|. Modification of the
   // request URL will be treated as a redirect. Return RV_CONTINUE to continue
-  // the request immediately. Return RV_CONTINUE_ASYNC and call
-  // CefRequestCallback:: Continue() at a later time to continue or cancel the
-  // request asynchronously. Return RV_CANCEL to cancel the request immediately.
+  // the request immediately. Return RV_CONTINUE_ASYNC and call CefCallback
+  // methods at a later time to continue or cancel the request asynchronously.
+  // Return RV_CANCEL to cancel the request immediately.
   //
   ///
   /*--cef(optional_param=browser,optional_param=frame,
           default_retval=RV_CONTINUE)--*/
-  virtual ReturnValue OnBeforeResourceLoad(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request,
-      CefRefPtr<CefRequestCallback> callback) {
+  virtual ReturnValue OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
+                                           CefRefPtr<CefFrame> frame,
+                                           CefRefPtr<CefRequest> request,
+                                           CefRefPtr<CefCallback> callback) {
     return RV_CONTINUE;
   }
 

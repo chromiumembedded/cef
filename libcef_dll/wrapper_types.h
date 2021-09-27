@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e09286ac977f5f06cf356eb8a5e04b48b0836523$
+// $hash=850ad8962e4c70f0c244fe79b96b8189ae9c3aa8$
 //
 
 #ifndef CEF_LIBCEF_DLL_WRAPPER_TYPES_H_
@@ -106,7 +106,6 @@ enum CefWrapperType {
   WT_RENDER_HANDLER,
   WT_RENDER_PROCESS_HANDLER,
   WT_REQUEST,
-  WT_REQUEST_CALLBACK,
   WT_REQUEST_CONTEXT,
   WT_REQUEST_CONTEXT_HANDLER,
   WT_REQUEST_HANDLER,

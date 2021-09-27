@@ -2080,7 +2080,7 @@ class CookieRestartTestHandler : public RoutingTestHandler,
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
-      CefRefPtr<CefRequestCallback> callback) override {
+      CefRefPtr<CefCallback> callback) override {
     EXPECT_IO_THREAD();
     before_resource_load_ct_++;
 

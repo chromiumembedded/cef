@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=1d8b3f540a8305ce1738c5fe7c716434062c67b0$
+// $hash=83ff671e8a4db001029be8a02a414333fe4354af$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_HANDLER_CAPI_H_
@@ -43,8 +43,8 @@
 #include "include/capi/cef_auth_callback_capi.h"
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_browser_capi.h"
+#include "include/capi/cef_callback_capi.h"
 #include "include/capi/cef_frame_capi.h"
-#include "include/capi/cef_request_callback_capi.h"
 #include "include/capi/cef_request_capi.h"
 #include "include/capi/cef_resource_request_handler_capi.h"
 #include "include/capi/cef_ssl_info_capi.h"
@@ -180,31 +180,30 @@ typedef struct _cef_request_handler_t {
   // size via the webkitStorageInfo.requestQuota function. |origin_url| is the
   // origin of the page making the request. |new_size| is the requested quota
   // size in bytes. Return true (1) to continue the request and call
-  // cef_request_callback_t::cont() either in this function or at a later time
-  // to grant or deny the request. Return false (0) to cancel the request
+  // cef_callback_t functions either in this function or at a later time to
+  // grant or deny the request. Return false (0) to cancel the request
   // immediately.
   ///
   int(CEF_CALLBACK* on_quota_request)(struct _cef_request_handler_t* self,
                                       struct _cef_browser_t* browser,
                                       const cef_string_t* origin_url,
                                       int64 new_size,
-                                      struct _cef_request_callback_t* callback);
+                                      struct _cef_callback_t* callback);
 
   ///
   // Called on the UI thread to handle requests for URLs with an invalid SSL
-  // certificate. Return true (1) and call cef_request_callback_t::cont() either
-  // in this function or at a later time to continue or cancel the request.
-  // Return false (0) to cancel the request immediately. If
+  // certificate. Return true (1) and call cef_callback_t functions either in
+  // this function or at a later time to continue or cancel the request. Return
+  // false (0) to cancel the request immediately. If
   // CefSettings.ignore_certificate_errors is set all invalid certificates will
   // be accepted without calling this function.
   ///
-  int(CEF_CALLBACK* on_certificate_error)(
-      struct _cef_request_handler_t* self,
-      struct _cef_browser_t* browser,
-      cef_errorcode_t cert_error,
-      const cef_string_t* request_url,
-      struct _cef_sslinfo_t* ssl_info,
-      struct _cef_request_callback_t* callback);
+  int(CEF_CALLBACK* on_certificate_error)(struct _cef_request_handler_t* self,
+                                          struct _cef_browser_t* browser,
+                                          cef_errorcode_t cert_error,
+                                          const cef_string_t* request_url,
+                                          struct _cef_sslinfo_t* ssl_info,
+                                          struct _cef_callback_t* callback);
 
   ///
   // Called on the UI thread when a client certificate is being requested for

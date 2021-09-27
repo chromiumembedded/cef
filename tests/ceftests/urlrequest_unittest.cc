@@ -2978,11 +2978,10 @@ class RequestTestHandler : public TestHandler {
     }
   }
 
-  ReturnValue OnBeforeResourceLoad(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request,
-      CefRefPtr<CefRequestCallback> callback) override {
+  ReturnValue OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
+                                   CefRefPtr<CefFrame> frame,
+                                   CefRefPtr<CefRequest> request,
+                                   CefRefPtr<CefCallback> callback) override {
     if (test_running_ && test_frame_method_) {
       EXPECT_TRUE(frame);
       EXPECT_EQ(test_frame_->GetIdentifier(), frame->GetIdentifier());

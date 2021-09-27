@@ -612,7 +612,7 @@ class BasicResponseTest : public TestHandler {
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
-      CefRefPtr<CefRequestCallback> callback) override {
+      CefRefPtr<CefCallback> callback) override {
     EXPECT_IO_THREAD();
     if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
       // Ignore favicon requests.
@@ -1382,7 +1382,7 @@ class BasicResponseTest : public TestHandler {
   int resource_handler_destroyed_ct_ = 0;
 
   // Used with INCOMPLETE_BEFORE_RESOURCE_LOAD.
-  CefRefPtr<CefRequestCallback> incomplete_callback_;
+  CefRefPtr<CefCallback> incomplete_callback_;
 
   DISALLOW_COPY_AND_ASSIGN(BasicResponseTest);
   IMPLEMENT_REFCOUNTING(BasicResponseTest);
@@ -1658,7 +1658,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
-      CefRefPtr<CefRequestCallback> callback) override {
+      CefRefPtr<CefCallback> callback) override {
     EXPECT_IO_THREAD();
 
     if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
@@ -2578,7 +2578,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
   int resource_handler_destroyed_ct_ = 0;
 
   // Used with INCOMPLETE_BEFORE_RESOURCE_LOAD.
-  CefRefPtr<CefRequestCallback> incomplete_callback_;
+  CefRefPtr<CefCallback> incomplete_callback_;
 
   DISALLOW_COPY_AND_ASSIGN(SubresourceResponseTest);
   IMPLEMENT_REFCOUNTING(SubresourceResponseTest);
@@ -3040,7 +3040,7 @@ class RedirectResponseTest : public TestHandler {
         CefRefPtr<CefBrowser> browser,
         CefRefPtr<CefFrame> frame,
         CefRefPtr<CefRequest> request,
-        CefRefPtr<CefRequestCallback> callback) override {
+        CefRefPtr<CefCallback> callback) override {
       EXPECT_IO_THREAD();
 
       if (IsChromeRuntimeEnabled() &&
@@ -3272,7 +3272,7 @@ class BeforeResourceLoadTest : public TestHandler {
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
-      CefRefPtr<CefRequestCallback> callback) override {
+      CefRefPtr<CefCallback> callback) override {
     EXPECT_IO_THREAD();
 
     if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
@@ -3301,11 +3301,14 @@ class BeforeResourceLoadTest : public TestHandler {
       if (test_mode_ == CANCEL_NAV) {
         // Cancel the request by navigating to a new URL.
         browser->GetMainFrame()->LoadURL(kResourceTestHtml2);
+      } else if (test_mode_ == CONTINUE_ASYNC) {
+        // Continue asynchronously.
+        CefPostTask(TID_UI,
+                    base::BindOnce(&CefCallback::Continue, callback.get()));
       } else {
-        // Continue or cancel asynchronously.
-        CefPostTask(TID_UI, base::BindOnce(&CefRequestCallback::Continue,
-                                           callback.get(),
-                                           test_mode_ == CONTINUE_ASYNC));
+        // Cancel asynchronously.
+        CefPostTask(TID_UI,
+                    base::BindOnce(&CefCallback::Cancel, callback.get()));
       }
       return RV_CONTINUE_ASYNC;
     }

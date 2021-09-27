@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=aec52d0efc8407495fe1fc4821616673da7ed17a$
+// $hash=7276396521b8b61cf856050244f558baa3a52e04$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESOURCE_REQUEST_HANDLER_CAPI_H_
@@ -42,8 +42,8 @@
 
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_browser_capi.h"
+#include "include/capi/cef_callback_capi.h"
 #include "include/capi/cef_frame_capi.h"
-#include "include/capi/cef_request_callback_capi.h"
 #include "include/capi/cef_request_capi.h"
 #include "include/capi/cef_resource_handler_capi.h"
 #include "include/capi/cef_response_capi.h"
@@ -87,8 +87,8 @@ typedef struct _cef_resource_request_handler_t {
   // or change the resource load optionally modify |request|. Modification of
   // the request URL will be treated as a redirect. Return RV_CONTINUE to
   // continue the request immediately. Return RV_CONTINUE_ASYNC and call
-  // cef_request_callback_t:: cont() at a later time to continue or cancel the
-  // request asynchronously. Return RV_CANCEL to cancel the request immediately.
+  // cef_callback_t functions at a later time to continue or cancel the request
+  // asynchronously. Return RV_CANCEL to cancel the request immediately.
   //
   ///
   cef_return_value_t(CEF_CALLBACK* on_before_resource_load)(
@@ -96,7 +96,7 @@ typedef struct _cef_resource_request_handler_t {
       struct _cef_browser_t* browser,
       struct _cef_frame_t* frame,
       struct _cef_request_t* request,
-      struct _cef_request_callback_t* callback);
+      struct _cef_callback_t* callback);
 
   ///
   // Called on the IO thread before a resource is loaded. The |browser| and

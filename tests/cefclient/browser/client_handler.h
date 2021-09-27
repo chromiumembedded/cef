@@ -249,12 +249,12 @@ class ClientHandler : public CefClient,
   bool OnQuotaRequest(CefRefPtr<CefBrowser> browser,
                       const CefString& origin_url,
                       int64 new_size,
-                      CefRefPtr<CefRequestCallback> callback) override;
+                      CefRefPtr<CefCallback> callback) override;
   bool OnCertificateError(CefRefPtr<CefBrowser> browser,
                           ErrorCode cert_error,
                           const CefString& request_url,
                           CefRefPtr<CefSSLInfo> ssl_info,
-                          CefRefPtr<CefRequestCallback> callback) override;
+                          CefRefPtr<CefCallback> callback) override;
   bool OnSelectClientCertificate(
       CefRefPtr<CefBrowser> browser,
       bool isProxy,
@@ -271,7 +271,7 @@ class ClientHandler : public CefClient,
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
-      CefRefPtr<CefRequestCallback> callback) override;
+      CefRefPtr<CefCallback> callback) override;
   CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,

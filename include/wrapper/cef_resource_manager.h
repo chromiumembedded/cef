@@ -292,11 +292,10 @@ class CefResourceManager
   // Called from CefRequestHandler::OnBeforeResourceLoad on the browser process
   // IO thread.
   ///
-  cef_return_value_t OnBeforeResourceLoad(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request,
-      CefRefPtr<CefRequestCallback> callback);
+  cef_return_value_t OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
+                                          CefRefPtr<CefFrame> frame,
+                                          CefRefPtr<CefRequest> request,
+                                          CefRefPtr<CefCallback> callback);
 
   ///
   // Called from CefRequestHandler::GetResourceHandler on the browser process
@@ -327,7 +326,7 @@ class CefResourceManager
     base::WeakPtr<CefResourceManager> manager_;
 
     // Callback to execute once request handling is complete.
-    CefRefPtr<CefRequestCallback> callback_;
+    CefRefPtr<CefCallback> callback_;
 
     // Position of the currently associated ProviderEntry in the |providers_|
     // list.

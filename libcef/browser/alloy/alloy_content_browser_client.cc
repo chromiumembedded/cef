@@ -162,7 +162,7 @@
 
 namespace {
 
-class CefQuotaCallbackImpl : public CefRequestCallback {
+class CefQuotaCallbackImpl : public CefCallback {
  public:
   using CallbackType = content::QuotaPermissionContext::PermissionCallback;
 
@@ -181,22 +181,24 @@ class CefQuotaCallbackImpl : public CefRequestCallback {
     }
   }
 
-  void Continue(bool allow) override {
+  void Continue() override { ContinueNow(true); }
+
+  void Cancel() override { ContinueNow(false); }
+
+  CallbackType Disconnect() WARN_UNUSED_RESULT { return std::move(callback_); }
+
+ private:
+  void ContinueNow(bool allow) {
     if (CEF_CURRENTLY_ON_IOT()) {
       if (!callback_.is_null()) {
         RunNow(std::move(callback_), allow);
       }
     } else {
-      CEF_POST_TASK(CEF_IOT, base::BindOnce(&CefQuotaCallbackImpl::Continue,
+      CEF_POST_TASK(CEF_IOT, base::BindOnce(&CefQuotaCallbackImpl::ContinueNow,
                                             this, allow));
     }
   }
 
-  void Cancel() override { Continue(false); }
-
-  CallbackType Disconnect() WARN_UNUSED_RESULT { return std::move(callback_); }
-
- private:
   static void RunNow(CallbackType callback, bool allow) {
     CEF_REQUIRE_IOT();
     std::move(callback).Run(
@@ -211,7 +213,7 @@ class CefQuotaCallbackImpl : public CefRequestCallback {
   DISALLOW_COPY_AND_ASSIGN(CefQuotaCallbackImpl);
 };
 
-class CefAllowCertificateErrorCallbackImpl : public CefRequestCallback {
+class CefAllowCertificateErrorCallbackImpl : public CefCallback {
  public:
   typedef base::OnceCallback<void(content::CertificateRequestResultType)>
       CallbackType;
@@ -233,7 +235,14 @@ class CefAllowCertificateErrorCallbackImpl : public CefRequestCallback {
     }
   }
 
-  void Continue(bool allow) override {
+  void Continue() override { ContinueNow(true); }
+
+  void Cancel() override { ContinueNow(false); }
+
+  CallbackType Disconnect() WARN_UNUSED_RESULT { return std::move(callback_); }
+
+ private:
+  void ContinueNow(bool allow) {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (!callback_.is_null()) {
         RunNow(std::move(callback_), allow);
@@ -241,16 +250,11 @@ class CefAllowCertificateErrorCallbackImpl : public CefRequestCallback {
     } else {
       CEF_POST_TASK(
           CEF_UIT,
-          base::BindOnce(&CefAllowCertificateErrorCallbackImpl::Continue, this,
-                         allow));
+          base::BindOnce(&CefAllowCertificateErrorCallbackImpl::ContinueNow,
+                         this, allow));
     }
   }
 
-  void Cancel() override { Continue(false); }
-
-  CallbackType Disconnect() WARN_UNUSED_RESULT { return std::move(callback_); }
-
- private:
   static void RunNow(CallbackType callback, bool allow) {
     CEF_REQUIRE_UIT();
     std::move(callback).Run(
