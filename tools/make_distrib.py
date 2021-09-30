@@ -852,6 +852,9 @@ if platform == 'windows':
       {'path': 'libGLESv2.dll'},
       {'path': 'snapshot_blob.bin', 'conditional': True},
       {'path': 'v8_context_snapshot.bin', 'conditional': True},
+      {'path': 'vk_swiftshader.dll'},
+      {'path': 'vk_swiftshader_icd.json'},
+      {'path': 'vulkan-1.dll'},
       {'path': 'swiftshader\\libEGL.dll'},
       {'path': 'swiftshader\\libGLESv2.dll'},
   ]
@@ -1167,8 +1170,11 @@ elif platform == 'linux':
       {'path': libcef_so},
       {'path': 'libEGL.so'},
       {'path': 'libGLESv2.so'},
+      {'path': 'libvk_swiftshader.so'},
+      {'path': 'libvulkan.so.1'},
       {'path': 'snapshot_blob.bin', 'conditional': True},
       {'path': 'v8_context_snapshot.bin', 'conditional': True},
+      {'path': 'vk_swiftshader_icd.json'},
       {'path': 'swiftshader/libEGL.so'},
       {'path': 'swiftshader/libGLESv2.so'},
   ]

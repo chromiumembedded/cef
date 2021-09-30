@@ -15,10 +15,12 @@ cefclient.app/
       Chromium Embedded Framework.framework/
         Chromium Embedded Framework <= main application library
         Libraries/
-          libEGL.dylib <= angle support libraries
+          libEGL.dylib <= ANGLE support libraries
           libGLESv2.dylib <=^
-          libswiftshader_libEGL.dylib <= swiftshader support libraries
+          libswiftshader_libEGL.dylib <= SwiftShader support libraries
           libswiftshader_libGLESv2.dylib <=^
+          libvk_swiftshader.dylib <= SwANGLE support libraries
+          vk_swiftshader_icd.json <=^
         Resources/
           chrome_100_percent.pak <= non-localized resources and strings
           chrome_200_percent.pak <=^
@@ -91,14 +93,23 @@ run but any related functionality may become broken or disabled.
     These files contain non-localized resources used by CEF, Chromium and Blink.
     Without these files arbitrary Web components may display incorrectly.
 
-* Angle support.
+* ANGLE support.
   * Chromium Embedded Framework.framework/Libraries/libEGL.dylib
   * Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib
-  Without these files HTML5 accelerated content like 2D canvas, 3D CSS and WebGL
-  will not function.
+  Support for rendering of HTML5 content like 2D canvas, 3D CSS and WebGL.
+  Without these files the aforementioned capabilities may fail.
 
-* SwiftShader support.
+* SwANGLE support.
+  * Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib
+  * Chromium Embedded Framework.framework/Libraries/vk_swiftshader_icd.json
+  Support for software rendering of HTML5 content like 2D canvas, 3D CSS and
+  WebGL using SwiftShader's Vulkan library as ANGLE's Vulkan backend. Without
+  these files the aforementioned capabilities may fail when GPU acceleration is
+  disabled or unavailable.
+
+* SwiftShader support
   * Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib
   * Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib
-  Without these files WebGL will not function in software-only mode when the GPU
-  is not available or disabled.
+  Deprecated support for software rendering using SwiftShader's GL libraries.
+  Used as an alternative to SwANGLE when the `--use-gl=swiftshader-webgl`
+  command-line flag is specified.

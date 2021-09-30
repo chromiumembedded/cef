@@ -47,14 +47,24 @@ run but any related functionality may become broken or disabled.
     These files contain non-localized resources used by CEF, Chromium and Blink.
     Without these files arbitrary Web components may display incorrectly.
 
-* Angle support.
+* ANGLE support.
   * libEGL.so
   * libGLESv2.so
-  Without these files HTML5 accelerated content like 2D canvas, 3D CSS and WebGL
-  will not function.
+  Support for rendering of HTML5 content like 2D canvas, 3D CSS and WebGL.
+  Without these files the aforementioned capabilities may fail.
 
-* SwiftShader support.
+* SwANGLE support.
+  * libvk_swiftshader.so
+  * libvulkan.so.1
+  * vk_swiftshader_icd.json
+  Support for software rendering of HTML5 content like 2D canvas, 3D CSS and
+  WebGL using SwiftShader's Vulkan library as ANGLE's Vulkan backend. Without
+  these files the aforementioned capabilities may fail when GPU acceleration is
+  disabled or unavailable.
+
+* SwiftShader support
   * swiftshader/libEGL.so
   * swiftshader/libGLESv2.so
-  Without these files WebGL will not function in software-only mode when the GPU
-  is not available or disabled.
+  Deprecated support for software rendering using SwiftShader's GL libraries.
+  Used as an alternative to SwANGLE when the `--use-gl=swiftshader-webgl`
+  command-line flag is specified.
