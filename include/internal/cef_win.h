@@ -105,11 +105,11 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
   ///
   // Create the browser as a child window.
   ///
-  void SetAsChild(CefWindowHandle parent, const CefRect& bounds) {
+  void SetAsChild(CefWindowHandle parent, const CefRect& windowBounds) {
     style =
         WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_TABSTOP | WS_VISIBLE;
     parent_window = parent;
-    this->bounds = bounds;
+    bounds = windowBounds;
   }
 
   ///
