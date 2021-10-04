@@ -18,6 +18,8 @@
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/render_view_host.h"
+#include "content/public/browser/render_widget_host.h"
+#include "content/public/browser/render_widget_host_view.h"
 #include "third_party/blink/public/mojom/favicon/favicon_url.mojom.h"
 #include "third_party/blink/public/mojom/input/focus_type.mojom-blink.h"
 
@@ -45,11 +47,11 @@ void CefBrowserContentsDelegate::ObserveWebContents(
                     content::Source<content::NavigationController>(
                         &new_contents->GetController()));
 
-    // Make sure RenderFrameCreated is called at least one time.
+    // Make sure MaybeCreateFrame is called at least one time.
     // Create the frame representation before OnAfterCreated is called for a new
-    // browser. Additionally, RenderFrameCreated is otherwise not called at all
-    // for new popup browsers.
-    RenderFrameCreated(new_contents->GetMainFrame());
+    // browser.
+    browser_info_->MaybeCreateFrame(new_contents->GetMainFrame(),
+                                    false /* is_guest_view */);
   } else {
     registrar_.reset();
   }
@@ -235,6 +237,18 @@ bool CefBrowserContentsDelegate::HandleKeyboardEvent(
 void CefBrowserContentsDelegate::RenderFrameCreated(
     content::RenderFrameHost* render_frame_host) {
   browser_info_->MaybeCreateFrame(render_frame_host, false /* is_guest_view */);
+  if (render_frame_host->GetParent() == nullptr) {
+    auto render_view_host = render_frame_host->GetRenderViewHost();
+    auto base_background_color = platform_delegate()->GetBackgroundColor();
+    if (browser_info_ && browser_info_->is_popup()) {
+      // force reset page base background color because popup window won't get
+      // the page base background from web_contents at the creation time
+      web_contents()->SetPageBaseBackgroundColor(SkColor());
+      web_contents()->SetPageBaseBackgroundColor(base_background_color);
+    }
+    render_view_host->GetWidget()->GetView()->SetBackgroundColor(
+        base_background_color);
+  }
 }
 
 void CefBrowserContentsDelegate::RenderFrameHostChanged(
