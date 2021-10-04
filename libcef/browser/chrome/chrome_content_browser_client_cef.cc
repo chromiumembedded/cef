@@ -188,11 +188,6 @@ void ChromeContentBrowserClientCef::OverrideWebkitPrefs(
   }
 
   web_contents->SetPageBaseBackgroundColor(base_background_color);
-
-  auto rvh = web_contents->GetRenderViewHost();
-  if (rvh->GetWidget()->GetView()) {
-    rvh->GetWidget()->GetView()->SetBackgroundColor(base_background_color);
-  }
 }
 
 bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(

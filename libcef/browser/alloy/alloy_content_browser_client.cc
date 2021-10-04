@@ -950,10 +950,6 @@ void AlloyContentBrowserClient::OverrideWebkitPrefs(
   renderer_prefs::PopulateWebPreferences(rvh, *prefs, base_background_color);
 
   web_contents->SetPageBaseBackgroundColor(base_background_color);
-
-  if (rvh->GetWidget()->GetView()) {
-    rvh->GetWidget()->GetView()->SetBackgroundColor(base_background_color);
-  }
 }
 
 bool AlloyContentBrowserClient::OverrideWebPreferencesAfterNavigation(
