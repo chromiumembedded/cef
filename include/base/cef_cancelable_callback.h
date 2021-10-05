@@ -83,10 +83,10 @@
 
 #include "include/base/cef_bind.h"
 #include "include/base/cef_callback.h"
-#include "include/base/internal/cef_callback_internal.h"
-#include "include/base/cef_logging.h"
 #include "include/base/cef_compiler_specific.h"
+#include "include/base/cef_logging.h"
 #include "include/base/cef_weak_ptr.h"
+#include "include/base/internal/cef_callback_internal.h"
 
 namespace base {
 namespace internal {
@@ -113,9 +113,7 @@ class CancelableCallbackImpl {
   }
 
   // Returns true if the wrapped callback has been cancelled.
-  bool IsCancelled() const {
-    return callback_.is_null();
-  }
+  bool IsCancelled() const { return callback_.is_null(); }
 
   // Sets |callback| as the closure that may be cancelled. |callback| may not
   // be null. Outstanding and any previously wrapped callbacks are cancelled.
@@ -179,10 +177,6 @@ template <typename Signature>
 using CancelableRepeatingCallback =
     internal::CancelableCallbackImpl<RepeatingCallback<Signature>>;
 using CancelableRepeatingClosure = CancelableRepeatingCallback<void()>;
-
-template <typename Signature>
-using CancelableCallback = CancelableRepeatingCallback<Signature>;
-using CancelableClosure = CancelableCallback<void()>;
 
 }  // namespace base
 

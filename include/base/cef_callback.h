@@ -60,9 +60,6 @@
 // will be a no-op. Note that |IsCancelled()| and |is_null()| are distinct:
 // simply cancelling a callback will not also make it null.
 //
-// base::Callback is currently a type alias for base::RepeatingCallback. In the
-// future, we expect to flip this to default to base::OnceCallback.
-//
 // See https://chromium.googlesource.com/chromium/src/+/HEAD/docs/callback.md
 // for the full documentation.
 
@@ -115,7 +112,7 @@ class OnceCallback<R(Args...)> : public internal::CallbackBase {
     return *this;
   }
 
-  R Run(Args... args) const & {
+  R Run(Args... args) const& {
     static_assert(!sizeof(*this),
                   "OnceCallback::Run() may only be invoked on a non-const "
                   "rvalue, i.e. std::move(callback).Run().");
@@ -195,7 +192,7 @@ class RepeatingCallback<R(Args...)> : public internal::CallbackBaseCopyable {
     return !operator==(other);
   }
 
-  R Run(Args... args) const & {
+  R Run(Args... args) const& {
     PolymorphicInvoke f =
         reinterpret_cast<PolymorphicInvoke>(this->polymorphic_invoke());
     return f(this->bind_state_.get(), std::forward<Args>(args)...);
