@@ -1313,7 +1313,7 @@ void ProxyURLLoaderFactory::CreateLoaderAndStart(
     return;
   }
 
-  if (DisableRequestHandlingForTesting()) {
+  if (DisableRequestHandlingForTesting() && request.url.SchemeIsHTTPOrHTTPS()) {
     // This is the so-called pass-through, no-op option.
     if (target_factory_) {
       target_factory_->CreateLoaderAndStart(std::move(receiver), request_id,
