@@ -123,7 +123,7 @@ index a26c5c2e053ed..c88c4c1b81f9b 100644
    return RunContentProcess(params, runner.get());
  }
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 7e7a16e6f9cb1..1989de7847811 100644
+index 915ae322cb6a2..781277e45de4c 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -45,6 +45,7 @@
@@ -134,7 +134,7 @@ index 7e7a16e6f9cb1..1989de7847811 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1134,6 +1135,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1146,6 +1147,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -147,7 +147,7 @@ index 7e7a16e6f9cb1..1989de7847811 100644
  std::unique_ptr<ContentMainRunner> ContentMainRunner::Create() {
    return ContentMainRunnerImpl::Create();
 diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
-index 5dbc33d943de2..4238219a05773 100644
+index 4bf0a0b27192a..73784107fc682 100644
 --- content/app/content_main_runner_impl.h
 +++ content/app/content_main_runner_impl.h
 @@ -39,7 +39,7 @@ class ContentMainDelegate;
@@ -159,7 +159,7 @@ index 5dbc33d943de2..4238219a05773 100644
   public:
    static std::unique_ptr<ContentMainRunnerImpl> Create();
  
-@@ -53,6 +53,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
+@@ -57,6 +57,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
    int Run(bool start_minimal_browser) override;
    void Shutdown() override;
  

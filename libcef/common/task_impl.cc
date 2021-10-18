@@ -40,7 +40,7 @@ bool CefPostDelayedTask(CefThreadId threadId,
   if (task_runner.get()) {
     return task_runner->PostDelayedTask(
         FROM_HERE, base::BindOnce(&CefTask::Execute, task.get()),
-        base::TimeDelta::FromMilliseconds(delay_ms));
+        base::Milliseconds(delay_ms));
   }
 
   LOG(WARNING) << "No task runner for threadId " << threadId;

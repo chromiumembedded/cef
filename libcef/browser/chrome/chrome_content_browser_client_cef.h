@@ -63,6 +63,7 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
       int frame_tree_node_id,
       content::NavigationUIData* navigation_data,
       bool is_main_frame,
+      network::mojom::WebSandboxFlags sandbox_flags,
       ui::PageTransition page_transition,
       bool has_user_gesture,
       const absl::optional<url::Origin>& initiating_origin,
@@ -72,13 +73,14 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
       content::WebContents::Getter web_contents_getter,
       int frame_tree_node_id,
       content::NavigationUIData* navigation_data,
+      network::mojom::WebSandboxFlags sandbox_flags,
       const network::ResourceRequest& request,
       mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory)
       override;
   std::vector<std::unique_ptr<content::NavigationThrottle>>
   CreateThrottlesForNavigation(
       content::NavigationHandle* navigation_handle) override;
-  void ConfigureNetworkContextParams(
+  bool ConfigureNetworkContextParams(
       content::BrowserContext* context,
       bool in_memory,
       const base::FilePath& relative_partition_path,

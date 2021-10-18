@@ -44,8 +44,7 @@
 
 #define CEF_POST_TASK(id, task) base::PostTask(FROM_HERE, {id}, task)
 #define CEF_POST_DELAYED_TASK(id, task, delay_ms) \
-  base::PostDelayedTask(FROM_HERE, {id}, task,    \
-                        base::TimeDelta::FromMilliseconds(delay_ms))
+  base::PostDelayedTask(FROM_HERE, {id}, task, base::Milliseconds(delay_ms))
 
 // Post a blocking task with the specified |priority|. Tasks that have not
 // started executing at shutdown will never run. However, any task that has

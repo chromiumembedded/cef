@@ -1,0 +1,13 @@
+diff --git ui/ozone/BUILD.gn ui/ozone/BUILD.gn
+index bf4dba1d1da49..520979a04f77f 100644
+--- ui/ozone/BUILD.gn
++++ ui/ozone/BUILD.gn
+@@ -354,6 +354,8 @@ action("generate_test_support_constructor_list") {
+   ]
+ 
+   deps = [ ":generate_ozone_platform_list" ]
++
++  visibility += [ "//cef:*" ]
+ }
+ 
+ test("ozone_unittests") {

@@ -44,8 +44,6 @@ class ChromeProfileAlloy : public Profile {
   void set_last_selected_directory(const base::FilePath& path) override;
   GURL GetHomePage() override;
   bool WasCreatedByVersionOrLater(const std::string& version) override;
-  void SetExitType(ExitType exit_type) override;
-  ExitType GetLastSessionExitType() const override;
   base::Time GetCreationTime() const override;
   void SetCreationTimeForTesting(base::Time creation_time) override;
   void RecordPrimaryMainFrameNavigation() override;

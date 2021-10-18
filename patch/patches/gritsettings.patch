@@ -1,12 +1,11 @@
 diff --git tools/gritsettings/resource_ids.spec tools/gritsettings/resource_ids.spec
-index 509687647e356..052818aaa2c7e 100644
+index 4e80d8de30827..2525656bfe7b5 100644
 --- tools/gritsettings/resource_ids.spec
 +++ tools/gritsettings/resource_ids.spec
-@@ -858,4 +858,13 @@
-   # Please read the header and find the right section above instead.
+@@ -887,6 +887,15 @@
+   # END "everything else" section.
+   # Everything but chrome/, components/, content/, and ios/
  
-   # Resource ids starting at 31000 are reserved for projects built on Chromium.
-+
 +  "cef/libcef/resources/cef_resources.grd": {
 +    "META": {"align": 31500},
 +    "includes": [31500],
@@ -15,4 +14,7 @@ index 509687647e356..052818aaa2c7e 100644
 +    "META": {"align": 32000},
 +    "messages": [32000],
 +  },
++
+   # Thinking about appending to the end?
+   # Please read the header and find the right section above instead.
  }

@@ -535,6 +535,7 @@ static_library("libcef_static") {
     "libcef/browser/file_dialog_manager.h",
     "libcef/browser/frame_host_impl.cc",
     "libcef/browser/frame_host_impl.h",
+    "libcef/browser/frame_service_base.h",
     "libcef/browser/image_impl.cc",
     "libcef/browser/image_impl.h",
     "libcef/browser/iothread_state.cc",
@@ -1185,6 +1186,21 @@ static_library("libcef_static") {
           # Part of //ui/events:test_support which is testingonly.
           "//ui/events/test/x11_event_waiter.cc",
           "//ui/events/test/x11_event_waiter.h",
+          # Part of //ui/ozone::ui_test_support which is testingonly.
+          "//ui/ozone/common/test/stub_ozone_ui_controls_test_helper.cc",
+          "//ui/ozone/common/test/stub_ozone_ui_controls_test_helper.h",
+          "//ui/ozone/public/ozone_ui_controls_test_helper.cc",
+          "//ui/ozone/public/ozone_ui_controls_test_helper.h",
+          "$root_gen_dir/ui/ozone/test_constructor_list.cc",
+          # Part of //ui/views:test_support which is testingonly.
+          "//ui/views/test/test_desktop_screen_ozone.cc",
+          "//ui/views/test/test_desktop_screen_ozone.h",
+          "//ui/views/test/ui_controls_factory_desktop_aura_ozone.cc",
+          "//ui/views/test/ui_controls_factory_desktop_aura_ozone.h",
+        ]
+
+        deps += [
+          "//ui/ozone:generate_test_support_constructor_list",
         ]
 
         if (use_x11) {
@@ -1195,9 +1211,9 @@ static_library("libcef_static") {
             "//ui/base/x/test/x11_ui_controls_test_helper.h",
             # Part of //ui/aura:test_support which is testingonly.
             "//ui/aura/test/x11_event_sender.h",
-            # Part of //ui/views:test_support which is testingonly.
-            "//ui/views/test/ui_controls_factory_desktop_aurax11.cc",
-            "//ui/views/test/ui_controls_factory_desktop_aurax11.h",
+            # Part of //ui/ozone/platform/x11:test_support which is testingonly.
+            "//ui/ozone/platform/x11/x11_ozone_ui_controls_test_helper.cc",
+            "//ui/ozone/platform/x11/x11_ozone_ui_controls_test_helper.h",
           ]
         } else {
           sources += [

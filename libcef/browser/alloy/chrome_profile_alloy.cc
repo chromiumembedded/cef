@@ -153,15 +153,6 @@ bool ChromeProfileAlloy::WasCreatedByVersionOrLater(
   return false;
 }
 
-void ChromeProfileAlloy::SetExitType(ExitType exit_type) {
-  NOTREACHED();
-}
-
-Profile::ExitType ChromeProfileAlloy::GetLastSessionExitType() const {
-  NOTREACHED();
-  return EXIT_NORMAL;
-}
-
 base::Time ChromeProfileAlloy::GetCreationTime() const {
   NOTREACHED();
   return base::Time();

@@ -51,7 +51,7 @@
 #include "extensions/common/constants.h"
 #include "extensions/common/extension.h"
 #include "net/base/net_errors.h"
-#include "third_party/blink/public/mojom/page/widget.mojom-test-utils.h"
+#include "third_party/blink/public/mojom/widget/platform_widget.mojom-test-utils.h"
 #include "ui/events/base_event_utils.h"
 
 using content::KeyboardEventProcessingResult;
@@ -126,8 +126,7 @@ class CefWidgetHostInterceptor
   DISALLOW_COPY_AND_ASSIGN(CefWidgetHostInterceptor);
 };
 
-static constexpr base::TimeDelta kRecentlyAudibleTimeout =
-    base::TimeDelta::FromSeconds(2);
+static constexpr base::TimeDelta kRecentlyAudibleTimeout = base::Seconds(2);
 
 }  // namespace
 

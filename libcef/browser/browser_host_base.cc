@@ -247,7 +247,7 @@ void CefBrowserHostBase::DownloadImage(
     return;
 
   web_contents->DownloadImage(
-      gurl, is_favicon, max_image_size,
+      gurl, is_favicon, gfx::Size(max_image_size, max_image_size),
       max_image_size * gfx::ImageSkia::GetMaxSupportedScale(), bypass_cache,
       base::BindOnce(
           [](uint32 max_image_size,

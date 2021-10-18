@@ -257,7 +257,7 @@ bool CefCookieManagerImpl::VisitUrlCookiesInternal(
     return false;
 
   GetCookieManager(browser_context)
-      ->GetCookieList(url, options,
+      ->GetCookieList(url, options, net::CookiePartitionKeychain(),
                       base::BindOnce(&GetCookiesCallbackImpl, visitor,
                                      browser_context_getter_));
   return true;

@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index f12e393e0f9bb..51f4898fc25d5 100644
+index 2404d62d189df..4daa969021dd5 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -29,6 +29,7 @@
@@ -19,7 +19,7 @@ index f12e393e0f9bb..51f4898fc25d5 100644
  #if defined(OS_WIN)
    // Reach out to chrome_elf for the truth on the user data directory.
    // Note that in tests, this links to chrome_elf_test_stubs.
-@@ -708,7 +711,9 @@ void ChromeMainDelegate::PostFieldTrialInitialization() {
+@@ -712,7 +715,9 @@ void ChromeMainDelegate::PostFieldTrialInitialization() {
    }
  
  #if defined(OS_WIN)
@@ -29,7 +29,7 @@ index f12e393e0f9bb..51f4898fc25d5 100644
    base::sequence_manager::internal::ThreadControllerPowerMonitor::
        InitializeOnMainThread();
  #endif
-@@ -1003,6 +1008,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1007,6 +1012,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    std::string process_type =
        command_line.GetSwitchValueASCII(switches::kProcessType);
  
@@ -37,7 +37,7 @@ index f12e393e0f9bb..51f4898fc25d5 100644
    crash_reporter::InitializeCrashKeys();
  
  #if defined(OS_POSIX)
-@@ -1013,6 +1019,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1017,6 +1023,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    InitMacCrashReporter(command_line, process_type);
    SetUpInstallerPreferences(command_line);
  #endif
@@ -45,7 +45,7 @@ index f12e393e0f9bb..51f4898fc25d5 100644
  
  #if defined(OS_WIN)
    child_process_logging::Init();
-@@ -1136,6 +1143,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1140,6 +1147,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
          locale;
    }
  
@@ -53,7 +53,7 @@ index f12e393e0f9bb..51f4898fc25d5 100644
  #if defined(OS_POSIX) && !defined(OS_MAC)
    // Zygote needs to call InitCrashReporter() in RunZygote().
    if (process_type != switches::kZygoteProcess) {
-@@ -1168,6 +1176,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1172,6 +1180,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    // After all the platform Breakpads have been initialized, store the command
    // line for crash reporting.
    crash_keys::SetCrashKeysFromCommandLine(command_line);
@@ -61,7 +61,7 @@ index f12e393e0f9bb..51f4898fc25d5 100644
  
  #if BUILDFLAG(ENABLE_PDF)
    MaybePatchGdiGetFontData();
-@@ -1266,6 +1275,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1270,6 +1279,7 @@ void ChromeMainDelegate::ZygoteForked() {
      SetUpProfilingShutdownHandler();
    }
  
@@ -69,7 +69,7 @@ index f12e393e0f9bb..51f4898fc25d5 100644
    // Needs to be called after we have chrome::DIR_USER_DATA.  BrowserMain sets
    // this up for the browser process in a different manner.
    const base::CommandLine* command_line =
-@@ -1282,6 +1292,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1286,6 +1296,7 @@ void ChromeMainDelegate::ZygoteForked() {
  
    // Reset the command line for the newly spawned process.
    crash_keys::SetCrashKeysFromCommandLine(*command_line);
@@ -78,7 +78,7 @@ index f12e393e0f9bb..51f4898fc25d5 100644
  
  #endif  // defined(OS_LINUX) || defined(OS_CHROMEOS)
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index 3f433969229eb..560f1e830a4e7 100644
+index 15a26590d35e4..5f95666dd7967 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -50,6 +50,7 @@
@@ -89,7 +89,7 @@ index 3f433969229eb..560f1e830a4e7 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/active_use_util.h"
  #include "chrome/browser/after_startup_task_utils.h"
-@@ -911,8 +912,10 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
+@@ -919,8 +920,10 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
  #if !defined(OS_ANDROID)
    // Create the RunLoop for MainMessageLoopRun() to use, and pass a copy of
    // its QuitClosure to the BrowserProcessImpl to call when it is time to exit.
@@ -101,7 +101,7 @@ index 3f433969229eb..560f1e830a4e7 100644
  
    // These members must be initialized before returning from this function.
    // Android doesn't use StartupBrowserCreator.
-@@ -1686,11 +1689,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1690,11 +1693,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
    // This step is costly and is already measured in
    // Startup.StartupBrowserCreator_Start.
    // See the comment above for an explanation of |process_command_line|.
@@ -156,7 +156,7 @@ index 95d1ebc190910..13cdfa52db108 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 93a402f34c0da..92d30ea06b5f1 100644
+index 4ba206e769e7e..1d2cf1b866dfa 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -28,6 +28,7 @@
@@ -167,7 +167,7 @@ index 93a402f34c0da..92d30ea06b5f1 100644
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/accessibility_labels_service_factory.h"
  #include "chrome/browser/after_startup_task_utils.h"
-@@ -3500,9 +3501,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -3674,9 +3675,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // defined(OS_ANDROID)
  
@@ -179,19 +179,50 @@ index 93a402f34c0da..92d30ea06b5f1 100644
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
+@@ -5288,7 +5291,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
+       network_service);
+ }
+ 
+-void ChromeContentBrowserClient::ConfigureNetworkContextParams(
++bool ChromeContentBrowserClient::ConfigureNetworkContextParams(
+     content::BrowserContext* context,
+     bool in_memory,
+     const base::FilePath& relative_partition_path,
+@@ -5306,6 +5309,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
+     network_context_params->user_agent = GetUserAgent();
+     network_context_params->accept_language = GetApplicationLocale();
+   }
++
++  return true;
+ }
+ 
+ std::vector<base::FilePath>
+diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
+index 0c8939e57e814..25c0a2acff7dd 100644
+--- chrome/browser/chrome_content_browser_client.h
++++ chrome/browser/chrome_content_browser_client.h
+@@ -548,7 +548,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+       override;
+   void OnNetworkServiceCreated(
+       network::mojom::NetworkService* network_service) override;
+-  void ConfigureNetworkContextParams(
++  bool ConfigureNetworkContextParams(
+       content::BrowserContext* context,
+       bool in_memory,
+       const base::FilePath& relative_partition_path,
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index ce875b5837a36..2ee3cf28b2e6f 100644
+index d5ed8faa24cfb..a30a0eed11278 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
-@@ -10,6 +10,7 @@
- #include "build/branding_buildflags.h"
+@@ -11,6 +11,7 @@
  #include "build/build_config.h"
+ #include "build/chromecast_buildflags.h"
  #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/accessibility_ui.h"
-@@ -164,6 +165,10 @@
+@@ -167,6 +168,10 @@
  #include "chrome/browser/background/background_mode_manager.h"
  #endif
  
@@ -202,7 +233,7 @@ index ce875b5837a36..2ee3cf28b2e6f 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -1177,6 +1182,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -1195,6 +1200,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
    SessionDataService::RegisterProfilePrefs(registry);
  #endif
  

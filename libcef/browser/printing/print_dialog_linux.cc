@@ -22,6 +22,7 @@
 #include "base/values.h"
 #include "content/public/browser/global_routing_id.h"
 #include "printing/metafile.h"
+#include "printing/mojom/print.mojom-shared.h"
 #include "printing/print_job_constants.h"
 #include "printing/print_settings.h"
 
@@ -175,7 +176,7 @@ void CefPrintDialogLinux::ShowDialog(
 
   SetHandler();
   if (!handler_.get()) {
-    std::move(callback).Run(PrintingContextLinux::CANCEL);
+    std::move(callback).Run(printing::mojom::ResultCode::kCanceled);
     return;
   }
 
@@ -291,11 +292,11 @@ void CefPrintDialogLinux::OnPrintContinue(
   CefPrintSettingsImpl* impl =
       static_cast<CefPrintSettingsImpl*>(settings.get());
   context_->InitWithSettings(impl->TakeOwnership());
-  std::move(callback_).Run(PrintingContextLinux::OK);
+  std::move(callback_).Run(printing::mojom::ResultCode::kSuccess);
 }
 
 void CefPrintDialogLinux::OnPrintCancel() {
-  std::move(callback_).Run(PrintingContextLinux::CANCEL);
+  std::move(callback_).Run(printing::mojom::ResultCode::kCanceled);
 }
 
 void CefPrintDialogLinux::OnJobCompleted() {

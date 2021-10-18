@@ -1,5 +1,5 @@
 diff --git base/files/file_path_watcher_linux.cc base/files/file_path_watcher_linux.cc
-index 0c37e08d78825..80a8d27d9733b 100644
+index 0c37e08d78825..29afdf7ea865b 100644
 --- base/files/file_path_watcher_linux.cc
 +++ base/files/file_path_watcher_linux.cc
 @@ -5,6 +5,7 @@
@@ -18,16 +18,14 @@ index 0c37e08d78825..80a8d27d9733b 100644
  #include <fstream>
  #include <map>
  #include <memory>
-@@ -274,19 +276,16 @@ void InotifyReaderThreadDelegate::ThreadMain() {
+@@ -273,20 +275,13 @@ LazyInstance<InotifyReader>::Leaky g_inotify_reader = LAZY_INSTANCE_INITIALIZER;
+ void InotifyReaderThreadDelegate::ThreadMain() {
    PlatformThread::SetName("inotify_reader");
  
-   // Make sure the file descriptors are good for use with select().
+-  // Make sure the file descriptors are good for use with select().
 -  CHECK_LE(0, inotify_fd_);
 -  CHECK_GT(FD_SETSIZE, inotify_fd_);
-+  std::array<pollfd, 1> fdarray
-+  { {
-+      { inotify_fd_, POLLIN, 0 }
-+  } };
++  std::array<pollfd, 1> fdarray{{{inotify_fd_, POLLIN, 0}}};
  
    while (true) {
 -    fd_set rfds;

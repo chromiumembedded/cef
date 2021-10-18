@@ -348,7 +348,8 @@ AlloyBrowserContext::GetDownloadManagerDelegate() {
 }
 
 content::BrowserPluginGuestManager* AlloyBrowserContext::GetGuestManager() {
-  DCHECK(extensions::ExtensionsEnabled());
+  if (!extensions::ExtensionsEnabled())
+    return nullptr;
   return guest_view::GuestViewManager::FromBrowserContext(this);
 }
 

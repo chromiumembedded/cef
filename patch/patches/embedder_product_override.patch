@@ -1,17 +1,17 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index dfa5022f7636e..fa880d2ea9acd 100644
+index 516504c2ce442..60899c8e4f7bf 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
-@@ -12,6 +12,7 @@
- #include "base/system/sys_info.h"
+@@ -14,6 +14,7 @@
+ #include "base/version.h"
  #include "build/branding_buildflags.h"
  #include "build/build_config.h"
 +#include "cef/libcef/common/cef_switches.h"
  #include "components/embedder_support/switches.h"
  #include "components/version_info/version_info.h"
  #include "content/public/browser/web_contents.h"
-@@ -113,6 +114,12 @@ std::string GetUniversalApiContractVersion() {
- #endif  // defined(OS_WIN)
+@@ -172,6 +173,12 @@ const blink::UserAgentBrandList& GetBrandVersionList() {
+ }  // namespace
  
  std::string GetProduct() {
 +  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
@@ -20,6 +20,6 @@ index dfa5022f7636e..fa880d2ea9acd 100644
 +        switches::kUserAgentProductAndVersion);
 +  }
 +
-   return version_info::GetProductNameAndVersionForUserAgent();
- }
- 
+   if (base::FeatureList::IsEnabled(
+           blink::features::kForceMajorVersion100InUserAgent))
+     return "Chrome/" + GetM100VersionNumber();

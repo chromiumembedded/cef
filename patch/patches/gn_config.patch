@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index c89d504b288ba..3ae0eb3905db1 100644
+index e2e2dcebcdcdb..35443d0e2af1a 100644
 --- .gn
 +++ .gn
-@@ -145,6 +145,8 @@ exec_script_whitelist =
+@@ -160,6 +160,8 @@ exec_script_whitelist =
  
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
  
@@ -12,7 +12,7 @@ index c89d504b288ba..3ae0eb3905db1 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 0624ab1a07c89..030c497f8e2a2 100644
+index 3f59615361652..db2d917fcc230 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -16,6 +16,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -23,7 +23,7 @@ index 0624ab1a07c89..030c497f8e2a2 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/media/router/features.gni")
  import("//components/nacl/features.gni")
-@@ -265,6 +266,9 @@ group("gn_all") {
+@@ -267,6 +268,9 @@ group("gn_all") {
          deps += [ "//chrome/test:telemetry_perf_unittests${_target_suffix}" ]
        }
      }
@@ -79,7 +79,7 @@ index d2266b28b33f8..a7ff6d9b68f38 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index a7056344778ec..322a3f313f63e 100644
+index 0d34dbed6909c..52d1de37a6c28 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -4,6 +4,7 @@
@@ -152,7 +152,7 @@ index 51fa0d7f4cf77..2ede68e9377eb 100644
    outputs = [
      # See also chrome.packed.7z conditionally added below.
 diff --git tools/grit/grit_defines.gni tools/grit/grit_defines.gni
-index 497bc384ee79f..85056a86edd2c 100644
+index 6bf3b8b3e42bd..025d5bd2e9118 100644
 --- tools/grit/grit_defines.gni
 +++ tools/grit/grit_defines.gni
 @@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
@@ -163,7 +163,7 @@ index 497bc384ee79f..85056a86edd2c 100644
  import("//build/config/ui.gni")
  
  shared_intermediate_dir = rebase_path(root_gen_dir, root_build_dir)
-@@ -119,6 +120,13 @@ if (is_android) {
+@@ -112,6 +113,13 @@ if (is_android) {
    ]
  }
  

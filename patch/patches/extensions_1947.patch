@@ -60,10 +60,10 @@ index 5c903a13a14ed..c85964a7bab17 100644
    std::unique_ptr<StreamContainer> stream_container(
        new StreamContainer(tab_id, embedded, handler_url, extension_id,
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
-index 3f78873130d14..07159e4524155 100644
+index 941d1ab4ec0f1..e887234ad9a5f 100644
 --- extensions/browser/extension_host.cc
 +++ extensions/browser/extension_host.cc
-@@ -63,11 +63,12 @@ ExtensionHost::ExtensionHost(const Extension* extension,
+@@ -62,11 +62,12 @@ ExtensionHost::ExtensionHost(const Extension* extension,
    DCHECK(host_type == mojom::ViewType::kExtensionBackgroundPage ||
           host_type == mojom::ViewType::kExtensionDialog ||
           host_type == mojom::ViewType::kExtensionPopup);
@@ -80,7 +80,7 @@ index 3f78873130d14..07159e4524155 100644
  
    // Listen for when an extension is unloaded from the same profile, as it may
 @@ -81,6 +82,44 @@ ExtensionHost::ExtensionHost(const Extension* extension,
-       dispatcher()->set_delegate(this);
+   ExtensionHostRegistry::Get(browser_context_)->ExtensionHostCreated(this);
  }
  
 +ExtensionHost::ExtensionHost(ExtensionHostDelegate* delegate,
@@ -125,10 +125,10 @@ index 3f78873130d14..07159e4524155 100644
    ExtensionRegistry::Get(browser_context_)->RemoveObserver(this);
  
 diff --git extensions/browser/extension_host.h extensions/browser/extension_host.h
-index e8b4ce11bcd00..617de0d501fdd 100644
+index fe86adeadc40e..2d4d9fe819fb3 100644
 --- extensions/browser/extension_host.h
 +++ extensions/browser/extension_host.h
-@@ -53,13 +53,19 @@ class ExtensionHost : public DeferredStartRenderHost,
+@@ -53,6 +53,12 @@ class ExtensionHost : public DeferredStartRenderHost,
                  content::SiteInstance* site_instance,
                  const GURL& url,
                  mojom::ViewType host_type);
@@ -138,9 +138,10 @@ index e8b4ce11bcd00..617de0d501fdd 100644
 +                content::WebContents* host_contents,
 +                const GURL& url,
 +                mojom::ViewType host_type);
-   ~ExtensionHost() override;
  
-   // This may be null if the extension has been or is being unloaded.
+   ExtensionHost(const ExtensionHost&) = delete;
+   ExtensionHost& operator=(const ExtensionHost&) = delete;
+@@ -63,7 +69,7 @@ class ExtensionHost : public DeferredStartRenderHost,
    const Extension* extension() const { return extension_; }
  
    const std::string& extension_id() const { return extension_id_; }
@@ -149,7 +150,7 @@ index e8b4ce11bcd00..617de0d501fdd 100644
    content::RenderFrameHost* main_frame_host() const { return main_frame_host_; }
    content::RenderProcessHost* render_process_host() const;
    bool has_loaded_once() const { return has_loaded_once_; }
-@@ -184,7 +190,8 @@ class ExtensionHost : public DeferredStartRenderHost,
+@@ -188,7 +194,8 @@ class ExtensionHost : public DeferredStartRenderHost,
    content::BrowserContext* browser_context_;
  
    // The host for our HTML content.
@@ -195,7 +196,7 @@ index 0d21ebc927042..a08ebcbafc252 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index b6517195536df..8aaa645fcb0d5 100644
+index 4f33f582342d8..9e31be3254cfe 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -393,9 +393,17 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,

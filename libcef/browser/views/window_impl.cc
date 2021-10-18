@@ -23,13 +23,26 @@
 #include "ui/aura/test/ui_controls_factory_aura.h"
 #include "ui/aura/window.h"
 #include "ui/base/test/ui_controls_aura.h"
-#if defined(OS_LINUX) && defined(USE_X11)
-#include "ui/views/test/ui_controls_factory_desktop_aurax11.h"
+#if defined(USE_OZONE)
+#include "ui/ozone/public/ozone_ui_controls_test_helper.h"
+#include "ui/views/test/ui_controls_factory_desktop_aura_ozone.h"
 #endif
-#endif
+#endif  // defined(USE_AURA)
 
 #if defined(OS_WIN)
 #include "ui/display/win/screen_win.h"
+#endif
+
+#if defined(USE_AURA) && defined(USE_OZONE)
+// Stub implementation for function called from
+// $root_gen_dir/ui/ozone/test_constructor_list.cc to avoid
+// //ui/ozone/platform/wayland:ui_test_support dependencies.
+namespace ui {
+OzoneUIControlsTestHelper* CreateOzoneUIControlsTestHelperWayland() {
+  NOTREACHED();
+  return nullptr;
+}
+}  // namespace ui
 #endif
 
 namespace {
@@ -41,14 +54,14 @@ void InitializeUITesting() {
     ui_controls::EnableUIControls();
 
 #if defined(USE_AURA)
-#if defined(OS_LINUX) && defined(USE_X11)
-    ui_controls::InstallUIControlsAura(
-        views::test::CreateUIControlsDesktopAura());
-#else
+#if defined(OS_WIN)
     ui_controls::InstallUIControlsAura(
         aura::test::CreateUIControlsAura(nullptr));
+#elif defined(USE_OZONE)
+    ui_controls::InstallUIControlsAura(
+        views::test::CreateUIControlsDesktopAuraOzone());
 #endif
-#endif
+#endif  // defined(USE_AURA)
 
     initialized = true;
   }

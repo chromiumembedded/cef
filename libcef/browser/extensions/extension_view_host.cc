@@ -9,9 +9,8 @@
 
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/web_contents.h"
-#include "extensions/browser/extension_system.h"
 #include "extensions/browser/notification_types.h"
-#include "extensions/browser/runtime_data.h"
+#include "extensions/browser/process_util.h"
 #include "third_party/blink/public/common/input/web_gesture_event.h"
 
 using content::NativeWebKeyboardEvent;
@@ -44,9 +43,9 @@ void CefExtensionViewHost::OnDidStopFirstLoad() {
 }
 
 void CefExtensionViewHost::LoadInitialURL() {
-  if (!ExtensionSystem::Get(browser_context())
-           ->runtime_data()
-           ->IsBackgroundPageReady(extension())) {
+  if (process_util::GetPersistentBackgroundPageState(*extension(),
+                                                     browser_context()) ==
+      process_util::PersistentBackgroundPageState::kNotReady) {
     // Make sure the background page loads before any others.
     registrar_.Add(this,
                    extensions::NOTIFICATION_EXTENSION_BACKGROUND_PAGE_READY,
@@ -86,9 +85,9 @@ void CefExtensionViewHost::Observe(
     const content::NotificationSource& source,
     const content::NotificationDetails& details) {
   DCHECK_EQ(type, extensions::NOTIFICATION_EXTENSION_BACKGROUND_PAGE_READY);
-  DCHECK(ExtensionSystem::Get(browser_context())
-             ->runtime_data()
-             ->IsBackgroundPageReady(extension()));
+  DCHECK_EQ(process_util::PersistentBackgroundPageState::kReady,
+            process_util::GetPersistentBackgroundPageState(*extension(),
+                                                           browser_context()));
   LoadInitialURL();
 }
 

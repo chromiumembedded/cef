@@ -13,6 +13,7 @@
 #include "libcef/browser/views/view_util.h"
 
 #include "base/logging.h"
+#include "ui/views/accessibility/accessibility_paint_checks.h"
 #include "ui/views/background.h"
 #include "ui/views/view.h"
 
@@ -46,6 +47,10 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
     // Use our defaults instead of the Views framework defaults.
     ParentClass::SetBackground(
         views::CreateSolidBackground(view_util::kDefaultBackgroundColor));
+
+    // TODO(crbug.com/1218186): Remove this, if this view is focusable then it
+    // needs to add a name so that the screen reader knows what to announce.
+    ParentClass::SetProperty(views::kSkipAccessibilityPaintChecks, true);
   }
 
   // Returns the CefViewDelegate-derived delegate associated with this view.

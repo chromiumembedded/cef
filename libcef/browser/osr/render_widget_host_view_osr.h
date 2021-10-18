@@ -159,6 +159,7 @@ class CefRenderWidgetHostViewOSR
       const gfx::Size& output_size,
       base::OnceCallback<void(const SkBitmap&)> callback) override;
   void GetScreenInfo(display::ScreenInfo* results) override;
+  display::ScreenInfos GetScreenInfos() override;
   void TransformPointToRootSurface(gfx::PointF* point) override;
   gfx::Rect GetBoundsInRootWindow() override;
 

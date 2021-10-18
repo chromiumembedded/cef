@@ -6,8 +6,8 @@
 #ifndef CEF_LIBCEF_BROWSER_EXTENSIONS_EXTENSIONS_API_CLIENT_H_
 #define CEF_LIBCEF_BROWSER_EXTENSIONS_EXTENSIONS_API_CLIENT_H_
 
+#include "components/value_store/value_store_factory.h"
 #include "extensions/browser/api/extensions_api_client.h"
-#include "extensions/browser/value_store/value_store_factory.h"
 
 namespace extensions {
 

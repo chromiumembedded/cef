@@ -145,5 +145,5 @@ bool CefTaskRunnerImpl::PostDelayedTask(CefRefPtr<CefTask> task,
                                         int64 delay_ms) {
   return task_runner_->PostDelayedTask(
       FROM_HERE, base::BindOnce(&CefTask::Execute, task.get()),
-      base::TimeDelta::FromMilliseconds(delay_ms));
+      base::Milliseconds(delay_ms));
 }

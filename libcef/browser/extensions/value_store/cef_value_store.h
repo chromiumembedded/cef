@@ -13,7 +13,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/macros.h"
-#include "extensions/browser/value_store/value_store.h"
+#include "components/value_store/value_store.h"
 
 namespace value_store {
 

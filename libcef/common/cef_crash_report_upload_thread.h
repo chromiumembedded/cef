@@ -5,6 +5,7 @@
 #ifndef CEF_LIBCEF_COMMON_CEF_CRASH_REPORT_UPLOAD_THREAD_H_
 #define CEF_LIBCEF_COMMON_CEF_CRASH_REPORT_UPLOAD_THREAD_H_
 
+#include "base/macros.h"
 #include "third_party/crashpad/crashpad/handler/crash_report_upload_thread.h"
 
 class CefCrashReportUploadThread : public crashpad::CrashReportUploadThread {

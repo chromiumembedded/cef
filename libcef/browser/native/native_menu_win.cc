@@ -21,6 +21,7 @@
 #include "ui/base/l10n/l10n_util_win.h"
 #include "ui/base/models/image_model.h"
 #include "ui/base/models/menu_model.h"
+#include "ui/color/color_provider_manager.h"
 #include "ui/events/keycodes/keyboard_codes.h"
 #include "ui/gfx/canvas.h"
 #include "ui/gfx/font_list.h"
@@ -295,11 +296,33 @@ class CefNativeMenuWin::MenuHostWindow {
         ui::NativeTheme* native_theme =
             ui::NativeTheme::GetInstanceForNativeUi();
 
+        // Logic from Widget::GetColorProviderKey() prior to
+        // https://crrev.com/e24ffe177b.
+        // TODO(cef): Use |native_theme->GetColorProviderKey(nullptr)| after M97
+        // Chromium update.
+        const auto color_scheme = native_theme->GetDefaultSystemColorScheme();
+        ui::ColorProviderManager::Key color_provider_key(
+            (color_scheme == ui::NativeTheme::ColorScheme::kDark)
+                ? ui::ColorProviderManager::ColorMode::kDark
+                : ui::ColorProviderManager::ColorMode::kLight,
+            (color_scheme ==
+             ui::NativeTheme::ColorScheme::kPlatformHighContrast)
+                ? ui::ColorProviderManager::ContrastMode::kHigh
+                : ui::ColorProviderManager::ContrastMode::kNormal,
+            native_theme->is_custom_system_theme()
+                ? ui::ColorProviderManager::SystemTheme::kCustom
+                : ui::ColorProviderManager::SystemTheme::kDefault,
+            /*custom_theme=*/nullptr);
+
+        auto* color_provider =
+            ui::ColorProviderManager::Get().GetColorProviderFor(
+                color_provider_key);
+
         // We currently don't support items with both icons and checkboxes.
         const gfx::ImageSkia skia_icon =
             icon.IsImage() ? icon.GetImage().AsImageSkia()
                            : ui::ThemedVectorIcon(icon.GetVectorIcon())
-                                 .GetImageSkia(native_theme, 16);
+                                 .GetImageSkia(color_provider, 16);
 
         DCHECK(type != ui::MenuModel::TYPE_CHECK);
         std::unique_ptr<SkCanvas> canvas = skia::CreatePlatformCanvas(

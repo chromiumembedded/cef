@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index d279815ed7dd1..de68b25583b37 100644
+index 6aa16d20faa3b..5c4fd217ae936 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
 @@ -90,7 +90,7 @@ bool ApplyUserAgentMetadataOverrides(
@@ -12,7 +12,7 @@ index d279815ed7dd1..de68b25583b37 100644
      bool is_navigation,
      bool is_download,
 diff --git content/browser/renderer_host/input/synthetic_gesture_target_base.h content/browser/renderer_host/input/synthetic_gesture_target_base.h
-index eef661b3e0950..6c0dacfa4bc3a 100644
+index 1f05fa3562f48..2295e442f590a 100644
 --- content/browser/renderer_host/input/synthetic_gesture_target_base.h
 +++ content/browser/renderer_host/input/synthetic_gesture_target_base.h
 @@ -9,6 +9,7 @@
@@ -32,7 +32,7 @@ index eef661b3e0950..6c0dacfa4bc3a 100644
 +    public SyntheticGestureTarget {
   public:
    explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
-   ~SyntheticGestureTargetBase() override;
+ 
 diff --git content/common/content_switches_internal.h content/common/content_switches_internal.h
 index 57072bf1263ae..0a93446e4d21c 100644
 --- content/common/content_switches_internal.h
@@ -68,7 +68,7 @@ index 103fe625bb488..81c79036aa465 100644
  
    if (is_linux || is_chromeos) {
 diff --git ui/events/keycodes/BUILD.gn ui/events/keycodes/BUILD.gn
-index 86bbf620ff0d9..6c06b461c6da1 100644
+index c7fe1117512e5..44af6b52db4b4 100644
 --- ui/events/keycodes/BUILD.gn
 +++ ui/events/keycodes/BUILD.gn
 @@ -19,6 +19,8 @@ source_set("xkb") {

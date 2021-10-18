@@ -9,7 +9,7 @@
 
 #include "base/containers/contains.h"
 #include "base/memory/ptr_util.h"
-#include "extensions/browser/value_store/leveldb_value_store.h"
+#include "components/value_store/leveldb_value_store.h"
 
 namespace {
 

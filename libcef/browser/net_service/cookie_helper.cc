@@ -81,15 +81,17 @@ void GetCookieListCallback(const AllowCookieCallback& allow_cookie_callback,
                                std::move(done_callback), included_cookies));
 }
 
-void LoadCookiesOnUIThread(content::BrowserContext* browser_context,
-                           const GURL& url,
-                           const net::CookieOptions& options,
-                           const AllowCookieCallback& allow_cookie_callback,
-                           DoneCookieCallback done_callback) {
+void LoadCookiesOnUIThread(
+    content::BrowserContext* browser_context,
+    const GURL& url,
+    const net::CookieOptions& options,
+    const net::CookiePartitionKeychain& cookie_partition_keychain,
+    const AllowCookieCallback& allow_cookie_callback,
+    DoneCookieCallback done_callback) {
   CEF_REQUIRE_UIT();
   GetCookieManager(browser_context)
       ->GetCookieList(
-          url, options,
+          url, options, cookie_partition_keychain,
           base::BindOnce(GetCookieListCallback, allow_cookie_callback,
                          std::move(done_callback)));
 }
@@ -199,9 +201,10 @@ void LoadCookies(content::BrowserContext* browser_context,
   }
 
   CEF_POST_TASK(
-      CEF_UIT, base::BindOnce(LoadCookiesOnUIThread, browser_context,
-                              request.url, GetCookieOptions(request),
-                              allow_cookie_callback, std::move(done_callback)));
+      CEF_UIT,
+      base::BindOnce(LoadCookiesOnUIThread, browser_context, request.url,
+                     GetCookieOptions(request), net::CookiePartitionKeychain(),
+                     allow_cookie_callback, std::move(done_callback)));
 }
 
 void SaveCookies(content::BrowserContext* browser_context,

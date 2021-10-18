@@ -16,7 +16,7 @@
 CefBrowserFrame::CefBrowserFrame(
     content::RenderFrameHost* render_frame_host,
     mojo::PendingReceiver<cef::mojom::BrowserFrame> receiver)
-    : DocumentServiceBase(render_frame_host, std::move(receiver)) {}
+    : FrameServiceBase(render_frame_host, std::move(receiver)) {}
 
 CefBrowserFrame::~CefBrowserFrame() = default;
 

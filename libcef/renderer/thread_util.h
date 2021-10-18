@@ -33,9 +33,9 @@
 
 #define CEF_POST_TASK_RT(task) \
   CEF_RENDER_TASK_RUNNER()->PostTask(FROM_HERE, task)
-#define CEF_POST_DELAYED_TASK_RT(task, delay_ms) \
-  CEF_RENDER_TASK_RUNNER()->PostDelayedTask(     \
-      FROM_HERE, task, base::TimeDelta::FromMilliseconds(delay_ms))
+#define CEF_POST_DELAYED_TASK_RT(task, delay_ms)             \
+  CEF_RENDER_TASK_RUNNER()->PostDelayedTask(FROM_HERE, task, \
+                                            base::Milliseconds(delay_ms))
 
 // Use this template in conjuction with RefCountedThreadSafe when you want to
 // ensure that an object is deleted on the render thread.

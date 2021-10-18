@@ -26,10 +26,10 @@ index 492d466239d1a..a1df635870ede 100644
  
  static const time_t kSecondsInDay = 60 * 60 * 24;
 diff --git third_party/crashpad/crashpad/client/prune_crash_reports.h third_party/crashpad/crashpad/client/prune_crash_reports.h
-index 07a70980f12af..ddf7f17325fed 100644
+index b80cf7a59103b..6318dd05e6eef 100644
 --- third_party/crashpad/crashpad/client/prune_crash_reports.h
 +++ third_party/crashpad/crashpad/client/prune_crash_reports.h
-@@ -59,7 +59,8 @@ class PruneCondition {
+@@ -58,7 +58,8 @@ class PruneCondition {
    //! of 128 MB.
    //!
    //! \return A PruneCondition for use with PruneCrashReportDatabase().
@@ -130,10 +130,10 @@ index 3855b9b6a4b20..263f985043716 100644
  Settings::ScopedLockedFileHandle Settings::MakeScopedLockedFileHandle(
      FileHandle file,
 diff --git third_party/crashpad/crashpad/client/settings.h third_party/crashpad/crashpad/client/settings.h
-index 5761c6b965b5c..aee4e6c96033e 100644
+index d17f357ed458c..4740bb776125d 100644
 --- third_party/crashpad/crashpad/client/settings.h
 +++ third_party/crashpad/crashpad/client/settings.h
-@@ -115,6 +115,11 @@ class Settings {
+@@ -118,6 +118,11 @@ class Settings {
    //!     error logged.
    bool SetLastUploadAttemptTime(time_t time);
  
@@ -146,7 +146,7 @@ index 5761c6b965b5c..aee4e6c96033e 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index a697b338e8eeb..96d4b45c5aa51 100644
+index f66da69a4cedb..01c6d05fdb446 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -197,7 +197,7 @@ index b7e445fd9f3ed..c5f1a3c3ceee7 100644
  
    if (!reader->SeekSet(start_offset)) {
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.h third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
-index 2ec1147d2620d..8ff9a72e0bd79 100644
+index 1a88a087b5357..5688d7f46c9d9 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 @@ -15,6 +15,7 @@
@@ -208,7 +208,7 @@ index 2ec1147d2620d..8ff9a72e0bd79 100644
  #include <memory>
  #include <string>
  
-@@ -103,7 +104,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+@@ -106,7 +107,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
    //! It is expected to only be called from the same thread that called Start().
    void Stop() override;
  
@@ -217,7 +217,7 @@ index 2ec1147d2620d..8ff9a72e0bd79 100644
    //! \brief The result code from UploadReport().
    enum class UploadResult {
      //! \brief The crash report was uploaded successfully.
-@@ -131,7 +132,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+@@ -134,7 +135,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
    //! object was constructed with \a watch_pending_reports, it will also scan
    //! the crash report database for other pending reports, and process those as
    //! well.
@@ -226,7 +226,7 @@ index 2ec1147d2620d..8ff9a72e0bd79 100644
  
    //! \brief Processes a single pending report from the database.
    //!
-@@ -145,7 +146,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+@@ -148,7 +149,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
    //! remain in the “pending” state. If the upload fails and no more retries are
    //! desired, or report upload is disabled, it will be marked as “completed” in
    //! the database without ever having been uploaded.
@@ -235,7 +235,7 @@ index 2ec1147d2620d..8ff9a72e0bd79 100644
  
    //! \brief Attempts to upload a crash report.
    //!
-@@ -162,6 +163,11 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+@@ -165,6 +166,11 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
    UploadResult UploadReport(const CrashReportDatabase::UploadReport* report,
                              std::string* response_body);
  
@@ -248,7 +248,7 @@ index 2ec1147d2620d..8ff9a72e0bd79 100644
    //! \brief Calls ProcessPendingReports() in response to ReportPending() having
    //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index 737ee4e09f676..f5a8727f7e6b1 100644
+index 5733463bedb94..ada3ac66bd435 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -39,6 +39,7 @@
@@ -280,7 +280,7 @@ index 737ee4e09f676..f5a8727f7e6b1 100644
  #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
    bool use_cros_crash_reporter = false;
    base::FilePath minidump_dir_for_tests;
-@@ -577,6 +585,9 @@ int HandlerMain(int argc,
+@@ -582,6 +590,9 @@ int HandlerMain(int argc,
      kOptionTraceParentWithException,
  #endif
      kOptionURL,
@@ -290,7 +290,7 @@ index 737ee4e09f676..f5a8727f7e6b1 100644
  #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
      kOptionUseCrosCrashReporter,
      kOptionMinidumpDirForTests,
-@@ -678,6 +689,9 @@ int HandlerMain(int argc,
+@@ -683,6 +694,9 @@ int HandlerMain(int argc,
  #endif  // OS_ANDROID
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
@@ -300,7 +300,7 @@ index 737ee4e09f676..f5a8727f7e6b1 100644
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -833,6 +847,27 @@ int HandlerMain(int argc,
+@@ -838,6 +852,27 @@ int HandlerMain(int argc,
          options.url = optarg;
          break;
        }
@@ -328,7 +328,7 @@ index 737ee4e09f676..f5a8727f7e6b1 100644
  #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
        case kOptionUseCrosCrashReporter: {
          options.use_cros_crash_reporter = true;
-@@ -982,8 +1017,14 @@ int HandlerMain(int argc,
+@@ -987,8 +1022,14 @@ int HandlerMain(int argc,
      upload_thread_options.upload_gzip = options.upload_gzip;
      upload_thread_options.watch_pending_reports = options.periodic_tasks;
  
@@ -343,7 +343,7 @@ index 737ee4e09f676..f5a8727f7e6b1 100644
      upload_thread.Get()->Start();
    }
  
-@@ -1053,7 +1094,8 @@ int HandlerMain(int argc,
+@@ -1058,7 +1099,8 @@ int HandlerMain(int argc,
    ScopedStoppable prune_thread;
    if (options.periodic_tasks) {
      prune_thread.Reset(new PruneCrashReportThread(

@@ -14,10 +14,10 @@ index c00884e06f960..858fdb75529f8 100644
                                : profiles::BUBBLE_VIEW_MODE_PROFILE_CHOOSER;
    }
 diff --git chrome/browser/ui/views/profiles/incognito_menu_view.cc chrome/browser/ui/views/profiles/incognito_menu_view.cc
-index 8a93e597977b0..4d0faa950a2af 100644
+index 38970b9869c05..35dd0be0030ed 100644
 --- chrome/browser/ui/views/profiles/incognito_menu_view.cc
 +++ chrome/browser/ui/views/profiles/incognito_menu_view.cc
-@@ -37,7 +37,9 @@
+@@ -38,7 +38,9 @@
  IncognitoMenuView::IncognitoMenuView(views::Button* anchor_button,
                                       Browser* browser)
      : ProfileMenuViewBase(anchor_button, browser) {
@@ -29,10 +29,10 @@ index 8a93e597977b0..4d0faa950a2af 100644
  
    chrome::RecordDialogCreation(
 diff --git chrome/browser/ui/views/profiles/profile_menu_view_base.cc chrome/browser/ui/views/profiles/profile_menu_view_base.cc
-index 8dffbd45f0e38..1e162823bd817 100644
+index 7f8f15b406de5..d0cf255156980 100644
 --- chrome/browser/ui/views/profiles/profile_menu_view_base.cc
 +++ chrome/browser/ui/views/profiles/profile_menu_view_base.cc
-@@ -511,7 +511,9 @@ void ProfileMenuViewBase::ShowBubble(profiles::BubbleViewMode view_mode,
+@@ -512,7 +512,9 @@ void ProfileMenuViewBase::ShowBubble(profiles::BubbleViewMode view_mode,
  
    ProfileMenuViewBase* bubble = nullptr;
    if (view_mode == profiles::BUBBLE_VIEW_MODE_INCOGNITO) {
@@ -42,4 +42,4 @@ index 8dffbd45f0e38..1e162823bd817 100644
 +            browser->profile()->GetOTRProfileID().IsUniqueForCEF()));
      bubble = new IncognitoMenuView(anchor_button, browser);
    } else {
-     DCHECK_EQ(profiles::BUBBLE_VIEW_MODE_PROFILE_CHOOSER, view_mode);
+ #if BUILDFLAG(IS_CHROMEOS_ASH)

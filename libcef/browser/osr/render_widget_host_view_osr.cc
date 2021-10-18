@@ -723,6 +723,12 @@ void CefRenderWidgetHostViewOSR::GetScreenInfo(display::ScreenInfo* results) {
   *results = ScreenInfoFrom(screen_info);
 }
 
+display::ScreenInfos CefRenderWidgetHostViewOSR::GetScreenInfos() {
+  display::ScreenInfo screen_info;
+  GetScreenInfo(&screen_info);
+  return display::ScreenInfos(screen_info);
+}
+
 void CefRenderWidgetHostViewOSR::TransformPointToRootSurface(
     gfx::PointF* point) {}
 
@@ -1516,14 +1522,11 @@ bool CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
 
 void CefRenderWidgetHostViewOSR::SetCurrentDeviceScaleFactor(float scale) {
   // Initialize a display struct as needed, to cache the scale factor.
-  if (display_list_.displays().empty()) {
-    display_list_ = display::DisplayList(
-        {display::Display(display::kDefaultDisplayId)},
-        display::kDefaultDisplayId, display::kDefaultDisplayId);
+  if (screen_infos_.screen_infos.empty()) {
+    screen_infos_ = display::ScreenInfos(display::ScreenInfo());
   }
-  display::Display current_display = display_list_.GetCurrentDisplay();
-  current_display.set_device_scale_factor(scale);
-  display_list_.UpdateDisplay(current_display);
+  screen_infos_.mutable_current().device_scale_factor = scale;
+  UpdateScreenInfo();
 }
 
 bool CefRenderWidgetHostViewOSR::SetViewBounds() {

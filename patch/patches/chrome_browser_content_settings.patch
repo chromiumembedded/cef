@@ -1,16 +1,16 @@
 diff --git chrome/browser/content_settings/host_content_settings_map_factory.cc chrome/browser/content_settings/host_content_settings_map_factory.cc
-index 173582c7c4904..bbf57904b6de9 100644
+index 05dd1c1b9741a..322dcb5feed00 100644
 --- chrome/browser/content_settings/host_content_settings_map_factory.cc
 +++ chrome/browser/content_settings/host_content_settings_map_factory.cc
-@@ -8,6 +8,7 @@
- 
+@@ -9,6 +9,7 @@
  #include "base/feature_list.h"
+ #include "build/build_config.h"
  #include "build/buildflag.h"
 +#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/content_settings/one_time_geolocation_permission_provider.h"
  #include "chrome/browser/permissions/last_tab_standing_tracker_factory.h"
  #include "chrome/browser/profiles/off_the_record_profile_impl.h"
-@@ -22,6 +23,10 @@
+@@ -23,6 +24,10 @@
  #include "extensions/buildflags/buildflags.h"
  #include "ui/webui/webui_allowlist_provider.h"
  
@@ -19,24 +19,23 @@ index 173582c7c4904..bbf57904b6de9 100644
 +#endif
 +
  #if BUILDFLAG(ENABLE_EXTENSIONS)
- #include "chrome/browser/extensions/extension_service.h"
- #include "extensions/browser/extension_system.h"
-@@ -51,8 +56,14 @@ HostContentSettingsMapFactory::HostContentSettingsMapFactory()
+ #include "base/trace_event/trace_event.h"
+ #include "chrome/browser/extensions/api/content_settings/content_settings_custom_extension_provider.h"
+@@ -51,7 +56,13 @@ HostContentSettingsMapFactory::HostContentSettingsMapFactory()
    DependsOn(SupervisedUserSettingsServiceFactory::GetInstance());
  #endif
  #if BUILDFLAG(ENABLE_EXTENSIONS)
 +#if BUILDFLAG(ENABLE_CEF)
 +  if (!cef::IsAlloyRuntimeEnabled() || extensions::ExtensionsEnabled()) {
 +#endif
-   DependsOn(
-       extensions::ExtensionsBrowserClient::Get()->GetExtensionSystemFactory());
+   DependsOn(extensions::ContentSettingsService::GetFactoryInstance());
 +#if BUILDFLAG(ENABLE_CEF)
 +  }
 +#endif
  #endif
  }
  
-@@ -110,10 +121,16 @@ scoped_refptr<RefcountedKeyedService>
+@@ -111,6 +122,9 @@ scoped_refptr<RefcountedKeyedService>
    }
  
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -45,8 +44,11 @@ index 173582c7c4904..bbf57904b6de9 100644
 +#endif
    // These must be registered before before the HostSettings are passed over to
    // the IOThread.  Simplest to do this on construction.
-   extensions::ExtensionService::RegisterContentSettings(settings_map.get(),
-                                                         profile);
+   settings_map->RegisterProvider(
+@@ -123,6 +137,9 @@ scoped_refptr<RefcountedKeyedService>
+           // the case where profile->IsOffTheRecord() is true? And what is the
+           // interaction with profile->IsGuestSession()?
+           false));
 +#if BUILDFLAG(ENABLE_CEF)
 +  }
 +#endif
@@ -54,7 +56,7 @@ index 173582c7c4904..bbf57904b6de9 100644
  #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
    SupervisedUserSettingsService* supervised_service =
 diff --git components/content_settings/renderer/content_settings_agent_impl.cc components/content_settings/renderer/content_settings_agent_impl.cc
-index 274b468f69a93..70dae07f3b883 100644
+index c88d87dc4c5f0..5f6d19e50c304 100644
 --- components/content_settings/renderer/content_settings_agent_impl.cc
 +++ components/content_settings/renderer/content_settings_agent_impl.cc
 @@ -170,7 +170,7 @@ ContentSetting GetContentSettingFromRulesImpl(

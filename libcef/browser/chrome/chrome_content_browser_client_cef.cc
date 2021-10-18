@@ -26,6 +26,7 @@
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "chrome/browser/chrome_browser_main.h"
+#include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "content/public/browser/navigation_throttle.h"
@@ -44,6 +45,7 @@ void HandleExternalProtocolHelper(
     content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
+    network::mojom::WebSandboxFlags sandbox_flags,
     const network::ResourceRequest& resource_request) {
   // Match the logic of the original call in
   // NavigationURLLoaderImpl::PrepareForNonInterceptedRequest.
@@ -53,6 +55,7 @@ void HandleExternalProtocolHelper(
       navigation_data,
       resource_request.resource_type ==
           static_cast<int>(blink::mojom::ResourceType::kMainFrame),
+      sandbox_flags,
       static_cast<ui::PageTransition>(resource_request.transition_type),
       resource_request.has_user_gesture, resource_request.request_initiator,
       nullptr);
@@ -238,6 +241,7 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
     bool is_main_frame,
+    network::mojom::WebSandboxFlags sandbox_flags,
     ui::PageTransition page_transition,
     bool has_user_gesture,
     const absl::optional<url::Origin>& initiating_origin,
@@ -254,14 +258,15 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
   // handling.
   return ChromeContentBrowserClient::HandleExternalProtocol(
       url, web_contents_getter, child_id, frame_tree_node_id, navigation_data,
-      is_main_frame, page_transition, has_user_gesture, initiating_origin,
-      nullptr);
+      is_main_frame, sandbox_flags, page_transition, has_user_gesture,
+      initiating_origin, nullptr);
 }
 
 bool ChromeContentBrowserClientCef::HandleExternalProtocol(
     content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
+    network::mojom::WebSandboxFlags sandbox_flags,
     const network::ResourceRequest& resource_request,
     mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory) {
   mojo::PendingReceiver<network::mojom::URLLoaderFactory> receiver =
@@ -272,7 +277,7 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
       web_contents_getter, frame_tree_node_id, resource_request,
       base::BindRepeating(HandleExternalProtocolHelper, base::Unretained(this),
                           web_contents_getter, frame_tree_node_id,
-                          navigation_data, resource_request));
+                          navigation_data, sandbox_flags, resource_request));
 
   net_service::ProxyURLLoaderFactory::CreateProxy(
       web_contents_getter, std::move(receiver), std::move(request_handler));
@@ -288,13 +293,21 @@ ChromeContentBrowserClientCef::CreateThrottlesForNavigation(
   return throttles;
 }
 
-void ChromeContentBrowserClientCef::ConfigureNetworkContextParams(
+bool ChromeContentBrowserClientCef::ConfigureNetworkContextParams(
     content::BrowserContext* context,
     bool in_memory,
     const base::FilePath& relative_partition_path,
     network::mojom::NetworkContextParams* network_context_params,
     cert_verifier::mojom::CertVerifierCreationParams*
         cert_verifier_creation_params) {
+  // This method may be called during shutdown when using multi-threaded
+  // message loop mode. In that case exit early to avoid crashes.
+  if (!SystemNetworkContextManager::GetInstance()) {
+    // Cancel NetworkContext creation in
+    // StoragePartitionImpl::InitNetworkContext.
+    return false;
+  }
+
   ChromeContentBrowserClient::ConfigureNetworkContextParams(
       context, in_memory, relative_partition_path, network_context_params,
       cert_verifier_creation_params);
@@ -314,6 +327,8 @@ void ChromeContentBrowserClientCef::ConfigureNetworkContextParams(
       accept_language_list != network_context_params->accept_language) {
     network_context_params->accept_language = accept_language_list;
   }
+
+  return true;
 }
 
 std::unique_ptr<content::LoginDelegate>

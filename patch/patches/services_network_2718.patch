@@ -1,8 +1,8 @@
 diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
-index de63186ea911e..4beccce527c86 100644
+index 95e5475cc69e8..2c07037751538 100644
 --- content/browser/storage_partition_impl.cc
 +++ content/browser/storage_partition_impl.cc
-@@ -498,10 +498,6 @@ class LoginHandlerDelegate {
+@@ -474,10 +474,6 @@ class LoginHandlerDelegate {
      }
  
      WebContents* web_contents = web_contents_getter_.Run();
@@ -13,7 +13,7 @@ index de63186ea911e..4beccce527c86 100644
  
      // WeakPtr is not strictly necessary here due to OnRequestCancelled.
      creating_login_delegate_ = true;
-@@ -552,12 +548,6 @@ void OnAuthRequiredContinuation(
+@@ -528,12 +524,6 @@ void OnAuthRequiredContinuation(
      mojo::PendingRemote<network::mojom::AuthChallengeResponder>
          auth_challenge_responder,
      base::RepeatingCallback<WebContents*(void)> web_contents_getter) {
@@ -26,7 +26,7 @@ index de63186ea911e..4beccce527c86 100644
    new LoginHandlerDelegate(
        std::move(auth_challenge_responder), std::move(web_contents_getter),
        auth_info, is_request_for_main_frame, process_id, request_id, url,
-@@ -2689,8 +2679,12 @@ void StoragePartitionImpl::GetQuotaSettings(
+@@ -2671,8 +2661,12 @@ void StoragePartitionImpl::GetQuotaSettings(
      return;
    }
  
@@ -40,12 +40,15 @@ index de63186ea911e..4beccce527c86 100644
        storage::GetDefaultDeviceInfoHelper(), std::move(callback));
  }
  
-@@ -2703,6 +2697,11 @@ void StoragePartitionImpl::InitNetworkContext() {
-   GetContentClient()->browser()->ConfigureNetworkContextParams(
+@@ -2682,9 +2676,12 @@ void StoragePartitionImpl::InitNetworkContext() {
+   cert_verifier::mojom::CertVerifierCreationParamsPtr
+       cert_verifier_creation_params =
+           cert_verifier::mojom::CertVerifierCreationParams::New();
+-  GetContentClient()->browser()->ConfigureNetworkContextParams(
++  if (!GetContentClient()->browser()->ConfigureNetworkContextParams(
        browser_context_, is_in_memory(), relative_partition_path_,
-       context_params.get(), cert_verifier_creation_params.get());
-+  if (context_params->context_name &&
-+      *context_params->context_name == "magic_shutting_down") {
+-      context_params.get(), cert_verifier_creation_params.get());
++      context_params.get(), cert_verifier_creation_params.get())) {
 +    // Don't re-initialize the network context during shutdown.
 +    return;
 +  }

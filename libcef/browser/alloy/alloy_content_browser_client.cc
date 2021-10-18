@@ -1206,7 +1206,7 @@ void AlloyContentBrowserClient::OnNetworkServiceCreated(
       network_service);
 }
 
-void AlloyContentBrowserClient::ConfigureNetworkContextParams(
+bool AlloyContentBrowserClient::ConfigureNetworkContextParams(
     content::BrowserContext* context,
     bool in_memory,
     const base::FilePath& relative_partition_path,
@@ -1216,10 +1216,9 @@ void AlloyContentBrowserClient::ConfigureNetworkContextParams(
   // This method may be called during shutdown when using multi-threaded
   // message loop mode. In that case exit early to avoid crashes.
   if (!SystemNetworkContextManager::GetInstance()) {
-    // This must match the value expected in
+    // Cancel NetworkContext creation in
     // StoragePartitionImpl::InitNetworkContext.
-    network_context_params->context_name = "magic_shutting_down";
-    return;
+    return false;
   }
 
   auto cef_context = CefBrowserContext::FromBrowserContext(context);
@@ -1243,6 +1242,8 @@ void AlloyContentBrowserClient::ConfigureNetworkContextParams(
   // TODO(cef): Remove this and add required NetworkIsolationKeys,
   // this is currently not the case and this was not required pre M84.
   network_context_params->require_network_isolation_key = false;
+
+  return true;
 }
 
 // The sandbox may block read/write access from the NetworkService to
@@ -1271,6 +1272,7 @@ bool AlloyContentBrowserClient::HandleExternalProtocol(
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
     bool is_main_frame,
+    network::mojom::WebSandboxFlags sandbox_flags,
     ui::PageTransition page_transition,
     bool has_user_gesture,
     const absl::optional<url::Origin>& initiating_origin,
@@ -1283,6 +1285,7 @@ bool AlloyContentBrowserClient::HandleExternalProtocol(
     content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
+    network::mojom::WebSandboxFlags sandbox_flags,
     const network::ResourceRequest& resource_request,
     mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory) {
   mojo::PendingReceiver<network::mojom::URLLoaderFactory> receiver =

@@ -41,7 +41,6 @@
 #include "extensions/browser/null_app_sorting.h"
 #include "extensions/browser/quota_service.h"
 #include "extensions/browser/renderer_startup_helper.h"
-#include "extensions/browser/runtime_data.h"
 #include "extensions/browser/service_worker_manager.h"
 #include "extensions/browser/state_store.h"
 #include "extensions/browser/unloaded_extension_reason.h"
@@ -387,17 +386,12 @@ void CefExtensionSystem::Shutdown() {
 void CefExtensionSystem::InitForRegularProfile(bool extensions_enabled) {
   DCHECK(!initialized_);
   service_worker_manager_.reset(new ServiceWorkerManager(browser_context_));
-  runtime_data_.reset(new RuntimeData(registry_));
   quota_service_.reset(new QuotaService);
   app_sorting_.reset(new NullAppSorting);
 }
 
 ExtensionService* CefExtensionSystem::extension_service() {
   return nullptr;
-}
-
-RuntimeData* CefExtensionSystem::runtime_data() {
-  return runtime_data_.get();
 }
 
 ManagementPolicy* CefExtensionSystem::management_policy() {
@@ -418,6 +412,10 @@ StateStore* CefExtensionSystem::state_store() {
 
 StateStore* CefExtensionSystem::rules_store() {
   return rules_store_.get();
+}
+
+StateStore* CefExtensionSystem::dynamic_user_scripts_store() {
+  return nullptr;
 }
 
 scoped_refptr<value_store::ValueStoreFactory>

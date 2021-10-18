@@ -10,7 +10,7 @@
 #include <memory>
 
 #include "base/files/file_path.h"
-#include "extensions/browser/value_store/value_store_factory.h"
+#include "components/value_store/value_store_factory.h"
 
 namespace value_store {
 
