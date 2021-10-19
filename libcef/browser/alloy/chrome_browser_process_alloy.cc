@@ -103,10 +103,9 @@ void ChromeBrowserProcessAlloy::CleanupOnUIThread() {
 
   local_state_.reset();
   browser_policy_connector_.reset();
-
   background_printing_manager_.reset();
-
   field_trial_list_.reset();
+  component_updater_.reset();
 
   shutdown_ = true;
 }
