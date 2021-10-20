@@ -120,7 +120,7 @@ index e06cd6c3d83db..1f7da7cf79979 100644
  
    // Initialize the frame (creates the underlying native window).
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index e7081ab3ec3e8..eb533496ef91c 100644
+index 61077f70f8a96..85f1d10dea443 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -284,11 +284,10 @@ using content::WebContents;
@@ -197,7 +197,7 @@ index e7081ab3ec3e8..eb533496ef91c 100644
    return frame_->GetFrameView()->ShouldHideTopUIForFullscreen();
  }
  
-@@ -2545,7 +2563,8 @@ BrowserView::GetNativeViewHostsForTopControlsSlide() const {
+@@ -2554,7 +2572,8 @@ BrowserView::GetNativeViewHostsForTopControlsSlide() const {
  }
  
  void BrowserView::ReparentTopContainerForEndOfImmersive() {
@@ -207,7 +207,7 @@ index e7081ab3ec3e8..eb533496ef91c 100644
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -2997,8 +3016,10 @@ void BrowserView::Layout() {
+@@ -3006,8 +3025,10 @@ void BrowserView::Layout() {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -220,7 +220,7 @@ index e7081ab3ec3e8..eb533496ef91c 100644
  
    // Some of the situations when the BrowserView is laid out are:
    // - Enter/exit immersive fullscreen mode.
-@@ -3061,6 +3082,11 @@ void BrowserView::AddedToWidget() {
+@@ -3070,6 +3091,11 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->profile());
  #endif
  
@@ -232,7 +232,7 @@ index e7081ab3ec3e8..eb533496ef91c 100644
    toolbar_->Init();
  
  #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
-@@ -3096,13 +3122,9 @@ void BrowserView::AddedToWidget() {
+@@ -3105,13 +3131,9 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -249,7 +249,7 @@ index e7081ab3ec3e8..eb533496ef91c 100644
  
    MaybeInitializeWebUITabStrip();
 diff --git chrome/browser/ui/views/frame/browser_view.h chrome/browser/ui/views/frame/browser_view.h
-index a9ba4f9841ef4..a373c1a1f1e90 100644
+index c628d5143c8bc..953e930d6bce8 100644
 --- chrome/browser/ui/views/frame/browser_view.h
 +++ chrome/browser/ui/views/frame/browser_view.h
 @@ -121,11 +121,16 @@ class BrowserView : public BrowserWindow,
@@ -269,7 +269,7 @@ index a9ba4f9841ef4..a373c1a1f1e90 100644
    void set_frame(BrowserFrame* frame) { frame_ = frame; }
    BrowserFrame* frame() const { return frame_; }
  
-@@ -684,6 +689,12 @@ class BrowserView : public BrowserWindow,
+@@ -685,6 +690,12 @@ class BrowserView : public BrowserWindow,
      return accessibility_focus_highlight_.get();
    }
  

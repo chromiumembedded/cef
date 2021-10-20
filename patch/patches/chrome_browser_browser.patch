@@ -200,7 +200,7 @@ index 2beb437bedf1d..21b15b48b4a3e 100644
  
  void Browser::TabDetachedAtImpl(content::WebContents* contents,
 diff --git chrome/browser/ui/browser.h chrome/browser/ui/browser.h
-index 7649c59dde3f5..a3b719f5c673a 100644
+index 599a822375fc7..90b3658ef3fe9 100644
 --- chrome/browser/ui/browser.h
 +++ chrome/browser/ui/browser.h
 @@ -21,6 +21,7 @@
@@ -261,7 +261,7 @@ index 7649c59dde3f5..a3b719f5c673a 100644
    // Get the FindBarController for this browser, creating it if it does not
    // yet exist.
    FindBarController* GetFindBarController();
-@@ -793,6 +816,11 @@ class Browser : public TabStripModelObserver,
+@@ -796,6 +819,11 @@ class Browser : public TabStripModelObserver,
    void SetContentsBounds(content::WebContents* source,
                           const gfx::Rect& bounds) override;
    void UpdateTargetURL(content::WebContents* source, const GURL& url) override;
