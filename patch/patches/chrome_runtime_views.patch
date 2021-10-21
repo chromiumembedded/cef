@@ -377,10 +377,10 @@ index 140c0df49ea46..7d4ac470dcc9a 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index 31e062d75daeb..c6d700e702e56 100644
+index f887f0fd2db37..5b9a7fa0d2ee6 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
-@@ -167,12 +167,13 @@ auto& GetViewCommandMap() {
+@@ -166,12 +166,13 @@ auto& GetViewCommandMap() {
  ////////////////////////////////////////////////////////////////////////////////
  // ToolbarView, public:
  
@@ -396,7 +396,7 @@ index 31e062d75daeb..c6d700e702e56 100644
    SetID(VIEW_ID_TOOLBAR);
  
    UpgradeDetector::GetInstance()->AddObserver(this);
-@@ -207,7 +208,7 @@ void ToolbarView::Init() {
+@@ -206,7 +207,7 @@ void ToolbarView::Init() {
  #endif
    auto location_bar = std::make_unique<LocationBarView>(
        browser_, browser_->profile(), browser_->command_controller(), this,

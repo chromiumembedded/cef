@@ -314,10 +314,10 @@ index b3a6eaa270877..aa4e84fea1387 100644
    base::FilePath GetSaveLocation() const;
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index 7695cf2a3a2e2..887e047b83b72 100644
+index a72645a12ac07..bfe1e2dce3662 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-@@ -29,6 +29,7 @@
+@@ -23,6 +23,7 @@
  #include "base/values.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
@@ -325,7 +325,7 @@ index 7695cf2a3a2e2..887e047b83b72 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/pdf/pdf_extension_util.h"
  #include "chrome/browser/printing/background_printing_manager.h"
-@@ -102,6 +103,13 @@ const char16_t kBasicPrintShortcut[] = u"\u0028\u21e7\u2318\u0050\u0029";
+@@ -98,6 +99,13 @@ const char16_t kBasicPrintShortcut[] = u"\u0028\u21e7\u2318\u0050\u0029";
  const char16_t kBasicPrintShortcut[] = u"(Ctrl+Shift+P)";
  #endif
  
@@ -339,7 +339,7 @@ index 7695cf2a3a2e2..887e047b83b72 100644
  constexpr char kInvalidArgsForDidStartPreview[] =
      "Invalid arguments for DidStartPreview";
  constexpr char kInvalidPageNumberForDidPreviewPage[] =
-@@ -391,7 +399,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
+@@ -344,7 +352,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
                      chrome::kCloudPrintCertificateErrorLearnMoreURL);
  
  #if !defined(OS_CHROMEOS)

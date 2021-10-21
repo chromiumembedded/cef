@@ -75,10 +75,10 @@ index 18b58f53a9df7..80452f68f24fb 100644
                        GetContentClient()->browser()->GetUserAgent());
      version.SetString("V8-Version", V8_VERSION_STRING);
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index 06517d7afaaa2..e368b300c5e30 100644
+index 0cb9f2d42ed76..00cb95ee7702a 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
-@@ -670,6 +670,13 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest(
+@@ -677,6 +677,13 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest(
            resource_request_->has_user_gesture, initiating_origin,
            &loader_factory);
  
@@ -92,7 +92,7 @@ index 06517d7afaaa2..e368b300c5e30 100644
        if (loader_factory) {
          factory = base::MakeRefCounted<network::WrapperSharedURLLoaderFactory>(
              std::move(loader_factory));
-@@ -838,7 +845,7 @@ void NavigationURLLoaderImpl::CheckPluginAndContinueOnReceiveResponse(
+@@ -845,7 +852,7 @@ void NavigationURLLoaderImpl::CheckPluginAndContinueOnReceiveResponse(
        frame_tree_node->current_frame_host()->GetProcess()->GetID();
    int routing_id = frame_tree_node->current_frame_host()->GetRoutingID();
    bool has_plugin = PluginService::GetInstance()->GetPluginInfo(
@@ -188,10 +188,10 @@ index 632ae86c6fd69..55b749ec12421 100644
                            const std::vector<WebPluginInfo>& all_plugins);
  
 diff --git content/browser/renderer_host/render_frame_host_impl.cc content/browser/renderer_host/render_frame_host_impl.cc
-index 6520b9b7e90aa..60af548b678cc 100644
+index 10c5c18955e58..2b8fcbf204d7f 100644
 --- content/browser/renderer_host/render_frame_host_impl.cc
 +++ content/browser/renderer_host/render_frame_host_impl.cc
-@@ -12341,6 +12341,7 @@ void RenderFrameHostImpl::BindHungDetectorHost(
+@@ -12355,6 +12355,7 @@ void RenderFrameHostImpl::BindHungDetectorHost(
  }
  
  void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
@@ -199,7 +199,7 @@ index 6520b9b7e90aa..60af548b678cc 100644
                                          const url::Origin& main_frame_origin,
                                          const std::string& mime_type,
                                          GetPluginInfoCallback callback) {
-@@ -12348,7 +12349,8 @@ void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
+@@ -12362,7 +12363,8 @@ void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
    WebPluginInfo info;
    std::string actual_mime_type;
    bool found = PluginServiceImpl::GetInstance()->GetPluginInfo(
@@ -210,10 +210,10 @@ index 6520b9b7e90aa..60af548b678cc 100644
    std::move(callback).Run(found, info, actual_mime_type);
  }
 diff --git content/browser/renderer_host/render_frame_host_impl.h content/browser/renderer_host/render_frame_host_impl.h
-index 86666516a0131..c1e11fbfda6fb 100644
+index e324c9c06e4ee..8dd3f6f10ed6e 100644
 --- content/browser/renderer_host/render_frame_host_impl.h
 +++ content/browser/renderer_host/render_frame_host_impl.h
-@@ -2614,6 +2614,7 @@ class CONTENT_EXPORT RenderFrameHostImpl
+@@ -2617,6 +2617,7 @@ class CONTENT_EXPORT RenderFrameHostImpl
        int32_t plugin_child_id,
        const base::FilePath& path) override;
    void GetPluginInfo(const GURL& url,

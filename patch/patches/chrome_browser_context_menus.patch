@@ -1,8 +1,8 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index fa211d7a0d997..cea251366f5d9 100644
+index 901a0baaca6cf..ca05eefd2232b 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
-@@ -278,6 +278,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
+@@ -283,6 +283,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
    return callback.get();
  }
  
@@ -16,7 +16,7 @@ index fa211d7a0d997..cea251366f5d9 100644
  enum class UmaEnumIdLookupType {
    GeneralEnumId,
    ContextSpecificEnumId,
-@@ -491,6 +498,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
+@@ -496,6 +503,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
    if (ContextMenuMatcher::IsExtensionsCustomCommandId(id))
      return 1;
  
@@ -27,7 +27,7 @@ index fa211d7a0d997..cea251366f5d9 100644
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -673,6 +684,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -678,6 +689,14 @@ RenderViewContextMenu::RenderViewContextMenu(
    system_app_ = GetBrowser() && GetBrowser()->app_controller()
                      ? GetBrowser()->app_controller()->system_app()
                      : nullptr;
@@ -42,7 +42,7 @@ index fa211d7a0d997..cea251366f5d9 100644
  }
  
  RenderViewContextMenu::~RenderViewContextMenu() = default;
-@@ -1031,6 +1050,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1036,6 +1055,12 @@ void RenderViewContextMenu::InitMenu() {
    // menu, meaning that each menu item added/removed in this function will cause
    // it to visibly jump on the screen (see b/173569669).
    AppendQuickAnswersItems();
@@ -55,7 +55,7 @@ index fa211d7a0d997..cea251366f5d9 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -2849,6 +2874,12 @@ void RenderViewContextMenu::RegisterMenuShownCallbackForTesting(
+@@ -2860,6 +2885,12 @@ void RenderViewContextMenu::RegisterMenuShownCallbackForTesting(
    *GetMenuShownCallback() = std::move(cb);
  }
  

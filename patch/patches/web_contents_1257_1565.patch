@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index e7e2e3d3163bb..e12381457f0bb 100644
+index 818585d3aca6d..693fe42f3894b 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -2899,6 +2899,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2900,6 +2900,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    frame_tree_.Init(site_instance.get(), params.renderer_initiated_creation,
                     params.main_frame_name);
  
@@ -15,7 +15,7 @@ index e7e2e3d3163bb..e12381457f0bb 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -2909,6 +2915,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2910,6 +2916,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
      view_.reset(CreateWebContentsView(this, delegate,
                                        &render_view_host_delegate_view_));
    }
@@ -23,7 +23,7 @@ index e7e2e3d3163bb..e12381457f0bb 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -3739,6 +3746,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+@@ -3743,6 +3750,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -39,7 +39,7 @@ index e7e2e3d3163bb..e12381457f0bb 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -7526,6 +7542,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -7530,6 +7546,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // This is an outermost WebContents.
      SetAsFocusedWebContentsIfNecessary();
    }
@@ -62,7 +62,7 @@ index c7302d7af6d8b..d19be54f36d39 100644
        creator_location(creator_location) {}
  
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index bfa0e468e11e6..31061d5821e60 100644
+index 370d9e11c78e7..7153d479b9f19 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -88,10 +88,12 @@ class BrowserContext;
