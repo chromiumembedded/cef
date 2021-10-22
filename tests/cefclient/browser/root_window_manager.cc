@@ -251,7 +251,7 @@ void RootWindowManager::CloseAllWindows(bool force) {
   // in OnRootWindowDestroyed while iterating.
   RootWindowSet root_windows = root_windows_;
 
-  for (auto root_window : root_windows_) {
+  for (auto root_window : root_windows) {
     root_window->Close(force);
   }
 }
