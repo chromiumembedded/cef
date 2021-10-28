@@ -910,7 +910,10 @@ void CefRenderWidgetHostViewOSR::DidNavigate() {
 
 void CefRenderWidgetHostViewOSR::OnFrameComplete(
     const viz::BeginFrameAck& ack) {
-  // TODO(cef): is there something we need to track with this notification?
+  DCHECK(begin_frame_pending_);
+  DCHECK_EQ(begin_frame_source_.source_id(), ack.frame_id.source_id);
+  DCHECK_EQ(begin_frame_number_, ack.frame_id.sequence_number);
+  begin_frame_pending_ = false;
 }
 
 void CefRenderWidgetHostViewOSR::OnRenderFrameMetadataChangedAfterActivation(
@@ -1047,17 +1050,20 @@ void CefRenderWidgetHostViewOSR::Invalidate(
 void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
   DCHECK(external_begin_frame_enabled_);
 
+  if (begin_frame_pending_)
+    return;
+  begin_frame_pending_ = true;
+
   base::TimeTicks frame_time = base::TimeTicks::Now();
   base::TimeTicks deadline = base::TimeTicks();
   base::TimeDelta interval = viz::BeginFrameArgs::DefaultInterval();
 
   viz::BeginFrameArgs begin_frame_args = viz::BeginFrameArgs::Create(
       BEGINFRAME_FROM_HERE, begin_frame_source_.source_id(),
-      begin_frame_number_, frame_time, deadline, interval,
+      ++begin_frame_number_, frame_time, deadline, interval,
       viz::BeginFrameArgs::NORMAL);
 
   DCHECK(begin_frame_args.IsValid());
-  begin_frame_number_++;
 
   if (render_widget_host_)
     render_widget_host_->ProgressFlingIfNeeded(frame_time);
@@ -1067,6 +1073,8 @@ void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
         begin_frame_args, /* force= */ true,
         base::BindOnce(&CefRenderWidgetHostViewOSR::OnFrameComplete,
                        weak_ptr_factory_.GetWeakPtr()));
+  } else {
+    begin_frame_pending_ = false;
   }
 
   if (!IsPopupWidget() && popup_host_view_) {
