@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index 9cddf7c7ba6c9..6fd98d5717daa 100644
+index 97e76d6be1ccf..809fe0069e261 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
-@@ -623,6 +623,14 @@ float RenderWidgetHostViewBase::GetDeviceScaleFactor() {
+@@ -630,6 +630,14 @@ float RenderWidgetHostViewBase::GetDeviceScaleFactor() {
    return screen_info.device_scale_factor;
  }
  
