@@ -534,7 +534,8 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     const std::string* url = params[0].GetIfString();
     const std::string* content = params[1].GetIfString();
     if (!url || !content)
-      return file_manager_.AppendToFile(*url, *content);
+      return;
+    file_manager_.AppendToFile(*url, *content);
   } else {
     return;
   }
