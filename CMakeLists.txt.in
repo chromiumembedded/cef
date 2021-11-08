@@ -36,7 +36,7 @@
 #
 # The below requirements must be met to build this CEF binary distribution.
 #
-# - CMake version 2.8.12.1 or newer.
+# - CMake version 3.19 or newer.
 #
 # - Linux requirements:
 #   Currently supported distributions include Debian 10 (Buster), Ubuntu 18
@@ -132,7 +132,8 @@
 # Global setup.
 #
 
-cmake_minimum_required(VERSION 2.8.12.1)
+# For VS2019 and Xcode 12+ support.
+cmake_minimum_required(VERSION 3.19)
 
 # Only generate Debug and Release configuration types.
 set(CMAKE_CONFIGURATION_TYPES Debug Release)
