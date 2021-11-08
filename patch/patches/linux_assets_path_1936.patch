@@ -46,3 +46,25 @@ index 016046d6caa4f..116e4919cda08 100644
        return false;
  
      const char kGLESv2ANGLELibraryName[] = "libGLESv2.so";
+diff --git ui/ozone/common/egl_util.cc ui/ozone/common/egl_util.cc
+index e028d8cf8dec6..d172832589534 100644
+--- ui/ozone/common/egl_util.cc
++++ ui/ozone/common/egl_util.cc
+@@ -158,7 +158,7 @@ bool LoadDefaultEGLGLES2Bindings(
+ #if BUILDFLAG(ENABLE_SWIFTSHADER)
+     base::FilePath module_path;
+ #if !defined(OS_FUCHSIA)
+-    if (!base::PathService::Get(base::DIR_MODULE, &module_path))
++    if (!base::PathService::Get(base::DIR_ASSETS, &module_path))
+       return false;
+     module_path = module_path.Append(FILE_PATH_LITERAL("swiftshader/"));
+ #endif
+@@ -171,7 +171,7 @@ bool LoadDefaultEGLGLES2Bindings(
+   } else if (implementation.gl == gl::kGLImplementationEGLANGLE) {
+     base::FilePath module_path;
+ #if !defined(OS_FUCHSIA)
+-    if (!base::PathService::Get(base::DIR_MODULE, &module_path))
++    if (!base::PathService::Get(base::DIR_ASSETS, &module_path))
+       return false;
+ #endif
+ 
