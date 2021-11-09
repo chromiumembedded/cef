@@ -158,13 +158,13 @@ class CorsPreflightRequest : public network::mojom::TrustedHeaderClient {
   // mojom::TrustedHeaderClient methods:
   void OnBeforeSendHeaders(const net::HttpRequestHeaders& headers,
                            OnBeforeSendHeadersCallback callback) override {
-    std::move(callback).Run(net::OK, absl::nullopt);
+    std::move(callback).Run(net::OK, headers);
   }
 
   void OnHeadersReceived(const std::string& headers,
                          const net::IPEndPoint& remote_endpoint,
                          OnHeadersReceivedCallback callback) override {
-    std::move(callback).Run(net::OK, absl::nullopt, GURL());
+    std::move(callback).Run(net::OK, headers, /*redirect_url=*/GURL());
     OnDestroy();
   }
 
