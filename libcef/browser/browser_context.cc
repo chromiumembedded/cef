@@ -314,10 +314,6 @@ void CefBrowserContext::OnRenderFrameDeleted(
     CEF_POST_TASK(CEF_IOT, base::BindOnce(&CefIOThreadState::RemoveHandler,
                                           iothread_state_, global_id));
   }
-
-  if (is_main_frame) {
-    ClearPluginLoadDecision(global_id.child_id);
-  }
 }
 
 CefRefPtr<CefRequestContextHandler> CefBrowserContext::GetHandler(
@@ -347,58 +343,6 @@ bool CefBrowserContext::IsAssociatedContext(
   }
 
   return false;
-}
-
-void CefBrowserContext::AddPluginLoadDecision(
-    int render_process_id,
-    const base::FilePath& plugin_path,
-    bool is_main_frame,
-    const url::Origin& main_frame_origin,
-    chrome::mojom::PluginStatus status) {
-  CEF_REQUIRE_UIT();
-  DCHECK_GE(render_process_id, 0);
-  DCHECK(!plugin_path.empty());
-
-  plugin_load_decision_map_.insert(std::make_pair(
-      std::make_pair(std::make_pair(render_process_id, plugin_path),
-                     std::make_pair(is_main_frame, main_frame_origin)),
-      status));
-}
-
-bool CefBrowserContext::HasPluginLoadDecision(
-    int render_process_id,
-    const base::FilePath& plugin_path,
-    bool is_main_frame,
-    const url::Origin& main_frame_origin,
-    chrome::mojom::PluginStatus* status) const {
-  CEF_REQUIRE_UIT();
-  DCHECK(frame_util::IsValidChildId(render_process_id));
-  DCHECK(!plugin_path.empty());
-
-  PluginLoadDecisionMap::const_iterator it = plugin_load_decision_map_.find(
-      std::make_pair(std::make_pair(render_process_id, plugin_path),
-                     std::make_pair(is_main_frame, main_frame_origin)));
-  if (it == plugin_load_decision_map_.end())
-    return false;
-
-  *status = it->second;
-  return true;
-}
-
-void CefBrowserContext::ClearPluginLoadDecision(int render_process_id) {
-  CEF_REQUIRE_UIT();
-
-  if (!frame_util::IsValidChildId(render_process_id)) {
-    plugin_load_decision_map_.clear();
-  } else {
-    PluginLoadDecisionMap::iterator it = plugin_load_decision_map_.begin();
-    while (it != plugin_load_decision_map_.end()) {
-      if (it->first.first.first == render_process_id)
-        it = plugin_load_decision_map_.erase(it);
-      else
-        ++it;
-    }
-  }
 }
 
 void CefBrowserContext::RegisterSchemeHandlerFactory(

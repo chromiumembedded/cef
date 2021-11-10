@@ -618,11 +618,6 @@ void CefExtensionSystem::UnloadExtension(const std::string& extension_id,
     registry_->RemoveEnabled(extension->id());
     NotifyExtensionUnloaded(extension.get(), reason);
   }
-
-  content::NotificationService::current()->Notify(
-      extensions::NOTIFICATION_EXTENSION_REMOVED,
-      content::Source<content::BrowserContext>(browser_context_),
-      content::Details<const Extension>(extension.get()));
 }
 
 // Implementation based on ExtensionService::NotifyExtensionLoaded.

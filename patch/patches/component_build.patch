@@ -1,8 +1,8 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index 6aa16d20faa3b..5c4fd217ae936 100644
+index b1c7f6ed1b779..60b9cf0a9479f 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
-@@ -90,7 +90,7 @@ bool ApplyUserAgentMetadataOverrides(
+@@ -95,7 +95,7 @@ bool ApplyUserAgentMetadataOverrides(
      FrameTreeNode* frame_tree_node,
      absl::optional<blink::UserAgentMetadata>* override_out);
  
@@ -47,7 +47,7 @@ index 57072bf1263ae..0a93446e4d21c 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 103fe625bb488..81c79036aa465 100644
+index c4d5cb83938e1..954c1c213e4a8 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -33,6 +33,7 @@ component("controller") {
@@ -58,7 +58,7 @@ index 103fe625bb488..81c79036aa465 100644
      "//third_party/blink/renderer:config",
      "//third_party/blink/renderer:inside_blink",
      "//third_party/blink/renderer:non_test_config",
-@@ -57,6 +58,8 @@ component("controller") {
+@@ -58,6 +59,8 @@ component("controller") {
      "performance_manager/v8_detailed_memory_reporter_impl.h",
      "performance_manager/v8_worker_memory_reporter.cc",
      "performance_manager/v8_worker_memory_reporter.h",

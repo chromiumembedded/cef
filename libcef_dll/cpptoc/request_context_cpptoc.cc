@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=38ae668703b71d27d2bcd7cd9230817edd5b8f41$
+// $hash=2c880c966ce6c72b764d41e2bf25d34a50f98fea$
 //
 
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
@@ -231,20 +231,6 @@ int CEF_CALLBACK request_context_clear_scheme_handler_factories(
 
   // Return type: bool
   return _retval;
-}
-
-void CEF_CALLBACK
-request_context_purge_plugin_list_cache(struct _cef_request_context_t* self,
-                                        int reload_pages) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-
-  // Execute
-  CefRequestContextCppToC::Get(self)->PurgePluginListCache(
-      reload_pages ? true : false);
 }
 
 int CEF_CALLBACK
@@ -575,8 +561,6 @@ CefRequestContextCppToC::CefRequestContextCppToC() {
       request_context_register_scheme_handler_factory;
   GetStruct()->clear_scheme_handler_factories =
       request_context_clear_scheme_handler_factories;
-  GetStruct()->purge_plugin_list_cache =
-      request_context_purge_plugin_list_cache;
   GetStruct()->has_preference = request_context_has_preference;
   GetStruct()->get_preference = request_context_get_preference;
   GetStruct()->get_all_preferences = request_context_get_all_preferences;

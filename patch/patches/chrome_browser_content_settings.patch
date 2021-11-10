@@ -1,5 +1,5 @@
 diff --git chrome/browser/content_settings/host_content_settings_map_factory.cc chrome/browser/content_settings/host_content_settings_map_factory.cc
-index 05dd1c1b9741a..322dcb5feed00 100644
+index 22fdc95ba9c3f..2a0e3cc7f65c8 100644
 --- chrome/browser/content_settings/host_content_settings_map_factory.cc
 +++ chrome/browser/content_settings/host_content_settings_map_factory.cc
 @@ -9,6 +9,7 @@
@@ -21,7 +21,7 @@ index 05dd1c1b9741a..322dcb5feed00 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "base/trace_event/trace_event.h"
  #include "chrome/browser/extensions/api/content_settings/content_settings_custom_extension_provider.h"
-@@ -51,7 +56,13 @@ HostContentSettingsMapFactory::HostContentSettingsMapFactory()
+@@ -55,7 +60,13 @@ HostContentSettingsMapFactory::HostContentSettingsMapFactory()
    DependsOn(SupervisedUserSettingsServiceFactory::GetInstance());
  #endif
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -33,9 +33,9 @@ index 05dd1c1b9741a..322dcb5feed00 100644
 +  }
 +#endif
  #endif
- }
- 
-@@ -111,6 +122,9 @@ scoped_refptr<RefcountedKeyedService>
+   // Used by way of ShouldRestoreOldSessionCookies().
+ #if BUILDFLAG(ENABLE_SESSION_SERVICE)
+@@ -119,6 +130,9 @@ scoped_refptr<RefcountedKeyedService>
    }
  
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -45,7 +45,7 @@ index 05dd1c1b9741a..322dcb5feed00 100644
    // These must be registered before before the HostSettings are passed over to
    // the IOThread.  Simplest to do this on construction.
    settings_map->RegisterProvider(
-@@ -123,6 +137,9 @@ scoped_refptr<RefcountedKeyedService>
+@@ -131,6 +145,9 @@ scoped_refptr<RefcountedKeyedService>
            // the case where profile->IsOffTheRecord() is true? And what is the
            // interaction with profile->IsGuestSession()?
            false));

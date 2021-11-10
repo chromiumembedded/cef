@@ -114,7 +114,8 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
       content::RenderFrameHost::LifecycleState new_state) override;
   void RenderFrameDeleted(content::RenderFrameHost* render_frame_host) override;
   void RenderViewReady() override;
-  void RenderProcessGone(base::TerminationStatus status) override;
+  void PrimaryMainFrameRenderProcessGone(
+      base::TerminationStatus status) override;
   void OnFrameFocused(content::RenderFrameHost* render_frame_host) override;
   void DocumentAvailableInMainFrame(
       content::RenderFrameHost* render_frame_host) override;

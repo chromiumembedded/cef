@@ -184,10 +184,10 @@ index f66da69a4cedb..01c6d05fdb446 100644
  
    if (crashpad_is_win) {
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
-index b7e445fd9f3ed..c5f1a3c3ceee7 100644
+index 60f172b6c8017..f3fac02aac2e4 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
-@@ -263,6 +263,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
+@@ -264,6 +264,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
    if (minidump_process_snapshot.Initialize(reader)) {
      parameters =
          BreakpadHTTPFormParametersFromMinidump(&minidump_process_snapshot);

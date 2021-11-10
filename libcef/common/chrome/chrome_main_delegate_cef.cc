@@ -19,6 +19,7 @@
 #include "components/embedder_support/switches.h"
 #include "content/public/common/content_switches.h"
 #include "sandbox/policy/switches.h"
+#include "third_party/blink/public/common/switches.h"
 #include "ui/base/ui_base_switches.h"
 
 #if defined(OS_MAC)
@@ -100,7 +101,7 @@ bool ChromeMainDelegateCef::BasicStartupComplete(int* exit_code) {
 
     if (settings_->javascript_flags.length > 0) {
       command_line->AppendSwitchASCII(
-          switches::kJavaScriptFlags,
+          blink::switches::kJavaScriptFlags,
           CefString(&settings_->javascript_flags).ToString());
     }
 

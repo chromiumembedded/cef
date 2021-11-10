@@ -1,5 +1,5 @@
 diff --git content/browser/blob_storage/chrome_blob_storage_context.cc content/browser/blob_storage/chrome_blob_storage_context.cc
-index 4960b1067e1c4..2686fa5bc550b 100644
+index df1a7ae70bdc3..10e9a0b3b881a 100644
 --- content/browser/blob_storage/chrome_blob_storage_context.cc
 +++ content/browser/blob_storage/chrome_blob_storage_context.cc
 @@ -120,7 +120,8 @@ ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
@@ -13,10 +13,10 @@ index 4960b1067e1c4..2686fa5bc550b 100644
            {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
             base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index 02e748a415afc..3434a329847e1 100644
+index 20487c264639f..55be77eb0dd89 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
-@@ -137,7 +137,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
+@@ -134,7 +134,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
  StoragePartition* BrowserContext::GetStoragePartition(
      const StoragePartitionConfig& storage_partition_config,
      bool can_create) {
@@ -25,7 +25,7 @@ index 02e748a415afc..3434a329847e1 100644
      // An off the record profile MUST only use in memory storage partitions.
      CHECK(storage_partition_config.in_memory());
    }
-@@ -388,7 +388,8 @@ BrowserContext::CreateVideoDecodePerfHistory() {
+@@ -375,7 +375,8 @@ BrowserContext::CreateVideoDecodePerfHistory() {
    const bool kUseInMemoryDBDefault = false;
    bool use_in_memory_db = base::GetFieldTrialParamByFeatureAsBool(
        media::kMediaCapabilitiesWithParameters, kUseInMemoryDBParamName,

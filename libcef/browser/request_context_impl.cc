@@ -16,7 +16,6 @@
 #include "chrome/browser/profiles/profile.h"
 #include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_task_traits.h"
-#include "content/public/browser/plugin_service.h"
 #include "content/public/browser/ssl_host_state_delegate.h"
 #include "content/public/common/child_process_host.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
@@ -399,13 +398,6 @@ bool CefRequestContextImpl::ClearSchemeHandlerFactories() {
   return true;
 }
 
-void CefRequestContextImpl::PurgePluginListCache(bool reload_pages) {
-  GetBrowserContext(
-      content::GetUIThreadTaskRunner({}),
-      base::BindOnce(&CefRequestContextImpl::PurgePluginListCacheInternal, this,
-                     reload_pages));
-}
-
 bool CefRequestContextImpl::HasPreference(const CefString& name) {
   if (!VerifyBrowserContext())
     return false;
@@ -703,19 +695,6 @@ void CefRequestContextImpl::EnsureBrowserContext() {
   if (!browser_context())
     Initialize();
   DCHECK(browser_context());
-}
-
-void CefRequestContextImpl::PurgePluginListCacheInternal(
-    bool reload_pages,
-    CefBrowserContext::Getter browser_context_getter) {
-  auto browser_context = browser_context_getter.Run();
-  if (!browser_context)
-    return;
-
-  browser_context->ClearPluginLoadDecision(
-      content::ChildProcessHost::kInvalidUniqueID);
-  content::PluginService::GetInstance()->PurgePluginListCache(
-      browser_context->AsBrowserContext(), false);
 }
 
 void CefRequestContextImpl::ClearCertificateExceptionsInternal(

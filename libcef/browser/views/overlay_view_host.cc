@@ -11,6 +11,7 @@
 #include "chrome/browser/ui/views/frame/browser_view.h"
 #include "chrome/browser/ui/views/theme_copying_widget.h"
 #include "third_party/skia/include/core/SkColor.h"
+#include "ui/compositor/compositor.h"
 #include "ui/compositor/layer.h"
 
 #if defined(USE_AURA)

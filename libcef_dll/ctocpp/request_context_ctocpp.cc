@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=67bc021917c8f7d1e386859bbfae6e007b292f45$
+// $hash=018255aa904d057d87b35e9af87b702103e770de$
 //
 
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
@@ -223,18 +223,6 @@ bool CefRequestContextCToCpp::ClearSchemeHandlerFactories() {
 
   // Return type: bool
   return _retval ? true : false;
-}
-
-NO_SANITIZE("cfi-icall")
-void CefRequestContextCToCpp::PurgePluginListCache(bool reload_pages) {
-  cef_request_context_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, purge_plugin_list_cache))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  _struct->purge_plugin_list_cache(_struct, reload_pages);
 }
 
 NO_SANITIZE("cfi-icall")

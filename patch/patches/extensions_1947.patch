@@ -60,7 +60,7 @@ index 5c903a13a14ed..c85964a7bab17 100644
    std::unique_ptr<StreamContainer> stream_container(
        new StreamContainer(tab_id, embedded, handler_url, extension_id,
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
-index 941d1ab4ec0f1..e887234ad9a5f 100644
+index 790ee41f5be0d..adcc503b592f3 100644
 --- extensions/browser/extension_host.cc
 +++ extensions/browser/extension_host.cc
 @@ -62,11 +62,12 @@ ExtensionHost::ExtensionHost(const Extension* extension,
@@ -125,7 +125,7 @@ index 941d1ab4ec0f1..e887234ad9a5f 100644
    ExtensionRegistry::Get(browser_context_)->RemoveObserver(this);
  
 diff --git extensions/browser/extension_host.h extensions/browser/extension_host.h
-index fe86adeadc40e..2d4d9fe819fb3 100644
+index 9a479775963fc..e3e24dca23594 100644
 --- extensions/browser/extension_host.h
 +++ extensions/browser/extension_host.h
 @@ -53,6 +53,12 @@ class ExtensionHost : public DeferredStartRenderHost,
@@ -150,7 +150,7 @@ index fe86adeadc40e..2d4d9fe819fb3 100644
    content::RenderFrameHost* main_frame_host() const { return main_frame_host_; }
    content::RenderProcessHost* render_process_host() const;
    bool has_loaded_once() const { return has_loaded_once_; }
-@@ -188,7 +194,8 @@ class ExtensionHost : public DeferredStartRenderHost,
+@@ -189,7 +195,8 @@ class ExtensionHost : public DeferredStartRenderHost,
    content::BrowserContext* browser_context_;
  
    // The host for our HTML content.
@@ -196,7 +196,7 @@ index 0d21ebc927042..a08ebcbafc252 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index 4f33f582342d8..9e31be3254cfe 100644
+index 60d33c01de75b..6387238ef497f 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -393,9 +393,17 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,

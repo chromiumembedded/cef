@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_COMMON_TASK_RUNNER_MANAGER_H_
 #pragma once
 
-#include "base/single_thread_task_runner.h"
+#include "base/task/single_thread_task_runner.h"
 
 // Exposes global sequenced task runners in the main and render processes.
 // Prefer using base::ThreadPool for tasks that do not need to be globally

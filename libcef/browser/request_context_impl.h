@@ -68,7 +68,6 @@ class CefRequestContextImpl : public CefRequestContext {
       const CefString& domain_name,
       CefRefPtr<CefSchemeHandlerFactory> factory) override;
   bool ClearSchemeHandlerFactories() override;
-  void PurgePluginListCache(bool reload_pages) override;
   bool HasPreference(const CefString& name) override;
   CefRefPtr<CefValue> GetPreference(const CefString& name) override;
   CefRefPtr<CefDictionaryValue> GetAllPreferences(
@@ -144,9 +143,6 @@ class CefRequestContextImpl : public CefRequestContext {
   // Make sure the browser context exists. Only called on the UI thread.
   void EnsureBrowserContext();
 
-  void PurgePluginListCacheInternal(
-      bool reload_pages,
-      CefBrowserContext::Getter browser_context_getter);
   void ClearCertificateExceptionsInternal(
       CefRefPtr<CefCompletionCallback> callback,
       CefBrowserContext::Getter browser_context_getter);

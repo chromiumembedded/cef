@@ -25,7 +25,7 @@ class CefMimeHandlerViewGuestDelegate : public MimeHandlerViewGuestDelegate {
       content::WebContents::CreateParams* params) override;
   void OnGuestAttached() override;
   void OnGuestDetached() override;
-  bool HandleContextMenu(content::WebContents* web_contents,
+  bool HandleContextMenu(content::RenderFrameHost& render_frame_host,
                          const content::ContextMenuParams& params) override;
 
  private:

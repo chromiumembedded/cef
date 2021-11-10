@@ -1,53 +1,13 @@
-diff --git ui/views/controls/native/native_view_host.cc ui/views/controls/native/native_view_host.cc
-index 91e9eac1fcf71..05b668948c02f 100644
---- ui/views/controls/native/native_view_host.cc
-+++ ui/views/controls/native/native_view_host.cc
-@@ -163,7 +163,7 @@ void NativeViewHost::OnPaint(gfx::Canvas* canvas) {
-   // It would be nice if this used some approximation of the page's
-   // current background color.
-   if (native_wrapper_->HasInstalledClip())
--    canvas->FillRect(GetLocalBounds(), SK_ColorWHITE);
-+    canvas->FillRect(GetLocalBounds(), resize_background_color_);
- }
- 
- void NativeViewHost::VisibilityChanged(View* starting_from, bool is_visible) {
-diff --git ui/views/controls/native/native_view_host.h ui/views/controls/native/native_view_host.h
-index 41dfc21830866..d1bd55a117e53 100644
---- ui/views/controls/native/native_view_host.h
-+++ ui/views/controls/native/native_view_host.h
-@@ -98,6 +98,12 @@ class VIEWS_EXPORT NativeViewHost : public View {
-   void set_fast_resize(bool fast_resize) { fast_resize_ = fast_resize; }
-   bool fast_resize() const { return fast_resize_; }
- 
-+  // Sets the color to paint the background during a resize that involves a
-+  // clip. This is white by default.
-+  void set_resize_background_color(SkColor resize_background_color) {
-+    resize_background_color_ = resize_background_color;
-+  }
-+
-   gfx::NativeView native_view() const { return native_view_; }
- 
-   void NativeViewDestroyed();
-@@ -143,6 +149,9 @@ class VIEWS_EXPORT NativeViewHost : public View {
-   // True if the native view is being resized using the fast method described
-   // in the setter/accessor above.
-   bool fast_resize_ = false;
-+
-+  // Color to paint in the background while resizing.
-+  SkColor resize_background_color_ = SK_ColorWHITE;
- };
- 
- }  // namespace views
 diff --git ui/views/controls/webview/webview.cc ui/views/controls/webview/webview.cc
-index b9e835bc1ef76..cb7b51ac98451 100644
+index 5afb127d4bf11..9b371085bb79f 100644
 --- ui/views/controls/webview/webview.cc
 +++ ui/views/controls/webview/webview.cc
-@@ -137,6 +137,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
+@@ -142,6 +142,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
      MaybeEnableAutoResize(web_contents()->GetMainFrame());
  }
  
 +void WebView::SetResizeBackgroundColor(SkColor resize_background_color) {
-+  holder_->set_resize_background_color(resize_background_color);
++  holder_->SetBackgroundColorWhenClipped(resize_background_color);
 +}
 +
  void WebView::SetCrashedOverlayView(View* crashed_overlay_view) {

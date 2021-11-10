@@ -325,9 +325,10 @@ void CefPrintViewManager::NavigationStopped() {
   PrintViewManager::NavigationStopped();
 }
 
-void CefPrintViewManager::RenderProcessGone(base::TerminationStatus status) {
+void CefPrintViewManager::PrimaryMainFrameRenderProcessGone(
+    base::TerminationStatus status) {
   TerminatePdfPrintJob();
-  PrintViewManager::RenderProcessGone(status);
+  PrintViewManager::PrimaryMainFrameRenderProcessGone(status);
 }
 
 // static

@@ -16,7 +16,7 @@
 #include "base/callback.h"
 #include "base/files/file_path.h"
 #include "base/memory/weak_ptr.h"
-#include "base/sequenced_task_runner_helpers.h"
+#include "base/task/sequenced_task_runner_helpers.h"
 #include "chrome/common/plugin.mojom.h"
 #include "services/network/public/mojom/network_context.mojom.h"
 #include "third_party/abseil-cpp/absl/types/optional.h"
@@ -153,24 +153,6 @@ class CefBrowserContext {
   bool IsAssociatedContext(const content::GlobalRenderFrameHostId& global_id,
                            bool require_frame_match) const;
 
-  // Remember the plugin load decision for plugin status requests that arrive
-  // via CefPluginServiceFilter::IsPluginAvailable.
-  void AddPluginLoadDecision(int render_process_id,
-                             const base::FilePath& plugin_path,
-                             bool is_main_frame,
-                             const url::Origin& main_frame_origin,
-                             chrome::mojom::PluginStatus status);
-  bool HasPluginLoadDecision(int render_process_id,
-                             const base::FilePath& plugin_path,
-                             bool is_main_frame,
-                             const url::Origin& main_frame_origin,
-                             chrome::mojom::PluginStatus* status) const;
-
-  // Clear the plugin load decisions associated with |render_process_id|, or all
-  // plugin load decisions if |render_process_id| is
-  // content::ChildProcessHost::kInvalidUniqueID.
-  void ClearPluginLoadDecision(int render_process_id);
-
   // Called from CefRequestContextImpl methods of the same name.
   void RegisterSchemeHandlerFactory(const CefString& scheme_name,
                                     const CefString& domain_name,
@@ -242,14 +224,6 @@ class CefBrowserContext {
 
   // Map IDs to CefRequestContextHandler objects.
   CefRequestContextHandlerMap handler_map_;
-
-  // Map (render_process_id, plugin_path, is_main_frame, main_frame_origin) to
-  // plugin load decision.
-  typedef std::map<
-      std::pair<std::pair<int, base::FilePath>, std::pair<bool, url::Origin>>,
-      chrome::mojom::PluginStatus>
-      PluginLoadDecisionMap;
-  PluginLoadDecisionMap plugin_load_decision_map_;
 
   // Set of global IDs associated with this context.
   typedef std::set<content::GlobalRenderFrameHostId> RenderIdSet;

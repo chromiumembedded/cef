@@ -8,8 +8,8 @@
 
 #include "base/macros.h"
 #include "base/memory/ref_counted.h"
-#include "base/sequenced_task_runner.h"
-#include "base/sequenced_task_runner_helpers.h"
+#include "base/task/sequenced_task_runner.h"
+#include "base/task/sequenced_task_runner_helpers.h"
 #include "services/network/public/mojom/url_loader_factory.mojom.h"
 
 namespace content {

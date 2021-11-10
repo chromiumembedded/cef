@@ -43,7 +43,7 @@ index 9641285fde742..51cc852fcc165 100644
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/task/current_thread.h base/task/current_thread.h
-index bdcd661bfa282..823a1d02ca858 100644
+index b69284cd85576..111185c0ab9a8 100644
 --- base/task/current_thread.h
 +++ base/task/current_thread.h
 @@ -127,6 +127,12 @@ class BASE_EXPORT CurrentThread {

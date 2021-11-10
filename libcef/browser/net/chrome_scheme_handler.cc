@@ -75,7 +75,6 @@ const char kChromeUIWebUIHostsHost[] = "webui-hosts";
 // additional changes. Do not add new hosts to this list without also manually
 // testing all related functionality in CEF.
 const char* kAllowedWebUIHosts[] = {
-    content::kChromeUIAppCacheInternalsHost,
     chrome::kChromeUIAccessibilityHost,
     content::kChromeUIBlobInternalsHost,
     chrome::kChromeUIChromeURLsHost,

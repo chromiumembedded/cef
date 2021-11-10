@@ -28,7 +28,6 @@
 #include "libcef/browser/net_service/login_delegate.h"
 #include "libcef/browser/net_service/proxy_url_loader_factory.h"
 #include "libcef/browser/net_service/resource_request_handler_wrapper.h"
-#include "libcef/browser/plugins/plugin_service_filter.h"
 #include "libcef/browser/prefs/renderer_prefs.h"
 #include "libcef/browser/printing/print_view_manager.h"
 #include "libcef/browser/speech_recognition_manager_delegate.h"
@@ -469,13 +468,9 @@ base::FilePath GetRootCachePath() {
 
 }  // namespace
 
-AlloyContentBrowserClient::AlloyContentBrowserClient() {
-  plugin_service_filter_.reset(new CefPluginServiceFilter);
-  content::PluginServiceImpl::GetInstance()->SetFilter(
-      plugin_service_filter_.get());
-}
+AlloyContentBrowserClient::AlloyContentBrowserClient() = default;
 
-AlloyContentBrowserClient::~AlloyContentBrowserClient() {}
+AlloyContentBrowserClient::~AlloyContentBrowserClient() = default;
 
 std::unique_ptr<content::BrowserMainParts>
 AlloyContentBrowserClient::CreateBrowserMainParts(

@@ -1,18 +1,18 @@
 diff --git chrome/browser/themes/theme_service.cc chrome/browser/themes/theme_service.cc
-index 21f6cb93a3778..31134a9495858 100644
+index 54bff316490a5..fa472b2c9cd61 100644
 --- chrome/browser/themes/theme_service.cc
 +++ chrome/browser/themes/theme_service.cc
-@@ -26,6 +26,7 @@
+@@ -27,6 +27,7 @@
  #include "base/task/thread_pool.h"
  #include "base/threading/thread_task_runner_handle.h"
  #include "build/build_config.h"
 +#include "cef/libcef/features/runtime.h"
+ #include "chrome/browser/browser_features.h"
  #include "chrome/browser/extensions/extension_service.h"
  #include "chrome/browser/extensions/theme_installed_infobar_delegate.h"
- #include "chrome/browser/new_tab_page/chrome_colors/chrome_colors_service.h"
-@@ -58,6 +59,10 @@
- #include "third_party/abseil-cpp/absl/types/optional.h"
+@@ -62,6 +63,10 @@
  #include "ui/base/layout.h"
+ #include "ui/color/color_provider.h"
  
 +#if BUILDFLAG(ENABLE_CEF)
 +#include "cef/libcef/common/extensions/extensions_util.h"
@@ -21,7 +21,7 @@ index 21f6cb93a3778..31134a9495858 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "base/scoped_observation.h"
  #include "extensions/browser/extension_registry_observer.h"
-@@ -281,11 +286,19 @@ void ThemeService::Init() {
+@@ -348,11 +353,19 @@ void ThemeService::Init() {
    // OnExtensionServiceReady. Otherwise, the ThemeObserver won't be
    // constructed in time to observe the corresponding events.
  #if BUILDFLAG(ENABLE_EXTENSIONS)

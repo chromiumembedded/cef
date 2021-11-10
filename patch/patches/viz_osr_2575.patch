@@ -29,7 +29,7 @@ index 3b00759e513dc..90fe332d59f5b 100644
  // TODO(crbug.com/1052397): Revisit the macro expression once build flag switch
  // of lacros-chrome is complete.
 diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
-index 888133f8e05fb..42b5dd238e893 100644
+index e98a856f2dd17..deceb8745a978 100644
 --- components/viz/host/host_display_client.h
 +++ components/viz/host/host_display_client.h
 @@ -35,17 +35,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
@@ -80,7 +80,7 @@ index 894237a777fbf..4310c08b0c2cf 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index eb36a21f0f79a..e796d878ee1f8 100644
+index 1ccab1bcbbcb5..e7da4f03c3875 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -208,6 +208,8 @@ viz_component("service") {
@@ -93,7 +93,7 @@ index eb36a21f0f79a..e796d878ee1f8 100644
  
    defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index 40a9a82819702..d1d2e77bbae26 100644
+index e0afde4b0cb45..8782e6a6a3cc3 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
 @@ -16,6 +16,7 @@
@@ -142,7 +142,7 @@ index 583e3e2525c75..e1836039ad8a5 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 53c23a97a54a4..080117e2c1fb5 100644
+index bb929cb9ff381..ddc3707284c28 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
 @@ -382,8 +382,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
@@ -183,10 +183,10 @@ index 986469b5c09c4..251cb9eb27ede 100644
    // running in the same process, so it won't block anything.
    // TODO(159346933) Remove once the origin isolation logic is moved outside of
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index 409115f95787e..278354c126a0c 100644
+index 9f7583e424057..c301c518dd8ec 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
-@@ -85,12 +85,14 @@ interface DisplayPrivate {
+@@ -89,12 +89,14 @@ interface DisplayPrivate {
  };
  
  interface DisplayClient {
@@ -214,10 +214,10 @@ index 6b7fbb6cf13dc..e2af75168cb91 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 6220caafb2cba..9a111be427d83 100644
+index 8b5b2b055343e..69751904955fa 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
-@@ -29,7 +29,9 @@
+@@ -30,7 +30,9 @@
  #include "components/viz/common/frame_sinks/begin_frame_args.h"
  #include "components/viz/common/surfaces/frame_sink_id.h"
  #include "components/viz/common/surfaces/subtree_capture_id.h"
@@ -227,7 +227,7 @@ index 6220caafb2cba..9a111be427d83 100644
  #include "mojo/public/cpp/bindings/pending_remote.h"
  #include "services/viz/privileged/mojom/compositing/vsync_parameter_observer.mojom-forward.h"
  #include "skia/ext/skia_matrix_44.h"
-@@ -136,6 +138,14 @@ class COMPOSITOR_EXPORT ContextFactory {
+@@ -137,6 +139,14 @@ class COMPOSITOR_EXPORT ContextFactory {
    virtual viz::HostFrameSinkManager* GetHostFrameSinkManager() = 0;
  };
  
@@ -242,7 +242,7 @@ index 6220caafb2cba..9a111be427d83 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -175,6 +185,9 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -177,6 +187,9 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -252,7 +252,7 @@ index 6220caafb2cba..9a111be427d83 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -449,6 +462,8 @@ class COMPOSITOR_EXPORT Compositor : public cc::LayerTreeHostClient,
+@@ -454,6 +467,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
  
    std::unique_ptr<PendingBeginFrameArgs> pending_begin_frame_args_;
  

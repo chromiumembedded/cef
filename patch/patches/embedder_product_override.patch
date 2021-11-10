@@ -1,5 +1,5 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index 516504c2ce442..60899c8e4f7bf 100644
+index 79ea44500f6e7..f1c4da868f12e 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
 @@ -14,6 +14,7 @@
@@ -8,9 +8,9 @@ index 516504c2ce442..60899c8e4f7bf 100644
  #include "build/build_config.h"
 +#include "cef/libcef/common/cef_switches.h"
  #include "components/embedder_support/switches.h"
- #include "components/version_info/version_info.h"
- #include "content/public/browser/web_contents.h"
-@@ -172,6 +173,12 @@ const blink::UserAgentBrandList& GetBrandVersionList() {
+ #include "components/policy/core/common/policy_pref_names.h"
+ #include "components/prefs/pref_service.h"
+@@ -189,6 +190,12 @@ const blink::UserAgentBrandList& GetBrandVersionList(
  }  // namespace
  
  std::string GetProduct() {

@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index cdbc0273838e5..ee2809a0bb98a 100644
+index a48a7be8932e0..7c8492a9e6f62 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
 @@ -22,7 +22,7 @@ struct DropData;
@@ -12,7 +12,7 @@ index cdbc0273838e5..ee2809a0bb98a 100644
    virtual ~WebContentsView() {}
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index df1d12a9dcd38..6338faaf64f87 100644
+index ded1894a7d1d7..6ea82766e8e87 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 @@ -210,6 +210,8 @@ void MimeHandlerViewGuest::CreateWebContents(
@@ -48,7 +48,7 @@ index df1d12a9dcd38..6338faaf64f87 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index 663322919d453..fafab123461c6 100644
+index b47ce186faba9..2f80ab128b4e0 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 @@ -144,6 +144,7 @@ class MimeHandlerViewGuest
@@ -68,21 +68,18 @@ index 663322919d453..fafab123461c6 100644
    bool is_embedder_fullscreen_ = false;
    bool plugin_can_save_ = false;
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
-index ec7bf1f089928..dbd4304e31f8c 100644
+index 5d4bff64cbe16..b085c2ef1f7c5 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
-@@ -8,9 +8,9 @@
+@@ -8,6 +8,7 @@
  #include <string>
  
  #include "base/macros.h"
 +#include "content/public/browser/web_contents.h"
  
  namespace content {
--class WebContents;
- struct ContextMenuParams;
- }  // namespace content
- 
-@@ -27,6 +27,14 @@ class MimeHandlerViewGuestDelegate {
+ class RenderFrameHost;
+@@ -27,6 +28,14 @@ class MimeHandlerViewGuestDelegate {
  
    virtual ~MimeHandlerViewGuestDelegate() {}
  
@@ -95,5 +92,5 @@ index ec7bf1f089928..dbd4304e31f8c 100644
 +  virtual void OnGuestDetached() {}
 +
    // Handles context menu, or returns false if unhandled.
-   virtual bool HandleContextMenu(content::WebContents* web_contents,
-                                  const content::ContextMenuParams& params);
+   //
+   // The `render_frame_host` represents the frame that requests the context menu

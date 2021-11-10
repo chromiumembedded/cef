@@ -16,8 +16,8 @@
 #include "libcef/renderer/browser_impl.h"
 
 #include "base/compiler_specific.h"
-#include "base/single_thread_task_runner.h"
 #include "base/task/current_thread.h"
+#include "base/task/single_thread_task_runner.h"
 #include "chrome/common/plugin.mojom.h"
 #include "chrome/renderer/media/chrome_key_systems_provider.h"
 #include "content/public/renderer/content_renderer_client.h"

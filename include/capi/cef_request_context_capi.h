@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=2e42334fc22050e207e5a0af6fe290a592e4105f$
+// $hash=77e2da51f7af8b4fbb317d8cdab5e5e7c9d3300d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
@@ -164,17 +164,6 @@ typedef struct _cef_request_context_t {
   ///
   int(CEF_CALLBACK* clear_scheme_handler_factories)(
       struct _cef_request_context_t* self);
-
-  ///
-  // Tells all renderer processes associated with this context to throw away
-  // their plugin list cache. If |reload_pages| is true (1) they will also
-  // reload all pages with plugins.
-  // cef_request_context_handler_t::OnBeforePluginLoad may be called to rebuild
-  // the plugin list cache.
-  ///
-  void(CEF_CALLBACK* purge_plugin_list_cache)(
-      struct _cef_request_context_t* self,
-      int reload_pages);
 
   ///
   // Returns true (1) if a preference with the specified |name| exists. This

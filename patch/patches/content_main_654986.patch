@@ -123,7 +123,7 @@ index a26c5c2e053ed..c88c4c1b81f9b 100644
    return RunContentProcess(params, runner.get());
  }
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 915ae322cb6a2..781277e45de4c 100644
+index 6b59da3a0d069..4db71e0402eef 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -45,6 +45,7 @@
@@ -134,7 +134,7 @@ index 915ae322cb6a2..781277e45de4c 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1146,6 +1147,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1167,6 +1168,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  

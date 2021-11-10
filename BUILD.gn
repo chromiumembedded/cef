@@ -620,8 +620,6 @@ static_library("libcef_static") {
     "libcef/browser/osr/web_contents_view_osr.cc",
     "libcef/browser/osr/web_contents_view_osr.h",
     "libcef/browser/path_util_impl.cc",
-    "libcef/browser/plugins/plugin_service_filter.cc",
-    "libcef/browser/plugins/plugin_service_filter.h",
     "libcef/browser/prefs/browser_prefs.cc",
     "libcef/browser/prefs/browser_prefs.h",
     "libcef/browser/prefs/pref_store.cc",

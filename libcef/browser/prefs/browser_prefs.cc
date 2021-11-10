@@ -303,6 +303,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
 
     // Based on Profile::RegisterProfilePrefs.
     registry->RegisterBooleanPref(prefs::kSearchSuggestEnabled, false);
+    registry->RegisterStringPref(prefs::kSessionExitType, std::string());
 
     // Spell checking preferences.
     // Modify defaults from SpellcheckServiceFactory::RegisterProfilePrefs.

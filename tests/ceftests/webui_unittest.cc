@@ -172,7 +172,6 @@ void RunWebUITest(const std::string& url) {
     RunWebUITest("chrome://" + name_str + "/");               \
   }
 
-WEBUI_TEST(appcache_internals)
 WEBUI_TEST(accessibility)
 WEBUI_TEST(blob_internals)
 WEBUI_TEST(extensions_support)

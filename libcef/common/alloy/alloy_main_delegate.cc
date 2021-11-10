@@ -41,6 +41,7 @@
 #include "pdf/pdf_ppapi.h"
 #include "sandbox/policy/switches.h"
 #include "services/network/public/cpp/features.h"
+#include "third_party/blink/public/common/switches.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_features.h"
 #include "ui/base/ui_base_paths.h"
@@ -204,7 +205,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
 
     if (settings_->javascript_flags.length > 0) {
       command_line->AppendSwitchASCII(
-          switches::kJavaScriptFlags,
+          blink::switches::kJavaScriptFlags,
           CefString(&settings_->javascript_flags).ToString());
     }
 
@@ -502,7 +503,7 @@ void AlloyMainDelegate::InitializeResourceBundle() {
     if (!locales_dir.empty())
       base::PathService::Override(ui::DIR_LOCALES, locales_dir);
   }
-  
+
 #if defined(OS_WIN)
   // From chrome/app/chrome_main_delegate.cc
   // Throbber icons and cursors are still stored in chrome.dll,

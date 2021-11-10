@@ -23,7 +23,7 @@ bool CefParseURL(const CefString& url, CefURLParts& parts) {
   CefString(&parts.username).FromString(gurl.username());
   CefString(&parts.password).FromString(gurl.password());
   CefString(&parts.host).FromString(gurl.host());
-  CefString(&parts.origin).FromString(gurl.GetOrigin().spec());
+  CefString(&parts.origin).FromString(gurl.DeprecatedGetOriginAsURL().spec());
   CefString(&parts.port).FromString(gurl.port());
   CefString(&parts.path).FromString(gurl.path());
   CefString(&parts.query).FromString(gurl.query());

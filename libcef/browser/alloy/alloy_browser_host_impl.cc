@@ -1206,7 +1206,7 @@ bool AlloyBrowserHostImpl::TakeFocus(content::WebContents* source,
 }
 
 bool AlloyBrowserHostImpl::HandleContextMenu(
-    content::RenderFrameHost* render_frame_host,
+    content::RenderFrameHost& render_frame_host,
     const content::ContextMenuParams& params) {
   return HandleContextMenu(web_contents(), params);
 }

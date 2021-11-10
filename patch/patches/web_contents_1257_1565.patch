@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index e7e2e3d3163bb..e12381457f0bb 100644
+index a13a133be6428..903612fec96d8 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -2899,6 +2899,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2959,6 +2959,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    frame_tree_.Init(site_instance.get(), params.renderer_initiated_creation,
                     params.main_frame_name);
  
@@ -15,7 +15,7 @@ index e7e2e3d3163bb..e12381457f0bb 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -2909,6 +2915,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -2969,6 +2975,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
      view_.reset(CreateWebContentsView(this, delegate,
                                        &render_view_host_delegate_view_));
    }
@@ -23,7 +23,7 @@ index e7e2e3d3163bb..e12381457f0bb 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -3739,6 +3746,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+@@ -3825,6 +3832,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -39,18 +39,17 @@ index e7e2e3d3163bb..e12381457f0bb 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -7526,6 +7542,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
-     // This is an outermost WebContents.
+@@ -7675,6 +7691,8 @@ void WebContentsImpl::OnAdvanceFocus(RenderFrameHostImpl* source_rfh) {
+       GetFocusedWebContents() == GetOuterWebContents()) {
      SetAsFocusedWebContentsIfNecessary();
    }
 +
-+  observers_.NotifyObservers(&WebContentsObserver::OnFrameFocused,
-+                             node->current_frame_host());
++  observers_.NotifyObservers(&WebContentsObserver::OnFrameFocused, source_rfh);
  }
  
- void WebContentsImpl::DidCallFocus() {
+ void WebContentsImpl::OnFocusedElementChangedInFrame(
 diff --git content/public/browser/web_contents.cc content/public/browser/web_contents.cc
-index c7302d7af6d8b..d19be54f36d39 100644
+index 3212ed78b7ef4..df1a213efdcf8 100644
 --- content/public/browser/web_contents.cc
 +++ content/public/browser/web_contents.cc
 @@ -31,6 +31,7 @@ WebContents::CreateParams::CreateParams(BrowserContext* context,
@@ -59,13 +58,13 @@ index c7302d7af6d8b..d19be54f36d39 100644
        starting_sandbox_flags(network::mojom::WebSandboxFlags::kNone),
 +      delegate_view(nullptr),
        is_never_visible(false),
-       creator_location(creator_location) {}
- 
+       creator_location(creator_location),
+       enable_wake_locks(true) {}
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index bfa0e468e11e6..31061d5821e60 100644
+index e734e48570a7b..86391b6ddb7b8 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
-@@ -88,10 +88,12 @@ class BrowserContext;
+@@ -89,10 +89,12 @@ class BrowserContext;
  class BrowserPluginGuestDelegate;
  class RenderFrameHost;
  class RenderViewHost;
@@ -78,7 +77,7 @@ index bfa0e468e11e6..31061d5821e60 100644
  class WebUI;
  struct DropData;
  struct MHTMLGenerationParams;
-@@ -228,6 +230,10 @@ class WebContents : public PageNavigator,
+@@ -229,6 +231,10 @@ class WebContents : public PageNavigator,
      // Sandboxing flags set on the new WebContents.
      network::mojom::WebSandboxFlags starting_sandbox_flags;
  
@@ -90,7 +89,7 @@ index bfa0e468e11e6..31061d5821e60 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index a0da74d5cbe4a..1d6e4673a610f 100644
+index 6d450bfc794d8..1325bd4cde3a5 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -59,10 +59,12 @@ class EyeDropperListener;
@@ -106,7 +105,7 @@ index a0da74d5cbe4a..1d6e4673a610f 100644
  struct ContextMenuParams;
  struct DropData;
  struct MediaPlayerWatchTime;
-@@ -335,6 +337,14 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -340,6 +342,14 @@ class CONTENT_EXPORT WebContentsDelegate {
        const StoragePartitionId& partition_id,
        SessionStorageNamespace* session_storage_namespace);
  
@@ -122,10 +121,10 @@ index a0da74d5cbe4a..1d6e4673a610f 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index 6921e5e094cfd..cb199b2d405d6 100644
+index 86fce6266a592..33fe23906bdaf 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
-@@ -727,6 +727,10 @@ class CONTENT_EXPORT WebContentsObserver {
+@@ -730,6 +730,10 @@ class CONTENT_EXPORT WebContentsObserver {
    // WebContents has gained/lost focus.
    virtual void OnFocusChangedInPage(FocusedNodeDetails* details) {}
  

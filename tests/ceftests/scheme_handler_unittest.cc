@@ -688,11 +688,6 @@ void SetUpXHR(const XHRTestSettings& settings) {
   g_TestResults.sub_allow_origin = settings.sub_allow_origin;
   g_TestResults.sub_redirect_url = settings.sub_redirect_url;
 
-  if (settings.synchronous) {
-    g_TestResults.console_messages.push_back(
-        "Synchronous XMLHttpRequest on the main thread is deprecated");
-  }
-
   std::string request_url;
   if (!settings.sub_redirect_url.empty())
     request_url = settings.sub_redirect_url;

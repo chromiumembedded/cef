@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e857bba04c337c16c2ea4ebce2e99c00d10280e1$
+// $hash=37ab9af3a8f6a52893418915598d6bfff1b8a5b4$
 //
 
 #include "libcef_dll/ctocpp/request_context_handler_ctocpp.h"
@@ -17,7 +17,6 @@
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
-#include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
 #include "libcef_dll/ctocpp/resource_request_handler_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -42,52 +41,15 @@ void CefRequestContextHandlerCToCpp::OnRequestContextInitialized(
 }
 
 NO_SANITIZE("cfi-icall")
-bool CefRequestContextHandlerCToCpp::OnBeforePluginLoad(
-    const CefString& mime_type,
-    const CefString& plugin_url,
-    bool is_main_frame,
-    const CefString& top_origin_url,
-    CefRefPtr<CefWebPluginInfo> plugin_info,
-    PluginPolicy* plugin_policy) {
-  cef_request_context_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_before_plugin_load))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: mime_type; type: string_byref_const
-  DCHECK(!mime_type.empty());
-  if (mime_type.empty())
-    return false;
-  // Verify param: plugin_info; type: refptr_diff
-  DCHECK(plugin_info.get());
-  if (!plugin_info.get())
-    return false;
-  // Verify param: plugin_policy; type: simple_byaddr
-  DCHECK(plugin_policy);
-  if (!plugin_policy)
-    return false;
-  // Unverified params: plugin_url, top_origin_url
-
-  // Execute
-  int _retval = _struct->on_before_plugin_load(
-      _struct, mime_type.GetStruct(), plugin_url.GetStruct(), is_main_frame,
-      top_origin_url.GetStruct(), CefWebPluginInfoCppToC::Wrap(plugin_info),
-      plugin_policy);
-
-  // Return type: bool
-  return _retval ? true : false;
-}
-
-NO_SANITIZE("cfi-icall")
-CefRefPtr<CefResourceRequestHandler> CefRequestContextHandlerCToCpp::
-    GetResourceRequestHandler(CefRefPtr<CefBrowser> browser,
-                              CefRefPtr<CefFrame> frame,
-                              CefRefPtr<CefRequest> request,
-                              bool is_navigation,
-                              bool is_download,
-                              const CefString& request_initiator,
-                              bool& disable_default_handling) {
+CefRefPtr<CefResourceRequestHandler>
+CefRequestContextHandlerCToCpp::GetResourceRequestHandler(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request,
+    bool is_navigation,
+    bool is_download,
+    const CefString& request_initiator,
+    bool& disable_default_handling) {
   cef_request_context_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_resource_request_handler))
     return nullptr;

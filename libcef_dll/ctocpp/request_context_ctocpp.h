@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3e68482578ce8edfa73bef03a7f943194f3b7f34$
+// $hash=c3a1ed5aa4a0d3921f37b03f90222f542dfb0f68$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_CTOCPP_H_
@@ -52,7 +52,6 @@ class CefRequestContextCToCpp
       const CefString& domain_name,
       CefRefPtr<CefSchemeHandlerFactory> factory) override;
   bool ClearSchemeHandlerFactories() override;
-  void PurgePluginListCache(bool reload_pages) override;
   bool HasPreference(const CefString& name) override;
   CefRefPtr<CefValue> GetPreference(const CefString& name) override;
   CefRefPtr<CefDictionaryValue> GetAllPreferences(

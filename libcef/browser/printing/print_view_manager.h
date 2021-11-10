@@ -77,7 +77,8 @@ class CefPrintViewManager : public PrintViewManager,
   // content::WebContentsObserver methods:
   void RenderFrameDeleted(content::RenderFrameHost* render_frame_host) override;
   void NavigationStopped() override;
-  void RenderProcessGone(base::TerminationStatus status) override;
+  void PrimaryMainFrameRenderProcessGone(
+      base::TerminationStatus status) override;
 
   // Inline versions of the content::WebContentsUserData methods to avoid
   // ambiguous warnings due to the PrintViewManager base class also extending

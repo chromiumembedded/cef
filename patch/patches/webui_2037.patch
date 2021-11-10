@@ -62,10 +62,18 @@ index 3f17a3f9182cc..2e0780aa9668f 100644
    bool result =
        base::win::IsKeyboardPresentOnSlate(ui::GetHiddenWindow(), &reason);
 diff --git chrome/browser/memory_details.cc chrome/browser/memory_details.cc
-index 77c9d430f6645..f5478b4ec6322 100644
+index b732247e53b72..b7969350923a9 100644
 --- chrome/browser/memory_details.cc
 +++ chrome/browser/memory_details.cc
-@@ -17,6 +17,7 @@
+@@ -8,6 +8,7 @@
+ #include <set>
+ 
+ #include "base/bind.h"
++#include "base/command_line.h"
+ #include "base/containers/cxx20_erase.h"
+ #include "base/file_version_info.h"
+ #include "base/metrics/histogram_macros.h"
+@@ -17,6 +18,7 @@
  #include "base/task/thread_pool.h"
  #include "build/build_config.h"
  #include "chrome/browser/profiles/profile.h"
@@ -73,12 +81,10 @@ index 77c9d430f6645..f5478b4ec6322 100644
  #include "components/nacl/common/nacl_process_type.h"
  #include "components/strings/grit/components_strings.h"
  #include "content/public/browser/browser_child_process_host_iterator.h"
-@@ -234,8 +235,11 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
- 
- #if BUILDFLAG(ENABLE_EXTENSIONS)
+@@ -287,7 +289,9 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
      // Determine if this is an extension process.
-+    // CEF should avoid accessing ExtensionRegistry when extensions are disabled.
      bool process_is_for_extensions = false;
+     const extensions::ExtensionSet* extension_set = nullptr;
 -    if (render_process_host) {
 +    if (render_process_host &&
 +        !base::CommandLine::ForCurrentProcess()->HasSwitch(

@@ -215,7 +215,7 @@ index bb2e1b4412205..493cb05b5c7fa 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 049983a12312c..7c0cb56ab627e 100644
+index ce380322b4800..bc57b30cf59bb 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -233,6 +233,10 @@ class VIEWS_EXPORT Label : public View,
@@ -238,10 +238,10 @@ index 049983a12312c..7c0cb56ab627e 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 5a554d16234e5..eb7b21c2cc2ce 100644
+index b843da5f5cc2b..de07747c4a07c 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2854,8 +2854,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2876,8 +2876,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -256,7 +256,7 @@ index 5a554d16234e5..eb7b21c2cc2ce 100644
    MenuItemView* to_select = nullptr;
    if (!item->GetSubmenu()->GetMenuItems().empty())
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2874,8 +2879,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2896,8 +2901,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);

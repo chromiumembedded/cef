@@ -49,7 +49,6 @@ class CefPrefStore : public PersistentPrefStore {
   virtual void CommitPendingWrite(
       base::OnceClosure done_callback,
       base::OnceClosure synchronous_done_callback) override;
-  void CommitPendingWriteSynchronously() override;
   void SchedulePendingLossyWrites() override;
   void ClearMutableValues() override;
   void OnStoreDeletionFromDisk() override;

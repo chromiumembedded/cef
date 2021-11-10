@@ -1,5 +1,5 @@
 diff --git chrome/browser/printing/print_job_worker.cc chrome/browser/printing/print_job_worker.cc
-index 288b9f89129de..698f90ab66f2d 100644
+index 4b508191cf196..3c91214e09a69 100644
 --- chrome/browser/printing/print_job_worker.cc
 +++ chrome/browser/printing/print_job_worker.cc
 @@ -148,6 +148,7 @@ PrintJobWorker::PrintJobWorker(int render_process_id, int render_frame_id)

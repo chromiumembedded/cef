@@ -285,7 +285,7 @@ void CefBrowserContentsDelegate::RenderViewReady() {
   }
 }
 
-void CefBrowserContentsDelegate::RenderProcessGone(
+void CefBrowserContentsDelegate::PrimaryMainFrameRenderProcessGone(
     base::TerminationStatus status) {
   cef_termination_status_t ts = TS_ABNORMAL_TERMINATION;
   if (status == base::TERMINATION_STATUS_PROCESS_WAS_KILLED)

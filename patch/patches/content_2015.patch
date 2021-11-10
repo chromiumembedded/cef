@@ -1,68 +1,5 @@
-diff --git chrome/browser/download/download_target_determiner.cc chrome/browser/download/download_target_determiner.cc
-index c5a29d75151a6..c5b198483cb4a 100644
---- chrome/browser/download/download_target_determiner.cc
-+++ chrome/browser/download/download_target_determiner.cc
-@@ -683,7 +683,7 @@ void IsHandledBySafePlugin(int render_process_id,
-   content::PluginService* plugin_service =
-       content::PluginService::GetInstance();
-   bool plugin_found = plugin_service->GetPluginInfo(
--      render_process_id, routing_id, url, url::Origin(), mime_type, false,
-+      render_process_id, routing_id, url, true, url::Origin(), mime_type, false,
-       &is_stale, &plugin_info, &actual_mime_type);
-   if (is_stale && stale_plugin_action == RETRY_IF_STALE_PLUGIN_LIST) {
-     // The GetPlugins call causes the plugin list to be refreshed. Once that's
-diff --git chrome/browser/plugins/chrome_plugin_service_filter.cc chrome/browser/plugins/chrome_plugin_service_filter.cc
-index 4e6a0f8e664b3..e34a49e4fc654 100644
---- chrome/browser/plugins/chrome_plugin_service_filter.cc
-+++ chrome/browser/plugins/chrome_plugin_service_filter.cc
-@@ -129,6 +129,7 @@ bool ChromePluginServiceFilter::IsPluginAvailable(
-     int render_process_id,
-     int render_frame_id,
-     const GURL& plugin_content_url,
-+    bool is_main_frame,
-     const url::Origin& main_frame_origin,
-     content::WebPluginInfo* plugin) {
-   base::AutoLock auto_lock(lock_);
-diff --git chrome/browser/plugins/chrome_plugin_service_filter.h chrome/browser/plugins/chrome_plugin_service_filter.h
-index 937d3d5bc84fd..ac327392dcf37 100644
---- chrome/browser/plugins/chrome_plugin_service_filter.h
-+++ chrome/browser/plugins/chrome_plugin_service_filter.h
-@@ -64,6 +64,7 @@ class ChromePluginServiceFilter : public content::PluginServiceFilter,
-   bool IsPluginAvailable(int render_process_id,
-                          int render_frame_id,
-                          const GURL& plugin_content_url,
-+                         bool is_main_frame,
-                          const url::Origin& main_frame_origin,
-                          content::WebPluginInfo* plugin) override;
- 
-diff --git chrome/browser/plugins/pdf_iframe_navigation_throttle.cc chrome/browser/plugins/pdf_iframe_navigation_throttle.cc
-index 6b260a40b14a2..b6198889273ce 100644
---- chrome/browser/plugins/pdf_iframe_navigation_throttle.cc
-+++ chrome/browser/plugins/pdf_iframe_navigation_throttle.cc
-@@ -65,7 +65,7 @@ bool IsPDFPluginEnabled(content::NavigationHandle* navigation_handle,
- 
-   content::WebPluginInfo plugin_info;
-   return content::PluginService::GetInstance()->GetPluginInfo(
--      process_id, routing_id, navigation_handle->GetURL(),
-+      process_id, routing_id, navigation_handle->GetURL(), false,
-       web_contents->GetMainFrame()->GetLastCommittedOrigin(), kPDFMimeType,
-       false /* allow_wildcard */, is_stale, &plugin_info,
-       nullptr /* actual_mime_type */);
-diff --git chrome/browser/ui/views/frame/browser_root_view.cc chrome/browser/ui/views/frame/browser_root_view.cc
-index 6e2d09885b457..da23a0211754b 100644
---- chrome/browser/ui/views/frame/browser_root_view.cc
-+++ chrome/browser/ui/views/frame/browser_root_view.cc
-@@ -85,7 +85,7 @@ void OnFindURLMimeType(const GURL& url,
- #if BUILDFLAG(ENABLE_PLUGINS)
-   content::WebPluginInfo plugin;
-   result = result || content::PluginService::GetInstance()->GetPluginInfo(
--                         process_id, routing_id, url, url::Origin(), mime_type,
-+                         process_id, routing_id, url, true, url::Origin(), mime_type,
-                          false, nullptr, &plugin, nullptr);
- #endif
- 
 diff --git content/browser/devtools/devtools_http_handler.cc content/browser/devtools/devtools_http_handler.cc
-index 18b58f53a9df7..80452f68f24fb 100644
+index 687de58ebbf49..b2588b21b2462 100644
 --- content/browser/devtools/devtools_http_handler.cc
 +++ content/browser/devtools/devtools_http_handler.cc
 @@ -575,7 +575,7 @@ void DevToolsHttpHandler::OnJsonRequest(
@@ -75,10 +12,10 @@ index 18b58f53a9df7..80452f68f24fb 100644
                        GetContentClient()->browser()->GetUserAgent());
      version.SetString("V8-Version", V8_VERSION_STRING);
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index 06517d7afaaa2..e368b300c5e30 100644
+index 20748b3098d8b..f6a7e94f8d0af 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
-@@ -670,6 +670,13 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest(
+@@ -660,6 +660,13 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest(
            resource_request_->has_user_gesture, initiating_origin,
            &loader_factory);
  
@@ -92,149 +29,8 @@ index 06517d7afaaa2..e368b300c5e30 100644
        if (loader_factory) {
          factory = base::MakeRefCounted<network::WrapperSharedURLLoaderFactory>(
              std::move(loader_factory));
-@@ -838,7 +845,7 @@ void NavigationURLLoaderImpl::CheckPluginAndContinueOnReceiveResponse(
-       frame_tree_node->current_frame_host()->GetProcess()->GetID();
-   int routing_id = frame_tree_node->current_frame_host()->GetRoutingID();
-   bool has_plugin = PluginService::GetInstance()->GetPluginInfo(
--      render_process_id, routing_id, resource_request_->url, url::Origin(),
-+      render_process_id, routing_id, resource_request_->url, true, url::Origin(),
-       head->mime_type, /*allow_wildcard=*/false, &stale, &plugin, nullptr);
- 
-   if (stale) {
-diff --git content/browser/plugin_service_impl.cc content/browser/plugin_service_impl.cc
-index bec7bccadfec4..5a45990eb71ed 100644
---- content/browser/plugin_service_impl.cc
-+++ content/browser/plugin_service_impl.cc
-@@ -266,6 +266,7 @@ bool PluginServiceImpl::GetPluginInfoArray(
- bool PluginServiceImpl::GetPluginInfo(int render_process_id,
-                                       int render_frame_id,
-                                       const GURL& url,
-+                                      bool is_main_frame,
-                                       const url::Origin& main_frame_origin,
-                                       const std::string& mime_type,
-                                       bool allow_wildcard,
-@@ -283,7 +284,8 @@ bool PluginServiceImpl::GetPluginInfo(int render_process_id,
-   for (size_t i = 0; i < plugins.size(); ++i) {
-     if (!filter_ ||
-         filter_->IsPluginAvailable(render_process_id, render_frame_id, url,
--                                   main_frame_origin, &plugins[i])) {
-+                                   is_main_frame, main_frame_origin,
-+                                   &plugins[i])) {
-       *info = plugins[i];
-       if (actual_mime_type)
-         *actual_mime_type = mime_types[i];
-diff --git content/browser/plugin_service_impl.h content/browser/plugin_service_impl.h
-index b0fb11b4d5ba7..1bce64c6b20ee 100644
---- content/browser/plugin_service_impl.h
-+++ content/browser/plugin_service_impl.h
-@@ -54,6 +54,7 @@ class CONTENT_EXPORT PluginServiceImpl : public PluginService {
-   bool GetPluginInfo(int render_process_id,
-                      int render_frame_id,
-                      const GURL& url,
-+                     bool is_main_frame,
-                      const url::Origin& main_frame_origin,
-                      const std::string& mime_type,
-                      bool allow_wildcard,
-diff --git content/browser/renderer_host/plugin_registry_impl.cc content/browser/renderer_host/plugin_registry_impl.cc
-index 54a561c009464..a51afa5c74141 100644
---- content/browser/renderer_host/plugin_registry_impl.cc
-+++ content/browser/renderer_host/plugin_registry_impl.cc
-@@ -30,6 +30,7 @@ void PluginRegistryImpl::Bind(
- }
- 
- void PluginRegistryImpl::GetPlugins(bool refresh,
-+                                    bool is_main_frame,
-                                     const url::Origin& main_frame_origin,
-                                     GetPluginsCallback callback) {
-   auto* plugin_service = PluginServiceImpl::GetInstance();
-@@ -51,10 +52,11 @@ void PluginRegistryImpl::GetPlugins(bool refresh,
- 
-   plugin_service->GetPlugins(base::BindOnce(
-       &PluginRegistryImpl::GetPluginsComplete, weak_factory_.GetWeakPtr(),
--      main_frame_origin, std::move(callback)));
-+      is_main_frame, main_frame_origin, std::move(callback)));
- }
- 
- void PluginRegistryImpl::GetPluginsComplete(
-+    bool is_main_frame,
-     const url::Origin& main_frame_origin,
-     GetPluginsCallback callback,
-     const std::vector<WebPluginInfo>& all_plugins) {
-@@ -77,6 +79,7 @@ void PluginRegistryImpl::GetPluginsComplete(
-     // TODO(crbug.com/621724): Pass an url::Origin instead of a GURL.
-     if (!filter || filter->IsPluginAvailable(render_process_id_, routing_id,
-                                              main_frame_origin.GetURL(),
-+                                             is_main_frame,
-                                              main_frame_origin, &plugin)) {
-       auto plugin_blink = blink::mojom::PluginInfo::New();
-       plugin_blink->name = plugin.name;
-diff --git content/browser/renderer_host/plugin_registry_impl.h content/browser/renderer_host/plugin_registry_impl.h
-index 632ae86c6fd69..55b749ec12421 100644
---- content/browser/renderer_host/plugin_registry_impl.h
-+++ content/browser/renderer_host/plugin_registry_impl.h
-@@ -24,11 +24,13 @@ class PluginRegistryImpl : public blink::mojom::PluginRegistry {
- 
-   // blink::mojom::PluginRegistry
-   void GetPlugins(bool refresh,
-+                  bool is_main_frame,
-                   const url::Origin& main_frame_origin,
-                   GetPluginsCallback callback) override;
- 
-  private:
--  void GetPluginsComplete(const url::Origin& main_frame_origin,
-+  void GetPluginsComplete(bool is_main_frame,
-+                          const url::Origin& main_frame_origin,
-                           GetPluginsCallback callback,
-                           const std::vector<WebPluginInfo>& all_plugins);
- 
-diff --git content/browser/renderer_host/render_frame_host_impl.cc content/browser/renderer_host/render_frame_host_impl.cc
-index 6520b9b7e90aa..60af548b678cc 100644
---- content/browser/renderer_host/render_frame_host_impl.cc
-+++ content/browser/renderer_host/render_frame_host_impl.cc
-@@ -12341,6 +12341,7 @@ void RenderFrameHostImpl::BindHungDetectorHost(
- }
- 
- void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
-+                                        bool is_main_frame,
-                                         const url::Origin& main_frame_origin,
-                                         const std::string& mime_type,
-                                         GetPluginInfoCallback callback) {
-@@ -12348,7 +12349,8 @@ void RenderFrameHostImpl::GetPluginInfo(const GURL& url,
-   WebPluginInfo info;
-   std::string actual_mime_type;
-   bool found = PluginServiceImpl::GetInstance()->GetPluginInfo(
--      GetProcess()->GetID(), routing_id_, url, main_frame_origin, mime_type,
-+      GetProcess()->GetID(), routing_id_, url, is_main_frame,
-+      main_frame_origin, mime_type,
-       allow_wildcard, nullptr, &info, &actual_mime_type);
-   std::move(callback).Run(found, info, actual_mime_type);
- }
-diff --git content/browser/renderer_host/render_frame_host_impl.h content/browser/renderer_host/render_frame_host_impl.h
-index 86666516a0131..c1e11fbfda6fb 100644
---- content/browser/renderer_host/render_frame_host_impl.h
-+++ content/browser/renderer_host/render_frame_host_impl.h
-@@ -2614,6 +2614,7 @@ class CONTENT_EXPORT RenderFrameHostImpl
-       int32_t plugin_child_id,
-       const base::FilePath& path) override;
-   void GetPluginInfo(const GURL& url,
-+                     bool is_main_frame,
-                      const url::Origin& main_frame_origin,
-                      const std::string& mime_type,
-                      GetPluginInfoCallback callback) override;
-diff --git content/common/pepper_plugin.mojom content/common/pepper_plugin.mojom
-index c20ff8254421b..84659f627e2f8 100644
---- content/common/pepper_plugin.mojom
-+++ content/common/pepper_plugin.mojom
-@@ -29,6 +29,7 @@ interface PepperHost {
-   // found plugin.
-   [Sync]
-   GetPluginInfo(url.mojom.Url url,
-+                bool is_main_frame,
-                 url.mojom.Origin main_frame_origin,
-                 string mime_type) =>
-                (bool found,
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index 248a90c768200..1ba2f15d5778d 100644
+index 85f0857a66fd6..00ff3cb1cfaec 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
 @@ -9,7 +9,7 @@
@@ -246,7 +42,7 @@ index 248a90c768200..1ba2f15d5778d 100644
  
  #include <utility>
  
-@@ -874,7 +874,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
+@@ -867,7 +867,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
  void ContentBrowserClient::OnNetworkServiceCreated(
      network::mojom::NetworkService* network_service) {}
  
@@ -255,7 +51,7 @@ index 248a90c768200..1ba2f15d5778d 100644
      BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -883,6 +883,7 @@ void ContentBrowserClient::ConfigureNetworkContextParams(
+@@ -876,6 +876,7 @@ void ContentBrowserClient::ConfigureNetworkContextParams(
          cert_verifier_creation_params) {
    network_context_params->user_agent = GetUserAgent();
    network_context_params->accept_language = "en-us,en";
@@ -264,7 +60,7 @@ index 248a90c768200..1ba2f15d5778d 100644
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 7dfc30f346a94..8adbde6963711 100644
+index ec5a3515a248f..637e4edfc2738 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -33,6 +33,7 @@
@@ -275,7 +71,7 @@ index 7dfc30f346a94..8adbde6963711 100644
  #include "content/public/browser/web_ui_browser_interface_broker_registry.h"
  #include "content/public/common/page_visibility_state.h"
  #include "content/public/common/window_container_type.mojom-forward.h"
-@@ -1618,7 +1619,7 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1619,7 +1620,7 @@ class CONTENT_EXPORT ContentBrowserClient {
    //
    // If |relative_partition_path| is the empty string, it means this needs to
    // create the default NetworkContext for the BrowserContext.
@@ -284,7 +80,7 @@ index 7dfc30f346a94..8adbde6963711 100644
        BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -1802,6 +1803,15 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1803,6 +1804,15 @@ class CONTENT_EXPORT ContentBrowserClient {
        const absl::optional<url::Origin>& initiating_origin,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
@@ -300,7 +96,7 @@ index 7dfc30f346a94..8adbde6963711 100644
    // Creates an OverlayWindow to be used for Picture-in-Picture. This window
    // will house the content shown when in Picture-in-Picture mode. This will
    // return a new OverlayWindow.
-@@ -1879,6 +1889,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1880,6 +1890,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  
@@ -311,35 +107,11 @@ index 7dfc30f346a94..8adbde6963711 100644
    // Returns the user agent.Content may cache this value.
    virtual std::string GetUserAgent();
  
-diff --git content/public/browser/plugin_service.h content/public/browser/plugin_service.h
-index edcc4c1747123..29eea000a9100 100644
---- content/public/browser/plugin_service.h
-+++ content/public/browser/plugin_service.h
-@@ -78,6 +78,7 @@ class CONTENT_EXPORT PluginService {
-   virtual bool GetPluginInfo(int render_process_id,
-                              int render_frame_id,
-                              const GURL& url,
-+                             bool is_main_frame,
-                              const url::Origin& main_frame_origin,
-                              const std::string& mime_type,
-                              bool allow_wildcard,
-diff --git content/public/browser/plugin_service_filter.h content/public/browser/plugin_service_filter.h
-index 570b5a4738b94..923a5f7195c53 100644
---- content/public/browser/plugin_service_filter.h
-+++ content/public/browser/plugin_service_filter.h
-@@ -30,6 +30,7 @@ class PluginServiceFilter {
-   virtual bool IsPluginAvailable(int render_process_id,
-                                  int render_frame_id,
-                                  const GURL& url,
-+                                 bool is_main_frame,
-                                  const url::Origin& main_frame_origin,
-                                  WebPluginInfo* plugin) = 0;
- 
 diff --git content/public/renderer/content_renderer_client.h content/public/renderer/content_renderer_client.h
-index f3852c0eef152..03b751225575e 100644
+index 0b098038d2f56..bd85dbf2727c1 100644
 --- content/public/renderer/content_renderer_client.h
 +++ content/public/renderer/content_renderer_client.h
-@@ -82,6 +82,9 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -86,6 +86,9 @@ class CONTENT_EXPORT ContentRendererClient {
    // binding requests from RenderProcessHost::BindReceiver().
    virtual void ExposeInterfacesToBrowser(mojo::BinderMap* binders) {}
  
@@ -349,7 +121,7 @@ index f3852c0eef152..03b751225575e 100644
    // Notifies that a new RenderFrame has been created.
    virtual void RenderFrameCreated(RenderFrame* render_frame) {}
  
-@@ -293,6 +296,10 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -297,6 +300,10 @@ class CONTENT_EXPORT ContentRendererClient {
    // This method may invalidate the frame.
    virtual void RunScriptsAtDocumentIdle(RenderFrame* render_frame) {}
  
@@ -360,25 +132,11 @@ index f3852c0eef152..03b751225575e 100644
    // Allows subclasses to enable some runtime features before Blink has
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
-diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 78ec20c40e5db..406a25890ddb8 100644
---- content/renderer/render_frame_impl.cc
-+++ content/renderer/render_frame_impl.cc
-@@ -3278,7 +3278,8 @@ blink::WebPlugin* RenderFrameImpl::CreatePlugin(
-   WebPluginInfo info;
-   std::string mime_type;
-   bool found = false;
--  GetPepperHost()->GetPluginInfo(params.url, frame_->Top()->GetSecurityOrigin(),
-+  GetPepperHost()->GetPluginInfo(params.url, frame_->Parent() == nullptr,
-+                                 frame_->Top()->GetSecurityOrigin(),
-                                  params.mime_type.Utf8(), &found, &info,
-                                  &mime_type);
-   if (!found)
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index 1546f52724fc7..776efe8247abd 100644
+index 4f7ea9bd9117e..3e325c0514de0 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
-@@ -616,6 +616,8 @@ void RenderThreadImpl::Init() {
+@@ -663,6 +663,8 @@ void RenderThreadImpl::Init() {
        GetContentClient()->renderer()->CreateURLLoaderThrottleProvider(
            blink::URLLoaderThrottleProviderType::kFrame);
  
@@ -388,10 +146,10 @@ index 1546f52724fc7..776efe8247abd 100644
        &RenderThreadImpl::OnRendererInterfaceReceiver, base::Unretained(this)));
  
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index bbfe51c4bcfd5..b81c93789993c 100644
+index 6616ad76bc307..95524ec98ce5c 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -1093,6 +1093,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
+@@ -1086,6 +1086,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
  
  //------------------------------------------------------------------------------
  
@@ -408,10 +166,10 @@ index bbfe51c4bcfd5..b81c93789993c 100644
  RendererBlinkPlatformImpl::GetCodeCacheHost() {
    base::AutoLock lock(code_cache_host_lock_);
 diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
-index 6c0a233f70d81..38f15d507f2a2 100644
+index 745204f21d304..87b7767fcba68 100644
 --- content/renderer/renderer_blink_platform_impl.h
 +++ content/renderer/renderer_blink_platform_impl.h
-@@ -264,6 +264,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
+@@ -262,6 +262,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
        const blink::WebURL& url,
        blink::WebVector<blink::WebContentSecurityPolicyHeader>* csp) override;
  
@@ -421,27 +179,3 @@ index 6c0a233f70d81..38f15d507f2a2 100644
    // Tells this platform that the renderer is locked to a site (i.e., a scheme
    // plus eTLD+1, such as https://google.com), or to a more specific origin.
    void SetIsLockedToSite();
-diff --git content/shell/browser/shell_plugin_service_filter.cc content/shell/browser/shell_plugin_service_filter.cc
-index c25b7d1a18432..7e007d964f1a1 100644
---- content/shell/browser/shell_plugin_service_filter.cc
-+++ content/shell/browser/shell_plugin_service_filter.cc
-@@ -17,6 +17,7 @@ bool ShellPluginServiceFilter::IsPluginAvailable(
-     int render_process_id,
-     int render_frame_id,
-     const GURL& url,
-+    bool is_main_frame,
-     const url::Origin& main_frame_origin,
-     WebPluginInfo* plugin) {
-   return plugin->name == u"Blink Test Plugin" ||
-diff --git content/shell/browser/shell_plugin_service_filter.h content/shell/browser/shell_plugin_service_filter.h
-index e9d0bed90ea65..12d1acb37619f 100644
---- content/shell/browser/shell_plugin_service_filter.h
-+++ content/shell/browser/shell_plugin_service_filter.h
-@@ -24,6 +24,7 @@ class ShellPluginServiceFilter : public PluginServiceFilter {
-   bool IsPluginAvailable(int render_process_id,
-                          int render_frame_id,
-                          const GURL& url,
-+                         bool is_main_frame,
-                          const url::Origin& main_frame_origin,
-                          WebPluginInfo* plugin) override;
- 

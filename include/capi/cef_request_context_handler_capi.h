@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=fa148db8a0ecd79966814086fb92e439687be701$
+// $hash=8fa983ddbdb8ad3199a0e495e0b6928b37128913$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_HANDLER_CAPI_H_
@@ -69,34 +69,6 @@ typedef struct _cef_request_context_handler_t {
   void(CEF_CALLBACK* on_request_context_initialized)(
       struct _cef_request_context_handler_t* self,
       struct _cef_request_context_t* request_context);
-
-  ///
-  // Called on multiple browser process threads before a plugin instance is
-  // loaded. |mime_type| is the mime type of the plugin that will be loaded.
-  // |plugin_url| is the content URL that the plugin will load and may be NULL.
-  // |is_main_frame| will be true (1) if the plugin is being loaded in the main
-  // (top-level) frame, |top_origin_url| is the URL for the top-level frame that
-  // contains the plugin when loading a specific plugin instance or NULL when
-  // building the initial list of enabled plugins for 'navigator.plugins'
-  // JavaScript state. |plugin_info| includes additional information about the
-  // plugin that will be loaded. |plugin_policy| is the recommended policy.
-  // Modify |plugin_policy| and return true (1) to change the policy. Return
-  // false (0) to use the recommended policy. The default plugin policy can be
-  // set at runtime using the `--plugin-policy=[allow|detect|block]` command-
-  // line flag. Decisions to mark a plugin as disabled by setting
-  // |plugin_policy| to PLUGIN_POLICY_DISABLED may be cached when
-  // |top_origin_url| is NULL. To purge the plugin list cache and potentially
-  // trigger new calls to this function call
-  // cef_request_context_t::PurgePluginListCache.
-  ///
-  int(CEF_CALLBACK* on_before_plugin_load)(
-      struct _cef_request_context_handler_t* self,
-      const cef_string_t* mime_type,
-      const cef_string_t* plugin_url,
-      int is_main_frame,
-      const cef_string_t* top_origin_url,
-      struct _cef_web_plugin_info_t* plugin_info,
-      cef_plugin_policy_t* plugin_policy);
 
   ///
   // Called on the browser process IO thread before a resource request is

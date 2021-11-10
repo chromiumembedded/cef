@@ -85,10 +85,10 @@ index 1466666f50f4e..704fda78a1842 100644
    virtual bool IsSignedIn() = 0;
  
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index d8df8be6d9d54..f21f0d40a8e2c 100644
+index 9d99f3fd9a703..93fade3dc13f0 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
-@@ -989,7 +989,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -994,7 +994,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  
@@ -100,10 +100,10 @@ index d8df8be6d9d54..f21f0d40a8e2c 100644
    return raw_otr_profile;
  }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 8aa1fb3410e95..4509880095d9a 100644
+index 9263de5dec839..caab6922b8dcb 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -501,7 +501,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+@@ -499,7 +499,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
                            base::Unretained(this)));
  #endif
  
@@ -113,7 +113,7 @@ index 8aa1fb3410e95..4509880095d9a 100644
  }
  
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index d6120ff3abd2e..2f03384a0b32d 100644
+index fca117d60623e..a3c29f0f9c0c2 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
 @@ -123,7 +123,7 @@ class ProfileManager : public Profile::Delegate {

@@ -140,6 +140,8 @@ void CefWebContentsViewOSR::RenderViewHostChanged(
 
 void CefWebContentsViewOSR::SetOverscrollControllerEnabled(bool enabled) {}
 
+void CefWebContentsViewOSR::OnCapturerCountChanged() {}
+
 #if defined(OS_MAC)
 bool CefWebContentsViewOSR::CloseTabAfterEventTrackingIfNeeded() {
   return false;

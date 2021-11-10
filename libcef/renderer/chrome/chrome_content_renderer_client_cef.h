@@ -10,7 +10,7 @@
 
 #include "base/macros.h"
 #include "base/memory/scoped_refptr.h"
-#include "base/single_thread_task_runner.h"
+#include "base/task/single_thread_task_runner.h"
 #include "chrome/renderer/chrome_content_renderer_client.h"
 
 class CefRenderManager;

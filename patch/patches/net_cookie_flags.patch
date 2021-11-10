@@ -10,7 +10,7 @@ index 96d1a51ec1078..e8120a818b1f2 100644
 +// This load will not send any cookies. For CEF usage.
 +LOAD_FLAG(DO_NOT_SEND_COOKIES, 1 << 17)
 diff --git net/url_request/url_request_http_job.cc net/url_request/url_request_http_job.cc
-index ef4933bc2ccec..2741bbdb93671 100644
+index 2e1817d58e838..e06bad87e88a1 100644
 --- net/url_request/url_request_http_job.cc
 +++ net/url_request/url_request_http_job.cc
 @@ -588,7 +588,8 @@ void URLRequestHttpJob::AddCookieHeaderAndStart() {
@@ -24,10 +24,10 @@ index ef4933bc2ccec..2741bbdb93671 100644
          request_->force_ignore_site_for_cookies();
      if (cookie_store->cookie_access_delegate() &&
 diff --git services/network/public/cpp/resource_request.cc services/network/public/cpp/resource_request.cc
-index a24972bd0d082..bdbc608a67ea5 100644
+index da7f97cf0ec17..9b305323df042 100644
 --- services/network/public/cpp/resource_request.cc
 +++ services/network/public/cpp/resource_request.cc
-@@ -258,7 +258,8 @@ bool ResourceRequest::EqualsForTesting(const ResourceRequest& request) const {
+@@ -266,7 +266,8 @@ bool ResourceRequest::EqualsForTesting(const ResourceRequest& request) const {
  }
  
  bool ResourceRequest::SendsCookies() const {
