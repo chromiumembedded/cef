@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index 965687102de1a..e6588160367d6 100644
+index 3bc9431ff5069..6deb36c3cb228 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -285,6 +285,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
@@ -27,7 +27,7 @@ index 965687102de1a..e6588160367d6 100644
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -680,6 +691,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -692,6 +703,14 @@ RenderViewContextMenu::RenderViewContextMenu(
    system_app_ = GetBrowser() && GetBrowser()->app_controller()
                      ? GetBrowser()->app_controller()->system_app()
                      : nullptr;
@@ -42,7 +42,7 @@ index 965687102de1a..e6588160367d6 100644
  }
  
  RenderViewContextMenu::~RenderViewContextMenu() = default;
-@@ -1038,6 +1057,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1050,6 +1069,12 @@ void RenderViewContextMenu::InitMenu() {
    // menu, meaning that each menu item added/removed in this function will cause
    // it to visibly jump on the screen (see b/173569669).
    AppendQuickAnswersItems();
@@ -55,7 +55,7 @@ index 965687102de1a..e6588160367d6 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -2870,6 +2895,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
+@@ -2878,6 +2903,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
    execute_plugin_action_callback_ = std::move(cb);
  }
  
