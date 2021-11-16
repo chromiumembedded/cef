@@ -6,6 +6,7 @@ from __future__ import absolute_import
 from glob import iglob
 from io import open
 import os
+import fnmatch
 import shutil
 import sys
 import time
@@ -155,9 +156,28 @@ def make_dir(name, quiet=True):
 
 
 def get_files(search_glob):
-  """ Returns all files matching the search glob. """
+  """ Returns all files matching |search_glob|. """
+  recursive_glob = '**' + os.path.sep
+  if recursive_glob in search_glob:
+    if sys.version_info >= (3, 5):
+      result = iglob(search_glob, recursive=True)
+    else:
+      # Polyfill for recursive glob pattern matching added in Python 3.5.
+      result = get_files_recursive(*search_glob.split(recursive_glob))
+  else:
+    result = iglob(search_glob)
+
   # Sort the result for consistency across platforms.
-  return sorted(iglob(search_glob))
+  return sorted(result)
+
+
+def get_files_recursive(directory, pattern):
+  """ Returns all files in |directory| matching |pattern| recursively. """
+  for root, dirs, files in os.walk(directory):
+    for basename in files:
+      if fnmatch.fnmatch(basename, pattern):
+        filename = os.path.join(root, basename)
+        yield filename
 
 
 def read_version_file(file, args):

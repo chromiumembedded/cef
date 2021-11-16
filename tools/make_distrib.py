@@ -886,6 +886,12 @@ if platform == 'windows':
       'obj\\base\\win\\pe_image.lib',
       cef_sandbox_lib,
       'obj\\sandbox\\win\\sandbox.lib',
+      'obj\\third_party\\abseil-cpp\\absl\\base\\**\\*.obj',
+      'obj\\third_party\\abseil-cpp\\absl\\debugging\\**\\*.obj',
+      'obj\\third_party\\abseil-cpp\\absl\\numeric\\**\\*.obj',
+      'obj\\third_party\\abseil-cpp\\absl\\synchronization\\**\\*.obj',
+      'obj\\third_party\\abseil-cpp\\absl\\time\\**\\*.obj',
+      'obj\\third_party\\abseil-cpp\\absl\\types\\**\\*.obj',
   ]
 
   # Generate the cef_sandbox.lib merged library. A separate *_sandbox build
