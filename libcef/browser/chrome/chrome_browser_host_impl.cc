@@ -117,8 +117,6 @@ void ChromeBrowserHostImpl::AddNewContents(
       TabStripModel::ADD_ACTIVE);
 
   SetBrowser(browser);
-
-  browser->window()->Show();
 }
 
 void ChromeBrowserHostImpl::OnWebContentsDestroyed(
@@ -462,14 +460,23 @@ Browser* ChromeBrowserHostImpl::CreateBrowser(
   // associated BrowserView.
   auto browser = Browser::Create(chrome_params);
 
+  bool show_browser = true;
+
 #if defined(TOOLKIT_VIEWS)
   if (chrome_browser_view) {
     // Initialize the BrowserFrame and BrowserView and create the controls that
     // require access to the Browser.
     chrome_browser_view->InitBrowser(base::WrapUnique(browser),
                                      params.browser_view);
+
+    // Don't show the browser by default.
+    show_browser = false;
   }
 #endif
+
+  if (show_browser) {
+    browser->window()->Show();
+  }
 
   return browser;
 }
