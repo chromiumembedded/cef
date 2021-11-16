@@ -82,8 +82,8 @@ CefFrameHostImpl::CefFrameHostImpl(scoped_refptr<CefBrowserInfo> browser_info,
 }
 
 CefFrameHostImpl::~CefFrameHostImpl() {
-  // Should have been Detached.
-  DCHECK(!browser_info_);
+  // Should have been Detached if not temporary.
+  DCHECK(is_temporary() || !browser_info_);
   DCHECK(!render_frame_host_);
 }
 
