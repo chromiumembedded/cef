@@ -1,0 +1,33 @@
+diff --git chrome/browser/extensions/api/chrome_extensions_api_client.cc chrome/browser/extensions/api/chrome_extensions_api_client.cc
+index e3c5941a4ac67..6ae2b8fc39a0b 100644
+--- chrome/browser/extensions/api/chrome_extensions_api_client.cc
++++ chrome/browser/extensions/api/chrome_extensions_api_client.cc
+@@ -14,6 +14,7 @@
+ #include "base/task/post_task.h"
+ #include "build/build_config.h"
+ #include "build/chromeos_buildflags.h"
++#include "cef/libcef/features/runtime.h"
+ #include "chrome/browser/extensions/api/automation_internal/chrome_automation_internal_api_delegate.h"
+ #include "chrome/browser/extensions/api/chrome_device_permissions_prompt.h"
+ #include "chrome/browser/extensions/api/declarative_content/chrome_content_rules_registry.h"
+@@ -76,6 +77,10 @@
+ #include "chrome/browser/extensions/clipboard_extension_helper_chromeos.h"
+ #endif
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/browser/chrome/extensions/chrome_mime_handler_view_guest_delegate_cef.h"
++#endif
++
+ #if BUILDFLAG(ENABLE_PDF)
+ #include "chrome/browser/ui/pdf/chrome_pdf_web_contents_helper_client.h"
+ #include "components/pdf/browser/pdf_web_contents_helper.h"
+@@ -300,6 +305,9 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate(
+ std::unique_ptr<MimeHandlerViewGuestDelegate>
+ ChromeExtensionsAPIClient::CreateMimeHandlerViewGuestDelegate(
+     MimeHandlerViewGuest* guest) const {
++  if (cef::IsChromeRuntimeEnabled()) {
++    return std::make_unique<ChromeMimeHandlerViewGuestDelegateCef>(guest);
++  }
+   return std::make_unique<ChromeMimeHandlerViewGuestDelegate>();
+ }
+ 

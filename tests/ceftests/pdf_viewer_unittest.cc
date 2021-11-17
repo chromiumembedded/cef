@@ -8,6 +8,7 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/ceftests/test_handler.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/browser/resource_util.h"
@@ -39,6 +40,15 @@ const int64 kPdfLoadDelayMs = 7000;
 #else
 const int64 kPdfLoadDelayMs = 5000;
 #endif
+
+int64 PdfLoadDelayMs() {
+  // TODO(chrome): The PDF renderer process created when using
+  // `--enable-features=PdfUnseasoned` is currently causing a
+  // "Timeout of new browser info response for frame" error which necessitates
+  // a longer delay. Reduce this delay once we can properly account for that
+  // new renderer process (see issue #3047).
+  return IsChromeRuntimeEnabled() ? kPdfLoadDelayMs * 2 : kPdfLoadDelayMs;
+}
 
 // Browser-side test handler.
 class PdfViewerTestHandler : public TestHandler, public CefContextMenuHandler {
@@ -81,7 +91,7 @@ class PdfViewerTestHandler : public TestHandler, public CefContextMenuHandler {
     CreateBrowser(url_, request_context);
 
     // Time out the test after a reasonable period of time.
-    SetTestTimeout(5000 + kPdfLoadDelayMs);
+    SetTestTimeout(5000 + PdfLoadDelayMs());
   }
 
   CefRefPtr<CefResourceHandler> GetResourceHandler(
@@ -127,18 +137,19 @@ class PdfViewerTestHandler : public TestHandler, public CefContextMenuHandler {
 
     if (is_pdf1) {
       // The first PDF document has loaded.
-      if (got_context_menu_dismissed_) {
+      // TODO(chrome): Add support for custom context menus.
+      if (IsChromeRuntimeEnabled() || got_context_menu_dismissed_) {
         // After context menu display. Destroy the test.
         CefPostDelayedTask(
             TID_UI, base::BindOnce(&PdfViewerTestHandler::DestroyTest, this),
-            kPdfLoadDelayMs);
+            PdfLoadDelayMs());
       } else {
         // Trigger the context menu.
         CefPostDelayedTask(
             TID_UI,
             base::BindOnce(&PdfViewerTestHandler::TriggerContextMenu, this,
                            frame->GetBrowser()),
-            kPdfLoadDelayMs);
+            PdfLoadDelayMs());
       }
     }
   }
@@ -185,8 +196,14 @@ class PdfViewerTestHandler : public TestHandler, public CefContextMenuHandler {
   }
 
   void DestroyTest() override {
-    EXPECT_TRUE(got_run_context_menu_);
-    EXPECT_TRUE(got_context_menu_dismissed_);
+    // TODO(chrome): Add support for custom context menus.
+    if (!IsChromeRuntimeEnabled()) {
+      EXPECT_TRUE(got_run_context_menu_);
+      EXPECT_TRUE(got_context_menu_dismissed_);
+    } else {
+      EXPECT_FALSE(got_run_context_menu_);
+      EXPECT_FALSE(got_context_menu_dismissed_);
+    }
 
     if (url_ == kPdfHtmlUrl) {
       // The HTML file will load the PDF twice in iframes.
