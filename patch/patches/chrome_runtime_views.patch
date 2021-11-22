@@ -129,7 +129,7 @@ index d32af8b258530..b883d7204ecec 100644
    BrowserFrame(const BrowserFrame&) = delete;
    BrowserFrame& operator=(const BrowserFrame&) = delete;
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 2fd995c53c6c7..ab53c371ff540 100644
+index 47ce6ac46dae4..67e6252176524 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -290,11 +290,10 @@ using content::WebContents;
@@ -241,7 +241,7 @@ index 2fd995c53c6c7..ab53c371ff540 100644
    toolbar_->Init();
  
    // TODO(pbos): Manage this either inside SidePanel or the corresponding button
-@@ -3313,13 +3339,9 @@ void BrowserView::AddedToWidget() {
+@@ -3317,13 +3343,9 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
