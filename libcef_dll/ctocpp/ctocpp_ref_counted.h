@@ -89,7 +89,7 @@ class CefCToCppRefCounted : public BaseName {
   bool UnderlyingHasAtLeastOneRef() const {
     cef_base_ref_counted_t* base =
         reinterpret_cast<cef_base_ref_counted_t*>(GetStruct());
-    if (!base->has_one_ref)
+    if (!base->has_at_least_one_ref)
       return false;
     return base->has_at_least_one_ref(base) ? true : false;
   }
