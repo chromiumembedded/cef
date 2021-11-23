@@ -406,19 +406,24 @@ class CefBrowserURLRequest::Context
     DCHECK(CalledOnValidThread());
     DCHECK_EQ(status_, UR_IO_PENDING);
 
-    response_->SetReadOnly(false);
-    response_->SetResponseHeaders(*headers);
-    response_->SetReadOnly(true);
-
-    // Match the previous behavior of sending download progress notifications
-    // for UR_FLAG_NO_DOWNLOAD_DATA requests but not HEAD requests.
-    if (request_->GetMethod().ToString() != "HEAD") {
-      download_data_size_ = headers->GetContentLength();
-      OnDownloadProgress(0);
-    }
-
     cleanup_immediately_ = true;
-    OnComplete(true);
+
+    if (headers) {
+      response_->SetReadOnly(false);
+      response_->SetResponseHeaders(*headers);
+      response_->SetReadOnly(true);
+
+      // Match the previous behavior of sending download progress notifications
+      // for UR_FLAG_NO_DOWNLOAD_DATA requests but not HEAD requests.
+      if (request_->GetMethod().ToString() != "HEAD") {
+        download_data_size_ = headers->GetContentLength();
+        OnDownloadProgress(0);
+      }
+
+      OnComplete(true);
+    } else {
+      OnComplete(false);
+    }
   }
 
   void OnRedirect(const net::RedirectInfo& redirect_info,
