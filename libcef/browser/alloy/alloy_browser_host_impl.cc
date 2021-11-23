@@ -780,11 +780,14 @@ bool AlloyBrowserHostImpl::MaybeAllowNavigation(
     content::RenderFrameHost* opener,
     bool is_guest_view,
     const content::OpenURLParams& params) {
-  if (is_guest_view && !params.url.SchemeIs(extensions::kExtensionScheme) &&
+  if (is_guest_view && !params.is_pdf &&
+      !params.url.SchemeIs(extensions::kExtensionScheme) &&
       !params.url.SchemeIs(content::kChromeUIScheme)) {
     // The PDF viewer will load the PDF extension in the guest view, and print
-    // preview will load chrome://print in the guest view. All other navigations
-    // are passed to the owner browser.
+    // preview will load chrome://print in the guest view. The PDF renderer
+    // used with PdfUnseasoned will set |params.is_pdf| when loading the PDF
+    // stream (see PdfNavigationThrottle::WillStartRequest). All other
+    // navigations are passed to the owner browser.
     CEF_POST_TASK(CEF_UIT,
                   base::BindOnce(
                       base::IgnoreResult(&AlloyBrowserHostImpl::OpenURLFromTab),

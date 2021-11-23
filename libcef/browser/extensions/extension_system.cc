@@ -8,7 +8,6 @@
 #include <string>
 
 #include "libcef/browser/extension_impl.h"
-#include "libcef/browser/extensions/pdf_extension_util.h"
 #include "libcef/browser/extensions/value_store/cef_value_store_factory.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_util.h"
@@ -22,6 +21,7 @@
 #include "base/strings/string_tokenizer.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread_restrictions.h"
+#include "chrome/browser/pdf/pdf_extension_util.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/common/chrome_paths.h"
 #include "components/crx_file/id_util.h"
@@ -179,8 +179,8 @@ void CefExtensionSystem::Init() {
   ready_.Signal();
 
   // Add the internal PDF extension. PDF loading works as follows:
-  // 1. The PDF PPAPI plugin is registered in libcef/common/content_client.cc
-  //    ComputeBuiltInPlugins to handle the kPDFPluginOutOfProcessMimeType.
+  // 1. The PDF plugin is registered in libcef/common/content_client.cc
+  //    ComputeBuiltInPlugins to handle the pdf::kInternalPluginMimeType.
   // 2. The PDF extension is registered by the below call to AddExtension and
   //    associated with the "application/pdf" mime type.
   // 3. Web content running in the owner CefBrowser requests to load a PDF file
@@ -230,24 +230,34 @@ void CefExtensionSystem::Init() {
   //    CefExtensionsBrowserClient::LoadResourceFromResourceBundle
   //    and CefComponentExtensionResourceManager. Access to chrome://resources
   //    is granted via CefExtensionWebContentsObserver::RenderViewCreated.
-  // 15.The PDF extension calls chrome.mimeHandlerPrivate.getStreamInfo
-  //    (chrome/browser/resources/pdf/browser_api.js) to retrieve the PDF
-  //    resource stream. This API is implemented using Mojo as described in
-  //    libcef/common/extensions/api/README.txt.
-  // 16.The PDF extension requests the PDF PPAPI plugin to handle
-  //    kPDFPluginOutOfProcessMimeType. Approval arrives in the guest renderer
+  // 15.The PDF extension requests the PDF plugin to handle
+  //    pdf::kInternalPluginMimeType. Approval arrives in the guest renderer
   //    process via ExtensionFrameHelper::OnExtensionResponse which calls
   //    NativeExtensionBindingsSystem::HandleResponse. This triggers creation of
   //    an HTMLPlugInElement via native V8 bindings to host the PDF plugin.
+  // 16.- With the old PPAPI plugin:
+  //      The PDF extension calls chrome.mimeHandlerPrivate.getStreamInfo
+  //      (chrome/browser/resources/pdf/browser_api.js) to retrieve the PDF
+  //      resource stream. This API is implemented using Mojo as described in
+  //      libcef/common/extensions/api/README.txt.
+  //    - With the new PdfUnseasoned plugin:
+  //      The PDF resource navigation is redirected by PdfNavigationThrottle and
+  //      the stream contents are replaced by PdfURLLoaderRequestInterceptor.
   // 17.HTMLPlugInElement::RequestObject is called in the guest renderer process
-  //    and determines that the PDF PPAPI plugin should be handled internally
+  //    and determines that the PDF plugin should be handled internally
   //    (handled_externally=false). A PluginDocument is created and
   //    AlloyContentRendererClient::OverrideCreatePlugin is called to create a
   //    WebPlugin.
-  // 18.The PDF extension and PDF plugin are now loaded. Print commands, if
+  // 18.- With the old PPAPI plugin:
+  //      The PDF plugin is loaded by ChromeContentRendererClient::CreatePlugin
+  //      calling RenderFrameImpl::CreatePlugin.
+  //    - With the new PdfUnseasoned plugin:
+  //      The PDF plugin is loaded by ChromeContentRendererClient::CreatePlugin
+  //      calling pdf::CreateInternalPlugin.
+  // 19.The PDF extension and PDF plugin are now loaded. Print commands, if
   //    any, are handled in the guest renderer process by ChromePDFPrintClient
   //    and CefPrintRenderFrameHelperDelegate.
-  // 19.When navigating away from the PDF file or closing the owner CefBrowser
+  // 20.When navigating away from the PDF file or closing the owner CefBrowser
   //    the guest WebContents will be destroyed. This triggers a call to
   //    CefMimeHandlerViewGuestDelegate::OnGuestDetached which removes the
   //    routing ID association with the owner CefBrowser.

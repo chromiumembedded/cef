@@ -26,6 +26,7 @@ namespace {
 // |is_main_frame| argument once this problem is fixed.
 bool NavigationOnUIThread(
     bool is_main_frame,
+    bool is_pdf,
     const content::GlobalRenderFrameHostId& global_id,
     const content::GlobalRenderFrameHostId& parent_global_id,
     content::WebContents* source,
@@ -37,6 +38,7 @@ bool NavigationOnUIThread(
       params.transition_type(), params.is_renderer_initiated());
   open_params.user_gesture = params.has_user_gesture();
   open_params.initiator_origin = params.initiator_origin();
+  open_params.is_pdf = is_pdf;
 
   CefRefPtr<CefBrowserHostBase> browser;
   if (!CefBrowserInfoManager::GetInstance()->MaybeAllowNavigation(
@@ -87,6 +89,7 @@ void CreateThrottlesForNavigation(content::NavigationHandle* navigation_handle,
   CEF_REQUIRE_UIT();
 
   const bool is_main_frame = navigation_handle->IsInMainFrame();
+  const bool is_pdf = navigation_handle->IsPdf();
   const auto global_id = frame_util::GetGlobalId(navigation_handle);
 
   // Identify the RenderFrameHost that originated the navigation.
@@ -99,8 +102,8 @@ void CreateThrottlesForNavigation(content::NavigationHandle* navigation_handle,
   std::unique_ptr<content::NavigationThrottle> throttle =
       std::make_unique<navigation_interception::InterceptNavigationThrottle>(
           navigation_handle,
-          base::BindRepeating(&NavigationOnUIThread, is_main_frame, global_id,
-                              parent_global_id),
+          base::BindRepeating(&NavigationOnUIThread, is_main_frame, is_pdf,
+                              global_id, parent_global_id),
           navigation_interception::SynchronyMode::kSync);
   throttles.push_back(std::move(throttle));
 }

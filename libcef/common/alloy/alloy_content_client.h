@@ -13,8 +13,6 @@
 
 class AlloyContentClient : public content::ContentClient {
  public:
-  static const char kPDFPluginPath[];
-
   AlloyContentClient();
   ~AlloyContentClient() override;
 

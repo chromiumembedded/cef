@@ -48,6 +48,7 @@
 #include "base/task/post_task.h"
 #include "build/build_config.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/pdf_util.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/renderer/browser_exposed_renderer_interfaces.h"
 #include "chrome/renderer/chrome_content_renderer_client.h"
@@ -58,6 +59,9 @@
 #include "chrome/renderer/plugins/chrome_plugin_placeholder.h"
 #include "components/content_settings/core/common/content_settings_types.h"
 #include "components/nacl/common/nacl_constants.h"
+#include "components/pdf/common/internal_plugin_helpers.h"
+#include "components/pdf/renderer/internal_plugin_renderer_helpers.h"
+#include "components/pdf/renderer/pdf_find_in_page.h"
 #include "components/printing/renderer/print_render_frame_helper.h"
 #include "components/spellcheck/renderer/spellcheck.h"
 #include "components/spellcheck/renderer/spellcheck_provider.h"
@@ -80,6 +84,7 @@
 #include "media/base/media.h"
 #include "mojo/public/cpp/bindings/binder_map.h"
 #include "mojo/public/cpp/bindings/generic_pending_receiver.h"
+#include "pdf/pdf_features.h"
 #include "printing/print_settings.h"
 #include "services/network/public/cpp/is_potentially_trustworthy.h"
 #include "services/service_manager/public/cpp/connector.h"
@@ -195,10 +200,19 @@ void AlloyContentRendererClient::RenderThreadStarted() {
 
   content::RenderThread* thread = content::RenderThread::Get();
 
+  const bool is_extension = IsStandaloneExtensionProcess();
+
   thread->SetRendererProcessType(
-      IsStandaloneExtensionProcess()
+      is_extension
           ? blink::scheduler::WebRendererProcessType::kExtensionRenderer
           : blink::scheduler::WebRendererProcessType::kRenderer);
+
+  if (is_extension) {
+    // The process name was set to "Renderer" in RendererMain(). Update it to
+    // "Extension Renderer" to highlight that it's hosting an extension.
+    base::trace_event::TraceLog::GetInstance()->set_process_name(
+        "Extension Renderer");
+  }
 
   thread->AddObserver(observer_.get());
 
@@ -305,6 +319,12 @@ void AlloyContentRendererClient::RenderFrameCreated(
         base::WrapUnique(
             new extensions::CefPrintRenderFrameHelperDelegate(*is_windowless)));
   }
+
+  if (base::FeatureList::IsEnabled(chrome_pdf::features::kPdfUnseasoned)) {
+    render_frame_observer->associated_interfaces()->AddInterface(
+        base::BindRepeating(&pdf::PdfFindInPageFactory::BindReceiver,
+                            render_frame->GetRoutingID()));
+  }
 }
 
 void AlloyContentRendererClient::WebViewCreated(blink::WebView* web_view) {
@@ -350,6 +370,16 @@ bool AlloyContentRendererClient::IsPluginHandledExternally(
     ChromeExtensionsRendererClient::DidBlockMimeHandlerViewForDisallowedPlugin(
         plugin_element);
     return false;
+  }
+  if (plugin_info->actual_mime_type == pdf::kInternalPluginMimeType &&
+      pdf::IsInternalPluginExternallyHandled()) {
+    // Only actually treat the internal PDF plugin as externally handled if
+    // used within an origin allowed to create the internal PDF plugin;
+    // otherwise, let Blink try to create the in-process PDF plugin.
+    if (IsPdfInternalPluginAllowedOrigin(
+            render_frame->GetWebFrame()->GetSecurityOrigin())) {
+      return true;
+    }
   }
   return ChromeExtensionsRendererClient::MaybeCreateMimeHandlerView(
       plugin_element, original_url, plugin_info->actual_mime_type,

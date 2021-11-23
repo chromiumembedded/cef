@@ -9,7 +9,6 @@
 
 #include "include/cef_stream.h"
 #include "include/cef_version.h"
-#include "libcef/browser/extensions/pdf_extension_util.h"
 #include "libcef/common/app_manager.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/extensions/extensions_util.h"
@@ -25,9 +24,11 @@
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "chrome/common/chrome_constants.h"
+#include "chrome/common/chrome_content_client.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/media/cdm_registration.h"
+#include "components/pdf/common/internal_plugin_helpers.h"
 #include "content/public/common/cdm_info.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_switches.h"
@@ -48,7 +49,6 @@ namespace {
 
 const char kPDFPluginExtension[] = "pdf";
 const char kPDFPluginDescription[] = "Portable Document Format";
-const char kPDFPluginOutOfProcessMimeType[] = "application/x-google-chrome-pdf";
 const uint32_t kPDFPluginPermissions =
     ppapi::PERMISSION_PDF | ppapi::PERMISSION_DEV;
 
@@ -66,11 +66,10 @@ void ComputeBuiltInPlugins(std::vector<content::PepperPluginInfo>* plugins) {
     content::PepperPluginInfo pdf_info;
     pdf_info.is_internal = true;
     pdf_info.is_out_of_process = true;
-    pdf_info.name = extensions::pdf_extension_util::kPdfPluginName;
+    pdf_info.name = ChromeContentClient::kPDFInternalPluginName;
     pdf_info.description = kPDFPluginDescription;
-    pdf_info.path =
-        base::FilePath::FromUTF8Unsafe(AlloyContentClient::kPDFPluginPath);
-    content::WebPluginMimeType pdf_mime_type(kPDFPluginOutOfProcessMimeType,
+    pdf_info.path = base::FilePath(ChromeContentClient::kPDFPluginPath);
+    content::WebPluginMimeType pdf_mime_type(pdf::kInternalPluginMimeType,
                                              kPDFPluginExtension,
                                              kPDFPluginDescription);
     pdf_info.mime_types.push_back(pdf_mime_type);
@@ -83,8 +82,6 @@ void ComputeBuiltInPlugins(std::vector<content::PepperPluginInfo>* plugins) {
 }
 
 }  // namespace
-
-const char AlloyContentClient::kPDFPluginPath[] = "internal-pdf-viewer";
 
 AlloyContentClient::AlloyContentClient() = default;
 AlloyContentClient::~AlloyContentClient() = default;
