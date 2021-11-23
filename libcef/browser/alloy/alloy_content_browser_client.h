@@ -39,9 +39,19 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
       const content::MainFunctionParams& parameters) override;
   void RenderProcessWillLaunch(content::RenderProcessHost* host) override;
   bool ShouldUseProcessPerSite(content::BrowserContext* browser_context,
-                               const GURL& effective_url) override;
+                               const GURL& site_url) override;
+  bool ShouldUseSpareRenderProcessHost(content::BrowserContext* browser_context,
+                                       const GURL& site_url) override;
   bool DoesSiteRequireDedicatedProcess(content::BrowserContext* browser_context,
                                        const GURL& effective_site_url) override;
+  bool ShouldLockProcessToSite(content::BrowserContext* browser_context,
+                               const GURL& effective_site_url) override;
+  bool ShouldTreatURLSchemeAsFirstPartyWhenTopLevel(
+      base::StringPiece scheme,
+      bool is_embedded_origin_secure) override;
+  bool ShouldIgnoreSameSiteCookieRestrictionsWhenTopLevel(
+      base::StringPiece scheme,
+      bool is_embedded_origin_secure) override;
   void OverrideURLLoaderFactoryParams(
       content::BrowserContext* browser_context,
       const url::Origin& origin,
@@ -124,6 +134,12 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
       const base::RepeatingCallback<content::WebContents*()>& wc_getter,
       content::NavigationUIData* navigation_ui_data,
       int frame_tree_node_id) override;
+  std::vector<std::unique_ptr<content::URLLoaderRequestInterceptor>>
+  WillCreateURLLoaderRequestInterceptors(
+      content::NavigationUIData* navigation_ui_data,
+      int frame_tree_node_id,
+      const scoped_refptr<network::SharedURLLoaderFactory>&
+          network_loader_factory) override;
 
 #if defined(OS_LINUX)
   void GetAdditionalMappedFilesForChildProcess(
@@ -221,6 +237,7 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
   bool ShouldAllowPluginCreation(
       const url::Origin& embedder_origin,
       const content::PepperPluginInfo& plugin_info) override;
+  bool IsFindInPageDisabledForOrigin(const url::Origin& origin) override;
 
   CefRefPtr<CefRequestContextImpl> request_context() const;
   CefDevToolsDelegate* devtools_delegate() const;

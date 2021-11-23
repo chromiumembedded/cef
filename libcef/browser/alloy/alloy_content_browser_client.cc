@@ -53,9 +53,12 @@
 #include "cef/grit/cef_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/content_settings/cookie_settings_factory.h"
+#include "chrome/browser/extensions/chrome_content_browser_client_extensions_part.h"
 #include "chrome/browser/net/profile_network_context_service.h"
 #include "chrome/browser/net/profile_network_context_service_factory.h"
 #include "chrome/browser/net/system_network_context_manager.h"
+#include "chrome/browser/pdf/chrome_pdf_stream_delegate.h"
+#include "chrome/browser/plugins/pdf_iframe_navigation_throttle.h"
 #include "chrome/browser/plugins/plugin_info_host_impl.h"
 #include "chrome/browser/plugins/plugin_response_interceptor_url_loader_throttle.h"
 #include "chrome/browser/plugins/plugin_utils.h"
@@ -68,6 +71,7 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/google_url_loader_throttle.h"
+#include "chrome/common/pdf_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/webui_url_constants.h"
 #include "chrome/grit/browser_resources.h"
@@ -76,7 +80,10 @@
 #include "components/content_settings/core/browser/cookie_settings.h"
 #include "components/embedder_support/switches.h"
 #include "components/embedder_support/user_agent_utils.h"
+#include "components/pdf/browser/pdf_navigation_throttle.h"
+#include "components/pdf/browser/pdf_url_loader_request_interceptor.h"
 #include "components/pdf/browser/pdf_web_contents_helper.h"
+#include "components/pdf/common/internal_plugin_helpers.h"
 #include "components/spellcheck/common/spellcheck.mojom.h"
 #include "components/version_info/version_info.h"
 #include "content/browser/plugin_service_impl.h"
@@ -118,6 +125,7 @@
 #include "net/base/auth.h"
 #include "net/ssl/ssl_cert_request_info.h"
 #include "net/ssl/ssl_private_key.h"
+#include "pdf/pdf_features.h"
 #include "ppapi/host/ppapi_host.h"
 #include "sandbox/policy/switches.h"
 #include "services/network/public/cpp/network_switches.h"
@@ -466,6 +474,19 @@ base::FilePath GetRootCachePath() {
       CefString(&CefContext::Get()->settings().root_cache_path));
 }
 
+const extensions::Extension* GetEnabledExtensionFromSiteURL(
+    content::BrowserContext* context,
+    const GURL& site_url) {
+  if (!site_url.SchemeIs(extensions::kExtensionScheme))
+    return nullptr;
+
+  auto registry = extensions::ExtensionRegistry::Get(context);
+  if (!registry)
+    return nullptr;
+
+  return registry->enabled_extensions().GetByID(site_url.host());
+}
+
 }  // namespace
 
 AlloyContentBrowserClient::AlloyContentBrowserClient() = default;
@@ -504,45 +525,79 @@ void AlloyContentBrowserClient::RenderProcessWillLaunch(
 
 bool AlloyContentBrowserClient::ShouldUseProcessPerSite(
     content::BrowserContext* browser_context,
-    const GURL& effective_url) {
-  if (!extensions::ExtensionsEnabled())
-    return false;
+    const GURL& site_url) {
+  if (extensions::ExtensionsEnabled()) {
+    if (auto profile = Profile::FromBrowserContext(browser_context)) {
+      return extensions::ChromeContentBrowserClientExtensionsPart::
+          ShouldUseProcessPerSite(profile, site_url);
+    }
+  }
 
-  if (!effective_url.SchemeIs(extensions::kExtensionScheme))
-    return false;
-
-  extensions::ExtensionRegistry* registry =
-      extensions::ExtensionRegistry::Get(browser_context);
-  if (!registry)
-    return false;
-
-  const extensions::Extension* extension =
-      registry->enabled_extensions().GetByID(effective_url.host());
-  if (!extension)
-    return false;
-
-  // TODO(extensions): Extra checks required if type is TYPE_HOSTED_APP.
-
-  // Hosted apps that have script access to their background page must use
-  // process per site, since all instances can make synchronous calls to the
-  // background window.  Other extensions should use process per site as well.
-  return true;
+  return content::ContentBrowserClient::ShouldUseProcessPerSite(browser_context,
+                                                                site_url);
 }
 
-// Based on
-// ChromeContentBrowserClientExtensionsPart::DoesSiteRequireDedicatedProcess.
+bool AlloyContentBrowserClient::ShouldUseSpareRenderProcessHost(
+    content::BrowserContext* browser_context,
+    const GURL& site_url) {
+  if (extensions::ExtensionsEnabled()) {
+    if (auto profile = Profile::FromBrowserContext(browser_context)) {
+      return extensions::ChromeContentBrowserClientExtensionsPart::
+          ShouldUseSpareRenderProcessHost(profile, site_url);
+    }
+  }
+
+  return content::ContentBrowserClient::ShouldUseSpareRenderProcessHost(
+      browser_context, site_url);
+}
+
 bool AlloyContentBrowserClient::DoesSiteRequireDedicatedProcess(
     content::BrowserContext* browser_context,
     const GURL& effective_site_url) {
-  if (!extensions::ExtensionsEnabled())
-    return false;
+  if (extensions::ExtensionsEnabled()) {
+    return extensions::ChromeContentBrowserClientExtensionsPart::
+        DoesSiteRequireDedicatedProcess(browser_context, effective_site_url);
+  }
 
-  const extensions::Extension* extension =
-      extensions::ExtensionRegistry::Get(browser_context)
-          ->enabled_extensions()
-          .GetExtensionOrAppByURL(effective_site_url);
-  // Isolate all extensions.
-  return extension != nullptr;
+  return content::ContentBrowserClient::DoesSiteRequireDedicatedProcess(
+      browser_context, effective_site_url);
+}
+
+bool AlloyContentBrowserClient::ShouldLockProcessToSite(
+    content::BrowserContext* browser_context,
+    const GURL& effective_site_url) {
+  if (extensions::ExtensionsEnabled()) {
+    return extensions::ChromeContentBrowserClientExtensionsPart::
+        ShouldLockProcessToSite(browser_context, effective_site_url);
+  }
+
+  return content::ContentBrowserClient::ShouldLockProcessToSite(
+      browser_context, effective_site_url);
+}
+
+bool AlloyContentBrowserClient::ShouldTreatURLSchemeAsFirstPartyWhenTopLevel(
+    base::StringPiece scheme,
+    bool is_embedded_origin_secure) {
+  // This is needed to bypass the normal SameSite rules for any chrome:// page
+  // embedding a secure origin, regardless of the registrable domains of any
+  // intervening frames. For example, this is needed for browser UI to interact
+  // with SameSite cookies on accounts.google.com, which are used for logging
+  // into Cloud Print from chrome://print, for displaying a list of available
+  // accounts on the NTP (chrome://new-tab-page), etc.
+  if (is_embedded_origin_secure && scheme == content::kChromeUIScheme)
+    return true;
+
+  if (extensions::ExtensionsEnabled())
+    return scheme == extensions::kExtensionScheme;
+
+  return false;
+}
+
+bool AlloyContentBrowserClient::
+    ShouldIgnoreSameSiteCookieRestrictionsWhenTopLevel(
+        base::StringPiece scheme,
+        bool is_embedded_origin_secure) {
+  return is_embedded_origin_secure && scheme == content::kChromeUIScheme;
 }
 
 void AlloyContentBrowserClient::OverrideURLLoaderFactoryParams(
@@ -600,17 +655,24 @@ void AlloyContentBrowserClient::SiteInstanceGotProcess(
   if (!extensions::ExtensionsEnabled())
     return;
 
-  // If this isn't an extension renderer there's nothing to do.
-  const extensions::Extension* extension = GetExtension(site_instance);
+  CHECK(site_instance->HasProcess());
+
+  auto context = site_instance->GetBrowserContext();
+
+  // Only add the process to the map if the SiteInstance's site URL is already
+  // a chrome-extension:// URL. This includes hosted apps, except in rare cases
+  // that a URL in the hosted app's extent is not treated as a hosted app (e.g.,
+  // for isolated origins or cross-site iframes). For that case, don't look up
+  // the hosted app's Extension from the site URL using GetExtensionOrAppByURL,
+  // since it isn't treated as a hosted app.
+  const auto extension =
+      GetEnabledExtensionFromSiteURL(context, site_instance->GetSiteURL());
   if (!extension)
     return;
 
-  auto browser_context =
-      static_cast<AlloyBrowserContext*>(site_instance->GetBrowserContext());
-
-  extensions::ProcessMap::Get(browser_context)
-      ->Insert(extension->id(), site_instance->GetProcess()->GetID(),
-               site_instance->GetId());
+  extensions::ProcessMap::Get(context)->Insert(
+      extension->id(), site_instance->GetProcess()->GetID(),
+      site_instance->GetId());
 }
 
 void AlloyContentBrowserClient::SiteInstanceDeleting(
@@ -618,25 +680,22 @@ void AlloyContentBrowserClient::SiteInstanceDeleting(
   if (!extensions::ExtensionsEnabled())
     return;
 
-  // May be NULL during shutdown.
-  if (!extensions::ExtensionsBrowserClient::Get())
-    return;
-
-  // May be NULL during shutdown.
   if (!site_instance->HasProcess())
     return;
 
-  // If this isn't an extension renderer there's nothing to do.
-  const extensions::Extension* extension = GetExtension(site_instance);
+  auto context = site_instance->GetBrowserContext();
+  auto registry = extensions::ExtensionRegistry::Get(context);
+  if (!registry)
+    return;
+
+  auto extension = registry->enabled_extensions().GetExtensionOrAppByURL(
+      site_instance->GetSiteURL());
   if (!extension)
     return;
 
-  auto browser_context =
-      static_cast<AlloyBrowserContext*>(site_instance->GetBrowserContext());
-
-  extensions::ProcessMap::Get(browser_context)
-      ->Remove(extension->id(), site_instance->GetProcess()->GetID(),
-               site_instance->GetId());
+  extensions::ProcessMap::Get(context)->Remove(
+      extension->id(), site_instance->GetProcess()->GetID(),
+      site_instance->GetId());
 }
 
 void AlloyContentBrowserClient::BindHostReceiverForRenderer(
@@ -1008,7 +1067,21 @@ std::vector<std::unique_ptr<content::NavigationThrottle>>
 AlloyContentBrowserClient::CreateThrottlesForNavigation(
     content::NavigationHandle* navigation_handle) {
   throttle::NavigationThrottleList throttles;
+
+  if (extensions::ExtensionsEnabled()) {
+    auto pdf_iframe_throttle =
+        PDFIFrameNavigationThrottle::MaybeCreateThrottleFor(navigation_handle);
+    if (pdf_iframe_throttle)
+      throttles.push_back(std::move(pdf_iframe_throttle));
+
+    auto pdf_throttle = pdf::PdfNavigationThrottle::MaybeCreateThrottleFor(
+        navigation_handle, std::make_unique<ChromePdfStreamDelegate>());
+    if (pdf_throttle)
+      throttles.push_back(std::move(pdf_throttle));
+  }
+
   throttle::CreateThrottlesForNavigation(navigation_handle, throttles);
+
   return throttles;
 }
 
@@ -1035,6 +1108,26 @@ AlloyContentBrowserClient::CreateURLLoaderThrottles(
       std::make_unique<GoogleURLLoaderThrottle>(std::move(dynamic_params)));
 
   return result;
+}
+
+std::vector<std::unique_ptr<content::URLLoaderRequestInterceptor>>
+AlloyContentBrowserClient::WillCreateURLLoaderRequestInterceptors(
+    content::NavigationUIData* navigation_ui_data,
+    int frame_tree_node_id,
+    const scoped_refptr<network::SharedURLLoaderFactory>&
+        network_loader_factory) {
+  std::vector<std::unique_ptr<content::URLLoaderRequestInterceptor>>
+      interceptors;
+
+  if (extensions::ExtensionsEnabled()) {
+    auto pdf_interceptor =
+        pdf::PdfURLLoaderRequestInterceptor::MaybeCreateInterceptor(
+            frame_tree_node_id, std::make_unique<ChromePdfStreamDelegate>());
+    if (pdf_interceptor)
+      interceptors.push_back(std::move(pdf_interceptor));
+  }
+
+  return interceptors;
 }
 
 #if defined(OS_LINUX)
@@ -1383,6 +1476,8 @@ AlloyContentBrowserClient::GetPluginMimeTypesWithExternalHandlers(
   auto map = PluginUtils::GetMimeTypeToExtensionIdMap(browser_context);
   for (const auto& pair : map)
     mime_types.insert(pair.first);
+  if (pdf::IsInternalPluginExternallyHandled())
+    mime_types.insert(pdf::kInternalPluginMimeType);
   return mime_types;
 }
 
@@ -1401,25 +1496,18 @@ bool AlloyContentBrowserClient::ShouldAllowPluginCreation(
     const url::Origin& embedder_origin,
     const content::PepperPluginInfo& plugin_info) {
   if (plugin_info.name == ChromeContentClient::kPDFInternalPluginName) {
-    // Allow embedding the internal PDF plugin in the built-in PDF extension.
-    if (embedder_origin.scheme() == extensions::kExtensionScheme &&
-        embedder_origin.host() == extension_misc::kPdfExtensionId) {
-      return true;
-    }
-
-    // Allow embedding the internal PDF plugin in chrome://print.
-    if (embedder_origin ==
-        url::Origin::Create(GURL(chrome::kChromeUIPrintURL))) {
-      return true;
-    }
-
-    // Only allow the PDF plugin in the known, trustworthy origins that are
-    // allowlisted above.  See also https://crbug.com/520422 and
-    // https://crbug.com/1027173.
-    return false;
+    return IsPdfInternalPluginAllowedOrigin(embedder_origin);
   }
 
   return true;
+}
+
+bool AlloyContentBrowserClient::IsFindInPageDisabledForOrigin(
+    const url::Origin& origin) {
+  // For PDF viewing with the PPAPI-free PDF Viewer, find-in-page should only
+  // display results from the PDF content, and not from the UI.
+  return base::FeatureList::IsEnabled(chrome_pdf::features::kPdfUnseasoned) &&
+         IsPdfExtensionOrigin(origin);
 }
 
 CefRefPtr<CefRequestContextImpl> AlloyContentBrowserClient::request_context()

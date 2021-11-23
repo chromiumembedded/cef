@@ -524,8 +524,6 @@ static_library("libcef_static") {
     "libcef/browser/extensions/extension_web_contents_observer.h",
     "libcef/browser/extensions/mime_handler_view_guest_delegate.cc",
     "libcef/browser/extensions/mime_handler_view_guest_delegate.h",
-    "libcef/browser/extensions/pdf_extension_util.cc",
-    "libcef/browser/extensions/pdf_extension_util.h",
     "libcef/browser/extensions/pdf_web_contents_helper_client.cc",
     "libcef/browser/extensions/pdf_web_contents_helper_client.h",
     "libcef/browser/extensions/value_store/cef_value_store.cc",
