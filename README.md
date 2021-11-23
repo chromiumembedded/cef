@@ -45,15 +45,11 @@ The base CEF framework includes support for the C and C++ programming languages.
 
 * .Net (CEF3) - https://github.com/cefsharp/CefSharp
 * .Net (CEF1) - https://bitbucket.org/fddima/cefglue
-* .Net/Mono (CEF3) - https://bitbucket.org/xilium/xilium.cefglue
-* .Net (CEF3) - https://bitbucket.org/chromiumfx/chromiumfx
-* Delphi (CEF1) - http://code.google.com/p/delphichromiumembedded/
-* Delphi (CEF3) - https://github.com/hgourvest/dcef3
-* Delphi (CEF3) - https://github.com/salvadordf/CEF4Delphi
-* Go - https://github.com/richardwilkes/cef
+* .Net/Mono (CEF3) - https://gitlab.com/xiliumhq/chromiumembedded/cefglue
+* Delphi - https://github.com/hgourvest/dcef3
+* Delphi - https://github.com/salvadordf/CEF4Delphi
 * Go - https://github.com/CzarekTomczak/cef2go
 * Java - https://bitbucket.org/chromiumembedded/java-cef
-* Java - http://code.google.com/p/javacef/
 * Python - http://code.google.com/p/cefpython/
 
 If you're the maintainer of a project not listed above and would like your project listed here please either post to the [CEF Forum](http://www.magpcss.org/ceforum/) or contact Marshall directly.
