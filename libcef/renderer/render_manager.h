@@ -67,6 +67,12 @@ class CefRenderManager : public cef::mojom::RenderManager {
   // Connects to CefBrowserManager in the browser process.
   mojo::Remote<cef::mojom::BrowserManager>& GetBrowserManager();
 
+  // Returns true if this renderer process is hosting an extension.
+  static bool IsExtensionProcess();
+
+  // Returns true if this renderer process is hosting a PDF.
+  static bool IsPdfProcess();
+
  private:
   friend class CefBrowserImpl;
   friend class CefGuestView;

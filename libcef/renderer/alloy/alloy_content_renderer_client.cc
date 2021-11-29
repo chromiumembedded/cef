@@ -110,16 +110,6 @@
 #include "base/strings/sys_string_conversions.h"
 #endif
 
-namespace {
-
-bool IsStandaloneExtensionProcess() {
-  return extensions::ExtensionsEnabled() &&
-         extensions::CefExtensionsRendererClient::
-             IsStandaloneExtensionProcess();
-}
-
-}  // namespace
-
 AlloyContentRendererClient::AlloyContentRendererClient()
     : main_entry_time_(base::TimeTicks::Now()),
       render_manager_(new CefRenderManager) {
@@ -200,7 +190,7 @@ void AlloyContentRendererClient::RenderThreadStarted() {
 
   content::RenderThread* thread = content::RenderThread::Get();
 
-  const bool is_extension = IsStandaloneExtensionProcess();
+  const bool is_extension = CefRenderManager::IsExtensionProcess();
 
   thread->SetRendererProcessType(
       is_extension

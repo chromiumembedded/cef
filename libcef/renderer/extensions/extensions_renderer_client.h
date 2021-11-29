@@ -78,8 +78,6 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
   void RunScriptsAtDocumentEnd(content::RenderFrame* render_frame);
   void RunScriptsAtDocumentIdle(content::RenderFrame* render_frame);
 
-  static bool IsStandaloneExtensionProcess();
-
  private:
   std::unique_ptr<extensions::Dispatcher> extension_dispatcher_;
   std::unique_ptr<guest_view::GuestViewContainerDispatcher>

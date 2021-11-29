@@ -41,15 +41,6 @@ const int64 kPdfLoadDelayMs = 7000;
 const int64 kPdfLoadDelayMs = 5000;
 #endif
 
-int64 PdfLoadDelayMs() {
-  // TODO(chrome): The PDF renderer process created when using
-  // `--enable-features=PdfUnseasoned` is currently causing a
-  // "Timeout of new browser info response for frame" error which necessitates
-  // a longer delay. Reduce this delay once we can properly account for that
-  // new renderer process (see issue #3047).
-  return IsChromeRuntimeEnabled() ? kPdfLoadDelayMs * 2 : kPdfLoadDelayMs;
-}
-
 // Browser-side test handler.
 class PdfViewerTestHandler : public TestHandler, public CefContextMenuHandler {
  public:
@@ -91,7 +82,7 @@ class PdfViewerTestHandler : public TestHandler, public CefContextMenuHandler {
     CreateBrowser(url_, request_context);
 
     // Time out the test after a reasonable period of time.
-    SetTestTimeout(5000 + PdfLoadDelayMs());
+    SetTestTimeout(5000 + kPdfLoadDelayMs);
   }
 
   CefRefPtr<CefResourceHandler> GetResourceHandler(
@@ -142,14 +133,14 @@ class PdfViewerTestHandler : public TestHandler, public CefContextMenuHandler {
         // After context menu display. Destroy the test.
         CefPostDelayedTask(
             TID_UI, base::BindOnce(&PdfViewerTestHandler::DestroyTest, this),
-            PdfLoadDelayMs());
+            kPdfLoadDelayMs);
       } else {
         // Trigger the context menu.
         CefPostDelayedTask(
             TID_UI,
             base::BindOnce(&PdfViewerTestHandler::TriggerContextMenu, this,
                            frame->GetBrowser()),
-            PdfLoadDelayMs());
+            kPdfLoadDelayMs);
       }
     }
   }

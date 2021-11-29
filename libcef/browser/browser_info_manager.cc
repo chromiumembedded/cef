@@ -531,6 +531,7 @@ void CefBrowserInfoManager::CancelNewBrowserInfoResponse(
 void CefBrowserInfoManager::TimeoutNewBrowserInfoResponse(
     const content::GlobalRenderFrameHostId& global_id,
     int timeout_id) {
+  CEF_REQUIRE_UIT();
   if (!g_info_manager)
     return;
 
@@ -543,6 +544,13 @@ void CefBrowserInfoManager::TimeoutNewBrowserInfoResponse(
     // Don't accidentally timeout a new request for the same frame.
     if (pending_info->timeout_id != timeout_id)
       return;
+
+#if DCHECK_IS_ON()
+    // This method should never be called for a PDF renderer.
+    content::RenderProcessHost* process =
+        content::RenderProcessHost::FromID(global_id.child_id);
+    DCHECK(!process || !process->IsPdf());
+#endif
 
     LOG(ERROR) << "Timeout of new browser info response for frame "
                << frame_util::GetFrameDebugString(global_id);
