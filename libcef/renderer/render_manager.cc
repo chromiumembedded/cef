@@ -30,9 +30,11 @@
 #include "base/command_line.h"
 #include "base/strings/string_number_conversions.h"
 #include "cef/libcef/common/mojom/cef.mojom.h"
+#include "content/public/common/content_switches.h"
 #include "content/public/renderer/render_frame.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
+#include "extensions/common/switches.h"
 #include "mojo/public/cpp/bindings/binder_map.h"
 #include "services/network/public/mojom/cors_origin_pattern.mojom.h"
 #include "third_party/blink/public/platform/web_string.h"
@@ -181,6 +183,18 @@ CefRenderManager::GetBrowserManager() {
   return browser_manager_;
 }
 
+// static
+bool CefRenderManager::IsExtensionProcess() {
+  return base::CommandLine::ForCurrentProcess()->HasSwitch(
+      extensions::switches::kExtensionProcess);
+}
+
+// static
+bool CefRenderManager::IsPdfProcess() {
+  return base::CommandLine::ForCurrentProcess()->HasSwitch(
+      switches::kPdfRenderer);
+}
+
 void CefRenderManager::BindReceiver(
     mojo::PendingReceiver<cef::mojom::RenderManager> receiver) {
   receivers_.Add(this, std::move(receiver));
@@ -293,25 +307,26 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
     return nullptr;
   }
 
-  const int render_frame_routing_id = render_frame->GetRoutingID();
+  const bool is_pdf = IsPdfProcess();
 
-  // Retrieve the browser information synchronously. This will also register
-  // the routing ids with the browser info object in the browser process.
   auto params = cef::mojom::NewBrowserInfo::New();
-  GetBrowserManager()->GetNewBrowserInfo(render_frame_routing_id, &params);
+  if (!is_pdf) {
+    // Retrieve browser information synchronously.
+    GetBrowserManager()->GetNewBrowserInfo(render_frame->GetRoutingID(),
+                                           &params);
+    if (params->browser_id == 0) {
+      // The popup may have been canceled during creation.
+      return nullptr;
+    }
+  }
 
   if (is_windowless) {
     *is_windowless = params->is_windowless;
   }
 
-  if (params->browser_id == 0) {
-    // The popup may have been canceled during creation.
-    return nullptr;
-  }
-
-  if (params->is_guest_view || params->browser_id < 0) {
-    // Don't create a CefBrowser for guest views, or if the new browser info
-    // response has timed out.
+  if (is_pdf || params->is_guest_view || params->browser_id < 0) {
+    // Don't create a CefBrowser for a PDF renderer, guest view, or if the new
+    // browser info response has timed out.
     guest_views_.insert(std::make_pair(
         render_view, std::make_unique<CefGuestView>(this, render_view,
                                                     params->is_windowless)));

@@ -7,19 +7,16 @@
 #include "libcef/renderer/alloy/alloy_render_thread_observer.h"
 #include "libcef/renderer/extensions/extensions_dispatcher_delegate.h"
 
-#include "base/command_line.h"
 #include "base/stl_util.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/renderer/extensions/extension_process_policy.h"
 #include "chrome/renderer/extensions/resource_request_policy.h"
 #include "components/guest_view/renderer/guest_view_container_dispatcher.h"
 #include "content/public/common/content_constants.h"
-#include "content/public/common/content_switches.h"
 #include "content/public/renderer/render_frame.h"
 #include "content/public/renderer/render_thread.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/permissions/permissions_data.h"
-#include "extensions/common/switches.h"
 #include "extensions/renderer/dispatcher.h"
 #include "extensions/renderer/extension_frame_helper.h"
 #include "extensions/renderer/extensions_render_frame_observer.h"
@@ -147,12 +144,6 @@ void CefExtensionsRendererClient::RunScriptsAtDocumentEnd(
 void CefExtensionsRendererClient::RunScriptsAtDocumentIdle(
     content::RenderFrame* render_frame) {
   extension_dispatcher_->RunScriptsAtDocumentIdle(render_frame);
-}
-
-// static
-bool CefExtensionsRendererClient::IsStandaloneExtensionProcess() {
-  return base::CommandLine::ForCurrentProcess()->HasSwitch(
-      extensions::switches::kExtensionProcess);
 }
 
 }  // namespace extensions
