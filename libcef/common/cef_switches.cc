@@ -137,4 +137,10 @@ const char kFrameworkDirPath[] = "framework-dir-path";
 const char kMainBundlePath[] = "main-bundle-path";
 #endif
 
+#if !defined(OS_WIN)
+// Renderer process that runs the non-PPAPI PDF plugin.
+// This is defined in content/public/common/content_switches.h for Windows.
+const char kPdfRenderer[] = "pdf-renderer";
+#endif
+
 }  // namespace switches
