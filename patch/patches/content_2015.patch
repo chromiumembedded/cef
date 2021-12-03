@@ -133,10 +133,10 @@ index 0b098038d2f56..bd85dbf2727c1 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index 4f7ea9bd9117e..3e325c0514de0 100644
+index 08ea5ace12e7d..6c020ae6c5145 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
-@@ -663,6 +663,8 @@ void RenderThreadImpl::Init() {
+@@ -636,6 +636,8 @@ void RenderThreadImpl::Init() {
        GetContentClient()->renderer()->CreateURLLoaderThrottleProvider(
            blink::URLLoaderThrottleProviderType::kFrame);
  
@@ -146,10 +146,10 @@ index 4f7ea9bd9117e..3e325c0514de0 100644
        &RenderThreadImpl::OnRendererInterfaceReceiver, base::Unretained(this)));
  
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index 6616ad76bc307..95524ec98ce5c 100644
+index 1b89812ad4297..7bbc927e03580 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -1086,6 +1086,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
+@@ -1094,6 +1094,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
  
  //------------------------------------------------------------------------------
  
@@ -166,10 +166,10 @@ index 6616ad76bc307..95524ec98ce5c 100644
  RendererBlinkPlatformImpl::GetCodeCacheHost() {
    base::AutoLock lock(code_cache_host_lock_);
 diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
-index 745204f21d304..87b7767fcba68 100644
+index f56214039bf15..77b71b1f9f771 100644
 --- content/renderer/renderer_blink_platform_impl.h
 +++ content/renderer/renderer_blink_platform_impl.h
-@@ -262,6 +262,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
+@@ -263,6 +263,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
        const blink::WebURL& url,
        blink::WebVector<blink::WebContentSecurityPolicyHeader>* csp) override;
  

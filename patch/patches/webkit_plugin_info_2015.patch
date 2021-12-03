@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index da429c7f7daf9..936832defe769 100644
+index 74fd52490d65a..9d817a891ba72 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -864,6 +864,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -873,6 +873,11 @@ class BLINK_PLATFORM_EXPORT Platform {
        const WebURL& url,
        blink::WebVector<blink::WebContentSecurityPolicyHeader>* csp) {}
  

@@ -1,8 +1,8 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index bc3de06d0255b..ed84c1120d19d 100644
+index bd1fefeff6f60..54b74ee390d7a 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
-@@ -1765,8 +1765,6 @@ config("thin_archive") {
+@@ -1769,8 +1769,6 @@ config("thin_archive") {
    # confuses lldb.
    if ((is_posix && !is_nacl && !is_apple) || is_fuchsia) {
      arflags = [ "-T" ]
