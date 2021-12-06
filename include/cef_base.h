@@ -90,7 +90,10 @@ class CefBaseScoped {
 ///
 class CefRefCount {
  public:
-  CefRefCount() {}
+  CefRefCount() = default;
+
+  CefRefCount(const CefRefCount&) = delete;
+  CefRefCount& operator=(const CefRefCount&) = delete;
 
   ///
   // Increment the reference count.
@@ -114,7 +117,6 @@ class CefRefCount {
 
  private:
   mutable base::AtomicRefCount ref_count_{0};
-  DISALLOW_COPY_AND_ASSIGN(CefRefCount);
 };
 
 ///

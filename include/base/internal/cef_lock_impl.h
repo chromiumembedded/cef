@@ -40,8 +40,6 @@
 #include <pthread.h>
 #endif
 
-#include "include/base/cef_macros.h"
-
 namespace base {
 namespace cef_internal {
 
@@ -57,6 +55,10 @@ class LockImpl {
 #endif
 
   LockImpl();
+
+  LockImpl(const LockImpl&) = delete;
+  LockImpl& operator=(const LockImpl&) = delete;
+
   ~LockImpl();
 
   // If the lock is not held, take it and return true.  If the lock is already
@@ -77,8 +79,6 @@ class LockImpl {
 
  private:
   NativeHandle native_handle_;
-
-  DISALLOW_COPY_AND_ASSIGN(LockImpl);
 };
 
 }  // namespace cef_internal

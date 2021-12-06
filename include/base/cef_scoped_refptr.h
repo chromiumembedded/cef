@@ -48,7 +48,6 @@
 
 #include "include/base/cef_compiler_specific.h"
 #include "include/base/cef_logging.h"
-#include "include/base/cef_macros.h"
 
 template <class T>
 class scoped_refptr;

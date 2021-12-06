@@ -109,7 +109,6 @@
 
 #include "include/base/cef_atomic_flag.h"
 #include "include/base/cef_logging.h"
-#include "include/base/cef_macros.h"
 #include "include/base/cef_ref_counted.h"
 #include "include/base/cef_thread_checker.h"
 
@@ -357,8 +356,13 @@ class WeakPtrFactoryBase {
 template <class T>
 class WeakPtrFactory : public internal::WeakPtrFactoryBase {
  public:
+  WeakPtrFactory() = delete;
+
   explicit WeakPtrFactory(T* ptr)
       : WeakPtrFactoryBase(reinterpret_cast<uintptr_t>(ptr)) {}
+
+  WeakPtrFactory(const WeakPtrFactory&) = delete;
+  WeakPtrFactory& operator=(const WeakPtrFactory&) = delete;
 
   ~WeakPtrFactory() = default;
 
@@ -378,9 +382,6 @@ class WeakPtrFactory : public internal::WeakPtrFactoryBase {
     DCHECK(ptr_);
     return weak_reference_owner_.HasRefs();
   }
-
- private:
-  DISALLOW_IMPLICIT_CONSTRUCTORS(WeakPtrFactory);
 };
 
 // A class may extend from SupportsWeakPtr to let others take weak pointers to
@@ -393,6 +394,9 @@ class SupportsWeakPtr : public internal::SupportsWeakPtrBase {
  public:
   SupportsWeakPtr() = default;
 
+  SupportsWeakPtr(const SupportsWeakPtr&) = delete;
+  SupportsWeakPtr& operator=(const SupportsWeakPtr&) = delete;
+
   WeakPtr<T> AsWeakPtr() {
     return WeakPtr<T>(weak_reference_owner_.GetRef(), static_cast<T*>(this));
   }
@@ -402,7 +406,6 @@ class SupportsWeakPtr : public internal::SupportsWeakPtrBase {
 
  private:
   internal::WeakReferenceOwner weak_reference_owner_;
-  DISALLOW_COPY_AND_ASSIGN(SupportsWeakPtr);
 };
 
 // Helper function that uses type deduction to safely return a WeakPtr<Derived>

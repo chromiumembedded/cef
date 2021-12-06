@@ -45,7 +45,6 @@
 
 #include <atomic>
 
-#include "include/base/cef_macros.h"
 #include "include/base/cef_thread_checker.h"
 
 namespace base {
@@ -56,6 +55,10 @@ namespace base {
 class AtomicFlag {
  public:
   AtomicFlag();
+
+  AtomicFlag(const AtomicFlag&) = delete;
+  AtomicFlag& operator=(const AtomicFlag&) = delete;
+
   ~AtomicFlag();
 
   // Set the flag. Must always be called from the same thread.
@@ -76,8 +79,6 @@ class AtomicFlag {
  private:
   std::atomic<uint_fast8_t> flag_{0};
   base::ThreadChecker set_thread_checker_;
-
-  DISALLOW_COPY_AND_ASSIGN(AtomicFlag);
 };
 
 }  // namespace base

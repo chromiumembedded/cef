@@ -49,7 +49,6 @@
 #include "include/base/cef_build.h"
 #include "include/base/cef_compiler_specific.h"
 #include "include/base/cef_logging.h"
-#include "include/base/cef_macros.h"
 #include "include/base/cef_scoped_refptr.h"
 #include "include/base/cef_template_util.h"
 #include "include/base/cef_thread_checker.h"
@@ -75,6 +74,9 @@ class RefCountedBase {
     thread_checker_.DetachFromThread();
 #endif
   }
+
+  RefCountedBase(const RefCountedBase&) = delete;
+  RefCountedBase& operator=(const RefCountedBase&) = delete;
 
   ~RefCountedBase() {
 #if DCHECK_IS_ON()
@@ -168,8 +170,6 @@ class RefCountedBase {
   mutable bool in_dtor_ = false;
   mutable ThreadChecker thread_checker_;
 #endif
-
-  DISALLOW_COPY_AND_ASSIGN(RefCountedBase);
 };
 
 class RefCountedThreadSafeBase {
@@ -185,6 +185,9 @@ class RefCountedThreadSafeBase {
     needs_adopt_ref_ = true;
 #endif
   }
+
+  RefCountedThreadSafeBase(const RefCountedThreadSafeBase&) = delete;
+  RefCountedThreadSafeBase& operator=(const RefCountedThreadSafeBase&) = delete;
 
 #if DCHECK_IS_ON()
   ~RefCountedThreadSafeBase();
@@ -259,8 +262,6 @@ class RefCountedThreadSafeBase {
   mutable bool needs_adopt_ref_ = false;
   mutable bool in_dtor_ = false;
 #endif
-
-  DISALLOW_COPY_AND_ASSIGN(RefCountedThreadSafeBase);
 };
 
 // ScopedAllowCrossThreadRefCountAccess disables the check documented on
@@ -357,6 +358,9 @@ class RefCounted : public cef_subtle::RefCountedBase {
 
   RefCounted() : cef_subtle::RefCountedBase(T::kRefCountPreference) {}
 
+  RefCounted(const RefCounted&) = delete;
+  RefCounted& operator=(const RefCounted&) = delete;
+
   void AddRef() const { cef_subtle::RefCountedBase::AddRef(); }
 
   void Release() const {
@@ -379,8 +383,6 @@ class RefCounted : public cef_subtle::RefCountedBase {
   static void DeleteInternal(const U* x) {
     delete x;
   }
-
-  DISALLOW_COPY_AND_ASSIGN(RefCounted);
 };
 
 // Forward declaration.
@@ -424,6 +426,9 @@ class RefCountedThreadSafe : public cef_subtle::RefCountedThreadSafeBase {
   explicit RefCountedThreadSafe()
       : cef_subtle::RefCountedThreadSafeBase(T::kRefCountPreference) {}
 
+  RefCountedThreadSafe(const RefCountedThreadSafe&) = delete;
+  RefCountedThreadSafe& operator=(const RefCountedThreadSafe&) = delete;
+
   void AddRef() const { AddRefImpl(T::kRefCountPreference); }
 
   void Release() const {
@@ -450,8 +455,6 @@ class RefCountedThreadSafe : public cef_subtle::RefCountedThreadSafeBase {
   void AddRefImpl(cef_subtle::StartRefCountFromOneTag) const {
     cef_subtle::RefCountedThreadSafeBase::AddRefWithCheck();
   }
-
-  DISALLOW_COPY_AND_ASSIGN(RefCountedThreadSafe);
 };
 
 //

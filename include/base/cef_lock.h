@@ -41,7 +41,6 @@
 // updated to match.
 
 #include "include/base/cef_logging.h"
-#include "include/base/cef_macros.h"
 #include "include/base/cef_platform_thread.h"
 #include "include/base/internal/cef_lock_impl.h"
 
@@ -55,6 +54,10 @@ class Lock {
  public:
 #if !DCHECK_IS_ON()  // Optimized wrapper implementation
   Lock() : lock_() {}
+
+  Lock(const Lock&) = delete;
+  Lock& operator=(const Lock&) = delete;
+
   ~Lock() {}
   void Acquire() { lock_.Lock(); }
   void Release() { lock_.Unlock(); }
@@ -111,8 +114,6 @@ class Lock {
 
   // Platform specific underlying lock implementation.
   LockImpl lock_;
-
-  DISALLOW_COPY_AND_ASSIGN(Lock);
 };
 
 // A helper class that acquires the given Lock while the AutoLock is in scope.
@@ -126,6 +127,9 @@ class AutoLock {
     lock_.AssertAcquired();
   }
 
+  AutoLock(const AutoLock&) = delete;
+  AutoLock& operator=(const AutoLock&) = delete;
+
   ~AutoLock() {
     lock_.AssertAcquired();
     lock_.Release();
@@ -133,7 +137,6 @@ class AutoLock {
 
  private:
   Lock& lock_;
-  DISALLOW_COPY_AND_ASSIGN(AutoLock);
 };
 
 // AutoUnlock is a helper that will Release() the |lock| argument in the
@@ -146,11 +149,13 @@ class AutoUnlock {
     lock_.Release();
   }
 
+  AutoUnlock(const AutoUnlock&) = delete;
+  AutoUnlock& operator=(const AutoUnlock&) = delete;
+
   ~AutoUnlock() { lock_.Acquire(); }
 
  private:
   Lock& lock_;
-  DISALLOW_COPY_AND_ASSIGN(AutoUnlock);
 };
 
 }  // namespace cef_internal
@@ -158,9 +163,9 @@ class AutoUnlock {
 // Implement classes in the cef_internal namespace and then expose them to the
 // base namespace. This avoids conflicts with the base.lib implementation when
 // linking sandbox support on Windows.
-using cef_internal::Lock;
 using cef_internal::AutoLock;
 using cef_internal::AutoUnlock;
+using cef_internal::Lock;
 
 }  // namespace base
 
