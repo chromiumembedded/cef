@@ -20,6 +20,9 @@ class ChromeBrowserContext : public CefBrowserContext, public ProfileObserver {
  public:
   explicit ChromeBrowserContext(const CefRequestContextSettings& settings);
 
+  ChromeBrowserContext(const ChromeBrowserContext&) = delete;
+  ChromeBrowserContext& operator=(const ChromeBrowserContext&) = delete;
+
   void InitializeAsync(base::OnceClosure initialized_cb);
 
   // CefBrowserContext overrides.
@@ -47,8 +50,6 @@ class ChromeBrowserContext : public CefBrowserContext, public ProfileObserver {
   std::vector<base::OnceClosure> init_callbacks_;
 
   base::WeakPtrFactory<ChromeBrowserContext> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(ChromeBrowserContext);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_CHROME_BROWSER_CONTEXT_H_

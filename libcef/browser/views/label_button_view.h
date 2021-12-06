@@ -22,7 +22,7 @@
 // view_impl.h for a usage overview.
 CEF_LABEL_BUTTON_VIEW_T class CefLabelButtonView : public CEF_BUTTON_VIEW_D {
  public:
-  typedef CEF_BUTTON_VIEW_D ParentClass;
+  using ParentClass = CEF_BUTTON_VIEW_D;
 
   // |cef_delegate| may be nullptr.
   template <typename... Args>

@@ -74,6 +74,10 @@ class CefMenuRunner;
 // indicated.
 class CefBrowserPlatformDelegate {
  public:
+  CefBrowserPlatformDelegate(const CefBrowserPlatformDelegate&) = delete;
+  CefBrowserPlatformDelegate& operator=(const CefBrowserPlatformDelegate&) =
+      delete;
+
   // Create a new CefBrowserPlatformDelegate instance. May be called on multiple
   // threads.
   static std::unique_ptr<CefBrowserPlatformDelegate> Create(
@@ -368,8 +372,6 @@ class CefBrowserPlatformDelegate {
   // Not owned by this object.
   content::WebContents* web_contents_ = nullptr;
   CefBrowserHostBase* browser_ = nullptr;
-
-  DISALLOW_COPY_AND_ASSIGN(CefBrowserPlatformDelegate);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_PLATFORM_DELEGATE_H_

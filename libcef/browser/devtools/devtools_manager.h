@@ -24,6 +24,10 @@ class CefDevToolsManager {
  public:
   // |inspected_browser| will outlive this object.
   explicit CefDevToolsManager(CefBrowserHostBase* inspected_browser);
+
+  CefDevToolsManager(const CefDevToolsManager&) = delete;
+  CefDevToolsManager& operator=(const CefDevToolsManager&) = delete;
+
   ~CefDevToolsManager();
 
   // See CefBrowserHost methods of the same name for documentation.
@@ -62,8 +66,6 @@ class CefDevToolsManager {
   std::unique_ptr<CefDevToolsController> devtools_controller_;
 
   base::WeakPtrFactory<CefDevToolsManager> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefDevToolsManager);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_MANAGER_H_

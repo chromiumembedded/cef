@@ -8,7 +8,6 @@
 #include <memory>
 
 #include "base/callback_forward.h"
-#include "base/macros.h"
 #include "extensions/browser/extension_host.h"
 
 class AlloyBrowserHostImpl;
@@ -30,6 +29,11 @@ class CefExtensionBackgroundHost : public ExtensionHost {
                              content::WebContents* host_contents,
                              const GURL& url,
                              mojom::ViewType host_type);
+
+  CefExtensionBackgroundHost(const CefExtensionBackgroundHost&) = delete;
+  CefExtensionBackgroundHost& operator=(const CefExtensionBackgroundHost&) =
+      delete;
+
   ~CefExtensionBackgroundHost() override;
 
   // content::WebContentsDelegate methods:
@@ -39,8 +43,6 @@ class CefExtensionBackgroundHost : public ExtensionHost {
  private:
   // Callback that will be executed on host deletion.
   base::OnceClosure deleted_callback_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefExtensionBackgroundHost);
 };
 
 }  // namespace extensions

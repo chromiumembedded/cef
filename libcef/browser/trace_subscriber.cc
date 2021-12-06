@@ -33,6 +33,10 @@ class CefCompletionCallbackWrapper : public CefCompletionCallback {
       CefRefPtr<CefCompletionCallback> callback)
       : callback_(callback) {}
 
+  CefCompletionCallbackWrapper(const CefCompletionCallbackWrapper&) = delete;
+  CefCompletionCallbackWrapper& operator=(const CefCompletionCallbackWrapper&) =
+      delete;
+
   void OnComplete() override {
     if (callback_) {
       callback_->OnComplete();
@@ -44,7 +48,6 @@ class CefCompletionCallbackWrapper : public CefCompletionCallback {
   CefRefPtr<CefCompletionCallback> callback_;
 
   IMPLEMENT_REFCOUNTING(CefCompletionCallbackWrapper);
-  DISALLOW_COPY_AND_ASSIGN(CefCompletionCallbackWrapper);
 };
 
 }  // namespace

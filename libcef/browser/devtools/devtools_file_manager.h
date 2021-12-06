@@ -6,7 +6,6 @@
 #define CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_FILE_MANAGER_H_
 
 #include "base/callback_forward.h"
-#include "base/macros.h"
 #include "base/memory/weak_ptr.h"
 
 #include <map>
@@ -29,6 +28,9 @@ class CefDevToolsFileManager {
   CefDevToolsFileManager(AlloyBrowserHostImpl* browser_impl,
                          PrefService* prefs);
 
+  CefDevToolsFileManager(const CefDevToolsFileManager&) = delete;
+  CefDevToolsFileManager& operator=(const CefDevToolsFileManager&) = delete;
+
   void SaveToFile(const std::string& url,
                   const std::string& content,
                   bool save_as);
@@ -36,8 +38,8 @@ class CefDevToolsFileManager {
 
  private:
   // SaveToFile implementation:
-  typedef base::OnceCallback<void(const std::string&)> SaveCallback;
-  typedef base::OnceCallback<void()> CancelCallback;
+  using SaveCallback = base::OnceCallback<void(const std::string&)>;
+  using CancelCallback = base::OnceCallback<void()>;
   void Save(const std::string& url,
             const std::string& content,
             bool save_as,
@@ -57,7 +59,7 @@ class CefDevToolsFileManager {
   void CanceledFileSaveAs(const std::string& url);
 
   // AppendToFile implementation:
-  typedef base::OnceCallback<void(void)> AppendCallback;
+  using AppendCallback = base::OnceCallback<void(void)>;
   void Append(const std::string& url,
               const std::string& content,
               AppendCallback callback);
@@ -72,12 +74,10 @@ class CefDevToolsFileManager {
   AlloyBrowserHostImpl* browser_impl_;
   PrefService* prefs_;
 
-  typedef std::map<std::string, base::FilePath> PathsMap;
+  using PathsMap = std::map<std::string, base::FilePath>;
   PathsMap saved_files_;
   scoped_refptr<base::SequencedTaskRunner> file_task_runner_;
   base::WeakPtrFactory<CefDevToolsFileManager> weak_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefDevToolsFileManager);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_FILE_MANAGER_H_

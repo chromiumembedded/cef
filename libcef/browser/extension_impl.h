@@ -23,6 +23,9 @@ class CefExtensionImpl : public CefExtension {
                    CefRequestContext* loader_context,
                    CefRefPtr<CefExtensionHandler> handler);
 
+  CefExtensionImpl(const CefExtensionImpl&) = delete;
+  CefExtensionImpl& operator=(const CefExtensionImpl&) = delete;
+
   // CefExtension methods.
   CefString GetIdentifier() override;
   CefString GetPath() override;
@@ -52,7 +55,6 @@ class CefExtensionImpl : public CefExtension {
   bool unloaded_ = false;
 
   IMPLEMENT_REFCOUNTING(CefExtensionImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefExtensionImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_EXTENSION_IMPL_H_

@@ -26,6 +26,9 @@ class CefOverlayControllerImpl : public CefOverlayController {
   CefOverlayControllerImpl(CefOverlayViewHost* host, CefRefPtr<CefView> view)
       : host_(host), view_(view) {}
 
+  CefOverlayControllerImpl(const CefOverlayControllerImpl&) = delete;
+  CefOverlayControllerImpl& operator=(const CefOverlayControllerImpl&) = delete;
+
   bool IsValid() override {
     // View validity implies that CefOverlayViewHost is still valid, because the
     // Widget that it owns (and that owns the View) is still valid.
@@ -161,7 +164,6 @@ class CefOverlayControllerImpl : public CefOverlayController {
   CefRefPtr<CefView> view_;
 
   IMPLEMENT_REFCOUNTING(CefOverlayControllerImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefOverlayControllerImpl);
 };
 
 }  // namespace

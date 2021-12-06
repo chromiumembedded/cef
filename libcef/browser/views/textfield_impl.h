@@ -15,8 +15,11 @@
 class CefTextfieldImpl
     : public CefViewImpl<CefTextfieldView, CefTextfield, CefTextfieldDelegate> {
  public:
-  typedef CefViewImpl<CefTextfieldView, CefTextfield, CefTextfieldDelegate>
-      ParentClass;
+  using ParentClass =
+      CefViewImpl<CefTextfieldView, CefTextfield, CefTextfieldDelegate>;
+
+  CefTextfieldImpl(const CefTextfieldImpl&) = delete;
+  CefTextfieldImpl& operator=(const CefTextfieldImpl&) = delete;
 
   // Create a new CefTextfield instance. |delegate| may be nullptr.
   static CefRefPtr<CefTextfieldImpl> Create(
@@ -76,7 +79,6 @@ class CefTextfieldImpl
   void InitializeRootView() override;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefTextfieldImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefTextfieldImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_TEXTFIELD_IMPL_H_

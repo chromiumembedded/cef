@@ -9,6 +9,11 @@ class CefTranslatorTestRefPtrLibraryImpl
  public:
   explicit CefTranslatorTestRefPtrLibraryImpl(int value) : value_(value) {}
 
+  CefTranslatorTestRefPtrLibraryImpl(
+      const CefTranslatorTestRefPtrLibraryImpl&) = delete;
+  CefTranslatorTestRefPtrLibraryImpl& operator=(
+      const CefTranslatorTestRefPtrLibraryImpl&) = delete;
+
   int GetValue() override { return value_; }
 
   void SetValue(int value) override { value_ = value; }
@@ -17,7 +22,6 @@ class CefTranslatorTestRefPtrLibraryImpl
   int value_;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(CefTranslatorTestRefPtrLibraryImpl);
   IMPLEMENT_REFCOUNTING(CefTranslatorTestRefPtrLibraryImpl);
 };
 
@@ -33,6 +37,11 @@ class CefTranslatorTestRefPtrLibraryChildImpl
   CefTranslatorTestRefPtrLibraryChildImpl(int value, int other_value)
       : value_(value), other_value_(other_value) {}
 
+  CefTranslatorTestRefPtrLibraryChildImpl(
+      const CefTranslatorTestRefPtrLibraryChildImpl&) = delete;
+  CefTranslatorTestRefPtrLibraryChildImpl& operator=(
+      const CefTranslatorTestRefPtrLibraryChildImpl&) = delete;
+
   int GetValue() override { return value_; }
 
   void SetValue(int value) override { value_ = value; }
@@ -46,7 +55,6 @@ class CefTranslatorTestRefPtrLibraryChildImpl
   int other_value_;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(CefTranslatorTestRefPtrLibraryChildImpl);
   IMPLEMENT_REFCOUNTING(CefTranslatorTestRefPtrLibraryChildImpl);
 };
 
@@ -66,6 +74,11 @@ class CefTranslatorTestRefPtrLibraryChildChildImpl
         other_value_(other_value),
         other_other_value_(other_other_value) {}
 
+  CefTranslatorTestRefPtrLibraryChildChildImpl(
+      const CefTranslatorTestRefPtrLibraryChildChildImpl&) = delete;
+  CefTranslatorTestRefPtrLibraryChildChildImpl& operator=(
+      const CefTranslatorTestRefPtrLibraryChildChildImpl&) = delete;
+
   int GetValue() override { return value_; }
 
   void SetValue(int value) override { value_ = value; }
@@ -84,7 +97,6 @@ class CefTranslatorTestRefPtrLibraryChildChildImpl
   int other_other_value_;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(CefTranslatorTestRefPtrLibraryChildChildImpl);
   IMPLEMENT_REFCOUNTING(CefTranslatorTestRefPtrLibraryChildChildImpl);
 };
 
@@ -102,15 +114,17 @@ class CefTranslatorTestScopedLibraryImpl
  public:
   explicit CefTranslatorTestScopedLibraryImpl(int value) : value_(value) {}
 
+  CefTranslatorTestScopedLibraryImpl(
+      const CefTranslatorTestScopedLibraryImpl&) = delete;
+  CefTranslatorTestScopedLibraryImpl& operator=(
+      const CefTranslatorTestScopedLibraryImpl&) = delete;
+
   int GetValue() override { return value_; }
 
   void SetValue(int value) override { value_ = value; }
 
  protected:
   int value_;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefTranslatorTestScopedLibraryImpl);
 };
 
 // static
@@ -126,6 +140,11 @@ class CefTranslatorTestScopedLibraryChildImpl
   CefTranslatorTestScopedLibraryChildImpl(int value, int other_value)
       : value_(value), other_value_(other_value) {}
 
+  CefTranslatorTestScopedLibraryChildImpl(
+      const CefTranslatorTestScopedLibraryChildImpl&) = delete;
+  CefTranslatorTestScopedLibraryChildImpl& operator=(
+      const CefTranslatorTestScopedLibraryChildImpl&) = delete;
+
   int GetValue() override { return value_; }
 
   void SetValue(int value) override { value_ = value; }
@@ -137,9 +156,6 @@ class CefTranslatorTestScopedLibraryChildImpl
  protected:
   int value_;
   int other_value_;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefTranslatorTestScopedLibraryChildImpl);
 };
 
 // static
@@ -159,6 +175,11 @@ class CefTranslatorTestScopedLibraryChildChildImpl
         other_value_(other_value),
         other_other_value_(other_other_value) {}
 
+  CefTranslatorTestScopedLibraryChildChildImpl(
+      const CefTranslatorTestScopedLibraryChildChildImpl&) = delete;
+  CefTranslatorTestScopedLibraryChildChildImpl& operator=(
+      const CefTranslatorTestScopedLibraryChildChildImpl&) = delete;
+
   int GetValue() override { return value_; }
 
   void SetValue(int value) override { value_ = value; }
@@ -175,9 +196,6 @@ class CefTranslatorTestScopedLibraryChildChildImpl
   int value_;
   int other_value_;
   int other_other_value_;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefTranslatorTestScopedLibraryChildChildImpl);
 };
 
 // static
@@ -192,7 +210,10 @@ CefTranslatorTestScopedLibraryChildChild::Create(int value,
 
 class CefTranslatorTestImpl : public CefTranslatorTest {
  public:
-  CefTranslatorTestImpl() {}
+  CefTranslatorTestImpl() = default;
+
+  CefTranslatorTestImpl(const CefTranslatorTestImpl&) = delete;
+  CefTranslatorTestImpl& operator=(const CefTranslatorTestImpl&) = delete;
 
   // PRIMITIVE VALUES
 
@@ -550,7 +571,6 @@ class CefTranslatorTestImpl : public CefTranslatorTest {
 
  private:
   IMPLEMENT_REFCOUNTING(CefTranslatorTestImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefTranslatorTestImpl);
 };
 
 // static

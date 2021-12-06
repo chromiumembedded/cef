@@ -8,7 +8,6 @@
 #include <map>
 
 #include "base/files/file_path.h"
-#include "base/macros.h"
 #include "extensions/browser/component_extension_resource_manager.h"
 
 namespace webui {
@@ -21,6 +20,12 @@ class CefComponentExtensionResourceManager
     : public ComponentExtensionResourceManager {
  public:
   CefComponentExtensionResourceManager();
+
+  CefComponentExtensionResourceManager(
+      const CefComponentExtensionResourceManager&) = delete;
+  CefComponentExtensionResourceManager& operator=(
+      const CefComponentExtensionResourceManager&) = delete;
+
   ~CefComponentExtensionResourceManager() override;
 
   // Overridden from ComponentExtensionResourceManager:
@@ -42,8 +47,6 @@ class CefComponentExtensionResourceManager
   using TemplateReplacementMap =
       std::map<std::string, ui::TemplateReplacements>;
   TemplateReplacementMap template_replacements_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefComponentExtensionResourceManager);
 };
 
 }  // namespace extensions

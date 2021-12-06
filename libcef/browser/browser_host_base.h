@@ -134,6 +134,9 @@ class CefBrowserHostBase : public CefBrowserHost,
       scoped_refptr<CefBrowserInfo> browser_info,
       CefRefPtr<CefRequestContextImpl> request_context);
 
+  CefBrowserHostBase(const CefBrowserHostBase&) = delete;
+  CefBrowserHostBase& operator=(const CefBrowserHostBase&) = delete;
+
   // Called on the UI thread after the associated WebContents is created.
   virtual void InitializeBrowser();
 
@@ -310,7 +313,6 @@ class CefBrowserHostBase : public CefBrowserHost,
 
  private:
   IMPLEMENT_REFCOUNTING(CefBrowserHostBase);
-  DISALLOW_COPY_AND_ASSIGN(CefBrowserHostBase);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_HOST_BASE_H_

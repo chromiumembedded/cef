@@ -36,7 +36,7 @@ class GPU_GLES2_EXPORT ExternalTextureManager {
   void DeleteTexture(void* handle, TextureManager* tex_man);
 
  private:
-  typedef std::map<void*, scoped_refptr<gl::GLImage>> ExternalSurfaceMap;
+  using ExternalSurfaceMap = std::map<void*, scoped_refptr<gl::GLImage>>;
   ExternalSurfaceMap surfaceMap_;
 };
 

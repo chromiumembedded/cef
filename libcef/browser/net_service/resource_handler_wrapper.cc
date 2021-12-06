@@ -22,6 +22,9 @@ class SkipCallbackWrapper : public CefResourceSkipCallback {
       : callback_(std::move(callback)),
         work_thread_task_runner_(base::SequencedTaskRunnerHandle::Get()) {}
 
+  SkipCallbackWrapper(const SkipCallbackWrapper&) = delete;
+  SkipCallbackWrapper& operator=(const SkipCallbackWrapper&) = delete;
+
   ~SkipCallbackWrapper() override {
     if (!callback_.is_null()) {
       // Make sure it executes on the correct thread.
@@ -50,7 +53,6 @@ class SkipCallbackWrapper : public CefResourceSkipCallback {
   scoped_refptr<base::SequencedTaskRunner> work_thread_task_runner_;
 
   IMPLEMENT_REFCOUNTING(SkipCallbackWrapper);
-  DISALLOW_COPY_AND_ASSIGN(SkipCallbackWrapper);
 };
 
 class ReadCallbackWrapper : public CefResourceReadCallback {
@@ -58,6 +60,9 @@ class ReadCallbackWrapper : public CefResourceReadCallback {
   explicit ReadCallbackWrapper(InputStream::ReadCallback callback)
       : callback_(std::move(callback)),
         work_thread_task_runner_(base::SequencedTaskRunnerHandle::Get()) {}
+
+  ReadCallbackWrapper(const ReadCallbackWrapper&) = delete;
+  ReadCallbackWrapper& operator=(const ReadCallbackWrapper&) = delete;
 
   ~ReadCallbackWrapper() override {
     if (!callback_.is_null()) {
@@ -87,7 +92,6 @@ class ReadCallbackWrapper : public CefResourceReadCallback {
   scoped_refptr<base::SequencedTaskRunner> work_thread_task_runner_;
 
   IMPLEMENT_REFCOUNTING(ReadCallbackWrapper);
-  DISALLOW_COPY_AND_ASSIGN(ReadCallbackWrapper);
 };
 
 // Helper for accessing a CefResourceHandler without creating reference loops.
@@ -126,6 +130,10 @@ class HandlerProvider : public base::RefCountedThreadSafe<HandlerProvider> {
 
 class ReadResponseCallbackWrapper : public CefCallback {
  public:
+  ReadResponseCallbackWrapper(const ReadResponseCallbackWrapper&) = delete;
+  ReadResponseCallbackWrapper& operator=(const ReadResponseCallbackWrapper&) =
+      delete;
+
   ~ReadResponseCallbackWrapper() override {
     if (callback_) {
       // This will post to the correct thread if necessary.
@@ -218,13 +226,15 @@ class ReadResponseCallbackWrapper : public CefCallback {
   CefRefPtr<ReadCallbackWrapper> callback_;
 
   IMPLEMENT_REFCOUNTING(ReadResponseCallbackWrapper);
-  DISALLOW_COPY_AND_ASSIGN(ReadResponseCallbackWrapper);
 };
 
 class InputStreamWrapper : public InputStream {
  public:
   explicit InputStreamWrapper(scoped_refptr<HandlerProvider> handler_provider)
       : handler_provider_(handler_provider) {}
+
+  InputStreamWrapper(const InputStreamWrapper&) = delete;
+  InputStreamWrapper& operator=(const InputStreamWrapper&) = delete;
 
   ~InputStreamWrapper() override { Cancel(); }
 
@@ -294,8 +304,6 @@ class InputStreamWrapper : public InputStream {
 
  private:
   scoped_refptr<HandlerProvider> handler_provider_;
-
-  DISALLOW_COPY_AND_ASSIGN(InputStreamWrapper);
 };
 
 class OpenCallbackWrapper : public CefCallback {
@@ -305,6 +313,9 @@ class OpenCallbackWrapper : public CefCallback {
       : callback_(std::move(callback)),
         stream_(std::move(stream)),
         work_thread_task_runner_(base::SequencedTaskRunnerHandle::Get()) {}
+
+  OpenCallbackWrapper(const OpenCallbackWrapper&) = delete;
+  OpenCallbackWrapper& operator=(const OpenCallbackWrapper&) = delete;
 
   ~OpenCallbackWrapper() override {
     if (!callback_.is_null()) {
@@ -351,7 +362,6 @@ class OpenCallbackWrapper : public CefCallback {
   scoped_refptr<base::SequencedTaskRunner> work_thread_task_runner_;
 
   IMPLEMENT_REFCOUNTING(OpenCallbackWrapper);
-  DISALLOW_COPY_AND_ASSIGN(OpenCallbackWrapper);
 };
 
 void CallProcessRequestOnIOThread(
@@ -376,6 +386,9 @@ class ResourceResponseWrapper : public ResourceResponse {
                           CefRefPtr<CefResourceHandler> handler)
       : request_id_(request_id),
         handler_provider_(new HandlerProvider(handler)) {}
+
+  ResourceResponseWrapper(const ResourceResponseWrapper&) = delete;
+  ResourceResponseWrapper& operator=(const ResourceResponseWrapper&) = delete;
 
   ~ResourceResponseWrapper() override {
     // Triggers a call to Cancel on the handler.
@@ -491,8 +504,6 @@ class ResourceResponseWrapper : public ResourceResponse {
 
   CefRefPtr<CefRequestImpl> request_;
   scoped_refptr<HandlerProvider> handler_provider_;
-
-  DISALLOW_COPY_AND_ASSIGN(ResourceResponseWrapper);
 };
 
 }  // namespace

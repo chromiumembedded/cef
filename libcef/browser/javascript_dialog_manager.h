@@ -22,6 +22,11 @@ class CefJavaScriptDialogManager : public content::JavaScriptDialogManager {
   // |runner| may be NULL if the platform doesn't implement dialogs.
   CefJavaScriptDialogManager(AlloyBrowserHostImpl* browser,
                              std::unique_ptr<CefJavaScriptDialogRunner> runner);
+
+  CefJavaScriptDialogManager(const CefJavaScriptDialogManager&) = delete;
+  CefJavaScriptDialogManager& operator=(const CefJavaScriptDialogManager&) =
+      delete;
+
   ~CefJavaScriptDialogManager() override;
 
   // Delete the runner to free any platform constructs.
@@ -58,8 +63,6 @@ class CefJavaScriptDialogManager : public content::JavaScriptDialogManager {
 
   // Must be the last member.
   base::WeakPtrFactory<CefJavaScriptDialogManager> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefJavaScriptDialogManager);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_JAVASCRIPT_DIALOG_MANAGER_H_

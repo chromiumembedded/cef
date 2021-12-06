@@ -11,13 +11,17 @@
 #include "include/cef_request_context.h"
 #include "include/cef_request_context_handler.h"
 
-#include "base/macros.h"
 #include "content/public/browser/global_routing_id.h"
 
 // Tracks CefRequestContextHandler associations on a single thread.
 class CefRequestContextHandlerMap {
  public:
   CefRequestContextHandlerMap();
+
+  CefRequestContextHandlerMap(const CefRequestContextHandlerMap&) = delete;
+  CefRequestContextHandlerMap& operator=(const CefRequestContextHandlerMap&) =
+      delete;
+
   ~CefRequestContextHandlerMap();
 
   // Keep track of handlers associated with specific frames. This information
@@ -43,8 +47,6 @@ class CefRequestContextHandlerMap {
   using RenderIdHandlerMap = std::map<content::GlobalRenderFrameHostId,
                                       CefRefPtr<CefRequestContextHandler>>;
   RenderIdHandlerMap render_id_handler_map_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefRequestContextHandlerMap);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_REQUEST_CONTEXT_HANDLER_MAP_

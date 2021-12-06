@@ -17,6 +17,9 @@ class CefCookieManagerImpl : public CefCookieManager {
  public:
   CefCookieManagerImpl();
 
+  CefCookieManagerImpl(const CefCookieManagerImpl&) = delete;
+  CefCookieManagerImpl& operator=(const CefCookieManagerImpl&) = delete;
+
   // Called on the UI thread after object creation and before any other object
   // methods are executed on the UI thread.
   void Initialize(CefBrowserContext::Getter browser_context_getter,
@@ -61,7 +64,6 @@ class CefCookieManagerImpl : public CefCookieManager {
   std::vector<base::OnceClosure> init_callbacks_;
 
   IMPLEMENT_REFCOUNTING(CefCookieManagerImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefCookieManagerImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NET_SERVICE_COOKIE_MANAGER_IMPL_H_

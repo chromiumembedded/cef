@@ -19,6 +19,9 @@ class CefNavigationEntryImpl
  public:
   explicit CefNavigationEntryImpl(content::NavigationEntry* value);
 
+  CefNavigationEntryImpl(const CefNavigationEntryImpl&) = delete;
+  CefNavigationEntryImpl& operator=(const CefNavigationEntryImpl&) = delete;
+
   // CefNavigationEntry methods.
   bool IsValid() override;
   CefString GetURL() override;
@@ -30,9 +33,6 @@ class CefNavigationEntryImpl
   CefTime GetCompletionTime() override;
   int GetHttpStatusCode() override;
   CefRefPtr<CefSSLStatus> GetSSLStatus() override;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefNavigationEntryImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NAVIGATION_ENTRY_IMPL_H_

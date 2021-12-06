@@ -13,7 +13,6 @@
 
 #include "include/cef_version.h"
 
-#include "base/macros.h"
 #include "base/strings/string_piece_forward.h"
 #include "base/synchronization/lock.h"
 #include "build/build_config.h"
@@ -26,6 +25,10 @@
 class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
  public:
   CefCrashReporterClient();
+
+  CefCrashReporterClient(const CefCrashReporterClient&) = delete;
+  CefCrashReporterClient& operator=(const CefCrashReporterClient&) = delete;
+
   ~CefCrashReporterClient() override;
 
   // Reads the crash config file and returns true on success. Failure to read
@@ -125,8 +128,6 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
 #if defined(OS_MAC)
   bool enable_browser_crash_forwarding_ = false;
 #endif
-
-  DISALLOW_COPY_AND_ASSIGN(CefCrashReporterClient);
 };
 
 #endif  // CEF_LIBCEF_COMMON_CRASH_REPORTER_CLIENT_H_

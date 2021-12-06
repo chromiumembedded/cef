@@ -19,6 +19,9 @@ class CefDownloadItemImpl
  public:
   explicit CefDownloadItemImpl(download::DownloadItem* value);
 
+  CefDownloadItemImpl(const CefDownloadItemImpl&) = delete;
+  CefDownloadItemImpl& operator=(const CefDownloadItemImpl&) = delete;
+
   // CefDownloadItem methods.
   bool IsValid() override;
   bool IsInProgress() override;
@@ -37,9 +40,6 @@ class CefDownloadItemImpl
   CefString GetSuggestedFileName() override;
   CefString GetContentDisposition() override;
   CefString GetMimeType() override;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefDownloadItemImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_DOWNLOAD_ITEM_IMPL_H_

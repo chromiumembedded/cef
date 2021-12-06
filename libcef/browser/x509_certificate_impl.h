@@ -17,6 +17,9 @@ class CefX509CertificateImpl : public CefX509Certificate {
  public:
   explicit CefX509CertificateImpl(scoped_refptr<net::X509Certificate> cert);
 
+  CefX509CertificateImpl(const CefX509CertificateImpl&) = delete;
+  CefX509CertificateImpl& operator=(const CefX509CertificateImpl&) = delete;
+
   // Used with AlloyContentBrowserClient::SelectClientCertificate only.
   explicit CefX509CertificateImpl(
       std::unique_ptr<net::ClientCertIdentity> identity);
@@ -47,7 +50,6 @@ class CefX509CertificateImpl : public CefX509Certificate {
   IssuerChainBinaryList der_encoded_issuer_chain_;
 
   IMPLEMENT_REFCOUNTING(CefX509CertificateImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefX509CertificateImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_X509_CERTIFICATE_IMPL_H_

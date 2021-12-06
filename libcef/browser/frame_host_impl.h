@@ -40,6 +40,9 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   CefFrameHostImpl(scoped_refptr<CefBrowserInfo> browser_info,
                    content::RenderFrameHost* render_frame_host);
 
+  CefFrameHostImpl(const CefFrameHostImpl&) = delete;
+  CefFrameHostImpl& operator=(const CefFrameHostImpl&) = delete;
+
   ~CefFrameHostImpl() override;
 
   // CefFrame methods
@@ -183,7 +186,6 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   mojo::Remote<cef::mojom::RenderFrame> render_frame_;
 
   IMPLEMENT_REFCOUNTING(CefFrameHostImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefFrameHostImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_FRAME_HOST_IMPL_H_

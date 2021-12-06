@@ -17,6 +17,9 @@ class PopupWindowDelegate : public CefWindowDelegate {
   explicit PopupWindowDelegate(CefRefPtr<CefBrowserView> browser_view)
       : browser_view_(browser_view) {}
 
+  PopupWindowDelegate(const PopupWindowDelegate&) = delete;
+  PopupWindowDelegate& operator=(const PopupWindowDelegate&) = delete;
+
   void OnWindowCreated(CefRefPtr<CefWindow> window) override {
     window->AddChildView(browser_view_);
     window->Show();
@@ -38,7 +41,6 @@ class PopupWindowDelegate : public CefWindowDelegate {
   CefRefPtr<CefBrowserView> browser_view_;
 
   IMPLEMENT_REFCOUNTING(PopupWindowDelegate);
-  DISALLOW_COPY_AND_ASSIGN(PopupWindowDelegate);
 };
 
 }  // namespace

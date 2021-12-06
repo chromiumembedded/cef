@@ -9,7 +9,6 @@
 
 #include "libcef/browser/native/menu_wrapper.h"
 
-#include "base/macros.h"
 #include "ui/gfx/native_widget_types.h"
 
 namespace gfx {
@@ -40,6 +39,10 @@ class Menu2 {
   //   MyClass : menu_(this) {}
   // is likely to have problems.
   explicit Menu2(ui::MenuModel* model);
+
+  Menu2(const Menu2&) = delete;
+  Menu2& operator=(const Menu2&) = delete;
+
   virtual ~Menu2();
 
   // Runs the menu at the specified point. This method blocks until done.
@@ -78,8 +81,6 @@ class Menu2 {
 
   // The object that actually implements the menu.
   std::unique_ptr<MenuWrapper> wrapper_;
-
-  DISALLOW_COPY_AND_ASSIGN(Menu2);
 };
 
 }  // namespace views

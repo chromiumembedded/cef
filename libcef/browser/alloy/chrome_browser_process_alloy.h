@@ -23,15 +23,21 @@ class ChromeProfileManagerAlloy;
 class BackgroundModeManager {
  public:
   BackgroundModeManager();
-  virtual ~BackgroundModeManager();
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(BackgroundModeManager);
+  BackgroundModeManager(const BackgroundModeManager&) = delete;
+  BackgroundModeManager& operator=(const BackgroundModeManager&) = delete;
+
+  virtual ~BackgroundModeManager();
 };
 
 class ChromeBrowserProcessAlloy : public BrowserProcess {
  public:
   ChromeBrowserProcessAlloy();
+
+  ChromeBrowserProcessAlloy(const ChromeBrowserProcessAlloy&) = delete;
+  ChromeBrowserProcessAlloy& operator=(const ChromeBrowserProcessAlloy&) =
+      delete;
+
   ~ChromeBrowserProcessAlloy() override;
 
   void Initialize();
@@ -122,8 +128,6 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
   std::unique_ptr<base::FieldTrialList> field_trial_list_;
 
   std::unique_ptr<component_updater::ComponentUpdateService> component_updater_;
-
-  DISALLOW_COPY_AND_ASSIGN(ChromeBrowserProcessAlloy);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_ALLOY_CHROME_BROWSER_PROCESS_ALLOY_H_

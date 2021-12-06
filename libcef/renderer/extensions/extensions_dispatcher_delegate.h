@@ -5,7 +5,6 @@
 #ifndef CEF_LIBCEF_RENDERER_EXTENSIONS_EXTENSIONS_DISPATCHER_DELEGATE_H_
 #define CEF_LIBCEF_RENDERER_EXTENSIONS_EXTENSIONS_DISPATCHER_DELEGATE_H_
 
-#include "base/macros.h"
 #include "extensions/renderer/dispatcher_delegate.h"
 
 namespace extensions {
@@ -13,13 +12,16 @@ namespace extensions {
 class CefExtensionsDispatcherDelegate : public DispatcherDelegate {
  public:
   CefExtensionsDispatcherDelegate();
+
+  CefExtensionsDispatcherDelegate(const CefExtensionsDispatcherDelegate&) =
+      delete;
+  CefExtensionsDispatcherDelegate& operator=(
+      const CefExtensionsDispatcherDelegate&) = delete;
+
   ~CefExtensionsDispatcherDelegate() override;
 
   void PopulateSourceMap(
       extensions::ResourceBundleSourceMap* source_map) override;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefExtensionsDispatcherDelegate);
 };
 
 }  // namespace extensions

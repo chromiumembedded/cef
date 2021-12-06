@@ -25,7 +25,7 @@
 // view_impl.h for a usage overview.
 CEF_LABEL_BUTTON_IMPL_T class CefLabelButtonImpl : public CEF_BUTTON_IMPL_D {
  public:
-  typedef CEF_BUTTON_IMPL_D ParentClass;
+  using ParentClass = CEF_BUTTON_IMPL_D;
 
   // CefLabelButton methods. When adding new As*() methods make sure to update
   // CefViewAdapter::GetFor() in view_adapter.cc.

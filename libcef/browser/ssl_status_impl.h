@@ -15,6 +15,9 @@ class CefSSLStatusImpl : public CefSSLStatus {
  public:
   explicit CefSSLStatusImpl(const content::SSLStatus& value);
 
+  CefSSLStatusImpl(const CefSSLStatusImpl&) = delete;
+  CefSSLStatusImpl& operator=(const CefSSLStatusImpl&) = delete;
+
   // CefSSLStatus methods.
   bool IsSecureConnection() override;
   cef_cert_status_t GetCertStatus() override;
@@ -32,7 +35,6 @@ class CefSSLStatusImpl : public CefSSLStatus {
   CefRefPtr<CefX509Certificate> cef_certificate_;
 
   IMPLEMENT_REFCOUNTING(CefSSLStatusImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefSSLStatusImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_SSL_STATUS_IMPL_H_

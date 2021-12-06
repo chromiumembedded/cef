@@ -13,6 +13,7 @@
 #include "base/bind.h"
 #include "base/files/file_util.h"
 #include "base/logging.h"
+#include "base/macros.h"
 #include "base/path_service.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
@@ -49,6 +50,10 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
         download_id_(download_id),
         suggested_name_(suggested_name),
         callback_(std::move(callback)) {}
+
+  CefBeforeDownloadCallbackImpl(const CefBeforeDownloadCallbackImpl&) = delete;
+  CefBeforeDownloadCallbackImpl& operator=(
+      const CefBeforeDownloadCallbackImpl&) = delete;
 
   void Continue(const CefString& download_path, bool show_dialog) override {
     if (CEF_CURRENTLY_ON_UIT()) {
@@ -182,7 +187,6 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
   content::DownloadTargetCallback callback_;
 
   IMPLEMENT_REFCOUNTING(CefBeforeDownloadCallbackImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefBeforeDownloadCallbackImpl);
 };
 
 // CefDownloadItemCallback implementation.
@@ -192,6 +196,10 @@ class CefDownloadItemCallbackImpl : public CefDownloadItemCallback {
       const base::WeakPtr<DownloadManager>& manager,
       uint32 download_id)
       : manager_(manager), download_id_(download_id) {}
+
+  CefDownloadItemCallbackImpl(const CefDownloadItemCallbackImpl&) = delete;
+  CefDownloadItemCallbackImpl& operator=(const CefDownloadItemCallbackImpl&) =
+      delete;
 
   void Cancel() override {
     CEF_POST_TASK(CEF_UIT,
@@ -248,7 +256,6 @@ class CefDownloadItemCallbackImpl : public CefDownloadItemCallback {
   uint32 download_id_;
 
   IMPLEMENT_REFCOUNTING(CefDownloadItemCallbackImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefDownloadItemCallbackImpl);
 };
 
 }  // namespace

@@ -99,6 +99,11 @@ class CefRenderWidgetHostViewOSR
                              bool use_external_begin_frame,
                              content::RenderWidgetHost* widget,
                              CefRenderWidgetHostViewOSR* parent_host_view);
+
+  CefRenderWidgetHostViewOSR(const CefRenderWidgetHostViewOSR&) = delete;
+  CefRenderWidgetHostViewOSR& operator=(const CefRenderWidgetHostViewOSR&) =
+      delete;
+
   ~CefRenderWidgetHostViewOSR() override;
 
   // RenderWidgetHostView implementation.
@@ -408,8 +413,6 @@ class CefRenderWidgetHostViewOSR
   bool forward_touch_to_popup_ = false;
 
   base::WeakPtrFactory<CefRenderWidgetHostViewOSR> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefRenderWidgetHostViewOSR);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_OSR_RENDER_WIDGET_HOST_VIEW_OSR_H_

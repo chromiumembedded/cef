@@ -106,6 +106,9 @@ class AcceptWebSocketCallback : public CefCallback {
         connection_id_(connection_id),
         request_info_(request_info) {}
 
+  AcceptWebSocketCallback(const AcceptWebSocketCallback&) = delete;
+  AcceptWebSocketCallback& operator=(const AcceptWebSocketCallback&) = delete;
+
   ~AcceptWebSocketCallback() override {
     if (impl_)
       impl_->ContinueWebSocketRequest(connection_id_, request_info_, false);
@@ -141,7 +144,6 @@ class AcceptWebSocketCallback : public CefCallback {
   net::HttpServerRequestInfo request_info_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(AcceptWebSocketCallback);
-  DISALLOW_COPY_AND_ASSIGN(AcceptWebSocketCallback);
 };
 
 }  // namespace

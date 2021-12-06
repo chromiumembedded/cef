@@ -8,7 +8,9 @@
 
 #include "base/logging.h"
 
-typedef std::vector<CefString> StringList;
+namespace {
+using StringList = std::vector<CefString>;
+}  // namespace
 
 CEF_EXPORT cef_string_list_t cef_string_list_alloc() {
   return new StringList;

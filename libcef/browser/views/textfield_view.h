@@ -18,10 +18,13 @@ class CefTextfieldView
     : public CefViewView<views::Textfield, CefTextfieldDelegate>,
       public views::TextfieldController {
  public:
-  typedef CefViewView<views::Textfield, CefTextfieldDelegate> ParentClass;
+  using ParentClass = CefViewView<views::Textfield, CefTextfieldDelegate>;
 
   // |cef_delegate| may be nullptr.
   explicit CefTextfieldView(CefTextfieldDelegate* cef_delegate);
+
+  CefTextfieldView(const CefTextfieldView&) = delete;
+  CefTextfieldView& operator=(const CefTextfieldView&) = delete;
 
   void Initialize() override;
 
@@ -37,9 +40,6 @@ class CefTextfieldView
   bool HandleKeyEvent(views::Textfield* sender,
                       const ui::KeyEvent& key_event) override;
   void OnAfterUserAction(views::Textfield* sender) override;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefTextfieldView);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_TEXTFIELD_VIEW_H_

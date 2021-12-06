@@ -22,6 +22,10 @@ class CefBrowserFrame
  public:
   CefBrowserFrame(content::RenderFrameHost* render_frame_host,
                   mojo::PendingReceiver<cef::mojom::BrowserFrame> receiver);
+
+  CefBrowserFrame(const CefBrowserFrame&) = delete;
+  CefBrowserFrame& operator=(const CefBrowserFrame&) = delete;
+
   ~CefBrowserFrame() override;
 
   // Called from the ContentBrowserClient method of the same name.
@@ -44,8 +48,6 @@ class CefBrowserFrame
 
   CefRefPtr<CefFrameHostImpl> GetFrameHost(
       bool prefer_speculative = false) const;
-
-  DISALLOW_COPY_AND_ASSIGN(CefBrowserFrame);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_FRAME_H_

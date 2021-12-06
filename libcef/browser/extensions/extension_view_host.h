@@ -7,7 +7,6 @@
 
 #include <memory>
 
-#include "base/macros.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
 #include "extensions/browser/extension_host.h"
@@ -32,6 +31,10 @@ class CefExtensionViewHost : public ExtensionHost,
                        content::WebContents* host_contents,
                        const GURL& url,
                        mojom::ViewType host_type);
+
+  CefExtensionViewHost(const CefExtensionViewHost&) = delete;
+  CefExtensionViewHost& operator=(const CefExtensionViewHost&) = delete;
+
   ~CefExtensionViewHost() override;
 
   // ExtensionHost methods:
@@ -55,8 +58,6 @@ class CefExtensionViewHost : public ExtensionHost,
 
  private:
   content::NotificationRegistrar registrar_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefExtensionViewHost);
 };
 
 }  // namespace extensions

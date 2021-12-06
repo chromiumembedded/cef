@@ -26,6 +26,10 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   explicit CefWebContentsViewOSR(SkColor background_color,
                                  bool use_shared_texture,
                                  bool use_external_begin_frame);
+
+  CefWebContentsViewOSR(const CefWebContentsViewOSR&) = delete;
+  CefWebContentsViewOSR& operator=(const CefWebContentsViewOSR&) = delete;
+
   ~CefWebContentsViewOSR() override;
 
   void WebContentsCreated(content::WebContents* web_contents);
@@ -84,8 +88,6 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   const bool use_external_begin_frame_;
 
   content::WebContents* web_contents_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefWebContentsViewOSR);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_OSR_WEB_CONTENTS_VIEW_OSR_H_

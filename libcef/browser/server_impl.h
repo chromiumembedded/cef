@@ -22,6 +22,9 @@ class CefServerImpl : public CefServer, net::HttpServer::Delegate {
  public:
   explicit CefServerImpl(CefRefPtr<CefServerHandler> handler);
 
+  CefServerImpl(const CefServerImpl&) = delete;
+  CefServerImpl& operator=(const CefServerImpl&) = delete;
+
   void Start(const std::string& address, uint16 port, int backlog);
 
   // CefServer methods:
@@ -107,7 +110,6 @@ class CefServerImpl : public CefServer, net::HttpServer::Delegate {
   ConnectionInfoMap connection_info_map_;
 
   IMPLEMENT_REFCOUNTING(CefServerImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefServerImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_SERVER_IMPL_H_

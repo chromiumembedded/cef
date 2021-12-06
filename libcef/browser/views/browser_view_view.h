@@ -22,7 +22,10 @@ class WebViewEx : public views::WebView {
 class CefBrowserViewView
     : public CefViewView<WebViewEx, CefBrowserViewDelegate> {
  public:
-  typedef CefViewView<WebViewEx, CefBrowserViewDelegate> ParentClass;
+  using ParentClass = CefViewView<WebViewEx, CefBrowserViewDelegate>;
+
+  CefBrowserViewView(const CefBrowserViewView&) = delete;
+  CefBrowserViewView& operator=(const CefBrowserViewView&) = delete;
 
   class Delegate {
    public:
@@ -49,8 +52,6 @@ class CefBrowserViewView
  private:
   // Not owned by this object.
   Delegate* browser_view_delegate_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefBrowserViewView);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_BROWSER_VIEW_VIEW_H_

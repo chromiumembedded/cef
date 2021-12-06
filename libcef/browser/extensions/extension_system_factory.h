@@ -13,6 +13,10 @@ namespace extensions {
 // Factory that provides CefExtensionSystem.
 class CefExtensionSystemFactory : public ExtensionSystemProvider {
  public:
+  CefExtensionSystemFactory(const CefExtensionSystemFactory&) = delete;
+  CefExtensionSystemFactory& operator=(const CefExtensionSystemFactory&) =
+      delete;
+
   // ExtensionSystemProvider implementation:
   ExtensionSystem* GetForBrowserContext(
       content::BrowserContext* context) override;
@@ -31,8 +35,6 @@ class CefExtensionSystemFactory : public ExtensionSystemProvider {
   content::BrowserContext* GetBrowserContextToUse(
       content::BrowserContext* context) const override;
   bool ServiceIsCreatedWithBrowserContext() const override;
-
-  DISALLOW_COPY_AND_ASSIGN(CefExtensionSystemFactory);
 };
 
 }  // namespace extensions

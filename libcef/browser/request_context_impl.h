@@ -22,6 +22,9 @@ class CefBrowserContext;
 // safe unless otherwise indicated. Will be deleted on the UI thread.
 class CefRequestContextImpl : public CefRequestContext {
  public:
+  CefRequestContextImpl(const CefRequestContextImpl&) = delete;
+  CefRequestContextImpl& operator=(const CefRequestContextImpl&) = delete;
+
   ~CefRequestContextImpl() override;
 
   // Creates the singleton global RequestContext. Called from
@@ -170,7 +173,6 @@ class CefRequestContextImpl : public CefRequestContext {
   Config config_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefRequestContextImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefRequestContextImpl);
 };
 
 #endif  // CEF_LIBCEF_REQUEST_CONTEXT_IMPL_H_

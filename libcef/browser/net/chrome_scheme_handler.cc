@@ -214,7 +214,7 @@ std::string GetCommandLine() {
       base::CommandLine::ForCurrentProcess()->GetCommandLineString());
 #elif defined(OS_POSIX)
   std::string command_line = "";
-  typedef std::vector<std::string> ArgvList;
+  using ArgvList = std::vector<std::string>;
   const ArgvList& argv = base::CommandLine::ForCurrentProcess()->argv();
   for (ArgvList::const_iterator iter = argv.begin(); iter != argv.end(); iter++)
     command_line += " " + *iter;
@@ -283,7 +283,7 @@ class TemplateParser {
   }
 
  private:
-  typedef std::map<std::string, std::string> KeyMap;
+  using KeyMap = std::map<std::string, std::string>;
   KeyMap values_;
   std::string ident_start_;
   std::string ident_end_;
@@ -473,6 +473,9 @@ class CefURLDataSource : public content::URLDataSource {
     DCHECK(handled) << "Unhandled WebUI host: " << host;
   }
 
+  CefURLDataSource(const CefURLDataSource&) = delete;
+  CefURLDataSource& operator=(const CefURLDataSource&) = delete;
+
   ~CefURLDataSource() override = default;
 
   // content::URLDataSource implementation.
@@ -498,8 +501,6 @@ class CefURLDataSource : public content::URLDataSource {
 
   std::string mime_type_;
   scoped_refptr<base::RefCountedString> output_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefURLDataSource);
 };
 
 class CefWebUIController : public content::WebUIController {
@@ -513,16 +514,20 @@ class CefWebUIController : public content::WebUIController {
         profile, std::make_unique<CefURLDataSource>(host, host_id, profile));
   }
 
-  ~CefWebUIController() override = default;
+  CefWebUIController(const CefWebUIController&) = delete;
+  CefWebUIController& operator=(const CefWebUIController&) = delete;
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefWebUIController);
+  ~CefWebUIController() override = default;
 };
 
 // Intercepts all WebUI calls and either blocks them or forwards them to the
 // Content or Chrome WebUI factory as appropriate.
 class CefWebUIControllerFactory : public content::WebUIControllerFactory {
  public:
+  CefWebUIControllerFactory(const CefWebUIControllerFactory&) = delete;
+  CefWebUIControllerFactory& operator=(const CefWebUIControllerFactory&) =
+      delete;
+
   // Returns true if WebUI is allowed to handle the specified |url|.
   static bool AllowWebUIForURL(const GURL& url) {
     if (!url.SchemeIs(content::kChromeUIScheme))
@@ -639,8 +644,8 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
   static CefWebUIControllerFactory* GetInstance();
 
  protected:
-  CefWebUIControllerFactory() {}
-  ~CefWebUIControllerFactory() override {}
+  CefWebUIControllerFactory() = default;
+  ~CefWebUIControllerFactory() override = default;
 
  private:
   friend struct base::LazyInstanceTraitsBase<CefWebUIControllerFactory>;
@@ -661,8 +666,6 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     // No need to actually reverse-rewrite the URL.
     return false;
   }
-
-  DISALLOW_COPY_AND_ASSIGN(CefWebUIControllerFactory);
 };
 
 base::LazyInstance<CefWebUIControllerFactory>::Leaky

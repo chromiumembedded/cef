@@ -23,6 +23,9 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
                          CefRefPtr<CefContextMenuHandler> handler)
       : context_menu_(context_menu), browser_(browser), handler_(handler) {}
 
+  CefContextMenuObserver(const CefContextMenuObserver&) = delete;
+  CefContextMenuObserver& operator=(const CefContextMenuObserver&) = delete;
+
   // RenderViewContextMenuObserver methods:
 
   void InitMenu(const content::ContextMenuParams& params) override {
@@ -177,8 +180,6 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
   // Map of command_id to ItemInfo.
   using ItemInfoMap = std::map<int, ItemInfo>;
   ItemInfoMap iteminfomap_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefContextMenuObserver);
 };
 
 std::unique_ptr<RenderViewContextMenuObserver> MenuCreatedCallback(

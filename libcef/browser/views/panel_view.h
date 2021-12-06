@@ -23,7 +23,7 @@
 // view_impl.h for a usage overview.
 CEF_PANEL_VIEW_T class CefPanelView : public CEF_VIEW_VIEW_D {
  public:
-  typedef CEF_VIEW_VIEW_D ParentClass;
+  using ParentClass = CEF_VIEW_VIEW_D;
 
   // |cef_delegate| may be nullptr.
   template <typename... Args>

@@ -17,7 +17,10 @@ class BrowserView;
 class CefToolbarViewImpl
     : public CefViewImpl<CefToolbarViewView, CefView, CefViewDelegate> {
  public:
-  typedef CefViewImpl<CefToolbarViewView, CefView, CefViewDelegate> ParentClass;
+  using ParentClass = CefViewImpl<CefToolbarViewView, CefView, CefViewDelegate>;
+
+  CefToolbarViewImpl(const CefToolbarViewImpl&) = delete;
+  CefToolbarViewImpl& operator=(const CefToolbarViewImpl&) = delete;
 
   // Create a new CefToolbarViewImpl instance. |delegate| may be nullptr.
   static CefRefPtr<CefToolbarViewImpl> Create(
@@ -49,7 +52,6 @@ class CefToolbarViewImpl
   absl::optional<ToolbarView::DisplayMode> const display_mode_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefToolbarViewImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefToolbarViewImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_SCROLL_VIEW_IMPL_H_

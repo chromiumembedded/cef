@@ -5,7 +5,6 @@
 #ifndef CEF_LIBCEF_BROWSER_OSR_SYNTHETIC_GESTURE_TARGET_OSR_H_
 #define CEF_LIBCEF_BROWSER_OSR_SYNTHETIC_GESTURE_TARGET_OSR_H_
 
-#include "base/macros.h"
 #include "content/browser/renderer_host/input/synthetic_gesture_target_base.h"
 
 // SyntheticGestureTarget implementation for OSR.
@@ -13,6 +12,10 @@ class CefSyntheticGestureTargetOSR
     : public content::SyntheticGestureTargetBase {
  public:
   explicit CefSyntheticGestureTargetOSR(content::RenderWidgetHostImpl* host);
+
+  CefSyntheticGestureTargetOSR(const CefSyntheticGestureTargetOSR&) = delete;
+  CefSyntheticGestureTargetOSR& operator=(const CefSyntheticGestureTargetOSR&) =
+      delete;
 
   // SyntheticGestureTargetBase:
   void DispatchWebTouchEventToPlatform(
@@ -34,9 +37,6 @@ class CefSyntheticGestureTargetOSR
   float GetTouchSlopInDips() const override;
   float GetSpanSlopInDips() const override;
   float GetMinScalingSpanInDips() const override;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefSyntheticGestureTargetOSR);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_OSR_SYNTHETIC_GESTURE_TARGET_OSR_H_

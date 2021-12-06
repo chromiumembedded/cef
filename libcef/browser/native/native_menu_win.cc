@@ -136,6 +136,9 @@ class CefNativeMenuWin::MenuHostWindow {
     gfx::SetWindowUserData(hwnd_, this);
   }
 
+  MenuHostWindow(const MenuHostWindow&) = delete;
+  MenuHostWindow& operator=(const MenuHostWindow&) = delete;
+
   ~MenuHostWindow() { DestroyWindow(hwnd_); }
 
   HWND hwnd() const { return hwnd_; }
@@ -427,8 +430,6 @@ class CefNativeMenuWin::MenuHostWindow {
   }
 
   HWND hwnd_;
-
-  DISALLOW_COPY_AND_ASSIGN(MenuHostWindow);
 };
 
 struct CefNativeMenuWin::HighlightedMenuItemInfo {

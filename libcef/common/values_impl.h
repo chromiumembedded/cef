@@ -35,6 +35,9 @@ class CefValueImpl : public CefValue {
   explicit CefValueImpl(CefRefPtr<CefDictionaryValue> value);
   explicit CefValueImpl(CefRefPtr<CefListValue> value);
 
+  CefValueImpl(const CefValueImpl&) = delete;
+  CefValueImpl& operator=(const CefValueImpl&) = delete;
+
   ~CefValueImpl() override;
 
   // Take ownership of |value|. Do not pass in a value owned by something else
@@ -85,13 +88,16 @@ class CefValueImpl : public CefValue {
     explicit ScopedLockedValue(CefRefPtr<CefValueImpl> impl) : impl_(impl) {
       impl_->AcquireLock();
     }
+
+    ScopedLockedValue(const ScopedLockedValue&) = delete;
+    ScopedLockedValue& operator=(const ScopedLockedValue&) = delete;
+
     ~ScopedLockedValue() { impl_->ReleaseLock(); }
 
     base::Value* value() const { return impl_->GetValueUnsafe(); }
 
    private:
     CefRefPtr<CefValueImpl> impl_;
-    DISALLOW_COPY_AND_ASSIGN(ScopedLockedValue);
   };
 
  private:
@@ -116,7 +122,6 @@ class CefValueImpl : public CefValue {
   CefRefPtr<CefListValue> list_value_;
 
   IMPLEMENT_REFCOUNTING(CefValueImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefValueImpl);
 };
 
 // CefBinaryValue implementation
@@ -138,6 +143,9 @@ class CefBinaryValueImpl : public CefValueBase<CefBinaryValue, base::Value> {
 
   // The data will always be copied.
   CefBinaryValueImpl(char* data, size_t data_size);
+
+  CefBinaryValueImpl(const CefBinaryValueImpl&) = delete;
+  CefBinaryValueImpl& operator=(const CefBinaryValueImpl&) = delete;
 
   // Return a copy of the value.
   base::Value* CopyValue() WARN_UNUSED_RESULT;
@@ -170,8 +178,6 @@ class CefBinaryValueImpl : public CefValueBase<CefBinaryValue, base::Value> {
                      void* parent_value,
                      ValueMode value_mode,
                      CefValueController* controller);
-
-  DISALLOW_COPY_AND_ASSIGN(CefBinaryValueImpl);
 };
 
 // CefDictionaryValue implementation
@@ -194,6 +200,9 @@ class CefDictionaryValueImpl
   CefDictionaryValueImpl(base::DictionaryValue* value,
                          bool will_delete,
                          bool read_only);
+
+  CefDictionaryValueImpl(const CefDictionaryValueImpl&) = delete;
+  CefDictionaryValueImpl& operator=(const CefDictionaryValueImpl&) = delete;
 
   // Return a copy of the value.
   base::DictionaryValue* CopyValue() WARN_UNUSED_RESULT;
@@ -253,8 +262,6 @@ class CefDictionaryValueImpl
 
   bool RemoveInternal(const CefString& key);
   base::Value* SetInternal(const CefString& key, base::Value* value);
-
-  DISALLOW_COPY_AND_ASSIGN(CefDictionaryValueImpl);
 };
 
 // CefListValue implementation
@@ -273,6 +280,9 @@ class CefListValueImpl : public CefValueBase<CefListValue, base::ListValue> {
   // owned by some other object and you do not plan to explicitly call
   // Detach(nullptr).
   CefListValueImpl(base::ListValue* value, bool will_delete, bool read_only);
+
+  CefListValueImpl(const CefListValueImpl&) = delete;
+  CefListValueImpl& operator=(const CefListValueImpl&) = delete;
 
   // Return a copy of the value.
   base::ListValue* CopyValue() WARN_UNUSED_RESULT;
@@ -330,8 +340,6 @@ class CefListValueImpl : public CefValueBase<CefListValue, base::ListValue> {
 
   bool RemoveInternal(size_t index);
   base::Value* SetInternal(size_t index, base::Value* value);
-
-  DISALLOW_COPY_AND_ASSIGN(CefListValueImpl);
 };
 
 #endif  // CEF_LIBCEF_COMMON_VALUES_IMPL_H_

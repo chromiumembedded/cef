@@ -31,13 +31,13 @@ class LabelButtonEx : public views::LabelButton {
 class CefBasicLabelButtonView
     : public CefLabelButtonView<LabelButtonEx, CefButtonDelegate> {
  public:
-  typedef CefLabelButtonView<LabelButtonEx, CefButtonDelegate> ParentClass;
+  using ParentClass = CefLabelButtonView<LabelButtonEx, CefButtonDelegate>;
 
   // |cef_delegate| may be nullptr.
   explicit CefBasicLabelButtonView(CefButtonDelegate* cef_delegate);
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefBasicLabelButtonView);
+  CefBasicLabelButtonView(const CefBasicLabelButtonView&) = delete;
+  CefBasicLabelButtonView& operator=(const CefBasicLabelButtonView&) = delete;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_BASIC_LABEL_BUTTON_VIEW_H_

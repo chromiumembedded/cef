@@ -28,7 +28,11 @@ namespace {
 // Class that manages cross-origin whitelist registrations.
 class CefOriginWhitelistManager {
  public:
-  CefOriginWhitelistManager() {}
+  CefOriginWhitelistManager() = default;
+
+  CefOriginWhitelistManager(const CefOriginWhitelistManager&) = delete;
+  CefOriginWhitelistManager& operator=(const CefOriginWhitelistManager&) =
+      delete;
 
   // Retrieve the singleton instance.
   static CefOriginWhitelistManager* GetInstance();
@@ -190,8 +194,6 @@ class CefOriginWhitelistManager {
 
   // List of registered origins. Access must be protected by |lock_|.
   CrossOriginWhiteList origin_list_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefOriginWhitelistManager);
 };
 
 base::LazyInstance<CefOriginWhitelistManager>::Leaky g_manager =

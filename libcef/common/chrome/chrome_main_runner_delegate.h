@@ -23,6 +23,10 @@ class ChromeMainRunnerDelegate : public CefMainRunnerDelegate {
   ChromeMainRunnerDelegate(CefMainRunnerHandler* runner,
                            CefSettings* settings,
                            CefRefPtr<CefApp> application);
+
+  ChromeMainRunnerDelegate(const ChromeMainRunnerDelegate&) = delete;
+  ChromeMainRunnerDelegate& operator=(const ChromeMainRunnerDelegate&) = delete;
+
   ~ChromeMainRunnerDelegate() override;
 
  protected:
@@ -44,8 +48,6 @@ class ChromeMainRunnerDelegate : public CefMainRunnerDelegate {
   CefMainRunnerHandler* const runner_;
   CefSettings* const settings_;
   CefRefPtr<CefApp> application_;
-
-  DISALLOW_COPY_AND_ASSIGN(ChromeMainRunnerDelegate);
 };
 
 #endif  // CEF_LIBCEF_COMMON_CHROME_CHROME_MAIN_RUNNER_DELEGATE_CEF_

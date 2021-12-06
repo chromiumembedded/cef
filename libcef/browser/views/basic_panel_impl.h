@@ -16,7 +16,10 @@
 class CefBasicPanelImpl
     : public CefPanelImpl<views::View, CefPanel, CefPanelDelegate> {
  public:
-  typedef CefPanelImpl<views::View, CefPanel, CefPanelDelegate> ParentClass;
+  using ParentClass = CefPanelImpl<views::View, CefPanel, CefPanelDelegate>;
+
+  CefBasicPanelImpl(const CefBasicPanelImpl&) = delete;
+  CefBasicPanelImpl& operator=(const CefBasicPanelImpl&) = delete;
 
   // Create a new CefPanel instance. |delegate| may be nullptr.
   static CefRefPtr<CefBasicPanelImpl> Create(
@@ -36,7 +39,6 @@ class CefBasicPanelImpl
   void InitializeRootView() override;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefBasicPanelImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefBasicPanelImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_BASIC_PANEL_IMPL_H_

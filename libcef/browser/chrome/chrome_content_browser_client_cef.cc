@@ -24,6 +24,7 @@
 #include "libcef/common/command_line_impl.h"
 
 #include "base/command_line.h"
+#include "base/macros.h"
 #include "base/path_service.h"
 #include "chrome/browser/chrome_browser_main.h"
 #include "chrome/browser/net/system_network_context_manager.h"

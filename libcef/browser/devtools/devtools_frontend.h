@@ -12,7 +12,6 @@
 
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
-#include "base/macros.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/weak_ptr.h"
 #include "base/values.h"
@@ -41,6 +40,9 @@ enum class ProtocolMessageType {
 class CefDevToolsFrontend : public content::WebContentsObserver,
                             public content::DevToolsAgentHostClient {
  public:
+  CefDevToolsFrontend(const CefDevToolsFrontend&) = delete;
+  CefDevToolsFrontend& operator=(const CefDevToolsFrontend&) = delete;
+
   static CefDevToolsFrontend* Show(
       AlloyBrowserHostImpl* inspected_browser,
       const CefWindowInfo& windowInfo,
@@ -109,8 +111,6 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   const base::FilePath protocol_log_file_;
 
   base::WeakPtrFactory<CefDevToolsFrontend> weak_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefDevToolsFrontend);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_FRONTEND_H_

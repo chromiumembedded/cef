@@ -8,7 +8,6 @@
 #include <memory>
 #include <string>
 
-#include "base/macros.h"
 #include "extensions/renderer/extensions_renderer_client.h"
 #include "services/service_manager/public/cpp/binder_registry.h"
 #include "ui/base/page_transition_types.h"
@@ -49,6 +48,11 @@ class ResourceRequestPolicy;
 class CefExtensionsRendererClient : public ExtensionsRendererClient {
  public:
   CefExtensionsRendererClient();
+
+  CefExtensionsRendererClient(const CefExtensionsRendererClient&) = delete;
+  CefExtensionsRendererClient& operator=(const CefExtensionsRendererClient&) =
+      delete;
+
   ~CefExtensionsRendererClient() override;
 
   // ExtensionsRendererClient implementation.
@@ -83,8 +87,6 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
   std::unique_ptr<guest_view::GuestViewContainerDispatcher>
       guest_view_container_dispatcher_;
   std::unique_ptr<extensions::ResourceRequestPolicy> resource_request_policy_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefExtensionsRendererClient);
 };
 
 }  // namespace extensions

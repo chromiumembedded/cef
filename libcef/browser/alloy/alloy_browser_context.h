@@ -39,6 +39,9 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
  public:
   explicit AlloyBrowserContext(const CefRequestContextSettings& settings);
 
+  AlloyBrowserContext(const AlloyBrowserContext&) = delete;
+  AlloyBrowserContext& operator=(const AlloyBrowserContext&) = delete;
+
   // CefBrowserContext overrides.
   content::BrowserContext* AsBrowserContext() override { return this; }
   Profile* AsProfile() override { return this; }
@@ -142,8 +145,6 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
   std::unique_ptr<content::ResourceContext> resource_context_;
 
   scoped_refptr<MediaDeviceIDSalt> media_device_id_salt_;
-
-  DISALLOW_COPY_AND_ASSIGN(AlloyBrowserContext);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_ALLOY_ALLOY_BROWSER_CONTEXT_H_

@@ -31,10 +31,13 @@ class MenuButtonEx : public views::MenuButton {
 class CefMenuButtonView
     : public CefLabelButtonView<MenuButtonEx, CefMenuButtonDelegate> {
  public:
-  typedef CefLabelButtonView<MenuButtonEx, CefMenuButtonDelegate> ParentClass;
+  using ParentClass = CefLabelButtonView<MenuButtonEx, CefMenuButtonDelegate>;
 
   // |cef_delegate| must not be nullptr.
   explicit CefMenuButtonView(CefMenuButtonDelegate* cef_delegate);
+
+  CefMenuButtonView(const CefMenuButtonView&) = delete;
+  CefMenuButtonView& operator=(const CefMenuButtonView&) = delete;
 
   void Initialize() override;
 
@@ -47,9 +50,6 @@ class CefMenuButtonView
 
   // MenuButtonEx methods:
   void ButtonPressed(const ui::Event& event) override;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefMenuButtonView);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_MENU_BUTTON_VIEW_H_

@@ -13,6 +13,10 @@
 class CefThreadImpl : public CefThread {
  public:
   CefThreadImpl();
+
+  CefThreadImpl(const CefThreadImpl&) = delete;
+  CefThreadImpl& operator=(const CefThreadImpl&) = delete;
+
   ~CefThreadImpl();
 
   bool Create(const CefString& display_name,
@@ -36,7 +40,6 @@ class CefThreadImpl : public CefThread {
   scoped_refptr<base::SequencedTaskRunner> owner_task_runner_;
 
   IMPLEMENT_REFCOUNTING(CefThreadImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefThreadImpl);
 };
 
 #endif  // CEF_LIBCEF_COMMON_THREAD_IMPL_H_

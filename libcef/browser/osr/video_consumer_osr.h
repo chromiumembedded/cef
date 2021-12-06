@@ -11,6 +11,10 @@ class CefRenderWidgetHostViewOSR;
 class CefVideoConsumerOSR : public viz::mojom::FrameSinkVideoConsumer {
  public:
   explicit CefVideoConsumerOSR(CefRenderWidgetHostViewOSR* view);
+
+  CefVideoConsumerOSR(const CefVideoConsumerOSR&) = delete;
+  CefVideoConsumerOSR& operator=(const CefVideoConsumerOSR&) = delete;
+
   ~CefVideoConsumerOSR() override;
 
   void SetActive(bool active);
@@ -34,8 +38,6 @@ class CefVideoConsumerOSR : public viz::mojom::FrameSinkVideoConsumer {
 
   gfx::Size size_in_pixels_;
   absl::optional<gfx::Rect> bounds_in_pixels_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefVideoConsumerOSR);
 };
 
 #endif  // LIBCEF_BROWSER_OSR_VIDEO_CONSUMER_OSR_H_

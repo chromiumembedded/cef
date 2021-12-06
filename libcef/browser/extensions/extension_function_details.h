@@ -10,7 +10,6 @@
 #include "include/cef_extension.h"
 
 #include "base/callback_forward.h"
-#include "base/macros.h"
 #include "chrome/common/extensions/api/tabs.h"
 #include "ui/gfx/native_widget_types.h"
 
@@ -30,6 +29,11 @@ class CefExtensionFunctionDetails {
   // Constructs a new ChromeExtensionFunctionDetails instance for |function|.
   // This instance does not own |function| and must outlive it.
   explicit CefExtensionFunctionDetails(ExtensionFunction* function);
+
+  CefExtensionFunctionDetails(const CefExtensionFunctionDetails&) = delete;
+  CefExtensionFunctionDetails& operator=(const CefExtensionFunctionDetails&) =
+      delete;
+
   ~CefExtensionFunctionDetails();
 
   Profile* GetProfile() const;
@@ -140,8 +144,6 @@ class CefExtensionFunctionDetails {
 
   // Verifies correct usage of GetBrowserForTabId* methods.
   mutable bool get_browser_called_first_time_ = false;
-
-  DISALLOW_COPY_AND_ASSIGN(CefExtensionFunctionDetails);
 };
 
 }  // namespace extensions

@@ -18,6 +18,12 @@ namespace extensions {
 class CefMimeHandlerViewGuestDelegate : public MimeHandlerViewGuestDelegate {
  public:
   explicit CefMimeHandlerViewGuestDelegate(MimeHandlerViewGuest* guest);
+
+  CefMimeHandlerViewGuestDelegate(const CefMimeHandlerViewGuestDelegate&) =
+      delete;
+  CefMimeHandlerViewGuestDelegate& operator=(
+      const CefMimeHandlerViewGuestDelegate&) = delete;
+
   ~CefMimeHandlerViewGuestDelegate() override;
 
   // MimeHandlerViewGuestDelegate methods.
@@ -31,8 +37,6 @@ class CefMimeHandlerViewGuestDelegate : public MimeHandlerViewGuestDelegate {
  private:
   MimeHandlerViewGuest* guest_;  // Owns us.
   content::WebContents* owner_web_contents_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefMimeHandlerViewGuestDelegate);
 };
 
 }  // namespace extensions

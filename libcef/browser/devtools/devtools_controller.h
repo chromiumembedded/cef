@@ -41,6 +41,10 @@ class CefDevToolsController : public content::DevToolsAgentHostClient {
 
   // |inspected_contents| will outlive this object.
   explicit CefDevToolsController(content::WebContents* inspected_contents);
+
+  CefDevToolsController(const CefDevToolsController&) = delete;
+  CefDevToolsController& operator=(const CefDevToolsController&) = delete;
+
   ~CefDevToolsController() override;
 
   // See CefBrowserHost methods of the same name for documentation.
@@ -72,8 +76,6 @@ class CefDevToolsController : public content::DevToolsAgentHostClient {
   base::ObserverList<Observer> observers_;
 
   base::WeakPtrFactory<CefDevToolsController> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefDevToolsController);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_CONTROLLER_H_

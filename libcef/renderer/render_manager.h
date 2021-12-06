@@ -40,6 +40,10 @@ class CefRenderFrameObserver;
 class CefRenderManager : public cef::mojom::RenderManager {
  public:
   CefRenderManager();
+
+  CefRenderManager(const CefRenderManager&) = delete;
+  CefRenderManager& operator=(const CefRenderManager&) = delete;
+
   ~CefRenderManager();
 
   // Returns this singleton instance of this class.
@@ -106,12 +110,12 @@ class CefRenderManager : public cef::mojom::RenderManager {
   void OnGuestViewDestroyed(CefGuestView* guest_view);
 
   // Map of RenderView pointers to CefBrowserImpl references.
-  typedef std::map<content::RenderView*, CefRefPtr<CefBrowserImpl>> BrowserMap;
+  using BrowserMap = std::map<content::RenderView*, CefRefPtr<CefBrowserImpl>>;
   BrowserMap browsers_;
 
   // Map of RenderView poiners to CefGuestView implementations.
-  typedef std::map<content::RenderView*, std::unique_ptr<CefGuestView>>
-      GuestViewMap;
+  using GuestViewMap =
+      std::map<content::RenderView*, std::unique_ptr<CefGuestView>>;
   GuestViewMap guest_views_;
 
   // Cross-origin white list entries that need to be registered with WebKit.
@@ -124,8 +128,6 @@ class CefRenderManager : public cef::mojom::RenderManager {
   mojo::ReceiverSet<cef::mojom::RenderManager> receivers_;
 
   mojo::Remote<cef::mojom::BrowserManager> browser_manager_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefRenderManager);
 };
 
 #endif  // CEF_LIBCEF_RENDERER_RENDER_MANAGER_H_

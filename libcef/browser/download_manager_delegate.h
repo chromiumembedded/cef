@@ -24,6 +24,11 @@ class CefDownloadManagerDelegate : public download::DownloadItem::Observer,
                                    public CefBrowserHostBase::Observer {
  public:
   explicit CefDownloadManagerDelegate(content::DownloadManager* manager);
+
+  CefDownloadManagerDelegate(const CefDownloadManagerDelegate&) = delete;
+  CefDownloadManagerDelegate& operator=(const CefDownloadManagerDelegate&) =
+      delete;
+
   ~CefDownloadManagerDelegate() override;
 
  private:
@@ -55,11 +60,9 @@ class CefDownloadManagerDelegate : public download::DownloadItem::Observer,
   // Map of DownloadItem to originating AlloyBrowserHostImpl. Maintaining this
   // map is necessary because DownloadItem::GetWebContents() may return NULL if
   // the browser navigates while the download is in progress.
-  typedef std::map<download::DownloadItem*, AlloyBrowserHostImpl*>
-      ItemBrowserMap;
+  using ItemBrowserMap =
+      std::map<download::DownloadItem*, AlloyBrowserHostImpl*>;
   ItemBrowserMap item_browser_map_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefDownloadManagerDelegate);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_DOWNLOAD_MANAGER_DELEGATE_H_

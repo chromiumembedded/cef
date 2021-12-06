@@ -25,6 +25,9 @@ class CefProcessMessageImpl : public CefProcessMessage {
                         base::ListValue arguments,
                         bool read_only);
 
+  CefProcessMessageImpl(const CefProcessMessageImpl&) = delete;
+  CefProcessMessageImpl& operator=(const CefProcessMessageImpl&) = delete;
+
   ~CefProcessMessageImpl() override;
 
   // Transfer ownership of the underlying argument list to the caller, or create
@@ -45,7 +48,6 @@ class CefProcessMessageImpl : public CefProcessMessage {
   CefRefPtr<CefListValue> arguments_;
 
   IMPLEMENT_REFCOUNTING(CefProcessMessageImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefProcessMessageImpl);
 };
 
 #endif  // CEF_LIBCEF_COMMON_PROCESS_MESSAGE_IMPL_H_

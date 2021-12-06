@@ -6,7 +6,6 @@
 #ifndef CEF_LIBCEF_BROWSER_NET_SERVICE_URL_LOADER_FACTORY_GETTER_H_
 #define CEF_LIBCEF_BROWSER_NET_SERVICE_URL_LOADER_FACTORY_GETTER_H_
 
-#include "base/macros.h"
 #include "base/memory/ref_counted.h"
 #include "base/task/sequenced_task_runner.h"
 #include "base/task/sequenced_task_runner_helpers.h"
@@ -32,6 +31,9 @@ class URLLoaderFactoryGetter
     : public base::RefCountedThreadSafe<URLLoaderFactoryGetter,
                                         URLLoaderFactoryGetterDeleter> {
  public:
+  URLLoaderFactoryGetter(const URLLoaderFactoryGetter&) = delete;
+  URLLoaderFactoryGetter& operator=(const URLLoaderFactoryGetter&) = delete;
+
   // Create a URLLoaderFactoryGetter on the UI thread.
   // |render_frame_host| may be nullptr.
   static scoped_refptr<URLLoaderFactoryGetter> Create(
@@ -62,8 +64,6 @@ class URLLoaderFactoryGetter
   network::mojom::URLLoaderFactoryPtrInfo proxy_factory_ptr_info_;
   network::mojom::URLLoaderFactoryRequest proxy_factory_request_;
   scoped_refptr<base::SequencedTaskRunner> task_runner_;
-
-  DISALLOW_COPY_AND_ASSIGN(URLLoaderFactoryGetter);
 };
 
 struct URLLoaderFactoryGetterDeleter {

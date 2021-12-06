@@ -14,6 +14,9 @@
 class CefFillLayoutImpl
     : public CefLayoutImpl<views::FillLayout, CefFillLayout> {
  public:
+  CefFillLayoutImpl(const CefFillLayoutImpl&) = delete;
+  CefFillLayoutImpl& operator=(const CefFillLayoutImpl&) = delete;
+
   // Create a new CefFillLayout insance. |owner_view| must be non-nullptr.
   static CefRefPtr<CefFillLayout> Create(views::View* owner_view);
 
@@ -26,7 +29,6 @@ class CefFillLayoutImpl
   views::FillLayout* CreateLayout() override;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefFillLayoutImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefFillLayoutImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_FILL_LAYOUT_IMPL_H_

@@ -49,6 +49,10 @@ class CefMediaRouterManager
   };
 
   explicit CefMediaRouterManager(content::BrowserContext* browser_context);
+
+  CefMediaRouterManager(const CefMediaRouterManager&) = delete;
+  CefMediaRouterManager& operator=(const CefMediaRouterManager&) = delete;
+
   ~CefMediaRouterManager() override;
 
   // |observer| must outlive this object or be removed.
@@ -119,8 +123,6 @@ class CefMediaRouterManager
   RouteStateMap route_state_map_;
 
   base::WeakPtrFactory<CefMediaRouterManager> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefMediaRouterManager);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_MEDIA_ROUTER_MEDIA_ROUTER_MANAGER_H_

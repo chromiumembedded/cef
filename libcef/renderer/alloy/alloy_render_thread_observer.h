@@ -19,6 +19,11 @@ class AlloyRenderThreadObserver : public content::RenderThreadObserver,
                                   public chrome::mojom::RendererConfiguration {
  public:
   AlloyRenderThreadObserver();
+
+  AlloyRenderThreadObserver(const AlloyRenderThreadObserver&) = delete;
+  AlloyRenderThreadObserver& operator=(const AlloyRenderThreadObserver&) =
+      delete;
+
   ~AlloyRenderThreadObserver() override;
 
   static bool is_incognito_process() { return is_incognito_process_; }
@@ -52,8 +57,6 @@ class AlloyRenderThreadObserver : public content::RenderThreadObserver,
 
   mojo::AssociatedReceiverSet<chrome::mojom::RendererConfiguration>
       renderer_configuration_receivers_;
-
-  DISALLOW_COPY_AND_ASSIGN(AlloyRenderThreadObserver);
 };
 
 #endif  // CEF_LIBCEF_RENDERER_ALLOY_ALLOY_RENDER_THREAD_OBSERVER_H_

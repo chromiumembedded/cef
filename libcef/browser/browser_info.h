@@ -39,6 +39,9 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
                  bool is_windowless,
                  CefRefPtr<CefDictionaryValue> extra_info);
 
+  CefBrowserInfo(const CefBrowserInfo&) = delete;
+  CefBrowserInfo& operator=(const CefBrowserInfo&) = delete;
+
   int browser_id() const { return browser_id_; }
   bool is_popup() const { return is_popup_; }
   bool is_windowless() const { return is_windowless_; }
@@ -119,7 +122,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   // Returns all non-speculative frame objects that currently exist. Guest views
   // will be excluded because they don't have a frame object. Safe to call from
   // any thread.
-  typedef std::set<CefRefPtr<CefFrameHostImpl>> FrameHostList;
+  using FrameHostList = std::set<CefRefPtr<CefFrameHostImpl>>;
   FrameHostList GetAllFrames() const;
 
   class NavigationLock final : public base::RefCounted<NavigationLock> {
@@ -251,8 +254,6 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
 
   // Only accessed on the UI thread.
   std::vector<CefDraggableRegion> draggable_regions_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefBrowserInfo);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_INFO_H_

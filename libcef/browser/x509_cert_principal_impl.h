@@ -15,6 +15,9 @@ class CefX509CertPrincipalImpl : public CefX509CertPrincipal {
  public:
   explicit CefX509CertPrincipalImpl(const net::CertPrincipal& value);
 
+  CefX509CertPrincipalImpl(const CefX509CertPrincipalImpl&) = delete;
+  CefX509CertPrincipalImpl& operator=(const CefX509CertPrincipalImpl&) = delete;
+
   // CefX509CertPrincipal methods.
   CefString GetDisplayName() override;
   CefString GetCommonName() override;
@@ -30,7 +33,6 @@ class CefX509CertPrincipalImpl : public CefX509CertPrincipal {
   net::CertPrincipal value_;
 
   IMPLEMENT_REFCOUNTING(CefX509CertPrincipalImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefX509CertPrincipalImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_X509_CERT_PRINCIPAL_IMPL_H_

@@ -9,7 +9,6 @@
 #include "libcef/browser/request_context_impl.h"
 
 #include "base/command_line.h"
-#include "base/macros.h"
 #include "base/strings/string_piece.h"
 #include "build/build_config.h"
 #include "components/prefs/pref_service.h"
@@ -47,6 +46,10 @@ class CefDevToolsDelegate;
 class AlloyBrowserMainParts : public content::BrowserMainParts {
  public:
   explicit AlloyBrowserMainParts(const content::MainFunctionParams& parameters);
+
+  AlloyBrowserMainParts(const AlloyBrowserMainParts&) = delete;
+  AlloyBrowserMainParts& operator=(const AlloyBrowserMainParts&) = delete;
+
   ~AlloyBrowserMainParts() override;
 
   int PreEarlyInitialization() override;
@@ -105,8 +108,6 @@ class AlloyBrowserMainParts : public content::BrowserMainParts {
   std::unique_ptr<views::LayoutProvider> layout_provider_;
 #endif
 #endif  // defined(TOOLKIT_VIEWS)
-
-  DISALLOW_COPY_AND_ASSIGN(AlloyBrowserMainParts);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_ALLOY_ALLOY_BROWSER_MAIN_H_

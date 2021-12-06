@@ -12,6 +12,9 @@ class CefResourceBundleImpl : public CefResourceBundle {
  public:
   CefResourceBundleImpl();
 
+  CefResourceBundleImpl(const CefResourceBundleImpl&) = delete;
+  CefResourceBundleImpl& operator=(const CefResourceBundleImpl&) = delete;
+
   // CefResourceBundle methods.
   CefString GetLocalizedString(int string_id) override;
   CefRefPtr<CefBinaryValue> GetDataResource(int resource_id) override;
@@ -21,7 +24,6 @@ class CefResourceBundleImpl : public CefResourceBundle {
 
  private:
   IMPLEMENT_REFCOUNTING(CefResourceBundleImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefResourceBundleImpl);
 };
 
 #endif  // CEF_LIBCEF_COMMON_RESOURCE_BUNDLE_IMPL_H_

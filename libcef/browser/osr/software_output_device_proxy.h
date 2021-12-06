@@ -19,6 +19,11 @@ class VIZ_SERVICE_EXPORT SoftwareOutputDeviceProxy
  public:
   explicit SoftwareOutputDeviceProxy(
       mojom::LayeredWindowUpdaterPtr layered_window_updater);
+
+  SoftwareOutputDeviceProxy(const SoftwareOutputDeviceProxy&) = delete;
+  SoftwareOutputDeviceProxy& operator=(const SoftwareOutputDeviceProxy&) =
+      delete;
+
   ~SoftwareOutputDeviceProxy() override;
 
   // SoftwareOutputDevice implementation.
@@ -43,8 +48,6 @@ class VIZ_SERVICE_EXPORT SoftwareOutputDeviceProxy
   base::WritableSharedMemoryMapping shm_;
 
   THREAD_CHECKER(thread_checker_);
-
-  DISALLOW_COPY_AND_ASSIGN(SoftwareOutputDeviceProxy);
 };
 
 }  // namespace viz

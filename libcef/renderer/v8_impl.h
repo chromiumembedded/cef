@@ -129,13 +129,16 @@ class CefV8HandleBase
 template <typename v8class>
 class CefV8Handle : public CefV8HandleBase {
  public:
-  typedef v8::Local<v8class> handleType;
-  typedef v8::Persistent<v8class> persistentType;
+  using handleType = v8::Local<v8class>;
+  using persistentType = v8::Persistent<v8class>;
 
   CefV8Handle(v8::Isolate* isolate,
               v8::Local<v8::Context> context,
               handleType v)
       : CefV8HandleBase(isolate, context), handle_(isolate, v) {}
+
+  CefV8Handle(const CefV8Handle&) = delete;
+  CefV8Handle& operator=(const CefV8Handle&) = delete;
 
   handleType GetNewV8Handle() {
     DCHECK(IsValid());
@@ -148,8 +151,6 @@ class CefV8Handle : public CefV8HandleBase {
   ~CefV8Handle() override { handle_.Reset(); }
 
   persistentType handle_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefV8Handle);
 };
 
 // Specialization for v8::Value with empty implementation to avoid incorrect
@@ -160,6 +161,10 @@ class CefV8Handle<v8::Value> {};
 class CefV8ContextImpl : public CefV8Context {
  public:
   CefV8ContextImpl(v8::Isolate* isolate, v8::Local<v8::Context> context);
+
+  CefV8ContextImpl(const CefV8ContextImpl&) = delete;
+  CefV8ContextImpl& operator=(const CefV8ContextImpl&) = delete;
+
   ~CefV8ContextImpl() override;
 
   CefRefPtr<CefTaskRunner> GetTaskRunner() override;
@@ -180,14 +185,13 @@ class CefV8ContextImpl : public CefV8Context {
   blink::WebLocalFrame* GetWebFrame();
 
  private:
-  typedef CefV8Handle<v8::Context> Handle;
+  using Handle = CefV8Handle<v8::Context>;
   scoped_refptr<Handle> handle_;
 
   int enter_count_;
   std::unique_ptr<v8::MicrotasksScope> microtasks_scope_;
 
   IMPLEMENT_REFCOUNTING(CefV8ContextImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefV8ContextImpl);
 };
 
 class CefV8ValueImpl : public CefV8Value {
@@ -196,6 +200,10 @@ class CefV8ValueImpl : public CefV8Value {
   CefV8ValueImpl(v8::Isolate* isolate,
                  v8::Local<v8::Context> context,
                  v8::Local<v8::Value> value);
+
+  CefV8ValueImpl(const CefV8ValueImpl&) = delete;
+  CefV8ValueImpl& operator=(const CefV8ValueImpl&) = delete;
+
   ~CefV8ValueImpl() override;
 
   // Used for initializing the CefV8ValueImpl. Should be called a single time
@@ -280,13 +288,16 @@ class CefV8ValueImpl : public CefV8Value {
 
   class Handle : public CefV8HandleBase {
    public:
-    typedef v8::Local<v8::Value> handleType;
-    typedef v8::Persistent<v8::Value> persistentType;
+    using handleType = v8::Local<v8::Value>;
+    using persistentType = v8::Persistent<v8::Value>;
 
     Handle(v8::Isolate* isolate,
            v8::Local<v8::Context> context,
            handleType v,
            CefTrackNode* tracker);
+
+    Handle(const Handle&) = delete;
+    Handle& operator=(const Handle&) = delete;
 
     handleType GetNewV8Handle(bool should_persist);
 
@@ -313,8 +324,6 @@ class CefV8ValueImpl : public CefV8Value {
 
     // True if the handle has been set as weak.
     bool is_set_weak_;
-
-    DISALLOW_COPY_AND_ASSIGN(Handle);
   };
 
   v8::Isolate* isolate_;
@@ -348,12 +357,15 @@ class CefV8ValueImpl : public CefV8Value {
   bool rethrow_exceptions_;
 
   IMPLEMENT_REFCOUNTING(CefV8ValueImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefV8ValueImpl);
 };
 
 class CefV8StackTraceImpl : public CefV8StackTrace {
  public:
   CefV8StackTraceImpl(v8::Isolate* isolate, v8::Local<v8::StackTrace> handle);
+
+  CefV8StackTraceImpl(const CefV8StackTraceImpl&) = delete;
+  CefV8StackTraceImpl& operator=(const CefV8StackTraceImpl&) = delete;
+
   ~CefV8StackTraceImpl() override;
 
   bool IsValid() override;
@@ -364,12 +376,15 @@ class CefV8StackTraceImpl : public CefV8StackTrace {
   std::vector<CefRefPtr<CefV8StackFrame>> frames_;
 
   IMPLEMENT_REFCOUNTING(CefV8StackTraceImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefV8StackTraceImpl);
 };
 
 class CefV8StackFrameImpl : public CefV8StackFrame {
  public:
   CefV8StackFrameImpl(v8::Isolate* isolate, v8::Local<v8::StackFrame> handle);
+
+  CefV8StackFrameImpl(const CefV8StackFrameImpl&) = delete;
+  CefV8StackFrameImpl& operator=(const CefV8StackFrameImpl&) = delete;
+
   ~CefV8StackFrameImpl() override;
 
   bool IsValid() override;
@@ -391,7 +406,6 @@ class CefV8StackFrameImpl : public CefV8StackFrame {
   bool is_constructor_;
 
   IMPLEMENT_REFCOUNTING(CefV8StackFrameImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefV8StackFrameImpl);
 };
 
 #endif  // CEF_LIBCEF_RENDERER_V8_IMPL_H_

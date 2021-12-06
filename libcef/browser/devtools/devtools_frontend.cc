@@ -22,7 +22,6 @@
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
 #include "base/json/string_escape.h"
-#include "base/macros.h"
 #include "base/memory/ptr_util.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
@@ -188,6 +187,9 @@ class CefDevToolsFrontend::NetworkResourceLoader
     loader_->DownloadAsStream(url_loader_factory, this);
   }
 
+  NetworkResourceLoader(const NetworkResourceLoader&) = delete;
+  NetworkResourceLoader& operator=(const NetworkResourceLoader&) = delete;
+
  private:
   void OnResponseStarted(const GURL& final_url,
                          const network::mojom::URLResponseHead& response_head) {
@@ -230,8 +232,6 @@ class CefDevToolsFrontend::NetworkResourceLoader
   std::unique_ptr<network::SimpleURLLoader> loader_;
   int request_id_;
   scoped_refptr<net::HttpResponseHeaders> response_headers_;
-
-  DISALLOW_COPY_AND_ASSIGN(NetworkResourceLoader);
 };
 
 // static

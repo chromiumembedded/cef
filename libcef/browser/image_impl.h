@@ -21,6 +21,9 @@ class CefImageImpl : public CefImage {
   // representation.
   explicit CefImageImpl(const gfx::ImageSkia& image_skia);
 
+  CefImageImpl(const CefImageImpl&) = delete;
+  CefImageImpl& operator=(const CefImageImpl&) = delete;
+
   // Deletes the image and, if the only owner of the storage, all of its cached
   // representations.
   ~CefImageImpl() override = default;
@@ -95,9 +98,9 @@ class CefImageImpl : public CefImage {
 
   // The |bitmap| argument will be RGBA or BGRA and either opaque or transparent
   // with post-multiplied alpha. Writes the compressed output into |compressed|.
-  typedef base::OnceCallback<bool(const SkBitmap& /*bitmap*/,
-                                  std::vector<unsigned char>* /*compressed*/)>
-      CompressionMethod;
+  using CompressionMethod =
+      base::OnceCallback<bool(const SkBitmap& /*bitmap*/,
+                              std::vector<unsigned char>* /*compressed*/)>;
 
   // Write |bitmap| into |compressed| using |method|.
   static bool WriteCompressedFormat(const SkBitmap& bitmap,
@@ -121,7 +124,6 @@ class CefImageImpl : public CefImage {
   gfx::Image image_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefImageImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefImageImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_IMAGE_IMPL_H_

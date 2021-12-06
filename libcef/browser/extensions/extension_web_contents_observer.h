@@ -19,6 +19,11 @@ class CefExtensionWebContentsObserver
     : public ExtensionWebContentsObserver,
       public content::WebContentsUserData<CefExtensionWebContentsObserver> {
  public:
+  CefExtensionWebContentsObserver(const CefExtensionWebContentsObserver&) =
+      delete;
+  CefExtensionWebContentsObserver& operator=(
+      const CefExtensionWebContentsObserver&) = delete;
+
   ~CefExtensionWebContentsObserver() override;
 
   // Creates and initializes an instance of this class for the given
@@ -38,7 +43,6 @@ class CefExtensionWebContentsObserver
   std::unique_ptr<ScriptExecutor> script_executor_;
 
   WEB_CONTENTS_USER_DATA_KEY_DECL();
-  DISALLOW_COPY_AND_ASSIGN(CefExtensionWebContentsObserver);
 };
 
 }  // namespace extensions

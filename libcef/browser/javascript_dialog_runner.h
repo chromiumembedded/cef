@@ -14,9 +14,13 @@ class AlloyBrowserHostImpl;
 
 class CefJavaScriptDialogRunner {
  public:
-  typedef base::OnceCallback<void(bool /* success */,
-                                  const std::u16string& /* user_input */)>
-      DialogClosedCallback;
+  CefJavaScriptDialogRunner(const CefJavaScriptDialogRunner&) = delete;
+  CefJavaScriptDialogRunner& operator=(const CefJavaScriptDialogRunner&) =
+      delete;
+
+  using DialogClosedCallback =
+      base::OnceCallback<void(bool /* success */,
+                              const std::u16string& /* user_input */)>;
 
   // Run the dialog. Execute |callback| on completion.
   virtual void Run(AlloyBrowserHostImpl* browser,
@@ -33,11 +37,8 @@ class CefJavaScriptDialogRunner {
   // Allow deletion via std::unique_ptr only.
   friend std::default_delete<CefJavaScriptDialogRunner>;
 
-  CefJavaScriptDialogRunner() {}
-  virtual ~CefJavaScriptDialogRunner() {}
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefJavaScriptDialogRunner);
+  CefJavaScriptDialogRunner() = default;
+  virtual ~CefJavaScriptDialogRunner() = default;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_JAVASCRIPT_DIALOG_RUNNER_H_

@@ -18,6 +18,9 @@ class CefMediaRouterImpl : public CefMediaRouter {
  public:
   CefMediaRouterImpl();
 
+  CefMediaRouterImpl(const CefMediaRouterImpl&) = delete;
+  CefMediaRouterImpl& operator=(const CefMediaRouterImpl&) = delete;
+
   // Called on the UI thread after object creation and before any other object
   // methods are executed on the UI thread.
   void Initialize(const CefBrowserContext::Getter& browser_context_getter,
@@ -58,7 +61,6 @@ class CefMediaRouterImpl : public CefMediaRouter {
   std::vector<base::OnceClosure> init_callbacks_;
 
   IMPLEMENT_REFCOUNTING(CefMediaRouterImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefMediaRouterImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_MEDIA_ROUTER_MEDIA_ROUTER_IMPL_H_

@@ -15,6 +15,9 @@ class CefSSLInfoImpl : public CefSSLInfo {
  public:
   explicit CefSSLInfoImpl(const net::SSLInfo& value);
 
+  CefSSLInfoImpl(const CefSSLInfoImpl&) = delete;
+  CefSSLInfoImpl& operator=(const CefSSLInfoImpl&) = delete;
+
   // CefSSLInfo methods.
   cef_cert_status_t GetCertStatus() override;
   CefRefPtr<CefX509Certificate> GetX509Certificate() override;
@@ -24,7 +27,6 @@ class CefSSLInfoImpl : public CefSSLInfo {
   CefRefPtr<CefX509Certificate> cert_;
 
   IMPLEMENT_REFCOUNTING(CefSSLInfoImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefSSLInfoImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_SSL_INFO_IMPL_H_

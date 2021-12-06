@@ -14,13 +14,15 @@
 class ChromeProfileManagerAlloy : public ProfileManager {
  public:
   ChromeProfileManagerAlloy();
+
+  ChromeProfileManagerAlloy(const ChromeProfileManagerAlloy&) = delete;
+  ChromeProfileManagerAlloy& operator=(const ChromeProfileManagerAlloy&) =
+      delete;
+
   ~ChromeProfileManagerAlloy() override;
 
   Profile* GetProfile(const base::FilePath& profile_dir) override;
   bool IsValidProfile(const void* profile) override;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(ChromeProfileManagerAlloy);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_ALLOY_CHROME_PROFILE_MANAGER_ALLOY_H_

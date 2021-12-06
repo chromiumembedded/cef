@@ -27,7 +27,7 @@
 // view_impl.h for a usage overview.
 CEF_PANEL_IMPL_T class CefPanelImpl : public CEF_VIEW_IMPL_D {
  public:
-  typedef CEF_VIEW_IMPL_D ParentClass;
+  using ParentClass = CEF_VIEW_IMPL_D;
 
   // CefPanel methods. When adding new As*() methods make sure to update
   // CefViewAdapter::GetFor() in view_adapter.cc.

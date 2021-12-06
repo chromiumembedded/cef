@@ -17,6 +17,9 @@ class AlloyBrowserHostImpl;
 
 class CefFileDialogRunner {
  public:
+  CefFileDialogRunner(const CefFileDialogRunner&) = delete;
+  CefFileDialogRunner& operator=(const CefFileDialogRunner&) = delete;
+
   // Extend blink::mojom::FileChooserParams with some options unique to CEF.
   struct FileChooserParams : public blink::mojom::FileChooserParams {
     // 0-based index of the selected value in |accept_types|.
@@ -30,8 +33,8 @@ class CefFileDialogRunner {
   };
 
   // The argument vector will be empty if the dialog was canceled.
-  typedef base::OnceCallback<void(int, const std::vector<base::FilePath>&)>
-      RunFileChooserCallback;
+  using RunFileChooserCallback =
+      base::OnceCallback<void(int, const std::vector<base::FilePath>&)>;
 
   // Display the file chooser dialog. Execute |callback| on completion.
   virtual void Run(AlloyBrowserHostImpl* browser,
@@ -42,11 +45,8 @@ class CefFileDialogRunner {
   // Allow deletion via std::unique_ptr only.
   friend std::default_delete<CefFileDialogRunner>;
 
-  CefFileDialogRunner() {}
-  virtual ~CefFileDialogRunner() {}
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefFileDialogRunner);
+  CefFileDialogRunner() = default;
+  virtual ~CefFileDialogRunner() = default;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_FILE_DIALOG_RUNNER_H_

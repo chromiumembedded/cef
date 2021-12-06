@@ -70,6 +70,10 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
                  int browser_id,
                  bool is_popup,
                  bool is_windowless);
+
+  CefBrowserImpl(const CefBrowserImpl&) = delete;
+  CefBrowserImpl& operator=(const CefBrowserImpl&) = delete;
+
   ~CefBrowserImpl() override;
 
   // Returns the matching CefFrameImpl reference or creates a new one.
@@ -98,12 +102,12 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
   bool is_windowless_;
 
   // Map of unique frame ids to CefFrameImpl references.
-  typedef std::map<int64, CefRefPtr<CefFrameImpl>> FrameMap;
+  using FrameMap = std::map<int64, CefRefPtr<CefFrameImpl>>;
   FrameMap frames_;
 
   // Map of unique frame ids to CefTrackManager objects that need to be cleaned
   // up when the frame is deleted.
-  typedef std::map<int64, CefRefPtr<CefTrackManager>> FrameObjectMap;
+  using FrameObjectMap = std::map<int64, CefRefPtr<CefTrackManager>>;
   FrameObjectMap frame_objects_;
 
   struct LoadingState {
@@ -124,7 +128,6 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
   std::unique_ptr<LoadingState> last_loading_state_;
 
   IMPLEMENT_REFCOUNTING(CefBrowserImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefBrowserImpl);
 };
 
 #endif  // CEF_LIBCEF_RENDERER_BROWSER_IMPL_H_

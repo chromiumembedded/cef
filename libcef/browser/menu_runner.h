@@ -8,8 +8,6 @@
 #include <memory>
 #include <string>
 
-#include "base/macros.h"
-
 namespace content {
 struct ContextMenuParams;
 }
@@ -20,6 +18,9 @@ class CefMenuModelImpl;
 // Provides platform-specific menu implementations for CefMenuCreator.
 class CefMenuRunner {
  public:
+  CefMenuRunner(const CefMenuRunner&) = delete;
+  CefMenuRunner& operator=(const CefMenuRunner&) = delete;
+
   virtual bool RunContextMenu(AlloyBrowserHostImpl* browser,
                               CefMenuModelImpl* model,
                               const content::ContextMenuParams& params) = 0;
@@ -30,10 +31,8 @@ class CefMenuRunner {
   // Allow deletion via std::unique_ptr only.
   friend std::default_delete<CefMenuRunner>;
 
-  CefMenuRunner() {}
-  virtual ~CefMenuRunner() {}
-
-  DISALLOW_COPY_AND_ASSIGN(CefMenuRunner);
+  CefMenuRunner() = default;
+  virtual ~CefMenuRunner() = default;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_MENU_RUNNER_H_

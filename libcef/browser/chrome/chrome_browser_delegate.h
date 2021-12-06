@@ -41,6 +41,10 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
  public:
   ChromeBrowserDelegate(Browser* browser,
                         const CefBrowserCreateParams& create_params);
+
+  ChromeBrowserDelegate(const ChromeBrowserDelegate&) = delete;
+  ChromeBrowserDelegate& operator=(const ChromeBrowserDelegate&) = delete;
+
   ~ChromeBrowserDelegate() override;
 
   // cef::BrowserDelegate methods:
@@ -105,8 +109,6 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
 
   // Used when creating a new browser host.
   const CefBrowserCreateParams create_params_;
-
-  DISALLOW_COPY_AND_ASSIGN(ChromeBrowserDelegate);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_CHROME_BROWSER_DELEGATE_H_

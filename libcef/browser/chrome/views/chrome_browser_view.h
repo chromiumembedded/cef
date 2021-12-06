@@ -32,6 +32,9 @@ class ChromeBrowserView
   ChromeBrowserView(CefBrowserViewDelegate* cef_delegate,
                     Delegate* browser_view_delegate);
 
+  ChromeBrowserView(const ChromeBrowserView&) = delete;
+  ChromeBrowserView& operator=(const ChromeBrowserView&) = delete;
+
   // Called by ChromeBrowserHostImpl.
   void InitBrowser(std::unique_ptr<Browser> browser,
                    CefRefPtr<CefBrowserView> browser_view);
@@ -59,8 +62,6 @@ class ChromeBrowserView
   bool destroyed_ = false;
 
   CefRefPtr<CefToolbarViewImpl> cef_toolbar_;
-
-  DISALLOW_COPY_AND_ASSIGN(ChromeBrowserView);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_VIEWS_CHROME_BROWSER_VIEW_H_

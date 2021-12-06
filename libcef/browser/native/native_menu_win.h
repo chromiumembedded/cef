@@ -11,7 +11,6 @@
 #include "libcef/browser/native/menu_wrapper.h"
 
 #include "base/compiler_specific.h"
-#include "base/macros.h"
 #include "base/memory/weak_ptr.h"
 #include "base/observer_list.h"
 
@@ -30,6 +29,10 @@ class CefNativeMenuWin : public MenuWrapper {
   // for that window.
   // The caller owns the model and the delegate.
   CefNativeMenuWin(ui::MenuModel* model, HWND system_menu_for);
+
+  CefNativeMenuWin(const CefNativeMenuWin&) = delete;
+  CefNativeMenuWin& operator=(const CefNativeMenuWin&) = delete;
+
   ~CefNativeMenuWin() override;
 
   // Overridden from MenuWrapper:
@@ -118,7 +121,7 @@ class CefNativeMenuWin : public MenuWrapper {
   // An object that collects all of the data associated with an individual menu
   // item.
   struct ItemData;
-  typedef std::vector<std::unique_ptr<ItemData>> ItemDataList;
+  using ItemDataList = std::vector<std::unique_ptr<ItemData>>;
   ItemDataList items_;
 
   // The window that receives notifications from the menu.
@@ -154,8 +157,6 @@ class CefNativeMenuWin : public MenuWrapper {
   // has a menu open, because our hook function that receives keyboard
   // events doesn't have a mechanism to get a user data pointer.
   static CefNativeMenuWin* open_native_menu_win_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefNativeMenuWin);
 };
 
 }  // namespace views

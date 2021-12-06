@@ -38,6 +38,11 @@ class CefGetExtensionLoadFileCallbackImpl
       CefExtensionFunctionDetails::LoadFileCallback callback)
       : file_(file), callback_(std::move(callback)) {}
 
+  CefGetExtensionLoadFileCallbackImpl(
+      const CefGetExtensionLoadFileCallbackImpl&) = delete;
+  CefGetExtensionLoadFileCallbackImpl& operator=(
+      const CefGetExtensionLoadFileCallbackImpl&) = delete;
+
   ~CefGetExtensionLoadFileCallbackImpl() {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
@@ -127,7 +132,6 @@ class CefGetExtensionLoadFileCallbackImpl
   CefExtensionFunctionDetails::LoadFileCallback callback_;
 
   IMPLEMENT_REFCOUNTING(CefGetExtensionLoadFileCallbackImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefGetExtensionLoadFileCallbackImpl);
 };
 
 }  // namespace

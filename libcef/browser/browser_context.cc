@@ -34,9 +34,13 @@ namespace {
 // Manages the global list of Impl instances.
 class ImplManager {
  public:
-  typedef std::vector<CefBrowserContext*> Vector;
+  using Vector = std::vector<CefBrowserContext*>;
 
   ImplManager() {}
+
+  ImplManager(const ImplManager&) = delete;
+  ImplManager& operator=(const ImplManager&) = delete;
+
   ~ImplManager() {
     DCHECK(all_.empty());
     DCHECK(map_.empty());
@@ -122,12 +126,10 @@ class ImplManager {
     return all_.end();
   }
 
-  typedef std::map<base::FilePath, CefBrowserContext*> PathMap;
+  using PathMap = std::map<base::FilePath, CefBrowserContext*>;
   PathMap map_;
 
   Vector all_;
-
-  DISALLOW_COPY_AND_ASSIGN(ImplManager);
 };
 
 #if DCHECK_IS_ON()

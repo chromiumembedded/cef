@@ -14,6 +14,9 @@ class CefWaitableEventImpl : public CefWaitableEvent {
  public:
   CefWaitableEventImpl(bool automatic_reset, bool initially_signaled);
 
+  CefWaitableEventImpl(const CefWaitableEventImpl&) = delete;
+  CefWaitableEventImpl& operator=(const CefWaitableEventImpl&) = delete;
+
   // CefWaitableEvent methods:
   void Reset() override;
   void Signal() override;
@@ -25,7 +28,6 @@ class CefWaitableEventImpl : public CefWaitableEvent {
   base::WaitableEvent event_;
 
   IMPLEMENT_REFCOUNTING(CefWaitableEventImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefWaitableEventImpl);
 };
 
 #endif  // CEF_LIBCEF_COMMON_WAITABLE_EVENT_IMPL_H_

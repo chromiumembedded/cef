@@ -17,6 +17,9 @@ class CefMediaRouteImpl : public CefMediaRoute {
   CefMediaRouteImpl(const media_router::MediaRoute& route,
                     const CefBrowserContext::Getter& browser_context_getter);
 
+  CefMediaRouteImpl(const CefMediaRouteImpl&) = delete;
+  CefMediaRouteImpl& operator=(const CefMediaRouteImpl&) = delete;
+
   // CefMediaRoute methods.
   CefString GetId() override;
   CefRefPtr<CefMediaSource> GetSource() override;
@@ -34,7 +37,6 @@ class CefMediaRouteImpl : public CefMediaRoute {
   const CefBrowserContext::Getter browser_context_getter_;
 
   IMPLEMENT_REFCOUNTING(CefMediaRouteImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefMediaRouteImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_MEDIA_ROUTER_MEDIA_ROUTE_IMPL_H_

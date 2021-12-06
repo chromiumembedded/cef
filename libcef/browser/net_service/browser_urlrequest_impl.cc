@@ -60,6 +60,10 @@ bool IsValidRequestID(int32_t request_id) {
 class RequestManager {
  public:
   RequestManager() {}
+
+  RequestManager(const RequestManager&) = delete;
+  RequestManager& operator=(const RequestManager&) = delete;
+
   ~RequestManager() { DCHECK(map_.empty()); }
 
   void Add(int32_t request_id,
@@ -99,8 +103,6 @@ class RequestManager {
 
   using RequestMap = std::map<int32_t, CefBrowserURLRequest::RequestInfo>;
   RequestMap map_;
-
-  DISALLOW_COPY_AND_ASSIGN(RequestManager);
 };
 
 #if DCHECK_IS_ON()

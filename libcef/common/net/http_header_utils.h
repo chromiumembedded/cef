@@ -13,7 +13,7 @@
 
 namespace HttpHeaderUtils {
 
-typedef std::multimap<CefString, CefString> HeaderMap;
+using HeaderMap = std::multimap<CefString, CefString>;
 
 std::string GenerateHeaders(const HeaderMap& map);
 void ParseHeaders(const std::string& header_str, HeaderMap& map);

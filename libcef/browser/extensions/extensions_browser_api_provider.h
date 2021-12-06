@@ -5,7 +5,6 @@
 #ifndef CEF_LIBCEF_BROWSER_EXTENSIONS_EXTENSIONS_BROWSER_API_PROVIDER_H_
 #define CEF_LIBCEF_BROWSER_EXTENSIONS_EXTENSIONS_BROWSER_API_PROVIDER_H_
 
-#include "base/macros.h"
 #include "extensions/browser/extensions_browser_api_provider.h"
 
 namespace extensions {
@@ -13,12 +12,15 @@ namespace extensions {
 class CefExtensionsBrowserAPIProvider : public ExtensionsBrowserAPIProvider {
  public:
   CefExtensionsBrowserAPIProvider();
+
+  CefExtensionsBrowserAPIProvider(const CefExtensionsBrowserAPIProvider&) =
+      delete;
+  CefExtensionsBrowserAPIProvider& operator=(
+      const CefExtensionsBrowserAPIProvider&) = delete;
+
   ~CefExtensionsBrowserAPIProvider() override;
 
   void RegisterExtensionFunctions(ExtensionFunctionRegistry* registry) override;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefExtensionsBrowserAPIProvider);
 };
 
 }  // namespace extensions

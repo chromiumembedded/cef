@@ -12,7 +12,6 @@
 #include "base/bind.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
-#include "base/macros.h"
 #include "base/memory/ptr_util.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/stringprintf.h"
@@ -44,6 +43,9 @@ class TCPServerSocketFactory : public content::DevToolsSocketFactory {
   TCPServerSocketFactory(const std::string& address, uint16_t port)
       : address_(address), port_(port) {}
 
+  TCPServerSocketFactory(const TCPServerSocketFactory&) = delete;
+  TCPServerSocketFactory& operator=(const TCPServerSocketFactory&) = delete;
+
  private:
   // content::DevToolsSocketFactory.
   std::unique_ptr<net::ServerSocket> CreateForHttpServer() override {
@@ -61,8 +63,6 @@ class TCPServerSocketFactory : public content::DevToolsSocketFactory {
 
   std::string address_;
   uint16_t port_;
-
-  DISALLOW_COPY_AND_ASSIGN(TCPServerSocketFactory);
 };
 
 std::unique_ptr<content::DevToolsSocketFactory> CreateSocketFactory() {

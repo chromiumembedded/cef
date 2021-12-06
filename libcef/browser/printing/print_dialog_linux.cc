@@ -35,6 +35,10 @@ class CefPrintDialogCallbackImpl : public CefPrintDialogCallback {
   explicit CefPrintDialogCallbackImpl(CefRefPtr<CefPrintDialogLinux> dialog)
       : dialog_(dialog) {}
 
+  CefPrintDialogCallbackImpl(const CefPrintDialogCallbackImpl&) = delete;
+  CefPrintDialogCallbackImpl& operator=(const CefPrintDialogCallbackImpl&) =
+      delete;
+
   void Continue(CefRefPtr<CefPrintSettings> settings) override {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (dialog_.get()) {
@@ -66,13 +70,15 @@ class CefPrintDialogCallbackImpl : public CefPrintDialogCallback {
   CefRefPtr<CefPrintDialogLinux> dialog_;
 
   IMPLEMENT_REFCOUNTING(CefPrintDialogCallbackImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefPrintDialogCallbackImpl);
 };
 
 class CefPrintJobCallbackImpl : public CefPrintJobCallback {
  public:
   explicit CefPrintJobCallbackImpl(CefRefPtr<CefPrintDialogLinux> dialog)
       : dialog_(dialog) {}
+
+  CefPrintJobCallbackImpl(const CefPrintJobCallbackImpl&) = delete;
+  CefPrintJobCallbackImpl& operator=(const CefPrintJobCallbackImpl&) = delete;
 
   void Continue() override {
     if (CEF_CURRENTLY_ON_UIT()) {
@@ -92,7 +98,6 @@ class CefPrintJobCallbackImpl : public CefPrintJobCallback {
   CefRefPtr<CefPrintDialogLinux> dialog_;
 
   IMPLEMENT_REFCOUNTING(CefPrintJobCallbackImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefPrintJobCallbackImpl);
 };
 
 // static

@@ -17,11 +17,13 @@ class ButtonPressedLock : public CefMenuButtonPressedLock {
   explicit ButtonPressedLock(views::MenuButton* menu_button)
       : pressed_lock_(menu_button->button_controller()) {}
 
+  ButtonPressedLock(const ButtonPressedLock&) = delete;
+  ButtonPressedLock& operator=(const ButtonPressedLock&) = delete;
+
  private:
   views::MenuButtonController::PressedLock pressed_lock_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(ButtonPressedLock);
-  DISALLOW_COPY_AND_ASSIGN(ButtonPressedLock);
 };
 
 }  // namespace

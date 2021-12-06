@@ -44,6 +44,10 @@ class CefBrowserPlatformDelegate;
 class CefBrowserInfoManager : public content::RenderProcessHostObserver {
  public:
   CefBrowserInfoManager();
+
+  CefBrowserInfoManager(const CefBrowserInfoManager&) = delete;
+  CefBrowserInfoManager& operator=(const CefBrowserInfoManager&) = delete;
+
   ~CefBrowserInfoManager() override;
 
   // Returns this singleton instance of this class.
@@ -232,8 +236,6 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   PendingPopupList pending_popup_list_;
 
   int next_timeout_id_ = 0;
-
-  DISALLOW_COPY_AND_ASSIGN(CefBrowserInfoManager);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_INFO_H_

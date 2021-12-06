@@ -35,6 +35,10 @@ class StreamCreatedCallbackAdapter final
     DCHECK(callback_);
   }
 
+  StreamCreatedCallbackAdapter(const StreamCreatedCallbackAdapter&) = delete;
+  StreamCreatedCallbackAdapter& operator=(const StreamCreatedCallbackAdapter&) =
+      delete;
+
   ~StreamCreatedCallbackAdapter() override {}
 
   // blink::mojom::RendererAudioInputStreamFactoryClient implementation.
@@ -52,8 +56,6 @@ class StreamCreatedCallbackAdapter final
 
  private:
   const CefAudioLoopbackStreamCreator::StreamCreatedCallback callback_;
-
-  DISALLOW_COPY_AND_ASSIGN(StreamCreatedCallbackAdapter);
 };
 
 void CreateLoopbackStreamHelper(

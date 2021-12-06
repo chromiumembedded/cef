@@ -9,7 +9,6 @@
 #include <memory>
 
 #include "base/compiler_specific.h"
-#include "base/macros.h"
 #include "base/memory/ref_counted.h"
 #include "extensions/browser/api/storage/settings_storage_quota_enforcer.h"
 #include "extensions/browser/api/storage/value_store_cache.h"
@@ -28,6 +27,10 @@ class SyncValueStoreCache : public ValueStoreCache {
  public:
   explicit SyncValueStoreCache(
       scoped_refptr<value_store::ValueStoreFactory> factory);
+
+  SyncValueStoreCache(const SyncValueStoreCache&) = delete;
+  SyncValueStoreCache& operator=(const SyncValueStoreCache&) = delete;
+
   ~SyncValueStoreCache() override;
 
   // ValueStoreCache implementation:
@@ -50,8 +53,6 @@ class SyncValueStoreCache : public ValueStoreCache {
 
   // The collection of ValueStores for local storage.
   StorageMap storage_map_;
-
-  DISALLOW_COPY_AND_ASSIGN(SyncValueStoreCache);
 };
 
 }  // namespace cef

@@ -6,7 +6,6 @@
 #define CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_MANAGER_DELEGATE_H_
 
 #include "base/compiler_specific.h"
-#include "base/macros.h"
 #include "content/public/browser/devtools_manager_delegate.h"
 
 namespace content {
@@ -19,6 +18,11 @@ class CefDevToolsManagerDelegate : public content::DevToolsManagerDelegate {
   static void StopHttpHandler();
 
   CefDevToolsManagerDelegate();
+
+  CefDevToolsManagerDelegate(const CefDevToolsManagerDelegate&) = delete;
+  CefDevToolsManagerDelegate& operator=(const CefDevToolsManagerDelegate&) =
+      delete;
+
   ~CefDevToolsManagerDelegate() override;
 
   // DevToolsManagerDelegate implementation.
@@ -26,9 +30,6 @@ class CefDevToolsManagerDelegate : public content::DevToolsManagerDelegate {
       const GURL& url) override;
   std::string GetDiscoveryPageHTML() override;
   bool HasBundledFrontendResources() override;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefDevToolsManagerDelegate);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_MANAGER_DELEGATE_H_

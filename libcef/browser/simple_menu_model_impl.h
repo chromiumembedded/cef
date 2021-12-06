@@ -36,6 +36,10 @@ class CefSimpleMenuModelImpl : public CefMenuModel {
                          StateDelegate* state_delegate,
                          bool is_owned,
                          bool is_submenu);
+
+  CefSimpleMenuModelImpl(const CefSimpleMenuModelImpl&) = delete;
+  CefSimpleMenuModelImpl& operator=(const CefSimpleMenuModelImpl&) = delete;
+
   ~CefSimpleMenuModelImpl() override;
 
   // Must be called before the object is deleted.
@@ -160,7 +164,6 @@ class CefSimpleMenuModelImpl : public CefMenuModel {
   SubMenuMap submenumap_;
 
   IMPLEMENT_REFCOUNTING(CefSimpleMenuModelImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefSimpleMenuModelImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_SIMPLE_MENU_MODEL_IMPL_H_

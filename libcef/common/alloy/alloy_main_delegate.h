@@ -36,6 +36,10 @@ class AlloyMainDelegate : public content::ContentMainDelegate,
   AlloyMainDelegate(CefMainRunnerHandler* runner,
                     CefSettings* settings,
                     CefRefPtr<CefApp> application);
+
+  AlloyMainDelegate(const AlloyMainDelegate&) = delete;
+  AlloyMainDelegate& operator=(const AlloyMainDelegate&) = delete;
+
   ~AlloyMainDelegate() override;
 
   // content::ContentMainDelegate overrides.
@@ -88,8 +92,6 @@ class AlloyMainDelegate : public content::ContentMainDelegate,
   AlloyContentClient content_client_;
 
   CefResourceBundleDelegate resource_bundle_delegate_;
-
-  DISALLOW_COPY_AND_ASSIGN(AlloyMainDelegate);
 };
 
 #endif  // CEF_LIBCEF_COMMON_ALLOY_ALLOY_MAIN_DELEGATE_H_

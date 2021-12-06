@@ -24,6 +24,9 @@ class CefWindowDelegateView : public views::WidgetDelegateView {
                         bool always_on_top,
                         base::RepeatingClosure on_bounds_changed);
 
+  CefWindowDelegateView(const CefWindowDelegateView&) = delete;
+  CefWindowDelegateView& operator=(const CefWindowDelegateView&) = delete;
+
   // Create the Widget and associated root window.
   void Init(gfx::AcceleratedWidget parent_widget,
             content::WebContents* web_contents,
@@ -47,8 +50,6 @@ class CefWindowDelegateView : public views::WidgetDelegateView {
   views::WebView* web_view_;
   bool always_on_top_;
   base::RepeatingClosure on_bounds_changed_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefWindowDelegateView);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NATIVE_WINDOW_DELEGATE_VIEW_H_

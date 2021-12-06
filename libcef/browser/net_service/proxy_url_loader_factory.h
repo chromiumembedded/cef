@@ -11,7 +11,6 @@
 #include "base/callback.h"
 #include "base/containers/unique_ptr_adapters.h"
 #include "base/hash/hash.h"
-#include "base/macros.h"
 #include "base/strings/string_piece.h"
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/browser/web_contents.h"
@@ -35,6 +34,11 @@ class ResourceContextData;
 class InterceptedRequestHandler {
  public:
   InterceptedRequestHandler();
+
+  InterceptedRequestHandler(const InterceptedRequestHandler&) = delete;
+  InterceptedRequestHandler& operator=(const InterceptedRequestHandler&) =
+      delete;
+
   virtual ~InterceptedRequestHandler();
 
   // Optionally modify |request| and execute |callback| to continue the request.
@@ -124,9 +128,6 @@ class InterceptedRequestHandler {
                               const network::ResourceRequest& request,
                               int error_code,
                               bool safebrowsing_hit) {}
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(InterceptedRequestHandler);
 };
 
 // URL Loader Factory that supports request/response interception, processing
@@ -137,6 +138,9 @@ class ProxyURLLoaderFactory
     : public network::mojom::URLLoaderFactory,
       public network::mojom::TrustedURLLoaderHeaderClient {
  public:
+  ProxyURLLoaderFactory(const ProxyURLLoaderFactory&) = delete;
+  ProxyURLLoaderFactory& operator=(const ProxyURLLoaderFactory&) = delete;
+
   ~ProxyURLLoaderFactory() override;
 
   // Create a proxy object on the UI thread.
@@ -216,8 +220,6 @@ class ProxyURLLoaderFactory
   std::map<int32_t, std::unique_ptr<InterceptedRequest>> requests_;
 
   base::WeakPtrFactory<ProxyURLLoaderFactory> weak_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(ProxyURLLoaderFactory);
 };
 
 }  // namespace net_service

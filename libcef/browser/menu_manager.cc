@@ -14,6 +14,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/logging.h"
+#include "base/macros.h"
 #include "cef/grit/cef_strings.h"
 #include "chrome/grit/generated_resources.h"
 #include "content/public/browser/render_frame_host.h"
@@ -35,10 +36,14 @@ const cef_event_flags_t kEmptyEventFlags = static_cast<cef_event_flags_t>(0);
 
 class CefRunContextMenuCallbackImpl : public CefRunContextMenuCallback {
  public:
-  typedef base::OnceCallback<void(int, cef_event_flags_t)> Callback;
+  using Callback = base::OnceCallback<void(int, cef_event_flags_t)>;
 
   explicit CefRunContextMenuCallbackImpl(Callback callback)
       : callback_(std::move(callback)) {}
+
+  CefRunContextMenuCallbackImpl(const CefRunContextMenuCallbackImpl&) = delete;
+  CefRunContextMenuCallbackImpl& operator=(
+      const CefRunContextMenuCallbackImpl&) = delete;
 
   ~CefRunContextMenuCallbackImpl() {
     if (!callback_.is_null()) {
@@ -82,7 +87,6 @@ class CefRunContextMenuCallbackImpl : public CefRunContextMenuCallback {
   Callback callback_;
 
   IMPLEMENT_REFCOUNTING(CefRunContextMenuCallbackImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefRunContextMenuCallbackImpl);
 };
 
 }  // namespace

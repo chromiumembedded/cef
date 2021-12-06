@@ -25,8 +25,8 @@ class CefWindowView
     : public CefPanelView<views::WidgetDelegateView, CefWindowDelegate>,
       public views::WidgetObserver {
  public:
-  typedef CefPanelView<views::WidgetDelegateView, CefWindowDelegate>
-      ParentClass;
+  using ParentClass =
+      CefPanelView<views::WidgetDelegateView, CefWindowDelegate>;
 
   class Delegate {
    public:
@@ -46,6 +46,9 @@ class CefWindowView
   // |cef_delegate| may be nullptr.
   // |window_delegate| must be non-nullptr.
   CefWindowView(CefWindowDelegate* cef_delegate, Delegate* window_delegate);
+
+  CefWindowView(const CefWindowView&) = delete;
+  CefWindowView& operator=(const CefWindowView&) = delete;
 
   // Create the Widget.
   void CreateWidget();
@@ -129,8 +132,6 @@ class CefWindowView
 
   // Hosts for overlay widgets.
   std::vector<std::unique_ptr<CefOverlayViewHost>> overlay_hosts_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefWindowView);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_WINDOW_VIEW_H_

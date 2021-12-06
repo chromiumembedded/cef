@@ -10,7 +10,6 @@
 
 #include "libcef/browser/request_context_impl.h"
 
-#include "base/macros.h"
 #include "chrome/browser/chrome_content_browser_client.h"
 
 class ChromeBrowserMainExtraPartsCef;
@@ -19,6 +18,11 @@ class ChromeBrowserMainExtraPartsCef;
 class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
  public:
   ChromeContentBrowserClientCef();
+
+  ChromeContentBrowserClientCef(const ChromeContentBrowserClientCef&) = delete;
+  ChromeContentBrowserClientCef& operator=(
+      const ChromeContentBrowserClientCef&) = delete;
+
   ~ChromeContentBrowserClientCef() override;
 
   // ChromeContentBrowserClient overrides.
@@ -114,8 +118,6 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
 
  private:
   ChromeBrowserMainExtraPartsCef* browser_main_parts_ = nullptr;
-
-  DISALLOW_COPY_AND_ASSIGN(ChromeContentBrowserClientCef);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_CHROME_CONTENT_BROWSER_CLIENT_CEF_

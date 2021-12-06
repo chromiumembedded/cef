@@ -36,6 +36,10 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
                x11::Window parent_xwindow,
                const gfx::Rect& bounds,
                const std::string& title);
+
+  CefWindowX11(const CefWindowX11&) = delete;
+  CefWindowX11& operator=(const CefWindowX11&) = delete;
+
   ~CefWindowX11() override;
 
   void Close();
@@ -88,8 +92,6 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
 
   // Must always be the last member.
   base::WeakPtrFactory<CefWindowX11> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefWindowX11);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NATIVE_WINDOW_X11_H_

@@ -58,6 +58,10 @@ class CefMenuModelImpl : public CefMenuModel {
   CefMenuModelImpl(Delegate* delegate,
                    CefRefPtr<CefMenuModelDelegate> menu_model_delegate,
                    bool is_submenu);
+
+  CefMenuModelImpl(const CefMenuModelImpl&) = delete;
+  CefMenuModelImpl& operator=(const CefMenuModelImpl&) = delete;
+
   ~CefMenuModelImpl() override;
 
   // CefMenuModel methods.
@@ -189,7 +193,7 @@ class CefMenuModelImpl : public CefMenuModel {
  private:
   struct Item;
 
-  typedef std::vector<Item> ItemVector;
+  using ItemVector = std::vector<Item>;
 
   // Functions for inserting items into |items_|.
   void AppendItem(const Item& item);
@@ -226,7 +230,6 @@ class CefMenuModelImpl : public CefMenuModel {
   bool auto_notify_menu_closed_ = true;
 
   IMPLEMENT_REFCOUNTING(CefMenuModelImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefMenuModelImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_MENU_MODEL_IMPL_H_

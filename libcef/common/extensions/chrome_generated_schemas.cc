@@ -6,7 +6,6 @@
 
 #include "libcef/browser/extensions/chrome_api_registration.h"
 
-#include "base/macros.h"
 #include "chrome/common/extensions/api/generated_schemas.h"
 
 namespace extensions {

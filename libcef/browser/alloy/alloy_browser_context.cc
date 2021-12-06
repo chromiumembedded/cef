@@ -55,6 +55,9 @@ class CefVisitedLinkListener : public visitedlink::VisitedLinkWriter::Listener {
  public:
   CefVisitedLinkListener() { DCHECK(listener_map_.empty()); }
 
+  CefVisitedLinkListener(const CefVisitedLinkListener&) = delete;
+  CefVisitedLinkListener& operator=(const CefVisitedLinkListener&) = delete;
+
   void CreateListenerForContext(content::BrowserContext* context) {
     CEF_REQUIRE_UIT();
     auto listener =
@@ -94,12 +97,10 @@ class CefVisitedLinkListener : public visitedlink::VisitedLinkWriter::Listener {
 
  private:
   // Map of AlloyBrowserContext to the associated VisitedLinkEventListener.
-  typedef std::map<const content::BrowserContext*,
-                   std::unique_ptr<visitedlink::VisitedLinkEventListener>>
-      ListenerMap;
+  using ListenerMap =
+      std::map<const content::BrowserContext*,
+               std::unique_ptr<visitedlink::VisitedLinkEventListener>>;
   ListenerMap listener_map_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefVisitedLinkListener);
 };
 
 AlloyBrowserContext::AlloyBrowserContext(

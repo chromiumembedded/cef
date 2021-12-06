@@ -12,7 +12,7 @@
 
 class CefToolbarViewView : public CefViewView<ToolbarView, CefViewDelegate> {
  public:
-  typedef CefViewView<ToolbarView, CefViewDelegate> ParentClass;
+  using ParentClass = CefViewView<ToolbarView, CefViewDelegate>;
 
   // |cef_delegate| may be nullptr.
   explicit CefToolbarViewView(CefViewDelegate* cef_delegate,
@@ -20,8 +20,8 @@ class CefToolbarViewView : public CefViewView<ToolbarView, CefViewDelegate> {
                               BrowserView* browser_view,
                               absl::optional<DisplayMode> display_mode);
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefToolbarViewView);
+  CefToolbarViewView(const CefToolbarViewView&) = delete;
+  CefToolbarViewView& operator=(const CefToolbarViewView&) = delete;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_VIEWS_TOOLBAR_VIEW_VIEW_H_

@@ -33,6 +33,9 @@ class CefSimpleMenuModel : public ui::MenuModel {
   // disabled.
   explicit CefSimpleMenuModel(CefMenuModelImpl* impl) : impl_(impl) {}
 
+  CefSimpleMenuModel(const CefSimpleMenuModel&) = delete;
+  CefSimpleMenuModel& operator=(const CefSimpleMenuModel&) = delete;
+
   // MenuModel methods.
   bool HasIcons() const override { return false; }
 
@@ -165,8 +168,6 @@ class CefSimpleMenuModel : public ui::MenuModel {
 
  private:
   CefMenuModelImpl* impl_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefSimpleMenuModel);
 };
 
 cef_menu_color_type_t GetMenuColorType(bool is_text,

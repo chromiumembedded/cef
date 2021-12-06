@@ -27,6 +27,10 @@ class CefMenuManager : public CefMenuModelImpl::Delegate,
  public:
   CefMenuManager(AlloyBrowserHostImpl* browser,
                  std::unique_ptr<CefMenuRunner> runner);
+
+  CefMenuManager(const CefMenuManager&) = delete;
+  CefMenuManager& operator=(const CefMenuManager&) = delete;
+
   ~CefMenuManager() override;
 
   // Delete the runner to free any platform constructs.
@@ -72,8 +76,6 @@ class CefMenuManager : public CefMenuModelImpl::Delegate,
 
   // Must be the last member.
   base::WeakPtrFactory<CefMenuManager> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefMenuManager);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_MENU_MANAGER_H_

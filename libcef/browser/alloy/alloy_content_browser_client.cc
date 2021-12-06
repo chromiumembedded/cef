@@ -47,6 +47,7 @@
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/json/json_reader.h"
+#include "base/macros.h"
 #include "base/path_service.h"
 #include "base/stl_util.h"
 #include "base/threading/thread_restrictions.h"
@@ -176,6 +177,9 @@ class CefQuotaCallbackImpl : public CefCallback {
   explicit CefQuotaCallbackImpl(CallbackType callback)
       : callback_(std::move(callback)) {}
 
+  CefQuotaCallbackImpl(const CefQuotaCallbackImpl&) = delete;
+  CefQuotaCallbackImpl& operator=(const CefQuotaCallbackImpl&) = delete;
+
   ~CefQuotaCallbackImpl() {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
@@ -217,16 +221,20 @@ class CefQuotaCallbackImpl : public CefCallback {
   CallbackType callback_;
 
   IMPLEMENT_REFCOUNTING(CefQuotaCallbackImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefQuotaCallbackImpl);
 };
 
 class CefAllowCertificateErrorCallbackImpl : public CefCallback {
  public:
-  typedef base::OnceCallback<void(content::CertificateRequestResultType)>
-      CallbackType;
+  using CallbackType =
+      base::OnceCallback<void(content::CertificateRequestResultType)>;
 
   explicit CefAllowCertificateErrorCallbackImpl(CallbackType callback)
       : callback_(std::move(callback)) {}
+
+  CefAllowCertificateErrorCallbackImpl(
+      const CefAllowCertificateErrorCallbackImpl&) = delete;
+  CefAllowCertificateErrorCallbackImpl& operator=(
+      const CefAllowCertificateErrorCallbackImpl&) = delete;
 
   ~CefAllowCertificateErrorCallbackImpl() {
     if (!callback_.is_null()) {
@@ -272,7 +280,6 @@ class CefAllowCertificateErrorCallbackImpl : public CefCallback {
   CallbackType callback_;
 
   IMPLEMENT_REFCOUNTING(CefAllowCertificateErrorCallbackImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefAllowCertificateErrorCallbackImpl);
 };
 
 class CefSelectClientCertificateCallbackImpl
@@ -281,6 +288,11 @@ class CefSelectClientCertificateCallbackImpl
   explicit CefSelectClientCertificateCallbackImpl(
       std::unique_ptr<content::ClientCertificateDelegate> delegate)
       : delegate_(std::move(delegate)) {}
+
+  CefSelectClientCertificateCallbackImpl(
+      const CefSelectClientCertificateCallbackImpl&) = delete;
+  CefSelectClientCertificateCallbackImpl& operator=(
+      const CefSelectClientCertificateCallbackImpl&) = delete;
 
   ~CefSelectClientCertificateCallbackImpl() {
     // If Select has not been called, call it with NULL to continue without any
@@ -342,12 +354,15 @@ class CefSelectClientCertificateCallbackImpl
   std::unique_ptr<content::ClientCertificateDelegate> delegate_;
 
   IMPLEMENT_REFCOUNTING(CefSelectClientCertificateCallbackImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefSelectClientCertificateCallbackImpl);
 };
 
 class CefQuotaPermissionContext : public content::QuotaPermissionContext {
  public:
-  CefQuotaPermissionContext() {}
+  CefQuotaPermissionContext() = default;
+
+  CefQuotaPermissionContext(const CefQuotaPermissionContext&) = delete;
+  CefQuotaPermissionContext& operator=(const CefQuotaPermissionContext&) =
+      delete;
 
   // The callback will be dispatched on the IO thread.
   void RequestQuotaPermission(const content::StorageQuotaParams& params,
@@ -389,9 +404,7 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
   }
 
  private:
-  ~CefQuotaPermissionContext() override {}
-
-  DISALLOW_COPY_AND_ASSIGN(CefQuotaPermissionContext);
+  ~CefQuotaPermissionContext() override = default;
 };
 
 #if defined(OS_POSIX) && !defined(OS_MAC)

@@ -20,6 +20,10 @@ class CefFrameImpl;
 class CefRenderFrameObserver : public content::RenderFrameObserver {
  public:
   explicit CefRenderFrameObserver(content::RenderFrame* render_frame);
+
+  CefRenderFrameObserver(const CefRenderFrameObserver&) = delete;
+  CefRenderFrameObserver& operator=(const CefRenderFrameObserver&) = delete;
+
   ~CefRenderFrameObserver() override;
 
   // RenderFrameObserver methods:
@@ -60,8 +64,6 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
   // meaning that messages on the interface retain FIFO with respect to legacy
   // Chrome IPC messages sent or dispatched on the channel.
   blink::AssociatedInterfaceRegistry associated_interfaces_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefRenderFrameObserver);
 };
 
 #endif  // LIBCEF_RENDERER_RENDER_FRAME_OBSERVER_H_

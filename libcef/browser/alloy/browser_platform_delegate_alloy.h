@@ -16,6 +16,11 @@
 // Implementation of Alloy-based browser functionality.
 class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
  public:
+  CefBrowserPlatformDelegateAlloy(const CefBrowserPlatformDelegateAlloy&) =
+      delete;
+  CefBrowserPlatformDelegateAlloy& operator=(
+      const CefBrowserPlatformDelegateAlloy&) = delete;
+
   content::WebContents* CreateWebContents(CefBrowserCreateParams& create_params,
                                           bool& own_web_contents) override;
   void WebContentsCreated(content::WebContents* web_contents,
@@ -108,8 +113,6 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
   bool primary_ = true;
 
   base::WeakPtrFactory<CefBrowserPlatformDelegateAlloy> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefBrowserPlatformDelegateAlloy);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_ALLOY_BROWSER_PLATFORM_DELEGATE_ALLOY_H_

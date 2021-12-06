@@ -17,6 +17,9 @@ class CefSchemeRegistrarImpl : public CefSchemeRegistrar {
  public:
   CefSchemeRegistrarImpl();
 
+  CefSchemeRegistrarImpl(const CefSchemeRegistrarImpl&) = delete;
+  CefSchemeRegistrarImpl& operator=(const CefSchemeRegistrarImpl&) = delete;
+
   // CefSchemeRegistrar methods.
   bool AddCustomScheme(const CefString& scheme_name, int options) override;
 
@@ -25,8 +28,6 @@ class CefSchemeRegistrarImpl : public CefSchemeRegistrar {
  private:
   content::ContentClient::Schemes schemes_;
   std::set<std::string> registered_schemes_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefSchemeRegistrarImpl);
 };
 
 #endif  // CEF_LIBCEF_COMMON_SCHEME_REGISTRAR_IMPL_H_

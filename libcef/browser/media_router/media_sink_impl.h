@@ -18,6 +18,9 @@ class CefMediaSinkImpl : public CefMediaSink {
                    const std::string& sink_name,
                    media_router::mojom::MediaRouteProviderId provider_id);
 
+  CefMediaSinkImpl(const CefMediaSinkImpl&) = delete;
+  CefMediaSinkImpl& operator=(const CefMediaSinkImpl&) = delete;
+
   // CefMediaSink methods.
   CefString GetId() override;
   CefString GetName() override;
@@ -36,7 +39,6 @@ class CefMediaSinkImpl : public CefMediaSink {
   const media_router::MediaSink sink_;
 
   IMPLEMENT_REFCOUNTING(CefMediaSinkImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefMediaSinkImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_MEDIA_ROUTER_MEDIA_SINK_IMPL_H_

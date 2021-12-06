@@ -18,6 +18,12 @@ class CefSpeechRecognitionManagerDelegate
       public content::SpeechRecognitionEventListener {
  public:
   CefSpeechRecognitionManagerDelegate();
+
+  CefSpeechRecognitionManagerDelegate(
+      const CefSpeechRecognitionManagerDelegate&) = delete;
+  CefSpeechRecognitionManagerDelegate& operator=(
+      const CefSpeechRecognitionManagerDelegate&) = delete;
+
   ~CefSpeechRecognitionManagerDelegate() override;
 
  protected:
@@ -50,8 +56,6 @@ class CefSpeechRecognitionManagerDelegate
 
  private:
   bool filter_profanities_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefSpeechRecognitionManagerDelegate);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_SPEECH_RECOGNITION_MANAGER_DELEGATE_H_

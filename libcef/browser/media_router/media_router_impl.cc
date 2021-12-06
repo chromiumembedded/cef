@@ -31,6 +31,9 @@ class CefRegistrationImpl : public CefRegistration,
     DCHECK(observer_);
   }
 
+  CefRegistrationImpl(const CefRegistrationImpl&) = delete;
+  CefRegistrationImpl& operator=(const CefRegistrationImpl&) = delete;
+
   ~CefRegistrationImpl() override {
     CEF_REQUIRE_UIT();
 
@@ -132,7 +135,6 @@ class CefRegistrationImpl : public CefRegistration,
   CefBrowserContext::Getter browser_context_getter_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefRegistrationImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefRegistrationImpl);
 };
 
 CefMediaRouterImpl::CefMediaRouterImpl() {

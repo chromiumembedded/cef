@@ -8,7 +8,6 @@
 #include "include/internal/cef_types_wrappers.h"
 
 #include "base/callback_forward.h"
-#include "base/macros.h"
 #include "chrome/browser/printing/print_view_manager.h"
 #include "components/printing/common/print.mojom-forward.h"
 #include "content/public/browser/web_contents_observer.h"
@@ -29,6 +28,9 @@ namespace printing {
 class CefPrintViewManager : public PrintViewManager,
                             public mojom::PrintPreviewUI {
  public:
+  CefPrintViewManager(const CefPrintViewManager&) = delete;
+  CefPrintViewManager& operator=(const CefPrintViewManager&) = delete;
+
   ~CefPrintViewManager() override;
 
   static void BindPrintManagerHost(
@@ -36,7 +38,7 @@ class CefPrintViewManager : public PrintViewManager,
       content::RenderFrameHost* rfh);
 
   // Callback executed on PDF printing completion.
-  typedef base::OnceCallback<void(bool /*ok*/)> PdfPrintCallback;
+  using PdfPrintCallback = base::OnceCallback<void(bool /*ok*/)>;
 
   // Print the current document to a PDF file. Execute |callback| on completion.
   bool PrintToPDF(content::RenderFrameHost* rfh,
@@ -98,8 +100,6 @@ class CefPrintViewManager : public PrintViewManager,
   struct PdfPrintState;
   std::unique_ptr<PdfPrintState> pdf_print_state_;
   mojo::AssociatedReceiver<mojom::PrintPreviewUI> pdf_print_receiver_{this};
-
-  DISALLOW_COPY_AND_ASSIGN(CefPrintViewManager);
 };
 
 }  // namespace printing

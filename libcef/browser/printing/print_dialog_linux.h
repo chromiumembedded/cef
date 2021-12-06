@@ -30,6 +30,9 @@ class CefPrintDialogLinux : public printing::PrintDialogGtkInterface,
                                 CefPrintDialogLinux,
                                 content::BrowserThread::DeleteOnUIThread> {
  public:
+  CefPrintDialogLinux(const CefPrintDialogLinux&) = delete;
+  CefPrintDialogLinux& operator=(const CefPrintDialogLinux&) = delete;
+
   // Creates and returns a print dialog.
   static printing::PrintDialogGtkInterface* CreatePrintDialog(
       PrintingContextLinux* context);
@@ -90,8 +93,6 @@ class CefPrintDialogLinux : public printing::PrintDialogGtkInterface,
   CefRefPtr<CefBrowserHostBase> browser_;
 
   base::FilePath path_to_pdf_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefPrintDialogLinux);
 };
 
 #endif  // LIBCEF_BROWSER_PRINTING_PRINT_DIALOG_LINUX_H_

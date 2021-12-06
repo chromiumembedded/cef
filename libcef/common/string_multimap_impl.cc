@@ -8,7 +8,9 @@
 
 #include "base/logging.h"
 
-typedef std::multimap<CefString, CefString> StringMultimap;
+namespace {
+using StringMultimap = std::multimap<CefString, CefString>;
+}  // namespace
 
 CEF_EXPORT cef_string_multimap_t cef_string_multimap_alloc() {
   return new StringMultimap;

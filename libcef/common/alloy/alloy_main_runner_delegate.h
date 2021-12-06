@@ -21,6 +21,10 @@ class AlloyMainRunnerDelegate : public CefMainRunnerDelegate {
   AlloyMainRunnerDelegate(CefMainRunnerHandler* runner,
                           CefSettings* settings,
                           CefRefPtr<CefApp> application);
+
+  AlloyMainRunnerDelegate(const AlloyMainRunnerDelegate&) = delete;
+  AlloyMainRunnerDelegate& operator=(const AlloyMainRunnerDelegate&) = delete;
+
   ~AlloyMainRunnerDelegate() override;
 
  protected:
@@ -39,8 +43,6 @@ class AlloyMainRunnerDelegate : public CefMainRunnerDelegate {
   CefMainRunnerHandler* const runner_;
   CefSettings* const settings_;
   CefRefPtr<CefApp> application_;
-
-  DISALLOW_COPY_AND_ASSIGN(AlloyMainRunnerDelegate);
 };
 
 #endif  // CEF_LIBCEF_COMMON_ALLOY_ALLOY_MAIN_RUNNER_DELEGATE_

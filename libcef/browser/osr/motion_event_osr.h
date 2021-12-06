@@ -17,6 +17,10 @@
 class CefMotionEventOSR : public ui::MotionEventGeneric {
  public:
   CefMotionEventOSR();
+
+  CefMotionEventOSR(const CefMotionEventOSR&) = delete;
+  CefMotionEventOSR& operator=(const CefMotionEventOSR&) = delete;
+
   ~CefMotionEventOSR() override;
 
   int GetSourceDeviceId(size_t pointer_index) const override;
@@ -52,8 +56,6 @@ class CefMotionEventOSR : public ui::MotionEventGeneric {
   ui::PointerProperties GetPointerPropertiesFromTouchEvent(
       const CefTouchEvent& touch,
       int id);
-
-  DISALLOW_COPY_AND_ASSIGN(CefMotionEventOSR);
 };
 
 #endif

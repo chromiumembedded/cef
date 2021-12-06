@@ -174,7 +174,7 @@ class CefV8IsolateManager {
   v8::Isolate* isolate_;
   scoped_refptr<base::SingleThreadTaskRunner> task_runner_;
 
-  typedef std::map<int, scoped_refptr<CefV8ContextState>> ContextMap;
+  using ContextMap = std::map<int, scoped_refptr<CefV8ContextState>>;
   ContextMap context_map_;
 
   // Used for globally tracked objects that are not associated with a particular

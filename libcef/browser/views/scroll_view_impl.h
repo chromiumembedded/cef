@@ -15,8 +15,11 @@
 class CefScrollViewImpl
     : public CefViewImpl<CefScrollViewView, CefScrollView, CefViewDelegate> {
  public:
-  typedef CefViewImpl<CefScrollViewView, CefScrollView, CefViewDelegate>
-      ParentClass;
+  using ParentClass =
+      CefViewImpl<CefScrollViewView, CefScrollView, CefViewDelegate>;
+
+  CefScrollViewImpl(const CefScrollViewImpl&) = delete;
+  CefScrollViewImpl& operator=(const CefScrollViewImpl&) = delete;
 
   // Create a new CefScrollView instance. |delegate| may be nullptr.
   static CefRefPtr<CefScrollViewImpl> Create(
@@ -48,7 +51,6 @@ class CefScrollViewImpl
   void InitializeRootView() override;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefScrollViewImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefScrollViewImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_SCROLL_VIEW_IMPL_H_

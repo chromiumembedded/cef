@@ -8,7 +8,9 @@
 
 #include "base/logging.h"
 
-typedef std::map<CefString, CefString> StringMap;
+namespace {
+using StringMap = std::map<CefString, CefString>;
+}  // namespace
 
 CEF_EXPORT cef_string_map_t cef_string_map_alloc() {
   return new StringMap;

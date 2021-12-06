@@ -8,7 +8,6 @@
 
 #include <memory>
 
-#include "base/macros.h"
 #include "base/memory/scoped_refptr.h"
 #include "base/task/single_thread_task_runner.h"
 #include "chrome/renderer/chrome_content_renderer_client.h"
@@ -19,6 +18,12 @@ class CefRenderManager;
 class ChromeContentRendererClientCef : public ChromeContentRendererClient {
  public:
   ChromeContentRendererClientCef();
+
+  ChromeContentRendererClientCef(const ChromeContentRendererClientCef&) =
+      delete;
+  ChromeContentRendererClientCef& operator=(
+      const ChromeContentRendererClientCef&) = delete;
+
   ~ChromeContentRendererClientCef() override;
 
   // Render thread task runner.
@@ -43,8 +48,6 @@ class ChromeContentRendererClientCef : public ChromeContentRendererClient {
   std::unique_ptr<CefRenderManager> render_manager_;
 
   scoped_refptr<base::SingleThreadTaskRunner> render_task_runner_;
-
-  DISALLOW_COPY_AND_ASSIGN(ChromeContentRendererClientCef);
 };
 
 #endif  // CEF_LIBCEF_RENDERER_CHROME_CHROME_CONTENT_RENDERER_CLIENT_CEF_

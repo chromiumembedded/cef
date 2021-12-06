@@ -53,6 +53,11 @@ class AlloyContentRendererClient
       public base::CurrentThread::DestructionObserver {
  public:
   AlloyContentRendererClient();
+
+  AlloyContentRendererClient(const AlloyContentRendererClient&) = delete;
+  AlloyContentRendererClient& operator=(const AlloyContentRendererClient&) =
+      delete;
+
   ~AlloyContentRendererClient() override;
 
   // Returns the singleton AlloyContentRendererClient instance.
@@ -149,8 +154,6 @@ class AlloyContentRendererClient
   // Access must be protected by |single_process_cleanup_lock_|.
   bool single_process_cleanup_complete_ = false;
   base::Lock single_process_cleanup_lock_;
-
-  DISALLOW_COPY_AND_ASSIGN(AlloyContentRendererClient);
 };
 
 #endif  // CEF_LIBCEF_RENDERER_ALLOY_ALLOY_CONTENT_RENDERER_CLIENT_H_

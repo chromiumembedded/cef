@@ -28,7 +28,10 @@ class CefWindowImpl
       public CefWindowView::Delegate,
       public ui::AcceleratorTarget {
  public:
-  typedef CefPanelImpl<CefWindowView, CefWindow, CefWindowDelegate> ParentClass;
+  using ParentClass = CefPanelImpl<CefWindowView, CefWindow, CefWindowDelegate>;
+
+  CefWindowImpl(const CefWindowImpl&) = delete;
+  CefWindowImpl& operator=(const CefWindowImpl&) = delete;
 
   // Create a new CefWindow instance. |delegate| may be nullptr.
   static CefRefPtr<CefWindowImpl> Create(CefRefPtr<CefWindowDelegate> delegate);
@@ -150,7 +153,7 @@ class CefWindowImpl
   std::unique_ptr<views::MenuRunner> menu_runner_;
 
   // Map of command_id to accelerator.
-  typedef std::map<int, ui::Accelerator> AcceleratorMap;
+  using AcceleratorMap = std::map<int, ui::Accelerator>;
   AcceleratorMap accelerator_map_;
 
 #if defined(USE_AURA)
@@ -159,7 +162,6 @@ class CefWindowImpl
 #endif
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefWindowImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefWindowImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_WINDOW_IMPL_H_

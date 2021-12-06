@@ -16,6 +16,9 @@ class CefMediaSourceImpl : public CefMediaSource {
   explicit CefMediaSourceImpl(const media_router::MediaSource::Id& source_id);
   explicit CefMediaSourceImpl(const GURL& presentation_url);
 
+  CefMediaSourceImpl(const CefMediaSourceImpl&) = delete;
+  CefMediaSourceImpl& operator=(const CefMediaSourceImpl&) = delete;
+
   // CefMediaSource methods.
   CefString GetId() override;
   bool IsCastSource() override;
@@ -28,7 +31,6 @@ class CefMediaSourceImpl : public CefMediaSource {
   const media_router::MediaSource source_;
 
   IMPLEMENT_REFCOUNTING(CefMediaSourceImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefMediaSourceImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_MEDIA_ROUTER_MEDIA_SOURCE_IMPL_H_

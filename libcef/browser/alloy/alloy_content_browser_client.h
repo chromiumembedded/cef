@@ -12,7 +12,6 @@
 #include "include/cef_request_context_handler.h"
 #include "libcef/browser/request_context_impl.h"
 
-#include "base/macros.h"
 #include "base/memory/ref_counted.h"
 #include "build/build_config.h"
 #include "content/public/browser/content_browser_client.h"

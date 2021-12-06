@@ -85,6 +85,9 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
   explicit ResolveHostHelper(CefRefPtr<CefResolveCallback> callback)
       : callback_(callback), receiver_(this) {}
 
+  ResolveHostHelper(const ResolveHostHelper&) = delete;
+  ResolveHostHelper& operator=(const ResolveHostHelper&) = delete;
+
   void Start(CefBrowserContext* browser_context, const CefString& origin) {
     CEF_REQUIRE_UIT();
 
@@ -129,8 +132,6 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
 
   mojo::Remote<network::mojom::HostResolver> host_resolver_;
   mojo::Receiver<network::mojom::ResolveHostClient> receiver_;
-
-  DISALLOW_COPY_AND_ASSIGN(ResolveHostHelper);
 };
 
 }  // namespace

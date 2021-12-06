@@ -12,7 +12,6 @@
 #include "include/views/cef_view.h"
 
 #include "base/compiler_specific.h"
-#include "base/macros.h"
 #include "ui/views/view_observer.h"
 #include "ui/views/widget/widget_delegate.h"
 
@@ -26,6 +25,9 @@ class CefOverlayViewHost : public views::WidgetDelegate,
   // |window_view| is the top-level view that contains this overlay.
   CefOverlayViewHost(CefWindowView* window_view,
                      cef_docking_mode_t docking_mode);
+
+  CefOverlayViewHost(const CefOverlayViewHost&) = delete;
+  CefOverlayViewHost& operator=(const CefOverlayViewHost&) = delete;
 
   // Initializes the CefOverlayViewHost. This creates the Widget that |view|
   // paints into. |host_view| is the view whose position in the |window_view_|
@@ -72,8 +74,6 @@ class CefOverlayViewHost : public views::WidgetDelegate,
   bool bounds_changing_ = false;
 
   CefInsets insets_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefOverlayViewHost);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_OVERLAY_VIEW_HOST_H_

@@ -52,10 +52,10 @@
 namespace {
 
 #if defined(OS_WIN)
-typedef std::wstring PathString;
+using PathString = std::wstring;
 const char kPathSep = '\\';
 #else
-typedef std::string PathString;
+using PathString = std::string;
 #endif
 
 PathString GetCrashConfigPath() {

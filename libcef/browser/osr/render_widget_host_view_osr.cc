@@ -81,6 +81,10 @@ class CefDelegatedFrameHostClient : public content::DelegatedFrameHostClient {
   explicit CefDelegatedFrameHostClient(CefRenderWidgetHostViewOSR* view)
       : view_(view) {}
 
+  CefDelegatedFrameHostClient(const CefDelegatedFrameHostClient&) = delete;
+  CefDelegatedFrameHostClient& operator=(const CefDelegatedFrameHostClient&) =
+      delete;
+
   ui::Layer* DelegatedFrameHostGetLayer() const override {
     return view_->GetRootLayer();
   }
@@ -122,8 +126,6 @@ class CefDelegatedFrameHostClient : public content::DelegatedFrameHostClient {
 
  private:
   CefRenderWidgetHostViewOSR* const view_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefDelegatedFrameHostClient);
 };
 
 ui::GestureProvider::Config CreateGestureProviderConfig() {

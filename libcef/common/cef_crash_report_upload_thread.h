@@ -5,7 +5,6 @@
 #ifndef CEF_LIBCEF_COMMON_CEF_CRASH_REPORT_UPLOAD_THREAD_H_
 #define CEF_LIBCEF_COMMON_CEF_CRASH_REPORT_UPLOAD_THREAD_H_
 
-#include "base/macros.h"
 #include "third_party/crashpad/crashpad/handler/crash_report_upload_thread.h"
 
 class CefCrashReportUploadThread : public crashpad::CrashReportUploadThread {
@@ -14,6 +13,11 @@ class CefCrashReportUploadThread : public crashpad::CrashReportUploadThread {
                              const std::string& url,
                              const Options& options,
                              int max_uploads);
+
+  CefCrashReportUploadThread(const CefCrashReportUploadThread&) = delete;
+  CefCrashReportUploadThread& operator=(const CefCrashReportUploadThread&) =
+      delete;
+
   ~CefCrashReportUploadThread();
 
  private:
@@ -37,8 +41,6 @@ class CefCrashReportUploadThread : public crashpad::CrashReportUploadThread {
   // Only used when RateLimitEnabled() is true. Value is reset each time
   // ProcessPendingReports() is called.
   int recent_upload_ct_ = 0;
-
-  DISALLOW_COPY_AND_ASSIGN(CefCrashReportUploadThread);
 };
 
 #endif  // CEF_LIBCEF_COMMON_CEF_CRASH_REPORT_UPLOAD_THREAD_H_

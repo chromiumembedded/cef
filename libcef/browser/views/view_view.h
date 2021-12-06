@@ -29,7 +29,7 @@
 // in view_impl.h for a usage overview.
 CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
  public:
-  typedef ViewsViewClass ParentClass;
+  using ParentClass = ViewsViewClass;
 
   // Should be created from CreateRootView() in a CefViewImpl-derived class.
   // Do not call complex views::View-derived methods from a CefViewView-derived

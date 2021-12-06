@@ -91,6 +91,9 @@ class Profile;
 // the UI thread unless otherwise indicated.
 class CefBrowserContext {
  public:
+  CefBrowserContext(const CefBrowserContext&) = delete;
+  CefBrowserContext& operator=(const CefBrowserContext&) = delete;
+
   // Returns the existing instance, if any, associated with the specified
   // |cache_path|.
   static CefBrowserContext* FromCachePath(const base::FilePath& cache_path);
@@ -226,7 +229,7 @@ class CefBrowserContext {
   CefRequestContextHandlerMap handler_map_;
 
   // Set of global IDs associated with this context.
-  typedef std::set<content::GlobalRenderFrameHostId> RenderIdSet;
+  using RenderIdSet = std::set<content::GlobalRenderFrameHostId>;
   RenderIdSet render_id_set_;
 
 #if DCHECK_IS_ON()
@@ -235,8 +238,6 @@ class CefBrowserContext {
 
   Getter getter_;
   base::WeakPtrFactory<CefBrowserContext> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefBrowserContext);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_CONTEXT_IMPL_H_

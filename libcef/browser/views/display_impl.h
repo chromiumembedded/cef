@@ -14,6 +14,10 @@
 class CefDisplayImpl : public CefDisplay {
  public:
   explicit CefDisplayImpl(const display::Display& display);
+
+  CefDisplayImpl(const CefDisplayImpl&) = delete;
+  CefDisplayImpl& operator=(const CefDisplayImpl&) = delete;
+
   ~CefDisplayImpl() override;
 
   // CefDisplay methods:
@@ -31,7 +35,6 @@ class CefDisplayImpl : public CefDisplay {
   display::Display display_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefDisplayImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefDisplayImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_DISPLAY_IMPL_H_

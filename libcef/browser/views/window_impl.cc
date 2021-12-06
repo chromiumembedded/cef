@@ -83,6 +83,10 @@ class CefUnhandledKeyEventHandler : public ui::EventHandler {
     window_->AddPostTargetHandler(this);
   }
 
+  CefUnhandledKeyEventHandler(const CefUnhandledKeyEventHandler&) = delete;
+  CefUnhandledKeyEventHandler& operator=(const CefUnhandledKeyEventHandler&) =
+      delete;
+
   ~CefUnhandledKeyEventHandler() override {
     window_->RemovePostTargetHandler(this);
   }
@@ -112,8 +116,6 @@ class CefUnhandledKeyEventHandler : public ui::EventHandler {
 
   // |window_| is the event target that is associated with this class.
   aura::Window* window_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefUnhandledKeyEventHandler);
 };
 
 #endif  // defined(USE_AURA)

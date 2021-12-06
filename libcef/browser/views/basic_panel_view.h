@@ -12,13 +12,13 @@
 
 class CefBasicPanelView : public CefPanelView<views::View, CefPanelDelegate> {
  public:
-  typedef CefPanelView<views::View, CefPanelDelegate> ParentClass;
+  using ParentClass = CefPanelView<views::View, CefPanelDelegate>;
 
   // |cef_delegate| may be nullptr.
   explicit CefBasicPanelView(CefPanelDelegate* cef_delegate);
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefBasicPanelView);
+  CefBasicPanelView(const CefBasicPanelView&) = delete;
+  CefBasicPanelView& operator=(const CefBasicPanelView&) = delete;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_BASIC_PANEL_VIEW_H_

@@ -35,6 +35,10 @@ class RendererStartupHelper;
 class CefExtensionSystem : public ExtensionSystem {
  public:
   explicit CefExtensionSystem(content::BrowserContext* browser_context);
+
+  CefExtensionSystem(const CefExtensionSystem&) = delete;
+  CefExtensionSystem& operator=(const CefExtensionSystem&) = delete;
+
   ~CefExtensionSystem() override;
 
   // Initializes the extension system.
@@ -192,8 +196,6 @@ class CefExtensionSystem : public ExtensionSystem {
 
   // Must be the last member.
   base::WeakPtrFactory<CefExtensionSystem> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefExtensionSystem);
 };
 
 }  // namespace extensions

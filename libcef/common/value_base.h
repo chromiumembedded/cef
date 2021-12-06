@@ -39,6 +39,10 @@ class CefValueController
       if (verified_)
         impl_->lock();
     }
+
+    AutoLock(const AutoLock&) = delete;
+    AutoLock& operator=(const AutoLock&) = delete;
+
     ~AutoLock() {
       if (verified_)
         impl_->unlock();
@@ -49,11 +53,12 @@ class CefValueController
    private:
     scoped_refptr<CefValueController> impl_;
     bool verified_;
-
-    DISALLOW_COPY_AND_ASSIGN(AutoLock);
   };
 
   CefValueController();
+
+  CefValueController(const CefValueController&) = delete;
+  CefValueController& operator=(const CefValueController&) = delete;
 
   // Returns true if this controller is thread safe.
   virtual bool thread_safe() = 0;
@@ -125,21 +130,23 @@ class CefValueController
   Object* owner_object_;
 
   // Map of reference objects.
-  typedef std::map<void*, Object*> ReferenceMap;
+  using ReferenceMap = std::map<void*, Object*>;
   ReferenceMap reference_map_;
 
   // Map of dependency objects.
-  typedef std::set<void*> DependencySet;
-  typedef std::map<void*, DependencySet> DependencyMap;
+  using DependencySet = std::set<void*>;
+  using DependencyMap = std::map<void*, DependencySet>;
   DependencyMap dependency_map_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefValueController);
 };
 
 // Thread-safe access control implementation.
 class CefValueControllerThreadSafe : public CefValueController {
  public:
   explicit CefValueControllerThreadSafe() : locked_thread_id_(0) {}
+
+  CefValueControllerThreadSafe(const CefValueControllerThreadSafe&) = delete;
+  CefValueControllerThreadSafe& operator=(const CefValueControllerThreadSafe&) =
+      delete;
 
   // CefValueController methods.
   bool thread_safe() override { return true; }
@@ -160,8 +167,6 @@ class CefValueControllerThreadSafe : public CefValueController {
  private:
   base::Lock lock_;
   base::PlatformThreadId locked_thread_id_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefValueControllerThreadSafe);
 };
 
 // Non-thread-safe access control implementation.
@@ -169,6 +174,11 @@ class CefValueControllerNonThreadSafe : public CefValueController {
  public:
   explicit CefValueControllerNonThreadSafe()
       : thread_id_(base::PlatformThread::CurrentId()) {}
+
+  CefValueControllerNonThreadSafe(const CefValueControllerNonThreadSafe&) =
+      delete;
+  CefValueControllerNonThreadSafe& operator=(
+      const CefValueControllerNonThreadSafe&) = delete;
 
   // CefValueController methods.
   bool thread_safe() override { return false; }
@@ -182,8 +192,6 @@ class CefValueControllerNonThreadSafe : public CefValueController {
 
  private:
   base::PlatformThreadId thread_id_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefValueControllerNonThreadSafe);
 };
 
 // Helper macros for verifying context.
@@ -266,6 +274,9 @@ class CefValueBase : public CefType, public CefValueController::Object {
         controller_->AddDependency(parent_value, value_);
     }
   }
+
+  CefValueBase(const CefValueBase&) = delete;
+  CefValueBase& operator=(const CefValueBase&) = delete;
 
   ~CefValueBase() override {
     if (controller_.get() && value_)
@@ -398,13 +409,14 @@ class CefValueBase : public CefType, public CefValueController::Object {
       verified_ = (auto_lock_.verified() && impl->VerifyAccess(modify));
     }
 
+    AutoLock(const AutoLock&) = delete;
+    AutoLock& operator=(const AutoLock&) = delete;
+
     inline bool verified() { return verified_; }
 
    private:
     CefValueController::AutoLock auto_lock_;
     bool verified_;
-
-    DISALLOW_COPY_AND_ASSIGN(AutoLock);
   };
 
  private:
@@ -414,8 +426,6 @@ class CefValueBase : public CefType, public CefValueController::Object {
   scoped_refptr<CefValueController> controller_;
 
   IMPLEMENT_REFCOUNTING(CefValueBase);
-
-  DISALLOW_COPY_AND_ASSIGN(CefValueBase);
 };
 
 #endif  // CEF_LIBCEF_COMMON_VALUE_BASE_H_

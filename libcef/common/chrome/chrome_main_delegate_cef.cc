@@ -15,6 +15,7 @@
 
 #include "base/command_line.h"
 #include "base/lazy_instance.h"
+#include "base/macros.h"
 #include "chrome/common/chrome_switches.h"
 #include "components/embedder_support/switches.h"
 #include "content/public/common/content_switches.h"

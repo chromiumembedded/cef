@@ -20,6 +20,10 @@ class RenderProcessHost;
 class CefBrowserManager : public cef::mojom::BrowserManager {
  public:
   explicit CefBrowserManager(int render_process_id);
+
+  CefBrowserManager(const CefBrowserManager&) = delete;
+  CefBrowserManager& operator=(const CefBrowserManager&) = delete;
+
   ~CefBrowserManager() override;
 
   // Called from the ContentBrowserClient method of the same name.
@@ -47,8 +51,6 @@ class CefBrowserManager : public cef::mojom::BrowserManager {
 
   // The process ID of the renderer.
   const int render_process_id_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefBrowserManager);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_MANAGER_H_

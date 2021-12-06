@@ -118,6 +118,10 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
       mojo::PendingRemote<network::mojom::TrustedHeaderClient> header_client,
       const net::MutableNetworkTrafficAnnotationTag& traffic_annotation,
       std::unique_ptr<Delegate> response_delegate);
+
+  StreamReaderURLLoader(const StreamReaderURLLoader&) = delete;
+  StreamReaderURLLoader& operator=(const StreamReaderURLLoader&) = delete;
+
   ~StreamReaderURLLoader() override;
 
   void Start();
@@ -184,8 +188,6 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
   base::OnceClosure open_cancel_callback_;
 
   base::WeakPtrFactory<StreamReaderURLLoader> weak_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(StreamReaderURLLoader);
 };
 
 }  // namespace net_service

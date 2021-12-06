@@ -14,6 +14,7 @@
 
 #include "base/barrier_closure.h"
 #include "base/command_line.h"
+#include "base/macros.h"
 #include "base/strings/string_number_conversions.h"
 #include "components/safe_browsing/core/common/safebrowsing_constants.h"
 #include "content/public/browser/browser_context.h"
@@ -70,6 +71,9 @@ bool DisableRequestHandlingForTesting() {
 // ResourceContext.
 class ResourceContextData : public base::SupportsUserData::Data {
  public:
+  ResourceContextData(const ResourceContextData&) = delete;
+  ResourceContextData& operator=(const ResourceContextData&) = delete;
+
   ~ResourceContextData() override {}
 
   static void AddProxyOnUIThread(
@@ -138,8 +142,6 @@ class ResourceContextData : public base::SupportsUserData::Data {
       proxies_;
 
   base::WeakPtrFactory<ResourceContextData> weak_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(ResourceContextData);
 };
 
 // CORS preflight requests are handled in the network process, so we just need
@@ -154,6 +156,9 @@ class CorsPreflightRequest : public network::mojom::TrustedHeaderClient {
     header_client_receiver_.set_disconnect_handler(base::BindOnce(
         &CorsPreflightRequest::OnDestroy, weak_factory_.GetWeakPtr()));
   }
+
+  CorsPreflightRequest(const CorsPreflightRequest&) = delete;
+  CorsPreflightRequest& operator=(const CorsPreflightRequest&) = delete;
 
   // mojom::TrustedHeaderClient methods:
   void OnBeforeSendHeaders(const net::HttpRequestHeaders& headers,
@@ -175,8 +180,6 @@ class CorsPreflightRequest : public network::mojom::TrustedHeaderClient {
       this};
 
   base::WeakPtrFactory<CorsPreflightRequest> weak_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(CorsPreflightRequest);
 };
 
 //==============================
@@ -198,6 +201,10 @@ class InterceptedRequest : public network::mojom::URLLoader,
       mojo::PendingReceiver<network::mojom::URLLoader> loader_receiver,
       mojo::PendingRemote<network::mojom::URLLoaderClient> client,
       mojo::PendingRemote<network::mojom::URLLoaderFactory> target_factory);
+
+  InterceptedRequest(const InterceptedRequest&) = delete;
+  InterceptedRequest& operator=(const InterceptedRequest&) = delete;
+
   ~InterceptedRequest() override;
 
   // Restart the request. This happens on initial start and after redirect.
@@ -348,8 +355,6 @@ class InterceptedRequest : public network::mojom::URLLoader,
   StreamReaderURLLoader* stream_loader_ = nullptr;
 
   base::WeakPtrFactory<InterceptedRequest> weak_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(InterceptedRequest);
 };
 
 class InterceptDelegate : public StreamReaderURLLoader::Delegate {

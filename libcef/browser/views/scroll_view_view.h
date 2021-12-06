@@ -15,13 +15,13 @@
 class CefScrollViewView
     : public CefViewView<views::ScrollView, CefViewDelegate> {
  public:
-  typedef CefViewView<views::ScrollView, CefViewDelegate> ParentClass;
+  using ParentClass = CefViewView<views::ScrollView, CefViewDelegate>;
 
   // |cef_delegate| may be nullptr.
   explicit CefScrollViewView(CefViewDelegate* cef_delegate);
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefScrollViewView);
+  CefScrollViewView(const CefScrollViewView&) = delete;
+  CefScrollViewView& operator=(const CefScrollViewView&) = delete;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_SCROLL_VIEW_VIEW_H_

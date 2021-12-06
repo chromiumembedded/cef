@@ -5,7 +5,6 @@
 #ifndef LIBCEF_BROWSER_EXTENSIONS_EXTENSION_HOST_DELEGATE_H_
 #define LIBCEF_BROWSER_EXTENSIONS_EXTENSION_HOST_DELEGATE_H_
 
-#include "base/macros.h"
 #include "extensions/browser/extension_host_delegate.h"
 
 class AlloyBrowserHostImpl;
@@ -15,6 +14,10 @@ namespace extensions {
 class CefExtensionHostDelegate : public ExtensionHostDelegate {
  public:
   explicit CefExtensionHostDelegate(AlloyBrowserHostImpl* browser);
+
+  CefExtensionHostDelegate(const CefExtensionHostDelegate&) = delete;
+  CefExtensionHostDelegate& operator=(const CefExtensionHostDelegate&) = delete;
+
   ~CefExtensionHostDelegate() override;
 
   // ExtensionHostDelegate implementation.
@@ -39,9 +42,6 @@ class CefExtensionHostDelegate : public ExtensionHostDelegate {
       const viz::SurfaceId& surface_id,
       const gfx::Size& natural_size) override;
   void ExitPictureInPicture() override;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefExtensionHostDelegate);
 };
 
 }  // namespace extensions

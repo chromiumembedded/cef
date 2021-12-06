@@ -7,7 +7,6 @@
 #define CEF_LIBCEF_COMMON_EXTENSIONS_EXTENSIONS_CLIENT_H_
 
 #include "base/compiler_specific.h"
-#include "base/macros.h"
 #include "chrome/common/extensions/permissions/chrome_permission_message_provider.h"
 #include "extensions/common/extensions_client.h"
 #include "url/gurl.h"
@@ -18,6 +17,10 @@ namespace extensions {
 class CefExtensionsClient : public ExtensionsClient {
  public:
   CefExtensionsClient();
+
+  CefExtensionsClient(const CefExtensionsClient&) = delete;
+  CefExtensionsClient& operator=(const CefExtensionsClient&) = delete;
+
   ~CefExtensionsClient() override;
 
   // ExtensionsClient overrides:
@@ -47,8 +50,6 @@ class CefExtensionsClient : public ExtensionsClient {
   // Mutable to allow caching in a const method.
   const GURL webstore_base_url_;
   const GURL webstore_update_url_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefExtensionsClient);
 };
 
 }  // namespace extensions

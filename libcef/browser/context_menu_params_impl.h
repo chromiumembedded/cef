@@ -17,6 +17,9 @@ class CefContextMenuParamsImpl
  public:
   explicit CefContextMenuParamsImpl(content::ContextMenuParams* value);
 
+  CefContextMenuParamsImpl(const CefContextMenuParamsImpl&) = delete;
+  CefContextMenuParamsImpl& operator=(const CefContextMenuParamsImpl&) = delete;
+
   // CefContextMenuParams methods.
   int GetXCoord() override;
   int GetYCoord() override;
@@ -38,8 +41,6 @@ class CefContextMenuParamsImpl
   bool IsSpellCheckEnabled() override;
   EditStateFlags GetEditStateFlags() override;
   bool IsCustomMenu() override;
-
-  DISALLOW_COPY_AND_ASSIGN(CefContextMenuParamsImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CONTEXT_MENU_PARAMS_IMPL_H_

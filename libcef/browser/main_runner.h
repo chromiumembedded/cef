@@ -12,7 +12,6 @@
 #include "libcef/common/main_runner_handler.h"
 
 #include "base/callback.h"
-#include "base/macros.h"
 #include "content/public/browser/browser_main_runner.h"
 
 namespace base {
@@ -30,6 +29,10 @@ class CefUIThread;
 class CefMainRunner : public CefMainRunnerHandler {
  public:
   CefMainRunner(bool multi_threaded_message_loop, bool external_message_pump);
+
+  CefMainRunner(const CefMainRunner&) = delete;
+  CefMainRunner& operator=(const CefMainRunner&) = delete;
+
   ~CefMainRunner();
 
   // Called from CefContext::Initialize.
@@ -90,8 +93,6 @@ class CefMainRunner : public CefMainRunnerHandler {
 
   // Used to quit the current base::RunLoop.
   base::OnceClosure quit_when_idle_callback_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefMainRunner);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_MAIN_RUNNER_H_

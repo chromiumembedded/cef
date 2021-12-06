@@ -14,7 +14,10 @@
 class CefBoxLayoutImpl : public CefLayoutImpl<views::BoxLayout, CefBoxLayout> {
  public:
   // Necessary for the CEF_REQUIRE_VALID_*() macros to compile.
-  typedef CefLayoutImpl<views::BoxLayout, CefBoxLayout> ParentClass;
+  using ParentClass = CefLayoutImpl<views::BoxLayout, CefBoxLayout>;
+
+  CefBoxLayoutImpl(const CefBoxLayoutImpl&) = delete;
+  CefBoxLayoutImpl& operator=(const CefBoxLayoutImpl&) = delete;
 
   // Create a new CefBoxLayout insance. |owner_view| must be non-nullptr.
   static CefRefPtr<CefBoxLayoutImpl> Create(
@@ -36,7 +39,6 @@ class CefBoxLayoutImpl : public CefLayoutImpl<views::BoxLayout, CefBoxLayout> {
   CefBoxLayoutSettings settings_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefBoxLayoutImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefBoxLayoutImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_BOX_LAYOUT_IMPL_H_

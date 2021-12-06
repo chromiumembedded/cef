@@ -19,6 +19,9 @@ class CefCommandLineImpl
                      bool will_delete,
                      bool read_only);
 
+  CefCommandLineImpl(const CefCommandLineImpl&) = delete;
+  CefCommandLineImpl& operator=(const CefCommandLineImpl&) = delete;
+
   // CefCommandLine methods.
   bool IsValid() override;
   bool IsReadOnly() override;
@@ -44,8 +47,6 @@ class CefCommandLineImpl
 
   // Must hold the controller lock while using this value.
   const base::CommandLine& command_line() { return const_value(); }
-
-  DISALLOW_COPY_AND_ASSIGN(CefCommandLineImpl);
 };
 
 #endif  // CEF_LIBCEF_COMMON_COMMAND_LINE_IMPL_H_

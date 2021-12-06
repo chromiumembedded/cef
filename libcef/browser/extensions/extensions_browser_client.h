@@ -18,6 +18,11 @@ class ExtensionsAPIClient;
 class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
  public:
   CefExtensionsBrowserClient();
+
+  CefExtensionsBrowserClient(const CefExtensionsBrowserClient&) = delete;
+  CefExtensionsBrowserClient& operator=(const CefExtensionsBrowserClient&) =
+      delete;
+
   ~CefExtensionsBrowserClient() override;
 
   // Returns the singleton CefExtensionsBrowserClient instance.
@@ -111,8 +116,6 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
   std::unique_ptr<ComponentExtensionResourceManager> resource_manager_;
 
   std::unique_ptr<KioskDelegate> kiosk_delegate_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefExtensionsBrowserClient);
 };
 
 }  // namespace extensions

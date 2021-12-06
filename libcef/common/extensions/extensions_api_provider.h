@@ -5,7 +5,6 @@
 #ifndef CEF_LIBCEF_COMMON_EXTENSIONS_EXTENSIONS_API_PROVIDER_H_
 #define CEF_LIBCEF_COMMON_EXTENSIONS_EXTENSIONS_API_PROVIDER_H_
 
-#include "base/macros.h"
 #include "extensions/common/extensions_api_provider.h"
 
 namespace extensions {
@@ -13,6 +12,9 @@ namespace extensions {
 class CefExtensionsAPIProvider : public ExtensionsAPIProvider {
  public:
   CefExtensionsAPIProvider();
+
+  CefExtensionsAPIProvider(const CefExtensionsAPIProvider&) = delete;
+  CefExtensionsAPIProvider& operator=(const CefExtensionsAPIProvider&) = delete;
 
   // ExtensionsAPIProvider:
   void AddAPIFeatures(FeatureProvider* provider) override;
@@ -24,9 +26,6 @@ class CefExtensionsAPIProvider : public ExtensionsAPIProvider {
   base::StringPiece GetAPISchema(const std::string& name) override;
   void RegisterPermissions(PermissionsInfo* permissions_info) override;
   void RegisterManifestHandlers() override;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefExtensionsAPIProvider);
 };
 
 }  // namespace extensions

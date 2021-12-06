@@ -314,7 +314,7 @@
 CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter, public CefViewClass {
  public:
   // Necessary for the CEF_REQUIRE_VALID_*() macros to compile.
-  typedef CEF_VIEW_IMPL_D ParentClass;
+  using ParentClass = CEF_VIEW_IMPL_D;
 
   // Returns the content views::View object that should be the target of most
   // customization actions. May be the root view or a child of the root view.

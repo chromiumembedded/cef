@@ -25,6 +25,9 @@ class CefMediaRoutesObserver : public media_router::MediaRoutesObserver {
       : media_router::MediaRoutesObserver(manager->GetMediaRouter()),
         manager_(manager) {}
 
+  CefMediaRoutesObserver(const CefMediaRoutesObserver&) = delete;
+  CefMediaRoutesObserver& operator=(const CefMediaRoutesObserver&) = delete;
+
   void OnRoutesUpdated(const std::vector<media_router::MediaRoute>& routes,
                        const std::vector<media_router::MediaRoute::Id>&
                            joinable_route_ids) override {
@@ -34,8 +37,6 @@ class CefMediaRoutesObserver : public media_router::MediaRoutesObserver {
 
  private:
   CefMediaRouterManager* const manager_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefMediaRoutesObserver);
 };
 
 // Used to receive messages if PresentationConnection is not supported.
@@ -48,6 +49,9 @@ class CefRouteMessageObserver : public media_router::RouteMessageObserver {
         manager_(manager),
         route_(route) {}
 
+  CefRouteMessageObserver(const CefRouteMessageObserver&) = delete;
+  CefRouteMessageObserver& operator=(const CefRouteMessageObserver&) = delete;
+
   void OnMessagesReceived(
       CefMediaRouterManager::MediaMessageVector messages) override {
     manager_->OnMessagesReceived(route_, messages);
@@ -56,8 +60,6 @@ class CefRouteMessageObserver : public media_router::RouteMessageObserver {
  private:
   CefMediaRouterManager* const manager_;
   const media_router::MediaRoute route_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefRouteMessageObserver);
 };
 
 // Used for messaging and route status notifications with Cast.
@@ -71,6 +73,10 @@ class CefPresentationConnection : public blink::mojom::PresentationConnection {
         route_(route),
         connection_receiver_(this, std::move(connections->connection_receiver)),
         connection_remote_(std::move(connections->connection_remote)) {}
+
+  CefPresentationConnection(const CefPresentationConnection&) = delete;
+  CefPresentationConnection& operator=(const CefPresentationConnection&) =
+      delete;
 
   void OnMessage(
       blink::mojom::PresentationConnectionMessagePtr message) override {
@@ -117,8 +123,6 @@ class CefPresentationConnection : public blink::mojom::PresentationConnection {
 
   // Used to send messages to the MRP.
   mojo::Remote<blink::mojom::PresentationConnection> connection_remote_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefPresentationConnection);
 };
 
 CefMediaRouterManager::CefMediaRouterManager(

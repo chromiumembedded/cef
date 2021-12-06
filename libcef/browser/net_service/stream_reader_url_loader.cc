@@ -35,6 +35,9 @@ using OnInputStreamOpenedCallback =
 class OpenInputStreamWrapper
     : public base::RefCountedThreadSafe<OpenInputStreamWrapper> {
  public:
+  OpenInputStreamWrapper(const OpenInputStreamWrapper&) = delete;
+  OpenInputStreamWrapper& operator=(const OpenInputStreamWrapper&) = delete;
+
   static base::OnceClosure Open(
       std::unique_ptr<StreamReaderURLLoader::Delegate> delegate,
       scoped_refptr<base::SequencedTaskRunner> work_thread_task_runner,
@@ -61,7 +64,7 @@ class OpenInputStreamWrapper
         work_thread_task_runner_(work_thread_task_runner),
         job_thread_task_runner_(job_thread_task_runner),
         callback_(std::move(callback)) {}
-  virtual ~OpenInputStreamWrapper() {}
+  virtual ~OpenInputStreamWrapper() = default;
 
   void Start(int32_t request_id, const network::ResourceRequest& request) {
     work_thread_task_runner_->PostTask(
@@ -142,8 +145,6 @@ class OpenInputStreamWrapper
 
   // Only accessed on |work_thread_task_runner_|.
   bool is_canceled_ = false;
-
-  DISALLOW_COPY_AND_ASSIGN(OpenInputStreamWrapper);
 };
 
 }  // namespace
@@ -160,6 +161,9 @@ class InputStreamReader : public base::RefCountedThreadSafe<InputStreamReader> {
   InputStreamReader(
       std::unique_ptr<InputStream> stream,
       scoped_refptr<base::SequencedTaskRunner> work_thread_task_runner);
+
+  InputStreamReader(const InputStreamReader&) = delete;
+  InputStreamReader& operator=(const InputStreamReader&) = delete;
 
   // Skip |skip_bytes| number of bytes from |stream_|. |callback| will be
   // executed asynchronously on the IO thread. A negative value passed to
@@ -229,8 +233,6 @@ class InputStreamReader : public base::RefCountedThreadSafe<InputStreamReader> {
   int pending_callback_id_ = -1;
 
   int next_callback_id_ = 0;
-
-  DISALLOW_COPY_AND_ASSIGN(InputStreamReader);
 };
 
 InputStreamReader::InputStreamReader(

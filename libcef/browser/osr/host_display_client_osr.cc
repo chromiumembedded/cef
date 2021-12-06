@@ -28,6 +28,11 @@ class CefLayeredWindowUpdaterOSR : public viz::mojom::LayeredWindowUpdater {
   CefLayeredWindowUpdaterOSR(
       CefRenderWidgetHostViewOSR* const view,
       mojo::PendingReceiver<viz::mojom::LayeredWindowUpdater> receiver);
+
+  CefLayeredWindowUpdaterOSR(const CefLayeredWindowUpdaterOSR&) = delete;
+  CefLayeredWindowUpdaterOSR& operator=(const CefLayeredWindowUpdaterOSR&) =
+      delete;
+
   ~CefLayeredWindowUpdaterOSR() override;
 
   void SetActive(bool active);
@@ -45,8 +50,6 @@ class CefLayeredWindowUpdaterOSR : public viz::mojom::LayeredWindowUpdater {
   bool active_ = false;
   base::WritableSharedMemoryMapping shared_memory_;
   gfx::Size pixel_size_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefLayeredWindowUpdaterOSR);
 };
 
 CefLayeredWindowUpdaterOSR::CefLayeredWindowUpdaterOSR(

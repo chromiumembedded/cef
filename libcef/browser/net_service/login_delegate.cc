@@ -23,6 +23,9 @@ class AuthCallbackImpl : public CefAuthCallback {
       : delegate_(delegate),
         task_runner_(base::SequencedTaskRunnerHandle::Get()) {}
 
+  AuthCallbackImpl(const AuthCallbackImpl&) = delete;
+  AuthCallbackImpl& operator=(const AuthCallbackImpl&) = delete;
+
   ~AuthCallbackImpl() override {
     if (delegate_.MaybeValid()) {
       // If |delegate_| isn't valid this will be a no-op.
@@ -63,7 +66,6 @@ class AuthCallbackImpl : public CefAuthCallback {
   scoped_refptr<base::SequencedTaskRunner> task_runner_;
 
   IMPLEMENT_REFCOUNTING(AuthCallbackImpl);
-  DISALLOW_COPY_AND_ASSIGN(AuthCallbackImpl);
 };
 
 void RunCallbackOnIOThread(

@@ -30,6 +30,10 @@ class CefFileDialogManager {
   // |runner| may be NULL if the platform doesn't implement dialogs.
   CefFileDialogManager(AlloyBrowserHostImpl* browser,
                        std::unique_ptr<CefFileDialogRunner> runner);
+
+  CefFileDialogManager(const CefFileDialogManager&) = delete;
+  CefFileDialogManager& operator=(const CefFileDialogManager&) = delete;
+
   ~CefFileDialogManager();
 
   // Delete the runner to free any platform constructs.
@@ -99,8 +103,6 @@ class CefFileDialogManager {
 
   // Must be the last member.
   base::WeakPtrFactory<CefFileDialogManager> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefFileDialogManager);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_JAVASCRIPT_DIALOG_MANAGER_H_

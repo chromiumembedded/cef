@@ -13,7 +13,6 @@
 
 #include "include/internal/cef_types.h"
 
-#include "base/macros.h"
 #include "third_party/blink/public/platform/web_common.h"
 #include "v8/include/v8.h"
 
@@ -78,13 +77,15 @@ BLINK_EXPORT void RegisterURLSchemeAsSupportingFetchAPI(
 class BLINK_EXPORT CefScriptForbiddenScope final {
  public:
   CefScriptForbiddenScope();
+
+  CefScriptForbiddenScope(const CefScriptForbiddenScope&) = delete;
+  CefScriptForbiddenScope& operator=(const CefScriptForbiddenScope&) = delete;
+
   ~CefScriptForbiddenScope();
 
  private:
   struct Impl;
   std::unique_ptr<Impl> impl_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefScriptForbiddenScope);
 };
 
 BLINK_EXPORT bool ResponseWasCached(const blink::WebURLResponse& response);

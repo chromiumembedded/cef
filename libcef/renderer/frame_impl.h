@@ -40,6 +40,10 @@ class CefFrameImpl : public CefFrame, public cef::mojom::RenderFrame {
   CefFrameImpl(CefBrowserImpl* browser,
                blink::WebLocalFrame* frame,
                int64_t frame_id);
+
+  CefFrameImpl(const CefFrameImpl&) = delete;
+  CefFrameImpl& operator=(const CefFrameImpl&) = delete;
+
   ~CefFrameImpl() override;
 
   // CefFrame implementation.
@@ -132,7 +136,6 @@ class CefFrameImpl : public CefFrame, public cef::mojom::RenderFrame {
   base::WeakPtrFactory<CefFrameImpl> weak_ptr_factory_{this};
 
   IMPLEMENT_REFCOUNTING(CefFrameImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefFrameImpl);
 };
 
 #endif  // CEF_LIBCEF_RENDERER_FRAME_IMPL_H_

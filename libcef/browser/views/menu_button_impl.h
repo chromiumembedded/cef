@@ -18,10 +18,12 @@ class CefMenuButtonImpl : public CefLabelButtonImpl<views::MenuButton,
                                                     CefMenuButton,
                                                     CefMenuButtonDelegate> {
  public:
-  typedef CefLabelButtonImpl<views::MenuButton,
-                             CefMenuButton,
-                             CefMenuButtonDelegate>
-      ParentClass;
+  using ParentClass = CefLabelButtonImpl<views::MenuButton,
+                                         CefMenuButton,
+                                         CefMenuButtonDelegate>;
+
+  CefMenuButtonImpl(const CefMenuButtonImpl&) = delete;
+  CefMenuButtonImpl& operator=(const CefMenuButtonImpl&) = delete;
 
   // Create a new CefMenuButton instance. |delegate| must not be nullptr.
   static CefRefPtr<CefMenuButtonImpl> Create(
@@ -54,7 +56,6 @@ class CefMenuButtonImpl : public CefLabelButtonImpl<views::MenuButton,
   void InitializeRootView() override;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefMenuButtonImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefMenuButtonImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_MENU_BUTTON_IMPL_H_

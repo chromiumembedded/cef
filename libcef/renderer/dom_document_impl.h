@@ -54,7 +54,7 @@ class CefDOMDocumentImpl : public CefDOMDocument {
   CefBrowserImpl* browser_;
   blink::WebLocalFrame* frame_;
 
-  typedef std::map<blink::WebNode, CefDOMNode*> NodeMap;
+  using NodeMap = std::map<blink::WebNode, CefDOMNode*>;
   NodeMap node_map_;
 
   IMPLEMENT_REFCOUNTING(CefDOMDocumentImpl);

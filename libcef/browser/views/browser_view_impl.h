@@ -23,8 +23,11 @@ class CefBrowserViewImpl
     : public CefViewImpl<views::View, CefBrowserView, CefBrowserViewDelegate>,
       public CefBrowserViewView::Delegate {
  public:
-  typedef CefViewImpl<views::View, CefBrowserView, CefBrowserViewDelegate>
-      ParentClass;
+  using ParentClass =
+      CefViewImpl<views::View, CefBrowserView, CefBrowserViewDelegate>;
+
+  CefBrowserViewImpl(const CefBrowserViewImpl&) = delete;
+  CefBrowserViewImpl& operator=(const CefBrowserViewImpl&) = delete;
 
   // Create a new CefBrowserView instance. |delegate| may be nullptr.
   static CefRefPtr<CefBrowserViewImpl> Create(
@@ -113,7 +116,6 @@ class CefBrowserViewImpl
   base::WeakPtrFactory<CefBrowserViewImpl> weak_ptr_factory_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefBrowserViewImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefBrowserViewImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_BROWSER_VIEW_IMPL_H_

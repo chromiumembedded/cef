@@ -24,6 +24,9 @@ class ResponseFilterWrapper {
                         mojo::ScopedDataPipeConsumerHandle source_handle,
                         base::OnceClosure error_callback);
 
+  ResponseFilterWrapper(const ResponseFilterWrapper&) = delete;
+  ResponseFilterWrapper& operator=(const ResponseFilterWrapper&) = delete;
+
   // Creates and returns the output handle, or |source_handle| on failure.
   bool CreateOutputHandle(mojo::ScopedDataPipeConsumerHandle* output_handle);
 
@@ -47,8 +50,6 @@ class ResponseFilterWrapper {
   bool write_pending_ = false;
   std::queue<std::unique_ptr<std::string>> pending_data_;
   cef_response_filter_status_t last_status_ = RESPONSE_FILTER_NEED_MORE_DATA;
-
-  DISALLOW_COPY_AND_ASSIGN(ResponseFilterWrapper);
 };
 
 ResponseFilterWrapper::ResponseFilterWrapper(
