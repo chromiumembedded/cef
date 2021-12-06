@@ -43,7 +43,6 @@
 
 #include "include/base/cef_bind.h"
 #include "include/base/cef_logging.h"
-#include "include/base/cef_macros.h"
 #include "include/cef_task.h"
 
 #define CEF_REQUIRE_UI_THREAD() DCHECK(CefCurrentlyOn(TID_UI));
@@ -140,6 +139,10 @@ class CefScopedArgArray {
     }
     array_[argc] = NULL;
   }
+
+  CefScopedArgArray(const CefScopedArgArray&) = delete;
+  CefScopedArgArray& operator=(const CefScopedArgArray&) = delete;
+
   ~CefScopedArgArray() { delete[] array_; }
 
   char** array() const { return array_; }
@@ -150,8 +153,6 @@ class CefScopedArgArray {
   // Keep values in a vector separate from |array_| because various users may
   // modify |array_| and we still want to clean up memory properly.
   std::vector<std::string> values_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefScopedArgArray);
 };
 
 #endif  // CEF_INCLUDE_WRAPPER_CEF_HELPERS_H_

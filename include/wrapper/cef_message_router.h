@@ -245,7 +245,7 @@ class CefMessageRouterBrowserSide
   ///
   class Handler {
    public:
-    typedef CefMessageRouterBrowserSide::Callback Callback;
+    using Callback = CefMessageRouterBrowserSide::Callback;
 
     ///
     // Executed when a new query is received. |query_id| uniquely identifies the

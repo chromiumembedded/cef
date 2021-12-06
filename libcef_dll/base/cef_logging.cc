@@ -191,7 +191,7 @@ LogMessage::~LogMessage() {
 // This has already been defined in the header, but defining it again as DWORD
 // ensures that the type used in the header is equivalent to DWORD. If not,
 // the redefinition is a compile error.
-typedef DWORD SystemErrorCode;
+using SystemErrorCode = DWORD;
 #endif
 
 SystemErrorCode GetLastSystemErrorCode() {

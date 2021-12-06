@@ -8,7 +8,6 @@
 #include <memory>
 
 #include "include/base/cef_logging.h"
-#include "include/base/cef_macros.h"
 #include "include/cef_stream.h"
 #include "include/cef_zip_reader.h"
 #include "include/wrapper/cef_byte_read_handler.h"
@@ -29,6 +28,9 @@ CefString ToLower(const CefString& str) {
 class CefZipFile : public CefZipArchive::File {
  public:
   CefZipFile() : data_size_(0) {}
+
+  CefZipFile(const CefZipFile&) = delete;
+  CefZipFile& operator=(const CefZipFile&) = delete;
 
   bool Initialize(size_t data_size) {
     data_.reset(new unsigned char[data_size]);
@@ -59,7 +61,6 @@ class CefZipFile : public CefZipArchive::File {
   std::unique_ptr<unsigned char[]> data_;
 
   IMPLEMENT_REFCOUNTING(CefZipFile);
-  DISALLOW_COPY_AND_ASSIGN(CefZipFile);
 };
 
 }  // namespace

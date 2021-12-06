@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "include/base/cef_callback.h"
-#include "include/base/cef_macros.h"
 #include "include/base/cef_weak_ptr.h"
 #include "include/cef_parser.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
@@ -61,6 +60,9 @@ class ContentProvider : public CefResourceManager::Provider {
     DCHECK(!content.empty());
   }
 
+  ContentProvider(const ContentProvider&) = delete;
+  ContentProvider& operator=(const ContentProvider&) = delete;
+
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     CEF_REQUIRE_IO_THREAD();
 
@@ -86,8 +88,6 @@ class ContentProvider : public CefResourceManager::Provider {
   std::string url_;
   std::string content_;
   std::string mime_type_;
-
-  DISALLOW_COPY_AND_ASSIGN(ContentProvider);
 };
 
 // Provider of contents loaded from a directory on the file system.
@@ -105,6 +105,9 @@ class DirectoryProvider : public CefResourceManager::Provider {
     if (directory_path_[directory_path_.size() - 1] != PATH_SEP)
       directory_path_ += PATH_SEP;
   }
+
+  DirectoryProvider(const DirectoryProvider&) = delete;
+  DirectoryProvider& operator=(const DirectoryProvider&) = delete;
 
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     CEF_REQUIRE_IO_THREAD();
@@ -162,8 +165,6 @@ class DirectoryProvider : public CefResourceManager::Provider {
 
   std::string url_path_;
   std::string directory_path_;
-
-  DISALLOW_COPY_AND_ASSIGN(DirectoryProvider);
 };
 
 // Provider of contents loaded from an archive file.
@@ -185,6 +186,9 @@ class ArchiveProvider : public CefResourceManager::Provider {
     if (url_path_[url_path_.size() - 1] != '/')
       url_path_ += '/';
   }
+
+  ArchiveProvider(const ArchiveProvider&) = delete;
+  ArchiveProvider& operator=(const ArchiveProvider&) = delete;
 
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     CEF_REQUIRE_IO_THREAD();
@@ -287,14 +291,12 @@ class ArchiveProvider : public CefResourceManager::Provider {
   CefRefPtr<CefZipArchive> archive_;
 
   // List of requests that are pending while the archive is being loaded.
-  typedef std::vector<scoped_refptr<CefResourceManager::Request>>
-      PendingRequests;
+  using PendingRequests =
+      std::vector<scoped_refptr<CefResourceManager::Request>>;
   PendingRequests pending_requests_;
 
   // Must be the last member.
   base::WeakPtrFactory<ArchiveProvider> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(ArchiveProvider);
 };
 
 }  // namespace

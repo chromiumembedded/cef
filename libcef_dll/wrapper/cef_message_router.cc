@@ -8,7 +8,6 @@
 #include <set>
 
 #include "include/base/cef_callback.h"
-#include "include/base/cef_macros.h"
 #include "include/cef_task.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
@@ -48,6 +47,9 @@ class IdGenerator {
  public:
   IdGenerator() : next_id_(kReservedId) {}
 
+  IdGenerator(const IdGenerator&) = delete;
+  IdGenerator& operator=(const IdGenerator&) = delete;
+
   T GetNextId() {
     T id = ++next_id_;
     if (id == kReservedId)  // In case the integer value wraps.
@@ -57,8 +59,6 @@ class IdGenerator {
 
  private:
   T next_id_;
-
-  DISALLOW_COPY_AND_ASSIGN(IdGenerator);
 };
 
 // Browser-side router implementation.
@@ -75,6 +75,10 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
           browser_id_(browser_id),
           query_id_(query_id),
           persistent_(persistent) {}
+
+    CallbackImpl(const CallbackImpl&) = delete;
+    CallbackImpl& operator=(const CallbackImpl&) = delete;
+
     virtual ~CallbackImpl() {
       // Hitting this DCHECK means that you didn't call Success or Failure
       // on the Callback after returning true from Handler::OnQuery. You must
@@ -143,6 +147,11 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
                             kMessageSuffix),
         cancel_message_name_(config.js_cancel_function.ToString() +
                              kMessageSuffix) {}
+
+  CefMessageRouterBrowserSideImpl(const CefMessageRouterBrowserSideImpl&) =
+      delete;
+  CefMessageRouterBrowserSideImpl& operator=(
+      const CefMessageRouterBrowserSideImpl&) = delete;
 
   virtual ~CefMessageRouterBrowserSideImpl() {
     // There should be no pending queries when the router is deleted.
@@ -573,17 +582,15 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
 
   // Set of currently registered handlers. An entry is added when a handler is
   // registered and removed when a handler is unregistered.
-  typedef std::set<Handler*> HandlerSet;
+  using HandlerSet = std::set<Handler*>;
   HandlerSet handler_set_;
 
   // Map of query ID to QueryInfo instance. An entry is added when a Handler
   // indicates that it will handle the query and removed when either the query
   // is completed via the Callback, the query is explicitly canceled from the
   // renderer process, or the associated context is (or will be) released.
-  typedef CefBrowserInfoMap<int64, QueryInfo*> BrowserQueryInfoMap;
+  using BrowserQueryInfoMap = CefBrowserInfoMap<int64, QueryInfo*>;
   BrowserQueryInfoMap browser_query_info_map_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefMessageRouterBrowserSideImpl);
 };
 
 // Renderer-side router implementation.
@@ -594,6 +601,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
     V8HandlerImpl(CefRefPtr<CefMessageRouterRendererSideImpl> router,
                   const CefMessageRouterConfig& config)
         : router_(router), config_(config), context_id_(kReservedId) {}
+
+    V8HandlerImpl(const V8HandlerImpl&) = delete;
+    V8HandlerImpl& operator=(const V8HandlerImpl&) = delete;
 
     bool Execute(const CefString& name,
                  CefRefPtr<CefV8Value> object,
@@ -704,7 +714,10 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
         cancel_message_name_(config.js_cancel_function.ToString() +
                              kMessageSuffix) {}
 
-  virtual ~CefMessageRouterRendererSideImpl() {}
+  CefMessageRouterRendererSideImpl(const CefMessageRouterRendererSideImpl&) =
+      delete;
+  CefMessageRouterRendererSideImpl& operator=(
+      const CefMessageRouterRendererSideImpl&) = delete;
 
   int GetPendingCount(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefV8Context> context) override {
@@ -1090,17 +1103,15 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
   // entry is added when a request is initiated via the bound function and
   // removed when either the request completes, is canceled via the bound
   // function, or the associated context is released.
-  typedef CefBrowserInfoMap<std::pair<int, int>, RequestInfo*>
-      BrowserRequestInfoMap;
+  using BrowserRequestInfoMap =
+      CefBrowserInfoMap<std::pair<int, int>, RequestInfo*>;
   BrowserRequestInfoMap browser_request_info_map_;
 
   // Map of context ID to CefV8Context for existing contexts. An entry is added
   // when a bound function is executed for the first time in the context and
   // removed when the context is released.
-  typedef std::map<int, CefRefPtr<CefV8Context>> ContextMap;
+  using ContextMap = std::map<int, CefRefPtr<CefV8Context>>;
   ContextMap context_map_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefMessageRouterRendererSideImpl);
 };
 
 }  // namespace

@@ -7,7 +7,6 @@
 #pragma once
 
 #include "include/base/cef_logging.h"
-#include "include/base/cef_macros.h"
 #include "include/capi/cef_base_capi.h"
 #include "include/cef_base.h"
 #include "libcef_dll/wrapper_types.h"
@@ -18,6 +17,9 @@
 template <class ClassName, class BaseName, class StructName>
 class CefCToCppScoped : public BaseName {
  public:
+  CefCToCppScoped(const CefCToCppScoped&) = delete;
+  CefCToCppScoped& operator=(const CefCToCppScoped&) = delete;
+
   // Create a new wrapper instance for a structure reference received from the
   // other side. The caller owns the CToCpp wrapper instance but not necessarily
   // the underling object on the CppToC side (depends if s->del is non-NULL).
@@ -67,8 +69,8 @@ class CefCToCppScoped : public BaseName {
   static void operator delete(void* ptr);
 
  protected:
-  CefCToCppScoped() {}
-  virtual ~CefCToCppScoped() {}
+  CefCToCppScoped() = default;
+  virtual ~CefCToCppScoped() = default;
 
   // If returning the structure across the DLL boundary use Unwrap() instead.
   StructName* GetStruct() const {
@@ -92,8 +94,6 @@ class CefCToCppScoped : public BaseName {
                                       CefRawPtr<BaseName> c);
 
   static CefWrapperType kWrapperType;
-
-  DISALLOW_COPY_AND_ASSIGN(CefCToCppScoped);
 };
 
 template <class ClassName, class BaseName, class StructName>

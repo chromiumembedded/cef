@@ -39,7 +39,6 @@
 #pragma once
 
 #include "include/base/cef_build.h"
-#include "include/base/cef_macros.h"
 #include "include/cef_base.h"
 
 ///
@@ -59,6 +58,9 @@ class CefScopedTempDir {
   // No directory is owned/created initially.
   ///
   CefScopedTempDir();
+
+  CefScopedTempDir(const CefScopedTempDir&) = delete;
+  CefScopedTempDir& operator=(const CefScopedTempDir&) = delete;
 
   ///
   // Recursively delete path.
@@ -111,8 +113,6 @@ class CefScopedTempDir {
 
  private:
   CefString path_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefScopedTempDir);
 };
 
 #endif  // CEF_INCLUDE_SCOPED_TEMP_DIR_H_

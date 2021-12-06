@@ -9,7 +9,6 @@
 #include <map>
 
 #include "include/base/cef_logging.h"
-#include "include/base/cef_macros.h"
 
 // Default traits for CefBrowserInfoMap. Override to provide different object
 // destruction behavior.
@@ -27,8 +26,8 @@ class CefBrowserInfoMap {
   // Implement this interface to visit and optionally delete objects in the map.
   class Visitor {
    public:
-    typedef IdType InfoIdType;
-    typedef ObjectType InfoObjectType;
+    using InfoIdType = IdType;
+    using InfoObjectType = ObjectType;
 
     // Called once for each info object. Set |remove| to true to remove the
     // object from the map. It is safe to destruct removed objects in this
@@ -42,7 +41,10 @@ class CefBrowserInfoMap {
     virtual ~Visitor() {}
   };
 
-  CefBrowserInfoMap() {}
+  CefBrowserInfoMap() = default;
+
+  CefBrowserInfoMap(const CefBrowserInfoMap&) = delete;
+  CefBrowserInfoMap& operator=(const CefBrowserInfoMap&) = delete;
 
   ~CefBrowserInfoMap() { clear(); }
 
@@ -248,13 +250,11 @@ class CefBrowserInfoMap {
 
  private:
   // Map IdType to ObjectType instance.
-  typedef std::map<IdType, ObjectType> InfoMap;
+  using InfoMap = std::map<IdType, ObjectType>;
   // Map browser ID to InfoMap instance.
-  typedef std::map<int, InfoMap*> BrowserInfoMap;
+  using BrowserInfoMap = std::map<int, InfoMap*>;
 
   BrowserInfoMap browser_info_map_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefBrowserInfoMap);
 };
 
 #endif  // CEF_LIBCEF_DLL_WRAPPER_CEF_BROWSER_INFO_MAP_H_

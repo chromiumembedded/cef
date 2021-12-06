@@ -7,7 +7,6 @@
 #pragma once
 
 #include "include/base/cef_logging.h"
-#include "include/base/cef_macros.h"
 #include "include/capi/cef_base_capi.h"
 #include "include/cef_base.h"
 #include "libcef_dll/wrapper_types.h"
@@ -18,6 +17,9 @@
 template <class ClassName, class BaseName, class StructName>
 class CefCToCppRefCounted : public BaseName {
  public:
+  CefCToCppRefCounted(const CefCToCppRefCounted&) = delete;
+  CefCToCppRefCounted& operator=(const CefCToCppRefCounted&) = delete;
+
   // Create a new wrapper instance for a structure reference received from the
   // other side.
   static CefRefPtr<BaseName> Wrap(StructName* s);
@@ -37,8 +39,8 @@ class CefCToCppRefCounted : public BaseName {
   bool HasAtLeastOneRef() const { return UnderlyingHasAtLeastOneRef(); }
 
  protected:
-  CefCToCppRefCounted() {}
-  virtual ~CefCToCppRefCounted() {}
+  CefCToCppRefCounted() = default;
+  virtual ~CefCToCppRefCounted() = default;
 
   // If returning the structure across the DLL boundary use Unwrap() instead.
   StructName* GetStruct() const {
@@ -97,8 +99,6 @@ class CefCToCppRefCounted : public BaseName {
   CefRefCount ref_count_;
 
   static CefWrapperType kWrapperType;
-
-  DISALLOW_COPY_AND_ASSIGN(CefCToCppRefCounted);
 };
 
 template <class ClassName, class BaseName, class StructName>

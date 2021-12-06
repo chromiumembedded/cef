@@ -38,7 +38,6 @@
 #pragma once
 
 #include "include/base/cef_callback_forward.h"
-#include "include/base/cef_macros.h"
 #include "include/cef_task.h"
 
 ///

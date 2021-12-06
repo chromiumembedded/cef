@@ -41,7 +41,6 @@
 #include <memory>
 
 #include "include/base/cef_callback.h"
-#include "include/base/cef_macros.h"
 #include "include/base/cef_ref_counted.h"
 #include "include/base/cef_weak_ptr.h"
 #include "include/cef_request_handler.h"
@@ -101,6 +100,9 @@ class CefResourceManager
   ///
   class Request : public base::RefCountedThreadSafe<Request> {
    public:
+    Request(const Request&) = delete;
+    Request& operator=(const Request&) = delete;
+
     ///
     // Returns the URL associated with this request. The returned value will be
     // fully qualified but will not contain query or fragment components. It
@@ -176,11 +178,9 @@ class CefResourceManager
 
     // Params that stay with this request object. Safe to access on any thread.
     RequestParams params_;
-
-    DISALLOW_COPY_AND_ASSIGN(Request);
   };
 
-  typedef std::list<scoped_refptr<Request>> RequestList;
+  using RequestList = std::list<scoped_refptr<Request>>;
 
   ///
   // Interface implemented by resource providers. A provider may be created on
@@ -209,6 +209,9 @@ class CefResourceManager
   };
 
   CefResourceManager();
+
+  CefResourceManager(const CefResourceManager&) = delete;
+  CefResourceManager& operator=(const CefResourceManager&) = delete;
 
   ///
   // Add a provider that maps requests for |url| to |content|. |url| should be
@@ -316,7 +319,7 @@ class CefResourceManager
 
   // Provider and associated information.
   struct ProviderEntry;
-  typedef std::list<ProviderEntry*> ProviderEntryList;
+  using ProviderEntryList = std::list<ProviderEntry*>;
 
   // Values associated with the pending request only. Ownership will be passed
   // between requests and the resource manager as request handling proceeds.
@@ -357,7 +360,7 @@ class CefResourceManager
   ProviderEntryList providers_;
 
   // Map of response ID to pending CefResourceHandler object.
-  typedef std::map<uint64, CefRefPtr<CefResourceHandler>> PendingHandlersMap;
+  using PendingHandlersMap = std::map<uint64, CefRefPtr<CefResourceHandler>>;
   PendingHandlersMap pending_handlers_;
 
   UrlFilter url_filter_;
@@ -365,8 +368,6 @@ class CefResourceManager
 
   // Must be the last member. Created and accessed on the IO thread.
   std::unique_ptr<base::WeakPtrFactory<CefResourceManager>> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefResourceManager);
 };
 
 #endif  // CEF_INCLUDE_WRAPPER_CEF_RESOURCE_MANAGER_H_

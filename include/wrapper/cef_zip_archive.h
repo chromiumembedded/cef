@@ -40,7 +40,6 @@
 #include <map>
 
 #include "include/base/cef_lock.h"
-#include "include/base/cef_macros.h"
 #include "include/base/cef_ref_counted.h"
 #include "include/cef_base.h"
 
@@ -80,12 +79,15 @@ class CefZipArchive : public base::RefCountedThreadSafe<CefZipArchive> {
     virtual CefRefPtr<CefStreamReader> GetStreamReader() const = 0;
   };
 
-  typedef std::map<CefString, CefRefPtr<File>> FileMap;
+  using FileMap = std::map<CefString, CefRefPtr<File>>;
 
   ///
   // Create a new object.
   ///
   CefZipArchive();
+
+  CefZipArchive(const CefZipArchive&) = delete;
+  CefZipArchive& operator=(const CefZipArchive&) = delete;
 
   ///
   // Load the contents of the specified zip archive stream into this object.
@@ -136,8 +138,6 @@ class CefZipArchive : public base::RefCountedThreadSafe<CefZipArchive> {
   FileMap contents_;
 
   mutable base::Lock lock_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefZipArchive);
 };
 
 #endif  // CEF_INCLUDE_WRAPPER_CEF_ZIP_ARCHIVE_H_

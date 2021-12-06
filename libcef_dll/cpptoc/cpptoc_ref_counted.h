@@ -7,7 +7,6 @@
 #pragma once
 
 #include "include/base/cef_logging.h"
-#include "include/base/cef_macros.h"
 #include "include/capi/cef_base_capi.h"
 #include "include/cef_base.h"
 #include "libcef_dll/wrapper_types.h"
@@ -18,6 +17,9 @@
 template <class ClassName, class BaseName, class StructName>
 class CefCppToCRefCounted : public CefBaseRefCounted {
  public:
+  CefCppToCRefCounted(const CefCppToCRefCounted&) = delete;
+  CefCppToCRefCounted& operator=(const CefCppToCRefCounted&) = delete;
+
   // Create a new wrapper instance and associated structure reference for
   // passing an object instance the other side.
   static StructName* Wrap(CefRefPtr<BaseName> c) {
@@ -105,7 +107,7 @@ class CefCppToCRefCounted : public CefBaseRefCounted {
     base->has_at_least_one_ref = struct_has_at_least_one_ref;
   }
 
-  virtual ~CefCppToCRefCounted() {}
+  virtual ~CefCppToCRefCounted() = default;
 
  private:
   // Used to associate this wrapper object, the underlying object instance and
@@ -196,8 +198,6 @@ class CefCppToCRefCounted : public CefBaseRefCounted {
   CefRefCount ref_count_;
 
   static CefWrapperType kWrapperType;
-
-  DISALLOW_COPY_AND_ASSIGN(CefCppToCRefCounted);
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_CPPTOC_REF_COUNTED_H_

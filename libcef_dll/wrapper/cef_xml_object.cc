@@ -7,7 +7,6 @@
 #include <sstream>
 
 #include "include/base/cef_logging.h"
-#include "include/base/cef_macros.h"
 #include "include/cef_stream.h"
 
 namespace {
@@ -16,6 +15,9 @@ class CefXmlObjectLoader {
  public:
   explicit CefXmlObjectLoader(CefRefPtr<CefXmlObject> root_object)
       : root_object_(root_object) {}
+
+  CefXmlObjectLoader(const CefXmlObjectLoader&) = delete;
+  CefXmlObjectLoader& operator=(const CefXmlObjectLoader&) = delete;
 
   bool Load(CefRefPtr<CefStreamReader> stream,
             CefXmlReader::EncodingType encodingType,
@@ -151,8 +153,6 @@ class CefXmlObjectLoader {
  private:
   CefString load_error_;
   CefRefPtr<CefXmlObject> root_object_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefXmlObjectLoader);
 };
 
 }  // namespace

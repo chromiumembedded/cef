@@ -15,6 +15,9 @@ class CefOnceClosureTask : public CefTask {
   explicit CefOnceClosureTask(base::OnceClosure closure)
       : closure_(std::move(closure)) {}
 
+  CefOnceClosureTask(const CefOnceClosureTask&) = delete;
+  CefOnceClosureTask& operator=(const CefOnceClosureTask&) = delete;
+
   // CefTask method
   void Execute() override { std::move(closure_).Run(); }
 
@@ -22,13 +25,15 @@ class CefOnceClosureTask : public CefTask {
   base::OnceClosure closure_;
 
   IMPLEMENT_REFCOUNTING(CefOnceClosureTask);
-  DISALLOW_COPY_AND_ASSIGN(CefOnceClosureTask);
 };
 
 class CefRepeatingClosureTask : public CefTask {
  public:
   explicit CefRepeatingClosureTask(const base::RepeatingClosure& closure)
       : closure_(closure) {}
+
+  CefRepeatingClosureTask(const CefRepeatingClosureTask&) = delete;
+  CefRepeatingClosureTask& operator=(const CefRepeatingClosureTask&) = delete;
 
   // CefTask method
   void Execute() override {
@@ -40,7 +45,6 @@ class CefRepeatingClosureTask : public CefTask {
   base::RepeatingClosure closure_;
 
   IMPLEMENT_REFCOUNTING(CefRepeatingClosureTask);
-  DISALLOW_COPY_AND_ASSIGN(CefRepeatingClosureTask);
 };
 
 }  // namespace

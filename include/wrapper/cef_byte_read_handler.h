@@ -38,7 +38,6 @@
 #pragma once
 
 #include "include/base/cef_lock.h"
-#include "include/base/cef_macros.h"
 #include "include/cef_base.h"
 #include "include/cef_stream.h"
 
@@ -57,6 +56,9 @@ class CefByteReadHandler : public CefReadHandler {
                      size_t size,
                      CefRefPtr<CefBaseRefCounted> source);
 
+  CefByteReadHandler(const CefByteReadHandler&) = delete;
+  CefByteReadHandler& operator=(const CefByteReadHandler&) = delete;
+
   // CefReadHandler methods.
   virtual size_t Read(void* ptr, size_t size, size_t n) override;
   virtual int Seek(int64 offset, int whence) override;
@@ -73,7 +75,6 @@ class CefByteReadHandler : public CefReadHandler {
   base::Lock lock_;
 
   IMPLEMENT_REFCOUNTING(CefByteReadHandler);
-  DISALLOW_COPY_AND_ASSIGN(CefByteReadHandler);
 };
 
 #endif  // CEF_INCLUDE_WRAPPER_CEF_BYTE_READ_HANDLER_H_
