@@ -188,7 +188,7 @@ index 632ae86c6fd69..55b749ec12421 100644
                            const std::vector<WebPluginInfo>& all_plugins);
  
 diff --git content/browser/renderer_host/render_frame_host_impl.cc content/browser/renderer_host/render_frame_host_impl.cc
-index cb2e3a09dece9..f2f8694fcf6b5 100644
+index 193bfd1abc5f9..e5480792fdf56 100644
 --- content/browser/renderer_host/render_frame_host_impl.cc
 +++ content/browser/renderer_host/render_frame_host_impl.cc
 @@ -12366,6 +12366,7 @@ void RenderFrameHostImpl::BindHungDetectorHost(

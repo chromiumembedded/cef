@@ -130,10 +130,10 @@ index 0cad4e1f9731b..94d9e189661af 100644
    // Set the view's active state (i.e., tint state of controls).
    virtual void SetActive(bool active) = 0;
 diff --git ui/platform_window/x11/x11_window.cc ui/platform_window/x11/x11_window.cc
-index 3ef183213bc60..f6739d9d0817c 100644
+index c3b68a6421b09..c6511f90f295f 100644
 --- ui/platform_window/x11/x11_window.cc
 +++ ui/platform_window/x11/x11_window.cc
-@@ -1704,7 +1704,8 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
+@@ -1719,7 +1719,8 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
    req.border_pixel = 0;
  
    bounds_in_pixels_ = SanitizeBounds(bounds);
@@ -157,7 +157,7 @@ index 7c352dd0d992d..516623a91b0e1 100644
    return host ? host->GetAcceleratedWidget() : nullptr;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
-index 9c3dec8dfdd32..a523cceb5aed3 100644
+index 80d1019a5661b..48073dd9540e4 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
 @@ -231,6 +231,18 @@ Widget::MoveLoopResult DesktopWindowTreeHostLinux::RunMoveLoop(
@@ -189,7 +189,7 @@ index 9c3dec8dfdd32..a523cceb5aed3 100644
    properties->x11_extension_delegate = this;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
-index 5ac7051b4a002..84b8ceb053e75 100644
+index 35caab2f2f06a..f372ad1e4c672 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
 @@ -87,6 +87,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
@@ -210,7 +210,7 @@ index 5ac7051b4a002..84b8ceb053e75 100644
  
    // PlatformWindowDelegate:
    void DispatchEvent(ui::Event* event) override;
-@@ -152,6 +156,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
+@@ -153,6 +157,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
    // destroyed.
    static std::list<gfx::AcceleratedWidget>* open_windows_;
  
