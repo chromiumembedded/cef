@@ -20,7 +20,7 @@ index 85a68f06ccc71..a57f47d70084b 100644
  
            // TODO(wjmaclean): We should update the ProcessLock comparison API
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 3a5aa8aa5f82a..936dd8da4c572 100644
+index 31ba319a27630..72bfe592f5c5a 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
 @@ -5832,6 +5832,12 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithoutFinalFrameHost(
