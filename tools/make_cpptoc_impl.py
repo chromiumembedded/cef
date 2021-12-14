@@ -117,6 +117,12 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
                 '\n  DCHECK('+arg_name+');'\
                 '\n  if (!'+arg_name+')'\
                 '\n    return'+retval_default+';'
+      if arg_type == 'struct_byref_const' or arg_type == 'struct_byref':
+        result +=\
+                '\n  if (!template_util::has_valid_size('+arg_name+')) {'\
+                '\n    NOTREACHED() << "invalid '+arg_name+'->[base.]size";'\
+                '\n    return'+retval_default+';'\
+                '\n  }'
     elif arg_type == 'simple_vec_byref' or arg_type == 'bool_vec_byref' or \
         arg_type == 'refptr_vec_same_byref' or arg_type == 'refptr_vec_diff_byref' or \
         arg_type == 'ownptr_vec_same_byref' or arg_type == 'ownptr_vec_diff_byref' or \

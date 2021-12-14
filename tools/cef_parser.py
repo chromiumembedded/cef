@@ -266,6 +266,9 @@ def format_translation_includes(header, body):
   if body.find('cef_api_hash(') > 0:
     result += '#include "include/cef_api_hash.h"\n'
 
+  if body.find('template_util::has_valid_size(') > 0:
+    result += '#include "libcef_dll/template_util.h"\n'
+
   # identify what CppToC classes are being used
   p = re.compile('([A-Za-z0-9_]{1,})CppToC')
   list = sorted(set(p.findall(body)))
