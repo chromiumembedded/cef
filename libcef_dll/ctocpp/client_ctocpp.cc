@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9997fe1021600e4056a440521ead6e50354d08d6$
+// $hash=f3129d213a21cd0a0cb9424c67cea17edca471d0$
 //
 
 #include "libcef_dll/ctocpp/client_ctocpp.h"
@@ -17,6 +17,7 @@
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
 #include "libcef_dll/ctocpp/audio_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/clipboard_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/context_menu_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/dialog_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
@@ -274,6 +275,21 @@ CefRefPtr<CefRequestHandler> CefClientCToCpp::GetRequestHandler() {
 
   // Return type: refptr_same
   return CefRequestHandlerCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefClipboardHandler> CefClientCToCpp::GetClipboardHandler() {
+  cef_client_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_clipboard_handler))
+    return nullptr;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_clipboard_handler_t* _retval = _struct->get_clipboard_handler(_struct);
+
+  // Return type: refptr_same
+  return CefClipboardHandlerCToCpp::Wrap(_retval);
 }
 
 NO_SANITIZE("cfi-icall")

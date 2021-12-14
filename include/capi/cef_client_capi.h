@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=845a1d1dda63a06f4ae33ed39acfd2599b46a885$
+// $hash=1de4c5c83a055fa5d504a4bb67efde1695e91b80$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_CLIENT_CAPI_H_
@@ -42,6 +42,7 @@
 
 #include "include/capi/cef_audio_handler_capi.h"
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_clipboard_handler_capi.h"
 #include "include/capi/cef_context_menu_handler_capi.h"
 #include "include/capi/cef_dialog_handler_capi.h"
 #include "include/capi/cef_display_handler_capi.h"
@@ -173,6 +174,12 @@ typedef struct _cef_client_t {
   // Return the handler for browser request events.
   ///
   struct _cef_request_handler_t*(CEF_CALLBACK* get_request_handler)(
+      struct _cef_client_t* self);
+
+  ///
+  // Return the handler for clipboard events.
+  ///
+  struct _cef_clipboard_handler_t*(CEF_CALLBACK* get_clipboard_handler)(
       struct _cef_client_t* self);
 
   ///

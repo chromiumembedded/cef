@@ -1214,6 +1214,11 @@ bool AlloyBrowserHostImpl::HandleContextMenu(
   return HandleContextMenu(web_contents(), params);
 }
 
+void AlloyBrowserHostImpl::HandleClipboardChanged(const char* data,
+                                                  size_t size) {
+  contents_delegate_->HandleClipboardChanged(data, size);
+}
+
 KeyboardEventProcessingResult AlloyBrowserHostImpl::PreHandleKeyboardEvent(
     content::WebContents* source,
     const content::NativeWebKeyboardEvent& event) {

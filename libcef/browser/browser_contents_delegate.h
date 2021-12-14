@@ -97,6 +97,11 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
       content::RenderFrameHost* requesting_frame,
       const blink::mojom::FullscreenOptions& options) override;
   void ExitFullscreenModeForTab(content::WebContents* web_contents) override;
+
+
+void HandleClipboardChanged(const char* data,
+                                                 size_t size) override;
+
   content::KeyboardEventProcessingResult PreHandleKeyboardEvent(
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event) override;

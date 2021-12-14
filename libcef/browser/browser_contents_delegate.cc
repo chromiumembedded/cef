@@ -23,6 +23,8 @@
 #include "third_party/blink/public/mojom/favicon/favicon_url.mojom.h"
 #include "third_party/blink/public/mojom/input/focus_type.mojom-blink.h"
 
+#include <iostream>
+
 using content::KeyboardEventProcessingResult;
 
 CefBrowserContentsDelegate::CefBrowserContentsDelegate(
@@ -179,6 +181,17 @@ void CefBrowserContentsDelegate::ExitFullscreenModeForTab(
     content::WebContents* web_contents) {
   OnFullscreenModeChange(/*fullscreen=*/false);
 }
+
+void CefBrowserContentsDelegate::HandleClipboardChanged(const char* data,
+                                                        size_t size) {
+  if (auto delegate = platform_delegate()) {
+    if (auto c = client()) {
+      if (auto handler = c->GetClipboardHandler()) {
+        handler->OnClipboardChanged(data, size);
+      }
+    }
+  }
+} 
 
 KeyboardEventProcessingResult
 CefBrowserContentsDelegate::PreHandleKeyboardEvent(

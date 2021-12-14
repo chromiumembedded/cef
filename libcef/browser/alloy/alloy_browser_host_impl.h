@@ -226,6 +226,9 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   bool TakeFocus(content::WebContents* source, bool reverse) override;
   bool HandleContextMenu(content::RenderFrameHost& render_frame_host,
                          const content::ContextMenuParams& params) override;
+   
+    void HandleClipboardChanged(const char* data,
+                                             size_t size) override;
   content::KeyboardEventProcessingResult PreHandleKeyboardEvent(
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event) override;

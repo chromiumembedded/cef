@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=850ad8962e4c70f0c244fe79b96b8189ae9c3aa8$
+// $hash=83fa44fc104b02a995453fe23cfc3f5edc4fce7f$
 //
 
 #ifndef CEF_LIBCEF_DLL_WRAPPER_TYPES_H_
@@ -35,6 +35,7 @@ enum CefWrapperType {
   WT_BUTTON_DELEGATE,
   WT_CALLBACK,
   WT_CLIENT,
+  WT_CLIPBOARD_HANDLER,
   WT_COMMAND_LINE,
   WT_COMPLETION_CALLBACK,
   WT_CONTEXT_MENU_HANDLER,

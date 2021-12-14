@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=69e482e4a20c97d54dc21f892f9e70e3d5d80f47$
+// $hash=67d135369fddbbeb9c77d5e90a01fd8dc6f53c4b$
 //
 
 #include "libcef_dll/cpptoc/client_cpptoc.h"
 #include "libcef_dll/cpptoc/audio_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/clipboard_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/context_menu_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/dialog_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
@@ -293,6 +294,22 @@ client_get_request_handler(struct _cef_client_t* self) {
   return CefRequestHandlerCppToC::Wrap(_retval);
 }
 
+struct _cef_clipboard_handler_t* CEF_CALLBACK
+client_get_clipboard_handler(struct _cef_client_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefClipboardHandler> _retval =
+      CefClientCppToC::Get(self)->GetClipboardHandler();
+
+  // Return type: refptr_same
+  return CefClipboardHandlerCppToC::Wrap(_retval);
+}
+
 int CEF_CALLBACK
 client_on_process_message_received(struct _cef_client_t* self,
                                    cef_browser_t* browser,
@@ -347,6 +364,7 @@ CefClientCppToC::CefClientCppToC() {
   GetStruct()->get_print_handler = client_get_print_handler;
   GetStruct()->get_render_handler = client_get_render_handler;
   GetStruct()->get_request_handler = client_get_request_handler;
+  GetStruct()->get_clipboard_handler = client_get_clipboard_handler;
   GetStruct()->on_process_message_received = client_on_process_message_received;
 }
 

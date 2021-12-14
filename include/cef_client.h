@@ -40,6 +40,7 @@
 
 #include "include/cef_audio_handler.h"
 #include "include/cef_base.h"
+#include "include/cef_clipboard_handler.h"
 #include "include/cef_context_menu_handler.h"
 #include "include/cef_dialog_handler.h"
 #include "include/cef_display_handler.h"
@@ -167,6 +168,14 @@ class CefClient : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefRequestHandler> GetRequestHandler() { return nullptr; }
+
+  ///
+  // Return the handler for clipboard events.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefClipboardHandler> GetClipboardHandler() {
+    return nullptr;
+  }
 
   ///
   // Called when a new message is received from a different process. Return true
