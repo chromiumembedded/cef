@@ -17,7 +17,7 @@
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
-#include "base/macros.h"
+#include "base/ignore_result.h"
 #include "base/path_service.h"
 #include "base/stl_util.h"
 #include "base/strings/string_number_conversions.h"
@@ -381,14 +381,14 @@ void AlloyMainDelegate::SandboxInitialized(const std::string& process_type) {
                                            chrome_pdf::PPP_ShutdownModule);
 }
 
-int AlloyMainDelegate::RunProcess(
+absl::variant<int, content::MainFunctionParams> AlloyMainDelegate::RunProcess(
     const std::string& process_type,
-    const content::MainFunctionParams& main_function_params) {
+    content::MainFunctionParams main_function_params) {
   if (process_type.empty()) {
-    return runner_->RunMainProcess(main_function_params);
+    return runner_->RunMainProcess(std::move(main_function_params));
   }
 
-  return -1;
+  return std::move(main_function_params);
 }
 
 void AlloyMainDelegate::ProcessExiting(const std::string& process_type) {

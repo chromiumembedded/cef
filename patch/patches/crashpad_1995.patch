@@ -1,5 +1,5 @@
 diff --git chrome/chrome_elf/BUILD.gn chrome/chrome_elf/BUILD.gn
-index 9b08e23e921b0..49182504ae361 100644
+index 3fe0b9b74ae0a..38987ce169308 100644
 --- chrome/chrome_elf/BUILD.gn
 +++ chrome/chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -121,10 +121,10 @@ index 68ddd337e4dfa..687e869afd5c7 100644
  
  void SetActiveExtensions(const std::set<std::string>& extensions) {
 diff --git chrome/common/crash_keys.h chrome/common/crash_keys.h
-index bcf172e645a23..f879aa745adfc 100644
+index e2d53ac83dde0..6ac76e407a748 100644
 --- chrome/common/crash_keys.h
 +++ chrome/common/crash_keys.h
-@@ -17,6 +17,10 @@ class CommandLine;
+@@ -16,6 +16,10 @@ class CommandLine;
  
  namespace crash_keys {
  
@@ -136,7 +136,7 @@ index bcf172e645a23..f879aa745adfc 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git components/crash/core/app/breakpad_linux.cc components/crash/core/app/breakpad_linux.cc
-index 93d05b949c26c..9d307988b6713 100644
+index ec5b5b9b4da3b..b18daaa090059 100644
 --- components/crash/core/app/breakpad_linux.cc
 +++ components/crash/core/app/breakpad_linux.cc
 @@ -28,6 +28,7 @@
@@ -145,8 +145,8 @@ index 93d05b949c26c..9d307988b6713 100644
  #include "base/debug/dump_without_crashing.h"
 +#include "base/debug/leak_annotations.h"
  #include "base/files/file_path.h"
+ #include "base/ignore_result.h"
  #include "base/lazy_instance.h"
- #include "base/linux_util.h"
 @@ -721,7 +722,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
    info.process_type_length = 7;
    info.distro = base::g_linux_distro;
@@ -366,10 +366,10 @@ index 39557cce47443..236806090021a 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crashpad.cc components/crash/core/app/crashpad.cc
-index 40648c1166d8e..3270c3816b120 100644
+index ea9ec2be09943..0c7ba2af97c0f 100644
 --- components/crash/core/app/crashpad.cc
 +++ components/crash/core/app/crashpad.cc
-@@ -155,7 +155,8 @@ bool InitializeCrashpadImpl(bool initial_client,
+@@ -154,7 +154,8 @@ bool InitializeCrashpadImpl(bool initial_client,
    // fallback. Forwarding is turned off for debug-mode builds even for the
    // browser process, because the system's crash reporter can take a very long
    // time to chew on symbols.

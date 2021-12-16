@@ -41,8 +41,11 @@
 #include "third_party/widevine/cdm/buildflags.h"
 #include "ui/base/resource/resource_bundle.h"
 
-#if defined(USE_AURA) && defined(USE_X11)
+#if defined(OS_LINUX)
+#include "ui/ozone/buildflags.h"
+#if defined(USE_AURA) && BUILDFLAG(OZONE_PLATFORM_X11)
 #include "ui/events/devices/x11/touch_factory_x11.h"
+#endif
 #endif
 
 #if defined(USE_AURA)
@@ -84,8 +87,8 @@
 #endif
 
 AlloyBrowserMainParts::AlloyBrowserMainParts(
-    const content::MainFunctionParams& parameters)
-    : BrowserMainParts(), devtools_delegate_(nullptr) {}
+    content::MainFunctionParams parameters)
+    : BrowserMainParts(), parameters_(std::move(parameters)) {}
 
 AlloyBrowserMainParts::~AlloyBrowserMainParts() {
   constrained_window::SetConstrainedWindowViewsClient(nullptr);
@@ -120,8 +123,10 @@ void AlloyBrowserMainParts::ToolkitInitialized() {
 }
 
 void AlloyBrowserMainParts::PreCreateMainMessageLoop() {
-#if defined(USE_AURA) && defined(USE_X11)
+#if defined(OS_LINUX)
+#if defined(USE_AURA) && BUILDFLAG(OZONE_PLATFORM_X11)
   ui::TouchFactory::SetTouchDeviceListFromCommandLine();
+#endif
 #endif
 
 #if defined(OS_WIN)

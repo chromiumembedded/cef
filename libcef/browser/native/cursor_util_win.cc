@@ -9,7 +9,7 @@
 #include "libcef/common/app_manager.h"
 
 #include "ui/base/cursor/mojom/cursor_type.mojom.h"
-#include "ui/base/cursor/win/win_cursor.h"
+#include "ui/base/win/win_cursor.h"
 #include "ui/resources/grit/ui_unscaled_resources.h"
 
 namespace cursor_util {

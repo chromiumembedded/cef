@@ -4,7 +4,7 @@
 
 #include "libcef/common/time_util.h"
 
-#include "base/macros.h"
+#include "base/ignore_result.h"
 
 #if defined(OS_WIN)
 #include <limits>

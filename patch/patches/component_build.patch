@@ -1,8 +1,8 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index b1c7f6ed1b779..60b9cf0a9479f 100644
+index fdfb95294c3c5..e7d6aab0c673e 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
-@@ -95,7 +95,7 @@ bool ApplyUserAgentMetadataOverrides(
+@@ -96,7 +96,7 @@ bool ApplyUserAgentMetadataOverrides(
      FrameTreeNode* frame_tree_node,
      absl::optional<blink::UserAgentMetadata>* override_out);
  
@@ -11,12 +11,33 @@ index b1c7f6ed1b779..60b9cf0a9479f 100644
      RenderFrameHostImpl* rfh,
      bool is_navigation,
      bool is_download,
+diff --git content/browser/renderer_host/input/mouse_wheel_phase_handler.h content/browser/renderer_host/input/mouse_wheel_phase_handler.h
+index 5206955ca2609..3ae147e0edf58 100644
+--- content/browser/renderer_host/input/mouse_wheel_phase_handler.h
++++ content/browser/renderer_host/input/mouse_wheel_phase_handler.h
+@@ -8,6 +8,7 @@
+ #include "base/memory/raw_ptr.h"
+ #include "base/timer/timer.h"
+ #include "content/browser/renderer_host/render_widget_host_delegate.h"
++#include "content/common/content_export.h"
+ #include "third_party/blink/public/common/input/web_mouse_wheel_event.h"
+ #include "third_party/blink/public/mojom/input/input_event_result.mojom-shared.h"
+ 
+@@ -50,7 +51,7 @@ enum class FirstScrollUpdateAckState {
+ // The MouseWheelPhaseHandler is responsible for adding the proper phase to
+ // wheel events. Phase information is necessary for wheel scrolling since it
+ // shows the start and end of a scrolling sequence.
+-class MouseWheelPhaseHandler {
++class CONTENT_EXPORT MouseWheelPhaseHandler {
+  public:
+   MouseWheelPhaseHandler(RenderWidgetHostViewBase* const host_view);
+ 
 diff --git content/browser/renderer_host/input/synthetic_gesture_target_base.h content/browser/renderer_host/input/synthetic_gesture_target_base.h
-index 1f05fa3562f48..2295e442f590a 100644
+index 3f0f719a192db..5fb3754cced7e 100644
 --- content/browser/renderer_host/input/synthetic_gesture_target_base.h
 +++ content/browser/renderer_host/input/synthetic_gesture_target_base.h
 @@ -9,6 +9,7 @@
- #include "base/macros.h"
+ #include "base/memory/raw_ptr.h"
  #include "base/time/time.h"
  #include "content/browser/renderer_host/input/synthetic_gesture_target.h"
 +#include "content/common/content_export.h"
@@ -47,18 +68,18 @@ index 57072bf1263ae..0a93446e4d21c 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index c4d5cb83938e1..954c1c213e4a8 100644
+index b54d43016f306..b26a292893de8 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
-@@ -33,6 +33,7 @@ component("controller") {
+@@ -32,6 +32,7 @@ component("controller") {
+ 
    configs += [
-     "//build/config/compiler:noshadowing",
      "//build/config/compiler:wexit_time_destructors",
 +    "//cef/libcef/features:config",
      "//third_party/blink/renderer:config",
      "//third_party/blink/renderer:inside_blink",
      "//third_party/blink/renderer:non_test_config",
-@@ -58,6 +59,8 @@ component("controller") {
+@@ -57,6 +58,8 @@ component("controller") {
      "performance_manager/v8_detailed_memory_reporter_impl.h",
      "performance_manager/v8_worker_memory_reporter.cc",
      "performance_manager/v8_worker_memory_reporter.h",

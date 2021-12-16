@@ -1081,7 +1081,6 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   CefString mimeType;
   size_t contents_size = current_drag_data_->GetFileContents(nullptr);
   CefString download_metadata = current_drag_data_->GetLinkMetadata();
-  CefString file_name = current_drag_data_->GetFileName();
 
   // File.
   if (contents_size > 0) {

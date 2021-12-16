@@ -13,8 +13,8 @@
 #include "libcef/common/app_manager.h"
 
 #include "base/compiler_specific.h"
+#include "base/ignore_result.h"
 #include "base/logging.h"
-#include "base/macros.h"
 #include "cef/grit/cef_strings.h"
 #include "chrome/grit/generated_resources.h"
 #include "content/public/browser/render_frame_host.h"

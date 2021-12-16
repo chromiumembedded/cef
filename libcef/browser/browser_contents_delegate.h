@@ -88,7 +88,7 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
       content::WebContents* source,
       const content::OpenURLParams& params) override;
   void LoadingStateChanged(content::WebContents* source,
-                           bool to_different_document) override;
+                           bool should_show_loading_ui) override;
   void UpdateTargetURL(content::WebContents* source, const GURL& url) override;
   bool DidAddMessageToConsole(content::WebContents* source,
                               blink::mojom::ConsoleMessageLevel log_level,

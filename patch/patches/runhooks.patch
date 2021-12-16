@@ -1,11 +1,11 @@
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index c1d2fa2ce0aa2..d1d215f35ac12 100644
+index ec9e9eeda7cb7..b58e1900de059 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
-@@ -154,13 +154,17 @@ def _LoadToolchainEnv(cpu, toolchain_root, sdk_dir, target_store):
-         del os.environ['INCLUDE']
-         del os.environ['LIB']
-         del os.environ['LIBPATH']
+@@ -157,13 +157,17 @@ def _LoadToolchainEnv(cpu, toolchain_root, sdk_dir, target_store):
+           del os.environ['LIB']
+         if 'LIBPATH' in os.environ:
+           del os.environ['LIBPATH']
 -      other_path = os.path.normpath(os.path.join(
 +      script_path = os.path.normpath(os.path.join(
                                          os.environ['GYP_MSVS_OVERRIDE_PATH'],

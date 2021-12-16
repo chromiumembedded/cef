@@ -96,6 +96,7 @@
 import("//base/allocator/allocator.gni")
 import("//build/config/features.gni")
 import("//build/config/locales.gni")
+import("//build/config/ozone.gni")
 import("//build/config/sanitizers/sanitizers.gni")
 import("//build/config/ui.gni")
 import("//chrome/common/features.gni")
@@ -306,7 +307,7 @@ group("cef") {
     ":libcef_static_unittests",
   ]
 
-  if (!is_linux || use_x11) {
+  if (!is_linux || ozone_platform_x11) {
     deps += [ ":cefclient" ]
   }
 }
@@ -983,7 +984,7 @@ static_library("libcef_static") {
       "libcef/browser/printing/print_dialog_linux.h",
     ]
 
-    if (use_x11) {
+    if (ozone_platform_x11) {
       sources += [
         "libcef/browser/native/window_x11.cc",
         "libcef/browser/native/window_x11.h",
@@ -995,7 +996,7 @@ static_library("libcef_static") {
       "//third_party/fontconfig",
     ]
 
-    if (is_linux && !use_x11) {
+    if (is_linux && !ozone_platform_x11) {
       deps += [
         "//third_party/angle:libEGL",
       ]
@@ -1027,7 +1028,7 @@ static_library("libcef_static") {
     deps += [ "//third_party/crashpad/crashpad/handler" ]
   }
 
-  if (use_x11) {
+  if (ozone_platform_x11) {
     deps += [ "//ui/events/devices/x11" ]
   }
 
@@ -1201,7 +1202,7 @@ static_library("libcef_static") {
           "//ui/ozone:generate_test_support_constructor_list",
         ]
 
-        if (use_x11) {
+        if (ozone_platform_x11) {
           sources += [
             # Support for UI input events.
             # Part of //ui/base/x:test_support which is testingonly.
@@ -2249,7 +2250,7 @@ if (is_mac) {
       sources += includes_linux +
                  gypi_paths2.cefsimple_sources_linux
 
-      if (use_x11) {
+      if (ozone_platform_x11) {
         libs = [
           "X11",
         ]
@@ -2309,7 +2310,7 @@ if (is_mac) {
       sources += gypi_paths2.shared_sources_linux +
                  gypi_paths2.ceftests_sources_linux
 
-      if (use_x11) {
+      if (ozone_platform_x11) {
         libs = [
           "X11",
         ]

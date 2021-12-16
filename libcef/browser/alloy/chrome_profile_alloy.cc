@@ -108,10 +108,6 @@ const Profile* ChromeProfileAlloy::GetOriginalProfile() const {
   return this;
 }
 
-bool ChromeProfileAlloy::IsSupervised() const {
-  return false;
-}
-
 bool ChromeProfileAlloy::IsChild() const {
   return false;
 }

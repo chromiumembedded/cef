@@ -1,8 +1,8 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index 79ea44500f6e7..f1c4da868f12e 100644
+index 1876f324468dc..f22b44017b38a 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
-@@ -14,6 +14,7 @@
+@@ -15,6 +15,7 @@
  #include "base/version.h"
  #include "build/branding_buildflags.h"
  #include "build/build_config.h"
@@ -10,16 +10,16 @@ index 79ea44500f6e7..f1c4da868f12e 100644
  #include "components/embedder_support/switches.h"
  #include "components/policy/core/common/policy_pref_names.h"
  #include "components/prefs/pref_service.h"
-@@ -189,6 +190,12 @@ const blink::UserAgentBrandList& GetBrandVersionList(
- }  // namespace
+@@ -234,6 +235,12 @@ const blink::UserAgentBrandList& GetBrandFullVersionList(
+ }
  
- std::string GetProduct() {
+ std::string GetProduct(const bool allow_version_override) {
 +  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
 +  if (command_line->HasSwitch(switches::kUserAgentProductAndVersion)) {
 +    return command_line->GetSwitchValueASCII(
 +        switches::kUserAgentProductAndVersion);
 +  }
 +
-   if (base::FeatureList::IsEnabled(
+   if (allow_version_override &&
+       base::FeatureList::IsEnabled(
            blink::features::kForceMajorVersion100InUserAgent))
-     return "Chrome/" + GetM100VersionNumber();

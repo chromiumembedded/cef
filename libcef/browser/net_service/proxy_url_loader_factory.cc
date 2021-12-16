@@ -14,7 +14,7 @@
 
 #include "base/barrier_closure.h"
 #include "base/command_line.h"
-#include "base/macros.h"
+#include "base/ignore_result.h"
 #include "base/strings/string_number_conversions.h"
 #include "components/safe_browsing/core/common/safebrowsing_constants.h"
 #include "content/public/browser/browser_context.h"

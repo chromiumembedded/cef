@@ -337,7 +337,8 @@ bool CefRenderWidgetHostViewOSR::IsSurfaceAvailableForCopy() {
              : false;
 }
 
-void CefRenderWidgetHostViewOSR::Show() {
+void CefRenderWidgetHostViewOSR::ShowWithVisibility(
+    content::PageVisibilityState) {
   if (is_showing_)
     return;
 
@@ -851,6 +852,27 @@ viz::FrameSinkId CefRenderWidgetHostViewOSR::GetRootFrameSinkId() {
   return compositor_ ? compositor_->frame_sink_id() : viz::FrameSinkId();
 }
 
+void CefRenderWidgetHostViewOSR::NotifyHostAndDelegateOnWasShown(
+    blink::mojom::RecordContentToVisibleTimeRequestPtr visible_time_request) {
+  // We don't call RenderWidgetHostViewBase::OnShowWithPageVisibility, so this
+  // method should not be called.
+  NOTREACHED();
+}
+
+void CefRenderWidgetHostViewOSR::RequestPresentationTimeFromHostOrDelegate(
+    blink::mojom::RecordContentToVisibleTimeRequestPtr visible_time_request) {
+  // We don't call RenderWidgetHostViewBase::OnShowWithPageVisibility, so this
+  // method should not be called.
+  NOTREACHED();
+}
+
+void CefRenderWidgetHostViewOSR::
+    CancelPresentationTimeRequestForHostAndDelegate() {
+  // We don't call RenderWidgetHostViewBase::OnShowWithPageVisibility, so this
+  // method should not be called.
+  NOTREACHED();
+}
+
 std::unique_ptr<content::SyntheticGestureTarget>
 CefRenderWidgetHostViewOSR::CreateSyntheticGestureTarget() {
   return std::make_unique<CefSyntheticGestureTargetOSR>(host());
@@ -910,7 +932,7 @@ void CefRenderWidgetHostViewOSR::OnRenderFrameMetadataChangedAfterActivation(
     video_consumer_->SizeChanged(metadata.viewport_size_in_pixels);
   }
 
-  gfx::Vector2dF root_scroll_offset;
+  gfx::PointF root_scroll_offset;
   if (metadata.root_scroll_offset) {
     root_scroll_offset = *metadata.root_scroll_offset;
   }

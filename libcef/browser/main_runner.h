@@ -20,7 +20,6 @@ class WaitableEvent;
 
 namespace content {
 class ContentMainRunner;
-struct ContentMainParams;
 }  // namespace content
 
 class CefUIThread;
@@ -64,8 +63,7 @@ class CefMainRunner : public CefMainRunnerHandler {
 
   // CefMainRunnerHandler methods:
   void PreBrowserMain() override;
-  int RunMainProcess(
-      const content::MainFunctionParams& main_function_params) override;
+  int RunMainProcess(content::MainFunctionParams main_function_params) override;
 
   // Create the UI thread when running with multi-threaded message loop mode.
   bool CreateUIThread(base::OnceClosure setup_callback);
@@ -86,7 +84,6 @@ class CefMainRunner : public CefMainRunnerHandler {
 
   std::unique_ptr<CefMainRunnerDelegate> main_delegate_;
   std::unique_ptr<content::ContentMainRunner> main_runner_;
-  std::unique_ptr<content::ContentMainParams> main_params_;
 
   std::unique_ptr<content::BrowserMainRunner> browser_runner_;
   std::unique_ptr<CefUIThread> ui_thread_;

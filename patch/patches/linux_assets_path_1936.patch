@@ -24,28 +24,6 @@ index 7022a65e03578..c9aaf5d76e4a1 100644
      base::FilePath sandbox_candidate = exe_dir.AppendASCII("chrome-sandbox");
      if (base::PathExists(sandbox_candidate))
        sandbox_binary = sandbox_candidate;
-diff --git ui/gl/init/gl_initializer_linux_x11.cc ui/gl/init/gl_initializer_linux_x11.cc
-index 016046d6caa4f..116e4919cda08 100644
---- ui/gl/init/gl_initializer_linux_x11.cc
-+++ ui/gl/init/gl_initializer_linux_x11.cc
-@@ -82,7 +82,7 @@ bool InitializeStaticEGLInternalFromLibrary(GLImplementation implementation) {
-   if (implementation == kGLImplementationSwiftShaderGL) {
- #if BUILDFLAG(ENABLE_SWIFTSHADER)
-     base::FilePath module_path;
--    if (!base::PathService::Get(base::DIR_MODULE, &module_path))
-+    if (!base::PathService::Get(base::DIR_ASSETS, &module_path))
-       return false;
-     module_path = module_path.Append("swiftshader/");
- 
-@@ -94,7 +94,7 @@ bool InitializeStaticEGLInternalFromLibrary(GLImplementation implementation) {
-   } else if (implementation == kGLImplementationEGLANGLE) {
- #if !BUILDFLAG(USE_STATIC_ANGLE)
-     base::FilePath module_path;
--    if (!base::PathService::Get(base::DIR_MODULE, &module_path))
-+    if (!base::PathService::Get(base::DIR_ASSETS, &module_path))
-       return false;
- 
-     const char kGLESv2ANGLELibraryName[] = "libGLESv2.so";
 diff --git ui/ozone/common/egl_util.cc ui/ozone/common/egl_util.cc
 index e028d8cf8dec6..d172832589534 100644
 --- ui/ozone/common/egl_util.cc

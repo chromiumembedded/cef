@@ -17,7 +17,6 @@
 
 #include "third_party/blink/renderer/bindings/core/v8/sanitize_script_errors.h"
 #include "third_party/blink/renderer/bindings/core/v8/script_evaluation_result.h"
-#include "third_party/blink/renderer/bindings/core/v8/script_source_code.h"
 #include "third_party/blink/renderer/bindings/core/v8/v8_binding_for_core.h"
 #include "third_party/blink/renderer/core/dom/document.h"
 #include "third_party/blink/renderer/core/dom/element.h"
@@ -184,16 +183,12 @@ v8::Local<v8::Value> ExecuteV8ScriptAndReturnValue(
   if (!frame)
     return v8::Local<v8::Value>();
 
-  const blink::ScriptSourceCode ssc = blink::ScriptSourceCode(
-      source, blink::ScriptSourceLocationType::kInternal,
-      nullptr, /* cache_handler */
-      blink::KURL(source_url),
+  auto* script = blink::ClassicScript::Create(
+      source, blink::KURL(source_url), blink::KURL(source_url),
+      blink::ScriptFetchOptions(), blink::ScriptSourceLocationType::kInternal,
+      blink::SanitizeScriptErrors::kDoNotSanitize, /*cache_handler=*/nullptr,
       WTF::TextPosition(WTF::OrdinalNumber::FromOneBasedInt(start_line),
                         WTF::OrdinalNumber::FromZeroBasedInt(0)));
-
-  auto* script = blink::MakeGarbageCollected<blink::ClassicScript>(
-      ssc, ssc.Url(), blink::ScriptFetchOptions(),
-      blink::SanitizeScriptErrors::kDoNotSanitize);
 
   // The Rethrow() message is unused due to kDoNotSanitize but it still needs
   // to be non-nullopt for exceptions to be re-thrown as expected.

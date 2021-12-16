@@ -24,7 +24,7 @@
 #include "libcef/common/command_line_impl.h"
 
 #include "base/command_line.h"
-#include "base/macros.h"
+#include "base/ignore_result.h"
 #include "base/path_service.h"
 #include "chrome/browser/chrome_browser_main.h"
 #include "chrome/browser/net/system_network_context_manager.h"
@@ -69,9 +69,9 @@ ChromeContentBrowserClientCef::~ChromeContentBrowserClientCef() = default;
 
 std::unique_ptr<content::BrowserMainParts>
 ChromeContentBrowserClientCef::CreateBrowserMainParts(
-    const content::MainFunctionParams& parameters) {
+    content::MainFunctionParams parameters) {
   auto main_parts =
-      ChromeContentBrowserClient::CreateBrowserMainParts(parameters);
+      ChromeContentBrowserClient::CreateBrowserMainParts(std::move(parameters));
   browser_main_parts_ = new ChromeBrowserMainExtraPartsCef;
   static_cast<ChromeBrowserMainParts*>(main_parts.get())
       ->AddParts(

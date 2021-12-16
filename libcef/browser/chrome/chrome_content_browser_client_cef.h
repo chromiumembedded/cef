@@ -27,7 +27,7 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
 
   // ChromeContentBrowserClient overrides.
   std::unique_ptr<content::BrowserMainParts> CreateBrowserMainParts(
-      const content::MainFunctionParams& parameters) override;
+      content::MainFunctionParams parameters) override;
   void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
                                       int child_process_id) override;
   void RenderProcessWillLaunch(content::RenderProcessHost* host) override;

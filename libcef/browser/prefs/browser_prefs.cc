@@ -20,14 +20,13 @@
 #include "base/task/thread_pool.h"
 #include "base/values.h"
 #include "chrome/browser/accessibility/accessibility_ui.h"
-#include "chrome/browser/component_updater/chrome_component_updater_configurator.h"
 #include "chrome/browser/download/download_prefs.h"
 #include "chrome/browser/media/media_device_id_salt.h"
 #include "chrome/browser/media/router/media_router_feature.h"
-#include "chrome/browser/net/prediction_options.h"
 #include "chrome/browser/net/profile_network_context_service.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/plugins/plugin_info_host_impl.h"
+#include "chrome/browser/prefetch/prefetch_prefs.h"
 #include "chrome/browser/prefs/chrome_command_line_pref_store.h"
 #include "chrome/browser/printing/print_preview_sticky_settings.h"
 #include "chrome/browser/profiles/profile.h"
@@ -40,6 +39,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/grit/locale_settings.h"
 #include "components/certificate_transparency/pref_names.h"
+#include "components/component_updater/component_updater_service.h"
 #include "components/content_settings/core/browser/cookie_settings.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/flags_ui/pref_service_flags_storage.h"
@@ -231,8 +231,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   update_client::RegisterPrefs(registry.get());
 
   if (!profile) {
-    component_updater::RegisterPrefsForChromeComponentUpdaterConfigurator(
-        registry.get());
+    component_updater::RegisterComponentUpdateServicePrefs(registry.get());
     SystemNetworkContextManager::RegisterPrefs(registry.get());
 #if defined(OS_WIN)
     OSCrypt::RegisterLocalPrefs(registry.get());
@@ -264,12 +263,12 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
 
     // Default profile preferences.
     AccessibilityUIMessageHandler::RegisterProfilePrefs(registry.get());
-    chrome_browser_net::RegisterPredictionOptionsProfilePrefs(registry.get());
     extensions::ExtensionPrefs::RegisterProfilePrefs(registry.get());
     HostContentSettingsMap::RegisterProfilePrefs(registry.get());
     language::LanguagePrefs::RegisterProfilePrefs(registry.get());
     media_router::RegisterProfilePrefs(registry.get());
     MediaDeviceIDSalt::RegisterProfilePrefs(registry.get());
+    prefetch::RegisterPredictionOptionsProfilePrefs(registry.get());
     ProfileNetworkContextService::RegisterProfilePrefs(registry.get());
     safe_browsing::RegisterProfilePrefs(registry.get());
     RegisterProfilePrefs(registry.get());

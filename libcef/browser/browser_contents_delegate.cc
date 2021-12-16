@@ -91,7 +91,7 @@ content::WebContents* CefBrowserContentsDelegate::OpenURLFromTab(
 
 void CefBrowserContentsDelegate::LoadingStateChanged(
     content::WebContents* source,
-    bool to_different_document) {
+    bool should_show_loading_ui) {
   const int current_index =
       source->GetController().GetLastCommittedEntryIndex();
   const int max_index = source->GetController().GetEntryCount() - 1;

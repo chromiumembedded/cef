@@ -7,9 +7,7 @@
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/extensions/extension_host_delegate.h"
 
-#include "content/public/browser/notification_source.h"
 #include "content/public/browser/web_contents.h"
-#include "extensions/browser/notification_types.h"
 #include "extensions/browser/process_util.h"
 #include "third_party/blink/public/common/input/web_gesture_event.h"
 
@@ -47,9 +45,8 @@ void CefExtensionViewHost::LoadInitialURL() {
                                                      browser_context()) ==
       process_util::PersistentBackgroundPageState::kNotReady) {
     // Make sure the background page loads before any others.
-    registrar_.Add(this,
-                   extensions::NOTIFICATION_EXTENSION_BACKGROUND_PAGE_READY,
-                   content::Source<Extension>(extension()));
+    host_registry_observation_.Observe(
+        ExtensionHostRegistry::Get(browser_context()));
     return;
   }
 
@@ -80,14 +77,22 @@ WebContents* CefExtensionViewHost::GetVisibleWebContents() const {
   return nullptr;
 }
 
-void CefExtensionViewHost::Observe(
-    int type,
-    const content::NotificationSource& source,
-    const content::NotificationDetails& details) {
-  DCHECK_EQ(type, extensions::NOTIFICATION_EXTENSION_BACKGROUND_PAGE_READY);
+void CefExtensionViewHost::OnExtensionHostDocumentElementAvailable(
+    content::BrowserContext* host_browser_context,
+    ExtensionHost* extension_host) {
+  DCHECK(extension_host->extension());
+  if (host_browser_context != browser_context() ||
+      extension_host->extension() != extension() ||
+      extension_host->extension_host_type() !=
+          mojom::ViewType::kExtensionBackgroundPage) {
+    return;
+  }
+
   DCHECK_EQ(process_util::PersistentBackgroundPageState::kReady,
             process_util::GetPersistentBackgroundPageState(*extension(),
                                                            browser_context()));
+  // We only needed to wait for the background page to load, so stop observing.
+  host_registry_observation_.Reset();
   LoadInitialURL();
 }
 

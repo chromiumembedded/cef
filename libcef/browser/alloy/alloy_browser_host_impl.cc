@@ -1123,8 +1123,8 @@ void AlloyBrowserHostImpl::AddNewContents(
 }
 
 void AlloyBrowserHostImpl::LoadingStateChanged(content::WebContents* source,
-                                               bool to_different_document) {
-  contents_delegate_->LoadingStateChanged(source, to_different_document);
+                                               bool should_show_loading_ui) {
+  contents_delegate_->LoadingStateChanged(source, should_show_loading_ui);
 }
 
 void AlloyBrowserHostImpl::CloseContents(content::WebContents* source) {

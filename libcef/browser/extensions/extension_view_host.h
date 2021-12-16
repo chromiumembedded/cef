@@ -7,9 +7,9 @@
 
 #include <memory>
 
-#include "content/public/browser/notification_observer.h"
-#include "content/public/browser/notification_registrar.h"
+#include "base/scoped_observation.h"
 #include "extensions/browser/extension_host.h"
+#include "extensions/browser/extension_host_registry.h"
 
 class AlloyBrowserHostImpl;
 
@@ -24,7 +24,7 @@ namespace extensions {
 // page. Object lifespan is managed by AlloyBrowserHostImpl. Based on
 // chrome/browser/extensions/extension_view_host.h.
 class CefExtensionViewHost : public ExtensionHost,
-                             public content::NotificationObserver {
+                             public ExtensionHostRegistry::Observer {
  public:
   CefExtensionViewHost(AlloyBrowserHostImpl* browser,
                        const Extension* extension,
@@ -51,13 +51,15 @@ class CefExtensionViewHost : public ExtensionHost,
   // extensions::ExtensionFunctionDispatcher::Delegate methods:
   content::WebContents* GetVisibleWebContents() const override;
 
-  // content::NotificationObserver methods:
-  void Observe(int type,
-               const content::NotificationSource& source,
-               const content::NotificationDetails& details) override;
+  // ExtensionHostRegistry::Observer methods:
+  void OnExtensionHostDocumentElementAvailable(
+      content::BrowserContext* browser_context,
+      ExtensionHost* extension_host) override;
 
  private:
-  content::NotificationRegistrar registrar_;
+  base::ScopedObservation<ExtensionHostRegistry,
+                          ExtensionHostRegistry::Observer>
+      host_registry_observation_{this};
 };
 
 }  // namespace extensions

@@ -157,12 +157,13 @@ class CefUIThread : public base::PlatformThread::Delegate {
   }
 
   void InitializeBrowserRunner(
-      const content::MainFunctionParams& main_function_params) {
+      content::MainFunctionParams main_function_params) {
     // Use our own browser process runner.
     browser_runner_ = content::BrowserMainRunner::Create();
 
     // Initialize browser process state. Uses the current thread's message loop.
-    int exit_code = browser_runner_->Initialize(main_function_params);
+    int exit_code =
+        browser_runner_->Initialize(std::move(main_function_params));
     CHECK_EQ(exit_code, -1);
   }
 
@@ -335,22 +336,23 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
 #endif
 
   // Execute the secondary process.
-  content::ContentMainParams params(main_delegate->GetContentMainDelegate());
+  content::ContentMainParams main_params(
+      main_delegate->GetContentMainDelegate());
 #if defined(OS_WIN)
-  sandbox::SandboxInterfaceInfo sandbox_info = {0};
+  sandbox::SandboxInterfaceInfo sandbox_info = {nullptr};
   if (windows_sandbox_info == nullptr) {
     content::InitializeSandboxInfo(&sandbox_info);
     windows_sandbox_info = &sandbox_info;
   }
 
-  params.instance = args.instance;
-  params.sandbox_info =
+  main_params.instance = args.instance;
+  main_params.sandbox_info =
       static_cast<sandbox::SandboxInterfaceInfo*>(windows_sandbox_info);
 #else
-  params.argc = args.argc;
-  params.argv = const_cast<const char**>(args.argv);
+  main_params.argc = args.argc;
+  main_params.argv = const_cast<const char**>(args.argv);
 #endif
-  result = content::ContentMain(params);
+  result = content::ContentMain(std::move(main_params));
 
   main_delegate->AfterExecuteProcess();
 
@@ -364,25 +366,26 @@ int CefMainRunner::ContentMainInitialize(const CefMainArgs& args,
 
   // Initialize the content runner.
   main_runner_ = content::ContentMainRunner::Create();
-  main_params_ = std::make_unique<content::ContentMainParams>(
+  content::ContentMainParams main_params(
       main_delegate_->GetContentMainDelegate());
 
 #if defined(OS_WIN)
-  sandbox::SandboxInterfaceInfo sandbox_info = {0};
+  sandbox::SandboxInterfaceInfo sandbox_info = {nullptr};
   if (windows_sandbox_info == nullptr) {
     windows_sandbox_info = &sandbox_info;
     *no_sandbox = true;
   }
 
-  main_params_->instance = args.instance;
-  main_params_->sandbox_info =
+  main_params.instance = args.instance;
+  main_params.sandbox_info =
       static_cast<sandbox::SandboxInterfaceInfo*>(windows_sandbox_info);
 #else
-  main_params_->argc = args.argc;
-  main_params_->argv = const_cast<const char**>(args.argv);
+  main_params.argc = args.argc;
+  main_params.argv = const_cast<const char**>(args.argv);
 #endif
 
-  return content::ContentMainInitialize(*main_params_, main_runner_.get());
+  return content::ContentMainInitialize(std::move(main_params),
+                                        main_runner_.get());
 }
 
 bool CefMainRunner::ContentMainRun(bool* initialized,
@@ -396,8 +399,7 @@ bool CefMainRunner::ContentMainRun(bool* initialized,
 
     if (!CreateUIThread(base::BindOnce(
             [](CefMainRunner* runner, base::WaitableEvent* event) {
-              content::ContentMainRun(*runner->main_params_,
-                                      runner->main_runner_.get());
+              content::ContentMainRun(runner->main_runner_.get());
               event->Signal();
             },
             base::Unretained(this),
@@ -411,7 +413,7 @@ bool CefMainRunner::ContentMainRun(bool* initialized,
     uithread_startup_event.Wait();
   } else {
     *initialized = true;
-    content::ContentMainRun(*main_params_, main_runner_.get());
+    content::ContentMainRun(main_runner_.get());
   }
 
   if (CEF_CURRENTLY_ON_UIT()) {
@@ -433,7 +435,7 @@ void CefMainRunner::PreBrowserMain() {
 }
 
 int CefMainRunner::RunMainProcess(
-    const content::MainFunctionParams& main_function_params) {
+    content::MainFunctionParams main_function_params) {
   if (!multi_threaded_message_loop_) {
     // Use our own browser process runner.
     browser_runner_ = content::BrowserMainRunner::Create();
@@ -441,13 +443,14 @@ int CefMainRunner::RunMainProcess(
     // Initialize browser process state. Results in a call to
     // AlloyBrowserMain::PreBrowserMain() which creates the UI message
     // loop.
-    int exit_code = browser_runner_->Initialize(main_function_params);
+    int exit_code =
+        browser_runner_->Initialize(std::move(main_function_params));
     if (exit_code >= 0)
       return exit_code;
   } else {
     // Running on the separate UI thread.
     DCHECK(ui_thread_);
-    ui_thread_->InitializeBrowserRunner(main_function_params);
+    ui_thread_->InitializeBrowserRunner(std::move(main_function_params));
   }
 
   return 0;
@@ -504,9 +507,8 @@ void CefMainRunner::FinalizeShutdown(base::OnceClosure finalize_shutdown) {
   }
 
   // Shut down the content runner.
-  content::ContentMainShutdown(*main_params_, main_runner_.get());
+  content::ContentMainShutdown(main_runner_.get());
 
-  main_params_.reset();
   main_runner_.reset();
 
   std::move(finalize_shutdown).Run();

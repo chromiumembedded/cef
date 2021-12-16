@@ -1,8 +1,8 @@
 diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
-index b2737eddcda61..d23ee8daf0d76 100644
+index 2a729ea2de461..4d6bcddba181d 100644
 --- content/browser/storage_partition_impl.cc
 +++ content/browser/storage_partition_impl.cc
-@@ -476,10 +476,6 @@ class LoginHandlerDelegate {
+@@ -489,10 +489,6 @@ class LoginHandlerDelegate {
      }
  
      WebContents* web_contents = web_contents_getter_.Run();
@@ -13,7 +13,7 @@ index b2737eddcda61..d23ee8daf0d76 100644
  
      // WeakPtr is not strictly necessary here due to OnRequestCancelled.
      creating_login_delegate_ = true;
-@@ -531,12 +527,6 @@ void OnAuthRequiredContinuation(
+@@ -544,12 +540,6 @@ void OnAuthRequiredContinuation(
      mojo::PendingRemote<network::mojom::AuthChallengeResponder>
          auth_challenge_responder,
      base::RepeatingCallback<WebContents*(void)> web_contents_getter) {
@@ -26,7 +26,7 @@ index b2737eddcda61..d23ee8daf0d76 100644
    new LoginHandlerDelegate(
        std::move(auth_challenge_responder), std::move(web_contents_getter),
        auth_info, is_request_for_primary_main_frame, process_id, request_id, url,
-@@ -2677,8 +2667,12 @@ void StoragePartitionImpl::GetQuotaSettings(
+@@ -2717,8 +2707,12 @@ void StoragePartitionImpl::GetQuotaSettings(
      return;
    }
  
@@ -40,7 +40,7 @@ index b2737eddcda61..d23ee8daf0d76 100644
        storage::GetDefaultDeviceInfoHelper(), std::move(callback));
  }
  
-@@ -2688,9 +2682,12 @@ void StoragePartitionImpl::InitNetworkContext() {
+@@ -2728,9 +2722,12 @@ void StoragePartitionImpl::InitNetworkContext() {
    cert_verifier::mojom::CertVerifierCreationParamsPtr
        cert_verifier_creation_params =
            cert_verifier::mojom::CertVerifierCreationParams::New();
@@ -52,6 +52,6 @@ index b2737eddcda61..d23ee8daf0d76 100644
 +    // Don't re-initialize the network context during shutdown.
 +    return;
 +  }
-   devtools_instrumentation::ApplyNetworkContextParamsOverrides(
-       browser_context_, context_params.get());
-   DCHECK(!context_params->cert_verifier_params)
+   // Should be initialized with existing per-profile CORS access lists.
+   DCHECK(context_params->cors_origin_access_list.empty())
+       << "NetworkContextParams::cors_origin_access_list should be populated "

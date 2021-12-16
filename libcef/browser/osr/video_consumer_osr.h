@@ -25,8 +25,8 @@ class CefVideoConsumerOSR : public viz::mojom::FrameSinkVideoConsumer {
  private:
   // viz::mojom::FrameSinkVideoConsumer implementation.
   void OnFrameCaptured(
-      base::ReadOnlySharedMemoryRegion data,
-      ::media::mojom::VideoFrameInfoPtr info,
+      media::mojom::VideoBufferHandlePtr data,
+      media::mojom::VideoFrameInfoPtr info,
       const gfx::Rect& content_rect,
       mojo::PendingRemote<viz::mojom::FrameSinkVideoConsumerFrameCallbacks>
           callbacks) override;

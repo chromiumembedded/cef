@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
-index 9022569bd6b32..06cb80bf601ef 100644
+index 059eb9b6d118e..86a37ba85a273 100644
 --- chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ chrome/browser/profiles/off_the_record_profile_impl.cc
-@@ -620,7 +620,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
+@@ -616,7 +616,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
  #endif
    if (!profile)
      profile = std::make_unique<OffTheRecordProfileImpl>(parent, otr_profile_id);
@@ -14,10 +14,10 @@ index 9022569bd6b32..06cb80bf601ef 100644
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index 77c15d82fb04e..791ee83161633 100644
+index a13f2fda30aac..be31fb170ee6b 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
-@@ -83,6 +83,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
+@@ -84,6 +84,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
  
  namespace {
  
@@ -25,7 +25,7 @@ index 77c15d82fb04e..791ee83161633 100644
  const char kDevToolsOTRProfileIDPrefix[] = "Devtools::BrowserContext";
  const char kMediaRouterOTRProfileIDPrefix[] = "MediaRouter::Presentation";
  const char kTestOTRProfileIDPrefix[] = "Test::OTR";
-@@ -97,6 +98,8 @@ bool Profile::OTRProfileID::AllowsBrowserWindows() const {
+@@ -98,6 +99,8 @@ bool Profile::OTRProfileID::AllowsBrowserWindows() const {
    // DevTools::BrowserContext and MediaRouter::Presentation are an
    // exception to this ban.
    return *this == PrimaryID() ||
@@ -34,7 +34,7 @@ index 77c15d82fb04e..791ee83161633 100644
           base::StartsWith(profile_id_, kDevToolsOTRProfileIDPrefix,
                            base::CompareCase::SENSITIVE) ||
           base::StartsWith(profile_id_, kMediaRouterOTRProfileIDPrefix,
-@@ -118,6 +121,16 @@ Profile::OTRProfileID Profile::OTRProfileID::CreateUnique(
+@@ -119,6 +122,16 @@ Profile::OTRProfileID Profile::OTRProfileID::CreateUnique(
        base::GUID::GenerateRandomV4().AsLowercaseString().c_str()));
  }
  
@@ -52,7 +52,7 @@ index 77c15d82fb04e..791ee83161633 100644
  Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
    return CreateUnique(kDevToolsOTRProfileIDPrefix);
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index 1466666f50f4e..704fda78a1842 100644
+index 641a2444dd08a..be03f030d5ffe 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
 @@ -98,6 +98,10 @@ class Profile : public content::BrowserContext {
@@ -66,7 +66,7 @@ index 1466666f50f4e..704fda78a1842 100644
      // Creates a unique OTR profile id to be used for DevTools browser contexts.
      static OTRProfileID CreateUniqueForDevTools();
  
-@@ -483,6 +487,8 @@ class Profile : public content::BrowserContext {
+@@ -480,6 +484,8 @@ class Profile : public content::BrowserContext {
  
    virtual void RecordPrimaryMainFrameNavigation() = 0;
  
@@ -75,7 +75,7 @@ index 1466666f50f4e..704fda78a1842 100644
   protected:
    // Creates an OffTheRecordProfile which points to this Profile.
    static std::unique_ptr<Profile> CreateOffTheRecordProfile(
-@@ -494,8 +500,6 @@ class Profile : public content::BrowserContext {
+@@ -491,8 +497,6 @@ class Profile : public content::BrowserContext {
    static PrefStore* CreateExtensionPrefStore(Profile*,
                                               bool incognito_pref_store);
  
@@ -85,7 +85,7 @@ index 1466666f50f4e..704fda78a1842 100644
    virtual bool IsSignedIn() = 0;
  
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index 9d99f3fd9a703..93fade3dc13f0 100644
+index 98c0522cc5e9b..dcb28df56ef4f 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
 @@ -994,7 +994,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
@@ -100,10 +100,10 @@ index 9d99f3fd9a703..93fade3dc13f0 100644
    return raw_otr_profile;
  }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 9263de5dec839..caab6922b8dcb 100644
+index feacaf4e4e6d7..116a93b90e2a5 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -499,7 +499,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+@@ -496,7 +496,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
                            base::Unretained(this)));
  #endif
  
@@ -113,10 +113,10 @@ index 9263de5dec839..caab6922b8dcb 100644
  }
  
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index fca117d60623e..a3c29f0f9c0c2 100644
+index 35bc427430d76..2c79b8c174fd1 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
-@@ -123,7 +123,7 @@ class ProfileManager : public Profile::Delegate {
+@@ -126,7 +126,7 @@ class ProfileManager : public Profile::Delegate {
    // acceptable. Returns null if creation of the new profile fails.
    // TODO(bauerb): Migrate calls from other code to GetProfileByPath(), then
    // make this method private.
@@ -125,7 +125,7 @@ index fca117d60623e..a3c29f0f9c0c2 100644
  
    // Returns regular or off-the-record profile given its profile key.
    static Profile* GetProfileFromProfileKey(ProfileKey* profile_key);
-@@ -155,7 +155,7 @@ class ProfileManager : public Profile::Delegate {
+@@ -158,7 +158,7 @@ class ProfileManager : public Profile::Delegate {
  
    // Returns true if the profile pointer is known to point to an existing
    // profile.
@@ -135,7 +135,7 @@ index fca117d60623e..a3c29f0f9c0c2 100644
    // Returns the directory where the first created profile is stored,
    // relative to the user data directory currently in use.
 diff --git chrome/browser/profiles/renderer_updater.cc chrome/browser/profiles/renderer_updater.cc
-index 6602171b1c29b..f49d57df645fd 100644
+index 92ea233746f67..c4415290613e3 100644
 --- chrome/browser/profiles/renderer_updater.cc
 +++ chrome/browser/profiles/renderer_updater.cc
 @@ -8,6 +8,7 @@
@@ -154,7 +154,7 @@ index 6602171b1c29b..f49d57df645fd 100644
 +    identity_manager_ = nullptr;
 +  } else {
    identity_manager_ = IdentityManagerFactory::GetForProfile(profile);
-   identity_manager_observation_.Observe(identity_manager_);
+   identity_manager_observation_.Observe(identity_manager_.get());
 +  }
  #if BUILDFLAG(IS_CHROMEOS_ASH)
    oauth2_login_manager_ =

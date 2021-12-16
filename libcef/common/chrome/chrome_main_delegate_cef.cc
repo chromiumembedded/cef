@@ -14,8 +14,8 @@
 #include "libcef/renderer/chrome/chrome_content_renderer_client_cef.h"
 
 #include "base/command_line.h"
+#include "base/ignore_result.h"
 #include "base/lazy_instance.h"
-#include "base/macros.h"
 #include "chrome/common/chrome_switches.h"
 #include "components/embedder_support/switches.h"
 #include "content/public/common/content_switches.h"
@@ -168,14 +168,16 @@ void ChromeMainDelegateCef::PreBrowserMain() {
   runner_->PreBrowserMain();
 }
 
-int ChromeMainDelegateCef::RunProcess(
+absl::variant<int, content::MainFunctionParams>
+ChromeMainDelegateCef::RunProcess(
     const std::string& process_type,
-    const content::MainFunctionParams& main_function_params) {
+    content::MainFunctionParams main_function_params) {
   if (process_type.empty()) {
-    return runner_->RunMainProcess(main_function_params);
+    return runner_->RunMainProcess(std::move(main_function_params));
   }
 
-  return ChromeMainDelegate::RunProcess(process_type, main_function_params);
+  return ChromeMainDelegate::RunProcess(process_type,
+                                        std::move(main_function_params));
 }
 
 #if defined(OS_LINUX)

@@ -142,11 +142,6 @@ ChromeBrowserProcessAlloy::network_quality_tracker() {
   return nullptr;
 }
 
-WatchDogThread* ChromeBrowserProcessAlloy::watchdog_thread() {
-  NOTREACHED();
-  return nullptr;
-}
-
 ProfileManager* ChromeBrowserProcessAlloy::profile_manager() {
   DCHECK(context_initialized_);
   return profile_manager_.get();
@@ -347,7 +342,7 @@ ChromeBrowserProcessAlloy::component_updater() {
       component_updater::MakeChromeComponentUpdaterConfigurator(
           base::CommandLine::ForCurrentProcess(),
           g_browser_process->local_state()),
-      std::move(scheduler));
+      std::move(scheduler), /*brand=*/std::string());
 
   return component_updater_.get();
 }

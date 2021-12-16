@@ -29,10 +29,10 @@ index 3b00759e513dc..90fe332d59f5b 100644
  // TODO(crbug.com/1052397): Revisit the macro expression once build flag switch
  // of lacros-chrome is complete.
 diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
-index e98a856f2dd17..deceb8745a978 100644
+index b2ad84c881ac7..c207f7b5ac831 100644
 --- components/viz/host/host_display_client.h
 +++ components/viz/host/host_display_client.h
-@@ -35,17 +35,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
+@@ -34,17 +34,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
    mojo::PendingRemote<mojom::DisplayClient> GetBoundRemote(
        scoped_refptr<base::SingleThreadTaskRunner> task_runner);
  
@@ -67,10 +67,10 @@ index b04f654fe820f..131977a36591d 100644
  
    if (!canvas_) {
 diff --git components/viz/host/layered_window_updater_impl.h components/viz/host/layered_window_updater_impl.h
-index 894237a777fbf..4310c08b0c2cf 100644
+index 309422bcf8581..759549f3046f4 100644
 --- components/viz/host/layered_window_updater_impl.h
 +++ components/viz/host/layered_window_updater_impl.h
-@@ -39,7 +39,7 @@ class VIZ_HOST_EXPORT LayeredWindowUpdaterImpl
+@@ -38,7 +38,7 @@ class VIZ_HOST_EXPORT LayeredWindowUpdaterImpl
    // mojom::LayeredWindowUpdater implementation.
    void OnAllocatedSharedMemory(const gfx::Size& pixel_size,
                                 base::UnsafeSharedMemoryRegion region) override;
@@ -80,10 +80,10 @@ index 894237a777fbf..4310c08b0c2cf 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 1ccab1bcbbcb5..e7da4f03c3875 100644
+index fae4aae8ed31b..d29584721a4bf 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -208,6 +208,8 @@ viz_component("service") {
+@@ -216,6 +216,8 @@ viz_component("service") {
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
      "viz_service_export.h",
@@ -142,10 +142,10 @@ index 583e3e2525c75..e1836039ad8a5 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index bb929cb9ff381..ddc3707284c28 100644
+index ba0d6ca4e9004..167c4b095ff84 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
-@@ -382,8 +382,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+@@ -383,8 +383,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
    compositor_data.display_private.reset();
    root_params->display_private =
        compositor_data.display_private.BindNewEndpointAndPassReceiver();
@@ -162,10 +162,10 @@ index bb929cb9ff381..ddc3707284c28 100644
        compositor_data.display_client->GetBoundRemote(resize_task_runner_);
  
 diff --git mojo/public/cpp/bindings/sync_call_restrictions.h mojo/public/cpp/bindings/sync_call_restrictions.h
-index 986469b5c09c4..251cb9eb27ede 100644
+index ab6f00f2c8b05..d648e49cf4372 100644
 --- mojo/public/cpp/bindings/sync_call_restrictions.h
 +++ mojo/public/cpp/bindings/sync_call_restrictions.h
-@@ -43,6 +43,7 @@ class Compositor;
+@@ -42,6 +42,7 @@ class Compositor;
  }  // namespace ui
  
  namespace viz {
@@ -173,7 +173,7 @@ index 986469b5c09c4..251cb9eb27ede 100644
  class GpuHostImpl;
  class HostFrameSinkManager;
  class HostGpuMemoryBufferManager;
-@@ -105,6 +106,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
+@@ -104,6 +105,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
    // For preventing frame swaps of wrong size during resize on Windows.
    // (https://crbug.com/811945)
    friend class ui::Compositor;
@@ -214,7 +214,7 @@ index 6b7fbb6cf13dc..e2af75168cb91 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 8b5b2b055343e..69751904955fa 100644
+index 7e3a624f99fea..749c6acb701c2 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -30,7 +30,9 @@
@@ -252,12 +252,12 @@ index 8b5b2b055343e..69751904955fa 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -454,6 +467,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -453,6 +466,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
  
    std::unique_ptr<PendingBeginFrameArgs> pending_begin_frame_args_;
  
 +  CompositorDelegate* delegate_ = nullptr;
 +
    // The root of the Layer tree drawn by this compositor.
-   Layer* root_layer_ = nullptr;
+   raw_ptr<Layer> root_layer_ = nullptr;
  

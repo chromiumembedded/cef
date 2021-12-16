@@ -146,7 +146,7 @@ index d17f357ed458c..4740bb776125d 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index f66da69a4cedb..01c6d05fdb446 100644
+index 0fe4760db7fe2..042af7247712c 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -184,10 +184,10 @@ index f66da69a4cedb..01c6d05fdb446 100644
  
    if (crashpad_is_win) {
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
-index 60f172b6c8017..f3fac02aac2e4 100644
+index 3872e1142f002..16a58f5af6a5a 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
-@@ -264,6 +264,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
+@@ -261,6 +261,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
    if (minidump_process_snapshot.Initialize(reader)) {
      parameters =
          BreakpadHTTPFormParametersFromMinidump(&minidump_process_snapshot);
@@ -197,7 +197,7 @@ index 60f172b6c8017..f3fac02aac2e4 100644
  
    if (!reader->SeekSet(start_offset)) {
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.h third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
-index 1a88a087b5357..5688d7f46c9d9 100644
+index 7649ae0db45d8..4b2d2f9667b5e 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 @@ -15,6 +15,7 @@
@@ -207,8 +207,8 @@ index 1a88a087b5357..5688d7f46c9d9 100644
 +#include <map>
  #include <memory>
  #include <string>
- 
-@@ -106,7 +107,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+ #include <unordered_map>
+@@ -107,7 +108,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
    //! It is expected to only be called from the same thread that called Start().
    void Stop() override;
  
@@ -217,7 +217,7 @@ index 1a88a087b5357..5688d7f46c9d9 100644
    //! \brief The result code from UploadReport().
    enum class UploadResult {
      //! \brief The crash report was uploaded successfully.
-@@ -134,7 +135,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+@@ -135,7 +136,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
    //! object was constructed with \a watch_pending_reports, it will also scan
    //! the crash report database for other pending reports, and process those as
    //! well.
@@ -226,7 +226,7 @@ index 1a88a087b5357..5688d7f46c9d9 100644
  
    //! \brief Processes a single pending report from the database.
    //!
-@@ -148,7 +149,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+@@ -149,7 +150,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
    //! remain in the “pending” state. If the upload fails and no more retries are
    //! desired, or report upload is disabled, it will be marked as “completed” in
    //! the database without ever having been uploaded.
@@ -235,7 +235,7 @@ index 1a88a087b5357..5688d7f46c9d9 100644
  
    //! \brief Attempts to upload a crash report.
    //!
-@@ -165,6 +166,11 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+@@ -166,6 +167,11 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
    UploadResult UploadReport(const CrashReportDatabase::UploadReport* report,
                              std::string* response_body);
  

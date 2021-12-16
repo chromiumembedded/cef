@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index da429c7f7daf9..936832defe769 100644
+index f545c18c2e142..26757184a79d5 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -864,6 +864,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -865,6 +865,11 @@ class BLINK_PLATFORM_EXPORT Platform {
        const WebURL& url,
        blink::WebVector<blink::WebContentSecurityPolicyHeader>* csp) {}
  
@@ -15,7 +15,7 @@ index da429c7f7daf9..936832defe769 100644
    static void InitializeMainThreadCommon(Platform* platform,
                                           std::unique_ptr<Thread> main_thread);
 diff --git third_party/blink/renderer/core/inspector/devtools_session.cc third_party/blink/renderer/core/inspector/devtools_session.cc
-index b28a69f901a56..7a04bd07b6b16 100644
+index 513bee6f4a3e3..df7c2512a343e 100644
 --- third_party/blink/renderer/core/inspector/devtools_session.cc
 +++ third_party/blink/renderer/core/inspector/devtools_session.cc
 @@ -8,6 +8,7 @@

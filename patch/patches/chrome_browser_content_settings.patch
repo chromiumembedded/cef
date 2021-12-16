@@ -56,10 +56,10 @@ index 22fdc95ba9c3f..2a0e3cc7f65c8 100644
  #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
    SupervisedUserSettingsService* supervised_service =
 diff --git components/content_settings/renderer/content_settings_agent_impl.cc components/content_settings/renderer/content_settings_agent_impl.cc
-index c88d87dc4c5f0..5f6d19e50c304 100644
+index f0720efc9e90a..dafbe3e606326 100644
 --- components/content_settings/renderer/content_settings_agent_impl.cc
 +++ components/content_settings/renderer/content_settings_agent_impl.cc
-@@ -170,7 +170,7 @@ ContentSetting GetContentSettingFromRulesImpl(
+@@ -167,7 +167,7 @@ ContentSetting GetContentSettingFromRulesImpl(
        return rule.GetContentSetting();
      }
    }

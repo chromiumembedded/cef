@@ -15,7 +15,7 @@ class CefMainRunnerHandler {
  public:
   virtual void PreBrowserMain() = 0;
   virtual int RunMainProcess(
-      const content::MainFunctionParams& main_function_params) = 0;
+      content::MainFunctionParams main_function_params) = 0;
 
  protected:
   virtual ~CefMainRunnerHandler() {}

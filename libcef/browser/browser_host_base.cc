@@ -13,8 +13,8 @@
 #include "libcef/common/frame_util.h"
 #include "libcef/common/net/url_util.h"
 
+#include "base/ignore_result.h"
 #include "base/logging.h"
-#include "base/macros.h"
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_service.h"
 #include "components/favicon/core/favicon_url.h"

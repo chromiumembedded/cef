@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 2c8d83d2424d9..ae9f7229a51cf 100644
+index d1140d7945a2d..a3b894aa4f6b0 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -2,6 +2,7 @@
@@ -30,10 +30,10 @@ index 2c8d83d2424d9..ae9f7229a51cf 100644
    }
    if (has_msg)
 diff --git base/task/current_thread.cc base/task/current_thread.cc
-index 9641285fde742..51cc852fcc165 100644
+index 718ba706b977c..aaa993ee8775b 100644
 --- base/task/current_thread.cc
 +++ base/task/current_thread.cc
-@@ -48,6 +48,8 @@ void CurrentThread::AddDestructionObserver(
+@@ -49,6 +49,8 @@ void CurrentThread::AddDestructionObserver(
  
  void CurrentThread::RemoveDestructionObserver(
      DestructionObserver* destruction_observer) {
@@ -43,12 +43,12 @@ index 9641285fde742..51cc852fcc165 100644
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/task/current_thread.h base/task/current_thread.h
-index b69284cd85576..111185c0ab9a8 100644
+index 7ca1e0ee2cef9..40fd430d1885a 100644
 --- base/task/current_thread.h
 +++ base/task/current_thread.h
-@@ -127,6 +127,12 @@ class BASE_EXPORT CurrentThread {
-   // posted tasks.
-   void SetAddQueueTimeToTasks(bool enable);
+@@ -130,6 +130,12 @@ class BASE_EXPORT CurrentThread {
+   // to run. There can only be one OnNextIdleCallback at a time.
+   void RegisterOnNextIdleCallback(OnceClosure on_next_idle_callback);
  
 +#if defined(OS_WIN)
 +  void set_os_modal_loop(bool os_modal_loop) { os_modal_loop_ = os_modal_loop; }
@@ -59,7 +59,7 @@ index b69284cd85576..111185c0ab9a8 100644
    // Enables nested task processing in scope of an upcoming native message loop.
    // Some unwanted message loops may occur when using common controls or printer
    // functions. Hence, nested task processing is disabled by default to avoid
-@@ -192,6 +198,13 @@ class BASE_EXPORT CurrentThread {
+@@ -195,6 +201,13 @@ class BASE_EXPORT CurrentThread {
    friend class web::WebTaskEnvironment;
  
    sequence_manager::internal::SequenceManagerImpl* current_;

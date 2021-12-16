@@ -29,6 +29,7 @@
 #include "content/public/browser/render_frame_metadata_provider.h"
 #include "content/public/common/widget_type.h"
 #include "third_party/abseil-cpp/absl/types/optional.h"
+#include "third_party/blink/public/mojom/widget/record_content_to_visible_time_request.mojom-forward.h"
 #include "ui/base/cursor/cursor.h"
 #include "ui/base/cursor/mojom/cursor_type.mojom-shared.h"
 #include "ui/compositor/compositor.h"
@@ -60,10 +61,6 @@ class CefCopyFrameGenerator;
 class CefSoftwareOutputDeviceOSR;
 class CefVideoConsumerOSR;
 class CefWebContentsViewOSR;
-
-#if defined(USE_X11)
-class CefWindowX11;
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // CefRenderWidgetHostViewOSR
@@ -116,7 +113,8 @@ class CefRenderWidgetHostViewOSR
   bool HasFocus() override;
   uint32_t GetCaptureSequenceNumber() const override;
   bool IsSurfaceAvailableForCopy() override;
-  void Show() override;
+  void ShowWithVisibility(
+      content::PageVisibilityState page_visibility) override;
   void Hide() override;
   bool IsShowing() override;
   void EnsureSurfaceSynchronizedForWebTest() override;
@@ -189,6 +187,13 @@ class CefRenderWidgetHostViewOSR
   const viz::LocalSurfaceId& GetLocalSurfaceId() const override;
   const viz::FrameSinkId& GetFrameSinkId() const override;
   viz::FrameSinkId GetRootFrameSinkId() override;
+  void NotifyHostAndDelegateOnWasShown(
+      blink::mojom::RecordContentToVisibleTimeRequestPtr visible_time_request)
+      override;
+  void RequestPresentationTimeFromHostOrDelegate(
+      blink::mojom::RecordContentToVisibleTimeRequestPtr visible_time_request)
+      override;
+  void CancelPresentationTimeRequestForHostAndDelegate() override;
 
   void OnFrameComplete(const viz::BeginFrameAck& ack);
 
@@ -396,7 +401,7 @@ class CefRenderWidgetHostViewOSR
   bool pinch_zoom_enabled_;
 
   // The last scroll offset of the view.
-  gfx::Vector2dF last_scroll_offset_;
+  gfx::PointF last_scroll_offset_;
   bool is_scroll_offset_changed_pending_ = false;
 
   content::MouseWheelPhaseHandler mouse_wheel_phase_handler_;

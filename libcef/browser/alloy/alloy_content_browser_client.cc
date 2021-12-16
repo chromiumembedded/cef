@@ -46,8 +46,8 @@
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
+#include "base/ignore_result.h"
 #include "base/json/json_reader.h"
-#include "base/macros.h"
 #include "base/path_service.h"
 #include "base/stl_util.h"
 #include "base/threading/thread_restrictions.h"
@@ -508,8 +508,8 @@ AlloyContentBrowserClient::~AlloyContentBrowserClient() = default;
 
 std::unique_ptr<content::BrowserMainParts>
 AlloyContentBrowserClient::CreateBrowserMainParts(
-    const content::MainFunctionParams& parameters) {
-  browser_main_parts_ = new AlloyBrowserMainParts(parameters);
+    content::MainFunctionParams parameters) {
+  browser_main_parts_ = new AlloyBrowserMainParts(std::move(parameters));
   return base::WrapUnique(browser_main_parts_);
 }
 

@@ -1,8 +1,8 @@
 diff --git ui/base/models/menu_model.h ui/base/models/menu_model.h
-index f095bfc301151..f4eab5e49b61c 100644
+index 11f1421cc79c1..c5dbc643ae7c8 100644
 --- ui/base/models/menu_model.h
 +++ ui/base/models/menu_model.h
-@@ -14,8 +14,11 @@
+@@ -15,8 +15,11 @@
  #include "ui/base/models/menu_separator_types.h"
  #include "ui/gfx/native_widget_types.h"
  
@@ -14,7 +14,7 @@ index f095bfc301151..f4eab5e49b61c 100644
  }
  
  namespace ui {
-@@ -146,6 +149,27 @@ class COMPONENT_EXPORT(UI_BASE) MenuModel
+@@ -147,6 +150,27 @@ class COMPONENT_EXPORT(UI_BASE) MenuModel
    // |event_flags| is a bit mask of ui::EventFlags.
    virtual void ActivatedAt(int index, int event_flags);
  
@@ -82,7 +82,7 @@ index 99120dd6d7fb0..94f2d52787860 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index bb01b826dbe52..642ab5609368a 100644
+index b936fe3ed5196..f878635e34513 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
 @@ -343,6 +343,10 @@ class GFX_EXPORT RenderText {
@@ -106,10 +106,10 @@ index bb01b826dbe52..642ab5609368a 100644
  
  }  // namespace gfx
 diff --git ui/views/animation/ink_drop_host_view.h ui/views/animation/ink_drop_host_view.h
-index 7ff4204a36c35..6094f15b36470 100644
+index 7de6bdd643ad1..90994f096a0e0 100644
 --- ui/views/animation/ink_drop_host_view.h
 +++ ui/views/animation/ink_drop_host_view.h
-@@ -174,6 +174,8 @@ class VIEWS_EXPORT InkDropHost {
+@@ -175,6 +175,8 @@ class VIEWS_EXPORT InkDropHost {
    View* host_view() { return host_view_; }
    const View* host_view() const { return host_view_; }
  
@@ -136,10 +136,10 @@ index 57e3a7d7e1d8c..eaccdf1cc50cc 100644
    Button::StateChanged(old_state);
    ResetLabelEnabledColor();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 9b5389139c2fb..6111c18533564 100644
+index 75d1292ce4d49..e22a73e3771c4 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
-@@ -134,6 +134,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
+@@ -133,6 +133,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
    ui::NativeTheme::State GetForegroundThemeState(
        ui::NativeTheme::ExtraParams* params) const override;
  
@@ -215,10 +215,10 @@ index bb2e1b4412205..493cb05b5c7fa 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index ce380322b4800..bc57b30cf59bb 100644
+index 1642bff4910d9..34b560bddae57 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
-@@ -233,6 +233,10 @@ class VIEWS_EXPORT Label : public View,
+@@ -232,6 +232,10 @@ class VIEWS_EXPORT Label : public View,
    gfx::ElideBehavior GetElideBehavior() const;
    void SetElideBehavior(gfx::ElideBehavior elide_behavior);
  
@@ -229,7 +229,7 @@ index ce380322b4800..bc57b30cf59bb 100644
    // Gets/Sets the tooltip text.  Default behavior for a label (single-line) is
    // to show the full text if it is wider than its bounds.  Calling this
    // overrides the default behavior and lets you set a custom tooltip.  To
-@@ -479,6 +483,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -478,6 +482,7 @@ class VIEWS_EXPORT Label : public View,
    int max_width_ = 0;
    // This is used in single-line mode.
    int max_width_single_line_ = 0;
@@ -238,10 +238,10 @@ index ce380322b4800..bc57b30cf59bb 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index b843da5f5cc2b..de07747c4a07c 100644
+index 25d5a0cc92b5f..cf85b366d15c8 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2876,8 +2876,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2877,8 +2877,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -256,7 +256,7 @@ index b843da5f5cc2b..de07747c4a07c 100644
    MenuItemView* to_select = nullptr;
    if (!item->GetSubmenu()->GetMenuItems().empty())
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2896,8 +2901,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2897,8 +2902,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -308,10 +308,10 @@ index 9c1542e1f4f0f..548fc8e87d520 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 23c49fc5325cd..98f3c89e71bcd 100644
+index 51518e199ab63..ce7a13a1fa1cb 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1082,6 +1082,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1083,6 +1083,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -327,7 +327,7 @@ index 23c49fc5325cd..98f3c89e71bcd 100644
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == Type::kActionableSubMenu) {
-@@ -1148,6 +1157,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1149,6 +1158,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {
@@ -424,7 +424,7 @@ index fb5d5e6a79a3f..a336b5a74d6a1 100644
    // Look up the menu model for this menu.
    const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
 diff --git ui/views/controls/menu/menu_model_adapter.h ui/views/controls/menu/menu_model_adapter.h
-index c07a9df52dd6e..b174c15ebc8b0 100644
+index b7c7474fb5910..ce3e14071f0c6 100644
 --- ui/views/controls/menu/menu_model_adapter.h
 +++ ui/views/controls/menu/menu_model_adapter.h
 @@ -88,6 +88,20 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate,
@@ -449,7 +449,7 @@ index c07a9df52dd6e..b174c15ebc8b0 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 63578697ff8be..e29956c754794 100644
+index 2375a989af49c..67ffa4aa8fc30 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -239,6 +239,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
@@ -465,18 +465,18 @@ index 63578697ff8be..e29956c754794 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/view.h ui/views/view.h
-index e567568977553..3ce5b506b1d3f 100644
+index 211ca9cb8916b..afad4c1a5b29f 100644
 --- ui/views/view.h
 +++ ui/views/view.h
-@@ -21,6 +21,7 @@
- #include "base/gtest_prod_util.h"
+@@ -22,6 +22,7 @@
  #include "base/memory/ptr_util.h"
+ #include "base/memory/raw_ptr.h"
  #include "base/strings/string_piece.h"
 +#include "base/supports_user_data.h"
  #include "build/build_config.h"
  #include "third_party/abseil-cpp/absl/types/optional.h"
  #include "third_party/skia/include/core/SkPath.h"
-@@ -269,7 +270,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -270,7 +271,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
                            public ui::EventTarget,
                            public ui::EventHandler,
                            public ui::PropertyHandler,

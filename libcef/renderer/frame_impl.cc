@@ -488,12 +488,11 @@ void CefFrameImpl::SendJavaScript(const std::u16string& jsCode,
       __FUNCTION__,
       base::BindOnce(
           [](const std::u16string& jsCode, const std::string& scriptUrl,
-             int32_t startLine, blink::WebLocalFrame* frame) {
-            frame->ExecuteScript(
-                blink::WebScriptSource(blink::WebString::FromUTF16(jsCode),
-                                       GURL(scriptUrl), startLine));
+             blink::WebLocalFrame* frame) {
+            frame->ExecuteScript(blink::WebScriptSource(
+                blink::WebString::FromUTF16(jsCode), GURL(scriptUrl)));
           },
-          jsCode, scriptUrl, startLine));
+          jsCode, scriptUrl));
 }
 
 void CefFrameImpl::LoadRequest(cef::mojom::RequestParamsPtr params) {

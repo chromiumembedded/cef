@@ -1,19 +1,17 @@
 diff --git content/app/content_main.cc content/app/content_main.cc
-index a26c5c2e053ed..c88c4c1b81f9b 100644
+index 5ad6c026e9d05..1277d9c959c31 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
-@@ -216,18 +216,10 @@ void InitializeMojo(mojo::core::Configuration* config) {
- 
- }  // namespace
+@@ -224,16 +224,10 @@ ContentMainParams::~ContentMainParams() = default;
+ ContentMainParams::ContentMainParams(ContentMainParams&&) = default;
+ ContentMainParams& ContentMainParams::operator=(ContentMainParams&&) = default;
  
 -// This function must be marked with NO_STACK_PROTECTOR or it may crash on
 -// return, see the --change-stack-guard-on-fork command line flag.
 -int NO_STACK_PROTECTOR
--RunContentProcess(const ContentMainParams& params,
+-RunContentProcess(ContentMainParams params,
 -                  ContentMainRunner* content_main_runner) {
--  ContentMainParams content_main_params(params);
--
-+int ContentMainInitialize(ContentMainParams& params,
++int ContentMainInitialize(ContentMainParams params,
 +                          ContentMainRunner* content_main_runner) {
    int exit_code = -1;
    base::debug::GlobalActivityTracker* tracker = nullptr;
@@ -23,7 +21,7 @@ index a26c5c2e053ed..c88c4c1b81f9b 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -309,12 +301,6 @@ RunContentProcess(const ContentMainParams& params,
+@@ -317,12 +311,6 @@ RunContentProcess(ContentMainParams params,
  #endif
  
  #if defined(OS_MAC)
@@ -32,24 +30,15 @@ index a26c5c2e053ed..c88c4c1b81f9b 100644
 -    // Each "main" needs to flush this pool right before it goes into its main
 -    // event loop to get rid of the cruft.
 -    autorelease_pool = std::make_unique<base::mac::ScopedNSAutoreleasePool>();
--    content_main_params.autorelease_pool = autorelease_pool.get();
+-    params.autorelease_pool = autorelease_pool.get();
      InitializeMac();
  #endif
  
-@@ -328,7 +314,7 @@ RunContentProcess(const ContentMainParams& params,
- 
-     ui::RegisterPathProvider();
-     tracker = base::debug::GlobalActivityTracker::Get();
--    exit_code = content_main_runner->Initialize(content_main_params);
-+    exit_code = content_main_runner->Initialize(params);
- 
-     if (exit_code >= 0) {
-       if (tracker) {
-@@ -387,8 +373,19 @@ RunContentProcess(const ContentMainParams& params,
+@@ -395,8 +383,18 @@ RunContentProcess(ContentMainParams params,
  
    if (IsSubprocess())
      CommonSubprocessInit();
--  exit_code = content_main_runner->Run(params.minimal_browser_mode);
+-  exit_code = content_main_runner->Run();
  
 +  return exit_code;
 +}
@@ -57,16 +46,15 @@ index a26c5c2e053ed..c88c4c1b81f9b 100644
 +// This function must be marked with NO_STACK_PROTECTOR or it may crash on
 +// return, see the --change-stack-guard-on-fork command line flag.
 +int NO_STACK_PROTECTOR
-+ContentMainRun(ContentMainParams& params,
-+               ContentMainRunner* content_main_runner) {
-+  int exit_code = content_main_runner->Run(params.minimal_browser_mode);
++ContentMainRun(ContentMainRunner* content_main_runner) {
++  int exit_code = content_main_runner->Run();
 +
 +  base::debug::GlobalActivityTracker* tracker =
 +      base::debug::GlobalActivityTracker::Get();
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -400,20 +397,51 @@ RunContentProcess(const ContentMainParams& params,
+@@ -408,14 +406,41 @@ RunContentProcess(ContentMainParams params,
      }
    }
  
@@ -76,10 +64,7 @@ index a26c5c2e053ed..c88c4c1b81f9b 100644
 +  return exit_code;
 +}
  
-+// This function must be marked with NO_STACK_PROTECTOR or it may crash on
-+// return, see the --change-stack-guard-on-fork command line flag.
-+void ContentMainShutdown(ContentMainParams& params,
-+                         ContentMainRunner* content_main_runner) {
++void ContentMainShutdown(ContentMainRunner* content_main_runner) {
  #if !defined(OS_ANDROID)
    content_main_runner->Shutdown();
  #endif
@@ -88,7 +73,7 @@ index a26c5c2e053ed..c88c4c1b81f9b 100644
 +// This function must be marked with NO_STACK_PROTECTOR or it may crash on
 +// return, see the --change-stack-guard-on-fork command line flag.
 +int NO_STACK_PROTECTOR
-+RunContentProcess(ContentMainParams& params,
++RunContentProcess(ContentMainParams params,
 +                  ContentMainRunner* content_main_runner) {
 +#if defined(OS_MAC)
 +  // We need this pool for all the objects created before we get to the event
@@ -100,30 +85,22 @@ index a26c5c2e053ed..c88c4c1b81f9b 100644
 +  params.autorelease_pool = autorelease_pool.get();
 +#endif
 +
-+  int exit_code = ContentMainInitialize(params, content_main_runner);
++  int exit_code = ContentMainInitialize(std::move(params), content_main_runner);
 +  if (exit_code >= 0)
 +    return exit_code;
-+  exit_code = ContentMainRun(params, content_main_runner);
++  exit_code = ContentMainRun(content_main_runner);
 +
 +#if defined(OS_MAC)
 +  params.autorelease_pool = nullptr;
 +  autorelease_pool.reset();
 +#endif
-+
-+  ContentMainShutdown(params, content_main_runner);
  
++  ContentMainShutdown(content_main_runner);
    return exit_code;
  }
  
- // This function must be marked with NO_STACK_PROTECTOR or it may crash on
- // return, see the --change-stack-guard-on-fork command line flag.
--int NO_STACK_PROTECTOR ContentMain(const ContentMainParams& params) {
-+int NO_STACK_PROTECTOR ContentMain(ContentMainParams& params) {
-   auto runner = ContentMainRunner::Create();
-   return RunContentProcess(params, runner.get());
- }
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 6b59da3a0d069..4db71e0402eef 100644
+index 9b3e3ca0cf6c9..b973e494e7fca 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -45,6 +45,7 @@
@@ -134,7 +111,7 @@ index 6b59da3a0d069..4db71e0402eef 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1167,6 +1168,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1190,6 +1191,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -147,26 +124,26 @@ index 6b59da3a0d069..4db71e0402eef 100644
  std::unique_ptr<ContentMainRunner> ContentMainRunner::Create() {
    return ContentMainRunnerImpl::Create();
 diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
-index 4bf0a0b27192a..73784107fc682 100644
+index 07404dfc2af12..f2ff3f14120e4 100644
 --- content/app/content_main_runner_impl.h
 +++ content/app/content_main_runner_impl.h
-@@ -39,7 +39,7 @@ class ContentMainDelegate;
+@@ -31,7 +31,7 @@ namespace content {
+ class ContentClient;
  class MojoIpcSupport;
- struct ContentMainParams;
  
 -class ContentMainRunnerImpl : public ContentMainRunner {
 +class CONTENT_EXPORT ContentMainRunnerImpl : public ContentMainRunner {
   public:
    static std::unique_ptr<ContentMainRunnerImpl> Create();
  
-@@ -57,6 +57,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
-   int Run(bool start_minimal_browser) override;
+@@ -50,6 +50,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
+   int Run() override;
    void Shutdown() override;
  
 +  void ShutdownOnUIThread();
 +
   private:
-   int RunBrowser(MainFunctionParams& main_function_params,
+   int RunBrowser(MainFunctionParams main_function_params,
                   bool start_minimal_browser);
 diff --git content/common/set_process_title.cc content/common/set_process_title.cc
 index 8b829a4887739..a69a088697287 100644
@@ -182,33 +159,20 @@ index 8b829a4887739..a69a088697287 100644
    if (main_argv)
      setproctitle_init(main_argv);
 diff --git content/public/app/content_main.h content/public/app/content_main.h
-index 97aac3d0c7584..fc795ae0287f9 100644
+index f86051cf640ae..de4fa65c05bdf 100644
 --- content/public/app/content_main.h
 +++ content/public/app/content_main.h
-@@ -68,7 +68,16 @@ struct ContentMainParams {
- #endif
+@@ -93,6 +93,13 @@ struct CONTENT_EXPORT ContentMainParams {
+   }
  };
  
--CONTENT_EXPORT int RunContentProcess(const ContentMainParams& params,
 +// Split RunContentProcess() into separate stages.
 +CONTENT_EXPORT int ContentMainInitialize(
-+    ContentMainParams& params,
++    ContentMainParams params,
 +    ContentMainRunner* content_main_runner);
-+CONTENT_EXPORT int ContentMainRun(ContentMainParams& params,
-+                                  ContentMainRunner* content_main_runner);
-+CONTENT_EXPORT void ContentMainShutdown(ContentMainParams& params,
-+                                        ContentMainRunner* content_main_runner);
++CONTENT_EXPORT int ContentMainRun(ContentMainRunner* content_main_runner);
++CONTENT_EXPORT void ContentMainShutdown(ContentMainRunner* content_main_runner);
 +
-+CONTENT_EXPORT int RunContentProcess(ContentMainParams& params,
+ CONTENT_EXPORT int RunContentProcess(ContentMainParams params,
                                       ContentMainRunner* content_main_runner);
  
- #if defined(OS_ANDROID)
-@@ -91,7 +100,7 @@ ContentMainDelegate* GetContentMainDelegate();
- // initial setup for every process. The embedder has a chance to customize
- // startup using the ContentMainDelegate interface. The embedder can also pass
- // in null for |delegate| if they don't want to override default startup.
--CONTENT_EXPORT int ContentMain(const ContentMainParams& params);
-+CONTENT_EXPORT int ContentMain(ContentMainParams& params);
- #endif
- 
- }  // namespace content

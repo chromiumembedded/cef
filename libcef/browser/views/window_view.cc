@@ -13,8 +13,11 @@
 #include "ui/views/widget/widget.h"
 #include "ui/views/window/native_frame_view.h"
 
-#if defined(OS_LINUX) && defined(USE_X11)
+#if defined(OS_LINUX)
+#include "ui/ozone/buildflags.h"
+#if BUILDFLAG(OZONE_PLATFORM_X11)
 #include "ui/base/x/x11_util.h"
+#endif
 #endif
 
 #if defined(OS_WIN)
@@ -343,13 +346,15 @@ void CefWindowView::CreateWidget() {
     DCHECK(widget->widget_delegate()->CanActivate());
   }
 
-#if defined(OS_LINUX) && defined(USE_X11)
+#if defined(OS_LINUX)
+#if BUILDFLAG(OZONE_PLATFORM_X11)
   if (is_frameless_) {
     auto window = view_util::GetWindowHandle(widget);
     DCHECK(window);
     ui::SetUseOSWindowFrame(static_cast<x11::Window>(window), false);
   }
-#endif  // defined(OS_LINUX) && defined(USE_X11)
+#endif
+#endif
 }
 
 CefRefPtr<CefWindow> CefWindowView::GetCefWindow() const {

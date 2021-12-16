@@ -1,15 +1,15 @@
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index a48a7be8932e0..7c8492a9e6f62 100644
+index dd068f90aecef..7f942d7f44361 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
-@@ -22,7 +22,7 @@ struct DropData;
+@@ -21,7 +21,7 @@ struct DropData;
  // The WebContentsView is an interface that is implemented by the platform-
  // dependent web contents views. The WebContents uses this interface to talk to
  // them.
 -class WebContentsView {
 +class CONTENT_EXPORT WebContentsView {
   public:
-   virtual ~WebContentsView() {}
+   virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 index ded1894a7d1d7..6ea82766e8e87 100644
@@ -48,10 +48,10 @@ index ded1894a7d1d7..6ea82766e8e87 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index b47ce186faba9..2f80ab128b4e0 100644
+index 4c0820c60e765..68a499da10e80 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-@@ -144,6 +144,7 @@ class MimeHandlerViewGuest
+@@ -143,6 +143,7 @@ class MimeHandlerViewGuest
    void EmbedderFullscreenToggled(bool entered_fullscreen) final;
    bool ZoomPropagatesFromEmbedderToGuest() const final;
    bool ShouldDestroyOnDetach() const final;
@@ -59,7 +59,7 @@ index b47ce186faba9..2f80ab128b4e0 100644
  
    // WebContentsDelegate implementation.
    content::WebContents* OpenURLFromTab(
-@@ -202,6 +203,7 @@ class MimeHandlerViewGuest
+@@ -201,6 +202,7 @@ class MimeHandlerViewGuest
        content::ChildProcessHost::kInvalidUniqueID, MSG_ROUTING_NONE};
    int embedder_widget_routing_id_ = MSG_ROUTING_NONE;
  
@@ -68,18 +68,19 @@ index b47ce186faba9..2f80ab128b4e0 100644
    bool is_embedder_fullscreen_ = false;
    bool plugin_can_save_ = false;
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
-index 5d4bff64cbe16..b085c2ef1f7c5 100644
+index d97b054a8d6c7..9fd96a8f7826d 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
-@@ -8,6 +8,7 @@
+@@ -7,6 +7,8 @@
+ 
  #include <string>
  
- #include "base/macros.h"
 +#include "content/public/browser/web_contents.h"
- 
++
  namespace content {
  class RenderFrameHost;
-@@ -27,6 +28,14 @@ class MimeHandlerViewGuestDelegate {
+ struct ContextMenuParams;
+@@ -25,6 +27,14 @@ class MimeHandlerViewGuestDelegate {
  
    virtual ~MimeHandlerViewGuestDelegate() {}
  

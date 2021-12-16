@@ -1,5 +1,5 @@
 diff --git .gn .gn
-index e2e2dcebcdcdb..35443d0e2af1a 100644
+index fdde78244eb3d..ff26203773839 100644
 --- .gn
 +++ .gn
 @@ -160,6 +160,8 @@ exec_script_whitelist =
@@ -12,7 +12,7 @@ index e2e2dcebcdcdb..35443d0e2af1a 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 8b6f4bf90557a..6071a3a625a8c 100644
+index 7bb204910c41c..5ec046f0c1e3b 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -16,6 +16,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -79,7 +79,7 @@ index d2266b28b33f8..a7ff6d9b68f38 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index faedbc470f68c..bb084da13544c 100644
+index 32eb89f02d799..a2baacc70957d 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -4,6 +4,7 @@
@@ -102,7 +102,7 @@ index faedbc470f68c..bb084da13544c 100644
        sources += [ "$root_gen_dir/extensions/extensions_browser_resources_${percent}_percent.pak" ]
        deps += [ "//extensions:extensions_browser_resources" ]
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index 3425f1fef4917..edc0dc42bdb7d 100644
+index 7e6722603df99..0607f2e18c421 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
 @@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
@@ -113,7 +113,7 @@ index 3425f1fef4917..edc0dc42bdb7d 100644
  import("//extensions/buildflags/buildflags.gni")
  import("//tools/grit/repack.gni")
  
-@@ -93,6 +94,10 @@ template("chrome_repack_locales") {
+@@ -95,6 +96,10 @@ template("chrome_repack_locales") {
            [ "${root_gen_dir}/chromeos/strings/chromeos_strings_" ]
        deps += [ "//chromeos/strings" ]
      }

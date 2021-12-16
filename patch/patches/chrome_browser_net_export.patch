@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 711454d213148..5a8a0d53c16f1 100644
+index cb8ecf2f81cb2..d3bdde2216222 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/features.gni")
@@ -10,7 +10,7 @@ index 711454d213148..5a8a0d53c16f1 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/assistant/assistant.gni")
-@@ -365,6 +366,10 @@ static_library("ui") {
+@@ -369,6 +370,10 @@ static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -21,7 +21,7 @@ index 711454d213148..5a8a0d53c16f1 100644
    # Since browser and browser_ui actually depend on each other,
    # we must omit the dependency from browser_ui to browser.
    # However, this means browser_ui and browser should more or less
-@@ -387,6 +392,7 @@ static_library("ui") {
+@@ -391,6 +396,7 @@ static_library("ui") {
      "//build:branding_buildflags",
      "//build:chromeos_buildflags",
      "//cc/paint",
@@ -29,7 +29,7 @@ index 711454d213148..5a8a0d53c16f1 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -5066,6 +5072,7 @@ static_library("ui") {
+@@ -5181,6 +5187,7 @@ static_library("ui") {
    if (enable_basic_printing) {
      deps += [
        "//components/printing/browser",
@@ -38,7 +38,7 @@ index 711454d213148..5a8a0d53c16f1 100644
      ]
    }
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
-index b75dec8d7d0ab..00eb11e9f937c 100644
+index ec205a3f05457..2af432bc6908a 100644
 --- chrome/browser/ui/webui/net_export_ui.cc
 +++ chrome/browser/ui/webui/net_export_ui.cc
 @@ -22,6 +22,7 @@
@@ -72,7 +72,7 @@ index b75dec8d7d0ab..00eb11e9f937c 100644
 +#endif
 +
    // Cached pointer to SystemNetworkContextManager's NetExportFileWriter.
-   net_log::NetExportFileWriter* file_writer_;
+   raw_ptr<net_log::NetExportFileWriter> file_writer_;
  
 @@ -235,6 +247,13 @@ void NetExportMessageHandler::OnStartNetLog(const base::ListValue* list) {
    if (UsingMobileUI()) {

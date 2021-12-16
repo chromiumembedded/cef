@@ -56,8 +56,8 @@ void AddFilters(GtkFileChooser* chooser,
                 std::vector<GtkFileFilter*>* filters) {
   bool has_filter = false;
 
-  for (size_t i = 0; i < accept_filters.size(); ++i) {
-    const std::string& filter = accept_filters[i];
+  for (size_t j = 0; j < accept_filters.size(); ++j) {
+    const std::string& filter = accept_filters[j];
     if (filter.empty())
       continue;
 

@@ -13,10 +13,7 @@
 #include "build/build_config.h"
 #include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_main_parts.h"
-
-namespace content {
-struct MainFunctionParams;
-}
+#include "content/public/common/main_function_params.h"
 
 namespace extensions {
 class ExtensionsBrowserClient;
@@ -45,7 +42,7 @@ class CefDevToolsDelegate;
 
 class AlloyBrowserMainParts : public content::BrowserMainParts {
  public:
-  explicit AlloyBrowserMainParts(const content::MainFunctionParams& parameters);
+  explicit AlloyBrowserMainParts(content::MainFunctionParams parameters);
 
   AlloyBrowserMainParts(const AlloyBrowserMainParts&) = delete;
   AlloyBrowserMainParts& operator=(const AlloyBrowserMainParts&) = delete;
@@ -82,8 +79,10 @@ class AlloyBrowserMainParts : public content::BrowserMainParts {
   void PlatformInitialize();
 #endif  // defined(OS_WIN)
 
+  content::MainFunctionParams parameters_;
+
   CefRefPtr<CefRequestContextImpl> global_request_context_;
-  CefDevToolsDelegate* devtools_delegate_;  // Deletes itself.
+  CefDevToolsDelegate* devtools_delegate_ = nullptr;  // Deletes itself.
 
   std::unique_ptr<extensions::ExtensionsClient> extensions_client_;
   std::unique_ptr<extensions::ExtensionsBrowserClient>

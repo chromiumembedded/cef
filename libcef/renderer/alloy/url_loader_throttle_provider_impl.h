@@ -19,6 +19,9 @@ class CefURLLoaderThrottleProviderImpl
   explicit CefURLLoaderThrottleProviderImpl(
       blink::URLLoaderThrottleProviderType type);
 
+  CefURLLoaderThrottleProviderImpl& operator=(
+      const CefURLLoaderThrottleProviderImpl&) = delete;
+
   ~CefURLLoaderThrottleProviderImpl() override;
 
   // blink::URLLoaderThrottleProvider implementation.
@@ -37,8 +40,6 @@ class CefURLLoaderThrottleProviderImpl
   blink::URLLoaderThrottleProviderType type_;
 
   THREAD_CHECKER(thread_checker_);
-
-  DISALLOW_ASSIGN(CefURLLoaderThrottleProviderImpl);
 };
 
 #endif  // CEF_LIBCEF_RENDERER_ALLOY_URL_LOADER_THROTTLE_PROVIDER_IMPL_H_

@@ -69,9 +69,6 @@ void SetChromePrefs(Profile* profile, blink::web_pref::WebPreferences& web) {
   FontFamilyCache::FillFontFamilyMap(profile,
                                      prefs::kWebKitFantasyFontFamilyMap,
                                      &web.fantasy_font_family_map);
-  FontFamilyCache::FillFontFamilyMap(profile,
-                                     prefs::kWebKitPictographFontFamilyMap,
-                                     &web.pictograph_font_family_map);
 
   web.default_font_size = prefs->GetInteger(prefs::kWebKitDefaultFontSize);
   web.default_fixed_font_size =

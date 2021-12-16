@@ -23,7 +23,7 @@
 #include "ui/gfx/font_render_params.h"
 #include "ui/views/widget/widget.h"
 
-#if defined(USE_X11)
+#if BUILDFLAG(OZONE_PLATFORM_X11)
 #include "libcef/browser/native/window_x11.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h"
 #endif
@@ -56,7 +56,7 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   gfx::Rect rect(window_info_.bounds.x, window_info_.bounds.y,
                  window_info_.bounds.width, window_info_.bounds.height);
 
-#if defined(USE_X11)
+#if BUILDFLAG(OZONE_PLATFORM_X11)
   DCHECK(!window_x11_);
 
   x11::Window parent_window = x11::Window::None;
@@ -88,7 +88,7 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   window_widget_->Show();
 
   window_x11_->Show();
-#endif  // defined(USE_X11)
+#endif  // BUILDFLAG(OZONE_PLATFORM_X11)
 
   // As an additional requirement on Linux, we must set the colors for the
   // render widgets in webkit.
@@ -116,7 +116,7 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
 }
 
 void CefBrowserPlatformDelegateNativeLinux::CloseHostWindow() {
-#if defined(USE_X11)
+#if BUILDFLAG(OZONE_PLATFORM_X11)
   if (window_x11_)
     window_x11_->Close();
 #endif
@@ -143,14 +143,14 @@ void CefBrowserPlatformDelegateNativeLinux::SetFocus(bool setFocus) {
     web_contents_->Focus();
   }
 
-#if defined(USE_X11)
+#if BUILDFLAG(OZONE_PLATFORM_X11)
   if (window_x11_) {
     // Give native focus to the DesktopNativeWidgetAura for the root window.
     // Needs to be done via the ::Window so that keyboard focus is assigned
     // correctly.
     window_x11_->Focus();
   }
-#endif  // defined(USE_X11)
+#endif  // BUILDFLAG(OZONE_PLATFORM_X11)
 }
 
 void CefBrowserPlatformDelegateNativeLinux::NotifyMoveOrResizeStarted() {
@@ -160,7 +160,7 @@ void CefBrowserPlatformDelegateNativeLinux::NotifyMoveOrResizeStarted() {
   if (!web_contents_)
     return;
 
-#if defined(USE_X11)
+#if BUILDFLAG(OZONE_PLATFORM_X11)
   if (!window_x11_)
     return;
 
@@ -178,16 +178,16 @@ void CefBrowserPlatformDelegateNativeLinux::NotifyMoveOrResizeStarted() {
   content::RenderWidgetHostImpl::From(
       web_contents_->GetRenderViewHost()->GetWidget())
       ->SendScreenRects();
-#endif  // defined(USE_X11)
+#endif  // BUILDFLAG(OZONE_PLATFORM_X11)
 }
 
 void CefBrowserPlatformDelegateNativeLinux::SizeTo(int width, int height) {
-#if defined(USE_X11)
+#if BUILDFLAG(OZONE_PLATFORM_X11)
   if (window_x11_) {
     window_x11_->SetBounds(
         gfx::Rect(window_x11_->bounds().origin(), gfx::Size(width, height)));
   }
-#endif  // defined(USE_X11)
+#endif  // BUILDFLAG(OZONE_PLATFORM_X11)
 }
 
 gfx::Point CefBrowserPlatformDelegateNativeLinux::GetScreenPoint(
@@ -195,7 +195,7 @@ gfx::Point CefBrowserPlatformDelegateNativeLinux::GetScreenPoint(
   if (windowless_handler_)
     return windowless_handler_->GetParentScreenPoint(view);
 
-#if defined(USE_X11)
+#if BUILDFLAG(OZONE_PLATFORM_X11)
   if (!window_x11_)
     return view;
 
@@ -205,7 +205,7 @@ gfx::Point CefBrowserPlatformDelegateNativeLinux::GetScreenPoint(
   const gfx::Rect& bounds_in_screen = window_x11_->GetBoundsInScreen();
   return gfx::Point(bounds_in_screen.x() + view.x(),
                     bounds_in_screen.y() + view.y());
-#else  // !defined(USE_X11)
+#else  // !BUILDFLAG(OZONE_PLATFORM_X11)
   return gfx::Point();
 #endif
 }

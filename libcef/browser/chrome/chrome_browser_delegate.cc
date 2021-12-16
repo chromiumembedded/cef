@@ -144,9 +144,9 @@ content::WebContents* ChromeBrowserDelegate::OpenURLFromTab(
 }
 
 void ChromeBrowserDelegate::LoadingStateChanged(content::WebContents* source,
-                                                bool to_different_document) {
+                                                bool should_show_loading_ui) {
   if (auto delegate = GetDelegateForWebContents(source)) {
-    delegate->LoadingStateChanged(source, to_different_document);
+    delegate->LoadingStateChanged(source, should_show_loading_ui);
   }
 }
 
