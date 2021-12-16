@@ -156,7 +156,7 @@ index 95d1ebc190910..13cdfa52db108 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index c640ba0cc074e..0f099b6a88b40 100644
+index 9db18f904096c..a71835d11ce80 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -28,6 +28,7 @@
@@ -211,7 +211,7 @@ index 99ab233c779f3..0813b9156c3b5 100644
        bool in_memory,
        const base::FilePath& relative_partition_path,
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index a55c24300b40b..47369c7079e6f 100644
+index 5e4f2cf8ad0a9..72e50dd0919e3 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -11,6 +11,7 @@
