@@ -30,7 +30,7 @@ index 6ed02d4244d45..68dff171001c7 100644
          factory = base::MakeRefCounted<network::WrapperSharedURLLoaderFactory>(
              std::move(loader_factory));
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index b8b933d0160db..d450ef6ff5cc2 100644
+index 491c969c55e64..b518a5daefb8c 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
 @@ -9,7 +9,7 @@
@@ -60,7 +60,7 @@ index b8b933d0160db..d450ef6ff5cc2 100644
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 4a3bbba844366..f5795c3ae1ce4 100644
+index 2591d560ddbec..fea1e2058fba2 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -33,6 +33,7 @@

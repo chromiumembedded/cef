@@ -1,5 +1,5 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index 1876f324468dc..f22b44017b38a 100644
+index 01051f333b15a..ede45b6c871d9 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
 @@ -15,6 +15,7 @@
@@ -10,7 +10,7 @@ index 1876f324468dc..f22b44017b38a 100644
  #include "components/embedder_support/switches.h"
  #include "components/policy/core/common/policy_pref_names.h"
  #include "components/prefs/pref_service.h"
-@@ -234,6 +235,12 @@ const blink::UserAgentBrandList& GetBrandFullVersionList(
+@@ -256,6 +257,12 @@ const blink::UserAgentBrandList& GetBrandFullVersionList(
  }
  
  std::string GetProduct(const bool allow_version_override) {

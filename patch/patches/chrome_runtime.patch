@@ -78,7 +78,7 @@ index cd9b3030c6f3a..1dfa03db19ca8 100644
  
  #endif  // defined(OS_LINUX) || defined(OS_CHROMEOS)
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index a0e5e4fd7d01d..dc1fc12234d59 100644
+index 9c6b1148c3139..1b5a21a67ecff 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -51,6 +51,7 @@
@@ -89,7 +89,7 @@ index a0e5e4fd7d01d..dc1fc12234d59 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/active_use_util.h"
  #include "chrome/browser/after_startup_task_utils.h"
-@@ -1700,11 +1701,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1699,11 +1700,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
    // This step is costly and is already measured in
    // Startup.StartupBrowserCreator_Start.
    // See the comment above for an explanation of |process_command_line|.
@@ -105,7 +105,7 @@ index a0e5e4fd7d01d..dc1fc12234d59 100644
  // TODO(crbug.com/1052397): Revisit the macro expression once build flag switch
  // of lacros-chrome is complete.
  #if defined(OS_WIN) || (defined(OS_LINUX) || BUILDFLAG(IS_CHROMEOS_LACROS))
-@@ -1739,8 +1743,10 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1731,8 +1735,10 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
  
      // Create the RunLoop for MainMessageLoopRun() to use and transfer
      // ownership of the browser's lifetime to the BrowserProcess.
@@ -156,7 +156,7 @@ index 97afd5b1ba753..40672e7c4fdf3 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index d0eaa02d9f955..ce5d9aaaf4509 100644
+index 968b63908b38e..3cbeacd8418e2 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -28,6 +28,7 @@
@@ -167,7 +167,7 @@ index d0eaa02d9f955..ce5d9aaaf4509 100644
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/accessibility_labels_service_factory.h"
  #include "chrome/browser/after_startup_task_utils.h"
-@@ -3695,9 +3696,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -3696,9 +3697,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // defined(OS_ANDROID)
  
@@ -179,7 +179,7 @@ index d0eaa02d9f955..ce5d9aaaf4509 100644
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
-@@ -5312,7 +5315,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
+@@ -5313,7 +5316,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
        network_service);
  }
  
@@ -188,7 +188,7 @@ index d0eaa02d9f955..ce5d9aaaf4509 100644
      content::BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -5330,6 +5333,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
+@@ -5331,6 +5334,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
      network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
      network_context_params->accept_language = GetApplicationLocale();
    }
@@ -198,7 +198,7 @@ index d0eaa02d9f955..ce5d9aaaf4509 100644
  
  std::vector<base::FilePath>
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index ba04ad2b43f10..8a557d83b4339 100644
+index 6a143a675b35e..cd76d6060d75e 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
 @@ -552,7 +552,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
