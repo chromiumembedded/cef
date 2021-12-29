@@ -449,10 +449,11 @@ def get_function_impls(content, ident, has_impl=True):
 
     # parse the arguments
     args = []
-    for v in argval.split(','):
-      v = v.strip()
-      if len(v) > 0:
-        args.append(v)
+    if argval != 'void':
+      for v in argval.split(','):
+        v = v.strip()
+        if len(v) > 0:
+          args.append(v)
 
     result.append({
         'retval': retval.strip(),
@@ -1208,7 +1209,7 @@ class obj_function:
     for cls in self.arguments:
       cls.get_types(list)
 
-  def get_capi_parts(self, defined_structs=[], prefix=None):
+  def get_capi_parts(self, defined_structs=[], isimpl=False, prefix=None):
     """ Return the parts of the C API function definition. """
     retval = ''
     dict = self.retval.get_type().get_capi(defined_structs)
@@ -1225,6 +1226,8 @@ class obj_function:
         # const virtual functions get const self pointers
         str = 'const ' + str
       args.append(str)
+    elif not isimpl and len(self.arguments) == 0:
+      args.append('void')
 
     if len(self.arguments) > 0:
       for cls in self.arguments:
@@ -1245,9 +1248,9 @@ class obj_function:
 
     return {'retval': retval, 'name': name, 'args': args}
 
-  def get_capi_proto(self, defined_structs=[], prefix=None):
+  def get_capi_proto(self, defined_structs=[], isimpl=False, prefix=None):
     """ Return the prototype of the C API function. """
-    parts = self.get_capi_parts(defined_structs, prefix)
+    parts = self.get_capi_parts(defined_structs, isimpl, prefix)
     result = parts['retval']+' '+parts['name']+ \
              '('+', '.join(parts['args'])+')'
     return result
@@ -2098,7 +2101,7 @@ if __name__ == "__main__":
   funcs = header.get_funcs()
   if len(funcs) > 0:
     for func in funcs:
-      result += func.get_capi_proto(defined_names) + ';\n'
+      result += func.get_capi_proto(defined_names, True) + ';\n'
     result += '\n'
 
   classes = header.get_classes()
@@ -2108,7 +2111,7 @@ if __name__ == "__main__":
     funcs = cls.get_virtual_funcs()
     if len(funcs) > 0:
       for func in funcs:
-        result += '\t' + func.get_capi_proto(defined_names) + ';\n'
+        result += '\t' + func.get_capi_proto(defined_names, True) + ';\n'
     result += '}\n\n'
 
     defined_names.append(cls.get_capi_name())
@@ -2117,6 +2120,6 @@ if __name__ == "__main__":
     funcs = cls.get_static_funcs()
     if len(funcs) > 0:
       for func in funcs:
-        result += func.get_capi_proto(defined_names) + ';\n'
+        result += func.get_capi_proto(defined_names, True) + ';\n'
       result += '\n'
   sys.stdout.write(result)

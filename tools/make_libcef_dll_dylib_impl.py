@@ -52,7 +52,7 @@ def make_libcef_dll_dylib_impl_parts(name, retval, args):
 
 def make_libcef_dll_dylib_impl_func(func):
   name = func.get_capi_name()
-  parts = func.get_capi_parts([])
+  parts = func.get_capi_parts([], True)
   retval = parts['retval']
   args = parts['args']
   return make_libcef_dll_dylib_impl_parts(name, retval, args)

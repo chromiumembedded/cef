@@ -20,7 +20,7 @@ def make_cpptoc_function_impl_existing(cls, name, func, impl, defined_names):
   notify(name + ' has manual edits')
 
   # retrieve the C API prototype parts
-  parts = func.get_capi_parts(defined_names)
+  parts = func.get_capi_parts(defined_names, True)
 
   changes = format_translation_changes(impl, parts)
   if len(changes) > 0:
@@ -36,7 +36,7 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
       func.parent, obj_header)
 
   # retrieve the C API prototype parts
-  parts = func.get_capi_parts(defined_names)
+  parts = func.get_capi_parts(defined_names, True)
   result = make_cpptoc_impl_proto(name, func, parts) + ' {'
 
   if isinstance(func.parent, obj_class) and \
