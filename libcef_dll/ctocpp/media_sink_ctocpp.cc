@@ -1,4 +1,4 @@
-// Copyright (c) 2021 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=50a71dcdcaa9669a6ac927e5e555266fcadb6be3$
+// $hash=01d0b01e291c90ceba7c416ff9dd56c10eb46f3b$
 //
 
 #include "libcef_dll/ctocpp/media_sink_ctocpp.h"

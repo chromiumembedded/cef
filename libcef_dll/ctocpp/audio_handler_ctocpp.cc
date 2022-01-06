@@ -1,4 +1,4 @@
-// Copyright (c) 2021 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8bd4a48d7cb2e9aaf628d65431588c1e83e854da$
+// $hash=e2df55073d0fb809dcd4cf0f6bb7ed36dcd4f73c$
 //
 
 #include "libcef_dll/ctocpp/audio_handler_ctocpp.h"

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e55370b133d3c3b7e7c903557cae0cd04173ebd1$
+// $hash=fa04fba704658b02675380bd63d91005c6757d4e$
 //
 
 #include "include/capi/cef_app_capi.h"
