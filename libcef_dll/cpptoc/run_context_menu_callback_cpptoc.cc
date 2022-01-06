@@ -1,4 +1,4 @@
-// Copyright (c) 2021 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ac442dda0212dff044db09ad7494390a0f958321$
+// $hash=d76ba7de3a561c71b88250340676e56dc7a9f84a$
 //
 
 #include "libcef_dll/cpptoc/run_context_menu_callback_cpptoc.h"

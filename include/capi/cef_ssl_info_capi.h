@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2022 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=aefb3b63aba8f5df6ab6dc11e2029820c75c36cf$
+// $hash=d72f3b34b4150f29f1491b2c729f4a8afc4a33f4$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_SSL_INFO_CAPI_H_
