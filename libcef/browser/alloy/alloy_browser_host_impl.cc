@@ -1462,7 +1462,8 @@ void AlloyBrowserHostImpl::ExitPictureInPicture() {
 }
 
 bool AlloyBrowserHostImpl::IsBackForwardCacheSupported() {
-  return true;
+  // Disabled due to issue #3237.
+  return false;
 }
 
 bool AlloyBrowserHostImpl::IsPrerender2Supported() {
