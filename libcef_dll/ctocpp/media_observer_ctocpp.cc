@@ -1,4 +1,4 @@
-// Copyright (c) 2021 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0b4d805c7313e553fe3b0f47905810172d666df7$
+// $hash=53afe2dd1a5d413790a04a6d622bf0175302da00$
 //
 
 #include "libcef_dll/ctocpp/media_observer_ctocpp.h"
