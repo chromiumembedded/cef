@@ -23,6 +23,8 @@
 #include "components/language/core/browser/pref_names.h"
 #include "components/prefs/pref_service.h"
 #include "content/browser/renderer_host/frame_tree_node.h"
+#include "content/browser/renderer_host/render_frame_host_impl.h"
+#include "content/browser/storage_partition_impl.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
@@ -303,6 +305,12 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     std::string accept_language_;
     std::string user_agent_;
 
+    // Used to route authentication and certificate callbacks through the
+    // associated StoragePartition instance.
+    mojo::PendingRemote<network::mojom::URLLoaderNetworkServiceObserver>
+        url_loader_network_observer_;
+    bool did_try_create_url_loader_network_observer_ = false;
+
     // Used to receive destruction notification.
     std::unique_ptr<DestructionObserver> destruction_observer_;
   };
@@ -387,6 +395,53 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     }
   }
 
+  static void TryCreateURLLoaderNetworkObserver(
+      std::unique_ptr<PendingRequest> pending_request,
+      CefRefPtr<CefFrame> frame,
+      content::BrowserContext* browser_context,
+      base::WeakPtr<InterceptedRequestHandlerWrapper> self) {
+    CEF_REQUIRE_UIT();
+
+    mojo::PendingRemote<network::mojom::URLLoaderNetworkServiceObserver>
+        url_loader_network_observer;
+
+    if (frame) {
+      // The request will be associated with this frame/browser if it's valid,
+      // otherwise the request will be canceled.
+      content::RenderFrameHost* rfh =
+          static_cast<CefFrameHostImpl*>(frame.get())->GetRenderFrameHost();
+      if (rfh) {
+        url_loader_network_observer =
+            static_cast<content::RenderFrameHostImpl*>(rfh)
+                ->CreateURLLoaderNetworkObserver();
+      }
+    } else {
+      url_loader_network_observer =
+          static_cast<content::StoragePartitionImpl*>(
+              browser_context->GetDefaultStoragePartition())
+              ->CreateAuthCertObserverForServiceWorker();
+    }
+
+    CEF_POST_TASK(CEF_IOT,
+                  base::BindOnce(&InterceptedRequestHandlerWrapper::
+                                     ContinueCreateURLLoaderNetworkObserver,
+                                 self, std::move(pending_request),
+                                 std::move(url_loader_network_observer)));
+  }
+
+  void ContinueCreateURLLoaderNetworkObserver(
+      std::unique_ptr<PendingRequest> pending_request,
+      mojo::PendingRemote<network::mojom::URLLoaderNetworkServiceObserver>
+          url_loader_network_observer) {
+    CEF_REQUIRE_IOT();
+
+    DCHECK(!init_state_->did_try_create_url_loader_network_observer_);
+    init_state_->did_try_create_url_loader_network_observer_ = true;
+    init_state_->url_loader_network_observer_ =
+        std::move(url_loader_network_observer);
+    pending_request->Run(this);
+  }
+
   // InterceptedRequestHandler methods:
   void OnBeforeRequest(int32_t request_id,
                        network::ResourceRequest* request,
@@ -409,8 +464,36 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       return;
     }
 
+    if (request->trusted_params &&
+        !request->trusted_params->url_loader_network_observer &&
+        !init_state_->did_try_create_url_loader_network_observer_) {
+      // Restarted/redirected requests won't already have an observer, so we
+      // need to create one.
+      CEF_POST_TASK(
+          CEF_UIT,
+          base::BindOnce(&InterceptedRequestHandlerWrapper::
+                             TryCreateURLLoaderNetworkObserver,
+                         std::make_unique<PendingRequest>(
+                             request_id, request, request_was_redirected,
+                             std::move(callback), std::move(cancel_callback)),
+                         init_state_->frame_, init_state_->browser_context_,
+                         weak_ptr_factory_.GetWeakPtr()));
+      return;
+    }
+
     // State may already exist for restarted requests.
     RequestState* state = GetOrCreateState(request_id);
+
+    if (init_state_->did_try_create_url_loader_network_observer_) {
+      if (init_state_->url_loader_network_observer_) {
+        request->trusted_params->url_loader_network_observer =
+            std::move(init_state_->url_loader_network_observer_);
+      }
+
+      // Reset state so that the observer will be recreated on the next
+      // restart/redirect.
+      init_state_->did_try_create_url_loader_network_observer_ = false;
+    }
 
     // Add standard headers, if currently unspecified.
     request->headers.SetHeaderIfMissing(
