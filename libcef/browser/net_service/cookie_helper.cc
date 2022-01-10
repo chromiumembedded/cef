@@ -22,7 +22,16 @@ namespace cookie_helper {
 
 namespace {
 
-// Do not keep a reference to the CookieManager returned by this method.
+// Do not keep a reference to the object returned by this method.
+CefBrowserContext* GetBrowserContext(const CefBrowserContext::Getter& getter) {
+  CEF_REQUIRE_UIT();
+  DCHECK(!getter.is_null());
+
+  // Will return nullptr if the BrowserContext has been shut down.
+  return getter.Run();
+}
+
+// Do not keep a reference to the object returned by this method.
 network::mojom::CookieManager* GetCookieManager(
     content::BrowserContext* browser_context) {
   CEF_REQUIRE_UIT();
@@ -82,13 +91,22 @@ void GetCookieListCallback(const AllowCookieCallback& allow_cookie_callback,
 }
 
 void LoadCookiesOnUIThread(
-    content::BrowserContext* browser_context,
+    const CefBrowserContext::Getter& browser_context_getter,
     const GURL& url,
     const net::CookieOptions& options,
     net::CookiePartitionKeyCollection cookie_partition_key_collection,
     const AllowCookieCallback& allow_cookie_callback,
     DoneCookieCallback done_callback) {
-  CEF_REQUIRE_UIT();
+  auto cef_browser_context = GetBrowserContext(browser_context_getter);
+  auto browser_context =
+      cef_browser_context ? cef_browser_context->AsBrowserContext() : nullptr;
+  if (!browser_context) {
+    GetCookieListCallback(allow_cookie_callback, std::move(done_callback),
+                          net::CookieAccessResultList(),
+                          net::CookieAccessResultList());
+    return;
+  }
+
   GetCookieManager(browser_context)
       ->GetCookieList(
           url, options, cookie_partition_key_collection,
@@ -126,14 +144,22 @@ void SetCanonicalCookieCallback(SaveCookiesProgress* progress,
   }
 }
 
-void SaveCookiesOnUIThread(content::BrowserContext* browser_context,
-                           const GURL& url,
-                           const net::CookieOptions& options,
-                           int total_count,
-                           net::CookieList cookies,
-                           DoneCookieCallback done_callback) {
-  CEF_REQUIRE_UIT();
+void SaveCookiesOnUIThread(
+    const CefBrowserContext::Getter& browser_context_getter,
+    const GURL& url,
+    const net::CookieOptions& options,
+    int total_count,
+    net::CookieList cookies,
+    DoneCookieCallback done_callback) {
   DCHECK(!cookies.empty());
+
+  auto cef_browser_context = GetBrowserContext(browser_context_getter);
+  auto browser_context =
+      cef_browser_context ? cef_browser_context->AsBrowserContext() : nullptr;
+  if (!browser_context) {
+    std::move(done_callback).Run(0, net::CookieList());
+    return;
+  }
 
   network::mojom::CookieManager* cookie_manager =
       GetCookieManager(browser_context);
@@ -186,7 +212,7 @@ bool IsCookieableScheme(
   return url.SchemeIsHTTPOrHTTPS() || url.SchemeIsWSOrWSS();
 }
 
-void LoadCookies(content::BrowserContext* browser_context,
+void LoadCookies(const CefBrowserContext::Getter& browser_context_getter,
                  const network::ResourceRequest& request,
                  const AllowCookieCallback& allow_cookie_callback,
                  DoneCookieCallback done_callback) {
@@ -201,14 +227,13 @@ void LoadCookies(content::BrowserContext* browser_context,
   }
 
   CEF_POST_TASK(
-      CEF_UIT,
-      base::BindOnce(LoadCookiesOnUIThread, browser_context, request.url,
-                     GetCookieOptions(request),
-                     net::CookiePartitionKeyCollection(),
-                     allow_cookie_callback, std::move(done_callback)));
+      CEF_UIT, base::BindOnce(LoadCookiesOnUIThread, browser_context_getter,
+                              request.url, GetCookieOptions(request),
+                              net::CookiePartitionKeyCollection(),
+                              allow_cookie_callback, std::move(done_callback)));
 }
 
-void SaveCookies(content::BrowserContext* browser_context,
+void SaveCookies(const CefBrowserContext::Getter& browser_context_getter,
                  const network::ResourceRequest& request,
                  net::HttpResponseHeaders* headers,
                  const AllowCookieCallback& allow_cookie_callback,
@@ -256,8 +281,8 @@ void SaveCookies(content::BrowserContext* browser_context,
   if (!allowed_cookies.empty()) {
     CEF_POST_TASK(
         CEF_UIT,
-        base::BindOnce(SaveCookiesOnUIThread, browser_context, request.url,
-                       GetCookieOptions(request), total_count,
+        base::BindOnce(SaveCookiesOnUIThread, browser_context_getter,
+                       request.url, GetCookieOptions(request), total_count,
                        std::move(allowed_cookies), std::move(done_callback)));
 
   } else {
