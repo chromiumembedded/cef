@@ -5,12 +5,10 @@
 #ifndef CEF_LIBCEF_BROWSER_NET_SERVICE_COOKIE_HELPER_H_
 #define CEF_LIBCEF_BROWSER_NET_SERVICE_COOKIE_HELPER_H_
 
+#include "libcef/browser/browser_context.h"
+
 #include "base/callback_forward.h"
 #include "net/cookies/canonical_cookie.h"
-
-namespace content {
-class BrowserContext;
-}
 
 namespace net {
 class HttpResponseHeaders;
@@ -44,7 +42,7 @@ using DoneCookieCallback =
 // both retrieved and allowed by |allow_cookie_callback|. The loaded cookies
 // will not be set on |request|; that should be done in |done_callback|. Must be
 // called on the IO thread.
-void LoadCookies(content::BrowserContext* browser_context,
+void LoadCookies(const CefBrowserContext::Getter& browser_context_getter,
                  const network::ResourceRequest& request,
                  const AllowCookieCallback& allow_cookie_callback,
                  DoneCookieCallback done_callback);
@@ -55,7 +53,7 @@ void LoadCookies(content::BrowserContext* browser_context,
 // retrieved, and |allowed_cookies| representing the list of cookies that were
 // both allowed by |allow_cookie_callback| an successfully saved. Must be called
 // on the IO thread.
-void SaveCookies(content::BrowserContext* browser_context,
+void SaveCookies(const CefBrowserContext::Getter& browser_context_getter,
                  const network::ResourceRequest& request,
                  net::HttpResponseHeaders* headers,
                  const AllowCookieCallback& allow_cookie_callback,

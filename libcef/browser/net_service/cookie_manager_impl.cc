@@ -23,7 +23,7 @@ CefBrowserContext* GetBrowserContext(const CefBrowserContext::Getter& getter) {
   CEF_REQUIRE_UIT();
   DCHECK(!getter.is_null());
 
-  // Will return nullptr if the BrowserContext has been destroyed.
+  // Will return nullptr if the BrowserContext has been shut down.
   return getter.Run();
 }
 
