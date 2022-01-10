@@ -244,10 +244,9 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                     const base::RepeatingClosure& unhandled_request_callback) {
       CEF_REQUIRE_UIT();
 
-      browser_context_ = browser_context;
-
       auto profile = Profile::FromBrowserContext(browser_context);
       auto cef_browser_context = CefBrowserContext::FromProfile(profile);
+      browser_context_getter_ = cef_browser_context->getter();
       iothread_state_ = cef_browser_context->iothread_state();
       CHECK(iothread_state_);
       cookieable_schemes_ = cef_browser_context->GetCookieableSchemes();
@@ -291,7 +290,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
         std::unique_ptr<DestructionObserver> observer) {}
 
     // Only accessed on the UI thread.
-    content::BrowserContext* browser_context_ = nullptr;
+    CefBrowserContext::Getter browser_context_getter_;
 
     bool initialized_ = false;
 
@@ -410,7 +409,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
   static void TryCreateURLLoaderNetworkObserver(
       std::unique_ptr<PendingRequest> pending_request,
       CefRefPtr<CefFrame> frame,
-      content::BrowserContext* browser_context,
+      const CefBrowserContext::Getter& browser_context_getter,
       base::WeakPtr<InterceptedRequestHandlerWrapper> self) {
     CEF_REQUIRE_UIT();
 
@@ -428,10 +427,16 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                 ->CreateURLLoaderNetworkObserver();
       }
     } else {
-      url_loader_network_observer =
-          static_cast<content::StoragePartitionImpl*>(
-              browser_context->GetDefaultStoragePartition())
-              ->CreateAuthCertObserverForServiceWorker();
+      auto cef_browser_context = browser_context_getter.Run();
+      auto browser_context = cef_browser_context
+                                 ? cef_browser_context->AsBrowserContext()
+                                 : nullptr;
+      if (browser_context) {
+        url_loader_network_observer =
+            static_cast<content::StoragePartitionImpl*>(
+                browser_context->GetDefaultStoragePartition())
+                ->CreateAuthCertObserverForServiceWorker();
+      }
     }
 
     CEF_POST_TASK(CEF_IOT,
@@ -488,7 +493,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                          std::make_unique<PendingRequest>(
                              request_id, request, request_was_redirected,
                              std::move(callback), std::move(cancel_callback)),
-                         init_state_->frame_, init_state_->browser_context_,
+                         init_state_->frame_,
+                         init_state_->browser_context_getter_,
                          weak_ptr_factory_.GetWeakPtr()));
       return;
     }
@@ -582,7 +588,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
         &InterceptedRequestHandlerWrapper::ContinueWithLoadedCookies,
         weak_ptr_factory_.GetWeakPtr(), request_id, request,
         std::move(callback));
-    cookie_helper::LoadCookies(init_state_->browser_context_, *request,
+    cookie_helper::LoadCookies(init_state_->browser_context_getter_, *request,
                                allow_cookie_callback,
                                std::move(done_cookie_callback));
   }
@@ -960,8 +966,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     auto done_cookie_callback = base::BindOnce(
         &InterceptedRequestHandlerWrapper::ContinueWithSavedCookies,
         weak_ptr_factory_.GetWeakPtr(), request_id, std::move(callback));
-    cookie_helper::SaveCookies(init_state_->browser_context_, *request, headers,
-                               allow_cookie_callback,
+    cookie_helper::SaveCookies(init_state_->browser_context_getter_, *request,
+                               headers, allow_cookie_callback,
                                std::move(done_cookie_callback));
   }
 

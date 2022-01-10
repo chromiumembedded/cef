@@ -213,6 +213,9 @@ void CefBrowserContext::Shutdown() {
 
   // Destroy objects that may hold references to the MediaRouter.
   media_router_manager_.reset();
+
+  // Invalidate any Getter references to this object.
+  weak_ptr_factory_.InvalidateWeakPtrs();
 }
 
 void CefBrowserContext::AddCefRequestContext(CefRequestContextImpl* context) {
