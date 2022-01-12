@@ -34,7 +34,7 @@ index a45799d6fc9ee..d884e88e754cc 100644
  }
  
 diff --git chrome/browser/printing/print_preview_dialog_controller.cc chrome/browser/printing/print_preview_dialog_controller.cc
-index 96929c4158ce5..68bacf03a27ff 100644
+index 1cf3cbf2a5ed0..09f43d550eebc 100644
 --- chrome/browser/printing/print_preview_dialog_controller.cc
 +++ chrome/browser/printing/print_preview_dialog_controller.cc
 @@ -15,6 +15,7 @@

@@ -156,7 +156,7 @@ index 97afd5b1ba753..40672e7c4fdf3 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 968b63908b38e..3cbeacd8418e2 100644
+index dc13157123f9f..4a22e4cf885ee 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -28,6 +28,7 @@

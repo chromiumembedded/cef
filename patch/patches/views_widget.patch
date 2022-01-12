@@ -309,10 +309,10 @@ index 9432480a38e45..82c4ffa97eee4 100644
    // a reference.
    raw_ptr<corewm::TooltipWin> tooltip_;
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index a2627e07f3131..7acd793ca3cb3 100644
+index bc07e34bde24f..35089937d13aa 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
-@@ -359,7 +359,8 @@ void Widget::Init(InitParams params) {
+@@ -340,7 +340,8 @@ void Widget::Init(InitParams params) {
    }
  
    params.child |= (params.type == InitParams::TYPE_CONTROL);
@@ -322,7 +322,7 @@ index a2627e07f3131..7acd793ca3cb3 100644
  
    if (params.opacity == views::Widget::InitParams::WindowOpacity::kInferred &&
        params.type != views::Widget::InitParams::TYPE_WINDOW) {
-@@ -435,13 +436,21 @@ void Widget::Init(InitParams params) {
+@@ -416,13 +417,21 @@ void Widget::Init(InitParams params) {
  
      if (show_state == ui::SHOW_STATE_MAXIMIZED) {
        Maximize();
@@ -345,7 +345,7 @@ index a2627e07f3131..7acd793ca3cb3 100644
    }
  
    native_theme_observation_.Observe(GetNativeTheme());
-@@ -1417,10 +1426,16 @@ void Widget::OnNativeWidgetDestroyed() {
+@@ -1402,10 +1411,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -363,7 +363,7 @@ index a2627e07f3131..7acd793ca3cb3 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 52c0b91c81c41..d91ce4fd14094 100644
+index b88cc69c0489d..c254fc09806a5 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -329,6 +329,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
