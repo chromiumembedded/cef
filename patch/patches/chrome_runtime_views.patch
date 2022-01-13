@@ -129,7 +129,7 @@ index 6a1e9abbc66aa..aa9e3ebe2599c 100644
    BrowserFrame(const BrowserFrame&) = delete;
    BrowserFrame& operator=(const BrowserFrame&) = delete;
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 15336e395156d..8fa18bd3b9ac5 100644
+index 15336e395156d..550acde00fdfc 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -291,11 +291,10 @@ using content::WebContents;
@@ -257,6 +257,34 @@ index 15336e395156d..8fa18bd3b9ac5 100644
    using_native_frame_ = frame_->ShouldUseNativeFrame();
  
    MaybeInitializeWebUITabStrip();
+@@ -3761,7 +3783,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
+   // Undo our anti-jankiness hacks and force a re-layout.
+   in_process_fullscreen_ = false;
+   ToolbarSizeChanged(false);
+-  frame_->GetFrameView()->OnFullscreenStateChanged();
++  if (frame_->GetFrameView())
++    frame_->GetFrameView()->OnFullscreenStateChanged();
+ }
+ 
+ bool BrowserView::ShouldUseImmersiveFullscreenForUrl(const GURL& url) const {
+@@ -4052,6 +4075,8 @@ Profile* BrowserView::GetProfile() {
+ }
+ 
+ void BrowserView::UpdateUIForTabFullscreen() {
++  if (!frame()->GetFrameView())
++    return;
+   frame()->GetFrameView()->UpdateFullscreenTopUI();
+ }
+ 
+@@ -4074,6 +4099,8 @@ void BrowserView::HideDownloadShelf() {
+ }
+ 
+ bool BrowserView::CanUserExitFullscreen() const {
++  if (!frame_->GetFrameView())
++    return true;
+   return frame_->GetFrameView()->CanUserExitFullscreen();
+ }
+ 
 diff --git chrome/browser/ui/views/frame/browser_view.h chrome/browser/ui/views/frame/browser_view.h
 index 6eea8b4b899e2..4dc56c94baa3f 100644
 --- chrome/browser/ui/views/frame/browser_view.h
