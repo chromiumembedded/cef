@@ -129,7 +129,7 @@ index 6a1e9abbc66aa..aa9e3ebe2599c 100644
    BrowserFrame(const BrowserFrame&) = delete;
    BrowserFrame& operator=(const BrowserFrame&) = delete;
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 3c6fcbebb84bb..db469505c4ab2 100644
+index 15336e395156d..8fa18bd3b9ac5 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -291,11 +291,10 @@ using content::WebContents;
@@ -147,7 +147,7 @@ index 3c6fcbebb84bb..db469505c4ab2 100644
  
  #if BUILDFLAG(IS_CHROMEOS_ASH)
  // UMA histograms that record animation smoothness for tab loading animation.
-@@ -677,11 +676,22 @@ class BrowserView::SidePanelButtonHighlighter : public views::ViewObserver {
+@@ -683,11 +682,22 @@ class BrowserView::SidePanelButtonHighlighter : public views::ViewObserver {
  ///////////////////////////////////////////////////////////////////////////////
  // BrowserView, public:
  
@@ -171,7 +171,7 @@ index 3c6fcbebb84bb..db469505c4ab2 100644
    SetShowIcon(::ShouldShowWindowIcon(browser_.get()));
  
    // In forced app mode, all size controls are always disabled. Otherwise, use
-@@ -695,7 +705,6 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
+@@ -701,7 +711,6 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
    }
  
    browser_->tab_strip_model()->AddObserver(this);
@@ -179,7 +179,7 @@ index 3c6fcbebb84bb..db469505c4ab2 100644
  
    // Top container holds tab strip region and toolbar and lives at the front of
    // the view hierarchy.
-@@ -741,8 +750,15 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
+@@ -747,8 +756,15 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
    contents_container->SetLayoutManager(std::make_unique<ContentsLayoutManager>(
        devtools_web_view_, contents_web_view_));
  
@@ -197,7 +197,7 @@ index 3c6fcbebb84bb..db469505c4ab2 100644
  
    contents_separator_ =
        top_container_->AddChildView(std::make_unique<ContentsSeparator>());
-@@ -1579,6 +1595,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
+@@ -1585,6 +1601,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
    if (immersive_mode_controller_->IsEnabled())
      return false;
  
@@ -206,7 +206,7 @@ index 3c6fcbebb84bb..db469505c4ab2 100644
    return frame_->GetFrameView()->ShouldHideTopUIForFullscreen();
  }
  
-@@ -2725,7 +2743,8 @@ BrowserView::GetNativeViewHostsForTopControlsSlide() const {
+@@ -2731,7 +2749,8 @@ BrowserView::GetNativeViewHostsForTopControlsSlide() const {
  }
  
  void BrowserView::ReparentTopContainerForEndOfImmersive() {
@@ -216,7 +216,7 @@ index 3c6fcbebb84bb..db469505c4ab2 100644
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -3214,8 +3233,10 @@ void BrowserView::Layout() {
+@@ -3220,8 +3239,10 @@ void BrowserView::Layout() {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -229,7 +229,7 @@ index 3c6fcbebb84bb..db469505c4ab2 100644
  
    // Some of the situations when the BrowserView is laid out are:
    // - Enter/exit immersive fullscreen mode.
-@@ -3278,6 +3299,11 @@ void BrowserView::AddedToWidget() {
+@@ -3284,6 +3305,11 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->profile());
  #endif
  
@@ -241,7 +241,7 @@ index 3c6fcbebb84bb..db469505c4ab2 100644
    toolbar_->Init();
  
    // TODO(pbos): Manage this either inside SidePanel or the corresponding button
-@@ -3330,13 +3356,9 @@ void BrowserView::AddedToWidget() {
+@@ -3336,13 +3362,9 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  

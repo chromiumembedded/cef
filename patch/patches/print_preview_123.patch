@@ -46,7 +46,7 @@ index 1cf3cbf2a5ed0..09f43d550eebc 100644
  #include "chrome/browser/printing/print_view_manager.h"
  #include "chrome/browser/task_manager/web_contents_tags.h"
 diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index c9f1502da55d8..874c95c2db26c 100644
+index aad37ff0fdbc4..b5780c7581b36 100644
 --- chrome/browser/printing/print_view_manager_base.cc
 +++ chrome/browser/printing/print_view_manager_base.cc
 @@ -248,12 +248,13 @@ void UpdatePrintSettingsOnIO(
@@ -66,7 +66,7 @@ index c9f1502da55d8..874c95c2db26c 100644
    }
    auto* printer_query_ptr = printer_query.get();
    printer_query_ptr->SetSettings(
-@@ -667,6 +668,7 @@ void PrintViewManagerBase::UpdatePrintSettings(
+@@ -675,6 +676,7 @@ void PrintViewManagerBase::UpdatePrintSettings(
        job_settings.SetIntKey(kSettingRasterizePdfDpi, value);
    }
  
@@ -74,7 +74,7 @@ index c9f1502da55d8..874c95c2db26c 100644
    auto callback_wrapper =
        base::BindOnce(&PrintViewManagerBase::UpdatePrintSettingsReply,
                       weak_ptr_factory_.GetWeakPtr(), std::move(callback));
-@@ -674,7 +676,9 @@ void PrintViewManagerBase::UpdatePrintSettings(
+@@ -682,7 +684,9 @@ void PrintViewManagerBase::UpdatePrintSettings(
        FROM_HERE,
        base::BindOnce(&UpdatePrintSettingsOnIO, cookie,
                       std::move(callback_wrapper), queue_,
