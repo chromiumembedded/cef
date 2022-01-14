@@ -375,6 +375,8 @@ class CefRenderWidgetHostViewOSR
   bool hold_resize_ = false;
   bool pending_resize_ = false;
 
+  float cached_scale_factor_ = 0.0f;
+
   // The associated Model.  While |this| is being Destroyed,
   // |render_widget_host_| is NULL and the message loop is run one last time
   // Message handlers must check for a NULL |render_widget_host_|.
