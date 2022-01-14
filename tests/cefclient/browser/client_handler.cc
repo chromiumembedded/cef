@@ -562,6 +562,7 @@ bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
                                   bool* is_keyboard_shortcut) {
   CEF_REQUIRE_UI_THREAD();
 
+  /*
   if (!event.focus_on_editable_field && event.windows_key_code == 0x20) {
     // Special handling for the space character when an input element does not
     // have focus. Handling the event in OnPreKeyEvent() keeps the event from
@@ -572,6 +573,7 @@ bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
       test_runner::Alert(browser, "You pressed the space bar!");
     return true;
   }
+  */
 
   return false;
 }
