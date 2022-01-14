@@ -1467,8 +1467,13 @@ void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
                    rcList, pixels, pixel_size.width(), pixel_size.height());
 
   // Release the resize hold when we reach the desired size.
-  if (hold_resize_ && pixel_size == SizeInPixels())
-    ReleaseResizeHold();
+  if (hold_resize_) {
+    DCHECK_GT(cached_scale_factor_, 0);
+    gfx::Size expected_size =
+        gfx::ScaleToCeiledSize(GetViewBounds().size(), cached_scale_factor_);
+    if (pixel_size == expected_size)
+      ReleaseResizeHold();
+  }
 }
 
 ui::Layer* CefRenderWidgetHostViewOSR::GetRootLayer() const {
@@ -1573,6 +1578,7 @@ bool CefRenderWidgetHostViewOSR::ResizeRootLayer() {
       // The size has changed. Avoid resizing again until ReleaseResizeHold() is
       // called.
       hold_resize_ = true;
+      cached_scale_factor_ = GetDeviceScaleFactor();
       return true;
     }
   } else if (!pending_resize_) {
@@ -1586,6 +1592,7 @@ bool CefRenderWidgetHostViewOSR::ResizeRootLayer() {
 void CefRenderWidgetHostViewOSR::ReleaseResizeHold() {
   DCHECK(hold_resize_);
   hold_resize_ = false;
+  cached_scale_factor_ = -1;
   if (pending_resize_) {
     pending_resize_ = false;
     CEF_POST_TASK(CEF_UIT,
