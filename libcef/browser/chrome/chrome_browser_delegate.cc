@@ -135,6 +135,14 @@ void ChromeBrowserDelegate::AddNewContents(
 content::WebContents* ChromeBrowserDelegate::OpenURLFromTab(
     content::WebContents* source,
     const content::OpenURLParams& params) {
+  // |source| may be nullptr when opening a link from chrome UI such as the
+  // Reading List sidebar. In that case we default to using the Browser's
+  // currently active WebContents.
+  if (!source) {
+    source = browser_->tab_strip_model()->GetActiveWebContents();
+    DCHECK(source);
+  }
+
   // Return nullptr to cancel the navigation. Otherwise, proceed with default
   // chrome handling.
   if (auto delegate = GetDelegateForWebContents(source)) {
