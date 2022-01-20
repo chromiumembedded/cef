@@ -58,7 +58,7 @@ index 434d4781e2342..2bdd03803c6f8 100644
    // Add an entry to the map.
    preview_dialog_map_[preview_dialog] = initiator;
 diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index c3388853baa3c..dcbf66193ea23 100644
+index 8822214fba0bd..84e8bb4e3b56d 100644
 --- chrome/browser/printing/print_view_manager_base.cc
 +++ chrome/browser/printing/print_view_manager_base.cc
 @@ -21,6 +21,7 @@
