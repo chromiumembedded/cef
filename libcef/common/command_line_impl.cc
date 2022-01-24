@@ -33,7 +33,7 @@ CefRefPtr<CefCommandLine> CefCommandLineImpl::Copy() {
 }
 
 void CefCommandLineImpl::InitFromArgv(int argc, const char* const* argv) {
-#if !defined(OS_WIN)
+#if !BUILDFLAG(IS_WIN)
   CEF_VALUE_VERIFY_RETURN_VOID(true);
   mutable_value()->InitFromArgv(argc, argv);
 #else
@@ -42,7 +42,7 @@ void CefCommandLineImpl::InitFromArgv(int argc, const char* const* argv) {
 }
 
 void CefCommandLineImpl::InitFromString(const CefString& command_line) {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   CEF_VALUE_VERIFY_RETURN_VOID(true);
   const std::wstring& str16 = command_line;
   mutable_value()->ParseFromString(str16);
@@ -116,7 +116,7 @@ void CefCommandLineImpl::AppendSwitch(const CefString& name) {
 void CefCommandLineImpl::AppendSwitchWithValue(const CefString& name,
                                                const CefString& value) {
   CEF_VALUE_VERIFY_RETURN_VOID(true);
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   mutable_value()->AppendSwitchNative(name.ToString(), value.ToWString());
 #else
   mutable_value()->AppendSwitchNative(name.ToString(), value.ToString());
@@ -138,7 +138,7 @@ void CefCommandLineImpl::GetArguments(ArgumentList& arguments) {
 
 void CefCommandLineImpl::AppendArgument(const CefString& argument) {
   CEF_VALUE_VERIFY_RETURN_VOID(true);
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   mutable_value()->AppendArgNative(argument.ToWString());
 #else
   mutable_value()->AppendArgNative(argument.ToString());
@@ -147,7 +147,7 @@ void CefCommandLineImpl::AppendArgument(const CefString& argument) {
 
 void CefCommandLineImpl::PrependWrapper(const CefString& wrapper) {
   CEF_VALUE_VERIFY_RETURN_VOID(true);
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   mutable_value()->PrependWrapper(wrapper.ToWString());
 #else
   mutable_value()->PrependWrapper(wrapper.ToString());

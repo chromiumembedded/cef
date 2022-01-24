@@ -25,7 +25,7 @@ bool PdfExtensionEnabled() {
 }
 
 bool PrintPreviewEnabled() {
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
   // Not currently supported on macOS.
   return false;
 #else

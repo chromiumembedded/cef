@@ -48,11 +48,11 @@
 #include "ui/base/ui_base_paths.h"
 #include "ui/base/ui_base_switches.h"
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
 #include "libcef/common/util_mac.h"
 #endif
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include "ui/base/resource/resource_bundle_win.h"
 #endif
 
@@ -74,7 +74,7 @@ AlloyMainDelegate::AlloyMainDelegate(CefMainRunnerHandler* runner,
   extern void base_impl_stub();
   base_impl_stub();
 
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   resource_util::OverrideAssetPath();
 #endif
 }
@@ -90,7 +90,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
   std::string process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
 
-#if defined(OS_POSIX)
+#if BUILDFLAG(IS_POSIX)
   // Read the crash configuration file. Platforms using Breakpad also add a
   // command-line switch. On Windows this is done from chrome_elf.
   crash_reporting::BasicStartupComplete(command_line);
@@ -117,7 +117,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
         command_line->AppendSwitchPath(switches::kBrowserSubprocessPath,
                                        file_path);
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
         // The sandbox is not supported when using a separate subprocess
         // executable on Windows.
         no_sandbox = true;
@@ -125,7 +125,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
       }
     }
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
     if (settings_->framework_dir_path.length > 0) {
       base::FilePath file_path =
           base::FilePath(CefString(&settings_->framework_dir_path));
@@ -243,7 +243,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
           base::NumberToString(settings_->uncaught_exception_stack_size));
     }
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
     std::vector<std::string> disable_features;
 
     if (features::kCalculateNativeWinOcclusion.default_state ==
@@ -271,7 +271,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
       command_line->AppendSwitchASCII(switches::kDisableFeatures,
                                       disable_features_str);
     }
-#endif  // defined(OS_WIN)
+#endif  // BUILDFLAG(IS_WIN)
   }
 
   if (application_) {
@@ -335,7 +335,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
 
   content::SetContentClient(&content_client_);
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
   util_mac::BasicStartupComplete();
 #endif
 
@@ -350,7 +350,7 @@ void AlloyMainDelegate::PreSandboxStartup() {
 
   if (process_type.empty()) {
 // Only override these paths when executing the main process.
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
     util_mac::PreSandboxStartup();
 #endif
 
@@ -395,7 +395,7 @@ void AlloyMainDelegate::ProcessExiting(const std::string& process_type) {
   ui::ResourceBundle::CleanupSharedInstance();
 }
 
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 void AlloyMainDelegate::ZygoteForked() {
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   const std::string& process_type =
@@ -505,7 +505,7 @@ void AlloyMainDelegate::InitializeResourceBundle() {
       base::PathService::Override(ui::DIR_LOCALES, locales_dir);
   }
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   // From chrome/app/chrome_main_delegate.cc
   // Throbber icons and cursors are still stored in chrome.dll,
   // this can be killed once those are merged into resources.pak. See

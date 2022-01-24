@@ -361,7 +361,7 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
   create_params.request_context = request_context;
   create_params.window_info.reset(new CefWindowInfo);
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   create_params.window_info->SetAsPopup(nullptr, CefString());
 #endif
 

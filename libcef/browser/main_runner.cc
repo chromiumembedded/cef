@@ -28,14 +28,14 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include <Objbase.h>
 #include <windows.h>
 #include "content/public/app/sandbox_helper_win.h"
 #include "sandbox/win/src/sandbox_types.h"
 #endif
 
-#if defined(OS_MAC) || defined(OS_WIN)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #include "components/crash/core/app/crash_switches.h"
 #include "third_party/crashpad/crashpad/handler/handler_main.h"
 #endif
@@ -65,7 +65,7 @@ std::unique_ptr<CefMainRunnerDelegate> MakeDelegate(
   }
 }
 
-#if defined(OS_MAC) || defined(OS_WIN)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 
 // Based on components/crash/core/app/run_as_crashpad_handler_win.cc
 // Remove the "--type=crashpad-handler" command-line flag that will otherwise
@@ -88,7 +88,7 @@ int RunAsCrashpadHandler(const base::CommandLine& command_line) {
                      }),
       argv.end());
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
   // HandlerMain on macOS uses the system version of getopt_long which expects
   // the first argument to be the program name.
   argv.insert(argv.begin(), command_line.GetProgram().value());
@@ -98,7 +98,7 @@ int RunAsCrashpadHandler(const base::CommandLine& command_line) {
   std::vector<std::string> storage;
   storage.reserve(argv.size());
   for (size_t i = 0; i < argv.size(); ++i) {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
     storage.push_back(base::WideToUTF8(argv[i]));
 #else
     storage.push_back(argv[i]);
@@ -111,7 +111,7 @@ int RunAsCrashpadHandler(const base::CommandLine& command_line) {
                                argv_as_utf8.get(), nullptr);
 }
 
-#endif  // defined(OS_MAC) || defined(OS_WIN)
+#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 
 }  // namespace
 
@@ -171,7 +171,7 @@ class CefUIThread : public base::PlatformThread::Delegate {
   void ThreadMain() override {
     base::PlatformThread::SetName("CefUIThread");
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
     // Initializes the COM library on the current thread.
     CoInitialize(nullptr);
 #endif
@@ -190,7 +190,7 @@ class CefUIThread : public base::PlatformThread::Delegate {
     // Run exit callbacks on the UI thread to avoid sequence check failures.
     base::AtExitManager::ProcessCallbacksNow();
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
     // Closes the COM library on the current thread. CoInitialize must
     // be balanced by a corresponding call to CoUninitialize.
     CoUninitialize();
@@ -301,7 +301,7 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
                                       CefRefPtr<CefApp> application,
                                       void* windows_sandbox_info) {
   base::CommandLine command_line(base::CommandLine::NO_PROGRAM);
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   command_line.ParseFromString(::GetCommandLineW());
 #else
   command_line.InitFromArgv(args.argc, args.argv);
@@ -327,7 +327,7 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
 
   int result;
 
-#if defined(OS_MAC) || defined(OS_WIN)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   if (process_type == crash_reporter::switches::kCrashpadHandler) {
     result = RunAsCrashpadHandler(command_line);
     main_delegate->AfterExecuteProcess();
@@ -338,7 +338,7 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
   // Execute the secondary process.
   content::ContentMainParams main_params(
       main_delegate->GetContentMainDelegate());
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   sandbox::SandboxInterfaceInfo sandbox_info = {nullptr};
   if (windows_sandbox_info == nullptr) {
     content::InitializeSandboxInfo(&sandbox_info);
@@ -369,7 +369,7 @@ int CefMainRunner::ContentMainInitialize(const CefMainArgs& args,
   content::ContentMainParams main_params(
       main_delegate_->GetContentMainDelegate());
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   sandbox::SandboxInterfaceInfo sandbox_info = {nullptr};
   if (windows_sandbox_info == nullptr) {
     windows_sandbox_info = &sandbox_info;

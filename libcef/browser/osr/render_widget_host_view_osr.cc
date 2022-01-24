@@ -729,7 +729,7 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
   return GetViewBounds();
 }
 
-#if !defined(OS_MAC)
+#if !BUILDFLAG(IS_MAC)
 viz::ScopedSurfaceIdAllocator
 CefRenderWidgetHostViewOSR::DidUpdateVisualProperties(
     const cc::RenderFrameMetadata& metadata) {
@@ -1418,7 +1418,7 @@ gfx::Size CefRenderWidgetHostViewOSR::SizeInPixels() {
   return gfx::ScaleToCeiledSize(GetViewBounds().size(), GetDeviceScaleFactor());
 }
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
 void CefRenderWidgetHostViewOSR::SetActive(bool active) {}
 
 void CefRenderWidgetHostViewOSR::ShowDefinitionForSelection() {}
@@ -1436,7 +1436,7 @@ void CefRenderWidgetHostViewOSR::ShowSharePicker(
     blink::mojom::ShareService::ShareCallback callback) {
   std::move(callback).Run(blink::mojom::ShareError::INTERNAL_ERROR);
 }
-#endif  // defined(OS_MAC)
+#endif  // BUILDFLAG(IS_MAC)
 
 void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
                                          const gfx::Size& pixel_size,

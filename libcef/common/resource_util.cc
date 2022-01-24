@@ -4,7 +4,7 @@
 
 #include "libcef/common/resource_util.h"
 
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #include <dlfcn.h>
 #endif
 
@@ -21,17 +21,17 @@
 #include "chrome/common/chrome_switches.h"
 #include "ui/base/layout.h"
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
 #include "base/mac/foundation_util.h"
 #include "libcef/common/util_mac.h"
 #endif
 
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #include "base/environment.h"
 #include "base/nix/xdg_util.h"
 #endif
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include "base/win/registry.h"
 #endif
 
@@ -39,7 +39,7 @@ namespace resource_util {
 
 namespace {
 
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 
 // Based on chrome/common/chrome_paths_linux.cc.
 // See http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
@@ -53,7 +53,7 @@ bool GetDefaultUserDataDirectory(base::FilePath* result) {
   return true;
 }
 
-#elif defined(OS_MAC)
+#elif BUILDFLAG(IS_MAC)
 
 // Based on chrome/common/chrome_paths_mac.mm.
 bool GetDefaultUserDataDirectory(base::FilePath* result) {
@@ -64,7 +64,7 @@ bool GetDefaultUserDataDirectory(base::FilePath* result) {
   return true;
 }
 
-#elif defined(OS_WIN)
+#elif BUILDFLAG(IS_WIN)
 
 // Based on chrome/common/chrome_paths_win.cc.
 bool GetDefaultUserDataDirectory(base::FilePath* result) {
@@ -116,7 +116,7 @@ base::FilePath GetUserDataPath(CefSettings* settings,
 // to the desktop on any platform.
 // From chrome/browser/download/download_prefs.cc.
 bool DownloadPathIsDangerous(const base::FilePath& download_path) {
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   base::FilePath home_dir = base::GetHomeDir();
   if (download_path == home_dir) {
     return true;
@@ -142,7 +142,7 @@ bool GetDefaultDownloadSafeDirectory(base::FilePath* result) {
     return false;
 
   if (DownloadPathIsDangerous(*result)) {
-#if defined(OS_WIN) || defined(OS_LINUX)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
     // Explicitly switch to the safe download directory.
     return chrome::GetUserDownloadsDirectorySafe(result);
 #else
@@ -156,7 +156,7 @@ bool GetDefaultDownloadSafeDirectory(base::FilePath* result) {
 
 }  // namespace
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
 
 base::FilePath GetResourcesDir() {
   return util_mac::GetFrameworkResourcesDirectory();
@@ -171,7 +171,7 @@ base::FilePath GetDefaultLogFilePath() {
       .Append(FILE_PATH_LITERAL(exe_name + "_debug.log"));
 }
 
-#else  // !defined(OS_MAC)
+#else  // !BUILDFLAG(IS_MAC)
 
 base::FilePath GetResourcesDir() {
   base::FilePath pak_dir;
@@ -186,7 +186,7 @@ base::FilePath GetDefaultLogFilePath() {
   return log_path.Append(FILE_PATH_LITERAL("debug.log"));
 }
 
-#endif  // !defined(OS_MAC)
+#endif  // !BUILDFLAG(IS_MAC)
 
 void OverrideDefaultDownloadDir() {
   base::FilePath dir_default_download;
@@ -226,7 +226,7 @@ bool IsScaleFactorSupported(ui::ResourceScaleFactor scale_factor) {
                    scale_factor) != supported_scale_factors.end();
 }
 
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 void OverrideAssetPath() {
   Dl_info dl_info;
   if (dladdr(reinterpret_cast<const void*>(&OverrideAssetPath), &dl_info)) {

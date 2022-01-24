@@ -42,7 +42,7 @@ class ChromeMainDelegateCef : public ChromeMainDelegate,
   absl::variant<int, content::MainFunctionParams> RunProcess(
       const std::string& process_type,
       content::MainFunctionParams main_function_params) override;
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   void ZygoteForked() override;
 #endif
   content::ContentClient* CreateContentClient() override;

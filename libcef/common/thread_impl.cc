@@ -97,7 +97,7 @@ bool CefThreadImpl::Create(const CefString& display_name,
 
   options.joinable = stoppable;
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   if (com_init_mode != COM_INIT_MODE_NONE) {
     if (com_init_mode == COM_INIT_MODE_STA)
       options.message_pump_type = base::MessagePumpType::UI;

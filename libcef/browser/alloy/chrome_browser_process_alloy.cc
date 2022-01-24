@@ -322,7 +322,7 @@ StartupData* ChromeBrowserProcessAlloy::startup_data() {
   return nullptr;
 }
 
-#if defined(OS_WIN) || defined(OS_LINUX)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 void ChromeBrowserProcessAlloy::StartAutoupdateTimer() {}
 #endif
 

@@ -16,7 +16,7 @@
 #include "ui/views/widget/widget_delegate.h"
 #include "ui/views/window/non_client_view.h"
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include "ui/display/win/screen_win.h"
 #endif
 
@@ -196,7 +196,7 @@ CefRefPtr<CefWindow> GetWindowFor(views::Widget* widget) {
 display::Display GetDisplayNearestPoint(const gfx::Point& point,
                                         bool input_pixel_coords) {
   gfx::Point find_point = point;
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   if (input_pixel_coords) {
     find_point = gfx::ToFlooredPoint(
         display::win::ScreenWin::ScreenToDIPPoint(gfx::PointF(point)));
@@ -208,7 +208,7 @@ display::Display GetDisplayNearestPoint(const gfx::Point& point,
 display::Display GetDisplayMatchingBounds(const gfx::Rect& bounds,
                                           bool input_pixel_coords) {
   gfx::Rect find_bounds = bounds;
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   if (input_pixel_coords) {
     find_bounds =
         display::win::ScreenWin::ScreenToDIPRect(nullptr, find_bounds);

@@ -22,14 +22,14 @@ bool SetCrashKeyValue(const base::StringPiece& key,
 
 // Functions are called from similarly named methods in AlloyMainDelegate.
 
-#if defined(OS_POSIX)
+#if BUILDFLAG(IS_POSIX)
 void BasicStartupComplete(base::CommandLine* command_line);
 #endif
 
 void PreSandboxStartup(const base::CommandLine& command_line,
                        const std::string& process_type);
 
-#if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MAC)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC)
 void ZygoteForked(base::CommandLine* command_line,
                   const std::string& process_type);
 #endif

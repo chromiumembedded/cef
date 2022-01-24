@@ -92,7 +92,7 @@ const char* kAllowedWebUIHosts[] = {
     chrome::kChromeUIPrintHost,
     content::kChromeUIProcessInternalsHost,
     content::kChromeUIResourcesHost,
-#if defined(OS_WIN) || defined(OS_LINUX)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
     chrome::kChromeUISandboxHost,
 #endif
     content::kChromeUIServiceWorkerInternalsHost,
@@ -197,11 +197,11 @@ void GetDebugURLs(std::vector<std::string>* urls) {
 }
 
 std::string GetOSType() {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   return "Windows";
-#elif defined(OS_MAC)
+#elif BUILDFLAG(IS_MAC)
   return "Mac OS X";
-#elif defined(OS_LINUX)
+#elif BUILDFLAG(IS_LINUX)
   return "Linux";
 #else
   return "Unknown";
@@ -209,10 +209,10 @@ std::string GetOSType() {
 }
 
 std::string GetCommandLine() {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   return base::WideToUTF8(
       base::CommandLine::ForCurrentProcess()->GetCommandLineString());
-#elif defined(OS_POSIX)
+#elif BUILDFLAG(IS_POSIX)
   std::string command_line = "";
   using ArgvList = std::vector<std::string>;
   const ArgvList& argv = base::CommandLine::ForCurrentProcess()->argv();

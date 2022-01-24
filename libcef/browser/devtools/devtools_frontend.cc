@@ -57,9 +57,9 @@
 #include "services/network/public/mojom/url_response_head.mojom.h"
 #include "storage/browser/file_system/native_file_util.h"
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include <windows.h>
-#elif defined(OS_POSIX)
+#elif BUILDFLAG(IS_POSIX)
 #include <time.h>
 #endif
 
@@ -106,7 +106,7 @@ base::DictionaryValue BuildObjectForResponse(const net::HttpResponseHeaders* rh,
 }
 
 void WriteTimestamp(std::stringstream& stream) {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   SYSTEMTIME local_time;
   GetLocalTime(&local_time);
   stream << std::setfill('0') << std::setw(2) << local_time.wMonth
@@ -114,7 +114,7 @@ void WriteTimestamp(std::stringstream& stream) {
          << local_time.wHour << std::setw(2) << local_time.wMinute
          << std::setw(2) << local_time.wSecond << '.' << std::setw(3)
          << local_time.wMilliseconds;
-#elif defined(OS_POSIX)
+#elif BUILDFLAG(IS_POSIX)
   timeval tv;
   gettimeofday(&tv, nullptr);
   time_t t = tv.tv_sec;

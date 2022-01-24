@@ -12,7 +12,7 @@
 #include "third_party/skia/include/core/SkCanvas.h"
 #include "ui/gfx/skia_util.h"
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include <windows.h>
 #include "skia/ext/skia_utils_win.h"
 #include "ui/gfx/gdi_util.h"
@@ -72,7 +72,7 @@ void SoftwareOutputDeviceProxy::Resize(const gfx::Size& viewport_pixel_size,
     return;
   }
 
-#if !defined(OS_WIN)
+#if !BUILDFLAG(IS_WIN)
   auto shm = base::ReadOnlySharedMemoryRegion::Create(required_bytes);
   if (!shm.IsValid()) {
     DLOG(ERROR) << "Failed to allocate " << required_bytes << " bytes";

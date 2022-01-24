@@ -33,7 +33,7 @@ ChromeMainRunnerDelegate::GetContentMainDelegate() {
 
 void ChromeMainRunnerDelegate::BeforeMainThreadInitialize(
     const CefMainArgs& args) {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   base::CommandLine::Init(0, nullptr);
 #else
   base::CommandLine::Init(args.argc, args.argv);

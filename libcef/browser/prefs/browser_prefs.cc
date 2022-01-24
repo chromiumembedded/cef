@@ -65,7 +65,7 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/ui_base_switches.h"
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include "components/os_crypt/os_crypt.h"
 #endif
 
@@ -233,7 +233,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   if (!profile) {
     component_updater::RegisterComponentUpdateServicePrefs(registry.get());
     SystemNetworkContextManager::RegisterPrefs(registry.get());
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
     OSCrypt::RegisterLocalPrefs(registry.get());
 #endif
   }

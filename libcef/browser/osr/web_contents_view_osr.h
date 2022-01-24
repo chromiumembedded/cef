@@ -61,7 +61,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   void SetOverscrollControllerEnabled(bool enabled) override;
   void OnCapturerCountChanged() override;
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
   bool CloseTabAfterEventTrackingIfNeeded() override;
 #endif
 

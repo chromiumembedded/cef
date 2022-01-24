@@ -23,7 +23,7 @@
 #include "third_party/blink/public/common/switches.h"
 #include "ui/base/ui_base_switches.h"
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
 #include "libcef/common/util_mac.h"
 #endif
 
@@ -41,7 +41,7 @@ ChromeMainDelegateCef::ChromeMainDelegateCef(CefMainRunnerHandler* runner,
       runner_(runner),
       settings_(settings),
       application_(application) {
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   resource_util::OverrideAssetPath();
 #endif
 }
@@ -56,7 +56,7 @@ bool ChromeMainDelegateCef::BasicStartupComplete(int* exit_code) {
 
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
 
-#if defined(OS_POSIX)
+#if BUILDFLAG(IS_POSIX)
   // Read the crash configuration file. Platforms using Breakpad also add a
   // command-line switch. On Windows this is done from chrome_elf.
   crash_reporting::BasicStartupComplete(command_line);
@@ -129,7 +129,7 @@ bool ChromeMainDelegateCef::BasicStartupComplete(int* exit_code) {
     ignore_result(commandLinePtr->Detach(nullptr));
   }
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
   util_mac::BasicStartupComplete();
 #endif
 
@@ -142,11 +142,11 @@ void ChromeMainDelegateCef::PreSandboxStartup() {
   const std::string& process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
   if (process_type.empty()) {
     util_mac::PreSandboxStartup();
   }
-#endif  // defined(OS_MAC)
+#endif  // BUILDFLAG(IS_MAC)
 
   // Since this may be configured via CefSettings we override the value on
   // all platforms. We can't use the default implementation on macOS because
@@ -180,7 +180,7 @@ ChromeMainDelegateCef::RunProcess(
                                         std::move(main_function_params));
 }
 
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 void ChromeMainDelegateCef::ZygoteForked() {
   ChromeMainDelegate::ZygoteForked();
 
@@ -191,7 +191,7 @@ void ChromeMainDelegateCef::ZygoteForked() {
   // Initialize crash reporting state for the newly forked process.
   crash_reporting::ZygoteForked(command_line, process_type);
 }
-#endif  // defined(OS_LINUX)
+#endif  // BUILDFLAG(IS_LINUX)
 
 content::ContentClient* ChromeMainDelegateCef::CreateContentClient() {
   return &chrome_content_client_cef_;

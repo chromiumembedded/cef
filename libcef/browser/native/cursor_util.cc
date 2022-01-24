@@ -49,7 +49,7 @@ bool OnCursorChange(CefBrowserHostBase* browser, const ui::Cursor& ui_cursor) {
 
   handled = handler->OnCursorChange(browser, platform_cursor, cursor_type,
                                     custom_cursor_info);
-#elif defined(OS_MAC)
+#elif BUILDFLAG(IS_MAC)
   // |web_cursor| owns the resulting |native_cursor|.
   content::WebCursor web_cursor(ui_cursor);
   CefCursorHandle native_cursor = web_cursor.GetNativeCursor();

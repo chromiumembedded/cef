@@ -39,11 +39,11 @@
 #include "ui/events/gesture_detection/motion_event_generic.h"
 #include "ui/gfx/geometry/rect.h"
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
 #include "content/browser/renderer_host/browser_compositor_view_mac.h"
 #endif
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include "ui/gfx/win/window_impl.h"
 #endif
 
@@ -80,7 +80,7 @@ class CefWebContentsViewOSR;
 // RenderWidgetHostView class hierarchy described in render_widget_host_view.h.
 ///////////////////////////////////////////////////////////////////////////////
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
 class MacHelper;
 #endif
 
@@ -132,7 +132,7 @@ class CefRenderWidgetHostViewOSR
   void UnlockMouse() override;
   void TakeFallbackContentFrom(content::RenderWidgetHostView* view) override;
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
   void SetActive(bool active) override;
   void ShowDefinitionForSelection() override;
   void SpeakSelection() override;
@@ -143,7 +143,7 @@ class CefRenderWidgetHostViewOSR
       const std::string& url,
       const std::vector<std::string>& file_paths,
       blink::mojom::ShareService::ShareCallback callback) override;
-#endif  // defined(OS_MAC)
+#endif  // BUILDFLAG(IS_MAC)
 
   // RenderWidgetHostViewBase implementation.
   void ResetFallbackToFirstNavigationSurface() override;
@@ -165,7 +165,7 @@ class CefRenderWidgetHostViewOSR
   void TransformPointToRootSurface(gfx::PointF* point) override;
   gfx::Rect GetBoundsInRootWindow() override;
 
-#if !defined(OS_MAC)
+#if !BUILDFLAG(IS_MAC)
   viz::ScopedSurfaceIdAllocator DidUpdateVisualProperties(
       const cc::RenderFrameMetadata& metadata) override;
 #endif

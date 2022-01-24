@@ -20,19 +20,19 @@
 #include "components/crash/core/common/crash_keys.h"
 #include "content/public/common/content_switches.h"
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
 #include "base/mac/foundation_util.h"
 #include "components/crash/core/app/crashpad.h"
 #include "components/crash/core/common/crash_keys.h"
 #include "content/public/common/content_paths.h"
 #endif
 
-#if defined(OS_POSIX)
+#if BUILDFLAG(IS_POSIX)
 #include "base/lazy_instance.h"
 #include "libcef/common/crash_reporter_client.h"
 #endif
 
-#if defined(OS_POSIX) && !defined(OS_MAC)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
 #include "components/crash/core/app/breakpad_linux.h"
 #include "v8/include/v8-wasm-trap-handler-posix.h"
 #endif
@@ -41,7 +41,7 @@ namespace crash_reporting {
 
 namespace {
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 
 const base::FilePath::CharType kChromeElfDllName[] =
     FILE_PATH_LITERAL("chrome_elf.dll");
@@ -84,11 +84,11 @@ bool IsCrashReportingEnabledTrampoline() {
   return false;
 }
 
-#endif  // defined(OS_WIN)
+#endif  // BUILDFLAG(IS_WIN)
 
 bool g_crash_reporting_enabled = false;
 
-#if defined(OS_POSIX)
+#if BUILDFLAG(IS_POSIX)
 base::LazyInstance<CefCrashReporterClient>::Leaky g_crash_reporter_client =
     LAZY_INSTANCE_INITIALIZER;
 
@@ -100,7 +100,7 @@ void InitCrashReporter(const base::CommandLine& command_line,
 
   crash_reporter::SetCrashReporterClient(crash_client);
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
   // TODO(mark): Right now, InitializeCrashpad() needs to be called after
   // CommandLine::Init() and configuration of chrome::DIR_CRASH_DUMPS. Ideally,
   // Crashpad initialization could occur sooner, preferably even before the
@@ -130,7 +130,7 @@ void InitCrashReporter(const base::CommandLine& command_line,
   }
 
   g_crash_reporting_enabled = true;
-#else   // !defined(OS_MAC)
+#else   // !BUILDFLAG(IS_MAC)
 
   if (process_type != switches::kZygoteProcess) {
     // Crash reporting for subprocesses created using the zygote will be
@@ -139,9 +139,9 @@ void InitCrashReporter(const base::CommandLine& command_line,
 
     g_crash_reporting_enabled = true;
   }
-#endif  // !defined(OS_MAC)
+#endif  // !BUILDFLAG(IS_MAC)
 }
-#endif  // defined(OS_POSIX)
+#endif  // BUILDFLAG(IS_POSIX)
 
 // Used to exclude command-line flags from crash reporting.
 bool IsBoringCEFSwitch(const std::string& flag) {
@@ -183,19 +183,19 @@ bool SetCrashKeyValue(const base::StringPiece& key,
   if (!g_crash_reporting_enabled)
     return false;
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   return SetCrashKeyValueTrampoline(key, value);
 #else
   return g_crash_reporter_client.Pointer()->SetCrashKeyValue(key, value);
 #endif
 }
 
-#if defined(OS_POSIX)
+#if BUILDFLAG(IS_POSIX)
 // Be aware that logging is not initialized at the time this method is called.
 void BasicStartupComplete(base::CommandLine* command_line) {
   CefCrashReporterClient* crash_client = g_crash_reporter_client.Pointer();
   if (crash_client->ReadCrashConfigFile()) {
-#if !defined(OS_MAC)
+#if !BUILDFLAG(IS_MAC)
     // Breakpad requires this switch.
     command_line->AppendSwitch(switches::kEnableCrashReporter);
 
@@ -207,11 +207,11 @@ void BasicStartupComplete(base::CommandLine* command_line) {
 
 void PreSandboxStartup(const base::CommandLine& command_line,
                        const std::string& process_type) {
-#if defined(OS_POSIX)
+#if BUILDFLAG(IS_POSIX)
   // Initialize crash reporting here on macOS and Linux. Crash reporting on
   // Windows is initialized from context.cc.
   InitCrashReporter(command_line, process_type);
-#elif defined(OS_WIN)
+#elif BUILDFLAG(IS_WIN)
   g_crash_reporting_enabled = IsCrashReportingEnabledTrampoline();
 #endif
 
@@ -227,7 +227,7 @@ void PreSandboxStartup(const base::CommandLine& command_line,
   crash_keys::SetSwitchesFromCommandLine(command_line, &IsBoringCEFSwitch);
 }
 
-#if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MAC)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC)
 void ZygoteForked(base::CommandLine* command_line,
                   const std::string& process_type) {
   CefCrashReporterClient* crash_client = g_crash_reporter_client.Pointer();

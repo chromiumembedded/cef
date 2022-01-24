@@ -12,7 +12,7 @@
 #include "base/threading/platform_thread.h"
 #include "base/trace_event/trace_event.h"
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include "base/win/win_util.h"
 #endif
 
@@ -341,7 +341,7 @@ CEF_EXPORT cef_platform_thread_id_t cef_get_current_platform_thread_id() {
 
 CEF_EXPORT cef_platform_thread_handle_t
 cef_get_current_platform_thread_handle() {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   return base::PlatformThread::CurrentId();
 #else
   return base::PlatformThread::CurrentHandle().platform_handle();
@@ -349,7 +349,7 @@ cef_get_current_platform_thread_handle() {
 }
 
 void CefEnableHighDPISupport() {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   base::win::EnableHighDPISupport();
 #endif
 }

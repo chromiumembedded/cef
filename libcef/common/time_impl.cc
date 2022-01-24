@@ -6,7 +6,7 @@
 
 #include "base/ignore_result.h"
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include <limits>
 
 namespace {
@@ -21,7 +21,7 @@ bool CanConvertToFileTime(int64_t us) {
 }
 
 }  // namespace
-#endif  // defined(OS_WIN)
+#endif  // BUILDFLAG(IS_WIN)
 
 void cef_time_to_basetime(const cef_time_t& cef_time, base::Time& time) {
   base::Time::Exploded exploded;
@@ -37,7 +37,7 @@ void cef_time_to_basetime(const cef_time_t& cef_time, base::Time& time) {
 }
 
 void cef_time_from_basetime(const base::Time& time, cef_time_t& cef_time) {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   int64_t t = time.ToDeltaSinceWindowsEpoch().InMicroseconds();
   if (!CanConvertToFileTime(t))
     return;

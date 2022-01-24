@@ -25,7 +25,7 @@
 #include "content/public/browser/navigation_entry.h"
 #include "ui/gfx/image/image_skia.h"
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
 #include "components/spellcheck/browser/spellcheck_platform.h"
 #endif
 
@@ -408,7 +408,7 @@ void CefBrowserHostBase::AddWordToDictionary(const CefString& word) {
     if (spellcheck)
       spellcheck->GetCustomDictionary()->AddWord(word);
   }
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
   if (spellcheck && spellcheck::UseBrowserSpellChecker()) {
     spellcheck_platform::AddWord(spellcheck->platform_spell_checker(), word);
   }

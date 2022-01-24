@@ -234,7 +234,7 @@ class CefBrowserPlatformDelegate {
   // Send capture lost event.
   virtual void SendCaptureLostEvent();
 
-#if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MAC))
+#if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
   // The window hosting the browser is about to be moved or resized. Only used
   // on Windows and Linux.
   virtual void NotifyMoveOrResizeStarted();

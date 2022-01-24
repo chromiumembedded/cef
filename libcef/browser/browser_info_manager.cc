@@ -131,7 +131,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
 
   std::unique_ptr<CefWindowInfo> window_info(new CefWindowInfo);
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   window_info->SetAsPopup(nullptr, CefString());
 #endif
 
@@ -154,7 +154,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
       CefPopupFeatures cef_features;
       TranslatePopupFeatures(features, cef_features);
 
-#if (defined(OS_WIN) || defined(OS_MAC))
+#if (BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC))
       // Default to the size from the popup features.
       if (cef_features.xSet)
         window_info->bounds.x = cef_features.x;

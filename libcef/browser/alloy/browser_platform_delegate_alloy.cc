@@ -257,7 +257,7 @@ void CefBrowserPlatformDelegateAlloy::SendCaptureLostEvent() {
     widget->LostCapture();
 }
 
-#if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MAC))
+#if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
 void CefBrowserPlatformDelegateAlloy::NotifyMoveOrResizeStarted() {
   if (!browser_)
     return;

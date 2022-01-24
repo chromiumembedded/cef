@@ -10,7 +10,7 @@
 #include "base/compiler_specific.h"
 
 // Enable deprecation warnings on Windows. See http://crbug.com/585142.
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #if defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic error "-Wdeprecated-declarations"
@@ -104,7 +104,7 @@
 #include "third_party/blink/renderer/platform/runtime_enabled_features.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
 #include "base/mac/mac_util.h"
 #include "base/strings/sys_string_conversions.h"
 #endif
@@ -215,7 +215,7 @@ void AlloyContentRendererClient::RenderThreadStarted() {
     base::CurrentThread::Get()->AddDestructionObserver(this);
   }
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
   {
     base::ScopedCFTypeRef<CFStringRef> key(
         base::SysUTF8ToCFStringRef("NSScrollViewRubberbanding"));
@@ -230,7 +230,7 @@ void AlloyContentRendererClient::RenderThreadStarted() {
     CFPreferencesSetAppValue(key, value, kCFPreferencesCurrentApplication);
     CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication);
   }
-#endif  // defined(OS_MAC)
+#endif  // BUILDFLAG(IS_MAC)
 
   if (extensions::PdfExtensionEnabled()) {
     pdf_print_client_.reset(new ChromePDFPrintClient());
@@ -507,7 +507,7 @@ void AlloyContentRendererClient::WillDestroyCurrentMessageLoop() {
 void AlloyContentRendererClient::OnBrowserCreated(
     content::RenderView* render_view,
     absl::optional<bool> is_windowless) {
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
   const bool windowless = is_windowless.has_value() && *is_windowless;
 
   // FIXME: It would be better if this API would be a callback from the
@@ -548,7 +548,7 @@ void AlloyContentRendererClient::RunSingleProcessCleanupOnUIThread() {
 }
 
 // Enable deprecation warnings on Windows. See http://crbug.com/585142.
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #if defined(__clang__)
 #pragma GCC diagnostic pop
 #else

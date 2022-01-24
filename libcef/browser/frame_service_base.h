@@ -38,7 +38,7 @@ template <typename Interface>
 class FrameServiceBase : public Interface, public WebContentsObserver {
  public:
   FrameServiceBase(RenderFrameHost* render_frame_host,
-                      mojo::PendingReceiver<Interface> pending_receiver)
+                   mojo::PendingReceiver<Interface> pending_receiver)
       : WebContentsObserver(
             WebContents::FromRenderFrameHost(render_frame_host)),
         render_frame_host_(render_frame_host),

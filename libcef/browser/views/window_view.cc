@@ -13,14 +13,14 @@
 #include "ui/views/widget/widget.h"
 #include "ui/views/window/native_frame_view.h"
 
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #include "ui/ozone/buildflags.h"
 #if BUILDFLAG(OZONE_PLATFORM_X11)
 #include "ui/base/x/x11_util.h"
 #endif
 #endif
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include "ui/display/screen.h"
 #include "ui/views/win/hwnd_util.h"
 #endif
@@ -66,7 +66,7 @@ class NativeFrameViewEx : public views::NativeFrameView {
 
   gfx::Rect GetWindowBoundsForClientBounds(
       const gfx::Rect& client_bounds) const override {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
     // views::GetWindowBoundsForClientBounds() expects the input Rect to be in
     // pixel coordinates. NativeFrameView does not implement this correctly so
     // we need to provide our own implementation. See http://crbug.com/602692.
@@ -235,7 +235,7 @@ class CaptionlessFrameView : public views::NonClientFrameView {
 bool IsWindowBorderHit(int code) {
 // On Windows HTLEFT = 10 and HTBORDER = 18. Values are not ordered the same
 // in base/hit_test.h for non-Windows platforms.
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   return code >= HTLEFT && code <= HTBORDER;
 #else
   return code == HTLEFT || code == HTRIGHT || code == HTTOP ||
@@ -325,7 +325,7 @@ void CefWindowView::CreateWidget() {
     params.bounds = gfx::Rect(CalculatePreferredSize());
   }
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   if (is_frameless_) {
     // Don't show the native window caption. Setting this value on Linux will
     // result in window resize artifacts.
@@ -346,7 +346,7 @@ void CefWindowView::CreateWidget() {
     DCHECK(widget->widget_delegate()->CanActivate());
   }
 
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #if BUILDFLAG(OZONE_PLATFORM_X11)
   if (is_frameless_) {
     auto window = view_util::GetWindowHandle(widget);
@@ -455,7 +455,7 @@ bool CefWindowView::ShouldDescendIntoChildForEventHandling(
 }
 
 bool CefWindowView::MaybeGetMinimumSize(gfx::Size* size) const {
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   // Resize is disabled on Linux by returning the preferred size as the min/max
   // size.
   if (!CanResize()) {
@@ -467,7 +467,7 @@ bool CefWindowView::MaybeGetMinimumSize(gfx::Size* size) const {
 }
 
 bool CefWindowView::MaybeGetMaximumSize(gfx::Size* size) const {
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   // Resize is disabled on Linux by returning the preferred size as the min/max
   // size.
   if (!CanResize()) {

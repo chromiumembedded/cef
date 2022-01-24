@@ -16,13 +16,13 @@
 #include "libcef/browser/extensions/browser_platform_delegate_background.h"
 #include "libcef/features/runtime_checks.h"
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include "libcef/browser/native/browser_platform_delegate_native_win.h"
 #include "libcef/browser/osr/browser_platform_delegate_osr_win.h"
-#elif defined(OS_MAC)
+#elif BUILDFLAG(IS_MAC)
 #include "libcef/browser/native/browser_platform_delegate_native_mac.h"
 #include "libcef/browser/osr/browser_platform_delegate_osr_mac.h"
-#elif defined(OS_LINUX)
+#elif BUILDFLAG(IS_LINUX)
 #include "libcef/browser/native/browser_platform_delegate_native_linux.h"
 #include "libcef/browser/osr/browser_platform_delegate_osr_linux.h"
 #else
@@ -39,13 +39,13 @@ namespace {
 std::unique_ptr<CefBrowserPlatformDelegateNative> CreateNativeDelegate(
     const CefWindowInfo& window_info,
     SkColor background_color) {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   return std::make_unique<CefBrowserPlatformDelegateNativeWin>(
       window_info, background_color);
-#elif defined(OS_MAC)
+#elif BUILDFLAG(IS_MAC)
   return std::make_unique<CefBrowserPlatformDelegateNativeMac>(
       window_info, background_color);
-#elif defined(OS_LINUX)
+#elif BUILDFLAG(IS_LINUX)
   return std::make_unique<CefBrowserPlatformDelegateNativeLinux>(
       window_info, background_color);
 #endif
@@ -55,13 +55,13 @@ std::unique_ptr<CefBrowserPlatformDelegateOsr> CreateOSRDelegate(
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate,
     bool use_shared_texture,
     bool use_external_begin_frame) {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   return std::make_unique<CefBrowserPlatformDelegateOsrWin>(
       std::move(native_delegate), use_shared_texture, use_external_begin_frame);
-#elif defined(OS_MAC)
+#elif BUILDFLAG(IS_MAC)
   return std::make_unique<CefBrowserPlatformDelegateOsrMac>(
       std::move(native_delegate));
-#elif defined(OS_LINUX)
+#elif BUILDFLAG(IS_LINUX)
   return std::make_unique<CefBrowserPlatformDelegateOsrLinux>(
       std::move(native_delegate), use_external_begin_frame);
 #endif

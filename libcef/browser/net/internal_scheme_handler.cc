@@ -22,7 +22,7 @@ namespace scheme {
 namespace {
 
 base::FilePath FilePathFromASCII(const std::string& str) {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   return base::FilePath(base::ASCIIToWide(str));
 #else
   return base::FilePath(str);

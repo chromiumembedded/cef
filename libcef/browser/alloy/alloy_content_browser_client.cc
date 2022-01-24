@@ -142,7 +142,7 @@
 #include "ui/base/ui_base_switches.h"
 #include "url/gurl.h"
 
-#if defined(OS_POSIX) && !defined(OS_MAC)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
 #include "base/debug/leak_annotations.h"
 #include "chrome/common/chrome_paths.h"
 #include "components/crash/content/browser/crash_handler_host_linux.h"
@@ -150,12 +150,12 @@
 #include "content/public/common/content_descriptors.h"
 #endif
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
 #include "net/ssl/client_cert_store_mac.h"
 #include "services/video_capture/public/mojom/constants.mojom.h"
 #endif
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include "net/ssl/client_cert_store_win.h"
 #include "sandbox/win/src/sandbox_policy.h"
 #endif
@@ -407,7 +407,7 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
   ~CefQuotaPermissionContext() override = default;
 };
 
-#if defined(OS_POSIX) && !defined(OS_MAC)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
 breakpad::CrashHandlerHostLinux* CreateCrashHandlerHost(
     const std::string& process_type) {
   base::FilePath dumps_path;
@@ -462,7 +462,7 @@ int GetCrashSignalFD(const base::CommandLine& command_line) {
 
   return -1;
 }
-#endif  // defined(OS_POSIX) && !defined(OS_MAC)
+#endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
 
 // From chrome/browser/plugins/chrome_content_browser_client_plugins_part.cc.
 void BindPluginInfoHost(
@@ -740,7 +740,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
     // associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
       switches::kDisablePackLoading,
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
       switches::kFrameworkDirPath,
       switches::kMainBundlePath,
 #endif
@@ -776,13 +776,13 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
     if (extensions::ExtensionsEnabled()) {
       content::RenderProcessHost* process =
           content::RenderProcessHost::FromID(child_process_id);
-#if !defined(OS_WIN)
+#if !BUILDFLAG(IS_WIN)
       // kPdfRenderer will be set for Windows in
       // RenderProcessHostImpl::AppendRendererCommandLine.
       if (process && process->IsPdf()) {
         command_line->AppendSwitch(switches::kPdfRenderer);
       }
-#endif  // !defined(OS_WIN)
+#endif  // !BUILDFLAG(IS_WIN)
 
       auto browser_context = process->GetBrowserContext();
       CefBrowserContext* cef_browser_context =
@@ -818,7 +818,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
     command_line->AppendSwitchPath(switches::kUserDataDir, user_data_dir);
   }
 
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   if (process_type == switches::kZygoteProcess) {
     if (browser_cmd->HasSwitch(switches::kBrowserSubprocessPath)) {
       // Force use of the sub-process executable path for the zygote process.
@@ -836,7 +836,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
                                    base::size(kSwitchNames));
   }
-#endif  // defined(OS_LINUX)
+#endif  // BUILDFLAG(IS_LINUX)
 
   CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
   if (app.get()) {
@@ -1151,7 +1151,7 @@ AlloyContentBrowserClient::WillCreateURLLoaderRequestInterceptors(
   return interceptors;
 }
 
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 void AlloyContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
     const base::CommandLine& command_line,
     int child_process_id,
@@ -1161,7 +1161,7 @@ void AlloyContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
     mappings->Share(kCrashDumpSignal, crash_signal_fd);
   }
 }
-#endif  // defined(OS_LINUX)
+#endif  // BUILDFLAG(IS_LINUX)
 
 void AlloyContentBrowserClient::ExposeInterfacesToRenderer(
     service_manager::BinderRegistry* registry,
@@ -1187,9 +1187,9 @@ AlloyContentBrowserClient::CreateClientCertStore(
   // TODO: Add support for client implementation of crypto password dialog.
   return std::unique_ptr<net::ClientCertStore>(new net::ClientCertStoreNSS(
       net::ClientCertStoreNSS::PasswordDelegateFactory()));
-#elif defined(OS_WIN)
+#elif BUILDFLAG(IS_WIN)
   return std::unique_ptr<net::ClientCertStore>(new net::ClientCertStoreWin());
-#elif defined(OS_MAC)
+#elif BUILDFLAG(IS_MAC)
   return std::unique_ptr<net::ClientCertStore>(new net::ClientCertStoreMac());
 #else
 #error Unknown platform.

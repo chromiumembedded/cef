@@ -57,12 +57,12 @@ extern const char kDisableChromeLoginPrompt[];
 extern const char kUserAgentProductAndVersion[];
 extern const char kDisableRequestHandlingForTesting[];
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
 extern const char kFrameworkDirPath[];
 extern const char kMainBundlePath[];
 #endif
 
-#if !defined(OS_WIN)
+#if !BUILDFLAG(IS_WIN)
 extern const char kPdfRenderer[];
 #endif
 

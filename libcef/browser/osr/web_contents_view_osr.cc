@@ -142,11 +142,11 @@ void CefWebContentsViewOSR::SetOverscrollControllerEnabled(bool enabled) {}
 
 void CefWebContentsViewOSR::OnCapturerCountChanged() {}
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
 bool CefWebContentsViewOSR::CloseTabAfterEventTrackingIfNeeded() {
   return false;
 }
-#endif  // defined(OS_MAC)
+#endif  // BUILDFLAG(IS_MAC)
 
 void CefWebContentsViewOSR::StartDragging(
     const content::DropData& drop_data,

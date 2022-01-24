@@ -19,7 +19,7 @@
 #include "third_party/skia/src/core/SkDevice.h"
 #include "ui/gfx/skia_util.h"
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include "skia/ext/skia_utils_win.h"
 #endif
 
@@ -136,7 +136,7 @@ void CefHostDisplayClientOSR::CreateLayeredWindowUpdater(
   layered_window_updater_->SetActive(active_);
 }
 
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 void CefHostDisplayClientOSR::DidCompleteSwapWithNewSize(
     const gfx::Size& size) {}
 #endif

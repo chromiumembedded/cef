@@ -349,7 +349,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
                                blink::kWebRTCIPHandlingDefault);
   registry->RegisterStringPref(prefs::kWebRTCUDPPortRange, std::string());
 
-#if !defined(OS_MAC)
+#if !BUILDFLAG(IS_MAC)
   registry->RegisterBooleanPref(prefs::kFullscreenAllowed, true);
 #endif
 

@@ -32,7 +32,7 @@ void OverrideUserDataDir(CefSettings* settings,
 // Returns true if |scale_factor| is supported by this platform.
 bool IsScaleFactorSupported(ui::ResourceScaleFactor scale_factor);
 
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 // Look for binary files (*.bin, *.dat, *.pak, chrome-sandbox, libGLESv2.so,
 // libEGL.so, locales/*.pak, swiftshader/*.so) next to libcef instead of the exe
 // on Linux. This is already the default on Windows.

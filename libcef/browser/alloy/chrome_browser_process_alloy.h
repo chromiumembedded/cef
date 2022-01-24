@@ -90,7 +90,7 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
   floc_sorting_lsh_clusters_service() override;
   StartupData* startup_data() override;
 
-#if defined(OS_WIN) || defined(OS_LINUX)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   void StartAutoupdateTimer() override;
 #endif
 

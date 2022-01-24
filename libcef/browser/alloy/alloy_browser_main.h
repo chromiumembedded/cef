@@ -32,7 +32,7 @@ class WMState;
 #if defined(TOOLKIT_VIEWS)
 namespace views {
 class ViewsDelegate;
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
 class LayoutProvider;
 #endif
 }  // namespace views
@@ -75,9 +75,9 @@ class AlloyBrowserMainParts : public content::BrowserMainParts {
   }
 
  private:
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   void PlatformInitialize();
-#endif  // defined(OS_WIN)
+#endif  // BUILDFLAG(IS_WIN)
 
   content::MainFunctionParams parameters_;
 
@@ -103,7 +103,7 @@ class AlloyBrowserMainParts : public content::BrowserMainParts {
 
 #if defined(TOOLKIT_VIEWS)
   std::unique_ptr<views::ViewsDelegate> views_delegate_;
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
   std::unique_ptr<views::LayoutProvider> layout_provider_;
 #endif
 #endif  // defined(TOOLKIT_VIEWS)

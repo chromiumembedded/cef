@@ -29,7 +29,7 @@
 #endif
 #endif  // defined(USE_AURA)
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include "ui/display/win/screen_win.h"
 #endif
 
@@ -54,7 +54,7 @@ void InitializeUITesting() {
     ui_controls::EnableUIControls();
 
 #if defined(USE_AURA)
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
     ui_controls::InstallUIControlsAura(
         aura::test::CreateUIControlsAura(nullptr));
 #elif defined(USE_OZONE)
@@ -552,7 +552,7 @@ void CefWindowImpl::SendMouseMove(int screen_x, int screen_y) {
   InitializeUITesting();
 
   gfx::Point point(screen_x, screen_y);
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   // Windows expects pixel coordinates.
   point = display::win::ScreenWin::DIPToScreenPoint(point);
 #endif

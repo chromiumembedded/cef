@@ -118,7 +118,7 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
                                    base::size(kSwitchNames));
 
-#if !defined(OS_WIN)
+#if !BUILDFLAG(IS_WIN)
     // kPdfRenderer will be set for Windows in
     // RenderProcessHostImpl::AppendRendererCommandLine.
     content::RenderProcessHost* process =
@@ -126,7 +126,7 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
     if (process && process->IsPdf()) {
       command_line->AppendSwitch(switches::kPdfRenderer);
     }
-#endif  // !defined(OS_WIN)
+#endif  // !BUILDFLAG(IS_WIN)
   }
 
   CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();

@@ -20,7 +20,7 @@
 #include "content/public/browser/notification_types.h"
 #include "ui/base/ui_base_switches.h"
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include "base/strings/utf_string_conversions.h"
 #include "chrome/chrome_elf/chrome_elf_main.h"
 #include "chrome/install_static/initialize_from_primary_module.h"
@@ -38,7 +38,7 @@ class CefShutdownChecker {
 } g_shutdown_checker;
 #endif  // DCHECK_IS_ON()
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #if defined(ARCH_CPU_X86_64)
 // VS2013 only checks the existence of FMA3 instructions, not the enabled-ness
 // of them at the OS level (this is fixed in VS2015). We force off usage of
@@ -72,7 +72,7 @@ void InitCrashReporter() {
   initialized = true;
   SignalInitializeCrashReporting();
 }
-#endif  // defined(OS_WIN)
+#endif  // BUILDFLAG(IS_WIN)
 
 bool GetColor(const cef_color_t cef_in, bool is_windowless, SkColor* sk_out) {
   // Windowed browser colors must be fully opaque.
@@ -117,7 +117,7 @@ base::FilePath NormalizePath(const cef_string_t& path_str,
 }
 
 void SetPath(cef_string_t& path_str, const base::FilePath& path) {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   CefString(&path_str).FromWString(path.value());
 #else
   CefString(&path_str).FromString(path.value());
@@ -175,7 +175,7 @@ base::FilePath NormalizeCachePathAndSet(cef_string_t& path_str,
 int CefExecuteProcess(const CefMainArgs& args,
                       CefRefPtr<CefApp> application,
                       void* windows_sandbox_info) {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #if defined(ARCH_CPU_X86_64)
   DisableFMA3();
 #endif
@@ -191,7 +191,7 @@ bool CefInitialize(const CefMainArgs& args,
                    const CefSettings& settings,
                    CefRefPtr<CefApp> application,
                    void* windows_sandbox_info) {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #if defined(ARCH_CPU_X86_64)
   DisableFMA3();
 #endif
@@ -287,7 +287,7 @@ void CefQuitMessageLoop() {
 }
 
 void CefSetOSModalLoop(bool osModalLoop) {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
@@ -300,7 +300,7 @@ void CefSetOSModalLoop(bool osModalLoop) {
   }
 
   base::CurrentThread::Get()->set_os_modal_loop(osModalLoop);
-#endif  // defined(OS_WIN)
+#endif  // BUILDFLAG(IS_WIN)
 }
 
 // CefContext
@@ -323,14 +323,14 @@ bool CefContext::Initialize(const CefMainArgs& args,
   settings_ = settings;
   application_ = application;
 
-#if !(defined(OS_WIN) || defined(OS_LINUX))
+#if !(BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX))
   if (settings.multi_threaded_message_loop) {
     NOTIMPLEMENTED() << "multi_threaded_message_loop is not supported.";
     return false;
   }
 #endif
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   // Signal Chrome Elf that Chrome has begun to start.
   SignalChromeElf();
 #endif

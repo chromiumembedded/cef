@@ -13,7 +13,7 @@
 #include "content/public/browser/child_process_security_policy.h"
 #include "content/public/common/content_switches.h"
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include <windows.h>
 #include "base/path_service.h"
 #endif
@@ -90,7 +90,7 @@ void CefAppManager::AddAdditionalSchemes(
   scheme_info_list_locked_ = true;
 }
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 const wchar_t* CefAppManager::GetResourceDllName() {
   static wchar_t file_path[MAX_PATH + 1] = {0};
 
@@ -106,4 +106,4 @@ const wchar_t* CefAppManager::GetResourceDllName() {
 
   return file_path;
 }
-#endif  // defined(OS_WIN)
+#endif  // BUILDFLAG(IS_WIN)

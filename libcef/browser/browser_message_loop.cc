@@ -9,7 +9,7 @@
 #include "base/message_loop/message_pump.h"
 #include "base/message_loop/message_pump_for_ui.h"
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
 #include "base/mac/scoped_nsautorelease_pool.h"
 #include "base/message_loop/message_pump_mac.h"
 #endif
@@ -29,7 +29,7 @@ class MessagePumpExternal : public base::MessagePumpForUI {
   void Run(Delegate* delegate) override {
     base::TimeTicks start = base::TimeTicks::Now();
     while (true) {
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
       base::mac::ScopedNSAutoreleasePool autorelease_pool;
 #endif
 
@@ -108,7 +108,7 @@ std::unique_ptr<base::MessagePump> MessagePumpFactoryForUI() {
       return std::make_unique<MessagePumpExternal>(0.01f, handler);
   }
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
   return base::MessagePumpMac::Create();
 #else
   return std::make_unique<base::MessagePumpForUI>();

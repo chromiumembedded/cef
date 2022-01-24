@@ -31,9 +31,9 @@ void RunFileChooser(content::WebContents* web_contents,
 // Based on net/base/filename_util_internal.cc FilePathToString16().
 std::u16string FilePathTypeToString16(const base::FilePath::StringType& str) {
   std::u16string result;
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   result.assign(str.begin(), str.end());
-#elif defined(OS_POSIX) || defined(OS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
   if (!str.empty()) {
     base::UTF8ToUTF16(str.c_str(), str.size(), &result);
   }

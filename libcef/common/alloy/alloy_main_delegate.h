@@ -51,7 +51,7 @@ class AlloyMainDelegate : public content::ContentMainDelegate,
       const std::string& process_type,
       content::MainFunctionParams main_function_params) override;
   void ProcessExiting(const std::string& process_type) override;
-#if defined(OS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   void ZygoteForked() override;
 #endif
   content::ContentBrowserClient* CreateContentBrowserClient() override;

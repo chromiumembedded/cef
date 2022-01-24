@@ -31,7 +31,7 @@ bool CefGetPath(PathKey key, CefString& path) {
     case PK_FILE_MODULE:
       pref_key = base::FILE_MODULE;
       break;
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
     case PK_LOCAL_APP_DATA:
       pref_key = base::DIR_LOCAL_APP_DATA;
       break;

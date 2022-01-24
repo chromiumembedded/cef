@@ -43,7 +43,7 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
   extensions::ExtensionHost* GetExtensionHost() const override;
   void BrowserDestroyed(CefBrowserHostBase* browser) override;
   void SendCaptureLostEvent() override;
-#if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MAC))
+#if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
   void NotifyMoveOrResizeStarted() override;
 #endif
   bool PreHandleGestureEvent(content::WebContents* source,

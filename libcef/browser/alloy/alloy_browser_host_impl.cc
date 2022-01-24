@@ -666,7 +666,7 @@ void AlloyBrowserHostImpl::SendCaptureLostEvent() {
 }
 
 void AlloyBrowserHostImpl::NotifyMoveOrResizeStarted() {
-#if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MAC))
+#if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(
         CEF_UIT,
@@ -1350,7 +1350,7 @@ bool AlloyBrowserHostImpl::HandleContextMenu(
 
 void AlloyBrowserHostImpl::UpdatePreferredSize(content::WebContents* source,
                                                const gfx::Size& pref_size) {
-#if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MAC))
+#if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
   CEF_REQUIRE_UIT();
   if (platform_delegate_)
     platform_delegate_->SizeTo(pref_size.width(), pref_size.height());

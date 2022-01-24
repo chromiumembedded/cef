@@ -6,7 +6,7 @@
 
 #include <utility>
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include <windows.h>
 #endif
 
@@ -22,11 +22,11 @@
 #include "content/public/common/content_switches.h"
 #include "third_party/crashpad/crashpad/client/annotation.h"
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
 #include "libcef/common/util_mac.h"
 #endif
 
-#if defined(OS_POSIX)
+#if BUILDFLAG(IS_POSIX)
 // Don't use CommandLine, FilePath or PathService on Windows. FilePath has
 // dependencies outside of kernel32, which is disallowed by chrome_elf.
 // CommandLine and PathService depend on global state that will not be
@@ -38,12 +38,12 @@
 #include "chrome/common/chrome_paths.h"
 #endif
 
-#if defined(OS_POSIX) && !defined(OS_MAC)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
 #include "content/public/common/content_switches.h"
 #include "libcef/common/cef_crash_report_utils.h"
 #endif
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include "base/debug/leak_annotations.h"
 #include "chrome/install_static/install_util.h"
 #include "components/crash/core/app/crashpad.h"
@@ -51,7 +51,7 @@
 
 namespace {
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 using PathString = std::wstring;
 const char kPathSep = '\\';
 #else
@@ -59,7 +59,7 @@ using PathString = std::string;
 #endif
 
 PathString GetCrashConfigPath() {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   // Start with the path to the running executable.
   wchar_t module_path[MAX_PATH];
   if (GetModuleFileName(nullptr, module_path, MAX_PATH) == 0)
@@ -75,10 +75,10 @@ PathString GetCrashConfigPath() {
 
   config_path += L"crash_reporter.cfg";
   return config_path;
-#elif defined(OS_POSIX)
+#elif BUILDFLAG(IS_POSIX)
   base::FilePath config_path;
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
   // Start with the path to the main app Resources directory. May be empty if
   // not running in an app bundle.
   config_path = util_mac::GetMainResourcesDirectory();
@@ -91,10 +91,10 @@ PathString GetCrashConfigPath() {
   }
 
   return config_path.Append(FILE_PATH_LITERAL("crash_reporter.cfg")).value();
-#endif  // defined(OS_POSIX)
+#endif  // BUILDFLAG(IS_POSIX)
 }
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 
 // On Windows, FAT32 and NTFS both limit filenames to a maximum of 255
 // characters. On POSIX systems, the typical filename length limit is 255
@@ -229,7 +229,7 @@ std::string joinPath(const std::string& s1, const std::string& s2) {
 // This will only be non-nullptr in the chrome_elf address space.
 CefCrashReporterClient* g_crash_reporter_client = nullptr;
 
-#endif  // defined(OS_WIN)
+#endif  // BUILDFLAG(IS_WIN)
 
 const char kKeyMapDelim = ',';
 
@@ -267,7 +267,7 @@ int ParseZeroBasedInt(const std::string& value) {
 
 }  // namespace
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 
 extern "C" {
 
@@ -359,7 +359,7 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
   if (config_path.empty())
     return false;
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   FILE* fp = _wfopen(config_path.c_str(), L"r");
 #else
   FILE* fp = fopen(config_path.c_str(), "r");
@@ -427,7 +427,7 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
       } else if (name_str == "MaxDatabaseAgeInDays") {
         max_db_age_ = ParseZeroBasedInt(val_str);
       }
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
       else if (name_str == "ExternalHandler") {
         if (!val_str.empty())
           external_handler_ = sanitizePath(val_str);
@@ -438,7 +438,7 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
             app_name_ = val_str;
         }
       }
-#elif defined(OS_MAC)
+#elif BUILDFLAG(IS_MAC)
       else if (name_str == "BrowserCrashForwardingEnabled") {
         enable_browser_crash_forwarding_ = ParseBool(val_str);
       }
@@ -533,7 +533,7 @@ bool CefCrashReporterClient::HasCrashConfigFile() const {
   return has_crash_config_file_;
 }
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 
 // static
 void CefCrashReporterClient::InitializeCrashReportingForProcess() {
@@ -600,7 +600,7 @@ bool CefCrashReporterClient::GetCrashMetricsLocation(
   return GetDefaultUserDataDirectory(metrics_dir, base::UTF8ToWide(app_name_));
 }
 
-#elif defined(OS_POSIX)
+#elif BUILDFLAG(IS_POSIX)
 
 void CefCrashReporterClient::GetProductNameAndVersion(const char** product_name,
                                                       const char** version) {
@@ -615,7 +615,7 @@ void CefCrashReporterClient::GetProductNameAndVersion(std::string* product_name,
   *version = product_version_;
 }
 
-#if !defined(OS_MAC)
+#if !BUILDFLAG(IS_MAC)
 
 base::FilePath CefCrashReporterClient::GetReporterLogFilename() {
   return base::FilePath(FILE_PATH_LITERAL("uploads.log"));
@@ -629,7 +629,7 @@ bool CefCrashReporterClient::EnableBreakpadForProcess(
          process_type == switches::kGpuProcess;
 }
 
-#endif  // !defined(OS_MAC)
+#endif  // !BUILDFLAG(IS_MAC)
 
 bool CefCrashReporterClient::GetCrashDumpLocation(base::FilePath* crash_dir) {
   // By setting the BREAKPAD_DUMP_LOCATION environment variable, an alternate
@@ -644,7 +644,7 @@ bool CefCrashReporterClient::GetCrashDumpLocation(base::FilePath* crash_dir) {
   return base::PathService::Get(chrome::DIR_CRASH_DUMPS, crash_dir);
 }
 
-#endif  // !defined(OS_POSIX)
+#endif  // !BUILDFLAG(IS_POSIX)
 
 bool CefCrashReporterClient::GetCollectStatsConsent() {
   return true;
@@ -654,7 +654,7 @@ bool CefCrashReporterClient::GetCollectStatsInSample() {
   return true;
 }
 
-#if defined(OS_WIN) || defined(OS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 bool CefCrashReporterClient::ReportingIsEnforcedByPolicy(
     bool* crashpad_enabled) {
   *crashpad_enabled = true;
@@ -662,7 +662,7 @@ bool CefCrashReporterClient::ReportingIsEnforcedByPolicy(
 }
 #endif
 
-#if defined(OS_POSIX) && !defined(OS_MAC)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
 bool CefCrashReporterClient::IsRunningUnattended() {
   // Crash upload will only be enabled with Breakpad on Linux if this method
   // returns false.
@@ -697,7 +697,7 @@ void CefCrashReporterClient::GetCrashOptionalArguments(
   }
 }
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 
 std::wstring CefCrashReporterClient::GetCrashExternalHandler(
     const std::wstring& exe_dir) {
@@ -713,15 +713,15 @@ bool CefCrashReporterClient::HasCrashExternalHandler() const {
   return !external_handler_.empty();
 }
 
-#endif  // defined(OS_WIN)
+#endif  // BUILDFLAG(IS_WIN)
 
-#if defined(OS_MAC)
+#if BUILDFLAG(IS_MAC)
 bool CefCrashReporterClient::EnableBrowserCrashForwarding() {
   return enable_browser_crash_forwarding_;
 }
 #endif
 
-#if defined(OS_POSIX) && !defined(OS_MAC)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
 CefCrashReporterClient::ParameterMap CefCrashReporterClient::FilterParameters(
     const ParameterMap& parameters) {
   return crash_report_utils::FilterParameters(parameters);

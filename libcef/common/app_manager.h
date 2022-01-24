@@ -54,7 +54,7 @@ class CefAppManager {
       const CefRequestContextSettings& settings,
       base::OnceClosure initialized_cb) = 0;
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   // Returns the module name (usually libcef.dll).
   const wchar_t* GetResourceDllName();
 #endif

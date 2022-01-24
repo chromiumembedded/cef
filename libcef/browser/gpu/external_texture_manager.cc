@@ -13,7 +13,7 @@
 #include "ui/gl/gl_surface_egl.h"
 #include "ui/gl/init/gl_factory.h"
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include <d3d11_1.h>
 #include "ui/gl/gl_angle_util_win.h"
 #include "ui/gl/gl_image_dxgi.h"
@@ -29,7 +29,7 @@ namespace gles2 {
 
 namespace {
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
 
 class GLImageDXGISharedHandle : public gl::GLImageDXGI {
  public:
@@ -134,7 +134,7 @@ class GLImageDXGISharedHandle : public gl::GLImageDXGI {
   GLuint texture_id_;
 };
 
-#endif  // defined(OS_WIN)
+#endif  // BUILDFLAG(IS_WIN)
 
 }  // namespace
 
@@ -148,7 +148,7 @@ void* ExternalTextureManager::CreateTexture(GLuint texture_id,
                                             TextureManager* tex_man) {
   void* share_handle = nullptr;
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   EGLDisplay egl_display = gl::GLSurfaceEGL::GetHardwareDisplay();
   if (egl_display == EGL_NO_DISPLAY) {
     return nullptr;
@@ -259,36 +259,36 @@ void* ExternalTextureManager::CreateTexture(GLuint texture_id,
 
   eglMakeCurrent(egl_display, drawSurface, readSurface, curContext);
 
-#endif  // defined(OS_WIN)
+#endif  // BUILDFLAG(IS_WIN)
 
   return share_handle;
 }
 
 void ExternalTextureManager::LockTexture(void* handle) {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   auto const img = surfaceMap_.find(handle);
   if (img != surfaceMap_.end()) {
     GLImageDXGISharedHandle* dxgi_image =
         reinterpret_cast<GLImageDXGISharedHandle*>(img->second.get());
     dxgi_image->Lock();
   }
-#endif  // defined(OS_WIN)
+#endif  // BUILDFLAG(IS_WIN)
 }
 
 void ExternalTextureManager::UnlockTexture(void* handle) {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   auto const img = surfaceMap_.find(handle);
   if (img != surfaceMap_.end()) {
     GLImageDXGISharedHandle* dxgi_image =
         reinterpret_cast<GLImageDXGISharedHandle*>(img->second.get());
     dxgi_image->Unlock();
   }
-#endif  // defined(OS_WIN)
+#endif  // BUILDFLAG(IS_WIN)
 }
 
 void ExternalTextureManager::DeleteTexture(void* handle,
                                            TextureManager* tex_man) {
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   EGLDisplay egl_display = gl::GLSurfaceEGL::GetHardwareDisplay();
   if (egl_display == EGL_NO_DISPLAY) {
     return;
@@ -334,7 +334,7 @@ void ExternalTextureManager::DeleteTexture(void* handle,
     }
   }
   surfaceMap_.erase(img);
-#endif  // defined(OS_WIN)
+#endif  // BUILDFLAG(IS_WIN)
 }
 
 }  // namespace gles2
