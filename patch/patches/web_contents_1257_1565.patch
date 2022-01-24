@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 42ab782017f84..9ae93e12cbe6c 100644
+index 42ab782017f84..c4290874eccbf 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -2959,6 +2959,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
@@ -39,15 +39,16 @@ index 42ab782017f84..9ae93e12cbe6c 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -7682,6 +7698,8 @@ void WebContentsImpl::OnAdvanceFocus(RenderFrameHostImpl* source_rfh) {
-       GetFocusedWebContents() == GetOuterWebContents()) {
-     SetAsFocusedWebContentsIfNecessary();
+@@ -7631,6 +7647,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+     // frames).
+     SetFocusedFrameTree(node->frame_tree());
    }
 +
-+  observers_.NotifyObservers(&WebContentsObserver::OnFrameFocused, source_rfh);
++  observers_.NotifyObservers(&WebContentsObserver::OnFrameFocused,
++                             node->current_frame_host());
  }
  
- void WebContentsImpl::OnFocusedElementChangedInFrame(
+ void WebContentsImpl::DidCallFocus() {
 diff --git content/public/browser/web_contents.cc content/public/browser/web_contents.cc
 index 3212ed78b7ef4..df1a213efdcf8 100644
 --- content/public/browser/web_contents.cc
