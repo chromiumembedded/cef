@@ -4,6 +4,8 @@
 
 #include "libcef/browser/download_manager_delegate.h"
 
+#include <tuple>
+
 #include "include/cef_download_handler.h"
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/context.h"
@@ -12,7 +14,6 @@
 
 #include "base/bind.h"
 #include "base/files/file_util.h"
-#include "base/ignore_result.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/strings/string_util.h"
@@ -296,7 +297,7 @@ void CefDownloadManagerDelegate::OnDownloadUpdated(DownloadItem* download) {
 
     handler->OnDownloadUpdated(browser.get(), download_item.get(), callback);
 
-    ignore_result(download_item->Detach(nullptr));
+    std::ignore = download_item->Detach(nullptr);
   }
 }
 
@@ -391,7 +392,7 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
     handler->OnBeforeDownload(browser.get(), download_item.get(),
                               suggested_name.value(), callbackObj);
 
-    ignore_result(download_item->Detach(nullptr));
+    std::ignore = download_item->Detach(nullptr);
   }
 
   return true;

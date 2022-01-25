@@ -5,6 +5,8 @@
 
 #include "libcef/browser/net_service/proxy_url_loader_factory.h"
 
+#include <tuple>
+
 #include "libcef/browser/context.h"
 #include "libcef/browser/origin_whitelist_impl.h"
 #include "libcef/browser/thread_util.h"
@@ -14,7 +16,6 @@
 
 #include "base/barrier_closure.h"
 #include "base/command_line.h"
-#include "base/ignore_result.h"
 #include "base/strings/string_number_conversions.h"
 #include "components/safe_browsing/core/common/safebrowsing_constants.h"
 #include "content/public/browser/browser_context.h"
@@ -440,7 +441,7 @@ void InterceptedRequest::Restart() {
   }
 
   if (header_client_receiver_.is_bound())
-    ignore_result(header_client_receiver_.Unbind());
+    std::ignore = header_client_receiver_.Unbind();
 
   current_request_uses_header_client_ =
       factory_->url_loader_header_client_receiver_.is_bound();

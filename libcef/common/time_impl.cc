@@ -4,7 +4,7 @@
 
 #include "libcef/common/time_util.h"
 
-#include "base/ignore_result.h"
+#include <tuple>
 
 #if BUILDFLAG(IS_WIN)
 #include <limits>
@@ -33,7 +33,7 @@ void cef_time_to_basetime(const cef_time_t& cef_time, base::Time& time) {
   exploded.minute = cef_time.minute;
   exploded.second = cef_time.second;
   exploded.millisecond = cef_time.millisecond;
-  ignore_result(base::Time::FromUTCExploded(exploded, &time));
+  std::ignore = base::Time::FromUTCExploded(exploded, &time);
 }
 
 void cef_time_from_basetime(const base::Time& time, cef_time_t& cef_time) {

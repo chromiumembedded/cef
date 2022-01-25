@@ -4,6 +4,7 @@
 
 #include "libcef/browser/menu_manager.h"
 
+#include <tuple>
 #include <utility>
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
@@ -13,7 +14,6 @@
 #include "libcef/common/app_manager.h"
 
 #include "base/compiler_specific.h"
-#include "base/ignore_result.h"
 #include "base/logging.h"
 #include "cef/grit/cef_strings.h"
 #include "chrome/grit/generated_resources.h"
@@ -177,7 +177,7 @@ bool CefMenuManager::CreateContextMenu(
       }
 
       // Do not keep references to the parameters in the callback.
-      ignore_result(paramsPtr->Detach(nullptr));
+      std::ignore = paramsPtr->Detach(nullptr);
       DCHECK(paramsPtr->HasOneRef());
       DCHECK(model_->VerifyRefCount());
 
@@ -219,7 +219,7 @@ void CefMenuManager::ExecuteCommand(CefRefPtr<CefMenuModelImpl> source,
           event_flags);
 
       // Do not keep references to the parameters in the callback.
-      ignore_result(paramsPtr->Detach(nullptr));
+      std::ignore = paramsPtr->Detach(nullptr);
       DCHECK(paramsPtr->HasOneRef());
 
       if (handled)

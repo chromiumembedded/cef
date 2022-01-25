@@ -5,6 +5,8 @@
 
 #include "libcef/common/chrome/chrome_main_delegate_cef.h"
 
+#include <tuple>
+
 #include "libcef/browser/chrome/chrome_browser_context.h"
 #include "libcef/browser/chrome/chrome_content_browser_client_cef.h"
 #include "libcef/common/cef_switches.h"
@@ -14,7 +16,6 @@
 #include "libcef/renderer/chrome/chrome_content_renderer_client_cef.h"
 
 #include "base/command_line.h"
-#include "base/ignore_result.h"
 #include "base/lazy_instance.h"
 #include "chrome/common/chrome_switches.h"
 #include "components/embedder_support/switches.h"
@@ -126,7 +127,7 @@ bool ChromeMainDelegateCef::BasicStartupComplete(int* exit_code) {
         new CefCommandLineImpl(command_line, false, false));
     application_->OnBeforeCommandLineProcessing(process_type,
                                                 commandLinePtr.get());
-    ignore_result(commandLinePtr->Detach(nullptr));
+    std::ignore = commandLinePtr->Detach(nullptr);
   }
 
 #if BUILDFLAG(IS_MAC)

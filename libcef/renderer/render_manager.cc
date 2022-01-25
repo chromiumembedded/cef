@@ -4,6 +4,8 @@
 
 #include "libcef/renderer/render_manager.h"
 
+#include <tuple>
+
 #include "base/compiler_specific.h"
 
 // Enable deprecation warnings on Windows. See http://crbug.com/585142.
@@ -28,7 +30,6 @@
 #include "libcef/renderer/v8_impl.h"
 
 #include "base/command_line.h"
-#include "base/ignore_result.h"
 #include "base/strings/string_number_conversions.h"
 #include "cef/libcef/common/mojom/cef.mojom.h"
 #include "content/public/common/content_switches.h"
@@ -353,7 +354,7 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
       }
       handler->OnBrowserCreated(browser.get(), dictValuePtr.get());
       if (dictValuePtr)
-        ignore_result(dictValuePtr->Detach(nullptr));
+        std::ignore = dictValuePtr->Detach(nullptr);
     }
   }
 

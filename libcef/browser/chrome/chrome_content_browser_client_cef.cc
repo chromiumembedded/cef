@@ -5,6 +5,8 @@
 
 #include "libcef/browser/chrome/chrome_content_browser_client_cef.h"
 
+#include <tuple>
+
 #include "libcef/browser/browser_frame.h"
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_manager.h"
@@ -24,7 +26,6 @@
 #include "libcef/common/command_line_impl.h"
 
 #include "base/command_line.h"
-#include "base/ignore_result.h"
 #include "base/path_service.h"
 #include "chrome/browser/chrome_browser_main.h"
 #include "chrome/browser/net/system_network_context_manager.h"
@@ -137,7 +138,7 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
       CefRefPtr<CefCommandLineImpl> commandLinePtr(
           new CefCommandLineImpl(command_line, false, false));
       handler->OnBeforeChildProcessLaunch(commandLinePtr.get());
-      ignore_result(commandLinePtr->Detach(nullptr));
+      std::ignore = commandLinePtr->Detach(nullptr);
     }
   }
 }

@@ -4,6 +4,8 @@
 
 #include "libcef/common/alloy/alloy_main_delegate.h"
 
+#include <tuple>
+
 #include "libcef/browser/alloy/alloy_browser_context.h"
 #include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/common/cef_switches.h"
@@ -17,7 +19,6 @@
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
-#include "base/ignore_result.h"
 #include "base/path_service.h"
 #include "base/stl_util.h"
 #include "base/strings/string_number_conversions.h"
@@ -280,7 +281,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
         new CefCommandLineImpl(command_line, false, false));
     application_->OnBeforeCommandLineProcessing(CefString(process_type),
                                                 commandLinePtr.get());
-    ignore_result(commandLinePtr->Detach(nullptr));
+    std::ignore = commandLinePtr->Detach(nullptr);
   }
 
   // Initialize logging.

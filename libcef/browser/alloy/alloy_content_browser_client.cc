@@ -5,6 +5,7 @@
 #include "libcef/browser/alloy/alloy_content_browser_client.h"
 
 #include <algorithm>
+#include <tuple>
 #include <utility>
 
 #include "include/cef_version.h"
@@ -46,7 +47,6 @@
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
-#include "base/ignore_result.h"
 #include "base/json/json_reader.h"
 #include "base/path_service.h"
 #include "base/stl_util.h"
@@ -846,7 +846,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
       CefRefPtr<CefCommandLineImpl> commandLinePtr(
           new CefCommandLineImpl(command_line, false, false));
       handler->OnBeforeChildProcessLaunch(commandLinePtr.get());
-      ignore_result(commandLinePtr->Detach(nullptr));
+      std::ignore = commandLinePtr->Detach(nullptr);
     }
   }
 }

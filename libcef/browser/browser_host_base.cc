@@ -4,6 +4,8 @@
 
 #include "libcef/browser/browser_host_base.h"
 
+#include <tuple>
+
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/context.h"
@@ -13,7 +15,6 @@
 #include "libcef/common/frame_util.h"
 #include "libcef/common/net/url_util.h"
 
-#include "base/ignore_result.h"
 #include "base/logging.h"
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_service.h"
@@ -346,7 +347,7 @@ void CefBrowserHostBase::GetNavigationEntries(
     CefRefPtr<CefNavigationEntryImpl> entry =
         new CefNavigationEntryImpl(controller.GetEntryAtIndex(current));
     visitor->Visit(entry.get(), true, current, total);
-    ignore_result(entry->Detach(nullptr));
+    std::ignore = entry->Detach(nullptr);
   } else {
     // Visit all entries.
     bool cont = true;
@@ -354,7 +355,7 @@ void CefBrowserHostBase::GetNavigationEntries(
       CefRefPtr<CefNavigationEntryImpl> entry =
           new CefNavigationEntryImpl(controller.GetEntryAtIndex(i));
       cont = visitor->Visit(entry.get(), (i == current), i, total);
-      ignore_result(entry->Detach(nullptr));
+      std::ignore = entry->Detach(nullptr);
     }
   }
 }

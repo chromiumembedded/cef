@@ -32,11 +32,7 @@
 #define CEF_INCLUDE_BASE_CEF_MACROS_H_
 #pragma once
 
-#if defined(USING_CHROMIUM_INCLUDES)
-// When building CEF include the Chromium header directly.
-#include "base/ignore_result.h"
-
-#else  // !USING_CHROMIUM_INCLUDES
+#if !defined(USING_CHROMIUM_INCLUDES)
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.
@@ -61,17 +57,6 @@
 #define DISALLOW_IMPLICIT_CONSTRUCTORS(TypeName) \
   TypeName() = delete;                           \
   DISALLOW_COPY_AND_ASSIGN(TypeName)
-
-// Used to explicitly mark the return value of a function as unused. If you are
-// really sure you don't want to do anything with the return value of a function
-// that has been marked WARN_UNUSED_RESULT, wrap it with this. Example:
-//
-//   std::unique_ptr<MyType> my_var = ...;
-//   if (TakeOwnership(my_var.get()) == SUCCESS)
-//     ignore_result(my_var.release());
-//
-template <typename T>
-inline void ignore_result(const T&) {}
 
 #endif  // !USING_CHROMIUM_INCLUDES
 
