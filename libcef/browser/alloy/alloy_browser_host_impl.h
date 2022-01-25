@@ -370,7 +370,7 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   // Timer for determining when "recently audible" transitions to false. This
   // starts running when a tab stops being audible, and is canceled if it starts
   // being audible again before it fires.
-  base::OneShotTimer recently_audible_timer_;
+  std::unique_ptr<base::OneShotTimer> recently_audible_timer_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_ALLOY_ALLOY_BROWSER_HOST_IMPL_H_
