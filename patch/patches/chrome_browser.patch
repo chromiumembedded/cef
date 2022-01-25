@@ -1,8 +1,8 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index 9a8b9fe835e74..9663c04f79f2e 100644
+index 09b5c00891717..cfa169e00b104 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
-@@ -13,6 +13,7 @@ import("//build/config/features.gni")
+@@ -12,6 +12,7 @@ import("//build/config/features.gni")
  import("//build/config/linux/gtk/gtk.gni")
  import("//build/config/python.gni")
  import("//build/config/ui.gni")
@@ -10,8 +10,8 @@ index 9a8b9fe835e74..9663c04f79f2e 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/downgrade/buildflags.gni")
  import("//chrome/common/features.gni")
-@@ -1934,6 +1935,7 @@ static_library("browser") {
-     "//build:os_buildflags",
+@@ -1925,6 +1926,7 @@ static_library("browser") {
+     "//build:chromeos_buildflags",
      "//build/config/compiler:compiler_buildflags",
      "//cc",
 +    "//cef/libcef/features",

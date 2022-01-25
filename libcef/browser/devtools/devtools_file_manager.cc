@@ -77,8 +77,8 @@ void CefDevToolsFileManager::Save(const std::string& url,
     return;
   }
 
-  const base::DictionaryValue* file_map =
-      prefs_->GetDictionary(prefs::kDevToolsEditedFiles);
+  const base::DictionaryValue* file_map = &base::Value::AsDictionaryValue(
+      *prefs_->GetDictionary(prefs::kDevToolsEditedFiles));
   base::FilePath initial_path;
 
   const base::Value* path_value;
@@ -144,7 +144,7 @@ void CefDevToolsFileManager::SaveAsFileSelected(const std::string& url,
   saved_files_[url] = path;
 
   DictionaryPrefUpdate update(prefs_, prefs::kDevToolsEditedFiles);
-  base::DictionaryValue* files_map = update.Get();
+  base::Value* files_map = update.Get();
   files_map->SetKey(base::MD5String(url), base::FilePathToValue(path));
   std::string file_system_path = path.AsUTF8Unsafe();
   std::move(callback).Run(file_system_path);

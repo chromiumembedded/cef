@@ -42,7 +42,7 @@ CefRefPtr<CefValue> CefValueImpl::GetOrCreateRefOrCopy(
         list_value, parent_value, read_only, controller));
   }
 
-  return new CefValueImpl(value->DeepCopy());
+  return new CefValueImpl(value->CreateDeepCopy().release());
 }
 
 CefValueImpl::CefValueImpl() {}
@@ -86,7 +86,7 @@ base::Value* CefValueImpl::CopyOrDetachValue(
         ->CopyOrDetachValue(new_controller);
   }
 
-  return value_->DeepCopy();
+  return value_->CreateDeepCopy().release();
 }
 
 void CefValueImpl::SwapValue(base::Value* new_value,
@@ -203,7 +203,7 @@ CefRefPtr<CefValue> CefValueImpl::Copy() {
   if (list_value_)
     return new CefValueImpl(list_value_->Copy());
   if (value_)
-    return new CefValueImpl(value_->DeepCopy());
+    return new CefValueImpl(value_->CreateDeepCopy().release());
 
   return new CefValueImpl();
 }
@@ -460,7 +460,7 @@ CefBinaryValueImpl::CefBinaryValueImpl(char* data, size_t data_size)
 
 base::Value* CefBinaryValueImpl::CopyValue() {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
-  return const_value().DeepCopy();
+  return const_value().CreateDeepCopy().release();
 }
 
 base::Value* CefBinaryValueImpl::CopyOrDetachValue(
@@ -528,8 +528,9 @@ bool CefBinaryValueImpl::IsEqual(CefRefPtr<CefBinaryValue> that) {
 
 CefRefPtr<CefBinaryValue> CefBinaryValueImpl::Copy() {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
-  return new CefBinaryValueImpl(const_value().DeepCopy(), nullptr,
-                                CefBinaryValueImpl::kOwnerWillDelete, nullptr);
+  return new CefBinaryValueImpl(const_value().CreateDeepCopy().release(),
+                                nullptr, CefBinaryValueImpl::kOwnerWillDelete,
+                                nullptr);
 }
 
 size_t CefBinaryValueImpl::GetSize() {
@@ -602,7 +603,7 @@ CefDictionaryValueImpl::CefDictionaryValueImpl(base::DictionaryValue* value,
 
 base::DictionaryValue* CefDictionaryValueImpl::CopyValue() {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
-  return const_value().DeepCopy();
+  return const_value().CreateDeepCopy().release();
 }
 
 base::DictionaryValue* CefDictionaryValueImpl::CopyOrDetachValue(
@@ -682,7 +683,7 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValueImpl::Copy(
                 .DeepCopyWithoutEmptyChildren()
                 .release();
   } else {
-    value = const_value().DeepCopy();
+    value = const_value().CreateDeepCopy().release();
   }
 
   return new CefDictionaryValueImpl(
@@ -1026,7 +1027,8 @@ CefListValueImpl::CefListValueImpl(base::ListValue* value,
 
 base::ListValue* CefListValueImpl::CopyValue() {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
-  return static_cast<base::ListValue*>(const_value().DeepCopy());
+  return static_cast<base::ListValue*>(
+      const_value().CreateDeepCopy().release());
 }
 
 base::ListValue* CefListValueImpl::CopyOrDetachValue(
@@ -1100,8 +1102,8 @@ CefRefPtr<CefListValue> CefListValueImpl::Copy() {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
 
   return new CefListValueImpl(
-      static_cast<base::ListValue*>(const_value().DeepCopy()), nullptr,
-      CefListValueImpl::kOwnerWillDelete, false, nullptr);
+      static_cast<base::ListValue*>(const_value().CreateDeepCopy().release()),
+      nullptr, CefListValueImpl::kOwnerWillDelete, false, nullptr);
 }
 
 bool CefListValueImpl::SetSize(size_t size) {
@@ -1114,7 +1116,11 @@ bool CefListValueImpl::SetSize(size_t size) {
       RemoveInternal(i);
   } else if (size > 0) {
     // Expand the list size.
-    mutable_value()->Set(size - 1, std::make_unique<base::Value>());
+    // TODO: This approach seems inefficient. See https://crbug.com/1187066#c17
+    // for background.
+    auto list = mutable_value()->GetList();
+    while (list.size() < size)
+      mutable_value()->Append(base::Value());
   }
   return true;
 }
@@ -1387,12 +1393,19 @@ bool CefListValueImpl::RemoveInternal(size_t index) {
 base::Value* CefListValueImpl::SetInternal(size_t index, base::Value* value) {
   DCHECK(value);
 
+  auto list = mutable_value()->GetList();
   if (RemoveInternal(index)) {
-    auto list = mutable_value()->GetList();
     CHECK_LE(index, list.size());
     mutable_value()->Insert(list.begin() + index, std::move(*value));
   } else {
-    mutable_value()->Set(index, base::WrapUnique(value));
+    if (index >= list.size()) {
+      // Expand the list size.
+      // TODO: This approach seems inefficient. See
+      // https://crbug.com/1187066#c17 for background.
+      while (list.size() <= index)
+        mutable_value()->Append(base::Value());
+    }
+    list[index] = std::move(*value);
   }
 
   // base::Value now uses move semantics which means that Insert()/Set() will

@@ -1,8 +1,8 @@
 diff --git content/browser/devtools/devtools_http_handler.cc content/browser/devtools/devtools_http_handler.cc
-index 3c2d16c7135d8..5dc02effff2ca 100644
+index ec6be2ff24d23..159ed7776c0aa 100644
 --- content/browser/devtools/devtools_http_handler.cc
 +++ content/browser/devtools/devtools_http_handler.cc
-@@ -574,7 +574,7 @@ void DevToolsHttpHandler::OnJsonRequest(
+@@ -576,7 +576,7 @@ void DevToolsHttpHandler::OnJsonRequest(
      version.SetString("Protocol-Version",
                        DevToolsAgentHost::GetProtocolVersion());
      version.SetString("WebKit-Version", GetWebKitVersion());
@@ -12,28 +12,29 @@ index 3c2d16c7135d8..5dc02effff2ca 100644
                        GetContentClient()->browser()->GetUserAgent());
      version.SetString("V8-Version", V8_VERSION_STRING);
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index 6ed02d4244d45..68dff171001c7 100644
+index c1235f9658b88..040d9afb0d9ff 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
-@@ -672,6 +672,13 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest(
+@@ -665,6 +665,14 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest(
            resource_request_->has_user_gesture, initiating_origin,
-           &loader_factory);
+           initiator_document_.AsRenderFrameHostIfValid(), &loader_factory);
  
 +      if (!handled) {
 +        handled = GetContentClient()->browser()->HandleExternalProtocol(
 +            web_contents_getter_, frame_tree_node_id_,
 +            navigation_ui_data_.get(), request_info_->sandbox_flags,
-+            *resource_request_, &loader_factory);
++            *resource_request_, initiating_origin,
++            initiator_document_.AsRenderFrameHostIfValid(), &loader_factory);
 +      }
 +
        if (loader_factory) {
          factory = base::MakeRefCounted<network::WrapperSharedURLLoaderFactory>(
              std::move(loader_factory));
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index b8b933d0160db..d450ef6ff5cc2 100644
+index 2579cf2ce325d..03b60ce3b17cb 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
-@@ -9,7 +9,7 @@
+@@ -11,7 +11,7 @@
  // declarations instead of including more headers. If that is infeasible, adjust
  // the limit. For more info, see
  // https://chromium.googlesource.com/chromium/src/+/HEAD/docs/wmax_tokens.md
@@ -42,7 +43,7 @@ index b8b933d0160db..d450ef6ff5cc2 100644
  
  #include <utility>
  
-@@ -876,7 +876,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
+@@ -877,7 +877,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
  void ContentBrowserClient::OnNetworkServiceCreated(
      network::mojom::NetworkService* network_service) {}
  
@@ -51,7 +52,7 @@ index b8b933d0160db..d450ef6ff5cc2 100644
      BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -885,6 +885,7 @@ void ContentBrowserClient::ConfigureNetworkContextParams(
+@@ -886,6 +886,7 @@ void ContentBrowserClient::ConfigureNetworkContextParams(
          cert_verifier_creation_params) {
    network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
    network_context_params->accept_language = "en-us,en";
@@ -60,7 +61,7 @@ index b8b933d0160db..d450ef6ff5cc2 100644
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 4a3bbba844366..f5795c3ae1ce4 100644
+index 7d3fafd564118..789bfd693888f 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -33,6 +33,7 @@
@@ -71,7 +72,7 @@ index 4a3bbba844366..f5795c3ae1ce4 100644
  #include "content/public/browser/web_ui_browser_interface_broker_registry.h"
  #include "content/public/common/main_function_params.h"
  #include "content/public/common/page_visibility_state.h"
-@@ -1632,7 +1633,7 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1634,7 +1635,7 @@ class CONTENT_EXPORT ContentBrowserClient {
    //
    // If |relative_partition_path| is the empty string, it means this needs to
    // create the default NetworkContext for the BrowserContext.
@@ -80,8 +81,8 @@ index 4a3bbba844366..f5795c3ae1ce4 100644
        BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -1816,6 +1817,15 @@ class CONTENT_EXPORT ContentBrowserClient {
-       const absl::optional<url::Origin>& initiating_origin,
+@@ -1823,6 +1824,17 @@ class CONTENT_EXPORT ContentBrowserClient {
+       RenderFrameHost* initiator_document,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
 +  // Same as above, but exposing the whole ResourceRequest object.
@@ -91,12 +92,14 @@ index 4a3bbba844366..f5795c3ae1ce4 100644
 +      NavigationUIData* navigation_data,
 +      network::mojom::WebSandboxFlags sandbox_flags,
 +      const network::ResourceRequest& request,
++      const absl::optional<url::Origin>& initiating_origin,
++      RenderFrameHost* initiator_document,
 +      mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory) { return false; }
 +
    // Creates an OverlayWindow to be used for Picture-in-Picture. This window
    // will house the content shown when in Picture-in-Picture mode. This will
    // return a new OverlayWindow.
-@@ -1893,6 +1903,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1879,6 +1891,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  
@@ -108,7 +111,7 @@ index 4a3bbba844366..f5795c3ae1ce4 100644
    // on blink::features::kUserAgentReduction. Content may cache this value.
    virtual std::string GetUserAgent();
 diff --git content/public/renderer/content_renderer_client.h content/public/renderer/content_renderer_client.h
-index 4352aada84d7f..94c5ae19f9297 100644
+index b914cb91a2b49..2f84201ba4d1e 100644
 --- content/public/renderer/content_renderer_client.h
 +++ content/public/renderer/content_renderer_client.h
 @@ -87,6 +87,9 @@ class CONTENT_EXPORT ContentRendererClient {
@@ -133,10 +136,10 @@ index 4352aada84d7f..94c5ae19f9297 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index e59425121af67..bf5c890e1c184 100644
+index 03f9fac832072..1f45e54e32da9 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
-@@ -639,6 +639,8 @@ void RenderThreadImpl::Init() {
+@@ -640,6 +640,8 @@ void RenderThreadImpl::Init() {
        GetContentClient()->renderer()->CreateURLLoaderThrottleProvider(
            blink::URLLoaderThrottleProviderType::kFrame);
  
@@ -146,10 +149,10 @@ index e59425121af67..bf5c890e1c184 100644
        &RenderThreadImpl::OnRendererInterfaceReceiver, base::Unretained(this)));
  
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index df9f357a597c7..34241332a3614 100644
+index b4e37bbdd3a80..1d16b769a6329 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -1083,6 +1083,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
+@@ -1082,6 +1082,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
  
  //------------------------------------------------------------------------------
  
@@ -166,7 +169,7 @@ index df9f357a597c7..34241332a3614 100644
  RendererBlinkPlatformImpl::GetCodeCacheHost() {
    base::AutoLock lock(code_cache_host_lock_);
 diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
-index cba574c571ded..715e59464ade7 100644
+index 2191ab72dcacc..d902eb707cc99 100644
 --- content/renderer/renderer_blink_platform_impl.h
 +++ content/renderer/renderer_blink_platform_impl.h
 @@ -260,6 +260,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {

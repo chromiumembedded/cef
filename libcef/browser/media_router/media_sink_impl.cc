@@ -8,6 +8,7 @@
 
 #include "base/strings/string_number_conversions.h"
 #include "chrome/browser/media/router/discovery/dial/dial_media_sink_service_impl.h"
+#include "chrome/browser/media/router/discovery/mdns/cast_media_sink_service_impl.h"
 #include "chrome/browser/media/router/providers/cast/dual_media_sink_service.h"
 #include "components/media_router/common/discovery/media_sink_internal.h"
 #include "components/media_router/common/discovery/media_sink_service_base.h"

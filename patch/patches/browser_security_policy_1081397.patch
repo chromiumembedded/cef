@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index 2cf191150882d..81e7d98700fed 100644
+index 620b3fdc4403a..f20399d453680 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
-@@ -1704,6 +1704,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForOrigin(
+@@ -1724,6 +1724,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForMaybeOpaqueOrigin(
              // DeclarativeApiTest.PersistRules.
              if (actual_process_lock.matches_scheme(url::kDataScheme))
                return true;
@@ -20,10 +20,10 @@ index 2cf191150882d..81e7d98700fed 100644
  
            // TODO(wjmaclean): We should update the ProcessLock comparison API
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 702428def0788..7056ce4e1c670 100644
+index 8a84c355e4d56..2545e0e828fe5 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -5906,6 +5906,12 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithoutFinalFrameHost(
+@@ -5896,6 +5896,12 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithoutFinalFrameHost(
      network::mojom::WebSandboxFlags sandbox_flags) {
    // Calculate an approximation of the origin. The sandbox/csp are ignored.
    url::Origin origin = GetOriginForURLLoaderFactoryUnchecked(this);
@@ -36,7 +36,7 @@ index 702428def0788..7056ce4e1c670 100644
  
    // Apply sandbox flags.
    // See https://html.spec.whatwg.org/#sandboxed-origin-browsing-context-flag
-@@ -5939,6 +5945,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithFinalFrameHost() {
+@@ -5929,6 +5935,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithFinalFrameHost() {
    if (IsSameDocument() || IsPageActivation())
      return GetRenderFrameHost()->GetLastCommittedOrigin();
  

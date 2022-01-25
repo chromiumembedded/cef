@@ -108,6 +108,7 @@
 #include "content/public/common/storage_quota_params.h"
 #include "content/public/common/url_constants.h"
 #include "content/public/common/user_agent.h"
+#include "crypto/crypto_buildflags.h"
 #include "extensions/browser/event_router.h"
 #include "extensions/browser/extension_message_filter.h"
 #include "extensions/browser/extension_protocols.h"
@@ -160,7 +161,7 @@
 #include "sandbox/win/src/sandbox_policy.h"
 #endif
 
-#if defined(USE_NSS_CERTS)
+#if BUILDFLAG(USE_NSS_CERTS)
 #include "net/ssl/client_cert_store_nss.h"
 #endif
 
@@ -573,18 +574,6 @@ bool AlloyContentBrowserClient::DoesSiteRequireDedicatedProcess(
   }
 
   return content::ContentBrowserClient::DoesSiteRequireDedicatedProcess(
-      browser_context, effective_site_url);
-}
-
-bool AlloyContentBrowserClient::ShouldLockProcessToSite(
-    content::BrowserContext* browser_context,
-    const GURL& effective_site_url) {
-  if (extensions::ExtensionsEnabled()) {
-    return extensions::ChromeContentBrowserClientExtensionsPart::
-        ShouldLockProcessToSite(browser_context, effective_site_url);
-  }
-
-  return content::ContentBrowserClient::ShouldLockProcessToSite(
       browser_context, effective_site_url);
 }
 
@@ -1055,33 +1044,35 @@ AlloyContentBrowserClient::CreateDevToolsManagerDelegate() {
   return std::make_unique<CefDevToolsManagerDelegate>();
 }
 
-bool AlloyContentBrowserClient::BindAssociatedReceiverFromFrame(
-    content::RenderFrameHost* render_frame_host,
-    const std::string& interface_name,
-    mojo::ScopedInterfaceEndpointHandle* handle) {
-  if (interface_name == extensions::mojom::LocalFrameHost::Name_) {
-    extensions::ExtensionWebContentsObserver::BindLocalFrameHost(
-        mojo::PendingAssociatedReceiver<extensions::mojom::LocalFrameHost>(
-            std::move(*handle)),
-        render_frame_host);
-    return true;
-  }
-  if (interface_name == printing::mojom::PrintManagerHost::Name_) {
-    printing::CefPrintViewManager::BindPrintManagerHost(
-        mojo::PendingAssociatedReceiver<printing::mojom::PrintManagerHost>(
-            std::move(*handle)),
-        render_frame_host);
-    return true;
-  }
-  if (interface_name == pdf::mojom::PdfService::Name_) {
-    pdf::PDFWebContentsHelper::BindPdfService(
-        mojo::PendingAssociatedReceiver<pdf::mojom::PdfService>(
-            std::move(*handle)),
-        render_frame_host);
-    return true;
-  }
+void AlloyContentBrowserClient::
+    RegisterAssociatedInterfaceBindersForRenderFrameHost(
+        content::RenderFrameHost& render_frame_host,
+        blink::AssociatedInterfaceRegistry& associated_registry) {
+  associated_registry.AddInterface(base::BindRepeating(
+      [](content::RenderFrameHost* render_frame_host,
+         mojo::PendingAssociatedReceiver<extensions::mojom::LocalFrameHost>
+             receiver) {
+        extensions::ExtensionWebContentsObserver::BindLocalFrameHost(
+            std::move(receiver), render_frame_host);
+      },
+      &render_frame_host));
 
-  return false;
+  associated_registry.AddInterface(base::BindRepeating(
+      [](content::RenderFrameHost* render_frame_host,
+         mojo::PendingAssociatedReceiver<printing::mojom::PrintManagerHost>
+             receiver) {
+        printing::CefPrintViewManager::BindPrintManagerHost(std::move(receiver),
+                                                            render_frame_host);
+      },
+      &render_frame_host));
+
+  associated_registry.AddInterface(base::BindRepeating(
+      [](content::RenderFrameHost* render_frame_host,
+         mojo::PendingAssociatedReceiver<pdf::mojom::PdfService> receiver) {
+        pdf::PDFWebContentsHelper::BindPdfService(std::move(receiver),
+                                                  render_frame_host);
+      },
+      &render_frame_host));
 }
 
 std::vector<std::unique_ptr<content::NavigationThrottle>>
@@ -1183,7 +1174,7 @@ std::unique_ptr<net::ClientCertStore>
 AlloyContentBrowserClient::CreateClientCertStore(
     content::BrowserContext* browser_context) {
   // Match the logic in ProfileNetworkContextService::CreateClientCertStore.
-#if defined(USE_NSS_CERTS)
+#if BUILDFLAG(USE_NSS_CERTS)
   // TODO: Add support for client implementation of crypto password dialog.
   return std::unique_ptr<net::ClientCertStore>(new net::ClientCertStoreNSS(
       net::ClientCertStoreNSS::PasswordDelegateFactory()));
@@ -1230,6 +1221,7 @@ void AlloyContentBrowserClient::RegisterNonNetworkNavigationURLLoaderFactories(
 void AlloyContentBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories(
     int render_process_id,
     int render_frame_id,
+    const absl::optional<url::Origin>& request_initiator_origin,
     NonNetworkURLLoaderFactoryMap* factories) {
   if (!extensions::ExtensionsEnabled())
     return;
@@ -1385,6 +1377,7 @@ bool AlloyContentBrowserClient::HandleExternalProtocol(
     ui::PageTransition page_transition,
     bool has_user_gesture,
     const absl::optional<url::Origin>& initiating_origin,
+    content::RenderFrameHost* initiator_document,
     mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory) {
   // Call the other HandleExternalProtocol variant.
   return false;
@@ -1396,6 +1389,8 @@ bool AlloyContentBrowserClient::HandleExternalProtocol(
     content::NavigationUIData* navigation_data,
     network::mojom::WebSandboxFlags sandbox_flags,
     const network::ResourceRequest& resource_request,
+    const absl::optional<url::Origin>& initiating_origin,
+    content::RenderFrameHost* initiator_document,
     mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory) {
   mojo::PendingReceiver<network::mojom::URLLoaderFactory> receiver =
       out_factory->InitWithNewPipeAndPassReceiver();

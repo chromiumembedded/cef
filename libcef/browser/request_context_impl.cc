@@ -54,32 +54,6 @@ const char* GetTypeString(base::Value::Type type) {
   return "UNKNOWN";
 }
 
-// Helper for HostResolver::Resolve.
-struct ResolveHostHelperOld {
-  explicit ResolveHostHelperOld(CefRefPtr<CefResolveCallback> callback)
-      : callback_(callback) {}
-
-  void OnResolveCompleted(int result) {
-    std::vector<CefString> resolved_ips;
-    absl::optional<net::AddressList> maybe_address_list =
-        request_->GetAddressResults();
-    if (maybe_address_list) {
-      net::AddressList::const_iterator iter = maybe_address_list->begin();
-      for (; iter != maybe_address_list->end(); ++iter)
-        resolved_ips.push_back(iter->ToStringWithoutPort());
-    }
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::BindOnce(&CefResolveCallback::OnResolveCompleted, callback_,
-                       static_cast<cef_errorcode_t>(result), resolved_ips));
-
-    delete this;
-  }
-
-  CefRefPtr<CefResolveCallback> callback_;
-  std::unique_ptr<net::HostResolver::ResolveHostRequest> request_;
-};
-
 class ResolveHostHelper : public network::ResolveHostClientBase {
  public:
   explicit ResolveHostHelper(CefRefPtr<CefResolveCallback> callback)
@@ -416,7 +390,7 @@ CefRefPtr<CefValue> CefRequestContextImpl::GetPreference(
   const PrefService::Preference* pref = pref_service->FindPreference(name);
   if (!pref)
     return nullptr;
-  return new CefValueImpl(pref->GetValue()->DeepCopy());
+  return new CefValueImpl(pref->GetValue()->CreateDeepCopy().release());
 }
 
 CefRefPtr<CefDictionaryValue> CefRequestContextImpl::GetAllPreferences(

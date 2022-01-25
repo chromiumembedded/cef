@@ -10,10 +10,10 @@
 #include "libcef/browser/extensions/api/storage/sync_value_store_cache.h"
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
 #include "libcef/browser/extensions/mime_handler_view_guest_delegate.h"
-#include "libcef/browser/extensions/pdf_web_contents_helper_client.h"
 #include "libcef/browser/printing/print_view_manager.h"
 
 #include "base/memory/ptr_util.h"
+#include "chrome/browser/ui/pdf/chrome_pdf_web_contents_helper_client.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "components/pdf/browser/pdf_web_contents_helper.h"
 #include "components/zoom/zoom_controller.h"
@@ -57,7 +57,7 @@ void CefExtensionsAPIClient::AttachWebContentsHelpers(
   // Used by the PDF extension.
   pdf::PDFWebContentsHelper::CreateForWebContentsWithClient(
       web_contents, std::unique_ptr<pdf::PDFWebContentsHelperClient>(
-                        new CefPDFWebContentsHelperClient()));
+                        new ChromePDFWebContentsHelperClient()));
 
   // Used by the tabs extension API.
   zoom::ZoomController::CreateForWebContents(web_contents);

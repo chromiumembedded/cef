@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/browser_command_controller.cc chrome/browser/ui/browser_command_controller.cc
-index 408fcb87b6bf3..4efc0e48dcb5a 100644
+index 92f10fac6b017..cc53da3a0b32e 100644
 --- chrome/browser/ui/browser_command_controller.cc
 +++ chrome/browser/ui/browser_command_controller.cc
 @@ -368,8 +368,10 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
@@ -31,7 +31,7 @@ index 408fcb87b6bf3..4efc0e48dcb5a 100644
  
  void BrowserCommandController::InitCommandState() {
 diff --git chrome/browser/ui/views/frame/browser_frame.cc chrome/browser/ui/views/frame/browser_frame.cc
-index 28cb0acd5a55d..f22ac22d04245 100644
+index 6264562165ced..d20f970ba1254 100644
 --- chrome/browser/ui/views/frame/browser_frame.cc
 +++ chrome/browser/ui/views/frame/browser_frame.cc
 @@ -73,15 +73,23 @@ bool IsUsingGtkTheme(Profile* profile) {
@@ -129,7 +129,7 @@ index 6a1e9abbc66aa..aa9e3ebe2599c 100644
    BrowserFrame(const BrowserFrame&) = delete;
    BrowserFrame& operator=(const BrowserFrame&) = delete;
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 3c6fcbebb84bb..f2eb23d39e5ee 100644
+index 8138e50a55072..e01b2274119b8 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -291,11 +291,10 @@ using content::WebContents;
@@ -147,7 +147,7 @@ index 3c6fcbebb84bb..f2eb23d39e5ee 100644
  
  #if BUILDFLAG(IS_CHROMEOS_ASH)
  // UMA histograms that record animation smoothness for tab loading animation.
-@@ -677,11 +676,22 @@ class BrowserView::SidePanelButtonHighlighter : public views::ViewObserver {
+@@ -683,11 +682,22 @@ class BrowserView::SidePanelButtonHighlighter : public views::ViewObserver {
  ///////////////////////////////////////////////////////////////////////////////
  // BrowserView, public:
  
@@ -171,7 +171,7 @@ index 3c6fcbebb84bb..f2eb23d39e5ee 100644
    SetShowIcon(::ShouldShowWindowIcon(browser_.get()));
  
    // In forced app mode, all size controls are always disabled. Otherwise, use
-@@ -695,7 +705,6 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
+@@ -701,7 +711,6 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
    }
  
    browser_->tab_strip_model()->AddObserver(this);
@@ -179,7 +179,7 @@ index 3c6fcbebb84bb..f2eb23d39e5ee 100644
  
    // Top container holds tab strip region and toolbar and lives at the front of
    // the view hierarchy.
-@@ -741,8 +750,15 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
+@@ -749,8 +758,15 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
    contents_container->SetLayoutManager(std::make_unique<ContentsLayoutManager>(
        devtools_web_view_, contents_web_view_));
  
@@ -197,7 +197,7 @@ index 3c6fcbebb84bb..f2eb23d39e5ee 100644
  
    contents_separator_ =
        top_container_->AddChildView(std::make_unique<ContentsSeparator>());
-@@ -1579,6 +1595,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
+@@ -1587,6 +1603,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
    if (immersive_mode_controller_->IsEnabled())
      return false;
  
@@ -206,7 +206,7 @@ index 3c6fcbebb84bb..f2eb23d39e5ee 100644
    return frame_->GetFrameView()->ShouldHideTopUIForFullscreen();
  }
  
-@@ -2725,7 +2743,8 @@ BrowserView::GetNativeViewHostsForTopControlsSlide() const {
+@@ -2731,7 +2749,8 @@ BrowserView::GetNativeViewHostsForTopControlsSlide() const {
  }
  
  void BrowserView::ReparentTopContainerForEndOfImmersive() {
@@ -216,7 +216,7 @@ index 3c6fcbebb84bb..f2eb23d39e5ee 100644
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -3214,8 +3233,10 @@ void BrowserView::Layout() {
+@@ -3220,8 +3239,10 @@ void BrowserView::Layout() {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -229,7 +229,7 @@ index 3c6fcbebb84bb..f2eb23d39e5ee 100644
  
    // Some of the situations when the BrowserView is laid out are:
    // - Enter/exit immersive fullscreen mode.
-@@ -3278,6 +3299,11 @@ void BrowserView::AddedToWidget() {
+@@ -3284,6 +3305,11 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->profile());
  #endif
  
@@ -241,7 +241,7 @@ index 3c6fcbebb84bb..f2eb23d39e5ee 100644
    toolbar_->Init();
  
    // TODO(pbos): Manage this either inside SidePanel or the corresponding button
-@@ -3330,13 +3356,9 @@ void BrowserView::AddedToWidget() {
+@@ -3336,13 +3362,9 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -257,7 +257,7 @@ index 3c6fcbebb84bb..f2eb23d39e5ee 100644
    using_native_frame_ = frame_->ShouldUseNativeFrame();
  
    MaybeInitializeWebUITabStrip();
-@@ -3755,7 +3777,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
+@@ -3761,7 +3783,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
    // Undo our anti-jankiness hacks and force a re-layout.
    in_process_fullscreen_ = false;
    ToolbarSizeChanged(false);
@@ -267,7 +267,7 @@ index 3c6fcbebb84bb..f2eb23d39e5ee 100644
  }
  
  bool BrowserView::ShouldUseImmersiveFullscreenForUrl(const GURL& url) const {
-@@ -4046,6 +4069,8 @@ Profile* BrowserView::GetProfile() {
+@@ -4052,6 +4075,8 @@ Profile* BrowserView::GetProfile() {
  }
  
  void BrowserView::UpdateUIForTabFullscreen() {
@@ -276,7 +276,7 @@ index 3c6fcbebb84bb..f2eb23d39e5ee 100644
    frame()->GetFrameView()->UpdateFullscreenTopUI();
  }
  
-@@ -4068,6 +4093,8 @@ void BrowserView::HideDownloadShelf() {
+@@ -4074,6 +4099,8 @@ void BrowserView::HideDownloadShelf() {
  }
  
  bool BrowserView::CanUserExitFullscreen() const {
@@ -286,7 +286,7 @@ index 3c6fcbebb84bb..f2eb23d39e5ee 100644
  }
  
 diff --git chrome/browser/ui/views/frame/browser_view.h chrome/browser/ui/views/frame/browser_view.h
-index 6eea8b4b899e2..4dc56c94baa3f 100644
+index 02d9793dd5c8d..fe8b0cef88375 100644
 --- chrome/browser/ui/views/frame/browser_view.h
 +++ chrome/browser/ui/views/frame/browser_view.h
 @@ -125,11 +125,16 @@ class BrowserView : public BrowserWindow,
@@ -347,7 +347,7 @@ index 1d22e4b057c6c..d73b547f09e0b 100644
    bool toolbar_visible = delegate_->IsToolbarVisible();
    int height = toolbar_visible ? toolbar_->GetPreferredSize().height() : 0;
 diff --git chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
-index 504c0b746006d..f0952bad35e91 100644
+index b5706099ce923..07cebc2f8b65f 100644
 --- chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
 +++ chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
 @@ -559,37 +559,53 @@ gfx::Range BrowserTabStripController::ListTabsInGroup(
@@ -405,10 +405,10 @@ index 504c0b746006d..f0952bad35e91 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index d11554470129d..e854e476c297b 100644
+index b5098154b2f7e..4a3121cedf083 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
-@@ -167,12 +167,13 @@ auto& GetViewCommandMap() {
+@@ -168,12 +168,13 @@ auto& GetViewCommandMap() {
  ////////////////////////////////////////////////////////////////////////////////
  // ToolbarView, public:
  
@@ -424,7 +424,7 @@ index d11554470129d..e854e476c297b 100644
    SetID(VIEW_ID_TOOLBAR);
  
    UpgradeDetector::GetInstance()->AddObserver(this);
-@@ -207,7 +208,7 @@ void ToolbarView::Init() {
+@@ -208,7 +209,7 @@ void ToolbarView::Init() {
  #endif
    auto location_bar = std::make_unique<LocationBarView>(
        browser_, browser_->profile(), browser_->command_controller(), this,
@@ -434,10 +434,10 @@ index d11554470129d..e854e476c297b 100644
    size_animation_.Reset(1);
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.h chrome/browser/ui/views/toolbar/toolbar_view.h
-index 8b929587548ec..835a665380277 100644
+index 79efc97f711f1..6915479340275 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.h
 +++ chrome/browser/ui/views/toolbar/toolbar_view.h
-@@ -92,7 +92,8 @@ class ToolbarView : public views::AccessiblePaneView,
+@@ -93,7 +93,8 @@ class ToolbarView : public views::AccessiblePaneView,
                  // needs to be displayed.
    };
  

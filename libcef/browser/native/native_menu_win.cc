@@ -299,27 +299,9 @@ class CefNativeMenuWin::MenuHostWindow {
         ui::NativeTheme* native_theme =
             ui::NativeTheme::GetInstanceForNativeUi();
 
-        // Logic from Widget::GetColorProviderKey() prior to
-        // https://crrev.com/e24ffe177b.
-        // TODO(cef): Use |native_theme->GetColorProviderKey(nullptr)| after M97
-        // Chromium update.
-        const auto color_scheme = native_theme->GetDefaultSystemColorScheme();
-        ui::ColorProviderManager::Key color_provider_key(
-            (color_scheme == ui::NativeTheme::ColorScheme::kDark)
-                ? ui::ColorProviderManager::ColorMode::kDark
-                : ui::ColorProviderManager::ColorMode::kLight,
-            (color_scheme ==
-             ui::NativeTheme::ColorScheme::kPlatformHighContrast)
-                ? ui::ColorProviderManager::ContrastMode::kHigh
-                : ui::ColorProviderManager::ContrastMode::kNormal,
-            native_theme->is_custom_system_theme()
-                ? ui::ColorProviderManager::SystemTheme::kCustom
-                : ui::ColorProviderManager::SystemTheme::kDefault,
-            /*custom_theme=*/nullptr);
-
         auto* color_provider =
             ui::ColorProviderManager::Get().GetColorProviderFor(
-                color_provider_key);
+                native_theme->GetColorProviderKey(nullptr));
 
         // We currently don't support items with both icons and checkboxes.
         const gfx::ImageSkia skia_icon =
@@ -363,10 +345,15 @@ class CefNativeMenuWin::MenuHostWindow {
         // Draw the background and the check.
         ui::NativeTheme* native_theme =
             ui::NativeTheme::GetInstanceForNativeUi();
-        native_theme->Paint(&paint_canvas, NativeTheme::kMenuCheckBackground,
-                            state, bounds, extra);
-        native_theme->Paint(&paint_canvas, NativeTheme::kMenuCheck, state,
-                            bounds, extra);
+        auto* color_provider =
+            ui::ColorProviderManager::Get().GetColorProviderFor(
+                native_theme->GetColorProviderKey(nullptr));
+
+        native_theme->Paint(&paint_canvas, color_provider,
+                            NativeTheme::kMenuCheckBackground, state, bounds,
+                            extra);
+        native_theme->Paint(&paint_canvas, color_provider,
+                            NativeTheme::kMenuCheck, state, bounds, extra);
 
         // Draw checkbox to menu.
         DrawToNativeContext(

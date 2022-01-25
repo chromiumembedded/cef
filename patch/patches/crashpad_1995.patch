@@ -81,7 +81,7 @@ index 886372e114899..ad3bc2242883b 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 68ddd337e4dfa..687e869afd5c7 100644
+index f6850e85411ab..4f5500d8fa1ea 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -4,6 +4,8 @@
@@ -112,7 +112,7 @@ index 68ddd337e4dfa..687e869afd5c7 100644
 -}  // namespace
 -
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
- #if defined(OS_CHROMEOS)
+ #if BUILDFLAG(IS_CHROMEOS)
    HandleEnableDisableFeatures(command_line);
  #endif
 -  SetSwitchesFromCommandLine(command_line, &IsBoringSwitch);
@@ -136,17 +136,17 @@ index e2d53ac83dde0..6ac76e407a748 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git components/crash/core/app/breakpad_linux.cc components/crash/core/app/breakpad_linux.cc
-index ec5b5b9b4da3b..b18daaa090059 100644
+index 823e49a234e3d..3f0f95a330bf4 100644
 --- components/crash/core/app/breakpad_linux.cc
 +++ components/crash/core/app/breakpad_linux.cc
-@@ -28,6 +28,7 @@
+@@ -29,6 +29,7 @@
  #include "base/base_switches.h"
  #include "base/command_line.h"
  #include "base/debug/dump_without_crashing.h"
 +#include "base/debug/leak_annotations.h"
  #include "base/files/file_path.h"
- #include "base/ignore_result.h"
  #include "base/lazy_instance.h"
+ #include "base/linux_util.h"
 @@ -721,7 +722,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
    info.process_type_length = 7;
    info.distro = base::g_linux_distro;
@@ -156,7 +156,7 @@ index ec5b5b9b4da3b..b18daaa090059 100644
    info.process_start_time = g_process_start_time;
    info.oom_size = base::g_oom_size;
    info.pid = g_pid;
-@@ -1736,10 +1737,27 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1735,10 +1736,27 @@ void HandleCrashDump(const BreakpadInfo& info) {
      GetCrashReporterClient()->GetProductNameAndVersion(&product_name, &version);
  
      writer.AddBoundary();
@@ -186,7 +186,7 @@ index ec5b5b9b4da3b..b18daaa090059 100644
      if (info.pid > 0) {
        char pid_value_buf[kUint64StringSize];
        uint64_t pid_value_len = my_uint64_len(info.pid);
-@@ -1856,6 +1874,9 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1855,6 +1873,9 @@ void HandleCrashDump(const BreakpadInfo& info) {
          crash_reporter::internal::TransitionalCrashKeyStorage;
      CrashKeyStorage::Iterator crash_key_iterator(*info.crash_keys);
      const CrashKeyStorage::Entry* entry;
@@ -196,7 +196,7 @@ index ec5b5b9b4da3b..b18daaa090059 100644
      while ((entry = crash_key_iterator.Next())) {
        size_t key_size, value_size;
        // Check for malformed messages.
-@@ -1866,7 +1887,13 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1865,7 +1886,13 @@ void HandleCrashDump(const BreakpadInfo& info) {
                         ? CrashKeyStorage::value_size - 1
                         : my_strlen(entry->value);
  
@@ -212,7 +212,7 @@ index ec5b5b9b4da3b..b18daaa090059 100644
        writer.Flush();
      }
 diff --git components/crash/core/app/breakpad_linux.h components/crash/core/app/breakpad_linux.h
-index 9ea80370a842c..3043f7d32f33d 100644
+index 2f0d4c555506a..c537846b21568 100644
 --- components/crash/core/app/breakpad_linux.h
 +++ components/crash/core/app/breakpad_linux.h
 @@ -20,6 +20,9 @@ extern void InitCrashReporter(const std::string& process_type);
@@ -222,39 +222,39 @@ index 9ea80370a842c..3043f7d32f33d 100644
 +// Set the crash server URL.
 +void SetCrashServerURL(const std::string& url);
 +
- #if defined(OS_ANDROID)
+ #if BUILDFLAG(IS_ANDROID)
  extern void InitCrashKeysForTesting();
  
 diff --git components/crash/core/app/crash_reporter_client.cc components/crash/core/app/crash_reporter_client.cc
-index 89b4bfccd5d32..7cb0a85470d2f 100644
+index 82b7f241e2618..d3cd5524bb253 100644
 --- components/crash/core/app/crash_reporter_client.cc
 +++ components/crash/core/app/crash_reporter_client.cc
-@@ -87,7 +87,7 @@ int CrashReporterClient::GetResultCodeRespawnFailed() {
+@@ -89,7 +89,7 @@ bool CrashReporterClient::GetShouldDumpLargerDumps() {
  }
  #endif
  
--#if defined(OS_POSIX) && !defined(OS_MAC)
-+#if defined(OS_POSIX)
+-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
++#if BUILDFLAG(IS_POSIX)
  void CrashReporterClient::GetProductNameAndVersion(const char** product_name,
                                                     const char** version) {
  }
-@@ -96,6 +96,7 @@ void CrashReporterClient::GetProductNameAndVersion(std::string* product_name,
+@@ -98,6 +98,7 @@ void CrashReporterClient::GetProductNameAndVersion(std::string* product_name,
                                                     std::string* version,
                                                     std::string* channel) {}
  
-+#if !defined(OS_MAC)
++#if !BUILDFLAG(IS_MAC)
  base::FilePath CrashReporterClient::GetReporterLogFilename() {
    return base::FilePath();
  }
-@@ -105,6 +106,7 @@ bool CrashReporterClient::HandleCrashDump(const char* crashdump_filename,
+@@ -107,6 +108,7 @@ bool CrashReporterClient::HandleCrashDump(const char* crashdump_filename,
    return false;
  }
  #endif
 +#endif
  
- #if defined(OS_WIN)
+ #if BUILDFLAG(IS_WIN)
  bool CrashReporterClient::GetCrashDumpLocation(std::wstring* crash_dir) {
-@@ -139,6 +141,28 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
+@@ -141,6 +143,28 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
    return false;
  }
  
@@ -267,30 +267,30 @@ index 89b4bfccd5d32..7cb0a85470d2f 100644
 +    std::vector<std::string>* arguments) {
 +}
 +
-+#if defined(OS_WIN)
++#if BUILDFLAG(IS_WIN)
 +std::wstring CrashReporterClient::GetCrashExternalHandler(
 +    const std::wstring& exe_dir) {
 +  return exe_dir + L"\\crashpad_handler.exe";
 +}
 +#endif
 +
-+#if defined(OS_MAC)
++#if BUILDFLAG(IS_MAC)
 +bool CrashReporterClient::EnableBrowserCrashForwarding() {
 +  return true;
 +}
 +#endif
 +
- #if defined(OS_ANDROID)
+ #if BUILDFLAG(IS_ANDROID)
  unsigned int CrashReporterClient::GetCrashDumpPercentage() {
    return 100;
-@@ -201,9 +225,11 @@ bool CrashReporterClient::ShouldMonitorCrashHandlerExpensively() {
+@@ -203,9 +227,11 @@ bool CrashReporterClient::ShouldMonitorCrashHandlerExpensively() {
    return false;
  }
  
 -bool CrashReporterClient::EnableBreakpadForProcess(
 -    const std::string& process_type) {
 -  return false;
-+#if defined(OS_POSIX) && !defined(OS_MAC)
++#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
 +CrashReporterClient::ParameterMap
 +CrashReporterClient::FilterParameters(const ParameterMap& parameters) {
 +  return parameters;
@@ -299,7 +299,7 @@ index 89b4bfccd5d32..7cb0a85470d2f 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crash_reporter_client.h components/crash/core/app/crash_reporter_client.h
-index 39557cce47443..236806090021a 100644
+index 24e53fa62c2c4..68011566b5723 100644
 --- components/crash/core/app/crash_reporter_client.h
 +++ components/crash/core/app/crash_reporter_client.h
 @@ -5,7 +5,9 @@
@@ -312,24 +312,24 @@ index 39557cce47443..236806090021a 100644
  
  #include "build/build_config.h"
  
-@@ -87,7 +89,7 @@ class CrashReporterClient {
-   virtual int GetResultCodeRespawnFailed();
+@@ -89,7 +91,7 @@ class CrashReporterClient {
+   virtual bool GetShouldDumpLargerDumps();
  #endif
  
--#if defined(OS_POSIX) && !defined(OS_MAC)
-+#if defined(OS_POSIX)
+-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
++#if BUILDFLAG(IS_POSIX)
    // Returns a textual description of the product type and version to include
    // in the crash report. Neither out parameter should be set to NULL.
    // TODO(jperaza): Remove the 2-parameter overload of this method once all
-@@ -98,6 +100,7 @@ class CrashReporterClient {
+@@ -100,6 +102,7 @@ class CrashReporterClient {
                                          std::string* version,
                                          std::string* channel);
  
-+#if !defined(OS_MAC)
++#if !BUILDFLAG(IS_MAC)
    virtual base::FilePath GetReporterLogFilename();
  
    // Custom crash minidump handler after the minidump is generated.
-@@ -107,6 +110,7 @@ class CrashReporterClient {
+@@ -109,6 +112,7 @@ class CrashReporterClient {
    // libc nor allocate memory normally.
    virtual bool HandleCrashDump(const char* crashdump_filename,
                                 uint64_t crash_pid);
@@ -337,7 +337,7 @@ index 39557cce47443..236806090021a 100644
  #endif
  
    // The location where minidump files should be written. Returns true if
-@@ -204,6 +208,27 @@ class CrashReporterClient {
+@@ -206,6 +210,27 @@ class CrashReporterClient {
  
    // Returns true if breakpad should run in the given process type.
    virtual bool EnableBreakpadForProcess(const std::string& process_type);
@@ -345,18 +345,18 @@ index 39557cce47443..236806090021a 100644
 +  // Populate |arguments| with additional optional arguments.
 +  virtual void GetCrashOptionalArguments(std::vector<std::string>* arguments);
 +
-+#if defined(OS_WIN)
++#if BUILDFLAG(IS_WIN)
 +  // Returns the absolute path to the external crash handler exe.
 +  virtual std::wstring GetCrashExternalHandler(const std::wstring& exe_dir);
 +#endif
 +
-+#if defined(OS_MAC)
++#if BUILDFLAG(IS_MAC)
 +  // Returns true if forwarding of crashes to the system crash reporter is
 +  // enabled for the browser process.
 +  virtual bool EnableBrowserCrashForwarding();
 +#endif
 +
-+#if defined(OS_POSIX) && !defined(OS_MAC)
++#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
 +  // Provides an oportunity to modify the parameters that will be sent with a
 +  // crash upload.
 +  using ParameterMap = std::map<std::string, std::string>;
@@ -366,7 +366,7 @@ index 39557cce47443..236806090021a 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crashpad.cc components/crash/core/app/crashpad.cc
-index ea9ec2be09943..0c7ba2af97c0f 100644
+index 6da6be46cee4a..5e3067c081867 100644
 --- components/crash/core/app/crashpad.cc
 +++ components/crash/core/app/crashpad.cc
 @@ -154,7 +154,8 @@ bool InitializeCrashpadImpl(bool initial_client,

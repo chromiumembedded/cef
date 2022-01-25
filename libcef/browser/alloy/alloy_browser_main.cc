@@ -57,7 +57,6 @@
 #if BUILDFLAG(IS_WIN)
 #include "chrome/browser/chrome_browser_main_win.h"
 #include "chrome/browser/win/parental_controls.h"
-#include "components/os_crypt/os_crypt.h"
 #endif
 #endif  // defined(USE_AURA)
 
@@ -74,9 +73,18 @@
 #include "ui/base/ime/init/input_method_initializer.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX)
-#include "libcef/browser/printing/print_dialog_linux.h"
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
+#include "components/os_crypt/os_crypt.h"
 #endif
+
+#if BUILDFLAG(IS_LINUX)
+#include "base/path_service.h"
+#include "chrome/common/chrome_paths.h"
+#include "chrome/grit/chromium_strings.h"
+#include "components/os_crypt/key_storage_config_linux.h"
+#include "libcef/browser/printing/print_dialog_linux.h"
+#include "ui/base/l10n/l10n_util.h"
+#endif  // BUILDFLAG(IS_LINUX)
 
 #if BUILDFLAG(ENABLE_MEDIA_FOUNDATION_WIDEVINE_CDM)
 #include "chrome/browser/component_updater/media_foundation_widevine_cdm_component_installer.h"
@@ -150,7 +158,29 @@ void AlloyBrowserMainParts::PostCreateMainMessageLoop() {
       &CefPrintDialogLinux::CreatePrintDialog);
   printing::PrintingContextLinux::SetPdfPaperSizeFunction(
       &CefPrintDialogLinux::GetPdfPaperSize);
-#endif
+
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+
+  // Set up crypt config. This needs to be done before anything starts the
+  // network service, as the raw encryption key needs to be shared with the
+  // network service for encrypted cookie storage.
+  // Based on ChromeBrowserMainPartsLinux::PostCreateMainMessageLoop.
+  std::unique_ptr<os_crypt::Config> config =
+      std::make_unique<os_crypt::Config>();
+  // Forward to os_crypt the flag to use a specific password store.
+  config->store = command_line->GetSwitchValueASCII(switches::kPasswordStore);
+  // Forward the product name (defaults to "Chromium").
+  config->product_name = l10n_util::GetStringUTF8(IDS_PRODUCT_NAME);
+  // OSCrypt may target keyring, which requires calls from the main thread.
+  config->main_thread_runner = content::GetUIThreadTaskRunner({});
+  // OSCrypt can be disabled in a special settings file.
+  config->should_use_preference =
+      command_line->HasSwitch(switches::kEnableEncryptionSelection);
+  base::PathService::Get(chrome::DIR_USER_DATA, &config->user_data_path);
+  DCHECK(!config->user_data_path.empty());
+  OSCrypt::SetConfig(std::move(config));
+#endif  // BUILDFLAG(IS_LINUX)
 }
 
 int AlloyBrowserMainParts::PreCreateThreads() {

@@ -1,12 +1,12 @@
 diff --git components/viz/host/host_display_client.cc components/viz/host/host_display_client.cc
-index 3b00759e513dc..90fe332d59f5b 100644
+index d3970b4d86e1f..eac209e0a8159 100644
 --- components/viz/host/host_display_client.cc
 +++ components/viz/host/host_display_client.cc
-@@ -45,9 +45,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
+@@ -46,9 +46,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
  }
  #endif
  
--#if defined(OS_WIN)
+-#if BUILDFLAG(IS_WIN)
 +void HostDisplayClient::UseProxyOutputDevice(
 +    UseProxyOutputDeviceCallback callback) {
 +  std::move(callback).Run(false);
@@ -14,11 +14,11 @@ index 3b00759e513dc..90fe332d59f5b 100644
 +
  void HostDisplayClient::CreateLayeredWindowUpdater(
      mojo::PendingReceiver<mojom::LayeredWindowUpdater> receiver) {
-+#if defined(OS_WIN)
++#if BUILDFLAG(IS_WIN)
    if (!NeedsToUseLayerWindow(widget_)) {
      DLOG(ERROR) << "HWND shouldn't be using a layered window";
      return;
-@@ -55,8 +60,8 @@ void HostDisplayClient::CreateLayeredWindowUpdater(
+@@ -56,8 +61,8 @@ void HostDisplayClient::CreateLayeredWindowUpdater(
  
    layered_window_updater_ =
        std::make_unique<LayeredWindowUpdaterImpl>(widget_, std::move(receiver));
@@ -29,7 +29,7 @@ index 3b00759e513dc..90fe332d59f5b 100644
  // TODO(crbug.com/1052397): Revisit the macro expression once build flag switch
  // of lacros-chrome is complete.
 diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
-index b2ad84c881ac7..c207f7b5ac831 100644
+index 1c2885c42f494..7dc5f41a7da79 100644
 --- components/viz/host/host_display_client.h
 +++ components/viz/host/host_display_client.h
 @@ -34,17 +34,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
@@ -41,12 +41,12 @@ index b2ad84c881ac7..c207f7b5ac831 100644
    // mojom::DisplayClient implementation:
 +  void UseProxyOutputDevice(UseProxyOutputDeviceCallback callback) override;
 +
- #if defined(OS_APPLE)
+ #if BUILDFLAG(IS_APPLE)
    void OnDisplayReceivedCALayerParams(
        const gfx::CALayerParams& ca_layer_params) override;
  #endif
  
--#if defined(OS_WIN)
+-#if BUILDFLAG(IS_WIN)
    void CreateLayeredWindowUpdater(
        mojo::PendingReceiver<mojom::LayeredWindowUpdater> receiver) override;
 -#endif
@@ -80,10 +80,10 @@ index 309422bcf8581..759549f3046f4 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index fae4aae8ed31b..d29584721a4bf 100644
+index c92e6d2ad10fb..a1d74b50e244b 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -216,6 +216,8 @@ viz_component("service") {
+@@ -221,6 +221,8 @@ viz_component("service") {
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
      "viz_service_export.h",
@@ -93,10 +93,10 @@ index fae4aae8ed31b..d29584721a4bf 100644
  
    defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index e0afde4b0cb45..8782e6a6a3cc3 100644
+index 8a277c6337d44..c857919b010c6 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
-@@ -16,6 +16,7 @@
+@@ -17,6 +17,7 @@
  #include "build/chromecast_buildflags.h"
  #include "build/chromeos_buildflags.h"
  #include "cc/base/switches.h"
@@ -104,7 +104,7 @@ index e0afde4b0cb45..8782e6a6a3cc3 100644
  #include "components/viz/common/display/renderer_settings.h"
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
  #include "components/viz/service/display/display_compositor_memory_and_task_controller.h"
-@@ -246,6 +247,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+@@ -247,6 +248,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
    if (headless_)
      return std::make_unique<SoftwareOutputDevice>();
  
@@ -122,7 +122,7 @@ index e0afde4b0cb45..8782e6a6a3cc3 100644
 +    }
 +  }
 +
- #if defined(OS_WIN)
+ #if BUILDFLAG(IS_WIN)
    return CreateSoftwareOutputDeviceWin(surface_handle, &output_device_backing_,
                                         display_client);
 diff --git components/viz/service/display_embedder/software_output_device_win.cc components/viz/service/display_embedder/software_output_device_win.cc
@@ -142,10 +142,10 @@ index 583e3e2525c75..e1836039ad8a5 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index ba0d6ca4e9004..167c4b095ff84 100644
+index 0e3af0f9280ab..8a1e93995b316 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
-@@ -383,8 +383,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+@@ -381,8 +381,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
    compositor_data.display_private.reset();
    root_params->display_private =
        compositor_data.display_private.BindNewEndpointAndPassReceiver();
@@ -162,7 +162,7 @@ index ba0d6ca4e9004..167c4b095ff84 100644
        compositor_data.display_client->GetBoundRemote(resize_task_runner_);
  
 diff --git mojo/public/cpp/bindings/sync_call_restrictions.h mojo/public/cpp/bindings/sync_call_restrictions.h
-index ab6f00f2c8b05..d648e49cf4372 100644
+index e7e67ee824b2a..bb044cff83f58 100644
 --- mojo/public/cpp/bindings/sync_call_restrictions.h
 +++ mojo/public/cpp/bindings/sync_call_restrictions.h
 @@ -42,6 +42,7 @@ class Compositor;
@@ -214,7 +214,7 @@ index 6b7fbb6cf13dc..e2af75168cb91 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 7e3a624f99fea..749c6acb701c2 100644
+index 383aff3755d4b..a5b2a79d3a724 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -30,7 +30,9 @@

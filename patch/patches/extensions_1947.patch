@@ -161,7 +161,7 @@ index f88183071e861..a05302a7a2f0b 100644
    // A pointer to the current or speculative main frame in `host_contents_`. We
    // can't access this frame through the `host_contents_` directly as it does
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index 564a62eb00beb..5f29a54e92169 100644
+index 1fa1e67dddcfd..7af2a0e231824 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
 @@ -27,6 +27,7 @@
@@ -180,7 +180,7 @@ index 564a62eb00beb..5f29a54e92169 100644
  class ExtensionHostDelegate;
  class ExtensionSet;
  class ExtensionSystem;
-@@ -206,6 +208,14 @@ class ExtensionsBrowserClient {
+@@ -207,6 +209,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  

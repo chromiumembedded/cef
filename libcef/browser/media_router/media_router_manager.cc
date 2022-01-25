@@ -28,9 +28,8 @@ class CefMediaRoutesObserver : public media_router::MediaRoutesObserver {
   CefMediaRoutesObserver(const CefMediaRoutesObserver&) = delete;
   CefMediaRoutesObserver& operator=(const CefMediaRoutesObserver&) = delete;
 
-  void OnRoutesUpdated(const std::vector<media_router::MediaRoute>& routes,
-                       const std::vector<media_router::MediaRoute::Id>&
-                           joinable_route_ids) override {
+  void OnRoutesUpdated(
+      const std::vector<media_router::MediaRoute>& routes) override {
     manager_->routes_ = routes;
     manager_->NotifyCurrentRoutes();
   }

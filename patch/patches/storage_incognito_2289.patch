@@ -13,10 +13,10 @@ index df1a7ae70bdc3..10e9a0b3b881a 100644
            {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
             base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index 6decb2aacdfdd..011ca030011df 100644
+index 967c0ea22204d..e1a64c68e00f8 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
-@@ -130,7 +130,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
+@@ -129,7 +129,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
  StoragePartition* BrowserContext::GetStoragePartition(
      const StoragePartitionConfig& storage_partition_config,
      bool can_create) {
@@ -25,7 +25,7 @@ index 6decb2aacdfdd..011ca030011df 100644
      // An off the record profile MUST only use in memory storage partitions.
      CHECK(storage_partition_config.in_memory());
    }
-@@ -371,7 +371,8 @@ BrowserContext::CreateVideoDecodePerfHistory() {
+@@ -370,7 +370,8 @@ BrowserContext::CreateVideoDecodePerfHistory() {
    const bool kUseInMemoryDBDefault = false;
    bool use_in_memory_db = base::GetFieldTrialParamByFeatureAsBool(
        media::kMediaCapabilitiesWithParameters, kUseInMemoryDBParamName,

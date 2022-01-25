@@ -43,8 +43,6 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
                                        const GURL& site_url) override;
   bool DoesSiteRequireDedicatedProcess(content::BrowserContext* browser_context,
                                        const GURL& effective_site_url) override;
-  bool ShouldLockProcessToSite(content::BrowserContext* browser_context,
-                               const GURL& effective_site_url) override;
   bool ShouldTreatURLSchemeAsFirstPartyWhenTopLevel(
       base::StringPiece scheme,
       bool is_embedded_origin_secure) override;
@@ -119,10 +117,9 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
   void DidCreatePpapiPlugin(content::BrowserPpapiHost* browser_host) override;
   std::unique_ptr<content::DevToolsManagerDelegate>
   CreateDevToolsManagerDelegate() override;
-  bool BindAssociatedReceiverFromFrame(
-      content::RenderFrameHost* render_frame_host,
-      const std::string& interface_name,
-      mojo::ScopedInterfaceEndpointHandle* handle) override;
+  void RegisterAssociatedInterfaceBindersForRenderFrameHost(
+      content::RenderFrameHost& render_frame_host,
+      blink::AssociatedInterfaceRegistry& associated_registry) override;
   std::vector<std::unique_ptr<content::NavigationThrottle>>
   CreateThrottlesForNavigation(
       content::NavigationHandle* navigation_handle) override;
@@ -169,6 +166,7 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
   void RegisterNonNetworkSubresourceURLLoaderFactories(
       int render_process_id,
       int render_frame_id,
+      const absl::optional<url::Origin>& request_initiator_origin,
       NonNetworkURLLoaderFactoryMap* factories) override;
   bool WillCreateURLLoaderFactory(
       content::BrowserContext* browser_context,
@@ -205,6 +203,7 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
       ui::PageTransition page_transition,
       bool has_user_gesture,
       const absl::optional<url::Origin>& initiating_origin,
+      content::RenderFrameHost* initiator_document,
       mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory)
       override;
   bool HandleExternalProtocol(
@@ -213,6 +212,8 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
       content::NavigationUIData* navigation_data,
       network::mojom::WebSandboxFlags sandbox_flags,
       const network::ResourceRequest& request,
+      const absl::optional<url::Origin>& initiating_origin,
+      content::RenderFrameHost* initiator_document,
       mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory)
       override;
   std::unique_ptr<content::OverlayWindow> CreateWindowForPictureInPicture(

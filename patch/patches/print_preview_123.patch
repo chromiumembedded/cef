@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index a45799d6fc9ee..d884e88e754cc 100644
+index dbfae7b5e3d2c..bf18a6fbddf6d 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -24,6 +24,7 @@
@@ -34,7 +34,7 @@ index a45799d6fc9ee..d884e88e754cc 100644
  }
  
 diff --git chrome/browser/printing/print_preview_dialog_controller.cc chrome/browser/printing/print_preview_dialog_controller.cc
-index 96929c4158ce5..68bacf03a27ff 100644
+index 332fbc21aa0e3..1286fc203d6cd 100644
 --- chrome/browser/printing/print_preview_dialog_controller.cc
 +++ chrome/browser/printing/print_preview_dialog_controller.cc
 @@ -15,6 +15,7 @@
@@ -46,7 +46,7 @@ index 96929c4158ce5..68bacf03a27ff 100644
  #include "chrome/browser/printing/print_view_manager.h"
  #include "chrome/browser/task_manager/web_contents_tags.h"
 diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index c9f1502da55d8..874c95c2db26c 100644
+index c759b7a7c9d19..c63900f5d1686 100644
 --- chrome/browser/printing/print_view_manager_base.cc
 +++ chrome/browser/printing/print_view_manager_base.cc
 @@ -248,12 +248,13 @@ void UpdatePrintSettingsOnIO(
@@ -66,7 +66,7 @@ index c9f1502da55d8..874c95c2db26c 100644
    }
    auto* printer_query_ptr = printer_query.get();
    printer_query_ptr->SetSettings(
-@@ -667,6 +668,7 @@ void PrintViewManagerBase::UpdatePrintSettings(
+@@ -675,6 +676,7 @@ void PrintViewManagerBase::UpdatePrintSettings(
        job_settings.SetIntKey(kSettingRasterizePdfDpi, value);
    }
  
@@ -74,7 +74,7 @@ index c9f1502da55d8..874c95c2db26c 100644
    auto callback_wrapper =
        base::BindOnce(&PrintViewManagerBase::UpdatePrintSettingsReply,
                       weak_ptr_factory_.GetWeakPtr(), std::move(callback));
-@@ -674,7 +676,9 @@ void PrintViewManagerBase::UpdatePrintSettings(
+@@ -682,7 +684,9 @@ void PrintViewManagerBase::UpdatePrintSettings(
        FROM_HERE,
        base::BindOnce(&UpdatePrintSettingsOnIO, cookie,
                       std::move(callback_wrapper), queue_,
@@ -86,10 +86,10 @@ index c9f1502da55d8..874c95c2db26c 100644
  #endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW)
  
 diff --git chrome/browser/printing/print_view_manager_base.h chrome/browser/printing/print_view_manager_base.h
-index 5771a3ebd7614..acec0bea2841b 100644
+index aa7915ac042fe..ab4d9a8ac6e24 100644
 --- chrome/browser/printing/print_view_manager_base.h
 +++ chrome/browser/printing/print_view_manager_base.h
-@@ -150,9 +150,6 @@ class PrintViewManagerBase : public PrintManager, public PrintJob::Observer {
+@@ -146,9 +146,6 @@ class PrintViewManagerBase : public PrintManager, public PrintJob::Observer {
    // Manages the low-level talk to the printer.
    scoped_refptr<PrintJob> print_job_;
  
@@ -140,7 +140,7 @@ index 8c5ba47779d24..69dff1ae88000 100644
  
  ConstrainedWebDialogUI::~ConstrainedWebDialogUI() = default;
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
-index c4442eabef9b9..4196fdb4281cd 100644
+index e5dfa76d26d86..b7dcf7a11479f 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 +++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 @@ -21,6 +21,7 @@
@@ -293,7 +293,7 @@ index 46c8b1d08b075..1ee95cd7c3240 100644
    base::FilePath GetSaveLocation() const;
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index f35a751173b05..0c96bc1d7ce96 100644
+index da70f602899a9..ca99c7d2ec09f 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -22,6 +22,7 @@
@@ -321,7 +321,7 @@ index f35a751173b05..0c96bc1d7ce96 100644
 @@ -342,7 +350,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
                      chrome::kCloudPrintCertificateErrorLearnMoreURL);
  
- #if !defined(OS_CHROMEOS)
+ #if !BUILDFLAG(IS_CHROMEOS)
 -  const std::u16string shortcut_text(kBasicPrintShortcut);
 +  const std::u16string shortcut_text(GetBasicPrintShortcut());
    source->AddString("systemDialogOption",

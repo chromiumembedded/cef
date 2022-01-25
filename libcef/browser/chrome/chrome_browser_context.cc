@@ -8,9 +8,9 @@
 
 #include "base/threading/thread_restrictions.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/profiles/keep_alive/profile_keep_alive_types.h"
+#include "chrome/browser/profiles/keep_alive/scoped_profile_keep_alive.h"
 #include "chrome/browser/profiles/off_the_record_profile_impl.h"
-#include "chrome/browser/profiles/profile_keep_alive_types.h"
-#include "chrome/browser/profiles/scoped_profile_keep_alive.h"
 
 ChromeBrowserContext::ChromeBrowserContext(
     const CefRequestContextSettings& settings)

@@ -525,8 +525,6 @@ static_library("libcef_static") {
     "libcef/browser/extensions/extension_web_contents_observer.h",
     "libcef/browser/extensions/mime_handler_view_guest_delegate.cc",
     "libcef/browser/extensions/mime_handler_view_guest_delegate.h",
-    "libcef/browser/extensions/pdf_web_contents_helper_client.cc",
-    "libcef/browser/extensions/pdf_web_contents_helper_client.h",
     "libcef/browser/extensions/value_store/cef_value_store.cc",
     "libcef/browser/extensions/value_store/cef_value_store.h",
     "libcef/browser/extensions/value_store/cef_value_store_factory.cc",
@@ -945,10 +943,6 @@ static_library("libcef_static") {
       "libcef/browser/native/native_menu_win.h",
       "libcef/browser/osr/browser_platform_delegate_osr_win.cc",
       "libcef/browser/osr/browser_platform_delegate_osr_win.h",
-
-      # Part of //chrome/utility.
-      "//chrome/utility/printing_handler.cc",
-      "//chrome/utility/printing_handler.h",
     ]
 
     deps += [
@@ -1448,6 +1442,7 @@ make_pack_header("strings") {
     "$root_gen_dir/components/strings/grit/components_strings.h",
     "$root_gen_dir/extensions/strings/grit/extensions_strings.h",
     "$root_gen_dir/services/strings/grit/services_strings.h",
+    "$root_gen_dir/third_party/blink/public/strings/grit/blink_accessibility_strings.h",
     "$root_gen_dir/third_party/blink/public/strings/grit/blink_strings.h",
     "$root_gen_dir/ui/strings/grit/ui_strings.h",
   ]
@@ -1465,6 +1460,7 @@ make_pack_header("strings") {
     "//extensions/strings",
     "//services/strings",
     "//third_party/blink/public/strings",
+    "//third_party/blink/public/strings:accessibility_strings",
     "//ui/strings:app_locale_settings",
     "//ui/strings:ui_strings",
   ]

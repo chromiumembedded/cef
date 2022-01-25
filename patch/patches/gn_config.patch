@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index fdde78244eb3d..ff26203773839 100644
+index 22070a9adc507..e55d32f80b438 100644
 --- .gn
 +++ .gn
-@@ -160,6 +160,8 @@ exec_script_whitelist =
+@@ -156,6 +156,8 @@ exec_script_whitelist =
  
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
  
@@ -12,7 +12,7 @@ index fdde78244eb3d..ff26203773839 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 7bb204910c41c..5ec046f0c1e3b 100644
+index df8b37fc8b0af..e46843b39d228 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -16,6 +16,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -66,10 +66,10 @@ index 982fbe8d3f0d0..e757be4688f10 100644
 +         "studio path")
  }
 diff --git chrome/app/framework.order chrome/app/framework.order
-index d2266b28b33f8..a7ff6d9b68f38 100644
+index 839144aa1e9bd..29c8ab32398a7 100644
 --- chrome/app/framework.order
 +++ chrome/app/framework.order
-@@ -72,3 +72,8 @@ _ChromeMain
+@@ -28,3 +28,8 @@ _ChromeMain
  _lprofDirMode
  ___llvm_profile_filename
  ___llvm_profile_raw_version
@@ -79,18 +79,18 @@ index d2266b28b33f8..a7ff6d9b68f38 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 32eb89f02d799..a2baacc70957d 100644
+index c540719a510ab..1107dfc9f2537 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -4,6 +4,7 @@
- 
+@@ -5,6 +5,7 @@
+ import("//ash/ambient/resources/resources.gni")
  import("//build/config/chromeos/ui_mode.gni")
  import("//build/config/locales.gni")
 +import("//cef/libcef/features/features.gni")
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/components/chromebox_for_meetings/buildflags/buildflags.gni")
-@@ -72,6 +73,10 @@ template("chrome_repack_percent") {
+@@ -75,6 +76,10 @@ template("chrome_repack_percent") {
          "//ui/chromeos/resources",
        ]
      }
@@ -102,7 +102,7 @@ index 32eb89f02d799..a2baacc70957d 100644
        sources += [ "$root_gen_dir/extensions/extensions_browser_resources_${percent}_percent.pak" ]
        deps += [ "//extensions:extensions_browser_resources" ]
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index 7e6722603df99..0607f2e18c421 100644
+index d969da6550bcb..97a5d2b843af5 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
 @@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
@@ -113,7 +113,7 @@ index 7e6722603df99..0607f2e18c421 100644
  import("//extensions/buildflags/buildflags.gni")
  import("//tools/grit/repack.gni")
  
-@@ -95,6 +96,10 @@ template("chrome_repack_locales") {
+@@ -90,6 +91,10 @@ template("chrome_repack_locales") {
            [ "${root_gen_dir}/chromeos/strings/chromeos_strings_" ]
        deps += [ "//chromeos/strings" ]
      }
@@ -152,12 +152,12 @@ index 51fa0d7f4cf77..2ede68e9377eb 100644
    outputs = [
      # See also chrome.packed.7z conditionally added below.
 diff --git tools/grit/grit_defines.gni tools/grit/grit_defines.gni
-index 6bf3b8b3e42bd..025d5bd2e9118 100644
+index 60022cbefac60..00f3bcd528ee0 100644
 --- tools/grit/grit_defines.gni
 +++ tools/grit/grit_defines.gni
-@@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
+@@ -5,6 +5,7 @@
+ import("//build/config/chrome_build.gni")
  import("//build/config/chromeos/ui_mode.gni")
- import("//build/config/crypto.gni")
  import("//build/config/devtools.gni")
 +import("//build/config/locales.gni")
  import("//build/config/ui.gni")

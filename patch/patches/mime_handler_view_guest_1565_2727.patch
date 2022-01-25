@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index dd068f90aecef..7f942d7f44361 100644
+index 2c29b5c5c96b9..9ba3aaa327478 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
 @@ -21,7 +21,7 @@ struct DropData;
@@ -12,7 +12,7 @@ index dd068f90aecef..7f942d7f44361 100644
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index ded1894a7d1d7..6ea82766e8e87 100644
+index 2a8095bb93264..2ee0f179d1002 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 @@ -210,6 +210,8 @@ void MimeHandlerViewGuest::CreateWebContents(
@@ -48,7 +48,7 @@ index ded1894a7d1d7..6ea82766e8e87 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index 4c0820c60e765..68a499da10e80 100644
+index 1b388778aac14..0ac4a5294dfa1 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 @@ -143,6 +143,7 @@ class MimeHandlerViewGuest
@@ -59,7 +59,7 @@ index 4c0820c60e765..68a499da10e80 100644
  
    // WebContentsDelegate implementation.
    content::WebContents* OpenURLFromTab(
-@@ -201,6 +202,7 @@ class MimeHandlerViewGuest
+@@ -200,6 +201,7 @@ class MimeHandlerViewGuest
        content::ChildProcessHost::kInvalidUniqueID, MSG_ROUTING_NONE};
    int embedder_widget_routing_id_ = MSG_ROUTING_NONE;
  

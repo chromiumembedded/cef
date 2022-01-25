@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index cb8ecf2f81cb2..d3bdde2216222 100644
+index df174d7d1ec4d..8bb63dcc89f20 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
-@@ -11,6 +11,7 @@ import("//build/config/features.gni")
+@@ -10,6 +10,7 @@ import("//build/config/features.gni")
  import("//build/config/linux/gtk/gtk.gni")
  import("//build/config/ozone.gni")
  import("//build/config/ui.gni")
@@ -29,7 +29,7 @@ index cb8ecf2f81cb2..d3bdde2216222 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -5181,6 +5187,7 @@ static_library("ui") {
+@@ -5209,6 +5215,7 @@ static_library("ui") {
    if (enable_basic_printing) {
      deps += [
        "//components/printing/browser",
@@ -38,7 +38,7 @@ index cb8ecf2f81cb2..d3bdde2216222 100644
      ]
    }
 diff --git chrome/browser/ui/webui/net_export_ui.cc chrome/browser/ui/webui/net_export_ui.cc
-index ec205a3f05457..2af432bc6908a 100644
+index c5e34303668cb..8e376848fc7d5 100644
 --- chrome/browser/ui/webui/net_export_ui.cc
 +++ chrome/browser/ui/webui/net_export_ui.cc
 @@ -22,6 +22,7 @@
@@ -57,7 +57,7 @@ index ec205a3f05457..2af432bc6908a 100644
 +#include "cef/libcef/browser/alloy/alloy_dialog_util.h"
 +#endif
 +
- #if defined(OS_ANDROID)
+ #if BUILDFLAG(IS_ANDROID)
  #include "components/browser_ui/share/android/intent_helper.h"
  #endif
 @@ -142,6 +147,13 @@ class NetExportMessageHandler

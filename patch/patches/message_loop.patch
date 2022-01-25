@@ -30,7 +30,7 @@ index d1140d7945a2d..a3b894aa4f6b0 100644
    }
    if (has_msg)
 diff --git base/task/current_thread.cc base/task/current_thread.cc
-index 718ba706b977c..aaa993ee8775b 100644
+index b7e9d215c2039..57816ea1c8b81 100644
 --- base/task/current_thread.cc
 +++ base/task/current_thread.cc
 @@ -49,6 +49,8 @@ void CurrentThread::AddDestructionObserver(
@@ -43,14 +43,14 @@ index 718ba706b977c..aaa993ee8775b 100644
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/task/current_thread.h base/task/current_thread.h
-index 7ca1e0ee2cef9..40fd430d1885a 100644
+index f82025cca1d17..6feb6ac241895 100644
 --- base/task/current_thread.h
 +++ base/task/current_thread.h
 @@ -130,6 +130,12 @@ class BASE_EXPORT CurrentThread {
    // to run. There can only be one OnNextIdleCallback at a time.
    void RegisterOnNextIdleCallback(OnceClosure on_next_idle_callback);
  
-+#if defined(OS_WIN)
++#if BUILDFLAG(IS_WIN)
 +  void set_os_modal_loop(bool os_modal_loop) { os_modal_loop_ = os_modal_loop; }
 +
 +  bool os_modal_loop() const { return os_modal_loop_; }
@@ -64,7 +64,7 @@ index 7ca1e0ee2cef9..40fd430d1885a 100644
  
    sequence_manager::internal::SequenceManagerImpl* current_;
 +
-+#if defined(OS_WIN)
++#if BUILDFLAG(IS_WIN)
 + private:
 +  // Should be set to true before calling Windows APIs like TrackPopupMenu, etc.
 +  // which enter a modal message loop.
@@ -72,4 +72,4 @@ index 7ca1e0ee2cef9..40fd430d1885a 100644
 +#endif
  };
  
- #if !defined(OS_NACL)
+ #if !BUILDFLAG(IS_NACL)

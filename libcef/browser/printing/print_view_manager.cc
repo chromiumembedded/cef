@@ -206,7 +206,7 @@ bool CefPrintViewManager::PrintToPDF(content::RenderFrameHost* rfh,
     return false;
 
   // Don't print crashed tabs.
-  if (!web_contents() || web_contents()->IsCrashed()) {
+  if (!web_contents() || web_contents()->IsCrashed() || !rfh->IsRenderFrameLive()) {
     return false;
   }
 
