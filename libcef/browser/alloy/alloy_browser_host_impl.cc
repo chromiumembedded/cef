@@ -765,7 +765,10 @@ void AlloyBrowserHostImpl::DestroyBrowser() {
   menu_manager_.reset(nullptr);
 
   // Delete the audio capturer
-  recently_audible_timer_.Stop();
+  if (recently_audible_timer_) {
+    recently_audible_timer_->Stop();
+    recently_audible_timer_.reset();
+  }
   audio_capturer_.reset(nullptr);
 
   CefBrowserHostBase::DestroyBrowser();
@@ -1501,14 +1504,19 @@ void AlloyBrowserHostImpl::DidFinishNavigation(
 
 void AlloyBrowserHostImpl::OnAudioStateChanged(bool audible) {
   if (audible) {
-    recently_audible_timer_.Stop();
+    if (recently_audible_timer_)
+      recently_audible_timer_->Stop();
+
     StartAudioCapturer();
   } else if (audio_capturer_) {
+    if (!recently_audible_timer_)
+      recently_audible_timer_ = std::make_unique<base::OneShotTimer>();
+
     // If you have a media playing that has a short quiet moment, web_contents
     // will immediately switch to non-audible state. We don't want to stop
     // audio stream so quickly, let's give the stream some time to resume
     // playing.
-    recently_audible_timer_.Start(
+    recently_audible_timer_->Start(
         FROM_HERE, kRecentlyAudibleTimeout,
         base::BindOnce(&AlloyBrowserHostImpl::OnRecentlyAudibleTimerFired,
                        this));
