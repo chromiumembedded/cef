@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8963e8fd758fe86d0f35a5fd81e3f56a0b7aa3cd$
+// $hash=5bcef102e9ae42a32b551c3af3decbae11b8b37d$
 //
 
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
+#include "libcef_dll/template_util.h"
 #include "libcef_dll/transfer_util.h"
 
 namespace {
@@ -273,6 +274,10 @@ int CEF_CALLBACK display_handler_on_cursor_change(
   DCHECK(custom_cursor_info);
   if (!custom_cursor_info)
     return 0;
+  if (!template_util::has_valid_size(custom_cursor_info)) {
+    NOTREACHED() << "invalid custom_cursor_info->[base.]size";
+    return 0;
+  }
 
   // Translate param: custom_cursor_info; type: struct_byref_const
   CefCursorInfo custom_cursor_infoObj;

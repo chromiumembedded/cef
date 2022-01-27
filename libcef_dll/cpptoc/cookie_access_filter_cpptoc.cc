@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8a64cdcb148bd7c9cad278d57c353ebf48386a16$
+// $hash=1edf004108ba7cab51110552f50d23e545ae6c72$
 //
 
 #include "libcef_dll/cpptoc/cookie_access_filter_cpptoc.h"
@@ -17,6 +17,7 @@
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/response_ctocpp.h"
+#include "libcef_dll/template_util.h"
 
 namespace {
 
@@ -41,6 +42,10 @@ cookie_access_filter_can_send_cookie(struct _cef_cookie_access_filter_t* self,
   DCHECK(cookie);
   if (!cookie)
     return 0;
+  if (!template_util::has_valid_size(cookie)) {
+    NOTREACHED() << "invalid cookie->[base.]size";
+    return 0;
+  }
   // Unverified params: browser, frame
 
   // Translate param: cookie; type: struct_byref_const
@@ -81,6 +86,10 @@ cookie_access_filter_can_save_cookie(struct _cef_cookie_access_filter_t* self,
   DCHECK(cookie);
   if (!cookie)
     return 0;
+  if (!template_util::has_valid_size(cookie)) {
+    NOTREACHED() << "invalid cookie->[base.]size";
+    return 0;
+  }
   // Unverified params: browser, frame
 
   // Translate param: cookie; type: struct_byref_const

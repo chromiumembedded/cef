@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fbec1a9b566580497409a7dbd3382e7c51db61ae$
+// $hash=4d101afc4f559c6f0375ad4016e5575ab88bf61f$
 //
 
 #include "libcef_dll/cpptoc/views/panel_cpptoc.h"
@@ -25,6 +25,7 @@
 #include "libcef_dll/ctocpp/views/panel_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
+#include "libcef_dll/template_util.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -95,6 +96,10 @@ panel_set_to_box_layout(struct _cef_panel_t* self,
   DCHECK(settings);
   if (!settings)
     return NULL;
+  if (!template_util::has_valid_size(settings)) {
+    NOTREACHED() << "invalid settings->[base.]size";
+    return NULL;
+  }
 
   // Translate param: settings; type: struct_byref_const
   CefBoxLayoutSettings settingsObj;

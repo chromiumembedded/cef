@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9a65c4a9e35ba40f01a3d27c772ef9b736eb75ea$
+// $hash=6639552a1a56f42d7f73ffec99d28fb98173dbd1$
 //
 
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
+#include "libcef_dll/template_util.h"
 
 namespace {
 
@@ -311,6 +312,10 @@ window_delegate_on_key_event(struct _cef_window_delegate_t* self,
   DCHECK(event);
   if (!event)
     return 0;
+  if (!template_util::has_valid_size(event)) {
+    NOTREACHED() << "invalid event->[base.]size";
+    return 0;
+  }
 
   // Translate param: event; type: struct_byref_const
   CefKeyEvent eventObj;

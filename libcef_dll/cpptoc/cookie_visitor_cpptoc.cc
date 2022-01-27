@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=922e883b71eb54b943f7cb4748bd2298eb296eee$
+// $hash=ae61607070ff1973c16bc9b484a33be6b6e22883$
 //
 
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
 #include "libcef_dll/shutdown_checker.h"
+#include "libcef_dll/template_util.h"
 
 namespace {
 
@@ -35,6 +36,10 @@ int CEF_CALLBACK cookie_visitor_visit(struct _cef_cookie_visitor_t* self,
   DCHECK(cookie);
   if (!cookie)
     return 0;
+  if (!template_util::has_valid_size(cookie)) {
+    NOTREACHED() << "invalid cookie->[base.]size";
+    return 0;
+  }
   // Verify param: deleteCookie; type: bool_byref
   DCHECK(deleteCookie);
   if (!deleteCookie)

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f9e1fa4fa79e3b66d9d147fd0cdb14da459de85b$
+// $hash=b7e2c44f09e8ec252b6481378d8fc8b23ba13f60$
 //
 
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
@@ -18,6 +18,7 @@
 #include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
+#include "libcef_dll/template_util.h"
 
 namespace {
 
@@ -56,10 +57,18 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
   DCHECK(popupFeatures);
   if (!popupFeatures)
     return 0;
+  if (!template_util::has_valid_size(popupFeatures)) {
+    NOTREACHED() << "invalid popupFeatures->[base.]size";
+    return 0;
+  }
   // Verify param: windowInfo; type: struct_byref
   DCHECK(windowInfo);
   if (!windowInfo)
     return 0;
+  if (!template_util::has_valid_size(windowInfo)) {
+    NOTREACHED() << "invalid windowInfo->[base.]size";
+    return 0;
+  }
   // Verify param: client; type: refptr_same_byref
   DCHECK(client);
   if (!client)
@@ -68,6 +77,10 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
   DCHECK(settings);
   if (!settings)
     return 0;
+  if (!template_util::has_valid_size(settings)) {
+    NOTREACHED() << "invalid settings->[base.]size";
+    return 0;
+  }
   // Verify param: extra_info; type: refptr_diff_byref
   DCHECK(extra_info);
   if (!extra_info)

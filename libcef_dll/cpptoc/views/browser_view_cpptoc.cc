@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ed2a9f38555ed559f342f6fd39f21192611771ee$
+// $hash=3c4be7d7450ee803b69453ae8b32dd37d95c921a$
 //
 
 #include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
@@ -26,6 +26,7 @@
 #include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
+#include "libcef_dll/template_util.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -44,6 +45,10 @@ CEF_EXPORT cef_browser_view_t* cef_browser_view_create(
   DCHECK(settings);
   if (!settings)
     return NULL;
+  if (!template_util::has_valid_size(settings)) {
+    NOTREACHED() << "invalid settings->[base.]size";
+    return NULL;
+  }
   // Unverified params: client, url, extra_info, request_context, delegate
 
   // Translate param: settings; type: struct_byref_const

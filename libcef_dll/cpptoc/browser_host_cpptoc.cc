@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3e851a9007832ba6543257d90cfd8588e3540500$
+// $hash=7f4782003c961c3bda54d02556dace8d7b5e4e17$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -27,6 +27,7 @@
 #include "libcef_dll/ctocpp/pdf_print_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/run_file_dialog_callback_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
+#include "libcef_dll/template_util.h"
 #include "libcef_dll/transfer_util.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
@@ -46,10 +47,18 @@ CEF_EXPORT int cef_browser_host_create_browser(
   DCHECK(windowInfo);
   if (!windowInfo)
     return 0;
+  if (!template_util::has_valid_size(windowInfo)) {
+    NOTREACHED() << "invalid windowInfo->[base.]size";
+    return 0;
+  }
   // Verify param: settings; type: struct_byref_const
   DCHECK(settings);
   if (!settings)
     return 0;
+  if (!template_util::has_valid_size(settings)) {
+    NOTREACHED() << "invalid settings->[base.]size";
+    return 0;
+  }
   // Unverified params: client, url, extra_info, request_context
 
   // Translate param: windowInfo; type: struct_byref_const
@@ -86,10 +95,18 @@ CEF_EXPORT cef_browser_t* cef_browser_host_create_browser_sync(
   DCHECK(windowInfo);
   if (!windowInfo)
     return NULL;
+  if (!template_util::has_valid_size(windowInfo)) {
+    NOTREACHED() << "invalid windowInfo->[base.]size";
+    return NULL;
+  }
   // Verify param: settings; type: struct_byref_const
   DCHECK(settings);
   if (!settings)
     return NULL;
+  if (!template_util::has_valid_size(settings)) {
+    NOTREACHED() << "invalid settings->[base.]size";
+    return NULL;
+  }
   // Unverified params: client, url, extra_info, request_context
 
   // Translate param: windowInfo; type: struct_byref_const
@@ -411,6 +428,10 @@ browser_host_print_to_pdf(struct _cef_browser_host_t* self,
   DCHECK(settings);
   if (!settings)
     return;
+  if (!template_util::has_valid_size(settings)) {
+    NOTREACHED() << "invalid settings->[base.]size";
+    return;
+  }
   // Unverified params: callback
 
   // Translate param: settings; type: struct_byref_const
@@ -759,6 +780,10 @@ browser_host_send_key_event(struct _cef_browser_host_t* self,
   DCHECK(event);
   if (!event)
     return;
+  if (!template_util::has_valid_size(event)) {
+    NOTREACHED() << "invalid event->[base.]size";
+    return;
+  }
 
   // Translate param: event; type: struct_byref_const
   CefKeyEvent eventObj;
@@ -786,6 +811,10 @@ browser_host_send_mouse_click_event(struct _cef_browser_host_t* self,
   DCHECK(event);
   if (!event)
     return;
+  if (!template_util::has_valid_size(event)) {
+    NOTREACHED() << "invalid event->[base.]size";
+    return;
+  }
 
   // Translate param: event; type: struct_byref_const
   CefMouseEvent eventObj;
@@ -812,6 +841,10 @@ browser_host_send_mouse_move_event(struct _cef_browser_host_t* self,
   DCHECK(event);
   if (!event)
     return;
+  if (!template_util::has_valid_size(event)) {
+    NOTREACHED() << "invalid event->[base.]size";
+    return;
+  }
 
   // Translate param: event; type: struct_byref_const
   CefMouseEvent eventObj;
@@ -839,6 +872,10 @@ browser_host_send_mouse_wheel_event(struct _cef_browser_host_t* self,
   DCHECK(event);
   if (!event)
     return;
+  if (!template_util::has_valid_size(event)) {
+    NOTREACHED() << "invalid event->[base.]size";
+    return;
+  }
 
   // Translate param: event; type: struct_byref_const
   CefMouseEvent eventObj;
@@ -864,6 +901,10 @@ browser_host_send_touch_event(struct _cef_browser_host_t* self,
   DCHECK(event);
   if (!event)
     return;
+  if (!template_util::has_valid_size(event)) {
+    NOTREACHED() << "invalid event->[base.]size";
+    return;
+  }
 
   // Translate param: event; type: struct_byref_const
   CefTouchEvent eventObj;
@@ -1055,6 +1096,10 @@ browser_host_drag_target_drag_enter(struct _cef_browser_host_t* self,
   DCHECK(event);
   if (!event)
     return;
+  if (!template_util::has_valid_size(event)) {
+    NOTREACHED() << "invalid event->[base.]size";
+    return;
+  }
 
   // Translate param: event; type: struct_byref_const
   CefMouseEvent eventObj;
@@ -1081,6 +1126,10 @@ browser_host_drag_target_drag_over(struct _cef_browser_host_t* self,
   DCHECK(event);
   if (!event)
     return;
+  if (!template_util::has_valid_size(event)) {
+    NOTREACHED() << "invalid event->[base.]size";
+    return;
+  }
 
   // Translate param: event; type: struct_byref_const
   CefMouseEvent eventObj;
@@ -1119,6 +1168,10 @@ browser_host_drag_target_drop(struct _cef_browser_host_t* self,
   DCHECK(event);
   if (!event)
     return;
+  if (!template_util::has_valid_size(event)) {
+    NOTREACHED() << "invalid event->[base.]size";
+    return;
+  }
 
   // Translate param: event; type: struct_byref_const
   CefMouseEvent eventObj;

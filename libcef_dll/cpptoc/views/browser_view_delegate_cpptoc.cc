@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8f3129779912a325240795e05610d6190997e028$
+// $hash=18d85c2997264af0f94976650eaf931805fa352e$
 //
 
 #include "libcef_dll/cpptoc/views/browser_view_delegate_cpptoc.h"
@@ -18,6 +18,7 @@
 #include "libcef_dll/ctocpp/views/browser_view_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
+#include "libcef_dll/template_util.h"
 
 namespace {
 
@@ -97,6 +98,10 @@ browser_view_delegate_get_delegate_for_popup_browser_view(
   DCHECK(settings);
   if (!settings)
     return NULL;
+  if (!template_util::has_valid_size(settings)) {
+    NOTREACHED() << "invalid settings->[base.]size";
+    return NULL;
+  }
   // Verify param: client; type: refptr_same
   DCHECK(client);
   if (!client)

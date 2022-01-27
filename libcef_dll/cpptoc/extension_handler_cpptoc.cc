@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7cdd0564d9b129bf9f068764d4d1588645445d5b$
+// $hash=de81505288135d37f0fc5a334b3951d9519e4fa0$
 //
 
 #include "libcef_dll/cpptoc/extension_handler_cpptoc.h"
@@ -18,6 +18,7 @@
 #include "libcef_dll/ctocpp/extension_ctocpp.h"
 #include "libcef_dll/ctocpp/get_extension_resource_callback_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
+#include "libcef_dll/template_util.h"
 
 namespace {
 
@@ -107,6 +108,10 @@ int CEF_CALLBACK extension_handler_on_before_background_browser(
   DCHECK(settings);
   if (!settings)
     return 0;
+  if (!template_util::has_valid_size(settings)) {
+    NOTREACHED() << "invalid settings->[base.]size";
+    return 0;
+  }
 
   // Translate param: client; type: refptr_same_byref
   CefRefPtr<CefClient> clientPtr;
@@ -180,6 +185,10 @@ extension_handler_on_before_browser(struct _cef_extension_handler_t* self,
   DCHECK(windowInfo);
   if (!windowInfo)
     return 0;
+  if (!template_util::has_valid_size(windowInfo)) {
+    NOTREACHED() << "invalid windowInfo->[base.]size";
+    return 0;
+  }
   // Verify param: client; type: refptr_same_byref
   DCHECK(client);
   if (!client)
@@ -188,6 +197,10 @@ extension_handler_on_before_browser(struct _cef_extension_handler_t* self,
   DCHECK(settings);
   if (!settings)
     return 0;
+  if (!template_util::has_valid_size(settings)) {
+    NOTREACHED() << "invalid settings->[base.]size";
+    return 0;
+  }
 
   // Translate param: windowInfo; type: struct_byref
   CefWindowInfo windowInfoObj;

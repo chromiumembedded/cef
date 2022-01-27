@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b64fcfb34da785eccf9a1232b35f485fbc838bda$
+// $hash=17fc7e8f42e6c518405f2aba5e849c98bf8122ce$
 //
 
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
@@ -17,6 +17,7 @@
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/drag_data_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
+#include "libcef_dll/template_util.h"
 
 namespace {
 
@@ -173,6 +174,10 @@ render_handler_get_screen_info(struct _cef_render_handler_t* self,
   DCHECK(screen_info);
   if (!screen_info)
     return 0;
+  if (!template_util::has_valid_size(screen_info)) {
+    NOTREACHED() << "invalid screen_info->[base.]size";
+    return 0;
+  }
 
   // Translate param: screen_info; type: struct_byref
   CefScreenInfo screen_infoObj;

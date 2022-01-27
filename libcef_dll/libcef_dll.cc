@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fa04fba704658b02675380bd63d91005c6757d4e$
+// $hash=66488e9aeed47b626c786d18e6e33a6d24cfef2c$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -55,6 +55,7 @@
 #include "libcef_dll/ctocpp/web_plugin_info_visitor_ctocpp.h"
 #include "libcef_dll/ctocpp/web_plugin_unstable_callback_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
+#include "libcef_dll/template_util.h"
 #include "libcef_dll/transfer_util.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
@@ -68,6 +69,10 @@ CEF_EXPORT int cef_execute_process(const struct _cef_main_args_t* args,
   DCHECK(args);
   if (!args)
     return 0;
+  if (!template_util::has_valid_size(args)) {
+    NOTREACHED() << "invalid args->[base.]size";
+    return 0;
+  }
   // Unverified params: application, windows_sandbox_info
 
   // Translate param: args; type: struct_byref_const
@@ -93,10 +98,18 @@ CEF_EXPORT int cef_initialize(const struct _cef_main_args_t* args,
   DCHECK(args);
   if (!args)
     return 0;
+  if (!template_util::has_valid_size(args)) {
+    NOTREACHED() << "invalid args->[base.]size";
+    return 0;
+  }
   // Verify param: settings; type: struct_byref_const
   DCHECK(settings);
   if (!settings)
     return 0;
+  if (!template_util::has_valid_size(settings)) {
+    NOTREACHED() << "invalid settings->[base.]size";
+    return 0;
+  }
   // Unverified params: application, windows_sandbox_info
 
   // Translate param: args; type: struct_byref_const
@@ -415,6 +428,10 @@ CEF_EXPORT int cef_parse_url(const cef_string_t* url,
   DCHECK(parts);
   if (!parts)
     return 0;
+  if (!template_util::has_valid_size(parts)) {
+    NOTREACHED() << "invalid parts->[base.]size";
+    return 0;
+  }
 
   // Translate param: parts; type: struct_byref
   CefURLParts partsObj;
@@ -440,6 +457,10 @@ CEF_EXPORT int cef_create_url(const struct _cef_urlparts_t* parts,
   DCHECK(parts);
   if (!parts)
     return 0;
+  if (!template_util::has_valid_size(parts)) {
+    NOTREACHED() << "invalid parts->[base.]size";
+    return 0;
+  }
   // Verify param: url; type: string_byref
   DCHECK(url);
   if (!url)

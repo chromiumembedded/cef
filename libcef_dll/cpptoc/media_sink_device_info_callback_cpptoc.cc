@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=159abfe9b788acf428465451ee232ee1675ea1a5$
+// $hash=f742ecdf3d876a9570fb1b8c80d1ecbab7119e07$
 //
 
 #include "libcef_dll/cpptoc/media_sink_device_info_callback_cpptoc.h"
 #include "libcef_dll/shutdown_checker.h"
+#include "libcef_dll/template_util.h"
 
 namespace {
 
@@ -33,6 +34,10 @@ void CEF_CALLBACK media_sink_device_info_callback_on_media_sink_device_info(
   DCHECK(device_info);
   if (!device_info)
     return;
+  if (!template_util::has_valid_size(device_info)) {
+    NOTREACHED() << "invalid device_info->[base.]size";
+    return;
+  }
 
   // Translate param: device_info; type: struct_byref_const
   CefMediaSinkDeviceInfo device_infoObj;

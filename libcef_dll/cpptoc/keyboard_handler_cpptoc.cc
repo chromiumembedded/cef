@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9f55775c0fcff5993efe9d8c9db75001d4335743$
+// $hash=8830306303ec402f4aaa21007719300c320ae77d$
 //
 
 #include "libcef_dll/cpptoc/keyboard_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
+#include "libcef_dll/template_util.h"
 
 namespace {
 
@@ -41,6 +42,10 @@ keyboard_handler_on_pre_key_event(struct _cef_keyboard_handler_t* self,
   DCHECK(event);
   if (!event)
     return 0;
+  if (!template_util::has_valid_size(event)) {
+    NOTREACHED() << "invalid event->[base.]size";
+    return 0;
+  }
   // Verify param: is_keyboard_shortcut; type: bool_byaddr
   DCHECK(is_keyboard_shortcut);
   if (!is_keyboard_shortcut)
@@ -87,6 +92,10 @@ keyboard_handler_on_key_event(struct _cef_keyboard_handler_t* self,
   DCHECK(event);
   if (!event)
     return 0;
+  if (!template_util::has_valid_size(event)) {
+    NOTREACHED() << "invalid event->[base.]size";
+    return 0;
+  }
 
   // Translate param: event; type: struct_byref_const
   CefKeyEvent eventObj;

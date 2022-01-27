@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=630f568e46925a195008194e61cde5339645ae8e$
+// $hash=3f01b74591540c44243e693043cb3b8a9f4e05d2$
 //
 
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
@@ -17,6 +17,7 @@
 #include "libcef_dll/ctocpp/cookie_visitor_ctocpp.h"
 #include "libcef_dll/ctocpp/delete_cookies_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/set_cookie_callback_ctocpp.h"
+#include "libcef_dll/template_util.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -105,6 +106,10 @@ cookie_manager_set_cookie(struct _cef_cookie_manager_t* self,
   DCHECK(cookie);
   if (!cookie)
     return 0;
+  if (!template_util::has_valid_size(cookie)) {
+    NOTREACHED() << "invalid cookie->[base.]size";
+    return 0;
+  }
   // Unverified params: callback
 
   // Translate param: cookie; type: struct_byref_const

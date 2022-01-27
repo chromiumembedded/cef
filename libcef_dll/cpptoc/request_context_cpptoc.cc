@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0be94c1d5a7a266610c3848f1732452cb33dd7a8$
+// $hash=ab7b829bdc8e583b08496227e5e9bebc2b166025$
 //
 
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
@@ -23,6 +23,7 @@
 #include "libcef_dll/ctocpp/request_context_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/resolve_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
+#include "libcef_dll/template_util.h"
 #include "libcef_dll/transfer_util.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
@@ -46,6 +47,10 @@ CEF_EXPORT cef_request_context_t* cef_request_context_create_context(
   DCHECK(settings);
   if (!settings)
     return NULL;
+  if (!template_util::has_valid_size(settings)) {
+    NOTREACHED() << "invalid settings->[base.]size";
+    return NULL;
+  }
   // Unverified params: handler
 
   // Translate param: settings; type: struct_byref_const
