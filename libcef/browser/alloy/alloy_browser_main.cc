@@ -13,12 +13,10 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools/devtools_manager_delegate.h"
 #include "libcef/browser/extensions/extension_system_factory.h"
-#include "libcef/browser/extensions/extensions_browser_client.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
 #include "libcef/browser/printing/constrained_window_views_client.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/app_manager.h"
-#include "libcef/common/extensions/extensions_client.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/net/net_resource_provider.h"
 
@@ -35,7 +33,7 @@
 #include "content/public/browser/gpu_data_manager.h"
 #include "content/public/browser/network_service_instance.h"
 #include "content/public/common/result_codes.h"
-#include "extensions/browser/extension_system.h"
+#include "extensions/browser/extensions_browser_client.h"
 #include "extensions/common/constants.h"
 #include "net/base/net_module.h"
 #include "third_party/widevine/cdm/buildflags.h"
@@ -175,14 +173,10 @@ int AlloyBrowserMainParts::PreMainMessageLoopRun() {
 #endif
 
   if (extensions::ExtensionsEnabled()) {
+    // This should be set in ChromeBrowserProcessAlloy::Initialize.
+    DCHECK(extensions::ExtensionsBrowserClient::Get());
     // Initialize extension global objects before creating the global
     // BrowserContext.
-    extensions_client_.reset(new extensions::CefExtensionsClient());
-    extensions::ExtensionsClient::Set(extensions_client_.get());
-    extensions_browser_client_.reset(
-        new extensions::CefExtensionsBrowserClient);
-    extensions::ExtensionsBrowserClient::Set(extensions_browser_client_.get());
-
     extensions::CefExtensionSystemFactory::GetInstance();
   }
 
@@ -253,11 +247,6 @@ void AlloyBrowserMainParts::PostMainMessageLoopRun() {
 }
 
 void AlloyBrowserMainParts::PostDestroyThreads() {
-  if (extensions::ExtensionsEnabled()) {
-    extensions::ExtensionsBrowserClient::Set(nullptr);
-    extensions_browser_client_.reset();
-  }
-
 #if defined(TOOLKIT_VIEWS)
   views_delegate_.reset();
 #if defined(OS_MAC)

@@ -18,6 +18,11 @@
 #include "chrome/browser/extensions/event_router_forwarder.h"
 #include "media/media_buildflags.h"
 
+namespace extensions {
+class ExtensionsBrowserClient;
+class ExtensionsClient;
+}  // namespace extensions
+
 class ChromeProfileManagerAlloy;
 
 class BackgroundModeManager {
@@ -111,6 +116,10 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
   bool initialized_;
   bool context_initialized_;
   bool shutdown_;
+
+  std::unique_ptr<extensions::ExtensionsClient> extensions_client_;
+  std::unique_ptr<extensions::ExtensionsBrowserClient>
+      extensions_browser_client_;
 
   std::string locale_;
   std::unique_ptr<printing::PrintJobManager> print_job_manager_;
