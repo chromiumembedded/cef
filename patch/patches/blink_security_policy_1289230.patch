@@ -1,0 +1,13 @@
+diff --git third_party/blink/renderer/platform/weborigin/security_policy.cc third_party/blink/renderer/platform/weborigin/security_policy.cc
+index 4ebbed336ebd8..845f7ec694721 100644
+--- third_party/blink/renderer/platform/weborigin/security_policy.cc
++++ third_party/blink/renderer/platform/weborigin/security_policy.cc
+@@ -90,7 +90,7 @@ Referrer SecurityPolicy::GenerateReferrer(
+       ReferrerUtils::MojoReferrerPolicyResolveDefault(referrer_policy);
+   if (referrer == Referrer::NoReferrer())
+     return Referrer(Referrer::NoReferrer(), referrer_policy_no_default);
+-  DCHECK(!referrer.IsEmpty());
++  // DCHECK(!referrer.IsEmpty());
+ 
+   KURL referrer_url = KURL(NullURL(), referrer).UrlStrippedForUseAsReferrer();
+ 
