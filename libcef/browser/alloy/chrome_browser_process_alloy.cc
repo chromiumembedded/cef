@@ -8,9 +8,12 @@
 #include "libcef/browser/alloy/chrome_profile_manager_alloy.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/context.h"
+#include "libcef/browser/extensions/extensions_browser_client.h"
 #include "libcef/browser/prefs/browser_prefs.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
+#include "libcef/common/extensions/extensions_client.h"
+#include "libcef/common/extensions/extensions_util.h"
 
 #include "base/command_line.h"
 #include "chrome/browser/component_updater/chrome_component_updater_configurator.h"
@@ -38,6 +41,11 @@ ChromeBrowserProcessAlloy::ChromeBrowserProcessAlloy()
 
 ChromeBrowserProcessAlloy::~ChromeBrowserProcessAlloy() {
   DCHECK((!initialized_ && !context_initialized_) || shutdown_);
+
+  if (extensions::ExtensionsEnabled()) {
+    extensions::ExtensionsBrowserClient::Set(nullptr);
+    extensions_browser_client_.reset();
+  }
 }
 
 void ChromeBrowserProcessAlloy::Initialize() {
@@ -48,6 +56,16 @@ void ChromeBrowserProcessAlloy::Initialize() {
 
   // Initialize this early before any code tries to check feature flags.
   field_trial_list_ = content::SetUpFieldTrialsAndFeatureList();
+
+  if (extensions::ExtensionsEnabled()) {
+    // Initialize extension global objects before creating the global
+    // BrowserContext.
+    extensions_client_.reset(new extensions::CefExtensionsClient());
+    extensions::ExtensionsClient::Set(extensions_client_.get());
+    extensions_browser_client_.reset(
+        new extensions::CefExtensionsBrowserClient);
+    extensions::ExtensionsBrowserClient::Set(extensions_browser_client_.get());
+  }
 
   initialized_ = true;
 }

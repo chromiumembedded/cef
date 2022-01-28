@@ -19,11 +19,6 @@ namespace content {
 struct MainFunctionParams;
 }
 
-namespace extensions {
-class ExtensionsBrowserClient;
-class ExtensionsClient;
-}  // namespace extensions
-
 #if defined(USE_AURA)
 namespace display {
 class Screen;
@@ -81,10 +76,6 @@ class AlloyBrowserMainParts : public content::BrowserMainParts {
 
   CefRefPtr<CefRequestContextImpl> global_request_context_;
   CefDevToolsDelegate* devtools_delegate_;  // Deletes itself.
-
-  std::unique_ptr<extensions::ExtensionsClient> extensions_client_;
-  std::unique_ptr<extensions::ExtensionsBrowserClient>
-      extensions_browser_client_;
 
   // Blocking task runners exposed via CefTaskRunner. For consistency with
   // previous named thread behavior always execute all pending tasks before
