@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index bf235e7493dd0..1f0eb81769b56 100644
+index 6b742d4635454..ddba5aadb21a1 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -2979,6 +2979,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -2983,6 +2983,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
        site_instance.get(), params.renderer_initiated_creation,
        params.main_frame_name, GetOriginalOpener(), primary_main_frame_policy);
  
@@ -15,7 +15,7 @@ index bf235e7493dd0..1f0eb81769b56 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -2989,6 +2995,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -2993,6 +2999,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
      view_.reset(CreateWebContentsView(this, delegate,
                                        &render_view_host_delegate_view_));
    }
@@ -23,7 +23,7 @@ index bf235e7493dd0..1f0eb81769b56 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -3853,6 +3860,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+@@ -3857,6 +3864,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -39,7 +39,7 @@ index bf235e7493dd0..1f0eb81769b56 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -7625,6 +7641,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -7651,6 +7667,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // frames).
      SetFocusedFrameTree(node->frame_tree());
    }
