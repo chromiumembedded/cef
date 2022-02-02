@@ -179,9 +179,6 @@ void CefBrowserPlatformDelegateAlloy::BrowserCreated(
   printing::CefPrintViewManager::CreateForWebContents(web_contents_);
 
   if (extensions::ExtensionsEnabled()) {
-    extensions::CefExtensionWebContentsObserver::CreateForWebContents(
-        web_contents_);
-
     // Used by the tabs extension API.
     zoom::ZoomController::CreateForWebContents(web_contents_);
   }

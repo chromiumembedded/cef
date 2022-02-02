@@ -52,8 +52,6 @@ void CefExtensionsAPIClient::AttachWebContentsHelpers(
   PrefsTabHelper::CreateForWebContents(web_contents);
   printing::CefPrintViewManager::CreateForWebContents(web_contents);
 
-  CefExtensionWebContentsObserver::CreateForWebContents(web_contents);
-
   // Used by the PDF extension.
   pdf::PDFWebContentsHelper::CreateForWebContentsWithClient(
       web_contents, std::unique_ptr<pdf::PDFWebContentsHelperClient>(
