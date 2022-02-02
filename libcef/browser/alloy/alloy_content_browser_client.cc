@@ -1523,6 +1523,18 @@ bool AlloyContentBrowserClient::ShouldAllowPluginCreation(
   return true;
 }
 
+void AlloyContentBrowserClient::OnWebContentsCreated(
+    content::WebContents* web_contents) {
+  // Attach universal WebContentsObservers. These are quite rare, and in most
+  // cases CefBrowserPlatformDelegateAlloy::BrowserCreated and/or
+  // CefExtensionsAPIClient::AttachWebContentsHelpers should be used instead.
+
+  if (extensions::ExtensionsEnabled()) {
+    extensions::CefExtensionWebContentsObserver::CreateForWebContents(
+        web_contents);
+  }
+}
+
 bool AlloyContentBrowserClient::IsFindInPageDisabledForOrigin(
     const url::Origin& origin) {
   // For PDF viewing with the PPAPI-free PDF Viewer, find-in-page should only
