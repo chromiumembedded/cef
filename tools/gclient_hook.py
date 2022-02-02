@@ -146,14 +146,3 @@ for dir, config in configs.items():
   RunAction(src_dir, cmd)
   if platform == 'windows':
     issue_1999.apply(out_path)
-
-gn_dir = list(configs.keys())[0]
-out_gn_path = os.path.join(src_dir, 'out', gn_dir)
-gn_path = os.path.join(out_gn_path, 'args.gn')
-print("\nGenerating CEF buildinfo header file...")
-cmd = [
-    sys.executable, 'tools/make_config_header.py', '--header',
-    'include/cef_config.h', '--cef_gn_config', gn_path
-]
-
-RunAction(cef_dir, cmd)
