@@ -237,6 +237,7 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
   bool ShouldAllowPluginCreation(
       const url::Origin& embedder_origin,
       const content::PepperPluginInfo& plugin_info) override;
+  void OnWebContentsCreated(content::WebContents* web_contents) override;
   bool IsFindInPageDisabledForOrigin(const url::Origin& origin) override;
 
   CefRefPtr<CefRequestContextImpl> request_context() const;
