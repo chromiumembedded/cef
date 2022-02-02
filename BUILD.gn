@@ -1487,12 +1487,22 @@ action("make_api_hash_header") {
   args = rebase_path(outputs + include_dir, root_build_dir)
 }
 
+# Generate cef_config.h.
+action("make_config_header") {
+  script = "tools/make_config_header.py"
+
+  outputs = [ "$root_out_dir/includes/include/cef_config.h" ]
+
+  args = rebase_path(outputs + [ "$root_out_dir/args.gn" ], root_build_dir)
+}
+
 # Generate pack files and associated CEF header files.
 group("cef_make_headers") {
   deps = [
     ":make_pack_header_resources",
     ":make_pack_header_strings",
     ":make_api_hash_header",
+    ":make_config_header",
   ]
 }
 
