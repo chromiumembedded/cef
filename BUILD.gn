@@ -1297,6 +1297,8 @@ static_library("libcef_dll_wrapper") {
 
   configs += [ ":libcef_dll_wrapper_config" ]
   public_configs = [ ":libcef_dll_wrapper_config" ]
+
+  deps = [ ":cef_make_headers" ]
 }
 
 
