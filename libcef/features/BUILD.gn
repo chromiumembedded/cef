@@ -88,7 +88,12 @@ buildflag_header("features") {
 # Configuration for all targets that include CEF source code library-side.
 config("config") {
   # CEF sources use includes relative to the CEF root directory.
-  include_dirs = [ "//cef" ]
+  include_dirs = [
+    "//cef",
+
+    # CEF generates some header files that also need to be discoverable.
+    "$root_out_dir/includes",
+  ]
   defines = [
     "BUILDING_CEF_SHARED",
     "USING_CHROMIUM_INCLUDES",
