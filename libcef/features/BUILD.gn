@@ -92,7 +92,7 @@ config("config") {
     "//cef",
 
     # CEF generates some header files that also need to be discoverable.
-    "$root_out_dir/includes",
+    "$root_build_dir/includes",
   ]
   defines = [
     "BUILDING_CEF_SHARED",
