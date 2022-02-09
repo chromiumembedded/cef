@@ -202,7 +202,7 @@ typedef struct _cef_settings_t {
 
   ///
   // Set to true (1) to have the browser process message loop run in a separate
-  // thread. If false (0) than the CefDoMessageLoopWork() function must be
+  // thread. If false (0) then the CefDoMessageLoopWork() function must be
   // called from your application message loop. This option is only supported on
   // Windows and Linux.
   ///
