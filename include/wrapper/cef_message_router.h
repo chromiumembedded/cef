@@ -78,7 +78,7 @@
 // with an error code of -1.
 //
 // Queries can be either persistent or non-persistent. If the query is
-// persistent than the callbacks will remain registered until one of the
+// persistent then the callbacks will remain registered until one of the
 // following conditions are met:
 //
 // A. The query is canceled in JavaScript using the |window.cefQueryCancel|
