@@ -130,7 +130,8 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
 
   // cef::mojom::BrowserFrame methods forwarded from CefBrowserFrame.
   void SendMessage(const std::string& name, base::Value arguments) override;
-  void FrameAttached() override;
+  void FrameAttached(mojo::PendingRemote<cef::mojom::RenderFrame> render_frame,
+                     bool reattached) override;
   void DidFinishFrameLoad(const GURL& validated_url,
                           int32_t http_status_code) override;
   void UpdateDraggableRegions(
@@ -152,17 +153,14 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   scoped_refptr<CefBrowserInfo> GetBrowserInfo() const;
   CefRefPtr<CefBrowserHostBase> GetBrowserHostBase() const;
 
-  // Returns the remote RenderFrame object.
-  using RenderFrameType = mojo::Remote<cef::mojom::RenderFrame>;
-  const RenderFrameType& GetRenderFrame();
-
   // Send an action to the remote RenderFrame. This will queue the action if the
   // remote frame is not yet attached.
+  using RenderFrameType = mojo::Remote<cef::mojom::RenderFrame>;
   using RenderFrameAction = base::OnceCallback<void(const RenderFrameType&)>;
   void SendToRenderFrame(const std::string& function_name,
                          RenderFrameAction action);
 
-  void FrameAttachedInternal(bool reattached);
+  void OnRenderFrameDisconnect();
 
   const bool is_main_frame_;
 
@@ -179,9 +177,8 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   // The following members are only accessed on the UI thread.
   content::RenderFrameHost* render_frame_host_ = nullptr;
 
-  bool is_attached_ = false;
-
-  std::queue<std::pair<std::string, RenderFrameAction>> queued_actions_;
+  std::queue<std::pair<std::string, RenderFrameAction>>
+      queued_renderer_actions_;
 
   mojo::Remote<cef::mojom::RenderFrame> render_frame_;
 

@@ -29,12 +29,14 @@
 #include "third_party/blink/renderer/core/frame/settings.h"
 #include "third_party/blink/renderer/core/frame/web_local_frame_impl.h"
 #include "third_party/blink/renderer/core/loader/frame_load_request.h"
+#include "third_party/blink/renderer/core/page/page.h"
 #include "third_party/blink/renderer/core/script/classic_script.h"
 #include "third_party/blink/renderer/platform/bindings/script_forbidden_scope.h"
 #include "third_party/blink/renderer/platform/bindings/v8_binding.h"
 #include "third_party/blink/renderer/platform/loader/fetch/resource_response.h"
 #include "third_party/blink/renderer/platform/loader/fetch/script_fetch_options.h"
 #include "third_party/blink/renderer/platform/scheduler/public/frame_scheduler.h"
+#include "third_party/blink/renderer/platform/scheduler/public/page_scheduler.h"
 #include "third_party/blink/renderer/platform/weborigin/scheme_registry.h"
 #undef LOG
 
@@ -84,6 +86,14 @@ void GoForward(blink::WebView* view) {
           .GoToEntryAtOffset(1, true /* has_user_gesture */);
     }
   }
+}
+
+bool IsInBackForwardCache(blink::WebLocalFrame* frame) {
+  blink::Frame* core_frame = blink::WebFrame::ToCoreFrame(*frame);
+  return blink::To<blink::LocalFrame>(core_frame)
+      ->GetPage()
+      ->GetPageScheduler()
+      ->IsInBackForwardCache();
 }
 
 blink::WebString DumpDocumentText(blink::WebLocalFrame* frame) {

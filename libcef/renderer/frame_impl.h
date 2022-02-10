@@ -6,16 +6,18 @@
 #define CEF_LIBCEF_RENDERER_FRAME_IMPL_H_
 #pragma once
 
+#include <queue>
 #include <string>
+
 #include "include/cef_frame.h"
 #include "include/cef_v8.h"
 
 #include "base/memory/weak_ptr.h"
+#include "base/timer/timer.h"
 #include "cef/libcef/common/mojom/cef.mojom.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
-#include "mojo/public/cpp/bindings/receiver_set.h"
+#include "mojo/public/cpp/bindings/receiver.h"
 #include "mojo/public/cpp/bindings/remote.h"
-#include "services/service_manager/public/cpp/binder_registry.h"
 
 namespace base {
 class ListValue;
@@ -84,7 +86,8 @@ class CefFrameImpl : public CefFrame, public cef::mojom::RenderFrame {
   CreateResourceLoadInfoNotifierWrapper();
 
   // Forwarded from CefRenderFrameObserver.
-  void OnAttached(service_manager::BinderRegistry* registry);
+  void OnAttached();
+  void OnWasShown();
   void OnDidFinishLoad();
   void OnDraggableRegionsChanged();
   void OnContextCreated();
@@ -100,13 +103,29 @@ class CefFrameImpl : public CefFrame, public cef::mojom::RenderFrame {
   void ExecuteOnLocalFrame(const std::string& function_name,
                            LocalFrameAction action);
 
-  // Returns the remote BrowserFrame object.
-  const mojo::Remote<cef::mojom::BrowserFrame>& GetBrowserFrame();
+  // Initiate the connection to the BrowserFrame channel.
+  void ConnectBrowserFrame();
 
-  void BindRenderFrameReceiver(
-      mojo::PendingReceiver<cef::mojom::RenderFrame> receiver);
+  // Returns the remote BrowserFrame object.
+  using BrowserFrameType = mojo::Remote<cef::mojom::BrowserFrame>;
+  const BrowserFrameType& GetBrowserFrame(bool expect_acked = true);
+
+  // Called if the BrowserFrame connection attempt times out.
+  void OnBrowserFrameTimeout();
+
+  // Called if/when the BrowserFrame channel is disconnected. This may occur due
+  // to frame navigation, destruction, or insertion into the bfcache (when the
+  // browser-side frame representation is destroyed and closes the connection).
+  void OnBrowserFrameDisconnect();
+
+  // Send an action to the remote BrowserFrame. This will queue the action if
+  // the remote frame is not yet attached.
+  using BrowserFrameAction = base::OnceCallback<void(const BrowserFrameType&)>;
+  void SendToBrowserFrame(const std::string& function_name,
+                          BrowserFrameAction action);
 
   // cef::mojom::RenderFrame methods:
+  void FrameAttachedAck() override;
   void SendMessage(const std::string& name, base::Value arguments) override;
   void SendCommand(const std::string& command) override;
   void SendCommandWithResponse(
@@ -125,11 +144,27 @@ class CefFrameImpl : public CefFrame, public cef::mojom::RenderFrame {
   const int64 frame_id_;
 
   bool context_created_ = false;
-  std::queue<std::pair<std::string, LocalFrameAction>> queued_actions_;
+  std::queue<std::pair<std::string, LocalFrameAction>> queued_context_actions_;
+
+  // Number of times that browser reconnect has been attempted.
+  size_t browser_connect_retry_ct_ = 0;
+
+  // Current browser connection state.
+  enum class ConnectionState {
+    DISCONNECTED,
+    CONNECTION_PENDING,
+    CONNECTION_ACKED,
+    RECONNECT_PENDING,
+  } browser_connection_state_ = ConnectionState::DISCONNECTED;
+
+  base::OneShotTimer browser_connect_timer_;
+
+  std::queue<std::pair<std::string, BrowserFrameAction>>
+      queued_browser_actions_;
 
   std::unique_ptr<blink::WebURLLoaderFactory> url_loader_factory_;
 
-  mojo::ReceiverSet<cef::mojom::RenderFrame> receivers_;
+  mojo::Receiver<cef::mojom::RenderFrame> receiver_{this};
 
   mojo::Remote<cef::mojom::BrowserFrame> browser_frame_;
 
