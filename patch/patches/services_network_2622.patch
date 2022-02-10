@@ -1,5 +1,5 @@
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index 598fb5e2ee02a..85e742c8c1fec 100644
+index ed2c1ebad634e..6857da1707816 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -21,6 +21,7 @@
@@ -31,10 +31,10 @@ index 598fb5e2ee02a..85e742c8c1fec 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -708,7 +721,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
-         base_cache_path.Append(chrome::kCacheDirname);
-     network_context_params->http_cache_max_size =
-         local_state->GetInteger(prefs::kDiskCacheSize);
+@@ -723,7 +736,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+       network_context_params->http_cache_max_size =
+           local_state->GetInteger(prefs::kDiskCacheSize);
+     }
 +  }
  
 +  if (!in_memory) {
