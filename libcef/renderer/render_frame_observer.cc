@@ -50,6 +50,12 @@ void CefRenderFrameObserver::DidCommitProvisionalLoad(
   OnLoadStart();
 }
 
+void CefRenderFrameObserver::WasShown() {
+  if (frame_) {
+    frame_->OnWasShown();
+  }
+}
+
 void CefRenderFrameObserver::DidFailProvisionalLoad() {
   if (frame_) {
     OnLoadError();
@@ -199,7 +205,7 @@ void CefRenderFrameObserver::AttachFrame(CefFrameImpl* frame) {
   DCHECK(frame);
   DCHECK(!frame_);
   frame_ = frame;
-  frame_->OnAttached(&registry_);
+  frame_->OnAttached();
 }
 
 void CefRenderFrameObserver::OnLoadStart() {

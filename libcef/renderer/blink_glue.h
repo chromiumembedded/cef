@@ -39,6 +39,8 @@ BLINK_EXPORT bool CanGoForward(blink::WebView* view);
 BLINK_EXPORT void GoBack(blink::WebView* view);
 BLINK_EXPORT void GoForward(blink::WebView* view);
 
+BLINK_EXPORT bool IsInBackForwardCache(blink::WebLocalFrame* frame);
+
 // Returns the text of the document element.
 BLINK_EXPORT blink::WebString DumpDocumentText(blink::WebLocalFrame* frame);
 // Returns the markup of the document element.

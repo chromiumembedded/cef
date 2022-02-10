@@ -36,7 +36,8 @@ class CefBrowserFrame
  private:
   // cef::mojom::BrowserFrame methods:
   void SendMessage(const std::string& name, base::Value arguments) override;
-  void FrameAttached() override;
+  void FrameAttached(mojo::PendingRemote<cef::mojom::RenderFrame> render_frame,
+                     bool reattached) override;
   void DidFinishFrameLoad(const GURL& validated_url,
                           int32_t http_status_code) override;
   void UpdateDraggableRegions(

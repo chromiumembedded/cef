@@ -27,6 +27,7 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
   ~CefRenderFrameObserver() override;
 
   // RenderFrameObserver methods:
+  void WasShown() override;
   void DidCommitProvisionalLoad(ui::PageTransition transition) override;
   void DidFailProvisionalLoad() override;
   void DidFinishLoad() override;
