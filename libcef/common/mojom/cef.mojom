@@ -19,21 +19,6 @@ struct DraggableRegionEntry {
   bool draggable;
 };
 
-// Interface for communicating with a frame in the browser process.
-interface BrowserFrame {
-  // Send a message to the browser process.
-  SendMessage(string name, mojo_base.mojom.ListValue arguments);
-
-  // The render frame is ready to begin handling actions.
-  FrameAttached();
-
-  // The render frame has finished loading.
-  DidFinishFrameLoad(url.mojom.Url validated_url, int32 http_status_code);
-
-  // Draggable regions have updated.
-  UpdateDraggableRegions(array<DraggableRegionEntry>? regions);
-};
-
 // Structure passed to LoadRequest().
 struct RequestParams {
   // Request method.
@@ -64,6 +49,9 @@ struct RequestParams {
 
 // Interface for communicating with a frame in the renderer process.
 interface RenderFrame {
+  // Browser process has received the FrameAttached() message.
+  FrameAttachedAck();
+
   // Send a message to the render process.
   SendMessage(string name, mojo_base.mojom.ListValue arguments);
 
@@ -89,6 +77,22 @@ interface RenderFrame {
   // Move or resize of the renderer's containing window has started. Used on
   // Windows and Linux with the Alloy runtime.
   MoveOrResizeStarted();
+};
+
+// Interface for communicating with a frame in the browser process.
+interface BrowserFrame {
+  // Send a message to the browser process.
+  SendMessage(string name, mojo_base.mojom.ListValue arguments);
+
+  // The render frame is ready to begin handling actions.
+  FrameAttached(pending_remote<RenderFrame> render_frame,
+                bool reattached);
+
+  // The render frame has finished loading.
+  DidFinishFrameLoad(url.mojom.Url validated_url, int32 http_status_code);
+
+  // Draggable regions have updated.
+  UpdateDraggableRegions(array<DraggableRegionEntry>? regions);
 };
 
 struct CrossOriginWhiteListEntry {

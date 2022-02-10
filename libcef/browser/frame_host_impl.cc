@@ -449,13 +449,12 @@ bool CefFrameHostImpl::Detach() {
   }
 
   // In case we never attached, clean up.
-  while (!queued_actions_.empty()) {
-    queued_actions_.pop();
+  while (!queued_renderer_actions_.empty()) {
+    queued_renderer_actions_.pop();
   }
 
   render_frame_.reset();
   render_frame_host_ = nullptr;
-  is_attached_ = false;
 
   return first_detach;
 }
@@ -464,14 +463,14 @@ void CefFrameHostImpl::MaybeReAttach(
     scoped_refptr<CefBrowserInfo> browser_info,
     content::RenderFrameHost* render_frame_host) {
   CEF_REQUIRE_UIT();
-  if (is_attached_ && render_frame_host_ == render_frame_host) {
+  if (render_frame_.is_bound() && render_frame_host_ == render_frame_host) {
     // Nothing to do here.
     return;
   }
 
   // We expect that Detach() was called previously.
   CHECK(!is_temporary());
-  CHECK(!is_attached_);
+  CHECK(!render_frame_.is_bound());
   CHECK(!render_frame_host_);
 
   // The RFH may change but the GlobalId should remain the same.
@@ -486,8 +485,7 @@ void CefFrameHostImpl::MaybeReAttach(
   render_frame_host_ = render_frame_host;
   RefreshAttributes();
 
-  // Restore the RenderFrame connection.
-  FrameAttachedInternal(/*reattached=*/true);
+  // We expect a reconnect to be triggered via FrameAttached().
 }
 
 // kMainFrameId must be -1 to align with renderer expectations.
@@ -517,20 +515,6 @@ CefRefPtr<CefBrowserHostBase> CefFrameHostImpl::GetBrowserHostBase() const {
   return nullptr;
 }
 
-const mojo::Remote<cef::mojom::RenderFrame>&
-CefFrameHostImpl::GetRenderFrame() {
-  CEF_REQUIRE_UIT();
-  DCHECK(is_attached_);
-
-  if (!render_frame_.is_bound() && render_frame_host_ &&
-      render_frame_host_->GetRemoteInterfaces()) {
-    // Connects to a CefFrameImpl that already exists in the renderer process.
-    render_frame_host_->GetRemoteInterfaces()->GetInterface(
-        render_frame_.BindNewPipeAndPassReceiver());
-  }
-  return render_frame_;
-}
-
 void CefFrameHostImpl::SendToRenderFrame(const std::string& function_name,
                                          RenderFrameAction action) {
   if (!CEF_CURRENTLY_ON_UIT()) {
@@ -553,18 +537,22 @@ void CefFrameHostImpl::SendToRenderFrame(const std::string& function_name,
     return;
   }
 
-  if (!is_attached_) {
+  if (!render_frame_.is_bound()) {
     // Queue actions until we're notified by the renderer that it's ready to
     // handle them.
-    queued_actions_.push(std::make_pair(function_name, std::move(action)));
+    queued_renderer_actions_.push(
+        std::make_pair(function_name, std::move(action)));
     return;
   }
 
-  auto& render_frame = GetRenderFrame();
-  if (!render_frame)
-    return;
+  std::move(action).Run(render_frame_);
+}
 
-  std::move(action).Run(render_frame);
+void CefFrameHostImpl::OnRenderFrameDisconnect() {
+  CEF_REQUIRE_UIT();
+
+  // Reconnect, if any, will be triggered via FrameAttached().
+  render_frame_.reset();
 }
 
 void CefFrameHostImpl::SendMessage(const std::string& name,
@@ -581,12 +569,11 @@ void CefFrameHostImpl::SendMessage(const std::string& name,
   }
 }
 
-void CefFrameHostImpl::FrameAttached() {
-  FrameAttachedInternal(/*reattached=*/false);
-}
-
-void CefFrameHostImpl::FrameAttachedInternal(bool reattached) {
+void CefFrameHostImpl::FrameAttached(
+    mojo::PendingRemote<cef::mojom::RenderFrame> render_frame_remote,
+    bool reattached) {
   CEF_REQUIRE_UIT();
+  CHECK(render_frame_remote);
 
   auto browser_info = GetBrowserInfo();
   if (!browser_info) {
@@ -594,27 +581,32 @@ void CefFrameHostImpl::FrameAttachedInternal(bool reattached) {
     return;
   }
 
-  DCHECK(!is_attached_);
-  if (!is_attached_) {
-    is_attached_ = true;
-
-    auto& render_frame = GetRenderFrame();
-    while (!queued_actions_.empty()) {
-      if (render_frame) {
-        std::move(queued_actions_.front().second).Run(render_frame);
-      }
-      queued_actions_.pop();
-    }
-
-    browser_info->MaybeExecuteFrameNotification(base::BindOnce(
-        [](CefRefPtr<CefFrameHostImpl> self, bool reattached,
-           CefRefPtr<CefFrameHandler> handler) {
-          if (auto browser = self->GetBrowserHostBase()) {
-            handler->OnFrameAttached(browser, self, reattached);
-          }
-        },
-        CefRefPtr<CefFrameHostImpl>(this), reattached));
+  if (reattached) {
+    LOG(INFO) << (is_main_frame_ ? "main" : "sub") << "frame "
+              << frame_util::GetFrameDebugString(frame_id_)
+              << " has reconnected";
   }
+
+  render_frame_.Bind(std::move(render_frame_remote));
+  render_frame_.set_disconnect_handler(
+      base::BindOnce(&CefFrameHostImpl::OnRenderFrameDisconnect, this));
+
+  // Notify the renderer process that it can start sending messages.
+  render_frame_->FrameAttachedAck();
+
+  while (!queued_renderer_actions_.empty()) {
+    std::move(queued_renderer_actions_.front().second).Run(render_frame_);
+    queued_renderer_actions_.pop();
+  }
+
+  browser_info->MaybeExecuteFrameNotification(base::BindOnce(
+      [](CefRefPtr<CefFrameHostImpl> self, bool reattached,
+         CefRefPtr<CefFrameHandler> handler) {
+        if (auto browser = self->GetBrowserHostBase()) {
+          handler->OnFrameAttached(browser, self, reattached);
+        }
+      },
+      CefRefPtr<CefFrameHostImpl>(this), reattached));
 }
 
 void CefFrameHostImpl::DidFinishFrameLoad(const GURL& validated_url,

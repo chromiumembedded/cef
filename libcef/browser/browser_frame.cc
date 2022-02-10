@@ -35,18 +35,20 @@ void CefBrowserFrame::RegisterBrowserInterfaceBindersForFrame(
 
 void CefBrowserFrame::SendMessage(const std::string& name,
                                   base::Value arguments) {
-  // Always associate with the newly created RFH, which may be speculative when
+  // Always send to the newly created RFH, which may be speculative when
   // navigating cross-origin.
   if (auto host = GetFrameHost(/*prefer_speculative=*/true)) {
     host->SendMessage(name, std::move(arguments));
   }
 }
 
-void CefBrowserFrame::FrameAttached() {
+void CefBrowserFrame::FrameAttached(
+    mojo::PendingRemote<cef::mojom::RenderFrame> render_frame,
+    bool reattached) {
   // Always send to the newly created RFH, which may be speculative when
   // navigating cross-origin.
   if (auto host = GetFrameHost(/*prefer_speculative=*/true)) {
-    host->FrameAttached();
+    host->FrameAttached(std::move(render_frame), reattached);
   }
 }
 
