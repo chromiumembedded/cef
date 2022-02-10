@@ -12,7 +12,7 @@ index ec6be2ff24d23..159ed7776c0aa 100644
                        GetContentClient()->browser()->GetUserAgent());
      version.SetString("V8-Version", V8_VERSION_STRING);
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index c1235f9658b88..040d9afb0d9ff 100644
+index b5c2dc992fb19..868661c86c39a 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
 @@ -665,6 +665,14 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest(
@@ -136,10 +136,10 @@ index b914cb91a2b49..2f84201ba4d1e 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index 03f9fac832072..1f45e54e32da9 100644
+index f6574e15fc0d3..380b80337da71 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
-@@ -640,6 +640,8 @@ void RenderThreadImpl::Init() {
+@@ -656,6 +656,8 @@ void RenderThreadImpl::Init() {
        GetContentClient()->renderer()->CreateURLLoaderThrottleProvider(
            blink::URLLoaderThrottleProviderType::kFrame);
  

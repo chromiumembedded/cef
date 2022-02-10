@@ -697,7 +697,8 @@ void StreamReaderURLLoader::ContinueWithResponseHeaders(
     // |this| will be deleted.
     CleanUp();
   } else {
-    client_->OnReceiveResponse(std::move(pending_response));
+    client_->OnReceiveResponse(std::move(pending_response),
+                               mojo::ScopedDataPipeConsumerHandle());
   }
 }
 

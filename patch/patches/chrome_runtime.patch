@@ -156,7 +156,7 @@ index dbd8f7ebe071d..b0f8d3d7bcff9 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 70df7bef3a7b1..97d130a0a1be6 100644
+index db9c606e0ebc3..e08f55ee85c61 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -28,6 +28,7 @@
@@ -167,7 +167,7 @@ index 70df7bef3a7b1..97d130a0a1be6 100644
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/accessibility_labels_service_factory.h"
  #include "chrome/browser/after_startup_task_utils.h"
-@@ -3682,9 +3683,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -3684,9 +3685,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // BUILDFLAG(IS_ANDROID)
  
@@ -179,7 +179,7 @@ index 70df7bef3a7b1..97d130a0a1be6 100644
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
-@@ -5333,7 +5336,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
+@@ -5338,7 +5341,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
        network_service);
  }
  
@@ -188,7 +188,7 @@ index 70df7bef3a7b1..97d130a0a1be6 100644
      content::BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -5351,6 +5354,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
+@@ -5356,6 +5359,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
      network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
      network_context_params->accept_language = GetApplicationLocale();
    }
@@ -198,10 +198,10 @@ index 70df7bef3a7b1..97d130a0a1be6 100644
  
  std::vector<base::FilePath>
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index 71dfd396b405e..879210ff7c8fd 100644
+index 87f0af8fb00cf..87332d3120c1a 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
-@@ -549,7 +549,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -550,7 +550,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
        override;
    void OnNetworkServiceCreated(
        network::mojom::NetworkService* network_service) override;
