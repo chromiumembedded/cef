@@ -1,0 +1,14 @@
+diff --git content/public/browser/web_ui_controller_factory.h content/public/browser/web_ui_controller_factory.h
+index eb068fb9bb42c..4e8e6a1a7abf4 100644
+--- content/public/browser/web_ui_controller_factory.h
++++ content/public/browser/web_ui_controller_factory.h
+@@ -47,9 +47,6 @@ class CONTENT_EXPORT WebUIControllerFactory {
+   virtual bool UseWebUIForURL(BrowserContext* browser_context,
+                               const GURL& url) = 0;
+ 
+- private:
+-  friend class ScopedWebUIControllerFactoryRegistration;
+-
+   static void UnregisterFactoryForTesting(WebUIControllerFactory* factory);
+ };
+ 
