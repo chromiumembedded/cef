@@ -116,29 +116,27 @@ index 920f646f06484..76c0b5e5ee04b 100644
        $i18n{cancel}
      </cr-button>
 diff --git chrome/browser/ui/webui/constrained_web_dialog_ui.cc chrome/browser/ui/webui/constrained_web_dialog_ui.cc
-index 8c5ba47779d24..69dff1ae88000 100644
+index 8c5ba47779d24..91a70d8715f33 100644
 --- chrome/browser/ui/webui/constrained_web_dialog_ui.cc
 +++ chrome/browser/ui/webui/constrained_web_dialog_ui.cc
-@@ -26,6 +26,8 @@
- #include "chrome/browser/extensions/tab_helper.h"
- #endif
- 
-+#include "cef/libcef/features/features.h"
-+
- using content::RenderFrameHost;
- using content::WebContents;
- using content::WebUIMessageHandler;
-@@ -57,8 +59,10 @@ class ConstrainedWebDialogDelegateUserData
+@@ -13,6 +13,7 @@
+ #include "base/memory/ptr_util.h"
+ #include "base/memory/raw_ptr.h"
+ #include "base/values.h"
++#include "cef/libcef/features/runtime.h"
+ #include "content/public/browser/notification_service.h"
+ #include "content/public/browser/render_frame_host.h"
+ #include "content/public/browser/web_contents.h"
+@@ -57,7 +58,9 @@ class ConstrainedWebDialogDelegateUserData
  ConstrainedWebDialogUI::ConstrainedWebDialogUI(content::WebUI* web_ui)
      : WebUIController(web_ui) {
  #if BUILDFLAG(ENABLE_EXTENSIONS)
-+#if !BUILDFLAG(ENABLE_CEF)
++  if (!cef::IsAlloyRuntimeEnabled()) {
    extensions::TabHelper::CreateForWebContents(web_ui->GetWebContents());
++  }
  #endif
-+#endif
  }
  
- ConstrainedWebDialogUI::~ConstrainedWebDialogUI() = default;
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 index e5dfa76d26d86..b7dcf7a11479f 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
