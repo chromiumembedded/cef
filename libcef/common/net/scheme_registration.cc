@@ -59,6 +59,7 @@ bool IsInternalHandledScheme(const std::string& scheme) {
       url::kBlobScheme,
       content::kChromeDevToolsScheme,
       content::kChromeUIScheme,
+      content::kChromeUIUntrustedScheme,
       url::kDataScheme,
       extensions::kExtensionScheme,
       url::kFileScheme,

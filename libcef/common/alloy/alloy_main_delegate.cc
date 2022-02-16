@@ -38,6 +38,7 @@
 #include "content/public/common/content_features.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
+#include "content/public/common/url_constants.h"
 #include "extensions/common/constants.h"
 #include "net/base/features.h"
 #include "pdf/pdf_ppapi.h"
@@ -60,7 +61,8 @@
 namespace {
 
 const char* const kNonWildcardDomainNonPortSchemes[] = {
-    extensions::kExtensionScheme};
+    extensions::kExtensionScheme, content::kChromeDevToolsScheme,
+    content::kChromeUIScheme, content::kChromeUIUntrustedScheme};
 const size_t kNonWildcardDomainNonPortSchemesSize =
     base::size(kNonWildcardDomainNonPortSchemes);
 
