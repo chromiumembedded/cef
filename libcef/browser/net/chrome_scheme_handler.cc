@@ -32,6 +32,7 @@
 #include "cef/grit/cef_resources.h"
 #include "chrome/browser/browser_about_handler.h"
 #include "chrome/browser/profiles/profile.h"
+#include "chrome/browser/ui/webui/chrome_untrusted_web_ui_controller_factory.h"
 #include "chrome/browser/ui/webui/chrome_web_ui_controller_factory.h"
 #include "chrome/browser/ui/webui/theme_source.h"
 #include "chrome/common/url_constants.h"
@@ -581,6 +582,11 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     if (controller.get())
       return controller;
 
+    controller = ChromeUntrustedWebUIControllerFactory::GetInstance()
+                     ->CreateWebUIControllerForURL(web_ui, url);
+    if (controller.get())
+      return controller;
+
     return ChromeWebUIControllerFactory::GetInstance()
         ->CreateWebUIControllerForURL(web_ui, url);
   }
@@ -597,6 +603,11 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     }
 
     type = content::ContentWebUIControllerFactory::GetInstance()->GetWebUIType(
+        browser_context, url);
+    if (type != content::WebUI::kNoWebUI)
+      return type;
+
+    type = ChromeUntrustedWebUIControllerFactory::GetInstance()->GetWebUIType(
         browser_context, url);
     if (type != content::WebUI::kNoWebUI)
       return type;
@@ -620,6 +631,8 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     }
 
     if (content::ContentWebUIControllerFactory::GetInstance()->UseWebUIForURL(
+            browser_context, url) ||
+        ChromeUntrustedWebUIControllerFactory::GetInstance()->UseWebUIForURL(
             browser_context, url) ||
         ChromeWebUIControllerFactory::GetInstance()->UseWebUIForURL(
             browser_context, url)) {
