@@ -695,6 +695,9 @@ CefWebUIControllerFactory* CefWebUIControllerFactory::GetInstance() {
 
 void RegisterWebUIControllerFactory() {
   // Channel all WebUI handling through CefWebUIControllerFactory.
+  content::WebUIControllerFactory::UnregisterFactoryForTesting(
+      content::ContentWebUIControllerFactory::GetInstance());
+
   content::WebUIControllerFactory::RegisterFactory(
       CefWebUIControllerFactory::GetInstance());
 }
