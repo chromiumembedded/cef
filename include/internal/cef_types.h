@@ -374,10 +374,11 @@ typedef struct _cef_settings_t {
 
   ///
   // Set to a value between 1024 and 65535 to enable remote debugging on the
-  // specified port. For example, if 8080 is specified the remote debugging URL
-  // will be http://localhost:8080. CEF can be remotely debugged from any CEF or
-  // Chrome browser window. Also configurable using the "remote-debugging-port"
-  // command-line switch.
+  // specified port. Also configurable using the "remote-debugging-port"
+  // command-line switch. Remote debugging can be accessed by loading the
+  // chrome://inspect page in Google Chrome. Port numbers 9222 and 9229 are
+  // discoverable by default. Other port numbers may need to be configured via
+  // "Discover network targets" on the Devices tab.
   ///
   int remote_debugging_port;
 
