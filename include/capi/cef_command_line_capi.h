@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=93f3d769c0d48ed6e1d91ad8a8e2f95d4ee54287$
+// $hash=3049c9960a95d32d61cc57ae998c0eba12820673$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_COMMAND_LINE_CAPI_H_
@@ -200,13 +200,13 @@ typedef struct _cef_command_line_t {
 ///
 // Create a new cef_command_line_t instance.
 ///
-CEF_EXPORT cef_command_line_t* cef_command_line_create();
+CEF_EXPORT cef_command_line_t* cef_command_line_create(void);
 
 ///
 // Returns the singleton global cef_command_line_t object. The returned object
 // will be read-only.
 ///
-CEF_EXPORT cef_command_line_t* cef_command_line_get_global();
+CEF_EXPORT cef_command_line_t* cef_command_line_get_global(void);
 
 #ifdef __cplusplus
 }

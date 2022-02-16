@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=2bdcad7f8e3c03285a5e5ddb9a02a5a2182f254c$
+// $hash=b7dd2429f492a8f2dd978f9500c63dd0e01035d4$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_V8_CAPI_H_
@@ -143,17 +143,17 @@ typedef struct _cef_v8context_t {
 ///
 // Returns the current (top) context object in the V8 context stack.
 ///
-CEF_EXPORT cef_v8context_t* cef_v8context_get_current_context();
+CEF_EXPORT cef_v8context_t* cef_v8context_get_current_context(void);
 
 ///
 // Returns the entered (bottom) context object in the V8 context stack.
 ///
-CEF_EXPORT cef_v8context_t* cef_v8context_get_entered_context();
+CEF_EXPORT cef_v8context_t* cef_v8context_get_entered_context(void);
 
 ///
 // Returns true (1) if V8 is currently inside a context.
 ///
-CEF_EXPORT int cef_v8context_in_context();
+CEF_EXPORT int cef_v8context_in_context(void);
 
 ///
 // Structure that should be implemented to handle V8 function calls. The
@@ -733,12 +733,12 @@ typedef struct _cef_v8value_t {
 ///
 // Create a new cef_v8value_t object of type undefined.
 ///
-CEF_EXPORT cef_v8value_t* cef_v8value_create_undefined();
+CEF_EXPORT cef_v8value_t* cef_v8value_create_undefined(void);
 
 ///
 // Create a new cef_v8value_t object of type null.
 ///
-CEF_EXPORT cef_v8value_t* cef_v8value_create_null();
+CEF_EXPORT cef_v8value_t* cef_v8value_create_null(void);
 
 ///
 // Create a new cef_v8value_t object of type bool.

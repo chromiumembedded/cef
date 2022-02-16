@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=0460e68eb7d1b1188706c42d14beafbf9a6f7126$
+// $hash=5d111a67218403f78737f2c4dc92d2fd96dc125d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_CRASH_UTIL_CAPI_H_
@@ -136,7 +136,7 @@ extern "C" {
 // CefSetCrashKeyValue function. These key/value pairs will be sent to the crash
 // server along with the crash dump file.
 ///
-CEF_EXPORT int cef_crash_reporting_enabled();
+CEF_EXPORT int cef_crash_reporting_enabled(void);
 
 ///
 // Sets or clears a specific key-value pair from the crash metadata.

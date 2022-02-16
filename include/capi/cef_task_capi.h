@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=e943dd2af818e5a5f19f6cbd1648896684c666c6$
+// $hash=2502258e69820d070a9f094d5e587a38e96cc930$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_TASK_CAPI_H_
@@ -122,7 +122,7 @@ typedef struct _cef_task_runner_t {
 // task runners. An NULL reference will be returned if this function is called
 // on an invalid thread.
 ///
-CEF_EXPORT cef_task_runner_t* cef_task_runner_get_for_current_thread();
+CEF_EXPORT cef_task_runner_t* cef_task_runner_get_for_current_thread(void);
 
 ///
 // Returns the task runner for the specified CEF thread.

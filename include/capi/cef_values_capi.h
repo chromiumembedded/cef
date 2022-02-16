@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=c557496bdc1403b25b22ca9354a942478131c7ce$
+// $hash=ee899158c4f61cc3f85176174d6fd9cbe2a3db4c$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_VALUES_CAPI_H_
@@ -219,7 +219,7 @@ typedef struct _cef_value_t {
 ///
 // Creates a new object.
 ///
-CEF_EXPORT cef_value_t* cef_value_create();
+CEF_EXPORT cef_value_t* cef_value_create(void);
 
 ///
 // Structure representing a binary value. Can be used on any process and thread.
@@ -523,7 +523,7 @@ typedef struct _cef_dictionary_value_t {
 ///
 // Creates a new object that is not owned by any other object.
 ///
-CEF_EXPORT cef_dictionary_value_t* cef_dictionary_value_create();
+CEF_EXPORT cef_dictionary_value_t* cef_dictionary_value_create(void);
 
 ///
 // Structure representing a list value. Can be used on any process and thread.
@@ -744,7 +744,7 @@ typedef struct _cef_list_value_t {
 ///
 // Creates a new object that is not owned by any other object.
 ///
-CEF_EXPORT cef_list_value_t* cef_list_value_create();
+CEF_EXPORT cef_list_value_t* cef_list_value_create(void);
 
 #ifdef __cplusplus
 }

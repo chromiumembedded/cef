@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=47b361878452f2a94e559782913d80beb0dba25a$
+// $hash=246d07b9790ff6bd574c59b1c237c603deaf88bf$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CAPI_H_
@@ -219,7 +219,7 @@ typedef struct _cef_request_t {
 ///
 // Create a new cef_request_t object.
 ///
-CEF_EXPORT cef_request_t* cef_request_create();
+CEF_EXPORT cef_request_t* cef_request_create(void);
 
 ///
 // Structure used to represent post data for a web request. The functions of
@@ -278,7 +278,7 @@ typedef struct _cef_post_data_t {
 ///
 // Create a new cef_post_data_t object.
 ///
-CEF_EXPORT cef_post_data_t* cef_post_data_create();
+CEF_EXPORT cef_post_data_t* cef_post_data_create(void);
 
 ///
 // Structure used to represent a single element in the request post data. The
@@ -344,7 +344,7 @@ typedef struct _cef_post_data_element_t {
 ///
 // Create a new cef_post_data_element_t object.
 ///
-CEF_EXPORT cef_post_data_element_t* cef_post_data_element_create();
+CEF_EXPORT cef_post_data_element_t* cef_post_data_element_create(void);
 
 #ifdef __cplusplus
 }

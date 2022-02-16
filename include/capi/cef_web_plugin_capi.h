@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=51060280dee57104eaef7b774e4b4895970c0057$
+// $hash=896d403c7765e7149c7b30387de4c5fa5012f9f9$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_WEB_PLUGIN_CAPI_H_
@@ -141,7 +141,7 @@ CEF_EXPORT void cef_visit_web_plugin_info(
 // whether it has already been loaded. Can be called on any thread in the
 // browser process.
 ///
-CEF_EXPORT void cef_refresh_web_plugins();
+CEF_EXPORT void cef_refresh_web_plugins(void);
 
 ///
 // Unregister an internal plugin. This may be undone the next time

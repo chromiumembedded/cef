@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=adfba3dd6479b96a95639c13ee1e07bed7b335d0$
+// $hash=665709ecf3ebad59e85285d319eae72197b9766f$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_APP_CAPI_H_
@@ -145,7 +145,7 @@ CEF_EXPORT int cef_initialize(const struct _cef_main_args_t* args,
 // This function should be called on the main application thread to shut down
 // the CEF browser process before the application exits.
 ///
-CEF_EXPORT void cef_shutdown();
+CEF_EXPORT void cef_shutdown(void);
 
 ///
 // Perform a single iteration of CEF message loop processing. This function is
@@ -162,7 +162,7 @@ CEF_EXPORT void cef_shutdown();
 // CefSettings.multi_threaded_message_loop value of false (0). This function
 // will not block.
 ///
-CEF_EXPORT void cef_do_message_loop_work();
+CEF_EXPORT void cef_do_message_loop_work(void);
 
 ///
 // Run the CEF message loop. Use this function instead of an application-
@@ -172,14 +172,14 @@ CEF_EXPORT void cef_do_message_loop_work();
 // CefSettings.multi_threaded_message_loop value of false (0). This function
 // will block until a quit message is received by the system.
 ///
-CEF_EXPORT void cef_run_message_loop();
+CEF_EXPORT void cef_run_message_loop(void);
 
 ///
 // Quit the CEF message loop that was started by calling cef_run_message_loop().
 // This function should only be called on the main application thread and only
 // if cef_run_message_loop() was used.
 ///
-CEF_EXPORT void cef_quit_message_loop();
+CEF_EXPORT void cef_quit_message_loop(void);
 
 ///
 // Set to true (1) before calling Windows APIs like TrackPopupMenu that enter a
@@ -192,7 +192,7 @@ CEF_EXPORT void cef_set_osmodal_loop(int osModalLoop);
 // Older versions of Windows should be left DPI-unaware because they do not
 // support DirectWrite and GDI fonts are kerned very badly.
 ///
-CEF_EXPORT void cef_enable_highdpi_support();
+CEF_EXPORT void cef_enable_highdpi_support(void);
 
 #ifdef __cplusplus
 }

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=0939a44345bea8df7ca5f1dbd6afbe41972121f2$
+// $hash=26fdd1f18f30d9e2a48aeeb5c69607d9d22d69ca$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_ORIGIN_WHITELIST_CAPI_H_
@@ -102,7 +102,7 @@ CEF_EXPORT int cef_remove_cross_origin_whitelist_entry(
 // Remove all entries from the cross-origin access whitelist. Returns false (0)
 // if the whitelist cannot be accessed.
 ///
-CEF_EXPORT int cef_clear_cross_origin_whitelist();
+CEF_EXPORT int cef_clear_cross_origin_whitelist(void);
 
 #ifdef __cplusplus
 }

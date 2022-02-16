@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=2fd0db428ce5902d59a7802c901e1c13b2367b5a$
+// $hash=5e383d792ce9dc1809d3d3fdeabb9c60fb9ff1ba$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_DISPLAY_CAPI_H_
@@ -108,7 +108,7 @@ typedef struct _cef_display_t {
 ///
 // Returns the primary Display.
 ///
-CEF_EXPORT cef_display_t* cef_display_get_primary();
+CEF_EXPORT cef_display_t* cef_display_get_primary(void);
 
 ///
 // Returns the Display nearest |point|. Set |input_pixel_coords| to true (1) if
@@ -131,7 +131,7 @@ CEF_EXPORT cef_display_t* cef_display_get_matching_bounds(
 // Returns the total number of Displays. Mirrored displays are excluded; this
 // function is intended to return the number of distinct, usable displays.
 ///
-CEF_EXPORT size_t cef_display_get_count();
+CEF_EXPORT size_t cef_display_get_count(void);
 
 ///
 // Returns all Displays. Mirrored displays are excluded; this function is

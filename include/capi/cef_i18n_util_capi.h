@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b6168013910802cf6d7603892741385958026dcd$
+// $hash=c063e5f0e0c9fef71bdb56e7cc3ea775de17a3ea$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_I18N_UTIL_CAPI_H_
@@ -49,7 +49,7 @@ extern "C" {
 ///
 // Returns true (1) if the application text direction is right-to-left.
 ///
-CEF_EXPORT int cef_is_rtl();
+CEF_EXPORT int cef_is_rtl(void);
 
 #ifdef __cplusplus
 }

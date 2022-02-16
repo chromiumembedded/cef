@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=a9e35ca17785f77666db7650208cacfd9a85c3e0$
+// $hash=6d8a7e3c0ed66cad10e8a0c59fed51431ec82ce5$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESOURCE_BUNDLE_CAPI_H_
@@ -95,7 +95,7 @@ typedef struct _cef_resource_bundle_t {
 ///
 // Returns the global resource bundle instance.
 ///
-CEF_EXPORT cef_resource_bundle_t* cef_resource_bundle_get_global();
+CEF_EXPORT cef_resource_bundle_t* cef_resource_bundle_get_global(void);
 
 #ifdef __cplusplus
 }
