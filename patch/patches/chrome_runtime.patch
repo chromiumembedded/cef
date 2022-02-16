@@ -156,7 +156,7 @@ index dbd8f7ebe071d..b0f8d3d7bcff9 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index db9c606e0ebc3..8541ee864eda9 100644
+index db9c606e0ebc3..e08f55ee85c61 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -28,6 +28,7 @@
@@ -197,19 +197,6 @@ index db9c606e0ebc3..8541ee864eda9 100644
  }
  
  std::vector<base::FilePath>
-@@ -5645,10 +5650,12 @@ bool ChromeContentBrowserClient::HandleWebUI(
-   }
- #endif  // BUILDFLAG(IS_WIN)
- 
-+#if !BUILDFLAG(ENABLE_CEF)
-   if (!ChromeWebUIControllerFactory::GetInstance()->UseWebUIForURL(
-           browser_context, *url)) {
-     return false;
-   }
-+#endif
- 
- #if BUILDFLAG(IS_CHROMEOS_ASH)
-   // Special case : in ChromeOS in Guest mode bookmarks and history are
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
 index 87f0af8fb00cf..87332d3120c1a 100644
 --- chrome/browser/chrome_content_browser_client.h
