@@ -530,8 +530,10 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
 
   // Returns true if WebUI is allowed to handle the specified |url|.
   static bool AllowWebUIForURL(const GURL& url) {
-    if (!url.SchemeIs(content::kChromeUIScheme))
+    if (!url.SchemeIs(content::kChromeUIScheme) &&
+        !url.SchemeIs(content::kChromeUIUntrustedScheme)) {
       return false;
+    }
 
     if (IsAllowedWebUIHost(url.host()))
       return true;
