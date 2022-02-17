@@ -55,7 +55,7 @@ typedef pid_t cef_platform_thread_id_t;
 ///
 // Returns the current platform thread ID.
 ///
-CEF_EXPORT cef_platform_thread_id_t cef_get_current_platform_thread_id();
+CEF_EXPORT cef_platform_thread_id_t cef_get_current_platform_thread_id(void);
 
 #if defined(OS_WIN)
 typedef DWORD cef_platform_thread_handle_t;
@@ -69,7 +69,7 @@ typedef pthread_t cef_platform_thread_handle_t;
 // Returns the current platform thread handle.
 ///
 CEF_EXPORT cef_platform_thread_handle_t
-cef_get_current_platform_thread_handle();
+cef_get_current_platform_thread_handle(void);
 
 #ifdef __cplusplus
 }

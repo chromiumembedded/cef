@@ -69,7 +69,7 @@ extern "C" {
 // thread-safe and must only be accessed on the browser process UI thread.
 ///
 #if defined(CEF_X11)
-CEF_EXPORT XDisplay* cef_get_xdisplay();
+CEF_EXPORT XDisplay* cef_get_xdisplay(void);
 #endif
 
 ///

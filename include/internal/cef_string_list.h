@@ -46,7 +46,7 @@ typedef void* cef_string_list_t;
 ///
 // Allocate a new string map.
 ///
-CEF_EXPORT cef_string_list_t cef_string_list_alloc();
+CEF_EXPORT cef_string_list_t cef_string_list_alloc(void);
 
 ///
 // Return the number of elements in the string list.

@@ -58,7 +58,7 @@ extern "C" {
 // multiple of this object and to destroy the object immediately after passing
 // into the CefExecutProcess() and/or CefInitialize() functions.
 ///
-void* cef_sandbox_info_create();
+void* cef_sandbox_info_create(void);
 
 ///
 // Destroy the specified sandbox information object.

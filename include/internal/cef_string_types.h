@@ -175,9 +175,9 @@ typedef cef_string_utf16_t* cef_string_userfree_utf16_t;
 // calling the associated free function.
 ///
 
-CEF_EXPORT cef_string_userfree_wide_t cef_string_userfree_wide_alloc();
-CEF_EXPORT cef_string_userfree_utf8_t cef_string_userfree_utf8_alloc();
-CEF_EXPORT cef_string_userfree_utf16_t cef_string_userfree_utf16_alloc();
+CEF_EXPORT cef_string_userfree_wide_t cef_string_userfree_wide_alloc(void);
+CEF_EXPORT cef_string_userfree_utf8_t cef_string_userfree_utf8_alloc(void);
+CEF_EXPORT cef_string_userfree_utf16_t cef_string_userfree_utf16_alloc(void);
 
 ///
 // These functions free the string structure allocated by the associated

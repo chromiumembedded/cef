@@ -44,7 +44,7 @@ extern "C" {
 ///
 // Gets the current log level.
 ///
-CEF_EXPORT int cef_get_min_log_level();
+CEF_EXPORT int cef_get_min_log_level(void);
 
 ///
 // Gets the current vlog level for the given file (usually taken from
