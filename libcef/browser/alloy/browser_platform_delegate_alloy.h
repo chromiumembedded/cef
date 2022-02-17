@@ -10,6 +10,7 @@
 #include "libcef/browser/web_contents_dialog_helper.h"
 
 #include "base/memory/weak_ptr.h"
+#include "components/find_in_page/find_notification_details.h"
 #include "content/public/browser/web_contents.h"
 #include "ui/gfx/geometry/size.h"
 
@@ -58,12 +59,22 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
   void PrintToPDF(const CefString& path,
                   const CefPdfPrintSettings& settings,
                   CefRefPtr<CefPdfPrintCallback> callback) override;
-  void Find(int identifier,
-            const CefString& searchText,
+  void Find(const CefString& searchText,
             bool forward,
             bool matchCase,
             bool findNext) override;
   void StopFinding(bool clearSelection) override;
+
+  // Called from AlloyBrowserHostImpl::FindReply().
+  bool HandleFindReply(int request_id,
+                       int number_of_matches,
+                       const gfx::Rect& selection_rect,
+                       int active_match_ordinal,
+                       bool final_update);
+
+  const find_in_page::FindNotificationDetails& last_search_result() const {
+    return last_search_result_;
+  }
 
  protected:
   CefBrowserPlatformDelegateAlloy();
@@ -96,8 +107,9 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
   // Used for the print preview dialog.
   std::unique_ptr<CefWebContentsDialogHelper> web_contents_dialog_helper_;
 
-  // Used to provide unique incremental IDs for each find request.
-  int find_request_id_counter_ = 0;
+  // The last find result. This object contains details about the number of
+  // matches, the find selection rectangle, etc.
+  find_in_page::FindNotificationDetails last_search_result_;
 
   // Used when the browser is hosting an extension.
   extensions::ExtensionHost* extension_host_ = nullptr;

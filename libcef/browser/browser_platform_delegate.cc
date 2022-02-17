@@ -381,8 +381,7 @@ void CefBrowserPlatformDelegate::PrintToPDF(
   NOTIMPLEMENTED();
 }
 
-void CefBrowserPlatformDelegate::Find(int identifier,
-                                      const CefString& searchText,
+void CefBrowserPlatformDelegate::Find(const CefString& searchText,
                                       bool forward,
                                       bool matchCase,
                                       bool findNext) {

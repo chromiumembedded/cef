@@ -839,7 +839,7 @@ void RootWindowWin::OnFindEvent() {
       find_what_last_ = find_buff_;
     }
 
-    browser->GetHost()->Find(0, find_what,
+    browser->GetHost()->Find(find_what,
                              (find_state_.Flags & FR_DOWN) ? true : false,
                              match_case, find_next_);
     if (!find_next_)

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7f4782003c961c3bda54d02556dace8d7b5e4e17$
+// $hash=289bb032a65bfd1f35a97d93e14df1f5762a9394$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -445,7 +445,6 @@ browser_host_print_to_pdf(struct _cef_browser_host_t* self,
 }
 
 void CEF_CALLBACK browser_host_find(struct _cef_browser_host_t* self,
-                                    int identifier,
                                     const cef_string_t* searchText,
                                     int forward,
                                     int matchCase,
@@ -464,8 +463,8 @@ void CEF_CALLBACK browser_host_find(struct _cef_browser_host_t* self,
 
   // Execute
   CefBrowserHostCppToC::Get(self)->Find(
-      identifier, CefString(searchText), forward ? true : false,
-      matchCase ? true : false, findNext ? true : false);
+      CefString(searchText), forward ? true : false, matchCase ? true : false,
+      findNext ? true : false);
 }
 
 void CEF_CALLBACK browser_host_stop_finding(struct _cef_browser_host_t* self,

@@ -18,6 +18,8 @@
 #include "base/logging.h"
 #include "chrome/browser/printing/print_view_manager.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
+#include "components/find_in_page/find_tab_helper.h"
+#include "components/find_in_page/find_types.h"
 #include "components/zoom/zoom_controller.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/browser/web_contents/web_contents_impl.h"
@@ -108,6 +110,7 @@ void CefBrowserPlatformDelegateAlloy::WebContentsCreated(
     content::WebContents* web_contents,
     bool owned) {
   CefBrowserPlatformDelegate::WebContentsCreated(web_contents, owned);
+  find_in_page::FindTabHelper::CreateForWebContents(web_contents);
 
   if (owned) {
     SetOwnedWebContents(web_contents);
@@ -387,37 +390,47 @@ void CefBrowserPlatformDelegateAlloy::PrintToPDF(
                    settings, std::move(pdf_callback));
 }
 
-void CefBrowserPlatformDelegateAlloy::Find(int identifier,
-                                           const CefString& searchText,
+void CefBrowserPlatformDelegateAlloy::Find(const CefString& searchText,
                                            bool forward,
                                            bool matchCase,
                                            bool findNext) {
   if (!web_contents_)
     return;
 
-  // Every find request must have a unique ID and these IDs must strictly
-  // increase so that newer requests always have greater IDs than older
-  // requests.
-  if (identifier <= find_request_id_counter_)
-    identifier = ++find_request_id_counter_;
-  else
-    find_request_id_counter_ = identifier;
-
-  auto options = blink::mojom::FindOptions::New();
-  options->forward = forward;
-  options->match_case = matchCase;
-  options->find_match = findNext;
-  web_contents_->Find(identifier, searchText, std::move(options));
+  find_in_page::FindTabHelper::FromWebContents(web_contents_)
+      ->StartFinding(searchText.ToString16(), forward, matchCase, findNext,
+                     /*run_synchronously_for_testing=*/false);
 }
 
 void CefBrowserPlatformDelegateAlloy::StopFinding(bool clearSelection) {
   if (!web_contents_)
     return;
 
-  content::StopFindAction action =
-      clearSelection ? content::STOP_FIND_ACTION_CLEAR_SELECTION
-                     : content::STOP_FIND_ACTION_KEEP_SELECTION;
-  web_contents_->StopFinding(action);
+  last_search_result_ = find_in_page::FindNotificationDetails();
+  find_in_page::FindTabHelper::FromWebContents(web_contents_)
+      ->StopFinding(clearSelection ? find_in_page::SelectionAction::kClear
+                                   : find_in_page::SelectionAction::kKeep);
+}
+
+bool CefBrowserPlatformDelegateAlloy::HandleFindReply(
+    int request_id,
+    int number_of_matches,
+    const gfx::Rect& selection_rect,
+    int active_match_ordinal,
+    bool final_update) {
+  if (!web_contents_)
+    return false;
+
+  auto find_in_page =
+      find_in_page::FindTabHelper::FromWebContents(web_contents_);
+
+  find_in_page->HandleFindReply(request_id, number_of_matches, selection_rect,
+                                active_match_ordinal, final_update);
+  if (!(find_in_page->find_result() == last_search_result_)) {
+    last_search_result_ = find_in_page->find_result();
+    return true;
+  }
+  return false;
 }
 
 base::RepeatingClosure

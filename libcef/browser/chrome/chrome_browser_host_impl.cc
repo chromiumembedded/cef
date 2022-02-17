@@ -215,8 +215,7 @@ void ChromeBrowserHostImpl::PrintToPDF(
   callback->OnPdfPrintFinished(CefString(), false);
 }
 
-void ChromeBrowserHostImpl::Find(int identifier,
-                                 const CefString& searchText,
+void ChromeBrowserHostImpl::Find(const CefString& searchText,
                                  bool forward,
                                  bool matchCase,
                                  bool findNext) {
