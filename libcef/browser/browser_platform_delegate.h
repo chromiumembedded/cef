@@ -353,8 +353,7 @@ class CefBrowserPlatformDelegate {
   virtual void PrintToPDF(const CefString& path,
                           const CefPdfPrintSettings& settings,
                           CefRefPtr<CefPdfPrintCallback> callback);
-  virtual void Find(int identifier,
-                    const CefString& searchText,
+  virtual void Find(const CefString& searchText,
                     bool forward,
                     bool matchCase,
                     bool findNext);

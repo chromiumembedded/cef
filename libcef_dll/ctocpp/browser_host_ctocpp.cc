@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=80f473fbb920009cc911a60c2ed7517eeccad06e$
+// $hash=2edab12ab1759213ab9a6b7620ea39a74291abc7$
 //
 
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
@@ -384,8 +384,7 @@ void CefBrowserHostCToCpp::PrintToPDF(const CefString& path,
 }
 
 NO_SANITIZE("cfi-icall")
-void CefBrowserHostCToCpp::Find(int identifier,
-                                const CefString& searchText,
+void CefBrowserHostCToCpp::Find(const CefString& searchText,
                                 bool forward,
                                 bool matchCase,
                                 bool findNext) {
@@ -403,8 +402,7 @@ void CefBrowserHostCToCpp::Find(int identifier,
     return;
 
   // Execute
-  _struct->find(_struct, identifier, searchText.GetStruct(), forward, matchCase,
-                findNext);
+  _struct->find(_struct, searchText.GetStruct(), forward, matchCase, findNext);
 }
 
 NO_SANITIZE("cfi-icall")

@@ -74,8 +74,7 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   void PrintToPDF(const CefString& path,
                   const CefPdfPrintSettings& settings,
                   CefRefPtr<CefPdfPrintCallback> callback) override;
-  void Find(int identifier,
-            const CefString& searchText,
+  void Find(const CefString& searchText,
             bool forward,
             bool matchCase,
             bool findNext) override;

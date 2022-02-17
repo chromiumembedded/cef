@@ -9,6 +9,7 @@
 #include <utility>
 
 #include "libcef/browser/alloy/alloy_browser_context.h"
+#include "libcef/browser/alloy/browser_platform_delegate_alloy.h"
 #include "libcef/browser/audio_capturer.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_info.h"
@@ -450,21 +451,19 @@ void AlloyBrowserHostImpl::PrintToPDF(const CefString& path,
   }
 }
 
-void AlloyBrowserHostImpl::Find(int identifier,
-                                const CefString& searchText,
+void AlloyBrowserHostImpl::Find(const CefString& searchText,
                                 bool forward,
                                 bool matchCase,
                                 bool findNext) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
-                  base::BindOnce(&AlloyBrowserHostImpl::Find, this, identifier,
-                                 searchText, forward, matchCase, findNext));
+                  base::BindOnce(&AlloyBrowserHostImpl::Find, this, searchText,
+                                 forward, matchCase, findNext));
     return;
   }
 
   if (platform_delegate_) {
-    platform_delegate_->Find(identifier, searchText, forward, matchCase,
-                             findNext);
+    platform_delegate_->Find(searchText, forward, matchCase, findNext);
   }
 }
 
@@ -860,13 +859,21 @@ void AlloyBrowserHostImpl::FindReply(content::WebContents* web_contents,
                                      const gfx::Rect& selection_rect,
                                      int active_match_ordinal,
                                      bool final_update) {
-  if (client_.get()) {
-    CefRefPtr<CefFindHandler> handler = client_->GetFindHandler();
-    if (handler.get()) {
-      CefRect rect(selection_rect.x(), selection_rect.y(),
-                   selection_rect.width(), selection_rect.height());
-      handler->OnFindResult(this, request_id, number_of_matches, rect,
-                            active_match_ordinal, final_update);
+  auto alloy_delegate =
+      static_cast<CefBrowserPlatformDelegateAlloy*>(platform_delegate());
+  if (alloy_delegate->HandleFindReply(request_id, number_of_matches,
+                                      selection_rect, active_match_ordinal,
+                                      final_update)) {
+    if (client_) {
+      if (auto handler = client_->GetFindHandler()) {
+        const auto& details = alloy_delegate->last_search_result();
+        CefRect rect(details.selection_rect().x(), details.selection_rect().y(),
+                     details.selection_rect().width(),
+                     details.selection_rect().height());
+        handler->OnFindResult(
+            this, details.request_id(), details.number_of_matches(), rect,
+            details.active_match_ordinal(), details.final_update());
+      }
     }
   }
 }

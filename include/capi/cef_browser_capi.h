@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=8af93d03e0b2a6b50d7612b145599600285b76d4$
+// $hash=b80e84c0039ab45d5c4562d64b67a84766c0dab3$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -450,18 +450,15 @@ typedef struct _cef_browser_host_t {
       struct _cef_pdf_print_callback_t* callback);
 
   ///
-  // Search for |searchText|. |identifier| must be a unique ID and these IDs
-  // must strictly increase so that newer requests always have greater IDs than
-  // older requests. If |identifier| is zero or less than the previous ID value
-  // then it will be automatically assigned a new valid ID. |forward| indicates
-  // whether to search forward or backward within the page. |matchCase|
-  // indicates whether the search should be case-sensitive. |findNext| indicates
-  // whether this is the first request or a follow-up. The cef_find_handler_t
-  // instance, if any, returned via cef_client_t::GetFindHandler will be called
-  // to report find results.
+  // Search for |searchText|. |forward| indicates whether to search forward or
+  // backward within the page. |matchCase| indicates whether the search should
+  // be case-sensitive. |findNext| indicates whether this is the first request
+  // or a follow-up. The search will be restarted if |searchText| or |matchCase|
+  // change. The search will be stopped if |searchText| is NULL. The
+  // cef_find_handler_t instance, if any, returned via
+  // cef_client_t::GetFindHandler will be called to report find results.
   ///
   void(CEF_CALLBACK* find)(struct _cef_browser_host_t* self,
-                           int identifier,
                            const cef_string_t* searchText,
                            int forward,
                            int matchCase,

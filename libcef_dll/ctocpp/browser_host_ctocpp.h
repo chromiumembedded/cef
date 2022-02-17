@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=90e6257bcf2ef9af754ac47c5948ab8cc3171e21$
+// $hash=6de4205143b6855e7ccf54da14a0494db0b4aaa3$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_
@@ -64,8 +64,7 @@ class CefBrowserHostCToCpp : public CefCToCppRefCounted<CefBrowserHostCToCpp,
   void PrintToPDF(const CefString& path,
                   const CefPdfPrintSettings& settings,
                   CefRefPtr<CefPdfPrintCallback> callback) override;
-  void Find(int identifier,
-            const CefString& searchText,
+  void Find(const CefString& searchText,
             bool forward,
             bool matchCase,
             bool findNext) override;
