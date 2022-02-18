@@ -1,0 +1,37 @@
+diff --git chrome/browser/printing/print_view_manager_common.cc chrome/browser/printing/print_view_manager_common.cc
+index fe86f14eeacb8..41858f4357f8e 100644
+--- chrome/browser/printing/print_view_manager_common.cc
++++ chrome/browser/printing/print_view_manager_common.cc
+@@ -53,6 +53,8 @@ bool StoreFullPagePlugin(content::WebContents** result,
+ }
+ #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
+ 
++}  // namespace
++
+ // Pick the right RenderFrameHost based on the WebContents.
+ content::RenderFrameHost* GetRenderFrameHostToUse(
+     content::WebContents* contents) {
+@@ -68,8 +70,6 @@ content::RenderFrameHost* GetRenderFrameHostToUse(
+   return contents->GetMainFrame();
+ }
+ 
+-}  // namespace
+-
+ void StartPrint(
+     content::WebContents* contents,
+     mojo::PendingAssociatedRemote<mojom::PrintRenderer> print_renderer,
+diff --git chrome/browser/printing/print_view_manager_common.h chrome/browser/printing/print_view_manager_common.h
+index bf67ddba35b34..7f4dcc216bbb4 100644
+--- chrome/browser/printing/print_view_manager_common.h
++++ chrome/browser/printing/print_view_manager_common.h
+@@ -36,6 +36,10 @@ content::RenderFrameHost* GetFrameToPrint(content::WebContents* contents);
+ // guest's WebContents instead.
+ content::WebContents* GetWebContentsToUse(content::WebContents* contents);
+ 
++// Pick the right RenderFrameHost based on the WebContents.
++content::RenderFrameHost* GetRenderFrameHostToUse(
++    content::WebContents* contents);
++
+ }  // namespace printing
+ 
+ #endif  // CHROME_BROWSER_PRINTING_PRINT_VIEW_MANAGER_COMMON_H_

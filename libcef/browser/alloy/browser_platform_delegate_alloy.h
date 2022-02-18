@@ -81,12 +81,6 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
 
   base::RepeatingClosure GetBoundsChangedCallback();
 
-  // Returns the WebContents most likely to handle an action. If extensions are
-  // enabled and this browser has a full-page guest (for example, a full-page
-  // PDF viewer extension) then the guest's WebContents will be returned.
-  // Otherwise, the browser's WebContents will be returned.
-  content::WebContents* GetActionableWebContents() const;
-
   // Called from BrowserPlatformDelegateNative::set_windowless_handler().
   void set_as_secondary() { primary_ = false; }
 
