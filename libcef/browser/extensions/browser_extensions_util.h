@@ -26,10 +26,6 @@ namespace extensions {
 
 class Extension;
 
-// Returns the full-page guest WebContents for the specified |owner|, if any.
-content::WebContents* GetFullPageGuestForOwnerContents(
-    content::WebContents* owner);
-
 // Populates |guests| with all guest WebContents with the specified |owner|.
 void GetAllGuestsForOwnerContents(content::WebContents* owner,
                                   std::vector<content::WebContents*>* guests);

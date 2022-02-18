@@ -15,7 +15,6 @@
 
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_preview_dialog_controller.h"
-#include "content/browser/browser_plugin/browser_plugin_embedder.h"
 #include "content/browser/browser_plugin/browser_plugin_guest.h"
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/browser_context.h"
@@ -35,21 +34,6 @@ bool InsertWebContents(std::vector<content::WebContents*>* vector,
 }
 
 }  // namespace
-
-content::WebContents* GetFullPageGuestForOwnerContents(
-    content::WebContents* owner) {
-  content::WebContentsImpl* owner_impl =
-      static_cast<content::WebContentsImpl*>(owner);
-  content::BrowserPluginEmbedder* plugin_embedder =
-      owner_impl->GetBrowserPluginEmbedder();
-  if (plugin_embedder) {
-    content::BrowserPluginGuest* plugin_guest =
-        plugin_embedder->GetFullPageGuest();
-    if (plugin_guest)
-      return plugin_guest->web_contents();
-  }
-  return nullptr;
-}
 
 void GetAllGuestsForOwnerContents(content::WebContents* owner,
                                   std::vector<content::WebContents*>* guests) {

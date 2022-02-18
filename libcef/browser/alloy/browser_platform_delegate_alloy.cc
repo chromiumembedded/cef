@@ -17,6 +17,7 @@
 
 #include "base/logging.h"
 #include "chrome/browser/printing/print_view_manager.h"
+#include "chrome/browser/printing/print_view_manager_common.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "components/find_in_page/find_tab_helper.h"
 #include "components/find_in_page/find_types.h"
@@ -26,6 +27,7 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
 #include "extensions/browser/process_manager.h"
+#include "pdf/pdf_features.h"
 #include "printing/mojom/print.mojom.h"
 #include "third_party/blink/public/mojom/frame/find_in_page.mojom.h"
 
@@ -341,33 +343,30 @@ void CefBrowserPlatformDelegateAlloy::SetAccessibilityState(
 bool CefBrowserPlatformDelegateAlloy::IsPrintPreviewSupported() const {
   REQUIRE_ALLOY_RUNTIME();
 
-  auto actionable_contents = GetActionableWebContents();
-  if (!actionable_contents)
-    return false;
-
-  auto cef_browser_context = CefBrowserContext::FromBrowserContext(
-      actionable_contents->GetBrowserContext());
-  if (!cef_browser_context->IsPrintPreviewSupported()) {
-    return false;
-  }
-
   // Print preview is not currently supported with OSR.
-  return !IsWindowless();
+  if (IsWindowless())
+    return false;
+
+  auto cef_browser_context =
+      CefBrowserContext::FromBrowserContext(web_contents_->GetBrowserContext());
+  return cef_browser_context->IsPrintPreviewSupported();
 }
 
 void CefBrowserPlatformDelegateAlloy::Print() {
   REQUIRE_ALLOY_RUNTIME();
 
-  auto actionable_contents = GetActionableWebContents();
-  if (!actionable_contents)
+  auto contents_to_use = printing::GetWebContentsToUse(web_contents_);
+  if (!contents_to_use)
     return;
 
-  auto rfh = actionable_contents->GetMainFrame();
+  auto rfh_to_use = printing::GetRenderFrameHostToUse(contents_to_use);
+  if (!rfh_to_use)
+    return;
 
   if (IsPrintPreviewSupported()) {
-    GetPrintViewManager(actionable_contents)->PrintPreviewNow(rfh, false);
+    GetPrintViewManager(contents_to_use)->PrintPreviewNow(rfh_to_use, false);
   } else {
-    GetPrintViewManager(actionable_contents)->PrintNow(rfh);
+    GetPrintViewManager(contents_to_use)->PrintNow(rfh_to_use);
   }
 }
 
@@ -377,17 +376,22 @@ void CefBrowserPlatformDelegateAlloy::PrintToPDF(
     CefRefPtr<CefPdfPrintCallback> callback) {
   REQUIRE_ALLOY_RUNTIME();
 
-  content::WebContents* actionable_contents = GetActionableWebContents();
-  if (!actionable_contents)
+  auto contents_to_use = printing::GetWebContentsToUse(web_contents_);
+  if (!contents_to_use)
     return;
+
+  auto rfh_to_use = printing::GetRenderFrameHostToUse(contents_to_use);
+  if (!rfh_to_use)
+    return;
+
   printing::CefPrintViewManager::PdfPrintCallback pdf_callback;
   if (callback.get()) {
     pdf_callback = base::BindOnce(&CefPdfPrintCallback::OnPdfPrintFinished,
                                   callback.get(), path);
   }
-  GetPrintViewManager(actionable_contents)
-      ->PrintToPDF(actionable_contents->GetMainFrame(), base::FilePath(path),
-                   settings, std::move(pdf_callback));
+  GetPrintViewManager(contents_to_use)
+      ->PrintToPDF(rfh_to_use, base::FilePath(path), settings,
+                   std::move(pdf_callback));
 }
 
 void CefBrowserPlatformDelegateAlloy::Find(const CefString& searchText,
@@ -440,17 +444,6 @@ CefBrowserPlatformDelegateAlloy::GetBoundsChangedCallback() {
   }
 
   return base::RepeatingClosure();
-}
-
-content::WebContents*
-CefBrowserPlatformDelegateAlloy::GetActionableWebContents() const {
-  if (web_contents_ && extensions::ExtensionsEnabled()) {
-    content::WebContents* guest_contents =
-        extensions::GetFullPageGuestForOwnerContents(web_contents_);
-    if (guest_contents)
-      return guest_contents;
-  }
-  return web_contents_;
 }
 
 void CefBrowserPlatformDelegateAlloy::SetOwnedWebContents(
