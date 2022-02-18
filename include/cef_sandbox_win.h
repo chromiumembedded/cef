@@ -50,13 +50,13 @@ extern "C" {
 // 2. Link the executable with the cef_sandbox static library.
 // 3. Call the cef_sandbox_info_create() function from within the executable
 //    (not from a separate DLL) and pass the resulting pointer into both the
-//    CefExecutProcess() and CefInitialize() functions via the
+//    CefExecuteProcess() and CefInitialize() functions via the
 //    |windows_sandbox_info| parameter.
 
 ///
 // Create the sandbox information object for this process. It is safe to create
 // multiple of this object and to destroy the object immediately after passing
-// into the CefExecutProcess() and/or CefInitialize() functions.
+// into the CefExecuteProcess() and/or CefInitialize() functions.
 ///
 void* cef_sandbox_info_create();
 
