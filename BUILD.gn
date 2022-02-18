@@ -657,8 +657,6 @@ static_library("libcef_static") {
     "libcef/browser/thread_util.h",
     "libcef/browser/web_contents_dialog_helper.cc",
     "libcef/browser/web_contents_dialog_helper.h",
-    "libcef/browser/web_plugin_impl.cc",
-    "libcef/browser/web_plugin_impl.h",
     "libcef/browser/x509_certificate_impl.cc",
     "libcef/browser/x509_certificate_impl.h",
     "libcef/browser/x509_cert_principal_impl.cc",

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ac1c94b2e83a4c806bed11fd0f456f8fe7ff1c44$
+// $hash=5bf495a6015a7c0937225685bfbe8e0163e67583$
 //
 
 #include <dlfcn.h>
@@ -48,7 +48,6 @@
 #include "include/capi/cef_v8_capi.h"
 #include "include/capi/cef_values_capi.h"
 #include "include/capi/cef_waitable_event_capi.h"
-#include "include/capi/cef_web_plugin_capi.h"
 #include "include/capi/cef_xml_reader_capi.h"
 #include "include/capi/cef_zip_reader_capi.h"
 #include "include/capi/test/cef_test_helpers_capi.h"
@@ -171,14 +170,6 @@ typedef int64 (*cef_now_from_system_trace_time_ptr)();
 typedef int (*cef_register_extension_ptr)(const cef_string_t*,
                                           const cef_string_t*,
                                           struct _cef_v8handler_t*);
-typedef void (*cef_visit_web_plugin_info_ptr)(
-    struct _cef_web_plugin_info_visitor_t*);
-typedef void (*cef_refresh_web_plugins_ptr)();
-typedef void (*cef_unregister_internal_web_plugin_ptr)(const cef_string_t*);
-typedef void (*cef_register_web_plugin_crash_ptr)(const cef_string_t*);
-typedef void (*cef_is_web_plugin_unstable_ptr)(
-    const cef_string_t*,
-    struct _cef_web_plugin_unstable_callback_t*);
 typedef void (*cef_execute_java_script_with_user_gesture_for_tests_ptr)(
     struct _cef_frame_t*,
     const cef_string_t*);
@@ -565,11 +556,6 @@ struct libcef_pointers {
   cef_end_tracing_ptr cef_end_tracing;
   cef_now_from_system_trace_time_ptr cef_now_from_system_trace_time;
   cef_register_extension_ptr cef_register_extension;
-  cef_visit_web_plugin_info_ptr cef_visit_web_plugin_info;
-  cef_refresh_web_plugins_ptr cef_refresh_web_plugins;
-  cef_unregister_internal_web_plugin_ptr cef_unregister_internal_web_plugin;
-  cef_register_web_plugin_crash_ptr cef_register_web_plugin_crash;
-  cef_is_web_plugin_unstable_ptr cef_is_web_plugin_unstable;
   cef_execute_java_script_with_user_gesture_for_tests_ptr
       cef_execute_java_script_with_user_gesture_for_tests;
   cef_browser_host_create_browser_ptr cef_browser_host_create_browser;
@@ -782,11 +768,6 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_end_tracing);
   INIT_ENTRY(cef_now_from_system_trace_time);
   INIT_ENTRY(cef_register_extension);
-  INIT_ENTRY(cef_visit_web_plugin_info);
-  INIT_ENTRY(cef_refresh_web_plugins);
-  INIT_ENTRY(cef_unregister_internal_web_plugin);
-  INIT_ENTRY(cef_register_web_plugin_crash);
-  INIT_ENTRY(cef_is_web_plugin_unstable);
   INIT_ENTRY(cef_execute_java_script_with_user_gesture_for_tests);
   INIT_ENTRY(cef_browser_host_create_browser);
   INIT_ENTRY(cef_browser_host_create_browser_sync);
@@ -1230,32 +1211,6 @@ int cef_register_extension(const cef_string_t* extension_name,
                            struct _cef_v8handler_t* handler) {
   return g_libcef_pointers.cef_register_extension(extension_name,
                                                   javascript_code, handler);
-}
-
-NO_SANITIZE("cfi-icall")
-void cef_visit_web_plugin_info(struct _cef_web_plugin_info_visitor_t* visitor) {
-  g_libcef_pointers.cef_visit_web_plugin_info(visitor);
-}
-
-NO_SANITIZE("cfi-icall") void cef_refresh_web_plugins() {
-  g_libcef_pointers.cef_refresh_web_plugins();
-}
-
-NO_SANITIZE("cfi-icall")
-void cef_unregister_internal_web_plugin(const cef_string_t* path) {
-  g_libcef_pointers.cef_unregister_internal_web_plugin(path);
-}
-
-NO_SANITIZE("cfi-icall")
-void cef_register_web_plugin_crash(const cef_string_t* path) {
-  g_libcef_pointers.cef_register_web_plugin_crash(path);
-}
-
-NO_SANITIZE("cfi-icall")
-void cef_is_web_plugin_unstable(
-    const cef_string_t* path,
-    struct _cef_web_plugin_unstable_callback_t* callback) {
-  g_libcef_pointers.cef_is_web_plugin_unstable(path, callback);
 }
 
 NO_SANITIZE("cfi-icall")

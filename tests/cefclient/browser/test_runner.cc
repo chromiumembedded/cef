@@ -13,7 +13,6 @@
 #include "include/cef_parser.h"
 #include "include/cef_task.h"
 #include "include/cef_trace.h"
-#include "include/cef_web_plugin.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/cefclient/browser/binding_test.h"
@@ -43,7 +42,6 @@ const char kTestOrigin[] = "http://tests/";
 // Pages handled via StringResourceProvider.
 const char kTestGetSourcePage[] = "get_source.html";
 const char kTestGetTextPage[] = "get_text.html";
-const char kTestPluginInfoPage[] = "plugin_info.html";
 
 // Set page data and navigate the browser. Used in combination with
 // StringResourceProvider.
@@ -162,41 +160,6 @@ void RunNewWindowTest(CefRefPtr<CefBrowser> browser) {
 void RunPopupWindowTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->ExecuteJavaScript(
       "window.open('http://www.google.com');", "about:blank", 0);
-}
-
-void RunPluginInfoTest(CefRefPtr<CefBrowser> browser) {
-  class Visitor : public CefWebPluginInfoVisitor {
-   public:
-    explicit Visitor(CefRefPtr<CefBrowser> browser) : browser_(browser) {
-      html_ =
-          "<html><head><title>Plugin Info Test</title></head>"
-          "<body bgcolor=\"white\">"
-          "\n<b>Installed plugins:</b>";
-    }
-    ~Visitor() {
-      html_ += "\n</body></html>";
-
-      // Load the html in the browser.
-      LoadStringResourcePage(browser_, kTestPluginInfoPage, html_);
-    }
-
-    virtual bool Visit(CefRefPtr<CefWebPluginInfo> info,
-                       int count,
-                       int total) override {
-      html_ += "\n<br/><br/>Name: " + info->GetName().ToString() +
-               "\n<br/>Description: " + info->GetDescription().ToString() +
-               "\n<br/>Version: " + info->GetVersion().ToString() +
-               "\n<br/>Path: " + info->GetPath().ToString();
-      return true;
-    }
-
-   private:
-    std::string html_;
-    CefRefPtr<CefBrowser> browser_;
-    IMPLEMENT_REFCOUNTING(Visitor);
-  };
-
-  CefVisitWebPluginInfo(new Visitor(browser));
 }
 
 void ModifyZoom(CefRefPtr<CefBrowser> browser, double delta) {
@@ -594,9 +557,6 @@ void RunTest(CefRefPtr<CefBrowser> browser, int id) {
     case ID_TESTS_REQUEST:
       RunRequestTest(browser);
       break;
-    case ID_TESTS_PLUGIN_INFO:
-      RunPluginInfoTest(browser);
-      break;
     case ID_TESTS_ZOOM_IN:
       ModifyZoom(browser, 0.5);
       break;
@@ -819,7 +779,6 @@ void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager,
   std::set<std::string> string_pages;
   string_pages.insert(kTestGetSourcePage);
   string_pages.insert(kTestGetTextPage);
-  string_pages.insert(kTestPluginInfoPage);
 
   // Add provider for string resources.
   resource_manager->AddProvider(

@@ -80,7 +80,6 @@ void AddTestMenuItems(CefRefPtr<CefMenuModel> test_menu) {
   test_menu->AddItem(ID_TESTS_WINDOW_NEW, "New Window");
   test_menu->AddItem(ID_TESTS_WINDOW_POPUP, "Popup Window");
   test_menu->AddItem(ID_TESTS_REQUEST, "Request");
-  test_menu->AddItem(ID_TESTS_PLUGIN_INFO, "Plugin Info");
   test_menu->AddItem(ID_TESTS_ZOOM_IN, "Zoom In");
   test_menu->AddItem(ID_TESTS_ZOOM_OUT, "Zoom Out");
   test_menu->AddItem(ID_TESTS_ZOOM_RESET, "Zoom Reset");

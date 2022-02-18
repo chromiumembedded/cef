@@ -752,7 +752,6 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
     static const char* const kSwitchNames[] = {
         switches::kDisableExtensions,
         switches::kDisablePdfExtension,
-        switches::kDisablePlugins,
         switches::kDisablePrintPreview,
         switches::kDisableScrollBounce,
         switches::kDisableSpellChecking,

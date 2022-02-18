@@ -914,7 +914,6 @@ GtkWidget* RootWindowGtk::CreateMenuBar() {
   AddMenuEntry(test_menu, "New Window", ID_TESTS_WINDOW_NEW);
   AddMenuEntry(test_menu, "Popup Window", ID_TESTS_WINDOW_POPUP);
   AddMenuEntry(test_menu, "Request", ID_TESTS_REQUEST);
-  AddMenuEntry(test_menu, "Plugin Info", ID_TESTS_PLUGIN_INFO);
   AddMenuEntry(test_menu, "Zoom In", ID_TESTS_ZOOM_IN);
   AddMenuEntry(test_menu, "Zoom Out", ID_TESTS_ZOOM_OUT);
   AddMenuEntry(test_menu, "Zoom Reset", ID_TESTS_ZOOM_RESET);

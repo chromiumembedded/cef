@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=66488e9aeed47b626c786d18e6e33a6d24cfef2c$
+// $hash=3ec7e1f78d91004790dda03a97832aa37c33d0f9$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -25,7 +25,6 @@
 #include "include/capi/cef_task_capi.h"
 #include "include/capi/cef_trace_capi.h"
 #include "include/capi/cef_v8_capi.h"
-#include "include/capi/cef_web_plugin_capi.h"
 #include "include/capi/test/cef_test_helpers_capi.h"
 #include "include/cef_app.h"
 #include "include/cef_crash_util.h"
@@ -40,7 +39,6 @@
 #include "include/cef_task.h"
 #include "include/cef_trace.h"
 #include "include/cef_v8.h"
-#include "include/cef_web_plugin.h"
 #include "include/test/cef_test_helpers.h"
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
@@ -52,8 +50,6 @@
 #include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
 #include "libcef_dll/ctocpp/task_ctocpp.h"
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
-#include "libcef_dll/ctocpp/web_plugin_info_visitor_ctocpp.h"
-#include "libcef_dll/ctocpp/web_plugin_unstable_callback_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/template_util.h"
 #include "libcef_dll/transfer_util.h"
@@ -859,69 +855,6 @@ CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
 
   // Return type: bool
   return _retval;
-}
-
-CEF_EXPORT void cef_visit_web_plugin_info(
-    struct _cef_web_plugin_info_visitor_t* visitor) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: visitor; type: refptr_diff
-  DCHECK(visitor);
-  if (!visitor)
-    return;
-
-  // Execute
-  CefVisitWebPluginInfo(CefWebPluginInfoVisitorCToCpp::Wrap(visitor));
-}
-
-CEF_EXPORT void cef_refresh_web_plugins() {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  CefRefreshWebPlugins();
-}
-
-CEF_EXPORT void cef_unregister_internal_web_plugin(const cef_string_t* path) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: path; type: string_byref_const
-  DCHECK(path);
-  if (!path)
-    return;
-
-  // Execute
-  CefUnregisterInternalWebPlugin(CefString(path));
-}
-
-CEF_EXPORT void cef_register_web_plugin_crash(const cef_string_t* path) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: path; type: string_byref_const
-  DCHECK(path);
-  if (!path)
-    return;
-
-  // Execute
-  CefRegisterWebPluginCrash(CefString(path));
-}
-
-CEF_EXPORT void cef_is_web_plugin_unstable(
-    const cef_string_t* path,
-    struct _cef_web_plugin_unstable_callback_t* callback) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: path; type: string_byref_const
-  DCHECK(path);
-  if (!path)
-    return;
-  // Verify param: callback; type: refptr_diff
-  DCHECK(callback);
-  if (!callback)
-    return;
-
-  // Execute
-  CefIsWebPluginUnstable(CefString(path),
-                         CefWebPluginUnstableCallbackCToCpp::Wrap(callback));
 }
 
 CEF_EXPORT void cef_execute_java_script_with_user_gesture_for_tests(

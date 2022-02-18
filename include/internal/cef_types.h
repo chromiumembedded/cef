@@ -578,12 +578,6 @@ typedef struct _cef_browser_settings_t {
   cef_state_t javascript_dom_paste;
 
   ///
-  // Controls whether any plugins will be loaded. Also configurable using the
-  // "disable-plugins" command-line switch.
-  ///
-  cef_state_t plugins;
-
-  ///
   // Controls whether image URLs will be loaded from the network. A cached image
   // will still be rendered if requested. Also configurable using the
   // "disable-image-loading" command-line switch.
@@ -2458,32 +2452,6 @@ typedef enum {
   SCALE_FACTOR_250P,
   SCALE_FACTOR_300P,
 } cef_scale_factor_t;
-
-///
-// Plugin policies supported by CefRequestContextHandler::OnBeforePluginLoad.
-///
-typedef enum {
-  ///
-  // Allow the content.
-  ///
-  PLUGIN_POLICY_ALLOW,
-
-  ///
-  // Allow important content and block unimportant content based on heuristics.
-  // The user can manually load blocked content.
-  ///
-  PLUGIN_POLICY_DETECT_IMPORTANT,
-
-  ///
-  // Block the content. The user can manually load blocked content.
-  ///
-  PLUGIN_POLICY_BLOCK,
-
-  ///
-  // Disable the content. The user cannot load disabled content.
-  ///
-  PLUGIN_POLICY_DISABLE,
-} cef_plugin_policy_t;
 
 ///
 // Policy for how the Referrer HTTP header value will be sent during navigation.

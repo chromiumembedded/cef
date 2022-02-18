@@ -229,14 +229,6 @@ class CefRequestHandler : public virtual CefBaseRefCounted {
   }
 
   ///
-  // Called on the browser process UI thread when a plugin has crashed.
-  // |plugin_path| is the path of the plugin that crashed.
-  ///
-  /*--cef()--*/
-  virtual void OnPluginCrashed(CefRefPtr<CefBrowser> browser,
-                               const CefString& plugin_path) {}
-
-  ///
   // Called on the browser process UI thread when the render view associated
   // with |browser| is ready to receive/handle IPC messages in the render
   // process.

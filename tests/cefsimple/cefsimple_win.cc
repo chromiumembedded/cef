@@ -43,9 +43,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   // Provide CEF with command-line arguments.
   CefMainArgs main_args(hInstance);
 
-  // CEF applications have multiple sub-processes (render, plugin, GPU, etc)
-  // that share the same executable. This function checks the command-line and,
-  // if this is a sub-process, executes the appropriate logic.
+  // CEF applications have multiple sub-processes (render, GPU, etc) that share
+  // the same executable. This function checks the command-line and, if this is
+  // a sub-process, executes the appropriate logic.
   int exit_code = CefExecuteProcess(main_args, nullptr, sandbox_info);
   if (exit_code >= 0) {
     // The sub-process has completed so return here.

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=be460a1bbdf46dd4e317b39981878b3993675884$
+// $hash=8a0ae45a7340b21491e67f4b4bd5494fb6c14d8c$
 //
 
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
@@ -325,31 +325,6 @@ bool CefRequestHandlerCToCpp::OnSelectClientCertificate(
 
   // Return type: bool
   return _retval ? true : false;
-}
-
-NO_SANITIZE("cfi-icall")
-void CefRequestHandlerCToCpp::OnPluginCrashed(CefRefPtr<CefBrowser> browser,
-                                              const CefString& plugin_path) {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_request_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_plugin_crashed))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser.get());
-  if (!browser.get())
-    return;
-  // Verify param: plugin_path; type: string_byref_const
-  DCHECK(!plugin_path.empty());
-  if (plugin_path.empty())
-    return;
-
-  // Execute
-  _struct->on_plugin_crashed(_struct, CefBrowserCppToC::Wrap(browser),
-                             plugin_path.GetStruct());
 }
 
 NO_SANITIZE("cfi-icall")

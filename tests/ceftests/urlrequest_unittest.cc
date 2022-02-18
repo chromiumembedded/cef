@@ -3554,7 +3554,7 @@ TEST(URLRequestTest, BrowserInvalidURL) {
   client->RunTest();
 }
 
-// Entry point for creating plugin browser test objects.
+// Entry point for creating URLRequest browser test objects.
 // Called from client_app_delegates.cc.
 void CreateURLRequestBrowserTests(
     client::ClientAppBrowser::DelegateSet& delegates) {

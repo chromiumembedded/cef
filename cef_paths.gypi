@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=872dedb7e5a2f36745446c3d0c9ad8bd5850adb7$
+# $hash=3d75809bdc9a72a0df9df727981f0796b7ddbbc8$
 #
 
 {
@@ -84,7 +84,6 @@
       'include/cef_v8.h',
       'include/cef_values.h',
       'include/cef_waitable_event.h',
-      'include/cef_web_plugin.h',
       'include/cef_x509_certificate.h',
       'include/cef_xml_reader.h',
       'include/cef_zip_reader.h',
@@ -183,7 +182,6 @@
       'include/capi/cef_v8_capi.h',
       'include/capi/cef_values_capi.h',
       'include/capi/cef_waitable_event_capi.h',
-      'include/capi/cef_web_plugin_capi.h',
       'include/capi/cef_x509_certificate_capi.h',
       'include/capi/cef_xml_reader_capi.h',
       'include/capi/cef_zip_reader_capi.h',
@@ -500,12 +498,6 @@
       'libcef_dll/ctocpp/views/view_delegate_ctocpp.h',
       'libcef_dll/cpptoc/waitable_event_cpptoc.cc',
       'libcef_dll/cpptoc/waitable_event_cpptoc.h',
-      'libcef_dll/cpptoc/web_plugin_info_cpptoc.cc',
-      'libcef_dll/cpptoc/web_plugin_info_cpptoc.h',
-      'libcef_dll/ctocpp/web_plugin_info_visitor_ctocpp.cc',
-      'libcef_dll/ctocpp/web_plugin_info_visitor_ctocpp.h',
-      'libcef_dll/ctocpp/web_plugin_unstable_callback_ctocpp.cc',
-      'libcef_dll/ctocpp/web_plugin_unstable_callback_ctocpp.h',
       'libcef_dll/cpptoc/views/window_cpptoc.cc',
       'libcef_dll/cpptoc/views/window_cpptoc.h',
       'libcef_dll/ctocpp/views/window_delegate_ctocpp.cc',
@@ -810,12 +802,6 @@
       'libcef_dll/cpptoc/views/view_delegate_cpptoc.h',
       'libcef_dll/ctocpp/waitable_event_ctocpp.cc',
       'libcef_dll/ctocpp/waitable_event_ctocpp.h',
-      'libcef_dll/ctocpp/web_plugin_info_ctocpp.cc',
-      'libcef_dll/ctocpp/web_plugin_info_ctocpp.h',
-      'libcef_dll/cpptoc/web_plugin_info_visitor_cpptoc.cc',
-      'libcef_dll/cpptoc/web_plugin_info_visitor_cpptoc.h',
-      'libcef_dll/cpptoc/web_plugin_unstable_callback_cpptoc.cc',
-      'libcef_dll/cpptoc/web_plugin_unstable_callback_cpptoc.h',
       'libcef_dll/ctocpp/views/window_ctocpp.cc',
       'libcef_dll/ctocpp/views/window_ctocpp.h',
       'libcef_dll/cpptoc/views/window_delegate_cpptoc.cc',

@@ -40,11 +40,11 @@
 extern "C" {
 #endif
 
-// The sandbox is used to restrict sub-processes (renderer, plugin, GPU, etc)
-// from directly accessing system resources. This helps to protect the user
-// from untrusted and potentially malicious Web content.
-// See http://www.chromium.org/developers/design-documents/sandbox for
-// complete details.
+// The sandbox is used to restrict sub-processes (renderer, GPU, etc) from
+// directly accessing system resources. This helps to protect the user from
+// untrusted and potentially malicious Web content. See
+// http://www.chromium.org/developers/design-documents/sandbox for complete
+// details.
 //
 // To enable the sandbox on macOS the following requirements must be met:
 // 1. Link the helper process executable with the cef_sandbox static library.

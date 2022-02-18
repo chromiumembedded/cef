@@ -13,14 +13,9 @@ void CreateBrowserDelegates(ClientAppBrowser::DelegateSet& delegates) {
   extern void CreateAudioOutputTests(ClientAppBrowser::DelegateSet & delegates);
   CreateAudioOutputTests(delegates);
 
-  // Bring in the plugin tests.
+  // Bring in the CORS tests.
   extern void CreateCorsBrowserTests(ClientAppBrowser::DelegateSet & delegates);
   CreateCorsBrowserTests(delegates);
-
-  // Bring in the PDF viewer tests.
-  extern void CreatePdfViewerBrowserTests(ClientAppBrowser::DelegateSet &
-                                          delegates);
-  CreatePdfViewerBrowserTests(delegates);
 
   // Bring in the preference tests.
   extern void CreatePreferenceBrowserTests(ClientAppBrowser::DelegateSet &

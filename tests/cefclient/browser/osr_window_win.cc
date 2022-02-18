@@ -1036,7 +1036,7 @@ void OsrWindowWin::OnCursorChange(CefRefPtr<CefBrowser> browser,
   if (!::IsWindow(hwnd_))
     return;
 
-  // Change the plugin window's cursor.
+  // Change the window's cursor.
   SetClassLongPtr(hwnd_, GCLP_HCURSOR,
                   static_cast<LONG>(reinterpret_cast<LONG_PTR>(cursor)));
   SetCursor(cursor);

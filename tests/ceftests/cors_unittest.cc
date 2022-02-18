@@ -1787,7 +1787,7 @@ void SetupRedirectPostRequest(RedirectMode mode,
 CORS_TEST_REDIRECT_POST_ALL(302, MODE_302)
 CORS_TEST_REDIRECT_POST_ALL(307, MODE_307)
 
-// Entry point for creating plugin browser test objects.
+// Entry point for creating CORS browser test objects.
 // Called from client_app_delegates.cc.
 void CreateCorsBrowserTests(client::ClientAppBrowser::DelegateSet& delegates) {
   delegates.insert(new CorsBrowserTest);

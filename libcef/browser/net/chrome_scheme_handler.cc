@@ -11,7 +11,6 @@
 #include <utility>
 
 #include "include/cef_version.h"
-#include "include/cef_web_plugin.h"
 #include "libcef/browser/extensions/chrome_api_registration.h"
 #include "libcef/browser/frame_host_impl.h"
 #include "libcef/browser/net/internal_scheme_handler.h"

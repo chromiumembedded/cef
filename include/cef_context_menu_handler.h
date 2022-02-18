@@ -277,7 +277,7 @@ class CefContextMenuParams : public virtual CefBaseRefCounted {
 
   ///
   // Returns true if the context menu contains items specified by the renderer
-  // process (for example, plugin placeholder or pepper plugin menu items).
+  // process.
   ///
   /*--cef()--*/
   virtual bool IsCustomMenu() = 0;

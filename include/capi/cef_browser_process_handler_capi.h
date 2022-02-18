@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=8c97f9b58c642c144cc37824ad820192640307cb$
+// $hash=ad0a78715daff99c1ec987800b7e5d62196e7100$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_PROCESS_HANDLER_CAPI_H_
@@ -70,9 +70,9 @@ typedef struct _cef_browser_process_handler_t {
   ///
   // Called before a child process is launched. Will be called on the browser
   // process UI thread when launching a render process and on the browser
-  // process IO thread when launching a GPU or plugin process. Provides an
-  // opportunity to modify the child process command line. Do not keep a
-  // reference to |command_line| outside of this function.
+  // process IO thread when launching a GPU process. Provides an opportunity to
+  // modify the child process command line. Do not keep a reference to
+  // |command_line| outside of this function.
   ///
   void(CEF_CALLBACK* on_before_child_process_launch)(
       struct _cef_browser_process_handler_t* self,

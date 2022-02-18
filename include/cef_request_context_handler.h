@@ -43,7 +43,6 @@
 #include "include/cef_frame.h"
 #include "include/cef_request.h"
 #include "include/cef_resource_request_handler.h"
-#include "include/cef_web_plugin.h"
 
 ///
 // Implement this interface to provide handler implementations. The handler
@@ -53,8 +52,6 @@
 /*--cef(source=client,no_debugct_check)--*/
 class CefRequestContextHandler : public virtual CefBaseRefCounted {
  public:
-  typedef cef_plugin_policy_t PluginPolicy;
-
   ///
   // Called on the browser process UI thread immediately after the request
   // context has been initialized.

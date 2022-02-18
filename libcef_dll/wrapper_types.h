@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ec2815ca7044a7ee3ba7f0afcb293a31da5a9feb$
+// $hash=4e961a86c94ee512e3c282c0b620e35992bf862b$
 //
 
 #ifndef CEF_LIBCEF_DLL_WRAPPER_TYPES_H_
@@ -163,9 +163,6 @@ enum CefWrapperType {
   WT_VIEW,
   WT_VIEW_DELEGATE,
   WT_WAITABLE_EVENT,
-  WT_WEB_PLUGIN_INFO,
-  WT_WEB_PLUGIN_INFO_VISITOR,
-  WT_WEB_PLUGIN_UNSTABLE_CALLBACK,
   WT_WINDOW,
   WT_WINDOW_DELEGATE,
   WT_WRITE_HANDLER,

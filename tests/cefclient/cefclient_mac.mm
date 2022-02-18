@@ -55,7 +55,6 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
 - (IBAction)menuTestsWindowNew:(id)sender;
 - (IBAction)menuTestsWindowPopup:(id)sender;
 - (IBAction)menuTestsRequest:(id)sender;
-- (IBAction)menuTestsPluginInfo:(id)sender;
 - (IBAction)menuTestsZoomIn:(id)sender;
 - (IBAction)menuTestsZoomOut:(id)sender;
 - (IBAction)menuTestsZoomReset:(id)sender;
@@ -268,10 +267,6 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
 
 - (IBAction)menuTestsRequest:(id)sender {
   [self testsItemSelected:ID_TESTS_REQUEST];
-}
-
-- (IBAction)menuTestsPluginInfo:(id)sender {
-  [self testsItemSelected:ID_TESTS_PLUGIN_INFO];
 }
 
 - (IBAction)menuTestsZoomIn:(id)sender {

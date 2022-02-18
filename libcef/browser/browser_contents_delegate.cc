@@ -441,16 +441,6 @@ void CefBrowserContentsDelegate::TitleWasSet(content::NavigationEntry* entry) {
     OnTitleChange(web_contents()->GetTitle());
 }
 
-void CefBrowserContentsDelegate::PluginCrashed(
-    const base::FilePath& plugin_path,
-    base::ProcessId plugin_pid) {
-  if (auto c = client()) {
-    if (auto handler = c->GetRequestHandler()) {
-      handler->OnPluginCrashed(browser(), plugin_path.value());
-    }
-  }
-}
-
 void CefBrowserContentsDelegate::DidUpdateFaviconURL(
     content::RenderFrameHost* render_frame_host,
     const std::vector<blink::mojom::FaviconURLPtr>& candidates) {

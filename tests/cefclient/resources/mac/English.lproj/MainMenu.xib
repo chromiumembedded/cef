@@ -357,12 +357,6 @@
                                     <action selector="menuTestsRequest:" target="-2" id="bT6-It-UE3"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Plugin Info" id="DgT-RO-YAr">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <action selector="menuTestsPluginInfo:" target="-2" id="xIV-r7-IGH"/>
-                                </connections>
-                            </menuItem>
                             <menuItem title="Zoom In" id="l8B-JC-657">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>

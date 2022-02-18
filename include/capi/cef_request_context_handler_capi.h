@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b44d320d5cceb5022543e8154170b8d276628c76$
+// $hash=b2657a441a701c5ddaca68dc604fd94153a3220f$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_HANDLER_CAPI_H_
@@ -45,7 +45,6 @@
 #include "include/capi/cef_frame_capi.h"
 #include "include/capi/cef_request_capi.h"
 #include "include/capi/cef_resource_request_handler_capi.h"
-#include "include/capi/cef_web_plugin_capi.h"
 
 #ifdef __cplusplus
 extern "C" {

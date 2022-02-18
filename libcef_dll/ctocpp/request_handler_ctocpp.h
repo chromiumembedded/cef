@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2db5977714e59976ae9617a49a65cadb72623ebd$
+// $hash=196e93e7eb44712449c6cb3796fdf8805102eca5$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_HANDLER_CTOCPP_H_
@@ -77,8 +77,6 @@ class CefRequestHandlerCToCpp
       int port,
       const X509CertificateList& certificates,
       CefRefPtr<CefSelectClientCertificateCallback> callback) override;
-  void OnPluginCrashed(CefRefPtr<CefBrowser> browser,
-                       const CefString& plugin_path) override;
   void OnRenderViewReady(CefRefPtr<CefBrowser> browser) override;
   void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
                                  TerminationStatus status) override;

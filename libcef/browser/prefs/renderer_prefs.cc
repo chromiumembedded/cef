@@ -242,8 +242,6 @@ void SetCommandLinePrefDefaults(CommandLinePrefStore* prefs) {
     SetBool(prefs, prefs::kWebKitLoadsImagesAutomatically, false);
   if (command_line->HasSwitch(switches::kDisableTabToLinks))
     SetBool(prefs, prefs::kWebkitTabsToLinks, false);
-  if (command_line->HasSwitch(switches::kDisablePlugins))
-    SetBool(prefs, prefs::kWebKitPluginsEnabled, false);
 }
 
 void SetDefaultPrefs(blink::web_pref::WebPreferences& web) {
@@ -317,7 +315,6 @@ void SetCefPrefs(const CefBrowserSettings& cef,
   SET_STATE(cef.javascript_access_clipboard,
             web.javascript_can_access_clipboard);
   SET_STATE(cef.javascript_dom_paste, web.dom_paste_enabled);
-  SET_STATE(cef.plugins, web.plugins_enabled);
   SET_STATE(cef.image_loading, web.loads_images_automatically);
   SET_STATE(cef.image_shrink_standalone_to_fit,
             web.shrinks_standalone_images_to_fit);

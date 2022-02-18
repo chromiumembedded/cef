@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=fd33ce439e4379d231b6be16bdc1786f314d98e4$
+// $hash=d007b3dc26f3f049bf67623da8fae59dc75a193b$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_CONTEXT_MENU_HANDLER_CAPI_H_
@@ -290,8 +290,7 @@ typedef struct _cef_context_menu_params_t {
 
   ///
   // Returns true (1) if the context menu contains items specified by the
-  // renderer process (for example, plugin placeholder or pepper plugin menu
-  // items).
+  // renderer process.
   ///
   int(CEF_CALLBACK* is_custom_menu)(struct _cef_context_menu_params_t* self);
 } cef_context_menu_params_t;

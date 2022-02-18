@@ -15,22 +15,6 @@
 
 namespace {
 
-// Browser-side app delegate.
-class PdfViewerBrowserTest : public client::ClientAppBrowser::Delegate {
- public:
-  PdfViewerBrowserTest() {}
-
-  void OnBeforeCommandLineProcessing(
-      CefRefPtr<client::ClientAppBrowser> app,
-      CefRefPtr<CefCommandLine> command_line) override {
-    // Allow all plugin loading by default.
-    command_line->AppendSwitchWithValue("plugin-policy", "allow");
-  }
-
- private:
-  IMPLEMENT_REFCOUNTING(PdfViewerBrowserTest);
-};
-
 const char kPdfHtmlUrl[] = "http://tests/pdf.html";
 const char kPdfDirectUrl[] = "http://tests/pdf.pdf";
 
@@ -243,10 +227,3 @@ RUN_TEST(GlobalNoHandlerPdfHtml, GLOBAL_NO_HANDLER, kPdfHtmlUrl)
 
 RUN_TEST(CustomNoHandlerPdfDirect, CUSTOM_NO_HANDLER, kPdfDirectUrl)
 RUN_TEST(CustomNoHandlerPdfHtml, CUSTOM_NO_HANDLER, kPdfHtmlUrl)
-
-// Entry point for creating PDF viewer browser test objects.
-// Called from client_app_delegates.cc.
-void CreatePdfViewerBrowserTests(
-    client::ClientAppBrowser::DelegateSet& delegates) {
-  delegates.insert(new PdfViewerBrowserTest);
-}
