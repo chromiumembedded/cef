@@ -80,7 +80,7 @@ index 309422bcf8581..759549f3046f4 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index c92e6d2ad10fb..a1d74b50e244b 100644
+index 03a9986ff94bc..5a5c35c35db25 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -221,6 +221,8 @@ viz_component("service") {
@@ -183,10 +183,10 @@ index e7e67ee824b2a..bb044cff83f58 100644
    // running in the same process, so it won't block anything.
    // TODO(159346933) Remove once the origin isolation logic is moved outside of
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index 9f7583e424057..c301c518dd8ec 100644
+index b2f873919d686..5250a6be86cc3 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
-@@ -89,12 +89,14 @@ interface DisplayPrivate {
+@@ -97,12 +97,14 @@ interface DisplayPrivate {
  };
  
  interface DisplayClient {
@@ -214,7 +214,7 @@ index 6b7fbb6cf13dc..e2af75168cb91 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 383aff3755d4b..a5b2a79d3a724 100644
+index 8b74e1d2a4631..e0a68b5265af7 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -30,7 +30,9 @@
@@ -252,7 +252,7 @@ index 383aff3755d4b..a5b2a79d3a724 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -453,6 +466,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -467,6 +480,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
  
    std::unique_ptr<PendingBeginFrameArgs> pending_begin_frame_args_;
  

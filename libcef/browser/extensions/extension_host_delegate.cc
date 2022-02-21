@@ -60,9 +60,7 @@ bool CefExtensionHostDelegate::CheckMediaAccessPermission(
 }
 
 content::PictureInPictureResult CefExtensionHostDelegate::EnterPictureInPicture(
-    content::WebContents* web_contents,
-    const viz::SurfaceId& surface_id,
-    const gfx::Size& natural_size) {
+    content::WebContents* web_contents) {
   NOTREACHED();
   return content::PictureInPictureResult::kNotSupported;
 }

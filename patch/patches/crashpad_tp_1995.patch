@@ -248,10 +248,10 @@ index 70f1628354455..cd043a821e96d 100644
    //! \brief Calls ProcessPendingReports() in response to ReportPending() having
    //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index cb78aa1680aec..d50ddc7ae3c56 100644
+index 48ef8b6530a67..dbe2916492ff7 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
-@@ -38,6 +38,7 @@
+@@ -39,6 +39,7 @@
  #include "base/strings/utf_string_conversions.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
@@ -259,7 +259,7 @@ index cb78aa1680aec..d50ddc7ae3c56 100644
  #include "client/crash_report_database.h"
  #include "client/crashpad_client.h"
  #include "client/crashpad_info.h"
-@@ -88,6 +89,10 @@
+@@ -89,6 +90,10 @@
  #include "util/win/session_end_watcher.h"
  #endif  // BUILDFLAG(IS_APPLE)
  
@@ -270,7 +270,7 @@ index cb78aa1680aec..d50ddc7ae3c56 100644
  namespace crashpad {
  
  namespace {
-@@ -247,6 +252,9 @@ struct Options {
+@@ -248,6 +253,9 @@ struct Options {
    bool periodic_tasks;
    bool rate_limit;
    bool upload_gzip;
@@ -280,7 +280,7 @@ index cb78aa1680aec..d50ddc7ae3c56 100644
  #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
    bool use_cros_crash_reporter = false;
    base::FilePath minidump_dir_for_tests;
-@@ -616,6 +624,9 @@ int HandlerMain(int argc,
+@@ -617,6 +625,9 @@ int HandlerMain(int argc,
      kOptionTraceParentWithException,
  #endif
      kOptionURL,
@@ -290,7 +290,7 @@ index cb78aa1680aec..d50ddc7ae3c56 100644
  #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
      kOptionUseCrosCrashReporter,
      kOptionMinidumpDirForTests,
-@@ -716,6 +727,9 @@ int HandlerMain(int argc,
+@@ -717,6 +728,9 @@ int HandlerMain(int argc,
  #endif  // BUILDFLAG(IS_ANDROID)
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
@@ -300,7 +300,7 @@ index cb78aa1680aec..d50ddc7ae3c56 100644
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -873,6 +887,27 @@ int HandlerMain(int argc,
+@@ -874,6 +888,27 @@ int HandlerMain(int argc,
          options.url = optarg;
          break;
        }
@@ -328,7 +328,7 @@ index cb78aa1680aec..d50ddc7ae3c56 100644
  #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
        case kOptionUseCrosCrashReporter: {
          options.use_cros_crash_reporter = true;
-@@ -1022,8 +1057,14 @@ int HandlerMain(int argc,
+@@ -1023,8 +1058,14 @@ int HandlerMain(int argc,
      upload_thread_options.upload_gzip = options.upload_gzip;
      upload_thread_options.watch_pending_reports = options.periodic_tasks;
  
@@ -343,7 +343,7 @@ index cb78aa1680aec..d50ddc7ae3c56 100644
      upload_thread.Get()->Start();
    }
  
-@@ -1094,7 +1135,8 @@ int HandlerMain(int argc,
+@@ -1095,7 +1136,8 @@ int HandlerMain(int argc,
    ScopedStoppable prune_thread;
    if (options.periodic_tasks) {
      prune_thread.Reset(new PruneCrashReportThread(

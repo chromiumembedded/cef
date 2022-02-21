@@ -846,7 +846,6 @@ static_library("libcef_static") {
     "//components/content_settings/core/browser",
     "//components/content_settings/core/common",
     "//components/crx_file",
-    "//components/data_use_measurement/core",
     "//components/google/core/common",
     "//components/keyed_service/content:content",
     "//components/keyed_service/core:core",
@@ -1329,7 +1328,7 @@ grit("cef_strings") {
   outputs = [
     "grit/cef_strings.h",
   ]
-  all_locales = locales + [ "fake-bidi" ]
+  all_locales = platform_pak_locales + [ "fake-bidi" ]
   foreach(locale, all_locales) {
     outputs += [ "cef_strings_${locale}.pak" ]
   }

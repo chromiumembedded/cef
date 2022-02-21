@@ -74,7 +74,7 @@ bool CefDOMNodeImpl::IsEditable() {
     return true;
 
   if (node_.IsElementNode()) {
-    const WebElement& element = node_.ToConst<WebElement>();
+    const WebElement& element = node_.To<WebElement>();
     if (blink_glue::IsTextControlElement(element))
       return true;
 
@@ -99,7 +99,7 @@ bool CefDOMNodeImpl::IsFormControlElement() {
     return false;
 
   if (node_.IsElementNode()) {
-    const WebElement& element = node_.ToConst<WebElement>();
+    const WebElement& element = node_.To<WebElement>();
     return element.IsFormControlElement();
   }
 
@@ -112,11 +112,11 @@ CefString CefDOMNodeImpl::GetFormControlElementType() {
     return str;
 
   if (node_.IsElementNode()) {
-    const WebElement& element = node_.ToConst<WebElement>();
+    const WebElement& element = node_.To<WebElement>();
     if (element.IsFormControlElement()) {
       // Retrieve the type from the form control element.
       const WebFormControlElement& formElement =
-          node_.ToConst<WebFormControlElement>();
+          node_.To<WebFormControlElement>();
 
       const std::u16string& form_control_type =
           formElement.FormControlType().Utf16();
@@ -156,22 +156,22 @@ CefString CefDOMNodeImpl::GetValue() {
     return str;
 
   if (node_.IsElementNode()) {
-    const WebElement& element = node_.ToConst<WebElement>();
+    const WebElement& element = node_.To<WebElement>();
     if (element.IsFormControlElement()) {
       // Retrieve the value from the form control element.
       const WebFormControlElement& formElement =
-          node_.ToConst<WebFormControlElement>();
+          node_.To<WebFormControlElement>();
 
       std::u16string value;
       const std::u16string& form_control_type =
           formElement.FormControlType().Utf16();
       if (form_control_type == u"text") {
         const WebInputElement& input_element =
-            formElement.ToConst<WebInputElement>();
+            formElement.To<WebInputElement>();
         value = input_element.Value().Utf16();
       } else if (form_control_type == u"select-one") {
         const WebSelectElement& select_element =
-            formElement.ToConst<WebSelectElement>();
+            formElement.To<WebSelectElement>();
         value = select_element.Value().Utf16();
       }
 
@@ -271,7 +271,7 @@ CefString CefDOMNodeImpl::GetElementTagName() {
     return str;
   }
 
-  const WebElement& element = node_.ToConst<blink::WebElement>();
+  const WebElement& element = node_.To<blink::WebElement>();
   const WebString& tagname = element.TagName();
   if (!tagname.IsNull())
     str = tagname.Utf16();
@@ -288,7 +288,7 @@ bool CefDOMNodeImpl::HasElementAttributes() {
     return false;
   }
 
-  const WebElement& element = node_.ToConst<blink::WebElement>();
+  const WebElement& element = node_.To<blink::WebElement>();
   return (element.AttributeCount() > 0);
 }
 
@@ -301,7 +301,7 @@ bool CefDOMNodeImpl::HasElementAttribute(const CefString& attrName) {
     return false;
   }
 
-  const WebElement& element = node_.ToConst<blink::WebElement>();
+  const WebElement& element = node_.To<blink::WebElement>();
   return element.HasAttribute(WebString::FromUTF16(attrName.ToString16()));
 }
 
@@ -315,7 +315,7 @@ CefString CefDOMNodeImpl::GetElementAttribute(const CefString& attrName) {
     return str;
   }
 
-  const WebElement& element = node_.ToConst<blink::WebElement>();
+  const WebElement& element = node_.To<blink::WebElement>();
   const WebString& attr =
       element.GetAttribute(WebString::FromUTF16(attrName.ToString16()));
   if (!attr.IsNull())
@@ -333,7 +333,7 @@ void CefDOMNodeImpl::GetElementAttributes(AttributeMap& attrMap) {
     return;
   }
 
-  const WebElement& element = node_.ToConst<blink::WebElement>();
+  const WebElement& element = node_.To<blink::WebElement>();
   unsigned int len = element.AttributeCount();
   if (len == 0)
     return;

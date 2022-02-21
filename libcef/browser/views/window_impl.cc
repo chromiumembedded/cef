@@ -671,6 +671,5 @@ void CefWindowImpl::CreateWidget() {
   // The Widget and root View are owned by the native window. Therefore don't
   // keep an owned reference.
   std::unique_ptr<views::View> view_ptr = view_util::PassOwnership(this);
-  views::View* view = view_ptr.release();
-  ALLOW_UNUSED_LOCAL(view);
+  [[maybe_unused]] views::View* view = view_ptr.release();
 }

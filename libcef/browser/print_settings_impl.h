@@ -47,7 +47,7 @@ class CefPrintSettingsImpl
   void SetDuplexMode(DuplexMode mode) override;
   DuplexMode GetDuplexMode() override;
 
-  std::unique_ptr<printing::PrintSettings> TakeOwnership() WARN_UNUSED_RESULT;
+  [[nodiscard]] std::unique_ptr<printing::PrintSettings> TakeOwnership();
 };
 
 #endif  // CEF_LIBCEF_BROWSER_PRINT_SETTINGS_IMPL_H_

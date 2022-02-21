@@ -7,7 +7,6 @@
 #define CEF_LIBCEF_COMMON_ALLOY_ALLOY_CONTENT_CLIENT_H_
 #pragma once
 
-#include "base/compiler_specific.h"
 #include "content/public/common/content_client.h"
 #include "content/public/common/pepper_plugin_info.h"
 

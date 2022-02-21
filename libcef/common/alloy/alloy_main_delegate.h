@@ -15,7 +15,6 @@
 #include "libcef/common/resource_bundle_delegate.h"
 #include "libcef/common/task_runner_manager.h"
 
-#include "base/compiler_specific.h"
 #include "content/public/app/content_main_delegate.h"
 
 namespace base {

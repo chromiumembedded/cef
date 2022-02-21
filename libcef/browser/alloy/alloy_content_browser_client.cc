@@ -115,7 +115,7 @@
 #include "extensions/browser/extension_registry.h"
 #include "extensions/browser/extension_web_contents_observer.h"
 #include "extensions/browser/extensions_browser_client.h"
-#include "extensions/browser/guest_view/extensions_guest_view_message_filter.h"
+#include "extensions/browser/guest_view/extensions_guest_view.h"
 #include "extensions/browser/guest_view/web_view/web_view_guest.h"
 #include "extensions/browser/info_map.h"
 #include "extensions/browser/process_map.h"
@@ -197,7 +197,7 @@ class CefQuotaCallbackImpl : public CefCallback {
 
   void Cancel() override { ContinueNow(false); }
 
-  CallbackType Disconnect() WARN_UNUSED_RESULT { return std::move(callback_); }
+  [[nodiscard]] CallbackType Disconnect() { return std::move(callback_); }
 
  private:
   void ContinueNow(bool allow) {
@@ -255,7 +255,7 @@ class CefAllowCertificateErrorCallbackImpl : public CefCallback {
 
   void Cancel() override { ContinueNow(false); }
 
-  CallbackType Disconnect() WARN_UNUSED_RESULT { return std::move(callback_); }
+  [[nodiscard]] CallbackType Disconnect() { return std::move(callback_); }
 
  private:
   void ContinueNow(bool allow) {
@@ -521,8 +521,6 @@ void AlloyContentBrowserClient::RenderProcessWillLaunch(
 
   if (extensions::ExtensionsEnabled()) {
     host->AddFilter(new extensions::ExtensionMessageFilter(id, profile));
-    host->AddFilter(
-        new extensions::ExtensionsGuestViewMessageFilter(id, profile));
   }
 
   // If the renderer process crashes then the host may already have
@@ -765,14 +763,6 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
     if (extensions::ExtensionsEnabled()) {
       content::RenderProcessHost* process =
           content::RenderProcessHost::FromID(child_process_id);
-#if !BUILDFLAG(IS_WIN)
-      // kPdfRenderer will be set for Windows in
-      // RenderProcessHostImpl::AppendRendererCommandLine.
-      if (process && process->IsPdf()) {
-        command_line->AppendSwitch(switches::kPdfRenderer);
-      }
-#endif  // !BUILDFLAG(IS_WIN)
-
       auto browser_context = process->GetBrowserContext();
       CefBrowserContext* cef_browser_context =
           process ? CefBrowserContext::FromBrowserContext(browser_context)
@@ -1164,6 +1154,10 @@ void AlloyContentBrowserClient::ExposeInterfacesToRenderer(
   if (extensions::ExtensionsEnabled()) {
     associated_registry->AddInterface(base::BindRepeating(
         &extensions::EventRouter::BindForRenderer, host->GetID()));
+    associated_registry->AddInterface(base::BindRepeating(
+        &extensions::ExtensionsGuestView::CreateForComponents, host->GetID()));
+    associated_registry->AddInterface(base::BindRepeating(
+        &extensions::ExtensionsGuestView::CreateForExtensions, host->GetID()));
   }
 
   CefBrowserManager::ExposeInterfacesToRenderer(registry, associated_registry,
@@ -1406,19 +1400,29 @@ bool AlloyContentBrowserClient::HandleExternalProtocol(
       web_contents_getter, std::move(receiver), std::move(request_handler));
   return true;
 }
-
-std::unique_ptr<content::OverlayWindow>
-AlloyContentBrowserClient::CreateWindowForPictureInPicture(
-    content::PictureInPictureWindowController* controller) {
-  // Note: content::OverlayWindow::Create() is defined by platform-specific
+std::unique_ptr<content::VideoOverlayWindow>
+AlloyContentBrowserClient::CreateWindowForVideoPictureInPicture(
+    content::VideoPictureInPictureWindowController* controller) {
+  // Note: content::VideoOverlayWindow::Create() is defined by platform-specific
   // implementation in chrome/browser/ui/views. This layering hack, which goes
   // through //content and ContentBrowserClient, allows us to work around the
   // dependency constraints that disallow directly calling
   // chrome/browser/ui/views code either from here or from other code in
   // chrome/browser.
-  return content::OverlayWindow::Create(controller);
+  return content::VideoOverlayWindow::Create(controller);
 }
 
+std::unique_ptr<content::DocumentOverlayWindow>
+AlloyContentBrowserClient::CreateWindowForDocumentPictureInPicture(
+    content::DocumentPictureInPictureWindowController* controller) {
+  // Note: content::DocumentOverlayWindow::Create() is defined by
+  // platform-specific implementation in chrome/browser/ui/views. This layering
+  // hack, which goes through //content and ContentBrowserClient, allows us to
+  // work around the dependency constraints that disallow directly calling
+  // chrome/browser/ui/views code either from here or from other code in
+  // chrome/browser.
+  return content::DocumentOverlayWindow::Create(controller);
+}
 void AlloyContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
     content::RenderFrameHost* render_frame_host,
     mojo::BinderMapWithContext<content::RenderFrameHost*>* map) {
@@ -1464,6 +1468,10 @@ std::string AlloyContentBrowserClient::GetChromeProduct() {
 
 std::string AlloyContentBrowserClient::GetUserAgent() {
   return embedder_support::GetUserAgent();
+}
+
+std::string AlloyContentBrowserClient::GetFullUserAgent() {
+  return embedder_support::GetFullUserAgent();
 }
 
 std::string AlloyContentBrowserClient::GetReducedUserAgent() {

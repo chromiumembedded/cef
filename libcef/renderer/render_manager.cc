@@ -6,7 +6,7 @@
 
 #include <tuple>
 
-#include "base/compiler_specific.h"
+#include "build/build_config.h"
 
 // Enable deprecation warnings on Windows. See http://crbug.com/585142.
 #if BUILDFLAG(IS_WIN)

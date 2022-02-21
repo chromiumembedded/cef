@@ -1456,15 +1456,13 @@ bool AlloyBrowserHostImpl::IsNeverComposited(
 }
 
 content::PictureInPictureResult AlloyBrowserHostImpl::EnterPictureInPicture(
-    content::WebContents* web_contents,
-    const viz::SurfaceId& surface_id,
-    const gfx::Size& natural_size) {
+    content::WebContents* web_contents) {
   if (!IsPictureInPictureSupported()) {
     return content::PictureInPictureResult::kNotSupported;
   }
 
-  return PictureInPictureWindowManager::GetInstance()->EnterPictureInPicture(
-      web_contents, surface_id, natural_size);
+  return PictureInPictureWindowManager::GetInstance()
+      ->EnterVideoPictureInPicture(web_contents);
 }
 
 void AlloyBrowserHostImpl::ExitPictureInPicture() {
@@ -1477,7 +1475,8 @@ bool AlloyBrowserHostImpl::IsBackForwardCacheSupported() {
   return false;
 }
 
-bool AlloyBrowserHostImpl::IsPrerender2Supported() {
+bool AlloyBrowserHostImpl::IsPrerender2Supported(
+    content::WebContents& web_contents) {
   return true;
 }
 

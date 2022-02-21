@@ -139,7 +139,3 @@ void CefVideoConsumerOSR::OnFrameCaptured(
 
   view_->OnPaint(damage_rect, info->coded_size, pixels);
 }
-
-void CefVideoConsumerOSR::OnStopped() {}
-
-void CefVideoConsumerOSR::OnLog(const std::string& message) {}

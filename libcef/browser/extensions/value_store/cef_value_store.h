@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 
-#include "base/compiler_specific.h"
 #include "components/value_store/value_store.h"
 
 namespace value_store {

@@ -5,7 +5,6 @@
 #ifndef CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_MANAGER_DELEGATE_H_
 #define CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_MANAGER_DELEGATE_H_
 
-#include "base/compiler_specific.h"
 #include "content/public/browser/devtools_manager_delegate.h"
 
 namespace content {

@@ -10,7 +10,7 @@
 #include <string>
 
 #include "base/command_line.h"
-#include "base/compiler_specific.h"
+#include "build/build_config.h"
 
 // Enable deprecation warnings for MSVC and Clang. See http://crbug.com/585142.
 #if BUILDFLAG(IS_WIN)

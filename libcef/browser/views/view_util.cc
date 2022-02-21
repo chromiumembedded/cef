@@ -59,8 +59,8 @@ class UserData : public base::SupportsUserData::Data {
   // gain a ref-counted reference to the CefView and the CefView will keep an
   // unowned reference to the views::View. Destruction of the views::View will
   // release the ref-counted reference to the CefView.
-  static std::unique_ptr<views::View> PassOwnership(CefRefPtr<CefView> cef_view)
-      WARN_UNUSED_RESULT {
+  [[nodiscard]] static std::unique_ptr<views::View> PassOwnership(
+      CefRefPtr<CefView> cef_view) {
     DCHECK(cef_view->IsValid());
     DCHECK(!cef_view->IsAttached());
 

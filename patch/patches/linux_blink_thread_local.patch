@@ -1,13 +1,13 @@
 diff --git third_party/blink/renderer/platform/heap/thread_local.h third_party/blink/renderer/platform/heap/thread_local.h
-index 84ef4350bd96d..dbd5b0b73ebb2 100644
+index 744b91e5b0c86..e67f542126ac6 100644
 --- third_party/blink/renderer/platform/heap/thread_local.h
 +++ third_party/blink/renderer/platform/heap/thread_local.h
 @@ -36,7 +36,7 @@
  #if BLINK_HEAP_HIDE_THREAD_LOCAL_IN_LIBRARY
  #define BLINK_HEAP_THREAD_LOCAL_MODEL "local-dynamic"
  #else
--#if defined(OS_WIN)
-+#if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MAC))
+-#if BUILDFLAG(IS_WIN)
++#if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
  #define BLINK_HEAP_THREAD_LOCAL_MODEL "initial-exec"
- #elif defined(OS_ANDROID)
+ #elif BUILDFLAG(IS_ANDROID)
  #define BLINK_HEAP_THREAD_LOCAL_MODEL "local-dynamic"

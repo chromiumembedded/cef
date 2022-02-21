@@ -6,7 +6,6 @@
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 
-#include "base/compiler_specific.h"
 #import "base/mac/scoped_sending_event.h"
 #include "base/task/current_thread.h"
 #import "ui/base/cocoa/menu_controller.h"

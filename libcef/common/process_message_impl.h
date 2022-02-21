@@ -34,7 +34,7 @@ class CefProcessMessageImpl : public CefProcessMessage {
   // a copy if the argument list is already owned by something else.
   // TODO: Pass by reference instead of ownership if/when Mojo adds support
   // for that.
-  base::ListValue TakeArgumentList() WARN_UNUSED_RESULT;
+  [[nodiscard]] base::ListValue TakeArgumentList();
 
   // CefProcessMessage methods.
   bool IsValid() override;

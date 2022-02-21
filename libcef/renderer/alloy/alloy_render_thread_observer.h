@@ -8,7 +8,6 @@
 
 #include <memory>
 
-#include "base/compiler_specific.h"
 #include "chrome/common/renderer_configuration.mojom.h"
 #include "components/content_settings/core/common/content_settings.h"
 #include "content/public/renderer/render_thread_observer.h"

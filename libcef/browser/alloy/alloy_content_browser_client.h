@@ -216,8 +216,12 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
       content::RenderFrameHost* initiator_document,
       mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory)
       override;
-  std::unique_ptr<content::OverlayWindow> CreateWindowForPictureInPicture(
-      content::PictureInPictureWindowController* controller) override;
+  std::unique_ptr<content::VideoOverlayWindow>
+  CreateWindowForVideoPictureInPicture(
+      content::VideoPictureInPictureWindowController* controller) override;
+  std::unique_ptr<content::DocumentOverlayWindow>
+  CreateWindowForDocumentPictureInPicture(
+      content::DocumentPictureInPictureWindowController* controller) override;
   void RegisterBrowserInterfaceBindersForFrame(
       content::RenderFrameHost* render_frame_host,
       mojo::BinderMapWithContext<content::RenderFrameHost*>* map) override;
@@ -225,6 +229,7 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
   std::string GetProduct() override;
   std::string GetChromeProduct() override;
   std::string GetUserAgent() override;
+  std::string GetFullUserAgent() override;
   std::string GetReducedUserAgent() override;
   blink::UserAgentMetadata GetUserAgentMetadata() override;
   base::flat_set<std::string> GetPluginMimeTypesWithExternalHandlers(

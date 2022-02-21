@@ -1,8 +1,8 @@
 diff --git content/app/content_main.cc content/app/content_main.cc
-index bf4cbe990cb4d..e494fff1fa5d5 100644
+index 332b7d026e036..0d63ad05fde4e 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
-@@ -225,16 +225,10 @@ ContentMainParams::~ContentMainParams() = default;
+@@ -226,16 +226,10 @@ ContentMainParams::~ContentMainParams() = default;
  ContentMainParams::ContentMainParams(ContentMainParams&&) = default;
  ContentMainParams& ContentMainParams::operator=(ContentMainParams&&) = default;
  
@@ -21,7 +21,7 @@ index bf4cbe990cb4d..e494fff1fa5d5 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -318,12 +312,6 @@ RunContentProcess(ContentMainParams params,
+@@ -320,12 +314,6 @@ RunContentProcess(ContentMainParams params,
  #endif
  
  #if BUILDFLAG(IS_MAC)
@@ -34,7 +34,7 @@ index bf4cbe990cb4d..e494fff1fa5d5 100644
      InitializeMac();
  #endif
  
-@@ -396,8 +384,18 @@ RunContentProcess(ContentMainParams params,
+@@ -398,8 +386,18 @@ RunContentProcess(ContentMainParams params,
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -54,7 +54,7 @@ index bf4cbe990cb4d..e494fff1fa5d5 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -409,14 +407,41 @@ RunContentProcess(ContentMainParams params,
+@@ -411,14 +409,41 @@ RunContentProcess(ContentMainParams params,
      }
    }
  
@@ -100,7 +100,7 @@ index bf4cbe990cb4d..e494fff1fa5d5 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 5a365936031e6..ab4a3f2138e28 100644
+index 9d22238878e32..e0833ed4572e9 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -44,6 +44,7 @@
@@ -111,7 +111,7 @@ index 5a365936031e6..ab4a3f2138e28 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1182,6 +1183,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1205,6 +1206,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -124,10 +124,10 @@ index 5a365936031e6..ab4a3f2138e28 100644
  std::unique_ptr<ContentMainRunner> ContentMainRunner::Create() {
    return ContentMainRunnerImpl::Create();
 diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
-index 2cfcb5330af5d..e1966af803dfb 100644
+index 225a0aa930732..48b5aa44c8441 100644
 --- content/app/content_main_runner_impl.h
 +++ content/app/content_main_runner_impl.h
-@@ -31,7 +31,7 @@ namespace content {
+@@ -30,7 +30,7 @@ namespace content {
  class ContentClient;
  class MojoIpcSupport;
  
@@ -136,7 +136,7 @@ index 2cfcb5330af5d..e1966af803dfb 100644
   public:
    static std::unique_ptr<ContentMainRunnerImpl> Create();
  
-@@ -50,6 +50,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
+@@ -49,6 +49,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
    int Run() override;
    void Shutdown() override;
  

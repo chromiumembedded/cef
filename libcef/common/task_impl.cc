@@ -8,6 +8,7 @@
 #include "base/bind.h"
 #include "base/location.h"
 #include "base/logging.h"
+#include "base/time/time.h"
 
 bool CefCurrentlyOn(CefThreadId threadId) {
   scoped_refptr<base::SequencedTaskRunner> task_runner =

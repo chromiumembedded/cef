@@ -6,7 +6,6 @@
 #ifndef CEF_LIBCEF_BROWSER_EXTENSIONS_EXTENSIONS_BROWSER_CLIENT_H_
 #define CEF_LIBCEF_BROWSER_EXTENSIONS_EXTENSIONS_BROWSER_CLIENT_H_
 
-#include "base/compiler_specific.h"
 #include "extensions/browser/extensions_browser_client.h"
 
 namespace extensions {

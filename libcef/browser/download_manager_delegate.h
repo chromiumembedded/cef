@@ -10,7 +10,6 @@
 
 #include "libcef/browser/browser_host_base.h"
 
-#include "base/compiler_specific.h"
 #include "base/memory/weak_ptr.h"
 #include "components/download/public/common/download_item.h"
 #include "content/public/browser/download_manager.h"

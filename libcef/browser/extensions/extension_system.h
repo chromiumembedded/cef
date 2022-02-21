@@ -12,7 +12,6 @@
 #include "include/cef_extension_handler.h"
 #include "include/cef_request_context.h"
 
-#include "base/compiler_specific.h"
 #include "base/memory/weak_ptr.h"
 #include "base/one_shot_event.h"
 #include "extensions/browser/extension_system.h"
@@ -102,8 +101,7 @@ class CefExtensionSystem : public ExtensionSystem {
       const Extension* extension,
       base::OnceClosure callback) override;
   void UnregisterExtensionWithRequestContexts(
-      const std::string& extension_id,
-      const UnloadedExtensionReason reason) override;
+      const std::string& extension_id) override;
   const base::OneShotEvent& ready() const override;
   bool is_ready() const override;
   ContentVerifier* content_verifier() override;

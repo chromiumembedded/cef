@@ -121,8 +121,7 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   void PrimaryMainFrameRenderProcessGone(
       base::TerminationStatus status) override;
   void OnFrameFocused(content::RenderFrameHost* render_frame_host) override;
-  void DocumentAvailableInMainFrame(
-      content::RenderFrameHost* render_frame_host) override;
+  void PrimaryMainDocumentElementAvailable() override;
   void LoadProgressChanged(double progress) override;
   void DidStopLoading() override;
   void DidFinishNavigation(

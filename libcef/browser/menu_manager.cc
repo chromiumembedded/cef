@@ -13,7 +13,6 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/app_manager.h"
 
-#include "base/compiler_specific.h"
 #include "base/logging.h"
 #include "cef/grit/cef_strings.h"
 #include "chrome/grit/generated_resources.h"

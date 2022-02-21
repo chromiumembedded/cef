@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index 620b3fdc4403a..f20399d453680 100644
+index ec3262207e626..910e0b6a9ff89 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
-@@ -1724,6 +1724,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForMaybeOpaqueOrigin(
+@@ -1736,6 +1736,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForMaybeOpaqueOrigin(
              // DeclarativeApiTest.PersistRules.
              if (actual_process_lock.matches_scheme(url::kDataScheme))
                return true;
@@ -20,10 +20,10 @@ index 620b3fdc4403a..f20399d453680 100644
  
            // TODO(wjmaclean): We should update the ProcessLock comparison API
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 8a84c355e4d56..2545e0e828fe5 100644
+index 5a7fa871f7b26..71fa1b1bcd8fd 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -5896,6 +5896,12 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithoutFinalFrameHost(
+@@ -5940,6 +5940,12 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithoutFinalFrameHost(
      network::mojom::WebSandboxFlags sandbox_flags) {
    // Calculate an approximation of the origin. The sandbox/csp are ignored.
    url::Origin origin = GetOriginForURLLoaderFactoryUnchecked(this);
@@ -36,7 +36,7 @@ index 8a84c355e4d56..2545e0e828fe5 100644
  
    // Apply sandbox flags.
    // See https://html.spec.whatwg.org/#sandboxed-origin-browsing-context-flag
-@@ -5929,6 +5935,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithFinalFrameHost() {
+@@ -5973,6 +5979,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithFinalFrameHost() {
    if (IsSameDocument() || IsPageActivation())
      return GetRenderFrameHost()->GetLastCommittedOrigin();
  
@@ -49,6 +49,6 @@ index 8a84c355e4d56..2545e0e828fe5 100644
 +    return unchecked_origin.DeriveNewOpaqueOrigin();
 +  }
 +
-   url::Origin origin = GetOriginForURLLoaderFactoryWithoutFinalFrameHost(
-       sandbox_flags_to_commit_.value());
+   url::Origin origin =
+       GetOriginForURLLoaderFactoryWithoutFinalFrameHost(SandboxFlagsToCommit());
  

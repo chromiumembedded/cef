@@ -1,8 +1,8 @@
 diff --git content/browser/blob_storage/chrome_blob_storage_context.cc content/browser/blob_storage/chrome_blob_storage_context.cc
-index df1a7ae70bdc3..10e9a0b3b881a 100644
+index a74178f2d4246..8098034a38333 100644
 --- content/browser/blob_storage/chrome_blob_storage_context.cc
 +++ content/browser/blob_storage/chrome_blob_storage_context.cc
-@@ -120,7 +120,8 @@ ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
+@@ -121,7 +121,8 @@ ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
  
      // If we're not incognito mode, schedule all of our file tasks to enable
      // disk on the storage context.
@@ -13,7 +13,7 @@ index df1a7ae70bdc3..10e9a0b3b881a 100644
            {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
             base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index 967c0ea22204d..e1a64c68e00f8 100644
+index b0ebdaa0156cf..45ea1eba1cb79 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
 @@ -129,7 +129,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
@@ -36,7 +36,7 @@ index 967c0ea22204d..e1a64c68e00f8 100644
    std::unique_ptr<media::VideoDecodeStatsDB> stats_db;
    if (use_in_memory_db) {
 diff --git content/public/browser/storage_partition_config.cc content/public/browser/storage_partition_config.cc
-index b430ebb66bb5f..8fc54d2e7d713 100644
+index 160c24ce6e6cc..336aee0b8a0e3 100644
 --- content/public/browser/storage_partition_config.cc
 +++ content/public/browser/storage_partition_config.cc
 @@ -7,6 +7,7 @@
@@ -47,7 +47,7 @@ index b430ebb66bb5f..8fc54d2e7d713 100644
  #include "base/strings/string_number_conversions.h"
  #include "content/public/browser/browser_context.h"
  #include "url/gurl.h"
-@@ -37,7 +38,8 @@ StoragePartitionConfig& StoragePartitionConfig::operator=(
+@@ -22,7 +23,8 @@ StoragePartitionConfig& StoragePartitionConfig::operator=(
  // static
  StoragePartitionConfig StoragePartitionConfig::CreateDefault(
      BrowserContext* browser_context) {
@@ -58,7 +58,7 @@ index b430ebb66bb5f..8fc54d2e7d713 100644
  
  // static
 diff --git storage/browser/database/database_tracker.cc storage/browser/database/database_tracker.cc
-index 842886e2fce98..b77e43ea07458 100644
+index 74423c6f847d4..d1ea3420ec7d3 100644
 --- storage/browser/database/database_tracker.cc
 +++ storage/browser/database/database_tracker.cc
 @@ -562,7 +562,7 @@ bool DatabaseTracker::LazyInit() {

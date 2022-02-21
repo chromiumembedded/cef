@@ -331,8 +331,7 @@ void CefBrowserContentsDelegate::OnFrameFocused(
   OnStateChanged(State::kFocusedFrame);
 }
 
-void CefBrowserContentsDelegate::DocumentAvailableInMainFrame(
-    content::RenderFrameHost* render_frame_host) {
+void CefBrowserContentsDelegate::PrimaryMainDocumentElementAvailable() {
   has_document_ = true;
   OnStateChanged(State::kDocument);
 

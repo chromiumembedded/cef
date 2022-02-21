@@ -61,8 +61,8 @@ views::View* GetFor(CefRefPtr<CefView> view);
 // views::View will keep a ref-counted reference to |view|, and |view| will keep
 // an un-owned reference to the views::View. These references will reset when
 // the views::View object is deleted or when ResumeOwnership() is called.
-std::unique_ptr<views::View> PassOwnership(CefRefPtr<CefView> view)
-    WARN_UNUSED_RESULT;
+[[nodiscard]] std::unique_ptr<views::View> PassOwnership(
+    CefRefPtr<CefView> view);
 
 // Causes |view| to resume ownership of the views::View object. Should be called
 // after removing the views::View object from its previous parent.

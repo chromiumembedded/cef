@@ -7,7 +7,7 @@
 
 #include <utility>
 
-#include "base/compiler_specific.h"
+#include "build/build_config.h"
 
 // Enable deprecation warnings on Windows. See http://crbug.com/585142.
 #if BUILDFLAG(IS_WIN)
@@ -60,7 +60,6 @@
 #include "components/nacl/common/nacl_constants.h"
 #include "components/pdf/common/internal_plugin_helpers.h"
 #include "components/pdf/renderer/internal_plugin_renderer_helpers.h"
-#include "components/pdf/renderer/pdf_find_in_page.h"
 #include "components/printing/renderer/print_render_frame_helper.h"
 #include "components/spellcheck/renderer/spellcheck.h"
 #include "components/spellcheck/renderer/spellcheck_provider.h"
@@ -76,6 +75,7 @@
 #include "content/public/common/url_constants.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/render_view_visitor.h"
+#include "extensions/common/manifest_handlers/csp_info.h"
 #include "extensions/common/switches.h"
 #include "extensions/renderer/guest_view/mime_handler_view/mime_handler_view_container_manager.h"
 #include "extensions/renderer/renderer_extension_registry.h"
@@ -83,7 +83,6 @@
 #include "media/base/media.h"
 #include "mojo/public/cpp/bindings/binder_map.h"
 #include "mojo/public/cpp/bindings/generic_pending_receiver.h"
-#include "pdf/pdf_features.h"
 #include "printing/print_settings.h"
 #include "services/network/public/cpp/is_potentially_trustworthy.h"
 #include "services/service_manager/public/cpp/connector.h"
@@ -308,12 +307,6 @@ void AlloyContentRendererClient::RenderFrameCreated(
         base::WrapUnique(
             new extensions::CefPrintRenderFrameHelperDelegate(*is_windowless)));
   }
-
-  if (base::FeatureList::IsEnabled(chrome_pdf::features::kPdfUnseasoned)) {
-    render_frame_observer->associated_interfaces()->AddInterface(
-        base::BindRepeating(&pdf::PdfFindInPageFactory::BindReceiver,
-                            render_frame->GetRoutingID()));
-  }
 }
 
 void AlloyContentRendererClient::WebViewCreated(blink::WebView* web_view) {
@@ -343,9 +336,8 @@ bool AlloyContentRendererClient::IsPluginHandledExternally(
   // a more unified approach to avoid sending the IPC twice.
   chrome::mojom::PluginInfoPtr plugin_info = chrome::mojom::PluginInfo::New();
   ChromeContentRendererClient::GetPluginInfoHost()->GetPluginInfo(
-      render_frame->GetRoutingID(), original_url,
-      render_frame->GetWebFrame()->Top()->GetSecurityOrigin(), mime_type,
-      &plugin_info);
+      original_url, render_frame->GetWebFrame()->Top()->GetSecurityOrigin(),
+      mime_type, &plugin_info);
   // TODO(ekaramad): Not continuing here due to a disallowed status should take
   // us to CreatePlugin. See if more in depths investigation of |status| is
   // necessary here (see https://crbug.com/965747). For now, returning false
@@ -389,9 +381,8 @@ bool AlloyContentRendererClient::OverrideCreatePlugin(
   GURL url(params.url);
   chrome::mojom::PluginInfoPtr plugin_info = chrome::mojom::PluginInfo::New();
   ChromeContentRendererClient::GetPluginInfoHost()->GetPluginInfo(
-      render_frame->GetRoutingID(), url,
-      render_frame->GetWebFrame()->Top()->GetSecurityOrigin(), orig_mime_type,
-      &plugin_info);
+      url, render_frame->GetWebFrame()->Top()->GetSecurityOrigin(),
+      orig_mime_type, &plugin_info);
   *plugin = ChromeContentRendererClient::CreatePlugin(render_frame, params,
                                                       *plugin_info);
   return true;
@@ -428,9 +419,9 @@ bool AlloyContentRendererClient::IsOriginIsolatedPepperPlugin(
   return true;
 }
 
-void AlloyContentRendererClient::AddSupportedKeySystems(
-    std::vector<std::unique_ptr<::media::KeySystemProperties>>* key_systems) {
-  key_systems_provider_.AddSupportedKeySystems(key_systems);
+void AlloyContentRendererClient::GetSupportedKeySystems(
+    media::GetSupportedKeySystemsCB cb) {
+  key_systems_provider_.GetSupportedKeySystems(std::move(cb));
 }
 
 bool AlloyContentRendererClient::IsKeySystemsUpdateNeeded() {
@@ -485,6 +476,39 @@ std::unique_ptr<blink::URLLoaderThrottleProvider>
 AlloyContentRendererClient::CreateURLLoaderThrottleProvider(
     blink::URLLoaderThrottleProviderType provider_type) {
   return std::make_unique<CefURLLoaderThrottleProviderImpl>(provider_type);
+}
+
+void AlloyContentRendererClient::AppendContentSecurityPolicy(
+    const blink::WebURL& url,
+    blink::WebVector<blink::WebContentSecurityPolicyHeader>* csp) {
+  if (!extensions::ExtensionsEnabled())
+    return;
+
+  // Don't apply default CSP to PDF renderers.
+  // TODO(crbug.com/1252096): Lock down the CSP once style and script are no
+  // longer injected inline by `pdf::PluginResponseWriter`. That class may be a
+  // better place to define such CSP, or we may continue doing so here.
+  if (pdf::IsPdfRenderer())
+    return;
+
+  DCHECK(csp);
+  GURL gurl(url);
+  const extensions::Extension* extension =
+      extensions::RendererExtensionRegistry::Get()->GetExtensionOrAppByURL(
+          gurl);
+  if (!extension)
+    return;
+
+  // Append a default CSP to ensure the extension can't relax the default
+  // applied CSP through means like Service Worker.
+  const std::string* default_csp =
+      extensions::CSPInfo::GetDefaultCSPToAppend(*extension, gurl.path());
+  if (!default_csp)
+    return;
+
+  csp->push_back({blink::WebString::FromUTF8(*default_csp),
+                  network::mojom::ContentSecurityPolicyType::kEnforce,
+                  network::mojom::ContentSecurityPolicySource::kHTTP});
 }
 
 void AlloyContentRendererClient::GetInterface(

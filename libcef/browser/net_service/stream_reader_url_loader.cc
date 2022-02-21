@@ -38,12 +38,12 @@ class OpenInputStreamWrapper
   OpenInputStreamWrapper(const OpenInputStreamWrapper&) = delete;
   OpenInputStreamWrapper& operator=(const OpenInputStreamWrapper&) = delete;
 
-  static base::OnceClosure Open(
+  [[nodiscard]] static base::OnceClosure Open(
       std::unique_ptr<StreamReaderURLLoader::Delegate> delegate,
       scoped_refptr<base::SequencedTaskRunner> work_thread_task_runner,
       int32_t request_id,
       const network::ResourceRequest& request,
-      OnInputStreamOpenedCallback callback) WARN_UNUSED_RESULT {
+      OnInputStreamOpenedCallback callback) {
     scoped_refptr<OpenInputStreamWrapper> wrapper = new OpenInputStreamWrapper(
         std::move(delegate), work_thread_task_runner,
         base::ThreadTaskRunnerHandle::Get(), std::move(callback));
@@ -697,7 +697,8 @@ void StreamReaderURLLoader::ContinueWithResponseHeaders(
     // |this| will be deleted.
     CleanUp();
   } else {
-    client_->OnReceiveResponse(std::move(pending_response));
+    client_->OnReceiveResponse(std::move(pending_response),
+                               mojo::ScopedDataPipeConsumerHandle());
   }
 }
 

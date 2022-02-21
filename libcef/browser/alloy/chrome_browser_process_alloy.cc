@@ -329,12 +329,6 @@ ChromeBrowserProcessAlloy::subresource_filter_ruleset_service() {
   return nullptr;
 }
 
-federated_learning::FlocSortingLshClustersService*
-ChromeBrowserProcessAlloy::floc_sorting_lsh_clusters_service() {
-  NOTREACHED();
-  return nullptr;
-}
-
 StartupData* ChromeBrowserProcessAlloy::startup_data() {
   NOTREACHED();
   return nullptr;
@@ -405,6 +399,12 @@ BuildState* ChromeBrowserProcessAlloy::GetBuildState() {
 
 SerialPolicyAllowedPorts*
 ChromeBrowserProcessAlloy::serial_policy_allowed_ports() {
+  NOTREACHED();
+  return nullptr;
+}
+
+HidPolicyAllowedDevices*
+ChromeBrowserProcessAlloy::hid_policy_allowed_devices() {
   NOTREACHED();
   return nullptr;
 }

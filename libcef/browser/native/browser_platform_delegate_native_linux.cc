@@ -236,8 +236,7 @@ void CefBrowserPlatformDelegateNativeLinux::ViewText(const std::string& text) {
   std::string openCommand("xdg-open ");
   openCommand += newName;
 
-  int result = system(openCommand.c_str());
-  ALLOW_UNUSED_LOCAL(result);
+  [[maybe_unused]] int result = system(openCommand.c_str());
 }
 
 bool CefBrowserPlatformDelegateNativeLinux::HandleKeyboardEvent(

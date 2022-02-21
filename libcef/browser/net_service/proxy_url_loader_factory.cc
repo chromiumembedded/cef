@@ -227,7 +227,8 @@ class InterceptedRequest : public network::mojom::URLLoader,
 
   // mojom::URLLoaderClient methods:
   void OnReceiveEarlyHints(network::mojom::EarlyHintsPtr early_hints) override;
-  void OnReceiveResponse(network::mojom::URLResponseHeadPtr head) override;
+  void OnReceiveResponse(network::mojom::URLResponseHeadPtr head,
+                         mojo::ScopedDataPipeConsumerHandle body) override;
   void OnReceiveRedirect(const net::RedirectInfo& redirect_info,
                          network::mojom::URLResponseHeadPtr head) override;
   void OnUploadProgress(int64_t current_position,
@@ -333,6 +334,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
 
   network::ResourceRequest request_;
   network::mojom::URLResponseHeadPtr current_response_;
+  mojo::ScopedDataPipeConsumerHandle current_body_;
   scoped_refptr<net::HttpResponseHeaders> current_headers_;
   scoped_refptr<net::HttpResponseHeaders> override_headers_;
   GURL original_url_;
@@ -556,8 +558,10 @@ void InterceptedRequest::OnReceiveEarlyHints(
 }
 
 void InterceptedRequest::OnReceiveResponse(
-    network::mojom::URLResponseHeadPtr head) {
+    network::mojom::URLResponseHeadPtr head,
+    mojo::ScopedDataPipeConsumerHandle body) {
   current_response_ = std::move(head);
+  current_body_ = std::move(body);
 
   if (current_request_uses_header_client_) {
     // Use the headers we got from OnHeadersReceived as that'll contain
@@ -580,6 +584,7 @@ void InterceptedRequest::OnReceiveRedirect(
   bool needs_callback = false;
 
   current_response_ = std::move(head);
+  current_body_.reset();
 
   if (current_request_uses_header_client_) {
     // Use the headers we got from OnHeadersReceived as that'll contain
@@ -743,6 +748,7 @@ void InterceptedRequest::InterceptResponseReceived(
     current_response_ = network::mojom::URLResponseHead::New();
     current_response_->request_start = base::TimeTicks::Now();
     current_response_->response_start = base::TimeTicks::Now();
+    current_body_.reset();
 
     auto headers = MakeResponseHeaders(
         net::HTTP_TEMPORARY_REDIRECT, std::string(), std::string(),
@@ -1041,7 +1047,8 @@ void InterceptedRequest::ContinueToResponseStarted(int error_code) {
     if (proxied_client_receiver_.is_bound())
       proxied_client_receiver_.Resume();
 
-    target_client_->OnReceiveResponse(std::move(current_response_));
+    target_client_->OnReceiveResponse(std::move(current_response_),
+                                      std::move(current_body_));
   }
 
   if (stream_loader_)

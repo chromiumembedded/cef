@@ -17,7 +17,7 @@
 #include "ui/gfx/x/connection.h"
 #include "ui/gfx/x/x11_window_event_manager.h"
 #include "ui/gfx/x/xproto_util.h"
-#include "ui/platform_window/x11/x11_topmost_window_finder.h"
+#include "ui/ozone/platform/x11/x11_topmost_window_finder.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h"
 
 namespace {

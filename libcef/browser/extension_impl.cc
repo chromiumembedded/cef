@@ -86,10 +86,10 @@ void CefExtensionImpl::Unload() {
   // flag, so set it here.
   unloaded_ = true;
 
-  const bool result = static_cast<CefRequestContextImpl*>(loader_context_)
-                          ->GetBrowserContext()
-                          ->UnloadExtension(id_);
-  ALLOW_UNUSED_LOCAL(result);
+  [[maybe_unused]] const bool result =
+      static_cast<CefRequestContextImpl*>(loader_context_)
+          ->GetBrowserContext()
+          ->UnloadExtension(id_);
   DCHECK(result);
 }
 

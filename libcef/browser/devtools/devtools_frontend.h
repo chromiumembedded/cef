@@ -10,7 +10,6 @@
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/devtools/devtools_file_manager.h"
 
-#include "base/compiler_specific.h"
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/weak_ptr.h"
@@ -81,8 +80,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   // WebContentsObserver overrides
   void ReadyToCommitNavigation(
       content::NavigationHandle* navigation_handle) override;
-  void DocumentAvailableInMainFrame(
-      content::RenderFrameHost* render_frame_host) override;
+  void PrimaryMainDocumentElementAvailable() override;
   void WebContentsDestroyed() override;
 
   void SendMessageAck(int request_id, base::Value arg);

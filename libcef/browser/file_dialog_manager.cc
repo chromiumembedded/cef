@@ -67,7 +67,7 @@ class CefFileDialogCallbackImpl : public CefFileDialogCallback {
     }
   }
 
-  CallbackType Disconnect() WARN_UNUSED_RESULT { return std::move(callback_); }
+  [[nodiscard]] CallbackType Disconnect() { return std::move(callback_); }
 
  private:
   static void CancelNow(CallbackType callback) {

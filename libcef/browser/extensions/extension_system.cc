@@ -466,11 +466,10 @@ void CefExtensionSystem::RegisterExtensionWithRequestContexts(
 // Implementation based on
 // ExtensionSystemImpl::UnregisterExtensionWithRequestContexts.
 void CefExtensionSystem::UnregisterExtensionWithRequestContexts(
-    const std::string& extension_id,
-    const UnloadedExtensionReason reason) {
+    const std::string& extension_id) {
   content::GetIOThreadTaskRunner({})->PostTask(
-      FROM_HERE, base::BindOnce(&InfoMap::RemoveExtension, info_map(),
-                                extension_id, reason));
+      FROM_HERE,
+      base::BindOnce(&InfoMap::RemoveExtension, info_map(), extension_id));
 }
 
 const base::OneShotEvent& CefExtensionSystem::ready() const {
@@ -611,7 +610,7 @@ void CefExtensionSystem::UnloadExtension(const std::string& extension_id,
   if (!extension.get()) {
     // In case the extension may have crashed/uninstalled. Allow the profile to
     // clean up its RequestContexts.
-    UnregisterExtensionWithRequestContexts(extension_id, reason);
+    UnregisterExtensionWithRequestContexts(extension_id);
     return;
   }
 
@@ -620,7 +619,7 @@ void CefExtensionSystem::UnloadExtension(const std::string& extension_id,
     // Make sure the profile cleans up its RequestContexts when an already
     // disabled extension is unloaded (since they are also tracking the disabled
     // extensions).
-    UnregisterExtensionWithRequestContexts(extension_id, reason);
+    UnregisterExtensionWithRequestContexts(extension_id);
     // Don't send the unloaded notification. It was sent when the extension
     // was disabled.
   } else {
@@ -712,7 +711,7 @@ void CefExtensionSystem::NotifyExtensionUnloaded(
   // Tell renderers about the unloaded extension.
   renderer_helper_->OnExtensionUnloaded(*extension);
 
-  UnregisterExtensionWithRequestContexts(extension->id(), reason);
+  UnregisterExtensionWithRequestContexts(extension->id());
 }
 
 }  // namespace extensions

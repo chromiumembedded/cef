@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 22070a9adc507..e55d32f80b438 100644
+index 1810cebef9aa4..06618025b84b0 100644
 --- .gn
 +++ .gn
-@@ -156,6 +156,8 @@ exec_script_whitelist =
+@@ -154,6 +154,8 @@ exec_script_whitelist =
  
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
  
@@ -12,10 +12,10 @@ index 22070a9adc507..e55d32f80b438 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index df8b37fc8b0af..e46843b39d228 100644
+index fae950dfa67de..5c4f17deed94c 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -16,6 +16,7 @@ import("//build/config/sanitizers/sanitizers.gni")
+@@ -17,6 +17,7 @@ import("//build/config/sanitizers/sanitizers.gni")
  import("//build/config/ui.gni")
  import("//build/gn_logs.gni")
  import("//build/util/generate_wrapper.gni")
@@ -23,7 +23,7 @@ index df8b37fc8b0af..e46843b39d228 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/media/router/features.gni")
  import("//components/nacl/features.gni")
-@@ -267,6 +268,9 @@ group("gn_all") {
+@@ -269,6 +270,9 @@ group("gn_all") {
          deps += [ "//chrome/test:telemetry_perf_unittests${_target_suffix}" ]
        }
      }
@@ -66,10 +66,10 @@ index 982fbe8d3f0d0..e757be4688f10 100644
 +         "studio path")
  }
 diff --git chrome/app/framework.order chrome/app/framework.order
-index 839144aa1e9bd..29c8ab32398a7 100644
+index f8f71ef369c08..7a2ed5da7bda3 100644
 --- chrome/app/framework.order
 +++ chrome/app/framework.order
-@@ -28,3 +28,8 @@ _ChromeMain
+@@ -31,3 +31,8 @@ _ChromeMain
  _lprofDirMode
  ___llvm_profile_filename
  ___llvm_profile_raw_version
@@ -79,7 +79,7 @@ index 839144aa1e9bd..29c8ab32398a7 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index c540719a510ab..1107dfc9f2537 100644
+index cd468f580cb63..66a06d303580d 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -152,7 +152,7 @@ index 51fa0d7f4cf77..2ede68e9377eb 100644
    outputs = [
      # See also chrome.packed.7z conditionally added below.
 diff --git tools/grit/grit_defines.gni tools/grit/grit_defines.gni
-index 60022cbefac60..00f3bcd528ee0 100644
+index 061bdf6812cff..3b0a4b832bd24 100644
 --- tools/grit/grit_defines.gni
 +++ tools/grit/grit_defines.gni
 @@ -5,6 +5,7 @@
@@ -163,7 +163,7 @@ index 60022cbefac60..00f3bcd528ee0 100644
  import("//build/config/ui.gni")
  
  shared_intermediate_dir = rebase_path(root_gen_dir, root_build_dir)
-@@ -112,6 +113,13 @@ if (is_android) {
+@@ -119,6 +120,13 @@ if (is_android) {
    ]
  }
  

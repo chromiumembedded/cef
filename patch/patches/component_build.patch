@@ -68,7 +68,7 @@ index 57072bf1263ae..0a93446e4d21c 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index b54d43016f306..b26a292893de8 100644
+index a789586193e94..234a687dd1c23 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -32,6 +32,7 @@ component("controller") {

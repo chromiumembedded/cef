@@ -31,10 +31,6 @@ class RenderFrame;
 struct WebPluginInfo;
 }  // namespace content
 
-namespace guest_view {
-class GuestViewContainerDispatcher;
-}
-
 namespace url {
 class Origin;
 }
@@ -84,8 +80,6 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
 
  private:
   std::unique_ptr<extensions::Dispatcher> extension_dispatcher_;
-  std::unique_ptr<guest_view::GuestViewContainerDispatcher>
-      guest_view_container_dispatcher_;
   std::unique_ptr<extensions::ResourceRequestPolicy> resource_request_policy_;
 };
 

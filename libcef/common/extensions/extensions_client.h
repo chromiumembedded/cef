@@ -6,7 +6,6 @@
 #ifndef CEF_LIBCEF_COMMON_EXTENSIONS_EXTENSIONS_CLIENT_H_
 #define CEF_LIBCEF_COMMON_EXTENSIONS_EXTENSIONS_CLIENT_H_
 
-#include "base/compiler_specific.h"
 #include "chrome/common/extensions/permissions/chrome_permission_message_provider.h"
 #include "extensions/common/extensions_client.h"
 #include "url/gurl.h"

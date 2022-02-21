@@ -339,8 +339,7 @@ void CefDevToolsFrontend::ReadyToCommitNavigation(
   content::DevToolsFrontendHost::SetupExtensionsAPI(frame, script);
 }
 
-void CefDevToolsFrontend::DocumentAvailableInMainFrame(
-    content::RenderFrameHost* render_frame_host) {
+void CefDevToolsFrontend::PrimaryMainDocumentElementAvailable() {
   // Don't call AttachClient multiple times for the same DevToolsAgentHost.
   // Otherwise it will call AgentHostClosed which closes the DevTools window.
   // This may happen in cases where the DevTools content fails to load.
@@ -381,7 +380,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
   // Since we've received message by value, we can take the list.
   base::Value::ListStorage params;
   if (params_value) {
-    params = std::move(*params_value).TakeList();
+    params = std::move(*params_value).TakeListDeprecated();
   }
 
   if (*method == "dispatchProtocolMessage") {

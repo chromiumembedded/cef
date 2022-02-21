@@ -321,7 +321,7 @@ class CefValueBase : public CefType, public CefValueController::Object {
   // Detaches the underlying value and returns a pointer to it. If this is an
   // owner and a |new_controller| value is specified any existing references
   // will be passed to the new controller.
-  ValueType* Detach(CefValueController* new_controller) WARN_UNUSED_RESULT {
+  [[nodiscard]] ValueType* Detach(CefValueController* new_controller) {
     CEF_VALUE_VERIFY_RETURN(false, nullptr);
 
     if (new_controller && !reference()) {

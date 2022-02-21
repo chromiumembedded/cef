@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index dbfae7b5e3d2c..bf18a6fbddf6d 100644
+index 673ed00dc33c8..e7c82dc4dddb0 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -24,6 +24,7 @@
@@ -46,10 +46,10 @@ index 332fbc21aa0e3..1286fc203d6cd 100644
  #include "chrome/browser/printing/print_view_manager.h"
  #include "chrome/browser/task_manager/web_contents_tags.h"
 diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index c759b7a7c9d19..c63900f5d1686 100644
+index 9ed04fffa69c2..f2a3402b9ba6a 100644
 --- chrome/browser/printing/print_view_manager_base.cc
 +++ chrome/browser/printing/print_view_manager_base.cc
-@@ -248,12 +248,13 @@ void UpdatePrintSettingsOnIO(
+@@ -219,12 +219,13 @@ void UpdatePrintSettingsOnIO(
      mojom::PrintManagerHost::UpdatePrintSettingsCallback callback,
      scoped_refptr<PrintQueriesQueue> queue,
      base::Value job_settings,
@@ -66,7 +66,7 @@ index c759b7a7c9d19..c63900f5d1686 100644
    }
    auto* printer_query_ptr = printer_query.get();
    printer_query_ptr->SetSettings(
-@@ -675,6 +676,7 @@ void PrintViewManagerBase::UpdatePrintSettings(
+@@ -646,6 +647,7 @@ void PrintViewManagerBase::UpdatePrintSettings(
        job_settings.SetIntKey(kSettingRasterizePdfDpi, value);
    }
  
@@ -74,7 +74,7 @@ index c759b7a7c9d19..c63900f5d1686 100644
    auto callback_wrapper =
        base::BindOnce(&PrintViewManagerBase::UpdatePrintSettingsReply,
                       weak_ptr_factory_.GetWeakPtr(), std::move(callback));
-@@ -682,7 +684,9 @@ void PrintViewManagerBase::UpdatePrintSettings(
+@@ -653,7 +655,9 @@ void PrintViewManagerBase::UpdatePrintSettings(
        FROM_HERE,
        base::BindOnce(&UpdatePrintSettingsOnIO, cookie,
                       std::move(callback_wrapper), queue_,
@@ -86,7 +86,7 @@ index c759b7a7c9d19..c63900f5d1686 100644
  #endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW)
  
 diff --git chrome/browser/printing/print_view_manager_base.h chrome/browser/printing/print_view_manager_base.h
-index aa7915ac042fe..ab4d9a8ac6e24 100644
+index 2661776307f77..b9edc98619c29 100644
 --- chrome/browser/printing/print_view_manager_base.h
 +++ chrome/browser/printing/print_view_manager_base.h
 @@ -146,9 +146,6 @@ class PrintViewManagerBase : public PrintManager, public PrintJob::Observer {
@@ -116,7 +116,7 @@ index 920f646f06484..76c0b5e5ee04b 100644
        $i18n{cancel}
      </cr-button>
 diff --git chrome/browser/ui/webui/constrained_web_dialog_ui.cc chrome/browser/ui/webui/constrained_web_dialog_ui.cc
-index 8c5ba47779d24..91a70d8715f33 100644
+index f6098966f5b34..da78289b66155 100644
 --- chrome/browser/ui/webui/constrained_web_dialog_ui.cc
 +++ chrome/browser/ui/webui/constrained_web_dialog_ui.cc
 @@ -13,6 +13,7 @@
@@ -291,7 +291,7 @@ index 46c8b1d08b075..1ee95cd7c3240 100644
    base::FilePath GetSaveLocation() const;
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index da70f602899a9..ca99c7d2ec09f 100644
+index b32c9d1760b69..ad65de16ba0d2 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -22,6 +22,7 @@

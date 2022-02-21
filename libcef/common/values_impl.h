@@ -148,12 +148,12 @@ class CefBinaryValueImpl : public CefValueBase<CefBinaryValue, base::Value> {
   CefBinaryValueImpl& operator=(const CefBinaryValueImpl&) = delete;
 
   // Return a copy of the value.
-  base::Value* CopyValue() WARN_UNUSED_RESULT;
+  [[nodiscard]] base::Value* CopyValue();
 
   // If this value is a reference then return a copy. Otherwise, detach and
   // transfer ownership of the value.
-  base::Value* CopyOrDetachValue(CefValueController* new_controller)
-      WARN_UNUSED_RESULT;
+  [[nodiscard]] base::Value* CopyOrDetachValue(
+      CefValueController* new_controller);
 
   bool IsSameValue(const base::Value* that);
   bool IsEqualValue(const base::Value* that);
@@ -205,12 +205,12 @@ class CefDictionaryValueImpl
   CefDictionaryValueImpl& operator=(const CefDictionaryValueImpl&) = delete;
 
   // Return a copy of the value.
-  base::DictionaryValue* CopyValue() WARN_UNUSED_RESULT;
+  [[nodiscard]] base::DictionaryValue* CopyValue();
 
   // If this value is a reference then return a copy. Otherwise, detach and
   // transfer ownership of the value.
-  base::DictionaryValue* CopyOrDetachValue(CefValueController* new_controller)
-      WARN_UNUSED_RESULT;
+  [[nodiscard]] base::DictionaryValue* CopyOrDetachValue(
+      CefValueController* new_controller);
 
   bool IsSameValue(const base::DictionaryValue* that);
   bool IsEqualValue(const base::DictionaryValue* that);
@@ -285,12 +285,12 @@ class CefListValueImpl : public CefValueBase<CefListValue, base::ListValue> {
   CefListValueImpl& operator=(const CefListValueImpl&) = delete;
 
   // Return a copy of the value.
-  base::ListValue* CopyValue() WARN_UNUSED_RESULT;
+  [[nodiscard]] base::ListValue* CopyValue();
 
   // If this value is a reference then return a copy. Otherwise, detach and
   // transfer ownership of the value.
-  base::ListValue* CopyOrDetachValue(CefValueController* new_controller)
-      WARN_UNUSED_RESULT;
+  [[nodiscard]] base::ListValue* CopyOrDetachValue(
+      CefValueController* new_controller);
 
   bool IsSameValue(const base::ListValue* that);
   bool IsEqualValue(const base::ListValue* that);
