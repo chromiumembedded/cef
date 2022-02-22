@@ -48,6 +48,7 @@ class CefDragDataImpl : public CefDragData {
   CefRefPtr<CefImage> GetImage() override;
   CefPoint GetImageHotspot() override;
   bool HasImage() override;
+  void ClearFilenames() override;
 
   // This method is not safe. Use Lock/Unlock to get mutually exclusive access.
   content::DropData* drop_data() { return &data_; }

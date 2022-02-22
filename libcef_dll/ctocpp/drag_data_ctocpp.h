@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0814e8ced30cbbd7c5867464550da973395b385b$
+// $hash=089d7f01f416b90dfe25fb12f21f666866457096$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DRAG_DATA_CTOCPP_H_
@@ -60,6 +60,7 @@ class CefDragDataCToCpp : public CefCToCppRefCounted<CefDragDataCToCpp,
   CefRefPtr<CefImage> GetImage() override;
   CefPoint GetImageHotspot() override;
   bool HasImage() override;
+  void ClearFilenames() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DRAG_DATA_CTOCPP_H_

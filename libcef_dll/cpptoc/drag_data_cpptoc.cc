@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2a39ab30ca26c5c63ce557b31f86a5557cd96ebc$
+// $hash=21a045c2e2c6599251b94cd71f20945569efbac8$
 //
 
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
@@ -460,6 +460,19 @@ int CEF_CALLBACK drag_data_has_image(struct _cef_drag_data_t* self) {
   return _retval;
 }
 
+void CEF_CALLBACK drag_data_clear_filenames(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefDragDataCppToC::Get(self)->ClearFilenames();
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -490,6 +503,7 @@ CefDragDataCppToC::CefDragDataCppToC() {
   GetStruct()->get_image = drag_data_get_image;
   GetStruct()->get_image_hotspot = drag_data_get_image_hotspot;
   GetStruct()->has_image = drag_data_has_image;
+  GetStruct()->clear_filenames = drag_data_clear_filenames;
 }
 
 // DESTRUCTOR - Do not edit by hand.

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=221973f3d5728478eeb0f8f5f55ca5e68b3afd8a$
+// $hash=13187c3b891f93c66de313e029e0944b889634e0$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DRAG_DATA_CAPI_H_
@@ -214,6 +214,11 @@ typedef struct _cef_drag_data_t {
   // Returns true (1) if an image representation of drag data is available.
   ///
   int(CEF_CALLBACK* has_image)(struct _cef_drag_data_t* self);
+
+  ///
+  // Clear data
+  ///
+  void(CEF_CALLBACK* clear_filenames)(struct _cef_drag_data_t* self);
 } cef_drag_data_t;
 
 ///

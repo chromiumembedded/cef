@@ -214,6 +214,12 @@ class CefDragData : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual bool HasImage() = 0;
+
+  ///
+  // Clear list of filenames
+  ///
+  /*--cef()--*/
+  virtual void ClearFilenames() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_DRAG_DATA_H_

@@ -205,3 +205,8 @@ bool CefDragDataImpl::HasImage() {
   base::AutoLock lock_scope(lock_);
   return image_ ? true : false;
 }
+
+void CefDragDataImpl::ClearFilenames() {
+  base::AutoLock lock_scope(lock_);
+  data_.filenames.clear();
+}
