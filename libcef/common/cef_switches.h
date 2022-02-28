@@ -62,10 +62,6 @@ extern const char kFrameworkDirPath[];
 extern const char kMainBundlePath[];
 #endif
 
-#if !BUILDFLAG(IS_WIN)
-extern const char kPdfRenderer[];
-#endif
-
 }  // namespace switches
 
 #endif  // CEF_LIBCEF_COMMON_CEF_SWITCHES_H_

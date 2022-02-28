@@ -66,10 +66,10 @@ index 982fbe8d3f0d0..e757be4688f10 100644
 +         "studio path")
  }
 diff --git chrome/app/framework.order chrome/app/framework.order
-index 839144aa1e9bd..29c8ab32398a7 100644
+index f8f71ef369c08..7a2ed5da7bda3 100644
 --- chrome/app/framework.order
 +++ chrome/app/framework.order
-@@ -28,3 +28,8 @@ _ChromeMain
+@@ -31,3 +31,8 @@ _ChromeMain
  _lprofDirMode
  ___llvm_profile_filename
  ___llvm_profile_raw_version

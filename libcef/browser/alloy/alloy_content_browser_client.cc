@@ -766,14 +766,6 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
     if (extensions::ExtensionsEnabled()) {
       content::RenderProcessHost* process =
           content::RenderProcessHost::FromID(child_process_id);
-#if !BUILDFLAG(IS_WIN)
-      // kPdfRenderer will be set for Windows in
-      // RenderProcessHostImpl::AppendRendererCommandLine.
-      if (process && process->IsPdf()) {
-        command_line->AppendSwitch(switches::kPdfRenderer);
-      }
-#endif  // !BUILDFLAG(IS_WIN)
-
       auto browser_context = process->GetBrowserContext();
       CefBrowserContext* cef_browser_context =
           process ? CefBrowserContext::FromBrowserContext(browser_context)
