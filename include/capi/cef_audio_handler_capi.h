@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=fd8d34089842ee8f8490ef1828c3091d12052e28$
+// $hash=62f58ab826b8a3d436655bf0855848632f2a73b5$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_AUDIO_HANDLER_CAPI_H_
@@ -68,7 +68,7 @@ typedef struct _cef_audio_handler_t {
 
   ///
   // Called on a browser audio capture thread when the browser starts streaming
-  // audio. OnAudioSteamStopped will always be called after
+  // audio. OnAudioStreamStopped will always be called after
   // OnAudioStreamStarted; both functions may be called multiple times for the
   // same browser. |params| contains the audio parameters like sample rate and
   // channel layout. |channels| is the number of channels.
