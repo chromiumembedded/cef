@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2a39ab30ca26c5c63ce557b31f86a5557cd96ebc$
+// $hash=284032a14fc598b45b138f1dd949d9004abc6930$
 //
 
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
@@ -410,6 +410,19 @@ void CEF_CALLBACK drag_data_add_file(struct _cef_drag_data_t* self,
                                         CefString(display_name));
 }
 
+void CEF_CALLBACK drag_data_clear_filenames(struct _cef_drag_data_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefDragDataCppToC::Get(self)->ClearFilenames();
+}
+
 struct _cef_image_t* CEF_CALLBACK
 drag_data_get_image(struct _cef_drag_data_t* self) {
   shutdown_checker::AssertNotShutdown();
@@ -487,6 +500,7 @@ CefDragDataCppToC::CefDragDataCppToC() {
   GetStruct()->set_fragment_base_url = drag_data_set_fragment_base_url;
   GetStruct()->reset_file_contents = drag_data_reset_file_contents;
   GetStruct()->add_file = drag_data_add_file;
+  GetStruct()->clear_filenames = drag_data_clear_filenames;
   GetStruct()->get_image = drag_data_get_image;
   GetStruct()->get_image_hotspot = drag_data_get_image_hotspot;
   GetStruct()->has_image = drag_data_has_image;

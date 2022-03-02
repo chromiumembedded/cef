@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=57352ff85ca98fc34a0f2c58afbb1224ce1a1f09$
+// $hash=7d9a55e1e8779d677d34e2b6c9277db7e6b75d3d$
 //
 
 #include "libcef_dll/ctocpp/drag_data_ctocpp.h"
@@ -418,6 +418,19 @@ void CefDragDataCToCpp::AddFile(const CefString& path,
 
   // Execute
   _struct->add_file(_struct, path.GetStruct(), display_name.GetStruct());
+}
+
+NO_SANITIZE("cfi-icall") void CefDragDataCToCpp::ClearFilenames() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_drag_data_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, clear_filenames))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->clear_filenames(_struct);
 }
 
 NO_SANITIZE("cfi-icall") CefRefPtr<CefImage> CefDragDataCToCpp::GetImage() {

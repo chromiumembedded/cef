@@ -183,6 +183,11 @@ void CefDragDataImpl::AddFile(const CefString& path,
       ui::FileInfo(base::FilePath(path), base::FilePath(display_name)));
 }
 
+void CefDragDataImpl::ClearFilenames() {
+  base::AutoLock lock_scope(lock_);
+  data_.filenames.clear();
+}
+
 void CefDragDataImpl::SetReadOnly(bool read_only) {
   base::AutoLock lock_scope(lock_);
   if (read_only_ == read_only)

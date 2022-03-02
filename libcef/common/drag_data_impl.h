@@ -45,6 +45,7 @@ class CefDragDataImpl : public CefDragData {
   void SetFragmentBaseURL(const CefString& fragment) override;
   void ResetFileContents() override;
   void AddFile(const CefString& path, const CefString& display_name) override;
+  void ClearFilenames() override;
   CefRefPtr<CefImage> GetImage() override;
   CefPoint GetImageHotspot() override;
   bool HasImage() override;

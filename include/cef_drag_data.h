@@ -197,6 +197,12 @@ class CefDragData : public virtual CefBaseRefCounted {
                        const CefString& display_name) = 0;
 
   ///
+  // Clear list of filenames.
+  ///
+  /*--cef()--*/
+  virtual void ClearFilenames() = 0;
+
+  ///
   // Get the image representation of drag data. May return NULL if no image
   // representation is available.
   ///
