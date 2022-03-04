@@ -139,7 +139,7 @@ index 67496d7ab6c50..fa97b9abe6253 100644
    BrowserFrame(const BrowserFrame&) = delete;
    BrowserFrame& operator=(const BrowserFrame&) = delete;
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 0f9a2e8b91715..355bdf6fa9074 100644
+index 1da4bd396d452..3a7f82497d487 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -297,11 +297,10 @@ using content::WebContents;
@@ -216,7 +216,7 @@ index 0f9a2e8b91715..355bdf6fa9074 100644
    return frame_->GetFrameView()->ShouldHideTopUIForFullscreen();
  }
  
-@@ -2824,7 +2842,8 @@ BrowserView::GetNativeViewHostsForTopControlsSlide() const {
+@@ -2816,7 +2834,8 @@ BrowserView::GetNativeViewHostsForTopControlsSlide() const {
  }
  
  void BrowserView::ReparentTopContainerForEndOfImmersive() {
@@ -226,7 +226,7 @@ index 0f9a2e8b91715..355bdf6fa9074 100644
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -3313,8 +3332,10 @@ void BrowserView::Layout() {
+@@ -3305,8 +3324,10 @@ void BrowserView::Layout() {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -239,7 +239,7 @@ index 0f9a2e8b91715..355bdf6fa9074 100644
  
    // Some of the situations when the BrowserView is laid out are:
    // - Enter/exit immersive fullscreen mode.
-@@ -3380,6 +3401,11 @@ void BrowserView::AddedToWidget() {
+@@ -3372,6 +3393,11 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->profile());
  #endif
  
@@ -251,7 +251,7 @@ index 0f9a2e8b91715..355bdf6fa9074 100644
    toolbar_->Init();
  
    // TODO(pbos): Manage this either inside SidePanel or the corresponding button
-@@ -3432,13 +3458,9 @@ void BrowserView::AddedToWidget() {
+@@ -3424,13 +3450,9 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -267,7 +267,7 @@ index 0f9a2e8b91715..355bdf6fa9074 100644
    using_native_frame_ = frame_->ShouldUseNativeFrame();
  
    MaybeInitializeWebUITabStrip();
-@@ -3859,7 +3881,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
+@@ -3851,7 +3873,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
    // Undo our anti-jankiness hacks and force a re-layout.
    in_process_fullscreen_ = false;
    ToolbarSizeChanged(false);
@@ -277,7 +277,7 @@ index 0f9a2e8b91715..355bdf6fa9074 100644
  }
  
  bool BrowserView::ShouldUseImmersiveFullscreenForUrl(const GURL& url) const {
-@@ -4186,6 +4209,8 @@ Profile* BrowserView::GetProfile() {
+@@ -4178,6 +4201,8 @@ Profile* BrowserView::GetProfile() {
  }
  
  void BrowserView::UpdateUIForTabFullscreen() {
@@ -286,7 +286,7 @@ index 0f9a2e8b91715..355bdf6fa9074 100644
    frame()->GetFrameView()->UpdateFullscreenTopUI();
  }
  
-@@ -4208,6 +4233,8 @@ void BrowserView::HideDownloadShelf() {
+@@ -4200,6 +4225,8 @@ void BrowserView::HideDownloadShelf() {
  }
  
  bool BrowserView::CanUserExitFullscreen() const {
@@ -415,10 +415,10 @@ index 9a42c3bd2207b..4de0fb1b33bce 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index 5ea77d3196bc0..1be02aea8cec6 100644
+index 04d47a837067e..9b2c2127007e3 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
-@@ -169,12 +169,13 @@ auto& GetViewCommandMap() {
+@@ -170,12 +170,13 @@ auto& GetViewCommandMap() {
  ////////////////////////////////////////////////////////////////////////////////
  // ToolbarView, public:
  
@@ -434,7 +434,7 @@ index 5ea77d3196bc0..1be02aea8cec6 100644
    SetID(VIEW_ID_TOOLBAR);
  
    UpgradeDetector::GetInstance()->AddObserver(this);
-@@ -209,7 +210,7 @@ void ToolbarView::Init() {
+@@ -210,7 +211,7 @@ void ToolbarView::Init() {
  #endif
    auto location_bar = std::make_unique<LocationBarView>(
        browser_, browser_->profile(), browser_->command_controller(), this,

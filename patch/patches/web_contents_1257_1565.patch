@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 96ced4715eed9..1094a4e9ec0a4 100644
+index f28855f738e3b..d36ec5b3aa7c2 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -3040,6 +3040,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
@@ -39,7 +39,7 @@ index 96ced4715eed9..1094a4e9ec0a4 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -7726,6 +7742,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -7729,6 +7745,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // frames).
      SetFocusedFrameTree(node->frame_tree());
    }

@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index d0335e2fb75e2..8ffd1efa13703 100644
+index 29b4dabf6c3d5..32ea10d5046a5 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -10,6 +10,7 @@ import("//build/config/features.gni")
@@ -29,7 +29,7 @@ index d0335e2fb75e2..8ffd1efa13703 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -5293,6 +5299,7 @@ static_library("ui") {
+@@ -5300,6 +5306,7 @@ static_library("ui") {
    if (enable_basic_printing) {
      deps += [
        "//components/printing/browser",
