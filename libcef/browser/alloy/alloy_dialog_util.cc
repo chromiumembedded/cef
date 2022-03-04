@@ -5,6 +5,8 @@
 #include "libcef/browser/alloy/alloy_dialog_util.h"
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "libcef/browser/extensions/browser_extensions_util.h"
+#include "libcef/browser/file_dialog_runner.h"
 
 #include "base/strings/utf_string_conversions.h"
 
@@ -13,9 +15,12 @@ namespace alloy {
 void RunFileChooser(content::WebContents* web_contents,
                     const blink::mojom::FileChooserParams& params,
                     RunFileChooserCallback callback) {
-  CefRefPtr<AlloyBrowserHostImpl> browser =
-      AlloyBrowserHostImpl::GetBrowserForContents(web_contents);
+  CefRefPtr<AlloyBrowserHostImpl> browser = static_cast<AlloyBrowserHostImpl*>(
+      extensions::GetOwnerBrowserForHost(web_contents->GetRenderViewHost(),
+                                         nullptr)
+          .get());
   if (!browser) {
+    LOG(ERROR) << "Failed to identify browser; canceling file dialog";
     std::move(callback).Run(-1, {});
     return;
   }
