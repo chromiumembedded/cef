@@ -10,6 +10,7 @@
 #include "base/callback.h"
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
+#include "base/memory/weak_ptr.h"
 #include "extensions/browser/api/execute_code_function.h"
 #include "extensions/browser/api/file_system/file_system_delegate.h"
 #include "extensions/browser/extension_function.h"
@@ -50,6 +51,15 @@ class CefFileSystemDelegate : public FileSystemDelegate {
   int GetDescriptionIdForAcceptType(const std::string& accept_type) override;
   SavedFilesServiceInterface* GetSavedFilesService(
       content::BrowserContext* browser_context) override;
+
+ private:
+  void FileDialogDismissed(
+      FileSystemDelegate::FilesSelectedCallback files_selected_callback,
+      base::OnceClosure file_selection_canceled_callback,
+      int selected_accept_filter,
+      const std::vector<base::FilePath>& file_paths);
+
+  base::WeakPtrFactory<CefFileSystemDelegate> weak_ptr_factory_{this};
 };
 
 }  // namespace cef
