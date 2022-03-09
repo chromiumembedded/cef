@@ -5,11 +5,13 @@
 
 #include "libcef/common/chrome/chrome_main_runner_delegate.h"
 
+#include "libcef/common/app_manager.h"
 #include "libcef/common/chrome/chrome_main_delegate_cef.h"
 
 #include "base/command_line.h"
 #include "base/run_loop.h"
 #include "chrome/browser/browser_process_impl.h"
+#include "chrome/browser/chrome_content_browser_client.h"
 #include "chrome/common/profiler/main_thread_stack_sampling_profiler.h"
 #include "components/keep_alive_registry/keep_alive_types.h"
 #include "components/keep_alive_registry/scoped_keep_alive.h"
@@ -66,6 +68,12 @@ bool ChromeMainRunnerDelegate::HandleMainMessageLoopQuit() {
   // CefMainRunner::QuitMessageLoop. We instead wait for all Chrome browser
   // windows to exit.
   return true;
+}
+
+void ChromeMainRunnerDelegate::AfterUIThreadShutdown() {
+  static_cast<ChromeContentBrowserClient*>(
+      CefAppManager::Get()->GetContentClient()->browser())
+      ->CleanupOnUIThread();
 }
 
 void ChromeMainRunnerDelegate::AfterMainThreadShutdown() {

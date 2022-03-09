@@ -100,7 +100,7 @@ index 332b7d026e036..0d63ad05fde4e 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 9d22238878e32..e0833ed4572e9 100644
+index 9d22238878e32..dd231b0d55422 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -44,6 +44,7 @@
@@ -111,12 +111,13 @@ index 9d22238878e32..e0833ed4572e9 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1205,6 +1206,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1205,6 +1206,12 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
 +void ContentMainRunnerImpl::ShutdownOnUIThread() {
 +  base::ScopedAllowBaseSyncPrimitivesForTesting allow_wait;
++  unregister_thread_closure_.RunAndReset();
 +  discardable_shared_memory_manager_.reset();
 +}
 +
