@@ -482,6 +482,16 @@ void CefMainRunner::FinishShutdownOnUIThread(
     base::WaitableEvent* uithread_shutdown_event) {
   CEF_REQUIRE_UIT();
 
+  // Execute all pending tasks now before proceeding with shutdown. Otherwise,
+  // objects bound to tasks and released at the end of shutdown via
+  // BrowserTaskExecutor::Shutdown may attempt to access other objects that have
+  // already been destroyed (for example, if teardown results in a call to
+  // RenderProcessHostImpl::Cleanup).
+  content::BrowserTaskExecutor::RunAllPendingTasksOnThreadForTesting(
+      content::BrowserThread::UI);
+  content::BrowserTaskExecutor::RunAllPendingTasksOnThreadForTesting(
+      content::BrowserThread::IO);
+
   static_cast<content::ContentMainRunnerImpl*>(main_runner_.get())
       ->ShutdownOnUIThread();
 
