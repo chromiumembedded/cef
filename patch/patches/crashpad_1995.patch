@@ -135,98 +135,8 @@ index e2d53ac83dde0..6ac76e407a748 100644
  // Sets the kNumSwitches key and the set of keys named using kSwitchFormat based
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
-diff --git components/crash/core/app/breakpad_linux.cc components/crash/core/app/breakpad_linux.cc
-index 823e49a234e3d..3f0f95a330bf4 100644
---- components/crash/core/app/breakpad_linux.cc
-+++ components/crash/core/app/breakpad_linux.cc
-@@ -29,6 +29,7 @@
- #include "base/base_switches.h"
- #include "base/command_line.h"
- #include "base/debug/dump_without_crashing.h"
-+#include "base/debug/leak_annotations.h"
- #include "base/files/file_path.h"
- #include "base/lazy_instance.h"
- #include "base/linux_util.h"
-@@ -721,7 +722,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
-   info.process_type_length = 7;
-   info.distro = base::g_linux_distro;
-   info.distro_length = my_strlen(base::g_linux_distro);
--  info.upload = upload;
-+  info.upload = upload && g_upload_url;
-   info.process_start_time = g_process_start_time;
-   info.oom_size = base::g_oom_size;
-   info.pid = g_pid;
-@@ -1735,10 +1736,27 @@ void HandleCrashDump(const BreakpadInfo& info) {
-     GetCrashReporterClient()->GetProductNameAndVersion(&product_name, &version);
- 
-     writer.AddBoundary();
--    writer.AddPairString("prod", product_name);
-+    writer.AddPairString("product", product_name);
-+    writer.AddBoundary();
-+    writer.AddPairString("version", version);
-     writer.AddBoundary();
--    writer.AddPairString("ver", version);
-+
-+#if defined(ARCH_CPU_ARM_FAMILY)
-+#if defined(ARCH_CPU_32_BITS)
-+    const char* platform = "linuxarm";
-+#elif defined(ARCH_CPU_64_BITS)
-+    const char* platform = "linuxarm64";
-+#endif
-+#else
-+#if defined(ARCH_CPU_32_BITS)
-+    const char* platform = "linux32";
-+#elif defined(ARCH_CPU_64_BITS)
-+    const char* platform = "linux64";
-+#endif
-+#endif  // defined(ARCH_CPU_ARM_FAMILY)
-+    writer.AddPairString("platform", platform);
-     writer.AddBoundary();
-+
-     if (info.pid > 0) {
-       char pid_value_buf[kUint64StringSize];
-       uint64_t pid_value_len = my_uint64_len(info.pid);
-@@ -1855,6 +1873,9 @@ void HandleCrashDump(const BreakpadInfo& info) {
-         crash_reporter::internal::TransitionalCrashKeyStorage;
-     CrashKeyStorage::Iterator crash_key_iterator(*info.crash_keys);
-     const CrashKeyStorage::Entry* entry;
-+
-+    crash_reporter::CrashReporterClient::ParameterMap parameters;
-+
-     while ((entry = crash_key_iterator.Next())) {
-       size_t key_size, value_size;
-       // Check for malformed messages.
-@@ -1865,7 +1886,13 @@ void HandleCrashDump(const BreakpadInfo& info) {
-                        ? CrashKeyStorage::value_size - 1
-                        : my_strlen(entry->value);
- 
--      writer.AddPairData(entry->key, key_size, entry->value, value_size);
-+      parameters.insert(std::make_pair(std::string{entry->key, key_size}, std::string{entry->value, value_size}));
-+    }
-+    if (!parameters.empty())
-+      parameters = GetCrashReporterClient()->FilterParameters(parameters);
-+
-+    for (const auto& param : parameters) {
-+      writer.AddPairData(param.first.data(), param.first.size(), param.second.data(), param.second.size());
-       writer.AddBoundary();
-       writer.Flush();
-     }
-diff --git components/crash/core/app/breakpad_linux.h components/crash/core/app/breakpad_linux.h
-index 2f0d4c555506a..c537846b21568 100644
---- components/crash/core/app/breakpad_linux.h
-+++ components/crash/core/app/breakpad_linux.h
-@@ -20,6 +20,9 @@ extern void InitCrashReporter(const std::string& process_type);
- // Sets the product/distribution channel crash key.
- void SetChannelCrashKey(const std::string& channel);
- 
-+// Set the crash server URL.
-+void SetCrashServerURL(const std::string& url);
-+
- #if BUILDFLAG(IS_ANDROID)
- extern void InitCrashKeysForTesting();
- 
 diff --git components/crash/core/app/crash_reporter_client.cc components/crash/core/app/crash_reporter_client.cc
-index 82b7f241e2618..d3cd5524bb253 100644
+index 82b7f241e2618..525f1efe5aa6a 100644
 --- components/crash/core/app/crash_reporter_client.cc
 +++ components/crash/core/app/crash_reporter_client.cc
 @@ -89,7 +89,7 @@ bool CrashReporterClient::GetShouldDumpLargerDumps() {
@@ -283,23 +193,18 @@ index 82b7f241e2618..d3cd5524bb253 100644
  #if BUILDFLAG(IS_ANDROID)
  unsigned int CrashReporterClient::GetCrashDumpPercentage() {
    return 100;
-@@ -203,9 +227,11 @@ bool CrashReporterClient::ShouldMonitorCrashHandlerExpensively() {
+@@ -203,9 +227,4 @@ bool CrashReporterClient::ShouldMonitorCrashHandlerExpensively() {
    return false;
  }
  
 -bool CrashReporterClient::EnableBreakpadForProcess(
 -    const std::string& process_type) {
 -  return false;
-+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
-+CrashReporterClient::ParameterMap
-+CrashReporterClient::FilterParameters(const ParameterMap& parameters) {
-+  return parameters;
- }
-+#endif
- 
+-}
+-
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crash_reporter_client.h components/crash/core/app/crash_reporter_client.h
-index 24e53fa62c2c4..68011566b5723 100644
+index 24e53fa62c2c4..ffc72f79d67b0 100644
 --- components/crash/core/app/crash_reporter_client.h
 +++ components/crash/core/app/crash_reporter_client.h
 @@ -5,7 +5,9 @@
@@ -337,7 +242,7 @@ index 24e53fa62c2c4..68011566b5723 100644
  #endif
  
    // The location where minidump files should be written. Returns true if
-@@ -206,6 +210,27 @@ class CrashReporterClient {
+@@ -206,6 +210,20 @@ class CrashReporterClient {
  
    // Returns true if breakpad should run in the given process type.
    virtual bool EnableBreakpadForProcess(const std::string& process_type);
@@ -354,13 +259,6 @@ index 24e53fa62c2c4..68011566b5723 100644
 +  // Returns true if forwarding of crashes to the system crash reporter is
 +  // enabled for the browser process.
 +  virtual bool EnableBrowserCrashForwarding();
-+#endif
-+
-+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
-+  // Provides an oportunity to modify the parameters that will be sent with a
-+  // crash upload.
-+  using ParameterMap = std::map<std::string, std::string>;
-+  virtual ParameterMap FilterParameters(const ParameterMap& parameters);
 +#endif
  };
  
@@ -379,6 +277,79 @@ index 6da6be46cee4a..5e3067c081867 100644
      crashpad::CrashpadInfo::GetCrashpadInfo()
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
+diff --git components/crash/core/app/crashpad_linux.cc components/crash/core/app/crashpad_linux.cc
+index dc2b18b322350..be84c0d0d1d7a 100644
+--- components/crash/core/app/crashpad_linux.cc
++++ components/crash/core/app/crashpad_linux.cc
+@@ -23,6 +23,7 @@
+ #include "components/crash/core/app/crash_reporter_client.h"
+ #include "components/crash/core/app/crash_switches.h"
+ #include "content/public/common/content_descriptors.h"
++#include "content/public/common/content_paths.h"
+ #include "sandbox/linux/services/namespace_sandbox.h"
+ #include "third_party/crashpad/crashpad/client/crashpad_client.h"
+ #include "third_party/crashpad/crashpad/client/crashpad_info.h"
+@@ -117,11 +118,10 @@ bool PlatformCrashpadInitialization(
+     crash_reporter_client->GetCrashDumpLocation(database_path);
+     crash_reporter_client->GetCrashMetricsLocation(&metrics_path);
+ 
++    // Use the same main (default) or subprocess helper exe.
+     base::FilePath handler_path;
+-    if (!base::PathService::Get(base::DIR_EXE, &handler_path)) {
+-      return false;
+-    }
+-    handler_path = handler_path.Append("chrome_crashpad_handler");
++    base::PathService::Get(content::CHILD_PROCESS_EXE, &handler_path);
++    DCHECK(!handler_path.empty());
+ 
+     // When --use-cros-crash-reporter is set (below), the handler passes dumps
+     // to ChromeOS's /sbin/crash_reporter which in turn passes the dump to
+@@ -138,8 +138,8 @@ bool PlatformCrashpadInitialization(
+                                                     &product_version, &channel);
+ 
+     std::map<std::string, std::string> annotations;
+-    annotations["prod"] = product_name;
+-    annotations["ver"] = product_version;
++    annotations["product"] = product_name;
++    annotations["version"] = product_version;
+ 
+ #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
+     // Empty means stable.
+@@ -156,7 +156,20 @@ bool PlatformCrashpadInitialization(
+       annotations["channel"] = channel;
+     }
+ 
+-    annotations["plat"] = std::string("Linux");
++#if defined(ARCH_CPU_ARM_FAMILY)
++#if defined(ARCH_CPU_32_BITS)
++    const char* platform = "linuxarm";
++#elif defined(ARCH_CPU_64_BITS)
++    const char* platform = "linuxarm64";
++#endif
++#else
++#if defined(ARCH_CPU_32_BITS)
++    const char* platform = "linux32";
++#elif defined(ARCH_CPU_64_BITS)
++    const char* platform = "linux64";
++#endif
++#endif  // defined(ARCH_CPU_ARM_FAMILY)
++    annotations["platform"] = platform;
+ 
+ #if BUILDFLAG(IS_CHROMEOS_LACROS)
+     // "build_time_millis" is used on LaCros chrome to determine when to stop
+@@ -201,6 +214,12 @@ bool PlatformCrashpadInitialization(
+     }
+ #endif
+ 
++    // Since we're using the same main or subprocess helper exe we must specify
++    // the process type.
++    arguments.push_back(std::string("--type=") + switches::kCrashpadHandler);
++
++    crash_reporter_client->GetCrashOptionalArguments(&arguments);
++
+     bool result =
+         client.StartHandler(handler_path, *database_path, metrics_path, url,
+                             annotations, arguments, false, false);
 diff --git components/crash/core/app/crashpad_mac.mm components/crash/core/app/crashpad_mac.mm
 index dc041c43371fd..1d060ae55c586 100644
 --- components/crash/core/app/crashpad_mac.mm

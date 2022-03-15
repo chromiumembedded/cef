@@ -22,19 +22,14 @@
 
 #if BUILDFLAG(IS_MAC)
 #include "base/mac/foundation_util.h"
-#include "components/crash/core/app/crashpad.h"
 #include "components/crash/core/common/crash_keys.h"
 #include "content/public/common/content_paths.h"
 #endif
 
 #if BUILDFLAG(IS_POSIX)
 #include "base/lazy_instance.h"
+#include "components/crash/core/app/crashpad.h"
 #include "libcef/common/crash_reporter_client.h"
-#endif
-
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
-#include "components/crash/core/app/breakpad_linux.h"
-#include "v8/include/v8-wasm-trap-handler-posix.h"
 #endif
 
 namespace crash_reporting {
@@ -131,11 +126,10 @@ void InitCrashReporter(const base::CommandLine& command_line,
 
   g_crash_reporting_enabled = true;
 #else   // !BUILDFLAG(IS_MAC)
-
   if (process_type != switches::kZygoteProcess) {
     // Crash reporting for subprocesses created using the zygote will be
     // initialized in ZygoteForked.
-    breakpad::InitCrashReporter(process_type);
+    crash_reporter::InitializeCrashpad(process_type.empty(), process_type);
 
     g_crash_reporting_enabled = true;
   }
@@ -196,10 +190,8 @@ void BasicStartupComplete(base::CommandLine* command_line) {
   CefCrashReporterClient* crash_client = g_crash_reporter_client.Pointer();
   if (crash_client->ReadCrashConfigFile()) {
 #if !BUILDFLAG(IS_MAC)
-    // Breakpad requires this switch.
-    command_line->AppendSwitch(switches::kEnableCrashReporter);
-
-    breakpad::SetFirstChanceExceptionHandler(v8::TryHandleWebAssemblyTrapPosix);
+    // Crashpad requires this switch on Linux.
+    command_line->AppendSwitch(switches::kEnableCrashpad);
 #endif
   }
 }
@@ -232,8 +224,8 @@ void ZygoteForked(base::CommandLine* command_line,
                   const std::string& process_type) {
   CefCrashReporterClient* crash_client = g_crash_reporter_client.Pointer();
   if (crash_client->HasCrashConfigFile()) {
-    // Breakpad requires this switch.
-    command_line->AppendSwitch(switches::kEnableCrashReporter);
+    // Crashpad requires this switch on Linux.
+    command_line->AppendSwitch(switches::kEnableCrashpad);
   }
 
   InitCrashReporter(*command_line, process_type);

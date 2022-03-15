@@ -26,6 +26,12 @@
 
 #if BUILDFLAG(IS_MAC)
 #include "libcef/common/util_mac.h"
+#elif BUILDFLAG(IS_POSIX)
+#include "libcef/common/util_linux.h"
+#endif
+
+#if BUILDFLAG(IS_MAC)
+#include "libcef/common/util_mac.h"
 #endif
 
 namespace {
@@ -58,8 +64,7 @@ bool ChromeMainDelegateCef::BasicStartupComplete(int* exit_code) {
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
 
 #if BUILDFLAG(IS_POSIX)
-  // Read the crash configuration file. Platforms using Breakpad also add a
-  // command-line switch. On Windows this is done from chrome_elf.
+  // Read the crash configuration file. On Windows this is done from chrome_elf.
   crash_reporting::BasicStartupComplete(command_line);
 #endif
 
@@ -143,11 +148,13 @@ void ChromeMainDelegateCef::PreSandboxStartup() {
   const std::string& process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
 
-#if BUILDFLAG(IS_MAC)
   if (process_type.empty()) {
+#if BUILDFLAG(IS_MAC)
     util_mac::PreSandboxStartup();
+#elif BUILDFLAG(IS_POSIX)
+    util_linux::PreSandboxStartup();
+#endif
   }
-#endif  // BUILDFLAG(IS_MAC)
 
   // Since this may be configured via CefSettings we override the value on
   // all platforms. We can't use the default implementation on macOS because

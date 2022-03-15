@@ -615,22 +615,6 @@ void CefCrashReporterClient::GetProductNameAndVersion(std::string* product_name,
   *version = product_version_;
 }
 
-#if !BUILDFLAG(IS_MAC)
-
-base::FilePath CefCrashReporterClient::GetReporterLogFilename() {
-  return base::FilePath(FILE_PATH_LITERAL("uploads.log"));
-}
-
-bool CefCrashReporterClient::EnableBreakpadForProcess(
-    const std::string& process_type) {
-  return process_type == switches::kRendererProcess ||
-         process_type == switches::kPpapiPluginProcess ||
-         process_type == switches::kZygoteProcess ||
-         process_type == switches::kGpuProcess;
-}
-
-#endif  // !BUILDFLAG(IS_MAC)
-
 bool CefCrashReporterClient::GetCrashDumpLocation(base::FilePath* crash_dir) {
   // By setting the BREAKPAD_DUMP_LOCATION environment variable, an alternate
   // location to write breakpad crash dumps can be set.
@@ -654,21 +638,11 @@ bool CefCrashReporterClient::GetCollectStatsInSample() {
   return true;
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 bool CefCrashReporterClient::ReportingIsEnforcedByPolicy(
     bool* crashpad_enabled) {
   *crashpad_enabled = true;
   return true;
 }
-#endif
-
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
-bool CefCrashReporterClient::IsRunningUnattended() {
-  // Crash upload will only be enabled with Breakpad on Linux if this method
-  // returns false.
-  return false;
-}
-#endif
 
 std::string CefCrashReporterClient::GetUploadUrl() {
   return server_url_;
@@ -718,13 +692,6 @@ bool CefCrashReporterClient::HasCrashExternalHandler() const {
 #if BUILDFLAG(IS_MAC)
 bool CefCrashReporterClient::EnableBrowserCrashForwarding() {
   return enable_browser_crash_forwarding_;
-}
-#endif
-
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
-CefCrashReporterClient::ParameterMap CefCrashReporterClient::FilterParameters(
-    const ParameterMap& parameters) {
-  return crash_report_utils::FilterParameters(parameters);
 }
 #endif
 

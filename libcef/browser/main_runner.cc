@@ -21,23 +21,20 @@
 #include "base/synchronization/lock.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
+#include "components/crash/core/app/crash_switches.h"
 #include "content/app/content_main_runner_impl.h"
 #include "content/browser/scheduler/browser_task_executor.h"
 #include "content/public/app/content_main.h"
 #include "content/public/app/content_main_runner.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
+#include "third_party/crashpad/crashpad/handler/handler_main.h"
 
 #if BUILDFLAG(IS_WIN)
 #include <Objbase.h>
 #include <windows.h>
 #include "content/public/app/sandbox_helper_win.h"
 #include "sandbox/win/src/sandbox_types.h"
-#endif
-
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
-#include "components/crash/core/app/crash_switches.h"
-#include "third_party/crashpad/crashpad/handler/handler_main.h"
 #endif
 
 namespace {
@@ -65,16 +62,14 @@ std::unique_ptr<CefMainRunnerDelegate> MakeDelegate(
   }
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
-
 // Based on components/crash/core/app/run_as_crashpad_handler_win.cc
 // Remove the "--type=crashpad-handler" command-line flag that will otherwise
 // confuse the crashpad handler.
 // Chrome uses an embedded crashpad handler on Windows only and imports this
 // function via the existing "run_as_crashpad_handler" target defined in
-// components/crash/core/app/BUILD.gn. CEF uses an embedded handler on both
-// Windows and macOS so we define the function here instead of using the
-// existing target (because we can't use that target on macOS).
+// components/crash/core/app/BUILD.gn. CEF uses an embedded handler on all
+// platforms so we define the function here instead of using the existing
+// target (because we can't use that target on macOS).
 int RunAsCrashpadHandler(const base::CommandLine& command_line) {
   base::CommandLine::StringVector argv = command_line.argv();
   const base::CommandLine::StringType process_type =
@@ -88,8 +83,8 @@ int RunAsCrashpadHandler(const base::CommandLine& command_line) {
                      }),
       argv.end());
 
-#if BUILDFLAG(IS_MAC)
-  // HandlerMain on macOS uses the system version of getopt_long which expects
+#if BUILDFLAG(IS_POSIX)
+  // HandlerMain on POSIX uses the system version of getopt_long which expects
   // the first argument to be the program name.
   argv.insert(argv.begin(), command_line.GetProgram().value());
 #endif
@@ -110,8 +105,6 @@ int RunAsCrashpadHandler(const base::CommandLine& command_line) {
   return crashpad::HandlerMain(static_cast<int>(storage.size()),
                                argv_as_utf8.get(), nullptr);
 }
-
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 
 }  // namespace
 
@@ -327,13 +320,11 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
 
   int result;
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   if (process_type == crash_reporter::switches::kCrashpadHandler) {
     result = RunAsCrashpadHandler(command_line);
     main_delegate->AfterExecuteProcess();
     return result;
   }
-#endif
 
   // Execute the secondary process.
   content::ContentMainParams main_params(

@@ -903,6 +903,7 @@ static_library("libcef_static") {
     "//third_party/blink/public:blink",
     "//third_party/brotli:dec",
     "//third_party/cld_3/src/src:cld_3",
+    "//third_party/crashpad/crashpad/handler",
     "//third_party/hunspell",
     "//third_party/leveldatabase",
     "//third_party/libxml:libxml",
@@ -975,6 +976,8 @@ static_library("libcef_static") {
       "libcef/browser/osr/browser_platform_delegate_osr_linux.h",
       "libcef/browser/printing/print_dialog_linux.cc",
       "libcef/browser/printing/print_dialog_linux.h",
+      "libcef/common/util_linux.h",
+      "libcef/common/util_linux.cc",
     ]
 
     if (ozone_platform_x11) {
@@ -1017,24 +1020,8 @@ static_library("libcef_static") {
     ]
   }
 
-  if (is_win || is_mac) {
-    deps += [ "//third_party/crashpad/crashpad/handler" ]
-  }
-
   if (ozone_platform_x11) {
     deps += [ "//ui/events/devices/x11" ]
-  }
-
-  if (is_posix && !is_mac) {
-    sources += [
-      "libcef/common/cef_crash_report_utils.cc",
-      "libcef/common/cef_crash_report_utils.h",
-    ]
-
-    deps += [
-      "//components/crash/core/app",
-      "//components/crash/content/browser",
-    ]
   }
 
   if (v8_use_external_startup_data && use_v8_context_snapshot) {

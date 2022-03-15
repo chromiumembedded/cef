@@ -52,6 +52,8 @@
 
 #if BUILDFLAG(IS_MAC)
 #include "libcef/common/util_mac.h"
+#elif BUILDFLAG(IS_POSIX)
+#include "libcef/common/util_linux.h"
 #endif
 
 #if BUILDFLAG(IS_WIN)
@@ -94,8 +96,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
       command_line->GetSwitchValueASCII(switches::kProcessType);
 
 #if BUILDFLAG(IS_POSIX)
-  // Read the crash configuration file. Platforms using Breakpad also add a
-  // command-line switch. On Windows this is done from chrome_elf.
+  // Read the crash configuration file. On Windows this is done from chrome_elf.
   crash_reporting::BasicStartupComplete(command_line);
 #endif
 
@@ -355,6 +356,8 @@ void AlloyMainDelegate::PreSandboxStartup() {
 // Only override these paths when executing the main process.
 #if BUILDFLAG(IS_MAC)
     util_mac::PreSandboxStartup();
+#elif BUILDFLAG(IS_POSIX)
+    util_linux::PreSandboxStartup();
 #endif
 
     resource_util::OverrideDefaultDownloadDir();

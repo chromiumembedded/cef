@@ -57,23 +57,13 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
   void GetProductNameAndVersion(std::string* product_name,
                                 std::string* version,
                                 std::string* channel) override;
-#if !BUILDFLAG(IS_MAC)
-  base::FilePath GetReporterLogFilename() override;
-  bool EnableBreakpadForProcess(const std::string& process_type) override;
-#endif
   bool GetCrashDumpLocation(base::FilePath* crash_dir) override;
 #endif  // BUILDFLAG(IS_POSIX)
 
   // All of these methods must return true to enable crash report upload.
   bool GetCollectStatsConsent() override;
   bool GetCollectStatsInSample() override;
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   bool ReportingIsEnforcedByPolicy(bool* crashpad_enabled) override;
-#endif
-
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
-  bool IsRunningUnattended() override;
-#endif
 
   std::string GetUploadUrl() override;
   void GetCrashOptionalArguments(std::vector<std::string>* arguments) override;
@@ -85,10 +75,6 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
 
 #if BUILDFLAG(IS_MAC)
   bool EnableBrowserCrashForwarding() override;
-#endif
-
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
-  ParameterMap FilterParameters(const ParameterMap& parameters) override;
 #endif
 
   // Set or clear a crash key value.
