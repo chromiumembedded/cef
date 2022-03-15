@@ -42,6 +42,8 @@ std::string GetMimeType(const std::string& filename) {
   // Check for newer extensions used by internal resources but not yet
   // recognized by the mime type detector.
   const std::string& extension = CefString(file_path.FinalExtension());
+  if (extension == ".md")
+    return "text/markdown";
   if (extension == ".woff2")
     return "application/font-woff2";
 
