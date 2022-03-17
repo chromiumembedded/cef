@@ -136,7 +136,7 @@ index 63ead7f8ab838..11f606368d9e8 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index 0b42cba866722..d2f0841bd9069 100644
+index 03b92fd7a6218..dee8a66196507 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
 @@ -656,6 +656,8 @@ void RenderThreadImpl::Init() {
@@ -149,10 +149,10 @@ index 0b42cba866722..d2f0841bd9069 100644
        &RenderThreadImpl::OnRendererInterfaceReceiver, base::Unretained(this)));
  
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index a64d78c9d8112..0551db7f7d4cc 100644
+index bd420d1cf8b5c..3f6e0527d21bf 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -1090,6 +1090,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
+@@ -1112,6 +1112,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
  
  //------------------------------------------------------------------------------
  
@@ -169,10 +169,10 @@ index a64d78c9d8112..0551db7f7d4cc 100644
  RendererBlinkPlatformImpl::GetCodeCacheHost() {
    base::AutoLock lock(code_cache_host_lock_);
 diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
-index 10c96d3915e64..060087d2436ea 100644
+index 7255ac218c8fd..858a6d83e315e 100644
 --- content/renderer/renderer_blink_platform_impl.h
 +++ content/renderer/renderer_blink_platform_impl.h
-@@ -261,6 +261,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
+@@ -262,6 +262,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
        blink::WebVector<blink::WebContentSecurityPolicyHeader>* csp) override;
    base::PlatformThreadId GetIOThreadId() const override;
  
