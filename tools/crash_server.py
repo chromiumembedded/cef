@@ -175,7 +175,6 @@ class CrashHTTPRequestHandler(BaseHTTPRequestHandler):
       size_str += self.rfile.read(1)
     # Remove the trailing "\r\n".
     size_str = size_str[:-2]
-    assert len(size_str) <= 4
     return int(size_str, 16)
 
   def _get_chunk_data(self, chunk_size):
