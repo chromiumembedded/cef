@@ -520,7 +520,7 @@ typedef struct _cef_browser_settings_t {
   ///
   int windowless_frame_rate;
 
-  // The below values map to WebPreferences settings.
+  // BEGIN values that map to WebPreferences settings.
 
   ///
   // Font settings.
@@ -622,6 +622,8 @@ typedef struct _cef_browser_settings_t {
   ///
   cef_state_t webgl;
 
+  // END values that map to WebPreferences settings.
+
   ///
   // Background color used for the browser before a document is loaded and when
   // no document color is specified. The alpha component must be either fully
@@ -641,6 +643,13 @@ typedef struct _cef_browser_settings_t {
   // empty then "en-US,en" will be used.
   ///
   cef_string_t accept_language_list;
+
+  ///
+  // Controls whether the Chrome status bubble will be used. Only supported with
+  // the Chrome runtime. For details about the status bubble see
+  // https://www.chromium.org/user-experience/status-bubble/
+  ///
+  cef_state_t chrome_status_bubble;
 } cef_browser_settings_t;
 
 ///

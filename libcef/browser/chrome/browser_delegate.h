@@ -41,6 +41,12 @@ class BrowserDelegate : public content::WebContentsDelegate {
   // Add or remove ownership of the WebContents.
   virtual void SetAsDelegate(content::WebContents* web_contents,
                              bool set_delegate) = 0;
+
+  // Return true to show the status bubble. This should consistently return the
+  // same value for the lifespan of a Browser.
+  virtual bool ShowStatusBubble(bool show_by_default) {
+    return show_by_default;
+  }
 };
 
 }  // namespace cef

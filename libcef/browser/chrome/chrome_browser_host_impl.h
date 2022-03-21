@@ -47,6 +47,9 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   // Returns the browser associated with the specified global ID.
   static CefRefPtr<ChromeBrowserHostImpl> GetBrowserForGlobalId(
       const content::GlobalRenderFrameHostId& global_id);
+  // Returns the browser associated with the specified Browser.
+  static CefRefPtr<ChromeBrowserHostImpl> GetBrowserForBrowser(
+      const Browser* browser);
 
   ~ChromeBrowserHostImpl() override;
 

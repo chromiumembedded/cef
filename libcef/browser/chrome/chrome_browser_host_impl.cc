@@ -91,6 +91,14 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForGlobalId(
   return static_cast<ChromeBrowserHostImpl*>(browser.get());
 }
 
+// static
+CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForBrowser(
+    const Browser* browser) {
+  REQUIRE_CHROME_RUNTIME();
+  return GetBrowserForContents(
+      browser->tab_strip_model()->GetActiveWebContents());
+}
+
 ChromeBrowserHostImpl::~ChromeBrowserHostImpl() = default;
 
 void ChromeBrowserHostImpl::AddNewContents(

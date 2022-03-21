@@ -72,6 +72,22 @@ void ChromeBrowserDelegate::SetAsDelegate(content::WebContents* web_contents,
                 request_context_impl);
 }
 
+bool ChromeBrowserDelegate::ShowStatusBubble(bool show_by_default) {
+  if (!show_status_bubble_.has_value()) {
+    show_status_bubble_ = show_by_default;
+    if (auto browser = ChromeBrowserHostImpl::GetBrowserForBrowser(browser_)) {
+      const auto& state = browser->settings().chrome_status_bubble;
+      if (show_by_default && state == STATE_DISABLED) {
+        show_status_bubble_ = false;
+      } else if (!show_by_default && state == STATE_ENABLED) {
+        show_status_bubble_ = true;
+      }
+    }
+  }
+
+  return *show_status_bubble_;
+}
+
 void ChromeBrowserDelegate::WebContentsCreated(
     content::WebContents* source_contents,
     int opener_render_process_id,

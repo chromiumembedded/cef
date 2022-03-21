@@ -64,17 +64,16 @@ class MainContextImpl : public MainContext {
   // Track context state. Accessing these variables from multiple threads is
   // safe because only a single thread will exist at the time that they're set
   // (during context initialization and shutdown).
-  bool initialized_;
-  bool shutdown_;
+  bool initialized_ = false;
+  bool shutdown_ = false;
 
   std::string main_url_;
-  cef_color_t background_color_;
-  cef_color_t browser_background_color_;
+  cef_color_t background_color_ = 0;
+  cef_color_t browser_background_color_ = 0;
   bool use_windowless_rendering_;
-  int windowless_frame_rate_;
+  int windowless_frame_rate_ = 0;
   bool use_chrome_runtime_;
   bool use_views_;
-  bool touch_events_enabled_;
 
   std::unique_ptr<RootWindowManager> root_window_manager_;
 

@@ -718,6 +718,8 @@ struct CefBrowserSettingsTraits {
     cef_string_set(src->accept_language_list.str,
                    src->accept_language_list.length,
                    &target->accept_language_list, copy);
+
+    target->chrome_status_bubble = src->chrome_status_bubble;
   }
 };
 

@@ -43,13 +43,7 @@ cef_color_t ParseColor(const std::string& color) {
 MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
                                  bool terminate_when_all_windows_closed)
     : command_line_(command_line),
-      terminate_when_all_windows_closed_(terminate_when_all_windows_closed),
-      initialized_(false),
-      shutdown_(false),
-      background_color_(0),
-      browser_background_color_(0),
-      windowless_frame_rate_(0),
-      use_views_(false) {
+      terminate_when_all_windows_closed_(terminate_when_all_windows_closed) {
   DCHECK(command_line_.get());
 
   // Set the main URL.
@@ -206,6 +200,11 @@ void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {
 
   if (browser_background_color_ != 0)
     settings->background_color = browser_background_color_;
+
+  if (use_chrome_runtime_ &&
+      command_line_->HasSwitch(switches::kHideChromeStatusBubble)) {
+    settings->chrome_status_bubble = STATE_DISABLED;
+  }
 }
 
 void MainContextImpl::PopulateOsrSettings(OsrRendererSettings* settings) {
