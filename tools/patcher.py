@@ -58,7 +58,7 @@ def apply_patch_config():
   exec (compile(open(config_file, "rb").read(), config_file, 'exec'), scope)
   patches = scope["patches"]
 
-  results = {'apply': 0, 'skip': 0, 'fail': 0}
+  results = {'apply': [], 'skip': [], 'fail': []}
 
   for patch in patches:
     patch_file = patch['name']
@@ -73,21 +73,24 @@ def apply_patch_config():
     if dopatch:
       result = apply_patch_file(patch_file, patch['path']
                                 if 'path' in patch else None)
-      results[result] += 1
+      results[result].append(patch_file)
 
       if 'note' in patch:
         write_note('NOTE', patch['note'])
     else:
-      results['skip'] += 1
+      results['skip'].append(patch_file)
 
   sys.stdout.write('\n%d patches total (%d applied, %d skipped, %d failed)\n' % \
-      (len(patches), results['apply'], results['skip'], results['fail']))
+      (len(patches), len(results['apply']), len(results['skip']), len(results['fail'])))
 
-  if results['fail'] > 0:
+  if len(results['fail']) > 0:
     sys.stdout.write('\n')
     write_note('ERROR',
                '%d patches failed to apply. Your build will not be correct.' %
-               results['fail'])
+               len(results['fail']))
+    sys.stdout.write('\nTo manually revert failed patches run:' \
+                     '\n$ python%d ./tools/patch_updater.py --revert --patch %s\n' %
+                     (sys.version_info.major, ' --patch '.join(results['fail'])))
     sys.exit(1)
 
 
