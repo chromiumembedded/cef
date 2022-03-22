@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=172a12dd9e68b65afff9eef5b93f0e480beaf904$
+// $hash=fa32af3253cface693ec3ef420863852f5c68379$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_HANDLER_CTOCPP_H_
@@ -35,6 +35,9 @@ class CefDownloadHandlerCToCpp
   virtual ~CefDownloadHandlerCToCpp();
 
   // CefDownloadHandler methods.
+  bool CanDownload(CefRefPtr<CefBrowser> browser,
+                   const CefString& url,
+                   const CefString& request_method) override;
   void OnBeforeDownload(CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefDownloadItem> download_item,
                         const CefString& suggested_name,

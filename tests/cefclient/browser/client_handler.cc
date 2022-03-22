@@ -515,6 +515,21 @@ bool ClientHandler::OnCursorChange(CefRefPtr<CefBrowser> browser,
   return mouse_cursor_change_disabled_;
 }
 
+bool ClientHandler::CanDownload(CefRefPtr<CefBrowser> browser,
+                                const CefString& url,
+                                const CefString& request_method) {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (!with_controls_) {
+    // Block the download.
+    LOG(INFO) << "Blocking download";
+    return false;
+  }
+
+  // Allow the download.
+  return true;
+}
+
 void ClientHandler::OnBeforeDownload(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDownloadItem> download_item,

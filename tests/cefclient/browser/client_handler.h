@@ -170,6 +170,9 @@ class ClientHandler : public CefClient,
                       const CefCursorInfo& custom_cursor_info) override;
 
   // CefDownloadHandler methods
+  bool CanDownload(CefRefPtr<CefBrowser> browser,
+                   const CefString& url,
+                   const CefString& request_method) override;
   void OnBeforeDownload(CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefDownloadItem> download_item,
                         const CefString& suggested_name,

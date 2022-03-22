@@ -91,6 +91,20 @@ class CefDownloadItemCallback : public virtual CefBaseRefCounted {
 class CefDownloadHandler : public virtual CefBaseRefCounted {
  public:
   ///
+  // Called before a download begins in response to a user-initiated action
+  // (e.g. alt + link click or link click that returns a `Content-Disposition:
+  // attachment` response from the server). |url| is the target download URL and
+  // |request_method| is the target method (GET, POST, etc). Return true to
+  // proceed with the download or false to cancel the download.
+  ///
+  /*--cef()--*/
+  virtual bool CanDownload(CefRefPtr<CefBrowser> browser,
+                           const CefString& url,
+                           const CefString& request_method) {
+    return true;
+  }
+
+  ///
   // Called before a download begins. |suggested_name| is the suggested name for
   // the download file. By default the download will be canceled. Execute
   // |callback| either asynchronously or in this method to continue the download

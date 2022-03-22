@@ -169,11 +169,12 @@ class DownloadSchemeHandlerFactory : public CefSchemeHandlerFactory {
 class DownloadTestHandler : public TestHandler {
  public:
   enum TestMode {
-    PROGAMMATIC,
+    PROGRAMMATIC,
     NAVIGATED,
     PENDING,
     CLICKED,
-    CLICKED_REJECTED,
+    CLICKED_INVALID,
+    CLICKED_BLOCKED,
   };
 
   DownloadTestHandler(TestMode test_mode,
@@ -186,7 +187,15 @@ class DownloadTestHandler : public TestHandler {
         verified_results_(false) {}
 
   bool is_clicked() const {
-    return test_mode_ == CLICKED || test_mode_ == CLICKED_REJECTED;
+    return test_mode_ == CLICKED || test_mode_ == CLICKED_INVALID ||
+           test_mode_ == CLICKED_BLOCKED;
+  }
+
+  bool is_clicked_and_downloaded() const { return test_mode_ == CLICKED; }
+
+  bool is_downloaded() const {
+    return test_mode_ == PROGRAMMATIC || test_mode_ == NAVIGATED ||
+           is_clicked_and_downloaded();
   }
 
   void RunTest() override {
@@ -212,7 +221,7 @@ class DownloadTestHandler : public TestHandler {
       CefRegisterSchemeHandlerFactory("http", kTestDomain, scheme_factory);
     }
 
-    if (test_mode_ != CLICKED_REJECTED) {
+    if (!is_clicked() || is_clicked_and_downloaded()) {
       // Create a new temporary directory.
       EXPECT_TRUE(temp_dir_.CreateUniqueTempDir());
       test_path_ =
@@ -226,19 +235,19 @@ class DownloadTestHandler : public TestHandler {
     }
 
     if (is_clicked()) {
-      std::string url;
-      if (test_mode_ == CLICKED) {
-        url = kTestDownloadUrl;
-      } else if (test_mode_ == CLICKED_REJECTED) {
-        url = "invalid:foo@example.com";
+      if (test_mode_ == CLICKED || test_mode_ == CLICKED_BLOCKED) {
+        download_url_ = kTestDownloadUrl;
+      } else if (test_mode_ == CLICKED_INVALID) {
+        download_url_ = "invalid:foo@example.com";
       } else {
         EXPECT_TRUE(false);  // Not reached.
       }
-      AddResource(
-          kTestStartUrl,
-          "<html><body><a href=\"" + url + "\">CLICK ME</a></body></html>",
-          "text/html");
+      AddResource(kTestStartUrl,
+                  "<html><body><a href=\"" + download_url_ +
+                      "\">CLICK ME</a></body></html>",
+                  "text/html");
     } else {
+      download_url_ = kTestStartUrl;
       AddResource(kTestStartUrl, "<html><body>Download Test</body></html>",
                   "text/html");
     }
@@ -264,9 +273,9 @@ class DownloadTestHandler : public TestHandler {
       // Begin the download by clicking a link.
       // ALT key will trigger download of custom protocol links.
       SendClick(browser,
-                test_mode_ == CLICKED_REJECTED ? EVENTFLAG_ALT_DOWN : 0);
+                test_mode_ == CLICKED_INVALID ? EVENTFLAG_ALT_DOWN : 0);
 
-      if (test_mode_ == CLICKED_REJECTED) {
+      if (is_clicked() && !is_clicked_and_downloaded()) {
         // Destroy the test after a bit because there will be no further
         // callbacks.
         CefPostDelayedTask(
@@ -316,6 +325,23 @@ class DownloadTestHandler : public TestHandler {
     }
   }
 
+  bool CanDownload(CefRefPtr<CefBrowser> browser,
+                   const CefString& url,
+                   const CefString& request_method) override {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    EXPECT_FALSE(got_can_download_);
+    EXPECT_FALSE(got_on_before_download_);
+    EXPECT_TRUE(is_clicked());
+
+    got_can_download_.yes();
+
+    EXPECT_TRUE(browser->IsSame(GetBrowser()));
+    EXPECT_STREQ(download_url_.c_str(), url.ToString().c_str());
+    EXPECT_STREQ("GET", request_method.ToString().c_str());
+
+    return test_mode_ != CLICKED_BLOCKED;
+  }
+
   void OnBeforeDownload(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefDownloadItem> download_item,
@@ -323,6 +349,12 @@ class DownloadTestHandler : public TestHandler {
       CefRefPtr<CefBeforeDownloadCallback> callback) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
     EXPECT_FALSE(got_on_before_download_);
+
+    if (is_clicked()) {
+      EXPECT_TRUE(got_can_download_);
+    } else {
+      EXPECT_FALSE(got_can_download_);
+    }
 
     got_on_before_download_.yes();
 
@@ -460,12 +492,24 @@ class DownloadTestHandler : public TestHandler {
       CefRegisterSchemeHandlerFactory("http", kTestDomain, nullptr);
     }
 
-    if (test_mode_ == CLICKED_REJECTED) {
+    if (is_clicked()) {
+      EXPECT_TRUE(got_can_download_);
+    } else {
+      EXPECT_FALSE(got_can_download_);
+    }
+
+    if (test_mode_ == CLICKED_INVALID) {
+      // The invalid protocol request is not handled.
       EXPECT_FALSE(got_download_request_);
+    } else {
+      EXPECT_TRUE(got_download_request_);
+    }
+
+    if (is_clicked() && !is_clicked_and_downloaded()) {
+      // The download never proceeds.
       EXPECT_FALSE(got_on_before_download_);
       EXPECT_FALSE(got_on_download_updated_);
     } else {
-      EXPECT_TRUE(got_download_request_);
       EXPECT_TRUE(got_on_before_download_);
       EXPECT_TRUE(got_on_download_updated_);
     }
@@ -475,7 +519,8 @@ class DownloadTestHandler : public TestHandler {
     else
       EXPECT_FALSE(got_nav_load_);
 
-    if (test_mode_ == PENDING || test_mode_ == CLICKED_REJECTED) {
+    if (!is_downloaded()) {
+      // The download never completes.
       EXPECT_FALSE(got_download_complete_);
       EXPECT_FALSE(got_full_path_);
     } else {
@@ -519,6 +564,7 @@ class DownloadTestHandler : public TestHandler {
   // Used with PENDING test mode.
   CefRefPtr<CefDownloadItemCallback> download_item_callback_;
 
+  std::string download_url_;
   CefScopedTempDir temp_dir_;
   std::string test_path_;
   uint32 download_id_;
@@ -526,6 +572,7 @@ class DownloadTestHandler : public TestHandler {
   bool destroyed_ = false;
 
   TrackCallback got_download_request_;
+  TrackCallback got_can_download_;
   TrackCallback got_on_before_download_;
   TrackCallback got_on_download_updated_;
   TrackCallback got_full_path_;
@@ -542,14 +589,18 @@ class DownloadTestHandler : public TestHandler {
   RC_TEST_GROUP_ALL(DownloadTest, test_name, DownloadTestHandler, test_mode)
 
 // Test a programmatic download.
-DOWNLOAD_TEST_GROUP(Programmatic, PROGAMMATIC)
+DOWNLOAD_TEST_GROUP(Programmatic, PROGRAMMATIC)
 
 // Test a clicked download.
 DOWNLOAD_TEST_GROUP(Clicked, CLICKED)
 
 // Test a clicked download where the protocol is invalid and therefore rejected.
 // There will be no resulting CefDownloadHandler callbacks.
-DOWNLOAD_TEST_GROUP(ClickedRejected, CLICKED_REJECTED)
+DOWNLOAD_TEST_GROUP(ClickedInvalid, CLICKED_INVALID)
+
+// Test a clicked download where CanDownload returns false.
+// There will be no resulting CefDownloadHandler callbacks.
+DOWNLOAD_TEST_GROUP(ClickedBlocked, CLICKED_BLOCKED)
 
 // Test where the download completes after cross-origin navigation.
 DOWNLOAD_TEST_GROUP(Navigated, NAVIGATED)

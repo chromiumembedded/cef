@@ -1225,6 +1225,13 @@ bool AlloyBrowserHostImpl::HandleContextMenu(
   return HandleContextMenu(web_contents(), params);
 }
 
+void AlloyBrowserHostImpl::CanDownload(
+    const GURL& url,
+    const std::string& request_method,
+    base::OnceCallback<void(bool)> callback) {
+  contents_delegate_->CanDownload(url, request_method, std::move(callback));
+}
+
 KeyboardEventProcessingResult AlloyBrowserHostImpl::PreHandleKeyboardEvent(
     content::WebContents* source,
     const content::NativeWebKeyboardEvent& event) {

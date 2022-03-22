@@ -235,6 +235,20 @@ void ChromeBrowserDelegate::ExitFullscreenModeForTab(
   }
 }
 
+void ChromeBrowserDelegate::CanDownload(
+    const GURL& url,
+    const std::string& request_method,
+    base::OnceCallback<void(bool)> callback) {
+  auto source = browser_->tab_strip_model()->GetActiveWebContents();
+  DCHECK(source);
+
+  if (auto delegate = GetDelegateForWebContents(source)) {
+    delegate->CanDownload(url, request_method, std::move(callback));
+    return;
+  }
+  std::move(callback).Run(true);
+}
+
 KeyboardEventProcessingResult ChromeBrowserDelegate::PreHandleKeyboardEvent(
     content::WebContents* source,
     const content::NativeWebKeyboardEvent& event) {

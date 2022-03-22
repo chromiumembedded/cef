@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=ec13ec3e2819e4ac49792c3a1c57bc60b45fb95b$
+// $hash=33862915eb4156a70794a346a090154c468763e2$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DOWNLOAD_HANDLER_CAPI_H_
@@ -102,6 +102,18 @@ typedef struct _cef_download_handler_t {
   // Base structure.
   ///
   cef_base_ref_counted_t base;
+
+  ///
+  // Called before a download begins in response to a user-initiated action
+  // (e.g. alt + link click or link click that returns a `Content-Disposition:
+  // attachment` response from the server). |url| is the target download URL and
+  // |request_function| is the target function (GET, POST, etc). Return true (1)
+  // to proceed with the download or false (0) to cancel the download.
+  ///
+  int(CEF_CALLBACK* can_download)(struct _cef_download_handler_t* self,
+                                  struct _cef_browser_t* browser,
+                                  const cef_string_t* url,
+                                  const cef_string_t* request_method);
 
   ///
   // Called before a download begins. |suggested_name| is the suggested name for

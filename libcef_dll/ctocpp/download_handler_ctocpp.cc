@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c4e47ffd023b528b9c5b658126f4a1d9fd05cf98$
+// $hash=bb3a8a9a02dc3d2e4bdf0e926f61adc05e3af351$
 //
 
 #include "libcef_dll/ctocpp/download_handler_ctocpp.h"
@@ -20,6 +20,40 @@
 #include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
+
+NO_SANITIZE("cfi-icall")
+bool CefDownloadHandlerCToCpp::CanDownload(CefRefPtr<CefBrowser> browser,
+                                           const CefString& url,
+                                           const CefString& request_method) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_download_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, can_download))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+  // Verify param: url; type: string_byref_const
+  DCHECK(!url.empty());
+  if (url.empty())
+    return false;
+  // Verify param: request_method; type: string_byref_const
+  DCHECK(!request_method.empty());
+  if (request_method.empty())
+    return false;
+
+  // Execute
+  int _retval =
+      _struct->can_download(_struct, CefBrowserCppToC::Wrap(browser),
+                            url.GetStruct(), request_method.GetStruct());
+
+  // Return type: bool
+  return _retval ? true : false;
+}
 
 NO_SANITIZE("cfi-icall")
 void CefDownloadHandlerCToCpp::OnBeforeDownload(

@@ -180,6 +180,23 @@ void CefBrowserContentsDelegate::ExitFullscreenModeForTab(
   OnFullscreenModeChange(/*fullscreen=*/false);
 }
 
+void CefBrowserContentsDelegate::CanDownload(
+    const GURL& url,
+    const std::string& request_method,
+    base::OnceCallback<void(bool)> callback) {
+  bool allow = true;
+
+  if (auto delegate = platform_delegate()) {
+    if (auto c = client()) {
+      if (auto handler = c->GetDownloadHandler()) {
+        allow = handler->CanDownload(browser(), url.spec(), request_method);
+      }
+    }
+  }
+
+  std::move(callback).Run(allow);
+}
+
 KeyboardEventProcessingResult
 CefBrowserContentsDelegate::PreHandleKeyboardEvent(
     content::WebContents* source,
