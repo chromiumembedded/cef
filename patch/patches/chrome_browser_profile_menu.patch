@@ -13,6 +13,31 @@ index 9e15e9ba100cd..d4388c060a18f 100644
                                ? profiles::BUBBLE_VIEW_MODE_INCOGNITO
                                : profiles::BUBBLE_VIEW_MODE_PROFILE_CHOOSER;
    }
+diff --git chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
+index 142a9b12a734f..2055d03def80c 100644
+--- chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
++++ chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
+@@ -28,6 +28,9 @@ IncognitoClearBrowsingDataDialog* g_incognito_cbd_dialog = nullptr;
+ void IncognitoClearBrowsingDataDialog::Show(views::View* anchor_view,
+                                             Profile* incognito_profile,
+                                             Type type) {
++  // The full toolbar may not be visible.
++  if (!anchor_view)
++    return;
+   g_incognito_cbd_dialog = new IncognitoClearBrowsingDataDialog(
+       anchor_view, incognito_profile, type);
+   views::Widget* const widget =
+@@ -69,7 +72,9 @@ IncognitoClearBrowsingDataDialog::IncognitoClearBrowsingDataDialog(
+     : BubbleDialogDelegateView(anchor_view, views::BubbleBorder::TOP_RIGHT),
+       incognito_profile_(incognito_profile) {
+   DCHECK(incognito_profile_);
+-  DCHECK(incognito_profile_->IsIncognitoProfile());
++  DCHECK(incognito_profile_->IsIncognitoProfile() ||
++         (incognito_profile_->IsOffTheRecord() &&
++          incognito_profile_->GetOTRProfileID().IsUniqueForCEF()));
+   SetButtons(ui::DIALOG_BUTTON_NONE);
+   SetShowCloseButton(true);
+ 
 diff --git chrome/browser/ui/views/profiles/incognito_menu_view.cc chrome/browser/ui/views/profiles/incognito_menu_view.cc
 index 98617c979713b..1fac2a76ce097 100644
 --- chrome/browser/ui/views/profiles/incognito_menu_view.cc
