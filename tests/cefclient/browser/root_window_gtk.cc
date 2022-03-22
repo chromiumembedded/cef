@@ -274,9 +274,11 @@ void RootWindowGtk::CreateBrowserWindow(const std::string& startup_url) {
   if (with_osr_) {
     OsrRendererSettings settings = {};
     MainContext::Get()->PopulateOsrSettings(&settings);
-    browser_window_.reset(new BrowserWindowOsrGtk(this, startup_url, settings));
+    browser_window_.reset(
+        new BrowserWindowOsrGtk(this, with_controls_, startup_url, settings));
   } else {
-    browser_window_.reset(new BrowserWindowStdGtk(this, startup_url));
+    browser_window_.reset(
+        new BrowserWindowStdGtk(this, with_controls_, startup_url));
   }
 }
 

@@ -82,9 +82,10 @@ void SetXWindowBounds(XDisplay* xdisplay,
 }  // namespace
 
 BrowserWindowStdGtk::BrowserWindowStdGtk(Delegate* delegate,
+                                         bool with_controls,
                                          const std::string& startup_url)
     : BrowserWindow(delegate), xdisplay_(nullptr) {
-  client_handler_ = new ClientHandlerStd(this, startup_url);
+  client_handler_ = new ClientHandlerStd(this, with_controls, startup_url);
 }
 
 void BrowserWindowStdGtk::set_xdisplay(XDisplay* xdisplay) {

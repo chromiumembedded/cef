@@ -13,9 +13,10 @@
 namespace client {
 
 BrowserWindowStdMac::BrowserWindowStdMac(Delegate* delegate,
+                                         bool with_controls,
                                          const std::string& startup_url)
     : BrowserWindow(delegate) {
-  client_handler_ = new ClientHandlerStd(this, startup_url);
+  client_handler_ = new ClientHandlerStd(this, with_controls, startup_url);
 }
 
 void BrowserWindowStdMac::CreateBrowser(

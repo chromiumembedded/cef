@@ -24,6 +24,7 @@ class BrowserWindowOsrMac : public BrowserWindow,
   // Constructor may be called on any thread.
   // |delegate| must outlive this object.
   BrowserWindowOsrMac(BrowserWindow::Delegate* delegate,
+                      bool with_controls,
                       const std::string& startup_url,
                       const OsrRendererSettings& settings);
   ~BrowserWindowOsrMac();

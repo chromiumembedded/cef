@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=3d75809bdc9a72a0df9df727981f0796b7ddbbc8$
+# $hash=5f2e9bf79ec768c0eb978ff5e1dd0178701dcc21$
 #
 
 {
@@ -22,6 +22,7 @@
       'include/cef_browser_process_handler.h',
       'include/cef_callback.h',
       'include/cef_client.h',
+      'include/cef_command_handler.h',
       'include/cef_command_line.h',
       'include/cef_context_menu_handler.h',
       'include/cef_cookie.h',
@@ -120,6 +121,7 @@
       'include/capi/cef_browser_process_handler_capi.h',
       'include/capi/cef_callback_capi.h',
       'include/capi/cef_client_capi.h',
+      'include/capi/cef_command_handler_capi.h',
       'include/capi/cef_command_line_capi.h',
       'include/capi/cef_context_menu_handler_capi.h',
       'include/capi/cef_cookie_capi.h',
@@ -242,6 +244,8 @@
       'libcef_dll/cpptoc/callback_cpptoc.h',
       'libcef_dll/ctocpp/client_ctocpp.cc',
       'libcef_dll/ctocpp/client_ctocpp.h',
+      'libcef_dll/ctocpp/command_handler_ctocpp.cc',
+      'libcef_dll/ctocpp/command_handler_ctocpp.h',
       'libcef_dll/cpptoc/command_line_cpptoc.cc',
       'libcef_dll/cpptoc/command_line_cpptoc.h',
       'libcef_dll/ctocpp/completion_callback_ctocpp.cc',
@@ -546,6 +550,8 @@
       'libcef_dll/ctocpp/callback_ctocpp.h',
       'libcef_dll/cpptoc/client_cpptoc.cc',
       'libcef_dll/cpptoc/client_cpptoc.h',
+      'libcef_dll/cpptoc/command_handler_cpptoc.cc',
+      'libcef_dll/cpptoc/command_handler_cpptoc.h',
       'libcef_dll/ctocpp/command_line_ctocpp.cc',
       'libcef_dll/ctocpp/command_line_ctocpp.h',
       'libcef_dll/cpptoc/completion_callback_cpptoc.cc',

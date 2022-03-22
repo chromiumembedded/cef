@@ -28,6 +28,7 @@ class ClientDownloadImageCallback;
 // Client handler abstract base class. Provides common functionality shared by
 // all concrete client handler implementations.
 class ClientHandler : public CefClient,
+                      public CefCommandHandler,
                       public CefContextMenuHandler,
                       public CefDisplayHandler,
                       public CefDownloadHandler,
@@ -93,6 +94,7 @@ class ClientHandler : public CefClient,
   // |delegate| must outlive this object or DetachDelegate() must be called.
   ClientHandler(Delegate* delegate,
                 bool is_osr,
+                bool with_controls,
                 const std::string& startup_url);
 
   // This object may outlive the Delegate object so it's necessary for the
@@ -100,6 +102,7 @@ class ClientHandler : public CefClient,
   void DetachDelegate();
 
   // CefClient methods
+  CefRefPtr<CefCommandHandler> GetCommandHandler() override { return this; }
   CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override {
     return this;
   }
@@ -127,6 +130,11 @@ class ClientHandler : public CefClient,
     return print_handler_;
   }
 #endif
+
+  // CefCommandHandler methods
+  bool OnChromeCommand(CefRefPtr<CefBrowser> browser,
+                       int command_id,
+                       cef_window_open_disposition_t disposition) override;
 
   // CefContextMenuHandler methods
   void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
@@ -312,9 +320,6 @@ class ClientHandler : public CefClient,
   // Returns the startup URL.
   std::string startup_url() const { return startup_url_; }
 
-  // Returns true if this handler uses off-screen rendering.
-  bool is_osr() const { return is_osr_; }
-
   // Set/get whether the client should download favicon images. Only safe to
   // call immediately after client creation or on the browser process UI thread.
   bool download_favicon_images() const { return download_favicon_images_; }
@@ -355,11 +360,18 @@ class ClientHandler : public CefClient,
 
   void SetOfflineState(CefRefPtr<CefBrowser> browser, bool offline);
 
+  // Filter menu and keyboard shortcut commands.
+  void FilterMenuModel(CefRefPtr<CefMenuModel> model);
+  bool IsAllowedCommandId(int command_id);
+
   // THREAD SAFE MEMBERS
   // The following members may be accessed from any thread.
 
   // True if this handler uses off-screen rendering.
   const bool is_osr_;
+
+  // True if this handler shows controls.
+  const bool with_controls_;
 
   // The startup URL.
   const std::string startup_url_;

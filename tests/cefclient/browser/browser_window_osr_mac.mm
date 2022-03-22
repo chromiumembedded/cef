@@ -1760,10 +1760,12 @@ void BrowserWindowOsrMacImpl::Create(ClientWindowHandle parent_handle,
 }
 
 BrowserWindowOsrMac::BrowserWindowOsrMac(BrowserWindow::Delegate* delegate,
+                                         bool with_controls,
                                          const std::string& startup_url,
                                          const OsrRendererSettings& settings)
     : BrowserWindow(delegate) {
-  client_handler_ = new ClientHandlerOsr(this, this, startup_url);
+  client_handler_ =
+      new ClientHandlerOsr(this, this, with_controls, startup_url);
   impl_.reset(
       new BrowserWindowOsrMacImpl(delegate, startup_url, settings, *this));
 }

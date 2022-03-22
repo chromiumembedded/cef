@@ -17,7 +17,9 @@ class BrowserWindowStdWin : public BrowserWindow {
  public:
   // Constructor may be called on any thread.
   // |delegate| must outlive this object.
-  BrowserWindowStdWin(Delegate* delegate, const std::string& startup_url);
+  BrowserWindowStdWin(Delegate* delegate,
+                      bool with_controls,
+                      const std::string& startup_url);
 
   // BrowserWindow methods.
   void CreateBrowser(ClientWindowHandle parent_handle,

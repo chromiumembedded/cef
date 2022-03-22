@@ -11,7 +11,9 @@
 #include <string>
 
 #include "include/base/cef_callback.h"
+#include "include/base/cef_cxx17_backports.h"
 #include "include/cef_browser.h"
+#include "include/cef_command_ids.h"
 #include "include/cef_frame.h"
 #include "include/cef_parser.h"
 #include "include/cef_ssl_status.h"
@@ -244,8 +246,10 @@ class ClientDownloadImageCallback : public CefDownloadImageCallback {
 
 ClientHandler::ClientHandler(Delegate* delegate,
                              bool is_osr,
+                             bool with_controls,
                              const std::string& startup_url)
     : is_osr_(is_osr),
+      with_controls_(with_controls),
       startup_url_(startup_url),
       download_favicon_images_(false),
       delegate_(delegate),
@@ -310,18 +314,42 @@ bool ClientHandler::OnProcessMessageReceived(
   return false;
 }
 
+bool ClientHandler::OnChromeCommand(CefRefPtr<CefBrowser> browser,
+                                    int command_id,
+                                    cef_window_open_disposition_t disposition) {
+  CEF_REQUIRE_UI_THREAD();
+  DCHECK(MainContext::Get()->UseChromeRuntime());
+
+  if (!with_controls_ &&
+      (disposition != WOD_CURRENT_TAB || !IsAllowedCommandId(command_id))) {
+    // Block everything that doesn't target the current tab or isn't an
+    // allowed command ID.
+    LOG(INFO) << "Blocking command " << command_id << " with disposition "
+              << disposition;
+    return true;
+  }
+
+  // Default handling.
+  return false;
+}
+
 void ClientHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
                                         CefRefPtr<CefFrame> frame,
                                         CefRefPtr<CefContextMenuParams> params,
                                         CefRefPtr<CefMenuModel> model) {
   CEF_REQUIRE_UI_THREAD();
 
+  const bool use_chrome_runtime = MainContext::Get()->UseChromeRuntime();
+  if (use_chrome_runtime && !with_controls_) {
+    // Remove all disallowed menu items.
+    FilterMenuModel(model);
+  }
+
   if ((params->GetTypeFlags() & (CM_TYPEFLAG_PAGE | CM_TYPEFLAG_FRAME)) != 0) {
     // Add a separator if the menu already has items.
     if (model->GetCount() > 0)
       model->AddSeparator();
 
-    const bool use_chrome_runtime = MainContext::Get()->UseChromeRuntime();
     if (!use_chrome_runtime) {
       // TODO(chrome-runtime): Add support for this.
       // Add DevTools items to all context menus.
@@ -720,8 +748,8 @@ bool ClientHandler::OnOpenURLFromTab(
     // Handle middle-click and ctrl + left-click by opening the URL in a new
     // browser window.
     auto config = std::make_unique<RootWindowConfig>();
-    config->with_controls = true;
-    config->with_osr = is_osr();
+    config->with_controls = with_controls_;
+    config->with_osr = is_osr_;
     config->url = target_url;
     MainContext::Get()->GetRootWindowManager()->CreateRootWindow(
         std::move(config));
@@ -1023,7 +1051,7 @@ void ClientHandler::ShowSSLInformation(CefRefPtr<CefBrowser> browser) {
 
   auto config = std::make_unique<RootWindowConfig>();
   config->with_controls = false;
-  config->with_osr = is_osr();
+  config->with_osr = is_osr_;
   config->url = test_runner::GetDataURI(ss.str(), "text/html");
   MainContext::Get()->GetRootWindowManager()->CreateRootWindow(
       std::move(config));
@@ -1051,7 +1079,8 @@ bool ClientHandler::CreatePopupWindow(CefRefPtr<CefBrowser> browser,
   // The popup browser will be parented to a new native window.
   // Don't show URL bar and navigation buttons on DevTools windows.
   MainContext::Get()->GetRootWindowManager()->CreateRootWindowAsPopup(
-      !is_devtools, is_osr(), popupFeatures, windowInfo, client, settings);
+      with_controls_ && !is_devtools, is_osr_, popupFeatures, windowInfo,
+      client, settings);
 
   return true;
 }
@@ -1236,6 +1265,61 @@ void ClientHandler::SetOfflineState(CefRefPtr<CefBrowser> browser,
   params->SetDouble("uploadThroughput", 0);
   browser->GetHost()->ExecuteDevToolsMethod(
       /*message_id=*/0, "Network.emulateNetworkConditions", params);
+}
+
+void ClientHandler::FilterMenuModel(CefRefPtr<CefMenuModel> model) {
+  // Evaluate from the bottom to the top because we'll be removing menu items.
+  for (int i = model->GetCount() - 1; i >= 0; --i) {
+    const auto type = model->GetTypeAt(i);
+    if (type == MENUITEMTYPE_SUBMENU) {
+      // Filter sub-menu and remove if empty.
+      auto sub_model = model->GetSubMenuAt(i);
+      FilterMenuModel(sub_model);
+      if (sub_model->GetCount() == 0) {
+        model->RemoveAt(i);
+      }
+    } else if (type == MENUITEMTYPE_SEPARATOR) {
+      // A separator shouldn't be the first or last element in the menu, and
+      // there shouldn't be multiple in a row.
+      if (i == 0 || i == model->GetCount() - 1 ||
+          model->GetTypeAt(i + 1) == MENUITEMTYPE_SEPARATOR) {
+        model->RemoveAt(i);
+      }
+    } else if (!IsAllowedCommandId(model->GetCommandIdAt(i))) {
+      model->RemoveAt(i);
+    }
+  }
+}
+
+bool ClientHandler::IsAllowedCommandId(int command_id) {
+  // Only the commands in this array will be allowed.
+  static const int kAllowedCommandIds[] = {
+      // Page navigation.
+      IDC_BACK,
+      IDC_FORWARD,
+      IDC_RELOAD,
+      IDC_RELOAD_BYPASSING_CACHE,
+      IDC_RELOAD_CLEARING_CACHE,
+      IDC_STOP,
+
+      // Printing.
+      IDC_PRINT,
+
+      // Edit controls.
+      IDC_CONTENT_CONTEXT_CUT,
+      IDC_CONTENT_CONTEXT_COPY,
+      IDC_CONTENT_CONTEXT_PASTE,
+      IDC_CONTENT_CONTEXT_PASTE_AND_MATCH_STYLE,
+      IDC_CONTENT_CONTEXT_DELETE,
+      IDC_CONTENT_CONTEXT_SELECTALL,
+      IDC_CONTENT_CONTEXT_UNDO,
+      IDC_CONTENT_CONTEXT_REDO,
+  };
+  for (size_t i = 0; i < base::size(kAllowedCommandIds); ++i) {
+    if (command_id == kAllowedCommandIds[i])
+      return true;
+  }
+  return false;
 }
 
 }  // namespace client

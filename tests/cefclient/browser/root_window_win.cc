@@ -308,9 +308,11 @@ void RootWindowWin::CreateBrowserWindow(const std::string& startup_url) {
   if (with_osr_) {
     OsrRendererSettings settings = {};
     MainContext::Get()->PopulateOsrSettings(&settings);
-    browser_window_.reset(new BrowserWindowOsrWin(this, startup_url, settings));
+    browser_window_.reset(
+        new BrowserWindowOsrWin(this, with_controls_, startup_url, settings));
   } else {
-    browser_window_.reset(new BrowserWindowStdWin(this, startup_url));
+    browser_window_.reset(
+        new BrowserWindowStdWin(this, with_controls_, startup_url));
   }
 }
 

@@ -934,6 +934,7 @@ class ScopedGLContext {
 }  // namespace
 
 BrowserWindowOsrGtk::BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
+                                         bool with_controls,
                                          const std::string& startup_url,
                                          const OsrRendererSettings& settings)
     : BrowserWindow(delegate),
@@ -951,7 +952,8 @@ BrowserWindowOsrGtk::BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
       drag_leave_(false),
       drag_drop_(false),
       device_scale_factor_(1.0f) {
-  client_handler_ = new ClientHandlerOsr(this, this, startup_url);
+  client_handler_ =
+      new ClientHandlerOsr(this, this, with_controls, startup_url);
   g_browser_windows.push_back(this);
 }
 

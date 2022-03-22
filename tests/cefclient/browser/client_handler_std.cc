@@ -7,7 +7,8 @@
 namespace client {
 
 ClientHandlerStd::ClientHandlerStd(Delegate* delegate,
+                                   bool with_controls,
                                    const std::string& startup_url)
-    : ClientHandler(delegate, false, startup_url) {}
+    : ClientHandler(delegate, /*is_osr=*/false, with_controls, startup_url) {}
 
 }  // namespace client

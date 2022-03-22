@@ -88,6 +88,20 @@ bool ChromeBrowserDelegate::ShowStatusBubble(bool show_by_default) {
   return *show_status_bubble_;
 }
 
+bool ChromeBrowserDelegate::HandleCommand(int command_id,
+                                          WindowOpenDisposition disposition) {
+  if (auto browser = ChromeBrowserHostImpl::GetBrowserForBrowser(browser_)) {
+    if (auto client = browser->GetClient()) {
+      if (auto handler = client->GetCommandHandler()) {
+        return handler->OnChromeCommand(
+            browser.get(), command_id,
+            static_cast<cef_window_open_disposition_t>(disposition));
+      }
+    }
+  }
+  return false;
+}
+
 void ChromeBrowserDelegate::WebContentsCreated(
     content::WebContents* source_contents,
     int opener_render_process_id,

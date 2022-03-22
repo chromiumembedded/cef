@@ -1340,7 +1340,6 @@ grit("cef_resources") {
 template("make_pack_header") {
   assert(defined(invoker.header))
   assert(defined(invoker.inputs))
-  assert(defined(invoker.deps))
 
   action("make_pack_header_${target_name}") {
     script = "tools/make_pack_header.py"
@@ -1351,7 +1350,9 @@ template("make_pack_header") {
     args = rebase_path(outputs, root_build_dir) +
            rebase_path(inputs, root_build_dir)
 
-    deps = invoker.deps
+    if (defined(invoker.deps)) {
+      deps = invoker.deps
+    }
   }
 }
 
@@ -1456,6 +1457,14 @@ make_pack_header("strings") {
   ]
 }
 
+# Generate cef_command_ids.h.
+make_pack_header("command_ids") {
+  header = "$root_out_dir/includes/include/cef_command_ids.h"
+  inputs = [
+    "//chrome/app/chrome_command_ids.h",
+  ]
+}
+
 # Generate cef_api_hash.h.
 action("make_api_hash_header") {
   script = "tools/make_api_hash_header.py"
@@ -1487,6 +1496,7 @@ group("cef_make_headers") {
   deps = [
     ":make_pack_header_resources",
     ":make_pack_header_strings",
+    ":make_pack_header_command_ids",
     ":make_api_hash_header",
     ":make_config_header",
   ]

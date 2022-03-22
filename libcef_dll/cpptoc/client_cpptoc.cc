@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5c9e95dca457958e3b49c85b9fd39b36bf555d4e$
+// $hash=b299c22d4f97022efefefeb17a7848b0b44d4af3$
 //
 
 #include "libcef_dll/cpptoc/client_cpptoc.h"
 #include "libcef_dll/cpptoc/audio_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/command_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/context_menu_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/dialog_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
@@ -51,6 +52,22 @@ client_get_audio_handler(struct _cef_client_t* self) {
 
   // Return type: refptr_same
   return CefAudioHandlerCppToC::Wrap(_retval);
+}
+
+struct _cef_command_handler_t* CEF_CALLBACK
+client_get_command_handler(struct _cef_client_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefCommandHandler> _retval =
+      CefClientCppToC::Get(self)->GetCommandHandler();
+
+  // Return type: refptr_same
+  return CefCommandHandlerCppToC::Wrap(_retval);
 }
 
 struct _cef_context_menu_handler_t* CEF_CALLBACK
@@ -332,6 +349,7 @@ client_on_process_message_received(struct _cef_client_t* self,
 
 CefClientCppToC::CefClientCppToC() {
   GetStruct()->get_audio_handler = client_get_audio_handler;
+  GetStruct()->get_command_handler = client_get_command_handler;
   GetStruct()->get_context_menu_handler = client_get_context_menu_handler;
   GetStruct()->get_dialog_handler = client_get_dialog_handler;
   GetStruct()->get_display_handler = client_get_display_handler;

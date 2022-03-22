@@ -52,6 +52,8 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
   void SetAsDelegate(content::WebContents* web_contents,
                      bool set_delegate) override;
   bool ShowStatusBubble(bool show_by_default) override;
+  bool HandleCommand(int command_id,
+                     WindowOpenDisposition disposition) override;
 
   // WebContentsDelegate methods:
   void WebContentsCreated(content::WebContents* source_contents,

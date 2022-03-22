@@ -10,6 +10,7 @@
 
 #include "base/memory/scoped_refptr.h"
 #include "content/public/browser/web_contents_delegate.h"
+#include "ui/base/window_open_disposition.h"
 
 class Browser;
 
@@ -46,6 +47,13 @@ class BrowserDelegate : public content::WebContentsDelegate {
   // same value for the lifespan of a Browser.
   virtual bool ShowStatusBubble(bool show_by_default) {
     return show_by_default;
+  }
+
+  // Return true to handle (or disable) a command. ID values come from
+  // chrome/app/chrome_command_ids.h.
+  virtual bool HandleCommand(int command_id,
+                             WindowOpenDisposition disposition) {
+    return false;
   }
 };
 

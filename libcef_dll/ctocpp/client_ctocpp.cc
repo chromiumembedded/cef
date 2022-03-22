@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f31f5010a3c5c4624b93d994b6fce1e795eeac93$
+// $hash=8e158f3ea54211b95f0b716b1eeec2ff475f1245$
 //
 
 #include "libcef_dll/ctocpp/client_ctocpp.h"
@@ -17,6 +17,7 @@
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
 #include "libcef_dll/ctocpp/audio_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/command_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/context_menu_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/dialog_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
@@ -48,6 +49,21 @@ CefRefPtr<CefAudioHandler> CefClientCToCpp::GetAudioHandler() {
 
   // Return type: refptr_same
   return CefAudioHandlerCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefCommandHandler> CefClientCToCpp::GetCommandHandler() {
+  cef_client_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_command_handler))
+    return nullptr;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_command_handler_t* _retval = _struct->get_command_handler(_struct);
+
+  // Return type: refptr_same
+  return CefCommandHandlerCToCpp::Wrap(_retval);
 }
 
 NO_SANITIZE("cfi-icall")

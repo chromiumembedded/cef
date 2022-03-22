@@ -12,8 +12,10 @@ namespace client {
 
 ClientHandlerOsr::ClientHandlerOsr(Delegate* delegate,
                                    OsrDelegate* osr_delegate,
+                                   bool with_controls,
                                    const std::string& startup_url)
-    : ClientHandler(delegate, true, startup_url), osr_delegate_(osr_delegate) {
+    : ClientHandler(delegate, /*is_osr=*/true, with_controls, startup_url),
+      osr_delegate_(osr_delegate) {
   DCHECK(osr_delegate_);
 }
 

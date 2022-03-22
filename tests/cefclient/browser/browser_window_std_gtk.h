@@ -17,7 +17,9 @@ class BrowserWindowStdGtk : public BrowserWindow {
  public:
   // Constructor may be called on any thread.
   // |delegate| must outlive this object.
-  BrowserWindowStdGtk(Delegate* delegate, const std::string& startup_url);
+  BrowserWindowStdGtk(Delegate* delegate,
+                      bool with_controls,
+                      const std::string& startup_url);
 
   // Called from RootWindowGtk::CreateRootWindow before CreateBrowser.
   void set_xdisplay(XDisplay* xdisplay);

@@ -77,6 +77,7 @@ class ClientHandlerOsr : public ClientHandler,
 
   ClientHandlerOsr(Delegate* delegate,
                    OsrDelegate* osr_delegate,
+                   bool with_controls,
                    const std::string& startup_url);
 
   // This object may outlive the OsrDelegate object so it's necessary for the
