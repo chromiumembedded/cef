@@ -45,7 +45,7 @@ index cff1df2490bb6..864a03a2e29c9 100644
  
  bool BrowserCommandController::IsWebAppOrCustomTab() const {
 diff --git chrome/browser/ui/views/frame/browser_frame.cc chrome/browser/ui/views/frame/browser_frame.cc
-index 6b644bf006532..9ae5bd273b6dc 100644
+index 6b644bf006532..4b5082a6a2dfe 100644
 --- chrome/browser/ui/views/frame/browser_frame.cc
 +++ chrome/browser/ui/views/frame/browser_frame.cc
 @@ -74,15 +74,23 @@ bool IsUsingGtkTheme(Profile* profile) {
@@ -87,7 +87,16 @@ index 6b644bf006532..9ae5bd273b6dc 100644
    return browser_frame_view_->GetTopInset(false);
  }
  
-@@ -177,15 +191,21 @@ void BrowserFrame::GetWindowPlacement(gfx::Rect* bounds,
+@@ -172,20 +186,30 @@ bool BrowserFrame::ShouldDrawFrameHeader() const {
+ 
+ void BrowserFrame::GetWindowPlacement(gfx::Rect* bounds,
+                                       ui::WindowShowState* show_state) const {
++  if (!native_browser_frame_) {
++    *show_state = ui::SHOW_STATE_DEFAULT;
++    return;
++  }
+   return native_browser_frame_->GetWindowPlacement(bounds, show_state);
+ }
  
  content::KeyboardEventProcessingResult BrowserFrame::PreHandleKeyboardEvent(
      const content::NativeWebKeyboardEvent& event) {
@@ -109,7 +118,7 @@ index 6b644bf006532..9ae5bd273b6dc 100644
    browser_frame_view_->OnBrowserViewInitViewsComplete();
  }
  
-@@ -246,6 +266,8 @@ const ui::ThemeProvider* BrowserFrame::GetThemeProvider() const {
+@@ -246,6 +270,8 @@ const ui::ThemeProvider* BrowserFrame::GetThemeProvider() const {
  
  ui::ColorProviderManager::InitializerSupplier* BrowserFrame::GetCustomTheme()
      const {
@@ -118,7 +127,7 @@ index 6b644bf006532..9ae5bd273b6dc 100644
    Browser* browser = browser_view_->browser();
    // If this is an incognito profile, there should never be a custom theme.
    if (browser->profile()->IsIncognitoProfile())
-@@ -374,7 +396,8 @@ void BrowserFrame::SelectNativeTheme() {
+@@ -374,7 +400,8 @@ void BrowserFrame::SelectNativeTheme() {
    // Select between regular, dark and GTK theme.
    ui::NativeTheme* native_theme = ui::NativeTheme::GetInstanceForNativeUi();
  
@@ -128,7 +137,7 @@ index 6b644bf006532..9ae5bd273b6dc 100644
      // No matter if we are using the default theme or not we always use the dark
      // ui instance.
      SetNativeTheme(ui::NativeTheme::GetInstanceForDarkUI());
-@@ -387,7 +410,8 @@ void BrowserFrame::SelectNativeTheme() {
+@@ -387,7 +414,8 @@ void BrowserFrame::SelectNativeTheme() {
    // display_override so the web contents can blend with the overlay by using
    // the developer-provided theme color for a better experience. Context:
    // https://crbug.com/1219073.

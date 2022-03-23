@@ -8,9 +8,11 @@
 
 #include "base/threading/thread_restrictions.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/prefs/session_startup_pref.h"
 #include "chrome/browser/profiles/keep_alive/profile_keep_alive_types.h"
 #include "chrome/browser/profiles/keep_alive/scoped_profile_keep_alive.h"
 #include "chrome/browser/profiles/off_the_record_profile_impl.h"
+#include "chrome/common/pref_names.h"
 
 ChromeBrowserContext::ChromeBrowserContext(
     const CefRequestContextSettings& settings)
@@ -138,6 +140,15 @@ void ChromeBrowserContext::ProfileCreated(Profile* profile,
     if (otr_profile) {
       otr_profile->Init();
       parent_profile->NotifyOffTheRecordProfileCreated(otr_profile);
+    }
+
+    if (!profile_->IsOffTheRecord()) {
+      // Configure the desired profile restore behavior for the next application
+      // restart (checked via ProfileImpl::ShouldRestoreOldSessionCookies).
+      profile_->GetPrefs()->SetInteger(
+          prefs::kRestoreOnStartup, !!settings_.persist_session_cookies
+                                        ? SessionStartupPref::kPrefValueLast
+                                        : SessionStartupPref::kPrefValueNewTab);
     }
 
     if (!init_callbacks_.empty()) {
