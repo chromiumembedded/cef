@@ -119,7 +119,8 @@ bool CefTraceSubscriber::EndTracing(const base::FilePath& tracing_file,
 
   TracingController::GetInstance()->StopTracing(
       TracingController::CreateFileEndpoint(tracing_file,
-                                            std::move(result_callback)));
+                                            std::move(result_callback),
+                                            base::TaskPriority::USER_VISIBLE));
   return true;
 }
 
