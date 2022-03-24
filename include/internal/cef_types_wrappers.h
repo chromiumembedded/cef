@@ -546,7 +546,6 @@ struct CefSettingsTraits {
     cef_string_clear(&s->locales_dir_path);
     cef_string_clear(&s->accept_language_list);
     cef_string_clear(&s->cookieable_schemes_list);
-    cef_string_clear(&s->application_client_id_for_file_scanning);
   }
 
   static inline void set(const struct_type* src,
@@ -605,10 +604,6 @@ struct CefSettingsTraits {
                    &target->cookieable_schemes_list, copy);
     target->cookieable_schemes_exclude_defaults =
         src->cookieable_schemes_exclude_defaults;
-
-    cef_string_set(src->application_client_id_for_file_scanning.str,
-                   src->application_client_id_for_file_scanning.length,
-                   &target->application_client_id_for_file_scanning, copy);
   }
 };
 

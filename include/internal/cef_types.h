@@ -426,14 +426,6 @@ typedef struct _cef_settings_t {
   ///
   cef_string_t cookieable_schemes_list;
   int cookieable_schemes_exclude_defaults;
-
-  ///
-  // GUID string used for identifying the application. This is passed to the
-  // system AV function for scanning downloaded files. By default, the GUID
-  // will be an empty string and the file will be treated as an untrusted
-  // file when the GUID is empty.
-  ///
-  cef_string_t application_client_id_for_file_scanning;
 } cef_settings_t;
 
 ///

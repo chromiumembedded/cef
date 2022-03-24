@@ -405,12 +405,7 @@ void CefDownloadManagerDelegate::GetNextId(
 }
 
 std::string CefDownloadManagerDelegate::ApplicationClientIdForFileScanning() {
-  const CefSettings& settings = CefContext::Get()->settings();
-  if (settings.application_client_id_for_file_scanning.length > 0) {
-    return CefString(&settings.application_client_id_for_file_scanning)
-        .ToString();
-  }
-  return std::string();
+  return std::string(chrome::kApplicationClientIDStringForAVScanning);
 }
 
 void CefDownloadManagerDelegate::OnBrowserDestroyed(
