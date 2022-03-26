@@ -22,9 +22,9 @@ namespace blink {
 class WebURLRequest;
 }  // namespace blink
 
-namespace navigation_interception {
-class NavigationParams;
-}
+namespace content {
+class NavigationHandle;
+}  // namespace content
 
 namespace net {
 class HttpRequestHeaders;
@@ -96,11 +96,8 @@ class CefRequestImpl : public CefRequest {
   void Set(const net::HttpRequestHeaders& headers);
 
   // Populate this object from the NavigationParams object.
-  // TODO(cef): Remove the |is_main_frame| argument once NavigationParams is
-  // reliable in reporting that value.
-  // Called from content_browser_client.cc NavigationOnUIThread().
-  void Set(const navigation_interception::NavigationParams& params,
-           bool is_main_frame);
+  // Called from throttle_handler.cc NavigationOnUIThread().
+  void Set(content::NavigationHandle* navigation_handle);
 
   // Populate the WebURLRequest object based on the contents of |params|.
   // Called from CefBrowserImpl::LoadRequest().

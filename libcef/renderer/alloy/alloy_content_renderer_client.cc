@@ -53,8 +53,7 @@
 #include "chrome/renderer/chrome_content_renderer_client.h"
 #include "chrome/renderer/extensions/chrome_extensions_renderer_client.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
-#include "chrome/renderer/pepper/chrome_pdf_print_client.h"
-#include "chrome/renderer/pepper/pepper_helper.h"
+#include "chrome/renderer/media/chrome_key_systems.h"
 #include "chrome/renderer/plugins/chrome_plugin_placeholder.h"
 #include "components/content_settings/core/common/content_settings_types.h"
 #include "components/nacl/common/nacl_constants.h"
@@ -231,11 +230,6 @@ void AlloyContentRendererClient::RenderThreadStarted() {
   }
 #endif  // BUILDFLAG(IS_MAC)
 
-  if (extensions::PdfExtensionEnabled()) {
-    pdf_print_client_.reset(new ChromePDFPrintClient());
-    pdf::PepperPDFHost::SetPrintClient(pdf_print_client_.get());
-  }
-
   if (extensions::ExtensionsEnabled())
     extensions_renderer_client_->RenderThreadStarted();
 }
@@ -274,8 +268,6 @@ void AlloyContentRendererClient::RenderThreadConnected() {
 void AlloyContentRendererClient::RenderFrameCreated(
     content::RenderFrame* render_frame) {
   auto render_frame_observer = new CefRenderFrameObserver(render_frame);
-
-  new PepperHelper(render_frame);
 
   if (extensions::ExtensionsEnabled()) {
     extensions_renderer_client_->RenderFrameCreated(
@@ -352,8 +344,7 @@ bool AlloyContentRendererClient::IsPluginHandledExternally(
         plugin_element);
     return false;
   }
-  if (plugin_info->actual_mime_type == pdf::kInternalPluginMimeType &&
-      pdf::IsInternalPluginExternallyHandled()) {
+  if (plugin_info->actual_mime_type == pdf::kInternalPluginMimeType) {
     // Only actually treat the internal PDF plugin as externally handled if
     // used within an origin allowed to create the internal PDF plugin;
     // otherwise, let Blink try to create the in-process PDF plugin.
@@ -421,11 +412,7 @@ bool AlloyContentRendererClient::IsOriginIsolatedPepperPlugin(
 
 void AlloyContentRendererClient::GetSupportedKeySystems(
     media::GetSupportedKeySystemsCB cb) {
-  key_systems_provider_.GetSupportedKeySystems(std::move(cb));
-}
-
-bool AlloyContentRendererClient::IsKeySystemsUpdateNeeded() {
-  return key_systems_provider_.IsKeySystemsUpdateNeeded();
+  GetChromeKeySystems(std::move(cb));
 }
 
 void AlloyContentRendererClient::RunScriptsAtDocumentStart(

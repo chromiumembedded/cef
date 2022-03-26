@@ -12,6 +12,7 @@ need to be translated for each locale.-->
       <emit emit_type='prepend'></emit>
     </output>
 
+    <output filename="cef_strings_af.pak" type="data_package" lang="af" />
     <output filename="cef_strings_am.pak" type="data_package" lang="am" />
     <output filename="cef_strings_ar.pak" type="data_package" lang="ar" />
     <if expr="pp_ifdef('use_third_party_translations')">
@@ -100,6 +101,7 @@ need to be translated for each locale.-->
       <output filename="cef_strings_ug.pak" type="data_package" lang="ug" />
     </if>
     <output filename="cef_strings_uk.pak" type="data_package" lang="uk" />
+    <output filename="cef_strings_ur.pak" type="data_package" lang="ur" />
     <output filename="cef_strings_vi.pak" type="data_package" lang="vi" />
     <output filename="cef_strings_zh-CN.pak" type="data_package" lang="zh-CN" />
     <output filename="cef_strings_zh-TW.pak" type="data_package" lang="zh-TW" />

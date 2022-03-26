@@ -1,5 +1,5 @@
 diff --git third_party/blink/renderer/platform/weborigin/security_policy.cc third_party/blink/renderer/platform/weborigin/security_policy.cc
-index 4ae902d39a8f5..adfc8d91f9829 100644
+index e0527ec908014..5ea849a975818 100644
 --- third_party/blink/renderer/platform/weborigin/security_policy.cc
 +++ third_party/blink/renderer/platform/weborigin/security_policy.cc
 @@ -90,7 +90,7 @@ Referrer SecurityPolicy::GenerateReferrer(

@@ -161,18 +161,18 @@ index dd22bbc07fb52..c695ece6b1a47 100644
    // A pointer to the current or speculative main frame in `host_contents_`. We
    // can't access this frame through the `host_contents_` directly as it does
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index 1fa1e67dddcfd..7af2a0e231824 100644
+index c3e25378bbaf8..0959392a4cb29 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
-@@ -27,6 +27,7 @@
- #include "ui/base/page_transition_types.h"
+@@ -28,6 +28,7 @@
+ #include "url/gurl.h"
  
  class ExtensionFunctionRegistry;
 +class GURL;
  class PrefService;
  
  namespace base {
-@@ -66,6 +67,7 @@ class ComponentExtensionResourceManager;
+@@ -67,6 +68,7 @@ class ComponentExtensionResourceManager;
  class Extension;
  class ExtensionCache;
  class ExtensionError;
@@ -180,7 +180,7 @@ index 1fa1e67dddcfd..7af2a0e231824 100644
  class ExtensionHostDelegate;
  class ExtensionSet;
  class ExtensionSystem;
-@@ -207,6 +209,14 @@ class ExtensionsBrowserClient {
+@@ -208,6 +210,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  

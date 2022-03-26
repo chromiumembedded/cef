@@ -17,8 +17,8 @@
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
-#include "components/navigation_interception/navigation_params.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/navigation_handle.h"
 #include "content/public/common/content_switches.h"
 #include "net/base/elements_upload_data_stream.h"
 #include "net/base/load_flags.h"
@@ -518,26 +518,25 @@ void CefRequestImpl::Set(const net::HttpRequestHeaders& headers) {
   ::GetHeaderMap(headers, headermap_);
 }
 
-void CefRequestImpl::Set(
-    const navigation_interception::NavigationParams& params,
-    bool is_main_frame) {
+void CefRequestImpl::Set(content::NavigationHandle* navigation_handle) {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
 
   Reset();
 
-  url_ = params.url();
-  method_ = params.is_post() ? "POST" : "GET";
+  url_ = navigation_handle->GetURL();
+  method_ = navigation_handle->IsPost() ? "POST" : "GET";
 
-  const auto& sanitized_referrer =
-      content::Referrer::SanitizeForRequest(params.url(), params.referrer());
-  referrer_url_ = sanitized_referrer.url;
+  const auto& sanitized_referrer = content::Referrer::SanitizeForRequest(
+      navigation_handle->GetURL(), navigation_handle->GetReferrer());
+  referrer_url_ = sanitized_referrer->url;
   referrer_policy_ =
-      BlinkReferrerPolicyToNetReferrerPolicy(sanitized_referrer.policy);
+      BlinkReferrerPolicyToNetReferrerPolicy(sanitized_referrer->policy);
 
-  resource_type_ = is_main_frame ? RT_MAIN_FRAME : RT_SUB_FRAME;
-  transition_type_ =
-      static_cast<cef_transition_type_t>(params.transition_type());
+  resource_type_ =
+      navigation_handle->IsInMainFrame() ? RT_MAIN_FRAME : RT_SUB_FRAME;
+  transition_type_ = static_cast<cef_transition_type_t>(
+      navigation_handle->GetPageTransition());
 }
 
 // static

@@ -37,7 +37,7 @@ std::u16string GetDescriptionFromMimeType(const std::string& mime_type) {
       {"video", IDS_VIDEO_FILES},
   };
 
-  for (size_t i = 0; i < base::size(kWildCardMimeTypes); ++i) {
+  for (size_t i = 0; i < std::size(kWildCardMimeTypes); ++i) {
     if (mime_type == std::string(kWildCardMimeTypes[i].mime_type) + "/*")
       return l10n_util::GetStringUTF16(kWildCardMimeTypes[i].string_id);
   }

@@ -12,6 +12,7 @@
 #include "include/cef_menu_model.h"
 
 #include "base/threading/platform_thread.h"
+#include "third_party/abseil-cpp/absl/types/optional.h"
 #include "ui/base/models/simple_menu_model.h"
 
 // Implementation of CefMenuModel that wraps an existing ui::SimpleMenuModel.

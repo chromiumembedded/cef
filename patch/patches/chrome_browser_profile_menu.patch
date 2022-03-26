@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/profile_window.cc chrome/browser/profiles/profile_window.cc
-index 9e15e9ba100cd..d4388c060a18f 100644
+index fdc911e5aeb83..724ef4429f14f 100644
 --- chrome/browser/profiles/profile_window.cc
 +++ chrome/browser/profiles/profile_window.cc
-@@ -280,7 +280,9 @@ void BubbleViewModeFromAvatarBubbleMode(BrowserWindow::AvatarBubbleMode mode,
+@@ -282,7 +282,9 @@ void BubbleViewModeFromAvatarBubbleMode(BrowserWindow::AvatarBubbleMode mode,
        *bubble_view_mode = BUBBLE_VIEW_MODE_PROFILE_CHOOSER;
        return;
      case BrowserWindow::AVATAR_BUBBLE_MODE_DEFAULT:
@@ -14,10 +14,10 @@ index 9e15e9ba100cd..d4388c060a18f 100644
                                : profiles::BUBBLE_VIEW_MODE_PROFILE_CHOOSER;
    }
 diff --git chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
-index 142a9b12a734f..2055d03def80c 100644
+index 37294dc0d6da0..5995be5955fcf 100644
 --- chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
 +++ chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
-@@ -28,6 +28,9 @@ IncognitoClearBrowsingDataDialog* g_incognito_cbd_dialog = nullptr;
+@@ -30,6 +30,9 @@ IncognitoClearBrowsingDataDialog* g_incognito_cbd_dialog = nullptr;
  void IncognitoClearBrowsingDataDialog::Show(views::View* anchor_view,
                                              Profile* incognito_profile,
                                              Type type) {
@@ -27,8 +27,8 @@ index 142a9b12a734f..2055d03def80c 100644
    g_incognito_cbd_dialog = new IncognitoClearBrowsingDataDialog(
        anchor_view, incognito_profile, type);
    views::Widget* const widget =
-@@ -69,7 +72,9 @@ IncognitoClearBrowsingDataDialog::IncognitoClearBrowsingDataDialog(
-     : BubbleDialogDelegateView(anchor_view, views::BubbleBorder::TOP_RIGHT),
+@@ -72,7 +75,9 @@ IncognitoClearBrowsingDataDialog::IncognitoClearBrowsingDataDialog(
+       dialog_type_(type),
        incognito_profile_(incognito_profile) {
    DCHECK(incognito_profile_);
 -  DCHECK(incognito_profile_->IsIncognitoProfile());
@@ -54,7 +54,7 @@ index 98617c979713b..1fac2a76ce097 100644
  
    chrome::RecordDialogCreation(
 diff --git chrome/browser/ui/views/profiles/profile_menu_view_base.cc chrome/browser/ui/views/profiles/profile_menu_view_base.cc
-index 63d663a749c77..1c9376a64c623 100644
+index 0fe5235b7655f..a1d559458f0df 100644
 --- chrome/browser/ui/views/profiles/profile_menu_view_base.cc
 +++ chrome/browser/ui/views/profiles/profile_menu_view_base.cc
 @@ -512,7 +512,9 @@ void ProfileMenuViewBase::ShowBubble(profiles::BubbleViewMode view_mode,

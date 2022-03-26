@@ -167,7 +167,7 @@ std::wstring GetDescriptionFromMimeType(const std::string& mime_type) {
       {"video", IDS_VIDEO_FILES},
   };
 
-  for (size_t i = 0; i < base::size(kWildCardMimeTypes); ++i) {
+  for (size_t i = 0; i < std::size(kWildCardMimeTypes); ++i) {
     if (mime_type == std::string(kWildCardMimeTypes[i].mime_type) + "/*") {
       return base::UTF16ToWide(
           l10n_util::GetStringUTF16(kWildCardMimeTypes[i].string_id));
@@ -259,7 +259,7 @@ bool RunOpenFileDialog(const CefFileDialogRunner::FileChooserParams& params,
     } else {
       // The value is a file name and possibly a directory.
       base::wcslcpy(filename, params.default_file_name.value().c_str(),
-                    base::size(filename));
+                    std::size(filename));
       directory = params.default_file_name.DirName().value();
     }
   }
@@ -480,7 +480,7 @@ bool RunSaveFileDialog(const CefFileDialogRunner::FileChooserParams& params,
     } else {
       // The value is a file name and possibly a directory.
       base::wcslcpy(filename, params.default_file_name.value().c_str(),
-                    base::size(filename));
+                    std::size(filename));
       directory = params.default_file_name.DirName().value();
     }
   }

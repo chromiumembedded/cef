@@ -50,19 +50,21 @@ class URLLoaderFactoryGetter
                                           URLLoaderFactoryGetterDeleter>;
   friend struct URLLoaderFactoryGetterDeleter;
 
-  URLLoaderFactoryGetter(
-      std::unique_ptr<network::PendingSharedURLLoaderFactory>
-          loader_factory_info,
-      network::mojom::URLLoaderFactoryPtrInfo proxy_factory_ptr_info,
-      network::mojom::URLLoaderFactoryRequest proxy_factory_request);
+  URLLoaderFactoryGetter(std::unique_ptr<network::PendingSharedURLLoaderFactory>
+                             loader_factory_info,
+                         mojo::PendingRemote<network::mojom::URLLoaderFactory>
+                             proxy_factory_remote,
+                         mojo::PendingReceiver<network::mojom::URLLoaderFactory>
+                             proxy_factory_receiver);
   ~URLLoaderFactoryGetter();
 
   void DeleteOnCorrectThread() const;
 
   std::unique_ptr<network::PendingSharedURLLoaderFactory> loader_factory_info_;
   scoped_refptr<network::SharedURLLoaderFactory> lazy_factory_;
-  network::mojom::URLLoaderFactoryPtrInfo proxy_factory_ptr_info_;
-  network::mojom::URLLoaderFactoryRequest proxy_factory_request_;
+  mojo::PendingRemote<network::mojom::URLLoaderFactory> proxy_factory_remote_;
+  mojo::PendingReceiver<network::mojom::URLLoaderFactory>
+      proxy_factory_receiver_;
   scoped_refptr<base::SequencedTaskRunner> task_runner_;
 };
 

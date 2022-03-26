@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index 1301f3baf5b7f..bebc86d812313 100644
+index 5e4b07cda7100..420badf9841e9 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -292,6 +292,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
@@ -27,7 +27,7 @@ index 1301f3baf5b7f..bebc86d812313 100644
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -695,6 +706,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -690,6 +701,14 @@ RenderViewContextMenu::RenderViewContextMenu(
    system_app_ = GetBrowser() && GetBrowser()->app_controller()
                      ? GetBrowser()->app_controller()->system_app()
                      : nullptr;
@@ -42,7 +42,7 @@ index 1301f3baf5b7f..bebc86d812313 100644
  }
  
  RenderViewContextMenu::~RenderViewContextMenu() = default;
-@@ -1062,6 +1081,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1055,6 +1074,12 @@ void RenderViewContextMenu::InitMenu() {
    // menu, meaning that each menu item added/removed in this function will cause
    // it to visibly jump on the screen (see b/173569669).
    AppendQuickAnswersItems();
@@ -55,7 +55,7 @@ index 1301f3baf5b7f..bebc86d812313 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -2832,6 +2857,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
+@@ -2782,6 +2807,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
    execute_plugin_action_callback_ = std::move(cb);
  }
  
@@ -69,10 +69,10 @@ index 1301f3baf5b7f..bebc86d812313 100644
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    custom_handlers::ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index 72d55de086c14..039d28af436d7 100644
+index 5ef77d88c8990..5b236d4c6be2e 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
-@@ -126,6 +126,12 @@ class RenderViewContextMenu
+@@ -125,6 +125,12 @@ class RenderViewContextMenu
        base::OnceCallback<void(content::RenderFrameHost*,
                                blink::mojom::PluginActionType)> cb);
  
@@ -85,7 +85,7 @@ index 72d55de086c14..039d28af436d7 100644
   protected:
    Profile* GetProfile() const;
  
-@@ -334,6 +340,9 @@ class RenderViewContextMenu
+@@ -333,6 +339,9 @@ class RenderViewContextMenu
    //   built.
    bool is_protocol_submenu_valid_ = false;
  
@@ -96,10 +96,10 @@ index 72d55de086c14..039d28af436d7 100644
    // "Use enhanced spell check" items.
    std::unique_ptr<SpellingMenuObserver> spelling_suggestions_menu_observer_;
 diff --git chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
-index 8202df66af332..c412b59df6db9 100644
+index 4c5d58479aee4..04f23ed98bebd 100644
 --- chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
 +++ chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
-@@ -137,6 +137,9 @@ void RenderViewContextMenuViews::RunMenuAt(views::Widget* parent,
+@@ -138,6 +138,9 @@ void RenderViewContextMenuViews::RunMenuAt(views::Widget* parent,
  bool RenderViewContextMenuViews::GetAcceleratorForCommandId(
      int command_id,
      ui::Accelerator* accel) const {
@@ -110,10 +110,10 @@ index 8202df66af332..c412b59df6db9 100644
    // that Ctrl+C, Ctrl+V, Ctrl+X, Ctrl-A, etc do what they normally do.
    switch (command_id) {
 diff --git components/renderer_context_menu/render_view_context_menu_base.cc components/renderer_context_menu/render_view_context_menu_base.cc
-index 3dfc21fddd982..3f93f06532ed7 100644
+index 0b1b12a3bb350..b2197ccda45a9 100644
 --- components/renderer_context_menu/render_view_context_menu_base.cc
 +++ components/renderer_context_menu/render_view_context_menu_base.cc
-@@ -377,6 +377,17 @@ bool RenderViewContextMenuBase::IsCommandIdChecked(int id) const {
+@@ -378,6 +378,17 @@ bool RenderViewContextMenuBase::IsCommandIdChecked(int id) const {
    return false;
  }
  

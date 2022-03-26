@@ -7,6 +7,7 @@
 #include "base/memory/shared_memory_mapping.h"
 #include "base/trace_event/trace_event.h"
 #include "components/viz/common/resources/resource_sizes.h"
+#include "mojo/public/cpp/bindings/pending_remote.h"
 #include "mojo/public/cpp/system/platform_handle.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/skia/include/core/SkCanvas.h"
@@ -24,7 +25,7 @@ namespace viz {
 SoftwareOutputDeviceProxy::~SoftwareOutputDeviceProxy() = default;
 
 SoftwareOutputDeviceProxy::SoftwareOutputDeviceProxy(
-    mojom::LayeredWindowUpdaterPtr layered_window_updater)
+    mojo::PendingRemote<mojom::LayeredWindowUpdater> layered_window_updater)
     : layered_window_updater_(std::move(layered_window_updater)) {
   DCHECK(layered_window_updater_.is_bound());
 }

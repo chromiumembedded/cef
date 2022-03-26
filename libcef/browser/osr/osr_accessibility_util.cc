@@ -200,7 +200,7 @@ struct PopulateAxNodeAttributes {
         CefRefPtr<CefListValue> list = CefListValue::Create();
         int index = 0;
         // Iterate and find which states are set.
-        for (unsigned i = 0; i < base::size(textStyleArr); i++) {
+        for (unsigned i = 0; i < std::size(textStyleArr); i++) {
           if (attr.second & static_cast<int>(textStyleArr[i]))
             list->SetString(index++, ToString(textStyleArr[i]));
         }
@@ -260,7 +260,7 @@ struct PopulateAxNodeAttributes {
               ax::mojom::MarkerType::kTextMatch};
 
           // Iterate and find which markers are set.
-          for (unsigned j = 0; j < base::size(marktypeArr); j++) {
+          for (unsigned j = 0; j < std::size(marktypeArr); j++) {
             if (attr.second[i] & static_cast<int>(marktypeArr[j]))
               list->SetString(index++, ToString(marktypeArr[j]));
           }

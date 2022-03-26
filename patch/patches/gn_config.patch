@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 1810cebef9aa4..06618025b84b0 100644
+index 5356717746edd..6345b837a6ea6 100644
 --- .gn
 +++ .gn
-@@ -154,6 +154,8 @@ exec_script_whitelist =
+@@ -151,6 +151,8 @@ exec_script_whitelist =
  
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
  
@@ -12,7 +12,7 @@ index 1810cebef9aa4..06618025b84b0 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index fae950dfa67de..5c4f17deed94c 100644
+index f686fc6368936..37848e164aeb0 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -17,6 +17,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -23,7 +23,7 @@ index fae950dfa67de..5c4f17deed94c 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/media/router/features.gni")
  import("//components/nacl/features.gni")
-@@ -269,6 +270,9 @@ group("gn_all") {
+@@ -252,6 +253,9 @@ group("gn_all") {
          deps += [ "//chrome/test:telemetry_perf_unittests${_target_suffix}" ]
        }
      }
@@ -79,7 +79,7 @@ index f8f71ef369c08..7a2ed5da7bda3 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index cd468f580cb63..66a06d303580d 100644
+index 10acea1dbb8db..ff419de6494ce 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -102,7 +102,7 @@ index cd468f580cb63..66a06d303580d 100644
        sources += [ "$root_gen_dir/extensions/extensions_browser_resources_${percent}_percent.pak" ]
        deps += [ "//extensions:extensions_browser_resources" ]
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index d969da6550bcb..97a5d2b843af5 100644
+index 936a5422f92fa..5743f4a03aa4f 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
 @@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
@@ -113,7 +113,7 @@ index d969da6550bcb..97a5d2b843af5 100644
  import("//extensions/buildflags/buildflags.gni")
  import("//tools/grit/repack.gni")
  
-@@ -90,6 +91,10 @@ template("chrome_repack_locales") {
+@@ -93,6 +94,10 @@ template("chrome_repack_locales") {
            [ "${root_gen_dir}/chromeos/strings/chromeos_strings_" ]
        deps += [ "//chromeos/strings" ]
      }

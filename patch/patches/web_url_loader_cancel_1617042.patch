@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/platform/web_url_loader.h third_party/blink/public/platform/web_url_loader.h
-index 3894775930095..aef157bc50b79 100644
+index 6ba4364c434fa..6400e5b34b65a 100644
 --- third_party/blink/public/platform/web_url_loader.h
 +++ third_party/blink/public/platform/web_url_loader.h
-@@ -152,12 +152,14 @@ class BLINK_PLATFORM_EXPORT WebURLLoader {
+@@ -153,12 +153,14 @@ class BLINK_PLATFORM_EXPORT WebURLLoader {
    void SetResourceRequestSenderForTesting(
        std::unique_ptr<WebResourceRequestSender> resource_request_sender);
  

@@ -19,7 +19,7 @@
 
 namespace net_service {
 
-// Based on CreateDownloadURLLoaderFactoryGetter from
+// Based on CreatePendingSharedURLLoaderFactory from
 // content/browser/download/download_manager_impl.cc.
 // static
 scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
@@ -35,14 +35,17 @@ scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
   auto loader_factory = browser_context->GetDefaultStoragePartition()
                             ->GetURLLoaderFactoryForBrowserProcess();
 
-  network::mojom::URLLoaderFactoryPtrInfo proxy_factory_ptr_info;
-  network::mojom::URLLoaderFactoryRequest proxy_factory_request;
+  mojo::PendingRemote<network::mojom::URLLoaderFactory> proxy_factory_remote;
+  mojo::PendingReceiver<network::mojom::URLLoaderFactory>
+      proxy_factory_receiver;
 
   // Create an intermediate pipe that can be used to proxy the request's
   // URLLoaderFactory.
-  network::mojom::URLLoaderFactoryPtrInfo maybe_proxy_factory_ptr_info;
+  mojo::PendingRemote<network::mojom::URLLoaderFactory>
+      maybe_proxy_factory_remote;
   mojo::PendingReceiver<network::mojom::URLLoaderFactory>
-      maybe_proxy_factory_request = MakeRequest(&maybe_proxy_factory_ptr_info);
+      maybe_proxy_factory_receiver =
+          maybe_proxy_factory_remote.InitWithNewPipeAndPassReceiver();
 
   bool should_proxy = false;
   int render_process_id = -1;
@@ -55,7 +58,7 @@ scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
         content::devtools_instrumentation::WillCreateURLLoaderFactory(
             static_cast<content::RenderFrameHostImpl*>(render_frame_host),
             false /* is_navigation */, false /* is_download */,
-            &maybe_proxy_factory_request, nullptr /* factory_override */);
+            &maybe_proxy_factory_receiver, nullptr /* factory_override */);
   }
 
   auto browser_client = CefAppManager::Get()->GetContentClient()->browser();
@@ -65,24 +68,24 @@ scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
       browser_context, render_frame_host, render_process_id,
       content::ContentBrowserClient::URLLoaderFactoryType::kDocumentSubResource,
       url::Origin(), absl::nullopt /* navigation_id */, ukm::SourceIdObj(),
-      &maybe_proxy_factory_request, nullptr /* header_client */,
+      &maybe_proxy_factory_receiver, nullptr /* header_client */,
       nullptr /* bypass_redirect_checks */, nullptr /* disable_secure_dns */,
       nullptr /* factory_override */);
 
   // If anyone above indicated that they care about proxying, pass the
   // intermediate pipe along to the URLLoaderFactoryGetter.
   if (should_proxy) {
-    proxy_factory_ptr_info = std::move(maybe_proxy_factory_ptr_info);
-    proxy_factory_request = std::move(maybe_proxy_factory_request);
+    proxy_factory_remote = std::move(maybe_proxy_factory_remote);
+    proxy_factory_receiver = std::move(maybe_proxy_factory_receiver);
   }
 
   return base::WrapRefCounted(new URLLoaderFactoryGetter(
-      loader_factory->Clone(), std::move(proxy_factory_ptr_info),
-      std::move(proxy_factory_request)));
+      loader_factory->Clone(), std::move(proxy_factory_remote),
+      std::move(proxy_factory_receiver)));
 }
 
-// Based on NetworkDownloadURLLoaderFactoryGetter from
-// content/browser/download/network_download_url_loader_factory_getter.cc.
+// Based on CreateFactory from
+// content/browser/download/network_download_pending_url_loader_factory.cc.
 scoped_refptr<network::SharedURLLoaderFactory>
 URLLoaderFactoryGetter::GetURLLoaderFactory() {
   // On first call we associate with the current thread.
@@ -99,11 +102,11 @@ URLLoaderFactoryGetter::GetURLLoaderFactory() {
   auto loader_factory =
       network::SharedURLLoaderFactory::Create(std::move(loader_factory_info_));
 
-  if (proxy_factory_request_.is_pending()) {
-    loader_factory->Clone(std::move(proxy_factory_request_));
+  if (proxy_factory_receiver_.is_valid()) {
+    loader_factory->Clone(std::move(proxy_factory_receiver_));
     lazy_factory_ =
         base::MakeRefCounted<network::WrapperSharedURLLoaderFactory>(
-            std::move(proxy_factory_ptr_info_));
+            std::move(proxy_factory_remote_));
   } else {
     lazy_factory_ = loader_factory;
   }
@@ -112,11 +115,12 @@ URLLoaderFactoryGetter::GetURLLoaderFactory() {
 
 URLLoaderFactoryGetter::URLLoaderFactoryGetter(
     std::unique_ptr<network::PendingSharedURLLoaderFactory> loader_factory_info,
-    network::mojom::URLLoaderFactoryPtrInfo proxy_factory_ptr_info,
-    network::mojom::URLLoaderFactoryRequest proxy_factory_request)
+    mojo::PendingRemote<network::mojom::URLLoaderFactory> proxy_factory_remote,
+    mojo::PendingReceiver<network::mojom::URLLoaderFactory>
+        proxy_factory_receiver)
     : loader_factory_info_(std::move(loader_factory_info)),
-      proxy_factory_ptr_info_(std::move(proxy_factory_ptr_info)),
-      proxy_factory_request_(std::move(proxy_factory_request)) {}
+      proxy_factory_remote_(std::move(proxy_factory_remote)),
+      proxy_factory_receiver_(std::move(proxy_factory_receiver)) {}
 
 URLLoaderFactoryGetter::~URLLoaderFactoryGetter() = default;
 

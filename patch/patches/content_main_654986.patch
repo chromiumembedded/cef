@@ -1,8 +1,8 @@
 diff --git content/app/content_main.cc content/app/content_main.cc
-index 332b7d026e036..0d63ad05fde4e 100644
+index bb2d3e9911958..7af313040906e 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
-@@ -226,16 +226,10 @@ ContentMainParams::~ContentMainParams() = default;
+@@ -227,11 +227,8 @@ ContentMainParams::~ContentMainParams() = default;
  ContentMainParams::ContentMainParams(ContentMainParams&&) = default;
  ContentMainParams& ContentMainParams::operator=(ContentMainParams&&) = default;
  
@@ -13,6 +13,11 @@ index 332b7d026e036..0d63ad05fde4e 100644
 -                  ContentMainRunner* content_main_runner) {
 +int ContentMainInitialize(ContentMainParams params,
 +                          ContentMainRunner* content_main_runner) {
+ #if BUILDFLAG(IS_CHROMEOS_LACROS)
+   // Lacros is launched with inherited priority. Revert to normal priority
+   // before spawning more processes.
+@@ -239,9 +236,6 @@ RunContentProcess(ContentMainParams params,
+ #endif
    int exit_code = -1;
    base::debug::GlobalActivityTracker* tracker = nullptr;
 -#if BUILDFLAG(IS_MAC)
@@ -21,7 +26,7 @@ index 332b7d026e036..0d63ad05fde4e 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -320,12 +314,6 @@ RunContentProcess(ContentMainParams params,
+@@ -326,12 +320,6 @@ RunContentProcess(ContentMainParams params,
  #endif
  
  #if BUILDFLAG(IS_MAC)
@@ -34,7 +39,7 @@ index 332b7d026e036..0d63ad05fde4e 100644
      InitializeMac();
  #endif
  
-@@ -398,8 +386,18 @@ RunContentProcess(ContentMainParams params,
+@@ -404,8 +392,18 @@ RunContentProcess(ContentMainParams params,
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -54,7 +59,7 @@ index 332b7d026e036..0d63ad05fde4e 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -411,14 +409,41 @@ RunContentProcess(ContentMainParams params,
+@@ -417,14 +415,41 @@ RunContentProcess(ContentMainParams params,
      }
    }
  
@@ -100,7 +105,7 @@ index 332b7d026e036..0d63ad05fde4e 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 9d22238878e32..dd231b0d55422 100644
+index abb29771ee9b8..998747bb905cc 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -44,6 +44,7 @@

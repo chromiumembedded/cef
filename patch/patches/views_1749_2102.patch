@@ -43,7 +43,7 @@ index 11f1421cc79c1..c5dbc643ae7c8 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index de5999c5252f3..97d08b4d3b7f9 100644
+index 27888933871f1..79e34b4a07416 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -659,6 +659,14 @@ void RenderText::SetWhitespaceElision(absl::optional<bool> whitespace_elision) {
@@ -61,7 +61,7 @@ index de5999c5252f3..97d08b4d3b7f9 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -2003,6 +2011,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -2004,6 +2012,19 @@ void RenderText::OnTextAttributeChanged() {
  
    layout_text_up_to_date_ = false;
  
@@ -308,7 +308,7 @@ index 7101143c63803..058da34d3499e 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 497b0af4513c0..475046fe5f0c8 100644
+index 9f8112be1c949..6649111b2e04e 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
 @@ -1091,6 +1091,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
@@ -465,7 +465,7 @@ index 7706c76090589..980de1f486d0c 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/view.h ui/views/view.h
-index 837eb95c28b04..7dc148522b5ef 100644
+index f3b4c946e102e..0bd810a18c8ae 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -21,6 +21,7 @@

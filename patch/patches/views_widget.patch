@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index 5fd8cb63f589d..cabf4b90d8078 100644
+index 6944f34edbfb7..36379a96dde89 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
-@@ -617,6 +617,14 @@ float RenderWidgetHostViewBase::GetDeviceScaleFactor() const {
+@@ -619,6 +619,14 @@ float RenderWidgetHostViewBase::GetDeviceScaleFactor() const {
    return screen_infos_.current().device_scale_factor;
  }
  
@@ -152,10 +152,10 @@ index d213587450f06..3fde9a9ce47d5 100644
    // Set the view's active state (i.e., tint state of controls).
    virtual void SetActive(bool active) = 0;
 diff --git ui/ozone/platform/x11/x11_window.cc ui/ozone/platform/x11/x11_window.cc
-index 15b5f6ff21d3f..2e2a89424cc3e 100644
+index 8e096dc664b5e..587363b31681d 100644
 --- ui/ozone/platform/x11/x11_window.cc
 +++ ui/ozone/platform/x11/x11_window.cc
-@@ -1710,7 +1710,8 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
+@@ -1711,7 +1711,8 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
    req.border_pixel = 0;
  
    bounds_in_pixels_ = SanitizeBounds(bounds);
@@ -309,7 +309,7 @@ index 444581249014a..5defa787d25cd 100644
    // a reference.
    raw_ptr<corewm::TooltipWin> tooltip_;
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 71300e03598b2..45622129b15ea 100644
+index 35cb9c39c6740..4208536fb9cc3 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -338,7 +338,8 @@ void Widget::Init(InitParams params) {
@@ -345,7 +345,7 @@ index 71300e03598b2..45622129b15ea 100644
    }
  
    native_theme_observation_.Observe(GetNativeTheme());
-@@ -1411,10 +1420,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
+@@ -1435,10 +1444,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -363,10 +363,10 @@ index 71300e03598b2..45622129b15ea 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index a5718171b5e40..b2695eb41b65a 100644
+index 1e5665b9c4777..7e251b0f84d84 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
-@@ -336,6 +336,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
+@@ -337,6 +337,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
      // the concept with bubble anchoring a la BubbleDialogDelegateView.
      gfx::NativeView parent = nullptr;
  
@@ -391,7 +391,7 @@ index 3375d6c362923..24f36f6e5587a 100644
    bool enable_arrow_key_traversal() const {
      return params_.enable_arrow_key_traversal;
 diff --git ui/views/widget/widget_hwnd_utils.cc ui/views/widget/widget_hwnd_utils.cc
-index b10784dce1f69..4a6acf542dece 100644
+index b3a3efd0e526f..8590a98eaf0b2 100644
 --- ui/views/widget/widget_hwnd_utils.cc
 +++ ui/views/widget/widget_hwnd_utils.cc
 @@ -67,7 +67,7 @@ void CalculateWindowStylesFromInitParams(
@@ -404,7 +404,7 @@ index b10784dce1f69..4a6acf542dece 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index bf32a083d0f08..156b257d6fb75 100644
+index 51ac070553d08..09287f6e3f888 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
 @@ -3133,10 +3133,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,

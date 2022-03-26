@@ -65,8 +65,7 @@ void CefExtensionsAPIClient::AttachWebContentsHelpers(
 void CefExtensionsAPIClient::AddAdditionalValueStoreCaches(
     content::BrowserContext* context,
     const scoped_refptr<value_store::ValueStoreFactory>& factory,
-    const scoped_refptr<base::ObserverListThreadSafe<SettingsObserver>>&
-        observers,
+    SettingsChangedCallback observer,
     std::map<settings_namespace::Namespace, ValueStoreCache*>* caches) {
   // Add support for chrome.storage.sync.
   // Because we don't support syncing with Google, we follow the behavior of

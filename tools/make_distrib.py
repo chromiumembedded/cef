@@ -887,6 +887,7 @@ if platform == 'windows':
       'obj\\base\\third_party\\dynamic_annotations\\dynamic_annotations.lib',
       'obj\\base\\win\\pe_image.lib',
       cef_sandbox_lib,
+      'obj\\sandbox\\common\\*.obj',
       'obj\\sandbox\\win\\sandbox.lib',
       'obj\\third_party\\abseil-cpp\\absl\\base\\**\\*.obj',
       'obj\\third_party\\abseil-cpp\\absl\\debugging\\**\\*.obj',

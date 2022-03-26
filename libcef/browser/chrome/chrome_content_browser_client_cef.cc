@@ -48,6 +48,8 @@ void HandleExternalProtocolHelper(
     content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
+    bool is_primary_main_frame,
+    bool is_in_fenced_frame_tree,
     network::mojom::WebSandboxFlags sandbox_flags,
     const network::ResourceRequest& resource_request,
     const absl::optional<url::Origin>& initiating_origin,
@@ -61,11 +63,8 @@ void HandleExternalProtocolHelper(
   // Match the logic of the original call in
   // NavigationURLLoaderImpl::PrepareForNonInterceptedRequest.
   self->HandleExternalProtocol(
-      resource_request.url, web_contents_getter,
-      content::ChildProcessHost::kInvalidUniqueID, frame_tree_node_id,
-      navigation_data,
-      resource_request.resource_type ==
-          static_cast<int>(blink::mojom::ResourceType::kMainFrame),
+      resource_request.url, web_contents_getter, frame_tree_node_id,
+      navigation_data, is_primary_main_frame, is_in_fenced_frame_tree,
       sandbox_flags,
       static_cast<ui::PageTransition>(resource_request.transition_type),
       resource_request.has_user_gesture, initiating_origin, initiator_rfh,
@@ -114,7 +113,7 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
         switches::kUserAgentProductAndVersion,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
-                                   base::size(kSwitchNames));
+                                   std::size(kSwitchNames));
   }
 
   const std::string& process_type =
@@ -126,7 +125,7 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
         switches::kUncaughtExceptionStackSize,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
-                                   base::size(kSwitchNames));
+                                   std::size(kSwitchNames));
   }
 
   CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
@@ -248,10 +247,10 @@ bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
 bool ChromeContentBrowserClientCef::HandleExternalProtocol(
     const GURL& url,
     content::WebContents::Getter web_contents_getter,
-    int child_id,
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
-    bool is_main_frame,
+    bool is_primary_main_frame,
+    bool is_in_fenced_frame_tree,
     network::mojom::WebSandboxFlags sandbox_flags,
     ui::PageTransition page_transition,
     bool has_user_gesture,
@@ -269,15 +268,18 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
   // HandleExternalProtocolHelper. Forward to the chrome layer for default
   // handling.
   return ChromeContentBrowserClient::HandleExternalProtocol(
-      url, web_contents_getter, child_id, frame_tree_node_id, navigation_data,
-      is_main_frame, sandbox_flags, page_transition, has_user_gesture,
-      initiating_origin, initiator_document, nullptr);
+      url, web_contents_getter, frame_tree_node_id, navigation_data,
+      is_primary_main_frame, is_in_fenced_frame_tree, sandbox_flags,
+      page_transition, has_user_gesture, initiating_origin, initiator_document,
+      nullptr);
 }
 
 bool ChromeContentBrowserClientCef::HandleExternalProtocol(
     content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
+    bool is_primary_main_frame,
+    bool is_in_fenced_frame_tree,
     network::mojom::WebSandboxFlags sandbox_flags,
     const network::ResourceRequest& resource_request,
     const absl::optional<url::Origin>& initiating_origin,
@@ -295,8 +297,9 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
       web_contents_getter, frame_tree_node_id, resource_request,
       base::BindRepeating(HandleExternalProtocolHelper, base::Unretained(this),
                           web_contents_getter, frame_tree_node_id,
-                          navigation_data, sandbox_flags, resource_request,
-                          initiating_origin,
+                          navigation_data, is_primary_main_frame,
+                          is_in_fenced_frame_tree, sandbox_flags,
+                          resource_request, initiating_origin,
                           std::move(weak_initiator_document)));
 
   net_service::ProxyURLLoaderFactory::CreateProxy(

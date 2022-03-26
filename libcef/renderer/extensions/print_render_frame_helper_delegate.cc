@@ -17,7 +17,6 @@
 #include "content/public/renderer/render_frame.h"
 #include "extensions/common/constants.h"
 #include "extensions/renderer/guest_view/mime_handler_view/post_message_support.h"
-#include "pdf/pdf_features.h"
 #include "services/service_manager/public/cpp/interface_provider.h"
 #include "third_party/blink/public/web/web_document.h"
 #include "third_party/blink/public/web/web_element.h"
@@ -35,25 +34,8 @@ CefPrintRenderFrameHelperDelegate::~CefPrintRenderFrameHelperDelegate() =
 // Return the PDF object element if |frame| is the out of process PDF extension.
 blink::WebElement CefPrintRenderFrameHelperDelegate::GetPdfElement(
     blink::WebLocalFrame* frame) {
-  if (IsPdfInternalPluginAllowedOrigin(frame->GetSecurityOrigin())) {
-    DCHECK(!base::FeatureList::IsEnabled(chrome_pdf::features::kPdfUnseasoned));
-    // <object> with id="plugin" is created in
-    // chrome/browser/resources/pdf/pdf_viewer_base.js.
-    auto viewer_element = frame->GetDocument().GetElementById("viewer");
-    if (!viewer_element.IsNull() && !viewer_element.ShadowRoot().IsNull()) {
-      auto plugin_element =
-          viewer_element.ShadowRoot().QuerySelector("#plugin");
-      if (!plugin_element.IsNull()) {
-        return plugin_element;
-      }
-    }
-    NOTREACHED();
-    return blink::WebElement();
-  }
-
   if (frame->Parent() &&
       IsPdfInternalPluginAllowedOrigin(frame->Parent()->GetSecurityOrigin())) {
-    DCHECK(base::FeatureList::IsEnabled(chrome_pdf::features::kPdfUnseasoned));
     auto plugin_element = frame->GetDocument().QuerySelector("embed");
     DCHECK(!plugin_element.IsNull());
     return plugin_element;

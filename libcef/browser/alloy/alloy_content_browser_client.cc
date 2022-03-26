@@ -690,7 +690,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
       switches::kUserAgentProductAndVersion,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
-                                   base::size(kSwitchNames));
+                                   std::size(kSwitchNames));
   }
 
   const std::string& process_type =
@@ -709,7 +709,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
         network::switches::kUnsafelyTreatInsecureOriginAsSecure,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
-                                   base::size(kSwitchNames));
+                                   std::size(kSwitchNames));
 
     if (extensions::ExtensionsEnabled()) {
       content::RenderProcessHost* process =
@@ -738,7 +738,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
         switches::kLang,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
-                                   base::size(kSwitchNames));
+                                   std::size(kSwitchNames));
   }
 
   // Necessary to populate DIR_USER_DATA in sub-processes.
@@ -764,7 +764,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
         switches::kLogFile,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
-                                   base::size(kSwitchNames));
+                                   std::size(kSwitchNames));
   }
 
   if (crash_reporting::Enabled()) {
@@ -1324,10 +1324,10 @@ AlloyContentBrowserClient::GetNetworkContextsParentDirectory() {
 bool AlloyContentBrowserClient::HandleExternalProtocol(
     const GURL& url,
     content::WebContents::Getter web_contents_getter,
-    int child_id,
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
-    bool is_main_frame,
+    bool is_primary_main_frame,
+    bool is_in_fenced_frame_tree,
     network::mojom::WebSandboxFlags sandbox_flags,
     ui::PageTransition page_transition,
     bool has_user_gesture,
@@ -1342,6 +1342,8 @@ bool AlloyContentBrowserClient::HandleExternalProtocol(
     content::WebContents::Getter web_contents_getter,
     int frame_tree_node_id,
     content::NavigationUIData* navigation_data,
+    bool is_primary_main_frame,
+    bool is_in_fenced_frame_tree,
     network::mojom::WebSandboxFlags sandbox_flags,
     const network::ResourceRequest& resource_request,
     const absl::optional<url::Origin>& initiating_origin,
@@ -1420,7 +1422,7 @@ AlloyContentBrowserClient::GetSandboxedStorageServiceDataDirectory() {
 }
 
 std::string AlloyContentBrowserClient::GetProduct() {
-  return embedder_support::GetProduct();
+  return GetChromeProduct();
 }
 
 std::string AlloyContentBrowserClient::GetChromeProduct() {
@@ -1461,8 +1463,7 @@ AlloyContentBrowserClient::GetPluginMimeTypesWithExternalHandlers(
   auto map = PluginUtils::GetMimeTypeToExtensionIdMap(browser_context);
   for (const auto& pair : map)
     mime_types.insert(pair.first);
-  if (pdf::IsInternalPluginExternallyHandled())
-    mime_types.insert(pdf::kInternalPluginMimeType);
+  mime_types.insert(pdf::kInternalPluginMimeType);
   return mime_types;
 }
 
@@ -1503,8 +1504,7 @@ bool AlloyContentBrowserClient::IsFindInPageDisabledForOrigin(
     const url::Origin& origin) {
   // For PDF viewing with the PPAPI-free PDF Viewer, find-in-page should only
   // display results from the PDF content, and not from the UI.
-  return base::FeatureList::IsEnabled(chrome_pdf::features::kPdfUnseasoned) &&
-         IsPdfExtensionOrigin(origin);
+  return IsPdfExtensionOrigin(origin);
 }
 
 CefRefPtr<CefRequestContextImpl> AlloyContentBrowserClient::request_context()

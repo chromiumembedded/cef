@@ -5,7 +5,7 @@
 #include "base/threading/thread_checker.h"
 #include "components/viz/service/display/software_output_device.h"
 #include "components/viz/service/viz_service_export.h"
-#include "services/viz/privileged/mojom/compositing/display_private.mojom.h"
+#include "mojo/public/cpp/bindings/remote.h"
 #include "services/viz/privileged/mojom/compositing/layered_window_updater.mojom.h"
 
 namespace viz {
@@ -18,7 +18,7 @@ class VIZ_SERVICE_EXPORT SoftwareOutputDeviceProxy
     : public SoftwareOutputDevice {
  public:
   explicit SoftwareOutputDeviceProxy(
-      mojom::LayeredWindowUpdaterPtr layered_window_updater);
+      mojo::PendingRemote<mojom::LayeredWindowUpdater> layered_window_updater);
 
   SoftwareOutputDeviceProxy(const SoftwareOutputDeviceProxy&) = delete;
   SoftwareOutputDeviceProxy& operator=(const SoftwareOutputDeviceProxy&) =
@@ -39,7 +39,7 @@ class VIZ_SERVICE_EXPORT SoftwareOutputDeviceProxy
   // Runs |swap_ack_callback_| after draw has happened.
   void DrawAck();
 
-  mojom::LayeredWindowUpdaterPtr layered_window_updater_;
+  mojo::Remote<mojom::LayeredWindowUpdater> layered_window_updater_;
 
   std::unique_ptr<SkCanvas> canvas_;
   bool waiting_on_draw_ack_ = false;

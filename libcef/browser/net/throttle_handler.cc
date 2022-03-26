@@ -11,7 +11,6 @@
 #include "libcef/common/request_impl.h"
 
 #include "components/navigation_interception/intercept_navigation_throttle.h"
-#include "components/navigation_interception/navigation_params.h"
 #include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/navigation_throttle.h"
 #include "content/public/browser/page_navigator.h"
@@ -20,29 +19,32 @@ namespace throttle {
 
 namespace {
 
-// TODO(cef): We can't currently trust NavigationParams::is_main_frame() because
-// it's always set to true in
-// InterceptNavigationThrottle::CheckIfShouldIgnoreNavigation. Remove the
-// |is_main_frame| argument once this problem is fixed.
-bool NavigationOnUIThread(
-    bool is_main_frame,
-    bool is_pdf,
-    const content::GlobalRenderFrameHostId& global_id,
-    const content::GlobalRenderFrameHostId& parent_global_id,
-    content::WebContents* source,
-    const navigation_interception::NavigationParams& params) {
+bool NavigationOnUIThread(content::NavigationHandle* navigation_handle) {
   CEF_REQUIRE_UIT();
 
-  content::OpenURLParams open_params(
-      params.url(), params.referrer(), WindowOpenDisposition::CURRENT_TAB,
-      params.transition_type(), params.is_renderer_initiated());
-  open_params.user_gesture = params.has_user_gesture();
-  open_params.initiator_origin = params.initiator_origin();
-  open_params.is_pdf = is_pdf;
+  const bool is_main_frame = navigation_handle->IsInMainFrame();
+  const auto global_id = frame_util::GetGlobalId(navigation_handle);
+
+  // Identify the RenderFrameHost that originated the navigation.
+  const auto parent_global_id =
+      !is_main_frame ? navigation_handle->GetParentFrame()->GetGlobalId()
+                     : frame_util::InvalidGlobalId();
+
+  const content::Referrer referrer(navigation_handle->GetReferrer().url,
+                                   navigation_handle->GetReferrer().policy);
+
+  content::OpenURLParams open_params(navigation_handle->GetURL(), referrer,
+                                     WindowOpenDisposition::CURRENT_TAB,
+                                     navigation_handle->GetPageTransition(),
+                                     navigation_handle->IsRendererInitiated());
+  open_params.user_gesture = navigation_handle->HasUserGesture();
+  open_params.initiator_origin = navigation_handle->GetInitiatorOrigin();
+  open_params.is_pdf = navigation_handle->IsPdf();
 
   CefRefPtr<CefBrowserHostBase> browser;
   if (!CefBrowserInfoManager::GetInstance()->MaybeAllowNavigation(
-          source->GetMainFrame(), open_params, browser)) {
+          navigation_handle->GetWebContents()->GetMainFrame(), open_params,
+          browser)) {
     // Cancel the navigation.
     return true;
   }
@@ -65,16 +67,17 @@ bool NavigationOnUIThread(
         }
 
         CefRefPtr<CefRequestImpl> request = new CefRequestImpl();
-        request->Set(params, is_main_frame);
+        request->Set(navigation_handle);
         request->SetReadOnly(true);
 
         // Initiating a new navigation in OnBeforeBrowse will delete the
         // InterceptNavigationThrottle that currently owns this callback,
         // resulting in a crash. Use the lock to prevent that.
         auto navigation_lock = browser->browser_info()->CreateNavigationLock();
-        ignore_navigation = handler->OnBeforeBrowse(
-            browser.get(), frame, request.get(), params.has_user_gesture(),
-            params.is_redirect());
+        ignore_navigation =
+            handler->OnBeforeBrowse(browser.get(), frame, request.get(),
+                                    navigation_handle->HasUserGesture(),
+                                    navigation_handle->WasServerRedirect());
       }
     }
   }
@@ -88,22 +91,11 @@ void CreateThrottlesForNavigation(content::NavigationHandle* navigation_handle,
                                   NavigationThrottleList& throttles) {
   CEF_REQUIRE_UIT();
 
-  const bool is_main_frame = navigation_handle->IsInMainFrame();
-  const bool is_pdf = navigation_handle->IsPdf();
-  const auto global_id = frame_util::GetGlobalId(navigation_handle);
-
-  // Identify the RenderFrameHost that originated the navigation.
-  const auto parent_global_id =
-      !is_main_frame ? navigation_handle->GetParentFrame()->GetGlobalId()
-                     : frame_util::InvalidGlobalId();
-
   // Must use SynchronyMode::kSync to ensure that OnBeforeBrowse is always
   // called before OnBeforeResourceLoad.
   std::unique_ptr<content::NavigationThrottle> throttle =
       std::make_unique<navigation_interception::InterceptNavigationThrottle>(
-          navigation_handle,
-          base::BindRepeating(&NavigationOnUIThread, is_main_frame, is_pdf,
-                              global_id, parent_global_id),
+          navigation_handle, base::BindRepeating(&NavigationOnUIThread),
           navigation_interception::SynchronyMode::kSync);
   throttles.push_back(std::move(throttle));
 }

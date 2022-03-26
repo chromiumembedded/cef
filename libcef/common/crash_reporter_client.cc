@@ -495,14 +495,14 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
     };
 
     // Make sure we can fit all possible name/value pairs.
-    static_assert(base::size(ids) * crashpad::Annotation::kValueMaxSize >=
+    static_assert(std::size(ids) * crashpad::Annotation::kValueMaxSize >=
                       3 * 26 /* sizes (small, medium, large) * slots (A to Z) */
                           * (3 + 2 /* key size ("S-A") + delim size ("=,") */
                              + crashpad::Annotation::kNameMaxLength),
                   "Not enough storage for key map");
 
     size_t offset = 0;
-    for (size_t i = 0; i < base::size(ids); ++i) {
+    for (size_t i = 0; i < std::size(ids); ++i) {
       size_t length = std::min(map_keys.size() - offset,
                                crashpad::Annotation::kValueMaxSize);
       ids[i].Set(base::StringPiece(map_keys.data() + offset, length));
@@ -718,7 +718,7 @@ bool CefCrashReporterClient::EnableBrowserCrashForwarding() {
   bool Set##name##Annotation(size_t index, const base::StringPiece& value) { \
     using IDKey = crash_reporter::CrashKeyString<size_>;                     \
     static IDKey ids[] = {IDKEY_ENTRIES(#name)};                             \
-    if (index < base::size(ids)) {                                           \
+    if (index < std::size(ids)) {                                            \
       if (value.empty()) {                                                   \
         ids[index].Clear();                                                  \
       } else {                                                               \

@@ -53,8 +53,10 @@ class MessagePumpExternal : public base::MessagePumpForUI {
 
   void ScheduleWork() override { handler_->OnScheduleMessagePumpWork(0); }
 
-  void ScheduleDelayedWork(const base::TimeTicks& delayed_work_time) override {
-    const base::TimeDelta& delta = delayed_work_time - base::TimeTicks::Now();
+  void ScheduleDelayedWork(
+      const Delegate::NextWorkInfo& next_work_info) override {
+    const base::TimeDelta& delta =
+        next_work_info.delayed_run_time - next_work_info.recent_now;
     handler_->OnScheduleMessagePumpWork(delta.InMilliseconds());
   }
 

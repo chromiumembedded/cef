@@ -41,7 +41,6 @@
 #include "content/public/common/url_constants.h"
 #include "extensions/common/constants.h"
 #include "net/base/features.h"
-#include "pdf/pdf_ppapi.h"
 #include "sandbox/policy/switches.h"
 #include "services/network/public/cpp/features.h"
 #include "third_party/blink/public/common/switches.h"
@@ -66,7 +65,7 @@ const char* const kNonWildcardDomainNonPortSchemes[] = {
     extensions::kExtensionScheme, content::kChromeDevToolsScheme,
     content::kChromeUIScheme, content::kChromeUIUntrustedScheme};
 const size_t kNonWildcardDomainNonPortSchemesSize =
-    base::size(kNonWildcardDomainNonPortSchemes);
+    std::size(kNonWildcardDomainNonPortSchemes);
 
 }  // namespace
 
@@ -379,12 +378,6 @@ void AlloyMainDelegate::PreSandboxStartup() {
 
   InitializeResourceBundle();
   MaybePatchGdiGetFontData();
-}
-
-void AlloyMainDelegate::SandboxInitialized(const std::string& process_type) {
-  AlloyContentClient::SetPDFEntryFunctions(chrome_pdf::PPP_GetInterface,
-                                           chrome_pdf::PPP_InitializeModule,
-                                           chrome_pdf::PPP_ShutdownModule);
 }
 
 absl::variant<int, content::MainFunctionParams> AlloyMainDelegate::RunProcess(

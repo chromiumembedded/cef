@@ -28,7 +28,7 @@ gfx::Image CefResourceBundleDelegate::GetNativeImageNamed(int resource_id) {
   return gfx::Image();
 }
 
-base::RefCountedStaticMemory* CefResourceBundleDelegate::LoadDataResourceBytes(
+base::RefCountedMemory* CefResourceBundleDelegate::LoadDataResourceBytes(
     int resource_id,
     ui::ResourceScaleFactor scale_factor) {
   return nullptr;

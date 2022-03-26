@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 96ced4715eed9..1094a4e9ec0a4 100644
+index 62818b1c709b7..43da09b31210c 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -3040,6 +3040,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -3030,6 +3030,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
        site_instance.get(), params.renderer_initiated_creation,
        params.main_frame_name, GetOriginalOpener(), primary_main_frame_policy);
  
@@ -15,7 +15,7 @@ index 96ced4715eed9..1094a4e9ec0a4 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -3050,6 +3056,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -3040,6 +3046,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
      view_.reset(CreateWebContentsView(this, delegate,
                                        &render_view_host_delegate_view_));
    }
@@ -23,7 +23,7 @@ index 96ced4715eed9..1094a4e9ec0a4 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -3915,6 +3922,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+@@ -3906,6 +3913,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -39,7 +39,7 @@ index 96ced4715eed9..1094a4e9ec0a4 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -7726,6 +7742,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -7733,6 +7749,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // frames).
      SetFocusedFrameTree(node->frame_tree());
    }
@@ -50,7 +50,7 @@ index 96ced4715eed9..1094a4e9ec0a4 100644
  
  void WebContentsImpl::DidCallFocus() {
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index ad5c13965f1cc..169a309335ea0 100644
+index cb672eb5276e8..0f2f8f9a57fcc 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -93,10 +93,12 @@ class BrowserContext;
@@ -78,7 +78,7 @@ index ad5c13965f1cc..169a309335ea0 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index f889d0bf33cf2..db7a1c6f736ca 100644
+index 9c70cc90402dd..0e0daeb27e880 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -57,10 +57,12 @@ class EyeDropperListener;

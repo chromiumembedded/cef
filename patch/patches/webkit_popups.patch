@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index 14d4a00293ab0..fc574edaaa2ad 100644
+index 560b72dfbc701..b63918a20ed0a 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
-@@ -340,6 +340,7 @@ class WebView {
+@@ -341,6 +341,7 @@ class WebView {
  
    // Sets whether select popup menus should be rendered by the browser.
    BLINK_EXPORT static void SetUseExternalPopupMenus(bool);
@@ -11,7 +11,7 @@ index 14d4a00293ab0..fc574edaaa2ad 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index d8f8d3114361d..01879d8feceea 100644
+index 6aa72717b2576..c05663723089a 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -247,8 +247,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {

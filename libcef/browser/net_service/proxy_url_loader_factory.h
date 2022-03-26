@@ -185,14 +185,16 @@ class ProxyURLLoaderFactory
 
   ProxyURLLoaderFactory(
       mojo::PendingReceiver<network::mojom::URLLoaderFactory> factory_receiver,
-      network::mojom::URLLoaderFactoryPtrInfo target_factory_info,
+      mojo::PendingRemote<network::mojom::URLLoaderFactory>
+          target_factory_remote,
       mojo::PendingReceiver<network::mojom::TrustedURLLoaderHeaderClient>
           header_client_receiver,
       std::unique_ptr<InterceptedRequestHandler> request_handler);
 
   static void CreateOnIOThread(
       mojo::PendingReceiver<network::mojom::URLLoaderFactory> factory_receiver,
-      network::mojom::URLLoaderFactoryPtrInfo target_factory_info,
+      mojo::PendingRemote<network::mojom::URLLoaderFactory>
+          target_factory_remote,
       mojo::PendingReceiver<network::mojom::TrustedURLLoaderHeaderClient>
           header_client_receiver,
       content::ResourceContext* resource_context,

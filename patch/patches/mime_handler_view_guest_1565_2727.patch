@@ -12,10 +12,10 @@ index 2c29b5c5c96b9..9ba3aaa327478 100644
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 0b01120f6a605..d957af9b94e94 100644
+index 56b6d5d28fe21..42d417f80b19c 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -210,6 +210,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -224,6 +224,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -24,7 +24,7 @@ index 0b01120f6a605..d957af9b94e94 100644
    // TODO(erikchen): Fix ownership semantics for guest views.
    // https://crbug.com/832879.
    std::move(callback).Run(
-@@ -220,6 +222,10 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -234,6 +236,10 @@ void MimeHandlerViewGuest::CreateWebContents(
  }
  
  void MimeHandlerViewGuest::DidAttachToEmbedder() {
@@ -35,7 +35,7 @@ index 0b01120f6a605..d957af9b94e94 100644
    DCHECK(stream_->handler_url().SchemeIs(extensions::kExtensionScheme));
    web_contents()->GetController().LoadURL(
        stream_->handler_url(), content::Referrer(),
-@@ -250,6 +256,11 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
+@@ -264,6 +270,11 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
    return true;
  }
  
