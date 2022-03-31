@@ -503,6 +503,10 @@ def GetConfigArgsSandbox(platform, args, is_debug, cpu):
     # Allow non-component Debug builds for the sandbox.
     add_args['forbid_non_component_debug_builds'] = False
 
+  if not is_debug:
+    # Disable DCHECKs in Release builds.
+    add_args['dcheck_always_on'] = False
+
   result = MergeDicts(args, add_args, {
       'is_debug': is_debug,
       'target_cpu': cpu,
