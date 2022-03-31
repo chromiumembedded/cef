@@ -132,7 +132,7 @@ index 566535f74acf1..4b435553575b0 100644
          GetMainRunLoopInstance()->QuitWhenIdleClosure());
    }
 diff --git chrome/browser/chrome_browser_main_mac.mm chrome/browser/chrome_browser_main_mac.mm
-index 831d7173873d1..594aee58331a7 100644
+index 8bf722c61c059..ac755279227f2 100644
 --- chrome/browser/chrome_browser_main_mac.mm
 +++ chrome/browser/chrome_browser_main_mac.mm
 @@ -16,6 +16,7 @@
@@ -143,7 +143,7 @@ index 831d7173873d1..594aee58331a7 100644
  #import "chrome/browser/app_controller_mac.h"
  #include "chrome/browser/apps/app_shim/app_shim_listener.h"
  #include "chrome/browser/browser_process.h"
-@@ -111,6 +112,7 @@ void ChromeBrowserMainPartsMac::PreCreateMainMessageLoop() {
+@@ -112,6 +113,7 @@ void ChromeBrowserMainPartsMac::PreCreateMainMessageLoop() {
      }
    }
  
@@ -151,15 +151,15 @@ index 831d7173873d1..594aee58331a7 100644
    // Create the app delegate. This object is intentionally leaked as a global
    // singleton. It is accessed through -[NSApp delegate].
    AppController* app_controller = [[AppController alloc] init];
-@@ -119,6 +121,7 @@ void ChromeBrowserMainPartsMac::PreCreateMainMessageLoop() {
+@@ -120,6 +122,7 @@ void ChromeBrowserMainPartsMac::PreCreateMainMessageLoop() {
    chrome::BuildMainMenu(NSApp, app_controller,
                          l10n_util::GetStringUTF16(IDS_PRODUCT_NAME), false);
    [app_controller mainMenuCreated];
 +#endif  // BUILDFLAG(ENABLE_CEF)
  
    chrome::DeveloperIDCertificateReauthorizeInApp();
- 
-@@ -180,7 +183,9 @@ void ChromeBrowserMainPartsMac::PostProfileInit(Profile* profile,
+   chrome::PurgeStaleScreenCapturePermission();
+@@ -182,7 +185,9 @@ void ChromeBrowserMainPartsMac::PostProfileInit(Profile* profile,
  }
  
  void ChromeBrowserMainPartsMac::DidEndMainMessageLoop() {
@@ -170,7 +170,7 @@ index 831d7173873d1..594aee58331a7 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 019fd68040dc5..794765646efc7 100644
+index 8f28441f6639b..b23d0e2a11e87 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -28,6 +28,7 @@
@@ -202,7 +202,7 @@ index 019fd68040dc5..794765646efc7 100644
  // static
  void ChromeContentBrowserClient::RegisterLocalStatePrefs(
      PrefRegistrySimple* registry) {
-@@ -3725,9 +3733,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -3740,9 +3748,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // BUILDFLAG(IS_ANDROID)
  
@@ -214,7 +214,7 @@ index 019fd68040dc5..794765646efc7 100644
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
-@@ -5354,7 +5364,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
+@@ -5369,7 +5379,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
        network_service);
  }
  
@@ -223,7 +223,7 @@ index 019fd68040dc5..794765646efc7 100644
      content::BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -5372,6 +5382,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
+@@ -5387,6 +5397,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
      network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
      network_context_params->accept_language = GetApplicationLocale();
    }
@@ -232,7 +232,7 @@ index 019fd68040dc5..794765646efc7 100644
  }
  
  std::vector<base::FilePath>
-@@ -6212,10 +6224,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -6227,10 +6239,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -245,7 +245,7 @@ index 019fd68040dc5..794765646efc7 100644
          FROM_HERE, keepalive_deadline_ - now,
          base::BindOnce(
              &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -6234,7 +6246,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -6249,7 +6261,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -255,7 +255,7 @@ index 019fd68040dc5..794765646efc7 100644
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -6342,7 +6355,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -6357,7 +6370,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
@@ -296,7 +296,7 @@ index 4aa99834bd6c7..cd932dd3cacf4 100644
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index a265ff6d1cf43..cebf6e611c84d 100644
+index 095881e6bb92f..3c25e8af6f950 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -11,6 +11,7 @@
@@ -318,7 +318,7 @@ index a265ff6d1cf43..cebf6e611c84d 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -1264,6 +1269,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -1267,6 +1272,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
    SessionDataService::RegisterProfilePrefs(registry);
  #endif
  

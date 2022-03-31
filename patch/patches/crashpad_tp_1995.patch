@@ -197,7 +197,7 @@ index efbeab7804c44..44fd31e58175c 100644
  
    if (!reader->SeekSet(start_offset)) {
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.h third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
-index 70f1628354455..cd043a821e96d 100644
+index 2af958d7da9e5..6a67185a668af 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 @@ -15,6 +15,7 @@
@@ -208,16 +208,16 @@ index 70f1628354455..cd043a821e96d 100644
  #include <memory>
  #include <string>
  #include <unordered_map>
-@@ -108,7 +109,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
-   //! It is expected to only be called from the same thread that called Start().
-   void Stop() override;
+@@ -111,7 +112,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+   //! \return `true` if the thread is running, `false` if it is not.
+   bool is_running() const { return thread_.is_running(); }
  
 - private:
 + protected:
    //! \brief The result code from UploadReport().
    enum class UploadResult {
      //! \brief The crash report was uploaded successfully.
-@@ -136,7 +137,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+@@ -139,7 +140,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
    //! object was constructed with \a watch_pending_reports, it will also scan
    //! the crash report database for other pending reports, and process those as
    //! well.
@@ -226,7 +226,7 @@ index 70f1628354455..cd043a821e96d 100644
  
    //! \brief Processes a single pending report from the database.
    //!
-@@ -150,7 +151,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+@@ -153,7 +154,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
    //! remain in the “pending” state. If the upload fails and no more retries are
    //! desired, or report upload is disabled, it will be marked as “completed” in
    //! the database without ever having been uploaded.
@@ -235,7 +235,7 @@ index 70f1628354455..cd043a821e96d 100644
  
    //! \brief Attempts to upload a crash report.
    //!
-@@ -167,6 +168,11 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+@@ -170,6 +171,11 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
    UploadResult UploadReport(const CrashReportDatabase::UploadReport* report,
                              std::string* response_body);
  
