@@ -148,7 +148,7 @@ void CefRenderFrameObserver::DidCreateScriptContext(
   }
 
   // Do this last, in case the client callback modified the window object.
-  framePtr->OnContextCreated();
+  framePtr->OnContextCreated(context);
 }
 
 void CefRenderFrameObserver::WillReleaseScriptContext(
@@ -157,30 +157,31 @@ void CefRenderFrameObserver::WillReleaseScriptContext(
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
   CefRefPtr<CefBrowserImpl> browserPtr =
       CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
-  if (browserPtr) {
-    CefRefPtr<CefApp> application = CefAppManager::Get()->GetApplication();
-    if (application) {
-      CefRefPtr<CefRenderProcessHandler> handler =
-          application->GetRenderProcessHandler();
-      if (handler) {
-        CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
+  if (!browserPtr)
+    return;
 
-        v8::Isolate* isolate = blink::MainThreadIsolate();
-        v8::HandleScope handle_scope(isolate);
+  CefRefPtr<CefRenderProcessHandler> handler;
+  CefRefPtr<CefApp> application = CefAppManager::Get()->GetApplication();
+  if (application)
+    handler = application->GetRenderProcessHandler();
 
-        // The released context should not be used for script execution.
-        // Depending on how the context is released this may or may not already
-        // be set.
-        blink_glue::CefScriptForbiddenScope forbidScript;
+  CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
-        CefRefPtr<CefV8Context> contextPtr(
-            new CefV8ContextImpl(isolate, context));
+  if (handler) {
+    v8::Isolate* isolate = blink::MainThreadIsolate();
+    v8::HandleScope handle_scope(isolate);
 
-        handler->OnContextReleased(browserPtr.get(), framePtr.get(),
-                                   contextPtr);
-      }
-    }
+    // The released context should not be used for script execution.
+    // Depending on how the context is released this may or may not already
+    // be set.
+    blink_glue::CefScriptForbiddenScope forbidScript;
+
+    CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(isolate, context));
+
+    handler->OnContextReleased(browserPtr.get(), framePtr.get(), contextPtr);
   }
+
+  framePtr->OnContextReleased();
 
   CefV8ReleaseContext(context);
 }

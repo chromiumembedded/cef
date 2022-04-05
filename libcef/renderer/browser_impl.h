@@ -92,6 +92,7 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
   void FrameDetached(int64_t frame_id);
 
   void OnLoadingStateChange(bool isLoading);
+  void OnEnterBFCache();
 
  private:
   // ID of the browser that this RenderView is associated with. During loading
@@ -104,6 +105,9 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
   // Map of unique frame ids to CefFrameImpl references.
   using FrameMap = std::map<int64, CefRefPtr<CefFrameImpl>>;
   FrameMap frames_;
+
+  // True if the browser was in the BFCache.
+  bool was_in_bfcache_ = false;
 
   // Map of unique frame ids to CefTrackManager objects that need to be cleaned
   // up when the frame is deleted.

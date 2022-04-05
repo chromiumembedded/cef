@@ -84,6 +84,12 @@ bool TestOldResourceAPI();
 // Returns true if the Chrome runtime is enabled.
 bool IsChromeRuntimeEnabled();
 
+// Returns true if BFCache is enabled.
+bool IsBFCacheEnabled();
+
+// Returns true if same-site BFCache is enabled.
+bool IsSameSiteBFCacheEnabled();
+
 // Returns true if requests for |url| should be ignored by tests.
 bool IgnoreURL(const std::string& url);
 

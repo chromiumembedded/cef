@@ -168,13 +168,10 @@ void CefBrowserInfo::FrameHostStateChanged(
            content::RenderFrameHost::LifecycleState::kInBackForwardCache) &&
       new_state == content::RenderFrameHost::LifecycleState::kActive) {
     if (auto frame = GetFrameForHost(host)) {
-      // Should only occur for the main frame.
-      CHECK(frame->IsMain());
-
       // Update the associated RFH, which may have changed.
       frame->MaybeReAttach(this, host);
 
-      {
+      if (frame->IsMain()) {
         // Update the main frame object.
         NotificationStateLock lock_scope(this);
         SetMainFrame(browser_, frame);

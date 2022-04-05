@@ -421,6 +421,10 @@ void CefBrowserContentsDelegate::DidFinishNavigation(
     // history state).
     if (!navigation_handle->IsSameDocument()) {
       OnLoadStart(frame.get(), navigation_handle->GetPageTransition());
+      if (navigation_handle->IsServedFromBackForwardCache()) {
+        // We won't get an OnLoadEnd notification from anywhere else.
+        OnLoadEnd(frame.get(), navigation_handle->GetURL(), 0);
+      }
     }
 
     if (is_main_frame) {

@@ -393,6 +393,19 @@ void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {
           return;
         }
 
+        if (was_in_bfcache_) {
+          // Send the expected callbacks when exiting the BFCache.
+          DCHECK(!isLoading);
+          load_handler->OnLoadingStateChange(this, /*isLoading=*/true,
+                                             canGoBack, canGoForward);
+
+          auto main_frame = GetMainFrame();
+          load_handler->OnLoadStart(this, main_frame, TT_EXPLICIT);
+          load_handler->OnLoadEnd(this, main_frame, 0);
+
+          was_in_bfcache_ = false;
+        }
+
         load_handler->OnLoadingStateChange(this, isLoading, canGoBack,
                                            canGoForward);
         last_loading_state_.reset(
@@ -400,4 +413,11 @@ void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {
       }
     }
   }
+}
+
+void CefBrowserImpl::OnEnterBFCache() {
+  // Reset loading state so that notifications will be resent if/when exiting
+  // BFCache.
+  was_in_bfcache_ = true;
+  last_loading_state_.reset();
 }

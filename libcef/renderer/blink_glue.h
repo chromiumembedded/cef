@@ -13,6 +13,7 @@
 
 #include "include/internal/cef_types.h"
 
+#include "third_party/blink/public/mojom/frame/lifecycle.mojom-blink-forward.h"
 #include "third_party/blink/public/platform/web_common.h"
 #include "v8/include/v8.h"
 
@@ -71,6 +72,32 @@ BLINK_EXPORT v8::Local<v8::Value> ExecuteV8ScriptAndReturnValue(
     v8::TryCatch& tryCatch);
 
 BLINK_EXPORT bool IsScriptForbidden();
+
+class BLINK_EXPORT CefObserverRegistration {
+ public:
+  CefObserverRegistration() = default;
+
+  CefObserverRegistration(const CefObserverRegistration&) = delete;
+  CefObserverRegistration& operator=(const CefObserverRegistration&) = delete;
+
+  virtual ~CefObserverRegistration() = default;
+};
+
+class BLINK_EXPORT CefExecutionContextLifecycleStateObserver {
+ public:
+  virtual void ContextLifecycleStateChanged(
+      blink::mojom::blink::FrameLifecycleState state) {}
+
+ protected:
+  virtual ~CefExecutionContextLifecycleStateObserver() = default;
+};
+
+// Register an ExecutionContextLifecycleStateObserver. Remains registered until
+// the returned object is destroyed.
+BLINK_EXPORT std::unique_ptr<CefObserverRegistration>
+RegisterExecutionContextLifecycleStateObserver(
+    v8::Local<v8::Context> context,
+    CefExecutionContextLifecycleStateObserver* observer);
 
 BLINK_EXPORT void RegisterURLSchemeAsSupportingFetchAPI(
     const blink::WebString& scheme);

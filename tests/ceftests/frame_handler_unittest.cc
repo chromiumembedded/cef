@@ -13,6 +13,7 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/routing_test_handler.h"
 #include "tests/ceftests/test_handler.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
 // Set to 1 to enable verbose debugging info logging.
@@ -580,7 +581,7 @@ class OrderMainTestHandler : public RoutingTestHandler, public CefFrameHandler {
     // Messages for the old and new frames are interleaved during cross-origin
     // navigation.
     if (pending_main_frame_) {
-      EXPECT_TRUE(IsCrossOrigin());
+      EXPECT_TRUE(IsCrossOriginOrSameSiteBFCacheEnabled());
       pending_main_frame_->OnQuery(browser, frame, request);
     } else {
       EXPECT_TRUE(current_main_frame_);
@@ -602,7 +603,8 @@ class OrderMainTestHandler : public RoutingTestHandler, public CefFrameHandler {
     pending_main_frame_ = new FrameStatus(frame);
     pending_main_frame_->SetAdditionalDebugInfo(GetAdditionalDebugInfo());
     pending_main_frame_->SetIsFirstMain(!got_after_created_);
-    pending_main_frame_->SetIsLastMain(!IsCrossOrigin() || IsLastNavigation());
+    pending_main_frame_->SetIsLastMain(
+        !IsCrossOriginOrSameSiteBFCacheEnabled() || IsLastNavigation());
     pending_main_frame_->OnFrameCreated(browser, frame);
   }
 
@@ -614,7 +616,7 @@ class OrderMainTestHandler : public RoutingTestHandler, public CefFrameHandler {
     // May arrive before or after OnMainFrameChanged switches the frame (after
     // on initial browser creation, before on cross-origin navigation).
     if (pending_main_frame_) {
-      EXPECT_TRUE(IsCrossOrigin());
+      EXPECT_TRUE(IsCrossOriginOrSameSiteBFCacheEnabled());
       pending_main_frame_->OnFrameAttached(browser, frame);
     } else {
       EXPECT_TRUE(current_main_frame_);
@@ -665,7 +667,7 @@ class OrderMainTestHandler : public RoutingTestHandler, public CefFrameHandler {
 
     if (old_frame && new_frame) {
       // Main frame changed due to cross-origin navigation.
-      EXPECT_TRUE(IsCrossOrigin());
+      EXPECT_TRUE(IsCrossOriginOrSameSiteBFCacheEnabled());
       main_frame_changed_ct_++;
     }
 
@@ -686,6 +688,10 @@ class OrderMainTestHandler : public RoutingTestHandler, public CefFrameHandler {
   virtual bool IsFirstNavigation() const { return true; }
   virtual bool IsLastNavigation() const { return true; }
   virtual bool IsCrossOrigin() const { return false; }
+
+  bool IsCrossOriginOrSameSiteBFCacheEnabled() const {
+    return IsCrossOrigin() || IsSameSiteBFCacheEnabled();
+  }
 
   virtual std::string GetAdditionalDebugInfo() const { return std::string(); }
 
@@ -720,7 +726,7 @@ class OrderMainTestHandler : public RoutingTestHandler, public CefFrameHandler {
 #endif
       const std::string& next_url = GetNextMainURL();
       if (!next_url.empty()) {
-        if (!IsCrossOrigin()) {
+        if (!IsCrossOriginOrSameSiteBFCacheEnabled()) {
           // Reusing the same main frame for same origin nav.
           current_main_frame_->ResetMainLoadStatus();
         }
@@ -790,12 +796,13 @@ const char kOrderMainUrlPrefix[] = "http://tests-frame-handler";
 class NavigateOrderMainTestHandler : public OrderMainTestHandler {
  public:
   NavigateOrderMainTestHandler(bool cross_origin, int additional_nav_ct = 2)
-      : cross_origin_(cross_origin), additional_nav_ct_(additional_nav_ct) {
-    // Once for each cross-origin LoadURL call.
-    expected_main_frame_changed_ct_ = cross_origin ? additional_nav_ct_ : 0;
-  }
+      : cross_origin_(cross_origin), additional_nav_ct_(additional_nav_ct) {}
 
   void RunTest() override {
+    // Once for each cross-origin LoadURL call.
+    expected_main_frame_changed_ct_ =
+        IsCrossOriginOrSameSiteBFCacheEnabled() ? additional_nav_ct_ : 0;
+
     // Resources for the 2nd+ navigation.
     for (int i = 1; i <= additional_nav_ct_; i++) {
       AddResource(GetURLForNav(i), GetMainHtmlForNav(i), "text/html");

@@ -294,6 +294,28 @@ bool IsChromeRuntimeEnabled() {
   return state ? true : false;
 }
 
+bool IsBFCacheEnabled() {
+  // Supported by the Chrome runtime only, see issue #3237.
+  if (!IsChromeRuntimeEnabled())
+    return false;
+
+  // Enabled by default starting in M96.
+  static int state = -1;
+  if (state == -1) {
+    CefRefPtr<CefCommandLine> command_line =
+        CefCommandLine::GetGlobalCommandLine();
+    const std::string& value = command_line->GetSwitchValue("disable-features");
+    state = value.find("BackForwardCache") == std::string::npos ? 1 : 0;
+  }
+  return state ? true : false;
+}
+
+bool IsSameSiteBFCacheEnabled() {
+  // Same-site BFCache is enabled by default starting in M101 and does not have
+  // a separate configuration flag.
+  return IsBFCacheEnabled();
+}
+
 bool IgnoreURL(const std::string& url) {
   return IsChromeRuntimeEnabled() &&
          url.find("/favicon.ico") != std::string::npos;
