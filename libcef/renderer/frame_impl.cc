@@ -35,6 +35,7 @@
 #include "content/public/renderer/render_view.h"
 #include "content/renderer/render_frame_impl.h"
 #include "third_party/blink/public/mojom/frame/frame.mojom-blink.h"
+#include "third_party/blink/public/mojom/frame/lifecycle.mojom-blink.h"
 #include "third_party/blink/public/platform/web_back_forward_cache_loader_helper.h"
 #include "third_party/blink/public/platform/web_data.h"
 #include "third_party/blink/public/platform/web_string.h"
@@ -390,7 +391,7 @@ void CefFrameImpl::OnDraggableRegionsChanged() {
           std::move(regions_arg)));
 }
 
-void CefFrameImpl::OnContextCreated() {
+void CefFrameImpl::OnContextCreated(v8::Local<v8::Context> context) {
   context_created_ = true;
 
   CHECK(frame_);
@@ -399,6 +400,13 @@ void CefFrameImpl::OnContextCreated() {
     std::move(action.second).Run(frame_);
     queued_context_actions_.pop();
   }
+
+  execution_context_lifecycle_state_observer_ =
+      blink_glue::RegisterExecutionContextLifecycleStateObserver(context, this);
+}
+
+void CefFrameImpl::OnContextReleased() {
+  execution_context_lifecycle_state_observer_.reset();
 }
 
 void CefFrameImpl::OnDetached() {
@@ -681,6 +689,14 @@ void CefFrameImpl::MoveOrResizeStarted() {
     auto web_view = frame_->View();
     if (web_view)
       web_view->CancelPagePopup();
+  }
+}
+
+void CefFrameImpl::ContextLifecycleStateChanged(
+    blink::mojom::blink::FrameLifecycleState state) {
+  if (state == blink::mojom::FrameLifecycleState::kFrozen && IsMain() &&
+      blink_glue::IsInBackForwardCache(frame_)) {
+    browser_->OnEnterBFCache();
   }
 }
 

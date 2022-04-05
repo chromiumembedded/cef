@@ -12,10 +12,15 @@
 #include "include/cef_v8.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/routing_test_handler.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/renderer/client_app_renderer.h"
 
 using client::ClientAppRenderer;
+
+#define S1(N) #N
+#define S2(N) S1(N)
+#define LINESTR S2(__LINE__)
 
 namespace {
 
@@ -65,10 +70,12 @@ class MRRenderDelegate : public ClientAppRenderer::Delegate {
         frame->SendProcessMessage(PID_BROWSER, message);
         return true;
       } else {
-        EXPECT_EQ(1U, arguments.size());
+        EXPECT_EQ(2U, arguments.size());
         EXPECT_TRUE(arguments[0]->IsInt());
+        EXPECT_TRUE(arguments[1]->IsInt());
 
-        const int expected_count = arguments[0]->GetIntValue();
+        const int line_no = arguments[0]->GetIntValue();
+        const int expected_count = arguments[1]->GetIntValue();
         int actual_count = -1;
 
         CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
@@ -87,8 +94,8 @@ class MRRenderDelegate : public ClientAppRenderer::Delegate {
 
         if (expected_count != actual_count) {
           std::stringstream ss;
-          ss << message_name << " failed; expected " << expected_count
-             << ", got " << actual_count;
+          ss << message_name << " failed (line " << line_no << "); expected "
+             << expected_count << ", got " << actual_count;
           exception = ss.str();
         }
       }
@@ -329,9 +336,12 @@ class HarnessTestHandler : public SingleLoadTestHandler {
       html =
           "<html><body><script>\n"
           "var fail_ct = 0;\n"
-          "try { window.mrtAssertTotalCount(0); } catch (e) { fail_ct++; }\n"
-          "try { window.mrtAssertBrowserCount(0); } catch (e) { fail_ct++; }\n"
-          "try { window.mrtAssertContextCount(0); } catch (e) { fail_ct++; }\n"
+          "try { window.mrtAssertTotalCount(" LINESTR
+          ",0); } catch (e) { fail_ct++; }\n"
+          "try { window.mrtAssertBrowserCount(" LINESTR
+          ",0); } catch (e) { fail_ct++; }\n"
+          "try { window.mrtAssertContextCount(" LINESTR
+          ",0); } catch (e) { fail_ct++; }\n"
           "window.mrtNotify('' + (fail_ct == 0));"
           "</script></body></html>";
     } else {
@@ -339,9 +349,12 @@ class HarnessTestHandler : public SingleLoadTestHandler {
       html =
           "<html><body><script>\n"
           "var fail_ct = 0;\n"
-          "try { window.mrtAssertTotalCount(1); } catch (e) { fail_ct++; }\n"
-          "try { window.mrtAssertBrowserCount(1); } catch (e) { fail_ct++; }\n"
-          "try { window.mrtAssertContextCount(1); } catch (e) { fail_ct++; }\n"
+          "try { window.mrtAssertTotalCount(" LINESTR
+          ",1); } catch (e) { fail_ct++; }\n"
+          "try { window.mrtAssertBrowserCount(" LINESTR
+          ",1); } catch (e) { fail_ct++; }\n"
+          "try { window.mrtAssertContextCount(" LINESTR
+          ",1); } catch (e) { fail_ct++; }\n"
           "window.mrtNotify('' + (fail_ct == 3));"
           "</script></body></html>";
     }
@@ -414,9 +427,12 @@ class SingleQueryTestHandler : public SingleLoadTestHandler {
     html =
         "<html><body><script>\n"
         // No requests should exist.
-        "window.mrtAssertTotalCount(0);\n"
-        "window.mrtAssertBrowserCount(0);\n"
-        "window.mrtAssertContextCount(0);\n"
+        "window.mrtAssertTotalCount(" LINESTR
+        ",0);\n"
+        "window.mrtAssertBrowserCount(" LINESTR
+        ",0);\n"
+        "window.mrtAssertContextCount(" LINESTR
+        ",0);\n"
         // Send the query.
         "var request_id = window.mrtQuery({\n"
         "  request: '" +
@@ -425,9 +441,12 @@ class SingleQueryTestHandler : public SingleLoadTestHandler {
         "  persistent: false,\n"
         "  onSuccess: function(response) {\n"
         // Request should be removed before callback is executed.
-        "    window.mrtAssertTotalCount(0);\n"
-        "    window.mrtAssertBrowserCount(0);\n"
-        "    window.mrtAssertContextCount(0);\n"
+        "    window.mrtAssertTotalCount(" LINESTR
+        ",0);\n"
+        "    window.mrtAssertBrowserCount(" LINESTR
+        ",0);\n"
+        "    window.mrtAssertContextCount(" LINESTR
+        ",0);\n"
         "    if (response == '" +
         std::string(kSingleQueryResponse) +
         "')\n"
@@ -437,9 +456,12 @@ class SingleQueryTestHandler : public SingleLoadTestHandler {
         "  },\n"
         "  onFailure: function(error_code, error_message) {\n"
         // Request should be removed before callback is executed.
-        "    window.mrtAssertTotalCount(0);\n"
-        "    window.mrtAssertBrowserCount(0);\n"
-        "    window.mrtAssertContextCount(0);\n"
+        "    window.mrtAssertTotalCount(" LINESTR
+        ",0);\n"
+        "    window.mrtAssertBrowserCount(" LINESTR
+        ",0);\n"
+        "    window.mrtAssertContextCount(" LINESTR
+        ",0);\n"
         "    if (error_code == " +
         errorCodeStr + " && error_message == '" +
         std::string(kSingleQueryErrorMessage) +
@@ -450,17 +472,22 @@ class SingleQueryTestHandler : public SingleLoadTestHandler {
         "  }\n"
         "});\n"
         // Request should exist.
-        "window.mrtAssertTotalCount(1);\n"
-        "window.mrtAssertBrowserCount(1);\n"
-        "window.mrtAssertContextCount(1);\n";
+        "window.mrtAssertTotalCount(" LINESTR
+        ",1);\n"
+        "window.mrtAssertBrowserCount(" LINESTR
+        ",1);\n"
+        "window.mrtAssertContextCount(" LINESTR ",1);\n";
 
     if (test_type_ == CANCEL) {
       html +=
           "window.mrtQueryCancel(request_id);\n"
           // Request should be removed immediately.
-          "window.mrtAssertTotalCount(0);\n"
-          "window.mrtAssertBrowserCount(0);\n"
-          "window.mrtAssertContextCount(0);\n"
+          "window.mrtAssertTotalCount(" LINESTR
+          ",0);\n"
+          "window.mrtAssertBrowserCount(" LINESTR
+          ",0);\n"
+          "window.mrtAssertContextCount(" LINESTR
+          ",0);\n"
           "window.mrtNotify('cancel');\n";
     }
 
@@ -652,9 +679,12 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
     html =
         "<html><body><script>\n"
         // No requests should exist.
-        "window.mrtAssertTotalCount(0);\n"
-        "window.mrtAssertBrowserCount(0);\n"
-        "window.mrtAssertContextCount(0);\n"
+        "window.mrtAssertTotalCount(" LINESTR
+        ",0);\n"
+        "window.mrtAssertBrowserCount(" LINESTR
+        ",0);\n"
+        "window.mrtAssertContextCount(" LINESTR
+        ",0);\n"
         // Keep track of the number of responses.
         "var count = 0;\n"
         // Send the query.
@@ -665,9 +695,12 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
         "  persistent: true,\n"
         "  onSuccess: function(response) {\n"
         // Request should not be removed.
-        "    window.mrtAssertTotalCount(1);\n"
-        "    window.mrtAssertBrowserCount(1);\n"
-        "    window.mrtAssertContextCount(1);\n"
+        "    window.mrtAssertTotalCount(" LINESTR
+        ",1);\n"
+        "    window.mrtAssertBrowserCount(" LINESTR
+        ",1);\n"
+        "    window.mrtAssertContextCount(" LINESTR
+        ",1);\n"
         "    if (response == '" +
         std::string(kSingleQueryResponse) +
         "') {\n"
@@ -677,9 +710,12 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
         "        window.mrtNotify('success');\n"
         "        window.mrtQueryCancel(request_id);\n"
         // Request should be removed immediately.
-        "        window.mrtAssertTotalCount(0);\n"
-        "        window.mrtAssertBrowserCount(0);\n"
-        "        window.mrtAssertContextCount(0);\n"
+        "        window.mrtAssertTotalCount(" LINESTR
+        ",0);\n"
+        "        window.mrtAssertBrowserCount(" LINESTR
+        ",0);\n"
+        "        window.mrtAssertContextCount(" LINESTR
+        ",0);\n"
         "      }\n"
         "    } else {\n"
         "      window.mrtNotify('error-onSuccess');\n"
@@ -687,9 +723,12 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
         "  },\n"
         "  onFailure: function(error_code, error_message) {\n"
         // Request should be removed before callback is executed.
-        "    window.mrtAssertTotalCount(0);\n"
-        "    window.mrtAssertBrowserCount(0);\n"
-        "    window.mrtAssertContextCount(0);\n"
+        "    window.mrtAssertTotalCount(" LINESTR
+        ",0);\n"
+        "    window.mrtAssertBrowserCount(" LINESTR
+        ",0);\n"
+        "    window.mrtAssertContextCount(" LINESTR
+        ",0);\n"
         "    if (error_code == " +
         errorCodeStr + " && error_message == '" +
         std::string(kSingleQueryErrorMessage) +
@@ -701,9 +740,11 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
         "  }\n"
         "});\n"
         // Request should exist.
-        "window.mrtAssertTotalCount(1);\n"
-        "window.mrtAssertBrowserCount(1);\n"
-        "window.mrtAssertContextCount(1);\n";
+        "window.mrtAssertTotalCount(" LINESTR
+        ",1);\n"
+        "window.mrtAssertBrowserCount(" LINESTR
+        ",1);\n"
+        "window.mrtAssertContextCount(" LINESTR ",1);\n";
 
     html += "</script></body></html>";
     return html;
@@ -874,9 +915,12 @@ class SingleUnhandledQueryTestHandler : public SingleLoadTestHandler {
     html =
         "<html><body><script>\n"
         // No requests should exist.
-        "window.mrtAssertTotalCount(0);\n"
-        "window.mrtAssertBrowserCount(0);\n"
-        "window.mrtAssertContextCount(0);\n"
+        "window.mrtAssertTotalCount(" LINESTR
+        ",0);\n"
+        "window.mrtAssertBrowserCount(" LINESTR
+        ",0);\n"
+        "window.mrtAssertContextCount(" LINESTR
+        ",0);\n"
         // Keep track of the number of responses.
         "var count = 0;\n"
         // Send the query.
@@ -890,9 +934,12 @@ class SingleUnhandledQueryTestHandler : public SingleLoadTestHandler {
         "  },\n"
         "  onFailure: function(error_code, error_message) {\n"
         // Request should be removed before callback is executed.
-        "    window.mrtAssertTotalCount(0);\n"
-        "    window.mrtAssertBrowserCount(0);\n"
-        "    window.mrtAssertContextCount(0);\n"
+        "    window.mrtAssertTotalCount(" LINESTR
+        ",0);\n"
+        "    window.mrtAssertBrowserCount(" LINESTR
+        ",0);\n"
+        "    window.mrtAssertContextCount(" LINESTR
+        ",0);\n"
         "    if (error_code == -1 && "
         "error_message == 'The query has been canceled') {\n"
         "      window.mrtNotify('failure');\n"
@@ -902,9 +949,11 @@ class SingleUnhandledQueryTestHandler : public SingleLoadTestHandler {
         "  }\n"
         "});\n"
         // Request should exist.
-        "window.mrtAssertTotalCount(1);\n"
-        "window.mrtAssertBrowserCount(1);\n"
-        "window.mrtAssertContextCount(1);\n";
+        "window.mrtAssertTotalCount(" LINESTR
+        ",1);\n"
+        "window.mrtAssertBrowserCount(" LINESTR
+        ",1);\n"
+        "window.mrtAssertContextCount(" LINESTR ",1);\n";
 
     html += "</script></body></html>";
     return html;
@@ -1088,10 +1137,10 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
     // No requests should exist.
     if (assert_total)
-      html += "window.mrtAssertTotalCount(0);\n";
+      html += "window.mrtAssertTotalCount(" LINESTR ",0);\n";
     if (assert_browser)
-      html += "window.mrtAssertBrowserCount(0);\n";
-    html += "window.mrtAssertContextCount(0);\n";
+      html += "window.mrtAssertBrowserCount(" LINESTR ",0);\n";
+    html += "window.mrtAssertContextCount(" LINESTR ",0);\n";
 
     if (synchronous_) {
       // Run all of the queries synchronously. None will complete before the
@@ -1106,10 +1155,11 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
       // Pending requests should match the total created.
       const std::string& total_val = GetIntString(total_ct);
       if (assert_total)
-        html += "window.mrtAssertTotalCount(" + total_val + ");\n";
+        html += "window.mrtAssertTotalCount(" LINESTR "," + total_val + ");\n";
       if (assert_browser)
-        html += "window.mrtAssertBrowserCount(" + total_val + ");\n";
-      html += "window.mrtAssertContextCount(" + total_val + ");\n";
+        html +=
+            "window.mrtAssertBrowserCount(" LINESTR "," + total_val + ");\n";
+      html += "window.mrtAssertContextCount(" LINESTR "," + total_val + ");\n";
 
       int cancel_ct = 0;
 
@@ -1126,10 +1176,13 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
         // Pending requests should match the total not canceled.
         const std::string& cancel_val = GetIntString(total_ct - cancel_ct);
         if (assert_total)
-          html += "window.mrtAssertTotalCount(" + cancel_val + ");\n";
+          html +=
+              "window.mrtAssertTotalCount(" LINESTR "," + cancel_val + ");\n";
         if (assert_browser)
-          html += "window.mrtAssertBrowserCount(" + cancel_val + ");\n";
-        html += "window.mrtAssertContextCount(" + cancel_val + ");\n";
+          html +=
+              "window.mrtAssertBrowserCount(" LINESTR "," + cancel_val + ");\n";
+        html +=
+            "window.mrtAssertContextCount(" LINESTR "," + cancel_val + ");\n";
       }
     } else {
       // Run all of the queries asynchronously. Some may complete before
@@ -2876,9 +2929,13 @@ class MultiQueryMultiNavigateTestHandler
     url3_ = std::string(same_origin_ ? kTestDomain1 : kTestDomain3) +
             "browser3.html";
 
-    AddManagedResource(url1_, true, true);
-    AddManagedResource(url2_, true, true);
-    AddManagedResource(url3_, true, true);
+    // With same-site BFCache enabled a new browser will be created for each
+    // same-site navigation in the renderer process, resulting in "total count"
+    // values that potentially span multiple navigations.
+    const bool should_assert = !(same_origin_ && IsSameSiteBFCacheEnabled());
+    AddManagedResource(url1_, should_assert, should_assert);
+    AddManagedResource(url2_, should_assert, should_assert);
+    AddManagedResource(url3_, should_assert, should_assert);
     Finalize();
 
     // 1. Load the 1st url.

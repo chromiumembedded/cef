@@ -11,6 +11,7 @@
 
 #include "include/cef_frame.h"
 #include "include/cef_v8.h"
+#include "libcef/renderer/blink_glue.h"
 
 #include "base/memory/weak_ptr.h"
 #include "base/timer/timer.h"
@@ -37,7 +38,10 @@ class CefBrowserImpl;
 // Implementation of CefFrame. CefFrameImpl objects are owned by the
 // CefBrowerImpl and will be detached when the browser is notified that the
 // associated renderer WebFrame will close.
-class CefFrameImpl : public CefFrame, public cef::mojom::RenderFrame {
+class CefFrameImpl
+    : public CefFrame,
+      public cef::mojom::RenderFrame,
+      public blink_glue::CefExecutionContextLifecycleStateObserver {
  public:
   CefFrameImpl(CefBrowserImpl* browser,
                blink::WebLocalFrame* frame,
@@ -90,7 +94,8 @@ class CefFrameImpl : public CefFrame, public cef::mojom::RenderFrame {
   void OnWasShown();
   void OnDidFinishLoad();
   void OnDraggableRegionsChanged();
-  void OnContextCreated();
+  void OnContextCreated(v8::Local<v8::Context> context);
+  void OnContextReleased();
   void OnDetached();
 
   blink::WebLocalFrame* web_frame() const { return frame_; }
@@ -139,6 +144,10 @@ class CefFrameImpl : public CefFrame, public cef::mojom::RenderFrame {
   void DidStopLoading() override;
   void MoveOrResizeStarted() override;
 
+  // blink_glue::CefExecutionContextLifecycleStateObserver methods:
+  void ContextLifecycleStateChanged(
+      blink::mojom::blink::FrameLifecycleState state) override;
+
   CefBrowserImpl* browser_;
   blink::WebLocalFrame* frame_;
   const int64 frame_id_;
@@ -167,6 +176,9 @@ class CefFrameImpl : public CefFrame, public cef::mojom::RenderFrame {
   mojo::Receiver<cef::mojom::RenderFrame> receiver_{this};
 
   mojo::Remote<cef::mojom::BrowserFrame> browser_frame_;
+
+  std::unique_ptr<blink_glue::CefObserverRegistration>
+      execution_context_lifecycle_state_observer_;
 
   base::WeakPtrFactory<CefFrameImpl> weak_ptr_factory_{this};
 

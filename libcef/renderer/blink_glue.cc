@@ -22,6 +22,8 @@
 #include "third_party/blink/renderer/core/dom/element.h"
 #include "third_party/blink/renderer/core/dom/node.h"
 #include "third_party/blink/renderer/core/editing/serializers/serialization.h"
+#include "third_party/blink/renderer/core/execution_context/execution_context.h"
+#include "third_party/blink/renderer/core/execution_context/execution_context_lifecycle_state_observer.h"
 #include "third_party/blink/renderer/core/exported/web_view_impl.h"
 #include "third_party/blink/renderer/core/frame/frame_owner.h"
 #include "third_party/blink/renderer/core/frame/local_dom_window.h"
@@ -218,6 +220,43 @@ v8::Local<v8::Value> ExecuteV8ScriptAndReturnValue(
 
 bool IsScriptForbidden() {
   return blink::ScriptForbiddenScope::IsScriptForbidden();
+}
+
+std::unique_ptr<CefObserverRegistration>
+RegisterExecutionContextLifecycleStateObserver(
+    v8::Local<v8::Context> context,
+    CefExecutionContextLifecycleStateObserver* observer) {
+  class Observer : public blink::GarbageCollected<Observer>,
+                   public blink::ExecutionContextLifecycleStateObserver {
+   public:
+    Observer(blink::ExecutionContext* execution_context,
+             CefExecutionContextLifecycleStateObserver* observer)
+        : blink::ExecutionContextLifecycleStateObserver(execution_context),
+          observer_(observer) {
+      UpdateStateIfNeeded();
+    }
+
+    void ContextLifecycleStateChanged(
+        blink::mojom::blink::FrameLifecycleState state) override {
+      observer_->ContextLifecycleStateChanged(state);
+    }
+
+    void ContextDestroyed() override {}
+
+   private:
+    CefExecutionContextLifecycleStateObserver* observer_;
+  };
+
+  class Registration : public CefObserverRegistration {
+   public:
+    Registration(blink::Persistent<Observer> observer) : observer_(observer) {}
+
+   private:
+    blink::Persistent<Observer> observer_;
+  };
+
+  return std::make_unique<Registration>(blink::MakeGarbageCollected<Observer>(
+      blink::ExecutionContext::From(context), observer));
 }
 
 void RegisterURLSchemeAsSupportingFetchAPI(const blink::WebString& scheme) {
