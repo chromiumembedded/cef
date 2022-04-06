@@ -1,2 +1,2 @@
 #!/bin/sh
-python tools/patcher.py
+python3 tools/patcher.py

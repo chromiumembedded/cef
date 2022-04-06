@@ -1,2 +1,2 @@
 #!/bin/sh
-python tools/make_version_header.py include/cef_version.h
+python3 tools/make_version_header.py include/cef_version.h
