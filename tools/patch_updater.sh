@@ -1,2 +1,2 @@
 #!/bin/sh
-python tools/patch_updater.py $@
+python3 tools/patch_updater.py $@

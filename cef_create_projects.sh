@@ -1,2 +1,2 @@
 #!/bin/sh
-python tools/gclient_hook.py
+python3 tools/gclient_hook.py

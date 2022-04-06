@@ -1,2 +1,2 @@
 #!/bin/sh
-python make_distrib.py --output-dir ../binary_distrib/ $@
+python3 make_distrib.py --output-dir ../binary_distrib/ $@
