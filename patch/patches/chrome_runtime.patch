@@ -170,7 +170,7 @@ index 8bf722c61c059..ac755279227f2 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 8f28441f6639b..b23d0e2a11e87 100644
+index 6ec5a66dcba33..be011c0719138 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -28,6 +28,7 @@
@@ -181,7 +181,7 @@ index 8f28441f6639b..b23d0e2a11e87 100644
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/accessibility_labels_service_factory.h"
  #include "chrome/browser/after_startup_task_utils.h"
-@@ -1272,6 +1273,8 @@ bool IsTopChromeWebUIURL(const GURL& url) {
+@@ -1275,6 +1276,8 @@ bool IsTopChromeWebUIURL(const GURL& url) {
  }  // namespace
  
  ChromeContentBrowserClient::ChromeContentBrowserClient() {
@@ -190,7 +190,7 @@ index 8f28441f6639b..b23d0e2a11e87 100644
  #if BUILDFLAG(ENABLE_PLUGINS)
    extra_parts_.push_back(new ChromeContentBrowserClientPluginsPart);
  #endif
-@@ -1297,6 +1300,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
+@@ -1300,6 +1303,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
    extra_parts_.clear();
  }
  
@@ -202,7 +202,7 @@ index 8f28441f6639b..b23d0e2a11e87 100644
  // static
  void ChromeContentBrowserClient::RegisterLocalStatePrefs(
      PrefRegistrySimple* registry) {
-@@ -3740,9 +3748,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -3743,9 +3751,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // BUILDFLAG(IS_ANDROID)
  
@@ -214,7 +214,7 @@ index 8f28441f6639b..b23d0e2a11e87 100644
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
-@@ -5369,7 +5379,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
+@@ -5372,7 +5382,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
        network_service);
  }
  
@@ -223,7 +223,7 @@ index 8f28441f6639b..b23d0e2a11e87 100644
      content::BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -5387,6 +5397,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
+@@ -5390,6 +5400,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
      network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
      network_context_params->accept_language = GetApplicationLocale();
    }
@@ -232,7 +232,7 @@ index 8f28441f6639b..b23d0e2a11e87 100644
  }
  
  std::vector<base::FilePath>
-@@ -6227,10 +6239,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -6271,10 +6283,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -245,7 +245,7 @@ index 8f28441f6639b..b23d0e2a11e87 100644
          FROM_HERE, keepalive_deadline_ - now,
          base::BindOnce(
              &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -6249,7 +6261,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -6293,7 +6305,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -255,7 +255,7 @@ index 8f28441f6639b..b23d0e2a11e87 100644
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -6357,7 +6370,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -6401,7 +6414,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
@@ -265,7 +265,7 @@ index 8f28441f6639b..b23d0e2a11e87 100644
          base::BindOnce(&ChromeContentBrowserClient::OnKeepaliveTimerFired,
                         weak_factory_.GetWeakPtr(),
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index 4aa99834bd6c7..cd932dd3cacf4 100644
+index e87e967efce09..5948dbc959683 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
 @@ -120,6 +120,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
@@ -286,7 +286,7 @@ index 4aa99834bd6c7..cd932dd3cacf4 100644
        content::BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -913,7 +915,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -917,7 +919,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
  
  #if !BUILDFLAG(IS_ANDROID)
    uint64_t num_keepalive_requests_ = 0;
