@@ -125,16 +125,17 @@ class CefUnhandledKeyEventHandler : public ui::EventHandler {
 // static
 CefRefPtr<CefWindow> CefWindow::CreateTopLevelWindow(
     CefRefPtr<CefWindowDelegate> delegate) {
-  return CefWindowImpl::Create(delegate);
+  return CefWindowImpl::Create(delegate, gfx::kNullAcceleratedWidget);
 }
 
 // static
 CefRefPtr<CefWindowImpl> CefWindowImpl::Create(
-    CefRefPtr<CefWindowDelegate> delegate) {
+    CefRefPtr<CefWindowDelegate> delegate,
+    gfx::AcceleratedWidget parent_widget) {
   CEF_REQUIRE_UIT_RETURN(nullptr);
   CefRefPtr<CefWindowImpl> window = new CefWindowImpl(delegate);
   window->Initialize();
-  window->CreateWidget();
+  window->CreateWidget(parent_widget);
   if (delegate)
     delegate->OnWindowCreated(window.get());
   return window;
@@ -656,10 +657,10 @@ void CefWindowImpl::InitializeRootView() {
   static_cast<CefWindowView*>(root_view())->Initialize();
 }
 
-void CefWindowImpl::CreateWidget() {
+void CefWindowImpl::CreateWidget(gfx::AcceleratedWidget parent_widget) {
   DCHECK(!widget_);
 
-  root_view()->CreateWidget();
+  root_view()->CreateWidget(parent_widget);
   widget_ = root_view()->GetWidget();
   DCHECK(widget_);
 

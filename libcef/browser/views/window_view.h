@@ -51,7 +51,7 @@ class CefWindowView
   CefWindowView& operator=(const CefWindowView&) = delete;
 
   // Create the Widget.
-  void CreateWidget();
+  void CreateWidget(gfx::AcceleratedWidget parent_widget);
 
   // Returns the CefWindow associated with this view. See comments on
   // CefViewView::GetCefView.

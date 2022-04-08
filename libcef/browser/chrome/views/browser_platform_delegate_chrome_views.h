@@ -24,6 +24,7 @@ class CefBrowserPlatformDelegateChromeViews
   void NotifyBrowserDestroyed() override;
   void BrowserDestroyed(CefBrowserHostBase* browser) override;
   void CloseHostWindow() override;
+  CefWindowHandle GetHostWindowHandle() const override;
   views::Widget* GetWindowWidget() const override;
   CefRefPtr<CefBrowserView> GetBrowserView() const override;
   void PopupWebContentsCreated(
@@ -35,6 +36,8 @@ class CefBrowserPlatformDelegateChromeViews
   void PopupBrowserCreated(CefBrowserHostBase* new_browser,
                            bool is_devtools) override;
   bool IsViewsHosted() const override;
+
+  CefRefPtr<CefBrowserViewImpl> browser_view() const { return browser_view_; }
 
  private:
   void SetBrowserView(CefRefPtr<CefBrowserViewImpl> browser_view);

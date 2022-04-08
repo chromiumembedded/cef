@@ -39,14 +39,19 @@ struct CefBrowserCreateParams {
     settings = that.settings;
     request_context = that.request_context;
     extra_info = that.extra_info;
+    if (that.window_info)
+      MaybeSetWindowInfo(*that.window_info);
 #if defined(TOOLKIT_VIEWS)
     browser_view = that.browser_view;
 #endif
     return *this;
   }
 
-  // Platform-specific window creation info. Will be nullptr when creating a
-  // views-hosted browser. Currently used with the alloy runtime only.
+  // Set |window_info| if appropriate (see below).
+  void MaybeSetWindowInfo(const CefWindowInfo& window_info);
+
+  // Platform-specific window creation info. Will be nullptr for Views-hosted
+  // browsers except when using the Chrome runtime with a native parent handle.
   std::unique_ptr<CefWindowInfo> window_info;
 
 #if defined(TOOLKIT_VIEWS)
@@ -154,6 +159,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   CefRefPtr<CefClient> GetClient() override;
   CefRefPtr<CefRequestContext> GetRequestContext() override;
   bool HasView() override;
+  void SetFocus(bool focus) override;
   void StartDownload(const CefString& url) override;
   void DownloadImage(const CefString& image_url,
                      bool is_favicon,
@@ -180,6 +186,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   void GetNavigationEntries(CefRefPtr<CefNavigationEntryVisitor> visitor,
                             bool current_only) override;
   CefRefPtr<CefNavigationEntry> GetVisibleNavigationEntry() override;
+  void NotifyMoveOrResizeStarted() override;
 
   // CefBrowser methods:
   bool IsValid() override;
@@ -282,6 +289,8 @@ class CefBrowserHostBase : public CefBrowserHost,
 
   // Called from LoadMainFrameURL to perform the actual navigation.
   virtual bool Navigate(const content::OpenURLParams& params);
+
+  void SetFocusInternal(bool focus);
 
   // Thread-safe members.
   CefBrowserSettings settings_;

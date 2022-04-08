@@ -23,8 +23,8 @@ CefRefPtr<CefBrowserView> CefBrowserView::CreateBrowserView(
     CefRefPtr<CefDictionaryValue> extra_info,
     CefRefPtr<CefRequestContext> request_context,
     CefRefPtr<CefBrowserViewDelegate> delegate) {
-  return CefBrowserViewImpl::Create(client, url, settings, extra_info,
-                                    request_context, delegate);
+  return CefBrowserViewImpl::Create(CefWindowInfo(), client, url, settings,
+                                    extra_info, request_context, delegate);
 }
 
 // static
@@ -41,6 +41,7 @@ CefRefPtr<CefBrowserView> CefBrowserView::GetForBrowser(
 
 // static
 CefRefPtr<CefBrowserViewImpl> CefBrowserViewImpl::Create(
+    const CefWindowInfo& window_info,
     CefRefPtr<CefClient> client,
     const CefString& url,
     const CefBrowserSettings& settings,
@@ -62,8 +63,8 @@ CefRefPtr<CefBrowserViewImpl> CefBrowserViewImpl::Create(
   }
 
   CefRefPtr<CefBrowserViewImpl> browser_view = new CefBrowserViewImpl(delegate);
-  browser_view->SetPendingBrowserCreateParams(client, url, settings, extra_info,
-                                              request_context);
+  browser_view->SetPendingBrowserCreateParams(
+      window_info, client, url, settings, extra_info, request_context);
   browser_view->Initialize();
   browser_view->SetDefaults(settings);
   return browser_view;
@@ -212,6 +213,7 @@ CefBrowserViewImpl::CefBrowserViewImpl(
     : ParentClass(delegate), weak_ptr_factory_(this) {}
 
 void CefBrowserViewImpl::SetPendingBrowserCreateParams(
+    const CefWindowInfo& window_info,
     CefRefPtr<CefClient> client,
     const CefString& url,
     const CefBrowserSettings& settings,
@@ -219,6 +221,7 @@ void CefBrowserViewImpl::SetPendingBrowserCreateParams(
     CefRefPtr<CefRequestContext> request_context) {
   DCHECK(!pending_browser_create_params_);
   pending_browser_create_params_.reset(new CefBrowserCreateParams());
+  pending_browser_create_params_->MaybeSetWindowInfo(window_info);
   pending_browser_create_params_->client = client;
   pending_browser_create_params_->url = url;
   pending_browser_create_params_->settings = settings;
@@ -248,6 +251,9 @@ void CefBrowserViewImpl::InitializeRootView() {
 }
 
 views::WebView* CefBrowserViewImpl::web_view() const {
+  if (!root_view())
+    return nullptr;
+
   if (cef::IsChromeRuntimeEnabled()) {
     return static_cast<ChromeBrowserView*>(root_view())->contents_web_view();
   }

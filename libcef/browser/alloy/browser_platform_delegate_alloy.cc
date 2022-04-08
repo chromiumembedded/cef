@@ -112,10 +112,15 @@ void CefBrowserPlatformDelegateAlloy::WebContentsCreated(
     content::WebContents* web_contents,
     bool owned) {
   CefBrowserPlatformDelegate::WebContentsCreated(web_contents, owned);
-  find_in_page::FindTabHelper::CreateForWebContents(web_contents);
 
-  if (owned) {
-    SetOwnedWebContents(web_contents);
+  if (primary_) {
+    find_in_page::FindTabHelper::CreateForWebContents(web_contents);
+
+    if (owned) {
+      SetOwnedWebContents(web_contents);
+    }
+  } else {
+    DCHECK(!owned);
   }
 }
 
@@ -159,8 +164,8 @@ bool CefBrowserPlatformDelegateAlloy::
 
 void CefBrowserPlatformDelegateAlloy::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
-  // Indicate that the view has an external parent (namely us). This changes the
-  // default view behavior in some cases (e.g. focus handling on Linux).
+  // Indicate that the view has an external parent (namely us). This setting is
+  // required for proper focus handling on Windows and Linux.
   if (!IsViewsHosted() && render_view_host->GetWidget()->GetView())
     render_view_host->GetWidget()->GetView()->SetHasExternalParent(true);
 }

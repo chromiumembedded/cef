@@ -1029,12 +1029,16 @@ static_library("libcef_static") {
 
   if (toolkit_views) {
     sources += [
+      "libcef/browser/chrome/views/browser_platform_delegate_chrome_child_window.cc",
+      "libcef/browser/chrome/views/browser_platform_delegate_chrome_child_window.h",
       "libcef/browser/chrome/views/browser_platform_delegate_chrome_views.cc",
       "libcef/browser/chrome/views/browser_platform_delegate_chrome_views.h",
       "libcef/browser/chrome/views/chrome_browser_frame.cc",
       "libcef/browser/chrome/views/chrome_browser_frame.h",
       "libcef/browser/chrome/views/chrome_browser_view.cc",
       "libcef/browser/chrome/views/chrome_browser_view.h",
+      "libcef/browser/chrome/views/chrome_child_window.cc",
+      "libcef/browser/chrome/views/chrome_child_window.h",
       "libcef/browser/chrome/views/chrome_views_util.cc",
       "libcef/browser/chrome/views/chrome_views_util.h",
       "libcef/browser/chrome/views/toolbar_view_impl.cc",

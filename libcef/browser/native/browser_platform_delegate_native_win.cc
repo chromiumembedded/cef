@@ -156,9 +156,18 @@ CefBrowserPlatformDelegateNativeWin::CefBrowserPlatformDelegateNativeWin(
     SkColor background_color)
     : CefBrowserPlatformDelegateNativeAura(window_info, background_color) {}
 
+void CefBrowserPlatformDelegateNativeWin::set_widget(
+    views::Widget* widget,
+    CefWindowHandle widget_handle) {
+  DCHECK(!window_widget_);
+  window_widget_ = widget;
+  DCHECK(!window_info_.window);
+  window_info_.window = widget_handle;
+}
+
 void CefBrowserPlatformDelegateNativeWin::BrowserDestroyed(
     CefBrowserHostBase* browser) {
-  CefBrowserPlatformDelegateNative::BrowserDestroyed(browser);
+  CefBrowserPlatformDelegateNativeAura::BrowserDestroyed(browser);
 
   if (host_window_created_) {
     // Release the reference added in CreateHostWindow().
@@ -315,7 +324,7 @@ void CefBrowserPlatformDelegateNativeWin::SetFocus(bool setFocus) {
 
 void CefBrowserPlatformDelegateNativeWin::NotifyMoveOrResizeStarted() {
   // Call the parent method to dismiss any existing popups.
-  CefBrowserPlatformDelegateNative::NotifyMoveOrResizeStarted();
+  CefBrowserPlatformDelegateNativeAura::NotifyMoveOrResizeStarted();
 
   if (!window_widget_)
     return;

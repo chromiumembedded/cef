@@ -62,7 +62,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   // CefBrowserHost methods:
   void CloseBrowser(bool force_close) override;
   bool TryCloseBrowser() override;
-  void SetFocus(bool focus) override;
   CefWindowHandle GetWindowHandle() override;
   CefWindowHandle GetOpenerWindowHandle() override;
   double GetZoomLevel() override;
@@ -96,7 +95,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   void SendExternalBeginFrame() override;
   void SendTouchEvent(const CefTouchEvent& event) override;
   void SendCaptureLostEvent() override;
-  void NotifyMoveOrResizeStarted() override;
   int GetWindowlessFrameRate() override;
   void SetWindowlessFrameRate(int frame_rate) override;
   void ImeSetComposition(const CefString& text,

@@ -143,6 +143,9 @@ void ChromeBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
   if (contents_delegate_->OnSetFocus(source))
     return;
 
+  if (platform_delegate_)
+    platform_delegate_->SetFocus(true);
+
   if (browser_) {
     const int tab_index = GetCurrentTabIndex();
     if (tab_index != TabStripModel::kNoTab) {
@@ -163,13 +166,13 @@ bool ChromeBrowserHostImpl::TryCloseBrowser() {
   return true;
 }
 
-void ChromeBrowserHostImpl::SetFocus(bool focus) {
-  if (focus) {
-    OnSetFocus(FOCUS_SOURCE_SYSTEM);
-  }
-}
-
 CefWindowHandle ChromeBrowserHostImpl::GetWindowHandle() {
+  if (CEF_CURRENTLY_ON_UIT()) {
+    // Always return the most up-to-date window handle for a views-hosted
+    // browser since it may change if the view is re-parented.
+    if (platform_delegate_)
+      return platform_delegate_->GetHostWindowHandle();
+  }
   NOTIMPLEMENTED();
   return kNullWindowHandle;
 }
@@ -279,10 +282,6 @@ void ChromeBrowserHostImpl::SendTouchEvent(const CefTouchEvent& event) {
 }
 
 void ChromeBrowserHostImpl::SendCaptureLostEvent() {
-  NOTIMPLEMENTED();
-}
-
-void ChromeBrowserHostImpl::NotifyMoveOrResizeStarted() {
   NOTIMPLEMENTED();
 }
 
@@ -513,7 +512,20 @@ void ChromeBrowserHostImpl::Attach(content::WebContents* web_contents,
   // Notify that the browser has been created. These must be delivered in the
   // expected order.
 
-  // 1. Notify the browser's LifeSpanHandler. This must always be the first
+  if (opener && opener->platform_delegate_) {
+    // 1. Notify the opener browser's platform delegate. With Views this will
+    // result in a call to CefBrowserViewDelegate::OnPopupBrowserViewCreated().
+    // We want to call this method first because the implementation will often
+    // create the Widget for the new popup browser. Without that Widget
+    // CefBrowserHost::GetWindowHandle() will return kNullWindowHandle in
+    // OnAfterCreated(), which breaks client expectations (e.g. clients expect
+    // everything about the browser to be valid at that time).
+    opener->platform_delegate_->PopupBrowserCreated(
+        this,
+        /*is_devtools_popup=*/false);
+  }
+
+  // 2. Notify the browser's LifeSpanHandler. This must always be the first
   // notification for the browser.
   {
     // The WebContents won't be added to the Browser's TabStripModel until later
@@ -522,17 +534,9 @@ void ChromeBrowserHostImpl::Attach(content::WebContents* web_contents,
     OnAfterCreated();
   }
 
-  // 2. Notify the platform delegate. With Views this will result in a call to
+  // 3. Notify the platform delegate. With Views this will result in a call to
   // CefBrowserViewDelegate::OnBrowserCreated().
   platform_delegate_->NotifyBrowserCreated();
-
-  if (opener && opener->platform_delegate_) {
-    // 3. Notify the opener browser's platform delegate. With Views this will
-    // result in a call to CefBrowserViewDelegate::OnPopupBrowserViewCreated().
-    opener->platform_delegate_->PopupBrowserCreated(
-        this,
-        /*is_devtools_popup=*/false);
-  }
 }
 
 void ChromeBrowserHostImpl::SetBrowser(Browser* browser) {

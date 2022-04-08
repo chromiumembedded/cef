@@ -95,6 +95,11 @@ void CefBrowserPlatformDelegateChromeViews::CloseHostWindow() {
     widget->Close();
 }
 
+CefWindowHandle CefBrowserPlatformDelegateChromeViews::GetHostWindowHandle()
+    const {
+  return view_util::GetWindowHandle(GetWindowWidget());
+}
+
 views::Widget* CefBrowserPlatformDelegateChromeViews::GetWindowWidget() const {
   if (browser_view_->root_view())
     return browser_view_->root_view()->GetWidget();

@@ -33,8 +33,10 @@ class CefWindowImpl
   CefWindowImpl(const CefWindowImpl&) = delete;
   CefWindowImpl& operator=(const CefWindowImpl&) = delete;
 
-  // Create a new CefWindow instance. |delegate| may be nullptr.
-  static CefRefPtr<CefWindowImpl> Create(CefRefPtr<CefWindowDelegate> delegate);
+  // Create a new CefWindow instance. |delegate| may be nullptr. |parent_widget|
+  // will be used when creating a Chrome child window.
+  static CefRefPtr<CefWindowImpl> Create(CefRefPtr<CefWindowDelegate> delegate,
+                                         gfx::AcceleratedWidget parent_widget);
 
   // CefWindow methods:
   void Show() override;
@@ -141,7 +143,7 @@ class CefWindowImpl
   void InitializeRootView() override;
 
   // Initialize the Widget.
-  void CreateWidget();
+  void CreateWidget(gfx::AcceleratedWidget parent_widget);
 
   views::Widget* widget_;
 

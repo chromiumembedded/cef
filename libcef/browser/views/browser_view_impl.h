@@ -30,7 +30,9 @@ class CefBrowserViewImpl
   CefBrowserViewImpl& operator=(const CefBrowserViewImpl&) = delete;
 
   // Create a new CefBrowserView instance. |delegate| may be nullptr.
+  // |window_info| will only be used when creating a Chrome child window.
   static CefRefPtr<CefBrowserViewImpl> Create(
+      const CefWindowInfo& window_info,
       CefRefPtr<CefClient> client,
       const CefString& url,
       const CefBrowserSettings& settings,
@@ -84,6 +86,7 @@ class CefBrowserViewImpl
   explicit CefBrowserViewImpl(CefRefPtr<CefBrowserViewDelegate> delegate);
 
   void SetPendingBrowserCreateParams(
+      const CefWindowInfo& window_info,
       CefRefPtr<CefClient> client,
       const CefString& url,
       const CefBrowserSettings& settings,

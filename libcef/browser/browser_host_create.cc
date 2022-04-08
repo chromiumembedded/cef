@@ -10,6 +10,10 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/features/runtime.h"
 
+#if defined(TOOLKIT_VIEWS)
+#include "libcef/browser/chrome/views/chrome_child_window.h"
+#endif
+
 namespace {
 
 class CreateBrowserHelper {
@@ -138,7 +142,7 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
   }
 
   CefBrowserCreateParams create_params;
-  create_params.window_info.reset(new CefWindowInfo(windowInfo));
+  create_params.MaybeSetWindowInfo(windowInfo);
   create_params.client = client;
   create_params.url = url;
   create_params.settings = settings;
@@ -148,10 +152,24 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
   return CefBrowserHostBase::Create(create_params);
 }
 
+void CefBrowserCreateParams::MaybeSetWindowInfo(
+    const CefWindowInfo& new_window_info) {
+  if (!cef::IsChromeRuntimeEnabled() ||
+      chrome_child_window::HasParentHandle(new_window_info)) {
+    window_info = std::make_unique<CefWindowInfo>(new_window_info);
+  }
+}
+
 // static
 CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::Create(
     CefBrowserCreateParams& create_params) {
   if (cef::IsChromeRuntimeEnabled()) {
+#if defined(TOOLKIT_VIEWS)
+    if (auto browser =
+            chrome_child_window::MaybeCreateChildBrowser(create_params)) {
+      return browser.get();
+    }
+#endif
     auto browser = ChromeBrowserHostImpl::Create(create_params);
     return browser.get();
   }

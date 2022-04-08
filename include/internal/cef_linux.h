@@ -99,6 +99,9 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
   explicit CefWindowInfo(const cef_window_info_t& r) : parent(r) {}
   explicit CefWindowInfo(const CefWindowInfo& r) : parent(r) {}
 
+  CefWindowInfo& operator=(const CefWindowInfo&) = default;
+  CefWindowInfo& operator=(CefWindowInfo&&) = default;
+
   ///
   // Create the browser as a child window.
   ///

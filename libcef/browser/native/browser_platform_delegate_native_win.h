@@ -16,6 +16,9 @@ class CefBrowserPlatformDelegateNativeWin
   CefBrowserPlatformDelegateNativeWin(const CefWindowInfo& window_info,
                                       SkColor background_color);
 
+  // Called from chrome_child_window.cc after |widget| is created.
+  void set_widget(views::Widget* widget, CefWindowHandle widget_handle);
+
   // CefBrowserPlatformDelegate methods:
   void BrowserDestroyed(CefBrowserHostBase* browser) override;
   bool CreateHostWindow() override;

@@ -194,6 +194,20 @@ bool CefBrowserHostBase::HasView() {
   return is_views_hosted_;
 }
 
+void CefBrowserHostBase::SetFocus(bool focus) {
+  // Always execute asynchronously to work around issue #3040.
+  CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostBase::SetFocusInternal,
+                                        this, focus));
+}
+
+void CefBrowserHostBase::SetFocusInternal(bool focus) {
+  CEF_REQUIRE_UIT();
+  if (focus)
+    OnSetFocus(FOCUS_SOURCE_SYSTEM);
+  else if (platform_delegate_)
+    platform_delegate_->SetFocus(false);
+}
+
 void CefBrowserHostBase::StartDownload(const CefString& url) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(
@@ -375,6 +389,20 @@ CefRefPtr<CefNavigationEntry> CefBrowserHostBase::GetVisibleNavigationEntry() {
     return nullptr;
 
   return new CefNavigationEntryImpl(entry);
+}
+
+void CefBrowserHostBase::NotifyMoveOrResizeStarted() {
+#if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::BindOnce(&CefBrowserHostBase::NotifyMoveOrResizeStarted, this));
+    return;
+  }
+
+  if (platform_delegate_)
+    platform_delegate_->NotifyMoveOrResizeStarted();
+#endif
 }
 
 void CefBrowserHostBase::ReplaceMisspelling(const CefString& word) {

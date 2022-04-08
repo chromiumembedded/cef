@@ -45,6 +45,10 @@ class CefBrowserPlatformDelegateChrome
 
   void set_chrome_browser(Browser* browser);
 
+  CefBrowserPlatformDelegateNative* native_delegate() const {
+    return native_delegate_.get();
+  }
+
  protected:
   std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate_;
 

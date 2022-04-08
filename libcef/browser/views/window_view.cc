@@ -254,7 +254,7 @@ CefWindowView::CefWindowView(CefWindowDelegate* cef_delegate,
   DCHECK(window_delegate_);
 }
 
-void CefWindowView::CreateWidget() {
+void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
   DCHECK(!GetWidget());
 
   // |widget| is owned by the NativeWidget and will be destroyed in response to
@@ -264,8 +264,29 @@ void CefWindowView::CreateWidget() {
 
   views::Widget::InitParams params;
   params.delegate = this;
-  params.type = views::Widget::InitParams::TYPE_WINDOW;
+
   bool can_activate = true;
+  bool can_resize = true;
+
+  const bool has_native_parent = parent_widget != gfx::kNullAcceleratedWidget;
+  if (has_native_parent) {
+    params.parent_widget = parent_widget;
+
+    // Remove the window frame.
+    is_frameless_ = true;
+
+    // See CalculateWindowStylesFromInitParams in
+    // ui/views/widget/widget_hwnd_utils.cc for the conversion of |params| to
+    // Windows style flags.
+    // - Set the WS_CHILD flag.
+    params.child = true;
+    // - Set the WS_VISIBLE flag.
+    params.type = views::Widget::InitParams::TYPE_CONTROL;
+    // - Don't set the WS_EX_COMPOSITED flag.
+    params.opacity = views::Widget::InitParams::WindowOpacity::kOpaque;
+  } else {
+    params.type = views::Widget::InitParams::TYPE_WINDOW;
+  }
 
   // WidgetDelegate::DeleteDelegate() will delete |this| after executing the
   // registered callback.
@@ -275,47 +296,49 @@ void CefWindowView::CreateWidget() {
 
   if (cef_delegate()) {
     CefRefPtr<CefWindow> cef_window = GetCefWindow();
-    is_frameless_ = cef_delegate()->IsFrameless(cef_window);
 
     auto bounds = cef_delegate()->GetInitialBounds(cef_window);
     params.bounds = gfx::Rect(bounds.x, bounds.y, bounds.width, bounds.height);
 
-    SetCanResize(cef_delegate()->CanResize(cef_window));
+    if (has_native_parent) {
+      DCHECK(!params.bounds.IsEmpty());
+    } else {
+      is_frameless_ = cef_delegate()->IsFrameless(cef_window);
+      can_resize = cef_delegate()->CanResize(cef_window);
 
-    const auto show_state = cef_delegate()->GetInitialShowState(cef_window);
-    switch (show_state) {
-      case CEF_SHOW_STATE_NORMAL:
-        params.show_state = ui::SHOW_STATE_NORMAL;
-        break;
-      case CEF_SHOW_STATE_MINIMIZED:
-        params.show_state = ui::SHOW_STATE_MINIMIZED;
-        break;
-      case CEF_SHOW_STATE_MAXIMIZED:
-        params.show_state = ui::SHOW_STATE_MAXIMIZED;
-        break;
-      case CEF_SHOW_STATE_FULLSCREEN:
-        params.show_state = ui::SHOW_STATE_FULLSCREEN;
-        break;
-    }
+      const auto show_state = cef_delegate()->GetInitialShowState(cef_window);
+      switch (show_state) {
+        case CEF_SHOW_STATE_NORMAL:
+          params.show_state = ui::SHOW_STATE_NORMAL;
+          break;
+        case CEF_SHOW_STATE_MINIMIZED:
+          params.show_state = ui::SHOW_STATE_MINIMIZED;
+          break;
+        case CEF_SHOW_STATE_MAXIMIZED:
+          params.show_state = ui::SHOW_STATE_MAXIMIZED;
+          break;
+        case CEF_SHOW_STATE_FULLSCREEN:
+          params.show_state = ui::SHOW_STATE_FULLSCREEN;
+          break;
+      }
 
-    bool is_menu = false;
-    bool can_activate_menu = true;
-    CefRefPtr<CefWindow> parent_window = cef_delegate()->GetParentWindow(
-        cef_window, &is_menu, &can_activate_menu);
-    if (parent_window && !parent_window->IsSame(cef_window)) {
-      CefWindowImpl* parent_window_impl =
-          static_cast<CefWindowImpl*>(parent_window.get());
-      params.parent = view_util::GetNativeView(parent_window_impl->widget());
-      if (is_menu) {
-        // Don't clip the window to parent bounds.
-        params.type = views::Widget::InitParams::TYPE_MENU;
+      bool is_menu = false;
+      bool can_activate_menu = true;
+      CefRefPtr<CefWindow> parent_window = cef_delegate()->GetParentWindow(
+          cef_window, &is_menu, &can_activate_menu);
+      if (parent_window && !parent_window->IsSame(cef_window)) {
+        CefWindowImpl* parent_window_impl =
+            static_cast<CefWindowImpl*>(parent_window.get());
+        params.parent = view_util::GetNativeView(parent_window_impl->widget());
+        if (is_menu) {
+          // Don't clip the window to parent bounds.
+          params.type = views::Widget::InitParams::TYPE_MENU;
 
-        // Don't set "always on top" for the window.
-        params.z_order = ui::ZOrderLevel::kNormal;
+          // Don't set "always on top" for the window.
+          params.z_order = ui::ZOrderLevel::kNormal;
 
-        can_activate = can_activate_menu;
-        if (can_activate_menu)
-          params.activatable = views::Widget::InitParams::Activatable::kYes;
+          can_activate = can_activate_menu;
+        }
       }
     }
   }
@@ -324,6 +347,13 @@ void CefWindowView::CreateWidget() {
     // The window will be placed on the default screen with origin (0,0).
     params.bounds = gfx::Rect(CalculatePreferredSize());
   }
+
+  if (can_activate) {
+    // Cause WidgetDelegate::CanActivate to return true.
+    params.activatable = views::Widget::InitParams::Activatable::kYes;
+  }
+
+  SetCanResize(can_resize);
 
 #if BUILDFLAG(IS_WIN)
   if (is_frameless_) {

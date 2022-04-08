@@ -37,7 +37,7 @@ CefBrowserPlatformDelegateNativeLinux::CefBrowserPlatformDelegateNativeLinux(
 
 void CefBrowserPlatformDelegateNativeLinux::BrowserDestroyed(
     CefBrowserHostBase* browser) {
-  CefBrowserPlatformDelegateNative::BrowserDestroyed(browser);
+  CefBrowserPlatformDelegateNativeAura::BrowserDestroyed(browser);
 
   if (host_window_created_) {
     // Release the reference added in CreateHostWindow().
@@ -155,7 +155,7 @@ void CefBrowserPlatformDelegateNativeLinux::SetFocus(bool setFocus) {
 
 void CefBrowserPlatformDelegateNativeLinux::NotifyMoveOrResizeStarted() {
   // Call the parent method to dismiss any existing popups.
-  CefBrowserPlatformDelegateNative::NotifyMoveOrResizeStarted();
+  CefBrowserPlatformDelegateNativeAura::NotifyMoveOrResizeStarted();
 
   if (!web_contents_)
     return;

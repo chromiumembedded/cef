@@ -79,7 +79,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   // CefBrowserHost methods.
   void CloseBrowser(bool force_close) override;
   bool TryCloseBrowser() override;
-  void SetFocus(bool focus) override;
   CefWindowHandle GetWindowHandle() override;
   CefWindowHandle GetOpenerWindowHandle() override;
   double GetZoomLevel() override;
@@ -113,7 +112,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   void SendExternalBeginFrame() override;
   void SendTouchEvent(const CefTouchEvent& event) override;
   void SendCaptureLostEvent() override;
-  void NotifyMoveOrResizeStarted() override;
   int GetWindowlessFrameRate() override;
   void SetWindowlessFrameRate(int frame_rate) override;
   void ImeSetComposition(const CefString& text,
@@ -293,8 +291,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
 
   // content::WebContentsObserver methods.
   using content::WebContentsObserver::BeforeUnloadFired;
-  void RenderFrameCreated(content::RenderFrameHost* render_frame_host) override;
-  void RenderViewReady() override;
   void DidFinishNavigation(
       content::NavigationHandle* navigation_handle) override;
   void OnAudioStateChanged(bool audible) override;
@@ -338,8 +334,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
 
   void StartAudioCapturer();
   void OnRecentlyAudibleTimerFired();
-
-  void SetFocusInternal(bool focus);
 
   CefWindowHandle opener_;
   const bool is_windowless_;

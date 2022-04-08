@@ -251,8 +251,11 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
   }
 
   CefBrowserCreateParams create_params;
-  if (!inspected_browser->is_views_hosted())
+  if (inspected_browser->is_views_hosted()) {
+    create_params.popup_with_views_hosted_opener = true;
+  } else {
     create_params.window_info.reset(new CefWindowInfo(windowInfo));
+  }
   create_params.client = client;
   create_params.settings = new_settings;
   create_params.devtools_opener = inspected_browser;

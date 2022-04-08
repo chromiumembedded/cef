@@ -129,10 +129,10 @@ bool CefBrowserInfoManager::CanCreateWindow(
   CefRefPtr<CefClient> client = browser->GetClient();
   bool allow = true;
 
-  std::unique_ptr<CefWindowInfo> window_info(new CefWindowInfo);
+  CefWindowInfo window_info;
 
 #if BUILDFLAG(IS_WIN)
-  window_info->SetAsPopup(nullptr, CefString());
+  window_info.SetAsPopup(nullptr, CefString());
 #endif
 
   auto pending_popup = std::make_unique<CefBrowserInfoManager::PendingPopup>();
@@ -157,20 +157,20 @@ bool CefBrowserInfoManager::CanCreateWindow(
 #if (BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC))
       // Default to the size from the popup features.
       if (cef_features.xSet)
-        window_info->bounds.x = cef_features.x;
+        window_info.bounds.x = cef_features.x;
       if (cef_features.ySet)
-        window_info->bounds.y = cef_features.y;
+        window_info.bounds.y = cef_features.y;
       if (cef_features.widthSet)
-        window_info->bounds.width = cef_features.width;
+        window_info.bounds.width = cef_features.width;
       if (cef_features.heightSet)
-        window_info->bounds.height = cef_features.height;
+        window_info.bounds.height = cef_features.height;
 #endif
 
       allow = !handler->OnBeforePopup(
           browser.get(), opener_frame, pending_popup->target_url.spec(),
           pending_popup->target_frame_name,
           static_cast<cef_window_open_disposition_t>(disposition), user_gesture,
-          cef_features, *window_info, pending_popup->client,
+          cef_features, window_info, pending_popup->client,
           pending_popup->settings, pending_popup->extra_info,
           no_javascript_access);
     }
@@ -178,13 +178,8 @@ bool CefBrowserInfoManager::CanCreateWindow(
 
   if (allow) {
     CefBrowserCreateParams create_params;
-
-    if (browser->HasView()) {
-      create_params.popup_with_views_hosted_opener = true;
-    } else {
-      create_params.window_info = std::move(window_info);
-    }
-
+    create_params.MaybeSetWindowInfo(window_info);
+    create_params.popup_with_views_hosted_opener = browser->HasView();
     create_params.settings = pending_popup->settings;
     create_params.client = pending_popup->client;
     create_params.extra_info = pending_popup->extra_info;

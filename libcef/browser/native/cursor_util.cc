@@ -12,8 +12,8 @@
 
 namespace cursor_util {
 
-bool OnCursorChange(CefBrowserHostBase* browser, const ui::Cursor& ui_cursor) {
-  auto client = browser->GetClient();
+bool OnCursorChange(CefRefPtr<CefBrowser> browser, const ui::Cursor& ui_cursor) {
+  auto client = browser->GetHost()->GetClient();
   if (!client)
     return false;
   auto handler = client->GetDisplayHandler();
