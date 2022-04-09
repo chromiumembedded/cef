@@ -261,14 +261,11 @@ void CefBrowserPlatformDelegateAlloy::SendCaptureLostEvent() {
 
 #if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
 void CefBrowserPlatformDelegateAlloy::NotifyMoveOrResizeStarted() {
-  if (!browser_)
+  if (!web_contents_)
     return;
 
   // Dismiss any existing popups.
-  auto frame = browser_->GetMainFrame();
-  if (frame && frame->IsValid()) {
-    static_cast<CefFrameHostImpl*>(frame.get())->NotifyMoveOrResizeStarted();
-  }
+  web_contents_->ClearFocusedElement();
 }
 #endif
 
