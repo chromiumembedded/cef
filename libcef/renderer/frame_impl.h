@@ -137,7 +137,6 @@ class CefFrameImpl : public CefFrame, public cef::mojom::RenderFrame {
                       int32_t startLine) override;
   void LoadRequest(cef::mojom::RequestParamsPtr params) override;
   void DidStopLoading() override;
-  void MoveOrResizeStarted() override;
 
   CefBrowserImpl* browser_;
   blink::WebLocalFrame* frame_;

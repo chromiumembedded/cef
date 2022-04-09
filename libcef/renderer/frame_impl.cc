@@ -676,14 +676,6 @@ void CefFrameImpl::DidStopLoading() {
   OnDraggableRegionsChanged();
 }
 
-void CefFrameImpl::MoveOrResizeStarted() {
-  if (frame_) {
-    auto web_view = frame_->View();
-    if (web_view)
-      web_view->CancelPagePopup();
-  }
-}
-
 // Enable deprecation warnings on Windows. See http://crbug.com/585142.
 #if BUILDFLAG(IS_WIN)
 #if defined(__clang__)

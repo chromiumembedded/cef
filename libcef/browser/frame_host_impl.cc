@@ -283,13 +283,6 @@ void CefFrameHostImpl::RefreshAttributes() {
   }
 }
 
-void CefFrameHostImpl::NotifyMoveOrResizeStarted() {
-  SendToRenderFrame(__FUNCTION__,
-                    base::BindOnce([](const RenderFrameType& render_frame) {
-                      render_frame->MoveOrResizeStarted();
-                    }));
-}
-
 void CefFrameHostImpl::LoadRequest(cef::mojom::RequestParamsPtr params) {
   if (!url_util::FixupGURL(params->url))
     return;
