@@ -82,10 +82,6 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   void SetFocused(bool focused);
   void RefreshAttributes();
 
-  // Notification that a move or resize of the renderer's containing window has
-  // started. Used on Windows and Linux with the Alloy runtime.
-  void NotifyMoveOrResizeStarted();
-
   // Load the specified request.
   void LoadRequest(cef::mojom::RequestParamsPtr params);
 
