@@ -41,9 +41,7 @@ struct CefBrowserCreateParams {
     extra_info = that.extra_info;
     if (that.window_info)
       MaybeSetWindowInfo(*that.window_info);
-#if defined(TOOLKIT_VIEWS)
     browser_view = that.browser_view;
-#endif
     return *this;
   }
 
@@ -54,7 +52,6 @@ struct CefBrowserCreateParams {
   // browsers except when using the Chrome runtime with a native parent handle.
   std::unique_ptr<CefWindowInfo> window_info;
 
-#if defined(TOOLKIT_VIEWS)
   // The BrowserView that will own a Views-hosted browser. Will be nullptr for
   // popup browsers.
   CefRefPtr<CefBrowserView> browser_view;
@@ -63,7 +60,6 @@ struct CefBrowserCreateParams {
   // case the BrowserView for this browser will be created later (from
   // PopupWebContentsCreated).
   bool popup_with_views_hosted_opener = false;
-#endif
 
   // Client implementation. May be nullptr.
   CefRefPtr<CefClient> client;
@@ -272,7 +268,6 @@ class CefBrowserHostBase : public CefBrowserHost,
     return contents_delegate_.get();
   }
 
-#if defined(TOOLKIT_VIEWS)
   // Returns the Widget owner for the browser window. Only used with windowed
   // rendering.
   views::Widget* GetWindowWidget() const;
@@ -280,7 +275,6 @@ class CefBrowserHostBase : public CefBrowserHost,
   // Returns the BrowserView associated with this browser. Only used with Views-
   // based browsers.
   CefRefPtr<CefBrowserView> GetBrowserView() const;
-#endif
 
  protected:
   bool EnsureDevToolsManager();

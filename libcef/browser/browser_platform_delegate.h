@@ -57,11 +57,9 @@ class Size;
 class Vector2d;
 }  // namespace gfx
 
-#if defined(TOOLKIT_VIEWS)
 namespace views {
 class Widget;
 }
-#endif
 
 struct CefBrowserCreateParams;
 class CefBrowserHostBase;
@@ -173,7 +171,6 @@ class CefBrowserPlatformDelegate {
   // the client, which may be NULL. May be called on multiple threads.
   virtual CefWindowHandle GetHostWindowHandle() const;
 
-#if defined(TOOLKIT_VIEWS)
   // Returns the Widget owner for the browser window. Only used with windowed
   // rendering.
   virtual views::Widget* GetWindowWidget() const;
@@ -181,7 +178,6 @@ class CefBrowserPlatformDelegate {
   // Returns the BrowserView associated with this browser. Only used with views-
   // based browsers.
   virtual CefRefPtr<CefBrowserView> GetBrowserView() const;
-#endif
 
   // Called after the WebContents have been created for a new popup browser
   // parented to this browser but before the AlloyBrowserHostImpl is created for

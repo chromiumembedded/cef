@@ -864,7 +864,6 @@ content::BrowserContext* CefBrowserHostBase::GetBrowserContext() const {
   return nullptr;
 }
 
-#if defined(TOOLKIT_VIEWS)
 views::Widget* CefBrowserHostBase::GetWindowWidget() const {
   CEF_REQUIRE_UIT();
   if (!platform_delegate_)
@@ -878,7 +877,6 @@ CefRefPtr<CefBrowserView> CefBrowserHostBase::GetBrowserView() const {
     return platform_delegate_->GetBrowserView();
   return nullptr;
 }
-#endif  // defined(TOOLKIT_VIEWS)
 
 bool CefBrowserHostBase::EnsureDevToolsManager() {
   CEF_REQUIRE_UIT();

@@ -16,7 +16,6 @@ from make_ctocpp_header import *
 from make_ctocpp_impl import *
 from make_gypi_file import *
 from make_libcef_dll_dylib_impl import *
-from make_views_stub_impl import *
 from make_wrapper_types_header import *
 from optparse import OptionParser
 
@@ -83,7 +82,6 @@ wrapper_types_header = os.path.join(libcef_dll_dir, 'wrapper_types.h')
 cpptoc_dir = os.path.join(libcef_dll_dir, 'cpptoc')
 ctocpp_dir = os.path.join(libcef_dll_dir, 'ctocpp')
 gypi_file = os.path.join(root_dir, 'cef_paths.gypi')
-views_stub_impl = os.path.join(libcef_dll_dir, 'views_stub.cc')
 libcef_dll_dylib_impl = os.path.join(libcef_dll_dir, 'wrapper',
                                      'libcef_dll_dylib.cc')
 
@@ -227,11 +225,6 @@ for cls in classes:
 if not options.quiet:
   sys.stdout.write('Generating ' + gypi_file + ' file...\n')
 update_file(*write_gypi_file(header, gypi_file))
-
-# output the views stub file
-if not options.quiet:
-  sys.stdout.write('Generating ' + views_stub_impl + ' file...\n')
-update_file(*write_views_stub_impl(header, views_stub_impl))
 
 # output the libcef dll dylib file
 if not options.quiet:

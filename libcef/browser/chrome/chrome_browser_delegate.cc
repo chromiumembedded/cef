@@ -342,9 +342,7 @@ std::unique_ptr<BrowserDelegate> BrowserDelegate::Create(
 
     // Clear these values so they're not persisted to additional Browsers.
     params->create_params_.window_info.reset();
-#if defined(TOOLKIT_VIEWS)
     params->create_params_.browser_view = nullptr;
-#endif
   }
 
   return std::make_unique<ChromeBrowserDelegate>(browser, create_params);

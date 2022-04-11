@@ -22,11 +22,8 @@
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/common/pref_names.h"
-
-#if defined(TOOLKIT_VIEWS)
 #include "libcef/browser/chrome/views/chrome_browser_frame.h"
 #include "libcef/browser/chrome/views/chrome_browser_view.h"
-#endif
 
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::Create(
@@ -111,9 +108,7 @@ void ChromeBrowserHostImpl::AddNewContents(
 
   CefBrowserCreateParams params;
   params.request_context = request_context();
-#if defined(TOOLKIT_VIEWS)
   params.browser_view = GetBrowserView();
-#endif
 
   // Create the new Browser representation.
   auto browser = CreateBrowser(params);
@@ -435,7 +430,6 @@ Browser* ChromeBrowserHostImpl::CreateBrowser(
   // Pass |params| to cef::BrowserDelegate::Create from the Browser constructor.
   chrome_params.cef_params = base::MakeRefCounted<DelegateCreateParams>(params);
 
-#if defined(TOOLKIT_VIEWS)
   // Configure Browser creation to use the existing Views-based
   // Widget/BrowserFrame (ChromeBrowserFrame) and BrowserView/BrowserWindow
   // (ChromeBrowserView). See views/chrome_browser_frame.h for related
@@ -458,7 +452,6 @@ Browser* ChromeBrowserHostImpl::CreateBrowser(
         static_cast<ChromeBrowserFrame*>(chrome_browser_view->GetWidget());
     chrome_browser_view->set_frame(chrome_widget);
   }
-#endif  // defined(TOOLKIT_VIEWS)
 
   // Create the Browser. This will indirectly create the ChomeBrowserDelegate.
   // The same params will be used to create a new Browser if the tab is dragged
@@ -468,7 +461,6 @@ Browser* ChromeBrowserHostImpl::CreateBrowser(
 
   bool show_browser = true;
 
-#if defined(TOOLKIT_VIEWS)
   if (chrome_browser_view) {
     // Initialize the BrowserFrame and BrowserView and create the controls that
     // require access to the Browser.
@@ -478,7 +470,6 @@ Browser* ChromeBrowserHostImpl::CreateBrowser(
     // Don't show the browser by default.
     show_browser = false;
   }
-#endif
 
   if (show_browser) {
     browser->window()->Show();
@@ -548,13 +539,11 @@ void ChromeBrowserHostImpl::SetBrowser(Browser* browser) {
 
 void ChromeBrowserHostImpl::WindowDestroyed() {
   CEF_REQUIRE_UIT();
-#if defined(TOOLKIT_VIEWS)
   if (browser_ && is_views_hosted_) {
     auto chrome_browser_view =
         static_cast<ChromeBrowserView*>(browser_->window());
     chrome_browser_view->Destroyed();
   }
-#endif
 
   platform_delegate_->CloseHostWindow();
 }

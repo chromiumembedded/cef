@@ -6,13 +6,10 @@
 #include "include/cef_browser.h"
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/chrome/chrome_browser_host_impl.h"
+#include "libcef/browser/chrome/views/chrome_child_window.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/features/runtime.h"
-
-#if defined(TOOLKIT_VIEWS)
-#include "libcef/browser/chrome/views/chrome_child_window.h"
-#endif
 
 namespace {
 
@@ -164,12 +161,10 @@ void CefBrowserCreateParams::MaybeSetWindowInfo(
 CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::Create(
     CefBrowserCreateParams& create_params) {
   if (cef::IsChromeRuntimeEnabled()) {
-#if defined(TOOLKIT_VIEWS)
     if (auto browser =
             chrome_child_window::MaybeCreateChildBrowser(create_params)) {
       return browser.get();
     }
-#endif
     auto browser = ChromeBrowserHostImpl::Create(create_params);
     return browser.get();
   }

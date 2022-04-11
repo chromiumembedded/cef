@@ -257,6 +257,9 @@ assert(enable_print_preview)
 # Enable support for Widevine CDM.
 assert(enable_widevine)
 
+# Enable Views UI framework.
+assert(toolkit_views)
+
 if (is_clang) {
   # Don't use the chrome style plugin.
   assert(!clang_use_chrome_plugins)
@@ -469,6 +472,22 @@ static_library("libcef_static") {
     "libcef/browser/chrome_crash_reporter_client_stub.cc",
     "libcef/browser/chrome/extensions/chrome_mime_handler_view_guest_delegate_cef.cc",
     "libcef/browser/chrome/extensions/chrome_mime_handler_view_guest_delegate_cef.h",
+    "libcef/browser/chrome/views/browser_platform_delegate_chrome_child_window.cc",
+    "libcef/browser/chrome/views/browser_platform_delegate_chrome_child_window.h",
+    "libcef/browser/chrome/views/browser_platform_delegate_chrome_views.cc",
+    "libcef/browser/chrome/views/browser_platform_delegate_chrome_views.h",
+    "libcef/browser/chrome/views/chrome_browser_frame.cc",
+    "libcef/browser/chrome/views/chrome_browser_frame.h",
+    "libcef/browser/chrome/views/chrome_browser_view.cc",
+    "libcef/browser/chrome/views/chrome_browser_view.h",
+    "libcef/browser/chrome/views/chrome_child_window.cc",
+    "libcef/browser/chrome/views/chrome_child_window.h",
+    "libcef/browser/chrome/views/chrome_views_util.cc",
+    "libcef/browser/chrome/views/chrome_views_util.h",
+    "libcef/browser/chrome/views/toolbar_view_impl.cc",
+    "libcef/browser/chrome/views/toolbar_view_impl.h",
+    "libcef/browser/chrome/views/toolbar_view_view.cc",
+    "libcef/browser/chrome/views/toolbar_view_view.h",
     "libcef/browser/context.cc",
     "libcef/browser/context.h",
     "libcef/browser/context_menu_params_impl.cc",
@@ -567,6 +586,8 @@ static_library("libcef_static") {
     "libcef/browser/native/browser_platform_delegate_native.h",
     "libcef/browser/native/cursor_util.h",
     "libcef/browser/native/cursor_util.cc",
+    "libcef/browser/native/window_delegate_view.cc",
+    "libcef/browser/native/window_delegate_view.h",
     "libcef/browser/navigation_entry_impl.cc",
     "libcef/browser/navigation_entry_impl.h",
     "libcef/browser/net/chrome_scheme_handler.cc",
@@ -657,6 +678,63 @@ static_library("libcef_static") {
     "libcef/browser/trace_subscriber.cc",
     "libcef/browser/trace_subscriber.h",
     "libcef/browser/thread_util.h",
+    "libcef/browser/views/basic_label_button_impl.cc",
+    "libcef/browser/views/basic_label_button_impl.h",
+    "libcef/browser/views/basic_label_button_view.cc",
+    "libcef/browser/views/basic_label_button_view.h",
+    "libcef/browser/views/basic_panel_impl.cc",
+    "libcef/browser/views/basic_panel_impl.h",
+    "libcef/browser/views/basic_panel_view.cc",
+    "libcef/browser/views/basic_panel_view.h",
+    "libcef/browser/views/box_layout_impl.cc",
+    "libcef/browser/views/box_layout_impl.h",
+    "libcef/browser/views/browser_platform_delegate_views.cc",
+    "libcef/browser/views/browser_platform_delegate_views.h",
+    "libcef/browser/views/browser_view_impl.cc",
+    "libcef/browser/views/browser_view_impl.h",
+    "libcef/browser/views/browser_view_view.cc",
+    "libcef/browser/views/browser_view_view.h",
+    "libcef/browser/views/button_impl.h",
+    "libcef/browser/views/button_view.h",
+    "libcef/browser/views/display_impl.cc",
+    "libcef/browser/views/display_impl.h",
+    "libcef/browser/views/fill_layout_impl.cc",
+    "libcef/browser/views/fill_layout_impl.h",
+    "libcef/browser/views/label_button_impl.h",
+    "libcef/browser/views/label_button_view.h",
+    "libcef/browser/views/layout_impl.h",
+    "libcef/browser/views/layout_adapter.cc",
+    "libcef/browser/views/layout_adapter.h",
+    "libcef/browser/views/layout_util.cc",
+    "libcef/browser/views/layout_util.h",
+    "libcef/browser/views/menu_button_impl.cc",
+    "libcef/browser/views/menu_button_impl.h",
+    "libcef/browser/views/menu_button_view.cc",
+    "libcef/browser/views/menu_button_view.h",
+    "libcef/browser/views/menu_runner_views.cc",
+    "libcef/browser/views/menu_runner_views.h",
+    "libcef/browser/views/overlay_view_host.cc",
+    "libcef/browser/views/overlay_view_host.h",
+    "libcef/browser/views/panel_impl.h",
+    "libcef/browser/views/panel_view.h",
+    "libcef/browser/views/scroll_view_impl.cc",
+    "libcef/browser/views/scroll_view_impl.h",
+    "libcef/browser/views/scroll_view_view.cc",
+    "libcef/browser/views/scroll_view_view.h",
+    "libcef/browser/views/textfield_impl.cc",
+    "libcef/browser/views/textfield_impl.h",
+    "libcef/browser/views/textfield_view.cc",
+    "libcef/browser/views/textfield_view.h",
+    "libcef/browser/views/view_adapter.cc",
+    "libcef/browser/views/view_adapter.h",
+    "libcef/browser/views/view_impl.h",
+    "libcef/browser/views/view_util.cc",
+    "libcef/browser/views/view_util.h",
+    "libcef/browser/views/view_view.h",
+    "libcef/browser/views/window_impl.cc",
+    "libcef/browser/views/window_impl.h",
+    "libcef/browser/views/window_view.cc",
+    "libcef/browser/views/window_view.h",
     "libcef/browser/web_contents_dialog_helper.cc",
     "libcef/browser/web_contents_dialog_helper.h",
     "libcef/browser/x509_certificate_impl.cc",
@@ -796,6 +874,14 @@ static_library("libcef_static") {
     # For Chrome runtime support.
     "//chrome/app/chrome_main_delegate.cc",
     "//chrome/app/chrome_main_delegate.h",
+
+    # Part of //ui/views:test_support which is testingonly.
+    "//ui/views/test/desktop_test_views_delegate.h",
+    "//ui/views/test/test_views_delegate.h",
+
+    # Support for UI input events.
+    # Part of //ui/base:test_support which is testingonly.
+    "//ui/base/test/ui_controls.h",
   ]
 
   configs += [
@@ -912,6 +998,7 @@ static_library("libcef_static") {
     "//third_party/zlib:minizip",
     "//ui/base",
     "//ui/base/ime",
+    "//ui/events",
     "//ui/events:events_base",
     "//ui/gfx",
     "//ui/gfx/geometry",
@@ -919,6 +1006,9 @@ static_library("libcef_static") {
     "//ui/gfx/ipc/geometry",
     "//ui/gfx/ipc/skia",
     "//ui/gl",
+    "//ui/strings",
+    "//ui/views",
+    "//ui/views/controls/webview",
     "//url",
     "//v8",
   ]
@@ -1010,12 +1100,23 @@ static_library("libcef_static") {
       "libcef/browser/native/menu_runner_mac.mm",
       "libcef/browser/osr/browser_platform_delegate_osr_mac.h",
       "libcef/browser/osr/browser_platform_delegate_osr_mac.mm",
+      "libcef/browser/views/view_util_mac.mm",
       "libcef/common/util_mac.h",
       "libcef/common/util_mac.mm",
 
       # For Chrome runtime support.
       "//chrome/app/chrome_main_mac.h",
       "//chrome/app/chrome_main_mac.mm",
+
+      # Part of //ui/views:test_support which is testingonly.
+      "//ui/views/test/desktop_test_views_delegate_mac.mm",
+      "//ui/views/test/test_views_delegate_mac.mm",
+
+      # Support for UI input events.
+      # Part of //ui/base:test_support which is testingonly.
+      "//ui/base/test/ui_controls_mac.mm",
+      # Part of //ui//events:test_support which is testingonly.
+      "//ui/events/test/cocoa_test_event_utils.mm",
     ]
   }
 
@@ -1027,208 +1128,92 @@ static_library("libcef_static") {
     deps += [ "//tools/v8_context_snapshot" ]
   }
 
-  if (toolkit_views) {
+  if (use_aura) {
     sources += [
-      "libcef/browser/chrome/views/browser_platform_delegate_chrome_child_window.cc",
-      "libcef/browser/chrome/views/browser_platform_delegate_chrome_child_window.h",
-      "libcef/browser/chrome/views/browser_platform_delegate_chrome_views.cc",
-      "libcef/browser/chrome/views/browser_platform_delegate_chrome_views.h",
-      "libcef/browser/chrome/views/chrome_browser_frame.cc",
-      "libcef/browser/chrome/views/chrome_browser_frame.h",
-      "libcef/browser/chrome/views/chrome_browser_view.cc",
-      "libcef/browser/chrome/views/chrome_browser_view.h",
-      "libcef/browser/chrome/views/chrome_child_window.cc",
-      "libcef/browser/chrome/views/chrome_child_window.h",
-      "libcef/browser/chrome/views/chrome_views_util.cc",
-      "libcef/browser/chrome/views/chrome_views_util.h",
-      "libcef/browser/chrome/views/toolbar_view_impl.cc",
-      "libcef/browser/chrome/views/toolbar_view_impl.h",
-      "libcef/browser/chrome/views/toolbar_view_view.cc",
-      "libcef/browser/chrome/views/toolbar_view_view.h",
-      "libcef/browser/native/window_delegate_view.cc",
-      "libcef/browser/native/window_delegate_view.h",
-      "libcef/browser/views/basic_label_button_impl.cc",
-      "libcef/browser/views/basic_label_button_impl.h",
-      "libcef/browser/views/basic_label_button_view.cc",
-      "libcef/browser/views/basic_label_button_view.h",
-      "libcef/browser/views/basic_panel_impl.cc",
-      "libcef/browser/views/basic_panel_impl.h",
-      "libcef/browser/views/basic_panel_view.cc",
-      "libcef/browser/views/basic_panel_view.h",
-      "libcef/browser/views/box_layout_impl.cc",
-      "libcef/browser/views/box_layout_impl.h",
-      "libcef/browser/views/browser_platform_delegate_views.cc",
-      "libcef/browser/views/browser_platform_delegate_views.h",
-      "libcef/browser/views/browser_view_impl.cc",
-      "libcef/browser/views/browser_view_impl.h",
-      "libcef/browser/views/browser_view_view.cc",
-      "libcef/browser/views/browser_view_view.h",
-      "libcef/browser/views/button_impl.h",
-      "libcef/browser/views/button_view.h",
-      "libcef/browser/views/display_impl.cc",
-      "libcef/browser/views/display_impl.h",
-      "libcef/browser/views/fill_layout_impl.cc",
-      "libcef/browser/views/fill_layout_impl.h",
-      "libcef/browser/views/label_button_impl.h",
-      "libcef/browser/views/label_button_view.h",
-      "libcef/browser/views/layout_impl.h",
-      "libcef/browser/views/layout_adapter.cc",
-      "libcef/browser/views/layout_adapter.h",
-      "libcef/browser/views/layout_util.cc",
-      "libcef/browser/views/layout_util.h",
-      "libcef/browser/views/menu_button_impl.cc",
-      "libcef/browser/views/menu_button_impl.h",
-      "libcef/browser/views/menu_button_view.cc",
-      "libcef/browser/views/menu_button_view.h",
-      "libcef/browser/views/menu_runner_views.cc",
-      "libcef/browser/views/menu_runner_views.h",
-      "libcef/browser/views/overlay_view_host.cc",
-      "libcef/browser/views/overlay_view_host.h",
-      "libcef/browser/views/panel_impl.h",
-      "libcef/browser/views/panel_view.h",
-      "libcef/browser/views/scroll_view_impl.cc",
-      "libcef/browser/views/scroll_view_impl.h",
-      "libcef/browser/views/scroll_view_view.cc",
-      "libcef/browser/views/scroll_view_view.h",
-      "libcef/browser/views/textfield_impl.cc",
-      "libcef/browser/views/textfield_impl.h",
-      "libcef/browser/views/textfield_view.cc",
-      "libcef/browser/views/textfield_view.h",
-      "libcef/browser/views/view_adapter.cc",
-      "libcef/browser/views/view_adapter.h",
-      "libcef/browser/views/view_impl.h",
-      "libcef/browser/views/view_util.cc",
-      "libcef/browser/views/view_util.h",
-      "libcef/browser/views/view_view.h",
-      "libcef/browser/views/window_impl.cc",
-      "libcef/browser/views/window_impl.h",
-      "libcef/browser/views/window_view.cc",
-      "libcef/browser/views/window_view.h",
+      "libcef/browser/native/browser_platform_delegate_native_aura.cc",
+      "libcef/browser/native/browser_platform_delegate_native_aura.h",
+      "libcef/browser/views/view_util_aura.cc",
 
       # Part of //ui/views:test_support which is testingonly.
-      "//ui/views/test/desktop_test_views_delegate.h",
-      "//ui/views/test/test_views_delegate.h",
+      "//ui/views/test/desktop_test_views_delegate_aura.cc",
+      "//ui/views/test/test_views_delegate_aura.cc",
 
       # Support for UI input events.
       # Part of //ui/base:test_support which is testingonly.
-      "//ui/base/test/ui_controls.h",
+      "//ui/base/test/ui_controls_aura.cc",
+      "//ui/aura/test/ui_controls_factory_aura.h",
     ]
 
     deps += [
-      "//ui/events",
-      "//ui/strings",
-      "//ui/views",
-      "//ui/views/controls/webview",
+      "//ui/aura",
+      "//ui/wm",
+      "//ui/wm/public",
     ]
 
-    if (use_aura) {
+    if (is_win) {
       sources += [
-        "libcef/browser/native/browser_platform_delegate_native_aura.cc",
-        "libcef/browser/native/browser_platform_delegate_native_aura.h",
-        "libcef/browser/views/view_util_aura.cc",
-
-        # Part of //ui/views:test_support which is testingonly.
-        "//ui/views/test/desktop_test_views_delegate_aura.cc",
-        "//ui/views/test/test_views_delegate_aura.cc",
-
         # Support for UI input events.
+        # Part of //base/test:test_config which is testingonly.
+        "//base/test/test_switches.cc",
+        "//base/test/test_switches.h",
+        "//base/test/test_timeouts.cc",
+        "//base/test/test_timeouts.h",
+        # Part of //ui/aura:test_support which is testingonly.
+        "//ui/aura/test/ui_controls_factory_aurawin.cc",
         # Part of //ui/base:test_support which is testingonly.
-        "//ui/base/test/ui_controls_aura.cc",
-        "//ui/aura/test/ui_controls_factory_aura.h",
+        "//ui/base/test/ui_controls_internal_win.cc",
+        "//ui/base/test/ui_controls_internal_win.h",
+      ]
+    }
+
+    if (is_linux) {
+      sources += [
+        # Support for UI input events.
+        # Part of //ui/aura:test_support which is testingonly.
+        "//ui/aura/test/aura_test_utils.cc",
+        "//ui/aura/test/aura_test_utils.h",
+        # Part of //ui/events:test_support which is testingonly.
+        "//ui/events/test/x11_event_waiter.cc",
+        "//ui/events/test/x11_event_waiter.h",
+        # Part of //ui/ozone::ui_test_support which is testingonly.
+        "//ui/ozone/common/test/stub_ozone_ui_controls_test_helper.cc",
+        "//ui/ozone/common/test/stub_ozone_ui_controls_test_helper.h",
+        "//ui/ozone/public/ozone_ui_controls_test_helper.cc",
+        "//ui/ozone/public/ozone_ui_controls_test_helper.h",
+        "$root_gen_dir/ui/ozone/test_constructor_list.cc",
+        # Part of //ui/views:test_support which is testingonly.
+        "//ui/views/test/test_desktop_screen_ozone.cc",
+        "//ui/views/test/test_desktop_screen_ozone.h",
+        "//ui/views/test/ui_controls_factory_desktop_aura_ozone.cc",
+        "//ui/views/test/ui_controls_factory_desktop_aura_ozone.h",
       ]
 
       deps += [
-        "//ui/aura",
-        "//ui/wm",
-        "//ui/wm/public",
+        "//ui/ozone:generate_test_support_constructor_list",
       ]
 
-      if (is_win) {
+      if (ozone_platform_x11) {
         sources += [
           # Support for UI input events.
-          # Part of //base/test:test_config which is testingonly.
-          "//base/test/test_switches.cc",
-          "//base/test/test_switches.h",
-          "//base/test/test_timeouts.cc",
-          "//base/test/test_timeouts.h",
+          # Part of //ui/base/x:test_support which is testingonly.
+          "//ui/base/x/test/x11_ui_controls_test_helper.cc",
+          "//ui/base/x/test/x11_ui_controls_test_helper.h",
           # Part of //ui/aura:test_support which is testingonly.
-          "//ui/aura/test/ui_controls_factory_aurawin.cc",
+          "//ui/aura/test/x11_event_sender.h",
+          # Part of //ui/ozone/platform/x11:test_support which is testingonly.
+          "//ui/ozone/platform/x11/x11_ozone_ui_controls_test_helper.cc",
+          "//ui/ozone/platform/x11/x11_ozone_ui_controls_test_helper.h",
+        ]
+      } else {
+        sources += [
+          # Support for UI input events.
           # Part of //ui/base:test_support which is testingonly.
-          "//ui/base/test/ui_controls_internal_win.cc",
-          "//ui/base/test/ui_controls_internal_win.h",
+          "//ui/aura/test/ui_controls_factory_ozone.cc",
+          # Part of //ui//events:test_support which is testingonly.
+          "//ui/events/test/events_test_utils.cc"
         ]
       }
-
-      if (is_linux) {
-        sources += [
-          # Support for UI input events.
-          # Part of //ui/aura:test_support which is testingonly.
-          "//ui/aura/test/aura_test_utils.cc",
-          "//ui/aura/test/aura_test_utils.h",
-          # Part of //ui/events:test_support which is testingonly.
-          "//ui/events/test/x11_event_waiter.cc",
-          "//ui/events/test/x11_event_waiter.h",
-          # Part of //ui/ozone::ui_test_support which is testingonly.
-          "//ui/ozone/common/test/stub_ozone_ui_controls_test_helper.cc",
-          "//ui/ozone/common/test/stub_ozone_ui_controls_test_helper.h",
-          "//ui/ozone/public/ozone_ui_controls_test_helper.cc",
-          "//ui/ozone/public/ozone_ui_controls_test_helper.h",
-          "$root_gen_dir/ui/ozone/test_constructor_list.cc",
-          # Part of //ui/views:test_support which is testingonly.
-          "//ui/views/test/test_desktop_screen_ozone.cc",
-          "//ui/views/test/test_desktop_screen_ozone.h",
-          "//ui/views/test/ui_controls_factory_desktop_aura_ozone.cc",
-          "//ui/views/test/ui_controls_factory_desktop_aura_ozone.h",
-        ]
-
-        deps += [
-          "//ui/ozone:generate_test_support_constructor_list",
-        ]
-
-        if (ozone_platform_x11) {
-          sources += [
-            # Support for UI input events.
-            # Part of //ui/base/x:test_support which is testingonly.
-            "//ui/base/x/test/x11_ui_controls_test_helper.cc",
-            "//ui/base/x/test/x11_ui_controls_test_helper.h",
-            # Part of //ui/aura:test_support which is testingonly.
-            "//ui/aura/test/x11_event_sender.h",
-            # Part of //ui/ozone/platform/x11:test_support which is testingonly.
-            "//ui/ozone/platform/x11/x11_ozone_ui_controls_test_helper.cc",
-            "//ui/ozone/platform/x11/x11_ozone_ui_controls_test_helper.h",
-          ]
-        } else {
-          sources += [
-            # Support for UI input events.
-            # Part of //ui/base:test_support which is testingonly.
-            "//ui/aura/test/ui_controls_factory_ozone.cc",
-            # Part of //ui//events:test_support which is testingonly.
-            "//ui/events/test/events_test_utils.cc"
-          ]
-        }
-      }
     }
-
-    if (is_mac) {
-      sources += [
-        "libcef/browser/views/view_util_mac.mm",
-
-        # Part of //ui/views:test_support which is testingonly.
-        "//ui/views/test/desktop_test_views_delegate_mac.mm",
-        "//ui/views/test/test_views_delegate_mac.mm",
-
-        # Support for UI input events.
-        # Part of //ui/base:test_support which is testingonly.
-        "//ui/base/test/ui_controls_mac.mm",
-        # Part of //ui//events:test_support which is testingonly.
-        "//ui/events/test/cocoa_test_event_utils.mm",
-      ]
-    }
-  } else {
-    sources += [
-      # Provides stub implementations for the views static methods.
-      "libcef_dll/views_stub.cc",
-    ]
   }
 }
 
@@ -1387,6 +1372,7 @@ make_pack_header("resources") {
     "$root_gen_dir/ui/resources/grit/ui_resources.h",
     "$root_gen_dir/ui/resources/grit/webui_generated_resources.h",
     "$root_gen_dir/ui/resources/grit/webui_resources.h",
+    "$root_gen_dir/ui/views/resources/grit/views_resources.h",
   ]
 
   deps = [
@@ -1414,12 +1400,8 @@ make_pack_header("resources") {
     "//ui/resources:ui_resources_grd",
     "//ui/resources:webui_generated_resources_grd",
     "//ui/resources:webui_resources_grd",
+    "//ui/views/resources:resources_grd",
   ]
-
-  if (toolkit_views) {
-    inputs += [ "$root_gen_dir/ui/views/resources/grit/views_resources.h" ]
-    deps += [ "//ui/views/resources:resources_grd" ]
-  }
 }
 
 # Generate cef_pack_strings.h.

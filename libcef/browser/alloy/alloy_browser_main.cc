@@ -58,14 +58,12 @@
 #endif
 #endif  // defined(USE_AURA)
 
-#if defined(TOOLKIT_VIEWS)
 #if BUILDFLAG(IS_MAC)
 #include "chrome/browser/ui/views/chrome_layout_provider.h"
 #include "chrome/browser/ui/views/chrome_views_delegate.h"
 #else
 #include "ui/views/test/desktop_test_views_delegate.h"
 #endif
-#endif  // defined(TOOLKIT_VIEWS)
 
 #if defined(USE_AURA) && BUILDFLAG(IS_LINUX)
 #include "ui/base/ime/init/input_method_initializer.h"
@@ -118,14 +116,12 @@ void AlloyBrowserMainParts::ToolkitInitialized() {
   wm_state_.reset(new wm::WMState);
 #endif  // defined(USE_AURA)
 
-#if defined(TOOLKIT_VIEWS)
 #if BUILDFLAG(IS_MAC)
   views_delegate_ = std::make_unique<ChromeViewsDelegate>();
   layout_provider_ = ChromeLayoutProvider::CreateLayoutProvider();
 #else
   views_delegate_ = std::make_unique<views::DesktopTestViewsDelegate>();
 #endif
-#endif  // defined(TOOLKIT_VIEWS)
 }
 
 void AlloyBrowserMainParts::PreCreateMainMessageLoop() {
@@ -277,10 +273,8 @@ void AlloyBrowserMainParts::PostMainMessageLoopRun() {
 }
 
 void AlloyBrowserMainParts::PostDestroyThreads() {
-#if defined(TOOLKIT_VIEWS)
   views_delegate_.reset();
 #if BUILDFLAG(IS_MAC)
   layout_provider_.reset();
 #endif
-#endif  // defined(TOOLKIT_VIEWS)
 }
