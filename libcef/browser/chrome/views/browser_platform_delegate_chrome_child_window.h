@@ -16,13 +16,14 @@ class CefBrowserPlatformDelegateChromeChildWindow
       CefRefPtr<CefBrowserViewImpl> browser_view);
 
   // CefBrowserPlatformDelegate overrides.
-  void RenderViewCreated(content::RenderViewHost* render_view_host) override;
   void CloseHostWindow() override;
   void SetFocus(bool focus) override;
 
 #if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
   void NotifyMoveOrResizeStarted() override;
 #endif
+
+  bool HasExternalParent() const override { return true; }
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_VIEWS_BROWSER_PLATFORM_DELEGATE_CHROME_CHILD_WINDOW_H_

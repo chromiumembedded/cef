@@ -35,7 +35,6 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
                       bool* was_blocked) override;
   bool ShouldAllowRendererInitiatedCrossProcessNavigation(
       bool is_main_frame_navigation) override;
-  void RenderViewCreated(content::RenderViewHost* render_view_host) override;
   void RenderViewReady() override;
   void BrowserCreated(CefBrowserHostBase* browser) override;
   void CreateExtensionHost(const extensions::Extension* extension,

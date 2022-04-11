@@ -14,15 +14,6 @@ CefBrowserPlatformDelegateChromeChildWindow::
     : CefBrowserPlatformDelegateChromeViews(std::move(native_delegate),
                                             browser_view) {}
 
-void CefBrowserPlatformDelegateChromeChildWindow::RenderViewCreated(
-    content::RenderViewHost* render_view_host) {
-  CefBrowserPlatformDelegateChromeViews::RenderViewCreated(render_view_host);
-
-  // Calls SetHasExternalParent(true). This setting is required for proper
-  // focus handling on Windows and Linux.
-  native_delegate_->RenderViewCreated(render_view_host);
-}
-
 void CefBrowserPlatformDelegateChromeChildWindow::CloseHostWindow() {
   native_delegate_->CloseHostWindow();
 }

@@ -179,7 +179,16 @@ bool CefBrowserInfoManager::CanCreateWindow(
   if (allow) {
     CefBrowserCreateParams create_params;
     create_params.MaybeSetWindowInfo(window_info);
-    create_params.popup_with_views_hosted_opener = browser->HasView();
+
+    // In most cases, Views-hosted browsers should create Views-hosted popups
+    // and native browsers should use default popup handling. The one exception
+    // is with the Chrome runtime where a Views-hosted browser may have an
+    // external parent. In that case we want to use default popup handling even
+    // though the parent is (technically) Views-hosted.
+    create_params.popup_with_views_hosted_opener =
+        browser->HasView() &&
+        !browser->platform_delegate()->HasExternalParent();
+
     create_params.settings = pending_popup->settings;
     create_params.client = pending_popup->client;
     create_params.extra_info = pending_popup->extra_info;

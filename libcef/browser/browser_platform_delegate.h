@@ -288,6 +288,10 @@ class CefBrowserPlatformDelegate {
   // be called on multiple threads.
   virtual bool IsViewsHosted() const;
 
+  // Returns true if this delegate implements a browser with external
+  // (client-provided) parent window. May be called on multiple threads.
+  virtual bool HasExternalParent() const;
+
   // Notify the browser that it was hidden. Only used with windowless rendering.
   virtual void WasHidden(bool hidden);
 
