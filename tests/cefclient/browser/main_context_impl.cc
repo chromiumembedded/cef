@@ -181,6 +181,11 @@ bool MainContextImpl::TouchEventsEnabled() {
   return command_line_->GetSwitchValue("touch-events") == "enabled";
 }
 
+bool MainContextImpl::UseDefaultPopup() {
+  return !use_windowless_rendering_ &&
+         command_line_->HasSwitch(switches::kUseDefaultPopup);
+}
+
 void MainContextImpl::PopulateSettings(CefSettings* settings) {
   client::ClientAppBrowser::PopulateSettings(command_line_, *settings);
 

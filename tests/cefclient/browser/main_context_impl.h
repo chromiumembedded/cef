@@ -32,6 +32,7 @@ class MainContextImpl : public MainContext {
   bool UseViews() override;
   bool UseWindowlessRendering() override;
   bool TouchEventsEnabled() override;
+  bool UseDefaultPopup() override;
   void PopulateSettings(CefSettings* settings) override;
   void PopulateBrowserSettings(CefBrowserSettings* settings) override;
   void PopulateOsrSettings(OsrRendererSettings* settings) override;

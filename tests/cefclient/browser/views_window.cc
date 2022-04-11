@@ -344,8 +344,12 @@ CefRefPtr<CefBrowserViewDelegate> ViewsWindow::GetDelegateForPopupBrowserView(
   // knows the association between |client| and itself.
   Delegate* popup_delegate = delegate_->GetDelegateForPopup(client);
 
+  // May be nullptr when using the default popup behavior.
+  if (!popup_delegate)
+    return nullptr;
+
   // Should not be the same RootWindowViews that owns |this|.
-  DCHECK(popup_delegate && popup_delegate != delegate_);
+  DCHECK(popup_delegate != delegate_);
 
   // Create a new ViewsWindow for the popup BrowserView.
   return new ViewsWindow(popup_delegate, nullptr);
@@ -362,8 +366,12 @@ bool ViewsWindow::OnPopupBrowserViewCreated(
       static_cast<ViewsWindow*>(static_cast<CefBrowserViewDelegate*>(
           popup_browser_view->GetDelegate().get()));
 
+  // May be nullptr when using the default popup behavior.
+  if (!popup_window)
+    return false;
+
   // Should not be the same ViewsWindow as |this|.
-  DCHECK(popup_window && popup_window != this);
+  DCHECK(popup_window != this);
 
   // Associate the ViewsWindow with the new popup browser.
   popup_window->SetBrowserView(popup_browser_view);

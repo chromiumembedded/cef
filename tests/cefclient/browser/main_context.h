@@ -51,6 +51,9 @@ class MainContext {
   // Returns true if touch events are enabled.
   virtual bool TouchEventsEnabled() = 0;
 
+  // Returns true if the default popup implementation should be used.
+  virtual bool UseDefaultPopup() = 0;
+
   // Populate |settings| based on command-line arguments.
   virtual void PopulateSettings(CefSettings* settings) = 0;
   virtual void PopulateBrowserSettings(CefBrowserSettings* settings) = 0;

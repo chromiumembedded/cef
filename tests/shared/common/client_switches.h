@@ -43,6 +43,7 @@ extern const char kEnableChromeRuntime[];
 extern const char kShowChromeToolbar[];
 extern const char kInitialShowState[];
 extern const char kHideChromeStatusBubble[];
+extern const char kUseDefaultPopup[];
 
 }  // namespace switches
 }  // namespace client

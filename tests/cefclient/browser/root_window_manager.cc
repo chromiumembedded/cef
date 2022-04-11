@@ -9,6 +9,7 @@
 #include "include/base/cef_callback.h"
 #include "include/base/cef_logging.h"
 #include "include/wrapper/cef_helpers.h"
+#include "tests/cefclient/browser/client_handler_std.h"
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/test_runner.h"
 #include "tests/shared/browser/extension_util.h"
@@ -130,12 +131,20 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsPopup(
     CefBrowserSettings& settings) {
   CEF_REQUIRE_UI_THREAD();
 
+  MainContext::Get()->PopulateBrowserSettings(&settings);
+
+  if (MainContext::Get()->UseDefaultPopup()) {
+    // Use default window creation for the popup. A new |client| instance is
+    // still required by cefclient architecture.
+    client = new ClientHandlerStd(/*delegate=*/nullptr, with_controls,
+                                  /*startup_url=*/CefString());
+    return nullptr;
+  }
+
   if (!temp_window_) {
     // TempWindow must be created on the UI thread.
     temp_window_.reset(new TempWindow());
   }
-
-  MainContext::Get()->PopulateBrowserSettings(&settings);
 
   scoped_refptr<RootWindow> root_window =
       RootWindow::Create(MainContext::Get()->UseViews());

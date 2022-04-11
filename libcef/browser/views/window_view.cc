@@ -346,6 +346,10 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
   if (params.bounds.IsEmpty()) {
     // The window will be placed on the default screen with origin (0,0).
     params.bounds = gfx::Rect(CalculatePreferredSize());
+    if (params.bounds.IsEmpty()) {
+      // Choose a reasonable default size.
+      params.bounds.set_size({800, 600});
+    }
   }
 
   if (can_activate) {

@@ -265,8 +265,11 @@ ViewsWindow::Delegate* RootWindowViews::GetDelegateForPopup(
   RootWindowViews* root_window =
       static_cast<RootWindowViews*>(handler->delegate());
 
-  // Transfer some state to the child RootWindowViews.
-  root_window->image_cache_ = image_cache_;
+  // May be nullptr when using the default popup behavior.
+  if (root_window) {
+    // Transfer some state to the child RootWindowViews.
+    root_window->image_cache_ = image_cache_;
+  }
 
   return root_window;
 }

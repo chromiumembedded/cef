@@ -178,6 +178,11 @@ void CefBrowserPlatformDelegateNativeWin::BrowserDestroyed(
 bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
   RegisterWindowClass();
 
+  if (window_info_.style == 0) {
+    // Client didn't intialize the CefWindowInfo. Provide reasonable defaults.
+    window_info_.SetAsPopup(nullptr, CefString());
+  }
+
   has_frame_ = !(window_info_.style & WS_CHILD);
 
   std::wstring windowName(CefString(&window_info_.window_name));
