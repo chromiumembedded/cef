@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6639552a1a56f42d7f73ffec99d28fb98173dbd1$
+// $hash=60fce570867addbf622a0f74422d225f23942e4d$
 //
 
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
@@ -60,6 +60,27 @@ window_delegate_on_window_destroyed(struct _cef_window_delegate_t* self,
   // Execute
   CefWindowDelegateCppToC::Get(self)->OnWindowDestroyed(
       CefWindowCToCpp::Wrap(window));
+}
+
+void CEF_CALLBACK window_delegate_on_window_activation_changed(
+    struct _cef_window_delegate_t* self,
+    cef_window_t* window,
+    int active) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: window; type: refptr_diff
+  DCHECK(window);
+  if (!window)
+    return;
+
+  // Execute
+  CefWindowDelegateCppToC::Get(self)->OnWindowActivationChanged(
+      CefWindowCToCpp::Wrap(window), active ? true : false);
 }
 
 cef_window_t* CEF_CALLBACK
@@ -575,6 +596,8 @@ void CEF_CALLBACK window_delegate_on_blur(struct _cef_view_delegate_t* self,
 CefWindowDelegateCppToC::CefWindowDelegateCppToC() {
   GetStruct()->on_window_created = window_delegate_on_window_created;
   GetStruct()->on_window_destroyed = window_delegate_on_window_destroyed;
+  GetStruct()->on_window_activation_changed =
+      window_delegate_on_window_activation_changed;
   GetStruct()->get_parent_window = window_delegate_get_parent_window;
   GetStruct()->get_initial_bounds = window_delegate_get_initial_bounds;
   GetStruct()->get_initial_show_state = window_delegate_get_initial_show_state;

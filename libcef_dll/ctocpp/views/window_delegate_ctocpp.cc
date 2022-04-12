@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=557b305c33b5975b197bf930cc223f76b3032288$
+// $hash=423d12cda6148d99e5afb0cc4aa11818e0740e1e$
 //
 
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
@@ -55,6 +55,28 @@ void CefWindowDelegateCToCpp::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
 
   // Execute
   _struct->on_window_destroyed(_struct, CefWindowCppToC::Wrap(window));
+}
+
+NO_SANITIZE("cfi-icall")
+void CefWindowDelegateCToCpp::OnWindowActivationChanged(
+    CefRefPtr<CefWindow> window,
+    bool active) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_window_activation_changed))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: window; type: refptr_diff
+  DCHECK(window.get());
+  if (!window.get())
+    return;
+
+  // Execute
+  _struct->on_window_activation_changed(_struct, CefWindowCppToC::Wrap(window),
+                                        active);
 }
 
 NO_SANITIZE("cfi-icall")

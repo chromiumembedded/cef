@@ -64,6 +64,13 @@ class CefWindowDelegate : public CefPanelDelegate {
   virtual void OnWindowDestroyed(CefRefPtr<CefWindow> window) {}
 
   ///
+  // Called when |window| is activated or deactivated.
+  ///
+  /*--cef()--*/
+  virtual void OnWindowActivationChanged(CefRefPtr<CefWindow> window,
+                                         bool active) {}
+
+  ///
   // Return the parent for |window| or NULL if the |window| does not have a
   // parent. Windows with parents will not get a taskbar button. Set |is_menu|
   // to true if |window| will be displayed as a menu, in which case it will not

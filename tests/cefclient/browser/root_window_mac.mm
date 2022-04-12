@@ -120,45 +120,33 @@ class RootWindowMacImpl
   // After initialization all members are only accessed on the main thread.
   // Members set during initialization.
   RootWindowMac& root_window_;
-  bool with_controls_;
-  bool with_osr_;
-  bool with_extension_;
-  bool is_popup_;
+  bool with_controls_ = false;
+  bool with_osr_ = false;
+  bool with_extension_ = false;
+  bool is_popup_ = false;
   CefRect start_rect_;
   std::unique_ptr<BrowserWindow> browser_window_;
-  bool initialized_;
+  bool initialized_ = false;
 
   // Main window.
-  NSWindow* window_;
-  RootWindowDelegate* window_delegate_;
+  NSWindow* window_ = nil;
+  RootWindowDelegate* window_delegate_ = nil;
 
   // Buttons.
-  NSButton* back_button_;
-  NSButton* forward_button_;
-  NSButton* reload_button_;
-  NSButton* stop_button_;
+  NSButton* back_button_ = nil;
+  NSButton* forward_button_ = nil;
+  NSButton* reload_button_ = nil;
+  NSButton* stop_button_ = nil;
 
   // URL text field.
-  NSTextField* url_textfield_;
+  NSTextField* url_textfield_ = nil;
 
-  bool window_destroyed_;
-  bool browser_destroyed_;
+  bool window_destroyed_ = false;
+  bool browser_destroyed_ = false;
 };
 
 RootWindowMacImpl::RootWindowMacImpl(RootWindowMac& root_window)
-    : root_window_(root_window),
-      with_controls_(false),
-      with_osr_(false),
-      is_popup_(false),
-      initialized_(false),
-      window_(nil),
-      back_button_(nil),
-      forward_button_(nil),
-      reload_button_(nil),
-      stop_button_(nil),
-      url_textfield_(nil),
-      window_destroyed_(false),
-      browser_destroyed_(false) {}
+    : root_window_(root_window) {}
 
 RootWindowMacImpl::~RootWindowMacImpl() {
   REQUIRE_MAIN_THREAD();
@@ -739,13 +727,6 @@ void RootWindowMac::OnSetDraggableRegions(
 
 void RootWindowMac::OnNativeWindowClosed() {
   impl_->OnNativeWindowClosed();
-}
-
-// static
-scoped_refptr<RootWindow> RootWindow::GetForNSWindow(NSWindow* window) {
-  RootWindowDelegate* delegate =
-      static_cast<RootWindowDelegate*>([window delegate]);
-  return [delegate root_window];
 }
 
 }  // namespace client

@@ -524,6 +524,13 @@ void CefWindowView::ViewHierarchyChanged(
   ParentClass::ViewHierarchyChanged(details);
 }
 
+void CefWindowView::OnWidgetActivationChanged(views::Widget* widget,
+                                              bool active) {
+  if (cef_delegate()) {
+    cef_delegate()->OnWindowActivationChanged(GetCefWindow(), active);
+  }
+}
+
 void CefWindowView::OnWidgetBoundsChanged(views::Widget* widget,
                                           const gfx::Rect& new_bounds) {
   MoveOverlaysIfNecessary();

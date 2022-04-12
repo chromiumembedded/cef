@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=cd5d7c4e83237ceb39c5639489ca6004d2d69f0c$
+// $hash=7f88c6428929c0511ff90b6137efcc4cebcfeae4$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
@@ -72,6 +72,14 @@ typedef struct _cef_window_delegate_t {
   ///
   void(CEF_CALLBACK* on_window_destroyed)(struct _cef_window_delegate_t* self,
                                           struct _cef_window_t* window);
+
+  ///
+  // Called when |window| is activated or deactivated.
+  ///
+  void(CEF_CALLBACK* on_window_activation_changed)(
+      struct _cef_window_delegate_t* self,
+      struct _cef_window_t* window,
+      int active);
 
   ///
   // Return the parent for |window| or NULL if the |window| does not have a

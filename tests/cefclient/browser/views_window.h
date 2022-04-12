@@ -153,6 +153,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
   // CefWindowDelegate methods:
   void OnWindowCreated(CefRefPtr<CefWindow> window) override;
   void OnWindowDestroyed(CefRefPtr<CefWindow> window) override;
+  void OnWindowActivationChanged(CefRefPtr<CefWindow> window,
+                                 bool active) override;
   CefRefPtr<CefWindow> GetParentWindow(CefRefPtr<CefWindow> window,
                                        bool* is_menu,
                                        bool* can_activate_menu) override;

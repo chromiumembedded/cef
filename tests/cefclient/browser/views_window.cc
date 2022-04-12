@@ -574,6 +574,14 @@ void ViewsWindow::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
   window_ = nullptr;
 }
 
+void ViewsWindow::OnWindowActivationChanged(CefRefPtr<CefWindow> window,
+                                            bool active) {
+  if (!active)
+    return;
+
+  delegate_->OnViewsWindowActivated(this);
+}
+
 bool ViewsWindow::CanClose(CefRefPtr<CefWindow> window) {
   CEF_REQUIRE_UI_THREAD();
 
@@ -706,9 +714,6 @@ void ViewsWindow::OnFocus(CefRefPtr<CefView> view) {
       SetMenuFocusable(false);
     }
   }
-
-  if (view_id == ID_BROWSER_VIEW)
-    delegate_->OnViewsWindowActivated(this);
 }
 
 void ViewsWindow::OnBlur(CefRefPtr<CefView> view) {

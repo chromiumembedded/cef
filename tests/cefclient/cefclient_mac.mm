@@ -237,12 +237,10 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
 
 - (void)testsItemSelected:(int)command_id {
   // Retrieve the active RootWindow.
-  NSWindow* key_window = [[NSApplication sharedApplication] keyWindow];
-  if (!key_window)
+  auto root_window =
+      client::MainContext::Get()->GetRootWindowManager()->GetActiveRootWindow();
+  if (!root_window)
     return;
-
-  scoped_refptr<client::RootWindow> root_window =
-      client::RootWindow::GetForNSWindow(key_window);
 
   CefRefPtr<CefBrowser> browser = root_window->GetBrowser();
   if (browser.get())
@@ -319,12 +317,10 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
 
 - (void)enableAccessibility:(bool)bEnable {
   // Retrieve the active RootWindow.
-  NSWindow* key_window = [[NSApplication sharedApplication] keyWindow];
-  if (!key_window)
+  auto root_window =
+      client::MainContext::Get()->GetRootWindowManager()->GetActiveRootWindow();
+  if (!root_window)
     return;
-
-  scoped_refptr<client::RootWindow> root_window =
-      client::RootWindow::GetForNSWindow(key_window);
 
   CefRefPtr<CefBrowser> browser = root_window->GetBrowser();
   if (browser.get()) {
