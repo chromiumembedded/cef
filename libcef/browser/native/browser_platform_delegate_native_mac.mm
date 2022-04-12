@@ -166,27 +166,22 @@ bool CefBrowserPlatformDelegateNativeMac::CreateHostWindow() {
 
   NSView* parentView =
       CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(window_info_.parent_view);
-  NSRect contentRect = {{static_cast<CGFloat>(window_info_.bounds.x),
-                         static_cast<CGFloat>(window_info_.bounds.y)},
-                        {static_cast<CGFloat>(window_info_.bounds.width),
-                         static_cast<CGFloat>(window_info_.bounds.height)}};
+
+  const CGFloat x = static_cast<CGFloat>(window_info_.bounds.x);
+  const CGFloat y = static_cast<CGFloat>(window_info_.bounds.y);
+  const CGFloat width = static_cast<CGFloat>(window_info_.bounds.width);
+  const CGFloat height = static_cast<CGFloat>(window_info_.bounds.height);
+
+  NSRect content_rect = {{x, y}, {width, height}};
   if (parentView == nil) {
     // Create a new window.
-    NSRect screen_rect = [[NSScreen mainScreen] visibleFrame];
-    NSRect window_rect = {
-        {static_cast<CGFloat>(window_info_.bounds.x),
-         screen_rect.size.height - static_cast<CGFloat>(window_info_.bounds.y)},
-        {static_cast<CGFloat>(window_info_.bounds.width),
-         static_cast<CGFloat>(window_info_.bounds.height)}};
+    NSRect window_rect = {{x, y}, {width, height}};
     if (window_rect.size.width == 0)
       window_rect.size.width = 750;
     if (window_rect.size.height == 0)
       window_rect.size.height = 750;
 
-    contentRect.origin.x = 0;
-    contentRect.origin.y = 0;
-    contentRect.size.width = window_rect.size.width;
-    contentRect.size.height = window_rect.size.height;
+    content_rect = {{0, 0}, {window_rect.size.width, window_rect.size.height}};
 
     newWnd = [[UnderlayOpenGLHostingWindow alloc]
         initWithContentRect:window_rect
@@ -207,6 +202,11 @@ bool CefBrowserPlatformDelegateNativeMac::CreateHostWindow() {
     // sub-views have layers. This is necessary to ensure correct layer
     // ordering of all child views and their layers.
     [parentView setWantsLayer:YES];
+
+    // Transform input Y coodinate into the MacOS coordinate.
+    NSRect primary_screen_rect = [[[NSScreen screens] firstObject] frame];
+    const CGFloat transformed_y = NSMaxY(primary_screen_rect) - y;
+    [newWnd setFrameTopLeftPoint:NSMakePoint(x, transformed_y)];
   }
 
   host_window_created_ = true;
@@ -216,7 +216,7 @@ bool CefBrowserPlatformDelegateNativeMac::CreateHostWindow() {
 
   // Create the browser view.
   CefBrowserHostView* browser_view =
-      [[CefBrowserHostView alloc] initWithFrame:contentRect];
+      [[CefBrowserHostView alloc] initWithFrame:content_rect];
   browser_view.browser = browser_;
   [parentView addSubview:browser_view];
   [browser_view setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
