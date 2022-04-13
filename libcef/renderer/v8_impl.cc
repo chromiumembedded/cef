@@ -1607,7 +1607,7 @@ v8::Local<v8::Value> CefV8ValueImpl::GetV8Value(bool should_persist) {
     case TYPE_INT:
       return v8::Int32::New(isolate_, int_value_);
     case TYPE_UINT:
-      return v8::Uint32::New(isolate_, uint_value_);
+      return v8::Uint32::NewFromUnsigned(isolate_, uint_value_);
     case TYPE_DOUBLE:
       return v8::Number::New(isolate_, double_value_);
     case TYPE_DATE:
