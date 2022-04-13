@@ -584,10 +584,16 @@ class CefStringBase {
       return NULL;
 
     userfree_struct_type str = traits::userfree_alloc();
-    memcpy(str, string_, sizeof(struct_type));
+    if (owner_) {
+      // Transfer ownership of the data to |str|.
+      memcpy(str, string_, sizeof(struct_type));
+      // Free this class' structure but not the data.
+      memset(string_, 0, sizeof(struct_type));
+    } else {
+      // Copy the data to |str|.
+      traits::set(string_->str, string_->length, str, /*copy=*/true);
+    }
 
-    // Free this class' structure but not the data.
-    memset(string_, 0, sizeof(struct_type));
     ClearAndFree();
 
     return str;
