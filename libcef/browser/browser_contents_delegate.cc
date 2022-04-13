@@ -36,11 +36,11 @@ class CefWidgetHostInterceptor
       public content::RenderWidgetHostObserver {
  public:
   CefWidgetHostInterceptor(CefRefPtr<CefBrowser> browser,
-                           content::RenderViewHost* render_view_host)
+                           content::RenderWidgetHost* render_widget_host)
       : browser_(browser),
-        render_widget_host_(
-            content::RenderWidgetHostImpl::From(render_view_host->GetWidget())),
-        impl_(render_widget_host_->widget_host_receiver_for_testing()
+        render_widget_host_(render_widget_host),
+        impl_(static_cast<content::RenderWidgetHostImpl*>(render_widget_host)
+                  ->widget_host_receiver_for_testing()
                   .SwapImplForTesting(this)) {
     render_widget_host_->AddObserver(this);
   }
@@ -69,7 +69,7 @@ class CefWidgetHostInterceptor
 
  private:
   CefRefPtr<CefBrowser> const browser_;
-  content::RenderWidgetHostImpl* const render_widget_host_;
+  content::RenderWidgetHost* const render_widget_host_;
   blink::mojom::WidgetHost* const impl_;
 };
 
@@ -102,6 +102,10 @@ void CefBrowserContentsDelegate::ObserveWebContents(
     // browser.
     browser_info_->MaybeCreateFrame(new_contents->GetMainFrame(),
                                     false /* is_guest_view */);
+
+    // Make sure RenderWidgetCreated is called at least one time. This Observer
+    // is registered too late to catch the initial creation.
+    RenderWidgetCreated(new_contents->GetRenderViewHost()->GetWidget());
   } else {
     registrar_.reset();
   }
@@ -316,7 +320,6 @@ void CefBrowserContentsDelegate::RenderFrameCreated(
     render_view_host->GetWidget()->GetView()->SetBackgroundColor(
         base_background_color);
 
-    new CefWidgetHostInterceptor(browser(), render_view_host);
     platform_delegate()->RenderViewCreated(render_view_host);
   }
 }
@@ -345,6 +348,11 @@ void CefBrowserContentsDelegate::RenderFrameDeleted(
     focused_frame_ = nullptr;
     OnStateChanged(State::kFocusedFrame);
   }
+}
+
+void CefBrowserContentsDelegate::RenderWidgetCreated(
+    content::RenderWidgetHost* render_widget_host) {
+  new CefWidgetHostInterceptor(browser(), render_widget_host);
 }
 
 void CefBrowserContentsDelegate::RenderViewReady() {

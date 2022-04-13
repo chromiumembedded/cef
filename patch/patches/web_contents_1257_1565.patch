@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 62818b1c709b7..43da09b31210c 100644
+index 62818b1c709b7..bcb25dd22fe8f 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -3030,6 +3030,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
@@ -23,7 +23,17 @@ index 62818b1c709b7..43da09b31210c 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -3906,6 +3913,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+@@ -3218,6 +3225,9 @@ void WebContentsImpl::RenderWidgetCreated(
+   OPTIONAL_TRACE_EVENT1("content", "WebContentsImpl::RenderWidgetCreated",
+                         "render_widget_host", render_widget_host);
+   created_widgets_.insert(render_widget_host);
++
++  observers_.NotifyObservers(
++      &WebContentsObserver::RenderWidgetCreated, render_widget_host);
+ }
+ 
+ void WebContentsImpl::RenderWidgetDeleted(
+@@ -3906,6 +3916,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -39,7 +49,7 @@ index 62818b1c709b7..43da09b31210c 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -7733,6 +7749,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -7733,6 +7752,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // frames).
      SetFocusedFrameTree(node->frame_tree());
    }
@@ -110,10 +120,20 @@ index 9c70cc90402dd..0e0daeb27e880 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index b68d706fe204c..173206fcd95f6 100644
+index b68d706fe204c..aec4c68851607 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
-@@ -772,6 +772,10 @@ class CONTENT_EXPORT WebContentsObserver {
+@@ -209,6 +209,9 @@ class CONTENT_EXPORT WebContentsObserver {
+   virtual void OnCaptureHandleConfigUpdate(
+       const blink::mojom::CaptureHandleConfig& config) {}
+ 
++  // This method is invoked when a RenderWidget is created.
++  virtual void RenderWidgetCreated(RenderWidgetHost* render_widget_host) {}
++
+   // This method is invoked when the RenderView of the current RenderViewHost
+   // is ready, e.g. because we recreated it after a crash.
+   virtual void RenderViewReady() {}
+@@ -772,6 +775,10 @@ class CONTENT_EXPORT WebContentsObserver {
    // WebContents has gained/lost focus.
    virtual void OnFocusChangedInPage(FocusedNodeDetails* details) {}
  
