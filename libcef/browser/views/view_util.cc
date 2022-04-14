@@ -217,12 +217,12 @@ display::Display GetDisplayMatchingBounds(const gfx::Rect& bounds,
   return display::Screen::GetScreen()->GetDisplayMatching(find_bounds);
 }
 
-void ConvertPointFromPixels(gfx::Point* point, int device_scale_factor) {
+void ConvertPointFromPixels(gfx::Point* point, float device_scale_factor) {
   *point = gfx::ToFlooredPoint(
       gfx::ScalePoint(gfx::PointF(*point), 1.0f / device_scale_factor));
 }
 
-void ConvertPointToPixels(gfx::Point* point, int device_scale_factor) {
+void ConvertPointToPixels(gfx::Point* point, float device_scale_factor) {
   *point = gfx::ToFlooredPoint(
       gfx::ScalePoint(gfx::PointF(*point), device_scale_factor));
 }

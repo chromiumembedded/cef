@@ -84,11 +84,11 @@ display::Display GetDisplayMatchingBounds(const gfx::Rect& bounds,
 
 // Convert |point| from pixel coordinates to density independent pixels (DIP)
 // using |device_scale_factor|.
-void ConvertPointFromPixels(gfx::Point* point, int device_scale_factor);
+void ConvertPointFromPixels(gfx::Point* point, float device_scale_factor);
 
 // Convert |point| to pixel coordinates from density independent pixels (DIP)
 // using |device_scale_factor|.
-void ConvertPointToPixels(gfx::Point* point, int device_scale_factor);
+void ConvertPointToPixels(gfx::Point* point, float device_scale_factor);
 
 // Convert |point| from |view| to screen coordinates. If |output_pixel_coords|
 // is true then |point| will be output in pixel coordinates instead of density
