@@ -131,7 +131,8 @@ LPCWSTR ToCursorID(ui::mojom::CursorType type) {
 }
 
 bool IsSystemCursorID(LPCWSTR cursor_id) {
-  return cursor_id >= IDC_ARROW;  // See WinUser.h
+  // Check the range of values from WinUser.h.
+  return cursor_id >= IDC_ARROW && cursor_id <= IDC_HELP;
 }
 
 }  // namespace
