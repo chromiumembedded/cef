@@ -16,7 +16,13 @@
 // CefViewView template.
 class WebViewEx : public views::WebView {
  public:
-  WebViewEx() : views::WebView(nullptr) {}
+  WebViewEx() : views::WebView(nullptr) {
+    // Mouse events on draggable regions will not be handled by the WebView.
+    // Avoid the resulting DCHECK in NativeViewHost::OnMousePressed by
+    // configuring the NativeViewHost not to process events via the view
+    // hierarchy.
+    holder()->SetCanProcessEventsWithinSubtree(false);
+  }
 };
 
 class CefBrowserViewView
