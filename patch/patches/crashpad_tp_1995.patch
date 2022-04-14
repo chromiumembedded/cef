@@ -40,10 +40,10 @@ index b80cf7a59103b..6318dd05e6eef 100644
    virtual ~PruneCondition() {}
  
 diff --git third_party/crashpad/crashpad/client/settings.cc third_party/crashpad/crashpad/client/settings.cc
-index 966481d6284e4..e0fa8394cb045 100644
+index 8fe578f92f3a3..9acab9404c885 100644
 --- third_party/crashpad/crashpad/client/settings.cc
 +++ third_party/crashpad/crashpad/client/settings.cc
-@@ -87,7 +87,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
+@@ -111,7 +111,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
  
  struct Settings::Data {
    static constexpr uint32_t kSettingsMagic = 'CPds';
@@ -52,7 +52,7 @@ index 966481d6284e4..e0fa8394cb045 100644
  
    enum Options : uint32_t {
      kUploadsEnabled = 1 << 0,
-@@ -98,6 +98,9 @@ struct Settings::Data {
+@@ -122,6 +122,9 @@ struct Settings::Data {
             options(0),
             padding_0(0),
             last_upload_attempt_time(0),
@@ -62,7 +62,7 @@ index 966481d6284e4..e0fa8394cb045 100644
             client_id() {}
  
    uint32_t magic;
-@@ -105,6 +108,9 @@ struct Settings::Data {
+@@ -129,6 +132,9 @@ struct Settings::Data {
    uint32_t options;
    uint32_t padding_0;
    int64_t last_upload_attempt_time;  // time_t
@@ -72,7 +72,7 @@ index 966481d6284e4..e0fa8394cb045 100644
    UUID client_id;
  };
  
-@@ -188,6 +194,56 @@ bool Settings::SetLastUploadAttemptTime(time_t time) {
+@@ -212,6 +218,56 @@ bool Settings::SetLastUploadAttemptTime(time_t time) {
    return WriteSettings(handle.get(), settings);
  }
  
@@ -130,10 +130,10 @@ index 966481d6284e4..e0fa8394cb045 100644
  Settings::ScopedLockedFileHandle Settings::MakeScopedLockedFileHandle(
      FileHandle file,
 diff --git third_party/crashpad/crashpad/client/settings.h third_party/crashpad/crashpad/client/settings.h
-index e476c60c3ba6b..ce8256c9f6d25 100644
+index aedf30cd874f7..ab798f00e0862 100644
 --- third_party/crashpad/crashpad/client/settings.h
 +++ third_party/crashpad/crashpad/client/settings.h
-@@ -116,6 +116,11 @@ class Settings {
+@@ -120,6 +120,11 @@ class Settings {
    //!     error logged.
    bool SetLastUploadAttemptTime(time_t time);
  
@@ -184,7 +184,7 @@ index 0fe4760db7fe2..042af7247712c 100644
  
    if (crashpad_is_win) {
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
-index efbeab7804c44..44fd31e58175c 100644
+index 138cf80026c98..d4af1f0c38d76 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
 @@ -269,6 +269,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
