@@ -397,6 +397,22 @@ index a6f15f3436bef..5e2ab8373458b 100644
    int browser_view_width = vertical_layout_rect_.width();
    bool toolbar_visible = delegate_->IsToolbarVisible();
    int height = toolbar_visible ? toolbar_->GetPreferredSize().height() : 0;
+diff --git chrome/browser/ui/views/frame/contents_web_view.cc chrome/browser/ui/views/frame/contents_web_view.cc
+index 5f985efa03120..cd38b49974ecb 100644
+--- chrome/browser/ui/views/frame/contents_web_view.cc
++++ chrome/browser/ui/views/frame/contents_web_view.cc
+@@ -24,6 +24,11 @@
+ ContentsWebView::ContentsWebView(content::BrowserContext* browser_context)
+     : views::WebView(browser_context),
+       status_bubble_(nullptr) {
++  // Mouse events on draggable regions will not be handled by the WebView.
++  // Avoid the resulting DCHECK in NativeViewHost::OnMousePressed by
++  // configuring the NativeViewHost not to process events via the view
++  // hierarchy.
++  holder()->SetCanProcessEventsWithinSubtree(false);
+ }
+ 
+ ContentsWebView::~ContentsWebView() {
 diff --git chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
 index 7475765f4b514..25c59d942782b 100644
 --- chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
