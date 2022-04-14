@@ -4,7 +4,6 @@
 
 #include "libcef/browser/native/cursor_util.h"
 
-#include "ui/base/cursor/cursor_factory.h"
 #include "ui/ozone/buildflags.h"
 
 #if BUILDFLAG(OZONE_PLATFORM_X11)
@@ -14,14 +13,6 @@
 #endif
 
 namespace cursor_util {
-
-cef_cursor_handle_t GetPlatformCursor(ui::mojom::CursorType type) {
-  auto cursor = ui::CursorFactory::GetInstance()->GetDefaultCursor(type);
-  if (cursor) {
-    return ToCursorHandle(cursor);
-  }
-  return 0;
-}
 
 cef_cursor_handle_t ToCursorHandle(scoped_refptr<ui::PlatformCursor> cursor) {
 #if BUILDFLAG(OZONE_PLATFORM_X11)

@@ -17,7 +17,6 @@
 namespace cursor_util {
 
 #if defined(USE_AURA)
-cef_cursor_handle_t GetPlatformCursor(ui::mojom::CursorType type);
 cef_cursor_handle_t ToCursorHandle(scoped_refptr<ui::PlatformCursor> cursor);
 #endif  // defined(USE_AURA)
 
