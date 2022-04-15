@@ -7,28 +7,25 @@
 #define CEF_LIBCEF_BROWSER_FILE_DIALOG_MANAGER_H_
 #pragma once
 
-#include "include/cef_browser.h"
-#include "libcef/browser/file_dialog_runner.h"
+#include <memory>
+#include <set>
 
-#include "base/memory/weak_ptr.h"
-#include "content/public/browser/web_contents_observer.h"
+#include "include/cef_browser.h"
+
+#include "base/memory/scoped_refptr.h"
+#include "third_party/blink/public/mojom/choosers/file_chooser.mojom.h"
+#include "ui/shell_dialogs/select_file_dialog.h"
 
 namespace content {
 class FileSelectListener;
-class WebContents;
 }  // namespace content
 
-namespace net {
-class DirectoryLister;
-}
-
-class AlloyBrowserHostImpl;
+class CefBrowserHostBase;
+class CefSelectFileDialogListener;
 
 class CefFileDialogManager {
  public:
-  // |runner| may be NULL if the platform doesn't implement dialogs.
-  CefFileDialogManager(AlloyBrowserHostImpl* browser,
-                       std::unique_ptr<CefFileDialogRunner> runner);
+  explicit CefFileDialogManager(CefBrowserHostBase* browser);
 
   CefFileDialogManager(const CefFileDialogManager&) = delete;
   CefFileDialogManager& operator=(const CefFileDialogManager&) = delete;
@@ -38,70 +35,65 @@ class CefFileDialogManager {
   // Delete the runner to free any platform constructs.
   void Destroy();
 
-  // Called from AlloyBrowserHostImpl::RunFileChooser.
-  // See CefBrowserHost::RunFileDialog documentation.
+  // Run a file dialog with the specified parameters. See
+  // CefBrowserHost::RunFileDialog for usage documentation. This method should
+  // be called via CefBrowserHostBase::RunFileDialog.
   void RunFileDialog(cef_file_dialog_mode_t mode,
                      const CefString& title,
                      const CefString& default_file_path,
                      const std::vector<CefString>& accept_filters,
-                     int selected_accept_filter,
                      CefRefPtr<CefRunFileDialogCallback> callback);
 
-  // Called from AlloyBrowserHostImpl::RunFileChooser.
-  // See WebContentsDelegate::RunFileChooser documentation.
-  void RunFileChooser(scoped_refptr<content::FileSelectListener> listener,
-                      const blink::mojom::FileChooserParams& params);
+  // The argument vector will be empty if the dialog was canceled.
+  using RunFileChooserCallback =
+      base::OnceCallback<void(const std::vector<base::FilePath>&)>;
 
-  // Run the file chooser dialog specified by |params|. Only a single dialog may
-  // be pending at any given time. |callback| will be executed asynchronously
-  // after the dialog is dismissed or if another dialog is already pending.
-  void RunFileChooser(const CefFileDialogRunner::FileChooserParams& params,
-                      CefFileDialogRunner::RunFileChooserCallback callback);
+  // Run the file dialog specified by |params|. |callback| will be executed
+  // synchronously or asynchronously after the dialog is dismissed. This method
+  // should be called via CefBrowserHostBase::RunFileChooser.
+  void RunFileChooser(const blink::mojom::FileChooserParams& params,
+                      RunFileChooserCallback callback);
+
+  // Run a ui::SelectFileDialog with the specified parameters. See
+  // ui::SelectFileDialog for usage documentation. This method should be called
+  // via CefBrowserHostBase::RunSelectFile. It will be called for all file
+  // dialogs after interception via CefSelectFileDialog::SelectFileImpl.
+  void RunSelectFile(ui::SelectFileDialog::Listener* listener,
+                     std::unique_ptr<ui::SelectFilePolicy> policy,
+                     ui::SelectFileDialog::Type type,
+                     const std::u16string& title,
+                     const base::FilePath& default_path,
+                     const ui::SelectFileDialog::FileTypeInfo* file_types,
+                     int file_type_index,
+                     const base::FilePath::StringType& default_extension,
+                     gfx::NativeWindow owning_window,
+                     void* params);
+
+  // Must be called when the |listener| passed to RunSelectFile is destroyed.
+  void SelectFileListenerDestroyed(ui::SelectFileDialog::Listener* listener);
 
  private:
-  void RunFileChooserInternal(
-      const CefFileDialogRunner::FileChooserParams& params,
-      CefFileDialogRunner::RunFileChooserCallback callback);
+  [[nodiscard]] RunFileChooserCallback MaybeRunDelegate(
+      const blink::mojom::FileChooserParams& params,
+      RunFileChooserCallback callback);
 
-  // Used with the RunFileChooser variant where the caller specifies a callback
-  // (no associated RenderFrameHost).
-  void OnRunFileChooserCallback(
-      CefFileDialogRunner::RunFileChooserCallback callback,
-      int selected_accept_filter,
-      const std::vector<base::FilePath>& file_paths);
+  void SelectFileDoneByDelegateCallback(
+      ui::SelectFileDialog::Listener* listener,
+      void* params,
+      const std::vector<base::FilePath>& paths);
+  void SelectFileDoneByListenerCallback(bool listener_destroyed);
 
-  // Used with WebContentsDelegate::RunFileChooser when mode is
-  // blink::mojom::FileChooserParams::Mode::kUploadFolder.
-  void OnRunFileChooserUploadFolderDelegateCallback(
-      const blink::mojom::FileChooserParams::Mode mode,
-      scoped_refptr<content::FileSelectListener> listener,
-      int selected_accept_filter,
-      const std::vector<base::FilePath>& file_paths);
+  // CefBrowserHostBase pointer is guaranteed to outlive this object.
+  CefBrowserHostBase* const browser_;
 
-  // Used with WebContentsDelegate::RunFileChooser to notify the
-  // RenderFrameHost.
-  void OnRunFileChooserDelegateCallback(
-      blink::mojom::FileChooserParams::Mode mode,
-      scoped_refptr<content::FileSelectListener> listener,
-      int selected_accept_filter,
-      const std::vector<base::FilePath>& file_paths);
+  // Used when running a platform dialog via RunSelectFile.
+  scoped_refptr<ui::SelectFileDialog> dialog_;
+  CefSelectFileDialogListener* dialog_listener_ = nullptr;
 
-  // Clean up state associated with the last run.
-  void Cleanup();
+  // List of all currently active listeners.
+  std::set<ui::SelectFileDialog::Listener*> active_listeners_;
 
-  // AlloyBrowserHostImpl pointer is guaranteed to outlive this object.
-  AlloyBrowserHostImpl* browser_;
-
-  std::unique_ptr<CefFileDialogRunner> runner_;
-
-  // True if a file chooser is currently pending.
-  bool file_chooser_pending_;
-
-  // Used for asynchronously listing directory contents.
-  std::unique_ptr<net::DirectoryLister> lister_;
-
-  // Must be the last member.
-  base::WeakPtrFactory<CefFileDialogManager> weak_ptr_factory_;
+  base::WeakPtrFactory<CefFileDialogManager> weak_ptr_factory_{this};
 };
 
 #endif  // CEF_LIBCEF_BROWSER_JAVASCRIPT_DIALOG_MANAGER_H_

@@ -68,6 +68,7 @@
 #include "chrome/browser/profiles/renderer_updater_factory.h"
 #include "chrome/browser/renderer_host/pepper/chrome_browser_pepper_host_factory.h"
 #include "chrome/browser/spellchecker/spell_check_host_chrome_impl.h"
+#include "chrome/browser/ui/chrome_select_file_policy.h"
 #include "chrome/common/chrome_content_client.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
@@ -574,6 +575,12 @@ void AlloyContentBrowserClient::GetAdditionalViewSourceSchemes(
   GetAdditionalWebUISchemes(additional_schemes);
 
   additional_schemes->push_back(extensions::kExtensionScheme);
+}
+
+std::unique_ptr<ui::SelectFilePolicy>
+AlloyContentBrowserClient::CreateSelectFilePolicy(
+    content::WebContents* web_contents) {
+  return std::make_unique<ChromeSelectFilePolicy>(web_contents);
 }
 
 void AlloyContentBrowserClient::GetAdditionalAllowedSchemesForFileSystem(

@@ -13,6 +13,7 @@
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/devtools/devtools_manager.h"
+#include "libcef/browser/file_dialog_manager.h"
 #include "libcef/browser/frame_host_impl.h"
 #include "libcef/browser/request_context_impl.h"
 
@@ -156,6 +157,11 @@ class CefBrowserHostBase : public CefBrowserHost,
   CefRefPtr<CefRequestContext> GetRequestContext() override;
   bool HasView() override;
   void SetFocus(bool focus) override;
+  void RunFileDialog(FileDialogMode mode,
+                     const CefString& title,
+                     const CefString& default_file_path,
+                     const std::vector<CefString>& accept_filters,
+                     CefRefPtr<CefRunFileDialogCallback> callback) override;
   void StartDownload(const CefString& url) override;
   void DownloadImage(const CefString& image_url,
                      bool is_favicon,
@@ -234,6 +240,22 @@ class CefBrowserHostBase : public CefBrowserHost,
   virtual void OnSetFocus(cef_focus_source_t source) = 0;
   void ViewText(const std::string& text);
 
+  // Calls CefFileDialogManager methods.
+  void RunFileChooserForBrowser(
+      const blink::mojom::FileChooserParams& params,
+      CefFileDialogManager::RunFileChooserCallback callback);
+  void RunSelectFile(ui::SelectFileDialog::Listener* listener,
+                     std::unique_ptr<ui::SelectFilePolicy> policy,
+                     ui::SelectFileDialog::Type type,
+                     const std::u16string& title,
+                     const base::FilePath& default_path,
+                     const ui::SelectFileDialog::FileTypeInfo* file_types,
+                     int file_type_index,
+                     const base::FilePath::StringType& default_extension,
+                     gfx::NativeWindow owning_window,
+                     void* params);
+  void SelectFileListenerDestroyed(ui::SelectFileDialog::Listener* listener);
+
   // Called from CefBrowserInfoManager::MaybeAllowNavigation.
   virtual bool MaybeAllowNavigation(content::RenderFrameHost* opener,
                                     bool is_guest_view,
@@ -269,12 +291,26 @@ class CefBrowserHostBase : public CefBrowserHost,
   }
 
   // Returns the Widget owner for the browser window. Only used with windowed
-  // rendering.
+  // browsers.
   views::Widget* GetWindowWidget() const;
 
   // Returns the BrowserView associated with this browser. Only used with Views-
   // based browsers.
   CefRefPtr<CefBrowserView> GetBrowserView() const;
+
+  // Returns the top-level native window for this browser. With windowed
+  // browsers this will be an aura::Window* on Aura platforms (Windows/Linux)
+  // and an NSWindow wrapper object from native_widget_types.h on MacOS. With
+  // windowless browsers this method will always return an empty value.
+  gfx::NativeWindow GetTopLevelNativeWindow() const;
+
+  // Returns true if this browser is currently focused. A browser is considered
+  // focused when the top-level RenderFrameHost is in the parent chain of the
+  // currently focused RFH within the frame tree. In addition, its associated
+  // RenderWidgetHost must also be focused. With windowed browsers only one
+  // browser should be focused at a time. With windowless browsers this relies
+  // on the client to properly configure focus state.
+  bool IsFocused() const;
 
  protected:
   bool EnsureDevToolsManager();
@@ -285,6 +321,9 @@ class CefBrowserHostBase : public CefBrowserHost,
   virtual bool Navigate(const content::OpenURLParams& params);
 
   void SetFocusInternal(bool focus);
+
+  // Create the CefFileDialogManager if it doesn't already exist.
+  bool EnsureFileDialogManager();
 
   // Thread-safe members.
   CefBrowserSettings settings_;
@@ -300,6 +339,9 @@ class CefBrowserHostBase : public CefBrowserHost,
   // Observers that want to be notified of changes to this object.
   // Only accessed on the UI thread.
   base::ObserverList<Observer> observers_;
+
+  // Used for creating and managing file dialogs.
+  std::unique_ptr<CefFileDialogManager> file_dialog_manager_;
 
   // Volatile state accessed from multiple threads. All access must be protected
   // by |state_lock_|.

@@ -39,6 +39,13 @@ class CefPrintDialogLinux : public printing::PrintDialogGtkInterface,
   // Returns the paper size in device units.
   static gfx::Size GetPdfPaperSize(printing::PrintingContextLinux* context);
 
+  // Used for calling into the default GTK implementation.
+  static void SetDefaultPrintingContextFuncs(
+      printing::PrintingContextLinux::CreatePrintDialogFunctionPtr
+          create_print_dialog_func,
+      printing::PrintingContextLinux::PdfPaperSizeFunctionPtr
+          pdf_paper_size_func);
+
   // Notify the client when printing has started.
   static void OnPrintStart(CefRefPtr<CefBrowserHostBase> browser);
 
@@ -65,11 +72,10 @@ class CefPrintDialogLinux : public printing::PrintDialogGtkInterface,
   friend class CefPrintDialogCallbackImpl;
   friend class CefPrintJobCallbackImpl;
 
-  explicit CefPrintDialogLinux(PrintingContextLinux* context);
+  CefPrintDialogLinux(PrintingContextLinux* context,
+                      CefRefPtr<CefBrowserHostBase> browser,
+                      CefRefPtr<CefPrintHandler> handler);
   ~CefPrintDialogLinux() override;
-
-  void SetHandler();
-  void ReleaseHandler();
 
   bool UpdateSettings(std::unique_ptr<printing::PrintSettings> settings,
                       bool get_defaults);
@@ -84,12 +90,12 @@ class CefPrintDialogLinux : public printing::PrintDialogGtkInterface,
   // Handles print job response.
   void OnJobCompleted();
 
-  CefRefPtr<CefPrintHandler> handler_;
-
   // Printing dialog callback.
   PrintingContextLinux::PrintSettingsCallback callback_;
+
   PrintingContextLinux* context_;
   CefRefPtr<CefBrowserHostBase> browser_;
+  CefRefPtr<CefPrintHandler> handler_;
 
   base::FilePath path_to_pdf_;
 };

@@ -20,11 +20,14 @@
 #include "chrome/browser/spellchecker/spellcheck_service.h"
 #include "components/favicon/core/favicon_url.h"
 #include "components/spellcheck/common/spellcheck_features.h"
+#include "content/browser/renderer_host/render_frame_host_impl.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/download_request_utils.h"
+#include "content/public/browser/file_select_listener.h"
 #include "content/public/browser/navigation_entry.h"
 #include "ui/gfx/image/image_skia.h"
+#include "ui/shell_dialogs/select_file_policy.h"
 
 #if BUILDFLAG(IS_MAC)
 #include "components/spellcheck/browser/spellcheck_platform.h"
@@ -206,6 +209,31 @@ void CefBrowserHostBase::SetFocusInternal(bool focus) {
     OnSetFocus(FOCUS_SOURCE_SYSTEM);
   else if (platform_delegate_)
     platform_delegate_->SetFocus(false);
+}
+
+void CefBrowserHostBase::RunFileDialog(
+    FileDialogMode mode,
+    const CefString& title,
+    const CefString& default_file_path,
+    const std::vector<CefString>& accept_filters,
+    CefRefPtr<CefRunFileDialogCallback> callback) {
+  DCHECK(callback);
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostBase::RunFileDialog,
+                                          this, mode, title, default_file_path,
+                                          accept_filters, callback));
+    return;
+  }
+
+  if (!callback || !EnsureFileDialogManager()) {
+    LOG(ERROR) << "File dialog canceled due to invalid state.";
+    if (callback)
+      callback->OnFileDialogDismissed({});
+    return;
+  }
+
+  file_dialog_manager_->RunFileDialog(mode, title, default_file_path,
+                                      accept_filters, callback);
 }
 
 void CefBrowserHostBase::StartDownload(const CefString& url) {
@@ -805,6 +833,45 @@ void CefBrowserHostBase::ViewText(const std::string& text) {
     platform_delegate_->ViewText(text);
 }
 
+void CefBrowserHostBase::RunFileChooserForBrowser(
+    const blink::mojom::FileChooserParams& params,
+    CefFileDialogManager::RunFileChooserCallback callback) {
+  if (!EnsureFileDialogManager()) {
+    LOG(ERROR) << "File dialog canceled due to invalid state.";
+    std::move(callback).Run({});
+    return;
+  }
+  file_dialog_manager_->RunFileChooser(params, std::move(callback));
+}
+
+void CefBrowserHostBase::RunSelectFile(
+    ui::SelectFileDialog::Listener* listener,
+    std::unique_ptr<ui::SelectFilePolicy> policy,
+    ui::SelectFileDialog::Type type,
+    const std::u16string& title,
+    const base::FilePath& default_path,
+    const ui::SelectFileDialog::FileTypeInfo* file_types,
+    int file_type_index,
+    const base::FilePath::StringType& default_extension,
+    gfx::NativeWindow owning_window,
+    void* params) {
+  if (!EnsureFileDialogManager()) {
+    LOG(ERROR) << "File dialog canceled due to invalid state.";
+    listener->FileSelectionCanceled(params);
+    return;
+  }
+  file_dialog_manager_->RunSelectFile(listener, std::move(policy), type, title,
+                                      default_path, file_types, file_type_index,
+                                      default_extension, owning_window, params);
+}
+
+void CefBrowserHostBase::SelectFileListenerDestroyed(
+    ui::SelectFileDialog::Listener* listener) {
+  if (file_dialog_manager_) {
+    file_dialog_manager_->SelectFileListenerDestroyed(listener);
+  }
+}
+
 bool CefBrowserHostBase::MaybeAllowNavigation(
     content::RenderFrameHost* opener,
     bool is_guest_view,
@@ -833,6 +900,13 @@ void CefBrowserHostBase::OnBeforeClose() {
 
 void CefBrowserHostBase::OnBrowserDestroyed() {
   CEF_REQUIRE_UIT();
+
+  // Destroy any platform constructs.
+  if (file_dialog_manager_) {
+    file_dialog_manager_->Destroy();
+    file_dialog_manager_.reset();
+  }
+
   for (auto& observer : observers_)
     observer.OnBrowserDestroyed(this);
 }
@@ -878,13 +952,36 @@ CefRefPtr<CefBrowserView> CefBrowserHostBase::GetBrowserView() const {
   return nullptr;
 }
 
+gfx::NativeWindow CefBrowserHostBase::GetTopLevelNativeWindow() const {
+  CEF_REQUIRE_UIT();
+  // Windowless browsers always return nullptr from GetTopLevelNativeWindow().
+  if (!IsWindowless()) {
+    auto web_contents = GetWebContents();
+    if (web_contents) {
+      return web_contents->GetTopLevelNativeWindow();
+    }
+  }
+  return gfx::NativeWindow();
+}
+
+bool CefBrowserHostBase::IsFocused() const {
+  CEF_REQUIRE_UIT();
+  auto web_contents = GetWebContents();
+  if (web_contents) {
+    return static_cast<content::RenderFrameHostImpl*>(
+               web_contents->GetMainFrame())
+        ->IsFocused();
+  }
+  return false;
+}
+
 bool CefBrowserHostBase::EnsureDevToolsManager() {
   CEF_REQUIRE_UIT();
   if (!contents_delegate_->web_contents())
     return false;
 
   if (!devtools_manager_) {
-    devtools_manager_.reset(new CefDevToolsManager(this));
+    devtools_manager_ = std::make_unique<CefDevToolsManager>(this);
   }
   return true;
 }
@@ -903,4 +1000,15 @@ void CefBrowserHostBase::InitializeDevToolsRegistrationOnUIThread(
   if (!EnsureDevToolsManager())
     return;
   devtools_manager_->InitializeRegistrationOnUIThread(registration);
+}
+
+bool CefBrowserHostBase::EnsureFileDialogManager() {
+  CEF_REQUIRE_UIT();
+  if (!contents_delegate_->web_contents())
+    return false;
+
+  if (!file_dialog_manager_) {
+    file_dialog_manager_ = std::make_unique<CefFileDialogManager>(this);
+  }
+  return true;
 }

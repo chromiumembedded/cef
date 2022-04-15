@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d84ac439b3372160aa3886b28b3ff81e49f05a6d$
+// $hash=acb14970579704b71425d23b2bb7468f782a1e17$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_FILE_DIALOG_CALLBACK_CTOCPP_H_
@@ -36,8 +36,7 @@ class CefFileDialogCallbackCToCpp
   virtual ~CefFileDialogCallbackCToCpp();
 
   // CefFileDialogCallback methods.
-  void Continue(int selected_accept_filter,
-                const std::vector<CefString>& file_paths) override;
+  void Continue(const std::vector<CefString>& file_paths) override;
   void Cancel() override;
 };
 

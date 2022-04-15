@@ -106,7 +106,7 @@ void CefDevToolsFileManager::Save(const std::string& url,
     }
   }
 
-  CefFileDialogRunner::FileChooserParams params;
+  blink::mojom::FileChooserParams params;
   params.mode = blink::mojom::FileChooserParams::Mode::kSave;
   if (!initial_path.empty()) {
     params.default_file_name = initial_path;
@@ -115,7 +115,7 @@ void CefDevToolsFileManager::Save(const std::string& url,
     }
   }
 
-  browser_impl_->RunFileChooser(
+  browser_impl_->RunFileChooserForBrowser(
       params,
       base::BindOnce(&CefDevToolsFileManager::SaveAsDialogDismissed,
                      weak_factory_.GetWeakPtr(), url, content,
@@ -127,7 +127,6 @@ void CefDevToolsFileManager::SaveAsDialogDismissed(
     const std::string& content,
     SaveCallback saveCallback,
     CancelCallback cancelCallback,
-    int selected_accept_filter,
     const std::vector<base::FilePath>& file_paths) {
   if (file_paths.size() == 1) {
     SaveAsFileSelected(url, content, std::move(saveCallback), file_paths[0]);

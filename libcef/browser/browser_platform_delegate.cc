@@ -223,12 +223,6 @@ CefEventHandle CefBrowserPlatformDelegate::GetEventHandle(
   return kNullEventHandle;
 }
 
-std::unique_ptr<CefFileDialogRunner>
-CefBrowserPlatformDelegate::CreateFileDialogRunner() {
-  NOTIMPLEMENTED();
-  return nullptr;
-}
-
 std::unique_ptr<CefJavaScriptDialogRunner>
 CefBrowserPlatformDelegate::CreateJavaScriptDialogRunner() {
   NOTIMPLEMENTED();

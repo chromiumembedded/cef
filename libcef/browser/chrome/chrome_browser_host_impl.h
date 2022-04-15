@@ -66,12 +66,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   CefWindowHandle GetOpenerWindowHandle() override;
   double GetZoomLevel() override;
   void SetZoomLevel(double zoomLevel) override;
-  void RunFileDialog(FileDialogMode mode,
-                     const CefString& title,
-                     const CefString& default_file_path,
-                     const std::vector<CefString>& accept_filters,
-                     int selected_accept_filter,
-                     CefRefPtr<CefRunFileDialogCallback> callback) override;
   void Print() override;
   void PrintToPDF(const CefString& path,
                   const CefPdfPrintSettings& settings,

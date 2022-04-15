@@ -9,7 +9,6 @@
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/context.h"
-#include "libcef/browser/native/file_dialog_runner_mac.h"
 #include "libcef/browser/native/javascript_dialog_runner_mac.h"
 #include "libcef/browser/native/menu_runner_mac.h"
 #include "libcef/browser/thread_util.h"
@@ -361,11 +360,6 @@ void CefBrowserPlatformDelegate::HandleExternalProtocol(const GURL& url) {}
 CefEventHandle CefBrowserPlatformDelegateNativeMac::GetEventHandle(
     const content::NativeWebKeyboardEvent& event) const {
   return event.os_event;
-}
-
-std::unique_ptr<CefFileDialogRunner>
-CefBrowserPlatformDelegateNativeMac::CreateFileDialogRunner() {
-  return base::WrapUnique(new CefFileDialogRunnerMac);
 }
 
 std::unique_ptr<CefJavaScriptDialogRunner>

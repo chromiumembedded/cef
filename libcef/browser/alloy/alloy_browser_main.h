@@ -42,7 +42,6 @@ class AlloyBrowserMainParts : public content::BrowserMainParts {
 
   ~AlloyBrowserMainParts() override;
 
-  int PreEarlyInitialization() override;
   void ToolkitInitialized() override;
   void PreCreateMainMessageLoop() override;
   void PostCreateMainMessageLoop() override;

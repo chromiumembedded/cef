@@ -8,6 +8,7 @@
 #ifndef CEF_LIBCEF_BROWSER_ALLOY_CHROME_PROFILE_ALLOY_H_
 #define CEF_LIBCEF_BROWSER_ALLOY_CHROME_PROFILE_ALLOY_H_
 
+#include "base/files/file_path.h"
 #include "chrome/browser/profiles/profile.h"
 
 // This file provides a stub implementation of Chrome's Profile object for use
@@ -54,6 +55,7 @@ class ChromeProfileAlloy : public Profile {
 
  private:
   std::unique_ptr<variations::VariationsClient> variations_client_;
+  base::FilePath last_selected_directory_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_ALLOY_CHROME_PROFILE_ALLOY_H_

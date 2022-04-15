@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2edab12ab1759213ab9a6b7620ea39a74291abc7$
+// $hash=fa3208182bcdb9aab36096b3ce5ecdd35cb0a80f$
 //
 
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
@@ -261,7 +261,6 @@ void CefBrowserHostCToCpp::RunFileDialog(
     const CefString& title,
     const CefString& default_file_path,
     const std::vector<CefString>& accept_filters,
-    int selected_accept_filter,
     CefRefPtr<CefRunFileDialogCallback> callback) {
   shutdown_checker::AssertNotShutdown();
 
@@ -271,10 +270,6 @@ void CefBrowserHostCToCpp::RunFileDialog(
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: selected_accept_filter; type: simple_byval
-  DCHECK_GE(selected_accept_filter, 0);
-  if (selected_accept_filter < 0)
-    return;
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
   if (!callback.get())
@@ -290,7 +285,6 @@ void CefBrowserHostCToCpp::RunFileDialog(
   // Execute
   _struct->run_file_dialog(_struct, mode, title.GetStruct(),
                            default_file_path.GetStruct(), accept_filtersList,
-                           selected_accept_filter,
                            CefRunFileDialogCallbackCppToC::Wrap(callback));
 
   // Restore param:accept_filters; type: string_vec_byref_const

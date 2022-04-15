@@ -312,17 +312,12 @@ void EndTracing(CefRefPtr<CefBrowser> browser) {
 
       // Results in a call to OnFileDialogDismissed.
       browser_->GetHost()->RunFileDialog(
-          static_cast<cef_file_dialog_mode_t>(FILE_DIALOG_SAVE |
-                                              FILE_DIALOG_OVERWRITEPROMPT_FLAG),
-          CefString(),  // title
-          path,
-          std::vector<CefString>(),  // accept_filters
-          0,                         // selected_accept_filter
-          this);
+          FILE_DIALOG_SAVE,
+          /*title=*/CefString(), path,
+          /*accept_filters=*/std::vector<CefString>(), this);
     }
 
     void OnFileDialogDismissed(
-        int selected_accept_filter,
         const std::vector<CefString>& file_paths) override {
       if (!file_paths.empty()) {
         // File selected. Results in a call to OnEndTracingComplete.
@@ -370,17 +365,12 @@ void PrintToPDF(CefRefPtr<CefBrowser> browser) {
       accept_filters.push_back(".pdf");
 
       // Results in a call to OnFileDialogDismissed.
-      browser_->GetHost()->RunFileDialog(
-          static_cast<cef_file_dialog_mode_t>(FILE_DIALOG_SAVE |
-                                              FILE_DIALOG_OVERWRITEPROMPT_FLAG),
-          CefString(),  // title
-          path, accept_filters,
-          0,  // selected_accept_filter
-          this);
+      browser_->GetHost()->RunFileDialog(FILE_DIALOG_SAVE,
+                                         /*title=*/CefString(), path,
+                                         accept_filters, this);
     }
 
     void OnFileDialogDismissed(
-        int selected_accept_filter,
         const std::vector<CefString>& file_paths) override {
       if (!file_paths.empty()) {
         CefPdfPrintSettings settings;

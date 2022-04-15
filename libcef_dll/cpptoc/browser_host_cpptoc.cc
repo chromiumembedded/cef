@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=289bb032a65bfd1f35a97d93e14df1f5762a9394$
+// $hash=65c260e354b6dc85bf121b60081eff450b043542$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -318,7 +318,6 @@ browser_host_run_file_dialog(struct _cef_browser_host_t* self,
                              const cef_string_t* title,
                              const cef_string_t* default_file_path,
                              cef_string_list_t accept_filters,
-                             int selected_accept_filter,
                              cef_run_file_dialog_callback_t* callback) {
   shutdown_checker::AssertNotShutdown();
 
@@ -326,10 +325,6 @@ browser_host_run_file_dialog(struct _cef_browser_host_t* self,
 
   DCHECK(self);
   if (!self)
-    return;
-  // Verify param: selected_accept_filter; type: simple_byval
-  DCHECK_GE(selected_accept_filter, 0);
-  if (selected_accept_filter < 0)
     return;
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
@@ -344,7 +339,7 @@ browser_host_run_file_dialog(struct _cef_browser_host_t* self,
   // Execute
   CefBrowserHostCppToC::Get(self)->RunFileDialog(
       mode, CefString(title), CefString(default_file_path), accept_filtersList,
-      selected_accept_filter, CefRunFileDialogCallbackCToCpp::Wrap(callback));
+      CefRunFileDialogCallbackCToCpp::Wrap(callback));
 }
 
 void CEF_CALLBACK browser_host_start_download(struct _cef_browser_host_t* self,

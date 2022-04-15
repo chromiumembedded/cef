@@ -12,6 +12,45 @@ index 9e534ff1683f1..de406f5879be0 100644
  
    return false;
  }
+diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
+index 936021a313995..2dd2554f8a7c5 100644
+--- chrome/browser/ui/BUILD.gn
++++ chrome/browser/ui/BUILD.gn
+@@ -10,6 +10,7 @@ import("//build/config/features.gni")
+ import("//build/config/linux/gtk/gtk.gni")
+ import("//build/config/ozone.gni")
+ import("//build/config/ui.gni")
++import("//cef/libcef/features/features.gni")
+ import("//chrome/browser/buildflags.gni")
+ import("//chrome/common/features.gni")
+ import("//chromeos/assistant/assistant.gni")
+@@ -353,6 +354,10 @@ static_library("ui") {
+     "//build/config/compiler:wexit_time_destructors",
+   ]
+ 
++  if (enable_cef) {
++    configs += [ "//cef/libcef/features:config" ]
++  }
++
+   # Since browser and browser_ui actually depend on each other,
+   # we must omit the dependency from browser_ui to browser.
+   # However, this means browser_ui and browser should more or less
+@@ -375,6 +380,7 @@ static_library("ui") {
+     "//build:branding_buildflags",
+     "//build:chromeos_buildflags",
+     "//cc/paint",
++    "//cef/libcef/features",
+     "//chrome:extra_resources",
+     "//chrome:resources",
+     "//chrome:strings",
+@@ -5301,6 +5307,7 @@ static_library("ui") {
+   if (enable_basic_printing) {
+     deps += [
+       "//components/printing/browser",
++      "//components/printing/common:mojo_interfaces",
+       "//printing",
+     ]
+   }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
 index 3284c6c6353cc..6694f9000c14a 100644
 --- chrome/browser/ui/browser.cc

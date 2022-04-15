@@ -129,13 +129,12 @@ base::Time ChromeProfileAlloy::GetStartTime() const {
 }
 
 base::FilePath ChromeProfileAlloy::last_selected_directory() {
-  NOTREACHED();
-  return base::FilePath();
+  return last_selected_directory_;
 }
 
 void ChromeProfileAlloy::set_last_selected_directory(
     const base::FilePath& path) {
-  NOTREACHED();
+  last_selected_directory_ = path;
 }
 
 GURL ChromeProfileAlloy::GetHomePage() {

@@ -10,7 +10,6 @@
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/context.h"
-#include "libcef/browser/native/file_dialog_runner_win.h"
 #include "libcef/browser/native/javascript_dialog_runner_win.h"
 #include "libcef/browser/native/menu_runner_win.h"
 #include "libcef/browser/native/window_delegate_view.h"
@@ -445,11 +444,6 @@ CefEventHandle CefBrowserPlatformDelegateNativeWin::GetEventHandle(
     return NULL;
   return ChromeToWindowsType(
       const_cast<CHROME_MSG*>(&event.os_event->native_event()));
-}
-
-std::unique_ptr<CefFileDialogRunner>
-CefBrowserPlatformDelegateNativeWin::CreateFileDialogRunner() {
-  return base::WrapUnique(new CefFileDialogRunnerWin);
 }
 
 std::unique_ptr<CefJavaScriptDialogRunner>

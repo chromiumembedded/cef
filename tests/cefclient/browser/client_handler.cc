@@ -260,12 +260,6 @@ ClientHandler::ClientHandler(Delegate* delegate,
       initial_navigation_(true) {
   DCHECK(!console_log_file_.empty());
 
-#if defined(OS_LINUX)
-  // Provide the GTK-based dialog implementation on Linux.
-  dialog_handler_ = new ClientDialogHandlerGtk();
-  print_handler_ = new ClientPrintHandlerGtk();
-#endif
-
   resource_manager_ = new CefResourceManager();
   test_runner::SetupResourceManager(resource_manager_, &string_resource_map_);
 
@@ -275,6 +269,34 @@ ClientHandler::ClientHandler(Delegate* delegate,
   mouse_cursor_change_disabled_ =
       command_line->HasSwitch(switches::kMouseCursorChangeDisabled);
   offline_ = command_line->HasSwitch(switches::kOffline);
+
+#if defined(OS_LINUX)
+  // Optionally use the client-provided dialog implementation.
+  bool use_client_dialogs =
+      command_line->HasSwitch(switches::kUseClientDialogs);
+
+  if (!use_client_dialogs &&
+      command_line->HasSwitch(switches::kMultiThreadedMessageLoop)) {
+    // Default dialogs are not supported in combination with
+    // multi-threaded-message-loop because Chromium doesn't support GDK threads
+    // internally.
+    LOG(WARNING) << "Client dialogs must be used in combination with "
+                    "multi-threaded-message-loop.";
+    use_client_dialogs = true;
+  }
+
+  if (use_client_dialogs && MainContext::Get()->UseViews()) {
+    // Client dialogs cannot be used in combination with Views because the
+    // implementation of ClientDialogHandlerGtk requires a top-level GtkWindow.
+    LOG(ERROR) << "Client dialogs cannot be used in combination with Views.";
+    use_client_dialogs = false;
+  }
+
+  if (use_client_dialogs) {
+    dialog_handler_ = new ClientDialogHandlerGtk();
+    print_handler_ = new ClientPrintHandlerGtk();
+  }
+#endif  // defined(OS_LINUX)
 }
 
 void ClientHandler::DetachDelegate() {

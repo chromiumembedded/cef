@@ -19,7 +19,6 @@ class DialogTestHandler : public TestHandler {
         : mode(dialog_mode),
           title("Test Title"),
           default_file_name("Test File Name"),
-          selected_accept_filter(1),  // Something other than 0 for testing.
           callback_async(false),
           callback_cancel(false) {
       accept_types.push_back("text/*");
@@ -31,7 +30,6 @@ class DialogTestHandler : public TestHandler {
     CefString title;
     CefString default_file_name;
     std::vector<CefString> accept_types;
-    int selected_accept_filter;
 
     bool callback_async;  // True if the callback should execute asynchronously.
     bool callback_cancel;  // True if the callback should cancel.
@@ -43,16 +41,12 @@ class DialogTestHandler : public TestHandler {
     explicit Callback(DialogTestHandler* handler) : handler_(handler) {}
 
     void OnFileDialogDismissed(
-        int selected_accept_filter,
         const std::vector<CefString>& file_paths) override {
       handler_->got_onfiledialogdismissed_.yes();
 
       if (handler_->config_.callback_cancel) {
-        EXPECT_EQ(0, selected_accept_filter);
         EXPECT_TRUE(file_paths.empty());
       } else {
-        EXPECT_EQ(handler_->config_.selected_accept_filter,
-                  selected_accept_filter);
         TestStringVectorEqual(handler_->config_.callback_paths, file_paths);
       }
 
@@ -81,18 +75,16 @@ class DialogTestHandler : public TestHandler {
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
-    browser->GetHost()->RunFileDialog(
-        config_.mode, config_.title, config_.default_file_name,
-        config_.accept_types, config_.selected_accept_filter,
-        new Callback(this));
+    browser->GetHost()->RunFileDialog(config_.mode, config_.title,
+                                      config_.default_file_name,
+                                      config_.accept_types, new Callback(this));
   }
 
   void ExecuteCallback(CefRefPtr<CefFileDialogCallback> callback) {
     if (config_.callback_cancel)
       callback->Cancel();
     else
-      callback->Continue(config_.selected_accept_filter,
-                         config_.callback_paths);
+      callback->Continue(config_.callback_paths);
   }
 
   // CefDialogHandler
@@ -101,7 +93,6 @@ class DialogTestHandler : public TestHandler {
                     const CefString& title,
                     const CefString& default_file_name,
                     const std::vector<CefString>& accept_types,
-                    int selected_accept_filter,
                     CefRefPtr<CefFileDialogCallback> callback) override {
     got_onfiledialog_.yes();
 
@@ -144,21 +135,6 @@ class DialogTestHandler : public TestHandler {
 // Test with all parameters empty.
 TEST(DialogTest, FileEmptyParams) {
   DialogTestHandler::TestConfig config(FILE_DIALOG_OPEN);
-  config.title.clear();
-  config.default_file_name.clear();
-  config.accept_types.clear();
-  config.callback_async = false;
-  config.callback_cancel = false;
-
-  CefRefPtr<DialogTestHandler> handler = new DialogTestHandler(config);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
-
-TEST(DialogTest, FileAdditionalFlags) {
-  DialogTestHandler::TestConfig config(static_cast<cef_file_dialog_mode_t>(
-      FILE_DIALOG_OPEN | FILE_DIALOG_HIDEREADONLY_FLAG |
-      FILE_DIALOG_OVERWRITEPROMPT_FLAG));
   config.title.clear();
   config.default_file_name.clear();
   config.accept_types.clear();

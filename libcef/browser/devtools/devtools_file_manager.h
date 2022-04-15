@@ -49,7 +49,6 @@ class CefDevToolsFileManager {
                              const std::string& content,
                              SaveCallback saveCallback,
                              CancelCallback cancelCallback,
-                             int selected_accept_filter,
                              const std::vector<base::FilePath>& file_paths);
   void SaveAsFileSelected(const std::string& url,
                           const std::string& content,

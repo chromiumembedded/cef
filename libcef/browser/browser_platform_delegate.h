@@ -63,7 +63,6 @@ class Widget;
 
 struct CefBrowserCreateParams;
 class CefBrowserHostBase;
-class CefFileDialogRunner;
 class CefJavaScriptDialogRunner;
 class CefMenuRunner;
 
@@ -265,9 +264,6 @@ class CefBrowserPlatformDelegate {
   // Returns the OS event handle, if any, associated with |event|.
   virtual CefEventHandle GetEventHandle(
       const content::NativeWebKeyboardEvent& event) const;
-
-  // Create the platform-specific file dialog runner.
-  virtual std::unique_ptr<CefFileDialogRunner> CreateFileDialogRunner();
 
   // Create the platform-specific JavaScript dialog runner.
   virtual std::unique_ptr<CefJavaScriptDialogRunner>

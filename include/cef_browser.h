@@ -206,14 +206,11 @@ class CefRunFileDialogCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Called asynchronously after the file dialog is dismissed.
-  // |selected_accept_filter| is the 0-based index of the value selected from
-  // the accept filters array passed to CefBrowserHost::RunFileDialog.
   // |file_paths| will be a single value or a list of values depending on the
   // dialog mode. If the selection was cancelled |file_paths| will be empty.
   ///
-  /*--cef(index_param=selected_accept_filter,optional_param=file_paths)--*/
+  /*--cef(optional_param=file_paths)--*/
   virtual void OnFileDialogDismissed(
-      int selected_accept_filter,
       const std::vector<CefString>& file_paths) = 0;
 };
 
@@ -421,19 +418,17 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   // selectable file types and may any combination of (a) valid lower-cased MIME
   // types (e.g. "text/*" or "image/*"), (b) individual file extensions (e.g.
   // ".txt" or ".png"), or (c) combined description and file extension delimited
-  // using "|" and ";" (e.g. "Image Types|.png;.gif;.jpg").
-  // |selected_accept_filter| is the 0-based index of the filter that will be
-  // selected by default. |callback| will be executed after the dialog is
-  // dismissed or immediately if another dialog is already pending. The dialog
-  // will be initiated asynchronously on the UI thread.
+  // using "|" and ";" (e.g. "Image Types|.png;.gif;.jpg"). |callback| will be
+  // executed after the dialog is dismissed or immediately if another dialog is
+  // already pending. The dialog will be initiated asynchronously on the UI
+  // thread.
   ///
   /*--cef(optional_param=title,optional_param=default_file_path,
-          optional_param=accept_filters,index_param=selected_accept_filter)--*/
+          optional_param=accept_filters)--*/
   virtual void RunFileDialog(FileDialogMode mode,
                              const CefString& title,
                              const CefString& default_file_path,
                              const std::vector<CefString>& accept_filters,
-                             int selected_accept_filter,
                              CefRefPtr<CefRunFileDialogCallback> callback) = 0;
 
   ///

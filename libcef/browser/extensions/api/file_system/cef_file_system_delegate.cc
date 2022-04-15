@@ -4,18 +4,14 @@
 
 #include "libcef/browser/extensions/api/file_system/cef_file_system_delegate.h"
 
-#include "libcef/browser/alloy/alloy_dialog_util.h"
-
 #include "apps/saved_files_service.h"
 #include "base/callback.h"
-#include "base/callback_forward.h"
 #include "base/files/file_path.h"
+#include "chrome/browser/extensions/api/file_system/file_entry_picker.h"
 #include "chrome/grit/generated_resources.h"
+#include "content/public/browser/web_contents.h"
 #include "extensions/common/api/file_system.h"
 #include "extensions/common/extension.h"
-#include "third_party/abseil-cpp/absl/types/optional.h"
-
-using blink::mojom::FileChooserParams;
 
 namespace extensions {
 namespace cef {
@@ -46,59 +42,15 @@ bool CefFileSystemDelegate::ShowSelectFileDialog(
     return false;
   }
 
-  absl::optional<FileChooserParams::Mode> mode;
-  switch (type) {
-    case ui::SelectFileDialog::Type::SELECT_UPLOAD_FOLDER:
-      mode = FileChooserParams::Mode::kUploadFolder;
-      break;
-    case ui::SelectFileDialog::Type::SELECT_SAVEAS_FILE:
-      mode = FileChooserParams::Mode::kSave;
-      break;
-    case ui::SelectFileDialog::Type::SELECT_OPEN_FILE:
-      mode = FileChooserParams::Mode::kOpen;
-      break;
-    case ui::SelectFileDialog::Type::SELECT_OPEN_MULTI_FILE:
-      mode = FileChooserParams::Mode::kOpenMultiple;
-      break;
-    default:
-      NOTIMPLEMENTED();
-      return false;
-  }
-
-  FileChooserParams params;
-  params.mode = *mode;
-  params.default_file_name = default_path;
-  if (file_types) {
-    // A list of allowed extensions. For example, it might be
-    //   { { "htm", "html" }, { "txt" } }
-    for (auto& vec : file_types->extensions) {
-      for (auto& ext : vec) {
-        params.accept_types.push_back(
-            alloy::FilePathTypeToString16(FILE_PATH_LITERAL(".") + ext));
-      }
-    }
-  }
-
-  alloy::RunFileChooser(
-      web_contents, params,
-      base::BindOnce(&CefFileSystemDelegate::FileDialogDismissed,
-                     weak_ptr_factory_.GetWeakPtr(),
-                     std::move(files_selected_callback),
-                     std::move(file_selection_canceled_callback)));
-
+  // The file picker will hold a reference to the ExtensionFunction
+  // instance, preventing its destruction (and subsequent sending of the
+  // function response) until the user has selected a file or cancelled the
+  // picker. At that point, the picker will delete itself, which will also free
+  // the function instance.
+  new FileEntryPicker(web_contents, default_path, *file_types, type,
+                      std::move(files_selected_callback),
+                      std::move(file_selection_canceled_callback));
   return true;
-}
-
-void CefFileSystemDelegate::FileDialogDismissed(
-    FileSystemDelegate::FilesSelectedCallback files_selected_callback,
-    base::OnceClosure file_selection_canceled_callback,
-    int selected_accept_filter,
-    const std::vector<base::FilePath>& file_paths) {
-  if (!file_paths.empty()) {
-    std::move(files_selected_callback).Run(file_paths);
-  } else {
-    std::move(file_selection_canceled_callback).Run();
-  }
 }
 
 void CefFileSystemDelegate::ConfirmSensitiveDirectoryAccess(

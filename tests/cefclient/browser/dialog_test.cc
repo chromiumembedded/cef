@@ -17,7 +17,8 @@ namespace dialog_test {
 namespace {
 
 const char kTestUrlPath[] = "/dialogs";
-const char kFileOpenMessageName[] = "DialogTest.FileOpen";
+const char kFileOpenPngMessageName[] = "DialogTest.FileOpenPng";
+const char kFileOpenImageMessageName[] = "DialogTest.FileOpenImage";
 const char kFileOpenMultipleMessageName[] = "DialogTest.FileOpenMultiple";
 const char kFileOpenFolderMessageName[] = "DialogTest.FileOpenFolder";
 const char kFileSaveMessageName[] = "DialogTest.FileSave";
@@ -25,11 +26,9 @@ const char kFileSaveMessageName[] = "DialogTest.FileSave";
 // Store persistent dialog state information.
 class DialogState : public base::RefCountedThreadSafe<DialogState> {
  public:
-  DialogState()
-      : mode_(FILE_DIALOG_OPEN), last_selected_filter_(0), pending_(false) {}
+  DialogState() : mode_(FILE_DIALOG_OPEN), pending_(false) {}
 
   cef_file_dialog_mode_t mode_;
-  int last_selected_filter_;
   CefString last_file_;
   bool pending_;
 
@@ -45,15 +44,11 @@ class DialogCallback : public CefRunFileDialogCallback {
       : router_callback_(router_callback), dialog_state_(dialog_state) {}
 
   virtual void OnFileDialogDismissed(
-      int last_selected_filter,
       const std::vector<CefString>& file_paths) override {
     CEF_REQUIRE_UI_THREAD();
     DCHECK(dialog_state_->pending_);
 
     if (!file_paths.empty()) {
-      if (dialog_state_->mode_ != FILE_DIALOG_OPEN_FOLDER)
-        dialog_state_->last_selected_filter_ = last_selected_filter;
-
       dialog_state_->last_file_ = file_paths[0];
       if (dialog_state_->mode_ == FILE_DIALOG_OPEN_FOLDER) {
         std::string last_file = dialog_state_->last_file_;
@@ -118,25 +113,30 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     std::string title;
 
     const std::string& message_name = request;
-    if (message_name == kFileOpenMessageName) {
+    if (message_name == kFileOpenPngMessageName) {
       dialog_state_->mode_ = FILE_DIALOG_OPEN;
-      title = "My Open Dialog";
+      title = "My Open PNG Dialog";
+      accept_filters.push_back(".png");
+    } else if (message_name == kFileOpenImageMessageName) {
+      dialog_state_->mode_ = FILE_DIALOG_OPEN;
+      title = "My Open Image Dialog";
+      accept_filters.push_back("image/*");
     } else if (message_name == kFileOpenMultipleMessageName) {
       dialog_state_->mode_ = FILE_DIALOG_OPEN_MULTIPLE;
-      title = "My Open Multiple Dialog";
+      title = "My Open MultiType Dialog";
     } else if (message_name == kFileOpenFolderMessageName) {
       dialog_state_->mode_ = FILE_DIALOG_OPEN_FOLDER;
       title = "My Open Folder Dialog";
     } else if (message_name == kFileSaveMessageName) {
-      dialog_state_->mode_ = static_cast<cef_file_dialog_mode_t>(
-          FILE_DIALOG_SAVE | FILE_DIALOG_OVERWRITEPROMPT_FLAG);
+      dialog_state_->mode_ = FILE_DIALOG_SAVE;
       title = "My Save Dialog";
     } else {
       NOTREACHED();
       return true;
     }
 
-    if (dialog_state_->mode_ != FILE_DIALOG_OPEN_FOLDER) {
+    if (accept_filters.empty() &&
+        dialog_state_->mode_ != FILE_DIALOG_OPEN_FOLDER) {
       // Build filters based on mime time.
       accept_filters.push_back("text/*");
 
@@ -154,7 +154,6 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
     browser->GetHost()->RunFileDialog(
         dialog_state_->mode_, title, dialog_state_->last_file_, accept_filters,
-        dialog_state_->last_selected_filter_,
         new DialogCallback(callback, dialog_state_));
 
     return true;

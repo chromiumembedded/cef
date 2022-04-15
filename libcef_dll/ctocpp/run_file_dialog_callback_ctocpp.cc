@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cb29585261ed25ddd2ee1b4b5c890565e72e5d22$
+// $hash=ef632f8846499c0605300240a2ec7240a1750ce2$
 //
 
 #include "libcef_dll/ctocpp/run_file_dialog_callback_ctocpp.h"
@@ -20,7 +20,6 @@
 
 NO_SANITIZE("cfi-icall")
 void CefRunFileDialogCallbackCToCpp::OnFileDialogDismissed(
-    int selected_accept_filter,
     const std::vector<CefString>& file_paths) {
   shutdown_checker::AssertNotShutdown();
 
@@ -30,10 +29,6 @@ void CefRunFileDialogCallbackCToCpp::OnFileDialogDismissed(
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: selected_accept_filter; type: simple_byval
-  DCHECK_GE(selected_accept_filter, 0);
-  if (selected_accept_filter < 0)
-    return;
   // Unverified params: file_paths
 
   // Translate param: file_paths; type: string_vec_byref_const
@@ -43,8 +38,7 @@ void CefRunFileDialogCallbackCToCpp::OnFileDialogDismissed(
     transfer_string_list_contents(file_paths, file_pathsList);
 
   // Execute
-  _struct->on_file_dialog_dismissed(_struct, selected_accept_filter,
-                                    file_pathsList);
+  _struct->on_file_dialog_dismissed(_struct, file_pathsList);
 
   // Restore param:file_paths; type: string_vec_byref_const
   if (file_pathsList)

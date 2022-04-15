@@ -6,6 +6,7 @@
 
 #include "libcef/browser/chrome/chrome_context_menu_handler.h"
 #include "libcef/browser/context.h"
+#include "libcef/browser/file_dialog_runner.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
 
 #include "base/task/post_task.h"
@@ -41,4 +42,5 @@ void ChromeBrowserMainExtraPartsCef::PreMainMessageLoopRun() {
 
   scheme::RegisterWebUIControllerFactory();
   context_menu::RegisterMenuCreatedCallback();
+  file_dialog_runner::RegisterFactory();
 }

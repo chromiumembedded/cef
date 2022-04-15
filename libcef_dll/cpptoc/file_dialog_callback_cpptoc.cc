@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d334e579f498ad7727721dfe4e10ad810b81035a$
+// $hash=1abedb0e8e7a0101d9ff3f4918f992f3c010d5a6$
 //
 
 #include "libcef_dll/cpptoc/file_dialog_callback_cpptoc.h"
@@ -22,7 +22,6 @@ namespace {
 
 void CEF_CALLBACK
 file_dialog_callback_cont(struct _cef_file_dialog_callback_t* self,
-                          int selected_accept_filter,
                           cef_string_list_t file_paths) {
   shutdown_checker::AssertNotShutdown();
 
@@ -31,10 +30,6 @@ file_dialog_callback_cont(struct _cef_file_dialog_callback_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: selected_accept_filter; type: simple_byval
-  DCHECK_GE(selected_accept_filter, 0);
-  if (selected_accept_filter < 0)
-    return;
   // Unverified params: file_paths
 
   // Translate param: file_paths; type: string_vec_byref_const
@@ -42,8 +37,7 @@ file_dialog_callback_cont(struct _cef_file_dialog_callback_t* self,
   transfer_string_list_contents(file_paths, file_pathsList);
 
   // Execute
-  CefFileDialogCallbackCppToC::Get(self)->Continue(selected_accept_filter,
-                                                   file_pathsList);
+  CefFileDialogCallbackCppToC::Get(self)->Continue(file_pathsList);
 }
 
 void CEF_CALLBACK

@@ -25,7 +25,6 @@ class ClientDialogHandlerGtk : public CefDialogHandler,
                     const CefString& title,
                     const CefString& default_file_path,
                     const std::vector<CefString>& accept_filters,
-                    int selected_accept_filter,
                     CefRefPtr<CefFileDialogCallback> callback) override;
 
   // CefJSDialogHandler methods.
@@ -49,10 +48,10 @@ class ClientDialogHandlerGtk : public CefDialogHandler,
     CefString title;
     CefString default_file_path;
     std::vector<CefString> accept_filters;
-    int selected_accept_filter;
     CefRefPtr<CefFileDialogCallback> callback;
   };
-  void OnFileDialogContinue(OnFileDialogParams params, GtkWindow* window);
+  void OnFileDialogContinue(const OnFileDialogParams& params,
+                            GtkWindow* window);
 
   struct OnJSDialogParams {
     CefRefPtr<CefBrowser> browser;
@@ -62,7 +61,7 @@ class ClientDialogHandlerGtk : public CefDialogHandler,
     CefString default_prompt_text;
     CefRefPtr<CefJSDialogCallback> callback;
   };
-  void OnJSDialogContinue(OnJSDialogParams params, GtkWindow* window);
+  void OnJSDialogContinue(const OnJSDialogParams& params, GtkWindow* window);
 
   void GetWindowAndContinue(CefRefPtr<CefBrowser> browser,
                             base::OnceCallback<void(GtkWindow*)> callback);

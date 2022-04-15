@@ -102,11 +102,6 @@ CefEventHandle CefBrowserPlatformDelegateBackground::GetEventHandle(
   return native_delegate_->GetEventHandle(event);
 }
 
-std::unique_ptr<CefFileDialogRunner>
-CefBrowserPlatformDelegateBackground::CreateFileDialogRunner() {
-  return native_delegate_->CreateFileDialogRunner();
-}
-
 std::unique_ptr<CefJavaScriptDialogRunner>
 CefBrowserPlatformDelegateBackground::CreateJavaScriptDialogRunner() {
   return native_delegate_->CreateJavaScriptDialogRunner();

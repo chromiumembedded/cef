@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b80e84c0039ab45d5c4562d64b67a84766c0dab3$
+// $hash=b1c1e44e6d3842064ef6e5b9823173f7ec1fcccc$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -205,15 +205,12 @@ typedef struct _cef_run_file_dialog_callback_t {
   cef_base_ref_counted_t base;
 
   ///
-  // Called asynchronously after the file dialog is dismissed.
-  // |selected_accept_filter| is the 0-based index of the value selected from
-  // the accept filters array passed to cef_browser_host_t::RunFileDialog.
-  // |file_paths| will be a single value or a list of values depending on the
-  // dialog mode. If the selection was cancelled |file_paths| will be NULL.
+  // Called asynchronously after the file dialog is dismissed. |file_paths| will
+  // be a single value or a list of values depending on the dialog mode. If the
+  // selection was cancelled |file_paths| will be NULL.
   ///
   void(CEF_CALLBACK* on_file_dialog_dismissed)(
       struct _cef_run_file_dialog_callback_t* self,
-      int selected_accept_filter,
       cef_string_list_t file_paths);
 } cef_run_file_dialog_callback_t;
 
@@ -391,11 +388,10 @@ typedef struct _cef_browser_host_t {
   // selectable file types and may any combination of (a) valid lower-cased MIME
   // types (e.g. "text/*" or "image/*"), (b) individual file extensions (e.g.
   // ".txt" or ".png"), or (c) combined description and file extension delimited
-  // using "|" and ";" (e.g. "Image Types|.png;.gif;.jpg").
-  // |selected_accept_filter| is the 0-based index of the filter that will be
-  // selected by default. |callback| will be executed after the dialog is
-  // dismissed or immediately if another dialog is already pending. The dialog
-  // will be initiated asynchronously on the UI thread.
+  // using "|" and ";" (e.g. "Image Types|.png;.gif;.jpg"). |callback| will be
+  // executed after the dialog is dismissed or immediately if another dialog is
+  // already pending. The dialog will be initiated asynchronously on the UI
+  // thread.
   ///
   void(CEF_CALLBACK* run_file_dialog)(
       struct _cef_browser_host_t* self,
@@ -403,7 +399,6 @@ typedef struct _cef_browser_host_t {
       const cef_string_t* title,
       const cef_string_t* default_file_path,
       cef_string_list_t accept_filters,
-      int selected_accept_filter,
       struct _cef_run_file_dialog_callback_t* callback);
 
   ///

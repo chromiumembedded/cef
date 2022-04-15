@@ -30,6 +30,33 @@ using content::BrowserThread;
 using printing::PageRanges;
 using printing::PrintSettings;
 
+namespace {
+
+printing::PrintingContextLinux::CreatePrintDialogFunctionPtr
+    g_default_create_print_dialog_func = nullptr;
+printing::PrintingContextLinux::PdfPaperSizeFunctionPtr
+    g_default_pdf_paper_size_func = nullptr;
+
+CefRefPtr<CefBrowserHostBase> GetBrowserForContext(
+    printing::PrintingContextLinux* context) {
+  return extensions::GetOwnerBrowserForGlobalId(
+      frame_util::MakeGlobalId(context->render_process_id(),
+                               context->render_frame_id()),
+      nullptr);
+}
+
+CefRefPtr<CefPrintHandler> GetPrintHandlerForBrowser(
+    CefRefPtr<CefBrowserHostBase> browser) {
+  if (browser) {
+    if (auto client = browser->GetClient()) {
+      return client->GetPrintHandler();
+    }
+  }
+  return nullptr;
+}
+
+}  // namespace
+
 class CefPrintDialogCallbackImpl : public CefPrintDialogCallback {
  public:
   explicit CefPrintDialogCallbackImpl(CefRefPtr<CefPrintDialogLinux> dialog)
@@ -104,7 +131,30 @@ class CefPrintJobCallbackImpl : public CefPrintJobCallback {
 printing::PrintDialogGtkInterface* CefPrintDialogLinux::CreatePrintDialog(
     PrintingContextLinux* context) {
   CEF_REQUIRE_UIT();
-  return new CefPrintDialogLinux(context);
+
+  printing::PrintDialogGtkInterface* interface = nullptr;
+
+  auto browser = GetBrowserForContext(context);
+  if (!browser) {
+    LOG(ERROR) << "No associated browser in CreatePrintDialog; using default "
+                  "printing implementation.";
+  }
+
+  auto handler = GetPrintHandlerForBrowser(browser);
+  if (!handler) {
+    if (g_default_create_print_dialog_func) {
+      interface = g_default_create_print_dialog_func(context);
+      DCHECK(interface);
+    }
+  } else {
+    interface = new CefPrintDialogLinux(context, browser, handler);
+  }
+
+  if (!interface) {
+    LOG(ERROR) << "Null interface in CreatePrintDialog; printing will fail.";
+  }
+
+  return interface;
 }
 
 // static
@@ -114,25 +164,40 @@ gfx::Size CefPrintDialogLinux::GetPdfPaperSize(
 
   gfx::Size size;
 
-  auto browser = extensions::GetOwnerBrowserForGlobalId(
-      frame_util::MakeGlobalId(context->render_process_id(),
-                               context->render_frame_id()),
-      nullptr);
-  DCHECK(browser);
-  if (browser && browser->GetClient()) {
-    if (auto handler = browser->GetClient()->GetPrintHandler()) {
-      const printing::PrintSettings& settings = context->settings();
-      CefSize cef_size = handler->GetPdfPaperSize(
-          browser.get(), settings.device_units_per_inch());
-      size.SetSize(cef_size.width, cef_size.height);
+  auto browser = GetBrowserForContext(context);
+  if (!browser) {
+    LOG(ERROR) << "No associated browser in GetPdfPaperSize; using default "
+                  "printing implementation.";
+  }
+
+  auto handler = GetPrintHandlerForBrowser(browser);
+  if (!handler) {
+    if (g_default_pdf_paper_size_func) {
+      size = g_default_pdf_paper_size_func(context);
+      DCHECK(!size.IsEmpty());
     }
+  } else {
+    const printing::PrintSettings& settings = context->settings();
+    CefSize cef_size = handler->GetPdfPaperSize(
+        browser.get(), settings.device_units_per_inch());
+    size.SetSize(cef_size.width, cef_size.height);
   }
 
   if (size.IsEmpty()) {
-    LOG(ERROR) << "Empty size value returned in GetPdfPaperSize; "
-                  "PDF printing will fail.";
+    LOG(ERROR) << "Empty size value returned in GetPdfPaperSize; PDF printing "
+                  "will fail.";
   }
   return size;
+}
+
+// static
+void CefPrintDialogLinux::SetDefaultPrintingContextFuncs(
+    printing::PrintingContextLinux::CreatePrintDialogFunctionPtr
+        create_print_dialog_func,
+    printing::PrintingContextLinux::PdfPaperSizeFunctionPtr
+        pdf_paper_size_func) {
+  g_default_create_print_dialog_func = create_print_dialog_func;
+  g_default_pdf_paper_size_func = pdf_paper_size_func;
 }
 
 // static
@@ -146,14 +211,13 @@ void CefPrintDialogLinux::OnPrintStart(CefRefPtr<CefBrowserHostBase> browser) {
   }
 }
 
-CefPrintDialogLinux::CefPrintDialogLinux(PrintingContextLinux* context)
-    : context_(context) {
+CefPrintDialogLinux::CefPrintDialogLinux(PrintingContextLinux* context,
+                                         CefRefPtr<CefBrowserHostBase> browser,
+                                         CefRefPtr<CefPrintHandler> handler)
+    : context_(context), browser_(browser), handler_(handler) {
   DCHECK(context_);
-  browser_ = extensions::GetOwnerBrowserForGlobalId(
-      frame_util::MakeGlobalId(context_->render_process_id(),
-                               context_->render_frame_id()),
-      nullptr);
   DCHECK(browser_);
+  DCHECK(handler_);
 }
 
 CefPrintDialogLinux::~CefPrintDialogLinux() {
@@ -161,7 +225,7 @@ CefPrintDialogLinux::~CefPrintDialogLinux() {
   // object because the PrintJobWorker which owns |context_| may already have
   // been deleted.
   CEF_REQUIRE_UIT();
-  ReleaseHandler();
+  handler_->OnPrintReset(browser_.get());
 }
 
 void CefPrintDialogLinux::UseDefaultSettings() {
@@ -178,12 +242,6 @@ void CefPrintDialogLinux::ShowDialog(
     bool has_selection,
     PrintingContextLinux::PrintSettingsCallback callback) {
   CEF_REQUIRE_UIT();
-
-  SetHandler();
-  if (!handler_.get()) {
-    std::move(callback).Run(printing::mojom::ResultCode::kCanceled);
-    return;
-  }
 
   callback_ = std::move(callback);
 
@@ -240,30 +298,10 @@ void CefPrintDialogLinux::ReleaseDialog() {
   Release();
 }
 
-void CefPrintDialogLinux::SetHandler() {
-  if (handler_.get())
-    return;
-
-  if (browser_ && browser_->GetClient()) {
-    handler_ = browser_->GetClient()->GetPrintHandler();
-  }
-}
-
-void CefPrintDialogLinux::ReleaseHandler() {
-  if (handler_.get()) {
-    handler_->OnPrintReset(browser_.get());
-    handler_ = nullptr;
-  }
-}
-
 bool CefPrintDialogLinux::UpdateSettings(
     std::unique_ptr<PrintSettings> settings,
     bool get_defaults) {
   CEF_REQUIRE_UIT();
-
-  SetHandler();
-  if (!handler_.get())
-    return false;
 
   CefRefPtr<CefPrintSettingsImpl> settings_impl(
       new CefPrintSettingsImpl(std::move(settings), false));

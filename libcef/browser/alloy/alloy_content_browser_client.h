@@ -58,6 +58,8 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
       std::vector<std::string>* additional_schemes) override;
   void GetAdditionalViewSourceSchemes(
       std::vector<std::string>* additional_schemes) override;
+  std::unique_ptr<ui::SelectFilePolicy> CreateSelectFilePolicy(
+      content::WebContents* web_contents) override;
   void GetAdditionalAllowedSchemesForFileSystem(
       std::vector<std::string>* additional_allowed_schemes) override;
   bool IsWebUIAllowedToMakeNetworkRequests(const url::Origin& origin) override;

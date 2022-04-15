@@ -2237,26 +2237,6 @@ typedef enum {
   // already exists.
   ///
   FILE_DIALOG_SAVE,
-
-  ///
-  // General mask defining the bits used for the type values.
-  ///
-  FILE_DIALOG_TYPE_MASK = 0xFF,
-
-  // Qualifiers.
-  // Any of the type values above can be augmented by one or more qualifiers.
-  // These qualifiers further define the dialog behavior.
-
-  ///
-  // Prompt to overwrite if the user selects an existing file with the Save
-  // dialog.
-  ///
-  FILE_DIALOG_OVERWRITEPROMPT_FLAG = 0x01000000,
-
-  ///
-  // Do not display read-only files.
-  ///
-  FILE_DIALOG_HIDEREADONLY_FLAG = 0x02000000,
 } cef_file_dialog_mode_t;
 
 ///

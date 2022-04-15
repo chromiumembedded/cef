@@ -136,7 +136,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
       if (browser.get()) {
         handled = true;
 
-        CefFileDialogRunner::FileChooserParams params;
+        blink::mojom::FileChooserParams params;
         params.mode = blink::mojom::FileChooserParams::Mode::kSave;
         if (!suggested_path.empty()) {
           params.default_file_name = suggested_path;
@@ -146,7 +146,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
           }
         }
 
-        browser->RunFileChooser(
+        browser->RunFileChooserForBrowser(
             params,
             base::BindOnce(
                 &CefBeforeDownloadCallbackImpl::ChooseDownloadPathCallback,
@@ -166,7 +166,6 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
 
   static void ChooseDownloadPathCallback(
       content::DownloadTargetCallback callback,
-      int selected_accept_filter,
       const std::vector<base::FilePath>& file_paths) {
     DCHECK_LE(file_paths.size(), (size_t)1);
 

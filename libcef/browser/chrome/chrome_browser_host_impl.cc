@@ -186,17 +186,6 @@ void ChromeBrowserHostImpl::SetZoomLevel(double zoomLevel) {
   NOTIMPLEMENTED();
 }
 
-void ChromeBrowserHostImpl::RunFileDialog(
-    FileDialogMode mode,
-    const CefString& title,
-    const CefString& default_file_path,
-    const std::vector<CefString>& accept_filters,
-    int selected_accept_filter,
-    CefRefPtr<CefRunFileDialogCallback> callback) {
-  NOTIMPLEMENTED();
-  callback->OnFileDialogDismissed(0, {});
-}
-
 void ChromeBrowserHostImpl::Print() {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, base::BindOnce(&ChromeBrowserHostImpl::Print, this));

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=0f56154217707d141912dc8a298279df8df04311$
+// $hash=dc579beb1f25f9bbdb72afb4b5b381e129f84e31$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DIALOG_HANDLER_CAPI_H_
@@ -57,14 +57,11 @@ typedef struct _cef_file_dialog_callback_t {
   cef_base_ref_counted_t base;
 
   ///
-  // Continue the file selection. |selected_accept_filter| should be the 0-based
-  // index of the value selected from the accept filters array passed to
-  // cef_dialog_handler_t::OnFileDialog. |file_paths| should be a single value
-  // or a list of values depending on the dialog mode. An NULL |file_paths|
-  // value is treated the same as calling cancel().
+  // Continue the file selection. |file_paths| should be a single value or a
+  // list of values depending on the dialog mode. An NULL |file_paths| value is
+  // treated the same as calling cancel().
   ///
   void(CEF_CALLBACK* cont)(struct _cef_file_dialog_callback_t* self,
-                           int selected_accept_filter,
                            cef_string_list_t file_paths);
 
   ///
@@ -93,10 +90,9 @@ typedef struct _cef_dialog_handler_t {
   // (a) valid lower-cased MIME types (e.g. "text/*" or "image/*"), (b)
   // individual file extensions (e.g. ".txt" or ".png"), or (c) combined
   // description and file extension delimited using "|" and ";" (e.g. "Image
-  // Types|.png;.gif;.jpg"). |selected_accept_filter| is the 0-based index of
-  // the filter that should be selected by default. To display a custom dialog
-  // return true (1) and execute |callback| either inline or at a later time. To
-  // display the default dialog return false (0).
+  // Types|.png;.gif;.jpg"). To display a custom dialog return true (1) and
+  // execute |callback| either inline or at a later time. To display the default
+  // dialog return false (0).
   ///
   int(CEF_CALLBACK* on_file_dialog)(
       struct _cef_dialog_handler_t* self,
@@ -105,7 +101,6 @@ typedef struct _cef_dialog_handler_t {
       const cef_string_t* title,
       const cef_string_t* default_file_path,
       cef_string_list_t accept_filters,
-      int selected_accept_filter,
       struct _cef_file_dialog_callback_t* callback);
 } cef_dialog_handler_t;
 

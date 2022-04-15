@@ -65,10 +65,13 @@ Click a button to show the associated dialog type.
 <br/><input type="button" onclick="show_alert();" value="Show Alert">
 <br/><input type="button" onclick="show_confirm();" value="Show Confirm"> <span id="cm"></span>
 <br/><input type="button" onclick="show_prompt();" value="Show Prompt"> <span id="pm"></span>
-<br/>input type="file": <input type="file" name="pic" accept="text/*,.js,.css,image/*">
+<br/>input type="file" (.png): <input type="file" name="pic" accept=".png">
+<br/>input type="file" (image/*): <input type="file" name="pic" accept="image/*">
+<br/>input type="file" (multiple types): <input type="file" name="pic" accept="text/*,.js,.css,image/*">
 <br/>input type="file" (directory): <input type="file" webkitdirectory  accept="text/*,.js,.css,image/*">
-<br/><input type="button" onclick="show_file_dialog('fo', 'FileOpen');" value="Show File Open" disabled="true"> <span id="fo"></span>
-<br/><input type="button" onclick="show_file_dialog('fom', 'FileOpenMultiple');" value="Show File Open Multiple" disabled="true"> <span id="fom"></span>
+<br/><input type="button" onclick="show_file_dialog('fop', 'FileOpenPng');" value="Show File Open (.png)" disabled="true"> <span id="fop"></span>
+<br/><input type="button" onclick="show_file_dialog('foi', 'FileOpenImage');" value="Show File Open (image/*)" disabled="true"> <span id="foi"></span>
+<br/><input type="button" onclick="show_file_dialog('fom', 'FileOpenMultiple');" value="Show File Open (multiple types/files)" disabled="true"> <span id="fom"></span>
 <br/><input type="button" onclick="show_file_dialog('fof', 'FileOpenFolder');" value="Show File Open Folder" disabled="true"> <span id="fof"></span>
 <br/><input type="button" onclick="show_file_dialog('fs', 'FileSave');" value="Show File Save" disabled="true"> <span id="fs"></span>
 <p id="time"></p>

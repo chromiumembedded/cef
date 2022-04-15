@@ -50,6 +50,7 @@ const char kShowChromeToolbar[] = "show-chrome-toolbar";
 const char kInitialShowState[] = "initial-show-state";
 const char kHideChromeStatusBubble[] = "hide-chrome-status-bubble";
 const char kUseDefaultPopup[] = "use-default-popup";
+const char kUseClientDialogs[] = "use-client-dialogs";
 
 }  // namespace switches
 }  // namespace client

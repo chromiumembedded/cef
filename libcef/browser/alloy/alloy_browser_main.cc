@@ -13,6 +13,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools/devtools_manager_delegate.h"
 #include "libcef/browser/extensions/extension_system_factory.h"
+#include "libcef/browser/file_dialog_runner.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
 #include "libcef/browser/printing/constrained_window_views_client.h"
 #include "libcef/browser/thread_util.h"
@@ -75,11 +76,23 @@
 
 #if BUILDFLAG(IS_LINUX)
 #include "base/path_service.h"
+#include "chrome/browser/themes/theme_service_aura_linux.h"
+#include "chrome/browser/ui/views/theme_profile_key.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/grit/chromium_strings.h"
 #include "components/os_crypt/key_storage_config_linux.h"
 #include "libcef/browser/printing/print_dialog_linux.h"
+#include "ui/base/cursor/cursor_factory.h"
+#include "ui/base/ime/input_method.h"
+#include "ui/base/ime/linux/fake_input_method_context_factory.h"
 #include "ui/base/l10n/l10n_util.h"
+#include "ui/base/linux/linux_ui_delegate.h"
+#include "ui/ozone/public/ozone_platform.h"
+#include "ui/views/linux_ui/linux_ui.h"
+
+#if BUILDFLAG(USE_GTK)
+#include "ui/gtk/gtk_ui_factory.h"
+#endif
 #endif  // BUILDFLAG(IS_LINUX)
 
 #if BUILDFLAG(ENABLE_MEDIA_FOUNDATION_WIDEVINE_CDM)
@@ -90,22 +103,81 @@
 #include "chrome/browser/component_updater/widevine_cdm_component_installer.h"
 #endif
 
+namespace {
+
+#if BUILDFLAG(IS_LINUX)
+
+std::unique_ptr<views::LinuxUI> BuildLinuxUI() {
+  // We can't use GtkUi in combination with multi-threaded-message-loop because
+  // Chromium's GTK implementation doesn't use GDK threads.
+  if (!!CefContext::Get()->settings().multi_threaded_message_loop)
+    return nullptr;
+
+  // If the ozone backend hasn't provided a LinuxUiDelegate, don't try to create
+  // a LinuxUi instance as this may result in a crash in toolkit initialization.
+  if (!ui::LinuxUiDelegate::GetInstance())
+    return nullptr;
+
+    // GtkUi is the only LinuxUI implementation for now.
+#if BUILDFLAG(USE_GTK)
+  return BuildGtkUi();
+#else
+  return nullptr;
+#endif
+}
+
+// Based on chrome_browser_main_extra_parts_views_linux.cc
+void ToolkitInitializedLinux() {
+  if (auto linux_ui = BuildLinuxUI()) {
+    linux_ui->SetUseSystemThemeCallback(
+        base::BindRepeating([](aura::Window* window) {
+          if (!window)
+            return true;
+          return ThemeServiceAuraLinux::ShouldUseSystemThemeForProfile(
+              GetThemeProfileForWindow(window));
+        }));
+
+    linux_ui->Initialize();
+    views::LinuxUI::SetInstance(std::move(linux_ui));
+
+    // Cursor theme changes are tracked by LinuxUI (via a CursorThemeManager
+    // implementation). Start observing them once it's initialized.
+    ui::CursorFactory::GetInstance()->ObserveThemeChanges();
+  } else {
+    // In case if GTK is not used, input method factory won't be set for X11 and
+    // Ozone/X11. Set a fake one instead to avoid crashing browser later.
+    DCHECK(!ui::LinuxInputMethodContextFactory::instance());
+    // Try to create input method through Ozone so that the backend has a chance
+    // to set factory by itself.
+    ui::OzonePlatform::GetInstance()->CreateInputMethod(
+        nullptr, gfx::kNullAcceleratedWidget);
+  }
+  // If factory is not set, set a fake instance.
+  if (!ui::LinuxInputMethodContextFactory::instance()) {
+    ui::LinuxInputMethodContextFactory::SetInstance(
+        new ui::FakeInputMethodContextFactory());
+  }
+
+  auto create_print_dialog_func =
+      printing::PrintingContextLinux::SetCreatePrintDialogFunction(
+          &CefPrintDialogLinux::CreatePrintDialog);
+  auto pdf_paper_size_func =
+      printing::PrintingContextLinux::SetPdfPaperSizeFunction(
+          &CefPrintDialogLinux::GetPdfPaperSize);
+  CefPrintDialogLinux::SetDefaultPrintingContextFuncs(create_print_dialog_func,
+                                                      pdf_paper_size_func);
+}
+
+#endif  // BUILDFLAG(IS_LINUX)
+
+}  // namespace
+
 AlloyBrowserMainParts::AlloyBrowserMainParts(
     content::MainFunctionParams parameters)
     : BrowserMainParts(), parameters_(std::move(parameters)) {}
 
 AlloyBrowserMainParts::~AlloyBrowserMainParts() {
   constrained_window::SetConstrainedWindowViewsClient(nullptr);
-}
-
-int AlloyBrowserMainParts::PreEarlyInitialization() {
-#if defined(USE_AURA) && BUILDFLAG(IS_LINUX)
-  // TODO(linux): Consider using a real input method or
-  // views::LinuxUI::SetInstance.
-  ui::InitializeInputMethodForTesting();
-#endif
-
-  return content::RESULT_CODE_NORMAL_EXIT;
 }
 
 void AlloyBrowserMainParts::ToolkitInitialized() {
@@ -121,6 +193,10 @@ void AlloyBrowserMainParts::ToolkitInitialized() {
   layout_provider_ = ChromeLayoutProvider::CreateLayoutProvider();
 #else
   views_delegate_ = std::make_unique<views::DesktopTestViewsDelegate>();
+#endif
+
+#if BUILDFLAG(IS_LINUX)
+  ToolkitInitializedLinux();
 #endif
 }
 
@@ -148,11 +224,6 @@ void AlloyBrowserMainParts::PreCreateMainMessageLoop() {
 
 void AlloyBrowserMainParts::PostCreateMainMessageLoop() {
 #if BUILDFLAG(IS_LINUX)
-  printing::PrintingContextLinux::SetCreatePrintDialogFunction(
-      &CefPrintDialogLinux::CreatePrintDialog);
-  printing::PrintingContextLinux::SetPdfPaperSizeFunction(
-      &CefPrintDialogLinux::GetPdfPaperSize);
-
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
 
@@ -241,6 +312,7 @@ int AlloyBrowserMainParts::PreMainMessageLoopRun() {
   PluginFinder::GetInstance()->Init();
 
   scheme::RegisterWebUIControllerFactory();
+  file_dialog_runner::RegisterFactory();
 
 #if BUILDFLAG(ENABLE_MEDIA_FOUNDATION_WIDEVINE_CDM) || \
     BUILDFLAG(ENABLE_WIDEVINE_CDM_COMPONENT)

@@ -32,6 +32,7 @@
 #include "base/bind.h"
 #include "base/callback_helpers.h"
 #include "base/command_line.h"
+#include "chrome/browser/file_select_helper.h"
 #include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
 #include "content/browser/gpu/compositor_util.h"
 #include "content/public/browser/desktop_media_id.h"
@@ -348,27 +349,6 @@ void AlloyBrowserHostImpl::SetZoomLevel(double zoomLevel) {
   }
 }
 
-void AlloyBrowserHostImpl::RunFileDialog(
-    FileDialogMode mode,
-    const CefString& title,
-    const CefString& default_file_path,
-    const std::vector<CefString>& accept_filters,
-    int selected_accept_filter,
-    CefRefPtr<CefRunFileDialogCallback> callback) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-                  base::BindOnce(&AlloyBrowserHostImpl::RunFileDialog, this,
-                                 mode, title, default_file_path, accept_filters,
-                                 selected_accept_filter, callback));
-    return;
-  }
-
-  EnsureFileDialogManager();
-  file_dialog_manager_->RunFileDialog(mode, title, default_file_path,
-                                      accept_filters, selected_accept_filter,
-                                      callback);
-}
-
 void AlloyBrowserHostImpl::Print() {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, base::BindOnce(&AlloyBrowserHostImpl::Print, this));
@@ -666,8 +646,6 @@ void AlloyBrowserHostImpl::DestroyBrowser() {
   OnBeforeClose();
 
   // Destroy any platform constructs first.
-  if (file_dialog_manager_.get())
-    file_dialog_manager_->Destroy();
   if (javascript_dialog_manager_.get())
     javascript_dialog_manager_->Destroy();
   if (menu_manager_.get())
@@ -748,13 +726,6 @@ void AlloyBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
 
   if (platform_delegate_)
     platform_delegate_->SetFocus(true);
-}
-
-void AlloyBrowserHostImpl::RunFileChooser(
-    const CefFileDialogRunner::FileChooserParams& params,
-    CefFileDialogRunner::RunFileChooserCallback callback) {
-  EnsureFileDialogManager();
-  file_dialog_manager_->RunFileChooser(params, std::move(callback));
 }
 
 void AlloyBrowserHostImpl::EnterFullscreenModeForTab(
@@ -1278,8 +1249,9 @@ void AlloyBrowserHostImpl::RunFileChooser(
     content::RenderFrameHost* render_frame_host,
     scoped_refptr<content::FileSelectListener> listener,
     const blink::mojom::FileChooserParams& params) {
-  EnsureFileDialogManager();
-  file_dialog_manager_->RunFileChooser(listener, params);
+  // This will eventually call into CefFileDialogManager.
+  FileSelectHelper::RunFileChooser(render_frame_host, std::move(listener),
+                                   params);
 }
 
 bool AlloyBrowserHostImpl::HandleContextMenu(
@@ -1574,12 +1546,4 @@ void AlloyBrowserHostImpl::UpdateDragCursor(
     ui::mojom::DragOperation operation) {
   if (platform_delegate_)
     platform_delegate_->UpdateDragCursor(operation);
-}
-
-void AlloyBrowserHostImpl::EnsureFileDialogManager() {
-  CEF_REQUIRE_UIT();
-  if (!file_dialog_manager_.get() && platform_delegate_) {
-    file_dialog_manager_.reset(new CefFileDialogManager(
-        this, platform_delegate_->CreateFileDialogRunner()));
-  }
 }
