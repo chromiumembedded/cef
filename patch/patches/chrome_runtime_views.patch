@@ -357,7 +357,7 @@ index 5f8af5f46bf46..54aba6eb904d6 100644
    bool toolbar_visible = delegate_->IsToolbarVisible();
    int height = toolbar_visible ? toolbar_->GetPreferredSize().height() : 0;
 diff --git chrome/browser/ui/views/frame/contents_web_view.cc chrome/browser/ui/views/frame/contents_web_view.cc
-index 5f985efa03120..cd38b49974ecb 100644
+index 28637ccd206b1..66cb6c09ff4e8 100644
 --- chrome/browser/ui/views/frame/contents_web_view.cc
 +++ chrome/browser/ui/views/frame/contents_web_view.cc
 @@ -24,6 +24,11 @@
