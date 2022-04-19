@@ -90,8 +90,7 @@ class CefKioskDelegate : public extensions::KioskDelegate {
 }  // namespace
 
 CefExtensionsBrowserClient::CefExtensionsBrowserClient()
-    : api_client_(new CefExtensionsAPIClient),
-      resource_manager_(new CefComponentExtensionResourceManager) {
+    : api_client_(new CefExtensionsAPIClient) {
   AddAPIProvider(std::make_unique<CoreExtensionsBrowserAPIProvider>());
   AddAPIProvider(std::make_unique<CefExtensionsBrowserAPIProvider>());
 }
@@ -332,6 +331,10 @@ CefExtensionsBrowserClient::CreateRuntimeAPIDelegate(
 
 const ComponentExtensionResourceManager*
 CefExtensionsBrowserClient::GetComponentExtensionResourceManager() {
+  if (!resource_manager_) {
+    resource_manager_ =
+        std::make_unique<CefComponentExtensionResourceManager>();
+  }
   return resource_manager_.get();
 }
 
