@@ -159,6 +159,7 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   int GetCurrentTabIndex() const;
 
   Browser* browser_ = nullptr;
+  CefWindowHandle host_window_handle_ = kNullWindowHandle;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_CHROME_BROWSER_HOST_IMPL_H_

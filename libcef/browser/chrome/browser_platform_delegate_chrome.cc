@@ -4,6 +4,8 @@
 
 #include "libcef/browser/chrome/browser_platform_delegate_chrome.h"
 
+#include "libcef/browser/views/view_util.h"
+
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_window.h"
 #include "ui/display/screen.h"
@@ -40,6 +42,10 @@ void CefBrowserPlatformDelegateChrome::BrowserDestroyed(
   native_delegate_->BrowserDestroyed(browser);
 }
 
+CefWindowHandle CefBrowserPlatformDelegateChrome::GetHostWindowHandle() const {
+  return view_util::GetWindowHandle(GetNativeWindow());
+}
+
 SkColor CefBrowserPlatformDelegateChrome::GetBackgroundColor() const {
   return native_delegate_->GetBackgroundColor();
 }
@@ -73,12 +79,9 @@ gfx::Point CefBrowserPlatformDelegateChrome::GetScreenPoint(
     const gfx::Point& view) const {
   auto screen = display::Screen::GetScreen();
 
-  gfx::NativeWindow native_window =
-      chrome_browser_ ? chrome_browser_->window()->GetNativeWindow() : nullptr;
-
   // Returns screen pixel coordinates.
   auto screen_rect = screen->DIPToScreenRectInWindow(
-      native_window, gfx::Rect(view, gfx::Size(0, 0)));
+      GetNativeWindow(), gfx::Rect(view, gfx::Size(0, 0)));
   return screen_rect.origin();
 }
 
@@ -103,4 +106,10 @@ gfx::Point CefBrowserPlatformDelegateChrome::GetParentScreenPoint(
 
 void CefBrowserPlatformDelegateChrome::set_chrome_browser(Browser* browser) {
   chrome_browser_ = browser;
+}
+
+gfx::NativeWindow CefBrowserPlatformDelegateChrome::GetNativeWindow() const {
+  if (chrome_browser_ && chrome_browser_->window())
+    return chrome_browser_->window()->GetNativeWindow();
+  return gfx::NativeWindow();
 }

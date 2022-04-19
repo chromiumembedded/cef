@@ -24,6 +24,7 @@ class CefBrowserPlatformDelegateChrome
   void WebContentsDestroyed(content::WebContents* web_contents) override;
   void BrowserCreated(CefBrowserHostBase* browser) override;
   void BrowserDestroyed(CefBrowserHostBase* browser) override;
+  CefWindowHandle GetHostWindowHandle() const override;
   SkColor GetBackgroundColor() const override;
   void SendKeyEvent(const CefKeyEvent& event) override;
   void SendMouseClickEvent(const CefMouseEvent& event,
@@ -50,6 +51,8 @@ class CefBrowserPlatformDelegateChrome
   }
 
  protected:
+  gfx::NativeWindow GetNativeWindow() const;
+
   std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate_;
 
   Browser* chrome_browser_ = nullptr;

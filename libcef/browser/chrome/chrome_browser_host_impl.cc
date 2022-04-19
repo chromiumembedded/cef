@@ -168,8 +168,7 @@ CefWindowHandle ChromeBrowserHostImpl::GetWindowHandle() {
     if (platform_delegate_)
       return platform_delegate_->GetHostWindowHandle();
   }
-  NOTIMPLEMENTED();
-  return kNullWindowHandle;
+  return host_window_handle_;
 }
 
 CefWindowHandle ChromeBrowserHostImpl::GetOpenerWindowHandle() {
@@ -524,6 +523,8 @@ void ChromeBrowserHostImpl::SetBrowser(Browser* browser) {
   browser_ = browser;
   static_cast<CefBrowserPlatformDelegateChrome*>(platform_delegate_.get())
       ->set_chrome_browser(browser);
+  if (browser_)
+    host_window_handle_ = platform_delegate_->GetHostWindowHandle();
 }
 
 void ChromeBrowserHostImpl::WindowDestroyed() {

@@ -26,9 +26,15 @@ gfx::NativeView GetNativeView(views::Widget* widget) {
 CefWindowHandle GetWindowHandle(views::Widget* widget) {
   // Same implementation as views::HWNDForView() but cross-platform.
   if (widget) {
-    aura::Window* window = widget->GetNativeWindow();
-    if (window && window->GetRootWindow())
-      return window->GetHost()->GetAcceleratedWidget();
+    return GetWindowHandle(widget->GetNativeWindow());
+  }
+  return kNullWindowHandle;
+}
+
+CefWindowHandle GetWindowHandle(gfx::NativeWindow window) {
+  // |window| is an aura::Window*.
+  if (window && window->GetRootWindow()) {
+    return window->GetHost()->GetAcceleratedWidget();
   }
   return kNullWindowHandle;
 }

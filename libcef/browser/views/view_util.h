@@ -9,6 +9,7 @@
 #include "include/views/cef_view.h"
 #include "include/views/cef_window.h"
 
+#include "ui/gfx/native_widget_types.h"
 #include "ui/views/view.h"
 
 namespace display {
@@ -122,6 +123,9 @@ gfx::NativeView GetNativeView(views::Widget* widget);
 
 // Returns the platform window handle for |widget|. May return nullptr.
 CefWindowHandle GetWindowHandle(views::Widget* widget);
+
+// Returns the platform window handle for |window|. May return nullptr.
+CefWindowHandle GetWindowHandle(gfx::NativeWindow window);
 
 }  // namespace view_util
 

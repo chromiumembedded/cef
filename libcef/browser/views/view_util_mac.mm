@@ -4,6 +4,8 @@
 
 #include "libcef/browser/views/view_util.h"
 
+#import <Cocoa/Cocoa.h>
+
 #include "include/internal/cef_types_mac.h"
 
 #include "ui/views/widget/widget.h"
@@ -23,9 +25,19 @@ gfx::NativeView GetNativeView(views::Widget* widget) {
 }
 
 CefWindowHandle GetWindowHandle(views::Widget* widget) {
+  // |view| is a wrapper type from native_widget_types.h.
   auto view = GetNativeView(widget);
   if (view)
     return CAST_NSVIEW_TO_CEF_WINDOW_HANDLE(view.GetNativeNSView());
+  return kNullWindowHandle;
+}
+
+CefWindowHandle GetWindowHandle(gfx::NativeWindow window) {
+  // |window| is a wrapper type from native_widget_types.h.
+  if (window) {
+    NSWindow* nswindow = window.GetNativeNSWindow();
+    return CAST_NSVIEW_TO_CEF_WINDOW_HANDLE([nswindow contentView]);
+  }
   return kNullWindowHandle;
 }
 
