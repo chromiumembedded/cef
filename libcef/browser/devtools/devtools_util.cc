@@ -30,7 +30,7 @@ bool ParseEvent(const base::StringPiece& message,
 
   const size_t method_start = sizeof(kMethodStart) - 1;
   const size_t method_end = message.find(kMethodEnd, method_start);
-  if (method_end < 0U)
+  if (method_end == base::StringPiece::npos)
     return false;
   method = message.substr(method_start, method_end - method_start);
   if (method.empty())
@@ -77,7 +77,7 @@ bool ParseResult(const base::StringPiece& message,
 
   const size_t id_start = sizeof(kIdStart) - 1;
   const size_t id_end = message.find(kIdEnd, id_start);
-  if (id_end < 0U)
+  if (id_end == base::StringPiece::npos)
     return false;
   const base::StringPiece& id_str = message.substr(id_start, id_end - id_start);
   if (id_str.empty() || !base::StringToInt(id_str, &message_id))
