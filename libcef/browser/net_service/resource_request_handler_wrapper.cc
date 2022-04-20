@@ -112,6 +112,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     CefRefPtr<CefResponseImpl> pending_response_;
     bool request_was_redirected_ = false;
     bool was_custom_handled_ = false;
+    bool accept_language_added_ = false;
     CancelRequestCallback cancel_callback_;
   };
 
@@ -514,9 +515,12 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     }
 
     // Add standard headers, if currently unspecified.
-    request->headers.SetHeaderIfMissing(
-        net::HttpRequestHeaders::kAcceptLanguage,
-        init_state_->accept_language_);
+    if (!request->headers.HasHeader(net::HttpRequestHeaders::kAcceptLanguage)) {
+      request->headers.SetHeaderIfMissing(
+          net::HttpRequestHeaders::kAcceptLanguage,
+          init_state_->accept_language_);
+      state->accept_language_added_ = true;
+    }
     request->headers.SetHeaderIfMissing(net::HttpRequestHeaders::kUserAgent,
                                         init_state_->user_agent_);
 
@@ -771,7 +775,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       resource_response = CreateResourceResponse(request_id, resource_handler);
       DCHECK(resource_response);
       state->was_custom_handled_ = true;
-    } else {
+    } else if (state->accept_language_added_) {
       // The request will be handled by the NetworkService. Remove the
       // "Accept-Language" header here so that it can be re-added in
       // URLRequestHttpJob::AddExtraHeaders with correct ordering applied.
