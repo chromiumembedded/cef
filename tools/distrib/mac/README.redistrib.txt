@@ -17,8 +17,6 @@ cefclient.app/
         Libraries/
           libEGL.dylib <= ANGLE support libraries
           libGLESv2.dylib <=^
-          libswiftshader_libEGL.dylib <= SwiftShader support libraries
-          libswiftshader_libGLESv2.dylib <=^
           libvk_swiftshader.dylib <= SwANGLE support libraries
           vk_swiftshader_icd.json <=^
         Resources/
@@ -106,10 +104,3 @@ run but any related functionality may become broken or disabled.
   WebGL using SwiftShader's Vulkan library as ANGLE's Vulkan backend. Without
   these files the aforementioned capabilities may fail when GPU acceleration is
   disabled or unavailable.
-
-* SwiftShader support
-  * Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib
-  * Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib
-  Deprecated support for software rendering using SwiftShader's GL libraries.
-  Used as an alternative to SwANGLE when the `--use-gl=swiftshader-webgl`
-  command-line flag is specified.

@@ -17,7 +17,6 @@
 #include "ui/gfx/x/connection.h"
 #include "ui/gfx/x/x11_window_event_manager.h"
 #include "ui/gfx/x/xproto_util.h"
-#include "ui/ozone/platform/x11/x11_topmost_window_finder.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h"
 
 namespace {
@@ -29,6 +28,42 @@ const char kNetWMStateKeepAbove[] = "_NET_WM_STATE_KEEP_ABOVE";
 const char kWMDeleteWindow[] = "WM_DELETE_WINDOW";
 const char kWMProtocols[] = "WM_PROTOCOLS";
 const char kXdndProxy[] = "XdndProxy";
+
+// Return true if |window| has any property with |property_name|.
+// Deleted from ui/base/x/x11_util.h in https://crrev.com/62fc260067.
+bool PropertyExists(x11::Window window, x11::Atom property) {
+  auto response = x11::Connection::Get()
+                      ->GetProperty(x11::GetPropertyRequest{
+                          .window = window,
+                          .property = property,
+                          .long_length = 1,
+                      })
+                      .Sync();
+  return response && response->format;
+}
+
+// Returns true if |window| is visible.
+// Deleted from ui/base/x/x11_util.h in https://crrev.com/62fc260067.
+bool IsWindowVisible(x11::Window window) {
+  auto response = x11::Connection::Get()->GetWindowAttributes({window}).Sync();
+  if (!response || response->map_state != x11::MapState::Viewable)
+    return false;
+
+  // Minimized windows are not visible.
+  std::vector<x11::Atom> wm_states;
+  if (x11::GetArrayProperty(window, x11::GetAtom("_NET_WM_STATE"),
+                            &wm_states)) {
+    x11::Atom hidden_atom = x11::GetAtom("_NET_WM_STATE_HIDDEN");
+    if (base::Contains(wm_states, hidden_atom))
+      return false;
+  }
+
+  // Do not check _NET_CURRENT_DESKTOP/_NET_WM_DESKTOP since some
+  // window managers (eg. i3) have per-monitor workspaces where more
+  // than one workspace can be visible at once, but only one will be
+  // "active".
+  return true;
+}
 
 x11::Window FindChild(x11::Window window) {
   auto query_tree = x11::Connection::Get()->QueryTree({window}).Sync();
@@ -48,7 +83,7 @@ x11::Window FindToplevelParent(x11::Window window) {
       break;
 
     top_level_window = window;
-    if (!ui::PropertyExists(query_tree->parent, x11::GetAtom(kNetWMPid)) ||
+    if (!PropertyExists(query_tree->parent, x11::GetAtom(kNetWMPid)) ||
         query_tree->parent == query_tree->root) {
       break;
     }
@@ -227,7 +262,7 @@ void CefWindowX11::Focus() {
 
   if (browser_.get()) {
     auto child = FindChild(xwindow_);
-    if (child != x11::Window::None && ui::IsWindowVisible(child)) {
+    if (child != x11::Window::None && IsWindowVisible(child)) {
       // Give focus to the child DesktopWindowTreeHostLinux.
       focus_target = child;
     }
@@ -334,7 +369,6 @@ bool CefWindowX11::TopLevelAlwaysOnTop() const {
 void CefWindowX11::ProcessXEvent(const x11::Event& event) {
   if (auto* configure = event.As<x11::ConfigureNotifyEvent>()) {
     DCHECK_EQ(xwindow_, configure->event);
-    DCHECK_EQ(xwindow_, configure->window);
     // It's possible that the X window may be resized by some other means
     // than from within Aura (e.g. the X window manager can change the
     // size). Make sure the root window size is maintained properly.

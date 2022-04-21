@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 5356717746edd..6345b837a6ea6 100644
+index 5a11496a47ae7..76d199e4b69fa 100644
 --- .gn
 +++ .gn
-@@ -151,6 +151,8 @@ exec_script_whitelist =
+@@ -157,6 +157,8 @@ exec_script_whitelist =
  
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
  
@@ -12,7 +12,7 @@ index 5356717746edd..6345b837a6ea6 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index f686fc6368936..37848e164aeb0 100644
+index 338241fc0f990..7a513198476e6 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -17,6 +17,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -23,16 +23,17 @@ index f686fc6368936..37848e164aeb0 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/media/router/features.gni")
  import("//components/nacl/features.gni")
-@@ -252,6 +253,9 @@ group("gn_all") {
-         deps += [ "//chrome/test:telemetry_perf_unittests${_target_suffix}" ]
-       }
-     }
-+    if (enable_cef) {
-+      deps += [ "//cef" ]
-+    }
-   } else if (is_ios) {
-     deps += [
-       "//ios:all",
+@@ -117,6 +118,10 @@ group("gn_all") {
+     ]
+   }
+ 
++  if (enable_cef) {
++    deps += [ "//cef" ]
++  }
++
+   if (enable_js_type_check) {
+     deps += [ ":webui_closure_compile" ]
+   }
 diff --git build/config/win/visual_studio_version.gni build/config/win/visual_studio_version.gni
 index 982fbe8d3f0d0..e757be4688f10 100644
 --- build/config/win/visual_studio_version.gni
@@ -79,7 +80,7 @@ index f8f71ef369c08..7a2ed5da7bda3 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 10acea1dbb8db..ff419de6494ce 100644
+index dd4142e9596eb..4eee52e9b528e 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -90,7 +91,7 @@ index 10acea1dbb8db..ff419de6494ce 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/components/chromebox_for_meetings/buildflags/buildflags.gni")
-@@ -75,6 +76,10 @@ template("chrome_repack_percent") {
+@@ -76,6 +77,10 @@ template("chrome_repack_percent") {
          "//ui/chromeos/resources",
        ]
      }
@@ -152,7 +153,7 @@ index 51fa0d7f4cf77..2ede68e9377eb 100644
    outputs = [
      # See also chrome.packed.7z conditionally added below.
 diff --git tools/grit/grit_defines.gni tools/grit/grit_defines.gni
-index 061bdf6812cff..3b0a4b832bd24 100644
+index bc59070a45360..71dfd4536d432 100644
 --- tools/grit/grit_defines.gni
 +++ tools/grit/grit_defines.gni
 @@ -5,6 +5,7 @@
@@ -163,7 +164,7 @@ index 061bdf6812cff..3b0a4b832bd24 100644
  import("//build/config/ui.gni")
  
  shared_intermediate_dir = rebase_path(root_gen_dir, root_build_dir)
-@@ -119,6 +120,13 @@ if (is_android) {
+@@ -118,6 +119,13 @@ if (is_android) {
    ]
  }
  

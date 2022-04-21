@@ -857,8 +857,6 @@ if platform == 'windows':
       {'path': 'vk_swiftshader.dll'},
       {'path': 'vk_swiftshader_icd.json'},
       {'path': 'vulkan-1.dll'},
-      {'path': 'swiftshader\\libEGL.dll'},
-      {'path': 'swiftshader\\libGLESv2.dll'},
   ]
   # yapf: enable
 
@@ -1184,8 +1182,6 @@ elif platform == 'linux':
       {'path': 'snapshot_blob.bin', 'conditional': True},
       {'path': 'v8_context_snapshot.bin', 'conditional': True},
       {'path': 'vk_swiftshader_icd.json'},
-      {'path': 'swiftshader/libEGL.so'},
-      {'path': 'swiftshader/libGLESv2.so'},
   ]
   # yapf: enable
   if options.ozone:

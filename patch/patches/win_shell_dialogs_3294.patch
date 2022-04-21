@@ -1,8 +1,8 @@
 diff --git ui/shell_dialogs/base_shell_dialog_win.cc ui/shell_dialogs/base_shell_dialog_win.cc
-index 46fd116c02dad..499bf49cff882 100644
+index b8ef380ab0059..fc90b5ce0e6d4 100644
 --- ui/shell_dialogs/base_shell_dialog_win.cc
 +++ ui/shell_dialogs/base_shell_dialog_win.cc
-@@ -59,11 +59,15 @@ BaseShellDialogImpl::Owners& BaseShellDialogImpl::GetOwners() {
+@@ -58,11 +58,15 @@ BaseShellDialogImpl::Owners& BaseShellDialogImpl::GetOwners() {
  
  // static
  void BaseShellDialogImpl::DisableOwner(HWND owner) {
@@ -18,7 +18,7 @@ index 46fd116c02dad..499bf49cff882 100644
    // Cannot run a modal shell dialog if one is already running for this owner.
    DCHECK(!IsRunningDialogForOwner(owner));
    // The owner must be a top level window, otherwise we could end up with two
-@@ -89,6 +93,8 @@ void BaseShellDialogImpl::EndRun(std::unique_ptr<RunState> run_state) {
+@@ -88,6 +92,8 @@ void BaseShellDialogImpl::EndRun(std::unique_ptr<RunState> run_state) {
  }
  
  bool BaseShellDialogImpl::IsRunningDialogForOwner(HWND owner) const {

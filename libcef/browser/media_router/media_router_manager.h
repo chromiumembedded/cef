@@ -25,7 +25,7 @@ class CefRouteMessageObserver;
 // Manages CEF usage of MediaRouter. Owned by CefBrowserContext and only
 // accessed on the UI thread.
 class CefMediaRouterManager
-    : public media_router::QueryResultManager::Observer {
+    : public media_router::MediaSinkWithCastModesObserver {
  public:
   using MediaRouteVector = std::vector<media_router::MediaRoute>;
   using MediaSinkVector = std::vector<media_router::MediaSinkWithCastModes>;
@@ -74,8 +74,8 @@ class CefMediaRouterManager
                         const std::string& message);
   void TerminateRoute(const media_router::MediaRoute::Id& route_id);
 
-  // QueryResultManager::Observer methods.
-  void OnResultsUpdated(const MediaSinkVector& sinks) override;
+  // MediaSinkWithCastModesObserver methods.
+  void OnSinksUpdated(const MediaSinkVector& sinks) override;
 
  private:
   friend class CefMediaRoutesObserver;

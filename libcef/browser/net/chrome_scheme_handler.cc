@@ -31,7 +31,7 @@
 #include "cef/grit/cef_resources.h"
 #include "chrome/browser/browser_about_handler.h"
 #include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/ui/webui/chrome_untrusted_web_ui_controller_factory.h"
+#include "chrome/browser/ui/webui/chrome_untrusted_web_ui_configs.h"
 #include "chrome/browser/ui/webui/chrome_web_ui_controller_factory.h"
 #include "chrome/browser/ui/webui/theme_source.h"
 #include "chrome/common/url_constants.h"
@@ -41,6 +41,7 @@
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/browser/url_data_source.h"
 #include "content/public/browser/web_ui_controller.h"
+#include "content/public/browser/webui_config_map.h"
 #include "content/public/common/url_constants.h"
 #include "content/public/common/url_utils.h"
 #include "content/public/common/user_agent.h"
@@ -578,12 +579,13 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
 
     controller = content::ContentWebUIControllerFactory::GetInstance()
                      ->CreateWebUIControllerForURL(web_ui, url);
-    if (controller.get())
+    if (controller)
       return controller;
 
-    controller = ChromeUntrustedWebUIControllerFactory::GetInstance()
+    controller = content::WebUIConfigMap::GetInstance()
+                     .controller_factory()
                      ->CreateWebUIControllerForURL(web_ui, url);
-    if (controller.get())
+    if (controller)
       return controller;
 
     return ChromeWebUIControllerFactory::GetInstance()
@@ -606,8 +608,9 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     if (type != content::WebUI::kNoWebUI)
       return type;
 
-    type = ChromeUntrustedWebUIControllerFactory::GetInstance()->GetWebUIType(
-        browser_context, url);
+    type = content::WebUIConfigMap::GetInstance()
+               .controller_factory()
+               ->GetWebUIType(browser_context, url);
     if (type != content::WebUI::kNoWebUI)
       return type;
 
@@ -631,8 +634,9 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
 
     if (content::ContentWebUIControllerFactory::GetInstance()->UseWebUIForURL(
             browser_context, url) ||
-        ChromeUntrustedWebUIControllerFactory::GetInstance()->UseWebUIForURL(
-            browser_context, url) ||
+        content::WebUIConfigMap::GetInstance()
+            .controller_factory()
+            ->UseWebUIForURL(browser_context, url) ||
         ChromeWebUIControllerFactory::GetInstance()->UseWebUIForURL(
             browser_context, url)) {
       return true;
@@ -696,9 +700,13 @@ void RegisterWebUIControllerFactory() {
   // Channel all WebUI handling through CefWebUIControllerFactory.
   content::WebUIControllerFactory::UnregisterFactoryForTesting(
       content::ContentWebUIControllerFactory::GetInstance());
+  content::WebUIControllerFactory::UnregisterFactoryForTesting(
+      content::WebUIConfigMap::GetInstance().controller_factory());
 
   content::WebUIControllerFactory::RegisterFactory(
       CefWebUIControllerFactory::GetInstance());
+
+  RegisterChromeUntrustedWebUIConfigs();
 }
 
 void BrowserURLHandlerCreated(content::BrowserURLHandler* handler) {

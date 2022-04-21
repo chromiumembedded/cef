@@ -52,6 +52,7 @@
 #include "base/stl_util.h"
 #include "base/threading/thread_restrictions.h"
 #include "cef/grit/cef_resources.h"
+#include "chrome/browser/accessibility/live_caption_unavailability_notifier.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/content_settings/cookie_settings_factory.h"
 #include "chrome/browser/extensions/chrome_content_browser_client_extensions_part.h"
@@ -432,6 +433,11 @@ void BindPluginInfoHost(
       std::make_unique<PluginInfoHostImpl>(render_process_id, profile),
       std::move(receiver));
 }
+
+void BindMediaFoundationRendererNotifierHandler(
+    content::RenderFrameHost* frame_host,
+    mojo::PendingReceiver<media::mojom::MediaFoundationRendererNotifier>
+        receiver) {}
 
 base::FilePath GetRootCachePath() {
   // The CefContext::ValidateCachePath method enforces the requirement that all
@@ -1398,6 +1404,9 @@ void AlloyContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
     mojo::BinderMapWithContext<content::RenderFrameHost*>* map) {
   CefBrowserFrame::RegisterBrowserInterfaceBindersForFrame(render_frame_host,
                                                            map);
+
+  map->Add<media::mojom::MediaFoundationRendererNotifier>(
+      base::BindRepeating(&BindMediaFoundationRendererNotifierHandler));
 
   if (!extensions::ExtensionsEnabled())
     return;

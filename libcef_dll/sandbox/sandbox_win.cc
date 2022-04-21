@@ -2,7 +2,7 @@
 // 2011 the Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "base/logging.h"
+#include "base/notreached.h"
 #include "sandbox/win/src/process_mitigations.h"
 #include "sandbox/win/src/sandbox_factory.h"
 
@@ -39,3 +39,15 @@ void* cef_sandbox_info_create() {
 void cef_sandbox_info_destroy(void* sandbox_info) {
   delete static_cast<sandbox::SandboxInterfaceInfo*>(sandbox_info);
 }
+
+#if BUILDFLAG(IS_CEF_SANDBOX_BUILD)
+
+// Avoid bringing in partition_alloc dependencies.
+namespace partition_alloc {
+bool ReleaseReservation() {
+  NOTREACHED();
+  return false;
+}
+}  // namespace partition_alloc
+
+#endif  // BUILDFLAG(IS_CEF_SANDBOX_BUILD)

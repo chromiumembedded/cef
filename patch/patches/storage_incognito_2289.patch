@@ -1,8 +1,8 @@
 diff --git content/browser/blob_storage/chrome_blob_storage_context.cc content/browser/blob_storage/chrome_blob_storage_context.cc
-index a74178f2d4246..8098034a38333 100644
+index 7dead74261c3a..9354249366be5 100644
 --- content/browser/blob_storage/chrome_blob_storage_context.cc
 +++ content/browser/blob_storage/chrome_blob_storage_context.cc
-@@ -121,7 +121,8 @@ ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
+@@ -120,7 +120,8 @@ ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
  
      // If we're not incognito mode, schedule all of our file tasks to enable
      // disk on the storage context.
@@ -13,7 +13,7 @@ index a74178f2d4246..8098034a38333 100644
            {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
             base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index 323ffab7c0b25..dbc1a50064361 100644
+index 6dd3c9087aa2c..12cd95fabf5c3 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
 @@ -129,7 +129,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
@@ -25,7 +25,7 @@ index 323ffab7c0b25..dbc1a50064361 100644
      // An off the record profile MUST only use in memory storage partitions.
      CHECK(storage_partition_config.in_memory());
    }
-@@ -370,7 +370,8 @@ BrowserContext::CreateVideoDecodePerfHistory() {
+@@ -360,7 +360,8 @@ BrowserContext::CreateVideoDecodePerfHistory() {
    const bool kUseInMemoryDBDefault = false;
    bool use_in_memory_db = base::GetFieldTrialParamByFeatureAsBool(
        media::kMediaCapabilitiesWithParameters, kUseInMemoryDBParamName,
@@ -58,7 +58,7 @@ index 160c24ce6e6cc..336aee0b8a0e3 100644
  
  // static
 diff --git storage/browser/database/database_tracker.cc storage/browser/database/database_tracker.cc
-index 74423c6f847d4..d1ea3420ec7d3 100644
+index 8abec7e8e4b09..1bac4e476c543 100644
 --- storage/browser/database/database_tracker.cc
 +++ storage/browser/database/database_tracker.cc
 @@ -562,7 +562,7 @@ bool DatabaseTracker::LazyInit() {

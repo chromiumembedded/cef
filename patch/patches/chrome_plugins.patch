@@ -1,8 +1,8 @@
 diff --git chrome/browser/plugins/plugin_info_host_impl.cc chrome/browser/plugins/plugin_info_host_impl.cc
-index f2d3d1a0cd308..49c9747006521 100644
+index 9c889652b408b..31a3df33fd42e 100644
 --- chrome/browser/plugins/plugin_info_host_impl.cc
 +++ chrome/browser/plugins/plugin_info_host_impl.cc
-@@ -18,6 +18,7 @@
+@@ -17,6 +17,7 @@
  #include "base/task/task_runner_util.h"
  #include "build/branding_buildflags.h"
  #include "build/build_config.h"
@@ -10,7 +10,7 @@ index f2d3d1a0cd308..49c9747006521 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
  #include "chrome/browser/plugins/chrome_plugin_service_filter.h"
-@@ -53,6 +54,10 @@
+@@ -52,6 +53,10 @@
  #include "url/gurl.h"
  #include "url/origin.h"
  
@@ -21,7 +21,7 @@ index f2d3d1a0cd308..49c9747006521 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "components/guest_view/browser/guest_view_base.h"
  #include "extensions/browser/extension_registry.h"
-@@ -102,6 +107,9 @@ bool IsPluginLoadingAccessibleResourceInWebView(
+@@ -101,6 +106,9 @@ bool IsPluginLoadingAccessibleResourceInWebView(
      extensions::ExtensionRegistry* extension_registry,
      int process_id,
      const GURL& resource) {
@@ -31,7 +31,7 @@ index f2d3d1a0cd308..49c9747006521 100644
    extensions::WebViewRendererState* renderer_state =
        extensions::WebViewRendererState::GetInstance();
    std::string partition_id;
-@@ -130,14 +138,18 @@ bool IsPluginLoadingAccessibleResourceInWebView(
+@@ -129,14 +137,18 @@ bool IsPluginLoadingAccessibleResourceInWebView(
  
  PluginInfoHostImpl::Context::Context(int render_process_id, Profile* profile)
      : render_process_id_(render_process_id),
@@ -125,10 +125,10 @@ index 8b72897491669..546919dd70afc 100644
    // that the X-Frame-Options protection mechanism is set to either DENY or
    // SAMEORIGIN.
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index bbac287647477..3179dc62bf1d2 100644
+index 7a096b1c69de4..08a5142af028b 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
-@@ -920,6 +920,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -931,6 +931,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
  
      if ((status == chrome::mojom::PluginStatus::kUnauthorized ||
           status == chrome::mojom::PluginStatus::kBlocked) &&
@@ -136,7 +136,7 @@ index bbac287647477..3179dc62bf1d2 100644
          content_settings_agent_delegate->IsPluginTemporarilyAllowed(
              identifier)) {
        status = chrome::mojom::PluginStatus::kAllowed;
-@@ -1121,7 +1122,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1132,7 +1133,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
          render_frame->GetRemoteAssociatedInterfaces()->GetInterface(
              plugin_auth_host.BindNewEndpointAndPassReceiver());
          plugin_auth_host->BlockedUnauthorizedPlugin(group_name, identifier);
@@ -146,7 +146,7 @@ index bbac287647477..3179dc62bf1d2 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlocked: {
-@@ -1130,7 +1132,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1141,7 +1143,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, group_name));
          placeholder->AllowLoading();
          RenderThread::Get()->RecordAction(UserMetricsAction("Plugin_Blocked"));
@@ -156,7 +156,7 @@ index bbac287647477..3179dc62bf1d2 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedByPolicy: {
-@@ -1140,7 +1143,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1151,7 +1154,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
                                         group_name));
          RenderThread::Get()->RecordAction(
              UserMetricsAction("Plugin_BlockedByPolicy"));
@@ -166,7 +166,7 @@ index bbac287647477..3179dc62bf1d2 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedNoLoading: {
-@@ -1148,7 +1152,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1159,7 +1163,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              IDR_BLOCKED_PLUGIN_HTML,
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED_NO_LOADING,
                                         group_name));
@@ -198,7 +198,7 @@ index f2f7e4228f134..e724b36143238 100644
    BrowserPluginEmbedder(const BrowserPluginEmbedder&) = delete;
    BrowserPluginEmbedder& operator=(const BrowserPluginEmbedder&) = delete;
 diff --git content/browser/browser_plugin/browser_plugin_guest.h content/browser/browser_plugin/browser_plugin_guest.h
-index b58cdd14c9a58..927738fd22b80 100644
+index 066c66c1a2d1b..428cb1871a6af 100644
 --- content/browser/browser_plugin/browser_plugin_guest.h
 +++ content/browser/browser_plugin/browser_plugin_guest.h
 @@ -116,6 +116,8 @@ class BrowserPluginGuest : public GuestHost, public WebContentsObserver {

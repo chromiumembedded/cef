@@ -1,5 +1,5 @@
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index d692fc94dab73..87e71e627ce75 100644
+index 831e36f74ea29..9ccf48db4ae2d 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
 @@ -157,13 +157,17 @@ def _LoadToolchainEnv(cpu, toolchain_root, sdk_dir, target_store):
@@ -26,7 +26,7 @@ index d692fc94dab73..87e71e627ce75 100644
      if (cpu != 'x64'):
        # x64 is default target CPU thus any other CPU requires a target set
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 93b79a3cf04bf..9a93667f78b65 100755
+index fc2e5e00961ed..3d23cc7ed7675 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -107,9 +107,16 @@ def SetEnvironmentAndGetRuntimeDllDirs():

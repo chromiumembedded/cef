@@ -146,7 +146,8 @@ class CaptionlessFrameView : public views::NonClientFrameView {
     // fullscreen, as it can't be resized in those states.
     int resize_border_thickness = ResizeBorderThickness();
     int frame_component = GetHTComponentForFrame(
-        point, gfx::Insets(resize_border_thickness, resize_border_thickness),
+        point,
+        gfx::Insets::VH(resize_border_thickness, resize_border_thickness),
         kResizeAreaCornerSize, kResizeAreaCornerSize, can_ever_resize);
     if (frame_component != HTNOWHERE)
       return frame_component;

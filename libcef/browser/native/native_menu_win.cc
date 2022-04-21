@@ -21,6 +21,7 @@
 #include "ui/base/l10n/l10n_util_win.h"
 #include "ui/base/models/image_model.h"
 #include "ui/base/models/menu_model.h"
+#include "ui/base/themed_vector_icon.h"
 #include "ui/color/color_provider_manager.h"
 #include "ui/events/keycodes/keyboard_codes.h"
 #include "ui/gfx/canvas.h"
@@ -31,7 +32,6 @@
 #include "ui/gfx/text_utils.h"
 #include "ui/gfx/win/hwnd_util.h"
 #include "ui/native_theme/native_theme.h"
-#include "ui/native_theme/themed_vector_icon.h"
 #include "ui/views/controls/menu/menu_config.h"
 #include "ui/views/controls/menu/menu_insertion_delegate_win.h"
 

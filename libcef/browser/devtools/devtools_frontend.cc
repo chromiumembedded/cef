@@ -595,7 +595,7 @@ void CefDevToolsFrontend::CallClientFunction(
 
   web_contents()->GetMainFrame()->AllowInjectingJavaScript();
 
-  base::Value arguments(base::Value::Type::LIST);
+  base::Value::List arguments;
   if (!arg1.is_none()) {
     arguments.Append(std::move(arg1));
     if (!arg2.is_none()) {

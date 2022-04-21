@@ -1,8 +1,8 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index e9ba4490665df..a42717a23f067 100644
+index 3161f705e051c..255ee775935e3 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
-@@ -97,7 +97,7 @@ bool ApplyUserAgentMetadataOverrides(
+@@ -96,7 +96,7 @@ bool ApplyUserAgentMetadataOverrides(
      FrameTreeNode* frame_tree_node,
      absl::optional<blink::UserAgentMetadata>* override_out);
  
@@ -12,18 +12,18 @@ index e9ba4490665df..a42717a23f067 100644
      bool is_navigation,
      bool is_download,
 diff --git content/browser/renderer_host/input/mouse_wheel_phase_handler.h content/browser/renderer_host/input/mouse_wheel_phase_handler.h
-index 5206955ca2609..3ae147e0edf58 100644
+index 3d8e22b048f58..4a41f15ce258c 100644
 --- content/browser/renderer_host/input/mouse_wheel_phase_handler.h
 +++ content/browser/renderer_host/input/mouse_wheel_phase_handler.h
-@@ -8,6 +8,7 @@
- #include "base/memory/raw_ptr.h"
+@@ -9,6 +9,7 @@
+ #include "base/time/time.h"
  #include "base/timer/timer.h"
  #include "content/browser/renderer_host/render_widget_host_delegate.h"
 +#include "content/common/content_export.h"
  #include "third_party/blink/public/common/input/web_mouse_wheel_event.h"
  #include "third_party/blink/public/mojom/input/input_event_result.mojom-shared.h"
  
-@@ -50,7 +51,7 @@ enum class FirstScrollUpdateAckState {
+@@ -51,7 +52,7 @@ enum class FirstScrollUpdateAckState {
  // The MouseWheelPhaseHandler is responsible for adding the proper phase to
  // wheel events. Phase information is necessary for wheel scrolling since it
  // shows the start and end of a scrolling sequence.

@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index fbceb85450c53..1141aa50698fe 100644
+index 5c126bf6ff139..d3af3a615e240 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -12,6 +12,7 @@ import("//build/config/features.gni")
@@ -10,7 +10,7 @@ index fbceb85450c53..1141aa50698fe 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/downgrade/buildflags.gni")
  import("//chrome/common/features.gni")
-@@ -1916,6 +1917,7 @@ static_library("browser") {
+@@ -1939,6 +1940,7 @@ static_library("browser") {
      "//build:chromeos_buildflags",
      "//build/config/compiler:compiler_buildflags",
      "//cc",
@@ -18,7 +18,7 @@ index fbceb85450c53..1141aa50698fe 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2572,6 +2574,10 @@ static_library("browser") {
+@@ -2601,6 +2603,10 @@ static_library("browser") {
      deps += [ "//chrome/browser/ui/webui/connectors_internals:mojo_bindings" ]
    }
  

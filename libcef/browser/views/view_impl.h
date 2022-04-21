@@ -576,7 +576,8 @@ CEF_VIEW_IMPL_T CefPoint CEF_VIEW_IMPL_D::GetPosition() {
 
 CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::SetInsets(const CefInsets& insets) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  gfx::Insets gfx_insets(insets.top, insets.left, insets.bottom, insets.right);
+  const gfx::Insets& gfx_insets =
+      gfx::Insets::TLBR(insets.top, insets.left, insets.bottom, insets.right);
   root_view()->SetBorder(
       gfx_insets.IsEmpty() ? nullptr : views::CreateEmptyBorder(gfx_insets));
 }

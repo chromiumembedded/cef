@@ -80,7 +80,7 @@ index 309422bcf8581..759549f3046f4 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 15a66c6a1e761..71ebc2dc5e787 100644
+index 002b3ddfb0f77..48abd11739d05 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -221,6 +221,8 @@ viz_component("service") {
@@ -93,7 +93,7 @@ index 15a66c6a1e761..71ebc2dc5e787 100644
  
    defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index 8a277c6337d44..e427d41be01c1 100644
+index 8a277c6337d44..8bf8ae706624e 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
 @@ -17,6 +17,7 @@
@@ -104,7 +104,15 @@ index 8a277c6337d44..e427d41be01c1 100644
  #include "components/viz/common/display/renderer_settings.h"
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
  #include "components/viz/service/display/display_compositor_memory_and_task_controller.h"
-@@ -247,6 +248,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+@@ -39,6 +40,7 @@
+ #include "gpu/ipc/scheduler_sequence.h"
+ #include "gpu/ipc/service/gpu_channel_manager_delegate.h"
+ #include "gpu/ipc/service/image_transport_surface.h"
++#include "mojo/public/cpp/bindings/sync_call_restrictions.h"
+ #include "ui/base/ui_base_switches.h"
+ #include "ui/gl/gl_context.h"
+ #include "ui/gl/init/gl_factory.h"
+@@ -247,6 +249,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
    if (headless_)
      return std::make_unique<SoftwareOutputDevice>();
  
@@ -214,10 +222,10 @@ index 6b7fbb6cf13dc..e2af75168cb91 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index b30b9460889b9..19d7967f4ef96 100644
+index 80bff73a5886e..55a6daaf37364 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
-@@ -30,7 +30,9 @@
+@@ -31,7 +31,9 @@
  #include "components/viz/common/frame_sinks/begin_frame_args.h"
  #include "components/viz/common/surfaces/frame_sink_id.h"
  #include "components/viz/common/surfaces/subtree_capture_id.h"
@@ -227,7 +235,7 @@ index b30b9460889b9..19d7967f4ef96 100644
  #include "mojo/public/cpp/bindings/pending_remote.h"
  #include "services/viz/privileged/mojom/compositing/vsync_parameter_observer.mojom-forward.h"
  #include "third_party/skia/include/core/SkColor.h"
-@@ -137,6 +139,14 @@ class COMPOSITOR_EXPORT ContextFactory {
+@@ -139,6 +141,14 @@ class COMPOSITOR_EXPORT ContextFactory {
    virtual viz::HostFrameSinkManager* GetHostFrameSinkManager() = 0;
  };
  
@@ -242,7 +250,7 @@ index b30b9460889b9..19d7967f4ef96 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -178,6 +188,9 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -180,6 +190,9 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -252,7 +260,7 @@ index b30b9460889b9..19d7967f4ef96 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -466,6 +479,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -476,6 +489,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
  
    std::unique_ptr<PendingBeginFrameArgs> pending_begin_frame_args_;
  

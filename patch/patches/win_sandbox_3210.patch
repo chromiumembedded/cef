@@ -1,8 +1,8 @@
 diff --git sandbox/policy/win/sandbox_win.cc sandbox/policy/win/sandbox_win.cc
-index d916c59c1d4fe..7cc9401e19800 100644
+index 8339cb51e2d2a..2d5282732e86a 100644
 --- sandbox/policy/win/sandbox_win.cc
 +++ sandbox/policy/win/sandbox_win.cc
-@@ -1154,6 +1154,13 @@ ResultCode SandboxWin::StartSandboxedProcess(
+@@ -1133,6 +1133,13 @@ ResultCode SandboxWin::StartSandboxedProcess(
      const base::HandlesToInheritVector& handles_to_inherit,
      SandboxDelegate* delegate,
      base::Process* process) {
@@ -13,6 +13,6 @@ index d916c59c1d4fe..7cc9401e19800 100644
 +                                process);
 +  }
 +
-   scoped_refptr<TargetPolicy> policy = g_broker_services->CreatePolicy();
+   auto policy = g_broker_services->CreatePolicy();
    ResultCode result = GeneratePolicyForSandboxedProcess(
-       cmd_line, process_type, handles_to_inherit, delegate, policy);
+       cmd_line, process_type, handles_to_inherit, delegate, policy.get());

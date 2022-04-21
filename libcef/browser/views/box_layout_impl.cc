@@ -56,8 +56,8 @@ views::BoxLayout* CefBoxLayoutImpl::CreateLayout() {
   views::BoxLayout* layout = new views::BoxLayout(
       settings_.horizontal ? views::BoxLayout::Orientation::kHorizontal
                            : views::BoxLayout::Orientation::kVertical,
-      gfx::Insets(settings_.inside_border_vertical_spacing,
-                  settings_.inside_border_horizontal_spacing),
+      gfx::Insets::VH(settings_.inside_border_vertical_spacing,
+                      settings_.inside_border_horizontal_spacing),
       settings_.between_child_spacing);
   layout->set_main_axis_alignment(
       static_cast<views::BoxLayout::MainAxisAlignment>(
@@ -65,7 +65,7 @@ views::BoxLayout* CefBoxLayoutImpl::CreateLayout() {
   layout->set_cross_axis_alignment(
       static_cast<views::BoxLayout::CrossAxisAlignment>(
           settings_.cross_axis_alignment));
-  layout->set_inside_border_insets(gfx::Insets(
+  layout->set_inside_border_insets(gfx::Insets::TLBR(
       settings_.inside_border_insets.top, settings_.inside_border_insets.left,
       settings_.inside_border_insets.bottom,
       settings_.inside_border_insets.right));

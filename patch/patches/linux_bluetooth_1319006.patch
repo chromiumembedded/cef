@@ -1,0 +1,18 @@
+diff --git device/bluetooth/BUILD.gn device/bluetooth/BUILD.gn
+index 1dce4a29c0820..12e3abe85ddf2 100644
+--- device/bluetooth/BUILD.gn
++++ device/bluetooth/BUILD.gn
+@@ -50,13 +50,6 @@ source_set("deprecated_experimental_mojo") {
+     "socket.h",
+   ]
+ 
+-  if (is_chromeos || is_linux) {
+-    sources += [
+-      "bluez/metrics_recorder.cc",
+-      "bluez/metrics_recorder.h",
+-    ]
+-  }
+-
+   deps = [
+     ":bluetooth",
+     "//device/bluetooth/public/mojom:deprecated_experimental_interfaces",

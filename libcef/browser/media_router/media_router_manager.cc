@@ -208,7 +208,7 @@ void CefMediaRouterManager::TerminateRoute(
   GetMediaRouter()->TerminateRoute(route_id);
 }
 
-void CefMediaRouterManager::OnResultsUpdated(const MediaSinkVector& sinks) {
+void CefMediaRouterManager::OnSinksUpdated(const MediaSinkVector& sinks) {
   sinks_ = sinks;
   NotifyCurrentSinks();
 }

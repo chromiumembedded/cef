@@ -254,7 +254,7 @@ bool MakeCefCookie(const GURL& url,
       net::CanonicalCookie::CanonPathWithString(url, path_string);
   base::Time creation_time = base::Time::Now();
   base::Time cookie_expires =
-      net::CanonicalCookie::CanonExpiration(pc, creation_time, creation_time);
+      net::CanonicalCookie::ParseExpiration(pc, creation_time, creation_time);
 
   CefString(&cookie.name).FromString(pc.Name());
   CefString(&cookie.value).FromString(pc.Value());

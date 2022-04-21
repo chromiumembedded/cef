@@ -12,3 +12,18 @@ index eb068fb9bb42c..4e8e6a1a7abf4 100644
    static void UnregisterFactoryForTesting(WebUIControllerFactory* factory);
  };
  
+diff --git content/public/browser/webui_config_map.h content/public/browser/webui_config_map.h
+index 69f7420dc3807..a928869f5ecf5 100644
+--- content/public/browser/webui_config_map.h
++++ content/public/browser/webui_config_map.h
+@@ -53,6 +53,10 @@ class CONTENT_EXPORT WebUIConfigMap {
+   WebUIConfig* GetConfig(BrowserContext* browser_context,
+                          const url::Origin& origin);
+ 
++  WebUIControllerFactory* controller_factory() const {
++    return webui_controller_factory_.get();
++  }
++
+  private:
+   void AddWebUIConfigImpl(std::unique_ptr<WebUIConfig> config);
+ 

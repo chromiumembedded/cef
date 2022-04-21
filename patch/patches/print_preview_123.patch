@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index 04679ec67bf2e..864f08b030ccb 100644
+index f5ef1239dbece..98210504ccf53 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -24,6 +24,7 @@
@@ -21,7 +21,7 @@ index 04679ec67bf2e..864f08b030ccb 100644
  using content::BrowserContext;
  using content::BrowserThread;
  using content::DownloadManager;
-@@ -342,6 +347,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
+@@ -344,6 +349,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
  // static
  DownloadPrefs* DownloadPrefs::FromBrowserContext(
      content::BrowserContext* context) {
@@ -46,10 +46,10 @@ index d656ccabc3899..a4b7ce6a7dcd8 100644
  #include "chrome/browser/printing/print_view_manager.h"
  #include "chrome/browser/task_manager/web_contents_tags.h"
 diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index 1f37c11047d47..eea8a9944ec3e 100644
+index 3a3f733c45e08..c9a2d7672346a 100644
 --- chrome/browser/printing/print_view_manager_base.cc
 +++ chrome/browser/printing/print_view_manager_base.cc
-@@ -222,12 +222,12 @@ void UpdatePrintSettingsOnIO(
+@@ -224,12 +224,12 @@ void UpdatePrintSettingsOnIO(
      mojom::PrintManagerHost::UpdatePrintSettingsCallback callback,
      scoped_refptr<PrintQueriesQueue> queue,
      base::Value job_settings,
@@ -65,7 +65,7 @@ index 1f37c11047d47..eea8a9944ec3e 100644
    }
    auto* printer_query_ptr = printer_query.get();
    printer_query_ptr->SetSettings(
-@@ -646,6 +646,7 @@ void PrintViewManagerBase::UpdatePrintSettings(
+@@ -680,6 +680,7 @@ void PrintViewManagerBase::UpdatePrintSettings(
        job_settings.SetIntKey(kSettingRasterizePdfDpi, value);
    }
  
@@ -73,7 +73,7 @@ index 1f37c11047d47..eea8a9944ec3e 100644
    auto callback_wrapper =
        base::BindOnce(&PrintViewManagerBase::UpdatePrintSettingsReply,
                       weak_ptr_factory_.GetWeakPtr(), std::move(callback));
-@@ -653,7 +654,8 @@ void PrintViewManagerBase::UpdatePrintSettings(
+@@ -687,7 +688,8 @@ void PrintViewManagerBase::UpdatePrintSettings(
        FROM_HERE,
        base::BindOnce(&UpdatePrintSettingsOnIO, cookie,
                       std::move(callback_wrapper), queue_,
@@ -84,10 +84,10 @@ index 1f37c11047d47..eea8a9944ec3e 100644
  #endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW)
  
 diff --git chrome/browser/printing/print_view_manager_base.h chrome/browser/printing/print_view_manager_base.h
-index 2661776307f77..b9edc98619c29 100644
+index 3a4cfa1e44d78..341d0f56a42b1 100644
 --- chrome/browser/printing/print_view_manager_base.h
 +++ chrome/browser/printing/print_view_manager_base.h
-@@ -146,9 +146,6 @@ class PrintViewManagerBase : public PrintManager, public PrintJob::Observer {
+@@ -160,9 +160,6 @@ class PrintViewManagerBase : public PrintManager, public PrintJob::Observer {
    // Manages the low-level talk to the printer.
    scoped_refptr<PrintJob> print_job_;
  
@@ -98,10 +98,10 @@ index 2661776307f77..b9edc98619c29 100644
    void RenderFrameHostStateChanged(
        content::RenderFrameHost* render_frame_host,
 diff --git chrome/browser/resources/print_preview/ui/destination_dialog.html chrome/browser/resources/print_preview/ui/destination_dialog.html
-index 920f646f06484..76c0b5e5ee04b 100644
+index 5ea55a097c156..1ad6e23647be9 100644
 --- chrome/browser/resources/print_preview/ui/destination_dialog.html
 +++ chrome/browser/resources/print_preview/ui/destination_dialog.html
-@@ -25,10 +25,7 @@
+@@ -15,10 +15,7 @@
      </print-preview-destination-list>
    </div>
    <div slot="button-container">
@@ -136,7 +136,7 @@ index f6098966f5b34..da78289b66155 100644
  }
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index eba14d78d87ff..7901f000a44b5 100644
+index 8574017c74653..0ca94f8d1da47 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -22,6 +22,7 @@
@@ -161,8 +161,8 @@ index eba14d78d87ff..7901f000a44b5 100644
  constexpr char kInvalidArgsForDidStartPreview[] =
      "Invalid arguments for DidStartPreview";
  constexpr char kInvalidPageNumberForDidPreviewPage[] =
-@@ -339,7 +347,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
-                     chrome::kCloudPrintCertificateErrorLearnMoreURL);
+@@ -330,7 +338,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
+   source->AddLocalizedStrings(kLocalizedStrings);
  
  #if !BUILDFLAG(IS_CHROMEOS)
 -  const std::u16string shortcut_text(kBasicPrintShortcut);

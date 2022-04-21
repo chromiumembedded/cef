@@ -105,10 +105,10 @@ index bb2d3e9911958..7af313040906e 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index abb29771ee9b8..998747bb905cc 100644
+index 85a55e9bbb740..2d298c5776594 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -44,6 +44,7 @@
+@@ -43,6 +43,7 @@
  #include "base/task/thread_pool/thread_pool_instance.h"
  #include "base/threading/hang_watcher.h"
  #include "base/threading/platform_thread.h"
@@ -116,7 +116,7 @@ index abb29771ee9b8..998747bb905cc 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1205,6 +1206,12 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1177,6 +1178,12 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -130,11 +130,11 @@ index abb29771ee9b8..998747bb905cc 100644
  std::unique_ptr<ContentMainRunner> ContentMainRunner::Create() {
    return ContentMainRunnerImpl::Create();
 diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
-index 225a0aa930732..48b5aa44c8441 100644
+index 423ad00697648..cd1a9df97eba0 100644
 --- content/app/content_main_runner_impl.h
 +++ content/app/content_main_runner_impl.h
-@@ -30,7 +30,7 @@ namespace content {
- class ContentClient;
+@@ -29,7 +29,7 @@ class DiscardableSharedMemoryManager;
+ namespace content {
  class MojoIpcSupport;
  
 -class ContentMainRunnerImpl : public ContentMainRunner {
@@ -142,7 +142,7 @@ index 225a0aa930732..48b5aa44c8441 100644
   public:
    static std::unique_ptr<ContentMainRunnerImpl> Create();
  
-@@ -49,6 +49,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
+@@ -48,6 +48,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
    int Run() override;
    void Shutdown() override;
  

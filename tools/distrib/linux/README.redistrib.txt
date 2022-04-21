@@ -61,10 +61,3 @@ run but any related functionality may become broken or disabled.
   WebGL using SwiftShader's Vulkan library as ANGLE's Vulkan backend. Without
   these files the aforementioned capabilities may fail when GPU acceleration is
   disabled or unavailable.
-
-* SwiftShader support
-  * swiftshader/libEGL.so
-  * swiftshader/libGLESv2.so
-  Deprecated support for software rendering using SwiftShader's GL libraries.
-  Used as an alternative to SwANGLE when the `--use-gl=swiftshader-webgl`
-  command-line flag is specified.
