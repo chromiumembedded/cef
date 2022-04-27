@@ -61,9 +61,6 @@ void AlloyRenderThreadObserver::SetConfiguration(
   *GetDynamicConfigParams() = std::move(*params);
 }
 
-void AlloyRenderThreadObserver::SetContentSettingRules(
-    const RendererContentSettingRules& rules) {}
-
 void AlloyRenderThreadObserver::OnRendererConfigurationAssociatedRequest(
     mojo::PendingAssociatedReceiver<chrome::mojom::RendererConfiguration>
         receiver) {

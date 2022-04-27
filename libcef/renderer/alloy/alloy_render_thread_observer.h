@@ -45,8 +45,6 @@ class AlloyRenderThreadObserver : public content::RenderThreadObserver,
       mojo::PendingRemote<content_settings::mojom::ContentSettingsManager>
           content_settings_manager) override;
   void SetConfiguration(chrome::mojom::DynamicParamsPtr params) override;
-  void SetContentSettingRules(
-      const RendererContentSettingRules& rules) override;
 
   void OnRendererConfigurationAssociatedRequest(
       mojo::PendingAssociatedReceiver<chrome::mojom::RendererConfiguration>

@@ -526,9 +526,7 @@ def LinuxSysrootExists(cpu):
   # CPU-specific sysroot directory names.
   # Should match the values in build/config/sysroot.gni.
   release = 'bullseye'
-  if cpu == 'x86':
-    sysroot_name = 'debian_%s_i386-sysroot' % release
-  elif cpu == 'x64':
+  if cpu == 'x64':
     sysroot_name = 'debian_%s_amd64-sysroot' % release
   elif cpu == 'arm':
     sysroot_name = 'debian_%s_arm-sysroot' % release
@@ -562,7 +560,7 @@ def GetAllPlatformConfigs(build_args):
     use_sysroot = GetArgValue(args, 'use_sysroot')
     if use_sysroot:
       # Only generate configurations for sysroots that have been installed.
-      for cpu in ('x86', 'x64', 'arm', 'arm64'):
+      for cpu in ('x64', 'arm', 'arm64'):
         if LinuxSysrootExists(cpu):
           supported_cpus.append(cpu)
         else:

@@ -24,7 +24,7 @@ index 2db8e1bc9e5bb..680db4669dfe7 100644
  
  bool URLRequestHttpJob::IsPartitionedCookiesEnabled() const {
 diff --git services/network/public/cpp/resource_request.cc services/network/public/cpp/resource_request.cc
-index 87868727a7822..a30035aeb00cc 100644
+index a15e3c4bed344..c665e98a1befc 100644
 --- services/network/public/cpp/resource_request.cc
 +++ services/network/public/cpp/resource_request.cc
 @@ -264,7 +264,8 @@ bool ResourceRequest::EqualsForTesting(const ResourceRequest& request) const {

@@ -1,5 +1,5 @@
 diff --git chrome/browser/printing/print_job_worker.cc chrome/browser/printing/print_job_worker.cc
-index f989f040cb9ff..7c618b0e274fc 100644
+index 86770178101d4..1b4b8cb69c413 100644
 --- chrome/browser/printing/print_job_worker.cc
 +++ chrome/browser/printing/print_job_worker.cc
 @@ -131,6 +131,7 @@ PrintJobWorker::PrintJobWorker(content::GlobalRenderFrameHostId rfh_id)
@@ -11,7 +11,7 @@ index f989f040cb9ff..7c618b0e274fc 100644
  
  PrintJobWorker::~PrintJobWorker() {
 diff --git printing/printing_context.h printing/printing_context.h
-index 3f36303105b79..aea7f788504d6 100644
+index 2c8ef23f7cb75..3a9d8e1e19234 100644
 --- printing/printing_context.h
 +++ printing/printing_context.h
 @@ -172,6 +172,13 @@ class COMPONENT_EXPORT(PRINTING) PrintingContext {

@@ -1366,7 +1366,6 @@ make_pack_header("resources") {
     "$root_gen_dir/third_party/blink/public/resources/grit/blink_resources.h",
     "$root_gen_dir/ui/resources/grit/ui_resources.h",
     "$root_gen_dir/ui/resources/grit/webui_generated_resources.h",
-    "$root_gen_dir/ui/resources/grit/webui_resources.h",
     "$root_gen_dir/ui/views/resources/grit/views_resources.h",
   ]
 
@@ -1394,7 +1393,6 @@ make_pack_header("resources") {
     "//third_party/blink/public:resources",
     "//ui/resources:ui_resources_grd",
     "//ui/resources:webui_generated_resources_grd",
-    "//ui/resources:webui_resources_grd",
     "//ui/views/resources:resources_grd",
   ]
 }

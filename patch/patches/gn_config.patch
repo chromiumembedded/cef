@@ -12,7 +12,7 @@ index 5a11496a47ae7..76d199e4b69fa 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 338241fc0f990..7a513198476e6 100644
+index 30774d5f7c134..823335857a8a4 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -17,6 +17,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -67,10 +67,10 @@ index 982fbe8d3f0d0..e757be4688f10 100644
 +         "studio path")
  }
 diff --git chrome/app/framework.order chrome/app/framework.order
-index f8f71ef369c08..7a2ed5da7bda3 100644
+index 839144aa1e9bd..29c8ab32398a7 100644
 --- chrome/app/framework.order
 +++ chrome/app/framework.order
-@@ -31,3 +31,8 @@ _ChromeMain
+@@ -28,3 +28,8 @@ _ChromeMain
  _lprofDirMode
  ___llvm_profile_filename
  ___llvm_profile_raw_version
@@ -80,7 +80,7 @@ index f8f71ef369c08..7a2ed5da7bda3 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index dd4142e9596eb..4eee52e9b528e 100644
+index 628310385dd95..9cee3d3e4db78 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@

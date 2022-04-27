@@ -1,5 +1,5 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index 0145003ac8ad9..cf033c0afeccc 100644
+index 23215d8b854fd..4cc1e7f7d3d95 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
 @@ -20,6 +20,7 @@

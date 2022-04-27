@@ -243,7 +243,7 @@ index 5858882a5e44f..46fe3237039d0 100644
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  };
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-index 182a229085a31..989cb75588d95 100644
+index 3f64c46bf10b1..e72f66cd5a13c 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 @@ -216,8 +216,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
@@ -309,7 +309,7 @@ index 444581249014a..5defa787d25cd 100644
    // a reference.
    raw_ptr<corewm::TooltipWin> tooltip_;
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index c22fcb4edd5a7..a69c113eee3be 100644
+index b85a13cf4973b..3d1354723298c 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -338,7 +338,8 @@ void Widget::Init(InitParams params) {
@@ -345,7 +345,7 @@ index c22fcb4edd5a7..a69c113eee3be 100644
    }
  
    native_theme_observation_.Observe(GetNativeTheme());
-@@ -1435,10 +1444,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
+@@ -1436,10 +1445,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
  }
  
  gfx::Size Widget::GetMinimumSize() const {

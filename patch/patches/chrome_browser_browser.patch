@@ -13,7 +13,7 @@ index 9e534ff1683f1..de406f5879be0 100644
    return false;
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index b26bef7fb2293..421f7b723bbc0 100644
+index 1027b8a325ac6..40500f1cd3886 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -10,6 +10,7 @@ import("//build/config/features.gni")
@@ -24,7 +24,7 @@ index b26bef7fb2293..421f7b723bbc0 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/assistant/assistant.gni")
-@@ -359,6 +360,10 @@ static_library("ui") {
+@@ -362,6 +363,10 @@ static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -35,7 +35,7 @@ index b26bef7fb2293..421f7b723bbc0 100644
    # Since browser and browser_ui actually depend on each other,
    # we must omit the dependency from browser_ui to browser.
    # However, this means browser_ui and browser should more or less
-@@ -381,6 +386,7 @@ static_library("ui") {
+@@ -384,6 +389,7 @@ static_library("ui") {
      "//build:branding_buildflags",
      "//build:chromeos_buildflags",
      "//cc/paint",
@@ -43,7 +43,7 @@ index b26bef7fb2293..421f7b723bbc0 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -5342,6 +5348,7 @@ static_library("ui") {
+@@ -5361,6 +5367,7 @@ static_library("ui") {
    if (enable_basic_printing) {
      deps += [
        "//components/printing/browser",
@@ -52,7 +52,7 @@ index b26bef7fb2293..421f7b723bbc0 100644
      ]
    }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index 70ee9049e3cb7..97af3ddf51ecf 100644
+index 300971408c60f..bdb5343d9057d 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -263,6 +263,25 @@

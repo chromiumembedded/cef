@@ -414,8 +414,10 @@ void CefFrameHostImpl::ExecuteJavaScriptWithUserGestureForTests(
   }
 
   content::RenderFrameHost* rfh = GetRenderFrameHost();
-  if (rfh)
-    rfh->ExecuteJavaScriptWithUserGestureForTests(javascript);
+  if (rfh) {
+    rfh->ExecuteJavaScriptWithUserGestureForTests(javascript,
+                                                  base::NullCallback());
+  }
 }
 
 content::RenderFrameHost* CefFrameHostImpl::GetRenderFrameHost() const {

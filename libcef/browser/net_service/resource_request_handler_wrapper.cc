@@ -1339,7 +1339,7 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
 
   content::RenderFrameHost* frame = nullptr;
 
-  if (request.is_main_frame ||
+  if (request.is_outermost_main_frame ||
       static_cast<blink::mojom::ResourceType>(request.resource_type) ==
           blink::mojom::ResourceType::kMainFrame) {
     frame = web_contents->GetMainFrame();

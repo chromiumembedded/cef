@@ -132,7 +132,7 @@ index e07874dc5a2fa..e2e4f795e74a2 100644
          GetMainRunLoopInstance()->QuitWhenIdleClosure());
    }
 diff --git chrome/browser/chrome_browser_main_mac.mm chrome/browser/chrome_browser_main_mac.mm
-index 8bf722c61c059..ac755279227f2 100644
+index dbd8f7ebe071d..b0f8d3d7bcff9 100644
 --- chrome/browser/chrome_browser_main_mac.mm
 +++ chrome/browser/chrome_browser_main_mac.mm
 @@ -16,6 +16,7 @@
@@ -143,7 +143,7 @@ index 8bf722c61c059..ac755279227f2 100644
  #import "chrome/browser/app_controller_mac.h"
  #include "chrome/browser/apps/app_shim/app_shim_listener.h"
  #include "chrome/browser/browser_process.h"
-@@ -112,6 +113,7 @@ void ChromeBrowserMainPartsMac::PreCreateMainMessageLoop() {
+@@ -110,6 +111,7 @@ void ChromeBrowserMainPartsMac::PreCreateMainMessageLoop() {
      }
    }
  
@@ -151,15 +151,15 @@ index 8bf722c61c059..ac755279227f2 100644
    // Create the app delegate. This object is intentionally leaked as a global
    // singleton. It is accessed through -[NSApp delegate].
    AppController* app_controller = [[AppController alloc] init];
-@@ -120,6 +122,7 @@ void ChromeBrowserMainPartsMac::PreCreateMainMessageLoop() {
+@@ -118,6 +120,7 @@ void ChromeBrowserMainPartsMac::PreCreateMainMessageLoop() {
    chrome::BuildMainMenu(NSApp, app_controller,
                          l10n_util::GetStringUTF16(IDS_PRODUCT_NAME), false);
    [app_controller mainMenuCreated];
 +#endif  // BUILDFLAG(ENABLE_CEF)
  
-   chrome::DeveloperIDCertificateReauthorizeInApp();
-   chrome::PurgeStaleScreenCapturePermission();
-@@ -182,7 +185,9 @@ void ChromeBrowserMainPartsMac::PostProfileInit(Profile* profile,
+   PrefService* local_state = g_browser_process->local_state();
+   DCHECK(local_state);
+@@ -177,7 +180,9 @@ void ChromeBrowserMainPartsMac::PostProfileInit(Profile* profile,
  }
  
  void ChromeBrowserMainPartsMac::DidEndMainMessageLoop() {
@@ -170,18 +170,18 @@ index 8bf722c61c059..ac755279227f2 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index f83e2e268deae..3ef9193ffa150 100644
+index 8c14a2053f595..740692cf04b87 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
-@@ -28,6 +28,7 @@
- #include "base/strings/stringprintf.h"
+@@ -29,6 +29,7 @@
+ #include "base/values.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/accessibility_labels_service_factory.h"
  #include "chrome/browser/after_startup_task_utils.h"
-@@ -1280,6 +1281,8 @@ bool IsTopChromeWebUIURL(const GURL& url) {
+@@ -1281,6 +1282,8 @@ bool IsTopChromeWebUIURL(const GURL& url) {
  }  // namespace
  
  ChromeContentBrowserClient::ChromeContentBrowserClient() {
@@ -190,7 +190,7 @@ index f83e2e268deae..3ef9193ffa150 100644
  #if BUILDFLAG(ENABLE_PLUGINS)
    extra_parts_.push_back(new ChromeContentBrowserClientPluginsPart);
  #endif
-@@ -1305,6 +1308,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
+@@ -1306,6 +1309,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
    extra_parts_.clear();
  }
  
@@ -202,7 +202,7 @@ index f83e2e268deae..3ef9193ffa150 100644
  // static
  void ChromeContentBrowserClient::RegisterLocalStatePrefs(
      PrefRegistrySimple* registry) {
-@@ -3735,9 +3743,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -3733,9 +3741,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // BUILDFLAG(IS_ANDROID)
  
@@ -265,10 +265,10 @@ index f83e2e268deae..3ef9193ffa150 100644
          base::BindOnce(&ChromeContentBrowserClient::OnKeepaliveTimerFired,
                         weak_factory_.GetWeakPtr(),
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index 41a5ddd24bbfc..9e70243361d4e 100644
+index f0415a5099cdf..b37813c8c43e0 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
-@@ -116,6 +116,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -117,6 +117,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
  
    ~ChromeContentBrowserClient() override;
  
@@ -277,7 +277,7 @@ index 41a5ddd24bbfc..9e70243361d4e 100644
    // TODO(https://crbug.com/787567): This file is about calls from content/ out
    // to chrome/ to get values or notify about events, but both of these
    // functions are from chrome/ to chrome/ and don't involve content/ at all.
-@@ -557,7 +559,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -558,7 +560,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
        override;
    void OnNetworkServiceCreated(
        network::mojom::NetworkService* network_service) override;
@@ -286,7 +286,7 @@ index 41a5ddd24bbfc..9e70243361d4e 100644
        content::BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -908,7 +910,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -910,7 +912,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
  
  #if !BUILDFLAG(IS_ANDROID)
    uint64_t num_keepalive_requests_ = 0;
@@ -296,7 +296,7 @@ index 41a5ddd24bbfc..9e70243361d4e 100644
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index be73964172416..eeb8f6511aace 100644
+index c2f47de7f3d15..ca406616ebeec 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -11,6 +11,7 @@
@@ -318,7 +318,7 @@ index be73964172416..eeb8f6511aace 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -1296,6 +1301,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -1300,6 +1305,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
    SessionDataService::RegisterProfilePrefs(registry);
  #endif
  

@@ -449,12 +449,12 @@ index b7c7474fb5910..ce3e14071f0c6 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 5294a0aa9b177..23f46f2f1fd6c 100644
+index 25d368664566d..870bf405c6c80 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
-@@ -235,6 +235,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
-   scroll_down_button_ =
-       AddChildView(std::make_unique<MenuScrollButton>(content_view, false));
+@@ -252,6 +252,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
+   scroll_down_button_ = background_view_->AddChildView(
+       std::make_unique<MenuScrollButton>(content_view, false));
  
 +  SkColor override_color;
 +  MenuDelegate* delegate = content_view_->GetMenuItem()->GetDelegate();

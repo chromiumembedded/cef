@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/browser_command_controller.cc chrome/browser/ui/browser_command_controller.cc
-index e5daf6829b114..25fe7f09c8604 100644
+index 288cc6934c794..86593d1b2a74d 100644
 --- chrome/browser/ui/browser_command_controller.cc
 +++ chrome/browser/ui/browser_command_controller.cc
 @@ -381,8 +381,10 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
@@ -28,7 +28,7 @@ index e5daf6829b114..25fe7f09c8604 100644
    // The order of commands in this switch statement must match the function
    // declaration order in browser.h!
    switch (id) {
-@@ -1027,11 +1036,13 @@ void BrowserCommandController::TabRestoreServiceLoaded(
+@@ -1033,11 +1042,13 @@ void BrowserCommandController::TabRestoreServiceLoaded(
  // BrowserCommandController, private:
  
  bool BrowserCommandController::IsShowingMainUI() {
@@ -466,7 +466,7 @@ index 7475765f4b514..25c59d942782b 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index 8dceab5d386ec..5d3063ac774cb 100644
+index 1ab19d8ef4493..c7fe972561440 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
 @@ -172,12 +172,13 @@ auto& GetViewCommandMap() {
