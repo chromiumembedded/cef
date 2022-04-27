@@ -1189,7 +1189,11 @@ struct AssertBindArgsValidity<std::index_sequence<Ns...>,
                               TypeList<Args...>,
                               TypeList<Unwrapped...>,
                               TypeList<Params...>>
-    : AssertConstructible<Ns, Args, std::decay_t<Args>, Unwrapped, Params>... {
+    : AssertConstructible<static_cast<int>(Ns),
+                          Args,
+                          std::decay_t<Args>,
+                          Unwrapped,
+                          Params>... {
   static constexpr bool ok = true;
 };
 
