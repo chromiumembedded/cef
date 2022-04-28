@@ -52,7 +52,7 @@ index 1027b8a325ac6..40500f1cd3886 100644
      ]
    }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index 300971408c60f..bdb5343d9057d 100644
+index 7548e63c57dc8..208710225c03d 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -263,6 +263,25 @@
@@ -238,7 +238,7 @@ index 300971408c60f..bdb5343d9057d 100644
  }
  
  content::JavaScriptDialogManager* Browser::GetJavaScriptDialogManager(
-@@ -1925,11 +2020,15 @@ void Browser::EnterFullscreenModeForTab(
+@@ -1930,11 +2025,15 @@ void Browser::EnterFullscreenModeForTab(
      const blink::mojom::FullscreenOptions& options) {
    exclusive_access_manager_->fullscreen_controller()->EnterFullscreenModeForTab(
        requesting_frame, options.display_id);
@@ -254,7 +254,7 @@ index 300971408c60f..bdb5343d9057d 100644
  }
  
  bool Browser::IsFullscreenForTabOrPending(const WebContents* web_contents) {
-@@ -2642,13 +2741,20 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
+@@ -2647,13 +2746,20 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
  // Browser, Getters for UI (private):
  
  StatusBubble* Browser::GetStatusBubble() {
@@ -276,7 +276,7 @@ index 300971408c60f..bdb5343d9057d 100644
    return window_ ? window_->GetStatusBubble() : nullptr;
  }
  
-@@ -2775,6 +2881,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
+@@ -2780,6 +2886,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
      content_translate_driver->RemoveTranslationObserver(this);
      BookmarkTabHelper::FromWebContents(web_contents)->RemoveObserver(this);
    }
