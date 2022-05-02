@@ -136,7 +136,7 @@ index f6098966f5b34..da78289b66155 100644
  }
  
 diff --git chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
-index 86e16795ce43d..9053975ad42f6 100644
+index 77455a3f6a9c4..2b64a213f287d 100644
 --- chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 +++ chrome/browser/ui/webui/print_preview/pdf_printer_handler.cc
 @@ -21,6 +21,7 @@
@@ -158,7 +158,7 @@ index 86e16795ce43d..9053975ad42f6 100644
  namespace printing {
  
  namespace {
-@@ -414,16 +419,18 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
+@@ -416,16 +421,18 @@ void PdfPrinterHandler::SelectFile(const base::FilePath& default_filename,
      service->GetRemote<crosapi::mojom::DriveIntegrationService>()
          ->GetMountPointPath(
              base::BindOnce(&PdfPrinterHandler::OnSaveLocationReady,
@@ -179,7 +179,7 @@ index 86e16795ce43d..9053975ad42f6 100644
      const base::FilePath& default_filename,
      bool prompt_user,
      const base::FilePath& path) {
-@@ -441,10 +448,27 @@ void PdfPrinterHandler::OnSaveLocationReady(
+@@ -443,10 +450,27 @@ void PdfPrinterHandler::OnSaveLocationReady(
    // If the directory is empty there is no reason to create it or use the
    // default location.
    if (path.empty()) {
@@ -207,7 +207,7 @@ index 86e16795ce43d..9053975ad42f6 100644
    // Get default download directory. This will be used as a fallback if the
    // save directory does not exist.
    DownloadPrefs* download_prefs = DownloadPrefs::FromBrowserContext(profile_);
-@@ -452,8 +476,7 @@ void PdfPrinterHandler::OnSaveLocationReady(
+@@ -454,8 +478,7 @@ void PdfPrinterHandler::OnSaveLocationReady(
    base::ThreadPool::PostTaskAndReplyWithResult(
        FROM_HERE, {base::MayBlock(), base::TaskPriority::BEST_EFFORT},
        base::BindOnce(&SelectSaveDirectory, path, default_path),
@@ -217,7 +217,7 @@ index 86e16795ce43d..9053975ad42f6 100644
  }
  
  void PdfPrinterHandler::PostPrintToPdfTask() {
-@@ -499,6 +522,36 @@ void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
+@@ -505,6 +528,36 @@ void PdfPrinterHandler::OnDirectorySelected(const base::FilePath& filename,
        platform_util::GetTopLevel(preview_web_contents_->GetNativeView()), NULL);
  }
  
