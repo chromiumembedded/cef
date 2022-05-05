@@ -296,7 +296,7 @@ index f0415a5099cdf..b37813c8c43e0 100644
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index c2f47de7f3d15..ca406616ebeec 100644
+index 1a660729062c0..a4311a3cb557b 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -11,6 +11,7 @@
@@ -307,7 +307,7 @@ index c2f47de7f3d15..ca406616ebeec 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/accessibility_ui.h"
-@@ -163,6 +164,10 @@
+@@ -164,6 +165,10 @@
  #include "chrome/browser/background/background_mode_manager.h"
  #endif
  
@@ -318,7 +318,7 @@ index c2f47de7f3d15..ca406616ebeec 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -1300,6 +1305,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -1302,6 +1307,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
    SessionDataService::RegisterProfilePrefs(registry);
  #endif
  

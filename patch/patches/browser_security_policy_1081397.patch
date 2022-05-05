@@ -20,10 +20,10 @@ index f5b91aa9fc965..65319cceb358c 100644
  
            // TODO(wjmaclean): We should update the ProcessLock comparison API
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 06f3689531f53..393dd4e2f1db2 100644
+index 6291945b8640e..0c58033955896 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -6189,6 +6189,12 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithoutFinalFrameHost(
+@@ -6190,6 +6190,12 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithoutFinalFrameHost(
      network::mojom::WebSandboxFlags sandbox_flags) {
    // Calculate an approximation of the origin. The sandbox/csp are ignored.
    url::Origin origin = GetOriginForURLLoaderFactoryUnchecked(this);
@@ -36,7 +36,7 @@ index 06f3689531f53..393dd4e2f1db2 100644
  
    // Apply sandbox flags.
    // See https://html.spec.whatwg.org/#sandboxed-origin-browsing-context-flag
-@@ -6222,6 +6228,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithFinalFrameHost() {
+@@ -6223,6 +6229,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithFinalFrameHost() {
    if (IsSameDocument() || IsPageActivation())
      return GetRenderFrameHost()->GetLastCommittedOrigin();
  
