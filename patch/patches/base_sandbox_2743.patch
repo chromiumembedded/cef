@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 6e93d84600ea6..28811f8b7664f 100644
+index 6c410103c3933..6305fdd791826 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -37,6 +37,7 @@ import("//build/nocompile.gni")
