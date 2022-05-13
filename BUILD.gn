@@ -1020,13 +1020,6 @@ static_library("libcef_static") {
       "libcef/browser/native/cursor_util_win.cc",
       "libcef/browser/native/javascript_dialog_runner_win.cc",
       "libcef/browser/native/javascript_dialog_runner_win.h",
-      "libcef/browser/native/menu_2.cc",
-      "libcef/browser/native/menu_2.h",
-      "libcef/browser/native/menu_runner_win.cc",
-      "libcef/browser/native/menu_runner_win.h",
-      "libcef/browser/native/menu_wrapper.h",
-      "libcef/browser/native/native_menu_win.cc",
-      "libcef/browser/native/native_menu_win.h",
       "libcef/browser/osr/browser_platform_delegate_osr_win.cc",
       "libcef/browser/osr/browser_platform_delegate_osr_win.h",
     ]
@@ -1056,8 +1049,6 @@ static_library("libcef_static") {
       "libcef/browser/native/browser_platform_delegate_native_linux.cc",
       "libcef/browser/native/browser_platform_delegate_native_linux.h",
       "libcef/browser/native/cursor_util_linux.cc",
-      "libcef/browser/native/menu_runner_linux.cc",
-      "libcef/browser/native/menu_runner_linux.h",
       "libcef/browser/osr/browser_platform_delegate_osr_linux.cc",
       "libcef/browser/osr/browser_platform_delegate_osr_linux.h",
       "libcef/browser/printing/print_dialog_linux.cc",
@@ -1127,6 +1118,8 @@ static_library("libcef_static") {
     sources += [
       "libcef/browser/native/browser_platform_delegate_native_aura.cc",
       "libcef/browser/native/browser_platform_delegate_native_aura.h",
+      "libcef/browser/native/menu_runner_views_aura.cc",
+      "libcef/browser/native/menu_runner_views_aura.h",
       "libcef/browser/views/view_util_aura.cc",
 
       # Part of //ui/views:test_support which is testingonly.

@@ -154,9 +154,10 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
                             bool is_guest_view,
                             const content::OpenURLParams& params) override;
 
-  // Convert from view coordinates to screen coordinates. Potential display
-  // scaling will be applied to the result.
-  gfx::Point GetScreenPoint(const gfx::Point& view) const;
+  // Convert from view DIP coordinates to screen coordinates. If
+  // |want_dip_coords| is true return DIP instead of device (pixel) coordinates
+  // on Windows/Linux.
+  gfx::Point GetScreenPoint(const gfx::Point& view, bool want_dip_coords) const;
 
   void StartDragging(const content::DropData& drop_data,
                      blink::DragOperationsMask allowed_ops,

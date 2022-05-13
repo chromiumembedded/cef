@@ -35,14 +35,16 @@ class CefBrowserPlatformDelegateChrome
   void SendMouseWheelEvent(const CefMouseEvent& event,
                            int deltaX,
                            int deltaY) override;
-  gfx::Point GetScreenPoint(const gfx::Point& view) const override;
+  gfx::Point GetScreenPoint(const gfx::Point& view,
+                            bool want_dip_coords) const override;
   void ViewText(const std::string& text) override;
   CefEventHandle GetEventHandle(
       const content::NativeWebKeyboardEvent& event) const override;
 
   // CefBrowserPlatformDelegateNative::WindowlessHandler methods:
   CefWindowHandle GetParentWindowHandle() const override;
-  gfx::Point GetParentScreenPoint(const gfx::Point& view) const override;
+  gfx::Point GetParentScreenPoint(const gfx::Point& view,
+                                  bool want_dip_coords) const override;
 
   void set_chrome_browser(Browser* browser);
 

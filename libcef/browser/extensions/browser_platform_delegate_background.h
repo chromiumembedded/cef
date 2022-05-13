@@ -34,7 +34,8 @@ class CefBrowserPlatformDelegateBackground
                            int deltaY) override;
   void SendTouchEvent(const CefTouchEvent& event) override;
   void SetFocus(bool setFocus) override;
-  gfx::Point GetScreenPoint(const gfx::Point& view) const override;
+  gfx::Point GetScreenPoint(const gfx::Point& view,
+                            bool want_dip_coords) const override;
   void ViewText(const std::string& text) override;
   bool HandleKeyboardEvent(
       const content::NativeWebKeyboardEvent& event) override;
@@ -46,7 +47,8 @@ class CefBrowserPlatformDelegateBackground
 
   // CefBrowserPlatformDelegateNative::WindowlessHandler methods:
   CefWindowHandle GetParentWindowHandle() const override;
-  gfx::Point GetParentScreenPoint(const gfx::Point& view) const override;
+  gfx::Point GetParentScreenPoint(const gfx::Point& view,
+                                  bool want_dip_coords) const override;
 
  private:
   std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate_;

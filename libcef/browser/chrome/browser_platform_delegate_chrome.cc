@@ -8,6 +8,7 @@
 
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_window.h"
+#include "ui/display/display.h"
 #include "ui/display/screen.h"
 #include "ui/gfx/geometry/point.h"
 
@@ -76,13 +77,24 @@ void CefBrowserPlatformDelegateChrome::SendMouseWheelEvent(
 }
 
 gfx::Point CefBrowserPlatformDelegateChrome::GetScreenPoint(
-    const gfx::Point& view) const {
+    const gfx::Point& view,
+    bool want_dip_coords) const {
   auto screen = display::Screen::GetScreen();
 
-  // Returns screen pixel coordinates.
+  // Get device (pixel) coordinates.
   auto screen_rect = screen->DIPToScreenRectInWindow(
       GetNativeWindow(), gfx::Rect(view, gfx::Size(0, 0)));
-  return screen_rect.origin();
+  auto screen_point = screen_rect.origin();
+
+  if (want_dip_coords) {
+    // Convert to DIP coordinates.
+    const auto& display = view_util::GetDisplayNearestPoint(
+        screen_point, /*input_pixel_coords=*/true);
+    view_util::ConvertPointFromPixels(&screen_point,
+                                      display.device_scale_factor());
+  }
+
+  return screen_point;
 }
 
 void CefBrowserPlatformDelegateChrome::ViewText(const std::string& text) {
@@ -100,8 +112,9 @@ CefWindowHandle CefBrowserPlatformDelegateChrome::GetParentWindowHandle()
 }
 
 gfx::Point CefBrowserPlatformDelegateChrome::GetParentScreenPoint(
-    const gfx::Point& view) const {
-  return GetScreenPoint(view);
+    const gfx::Point& view,
+    bool want_dip_coords) const {
+  return GetScreenPoint(view, want_dip_coords);
 }
 
 void CefBrowserPlatformDelegateChrome::set_chrome_browser(Browser* browser) {

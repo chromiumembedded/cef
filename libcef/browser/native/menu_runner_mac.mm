@@ -48,8 +48,8 @@ bool CefMenuRunnerMac::RunContextMenu(
     if (!browser->GetWindowHandle())
       return false;
 
-    const gfx::Point& screen_point =
-        browser->GetScreenPoint(gfx::Point(params.x, params.y));
+    const gfx::Point& screen_point = browser->GetScreenPoint(
+        gfx::Point(params.x, params.y), /*want_dip_coords=*/true);
     NSPoint screen_position = NSPointFromCGPoint(screen_point.ToCGPoint());
     [[menu_controller_ menu] popUpMenuPositioningItem:nil
                                            atLocation:screen_position

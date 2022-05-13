@@ -28,7 +28,6 @@ class CefBrowserPlatformDelegateNativeWin
   void SetFocus(bool setFocus) override;
   void NotifyMoveOrResizeStarted() override;
   void SizeTo(int width, int height) override;
-  gfx::Point GetScreenPoint(const gfx::Point& view) const override;
   void ViewText(const std::string& text) override;
   bool HandleKeyboardEvent(
       const content::NativeWebKeyboardEvent& event) override;
@@ -36,7 +35,6 @@ class CefBrowserPlatformDelegateNativeWin
       const content::NativeWebKeyboardEvent& event) const override;
   std::unique_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner()
       override;
-  std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
   gfx::Point GetDialogPosition(const gfx::Size& size) override;
   gfx::Size GetMaximumDialogSize() override;
 
@@ -54,10 +52,6 @@ class CefBrowserPlatformDelegateNativeWin
 
   // True if the host window has been created.
   bool host_window_created_ = false;
-
-  // Widget hosting the web contents. It will be deleted automatically when the
-  // associated root window is destroyed.
-  views::Widget* window_widget_ = nullptr;
 
   bool has_frame_ = false;
   bool called_enable_non_client_dpi_scaling_ = false;

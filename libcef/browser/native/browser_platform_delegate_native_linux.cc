@@ -6,7 +6,6 @@
 
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/context.h"
-#include "libcef/browser/native/menu_runner_linux.h"
 #include "libcef/browser/native/window_delegate_view.h"
 #include "libcef/browser/thread_util.h"
 
@@ -31,9 +30,7 @@
 CefBrowserPlatformDelegateNativeLinux::CefBrowserPlatformDelegateNativeLinux(
     const CefWindowInfo& window_info,
     SkColor background_color)
-    : CefBrowserPlatformDelegateNativeAura(window_info, background_color),
-      host_window_created_(false),
-      window_widget_(nullptr) {}
+    : CefBrowserPlatformDelegateNativeAura(window_info, background_color) {}
 
 void CefBrowserPlatformDelegateNativeLinux::BrowserDestroyed(
     CefBrowserHostBase* browser) {
@@ -190,26 +187,6 @@ void CefBrowserPlatformDelegateNativeLinux::SizeTo(int width, int height) {
 #endif  // BUILDFLAG(OZONE_PLATFORM_X11)
 }
 
-gfx::Point CefBrowserPlatformDelegateNativeLinux::GetScreenPoint(
-    const gfx::Point& view) const {
-  if (windowless_handler_)
-    return windowless_handler_->GetParentScreenPoint(view);
-
-#if BUILDFLAG(OZONE_PLATFORM_X11)
-  if (!window_x11_)
-    return view;
-
-  // We can't use aura::Window::GetBoundsInScreen on Linux because it will
-  // return bounds from DesktopWindowTreeHostLinux which in our case is relative
-  // to the parent window instead of the root window (screen).
-  const gfx::Rect& bounds_in_screen = window_x11_->GetBoundsInScreen();
-  return gfx::Point(bounds_in_screen.x() + view.x(),
-                    bounds_in_screen.y() + view.y());
-#else  // !BUILDFLAG(OZONE_PLATFORM_X11)
-  return gfx::Point();
-#endif
-}
-
 void CefBrowserPlatformDelegateNativeLinux::ViewText(const std::string& text) {
   char buff[] = "/tmp/CEFSourceXXXXXX";
   int fd = mkstemp(buff);
@@ -254,11 +231,6 @@ CefEventHandle CefBrowserPlatformDelegateNativeLinux::GetEventHandle(
   // |event.os_event->native_event()| now returns a ui::Event* instead.
   // See https://crbug.com/965991.
   return nullptr;
-}
-
-std::unique_ptr<CefMenuRunner>
-CefBrowserPlatformDelegateNativeLinux::CreateMenuRunner() {
-  return base::WrapUnique(new CefMenuRunnerLinux);
 }
 
 gfx::Point CefBrowserPlatformDelegateNativeLinux::GetDialogPosition(

@@ -188,9 +188,15 @@ bool CefMenuManager::CreateContextMenu(
     }
   }
 
-  if (custom_menu || !runner_)
+  if (custom_menu)
     return true;
-  return runner_->RunContextMenu(browser_, model_.get(), params_);
+
+  if (!runner_ || !runner_->RunContextMenu(browser_, model_.get(), params_)) {
+    LOG(ERROR) << "Default context menu implementation is not available; "
+                  "canceling the menu";
+    return false;
+  }
+  return true;
 }
 
 void CefMenuManager::CancelContextMenu() {

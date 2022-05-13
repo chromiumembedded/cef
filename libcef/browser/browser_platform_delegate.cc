@@ -191,7 +191,8 @@ void CefBrowserPlatformDelegate::SizeTo(int width, int height) {}
 #endif
 
 gfx::Point CefBrowserPlatformDelegate::GetScreenPoint(
-    const gfx::Point& view) const {
+    const gfx::Point& view,
+    bool want_dip_coords) const {
   NOTREACHED();
   return gfx::Point();
 }

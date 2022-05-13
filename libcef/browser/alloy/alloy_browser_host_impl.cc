@@ -1522,10 +1522,11 @@ bool AlloyBrowserHostImpl::CreateHostWindow() {
   return success;
 }
 
-gfx::Point AlloyBrowserHostImpl::GetScreenPoint(const gfx::Point& view) const {
+gfx::Point AlloyBrowserHostImpl::GetScreenPoint(const gfx::Point& view,
+                                                bool want_dip_coords) const {
   CEF_REQUIRE_UIT();
   if (platform_delegate_)
-    return platform_delegate_->GetScreenPoint(view);
+    return platform_delegate_->GetScreenPoint(view, want_dip_coords);
   return gfx::Point();
 }
 

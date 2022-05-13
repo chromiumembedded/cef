@@ -4,12 +4,16 @@
 
 #include "libcef/browser/native/browser_platform_delegate_native_aura.h"
 
+#include "libcef/browser/native/menu_runner_views_aura.h"
+#include "libcef/browser/views/view_util.h"
+
 #include "content/browser/renderer_host/render_widget_host_view_aura.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
 #include "ui/events/blink/blink_event_util.h"
 #include "ui/events/blink/web_input_event.h"
 #include "ui/gfx/geometry/vector2d.h"
+#include "ui/views/widget/widget.h"
 
 CefBrowserPlatformDelegateNativeAura::CefBrowserPlatformDelegateNativeAura(
     const CefWindowInfo& window_info,
@@ -68,6 +72,30 @@ void CefBrowserPlatformDelegateNativeAura::SendTouchEvent(
   NOTIMPLEMENTED();
 }
 
+std::unique_ptr<CefMenuRunner>
+CefBrowserPlatformDelegateNativeAura::CreateMenuRunner() {
+  return base::WrapUnique(new CefMenuRunnerViewsAura);
+}
+
+gfx::Point CefBrowserPlatformDelegateNativeAura::GetScreenPoint(
+    const gfx::Point& view,
+    bool want_dip_coords) const {
+  if (windowless_handler_)
+    return windowless_handler_->GetParentScreenPoint(view, want_dip_coords);
+
+  if (!window_widget_)
+    return view;
+
+  gfx::Point screen_pt(view);
+  if (!view_util::ConvertPointToScreen(
+          window_widget_->GetRootView(), &screen_pt,
+          /*output_pixel_coords=*/!want_dip_coords)) {
+    return view;
+  }
+
+  return screen_pt;
+}
+
 content::NativeWebKeyboardEvent
 CefBrowserPlatformDelegateNativeAura::TranslateWebKeyEvent(
     const CefKeyEvent& key_event) const {
@@ -110,8 +138,8 @@ ui::MouseEvent CefBrowserPlatformDelegateNativeAura::TranslateUiClickEvent(
   ui::EventType event_type =
       mouseUp ? ui::ET_MOUSE_RELEASED : ui::ET_MOUSE_PRESSED;
   gfx::PointF location(mouse_event.x, mouse_event.y);
-  gfx::PointF root_location(
-      GetScreenPoint(gfx::Point(mouse_event.x, mouse_event.y)));
+  gfx::PointF root_location(GetScreenPoint(
+      gfx::Point(mouse_event.x, mouse_event.y), /*want_dip_coords=*/false));
   base::TimeTicks time_stamp = GetEventTimeStamp();
   int flags = TranslateUiEventModifiers(mouse_event.modifiers);
 
@@ -142,8 +170,8 @@ ui::MouseEvent CefBrowserPlatformDelegateNativeAura::TranslateUiMoveEvent(
   ui::EventType event_type =
       mouseLeave ? ui::ET_MOUSE_EXITED : ui::ET_MOUSE_MOVED;
   gfx::PointF location(mouse_event.x, mouse_event.y);
-  gfx::PointF root_location(
-      GetScreenPoint(gfx::Point(mouse_event.x, mouse_event.y)));
+  gfx::PointF root_location(GetScreenPoint(
+      gfx::Point(mouse_event.x, mouse_event.y), /*want_dip_coords=*/false));
   base::TimeTicks time_stamp = GetEventTimeStamp();
   int flags = TranslateUiEventModifiers(mouse_event.modifiers);
 
@@ -164,8 +192,8 @@ ui::MouseWheelEvent CefBrowserPlatformDelegateNativeAura::TranslateUiWheelEvent(
   DCHECK(!offset.IsZero());
 
   gfx::PointF location(mouse_event.x, mouse_event.y);
-  gfx::PointF root_location(
-      GetScreenPoint(gfx::Point(mouse_event.x, mouse_event.y)));
+  gfx::PointF root_location(GetScreenPoint(
+      gfx::Point(mouse_event.x, mouse_event.y), /*want_dip_coords=*/false));
   base::TimeTicks time_stamp = GetEventTimeStamp();
   int flags = TranslateUiEventModifiers(mouse_event.modifiers);
   int changed_button_flags =

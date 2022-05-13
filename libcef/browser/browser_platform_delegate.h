@@ -239,9 +239,11 @@ class CefBrowserPlatformDelegate {
   virtual void SizeTo(int width, int height);
 #endif
 
-  // Convert from view coordinates to screen coordinates. Potential display
-  // scaling will be applied to the result.
-  virtual gfx::Point GetScreenPoint(const gfx::Point& view) const;
+  // Convert from view DIP coordinates to screen coordinates. If
+  // |want_dip_coords| is true return DIP instead of device (pixel) coordinates
+  // on Windows/Linux.
+  virtual gfx::Point GetScreenPoint(const gfx::Point& view,
+                                    bool want_dip_coords) const;
 
   // Open the specified text in the default text editor.
   virtual void ViewText(const std::string& text);

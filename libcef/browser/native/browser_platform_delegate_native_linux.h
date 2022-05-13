@@ -29,13 +29,11 @@ class CefBrowserPlatformDelegateNativeLinux
   void SetFocus(bool setFocus) override;
   void NotifyMoveOrResizeStarted() override;
   void SizeTo(int width, int height) override;
-  gfx::Point GetScreenPoint(const gfx::Point& view) const override;
   void ViewText(const std::string& text) override;
   bool HandleKeyboardEvent(
       const content::NativeWebKeyboardEvent& event) override;
   CefEventHandle GetEventHandle(
       const content::NativeWebKeyboardEvent& event) const override;
-  std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
   gfx::Point GetDialogPosition(const gfx::Size& size) override;
   gfx::Size GetMaximumDialogSize() override;
 
@@ -46,11 +44,7 @@ class CefBrowserPlatformDelegateNativeLinux
 
  private:
   // True if the host window has been created.
-  bool host_window_created_;
-
-  // Widget hosting the web contents. It will be deleted automatically when the
-  // associated root window is destroyed.
-  views::Widget* window_widget_;
+  bool host_window_created_ = false;
 
 #if BUILDFLAG(OZONE_PLATFORM_X11)
   CefWindowX11* window_x11_ = nullptr;

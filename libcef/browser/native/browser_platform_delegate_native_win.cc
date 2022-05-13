@@ -11,7 +11,6 @@
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/native/javascript_dialog_runner_win.h"
-#include "libcef/browser/native/menu_runner_win.h"
 #include "libcef/browser/native/window_delegate_view.h"
 #include "libcef/browser/thread_util.h"
 
@@ -365,26 +364,6 @@ void CefBrowserPlatformDelegateNativeWin::SizeTo(int width, int height) {
                SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
 }
 
-gfx::Point CefBrowserPlatformDelegateNativeWin::GetScreenPoint(
-    const gfx::Point& view) const {
-  if (windowless_handler_)
-    return windowless_handler_->GetParentScreenPoint(view);
-
-  if (!window_info_.window)
-    return view;
-
-  // Convert from logical coordinates to device coordinates.
-  const float scale = GetWindowScaleFactor(window_info_.window);
-  const gfx::Point& device_pt =
-      gfx::ToFlooredPoint(gfx::ScalePoint(gfx::PointF(view), scale));
-
-  // Convert from client coordinates to screen coordinates.
-  POINT screen_pt = {device_pt.x(), device_pt.y()};
-  ClientToScreen(window_info_.window, &screen_pt);
-
-  return gfx::Point(screen_pt.x, screen_pt.y);
-}
-
 void CefBrowserPlatformDelegateNativeWin::ViewText(const std::string& text) {
   std::string str = text;
   scoped_refptr<base::RefCountedString> str_ref =
@@ -449,11 +428,6 @@ CefEventHandle CefBrowserPlatformDelegateNativeWin::GetEventHandle(
 std::unique_ptr<CefJavaScriptDialogRunner>
 CefBrowserPlatformDelegateNativeWin::CreateJavaScriptDialogRunner() {
   return base::WrapUnique(new CefJavaScriptDialogRunnerWin);
-}
-
-std::unique_ptr<CefMenuRunner>
-CefBrowserPlatformDelegateNativeWin::CreateMenuRunner() {
-  return base::WrapUnique(new CefMenuRunnerWin);
 }
 
 gfx::Point CefBrowserPlatformDelegateNativeWin::GetDialogPosition(

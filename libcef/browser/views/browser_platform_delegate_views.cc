@@ -232,13 +232,14 @@ void CefBrowserPlatformDelegateViews::SetFocus(bool setFocus) {
 }
 
 gfx::Point CefBrowserPlatformDelegateViews::GetScreenPoint(
-    const gfx::Point& view_pt) const {
+    const gfx::Point& view_pt,
+    bool want_dip_coords) const {
   if (!browser_view_->root_view())
     return view_pt;
 
   gfx::Point screen_point = view_pt;
   view_util::ConvertPointToScreen(browser_view_->root_view(), &screen_point,
-                                  true);
+                                  /*output_pixel_coords=*/!want_dip_coords);
   return screen_point;
 }
 
@@ -293,6 +294,7 @@ CefWindowHandle CefBrowserPlatformDelegateViews::GetParentWindowHandle() const {
 }
 
 gfx::Point CefBrowserPlatformDelegateViews::GetParentScreenPoint(
-    const gfx::Point& view) const {
-  return GetScreenPoint(view);
+    const gfx::Point& view,
+    bool want_dip_coords) const {
+  return GetScreenPoint(view, want_dip_coords);
 }

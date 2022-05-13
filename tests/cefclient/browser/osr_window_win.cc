@@ -969,7 +969,7 @@ bool OsrWindowWin::GetScreenPoint(CefRefPtr<CefBrowser> browser,
   if (!::IsWindow(hwnd_))
     return false;
 
-  // Convert the point from view coordinates to actual screen coordinates.
+  // Convert from view DIP coordinates to screen device (pixel) coordinates.
   POINT screen_pt = {LogicalToDevice(viewX, device_scale_factor_),
                      LogicalToDevice(viewY, device_scale_factor_)};
   ClientToScreen(hwnd_, &screen_pt);

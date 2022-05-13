@@ -18,8 +18,11 @@ class CefBrowserPlatformDelegateNative
     // Returns the parent window handle.
     virtual CefWindowHandle GetParentWindowHandle() const = 0;
 
-    // Convert from view coordinates to screen coordinates.
-    virtual gfx::Point GetParentScreenPoint(const gfx::Point& view) const = 0;
+    // Convert from view DIP coordinates to screen coordinates. If
+    // |want_dip_coords| is true return DIP instead of device (pixel)
+    // coordinates on Windows/Linux.
+    virtual gfx::Point GetParentScreenPoint(const gfx::Point& view,
+                                            bool want_dip_coords) const = 0;
 
    protected:
     virtual ~WindowlessHandler() {}

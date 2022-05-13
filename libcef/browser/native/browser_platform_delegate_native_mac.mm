@@ -324,9 +324,11 @@ void CefBrowserPlatformDelegateNativeMac::SetFocus(bool setFocus) {
 }
 
 gfx::Point CefBrowserPlatformDelegateNativeMac::GetScreenPoint(
-    const gfx::Point& view) const {
+    const gfx::Point& view,
+    bool want_dip_coords) const {
+  // Mac always operates in DIP coordinates so |want_dip_coords| is ignored.
   if (windowless_handler_)
-    return windowless_handler_->GetParentScreenPoint(view);
+    return windowless_handler_->GetParentScreenPoint(view, want_dip_coords);
 
   NSView* nsview = CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(window_info_.parent_view);
   if (nsview) {
@@ -543,8 +545,8 @@ void CefBrowserPlatformDelegateNativeMac::TranslateWebMouseEvent(
   // position
   result.SetPositionInWidget(mouse_event.x, mouse_event.y);
 
-  const gfx::Point& screen_pt =
-      GetScreenPoint(gfx::Point(mouse_event.x, mouse_event.y));
+  const gfx::Point& screen_pt = GetScreenPoint(
+      gfx::Point(mouse_event.x, mouse_event.y), /*want_dip_coords=*/true);
   result.SetPositionInScreen(screen_pt.x(), screen_pt.y());
 
   // modifiers

@@ -82,7 +82,8 @@ void CefBrowserPlatformDelegateBackground::SetFocus(bool setFocus) {
 }
 
 gfx::Point CefBrowserPlatformDelegateBackground::GetScreenPoint(
-    const gfx::Point& view_pt) const {
+    const gfx::Point& view_pt,
+    bool want_dip_coords) const {
   // Nothing to do here.
   return view_pt;
 }
@@ -119,6 +120,7 @@ CefWindowHandle CefBrowserPlatformDelegateBackground::GetParentWindowHandle()
 }
 
 gfx::Point CefBrowserPlatformDelegateBackground::GetParentScreenPoint(
-    const gfx::Point& view) const {
-  return GetScreenPoint(view);
+    const gfx::Point& view,
+    bool want_dip_coords) const {
+  return GetScreenPoint(view, want_dip_coords);
 }

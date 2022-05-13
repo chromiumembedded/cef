@@ -10,12 +10,14 @@
 #include "libcef/browser/osr/osr_accessibility_util.h"
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
 #include "libcef/browser/osr/web_contents_view_osr.h"
+#include "libcef/browser/views/view_util.h"
 #include "libcef/common/drag_data_impl.h"
 
 #include "base/task/current_thread.h"
 #include "content/browser/renderer_host/render_widget_host_input_event_router.h"
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/render_view_host.h"
+#include "ui/display/screen.h"
 #include "ui/events/base_event_utils.h"
 
 CefBrowserPlatformDelegateOsr::CefBrowserPlatformDelegateOsr(
@@ -168,13 +170,25 @@ void CefBrowserPlatformDelegateOsr::SetFocus(bool setFocus) {
 }
 
 gfx::Point CefBrowserPlatformDelegateOsr::GetScreenPoint(
-    const gfx::Point& view) const {
+    const gfx::Point& view,
+    bool want_dip_coords) const {
   CefRefPtr<CefRenderHandler> handler = browser_->client()->GetRenderHandler();
   if (handler.get()) {
     int screenX = 0, screenY = 0;
     if (handler->GetScreenPoint(browser_, view.x(), view.y(), screenX,
                                 screenY)) {
-      return gfx::Point(screenX, screenY);
+      gfx::Point screen_point(screenX, screenY);
+#if !BUILDFLAG(IS_MAC)
+      // Mac always operates in DIP coordinates so |want_dip_coords| is ignored.
+      if (want_dip_coords) {
+        // Convert to DIP coordinates.
+        const auto& display = view_util::GetDisplayNearestPoint(
+            screen_point, /*input_pixel_coords=*/true);
+        view_util::ConvertPointFromPixels(&screen_point,
+                                          display.device_scale_factor());
+      }
+#endif
+      return screen_point;
     }
   }
   return view;
@@ -306,7 +320,8 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragEnter(
   CefDragDataImpl* data_impl = static_cast<CefDragDataImpl*>(drag_data.get());
   base::AutoLock lock_scope(data_impl->lock());
   content::DropData* drop_data = data_impl->drop_data();
-  const gfx::Point& screen_pt = GetScreenPoint(client_pt);
+  const gfx::Point& screen_pt =
+      GetScreenPoint(client_pt, /*want_dip_coords=*/false);
   blink::DragOperationsMask ops =
       static_cast<blink::DragOperationsMask>(allowed_ops);
   int modifiers = TranslateWebEventModifiers(event.modifiers);
@@ -337,7 +352,8 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragOver(
     return;
 
   const gfx::Point client_pt(event.x, event.y);
-  const gfx::Point& screen_pt = GetScreenPoint(client_pt);
+  const gfx::Point& screen_pt =
+      GetScreenPoint(client_pt, /*want_dip_coords=*/false);
 
   gfx::PointF transformed_pt;
   content::RenderWidgetHostImpl* target_rwh =
@@ -404,7 +420,8 @@ void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
     return;
 
   gfx::Point client_pt(event.x, event.y);
-  const gfx::Point& screen_pt = GetScreenPoint(client_pt);
+  const gfx::Point& screen_pt =
+      GetScreenPoint(client_pt, /*want_dip_coords=*/false);
 
   gfx::PointF transformed_pt;
   content::RenderWidgetHostImpl* target_rwh =
@@ -508,7 +525,8 @@ void CefBrowserPlatformDelegateOsr::DragSourceEndedAt(
 
   content::RenderWidgetHostImpl* source_rwh = drag_start_rwh_.get();
   const gfx::Point client_loc(gfx::Point(x, y));
-  const gfx::Point& screen_loc = GetScreenPoint(client_loc);
+  const gfx::Point& screen_loc =
+      GetScreenPoint(client_loc, /*want_dip_coords=*/false);
   ui::mojom::DragOperation drag_op = static_cast<ui::mojom::DragOperation>(op);
 
   // |client_loc| and |screen_loc| are in the root coordinate space, for
@@ -585,8 +603,9 @@ CefWindowHandle CefBrowserPlatformDelegateOsr::GetParentWindowHandle() const {
 }
 
 gfx::Point CefBrowserPlatformDelegateOsr::GetParentScreenPoint(
-    const gfx::Point& view) const {
-  return GetScreenPoint(view);
+    const gfx::Point& view,
+    bool want_dip_coords) const {
+  return GetScreenPoint(view, want_dip_coords);
 }
 
 CefRenderWidgetHostViewOSR* CefBrowserPlatformDelegateOsr::GetOSRHostView()

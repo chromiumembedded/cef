@@ -1175,6 +1175,7 @@ bool BrowserWindowOsrGtk::GetScreenPoint(CefRefPtr<CefBrowser> browser,
     device_scale_factor = device_scale_factor_;
   }
 
+  // Convert from view DIP coordinates to screen device (pixel) coordinates.
   GdkRectangle screen_rect;
   GetWidgetRectInScreen(glarea_, &screen_rect);
   screenX = screen_rect.x + LogicalToDevice(viewX, device_scale_factor);

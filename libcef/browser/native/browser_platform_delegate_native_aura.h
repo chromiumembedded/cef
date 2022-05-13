@@ -35,6 +35,9 @@ class CefBrowserPlatformDelegateNativeAura
                            int deltaX,
                            int deltaY) override;
   void SendTouchEvent(const CefTouchEvent& event) override;
+  std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
+  gfx::Point GetScreenPoint(const gfx::Point& view,
+                            bool want_dip_coords) const override;
 
   // CefBrowserPlatformDelegateNative methods:
   content::NativeWebKeyboardEvent TranslateWebKeyEvent(
@@ -71,6 +74,10 @@ class CefBrowserPlatformDelegateNativeAura
   static base::TimeTicks GetEventTimeStamp();
   static int TranslateUiEventModifiers(uint32 cef_modifiers);
   static int TranslateUiChangedButtonFlags(uint32 cef_modifiers);
+
+  // Widget hosting the web contents. It will be deleted automatically when the
+  // associated root window is destroyed.
+  views::Widget* window_widget_ = nullptr;
 
  private:
   content::RenderWidgetHostViewAura* GetHostView() const;
