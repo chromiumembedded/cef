@@ -161,10 +161,10 @@ index dd22bbc07fb52..c695ece6b1a47 100644
    // A pointer to the current or speculative main frame in `host_contents_`. We
    // can't access this frame through the `host_contents_` directly as it does
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index d11e8485a2c6c..201d0a1b63aba 100644
+index 0687fb5788120..db80a9ec293d4 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
-@@ -28,6 +28,7 @@
+@@ -31,6 +31,7 @@
  #include "url/gurl.h"
  
  class ExtensionFunctionRegistry;
@@ -172,7 +172,7 @@ index d11e8485a2c6c..201d0a1b63aba 100644
  class PrefService;
  
  namespace base {
-@@ -67,6 +68,7 @@ class ComponentExtensionResourceManager;
+@@ -73,6 +74,7 @@ class ComponentExtensionResourceManager;
  class Extension;
  class ExtensionCache;
  class ExtensionError;
@@ -180,7 +180,7 @@ index d11e8485a2c6c..201d0a1b63aba 100644
  class ExtensionHostDelegate;
  class ExtensionSet;
  class ExtensionSystem;
-@@ -208,6 +210,14 @@ class ExtensionsBrowserClient {
+@@ -214,6 +216,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  
@@ -196,7 +196,7 @@ index d11e8485a2c6c..201d0a1b63aba 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index 3cb5eb629cd29..ac25fab9fd2a5 100644
+index 13b1fcb8c2193..9ffbea0ac061e 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -392,9 +392,17 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,

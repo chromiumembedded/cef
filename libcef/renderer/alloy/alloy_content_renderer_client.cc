@@ -44,7 +44,6 @@
 #include "base/path_service.h"
 #include "base/stl_util.h"
 #include "base/strings/utf_string_conversions.h"
-#include "base/task/post_task.h"
 #include "build/build_config.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pdf_util.h"
@@ -147,8 +146,8 @@ void AlloyContentRendererClient::RunSingleProcessCleanup() {
   if (content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
     RunSingleProcessCleanupOnUIThread();
   } else {
-    base::PostTask(
-        FROM_HERE, {content::BrowserThread::UI},
+    CEF_POST_TASK(
+        CEF_UIT,
         base::BindOnce(
             &AlloyContentRendererClient::RunSingleProcessCleanupOnUIThread,
             base::Unretained(this)));
@@ -486,10 +485,10 @@ void AlloyContentRendererClient::AppendContentSecurityPolicy(
   if (!extension)
     return;
 
-  // Append a default CSP to ensure the extension can't relax the default
+  // Append a minimum CSP to ensure the extension can't relax the default
   // applied CSP through means like Service Worker.
   const std::string* default_csp =
-      extensions::CSPInfo::GetDefaultCSPToAppend(*extension, gurl.path());
+      extensions::CSPInfo::GetMinimumCSPToAppend(*extension, gurl.path());
   if (!default_csp)
     return;
 

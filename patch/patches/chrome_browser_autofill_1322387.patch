@@ -1,0 +1,14 @@
+diff --git chrome/browser/autofill_assistant/password_change/apc_onboarding_coordinator_impl.cc chrome/browser/autofill_assistant/password_change/apc_onboarding_coordinator_impl.cc
+index 4ac565d8ebdd0..9d3d610a305ab 100644
+--- chrome/browser/autofill_assistant/password_change/apc_onboarding_coordinator_impl.cc
++++ chrome/browser/autofill_assistant/password_change/apc_onboarding_coordinator_impl.cc
+@@ -38,7 +38,8 @@ void ApcOnboardingCoordinatorImpl::PerformOnboarding(Callback callback) {
+           base::Unretained(this)));
+ }
+ 
+-std::unique_ptr<AssistantOnboardingController> CreateOnboardingController(
++std::unique_ptr<AssistantOnboardingController>
++ApcOnboardingCoordinatorImpl::CreateOnboardingController(
+     const AssistantOnboardingInformation& onboarding_information) {
+   return AssistantOnboardingController::Create(onboarding_information);
+ }

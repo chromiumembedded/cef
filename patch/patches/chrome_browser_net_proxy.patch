@@ -1,5 +1,5 @@
 diff --git chrome/browser/net/proxy_config_monitor.cc chrome/browser/net/proxy_config_monitor.cc
-index 88fad9811069e..9973245011e24 100644
+index d05a82a9c369a..82590253576ff 100644
 --- chrome/browser/net/proxy_config_monitor.cc
 +++ chrome/browser/net/proxy_config_monitor.cc
 @@ -9,6 +9,7 @@
@@ -21,7 +21,7 @@ index 88fad9811069e..9973245011e24 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/extensions/api/proxy/proxy_api.h"
  #endif
-@@ -89,6 +94,9 @@ void ProxyConfigMonitor::AddToNetworkContextParams(
+@@ -90,6 +95,9 @@ void ProxyConfigMonitor::AddToNetworkContextParams(
                                 .InitWithNewPipeAndPassReceiver());
  
  #if BUILDFLAG(ENABLE_EXTENSIONS)

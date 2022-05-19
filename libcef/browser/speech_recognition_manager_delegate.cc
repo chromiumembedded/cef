@@ -7,11 +7,11 @@
 #include <set>
 #include <string>
 
+#include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
 
 #include "base/bind.h"
 #include "base/command_line.h"
-#include "base/task/post_task.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/notification_observer.h"
@@ -76,8 +76,7 @@ void CefSpeechRecognitionManagerDelegate::CheckRecognitionIsAllowed(
   // Make sure that initiators properly set the |render_process_id| field.
   DCHECK_NE(context.render_process_id, 0);
 
-  base::PostTask(FROM_HERE, {content::BrowserThread::IO},
-                 base::BindOnce(std::move(callback), false, true));
+  CEF_POST_TASK(CEF_IOT, base::BindOnce(std::move(callback), false, true));
 }
 
 content::SpeechRecognitionEventListener*

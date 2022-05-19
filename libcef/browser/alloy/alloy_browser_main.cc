@@ -23,7 +23,6 @@
 
 #include "base/bind.h"
 #include "base/strings/string_number_conversions.h"
-#include "base/task/post_task.h"
 #include "base/task/thread_pool.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/media/router/chrome_media_router_factory.h"
@@ -89,10 +88,7 @@
 #include "ui/base/linux/linux_ui_delegate.h"
 #include "ui/ozone/public/ozone_platform.h"
 #include "ui/views/linux_ui/linux_ui.h"
-
-#if BUILDFLAG(USE_GTK)
-#include "ui/gtk/gtk_ui_factory.h"
-#endif
+#include "ui/views/linux_ui/linux_ui_factory.h"
 #endif  // BUILDFLAG(IS_LINUX)
 
 #if BUILDFLAG(ENABLE_MEDIA_FOUNDATION_WIDEVINE_CDM)
@@ -118,12 +114,7 @@ std::unique_ptr<views::LinuxUI> BuildLinuxUI() {
   if (!ui::LinuxUiDelegate::GetInstance())
     return nullptr;
 
-    // GtkUi is the only LinuxUI implementation for now.
-#if BUILDFLAG(USE_GTK)
-  return BuildGtkUi();
-#else
-  return nullptr;
-#endif
+  return CreateLinuxUi();
 }
 
 // Based on chrome_browser_main_extra_parts_views_linux.cc
@@ -137,15 +128,15 @@ void ToolkitInitializedLinux() {
               GetThemeProfileForWindow(window));
         }));
 
-    linux_ui->Initialize();
     views::LinuxUI::SetInstance(std::move(linux_ui));
 
     // Cursor theme changes are tracked by LinuxUI (via a CursorThemeManager
     // implementation). Start observing them once it's initialized.
     ui::CursorFactory::GetInstance()->ObserveThemeChanges();
   } else {
-    // In case if GTK is not used, input method factory won't be set for X11 and
-    // Ozone/X11. Set a fake one instead to avoid crashing browser later.
+    // In case if the toolkit is not used, input method factory won't be set for
+    // X11 and Ozone/X11. Set a fake one instead to avoid crashing browser
+    // later.
     DCHECK(!ui::LinuxInputMethodContextFactory::instance());
     // Try to create input method through Ozone so that the backend has a chance
     // to set factory by itself.
@@ -172,9 +163,7 @@ void ToolkitInitializedLinux() {
 
 }  // namespace
 
-AlloyBrowserMainParts::AlloyBrowserMainParts(
-    content::MainFunctionParams parameters)
-    : BrowserMainParts(), parameters_(std::move(parameters)) {}
+AlloyBrowserMainParts::AlloyBrowserMainParts() = default;
 
 AlloyBrowserMainParts::~AlloyBrowserMainParts() {
   constrained_window::SetConstrainedWindowViewsClient(nullptr);
@@ -309,7 +298,7 @@ int AlloyBrowserMainParts::PreMainMessageLoopRun() {
 #endif
 
   // Triggers initialization of the singleton instance on UI thread.
-  PluginFinder::GetInstance()->Init();
+  PluginFinder::GetInstance();
 
   scheme::RegisterWebUIControllerFactory();
   file_dialog_runner::RegisterFactory();

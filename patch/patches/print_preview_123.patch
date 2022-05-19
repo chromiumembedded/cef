@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index f5ef1239dbece..98210504ccf53 100644
+index 65a54420ca60e..27adcf4e827a4 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -24,6 +24,7 @@
@@ -46,7 +46,7 @@ index d656ccabc3899..a4b7ce6a7dcd8 100644
  #include "chrome/browser/printing/print_view_manager.h"
  #include "chrome/browser/task_manager/web_contents_tags.h"
 diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index fb69efbfa8e35..060aad00efe18 100644
+index e74a2d0858c18..fbf05b7814c46 100644
 --- chrome/browser/printing/print_view_manager_base.cc
 +++ chrome/browser/printing/print_view_manager_base.cc
 @@ -223,12 +223,12 @@ void UpdatePrintSettingsOnIO(
@@ -65,7 +65,7 @@ index fb69efbfa8e35..060aad00efe18 100644
    }
    auto* printer_query_ptr = printer_query.get();
    printer_query_ptr->SetSettings(
-@@ -694,6 +694,7 @@ void PrintViewManagerBase::UpdatePrintSettings(
+@@ -698,6 +698,7 @@ void PrintViewManagerBase::UpdatePrintSettings(
        job_settings.Set(kSettingRasterizePdfDpi, value);
    }
  
@@ -73,7 +73,7 @@ index fb69efbfa8e35..060aad00efe18 100644
    auto callback_wrapper =
        base::BindOnce(&PrintViewManagerBase::UpdatePrintSettingsReply,
                       weak_ptr_factory_.GetWeakPtr(), std::move(callback));
-@@ -701,7 +702,8 @@ void PrintViewManagerBase::UpdatePrintSettings(
+@@ -705,7 +706,8 @@ void PrintViewManagerBase::UpdatePrintSettings(
        FROM_HERE,
        base::BindOnce(&UpdatePrintSettingsOnIO, cookie,
                       std::move(callback_wrapper), queue_,
@@ -84,10 +84,10 @@ index fb69efbfa8e35..060aad00efe18 100644
  #endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW)
  
 diff --git chrome/browser/printing/print_view_manager_base.h chrome/browser/printing/print_view_manager_base.h
-index 48895e0f8a846..699d9f0029c04 100644
+index 746df417a23f7..dddf164ce6c4d 100644
 --- chrome/browser/printing/print_view_manager_base.h
 +++ chrome/browser/printing/print_view_manager_base.h
-@@ -184,9 +184,6 @@ class PrintViewManagerBase : public PrintManager, public PrintJob::Observer {
+@@ -194,9 +194,6 @@ class PrintViewManagerBase : public PrintManager, public PrintJob::Observer {
    // Manages the low-level talk to the printer.
    scoped_refptr<PrintJob> print_job_;
  
@@ -98,7 +98,7 @@ index 48895e0f8a846..699d9f0029c04 100644
    void RenderFrameHostStateChanged(
        content::RenderFrameHost* render_frame_host,
 diff --git chrome/browser/resources/print_preview/ui/destination_dialog.html chrome/browser/resources/print_preview/ui/destination_dialog.html
-index 5ea55a097c156..1ad6e23647be9 100644
+index 5d1658999d5bb..d1b7b7288c946 100644
 --- chrome/browser/resources/print_preview/ui/destination_dialog.html
 +++ chrome/browser/resources/print_preview/ui/destination_dialog.html
 @@ -15,10 +15,7 @@

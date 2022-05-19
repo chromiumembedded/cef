@@ -18,7 +18,6 @@
 #include "base/lazy_instance.h"
 #include "base/memory/ptr_util.h"
 #include "base/memory/ref_counted_memory.h"
-#include "base/task/post_task.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/printing/print_preview_dialog_controller.h"
@@ -52,52 +51,50 @@ namespace {
 
 const int PREVIEW_UIID = 12345678;
 
-// Convert CefPdfPrintSettings into base::DictionaryValue.
+// Convert CefPdfPrintSettings into base::Value::Dict.
 void FillInDictionaryFromPdfPrintSettings(
     const CefPdfPrintSettings& pdf_settings,
     int request_id,
-    base::DictionaryValue& print_settings) {
+    base::Value::Dict& print_settings) {
   // Fixed settings.
-  print_settings.SetIntKey(kSettingPrinterType,
-                           static_cast<int>(mojom::PrinterType::kPdf));
-  print_settings.SetInteger(kSettingColor,
-                            static_cast<int>(mojom::ColorModel::kGray));
-  print_settings.SetInteger(kSettingDuplexMode,
-                            static_cast<int>(mojom::DuplexMode::kSimplex));
-  print_settings.SetInteger(kSettingCopies, 1);
-  print_settings.SetBoolean(kSettingCollate, false);
-  print_settings.SetString(kSettingDeviceName, "");
-  print_settings.SetBoolean(kSettingRasterizePdf, false);
-  print_settings.SetBoolean(kSettingPreviewModifiable, false);
-  print_settings.SetInteger(kSettingDpiHorizontal, 0);
-  print_settings.SetInteger(kSettingDpiVertical, 0);
-  print_settings.SetInteger(kSettingPagesPerSheet, 1);
+  print_settings.Set(kSettingPrinterType,
+                     static_cast<int>(mojom::PrinterType::kPdf));
+  print_settings.Set(kSettingColor, static_cast<int>(mojom::ColorModel::kGray));
+  print_settings.Set(kSettingDuplexMode,
+                     static_cast<int>(mojom::DuplexMode::kSimplex));
+  print_settings.Set(kSettingCopies, 1);
+  print_settings.Set(kSettingCollate, false);
+  print_settings.Set(kSettingDeviceName, "");
+  print_settings.Set(kSettingRasterizePdf, false);
+  print_settings.Set(kSettingPreviewModifiable, false);
+  print_settings.Set(kSettingDpiHorizontal, 0);
+  print_settings.Set(kSettingDpiVertical, 0);
+  print_settings.Set(kSettingPagesPerSheet, 1);
 
   // User defined settings.
-  print_settings.SetBoolean(kSettingLandscape, !!pdf_settings.landscape);
-  print_settings.SetBoolean(kSettingShouldPrintSelectionOnly,
-                            !!pdf_settings.selection_only);
-  print_settings.SetBoolean(kSettingShouldPrintBackgrounds,
-                            !!pdf_settings.backgrounds_enabled);
-  print_settings.SetBoolean(kSettingHeaderFooterEnabled,
-                            !!pdf_settings.header_footer_enabled);
-  print_settings.SetInteger(kSettingScaleFactor, pdf_settings.scale_factor > 0
-                                                     ? pdf_settings.scale_factor
-                                                     : 100);
+  print_settings.Set(kSettingLandscape, !!pdf_settings.landscape);
+  print_settings.Set(kSettingShouldPrintSelectionOnly,
+                     !!pdf_settings.selection_only);
+  print_settings.Set(kSettingShouldPrintBackgrounds,
+                     !!pdf_settings.backgrounds_enabled);
+  print_settings.Set(kSettingHeaderFooterEnabled,
+                     !!pdf_settings.header_footer_enabled);
+  print_settings.Set(kSettingScaleFactor, pdf_settings.scale_factor > 0
+                                              ? pdf_settings.scale_factor
+                                              : 100);
 
   if (pdf_settings.header_footer_enabled) {
-    print_settings.SetString(
+    print_settings.Set(
         kSettingHeaderFooterTitle,
         CefString(&pdf_settings.header_footer_title).ToString16());
-    print_settings.SetString(
-        kSettingHeaderFooterURL,
-        CefString(&pdf_settings.header_footer_url).ToString16());
+    print_settings.Set(kSettingHeaderFooterURL,
+                       CefString(&pdf_settings.header_footer_url).ToString16());
   }
 
   if (pdf_settings.page_width > 0 && pdf_settings.page_height > 0) {
-    std::unique_ptr<base::DictionaryValue> dict(new base::DictionaryValue);
-    dict->SetInteger(kSettingMediaSizeWidthMicrons, pdf_settings.page_width);
-    dict->SetInteger(kSettingMediaSizeHeightMicrons, pdf_settings.page_height);
+    base::Value::Dict dict;
+    dict.Set(kSettingMediaSizeWidthMicrons, pdf_settings.page_width);
+    dict.Set(kSettingMediaSizeHeightMicrons, pdf_settings.page_height);
     print_settings.Set(kSettingMediaSize, std::move(dict));
   }
 
@@ -116,20 +113,20 @@ void FillInDictionaryFromPdfPrintSettings(
       break;
   }
 
-  print_settings.SetInteger(kSettingMarginsType, static_cast<int>(margin_type));
+  print_settings.Set(kSettingMarginsType, static_cast<int>(margin_type));
   if (margin_type == printing::mojom::MarginType::kCustomMargins) {
-    std::unique_ptr<base::DictionaryValue> dict(new base::DictionaryValue);
-    dict->SetInteger(kSettingMarginTop, pdf_settings.margin_top);
-    dict->SetInteger(kSettingMarginRight, pdf_settings.margin_right);
-    dict->SetInteger(kSettingMarginBottom, pdf_settings.margin_bottom);
-    dict->SetInteger(kSettingMarginLeft, pdf_settings.margin_left);
+    base::Value::Dict dict;
+    dict.Set(kSettingMarginTop, pdf_settings.margin_top);
+    dict.Set(kSettingMarginRight, pdf_settings.margin_right);
+    dict.Set(kSettingMarginBottom, pdf_settings.margin_bottom);
+    dict.Set(kSettingMarginLeft, pdf_settings.margin_left);
     print_settings.Set(kSettingMarginsCustom, std::move(dict));
   }
 
   // Service settings.
-  print_settings.SetInteger(kPreviewUIID, PREVIEW_UIID);
-  print_settings.SetInteger(kPreviewRequestID, request_id);
-  print_settings.SetBoolean(kIsFirstRequest, request_id != 0);
+  print_settings.Set(kPreviewUIID, PREVIEW_UIID);
+  print_settings.Set(kPreviewRequestID, request_id);
+  print_settings.Set(kIsFirstRequest, request_id != 0);
 }
 
 void StopWorker(int document_cookie) {
@@ -171,7 +168,7 @@ void SavePdfFile(scoped_refptr<base::RefCountedSharedMemoryMapping> data,
 struct CefPrintViewManager::PdfPrintState {
   content::RenderFrameHost* printing_rfh_ = nullptr;
   base::FilePath output_path_;
-  base::DictionaryValue settings_;
+  base::Value::Dict settings_;
   PdfPrintCallback callback_;
 };
 
@@ -206,7 +203,8 @@ bool CefPrintViewManager::PrintToPDF(content::RenderFrameHost* rfh,
     return false;
 
   // Don't print crashed tabs.
-  if (!web_contents() || web_contents()->IsCrashed() || !rfh->IsRenderFrameLive()) {
+  if (!web_contents() || web_contents()->IsCrashed() ||
+      !rfh->IsRenderFrameLive()) {
     return false;
   }
 

@@ -7,9 +7,9 @@
 #include "include/cef_parser.h"
 
 #include "base/base64.h"
+#include "base/strings/escape.h"
 #include "base/threading/thread_restrictions.h"
 #include "components/url_formatter/elide_url.h"
-#include "net/base/escape.h"
 #include "net/base/mime_util.h"
 #include "url/gurl.h"
 
@@ -125,17 +125,17 @@ CefRefPtr<CefBinaryValue> CefBase64Decode(const CefString& data) {
 }
 
 CefString CefURIEncode(const CefString& text, bool use_plus) {
-  return net::EscapeQueryParamValue(text.ToString(), use_plus);
+  return base::EscapeQueryParamValue(text.ToString(), use_plus);
 }
 
 CefString CefURIDecode(const CefString& text,
                        bool convert_to_utf8,
                        cef_uri_unescape_rule_t unescape_rule) {
-  const net::UnescapeRule::Type type =
-      static_cast<net::UnescapeRule::Type>(unescape_rule);
+  const base::UnescapeRule::Type type =
+      static_cast<base::UnescapeRule::Type>(unescape_rule);
   if (convert_to_utf8)
-    return net::UnescapeAndDecodeUTF8URLComponentWithAdjustments(
+    return base::UnescapeAndDecodeUTF8URLComponentWithAdjustments(
         text.ToString(), type, nullptr);
   else
-    return net::UnescapeURLComponent(text.ToString(), type);
+    return base::UnescapeURLComponent(text.ToString(), type);
 }

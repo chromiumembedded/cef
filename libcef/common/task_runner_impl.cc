@@ -3,13 +3,15 @@
 // can be found in the LICENSE file.
 
 #include "libcef/common/task_runner_impl.h"
+
 #include "libcef/common/task_runner_manager.h"
 
 #include "base/bind.h"
 #include "base/location.h"
 #include "base/logging.h"
-#include "base/task/post_task.h"
+#include "base/task/thread_pool.h"
 #include "base/threading/thread_task_runner_handle.h"
+#include "base/time/time.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/child_process_launcher_utils.h"
@@ -53,10 +55,10 @@ scoped_refptr<base::SingleThreadTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
   if (!manager)
     return nullptr;
 
-  int id = -1;
   switch (threadId) {
     case TID_UI:
-      id = BrowserThread::UI;
+      if (BrowserThread::IsThreadInitialized(BrowserThread::UI))
+        return content::GetUIThreadTaskRunner({});
       break;
     case TID_FILE_BACKGROUND:
       return manager->GetBackgroundTaskRunner();
@@ -67,22 +69,14 @@ scoped_refptr<base::SingleThreadTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
     case TID_PROCESS_LAUNCHER:
       return content::GetProcessLauncherTaskRunner();
     case TID_IO:
-      id = BrowserThread::IO;
+      if (BrowserThread::IsThreadInitialized(BrowserThread::IO))
+        return content::GetIOThreadTaskRunner({});
       break;
     case TID_RENDERER:
       return manager->GetRenderTaskRunner();
     default:
       break;
   };
-
-  if (id >= 0 &&
-      BrowserThread::IsThreadInitialized(static_cast<BrowserThread::ID>(id))) {
-    // Specify USER_BLOCKING so that BrowserTaskExecutor::GetTaskRunner always
-    // gives us the same TaskRunner object.
-    return base::CreateSingleThreadTaskRunner(
-        {static_cast<BrowserThread::ID>(id),
-         base::TaskPriority::USER_BLOCKING});
-  }
 
   return nullptr;
 }
@@ -94,31 +88,27 @@ CefTaskRunnerImpl::GetCurrentTaskRunner() {
   if (!manager)
     return nullptr;
 
-  scoped_refptr<base::SingleThreadTaskRunner> task_runner;
-
   // For named browser process threads return the same TaskRunner as
   // GetTaskRunner(). Otherwise BelongsToThread() will return incorrect results.
   BrowserThread::ID current_id;
   if (BrowserThread::GetCurrentThreadIdentifier(&current_id) &&
       BrowserThread::IsThreadInitialized(current_id)) {
-    // Specify USER_BLOCKING so that BrowserTaskExecutor::GetTaskRunner always
-    // gives us the same TaskRunner object.
-    task_runner = base::CreateSingleThreadTaskRunner(
-        {current_id, base::TaskPriority::USER_BLOCKING});
+    if (current_id == BrowserThread::UI) {
+      return content::GetUIThreadTaskRunner({});
+    } else if (current_id == BrowserThread::IO) {
+      return content::GetIOThreadTaskRunner({});
+    } else {
+      NOTREACHED();
+    }
   }
 
-  if (!task_runner.get()) {
-    // Check for a MessageLoopProxy. This covers all of the named browser and
-    // render process threads, plus a few extra.
-    task_runner = base::ThreadTaskRunnerHandle::Get();
-  }
+  // Check for a MessageLoopProxy. This covers all of the named browser and
+  // render process threads, plus a few extra.
+  if (auto task_runner = base::ThreadTaskRunnerHandle::Get())
+    return task_runner;
 
-  if (!task_runner.get()) {
-    // Check for a WebWorker thread.
-    return manager->GetWebWorkerTaskRunner();
-  }
-
-  return task_runner;
+  // Check for a WebWorker thread.
+  return manager->GetWebWorkerTaskRunner();
 }
 
 bool CefTaskRunnerImpl::IsSame(CefRefPtr<CefTaskRunner> that) {

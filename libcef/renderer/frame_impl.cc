@@ -40,6 +40,7 @@
 #include "third_party/blink/public/platform/web_data.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
+#include "third_party/blink/public/platform/web_url_loader.h"
 #include "third_party/blink/public/web/blink.h"
 #include "third_party/blink/public/web/web_document.h"
 #include "third_party/blink/public/web/web_document_loader.h"
@@ -332,7 +333,7 @@ void CefFrameImpl::OnDidFinishLoad() {
     return;
 
   blink::WebDocumentLoader* dl = frame_->GetDocumentLoader();
-  const int http_status_code = dl->GetResponse().HttpStatusCode();
+  const int http_status_code = dl->GetWebResponse().HttpStatusCode();
 
   SendToBrowserFrame(__FUNCTION__,
                      base::BindOnce(

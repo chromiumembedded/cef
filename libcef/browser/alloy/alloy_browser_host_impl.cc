@@ -51,6 +51,7 @@
 #include "extensions/common/constants.h"
 #include "extensions/common/extension.h"
 #include "net/base/net_errors.h"
+#include "third_party/blink/public/mojom/mediastream/media_stream.mojom.h"
 #include "ui/events/base_event_utils.h"
 
 using content::KeyboardEventProcessingResult;
@@ -1295,14 +1296,17 @@ void AlloyBrowserHostImpl::RequestMediaAccessPermission(
     content::MediaResponseCallback callback) {
   CEF_REQUIRE_UIT();
 
-  blink::MediaStreamDevices devices;
+  blink::MediaStreamDevices audio_devices;
+  blink::MediaStreamDevices video_devices;
+  blink::mojom::StreamDevices stream_devices;
 
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
   if (!command_line->HasSwitch(switches::kEnableMediaStream)) {
     // Cancel the request.
     std::move(callback).Run(
-        devices, blink::mojom::MediaStreamRequestResult::PERMISSION_DENIED,
+        stream_devices,
+        blink::mojom::MediaStreamRequestResult::PERMISSION_DENIED,
         std::unique_ptr<content::MediaStreamUI>());
     return;
   }
@@ -1321,11 +1325,11 @@ void AlloyBrowserHostImpl::RequestMediaAccessPermission(
     // given type.
     if (microphone_requested) {
       CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-          request.requested_audio_device_id, true, false, &devices);
+          request.requested_audio_device_id, true, false, &audio_devices);
     }
     if (webcam_requested) {
       CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-          request.requested_video_device_id, false, true, &devices);
+          request.requested_video_device_id, false, true, &video_devices);
     }
     if (screen_requested) {
       content::DesktopMediaID media_id;
@@ -1337,13 +1341,20 @@ void AlloyBrowserHostImpl::RequestMediaAccessPermission(
         media_id =
             content::DesktopMediaID::Parse(request.requested_video_device_id);
       }
-      devices.push_back(blink::MediaStreamDevice(
+      video_devices.push_back(blink::MediaStreamDevice(
           blink::mojom::MediaStreamType::GUM_DESKTOP_VIDEO_CAPTURE,
           media_id.ToString(), "Screen"));
     }
   }
 
-  std::move(callback).Run(devices, blink::mojom::MediaStreamRequestResult::OK,
+  // At most one audio device and one video device can be used in a stream.
+  if (!audio_devices.empty())
+    stream_devices.audio_device = audio_devices.front();
+  if (!video_devices.empty())
+    stream_devices.video_device = video_devices.front();
+
+  std::move(callback).Run(stream_devices,
+                          blink::mojom::MediaStreamRequestResult::OK,
                           std::unique_ptr<content::MediaStreamUI>());
 }
 

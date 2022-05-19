@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
-index 64f159f52fb2f..8ae9d9d126ceb 100644
+index a9c0c34999035..5fbf5eb462e42 100644
 --- chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ chrome/browser/profiles/off_the_record_profile_impl.cc
-@@ -636,7 +636,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
+@@ -634,7 +634,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
  #endif
    if (!profile)
      profile = std::make_unique<OffTheRecordProfileImpl>(parent, otr_profile_id);
@@ -85,10 +85,10 @@ index ca2561e412621..febd52df6c971 100644
    virtual bool IsSignedIn() = 0;
  
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index bf169b652ef30..b2bb98ceada7f 100644
+index 2e1d353a1e34b..98a3a93c37d39 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
-@@ -993,7 +993,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -994,7 +994,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  
@@ -100,10 +100,10 @@ index bf169b652ef30..b2bb98ceada7f 100644
    return raw_otr_profile;
  }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 45389cca9b0ab..ab1573eaaf7a7 100644
+index e35e0cb323c8c..a2268c594d8c6 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -512,7 +512,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+@@ -517,7 +517,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
                            base::Unretained(this)));
  #endif
  
@@ -113,7 +113,7 @@ index 45389cca9b0ab..ab1573eaaf7a7 100644
  
    zombie_metrics_timer_.Start(FROM_HERE, base::Minutes(30), this,
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index 8ba4e0ba9f3c0..d7b888f7120c4 100644
+index 03c2269af2180..5ee91d31bd473 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
 @@ -151,7 +151,7 @@ class ProfileManager : public Profile::Delegate {

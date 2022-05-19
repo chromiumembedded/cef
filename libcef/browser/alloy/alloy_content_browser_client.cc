@@ -467,9 +467,10 @@ AlloyContentBrowserClient::~AlloyContentBrowserClient() = default;
 
 std::unique_ptr<content::BrowserMainParts>
 AlloyContentBrowserClient::CreateBrowserMainParts(
-    content::MainFunctionParams parameters) {
-  browser_main_parts_ = new AlloyBrowserMainParts(std::move(parameters));
-  return base::WrapUnique(browser_main_parts_);
+    bool /* is_integration_test */) {
+  auto browser_main_parts = std::make_unique<AlloyBrowserMainParts>();
+  browser_main_parts_ = browser_main_parts.get();
+  return browser_main_parts;
 }
 
 void AlloyContentBrowserClient::RenderProcessWillLaunch(

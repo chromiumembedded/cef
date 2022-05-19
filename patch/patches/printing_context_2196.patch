@@ -1,5 +1,5 @@
 diff --git chrome/browser/printing/print_job_worker.cc chrome/browser/printing/print_job_worker.cc
-index 86770178101d4..1b4b8cb69c413 100644
+index ee713c5686d4e..67eaba056cbed 100644
 --- chrome/browser/printing/print_job_worker.cc
 +++ chrome/browser/printing/print_job_worker.cc
 @@ -131,6 +131,7 @@ PrintJobWorker::PrintJobWorker(content::GlobalRenderFrameHostId rfh_id)
@@ -11,10 +11,10 @@ index 86770178101d4..1b4b8cb69c413 100644
  
  PrintJobWorker::~PrintJobWorker() {
 diff --git printing/printing_context.h printing/printing_context.h
-index 2c8ef23f7cb75..3a9d8e1e19234 100644
+index 58fcf619add50..0df47b93afd05 100644
 --- printing/printing_context.h
 +++ printing/printing_context.h
-@@ -172,6 +172,13 @@ class COMPONENT_EXPORT(PRINTING) PrintingContext {
+@@ -173,6 +173,13 @@ class COMPONENT_EXPORT(PRINTING) PrintingContext {
  
    int job_id() const { return job_id_; }
  
@@ -28,7 +28,7 @@ index 2c8ef23f7cb75..3a9d8e1e19234 100644
   protected:
    explicit PrintingContext(Delegate* delegate);
  
-@@ -216,6 +223,10 @@ class COMPONENT_EXPORT(PRINTING) PrintingContext {
+@@ -217,6 +224,10 @@ class COMPONENT_EXPORT(PRINTING) PrintingContext {
    // The job id for the current job. The value is 0 if no jobs are active.
    int job_id_;
  

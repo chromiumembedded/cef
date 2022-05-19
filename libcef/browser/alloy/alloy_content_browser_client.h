@@ -35,7 +35,7 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
 
   // ContentBrowserClient implementation.
   std::unique_ptr<content::BrowserMainParts> CreateBrowserMainParts(
-      content::MainFunctionParams parameters) override;
+      bool is_integration_test) override;
   void RenderProcessWillLaunch(content::RenderProcessHost* host) override;
   bool ShouldUseProcessPerSite(content::BrowserContext* browser_context,
                                const GURL& site_url) override;

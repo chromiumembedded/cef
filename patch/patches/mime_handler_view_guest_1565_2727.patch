@@ -1,11 +1,11 @@
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index 2c29b5c5c96b9..9ba3aaa327478 100644
+index 17f203b11ce39..0a5277b686d61 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
-@@ -21,7 +21,7 @@ struct DropData;
- // The WebContentsView is an interface that is implemented by the platform-
- // dependent web contents views. The WebContents uses this interface to talk to
- // them.
+@@ -25,7 +25,7 @@ struct DropData;
+ // The `WebContentsView` is an interface that is implemented by the platform-
+ // dependent web contents views. The `WebContents` uses this interface to talk
+ // to them.
 -class WebContentsView {
 +class CONTENT_EXPORT WebContentsView {
   public:

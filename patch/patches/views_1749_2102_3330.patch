@@ -43,7 +43,7 @@ index 11f1421cc79c1..c5dbc643ae7c8 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 62fbeb6047436..76118781b2d3d 100644
+index 7fb46dbdee749..e25a85d919e5e 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -659,6 +659,14 @@ void RenderText::SetWhitespaceElision(absl::optional<bool> whitespace_elision) {
@@ -61,7 +61,7 @@ index 62fbeb6047436..76118781b2d3d 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -2010,6 +2018,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -2015,6 +2023,19 @@ void RenderText::OnTextAttributeChanged() {
  
    layout_text_up_to_date_ = false;
  
@@ -150,7 +150,7 @@ index 75d1292ce4d49..e22a73e3771c4 100644
    ImageView* image() const { return image_; }
    Label* label() const { return label_; }
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 1852dffd41233..7e581af0d4465 100644
+index 4353a8124bb78..d19ed60206824 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -53,12 +53,27 @@ enum LabelPropertyKey {
@@ -215,7 +215,7 @@ index 1852dffd41233..7e581af0d4465 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 8132b9b9a1c75..4f78f6f41c77f 100644
+index 109e19fbcaa08..3568917abe6bb 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -234,6 +234,10 @@ class VIEWS_EXPORT Label : public View,
@@ -229,7 +229,7 @@ index 8132b9b9a1c75..4f78f6f41c77f 100644
    // Gets/Sets the tooltip text.  Default behavior for a label (single-line) is
    // to show the full text if it is wider than its bounds.  Calling this
    // overrides the default behavior and lets you set a custom tooltip.  To
-@@ -480,6 +484,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -485,6 +489,7 @@ class VIEWS_EXPORT Label : public View,
    int max_width_ = 0;
    // This is used in single-line mode.
    int max_width_single_line_ = 0;
@@ -238,7 +238,7 @@ index 8132b9b9a1c75..4f78f6f41c77f 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 2dbf14bc018d2..ea1d0153a9b64 100644
+index 1f1ea9ec4b51a..e3c77de886185 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -473,7 +473,8 @@ void MenuController::Run(Widget* parent,
@@ -684,10 +684,10 @@ index 54c95d830233e..408f090b55698 100644
    // Hides and cancels the menu.
    virtual void Cancel() = 0;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 25d368664566d..870bf405c6c80 100644
+index a3354482b6191..62a9a6fe32073 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
-@@ -252,6 +252,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
+@@ -259,6 +259,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
    scroll_down_button_ = background_view_->AddChildView(
        std::make_unique<MenuScrollButton>(content_view, false));
  
@@ -700,7 +700,7 @@ index 25d368664566d..870bf405c6c80 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/view.h ui/views/view.h
-index 6d4b66ad1f9e3..60fdc9ce712c5 100644
+index 034e1652ebab1..fb215a9dcc815 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -22,6 +22,7 @@

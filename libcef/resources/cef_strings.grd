@@ -105,7 +105,7 @@ need to be translated for each locale.-->
     <output filename="cef_strings_vi.pak" type="data_package" lang="vi" />
     <output filename="cef_strings_zh-CN.pak" type="data_package" lang="zh-CN" />
     <output filename="cef_strings_zh-TW.pak" type="data_package" lang="zh-TW" />
-    <if expr="pp_ifdef('enable_pseudolocales')">
+    <if expr="enable_pseudolocales">
       <output filename="cef_strings_ar-XB.pak" type="data_package" lang="ar-XB" />
       <output filename="cef_strings_en-XA.pak" type="data_package" lang="en-XA" />
     </if>

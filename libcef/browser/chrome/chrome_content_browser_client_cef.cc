@@ -78,13 +78,13 @@ ChromeContentBrowserClientCef::~ChromeContentBrowserClientCef() = default;
 
 std::unique_ptr<content::BrowserMainParts>
 ChromeContentBrowserClientCef::CreateBrowserMainParts(
-    content::MainFunctionParams parameters) {
+    bool is_integration_test) {
   auto main_parts =
-      ChromeContentBrowserClient::CreateBrowserMainParts(std::move(parameters));
-  browser_main_parts_ = new ChromeBrowserMainExtraPartsCef;
+      ChromeContentBrowserClient::CreateBrowserMainParts(is_integration_test);
+  auto browser_main_parts = std::make_unique<ChromeBrowserMainExtraPartsCef>();
+  browser_main_parts_ = browser_main_parts.get();
   static_cast<ChromeBrowserMainParts*>(main_parts.get())
-      ->AddParts(
-          base::WrapUnique<ChromeBrowserMainExtraParts>(browser_main_parts_));
+      ->AddParts(std::move(browser_main_parts));
   return main_parts;
 }
 

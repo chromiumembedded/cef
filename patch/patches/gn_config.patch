@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 5a11496a47ae7..76d199e4b69fa 100644
+index 7d538f812d72e..9eec79395aeec 100644
 --- .gn
 +++ .gn
-@@ -157,6 +157,8 @@ exec_script_whitelist =
+@@ -155,6 +155,8 @@ exec_script_whitelist =
  
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
  
@@ -12,7 +12,7 @@ index 5a11496a47ae7..76d199e4b69fa 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 30774d5f7c134..823335857a8a4 100644
+index 3fb396df0a458..2e9dbe0a18a1b 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -17,6 +17,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -80,7 +80,7 @@ index 839144aa1e9bd..29c8ab32398a7 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 628310385dd95..9cee3d3e4db78 100644
+index 933488c024814..44893a5e98746 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -152,10 +152,10 @@ index 51fa0d7f4cf77..2ede68e9377eb 100644
  
    outputs = [
      # See also chrome.packed.7z conditionally added below.
-diff --git tools/grit/grit_defines.gni tools/grit/grit_defines.gni
-index bc59070a45360..71dfd4536d432 100644
---- tools/grit/grit_defines.gni
-+++ tools/grit/grit_defines.gni
+diff --git tools/grit/grit_args.gni tools/grit/grit_args.gni
+index 92be15a41a034..c3efefc25c36d 100644
+--- tools/grit/grit_args.gni
++++ tools/grit/grit_args.gni
 @@ -5,6 +5,7 @@
  import("//build/config/chrome_build.gni")
  import("//build/config/chromeos/ui_mode.gni")
@@ -164,17 +164,12 @@ index bc59070a45360..71dfd4536d432 100644
  import("//build/config/ui.gni")
  
  shared_intermediate_dir = rebase_path(root_gen_dir, root_build_dir)
-@@ -118,6 +119,13 @@ if (is_android) {
-   ]
- }
+@@ -35,6 +36,8 @@ _grit_defines = [
  
-+if (enable_pseudolocales) {
-+  grit_defines += [
-+    "-D",
-+    "enable_pseudolocales",
-+  ]
-+}
+   # Mac and iOS want Title Case strings.
+   "use_titlecase=${is_apple}",
 +
- # When cross-compiling, explicitly pass the target system to grit.
- if (current_toolchain != host_toolchain) {
-   if (is_android) {
++  "enable_pseudolocales=${enable_pseudolocales}",
+ ]
+ 
+ # Must match `enable_hidpi` in ui/base/ui_features.gni.

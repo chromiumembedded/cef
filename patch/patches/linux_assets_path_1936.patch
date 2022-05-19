@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_launcher_helper_linux.cc content/browser/child_process_launcher_helper_linux.cc
-index f60ad777ab769..5c585569da117 100644
+index b2b29e715d6e5..fc5ac660069ec 100644
 --- content/browser/child_process_launcher_helper_linux.cc
 +++ content/browser/child_process_launcher_helper_linux.cc
-@@ -162,7 +162,7 @@ void ChildProcessLauncherHelper::SetProcessPriorityOnLauncherThread(
+@@ -168,7 +168,7 @@ void ChildProcessLauncherHelper::SetProcessPriorityOnLauncherThread(
  base::File OpenFileToShare(const base::FilePath& path,
                             base::MemoryMappedFile::Region* region) {
    base::FilePath exe_dir;

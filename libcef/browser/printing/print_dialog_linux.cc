@@ -218,6 +218,9 @@ CefPrintDialogLinux::CefPrintDialogLinux(PrintingContextLinux* context,
   DCHECK(context_);
   DCHECK(browser_);
   DCHECK(handler_);
+
+  // Paired with the ReleaseDialog() call.
+  AddRef();
 }
 
 CefPrintDialogLinux::~CefPrintDialogLinux() {
@@ -290,11 +293,8 @@ void CefPrintDialogLinux::PrintDocument(
                               document_name));
 }
 
-void CefPrintDialogLinux::AddRefToDialog() {
-  AddRef();
-}
-
 void CefPrintDialogLinux::ReleaseDialog() {
+  context_ = nullptr;
   Release();
 }
 
@@ -343,8 +343,7 @@ void CefPrintDialogLinux::OnPrintCancel() {
 }
 
 void CefPrintDialogLinux::OnJobCompleted() {
-  CEF_POST_BACKGROUND_TASK(
-      base::BindOnce(base::GetDeleteFileCallback(), path_to_pdf_));
+  CEF_POST_BACKGROUND_TASK(base::GetDeleteFileCallback(path_to_pdf_));
 
   // Printing finished. Matches AddRef() in PrintDocument();
   Release();

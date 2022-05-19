@@ -59,7 +59,6 @@ class CefPrintDialogLinux : public printing::PrintDialogGtkInterface,
       PrintingContextLinux::PrintSettingsCallback callback) override;
   void PrintDocument(const printing::MetafilePlayer& metafile,
                      const std::u16string& document_name) override;
-  void AddRefToDialog() override;
   void ReleaseDialog() override;
 
  private:

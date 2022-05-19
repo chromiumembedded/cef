@@ -40,10 +40,10 @@ index f121a2b07cdbd..b2e9bedac39d3 100644
    virtual ~PruneCondition() {}
  
 diff --git third_party/crashpad/crashpad/client/settings.cc third_party/crashpad/crashpad/client/settings.cc
-index 8fe578f92f3a3..9acab9404c885 100644
+index eef24f71495fd..d3a273d369097 100644
 --- third_party/crashpad/crashpad/client/settings.cc
 +++ third_party/crashpad/crashpad/client/settings.cc
-@@ -111,7 +111,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
+@@ -116,7 +116,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
  
  struct Settings::Data {
    static constexpr uint32_t kSettingsMagic = 'CPds';
@@ -52,7 +52,7 @@ index 8fe578f92f3a3..9acab9404c885 100644
  
    enum Options : uint32_t {
      kUploadsEnabled = 1 << 0,
-@@ -122,6 +122,9 @@ struct Settings::Data {
+@@ -127,6 +127,9 @@ struct Settings::Data {
             options(0),
             padding_0(0),
             last_upload_attempt_time(0),
@@ -62,7 +62,7 @@ index 8fe578f92f3a3..9acab9404c885 100644
             client_id() {}
  
    uint32_t magic;
-@@ -129,6 +132,9 @@ struct Settings::Data {
+@@ -134,6 +137,9 @@ struct Settings::Data {
    uint32_t options;
    uint32_t padding_0;
    int64_t last_upload_attempt_time;  // time_t
@@ -72,7 +72,7 @@ index 8fe578f92f3a3..9acab9404c885 100644
    UUID client_id;
  };
  
-@@ -212,6 +218,56 @@ bool Settings::SetLastUploadAttemptTime(time_t time) {
+@@ -217,6 +223,56 @@ bool Settings::SetLastUploadAttemptTime(time_t time) {
    return WriteSettings(handle.get(), settings);
  }
  
@@ -130,7 +130,7 @@ index 8fe578f92f3a3..9acab9404c885 100644
  Settings::ScopedLockedFileHandle Settings::MakeScopedLockedFileHandle(
      FileHandle file,
 diff --git third_party/crashpad/crashpad/client/settings.h third_party/crashpad/crashpad/client/settings.h
-index aedf30cd874f7..ab798f00e0862 100644
+index 8ad8a2b16f648..adaede06e8b86 100644
 --- third_party/crashpad/crashpad/client/settings.h
 +++ third_party/crashpad/crashpad/client/settings.h
 @@ -120,6 +120,11 @@ class Settings {
@@ -248,7 +248,7 @@ index 2af958d7da9e5..6a67185a668af 100644
    //! \brief Calls ProcessPendingReports() in response to ReportPending() having
    //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index 48ef8b6530a67..dbe2916492ff7 100644
+index c6ef76933735f..5fa38c40e2e96 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -39,6 +39,7 @@
@@ -280,7 +280,7 @@ index 48ef8b6530a67..dbe2916492ff7 100644
  #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
    bool use_cros_crash_reporter = false;
    base::FilePath minidump_dir_for_tests;
-@@ -617,6 +625,9 @@ int HandlerMain(int argc,
+@@ -622,6 +630,9 @@ int HandlerMain(int argc,
      kOptionTraceParentWithException,
  #endif
      kOptionURL,
@@ -290,7 +290,7 @@ index 48ef8b6530a67..dbe2916492ff7 100644
  #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
      kOptionUseCrosCrashReporter,
      kOptionMinidumpDirForTests,
-@@ -717,6 +728,9 @@ int HandlerMain(int argc,
+@@ -722,6 +733,9 @@ int HandlerMain(int argc,
  #endif  // BUILDFLAG(IS_ANDROID)
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
@@ -300,7 +300,7 @@ index 48ef8b6530a67..dbe2916492ff7 100644
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -874,6 +888,27 @@ int HandlerMain(int argc,
+@@ -879,6 +893,27 @@ int HandlerMain(int argc,
          options.url = optarg;
          break;
        }
@@ -328,7 +328,7 @@ index 48ef8b6530a67..dbe2916492ff7 100644
  #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
        case kOptionUseCrosCrashReporter: {
          options.use_cros_crash_reporter = true;
-@@ -1023,8 +1058,14 @@ int HandlerMain(int argc,
+@@ -1028,8 +1063,14 @@ int HandlerMain(int argc,
      upload_thread_options.upload_gzip = options.upload_gzip;
      upload_thread_options.watch_pending_reports = options.periodic_tasks;
  
@@ -343,7 +343,7 @@ index 48ef8b6530a67..dbe2916492ff7 100644
      upload_thread.Get()->Start();
    }
  
-@@ -1095,7 +1136,8 @@ int HandlerMain(int argc,
+@@ -1100,7 +1141,8 @@ int HandlerMain(int argc,
    ScopedStoppable prune_thread;
    if (options.periodic_tasks) {
      prune_thread.Reset(new PruneCrashReportThread(

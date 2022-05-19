@@ -80,7 +80,7 @@ index 309422bcf8581..759549f3046f4 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 002b3ddfb0f77..48abd11739d05 100644
+index fe988e3bbcf0c..e1cdb6abe8995 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -221,6 +221,8 @@ viz_component("service") {
@@ -222,7 +222,7 @@ index 6b7fbb6cf13dc..e2af75168cb91 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 80bff73a5886e..55a6daaf37364 100644
+index 2f6d2ee4160f2..11a32e1481c4b 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -31,7 +31,9 @@
@@ -260,7 +260,7 @@ index 80bff73a5886e..55a6daaf37364 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -476,6 +489,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -478,6 +491,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
  
    std::unique_ptr<PendingBeginFrameArgs> pending_begin_frame_args_;
  

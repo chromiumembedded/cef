@@ -9,7 +9,6 @@
 #include "libcef/browser/file_dialog_runner.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
 
-#include "base/task/post_task.h"
 #include "base/task/thread_pool.h"
 
 ChromeBrowserMainExtraPartsCef::ChromeBrowserMainExtraPartsCef() = default;

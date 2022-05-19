@@ -900,6 +900,8 @@ static_library("libcef_static") {
   public_deps = [
     # Bring in feature flag defines.
     "//cef/libcef/features",
+    # Support relative include paths.
+    "//third_party/abseil-cpp:absl",
   ]
 
   deps = [

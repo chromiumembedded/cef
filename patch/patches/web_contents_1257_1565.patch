@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 335e70179a03e..e23bce70885b7 100644
+index b94e87b6f90c9..297280d7f52ca 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -3061,6 +3061,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -3026,6 +3026,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
        site_instance.get(), params.renderer_initiated_creation,
        params.main_frame_name, GetOpener(), primary_main_frame_policy);
  
@@ -12,18 +12,18 @@ index 335e70179a03e..e23bce70885b7 100644
 +  }
 +
 +  if (!view_) {
-   WebContentsViewDelegate* delegate =
+   std::unique_ptr<WebContentsViewDelegate> delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -3071,6 +3077,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
-     view_.reset(CreateWebContentsView(this, delegate,
-                                       &render_view_host_delegate_view_));
+@@ -3036,6 +3042,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+     view_ = CreateWebContentsView(this, std::move(delegate),
+                                   &render_view_host_delegate_view_);
    }
 +  }
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -3249,6 +3256,9 @@ void WebContentsImpl::RenderWidgetCreated(
+@@ -3214,6 +3221,9 @@ void WebContentsImpl::RenderWidgetCreated(
    OPTIONAL_TRACE_EVENT1("content", "WebContentsImpl::RenderWidgetCreated",
                          "render_widget_host", render_widget_host);
    created_widgets_.insert(render_widget_host);
@@ -33,7 +33,7 @@ index 335e70179a03e..e23bce70885b7 100644
  }
  
  void WebContentsImpl::RenderWidgetDeleted(
-@@ -3937,6 +3947,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+@@ -3902,6 +3912,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -49,7 +49,7 @@ index 335e70179a03e..e23bce70885b7 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -7791,6 +7810,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -7763,6 +7782,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // frames).
      SetFocusedFrameTree(node->frame_tree());
    }
@@ -60,7 +60,7 @@ index 335e70179a03e..e23bce70885b7 100644
  
  void WebContentsImpl::DidCallFocus() {
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index c062c66f596f5..8c9d5cd4d9af9 100644
+index e82a5b71eb8a6..34a2f19d8ddca 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -93,10 +93,12 @@ class BrowserContext;

@@ -13,7 +13,6 @@
 #include "build/build_config.h"
 #include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_main_parts.h"
-#include "content/public/common/main_function_params.h"
 
 #if defined(USE_AURA)
 namespace display {
@@ -35,7 +34,7 @@ class CefDevToolsDelegate;
 
 class AlloyBrowserMainParts : public content::BrowserMainParts {
  public:
-  explicit AlloyBrowserMainParts(content::MainFunctionParams parameters);
+  AlloyBrowserMainParts();
 
   AlloyBrowserMainParts(const AlloyBrowserMainParts&) = delete;
   AlloyBrowserMainParts& operator=(const AlloyBrowserMainParts&) = delete;
@@ -70,8 +69,6 @@ class AlloyBrowserMainParts : public content::BrowserMainParts {
 #if BUILDFLAG(IS_WIN)
   void PlatformInitialize();
 #endif  // BUILDFLAG(IS_WIN)
-
-  content::MainFunctionParams parameters_;
 
   CefRefPtr<CefRequestContextImpl> global_request_context_;
   CefDevToolsDelegate* devtools_delegate_ = nullptr;  // Deletes itself.

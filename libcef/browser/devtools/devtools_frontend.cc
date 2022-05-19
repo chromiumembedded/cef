@@ -12,6 +12,7 @@
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/devtools/devtools_manager_delegate.h"
 #include "libcef/browser/net/devtools_scheme_handler.h"
+#include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/task_runner_manager.h"
 
@@ -27,7 +28,6 @@
 #include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
-#include "base/task/post_task.h"
 #include "base/values.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/common/pref_names.h"
@@ -296,9 +296,8 @@ void CefDevToolsFrontend::InspectElementAt(int x, int y) {
 }
 
 void CefDevToolsFrontend::Close() {
-  base::PostTask(FROM_HERE, {content::BrowserThread::UI},
-                 base::BindOnce(&AlloyBrowserHostImpl::CloseBrowser,
-                                frontend_browser_.get(), true));
+  CEF_POST_TASK(CEF_UIT, base::BindOnce(&AlloyBrowserHostImpl::CloseBrowser,
+                                        frontend_browser_.get(), true));
 }
 
 CefDevToolsFrontend::CefDevToolsFrontend(
