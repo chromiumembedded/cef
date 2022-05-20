@@ -228,6 +228,11 @@ def GetRecommendedDefaultArgs():
       # introduces a Windows official build dependency on the
       # "//chrome:chrome_dll" target, which will fail to build with CEF.
       'enable_resource_allowlist_generation': False,
+
+      # Disable V8 sandboxed pointers to avoid crashing when using
+      # CefV8Value::CreateArrayBuffer with memory allocated outside of the V8
+      # sandbox. See https://bitbucket.org/chromiumembedded/cef/issues/3332.
+      'v8_enable_sandbox': False,
   }
 
   if platform != 'windows':
