@@ -89,8 +89,8 @@ def apply_patch_config():
                '%d patches failed to apply. Your build will not be correct.' %
                len(results['fail']))
     sys.stdout.write('\nTo manually revert failed patches run:' \
-                     '\n$ python%d ./tools/patch_updater.py --revert --patch %s\n' %
-                     (sys.version_info.major, ' --patch '.join(results['fail'])))
+                     '\n$ %s ./tools/patch_updater.py --revert --patch %s\n' %
+                     (os.path.basename(sys.executable), ' --patch '.join(results['fail'])))
     sys.exit(1)
 
 
