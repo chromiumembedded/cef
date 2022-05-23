@@ -658,7 +658,7 @@ diff --git ui/views/controls/menu/menu_runner_impl_cocoa.mm ui/views/controls/me
 index 4ac619cfdb725..8c6979e80d2dc 100644
 --- ui/views/controls/menu/menu_runner_impl_cocoa.mm
 +++ ui/views/controls/menu/menu_runner_impl_cocoa.mm
-@@ -533,7 +533,8 @@ - (void)controllerWillAddMenu:(NSMenu*)menu fromModel:(ui::MenuModel*)model {
+@@ -533,7 +533,8 @@ void MenuRunnerImplCocoa::RunMenuAt(Widget* parent,
                                      const gfx::Rect& bounds,
                                      MenuAnchorPosition anchor,
                                      int32_t run_types,
