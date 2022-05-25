@@ -315,6 +315,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
   bool input_stream_previously_failed_ = false;
   bool request_was_redirected_ = false;
   int redirect_limit_ = net::URLRequest::kMaxRedirects;
+  bool redirect_in_progress_ = false;
 
   // To avoid sending multiple OnReceivedError callbacks.
   bool sent_error_callback_ = false;
@@ -581,7 +582,10 @@ void InterceptedRequest::OnReceiveResponse(
 void InterceptedRequest::OnReceiveRedirect(
     const net::RedirectInfo& redirect_info,
     network::mojom::URLResponseHeadPtr head) {
-  bool needs_callback = false;
+  // Whether to notify the client. True by default so that we always notify for
+  // internal redirects that originate from the network process (for HSTS, etc).
+  // False while a redirect is in-progress to avoid duplicate notifications.
+  bool notify_client = !redirect_in_progress_;
 
   current_response_ = std::move(head);
   current_body_.reset();
@@ -593,8 +597,6 @@ void InterceptedRequest::OnReceiveRedirect(
       current_response_->headers = current_headers_;
       current_headers_ = nullptr;
     }
-  } else {
-    needs_callback = true;
   }
 
   if (--redirect_limit_ == 0) {
@@ -606,18 +608,18 @@ void InterceptedRequest::OnReceiveRedirect(
 
   // When we redirect via ContinueToHandleOverrideHeaders the |redirect_info|
   // value is sometimes nonsense (HTTP_OK). Also, we won't get another call to
-  // OnHeadersReceived for the new URL so we need to execute the callback here.
+  // OnHeadersReceived for the new URL so we need to notify the client here.
   if (header_client_redirect_url_.is_valid() &&
       redirect_info.status_code == net::HTTP_OK) {
     DCHECK(current_request_uses_header_client_);
-    needs_callback = true;
+    notify_client = true;
     new_redirect_info =
         MakeRedirectResponseAndInfo(header_client_redirect_url_);
   } else {
     new_redirect_info = redirect_info;
   }
 
-  if (needs_callback) {
+  if (notify_client) {
     HandleResponseOrRedirectHeaders(
         new_redirect_info,
         base::BindOnce(&InterceptedRequest::ContinueToBeforeRedirect,
@@ -831,6 +833,9 @@ void InterceptedRequest::HandleResponseOrRedirectHeaders(
   redirect_url_ = redirect_info.has_value() ? redirect_info->new_url : GURL();
   original_url_ = request_.url;
 
+  if (!redirect_url_.is_empty())
+    redirect_in_progress_ = true;
+
   // |current_response_| may be nullptr when called from OnHeadersReceived.
   auto headers =
       current_response_ ? current_response_->headers : current_headers_;
@@ -930,6 +935,7 @@ void InterceptedRequest::ContinueToBeforeRedirect(
   }
 
   request_was_redirected_ = true;
+  redirect_in_progress_ = false;
 
   if (header_client_redirect_url_.is_valid())
     header_client_redirect_url_ = GURL();
