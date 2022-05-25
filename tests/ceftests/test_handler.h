@@ -235,12 +235,8 @@ class TestHandler : public CefClient,
 
   void AddResource(const std::string& url,
                    const std::string& content,
-                   const std::string& mime_type);
-
-  void AddResource(const std::string& url,
-                   const std::string& content,
                    const std::string& mime_type,
-                   const ResourceContent::HeaderMap& header_map);
+                   const ResourceContent::HeaderMap& header_map = {});
 
   void AddResourceEx(const std::string& url, const ResourceContent& content);
 

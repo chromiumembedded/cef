@@ -299,8 +299,7 @@ class TestServerObserver : public test_server::ObserverHelper {
                      base::OnceClosure done_callback)
       : setup_(setup),
         ready_callback_(std::move(ready_callback)),
-        done_callback_(std::move(done_callback)),
-        weak_ptr_factory_(this) {
+        done_callback_(std::move(done_callback)) {
     DCHECK(setup);
     Initialize();
   }
@@ -342,8 +341,6 @@ class TestServerObserver : public test_server::ObserverHelper {
   TestSetup* const setup_;
   base::OnceClosure ready_callback_;
   base::OnceClosure done_callback_;
-
-  base::WeakPtrFactory<TestServerObserver> weak_ptr_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(TestServerObserver);
 };

@@ -387,14 +387,6 @@ void TestHandler::CloseBrowser(CefRefPtr<CefBrowser> browser,
 
 void TestHandler::AddResource(const std::string& url,
                               const std::string& content,
-                              const std::string& mime_type) {
-  ResourceContent::HeaderMap headerMap = ResourceContent::HeaderMap();
-  ResourceContent rc = ResourceContent(content, mime_type, headerMap);
-  AddResourceEx(url, rc);
-}
-
-void TestHandler::AddResource(const std::string& url,
-                              const std::string& content,
                               const std::string& mime_type,
                               const ResourceContent::HeaderMap& header_map) {
   ResourceContent rc = ResourceContent(content, mime_type, header_map);
