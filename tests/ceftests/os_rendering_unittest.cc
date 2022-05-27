@@ -961,7 +961,7 @@ class OSRTestHandler : public RoutingTestHandler,
           browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_LEFT, true,
                                                   1);
           // Add some input keys to edit box
-          CefString markedText("か");
+          CefString markedText(L"\u304B");
           std::vector<CefCompositionUnderline> underlines;
 
           // Use a thin black underline by default.
@@ -1004,7 +1004,7 @@ class OSRTestHandler : public RoutingTestHandler,
                                                   1);
 
           // Now set some intermediate text composition
-          CefString markedText("か");
+          CefString markedText(L"\u304B");
           std::vector<CefCompositionUnderline> underlines;
 
           // Use a thin black underline by default.
