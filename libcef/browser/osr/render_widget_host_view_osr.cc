@@ -6,12 +6,12 @@
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
 
 #include <stdint.h>
-
 #include <utility>
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/osr/osr_util.h"
 #include "libcef/browser/osr/synthetic_gesture_target_osr.h"
+#include "libcef/browser/osr/touch_selection_controller_client_osr.h"
 #include "libcef/browser/osr/video_consumer_osr.h"
 #include "libcef/browser/thread_util.h"
 
@@ -51,6 +51,7 @@
 #include "ui/events/gesture_detection/motion_event.h"
 #include "ui/gfx/geometry/dip_util.h"
 #include "ui/gfx/geometry/size_conversions.h"
+#include "ui/touch_selection/touch_selection_controller.h"
 
 namespace {
 
@@ -179,6 +180,18 @@ ui::ImeTextSpan::UnderlineStyle GetImeUnderlineStyle(
 
 }  // namespace
 
+// Logic copied from RenderWidgetHostViewAura::CreateSelectionController.
+void CefRenderWidgetHostViewOSR::CreateSelectionController() {
+  ui::TouchSelectionController::Config tsc_config;
+  tsc_config.max_tap_duration = base::Milliseconds(
+      ui::GestureConfiguration::GetInstance()->long_press_time_in_ms());
+  tsc_config.tap_slop = ui::GestureConfiguration::GetInstance()
+                            ->max_touch_move_in_pixels_for_click();
+  tsc_config.enable_longpress_drag_selection = false;
+  selection_controller_ = std::make_unique<ui::TouchSelectionController>(
+      selection_controller_client_.get(), tsc_config);
+}
+
 CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     SkColor background_color,
     bool use_shared_texture,
@@ -260,6 +273,10 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     if (!render_widget_host_->is_hidden())
       Show();
   }
+
+  selection_controller_client_ =
+      std::make_unique<CefTouchSelectionControllerClientOSR>(this);
+  CreateSelectionController();
 }
 
 CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
@@ -392,8 +409,13 @@ void CefRenderWidgetHostViewOSR::Hide() {
 
   is_showing_ = false;
 
-  if (browser_impl_.get())
+  if (browser_impl_) {
     browser_impl_->CancelContextMenu();
+  }
+
+  if (selection_controller_client_) {
+    selection_controller_client_->CloseQuickMenuAndHideHandles();
+  }
 
   if (video_consumer_) {
     video_consumer_->SetActive(false);
@@ -422,6 +444,11 @@ void CefRenderWidgetHostViewOSR::EnsureSurfaceSynchronizedForWebTest() {
   ++latest_capture_sequence_number_;
   SynchronizeVisualProperties(cc::DeadlinePolicy::UseInfiniteDeadline(),
                               absl::nullopt);
+}
+
+content::TouchSelectionControllerClientManager*
+CefRenderWidgetHostViewOSR::GetTouchSelectionControllerClientManager() {
+  return selection_controller_client_.get();
 }
 
 gfx::Rect CefRenderWidgetHostViewOSR::GetViewBounds() {
@@ -948,6 +975,14 @@ void CefRenderWidgetHostViewOSR::OnRenderFrameMetadataChangedAfterActivation(
                          weak_ptr_factory_.GetWeakPtr()));
     }
   }
+
+  if (metadata.selection.start != selection_start_ ||
+      metadata.selection.end != selection_end_) {
+    selection_start_ = metadata.selection.start;
+    selection_end_ = metadata.selection.end;
+    selection_controller_client_->UpdateClientSelectionBounds(selection_start_,
+                                                              selection_end_);
+  }
 }
 
 std::unique_ptr<viz::HostDisplayClient>
@@ -1091,6 +1126,10 @@ void CefRenderWidgetHostViewOSR::SendKeyEvent(
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::SendKeyEvent");
   content::RenderWidgetHostImpl* target_host = render_widget_host_;
 
+  if (selection_controller_client_) {
+    selection_controller_client_->CloseQuickMenuAndHideHandles();
+  }
+
   // If there are multiple widgets on the page (such as when there are
   // out-of-process iframes), pick the one that should process this event.
   if (render_widget_host_ && render_widget_host_->delegate()) {
@@ -1114,10 +1153,14 @@ void CefRenderWidgetHostViewOSR::SendMouseEvent(
     const blink::WebMouseEvent& event) {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::SendMouseEvent");
   if (!IsPopupWidget()) {
-    if (browser_impl_.get() &&
+    if (browser_impl_ &&
         event.GetType() == blink::WebMouseEvent::Type::kMouseDown &&
         event.button != blink::WebPointerProperties::Button::kRight) {
       browser_impl_->CancelContextMenu();
+    }
+
+    if (selection_controller_client_) {
+      selection_controller_client_->CloseQuickMenuAndHideHandles();
     }
 
     if (popup_host_view_) {
@@ -1179,8 +1222,13 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::SendMouseWheelEvent");
 
   if (!IsPopupWidget()) {
-    if (browser_impl_.get())
+    if (browser_impl_) {
       browser_impl_->CancelContextMenu();
+    }
+
+    if (selection_controller_client_) {
+      selection_controller_client_->CloseQuickMenuAndHideHandles();
+    }
 
     if (popup_host_view_) {
       if (popup_host_view_->popup_position_.Contains(
@@ -1274,6 +1322,11 @@ void CefRenderWidgetHostViewOSR::SendTouchEvent(const CefTouchEvent& event) {
   if (!pointer_state_.OnTouch(event))
     return;
 
+  if (selection_controller_->WillHandleTouchEvent(pointer_state_)) {
+    pointer_state_.CleanupRemovedTouchPoints(event);
+    return;
+  }
+
   ui::FilteredGestureProvider::TouchHandlingResult result =
       gesture_provider_.OnTouchEvent(pointer_state_);
 
@@ -1334,8 +1387,13 @@ void CefRenderWidgetHostViewOSR::SetFocus(bool focus) {
     widget->GotFocus();
     widget->SetActive(true);
   } else {
-    if (browser_impl_.get())
+    if (browser_impl_) {
       browser_impl_->CancelContextMenu();
+    }
+
+    if (selection_controller_client_) {
+      selection_controller_client_->CloseQuickMenuAndHideHandles();
+    }
 
     widget->SetActive(false);
     widget->LostFocus();
@@ -1478,6 +1536,13 @@ void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
 
 ui::Layer* CefRenderWidgetHostViewOSR::GetRootLayer() const {
   return root_layer_.get();
+}
+
+ui::TextInputType CefRenderWidgetHostViewOSR::GetTextInputType() {
+  if (text_input_manager_ && text_input_manager_->GetTextInputState())
+    return text_input_manager_->GetTextInputState()->type;
+
+  return ui::TEXT_INPUT_TYPE_NONE;
 }
 
 void CefRenderWidgetHostViewOSR::SetFrameRate() {

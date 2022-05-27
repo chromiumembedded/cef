@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=17fc7e8f42e6c518405f2aba5e849c98bf8122ce$
+// $hash=6671ca3d639065c49adfc8ceac4c58833344d558$
 //
 
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
@@ -329,6 +329,73 @@ render_handler_on_accelerated_paint(struct _cef_render_handler_t* self,
       CefBrowserCToCpp::Wrap(browser), type, dirtyRectsList, shared_handle);
 }
 
+void CEF_CALLBACK
+render_handler_get_touch_handle_size(struct _cef_render_handler_t* self,
+                                     cef_browser_t* browser,
+                                     cef_horizontal_alignment_t orientation,
+                                     cef_size_t* size) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+  // Verify param: size; type: simple_byref
+  DCHECK(size);
+  if (!size)
+    return;
+
+  // Translate param: size; type: simple_byref
+  CefSize sizeVal = size ? *size : CefSize();
+
+  // Execute
+  CefRenderHandlerCppToC::Get(self)->GetTouchHandleSize(
+      CefBrowserCToCpp::Wrap(browser), orientation, sizeVal);
+
+  // Restore param: size; type: simple_byref
+  if (size)
+    *size = sizeVal;
+}
+
+void CEF_CALLBACK render_handler_on_touch_handle_state_changed(
+    struct _cef_render_handler_t* self,
+    cef_browser_t* browser,
+    const struct _cef_touch_handle_state_t* state) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+  // Verify param: state; type: struct_byref_const
+  DCHECK(state);
+  if (!state)
+    return;
+  if (!template_util::has_valid_size(state)) {
+    NOTREACHED() << "invalid state->[base.]size";
+    return;
+  }
+
+  // Translate param: state; type: struct_byref_const
+  CefTouchHandleState stateObj;
+  if (state)
+    stateObj.Set(*state, false);
+
+  // Execute
+  CefRenderHandlerCppToC::Get(self)->OnTouchHandleStateChanged(
+      CefBrowserCToCpp::Wrap(browser), stateObj);
+}
+
 int CEF_CALLBACK
 render_handler_start_dragging(struct _cef_render_handler_t* self,
                               cef_browser_t* browser,
@@ -509,6 +576,9 @@ CefRenderHandlerCppToC::CefRenderHandlerCppToC() {
   GetStruct()->on_popup_size = render_handler_on_popup_size;
   GetStruct()->on_paint = render_handler_on_paint;
   GetStruct()->on_accelerated_paint = render_handler_on_accelerated_paint;
+  GetStruct()->get_touch_handle_size = render_handler_get_touch_handle_size;
+  GetStruct()->on_touch_handle_state_changed =
+      render_handler_on_touch_handle_state_changed;
   GetStruct()->start_dragging = render_handler_start_dragging;
   GetStruct()->update_drag_cursor = render_handler_update_drag_cursor;
   GetStruct()->on_scroll_offset_changed =

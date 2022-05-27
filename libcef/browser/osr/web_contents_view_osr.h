@@ -18,6 +18,7 @@ class WebContentsViewDelegate;
 
 class AlloyBrowserHostImpl;
 class CefRenderWidgetHostViewOSR;
+class CefTouchSelectionControllerClientOSR;
 
 // An implementation of WebContentsView for off-screen rendering.
 class CefWebContentsViewOSR : public content::WebContentsView,
@@ -66,6 +67,8 @@ class CefWebContentsViewOSR : public content::WebContentsView,
 #endif
 
   // RenderViewHostDelegateView methods.
+  void ShowContextMenu(content::RenderFrameHost& render_frame_host,
+                       const content::ContextMenuParams& params) override;
   void StartDragging(const content::DropData& drop_data,
                      blink::DragOperationsMask allowed_ops,
                      const gfx::ImageSkia& image,
@@ -82,6 +85,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
  private:
   CefRenderWidgetHostViewOSR* GetView() const;
   AlloyBrowserHostImpl* GetBrowser() const;
+  CefTouchSelectionControllerClientOSR* GetSelectionControllerClient() const;
 
   const SkColor background_color_;
   const bool use_shared_texture_;

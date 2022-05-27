@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7a247cc26167ddbc4fbe23ed939fa9e39c48a09c$
+// $hash=98d509772d772e85d47d53e3df21f7317799c19e$
 //
 
 #ifndef CEF_LIBCEF_DLL_WRAPPER_TYPES_H_
@@ -121,6 +121,7 @@ enum CefWrapperType {
   WT_RESPONSE_FILTER,
   WT_RUN_CONTEXT_MENU_CALLBACK,
   WT_RUN_FILE_DIALOG_CALLBACK,
+  WT_RUN_QUICK_MENU_CALLBACK,
   WT_SSLINFO,
   WT_SSLSTATUS,
   WT_SCHEME_HANDLER_FACTORY,

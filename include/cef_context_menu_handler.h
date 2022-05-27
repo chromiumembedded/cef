@@ -51,17 +51,35 @@ class CefContextMenuParams;
 /*--cef(source=library)--*/
 class CefRunContextMenuCallback : public virtual CefBaseRefCounted {
  public:
-  typedef cef_event_flags_t EventFlags;
-
   ///
   // Complete context menu display by selecting the specified |command_id| and
   // |event_flags|.
   ///
   /*--cef(capi_name=cont)--*/
-  virtual void Continue(int command_id, EventFlags event_flags) = 0;
+  virtual void Continue(int command_id, cef_event_flags_t event_flags) = 0;
 
   ///
   // Cancel context menu display.
+  ///
+  /*--cef()--*/
+  virtual void Cancel() = 0;
+};
+
+///
+// Callback interface used for continuation of custom quick menu display.
+///
+/*--cef(source=library)--*/
+class CefRunQuickMenuCallback : public virtual CefBaseRefCounted {
+ public:
+  ///
+  // Complete quick menu display by selecting the specified |command_id| and
+  // |event_flags|.
+  ///
+  /*--cef(capi_name=cont)--*/
+  virtual void Continue(int command_id, cef_event_flags_t event_flags) = 0;
+
+  ///
+  // Cancel quick menu display.
   ///
   /*--cef()--*/
   virtual void Cancel() = 0;
@@ -75,6 +93,7 @@ class CefRunContextMenuCallback : public virtual CefBaseRefCounted {
 class CefContextMenuHandler : public virtual CefBaseRefCounted {
  public:
   typedef cef_event_flags_t EventFlags;
+  typedef cef_quick_menu_edit_state_flags_t QuickMenuEditStateFlags;
 
   ///
   // Called before a context menu is displayed. |params| provides information
@@ -126,15 +145,55 @@ class CefContextMenuHandler : public virtual CefBaseRefCounted {
 
   ///
   // Called when the context menu is dismissed irregardless of whether the menu
-  // was empty or a command was selected.
+  // was canceled or a command was selected.
   ///
   /*--cef()--*/
   virtual void OnContextMenuDismissed(CefRefPtr<CefBrowser> browser,
                                       CefRefPtr<CefFrame> frame) {}
+
+  ///
+  // Called to allow custom display of the quick menu for a windowless browser.
+  // |location| is the top left corner of the selected region. |size| is the
+  // size of the selected region. |edit_state_flags| is a combination of flags
+  // that represent the state of the quick menu. Return true if the menu will be
+  // handled and execute |callback| either synchronously or asynchronously with
+  // the selected command ID. Return false to cancel the menu.
+  ///
+  /*--cef()--*/
+  virtual bool RunQuickMenu(CefRefPtr<CefBrowser> browser,
+                            CefRefPtr<CefFrame> frame,
+                            const CefPoint& location,
+                            const CefSize& size,
+                            QuickMenuEditStateFlags edit_state_flags,
+                            CefRefPtr<CefRunQuickMenuCallback> callback) {
+    return false;
+  }
+
+  ///
+  // Called to execute a command selected from the quick menu for a windowless
+  // browser. Return true if the command was handled or false for the default
+  // implementation. See cef_menu_id_t for command IDs that have default
+  // implementations.
+  ///
+  /*--cef()--*/
+  virtual bool OnQuickMenuCommand(CefRefPtr<CefBrowser> browser,
+                                  CefRefPtr<CefFrame> frame,
+                                  int command_id,
+                                  EventFlags event_flags) {
+    return false;
+  }
+
+  ///
+  // Called when the quick menu for a windowless browser is dismissed
+  // irregardless of whether the menu was canceled or a command was selected.
+  ///
+  /*--cef()--*/
+  virtual void OnQuickMenuDismissed(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame) {}
 };
 
 ///
-// Provides information about the context menu state. The ethods of this class
+// Provides information about the context menu state. The methods of this class
 // can only be accessed on browser process the UI thread.
 ///
 /*--cef(source=library)--*/

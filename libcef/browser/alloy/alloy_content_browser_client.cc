@@ -12,6 +12,7 @@
 #include "libcef/browser/alloy/alloy_browser_context.h"
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/alloy/alloy_browser_main.h"
+#include "libcef/browser/alloy/alloy_web_contents_view_delegate.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_frame.h"
 #include "libcef/browser/browser_info.h"
@@ -1456,6 +1457,12 @@ std::string AlloyContentBrowserClient::GetFullUserAgent() {
 
 std::string AlloyContentBrowserClient::GetReducedUserAgent() {
   return embedder_support::GetReducedUserAgent();
+}
+
+std::unique_ptr<content::WebContentsViewDelegate>
+AlloyContentBrowserClient::GetWebContentsViewDelegate(
+    content::WebContents* web_contents) {
+  return std::make_unique<AlloyWebContentsViewDelegate>(web_contents);
 }
 
 blink::UserAgentMetadata AlloyContentBrowserClient::GetUserAgentMetadata() {

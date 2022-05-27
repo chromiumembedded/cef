@@ -235,6 +235,8 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
   std::string GetUserAgent() override;
   std::string GetFullUserAgent() override;
   std::string GetReducedUserAgent() override;
+  std::unique_ptr<content::WebContentsViewDelegate> GetWebContentsViewDelegate(
+      content::WebContents* web_contents) override;
   blink::UserAgentMetadata GetUserAgentMetadata() override;
   base::flat_set<std::string> GetPluginMimeTypesWithExternalHandlers(
       content::BrowserContext* browser_context) override;

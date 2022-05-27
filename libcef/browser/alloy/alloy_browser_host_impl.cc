@@ -1119,12 +1119,6 @@ bool AlloyBrowserHostImpl::TakeFocus(content::WebContents* source,
   return false;
 }
 
-bool AlloyBrowserHostImpl::HandleContextMenu(
-    content::RenderFrameHost& render_frame_host,
-    const content::ContextMenuParams& params) {
-  return HandleContextMenu(web_contents(), params);
-}
-
 void AlloyBrowserHostImpl::CanDownload(
     const GURL& url,
     const std::string& request_method,
@@ -1255,8 +1249,7 @@ void AlloyBrowserHostImpl::RunFileChooser(
                                    params);
 }
 
-bool AlloyBrowserHostImpl::HandleContextMenu(
-    content::WebContents* web_contents,
+bool AlloyBrowserHostImpl::ShowContextMenu(
     const content::ContextMenuParams& params) {
   CEF_REQUIRE_UIT();
   if (!menu_manager_.get() && platform_delegate_) {

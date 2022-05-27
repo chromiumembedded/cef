@@ -820,6 +820,25 @@ class CefTime : public CefStructBase<CefTimeTraits> {
   }
 };
 
+struct CefTouchHandleStateTraits {
+  typedef cef_touch_handle_state_t struct_type;
+
+  static inline void init(struct_type* s) {}
+
+  static inline void clear(struct_type* s) {}
+
+  static inline void set(const struct_type* src,
+                         struct_type* target,
+                         bool copy) {
+    *target = *src;
+  }
+};
+
+///
+// Class representing the state of a touch handle.
+///
+typedef CefStructBase<CefTouchHandleStateTraits> CefTouchHandleState;
+
 struct CefCookieTraits {
   typedef cef_cookie_t struct_type;
 

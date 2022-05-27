@@ -13,7 +13,7 @@ class CefWebContentsViewOSR;
 
 namespace content {
 class RenderWidgetHostImpl;
-}
+}  // namespace content
 
 // Base implementation of windowless browser functionality.
 class CefBrowserPlatformDelegateOsr

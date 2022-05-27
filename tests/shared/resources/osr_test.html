@@ -57,6 +57,7 @@
     elems.push(getElementBounds('LI11'));
     elems.push(getElementBounds('LI11select'));
     elems.push(getElementBounds('email'));
+    elems.push(getElementBounds('quickmenu'));
     elems.push(getElementBounds('editbox'));
     elems.push(getElementBounds('btnnavigate'));
     elems.push(getElementBounds('dropdiv'));
@@ -176,6 +177,7 @@
       trigger show a tooltip</li>
   <li id='LI11' onclick='selectText(event)'>SELECTED_TEXT_RANGE</li>
   <li><input id='email' type='text' size=10 inputmode='email'></li>
+  <li id="quickmenu">Long touch press should trigger quick menu</li>
   </ol>
 
   <div class="dropdiv" id="dropdiv" ondrop="drop(event)" ondragover="allowDrop(event)">

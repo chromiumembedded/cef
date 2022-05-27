@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3dba1df692cc69ba3aab91b989cceb9a7d363858$
+// $hash=49b3f96c2cd6e36844e0edd0737e4d9b3e79e625$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_CONTEXT_MENU_HANDLER_CTOCPP_H_
@@ -51,6 +51,18 @@ class CefContextMenuHandlerCToCpp
                             EventFlags event_flags) override;
   void OnContextMenuDismissed(CefRefPtr<CefBrowser> browser,
                               CefRefPtr<CefFrame> frame) override;
+  bool RunQuickMenu(CefRefPtr<CefBrowser> browser,
+                    CefRefPtr<CefFrame> frame,
+                    const CefPoint& location,
+                    const CefSize& size,
+                    QuickMenuEditStateFlags edit_state_flags,
+                    CefRefPtr<CefRunQuickMenuCallback> callback) override;
+  bool OnQuickMenuCommand(CefRefPtr<CefBrowser> browser,
+                          CefRefPtr<CefFrame> frame,
+                          int command_id,
+                          EventFlags event_flags) override;
+  void OnQuickMenuDismissed(CefRefPtr<CefBrowser> browser,
+                            CefRefPtr<CefFrame> frame) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_CONTEXT_MENU_HANDLER_CTOCPP_H_

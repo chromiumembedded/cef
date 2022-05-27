@@ -1997,6 +1997,17 @@ typedef enum {
 } cef_context_menu_edit_state_flags_t;
 
 ///
+// Supported quick menu state bit flags.
+///
+typedef enum {
+  QM_EDITFLAG_NONE = 0,
+  QM_EDITFLAG_CAN_ELLIPSIS = 1 << 0,
+  QM_EDITFLAG_CAN_CUT = 1 << 1,
+  QM_EDITFLAG_CAN_COPY = 1 << 2,
+  QM_EDITFLAG_CAN_PASTE = 1 << 3,
+} cef_quick_menu_edit_state_flags_t;
+
+///
 // Key event types.
 ///
 typedef enum {
@@ -3229,6 +3240,52 @@ typedef enum {
   CEF_SHOW_STATE_MAXIMIZED,
   CEF_SHOW_STATE_FULLSCREEN,
 } cef_show_state_t;
+
+///
+// Values indicating what state of the touch handle is set.
+///
+typedef enum {
+  CEF_THS_FLAG_NONE = 0,
+  CEF_THS_FLAG_ENABLED = 1 << 0,
+  CEF_THS_FLAG_ORIENTATION = 1 << 1,
+  CEF_THS_FLAG_ORIGIN = 1 << 2,
+  CEF_THS_FLAG_ALPHA = 1 << 3,
+} cef_touch_handle_state_flags_t;
+
+typedef struct _cef_touch_handle_state_t {
+  ///
+  // Touch handle id. Increments for each new touch handle.
+  ///
+  int touch_handle_id;
+
+  ///
+  // Combination of cef_touch_handle_state_flags_t values indicating what state
+  // is set.
+  ///
+  uint32_t flags;
+
+  ///
+  // Enabled state. Only set if |flags| contains CEF_THS_FLAG_ENABLED.
+  ///
+  int enabled;
+
+  ///
+  // Orientation state. Only set if |flags| contains CEF_THS_FLAG_ORIENTATION.
+  ///
+  cef_horizontal_alignment_t orientation;
+  int mirror_vertical;
+  int mirror_horizontal;
+
+  ///
+  // Origin state. Only set if |flags| contains CEF_THS_FLAG_ORIGIN.
+  ///
+  cef_point_t origin;
+
+  ///
+  // Alpha state. Only set if |flags| contains CEF_THS_FLAG_ALPHA.
+  ///
+  float alpha;
+} cef_touch_handle_state_t;
 
 #ifdef __cplusplus
 }

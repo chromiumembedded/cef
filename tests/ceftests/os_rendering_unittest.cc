@@ -27,12 +27,10 @@ namespace {
 
 const char kTestUrl[] = "http://tests/osrtest";
 
-// this html should render on a 600 x 400 window with a little vertical
-// offset with scrollbar.
-
-// default osr widget size
+// Must be both large enough for the drag/drop region to be visible and small
+// enough for a little vertical offset with scrollbar.
 const int kOsrWidth = 600;
-const int kOsrHeight = 400;
+const int kOsrHeight = 450;
 
 // bounding client rects for edit box and navigate button
 #if defined(OS_WIN)
@@ -47,6 +45,10 @@ const CefRect kExpandedSelectRect(462, 42, 79, 334);
 
 // word to be written into edit box
 const char kKeyTestWord[] = "done";
+
+constexpr uint32_t kAllTouchHandleFlags =
+    (CEF_THS_FLAG_ENABLED | CEF_THS_FLAG_ORIENTATION | CEF_THS_FLAG_ORIGIN |
+     CEF_THS_FLAG_ALPHA);
 
 #if defined(OS_LINUX)
 
@@ -126,6 +128,9 @@ enum OSRTestType {
   // Right click will trigger a context menu, and on destroying the test, it
   // should not crash
   OSR_TEST_CONTEXT_MENU,
+  // In certain scenarios, the quick menu should be shown instead of the context
+  // menu
+  OSR_TEST_QUICK_MENU,
   // clicking on dropdown box, PET_POPUP OnPaint is triggered
   OSR_TEST_POPUP_PAINT,
   // clicking on dropdown box, a popup will show up
@@ -609,6 +614,16 @@ class OSRTestHandler : public RoutingTestHandler,
                                                   1);
         }
         break;
+      case OSR_TEST_QUICK_MENU:
+        if (StartTest()) {
+          CefTouchEvent touch_event_pressed;
+          touch_event_pressed.type = CEF_TET_PRESSED;
+          const CefRect& expected_rect = GetElementBounds("quickmenu");
+          touch_event_pressed.x = MiddleX(expected_rect);
+          touch_event_pressed.y = MiddleY(expected_rect);
+          browser->GetHost()->SendTouchEvent(touch_event_pressed);
+        }
+        break;
       case OSR_TEST_CLICK_LEFT:
         if (StartTest()) {
           CefMouseEvent mouse_event;
@@ -856,6 +871,10 @@ class OSRTestHandler : public RoutingTestHandler,
           mouse_event.x = MiddleX(dragdiv);
           mouse_event.y = MiddleY(dragdiv);
           mouse_event.modifiers = 0;
+
+          // The div drag point must be visible.
+          EXPECT_LT(mouse_event.y, kOsrHeight);
+
           browser->GetHost()->SendMouseMoveEvent(mouse_event, false);
           // click on the element to drag
           mouse_event.modifiers = EVENTFLAG_LEFT_MOUSE_BUTTON;
@@ -1317,6 +1336,211 @@ class OSRTestHandler : public RoutingTestHandler,
     }
   }
 
+  bool RunContextMenu(CefRefPtr<CefBrowser> browser,
+                      CefRefPtr<CefFrame> frame,
+                      CefRefPtr<CefContextMenuParams> params,
+                      CefRefPtr<CefMenuModel> model,
+                      CefRefPtr<CefRunContextMenuCallback> callback) override {
+    if (!started())
+      return false;
+
+    EXPECT_UI_THREAD();
+
+    auto current_browser = GetBrowser();
+    EXPECT_TRUE(current_browser->IsSame(browser));
+    EXPECT_EQ(current_browser->GetFocusedFrame()->GetIdentifier(),
+              frame->GetIdentifier());
+
+    if (test_type_ == OSR_TEST_QUICK_MENU) {
+      EXPECT_EQ(2U, got_touch_handle_enabled_ct_);
+      EXPECT_EQ(2U, got_touch_handle_size_ct_);
+      EXPECT_TRUE(got_quick_menu_);
+      EXPECT_TRUE(got_quick_menu_command_);
+      EXPECT_TRUE(got_quick_menu_dismissed_);
+      EXPECT_EQ(2U, got_touch_handle_disabled_ct_);
+      EXPECT_FALSE(got_context_menu_);
+
+      got_context_menu_.yes();
+
+      // Got all expected callbacks.
+      DestroySucceededTestSoon();
+
+      // Cancel the menu immediately.
+      callback->Cancel();
+      return true;
+    }
+
+    return false;
+  }
+
+  bool RunQuickMenu(CefRefPtr<CefBrowser> browser,
+                    CefRefPtr<CefFrame> frame,
+                    const CefPoint& location,
+                    const CefSize& size,
+                    QuickMenuEditStateFlags edit_state_flags,
+                    CefRefPtr<CefRunQuickMenuCallback> callback) override {
+    if (!started())
+      return false;
+
+    EXPECT_UI_THREAD();
+
+    auto current_browser = GetBrowser();
+    EXPECT_TRUE(current_browser->IsSame(browser));
+    EXPECT_EQ(current_browser->GetFocusedFrame()->GetIdentifier(),
+              frame->GetIdentifier());
+
+    EXPECT_EQ(OSR_TEST_QUICK_MENU, test_type_);
+
+    EXPECT_GT(location.x, 0);
+    EXPECT_GT(location.y, 0);
+    EXPECT_GT(size.width, 0);
+    EXPECT_GT(size.height, 0);
+    EXPECT_EQ(static_cast<QuickMenuEditStateFlags>(QM_EDITFLAG_CAN_ELLIPSIS |
+                                                   QM_EDITFLAG_CAN_COPY),
+              edit_state_flags);
+    EXPECT_TRUE(callback.get());
+
+    EXPECT_EQ(2U, got_touch_handle_enabled_ct_);
+    EXPECT_EQ(2U, got_touch_handle_size_ct_);
+    EXPECT_FALSE(got_quick_menu_);
+    EXPECT_FALSE(got_quick_menu_command_);
+    EXPECT_FALSE(got_quick_menu_dismissed_);
+    EXPECT_EQ(0U, got_touch_handle_disabled_ct_);
+    EXPECT_FALSE(got_context_menu_);
+
+    got_quick_menu_.yes();
+
+    // Proceed to OnQuickMenuCommand.
+    callback->Continue(QM_EDITFLAG_CAN_ELLIPSIS,
+                       static_cast<cef_event_flags_t>(EVENTFLAG_SHIFT_DOWN));
+    return true;
+  }
+
+  bool OnQuickMenuCommand(CefRefPtr<CefBrowser> browser,
+                          CefRefPtr<CefFrame> frame,
+                          int command_id,
+                          EventFlags event_flags) override {
+    EXPECT_UI_THREAD();
+
+    auto current_browser = GetBrowser();
+    EXPECT_TRUE(current_browser->IsSame(browser));
+    EXPECT_EQ(current_browser->GetFocusedFrame()->GetIdentifier(),
+              frame->GetIdentifier());
+
+    EXPECT_EQ(OSR_TEST_QUICK_MENU, test_type_);
+
+    // Values passed to Continue() in RunQuickMenu.
+    EXPECT_EQ(QM_EDITFLAG_CAN_ELLIPSIS, command_id);
+    EXPECT_EQ(EVENTFLAG_SHIFT_DOWN, event_flags);
+
+    EXPECT_EQ(2U, got_touch_handle_enabled_ct_);
+    EXPECT_EQ(2U, got_touch_handle_size_ct_);
+    EXPECT_TRUE(got_quick_menu_);
+    EXPECT_FALSE(got_quick_menu_command_);
+    EXPECT_FALSE(got_quick_menu_dismissed_);
+    EXPECT_EQ(0U, got_touch_handle_disabled_ct_);
+    EXPECT_FALSE(got_context_menu_);
+
+    got_quick_menu_command_.yes();
+
+    // Proceed to OnQuickMenuDismissed and RunContextMenu.
+    return false;
+  }
+
+  void OnQuickMenuDismissed(CefRefPtr<CefBrowser> browser,
+                            CefRefPtr<CefFrame> frame) override {
+    EXPECT_UI_THREAD();
+
+    auto current_browser = GetBrowser();
+    EXPECT_TRUE(current_browser->IsSame(browser));
+    EXPECT_EQ(current_browser->GetFocusedFrame()->GetIdentifier(),
+              frame->GetIdentifier());
+
+    EXPECT_EQ(OSR_TEST_QUICK_MENU, test_type_);
+
+    EXPECT_EQ(2U, got_touch_handle_enabled_ct_);
+    EXPECT_EQ(2U, got_touch_handle_size_ct_);
+    EXPECT_TRUE(got_quick_menu_);
+    EXPECT_TRUE(got_quick_menu_command_);
+    EXPECT_FALSE(got_quick_menu_dismissed_);
+    EXPECT_EQ(0U, got_touch_handle_disabled_ct_);
+    EXPECT_FALSE(got_context_menu_);
+
+    EXPECT_EQ(kAllTouchHandleFlags, touch_handle_flags_);
+
+    got_quick_menu_dismissed_.yes();
+  }
+
+  void GetTouchHandleSize(CefRefPtr<CefBrowser> browser,
+                          cef_horizontal_alignment_t orientation,
+                          CefSize& size) override {
+    size = CefSize(24, 24);
+    got_touch_handle_size_ct_++;
+  }
+
+  void OnTouchHandleStateChanged(CefRefPtr<CefBrowser> browser,
+                                 const CefTouchHandleState& state) override {
+    if (!started())
+      return;
+
+    EXPECT_UI_THREAD();
+
+    auto current_browser = GetBrowser();
+    EXPECT_TRUE(current_browser->IsSame(browser));
+
+    if (test_type_ == OSR_TEST_QUICK_MENU) {
+      if (state.flags & CEF_THS_FLAG_ENABLED) {
+        EXPECT_EQ(state.orientation, 0);
+        EXPECT_EQ(state.origin.x, 0);
+        EXPECT_EQ(state.origin.y, 0);
+        EXPECT_EQ(state.alpha, 0);
+
+        if (state.enabled) {
+          got_touch_handle_enabled_ct_++;
+          EXPECT_FALSE(got_quick_menu_);
+          EXPECT_FALSE(got_quick_menu_command_);
+          EXPECT_FALSE(got_quick_menu_dismissed_);
+          EXPECT_EQ(0U, got_touch_handle_disabled_ct_);
+          EXPECT_FALSE(got_context_menu_);
+
+          touch_handle_flags_ |= CEF_THS_FLAG_ENABLED;
+        } else {
+          got_touch_handle_disabled_ct_++;
+          EXPECT_EQ(2U, got_touch_handle_enabled_ct_);
+          EXPECT_EQ(2U, got_touch_handle_size_ct_);
+          EXPECT_TRUE(got_quick_menu_);
+          EXPECT_TRUE(got_quick_menu_command_);
+          EXPECT_TRUE(got_quick_menu_dismissed_);
+          EXPECT_FALSE(got_context_menu_);
+        }
+      }
+      if (state.flags & CEF_THS_FLAG_ORIENTATION) {
+        EXPECT_EQ(state.enabled, false);
+        EXPECT_GE(state.orientation, 0);
+        EXPECT_EQ(state.origin.x, 0);
+        EXPECT_EQ(state.origin.y, 0);
+        EXPECT_EQ(state.alpha, 0);
+        touch_handle_flags_ |= CEF_THS_FLAG_ORIENTATION;
+      }
+      if (state.flags & CEF_THS_FLAG_ORIGIN) {
+        EXPECT_EQ(state.enabled, false);
+        EXPECT_EQ(state.orientation, 0);
+        EXPECT_GT(state.origin.x, 0);
+        EXPECT_GT(state.origin.y, 0);
+        EXPECT_EQ(state.alpha, 0);
+        touch_handle_flags_ |= CEF_THS_FLAG_ORIGIN;
+      }
+      if (state.flags & CEF_THS_FLAG_ALPHA) {
+        EXPECT_EQ(state.enabled, false);
+        EXPECT_EQ(state.orientation, 0);
+        EXPECT_EQ(state.origin.x, 0);
+        EXPECT_EQ(state.origin.y, 0);
+        EXPECT_GE(state.alpha, 0);
+        touch_handle_flags_ |= CEF_THS_FLAG_ALPHA;
+      }
+    }
+  }
+
   // OSRTestHandler functions
   void CreateOSRBrowser(const CefString& url) {
     CefWindowInfo windowInfo;
@@ -1418,6 +1642,17 @@ class OSRTestHandler : public RoutingTestHandler,
       EXPECT_FALSE(got_system_focus_event_);
     }
 
+    if (test_type_ == OSR_TEST_QUICK_MENU) {
+      EXPECT_EQ(2U, got_touch_handle_enabled_ct_);
+      EXPECT_EQ(2U, got_touch_handle_size_ct_);
+      EXPECT_TRUE(got_quick_menu_);
+      EXPECT_TRUE(got_quick_menu_command_);
+      EXPECT_TRUE(got_quick_menu_dismissed_);
+      EXPECT_EQ(2U, got_touch_handle_disabled_ct_);
+      EXPECT_TRUE(got_context_menu_);
+      EXPECT_EQ(kAllTouchHandleFlags, touch_handle_flags_);
+    }
+
     RoutingTestHandler::DestroyTest();
   }
 
@@ -1509,6 +1744,15 @@ class OSRTestHandler : public RoutingTestHandler,
   TrackCallback got_initial_text_selection_event_;
   TrackCallback got_virtual_keyboard_event_;
 
+  uint32_t touch_handle_flags_ = 0U;
+  size_t got_touch_handle_enabled_ct_ = 0U;
+  size_t got_touch_handle_size_ct_ = 0U;
+  TrackCallback got_quick_menu_;
+  TrackCallback got_quick_menu_command_;
+  TrackCallback got_quick_menu_dismissed_;
+  size_t got_touch_handle_disabled_ct_ = 0U;
+  TrackCallback got_context_menu_;
+
   typedef std::map<std::string, CefRect> ElementBoundsMap;
   ElementBoundsMap element_bounds_;
 
@@ -1562,6 +1806,8 @@ OSR_TEST(Scrolling, OSR_TEST_SCROLLING, 1.0f)
 OSR_TEST(Scrolling2x, OSR_TEST_SCROLLING, 2.0f)
 OSR_TEST(ContextMenu, OSR_TEST_CONTEXT_MENU, 1.0f)
 OSR_TEST(ContextMenu2x, OSR_TEST_CONTEXT_MENU, 2.0f)
+OSR_TEST(QuickMenu, OSR_TEST_QUICK_MENU, 1.0f)
+OSR_TEST(QuickMenu2x, OSR_TEST_CONTEXT_MENU, 2.0f)
 OSR_TEST(PopupPaint, OSR_TEST_POPUP_PAINT, 1.0f)
 OSR_TEST(PopupPaint2x, OSR_TEST_POPUP_PAINT, 2.0f)
 OSR_TEST(PopupShow, OSR_TEST_POPUP_SHOW, 1.0f)

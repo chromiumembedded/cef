@@ -7,6 +7,7 @@
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
+#include "libcef/browser/osr/touch_selection_controller_client_osr.h"
 #include "libcef/common/drag_data_impl.h"
 
 #include "content/browser/browser_plugin/browser_plugin_embedder.h"
@@ -148,6 +149,22 @@ bool CefWebContentsViewOSR::CloseTabAfterEventTrackingIfNeeded() {
 }
 #endif  // BUILDFLAG(IS_MAC)
 
+void CefWebContentsViewOSR::ShowContextMenu(
+    content::RenderFrameHost& render_frame_host,
+    const content::ContextMenuParams& params) {
+  auto selection_controller_client = GetSelectionControllerClient();
+  if (selection_controller_client &&
+      selection_controller_client->HandleContextMenu(params)) {
+    // Context menu display, if any, will be handled via
+    // AlloyWebContentsViewDelegate::ShowContextMenu.
+    return;
+  }
+
+  if (auto browser = GetBrowser()) {
+    browser->ShowContextMenu(params);
+  }
+}
+
 void CefWebContentsViewOSR::StartDragging(
     const content::DropData& drop_data,
     blink::DragOperationsMask allowed_ops,
@@ -185,4 +202,10 @@ AlloyBrowserHostImpl* CefWebContentsViewOSR::GetBrowser() const {
   if (view)
     return view->browser_impl().get();
   return nullptr;
+}
+
+CefTouchSelectionControllerClientOSR*
+CefWebContentsViewOSR::GetSelectionControllerClient() const {
+  CefRenderWidgetHostViewOSR* view = GetView();
+  return view ? view->selection_controller_client() : nullptr;
 }

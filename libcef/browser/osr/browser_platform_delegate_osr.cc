@@ -9,6 +9,7 @@
 #include "libcef/browser/image_impl.h"
 #include "libcef/browser/osr/osr_accessibility_util.h"
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
+#include "libcef/browser/osr/touch_selection_controller_client_osr.h"
 #include "libcef/browser/osr/web_contents_view_osr.h"
 #include "libcef/browser/views/view_util.h"
 #include "libcef/common/drag_data_impl.h"

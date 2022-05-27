@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=7fc75c41ce47a5e715471b9bb82c848d6cf25472$
+// $hash=b0688a7d24b67b74a62841be60217a8e48c7228e$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RENDER_HANDLER_CAPI_H_
@@ -160,6 +160,25 @@ typedef struct _cef_render_handler_t {
                                            size_t dirtyRectsCount,
                                            cef_rect_t const* dirtyRects,
                                            void* shared_handle);
+
+  ///
+  // Called to retrieve the size of the touch handle for the specified
+  // |orientation|.
+  ///
+  void(CEF_CALLBACK* get_touch_handle_size)(
+      struct _cef_render_handler_t* self,
+      struct _cef_browser_t* browser,
+      cef_horizontal_alignment_t orientation,
+      cef_size_t* size);
+
+  ///
+  // Called when touch handle state is updated. The client is responsible for
+  // rendering the touch handles.
+  ///
+  void(CEF_CALLBACK* on_touch_handle_state_changed)(
+      struct _cef_render_handler_t* self,
+      struct _cef_browser_t* browser,
+      const struct _cef_touch_handle_state_t* state);
 
   ///
   // Called when the user starts dragging content in the web view. Contextual

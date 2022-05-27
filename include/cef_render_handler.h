@@ -164,6 +164,23 @@ class CefRenderHandler : public virtual CefBaseRefCounted {
                                   void* shared_handle) {}
 
   ///
+  // Called to retrieve the size of the touch handle for the specified
+  // |orientation|.
+  ///
+  /*--cef()--*/
+  virtual void GetTouchHandleSize(CefRefPtr<CefBrowser> browser,
+                                  cef_horizontal_alignment_t orientation,
+                                  CefSize& size) {}
+
+  ///
+  // Called when touch handle state is updated. The client is responsible for
+  // rendering the touch handles.
+  ///
+  /*--cef()--*/
+  virtual void OnTouchHandleStateChanged(CefRefPtr<CefBrowser> browser,
+                                         const CefTouchHandleState& state) {}
+
+  ///
   // Called when the user starts dragging content in the web view. Contextual
   // information about the dragged content is supplied by |drag_data|.
   // (|x|, |y|) is the drag start location in screen coordinates.

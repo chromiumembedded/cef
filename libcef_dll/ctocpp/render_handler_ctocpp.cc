@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8d30c4f8cf47bac2f9f728de876abb759b38041f$
+// $hash=6d01f6d66ba97afef1d9c21ab31115e91bc134c6$
 //
 
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
@@ -263,6 +263,51 @@ void CefRenderHandlerCToCpp::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
   // Restore param:dirtyRects; type: simple_vec_byref_const
   if (dirtyRectsList)
     delete[] dirtyRectsList;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefRenderHandlerCToCpp::GetTouchHandleSize(
+    CefRefPtr<CefBrowser> browser,
+    cef_horizontal_alignment_t orientation,
+    CefSize& size) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_render_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_touch_handle_size))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+
+  // Execute
+  _struct->get_touch_handle_size(_struct, CefBrowserCppToC::Wrap(browser),
+                                 orientation, &size);
+}
+
+NO_SANITIZE("cfi-icall")
+void CefRenderHandlerCToCpp::OnTouchHandleStateChanged(
+    CefRefPtr<CefBrowser> browser,
+    const CefTouchHandleState& state) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_render_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_touch_handle_state_changed))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+
+  // Execute
+  _struct->on_touch_handle_state_changed(
+      _struct, CefBrowserCppToC::Wrap(browser), &state);
 }
 
 NO_SANITIZE("cfi-icall")

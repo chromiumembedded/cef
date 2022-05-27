@@ -69,8 +69,7 @@ bool CefMimeHandlerViewGuestDelegate::HandleContextMenu(
       AlloyBrowserHostImpl::GetBrowserForContents(owner_web_contents_);
   DCHECK(owner_browser);
 
-  return owner_browser->HandleContextMenu(
-      content::WebContents::FromRenderFrameHost(&render_frame_host), params);
+  return owner_browser->ShowContextMenu(params);
 }
 
 }  // namespace extensions

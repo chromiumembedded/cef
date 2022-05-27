@@ -32,6 +32,7 @@
 #include "third_party/blink/public/mojom/widget/record_content_to_visible_time_request.mojom-forward.h"
 #include "ui/base/cursor/cursor.h"
 #include "ui/base/cursor/mojom/cursor_type.mojom-shared.h"
+#include "ui/base/ime/text_input_client.h"
 #include "ui/compositor/compositor.h"
 #include "ui/events/base_event_utils.h"
 #include "ui/events/gesture_detection/filtered_gesture_provider.h"
@@ -47,18 +48,23 @@
 #include "ui/gfx/win/window_impl.h"
 #endif
 
+namespace ui {
+class TouchSelectionController;
+}  // namespace ui
+
 namespace content {
+class BackingStore;
+class CursorManager;
 class DelegatedFrameHost;
 class DelegatedFrameHostClient;
 class RenderWidgetHost;
 class RenderWidgetHostImpl;
 class RenderWidgetHostViewGuest;
-class BackingStore;
-class CursorManager;
 }  // namespace content
 
 class CefCopyFrameGenerator;
 class CefSoftwareOutputDeviceOSR;
+class CefTouchSelectionControllerClientOSR;
 class CefVideoConsumerOSR;
 class CefWebContentsViewOSR;
 
@@ -118,6 +124,8 @@ class CefRenderWidgetHostViewOSR
   void Hide() override;
   bool IsShowing() override;
   void EnsureSurfaceSynchronizedForWebTest() override;
+  content::TouchSelectionControllerClientManager*
+  GetTouchSelectionControllerClientManager() override;
   gfx::Rect GetViewBounds() override;
   void SetBackgroundColor(SkColor color) override;
   absl::optional<SkColor> GetBackgroundColor() override;
@@ -290,6 +298,16 @@ class CefRenderWidgetHostViewOSR
   // content::DelegatedFrameHostClient::InvalidateLocalSurfaceIdOnEviction.
   void InvalidateLocalSurfaceId();
 
+  ui::TouchSelectionController* selection_controller() const {
+    return selection_controller_.get();
+  }
+
+  CefTouchSelectionControllerClientOSR* selection_controller_client() const {
+    return selection_controller_client_.get();
+  }
+
+  ui::TextInputType GetTextInputType();
+
  private:
   void SetFrameRate();
   bool SetScreenInfo();
@@ -301,6 +319,9 @@ class CefRenderWidgetHostViewOSR
   void ReleaseResizeHold();
 
   void CancelWidget();
+
+  // Helper function to create a selection controller.
+  void CreateSelectionController();
 
   void OnScrollOffsetChanged();
 
@@ -341,6 +362,14 @@ class CefRenderWidgetHostViewOSR
   // Applies background color without notifying the RenderWidget about
   // opaqueness changes.
   void UpdateBackgroundColorFromRenderer(SkColor color);
+
+  // The last selection bounds reported to the view.
+  gfx::SelectionBound selection_start_;
+  gfx::SelectionBound selection_end_;
+
+  std::unique_ptr<CefTouchSelectionControllerClientOSR>
+      selection_controller_client_;
+  std::unique_ptr<ui::TouchSelectionController> selection_controller_;
 
   // The background color of the web content.
   SkColor background_color_;

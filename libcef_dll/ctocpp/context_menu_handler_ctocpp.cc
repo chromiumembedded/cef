@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7b91234844f040546245a09f4724142efdf929ff$
+// $hash=7f280440c705606151f40b5c50d62483e75ab0ba$
 //
 
 #include "libcef_dll/ctocpp/context_menu_handler_ctocpp.h"
@@ -18,6 +18,7 @@
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/menu_model_cpptoc.h"
 #include "libcef_dll/cpptoc/run_context_menu_callback_cpptoc.h"
+#include "libcef_dll/cpptoc/run_quick_menu_callback_cpptoc.h"
 #include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -167,6 +168,103 @@ void CefContextMenuHandlerCToCpp::OnContextMenuDismissed(
   // Execute
   _struct->on_context_menu_dismissed(_struct, CefBrowserCppToC::Wrap(browser),
                                      CefFrameCppToC::Wrap(frame));
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefContextMenuHandlerCToCpp::RunQuickMenu(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    const CefPoint& location,
+    const CefSize& size,
+    QuickMenuEditStateFlags edit_state_flags,
+    CefRefPtr<CefRunQuickMenuCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_context_menu_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, run_quick_menu))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame.get());
+  if (!frame.get())
+    return false;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback.get());
+  if (!callback.get())
+    return false;
+
+  // Execute
+  int _retval = _struct->run_quick_menu(
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      &location, &size, edit_state_flags,
+      CefRunQuickMenuCallbackCppToC::Wrap(callback));
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefContextMenuHandlerCToCpp::OnQuickMenuCommand(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    int command_id,
+    EventFlags event_flags) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_context_menu_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_quick_menu_command))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame.get());
+  if (!frame.get())
+    return false;
+
+  // Execute
+  int _retval = _struct->on_quick_menu_command(
+      _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
+      command_id, event_flags);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefContextMenuHandlerCToCpp::OnQuickMenuDismissed(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_context_menu_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_quick_menu_dismissed))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame.get());
+  if (!frame.get())
+    return;
+
+  // Execute
+  _struct->on_quick_menu_dismissed(_struct, CefBrowserCppToC::Wrap(browser),
+                                   CefFrameCppToC::Wrap(frame));
 }
 
 // CONSTRUCTOR - Do not edit by hand.

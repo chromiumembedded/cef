@@ -172,8 +172,7 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
 
   void OnSetFocus(cef_focus_source_t source) override;
 
-  bool HandleContextMenu(content::WebContents* web_contents,
-                         const content::ContextMenuParams& params);
+  bool ShowContextMenu(const content::ContextMenuParams& params);
 
   enum DestructionState {
     DESTRUCTION_STATE_NONE = 0,
@@ -209,8 +208,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
                          bool proceed,
                          bool* proceed_to_fire_unload) override;
   bool TakeFocus(content::WebContents* source, bool reverse) override;
-  bool HandleContextMenu(content::RenderFrameHost& render_frame_host,
-                         const content::ContextMenuParams& params) override;
   void CanDownload(const GURL& url,
                    const std::string& request_method,
                    base::OnceCallback<void(bool)> callback) override;

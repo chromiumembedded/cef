@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=de430ab07ee4a1ba234c17ae560813a0aeeef5da$
+// $hash=f33de5a4c65bc08dcc3161a3b862be2b1fa95546$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RENDER_HANDLER_CTOCPP_H_
@@ -57,6 +57,11 @@ class CefRenderHandlerCToCpp
                           PaintElementType type,
                           const RectList& dirtyRects,
                           void* shared_handle) override;
+  void GetTouchHandleSize(CefRefPtr<CefBrowser> browser,
+                          cef_horizontal_alignment_t orientation,
+                          CefSize& size) override;
+  void OnTouchHandleStateChanged(CefRefPtr<CefBrowser> browser,
+                                 const CefTouchHandleState& state) override;
   bool StartDragging(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefDragData> drag_data,
                      DragOperationsMask allowed_ops,

@@ -9,20 +9,20 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=427fe84b74eec6346d7da729cba2fdf52d1c0fd7$
+// $hash=c0d516016a14eeed0c73bde99e2495ae691c2326$
 //
 
-#include "libcef_dll/ctocpp/run_context_menu_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/run_quick_menu_callback_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
-void CefRunContextMenuCallbackCToCpp::Continue(int command_id,
-                                               cef_event_flags_t event_flags) {
+void CefRunQuickMenuCallbackCToCpp::Continue(int command_id,
+                                             cef_event_flags_t event_flags) {
   shutdown_checker::AssertNotShutdown();
 
-  cef_run_context_menu_callback_t* _struct = GetStruct();
+  cef_run_quick_menu_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cont))
     return;
 
@@ -32,10 +32,10 @@ void CefRunContextMenuCallbackCToCpp::Continue(int command_id,
   _struct->cont(_struct, command_id, event_flags);
 }
 
-NO_SANITIZE("cfi-icall") void CefRunContextMenuCallbackCToCpp::Cancel() {
+NO_SANITIZE("cfi-icall") void CefRunQuickMenuCallbackCToCpp::Cancel() {
   shutdown_checker::AssertNotShutdown();
 
-  cef_run_context_menu_callback_t* _struct = GetStruct();
+  cef_run_quick_menu_callback_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, cancel))
     return;
 
@@ -47,28 +47,27 @@ NO_SANITIZE("cfi-icall") void CefRunContextMenuCallbackCToCpp::Cancel() {
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefRunContextMenuCallbackCToCpp::CefRunContextMenuCallbackCToCpp() {}
+CefRunQuickMenuCallbackCToCpp::CefRunQuickMenuCallbackCToCpp() {}
 
 // DESTRUCTOR - Do not edit by hand.
 
-CefRunContextMenuCallbackCToCpp::~CefRunContextMenuCallbackCToCpp() {
+CefRunQuickMenuCallbackCToCpp::~CefRunQuickMenuCallbackCToCpp() {
   shutdown_checker::AssertNotShutdown();
 }
 
 template <>
-cef_run_context_menu_callback_t* CefCToCppRefCounted<
-    CefRunContextMenuCallbackCToCpp,
-    CefRunContextMenuCallback,
-    cef_run_context_menu_callback_t>::UnwrapDerived(CefWrapperType type,
-                                                    CefRunContextMenuCallback*
-                                                        c) {
+cef_run_quick_menu_callback_t* CefCToCppRefCounted<
+    CefRunQuickMenuCallbackCToCpp,
+    CefRunQuickMenuCallback,
+    cef_run_quick_menu_callback_t>::UnwrapDerived(CefWrapperType type,
+                                                  CefRunQuickMenuCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return nullptr;
 }
 
 template <>
 CefWrapperType
-    CefCToCppRefCounted<CefRunContextMenuCallbackCToCpp,
-                        CefRunContextMenuCallback,
-                        cef_run_context_menu_callback_t>::kWrapperType =
-        WT_RUN_CONTEXT_MENU_CALLBACK;
+    CefCToCppRefCounted<CefRunQuickMenuCallbackCToCpp,
+                        CefRunQuickMenuCallback,
+                        cef_run_quick_menu_callback_t>::kWrapperType =
+        WT_RUN_QUICK_MENU_CALLBACK;

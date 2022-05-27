@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=5f2e9bf79ec768c0eb978ff5e1dd0178701dcc21$
+# $hash=7ee0c6a789cc0574798332fe7c7cc10f862280af$
 #
 
 {
@@ -416,6 +416,8 @@
       'libcef_dll/cpptoc/run_context_menu_callback_cpptoc.h',
       'libcef_dll/ctocpp/run_file_dialog_callback_ctocpp.cc',
       'libcef_dll/ctocpp/run_file_dialog_callback_ctocpp.h',
+      'libcef_dll/cpptoc/run_quick_menu_callback_cpptoc.cc',
+      'libcef_dll/cpptoc/run_quick_menu_callback_cpptoc.h',
       'libcef_dll/cpptoc/sslinfo_cpptoc.cc',
       'libcef_dll/cpptoc/sslinfo_cpptoc.h',
       'libcef_dll/cpptoc/sslstatus_cpptoc.cc',
@@ -722,6 +724,8 @@
       'libcef_dll/ctocpp/run_context_menu_callback_ctocpp.h',
       'libcef_dll/cpptoc/run_file_dialog_callback_cpptoc.cc',
       'libcef_dll/cpptoc/run_file_dialog_callback_cpptoc.h',
+      'libcef_dll/ctocpp/run_quick_menu_callback_ctocpp.cc',
+      'libcef_dll/ctocpp/run_quick_menu_callback_ctocpp.h',
       'libcef_dll/ctocpp/sslinfo_ctocpp.cc',
       'libcef_dll/ctocpp/sslinfo_ctocpp.h',
       'libcef_dll/ctocpp/sslstatus_ctocpp.cc',
