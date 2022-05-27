@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index b94e87b6f90c9..297280d7f52ca 100644
+index 0ae21311005f5..15fb0d2803406 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -3026,6 +3026,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
@@ -33,7 +33,7 @@ index b94e87b6f90c9..297280d7f52ca 100644
  }
  
  void WebContentsImpl::RenderWidgetDeleted(
-@@ -3902,6 +3912,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+@@ -3903,6 +3913,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
    // objects.
    create_params.renderer_initiated_creation = !is_new_browsing_instance;
  
@@ -49,7 +49,7 @@ index b94e87b6f90c9..297280d7f52ca 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -7763,6 +7782,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -7764,6 +7783,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // frames).
      SetFocusedFrameTree(node->frame_tree());
    }

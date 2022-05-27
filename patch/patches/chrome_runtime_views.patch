@@ -180,7 +180,7 @@ index 9bd586697dece..80ef1f08cb463 100644
    BrowserFrame(const BrowserFrame&) = delete;
    BrowserFrame& operator=(const BrowserFrame&) = delete;
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 01615eb5b92ed..c96ffe8bb0283 100644
+index dadd1e5ac9dcd..db1f1f6bb30b8 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -303,11 +303,10 @@ using content::WebContents;
@@ -337,7 +337,7 @@ index 01615eb5b92ed..c96ffe8bb0283 100644
  }
  
 diff --git chrome/browser/ui/views/frame/browser_view.h chrome/browser/ui/views/frame/browser_view.h
-index 70f50e6752091..b8be336cee0fa 100644
+index ddfe2de1b7cd5..eb776e91a2a2b 100644
 --- chrome/browser/ui/views/frame/browser_view.h
 +++ chrome/browser/ui/views/frame/browser_view.h
 @@ -124,11 +124,16 @@ class BrowserView : public BrowserWindow,
