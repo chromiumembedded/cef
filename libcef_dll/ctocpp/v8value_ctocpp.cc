@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7863f5701d466f8d5a5c91962e14b14b500315a3$
+// $hash=1dd04012b442aa3ceae8d56653dc499aed1e181f$
 //
 
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
@@ -89,11 +89,11 @@ CefRefPtr<CefV8Value> CefV8Value::CreateDouble(double value) {
 }
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefV8Value> CefV8Value::CreateDate(const CefTime& date) {
+CefRefPtr<CefV8Value> CefV8Value::CreateDate(CefBaseTime date) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_v8value_t* _retval = cef_v8value_create_date(&date);
+  cef_v8value_t* _retval = cef_v8value_create_date(date);
 
   // Return type: refptr_same
   return CefV8ValueCToCpp::Wrap(_retval);
@@ -448,15 +448,15 @@ NO_SANITIZE("cfi-icall") double CefV8ValueCToCpp::GetDoubleValue() {
   return _retval;
 }
 
-NO_SANITIZE("cfi-icall") CefTime CefV8ValueCToCpp::GetDateValue() {
+NO_SANITIZE("cfi-icall") CefBaseTime CefV8ValueCToCpp::GetDateValue() {
   cef_v8value_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_date_value))
-    return CefTime();
+    return CefBaseTime();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_time_t _retval = _struct->get_date_value(_struct);
+  cef_basetime_t _retval = _struct->get_date_value(_struct);
 
   // Return type: simple
   return _retval;

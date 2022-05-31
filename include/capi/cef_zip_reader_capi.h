@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=ac91bcd40e1439ee1e742cc47989530b112c99bd$
+// $hash=e16856adecfe81b59b513568b5dcadc851ff07ab$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_ZIP_READER_CAPI_H_
@@ -102,7 +102,7 @@ typedef struct _cef_zip_reader_t {
   ///
   // Returns the last modified timestamp for the file.
   ///
-  cef_time_t(CEF_CALLBACK* get_file_last_modified)(
+  cef_basetime_t(CEF_CALLBACK* get_file_last_modified)(
       struct _cef_zip_reader_t* self);
 
   ///

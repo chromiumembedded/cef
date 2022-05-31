@@ -28,8 +28,8 @@ class CefX509CertificateImpl : public CefX509Certificate {
   CefRefPtr<CefX509CertPrincipal> GetSubject() override;
   CefRefPtr<CefX509CertPrincipal> GetIssuer() override;
   CefRefPtr<CefBinaryValue> GetSerialNumber() override;
-  CefTime GetValidStart() override;
-  CefTime GetValidExpiry() override;
+  CefBaseTime GetValidStart() override;
+  CefBaseTime GetValidExpiry() override;
   CefRefPtr<CefBinaryValue> GetDEREncoded() override;
   CefRefPtr<CefBinaryValue> GetPEMEncoded() override;
   size_t GetIssuerChainSize() override;

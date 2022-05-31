@@ -31,8 +31,8 @@ class CefDownloadItemImpl
   int GetPercentComplete() override;
   int64 GetTotalBytes() override;
   int64 GetReceivedBytes() override;
-  CefTime GetStartTime() override;
-  CefTime GetEndTime() override;
+  CefBaseTime GetStartTime() override;
+  CefBaseTime GetEndTime() override;
   CefString GetFullPath() override;
   uint32 GetId() override;
   CefString GetURL() override;

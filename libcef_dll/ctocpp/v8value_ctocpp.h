@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c9725eb41d50cd0bdbe6f84280e0ed7b62012136$
+// $hash=012bb9108d28ddefb6ebc58963be24469b79146f$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8VALUE_CTOCPP_H_
@@ -52,7 +52,7 @@ class CefV8ValueCToCpp
   int32 GetIntValue() override;
   uint32 GetUIntValue() override;
   double GetDoubleValue() override;
-  CefTime GetDateValue() override;
+  CefBaseTime GetDateValue() override;
   CefString GetStringValue() override;
   bool IsUserCreated() override;
   bool HasException() override;

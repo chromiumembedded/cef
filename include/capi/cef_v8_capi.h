@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b7dd2429f492a8f2dd978f9500c63dd0e01035d4$
+// $hash=a9050cf4af9b9790088ec4d419775eec083aef4c$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_V8_CAPI_H_
@@ -484,7 +484,7 @@ typedef struct _cef_v8value_t {
   ///
   // Return a Date value.
   ///
-  cef_time_t(CEF_CALLBACK* get_date_value)(struct _cef_v8value_t* self);
+  cef_basetime_t(CEF_CALLBACK* get_date_value)(struct _cef_v8value_t* self);
 
   ///
   // Return a string value.
@@ -766,7 +766,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_double(double value);
 // cef_v8handler_t or cef_v8accessor_t callback, or in combination with calling
 // enter() and exit() on a stored cef_v8context_t reference.
 ///
-CEF_EXPORT cef_v8value_t* cef_v8value_create_date(const cef_time_t* date);
+CEF_EXPORT cef_v8value_t* cef_v8value_create_date(cef_basetime_t date);
 
 ///
 // Create a new cef_v8value_t object of type string.

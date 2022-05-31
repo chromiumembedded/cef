@@ -1284,7 +1284,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateDouble(double value) {
 }
 
 // static
-CefRefPtr<CefV8Value> CefV8Value::CreateDate(const CefTime& value) {
+CefRefPtr<CefV8Value> CefV8Value::CreateDate(CefBaseTime value) {
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
   v8::Isolate* isolate = GetIsolateManager()->isolate();
   CefRefPtr<CefV8ValueImpl> impl = new CefV8ValueImpl(isolate);
@@ -1522,8 +1522,8 @@ void CefV8ValueImpl::InitFromV8Value(v8::Local<v8::Context> context,
     InitDouble(value->ToNumber(context).ToLocalChecked()->Value());
   } else if (value->IsDate()) {
     // Convert from milliseconds to seconds.
-    InitDate(
-        CefTime(value->ToNumber(context).ToLocalChecked()->Value() / 1000));
+    InitDate(base::Time::FromJsTime(
+        value->ToNumber(context).ToLocalChecked()->Value()));
   } else if (value->IsString()) {
     CefString rv;
     GetCefString(context->GetIsolate(),
@@ -1568,7 +1568,7 @@ void CefV8ValueImpl::InitDouble(double value) {
   double_value_ = value;
 }
 
-void CefV8ValueImpl::InitDate(const CefTime& value) {
+void CefV8ValueImpl::InitDate(CefBaseTime value) {
   DCHECK_EQ(type_, TYPE_INVALID);
   type_ = TYPE_DATE;
   date_value_ = value;
@@ -1614,7 +1614,8 @@ v8::Local<v8::Value> CefV8ValueImpl::GetV8Value(bool should_persist) {
     case TYPE_DATE:
       // Convert from seconds to milliseconds.
       return v8::Date::New(isolate_->GetCurrentContext(),
-                           CefTime(date_value_).GetDoubleT() * 1000)
+                           static_cast<base::Time>(CefBaseTime(date_value_))
+                               .ToJsTimeIgnoringNull())
           .ToLocalChecked();
     case TYPE_STRING:
       return GetV8String(isolate_, CefString(&string_value_));
@@ -1732,8 +1733,7 @@ bool CefV8ValueImpl::IsSame(CefRefPtr<CefV8Value> that) {
     case TYPE_DOUBLE:
       return (double_value_ == thatValue->double_value_);
     case TYPE_DATE:
-      return (CefTime(date_value_).GetTimeT() ==
-              CefTime(thatValue->date_value_).GetTimeT());
+      return (date_value_.val == thatValue->date_value_.val);
     case TYPE_STRING:
       return (CefString(&string_value_) ==
               CefString(&thatValue->string_value_));
@@ -1780,11 +1780,11 @@ double CefV8ValueImpl::GetDoubleValue() {
   return 0.;
 }
 
-CefTime CefV8ValueImpl::GetDateValue() {
-  CEF_V8_REQUIRE_ISOLATE_RETURN(CefTime(0.));
+CefBaseTime CefV8ValueImpl::GetDateValue() {
+  CEF_V8_REQUIRE_ISOLATE_RETURN(CefBaseTime());
   if (type_ == TYPE_DATE)
     return date_value_;
-  return CefTime(0.);
+  return CefBaseTime();
 }
 
 CefString CefV8ValueImpl::GetStringValue() {

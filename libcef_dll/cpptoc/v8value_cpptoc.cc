@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0cb915346153880872b44bd1f857c24787ed52af$
+// $hash=46a80d60441e386e6a8999ecb5fd338f3f6b4319$
 //
 
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
@@ -84,19 +84,11 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_double(double value) {
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_date(const cef_time_t* date) {
+CEF_EXPORT cef_v8value_t* cef_v8value_create_date(cef_basetime_t date) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: date; type: simple_byref_const
-  DCHECK(date);
-  if (!date)
-    return NULL;
-
-  // Translate param: date; type: simple_byref_const
-  CefTime dateVal = date ? *date : CefTime();
-
   // Execute
-  CefRefPtr<CefV8Value> _retval = CefV8Value::CreateDate(dateVal);
+  CefRefPtr<CefV8Value> _retval = CefV8Value::CreateDate(date);
 
   // Return type: refptr_same
   return CefV8ValueCppToC::Wrap(_retval);
@@ -448,15 +440,16 @@ double CEF_CALLBACK v8value_get_double_value(struct _cef_v8value_t* self) {
   return _retval;
 }
 
-cef_time_t CEF_CALLBACK v8value_get_date_value(struct _cef_v8value_t* self) {
+cef_basetime_t CEF_CALLBACK
+v8value_get_date_value(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
-    return CefTime();
+    return CefBaseTime();
 
   // Execute
-  cef_time_t _retval = CefV8ValueCppToC::Get(self)->GetDateValue();
+  cef_basetime_t _retval = CefV8ValueCppToC::Get(self)->GetDateValue();
 
   // Return type: simple
   return _retval;

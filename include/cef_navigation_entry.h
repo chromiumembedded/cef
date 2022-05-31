@@ -100,7 +100,7 @@ class CefNavigationEntry : public virtual CefBaseRefCounted {
   // 0 if the navigation has not yet completed.
   ///
   /*--cef()--*/
-  virtual CefTime GetCompletionTime() = 0;
+  virtual CefBaseTime GetCompletionTime() = 0;
 
   ///
   // Returns the HTTP status code for the last known successful navigation

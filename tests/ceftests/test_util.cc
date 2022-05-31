@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include "include/cef_base.h"
 #include "include/cef_command_line.h"
 #include "include/cef_request_context_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
@@ -355,4 +356,16 @@ CefRefPtr<CefRequestContext> CreateTestRequestContext(
   EXPECT_EQ(mode, TEST_RC_MODE_GLOBAL_WITH_HANDLER);
   return CefRequestContext::CreateContext(CefRequestContext::GetGlobalContext(),
                                           rc_handler);
+}
+
+CefTime CefTimeFrom(CefBaseTime value) {
+  CefTime time;
+  cef_time_from_basetime(value, &time);
+  return time;
+}
+
+CefBaseTime CefBaseTimeFrom(const CefTime& value) {
+  cef_basetime_t temp;
+  cef_time_to_basetime(&value, &temp);
+  return CefBaseTime(temp);
 }

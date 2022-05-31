@@ -64,6 +64,7 @@ class cef_api_hash:
         "internal/cef_export.h",
         "internal/cef_ptr.h",
         "internal/cef_string_wrappers.h",
+        "internal/cef_time_wrappers.h",
         "internal/cef_types_wrappers.h",
         # includes_win
         "cef_sandbox_win.h",

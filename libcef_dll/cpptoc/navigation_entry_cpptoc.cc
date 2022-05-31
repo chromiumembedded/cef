@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=081579d10d7dd1ad8906d54350c2b63f97930fd2$
+// $hash=a824ce871b25f19f2af043bd049d2554bd06232b$
 //
 
 #include "libcef_dll/cpptoc/navigation_entry_cpptoc.h"
@@ -140,7 +140,7 @@ navigation_entry_has_post_data(struct _cef_navigation_entry_t* self) {
   return _retval;
 }
 
-cef_time_t CEF_CALLBACK
+cef_basetime_t CEF_CALLBACK
 navigation_entry_get_completion_time(struct _cef_navigation_entry_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -148,10 +148,11 @@ navigation_entry_get_completion_time(struct _cef_navigation_entry_t* self) {
 
   DCHECK(self);
   if (!self)
-    return CefTime();
+    return CefBaseTime();
 
   // Execute
-  cef_time_t _retval = CefNavigationEntryCppToC::Get(self)->GetCompletionTime();
+  cef_basetime_t _retval =
+      CefNavigationEntryCppToC::Get(self)->GetCompletionTime();
 
   // Return type: simple
   return _retval;

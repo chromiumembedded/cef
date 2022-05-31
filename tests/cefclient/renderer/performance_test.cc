@@ -75,7 +75,6 @@ class V8Handler : public CefV8Handler {
         retval = CefV8Value::CreateInt(1);
       } else if (arguments.size() == 1 && arguments[0]->IsInt()) {
         int32 type = arguments[0]->GetIntValue();
-        CefTime date;
         switch (type) {
           case 0:
             retval = CefV8Value::CreateUndefined();
@@ -96,8 +95,7 @@ class V8Handler : public CefV8Handler {
             retval = CefV8Value::CreateDouble(1.234);
             break;
           case 6:
-            date.Now();
-            retval = CefV8Value::CreateDate(date);
+            retval = CefV8Value::CreateDate(CefBaseTime::Now());
             break;
           case 7:
             retval = CefV8Value::CreateString("Hello, world!");

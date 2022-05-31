@@ -77,6 +77,10 @@ AlloyMainDelegate::AlloyMainDelegate(CefMainRunnerHandler* runner,
   // in the binary.
   extern void base_impl_stub();
   base_impl_stub();
+  // Necessary so that exported functions from time_impl.cc will be included
+  // in the binary.
+  extern void time_impl_stub();
+  time_impl_stub();
 
 #if BUILDFLAG(IS_LINUX)
   resource_util::OverrideAssetPath();

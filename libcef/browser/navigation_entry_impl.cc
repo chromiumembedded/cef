@@ -55,11 +55,9 @@ bool CefNavigationEntryImpl::HasPostData() {
   return mutable_value()->GetHasPostData();
 }
 
-CefTime CefNavigationEntryImpl::GetCompletionTime() {
-  CefTime time;
-  CEF_VALUE_VERIFY_RETURN(false, time);
-  cef_time_from_basetime(mutable_value()->GetTimestamp(), time);
-  return time;
+CefBaseTime CefNavigationEntryImpl::GetCompletionTime() {
+  CEF_VALUE_VERIFY_RETURN(false, CefBaseTime());
+  return mutable_value()->GetTimestamp();
 }
 
 int CefNavigationEntryImpl::GetHttpStatusCode() {

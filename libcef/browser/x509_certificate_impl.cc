@@ -56,24 +56,18 @@ CefRefPtr<CefBinaryValue> CefX509CertificateImpl::GetSerialNumber() {
   return nullptr;
 }
 
-CefTime CefX509CertificateImpl::GetValidStart() {
-  CefTime validity;
+CefBaseTime CefX509CertificateImpl::GetValidStart() {
   if (cert_) {
-    const base::Time& valid_time = cert_->valid_start();
-    if (!valid_time.is_null())
-      cef_time_from_basetime(valid_time, validity);
+    return cert_->valid_start();
   }
-  return validity;
+  return CefBaseTime();
 }
 
-CefTime CefX509CertificateImpl::GetValidExpiry() {
-  CefTime validity;
+CefBaseTime CefX509CertificateImpl::GetValidExpiry() {
   if (cert_) {
-    const base::Time& valid_time = cert_->valid_expiry();
-    if (!valid_time.is_null())
-      cef_time_from_basetime(valid_time, validity);
+    return cert_->valid_expiry();
   }
-  return validity;
+  return CefBaseTime();
 }
 
 CefRefPtr<CefBinaryValue> CefX509CertificateImpl::GetDEREncoded() {

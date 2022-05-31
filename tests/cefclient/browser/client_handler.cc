@@ -78,6 +78,15 @@ std::string GetTimeString(const CefTime& value) {
   return ss.str();
 }
 
+std::string GetTimeString(const CefBaseTime& value) {
+  CefTime time;
+  if (cef_time_from_basetime(value, &time)) {
+    return GetTimeString(time);
+  } else {
+    return "Invalid";
+  }
+}
+
 std::string GetBinaryString(CefRefPtr<CefBinaryValue> value) {
   if (!value.get())
     return "&nbsp;";

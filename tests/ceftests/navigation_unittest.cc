@@ -296,7 +296,7 @@ class NavigationEntryVisitor : public CefNavigationEntryVisitor {
       EXPECT_EQ(kTransitionExplicitLoad, transition_type);
 
     EXPECT_FALSE(entry->HasPostData());
-    EXPECT_GT(entry->GetCompletionTime().GetTimeT(), 0);
+    EXPECT_GT(CefTimeFrom(entry->GetCompletionTime()).GetTimeT(), 0);
     EXPECT_EQ(200, entry->GetHttpStatusCode());
 
     callback_count_++;

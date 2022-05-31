@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6f127ca09c0419845e4fc6aec71b0bf9373ff290$
+// $hash=dc8fd6995ca7b6ec38887cba0da5330b2dd22e9e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_NAVIGATION_ENTRY_CTOCPP_H_
@@ -42,7 +42,7 @@ class CefNavigationEntryCToCpp
   CefString GetTitle() override;
   TransitionType GetTransitionType() override;
   bool HasPostData() override;
-  CefTime GetCompletionTime() override;
+  CefBaseTime GetCompletionTime() override;
   int GetHttpStatusCode() override;
   CefRefPtr<CefSSLStatus> GetSSLStatus() override;
 };

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=32b942f6b50b842ddec08addc2b5794f2a272dbe$
+// $hash=744c34b8608d3678f0a3522ff77f184611a29bf2$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_X509_CERTIFICATE_CAPI_H_
@@ -154,16 +154,16 @@ typedef struct _cef_x509certificate_t {
 
   ///
   // Returns the date before which the X.509 certificate is invalid.
-  // CefTime.GetTimeT() will return 0 if no date was specified.
+  // CefBaseTime.GetTimeT() will return 0 if no date was specified.
   ///
-  cef_time_t(CEF_CALLBACK* get_valid_start)(
+  cef_basetime_t(CEF_CALLBACK* get_valid_start)(
       struct _cef_x509certificate_t* self);
 
   ///
   // Returns the date after which the X.509 certificate is invalid.
-  // CefTime.GetTimeT() will return 0 if no date was specified.
+  // CefBaseTime.GetTimeT() will return 0 if no date was specified.
   ///
-  cef_time_t(CEF_CALLBACK* get_valid_expiry)(
+  cef_basetime_t(CEF_CALLBACK* get_valid_expiry)(
       struct _cef_x509certificate_t* self);
 
   ///

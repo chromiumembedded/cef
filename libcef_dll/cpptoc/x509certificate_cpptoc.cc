@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cac3e88ea15965e3a7786500606845b0b6157212$
+// $hash=3fbe9313681f3ac9545e5042c76fa2e41db52d3d$
 //
 
 #include "libcef_dll/cpptoc/x509certificate_cpptoc.h"
@@ -76,7 +76,7 @@ x509certificate_get_serial_number(struct _cef_x509certificate_t* self) {
   return CefBinaryValueCppToC::Wrap(_retval);
 }
 
-cef_time_t CEF_CALLBACK
+cef_basetime_t CEF_CALLBACK
 x509certificate_get_valid_start(struct _cef_x509certificate_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -84,16 +84,16 @@ x509certificate_get_valid_start(struct _cef_x509certificate_t* self) {
 
   DCHECK(self);
   if (!self)
-    return CefTime();
+    return CefBaseTime();
 
   // Execute
-  cef_time_t _retval = CefX509CertificateCppToC::Get(self)->GetValidStart();
+  cef_basetime_t _retval = CefX509CertificateCppToC::Get(self)->GetValidStart();
 
   // Return type: simple
   return _retval;
 }
 
-cef_time_t CEF_CALLBACK
+cef_basetime_t CEF_CALLBACK
 x509certificate_get_valid_expiry(struct _cef_x509certificate_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -101,10 +101,11 @@ x509certificate_get_valid_expiry(struct _cef_x509certificate_t* self) {
 
   DCHECK(self);
   if (!self)
-    return CefTime();
+    return CefBaseTime();
 
   // Execute
-  cef_time_t _retval = CefX509CertificateCppToC::Get(self)->GetValidExpiry();
+  cef_basetime_t _retval =
+      CefX509CertificateCppToC::Get(self)->GetValidExpiry();
 
   // Return type: simple
   return _retval;

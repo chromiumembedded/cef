@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b9f0d91dd2fdb3625365ff8b332b08e1f0ea1187$
+// $hash=1c1dd82539e356f15be95b66d824740075c48e4f$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DOWNLOAD_ITEM_CAPI_H_
@@ -100,12 +100,13 @@ typedef struct _cef_download_item_t {
   ///
   // Returns the time that the download started.
   ///
-  cef_time_t(CEF_CALLBACK* get_start_time)(struct _cef_download_item_t* self);
+  cef_basetime_t(CEF_CALLBACK* get_start_time)(
+      struct _cef_download_item_t* self);
 
   ///
   // Returns the time that the download ended.
   ///
-  cef_time_t(CEF_CALLBACK* get_end_time)(struct _cef_download_item_t* self);
+  cef_basetime_t(CEF_CALLBACK* get_end_time)(struct _cef_download_item_t* self);
 
   ///
   // Returns the full path to the downloaded or downloading file.

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=995930b1262a99fb14a57dc0af908d292434e00b$
+// $hash=e30674976c272e7ae1e9a43b05a139927d21024d$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_ZIP_READER_CTOCPP_H_
@@ -40,7 +40,7 @@ class CefZipReaderCToCpp : public CefCToCppRefCounted<CefZipReaderCToCpp,
   bool Close() override;
   CefString GetFileName() override;
   int64 GetFileSize() override;
-  CefTime GetFileLastModified() override;
+  CefBaseTime GetFileLastModified() override;
   bool OpenFile(const CefString& password) override;
   bool CloseFile() override;
   int ReadFile(void* buffer, size_t bufferSize) override;

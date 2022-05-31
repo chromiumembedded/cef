@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=eb95efa4bb7e2ca0696f86390fa32f269eedf9f3$
+// $hash=920360dc912cb321d5ff60297269e252845a0499$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_X509CERTIFICATE_CTOCPP_H_
@@ -38,8 +38,8 @@ class CefX509CertificateCToCpp
   CefRefPtr<CefX509CertPrincipal> GetSubject() override;
   CefRefPtr<CefX509CertPrincipal> GetIssuer() override;
   CefRefPtr<CefBinaryValue> GetSerialNumber() override;
-  CefTime GetValidStart() override;
-  CefTime GetValidExpiry() override;
+  CefBaseTime GetValidStart() override;
+  CefBaseTime GetValidExpiry() override;
   CefRefPtr<CefBinaryValue> GetDEREncoded() override;
   CefRefPtr<CefBinaryValue> GetPEMEncoded() override;
   size_t GetIssuerChainSize() override;

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=64b3cee6b2de98140a1dc6f6aabff6b2c4ac7d78$
+// $hash=6ced91f96527ec3d231208e0bcadbbd557f41d65$
 //
 
 #include "libcef_dll/cpptoc/download_item_cpptoc.h"
@@ -152,7 +152,7 @@ download_item_get_received_bytes(struct _cef_download_item_t* self) {
   return _retval;
 }
 
-cef_time_t CEF_CALLBACK
+cef_basetime_t CEF_CALLBACK
 download_item_get_start_time(struct _cef_download_item_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -160,16 +160,16 @@ download_item_get_start_time(struct _cef_download_item_t* self) {
 
   DCHECK(self);
   if (!self)
-    return CefTime();
+    return CefBaseTime();
 
   // Execute
-  cef_time_t _retval = CefDownloadItemCppToC::Get(self)->GetStartTime();
+  cef_basetime_t _retval = CefDownloadItemCppToC::Get(self)->GetStartTime();
 
   // Return type: simple
   return _retval;
 }
 
-cef_time_t CEF_CALLBACK
+cef_basetime_t CEF_CALLBACK
 download_item_get_end_time(struct _cef_download_item_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -177,10 +177,10 @@ download_item_get_end_time(struct _cef_download_item_t* self) {
 
   DCHECK(self);
   if (!self)
-    return CefTime();
+    return CefBaseTime();
 
   // Execute
-  cef_time_t _retval = CefDownloadItemCppToC::Get(self)->GetEndTime();
+  cef_basetime_t _retval = CefDownloadItemCppToC::Get(self)->GetEndTime();
 
   // Return type: simple
   return _retval;

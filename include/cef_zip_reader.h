@@ -102,7 +102,7 @@ class CefZipReader : public virtual CefBaseRefCounted {
   // Returns the last modified timestamp for the file.
   ///
   /*--cef()--*/
-  virtual CefTime GetFileLastModified() = 0;
+  virtual CefBaseTime GetFileLastModified() = 0;
 
   ///
   // Opens the file for reading of uncompressed data. A read password may

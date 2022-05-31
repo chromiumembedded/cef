@@ -2,13 +2,27 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "include/internal/cef_time_wrappers.h"
+#include "include/internal/cef_types_wrappers.h"
 #include "libcef/common/time_util.h"
 
+#include <limits>
 #include <tuple>
 
-#if BUILDFLAG(IS_WIN)
-#include <limits>
+// The contents of this file are a compilation unit that is not called by other
+// functions in the the library. Consiquently MSVS will exclude it during the
+// linker stage if we don't call a stub function.
+#if defined(COMPILER_MSVC)
+#pragma optimize("", off)
+#endif
 
+void time_impl_stub() {}
+
+#if defined(COMPILER_MSVC)
+#pragma optimize("", on)
+#endif
+
+#if BUILDFLAG(IS_WIN)
 namespace {
 
 // From MSDN, FILETIME "Contains a 64-bit value representing the number of
@@ -102,6 +116,10 @@ CEF_EXPORT int cef_time_now(cef_time_t* cef_time) {
   return 1;
 }
 
+CEF_EXPORT cef_basetime_t cef_basetime_now() {
+  return CefBaseTime(base::Time::Now());
+}
+
 CEF_EXPORT int cef_time_delta(const cef_time_t* cef_time1,
                               const cef_time_t* cef_time2,
                               long long* delta) {
@@ -115,4 +133,44 @@ CEF_EXPORT int cef_time_delta(const cef_time_t* cef_time1,
   base::TimeDelta time_delta = base_time2 - base_time1;
   *delta = time_delta.InMilliseconds();
   return 1;
+}
+
+CEF_EXPORT int cef_time_to_basetime(const cef_time_t* from,
+                                    cef_basetime_t* to) {
+  if (!from || !to)
+    return 0;
+
+  base::Time::Exploded exploded;
+  exploded.year = from->year;
+  exploded.month = from->month;
+  exploded.day_of_week = from->day_of_week;
+  exploded.day_of_month = from->day_of_month;
+  exploded.hour = from->hour;
+  exploded.minute = from->minute;
+  exploded.second = from->second;
+  exploded.millisecond = from->millisecond;
+  base::Time time;
+  bool result = base::Time::FromUTCExploded(exploded, &time);
+  *to = CefBaseTime(time);
+  return result ? 1 : 0;
+}
+
+CEF_EXPORT int cef_time_from_basetime(const cef_basetime_t from,
+                                      cef_time_t* to) {
+  if (!to)
+    return 0;
+
+  base::Time time = CefBaseTime(from);
+
+  base::Time::Exploded exploded;
+  time.UTCExplode(&exploded);
+  to->year = exploded.year;
+  to->month = exploded.month;
+  to->day_of_week = exploded.day_of_week;
+  to->day_of_month = exploded.day_of_month;
+  to->hour = exploded.hour;
+  to->minute = exploded.minute;
+  to->second = exploded.second;
+  to->millisecond = exploded.millisecond;
+  return exploded.HasValidValues() ? 1 : 0;
 }

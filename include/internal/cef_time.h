@@ -36,7 +36,19 @@ extern "C" {
 #endif
 
 #include <time.h>
+#include "include/base/cef_basictypes.h"
 #include "include/internal/cef_export.h"
+
+///
+// Represents a wall clock time in UTC. Values are not guaranteed to be
+// monotonically non-decreasing and are subject to large amounts of skew.
+// Time is stored internally as microseconds since the Windows epoch (1601).
+//
+// This is equivalent of Chromium `base::Time` (see base/time/time.h).
+///
+typedef struct _cef_basetime_t {
+  int64 val;
+} cef_basetime_t;
 
 ///
 // Time information. Values should always be in UTC.
@@ -71,16 +83,36 @@ CEF_EXPORT int cef_time_to_doublet(const cef_time_t* cef_time, double* time);
 CEF_EXPORT int cef_time_from_doublet(double time, cef_time_t* cef_time);
 
 ///
-// Retrieve the current system time.
-//
+// Retrieve the current system time. Returns true (1) on success and false (0)
+// on failure.
+///
 CEF_EXPORT int cef_time_now(cef_time_t* cef_time);
 
 ///
-// Retrieve the delta in milliseconds between two time values.
+// Retrieve the current system time.
+///
+CEF_EXPORT cef_basetime_t cef_basetime_now();
+
+///
+// Retrieve the delta in milliseconds between two time values. Returns true (1)
+// on success and false (0) on failure.
 //
 CEF_EXPORT int cef_time_delta(const cef_time_t* cef_time1,
                               const cef_time_t* cef_time2,
                               long long* delta);
+
+///
+// Converts cef_time_t to cef_basetime_t. Returns true (1) on success and
+// false (0) on failure.
+///
+CEF_EXPORT int cef_time_to_basetime(const cef_time_t* from, cef_basetime_t* to);
+
+///
+// Converts cef_basetime_t to cef_time_t. Returns true (1) on success and
+// false (0) on failure.
+///
+CEF_EXPORT int cef_time_from_basetime(const cef_basetime_t from,
+                                      cef_time_t* to);
 
 #ifdef __cplusplus
 }

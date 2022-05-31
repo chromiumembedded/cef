@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9fe9e9199e284af22669ba2abfb715d0e7ae8de3$
+// $hash=d282910b834f9f5076a1310196f326828e41540d$
 //
 
 #include "libcef_dll/cpptoc/zip_reader_cpptoc.h"
@@ -145,7 +145,7 @@ int64 CEF_CALLBACK zip_reader_get_file_size(struct _cef_zip_reader_t* self) {
   return _retval;
 }
 
-cef_time_t CEF_CALLBACK
+cef_basetime_t CEF_CALLBACK
 zip_reader_get_file_last_modified(struct _cef_zip_reader_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -153,10 +153,10 @@ zip_reader_get_file_last_modified(struct _cef_zip_reader_t* self) {
 
   DCHECK(self);
   if (!self)
-    return CefTime();
+    return CefBaseTime();
 
   // Execute
-  cef_time_t _retval = CefZipReaderCppToC::Get(self)->GetFileLastModified();
+  cef_basetime_t _retval = CefZipReaderCppToC::Get(self)->GetFileLastModified();
 
   // Return type: simple
   return _retval;

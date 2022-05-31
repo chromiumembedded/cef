@@ -173,7 +173,9 @@ void CreateCookie(CefRefPtr<CefCookieManager> manager,
     cookie.has_expires = true;
     // Must choose the expiry date dynamically due to the
     // "ClampCookieExpiryTo400Days" feature enabled in M104.
-    EXPECT_TRUE(cef_time_from_timet(GetExpiryDate(), &cookie.expires));
+    cef_time_t expiry_time;
+    EXPECT_TRUE(cef_time_from_timet(GetExpiryDate(), &expiry_time));
+    EXPECT_TRUE(cef_time_to_basetime(&expiry_time, &cookie.expires));
   }
 
   CookieVector cookies;
@@ -251,14 +253,7 @@ void GetCookie(CefRefPtr<CefCookieManager> manager,
     EXPECT_EQ(CefString(&cookie_read.domain), kTestDomain);
   EXPECT_EQ(CefString(&cookie_read.path), kTestPath);
   EXPECT_EQ(cookie.has_expires, cookie_read.has_expires);
-  EXPECT_EQ(cookie.expires.year, cookie_read.expires.year);
-  EXPECT_EQ(cookie.expires.month, cookie_read.expires.month);
-  EXPECT_EQ(cookie.expires.day_of_week, cookie_read.expires.day_of_week);
-  EXPECT_EQ(cookie.expires.day_of_month, cookie_read.expires.day_of_month);
-  EXPECT_EQ(cookie.expires.hour, cookie_read.expires.hour);
-  EXPECT_EQ(cookie.expires.minute, cookie_read.expires.minute);
-  EXPECT_EQ(cookie.expires.second, cookie_read.expires.second);
-  EXPECT_EQ(cookie.expires.millisecond, cookie_read.expires.millisecond);
+  EXPECT_EQ(cookie.expires.val, cookie_read.expires.val);
   EXPECT_EQ(cookie.same_site, cookie_read.same_site);
   EXPECT_EQ(cookie.priority, cookie_read.priority);
 }

@@ -137,17 +137,17 @@ class CefX509Certificate : public virtual CefBaseRefCounted {
 
   ///
   // Returns the date before which the X.509 certificate is invalid.
-  // CefTime.GetTimeT() will return 0 if no date was specified.
+  // CefBaseTime.GetTimeT() will return 0 if no date was specified.
   ///
   /*--cef()--*/
-  virtual CefTime GetValidStart() = 0;
+  virtual CefBaseTime GetValidStart() = 0;
 
   ///
   // Returns the date after which the X.509 certificate is invalid.
-  // CefTime.GetTimeT() will return 0 if no date was specified.
+  // CefBaseTime.GetTimeT() will return 0 if no date was specified.
   ///
   /*--cef()--*/
-  virtual CefTime GetValidExpiry() = 0;
+  virtual CefBaseTime GetValidExpiry() = 0;
 
   ///
   // Returns the DER encoded data for the X.509 certificate.

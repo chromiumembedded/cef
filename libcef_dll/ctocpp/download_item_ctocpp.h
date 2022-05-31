@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=800621bf853598aa11673f3c38e5f30858aa1ff1$
+// $hash=0c93fdb6b5df295b23100920eee9c26c8caf1442$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_ITEM_CTOCPP_H_
@@ -42,8 +42,8 @@ class CefDownloadItemCToCpp : public CefCToCppRefCounted<CefDownloadItemCToCpp,
   int GetPercentComplete() override;
   int64 GetTotalBytes() override;
   int64 GetReceivedBytes() override;
-  CefTime GetStartTime() override;
-  CefTime GetEndTime() override;
+  CefBaseTime GetStartTime() override;
+  CefBaseTime GetEndTime() override;
   CefString GetFullPath() override;
   uint32 GetId() override;
   CefString GetURL() override;

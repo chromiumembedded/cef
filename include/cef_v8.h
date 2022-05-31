@@ -478,7 +478,7 @@ class CefV8Value : public virtual CefBaseRefCounted {
   // on a stored CefV8Context reference.
   ///
   /*--cef()--*/
-  static CefRefPtr<CefV8Value> CreateDate(const CefTime& date);
+  static CefRefPtr<CefV8Value> CreateDate(CefBaseTime date);
 
   ///
   // Create a new CefV8Value object of type string.
@@ -649,7 +649,7 @@ class CefV8Value : public virtual CefBaseRefCounted {
   // Return a Date value.
   ///
   /*--cef()--*/
-  virtual CefTime GetDateValue() = 0;
+  virtual CefBaseTime GetDateValue() = 0;
 
   ///
   // Return a string value.

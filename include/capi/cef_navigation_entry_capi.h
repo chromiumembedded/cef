@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=3a7dd4a6a1b5e0d9191be6c4dd2f0135f43de643$
+// $hash=6f617dd09dc2abc0c2c7534db2b045aebb595f09$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_NAVIGATION_ENTRY_CAPI_H_
@@ -108,7 +108,7 @@ typedef struct _cef_navigation_entry_t {
   // navigation may be completed more than once if the page is reloaded. May be
   // 0 if the navigation has not yet completed.
   ///
-  cef_time_t(CEF_CALLBACK* get_completion_time)(
+  cef_basetime_t(CEF_CALLBACK* get_completion_time)(
       struct _cef_navigation_entry_t* self);
 
   ///

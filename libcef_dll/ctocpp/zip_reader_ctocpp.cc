@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f01ac0e38723b8786f115a14dbca8d4d3d1a57bf$
+// $hash=f14a25ea9d276bbf30500bf0e39c3eb1068f83b9$
 //
 
 #include "libcef_dll/ctocpp/zip_reader_ctocpp.h"
@@ -146,17 +146,17 @@ NO_SANITIZE("cfi-icall") int64 CefZipReaderCToCpp::GetFileSize() {
   return _retval;
 }
 
-NO_SANITIZE("cfi-icall") CefTime CefZipReaderCToCpp::GetFileLastModified() {
+NO_SANITIZE("cfi-icall") CefBaseTime CefZipReaderCToCpp::GetFileLastModified() {
   shutdown_checker::AssertNotShutdown();
 
   cef_zip_reader_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_file_last_modified))
-    return CefTime();
+    return CefBaseTime();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_time_t _retval = _struct->get_file_last_modified(_struct);
+  cef_basetime_t _retval = _struct->get_file_last_modified(_struct);
 
   // Return type: simple
   return _retval;

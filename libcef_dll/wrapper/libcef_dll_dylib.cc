@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c2c4aa508db66d7b185c4f9ed9a89f1cd65107c1$
+// $hash=cd24810e169a9b119137caec3f864fdd6327c887$
 //
 
 #include <dlfcn.h>
@@ -298,7 +298,10 @@ struct libcef_pointers {
   decltype(&cef_time_to_doublet) cef_time_to_doublet;
   decltype(&cef_time_from_doublet) cef_time_from_doublet;
   decltype(&cef_time_now) cef_time_now;
+  decltype(&cef_basetime_now) cef_basetime_now;
   decltype(&cef_time_delta) cef_time_delta;
+  decltype(&cef_time_to_basetime) cef_time_to_basetime;
+  decltype(&cef_time_from_basetime) cef_time_from_basetime;
   decltype(&cef_trace_event_instant) cef_trace_event_instant;
   decltype(&cef_trace_event_begin) cef_trace_event_begin;
   decltype(&cef_trace_event_end) cef_trace_event_end;
@@ -500,7 +503,10 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_time_to_doublet);
   INIT_ENTRY(cef_time_from_doublet);
   INIT_ENTRY(cef_time_now);
+  INIT_ENTRY(cef_basetime_now);
   INIT_ENTRY(cef_time_delta);
+  INIT_ENTRY(cef_time_to_basetime);
+  INIT_ENTRY(cef_time_from_basetime);
   INIT_ENTRY(cef_trace_event_instant);
   INIT_ENTRY(cef_trace_event_begin);
   INIT_ENTRY(cef_trace_event_end);
@@ -1051,7 +1057,7 @@ struct _cef_v8value_t* cef_v8value_create_double(double value) {
 }
 
 NO_SANITIZE("cfi-icall")
-struct _cef_v8value_t* cef_v8value_create_date(const cef_time_t* date) {
+struct _cef_v8value_t* cef_v8value_create_date(cef_basetime_t date) {
   return g_libcef_pointers.cef_v8value_create_date(date);
 }
 
@@ -1608,11 +1614,25 @@ NO_SANITIZE("cfi-icall") int cef_time_now(cef_time_t* cef_time) {
   return g_libcef_pointers.cef_time_now(cef_time);
 }
 
+NO_SANITIZE("cfi-icall") cef_basetime_t cef_basetime_now() {
+  return g_libcef_pointers.cef_basetime_now();
+}
+
 NO_SANITIZE("cfi-icall")
 int cef_time_delta(const cef_time_t* cef_time1,
                    const cef_time_t* cef_time2,
                    long long* delta) {
   return g_libcef_pointers.cef_time_delta(cef_time1, cef_time2, delta);
+}
+
+NO_SANITIZE("cfi-icall")
+int cef_time_to_basetime(const cef_time_t* from, cef_basetime_t* to) {
+  return g_libcef_pointers.cef_time_to_basetime(from, to);
+}
+
+NO_SANITIZE("cfi-icall")
+int cef_time_from_basetime(const cef_basetime_t from, cef_time_t* to) {
+  return g_libcef_pointers.cef_time_from_basetime(from, to);
 }
 
 NO_SANITIZE("cfi-icall")

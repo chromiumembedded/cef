@@ -6,6 +6,7 @@
 #include <time.h>
 #include "base/logging.h"
 #include "base/notreached.h"
+#include "base/time/time.h"
 #include "include/cef_stream.h"
 
 // Static functions
@@ -180,13 +181,11 @@ int64 CefZipReaderImpl::GetFileSize() {
   return filesize_;
 }
 
-CefTime CefZipReaderImpl::GetFileLastModified() {
-  CefTime time;
+CefBaseTime CefZipReaderImpl::GetFileLastModified() {
   if (!VerifyContext() || !GetFileInfo())
-    return time;
+    return CefBaseTime();
 
-  cef_time_from_timet(filemodified_, &time);
-  return time;
+  return base::Time::FromTimeT(filemodified_);
 }
 
 bool CefZipReaderImpl::OpenFile(const CefString& password) {

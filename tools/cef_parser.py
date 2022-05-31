@@ -395,6 +395,7 @@ _simpletypes = {
     'cef_color_t': ['cef_color_t', '0'],
     'cef_json_parser_error_t': ['cef_json_parser_error_t', 'JSON_NO_ERROR'],
     'CefAudioParameters': ['cef_audio_parameters_t', 'CefAudioParameters()'],
+    'CefBaseTime': ['cef_basetime_t', 'CefBaseTime()'],
     'CefBoxLayoutSettings': [
         'cef_box_layout_settings_t', 'CefBoxLayoutSettings()'
     ],

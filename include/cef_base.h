@@ -37,6 +37,7 @@
 
 // Bring in common C++ type definitions used by CEF consumers.
 #include "include/internal/cef_ptr.h"
+#include "include/internal/cef_time_wrappers.h"
 #include "include/internal/cef_types_wrappers.h"
 #if defined(OS_WIN)
 #include "include/internal/cef_win.h"

@@ -100,13 +100,13 @@ class CefDownloadItem : public virtual CefBaseRefCounted {
   // Returns the time that the download started.
   ///
   /*--cef()--*/
-  virtual CefTime GetStartTime() = 0;
+  virtual CefBaseTime GetStartTime() = 0;
 
   ///
   // Returns the time that the download ended.
   ///
   /*--cef()--*/
-  virtual CefTime GetEndTime() = 0;
+  virtual CefBaseTime GetEndTime() = 0;
 
   ///
   // Returns the full path to the downloaded or downloading file.

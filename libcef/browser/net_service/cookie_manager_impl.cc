@@ -277,7 +277,7 @@ bool CefCookieManagerImpl::SetCookieInternal(
 
   base::Time expiration_time;
   if (cookie.has_expires)
-    cef_time_to_basetime(cookie.expires, expiration_time);
+    expiration_time = CefBaseTime(cookie.expires);
 
   net::CookieSameSite same_site =
       net_service::MakeCookieSameSite(cookie.same_site);

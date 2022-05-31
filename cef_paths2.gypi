@@ -42,6 +42,7 @@
       'include/internal/cef_export.h',
       'include/internal/cef_ptr.h',
       'include/internal/cef_string_wrappers.h',
+      'include/internal/cef_time_wrappers.h',
       'include/internal/cef_types_wrappers.h',
     ],
     'includes_common_capi': [
@@ -528,6 +529,7 @@
       'tests/ceftests/test_suite.h',
       'tests/ceftests/test_util.cc',
       'tests/ceftests/test_util.h',
+      'tests/ceftests/time_unittest.cc',
       'tests/ceftests/thread_helper.cc',
       'tests/ceftests/thread_helper.h',
       'tests/ceftests/thread_unittest.cc',

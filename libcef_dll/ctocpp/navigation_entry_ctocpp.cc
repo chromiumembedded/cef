@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=824aed5040e7aee5f9bf2079eafdf6d612b7d2d0$
+// $hash=f9bd014f608a1123ee15c3f1f999792ef18523ec$
 //
 
 #include "libcef_dll/ctocpp/navigation_entry_ctocpp.h"
@@ -140,17 +140,18 @@ NO_SANITIZE("cfi-icall") bool CefNavigationEntryCToCpp::HasPostData() {
   return _retval ? true : false;
 }
 
-NO_SANITIZE("cfi-icall") CefTime CefNavigationEntryCToCpp::GetCompletionTime() {
+NO_SANITIZE("cfi-icall")
+CefBaseTime CefNavigationEntryCToCpp::GetCompletionTime() {
   shutdown_checker::AssertNotShutdown();
 
   cef_navigation_entry_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_completion_time))
-    return CefTime();
+    return CefBaseTime();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_time_t _retval = _struct->get_completion_time(_struct);
+  cef_basetime_t _retval = _struct->get_completion_time(_struct);
 
   // Return type: simple
   return _retval;

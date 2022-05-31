@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b5ab278c54b7ed9046b43a7f362a18ebc8bde146$
+// $hash=71bb75d8d84070d9dfbddee9523c80403a60ddf5$
 //
 
 #include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
@@ -71,33 +71,34 @@ CefRefPtr<CefBinaryValue> CefX509CertificateCToCpp::GetSerialNumber() {
   return CefBinaryValueCToCpp::Wrap(_retval);
 }
 
-NO_SANITIZE("cfi-icall") CefTime CefX509CertificateCToCpp::GetValidStart() {
+NO_SANITIZE("cfi-icall") CefBaseTime CefX509CertificateCToCpp::GetValidStart() {
   shutdown_checker::AssertNotShutdown();
 
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_valid_start))
-    return CefTime();
+    return CefBaseTime();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_time_t _retval = _struct->get_valid_start(_struct);
+  cef_basetime_t _retval = _struct->get_valid_start(_struct);
 
   // Return type: simple
   return _retval;
 }
 
-NO_SANITIZE("cfi-icall") CefTime CefX509CertificateCToCpp::GetValidExpiry() {
+NO_SANITIZE("cfi-icall")
+CefBaseTime CefX509CertificateCToCpp::GetValidExpiry() {
   shutdown_checker::AssertNotShutdown();
 
   cef_x509certificate_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_valid_expiry))
-    return CefTime();
+    return CefBaseTime();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_time_t _retval = _struct->get_valid_expiry(_struct);
+  cef_basetime_t _retval = _struct->get_valid_expiry(_struct);
 
   // Return type: simple
   return _retval;

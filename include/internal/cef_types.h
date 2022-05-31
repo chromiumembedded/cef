@@ -783,19 +783,19 @@ typedef struct _cef_cookie_t {
   // The cookie creation date. This is automatically populated by the system on
   // cookie creation.
   ///
-  cef_time_t creation;
+  cef_basetime_t creation;
 
   ///
   // The cookie last access date. This is automatically populated by the system
   // on access.
   ///
-  cef_time_t last_access;
+  cef_basetime_t last_access;
 
   ///
   // The cookie expiration date is only valid if |has_expires| is true.
   ///
   int has_expires;
-  cef_time_t expires;
+  cef_basetime_t expires;
 
   ///
   // Same site.

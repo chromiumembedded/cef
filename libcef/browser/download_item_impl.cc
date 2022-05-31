@@ -59,18 +59,14 @@ int64 CefDownloadItemImpl::GetReceivedBytes() {
   return const_value().GetReceivedBytes();
 }
 
-CefTime CefDownloadItemImpl::GetStartTime() {
-  CefTime time;
-  CEF_VALUE_VERIFY_RETURN(false, time);
-  cef_time_from_basetime(const_value().GetStartTime(), time);
-  return time;
+CefBaseTime CefDownloadItemImpl::GetStartTime() {
+  CEF_VALUE_VERIFY_RETURN(false, CefBaseTime());
+  return const_value().GetStartTime();
 }
 
-CefTime CefDownloadItemImpl::GetEndTime() {
-  CefTime time;
-  CEF_VALUE_VERIFY_RETURN(false, time);
-  cef_time_from_basetime(const_value().GetEndTime(), time);
-  return time;
+CefBaseTime CefDownloadItemImpl::GetEndTime() {
+  CEF_VALUE_VERIFY_RETURN(false, CefBaseTime());
+  return const_value().GetEndTime();
 }
 
 CefString CefDownloadItemImpl::GetFullPath() {

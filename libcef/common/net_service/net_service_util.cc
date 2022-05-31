@@ -5,6 +5,7 @@
 
 #include "libcef/common/net_service/net_service_util.h"
 
+#include "include/internal/cef_time_wrappers.h"
 #include "libcef/common/time_util.h"
 
 #include <set>
@@ -224,11 +225,11 @@ bool MakeCefCookie(const net::CanonicalCookie& cc, CefCookie& cookie) {
   CefString(&cookie.path).FromString(cc.Path());
   cookie.secure = cc.IsSecure();
   cookie.httponly = cc.IsHttpOnly();
-  cef_time_from_basetime(cc.CreationDate(), cookie.creation);
-  cef_time_from_basetime(cc.LastAccessDate(), cookie.last_access);
+  cookie.creation = CefBaseTime(cc.CreationDate());
+  cookie.last_access = CefBaseTime(cc.LastAccessDate());
   cookie.has_expires = cc.IsPersistent();
   if (cookie.has_expires)
-    cef_time_from_basetime(cc.ExpiryDate(), cookie.expires);
+    cookie.expires = CefBaseTime(cc.ExpiryDate());
   cookie.same_site = MakeCefCookieSameSite(cc.SameSite());
   cookie.priority = MakeCefCookiePriority(cc.Priority());
 
@@ -262,11 +263,11 @@ bool MakeCefCookie(const GURL& url,
   CefString(&cookie.path).FromString(cookie_path);
   cookie.secure = pc.IsSecure();
   cookie.httponly = pc.IsHttpOnly();
-  cef_time_from_basetime(creation_time, cookie.creation);
-  cef_time_from_basetime(creation_time, cookie.last_access);
+  cookie.creation = CefBaseTime(creation_time);
+  cookie.last_access = CefBaseTime(creation_time);
   cookie.has_expires = !cookie_expires.is_null();
   if (cookie.has_expires)
-    cef_time_from_basetime(cookie_expires, cookie.expires);
+    cookie.expires = CefBaseTime(cookie_expires);
   cookie.same_site = MakeCefCookieSameSite(pc.SameSite());
   cookie.priority = MakeCefCookiePriority(pc.Priority());
 

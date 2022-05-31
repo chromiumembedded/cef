@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=05c6527a7cdeb9495bca9da965956fb3006a7bdd$
+// $hash=6e5538c52ff85f677fb62f4477d60cbb91e8a222$
 //
 
 #include "libcef_dll/ctocpp/download_item_ctocpp.h"
@@ -145,33 +145,33 @@ NO_SANITIZE("cfi-icall") int64 CefDownloadItemCToCpp::GetReceivedBytes() {
   return _retval;
 }
 
-NO_SANITIZE("cfi-icall") CefTime CefDownloadItemCToCpp::GetStartTime() {
+NO_SANITIZE("cfi-icall") CefBaseTime CefDownloadItemCToCpp::GetStartTime() {
   shutdown_checker::AssertNotShutdown();
 
   cef_download_item_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_start_time))
-    return CefTime();
+    return CefBaseTime();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_time_t _retval = _struct->get_start_time(_struct);
+  cef_basetime_t _retval = _struct->get_start_time(_struct);
 
   // Return type: simple
   return _retval;
 }
 
-NO_SANITIZE("cfi-icall") CefTime CefDownloadItemCToCpp::GetEndTime() {
+NO_SANITIZE("cfi-icall") CefBaseTime CefDownloadItemCToCpp::GetEndTime() {
   shutdown_checker::AssertNotShutdown();
 
   cef_download_item_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_end_time))
-    return CefTime();
+    return CefBaseTime();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_time_t _retval = _struct->get_end_time(_struct);
+  cef_basetime_t _retval = _struct->get_end_time(_struct);
 
   // Return type: simple
   return _retval;

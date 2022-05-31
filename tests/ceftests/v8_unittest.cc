@@ -9,6 +9,7 @@
 #include "include/cef_v8.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/test_handler.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/renderer/client_app_renderer.h"
@@ -378,10 +379,10 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     // Enter the V8 context.
     EXPECT_TRUE(context->Enter());
 
-    CefRefPtr<CefV8Value> value = CefV8Value::CreateDate(date);
+    CefRefPtr<CefV8Value> value = CefV8Value::CreateDate(CefBaseTimeFrom(date));
     EXPECT_TRUE(value.get());
     EXPECT_TRUE(value->IsDate());
-    EXPECT_EQ(date.GetTimeT(), value->GetDateValue().GetTimeT());
+    EXPECT_EQ(date.GetTimeT(), CefTimeFrom(value->GetDateValue()).GetTimeT());
 
     // Exit the V8 context.
     EXPECT_TRUE(context->Exit());

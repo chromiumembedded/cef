@@ -30,7 +30,7 @@ class CefNavigationEntryImpl
   CefString GetTitle() override;
   TransitionType GetTransitionType() override;
   bool HasPostData() override;
-  CefTime GetCompletionTime() override;
+  CefBaseTime GetCompletionTime() override;
   int GetHttpStatusCode() override;
   CefRefPtr<CefSSLStatus> GetSSLStatus() override;
 };

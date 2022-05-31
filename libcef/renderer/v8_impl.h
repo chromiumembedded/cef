@@ -216,7 +216,7 @@ class CefV8ValueImpl : public CefV8Value {
   void InitInt(int32 value);
   void InitUInt(uint32 value);
   void InitDouble(double value);
-  void InitDate(const CefTime& value);
+  void InitDate(CefBaseTime value);
   void InitString(CefString& value);
   void InitObject(v8::Local<v8::Value> value, CefTrackNode* tracker);
 
@@ -242,7 +242,7 @@ class CefV8ValueImpl : public CefV8Value {
   int32 GetIntValue() override;
   uint32 GetUIntValue() override;
   double GetDoubleValue() override;
-  CefTime GetDateValue() override;
+  CefBaseTime GetDateValue() override;
   CefString GetStringValue() override;
   bool IsUserCreated() override;
   bool HasException() override;
@@ -346,7 +346,7 @@ class CefV8ValueImpl : public CefV8Value {
     int32 int_value_;
     uint32 uint_value_;
     double double_value_;
-    cef_time_t date_value_;
+    cef_basetime_t date_value_;
     cef_string_t string_value_;
   };
 
