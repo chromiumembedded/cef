@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=c68332a779bab425aa2e6a858d20a43448631890$
+// $hash=942579315e4b8c0819cd2b06becb93670310cd09$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_JSDIALOG_HANDLER_CAPI_H_
@@ -127,7 +127,7 @@ typedef struct _cef_jsdialog_handler_t {
       struct _cef_browser_t* browser);
 
   ///
-  // Called when the default implementation dialog is closed.
+  // Called when the dialog is closed.
   ///
   void(CEF_CALLBACK* on_dialog_closed)(struct _cef_jsdialog_handler_t* self,
                                        struct _cef_browser_t* browser);

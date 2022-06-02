@@ -118,7 +118,7 @@ class CefJSDialogHandler : public virtual CefBaseRefCounted {
   virtual void OnResetDialogState(CefRefPtr<CefBrowser> browser) {}
 
   ///
-  // Called when the default implementation dialog is closed.
+  // Called when the dialog is closed.
   ///
   /*--cef()--*/
   virtual void OnDialogClosed(CefRefPtr<CefBrowser> browser) {}

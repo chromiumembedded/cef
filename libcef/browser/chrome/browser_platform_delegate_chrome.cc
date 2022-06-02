@@ -8,6 +8,7 @@
 
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_window.h"
+#include "chrome/browser/ui/chrome_web_modal_dialog_manager_delegate.h"
 #include "ui/display/display.h"
 #include "ui/display/screen.h"
 #include "ui/gfx/geometry/point.h"
@@ -45,6 +46,16 @@ void CefBrowserPlatformDelegateChrome::BrowserDestroyed(
 
 CefWindowHandle CefBrowserPlatformDelegateChrome::GetHostWindowHandle() const {
   return view_util::GetWindowHandle(GetNativeWindow());
+}
+
+web_modal::WebContentsModalDialogHost*
+CefBrowserPlatformDelegateChrome::GetWebContentsModalDialogHost() const {
+  if (chrome_browser_) {
+    ChromeWebModalDialogManagerDelegate* manager = chrome_browser_;
+    return manager->GetWebContentsModalDialogHost();
+  }
+  NOTREACHED();
+  return nullptr;
 }
 
 SkColor CefBrowserPlatformDelegateChrome::GetBackgroundColor() const {
@@ -124,5 +135,6 @@ void CefBrowserPlatformDelegateChrome::set_chrome_browser(Browser* browser) {
 gfx::NativeWindow CefBrowserPlatformDelegateChrome::GetNativeWindow() const {
   if (chrome_browser_ && chrome_browser_->window())
     return chrome_browser_->window()->GetNativeWindow();
+  NOTREACHED();
   return gfx::NativeWindow();
 }

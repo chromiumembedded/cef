@@ -233,17 +233,6 @@ CefEventHandle CefBrowserPlatformDelegateNativeLinux::GetEventHandle(
   return nullptr;
 }
 
-gfx::Point CefBrowserPlatformDelegateNativeLinux::GetDialogPosition(
-    const gfx::Size& size) {
-  const gfx::Size& max_size = GetMaximumDialogSize();
-  return gfx::Point((max_size.width() - size.width()) / 2,
-                    (max_size.height() - size.height()) / 2);
-}
-
-gfx::Size CefBrowserPlatformDelegateNativeLinux::GetMaximumDialogSize() {
-  return GetWindowWidget()->GetWindowBoundsInScreen().size();
-}
-
 ui::KeyEvent CefBrowserPlatformDelegateNativeLinux::TranslateUiKeyEvent(
     const CefKeyEvent& key_event) const {
   int flags = TranslateUiEventModifiers(key_event.modifiers);

@@ -16,6 +16,7 @@
 #include "libcef/common/net/url_util.h"
 
 #include "base/logging.h"
+#include "chrome/browser/platform_util.h"
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_service.h"
 #include "components/favicon/core/favicon_url.h"
@@ -136,6 +137,39 @@ CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::GetBrowserForGlobalId(
     }
     return nullptr;
   }
+}
+
+// static
+CefRefPtr<CefBrowserHostBase>
+CefBrowserHostBase::GetBrowserForTopLevelNativeWindow(
+    gfx::NativeWindow owning_window) {
+  DCHECK(owning_window);
+  CEF_REQUIRE_UIT();
+
+  for (const auto& browser_info :
+       CefBrowserInfoManager::GetInstance()->GetBrowserInfoList()) {
+    if (auto browser = browser_info->browser()) {
+      if (browser->GetTopLevelNativeWindow() == owning_window)
+        return browser;
+    }
+  }
+
+  return nullptr;
+}
+
+// static
+CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::GetLikelyFocusedBrowser() {
+  CEF_REQUIRE_UIT();
+
+  for (const auto& browser_info :
+       CefBrowserInfoManager::GetInstance()->GetBrowserInfoList()) {
+    if (auto browser = browser_info->browser()) {
+      if (browser->IsFocused())
+        return browser;
+    }
+  }
+
+  return nullptr;
 }
 
 CefBrowserHostBase::CefBrowserHostBase(
@@ -971,6 +1005,18 @@ bool CefBrowserHostBase::IsFocused() const {
     return static_cast<content::RenderFrameHostImpl*>(
                web_contents->GetMainFrame())
         ->IsFocused();
+  }
+  return false;
+}
+
+bool CefBrowserHostBase::IsVisible() const {
+  CEF_REQUIRE_UIT();
+  // Windowless browsers always return nullptr from GetNativeView().
+  if (!IsWindowless()) {
+    auto web_contents = GetWebContents();
+    if (web_contents) {
+      return platform_util::IsVisible(web_contents->GetNativeView());
+    }
   }
   return false;
 }

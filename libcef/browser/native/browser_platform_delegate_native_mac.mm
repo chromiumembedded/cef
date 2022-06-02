@@ -374,22 +374,6 @@ CefBrowserPlatformDelegateNativeMac::CreateMenuRunner() {
   return base::WrapUnique(new CefMenuRunnerMac);
 }
 
-gfx::Point CefBrowserPlatformDelegateNativeMac::GetDialogPosition(
-    const gfx::Size& size) {
-  // Dialogs are always re-positioned by the constrained window sheet controller
-  // so nothing interesting to return yet.
-  return gfx::Point();
-}
-
-gfx::Size CefBrowserPlatformDelegateNativeMac::GetMaximumDialogSize() {
-  if (!web_contents_)
-    return gfx::Size();
-
-  // The dialog should try to fit within the overlay for the web contents.
-  // Note that, for things like print preview, this is just a suggested maximum.
-  return web_contents_->GetContainerBounds().size();
-}
-
 content::NativeWebKeyboardEvent
 CefBrowserPlatformDelegateNativeMac::TranslateWebKeyEvent(
     const CefKeyEvent& key_event) const {

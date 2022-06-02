@@ -404,10 +404,23 @@ index b3a3efd0e526f..8590a98eaf0b2 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 0a34478e9cb44..bf9059edbd634 100644
+index 0a34478e9cb44..e61fca5b6e525 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -3176,10 +3176,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -796,7 +796,11 @@ bool HWNDMessageHandler::IsVisible() const {
+ }
+ 
+ bool HWNDMessageHandler::IsActive() const {
+-  return GetActiveWindow() == hwnd();
++  // This active state is checked via FocusManager::SetFocusedViewWithReason.
++  // With CEF external parent hwnd() may be a child window, whereas
++  // GetActiveWindow() will return the root window, so make sure that we always
++  // compare root windows.
++  return GetActiveWindow() == GetAncestor(hwnd(), GA_ROOT);
+ }
+ 
+ bool HWNDMessageHandler::IsMinimized() const {
+@@ -3176,10 +3180,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.

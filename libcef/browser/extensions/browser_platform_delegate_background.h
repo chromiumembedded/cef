@@ -41,8 +41,6 @@ class CefBrowserPlatformDelegateBackground
       const content::NativeWebKeyboardEvent& event) override;
   CefEventHandle GetEventHandle(
       const content::NativeWebKeyboardEvent& event) const override;
-  std::unique_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner()
-      override;
   std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
 
   // CefBrowserPlatformDelegateNative::WindowlessHandler methods:

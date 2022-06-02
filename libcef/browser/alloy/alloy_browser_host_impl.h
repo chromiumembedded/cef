@@ -137,11 +137,15 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   // Returns true if windowless rendering is enabled.
   bool IsWindowless() const override;
 
+  bool IsVisible() const override;
+
   // Returns true if this browser supports picture-in-picture.
   bool IsPictureInPictureSupported() const;
 
   // Called when the OS window hosting the browser is destroyed.
   void WindowDestroyed() override;
+
+  bool WillBeDestroyed() const override;
 
   // Destroy the browser members. This method should only be called after the
   // native browser window is not longer processing messages.

@@ -271,30 +271,44 @@ ClientHandler::ClientHandler(Delegate* delegate,
   offline_ = command_line->HasSwitch(switches::kOffline);
 
 #if defined(OS_LINUX)
-  // Optionally use the client-provided dialog implementation.
-  bool use_client_dialogs =
+  // Optionally use the client-provided GTK dialogs.
+  const bool use_client_dialogs =
       command_line->HasSwitch(switches::kUseClientDialogs);
 
-  if (!use_client_dialogs &&
-      command_line->HasSwitch(switches::kMultiThreadedMessageLoop)) {
-    // Default dialogs are not supported in combination with
-    // multi-threaded-message-loop because Chromium doesn't support GDK threads
-    // internally.
-    LOG(WARNING) << "Client dialogs must be used in combination with "
-                    "multi-threaded-message-loop.";
-    use_client_dialogs = true;
+  // Determine if the client-provided GTK dialogs can/should be used.
+  bool require_client_dialogs = false;
+  bool support_client_dialogs = true;
+
+  if (command_line->HasSwitch(switches::kMultiThreadedMessageLoop)) {
+    // Default/internal GTK dialogs are not supported in combination with
+    // multi-threaded-message-loop because Chromium doesn't support GDK threads.
+    // This does not apply to the JS dialogs which use Views instead of GTK.
+    if (!use_client_dialogs) {
+      LOG(WARNING) << "Client dialogs must be used in combination with "
+                      "multi-threaded-message-loop.";
+    }
+    require_client_dialogs = true;
   }
 
-  if (use_client_dialogs && MainContext::Get()->UseViews()) {
-    // Client dialogs cannot be used in combination with Views because the
-    // implementation of ClientDialogHandlerGtk requires a top-level GtkWindow.
-    LOG(ERROR) << "Client dialogs cannot be used in combination with Views.";
-    use_client_dialogs = false;
+  if (MainContext::Get()->UseViews()) {
+    // Client-provided GTK dialogs cannot be used in combination with Views
+    // because the implementation of ClientDialogHandlerGtk requires a top-level
+    // GtkWindow.
+    if (use_client_dialogs) {
+      LOG(ERROR) << "Client dialogs cannot be used in combination with Views.";
+    }
+    support_client_dialogs = false;
   }
 
-  if (use_client_dialogs) {
-    dialog_handler_ = new ClientDialogHandlerGtk();
-    print_handler_ = new ClientPrintHandlerGtk();
+  if (support_client_dialogs) {
+    if (use_client_dialogs) {
+      js_dialog_handler_ = new ClientDialogHandlerGtk();
+    }
+    if (use_client_dialogs || require_client_dialogs) {
+      file_dialog_handler_ = js_dialog_handler_ ? js_dialog_handler_
+                                                : new ClientDialogHandlerGtk();
+      print_handler_ = new ClientPrintHandlerGtk();
+    }
   }
 #endif  // defined(OS_LINUX)
 }

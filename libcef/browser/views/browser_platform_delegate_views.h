@@ -61,8 +61,6 @@ class CefBrowserPlatformDelegateViews
       const content::NativeWebKeyboardEvent& event) override;
   CefEventHandle GetEventHandle(
       const content::NativeWebKeyboardEvent& event) const override;
-  std::unique_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner()
-      override;
   std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
   bool IsViewsHosted() const override;
   gfx::Point GetDialogPosition(const gfx::Size& size) override;

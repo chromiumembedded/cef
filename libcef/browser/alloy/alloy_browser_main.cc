@@ -8,6 +8,7 @@
 
 #include <string>
 
+#include "libcef/browser/alloy/dialogs/alloy_constrained_window_views_client.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_context_keyed_service_factories.h"
 #include "libcef/browser/context.h"
@@ -15,19 +16,21 @@
 #include "libcef/browser/extensions/extension_system_factory.h"
 #include "libcef/browser/file_dialog_runner.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
-#include "libcef/browser/printing/constrained_window_views_client.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/app_manager.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/net/net_resource_provider.h"
 
 #include "base/bind.h"
+#include "base/feature_list.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/task/thread_pool.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/media/router/chrome_media_router_factory.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/plugins/plugin_finder.h"
+#include "chrome/browser/ui/javascript_dialogs/chrome_javascript_app_modal_dialog_view_factory.h"
+#include "chrome/browser/ui/ui_features.h"
 #include "chrome/common/chrome_switches.h"
 #include "components/constrained_window/constrained_window_views.h"
 #include "content/public/browser/gpu_data_manager.h"
@@ -170,7 +173,7 @@ AlloyBrowserMainParts::~AlloyBrowserMainParts() {
 }
 
 void AlloyBrowserMainParts::ToolkitInitialized() {
-  SetConstrainedWindowViewsClient(CreateCefConstrainedWindowViewsClient());
+  SetConstrainedWindowViewsClient(CreateAlloyConstrainedWindowViewsClient());
 #if defined(USE_AURA)
   CHECK(aura::Env::GetInstance());
 
@@ -186,6 +189,15 @@ void AlloyBrowserMainParts::ToolkitInitialized() {
 
 #if BUILDFLAG(IS_LINUX)
   ToolkitInitializedLinux();
+#endif
+
+#if BUILDFLAG(IS_MAC)
+  if (base::FeatureList::IsEnabled(features::kViewsJSAppModalDialog))
+    InstallChromeJavaScriptAppModalDialogViewFactory();
+  else
+    InstallChromeJavaScriptAppModalDialogViewCocoaFactory();
+#else
+  InstallChromeJavaScriptAppModalDialogViewFactory();
 #endif
 }
 

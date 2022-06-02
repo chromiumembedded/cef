@@ -121,10 +121,10 @@ class ClientHandler : public CefClient,
 
 #if defined(OS_LINUX)
   CefRefPtr<CefDialogHandler> GetDialogHandler() override {
-    return dialog_handler_;
+    return file_dialog_handler_;
   }
   CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() override {
-    return dialog_handler_;
+    return js_dialog_handler_;
   }
   CefRefPtr<CefPrintHandler> GetPrintHandler() override {
     return print_handler_;
@@ -389,8 +389,9 @@ class ClientHandler : public CefClient,
   bool download_favicon_images_;
 
 #if defined(OS_LINUX)
-  // Custom dialog handler for GTK.
-  CefRefPtr<ClientDialogHandlerGtk> dialog_handler_;
+  // Custom dialog handlers for GTK.
+  CefRefPtr<ClientDialogHandlerGtk> file_dialog_handler_;
+  CefRefPtr<ClientDialogHandlerGtk> js_dialog_handler_;
   CefRefPtr<ClientPrintHandlerGtk> print_handler_;
 #endif
 

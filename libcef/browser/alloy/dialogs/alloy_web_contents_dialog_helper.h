@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_BROWSER_WEB_CONTENTS_DIALOG_HELPER_H_
-#define CEF_LIBCEF_BROWSER_WEB_CONTENTS_DIALOG_HELPER_H_
+#ifndef CEF_LIBCEF_BROWSER_ALLOY_DIALOGS_ALLOY_WEB_CONTENTS_DIALOG_HELPER_H_
+#define CEF_LIBCEF_BROWSER_ALLOY_DIALOGS_ALLOY_WEB_CONTENTS_DIALOG_HELPER_H_
 #pragma once
 
 #include "base/callback_forward.h"
@@ -15,12 +15,12 @@
 
 class CefBrowserPlatformDelegate;
 
-class CefWebContentsDialogHelper
+class AlloyWebContentsDialogHelper
     : public web_modal::WebContentsModalDialogManagerDelegate,
       public web_modal::WebContentsModalDialogHost {
  public:
-  CefWebContentsDialogHelper(content::WebContents* web_contents,
-                             CefBrowserPlatformDelegate* browser_delegate);
+  AlloyWebContentsDialogHelper(content::WebContents* web_contents,
+                               CefBrowserPlatformDelegate* browser_delegate);
 
   base::RepeatingClosure GetBoundsChangedCallback();
 
@@ -31,6 +31,7 @@ class CefWebContentsDialogHelper
 
   // web_modal::WebContentsModalDialogHost methods:
   gfx::NativeView GetHostView() const override;
+  gfx::AcceleratedWidget GetHostWidget() const override;
   gfx::Point GetDialogPosition(const gfx::Size& size) override;
   gfx::Size GetMaximumDialogSize() override;
   void AddObserver(web_modal::ModalDialogHostObserver* observer) override;
@@ -45,7 +46,7 @@ class CefWebContentsDialogHelper
   base::ObserverList<web_modal::ModalDialogHostObserver>::Unchecked
       observer_list_;
 
-  base::WeakPtrFactory<CefWebContentsDialogHelper> weak_factory_;
+  base::WeakPtrFactory<AlloyWebContentsDialogHelper> weak_factory_;
 };
 
-#endif  // CEF_LIBCEF_BROWSER_WEB_CONTENTS_DIALOG_HELPER_H_
+#endif  // CEF_LIBCEF_BROWSER_ALLOY_DIALOGS_ALLOY_WEB_CONTENTS_DIALOG_HELPER_H_

@@ -538,6 +538,12 @@ void ChromeBrowserHostImpl::WindowDestroyed() {
   platform_delegate_->CloseHostWindow();
 }
 
+bool ChromeBrowserHostImpl::WillBeDestroyed() const {
+  CEF_REQUIRE_UIT();
+  // TODO(chrome): Modify this to support DoClose(), see issue #3294.
+  return !!browser_;
+}
+
 void ChromeBrowserHostImpl::DestroyBrowser() {
   CEF_REQUIRE_UIT();
   browser_ = nullptr;

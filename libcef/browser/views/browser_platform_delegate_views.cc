@@ -258,11 +258,6 @@ CefEventHandle CefBrowserPlatformDelegateViews::GetEventHandle(
   return native_delegate_->GetEventHandle(event);
 }
 
-std::unique_ptr<CefJavaScriptDialogRunner>
-CefBrowserPlatformDelegateViews::CreateJavaScriptDialogRunner() {
-  return native_delegate_->CreateJavaScriptDialogRunner();
-}
-
 std::unique_ptr<CefMenuRunner>
 CefBrowserPlatformDelegateViews::CreateMenuRunner() {
   return base::WrapUnique(new CefMenuRunnerViews(browser_view_.get()));

@@ -34,8 +34,6 @@ class CefBrowserPlatformDelegateNativeLinux
       const content::NativeWebKeyboardEvent& event) override;
   CefEventHandle GetEventHandle(
       const content::NativeWebKeyboardEvent& event) const override;
-  gfx::Point GetDialogPosition(const gfx::Size& size) override;
-  gfx::Size GetMaximumDialogSize() override;
 
   // CefBrowserPlatformDelegateNativeAura methods:
   ui::KeyEvent TranslateUiKeyEvent(const CefKeyEvent& key_event) const override;

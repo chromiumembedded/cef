@@ -235,6 +235,13 @@ void CefBrowserPlatformDelegateOsr::WasHidden(bool hidden) {
   }
 }
 
+bool CefBrowserPlatformDelegateOsr::IsHidden() const {
+  CefRenderWidgetHostViewOSR* view = GetOSRHostView();
+  if (view)
+    return view->is_hidden();
+  return true;
+}
+
 void CefBrowserPlatformDelegateOsr::NotifyScreenInfoChanged() {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
   if (view)

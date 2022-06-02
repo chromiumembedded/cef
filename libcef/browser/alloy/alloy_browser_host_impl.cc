@@ -618,6 +618,14 @@ bool AlloyBrowserHostImpl::IsWindowless() const {
   return is_windowless_;
 }
 
+bool AlloyBrowserHostImpl::IsVisible() const {
+  CEF_REQUIRE_UIT();
+  if (IsWindowless() && platform_delegate_) {
+    return !platform_delegate_->IsHidden();
+  }
+  return CefBrowserHostBase::IsVisible();
+}
+
 bool AlloyBrowserHostImpl::IsPictureInPictureSupported() const {
   // Not currently supported with OSR.
   return !IsWindowless();
@@ -628,6 +636,11 @@ void AlloyBrowserHostImpl::WindowDestroyed() {
   DCHECK(!window_destroyed_);
   window_destroyed_ = true;
   CloseBrowser(true);
+}
+
+bool AlloyBrowserHostImpl::WillBeDestroyed() const {
+  CEF_REQUIRE_UIT();
+  return destruction_state_ >= DESTRUCTION_STATE_ACCEPTED;
 }
 
 void AlloyBrowserHostImpl::DestroyBrowser() {
@@ -1233,9 +1246,8 @@ void AlloyBrowserHostImpl::DidNavigatePrimaryMainFramePostCommit(
 
 content::JavaScriptDialogManager*
 AlloyBrowserHostImpl::GetJavaScriptDialogManager(content::WebContents* source) {
-  if (!javascript_dialog_manager_.get() && platform_delegate_) {
-    javascript_dialog_manager_.reset(new CefJavaScriptDialogManager(
-        this, platform_delegate_->CreateJavaScriptDialogRunner()));
+  if (!javascript_dialog_manager_) {
+    javascript_dialog_manager_.reset(new CefJavaScriptDialogManager(this));
   }
   return javascript_dialog_manager_.get();
 }

@@ -128,6 +128,14 @@ class CefBrowserHostBase : public CefBrowserHost,
   // Returns the browser associated with the specified global ID.
   static CefRefPtr<CefBrowserHostBase> GetBrowserForGlobalId(
       const content::GlobalRenderFrameHostId& global_id);
+  // Returns the browser associated with the specified top-level window.
+  static CefRefPtr<CefBrowserHostBase> GetBrowserForTopLevelNativeWindow(
+      gfx::NativeWindow owning_window);
+
+  // Returns the browser most likely to be focused. This may be somewhat iffy
+  // with windowless browsers as there is no guarantee that the client has only
+  // one browser focused at a time.
+  static CefRefPtr<CefBrowserHostBase> GetLikelyFocusedBrowser();
 
   CefBrowserHostBase(
       const CefBrowserSettings& settings,
@@ -145,6 +153,10 @@ class CefBrowserHostBase : public CefBrowserHost,
   // Called on the UI thread when the OS window hosting the browser is
   // destroyed.
   virtual void WindowDestroyed() = 0;
+
+  // Returns true if the browser is in the process of being destroyed. Called on
+  // the UI thread only.
+  virtual bool WillBeDestroyed() const = 0;
 
   // Called on the UI thread after the associated WebContents is destroyed.
   // Also called from CefBrowserInfoManager::DestroyAllBrowsers if the browser
@@ -311,6 +323,9 @@ class CefBrowserHostBase : public CefBrowserHost,
   // browser should be focused at a time. With windowless browsers this relies
   // on the client to properly configure focus state.
   bool IsFocused() const;
+
+  // Returns true if this browser is currently visible.
+  virtual bool IsVisible() const;
 
  protected:
   bool EnsureDevToolsManager();

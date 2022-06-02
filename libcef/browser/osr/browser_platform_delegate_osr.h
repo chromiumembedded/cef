@@ -55,6 +55,7 @@ class CefBrowserPlatformDelegateOsr
   std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
   bool IsWindowless() const override;
   void WasHidden(bool hidden) override;
+  bool IsHidden() const override;
   void NotifyScreenInfoChanged() override;
   void Invalidate(cef_paint_element_type_t type) override;
   void SendExternalBeginFrame() override;

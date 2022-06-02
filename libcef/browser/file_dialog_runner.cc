@@ -6,7 +6,6 @@
 #include "libcef/browser/file_dialog_runner.h"
 
 #include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
 
 #include "base/memory/singleton.h"
@@ -50,32 +49,6 @@ class CefSelectFileDialogFactory final : public ui::SelectFileDialogFactory {
   CefSelectFileDialogFactory() { ui::SelectFileDialog::SetFactory(this); }
 };
 
-CefRefPtr<CefBrowserHostBase> GetBrowserForTopLevelNativeWindow(
-    gfx::NativeWindow owning_window) {
-  DCHECK(owning_window);
-  for (const auto& browser_info :
-       CefBrowserInfoManager::GetInstance()->GetBrowserInfoList()) {
-    if (auto browser = browser_info->browser()) {
-      if (browser->GetTopLevelNativeWindow() == owning_window)
-        return browser;
-    }
-  }
-
-  return nullptr;
-}
-
-CefRefPtr<CefBrowserHostBase> GetLikelyFocusedBrowser() {
-  for (const auto& browser_info :
-       CefBrowserInfoManager::GetInstance()->GetBrowserInfoList()) {
-    if (auto browser = browser_info->browser()) {
-      if (browser->IsFocused())
-        return browser;
-    }
-  }
-
-  return nullptr;
-}
-
 // Delegates the running of the dialog to CefFileDialogManager.
 class CefSelectFileDialog final : public ui::SelectFileDialog {
  public:
@@ -118,7 +91,8 @@ class CefSelectFileDialog final : public ui::SelectFileDialog {
     // This should be reliable with windowed browsers. However, |owning_window|
     // will always be nullptr with windowless browsers.
     if (!browser_ && owning_window) {
-      browser_ = GetBrowserForTopLevelNativeWindow(owning_window);
+      browser_ =
+          CefBrowserHostBase::GetBrowserForTopLevelNativeWindow(owning_window);
       if (!browser_) {
         LOG(WARNING) << "No browser associated with top-level native window";
       }
@@ -128,7 +102,7 @@ class CefSelectFileDialog final : public ui::SelectFileDialog {
     // windowless browsers as there is no guarantee that the client has only
     // one browser focused at a time.
     if (!browser_) {
-      browser_ = GetLikelyFocusedBrowser();
+      browser_ = CefBrowserHostBase::GetLikelyFocusedBrowser();
       if (!browser_) {
         LOG(WARNING) << "No likely focused browser";
       }

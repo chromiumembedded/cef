@@ -7,10 +7,10 @@
 #define CEF_LIBCEF_BROWSER_JAVASCRIPT_DIALOG_RUNNER_H_
 #pragma once
 
-#include "base/callback.h"
+#include "content/public/browser/javascript_dialog_manager.h"
 #include "content/public/common/javascript_dialog_type.h"
 
-class AlloyBrowserHostImpl;
+class CefBrowserHostBase;
 
 class CefJavaScriptDialogRunner {
  public:
@@ -19,16 +19,18 @@ class CefJavaScriptDialogRunner {
       delete;
 
   using DialogClosedCallback =
-      base::OnceCallback<void(bool /* success */,
-                              const std::u16string& /* user_input */)>;
+      content::JavaScriptDialogManager::DialogClosedCallback;
 
   // Run the dialog. Execute |callback| on completion.
-  virtual void Run(AlloyBrowserHostImpl* browser,
+  virtual void Run(CefBrowserHostBase* browser,
                    content::JavaScriptDialogType message_type,
-                   const std::u16string& display_url,
+                   const GURL& origin_url,
                    const std::u16string& message_text,
                    const std::u16string& default_prompt_text,
                    DialogClosedCallback callback) = 0;
+
+  // Dismiss the dialog with the specified results.
+  virtual void Handle(bool accept, const std::u16string* prompt_override) = 0;
 
   // Cancel a dialog mid-flight.
   virtual void Cancel() = 0;

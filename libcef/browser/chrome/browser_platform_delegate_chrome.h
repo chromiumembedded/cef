@@ -25,6 +25,8 @@ class CefBrowserPlatformDelegateChrome
   void BrowserCreated(CefBrowserHostBase* browser) override;
   void BrowserDestroyed(CefBrowserHostBase* browser) override;
   CefWindowHandle GetHostWindowHandle() const override;
+  web_modal::WebContentsModalDialogHost* GetWebContentsModalDialogHost()
+      const override;
   SkColor GetBackgroundColor() const override;
   void SendKeyEvent(const CefKeyEvent& event) override;
   void SendMouseClickEvent(const CefMouseEvent& event,

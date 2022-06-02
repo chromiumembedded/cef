@@ -10,6 +10,7 @@
 #include "base/bind.h"
 #include "base/strings/sys_string_conversions.h"
 #include "base/strings/utf_string_conversions.h"
+#include "components/url_formatter/elide_url.h"
 
 // Helper object that receives the notification that the dialog/sheet is
 // going away. Is responsible for cleaning itself up.
@@ -87,9 +88,9 @@ CefJavaScriptDialogRunnerMac::~CefJavaScriptDialogRunnerMac() {
 }
 
 void CefJavaScriptDialogRunnerMac::Run(
-    AlloyBrowserHostImpl* browser,
+    CefBrowserHostBase* browser,
     content::JavaScriptDialogType message_type,
-    const std::u16string& display_url,
+    const GURL& origin_url,
     const std::u16string& message_text,
     const std::u16string& default_prompt_text,
     DialogClosedCallback callback) {
@@ -126,6 +127,9 @@ void CefJavaScriptDialogRunnerMac::Run(
       label = u"JavaScript Confirm";
       break;
   }
+
+  const std::u16string& display_url =
+      url_formatter::FormatUrlForSecurityDisplay(origin_url);
   if (!display_url.empty())
     label += u" - " + display_url;
 
@@ -154,6 +158,14 @@ void CefJavaScriptDialogRunnerMac::Run(
 
   if ([alert accessoryView])
     [[alert window] makeFirstResponder:[alert accessoryView]];
+}
+
+void CefJavaScriptDialogRunnerMac::Handle(
+    bool accept,
+    const std::u16string* prompt_override) {
+  if (helper_.get()) {
+    DialogClosed(accept, prompt_override ? *prompt_override : std::u16string());
+  }
 }
 
 void CefJavaScriptDialogRunnerMac::Cancel() {

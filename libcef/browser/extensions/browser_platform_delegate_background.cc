@@ -103,11 +103,6 @@ CefEventHandle CefBrowserPlatformDelegateBackground::GetEventHandle(
   return native_delegate_->GetEventHandle(event);
 }
 
-std::unique_ptr<CefJavaScriptDialogRunner>
-CefBrowserPlatformDelegateBackground::CreateJavaScriptDialogRunner() {
-  return native_delegate_->CreateJavaScriptDialogRunner();
-}
-
 std::unique_ptr<CefMenuRunner>
 CefBrowserPlatformDelegateBackground::CreateMenuRunner() {
   // No default menu implementation for background browsers.

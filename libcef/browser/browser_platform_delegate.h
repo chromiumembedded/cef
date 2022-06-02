@@ -61,6 +61,10 @@ namespace views {
 class Widget;
 }
 
+namespace web_modal {
+class WebContentsModalDialogHost;
+}
+
 struct CefBrowserCreateParams;
 class CefBrowserHostBase;
 class CefJavaScriptDialogRunner;
@@ -178,6 +182,10 @@ class CefBrowserPlatformDelegate {
   // based browsers.
   virtual CefRefPtr<CefBrowserView> GetBrowserView() const;
 
+  // Returns the WebContentsModalDialogHost associated with this browser.
+  virtual web_modal::WebContentsModalDialogHost* GetWebContentsModalDialogHost()
+      const;
+
   // Called after the WebContents have been created for a new popup browser
   // parented to this browser but before the AlloyBrowserHostImpl is created for
   // the popup. |is_devtools| will be true if the popup will host DevTools. This
@@ -288,6 +296,10 @@ class CefBrowserPlatformDelegate {
 
   // Notify the browser that it was hidden. Only used with windowless rendering.
   virtual void WasHidden(bool hidden);
+
+  // Returns true if the browser is currently hidden. Only used with windowless
+  // rendering.
+  virtual bool IsHidden() const;
 
   // Notify the browser that screen information has changed. Only used with
   // windowless rendering.

@@ -9,6 +9,7 @@
 
 #include "libcef/browser/javascript_dialog_runner.h"
 
+#include "base/callback.h"
 #include "base/mac/scoped_nsobject.h"
 #include "base/memory/weak_ptr.h"
 
@@ -24,12 +25,13 @@ class CefJavaScriptDialogRunnerMac : public CefJavaScriptDialogRunner {
   ~CefJavaScriptDialogRunnerMac() override;
 
   // CefJavaScriptDialogRunner methods:
-  void Run(AlloyBrowserHostImpl* browser,
+  void Run(CefBrowserHostBase* browser,
            content::JavaScriptDialogType message_type,
-           const std::u16string& display_url,
+           const GURL& origin_url,
            const std::u16string& message_text,
            const std::u16string& default_prompt_text,
            DialogClosedCallback callback) override;
+  void Handle(bool accept, const std::u16string* prompt_override) override;
   void Cancel() override;
 
   // Callback from CefJavaScriptDialogHelper when the dialog is closed.

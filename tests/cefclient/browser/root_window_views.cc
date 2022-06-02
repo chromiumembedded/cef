@@ -529,6 +529,10 @@ void RootWindowViews::NotifyViewsWindowActivated() {
 void RootWindowViews::NotifyDestroyedIfDone() {
   // Notify once both the window and the browser have been destroyed.
   if (window_destroyed_ && browser_destroyed_) {
+    // The delegate may be holding the last reference to |this|, so take a
+    // reference here to keep |this| alive until after the method completes.
+    scoped_refptr<RootWindow> self = this;
+
     delegate_->OnRootWindowDestroyed(this);
     if (!config_->close_callback.is_null())
       std::move(config_->close_callback).Run();

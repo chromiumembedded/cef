@@ -308,6 +308,8 @@ class CefRenderWidgetHostViewOSR
 
   ui::TextInputType GetTextInputType();
 
+  bool is_hidden() const { return !is_showing_; }
+
  private:
   void SetFrameRate();
   bool SetScreenInfo();

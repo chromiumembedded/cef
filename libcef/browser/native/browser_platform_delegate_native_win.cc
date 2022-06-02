@@ -10,7 +10,6 @@
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/context.h"
-#include "libcef/browser/native/javascript_dialog_runner_win.h"
 #include "libcef/browser/native/window_delegate_view.h"
 #include "libcef/browser/thread_util.h"
 
@@ -423,22 +422,6 @@ CefEventHandle CefBrowserPlatformDelegateNativeWin::GetEventHandle(
     return NULL;
   return ChromeToWindowsType(
       const_cast<CHROME_MSG*>(&event.os_event->native_event()));
-}
-
-std::unique_ptr<CefJavaScriptDialogRunner>
-CefBrowserPlatformDelegateNativeWin::CreateJavaScriptDialogRunner() {
-  return base::WrapUnique(new CefJavaScriptDialogRunnerWin);
-}
-
-gfx::Point CefBrowserPlatformDelegateNativeWin::GetDialogPosition(
-    const gfx::Size& size) {
-  const gfx::Size& max_size = GetMaximumDialogSize();
-  return gfx::Point((max_size.width() - size.width()) / 2,
-                    (max_size.height() - size.height()) / 2);
-}
-
-gfx::Size CefBrowserPlatformDelegateNativeWin::GetMaximumDialogSize() {
-  return GetWindowWidget()->GetWindowBoundsInScreen().size();
 }
 
 ui::KeyEvent CefBrowserPlatformDelegateNativeWin::TranslateUiKeyEvent(

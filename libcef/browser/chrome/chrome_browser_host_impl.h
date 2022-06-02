@@ -150,6 +150,7 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
 
   // CefBrowserHostBase methods:
   void WindowDestroyed() override;
+  bool WillBeDestroyed() const override;
   void DestroyBrowser() override;
 
   void DoCloseBrowser(bool force_close);

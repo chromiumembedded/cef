@@ -5,6 +5,7 @@
 #include "libcef/browser/alloy/browser_platform_delegate_alloy.h"
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "libcef/browser/alloy/dialogs/alloy_javascript_dialog_manager_delegate.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/extensions/extension_background_host.h"
 #include "libcef/browser/extensions/extension_system.h"
@@ -21,6 +22,7 @@
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "components/find_in_page/find_tab_helper.h"
 #include "components/find_in_page/find_types.h"
+#include "components/javascript_dialogs/tab_modal_dialog_manager.h"
 #include "components/zoom/zoom_controller.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/browser/web_contents/web_contents_impl.h"
@@ -184,10 +186,13 @@ void CefBrowserPlatformDelegateAlloy::BrowserCreated(
     zoom::ZoomController::CreateForWebContents(web_contents_);
   }
 
-  if (IsPrintPreviewSupported()) {
-    web_contents_dialog_helper_.reset(
-        new CefWebContentsDialogHelper(web_contents_, this));
-  }
+  javascript_dialogs::TabModalDialogManager::CreateForWebContents(
+      web_contents_,
+      CreateAlloyJavaScriptTabModalDialogManagerDelegateDesktop(web_contents_));
+
+  // Used for print preview and JavaScript dialogs.
+  web_contents_dialog_helper_.reset(
+      new AlloyWebContentsDialogHelper(web_contents_, this));
 }
 
 void CefBrowserPlatformDelegateAlloy::CreateExtensionHost(
@@ -240,6 +245,11 @@ void CefBrowserPlatformDelegateAlloy::BrowserDestroyed(
   }
 
   CefBrowserPlatformDelegate::BrowserDestroyed(browser);
+}
+
+web_modal::WebContentsModalDialogHost*
+CefBrowserPlatformDelegateAlloy::GetWebContentsModalDialogHost() const {
+  return web_contents_dialog_helper_.get();
 }
 
 void CefBrowserPlatformDelegateAlloy::SendCaptureLostEvent() {

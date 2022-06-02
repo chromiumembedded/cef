@@ -6,8 +6,8 @@
 #ifndef CEF_LIBCEF_BROWSER_ALLOY_BROWSER_PLATFORM_DELEGATE_ALLOY_H_
 #define CEF_LIBCEF_BROWSER_ALLOY_BROWSER_PLATFORM_DELEGATE_ALLOY_H_
 
+#include "libcef/browser/alloy/dialogs/alloy_web_contents_dialog_helper.h"
 #include "libcef/browser/browser_platform_delegate.h"
-#include "libcef/browser/web_contents_dialog_helper.h"
 
 #include "base/memory/weak_ptr.h"
 #include "components/find_in_page/find_notification_details.h"
@@ -42,6 +42,8 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
                            extensions::mojom::ViewType host_type) override;
   extensions::ExtensionHost* GetExtensionHost() const override;
   void BrowserDestroyed(CefBrowserHostBase* browser) override;
+  web_modal::WebContentsModalDialogHost* GetWebContentsModalDialogHost()
+      const override;
   void SendCaptureLostEvent() override;
 #if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
   void NotifyMoveOrResizeStarted() override;
@@ -98,7 +100,7 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
   std::unique_ptr<content::WebContents> owned_web_contents_;
 
   // Used for the print preview dialog.
-  std::unique_ptr<CefWebContentsDialogHelper> web_contents_dialog_helper_;
+  std::unique_ptr<AlloyWebContentsDialogHelper> web_contents_dialog_helper_;
 
   // The last find result. This object contains details about the number of
   // matches, the find selection rectangle, etc.

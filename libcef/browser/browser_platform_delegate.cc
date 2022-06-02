@@ -131,6 +131,12 @@ CefRefPtr<CefBrowserView> CefBrowserPlatformDelegate::GetBrowserView() const {
   return nullptr;
 }
 
+web_modal::WebContentsModalDialogHost*
+CefBrowserPlatformDelegate::GetWebContentsModalDialogHost() const {
+  NOTREACHED();
+  return nullptr;
+}
+
 void CefBrowserPlatformDelegate::PopupWebContentsCreated(
     const CefBrowserSettings& settings,
     CefRefPtr<CefClient> client,
@@ -226,7 +232,6 @@ CefEventHandle CefBrowserPlatformDelegate::GetEventHandle(
 
 std::unique_ptr<CefJavaScriptDialogRunner>
 CefBrowserPlatformDelegate::CreateJavaScriptDialogRunner() {
-  NOTIMPLEMENTED();
   return nullptr;
 }
 
@@ -251,6 +256,11 @@ bool CefBrowserPlatformDelegate::HasExternalParent() const {
 
 void CefBrowserPlatformDelegate::WasHidden(bool hidden) {
   NOTREACHED();
+}
+
+bool CefBrowserPlatformDelegate::IsHidden() const {
+  NOTREACHED();
+  return false;
 }
 
 void CefBrowserPlatformDelegate::NotifyScreenInfoChanged() {
@@ -351,13 +361,18 @@ void CefBrowserPlatformDelegate::AccessibilityLocationChangesReceived(
 
 gfx::Point CefBrowserPlatformDelegate::GetDialogPosition(
     const gfx::Size& size) {
-  NOTREACHED();
-  return gfx::Point();
+  const gfx::Size& max_size = GetMaximumDialogSize();
+  return gfx::Point((max_size.width() - size.width()) / 2,
+                    (max_size.height() - size.height()) / 2);
 }
 
 gfx::Size CefBrowserPlatformDelegate::GetMaximumDialogSize() {
-  NOTREACHED();
-  return gfx::Size();
+  if (!web_contents_)
+    return gfx::Size();
+
+  // The dialog should try to fit within the overlay for the web contents.
+  // Note that, for things like print preview, this is just a suggested maximum.
+  return web_contents_->GetContainerBounds().size();
 }
 
 void CefBrowserPlatformDelegate::SetAutoResizeEnabled(bool enabled,
