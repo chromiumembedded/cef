@@ -865,31 +865,6 @@ int GetControlCharacter(KeyboardCode windows_key_code, bool shift) {
   }
 }
 
-void GetWidgetRectInScreen(GtkWidget* widget, GdkRectangle* r) {
-  gint x, y, w, h;
-  GdkRectangle extents;
-
-  GdkWindow* window = gtk_widget_get_parent_window(widget);
-
-  // Get parent's left-top screen coordinates.
-  gdk_window_get_root_origin(window, &x, &y);
-  // Get parent's width and height.
-  w = gdk_window_get_width(window);
-  h = gdk_window_get_height(window);
-  // Get parent's extents including decorations.
-  gdk_window_get_frame_extents(window, &extents);
-
-  // X and Y calculations assume that left, right and bottom border sizes are
-  // all the same.
-  const gint border = (extents.width - w) / 2;
-  GtkAllocation allocation;
-  gtk_widget_get_allocation(widget, &allocation);
-  r->x = x + border + allocation.x;
-  r->y = y + (extents.height - h) - border + allocation.y;
-  r->width = allocation.width;
-  r->height = allocation.height;
-}
-
 CefBrowserHost::DragOperationsMask GetDragOperationsMask(
     GdkDragContext* drag_context) {
   int allowed_ops = DRAG_OPERATION_NONE;
@@ -1175,11 +1150,13 @@ bool BrowserWindowOsrGtk::GetScreenPoint(CefRefPtr<CefBrowser> browser,
     device_scale_factor = device_scale_factor_;
   }
 
-  // Convert from view DIP coordinates to screen device (pixel) coordinates.
-  GdkRectangle screen_rect;
-  GetWidgetRectInScreen(glarea_, &screen_rect);
-  screenX = screen_rect.x + LogicalToDevice(viewX, device_scale_factor);
-  screenY = screen_rect.y + LogicalToDevice(viewY, device_scale_factor);
+  // Get the widget position in the window.
+  GtkAllocation allocation;
+  gtk_widget_get_allocation(glarea_, &allocation);
+
+  // Convert from view DIP coordinates to window (pixel) coordinates.
+  screenX = allocation.x + LogicalToDevice(viewX, device_scale_factor);
+  screenY = allocation.y + LogicalToDevice(viewY, device_scale_factor);
   return true;
 }
 
