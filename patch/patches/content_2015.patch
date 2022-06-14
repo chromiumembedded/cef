@@ -12,7 +12,7 @@ index fc87fd9a6ffca..99c6b27018e13 100644
                        GetContentClient()->browser()->GetUserAgent());
      version.SetString("V8-Version", V8_VERSION_STRING);
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index f24b5fa85e26d..dfca9fdb9aae0 100644
+index 6cf47a1ca1e22..df1ea14634aad 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
 @@ -681,6 +681,17 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest(
