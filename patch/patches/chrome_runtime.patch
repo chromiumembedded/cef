@@ -78,7 +78,7 @@ index 51d73c9eaf521..2bede66d3bbb2 100644
  
  #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index aa1d901eab06e..d3a9b826150f4 100644
+index f8610a34cd252..1194483b12561 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -52,6 +52,7 @@
@@ -89,7 +89,7 @@ index aa1d901eab06e..d3a9b826150f4 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/active_use_util.h"
  #include "chrome/browser/after_startup_task_utils.h"
-@@ -1588,12 +1589,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1595,12 +1596,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
          browser_process_->local_state());
    }
  
@@ -104,7 +104,7 @@ index aa1d901eab06e..d3a9b826150f4 100644
  
  #if BUILDFLAG(IS_ANDROID)
    page_info::SetPageInfoClient(new ChromePageInfoClient());
-@@ -1741,12 +1744,15 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1748,12 +1751,15 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
    // This step is costly and is already measured in
    // Startup.StartupBrowserCreator_Start.
    // See the comment above for an explanation of |process_command_line|.
@@ -121,7 +121,7 @@ index aa1d901eab06e..d3a9b826150f4 100644
  // TODO(crbug.com/1052397): Revisit the macro expression once build flag switch
  // of lacros-chrome is complete.
  #if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS_LACROS))
-@@ -1774,8 +1780,10 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1781,8 +1787,10 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
  
      // Create the RunLoop for MainMessageLoopRun() to use and transfer
      // ownership of the browser's lifetime to the BrowserProcess.
@@ -172,7 +172,7 @@ index 0cb701b8772f5..ba6c84a530b64 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 4b3f602b9ee5a..2da7f9c2e029e 100644
+index 20f93edf5e294..ee4defc8aa8c9 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -29,6 +29,7 @@
@@ -204,7 +204,7 @@ index 4b3f602b9ee5a..2da7f9c2e029e 100644
  // static
  void ChromeContentBrowserClient::RegisterLocalStatePrefs(
      PrefRegistrySimple* registry) {
-@@ -3789,9 +3797,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -3791,9 +3799,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // BUILDFLAG(IS_ANDROID)
  
@@ -216,7 +216,7 @@ index 4b3f602b9ee5a..2da7f9c2e029e 100644
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
-@@ -5433,7 +5443,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
+@@ -5435,7 +5445,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
        network_service);
  }
  
@@ -225,7 +225,7 @@ index 4b3f602b9ee5a..2da7f9c2e029e 100644
      content::BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -5451,6 +5461,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
+@@ -5453,6 +5463,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
      network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
      network_context_params->accept_language = GetApplicationLocale();
    }
@@ -234,7 +234,7 @@ index 4b3f602b9ee5a..2da7f9c2e029e 100644
  }
  
  std::vector<base::FilePath>
-@@ -6322,10 +6334,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -6332,10 +6344,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -247,7 +247,7 @@ index 4b3f602b9ee5a..2da7f9c2e029e 100644
          FROM_HERE, keepalive_deadline_ - now,
          base::BindOnce(
              &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -6344,7 +6356,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -6354,7 +6366,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -257,7 +257,7 @@ index 4b3f602b9ee5a..2da7f9c2e029e 100644
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -6452,7 +6465,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -6462,7 +6475,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
@@ -267,7 +267,7 @@ index 4b3f602b9ee5a..2da7f9c2e029e 100644
          base::BindOnce(&ChromeContentBrowserClient::OnKeepaliveTimerFired,
                         weak_factory_.GetWeakPtr(),
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index d9b8140ee7d94..b6c403c23f5d1 100644
+index 42e7995cb0bf3..a8cb70d420960 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
 @@ -117,6 +117,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
@@ -288,7 +288,7 @@ index d9b8140ee7d94..b6c403c23f5d1 100644
        content::BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -922,7 +924,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -910,7 +912,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
  
  #if !BUILDFLAG(IS_ANDROID)
    uint64_t num_keepalive_requests_ = 0;
