@@ -61,9 +61,8 @@ CEF_PANEL_IMPL_T class CefPanelImpl : public CEF_VIEW_IMPL_D {
           views::View* view = ParentClass::content_view()->children()[i];
           CefViewAdapter* adapter = CefViewAdapter::GetFor(view);
           if (adapter) {
-            std::unique_ptr<base::DictionaryValue> child_info(
-                new base::DictionaryValue());
-            adapter->GetDebugInfo(child_info.get(), include_children);
+            base::DictionaryValue child_info;
+            adapter->GetDebugInfo(&child_info, include_children);
             children->Append(std::move(child_info));
           }
         }

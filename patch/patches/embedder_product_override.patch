@@ -1,5 +1,5 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index 6e905c33c688c..2716d2943f1a9 100644
+index acd60381a6294..f9be70d2da75f 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
 @@ -15,6 +15,7 @@
@@ -10,10 +10,10 @@ index 6e905c33c688c..2716d2943f1a9 100644
  #include "components/embedder_support/pref_names.h"
  #include "components/embedder_support/switches.h"
  #include "components/policy/core/common/policy_pref_names.h"
-@@ -330,6 +331,12 @@ std::string GetMajorVersionForUserAgentString(
- 
+@@ -344,6 +345,12 @@ std::string GetMajorVersionForUserAgentString(
  std::string GetProductAndVersion(
-     ForceMajorVersionToMinorPosition force_major_to_minor) {
+     ForceMajorVersionToMinorPosition force_major_to_minor,
+     UserAgentReductionEnterprisePolicyState user_agent_reduction) {
 +  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
 +  if (command_line->HasSwitch(switches::kUserAgentProductAndVersion)) {
 +    return command_line->GetSwitchValueASCII(
@@ -22,4 +22,4 @@ index 6e905c33c688c..2716d2943f1a9 100644
 +
    if (ShouldForceMajorVersionToMinorPosition(force_major_to_minor)) {
      // Force major version to 99 and major version to minor version position.
-     if (base::FeatureList::IsEnabled(
+     if (ShouldReduceUserAgentMinorVersion(user_agent_reduction)) {

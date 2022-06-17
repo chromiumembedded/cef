@@ -125,17 +125,17 @@ NSTimeInterval currentEventTimestamp() {
 NSUInteger NativeModifiers(int cef_modifiers) {
   NSUInteger native_modifiers = 0;
   if (cef_modifiers & EVENTFLAG_SHIFT_DOWN)
-    native_modifiers |= NSShiftKeyMask;
+    native_modifiers |= NSEventModifierFlagShift;
   if (cef_modifiers & EVENTFLAG_CONTROL_DOWN)
-    native_modifiers |= NSControlKeyMask;
+    native_modifiers |= NSEventModifierFlagControl;
   if (cef_modifiers & EVENTFLAG_ALT_DOWN)
-    native_modifiers |= NSAlternateKeyMask;
+    native_modifiers |= NSEventModifierFlagOption;
   if (cef_modifiers & EVENTFLAG_COMMAND_DOWN)
-    native_modifiers |= NSCommandKeyMask;
+    native_modifiers |= NSEventModifierFlagCommand;
   if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON)
-    native_modifiers |= NSAlphaShiftKeyMask;
+    native_modifiers |= NSEventModifierFlagCapsLock;
   if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON)
-    native_modifiers |= NSNumericPadKeyMask;
+    native_modifiers |= NSEventModifierFlagNumericPad;
 
   return native_modifiers;
 }
@@ -184,10 +184,11 @@ bool CefBrowserPlatformDelegateNativeMac::CreateHostWindow() {
 
     newWnd = [[UnderlayOpenGLHostingWindow alloc]
         initWithContentRect:window_rect
-                  styleMask:(NSTitledWindowMask | NSClosableWindowMask |
-                             NSMiniaturizableWindowMask |
-                             NSResizableWindowMask |
-                             NSUnifiedTitleAndToolbarWindowMask)
+                  styleMask:(NSWindowStyleMaskTitled |
+                             NSWindowStyleMaskClosable |
+                             NSWindowStyleMaskMiniaturizable |
+                             NSWindowStyleMaskResizable |
+                             NSWindowStyleMaskUnifiedTitleAndToolbar)
                     backing:NSBackingStoreBuffered
                       defer:NO];
 
@@ -351,7 +352,7 @@ void CefBrowserPlatformDelegateNativeMac::ViewText(const std::string& text) {
 bool CefBrowserPlatformDelegateNativeMac::HandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   // Give the top level menu equivalents a chance to handle the event.
-  if ([event.os_event type] == NSKeyDown)
+  if ([event.os_event type] == NSEventTypeKeyDown)
     return [[NSApp mainMenu] performKeyEquivalent:event.os_event];
   return false;
 }
@@ -389,19 +390,19 @@ CefBrowserPlatformDelegateNativeMac::TranslateWebKeyEvent(
   NSEventType event_type;
   if (key_event.character == 0 && key_event.unmodified_character == 0) {
     // Check if both character and unmodified_characther are empty to determine
-    // if this was a NSFlagsChanged event.
+    // if this was a NSEventTypeFlagsChanged event.
     // A dead key will have an empty character, but a non-empty unmodified
     // character
-    event_type = NSFlagsChanged;
+    event_type = NSEventTypeFlagsChanged;
   } else {
     switch (key_event.type) {
       case KEYEVENT_RAWKEYDOWN:
       case KEYEVENT_KEYDOWN:
       case KEYEVENT_CHAR:
-        event_type = NSKeyDown;
+        event_type = NSEventTypeKeyDown;
         break;
       case KEYEVENT_KEYUP:
-        event_type = NSKeyUp;
+        event_type = NSEventTypeKeyUp;
         break;
     }
   }

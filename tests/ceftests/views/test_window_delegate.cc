@@ -86,19 +86,19 @@ void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
   } else {
     // Default origin is the upper-left corner of the display's work area.
     auto work_area = display->GetWorkArea();
-    EXPECT_EQ(work_area.x, client_bounds.x);
-    EXPECT_EQ(work_area.y, client_bounds.y);
+    EXPECT_NEAR(work_area.x, client_bounds.x, 1);
+    EXPECT_NEAR(work_area.y, client_bounds.y, 1);
   }
 
   if (config_->frameless) {
-    EXPECT_EQ(config_->window_size, client_bounds.width);
-    EXPECT_EQ(config_->window_size, client_bounds.height);
+    EXPECT_NEAR(config_->window_size, client_bounds.width, 2);
+    EXPECT_NEAR(config_->window_size, client_bounds.height, 2);
   } else {
     // Client area bounds calculation might have off-by-one errors on Windows
     // due to non-client frame size being calculated internally in pixels and
     // then converted to DIPs. See http://crbug.com/602692.
-    EXPECT_TRUE(abs(client_bounds.width - window_size_.width) <= 1);
-    EXPECT_TRUE(abs(client_bounds.height - window_size_.height) <= 1);
+    EXPECT_NEAR(client_bounds.width, window_size_.width, 2);
+    EXPECT_NEAR(client_bounds.height, window_size_.height, 2);
   }
 
   // Run the callback.

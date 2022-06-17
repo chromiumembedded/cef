@@ -14,7 +14,7 @@ index a9c0c34999035..5fbf5eb462e42 100644
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index c34520bfd62fe..1358d28347098 100644
+index 02a724e47ba2e..4fa0dbefeecbc 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
 @@ -83,6 +83,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
@@ -85,10 +85,10 @@ index ca2561e412621..febd52df6c971 100644
    virtual bool IsSignedIn() = 0;
  
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index 2e1d353a1e34b..98a3a93c37d39 100644
+index 8b4be2abc03ec..8f53f25103358 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
-@@ -994,7 +994,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -996,7 +996,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  
@@ -100,7 +100,7 @@ index 2e1d353a1e34b..98a3a93c37d39 100644
    return raw_otr_profile;
  }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index e35e0cb323c8c..a2268c594d8c6 100644
+index 7d959397bcb72..188d552d065c8 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
 @@ -517,7 +517,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
@@ -113,10 +113,10 @@ index e35e0cb323c8c..a2268c594d8c6 100644
  
    zombie_metrics_timer_.Start(FROM_HERE, base::Minutes(30), this,
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index 03c2269af2180..5ee91d31bd473 100644
+index f3c58cfa9b0f8..745bff6a12b66 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
-@@ -151,7 +151,7 @@ class ProfileManager : public Profile::Delegate {
+@@ -153,7 +153,7 @@ class ProfileManager : public Profile::Delegate {
    // acceptable. Returns null if creation of the new profile fails.
    // TODO(bauerb): Migrate calls from other code to GetProfileByPath(), then
    // make this method private.
@@ -125,7 +125,7 @@ index 03c2269af2180..5ee91d31bd473 100644
  
    // Returns regular or off-the-record profile given its profile key.
    static Profile* GetProfileFromProfileKey(ProfileKey* profile_key);
-@@ -183,7 +183,7 @@ class ProfileManager : public Profile::Delegate {
+@@ -185,7 +185,7 @@ class ProfileManager : public Profile::Delegate {
  
    // Returns true if the profile pointer is known to point to an existing
    // profile.

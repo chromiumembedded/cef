@@ -1,8 +1,8 @@
 diff --git content/browser/blob_storage/chrome_blob_storage_context.cc content/browser/blob_storage/chrome_blob_storage_context.cc
-index 7dead74261c3a..9354249366be5 100644
+index 1beba57fbb164..448fbcb006e32 100644
 --- content/browser/blob_storage/chrome_blob_storage_context.cc
 +++ content/browser/blob_storage/chrome_blob_storage_context.cc
-@@ -120,7 +120,8 @@ ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
+@@ -115,7 +115,8 @@ ChromeBlobStorageContext* ChromeBlobStorageContext::GetFor(
  
      // If we're not incognito mode, schedule all of our file tasks to enable
      // disk on the storage context.
@@ -13,10 +13,10 @@ index 7dead74261c3a..9354249366be5 100644
            {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
             base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index c8044baa920f3..c5a8ab77f1fe7 100644
+index 06b34e105411d..59b704c0d88a8 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
-@@ -129,7 +129,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
+@@ -130,7 +130,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
  StoragePartition* BrowserContext::GetStoragePartition(
      const StoragePartitionConfig& storage_partition_config,
      bool can_create) {
@@ -25,7 +25,7 @@ index c8044baa920f3..c5a8ab77f1fe7 100644
      // An off the record profile MUST only use in memory storage partitions.
      CHECK(storage_partition_config.in_memory());
    }
-@@ -360,7 +360,8 @@ BrowserContext::CreateVideoDecodePerfHistory() {
+@@ -365,7 +365,8 @@ BrowserContext::CreateVideoDecodePerfHistory() {
    const bool kUseInMemoryDBDefault = false;
    bool use_in_memory_db = base::GetFieldTrialParamByFeatureAsBool(
        media::kMediaCapabilitiesWithParameters, kUseInMemoryDBParamName,

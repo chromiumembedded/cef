@@ -22,7 +22,7 @@ class TempWindowMacImpl {
   TempWindowMacImpl() {
     // Create a borderless non-visible 1x1 window.
     window_ = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1, 1)
-                                          styleMask:NSBorderlessWindowMask
+                                          styleMask:NSWindowStyleMaskBorderless
                                             backing:NSBackingStoreBuffered
                                               defer:NO];
     CHECK(window_);

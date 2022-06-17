@@ -707,7 +707,7 @@ bool CefDictionaryValueImpl::Clear() {
 
 bool CefDictionaryValueImpl::HasKey(const CefString& key) {
   CEF_VALUE_VERIFY_RETURN(false, 0);
-  return const_value().HasKey(base::StringPiece(key));
+  return const_value().FindKey(base::StringPiece(key));
 }
 
 bool CefDictionaryValueImpl::GetKeys(KeyList& keys) {

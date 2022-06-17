@@ -302,20 +302,20 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
   std::string log_severity_str =
       command_line->GetSwitchValueASCII(switches::kLogSeverity);
   if (!log_severity_str.empty()) {
-    if (base::LowerCaseEqualsASCII(log_severity_str,
-                                   switches::kLogSeverity_Verbose)) {
+    if (base::EqualsCaseInsensitiveASCII(log_severity_str,
+                                         switches::kLogSeverity_Verbose)) {
       log_severity = logging::LOG_VERBOSE;
-    } else if (base::LowerCaseEqualsASCII(log_severity_str,
-                                          switches::kLogSeverity_Warning)) {
+    } else if (base::EqualsCaseInsensitiveASCII(
+                   log_severity_str, switches::kLogSeverity_Warning)) {
       log_severity = logging::LOG_WARNING;
-    } else if (base::LowerCaseEqualsASCII(log_severity_str,
-                                          switches::kLogSeverity_Error)) {
+    } else if (base::EqualsCaseInsensitiveASCII(log_severity_str,
+                                                switches::kLogSeverity_Error)) {
       log_severity = logging::LOG_ERROR;
-    } else if (base::LowerCaseEqualsASCII(log_severity_str,
-                                          switches::kLogSeverity_Fatal)) {
+    } else if (base::EqualsCaseInsensitiveASCII(log_severity_str,
+                                                switches::kLogSeverity_Fatal)) {
       log_severity = logging::LOG_FATAL;
-    } else if (base::LowerCaseEqualsASCII(log_severity_str,
-                                          switches::kLogSeverity_Disable)) {
+    } else if (base::EqualsCaseInsensitiveASCII(
+                   log_severity_str, switches::kLogSeverity_Disable)) {
       log_severity = LOGSEVERITY_DISABLE;
     }
   }

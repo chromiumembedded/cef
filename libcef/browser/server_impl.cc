@@ -41,8 +41,6 @@
 
 namespace {
 
-const char kReferrerLowerCase[] = "referer";
-
 // Wrap a string in a unique_ptr to avoid extra copies.
 std::unique_ptr<std::string> CreateUniqueString(const void* data,
                                                 size_t data_size) {
@@ -78,7 +76,8 @@ CefRefPtr<CefRequest> CreateRequest(const std::string& address,
         info.headers.begin();
     for (; it != info.headers.end(); ++it) {
       // Don't include Referer in the header map.
-      if (base::LowerCaseEqualsASCII(it->first, kReferrerLowerCase)) {
+      if (base::EqualsCaseInsensitiveASCII(it->first,
+                                           net::HttpRequestHeaders::kReferer)) {
         referer = it->second;
       } else {
         header_map.insert(std::make_pair(it->first, it->second));

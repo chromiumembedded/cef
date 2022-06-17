@@ -42,6 +42,8 @@ void CefRenderFrameObserver::DidCommitProvisionalLoad(
   if (!frame_)
     return;
 
+  frame_->OnDidCommitProvisionalLoad();
+
   if (frame_->GetParent() == nullptr) {
     blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
     CefRefPtr<CefBrowserImpl> browserPtr =

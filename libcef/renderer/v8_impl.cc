@@ -41,6 +41,7 @@
 #include "third_party/blink/public/web/blink.h"
 #include "third_party/blink/public/web/web_frame.h"
 #include "third_party/blink/public/web/web_local_frame.h"
+#include "third_party/blink/public/web/web_script_controller.h"
 #include "url/gurl.h"
 
 namespace {
@@ -846,7 +847,7 @@ bool CefRegisterExtension(const CefString& extension_name,
   std::unique_ptr<v8::Extension> wrapper(new ExtensionWrapper(
       name->GetString(), code->GetString(), handler.get()));
 
-  content::RenderThread::Get()->RegisterExtension(std::move(wrapper));
+  blink::WebScriptController::RegisterExtension(std::move(wrapper));
   return true;
 }
 

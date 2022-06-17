@@ -121,9 +121,9 @@ void CreateBoxLayout(CefRefPtr<CefWindow> parent) {
 
   // The children should each take up 50% of the client area.
   ExpectCloseRects(CefRect(0, 0, kWSize, kWSize / 2), panel_child1->GetBounds(),
-                   1);
+                   2);
   ExpectCloseRects(CefRect(0, kWSize / 2, kWSize, kWSize / 2),
-                   panel_child2->GetBounds(), 1);
+                   panel_child2->GetBounds(), 2);
 }
 
 void RunWindowLayoutAndCoords(CefRefPtr<CefWindow> window) {

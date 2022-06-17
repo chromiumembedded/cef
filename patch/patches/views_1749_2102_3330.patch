@@ -119,7 +119,7 @@ index 7de6bdd643ad1..90994f096a0e0 100644
    friend class test::InkDropHostTestApi;
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index c443bf1a2b7e3..541dfb7ed3a02 100644
+index 2e89db6bd02de..e55d438ace669 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
 @@ -508,6 +508,12 @@ void LabelButton::OnThemeChanged() {
@@ -136,7 +136,7 @@ index c443bf1a2b7e3..541dfb7ed3a02 100644
    Button::StateChanged(old_state);
    ResetLabelEnabledColor();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 75d1292ce4d49..e22a73e3771c4 100644
+index 4f173056ba875..7b746c84c63cf 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
 @@ -133,6 +133,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
@@ -150,10 +150,10 @@ index 75d1292ce4d49..e22a73e3771c4 100644
    ImageView* image() const { return image_; }
    Label* label() const { return label_; }
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 4353a8124bb78..d19ed60206824 100644
+index c748b7ed1a958..c93898b041aff 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
-@@ -53,12 +53,27 @@ enum LabelPropertyKey {
+@@ -52,12 +52,27 @@ enum LabelPropertyKey {
    kLabelLineHeight,
    kLabelObscured,
    kLabelAllowCharacterBreak,
@@ -181,7 +181,7 @@ index 4353a8124bb78..d19ed60206824 100644
  }  // namespace
  
  namespace views {
-@@ -426,6 +441,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
+@@ -425,6 +440,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
    OnPropertyChanged(&elide_behavior_, kPropertyEffectsPreferredSizeChanged);
  }
  
@@ -197,7 +197,7 @@ index 4353a8124bb78..d19ed60206824 100644
  std::u16string Label::GetTooltipText() const {
    return tooltip_text_;
  }
-@@ -722,6 +746,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -721,6 +745,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
        render_text->SelectRange(stored_selection_range_);
    }
  
@@ -215,7 +215,7 @@ index 4353a8124bb78..d19ed60206824 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 109e19fbcaa08..3568917abe6bb 100644
+index 912c7d20eb07c..26beda47cd4ce 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -234,6 +234,10 @@ class VIEWS_EXPORT Label : public View,
@@ -641,7 +641,7 @@ index 4bec3df3f3d32..0ebb3b2ac73df 100644
    base::TimeTicks GetClosingEventTime() const override;
  
 diff --git ui/views/controls/menu/menu_runner_impl_cocoa.h ui/views/controls/menu/menu_runner_impl_cocoa.h
-index b24b07fb16b86..50859104e909c 100644
+index 27bc7381ba22c..5d13b85fcc5cf 100644
 --- ui/views/controls/menu/menu_runner_impl_cocoa.h
 +++ ui/views/controls/menu/menu_runner_impl_cocoa.h
 @@ -37,7 +37,8 @@ class VIEWS_EXPORT MenuRunnerImplCocoa : public MenuRunnerImplInterface {
@@ -655,10 +655,10 @@ index b24b07fb16b86..50859104e909c 100644
    base::TimeTicks GetClosingEventTime() const override;
  
 diff --git ui/views/controls/menu/menu_runner_impl_cocoa.mm ui/views/controls/menu/menu_runner_impl_cocoa.mm
-index 4ac619cfdb725..8c6979e80d2dc 100644
+index 6f92eb0c4f6f9..dba3c63e59b4b 100644
 --- ui/views/controls/menu/menu_runner_impl_cocoa.mm
 +++ ui/views/controls/menu/menu_runner_impl_cocoa.mm
-@@ -533,7 +533,8 @@ - (void)controllerWillAddMenu:(NSMenu*)menu fromModel:(ui::MenuModel*)model {
+@@ -511,7 +511,8 @@ void MenuRunnerImplCocoa::RunMenuAt(Widget* parent,
                                      const gfx::Rect& bounds,
                                      MenuAnchorPosition anchor,
                                      int32_t run_types,
@@ -684,7 +684,7 @@ index 54c95d830233e..408f090b55698 100644
    // Hides and cancels the menu.
    virtual void Cancel() = 0;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index a3354482b6191..62a9a6fe32073 100644
+index 1ffec7052a314..3a2be376fb000 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -259,6 +259,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
@@ -699,8 +699,32 @@ index a3354482b6191..62a9a6fe32073 100644
    arrow_ = BubbleBorderTypeFromAnchor(
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
+diff --git ui/views/test/ui_controls_factory_desktop_aura_ozone.cc ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
+index bec549b841bd7..0934f19177358 100644
+--- ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
++++ ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
+@@ -16,6 +16,7 @@
+ #include "base/threading/thread_task_runner_handle.h"
+ #include "build/build_config.h"
+ #include "build/chromeos_buildflags.h"
++#include "cef/libcef/features/features.h"
+ #include "ui/aura/client/screen_position_client.h"
+ #include "ui/aura/env.h"
+ #include "ui/aura/test/aura_test_utils.h"
+@@ -100,9 +101,11 @@ class UIControlsDesktopOzone : public UIControlsAura {
+         aura::test::QueryLatestMousePositionRequestInHost(host);
+     host->ConvertPixelsToDIP(&root_current_location);
+ 
++#if !BUILDFLAG(ENABLE_CEF)
+     auto* screen = views::test::TestDesktopScreenOzone::GetInstance();
+     DCHECK_EQ(screen, display::Screen::GetScreen());
+     screen->set_cursor_screen_point(gfx::Point(screen_x, screen_y));
++#endif
+ 
+     if (root_location != root_current_location &&
+         ozone_ui_controls_test_helper_->ButtonDownMask() == 0 &&
 diff --git ui/views/view.h ui/views/view.h
-index 034e1652ebab1..fb215a9dcc815 100644
+index ef40c571d57c0..0fd51538fbefd 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -22,6 +22,7 @@
@@ -711,7 +735,7 @@ index 034e1652ebab1..fb215a9dcc815 100644
  #include "build/build_config.h"
  #include "third_party/abseil-cpp/absl/types/optional.h"
  #include "third_party/skia/include/core/SkPath.h"
-@@ -270,7 +271,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -271,7 +272,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
                            public ui::EventTarget,
                            public ui::EventHandler,
                            public ui::PropertyHandler,

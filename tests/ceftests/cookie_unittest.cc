@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include <algorithm>
+#include <chrono>
 #include <vector>
 
 #include "include/base/cef_callback.h"
@@ -148,6 +149,14 @@ void DeleteCookies(CefRefPtr<CefCookieManager> manager,
   event->Wait();
 }
 
+time_t GetExpiryDate() {
+  static time_t expiry_time = [] {
+    return std::chrono::system_clock::to_time_t(
+        std::chrono::system_clock::now() + std::chrono::hours(1));
+  }();
+  return expiry_time;
+}
+
 // Create a test cookie. If |withDomain| is true a domain cookie will be
 // created, otherwise a host cookie will be created.
 void CreateCookie(CefRefPtr<CefCookieManager> manager,
@@ -162,10 +171,9 @@ void CreateCookie(CefRefPtr<CefCookieManager> manager,
   CefString(&cookie.path).FromASCII(kTestPath);
   if (!sessionCookie) {
     cookie.has_expires = true;
-    cookie.expires.year = 2200;
-    cookie.expires.month = 4;
-    cookie.expires.day_of_week = 5;
-    cookie.expires.day_of_month = 11;
+    // Must choose the expiry date dynamically due to the
+    // "ClampCookieExpiryTo400Days" feature enabled in M104.
+    EXPECT_TRUE(cef_time_from_timet(GetExpiryDate(), &cookie.expires));
   }
 
   CookieVector cookies;

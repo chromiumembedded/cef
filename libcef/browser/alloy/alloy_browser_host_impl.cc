@@ -1303,14 +1303,13 @@ void AlloyBrowserHostImpl::RequestMediaAccessPermission(
 
   blink::MediaStreamDevices audio_devices;
   blink::MediaStreamDevices video_devices;
-  blink::mojom::StreamDevices stream_devices;
 
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
   if (!command_line->HasSwitch(switches::kEnableMediaStream)) {
     // Cancel the request.
     std::move(callback).Run(
-        stream_devices,
+        blink::mojom::StreamDevicesSet(),
         blink::mojom::MediaStreamRequestResult::PERMISSION_DENIED,
         std::unique_ptr<content::MediaStreamUI>());
     return;
@@ -1352,13 +1351,18 @@ void AlloyBrowserHostImpl::RequestMediaAccessPermission(
     }
   }
 
+  blink::mojom::StreamDevicesSet stream_devices_set;
+  stream_devices_set.stream_devices.emplace_back(
+      blink::mojom::StreamDevices::New());
+  blink::mojom::StreamDevices& devices = *stream_devices_set.stream_devices[0];
+
   // At most one audio device and one video device can be used in a stream.
   if (!audio_devices.empty())
-    stream_devices.audio_device = audio_devices.front();
+    devices.audio_device = audio_devices.front();
   if (!video_devices.empty())
-    stream_devices.video_device = video_devices.front();
+    devices.video_device = video_devices.front();
 
-  std::move(callback).Run(stream_devices,
+  std::move(callback).Run(stream_devices_set,
                           blink::mojom::MediaStreamRequestResult::OK,
                           std::unique_ptr<content::MediaStreamUI>());
 }

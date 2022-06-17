@@ -13,11 +13,9 @@
 #include "build/build_config.h"
 #include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_main_parts.h"
+#include "ui/display/screen.h"
 
 #if defined(USE_AURA)
-namespace display {
-class Screen;
-}
 namespace wm {
 class WMState;
 }
@@ -88,6 +86,7 @@ class AlloyBrowserMainParts : public content::BrowserMainParts {
 
   std::unique_ptr<views::ViewsDelegate> views_delegate_;
 #if BUILDFLAG(IS_MAC)
+  std::unique_ptr<display::ScopedNativeScreen> screen_;
   std::unique_ptr<views::LayoutProvider> layout_provider_;
 #endif
 };

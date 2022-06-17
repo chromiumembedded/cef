@@ -126,8 +126,6 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
 
   void Start();
 
-  void ContinueResponse(bool was_redirected);
-
   // network::mojom::URLLoader methods:
   void FollowRedirect(
       const std::vector<std::string>& removed_headers,
@@ -154,7 +152,6 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
       const absl::optional<std::string>& headers,
       const absl::optional<GURL>& redirect_url);
 
-  void SendBody();
   void ReadMore();
   void OnDataPipeWritable(MojoResult result);
   void OnReaderReadCompleted(int bytes_read);

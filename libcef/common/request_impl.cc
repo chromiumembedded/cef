@@ -46,11 +46,9 @@
 
 namespace {
 
-const char kReferrerLowerCase[] = "referer";
-const char kCacheControlLowerCase[] = "cache-control";
-const char kCacheControlDirectiveNoCacheLowerCase[] = "no-cache";
-const char kCacheControlDirectiveNoStoreLowerCase[] = "no-store";
-const char kCacheControlDirectiveOnlyIfCachedLowerCase[] = "only-if-cached";
+const char kCacheControlDirectiveNoCache[] = "no-cache";
+const char kCacheControlDirectiveNoStore[] = "no-store";
+const char kCacheControlDirectiveOnlyIfCached[] = "only-if-cached";
 
 // Mask of values that configure the cache policy.
 const int kURCachePolicyMask =
@@ -68,8 +66,8 @@ int GetCacheControlHeaderPolicy(CefRequest::HeaderMap headerMap) {
   {
     CefRequest::HeaderMap::const_iterator it = headerMap.begin();
     for (; it != headerMap.end(); ++it) {
-      if (base::LowerCaseEqualsASCII(it->first.ToString(),
-                                     kCacheControlLowerCase)) {
+      if (base::EqualsCaseInsensitiveASCII(
+              it->first.ToString(), net::HttpRequestHeaders::kCacheControl)) {
         line = it->second;
         break;
       }
@@ -84,14 +82,14 @@ int GetCacheControlHeaderPolicy(CefRequest::HeaderMap headerMap) {
     std::vector<base::StringPiece> pieces = base::SplitStringPiece(
         line, ",", base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
     for (const auto& piece : pieces) {
-      if (base::LowerCaseEqualsASCII(piece,
-                                     kCacheControlDirectiveNoCacheLowerCase)) {
+      if (base::EqualsCaseInsensitiveASCII(piece,
+                                           kCacheControlDirectiveNoCache)) {
         flags |= UR_FLAG_SKIP_CACHE;
-      } else if (base::LowerCaseEqualsASCII(
-                     piece, kCacheControlDirectiveOnlyIfCachedLowerCase)) {
+      } else if (base::EqualsCaseInsensitiveASCII(
+                     piece, kCacheControlDirectiveOnlyIfCached)) {
         flags |= UR_FLAG_ONLY_FROM_CACHE;
-      } else if (base::LowerCaseEqualsASCII(
-                     piece, kCacheControlDirectiveNoStoreLowerCase)) {
+      } else if (base::EqualsCaseInsensitiveASCII(
+                     piece, kCacheControlDirectiveNoStore)) {
         flags |= UR_FLAG_DISABLE_CACHE;
       }
     }
@@ -133,7 +131,8 @@ void GetHeaderMap(const net::HttpRequestHeaders& headers,
     const std::string& name = it.name();
 
     // Do not include Referer in the header map.
-    if (!base::LowerCaseEqualsASCII(name, kReferrerLowerCase))
+    if (!base::EqualsCaseInsensitiveASCII(name,
+                                          net::HttpRequestHeaders::kReferer))
       map.insert(std::make_pair(name, it.value()));
   };
 }
@@ -148,8 +147,10 @@ void GetHeaderMap(const CefRequest::HeaderMap& source,
     const CefString& name = it->first;
 
     // Do not include Referer in the header map.
-    if (!base::LowerCaseEqualsASCII(name.ToString(), kReferrerLowerCase))
+    if (!base::EqualsCaseInsensitiveASCII(name.ToString(),
+                                          net::HttpRequestHeaders::kReferer)) {
       map.insert(std::make_pair(name, it->second));
+    }
   }
 }
 
@@ -297,18 +298,19 @@ void CefRequestImpl::SetHeaderByName(const CefString& name,
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
 
-  std::string nameLower = name;
-  HttpHeaderUtils::MakeASCIILower(&nameLower);
+  const std::string& nameStr = name;
 
   // Do not include Referer in the header map.
-  if (nameLower == kReferrerLowerCase)
+  if (base::EqualsCaseInsensitiveASCII(nameStr,
+                                       net::HttpRequestHeaders::kReferer)) {
     return;
+  }
 
   Changed(kChangedHeaderMap);
 
   // There may be multiple values, so remove any first.
   for (auto it = headermap_.begin(); it != headermap_.end();) {
-    if (base::EqualsCaseInsensitiveASCII(it->first.ToString(), nameLower)) {
+    if (base::EqualsCaseInsensitiveASCII(it->first.ToString(), nameStr)) {
       if (!overwrite)
         return;
       it = headermap_.erase(it);

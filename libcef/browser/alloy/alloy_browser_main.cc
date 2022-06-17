@@ -51,7 +51,6 @@
 
 #if defined(USE_AURA)
 #include "ui/aura/env.h"
-#include "ui/display/screen.h"
 #include "ui/views/widget/desktop_aura/desktop_screen.h"
 #include "ui/wm/core/wm_state.h"
 
@@ -267,7 +266,9 @@ int AlloyBrowserMainParts::PreCreateThreads() {
 int AlloyBrowserMainParts::PreMainMessageLoopRun() {
 #if defined(USE_AURA)
   screen_ = views::CreateDesktopScreen();
-  display::Screen::SetScreenInstance(screen_.get());
+#endif
+#if BUILDFLAG(IS_MAC)
+  screen_ = std::make_unique<display::ScopedNativeScreen>();
 #endif
 
   if (extensions::ExtensionsEnabled()) {

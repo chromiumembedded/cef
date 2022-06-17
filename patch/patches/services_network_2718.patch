@@ -1,5 +1,5 @@
 diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
-index d6499670d3559..e5df71a345eed 100644
+index 3d3a6a0fb49ab..9a652564b85ee 100644
 --- content/browser/storage_partition_impl.cc
 +++ content/browser/storage_partition_impl.cc
 @@ -495,10 +495,6 @@ class LoginHandlerDelegate {
@@ -26,7 +26,7 @@ index d6499670d3559..e5df71a345eed 100644
    new LoginHandlerDelegate(
        std::move(auth_challenge_responder), std::move(web_contents_getter),
        auth_info, is_request_for_primary_main_frame, process_id, request_id, url,
-@@ -2790,8 +2780,12 @@ void StoragePartitionImpl::GetQuotaSettings(
+@@ -2807,8 +2797,12 @@ void StoragePartitionImpl::GetQuotaSettings(
      return;
    }
  
@@ -40,7 +40,7 @@ index d6499670d3559..e5df71a345eed 100644
        storage::GetDefaultDeviceInfoHelper(), std::move(callback));
  }
  
-@@ -2801,9 +2795,12 @@ void StoragePartitionImpl::InitNetworkContext() {
+@@ -2818,9 +2812,12 @@ void StoragePartitionImpl::InitNetworkContext() {
    cert_verifier::mojom::CertVerifierCreationParamsPtr
        cert_verifier_creation_params =
            cert_verifier::mojom::CertVerifierCreationParams::New();

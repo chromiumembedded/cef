@@ -92,6 +92,7 @@ class CefFrameImpl
   // Forwarded from CefRenderFrameObserver.
   void OnAttached();
   void OnWasShown();
+  void OnDidCommitProvisionalLoad();
   void OnDidFinishLoad();
   void OnDraggableRegionsChanged();
   void OnContextCreated(v8::Local<v8::Context> context);
@@ -129,6 +130,8 @@ class CefFrameImpl
   void SendToBrowserFrame(const std::string& function_name,
                           BrowserFrameAction action);
 
+  void MaybeInitializeScriptContext();
+
   // cef::mojom::RenderFrame methods:
   void FrameAttachedAck() override;
   void SendMessage(const std::string& name, base::Value arguments) override;
@@ -150,6 +153,9 @@ class CefFrameImpl
   CefBrowserImpl* browser_;
   blink::WebLocalFrame* frame_;
   const int64 frame_id_;
+
+  bool did_commit_provisional_load_ = false;
+  bool did_initialize_script_context_ = false;
 
   bool context_created_ = false;
   std::queue<std::pair<std::string, LocalFrameAction>> queued_context_actions_;

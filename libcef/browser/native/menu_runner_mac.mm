@@ -66,7 +66,7 @@ bool CefMenuRunnerMac::RunContextMenu(
     NSPoint position = [window mouseLocationOutsideOfEventStream];
 
     NSTimeInterval eventTime = [currentEvent timestamp];
-    NSEvent* clickEvent = [NSEvent mouseEventWithType:NSRightMouseDown
+    NSEvent* clickEvent = [NSEvent mouseEventWithType:NSEventTypeRightMouseDown
                                              location:position
                                         modifierFlags:0
                                             timestamp:eventTime

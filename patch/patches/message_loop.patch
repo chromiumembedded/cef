@@ -43,10 +43,10 @@ index b7e9d215c2039..57816ea1c8b81 100644
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/task/current_thread.h base/task/current_thread.h
-index f82025cca1d17..6feb6ac241895 100644
+index 13dc0cdede8f7..4c4a85848a93a 100644
 --- base/task/current_thread.h
 +++ base/task/current_thread.h
-@@ -130,6 +130,12 @@ class BASE_EXPORT CurrentThread {
+@@ -131,6 +131,12 @@ class BASE_EXPORT CurrentThread {
    // to run. There can only be one OnNextIdleCallback at a time.
    void RegisterOnNextIdleCallback(OnceClosure on_next_idle_callback);
  
@@ -59,10 +59,10 @@ index f82025cca1d17..6feb6ac241895 100644
    // Enables nested task processing in scope of an upcoming native message loop.
    // Some unwanted message loops may occur when using common controls or printer
    // functions. Hence, nested task processing is disabled by default to avoid
-@@ -195,6 +201,13 @@ class BASE_EXPORT CurrentThread {
+@@ -196,6 +202,13 @@ class BASE_EXPORT CurrentThread {
    friend class web::WebTaskEnvironment;
  
-   sequence_manager::internal::SequenceManagerImpl* current_;
+   raw_ptr<sequence_manager::internal::SequenceManagerImpl> current_;
 +
 +#if BUILDFLAG(IS_WIN)
 + private:

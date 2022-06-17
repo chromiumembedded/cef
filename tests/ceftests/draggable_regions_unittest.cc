@@ -103,7 +103,9 @@ class DraggableRegionsTestHandler : public TestHandler,
     switch (step_) {
       case kStepWithRegions:
       case kStepWithChangingRegions2:
-        EXPECT_EQ(2U, regions.size());
+        EXPECT_EQ(2U, regions.size()) << step_;
+        if (regions.size() != 2U)
+          break;
         EXPECT_NEAR(50, regions[0].bounds.x, 1);
         EXPECT_NEAR(50, regions[0].bounds.y, 1);
         EXPECT_NEAR(200, regions[0].bounds.width, 1);
@@ -117,7 +119,9 @@ class DraggableRegionsTestHandler : public TestHandler,
         break;
       case kStepWithChangingRegions:
       case kStepWithChangingRegions3:
-        EXPECT_EQ(2U, regions.size());
+        EXPECT_EQ(2U, regions.size()) << step_;
+        if (regions.size() != 2U)
+          break;
         EXPECT_EQ(0, regions[0].bounds.x);
         EXPECT_EQ(0, regions[0].bounds.y);
         EXPECT_NEAR(200, regions[0].bounds.width, 1);
@@ -131,7 +135,7 @@ class DraggableRegionsTestHandler : public TestHandler,
         break;
       case kStepWithoutRegions:
       case kStepWithoutRegions2:
-        EXPECT_TRUE(regions.empty());
+        EXPECT_TRUE(regions.empty()) << step_;
         break;
     }
 

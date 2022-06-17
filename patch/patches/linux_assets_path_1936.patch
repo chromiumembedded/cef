@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_launcher_helper_linux.cc content/browser/child_process_launcher_helper_linux.cc
-index b2b29e715d6e5..fc5ac660069ec 100644
+index 16d838b710d4f..206d29a01ffb9 100644
 --- content/browser/child_process_launcher_helper_linux.cc
 +++ content/browser/child_process_launcher_helper_linux.cc
-@@ -168,7 +168,7 @@ void ChildProcessLauncherHelper::SetProcessPriorityOnLauncherThread(
+@@ -172,7 +172,7 @@ void ChildProcessLauncherHelper::SetProcessPriorityOnLauncherThread(
  base::File OpenFileToShare(const base::FilePath& path,
                             base::MemoryMappedFile::Region* region) {
    base::FilePath exe_dir;
@@ -25,10 +25,10 @@ index e79a6e0b31091..9626ec1b9a922 100644
      if (base::PathExists(sandbox_candidate))
        sandbox_binary = sandbox_candidate;
 diff --git ui/ozone/common/egl_util.cc ui/ozone/common/egl_util.cc
-index 9ebf5d4d121a8..8783a6d2cc297 100644
+index 75c59f935976e..c0b7601ceb987 100644
 --- ui/ozone/common/egl_util.cc
 +++ ui/ozone/common/egl_util.cc
-@@ -138,7 +138,7 @@ bool LoadDefaultEGLGLES2Bindings(
+@@ -127,7 +127,7 @@ bool LoadDefaultEGLGLES2Bindings(
    if (implementation.gl == gl::kGLImplementationEGLANGLE) {
      base::FilePath module_path;
  #if !BUILDFLAG(IS_FUCHSIA)

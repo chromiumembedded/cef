@@ -381,9 +381,10 @@ void RootWindowMacImpl::CreateRootWindow(const CefBrowserSettings& settings,
   // Create the main window.
   window_ = [[window_class alloc]
       initWithContentRect:content_rect
-                styleMask:(NSTitledWindowMask | NSClosableWindowMask |
-                           NSMiniaturizableWindowMask | NSResizableWindowMask |
-                           NSUnifiedTitleAndToolbarWindowMask)
+                styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
+                           NSWindowStyleMaskMiniaturizable |
+                           NSWindowStyleMaskResizable |
+                           NSWindowStyleMaskUnifiedTitleAndToolbar)
                   backing:NSBackingStoreBuffered
                     defer:NO];
   [window_ setTitle:@"cefclient"];

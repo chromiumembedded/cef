@@ -197,7 +197,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (void)rightMouseDown:(NSEvent*)event {
-  if ([event modifierFlags] & NSShiftKeyMask) {
+  if ([event modifierFlags] & NSEventModifierFlagShift) {
     // Start rotation effect.
     last_mouse_pos_ = cur_mouse_pos_ = [self getClickPointForEvent:event];
     rotating_ = true;
@@ -284,7 +284,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   if (!browser.get() || !text_input_context_osr_mac_)
     return;
 
-  if ([event type] != NSFlagsChanged) {
+  if ([event type] != NSEventTypeFlagsChanged) {
     if (text_input_client_) {
       [text_input_client_ HandleKeyEventBeforeTextInputClient:event];
 
@@ -309,10 +309,13 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 // interfere with other Trackpad events, this mapping is only enabled if
 // touch-events=enabled commandline is passed and caps lock key is on.
 - (void)toggleTouchEmulation:(NSEvent*)event {
-  if ([event type] == NSFlagsChanged && [event keyCode] == 0x39) {
+  if ([event type] == NSEventTypeFlagsChanged && [event keyCode] == 0x39) {
     NSUInteger flags = [event modifierFlags];
-    BOOL touch_enabled = flags & NSAlphaShiftKeyMask ? YES : NO;
-    [self setAcceptsTouchEvents:touch_enabled];
+    BOOL touch_enabled = flags & NSEventModifierFlagCapsLock ? YES : NO;
+    if (touch_enabled)
+      self.allowedTouchTypes |= NSTouchTypeMaskDirect;
+    else
+      self.allowedTouchTypes &= ~NSTouchTypeMaskDirect;
   }
 }
 
@@ -443,7 +446,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   // events to the renderer.
   if ([event phase] == NSEventPhaseBegan && !endWheelMonitor_) {
     endWheelMonitor_ = [NSEvent
-        addLocalMonitorForEventsMatchingMask:NSScrollWheelMask
+        addLocalMonitorForEventsMatchingMask:NSEventMaskScrollWheel
                                      handler:^(NSEvent* blockEvent) {
                                        [self shortCircuitScrollWheelEvent:
                                                  blockEvent];
@@ -556,7 +559,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (void)getKeyEvent:(CefKeyEvent&)keyEvent forEvent:(NSEvent*)event {
-  if ([event type] == NSKeyDown || [event type] == NSKeyUp) {
+  if ([event type] == NSEventTypeKeyDown || [event type] == NSEventTypeKeyUp) {
     NSString* s = [event characters];
     if ([s length] > 0)
       keyEvent.character = [s characterAtIndex:0];
@@ -566,7 +569,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
       keyEvent.unmodified_character = [s characterAtIndex:0];
   }
 
-  if ([event type] == NSFlagsChanged) {
+  if ([event type] == NSEventTypeFlagsChanged) {
     keyEvent.character = 0;
     keyEvent.unmodified_character = 0;
   }
@@ -633,19 +636,19 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 - (int)getModifiersForEvent:(NSEvent*)event {
   int modifiers = 0;
 
-  if ([event modifierFlags] & NSControlKeyMask)
+  if ([event modifierFlags] & NSEventModifierFlagControl)
     modifiers |= EVENTFLAG_CONTROL_DOWN;
-  if ([event modifierFlags] & NSShiftKeyMask)
+  if ([event modifierFlags] & NSEventModifierFlagShift)
     modifiers |= EVENTFLAG_SHIFT_DOWN;
-  if ([event modifierFlags] & NSAlternateKeyMask)
+  if ([event modifierFlags] & NSEventModifierFlagOption)
     modifiers |= EVENTFLAG_ALT_DOWN;
-  if ([event modifierFlags] & NSCommandKeyMask)
+  if ([event modifierFlags] & NSEventModifierFlagCommand)
     modifiers |= EVENTFLAG_COMMAND_DOWN;
-  if ([event modifierFlags] & NSAlphaShiftKeyMask)
+  if ([event modifierFlags] & NSEventModifierFlagCapsLock)
     modifiers |= EVENTFLAG_CAPS_LOCK_ON;
 
-  if ([event type] == NSKeyUp || [event type] == NSKeyDown ||
-      [event type] == NSFlagsChanged) {
+  if ([event type] == NSEventTypeKeyUp || [event type] == NSEventTypeKeyDown ||
+      [event type] == NSEventTypeFlagsChanged) {
     // Only perform this check for key events
     if ([self isKeyPadEvent:event])
       modifiers |= EVENTFLAG_IS_KEY_PAD;
@@ -658,19 +661,19 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 
   // Mouse buttons
   switch ([event type]) {
-    case NSLeftMouseDragged:
-    case NSLeftMouseDown:
-    case NSLeftMouseUp:
+    case NSEventTypeLeftMouseDragged:
+    case NSEventTypeLeftMouseDown:
+    case NSEventTypeLeftMouseUp:
       modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
       break;
-    case NSRightMouseDragged:
-    case NSRightMouseDown:
-    case NSRightMouseUp:
+    case NSEventTypeRightMouseDragged:
+    case NSEventTypeRightMouseDown:
+    case NSEventTypeRightMouseUp:
       modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
       break;
-    case NSOtherMouseDragged:
-    case NSOtherMouseDown:
-    case NSOtherMouseUp:
+    case NSEventTypeOtherMouseDragged:
+    case NSEventTypeOtherMouseDown:
+    case NSEventTypeOtherMouseUp:
       modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
       break;
     default:
@@ -681,39 +684,39 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (BOOL)isKeyUpEvent:(NSEvent*)event {
-  if ([event type] != NSFlagsChanged)
-    return [event type] == NSKeyUp;
+  if ([event type] != NSEventTypeFlagsChanged)
+    return [event type] == NSEventTypeKeyUp;
 
   // FIXME: This logic fails if the user presses both Shift keys at once, for
   // example: we treat releasing one of them as keyDown.
   switch ([event keyCode]) {
     case 54:  // Right Command
     case 55:  // Left Command
-      return ([event modifierFlags] & NSCommandKeyMask) == 0;
+      return ([event modifierFlags] & NSEventModifierFlagCommand) == 0;
 
     case 57:  // Capslock
-      return ([event modifierFlags] & NSAlphaShiftKeyMask) == 0;
+      return ([event modifierFlags] & NSEventModifierFlagCapsLock) == 0;
 
     case 56:  // Left Shift
     case 60:  // Right Shift
-      return ([event modifierFlags] & NSShiftKeyMask) == 0;
+      return ([event modifierFlags] & NSEventModifierFlagShift) == 0;
 
     case 58:  // Left Alt
     case 61:  // Right Alt
-      return ([event modifierFlags] & NSAlternateKeyMask) == 0;
+      return ([event modifierFlags] & NSEventModifierFlagOption) == 0;
 
     case 59:  // Left Ctrl
     case 62:  // Right Ctrl
-      return ([event modifierFlags] & NSControlKeyMask) == 0;
+      return ([event modifierFlags] & NSEventModifierFlagControl) == 0;
 
     case 63:  // Function
-      return ([event modifierFlags] & NSFunctionKeyMask) == 0;
+      return ([event modifierFlags] & NSEventModifierFlagFunction) == 0;
   }
   return false;
 }
 
 - (BOOL)isKeyPadEvent:(NSEvent*)event {
-  if ([event modifierFlags] & NSNumericPadKeyMask)
+  if ([event modifierFlags] & NSEventModifierFlagNumericPad)
     return true;
 
   switch ([event keyCode]) {
@@ -787,9 +790,9 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   NSWindow* window = [self window];
   NSTimeInterval eventTime = [currentEvent timestamp];
 
-  NSEvent* dragEvent = [NSEvent mouseEventWithType:NSLeftMouseDragged
+  NSEvent* dragEvent = [NSEvent mouseEventWithType:NSEventTypeLeftMouseDragged
                                           location:position
-                                     modifierFlags:NSLeftMouseDraggedMask
+                                     modifierFlags:NSEventMaskLeftMouseDragged
                                          timestamp:eventTime
                                       windowNumber:[window windowNumber]
                                            context:nil
@@ -1064,7 +1067,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 
 - (void)fillPasteboard {
   DCHECK(!pasteboard_);
-  pasteboard_ = [NSPasteboard pasteboardWithName:NSDragPboard];
+  pasteboard_ = [NSPasteboard pasteboardWithName:NSPasteboardNameDrag];
 #if !__has_feature(objc_arc)
   [pasteboard_ retain];
 #endif  // !__has_feature(objc_arc)

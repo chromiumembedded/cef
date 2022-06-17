@@ -12,7 +12,7 @@ index 7d538f812d72e..9eec79395aeec 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 3fb396df0a458..2e9dbe0a18a1b 100644
+index b9b09ede17b56..b687818eb9287 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -17,6 +17,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -80,7 +80,7 @@ index 839144aa1e9bd..29c8ab32398a7 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 933488c024814..44893a5e98746 100644
+index 040475bee62f4..47d7ca4ea32da 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -91,7 +91,7 @@ index 933488c024814..44893a5e98746 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/components/chromebox_for_meetings/buildflags/buildflags.gni")
-@@ -76,6 +77,10 @@ template("chrome_repack_percent") {
+@@ -74,6 +75,10 @@ template("chrome_repack_percent") {
          "//ui/chromeos/resources",
        ]
      }

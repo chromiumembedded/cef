@@ -20,6 +20,7 @@
 #include "base/values.h"
 #include "chrome/browser/accessibility/accessibility_ui.h"
 #include "chrome/browser/download/download_prefs.h"
+#include "chrome/browser/first_party_sets/first_party_sets_pref_names.h"
 #include "chrome/browser/media/media_device_id_salt.h"
 #include "chrome/browser/media/router/media_router_feature.h"
 #include "chrome/browser/net/profile_network_context_service.h"
@@ -263,6 +264,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     // Default profile preferences.
     AccessibilityUIMessageHandler::RegisterProfilePrefs(registry.get());
     extensions::ExtensionPrefs::RegisterProfilePrefs(registry.get());
+    first_party_sets::RegisterProfilePrefs(registry.get());
     HostContentSettingsMap::RegisterProfilePrefs(registry.get());
     language::LanguagePrefs::RegisterProfilePrefs(registry.get());
     media_router::RegisterProfilePrefs(registry.get());

@@ -249,7 +249,7 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
 }
 
 - (void)HandleKeyEventBeforeTextInputClient:(NSEvent*)keyEvent {
-  DCHECK([keyEvent type] == NSKeyDown);
+  DCHECK([keyEvent type] == NSEventTypeKeyDown);
   // Don't call this method recursively.
   DCHECK(!handlingKeyDown_);
 

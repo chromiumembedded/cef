@@ -80,10 +80,10 @@ index 309422bcf8581..759549f3046f4 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index fe988e3bbcf0c..e1cdb6abe8995 100644
+index 10d10f49e7a0e..9e5a6409465ab 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -221,6 +221,8 @@ viz_component("service") {
+@@ -214,6 +214,8 @@ viz_component("service") {
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
      "viz_service_export.h",
@@ -93,7 +93,7 @@ index fe988e3bbcf0c..e1cdb6abe8995 100644
  
    defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index 8a277c6337d44..8bf8ae706624e 100644
+index 8585790795707..995143f8b0faf 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
 @@ -17,6 +17,7 @@
@@ -104,15 +104,15 @@ index 8a277c6337d44..8bf8ae706624e 100644
  #include "components/viz/common/display/renderer_settings.h"
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
  #include "components/viz/service/display/display_compositor_memory_and_task_controller.h"
-@@ -39,6 +40,7 @@
+@@ -29,6 +30,7 @@
+ #include "gpu/config/gpu_finch_features.h"
+ #include "gpu/ipc/common/surface_handle.h"
  #include "gpu/ipc/scheduler_sequence.h"
- #include "gpu/ipc/service/gpu_channel_manager_delegate.h"
- #include "gpu/ipc/service/image_transport_surface.h"
 +#include "mojo/public/cpp/bindings/sync_call_restrictions.h"
  #include "ui/base/ui_base_switches.h"
- #include "ui/gl/gl_context.h"
- #include "ui/gl/init/gl_factory.h"
-@@ -247,6 +249,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+ 
+ #if BUILDFLAG(IS_WIN)
+@@ -142,6 +144,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
    if (headless_)
      return std::make_unique<SoftwareOutputDevice>();
  

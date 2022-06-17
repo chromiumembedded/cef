@@ -96,6 +96,7 @@
 #include "third_party/blink/public/web/web_element.h"
 #include "third_party/blink/public/web/web_frame.h"
 #include "third_party/blink/public/web/web_local_frame.h"
+#include "third_party/blink/public/web/web_script_controller.h"
 #include "third_party/blink/public/web/web_security_policy.h"
 #include "third_party/blink/public/web/web_view.h"
 #include "third_party/blink/renderer/platform/runtime_enabled_features.h"
@@ -258,8 +259,8 @@ void AlloyContentRendererClient::ExposeInterfacesToBrowser(
 
 void AlloyContentRendererClient::RenderThreadConnected() {
   // Register extensions last because it will trigger WebKit initialization.
-  content::RenderThread* thread = content::RenderThread::Get();
-  thread->RegisterExtension(extensions_v8::LoadTimesExtension::Get());
+  blink::WebScriptController::RegisterExtension(
+      extensions_v8::LoadTimesExtension::Get());
 
   render_manager_->RenderThreadConnected();
 }

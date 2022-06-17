@@ -696,40 +696,21 @@ void StreamReaderURLLoader::ContinueWithResponseHeaders(
     // |this| will be deleted.
     CleanUp();
   } else {
+    mojo::ScopedDataPipeConsumerHandle consumer_handle;
+    if (CreateDataPipe(nullptr /*options*/, producer_handle_,
+                       consumer_handle) != MOJO_RESULT_OK) {
+      RequestComplete(net::ERR_FAILED);
+      return;
+    }
+    writable_handle_watcher_.Watch(
+        producer_handle_.get(), MOJO_HANDLE_SIGNAL_WRITABLE,
+        base::BindRepeating(&StreamReaderURLLoader::OnDataPipeWritable,
+                            base::Unretained(this)));
+
     client_->OnReceiveResponse(std::move(pending_response),
-                               mojo::ScopedDataPipeConsumerHandle());
+                               std::move(consumer_handle));
+    ReadMore();
   }
-}
-
-void StreamReaderURLLoader::ContinueResponse(bool was_redirected) {
-  DCHECK(thread_checker_.CalledOnValidThread());
-
-  if (was_redirected) {
-    // Special case where we allow the client to perform the redirect.
-    // The client will restart the request with a new loader.
-    // |this| will be deleted.
-    CleanUp();
-  } else {
-    SendBody();
-  }
-}
-
-void StreamReaderURLLoader::SendBody() {
-  DCHECK(thread_checker_.CalledOnValidThread());
-
-  mojo::ScopedDataPipeConsumerHandle consumer_handle;
-  if (CreateDataPipe(nullptr /*options*/, producer_handle_, consumer_handle) !=
-      MOJO_RESULT_OK) {
-    RequestComplete(net::ERR_FAILED);
-    return;
-  }
-  writable_handle_watcher_.Watch(
-      producer_handle_.get(), MOJO_HANDLE_SIGNAL_WRITABLE,
-      base::BindRepeating(&StreamReaderURLLoader::OnDataPipeWritable,
-                          base::Unretained(this)));
-  client_->OnStartLoadingResponseBody(std::move(consumer_handle));
-
-  ReadMore();
 }
 
 void StreamReaderURLLoader::ReadMore() {

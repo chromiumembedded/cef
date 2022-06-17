@@ -236,8 +236,6 @@ class InterceptedRequest : public network::mojom::URLLoader,
                         OnUploadProgressCallback callback) override;
   void OnReceiveCachedMetadata(mojo_base::BigBuffer data) override;
   void OnTransferSizeUpdated(int32_t transfer_size_diff) override;
-  void OnStartLoadingResponseBody(
-      mojo::ScopedDataPipeConsumerHandle body) override;
   void OnComplete(const network::URLLoaderCompletionStatus& status) override;
 
   // mojom::URLLoader methods:
@@ -661,13 +659,6 @@ void InterceptedRequest::OnTransferSizeUpdated(int32_t transfer_size_diff) {
   target_client_->OnTransferSizeUpdated(transfer_size_diff);
 }
 
-void InterceptedRequest::OnStartLoadingResponseBody(
-    mojo::ScopedDataPipeConsumerHandle body) {
-  target_client_->OnStartLoadingResponseBody(
-      factory_->request_handler_->OnFilterResponseBody(id_, request_,
-                                                       std::move(body)));
-}
-
 void InterceptedRequest::OnComplete(
     const network::URLLoaderCompletionStatus& status) {
   // Only wait for the original loader to possibly have a custom error if the
@@ -1053,12 +1044,11 @@ void InterceptedRequest::ContinueToResponseStarted(int error_code) {
     if (proxied_client_receiver_.is_bound())
       proxied_client_receiver_.Resume();
 
-    target_client_->OnReceiveResponse(std::move(current_response_),
-                                      std::move(current_body_));
+    target_client_->OnReceiveResponse(
+        std::move(current_response_),
+        factory_->request_handler_->OnFilterResponseBody(
+            id_, request_, std::move(current_body_)));
   }
-
-  if (stream_loader_)
-    stream_loader_->ContinueResponse(is_redirect);
 }
 
 void InterceptedRequest::OnDestroy() {

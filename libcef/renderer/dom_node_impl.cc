@@ -80,10 +80,10 @@ bool CefDOMNodeImpl::IsEditable() {
 
     // Also return true if it has an ARIA role of 'textbox'.
     for (unsigned i = 0; i < element.AttributeCount(); ++i) {
-      if (base::LowerCaseEqualsASCII(element.AttributeLocalName(i).Utf8(),
-                                     "role")) {
-        if (base::LowerCaseEqualsASCII(element.AttributeValue(i).Utf8(),
-                                       "textbox")) {
+      if (base::EqualsCaseInsensitiveASCII(element.AttributeLocalName(i).Utf8(),
+                                           "role")) {
+        if (base::EqualsCaseInsensitiveASCII(element.AttributeValue(i).Utf8(),
+                                             "textbox")) {
           return true;
         }
         break;

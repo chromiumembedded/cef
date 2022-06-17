@@ -1,9 +1,9 @@
 diff --git ui/views/controls/webview/webview.cc ui/views/controls/webview/webview.cc
-index a87b20d3282a8..da0e84c73b36e 100644
+index 3a3f6e1af5a1e..bbbc69a5c84d3 100644
 --- ui/views/controls/webview/webview.cc
 +++ ui/views/controls/webview/webview.cc
-@@ -142,6 +142,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
-     MaybeEnableAutoResize(web_contents()->GetMainFrame());
+@@ -143,6 +143,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
+     MaybeEnableAutoResize(web_contents()->GetPrimaryMainFrame());
  }
  
 +void WebView::SetResizeBackgroundColor(SkColor resize_background_color) {
