@@ -49,6 +49,7 @@
 #include "third_party/blink/public/web/web_navigation_control.h"
 #include "third_party/blink/public/web/web_script_source.h"
 #include "third_party/blink/public/web/web_view.h"
+#include "third_party/blink/renderer/platform/runtime_enabled_features.h"
 
 namespace {
 
@@ -336,6 +337,14 @@ void CefFrameImpl::OnDidFinishLoad() {
   // We'll eventually receive a notification from the owner frame.
   if (blink_glue::HasPluginFrameOwner(frame_))
     return;
+
+  if (!blink::RuntimeEnabledFeatures::BackForwardCacheEnabled() && IsMain()) {
+    // Refresh draggable regions. Otherwise, we may not receive updated regions
+    // after navigation because LocalFrameView::UpdateDocumentAnnotatedRegion
+    // lacks sufficient context. When bfcache is disabled we use this method
+    // instead of DidStopLoading() because it provides more accurate timing.
+    OnDraggableRegionsChanged();
+  }
 
   blink::WebDocumentLoader* dl = frame_->GetDocumentLoader();
   const int http_status_code = dl->GetWebResponse().HttpStatusCode();
@@ -711,10 +720,13 @@ void CefFrameImpl::DidStopLoading() {
   // OnLoadingStateChange.
   browser_->OnLoadingStateChange(false);
 
-  // Refresh draggable regions. Otherwise, we may not receive updated regions
-  // after navigation because LocalFrameView::UpdateDocumentAnnotatedRegion
-  // lacks sufficient context.
-  OnDraggableRegionsChanged();
+  if (blink::RuntimeEnabledFeatures::BackForwardCacheEnabled()) {
+    // Refresh draggable regions. Otherwise, we may not receive updated regions
+    // after navigation because LocalFrameView::UpdateDocumentAnnotatedRegion
+    // lacks sufficient context. When bfcache is enabled we can't rely on
+    // OnDidFinishLoad() as the frame may not actually be reloaded.
+    OnDraggableRegionsChanged();
+  }
 }
 
 void CefFrameImpl::ContextLifecycleStateChanged(
