@@ -48,6 +48,10 @@ bool ReleaseReservation() {
   NOTREACHED();
   return false;
 }
+
+void TerminateBecauseOutOfMemory(size_t size) {
+  NOTREACHED();
+}
 }  // namespace partition_alloc
 
 #endif  // BUILDFLAG(IS_CEF_SANDBOX_BUILD)
