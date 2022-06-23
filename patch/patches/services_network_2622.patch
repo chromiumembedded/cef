@@ -1,5 +1,5 @@
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index 122c7aac0fe18..f8017f174292d 100644
+index 2df5ce6a4ebb8..d74f93c7a4b38 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -22,6 +22,7 @@
@@ -10,7 +10,7 @@ index 122c7aac0fe18..f8017f174292d 100644
  #include "chrome/browser/browser_features.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
-@@ -745,7 +746,19 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -752,7 +753,19 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
  
    // Configure on-disk storage for non-OTR profiles. OTR profiles just use
    // default behavior (in memory storage, default sizes).
@@ -31,7 +31,7 @@ index 122c7aac0fe18..f8017f174292d 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -758,7 +771,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -765,7 +778,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
          base_cache_path.Append(chrome::kCacheDirname);
      network_context_params->http_cache_max_size =
          local_state->GetInteger(prefs::kDiskCacheSize);
