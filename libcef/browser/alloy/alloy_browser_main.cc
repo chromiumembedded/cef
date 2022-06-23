@@ -55,6 +55,7 @@
 #include "ui/wm/core/wm_state.h"
 
 #if BUILDFLAG(IS_WIN)
+#include "base/enterprise_util.h"
 #include "chrome/browser/chrome_browser_main_win.h"
 #include "chrome/browser/win/parental_controls.h"
 #endif
@@ -308,7 +309,13 @@ int AlloyBrowserMainParts::PreMainMessageLoopRun() {
   // Windows parental controls calls can be slow, so we do an early init here
   // that calculates this value off of the UI thread.
   InitializeWinParentalControls();
-#endif
+
+  // These methods may call LoadLibrary and could trigger
+  // AssertBlockingAllowed() failures if executed at a later time on the UI
+  // thread.
+  base::IsManagedDevice();
+  base::IsEnterpriseDevice();
+#endif  // BUILDFLAG(IS_WIN)
 
   // Triggers initialization of the singleton instance on UI thread.
   PluginFinder::GetInstance();
