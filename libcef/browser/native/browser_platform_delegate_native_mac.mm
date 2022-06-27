@@ -140,6 +140,13 @@ NSUInteger NativeModifiers(int cef_modifiers) {
   return native_modifiers;
 }
 
+constexpr int kDefaultHeight = 750;
+constexpr int kDefaultWidth = 750;
+constexpr NSWindowStyleMask kDefaultStyleMask =
+    NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
+    NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable |
+    NSWindowStyleMaskUnifiedTitleAndToolbar;
+
 }  // namespace
 
 CefBrowserPlatformDelegateNativeMac::CefBrowserPlatformDelegateNativeMac(
@@ -176,19 +183,15 @@ bool CefBrowserPlatformDelegateNativeMac::CreateHostWindow() {
     // Create a new window.
     NSRect window_rect = {{x, y}, {width, height}};
     if (window_rect.size.width == 0)
-      window_rect.size.width = 750;
+      window_rect.size.width = kDefaultWidth;
     if (window_rect.size.height == 0)
-      window_rect.size.height = 750;
+      window_rect.size.height = kDefaultHeight;
 
     content_rect = {{0, 0}, {window_rect.size.width, window_rect.size.height}};
 
     newWnd = [[UnderlayOpenGLHostingWindow alloc]
         initWithContentRect:window_rect
-                  styleMask:(NSWindowStyleMaskTitled |
-                             NSWindowStyleMaskClosable |
-                             NSWindowStyleMaskMiniaturizable |
-                             NSWindowStyleMaskResizable |
-                             NSWindowStyleMaskUnifiedTitleAndToolbar)
+                  styleMask:kDefaultStyleMask
                     backing:NSBackingStoreBuffered
                       defer:NO];
 

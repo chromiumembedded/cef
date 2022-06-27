@@ -154,7 +154,6 @@ bool CefBrowserInfoManager::CanCreateWindow(
       CefPopupFeatures cef_features;
       TranslatePopupFeatures(features, cef_features);
 
-#if (BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC))
       // Default to the size from the popup features.
       if (cef_features.xSet)
         window_info.bounds.x = cef_features.x;
@@ -164,7 +163,6 @@ bool CefBrowserInfoManager::CanCreateWindow(
         window_info.bounds.width = cef_features.width;
       if (cef_features.heightSet)
         window_info.bounds.height = cef_features.height;
-#endif
 
       allow = !handler->OnBeforePopup(
           browser.get(), opener_frame, pending_popup->target_url.spec(),
