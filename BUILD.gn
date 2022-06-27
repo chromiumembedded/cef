@@ -373,6 +373,8 @@ source_set("libcef_static_unittested") {
   sources = [
     "libcef/browser/devtools/devtools_util.cc",
     "libcef/browser/devtools/devtools_util.h",
+    "libcef/browser/screen_util.h",
+    "libcef/browser/screen_util.cc",
   ]
 
   deps = [
@@ -389,6 +391,7 @@ source_set("libcef_static_unittested") {
 test("libcef_static_unittests") {
   sources = [
     "libcef/browser/devtools/devtools_util_unittest.cc",
+    "libcef/browser/screen_util_unittest.cc",
   ]
 
   deps = [
@@ -416,6 +419,8 @@ static_library("libcef_static") {
     "libcef/browser/alloy/alloy_content_browser_client.h",
     "libcef/browser/alloy/alloy_download_util.cc",
     "libcef/browser/alloy/alloy_download_util.h",
+    "libcef/browser/alloy/alloy_permission_manager.cc",
+    "libcef/browser/alloy/alloy_permission_manager.h",
     "libcef/browser/alloy/alloy_web_contents_view_delegate.cc",
     "libcef/browser/alloy/alloy_web_contents_view_delegate.h",
     "libcef/browser/alloy/browser_platform_delegate_alloy.cc",
@@ -669,6 +674,8 @@ static_library("libcef_static") {
     "libcef/browser/request_context_impl.cc",
     "libcef/browser/request_context_impl.h",
     "libcef/browser/scheme_impl.cc",
+    "libcef/browser/screen_util.cc",
+    "libcef/browser/screen_util.h",
     "libcef/browser/server_impl.cc",
     "libcef/browser/server_impl.h",
     "libcef/browser/simple_menu_model_impl.cc",
@@ -1645,7 +1652,7 @@ if (is_mac) {
         "libcef_dll/libcef_dll.rc",
       ]
 
-      deps += [ 
+      deps += [
         # Bring in ui_unscaled_resources.rc which contains custom cursors.
         # TODO(cef): Remove this once custom cursors can be loaded via
         # ResourceBundle. See crbug.com/147663.
@@ -2249,7 +2256,7 @@ if (is_mac) {
   #
   # ceftests targets.
   #
-  
+
   if (is_linux) {
     copy("copy_ceftests_files") {
       sources = gypi_paths2.shared_sources_resources

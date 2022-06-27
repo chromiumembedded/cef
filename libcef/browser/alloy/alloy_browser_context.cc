@@ -7,6 +7,7 @@
 #include <map>
 #include <utility>
 
+#include "libcef/browser/alloy/alloy_permission_manager.h"
 #include "libcef/browser/download_manager_delegate.h"
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/prefs/browser_prefs.h"
@@ -380,7 +381,9 @@ content::SSLHostStateDelegate* AlloyBrowserContext::GetSSLHostStateDelegate() {
 
 content::PermissionControllerDelegate*
 AlloyBrowserContext::GetPermissionControllerDelegate() {
-  return nullptr;
+  if (!permission_manager_.get())
+    permission_manager_ = std::make_unique<AlloyPermissionManager>();
+  return permission_manager_.get();
 }
 
 content::BackgroundFetchDelegate*

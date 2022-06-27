@@ -11,6 +11,7 @@
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/native/window_delegate_view.h"
+#include "libcef/browser/screen_util.h"
 #include "libcef/browser/thread_util.h"
 
 #include "base/base_paths_win.h"
@@ -146,6 +147,61 @@ float GetWindowScaleFactor(HWND hwnd) {
       .device_scale_factor();
 }
 
+struct ScreenInfo {
+  float scale_factor;
+  CefRect rect;
+};
+
+ScreenInfo GetScreenInfo(int x, int y) {
+  const auto display =
+      display::Screen::GetScreen()->GetDisplayNearestPoint(gfx::Point(x, y));
+  const auto rect = display.work_area();
+
+  return ScreenInfo{display.device_scale_factor(),
+                    CefRect(rect.x(), rect.y(), rect.width(), rect.height())};
+}
+
+CefRect GetFrameRectFromLogicalContentRect(CefRect content,
+                                           DWORD style,
+                                           DWORD ex_style,
+                                           bool has_menu,
+                                           float scale) {
+  const auto scaled_rect = gfx::ScaleToRoundedRect(
+      gfx::Rect(content.x, content.y, content.width, content.height), scale);
+
+  RECT rect = {0, 0, scaled_rect.width(), scaled_rect.height()};
+
+  AdjustWindowRectEx(&rect, style, has_menu, ex_style);
+
+  return CefRect(scaled_rect.x(), scaled_rect.y(), rect.right - rect.left,
+                 rect.bottom - rect.top);
+}
+
+CefRect GetAdjustedWindowRect(CefRect content,
+                              DWORD style,
+                              DWORD ex_style,
+                              bool has_menu) {
+  // If height or width is not provided, let OS determine position and size,
+  // similarly to Chromium behavior
+  if (content.width == CW_USEDEFAULT || content.height == CW_USEDEFAULT) {
+    return CefRect(CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT);
+  }
+
+  if (content.x == CW_USEDEFAULT) {
+    content.x = 0;
+  }
+
+  if (content.y == CW_USEDEFAULT) {
+    content.y = 0;
+  }
+
+  const ScreenInfo screen = GetScreenInfo(content.x, content.y);
+  const CefRect rect = MakeVisibleOnScreenRect(content, screen.rect);
+
+  return GetFrameRectFromLogicalContentRect(rect, style, ex_style, has_menu,
+                                            screen.scale_factor);
+}
+
 }  // namespace
 
 CefBrowserPlatformDelegateNativeWin::CefBrowserPlatformDelegateNativeWin(
@@ -182,14 +238,23 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
 
   has_frame_ = !(window_info_.style & WS_CHILD);
 
-  std::wstring windowName(CefString(&window_info_.window_name));
+  const std::wstring windowName(CefString(&window_info_.window_name));
+
+  CefRect window_rect = window_info_.bounds;
+
+  if (!window_info_.parent_window) {
+    const bool has_menu =
+        !(window_info_.style & WS_CHILD) && (window_info_.menu != NULL);
+    window_rect = GetAdjustedWindowRect(window_rect, window_info_.style,
+                                        window_info_.ex_style, has_menu);
+  }
 
   // Create the new browser window.
   CreateWindowEx(window_info_.ex_style, GetWndClass(), windowName.c_str(),
-                 window_info_.style, window_info_.bounds.x,
-                 window_info_.bounds.y, window_info_.bounds.width,
-                 window_info_.bounds.height, window_info_.parent_window,
-                 window_info_.menu, ::GetModuleHandle(NULL), this);
+                 window_info_.style, window_rect.x, window_rect.y,
+                 window_rect.width, window_rect.height,
+                 window_info_.parent_window, window_info_.menu,
+                 ::GetModuleHandle(NULL), this);
 
   // It's possible for CreateWindowEx to fail if the parent window was
   // destroyed between the call to CreateBrowser and the above one.
@@ -348,18 +413,17 @@ void CefBrowserPlatformDelegateNativeWin::NotifyMoveOrResizeStarted() {
 void CefBrowserPlatformDelegateNativeWin::SizeTo(int width, int height) {
   HWND window = window_info_.window;
 
-  RECT rect = {0, 0, width, height};
-  DWORD style = GetWindowLong(window, GWL_STYLE);
-  DWORD ex_style = GetWindowLong(window, GWL_EXSTYLE);
-  bool has_menu = !(style & WS_CHILD) && (GetMenu(window) != NULL);
+  const DWORD style = GetWindowLong(window, GWL_STYLE);
+  const DWORD ex_style = GetWindowLong(window, GWL_EXSTYLE);
+  const bool has_menu = !(style & WS_CHILD) && (GetMenu(window) != NULL);
+  const float scale = GetWindowScaleFactor(window);
 
-  // The size value is for the client area. Calculate the whole window size
-  // based on the current style.
-  AdjustWindowRectEx(&rect, style, has_menu, ex_style);
+  const CefRect content_rect(0, 0, width, height);
+  const CefRect frame_rect = GetFrameRectFromLogicalContentRect(
+      content_rect, style, ex_style, has_menu, scale);
 
   // Size the window. The left/top values may be negative.
-  SetWindowPos(window, NULL, 0, 0, rect.right - rect.left,
-               rect.bottom - rect.top,
+  SetWindowPos(window, NULL, 0, 0, frame_rect.width, frame_rect.height,
                SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
 }
 
