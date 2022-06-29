@@ -1,0 +1,28 @@
+diff --git modules/desktop_capture/differ_block.cc modules/desktop_capture/differ_block.cc
+index 4f0c5430c9..cac782e1ca 100644
+--- modules/desktop_capture/differ_block.cc
++++ modules/desktop_capture/differ_block.cc
+@@ -30,7 +30,7 @@ bool VectorDifference(const uint8_t* image1, const uint8_t* image2) {
+   static bool (*diff_proc)(const uint8_t*, const uint8_t*) = nullptr;
+ 
+   if (!diff_proc) {
+-#if defined(WEBRTC_ARCH_ARM_FAMILY) || defined(WEBRTC_ARCH_MIPS_FAMILY)
++#if defined(WEBRTC_ARCH_ARM_FAMILY) || defined(WEBRTC_ARCH_MIPS_FAMILY) || defined(WEBRTC_ARCH_LOONG_FAMILY)
+     // For ARM and MIPS processors, always use C version.
+     // TODO(hclam): Implement a NEON version.
+     diff_proc = &VectorDifference_C;
+diff --git rtc_base/system/arch.h rtc_base/system/arch.h
+index be2367b85f..652cb46b32 100644
+--- rtc_base/system/arch.h
++++ rtc_base/system/arch.h
+@@ -28,6 +28,10 @@
+ #define WEBRTC_ARCH_ARM_FAMILY
+ #define WEBRTC_ARCH_64_BITS
+ #define WEBRTC_ARCH_LITTLE_ENDIAN
++#elif defined(__loongarch64)
++#define WEBRTC_ARCH_LOONG_FAMILY
++#define WEBRTC_ARCH_64_BITS
++#define WEBRTC_ARCH_LITTLE_ENDIAN
+ #elif defined(_M_IX86) || defined(__i386__)
+ #define WEBRTC_ARCH_X86_FAMILY
+ #define WEBRTC_ARCH_X86

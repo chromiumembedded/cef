@@ -28,6 +28,8 @@ endif()
 if(NOT DEFINED PROJECT_ARCH)
   if(OS_WINDOWS AND "${CMAKE_GENERATOR_PLATFORM}" STREQUAL "arm64")
     set(PROJECT_ARCH "arm64")
+  elseif(OS_LINUX AND "${CMAKE_GENERATOR_PLATFORM}" STREQUAL "loongarch64")
+    set(PROJECT_ARCH "loongarch64")
   elseif(CMAKE_SIZEOF_VOID_P MATCHES 8)
     set(PROJECT_ARCH "x86_64")
   else()
@@ -222,12 +224,12 @@ if(OS_LINUX)
     libcef.so
     libEGL.so
     libGLESv2.so
-    libvk_swiftshader.so
+    #libvk_swiftshader.so
     libvulkan.so.1
     snapshot_blob.bin
     v8_context_snapshot.bin
-    vk_swiftshader_icd.json
-    swiftshader
+    #vk_swiftshader_icd.json
+    #swiftshader
     )
 
   # List of CEF resource files.

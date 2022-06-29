@@ -342,8 +342,8 @@ def ValidateArgs(args):
                           'arm64'), 'target_cpu must be "x86", "x64" or "arm64"'
   elif platform == 'linux':
     assert target_cpu in (
-        'x86', 'x64', 'arm',
-        'arm64'), 'target_cpu must be "x86", "x64", "arm" or "arm64"'
+        'x86', 'x64', 'arm', 'loong64',
+        'arm64'), 'target_cpu must be "x86", "x64", "arm" or "arm64", "loong64"'
 
   if platform == 'linux':
     if target_cpu == 'x86':
@@ -558,6 +558,7 @@ def GetAllPlatformConfigs(build_args):
 
   if platform == 'linux':
     use_sysroot = GetArgValue(args, 'use_sysroot')
+    target_cpu = GetArgValue(args, 'target_cpu')
     if use_sysroot:
       # Only generate configurations for sysroots that have been installed.
       for cpu in ('x86', 'x64', 'arm', 'arm64'):
@@ -566,6 +567,8 @@ def GetAllPlatformConfigs(build_args):
         else:
           msg('Not generating %s configuration due to missing sysroot directory'
               % cpu)
+    elif target_cpu == 'loong64':
+      supported_cpus = ['loong64']
     else:
       supported_cpus = ['x64']
   elif platform in ('windows', 'mac'):

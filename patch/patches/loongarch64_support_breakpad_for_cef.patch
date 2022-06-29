@@ -1,0 +1,1442 @@
+diff --git src/client/linux/dump_writer_common/raw_context_cpu.h src/client/linux/dump_writer_common/raw_context_cpu.h
+index 07d9171a..48e0f089 100644
+--- src/client/linux/dump_writer_common/raw_context_cpu.h
++++ src/client/linux/dump_writer_common/raw_context_cpu.h
+@@ -44,6 +44,8 @@ typedef MDRawContextARM RawContextCPU;
+ typedef MDRawContextARM64_Old RawContextCPU;
+ #elif defined(__mips__)
+ typedef MDRawContextMIPS RawContextCPU;
++#elif defined(__loongarch64)
++typedef MDRawContextLOONGARCH64 RawContextCPU;
+ #else
+ #error "This code has not been ported to your platform yet."
+ #endif
+diff --git src/client/linux/dump_writer_common/thread_info.cc src/client/linux/dump_writer_common/thread_info.cc
+index aae1dc13..cacefcad 100644
+--- src/client/linux/dump_writer_common/thread_info.cc
++++ src/client/linux/dump_writer_common/thread_info.cc
+@@ -270,8 +270,27 @@ void ThreadInfo::FillCPUContext(RawContextCPU* out) const {
+   out->float_save.fir = mcontext.fpc_eir;
+ #endif
+ }
+-#endif  // __mips__
+ 
++#elif defined(__loongarch64)
++
++uintptr_t ThreadInfo::GetInstructionPointer() const {
++  return regs.csr_era;
++}
++
++void ThreadInfo::FillCPUContext(RawContextCPU* out) const {
++  out->context_flags = MD_CONTEXT_LOONGARCH64_FULL;
++
++  for (int i = 0; i < MD_CONTEXT_LOONGARCH64_GPR_COUNT; ++i)
++    out->iregs[i] = regs.regs[i];
++
++  out->csr_era = regs.csr_era;
++  my_memcpy(&out->float_save.regs, &fpregs.fpr,
++	MD_FLOATINGSAVEAREA_LOONGARCH64_FPR_COUNT * 8);
++  out->float_save.fcc = fpregs.fcc;
++  out->float_save.fcsr = fpregs.fcsr;
++}
++
++#endif  // __loongarch64
+ void ThreadInfo::GetGeneralPurposeRegisters(void** gp_regs, size_t* size) {
+   assert(gp_regs || size);
+ #if defined(__mips__)
+diff --git src/client/linux/dump_writer_common/thread_info.h src/client/linux/dump_writer_common/thread_info.h
+index fb216fa6..626208b1 100644
+--- src/client/linux/dump_writer_common/thread_info.h
++++ src/client/linux/dump_writer_common/thread_info.h
+@@ -71,6 +71,10 @@ struct ThreadInfo {
+ #elif defined(__mips__)
+   // Use the structure defined in <sys/ucontext.h>.
+   mcontext_t mcontext;
++#elif defined(__loongarch64)
++  // Use the structures defined in <sys/user.h>
++  struct user_regs_struct regs;
++  struct user_fp_struct fpregs;
+ #endif
+ 
+   // Returns the instruction pointer (platform-dependent impl.).
+diff --git src/client/linux/dump_writer_common/ucontext_reader.cc src/client/linux/dump_writer_common/ucontext_reader.cc
+index 6eec1be2..1971d14b 100644
+--- src/client/linux/dump_writer_common/ucontext_reader.cc
++++ src/client/linux/dump_writer_common/ucontext_reader.cc
+@@ -208,6 +208,24 @@ void UContextReader::FillCPUContext(RawContextCPU* out, const ucontext_t* uc,
+       MD_FLOATINGSAVEAREA_ARM64_FPR_COUNT * 16);
+ }
+ 
++#elif defined(__loongarch64)
++
++uintptr_t UContextReader::GetStackPointer(const ucontext_t* uc) {
++  return uc->uc_mcontext.__gregs[MD_CONTEXT_LOONGARCH64_REG_SP];
++}
++
++uintptr_t UContextReader::GetInstructionPointer(const ucontext_t* uc) {
++  return uc->uc_mcontext.__pc;
++}
++
++void UContextReader::FillCPUContext(RawContextCPU* out, const ucontext_t* uc) {
++  out->context_flags = MD_CONTEXT_LOONGARCH64_FULL;
++
++  for (int i = 0; i < MD_CONTEXT_LOONGARCH64_GPR_COUNT; ++i)
++    out->iregs[i] = uc->uc_mcontext.__gregs[i];
++
++  out->csr_era = uc->uc_mcontext.__pc;
++}
+ #elif defined(__mips__)
+ 
+ uintptr_t UContextReader::GetStackPointer(const ucontext_t* uc) {
+diff --git src/client/linux/handler/exception_handler.cc src/client/linux/handler/exception_handler.cc
+index 499be0a9..f38aafe4 100644
+--- src/client/linux/handler/exception_handler.cc
++++ src/client/linux/handler/exception_handler.cc
+@@ -461,7 +461,7 @@ bool ExceptionHandler::HandleSignal(int /*sig*/, siginfo_t* info, void* uc) {
+     memcpy(&g_crash_context_.float_state, fp_ptr,
+            sizeof(g_crash_context_.float_state));
+   }
+-#elif !defined(__ARM_EABI__) && !defined(__mips__)
++#elif !defined(__ARM_EABI__) && !defined(__mips__) && !defined(__loongarch64)
+   // FP state is not part of user ABI on ARM Linux.
+   // In case of MIPS Linux FP state is already part of ucontext_t
+   // and 'float_state' is not a member of CrashContext.
+@@ -701,7 +701,7 @@ bool ExceptionHandler::WriteMinidump() {
+   }
+ #endif
+ 
+-#if !defined(__ARM_EABI__) && !defined(__aarch64__) && !defined(__mips__)
++#if !defined(__ARM_EABI__) && !defined(__aarch64__) && !defined(__mips__) && !defined(__loongarch64)
+   // FPU state is not part of ARM EABI ucontext_t.
+   memcpy(&context.float_state, context.context.uc_mcontext.fpregs,
+          sizeof(context.float_state));
+@@ -726,6 +726,9 @@ bool ExceptionHandler::WriteMinidump() {
+ #elif defined(__mips__)
+   context.siginfo.si_addr =
+       reinterpret_cast<void*>(context.context.uc_mcontext.pc);
++#elif defined(__loongarch64)
++  context.siginfo.si_addr = 
++      reinterpret_cast<void*>(context.context.uc_mcontext.__pc);
+ #else
+ #error "This code has not been ported to your platform yet."
+ #endif
+diff --git src/client/linux/handler/exception_handler.h src/client/linux/handler/exception_handler.h
+index f80843ea..7e2e0f21 100644
+--- src/client/linux/handler/exception_handler.h
++++ src/client/linux/handler/exception_handler.h
+@@ -192,7 +192,7 @@ class ExceptionHandler {
+     siginfo_t siginfo;
+     pid_t tid;  // the crashing thread.
+     ucontext_t context;
+-#if !defined(__ARM_EABI__) && !defined(__mips__)
++#if !defined(__ARM_EABI__) && !defined(__mips__) && !defined(__loongarch64)
+     // #ifdef this out because FP state is not part of user ABI for Linux ARM.
+     // In case of MIPS Linux FP state is already part of ucontext_t so
+     // 'float_state' is not required.
+diff --git src/client/linux/microdump_writer/microdump_writer.cc src/client/linux/microdump_writer/microdump_writer.cc
+index 22edb1b8..9d2eb520 100644
+--- src/client/linux/microdump_writer/microdump_writer.cc
++++ src/client/linux/microdump_writer/microdump_writer.cc
+@@ -138,7 +138,7 @@ class MicrodumpWriter {
+                   const MicrodumpExtraInfo& microdump_extra_info,
+                   LinuxDumper* dumper)
+       : ucontext_(context ? &context->context : NULL),
+-#if !defined(__ARM_EABI__) && !defined(__mips__)
++#if !defined(__ARM_EABI__) && !defined(__mips__) && !defined(__loongarch64)
+         float_state_(context ? &context->float_state : NULL),
+ #endif
+         dumper_(dumper),
+@@ -337,6 +337,8 @@ class MicrodumpWriter {
+ # else
+ #  error "This mips ABI is currently not supported (n32)"
+ #endif
++#elif defined(__loongarch64)
++    const char kArch[] = "loongarch64";
+ #else
+ #error "This code has not been ported to your platform yet"
+ #endif
+@@ -409,7 +411,7 @@ class MicrodumpWriter {
+   void DumpCPUState() {
+     RawContextCPU cpu;
+     my_memset(&cpu, 0, sizeof(RawContextCPU));
+-#if !defined(__ARM_EABI__) && !defined(__mips__)
++#if !defined(__ARM_EABI__) && !defined(__mips__) && !defined(__loongarch64)
+     UContextReader::FillCPUContext(&cpu, ucontext_, float_state_);
+ #else
+     UContextReader::FillCPUContext(&cpu, ucontext_);
+@@ -605,7 +607,7 @@ class MicrodumpWriter {
+   void* Alloc(unsigned bytes) { return dumper_->allocator()->Alloc(bytes); }
+ 
+   const ucontext_t* const ucontext_;
+-#if !defined(__ARM_EABI__) && !defined(__mips__)
++#if !defined(__ARM_EABI__) && !defined(__mips__) && !defined(__loongarch64)
+   const google_breakpad::fpstate_t* const float_state_;
+ #endif
+   LinuxDumper* dumper_;
+diff --git src/client/linux/minidump_writer/linux_core_dumper.cc src/client/linux/minidump_writer/linux_core_dumper.cc
+index 92e3a844..8a5052ab 100644
+--- src/client/linux/minidump_writer/linux_core_dumper.cc
++++ src/client/linux/minidump_writer/linux_core_dumper.cc
+@@ -112,6 +112,9 @@ bool LinuxCoreDumper::GetThreadInfoByIndex(size_t index, ThreadInfo* info) {
+ #elif defined(__mips__)
+   stack_pointer =
+       reinterpret_cast<uint8_t*>(info->mcontext.gregs[MD_CONTEXT_MIPS_REG_SP]);
++#elif defined(__loongarch64)
++  memcpy(&stack_pointer, &info->regs.regs[MD_CONTEXT_LOONGARCH64_REG_SP], 
++	 sizeof(info->regs.regs[MD_CONTEXT_LOONGARCH64_REG_SP]));
+ #else
+ #error "This code hasn't been ported to your platform yet."
+ #endif
+diff --git src/client/linux/minidump_writer/linux_dumper.cc src/client/linux/minidump_writer/linux_dumper.cc
+index 44430c4e..7d3fce29 100644
+--- src/client/linux/minidump_writer/linux_dumper.cc
++++ src/client/linux/minidump_writer/linux_dumper.cc
+@@ -957,10 +957,18 @@ bool LinuxDumper::HandleDeletedFileInMapping(char* path) const {
+   // Check to see if someone actually named their executable 'foo (deleted)'.
+   struct kernel_stat exe_stat;
+   struct kernel_stat new_path_stat;
++#if defined(__loongarch64)
++  if (sys_statx(AT_FDCWD, exe_link, AT_STATX_SYNC_AS_STAT, STATX_ALL, &exe_stat) == 0 &&
++      sys_statx(AT_FDCWD, new_path, AT_STATX_SYNC_AS_STAT, STATX_ALL, &new_path_stat) == 0 &&
++      exe_stat.st_dev_major == new_path_stat.st_dev_major &&
++      exe_stat.st_dev_minor == new_path_stat.st_dev_minor &&
++      exe_stat.st_ino == new_path_stat.st_ino) {
++#else
+   if (sys_stat(exe_link, &exe_stat) == 0 &&
+       sys_stat(new_path, &new_path_stat) == 0 &&
+       exe_stat.st_dev == new_path_stat.st_dev &&
+       exe_stat.st_ino == new_path_stat.st_ino) {
++#endif
+     return false;
+   }
+ 
+diff --git src/client/linux/minidump_writer/linux_dumper.h src/client/linux/minidump_writer/linux_dumper.h
+index 7bee160f..8a87e36a 100644
+--- src/client/linux/minidump_writer/linux_dumper.h
++++ src/client/linux/minidump_writer/linux_dumper.h
+@@ -63,7 +63,7 @@ namespace google_breakpad {
+  (defined(__mips__) && _MIPS_SIM == _ABIO32)
+ typedef Elf32_auxv_t elf_aux_entry;
+ #elif defined(__x86_64) || defined(__aarch64__) || \
+-     (defined(__mips__) && _MIPS_SIM != _ABIO32)
++     (defined(__mips__) && _MIPS_SIM != _ABIO32) || defined(__loongarch64)
+ typedef Elf64_auxv_t elf_aux_entry;
+ #endif
+ 
+diff --git src/client/linux/minidump_writer/linux_ptrace_dumper.cc src/client/linux/minidump_writer/linux_ptrace_dumper.cc
+index e3ddb81a..7f3844e0 100644
+--- src/client/linux/minidump_writer/linux_ptrace_dumper.cc
++++ src/client/linux/minidump_writer/linux_ptrace_dumper.cc
+@@ -298,6 +298,9 @@ bool LinuxPtraceDumper::GetThreadInfoByIndex(size_t index, ThreadInfo* info) {
+ #elif defined(__mips__)
+   stack_pointer =
+       reinterpret_cast<uint8_t*>(info->mcontext.gregs[MD_CONTEXT_MIPS_REG_SP]);
++#elif defined(__loongarch64)
++  my_memcpy(&stack_pointer, &info->regs.regs[MD_CONTEXT_LOONGARCH64_REG_SP],
++	    sizeof(info->regs.regs[MD_CONTEXT_LOONGARCH64_REG_SP]));
+ #else
+ #error "This code hasn't been ported to your platform yet."
+ #endif
+diff --git src/client/linux/minidump_writer/minidump_writer.cc src/client/linux/minidump_writer/minidump_writer.cc
+index 72a92166..60892baf 100644
+--- src/client/linux/minidump_writer/minidump_writer.cc
++++ src/client/linux/minidump_writer/minidump_writer.cc
+@@ -136,7 +136,7 @@ class MinidumpWriter {
+       : fd_(minidump_fd),
+         path_(minidump_path),
+         ucontext_(context ? &context->context : NULL),
+-#if !defined(__ARM_EABI__) && !defined(__mips__)
++#if !defined(__ARM_EABI__) && !defined(__mips__) && !defined(__loongarch64)
+         float_state_(context ? &context->float_state : NULL),
+ #endif
+         dumper_(dumper),
+@@ -468,7 +468,7 @@ class MinidumpWriter {
+         if (!cpu.Allocate())
+           return false;
+         my_memset(cpu.get(), 0, sizeof(RawContextCPU));
+-#if !defined(__ARM_EABI__) && !defined(__mips__)
++#if !defined(__ARM_EABI__) && !defined(__mips__) && !defined(__loongarch64)
+         UContextReader::FillCPUContext(cpu.get(), ucontext_, float_state_);
+ #else
+         UContextReader::FillCPUContext(cpu.get(), ucontext_);
+@@ -897,7 +897,7 @@ class MinidumpWriter {
+     dirent->location.rva = 0;
+   }
+ 
+-#if defined(__i386__) || defined(__x86_64__) || defined(__mips__)
++#if defined(__i386__) || defined(__x86_64__) || defined(__mips__) || defined(__loongarch64)
+   bool WriteCPUInformation(MDRawSystemInfo* sys_info) {
+     char vendor_id[sizeof(sys_info->cpu.x86_cpu_info.vendor_id) + 1] = {0};
+     static const char vendor_id_name[] = "vendor_id";
+@@ -927,6 +927,8 @@ class MinidumpWriter {
+ #endif
+ #elif defined(__i386__)
+         MD_CPU_ARCHITECTURE_X86;
++#elif defined(__loongarch64)
++	MD_CPU_ARCHITECTURE_LOONGARCH64;
+ #else
+         MD_CPU_ARCHITECTURE_AMD64;
+ #endif
+@@ -1333,7 +1335,7 @@ class MinidumpWriter {
+   const char* path_;  // Path to the file where the minidum should be written.
+ 
+   const ucontext_t* const ucontext_;  // also from the signal handler
+-#if !defined(__ARM_EABI__) && !defined(__mips__)
++#if !defined(__ARM_EABI__) && !defined(__mips__) && !defined(__loongarch64)
+   const google_breakpad::fpstate_t* const float_state_;  // ditto
+ #endif
+   LinuxDumper* dumper_;
+diff --git src/client/linux/minidump_writer/minidump_writer.h src/client/linux/minidump_writer/minidump_writer.h
+index e3b0b16d..f99555ed 100644
+--- src/client/linux/minidump_writer/minidump_writer.h
++++ src/client/linux/minidump_writer/minidump_writer.h
+@@ -48,7 +48,7 @@ class ExceptionHandler;
+ 
+ #if defined(__aarch64__)
+ typedef struct fpsimd_context fpstate_t;
+-#elif !defined(__ARM_EABI__) && !defined(__mips__)
++#elif !defined(__ARM_EABI__) && !defined(__mips__) && !defined(__loongarch64)
+ typedef std::remove_pointer<fpregset_t>::type fpstate_t;
+ #endif
+ 
+diff --git src/common/dwarf_cfi_to_module.cc src/common/dwarf_cfi_to_module.cc
+index d7d19834..bf561b51 100644
+--- src/common/dwarf_cfi_to_module.cc
++++ src/common/dwarf_cfi_to_module.cc
+@@ -142,6 +142,23 @@ vector<string> DwarfCFIToModule::RegisterNames::MIPS() {
+                     sizeof(kRegisterNames) / sizeof(kRegisterNames[0]));
+ }
+ 
++vector<string> DwarfCEIToModule::RegisterNames::LOONGARCH64() {
++  static const char* const kRegisterNames[] = {
++    "$zero", "$ra",  "$tp",  "$sp",  "$a0",   "$a1",  "$a2",  "$a3",
++    "$a4",   "$a5",  "$a6",  "$a7",  "$v0",   "$v1",  "$t0",  "$t1",
++    "$t2",   "$t3",  "$t4",  "$t5",  "$t6",   "$t7",  "$t8",  "$x",
++    "$fp",   "$s0",  "$s1",  "$s2",  "$s3",   "$s4",  "$s5",  "$s6",
++    "$s7",   "$s8",  "$pc",  "$fa0", "$fa1",  "$fa2", "$fa3", "$fa4",
++    "$fa5",  "$fa6", "$fa7", "$fv0", "$fv1",  "$ft0", "$ft1", "$ft2",
++    "$ft3",  "$ft4", "$ft5", "$ft6", "$ft7",  "$ft8", "$ft9", "$ft10",
++    "$ft11", "$ft12","$ft13","$ft14","$ft15", "$fs0", "$fs1", "$fs2",
++    "$fs3",  "$fs4", "$fs5", "$fs6", "$fs7"
++  };
++
++  return MakeVector(kRegisterNames,
++		    sizeof(kRegisterNames) / sizeof(kRegisterNames[0]));
++}
++
+ bool DwarfCFIToModule::Entry(size_t offset, uint64_t address, uint64_t length,
+                              uint8_t version, const string& augmentation,
+                              unsigned return_address) {
+diff --git src/common/dwarf_cfi_to_module.h src/common/dwarf_cfi_to_module.h
+index 3e2e6ffe..474086d2 100644
+--- src/common/dwarf_cfi_to_module.h
++++ src/common/dwarf_cfi_to_module.h
+@@ -114,6 +114,9 @@ class DwarfCFIToModule: public CallFrameInfo::Handler {
+     // MIPS.
+     static vector<string> MIPS();
+ 
++    // LOONGARCH64.
++    static vector<string> LOONGARCH64();
++
+    private:
+     // Given STRINGS, an array of C strings with SIZE elements, return an
+     // equivalent vector<string>.
+diff --git src/common/linux/breakpad_getcontext.S src/common/linux/breakpad_getcontext.S
+index 2ebcf319..195bdea6 100644
+--- src/common/linux/breakpad_getcontext.S
++++ src/common/linux/breakpad_getcontext.S
+@@ -221,6 +221,69 @@ breakpad_getcontext:
+   .cfi_endproc
+   .size breakpad_getcontext, . - breakpad_getcontext
+ 
++#elif defined(__loongarch64)
++
++#define  _NSIG                       64
++#define  __NR_rt_sigprocmask         135
++
++  .text
++  .global breakpad_getcontext
++  .hidden breakpad_getcontext
++  .type breakpad_getcontext, @function
++  .align 4
++  .cfi_startproc
++breakpad_getcontext:
++  STORE_PC
++  STORE_GPR(0)
++  STORE_GPR(1)
++  STORE_GPR(2)
++  STORE_GPR(3)
++  STORE_GPR(4)
++  STORE_GPR(5)
++  STORE_GPR(6)
++  STORE_GPR(7)
++  STORE_GPR(8)
++  STORE_GPR(9)
++  STORE_GPR(10)
++  STORE_GPR(11)
++  STORE_GPR(12)
++  STORE_GPR(13)
++  STORE_GPR(14)
++  STORE_GPR(15)
++  STORE_GPR(16)
++  STORE_GPR(17)
++  STORE_GPR(18)
++  STORE_GPR(19)
++  STORE_GPR(20)
++  STORE_GPR(21)
++  STORE_GPR(22)
++  STORE_GPR(23)
++  STORE_GPR(24)
++  STORE_GPR(25)
++  STORE_GPR(26)
++  STORE_GPR(27)
++  STORE_GPR(28)
++  STORE_GPR(29)
++  STORE_GPR(30)
++  STORE_GPR(31)
++
++  /* rt_sigprocmask (SIG_BLOCK, NULL, &ucp->uc_sigmask, _NSIG8) */
++  addi.d $a2, $a0, MCONTEXT_SIGMASK_OFFSET
++  move  $a1, $zero
++  li.d  $a0, 0
++  li.d  $a3, _NSIG / 8
++  li.d  $a7, __NR_rt_sigprocmask
++
++  syscall 0
++
++  /* Return zero for success */
++  move $a0, $zero
++
++ jirl $zero, $ra, 0
++
++  .cfi_endproc
++  .size breakpad_getcontext, . - breakpad_getcontext
++
+ #elif defined(__i386__)
+ 
+   .text
+diff --git src/common/linux/dump_symbols.cc src/common/linux/dump_symbols.cc
+index 75a4ceed..d51dca9c 100644
+--- src/common/linux/dump_symbols.cc
++++ src/common/linux/dump_symbols.cc
+@@ -373,6 +373,9 @@ bool DwarfCFIRegisterNames(const typename ElfClass::Ehdr* elf_header,
+     case EM_X86_64:
+       *register_names = DwarfCFIToModule::RegisterNames::X86_64();
+       return true;
++    case EM_LOONGARCH:
++      *register_names = DwarfCFIToModule::RegisterNames::LOONGARCH64();
++      return true;
+     default:
+       return false;
+   }
+@@ -913,6 +916,7 @@ const char* ElfArchitecture(const typename ElfClass::Ehdr* elf_header) {
+     case EM_SPARC:      return "sparc";
+     case EM_SPARCV9:    return "sparcv9";
+     case EM_X86_64:     return "x86_64";
++    case EM_LOONGARCH:  return "loongarch64";
+     default: return NULL;
+   }
+ }
+diff --git src/common/linux/memory_mapped_file.cc src/common/linux/memory_mapped_file.cc
+index 99362945..93c041c8 100644
+--- src/common/linux/memory_mapped_file.cc
++++ src/common/linux/memory_mapped_file.cc
+@@ -65,10 +65,14 @@ bool MemoryMappedFile::Map(const char* path, size_t offset) {
+   }
+ 
+ #if defined(__x86_64__) || defined(__aarch64__) || \
+-   (defined(__mips__) && _MIPS_SIM == _ABI64)
++   (defined(__mips__) && _MIPS_SIM == _ABI64) \
+ 
+   struct kernel_stat st;
+   if (sys_fstat(fd, &st) == -1 || st.st_size < 0) {
++#elif defined(__loongarch64)
++  struct kernel_stat st;
++  if (sys_statx(fd, NULL, AT_EMPTY_PATH, STATX_SIZE, &st)
++      == -1 || st.st_size < 0) {
+ #else
+   struct kernel_stat64 st;
+   if (sys_fstat64(fd, &st) == -1 || st.st_size < 0) {
+diff --git src/common/linux/ucontext_constants.h src/common/linux/ucontext_constants.h
+index c390508a..b37c6c68 100644
+--- src/common/linux/ucontext_constants.h
++++ src/common/linux/ucontext_constants.h
+@@ -116,6 +116,16 @@
+ #define  UCONTEXT_SIGMASK_OFFSET   640
+ #endif
+ 
++#elif defined(__loongarch64)
++
++#define MCONTEXT_GREG_SIZE 8
++#define MCONTEXT_SIGMASK_OFFSET 40
++#define MCONTEXT_PC_OFFSET 176
++#define MCONTEXT_GREGS_OFFSET 184
++
++#define STORE_GPR(X) st.d $r##X, $a0, MCONTEXT_GREGS_OFFSET + X * MCONTEXT_GREG_SIZE
++#define STORE_PC st.d $ra, $a0, MCONTEXT_PC_OFFSET
++
+ #elif defined(__x86_64__)
+ 
+ #define MCONTEXT_GREGS_OFFSET     40
+diff --git src/google_breakpad/common/minidump_cpu_loongarch64.h src/google_breakpad/common/minidump_cpu_loongarch64.h
+new file mode 100644
+index 00000000..876930a5
+--- /dev/null
++++ src/google_breakpad/common/minidump_cpu_loongarch64.h
+@@ -0,0 +1,130 @@
++/* Copyright (c) 2013, Google Inc.
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are
++ * met:
++ *
++ *     * Redistributions of source code must retain the above copyright
++ * notice, this list of conditions and the following disclaimer.
++ *     * Redistributions in binary form must reproduce the above
++ * copyright notice, this list of conditions and the following disclaimer
++ * in the documentation and/or other materials provided with the
++ * distribution.
++ *     * Neither the name of Google Inc. nor the names of its
++ * contributors may be used to endorse or promote products derived from
++ * this software without specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
++ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
++ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
++ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
++ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
++ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
++ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
++
++/* minidump_format.h: A cross-platform reimplementation of minidump-related
++ * portions of DbgHelp.h from the Windows Platform SDK.
++ *
++ * (This is C99 source, please don't corrupt it with C++.)
++ *
++ * This file contains the necessary definitions to read minidump files
++ * produced on LOONGARCH.  These files may be read on any platform provided
++ * that the alignments of these structures on the processing system are
++ * identical to the alignments of these structures on the producing system.
++ * For this reason, precise-sized types are used.  The structures defined
++ * by this file have been laid out to minimize alignment problems by
++ * ensuring that all members are aligned on their natural boundaries.
++ * In some cases, tail-padding may be significant when different ABIs specify
++ * different tail-padding behaviors.  To avoid problems when reading or
++ * writing affected structures, MD_*_SIZE macros are provided where needed,
++ * containing the useful size of the structures without padding.
++ *
++ * Structures that are defined by Microsoft to contain a zero-length array
++ * are instead defined here to contain an array with one element, as
++ * zero-length arrays are forbidden by standard C and C++.  In these cases,
++ * *_minsize constants are provided to be used in place of sizeof.  For a
++ * cleaner interface to these sizes when using C++, see minidump_size.h.
++ *
++ * These structures are also sufficient to populate minidump files.
++ *
++ * Because precise data type sizes are crucial for this implementation to
++ * function properly and portably, a set of primitive types with known sizes
++ * are used as the basis of each structure defined by this file.
++ */
++
++/*
++ * Loongarch64 support
++ */
++
++#ifndef GOOGLE_BREAKPAD_COMMON_MINIDUMP_CPU_LOONGARCH64_H__
++#define GOOGLE_BREAKPAD_COMMON_MINIDUMP_CPU_LOONGARCH64_H__
++
++#define MD_CONTEXT_LOONGARCH64_GPR_COUNT 32
++#define MD_FLOATINGSAVEAREA_LOONGARCH64_FPR_COUNT 32
++
++typedef struct {
++  /* 32 64-bit floating point registers, f0..f31 */
++  uint64_t regs[MD_FLOATINGSAVEAREA_LOONGARCH64_FPR_COUNT];
++  uint64_t fcc;
++  uint32_t fcsr;
++} MDFloatingSaveAreaLoongarch64;
++
++typedef struct {
++  /* The next field determines the layout of the structure, and which parts
++   * of it are populated.
++   */
++  uint32_t context_flags;
++  uint32_t _pad0;
++
++  /* 32 64-bit integer registers, r0..r31.
++   * Note the following fixed uses:
++   *   r3 is the stack pointer.
++   *   r1 is the return address.
++   */
++  uint64_t iregs[MD_CONTEXT_LOONGARCH64_GPR_COUNT];
++
++  uint64_t csr_era;
++
++  /* The next field is included with MD_CONTEXT_LOONGARCH64_FLOATING_POINT. */
++  MDFloatingSaveAreaLoongarch64 float_save;
++
++} MDRawContextLOONGARCH64;
++
++/* Indices into iregs for registers with a dedicated or conventional
++ * purpose.
++ */
++enum MDLoongarchRegisterNumbers {
++  MD_CONTEXT_LOONGARCH64_REG_RA     = 1,
++  MD_CONTEXT_LOONGARCH64_REG_GP     = 2,
++  MD_CONTEXT_LOONGARCH64_REG_SP     = 3,
++  MD_CONTEXT_LOONGARCH64_REG_FP     = 22,
++  MD_CONTEXT_LOONGARCH64_REG_S0     = 23,
++  MD_CONTEXT_LOONGARCH64_REG_S1,
++  MD_CONTEXT_LOONGARCH64_REG_S2,
++  MD_CONTEXT_LOONGARCH64_REG_S3,
++  MD_CONTEXT_LOONGARCH64_REG_S4,
++  MD_CONTEXT_LOONGARCH64_REG_S5,
++  MD_CONTEXT_LOONGARCH64_REG_S6,
++  MD_CONTEXT_LOONGARCH64_REG_S7,
++  MD_CONTEXT_LOONGARCH64_REG_S8,
++};
++
++/**
++ * Breakpad defines for Loongarch64
++ */
++#define MD_CONTEXT_LOONGARCH64  0x00800000
++#define MD_CONTEXT_LOONGARCH64_INTEGER           (MD_CONTEXT_LOONGARCH64| 0x00000002)
++#define MD_CONTEXT_LOONGARCH64_FLOATING_POINT    (MD_CONTEXT_LOONGARCH64 | 0x00000004)
++
++#define MD_CONTEXT_LOONGARCH64_FULL              (MD_CONTEXT_LOONGARCH64_INTEGER | \
++                                                 MD_CONTEXT_LOONGARCH64_FLOATING_POINT)
++
++#define MD_CONTEXT_LOONGARCH64_ALL               (MD_CONTEXT_LOONGARCH64_INTEGER | \
++                                                 MD_CONTEXT_LOONGARCH64_FLOATING_POINT)
++
++#endif  // GOOGLE_BREAKPAD_COMMON_MINIDUMP_CPU_LOONGARCH64_H__
+diff --git src/google_breakpad/common/minidump_format.h src/google_breakpad/common/minidump_format.h
+index 7b36d112..c3783764 100644
+--- src/google_breakpad/common/minidump_format.h
++++ src/google_breakpad/common/minidump_format.h
+@@ -120,6 +120,7 @@ typedef struct {
+ #include "minidump_cpu_ppc64.h"
+ #include "minidump_cpu_sparc.h"
+ #include "minidump_cpu_x86.h"
++#include "minidump_cpu_loongarch64.h"
+ 
+ /*
+  * WinVer.h
+@@ -660,6 +661,7 @@ typedef enum {
+   MD_CPU_ARCHITECTURE_PPC64     = 0x8002, /* Breakpad-defined value for PPC64 */
+   MD_CPU_ARCHITECTURE_ARM64_OLD = 0x8003, /* Breakpad-defined value for ARM64 */
+   MD_CPU_ARCHITECTURE_MIPS64    = 0x8004, /* Breakpad-defined value for MIPS64 */
++  MD_CPU_ARCHITECTURE_LOONGARCH64 = 0x8005, /* Breakpad-defined value for LOONGARCH64 */
+   MD_CPU_ARCHITECTURE_UNKNOWN   = 0xffff  /* PROCESSOR_ARCHITECTURE_UNKNOWN */
+ } MDCPUArchitecture;
+ 
+diff --git src/google_breakpad/processor/dump_context.h src/google_breakpad/processor/dump_context.h
+index df80bf7e..faa78e02 100644
+--- src/google_breakpad/processor/dump_context.h
++++ src/google_breakpad/processor/dump_context.h
+@@ -62,6 +62,7 @@ class DumpContext : public DumpObject {
+   const MDRawContextPPC64* GetContextPPC64() const;
+   const MDRawContextSPARC* GetContextSPARC() const;
+   const MDRawContextX86*   GetContextX86() const;
++  const MDRawContextLOONGARCH64* GetContextLOONGARCH64() const;
+ 
+   // A convenience method to get the instruction pointer out of the
+   // MDRawContext, since it varies per-CPU architecture.
+@@ -87,6 +88,7 @@ class DumpContext : public DumpObject {
+   void SetContextARM(MDRawContextARM* arm);
+   void SetContextARM64(MDRawContextARM64* arm64);
+   void SetContextMIPS(MDRawContextMIPS* ctx_mips);
++  void SetContextLOONGARCH64(MDRawContextLOONGARCH64* loongarch64);
+ 
+   // Free the CPU-specific context structure.
+   void FreeContext();
+@@ -105,6 +107,7 @@ class DumpContext : public DumpObject {
+     MDRawContextARM*   arm;
+     MDRawContextARM64* arm64;
+     MDRawContextMIPS*  ctx_mips;
++    MDRawContextLOONGARCH64* loongarch64;
+   } context_;
+ 
+   // Store this separately because of the weirdo AMD64 context
+diff --git src/google_breakpad/processor/stack_frame_cpu.h src/google_breakpad/processor/stack_frame_cpu.h
+index 24e28ca1..402af901 100644
+--- src/google_breakpad/processor/stack_frame_cpu.h
++++ src/google_breakpad/processor/stack_frame_cpu.h
+@@ -403,6 +403,68 @@ struct StackFrameMIPS : public StackFrame {
+   int context_validity;
+ };
+ 
++struct StackFrameLOONGARCH64 : public StackFrame {
++  enum ContextValidity {
++    CONTEXT_VALID_NONE = 0,
++
++    CONTEXT_VALID_RA = 1UL << 1,
++    CONTEXT_VALID_TP = 1UL << 2,
++    CONTEXT_VALID_SP = 1UL << 3,
++    CONTEXT_VALID_A0 = 1UL << 4,
++    CONTEXT_VALID_A1 = 1UL << 5,
++    CONTEXT_VALID_A2 = 1UL << 6,
++    CONTEXT_VALID_A3 = 1UL << 7,
++    CONTEXT_VALID_A4 = 1UL << 8,
++    CONTEXT_VALID_A5 = 1UL << 9,
++    CONTEXT_VALID_A6 = 1UL << 10,
++    CONTEXT_VALID_A7 = 1UL << 11,
++    CONTEXT_VALID_T0 = 1UL << 12,
++    CONTEXT_VALID_T1 = 1UL << 13,
++    CONTEXT_VALID_T2 = 1UL << 14,
++    CONTEXT_VALID_T3 = 1UL << 15,
++    CONTEXT_VALID_T4 = 1UL << 16,
++    CONTEXT_VALID_T5 = 1UL << 17,
++    CONTEXT_VALID_T6 = 1UL << 18,
++    CONTEXT_VALID_T7 = 1UL << 19,
++    CONTEXT_VALID_T8 = 1UL << 20,
++    CONTEXT_VALID_X0 = 1UL << 21,
++    CONTEXT_VALID_FP = 1UL << 22,
++    CONTEXT_VALID_S0 = 1UL << 23,
++    CONTEXT_VALID_S1 = 1UL << 24,
++    CONTEXT_VALID_S2 = 1UL << 25,
++    CONTEXT_VALID_S3 = 1UL << 26,
++    CONTEXT_VALID_S4 = 1UL << 27,
++    CONTEXT_VALID_S5 = 1UL << 28,
++    CONTEXT_VALID_S6 = 1UL << 29,
++    CONTEXT_VALID_S7 = 1UL << 30,
++    CONTEXT_VALID_S8 = 1UL << 31,
++
++    CONTEXT_VALID_PC = 1UL << 32,
++    CONTEXT_VALID_ALL = ~CONTEXT_VALID_NONE
++  };
++
++  // Return the ContextValidity flag for register rN.
++  static ContextValidity RegisterValidFlag(int n) {
++    return ContextValidity(1 << n);
++  }
++
++  StackFrameLOONGARCH64() : context(), context_validity(CONTEXT_VALID_NONE) {}
++
++  // Register state. This is only fully valid for the topmost frame in a
++  // stack. In other frames, which registers are present depends on what
++  // debugging information were available. Refer to 'context_validity' below.
++  MDRawContextLOONGARCH64 context;   
++
++  // For each register in context whose value has been recovered,
++  // the corresponding CONTEXT_VALID_ bit in 'context_validity' is set.
++  //
++  // context_validity's type should actually be ContextValidity, but
++  // type int is used instead because the bitwise inclusive or operator
++  // yields an int when applied to enum values, and C++ doesn't
++  // silently convert from ints to enums.
++  int context_validity;
++};
++
+ }  // namespace google_breakpad
+ 
+ #endif  // GOOGLE_BREAKPAD_PROCESSOR_STACK_FRAME_CPU_H__
+diff --git src/processor/dump_context.cc src/processor/dump_context.cc
+index da531b74..3ea27389 100644
+--- src/processor/dump_context.cc
++++ src/processor/dump_context.cc
+@@ -140,6 +140,15 @@ const MDRawContextMIPS* DumpContext::GetContextMIPS() const {
+   return context_.ctx_mips;
+ }
+ 
++const MDRawContextLOONGARCH64* DumpContext::GetContextLOONGARCH64() const {
++  if (GetContextCPU() != MD_CONTEXT_LOONGARCH64) {
++    BPLOG(ERROR) << "DumpContext cannot get LOONGARCH64 context";
++    return NULL;
++  }
++
++  return context_.loongarch64;
++}
++
+ bool DumpContext::GetInstructionPointer(uint64_t* ip) const {
+   BPLOG_IF(ERROR, !ip) << "DumpContext::GetInstructionPointer requires |ip|";
+   assert(ip);
+@@ -176,6 +185,9 @@ bool DumpContext::GetInstructionPointer(uint64_t* ip) const {
+   case MD_CONTEXT_MIPS64:
+     *ip = GetContextMIPS()->epc;
+     break;
++  case MD_CONTEXT_LOONGARCH64:
++    *ip = GetContextLOONGARCH64()->csr_era;
++    break;
+   default:
+     // This should never happen.
+     BPLOG(ERROR) << "Unknown CPU architecture in GetInstructionPointer";
+@@ -220,6 +232,9 @@ bool DumpContext::GetStackPointer(uint64_t* sp) const {
+   case MD_CONTEXT_MIPS64:
+     *sp = GetContextMIPS()->iregs[MD_CONTEXT_MIPS_REG_SP];
+     break;
++  case MD_CONTEXT_LOONGARCH64:
++    *sp = GetContextLOONGARCH64()->iregs[MD_CONTEXT_LOONGARCH64_REG_SP];
++    break;
+   default:
+     // This should never happen.
+     BPLOG(ERROR) << "Unknown CPU architecture in GetStackPointer";
+@@ -264,6 +279,10 @@ void DumpContext::SetContextMIPS(MDRawContextMIPS* ctx_mips) {
+   context_.ctx_mips = ctx_mips;
+ }
+ 
++void DumpContext::SetContextLOONGARCH64(MDRawContextLOONGARCH64* loongarch64) {
++  context_.loongarch64 = loongarch64;
++}
++
+ void DumpContext::FreeContext() {
+   switch (GetContextCPU()) {
+     case MD_CONTEXT_X86:
+@@ -298,6 +317,9 @@ void DumpContext::FreeContext() {
+     case MD_CONTEXT_MIPS64:
+       delete context_.ctx_mips;
+       break;
++    case MD_CONTEXT_LOONGARCH64:
++      delete context_.loongarch64;
++      break;
+ 
+     default:
+       // There is no context record (valid_ is false) or there's a
+@@ -655,6 +677,34 @@ void DumpContext::Print() {
+       break;
+     }
+ 
++    case MD_CONTEXT_LOONGARCH64: {
++      const MDRawContextLOONGARCH64* context_loongarch = GetContextLOONGARCH64();
++      printf("MDRawContextLOONGARCH64\n");
++      printf("	context_flags		= 0x%x\n",
++	     context_loongarch->context_flags);
++      for (int ireg_index = 0;
++	   ireg_index < MD_CONTEXT_LOONGARCH64_GPR_COUNT;
++	   ++ireg_index) {
++      printf("	iregs[%2d]		= 0x%" PRIx64 "\n",
++		ireg_index, context_loongarch->iregs[ireg_index]);
++      }
++
++      printf("	csr_era			= 0x%" PRIx64 "\n",
++	     context_loongarch->csr_era);
++      for (int fpr_index = 0;
++	   fpr_index < MD_FLOATINGSAVEAREA_LOONGARCH64_FPR_COUNT;
++	   ++fpr_index) {
++	 printf("  float_save.regs[%2d] = 0x%" PRIx64 "\n",
++		fpr_index, context_loongarch->float_save.regs[fpr_index]);
++      }
++
++      printf("  float_save.fcc		= 0x%" PRIx64 "\n",
++	     context_loongarch->float_save.fcc);
++      printf("	float_save.fcsr		= 0x%" PRIx32 "\n",
++	     context_loongarch->float_save.fcsr);
++      break;
++    }
++
+     default: {
+       break;
+     }
+diff --git src/processor/minidump.cc src/processor/minidump.cc
+index 572c717c..1964a47a 100644
+--- src/processor/minidump.cc
++++ src/processor/minidump.cc
+@@ -96,6 +96,8 @@ bool IsContextSizeUnique(uint32_t context_size) {
+     num_matching_contexts++;
+   if (context_size == sizeof(MDRawContextMIPS))
+     num_matching_contexts++;
++  if (context_size == sizeof(MDRawContextLOONGARCH64))
++    num_matching_contexts++;
+   return num_matching_contexts == 1;
+ }
+ 
+@@ -1170,6 +1172,59 @@ bool MinidumpContext::Read(uint32_t expected_size) {
+         break;
+       }
+ 
++      case MD_CONTEXT_LOONGARCH64: {
++        if (expected_size != sizeof(MDRawContextLOONGARCH64)) {
++          BPLOG(ERROR) << "MinidumpContext LOONGARCH64 size mismatch, "
++                       << expected_size
++                       << " != "
++                       << sizeof(MDRawContextLOONGARCH64);
++          return false;
++        }
++
++        scoped_ptr<MDRawContextLOONGARCH64> context_loongarch(new MDRawContextLOONGARCH64());
++
++        // Set the context_flags member, which has already been read, and
++        // read the rest of the structure beginning with the first member
++        // after context_flags.
++        context_loongarch->context_flags = context_flags;
++
++        size_t flags_size = sizeof(context_loongarch->context_flags);
++        uint8_t* context_after_flags =
++            reinterpret_cast<uint8_t*>(context_loongarch.get()) + flags_size;
++        if (!minidump_->ReadBytes(context_after_flags,
++                                  sizeof(MDRawContextLOONGARCH64) - flags_size)) {
++          BPLOG(ERROR) << "MinidumpContext could not read LOONGARCH64 context";
++          return false;
++        }
++
++        // Do this after reading the entire MDRawContext structure because
++        // GetSystemInfo may seek minidump to a new position.
++        if (!CheckAgainstSystemInfo(cpu_type)) {
++          BPLOG(ERROR) << "MinidumpContext LOONGARCH64 does not match system info";
++          return false;
++        }
++
++        if (minidump_->swap()) {
++          // context_loongarch->context_flags was already swapped.
++          for (int ireg_index = 0;
++               ireg_index < MD_CONTEXT_LOONGARCH64_GPR_COUNT;
++               ++ireg_index) {
++            Swap(&context_loongarch->iregs[ireg_index]);
++          }
++          Swap(&context_loongarch->csr_epc);
++          for (int fpr_index = 0;
++               fpr_index < MD_FLOATINGSAVEAREA_LOONGARCH64_FPR_COUNT;
++               ++fpr_index) {
++            Swap(&context_loongarch->float_save.regs[fpr_index]);
++          }
++	  Swap(&context_loongarch->float_save.fcc);
++	  Swap(&context_loongarch->float_save.fcsr);
++        }
++        SetContextLOONGARCH64(context_loongarch.release());
++
++        break;
++      }
++
+       default: {
+         // Unknown context type - Don't log as an error yet. Let the
+         // caller work that out.
+@@ -1262,6 +1317,11 @@ bool MinidumpContext::CheckAgainstSystemInfo(uint32_t context_cpu_type) {
+       if (system_info_cpu_type == MD_CPU_ARCHITECTURE_MIPS64)
+         return_value = true;
+       break;
++    
++    case MD_CONTEXT_LOONGARCH64:
++      if (system_info_cpu_type == MD_CPU_ARCHITECTURE_LOONGARCH64)
++	return_value = true;
++      break;
+   }
+ 
+   BPLOG_IF(ERROR, !return_value) << "MinidumpContext CPU " <<
+@@ -3550,6 +3610,8 @@ string MinidumpSystemInfo::GetCPU() {
+       cpu = "arm64";
+       break;
+ 
++    case MD_CPU_ARCHITECTURE_LOONGARCH64:
++      cpu = "loongarch64";
+     default:
+       BPLOG(ERROR) << "MinidumpSystemInfo unknown CPU for architecture " <<
+                       HexString(system_info_.processor_architecture);
+@@ -5159,6 +5221,9 @@ bool Minidump::GetContextCPUFlagsFromSystemInfo(uint32_t* context_cpu_flags) {
+       case MD_CPU_ARCHITECTURE_SPARC:
+         *context_cpu_flags = MD_CONTEXT_SPARC;
+         break;
++      case MD_CPU_ARCHITECTURE_LOONGARCH64:
++	*context_cpu_flags = MD_CONTEXT_LOONGARCH64;
++	break;
+       case MD_CPU_ARCHITECTURE_UNKNOWN:
+         *context_cpu_flags = 0;
+         break;
+diff --git src/processor/minidump_processor.cc src/processor/minidump_processor.cc
+index ac86fbd3..df9329f9 100644
+--- src/processor/minidump_processor.cc
++++ src/processor/minidump_processor.cc
+@@ -383,6 +383,7 @@ static uint64_t GetAddressForArchitecture(const MDCPUArchitecture architecture,
+   switch (architecture) {
+     case MD_CPU_ARCHITECTURE_X86:
+     case MD_CPU_ARCHITECTURE_MIPS:
++    case MD_CPU_ARCHITECTURE_LOONGARCH64:
+     case MD_CPU_ARCHITECTURE_PPC:
+     case MD_CPU_ARCHITECTURE_SHX:
+     case MD_CPU_ARCHITECTURE_ARM:
+@@ -592,6 +593,9 @@ bool MinidumpProcessor::GetCPUInfo(Minidump* dump, SystemInfo* info) {
+       break;
+     }
+ 
++    case MD_CPU_ARCHITECTURE_LOONGARCH64: {
++      info->cpu = "loongarch64";
++      break;
+     default: {
+       // Assign the numeric architecture ID into the CPU string.
+       char cpu_string[7];
+diff --git src/processor/stackwalker.cc src/processor/stackwalker.cc
+index e123b027..ae1cc0d0 100644
+--- src/processor/stackwalker.cc
++++ src/processor/stackwalker.cc
+@@ -55,6 +55,7 @@
+ #include "processor/stackwalker_arm.h"
+ #include "processor/stackwalker_arm64.h"
+ #include "processor/stackwalker_mips.h"
++#include "processor/stackwalker_loongarch64.h"
+ 
+ namespace google_breakpad {
+ 
+@@ -271,6 +272,12 @@ Stackwalker* Stackwalker::StackwalkerForCPU(
+                                              memory, modules,
+                                              frame_symbolizer);
+       break;
++
++    case MD_CONTEXT_LOONGARCH64:
++      cpu_stackwalker = new StackwalkerLOONGARCH64(system_info,
++		      				   context->GetContextLOONGARCH64(),
++						   memory, modules, frame_symbolizer);
++      break;
+   }
+ 
+   BPLOG_IF(ERROR, !cpu_stackwalker) << "Unknown CPU type " << HexString(cpu) <<
+diff --git src/processor/stackwalker_loongarch64.cc src/processor/stackwalker_loongarch64.cc
+new file mode 100644
+index 00000000..64a9e8f0
+--- /dev/null
++++ src/processor/stackwalker_loongarch64.cc
+@@ -0,0 +1,276 @@
++// Copyright (c) 2013 Google Inc.
++// All rights reserved.
++//
++// Redistribution and use in source and binary forms, with or without
++// modification, are permitted provided that the following conditions are
++// met:
++//
++//     * Redistributions of source code must retain the above copyright
++// notice, this list of conditions and the following disclaimer.
++//     * Redistributions in binary form must reproduce the above
++// copyright notice, this list of conditions and the following disclaimer
++// in the documentation and/or other materials provided with the
++// distribution.
++//     * Neither the name of Google Inc. nor the names of its
++// contributors may be used to endorse or promote products derived from
++// this software without specific prior written permission.
++//
++// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
++// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
++// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
++// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
++// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
++// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
++// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++
++// stackwalker_loongarch64.cc: LOONGARCH64-specific stackwalker.
++//
++// See stackwalker_loongarch64.h for documentation.
++
++#include "common/scoped_ptr.h"
++#include "google_breakpad/processor/call_stack.h"
++#include "google_breakpad/processor/code_modules.h"
++#include "google_breakpad/processor/memory_region.h"
++#include "google_breakpad/processor/source_line_resolver_interface.h"
++#include "google_breakpad/processor/stack_frame_cpu.h"
++#include "processor/cfi_frame_info.h"
++#include "processor/logging.h"
++#include "processor/postfix_evaluator-inl.h"
++#include "processor/stackwalker_loongarch64.h"
++#include "processor/windows_frame_info.h"
++#include "google_breakpad/common/minidump_cpu_loongarch64.h"
++
++namespace google_breakpad {
++
++StackwalkerLOONGARCH64::StackwalkerLOONGARCH64(const SystemInfo* system_info,
++                                 const MDRawContextLOONGARCH64* context,
++                                 MemoryRegion* memory,
++                                 const CodeModules* modules,
++                                 StackFrameSymbolizer* resolver_helper)
++: Stackwalker(system_info, memory, modules, resolver_helper),
++  context_(context) {
++  if (memory_) {
++    if (0xffffffffffffffff - memory_->GetBase() < memory_->GetSize() - 1) {
++      BPLOG(ERROR) << "Memory out of range for stackwalking loongarch64: "
++          << HexString(memory_->GetBase())
++          << "+"
++          << HexString(memory_->GetSize());
++      memory_ = NULL;
++    }
++  }
++}
++
++StackFrame* StackwalkerLOONGARCH64::GetContextFrame() {
++  if (!context_) {
++    BPLOG(ERROR) << "Can't get context frame without context.";
++    return NULL;
++  }
++
++  StackFrameLOONGARCH64* frame = new StackFrameLOONGARCH64();
++
++  // The instruction pointer is stored directly in a register, so pull it
++  // straight out of the CPU context structure.
++  frame->context = *context_;
++  frame->context_validity = StackFrameLOONGARCH64::CONTEXT_VALID_ALL;
++  frame->trust = StackFrame::FRAME_TRUST_CONTEXT;
++  frame->instruction = frame->context.csr_era;
++
++  return frame;
++}
++
++// Register names for loongarch.
++static const char* const kRegisterNames[] = {
++   "$r0", "$r1", "$r2", "$r3", "$r4", "$r5", "$r6", "$r7",
++   "$r8", "$r9", "$r10", "$r11", "$r12", "$r13", "$r14", "$r15",
++   "$r16", "$r17", "$r18", "$r19", "$r20", "$r21", "$r22", "$r23",
++   "$r24", "$r25", "$r26", "$r27", "$r28", "$r29", "$r30", "$r31",
++   NULL
++  // TODO(gordanac): add float point save registers
++};
++
++StackFrameLOONGARCH64* StackwalkerLOONGARCH64::GetCallerByCFIFrameInfo(
++    const vector<StackFrame*>& frames,
++    CFIFrameInfo* cfi_frame_info) {
++  StackFrameLOONGARCH64* last_frame = static_cast<StackFrameLOONGARCH64*>(frames.back());
++
++  uint64_t pc = 0;
++
++  // Populate a dictionary with the valid register values in last_frame.
++  CFIFrameInfo::RegisterValueMap<uint64_t> callee_registers;
++  // Use the STACK CFI data to recover the caller's register values.
++  CFIFrameInfo::RegisterValueMap<uint64_t> caller_registers;
++
++  for (int i = 0; kRegisterNames[i]; ++i) {
++    caller_registers[kRegisterNames[i]] = last_frame->context.iregs[i];
++    callee_registers[kRegisterNames[i]] = last_frame->context.iregs[i];
++  }
++
++  if (!cfi_frame_info->FindCallerRegs(callee_registers, *memory_,
++      &caller_registers))  {
++    return NULL;
++  }
++
++  CFIFrameInfo::RegisterValueMap<uint64_t>::const_iterator entry =
++      caller_registers.find(".cfa");
++
++  if (entry != caller_registers.end()) {
++    caller_registers["$r3"] = entry->second;
++  }
++
++  entry = caller_registers.find(".ra");
++  if (entry != caller_registers.end()) {
++    caller_registers["$r1"] = entry->second;
++    pc = entry->second - sizeof(pc);
++  }
++  caller_registers["$pc"] = pc;
++  // Construct a new stack frame given the values the CFI recovered.
++  scoped_ptr<StackFrameLOONGARCH64> frame(new StackFrameLOONGARCH64());
++
++  for (int i = 0; kRegisterNames[i]; ++i) {
++    CFIFrameInfo::RegisterValueMap<uint64_t>::const_iterator caller_entry =
++        caller_registers.find(kRegisterNames[i]);
++
++    if (caller_entry != caller_registers.end()) {
++      // The value of this register is recovered; fill the context with the
++      // value from caller_registers.
++      frame->context.iregs[i] = caller_entry->second;
++      frame->context_validity |= StackFrameLOONGARCH64::RegisterValidFlag(i);
++    } else {
++      // If the STACK CFI data doesn't mention some callee-save register, and
++      // it is valid in the callee, assume the callee has not yet changed it.
++      // Calee-save registers according to the loongarch psABI specification are:
++      // $s0 to $s7, $fp, $sp
++      frame->context.iregs[i] = last_frame->context.iregs[i];
++      frame->context_validity |= StackFrameLOONGARCH64::RegisterValidFlag(i);
++    }
++  }
++
++  frame->context.csr_era = caller_registers["$pc"];
++  frame->instruction = caller_registers["$pc"];
++  frame->context_validity |= StackFrameLOONGARCH64::CONTEXT_VALID_PC;
++
++  frame->context.iregs[MD_CONTEXT_LOONGARCH64_REG_RA] = caller_registers["$r1"];
++  frame->context_validity |= StackFrameLOONGARCH64::CONTEXT_VALID_RA;
++
++  frame->trust = StackFrame::FRAME_TRUST_CFI;
++
++  return frame.release();
++}
++
++StackFrame* StackwalkerLOONGARCH64::GetCallerFrame(const CallStack* stack,
++                                            bool stack_scan_allowed) {
++  if (!memory_ || !stack) {
++    BPLOG(ERROR) << "Can't get caller frame without memory or stack";
++    return NULL;
++  }
++
++  const vector<StackFrame*>& frames = *stack->frames();
++  StackFrameLOONGARCH64* last_frame = static_cast<StackFrameLOONGARCH64*>(frames.back());
++  scoped_ptr<StackFrameLOONGARCH64> new_frame;
++
++  // See if there is DWARF call frame information covering this address.
++  scoped_ptr<CFIFrameInfo> cfi_frame_info(
++    frame_symbolizer_->FindCFIFrameInfo(last_frame));
++  if (cfi_frame_info.get())
++    new_frame.reset(GetCallerByCFIFrameInfo(frames, cfi_frame_info.get()));
++
++  // If caller frame is not found in CFI try analyzing the stack.
++  if (stack_scan_allowed && !new_frame.get()) {
++    new_frame.reset(GetCallerByStackScan(frames));
++  }
++
++  // If nothing worked, tell the caller.
++  if (!new_frame.get()) {
++    return NULL;
++  }
++
++  // Should we terminate the stack walk? (end-of-stack or broken invariant)
++  if (TerminateWalk(new_frame->context.csr_era,
++                    new_frame->context.iregs[MD_CONTEXT_LOONGARCH64_REG_SP],
++                    last_frame->context.iregs[MD_CONTEXT_LOONGARCH64_REG_SP],
++                    frames.size() == 1)) {
++    return NULL;
++  }
++
++  return new_frame.release();
++}
++
++StackFrameLOONGARCH64* StackwalkerLOONGARCH64::GetCallerByStackScan(
++    const vector<StackFrame*>& frames) {
++  const uint32_t kMaxFrameStackSize = 1024;
++
++  StackFrameLOONGARCH64* last_frame = static_cast<StackFrameLOONGARCH64*>(frames.back());
++
++  uint64_t last_sp = last_frame->context.iregs[MD_CONTEXT_LOONGARCH64_REG_SP];
++  uint64_t caller_pc, caller_sp, caller_fp;
++
++  // Return address cannot be obtained directly.
++  // Force stackwalking.
++
++  // We cannot use frame pointer to get the return address.
++  // We'll scan the stack for a
++  // return address. This can happen if last_frame is executing code
++  // for a module for which we don't have symbols.
++  int count = kMaxFrameStackSize / sizeof(caller_pc);
++
++  do {
++    // Scanning for return address from stack pointer of the last frame.
++    if (!ScanForReturnAddress(last_sp, &caller_sp, &caller_pc, count)) {
++      // If we can't find an instruction pointer even with stack scanning,
++      // give up.
++      BPLOG(ERROR) << " ScanForReturnAddress failed ";
++      return NULL;
++    }
++    // Get $fp stored in the stack frame.
++    if (!memory_->GetMemoryAtAddress(caller_sp - sizeof(caller_pc),
++        &caller_fp)) {
++      BPLOG(INFO) << " GetMemoryAtAddress for fp failed " ;
++      return NULL;
++    }
++
++    count = count - (caller_sp - last_sp) / sizeof(caller_pc);
++    // Now scan the next address in the stack.
++    last_sp = caller_sp + sizeof(caller_pc);
++  } while ((caller_fp - caller_sp >= kMaxFrameStackSize) && count > 0);
++
++  if (!count) {
++    BPLOG(INFO) << " No frame found " ;
++    return NULL;
++  }
++
++  // ScanForReturnAddress found a reasonable return address. Advance
++  // $sp to the location above the one where the return address was
++  // found.
++  caller_sp += sizeof(caller_pc);
++  // caller_pc is actually containing $ra value;
++  // $pc is two instructions before $ra,
++  // so the caller_pc needs to be decremented accordingly.
++  caller_pc -= sizeof(caller_pc);
++
++  // Create a new stack frame (ownership will be transferred to the caller)
++  // and fill it in.
++  StackFrameLOONGARCH64* frame = new StackFrameLOONGARCH64();
++  frame->trust = StackFrame::FRAME_TRUST_SCAN;
++  frame->context = last_frame->context;
++  frame->context.csr_era = caller_pc;
++  frame->context_validity |= StackFrameLOONGARCH64::CONTEXT_VALID_PC;
++  frame->instruction = caller_pc;
++
++  frame->context.iregs[MD_CONTEXT_LOONGARCH64_REG_SP] = caller_sp;
++  frame->context_validity |= StackFrameLOONGARCH64::CONTEXT_VALID_SP;
++  frame->context.iregs[MD_CONTEXT_LOONGARCH64_REG_FP] = caller_fp;
++  frame->context_validity |= StackFrameLOONGARCH64::CONTEXT_VALID_FP;
++
++  frame->context.iregs[MD_CONTEXT_LOONGARCH64_REG_RA] =
++      caller_pc + sizeof(caller_pc);
++  frame->context_validity |= StackFrameLOONGARCH64::CONTEXT_VALID_RA;
++
++  return frame;
++}
++
++}  // namespace google_breakpad
++
+diff --git src/processor/stackwalker_loongarch64.h src/processor/stackwalker_loongarch64.h
+new file mode 100644
+index 00000000..710beb70
+--- /dev/null
++++ src/processor/stackwalker_loongarch64.h
+@@ -0,0 +1,83 @@
++// Copyright (c) 2013 Google Inc.
++// All rights reserved.
++//
++// Redistribution and use in source and binary forms, with or without
++// modification, are permitted provided that the following conditions are
++// met:
++//
++//     * Redistributions of source code must retain the above copyright
++// notice, this list of conditions and the following disclaimer.
++//     * Redistributions in binary form must reproduce the above
++// copyright notice, this list of conditions and the following disclaimer
++// in the documentation and/or other materials provided with the
++// distribution.
++//     * Neither the name of Google Inc. nor the names of its
++// contributors may be used to endorse or promote products derived from
++// this software without specific prior written permission.
++//
++// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
++// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
++// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
++// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
++// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
++// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
++// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++
++// stackwalker_loongarch64.h: LOONGARCH64-specific stackwalker.
++//
++// Provides stack frames given LOONGARCH64 register context and a memory region
++// corresponding to a LOONGARCH64 stack.
++
++#ifndef PROCESSOR_STACKWALKER_LOONGARCH64_H__
++#define PROCESSOR_STACKWALKER_LOONGARCH64_H__
++
++#include "google_breakpad/common/breakpad_types.h"
++#include "google_breakpad/common/minidump_format.h"
++#include "google_breakpad/processor/stackwalker.h"
++#include "google_breakpad/processor/stack_frame_cpu.h"
++#include "processor/cfi_frame_info.h"
++
++namespace google_breakpad {
++
++class CodeModules;
++
++class StackwalkerLOONGARCH64 : public Stackwalker {
++ public:
++  // Context is a loongarch64 context object that gives access to
++  // loongarch64-specific register state corresponding to the innermost
++  // called frame to be included in the stack.  The other arguments are
++  // passed directly through to the base Stackwalker constructor.
++  StackwalkerLOONGARCH64(const SystemInfo* system_info,
++                  const MDRawContextLOONGARCH64* context,
++                  MemoryRegion* memory,
++                  const CodeModules* modules,
++                  StackFrameSymbolizer* frame_symbolizer);
++
++ private:
++  // Implementation of Stackwalker, using loongarch64 context and stack conventions.
++  virtual StackFrame* GetContextFrame();
++  virtual StackFrame* GetCallerFrame(const CallStack* stack,
++                                     bool stack_scan_allowed);
++
++  // Use cfi_frame_info (derived from STACK CFI records) to construct
++  // the frame that called frames.back(). The caller takes ownership
++  // of the returned frame. Return NULL on failure.
++  StackFrameLOONGARCH64* GetCallerByCFIFrameInfo(const vector<StackFrame*>& frames,
++                                          CFIFrameInfo* cfi_frame_info);
++
++  // Scan the stack for plausible return address and frame pointer pair. 
++  // The caller takes ownership of the returned frame. Return NULL on failure.
++  StackFrameLOONGARCH64* GetCallerByStackScan(const vector<StackFrame*>& frames);
++
++  // Stores the CPU context corresponding to the innermost stack frame to
++  // be returned by GetContextFrame.
++  const MDRawContextLOONGARCH64* context_;
++};
++
++}  // namespace google_breakpad
++
++#endif  // PROCESSOR_STACKWALKER_LOONGARCH64_H__
+diff --git src/processor/synth_minidump.h src/processor/synth_minidump.h
+index 2da4d5fe..ac69f0fb 100644
+--- src/processor/synth_minidump.h
++++ src/processor/synth_minidump.h
+@@ -229,6 +229,7 @@ class Context: public Section {
+   Context(const Dump& dump, const MDRawContextX86& context);
+   Context(const Dump& dump, const MDRawContextARM& context);
+   Context(const Dump& dump, const MDRawContextMIPS& context);
++  Context(const Dump& dump, const MDRawContextLOONGARCH64& context);
+   // Add an empty context to the dump.
+   Context(const Dump& dump) : Section(dump) {}
+   // Add constructors for other architectures here. Remember to byteswap.
+diff --git src/tools/linux/md2core/minidump-2-core.cc src/tools/linux/md2core/minidump-2-core.cc
+index 7e351d16..d60040f6 100644
+--- src/tools/linux/md2core/minidump-2-core.cc
++++ src/tools/linux/md2core/minidump-2-core.cc
+@@ -77,6 +77,8 @@
+   #define ELF_ARCH  EM_MIPS
+ #elif defined(__aarch64__)
+   #define ELF_ARCH  EM_AARCH64
++#elif defined(__loongarch64)
++  #define ELF_ARCH  EM_LOONGARCH
+ #endif
+ 
+ #if defined(__arm__)
+@@ -259,7 +261,7 @@ typedef struct prpsinfo {       /* Information about process                 */
+   unsigned char  pr_zomb;       /* Zombie                                    */
+   signed char    pr_nice;       /* Nice val                                  */
+   unsigned long  pr_flag;       /* Flags                                     */
+-#if defined(__x86_64__) || defined(__mips__)
++#if defined(__x86_64__) || defined(__mips__) || defined(__loongarch64)
+   uint32_t       pr_uid;        /* User ID                                   */
+   uint32_t       pr_gid;        /* Group ID                                  */
+ #else
+@@ -319,6 +321,9 @@ struct CrashedProcess {
+ #endif
+ #if defined(__aarch64__)
+     user_fpsimd_struct fpregs;
++#endif
++#if defined(__loongarch64)
++    user_fp_struct fpregs;
+ #endif
+     uintptr_t stack_addr;
+     const uint8_t* stack;
+@@ -533,6 +538,20 @@ ParseThreadRegisters(CrashedProcess::Thread* thread,
+   thread->mcontext.fpc_eir = rawregs->float_save.fir;
+ #endif
+ }
++#elif defined(__loongarch64)
++ParseThreadRegisters(CrashedProcess::Thread* thread,
++		     const MinidumpMemoryRange& range) {
++  const MDRawContextLOONGARCH64* rawregs = range.GetData<MDRawContextLOONGARCH64>(0);
++
++  for (int i = 0; i < MD_CONTEXT_LOONGARCH64_GPR_COUNT; ++i)
++    thread->regs.regs[i] = rawregs->iregs[i];
++
++  thread->regs.csr_era = rawregs->csr_era;
++
++  memcpy(thread->fpregs.fpr, rawregs->float_save.regs, 8 * 32);
++  thread->fpregs.fcc = rawregs->float_save.fcc;
++  thread->fpregs.fcsr = rawregs->float_save.fpcr;
++}
+ #else
+ #error "This code has not been ported to your platform yet"
+ #endif
+@@ -622,6 +641,12 @@ ParseSystemInfo(const Options& options, CrashedProcess* crashinfo,
+ # else
+ #  error "This mips ABI is currently not supported (n32)"
+ # endif
++#elif defined(__loongarch64)
++  if (sysinfo->processor_architecture != MD_CPU_ARCHITECTURE_LOONGARCH64) {
++    fprintf(stderr,
++	    "This version of minidump-2-core only supports Loongarch64.\n");
++    exit(1);
++  }
+ #else
+ #error "This code has not been ported to your platform yet"
+ #endif
+@@ -649,6 +674,8 @@ ParseSystemInfo(const Options& options, CrashedProcess* crashinfo,
+             ? "MIPS"
+             : sysinfo->processor_architecture == MD_CPU_ARCHITECTURE_MIPS64
+             ? "MIPS64"
++	    : sysinfo->processor_architecture == MD_CPU_ARCHITECTURE_LOONGARCH64
++	    ? "LOONGARCH64"
+             : "???",
+             sysinfo->number_of_processors,
+             sysinfo->processor_level,

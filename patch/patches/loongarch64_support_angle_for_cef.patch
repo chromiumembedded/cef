@@ -1,0 +1,13 @@
+diff --git gni/angle.gni gni/angle.gni
+index 90ac07936..d4213da75 100644
+--- gni/angle.gni
++++ gni/angle.gni
+@@ -71,7 +71,7 @@ declare_args() {
+ 
+   if (current_cpu == "arm64" || current_cpu == "x64" ||
+       current_cpu == "mips64el" || current_cpu == "s390x" ||
+-      current_cpu == "ppc64") {
++      current_cpu == "ppc64" || current_cpu == "loong64") {
+     angle_64bit_current_cpu = true
+   } else if (current_cpu == "arm" || current_cpu == "x86" ||
+              current_cpu == "mipsel" || current_cpu == "s390" ||
