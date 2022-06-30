@@ -243,7 +243,7 @@ index e6842b0848c74..d214247587d41 100644
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  };
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-index 0ff9b8f6becc8..73e62450a9e03 100644
+index ff670d8099968..f39fd6972e304 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 @@ -260,8 +260,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
