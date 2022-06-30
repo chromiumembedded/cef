@@ -7,6 +7,7 @@
 #include "include/cef_permission_handler.h"
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
+#include "libcef/browser/media_stream_registrar.h"
 #include "libcef/common/cef_switches.h"
 
 #include "base/command_line.h"
@@ -20,13 +21,17 @@ class CefMediaAccessQuery {
  public:
   using CallbackType = content::MediaResponseCallback;
 
-  explicit CefMediaAccessQuery(const content::MediaStreamRequest& request,
-                               CallbackType&& callback)
-      : request_(request), callback_(std::move(callback)) {}
+  CefMediaAccessQuery(CefBrowserHostBase* const browser,
+                      const content::MediaStreamRequest& request,
+                      CallbackType&& callback)
+      : browser_(browser), request_(request), callback_(std::move(callback)) {}
 
   CefMediaAccessQuery(CefMediaAccessQuery&& query)
-      : request_(query.request_), callback_(std::move(query.callback_)) {}
+      : browser_(query.browser_),
+        request_(query.request_),
+        callback_(std::move(query.callback_)) {}
   CefMediaAccessQuery& operator=(CefMediaAccessQuery&& query) {
+    browser_ = query.browser_;
     request_ = query.request_;
     callback_ = std::move(query.callback_);
     return *this;
@@ -74,8 +79,20 @@ class CefMediaAccessQuery {
                      : blink::mojom::MediaStreamRequestResult::OK;
     }
 
+    bool has_video = false;
+    bool has_audio = false;
+    if (!stream_devices_set->stream_devices.empty()) {
+      blink::mojom::StreamDevices& devices =
+          *stream_devices_set->stream_devices[0];
+      has_video = devices.video_device.has_value();
+      has_audio = devices.audio_device.has_value();
+    }
+    auto media_stream_ui =
+        browser_->GetMediaStreamRegistrar()->MaybeCreateMediaStreamUI(
+            has_video, has_audio);
+
     std::move(callback_).Run(*stream_devices_set, result,
-                             std::unique_ptr<content::MediaStreamUI>());
+                             std::move(media_stream_ui));
   }
 
  private:
@@ -205,6 +222,7 @@ class CefMediaAccessQuery {
     return stream_devices_set;
   }
 
+  CefRefPtr<CefBrowserHostBase> browser_;
   content::MediaStreamRequest request_;
   CallbackType callback_;
 };
@@ -281,7 +299,7 @@ void RequestMediaAccessPermission(CefBrowserHostBase* browser,
                                   content::MediaResponseCallback callback) {
   CEF_REQUIRE_UIT();
 
-  CefMediaAccessQuery query(request, std::move(callback));
+  CefMediaAccessQuery query(browser, request, std::move(callback));
 
   if (CheckCommandLinePermission()) {
     // Allow all requested permissions.

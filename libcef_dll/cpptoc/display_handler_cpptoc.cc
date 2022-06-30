@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5bcef102e9ae42a32b551c3af3decbae11b8b37d$
+// $hash=b492dccf2a5ddb50f50fe1783d8cacd3080714a5$
 //
 
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
@@ -292,6 +292,29 @@ int CEF_CALLBACK display_handler_on_cursor_change(
   return _retval;
 }
 
+void CEF_CALLBACK
+display_handler_on_media_access_change(struct _cef_display_handler_t* self,
+                                       cef_browser_t* browser,
+                                       int has_video_access,
+                                       int has_audio_access) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+
+  // Execute
+  CefDisplayHandlerCppToC::Get(self)->OnMediaAccessChange(
+      CefBrowserCToCpp::Wrap(browser), has_video_access ? true : false,
+      has_audio_access ? true : false);
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -309,6 +332,7 @@ CefDisplayHandlerCppToC::CefDisplayHandlerCppToC() {
   GetStruct()->on_loading_progress_change =
       display_handler_on_loading_progress_change;
   GetStruct()->on_cursor_change = display_handler_on_cursor_change;
+  GetStruct()->on_media_access_change = display_handler_on_media_access_change;
 }
 
 // DESTRUCTOR - Do not edit by hand.

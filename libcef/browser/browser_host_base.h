@@ -15,6 +15,7 @@
 #include "libcef/browser/devtools/devtools_manager.h"
 #include "libcef/browser/file_dialog_manager.h"
 #include "libcef/browser/frame_host_impl.h"
+#include "libcef/browser/media_stream_registrar.h"
 #include "libcef/browser/request_context_impl.h"
 
 #include "base/observer_list.h"
@@ -301,6 +302,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   CefBrowserContentsDelegate* contents_delegate() const {
     return contents_delegate_.get();
   }
+  CefMediaStreamRegistrar* GetMediaStreamRegistrar();
 
   // Returns the Widget owner for the browser window. Only used with windowed
   // browsers.
@@ -370,6 +372,8 @@ class CefBrowserHostBase : public CefBrowserHost,
 
   // Used for creating and managing DevTools instances.
   std::unique_ptr<CefDevToolsManager> devtools_manager_;
+
+  std::unique_ptr<CefMediaStreamRegistrar> media_stream_registrar_;
 
  private:
   IMPLEMENT_REFCOUNTING(CefBrowserHostBase);

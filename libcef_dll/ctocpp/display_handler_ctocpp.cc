@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f40564d59c337fede5e8c3121ed735166d5e05a3$
+// $hash=ab688c32624070704507d10dc27d430d90f04dd2$
 //
 
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
@@ -275,6 +275,28 @@ bool CefDisplayHandlerCToCpp::OnCursorChange(
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefDisplayHandlerCToCpp::OnMediaAccessChange(CefRefPtr<CefBrowser> browser,
+                                                  bool has_video_access,
+                                                  bool has_audio_access) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_display_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_media_access_change))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+
+  // Execute
+  _struct->on_media_access_change(_struct, CefBrowserCppToC::Wrap(browser),
+                                  has_video_access, has_audio_access);
 }
 
 // CONSTRUCTOR - Do not edit by hand.

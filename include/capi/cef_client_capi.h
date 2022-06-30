@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=7e03d64dfcefc287c083e35e5ef9b3fa4f762b1b$
+// $hash=03ae4ba9762510e2b0c19ea29322c20ebaf2e683$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_CLIENT_CAPI_H_
@@ -141,8 +141,7 @@ typedef struct _cef_client_t {
       struct _cef_client_t* self);
 
   ///
-  // Return the handler for permission requests. If no handler is provided
-  // requests be denied by default.
+  // Return the handler for permission requests.
   ///
   struct _cef_permission_handler_t*(CEF_CALLBACK* get_permission_handler)(
       struct _cef_client_t* self);

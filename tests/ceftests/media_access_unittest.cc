@@ -49,6 +49,7 @@ class TestSetup {
   TrackCallback got_success;
   TrackCallback got_audio;
   TrackCallback got_video;
+  TrackCallback got_change;
 };
 
 class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
@@ -105,23 +106,14 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
         "exit?result=${val}&data=${encodeURIComponent(JSON.stringify(data))}`;"
         "}";
 
-    const bool want_audio_device =
-        request_ & CEF_MEDIA_PERMISSION_DEVICE_AUDIO_CAPTURE;
-    const bool want_video_device =
-        request_ & CEF_MEDIA_PERMISSION_DEVICE_VIDEO_CAPTURE;
-    const bool want_desktop_audio =
-        request_ & CEF_MEDIA_PERMISSION_DESKTOP_AUDIO_CAPTURE;
-    const bool want_desktop_video =
-        request_ & CEF_MEDIA_PERMISSION_DESKTOP_VIDEO_CAPTURE;
-
-    if (want_audio_device || want_video_device) {
+    if (want_audio_device() || want_video_device()) {
       page += std::string("navigator.mediaDevices.getUserMedia({audio: ") +
-              (want_audio_device ? "true" : "false") +
-              ", video: " + (want_video_device ? "true" : "false") + "})";
+              (want_audio_device() ? "true" : "false") +
+              ", video: " + (want_video_device() ? "true" : "false") + "})";
     } else {
       page += std::string("navigator.mediaDevices.getDisplayMedia({audio: ") +
-              (want_desktop_audio ? "true" : "false") +
-              ", video: " + (want_desktop_video ? "true" : "false") + "})";
+              (want_audio_desktop() ? "true" : "false") +
+              ", video: " + (want_video_desktop() ? "true" : "false") + "})";
     }
 
     page +=
@@ -188,7 +180,43 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
     return true;
   }
 
- protected:
+  void OnMediaAccessChange(CefRefPtr<CefBrowser> browser,
+                           bool has_video_access,
+                           bool has_audio_access) override {
+    EXPECT_UI_THREAD();
+    EXPECT_EQ(got_video_device() || got_video_desktop(), has_video_access);
+    EXPECT_EQ(got_audio_device() || got_audio_desktop(), has_audio_access);
+    EXPECT_FALSE(test_setup_->got_change);
+    test_setup_->got_change.yes();
+  }
+
+ private:
+  bool want_audio_device() const {
+    return request_ & CEF_MEDIA_PERMISSION_DEVICE_AUDIO_CAPTURE;
+  }
+  bool want_video_device() const {
+    return request_ & CEF_MEDIA_PERMISSION_DEVICE_VIDEO_CAPTURE;
+  }
+  bool want_audio_desktop() const {
+    return request_ & CEF_MEDIA_PERMISSION_DESKTOP_AUDIO_CAPTURE;
+  }
+  bool want_video_desktop() const {
+    return request_ & CEF_MEDIA_PERMISSION_DESKTOP_VIDEO_CAPTURE;
+  }
+
+  bool got_audio_device() const {
+    return response_ & CEF_MEDIA_PERMISSION_DEVICE_AUDIO_CAPTURE;
+  }
+  bool got_video_device() const {
+    return response_ & CEF_MEDIA_PERMISSION_DEVICE_VIDEO_CAPTURE;
+  }
+  bool got_audio_desktop() const {
+    return response_ & CEF_MEDIA_PERMISSION_DESKTOP_AUDIO_CAPTURE;
+  }
+  bool got_video_desktop() const {
+    return response_ & CEF_MEDIA_PERMISSION_DESKTOP_VIDEO_CAPTURE;
+  }
+
   TestSetup* const test_setup_;
   const uint32 request_;
   const uint32 response_;
@@ -213,6 +241,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningFalse) {
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
+  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenReturningNoPermission) {
@@ -229,6 +258,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningNoPermission) {
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
+  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenReturningNoPermissionAsync) {
@@ -246,6 +276,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningNoPermissionAsync) {
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
+  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenRequestingAudioButReturningVideo) {
@@ -260,6 +291,7 @@ TEST(MediaAccessTest, DeviceFailureWhenRequestingAudioButReturningVideo) {
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
+  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenRequestingVideoButReturningAudio) {
@@ -274,6 +306,7 @@ TEST(MediaAccessTest, DeviceFailureWhenRequestingVideoButReturningAudio) {
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
+  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DevicePartialFailureReturningVideo) {
@@ -290,6 +323,7 @@ TEST(MediaAccessTest, DevicePartialFailureReturningVideo) {
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
+  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DevicePartialFailureReturningAudio) {
@@ -306,6 +340,7 @@ TEST(MediaAccessTest, DevicePartialFailureReturningAudio) {
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
+  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture1) {
@@ -322,6 +357,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture1) {
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
+  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture2) {
@@ -338,6 +374,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture2) {
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
+  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture3) {
@@ -352,6 +389,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture3) {
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
+  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture4) {
@@ -366,6 +404,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture4) {
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
+  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture5) {
@@ -380,6 +419,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture5) {
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
+  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture6) {
@@ -394,6 +434,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture6) {
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
+  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceSuccessAudioOnly) {
@@ -408,6 +449,7 @@ TEST(MediaAccessTest, DeviceSuccessAudioOnly) {
   EXPECT_TRUE(test_setup.got_success);
   EXPECT_TRUE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
+  EXPECT_TRUE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceSuccessVideoOnly) {
@@ -422,6 +464,7 @@ TEST(MediaAccessTest, DeviceSuccessVideoOnly) {
   EXPECT_TRUE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_TRUE(test_setup.got_video);
+  EXPECT_TRUE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceSuccessAudioVideo) {
@@ -439,6 +482,7 @@ TEST(MediaAccessTest, DeviceSuccessAudioVideo) {
   EXPECT_TRUE(test_setup.got_success);
   EXPECT_TRUE(test_setup.got_audio);
   EXPECT_TRUE(test_setup.got_video);
+  EXPECT_TRUE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceSuccessAudioVideoAsync) {
@@ -457,6 +501,7 @@ TEST(MediaAccessTest, DeviceSuccessAudioVideoAsync) {
   EXPECT_TRUE(test_setup.got_success);
   EXPECT_TRUE(test_setup.got_audio);
   EXPECT_TRUE(test_setup.got_video);
+  EXPECT_TRUE(test_setup.got_change);
 }
 
 // Screen capture tests
@@ -474,6 +519,7 @@ TEST(MediaAccessTest, DesktopFailureWhenReturningNoPermission) {
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
+  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DesktopFailureWhenRequestingVideoButReturningAudio) {
@@ -488,6 +534,7 @@ TEST(MediaAccessTest, DesktopFailureWhenRequestingVideoButReturningAudio) {
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
+  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DesktopPartialSuccessReturningVideo) {
@@ -504,6 +551,7 @@ TEST(MediaAccessTest, DesktopPartialSuccessReturningVideo) {
   EXPECT_TRUE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_TRUE(test_setup.got_video);
+  EXPECT_TRUE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DesktopPartialFailureReturningAudio) {
@@ -519,6 +567,7 @@ TEST(MediaAccessTest, DesktopPartialFailureReturningAudio) {
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
+  EXPECT_FALSE(test_setup.got_change);
 }
 
 // Entry point for creating media access browser test objects.
