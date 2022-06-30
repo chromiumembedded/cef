@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=7df3c13b75072c2ad5061cd3a344811222798903$
+// $hash=7e03d64dfcefc287c083e35e5ef9b3fa4f762b1b$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_CLIENT_CAPI_H_
@@ -55,6 +55,7 @@
 #include "include/capi/cef_keyboard_handler_capi.h"
 #include "include/capi/cef_life_span_handler_capi.h"
 #include "include/capi/cef_load_handler_capi.h"
+#include "include/capi/cef_permission_handler_capi.h"
 #include "include/capi/cef_print_handler_capi.h"
 #include "include/capi/cef_process_message_capi.h"
 #include "include/capi/cef_render_handler_capi.h"
@@ -137,6 +138,13 @@ typedef struct _cef_client_t {
   // will be cached for performance reasons.
   ///
   struct _cef_frame_handler_t*(CEF_CALLBACK* get_frame_handler)(
+      struct _cef_client_t* self);
+
+  ///
+  // Return the handler for permission requests. If no handler is provided
+  // requests be denied by default.
+  ///
+  struct _cef_permission_handler_t*(CEF_CALLBACK* get_permission_handler)(
       struct _cef_client_t* self);
 
   ///

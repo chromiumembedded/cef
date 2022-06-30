@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=7ee0c6a789cc0574798332fe7c7cc10f862280af$
+# $hash=f8ae899cc69a48e9878fa4db2fcc3b7e54230062$
 #
 
 {
@@ -55,6 +55,7 @@
       'include/cef_origin_whitelist.h',
       'include/cef_parser.h',
       'include/cef_path_util.h',
+      'include/cef_permission_handler.h',
       'include/cef_print_handler.h',
       'include/cef_print_settings.h',
       'include/cef_process_message.h',
@@ -154,6 +155,7 @@
       'include/capi/cef_origin_whitelist_capi.h',
       'include/capi/cef_parser_capi.h',
       'include/capi/cef_path_util_capi.h',
+      'include/capi/cef_permission_handler_capi.h',
       'include/capi/cef_print_handler_capi.h',
       'include/capi/cef_print_settings_capi.h',
       'include/capi/cef_process_message_capi.h',
@@ -328,6 +330,8 @@
       'libcef_dll/cpptoc/list_value_cpptoc.h',
       'libcef_dll/ctocpp/load_handler_ctocpp.cc',
       'libcef_dll/ctocpp/load_handler_ctocpp.h',
+      'libcef_dll/cpptoc/media_access_callback_cpptoc.cc',
+      'libcef_dll/cpptoc/media_access_callback_cpptoc.h',
       'libcef_dll/ctocpp/media_observer_ctocpp.cc',
       'libcef_dll/ctocpp/media_observer_ctocpp.h',
       'libcef_dll/cpptoc/media_route_cpptoc.cc',
@@ -364,6 +368,8 @@
       'libcef_dll/ctocpp/views/panel_delegate_ctocpp.h',
       'libcef_dll/ctocpp/pdf_print_callback_ctocpp.cc',
       'libcef_dll/ctocpp/pdf_print_callback_ctocpp.h',
+      'libcef_dll/ctocpp/permission_handler_ctocpp.cc',
+      'libcef_dll/ctocpp/permission_handler_ctocpp.h',
       'libcef_dll/cpptoc/post_data_cpptoc.cc',
       'libcef_dll/cpptoc/post_data_cpptoc.h',
       'libcef_dll/cpptoc/post_data_element_cpptoc.cc',
@@ -636,6 +642,8 @@
       'libcef_dll/ctocpp/list_value_ctocpp.h',
       'libcef_dll/cpptoc/load_handler_cpptoc.cc',
       'libcef_dll/cpptoc/load_handler_cpptoc.h',
+      'libcef_dll/ctocpp/media_access_callback_ctocpp.cc',
+      'libcef_dll/ctocpp/media_access_callback_ctocpp.h',
       'libcef_dll/cpptoc/media_observer_cpptoc.cc',
       'libcef_dll/cpptoc/media_observer_cpptoc.h',
       'libcef_dll/ctocpp/media_route_ctocpp.cc',
@@ -672,6 +680,8 @@
       'libcef_dll/cpptoc/views/panel_delegate_cpptoc.h',
       'libcef_dll/cpptoc/pdf_print_callback_cpptoc.cc',
       'libcef_dll/cpptoc/pdf_print_callback_cpptoc.h',
+      'libcef_dll/cpptoc/permission_handler_cpptoc.cc',
+      'libcef_dll/cpptoc/permission_handler_cpptoc.h',
       'libcef_dll/ctocpp/post_data_ctocpp.cc',
       'libcef_dll/ctocpp/post_data_ctocpp.h',
       'libcef_dll/ctocpp/post_data_element_ctocpp.cc',
