@@ -148,6 +148,15 @@ class CefDisplayHandler : public virtual CefBaseRefCounted {
                               const CefCursorInfo& custom_cursor_info) {
     return false;
   }
+
+  ///
+  // Called when the browser's access to an audio and/or video source has
+  // changed.
+  ///
+  /*--cef()--*/
+  virtual void OnMediaAccessChange(CefRefPtr<CefBrowser> browser,
+                                   bool has_video_access,
+                                   bool has_audio_access) {}
 };
 
 #endif  // CEF_INCLUDE_CEF_DISPLAY_HANDLER_H_

@@ -204,9 +204,10 @@ void CefBrowserHostBase::InitializeBrowser() {
 void CefBrowserHostBase::DestroyBrowser() {
   CEF_REQUIRE_UIT();
 
-  devtools_manager_.reset(nullptr);
+  devtools_manager_.reset();
+  media_stream_registrar_.reset();
 
-  platform_delegate_.reset(nullptr);
+  platform_delegate_.reset();
 
   contents_delegate_->RemoveObserver(this);
   contents_delegate_->ObserveWebContents(nullptr);
@@ -970,6 +971,14 @@ content::BrowserContext* CefBrowserHostBase::GetBrowserContext() const {
   if (web_contents)
     return web_contents->GetBrowserContext();
   return nullptr;
+}
+
+CefMediaStreamRegistrar* CefBrowserHostBase::GetMediaStreamRegistrar() {
+  CEF_REQUIRE_UIT();
+  if (!media_stream_registrar_) {
+    media_stream_registrar_ = std::make_unique<CefMediaStreamRegistrar>(this);
+  }
+  return media_stream_registrar_.get();
 }
 
 views::Widget* CefBrowserHostBase::GetWindowWidget() const {

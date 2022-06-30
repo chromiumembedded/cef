@@ -591,6 +591,8 @@ static_library("libcef_static") {
     "libcef/browser/media_router/media_sink_impl.h",
     "libcef/browser/media_router/media_source_impl.cc",
     "libcef/browser/media_router/media_source_impl.h",
+    "libcef/browser/media_stream_registrar.cc",
+    "libcef/browser/media_stream_registrar.h",
     "libcef/browser/menu_manager.cc",
     "libcef/browser/menu_manager.h",
     "libcef/browser/menu_model_impl.cc",
