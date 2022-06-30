@@ -33,7 +33,7 @@ class CefZipFile : public CefZipArchive::File {
   CefZipFile& operator=(const CefZipFile&) = delete;
 
   bool Initialize(size_t data_size) {
-    data_.reset(new unsigned char[data_size]);
+    data_.reset(new (std::nothrow) unsigned char[data_size]);
     if (data_) {
       data_size_ = data_size;
       return true;
