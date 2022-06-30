@@ -37,6 +37,7 @@ class ClientHandler : public CefClient,
                       public CefKeyboardHandler,
                       public CefLifeSpanHandler,
                       public CefLoadHandler,
+                      public CefPermissionHandler,
                       public CefRequestHandler,
                       public CefResourceRequestHandler {
  public:
@@ -114,6 +115,9 @@ class ClientHandler : public CefClient,
   CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
   CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
   CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
+  CefRefPtr<CefPermissionHandler> GetPermissionHandler() override {
+    return this;
+  }
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
@@ -228,6 +232,14 @@ class ClientHandler : public CefClient,
                    ErrorCode errorCode,
                    const CefString& errorText,
                    const CefString& failedUrl) override;
+
+  // CefPermissionHandler methods
+  bool OnRequestMediaAccessPermission(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      const CefString& requesting_url,
+      uint32 requested_permissions,
+      CefRefPtr<CefMediaAccessCallback> callback) override;
 
   // CefRequestHandler methods
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
@@ -381,6 +393,9 @@ class ClientHandler : public CefClient,
 
   // True if mouse cursor change is disabled.
   bool mouse_cursor_change_disabled_;
+
+  // True if media handling is disabled.
+  bool media_handling_disabled_ = true;
 
   // True if the browser is currently offline.
   bool offline_;

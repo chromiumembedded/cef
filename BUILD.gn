@@ -577,6 +577,8 @@ static_library("libcef_static") {
     "libcef/browser/javascript_dialog_manager.h",
     "libcef/browser/main_runner.cc",
     "libcef/browser/main_runner.h",
+    "libcef/browser/media_access_query.cc",
+    "libcef/browser/media_access_query.h",
     "libcef/browser/media_capture_devices_dispatcher.cc",
     "libcef/browser/media_capture_devices_dispatcher.h",
     "libcef/browser/media_router/media_route_impl.cc",

@@ -3262,7 +3262,7 @@ typedef struct _cef_touch_handle_state_t {
   // Combination of cef_touch_handle_state_flags_t values indicating what state
   // is set.
   ///
-  uint32_t flags;
+  uint32 flags;
 
   ///
   // Enabled state. Only set if |flags| contains CEF_THS_FLAG_ENABLED.
@@ -3286,6 +3286,36 @@ typedef struct _cef_touch_handle_state_t {
   ///
   float alpha;
 } cef_touch_handle_state_t;
+
+///
+// Media access permissions used by OnRequestMediaAccessPermission.
+///
+typedef enum {
+  ///
+  // No permission.
+  ///
+  CEF_MEDIA_PERMISSION_NONE = 0,
+
+  ///
+  // Device audio capture permission.
+  ///
+  CEF_MEDIA_PERMISSION_DEVICE_AUDIO_CAPTURE = 1 << 0,
+
+  ///
+  // Device video capture permission.
+  ///
+  CEF_MEDIA_PERMISSION_DEVICE_VIDEO_CAPTURE = 1 << 1,
+
+  ///
+  // Desktop audio capture permission.
+  ///
+  CEF_MEDIA_PERMISSION_DESKTOP_AUDIO_CAPTURE = 1 << 2,
+
+  ///
+  // Desktop video capture permission.
+  ///
+  CEF_MEDIA_PERMISSION_DESKTOP_VIDEO_CAPTURE = 1 << 3,
+} cef_media_access_permission_types_t;
 
 #ifdef __cplusplus
 }

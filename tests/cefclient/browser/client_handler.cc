@@ -43,6 +43,7 @@ enum client_menu_ids {
   CLIENT_ID_INSPECT_ELEMENT,
   CLIENT_ID_SHOW_SSL_INFO,
   CLIENT_ID_CURSOR_CHANGE_DISABLED,
+  CLIENT_ID_MEDIA_HANDLING_DISABLED,
   CLIENT_ID_OFFLINE,
   CLIENT_ID_TESTMENU_SUBMENU,
   CLIENT_ID_TESTMENU_CHECKITEM,
@@ -407,6 +408,12 @@ void ClientHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
                           "Cursor change disabled");
       if (mouse_cursor_change_disabled_)
         model->SetChecked(CLIENT_ID_CURSOR_CHANGE_DISABLED, true);
+
+      model->AddSeparator();
+      model->AddCheckItem(CLIENT_ID_MEDIA_HANDLING_DISABLED,
+                          "Media handling disabled");
+      if (media_handling_disabled_)
+        model->SetChecked(CLIENT_ID_MEDIA_HANDLING_DISABLED, true);
     }
 
     model->AddSeparator();
@@ -444,6 +451,9 @@ bool ClientHandler::OnContextMenuCommand(CefRefPtr<CefBrowser> browser,
       return true;
     case CLIENT_ID_CURSOR_CHANGE_DISABLED:
       mouse_cursor_change_disabled_ = !mouse_cursor_change_disabled_;
+      return true;
+    case CLIENT_ID_MEDIA_HANDLING_DISABLED:
+      media_handling_disabled_ = !media_handling_disabled_;
       return true;
     case CLIENT_ID_OFFLINE:
       offline_ = !offline_;
@@ -775,6 +785,17 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 
   // Load the error page.
   LoadErrorPage(frame, failedUrl, errorCode, errorText);
+}
+
+bool ClientHandler::OnRequestMediaAccessPermission(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    const CefString& requesting_url,
+    uint32 requested_permissions,
+    CefRefPtr<CefMediaAccessCallback> callback) {
+  callback->Continue(media_handling_disabled_ ? CEF_MEDIA_PERMISSION_NONE
+                                              : requested_permissions);
+  return true;
 }
 
 bool ClientHandler::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,

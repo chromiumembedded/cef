@@ -17,7 +17,7 @@
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools/devtools_manager.h"
-#include "libcef/browser/media_capture_devices_dispatcher.h"
+#include "libcef/browser/media_access_query.h"
 #include "libcef/browser/osr/osr_util.h"
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/thread_util.h"
@@ -51,7 +51,6 @@
 #include "extensions/common/constants.h"
 #include "extensions/common/extension.h"
 #include "net/base/net_errors.h"
-#include "third_party/blink/public/mojom/mediastream/media_stream.mojom.h"
 #include "ui/events/base_event_utils.h"
 
 using content::KeyboardEventProcessingResult;
@@ -1299,82 +1298,16 @@ void AlloyBrowserHostImpl::RequestMediaAccessPermission(
     content::WebContents* web_contents,
     const content::MediaStreamRequest& request,
     content::MediaResponseCallback callback) {
-  CEF_REQUIRE_UIT();
-
-  blink::MediaStreamDevices audio_devices;
-  blink::MediaStreamDevices video_devices;
-
-  const base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
-  if (!command_line->HasSwitch(switches::kEnableMediaStream)) {
-    // Cancel the request.
-    std::move(callback).Run(
-        blink::mojom::StreamDevicesSet(),
-        blink::mojom::MediaStreamRequestResult::PERMISSION_DENIED,
-        std::unique_ptr<content::MediaStreamUI>());
-    return;
-  }
-
-  // Based on chrome/browser/media/media_stream_devices_controller.cc
-  bool microphone_requested =
-      (request.audio_type ==
-       blink::mojom::MediaStreamType::DEVICE_AUDIO_CAPTURE);
-  bool webcam_requested = (request.video_type ==
-                           blink::mojom::MediaStreamType::DEVICE_VIDEO_CAPTURE);
-  bool screen_requested =
-      (request.video_type ==
-       blink::mojom::MediaStreamType::GUM_DESKTOP_VIDEO_CAPTURE);
-  if (microphone_requested || webcam_requested || screen_requested) {
-    // Pick the desired device or fall back to the first available of the
-    // given type.
-    if (microphone_requested) {
-      CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-          request.requested_audio_device_id, true, false, &audio_devices);
-    }
-    if (webcam_requested) {
-      CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-          request.requested_video_device_id, false, true, &video_devices);
-    }
-    if (screen_requested) {
-      content::DesktopMediaID media_id;
-      if (request.requested_video_device_id.empty()) {
-        media_id =
-            content::DesktopMediaID(content::DesktopMediaID::TYPE_SCREEN,
-                                    -1 /* webrtc::kFullDesktopScreenId */);
-      } else {
-        media_id =
-            content::DesktopMediaID::Parse(request.requested_video_device_id);
-      }
-      video_devices.push_back(blink::MediaStreamDevice(
-          blink::mojom::MediaStreamType::GUM_DESKTOP_VIDEO_CAPTURE,
-          media_id.ToString(), "Screen"));
-    }
-  }
-
-  blink::mojom::StreamDevicesSet stream_devices_set;
-  stream_devices_set.stream_devices.emplace_back(
-      blink::mojom::StreamDevices::New());
-  blink::mojom::StreamDevices& devices = *stream_devices_set.stream_devices[0];
-
-  // At most one audio device and one video device can be used in a stream.
-  if (!audio_devices.empty())
-    devices.audio_device = audio_devices.front();
-  if (!video_devices.empty())
-    devices.video_device = video_devices.front();
-
-  std::move(callback).Run(stream_devices_set,
-                          blink::mojom::MediaStreamRequestResult::OK,
-                          std::unique_ptr<content::MediaStreamUI>());
+  media_access_query::RequestMediaAccessPermission(this, request,
+                                                   std::move(callback));
 }
 
 bool AlloyBrowserHostImpl::CheckMediaAccessPermission(
     content::RenderFrameHost* render_frame_host,
     const GURL& security_origin,
     blink::mojom::MediaStreamType type) {
-  // Check media access permission without prompting the user.
-  const base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
-  return command_line->HasSwitch(switches::kEnableMediaStream);
+  return media_access_query::CheckMediaAccessPermission(this, render_frame_host,
+                                                        security_origin, type);
 }
 
 bool AlloyBrowserHostImpl::IsNeverComposited(
