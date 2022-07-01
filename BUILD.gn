@@ -678,8 +678,6 @@ static_library("libcef_static") {
     "libcef/browser/request_context_impl.cc",
     "libcef/browser/request_context_impl.h",
     "libcef/browser/scheme_impl.cc",
-    "libcef/browser/screen_util.cc",
-    "libcef/browser/screen_util.h",
     "libcef/browser/server_impl.cc",
     "libcef/browser/server_impl.h",
     "libcef/browser/simple_menu_model_impl.cc",
