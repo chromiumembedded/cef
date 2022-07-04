@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b63f665e68e4dc6269c3e88b81068190ea90abb3$
+// $hash=5d331596c0425f145a19d8de6a866841d9ed8a87$
 //
 
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
 #include "libcef_dll/cpptoc/list_value_cpptoc.h"
+#include "libcef_dll/cpptoc/shared_memory_region_cpptoc.h"
 #include "libcef_dll/shutdown_checker.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
@@ -127,6 +128,24 @@ process_message_get_argument_list(struct _cef_process_message_t* self) {
   return CefListValueCppToC::Wrap(_retval);
 }
 
+struct _cef_shared_memory_region_t* CEF_CALLBACK
+process_message_get_shared_memory_region(struct _cef_process_message_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefSharedMemoryRegion> _retval =
+      CefProcessMessageCppToC::Get(self)->GetSharedMemoryRegion();
+
+  // Return type: refptr_same
+  return CefSharedMemoryRegionCppToC::Wrap(_retval);
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -137,6 +156,8 @@ CefProcessMessageCppToC::CefProcessMessageCppToC() {
   GetStruct()->copy = process_message_copy;
   GetStruct()->get_name = process_message_get_name;
   GetStruct()->get_argument_list = process_message_get_argument_list;
+  GetStruct()->get_shared_memory_region =
+      process_message_get_shared_memory_region;
 }
 
 // DESTRUCTOR - Do not edit by hand.

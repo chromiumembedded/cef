@@ -1,4 +1,4 @@
-// Copyright (c) 2012 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2022 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,68 +34,54 @@
 // tools directory for more information.
 //
 
-#ifndef CEF_INCLUDE_CEF_MESSAGE_H_
-#define CEF_INCLUDE_CEF_MESSAGE_H_
+#ifndef CEF_INCLUDE_CEF_SHARED_PROCESS_MESSAGE_BUILDER_H_
+#define CEF_INCLUDE_CEF_SHARED_PROCESS_MESSAGE_BUILDER_H_
 #pragma once
 
-#include "include/cef_base.h"
-#include "include/cef_shared_memory_region.h"
-#include "include/cef_values.h"
-
-typedef cef_process_id_t CefProcessId;
+#include "include/cef_process_message.h"
 
 ///
-// Class representing a message. Can be used on any process and thread.
+// Class that builds a CefProcessMessage containing a shared memory region.
+// This class is not thread-safe but may be used exclusively on a different
+// thread from the one which constructed it.
 ///
 /*--cef(source=library)--*/
-class CefProcessMessage : public virtual CefBaseRefCounted {
+class CefSharedProcessMessageBuilder : public virtual CefBaseRefCounted {
  public:
   ///
-  // Create a new CefProcessMessage object with the specified name.
+  // Creates a new CefSharedProcessMessageBuilder with the specified |name| and
+  // shared memory region of specified |byte_size|.
   ///
   /*--cef()--*/
-  static CefRefPtr<CefProcessMessage> Create(const CefString& name);
-
+  static CefRefPtr<CefSharedProcessMessageBuilder> Create(const CefString& name,
+                                                          size_t byte_size);
   ///
-  // Returns true if this object is valid. Do not call any other methods if this
-  // function returns false.
+  // Returns true if the builder is valid.
   ///
   /*--cef()--*/
   virtual bool IsValid() = 0;
 
   ///
-  // Returns true if the values of this object are read-only. Some APIs may
-  // expose read-only objects.
+  // Returns the size of the shared memory region in bytes. Returns 0 for
+  // invalid instances.
   ///
   /*--cef()--*/
-  virtual bool IsReadOnly() = 0;
+  virtual size_t Size() = 0;
 
   ///
-  // Returns a writable copy of this object.
-  // Returns nullptr when message contains a shared memory region.
+  // Returns the pointer to the writable memory. Returns nullptr for invalid
+  // instances. The returned pointer is only valid for the life span of this
+  // object.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefProcessMessage> Copy() = 0;
+  virtual void* Memory() = 0;
 
   ///
-  // Returns the message name.
+  // Creates a new CefProcessMessage from the data provided to the builder.
+  // Returns nullptr for invalid instances. Invalidates the builder instance.
   ///
   /*--cef()--*/
-  virtual CefString GetName() = 0;
-
-  ///
-  // Returns the list of arguments.
-  // Returns nullptr when message contains a shared memory region.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefListValue> GetArgumentList() = 0;
-
-  ///
-  // Returns the shared memory region.
-  // Returns nullptr when message contains an argument list.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefSharedMemoryRegion> GetSharedMemoryRegion() = 0;
+  virtual CefRefPtr<CefProcessMessage> Build() = 0;
 };
 
-#endif  // CEF_INCLUDE_CEF_MESSAGE_H_
+#endif  // CEF_INCLUDE_CEF_SHARED_PROCESS_MESSAGE_BUILDER_H_

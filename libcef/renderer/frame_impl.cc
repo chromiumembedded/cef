@@ -21,6 +21,7 @@
 #include "libcef/common/frame_util.h"
 #include "libcef/common/net/http_header_utils.h"
 #include "libcef/common/process_message_impl.h"
+#include "libcef/common/process_message_smr_impl.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/string_util.h"
 #include "libcef/renderer/blink_glue.h"
@@ -270,16 +271,30 @@ void CefFrameImpl::SendProcessMessage(CefProcessId target_process,
   if (!message || !message->IsValid())
     return;
 
-  SendToBrowserFrame(
-      __FUNCTION__,
-      base::BindOnce(
-          [](CefRefPtr<CefProcessMessage> message,
-             const BrowserFrameType& browser_frame) {
-            auto impl = static_cast<CefProcessMessageImpl*>(message.get());
-            browser_frame->SendMessage(impl->GetName(),
-                                       impl->TakeArgumentList());
-          },
-          message));
+  if (message->GetArgumentList() != nullptr) {
+    // Invalidate the message object immediately by taking the argument list.
+    auto argument_list =
+        static_cast<CefProcessMessageImpl*>(message.get())->TakeArgumentList();
+    SendToBrowserFrame(
+        __FUNCTION__,
+        base::BindOnce(
+            [](const CefString& name, base::ListValue argument_list,
+               const BrowserFrameType& render_frame) {
+              render_frame->SendMessage(name, std::move(argument_list));
+            },
+            message->GetName(), std::move(argument_list)));
+  } else {
+    auto region =
+        static_cast<CefProcessMessageSMRImpl*>(message.get())->TakeRegion();
+    SendToBrowserFrame(
+        __FUNCTION__,
+        base::BindOnce(
+            [](const CefString& name, base::ReadOnlySharedMemoryRegion region,
+               const BrowserFrameType& render_frame) {
+              render_frame->SendSharedMemoryRegion(name, std::move(region));
+            },
+            message->GetName(), std::move(region)));
+  }
 }
 
 std::unique_ptr<blink::WebURLLoader> CefFrameImpl::CreateURLLoader() {
@@ -650,6 +665,18 @@ void CefFrameImpl::SendMessage(const std::string& name, base::Value arguments) {
           /*read_only=*/true));
       handler->OnProcessMessageReceived(browser_, this, PID_BROWSER,
                                         message.get());
+    }
+  }
+}
+
+void CefFrameImpl::SendSharedMemoryRegion(
+    const std::string& name,
+    base::ReadOnlySharedMemoryRegion region) {
+  if (auto app = CefAppManager::Get()->GetApplication()) {
+    if (auto handler = app->GetRenderProcessHandler()) {
+      CefRefPtr<CefProcessMessage> message(
+          new CefProcessMessageSMRImpl(name, std::move(region)));
+      handler->OnProcessMessageReceived(browser_, this, PID_BROWSER, message);
     }
   }
 }

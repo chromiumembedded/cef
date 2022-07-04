@@ -207,6 +207,10 @@ struct CefMessageRouterConfig {
   // Name of the JavaScript function that will be added to the 'window' object
   // for canceling a pending query. The default value is "cefQueryCancel".
   CefString js_cancel_function;
+
+  // Messages of size (in bytes) larger than this threshold will be sent via
+  // shared memory region.
+  size_t message_size_threshold;
 };
 
 ///

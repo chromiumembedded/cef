@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5bf495a6015a7c0937225685bfbe8e0163e67583$
+// $hash=9c3fcd2a053f20a9a09b9938996f5df9eb2053ef$
 //
 
 #include <dlfcn.h>
@@ -39,6 +39,7 @@
 #include "include/capi/cef_response_capi.h"
 #include "include/capi/cef_scheme_capi.h"
 #include "include/capi/cef_server_capi.h"
+#include "include/capi/cef_shared_process_message_builder_capi.h"
 #include "include/capi/cef_ssl_info_capi.h"
 #include "include/capi/cef_stream_capi.h"
 #include "include/capi/cef_task_capi.h"
@@ -219,6 +220,9 @@ typedef void (*cef_server_create_ptr)(const cef_string_t*,
                                       uint16,
                                       int,
                                       struct _cef_server_handler_t*);
+typedef struct _cef_shared_process_message_builder_t* (
+    *cef_shared_process_message_builder_create_ptr)(const cef_string_t*,
+                                                    size_t);
 typedef struct _cef_stream_reader_t* (*cef_stream_reader_create_for_file_ptr)(
     const cef_string_t*);
 typedef struct _cef_stream_reader_t* (
@@ -580,6 +584,8 @@ struct libcef_pointers {
   cef_resource_bundle_get_global_ptr cef_resource_bundle_get_global;
   cef_response_create_ptr cef_response_create;
   cef_server_create_ptr cef_server_create;
+  cef_shared_process_message_builder_create_ptr
+      cef_shared_process_message_builder_create;
   cef_stream_reader_create_for_file_ptr cef_stream_reader_create_for_file;
   cef_stream_reader_create_for_data_ptr cef_stream_reader_create_for_data;
   cef_stream_reader_create_for_handler_ptr cef_stream_reader_create_for_handler;
@@ -789,6 +795,7 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_resource_bundle_get_global);
   INIT_ENTRY(cef_response_create);
   INIT_ENTRY(cef_server_create);
+  INIT_ENTRY(cef_shared_process_message_builder_create);
   INIT_ENTRY(cef_stream_reader_create_for_file);
   INIT_ENTRY(cef_stream_reader_create_for_data);
   INIT_ENTRY(cef_stream_reader_create_for_handler);
@@ -1339,6 +1346,14 @@ void cef_server_create(const cef_string_t* address,
                        int backlog,
                        struct _cef_server_handler_t* handler) {
   g_libcef_pointers.cef_server_create(address, port, backlog, handler);
+}
+
+NO_SANITIZE("cfi-icall")
+struct _cef_shared_process_message_builder_t*
+cef_shared_process_message_builder_create(const cef_string_t* name,
+                                          size_t byte_size) {
+  return g_libcef_pointers.cef_shared_process_message_builder_create(name,
+                                                                     byte_size);
 }
 
 NO_SANITIZE("cfi-icall")

@@ -814,6 +814,8 @@ static_library("libcef_static") {
     "libcef/common/parser_impl.cc",
     "libcef/common/process_message_impl.cc",
     "libcef/common/process_message_impl.h",
+    "libcef/common/process_message_smr_impl.cc",
+    "libcef/common/process_message_smr_impl.h",
     "libcef/common/request_impl.cc",
     "libcef/common/request_impl.h",
     "libcef/common/resource_bundle_delegate.cc",

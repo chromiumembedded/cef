@@ -16,6 +16,7 @@
 #include "include/cef_command_ids.h"
 #include "include/cef_frame.h"
 #include "include/cef_parser.h"
+#include "include/cef_shared_process_message_builder.h"
 #include "include/cef_ssl_status.h"
 #include "include/cef_x509_certificate.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -24,6 +25,7 @@
 #include "tests/cefclient/browser/test_runner.h"
 #include "tests/shared/browser/extension_util.h"
 #include "tests/shared/browser/resource_util.h"
+#include "tests/shared/common/binary_value_utils.h"
 #include "tests/shared/common/client_switches.h"
 
 namespace client {
@@ -52,7 +54,7 @@ enum client_menu_ids {
   CLIENT_ID_TESTMENU_RADIOITEM3,
 };
 
-// Musr match the value in client_renderer.cc.
+// Must match the value in client_renderer.cc.
 const char kFocusedNodeChangedMessage[] = "ClientRenderer.FocusedNodeChanged";
 
 std::string GetTimeString(const CefTime& value) {
@@ -224,6 +226,66 @@ std::string GetCertificateInformation(CefRefPtr<CefX509Certificate> cert,
   return ss.str();
 }
 
+void OnTestProcessMessageReceived(
+    const CefRefPtr<CefFrame>& frame,
+    const CefRefPtr<CefProcessMessage>& process_message,
+    const bv_utils::TimePoint& finish_time) {
+  DCHECK(process_message->IsValid());
+
+  CefRefPtr<CefListValue> input_args = process_message->GetArgumentList();
+  DCHECK_EQ(input_args->GetSize(), 1U);
+
+  const auto renderer_msg =
+      bv_utils::GetRendererMsgFromBinary(input_args->GetBinary(0));
+
+  CefRefPtr<CefProcessMessage> response =
+      CefProcessMessage::Create(bv_utils::kTestSendProcessMessage);
+  CefRefPtr<CefListValue> args = response->GetArgumentList();
+
+  const auto message_size = std::max(input_args->GetBinary(0)->GetSize(),
+                                     sizeof(bv_utils::BrowserMessage));
+  std::vector<uint8_t> data(message_size);
+
+  const auto browser_msg =
+      reinterpret_cast<bv_utils::BrowserMessage*>(data.data());
+  browser_msg->test_id = renderer_msg.test_id;
+  browser_msg->duration = finish_time - renderer_msg.start_time;
+  browser_msg->start_time = bv_utils::Now();
+
+  args->SetBinary(0, bv_utils::CreateCefBinaryValue(data));
+  frame->SendProcessMessage(PID_RENDERER, response);
+}
+
+void OnTestSMRProcessMessageReceived(
+    const CefRefPtr<CefFrame>& frame,
+    const CefRefPtr<CefProcessMessage>& process_message,
+    const bv_utils::TimePoint& finish_time) {
+  DCHECK(process_message->IsValid());
+
+  CefRefPtr<CefSharedMemoryRegion> region =
+      process_message->GetSharedMemoryRegion();
+  DCHECK_GE(region->Size(), sizeof(bv_utils::RendererMessage));
+
+  const auto renderer_msg =
+      static_cast<const bv_utils::RendererMessage*>(region->Memory());
+  const auto message_size =
+      std::max(region->Size(), sizeof(bv_utils::BrowserMessage));
+  const auto renderer_time = renderer_msg->start_time;
+  const auto duration = finish_time - renderer_time;
+  const auto start_time = bv_utils::Now();
+
+  auto builder = CefSharedProcessMessageBuilder::Create(
+      bv_utils::kTestSendSMRProcessMessage, message_size);
+
+  const auto browser_msg =
+      static_cast<bv_utils::BrowserMessage*>(builder->Memory());
+  browser_msg->test_id = renderer_msg->test_id;
+  browser_msg->duration = duration;
+  browser_msg->start_time = start_time;
+
+  frame->SendProcessMessage(PID_RENDERER, builder->Build());
+}
+
 }  // namespace
 
 class ClientDownloadImageCallback : public CefDownloadImageCallback {
@@ -332,19 +394,31 @@ bool ClientHandler::OnProcessMessageReceived(
     CefRefPtr<CefProcessMessage> message) {
   CEF_REQUIRE_UI_THREAD();
 
+  const auto finish_time = bv_utils::Now();
+
   if (message_router_->OnProcessMessageReceived(browser, frame, source_process,
                                                 message)) {
     return true;
   }
 
   // Check for messages from the client renderer.
-  std::string message_name = message->GetName();
+  const std::string& message_name = message->GetName();
   if (message_name == kFocusedNodeChangedMessage) {
     // A message is sent from ClientRenderDelegate to tell us whether the
     // currently focused DOM node is editable. Use of |focus_on_editable_field_|
     // is redundant with CefKeyEvent.focus_on_editable_field in OnPreKeyEvent
     // but is useful for demonstration purposes.
     focus_on_editable_field_ = message->GetArgumentList()->GetBool(0);
+    return true;
+  }
+
+  if (message_name == bv_utils::kTestSendProcessMessage) {
+    OnTestProcessMessageReceived(frame, message, finish_time);
+    return true;
+  }
+
+  if (message_name == bv_utils::kTestSendSMRProcessMessage) {
+    OnTestSMRProcessMessageReceived(frame, message, finish_time);
     return true;
   }
 

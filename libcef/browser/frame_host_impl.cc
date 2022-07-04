@@ -13,6 +13,7 @@
 #include "libcef/common/frame_util.h"
 #include "libcef/common/net/url_util.h"
 #include "libcef/common/process_message_impl.h"
+#include "libcef/common/process_message_smr_impl.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/string_util.h"
 #include "libcef/common/task_runner_impl.h"
@@ -238,18 +239,31 @@ void CefFrameHostImpl::SendProcessMessage(
   if (!message || !message->IsValid())
     return;
 
-  // Invalidate the message object immediately by taking the argument list.
-  auto argument_list =
-      static_cast<CefProcessMessageImpl*>(message.get())->TakeArgumentList();
+  if (message->GetArgumentList() != nullptr) {
+    // Invalidate the message object immediately by taking the argument list.
+    auto argument_list =
+        static_cast<CefProcessMessageImpl*>(message.get())->TakeArgumentList();
 
-  SendToRenderFrame(__FUNCTION__,
-                    base::BindOnce(
-                        [](const CefString& name, base::ListValue argument_list,
-                           const RenderFrameType& render_frame) {
-                          render_frame->SendMessage(name,
-                                                    std::move(argument_list));
-                        },
-                        message->GetName(), std::move(argument_list)));
+    SendToRenderFrame(
+        __FUNCTION__,
+        base::BindOnce(
+            [](const CefString& name, base::ListValue argument_list,
+               const RenderFrameType& render_frame) {
+              render_frame->SendMessage(name, std::move(argument_list));
+            },
+            message->GetName(), std::move(argument_list)));
+  } else {
+    auto region =
+        static_cast<CefProcessMessageSMRImpl*>(message.get())->TakeRegion();
+    SendToRenderFrame(
+        __FUNCTION__,
+        base::BindOnce(
+            [](const CefString& name, base::ReadOnlySharedMemoryRegion region,
+               const RenderFrameType& render_frame) {
+              render_frame->SendSharedMemoryRegion(name, std::move(region));
+            },
+            message->GetName(), std::move(region)));
+  }
 }
 
 void CefFrameHostImpl::SetFocused(bool focused) {
@@ -560,6 +574,19 @@ void CefFrameHostImpl::SendMessage(const std::string& name,
           /*read_only=*/true));
       browser->GetClient()->OnProcessMessageReceived(
           browser.get(), this, PID_RENDERER, message.get());
+    }
+  }
+}
+
+void CefFrameHostImpl::SendSharedMemoryRegion(
+    const std::string& name,
+    base::ReadOnlySharedMemoryRegion region) {
+  if (auto browser = GetBrowserHostBase()) {
+    if (auto client = browser->GetClient()) {
+      CefRefPtr<CefProcessMessage> message(
+          new CefProcessMessageSMRImpl(name, std::move(region)));
+      browser->GetClient()->OnProcessMessageReceived(browser.get(), this,
+                                                     PID_RENDERER, message);
     }
   }
 }

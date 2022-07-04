@@ -33,79 +33,69 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=026a7f827962222a1df8b62a8e7bdfbf4dce27e0$
+// $hash=0ed88d26dab045ebef0f4f4ae209e7f11206a242$
 //
 
-#ifndef CEF_INCLUDE_CAPI_CEF_PROCESS_MESSAGE_CAPI_H_
-#define CEF_INCLUDE_CAPI_CEF_PROCESS_MESSAGE_CAPI_H_
+#ifndef CEF_INCLUDE_CAPI_CEF_SHARED_PROCESS_MESSAGE_BUILDER_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_SHARED_PROCESS_MESSAGE_BUILDER_CAPI_H_
 #pragma once
 
-#include "include/capi/cef_base_capi.h"
-#include "include/capi/cef_shared_memory_region_capi.h"
-#include "include/capi/cef_values_capi.h"
+#include "include/capi/cef_process_message_capi.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 ///
-// Structure representing a message. Can be used on any process and thread.
+// Structure that builds a cef_process_message_t containing a shared memory
+// region. This structure is not thread-safe but may be used exclusively on a
+// different thread from the one which constructed it.
 ///
-typedef struct _cef_process_message_t {
+typedef struct _cef_shared_process_message_builder_t {
   ///
   // Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Returns true (1) if this object is valid. Do not call any other functions
-  // if this function returns false (0).
+  // Returns true (1) if the builder is valid.
   ///
-  int(CEF_CALLBACK* is_valid)(struct _cef_process_message_t* self);
+  int(CEF_CALLBACK* is_valid)(
+      struct _cef_shared_process_message_builder_t* self);
 
   ///
-  // Returns true (1) if the values of this object are read-only. Some APIs may
-  // expose read-only objects.
+  // Returns the size of the shared memory region in bytes. Returns 0 for
+  // invalid instances.
   ///
-  int(CEF_CALLBACK* is_read_only)(struct _cef_process_message_t* self);
+  size_t(CEF_CALLBACK* size)(
+      struct _cef_shared_process_message_builder_t* self);
 
   ///
-  // Returns a writable copy of this object. Returns nullptr when message
-  // contains a shared memory region.
+  // Returns the pointer to the writable memory. Returns nullptr for invalid
+  // instances. The returned pointer is only valid for the life span of this
+  // object.
   ///
-  struct _cef_process_message_t*(CEF_CALLBACK* copy)(
-      struct _cef_process_message_t* self);
+  void*(CEF_CALLBACK* memory)(
+      struct _cef_shared_process_message_builder_t* self);
 
   ///
-  // Returns the message name.
+  // Creates a new cef_process_message_t from the data provided to the builder.
+  // Returns nullptr for invalid instances. Invalidates the builder instance.
   ///
-  // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t(CEF_CALLBACK* get_name)(
-      struct _cef_process_message_t* self);
-
-  ///
-  // Returns the list of arguments. Returns nullptr when message contains a
-  // shared memory region.
-  ///
-  struct _cef_list_value_t*(CEF_CALLBACK* get_argument_list)(
-      struct _cef_process_message_t* self);
-
-  ///
-  // Returns the shared memory region. Returns nullptr when message contains an
-  // argument list.
-  ///
-  struct _cef_shared_memory_region_t*(CEF_CALLBACK* get_shared_memory_region)(
-      struct _cef_process_message_t* self);
-} cef_process_message_t;
+  struct _cef_process_message_t*(CEF_CALLBACK* build)(
+      struct _cef_shared_process_message_builder_t* self);
+} cef_shared_process_message_builder_t;
 
 ///
-// Create a new cef_process_message_t object with the specified name.
+// Creates a new cef_shared_process_message_builder_t with the specified |name|
+// and shared memory region of specified |byte_size|.
 ///
-CEF_EXPORT cef_process_message_t* cef_process_message_create(
-    const cef_string_t* name);
+CEF_EXPORT cef_shared_process_message_builder_t*
+cef_shared_process_message_builder_create(const cef_string_t* name,
+                                          size_t byte_size);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  // CEF_INCLUDE_CAPI_CEF_PROCESS_MESSAGE_CAPI_H_
+#endif  // CEF_INCLUDE_CAPI_CEF_SHARED_PROCESS_MESSAGE_BUILDER_CAPI_H_
