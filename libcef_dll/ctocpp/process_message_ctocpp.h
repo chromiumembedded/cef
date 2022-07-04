@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=39bf2321370b32cf02bf502529568e935b303550$
+// $hash=f52b0dfcee0d432a334166fce348234d0d239b85$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_PROCESS_MESSAGE_CTOCPP_H_
@@ -40,6 +40,7 @@ class CefProcessMessageCToCpp
   CefRefPtr<CefProcessMessage> Copy() override;
   CefString GetName() override;
   CefRefPtr<CefListValue> GetArgumentList() override;
+  CefRefPtr<CefSharedMemoryRegion> GetSharedMemoryRegion() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_PROCESS_MESSAGE_CTOCPP_H_

@@ -8,6 +8,7 @@
 #include <set>
 
 #include "include/base/cef_callback.h"
+#include "include/cef_shared_process_message_builder.h"
 #include "include/cef_task.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
@@ -31,6 +32,10 @@ const char kMemberPersistent[] = "persistent";
 const int kCanceledErrorCode = -1;
 const char kCanceledErrorMessage[] = "The query has been canceled";
 
+// Value of 16KB is chosen as a result of performance tests available at
+// http://tests/ipc_performance
+constexpr size_t kResponseSizeThreshold = 16384;
+
 // Validate configuration settings.
 bool ValidateConfig(CefMessageRouterConfig& config) {
   // Must specify function names.
@@ -39,6 +44,124 @@ bool ValidateConfig(CefMessageRouterConfig& config) {
   }
 
   return true;
+}
+
+struct MessageHeader {
+  int context_id;
+  int request_id;
+  bool is_success;
+};
+
+struct ParsedMessage {
+  int context_id;
+  int request_id;
+  bool success;
+  int error_code;
+  CefString message;
+};
+
+size_t GetMessageSize(const CefString& response) {
+  return sizeof(MessageHeader) +
+         (response.size() * sizeof(CefString::char_type));
+}
+
+void CopyResponseIntoMemory(void* memory, const CefString& response) {
+  const size_t bytes = response.size() * sizeof(CefString::char_type);
+  void* dest = static_cast<uint8_t*>(memory) + sizeof(MessageHeader);
+  memcpy(dest, response.c_str(), bytes);
+}
+
+CefString GetStringFromMemory(const void* memory, size_t size) {
+  const size_t bytes = size - sizeof(MessageHeader);
+  const size_t string_len = bytes / sizeof(CefString::char_type);
+  const CefString::char_type* src =
+      reinterpret_cast<const CefString::char_type*>(
+          static_cast<const uint8_t*>(memory) + sizeof(MessageHeader));
+  constexpr bool copy = true;
+  CefString result;
+  result.FromString(src, string_len, copy);
+  return result;
+}
+
+CefRefPtr<CefProcessMessage> BuildListMessage(const std::string& message_name,
+                                              int context_id,
+                                              int request_id,
+                                              const CefString& response) {
+  auto message = CefProcessMessage::Create(message_name);
+  CefRefPtr<CefListValue> args = message->GetArgumentList();
+  args->SetInt(0, context_id);
+  args->SetInt(1, request_id);
+  args->SetBool(2, true);  // Indicates a success result.
+  args->SetString(3, response);
+  return message;
+}
+
+CefRefPtr<CefProcessMessage> BuildBinaryMessage(const std::string& message_name,
+                                                int context_id,
+                                                int request_id,
+                                                const CefString& response) {
+  const size_t message_size = GetMessageSize(response);
+  auto builder =
+      CefSharedProcessMessageBuilder::Create(message_name, message_size);
+  if (!builder->IsValid()) {
+    LOG(ERROR) << "Failed to allocate shared memory region of size "
+               << message_size;
+    // Use list message as a fallback
+    return BuildListMessage(message_name, context_id, request_id, response);
+  }
+
+  auto header = static_cast<MessageHeader*>(builder->Memory());
+  header->context_id = context_id;
+  header->request_id = request_id;
+  header->is_success = true;
+
+  CopyResponseIntoMemory(builder->Memory(), response);
+
+  return builder->Build();
+}
+
+CefRefPtr<CefProcessMessage> BuildMessage(size_t threshold,
+                                          const std::string& message_name,
+                                          int context_id,
+                                          int request_id,
+                                          const CefString& response) {
+  if (response.size() <= threshold) {
+    return BuildListMessage(message_name, context_id, request_id, response);
+  } else {
+    return BuildBinaryMessage(message_name, context_id, request_id, response);
+  }
+}
+
+ParsedMessage ParseMessage(const CefRefPtr<CefProcessMessage>& message) {
+  if (auto args = message->GetArgumentList()) {
+    DCHECK_GT(args->GetSize(), 3U);
+
+    const int context_id = args->GetInt(0);
+    const int request_id = args->GetInt(1);
+    const bool is_success = args->GetBool(2);
+
+    if (is_success) {
+      return ParsedMessage{context_id, request_id, is_success, 0,
+                           args->GetString(3)};
+    }
+
+    DCHECK_EQ(args->GetSize(), 5U);
+    return ParsedMessage{context_id, request_id, is_success, args->GetInt(3),
+                         args->GetString(4)};
+  }
+
+  if (const auto region = message->GetSharedMemoryRegion()) {
+    if (region->IsValid()) {
+      DCHECK_GE(region->Size(), sizeof(MessageHeader));
+      auto header = static_cast<const MessageHeader*>(region->Memory());
+      DCHECK(header->is_success);
+      return ParsedMessage{
+          header->context_id, header->request_id, header->is_success, 0,
+          GetStringFromMemory(region->Memory(), region->Size())};
+    }
+  }
+
+  return ParsedMessage{};
 }
 
 // Helper template for generated ID values.
@@ -428,14 +551,11 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
                         int context_id,
                         int request_id,
                         const CefString& response) {
-    CefRefPtr<CefProcessMessage> message =
-        CefProcessMessage::Create(query_message_name_);
-    CefRefPtr<CefListValue> args = message->GetArgumentList();
-    args->SetInt(0, context_id);
-    args->SetInt(1, request_id);
-    args->SetBool(2, true);  // Indicates a success result.
-    args->SetString(3, response);
-    frame->SendProcessMessage(PID_RENDERER, message);
+    if (auto message =
+            BuildMessage(config_.message_size_threshold, query_message_name_,
+                         context_id, request_id, response)) {
+      frame->SendProcessMessage(PID_RENDERER, message);
+    }
   }
 
   void SendQueryFailure(QueryInfo* info,
@@ -817,31 +937,21 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
 
     const std::string& message_name = message->GetName();
     if (message_name == query_message_name_) {
-      CefRefPtr<CefListValue> args = message->GetArgumentList();
-      DCHECK_GT(args->GetSize(), 3U);
-
-      const int context_id = args->GetInt(0);
-      const int request_id = args->GetInt(1);
-      bool is_success = args->GetBool(2);
-
-      if (is_success) {
-        DCHECK_EQ(args->GetSize(), 4U);
-        const CefString& response = args->GetString(3);
+      auto content = ParseMessage(message);
+      if (content.success) {
         CefPostTask(
             TID_RENDERER,
             base::BindOnce(
                 &CefMessageRouterRendererSideImpl::ExecuteSuccessCallback, this,
-                browser->GetIdentifier(), context_id, request_id, response));
+                browser->GetIdentifier(), content.context_id,
+                content.request_id, content.message));
       } else {
-        DCHECK_EQ(args->GetSize(), 5U);
-        int error_code = args->GetInt(3);
-        const CefString& error_message = args->GetString(4);
         CefPostTask(
             TID_RENDERER,
             base::BindOnce(
                 &CefMessageRouterRendererSideImpl::ExecuteFailureCallback, this,
-                browser->GetIdentifier(), context_id, request_id, error_code,
-                error_message));
+                browser->GetIdentifier(), content.context_id,
+                content.request_id, content.error_code, content.message));
       }
 
       return true;
@@ -913,10 +1023,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
 
     const int request_id = request_id_generator_.GetNextId();
 
-    RequestInfo* info = new RequestInfo;
-    info->persistent = persistent;
-    info->success_callback = success_callback;
-    info->failure_callback = failure_callback;
+    auto* info =
+        new RequestInfo{persistent, success_callback, failure_callback};
+
     browser_request_info_map_.Add(browser->GetIdentifier(),
                                   std::make_pair(context_id, request_id), info);
 
@@ -1117,7 +1226,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
 }  // namespace
 
 CefMessageRouterConfig::CefMessageRouterConfig()
-    : js_query_function("cefQuery"), js_cancel_function("cefQueryCancel") {}
+    : js_query_function("cefQuery"),
+      js_cancel_function("cefQueryCancel"),
+      message_size_threshold(kResponseSizeThreshold) {}
 
 // static
 CefRefPtr<CefMessageRouterBrowserSide> CefMessageRouterBrowserSide::Create(

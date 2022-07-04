@@ -42,6 +42,9 @@ class CefProcessMessageImpl : public CefProcessMessage {
   CefRefPtr<CefProcessMessage> Copy() override;
   CefString GetName() override;
   CefRefPtr<CefListValue> GetArgumentList() override;
+  CefRefPtr<CefSharedMemoryRegion> GetSharedMemoryRegion() override {
+    return nullptr;
+  }
 
  private:
   const CefString name_;

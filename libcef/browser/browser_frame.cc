@@ -42,6 +42,16 @@ void CefBrowserFrame::SendMessage(const std::string& name,
   }
 }
 
+void CefBrowserFrame::SendSharedMemoryRegion(
+    const std::string& name,
+    base::ReadOnlySharedMemoryRegion region) {
+  // Always send to the newly created RFH, which may be speculative when
+  // navigating cross-origin.
+  if (auto host = GetFrameHost(/*prefer_speculative=*/true)) {
+    host->SendSharedMemoryRegion(name, std::move(region));
+  }
+}
+
 void CefBrowserFrame::FrameAttached(
     mojo::PendingRemote<cef::mojom::RenderFrame> render_frame,
     bool reattached) {

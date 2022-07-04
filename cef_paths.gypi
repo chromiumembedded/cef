@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=f8ae899cc69a48e9878fa4db2fcc3b7e54230062$
+# $hash=f374acb217db4183917195716d5522a9eb897cdf$
 #
 
 {
@@ -75,6 +75,8 @@
       'include/cef_response_filter.h',
       'include/cef_scheme.h',
       'include/cef_server.h',
+      'include/cef_shared_memory_region.h',
+      'include/cef_shared_process_message_builder.h',
       'include/cef_ssl_info.h',
       'include/cef_ssl_status.h',
       'include/cef_stream.h',
@@ -175,6 +177,8 @@
       'include/capi/cef_response_filter_capi.h',
       'include/capi/cef_scheme_capi.h',
       'include/capi/cef_server_capi.h',
+      'include/capi/cef_shared_memory_region_capi.h',
+      'include/capi/cef_shared_process_message_builder_capi.h',
       'include/capi/cef_ssl_info_capi.h',
       'include/capi/cef_ssl_status_capi.h',
       'include/capi/cef_stream_capi.h',
@@ -442,6 +446,10 @@
       'libcef_dll/ctocpp/server_handler_ctocpp.h',
       'libcef_dll/ctocpp/set_cookie_callback_ctocpp.cc',
       'libcef_dll/ctocpp/set_cookie_callback_ctocpp.h',
+      'libcef_dll/cpptoc/shared_memory_region_cpptoc.cc',
+      'libcef_dll/cpptoc/shared_memory_region_cpptoc.h',
+      'libcef_dll/cpptoc/shared_process_message_builder_cpptoc.cc',
+      'libcef_dll/cpptoc/shared_process_message_builder_cpptoc.h',
       'libcef_dll/cpptoc/stream_reader_cpptoc.cc',
       'libcef_dll/cpptoc/stream_reader_cpptoc.h',
       'libcef_dll/cpptoc/stream_writer_cpptoc.cc',
@@ -754,6 +762,10 @@
       'libcef_dll/cpptoc/server_handler_cpptoc.h',
       'libcef_dll/cpptoc/set_cookie_callback_cpptoc.cc',
       'libcef_dll/cpptoc/set_cookie_callback_cpptoc.h',
+      'libcef_dll/ctocpp/shared_memory_region_ctocpp.cc',
+      'libcef_dll/ctocpp/shared_memory_region_ctocpp.h',
+      'libcef_dll/ctocpp/shared_process_message_builder_ctocpp.cc',
+      'libcef_dll/ctocpp/shared_process_message_builder_ctocpp.h',
       'libcef_dll/ctocpp/stream_reader_ctocpp.cc',
       'libcef_dll/ctocpp/stream_reader_ctocpp.h',
       'libcef_dll/ctocpp/stream_writer_ctocpp.cc',

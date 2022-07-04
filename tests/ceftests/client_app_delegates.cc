@@ -59,6 +59,11 @@ void CreateRenderDelegates(ClientAppRenderer::DelegateSet& delegates) {
                                                 delegates);
   CreateProcessMessageRendererTests(delegates);
 
+  // Bring in the shared process message tests.
+  extern void CreateSharedProcessMessageTests(ClientAppRenderer::DelegateSet &
+                                              delegates);
+  CreateSharedProcessMessageTests(delegates);
+
   // Bring in the RequestHandler tests.
   extern void CreateRequestHandlerRendererTests(ClientAppRenderer::DelegateSet &
                                                 delegates);

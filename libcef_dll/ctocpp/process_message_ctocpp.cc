@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7ab779c6c98a1bd2385f14d514304a28ef58717f$
+// $hash=0f16a0f4711caf0b3761bf6480622de2e75b72ef$
 //
 
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
+#include "libcef_dll/ctocpp/shared_memory_region_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
 
 // STATIC METHODS - Body may be edited by hand.
@@ -120,6 +121,25 @@ CefRefPtr<CefListValue> CefProcessMessageCToCpp::GetArgumentList() {
 
   // Return type: refptr_same
   return CefListValueCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefSharedMemoryRegion>
+CefProcessMessageCToCpp::GetSharedMemoryRegion() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_process_message_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_shared_memory_region))
+    return nullptr;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_shared_memory_region_t* _retval =
+      _struct->get_shared_memory_region(_struct);
+
+  // Return type: refptr_same
+  return CefSharedMemoryRegionCToCpp::Wrap(_retval);
 }
 
 // CONSTRUCTOR - Do not edit by hand.

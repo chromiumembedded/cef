@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>IPC Performance Tests</title>
+    <script src="https://cdn.plot.ly/plotly-2.12.1.min.js"></script>
+    <style>
+      body {
+        font-family: Tahoma, Serif;
+        font-size: 10pt;
+      }
+
+      .left {
+        text-align: left;
+      }
+
+      .right {
+        text-align: right;
+      }
+
+      .positive {
+        color: green;
+        font-weight: bold;
+      }
+
+      .negative {
+        color: red;
+        font-weight: bold;
+      }
+
+      .center {
+        text-align: center;
+      }
+
+      table.resultTable {
+        border: 1px solid black;
+        border-collapse: collapse;
+        empty-cells: show;
+        width: 100%;
+      }
+
+      table.resultTable td {
+        padding: 2px 4px;
+        border: 1px solid black;
+      }
+
+      table.resultTable > thead > tr {
+        font-weight: bold;
+        background: lightblue;
+      }
+
+      table.resultTable > tbody > tr:nth-child(odd) {
+        background: white;
+      }
+
+      table.resultTable > tbody > tr:nth-child(even) {
+        background: lightgray;
+      }
+
+      .hide {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body background-color="white">
+    <h1>IPC Performance Tests</h1>
+
+    <table>
+      <tr>
+        <td>
+          <p>
+            There is no progress indication of the tests because it
+            significantly influences measurements. <br />It usually takes 30
+            seconds (for 100 samples) to complete the tests. <br /><b>AL</b> -
+            ArgumentList-based process messages. <b>SM</b> -
+            SharedMemoryRegion-based process messages.
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Samples:
+          <input
+            id="sSamples"
+            type="text"
+            value="100"
+            required
+            pattern="[0-9]+"
+          />
+          <button id="sRun" autofocus onclick="runTestSuite()">Run</button>
+        </td>
+      </tr>
+    </table>
+
+    <div style="padding-top: 10px; padding-bottom: 10px">
+      <table id="resultTable" class="resultTable">
+        <thead>
+          <tr>
+            <td class="center" style="width: 8%">Message Size</td>
+            <td class="center" style="width: 8%">AL Round Trip Avg,&nbsp;ms</td>
+            <td class="center" style="width: 8%">SM Round Trip Avg,&nbsp;ms</td>
+            <td class="center" style="width: 10%">Relative Trip Difference</td>
+            <td class="center" style="width: 8%">AL Speed,&nbsp;MB/s</td>
+            <td class="center" style="width: 8%">SM Speed,&nbsp;MB/s</td>
+            <td class="center" style="width: 10%">Relative Speed Difference</td>
+            <td class="center" style="width: 8%">AL Standard Deviation</td>
+            <td class="center" style="width: 8%">SM Standard Deviation</td>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- result rows here -->
+        </tbody>
+      </table>
+    </div>
+
+    <div id="round_trip_avg_chart">
+      <!-- Average round trip linear chart will be drawn inside this DIV -->
+    </div>
+
+    <div id="box_plot_chart">
+      <!-- Box plot of round trip time will be drawn inside this DIV -->
+    </div>
+
+    <script type="text/javascript">
+      let tests = [];
+      let box_plot_test_data = [];
+      let round_trip_avg_plot_data = [];
+
+      function nextTest(test) {
+        setTimeout(() => {
+          execNextTest(test.index);
+        }, 0);
+      }
+
+      function testSendProcessMessageResult(
+        testIndex,
+        fromRendererToBrowser,
+        fromBrowserToRenderer
+      ) {
+        const test = tests[testIndex];
+
+        const roundTrip = fromRendererToBrowser + fromBrowserToRenderer;
+        test.totalRoundTrip += roundTrip;
+        test.sample++;
+        box_plot_test_data[testIndex].x.push(roundTrip);
+
+        setTimeout(() => {
+          execTest(testIndex);
+        }, 10);
+      }
+
+      function sendRequest(size, testIndex) {
+        window.testSendProcessMessage({
+          size: size,
+          testId: testIndex,
+        });
+      }
+
+      function sendSMRRequest(size, testIndex) {
+        window.testSendSMRProcessMessage({
+          size: size,
+          testId: testIndex,
+        });
+      }
+
+      function getStandardDeviation(array, mean) {
+        const n = array.length;
+        if (n < 5) return null;
+        return Math.sqrt(
+          array.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b) /
+            (n - 1)
+        );
+      }
+
+      function execTest(testIndex) {
+        const test = tests[testIndex];
+
+        if (test.sample >= test.totalSamples) {
+          return nextTest(test);
+        }
+
+        test.func(test.index);
+      }
+
+      function column(prepared, value) {
+        return (
+          "<td class='right'>" + (!prepared ? "-" : value.toFixed(2)) + "</td>"
+        );
+      }
+
+      function relativeDiffColumn(prepared, value, isBiggerBetter) {
+        if (!prepared) return "<td class='right'>-</td>";
+
+        const isPositive = value > 0 == isBiggerBetter;
+        return [
+          "<td class='right ",
+          isPositive ? "positive" : "negative",
+          "'>",
+          value > 0 ? "+" : "",
+          value.toFixed(2),
+          "%</td>",
+        ].join("");
+      }
+
+      function displayResult(test) {
+        const id = "testResultRow_" + test.index;
+
+        const markup = [
+          "<tr id='",
+          id,
+          "'>",
+          "<td class='left'>",
+          test.name,
+          "</td>",
+          column(test.prepared, test.avgRoundTrip),
+          column(test.prepared, test.avgRoundTripSMR),
+          relativeDiffColumn(test.prepared, test.relativeTripDiff, false),
+          column(test.prepared, test.speed),
+          column(test.prepared, test.speedSMR),
+          relativeDiffColumn(test.prepared, test.relativeSpeedDiff, true),
+          "<td class='right'>",
+          !test.prepared || test.stdDeviation == null
+            ? "-"
+            : test.stdDeviation.toFixed(2),
+          "</td>",
+          "<td class='right'>",
+          !test.prepared || test.stdDeviationSMR == null
+            ? "-"
+            : test.stdDeviationSMR.toFixed(2),
+          "</td>",
+          "</tr>",
+        ].join("");
+
+        const row = document.getElementById(id);
+        if (row) {
+          row.outerHTML = markup;
+        } else {
+          const tbody = document.getElementById("resultTable").tBodies[0];
+          tbody.insertAdjacentHTML("beforeEnd", markup);
+        }
+      }
+
+      function buildTestResults(tests) {
+        testResults = [];
+
+        let oldRoundTrip = {
+          x: [],
+          y: [],
+          type: "scatter",
+          name: "ArgumentList",
+        };
+
+        let newRoundTrip = {
+          x: [],
+          y: [],
+          type: "scatter",
+          name: "SharedMemoryRegion",
+        };
+
+        for (let i = 0; i < tests.length / 2; i++) {
+          const index = testResults.length;
+
+          const test = tests[i * 2];
+          const testSMR = tests[i * 2 + 1];
+
+          const avgRoundTrip = test.totalRoundTrip / test.totalSamples;
+          const avgRoundTripSMR = testSMR.totalRoundTrip / testSMR.totalSamples;
+          const relativeTripDiff =
+            ((avgRoundTripSMR - avgRoundTrip) / avgRoundTrip) * 100;
+
+          // In MB/s
+          const speed = test.messageSize / (avgRoundTrip * 1000);
+          const speedSMR = testSMR.messageSize / (avgRoundTripSMR * 1000);
+          const relativeSpeedDiff = ((speedSMR - speed) / speed) * 100;
+
+          const stdDeviation = getStandardDeviation(
+            box_plot_test_data[test.index].x,
+            avgRoundTrip
+          );
+          const stdDeviationSMR = getStandardDeviation(
+            box_plot_test_data[testSMR.index].x,
+            avgRoundTripSMR
+          );
+
+          testResults.push({
+            name: humanFileSize(test.messageSize),
+            index: index,
+            prepared: true,
+            avgRoundTrip: avgRoundTrip,
+            avgRoundTripSMR: avgRoundTripSMR,
+            relativeTripDiff: relativeTripDiff,
+            speed: speed,
+            speedSMR: speedSMR,
+            relativeSpeedDiff: relativeSpeedDiff,
+            stdDeviation: stdDeviation,
+            stdDeviationSMR: stdDeviationSMR,
+          });
+
+          oldRoundTrip.x.push(test.messageSize);
+          newRoundTrip.x.push(test.messageSize);
+          oldRoundTrip.y.push(avgRoundTrip);
+          newRoundTrip.y.push(avgRoundTripSMR);
+        }
+
+        round_trip_avg_plot_data = [oldRoundTrip, newRoundTrip];
+        return testResults;
+      }
+
+      function buildEmptyTestResults(tests) {
+        testResults = [];
+        for (let i = 0; i < tests.length / 2; i++) {
+          const index = testResults.length;
+          const test = tests[i * 2];
+
+          testResults.push({
+            name: humanFileSize(test.messageSize),
+            index: index,
+            prepared: false,
+          });
+        }
+        return testResults;
+      }
+
+      function prepareQueuedTests(totalSamples) {
+        if (totalSamples <= 0) totalSamples = 1;
+
+        tests.forEach((test) => {
+          test.sample = 0;
+          test.totalRoundTrip = 0;
+          test.totalSamples = totalSamples;
+        });
+
+        testResults = buildEmptyTestResults(tests);
+        testResults.forEach((result) => displayResult(result));
+
+        round_trip_avg_plot_data = [];
+        box_plot_test_data.forEach((data) => {
+          data.x = [];
+        });
+      }
+
+      function queueTest(name, messageSize, testFunc) {
+        const testIndex = tests.length;
+        test = {
+          name: name,
+          messageSize: messageSize,
+          index: testIndex,
+          func: testFunc,
+        };
+        tests.push(test);
+
+        box_plot_test_data.push({
+          x: [],
+          type: "box",
+          boxpoints: "all",
+          name: name,
+          jitter: 0.3,
+          pointpos: -1.8,
+        });
+      }
+
+      function execNextTest(testIndex) {
+        testIndex++;
+        if (tests.length <= testIndex) {
+          return testSuiteFinished();
+        } else {
+          return execTest(testIndex);
+        }
+      }
+
+      function execQueuedTests(totalSamples) {
+        prepareQueuedTests(totalSamples);
+        // Let the updated table render before starting the tests
+        setTimeout(() => execNextTest(-1), 200);
+      }
+
+      function setSettingsState(disabled) {
+        document.getElementById("sSamples").disabled = disabled;
+        document.getElementById("sRun").disabled = disabled;
+      }
+
+      function testSuiteFinished() {
+        testResults = buildTestResults(tests);
+        testResults.forEach((result) => displayResult(result));
+
+        const round_trip_layout = {
+          title: "Average round trip, ms (Smaller Better)",
+        };
+        Plotly.newPlot(
+          "round_trip_avg_chart",
+          round_trip_avg_plot_data,
+          round_trip_layout
+        );
+
+        const box_plot_layout = {
+          title: "Round Trip Time, ms",
+        };
+        Plotly.newPlot("box_plot_chart", box_plot_test_data, box_plot_layout);
+        setSettingsState(false);
+      }
+
+      function humanFileSize(bytes) {
+        const step = 1024;
+        const originalBytes = bytes;
+
+        if (Math.abs(bytes) < step) {
+          return bytes + " B";
+        }
+
+        const units = [" KB", " MB", " GB"];
+        let u = -1;
+        let count = 0;
+
+        do {
+          bytes /= step;
+          u += 1;
+          count += 1;
+        } while (Math.abs(bytes) >= step && u < units.length - 1);
+
+        return bytes.toString() + units[u];
+      }
+
+      window.runTestSuite = () => {
+        Plotly.purge("round_trip_avg_chart");
+        Plotly.purge("box_plot_chart");
+        setSettingsState(true);
+        const totalSamples = parseInt(
+          document.getElementById("sSamples").value
+        );
+        execQueuedTests(totalSamples);
+        return false;
+      };
+
+      for (let size = 512; size <= 512 * 1024; size = size * 2) {
+        queueTest(humanFileSize(size) + " AL", size, (testIndex) =>
+          sendRequest(size, testIndex)
+        );
+
+        queueTest(humanFileSize(size) + " SM", size, (testIndex) =>
+          sendSMRRequest(size, testIndex)
+        );
+      }
+
+      const totalSamples = parseInt(document.getElementById("sSamples").value);
+      prepareQueuedTests(totalSamples);
+    </script>
+  </body>
+</html>
