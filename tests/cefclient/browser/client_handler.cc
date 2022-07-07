@@ -864,7 +864,7 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 bool ClientHandler::OnRequestMediaAccessPermission(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
-    const CefString& requesting_url,
+    const CefString& requesting_origin,
     uint32 requested_permissions,
     CefRefPtr<CefMediaAccessCallback> callback) {
   callback->Continue(media_handling_disabled_ ? CEF_MEDIA_PERMISSION_NONE

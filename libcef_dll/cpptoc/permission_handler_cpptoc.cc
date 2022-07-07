@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9c8d3c2295998f7a976967aa7f4b6a6da7c5c53d$
+// $hash=f137c0d7ae5fef1a6478f9416f6fe3d12a66d975$
 //
 
 #include "libcef_dll/cpptoc/permission_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/media_access_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/permission_prompt_callback_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
 
 namespace {
@@ -26,7 +27,7 @@ int CEF_CALLBACK permission_handler_on_request_media_access_permission(
     struct _cef_permission_handler_t* self,
     cef_browser_t* browser,
     cef_frame_t* frame,
-    const cef_string_t* requesting_url,
+    const cef_string_t* requesting_origin,
     uint32 requested_permissions,
     cef_media_access_callback_t* callback) {
   shutdown_checker::AssertNotShutdown();
@@ -44,9 +45,9 @@ int CEF_CALLBACK permission_handler_on_request_media_access_permission(
   DCHECK(frame);
   if (!frame)
     return 0;
-  // Verify param: requesting_url; type: string_byref_const
-  DCHECK(requesting_url);
-  if (!requesting_url)
+  // Verify param: requesting_origin; type: string_byref_const
+  DCHECK(requesting_origin);
+  if (!requesting_origin)
     return 0;
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
@@ -57,11 +58,69 @@ int CEF_CALLBACK permission_handler_on_request_media_access_permission(
   bool _retval =
       CefPermissionHandlerCppToC::Get(self)->OnRequestMediaAccessPermission(
           CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
-          CefString(requesting_url), requested_permissions,
+          CefString(requesting_origin), requested_permissions,
           CefMediaAccessCallbackCToCpp::Wrap(callback));
 
   // Return type: bool
   return _retval;
+}
+
+int CEF_CALLBACK permission_handler_on_show_permission_prompt(
+    struct _cef_permission_handler_t* self,
+    cef_browser_t* browser,
+    uint64 prompt_id,
+    const cef_string_t* requesting_origin,
+    uint32 requested_permissions,
+    cef_permission_prompt_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return 0;
+  // Verify param: requesting_origin; type: string_byref_const
+  DCHECK(requesting_origin);
+  if (!requesting_origin)
+    return 0;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback);
+  if (!callback)
+    return 0;
+
+  // Execute
+  bool _retval = CefPermissionHandlerCppToC::Get(self)->OnShowPermissionPrompt(
+      CefBrowserCToCpp::Wrap(browser), prompt_id, CefString(requesting_origin),
+      requested_permissions, CefPermissionPromptCallbackCToCpp::Wrap(callback));
+
+  // Return type: bool
+  return _retval;
+}
+
+void CEF_CALLBACK permission_handler_on_dismiss_permission_prompt(
+    struct _cef_permission_handler_t* self,
+    cef_browser_t* browser,
+    uint64 prompt_id,
+    cef_permission_request_result_t result) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+
+  // Execute
+  CefPermissionHandlerCppToC::Get(self)->OnDismissPermissionPrompt(
+      CefBrowserCToCpp::Wrap(browser), prompt_id, result);
 }
 
 }  // namespace
@@ -71,6 +130,10 @@ int CEF_CALLBACK permission_handler_on_request_media_access_permission(
 CefPermissionHandlerCppToC::CefPermissionHandlerCppToC() {
   GetStruct()->on_request_media_access_permission =
       permission_handler_on_request_media_access_permission;
+  GetStruct()->on_show_permission_prompt =
+      permission_handler_on_show_permission_prompt;
+  GetStruct()->on_dismiss_permission_prompt =
+      permission_handler_on_dismiss_permission_prompt;
 }
 
 // DESTRUCTOR - Do not edit by hand.

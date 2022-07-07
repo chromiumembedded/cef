@@ -237,7 +237,7 @@ class ClientHandler : public CefClient,
   bool OnRequestMediaAccessPermission(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
-      const CefString& requesting_url,
+      const CefString& requesting_origin,
       uint32 requested_permissions,
       CefRefPtr<CefMediaAccessCallback> callback) override;
 

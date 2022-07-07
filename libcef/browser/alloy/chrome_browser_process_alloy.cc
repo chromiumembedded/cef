@@ -18,6 +18,7 @@
 #include "base/command_line.h"
 #include "chrome/browser/component_updater/chrome_component_updater_configurator.h"
 #include "chrome/browser/net/system_network_context_manager.h"
+#include "chrome/browser/permissions/chrome_permissions_client.h"
 #include "chrome/browser/policy/chrome_browser_policy_connector.h"
 #include "chrome/browser/printing/background_printing_manager.h"
 #include "chrome/browser/printing/print_job_manager.h"
@@ -66,6 +67,9 @@ void ChromeBrowserProcessAlloy::Initialize() {
         new extensions::CefExtensionsBrowserClient);
     extensions::ExtensionsBrowserClient::Set(extensions_browser_client_.get());
   }
+
+  // Make sure permissions client has been set.
+  ChromePermissionsClient::GetInstance();
 
   initialized_ = true;
 }

@@ -8,6 +8,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/file_dialog_runner.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
+#include "libcef/browser/permission_prompt.h"
 
 #include "base/task/thread_pool.h"
 
@@ -42,4 +43,5 @@ void ChromeBrowserMainExtraPartsCef::PreMainMessageLoopRun() {
   scheme::RegisterWebUIControllerFactory();
   context_menu::RegisterMenuCreatedCallback();
   file_dialog_runner::RegisterFactory();
+  permission_prompt::RegisterCreateCallback();
 }
