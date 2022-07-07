@@ -23,6 +23,7 @@
 #include "chrome/browser/first_party_sets/first_party_sets_pref_names.h"
 #include "chrome/browser/media/media_device_id_salt.h"
 #include "chrome/browser/media/router/media_router_feature.h"
+#include "chrome/browser/media/webrtc/permission_bubble_media_access_handler.h"
 #include "chrome/browser/net/profile_network_context_service.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/plugins/plugin_info_host_impl.h"
@@ -46,6 +47,7 @@
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "components/language/core/browser/language_prefs.h"
 #include "components/language/core/browser/pref_names.h"
+#include "components/permissions/permission_actions_history.h"
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "components/prefs/json_pref_store.h"
 #include "components/prefs/pref_filter.h"
@@ -224,6 +226,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   certificate_transparency::prefs::RegisterPrefs(registry.get());
   flags_ui::PrefServiceFlagsStorage::RegisterPrefs(registry.get());
   media_router::RegisterLocalStatePrefs(registry.get());
+  permissions::PermissionActionsHistory::RegisterProfilePrefs(registry.get());
   PluginInfoHostImpl::RegisterUserPrefs(registry.get());
   PrefProxyConfigTrackerImpl::RegisterPrefs(registry.get());
   ProfileNetworkContextService::RegisterLocalStatePrefs(registry.get());
@@ -269,6 +272,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     language::LanguagePrefs::RegisterProfilePrefs(registry.get());
     media_router::RegisterProfilePrefs(registry.get());
     MediaDeviceIDSalt::RegisterProfilePrefs(registry.get());
+    PermissionBubbleMediaAccessHandler::RegisterProfilePrefs(registry.get());
     prefetch::RegisterPredictionOptionsProfilePrefs(registry.get());
     ProfileNetworkContextService::RegisterProfilePrefs(registry.get());
     safe_browsing::RegisterProfilePrefs(registry.get());

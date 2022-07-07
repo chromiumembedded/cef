@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f9073ac6e5a3634a3bf3c919ac1b0a9c607b4398$
+// $hash=d7ce736678ba0f43fa3f556d22b8afa2409221fb$
 //
 
 #include "libcef_dll/ctocpp/permission_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/media_access_callback_cpptoc.h"
+#include "libcef_dll/cpptoc/permission_prompt_callback_cpptoc.h"
 #include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -24,7 +25,7 @@ NO_SANITIZE("cfi-icall")
 bool CefPermissionHandlerCToCpp::OnRequestMediaAccessPermission(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
-    const CefString& requesting_url,
+    const CefString& requesting_origin,
     uint32 requested_permissions,
     CefRefPtr<CefMediaAccessCallback> callback) {
   shutdown_checker::AssertNotShutdown();
@@ -43,9 +44,9 @@ bool CefPermissionHandlerCToCpp::OnRequestMediaAccessPermission(
   DCHECK(frame.get());
   if (!frame.get())
     return false;
-  // Verify param: requesting_url; type: string_byref_const
-  DCHECK(!requesting_url.empty());
-  if (requesting_url.empty())
+  // Verify param: requesting_origin; type: string_byref_const
+  DCHECK(!requesting_origin.empty());
+  if (requesting_origin.empty())
     return false;
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
@@ -55,11 +56,72 @@ bool CefPermissionHandlerCToCpp::OnRequestMediaAccessPermission(
   // Execute
   int _retval = _struct->on_request_media_access_permission(
       _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
-      requesting_url.GetStruct(), requested_permissions,
+      requesting_origin.GetStruct(), requested_permissions,
       CefMediaAccessCallbackCppToC::Wrap(callback));
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefPermissionHandlerCToCpp::OnShowPermissionPrompt(
+    CefRefPtr<CefBrowser> browser,
+    uint64 prompt_id,
+    const CefString& requesting_origin,
+    uint32 requested_permissions,
+    CefRefPtr<CefPermissionPromptCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_permission_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_show_permission_prompt))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+  // Verify param: requesting_origin; type: string_byref_const
+  DCHECK(!requesting_origin.empty());
+  if (requesting_origin.empty())
+    return false;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback.get());
+  if (!callback.get())
+    return false;
+
+  // Execute
+  int _retval = _struct->on_show_permission_prompt(
+      _struct, CefBrowserCppToC::Wrap(browser), prompt_id,
+      requesting_origin.GetStruct(), requested_permissions,
+      CefPermissionPromptCallbackCppToC::Wrap(callback));
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefPermissionHandlerCToCpp::OnDismissPermissionPrompt(
+    CefRefPtr<CefBrowser> browser,
+    uint64 prompt_id,
+    cef_permission_request_result_t result) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_permission_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_dismiss_permission_prompt))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+
+  // Execute
+  _struct->on_dismiss_permission_prompt(
+      _struct, CefBrowserCppToC::Wrap(browser), prompt_id, result);
 }
 
 // CONSTRUCTOR - Do not edit by hand.

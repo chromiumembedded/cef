@@ -23,6 +23,7 @@
 #include "components/find_in_page/find_tab_helper.h"
 #include "components/find_in_page/find_types.h"
 #include "components/javascript_dialogs/tab_modal_dialog_manager.h"
+#include "components/permissions/permission_request_manager.h"
 #include "components/zoom/zoom_controller.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/browser/web_contents/web_contents_impl.h"
@@ -178,6 +179,7 @@ void CefBrowserPlatformDelegateAlloy::BrowserCreated(
   DCHECK(!web_contents_->GetDelegate());
   web_contents_->SetDelegate(static_cast<AlloyBrowserHostImpl*>(browser));
 
+  permissions::PermissionRequestManager::CreateForWebContents(web_contents_);
   PrefsTabHelper::CreateForWebContents(web_contents_);
   printing::CefPrintViewManager::CreateForWebContents(web_contents_);
 

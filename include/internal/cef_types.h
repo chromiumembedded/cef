@@ -3317,6 +3317,62 @@ typedef enum {
   CEF_MEDIA_PERMISSION_DESKTOP_VIDEO_CAPTURE = 1 << 3,
 } cef_media_access_permission_types_t;
 
+///
+// Permission types used with OnShowPermissionPrompt. Some types are
+// platform-specific or only supported with the Chrome runtime. Should be kept
+// in sync with Chromium's permissions::RequestType type.
+///
+typedef enum {
+  CEF_PERMISSION_TYPE_NONE = 0,
+  CEF_PERMISSION_TYPE_ACCESSIBILITY_EVENTS = 1 << 0,
+  CEF_PERMISSION_TYPE_AR_SESSION = 1 << 1,
+  CEF_PERMISSION_TYPE_CAMERA_PAN_TILT_ZOOM = 1 << 2,
+  CEF_PERMISSION_TYPE_CAMERA_STREAM = 1 << 3,
+  CEF_PERMISSION_TYPE_CLIPBOARD = 1 << 4,
+  CEF_PERMISSION_TYPE_DISK_QUOTA = 1 << 5,
+  CEF_PERMISSION_TYPE_LOCAL_FONTS = 1 << 6,
+  CEF_PERMISSION_TYPE_GEOLOCATION = 1 << 7,
+  CEF_PERMISSION_TYPE_IDLE_DETECTION = 1 << 8,
+  CEF_PERMISSION_TYPE_MIC_STREAM = 1 << 9,
+  CEF_PERMISSION_TYPE_MIDI_SYSEX = 1 << 10,
+  CEF_PERMISSION_TYPE_MULTIPLE_DOWNLOADS = 1 << 11,
+  CEF_PERMISSION_TYPE_NOTIFICATIONS = 1 << 12,
+  CEF_PERMISSION_TYPE_PROTECTED_MEDIA_IDENTIFIER = 1 << 13,
+  CEF_PERMISSION_TYPE_REGISTER_PROTOCOL_HANDLER = 1 << 14,
+  CEF_PERMISSION_TYPE_SECURITY_ATTESTATION = 1 << 15,
+  CEF_PERMISSION_TYPE_STORAGE_ACCESS = 1 << 16,
+  CEF_PERMISSION_TYPE_U2F_API_REQUEST = 1 << 17,
+  CEF_PERMISSION_TYPE_VR_SESSION = 1 << 18,
+  CEF_PERMISSION_TYPE_WINDOW_PLACEMENT = 1 << 19,
+} cef_permission_request_types_t;
+
+///
+// Permission request results.
+///
+typedef enum {
+  ///
+  // Accept the permission request as an explicit user action.
+  ///
+  CEF_PERMISSION_RESULT_ACCEPT,
+
+  ///
+  // Deny the permission request as an explicit user action.
+  ///
+  CEF_PERMISSION_RESULT_DENY,
+
+  ///
+  // Dismiss the permission request as an explicit user action.
+  ///
+  CEF_PERMISSION_RESULT_DISMISS,
+
+  ///
+  // Ignore the permission request. If the prompt remains unhandled (e.g.
+  // OnShowPermissionPrompt returns false and there is no default permissions
+  // UI) then any related promises may remain unresolved.
+  ///
+  CEF_PERMISSION_RESULT_IGNORE,
+} cef_permission_request_result_t;
+
 #ifdef __cplusplus
 }
 #endif

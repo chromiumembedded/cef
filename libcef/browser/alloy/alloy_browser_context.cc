@@ -7,7 +7,6 @@
 #include <map>
 #include <utility>
 
-#include "libcef/browser/alloy/alloy_permission_manager.h"
 #include "libcef/browser/download_manager_delegate.h"
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/prefs/browser_prefs.h"
@@ -23,6 +22,7 @@
 #include "base/strings/string_util.h"
 #include "chrome/browser/font_family_cache.h"
 #include "chrome/browser/media/media_device_id_salt.h"
+#include "chrome/browser/permissions/permission_manager_factory.h"
 #include "chrome/browser/plugins/chrome_plugin_service_filter.h"
 #include "chrome/browser/profiles/profile_key.h"
 #include "chrome/browser/ui/zoom/chrome_zoom_level_prefs.h"
@@ -31,6 +31,7 @@
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "components/keyed_service/core/simple_dependency_manager.h"
 #include "components/keyed_service/core/simple_key_map.h"
+#include "components/permissions/permission_manager.h"
 #include "components/prefs/pref_service.h"
 #include "components/proxy_config/pref_proxy_config_tracker_impl.h"
 #include "components/user_prefs/user_prefs.h"
@@ -381,9 +382,7 @@ content::SSLHostStateDelegate* AlloyBrowserContext::GetSSLHostStateDelegate() {
 
 content::PermissionControllerDelegate*
 AlloyBrowserContext::GetPermissionControllerDelegate() {
-  if (!permission_manager_.get())
-    permission_manager_ = std::make_unique<AlloyPermissionManager>();
-  return permission_manager_.get();
+  return PermissionManagerFactory::GetForProfile(this);
 }
 
 content::BackgroundFetchDelegate*

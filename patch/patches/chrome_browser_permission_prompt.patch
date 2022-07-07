@@ -1,0 +1,73 @@
+diff --git chrome/browser/permissions/chrome_permissions_client.cc chrome/browser/permissions/chrome_permissions_client.cc
+index 894a7424580ac..fa78c8dabbdd2 100644
+--- chrome/browser/permissions/chrome_permissions_client.cc
++++ chrome/browser/permissions/chrome_permissions_client.cc
+@@ -12,6 +12,7 @@
+ #include "base/strings/string_util.h"
+ #include "build/build_config.h"
+ #include "build/chromeos_buildflags.h"
++#include "cef/libcef/features/runtime.h"
+ #include "chrome/browser/bluetooth/bluetooth_chooser_context_factory.h"
+ #include "chrome/browser/content_settings/cookie_settings_factory.h"
+ #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
+@@ -212,6 +213,9 @@ permissions::PermissionManager* ChromePermissionsClient::GetPermissionManager(
+ double ChromePermissionsClient::GetSiteEngagementScore(
+     content::BrowserContext* browser_context,
+     const GURL& origin) {
++  // No SiteEngagementService with the Alloy runtime.
++  if (cef::IsAlloyRuntimeEnabled())
++    return 0.0;
+   return site_engagement::SiteEngagementService::Get(
+              Profile::FromBrowserContext(browser_context))
+       ->GetScore(origin);
+diff --git chrome/browser/ui/permission_bubble/permission_prompt.h chrome/browser/ui/permission_bubble/permission_prompt.h
+index c2836d15eba30..0c03c2b4666a6 100644
+--- chrome/browser/ui/permission_bubble/permission_prompt.h
++++ chrome/browser/ui/permission_bubble/permission_prompt.h
+@@ -11,6 +11,13 @@ namespace content {
+ class WebContents;
+ }
+ 
++using CreatePermissionPromptFunctionPtr =
++    std::unique_ptr<permissions::PermissionPrompt> (*)(
++        content::WebContents* web_contents,
++        permissions::PermissionPrompt::Delegate* delegate,
++        bool* default_handling);
++void SetCreatePermissionPromptFunction(CreatePermissionPromptFunctionPtr);
++
+ // Factory function to create permission prompts for chrome.
+ std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPrompt(
+     content::WebContents* web_contents,
+diff --git chrome/browser/ui/views/permission_bubble/permission_prompt_impl.cc chrome/browser/ui/views/permission_bubble/permission_prompt_impl.cc
+index 70e37336a5001..a2df1bd28c994 100644
+--- chrome/browser/ui/views/permission_bubble/permission_prompt_impl.cc
++++ chrome/browser/ui/views/permission_bubble/permission_prompt_impl.cc
+@@ -100,11 +100,28 @@ bool ShouldBubbleStartOpen(permissions::PermissionPrompt::Delegate* delegate) {
+   return false;
+ }
+ 
++CreatePermissionPromptFunctionPtr g_create_permission_prompt_ptr = nullptr;
++
+ }  // namespace
+ 
++void SetCreatePermissionPromptFunction(
++    CreatePermissionPromptFunctionPtr ptr) {
++  g_create_permission_prompt_ptr = ptr;
++}
++
+ std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPrompt(
+     content::WebContents* web_contents,
+     permissions::PermissionPrompt::Delegate* delegate) {
++  if (g_create_permission_prompt_ptr) {
++    bool default_handling = true;
++    auto prompt = g_create_permission_prompt_ptr(web_contents, delegate,
++                                                 &default_handling);
++    if (prompt)
++      return prompt;
++    if (!default_handling)
++      return nullptr;
++  }
++
+   Browser* browser = chrome::FindBrowserWithWebContents(web_contents);
+   if (!browser) {
+     DLOG(WARNING) << "Permission prompt suppressed because the WebContents is "

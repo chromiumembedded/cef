@@ -20,6 +20,7 @@ namespace {
 
 // Media access requires HTTPS.
 const char kMediaUrl[] = "https://media-access-test/media.html";
+const char kMediaOrigin[] = "https://media-access-test/";
 
 // Browser-side app delegate.
 class MediaAccessBrowserTest : public client::ClientAppBrowser::Delegate,
@@ -46,6 +47,7 @@ class TestSetup {
   bool deny_implicitly = false;
   bool continue_async = false;
 
+  TrackCallback got_request;
   TrackCallback got_success;
   TrackCallback got_audio;
   TrackCallback got_video;
@@ -64,10 +66,10 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
       CefRefPtr<CefCallback> callback) override {
     std::string newUrl = request->GetURL();
     if (newUrl.find("tests/exit") != std::string::npos) {
-      CefURLParts url_parts;
-      CefParseURL(newUrl, url_parts);
       if (newUrl.find("SUCCESS") != std::string::npos) {
+        EXPECT_FALSE(test_setup_->got_success);
         test_setup_->got_success.yes();
+
         std::string data_string = newUrl.substr(newUrl.find("&data=") +
                                                 std::string("&data=").length());
         std::string data_string_decoded = CefURIDecode(
@@ -122,7 +124,7 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
         "> 0, got_video_track: stream.getVideoTracks().length > 0});"
         "})"
         ".catch(function(err) {"
-        "console.log(err);"
+        "console.log(err.toString());"
         "onResult(`FAILURE`);"
         "});"
         "</script>"
@@ -146,30 +148,24 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
     return this;
   }
 
-  void CompleteTest() {
-    if (!CefCurrentlyOn(TID_UI)) {
-      CefPostTask(TID_UI,
-                  base::BindOnce(&MediaAccessTestHandler::CompleteTest, this));
-      return;
-    }
-
-    DestroyTest();
-  }
-
   bool OnRequestMediaAccessPermission(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
-      const CefString& requesting_url,
+      const CefString& requesting_origin,
       uint32 requested_permissions,
       CefRefPtr<CefMediaAccessCallback> callback) override {
     EXPECT_UI_THREAD();
     EXPECT_TRUE(frame->IsMain());
 
+    EXPECT_EQ(requested_permissions, request_);
+    EXPECT_STREQ(kMediaOrigin, requesting_origin.ToString().c_str());
+
+    EXPECT_FALSE(test_setup_->got_request);
+    test_setup_->got_request.yes();
+
     if (test_setup_->deny_implicitly) {
       return false;
     }
-
-    EXPECT_EQ(requested_permissions, request_);
 
     if (test_setup_->continue_async) {
       CefPostTask(TID_UI, base::BindOnce(&CefMediaAccessCallback::Continue,
@@ -238,6 +234,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningFalse) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
@@ -255,6 +252,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningNoPermission) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
@@ -273,6 +271,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningNoPermissionAsync) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
@@ -288,6 +287,7 @@ TEST(MediaAccessTest, DeviceFailureWhenRequestingAudioButReturningVideo) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
@@ -303,6 +303,7 @@ TEST(MediaAccessTest, DeviceFailureWhenRequestingVideoButReturningAudio) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
@@ -320,6 +321,7 @@ TEST(MediaAccessTest, DevicePartialFailureReturningVideo) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
@@ -337,6 +339,7 @@ TEST(MediaAccessTest, DevicePartialFailureReturningAudio) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
@@ -354,6 +357,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture1) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
@@ -371,6 +375,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture2) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
@@ -386,6 +391,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture3) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
@@ -401,6 +407,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture4) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
@@ -416,6 +423,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture5) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
@@ -431,6 +439,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture6) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
@@ -446,6 +455,7 @@ TEST(MediaAccessTest, DeviceSuccessAudioOnly) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_success);
   EXPECT_TRUE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
@@ -461,6 +471,7 @@ TEST(MediaAccessTest, DeviceSuccessVideoOnly) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_TRUE(test_setup.got_video);
@@ -479,6 +490,7 @@ TEST(MediaAccessTest, DeviceSuccessAudioVideo) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_success);
   EXPECT_TRUE(test_setup.got_audio);
   EXPECT_TRUE(test_setup.got_video);
@@ -498,6 +510,7 @@ TEST(MediaAccessTest, DeviceSuccessAudioVideoAsync) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_success);
   EXPECT_TRUE(test_setup.got_audio);
   EXPECT_TRUE(test_setup.got_video);
@@ -516,6 +529,7 @@ TEST(MediaAccessTest, DesktopFailureWhenReturningNoPermission) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
@@ -531,6 +545,7 @@ TEST(MediaAccessTest, DesktopFailureWhenRequestingVideoButReturningAudio) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
@@ -548,6 +563,7 @@ TEST(MediaAccessTest, DesktopPartialSuccessReturningVideo) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_TRUE(test_setup.got_video);
@@ -564,6 +580,7 @@ TEST(MediaAccessTest, DesktopPartialFailureReturningAudio) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_TRUE(test_setup.got_request);
   EXPECT_FALSE(test_setup.got_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);

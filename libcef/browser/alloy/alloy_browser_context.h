@@ -145,8 +145,6 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
   std::unique_ptr<content::ResourceContext> resource_context_;
 
   scoped_refptr<MediaDeviceIDSalt> media_device_id_salt_;
-
-  std::unique_ptr<content::PermissionControllerDelegate> permission_manager_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_ALLOY_ALLOY_BROWSER_CONTEXT_H_

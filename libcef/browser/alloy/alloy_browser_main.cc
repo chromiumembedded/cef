@@ -16,6 +16,7 @@
 #include "libcef/browser/extensions/extension_system_factory.h"
 #include "libcef/browser/file_dialog_runner.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
+#include "libcef/browser/permission_prompt.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/app_manager.h"
 #include "libcef/common/extensions/extensions_util.h"
@@ -322,6 +323,7 @@ int AlloyBrowserMainParts::PreMainMessageLoopRun() {
 
   scheme::RegisterWebUIControllerFactory();
   file_dialog_runner::RegisterFactory();
+  permission_prompt::RegisterCreateCallback();
 
 #if BUILDFLAG(ENABLE_MEDIA_FOUNDATION_WIDEVINE_CDM) || \
     BUILDFLAG(ENABLE_WIDEVINE_CDM_COMPONENT)

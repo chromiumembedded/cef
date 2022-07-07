@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=f374acb217db4183917195716d5522a9eb897cdf$
+# $hash=3ed1afd1b5f881884e6cfd0186fe41bb7b19fd38$
 #
 
 {
@@ -374,6 +374,8 @@
       'libcef_dll/ctocpp/pdf_print_callback_ctocpp.h',
       'libcef_dll/ctocpp/permission_handler_ctocpp.cc',
       'libcef_dll/ctocpp/permission_handler_ctocpp.h',
+      'libcef_dll/cpptoc/permission_prompt_callback_cpptoc.cc',
+      'libcef_dll/cpptoc/permission_prompt_callback_cpptoc.h',
       'libcef_dll/cpptoc/post_data_cpptoc.cc',
       'libcef_dll/cpptoc/post_data_cpptoc.h',
       'libcef_dll/cpptoc/post_data_element_cpptoc.cc',
@@ -690,6 +692,8 @@
       'libcef_dll/cpptoc/pdf_print_callback_cpptoc.h',
       'libcef_dll/cpptoc/permission_handler_cpptoc.cc',
       'libcef_dll/cpptoc/permission_handler_cpptoc.h',
+      'libcef_dll/ctocpp/permission_prompt_callback_ctocpp.cc',
+      'libcef_dll/ctocpp/permission_prompt_callback_ctocpp.h',
       'libcef_dll/ctocpp/post_data_ctocpp.cc',
       'libcef_dll/ctocpp/post_data_ctocpp.h',
       'libcef_dll/ctocpp/post_data_element_ctocpp.cc',
