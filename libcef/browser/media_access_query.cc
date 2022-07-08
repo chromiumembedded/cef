@@ -10,6 +10,7 @@
 #include "libcef/browser/media_stream_registrar.h"
 #include "libcef/common/cef_switches.h"
 
+#include "base/callback_helpers.h"
 #include "base/command_line.h"
 #include "third_party/blink/public/mojom/mediastream/media_stream.mojom.h"
 
@@ -57,6 +58,10 @@ class CefMediaAccessQuery {
       requested_permissions |= CEF_MEDIA_PERMISSION_DESKTOP_VIDEO_CAPTURE;
     }
     return requested_permissions;
+  }
+
+  [[nodiscard]] CallbackType DisconnectCallback() {
+    return std::move(callback_);
   }
 
   void ExecuteCallback(uint32_t allowed_permissions) {
@@ -267,6 +272,7 @@ class CefMediaAccessCallbackImpl : public CefMediaAccessCallback {
   void Cancel() override { Continue(CEF_MEDIA_PERMISSION_NONE); }
 
   [[nodiscard]] CallbackType Disconnect() { return std::move(callback_); }
+  bool IsDisconnected() const { return callback_.is_null(); }
 
  private:
   static void RunNow(CallbackType callback, uint32_t allowed_permissions) {
@@ -294,9 +300,11 @@ bool CheckMediaAccessPermission(CefBrowserHostBase* browser,
   return true;
 }
 
-void RequestMediaAccessPermission(CefBrowserHostBase* browser,
-                                  const content::MediaStreamRequest& request,
-                                  content::MediaResponseCallback callback) {
+content::MediaResponseCallback RequestMediaAccessPermission(
+    CefBrowserHostBase* browser,
+    const content::MediaStreamRequest& request,
+    content::MediaResponseCallback callback,
+    bool default_disallow) {
   CEF_REQUIRE_UIT();
 
   CefMediaAccessQuery query(browser, request, std::move(callback));
@@ -304,10 +312,10 @@ void RequestMediaAccessPermission(CefBrowserHostBase* browser,
   if (CheckCommandLinePermission()) {
     // Allow all requested permissions.
     query.ExecuteCallback(query.requested_permissions());
-    return;
+    return base::NullCallback();
   }
 
-  bool proceed = false;
+  bool handled = false;
 
   if (auto client = browser->GetClient()) {
     if (auto handler = client->GetPermissionHandler()) {
@@ -320,18 +328,29 @@ void RequestMediaAccessPermission(CefBrowserHostBase* browser,
               request.render_process_id, request.render_frame_id));
       if (!frame)
         frame = browser->GetMainFrame();
-      proceed = handler->OnRequestMediaAccessPermission(
+      handled = handler->OnRequestMediaAccessPermission(
           browser, frame, request.security_origin.spec(), requested_permissions,
           callbackImpl.get());
-      if (!proceed)
+      if (!handled) {
+        LOG_IF(ERROR, callbackImpl->IsDisconnected())
+            << "Should return true from OnRequestMediaAccessPermission when "
+               "executing the callback";
         query = callbackImpl->Disconnect();
+      }
     }
   }
 
-  if (!proceed && !query.is_null()) {
-    // Disallow access by default.
-    query.ExecuteCallback(CEF_MEDIA_PERMISSION_NONE);
+  if (!query.is_null()) {
+    if (default_disallow && !handled) {
+      // Disallow access by default.
+      query.ExecuteCallback(CEF_MEDIA_PERMISSION_NONE);
+    } else {
+      // Proceed with default handling.
+      return query.DisconnectCallback();
+    }
   }
+
+  return base::NullCallback();
 }
 
 }  // namespace media_access_query

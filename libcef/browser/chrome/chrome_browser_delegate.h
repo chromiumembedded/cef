@@ -54,6 +54,10 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
   bool ShowStatusBubble(bool show_by_default) override;
   bool HandleCommand(int command_id,
                      WindowOpenDisposition disposition) override;
+  [[nodiscard]] content::MediaResponseCallback RequestMediaAccessPermissionEx(
+      content::WebContents* web_contents,
+      const content::MediaStreamRequest& request,
+      content::MediaResponseCallback callback) override;
 
   // WebContentsDelegate methods:
   void WebContentsCreated(content::WebContents* source_contents,

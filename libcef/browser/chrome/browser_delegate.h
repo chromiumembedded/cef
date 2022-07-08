@@ -55,6 +55,15 @@ class BrowserDelegate : public content::WebContentsDelegate {
                              WindowOpenDisposition disposition) {
     return false;
   }
+
+  // Same as RequestMediaAccessPermission but returning |callback| if the
+  // request is unhandled.
+  [[nodiscard]] virtual content::MediaResponseCallback
+  RequestMediaAccessPermissionEx(content::WebContents* web_contents,
+                                 const content::MediaStreamRequest& request,
+                                 content::MediaResponseCallback callback) {
+    return callback;
+  }
 };
 
 }  // namespace cef

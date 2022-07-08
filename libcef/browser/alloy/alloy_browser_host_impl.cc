@@ -1298,8 +1298,10 @@ void AlloyBrowserHostImpl::RequestMediaAccessPermission(
     content::WebContents* web_contents,
     const content::MediaStreamRequest& request,
     content::MediaResponseCallback callback) {
-  media_access_query::RequestMediaAccessPermission(this, request,
-                                                   std::move(callback));
+  auto returned_callback = media_access_query::RequestMediaAccessPermission(
+      this, request, std::move(callback), /*default_disallow=*/true);
+  // Callback should not be returned.
+  DCHECK(returned_callback.is_null());
 }
 
 bool AlloyBrowserHostImpl::CheckMediaAccessPermission(
