@@ -11,6 +11,7 @@
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/chrome/chrome_browser_host_impl.h"
+#include "libcef/browser/media_access_query.h"
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/common/app_manager.h"
 #include "libcef/common/frame_util.h"
@@ -100,6 +101,19 @@ bool ChromeBrowserDelegate::HandleCommand(int command_id,
     }
   }
   return false;
+}
+
+content::MediaResponseCallback
+ChromeBrowserDelegate::RequestMediaAccessPermissionEx(
+    content::WebContents* web_contents,
+    const content::MediaStreamRequest& request,
+    content::MediaResponseCallback callback) {
+  if (auto browser = ChromeBrowserHostImpl::GetBrowserForBrowser(browser_)) {
+    return media_access_query::RequestMediaAccessPermission(
+        browser.get(), request, std::move(callback),
+        /*default_disallow=*/false);
+  }
+  return callback;
 }
 
 void ChromeBrowserDelegate::WebContentsCreated(

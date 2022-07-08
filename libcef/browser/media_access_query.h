@@ -24,9 +24,13 @@ bool CheckMediaAccessPermission(CefBrowserHostBase* browser,
                                 blink::mojom::MediaStreamType type);
 
 // Called from WebContentsDelegate::RequestMediaAccessPermission.
-void RequestMediaAccessPermission(CefBrowserHostBase* browser,
-                                  const content::MediaStreamRequest& request,
-                                  content::MediaResponseCallback callback);
+// |callback| will be returned if the request is unhandled and
+// |default_disallow| is false.
+[[nodiscard]] content::MediaResponseCallback RequestMediaAccessPermission(
+    CefBrowserHostBase* browser,
+    const content::MediaStreamRequest& request,
+    content::MediaResponseCallback callback,
+    bool default_disallow);
 
 }  // namespace media_access_query
 

@@ -52,7 +52,7 @@ index 66bece3638bf5..87e059da1256c 100644
      ]
    }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index 63d64acc72318..fd3cb52daf611 100644
+index 63d64acc72318..21f0a0b81f996 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -264,6 +264,25 @@
@@ -254,7 +254,23 @@ index 63d64acc72318..fd3cb52daf611 100644
  }
  
  bool Browser::IsFullscreenForTabOrPending(const WebContents* web_contents) {
-@@ -2664,13 +2763,20 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
+@@ -2127,6 +2226,15 @@ void Browser::RequestMediaAccessPermission(
+     content::WebContents* web_contents,
+     const content::MediaStreamRequest& request,
+     content::MediaResponseCallback callback) {
++#if BUILDFLAG(ENABLE_CEF)
++  if (cef_browser_delegate_) {
++    callback = cef_browser_delegate_->RequestMediaAccessPermissionEx(
++        web_contents, request, std::move(callback));
++    if (callback.is_null())
++      return;
++  }
++#endif
++
+   const extensions::Extension* extension =
+       GetExtensionForOrigin(profile_, request.security_origin);
+   MediaCaptureDevicesDispatcher::GetInstance()->ProcessMediaAccessRequest(
+@@ -2664,13 +2772,20 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
  // Browser, Getters for UI (private):
  
  StatusBubble* Browser::GetStatusBubble() {
@@ -276,7 +292,7 @@ index 63d64acc72318..fd3cb52daf611 100644
    return window_ ? window_->GetStatusBubble() : nullptr;
  }
  
-@@ -2797,6 +2903,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
+@@ -2797,6 +2912,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
      content_translate_driver->RemoveTranslationObserver(this);
      BookmarkTabHelper::FromWebContents(web_contents)->RemoveObserver(this);
    }

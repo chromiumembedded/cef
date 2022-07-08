@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=5a39566f586c012271d96c7d42337a30bf98e6b8$
+// $hash=e902fe011f8667b64989e57ad9e72aec74b22015$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_PERMISSION_HANDLER_CAPI_H_
@@ -106,9 +106,11 @@ typedef struct _cef_permission_handler_t {
   // combination of values from cef_media_access_permission_types_t that
   // represent the requested permissions. Return true (1) and call
   // cef_media_access_callback_t functions either in this function or at a later
-  // time to continue or cancel the request. Return false (0) to cancel the
-  // request immediately. This function will not be called if the "--enable-
-  // media-stream" command-line switch is used to grant all permissions.
+  // time to continue or cancel the request. Return false (0) to proceed with
+  // default handling. With the Chrome runtime, default handling will display
+  // the permission request UI. With the Alloy runtime, default handling will
+  // deny the request. This function will not be called if the "--enable-media-
+  // stream" command-line switch is used to grant all permissions.
   ///
   int(CEF_CALLBACK* on_request_media_access_permission)(
       struct _cef_permission_handler_t* self,

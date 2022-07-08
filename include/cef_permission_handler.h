@@ -92,8 +92,10 @@ class CefPermissionHandler : public virtual CefBaseRefCounted {
   // combination of values from cef_media_access_permission_types_t that
   // represent the requested permissions. Return true and call
   // CefMediaAccessCallback methods either in this method or at a later time to
-  // continue or cancel the request. Return false to cancel the request
-  // immediately. This method will not be called if the "--enable-media-stream"
+  // continue or cancel the request. Return false to proceed with default
+  // handling. With the Chrome runtime, default handling will display the
+  // permission request UI. With the Alloy runtime, default handling will deny
+  // the request. This method will not be called if the "--enable-media-stream"
   // command-line switch is used to grant all permissions.
   ///
   /*--cef()--*/
