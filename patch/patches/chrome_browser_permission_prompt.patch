@@ -20,6 +20,29 @@ index 894a7424580ac..fa78c8dabbdd2 100644
    return site_engagement::SiteEngagementService::Get(
               Profile::FromBrowserContext(browser_context))
        ->GetScore(origin);
+diff --git chrome/browser/permissions/permission_manager_factory.cc chrome/browser/permissions/permission_manager_factory.cc
+index 96d265b3c3c6c..e1185dc013f59 100644
+--- chrome/browser/permissions/permission_manager_factory.cc
++++ chrome/browser/permissions/permission_manager_factory.cc
+@@ -6,6 +6,7 @@
+ 
+ #include "build/build_config.h"
+ #include "build/chromeos_buildflags.h"
++#include "cef/libcef/features/runtime.h"
+ #include "chrome/browser/background_fetch/background_fetch_permission_context.h"
+ #include "chrome/browser/background_sync/periodic_background_sync_permission_context.h"
+ #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
+@@ -61,8 +62,10 @@ permissions::PermissionManager::PermissionContextMap CreatePermissionContexts(
+       std::make_unique<GeolocationPermissionContextDelegate>(profile);
+ #endif  // BUILDFLAG(IS_ANDROID)
+ #if BUILDFLAG(IS_MAC)
++  if (!cef::IsAlloyRuntimeEnabled()) {
+   delegates.geolocation_manager =
+       g_browser_process->platform_part()->geolocation_manager();
++  }
+ #endif  // BUILDFLAG(IS_MAC)
+   delegates.media_stream_device_enumerator =
+       MediaCaptureDevicesDispatcher::GetInstance();
 diff --git chrome/browser/ui/permission_bubble/permission_prompt.h chrome/browser/ui/permission_bubble/permission_prompt.h
 index c2836d15eba30..0c03c2b4666a6 100644
 --- chrome/browser/ui/permission_bubble/permission_prompt.h
@@ -71,3 +94,34 @@ index 70e37336a5001..a2df1bd28c994 100644
    Browser* browser = chrome::FindBrowserWithWebContents(web_contents);
    if (!browser) {
      DLOG(WARNING) << "Permission prompt suppressed because the WebContents is "
+diff --git components/embedder_support/permission_context_utils.cc components/embedder_support/permission_context_utils.cc
+index 75b22de5422b4..9235a20da7812 100644
+--- components/embedder_support/permission_context_utils.cc
++++ components/embedder_support/permission_context_utils.cc
+@@ -5,6 +5,7 @@
+ #include "components/embedder_support/permission_context_utils.h"
+ 
+ #include "build/build_config.h"
++#include "cef/libcef/features/runtime.h"
+ #include "components/background_sync/background_sync_permission_context.h"
+ #include "components/permissions/contexts/accessibility_permission_context.h"
+ #include "components/permissions/contexts/camera_pan_tilt_zoom_permission_context.h"
+@@ -78,11 +79,18 @@ CreateDefaultPermissionContexts(content::BrowserContext* browser_context,
+           browser_context,
+           std::move(delegates.geolocation_permission_context_delegate));
+ #elif BUILDFLAG(IS_MAC)
++  if (cef::IsAlloyRuntimeEnabled()) {
++    permission_contexts[ContentSettingsType::GEOLOCATION] =
++        std::make_unique<permissions::GeolocationPermissionContext>(
++            browser_context,
++            std::move(delegates.geolocation_permission_context_delegate));
++  } else {
+   permission_contexts[ContentSettingsType::GEOLOCATION] =
+       std::make_unique<permissions::GeolocationPermissionContextMac>(
+           browser_context,
+           std::move(delegates.geolocation_permission_context_delegate),
+           delegates.geolocation_manager);
++  }
+ #else
+   permission_contexts[ContentSettingsType::GEOLOCATION] =
+       std::make_unique<permissions::GeolocationPermissionContext>(
