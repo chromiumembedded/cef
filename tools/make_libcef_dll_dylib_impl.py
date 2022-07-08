@@ -34,9 +34,7 @@ def make_libcef_dll_dylib_impl_parts(name, retval, args):
     arg_types += arg[0:pos]
     arg_names += arg[pos + 1:]
 
-  typedef = 'typedef %s (*%s_ptr)(%s);\n' % (retval, name, arg_types)
-
-  declare = '%s_ptr %s;\n' % (name, name)
+  declare = 'decltype(&%s) %s;\n' % (name, name)
 
   init = '  INIT_ENTRY(%s);' % name
 
@@ -47,7 +45,7 @@ def make_libcef_dll_dylib_impl_parts(name, retval, args):
 """ % (retval, name, ', '.join(args), 'return '
        if retval != 'void' else '', name, arg_names)
 
-  return (typedef, declare, init, impl)
+  return (declare, init, impl)
 
 
 def make_libcef_dll_dylib_impl_func(func):
@@ -64,15 +62,13 @@ def make_libcef_dll_dylib_impl(header):
       '#include "include/base/cef_compiler_specific.h"',
       '#include "include/wrapper/cef_library_loader.h"',
   ]
-  ptr_typedef = ''
   ptr_declare = ''
   ptr_init = ''
   ptr_impl = ''
 
   # Include required headers for global functions.
   for func in header.get_funcs():
-    typedef, declare, init, impl = make_libcef_dll_dylib_impl_func(func)
-    ptr_typedef += typedef
+    declare, init, impl = make_libcef_dll_dylib_impl_func(func)
     ptr_declare += declare
     ptr_init += init
     ptr_impl += impl
@@ -87,8 +83,7 @@ def make_libcef_dll_dylib_impl(header):
   for cls in allclasses:
     funcs = cls.get_static_funcs()
     for func in funcs:
-      typedef, declare, init, impl = make_libcef_dll_dylib_impl_func(func)
-      ptr_typedef += typedef
+      declare, init, impl = make_libcef_dll_dylib_impl_func(func)
       ptr_declare += declare
       ptr_init += init
       ptr_impl += impl
@@ -106,9 +101,8 @@ def make_libcef_dll_dylib_impl(header):
     content = read_file(path)
     funcs = get_function_impls(content, 'CEF_EXPORT', False)
     for func in funcs:
-      typedef, declare, init, impl = make_libcef_dll_dylib_impl_parts(
+      declare, init, impl = make_libcef_dll_dylib_impl_parts(
           func['name'], func['retval'], func['args'])
-      ptr_typedef += typedef
       ptr_declare += declare
       ptr_init += init
       ptr_impl += impl
@@ -137,14 +131,12 @@ void* libcef_get_ptr(const char* path, const char* name) {
   return ptr;
 }
 
-""" + ptr_typedef + """
-
 struct libcef_pointers {
 """ + ptr_declare + """
 } g_libcef_pointers = {0};
 
 #define INIT_ENTRY(name) \
-  g_libcef_pointers.name = (name##_ptr)libcef_get_ptr(path, #name); \
+  g_libcef_pointers.name = (decltype(&name))libcef_get_ptr(path, #name); \
   if (!g_libcef_pointers.name) { \
     return 0; \
   }
