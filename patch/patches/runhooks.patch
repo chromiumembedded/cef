@@ -26,7 +26,7 @@ index e680ba07e3c01..37d993005566a 100644
      if (cpu != 'x64'):
        # x64 is default target CPU thus any other CPU requires a target set
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index fc2e5e00961ed..3d23cc7ed7675 100755
+index fc2e5e00961ed..566bbc4ba0677 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -107,9 +107,16 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -57,3 +57,12 @@ index fc2e5e00961ed..3d23cc7ed7675 100755
    supported_versions = list(MSVS_VERSIONS.keys())
  
    # VS installed in depot_tools for Googlers
+@@ -431,7 +442,7 @@ def _CopyDebugger(target_dir, target_cpu):
+ 
+   # List of debug files that should be copied, the first element of the tuple is
+   # the name of the file and the second indicates if it's optional.
+-  debug_files = [('dbghelp.dll', False), ('dbgcore.dll', True)]
++  debug_files = []
+   # The UCRT is not a redistributable component on arm64.
+   if target_cpu != 'arm64':
+     debug_files.extend([('api-ms-win-downlevel-kernel32-l2-1-0.dll', False),
