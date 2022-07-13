@@ -59,7 +59,7 @@ constexpr size_t kConnectionRetryMaxCt = 3U;
 constexpr auto kConnectionRetryDelay = base::Seconds(1);
 
 // Length of time to wait for the browser connection ACK before timing out.
-constexpr auto kConnectionTimeout = base::Seconds(4);
+constexpr auto kConnectionTimeout = base::Seconds(10);
 
 }  // namespace
 
