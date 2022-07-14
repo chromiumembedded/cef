@@ -234,10 +234,10 @@ index 653170ba60e83..677df89f93e8d 100644
    // Initializes with predefined settings.
    void InitWithSettings(std::unique_ptr<PrintSettings> settings);
 diff --git ui/shell_dialogs/execute_select_file_win.cc ui/shell_dialogs/execute_select_file_win.cc
-index 063d4c7c96cba..24bd0533af65b 100644
+index 162dbc3aeb4ea..41b73a5a2f4e4 100644
 --- ui/shell_dialogs/execute_select_file_win.cc
 +++ ui/shell_dialogs/execute_select_file_win.cc
-@@ -289,9 +289,7 @@ bool ExecuteSelectSingleFile(HWND owner,
+@@ -290,9 +290,7 @@ bool ExecuteSelectSingleFile(HWND owner,
                               const std::vector<FileFilterSpec>& filter,
                               int* filter_index,
                               std::vector<base::FilePath>* paths) {
@@ -248,7 +248,7 @@ index 063d4c7c96cba..24bd0533af65b 100644
                             default_path, filter, 0, filter_index, paths);
  }
  
-@@ -303,14 +301,13 @@ bool ExecuteSelectMultipleFile(HWND owner,
+@@ -304,14 +302,13 @@ bool ExecuteSelectMultipleFile(HWND owner,
                                 std::vector<base::FilePath>* paths) {
    DWORD dialog_options = FOS_ALLOWMULTISELECT;
  
@@ -265,7 +265,7 @@ index 063d4c7c96cba..24bd0533af65b 100644
                       const base::FilePath& default_path,
                       const std::vector<FileFilterSpec>& filter,
                       const std::wstring& def_ext,
-@@ -323,9 +320,7 @@ bool ExecuteSaveFile(HWND owner,
+@@ -324,9 +321,7 @@ bool ExecuteSaveFile(HWND owner,
  
    DWORD dialog_options = FOS_OVERWRITEPROMPT;
  
@@ -276,7 +276,7 @@ index 063d4c7c96cba..24bd0533af65b 100644
                             dialog_options, def_ext, filter_index, path);
  }
  
-@@ -390,7 +385,7 @@ void ExecuteSelectFile(
+@@ -418,7 +413,7 @@ void ExecuteSelectFile(
        break;
      case SelectFileDialog::SELECT_SAVEAS_FILE: {
        base::FilePath path;
