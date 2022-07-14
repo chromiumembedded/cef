@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b7e2c44f09e8ec252b6481378d8fc8b23ba13f60$
+// $hash=a98eb406c58de0e631b408cebd2b2cb0fcdfef7d$
 //
 
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
@@ -32,7 +32,7 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
     const cef_string_t* target_frame_name,
     cef_window_open_disposition_t target_disposition,
     int user_gesture,
-    const struct _cef_popup_features_t* popupFeatures,
+    const cef_popup_features_t* popupFeatures,
     cef_window_info_t* windowInfo,
     cef_client_t** client,
     struct _cef_browser_settings_t* settings,
@@ -53,14 +53,10 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
   DCHECK(frame);
   if (!frame)
     return 0;
-  // Verify param: popupFeatures; type: struct_byref_const
+  // Verify param: popupFeatures; type: simple_byref_const
   DCHECK(popupFeatures);
   if (!popupFeatures)
     return 0;
-  if (!template_util::has_valid_size(popupFeatures)) {
-    NOTREACHED() << "invalid popupFeatures->[base.]size";
-    return 0;
-  }
   // Verify param: windowInfo; type: struct_byref
   DCHECK(windowInfo);
   if (!windowInfo)
@@ -91,10 +87,9 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
     return 0;
   // Unverified params: target_url, target_frame_name
 
-  // Translate param: popupFeatures; type: struct_byref_const
-  CefPopupFeatures popupFeaturesObj;
-  if (popupFeatures)
-    popupFeaturesObj.Set(*popupFeatures, false);
+  // Translate param: popupFeatures; type: simple_byref_const
+  CefPopupFeatures popupFeaturesVal =
+      popupFeatures ? *popupFeatures : CefPopupFeatures();
   // Translate param: windowInfo; type: struct_byref
   CefWindowInfo windowInfoObj;
   if (windowInfo)
@@ -121,7 +116,7 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
   bool _retval = CefLifeSpanHandlerCppToC::Get(self)->OnBeforePopup(
       CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
       CefString(target_url), CefString(target_frame_name), target_disposition,
-      user_gesture ? true : false, popupFeaturesObj, windowInfoObj, clientPtr,
+      user_gesture ? true : false, popupFeaturesVal, windowInfoObj, clientPtr,
       settingsObj, extra_infoPtr, &no_javascript_accessBool);
 
   // Restore param: windowInfo; type: struct_byref

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=65c260e354b6dc85bf121b60081eff450b043542$
+// $hash=3a9153112764b124ef7b38c7a29970c84a0b6b30$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -760,9 +760,8 @@ browser_host_send_external_begin_frame(struct _cef_browser_host_t* self) {
   CefBrowserHostCppToC::Get(self)->SendExternalBeginFrame();
 }
 
-void CEF_CALLBACK
-browser_host_send_key_event(struct _cef_browser_host_t* self,
-                            const struct _cef_key_event_t* event) {
+void CEF_CALLBACK browser_host_send_key_event(struct _cef_browser_host_t* self,
+                                              const cef_key_event_t* event) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -770,27 +769,21 @@ browser_host_send_key_event(struct _cef_browser_host_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: event; type: struct_byref_const
+  // Verify param: event; type: simple_byref_const
   DCHECK(event);
   if (!event)
     return;
-  if (!template_util::has_valid_size(event)) {
-    NOTREACHED() << "invalid event->[base.]size";
-    return;
-  }
 
-  // Translate param: event; type: struct_byref_const
-  CefKeyEvent eventObj;
-  if (event)
-    eventObj.Set(*event, false);
+  // Translate param: event; type: simple_byref_const
+  CefKeyEvent eventVal = event ? *event : CefKeyEvent();
 
   // Execute
-  CefBrowserHostCppToC::Get(self)->SendKeyEvent(eventObj);
+  CefBrowserHostCppToC::Get(self)->SendKeyEvent(eventVal);
 }
 
 void CEF_CALLBACK
 browser_host_send_mouse_click_event(struct _cef_browser_host_t* self,
-                                    const struct _cef_mouse_event_t* event,
+                                    const cef_mouse_event_t* event,
                                     cef_mouse_button_type_t type,
                                     int mouseUp,
                                     int clickCount) {
@@ -801,28 +794,22 @@ browser_host_send_mouse_click_event(struct _cef_browser_host_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: event; type: struct_byref_const
+  // Verify param: event; type: simple_byref_const
   DCHECK(event);
   if (!event)
     return;
-  if (!template_util::has_valid_size(event)) {
-    NOTREACHED() << "invalid event->[base.]size";
-    return;
-  }
 
-  // Translate param: event; type: struct_byref_const
-  CefMouseEvent eventObj;
-  if (event)
-    eventObj.Set(*event, false);
+  // Translate param: event; type: simple_byref_const
+  CefMouseEvent eventVal = event ? *event : CefMouseEvent();
 
   // Execute
   CefBrowserHostCppToC::Get(self)->SendMouseClickEvent(
-      eventObj, type, mouseUp ? true : false, clickCount);
+      eventVal, type, mouseUp ? true : false, clickCount);
 }
 
 void CEF_CALLBACK
 browser_host_send_mouse_move_event(struct _cef_browser_host_t* self,
-                                   const struct _cef_mouse_event_t* event,
+                                   const cef_mouse_event_t* event,
                                    int mouseLeave) {
   shutdown_checker::AssertNotShutdown();
 
@@ -831,28 +818,22 @@ browser_host_send_mouse_move_event(struct _cef_browser_host_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: event; type: struct_byref_const
+  // Verify param: event; type: simple_byref_const
   DCHECK(event);
   if (!event)
     return;
-  if (!template_util::has_valid_size(event)) {
-    NOTREACHED() << "invalid event->[base.]size";
-    return;
-  }
 
-  // Translate param: event; type: struct_byref_const
-  CefMouseEvent eventObj;
-  if (event)
-    eventObj.Set(*event, false);
+  // Translate param: event; type: simple_byref_const
+  CefMouseEvent eventVal = event ? *event : CefMouseEvent();
 
   // Execute
   CefBrowserHostCppToC::Get(self)->SendMouseMoveEvent(
-      eventObj, mouseLeave ? true : false);
+      eventVal, mouseLeave ? true : false);
 }
 
 void CEF_CALLBACK
 browser_host_send_mouse_wheel_event(struct _cef_browser_host_t* self,
-                                    const struct _cef_mouse_event_t* event,
+                                    const cef_mouse_event_t* event,
                                     int deltaX,
                                     int deltaY) {
   shutdown_checker::AssertNotShutdown();
@@ -862,28 +843,22 @@ browser_host_send_mouse_wheel_event(struct _cef_browser_host_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: event; type: struct_byref_const
+  // Verify param: event; type: simple_byref_const
   DCHECK(event);
   if (!event)
     return;
-  if (!template_util::has_valid_size(event)) {
-    NOTREACHED() << "invalid event->[base.]size";
-    return;
-  }
 
-  // Translate param: event; type: struct_byref_const
-  CefMouseEvent eventObj;
-  if (event)
-    eventObj.Set(*event, false);
+  // Translate param: event; type: simple_byref_const
+  CefMouseEvent eventVal = event ? *event : CefMouseEvent();
 
   // Execute
-  CefBrowserHostCppToC::Get(self)->SendMouseWheelEvent(eventObj, deltaX,
+  CefBrowserHostCppToC::Get(self)->SendMouseWheelEvent(eventVal, deltaX,
                                                        deltaY);
 }
 
 void CEF_CALLBACK
 browser_host_send_touch_event(struct _cef_browser_host_t* self,
-                              const struct _cef_touch_event_t* event) {
+                              const cef_touch_event_t* event) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -891,22 +866,16 @@ browser_host_send_touch_event(struct _cef_browser_host_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: event; type: struct_byref_const
+  // Verify param: event; type: simple_byref_const
   DCHECK(event);
   if (!event)
     return;
-  if (!template_util::has_valid_size(event)) {
-    NOTREACHED() << "invalid event->[base.]size";
-    return;
-  }
 
-  // Translate param: event; type: struct_byref_const
-  CefTouchEvent eventObj;
-  if (event)
-    eventObj.Set(*event, false);
+  // Translate param: event; type: simple_byref_const
+  CefTouchEvent eventVal = event ? *event : CefTouchEvent();
 
   // Execute
-  CefBrowserHostCppToC::Get(self)->SendTouchEvent(eventObj);
+  CefBrowserHostCppToC::Get(self)->SendTouchEvent(eventVal);
 }
 
 void CEF_CALLBACK
@@ -1073,7 +1042,7 @@ browser_host_ime_cancel_composition(struct _cef_browser_host_t* self) {
 void CEF_CALLBACK
 browser_host_drag_target_drag_enter(struct _cef_browser_host_t* self,
                                     struct _cef_drag_data_t* drag_data,
-                                    const struct _cef_mouse_event_t* event,
+                                    const cef_mouse_event_t* event,
                                     cef_drag_operations_mask_t allowed_ops) {
   shutdown_checker::AssertNotShutdown();
 
@@ -1086,28 +1055,22 @@ browser_host_drag_target_drag_enter(struct _cef_browser_host_t* self,
   DCHECK(drag_data);
   if (!drag_data)
     return;
-  // Verify param: event; type: struct_byref_const
+  // Verify param: event; type: simple_byref_const
   DCHECK(event);
   if (!event)
     return;
-  if (!template_util::has_valid_size(event)) {
-    NOTREACHED() << "invalid event->[base.]size";
-    return;
-  }
 
-  // Translate param: event; type: struct_byref_const
-  CefMouseEvent eventObj;
-  if (event)
-    eventObj.Set(*event, false);
+  // Translate param: event; type: simple_byref_const
+  CefMouseEvent eventVal = event ? *event : CefMouseEvent();
 
   // Execute
   CefBrowserHostCppToC::Get(self)->DragTargetDragEnter(
-      CefDragDataCppToC::Unwrap(drag_data), eventObj, allowed_ops);
+      CefDragDataCppToC::Unwrap(drag_data), eventVal, allowed_ops);
 }
 
 void CEF_CALLBACK
 browser_host_drag_target_drag_over(struct _cef_browser_host_t* self,
-                                   const struct _cef_mouse_event_t* event,
+                                   const cef_mouse_event_t* event,
                                    cef_drag_operations_mask_t allowed_ops) {
   shutdown_checker::AssertNotShutdown();
 
@@ -1116,22 +1079,16 @@ browser_host_drag_target_drag_over(struct _cef_browser_host_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: event; type: struct_byref_const
+  // Verify param: event; type: simple_byref_const
   DCHECK(event);
   if (!event)
     return;
-  if (!template_util::has_valid_size(event)) {
-    NOTREACHED() << "invalid event->[base.]size";
-    return;
-  }
 
-  // Translate param: event; type: struct_byref_const
-  CefMouseEvent eventObj;
-  if (event)
-    eventObj.Set(*event, false);
+  // Translate param: event; type: simple_byref_const
+  CefMouseEvent eventVal = event ? *event : CefMouseEvent();
 
   // Execute
-  CefBrowserHostCppToC::Get(self)->DragTargetDragOver(eventObj, allowed_ops);
+  CefBrowserHostCppToC::Get(self)->DragTargetDragOver(eventVal, allowed_ops);
 }
 
 void CEF_CALLBACK
@@ -1150,7 +1107,7 @@ browser_host_drag_target_drag_leave(struct _cef_browser_host_t* self) {
 
 void CEF_CALLBACK
 browser_host_drag_target_drop(struct _cef_browser_host_t* self,
-                              const struct _cef_mouse_event_t* event) {
+                              const cef_mouse_event_t* event) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -1158,22 +1115,16 @@ browser_host_drag_target_drop(struct _cef_browser_host_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: event; type: struct_byref_const
+  // Verify param: event; type: simple_byref_const
   DCHECK(event);
   if (!event)
     return;
-  if (!template_util::has_valid_size(event)) {
-    NOTREACHED() << "invalid event->[base.]size";
-    return;
-  }
 
-  // Translate param: event; type: struct_byref_const
-  CefMouseEvent eventObj;
-  if (event)
-    eventObj.Set(*event, false);
+  // Translate param: event; type: simple_byref_const
+  CefMouseEvent eventVal = event ? *event : CefMouseEvent();
 
   // Execute
-  CefBrowserHostCppToC::Get(self)->DragTargetDrop(eventObj);
+  CefBrowserHostCppToC::Get(self)->DragTargetDrop(eventVal);
 }
 
 void CEF_CALLBACK

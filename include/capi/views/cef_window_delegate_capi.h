@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=7f88c6428929c0511ff90b6137efcc4cebcfeae4$
+// $hash=742a96590827016b10f21c7779282554b73dfe1a$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
@@ -163,7 +163,7 @@ typedef struct _cef_window_delegate_t {
   ///
   int(CEF_CALLBACK* on_key_event)(struct _cef_window_delegate_t* self,
                                   struct _cef_window_t* window,
-                                  const struct _cef_key_event_t* event);
+                                  const cef_key_event_t* event);
 } cef_window_delegate_t;
 
 #ifdef __cplusplus

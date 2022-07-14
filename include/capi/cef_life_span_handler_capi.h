@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=34a6559587adbd0dc3143989a8c6e49e0664b43e$
+// $hash=5d576b7450a269dcd370e65a187b0c9596801162$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_LIFE_SPAN_HANDLER_CAPI_H_
@@ -93,7 +93,7 @@ typedef struct _cef_life_span_handler_t {
       const cef_string_t* target_frame_name,
       cef_window_open_disposition_t target_disposition,
       int user_gesture,
-      const struct _cef_popup_features_t* popupFeatures,
+      const cef_popup_features_t* popupFeatures,
       struct _cef_window_info_t* windowInfo,
       struct _cef_client_t** client,
       struct _cef_browser_settings_t* settings,

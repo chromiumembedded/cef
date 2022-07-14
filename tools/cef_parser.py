@@ -394,21 +394,34 @@ _simpletypes = {
     'char* const': ['char* const', 'NULL'],
     'cef_color_t': ['cef_color_t', '0'],
     'cef_json_parser_error_t': ['cef_json_parser_error_t', 'JSON_NO_ERROR'],
-    'CefCursorHandle': ['cef_cursor_handle_t', 'kNullCursorHandle'],
+    'CefAudioParameters': ['cef_audio_parameters_t', 'CefAudioParameters()'],
+    'CefBoxLayoutSettings': [
+        'cef_box_layout_settings_t', 'CefBoxLayoutSettings()'
+    ],
     'CefCompositionUnderline': [
         'cef_composition_underline_t', 'CefCompositionUnderline()'
     ],
-    'CefEventHandle': ['cef_event_handle_t', 'kNullEventHandle'],
-    'CefWindowHandle': ['cef_window_handle_t', 'kNullWindowHandle'],
-    'CefInsets': ['cef_insets_t', 'CefInsets()'],
-    'CefPoint': ['cef_point_t', 'CefPoint()'],
-    'CefRect': ['cef_rect_t', 'CefRect()'],
-    'CefSize': ['cef_size_t', 'CefSize()'],
-    'CefRange': ['cef_range_t', 'CefRange()'],
+    'CefCursorHandle': ['cef_cursor_handle_t', 'kNullCursorHandle'],
+    'CefCursorInfo': ['cef_cursor_info_t', 'CefCursorInfo()'],
     'CefDraggableRegion': ['cef_draggable_region_t', 'CefDraggableRegion()'],
+    'CefEventHandle': ['cef_event_handle_t', 'kNullEventHandle'],
+    'CefInsets': ['cef_insets_t', 'CefInsets()'],
+    'CefKeyEvent': ['cef_key_event_t', 'CefKeyEvent()'],
+    'CefMainArgs': ['cef_main_args_t', 'CefMainArgs()'],
+    'CefMouseEvent': ['cef_mouse_event_t', 'CefMouseEvent()'],
+    'CefPoint': ['cef_point_t', 'CefPoint()'],
+    'CefPopupFeatures': ['cef_popup_features_t', 'CefPopupFeatures()'],
+    'CefRange': ['cef_range_t', 'CefRange()'],
+    'CefRect': ['cef_rect_t', 'CefRect()'],
+    'CefScreenInfo': ['cef_screen_info_t', 'CefScreenInfo()'],
+    'CefSize': ['cef_size_t', 'CefSize()'],
+    'CefTouchEvent': ['cef_touch_event_t', 'CefTouchEvent()'],
+    'CefTouchHandleState': [
+        'cef_touch_handle_state_t', 'CefTouchHandleState()'
+    ],
     'CefThreadId': ['cef_thread_id_t', 'TID_UI'],
     'CefTime': ['cef_time_t', 'CefTime()'],
-    'CefAudioParameters': ['cef_audio_parameters_t', 'CefAudioParameters()']
+    'CefWindowHandle': ['cef_window_handle_t', 'kNullWindowHandle'],
 }
 
 

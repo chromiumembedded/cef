@@ -9,14 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b492dccf2a5ddb50f50fe1783d8cacd3080714a5$
+// $hash=53bd2b4cabde53903719d240c7c9f6000cbf1a37$
 //
 
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
-#include "libcef_dll/template_util.h"
 #include "libcef_dll/transfer_util.h"
 
 namespace {
@@ -253,12 +252,12 @@ display_handler_on_loading_progress_change(struct _cef_display_handler_t* self,
       CefBrowserCToCpp::Wrap(browser), progress);
 }
 
-int CEF_CALLBACK display_handler_on_cursor_change(
-    struct _cef_display_handler_t* self,
-    cef_browser_t* browser,
-    cef_cursor_handle_t cursor,
-    cef_cursor_type_t type,
-    const struct _cef_cursor_info_t* custom_cursor_info) {
+int CEF_CALLBACK
+display_handler_on_cursor_change(struct _cef_display_handler_t* self,
+                                 cef_browser_t* browser,
+                                 cef_cursor_handle_t cursor,
+                                 cef_cursor_type_t type,
+                                 const cef_cursor_info_t* custom_cursor_info) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -270,23 +269,18 @@ int CEF_CALLBACK display_handler_on_cursor_change(
   DCHECK(browser);
   if (!browser)
     return 0;
-  // Verify param: custom_cursor_info; type: struct_byref_const
+  // Verify param: custom_cursor_info; type: simple_byref_const
   DCHECK(custom_cursor_info);
   if (!custom_cursor_info)
     return 0;
-  if (!template_util::has_valid_size(custom_cursor_info)) {
-    NOTREACHED() << "invalid custom_cursor_info->[base.]size";
-    return 0;
-  }
 
-  // Translate param: custom_cursor_info; type: struct_byref_const
-  CefCursorInfo custom_cursor_infoObj;
-  if (custom_cursor_info)
-    custom_cursor_infoObj.Set(*custom_cursor_info, false);
+  // Translate param: custom_cursor_info; type: simple_byref_const
+  CefCursorInfo custom_cursor_infoVal =
+      custom_cursor_info ? *custom_cursor_info : CefCursorInfo();
 
   // Execute
   bool _retval = CefDisplayHandlerCppToC::Get(self)->OnCursorChange(
-      CefBrowserCToCpp::Wrap(browser), cursor, type, custom_cursor_infoObj);
+      CefBrowserCToCpp::Wrap(browser), cursor, type, custom_cursor_infoVal);
 
   // Return type: bool
   return _retval;

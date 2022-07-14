@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b0688a7d24b67b74a62841be60217a8e48c7228e$
+// $hash=5f56719342d8b07cc9cd9362fc3b506f2b8a0286$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RENDER_HANDLER_CAPI_H_
@@ -107,7 +107,7 @@ typedef struct _cef_render_handler_t {
   ///
   int(CEF_CALLBACK* get_screen_info)(struct _cef_render_handler_t* self,
                                      struct _cef_browser_t* browser,
-                                     struct _cef_screen_info_t* screen_info);
+                                     cef_screen_info_t* screen_info);
 
   ///
   // Called when the browser wants to show or hide the popup widget. The popup
@@ -178,7 +178,7 @@ typedef struct _cef_render_handler_t {
   void(CEF_CALLBACK* on_touch_handle_state_changed)(
       struct _cef_render_handler_t* self,
       struct _cef_browser_t* browser,
-      const struct _cef_touch_handle_state_t* state);
+      const cef_touch_handle_state_t* state);
 
   ///
   // Called when the user starts dragging content in the web view. Contextual

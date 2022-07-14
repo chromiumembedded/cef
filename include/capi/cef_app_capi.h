@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=665709ecf3ebad59e85285d319eae72197b9766f$
+// $hash=84440a43cf4be6728b51919e65c5f33e5736c502$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_APP_CAPI_H_
@@ -125,7 +125,7 @@ typedef struct _cef_app_t {
 // |windows_sandbox_info| parameter is only used on Windows and may be NULL (see
 // cef_sandbox_win.h for details).
 ///
-CEF_EXPORT int cef_execute_process(const struct _cef_main_args_t* args,
+CEF_EXPORT int cef_execute_process(const cef_main_args_t* args,
                                    cef_app_t* application,
                                    void* windows_sandbox_info);
 
@@ -136,7 +136,7 @@ CEF_EXPORT int cef_execute_process(const struct _cef_main_args_t* args,
 // failed. The |windows_sandbox_info| parameter is only used on Windows and may
 // be NULL (see cef_sandbox_win.h for details).
 ///
-CEF_EXPORT int cef_initialize(const struct _cef_main_args_t* args,
+CEF_EXPORT int cef_initialize(const cef_main_args_t* args,
                               const struct _cef_settings_t* settings,
                               cef_app_t* application,
                               void* windows_sandbox_info);

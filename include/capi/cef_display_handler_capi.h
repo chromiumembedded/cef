@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=5e52ae520b7eda3595683d428aa578bbc776956b$
+// $hash=adb78c1968bb0634d6255e1b5e49b56211da4fa8$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DISPLAY_HANDLER_CAPI_H_
@@ -153,7 +153,7 @@ typedef struct _cef_display_handler_t {
       struct _cef_browser_t* browser,
       cef_cursor_handle_t cursor,
       cef_cursor_type_t type,
-      const struct _cef_cursor_info_t* custom_cursor_info);
+      const cef_cursor_info_t* custom_cursor_info);
 
   ///
   // Called when the browser's access to an audio and/or video source has

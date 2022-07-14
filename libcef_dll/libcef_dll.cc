@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3ec7e1f78d91004790dda03a97832aa37c33d0f9$
+// $hash=6f8f05ae0e6a0b4122af70f11e6f14f2c3bbff6f$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -56,48 +56,38 @@
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
-CEF_EXPORT int cef_execute_process(const struct _cef_main_args_t* args,
+CEF_EXPORT int cef_execute_process(const cef_main_args_t* args,
                                    struct _cef_app_t* application,
                                    void* windows_sandbox_info) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: args; type: struct_byref_const
+  // Verify param: args; type: simple_byref_const
   DCHECK(args);
   if (!args)
     return 0;
-  if (!template_util::has_valid_size(args)) {
-    NOTREACHED() << "invalid args->[base.]size";
-    return 0;
-  }
   // Unverified params: application, windows_sandbox_info
 
-  // Translate param: args; type: struct_byref_const
-  CefMainArgs argsObj;
-  if (args)
-    argsObj.Set(*args, false);
+  // Translate param: args; type: simple_byref_const
+  CefMainArgs argsVal = args ? *args : CefMainArgs();
 
   // Execute
-  int _retval = CefExecuteProcess(argsObj, CefAppCToCpp::Wrap(application),
+  int _retval = CefExecuteProcess(argsVal, CefAppCToCpp::Wrap(application),
                                   windows_sandbox_info);
 
   // Return type: simple
   return _retval;
 }
 
-CEF_EXPORT int cef_initialize(const struct _cef_main_args_t* args,
+CEF_EXPORT int cef_initialize(const cef_main_args_t* args,
                               const struct _cef_settings_t* settings,
                               struct _cef_app_t* application,
                               void* windows_sandbox_info) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: args; type: struct_byref_const
+  // Verify param: args; type: simple_byref_const
   DCHECK(args);
   if (!args)
     return 0;
-  if (!template_util::has_valid_size(args)) {
-    NOTREACHED() << "invalid args->[base.]size";
-    return 0;
-  }
   // Verify param: settings; type: struct_byref_const
   DCHECK(settings);
   if (!settings)
@@ -108,10 +98,8 @@ CEF_EXPORT int cef_initialize(const struct _cef_main_args_t* args,
   }
   // Unverified params: application, windows_sandbox_info
 
-  // Translate param: args; type: struct_byref_const
-  CefMainArgs argsObj;
-  if (args)
-    argsObj.Set(*args, false);
+  // Translate param: args; type: simple_byref_const
+  CefMainArgs argsVal = args ? *args : CefMainArgs();
   // Translate param: settings; type: struct_byref_const
   CefSettings settingsObj;
   if (settings)
@@ -119,7 +107,7 @@ CEF_EXPORT int cef_initialize(const struct _cef_main_args_t* args,
 
   // Execute
   bool _retval =
-      CefInitialize(argsObj, settingsObj, CefAppCToCpp::Wrap(application),
+      CefInitialize(argsVal, settingsObj, CefAppCToCpp::Wrap(application),
                     windows_sandbox_info);
 
   // Return type: bool

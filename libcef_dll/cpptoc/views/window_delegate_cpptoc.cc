@@ -9,14 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=60fce570867addbf622a0f74422d225f23942e4d$
+// $hash=2ecdf3e890e54e962286430f350c5b49249a9a9e$
 //
 
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
-#include "libcef_dll/template_util.h"
 
 namespace {
 
@@ -317,7 +316,7 @@ window_delegate_on_accelerator(struct _cef_window_delegate_t* self,
 int CEF_CALLBACK
 window_delegate_on_key_event(struct _cef_window_delegate_t* self,
                              cef_window_t* window,
-                             const struct _cef_key_event_t* event) {
+                             const cef_key_event_t* event) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -329,23 +328,17 @@ window_delegate_on_key_event(struct _cef_window_delegate_t* self,
   DCHECK(window);
   if (!window)
     return 0;
-  // Verify param: event; type: struct_byref_const
+  // Verify param: event; type: simple_byref_const
   DCHECK(event);
   if (!event)
     return 0;
-  if (!template_util::has_valid_size(event)) {
-    NOTREACHED() << "invalid event->[base.]size";
-    return 0;
-  }
 
-  // Translate param: event; type: struct_byref_const
-  CefKeyEvent eventObj;
-  if (event)
-    eventObj.Set(*event, false);
+  // Translate param: event; type: simple_byref_const
+  CefKeyEvent eventVal = event ? *event : CefKeyEvent();
 
   // Execute
   bool _retval = CefWindowDelegateCppToC::Get(self)->OnKeyEvent(
-      CefWindowCToCpp::Wrap(window), eventObj);
+      CefWindowCToCpp::Wrap(window), eventVal);
 
   // Return type: bool
   return _retval;

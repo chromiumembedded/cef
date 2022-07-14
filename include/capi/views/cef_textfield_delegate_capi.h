@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=44337fe515a5acf51829e1dd00a54f2c1230aba5$
+// $hash=8ad9c657c396aa3e9538ff2ab8b0512e55930f03$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_TEXTFIELD_DELEGATE_CAPI_H_
@@ -66,7 +66,7 @@ typedef struct _cef_textfield_delegate_t {
   ///
   int(CEF_CALLBACK* on_key_event)(struct _cef_textfield_delegate_t* self,
                                   struct _cef_textfield_t* textfield,
-                                  const struct _cef_key_event_t* event);
+                                  const cef_key_event_t* event);
 
   ///
   // Called after performing a user action that may change |textfield|.

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=d5311ffa72e57d240f6963b1f45a278041bd33f4$
+// $hash=f1d8fe499762ec23c39dea879b9701c6685179ec$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_PANEL_CAPI_H_
@@ -79,7 +79,7 @@ typedef struct _cef_panel_t {
   ///
   struct _cef_box_layout_t*(CEF_CALLBACK* set_to_box_layout)(
       struct _cef_panel_t* self,
-      const struct _cef_box_layout_settings_t* settings);
+      const cef_box_layout_settings_t* settings);
 
   ///
   // Get the Layout.

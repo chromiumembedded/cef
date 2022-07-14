@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=140d3a3ce78f5e8ab50a24a2fd6377e7a8ea3256$
+// $hash=78320536b0ba210f34a42d0508ce3cd023d7b039$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_KEYBOARD_HANDLER_CAPI_H_
@@ -66,7 +66,7 @@ typedef struct _cef_keyboard_handler_t {
   ///
   int(CEF_CALLBACK* on_pre_key_event)(struct _cef_keyboard_handler_t* self,
                                       struct _cef_browser_t* browser,
-                                      const struct _cef_key_event_t* event,
+                                      const cef_key_event_t* event,
                                       cef_event_handle_t os_event,
                                       int* is_keyboard_shortcut);
 
@@ -78,7 +78,7 @@ typedef struct _cef_keyboard_handler_t {
   ///
   int(CEF_CALLBACK* on_key_event)(struct _cef_keyboard_handler_t* self,
                                   struct _cef_browser_t* browser,
-                                  const struct _cef_key_event_t* event,
+                                  const cef_key_event_t* event,
                                   cef_event_handle_t os_event);
 } cef_keyboard_handler_t;
 

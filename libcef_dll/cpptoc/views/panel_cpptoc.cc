@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4d101afc4f559c6f0375ad4016e5575ab88bf61f$
+// $hash=8b6386137895a8c202890fd6a5d239eddd9e400e$
 //
 
 #include "libcef_dll/cpptoc/views/panel_cpptoc.h"
@@ -25,7 +25,6 @@
 #include "libcef_dll/ctocpp/views/panel_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
-#include "libcef_dll/template_util.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
@@ -84,7 +83,7 @@ panel_set_to_fill_layout(struct _cef_panel_t* self) {
 
 cef_box_layout_t* CEF_CALLBACK
 panel_set_to_box_layout(struct _cef_panel_t* self,
-                        const struct _cef_box_layout_settings_t* settings) {
+                        const cef_box_layout_settings_t* settings) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -92,23 +91,18 @@ panel_set_to_box_layout(struct _cef_panel_t* self,
   DCHECK(self);
   if (!self)
     return NULL;
-  // Verify param: settings; type: struct_byref_const
+  // Verify param: settings; type: simple_byref_const
   DCHECK(settings);
   if (!settings)
     return NULL;
-  if (!template_util::has_valid_size(settings)) {
-    NOTREACHED() << "invalid settings->[base.]size";
-    return NULL;
-  }
 
-  // Translate param: settings; type: struct_byref_const
-  CefBoxLayoutSettings settingsObj;
-  if (settings)
-    settingsObj.Set(*settings, false);
+  // Translate param: settings; type: simple_byref_const
+  CefBoxLayoutSettings settingsVal =
+      settings ? *settings : CefBoxLayoutSettings();
 
   // Execute
   CefRefPtr<CefBoxLayout> _retval =
-      CefPanelCppToC::Get(self)->SetToBoxLayout(settingsObj);
+      CefPanelCppToC::Get(self)->SetToBoxLayout(settingsVal);
 
   // Return type: refptr_same
   return CefBoxLayoutCppToC::Wrap(_retval);

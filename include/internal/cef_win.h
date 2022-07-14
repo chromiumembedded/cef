@@ -41,28 +41,12 @@
 #define CefEventHandle cef_event_handle_t
 #define CefWindowHandle cef_window_handle_t
 
-struct CefMainArgsTraits {
-  typedef cef_main_args_t struct_type;
-
-  static inline void init(struct_type* s) {}
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    target->instance = src->instance;
-  }
-};
-
 // Class representing CefExecuteProcess arguments.
-class CefMainArgs : public CefStructBase<CefMainArgsTraits> {
+class CefMainArgs : public cef_main_args_t {
  public:
-  typedef CefStructBase<CefMainArgsTraits> parent;
-
-  CefMainArgs() : parent() {}
-  explicit CefMainArgs(const cef_main_args_t& r) : parent(r) {}
-  explicit CefMainArgs(const CefMainArgs& r) : parent(r) {}
-  explicit CefMainArgs(HINSTANCE hInstance) : parent() { instance = hInstance; }
+  CefMainArgs() : cef_main_args_t{} {}
+  CefMainArgs(const cef_main_args_t& r) : cef_main_args_t(r) {}
+  explicit CefMainArgs(HINSTANCE hInstance) : cef_main_args_t{hInstance} {}
 };
 
 struct CefWindowInfoTraits {

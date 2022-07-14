@@ -9,13 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8830306303ec402f4aaa21007719300c320ae77d$
+// $hash=37d878ee8dbf3a48362059e64a0cafa8138bacfc$
 //
 
 #include "libcef_dll/cpptoc/keyboard_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
-#include "libcef_dll/template_util.h"
 
 namespace {
 
@@ -24,7 +23,7 @@ namespace {
 int CEF_CALLBACK
 keyboard_handler_on_pre_key_event(struct _cef_keyboard_handler_t* self,
                                   cef_browser_t* browser,
-                                  const struct _cef_key_event_t* event,
+                                  const cef_key_event_t* event,
                                   cef_event_handle_t os_event,
                                   int* is_keyboard_shortcut) {
   shutdown_checker::AssertNotShutdown();
@@ -38,30 +37,24 @@ keyboard_handler_on_pre_key_event(struct _cef_keyboard_handler_t* self,
   DCHECK(browser);
   if (!browser)
     return 0;
-  // Verify param: event; type: struct_byref_const
+  // Verify param: event; type: simple_byref_const
   DCHECK(event);
   if (!event)
     return 0;
-  if (!template_util::has_valid_size(event)) {
-    NOTREACHED() << "invalid event->[base.]size";
-    return 0;
-  }
   // Verify param: is_keyboard_shortcut; type: bool_byaddr
   DCHECK(is_keyboard_shortcut);
   if (!is_keyboard_shortcut)
     return 0;
 
-  // Translate param: event; type: struct_byref_const
-  CefKeyEvent eventObj;
-  if (event)
-    eventObj.Set(*event, false);
+  // Translate param: event; type: simple_byref_const
+  CefKeyEvent eventVal = event ? *event : CefKeyEvent();
   // Translate param: is_keyboard_shortcut; type: bool_byaddr
   bool is_keyboard_shortcutBool =
       (is_keyboard_shortcut && *is_keyboard_shortcut) ? true : false;
 
   // Execute
   bool _retval = CefKeyboardHandlerCppToC::Get(self)->OnPreKeyEvent(
-      CefBrowserCToCpp::Wrap(browser), eventObj, os_event,
+      CefBrowserCToCpp::Wrap(browser), eventVal, os_event,
       &is_keyboard_shortcutBool);
 
   // Restore param: is_keyboard_shortcut; type: bool_byaddr
@@ -75,7 +68,7 @@ keyboard_handler_on_pre_key_event(struct _cef_keyboard_handler_t* self,
 int CEF_CALLBACK
 keyboard_handler_on_key_event(struct _cef_keyboard_handler_t* self,
                               cef_browser_t* browser,
-                              const struct _cef_key_event_t* event,
+                              const cef_key_event_t* event,
                               cef_event_handle_t os_event) {
   shutdown_checker::AssertNotShutdown();
 
@@ -88,23 +81,17 @@ keyboard_handler_on_key_event(struct _cef_keyboard_handler_t* self,
   DCHECK(browser);
   if (!browser)
     return 0;
-  // Verify param: event; type: struct_byref_const
+  // Verify param: event; type: simple_byref_const
   DCHECK(event);
   if (!event)
     return 0;
-  if (!template_util::has_valid_size(event)) {
-    NOTREACHED() << "invalid event->[base.]size";
-    return 0;
-  }
 
-  // Translate param: event; type: struct_byref_const
-  CefKeyEvent eventObj;
-  if (event)
-    eventObj.Set(*event, false);
+  // Translate param: event; type: simple_byref_const
+  CefKeyEvent eventVal = event ? *event : CefKeyEvent();
 
   // Execute
   bool _retval = CefKeyboardHandlerCppToC::Get(self)->OnKeyEvent(
-      CefBrowserCToCpp::Wrap(browser), eventObj, os_event);
+      CefBrowserCToCpp::Wrap(browser), eventVal, os_event);
 
   // Return type: bool
   return _retval;

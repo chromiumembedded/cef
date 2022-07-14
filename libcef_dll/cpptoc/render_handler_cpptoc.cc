@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6671ca3d639065c49adfc8ceac4c58833344d558$
+// $hash=bae1669c71f95662417884910215fb4cba94c5a5$
 //
 
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
@@ -17,7 +17,6 @@
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/drag_data_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
-#include "libcef_dll/template_util.h"
 
 namespace {
 
@@ -158,7 +157,7 @@ render_handler_get_screen_point(struct _cef_render_handler_t* self,
 int CEF_CALLBACK
 render_handler_get_screen_info(struct _cef_render_handler_t* self,
                                cef_browser_t* browser,
-                               struct _cef_screen_info_t* screen_info) {
+                               cef_screen_info_t* screen_info) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -170,27 +169,21 @@ render_handler_get_screen_info(struct _cef_render_handler_t* self,
   DCHECK(browser);
   if (!browser)
     return 0;
-  // Verify param: screen_info; type: struct_byref
+  // Verify param: screen_info; type: simple_byref
   DCHECK(screen_info);
   if (!screen_info)
     return 0;
-  if (!template_util::has_valid_size(screen_info)) {
-    NOTREACHED() << "invalid screen_info->[base.]size";
-    return 0;
-  }
 
-  // Translate param: screen_info; type: struct_byref
-  CefScreenInfo screen_infoObj;
-  if (screen_info)
-    screen_infoObj.AttachTo(*screen_info);
+  // Translate param: screen_info; type: simple_byref
+  CefScreenInfo screen_infoVal = screen_info ? *screen_info : CefScreenInfo();
 
   // Execute
   bool _retval = CefRenderHandlerCppToC::Get(self)->GetScreenInfo(
-      CefBrowserCToCpp::Wrap(browser), screen_infoObj);
+      CefBrowserCToCpp::Wrap(browser), screen_infoVal);
 
-  // Restore param: screen_info; type: struct_byref
+  // Restore param: screen_info; type: simple_byref
   if (screen_info)
-    screen_infoObj.DetachTo(*screen_info);
+    *screen_info = screen_infoVal;
 
   // Return type: bool
   return _retval;
@@ -365,7 +358,7 @@ render_handler_get_touch_handle_size(struct _cef_render_handler_t* self,
 void CEF_CALLBACK render_handler_on_touch_handle_state_changed(
     struct _cef_render_handler_t* self,
     cef_browser_t* browser,
-    const struct _cef_touch_handle_state_t* state) {
+    const cef_touch_handle_state_t* state) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -377,23 +370,17 @@ void CEF_CALLBACK render_handler_on_touch_handle_state_changed(
   DCHECK(browser);
   if (!browser)
     return;
-  // Verify param: state; type: struct_byref_const
+  // Verify param: state; type: simple_byref_const
   DCHECK(state);
   if (!state)
     return;
-  if (!template_util::has_valid_size(state)) {
-    NOTREACHED() << "invalid state->[base.]size";
-    return;
-  }
 
-  // Translate param: state; type: struct_byref_const
-  CefTouchHandleState stateObj;
-  if (state)
-    stateObj.Set(*state, false);
+  // Translate param: state; type: simple_byref_const
+  CefTouchHandleState stateVal = state ? *state : CefTouchHandleState();
 
   // Execute
   CefRenderHandlerCppToC::Get(self)->OnTouchHandleStateChanged(
-      CefBrowserCToCpp::Wrap(browser), stateObj);
+      CefBrowserCToCpp::Wrap(browser), stateVal);
 }
 
 int CEF_CALLBACK

@@ -37,11 +37,12 @@
 
 ///
 // Template class that provides common functionality for CEF structure wrapping.
+// Use only with non-POD types that benefit from referencing unowned members.
 ///
 template <class traits>
 class CefStructBase : public traits::struct_type {
  public:
-  typedef typename traits::struct_type struct_type;
+  using struct_type = typename traits::struct_type;
 
   CefStructBase() : attached_to_(NULL) { Init(); }
   virtual ~CefStructBase() {
@@ -58,14 +59,6 @@ class CefStructBase : public traits::struct_type {
   CefStructBase(const struct_type& r) {
     Init();
     *this = r;
-  }
-
-  ///
-  // Clear this object's values.
-  ///
-  void Reset() {
-    Clear(this);
-    Init();
   }
 
   ///
@@ -131,29 +124,14 @@ class CefStructBase : public traits::struct_type {
   struct_type* attached_to_;
 };
 
-struct CefPointTraits {
-  typedef cef_point_t struct_type;
-
-  static inline void init(struct_type* s) {}
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    *target = *src;
-  }
-};
-
 ///
 // Class representing a point.
 ///
-class CefPoint : public CefStructBase<CefPointTraits> {
+class CefPoint : public cef_point_t {
  public:
-  typedef CefStructBase<CefPointTraits> parent;
-
-  CefPoint() {}
-  CefPoint(const cef_point_t& r) : parent(r) {}
-  CefPoint(int x, int y) { Set(x, y); }
+  CefPoint() : cef_point_t{} {}
+  CefPoint(const cef_point_t& r) : cef_point_t(r) {}
+  CefPoint(int x, int y) : cef_point_t{x, y} {}
 
   bool IsEmpty() const { return x <= 0 && y <= 0; }
   void Set(int x_val, int y_val) { x = x_val, y = y_val; }
@@ -167,29 +145,15 @@ inline bool operator!=(const CefPoint& a, const CefPoint& b) {
   return !(a == b);
 }
 
-struct CefRectTraits {
-  typedef cef_rect_t struct_type;
-
-  static inline void init(struct_type* s) {}
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    *target = *src;
-  }
-};
-
 ///
 // Class representing a rectangle.
 ///
-class CefRect : public CefStructBase<CefRectTraits> {
+class CefRect : public cef_rect_t {
  public:
-  typedef CefStructBase<CefRectTraits> parent;
-
-  CefRect() {}
-  CefRect(const cef_rect_t& r) : parent(r) {}
-  CefRect(int x, int y, int width, int height) { Set(x, y, width, height); }
+  CefRect() : cef_rect_t{} {}
+  CefRect(const cef_rect_t& r) : cef_rect_t(r) {}
+  CefRect(int x, int y, int width, int height)
+      : cef_rect_t{x, y, width, height} {}
 
   bool IsEmpty() const { return width <= 0 || height <= 0; }
   void Set(int x_val, int y_val, int width_val, int height_val) {
@@ -216,29 +180,14 @@ inline bool operator!=(const CefRect& a, const CefRect& b) {
   return !(a == b);
 }
 
-struct CefSizeTraits {
-  typedef cef_size_t struct_type;
-
-  static inline void init(struct_type* s) {}
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    *target = *src;
-  }
-};
-
 ///
 // Class representing a size.
 ///
-class CefSize : public CefStructBase<CefSizeTraits> {
+class CefSize : public cef_size_t {
  public:
-  typedef CefStructBase<CefSizeTraits> parent;
-
-  CefSize() {}
-  CefSize(const cef_size_t& r) : parent(r) {}
-  CefSize(int width, int height) { Set(width, height); }
+  CefSize() : cef_size_t{} {}
+  CefSize(const cef_size_t& r) : cef_size_t(r) {}
+  CefSize(int width, int height) : cef_size_t{width, height} {}
 
   bool IsEmpty() const { return width <= 0 || height <= 0; }
   void Set(int width_val, int height_val) {
@@ -254,29 +203,14 @@ inline bool operator!=(const CefSize& a, const CefSize& b) {
   return !(a == b);
 }
 
-struct CefRangeTraits {
-  typedef cef_range_t struct_type;
-
-  static inline void init(struct_type* s) {}
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    *target = *src;
-  }
-};
-
 ///
 // Class representing a range.
 ///
-class CefRange : public CefStructBase<CefRangeTraits> {
+class CefRange : public cef_range_t {
  public:
-  typedef CefStructBase<CefRangeTraits> parent;
-
-  CefRange() {}
-  CefRange(const cef_range_t& r) : parent(r) {}
-  CefRange(int from, int to) { Set(from, to); }
+  CefRange() : cef_range_t{} {}
+  CefRange(const cef_range_t& r) : cef_range_t(r) {}
+  CefRange(int from, int to) : cef_range_t{from, to} {}
 
   void Set(int from_val, int to_val) { from = from_val, to = to_val; }
 };
@@ -289,31 +223,15 @@ inline bool operator!=(const CefRange& a, const CefRange& b) {
   return !(a == b);
 }
 
-struct CefInsetsTraits {
-  typedef cef_insets_t struct_type;
-
-  static inline void init(struct_type* s) {}
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    *target = *src;
-  }
-};
-
 ///
 // Class representing insets.
 ///
-class CefInsets : public CefStructBase<CefInsetsTraits> {
+class CefInsets : public cef_insets_t {
  public:
-  typedef CefStructBase<CefInsetsTraits> parent;
-
-  CefInsets() {}
-  CefInsets(const cef_insets_t& r) : parent(r) {}
-  CefInsets(int top, int left, int bottom, int right) {
-    Set(top, left, bottom, right);
-  }
+  CefInsets() : cef_insets_t{} {}
+  CefInsets(const cef_insets_t& r) : cef_insets_t(r) {}
+  CefInsets(int top, int left, int bottom, int right)
+      : cef_insets_t{top, left, bottom, right} {}
 
   void Set(int top_val, int left_val, int bottom_val, int right_val) {
     top = top_val, left = left_val, bottom = bottom_val, right = right_val;
@@ -329,31 +247,16 @@ inline bool operator!=(const CefInsets& a, const CefInsets& b) {
   return !(a == b);
 }
 
-struct CefDraggableRegionTraits {
-  typedef cef_draggable_region_t struct_type;
-
-  static inline void init(struct_type* s) {}
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    *target = *src;
-  }
-};
-
 ///
 // Class representing a draggable region.
 ///
-class CefDraggableRegion : public CefStructBase<CefDraggableRegionTraits> {
+class CefDraggableRegion : public cef_draggable_region_t {
  public:
-  typedef CefStructBase<CefDraggableRegionTraits> parent;
-
-  CefDraggableRegion() {}
-  CefDraggableRegion(const cef_draggable_region_t& r) : parent(r) {}
-  CefDraggableRegion(const CefRect& bounds, bool draggable) {
-    Set(bounds, draggable);
-  }
+  CefDraggableRegion() : cef_draggable_region_t{} {}
+  CefDraggableRegion(const cef_draggable_region_t& r)
+      : cef_draggable_region_t(r) {}
+  CefDraggableRegion(const cef_rect_t& bounds, bool draggable)
+      : cef_draggable_region_t{bounds, draggable} {}
 
   void Set(const CefRect& bounds_val, bool draggable_val) {
     bounds = bounds_val, draggable = draggable_val;
@@ -370,44 +273,22 @@ inline bool operator!=(const CefDraggableRegion& a,
   return !(a == b);
 }
 
-struct CefScreenInfoTraits {
-  typedef cef_screen_info_t struct_type;
-
-  static inline void init(struct_type* s) {}
-
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    target->device_scale_factor = src->device_scale_factor;
-    target->depth = src->depth;
-    target->depth_per_component = src->depth_per_component;
-    target->is_monochrome = src->is_monochrome;
-    target->rect = src->rect;
-    target->available_rect = src->available_rect;
-  }
-};
-
 ///
 // Class representing the virtual screen information for use when window
 // rendering is disabled.
 ///
-class CefScreenInfo : public CefStructBase<CefScreenInfoTraits> {
+class CefScreenInfo : public cef_screen_info_t {
  public:
-  typedef CefStructBase<CefScreenInfoTraits> parent;
-
-  CefScreenInfo() {}
-  CefScreenInfo(const cef_screen_info_t& r) : parent(r) {}
+  CefScreenInfo() : cef_screen_info_t{} {}
+  CefScreenInfo(const cef_screen_info_t& r) : cef_screen_info_t(r) {}
   CefScreenInfo(float device_scale_factor,
                 int depth,
                 int depth_per_component,
                 bool is_monochrome,
-                const CefRect& rect,
-                const CefRect& available_rect) {
-    Set(device_scale_factor, depth, depth_per_component, is_monochrome, rect,
-        available_rect);
-  }
+                const cef_rect_t& rect,
+                const cef_rect_t& available_rect)
+      : cef_screen_info_t{device_scale_factor, depth, depth_per_component,
+                          is_monochrome,       rect,  available_rect} {}
 
   void Set(float device_scale_factor_val,
            int depth_val,
@@ -424,109 +305,44 @@ class CefScreenInfo : public CefStructBase<CefScreenInfoTraits> {
   }
 };
 
-struct CefKeyEventTraits {
-  typedef cef_key_event_t struct_type;
-
-  static inline void init(struct_type* s) {}
-
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    target->type = src->type;
-    target->modifiers = src->modifiers;
-    target->windows_key_code = src->windows_key_code;
-    target->native_key_code = src->native_key_code;
-    target->is_system_key = src->is_system_key;
-    target->character = src->character;
-    target->unmodified_character = src->unmodified_character;
-    target->focus_on_editable_field = src->focus_on_editable_field;
-  }
-};
-
 ///
 // Class representing a a keyboard event.
 ///
-typedef CefStructBase<CefKeyEventTraits> CefKeyEvent;
-
-struct CefMouseEventTraits {
-  typedef cef_mouse_event_t struct_type;
-
-  static inline void init(struct_type* s) {}
-
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    target->x = src->x;
-    target->y = src->y;
-    target->modifiers = src->modifiers;
-  }
+class CefKeyEvent : public cef_key_event_t {
+ public:
+  CefKeyEvent() : cef_key_event_t{} {}
+  CefKeyEvent(const cef_key_event_t& r) : cef_key_event_t(r) {}
 };
 
 ///
 // Class representing a mouse event.
 ///
-typedef CefStructBase<CefMouseEventTraits> CefMouseEvent;
-
-struct CefTouchEventTraits {
-  typedef cef_touch_event_t struct_type;
-
-  static inline void init(struct_type* s) {}
-
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    *target = *src;
-  }
+class CefMouseEvent : public cef_mouse_event_t {
+ public:
+  CefMouseEvent() : cef_mouse_event_t{} {}
+  CefMouseEvent(const cef_mouse_event_t& r) : cef_mouse_event_t(r) {}
 };
 
 ///
 // Class representing a touch event.
 ///
-typedef CefStructBase<CefTouchEventTraits> CefTouchEvent;
-
-struct CefPopupFeaturesTraits {
-  typedef cef_popup_features_t struct_type;
-
-  static inline void init(struct_type* s) {
-    s->menuBarVisible = true;
-    s->statusBarVisible = true;
-    s->toolBarVisible = true;
-    s->scrollbarsVisible = true;
-  }
-
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    target->x = src->x;
-    target->xSet = src->xSet;
-    target->y = src->y;
-    target->ySet = src->ySet;
-    target->width = src->width;
-    target->widthSet = src->widthSet;
-    target->height = src->height;
-    target->heightSet = src->heightSet;
-    target->menuBarVisible = src->menuBarVisible;
-    target->statusBarVisible = src->statusBarVisible;
-    target->toolBarVisible = src->toolBarVisible;
-    target->scrollbarsVisible = src->scrollbarsVisible;
-  }
+class CefTouchEvent : public cef_touch_event_t {
+ public:
+  CefTouchEvent() : cef_touch_event_t{} {}
+  CefTouchEvent(const cef_touch_event_t& r) : cef_touch_event_t(r) {}
 };
 
 ///
 // Class representing popup window features.
 ///
-typedef CefStructBase<CefPopupFeaturesTraits> CefPopupFeatures;
+class CefPopupFeatures : public cef_popup_features_t {
+ public:
+  CefPopupFeatures() : cef_popup_features_t{} {}
+  CefPopupFeatures(const cef_popup_features_t& r) : cef_popup_features_t(r) {}
+};
 
 struct CefSettingsTraits {
-  typedef cef_settings_t struct_type;
+  using struct_type = cef_settings_t;
 
   static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
 
@@ -610,10 +426,10 @@ struct CefSettingsTraits {
 ///
 // Class representing initialization settings.
 ///
-typedef CefStructBase<CefSettingsTraits> CefSettings;
+using CefSettings = CefStructBase<CefSettingsTraits>;
 
 struct CefRequestContextSettingsTraits {
-  typedef cef_request_context_settings_t struct_type;
+  using struct_type = cef_request_context_settings_t;
 
   static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
 
@@ -645,11 +461,11 @@ struct CefRequestContextSettingsTraits {
 ///
 // Class representing request context initialization settings.
 ///
-typedef CefStructBase<CefRequestContextSettingsTraits>
-    CefRequestContextSettings;
+using CefRequestContextSettings =
+    CefStructBase<CefRequestContextSettingsTraits>;
 
 struct CefBrowserSettingsTraits {
-  typedef cef_browser_settings_t struct_type;
+  using struct_type = cef_browser_settings_t;
 
   static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
 
@@ -721,10 +537,10 @@ struct CefBrowserSettingsTraits {
 ///
 // Class representing browser initialization settings.
 ///
-typedef CefStructBase<CefBrowserSettingsTraits> CefBrowserSettings;
+using CefBrowserSettings = CefStructBase<CefBrowserSettingsTraits>;
 
 struct CefURLPartsTraits {
-  typedef cef_urlparts_t struct_type;
+  using struct_type = cef_urlparts_t;
 
   static inline void init(struct_type* s) {}
 
@@ -763,31 +579,15 @@ struct CefURLPartsTraits {
 ///
 // Class representing a URL's component parts.
 ///
-typedef CefStructBase<CefURLPartsTraits> CefURLParts;
-
-struct CefTimeTraits {
-  typedef cef_time_t struct_type;
-
-  static inline void init(struct_type* s) {}
-
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    *target = *src;
-  }
-};
+using CefURLParts = CefStructBase<CefURLPartsTraits>;
 
 ///
 // Class representing a time.
 ///
-class CefTime : public CefStructBase<CefTimeTraits> {
+class CefTime : public cef_time_t {
  public:
-  typedef CefStructBase<CefTimeTraits> parent;
-
-  CefTime() {}
-  CefTime(const cef_time_t& r) : parent(r) {}
+  CefTime() : cef_time_t{} {}
+  CefTime(const cef_time_t& r) : cef_time_t(r) {}
   explicit CefTime(time_t r) { SetTimeT(r); }
   explicit CefTime(double r) { SetDoubleT(r); }
 
@@ -820,27 +620,18 @@ class CefTime : public CefStructBase<CefTimeTraits> {
   }
 };
 
-struct CefTouchHandleStateTraits {
-  typedef cef_touch_handle_state_t struct_type;
-
-  static inline void init(struct_type* s) {}
-
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    *target = *src;
-  }
-};
-
 ///
 // Class representing the state of a touch handle.
 ///
-typedef CefStructBase<CefTouchHandleStateTraits> CefTouchHandleState;
+class CefTouchHandleState : public cef_touch_handle_state_t {
+ public:
+  CefTouchHandleState() : cef_touch_handle_state_t{} {}
+  CefTouchHandleState(const cef_touch_handle_state_t& r)
+      : cef_touch_handle_state_t(r) {}
+};
 
 struct CefCookieTraits {
-  typedef cef_cookie_t struct_type;
+  using struct_type = cef_cookie_t;
 
   static inline void init(struct_type* s) {}
 
@@ -872,29 +663,19 @@ struct CefCookieTraits {
 ///
 // Class representing a cookie.
 ///
-typedef CefStructBase<CefCookieTraits> CefCookie;
-
-struct CefCursorInfoTraits {
-  typedef cef_cursor_info_t struct_type;
-
-  static inline void init(struct_type* s) {}
-
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    *target = *src;
-  }
-};
+using CefCookie = CefStructBase<CefCookieTraits>;
 
 ///
 // Class representing cursor information.
 ///
-typedef CefStructBase<CefCursorInfoTraits> CefCursorInfo;
+class CefCursorInfo : public cef_cursor_info_t {
+ public:
+  CefCursorInfo() : cef_cursor_info_t{} {}
+  CefCursorInfo(const cef_cursor_info_t& r) : cef_cursor_info_t(r) {}
+};
 
 struct CefPdfPrintSettingsTraits {
-  typedef cef_pdf_print_settings_t struct_type;
+  using struct_type = cef_pdf_print_settings_t;
 
   static inline void init(struct_type* s) {}
 
@@ -933,67 +714,40 @@ struct CefPdfPrintSettingsTraits {
 ///
 // Class representing PDF print settings
 ///
-typedef CefStructBase<CefPdfPrintSettingsTraits> CefPdfPrintSettings;
-
-struct CefBoxLayoutSettingsTraits {
-  typedef cef_box_layout_settings_t struct_type;
-
-  static inline void init(struct_type* s) {}
-
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    *target = *src;
-  }
-};
+using CefPdfPrintSettings = CefStructBase<CefPdfPrintSettingsTraits>;
 
 ///
 // Class representing CefBoxLayout settings.
 ///
-typedef CefStructBase<CefBoxLayoutSettingsTraits> CefBoxLayoutSettings;
-
-struct CefCompositionUnderlineTraits {
-  typedef cef_composition_underline_t struct_type;
-
-  static inline void init(struct_type* s) {}
-
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    *target = *src;
-  }
+class CefBoxLayoutSettings : public cef_box_layout_settings_t {
+ public:
+  CefBoxLayoutSettings() : cef_box_layout_settings_t{} {}
+  CefBoxLayoutSettings(const cef_box_layout_settings_t& r)
+      : cef_box_layout_settings_t(r) {}
 };
 
 ///
 // Class representing IME composition underline.
 ///
-typedef CefStructBase<CefCompositionUnderlineTraits> CefCompositionUnderline;
-
-struct CefAudioParametersTraits {
-  typedef cef_audio_parameters_t struct_type;
-
-  static inline void init(struct_type* s) {}
-
-  static inline void clear(struct_type* s) {}
-
-  static inline void set(const struct_type* src,
-                         struct_type* target,
-                         bool copy) {
-    *target = *src;
-  }
+class CefCompositionUnderline : public cef_composition_underline_t {
+ public:
+  CefCompositionUnderline() : cef_composition_underline_t{} {}
+  CefCompositionUnderline(const cef_composition_underline_t& r)
+      : cef_composition_underline_t(r) {}
 };
 
 ///
 // Class representing CefAudioParameters settings
 ///
-typedef CefStructBase<CefAudioParametersTraits> CefAudioParameters;
+class CefAudioParameters : public cef_audio_parameters_t {
+ public:
+  CefAudioParameters() : cef_audio_parameters_t{} {}
+  CefAudioParameters(const cef_audio_parameters_t& r)
+      : cef_audio_parameters_t(r) {}
+};
 
 struct CefMediaSinkDeviceInfoTraits {
-  typedef cef_media_sink_device_info_t struct_type;
+  using struct_type = cef_media_sink_device_info_t;
 
   static inline void init(struct_type* s) {}
 
@@ -1016,6 +770,6 @@ struct CefMediaSinkDeviceInfoTraits {
 ///
 // Class representing MediaSink device info.
 ///
-typedef CefStructBase<CefMediaSinkDeviceInfoTraits> CefMediaSinkDeviceInfo;
+using CefMediaSinkDeviceInfo = CefStructBase<CefMediaSinkDeviceInfoTraits>;
 
 #endif  // CEF_INCLUDE_INTERNAL_CEF_TYPES_WRAPPERS_H_

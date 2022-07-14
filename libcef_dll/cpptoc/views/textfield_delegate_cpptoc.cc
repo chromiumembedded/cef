@@ -9,14 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1a7a3f0cd61dab86aae86ca54e5554671d1850b7$
+// $hash=be4a8b1aeaa7b2c6701c9cc5445285a20027c44b$
 //
 
 #include "libcef_dll/cpptoc/views/textfield_delegate_cpptoc.h"
 #include "libcef_dll/ctocpp/views/textfield_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
-#include "libcef_dll/template_util.h"
 
 namespace {
 
@@ -25,7 +24,7 @@ namespace {
 int CEF_CALLBACK
 textfield_delegate_on_key_event(struct _cef_textfield_delegate_t* self,
                                 cef_textfield_t* textfield,
-                                const struct _cef_key_event_t* event) {
+                                const cef_key_event_t* event) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -37,23 +36,17 @@ textfield_delegate_on_key_event(struct _cef_textfield_delegate_t* self,
   DCHECK(textfield);
   if (!textfield)
     return 0;
-  // Verify param: event; type: struct_byref_const
+  // Verify param: event; type: simple_byref_const
   DCHECK(event);
   if (!event)
     return 0;
-  if (!template_util::has_valid_size(event)) {
-    NOTREACHED() << "invalid event->[base.]size";
-    return 0;
-  }
 
-  // Translate param: event; type: struct_byref_const
-  CefKeyEvent eventObj;
-  if (event)
-    eventObj.Set(*event, false);
+  // Translate param: event; type: simple_byref_const
+  CefKeyEvent eventVal = event ? *event : CefKeyEvent();
 
   // Execute
   bool _retval = CefTextfieldDelegateCppToC::Get(self)->OnKeyEvent(
-      CefTextfieldCToCpp::Wrap(textfield), eventObj);
+      CefTextfieldCToCpp::Wrap(textfield), eventVal);
 
   // Return type: bool
   return _retval;

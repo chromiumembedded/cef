@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b1c1e44e6d3842064ef6e5b9823173f7ec1fcccc$
+// $hash=236962db4a3a66eb58546a1eab45dffb2db5178d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -632,27 +632,25 @@ typedef struct _cef_browser_host_t {
   // Send a key event to the browser.
   ///
   void(CEF_CALLBACK* send_key_event)(struct _cef_browser_host_t* self,
-                                     const struct _cef_key_event_t* event);
+                                     const cef_key_event_t* event);
 
   ///
   // Send a mouse click event to the browser. The |x| and |y| coordinates are
   // relative to the upper-left corner of the view.
   ///
-  void(CEF_CALLBACK* send_mouse_click_event)(
-      struct _cef_browser_host_t* self,
-      const struct _cef_mouse_event_t* event,
-      cef_mouse_button_type_t type,
-      int mouseUp,
-      int clickCount);
+  void(CEF_CALLBACK* send_mouse_click_event)(struct _cef_browser_host_t* self,
+                                             const cef_mouse_event_t* event,
+                                             cef_mouse_button_type_t type,
+                                             int mouseUp,
+                                             int clickCount);
 
   ///
   // Send a mouse move event to the browser. The |x| and |y| coordinates are
   // relative to the upper-left corner of the view.
   ///
-  void(CEF_CALLBACK* send_mouse_move_event)(
-      struct _cef_browser_host_t* self,
-      const struct _cef_mouse_event_t* event,
-      int mouseLeave);
+  void(CEF_CALLBACK* send_mouse_move_event)(struct _cef_browser_host_t* self,
+                                            const cef_mouse_event_t* event,
+                                            int mouseLeave);
 
   ///
   // Send a mouse wheel event to the browser. The |x| and |y| coordinates are
@@ -661,17 +659,16 @@ typedef struct _cef_browser_host_t {
   // In order to scroll inside select popups with window rendering disabled
   // cef_render_handler_t::GetScreenPoint should be implemented properly.
   ///
-  void(CEF_CALLBACK* send_mouse_wheel_event)(
-      struct _cef_browser_host_t* self,
-      const struct _cef_mouse_event_t* event,
-      int deltaX,
-      int deltaY);
+  void(CEF_CALLBACK* send_mouse_wheel_event)(struct _cef_browser_host_t* self,
+                                             const cef_mouse_event_t* event,
+                                             int deltaX,
+                                             int deltaY);
 
   ///
   // Send a touch event to the browser for a windowless browser.
   ///
   void(CEF_CALLBACK* send_touch_event)(struct _cef_browser_host_t* self,
-                                       const struct _cef_touch_event_t* event);
+                                       const cef_touch_event_t* event);
 
   ///
   // Send a capture lost event to the browser.
@@ -780,7 +777,7 @@ typedef struct _cef_browser_host_t {
   void(CEF_CALLBACK* drag_target_drag_enter)(
       struct _cef_browser_host_t* self,
       struct _cef_drag_data_t* drag_data,
-      const struct _cef_mouse_event_t* event,
+      const cef_mouse_event_t* event,
       cef_drag_operations_mask_t allowed_ops);
 
   ///
@@ -791,7 +788,7 @@ typedef struct _cef_browser_host_t {
   ///
   void(CEF_CALLBACK* drag_target_drag_over)(
       struct _cef_browser_host_t* self,
-      const struct _cef_mouse_event_t* event,
+      const cef_mouse_event_t* event,
       cef_drag_operations_mask_t allowed_ops);
 
   ///
@@ -809,7 +806,7 @@ typedef struct _cef_browser_host_t {
   // is disabled.
   ///
   void(CEF_CALLBACK* drag_target_drop)(struct _cef_browser_host_t* self,
-                                       const struct _cef_mouse_event_t* event);
+                                       const cef_mouse_event_t* event);
 
   ///
   // Call this function when the drag operation started by a
