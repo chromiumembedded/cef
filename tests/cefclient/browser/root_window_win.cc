@@ -539,6 +539,15 @@ LRESULT CALLBACK RootWindowWin::RootWndProc(HWND hWnd,
       self->OnFocus();
       return 0;
 
+    case WM_ENABLE:
+      if (wParam == TRUE) {
+        // Give focus to the browser after EnableWindow enables this window
+        // (e.g. after a modal dialog is dismissed).
+        self->OnFocus();
+        return 0;
+      }
+      break;
+
     case WM_SIZE:
       self->OnSize(wParam == SIZE_MINIMIZED);
       break;
