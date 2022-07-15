@@ -27,8 +27,10 @@ const char kSharedMessageUrl[] = "http://tests/SendSharedProcessMessageTest";
 const char kSharedMessageName[] = "SendSharedProcessMessageTest";
 
 CefRefPtr<CefProcessMessage> CreateTestMessage(const TestData& data) {
-  auto builder = CefSharedProcessMessageBuilder::Create(kSharedMessageName, sizeof(data));
-  std::memcpy(builder->Memory(), reinterpret_cast<const void*>(&data), sizeof(data));
+  auto builder =
+      CefSharedProcessMessageBuilder::Create(kSharedMessageName, sizeof(data));
+  std::memcpy(builder->Memory(), reinterpret_cast<const void*>(&data),
+              sizeof(data));
   return builder->Build();
 }
 
@@ -162,7 +164,6 @@ TEST(SendSharedProcessMessageTest, CanSendAndReceiveFromIoThread) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
-
 
 // Entry point for creating shared process message renderer test objects.
 // Called from client_app_delegates.cc.
