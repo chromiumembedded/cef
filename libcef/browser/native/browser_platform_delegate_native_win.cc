@@ -630,6 +630,15 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
                      rect->bottom - rect->top, SWP_NOZORDER | SWP_NOACTIVATE);
       }
       break;
+
+    case WM_ENABLE:
+      if (wParam == TRUE && browser) {
+        // Give focus to the browser after EnableWindow enables this window
+        // (e.g. after a modal dialog is dismissed).
+        browser->SetFocus(true);
+        return 0;
+      }
+      break;
   }
 
   return DefWindowProc(hwnd, message, wParam, lParam);
