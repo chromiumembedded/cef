@@ -4,7 +4,7 @@
 
 #include "include/cef_shared_process_message_builder.h"
 
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 #include <array>
 
