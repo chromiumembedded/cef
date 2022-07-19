@@ -98,13 +98,13 @@ class IpcDelegate final : public client::ClientAppRenderer::Delegate {
     }
 
    private:
-    void SendTestProcessMessage(int message_size, int test_id) {
+    void SendTestProcessMessage(size_t message_size, int test_id) {
       auto context = CefV8Context::GetCurrentContext();
       delegate_->SendTestProcessMessage(context->GetFrame(), message_size,
                                         test_id);
     }
 
-    void SendTestSMRProcessMessage(int message_size, int test_id) {
+    void SendTestSMRProcessMessage(size_t message_size, int test_id) {
       auto context = CefV8Context::GetCurrentContext();
       delegate_->SendTestSMRProcessMessage(context->GetFrame(), message_size,
                                            test_id);
