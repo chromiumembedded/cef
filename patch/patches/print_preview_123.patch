@@ -46,7 +46,7 @@ index 01df55a728098..0c11458c9a5bb 100644
  #include "chrome/browser/printing/print_view_manager.h"
  #include "chrome/browser/task_manager/web_contents_tags.h"
 diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index e665eb42fad5f..6aefc4f3f4ca6 100644
+index 4bd871e5cadc6..835656ea87729 100644
 --- chrome/browser/printing/print_view_manager_base.cc
 +++ chrome/browser/printing/print_view_manager_base.cc
 @@ -610,13 +610,14 @@ void PrintViewManagerBase::UpdatePrintSettings(

@@ -62,7 +62,7 @@ index c2836d15eba30..0c03c2b4666a6 100644
  std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPrompt(
      content::WebContents* web_contents,
 diff --git chrome/browser/ui/views/permission_bubble/permission_prompt_impl.cc chrome/browser/ui/views/permission_bubble/permission_prompt_impl.cc
-index acbfad1053e0b..d4e85938bfc46 100644
+index cdbcb419fa22d..0c23d03e19798 100644
 --- chrome/browser/ui/views/permission_bubble/permission_prompt_impl.cc
 +++ chrome/browser/ui/views/permission_bubble/permission_prompt_impl.cc
 @@ -100,11 +100,28 @@ bool ShouldBubbleStartOpen(permissions::PermissionPrompt::Delegate* delegate) {
