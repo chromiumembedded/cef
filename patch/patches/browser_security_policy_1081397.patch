@@ -1,5 +1,5 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index 3a619b38da0c7..8bdf8ad9b1c18 100644
+index d254be9911f39..76e28fe22d988 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
 @@ -1751,6 +1751,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForMaybeOpaqueOrigin(
@@ -20,35 +20,37 @@ index 3a619b38da0c7..8bdf8ad9b1c18 100644
  
            // TODO(wjmaclean): We should update the ProcessLock comparison API
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index e3e73a2353312..4f2d190c000b2 100644
+index 8afc757188c41..d43e81d736fc4 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -6312,6 +6312,12 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithoutFinalFrameHost(
-     network::mojom::WebSandboxFlags sandbox_flags) {
-   // Calculate an approximation of the origin. The sandbox/csp are ignored.
-   url::Origin origin = GetOriginForURLLoaderFactoryUnchecked(this);
-+  if (!origin.GetURL().IsStandard()) {
-+    // Always return an opaque origin for non-standard URLs. Otherwise, the
-+    // below CanAccessDataForOrigin() check may fail for unregistered custom
-+    // scheme requests in CEF.
-+    return origin.DeriveNewOpaqueOrigin();
-+  }
+@@ -6373,6 +6373,14 @@ std::pair<url::Origin, std::string> NavigationRequest::
+     origin_and_debug_info.second += ", error";
+   }
  
-   // Apply sandbox flags.
-   // See https://html.spec.whatwg.org/#sandboxed-origin-browsing-context-flag
-@@ -6345,6 +6351,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryWithFinalFrameHost() {
-   if (IsSameDocument() || IsPageActivation())
-     return GetRenderFrameHost()->GetLastCommittedOrigin();
- 
-+  // Calculate an approximation of the origin. The sandbox/csp are ignored.
-+  url::Origin unchecked_origin = GetOriginForURLLoaderFactoryUnchecked(this);
-+  if (!unchecked_origin.GetURL().IsStandard()) {
++  if (!origin_and_debug_info.first.GetURL().IsStandard()) {
 +    // Always return an opaque origin for non-standard URLs. Otherwise, the
-+    // below CanAccessDataForOrigin() check may fail for unregistered custom
-+    // scheme requests in CEF.
-+    return unchecked_origin.DeriveNewOpaqueOrigin();
++    // CanAccessDataForOrigin() check may fail for unregistered custom scheme
++    // requests in CEF.
++    use_opaque_origin = true;
++    origin_and_debug_info.second += ", cef_nonstandard";
 +  }
 +
-   url::Origin origin =
-       GetOriginForURLLoaderFactoryWithoutFinalFrameHost(SandboxFlagsToCommit());
+   if (use_opaque_origin) {
+     origin_and_debug_info =
+         std::make_pair(origin_and_debug_info.first.DeriveNewOpaqueOrigin(),
+@@ -6400,6 +6408,15 @@ std::pair<url::Origin, std::string> NavigationRequest::
+       GetOriginForURLLoaderFactoryWithoutFinalFrameHostWithDebugInfo(
+           SandboxFlagsToCommit());
  
++  if (origin_with_debug_info.first.opaque() &&
++      origin_with_debug_info.second.find("cef_nonstandard") !=
++          std::string::npos) {
++    // Always return an opaque origin for non-standard URLs. Otherwise, the
++    // below CanAccessDataForOrigin() check may fail for unregistered custom
++    // scheme requests in CEF.
++    return origin_with_debug_info;
++  }
++
+   // MHTML documents should commit as an opaque origin. They should not be able
+   // to make network request on behalf of the real origin.
+   DCHECK(!IsMhtmlOrSubframe() || origin_with_debug_info.first.opaque());

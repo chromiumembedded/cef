@@ -10,7 +10,6 @@
 
 #include "base/logging.h"
 #include "content/public/renderer/render_thread.h"
-#include "content/public/renderer/render_view.h"
 #include "content/renderer/render_frame_impl.h"
 #include "third_party/blink/public/web/web_local_frame.h"
 

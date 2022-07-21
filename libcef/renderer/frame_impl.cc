@@ -33,7 +33,6 @@
 #include "libcef/renderer/v8_impl.h"
 
 #include "base/strings/utf_string_conversions.h"
-#include "content/public/renderer/render_view.h"
 #include "content/renderer/render_frame_impl.h"
 #include "third_party/blink/public/mojom/frame/frame.mojom-blink.h"
 #include "third_party/blink/public/mojom/frame/lifecycle.mojom-blink.h"

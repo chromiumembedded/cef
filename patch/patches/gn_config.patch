@@ -12,7 +12,7 @@ index 7d538f812d72e..9eec79395aeec 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index b9b09ede17b56..b687818eb9287 100644
+index d62cd5190001b..b99513183df7a 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -17,6 +17,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -21,10 +21,10 @@ index b9b09ede17b56..b687818eb9287 100644
  import("//build/util/generate_wrapper.gni")
 +import("//cef/libcef/features/features.gni")
  import("//chrome/browser/buildflags.gni")
- import("//chrome/browser/media/router/features.gni")
  import("//components/nacl/features.gni")
-@@ -117,6 +118,10 @@ group("gn_all") {
-     ]
+ import("//device/vr/buildflags/buildflags.gni")
+@@ -110,6 +111,10 @@ group("gn_all") {
+     deps += [ "//third_party/abseil-cpp:absl_tests" ]
    }
  
 +  if (enable_cef) {
@@ -80,17 +80,17 @@ index 839144aa1e9bd..29c8ab32398a7 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 040475bee62f4..47d7ca4ea32da 100644
+index ba559fa404ca3..4aafa07ba5ba7 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -5,6 +5,7 @@
- import("//ash/ambient/resources/resources.gni")
+@@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
+ import("//build/config/chromebox_for_meetings/buildflags.gni")
  import("//build/config/chromeos/ui_mode.gni")
  import("//build/config/locales.gni")
 +import("//cef/libcef/features/features.gni")
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
- import("//chromeos/components/chromebox_for_meetings/buildflags/buildflags.gni")
+ import("//extensions/buildflags/buildflags.gni")
 @@ -74,6 +75,10 @@ template("chrome_repack_percent") {
          "//ui/chromeos/resources",
        ]
@@ -126,7 +126,7 @@ index 936a5422f92fa..5743f4a03aa4f 100644
        source_patterns +=
            [ "${root_gen_dir}/extensions/strings/extensions_strings_" ]
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 51fa0d7f4cf77..2ede68e9377eb 100644
+index d7ac881770b38..e25708701148a 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -6,6 +6,7 @@ import("//build/config/compiler/compiler.gni")

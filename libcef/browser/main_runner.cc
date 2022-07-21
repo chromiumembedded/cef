@@ -117,8 +117,8 @@ class CefUIThread : public base::PlatformThread::Delegate {
 
   void Start() {
     base::AutoLock lock(thread_lock_);
-    bool success = base::PlatformThread::CreateWithPriority(
-        0, this, &thread_, base::ThreadPriority::NORMAL);
+    bool success = base::PlatformThread::CreateWithType(
+        0, this, &thread_, base::ThreadType::kDefault);
     if (!success) {
       LOG(FATAL) << "failed to UI create thread";
     }

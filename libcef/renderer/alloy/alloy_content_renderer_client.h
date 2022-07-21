@@ -119,7 +119,7 @@ class AlloyContentRendererClient
   void WillDestroyCurrentMessageLoop() override;
 
  private:
-  void OnBrowserCreated(content::RenderView* render_view,
+  void OnBrowserCreated(blink::WebView* web_view,
                         absl::optional<bool> is_windowless);
 
   // Perform cleanup work for single-process mode.

@@ -368,7 +368,7 @@ void CefFileDialogManager::RunFileChooser(
   // by CefSelectFileDialogFactory, resulting in call to RunSelectFile below.
   // See related comments on CefSelectFileDialogFactory.
   FileSelectHelper::RunFileChooser(
-      browser_->GetWebContents()->GetMainFrame(),
+      browser_->GetWebContents()->GetPrimaryMainFrame(),
       base::MakeRefCounted<CefFileSelectListener>(std::move(callback)),
       new_params, /*run_from_cef=*/true);
 }

@@ -160,7 +160,7 @@ void SetExtensionPrefs(content::WebContents* web_contents,
   // tags as well as hosts that happen to match the id of an installed extension
   // would get the wrong preferences.
   const GURL& site_url =
-      web_contents->GetMainFrame()->GetSiteInstance()->GetSiteURL();
+      web_contents->GetPrimaryMainFrame()->GetSiteInstance()->GetSiteURL();
   if (!site_url.SchemeIs(extensions::kExtensionScheme))
     return;
 
@@ -403,7 +403,8 @@ void PopulateWebPreferences(content::RenderViewHost* rvh,
 
   auto web_contents = content::WebContents::FromRenderViewHost(rvh);
   UpdatePreferredColorScheme(
-      &web, web_contents->GetMainFrame()->GetSiteInstance()->GetSiteURL(),
+      &web,
+      web_contents->GetPrimaryMainFrame()->GetSiteInstance()->GetSiteURL(),
       native_theme);
 
   // Set preferences based on the extension.

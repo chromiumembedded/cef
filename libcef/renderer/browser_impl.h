@@ -24,11 +24,8 @@
 namespace blink {
 class WebFrame;
 class WebNode;
+class WebView;
 }  // namespace blink
-
-namespace content {
-class RenderView;
-}
 
 // Renderer plumbing for CEF features. There is a one-to-one relationship
 // between RenderView on the renderer side and RenderViewHost on the browser
@@ -38,7 +35,7 @@ class RenderView;
 class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
  public:
   // Returns the browser associated with the specified RenderView.
-  static CefRefPtr<CefBrowserImpl> GetBrowserForView(content::RenderView* view);
+  static CefRefPtr<CefBrowserImpl> GetBrowserForView(blink::WebView* view);
   // Returns the browser associated with the specified main WebFrame.
   static CefRefPtr<CefBrowserImpl> GetBrowserForMainFrame(
       blink::WebFrame* frame);
@@ -66,7 +63,7 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
   void GetFrameIdentifiers(std::vector<int64>& identifiers) override;
   void GetFrameNames(std::vector<CefString>& names) override;
 
-  CefBrowserImpl(content::RenderView* render_view,
+  CefBrowserImpl(blink::WebView* web_view,
                  int browser_id,
                  bool is_popup,
                  bool is_windowless);

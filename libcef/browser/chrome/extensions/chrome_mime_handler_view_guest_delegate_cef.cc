@@ -28,8 +28,8 @@ void ChromeMimeHandlerViewGuestDelegateCef::OnGuestAttached() {
   DCHECK(owner_browser);
 
   // Associate guest state information with the owner browser.
-  owner_browser->browser_info()->MaybeCreateFrame(web_contents->GetMainFrame(),
-                                                  true /* is_guest_view */);
+  owner_browser->browser_info()->MaybeCreateFrame(
+      web_contents->GetPrimaryMainFrame(), true /* is_guest_view */);
 }
 
 void ChromeMimeHandlerViewGuestDelegateCef::OnGuestDetached() {
@@ -41,7 +41,8 @@ void ChromeMimeHandlerViewGuestDelegateCef::OnGuestDetached() {
   DCHECK(owner_browser);
 
   // Disassociate guest state information with the owner browser.
-  owner_browser->browser_info()->RemoveFrame(web_contents->GetMainFrame());
+  owner_browser->browser_info()->RemoveFrame(
+      web_contents->GetPrimaryMainFrame());
 }
 
 }  // namespace extensions

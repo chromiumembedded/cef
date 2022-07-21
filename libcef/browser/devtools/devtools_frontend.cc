@@ -369,20 +369,18 @@ void CefDevToolsFrontend::WebContentsDestroyed() {
 }
 
 void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
-    base::Value message) {
-  if (!message.is_dict())
-    return;
-  const std::string* method = message.FindStringKey("method");
+    base::Value::Dict message) {
+  const std::string* method = message.FindString("method");
   if (!method)
     return;
 
-  int request_id = message.FindIntKey("id").value_or(0);
-  base::Value* params_value = message.FindListKey("params");
+  int request_id = message.FindInt("id").value_or(0);
+  base::Value::List* params_value = message.FindList("params");
 
   // Since we've received message by value, we can take the list.
-  base::Value::ListStorage params;
+  base::Value::List params;
   if (params_value) {
-    params = std::move(*params_value).TakeListDeprecated();
+    params = std::move(*params_value);
   }
 
   if (*method == "dispatchProtocolMessage") {
@@ -397,7 +395,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     agent_host_->DispatchProtocolMessage(
         this, base::as_bytes(base::make_span(*protocol_message)));
   } else if (*method == "loadCompleted") {
-    web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
+    web_contents()->GetPrimaryMainFrame()->ExecuteJavaScriptForTests(
         u"DevToolsAPI.setUseSoftMenu(true);", base::NullCallback());
   } else if (*method == "loadNetworkResource") {
     if (params.size() < 3)
@@ -413,10 +411,10 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
 
     GURL gurl(*url);
     if (!gurl.is_valid()) {
-      base::DictionaryValue response;
-      response.SetInteger("statusCode", 404);
-      response.SetBoolean("urlValid", false);
-      SendMessageAck(request_id, std::move(response));
+      base::Value::Dict response;
+      response.Set("statusCode", 404);
+      response.Set("urlValid", false);
+      SendMessageAck(request_id, base::Value(std::move(response)));
       return;
     }
 
@@ -471,7 +469,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
       return;
     } else {
       auto* partition =
-          web_contents()->GetBrowserContext()->GetStoragePartitionForUrl(gurl);
+          inspected_contents_->GetPrimaryMainFrame()->GetStoragePartition();
       url_loader_factory = partition->GetURLLoaderFactoryForBrowserProcess();
     }
 
@@ -506,7 +504,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     DictionaryPrefUpdate update(GetPrefs(), prefs::kDevToolsPreferences);
     update.Get()->RemoveKey(*name);
   } else if (*method == "requestFileSystems") {
-    web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
+    web_contents()->GetPrimaryMainFrame()->ExecuteJavaScriptForTests(
         u"DevToolsAPI.fileSystemsLoaded([]);", base::NullCallback());
   } else if (*method == "reattach") {
     if (!agent_host_)
@@ -592,7 +590,7 @@ void CefDevToolsFrontend::CallClientFunction(
     base::OnceCallback<void(base::Value)> cb) {
   std::string javascript;
 
-  web_contents()->GetMainFrame()->AllowInjectingJavaScript();
+  web_contents()->GetPrimaryMainFrame()->AllowInjectingJavaScript();
 
   base::Value::List arguments;
   if (!arg1.is_none()) {
@@ -604,7 +602,7 @@ void CefDevToolsFrontend::CallClientFunction(
       }
     }
   }
-  web_contents()->GetMainFrame()->ExecuteJavaScriptMethod(
+  web_contents()->GetPrimaryMainFrame()->ExecuteJavaScriptMethod(
       base::ASCIIToUTF16(object_name), base::ASCIIToUTF16(method_name),
       std::move(arguments), std::move(cb));
 }

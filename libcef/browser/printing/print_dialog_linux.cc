@@ -32,11 +32,6 @@ using printing::PrintSettings;
 
 namespace {
 
-printing::PrintingContextLinux::CreatePrintDialogFunctionPtr
-    g_default_create_print_dialog_func = nullptr;
-printing::PrintingContextLinux::PdfPaperSizeFunctionPtr
-    g_default_pdf_paper_size_func = nullptr;
-
 CefRefPtr<CefBrowserHostBase> GetBrowserForContext(
     printing::PrintingContextLinux* context) {
   return extensions::GetOwnerBrowserForGlobalId(
@@ -127,12 +122,14 @@ class CefPrintJobCallbackImpl : public CefPrintJobCallback {
   IMPLEMENT_REFCOUNTING(CefPrintJobCallbackImpl);
 };
 
-// static
-printing::PrintDialogGtkInterface* CefPrintDialogLinux::CreatePrintDialog(
-    PrintingContextLinux* context) {
+CefPrintingContextLinuxDelegate::CefPrintingContextLinuxDelegate() = default;
+
+printing::PrintDialogLinuxInterface*
+CefPrintingContextLinuxDelegate::CreatePrintDialog(
+    printing::PrintingContextLinux* context) {
   CEF_REQUIRE_UIT();
 
-  printing::PrintDialogGtkInterface* interface = nullptr;
+  printing::PrintDialogLinuxInterface* interface = nullptr;
 
   auto browser = GetBrowserForContext(context);
   if (!browser) {
@@ -142,8 +139,8 @@ printing::PrintDialogGtkInterface* CefPrintDialogLinux::CreatePrintDialog(
 
   auto handler = GetPrintHandlerForBrowser(browser);
   if (!handler) {
-    if (g_default_create_print_dialog_func) {
-      interface = g_default_create_print_dialog_func(context);
+    if (default_delegate_) {
+      interface = default_delegate_->CreatePrintDialog(context);
       DCHECK(interface);
     }
   } else {
@@ -157,8 +154,7 @@ printing::PrintDialogGtkInterface* CefPrintDialogLinux::CreatePrintDialog(
   return interface;
 }
 
-// static
-gfx::Size CefPrintDialogLinux::GetPdfPaperSize(
+gfx::Size CefPrintingContextLinuxDelegate::GetPdfPaperSize(
     printing::PrintingContextLinux* context) {
   CEF_REQUIRE_UIT();
 
@@ -172,8 +168,8 @@ gfx::Size CefPrintDialogLinux::GetPdfPaperSize(
 
   auto handler = GetPrintHandlerForBrowser(browser);
   if (!handler) {
-    if (g_default_pdf_paper_size_func) {
-      size = g_default_pdf_paper_size_func(context);
+    if (default_delegate_) {
+      size = default_delegate_->GetPdfPaperSize(context);
       DCHECK(!size.IsEmpty());
     }
   } else {
@@ -190,14 +186,10 @@ gfx::Size CefPrintDialogLinux::GetPdfPaperSize(
   return size;
 }
 
-// static
-void CefPrintDialogLinux::SetDefaultPrintingContextFuncs(
-    printing::PrintingContextLinux::CreatePrintDialogFunctionPtr
-        create_print_dialog_func,
-    printing::PrintingContextLinux::PdfPaperSizeFunctionPtr
-        pdf_paper_size_func) {
-  g_default_create_print_dialog_func = create_print_dialog_func;
-  g_default_pdf_paper_size_func = pdf_paper_size_func;
+void CefPrintingContextLinuxDelegate::SetDefaultDelegate(
+    printing::PrintingContextLinuxDelegate* delegate) {
+  DCHECK(!default_delegate_);
+  default_delegate_ = delegate;
 }
 
 // static

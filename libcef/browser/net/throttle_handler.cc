@@ -43,8 +43,8 @@ bool NavigationOnUIThread(content::NavigationHandle* navigation_handle) {
 
   CefRefPtr<CefBrowserHostBase> browser;
   if (!CefBrowserInfoManager::GetInstance()->MaybeAllowNavigation(
-          navigation_handle->GetWebContents()->GetMainFrame(), open_params,
-          browser)) {
+          navigation_handle->GetWebContents()->GetPrimaryMainFrame(),
+          open_params, browser)) {
     // Cancel the navigation.
     return true;
   }

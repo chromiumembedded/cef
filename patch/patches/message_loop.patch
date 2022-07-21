@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index d746e7aebfa9f..538b398b049cb 100644
+index 1ed9e277cd967..6b7eed9fa8fd6 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -2,6 +2,7 @@
@@ -30,7 +30,7 @@ index d746e7aebfa9f..538b398b049cb 100644
    }
    if (has_msg)
 diff --git base/task/current_thread.cc base/task/current_thread.cc
-index b7e9d215c2039..57816ea1c8b81 100644
+index d3a89a8496171..2db4706f22ec8 100644
 --- base/task/current_thread.cc
 +++ base/task/current_thread.cc
 @@ -49,6 +49,8 @@ void CurrentThread::AddDestructionObserver(
@@ -43,11 +43,11 @@ index b7e9d215c2039..57816ea1c8b81 100644
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/task/current_thread.h base/task/current_thread.h
-index 13dc0cdede8f7..4c4a85848a93a 100644
+index 485601662485a..9e1464c33d8d4 100644
 --- base/task/current_thread.h
 +++ base/task/current_thread.h
-@@ -131,6 +131,12 @@ class BASE_EXPORT CurrentThread {
-   // to run. There can only be one OnNextIdleCallback at a time.
+@@ -132,6 +132,12 @@ class BASE_EXPORT CurrentThread {
+   // with a null callback to clear any potentially pending callbacks.
    void RegisterOnNextIdleCallback(OnceClosure on_next_idle_callback);
  
 +#if BUILDFLAG(IS_WIN)
@@ -59,7 +59,7 @@ index 13dc0cdede8f7..4c4a85848a93a 100644
    // Enables nested task processing in scope of an upcoming native message loop.
    // Some unwanted message loops may occur when using common controls or printer
    // functions. Hence, nested task processing is disabled by default to avoid
-@@ -196,6 +202,13 @@ class BASE_EXPORT CurrentThread {
+@@ -202,6 +208,13 @@ class BASE_EXPORT CurrentThread {
    friend class web::WebTaskEnvironment;
  
    raw_ptr<sequence_manager::internal::SequenceManagerImpl> current_;

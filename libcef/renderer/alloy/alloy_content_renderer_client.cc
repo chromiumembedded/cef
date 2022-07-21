@@ -71,8 +71,6 @@
 #include "content/public/common/content_paths.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
-#include "content/public/renderer/render_view.h"
-#include "content/public/renderer/render_view_visitor.h"
 #include "extensions/common/manifest_handlers/csp_info.h"
 #include "extensions/common/switches.h"
 #include "extensions/renderer/guest_view/mime_handler_view/mime_handler_view_container_manager.h"
@@ -290,7 +288,7 @@ void AlloyContentRendererClient::RenderFrameCreated(
   render_manager_->RenderFrameCreated(render_frame, render_frame_observer,
                                       browser_created, is_windowless);
   if (browser_created) {
-    OnBrowserCreated(render_frame->GetRenderView(), is_windowless);
+    OnBrowserCreated(render_frame->GetWebView(), is_windowless);
   }
 
   if (is_windowless.has_value()) {
@@ -306,9 +304,7 @@ void AlloyContentRendererClient::WebViewCreated(blink::WebView* web_view) {
   absl::optional<bool> is_windowless;
   render_manager_->WebViewCreated(web_view, browser_created, is_windowless);
   if (browser_created) {
-    auto render_view = content::RenderView::FromWebView(web_view);
-    CHECK(render_view);
-    OnBrowserCreated(render_view, is_windowless);
+    OnBrowserCreated(web_view, is_windowless);
   }
 }
 
@@ -516,7 +512,7 @@ void AlloyContentRendererClient::WillDestroyCurrentMessageLoop() {
 }
 
 void AlloyContentRendererClient::OnBrowserCreated(
-    content::RenderView* render_view,
+    blink::WebView* web_view,
     absl::optional<bool> is_windowless) {
 #if BUILDFLAG(IS_MAC)
   const bool windowless = is_windowless.has_value() && *is_windowless;
@@ -525,7 +521,7 @@ void AlloyContentRendererClient::OnBrowserCreated(
   // WebKit layer, or if it would be exposed as an WebView instance method; the
   // current implementation uses a static variable, and WebKit needs to be
   // patched in order to make it work for each WebView instance
-  render_view->GetWebView()->SetUseExternalPopupMenusThisInstance(!windowless);
+  web_view->SetUseExternalPopupMenusThisInstance(!windowless);
 #endif
 }
 

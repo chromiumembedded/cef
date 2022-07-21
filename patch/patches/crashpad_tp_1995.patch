@@ -146,7 +146,7 @@ index 8ad8a2b16f648..adaede06e8b86 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index 0fe4760db7fe2..042af7247712c 100644
+index e79f4719b3dd0..22a20aede8100 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@

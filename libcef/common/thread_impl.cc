@@ -72,13 +72,13 @@ bool CefThreadImpl::Create(const CefString& display_name,
 
   switch (priority) {
     case TP_BACKGROUND:
-      options.priority = base::ThreadPriority::BACKGROUND;
+      options.thread_type = base::ThreadType::kBackground;
       break;
     case TP_DISPLAY:
-      options.priority = base::ThreadPriority::DISPLAY;
+      options.thread_type = base::ThreadType::kDisplayCritical;
       break;
     case TP_REALTIME_AUDIO:
-      options.priority = base::ThreadPriority::REALTIME_AUDIO;
+      options.thread_type = base::ThreadType::kRealtimeAudio;
       break;
     default:
       break;

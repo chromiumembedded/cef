@@ -17,7 +17,6 @@
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/renderer/render_frame.h"
-#include "content/public/renderer/render_view.h"
 #include "content/renderer/document_state.h"
 #include "content/renderer/navigation_state.h"
 #include "third_party/blink/public/platform/web_string.h"
@@ -35,7 +34,7 @@
 
 // static
 CefRefPtr<CefBrowserImpl> CefBrowserImpl::GetBrowserForView(
-    content::RenderView* view) {
+    blink::WebView* view) {
   return CefRenderManager::Get()->GetBrowserForView(view);
 }
 
@@ -266,11 +265,11 @@ void CefBrowserImpl::GetFrameNames(std::vector<CefString>& names) {
 // CefBrowserImpl public methods.
 // -----------------------------------------------------------------------------
 
-CefBrowserImpl::CefBrowserImpl(content::RenderView* render_view,
+CefBrowserImpl::CefBrowserImpl(blink::WebView* web_view,
                                int browser_id,
                                bool is_popup,
                                bool is_windowless)
-    : blink::WebViewObserver(render_view->GetWebView()),
+    : blink::WebViewObserver(web_view),
       browser_id_(browser_id),
       is_popup_(is_popup),
       is_windowless_(is_windowless) {}

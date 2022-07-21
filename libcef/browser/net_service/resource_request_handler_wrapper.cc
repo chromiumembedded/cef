@@ -1342,7 +1342,7 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
   if (request.is_outermost_main_frame ||
       static_cast<blink::mojom::ResourceType>(request.resource_type) ==
           blink::mojom::ResourceType::kMainFrame) {
-    frame = web_contents->GetMainFrame();
+    frame = web_contents->GetPrimaryMainFrame();
     CHECK(frame);
   } else {
     // May return nullptr for frames in inner WebContents.
@@ -1359,7 +1359,7 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
 
     if (!frame) {
       // Use the main frame for the CefBrowserHost.
-      frame = web_contents->GetMainFrame();
+      frame = web_contents->GetPrimaryMainFrame();
       CHECK(frame);
     }
   }

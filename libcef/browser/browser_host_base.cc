@@ -1012,7 +1012,7 @@ bool CefBrowserHostBase::IsFocused() const {
   auto web_contents = GetWebContents();
   if (web_contents) {
     return static_cast<content::RenderFrameHostImpl*>(
-               web_contents->GetMainFrame())
+               web_contents->GetPrimaryMainFrame())
         ->IsFocused();
   }
   return false;

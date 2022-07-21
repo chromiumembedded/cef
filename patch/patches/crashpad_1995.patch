@@ -1,5 +1,5 @@
 diff --git chrome/chrome_elf/BUILD.gn chrome/chrome_elf/BUILD.gn
-index 3fe0b9b74ae0a..38987ce169308 100644
+index da34cf911b74d..d5c8ca11be3fc 100644
 --- chrome/chrome_elf/BUILD.gn
 +++ chrome/chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -10,7 +10,7 @@ index 3fe0b9b74ae0a..38987ce169308 100644
  import("//chrome/process_version_rc_template.gni")
  import("//testing/test.gni")
  
-@@ -104,9 +105,6 @@ source_set("constants") {
+@@ -106,9 +107,6 @@ source_set("constants") {
  
  static_library("crash") {
    sources = [
@@ -20,7 +20,7 @@ index 3fe0b9b74ae0a..38987ce169308 100644
      "crash/crash_helper.cc",
      "crash/crash_helper.h",
    ]
-@@ -114,6 +112,7 @@ static_library("crash") {
+@@ -116,6 +114,7 @@ static_library("crash") {
      ":hook_util",
      "//base",  # This needs to go.  DEP of app, crash_keys, client.
      "//base:base_static",  # pe_image
@@ -28,7 +28,7 @@ index 3fe0b9b74ae0a..38987ce169308 100644
      "//chrome/install_static:install_static_util",
      "//components/crash/core/app",
      "//components/crash/core/common",  # crash_keys
-@@ -121,6 +120,17 @@ static_library("crash") {
+@@ -123,6 +122,17 @@ static_library("crash") {
      "//content/public/common:result_codes",
      "//third_party/crashpad/crashpad/client",  # DumpWithoutCrash
    ]
@@ -278,7 +278,7 @@ index 9058d56e8bda7..6a62596c03a52 100644
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/core/app/crashpad_linux.cc components/crash/core/app/crashpad_linux.cc
-index 39fb479eba509..809859ee5e597 100644
+index 7159bea91a257..090dfcfa0d45a 100644
 --- components/crash/core/app/crashpad_linux.cc
 +++ components/crash/core/app/crashpad_linux.cc
 @@ -23,6 +23,7 @@
@@ -347,9 +347,9 @@ index 39fb479eba509..809859ee5e597 100644
 +
 +    crash_reporter_client->GetCrashOptionalArguments(&arguments);
 +
-     bool result =
-         client.StartHandler(handler_path, *database_path, metrics_path, url,
-                             annotations, arguments, false, false);
+     CHECK(client.StartHandler(handler_path, *database_path, metrics_path, url,
+                               annotations, arguments, false, false));
+   } else {
 diff --git components/crash/core/app/crashpad_mac.mm components/crash/core/app/crashpad_mac.mm
 index dc041c43371fd..1d060ae55c586 100644
 --- components/crash/core/app/crashpad_mac.mm

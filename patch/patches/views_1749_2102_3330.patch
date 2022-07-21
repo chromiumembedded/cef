@@ -43,10 +43,10 @@ index 11f1421cc79c1..c5dbc643ae7c8 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 7fb46dbdee749..e25a85d919e5e 100644
+index 9db4aaff7094b..a4baf119986a7 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
-@@ -659,6 +659,14 @@ void RenderText::SetWhitespaceElision(absl::optional<bool> whitespace_elision) {
+@@ -665,6 +665,14 @@ void RenderText::SetWhitespaceElision(absl::optional<bool> whitespace_elision) {
    }
  }
  
@@ -61,7 +61,7 @@ index 7fb46dbdee749..e25a85d919e5e 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -2015,6 +2023,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -1995,6 +2003,19 @@ void RenderText::OnTextAttributeChanged() {
  
    layout_text_up_to_date_ = false;
  
@@ -82,7 +82,7 @@ index 7fb46dbdee749..e25a85d919e5e 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index 983cba19002c4..03b7d77a2e8e6 100644
+index 81ac620c7e53a..37e09eaf4b910 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
 @@ -347,6 +347,10 @@ class GFX_EXPORT RenderText {
@@ -96,7 +96,7 @@ index 983cba19002c4..03b7d77a2e8e6 100644
    const Rect& display_rect() const { return display_rect_; }
    void SetDisplayRect(const Rect& r);
  
-@@ -1056,6 +1060,8 @@ class GFX_EXPORT RenderText {
+@@ -1050,6 +1054,8 @@ class GFX_EXPORT RenderText {
  
    // Tell whether or not the |layout_text_| needs an update or is up to date.
    mutable bool layout_text_up_to_date_ = false;
@@ -394,10 +394,10 @@ index 9c8c5de34d064..b054688cca148 100644
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 6da48e9716bcd..98f0d4d217f9e 100644
+index 538829ec598b6..042728512ea26 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1091,6 +1091,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1084,6 +1084,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -413,7 +413,7 @@ index 6da48e9716bcd..98f0d4d217f9e 100644
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == Type::kActionableSubMenu) {
-@@ -1157,6 +1166,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1150,6 +1159,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {
@@ -700,7 +700,7 @@ index 1ffec7052a314..3a2be376fb000 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aura_ozone.cc ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
-index bec549b841bd7..0934f19177358 100644
+index a364780eb8203..4671969f5597c 100644
 --- ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 +++ ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 @@ -16,6 +16,7 @@
@@ -724,7 +724,7 @@ index bec549b841bd7..0934f19177358 100644
      if (root_location != root_current_location &&
          ozone_ui_controls_test_helper_->ButtonDownMask() == 0 &&
 diff --git ui/views/view.h ui/views/view.h
-index ef40c571d57c0..0fd51538fbefd 100644
+index 29b0bed42c74d..c6dd795c13094 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -22,6 +22,7 @@

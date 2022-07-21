@@ -60,16 +60,14 @@ CefRefPtr<CefValue> CefParseJSONAndReturnError(
   const std::string& json = json_string.ToString();
 
   std::string error_msg;
-  base::JSONReader::ValueWithError value_and_error =
-      base::JSONReader::ReadAndReturnValueWithError(
-          json, GetJSONReaderOptions(options));
-  if (value_and_error.value) {
+  auto result = base::JSONReader::ReadAndReturnValueWithError(
+      json, GetJSONReaderOptions(options));
+  if (result.has_value()) {
     return new CefValueImpl(
-        base::Value::ToUniquePtrValue(std::move(value_and_error.value.value()))
-            .release());
+        base::Value::ToUniquePtrValue(std::move(*result)).release());
   }
 
-  error_msg_out = value_and_error.error_message;
+  error_msg_out = result.error().message;
   return nullptr;
 }
 

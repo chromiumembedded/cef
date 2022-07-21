@@ -12,10 +12,10 @@ index 17f203b11ce39..0a5277b686d61 100644
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index aef9d1a79fcea..015206dd88756 100644
+index 9fa230c1cd95f..fb49251a52d11 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -224,6 +224,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -225,6 +225,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -24,7 +24,7 @@ index aef9d1a79fcea..015206dd88756 100644
    // TODO(erikchen): Fix ownership semantics for guest views.
    // https://crbug.com/832879.
    std::move(callback).Run(
-@@ -234,6 +236,10 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -235,6 +237,10 @@ void MimeHandlerViewGuest::CreateWebContents(
  }
  
  void MimeHandlerViewGuest::DidAttachToEmbedder() {
@@ -35,7 +35,7 @@ index aef9d1a79fcea..015206dd88756 100644
    DCHECK(stream_->handler_url().SchemeIs(extensions::kExtensionScheme));
    web_contents()->GetController().LoadURL(
        stream_->handler_url(), content::Referrer(),
-@@ -264,6 +270,11 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
+@@ -265,6 +271,11 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
    return true;
  }
  
@@ -68,7 +68,7 @@ index ef6faf317dd41..8675c305d489c 100644
    bool is_embedder_fullscreen_ = false;
    bool plugin_can_save_ = false;
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
-index d97b054a8d6c7..9fd96a8f7826d 100644
+index 3aaeab0baf51e..4f818abde1c1a 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 @@ -7,6 +7,8 @@

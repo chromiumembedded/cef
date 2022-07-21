@@ -137,13 +137,7 @@ class CefRegistrationImpl : public CefRegistration,
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefRegistrationImpl);
 };
 
-CefMediaRouterImpl::CefMediaRouterImpl() {
-  // Verify that our enum matches Chromium's values.
-  static_assert(
-      static_cast<int>(CEF_MRCR_TOTAL_COUNT) ==
-          static_cast<int>(media_router::RouteRequestResult::TOTAL_COUNT),
-      "enum mismatch");
-}
+CefMediaRouterImpl::CefMediaRouterImpl() = default;
 
 void CefMediaRouterImpl::Initialize(
     const CefBrowserContext::Getter& browser_context_getter,
@@ -285,7 +279,7 @@ void CefMediaRouterImpl::CreateRouteCallback(
     const media_router::RouteRequestResult& result) {
   DCHECK(ValidContext());
 
-  if (result.result_code() != media_router::RouteRequestResult::OK) {
+  if (result.result_code() != media_router::mojom::RouteRequestResultCode::OK) {
     LOG(WARNING) << "Media route creation failed: " << result.error() << " ("
                  << result.result_code() << ")";
   }
@@ -294,7 +288,7 @@ void CefMediaRouterImpl::CreateRouteCallback(
     return;
 
   CefRefPtr<CefMediaRoute> route;
-  if (result.result_code() == media_router::RouteRequestResult::OK &&
+  if (result.result_code() == media_router::mojom::RouteRequestResultCode::OK &&
       result.route()) {
     route = new CefMediaRouteImpl(*result.route(), browser_context_getter_);
   }

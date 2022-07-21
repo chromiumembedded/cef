@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index f4f1725e5a0ed..59ce489a635c3 100644
+index 99b370a07c1df..85bec5adc723a 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/compiler/pgo/pgo.gni")
@@ -10,15 +10,15 @@ index f4f1725e5a0ed..59ce489a635c3 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/downgrade/buildflags.gni")
  import("//chrome/common/features.gni")
-@@ -1946,6 +1947,7 @@ static_library("browser") {
-     "//build:chromeos_buildflags",
+@@ -1959,6 +1960,7 @@ static_library("browser") {
+     "//build/config/chromebox_for_meetings:buildflags",
      "//build/config/compiler:compiler_buildflags",
      "//cc",
 +    "//cef/libcef/features",
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2482,6 +2484,10 @@ static_library("browser") {
+@@ -2491,6 +2493,10 @@ static_library("browser") {
      ]
    }
  

@@ -60,11 +60,11 @@ ValueStore::ReadResult CefValueStore::Get(
   if (!status_.ok())
     return ReadResult(CreateStatusCopy(status_));
 
-  auto settings = std::make_unique<base::DictionaryValue>();
+  base::Value::Dict settings;
   for (const auto& key : keys) {
-    base::Value* value = storage_.FindKey(key);
+    base::Value* value = storage_.Find(key);
     if (value) {
-      settings->SetKey(key, value->Clone());
+      settings.Set(key, value->Clone());
     }
   }
   return ReadResult(std::move(settings), CreateStatusCopy(status_));
@@ -74,35 +74,33 @@ ValueStore::ReadResult CefValueStore::Get() {
   read_count_++;
   if (!status_.ok())
     return ReadResult(CreateStatusCopy(status_));
-  return ReadResult(storage_.CreateDeepCopy(), CreateStatusCopy(status_));
+  return ReadResult(storage_.Clone(), CreateStatusCopy(status_));
 }
 
 ValueStore::WriteResult CefValueStore::Set(WriteOptions options,
                                            const std::string& key,
                                            const base::Value& value) {
-  base::DictionaryValue settings;
-  settings.SetKey(key, value.Clone());
+  base::Value::Dict settings;
+  settings.Set(key, value.Clone());
   return Set(options, settings);
 }
 
-ValueStore::WriteResult CefValueStore::Set(
-    WriteOptions options,
-    const base::DictionaryValue& settings) {
+ValueStore::WriteResult CefValueStore::Set(WriteOptions options,
+                                           const base::Value::Dict& settings) {
   write_count_++;
   if (!status_.ok())
     return WriteResult(CreateStatusCopy(status_));
 
   ValueStoreChangeList changes;
-  for (base::DictionaryValue::Iterator it(settings); !it.IsAtEnd();
-       it.Advance()) {
-    base::Value* old_value = storage_.FindKey(it.key());
-    if (!old_value || *old_value != it.value()) {
-      changes.emplace_back(it.key(),
+  for (const auto [key, value] : settings) {
+    base::Value* old_value = storage_.Find(key);
+    if (!old_value || *old_value != value) {
+      changes.emplace_back(key,
                            old_value
                                ? absl::optional<base::Value>(old_value->Clone())
                                : absl::nullopt,
-                           it.value().Clone());
-      storage_.SetKey(it.key(), it.value().Clone());
+                           value.Clone());
+      storage_.Set(key, value.Clone());
     }
   }
   return WriteResult(std::move(changes), CreateStatusCopy(status_));
@@ -120,7 +118,7 @@ ValueStore::WriteResult CefValueStore::Remove(
 
   ValueStoreChangeList changes;
   for (auto const& key : keys) {
-    absl::optional<base::Value> old_value = storage_.ExtractKey(key);
+    absl::optional<base::Value> old_value = storage_.Extract(key);
     if (old_value.has_value()) {
       changes.emplace_back(key, std::move(*old_value), absl::nullopt);
     }
@@ -130,9 +128,8 @@ ValueStore::WriteResult CefValueStore::Remove(
 
 ValueStore::WriteResult CefValueStore::Clear() {
   std::vector<std::string> keys;
-  for (base::DictionaryValue::Iterator it(storage_); !it.IsAtEnd();
-       it.Advance()) {
-    keys.push_back(it.key());
+  for (const auto [key, value] : storage_) {
+    keys.push_back(key);
   }
   return Remove(keys);
 }

@@ -1,5 +1,5 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index 23215d8b854fd..4cc1e7f7d3d95 100644
+index c700f62fcfed3..23b20a8008029 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
 @@ -20,6 +20,7 @@
@@ -24,7 +24,7 @@ index 23215d8b854fd..4cc1e7f7d3d95 100644
    ShowFolderUploadConfirmationDialog(
        path,
        base::BindOnce(&FileSelectHelper::ConvertToFileChooserFileInfoList, this),
-@@ -450,7 +458,8 @@ void FileSelectHelper::DontAbortOnMissingWebContentsForTesting() {
+@@ -470,7 +478,8 @@ void FileSelectHelper::DontAbortOnMissingWebContentsForTesting() {
  
  std::unique_ptr<ui::SelectFileDialog::FileTypeInfo>
  FileSelectHelper::GetFileTypesFromAcceptType(
@@ -34,7 +34,7 @@ index 23215d8b854fd..4cc1e7f7d3d95 100644
    std::unique_ptr<ui::SelectFileDialog::FileTypeInfo> base_file_type(
        new ui::SelectFileDialog::FileTypeInfo());
    if (accept_types.empty())
-@@ -464,17 +473,24 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -484,17 +493,24 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    std::vector<base::FilePath::StringType>* extensions =
        &file_type->extensions.back();
  
@@ -60,7 +60,7 @@ index 23215d8b854fd..4cc1e7f7d3d95 100644
      } else {
        if (!base::IsStringASCII(accept_type))
          continue;
-@@ -485,10 +501,18 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -505,10 +521,18 @@ FileSelectHelper::GetFileTypesFromAcceptType(
          description_id = IDS_AUDIO_FILES;
        else if (ascii_type == "video/*")
          description_id = IDS_VIDEO_FILES;
@@ -81,7 +81,7 @@ index 23215d8b854fd..4cc1e7f7d3d95 100644
      if (extensions->size() > old_extension_size)
        valid_type_count++;
    }
-@@ -513,6 +537,15 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -533,6 +557,15 @@ FileSelectHelper::GetFileTypesFromAcceptType(
          l10n_util::GetStringUTF16(description_id));
    }
  
@@ -97,7 +97,7 @@ index 23215d8b854fd..4cc1e7f7d3d95 100644
    return file_type;
  }
  
-@@ -520,7 +553,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -540,7 +573,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
  void FileSelectHelper::RunFileChooser(
      content::RenderFrameHost* render_frame_host,
      scoped_refptr<content::FileSelectListener> listener,
@@ -107,7 +107,7 @@ index 23215d8b854fd..4cc1e7f7d3d95 100644
    Profile* profile = Profile::FromBrowserContext(
        render_frame_host->GetProcess()->GetBrowserContext());
  
-@@ -539,6 +573,7 @@ void FileSelectHelper::RunFileChooser(
+@@ -559,6 +593,7 @@ void FileSelectHelper::RunFileChooser(
    // message.
    scoped_refptr<FileSelectHelper> file_select_helper(
        new FileSelectHelper(profile));
@@ -115,7 +115,7 @@ index 23215d8b854fd..4cc1e7f7d3d95 100644
    file_select_helper->RunFileChooser(render_frame_host, std::move(listener),
                                       params.Clone());
  }
-@@ -592,7 +627,8 @@ void FileSelectHelper::RunFileChooser(
+@@ -612,7 +647,8 @@ void FileSelectHelper::RunFileChooser(
  }
  
  void FileSelectHelper::GetFileTypesInThreadPool(FileChooserParamsPtr params) {
@@ -126,10 +126,10 @@ index 23215d8b854fd..4cc1e7f7d3d95 100644
        params->need_local_path ? ui::SelectFileDialog::FileTypeInfo::NATIVE_PATH
                                : ui::SelectFileDialog::FileTypeInfo::ANY_PATH;
 diff --git chrome/browser/file_select_helper.h chrome/browser/file_select_helper.h
-index f9d1f31b36357..122e1ce9fa962 100644
+index 8c86774e6d279..b634ed1056b4f 100644
 --- chrome/browser/file_select_helper.h
 +++ chrome/browser/file_select_helper.h
-@@ -59,7 +59,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
+@@ -65,7 +65,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
    static void RunFileChooser(
        content::RenderFrameHost* render_frame_host,
        scoped_refptr<content::FileSelectListener> listener,
@@ -139,7 +139,7 @@ index f9d1f31b36357..122e1ce9fa962 100644
  
    // Enumerates all the files in directory.
    static void EnumerateDirectory(
-@@ -255,7 +256,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
+@@ -266,7 +267,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
    // |accept_types| contains only valid lowercased MIME types or file extensions
    // beginning with a period (.).
    static std::unique_ptr<ui::SelectFileDialog::FileTypeInfo>
@@ -149,16 +149,16 @@ index f9d1f31b36357..122e1ce9fa962 100644
  
    // Check the accept type is valid. It is expected to be all lower case with
    // no whitespace.
-@@ -319,6 +321,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
- 
+@@ -331,6 +333,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
    // Set to false in unit tests since there is no WebContents.
    bool abort_on_missing_web_contents_in_tests_ = true;
-+
+ 
 +  // Set to true if this dialog was triggered via CEF.
 +  bool run_from_cef_ = false;
- };
- 
- #endif  // CHROME_BROWSER_FILE_SELECT_HELPER_H_
++
+ #if BUILDFLAG(IS_CHROMEOS_ASH)
+   // DlpFilesController is responsible for checking whether any of the selected
+   // files is restricted according to the DataLeakPrevention policy.
 diff --git chrome/browser/ui/chrome_select_file_policy.h chrome/browser/ui/chrome_select_file_policy.h
 index 2cf473c35b67a..e3552bd0f17d4 100644
 --- chrome/browser/ui/chrome_select_file_policy.h
@@ -172,72 +172,11 @@ index 2cf473c35b67a..e3552bd0f17d4 100644
   private:
    raw_ptr<content::WebContents> source_contents_;
  };
-diff --git printing/printing_context_linux.cc printing/printing_context_linux.cc
-index f77248cef2227..6c762941ec0a3 100644
---- printing/printing_context_linux.cc
-+++ printing/printing_context_linux.cc
-@@ -54,20 +54,23 @@ PrintingContextLinux::~PrintingContextLinux() {
- }
- 
- // static
--void PrintingContextLinux::SetCreatePrintDialogFunction(
--    PrintDialogGtkInterface* (*create_dialog_func)(
--        PrintingContextLinux* context)) {
-+PrintingContextLinux::CreatePrintDialogFunctionPtr
-+PrintingContextLinux::SetCreatePrintDialogFunction(
-+    CreatePrintDialogFunctionPtr create_dialog_func) {
-   DCHECK(create_dialog_func);
--  DCHECK(!create_dialog_func_);
-+  auto old_func = create_dialog_func_;
-   create_dialog_func_ = create_dialog_func;
-+  return old_func;
- }
- 
- // static
--void PrintingContextLinux::SetPdfPaperSizeFunction(
--    gfx::Size (*get_pdf_paper_size)(PrintingContextLinux* context)) {
-+PrintingContextLinux::PdfPaperSizeFunctionPtr
-+PrintingContextLinux::SetPdfPaperSizeFunction(
-+    PdfPaperSizeFunctionPtr get_pdf_paper_size) {
-   DCHECK(get_pdf_paper_size);
--  DCHECK(!get_pdf_paper_size_);
-+  auto old_func = get_pdf_paper_size_;
-   get_pdf_paper_size_ = get_pdf_paper_size;
-+  return old_func;
- }
- 
- void PrintingContextLinux::AskUserForSettings(int max_pages,
-diff --git printing/printing_context_linux.h printing/printing_context_linux.h
-index 653170ba60e83..677df89f93e8d 100644
---- printing/printing_context_linux.h
-+++ printing/printing_context_linux.h
-@@ -25,12 +25,17 @@ class COMPONENT_EXPORT(PRINTING) PrintingContextLinux : public PrintingContext {
-   ~PrintingContextLinux() override;
- 
-   // Sets the function that creates the print dialog.
--  static void SetCreatePrintDialogFunction(PrintDialogGtkInterface* (
--      *create_dialog_func)(PrintingContextLinux* context));
-+  // Returns the old function, if any.
-+  using CreatePrintDialogFunctionPtr =
-+      PrintDialogGtkInterface* (*)(PrintingContextLinux* context);
-+  static CreatePrintDialogFunctionPtr SetCreatePrintDialogFunction(
-+      CreatePrintDialogFunctionPtr);
- 
-   // Sets the function that returns pdf paper size through the native API.
--  static void SetPdfPaperSizeFunction(
--      gfx::Size (*get_pdf_paper_size)(PrintingContextLinux* context));
-+  // Returns the old function, if any.
-+  using PdfPaperSizeFunctionPtr = gfx::Size (*)(PrintingContextLinux* context);
-+  static PdfPaperSizeFunctionPtr SetPdfPaperSizeFunction(
-+      PdfPaperSizeFunctionPtr);
- 
-   // Initializes with predefined settings.
-   void InitWithSettings(std::unique_ptr<PrintSettings> settings);
 diff --git ui/shell_dialogs/execute_select_file_win.cc ui/shell_dialogs/execute_select_file_win.cc
-index 063d4c7c96cba..24bd0533af65b 100644
+index 162dbc3aeb4ea..41b73a5a2f4e4 100644
 --- ui/shell_dialogs/execute_select_file_win.cc
 +++ ui/shell_dialogs/execute_select_file_win.cc
-@@ -289,9 +289,7 @@ bool ExecuteSelectSingleFile(HWND owner,
+@@ -290,9 +290,7 @@ bool ExecuteSelectSingleFile(HWND owner,
                               const std::vector<FileFilterSpec>& filter,
                               int* filter_index,
                               std::vector<base::FilePath>* paths) {
@@ -248,7 +187,7 @@ index 063d4c7c96cba..24bd0533af65b 100644
                             default_path, filter, 0, filter_index, paths);
  }
  
-@@ -303,14 +301,13 @@ bool ExecuteSelectMultipleFile(HWND owner,
+@@ -304,14 +302,13 @@ bool ExecuteSelectMultipleFile(HWND owner,
                                 std::vector<base::FilePath>* paths) {
    DWORD dialog_options = FOS_ALLOWMULTISELECT;
  
@@ -265,7 +204,7 @@ index 063d4c7c96cba..24bd0533af65b 100644
                       const base::FilePath& default_path,
                       const std::vector<FileFilterSpec>& filter,
                       const std::wstring& def_ext,
-@@ -323,9 +320,7 @@ bool ExecuteSaveFile(HWND owner,
+@@ -324,9 +321,7 @@ bool ExecuteSaveFile(HWND owner,
  
    DWORD dialog_options = FOS_OVERWRITEPROMPT;
  
@@ -276,7 +215,7 @@ index 063d4c7c96cba..24bd0533af65b 100644
                             dialog_options, def_ext, filter_index, path);
  }
  
-@@ -390,7 +385,7 @@ void ExecuteSelectFile(
+@@ -418,7 +413,7 @@ void ExecuteSelectFile(
        break;
      case SelectFileDialog::SELECT_SAVEAS_FILE: {
        base::FilePath path;

@@ -100,7 +100,7 @@ void CefBrowserContentsDelegate::ObserveWebContents(
     // Make sure MaybeCreateFrame is called at least one time.
     // Create the frame representation before OnAfterCreated is called for a new
     // browser.
-    browser_info_->MaybeCreateFrame(new_contents->GetMainFrame(),
+    browser_info_->MaybeCreateFrame(new_contents->GetPrimaryMainFrame(),
                                     false /* is_guest_view */);
 
     // Make sure RenderWidgetCreated is called at least one time. This Observer

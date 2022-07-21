@@ -1082,7 +1082,8 @@ void AlloyBrowserHostImpl::CloseContents(content::WebContents* source) {
 
       if (source) {
         // Try to fast shutdown the associated process.
-        source->GetMainFrame()->GetProcess()->FastShutdownIfPossible(1, false);
+        source->GetPrimaryMainFrame()->GetProcess()->FastShutdownIfPossible(
+            1, false);
       }
 
       // No window exists. Destroy the browser immediately. Don't call other
@@ -1463,7 +1464,7 @@ AlloyBrowserHostImpl::AlloyBrowserHostImpl(
   platform_delegate_->BrowserCreated(this);
 
   // Make sure RenderFrameCreated is called at least one time.
-  RenderFrameCreated(web_contents->GetMainFrame());
+  RenderFrameCreated(web_contents->GetPrimaryMainFrame());
 }
 
 bool AlloyBrowserHostImpl::CreateHostWindow() {

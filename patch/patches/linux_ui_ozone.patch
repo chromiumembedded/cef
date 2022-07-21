@@ -1,8 +1,8 @@
 diff --git ui/ozone/BUILD.gn ui/ozone/BUILD.gn
-index b123f6093eb5d..64e4fc0fba4b5 100644
+index fa2c17f4e209f..91bed0fb1ad66 100644
 --- ui/ozone/BUILD.gn
 +++ ui/ozone/BUILD.gn
-@@ -396,6 +396,8 @@ action("generate_test_support_constructor_list") {
+@@ -398,6 +398,8 @@ action("generate_test_support_constructor_list") {
    ]
  
    deps = [ ":generate_ozone_platform_list" ]

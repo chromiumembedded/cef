@@ -1,15 +1,14 @@
 diff --git net/base/load_flags_list.h net/base/load_flags_list.h
-index 6466deac2671e..053ca5c7e55ae 100644
+index 96d1a51ec1078..e8120a818b1f2 100644
 --- net/base/load_flags_list.h
 +++ net/base/load_flags_list.h
-@@ -110,3 +110,6 @@ LOAD_FLAG(CAN_USE_RESTRICTED_PREFETCH, 1 << 16)
- //
- // Cannot be used together with BYPASS_CACHE, ONLY_FROM_CACHE, or DISABLE_CACHE.
- LOAD_FLAG(USE_SINGLE_KEYED_CACHE, 1 << 17)
+@@ -101,3 +101,6 @@ LOAD_FLAG(RESTRICTED_PREFETCH, 1 << 15)
+ // is considered privileged, and therefore this flag must only be set from a
+ // trusted process.
+ LOAD_FLAG(CAN_USE_RESTRICTED_PREFETCH, 1 << 16)
 +
 +// This load will not send any cookies. For CEF usage.
-+LOAD_FLAG(DO_NOT_SEND_COOKIES, 1 << 18)
-\ No newline at end of file
++LOAD_FLAG(DO_NOT_SEND_COOKIES, 1 << 17)
 diff --git net/url_request/url_request_http_job.cc net/url_request/url_request_http_job.cc
 index 1975492c29ae0..0ec7ddefe932b 100644
 --- net/url_request/url_request_http_job.cc
@@ -25,10 +24,10 @@ index 1975492c29ae0..0ec7ddefe932b 100644
  
  bool URLRequestHttpJob::IsPartitionedCookiesEnabled() const {
 diff --git services/network/public/cpp/resource_request.cc services/network/public/cpp/resource_request.cc
-index a15e3c4bed344..c665e98a1befc 100644
+index c8e468f41930d..8ac0d37be3c93 100644
 --- services/network/public/cpp/resource_request.cc
 +++ services/network/public/cpp/resource_request.cc
-@@ -264,7 +264,8 @@ bool ResourceRequest::EqualsForTesting(const ResourceRequest& request) const {
+@@ -263,7 +263,8 @@ bool ResourceRequest::EqualsForTesting(const ResourceRequest& request) const {
  }
  
  bool ResourceRequest::SendsCookies() const {

@@ -1,0 +1,31 @@
+diff --git printing/printing_context_linux.cc printing/printing_context_linux.cc
+index 805156b4d7b70..2fbf7fecef01f 100644
+--- printing/printing_context_linux.cc
++++ printing/printing_context_linux.cc
+@@ -48,9 +48,11 @@ PrintingContextLinux::~PrintingContextLinux() {
+ }
+ 
+ // static
+-void PrintingContextLinuxDelegate::SetInstance(
++PrintingContextLinuxDelegate* PrintingContextLinuxDelegate::SetInstance(
+     PrintingContextLinuxDelegate* delegate) {
++  auto old_delegate = g_delegate;
+   g_delegate = delegate;
++  return old_delegate;
+ }
+ 
+ void PrintingContextLinux::AskUserForSettings(int max_pages,
+diff --git printing/printing_context_linux.h printing/printing_context_linux.h
+index dfe49bc00adea..3faa2a3dff79d 100644
+--- printing/printing_context_linux.h
++++ printing/printing_context_linux.h
+@@ -27,7 +27,8 @@ class COMPONENT_EXPORT(PRINTING) PrintingContextLinuxDelegate {
+ 
+   virtual gfx::Size GetPdfPaperSize(PrintingContextLinux* context) = 0;
+ 
+-  static void SetInstance(PrintingContextLinuxDelegate* delegate);
++  static PrintingContextLinuxDelegate* SetInstance(
++      PrintingContextLinuxDelegate* delegate);
+ };
+ 
+ // PrintingContext with optional native UI for print dialog and pdf_paper_size.

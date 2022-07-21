@@ -24,7 +24,6 @@ class WebView;
 
 namespace content {
 class RenderFrame;
-class RenderView;
 }  // namespace content
 
 namespace mojo {
@@ -63,7 +62,7 @@ class CefRenderManager : public cef::mojom::RenderManager {
   void ExposeInterfacesToBrowser(mojo::BinderMap* binders);
 
   // Returns the browser associated with the specified RenderView.
-  CefRefPtr<CefBrowserImpl> GetBrowserForView(content::RenderView* view);
+  CefRefPtr<CefBrowserImpl> GetBrowserForView(blink::WebView* view);
 
   // Returns the browser associated with the specified main WebFrame.
   CefRefPtr<CefBrowserImpl> GetBrowserForMainFrame(blink::WebFrame* frame);
@@ -95,7 +94,7 @@ class CefRenderManager : public cef::mojom::RenderManager {
   // Maybe create a new browser object, return the existing one, or return
   // nullptr for guest views.
   CefRefPtr<CefBrowserImpl> MaybeCreateBrowser(
-      content::RenderView* render_view,
+      blink::WebView* web_view,
       content::RenderFrame* render_frame,
       bool* browser_created,
       absl::optional<bool>* is_windowless);
@@ -104,18 +103,17 @@ class CefRenderManager : public cef::mojom::RenderManager {
   void OnBrowserDestroyed(CefBrowserImpl* browser);
 
   // Returns the guest view associated with the specified RenderView if any.
-  CefGuestView* GetGuestViewForView(content::RenderView* view);
+  CefGuestView* GetGuestViewForView(blink::WebView* view);
 
   // Called from CefGuestView::OnDestruct().
   void OnGuestViewDestroyed(CefGuestView* guest_view);
 
   // Map of RenderView pointers to CefBrowserImpl references.
-  using BrowserMap = std::map<content::RenderView*, CefRefPtr<CefBrowserImpl>>;
+  using BrowserMap = std::map<blink::WebView*, CefRefPtr<CefBrowserImpl>>;
   BrowserMap browsers_;
 
   // Map of RenderView poiners to CefGuestView implementations.
-  using GuestViewMap =
-      std::map<content::RenderView*, std::unique_ptr<CefGuestView>>;
+  using GuestViewMap = std::map<blink::WebView*, std::unique_ptr<CefGuestView>>;
   GuestViewMap guest_views_;
 
   // Cross-origin white list entries that need to be registered with WebKit.

@@ -3145,7 +3145,7 @@ typedef struct _cef_audio_parameters_t {
 
 ///
 // Result codes for CefMediaRouter::CreateRoute. Should be kept in sync with
-// Chromium's media_router::RouteRequestResult::ResultCode type.
+// Chromium's media_router::mojom::RouteRequestResultCode type.
 ///
 typedef enum {
   CEF_MRCR_UNKNOWN_ERROR = 0,
@@ -3158,8 +3158,6 @@ typedef enum {
   CEF_MRCR_CANCELLED = 8,
   CEF_MRCR_ROUTE_ALREADY_EXISTS = 9,
   CEF_MRCR_ROUTE_ALREADY_TERMINATED = 11,
-
-  CEF_MRCR_TOTAL_COUNT = 12  // The total number of values.
 } cef_media_route_create_result_t;
 
 ///

@@ -153,14 +153,10 @@ void ToolkitInitializedLinux() {
         new ui::FakeInputMethodContextFactory());
   }
 
-  auto create_print_dialog_func =
-      printing::PrintingContextLinux::SetCreatePrintDialogFunction(
-          &CefPrintDialogLinux::CreatePrintDialog);
-  auto pdf_paper_size_func =
-      printing::PrintingContextLinux::SetPdfPaperSizeFunction(
-          &CefPrintDialogLinux::GetPdfPaperSize);
-  CefPrintDialogLinux::SetDefaultPrintingContextFuncs(create_print_dialog_func,
-                                                      pdf_paper_size_func);
+  auto printing_delegate = new CefPrintingContextLinuxDelegate();
+  auto default_delegate =
+      printing::PrintingContextLinuxDelegate::SetInstance(printing_delegate);
+  printing_delegate->SetDefaultDelegate(default_delegate);
 }
 
 #endif  // BUILDFLAG(IS_LINUX)

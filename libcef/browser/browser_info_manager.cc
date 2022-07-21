@@ -85,7 +85,7 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreatePopupBrowserInfo(
     CefRefPtr<CefDictionaryValue> extra_info) {
   base::AutoLock lock_scope(browser_info_lock_);
 
-  auto frame_host = new_contents->GetMainFrame();
+  auto frame_host = new_contents->GetPrimaryMainFrame();
 
   scoped_refptr<CefBrowserInfo> browser_info =
       new CefBrowserInfo(++next_browser_id_, true, is_windowless, extra_info);

@@ -200,6 +200,6 @@ void CefDevToolsFileManager::CallClientFunction(
     }
   }
   javascript.append(");");
-  browser_impl_->web_contents()->GetMainFrame()->ExecuteJavaScript(
+  browser_impl_->web_contents()->GetPrimaryMainFrame()->ExecuteJavaScript(
       base::UTF8ToUTF16(javascript), base::NullCallback());
 }

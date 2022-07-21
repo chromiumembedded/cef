@@ -36,7 +36,6 @@
 #include "chrome/browser/ui/webui/theme_source.h"
 #include "chrome/common/url_constants.h"
 #include "content/browser/renderer_host/debug_urls.h"
-#include "content/browser/webui/content_web_ui_controller_factory.h"
 #include "content/public/browser/browser_url_handler.h"
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/browser/url_data_source.h"
@@ -577,11 +576,6 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
       return std::make_unique<CefWebUIController>(web_ui, url.host(), host_id);
     }
 
-    controller = content::ContentWebUIControllerFactory::GetInstance()
-                     ->CreateWebUIControllerForURL(web_ui, url);
-    if (controller)
-      return controller;
-
     controller = content::WebUIConfigMap::GetInstance()
                      .controller_factory()
                      ->CreateWebUIControllerForURL(web_ui, url);
@@ -602,11 +596,6 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     if (host_id != CHROME_UNKNOWN) {
       return kCefWebUITypeID;
     }
-
-    type = content::ContentWebUIControllerFactory::GetInstance()->GetWebUIType(
-        browser_context, url);
-    if (type != content::WebUI::kNoWebUI)
-      return type;
 
     type = content::WebUIConfigMap::GetInstance()
                .controller_factory()
@@ -632,9 +621,7 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
       return true;
     }
 
-    if (content::ContentWebUIControllerFactory::GetInstance()->UseWebUIForURL(
-            browser_context, url) ||
-        content::WebUIConfigMap::GetInstance()
+    if (content::WebUIConfigMap::GetInstance()
             .controller_factory()
             ->UseWebUIForURL(browser_context, url) ||
         ChromeWebUIControllerFactory::GetInstance()->UseWebUIForURL(
@@ -698,8 +685,6 @@ CefWebUIControllerFactory* CefWebUIControllerFactory::GetInstance() {
 
 void RegisterWebUIControllerFactory() {
   // Channel all WebUI handling through CefWebUIControllerFactory.
-  content::WebUIControllerFactory::UnregisterFactoryForTesting(
-      content::ContentWebUIControllerFactory::GetInstance());
   content::WebUIControllerFactory::UnregisterFactoryForTesting(
       content::WebUIConfigMap::GetInstance().controller_factory());
 

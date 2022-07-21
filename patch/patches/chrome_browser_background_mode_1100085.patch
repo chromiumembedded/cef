@@ -14,7 +14,7 @@ index d7b9aa164f161..a042abaecbce7 100644
        std::unique_ptr<BackgroundModeManager> manager) = 0;
  #endif
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index 0d4c13e21de4f..09168fad20462 100644
+index 9cd8e9f4b8f4c..e6e6edc0465a1 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
 @@ -1013,18 +1013,14 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
@@ -38,7 +38,7 @@ index 0d4c13e21de4f..09168fad20462 100644
      std::unique_ptr<BackgroundModeManager> manager) {
    background_mode_manager_ = std::move(manager);
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index a3eabe6f0ef59..8fd3359c13945 100644
+index e2b4d0a33d8ca..99f2d3e441002 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
 @@ -174,8 +174,8 @@ class BrowserProcessImpl : public BrowserProcess,

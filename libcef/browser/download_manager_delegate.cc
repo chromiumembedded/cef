@@ -160,7 +160,6 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
           download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
           download::DownloadItem::MixedContentStatus::UNKNOWN, suggested_path,
           base::FilePath(), std::string() /*mime_type*/,
-          absl::nullopt /*download_schedule*/,
           download::DOWNLOAD_INTERRUPT_REASON_NONE);
     }
   }
@@ -179,7 +178,6 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
                             download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
                             download::DownloadItem::MixedContentStatus::UNKNOWN,
                             path, base::FilePath(), std::string() /*mime_type*/,
-                            absl::nullopt /*download_schedule*/,
                             download::DOWNLOAD_INTERRUPT_REASON_NONE);
   }
 
@@ -368,8 +366,7 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
         download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
         download::DownloadItem::MixedContentStatus::UNKNOWN,
         item->GetForcedFilePath(), base::FilePath(),
-        std::string() /*mime_type*/, absl::nullopt /*download_schedule*/,
-        download::DOWNLOAD_INTERRUPT_REASON_NONE);
+        std::string() /*mime_type*/, download::DOWNLOAD_INTERRUPT_REASON_NONE);
     return true;
   }
 
