@@ -62,6 +62,8 @@ TEST(TimeTest, InvalidTimeToBaseTime) {
   ASSERT_EQ(basetime.val, 0);  // Output should always be set.
 }
 
+// Only run on Windows because POSIX supports a wider range of dates.
+#if defined(OS_WIN)
 TEST(TimeTest, InvalidBaseTimeToTime) {
   // Unrepresentable.
   cef_basetime_t basetime{std::numeric_limits<int64_t>::max()};
@@ -80,3 +82,4 @@ TEST(TimeTest, InvalidBaseTimeToTime) {
   EXPECT_EQ(date.second, 0);
   EXPECT_EQ(date.millisecond, 0);
 }
+#endif  // defined(OS_WIN)
