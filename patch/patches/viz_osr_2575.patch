@@ -222,7 +222,7 @@ index 6b7fbb6cf13dc..e2af75168cb91 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index e0345f5903a48..31a118fc3b375 100644
+index 5dee5932ce9ca..c25e5f5b4e069 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -31,7 +31,9 @@

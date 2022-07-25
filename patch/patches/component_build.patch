@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index efea37465c849..340bd6b9b03ba 100644
+index 89885a692db37..de0dff6608a6e 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
 @@ -97,7 +97,7 @@ bool ApplyUserAgentMetadataOverrides(
@@ -55,12 +55,12 @@ index 3f0f719a192db..5fb3754cced7e 100644
    explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
  
 diff --git content/common/content_switches_internal.h content/common/content_switches_internal.h
-index 57072bf1263ae..0a93446e4d21c 100644
+index 47eb7528594fc..dbb486a323c1c 100644
 --- content/common/content_switches_internal.h
 +++ content/common/content_switches_internal.h
-@@ -15,7 +15,7 @@ class CommandLine;
+@@ -17,7 +17,7 @@ namespace content {
  
- namespace content {
+ extern const char kFirstRendererProcess[];
  
 -bool IsPinchToZoomEnabled();
 +CONTENT_EXPORT bool IsPinchToZoomEnabled();

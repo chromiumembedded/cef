@@ -87,12 +87,11 @@
 #include "libcef/browser/printing/print_dialog_linux.h"
 #include "ui/base/cursor/cursor_factory.h"
 #include "ui/base/ime/input_method.h"
-#include "ui/base/ime/linux/fake_input_method_context_factory.h"
 #include "ui/base/l10n/l10n_util.h"
-#include "ui/base/linux/linux_ui_delegate.h"
+#include "ui/linux/linux_ui.h"
+#include "ui/linux/linux_ui_delegate.h"
+#include "ui/linux/linux_ui_factory.h"
 #include "ui/ozone/public/ozone_platform.h"
-#include "ui/views/linux_ui/linux_ui.h"
-#include "ui/views/linux_ui/linux_ui_factory.h"
 #endif  // BUILDFLAG(IS_LINUX)
 
 #if BUILDFLAG(ENABLE_MEDIA_FOUNDATION_WIDEVINE_CDM)
@@ -107,7 +106,7 @@ namespace {
 
 #if BUILDFLAG(IS_LINUX)
 
-std::unique_ptr<views::LinuxUI> BuildLinuxUI() {
+std::unique_ptr<ui::LinuxUi> BuildLinuxUI() {
   // We can't use GtkUi in combination with multi-threaded-message-loop because
   // Chromium's GTK implementation doesn't use GDK threads.
   if (!!CefContext::Get()->settings().multi_threaded_message_loop)
@@ -118,7 +117,7 @@ std::unique_ptr<views::LinuxUI> BuildLinuxUI() {
   if (!ui::LinuxUiDelegate::GetInstance())
     return nullptr;
 
-  return CreateLinuxUi();
+  return ui::CreateLinuxUi();
 }
 
 // Based on chrome_browser_main_extra_parts_views_linux.cc
@@ -132,25 +131,11 @@ void ToolkitInitializedLinux() {
               GetThemeProfileForWindow(window));
         }));
 
-    views::LinuxUI::SetInstance(std::move(linux_ui));
+    ui::LinuxUi::SetInstance(std::move(linux_ui));
 
     // Cursor theme changes are tracked by LinuxUI (via a CursorThemeManager
     // implementation). Start observing them once it's initialized.
     ui::CursorFactory::GetInstance()->ObserveThemeChanges();
-  } else {
-    // In case if the toolkit is not used, input method factory won't be set for
-    // X11 and Ozone/X11. Set a fake one instead to avoid crashing browser
-    // later.
-    DCHECK(!ui::LinuxInputMethodContextFactory::instance());
-    // Try to create input method through Ozone so that the backend has a chance
-    // to set factory by itself.
-    ui::OzonePlatform::GetInstance()->CreateInputMethod(
-        nullptr, gfx::kNullAcceleratedWidget);
-  }
-  // If factory is not set, set a fake instance.
-  if (!ui::LinuxInputMethodContextFactory::instance()) {
-    ui::LinuxInputMethodContextFactory::SetInstance(
-        new ui::FakeInputMethodContextFactory());
   }
 
   auto printing_delegate = new CefPrintingContextLinuxDelegate();

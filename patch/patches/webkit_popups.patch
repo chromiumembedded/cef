@@ -1,5 +1,5 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index 99f0ceb45972d..8b5f6726efcf1 100644
+index b01562ebe042b..93ad664fb2922 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
 @@ -333,6 +333,7 @@ class WebView {
@@ -11,7 +11,7 @@ index 99f0ceb45972d..8b5f6726efcf1 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 071481b1b47da..8f033a73481f7 100644
+index 390e47422a0a1..07ba7bfc6a1a8 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -246,8 +246,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
@@ -39,7 +39,7 @@ index 071481b1b47da..8f033a73481f7 100644
        fullscreen_controller_(std::make_unique<FullscreenController>(this)),
        page_base_background_color_(
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 6a36275fdd7ac..8837177386f91 100644
+index ce3a483a4c06d..834cbe13415d0 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
 @@ -133,7 +133,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
@@ -62,10 +62,10 @@ index 6a36275fdd7ac..8837177386f91 100644
    TransformationMatrix device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index 70fab6032767a..e0f3fd02da1cc 100644
+index c3efeb47aec53..9927b7709134d 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
-@@ -919,7 +919,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
+@@ -913,7 +913,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
  PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    NotifyPopupOpeningObservers();

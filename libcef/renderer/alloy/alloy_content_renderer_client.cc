@@ -236,14 +236,16 @@ void AlloyContentRendererClient::ExposeInterfacesToBrowser(
     mojo::BinderMap* binders) {
   auto task_runner = base::SequencedTaskRunnerHandle::Get();
 
-  binders->Add(base::BindRepeating(&web_cache::WebCacheImpl::BindReceiver,
-                                   base::Unretained(web_cache_impl_.get())),
-               task_runner);
+  binders->Add<web_cache::mojom::WebCache>(
+      base::BindRepeating(&web_cache::WebCacheImpl::BindReceiver,
+                          base::Unretained(web_cache_impl_.get())),
+      task_runner);
 
-  binders->Add(visited_link_slave_->GetBindCallback(), task_runner);
+  binders->Add<visitedlink::mojom::VisitedLinkNotificationSink>(
+      visited_link_slave_->GetBindCallback(), task_runner);
 
   if (spellcheck_) {
-    binders->Add(
+    binders->Add<spellcheck::mojom::SpellChecker>(
         base::BindRepeating(
             [](SpellCheck* spellcheck,
                mojo::PendingReceiver<spellcheck::mojom::SpellChecker>
@@ -299,7 +301,8 @@ void AlloyContentRendererClient::RenderFrameCreated(
   }
 }
 
-void AlloyContentRendererClient::WebViewCreated(blink::WebView* web_view) {
+void AlloyContentRendererClient::WebViewCreated(blink::WebView* web_view,
+                                                bool was_created_by_renderer) {
   bool browser_created;
   absl::optional<bool> is_windowless;
   render_manager_->WebViewCreated(web_view, browser_created, is_windowless);

@@ -29,14 +29,15 @@ namespace net_service {
 namespace {
 
 // Determine the cookie domain to use for setting the specified cookie.
-// From net/cookies/cookie_store.cc.
+// From net/cookies/canonical_cookie.cc.
 bool GetCookieDomain(const GURL& url,
                      const net::ParsedCookie& pc,
                      std::string* result) {
   std::string domain_string;
   if (pc.HasDomain())
     domain_string = pc.Domain();
-  return net::cookie_util::GetCookieDomainWithString(url, domain_string,
+  net::CookieInclusionStatus status;
+  return net::cookie_util::GetCookieDomainWithString(url, domain_string, status,
                                                      result);
 }
 

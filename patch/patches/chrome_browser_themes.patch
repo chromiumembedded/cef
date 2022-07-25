@@ -1,5 +1,5 @@
 diff --git chrome/browser/themes/theme_service.cc chrome/browser/themes/theme_service.cc
-index 66acda8e42829..28970c4c98863 100644
+index 8ff7b6d7eb813..cdbaff6e4760b 100644
 --- chrome/browser/themes/theme_service.cc
 +++ chrome/browser/themes/theme_service.cc
 @@ -31,6 +31,7 @@
@@ -11,8 +11,8 @@ index 66acda8e42829..28970c4c98863 100644
  #include "chrome/browser/extensions/extension_service.h"
  #include "chrome/browser/extensions/theme_installed_infobar_delegate.h"
 @@ -67,6 +68,10 @@
- #include "ui/color/color_id.h"
  #include "ui/color/color_provider.h"
+ #include "ui/native_theme/native_theme.h"
  
 +#if BUILDFLAG(ENABLE_CEF)
 +#include "cef/libcef/common/extensions/extensions_util.h"
@@ -21,7 +21,7 @@ index 66acda8e42829..28970c4c98863 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "base/scoped_observation.h"
  #include "extensions/browser/extension_registry_observer.h"
-@@ -274,11 +279,19 @@ void ThemeService::Init() {
+@@ -269,11 +274,19 @@ void ThemeService::Init() {
    // OnExtensionServiceReady. Otherwise, the ThemeObserver won't be
    // constructed in time to observe the corresponding events.
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -42,7 +42,7 @@ index 66acda8e42829..28970c4c98863 100644
    theme_syncable_service_ =
        std::make_unique<ThemeSyncableService>(profile_, this);
 diff --git chrome/browser/themes/theme_service_factory.cc chrome/browser/themes/theme_service_factory.cc
-index db3162c7ef194..f80a5755876ee 100644
+index 47184cef4deff..d68e769f71232 100644
 --- chrome/browser/themes/theme_service_factory.cc
 +++ chrome/browser/themes/theme_service_factory.cc
 @@ -7,6 +7,7 @@
@@ -53,8 +53,8 @@ index db3162c7ef194..f80a5755876ee 100644
  #include "chrome/browser/extensions/extension_system_factory.h"
  #include "chrome/browser/profiles/incognito_helpers.h"
  #include "chrome/browser/profiles/profile.h"
-@@ -30,6 +31,10 @@
- #include "ui/views/linux_ui/linux_ui.h"
+@@ -33,6 +34,10 @@
+ #include "ui/linux/linux_ui.h"
  #endif
  
 +#if BUILDFLAG(ENABLE_CEF)
@@ -64,7 +64,7 @@ index db3162c7ef194..f80a5755876ee 100644
  namespace {
  
  const ThemeHelper& GetThemeHelper() {
-@@ -73,7 +78,15 @@ ThemeServiceFactory::ThemeServiceFactory()
+@@ -76,7 +81,15 @@ ThemeServiceFactory::ThemeServiceFactory()
            BrowserContextDependencyManager::GetInstance()) {
    DependsOn(extensions::ExtensionRegistryFactory::GetInstance());
    DependsOn(extensions::ExtensionPrefsFactory::GetInstance());
@@ -79,4 +79,4 @@ index db3162c7ef194..f80a5755876ee 100644
 +  }
  }
  
- ThemeServiceFactory::~ThemeServiceFactory() {}
+ ThemeServiceFactory::~ThemeServiceFactory() = default;

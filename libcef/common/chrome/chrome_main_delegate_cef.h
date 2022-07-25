@@ -36,9 +36,9 @@ class ChromeMainDelegateCef : public ChromeMainDelegate,
   ~ChromeMainDelegateCef() override;
 
   // ChromeMainDelegate overrides.
-  bool BasicStartupComplete(int* exit_code) override;
+  absl::optional<int> BasicStartupComplete() override;
   void PreSandboxStartup() override;
-  void PreBrowserMain() override;
+  absl::optional<int> PreBrowserMain() override;
   absl::variant<int, content::MainFunctionParams> RunProcess(
       const std::string& process_type,
       content::MainFunctionParams main_function_params) override;

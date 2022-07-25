@@ -89,7 +89,7 @@ bool CefSimpleMenuModelImpl::Clear() {
   return true;
 }
 
-int CefSimpleMenuModelImpl::GetCount() {
+size_t CefSimpleMenuModelImpl::GetCount() {
   if (!VerifyContext())
     return 0;
 
@@ -142,7 +142,7 @@ CefRefPtr<CefMenuModel> CefSimpleMenuModelImpl::AddSubMenu(
   return new_menu;
 }
 
-bool CefSimpleMenuModelImpl::InsertSeparatorAt(int index) {
+bool CefSimpleMenuModelImpl::InsertSeparatorAt(size_t index) {
   if (!VerifyContext())
     return false;
 
@@ -150,7 +150,7 @@ bool CefSimpleMenuModelImpl::InsertSeparatorAt(int index) {
   return true;
 }
 
-bool CefSimpleMenuModelImpl::InsertItemAt(int index,
+bool CefSimpleMenuModelImpl::InsertItemAt(size_t index,
                                           int command_id,
                                           const CefString& label) {
   if (!VerifyContext() || !ValidIndex(index))
@@ -160,7 +160,7 @@ bool CefSimpleMenuModelImpl::InsertItemAt(int index,
   return true;
 }
 
-bool CefSimpleMenuModelImpl::InsertCheckItemAt(int index,
+bool CefSimpleMenuModelImpl::InsertCheckItemAt(size_t index,
                                                int command_id,
                                                const CefString& label) {
   if (!VerifyContext() || !ValidIndex(index))
@@ -170,7 +170,7 @@ bool CefSimpleMenuModelImpl::InsertCheckItemAt(int index,
   return true;
 }
 
-bool CefSimpleMenuModelImpl::InsertRadioItemAt(int index,
+bool CefSimpleMenuModelImpl::InsertRadioItemAt(size_t index,
                                                int command_id,
                                                const CefString& label,
                                                int group_id) {
@@ -182,7 +182,7 @@ bool CefSimpleMenuModelImpl::InsertRadioItemAt(int index,
 }
 
 CefRefPtr<CefMenuModel> CefSimpleMenuModelImpl::InsertSubMenuAt(
-    int index,
+    size_t index,
     int command_id,
     const CefString& label) {
   if (!VerifyContext() || !ValidIndex(index))
@@ -197,7 +197,7 @@ bool CefSimpleMenuModelImpl::Remove(int command_id) {
   return RemoveAt(GetIndexOf(command_id));
 }
 
-bool CefSimpleMenuModelImpl::RemoveAt(int index) {
+bool CefSimpleMenuModelImpl::RemoveAt(size_t index) {
   if (!VerifyContext() || !ValidIndex(index))
     return false;
 
@@ -219,17 +219,20 @@ int CefSimpleMenuModelImpl::GetIndexOf(int command_id) {
   if (!VerifyContext())
     return kInvalidIndex;
 
-  return model_->GetIndexOfCommandId(command_id);
+  auto index = model_->GetIndexOfCommandId(command_id);
+  if (index.has_value())
+    return static_cast<int>(*index);
+  return -1;
 }
 
-int CefSimpleMenuModelImpl::GetCommandIdAt(int index) {
+int CefSimpleMenuModelImpl::GetCommandIdAt(size_t index) {
   if (!VerifyContext() || !ValidIndex(index))
     return kInvalidCommandId;
 
   return model_->GetCommandIdAt(index);
 }
 
-bool CefSimpleMenuModelImpl::SetCommandIdAt(int index, int command_id) {
+bool CefSimpleMenuModelImpl::SetCommandIdAt(size_t index, int command_id) {
   NOTIMPLEMENTED();
   return false;
 }
@@ -238,7 +241,7 @@ CefString CefSimpleMenuModelImpl::GetLabel(int command_id) {
   return GetLabelAt(GetIndexOf(command_id));
 }
 
-CefString CefSimpleMenuModelImpl::GetLabelAt(int index) {
+CefString CefSimpleMenuModelImpl::GetLabelAt(size_t index) {
   if (!VerifyContext() || !ValidIndex(index))
     return CefString();
 
@@ -249,7 +252,7 @@ bool CefSimpleMenuModelImpl::SetLabel(int command_id, const CefString& label) {
   return SetLabelAt(GetIndexOf(command_id), label);
 }
 
-bool CefSimpleMenuModelImpl::SetLabelAt(int index, const CefString& label) {
+bool CefSimpleMenuModelImpl::SetLabelAt(size_t index, const CefString& label) {
   if (!VerifyContext() || !ValidIndex(index))
     return false;
 
@@ -263,7 +266,7 @@ CefSimpleMenuModelImpl::MenuItemType CefSimpleMenuModelImpl::GetType(
 }
 
 CefSimpleMenuModelImpl::MenuItemType CefSimpleMenuModelImpl::GetTypeAt(
-    int index) {
+    size_t index) {
   if (!VerifyContext() || !ValidIndex(index))
     return MENUITEMTYPE_NONE;
 
@@ -274,7 +277,7 @@ int CefSimpleMenuModelImpl::GetGroupId(int command_id) {
   return GetGroupIdAt(GetIndexOf(command_id));
 }
 
-int CefSimpleMenuModelImpl::GetGroupIdAt(int index) {
+int CefSimpleMenuModelImpl::GetGroupIdAt(size_t index) {
   if (!VerifyContext() || !ValidIndex(index))
     return kInvalidGroupId;
 
@@ -285,7 +288,7 @@ bool CefSimpleMenuModelImpl::SetGroupId(int command_id, int group_id) {
   return SetGroupIdAt(GetIndexOf(command_id), group_id);
 }
 
-bool CefSimpleMenuModelImpl::SetGroupIdAt(int index, int group_id) {
+bool CefSimpleMenuModelImpl::SetGroupIdAt(size_t index, int group_id) {
   NOTIMPLEMENTED();
   return false;
 }
@@ -294,7 +297,7 @@ CefRefPtr<CefMenuModel> CefSimpleMenuModelImpl::GetSubMenu(int command_id) {
   return GetSubMenuAt(GetIndexOf(command_id));
 }
 
-CefRefPtr<CefMenuModel> CefSimpleMenuModelImpl::GetSubMenuAt(int index) {
+CefRefPtr<CefMenuModel> CefSimpleMenuModelImpl::GetSubMenuAt(size_t index) {
   if (!VerifyContext() || !ValidIndex(index))
     return nullptr;
 
@@ -310,7 +313,7 @@ bool CefSimpleMenuModelImpl::IsVisible(int command_id) {
   return IsVisibleAt(GetIndexOf(command_id));
 }
 
-bool CefSimpleMenuModelImpl::IsVisibleAt(int index) {
+bool CefSimpleMenuModelImpl::IsVisibleAt(size_t index) {
   if (!VerifyContext() || !ValidIndex(index))
     return false;
 
@@ -321,7 +324,7 @@ bool CefSimpleMenuModelImpl::SetVisible(int command_id, bool visible) {
   return SetVisibleAt(GetIndexOf(command_id), visible);
 }
 
-bool CefSimpleMenuModelImpl::SetVisibleAt(int index, bool visible) {
+bool CefSimpleMenuModelImpl::SetVisibleAt(size_t index, bool visible) {
   if (!VerifyContext() || !ValidIndex(index))
     return false;
 
@@ -333,7 +336,7 @@ bool CefSimpleMenuModelImpl::IsEnabled(int command_id) {
   return IsEnabledAt(GetIndexOf(command_id));
 }
 
-bool CefSimpleMenuModelImpl::IsEnabledAt(int index) {
+bool CefSimpleMenuModelImpl::IsEnabledAt(size_t index) {
   if (!VerifyContext() || !ValidIndex(index))
     return false;
 
@@ -344,7 +347,7 @@ bool CefSimpleMenuModelImpl::SetEnabled(int command_id, bool enabled) {
   return SetEnabledAt(GetIndexOf(command_id), enabled);
 }
 
-bool CefSimpleMenuModelImpl::SetEnabledAt(int index, bool enabled) {
+bool CefSimpleMenuModelImpl::SetEnabledAt(size_t index, bool enabled) {
   if (!VerifyContext() || !ValidIndex(index))
     return false;
 
@@ -356,7 +359,7 @@ bool CefSimpleMenuModelImpl::IsChecked(int command_id) {
   return IsCheckedAt(GetIndexOf(command_id));
 }
 
-bool CefSimpleMenuModelImpl::IsCheckedAt(int index) {
+bool CefSimpleMenuModelImpl::IsCheckedAt(size_t index) {
   if (!VerifyContext() || !ValidIndex(index))
     return false;
 
@@ -371,7 +374,7 @@ bool CefSimpleMenuModelImpl::SetChecked(int command_id, bool checked) {
   return true;
 }
 
-bool CefSimpleMenuModelImpl::SetCheckedAt(int index, bool checked) {
+bool CefSimpleMenuModelImpl::SetCheckedAt(size_t index, bool checked) {
   return SetChecked(GetCommandIdAt(index), checked);
 }
 
@@ -379,7 +382,7 @@ bool CefSimpleMenuModelImpl::HasAccelerator(int command_id) {
   return HasAcceleratorAt(GetIndexOf(command_id));
 }
 
-bool CefSimpleMenuModelImpl::HasAcceleratorAt(int index) {
+bool CefSimpleMenuModelImpl::HasAcceleratorAt(size_t index) {
   if (!VerifyContext() || !ValidIndex(index))
     return false;
 
@@ -409,7 +412,7 @@ bool CefSimpleMenuModelImpl::SetAccelerator(int command_id,
   return true;
 }
 
-bool CefSimpleMenuModelImpl::SetAcceleratorAt(int index,
+bool CefSimpleMenuModelImpl::SetAcceleratorAt(size_t index,
                                               int key_code,
                                               bool shift_pressed,
                                               bool ctrl_pressed,
@@ -425,7 +428,7 @@ bool CefSimpleMenuModelImpl::RemoveAccelerator(int command_id) {
   return true;
 }
 
-bool CefSimpleMenuModelImpl::RemoveAcceleratorAt(int index) {
+bool CefSimpleMenuModelImpl::RemoveAcceleratorAt(size_t index) {
   return RemoveAccelerator(GetCommandIdAt(index));
 }
 
@@ -438,7 +441,7 @@ bool CefSimpleMenuModelImpl::GetAccelerator(int command_id,
                           ctrl_pressed, alt_pressed);
 }
 
-bool CefSimpleMenuModelImpl::GetAcceleratorAt(int index,
+bool CefSimpleMenuModelImpl::GetAcceleratorAt(size_t index,
                                               int& key_code,
                                               bool& shift_pressed,
                                               bool& ctrl_pressed,
@@ -510,8 +513,8 @@ bool CefSimpleMenuModelImpl::VerifyContext() {
   return true;
 }
 
-bool CefSimpleMenuModelImpl::ValidIndex(int index) {
-  return index > kInvalidIndex && index < model_->GetItemCount();
+bool CefSimpleMenuModelImpl::ValidIndex(size_t index) {
+  return index < model_->GetItemCount();
 }
 
 CefRefPtr<CefSimpleMenuModelImpl> CefSimpleMenuModelImpl::CreateNewSubMenu(

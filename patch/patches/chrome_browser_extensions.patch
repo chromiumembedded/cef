@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/chrome_extensions_api_client.cc chrome/browser/extensions/api/chrome_extensions_api_client.cc
-index 2fa911da87bcd..45c5268b60d5c 100644
+index d1fa9bc7e5494..940756da82704 100644
 --- chrome/browser/extensions/api/chrome_extensions_api_client.cc
 +++ chrome/browser/extensions/api/chrome_extensions_api_client.cc
 @@ -13,6 +13,7 @@
@@ -10,7 +10,7 @@ index 2fa911da87bcd..45c5268b60d5c 100644
  #include "chrome/browser/extensions/api/automation_internal/chrome_automation_internal_api_delegate.h"
  #include "chrome/browser/extensions/api/chrome_device_permissions_prompt.h"
  #include "chrome/browser/extensions/api/declarative_content/chrome_content_rules_registry.h"
-@@ -74,6 +75,10 @@
+@@ -78,6 +79,10 @@
  #include "chrome/browser/extensions/clipboard_extension_helper_chromeos.h"
  #endif
  
@@ -21,7 +21,7 @@ index 2fa911da87bcd..45c5268b60d5c 100644
  #if BUILDFLAG(ENABLE_PDF)
  #include "chrome/browser/ui/pdf/chrome_pdf_web_contents_helper_client.h"
  #include "components/pdf/browser/pdf_web_contents_helper.h"
-@@ -294,6 +299,9 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate(
+@@ -298,6 +303,9 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate(
  std::unique_ptr<MimeHandlerViewGuestDelegate>
  ChromeExtensionsAPIClient::CreateMimeHandlerViewGuestDelegate(
      MimeHandlerViewGuest* guest) const {

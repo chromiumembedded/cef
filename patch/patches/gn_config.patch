@@ -12,7 +12,7 @@ index 7d538f812d72e..9eec79395aeec 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index d62cd5190001b..b99513183df7a 100644
+index 4efccb3390c72..dd3a250ac89e5 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -17,6 +17,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -80,7 +80,7 @@ index 839144aa1e9bd..29c8ab32398a7 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index ba559fa404ca3..4aafa07ba5ba7 100644
+index 5691ef5e9c7e5..cb3ebcf03151c 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")

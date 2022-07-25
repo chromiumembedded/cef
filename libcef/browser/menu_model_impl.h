@@ -67,7 +67,7 @@ class CefMenuModelImpl : public CefMenuModel {
   // CefMenuModel methods.
   bool IsSubMenu() override;
   bool Clear() override;
-  int GetCount() override;
+  size_t GetCount() override;
   bool AddSeparator() override;
   bool AddItem(int command_id, const CefString& label) override;
   bool AddCheckItem(int command_id, const CefString& label) override;
@@ -76,67 +76,69 @@ class CefMenuModelImpl : public CefMenuModel {
                     int group_id) override;
   CefRefPtr<CefMenuModel> AddSubMenu(int command_id,
                                      const CefString& label) override;
-  bool InsertSeparatorAt(int index) override;
-  bool InsertItemAt(int index, int command_id, const CefString& label) override;
-  bool InsertCheckItemAt(int index,
+  bool InsertSeparatorAt(size_t index) override;
+  bool InsertItemAt(size_t index,
+                    int command_id,
+                    const CefString& label) override;
+  bool InsertCheckItemAt(size_t index,
                          int command_id,
                          const CefString& label) override;
-  bool InsertRadioItemAt(int index,
+  bool InsertRadioItemAt(size_t index,
                          int command_id,
                          const CefString& label,
                          int group_id) override;
-  CefRefPtr<CefMenuModel> InsertSubMenuAt(int index,
+  CefRefPtr<CefMenuModel> InsertSubMenuAt(size_t index,
                                           int command_id,
                                           const CefString& label) override;
   bool Remove(int command_id) override;
-  bool RemoveAt(int index) override;
+  bool RemoveAt(size_t index) override;
   int GetIndexOf(int command_id) override;
-  int GetCommandIdAt(int index) override;
-  bool SetCommandIdAt(int index, int command_id) override;
+  int GetCommandIdAt(size_t index) override;
+  bool SetCommandIdAt(size_t index, int command_id) override;
   CefString GetLabel(int command_id) override;
-  CefString GetLabelAt(int index) override;
+  CefString GetLabelAt(size_t index) override;
   bool SetLabel(int command_id, const CefString& label) override;
-  bool SetLabelAt(int index, const CefString& label) override;
+  bool SetLabelAt(size_t index, const CefString& label) override;
   MenuItemType GetType(int command_id) override;
-  MenuItemType GetTypeAt(int index) override;
+  MenuItemType GetTypeAt(size_t index) override;
   int GetGroupId(int command_id) override;
-  int GetGroupIdAt(int index) override;
+  int GetGroupIdAt(size_t index) override;
   bool SetGroupId(int command_id, int group_id) override;
-  bool SetGroupIdAt(int index, int group_id) override;
+  bool SetGroupIdAt(size_t index, int group_id) override;
   CefRefPtr<CefMenuModel> GetSubMenu(int command_id) override;
-  CefRefPtr<CefMenuModel> GetSubMenuAt(int index) override;
+  CefRefPtr<CefMenuModel> GetSubMenuAt(size_t index) override;
   bool IsVisible(int command_id) override;
-  bool IsVisibleAt(int index) override;
+  bool IsVisibleAt(size_t index) override;
   bool SetVisible(int command_id, bool visible) override;
-  bool SetVisibleAt(int index, bool visible) override;
+  bool SetVisibleAt(size_t index, bool visible) override;
   bool IsEnabled(int command_id) override;
-  bool IsEnabledAt(int index) override;
+  bool IsEnabledAt(size_t index) override;
   bool SetEnabled(int command_id, bool enabled) override;
-  bool SetEnabledAt(int index, bool enabled) override;
+  bool SetEnabledAt(size_t index, bool enabled) override;
   bool IsChecked(int command_id) override;
-  bool IsCheckedAt(int index) override;
+  bool IsCheckedAt(size_t index) override;
   bool SetChecked(int command_id, bool checked) override;
-  bool SetCheckedAt(int index, bool checked) override;
+  bool SetCheckedAt(size_t index, bool checked) override;
   bool HasAccelerator(int command_id) override;
-  bool HasAcceleratorAt(int index) override;
+  bool HasAcceleratorAt(size_t index) override;
   bool SetAccelerator(int command_id,
                       int key_code,
                       bool shift_pressed,
                       bool ctrl_pressed,
                       bool alt_pressed) override;
-  bool SetAcceleratorAt(int index,
+  bool SetAcceleratorAt(size_t index,
                         int key_code,
                         bool shift_pressed,
                         bool ctrl_pressed,
                         bool alt_pressed) override;
   bool RemoveAccelerator(int command_id) override;
-  bool RemoveAcceleratorAt(int index) override;
+  bool RemoveAcceleratorAt(size_t index) override;
   bool GetAccelerator(int command_id,
                       int& key_code,
                       bool& shift_pressed,
                       bool& ctrl_pressed,
                       bool& alt_pressed) override;
-  bool GetAcceleratorAt(int index,
+  bool GetAcceleratorAt(size_t index,
                         int& key_code,
                         bool& shift_pressed,
                         bool& ctrl_pressed,
@@ -157,21 +159,21 @@ class CefMenuModelImpl : public CefMenuModel {
   bool SetFontListAt(int index, const CefString& font_list) override;
 
   // Callbacks from the ui::MenuModel implementation.
-  void ActivatedAt(int index, cef_event_flags_t event_flags);
+  void ActivatedAt(size_t index, cef_event_flags_t event_flags);
   void MouseOutsideMenu(const gfx::Point& screen_point);
   void UnhandledOpenSubmenu(bool is_rtl);
   void UnhandledCloseSubmenu(bool is_rtl);
-  bool GetTextColor(int index,
+  bool GetTextColor(size_t index,
                     bool is_accelerator,
                     bool is_hovered,
                     SkColor* override_color) const;
-  bool GetBackgroundColor(int index,
+  bool GetBackgroundColor(size_t index,
                           bool is_hovered,
                           SkColor* override_color) const;
   void MenuWillShow();
   void MenuWillClose();
-  std::u16string GetFormattedLabelAt(int index);
-  const gfx::FontList* GetLabelFontListAt(int index) const;
+  std::u16string GetFormattedLabelAt(size_t index);
+  const gfx::FontList* GetLabelFontListAt(size_t index) const;
 
   // Verify that only a single reference exists to all CefMenuModelImpl objects.
   bool VerifyRefCount();
@@ -197,7 +199,7 @@ class CefMenuModelImpl : public CefMenuModel {
 
   // Functions for inserting items into |items_|.
   void AppendItem(const Item& item);
-  void InsertItemAt(const Item& item, int index);
+  void InsertItemAt(const Item& item, size_t index);
   void ValidateItem(const Item& item);
 
   // Notify the delegate asynchronously.

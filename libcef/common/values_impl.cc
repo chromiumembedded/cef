@@ -190,7 +190,7 @@ bool CefValueImpl::IsEqual(CefRefPtr<CefValue> that) {
   if (!value_)  // Invalid types are equal.
     return true;
 
-  return value_->Equals(impl->value_.get());
+  return *value_ == *(impl->value_.get());
 }
 
 CefRefPtr<CefValue> CefValueImpl::Copy() {
@@ -486,7 +486,7 @@ bool CefBinaryValueImpl::IsSameValue(const base::Value* that) {
 
 bool CefBinaryValueImpl::IsEqualValue(const base::Value* that) {
   CEF_VALUE_VERIFY_RETURN(false, false);
-  return const_value().Equals(that);
+  return const_value() == *that;
 }
 
 base::Value* CefBinaryValueImpl::GetValueUnsafe() {
@@ -629,7 +629,7 @@ bool CefDictionaryValueImpl::IsSameValue(const base::DictionaryValue* that) {
 
 bool CefDictionaryValueImpl::IsEqualValue(const base::DictionaryValue* that) {
   CEF_VALUE_VERIFY_RETURN(false, false);
-  return const_value().Equals(that);
+  return const_value() == *that;
 }
 
 base::DictionaryValue* CefDictionaryValueImpl::GetValueUnsafe() {
@@ -1054,7 +1054,7 @@ bool CefListValueImpl::IsSameValue(const base::ListValue* that) {
 
 bool CefListValueImpl::IsEqualValue(const base::ListValue* that) {
   CEF_VALUE_VERIFY_RETURN(false, false);
-  return const_value().Equals(that);
+  return const_value() == *that;
 }
 
 base::ListValue* CefListValueImpl::GetValueUnsafe() {

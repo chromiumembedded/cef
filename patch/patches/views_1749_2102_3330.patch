@@ -1,5 +1,5 @@
 diff --git ui/base/models/menu_model.h ui/base/models/menu_model.h
-index 11f1421cc79c1..c5dbc643ae7c8 100644
+index 016a06e5187ec..4eccdef738f00 100644
 --- ui/base/models/menu_model.h
 +++ ui/base/models/menu_model.h
 @@ -15,8 +15,11 @@
@@ -16,7 +16,7 @@ index 11f1421cc79c1..c5dbc643ae7c8 100644
  namespace ui {
 @@ -147,6 +150,27 @@ class COMPONENT_EXPORT(UI_BASE) MenuModel
    // |event_flags| is a bit mask of ui::EventFlags.
-   virtual void ActivatedAt(int index, int event_flags);
+   virtual void ActivatedAt(size_t index, int event_flags);
  
 +  // Called when the user moves the mouse outside the menu and over the owning
 +  // window.
@@ -30,11 +30,11 @@ index 11f1421cc79c1..c5dbc643ae7c8 100644
 +  // Override the text/background color of a given menu item dependent on the
 +  // |index| and its |is_hovered| state. |is_minor| will be true for accelerator
 +  // text. Returns true if it chooses to override the color.
-+  virtual bool GetTextColor(int index,
++  virtual bool GetTextColor(size_t index,
 +                            bool is_minor,
 +                            bool is_hovered,
 +                            SkColor* override_color) const { return false; }
-+  virtual bool GetBackgroundColor(int index,
++  virtual bool GetBackgroundColor(size_t index,
 +                                  bool is_hovered,
 +                                  SkColor* override_color) const
 +                                  { return false; }
@@ -43,10 +43,10 @@ index 11f1421cc79c1..c5dbc643ae7c8 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 9db4aaff7094b..a4baf119986a7 100644
+index 69ee0aee2d5b4..3c55be29261a7 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
-@@ -665,6 +665,14 @@ void RenderText::SetWhitespaceElision(absl::optional<bool> whitespace_elision) {
+@@ -671,6 +671,14 @@ void RenderText::SetWhitespaceElision(absl::optional<bool> whitespace_elision) {
    }
  }
  
@@ -61,7 +61,7 @@ index 9db4aaff7094b..a4baf119986a7 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -1995,6 +2003,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -2001,6 +2009,19 @@ void RenderText::OnTextAttributeChanged() {
  
    layout_text_up_to_date_ = false;
  
@@ -150,7 +150,7 @@ index 4f173056ba875..7b746c84c63cf 100644
    ImageView* image() const { return image_; }
    Label* label() const { return label_; }
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index c748b7ed1a958..c93898b041aff 100644
+index 176c65978c279..387b092a45561 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -52,12 +52,27 @@ enum LabelPropertyKey {
@@ -197,7 +197,7 @@ index c748b7ed1a958..c93898b041aff 100644
  std::u16string Label::GetTooltipText() const {
    return tooltip_text_;
  }
-@@ -721,6 +745,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -724,6 +748,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
        render_text->SelectRange(stored_selection_range_);
    }
  
@@ -215,7 +215,7 @@ index c748b7ed1a958..c93898b041aff 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 912c7d20eb07c..26beda47cd4ce 100644
+index 27eb3a455e185..6579f0129eef3 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -234,6 +234,10 @@ class VIEWS_EXPORT Label : public View,
@@ -238,10 +238,10 @@ index 912c7d20eb07c..26beda47cd4ce 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 1f1ea9ec4b51a..e3c77de886185 100644
+index 146a825f6f55a..bcb5b73773922 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -473,7 +473,8 @@ void MenuController::Run(Widget* parent,
+@@ -474,7 +474,8 @@ void MenuController::Run(Widget* parent,
                           MenuAnchorPosition position,
                           bool context_menu,
                           bool is_nested_drag,
@@ -251,7 +251,7 @@ index 1f1ea9ec4b51a..e3c77de886185 100644
    exit_type_ = ExitType::kNone;
    possible_drag_ = false;
    drag_in_progress_ = false;
-@@ -520,6 +521,7 @@ void MenuController::Run(Widget* parent,
+@@ -521,6 +522,7 @@ void MenuController::Run(Widget* parent,
        owner_->AddObserver(this);
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -259,7 +259,7 @@ index 1f1ea9ec4b51a..e3c77de886185 100644
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2177,6 +2179,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2178,6 +2180,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -267,7 +267,7 @@ index 1f1ea9ec4b51a..e3c77de886185 100644
  
      if (item->GetParentMenuItem()) {
        params.context = state_.item->GetWidget();
-@@ -2879,8 +2882,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2864,8 +2867,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -282,7 +282,7 @@ index 1f1ea9ec4b51a..e3c77de886185 100644
    MenuItemView* to_select = nullptr;
    if (!item->GetSubmenu()->GetMenuItems().empty())
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2899,8 +2907,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2884,8 +2892,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -295,7 +295,7 @@ index 1f1ea9ec4b51a..e3c77de886185 100644
      SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
    else if (item->GetParentMenuItem()->GetParentMenuItem())
 diff --git ui/views/controls/menu/menu_controller.h ui/views/controls/menu/menu_controller.h
-index a4958eb424441..0e1ebb20af2da 100644
+index ed374eab8e481..8853e45d32e17 100644
 --- ui/views/controls/menu/menu_controller.h
 +++ ui/views/controls/menu/menu_controller.h
 @@ -105,7 +105,9 @@ class VIEWS_EXPORT MenuController
@@ -309,7 +309,7 @@ index a4958eb424441..0e1ebb20af2da 100644
  
    bool for_drop() const { return for_drop_; }
  
-@@ -720,6 +722,8 @@ class VIEWS_EXPORT MenuController
+@@ -711,6 +713,8 @@ class VIEWS_EXPORT MenuController
    // RunType::SEND_GESTURE_EVENTS_TO_OWNER is set.
    gfx::NativeView native_view_for_gestures_ = nullptr;
  
@@ -394,10 +394,10 @@ index 9c8c5de34d064..b054688cca148 100644
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 538829ec598b6..042728512ea26 100644
+index 854398921a3b9..435790a289d8a 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1084,6 +1084,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1094,6 +1094,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -413,7 +413,7 @@ index 538829ec598b6..042728512ea26 100644
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == Type::kActionableSubMenu) {
-@@ -1150,6 +1159,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1160,6 +1169,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {
@@ -428,10 +428,10 @@ index 538829ec598b6..042728512ea26 100644
        GetMenuController() && GetMenuController()->use_ash_system_ui_layout()
            ? style::CONTEXT_TOUCH_MENU
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index fb5d5e6a79a3f..a336b5a74d6a1 100644
+index 285e4a829ed6f..e120cac8876b7 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
-@@ -245,6 +245,77 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
+@@ -243,6 +243,77 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
    return false;
  }
  
@@ -483,7 +483,7 @@ index fb5d5e6a79a3f..a336b5a74d6a1 100644
 +                                    bool is_hovered,
 +                                    SkColor* override_color) const {
 +  ui::MenuModel* model = menu_model_;
-+  int index = 0;
++  size_t index = 0;
 +  if (ui::MenuModel::GetModelAndIndexForCommandId(command_id, &model, &index))
 +    return model->GetTextColor(index, is_minor, is_hovered, override_color);
 +
@@ -498,7 +498,7 @@ index fb5d5e6a79a3f..a336b5a74d6a1 100644
 +    return menu_model_->GetBackgroundColor(-1, is_hovered, override_color);
 +
 +  ui::MenuModel* model = menu_model_;
-+  int index = 0;
++  size_t index = 0;
 +  if (ui::MenuModel::GetModelAndIndexForCommandId(command_id, &model, &index))
 +    return model->GetBackgroundColor(index, is_hovered, override_color);
 +
@@ -510,7 +510,7 @@ index fb5d5e6a79a3f..a336b5a74d6a1 100644
    // Look up the menu model for this menu.
    const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
 diff --git ui/views/controls/menu/menu_model_adapter.h ui/views/controls/menu/menu_model_adapter.h
-index b7c7474fb5910..ce3e14071f0c6 100644
+index ebbc36a305ade..a6c9e80430cf3 100644
 --- ui/views/controls/menu/menu_model_adapter.h
 +++ ui/views/controls/menu/menu_model_adapter.h
 @@ -88,6 +88,20 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate,
@@ -655,7 +655,7 @@ index 27bc7381ba22c..5d13b85fcc5cf 100644
    base::TimeTicks GetClosingEventTime() const override;
  
 diff --git ui/views/controls/menu/menu_runner_impl_cocoa.mm ui/views/controls/menu/menu_runner_impl_cocoa.mm
-index 6f92eb0c4f6f9..dba3c63e59b4b 100644
+index 46722c10e531c..b6c2df197ba2e 100644
 --- ui/views/controls/menu/menu_runner_impl_cocoa.mm
 +++ ui/views/controls/menu/menu_runner_impl_cocoa.mm
 @@ -511,7 +511,8 @@ void MenuRunnerImplCocoa::RunMenuAt(Widget* parent,
@@ -724,7 +724,7 @@ index a364780eb8203..4671969f5597c 100644
      if (root_location != root_current_location &&
          ozone_ui_controls_test_helper_->ButtonDownMask() == 0 &&
 diff --git ui/views/view.h ui/views/view.h
-index 29b0bed42c74d..c6dd795c13094 100644
+index f80f61fdfc5ef..13df1a7aa074e 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -22,6 +22,7 @@

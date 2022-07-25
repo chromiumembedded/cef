@@ -53,8 +53,11 @@ void ChromeContentRendererClientCef::RenderFrameCreated(
   }
 }
 
-void ChromeContentRendererClientCef::WebViewCreated(blink::WebView* web_view) {
-  ChromeContentRendererClient::WebViewCreated(web_view);
+void ChromeContentRendererClientCef::WebViewCreated(
+    blink::WebView* web_view,
+    bool was_created_by_renderer) {
+  ChromeContentRendererClient::WebViewCreated(web_view,
+                                              was_created_by_renderer);
 
   bool browser_created;
   absl::optional<bool> is_windowless;

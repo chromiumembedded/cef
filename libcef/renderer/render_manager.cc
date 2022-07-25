@@ -142,7 +142,7 @@ void CefRenderManager::DevToolsAgentDetached() {
 void CefRenderManager::ExposeInterfacesToBrowser(mojo::BinderMap* binders) {
   auto task_runner = base::SequencedTaskRunnerHandle::Get();
 
-  binders->Add(
+  binders->Add<cef::mojom::RenderManager>(
       base::BindRepeating(
           [](CefRenderManager* render_manager,
              mojo::PendingReceiver<cef::mojom::RenderManager> receiver) {

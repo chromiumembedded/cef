@@ -75,7 +75,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // Returns the number of items in this menu.
   ///
   /*--cef()--*/
-  virtual int GetCount() = 0;
+  virtual size_t GetCount() = 0;
 
   ///
   // Add a separator to the menu. Returns true on success.
@@ -115,14 +115,14 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // success.
   ///
   /*--cef()--*/
-  virtual bool InsertSeparatorAt(int index) = 0;
+  virtual bool InsertSeparatorAt(size_t index) = 0;
 
   ///
   // Insert an item in the menu at the specified |index|. Returns true on
   // success.
   ///
   /*--cef()--*/
-  virtual bool InsertItemAt(int index,
+  virtual bool InsertItemAt(size_t index,
                             int command_id,
                             const CefString& label) = 0;
 
@@ -131,7 +131,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // success.
   ///
   /*--cef()--*/
-  virtual bool InsertCheckItemAt(int index,
+  virtual bool InsertCheckItemAt(size_t index,
                                  int command_id,
                                  const CefString& label) = 0;
 
@@ -141,7 +141,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // on success.
   ///
   /*--cef()--*/
-  virtual bool InsertRadioItemAt(int index,
+  virtual bool InsertRadioItemAt(size_t index,
                                  int command_id,
                                  const CefString& label,
                                  int group_id) = 0;
@@ -151,7 +151,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // is returned.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefMenuModel> InsertSubMenuAt(int index,
+  virtual CefRefPtr<CefMenuModel> InsertSubMenuAt(size_t index,
                                                   int command_id,
                                                   const CefString& label) = 0;
 
@@ -165,7 +165,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // Removes the item at the specified |index|. Returns true on success.
   ///
   /*--cef()--*/
-  virtual bool RemoveAt(int index) = 0;
+  virtual bool RemoveAt(size_t index) = 0;
 
   ///
   // Returns the index associated with the specified |command_id| or -1 if not
@@ -179,13 +179,13 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // invalid range or the index being a separator.
   ///
   /*--cef()--*/
-  virtual int GetCommandIdAt(int index) = 0;
+  virtual int GetCommandIdAt(size_t index) = 0;
 
   ///
   // Sets the command id at the specified |index|. Returns true on success.
   ///
   /*--cef()--*/
-  virtual bool SetCommandIdAt(int index, int command_id) = 0;
+  virtual bool SetCommandIdAt(size_t index, int command_id) = 0;
 
   ///
   // Returns the label for the specified |command_id| or empty if not found.
@@ -198,7 +198,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // invalid range or the index being a separator.
   ///
   /*--cef()--*/
-  virtual CefString GetLabelAt(int index) = 0;
+  virtual CefString GetLabelAt(size_t index) = 0;
 
   ///
   // Sets the label for the specified |command_id|. Returns true on success.
@@ -210,7 +210,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // Set the label at the specified |index|. Returns true on success.
   ///
   /*--cef()--*/
-  virtual bool SetLabelAt(int index, const CefString& label) = 0;
+  virtual bool SetLabelAt(size_t index, const CefString& label) = 0;
 
   ///
   // Returns the item type for the specified |command_id|.
@@ -222,7 +222,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // Returns the item type at the specified |index|.
   ///
   /*--cef(default_retval=MENUITEMTYPE_NONE)--*/
-  virtual MenuItemType GetTypeAt(int index) = 0;
+  virtual MenuItemType GetTypeAt(size_t index) = 0;
 
   ///
   // Returns the group id for the specified |command_id| or -1 if invalid.
@@ -234,7 +234,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // Returns the group id at the specified |index| or -1 if invalid.
   ///
   /*--cef()--*/
-  virtual int GetGroupIdAt(int index) = 0;
+  virtual int GetGroupIdAt(size_t index) = 0;
 
   ///
   // Sets the group id for the specified |command_id|. Returns true on success.
@@ -246,7 +246,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // Sets the group id at the specified |index|. Returns true on success.
   ///
   /*--cef()--*/
-  virtual bool SetGroupIdAt(int index, int group_id) = 0;
+  virtual bool SetGroupIdAt(size_t index, int group_id) = 0;
 
   ///
   // Returns the submenu for the specified |command_id| or empty if invalid.
@@ -258,7 +258,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // Returns the submenu at the specified |index| or empty if invalid.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefMenuModel> GetSubMenuAt(int index) = 0;
+  virtual CefRefPtr<CefMenuModel> GetSubMenuAt(size_t index) = 0;
 
   ///
   // Returns true if the specified |command_id| is visible.
@@ -270,7 +270,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // Returns true if the specified |index| is visible.
   ///
   /*--cef()--*/
-  virtual bool IsVisibleAt(int index) = 0;
+  virtual bool IsVisibleAt(size_t index) = 0;
 
   ///
   // Change the visibility of the specified |command_id|. Returns true on
@@ -283,7 +283,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // Change the visibility at the specified |index|. Returns true on success.
   ///
   /*--cef()--*/
-  virtual bool SetVisibleAt(int index, bool visible) = 0;
+  virtual bool SetVisibleAt(size_t index, bool visible) = 0;
 
   ///
   // Returns true if the specified |command_id| is enabled.
@@ -295,7 +295,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // Returns true if the specified |index| is enabled.
   ///
   /*--cef()--*/
-  virtual bool IsEnabledAt(int index) = 0;
+  virtual bool IsEnabledAt(size_t index) = 0;
 
   ///
   // Change the enabled status of the specified |command_id|. Returns true on
@@ -309,7 +309,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // success.
   ///
   /*--cef()--*/
-  virtual bool SetEnabledAt(int index, bool enabled) = 0;
+  virtual bool SetEnabledAt(size_t index, bool enabled) = 0;
 
   ///
   // Returns true if the specified |command_id| is checked. Only applies to
@@ -323,7 +323,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // and radio items.
   ///
   /*--cef()--*/
-  virtual bool IsCheckedAt(int index) = 0;
+  virtual bool IsCheckedAt(size_t index) = 0;
 
   ///
   // Check the specified |command_id|. Only applies to check and radio items.
@@ -337,7 +337,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // true on success.
   ///
   /*--cef()--*/
-  virtual bool SetCheckedAt(int index, bool checked) = 0;
+  virtual bool SetCheckedAt(size_t index, bool checked) = 0;
 
   ///
   // Returns true if the specified |command_id| has a keyboard accelerator
@@ -350,7 +350,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // Returns true if the specified |index| has a keyboard accelerator assigned.
   ///
   /*--cef()--*/
-  virtual bool HasAcceleratorAt(int index) = 0;
+  virtual bool HasAcceleratorAt(size_t index) = 0;
 
   ///
   // Set the keyboard accelerator for the specified |command_id|. |key_code| can
@@ -368,7 +368,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // any virtual key or character value. Returns true on success.
   ///
   /*--cef()--*/
-  virtual bool SetAcceleratorAt(int index,
+  virtual bool SetAcceleratorAt(size_t index,
                                 int key_code,
                                 bool shift_pressed,
                                 bool ctrl_pressed,
@@ -386,7 +386,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // success.
   ///
   /*--cef()--*/
-  virtual bool RemoveAcceleratorAt(int index) = 0;
+  virtual bool RemoveAcceleratorAt(size_t index) = 0;
 
   ///
   // Retrieves the keyboard accelerator for the specified |command_id|. Returns
@@ -404,7 +404,7 @@ class CefMenuModel : public virtual CefBaseRefCounted {
   // on success.
   ///
   /*--cef()--*/
-  virtual bool GetAcceleratorAt(int index,
+  virtual bool GetAcceleratorAt(size_t index,
                                 int& key_code,
                                 bool& shift_pressed,
                                 bool& ctrl_pressed,

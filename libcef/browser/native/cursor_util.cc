@@ -12,8 +12,8 @@
 #include "ui/base/cursor/mojom/cursor_type.mojom.h"
 
 #if defined(USE_AURA)
-#include "ui/aura/cursor/cursor_loader.h"
 #include "ui/display/display_util.h"
+#include "ui/wm/core/cursor_loader.h"
 #endif
 
 namespace cursor_util {
@@ -90,7 +90,7 @@ bool OnCursorChange(CefRefPtr<CefBrowser> browser,
   bool handled = false;
 
 #if defined(USE_AURA)
-  aura::CursorLoader cursor_loader;
+  wm::CursorLoader cursor_loader;
   scoped_refptr<ui::PlatformCursor> platform_cursor;
   CefCursorHandle native_cursor = kNullCursorHandle;
 

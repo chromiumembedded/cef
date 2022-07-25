@@ -55,11 +55,11 @@ ChromeMainDelegateCef::ChromeMainDelegateCef(CefMainRunnerHandler* runner,
 
 ChromeMainDelegateCef::~ChromeMainDelegateCef() = default;
 
-bool ChromeMainDelegateCef::BasicStartupComplete(int* exit_code) {
+absl::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
   // Returns false if startup should proceed.
-  bool result = ChromeMainDelegate::BasicStartupComplete(exit_code);
-  if (result)
-    return true;
+  auto result = ChromeMainDelegate::BasicStartupComplete();
+  if (result.has_value())
+    return result;
 
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
 
@@ -139,7 +139,7 @@ bool ChromeMainDelegateCef::BasicStartupComplete(int* exit_code) {
   util_mac::BasicStartupComplete();
 #endif
 
-  return false;
+  return absl::nullopt;
 }
 
 void ChromeMainDelegateCef::PreSandboxStartup() {
@@ -169,11 +169,12 @@ void ChromeMainDelegateCef::PreSandboxStartup() {
   crash_reporting::PreSandboxStartup(*command_line, process_type);
 }
 
-void ChromeMainDelegateCef::PreBrowserMain() {
+absl::optional<int> ChromeMainDelegateCef::PreBrowserMain() {
   // The parent ChromeMainDelegate implementation creates the NSApplication
   // instance on macOS, and we intentionally don't want to do that here.
   // TODO(macos): Do we need l10n_util::OverrideLocaleWithCocoaLocale()?
   runner_->PreBrowserMain();
+  return absl::nullopt;
 }
 
 absl::variant<int, content::MainFunctionParams>

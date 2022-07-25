@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index 38132463c9216..42f67b33eed7a 100644
+index d2259c3e9c845..5d2819a2cada3 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -24,6 +24,7 @@
@@ -34,7 +34,7 @@ index 38132463c9216..42f67b33eed7a 100644
  }
  
 diff --git chrome/browser/printing/print_preview_dialog_controller.cc chrome/browser/printing/print_preview_dialog_controller.cc
-index 01df55a728098..0c11458c9a5bb 100644
+index 226de9e8e4546..cdedf67c94d01 100644
 --- chrome/browser/printing/print_preview_dialog_controller.cc
 +++ chrome/browser/printing/print_preview_dialog_controller.cc
 @@ -15,6 +15,7 @@
@@ -118,7 +118,7 @@ index 7a3fbc44629e6..578422e85320a 100644
  }
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index 2ac094eb3a9be..0656515221072 100644
+index 8e55c46cdf29a..40957f570aba5 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -22,6 +22,7 @@

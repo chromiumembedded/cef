@@ -42,8 +42,8 @@ class AlloyMainDelegate : public content::ContentMainDelegate,
   ~AlloyMainDelegate() override;
 
   // content::ContentMainDelegate overrides.
-  void PreBrowserMain() override;
-  bool BasicStartupComplete(int* exit_code) override;
+  absl::optional<int> PreBrowserMain() override;
+  absl::optional<int> BasicStartupComplete() override;
   void PreSandboxStartup() override;
   absl::variant<int, content::MainFunctionParams> RunProcess(
       const std::string& process_type,

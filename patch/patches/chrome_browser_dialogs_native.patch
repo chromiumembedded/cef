@@ -173,10 +173,10 @@ index 2cf473c35b67a..e3552bd0f17d4 100644
    raw_ptr<content::WebContents> source_contents_;
  };
 diff --git ui/shell_dialogs/execute_select_file_win.cc ui/shell_dialogs/execute_select_file_win.cc
-index 162dbc3aeb4ea..41b73a5a2f4e4 100644
+index 024b691522a6d..22bc54db8e4aa 100644
 --- ui/shell_dialogs/execute_select_file_win.cc
 +++ ui/shell_dialogs/execute_select_file_win.cc
-@@ -290,9 +290,7 @@ bool ExecuteSelectSingleFile(HWND owner,
+@@ -286,9 +286,7 @@ bool ExecuteSelectSingleFile(HWND owner,
                               const std::vector<FileFilterSpec>& filter,
                               int* filter_index,
                               std::vector<base::FilePath>* paths) {
@@ -187,7 +187,7 @@ index 162dbc3aeb4ea..41b73a5a2f4e4 100644
                             default_path, filter, 0, filter_index, paths);
  }
  
-@@ -304,14 +302,13 @@ bool ExecuteSelectMultipleFile(HWND owner,
+@@ -300,14 +298,13 @@ bool ExecuteSelectMultipleFile(HWND owner,
                                 std::vector<base::FilePath>* paths) {
    DWORD dialog_options = FOS_ALLOWMULTISELECT;
  
@@ -204,7 +204,7 @@ index 162dbc3aeb4ea..41b73a5a2f4e4 100644
                       const base::FilePath& default_path,
                       const std::vector<FileFilterSpec>& filter,
                       const std::wstring& def_ext,
-@@ -324,9 +321,7 @@ bool ExecuteSaveFile(HWND owner,
+@@ -320,9 +317,7 @@ bool ExecuteSaveFile(HWND owner,
  
    DWORD dialog_options = FOS_OVERWRITEPROMPT;
  
@@ -215,7 +215,7 @@ index 162dbc3aeb4ea..41b73a5a2f4e4 100644
                             dialog_options, def_ext, filter_index, path);
  }
  
-@@ -418,7 +413,7 @@ void ExecuteSelectFile(
+@@ -347,7 +342,7 @@ void ExecuteSelectFile(
        break;
      case SelectFileDialog::SELECT_SAVEAS_FILE: {
        base::FilePath path;
@@ -242,7 +242,7 @@ index a622d465ab9e9..b5c11c3117738 100644
    return CreateSelectFileDialog(listener, std::move(policy));
  }
 diff --git ui/shell_dialogs/select_file_dialog.h ui/shell_dialogs/select_file_dialog.h
-index 8a417fc43a7e4..6d7b065b5b192 100644
+index 957ef752be4ba..061a415fd5c36 100644
 --- ui/shell_dialogs/select_file_dialog.h
 +++ ui/shell_dialogs/select_file_dialog.h
 @@ -111,7 +111,8 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
@@ -325,10 +325,10 @@ index 605c2278407ce..26ca067d32720 100644
          std::make_unique<remote_cocoa::SelectFileDialogBridge>(ns_window),
          std::move(receiver));
 diff --git ui/shell_dialogs/select_file_dialog_win.cc ui/shell_dialogs/select_file_dialog_win.cc
-index e2959960598a2..477992b18730b 100644
+index cf1fee6c8b770..287e9b3ace7cd 100644
 --- ui/shell_dialogs/select_file_dialog_win.cc
 +++ ui/shell_dialogs/select_file_dialog_win.cc
-@@ -248,6 +248,8 @@ void SelectFileDialogImpl::SelectFileImpl(
+@@ -250,6 +250,8 @@ void SelectFileDialogImpl::SelectFileImpl(
    HWND owner = owning_window && owning_window->GetRootWindow()
                     ? owning_window->GetHost()->GetAcceleratedWidget()
                     : nullptr;

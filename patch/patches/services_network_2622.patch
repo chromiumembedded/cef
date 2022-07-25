@@ -1,5 +1,5 @@
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index ab9be2c237cad..5bf06645fcc6a 100644
+index 5f13af8dd54be..3a2ca5e918889 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -22,6 +22,7 @@
@@ -123,10 +123,10 @@ index 77c0984d364c6..df7ff7d7355b5 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 1bd4dda6aaa55..af2385b2e4fbf 100644
+index cb42918d0c5c1..e050d858e8d7d 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2364,17 +2364,21 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2372,17 +2372,21 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
          network_service_->network_quality_estimator());
    }
  
@@ -157,7 +157,7 @@ index 1bd4dda6aaa55..af2385b2e4fbf 100644
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
  
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 0a376689aeb81..18da84986021d 100644
+index 99cd0107ab918..ed204a2b3e74c 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
 @@ -336,6 +336,9 @@ struct NetworkContextParams {

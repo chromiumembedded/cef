@@ -61,12 +61,12 @@ index c2836d15eba30..0c03c2b4666a6 100644
  // Factory function to create permission prompts for chrome.
  std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPrompt(
      content::WebContents* web_contents,
-diff --git chrome/browser/ui/views/permission_bubble/permission_prompt_impl.cc chrome/browser/ui/views/permission_bubble/permission_prompt_impl.cc
-index c92ad8917ec7f..96643e5904dc5 100644
---- chrome/browser/ui/views/permission_bubble/permission_prompt_impl.cc
-+++ chrome/browser/ui/views/permission_bubble/permission_prompt_impl.cc
-@@ -100,11 +100,28 @@ bool ShouldBubbleStartOpen(permissions::PermissionPrompt::Delegate* delegate) {
-   return false;
+diff --git chrome/browser/ui/views/permissions/permission_prompt_factory.cc chrome/browser/ui/views/permissions/permission_prompt_factory.cc
+index eff04a21a7109..daefe93035789 100644
+--- chrome/browser/ui/views/permissions/permission_prompt_factory.cc
++++ chrome/browser/ui/views/permissions/permission_prompt_factory.cc
+@@ -141,11 +141,28 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
+   }
  }
  
 +CreatePermissionPromptFunctionPtr g_create_permission_prompt_ptr = nullptr;

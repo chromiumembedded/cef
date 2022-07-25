@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/streams_private/streams_private_api.cc chrome/browser/extensions/api/streams_private/streams_private_api.cc
-index 2f5f7a7645103..9ab6fc1d4a654 100644
+index b2095ffc3fc11..371d5030de6e0 100644
 --- chrome/browser/extensions/api/streams_private/streams_private_api.cc
 +++ chrome/browser/extensions/api/streams_private/streams_private_api.cc
 @@ -6,6 +6,7 @@
@@ -8,7 +8,7 @@ index 2f5f7a7645103..9ab6fc1d4a654 100644
  
 +#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/extensions/extension_tab_util.h"
- #include "chrome/browser/prefetch/no_state_prefetch/chrome_no_state_prefetch_contents_delegate.h"
+ #include "chrome/browser/preloading/prefetch/no_state_prefetch/chrome_no_state_prefetch_contents_delegate.h"
  #include "components/no_state_prefetch/browser/no_state_prefetch_contents.h"
 @@ -18,6 +19,10 @@
  #include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h"

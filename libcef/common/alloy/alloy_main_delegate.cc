@@ -89,11 +89,12 @@ AlloyMainDelegate::AlloyMainDelegate(CefMainRunnerHandler* runner,
 
 AlloyMainDelegate::~AlloyMainDelegate() {}
 
-void AlloyMainDelegate::PreBrowserMain() {
+absl::optional<int> AlloyMainDelegate::PreBrowserMain() {
   runner_->PreBrowserMain();
+  return absl::nullopt;
 }
 
-bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
+absl::optional<int> AlloyMainDelegate::BasicStartupComplete() {
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   std::string process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
@@ -346,7 +347,7 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
   util_mac::BasicStartupComplete();
 #endif
 
-  return false;
+  return absl::nullopt;
 }
 
 void AlloyMainDelegate::PreSandboxStartup() {

@@ -18,7 +18,7 @@ index eefdd87f1f85a..4f4c68e53676d 100644
    if (!GetMouseWheelPhaseHandler())
      return;
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 912a21280fdd5..fa535d68368fe 100644
+index 4174581cda568..34cc936cbc305 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -67,6 +67,7 @@ class CursorManager;
@@ -49,7 +49,7 @@ index 912a21280fdd5..fa535d68368fe 100644
    // Called by the TextInputManager to notify the view about being removed from
    // the list of registered views, i.e., TextInputManager is no longer tracking
    // TextInputState from this view. The RWHV should reset |text_input_manager_|
-@@ -417,6 +424,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
+@@ -425,6 +432,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
                             const gfx::Rect& bounds,
                             const gfx::Rect& anchor_rect) = 0;
  
@@ -62,7 +62,7 @@ index 912a21280fdd5..fa535d68368fe 100644
    // Sets the cursor for this view to the one associated with the specified
    // cursor_type.
    virtual void UpdateCursor(const WebCursor& cursor) = 0;
-@@ -659,6 +672,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
+@@ -667,6 +680,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
    // to all displays.
    gfx::Size system_cursor_size_;
  
@@ -73,7 +73,7 @@ index 912a21280fdd5..fa535d68368fe 100644
   private:
    FRIEND_TEST_ALL_PREFIXES(
        BrowserSideFlingBrowserTest,
-@@ -680,10 +697,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
+@@ -688,10 +705,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
  
    void SynchronizeVisualProperties();
  
@@ -179,7 +179,7 @@ index 87a4458f9fbfc..bc3edd88fac7f 100644
    return host ? host->GetAcceleratedWidget() : nullptr;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
-index d8d30be7adeb2..6728c41c9cc2e 100644
+index 5cb499fa35436..38659ad852b10 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
 @@ -164,6 +164,18 @@ Widget::MoveLoopResult DesktopWindowTreeHostLinux::RunMoveLoop(
@@ -243,10 +243,10 @@ index e6842b0848c74..d214247587d41 100644
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  };
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-index f6d94f2376d28..d0a8b16ae9a33 100644
+index fdead2a571396..3d3ecd92341bf 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-@@ -261,8 +261,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
+@@ -271,8 +271,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
    if (properties.parent_widget) {
      window_parent_ = DesktopWindowTreeHostPlatform::GetHostForWidget(
          properties.parent_widget);
@@ -309,7 +309,7 @@ index 0aae49ec83b88..ab61925742ed7 100644
    // a reference.
    raw_ptr<corewm::TooltipWin> tooltip_;
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 046d3cf77f70e..f730142c7d554 100644
+index 2cb71ae39fa7b..dcb03c59fde50 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -338,7 +338,8 @@ void Widget::Init(InitParams params) {
@@ -363,7 +363,7 @@ index 046d3cf77f70e..f730142c7d554 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 1091647c5096a..4829519b2a029 100644
+index 6e8a17f9452fb..0e45f3c72b3c2 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -337,6 +337,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
@@ -404,7 +404,7 @@ index b3a3efd0e526f..8590a98eaf0b2 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 1e6326a2f36f5..8df413cd539ee 100644
+index 1208238fbfb50..c65237163f4ca 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
 @@ -824,7 +824,11 @@ bool HWNDMessageHandler::IsVisible() const {

@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
-index 342e29775ddc4..4c4630a2e74d5 100644
+index 53643797815c1..35adfd8a39668 100644
 --- chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ chrome/browser/profiles/off_the_record_profile_impl.cc
-@@ -646,7 +646,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
+@@ -644,7 +644,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
  #endif
    if (!profile)
      profile = std::make_unique<OffTheRecordProfileImpl>(parent, otr_profile_id);
@@ -14,7 +14,7 @@ index 342e29775ddc4..4c4630a2e74d5 100644
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index 02a724e47ba2e..4fa0dbefeecbc 100644
+index 03dbc7190157c..655979345399f 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
 @@ -83,6 +83,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
@@ -85,7 +85,7 @@ index ca2561e412621..febd52df6c971 100644
    virtual bool IsSignedIn() = 0;
  
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index e4af92bd90459..435fabe79453b 100644
+index b1a3fc0249f3f..381d15ff852ef 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
 @@ -1002,7 +1002,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
@@ -100,10 +100,10 @@ index e4af92bd90459..435fabe79453b 100644
    return raw_otr_profile;
  }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 3952344f9cb23..6868beece799d 100644
+index ad4a05611f40c..51bd4e39c689a 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -529,7 +529,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+@@ -528,7 +528,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
                            base::Unretained(this)));
  #endif
  
@@ -113,7 +113,7 @@ index 3952344f9cb23..6868beece799d 100644
  
    zombie_metrics_timer_.Start(FROM_HERE, base::Minutes(30), this,
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index f3c58cfa9b0f8..745bff6a12b66 100644
+index 0f3e28ba7dd6e..1a114b4039e47 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
 @@ -153,7 +153,7 @@ class ProfileManager : public Profile::Delegate {

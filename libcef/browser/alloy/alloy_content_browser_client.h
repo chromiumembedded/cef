@@ -245,9 +245,6 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
       const GURL& scope,
       const net::SiteForCookies& site_for_cookies,
       const absl::optional<url::Origin>& top_frame_origin) override;
-  bool ShouldAllowPluginCreation(
-      const url::Origin& embedder_origin,
-      const content::PepperPluginInfo& plugin_info) override;
   void OnWebContentsCreated(content::WebContents* web_contents) override;
   bool IsFindInPageDisabledForOrigin(const url::Origin& origin) override;
 

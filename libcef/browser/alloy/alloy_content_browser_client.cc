@@ -1502,16 +1502,6 @@ bool AlloyContentBrowserClient::ArePersistentMediaDeviceIDsAllowed(
       ->IsFullCookieAccessAllowed(url, site_for_cookies, top_frame_origin);
 }
 
-bool AlloyContentBrowserClient::ShouldAllowPluginCreation(
-    const url::Origin& embedder_origin,
-    const content::PepperPluginInfo& plugin_info) {
-  if (plugin_info.name == ChromeContentClient::kPDFInternalPluginName) {
-    return IsPdfInternalPluginAllowedOrigin(embedder_origin);
-  }
-
-  return true;
-}
-
 void AlloyContentBrowserClient::OnWebContentsCreated(
     content::WebContents* web_contents) {
   // Attach universal WebContentsObservers. These are quite rare, and in most

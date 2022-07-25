@@ -130,10 +130,10 @@ index eef24f71495fd..d3a273d369097 100644
  Settings::ScopedLockedFileHandle Settings::MakeScopedLockedFileHandle(
      FileHandle file,
 diff --git third_party/crashpad/crashpad/client/settings.h third_party/crashpad/crashpad/client/settings.h
-index 8ad8a2b16f648..adaede06e8b86 100644
+index e4a5cedc43854..56becc7d57530 100644
 --- third_party/crashpad/crashpad/client/settings.h
 +++ third_party/crashpad/crashpad/client/settings.h
-@@ -120,6 +120,11 @@ class Settings {
+@@ -128,6 +128,11 @@ class Settings {
    //!     error logged.
    bool SetLastUploadAttemptTime(time_t time);
  
@@ -184,7 +184,7 @@ index e79f4719b3dd0..22a20aede8100 100644
  
    if (crashpad_is_win) {
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
-index 138cf80026c98..d4af1f0c38d76 100644
+index 4d1548dbf88d8..59e41b79c5de9 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
 @@ -269,6 +269,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(

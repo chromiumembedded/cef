@@ -1,31 +1,175 @@
 diff --git printing/printing_context_linux.cc printing/printing_context_linux.cc
-index 805156b4d7b70..2fbf7fecef01f 100644
+index c8673eaee484b..d7026cd38df11 100644
 --- printing/printing_context_linux.cc
 +++ printing/printing_context_linux.cc
-@@ -48,9 +48,11 @@ PrintingContextLinux::~PrintingContextLinux() {
- }
+@@ -25,6 +25,12 @@
  
+ namespace printing {
+ 
++namespace {
++
++static PrintingContextLinuxDelegate* g_delegate = nullptr;
++
++}  // namespace
++
  // static
--void PrintingContextLinuxDelegate::SetInstance(
-+PrintingContextLinuxDelegate* PrintingContextLinuxDelegate::SetInstance(
-     PrintingContextLinuxDelegate* delegate) {
-+  auto old_delegate = g_delegate;
-   g_delegate = delegate;
-+  return old_delegate;
+ std::unique_ptr<PrintingContext> PrintingContext::CreateImpl(
+     Delegate* delegate,
+@@ -47,6 +53,14 @@ PrintingContextLinux::~PrintingContextLinux() {
+     print_dialog_->ReleaseDialog();
  }
  
++// static
++PrintingContextLinuxDelegate* PrintingContextLinuxDelegate::SetInstance(
++    PrintingContextLinuxDelegate* delegate) {
++  auto old_delegate = g_delegate;
++  g_delegate = delegate;
++  return old_delegate;
++}
++
  void PrintingContextLinux::AskUserForSettings(int max_pages,
+                                               bool has_selection,
+                                               bool is_scripted,
+@@ -68,23 +82,19 @@ mojom::ResultCode PrintingContextLinux::UseDefaultSettings() {
+ 
+   ResetSettings();
+ 
+-#if BUILDFLAG(IS_LINUX)
+-  if (!ui::LinuxUi::instance())
++  if (!g_delegate)
+     return mojom::ResultCode::kSuccess;
+ 
+   if (!print_dialog_)
+-    print_dialog_ = ui::LinuxUi::instance()->CreatePrintDialog(this);
++    print_dialog_ = g_delegate->CreatePrintDialog(this);
+   print_dialog_->UseDefaultSettings();
+-#endif
+ 
+   return mojom::ResultCode::kSuccess;
+ }
+ 
+ gfx::Size PrintingContextLinux::GetPdfPaperSizeDeviceUnits() {
+-#if BUILDFLAG(IS_LINUX)
+-  if (ui::LinuxUi::instance())
+-    return ui::LinuxUi::instance()->GetPdfPaperSize(this);
+-#endif
++  if (g_delegate)
++    return g_delegate->GetPdfPaperSize(this);
+ 
+   return gfx::Size();
+ }
+@@ -94,18 +104,16 @@ mojom::ResultCode PrintingContextLinux::UpdatePrinterSettings(
+   DCHECK(!printer_settings.show_system_dialog);
+   DCHECK(!in_print_job_);
+ 
+-#if BUILDFLAG(IS_LINUX)
+-  if (!ui::LinuxUi::instance())
++  if (!g_delegate)
+     return mojom::ResultCode::kSuccess;
+ 
+   if (!print_dialog_)
+-    print_dialog_ = ui::LinuxUi::instance()->CreatePrintDialog(this);
++    print_dialog_ = g_delegate->CreatePrintDialog(this);
+ 
+   // PrintDialogGtk::UpdateSettings() calls InitWithSettings() so settings_ will
+   // remain non-null after this line.
+   print_dialog_->UpdateSettings(std::move(settings_));
+   DCHECK(settings_);
+-#endif
+ 
+   return mojom::ResultCode::kSuccess;
+ }
 diff --git printing/printing_context_linux.h printing/printing_context_linux.h
-index dfe49bc00adea..3faa2a3dff79d 100644
+index 0e2f451ac050f..3faa2a3dff79d 100644
 --- printing/printing_context_linux.h
 +++ printing/printing_context_linux.h
-@@ -27,7 +27,8 @@ class COMPONENT_EXPORT(PRINTING) PrintingContextLinuxDelegate {
+@@ -16,6 +16,20 @@ namespace printing {
  
-   virtual gfx::Size GetPdfPaperSize(PrintingContextLinux* context) = 0;
- 
--  static void SetInstance(PrintingContextLinuxDelegate* delegate);
+ class MetafilePlayer;
+ class PrintDialogLinuxInterface;
++class PrintingContextLinux;
++
++class COMPONENT_EXPORT(PRINTING) PrintingContextLinuxDelegate {
++ public:
++  virtual ~PrintingContextLinuxDelegate() = default;
++
++  virtual PrintDialogLinuxInterface* CreatePrintDialog(
++      PrintingContextLinux* context) = 0;
++
++  virtual gfx::Size GetPdfPaperSize(PrintingContextLinux* context) = 0;
++
 +  static PrintingContextLinuxDelegate* SetInstance(
 +      PrintingContextLinuxDelegate* delegate);
- };
++};
  
  // PrintingContext with optional native UI for print dialog and pdf_paper_size.
+ class COMPONENT_EXPORT(PRINTING) PrintingContextLinux : public PrintingContext {
+diff --git ui/linux/BUILD.gn ui/linux/BUILD.gn
+index 48b78fe4b8b68..063131c2cb782 100644
+--- ui/linux/BUILD.gn
++++ ui/linux/BUILD.gn
+@@ -3,6 +3,7 @@
+ # found in the LICENSE file.
+ 
+ import("//build/config/linux/gtk/gtk.gni")
++import("//printing/buildflags/buildflags.gni")
+ import("//ui/qt/qt.gni")
+ 
+ assert(is_linux)
+diff --git ui/linux/linux_ui.cc ui/linux/linux_ui.cc
+index bae51eec69a8d..8675048b9117f 100644
+--- ui/linux/linux_ui.cc
++++ ui/linux/linux_ui.cc
+@@ -29,6 +29,9 @@ namespace ui {
+ std::unique_ptr<LinuxUi> LinuxUi::SetInstance(
+     std::unique_ptr<LinuxUi> instance) {
+   gfx::AnimationSettingsProviderLinux::SetInstance(instance.get());
++#if BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_PRINTING)
++  printing::PrintingContextLinuxDelegate::SetInstance(instance.get());
++#endif
+ 
+   return std::exchange(GetLinuxUiInstance(), std::move(instance));
+ }
+diff --git ui/linux/linux_ui.h ui/linux/linux_ui.h
+index e8be3f2e60182..8c7bddd4a3d2d 100644
+--- ui/linux/linux_ui.h
++++ ui/linux/linux_ui.h
+@@ -20,6 +20,10 @@
+ #include "third_party/skia/include/core/SkColor.h"
+ #include "ui/gfx/animation/animation_settings_provider_linux.h"
+ 
++#if BUILDFLAG(ENABLE_PRINTING)
++#include "printing/printing_context_linux.h"  // nogncheck
++#endif
++
+ // The main entrypoint into Linux toolkit specific code. GTK/QT code should only
+ // be executed behind this interface.
+ 
+@@ -60,7 +64,11 @@ class WindowFrameProvider;
+ // Adapter class with targets to render like different toolkits. Set by any
+ // project that wants to do linux desktop native rendering.
+ class COMPONENT_EXPORT(LINUX_UI) LinuxUi
+-    : public gfx::AnimationSettingsProviderLinux {
++    : public gfx::AnimationSettingsProviderLinux
++#if BUILDFLAG(ENABLE_PRINTING)
++      , public printing::PrintingContextLinuxDelegate
++#endif
++{
+  public:
+   using UseSystemThemeCallback =
+       base::RepeatingCallback<bool(aura::Window* window)>;
+@@ -181,14 +189,6 @@ class COMPONENT_EXPORT(LINUX_UI) LinuxUi
+   // Returns a map of KeyboardEvent code to KeyboardEvent key values.
+   virtual base::flat_map<std::string, std::string> GetKeyboardLayoutMap() = 0;
+ 
+-#if BUILDFLAG(ENABLE_PRINTING)
+-  virtual printing::PrintDialogLinuxInterface* CreatePrintDialog(
+-      printing::PrintingContextLinux* context) = 0;
+-
+-  virtual gfx::Size GetPdfPaperSize(
+-      printing::PrintingContextLinux* context) = 0;
+-#endif
+-
+   // Returns a native file selection dialog.  `listener` is of type
+   // SelectFileDialog::Listener.  TODO(thomasanderson): Move
+   // SelectFileDialog::Listener to SelectFileDialogListener so that it can be

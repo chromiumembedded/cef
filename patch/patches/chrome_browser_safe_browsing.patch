@@ -1,8 +1,8 @@
 diff --git chrome/browser/safe_browsing/BUILD.gn chrome/browser/safe_browsing/BUILD.gn
-index 9d43a724104d8..7d8d05cb15c19 100644
+index b0476227efb01..c9473a320abd1 100644
 --- chrome/browser/safe_browsing/BUILD.gn
 +++ chrome/browser/safe_browsing/BUILD.gn
-@@ -28,6 +28,7 @@ static_library("safe_browsing") {
+@@ -29,6 +29,7 @@ static_library("safe_browsing") {
      "//components/browser_sync",
      "//components/enterprise:enterprise",
      "//components/enterprise/common:strings",
