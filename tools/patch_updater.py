@@ -166,6 +166,14 @@ for patch in patches:
     msg('Reading patch file %s' % patch_file)
     if 'path' in patch:
       patch_root_abs = os.path.abspath(os.path.join(src_dir, patch['path']))
+      if not os.path.isdir(patch_root_abs):
+        line = 'Target directory does not exist: %s' % patch_root_abs
+        msg(line)
+        if options.resave:
+          # Report as a fatal error for manual resave only, as the missing
+          # directory may be platform-specific.
+          failed_patches[patch['name']] = [line]
+        continue
     else:
       patch_root_abs = src_dir
 
