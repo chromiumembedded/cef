@@ -1,0 +1,18 @@
+diff --git linux_syscall_support.h linux_syscall_support.h
+index e4e816f..bbbd338 100644
+--- linux_syscall_support.h
++++ linux_syscall_support.h
+@@ -4861,7 +4861,12 @@ struct kernel_statfs {
+                                           size_t count, loff_t off) {
+       union { loff_t off; unsigned arg[2]; } o = { off };
+       return LSS_NAME(_pwrite64)(fd, buf, count,
+-                                 LSS_LLARG_PAD o.arg[0], o.arg[1]);
++                                 LSS_LLARG_PAD o.arg[0],
++#if !defined(__ARM_EABI__) && !defined(__mips__)
++                                 static_cast<long>(o.arg[1]));
++#else
++                                 o.arg[1]);
++#endif
+     }
+     LSS_INLINE int LSS_NAME(readahead)(int fd, loff_t off, size_t count) {
+       union { loff_t off; unsigned arg[2]; } o = { off };
