@@ -552,12 +552,8 @@ void CefWindowImpl::SendMouseMove(int screen_x, int screen_y) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   InitializeUITesting();
 
+  // Converts to pixel coordinates internally on Windows.
   gfx::Point point(screen_x, screen_y);
-#if BUILDFLAG(IS_WIN)
-  // Windows expects pixel coordinates.
-  point = display::win::ScreenWin::DIPToScreenPoint(point);
-#endif
-
   ui_controls::SendMouseMove(point.x(), point.y());
 }
 
