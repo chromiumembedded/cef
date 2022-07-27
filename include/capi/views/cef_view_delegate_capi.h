@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=6a8166eca76513b59a4f6355f4f765dc1d77e4ee$
+// $hash=a75487288913e4646f67ee8aded4bc9ef328bb79$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_VIEW_DELEGATE_CAPI_H_
@@ -49,9 +49,10 @@ extern "C" {
 struct _cef_view_t;
 
 ///
-// Implement this structure to handle view events. The functions of this
-// structure will be called on the browser process UI thread unless otherwise
-// indicated.
+// Implement this structure to handle view events. All size and position values
+// are in density independent pixels (DIP) unless otherwise indicated. The
+// functions of this structure will be called on the browser process UI thread
+// unless otherwise indicated.
 ///
 typedef struct _cef_view_delegate_t {
   ///

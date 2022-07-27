@@ -13,6 +13,8 @@
 
 #if defined(OS_WIN)
 #include <windows.h>
+#include "tests/shared/browser/geometry_util.h"
+#include "tests/shared/browser/util_win.h"
 #endif
 
 namespace {
@@ -28,18 +30,30 @@ const int TestWindowDelegate::kWSize = 400;
 // static
 void TestWindowDelegate::RunTest(CefRefPtr<CefWaitableEvent> event,
                                  std::unique_ptr<Config> config) {
+  CefSize window_size{config->window_size, config->window_size};
+
 #if defined(OS_WIN)
-  RECT rect = {0, 0, config->window_size, config->window_size};
   if (!config->frameless) {
-    // The size value is for the client area. Calculate the whole window size
-    // based on the default frame window style.
+    // Expand the client area size to full window size based on the default
+    // frame window style. AdjustWindowRect expects pixel coordinates, so
+    // perform the necessary conversions.
+    auto scale_factor = client::GetDeviceScaleFactor();
+    auto scaled_size =
+        client::LogicalToDevice(config->window_size, scale_factor);
+
+    // Convert from DIP to pixel coords.
+    RECT rect = {0, 0, scaled_size, scaled_size};
+
     AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
                      false /* has_menu */);
+
+    // Convert from pixel to DIP coords.
+    auto scaled_rect = client::DeviceToLogical(
+        {rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top},
+        scale_factor);
+    window_size = {scaled_rect.width, scaled_rect.height};
   }
-  CefSize window_size = CefSize(rect.right - rect.left, rect.bottom - rect.top);
-#else
-  CefSize window_size = CefSize(config->window_size, config->window_size);
-#endif
+#endif  // defined(OS_WIN)
 
   CefWindow::CreateTopLevelWindow(
       new TestWindowDelegate(event, std::move(config), window_size));

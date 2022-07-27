@@ -43,8 +43,10 @@
 class CefView;
 
 ///
-// Implement this interface to handle view events. The methods of this class
-// will be called on the browser process UI thread unless otherwise indicated.
+// Implement this interface to handle view events. All size and position values
+// are in density independent pixels (DIP) unless otherwise indicated. The
+// methods of this class will be called on the browser process UI thread unless
+// otherwise indicated.
 ///
 /*--cef(source=client)--*/
 class CefViewDelegate : public virtual CefBaseRefCounted {
