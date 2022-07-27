@@ -722,8 +722,7 @@ void RootWindowWin::OnSize(bool minimized) {
                             SWP_NOZORDER);
     }
 
-    BOOL result = EndDeferWindowPos(hdwp);
-    ALLOW_UNUSED_LOCAL(result);
+    [[maybe_unused]] BOOL result = EndDeferWindowPos(hdwp);
     DCHECK(result);
   } else if (browser_window_) {
     // Size the browser window to the whole client area.
@@ -1164,9 +1163,8 @@ void UnSubclassWindow(HWND hWnd) {
   LONG_PTR hParentWndProc =
       reinterpret_cast<LONG_PTR>(::GetPropW(hWnd, kParentWndProc));
   if (hParentWndProc) {
-    LONG_PTR hPreviousWndProc =
+    [[maybe_unused]] LONG_PTR hPreviousWndProc =
         SetWindowLongPtr(hWnd, GWLP_WNDPROC, hParentWndProc);
-    ALLOW_UNUSED_LOCAL(hPreviousWndProc);
     DCHECK_EQ(hPreviousWndProc,
               reinterpret_cast<LONG_PTR>(SubclassedWindowProc));
   }

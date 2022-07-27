@@ -52,7 +52,6 @@
 
 #include "include/base/cef_bind.h"
 #include "include/base/cef_callback.h"
-#include "include/base/cef_compiler_specific.h"
 #include "include/base/cef_logging.h"
 
 namespace base {
@@ -184,7 +183,7 @@ class ScopedClosureRunner {
   void ReplaceClosure(OnceClosure closure);
 
   // Releases the Closure without calling.
-  OnceClosure Release() WARN_UNUSED_RESULT;
+  [[nodiscard]] OnceClosure Release();
 
  private:
   OnceClosure closure_;

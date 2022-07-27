@@ -74,16 +74,15 @@
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.
 
-#include "include/base/cef_compiler_specific.h"
 #include "include/base/cef_logging.h"
 #include "include/base/internal/cef_scoped_policy.h"
 
 namespace base {
 
-template<typename T>
+template <typename T>
 struct ScopedTypeRefTraits;
 
-template<typename T, typename Traits = ScopedTypeRefTraits<T>>
+template <typename T, typename Traits = ScopedTypeRefTraits<T>>
 class ScopedTypeRef {
  public:
   using element_type = T;
@@ -96,8 +95,7 @@ class ScopedTypeRef {
       object_ = Traits::Retain(object_);
   }
 
-  ScopedTypeRef(const ScopedTypeRef<T, Traits>& that)
-      : object_(that.object_) {
+  ScopedTypeRef(const ScopedTypeRef<T, Traits>& that) : object_(that.object_) {
     if (object_)
       object_ = Traits::Retain(object_);
   }
@@ -127,7 +125,7 @@ class ScopedTypeRef {
   // This is to be used only to take ownership of objects that are created
   // by pass-by-pointer create functions. To enforce this, require that the
   // object be reset to NULL before this may be used.
-  element_type* InitializeInto() WARN_UNUSED_RESULT {
+  [[nodiscard]] element_type* InitializeInto() {
     DCHECK(!object_);
     return &object_;
   }
@@ -163,7 +161,7 @@ class ScopedTypeRef {
   // ScopedTypeRef<>::release() is like std::unique_ptr<>::release.  It is NOT
   // a wrapper for Release().  To force a ScopedTypeRef<> object to call
   // Release(), use ScopedTypeRef<>::reset().
-  element_type release() WARN_UNUSED_RESULT {
+  [[nodiscard]] element_type release() {
     element_type temp = object_;
     object_ = Traits::InvalidValue();
     return temp;

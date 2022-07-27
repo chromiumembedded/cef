@@ -18,8 +18,7 @@ class ScopedGLContext {
  public:
   ScopedGLContext(HDC hdc, HGLRC hglrc, bool swap_buffers)
       : hdc_(hdc), swap_buffers_(swap_buffers) {
-    BOOL result = wglMakeCurrent(hdc, hglrc);
-    ALLOW_UNUSED_LOCAL(result);
+    [[maybe_unused]] BOOL result = wglMakeCurrent(hdc, hglrc);
     DCHECK(result);
   }
   ~ScopedGLContext() {
@@ -188,8 +187,7 @@ void OsrRenderHandlerWinGL::DisableGL() {
 
   if (IsWindow(hwnd())) {
     // wglDeleteContext will make the context not current before deleting it.
-    BOOL result = wglDeleteContext(hrc_);
-    ALLOW_UNUSED_LOCAL(result);
+    [[maybe_unused]] BOOL result = wglDeleteContext(hrc_);
     DCHECK(result);
     ReleaseDC(hwnd(), hdc_);
   }

@@ -98,7 +98,6 @@
 #include "include/base/cef_bind.h"
 #include "include/base/cef_callback.h"
 #include "include/base/cef_callback_helpers.h"
-#include "include/base/cef_compiler_specific.h"
 #include "include/base/cef_logging.h"
 #include "include/base/cef_weak_ptr.h"
 
@@ -191,7 +190,7 @@ class CallbackListBase {
 
   // Registers |cb| for future notifications. Returns a CallbackListSubscription
   // whose destruction will cancel |cb|.
-  CallbackListSubscription Add(CallbackType cb) WARN_UNUSED_RESULT {
+  [[nodiscard]] CallbackListSubscription Add(CallbackType cb) {
     DCHECK(!cb.is_null());
     return CallbackListSubscription(base::BindOnce(
         &CallbackListBase::CancelCallback, weak_ptr_factory_.GetWeakPtr(),
