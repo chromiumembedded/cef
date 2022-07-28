@@ -1,5 +1,5 @@
 diff --git src/heap/code-range.cc src/heap/code-range.cc
-index badef8e17f5..02d5553c5d6 100644
+index badef8e17f..02d5553c5d 100644
 --- src/heap/code-range.cc
 +++ src/heap/code-range.cc
 @@ -107,6 +107,22 @@ bool CodeRange::InitReservation(v8::PageAllocator* page_allocator,
@@ -53,7 +53,7 @@ index badef8e17f5..02d5553c5d6 100644
      Address last = base + page_allocator_->size() - 1;
      CHECK_EQ(GetPtrComprCageBaseAddress(base),
 diff --git src/utils/allocation.cc src/utils/allocation.cc
-index ac187407ce7..50255fcc641 100644
+index ac187407ce..50255fcc64 100644
 --- src/utils/allocation.cc
 +++ src/utils/allocation.cc
 @@ -403,13 +403,17 @@ bool VirtualMemoryCage::InitReservation(
