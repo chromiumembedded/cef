@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cd24810e169a9b119137caec3f864fdd6327c887$
+// $hash=5bba27a98f6ef56e7577c563084beb0f185cf164$
 //
 
 #include <dlfcn.h>
@@ -52,6 +52,7 @@
 #include "include/capi/cef_xml_reader_capi.h"
 #include "include/capi/cef_zip_reader_capi.h"
 #include "include/capi/test/cef_test_helpers_capi.h"
+#include "include/capi/test/cef_test_server_capi.h"
 #include "include/capi/test/cef_translator_test_capi.h"
 #include "include/capi/views/cef_browser_view_capi.h"
 #include "include/capi/views/cef_display_capi.h"
@@ -209,6 +210,7 @@ struct libcef_pointers {
   decltype(&cef_waitable_event_create) cef_waitable_event_create;
   decltype(&cef_xml_reader_create) cef_xml_reader_create;
   decltype(&cef_zip_reader_create) cef_zip_reader_create;
+  decltype(&cef_test_server_create_and_start) cef_test_server_create_and_start;
   decltype(&cef_translator_test_create) cef_translator_test_create;
   decltype(&cef_translator_test_ref_ptr_library_create)
       cef_translator_test_ref_ptr_library_create;
@@ -422,6 +424,7 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_waitable_event_create);
   INIT_ENTRY(cef_xml_reader_create);
   INIT_ENTRY(cef_zip_reader_create);
+  INIT_ENTRY(cef_test_server_create_and_start);
   INIT_ENTRY(cef_translator_test_create);
   INIT_ENTRY(cef_translator_test_ref_ptr_library_create);
   INIT_ENTRY(cef_translator_test_ref_ptr_library_child_create);
@@ -1138,6 +1141,15 @@ NO_SANITIZE("cfi-icall")
 struct _cef_zip_reader_t* cef_zip_reader_create(
     struct _cef_stream_reader_t* stream) {
   return g_libcef_pointers.cef_zip_reader_create(stream);
+}
+
+NO_SANITIZE("cfi-icall")
+struct _cef_test_server_t* cef_test_server_create_and_start(
+    uint16 port,
+    int https_server,
+    struct _cef_test_server_handler_t* handler) {
+  return g_libcef_pointers.cef_test_server_create_and_start(port, https_server,
+                                                            handler);
 }
 
 NO_SANITIZE("cfi-icall")

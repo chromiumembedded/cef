@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5e9ff0d723683c16009ad0c7c697ea461b653aaf$
+// $hash=15d99837c9ebf79df1d1ec2bab84900260410046$
 //
 
 #ifndef CEF_LIBCEF_DLL_WRAPPER_TYPES_H_
@@ -141,6 +141,9 @@ enum CefWrapperType {
   WT_STRING_VISITOR,
   WT_TASK,
   WT_TASK_RUNNER,
+  WT_TEST_SERVER,
+  WT_TEST_SERVER_CONNECTION,
+  WT_TEST_SERVER_HANDLER,
   WT_TEXTFIELD,
   WT_TEXTFIELD_DELEGATE,
   WT_THREAD,
