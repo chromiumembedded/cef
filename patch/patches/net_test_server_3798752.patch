@@ -1,0 +1,22 @@
+diff --git net/test/embedded_test_server/embedded_test_server.cc net/test/embedded_test_server/embedded_test_server.cc
+index 01233b6c48eb3..d5f8e53a499b1 100644
+--- net/test/embedded_test_server/embedded_test_server.cc
++++ net/test/embedded_test_server/embedded_test_server.cc
+@@ -974,7 +974,7 @@ bool EmbeddedTestServer::PostTaskToIOThreadAndWait(base::OnceClosure closure) {
+   if (!base::CurrentThread::Get())
+     temporary_loop = std::make_unique<base::SingleThreadTaskExecutor>();
+ 
+-  base::RunLoop run_loop;
++  base::RunLoop run_loop(base::RunLoop::Type::kNestableTasksAllowed);
+   if (!io_thread_->task_runner()->PostTaskAndReply(
+           FROM_HERE, std::move(closure), run_loop.QuitClosure())) {
+     return false;
+@@ -1001,7 +1001,7 @@ bool EmbeddedTestServer::PostTaskToIOThreadAndWaitWithResult(
+   if (!base::CurrentThread::Get())
+     temporary_loop = std::make_unique<base::SingleThreadTaskExecutor>();
+ 
+-  base::RunLoop run_loop;
++  base::RunLoop run_loop(base::RunLoop::Type::kNestableTasksAllowed);
+   bool task_result = false;
+   if (!base::PostTaskAndReplyWithResult(
+           io_thread_->task_runner().get(), FROM_HERE, std::move(task),

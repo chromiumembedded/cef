@@ -420,11 +420,14 @@ source_set("libcef_test_support") {
   testonly = true
 
   sources = [
+    "libcef/browser/test/test_server_impl.cc",
+    "libcef/browser/test/test_server_impl.h",
     "libcef/common/test/translator_test_impl.cc",
   ]
 
   deps = [
     ":libcef_static",
+    "//net:test_support",
 
     # Support for UI input events.
     "//ui/views:test_support",

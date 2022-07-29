@@ -533,6 +533,7 @@
       'tests/ceftests/test_server_runner.cc',
       'tests/ceftests/test_server_runner_normal.cc',
       'tests/ceftests/test_server_runner_test.cc',
+      'tests/ceftests/test_server_unittest.cc',
       'tests/ceftests/test_suite.cc',
       'tests/ceftests/test_suite.h',
       'tests/ceftests/test_util.cc',

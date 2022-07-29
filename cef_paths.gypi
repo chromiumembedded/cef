@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=3ed1afd1b5f881884e6cfd0186fe41bb7b19fd38$
+# $hash=ffc0502a0275b74228f1fd642566d3f020e538a0$
 #
 
 {
@@ -92,6 +92,7 @@
       'include/cef_xml_reader.h',
       'include/cef_zip_reader.h',
       'include/test/cef_test_helpers.h',
+      'include/test/cef_test_server.h',
       'include/test/cef_translator_test.h',
       'include/views/cef_box_layout.h',
       'include/views/cef_browser_view.h',
@@ -194,6 +195,7 @@
       'include/capi/cef_xml_reader_capi.h',
       'include/capi/cef_zip_reader_capi.h',
       'include/capi/test/cef_test_helpers_capi.h',
+      'include/capi/test/cef_test_server_capi.h',
       'include/capi/test/cef_translator_test_capi.h',
       'include/capi/views/cef_box_layout_capi.h',
       'include/capi/views/cef_browser_view_capi.h',
@@ -462,6 +464,12 @@
       'libcef_dll/ctocpp/task_ctocpp.h',
       'libcef_dll/cpptoc/task_runner_cpptoc.cc',
       'libcef_dll/cpptoc/task_runner_cpptoc.h',
+      'libcef_dll/cpptoc/test/test_server_cpptoc.cc',
+      'libcef_dll/cpptoc/test/test_server_cpptoc.h',
+      'libcef_dll/cpptoc/test/test_server_connection_cpptoc.cc',
+      'libcef_dll/cpptoc/test/test_server_connection_cpptoc.h',
+      'libcef_dll/ctocpp/test/test_server_handler_ctocpp.cc',
+      'libcef_dll/ctocpp/test/test_server_handler_ctocpp.h',
       'libcef_dll/cpptoc/views/textfield_cpptoc.cc',
       'libcef_dll/cpptoc/views/textfield_cpptoc.h',
       'libcef_dll/ctocpp/views/textfield_delegate_ctocpp.cc',
@@ -780,6 +788,12 @@
       'libcef_dll/cpptoc/task_cpptoc.h',
       'libcef_dll/ctocpp/task_runner_ctocpp.cc',
       'libcef_dll/ctocpp/task_runner_ctocpp.h',
+      'libcef_dll/ctocpp/test/test_server_ctocpp.cc',
+      'libcef_dll/ctocpp/test/test_server_ctocpp.h',
+      'libcef_dll/ctocpp/test/test_server_connection_ctocpp.cc',
+      'libcef_dll/ctocpp/test/test_server_connection_ctocpp.h',
+      'libcef_dll/cpptoc/test/test_server_handler_cpptoc.cc',
+      'libcef_dll/cpptoc/test/test_server_handler_cpptoc.h',
       'libcef_dll/ctocpp/views/textfield_ctocpp.cc',
       'libcef_dll/ctocpp/views/textfield_ctocpp.h',
       'libcef_dll/cpptoc/views/textfield_delegate_cpptoc.cc',
