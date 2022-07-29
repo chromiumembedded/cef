@@ -9,19 +9,6 @@
 #include <limits>
 #include <tuple>
 
-// The contents of this file are a compilation unit that is not called by other
-// functions in the the library. Consiquently MSVS will exclude it during the
-// linker stage if we don't call a stub function.
-#if defined(COMPILER_MSVC)
-#pragma optimize("", off)
-#endif
-
-void time_impl_stub() {}
-
-#if defined(COMPILER_MSVC)
-#pragma optimize("", on)
-#endif
-
 #if BUILDFLAG(IS_WIN)
 namespace {
 

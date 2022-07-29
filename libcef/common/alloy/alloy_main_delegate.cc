@@ -73,15 +73,6 @@ AlloyMainDelegate::AlloyMainDelegate(CefMainRunnerHandler* runner,
                                      CefSettings* settings,
                                      CefRefPtr<CefApp> application)
     : runner_(runner), settings_(settings), application_(application) {
-  // Necessary so that exported functions from base_impl.cc will be included
-  // in the binary.
-  extern void base_impl_stub();
-  base_impl_stub();
-  // Necessary so that exported functions from time_impl.cc will be included
-  // in the binary.
-  extern void time_impl_stub();
-  time_impl_stub();
-
 #if BUILDFLAG(IS_LINUX)
   resource_util::OverrideAssetPath();
 #endif
