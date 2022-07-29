@@ -12,7 +12,6 @@
 #include "include/cef_registration.h"
 #include "include/cef_request.h"
 #include "include/cef_response.h"
-#include "include/cef_server.h"
 
 namespace test_server {
 
@@ -20,6 +19,9 @@ extern const char kServerAddress[];
 extern const uint16 kServerPort;
 extern const char kServerScheme[];
 extern const char kServerOrigin[];
+
+// Used with incomplete tests for data that should not be sent.
+extern const char kIncompleteDoNotSendData[];
 
 using DoneCallback = base::OnceClosure;
 
@@ -35,8 +37,7 @@ void Start(StartDoneCallback callback);
 // UI thread. This method will be called by the test framework on shutdown.
 void Stop(DoneCallback callback);
 
-// Observer for CefServerHandler callbacks. Methods will be called on the UI
-// thread.
+// Observer for server callbacks. Methods will be called on the UI thread.
 class Observer {
  public:
   // Called when this Observer is registered.
@@ -45,30 +46,25 @@ class Observer {
   // Called when this Observer is unregistered.
   virtual void OnUnregistered() = 0;
 
-  // See CefServerHandler documentation for usage. Return true if the callback
-  // was handled.
-  virtual bool OnClientConnected(CefRefPtr<CefServer> server,
-                                 int connection_id) {
-    return false;
-  }
-  virtual bool OnClientDisconnected(CefRefPtr<CefServer> server,
-                                    int connection_id) {
-    return false;
-  }
-  virtual bool OnHttpRequest(CefRefPtr<CefServer> server,
-                             int connection_id,
-                             const CefString& client_address,
-                             CefRefPtr<CefRequest> request) = 0;
+  using ResponseCallback =
+      base::RepeatingCallback<void(CefRefPtr<CefResponse> response,
+                                   const std::string& response_data)>;
+
+  // Return true and execute |response_callback| either synchronously or
+  // asynchronously if the request was handled. Do not execute
+  // |response_callback| when returning false.
+  virtual bool OnHttpRequest(CefRefPtr<CefRequest> request,
+                             const ResponseCallback& response_callback) = 0;
 
  protected:
   virtual ~Observer() {}
 };
 
-// Add an observer for CefServerHandler callbacks. Remains registered until the
-// returned CefRegistration object is destroyed. Registered observers will be
-// executed in the order of registration until one returns true to indicate that
-// it handled the callback. |callback| will be executed on the UI thread after
-// registration is complete.
+// Add an observer for server callbacks. Remains registered until the returned
+// CefRegistration object is destroyed. Registered observers will be executed in
+// the order of registration until one returns true to indicate that it handled
+// the callback. |callback| will be executed on the UI thread after registration
+// is complete.
 CefRefPtr<CefRegistration> AddObserver(Observer* observer,
                                        DoneCallback callback);
 
@@ -76,15 +72,9 @@ CefRefPtr<CefRegistration> AddObserver(Observer* observer,
 CefRefPtr<CefRegistration> AddObserverAndStart(Observer* observer,
                                                StartDoneCallback callback);
 
-// Helper for sending a fully qualified response.
-void SendResponse(CefRefPtr<CefServer> server,
-                  int connection_id,
-                  CefRefPtr<CefResponse> response,
-                  const std::string& response_data);
-
 // Helper for managing Observer registration and callbacks. Only used on the UI
 // thread.
-class ObserverHelper : Observer {
+class ObserverHelper : public Observer {
  public:
   ObserverHelper();
   ~ObserverHelper() override;

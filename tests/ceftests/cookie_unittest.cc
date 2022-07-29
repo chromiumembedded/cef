@@ -1325,35 +1325,16 @@ class CookieAccessServerHandler : public test_server::ObserverHelper,
     delete this;
   }
 
-  bool OnHttpRequest(CefRefPtr<CefServer> server,
-                     int connection_id,
-                     const CefString& client_address,
-                     CefRefPtr<CefRequest> request) override {
+  bool OnHttpRequest(CefRefPtr<CefRequest> request,
+                     const ResponseCallback& response_callback) override {
     EXPECT_UI_THREAD();
-    EXPECT_FALSE(client_address.empty());
 
     // Log the requests for better error reporting.
     request_log_ += request->GetMethod().ToString() + " " +
                     request->GetURL().ToString() + "\n";
 
-    HandleRequest(server, connection_id, request);
-
     actual_http_request_ct_++;
 
-    return true;
-  }
-
- private:
-  void VerifyResults() {
-    EXPECT_TRUE(got_server_created_);
-    EXPECT_TRUE(got_server_destroyed_);
-    EXPECT_EQ(expected_http_request_ct_, actual_http_request_ct_)
-        << request_log_;
-  }
-
-  void HandleRequest(CefRefPtr<CefServer> server,
-                     int connection_id,
-                     CefRefPtr<CefRequest> request) {
     const std::string& url = request->GetURL();
     ResponseDataMap::const_iterator it = data_map_.find(url);
     if (it != data_map_.end()) {
@@ -1365,48 +1346,21 @@ class CookieAccessServerHandler : public test_server::ObserverHelper,
       TestCookieString(cookie_str, it->second->cookie_js_ct_,
                        it->second->cookie_net_ct_);
 
-      SendResponse(server, connection_id, it->second->response,
-                   it->second->response_data);
-    } else {
+      response_callback.Run(it->second->response, it->second->response_data);
+      return true;
+    } else if (!IgnoreURL(url)) {
       // Unknown test.
-      if (!IgnoreURL(url)) {
-        ADD_FAILURE() << "Unexpected url: " << url;
-      }
-      server->SendHttp500Response(connection_id, "Unknown test");
+      ADD_FAILURE() << "Unexpected url: " << url;
     }
+    return false;
   }
 
-  static void SendResponse(CefRefPtr<CefServer> server,
-                           int connection_id,
-                           CefRefPtr<CefResponse> response,
-                           const std::string& response_data) {
-    // Execute on the server thread because some methods require it.
-    CefRefPtr<CefTaskRunner> task_runner = server->GetTaskRunner();
-    if (!task_runner->BelongsToCurrentThread()) {
-      task_runner->PostTask(CefCreateClosureTask(
-          base::BindOnce(CookieAccessServerHandler::SendResponse, server,
-                         connection_id, response, response_data)));
-      return;
-    }
-
-    int response_code = response->GetStatus();
-    const CefString& content_type = response->GetMimeType();
-    int64 content_length = static_cast<int64>(response_data.size());
-
-    CefResponse::HeaderMap extra_headers;
-    response->GetHeaderMap(extra_headers);
-
-    server->SendHttpResponse(connection_id, response_code, content_type,
-                             content_length, extra_headers);
-
-    if (content_length != 0) {
-      server->SendRawData(connection_id, response_data.data(),
-                          response_data.size());
-      server->CloseConnection(connection_id);
-    }
-
-    // The connection should be closed.
-    EXPECT_FALSE(server->IsValidConnection(connection_id));
+ private:
+  void VerifyResults() {
+    EXPECT_TRUE(got_server_created_);
+    EXPECT_TRUE(got_server_destroyed_);
+    EXPECT_EQ(expected_http_request_ct_, actual_http_request_ct_)
+        << request_log_;
   }
 
   void RunCompleteCallback() {
