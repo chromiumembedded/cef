@@ -311,10 +311,8 @@ class TestServerObserver : public test_server::ObserverHelper {
     std::move(ready_callback_).Run();
   }
 
-  bool OnHttpRequest(CefRefPtr<CefServer> server,
-                     int connection_id,
-                     const CefString& client_address,
-                     CefRefPtr<CefRequest> request) override {
+  bool OnHttpRequest(CefRefPtr<CefRequest> request,
+                     const ResponseCallback& response_callback) override {
     CEF_REQUIRE_UI_THREAD();
     Resource* resource = setup_->GetResource(request);
     if (!resource) {
@@ -325,8 +323,7 @@ class TestServerObserver : public test_server::ObserverHelper {
     resource->response_ct++;
     EXPECT_TRUE(resource->VerifyRequest(request))
         << request->GetURL().ToString();
-    test_server::SendResponse(server, connection_id, resource->response,
-                              resource->response_data);
+    response_callback.Run(resource->response, resource->response_data);
 
     // Stop propagating the callback.
     return true;

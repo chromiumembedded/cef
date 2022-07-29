@@ -79,9 +79,6 @@ const char kRequestSaveCookieName[] = "urcookie_save";
 
 const char kCacheControlHeader[] = "cache-control";
 
-// Used with incomplete tests for data that should not be sent.
-const char kIncompleteDoNotSendData[] = "DO NOT SEND";
-
 enum RequestTestMode {
   REQTEST_GET = 0,
   REQTEST_GET_NODATA,
@@ -1238,8 +1235,6 @@ class RequestServerHandler : public test_server::ObserverHelper {
  public:
   RequestServerHandler()
       : initialized_(false),
-        expected_connection_ct_(-1),
-        actual_connection_ct_(0),
         expected_http_request_ct_(-1),
         actual_http_request_ct_(0) {}
 
@@ -1254,7 +1249,7 @@ class RequestServerHandler : public test_server::ObserverHelper {
   // Must be called before CreateServer().
   void SetExpectedRequestCount(int count) {
     EXPECT_FALSE(initialized_);
-    expected_connection_ct_ = expected_http_request_ct_ = count;
+    expected_http_request_ct_ = count;
   }
 
   // |complete_callback| will be executed on the UI thread after the server is
@@ -1262,7 +1257,7 @@ class RequestServerHandler : public test_server::ObserverHelper {
   void CreateServer(base::OnceClosure complete_callback) {
     EXPECT_UI_THREAD();
 
-    if (expected_connection_ct_ < 0) {
+    if (expected_http_request_ct_ < 0) {
       // Default to the assumption of one request per registered URL.
       SetExpectedRequestCount(static_cast<int>(data_map_.size()));
     }
@@ -1308,116 +1303,60 @@ class RequestServerHandler : public test_server::ObserverHelper {
     delete this;
   }
 
-  bool OnClientConnected(CefRefPtr<CefServer> server,
-                         int connection_id) override {
+  bool OnHttpRequest(CefRefPtr<CefRequest> request,
+                     const ResponseCallback& response_callback) override {
     EXPECT_UI_THREAD();
-
-    if (!IsChromeRuntimeEnabled()) {
-      EXPECT_TRUE(connection_id_set_.find(connection_id) ==
-                  connection_id_set_.end());
-      connection_id_set_.insert(connection_id);
-    }
-
-    actual_connection_ct_++;
-
-    return true;
-  }
-
-  bool OnClientDisconnected(CefRefPtr<CefServer> server,
-                            int connection_id) override {
-    EXPECT_UI_THREAD();
-
-    if (!IsChromeRuntimeEnabled()) {
-      ConnectionIdSet::iterator it = connection_id_set_.find(connection_id);
-      EXPECT_TRUE(it != connection_id_set_.end());
-      connection_id_set_.erase(it);
-    }
-
-    return true;
-  }
-
-  bool OnHttpRequest(CefRefPtr<CefServer> server,
-                     int connection_id,
-                     const CefString& client_address,
-                     CefRefPtr<CefRequest> request) override {
-    EXPECT_UI_THREAD();
-    if (!IsChromeRuntimeEnabled()) {
-      EXPECT_TRUE(VerifyConnection(connection_id));
-    }
-    EXPECT_FALSE(client_address.empty());
 
     // Log the requests for better error reporting.
     request_log_ += request->GetMethod().ToString() + " " +
                     request->GetURL().ToString() + "\n";
 
-    // TODO(chrome-runtime): Debug why favicon requests don't always have the
-    // correct resource type.
-    const std::string& url = request->GetURL();
-    if (request->GetResourceType() == RT_FAVICON ||
-        url.find("/favicon.ico") != std::string::npos) {
-      // We don't currently handle favicon requests.
-      server->SendHttp404Response(connection_id);
-      return true;
-    }
-
-    HandleRequest(server, connection_id, request);
-
     actual_http_request_ct_++;
 
-    return true;
+    return HandleRequest(request, response_callback);
   }
 
  private:
-  bool VerifyConnection(int connection_id) {
-    return connection_id_set_.find(connection_id) != connection_id_set_.end();
-  }
-
   void VerifyResults() {
     EXPECT_TRUE(got_initialized_);
     EXPECT_TRUE(got_shutdown_);
-    if (!IsChromeRuntimeEnabled()) {
-      EXPECT_TRUE(connection_id_set_.empty());
-      EXPECT_EQ(expected_connection_ct_, actual_connection_ct_) << request_log_;
-      EXPECT_EQ(expected_http_request_ct_, actual_http_request_ct_)
-          << request_log_;
-    }
+    EXPECT_EQ(expected_http_request_ct_, actual_http_request_ct_)
+        << request_log_;
   }
 
-  void HandleRequest(CefRefPtr<CefServer> server,
-                     int connection_id,
-                     CefRefPtr<CefRequest> request) {
+  bool HandleRequest(CefRefPtr<CefRequest> request,
+                     const ResponseCallback& response_callback) {
     RequestDataMap::Entry entry = data_map_.Find(request->GetURL());
     if (entry.type == RequestDataMap::Entry::TYPE_NORMAL) {
       const bool needs_auth = entry.settings->expect_authentication &&
                               !IsAuthorized(request, entry.settings->username,
                                             entry.settings->password);
       if (needs_auth) {
-        HandleAuthRequest(server, connection_id, request);
-        return;
+        return HandleAuthRequest(request, response_callback);
       }
 
-      HandleNormalRequest(server, connection_id, request, entry.settings);
+      return HandleNormalRequest(request, response_callback, entry.settings);
     } else if (entry.type == RequestDataMap::Entry::TYPE_REDIRECT) {
-      HandleRedirectRequest(server, connection_id, request,
-                            entry.redirect_request, entry.redirect_response);
+      return HandleRedirectRequest(request, response_callback,
+                                   entry.redirect_request,
+                                   entry.redirect_response);
     } else {
       // Unknown test.
       ADD_FAILURE() << "url: " << request->GetURL().ToString();
-      server->SendHttp500Response(connection_id, "Unknown test");
     }
+    return false;
   }
 
-  static void HandleAuthRequest(CefRefPtr<CefServer> server,
-                                int connection_id,
-                                CefRefPtr<CefRequest> request) {
+  static bool HandleAuthRequest(CefRefPtr<CefRequest> request,
+                                const ResponseCallback& response_callback) {
     CefRefPtr<CefResponse> response = CefResponse::Create();
     GetAuthResponse(response);
-    SendResponse(server, connection_id, response, std::string());
+    response_callback.Run(response, std::string());
+    return true;
   }
 
-  static void HandleNormalRequest(CefRefPtr<CefServer> server,
-                                  int connection_id,
-                                  CefRefPtr<CefRequest> request,
+  static bool HandleNormalRequest(CefRefPtr<CefRequest> request,
+                                  const ResponseCallback& response_callback,
                                   RequestRunSettings* settings) {
     VerifyNormalRequest(settings, request, true);
 
@@ -1432,12 +1371,12 @@ class RequestServerHandler : public test_server::ObserverHelper {
       response_data = settings->response_data.substr(expected_offset);
     }
 
-    SendResponse(server, connection_id, response, response_data);
+    response_callback.Run(response, response_data);
+    return true;
   }
 
-  static void HandleRedirectRequest(CefRefPtr<CefServer> server,
-                                    int connection_id,
-                                    CefRefPtr<CefRequest> request,
+  static bool HandleRedirectRequest(CefRefPtr<CefRequest> request,
+                                    const ResponseCallback& response_callback,
                                     CefRefPtr<CefRequest> redirect_request,
                                     CefRefPtr<CefResponse> redirect_response) {
     if (redirect_response->GetStatus() == 302) {
@@ -1455,50 +1394,8 @@ class RequestServerHandler : public test_server::ObserverHelper {
     // Verify that the request was sent correctly.
     TestRequestEqual(redirect_request, request, true);
 
-    SendResponse(server, connection_id, redirect_response, std::string());
-  }
-
-  static void SendResponse(CefRefPtr<CefServer> server,
-                           int connection_id,
-                           CefRefPtr<CefResponse> response,
-                           const std::string& response_data) {
-    // Execute on the server thread because some methods require it.
-    CefRefPtr<CefTaskRunner> task_runner = server->GetTaskRunner();
-    if (!task_runner->BelongsToCurrentThread()) {
-      task_runner->PostTask(CefCreateClosureTask(
-          base::BindOnce(RequestServerHandler::SendResponse, server,
-                         connection_id, response, response_data)));
-      return;
-    }
-
-    const int response_code = response->GetStatus();
-    if (response_code <= 0) {
-      // Intentionally not responding for incomplete request tests.
-      return;
-    }
-
-    const CefString& content_type = response->GetMimeType();
-    int64 content_length = static_cast<int64>(response_data.size());
-
-    CefResponse::HeaderMap extra_headers;
-    response->GetHeaderMap(extra_headers);
-
-    server->SendHttpResponse(connection_id, response_code, content_type,
-                             content_length, extra_headers);
-
-    if (response_data == kIncompleteDoNotSendData) {
-      // Intentionally not sending data for incomplete request tests.
-      return;
-    }
-
-    if (content_length != 0) {
-      server->SendRawData(connection_id, response_data.data(),
-                          response_data.size());
-      server->CloseConnection(connection_id);
-    }
-
-    // The connection should be closed.
-    EXPECT_FALSE(server->IsValidConnection(connection_id));
+    response_callback.Run(redirect_response, std::string());
+    return true;
   }
 
   void RunCompleteCallback(bool startup) {
@@ -1526,11 +1423,6 @@ class RequestServerHandler : public test_server::ObserverHelper {
   TrackCallback got_initialized_;
   TrackCallback got_shutdown_;
 
-  typedef std::set<int> ConnectionIdSet;
-  ConnectionIdSet connection_id_set_;
-
-  int expected_connection_ct_;
-  int actual_connection_ct_;
   int expected_http_request_ct_;
   int actual_http_request_ct_;
 
@@ -2397,7 +2289,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     // There will be a response but the request will be aborted without
     // receiving any data.
-    settings_.response_data = kIncompleteDoNotSendData;
+    settings_.response_data = test_server::kIncompleteDoNotSendData;
     settings_.expected_error_code = ERR_ABORTED;
     settings_.expected_status = UR_FAILED;
     // TODO(network): Download progress notifications are sent for incomplete

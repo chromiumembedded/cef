@@ -6,8 +6,10 @@
 
 #include <vector>
 
+#include "include/cef_server.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 namespace test_server {
 
@@ -16,6 +18,7 @@ const char kServerAddress[] = "127.0.0.1";
 const uint16 kServerPort = 8098;
 const char kServerScheme[] = "http";
 const char kServerOrigin[] = "http://127.0.0.1:8098";
+const char kIncompleteDoNotSendData[] = "DO NOT SEND";
 
 namespace {
 
@@ -33,7 +36,7 @@ class ServerHandler : public CefServerHandler {
   }
 
   ~ServerHandler() override {
-    DCHECK(!server_);
+    EXPECT_FALSE(server_);
     NotifyServerHandlerDeleted();
   }
 
@@ -53,15 +56,13 @@ class ServerHandler : public CefServerHandler {
 
   void OnClientConnected(CefRefPtr<CefServer> server,
                          int connection_id) override {
-    DCHECK(server->HasConnection());
-    DCHECK(server->IsValidConnection(connection_id));
-    NotifyClientConnected(server, connection_id);
+    EXPECT_TRUE(server->HasConnection());
+    EXPECT_TRUE(server->IsValidConnection(connection_id));
   }
 
   void OnClientDisconnected(CefRefPtr<CefServer> server,
                             int connection_id) override {
-    DCHECK(!server->IsValidConnection(connection_id));
-    NotifyClientDisconnected(server, connection_id);
+    EXPECT_FALSE(server->IsValidConnection(connection_id));
   }
 
   void OnHttpRequest(CefRefPtr<CefServer> server,
@@ -87,10 +88,6 @@ class ServerHandler : public CefServerHandler {
   static void NotifyServerCreated(const std::string& server_origin);
   static void NotifyServerDestroyed();
   static void NotifyServerHandlerDeleted();
-  static void NotifyClientConnected(CefRefPtr<CefServer> server,
-                                    int connection_id);
-  static void NotifyClientDisconnected(CefRefPtr<CefServer> server,
-                                       int connection_id);
   static void NotifyHttpRequest(CefRefPtr<CefServer> server,
                                 int connection_id,
                                 const CefString& client_address,
@@ -107,15 +104,15 @@ class ServerManager {
  public:
   ServerManager() {
     CEF_REQUIRE_UI_THREAD();
-    DCHECK(!g_manager);
+    EXPECT_FALSE(g_manager);
     g_manager = this;
   }
 
   ~ServerManager() {
     CEF_REQUIRE_UI_THREAD();
-    DCHECK(observer_list_.empty());
-    DCHECK(start_callback_list_.empty());
-    DCHECK(stop_callback_.is_null());
+    EXPECT_TRUE(observer_list_.empty());
+    EXPECT_TRUE(start_callback_list_.empty());
+    EXPECT_TRUE(stop_callback_.is_null());
 
     g_manager = nullptr;
   }
@@ -147,7 +144,7 @@ class ServerManager {
     }
 
     // Only 1 stop callback supported.
-    DCHECK(stop_callback_.is_null());
+    EXPECT_TRUE(stop_callback_.is_null());
     stop_callback_ = std::move(callback);
 
     handler_->Shutdown();
@@ -169,13 +166,13 @@ class ServerManager {
         break;
       }
     }
-    DCHECK(found);
+    EXPECT_TRUE(found);
   }
 
   void NotifyServerCreated(const std::string& server_origin) {
     CEF_REQUIRE_UI_THREAD();
 
-    DCHECK(origin_.empty());
+    EXPECT_TRUE(origin_.empty());
     origin_ = server_origin;
 
     for (auto& callback : start_callback_list_) {
@@ -195,45 +192,10 @@ class ServerManager {
   void NotifyServerHandlerDeleted() {
     CEF_REQUIRE_UI_THREAD();
 
-    DCHECK(!stop_callback_.is_null());
+    EXPECT_FALSE(stop_callback_.is_null());
     std::move(stop_callback_).Run();
 
     delete this;
-  }
-
-  void NotifyClientConnected(CefRefPtr<CefServer> server, int connection_id) {
-    CEF_REQUIRE_UI_THREAD();
-
-    if (observer_list_.empty())
-      return;
-
-    // Use a copy in case |observer_list_| is modified during iteration.
-    ObserverList list = observer_list_;
-
-    ObserverList::const_iterator it = list.begin();
-    for (; it != list.end(); ++it) {
-      if ((*it)->OnClientConnected(server, connection_id)) {
-        break;
-      }
-    }
-  }
-
-  void NotifyClientDisconnected(CefRefPtr<CefServer> server,
-                                int connection_id) {
-    CEF_REQUIRE_UI_THREAD();
-
-    if (observer_list_.empty())
-      return;
-
-    // Use a copy in case |observer_list_| is modified during iteration.
-    ObserverList list = observer_list_;
-
-    ObserverList::const_iterator it = list.begin();
-    for (; it != list.end(); ++it) {
-      if ((*it)->OnClientDisconnected(server, connection_id)) {
-        break;
-      }
-    }
   }
 
   void NotifyHttpRequest(CefRefPtr<CefServer> server,
@@ -252,17 +214,19 @@ class ServerManager {
       return;
     }
 
-    DCHECK(!observer_list_.empty()) << url;
+    EXPECT_FALSE(observer_list_.empty()) << url;
 
     // Use a copy in case |observer_list_| is modified during iteration.
     ObserverList list = observer_list_;
 
     bool handled = false;
 
+    auto response_callback = base::BindRepeating(&ServerManager::SendResponse,
+                                                 server, connection_id);
+
     ObserverList::const_iterator it = list.begin();
     for (; it != list.end(); ++it) {
-      if ((*it)->OnHttpRequest(server, connection_id, client_address,
-                               request)) {
+      if ((*it)->OnHttpRequest(request, response_callback)) {
         handled = true;
         break;
       }
@@ -274,6 +238,52 @@ class ServerManager {
   }
 
  private:
+  static void SendResponse(CefRefPtr<CefServer> server,
+                           int connection_id,
+                           CefRefPtr<CefResponse> response,
+                           const std::string& response_data) {
+    // Execute on the server thread because some methods require it.
+    CefRefPtr<CefTaskRunner> task_runner = server->GetTaskRunner();
+    if (!task_runner->BelongsToCurrentThread()) {
+      task_runner->PostTask(CefCreateClosureTask(
+          base::BindOnce(ServerManager::SendResponse, server, connection_id,
+                         response, response_data)));
+      return;
+    }
+
+    // No response should be sent yet.
+    EXPECT_TRUE(server->IsValidConnection(connection_id));
+
+    const int response_code = response->GetStatus();
+    if (response_code <= 0) {
+      // Intentionally not responding for incomplete request tests.
+      return;
+    }
+
+    const CefString& content_type = response->GetMimeType();
+    int64 content_length = static_cast<int64>(response_data.size());
+
+    CefResponse::HeaderMap extra_headers;
+    response->GetHeaderMap(extra_headers);
+
+    server->SendHttpResponse(connection_id, response_code, content_type,
+                             content_length, extra_headers);
+
+    if (response_data == kIncompleteDoNotSendData) {
+      // Intentionally not sending data for incomplete request tests.
+      return;
+    }
+
+    if (content_length != 0) {
+      server->SendRawData(connection_id, response_data.data(),
+                          response_data.size());
+      server->CloseConnection(connection_id);
+    }
+
+    // The connection should be closed.
+    EXPECT_FALSE(server->IsValidConnection(connection_id));
+  }
+
   CefRefPtr<ServerHandler> handler_;
   std::string origin_;
 
@@ -295,7 +305,7 @@ ServerManager* GetServerManager() {
 ServerManager* GetOrCreateServerManager() {
   if (!g_manager) {
     new ServerManager();
-    DCHECK(g_manager);
+    EXPECT_TRUE(g_manager);
   }
   return g_manager;
 }
@@ -333,30 +343,6 @@ void ServerHandler::NotifyServerHandlerDeleted() {
 }
 
 // static
-void ServerHandler::NotifyClientConnected(CefRefPtr<CefServer> server,
-                                          int connection_id) {
-  if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::BindOnce(ServerHandler::NotifyClientConnected,
-                                       server, connection_id));
-    return;
-  }
-
-  GetServerManager()->NotifyClientConnected(server, connection_id);
-}
-
-// static
-void ServerHandler::NotifyClientDisconnected(CefRefPtr<CefServer> server,
-                                             int connection_id) {
-  if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::BindOnce(ServerHandler::NotifyClientDisconnected,
-                                       server, connection_id));
-    return;
-  }
-
-  GetServerManager()->NotifyClientDisconnected(server, connection_id);
-}
-
-// static
 void ServerHandler::NotifyHttpRequest(CefRefPtr<CefServer> server,
                                       int connection_id,
                                       const CefString& client_address,
@@ -376,7 +362,7 @@ class ObserverRegistration : public CefRegistration {
  public:
   explicit ObserverRegistration(Observer* const observer)
       : observer_(observer) {
-    DCHECK(observer_);
+    EXPECT_TRUE(observer_);
   }
 
   ~ObserverRegistration() override {
@@ -410,7 +396,7 @@ void InitializeRegistration(CefRefPtr<ObserverRegistration> registration,
     return;
   }
 
-  DCHECK(!g_stopping);
+  EXPECT_FALSE(g_stopping);
 
   registration->Initialize();
   if (!callback.is_null())
@@ -420,26 +406,26 @@ void InitializeRegistration(CefRefPtr<ObserverRegistration> registration,
 }  // namespace
 
 void Start(StartDoneCallback callback) {
-  DCHECK(!callback.is_null());
+  EXPECT_FALSE(callback.is_null());
   if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI, base::BindOnce(Start, std::move(callback)));
     return;
   }
 
-  DCHECK(!g_stopping);
+  EXPECT_FALSE(g_stopping);
 
   GetOrCreateServerManager()->Start(std::move(callback));
 }
 
 void Stop(DoneCallback callback) {
-  DCHECK(!callback.is_null());
+  EXPECT_FALSE(callback.is_null());
   if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI, base::BindOnce(Stop, std::move(callback)));
     return;
   }
 
   // Stop will be called one time on test framework shutdown.
-  DCHECK(!g_stopping);
+  EXPECT_FALSE(g_stopping);
   g_stopping = true;
 
   ServerManager* manager = GetServerManager();
@@ -452,7 +438,7 @@ void Stop(DoneCallback callback) {
 
 CefRefPtr<CefRegistration> AddObserver(Observer* observer,
                                        DoneCallback callback) {
-  DCHECK(observer);
+  EXPECT_TRUE(observer);
   CefRefPtr<ObserverRegistration> registration =
       new ObserverRegistration(observer);
   InitializeRegistration(registration, std::move(callback));
@@ -464,27 +450,6 @@ CefRefPtr<CefRegistration> AddObserverAndStart(Observer* observer,
   return AddObserver(observer, base::BindOnce(Start, std::move(callback)));
 }
 
-void SendResponse(CefRefPtr<CefServer> server,
-                  int connection_id,
-                  CefRefPtr<CefResponse> response,
-                  const std::string& response_data) {
-  const int response_code = response->GetStatus();
-  const CefString& content_type = response->GetMimeType();
-  int64 content_length = static_cast<int64>(response_data.size());
-
-  CefResponse::HeaderMap extra_headers;
-  response->GetHeaderMap(extra_headers);
-
-  server->SendHttpResponse(connection_id, response_code, content_type,
-                           content_length, extra_headers);
-
-  if (content_length != 0) {
-    server->SendRawData(connection_id, response_data.data(),
-                        response_data.size());
-    server->CloseConnection(connection_id);
-  }
-}
-
 // ObserverHelper
 
 ObserverHelper::ObserverHelper() : weak_ptr_factory_(this) {
@@ -492,12 +457,12 @@ ObserverHelper::ObserverHelper() : weak_ptr_factory_(this) {
 }
 
 ObserverHelper::~ObserverHelper() {
-  DCHECK(state_ == State::NONE);
+  EXPECT_TRUE(state_ == State::NONE);
 }
 
 void ObserverHelper::Initialize() {
   CEF_REQUIRE_UI_THREAD();
-  DCHECK(state_ == State::NONE);
+  EXPECT_TRUE(state_ == State::NONE);
   state_ = State::INITIALIZING;
   registration_ =
       AddObserverAndStart(this, base::BindOnce(&ObserverHelper::OnStartDone,
@@ -506,23 +471,23 @@ void ObserverHelper::Initialize() {
 
 void ObserverHelper::Shutdown() {
   CEF_REQUIRE_UI_THREAD();
-  DCHECK(state_ == State::INITIALIZED);
+  EXPECT_TRUE(state_ == State::INITIALIZED);
   state_ = State::SHUTTINGDOWN;
   registration_ = nullptr;
 }
 
 void ObserverHelper::OnStartDone(const std::string& server_origin) {
-  DCHECK(state_ == State::INITIALIZING);
+  EXPECT_TRUE(state_ == State::INITIALIZING);
   state_ = State::INITIALIZED;
   OnInitialized(server_origin);
 }
 
 void ObserverHelper::OnRegistered() {
-  DCHECK(state_ == State::INITIALIZING);
+  EXPECT_TRUE(state_ == State::INITIALIZING);
 }
 
 void ObserverHelper::OnUnregistered() {
-  DCHECK(state_ == State::SHUTTINGDOWN);
+  EXPECT_TRUE(state_ == State::SHUTTINGDOWN);
   state_ = State::NONE;
   OnShutdown();
 }
