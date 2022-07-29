@@ -316,10 +316,6 @@ group("cef") {
 }
 
 
-#
-# libcef static target.
-#
-
 if (is_win) {
   # Target for building code that accesses chrome_elf internals. Included from
   # the //chrome_elf:crash target. Defined as a static_library instead of a
@@ -368,7 +364,14 @@ if (is_win) {
   }
 }
 
-# libcef_static source files that have unit tests.
+
+#
+# Test support targets.
+#
+
+# Source files that are linked into libcef and cef_framework and tested by
+# libcef_static_unittests. These sources provide libcef-internal functionality
+# that is limited in scope (e.g. utility classes/methods).
 source_set("libcef_static_unittested") {
   sources = [
     "libcef/browser/devtools/devtools_util.cc",
@@ -387,8 +390,11 @@ source_set("libcef_static_unittested") {
   ]
 }
 
-# Executable target for libcef_static unit tests.
+# Executable target that provides test coverage for libcef_static_unittested
+# source files.
 test("libcef_static_unittests") {
+  testonly = true
+
   sources = [
     "libcef/browser/devtools/devtools_util_unittest.cc",
     "libcef/browser/screen_util_unittest.cc",
@@ -405,6 +411,30 @@ test("libcef_static_unittests") {
     "//build/config:precompiled_headers",
   ]
 }
+
+# Source files that are linked into libcef and cef_framework and implement
+# interfaces exposed to ceftests via the include/test directory. These sources
+# may access Chromium/CEF internals. This is defined as a separate target from
+# libcef_static to avoid introducing testonly dependencies there.
+source_set("libcef_test_support") {
+  testonly = true
+
+  sources = [
+    "libcef/common/test/translator_test_impl.cc",
+  ]
+
+  deps = [
+    ":libcef_static",
+
+    # Support for UI input events.
+    "//ui/views:test_support",
+  ]
+}
+
+
+#
+# libcef_static target.
+#
 
 source_set("libcef_static") {
   sources = includes_common +
@@ -839,7 +869,6 @@ source_set("libcef_static") {
     "libcef/common/task_runner_impl.h",
     "libcef/common/task_runner_manager.cc",
     "libcef/common/task_runner_manager.h",
-    "libcef/common/test/translator_test_impl.cc",
     "libcef/common/thread_impl.cc",
     "libcef/common/thread_impl.h",
     "libcef/common/time_impl.cc",
@@ -892,14 +921,6 @@ source_set("libcef_static") {
     # For Chrome runtime support.
     "//chrome/app/chrome_main_delegate.cc",
     "//chrome/app/chrome_main_delegate.h",
-
-    # Part of //ui/views:test_support which is testingonly.
-    "//ui/views/test/desktop_test_views_delegate.h",
-    "//ui/views/test/test_views_delegate.h",
-
-    # Support for UI input events.
-    # Part of //ui/base:test_support which is testingonly.
-    "//ui/base/test/ui_controls.h",
   ]
 
   configs += [
@@ -1112,16 +1133,6 @@ source_set("libcef_static") {
       # For Chrome runtime support.
       "//chrome/app/chrome_main_mac.h",
       "//chrome/app/chrome_main_mac.mm",
-
-      # Part of //ui/views:test_support which is testingonly.
-      "//ui/views/test/desktop_test_views_delegate_mac.mm",
-      "//ui/views/test/test_views_delegate_mac.mm",
-
-      # Support for UI input events.
-      # Part of //ui/base:test_support which is testingonly.
-      "//ui/base/test/ui_controls_mac.mm",
-      # Part of //ui//events:test_support which is testingonly.
-      "//ui/events/test/cocoa_test_event_utils.mm",
     ]
   }
 
@@ -1140,15 +1151,6 @@ source_set("libcef_static") {
       "libcef/browser/native/menu_runner_views_aura.cc",
       "libcef/browser/native/menu_runner_views_aura.h",
       "libcef/browser/views/view_util_aura.cc",
-
-      # Part of //ui/views:test_support which is testingonly.
-      "//ui/views/test/desktop_test_views_delegate_aura.cc",
-      "//ui/views/test/test_views_delegate_aura.cc",
-
-      # Support for UI input events.
-      # Part of //ui/base:test_support which is testingonly.
-      "//ui/base/test/ui_controls_aura.cc",
-      "//ui/aura/test/ui_controls_factory_aura.h",
     ]
 
     deps += [
@@ -1156,71 +1158,6 @@ source_set("libcef_static") {
       "//ui/wm",
       "//ui/wm/public",
     ]
-
-    if (is_win) {
-      sources += [
-        # Support for UI input events.
-        # Part of //base/test:test_config which is testingonly.
-        "//base/test/test_switches.cc",
-        "//base/test/test_switches.h",
-        "//base/test/test_timeouts.cc",
-        "//base/test/test_timeouts.h",
-        # Part of //ui/aura:test_support which is testingonly.
-        "//ui/aura/test/ui_controls_factory_aurawin.cc",
-        # Part of //ui/base:test_support which is testingonly.
-        "//ui/base/test/ui_controls_internal_win.cc",
-        "//ui/base/test/ui_controls_internal_win.h",
-      ]
-    }
-
-    if (is_linux) {
-      sources += [
-        # Support for UI input events.
-        # Part of //ui/aura:test_support which is testingonly.
-        "//ui/aura/test/aura_test_utils.cc",
-        "//ui/aura/test/aura_test_utils.h",
-        # Part of //ui/events:test_support which is testingonly.
-        "//ui/events/test/x11_event_waiter.cc",
-        "//ui/events/test/x11_event_waiter.h",
-        # Part of //ui/ozone::ui_test_support which is testingonly.
-        "//ui/ozone/common/test/stub_ozone_ui_controls_test_helper.cc",
-        "//ui/ozone/common/test/stub_ozone_ui_controls_test_helper.h",
-        "//ui/ozone/public/ozone_ui_controls_test_helper.cc",
-        "//ui/ozone/public/ozone_ui_controls_test_helper.h",
-        "$root_gen_dir/ui/ozone/test_constructor_list.cc",
-        # Part of //ui/views:test_support which is testingonly.
-        "//ui/views/test/test_desktop_screen_ozone.cc",
-        "//ui/views/test/test_desktop_screen_ozone.h",
-        "//ui/views/test/ui_controls_factory_desktop_aura_ozone.cc",
-        "//ui/views/test/ui_controls_factory_desktop_aura_ozone.h",
-      ]
-
-      deps += [
-        "//ui/ozone:generate_test_support_constructor_list",
-      ]
-
-      if (ozone_platform_x11) {
-        sources += [
-          # Support for UI input events.
-          # Part of //ui/base/x:test_support which is testingonly.
-          "//ui/base/x/test/x11_ui_controls_test_helper.cc",
-          "//ui/base/x/test/x11_ui_controls_test_helper.h",
-          # Part of //ui/aura:test_support which is testingonly.
-          "//ui/aura/test/x11_event_sender.h",
-          # Part of //ui/ozone/platform/x11:test_support which is testingonly.
-          "//ui/ozone/platform/x11/x11_ozone_ui_controls_test_helper.cc",
-          "//ui/ozone/platform/x11/x11_ozone_ui_controls_test_helper.h",
-        ]
-      } else {
-        sources += [
-          # Support for UI input events.
-          # Part of //ui/base:test_support which is testingonly.
-          "//ui/aura/test/ui_controls_factory_ozone.cc",
-          # Part of //ui//events:test_support which is testingonly.
-          "//ui/events/test/events_test_utils.cc"
-        ]
-      }
-    }
   }
 }
 
@@ -1585,6 +1522,9 @@ if (is_mac) {
   }
 
   mac_framework_bundle("cef_framework") {
+    # Necessary because the libcef_test_support target is testonly.
+    testonly = true
+
     output_name = cef_framework_name
 
     framework_version = "A"
@@ -1606,6 +1546,7 @@ if (is_mac) {
       ":cef_framework_resources",
       ":cef_framework_swiftshader_library",
       ":libcef_static",
+      ":libcef_test_support",
     ]
 
     configs += [
@@ -1636,6 +1577,9 @@ if (is_mac) {
   }
 } else {
   shared_library("libcef") {
+    # Necessary because the libcef_test_support target is testonly.
+    testonly = true
+
     sources = includes_common +
               gypi_paths.autogen_cpp_includes +
               gypi_paths2.includes_capi +
@@ -1645,6 +1589,7 @@ if (is_mac) {
 
     deps = [
       ":libcef_static",
+      ":libcef_test_support",
     ]
 
     configs += [
@@ -1894,6 +1839,9 @@ if (is_mac) {
   }
 
   cef_app("cefclient") {
+    # Necessary because the cef_framework target is testonly.
+    testonly = true
+
     helper_info_plist = "tests/cefclient/resources/mac/helper-Info.plist"
     helper_sources = includes_common +
                      includes_mac +
@@ -1967,6 +1915,9 @@ if (is_mac) {
   }
 
   cef_app("cefsimple") {
+    # Necessary because the cef_framework target is testonly.
+    testonly = true
+
     helper_info_plist = "tests/cefsimple/mac/helper-Info.plist"
     helper_sources = includes_common +
                      includes_mac +
@@ -2113,6 +2064,9 @@ if (is_mac) {
   }
 
   executable("cefclient") {
+    # Necessary because the libcef target is testonly.
+    testonly = true
+
     sources = includes_common +
               gypi_paths2.includes_wrapper +
               gypi_paths2.shared_sources_browser +
@@ -2206,6 +2160,9 @@ if (is_mac) {
   #
 
   executable("cefsimple") {
+    # Necessary because the libcef target is testonly.
+    testonly = true
+
     sources = includes_common +
               gypi_paths2.includes_wrapper +
               gypi_paths2.cefsimple_sources_common
