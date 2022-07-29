@@ -92,7 +92,7 @@ class CefRequestImpl : public CefRequest {
   // Populate this object from the RedirectInfo object.
   void Set(const net::RedirectInfo& redirect_info);
 
-  // Populate this object from teh HttpRequestHeaders object.
+  // Populate this object from the HttpRequestHeaders object.
   void Set(const net::HttpRequestHeaders& headers);
 
   // Populate this object from the NavigationParams object.

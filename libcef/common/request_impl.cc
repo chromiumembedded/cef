@@ -132,8 +132,9 @@ void GetHeaderMap(const net::HttpRequestHeaders& headers,
 
     // Do not include Referer in the header map.
     if (!base::EqualsCaseInsensitiveASCII(name,
-                                          net::HttpRequestHeaders::kReferer))
+                                          net::HttpRequestHeaders::kReferer)) {
       map.insert(std::make_pair(name, it.value()));
+    }
   };
 }
 
