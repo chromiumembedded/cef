@@ -22,19 +22,6 @@ constexpr const char kCategory[] = "cef.client";
 
 }  // namespace
 
-// The contents of this file are a compilation unit that is not called by other
-// functions in the the library. Consiquently MSVS will exclude it during the
-// linker stage if we don't call a stub function.
-#if defined(COMPILER_MSVC)
-#pragma optimize("", off)
-#endif
-
-void base_impl_stub() {}
-
-#if defined(COMPILER_MSVC)
-#pragma optimize("", on)
-#endif
-
 CEF_EXPORT void cef_trace_event_instant(const char* /* category */,
                                         const char* name,
                                         const char* arg1_name,

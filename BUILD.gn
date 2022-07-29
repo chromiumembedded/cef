@@ -406,7 +406,7 @@ test("libcef_static_unittests") {
   ]
 }
 
-static_library("libcef_static") {
+source_set("libcef_static") {
   sources = includes_common +
             gypi_paths.autogen_cpp_includes + [
     "libcef/browser/alloy/alloy_browser_context.cc",
