@@ -24,25 +24,12 @@
 #include "ui/aura/window.h"
 #include "ui/base/test/ui_controls_aura.h"
 #if defined(USE_OZONE)
-#include "ui/ozone/public/ozone_ui_controls_test_helper.h"
 #include "ui/views/test/ui_controls_factory_desktop_aura_ozone.h"
 #endif
 #endif  // defined(USE_AURA)
 
 #if BUILDFLAG(IS_WIN)
 #include "ui/display/win/screen_win.h"
-#endif
-
-#if defined(USE_AURA) && defined(USE_OZONE)
-// Stub implementation for function called from
-// $root_gen_dir/ui/ozone/test_constructor_list.cc to avoid
-// //ui/ozone/platform/wayland:ui_test_support dependencies.
-namespace ui {
-OzoneUIControlsTestHelper* CreateOzoneUIControlsTestHelperWayland() {
-  NOTREACHED();
-  return nullptr;
-}
-}  // namespace ui
 #endif
 
 namespace {
