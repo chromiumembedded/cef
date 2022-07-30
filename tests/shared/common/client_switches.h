@@ -45,6 +45,7 @@ extern const char kInitialShowState[];
 extern const char kHideChromeStatusBubble[];
 extern const char kUseDefaultPopup[];
 extern const char kUseClientDialogs[];
+extern const char kUseTestHttpServer[];
 
 }  // namespace switches
 }  // namespace client

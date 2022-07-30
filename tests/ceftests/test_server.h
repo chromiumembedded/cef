@@ -23,92 +23,16 @@ extern const char kServerOrigin[];
 // Used with incomplete tests for data that should not be sent.
 extern const char kIncompleteDoNotSendData[];
 
-using DoneCallback = base::OnceClosure;
+// Create a 404 response for passing to ResponseCallback.
+CefRefPtr<CefResponse> Create404Response();
 
-using StartDoneCallback =
-    base::OnceCallback<void(const std::string& server_origin)>;
+using ResponseCallback =
+    base::RepeatingCallback<void(CefRefPtr<CefResponse> response,
+                                 const std::string& response_data)>;
 
-// Starts the server if it is not currently running, and executes |callback| on
-// the UI thread. This method should be called by each test case that relies on
-// the server.
-void Start(StartDoneCallback callback);
-
-// Stops the server if it is currently running, and executes |callback| on the
+// Stops all servers that are currently running and executes |callback| on the
 // UI thread. This method will be called by the test framework on shutdown.
-void Stop(DoneCallback callback);
-
-// Observer for server callbacks. Methods will be called on the UI thread.
-class Observer {
- public:
-  // Called when this Observer is registered.
-  virtual void OnRegistered() = 0;
-
-  // Called when this Observer is unregistered.
-  virtual void OnUnregistered() = 0;
-
-  using ResponseCallback =
-      base::RepeatingCallback<void(CefRefPtr<CefResponse> response,
-                                   const std::string& response_data)>;
-
-  // Return true and execute |response_callback| either synchronously or
-  // asynchronously if the request was handled. Do not execute
-  // |response_callback| when returning false.
-  virtual bool OnHttpRequest(CefRefPtr<CefRequest> request,
-                             const ResponseCallback& response_callback) = 0;
-
- protected:
-  virtual ~Observer() {}
-};
-
-// Add an observer for server callbacks. Remains registered until the returned
-// CefRegistration object is destroyed. Registered observers will be executed in
-// the order of registration until one returns true to indicate that it handled
-// the callback. |callback| will be executed on the UI thread after registration
-// is complete.
-CefRefPtr<CefRegistration> AddObserver(Observer* observer,
-                                       DoneCallback callback);
-
-// Combination of AddObserver() followed by Start().
-CefRefPtr<CefRegistration> AddObserverAndStart(Observer* observer,
-                                               StartDoneCallback callback);
-
-// Helper for managing Observer registration and callbacks. Only used on the UI
-// thread.
-class ObserverHelper : public Observer {
- public:
-  ObserverHelper();
-  ~ObserverHelper() override;
-
-  // Initialize the registration. Results in a call to OnInitialized().
-  void Initialize();
-
-  // Shut down the registration. Results in a call to OnShutdown().
-  void Shutdown();
-
-  // Implement this method to start sending server requests after Initialize().
-  virtual void OnInitialized(const std::string& server_origin) = 0;
-
-  // Implement this method to continue the test after Shutdown().
-  virtual void OnShutdown() = 0;
-
- private:
-  void OnStartDone(const std::string& server_origin);
-  void OnRegistered() override;
-  void OnUnregistered() override;
-
-  CefRefPtr<CefRegistration> registration_;
-
-  enum class State {
-    NONE,
-    INITIALIZING,
-    INITIALIZED,
-    SHUTTINGDOWN,
-  } state_ = State::NONE;
-
-  base::WeakPtrFactory<ObserverHelper> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(ObserverHelper);
-};
+void Stop(base::OnceClosure callback);
 
 }  // namespace test_server
 

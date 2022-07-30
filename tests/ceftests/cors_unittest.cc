@@ -13,7 +13,7 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/routing_test_handler.h"
 #include "tests/ceftests/test_request.h"
-#include "tests/ceftests/test_server.h"
+#include "tests/ceftests/test_server_observer.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/shared/browser/client_app_browser.h"
 
