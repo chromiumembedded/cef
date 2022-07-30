@@ -10,7 +10,7 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
 #include "tests/ceftests/test_request.h"
-#include "tests/ceftests/test_server.h"
+#include "tests/ceftests/test_server_observer.h"
 #include "tests/ceftests/track_callback.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
@@ -18,21 +18,16 @@ namespace {
 
 struct TestState {
   TrackCallback got_initialized_;
-  TrackCallback got_connected_;
   TrackCallback got_request_;
   TrackCallback got_response_;
-  TrackCallback got_disconnected_;
   TrackCallback got_shutdown_;
 
   bool ExpectAll() {
     EXPECT_TRUE(got_initialized_);
-    EXPECT_TRUE(got_connected_);
     EXPECT_TRUE(got_request_);
     EXPECT_TRUE(got_response_);
-    EXPECT_TRUE(got_disconnected_);
     EXPECT_TRUE(got_shutdown_);
-    return got_initialized_ && got_connected_ && got_request_ &&
-           got_response_ && got_disconnected_ && got_shutdown_;
+    return got_initialized_ && got_request_ && got_response_ && got_shutdown_;
   }
 };
 
@@ -58,10 +53,8 @@ class TestServerObserver : public test_server::ObserverHelper {
   void OnInitialized(const std::string& server_origin) override {
     CEF_REQUIRE_UI_THREAD();
     EXPECT_FALSE(state_->got_initialized_);
-    EXPECT_FALSE(state_->got_connected_);
     EXPECT_FALSE(state_->got_request_);
     EXPECT_FALSE(state_->got_response_);
-    EXPECT_FALSE(state_->got_disconnected_);
     EXPECT_FALSE(state_->got_shutdown_);
 
     state_->got_initialized_.yes();
@@ -77,49 +70,25 @@ class TestServerObserver : public test_server::ObserverHelper {
                                       weak_ptr_factory_.GetWeakPtr()));
   }
 
-  bool OnClientConnected(CefRefPtr<CefServer> server,
-                         int connection_id) override {
-    CEF_REQUIRE_UI_THREAD();
-    if (state_->got_connected_) {
-      // We already got the callback once. Let the next observer get the
-      // callback.
-      return false;
-    }
-
-    EXPECT_TRUE(state_->got_initialized_);
-    EXPECT_FALSE(state_->got_request_);
-    EXPECT_FALSE(state_->got_response_);
-    EXPECT_FALSE(state_->got_disconnected_);
-    EXPECT_FALSE(state_->got_shutdown_);
-
-    state_->got_connected_.yes();
-
-    // We don't know if this connection is the one that we're going to
-    // handle, so continue propagating the callback.
-    return false;
-  }
-
-  bool OnHttpRequest(CefRefPtr<CefServer> server,
-                     int connection_id,
-                     const CefString& client_address,
-                     CefRefPtr<CefRequest> request) override {
+  bool OnHttpRequest(CefRefPtr<CefRequest> request,
+                     const ResponseCallback& response_callback) override {
     CEF_REQUIRE_UI_THREAD();
     const std::string& url = request->GetURL();
     if (url != url_)
       return false;
 
     EXPECT_TRUE(state_->got_initialized_);
-    EXPECT_TRUE(state_->got_connected_);
     EXPECT_FALSE(state_->got_request_);
     EXPECT_FALSE(state_->got_response_);
-    EXPECT_FALSE(state_->got_disconnected_);
     EXPECT_FALSE(state_->got_shutdown_);
 
     state_->got_request_.yes();
-    connection_id_ = connection_id;
 
-    server->SendHttp200Response(connection_id, "text/plain", kResponseData,
-                                sizeof(kResponseData) - 1);
+    auto response = CefResponse::Create();
+    response->SetStatus(200);
+    response->SetMimeType("text/plain");
+
+    response_callback.Run(response, kResponseData);
 
     // Stop propagating the callback.
     return true;
@@ -129,7 +98,6 @@ class TestServerObserver : public test_server::ObserverHelper {
     CEF_REQUIRE_UI_THREAD();
     // Don't test for disconnected, which may race response.
     EXPECT_TRUE(state_->got_initialized_);
-    EXPECT_TRUE(state_->got_connected_);
     EXPECT_TRUE(state_->got_request_);
     EXPECT_FALSE(state_->got_response_);
     EXPECT_FALSE(state_->got_shutdown_);
@@ -147,35 +115,11 @@ class TestServerObserver : public test_server::ObserverHelper {
                                        weak_ptr_factory_.GetWeakPtr()));
   }
 
-  bool OnClientDisconnected(CefRefPtr<CefServer> server,
-                            int connection_id) override {
-    CEF_REQUIRE_UI_THREAD();
-    if (connection_id != connection_id_) {
-      // Not the connection that we handled. Let the next observer get the
-      // callback.
-      return false;
-    }
-
-    // Don't test for response, which may race disconnected.
-    EXPECT_TRUE(state_->got_initialized_);
-    EXPECT_TRUE(state_->got_connected_);
-    EXPECT_TRUE(state_->got_request_);
-    EXPECT_FALSE(state_->got_disconnected_);
-    EXPECT_FALSE(state_->got_shutdown_);
-
-    state_->got_disconnected_.yes();
-
-    // Stop propagating the callback.
-    return true;
-  }
-
   void OnShutdown() override {
     CEF_REQUIRE_UI_THREAD();
     EXPECT_TRUE(state_->got_initialized_);
-    EXPECT_TRUE(state_->got_connected_);
     EXPECT_TRUE(state_->got_request_);
     EXPECT_TRUE(state_->got_response_);
-    EXPECT_TRUE(state_->got_disconnected_);
     EXPECT_FALSE(state_->got_shutdown_);
 
     state_->got_shutdown_.yes();
@@ -190,7 +134,6 @@ class TestServerObserver : public test_server::ObserverHelper {
   base::OnceClosure done_callback_;
 
   std::string url_;
-  int connection_id_ = -1;
 
   base::WeakPtrFactory<TestServerObserver> weak_ptr_factory_;
 
@@ -220,7 +163,7 @@ void SignalIfDone(CefRefPtr<CefWaitableEvent> event,
 
 }  // namespace
 
-TEST(TestServerTest, ObserverHelperSingle) {
+TEST(TestServerObserverTest, HelperSingle) {
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
 
@@ -232,7 +175,7 @@ TEST(TestServerTest, ObserverHelperSingle) {
   EXPECT_TRUE(state.ExpectAll());
 }
 
-TEST(TestServerTest, ObserverHelperMultiple) {
+TEST(TestServerObserverTest, HelperMultiple) {
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
 

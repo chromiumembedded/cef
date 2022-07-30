@@ -19,7 +19,7 @@
 #include "include/wrapper/cef_scoped_temp_dir.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_request.h"
-#include "tests/ceftests/test_server.h"
+#include "tests/ceftests/test_server_observer.h"
 #include "tests/ceftests/test_suite.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
