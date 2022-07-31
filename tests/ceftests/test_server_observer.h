@@ -47,12 +47,13 @@ class ObserverHelper : public Observer {
   // Initialize the registration. If |https_server| is true an HTTPS server will
   // be used, otherwise an HTTP server will be used. Results in a call to
   // OnInitialized().
-  void Initialize(bool https_server = false);
+  void Initialize(bool https_server);
 
   // Shut down the registration. Results in a call to OnShutdown().
   void Shutdown();
 
   // Implement this method to start sending server requests after Initialize().
+  // |server_origin| will be value like "http://127.0.0.1:<port>".
   virtual void OnInitialized(const std::string& server_origin) = 0;
 
   // Implement this method to continue the test after Shutdown().

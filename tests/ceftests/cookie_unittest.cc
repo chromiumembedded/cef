@@ -1051,20 +1051,23 @@ TEST(CookieTest, GetCookieManagerCustomInMemory) {
 
 namespace {
 
-const char kCookieAccessScheme[] = "http";
+constexpr bool kUseHttpsServerScheme = false;
+
 const char kCookieAccessDomain[] = "test-cookies.com";
-const char* kCookieAccessServerAddress = test_server::kServerAddress;
-const uint16 kCookieAccessServerPort = test_server::kServerPort;
+
+std::string GetCookieAccessScheme() {
+  return test_server::GetScheme(kUseHttpsServerScheme);
+}
 
 std::string GetCookieAccessOrigin(const std::string& scheme,
                                   bool server_backend) {
-  std::stringstream ss;
   if (server_backend) {
-    ss << scheme << "://" << kCookieAccessServerAddress << ":"
-       << kCookieAccessServerPort;
-  } else {
-    ss << scheme << "://" << kCookieAccessDomain;
+    EXPECT_STREQ(GetCookieAccessScheme().c_str(), scheme.c_str());
+    return test_server::GetOrigin(kUseHttpsServerScheme);
   }
+
+  std::stringstream ss;
+  ss << scheme << "://" << kCookieAccessDomain;
   return ss.str();
 }
 
@@ -1262,25 +1265,16 @@ class CookieAccessServerHandler : public test_server::ObserverHelper,
 
   // Must be called before CreateServer().
   void AddResponse(const std::string& url, CookieAccessData* data) override {
-    EXPECT_FALSE(initialized_);
     data_map_.insert(std::make_pair(url, data));
   }
 
   // Must be called before CreateServer().
-  void SetExpectedRequestCount(int count) {
-    EXPECT_FALSE(initialized_);
-    expected_http_request_ct_ = count;
-  }
+  void SetExpectedRequestCount(int count) { expected_http_request_ct_ = count; }
 
   // |complete_callback| will be executed on the UI thread after the server is
   // started.
   void CreateServer(base::OnceClosure complete_callback) {
     EXPECT_UI_THREAD();
-
-    if (expected_http_request_ct_ < 0) {
-      // Default to the assumption of one request per registered URL.
-      SetExpectedRequestCount(static_cast<int>(data_map_.size()));
-    }
 
     EXPECT_FALSE(initialized_);
     initialized_ = true;
@@ -1288,7 +1282,7 @@ class CookieAccessServerHandler : public test_server::ObserverHelper,
     EXPECT_TRUE(complete_callback_.is_null());
     complete_callback_ = std::move(complete_callback);
 
-    Initialize();
+    Initialize(kUseHttpsServerScheme);
   }
 
   // Results in a call to VerifyResults() and eventual execution of the
@@ -1306,7 +1300,7 @@ class CookieAccessServerHandler : public test_server::ObserverHelper,
   void OnInitialized(const std::string& server_origin) override {
     EXPECT_UI_THREAD();
     EXPECT_STREQ(server_origin.c_str(),
-                 GetCookieAccessOrigin(kCookieAccessScheme, true).c_str());
+                 GetCookieAccessOrigin(GetCookieAccessScheme(), true).c_str());
 
     EXPECT_FALSE(got_server_created_);
     got_server_created_.yes();
@@ -1431,7 +1425,7 @@ class CookieAccessTestHandler : public RoutingTestHandler,
                           bool use_global)
       : test_mode_(test_mode),
         test_backend_(test_backend),
-        scheme_(custom_scheme ? kCustomCookieScheme : kCookieAccessScheme),
+        scheme_(custom_scheme ? kCustomCookieScheme : GetCookieAccessScheme()),
         use_global_(use_global) {
     if (test_mode_ == BLOCK_ALL_COOKIES)
       CHECK(!use_global_);
@@ -1711,14 +1705,12 @@ class CookieAccessTestHandler : public RoutingTestHandler,
     EXPECT_FALSE(server_handler_);
 
     server_handler_ = new CookieAccessServerHandler();
-    AddResponses(server_handler_);
     server_handler_->CreateServer(std::move(complete_callback));
   }
 
   void StartSchemeHandler(base::OnceClosure complete_callback) {
     // Add the factory registration.
     scheme_factory_ = new CookieAccessSchemeHandlerFactory();
-    AddResponses(scheme_factory_.get());
     if (test_backend_ == SCHEME_HANDLER) {
       context_->RegisterSchemeHandlerFactory(scheme_, kCookieAccessDomain,
                                              scheme_factory_.get());
@@ -1732,6 +1724,15 @@ class CookieAccessTestHandler : public RoutingTestHandler,
       CefPostTask(TID_UI, base::BindOnce(
                               &CookieAccessTestHandler::RunTestContinue, this));
       return;
+    }
+
+    if (test_backend_ == SERVER) {
+      AddResponses(server_handler_);
+
+      // 1 request for each URL.
+      server_handler_->SetExpectedRequestCount(2);
+    } else {
+      AddResponses(scheme_factory_.get());
     }
 
     CreateBrowser(GetCookieAccessUrl1(scheme_, test_backend_ == SERVER),
@@ -1907,7 +1908,7 @@ class CookieRestartTestHandler : public RoutingTestHandler,
                                  public CefCookieAccessFilter {
  public:
   explicit CookieRestartTestHandler(bool use_global)
-      : scheme_(kCookieAccessScheme), use_global_(use_global) {}
+      : scheme_(GetCookieAccessScheme()), use_global_(use_global) {}
 
   void RunTest() override {
     if (use_global_) {
@@ -2171,9 +2172,6 @@ class CookieRestartTestHandler : public RoutingTestHandler,
     EXPECT_FALSE(server_handler_);
 
     server_handler_ = new CookieAccessServerHandler();
-    AddResponses(server_handler_);
-    // 2 requests for each URL.
-    server_handler_->SetExpectedRequestCount(4);
     server_handler_->CreateServer(std::move(complete_callback));
   }
 
@@ -2184,6 +2182,11 @@ class CookieRestartTestHandler : public RoutingTestHandler,
           base::BindOnce(&CookieRestartTestHandler::RunTestContinue, this));
       return;
     }
+
+    AddResponses(server_handler_);
+
+    // 2 requests for each URL.
+    server_handler_->SetExpectedRequestCount(4);
 
     CreateBrowser(GetCookieAccessUrl1(scheme_, true), context_);
   }

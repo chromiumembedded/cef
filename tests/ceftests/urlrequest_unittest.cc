@@ -69,10 +69,11 @@ const char kIncompleteRequestTestMsg[] = "URLRequestTest.IncompleteRequestTest";
 const char kRequestSchemeCustom[] = "urcustom";
 const char kRequestHostCustom[] = "test";
 
-// Server backend.
-const char* kRequestAddressServer = test_server::kServerAddress;
-const uint16 kRequestPortServer = test_server::kServerPort;
-const char* kRequestSchemeServer = test_server::kServerScheme;
+// Server backend. These values are hard-coded because they're used in both the
+// browser and renderer processes.
+const char* kRequestAddressServer = test_server::kHttpServerAddress;
+const uint16 kRequestPortServer = test_server::kHttpServerPort;
+const char kRequestSchemeServer[] = "http";
 
 const char kRequestSendCookieName[] = "urcookie_send";
 const char kRequestSaveCookieName[] = "urcookie_save";
@@ -1268,7 +1269,7 @@ class RequestServerHandler : public test_server::ObserverHelper {
     EXPECT_TRUE(complete_callback_.is_null());
     complete_callback_ = std::move(complete_callback);
 
-    Initialize();
+    Initialize(/*https_server=*/false);
   }
 
   // Results in a call to VerifyResults() and eventual execution of the

@@ -43,6 +43,8 @@ class CorsBrowserTest : public client::ClientAppBrowser::Delegate {
   IMPLEMENT_REFCOUNTING(CorsBrowserTest);
 };
 
+constexpr bool kUseHttpsServerScheme = false;
+
 const char kMimeTypeHtml[] = "text/html";
 const char kMimeTypeText[] = "text/plain";
 
@@ -65,7 +67,7 @@ enum class HandlerType {
 std::string GetOrigin(HandlerType handler) {
   switch (handler) {
     case HandlerType::SERVER:
-      return test_server::kServerOrigin;
+      return test_server::GetOrigin(kUseHttpsServerScheme);
     case HandlerType::HTTP_SCHEME:
       // Use HTTPS because requests from HTTP to the loopback address will be
       // blocked by https://chromestatus.com/feature/5436853517811712.
@@ -90,7 +92,7 @@ std::string GetOrigin(HandlerType handler) {
 std::string GetScheme(HandlerType handler) {
   switch (handler) {
     case HandlerType::SERVER:
-      return test_server::kServerScheme;
+      return test_server::GetScheme(kUseHttpsServerScheme);
     case HandlerType::HTTP_SCHEME:
       return "https";
     case HandlerType::CUSTOM_STANDARD_SCHEME:
@@ -301,7 +303,7 @@ class TestServerObserver : public test_server::ObserverHelper {
         ready_callback_(std::move(ready_callback)),
         done_callback_(std::move(done_callback)) {
     DCHECK(setup);
-    Initialize();
+    Initialize(kUseHttpsServerScheme);
   }
 
   ~TestServerObserver() override { std::move(done_callback_).Run(); }

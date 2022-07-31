@@ -155,6 +155,15 @@ CefRefPtr<CefRegistration> Manager::AddObserverAndStart(
       https_server);
 }
 
+// static
+std::string Manager::GetOrigin(bool https_server) {
+  if (auto manager = Manager::GetInstance(https_server)) {
+    return manager->origin_;
+  }
+  NOTREACHED();
+  return std::string();
+}
+
 void Manager::StartImpl(StartDoneCallback callback) {
   CEF_REQUIRE_UI_THREAD();
   EXPECT_FALSE(stopping_);

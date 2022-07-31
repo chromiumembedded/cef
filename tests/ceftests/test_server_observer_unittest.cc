@@ -17,6 +17,8 @@
 namespace {
 
 struct TestState {
+  bool https_server = false;
+
   TrackCallback got_initialized_;
   TrackCallback got_request_;
   TrackCallback got_response_;
@@ -45,7 +47,7 @@ class TestServerObserver : public test_server::ObserverHelper {
     DCHECK(state);
     DCHECK(!path.empty());
     DCHECK(!done_callback_.is_null());
-    Initialize();
+    Initialize(state_->https_server);
   }
 
   ~TestServerObserver() override { std::move(done_callback_).Run(); }
@@ -161,13 +163,12 @@ void SignalIfDone(CefRefPtr<CefWaitableEvent> event,
   }
 }
 
-}  // namespace
-
-TEST(TestServerObserverTest, HelperSingle) {
+void RunHelperSingle(bool https_server) {
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
 
   TestState state;
+  state.https_server = https_server;
   CreateObserverOnUIThread(&state, "/TestServerTest.ObserverHelperSingle",
                            base::BindOnce(&CefWaitableEvent::Signal, event));
   event->TimedWait(2000);
@@ -175,7 +176,7 @@ TEST(TestServerObserverTest, HelperSingle) {
   EXPECT_TRUE(state.ExpectAll());
 }
 
-TEST(TestServerObserverTest, HelperMultiple) {
+void RunHelperMultiple(bool https_server) {
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
 
@@ -188,6 +189,7 @@ TEST(TestServerObserverTest, HelperMultiple) {
     ss << "/TestServerTest.ObserverHelperMultiple" << i;
     auto done_callback =
         base::BindOnce(SignalIfDone, event, base::Unretained(&count), size);
+    states[i].https_server = https_server;
     CreateObserverOnUIThread(&states[i], ss.str(), std::move(done_callback));
   }
 
@@ -197,4 +199,14 @@ TEST(TestServerObserverTest, HelperMultiple) {
   for (size_t i = 0; i < size; ++i) {
     EXPECT_TRUE(states[i].ExpectAll()) << i;
   }
+}
+
+}  // namespace
+
+TEST(TestServerObserverTest, HelperSingleHttp) {
+  RunHelperSingle(/*https_server=*/false);
+}
+
+TEST(TestServerObserverTest, HelperMultipleHttp) {
+  RunHelperMultiple(/*https_server=*/false);
 }

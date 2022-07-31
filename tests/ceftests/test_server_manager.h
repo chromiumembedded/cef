@@ -52,6 +52,9 @@ class Manager : public Runner::Delegate {
       StartDoneCallback callback,
       bool https_server);
 
+  // Returns the origin for an existing server.
+  static std::string GetOrigin(bool https_server);
+
  private:
   friend class ObserverRegistration;
 

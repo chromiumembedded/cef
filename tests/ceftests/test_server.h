@@ -15,10 +15,10 @@
 
 namespace test_server {
 
-extern const char kServerAddress[];
-extern const uint16 kServerPort;
-extern const char kServerScheme[];
-extern const char kServerOrigin[];
+// Use of these values is deprecated. Instead use GetOrigin/GetHost in the
+// browser process after server initialization.
+extern const char kHttpServerAddress[];
+extern const uint16 kHttpServerPort;
 
 // Used with incomplete tests for data that should not be sent.
 extern const char kIncompleteDoNotSendData[];
@@ -33,6 +33,17 @@ using ResponseCallback =
 // Stops all servers that are currently running and executes |callback| on the
 // UI thread. This method will be called by the test framework on shutdown.
 void Stop(base::OnceClosure callback);
+
+// Returns the origin for the currently running server (e.g.
+// "[http|https]://127.0.0.1:<port>").
+std::string GetOrigin(bool https_server);
+
+// Returns the scheme for the currently running server (e.g. "http" or "https").
+std::string GetScheme(bool https_server);
+
+// Returns the host for the currently running server (e.g.
+// "127.0.0.1[:<port>]").
+std::string GetHost(bool https_server, bool include_port);
 
 }  // namespace test_server
 

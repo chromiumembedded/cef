@@ -13,7 +13,7 @@ namespace test_server {
 
 namespace {
 
-const int kServerBacklog = 10;
+const int kHttpServerBacklog = 10;
 
 // Created on the UI thread and called on the dedicated server thread.
 class ServerHandler : public CefServerHandler {
@@ -32,7 +32,7 @@ class ServerHandler : public CefServerHandler {
   void OnServerCreated(CefRefPtr<CefServer> server) override {
     EXPECT_TRUE(server->GetTaskRunner()->BelongsToCurrentThread());
     server_ = server;
-    NotifyServerCreated(kServerOrigin);
+    NotifyServerCreated("http://" + server->GetAddress().ToString());
   }
 
   void OnServerDestroyed(CefRefPtr<CefServer> server) override {
@@ -172,8 +172,8 @@ class ServerRunner : public Runner {
     CEF_REQUIRE_UI_THREAD();
     DCHECK(!handler_);
     handler_ = new ServerHandler(delegate_);
-    CefServer::CreateServer(kServerAddress, kServerPort, kServerBacklog,
-                            handler_);
+    CefServer::CreateServer(kHttpServerAddress, kHttpServerPort,
+                            kHttpServerBacklog, handler_);
   }
 
   void ShutdownServer() override {
