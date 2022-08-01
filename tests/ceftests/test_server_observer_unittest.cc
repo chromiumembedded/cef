@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "include/base/cef_cxx17_backports.h"
+#include "include/cef_command_line.h"
 #include "include/cef_task.h"
 #include "include/cef_waitable_event.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -163,6 +164,15 @@ void SignalIfDone(CefRefPtr<CefWaitableEvent> event,
   }
 }
 
+void Wait(CefRefPtr<CefWaitableEvent> event) {
+  if (CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+          "disable-test-timeout")) {
+    event->Wait();
+  } else {
+    event->TimedWait(2000);
+  }
+}
+
 void RunHelperSingle(bool https_server) {
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
@@ -171,7 +181,8 @@ void RunHelperSingle(bool https_server) {
   state.https_server = https_server;
   CreateObserverOnUIThread(&state, "/TestServerTest.ObserverHelperSingle",
                            base::BindOnce(&CefWaitableEvent::Signal, event));
-  event->TimedWait(2000);
+
+  Wait(event);
 
   EXPECT_TRUE(state.ExpectAll());
 }
@@ -193,7 +204,7 @@ void RunHelperMultiple(bool https_server) {
     CreateObserverOnUIThread(&states[i], ss.str(), std::move(done_callback));
   }
 
-  event->TimedWait(2000);
+  Wait(event);
 
   EXPECT_EQ(size, count);
   for (size_t i = 0; i < size; ++i) {
@@ -209,4 +220,12 @@ TEST(TestServerObserverTest, HelperSingleHttp) {
 
 TEST(TestServerObserverTest, HelperMultipleHttp) {
   RunHelperMultiple(/*https_server=*/false);
+}
+
+TEST(TestServerObserverTest, HelperSingleHttps) {
+  RunHelperSingle(/*https_server=*/true);
+}
+
+TEST(TestServerObserverTest, HelperMultipleHttps) {
+  RunHelperMultiple(/*https_server=*/true);
 }
