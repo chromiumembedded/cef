@@ -453,8 +453,7 @@ std::string GetHeaderValue(const CefRequest::HeaderMap& header_map,
                            const std::string& header_name_lower) {
   CefRequest::HeaderMap::const_iterator it = header_map.begin();
   for (; it != header_map.end(); ++it) {
-    std::string name = it->first;
-    std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+    std::string name = AsciiStrToLower(it->first);
     if (name == header_name_lower)
       return it->second;
   }
