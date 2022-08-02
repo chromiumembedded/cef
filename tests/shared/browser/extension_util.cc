@@ -14,6 +14,7 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/shared/browser/file_util.h"
 #include "tests/shared/browser/resource_util.h"
+#include "tests/shared/common/string_util.h"
 
 namespace client {
 namespace extension_util {
@@ -36,10 +37,8 @@ std::string GetInternalPath(const std::string& extension_path) {
 
 #if defined(OS_WIN)
   // Convert to lower-case, since Windows paths are case-insensitive.
-  std::transform(resources_path_lower.begin(), resources_path_lower.end(),
-                 resources_path_lower.begin(), ::tolower);
-  std::transform(extension_path_lower.begin(), extension_path_lower.end(),
-                 extension_path_lower.begin(), ::tolower);
+  resources_path_lower = AsciiStrToLower(resources_path_lower);
+  extension_path_lower = AsciiStrToLower(extension_path_lower);
 #endif
 
   std::string internal_path;

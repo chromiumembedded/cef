@@ -25,6 +25,7 @@
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/browser/file_util.h"
+#include "tests/shared/common/string_util.h"
 #include "tests/shared/renderer/client_app_renderer.h"
 
 using client::ClientAppRenderer;
@@ -453,7 +454,7 @@ std::string GetHeaderValue(const CefRequest::HeaderMap& header_map,
                            const std::string& header_name_lower) {
   CefRequest::HeaderMap::const_iterator it = header_map.begin();
   for (; it != header_map.end(); ++it) {
-    std::string name = AsciiStrToLower(it->first);
+    std::string name = client::AsciiStrToLower(it->first);
     if (name == header_name_lower)
       return it->second;
   }

@@ -184,6 +184,13 @@ class CefTestServerImpl::Context {
     test_server_->RegisterRequestHandler(
         base::BindRepeating(&Context::HandleRequest, base::Unretained(this)));
 
+    if (https_server) {
+      // Use a "localhost" domain certificate instead of IP address. This is
+      // required for HSTS tests (see https://crbug.com/456712).
+      test_server_->SetSSLConfig(
+          EmbeddedTestServer::CERT_COMMON_NAME_IS_DOMAIN);
+    }
+
     test_server_handle_ =
         test_server_->StartAndReturnHandle(static_cast<int>(port));
     if (!test_server_handle_) {

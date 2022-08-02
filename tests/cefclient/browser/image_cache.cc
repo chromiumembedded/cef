@@ -8,6 +8,7 @@
 
 #include "tests/shared/browser/file_util.h"
 #include "tests/shared/browser/resource_util.h"
+#include "tests/shared/common/string_util.h"
 
 namespace client {
 
@@ -158,7 +159,7 @@ ImageCache::ImageType ImageCache::GetImageType(const std::string& path) {
   if (ext.empty())
     return TYPE_NONE;
 
-  std::transform(ext.begin(), ext.end(), ext.begin(), tolower);
+  ext = AsciiStrToLower(ext);
   if (ext == "png")
     return TYPE_PNG;
   if (ext == "jpg" || ext == "jpeg")

@@ -186,6 +186,8 @@
       'tests/shared/common/client_app_other.h',
       'tests/shared/common/client_switches.cc',
       'tests/shared/common/client_switches.h',
+      'tests/shared/common/string_util.cc',
+      'tests/shared/common/string_util.h',
     ],
     'shared_sources_renderer': [
       'tests/shared/renderer/client_app_renderer.cc',
@@ -476,6 +478,7 @@
       'tests/ceftests/file_util_unittest.cc',
       'tests/ceftests/frame_handler_unittest.cc',
       'tests/ceftests/frame_unittest.cc',
+      'tests/ceftests/hsts_redirect_unittest.cc',
       'tests/ceftests/image_unittest.cc',
       'tests/ceftests/image_util.cc',
       'tests/ceftests/image_util.h',
