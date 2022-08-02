@@ -11,6 +11,12 @@
 #include "include/cef_request_context_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
+std::string AsciiStrToLower(const std::string& str) {
+  std::string lowerStr = str;
+  std::transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(), ::tolower);
+  return lowerStr;
+}
+
 void TestMapEqual(const CefRequest::HeaderMap& map1,
                   const CefRequest::HeaderMap& map2,
                   bool allowExtras) {
@@ -25,11 +31,9 @@ void TestMapEqual(const CefRequest::HeaderMap& map1,
 
   for (it1 = map1.begin(); it1 != map1.end(); ++it1) {
     bool found = false;
-    std::string name1 = it1->first;
-    std::transform(name1.begin(), name1.end(), name1.begin(), ::tolower);
+    std::string name1 = AsciiStrToLower(it1->first);
     for (it2 = map2.begin(); it2 != map2.end(); ++it2) {
-      std::string name2 = it2->first;
-      std::transform(name2.begin(), name2.end(), name2.begin(), ::tolower);
+      std::string name2 = AsciiStrToLower(it2->first);
       if (name1 == name2 && it1->second == it2->second) {
         found = true;
         break;

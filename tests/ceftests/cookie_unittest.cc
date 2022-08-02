@@ -1111,10 +1111,12 @@ class CookieAccessResponseHandler {
 };
 
 std::string GetHeaderValue(const CefServer::HeaderMap& header_map,
-                           const std::string& header_name) {
-  CefServer::HeaderMap::const_iterator it = header_map.find(header_name);
-  if (it != header_map.end())
-    return it->second;
+                           const std::string& header_name_lower) {
+  for (const auto& [name, value] : header_map) {
+    if (AsciiStrToLower(name) == header_name_lower) {
+      return value;
+    }
+  }
   return std::string();
 }
 
@@ -1131,7 +1133,7 @@ class CookieAccessSchemeHandler : public CefResourceHandler {
 
     CefRequest::HeaderMap headerMap;
     request->GetHeaderMap(headerMap);
-    const std::string& cookie_str = GetHeaderValue(headerMap, "Cookie");
+    const std::string& cookie_str = GetHeaderValue(headerMap, "cookie");
     TestCookieString(cookie_str, data_->cookie_js_ct_, data_->cookie_net_ct_);
 
     // Continue immediately.
