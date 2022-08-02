@@ -313,8 +313,8 @@ class TestServerObserver : public test_server::ObserverHelper {
     std::move(ready_callback_).Run();
   }
 
-  bool OnHttpRequest(CefRefPtr<CefRequest> request,
-                     const ResponseCallback& response_callback) override {
+  bool OnTestServerRequest(CefRefPtr<CefRequest> request,
+                           const ResponseCallback& response_callback) override {
     CEF_REQUIRE_UI_THREAD();
     Resource* resource = setup_->GetResource(request);
     if (!resource) {

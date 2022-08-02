@@ -31,8 +31,9 @@ class Runner {
     virtual void OnServerHandlerDeleted() = 0;
 
     // Server request notification.
-    virtual void OnHttpRequest(CefRefPtr<CefRequest> request,
-                               const ResponseCallback& response_callback) = 0;
+    virtual void OnTestServerRequest(
+        CefRefPtr<CefRequest> request,
+        const ResponseCallback& response_callback) = 0;
 
    protected:
     virtual ~Delegate() = default;

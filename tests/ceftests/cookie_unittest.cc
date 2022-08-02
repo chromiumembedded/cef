@@ -1321,8 +1321,8 @@ class CookieAccessServerHandler : public test_server::ObserverHelper,
     delete this;
   }
 
-  bool OnHttpRequest(CefRefPtr<CefRequest> request,
-                     const ResponseCallback& response_callback) override {
+  bool OnTestServerRequest(CefRefPtr<CefRequest> request,
+                           const ResponseCallback& response_callback) override {
     EXPECT_UI_THREAD();
 
     // Log the requests for better error reporting.
