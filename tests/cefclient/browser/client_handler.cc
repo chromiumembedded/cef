@@ -27,6 +27,7 @@
 #include "tests/shared/browser/resource_util.h"
 #include "tests/shared/common/binary_value_utils.h"
 #include "tests/shared/common/client_switches.h"
+#include "tests/shared/common/string_util.h"
 
 namespace client {
 
@@ -1047,12 +1048,9 @@ void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
   if (url.empty())
     return;
 
-  std::string start_url = startup_url_;
-
   // Convert URLs to lowercase for easier comparison.
-  std::transform(url.begin(), url.end(), url.begin(), tolower);
-  std::transform(start_url.begin(), start_url.end(), start_url.begin(),
-                 tolower);
+  url = AsciiStrToLower(url);
+  const std::string& start_url = AsciiStrToLower(startup_url_);
 
   // Don't reload the URL that just resulted in termination.
   if (url.find(start_url) == 0)

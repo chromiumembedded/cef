@@ -21,6 +21,7 @@
 #include "tests/ceftests/test_suite.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/common/string_util.h"
 
 namespace {
 
@@ -1113,7 +1114,7 @@ class CookieAccessResponseHandler {
 std::string GetHeaderValue(const CefServer::HeaderMap& header_map,
                            const std::string& header_name_lower) {
   for (const auto& [name, value] : header_map) {
-    if (AsciiStrToLower(name) == header_name_lower) {
+    if (client::AsciiStrToLower(name) == header_name_lower) {
       return value;
     }
   }

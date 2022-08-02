@@ -29,6 +29,7 @@
 #include "tests/cefclient/browser/urlrequest_test.h"
 #include "tests/cefclient/browser/window_test.h"
 #include "tests/shared/browser/resource_util.h"
+#include "tests/shared/common/string_util.h"
 
 namespace client {
 namespace test_runner {
@@ -54,31 +55,13 @@ void LoadStringResourcePage(CefRefPtr<CefBrowser> browser,
   browser->GetMainFrame()->LoadURL(kTestOrigin + page);
 }
 
-// Replace all instances of |from| with |to| in |str|.
-std::string StringReplace(const std::string& str,
-                          const std::string& from,
-                          const std::string& to) {
-  std::string result = str;
-  std::string::size_type pos = 0;
-  std::string::size_type from_len = from.length();
-  std::string::size_type to_len = to.length();
-  do {
-    pos = result.find(from, pos);
-    if (pos != std::string::npos) {
-      result.replace(pos, from_len, to);
-      pos += to_len;
-    }
-  } while (pos != std::string::npos);
-  return result;
-}
-
 void RunGetSourceTest(CefRefPtr<CefBrowser> browser) {
   class Visitor : public CefStringVisitor {
    public:
     explicit Visitor(CefRefPtr<CefBrowser> browser) : browser_(browser) {}
     virtual void Visit(const CefString& string) override {
-      std::string source = StringReplace(string, "<", "&lt;");
-      source = StringReplace(source, ">", "&gt;");
+      std::string source = AsciiStrReplace(string, "<", "&lt;");
+      source = AsciiStrReplace(source, ">", "&gt;");
       std::stringstream ss;
       ss << "<html><body bgcolor=\"white\">Source:<pre>" << source
          << "</pre></body></html>";
@@ -98,8 +81,8 @@ void RunGetTextTest(CefRefPtr<CefBrowser> browser) {
    public:
     explicit Visitor(CefRefPtr<CefBrowser> browser) : browser_(browser) {}
     virtual void Visit(const CefString& string) override {
-      std::string text = StringReplace(string, "<", "&lt;");
-      text = StringReplace(text, ">", "&gt;");
+      std::string text = AsciiStrReplace(string, "<", "&lt;");
+      text = AsciiStrReplace(text, ">", "&gt;");
       std::stringstream ss;
       ss << "<html><body bgcolor=\"white\">Text:<pre>" << text
          << "</pre></body></html>";
@@ -649,8 +632,7 @@ CefRefPtr<CefStreamReader> GetDumpResponse(
 
     CefRequest::HeaderMap::const_iterator it = requestMap.begin();
     for (; it != requestMap.end(); ++it) {
-      std::string key = it->first;
-      std::transform(key.begin(), key.end(), key.begin(), ::tolower);
+      const std::string& key = AsciiStrToLower(it->first);
       if (key == "origin") {
         origin = it->second;
         break;
@@ -801,8 +783,8 @@ void Alert(CefRefPtr<CefBrowser> browser, const std::string& message) {
   }
 
   // Escape special characters in the message.
-  std::string msg = StringReplace(message, "\\", "\\\\");
-  msg = StringReplace(msg, "'", "\\'");
+  std::string msg = AsciiStrReplace(message, "\\", "\\\\");
+  msg = AsciiStrReplace(msg, "'", "\\'");
 
   // Execute a JavaScript alert().
   CefRefPtr<CefFrame> frame = browser->GetMainFrame();

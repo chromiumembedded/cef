@@ -9,6 +9,7 @@
 #include "include/cef_parser.h"
 #include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/common/client_switches.h"
+#include "tests/shared/common/string_util.h"
 
 namespace client {
 
@@ -19,10 +20,7 @@ const char kDefaultUrl[] = "http://www.google.com";
 
 // Returns the ARGB value for |color|.
 cef_color_t ParseColor(const std::string& color) {
-  std::string colorToLower;
-  colorToLower.resize(color.size());
-  std::transform(color.begin(), color.end(), colorToLower.begin(), ::tolower);
-
+  const std::string& colorToLower = AsciiStrToLower(color);
   if (colorToLower == "black")
     return CefColorSetARGB(255, 0, 0, 0);
   else if (colorToLower == "blue")
