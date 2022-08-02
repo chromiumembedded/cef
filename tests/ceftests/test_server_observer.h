@@ -30,8 +30,9 @@ class Observer {
   // Return true and execute |response_callback| either synchronously or
   // asynchronously if the request was handled. Do not execute
   // |response_callback| when returning false.
-  virtual bool OnHttpRequest(CefRefPtr<CefRequest> request,
-                             const ResponseCallback& response_callback) = 0;
+  virtual bool OnTestServerRequest(
+      CefRefPtr<CefRequest> request,
+      const ResponseCallback& response_callback) = 0;
 
  protected:
   virtual ~Observer() = default;

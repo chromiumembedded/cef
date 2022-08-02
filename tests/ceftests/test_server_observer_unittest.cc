@@ -73,8 +73,8 @@ class TestServerObserver : public test_server::ObserverHelper {
                                       weak_ptr_factory_.GetWeakPtr()));
   }
 
-  bool OnHttpRequest(CefRefPtr<CefRequest> request,
-                     const ResponseCallback& response_callback) override {
+  bool OnTestServerRequest(CefRefPtr<CefRequest> request,
+                           const ResponseCallback& response_callback) override {
     CEF_REQUIRE_UI_THREAD();
     const std::string& url = request->GetURL();
     if (url != url_)

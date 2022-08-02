@@ -74,8 +74,8 @@ class Manager : public Runner::Delegate {
   void OnServerCreated(const std::string& server_origin) override;
   void OnServerDestroyed() override;
   void OnServerHandlerDeleted() override;
-  void OnHttpRequest(CefRefPtr<CefRequest> request,
-                     const ResponseCallback& response_callback) override;
+  void OnTestServerRequest(CefRefPtr<CefRequest> request,
+                           const ResponseCallback& response_callback) override;
 
  private:
   const bool https_server_;

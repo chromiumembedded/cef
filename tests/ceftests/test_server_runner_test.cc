@@ -54,7 +54,7 @@ class ServerHandler : public CefTestServerHandler {
       CefRefPtr<CefTestServer> server,
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefTestServerConnection> connection) override {
-    NotifyHttpRequest(request, connection);
+    NotifyTestServerRequest(request, connection);
     return true;
   }
 
@@ -69,17 +69,18 @@ class ServerHandler : public CefTestServerHandler {
     delegate_->OnServerDestroyed();
   }
 
-  void NotifyHttpRequest(CefRefPtr<CefRequest> request,
-                         CefRefPtr<CefTestServerConnection> connection) {
+  void NotifyTestServerRequest(CefRefPtr<CefRequest> request,
+                               CefRefPtr<CefTestServerConnection> connection) {
     if (!CefCurrentlyOn(TID_UI)) {
-      CefPostTask(TID_UI, base::BindOnce(&ServerHandler::NotifyHttpRequest,
-                                         this, request, connection));
+      CefPostTask(TID_UI,
+                  base::BindOnce(&ServerHandler::NotifyTestServerRequest, this,
+                                 request, connection));
       return;
     }
 
     auto response_callback =
         base::BindRepeating(&ServerHandler::SendResponse, connection);
-    delegate_->OnHttpRequest(request, response_callback);
+    delegate_->OnTestServerRequest(request, response_callback);
   }
 
   static void SendResponse(CefRefPtr<CefTestServerConnection> connection,

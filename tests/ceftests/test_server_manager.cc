@@ -253,8 +253,8 @@ void Manager::OnServerHandlerDeleted() {
   delete this;
 }
 
-void Manager::OnHttpRequest(CefRefPtr<CefRequest> request,
-                            const ResponseCallback& response_callback) {
+void Manager::OnTestServerRequest(CefRefPtr<CefRequest> request,
+                                  const ResponseCallback& response_callback) {
   CEF_REQUIRE_UI_THREAD();
 
   // TODO(chrome-runtime): Debug why favicon requests don't always have the
@@ -276,7 +276,7 @@ void Manager::OnHttpRequest(CefRefPtr<CefRequest> request,
 
   ObserverList::const_iterator it = list.begin();
   for (; it != list.end(); ++it) {
-    if ((*it)->OnHttpRequest(request, response_callback)) {
+    if ((*it)->OnTestServerRequest(request, response_callback)) {
       handled = true;
       break;
     }

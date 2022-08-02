@@ -59,7 +59,7 @@ class ServerHandler : public CefServerHandler {
                      const CefString& client_address,
                      CefRefPtr<CefRequest> request) override {
     EXPECT_TRUE(server->GetTaskRunner()->BelongsToCurrentThread());
-    NotifyHttpRequest(server, connection_id, client_address, request);
+    NotifyTestServerRequest(server, connection_id, client_address, request);
   }
 
   void OnWebSocketRequest(CefRefPtr<CefServer> server,
@@ -95,20 +95,20 @@ class ServerHandler : public CefServerHandler {
     delegate_->OnServerDestroyed();
   }
 
-  void NotifyHttpRequest(CefRefPtr<CefServer> server,
-                         int connection_id,
-                         const CefString& client_address,
-                         CefRefPtr<CefRequest> request) {
+  void NotifyTestServerRequest(CefRefPtr<CefServer> server,
+                               int connection_id,
+                               const CefString& client_address,
+                               CefRefPtr<CefRequest> request) {
     if (!CefCurrentlyOn(TID_UI)) {
-      CefPostTask(TID_UI, base::BindOnce(&ServerHandler::NotifyHttpRequest,
-                                         this, server, connection_id,
-                                         client_address, request));
+      CefPostTask(TID_UI, base::BindOnce(
+                              &ServerHandler::NotifyTestServerRequest, this,
+                              server, connection_id, client_address, request));
       return;
     }
 
     auto response_callback = base::BindRepeating(&ServerHandler::SendResponse,
                                                  server, connection_id);
-    delegate_->OnHttpRequest(request, response_callback);
+    delegate_->OnTestServerRequest(request, response_callback);
   }
 
   static void SendResponse(CefRefPtr<CefServer> server,
