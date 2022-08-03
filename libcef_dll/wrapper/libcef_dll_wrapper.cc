@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b0db26b4749beed24b02af98543422f489e0a0a8$
+// $hash=52ee2d630fed6972270fa16ca2ad5c474f723da1$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -817,4 +817,17 @@ CEF_GLOBAL void CefExecuteJavaScriptWithUserGestureForTests(
   // Execute
   cef_execute_java_script_with_user_gesture_for_tests(
       CefFrameCToCpp::Unwrap(frame), javascript.GetStruct());
+}
+
+NO_SANITIZE("cfi-icall")
+CEF_GLOBAL void CefSetDataDirectoryForTests(const CefString& dir) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: dir; type: string_byref_const
+  DCHECK(!dir.empty());
+  if (dir.empty())
+    return;
+
+  // Execute
+  cef_set_data_directory_for_tests(dir.GetStruct());
 }

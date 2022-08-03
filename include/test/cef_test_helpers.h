@@ -58,4 +58,13 @@
 void CefExecuteJavaScriptWithUserGestureForTests(CefRefPtr<CefFrame> frame,
                                                  const CefString& javascript);
 
+///
+// Set the DIR_SRC_TEST_DATA_ROOT directory used to load test data. Must be
+// configured when running from a CEF binary distribution. Defaults to the
+// "chromium/src" directory when running from a local CEF/Chromium build. |dir|
+// must be an absolute path.
+///
+/*--cef()--*/
+void CefSetDataDirectoryForTests(const CefString& dir);
+
 #endif  // CEF_INCLUDE_TEST_CEF_TEST_HELPERS_H_

@@ -39,10 +39,11 @@ bool GetResourceDir(std::string& dir) {
 
   if (AmIBundled()) {
     // Trim executable name up to the last separator.
-    std::string::size_type last_separator = dir.find_last_of("/");
+    auto last_separator = dir.find_last_of("/");
     dir.resize(last_separator);
-    dir.append("/../Resources");
-    return true;
+    // Trim directory ("MacOS") up to the last separator.
+    last_separator = dir.find_last_of("/");
+    dir.resize(last_separator);
   }
 
   dir.append("/Resources");

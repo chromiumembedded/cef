@@ -456,6 +456,10 @@
       'tests/cefsimple/cefsimple_linux.cc',
       'tests/cefsimple/simple_handler_linux.cc',
     ],
+    'ceftests_data_resources': [
+      'tests/ceftests/resources/net/data/ssl/certificates/localhost_cert.pem',
+      'tests/ceftests/resources/net/data/ssl/certificates/root_ca_cert.pem',
+    ],
     'ceftests_sources_common': [
       'tests/ceftests/audio_output_unittest.cc',
       'tests/ceftests/browser_info_map_unittest.cc',
@@ -565,6 +569,7 @@
       'tests/ceftests/zip_reader_unittest.cc',
     ],
     'ceftests_sources_win': [
+      'tests/ceftests/resource_util_win_dir.cc',
       'tests/ceftests/resource_util_win_idmap.cc',
       'tests/ceftests/resources/win/ceftests.rc',
     ],
@@ -618,6 +623,14 @@
       'tests/ceftests/test_request.h',
       'tests/ceftests/test_server.cc',
       'tests/ceftests/test_server.h',
+      'tests/ceftests/test_server_observer.h',
+      'tests/ceftests/test_server_observer.cc',
+      'tests/ceftests/test_server_manager.h',
+      'tests/ceftests/test_server_manager.cc',
+      'tests/ceftests/test_server_runner.h',
+      'tests/ceftests/test_server_runner.cc',
+      'tests/ceftests/test_server_runner_normal.cc',
+      'tests/ceftests/test_server_runner_test.cc',
       'tests/ceftests/test_suite.cc',
       'tests/ceftests/test_suite.h',
       'tests/ceftests/test_util.cc',

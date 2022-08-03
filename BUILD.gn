@@ -420,6 +420,7 @@ source_set("libcef_test_support") {
   testonly = true
 
   sources = [
+    "libcef/browser/test/test_helpers_impl.cc",
     "libcef/browser/test/test_server_impl.cc",
     "libcef/browser/test/test_server_impl.h",
     "libcef/common/test/translator_test_impl.cc",
@@ -2000,6 +2001,7 @@ if (is_mac) {
     ]
     helper_defines = [
       "CEF_USE_SANDBOX",
+      "CEF_TESTS_IN_SRC_DIRECTORY",
     ]
 
     info_plist = "tests/ceftests/resources/mac/Info.plist"
@@ -2024,6 +2026,7 @@ if (is_mac) {
     ]
     defines = [
       "CEF_USE_SANDBOX",
+      "CEF_TESTS_IN_SRC_DIRECTORY",
     ]
   }
 } else {
@@ -2247,6 +2250,7 @@ if (is_mac) {
 
     defines = [
       "CEF_USE_SANDBOX",
+      "CEF_TESTS_IN_SRC_DIRECTORY",
     ]
 
     if (is_win) {

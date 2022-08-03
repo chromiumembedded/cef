@@ -4,10 +4,13 @@
 
 #include "tests/ceftests/test_suite.h"
 
+#include "include/base/cef_logging.h"
 #include "include/cef_file_util.h"
+#include "include/test/cef_test_helpers.h"
 #include "include/wrapper/cef_scoped_temp_dir.h"
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/gtest/teamcity/include/teamcity_gtest.h"
+#include "tests/shared/browser/resource_util.h"
 #include "tests/shared/common/client_switches.h"
 
 namespace {
@@ -203,6 +206,14 @@ void CefTestSuite::Initialize() {
 #if defined(OS_WIN)
   RouteStdioToConsole(true);
 #endif  // defined(OS_WIN)
+
+#if !defined(CEF_TESTS_IN_SRC_DIRECTORY)
+  // Configure the directory that contains test data resources.
+  std::string resource_dir;
+  bool result = client::GetResourceDir(resource_dir);
+  CHECK(result && !resource_dir.empty());
+  CefSetDataDirectoryForTests(resource_dir);
+#endif  // !defined(CEF_TESTS_IN_SRC_DIRECTORY)
 }
 
 void CefTestSuite::Shutdown() {}
