@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6f8f05ae0e6a0b4122af70f11e6f14f2c3bbff6f$
+// $hash=70f3e95dc09c7676072c8f8ecae04a9c631523ee$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -859,4 +859,16 @@ CEF_EXPORT void cef_execute_java_script_with_user_gesture_for_tests(
   // Execute
   CefExecuteJavaScriptWithUserGestureForTests(CefFrameCppToC::Unwrap(frame),
                                               CefString(javascript));
+}
+
+CEF_EXPORT void cef_set_data_directory_for_tests(const cef_string_t* dir) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: dir; type: string_byref_const
+  DCHECK(dir);
+  if (!dir)
+    return;
+
+  // Execute
+  CefSetDataDirectoryForTests(CefString(dir));
 }

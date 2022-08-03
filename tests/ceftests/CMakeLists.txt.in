@@ -47,6 +47,14 @@
   ],
 }}
 
+# ceftests data resources.
+{{
+  'prefix': 'ceftests_data_resources',
+  'set': 'UNITTESTS_DATA_RESOURCES_SRCS',
+  'includes': [
+    'ceftests_data_resources',
+  ],
+}}
 
 #
 # Shared configuration.
@@ -91,6 +99,13 @@ if(OS_LINUX)
 
   # Copy ceftests resource files to the target output directory.
   COPY_FILES("${CEF_TARGET}" "${UNITTESTS_RESOURCES_SRCS}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_TARGET_OUT_DIR}/ceftests_files")
+
+  # Copy ceftests data resource files to the target output directory.
+  # Remove these prefixes from input file paths.
+  set(PREFIXES
+    "resources/"
+    )
+  COPY_RESOURCES("${CEF_TARGET}" "${UNITTESTS_DATA_RESOURCES_SRCS}" "${PREFIXES}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_TARGET_OUT_DIR}/ceftests_files")
 
   # Set SUID permissions on the chrome-sandbox target.
   SET_LINUX_SUID_PERMISSIONS("${CEF_TARGET}" "${CEF_TARGET_OUT_DIR}/chrome-sandbox")
@@ -190,9 +205,11 @@ if(OS_MAC)
   # Remove these prefixes from input file paths.
   set(PREFIXES
     "resources/mac/"
+    "resources/"
     "../shared/resources/"
     )
-  COPY_MAC_RESOURCES("${UNITTESTS_RESOURCES_SRCS}" "${PREFIXES}" "${CEF_TARGET}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_APP}")
+  set(RESOURCES ${UNITTESTS_RESOURCES_SRCS} ${UNITTESTS_DATA_RESOURCES_SRCS})
+  COPY_MAC_RESOURCES("${RESOURCES}" "${PREFIXES}" "${CEF_TARGET}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_APP}")
 endif()
 
 
@@ -224,5 +241,11 @@ if(OS_WINDOWS)
   # Copy CEF binary and resource files to the target output directory.
   COPY_FILES("${CEF_TARGET}" "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")
   COPY_FILES("${CEF_TARGET}" "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CEF_TARGET_OUT_DIR}")
-endif()
 
+  # Copy ceftests data resource files to the target output directory.
+  # Remove these prefixes from input file paths.
+  set(PREFIXES
+    "resources/"
+    )
+  COPY_RESOURCES("${CEF_TARGET}" "${UNITTESTS_DATA_RESOURCES_SRCS}" "${PREFIXES}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_TARGET_OUT_DIR}/ceftests_files")
+endif()

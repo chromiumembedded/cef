@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5bba27a98f6ef56e7577c563084beb0f185cf164$
+// $hash=b0d09c42b0c401cc3e9a8f0cfe93e464c6b7b34c$
 //
 
 #include <dlfcn.h>
@@ -144,6 +144,7 @@ struct libcef_pointers {
   decltype(&cef_register_extension) cef_register_extension;
   decltype(&cef_execute_java_script_with_user_gesture_for_tests)
       cef_execute_java_script_with_user_gesture_for_tests;
+  decltype(&cef_set_data_directory_for_tests) cef_set_data_directory_for_tests;
   decltype(&cef_browser_host_create_browser) cef_browser_host_create_browser;
   decltype(&cef_browser_host_create_browser_sync)
       cef_browser_host_create_browser_sync;
@@ -371,6 +372,7 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_now_from_system_trace_time);
   INIT_ENTRY(cef_register_extension);
   INIT_ENTRY(cef_execute_java_script_with_user_gesture_for_tests);
+  INIT_ENTRY(cef_set_data_directory_for_tests);
   INIT_ENTRY(cef_browser_host_create_browser);
   INIT_ENTRY(cef_browser_host_create_browser_sync);
   INIT_ENTRY(cef_command_line_create);
@@ -826,6 +828,11 @@ void cef_execute_java_script_with_user_gesture_for_tests(
     const cef_string_t* javascript) {
   g_libcef_pointers.cef_execute_java_script_with_user_gesture_for_tests(
       frame, javascript);
+}
+
+NO_SANITIZE("cfi-icall")
+void cef_set_data_directory_for_tests(const cef_string_t* dir) {
+  g_libcef_pointers.cef_set_data_directory_for_tests(dir);
 }
 
 NO_SANITIZE("cfi-icall")

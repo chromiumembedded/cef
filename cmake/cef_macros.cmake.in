@@ -95,41 +95,62 @@ macro(SET_CEF_TARGET_OUT_DIR)
   endif()
 endmacro()
 
-# Copy a list of files from one directory to another. Relative files paths are maintained.
-# The path component of the source |file_list| will be removed.
+# Copy a list of files from one directory to another. Relative file paths are maintained.
 macro(COPY_FILES target file_list source_dir target_dir)
   foreach(FILENAME ${file_list})
     set(source_file ${source_dir}/${FILENAME})
+
+    # Remove the target file path component.
     get_filename_component(target_name ${FILENAME} NAME)
     set(target_file ${target_dir}/${target_name})
 
-    string(FIND ${source_file} "$<CONFIGURATION>" _pos)
-    if(NOT ${_pos} EQUAL -1)
-      # Must test with an actual configuration directory.
-      string(REPLACE "$<CONFIGURATION>" "Release" existing_source_file ${source_file})
-      if(NOT EXISTS ${existing_source_file})
-        string(REPLACE "$<CONFIGURATION>" "Debug" existing_source_file ${source_file})
-      endif()
-    else()
-      set(existing_source_file ${source_file})
-    endif()
-
-    if(IS_DIRECTORY ${existing_source_file})
-      add_custom_command(
-        TARGET ${target}
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${source_file}" "${target_file}"
-        VERBATIM
-        )
-    else()
-      add_custom_command(
-        TARGET ${target}
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${source_file}" "${target_file}"
-        VERBATIM
-        )
-    endif()
+    COPY_SINGLE_FILE(${target} ${source_file} ${target_file})
   endforeach()
+endmacro()
+
+# Copy a list of files from one directory to another. Relative file paths are maintained.
+macro(COPY_RESOURCES target file_list prefix_list source_dir target_dir)
+  foreach(FILENAME ${file_list})
+    set(source_file ${source_dir}/${FILENAME})
+
+    # Remove one or more prefixes from the source paths.
+    set(TARGET_FILENAME "${FILENAME}")
+    foreach(PREFIX ${prefix_list})
+      string(REGEX REPLACE "^.*${PREFIX}" "" TARGET_FILENAME ${TARGET_FILENAME})
+    endforeach()
+    set(target_file ${target_dir}/${TARGET_FILENAME})
+
+    COPY_SINGLE_FILE(${target} ${source_file} ${target_file})
+  endforeach()
+endmacro()
+
+macro(COPY_SINGLE_FILE target source_file target_file)
+  string(FIND ${source_file} "$<CONFIGURATION>" _pos)
+  if(NOT ${_pos} EQUAL -1)
+    # Must test with an actual configuration directory.
+    string(REPLACE "$<CONFIGURATION>" "Release" existing_source_file ${source_file})
+    if(NOT EXISTS ${existing_source_file})
+      string(REPLACE "$<CONFIGURATION>" "Debug" existing_source_file ${source_file})
+    endif()
+  else()
+    set(existing_source_file ${source_file})
+  endif()
+
+  if(IS_DIRECTORY ${existing_source_file})
+    add_custom_command(
+      TARGET ${target}
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_directory "${source_file}" "${target_file}"
+      VERBATIM
+      )
+  else()
+    add_custom_command(
+      TARGET ${target}
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${source_file}" "${target_file}"
+      VERBATIM
+      )
+  endif()
 endmacro()
 
 
