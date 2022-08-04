@@ -457,7 +457,9 @@
       'tests/cefsimple/simple_handler_linux.cc',
     ],
     'ceftests_data_resources': [
+      'tests/ceftests/resources/net/data/ssl/certificates/expired_cert.pem',
       'tests/ceftests/resources/net/data/ssl/certificates/localhost_cert.pem',
+      'tests/ceftests/resources/net/data/ssl/certificates/ok_cert.pem',
       'tests/ceftests/resources/net/data/ssl/certificates/root_ca_cert.pem',
     ],
     'ceftests_sources_common': [

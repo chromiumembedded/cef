@@ -3371,6 +3371,23 @@ typedef enum {
   CEF_PERMISSION_RESULT_IGNORE,
 } cef_permission_request_result_t;
 
+///
+// Certificate types supported by CefTestServer::CreateAndStart. The matching
+// certificate file must exist in the "net/data/ssl/certificates" directory.
+// See CefSetDataDirectoryForTests() for related configuration.
+///
+typedef enum {
+  // Valid certificate using the IP (127.0.0.1). Loads the "ok_cert.pem" file.
+  CEF_TEST_CERT_OK_IP,
+
+  // Valid certificate using the domain ("localhost"). Loads the
+  // "localhost_cert.pem" file.
+  CEF_TEST_CERT_OK_DOMAIN,
+
+  // Expired certificate. Loads the "expired_cert.pem" file.
+  CEF_TEST_CERT_EXPIRED,
+} cef_test_cert_type_t;
+
 #ifdef __cplusplus
 }
 #endif

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b0d09c42b0c401cc3e9a8f0cfe93e464c6b7b34c$
+// $hash=93d56886080f7dc864034a17ce1f794198b14259$
 //
 
 #include <dlfcn.h>
@@ -1154,9 +1154,10 @@ NO_SANITIZE("cfi-icall")
 struct _cef_test_server_t* cef_test_server_create_and_start(
     uint16 port,
     int https_server,
+    cef_test_cert_type_t https_cert_type,
     struct _cef_test_server_handler_t* handler) {
-  return g_libcef_pointers.cef_test_server_create_and_start(port, https_server,
-                                                            handler);
+  return g_libcef_pointers.cef_test_server_create_and_start(
+      port, https_server, https_cert_type, handler);
 }
 
 NO_SANITIZE("cfi-icall")
