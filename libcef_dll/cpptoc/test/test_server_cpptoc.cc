@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ff1da376e035d2eda9050f4d68b39b9e7e7d368e$
+// $hash=77804eaa33c7102c39f0748006ecc52d97b7265b$
 //
 
 #include "libcef_dll/cpptoc/test/test_server_cpptoc.h"
@@ -21,6 +21,7 @@
 CEF_EXPORT cef_test_server_t* cef_test_server_create_and_start(
     uint16 port,
     int https_server,
+    cef_test_cert_type_t https_cert_type,
     struct _cef_test_server_handler_t* handler) {
   shutdown_checker::AssertNotShutdown();
 
@@ -32,9 +33,9 @@ CEF_EXPORT cef_test_server_t* cef_test_server_create_and_start(
     return NULL;
 
   // Execute
-  CefRefPtr<CefTestServer> _retval =
-      CefTestServer::CreateAndStart(port, https_server ? true : false,
-                                    CefTestServerHandlerCToCpp::Wrap(handler));
+  CefRefPtr<CefTestServer> _retval = CefTestServer::CreateAndStart(
+      port, https_server ? true : false, https_cert_type,
+      CefTestServerHandlerCToCpp::Wrap(handler));
 
   // Return type: refptr_same
   return CefTestServerCppToC::Wrap(_retval);

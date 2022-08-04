@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3cb71639ce1fb2986ca0d8ff437b0264d550d784$
+// $hash=b1e385f731e29be4d248472e9d3b86e84ef29136$
 //
 
 #include "libcef_dll/ctocpp/test/test_server_ctocpp.h"
@@ -22,6 +22,7 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefTestServer> CefTestServer::CreateAndStart(
     uint16 port,
     bool https_server,
+    cef_test_cert_type_t https_cert_type,
     CefRefPtr<CefTestServerHandler> handler) {
   shutdown_checker::AssertNotShutdown();
 
@@ -34,7 +35,8 @@ CefRefPtr<CefTestServer> CefTestServer::CreateAndStart(
 
   // Execute
   cef_test_server_t* _retval = cef_test_server_create_and_start(
-      port, https_server, CefTestServerHandlerCppToC::Wrap(handler));
+      port, https_server, https_cert_type,
+      CefTestServerHandlerCppToC::Wrap(handler));
 
   // Return type: refptr_same
   return CefTestServerCToCpp::Wrap(_retval);

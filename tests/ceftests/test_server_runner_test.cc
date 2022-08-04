@@ -31,8 +31,14 @@ class ServerHandler : public CefTestServerHandler {
 
     // Use any available port number for HTTPS and the legacy port number for
     // HTTP.
-    server_ = CefTestServer::CreateAndStart(https_server_ ? 0 : kHttpServerPort,
-                                            https_server_, this);
+    const uint16 port = https_server_ ? 0 : kHttpServerPort;
+
+    // Use a "localhost" domain certificate instead of IP address. This is
+    // required for HSTS tests (see https://crbug.com/456712).
+    const auto cert_type = CEF_TEST_CERT_OK_DOMAIN;
+
+    server_ =
+        CefTestServer::CreateAndStart(port, https_server_, cert_type, this);
 
     // Always execute asynchronously.
     CefPostTask(TID_UI, base::BindOnce(&ServerHandler::NotifyServerCreated,

@@ -172,7 +172,9 @@ class CefTestServerImpl::Context {
     DCHECK(!test_server_);
   }
 
-  bool Start(uint16 port, bool https_server) {
+  bool Start(uint16 port,
+             bool https_server,
+             cef_test_cert_type_t https_cert_type) {
     DCHECK(thread_checker_.CalledOnValidThread());
 
     DCHECK(!test_server_);
@@ -185,10 +187,18 @@ class CefTestServerImpl::Context {
         base::BindRepeating(&Context::HandleRequest, base::Unretained(this)));
 
     if (https_server) {
-      // Use a "localhost" domain certificate instead of IP address. This is
-      // required for HSTS tests (see https://crbug.com/456712).
-      test_server_->SetSSLConfig(
-          EmbeddedTestServer::CERT_COMMON_NAME_IS_DOMAIN);
+      switch (https_cert_type) {
+        case CEF_TEST_CERT_OK_IP:
+          // Default value.
+          break;
+        case CEF_TEST_CERT_OK_DOMAIN:
+          test_server_->SetSSLConfig(
+              EmbeddedTestServer::CERT_COMMON_NAME_IS_DOMAIN);
+          break;
+        case CEF_TEST_CERT_EXPIRED:
+          test_server_->SetSSLConfig(EmbeddedTestServer::CERT_EXPIRED);
+          break;
+      }
     }
 
     test_server_handle_ =
@@ -241,10 +251,11 @@ class CefTestServerImpl::Context {
 
 bool CefTestServerImpl::Start(uint16 port,
                               bool https_server,
+                              cef_test_cert_type_t https_cert_type,
                               CefRefPtr<CefTestServerHandler> handler) {
   DCHECK(!context_);
   context_ = std::make_unique<CefTestServerImpl::Context>(this, handler);
-  if (context_->Start(port, https_server)) {
+  if (context_->Start(port, https_server, https_cert_type)) {
     const auto& origin = context_->origin().spec();
     // Remove the trailing '/'
     origin_ = origin.substr(0, origin.length() - 1);
@@ -269,9 +280,11 @@ CefString CefTestServerImpl::GetOrigin() {
 CefRefPtr<CefTestServer> CefTestServer::CreateAndStart(
     uint16 port,
     bool https_server,
+    cef_test_cert_type_t https_cert_type,
     CefRefPtr<CefTestServerHandler> handler) {
   CefRefPtr<CefTestServerImpl> server(new CefTestServerImpl());
-  if (server->Start(port, https_server, handler))
+  if (server->Start(port, https_server, https_cert_type, handler)) {
     return server;
+  }
   return nullptr;
 }

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=e95435aed845767b3c7253547d253cabe44f88cb$
+// $hash=25eed585e3c8deea88f194fbfb8aca923c778892$
 //
 
 #ifndef CEF_INCLUDE_CAPI_TEST_CEF_TEST_SERVER_CAPI_H_
@@ -90,8 +90,10 @@ typedef struct _cef_test_server_t {
 ///
 // Create and start a new test server that binds to |port|. If |port| is 0 an
 // available port number will be selected. If |https_server| is true (1) the
-// server will be HTTPS, otherwise it will be HTTP. Returns the newly created
-// server object on success, or nullptr if the server cannot be started.
+// server will be HTTPS, otherwise it will be HTTP. When |https_server| is true
+// (1) the |https_cert_type| value is used to configure the certificate type.
+// Returns the newly created server object on success, or nullptr if the server
+// cannot be started.
 //
 // A new thread will be created for each CreateAndStart call (the "dedicated
 // server thread"). It is therefore recommended to use a different
@@ -104,6 +106,7 @@ typedef struct _cef_test_server_t {
 CEF_EXPORT cef_test_server_t* cef_test_server_create_and_start(
     uint16 port,
     int https_server,
+    cef_test_cert_type_t https_cert_type,
     struct _cef_test_server_handler_t* handler);
 
 ///

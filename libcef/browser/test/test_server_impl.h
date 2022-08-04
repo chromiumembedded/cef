@@ -19,6 +19,7 @@ class CefTestServerImpl : public CefTestServer {
 
   bool Start(uint16 port,
              bool https_server,
+             cef_test_cert_type_t https_cert_type,
              CefRefPtr<CefTestServerHandler> handler);
 
   // CefTestServer methods:
