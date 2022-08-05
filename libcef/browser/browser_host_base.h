@@ -337,8 +337,6 @@ class CefBrowserHostBase : public CefBrowserHost,
   // Called from LoadMainFrameURL to perform the actual navigation.
   virtual bool Navigate(const content::OpenURLParams& params);
 
-  void SetFocusInternal(bool focus);
-
   // Create the CefFileDialogManager if it doesn't already exist.
   bool EnsureFileDialogManager();
 
