@@ -233,13 +233,12 @@ bool CefBrowserHostBase::HasView() {
 }
 
 void CefBrowserHostBase::SetFocus(bool focus) {
-  // Always execute asynchronously to work around issue #3040.
-  CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostBase::SetFocusInternal,
-                                        this, focus));
-}
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefBrowserHostBase::SetFocus, this, focus));
+    return;
+  }
 
-void CefBrowserHostBase::SetFocusInternal(bool focus) {
-  CEF_REQUIRE_UIT();
   if (focus)
     OnSetFocus(FOCUS_SOURCE_SYSTEM);
   else if (platform_delegate_)
