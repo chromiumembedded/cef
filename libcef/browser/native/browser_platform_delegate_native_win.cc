@@ -350,15 +350,12 @@ void CefBrowserPlatformDelegateNativeWin::SetFocus(bool setFocus) {
   if (!setFocus)
     return;
 
-  if (web_contents_) {
-    // Give logical focus to the RenderWidgetHostViewAura in the views
-    // hierarchy. This does not change the native keyboard focus.
-    web_contents_->Focus();
-  }
-
   if (window_widget_) {
-    // Give native focus to the DesktopWindowTreeHostWin associated with the
-    // root window.
+    // Give native focus to the DesktopWindowTreeHostWin ("Chrome_WidgetWin_0")
+    // associated with the root window. The currently focused HWND may be
+    // "CefBrowserWindow" if we're called in response to our WndProc receiving
+    // the WM_SETFOCUS event, or some other HWND if the client calls
+    // CefBrowserHost::SetFocus(true) directly.
     //
     // The DesktopWindowTreeHostWin HandleNativeFocus/HandleNativeBlur methods
     // are called in response to WM_SETFOCUS/WM_KILLFOCUS respectively. The
@@ -369,9 +366,17 @@ void CefBrowserPlatformDelegateNativeWin::SetFocus(bool setFocus) {
     //    rings, flashing caret, onFocus/onBlur JS events, etc.) to work as
     //    expected (see issue #1677).
     // 2. Update focus state of the ui::InputMethod. If this does not occur
-    //    then InputMethodBase::GetTextInputClient will return NULL and
-    //    InputMethodWin::OnChar will fail to sent character events to the
-    //    renderer (see issue #1700).
+    //    then:
+    //    (a) InputMethodBase::GetTextInputClient will return NULL and
+    //    InputMethodWin::OnChar will fail to send character events to the
+    //    renderer (see issue #1700); and
+    //    (b) InputMethodWinBase::IsWindowFocused will return false due to
+    //    ::GetFocus() returning the currently focused HWND (e.g.
+    //    "CefBrowserWindow") instead of the expected "Chrome_WidgetWin_0" HWND,
+    //    causing TSF not to handle IME events (see issue #3306). For this same
+    //    reason, ::SetFocus needs to be called before WebContents::Focus which
+    //    sends the InputMethod OnWillChangeFocusedClient notification that then
+    //    calls IsWindowFocused.
     //
     // This differs from activation in Chrome which is handled via
     // HWNDMessageHandler::PostProcessActivateMessage (Widget::Show indirectly
@@ -386,6 +391,13 @@ void CefBrowserPlatformDelegateNativeWin::SetFocus(bool setFocus) {
     // circumstances. Revisit this implementation if additional problems are
     // discovered.
     ::SetFocus(HWNDForWidget(window_widget_));
+  }
+
+  if (web_contents_) {
+    // Give logical focus to the RenderWidgetHostViewAura in the views
+    // hierarchy. This does not change the native keyboard focus. See above
+    // comments about InputMethod notifications.
+    web_contents_->Focus();
   }
 }
 
