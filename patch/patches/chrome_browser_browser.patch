@@ -52,7 +52,7 @@ index 7612f95eed78e..e6da8824627b2 100644
      ]
    }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index 3aa1e336d8da2..2826a41485deb 100644
+index 9347ea3c71b79..e59ac5b76c31f 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -264,6 +264,25 @@
@@ -254,7 +254,7 @@ index 3aa1e336d8da2..2826a41485deb 100644
  }
  
  bool Browser::IsFullscreenForTabOrPending(const WebContents* web_contents) {
-@@ -2154,6 +2253,15 @@ void Browser::RequestMediaAccessPermission(
+@@ -2159,6 +2258,15 @@ void Browser::RequestMediaAccessPermission(
      content::WebContents* web_contents,
      const content::MediaStreamRequest& request,
      content::MediaResponseCallback callback) {
@@ -270,7 +270,7 @@ index 3aa1e336d8da2..2826a41485deb 100644
    const extensions::Extension* extension =
        GetExtensionForOrigin(profile_, request.security_origin);
    MediaCaptureDevicesDispatcher::GetInstance()->ProcessMediaAccessRequest(
-@@ -2691,13 +2799,20 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
+@@ -2696,13 +2804,20 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
  // Browser, Getters for UI (private):
  
  StatusBubble* Browser::GetStatusBubble() {
@@ -292,7 +292,7 @@ index 3aa1e336d8da2..2826a41485deb 100644
    return window_ ? window_->GetStatusBubble() : nullptr;
  }
  
-@@ -2824,6 +2939,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
+@@ -2829,6 +2944,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
      content_translate_driver->RemoveTranslationObserver(this);
      BookmarkTabHelper::FromWebContents(web_contents)->RemoveObserver(this);
    }
@@ -302,7 +302,7 @@ index 3aa1e336d8da2..2826a41485deb 100644
  
  void Browser::TabDetachedAtImpl(content::WebContents* contents,
 diff --git chrome/browser/ui/browser.h chrome/browser/ui/browser.h
-index c9e2f4c315d27..54cb88c98d72c 100644
+index dda5c5ade5604..9018dbdae8d56 100644
 --- chrome/browser/ui/browser.h
 +++ chrome/browser/ui/browser.h
 @@ -22,6 +22,7 @@
@@ -383,7 +383,7 @@ index c9e2f4c315d27..54cb88c98d72c 100644
    void BeforeUnloadFired(content::WebContents* source,
                           bool proceed,
                           bool* proceed_to_fire_unload) override;
-@@ -1241,6 +1272,8 @@ class Browser : public TabStripModelObserver,
+@@ -1243,6 +1274,8 @@ class Browser : public TabStripModelObserver,
    const std::string initial_workspace_;
    bool initial_visible_on_all_workspaces_state_;
  
@@ -392,7 +392,7 @@ index c9e2f4c315d27..54cb88c98d72c 100644
    CreationSource creation_source_ = CreationSource::kUnknown;
  
    UnloadController unload_controller_;
-@@ -1312,6 +1345,10 @@ class Browser : public TabStripModelObserver,
+@@ -1314,6 +1347,10 @@ class Browser : public TabStripModelObserver,
    std::unique_ptr<screen_ai::AXScreenAIAnnotator> screen_ai_annotator_;
  #endif
  
