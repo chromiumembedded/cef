@@ -465,6 +465,7 @@
     'ceftests_sources_common': [
       'tests/ceftests/audio_output_unittest.cc',
       'tests/ceftests/browser_info_map_unittest.cc',
+      'tests/ceftests/certificate_error_unittest.cc',
       'tests/ceftests/command_line_unittest.cc',
       'tests/ceftests/cookie_unittest.cc',
       'tests/ceftests/cors_unittest.cc',

@@ -420,12 +420,26 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     if (frame) {
       // The request will be associated with this frame/browser if it's valid,
       // otherwise the request will be canceled.
-      content::RenderFrameHost* rfh =
-          static_cast<CefFrameHostImpl*>(frame.get())->GetRenderFrameHost();
+      content::RenderFrameHostImpl* rfh =
+          static_cast<content::RenderFrameHostImpl*>(
+              static_cast<CefFrameHostImpl*>(frame.get())
+                  ->GetRenderFrameHost());
       if (rfh) {
-        url_loader_network_observer =
-            static_cast<content::RenderFrameHostImpl*>(rfh)
-                ->CreateURLLoaderNetworkObserver();
+        if (rfh->frame_tree_node() &&
+            rfh->frame_tree_node()->navigation_request()) {
+          // Associate the Observer with the current NavigationRequest. This is
+          // necessary for |is_main_frame_request| to report true (the expected
+          // value) in AllowCertificateError.
+          // TODO(cef): This approach for retrieving the NavigationRequest is
+          // deprecated, see https://crbug.com/1179502#c36.
+          url_loader_network_observer =
+              rfh->GetStoragePartition()
+                  ->CreateURLLoaderNetworkObserverForNavigationRequest(
+                      *(rfh->frame_tree_node()->navigation_request()));
+        } else {
+          // Associate the Observer with the RenderFrameHost.
+          url_loader_network_observer = rfh->CreateURLLoaderNetworkObserver();
+        }
       }
     } else {
       auto cef_browser_context = browser_context_getter.Run();
