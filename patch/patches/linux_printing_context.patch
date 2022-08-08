@@ -104,18 +104,18 @@ index 0e2f451ac050f..3faa2a3dff79d 100644
  
  // PrintingContext with optional native UI for print dialog and pdf_paper_size.
  class COMPONENT_EXPORT(PRINTING) PrintingContextLinux : public PrintingContext {
-diff --git ui/linux/BUILD.gn ui/linux/BUILD.gn
-index 48b78fe4b8b68..063131c2cb782 100644
---- ui/linux/BUILD.gn
-+++ ui/linux/BUILD.gn
-@@ -3,6 +3,7 @@
- # found in the LICENSE file.
- 
- import("//build/config/linux/gtk/gtk.gni")
-+import("//printing/buildflags/buildflags.gni")
- import("//ui/qt/qt.gni")
- 
- assert(is_linux)
+diff --git tools/v8_context_snapshot/BUILD.gn tools/v8_context_snapshot/BUILD.gn
+index a06eae4ab3217..43851307c531f 100644
+--- tools/v8_context_snapshot/BUILD.gn
++++ tools/v8_context_snapshot/BUILD.gn
+@@ -106,6 +106,7 @@ if (use_v8_context_snapshot) {
+       deps = [
+         "//gin:gin",
+         "//mojo/core/embedder",
++        "//printing",
+         "//services/service_manager/public/cpp",
+         "//third_party/blink/public:blink",
+         "//v8",
 diff --git ui/linux/linux_ui.cc ui/linux/linux_ui.cc
 index bae51eec69a8d..8675048b9117f 100644
 --- ui/linux/linux_ui.cc
