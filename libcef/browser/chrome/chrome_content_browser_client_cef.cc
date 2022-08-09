@@ -10,6 +10,7 @@
 #include "libcef/browser/browser_frame.h"
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_manager.h"
+#include "libcef/browser/certificate_query.h"
 #include "libcef/browser/chrome/chrome_browser_host_impl.h"
 #include "libcef/browser/chrome/chrome_browser_main_extra_parts_cef.h"
 #include "libcef/browser/context.h"
@@ -150,6 +151,28 @@ void ChromeContentBrowserClientCef::RenderProcessWillLaunch(
   // to avoid DCHECKs.
   host->RemoveObserver(CefBrowserInfoManager::GetInstance());
   host->AddObserver(CefBrowserInfoManager::GetInstance());
+}
+
+void ChromeContentBrowserClientCef::AllowCertificateError(
+    content::WebContents* web_contents,
+    int cert_error,
+    const net::SSLInfo& ssl_info,
+    const GURL& request_url,
+    bool is_main_frame_request,
+    bool strict_enforcement,
+    base::OnceCallback<void(content::CertificateRequestResultType)> callback) {
+  auto returned_callback = certificate_query::AllowCertificateError(
+      web_contents, cert_error, ssl_info, request_url, is_main_frame_request,
+      strict_enforcement, std::move(callback), /*default_disallow=*/false);
+  if (returned_callback.is_null()) {
+    // The error was handled.
+    return;
+  }
+
+  // Proceed with default handling.
+  ChromeContentBrowserClient::AllowCertificateError(
+      web_contents, cert_error, ssl_info, request_url, is_main_frame_request,
+      strict_enforcement, std::move(returned_callback));
 }
 
 bool ChromeContentBrowserClientCef::CanCreateWindow(

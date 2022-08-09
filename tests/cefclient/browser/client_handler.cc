@@ -977,9 +977,10 @@ bool ClientHandler::OnCertificateError(CefRefPtr<CefBrowser> browser,
                                        CefRefPtr<CefCallback> callback) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (cert_error == ERR_CERT_AUTHORITY_INVALID &&
-      request_url.ToString().find("https://www.magpcss.org/") == 0U) {
-    // Allow the CEF Forum to load. It has a self-signed certificate.
+  if (cert_error == ERR_CERT_COMMON_NAME_INVALID &&
+      request_url.ToString().find("https://www.magpcss.com/") == 0U) {
+    // Allow magpcss.com to load despite having a certificate common name of
+    // magpcss.org.
     callback->Continue();
     return true;
   }
