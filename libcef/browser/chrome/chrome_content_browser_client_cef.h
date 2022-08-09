@@ -31,6 +31,15 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
   void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
                                       int child_process_id) override;
   void RenderProcessWillLaunch(content::RenderProcessHost* host) override;
+  void AllowCertificateError(
+      content::WebContents* web_contents,
+      int cert_error,
+      const net::SSLInfo& ssl_info,
+      const GURL& request_url,
+      bool is_main_frame_request,
+      bool strict_enforcement,
+      base::OnceCallback<void(content::CertificateRequestResultType)> callback)
+      override;
   bool CanCreateWindow(content::RenderFrameHost* opener,
                        const GURL& opener_url,
                        const GURL& opener_top_level_frame_url,

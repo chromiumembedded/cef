@@ -19,6 +19,7 @@
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_manager.h"
 #include "libcef/browser/browser_platform_delegate.h"
+#include "libcef/browser/certificate_query.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools/devtools_manager_delegate.h"
 #include "libcef/browser/extensions/extension_system.h"
@@ -33,7 +34,6 @@
 #include "libcef/browser/prefs/renderer_prefs.h"
 #include "libcef/browser/printing/print_view_manager.h"
 #include "libcef/browser/speech_recognition_manager_delegate.h"
-#include "libcef/browser/ssl_info_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/x509_certificate_impl.h"
 #include "libcef/common/alloy/alloy_content_client.h"
@@ -222,65 +222,6 @@ class CefQuotaCallbackImpl : public CefCallback {
   CallbackType callback_;
 
   IMPLEMENT_REFCOUNTING(CefQuotaCallbackImpl);
-};
-
-class CefAllowCertificateErrorCallbackImpl : public CefCallback {
- public:
-  using CallbackType =
-      base::OnceCallback<void(content::CertificateRequestResultType)>;
-
-  explicit CefAllowCertificateErrorCallbackImpl(CallbackType callback)
-      : callback_(std::move(callback)) {}
-
-  CefAllowCertificateErrorCallbackImpl(
-      const CefAllowCertificateErrorCallbackImpl&) = delete;
-  CefAllowCertificateErrorCallbackImpl& operator=(
-      const CefAllowCertificateErrorCallbackImpl&) = delete;
-
-  ~CefAllowCertificateErrorCallbackImpl() {
-    if (!callback_.is_null()) {
-      // The callback is still pending. Cancel it now.
-      if (CEF_CURRENTLY_ON_UIT()) {
-        RunNow(std::move(callback_), false);
-      } else {
-        CEF_POST_TASK(
-            CEF_UIT,
-            base::BindOnce(&CefAllowCertificateErrorCallbackImpl::RunNow,
-                           std::move(callback_), false));
-      }
-    }
-  }
-
-  void Continue() override { ContinueNow(true); }
-
-  void Cancel() override { ContinueNow(false); }
-
-  [[nodiscard]] CallbackType Disconnect() { return std::move(callback_); }
-
- private:
-  void ContinueNow(bool allow) {
-    if (CEF_CURRENTLY_ON_UIT()) {
-      if (!callback_.is_null()) {
-        RunNow(std::move(callback_), allow);
-      }
-    } else {
-      CEF_POST_TASK(
-          CEF_UIT,
-          base::BindOnce(&CefAllowCertificateErrorCallbackImpl::ContinueNow,
-                         this, allow));
-    }
-  }
-
-  static void RunNow(CallbackType callback, bool allow) {
-    CEF_REQUIRE_UIT();
-    std::move(callback).Run(
-        allow ? content::CERTIFICATE_REQUEST_RESULT_TYPE_CONTINUE
-              : content::CERTIFICATE_REQUEST_RESULT_TYPE_DENY);
-  }
-
-  CallbackType callback_;
-
-  IMPLEMENT_REFCOUNTING(CefAllowCertificateErrorCallbackImpl);
 };
 
 class CefSelectClientCertificateCallbackImpl
@@ -868,42 +809,11 @@ void AlloyContentBrowserClient::AllowCertificateError(
     bool is_main_frame_request,
     bool strict_enforcement,
     base::OnceCallback<void(content::CertificateRequestResultType)> callback) {
-  CEF_REQUIRE_UIT();
-
-  if (!is_main_frame_request) {
-    // A sub-resource has a certificate error. The user doesn't really
-    // have a context for making the right decision, so block the request
-    // hard.
-    std::move(callback).Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_DENY);
-    return;
-  }
-
-  CefRefPtr<AlloyBrowserHostImpl> browser =
-      AlloyBrowserHostImpl::GetBrowserForContents(web_contents);
-  if (!browser.get())
-    return;
-  CefRefPtr<CefClient> client = browser->GetClient();
-  if (!client.get())
-    return;
-  CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
-  if (!handler.get())
-    return;
-
-  CefRefPtr<CefSSLInfo> cef_ssl_info = new CefSSLInfoImpl(ssl_info);
-
-  CefRefPtr<CefAllowCertificateErrorCallbackImpl> callbackImpl(
-      new CefAllowCertificateErrorCallbackImpl(std::move(callback)));
-
-  bool proceed = handler->OnCertificateError(
-      browser.get(), static_cast<cef_errorcode_t>(cert_error),
-      request_url.spec(), cef_ssl_info, callbackImpl.get());
-  if (!proceed) {
-    // |callback| may be null if the user executed it despite returning false.
-    callback = callbackImpl->Disconnect();
-    if (!callback.is_null()) {
-      std::move(callback).Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_DENY);
-    }
-  }
+  auto returned_callback = certificate_query::AllowCertificateError(
+      web_contents, cert_error, ssl_info, request_url, is_main_frame_request,
+      strict_enforcement, std::move(callback), /*default_disallow=*/true);
+  // Callback should not be returned.
+  DCHECK(returned_callback.is_null());
 }
 
 base::OnceClosure AlloyContentBrowserClient::SelectClientCertificate(
