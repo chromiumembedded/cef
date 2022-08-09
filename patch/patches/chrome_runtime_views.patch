@@ -45,7 +45,7 @@ index 20fcf6172c577..d34843570fa35 100644
  
  bool BrowserCommandController::IsWebAppOrCustomTab() const {
 diff --git chrome/browser/ui/views/frame/browser_frame.cc chrome/browser/ui/views/frame/browser_frame.cc
-index f3cc4af3bdae4..442eb363709d2 100644
+index f3cc4af3bdae4..38c088087eb1f 100644
 --- chrome/browser/ui/views/frame/browser_frame.cc
 +++ chrome/browser/ui/views/frame/browser_frame.cc
 @@ -74,15 +74,23 @@ bool IsUsingGtkTheme(Profile* profile) {
@@ -87,7 +87,16 @@ index f3cc4af3bdae4..442eb363709d2 100644
    return browser_frame_view_->GetTopInset(false);
  }
  
-@@ -183,20 +197,30 @@ bool BrowserFrame::ShouldDrawFrameHeader() const {
+@@ -170,6 +184,8 @@ BrowserNonClientFrameView* BrowserFrame::GetFrameView() const {
+ }
+ 
+ bool BrowserFrame::UseCustomFrame() const {
++  if (!native_browser_frame_)
++    return true;
+   return native_browser_frame_->UseCustomFrame();
+ }
+ 
+@@ -183,20 +199,30 @@ bool BrowserFrame::ShouldDrawFrameHeader() const {
  
  void BrowserFrame::GetWindowPlacement(gfx::Rect* bounds,
                                        ui::WindowShowState* show_state) const {
@@ -118,7 +127,7 @@ index f3cc4af3bdae4..442eb363709d2 100644
    browser_frame_view_->OnBrowserViewInitViewsComplete();
  }
  
-@@ -257,6 +281,8 @@ const ui::ThemeProvider* BrowserFrame::GetThemeProvider() const {
+@@ -257,6 +283,8 @@ const ui::ThemeProvider* BrowserFrame::GetThemeProvider() const {
  
  ui::ColorProviderManager::ThemeInitializerSupplier*
  BrowserFrame::GetCustomTheme() const {
@@ -127,7 +136,7 @@ index f3cc4af3bdae4..442eb363709d2 100644
    Browser* browser = browser_view_->browser();
    // If this is an incognito profile, there should never be a custom theme.
    if (browser->profile()->IsIncognitoProfile())
-@@ -274,6 +300,8 @@ BrowserFrame::GetCustomTheme() const {
+@@ -274,6 +302,8 @@ BrowserFrame::GetCustomTheme() const {
  }
  
  void BrowserFrame::OnNativeWidgetWorkspaceChanged() {
@@ -136,7 +145,7 @@ index f3cc4af3bdae4..442eb363709d2 100644
    chrome::SaveWindowWorkspace(browser_view_->browser(), GetWorkspace());
    chrome::SaveWindowVisibleOnAllWorkspaces(browser_view_->browser(),
                                             IsVisibleOnAllWorkspaces());
-@@ -363,6 +391,8 @@ void BrowserFrame::SetTabDragKind(TabDragKind tab_drag_kind) {
+@@ -363,6 +393,8 @@ void BrowserFrame::SetTabDragKind(TabDragKind tab_drag_kind) {
  
  ui::ColorProviderManager::Key BrowserFrame::GetColorProviderKey() const {
    auto key = Widget::GetColorProviderKey();
@@ -145,7 +154,7 @@ index f3cc4af3bdae4..442eb363709d2 100644
    key.frame_type = UseCustomFrame()
                         ? ui::ColorProviderManager::FrameType::kChromium
                         : ui::ColorProviderManager::FrameType::kNative;
-@@ -395,7 +425,8 @@ void BrowserFrame::SelectNativeTheme() {
+@@ -395,7 +427,8 @@ void BrowserFrame::SelectNativeTheme() {
    // Select between regular, dark and GTK theme.
    ui::NativeTheme* native_theme = ui::NativeTheme::GetInstanceForNativeUi();
  
@@ -155,7 +164,7 @@ index f3cc4af3bdae4..442eb363709d2 100644
      // No matter if we are using the default theme or not we always use the dark
      // ui instance.
      SetNativeTheme(ui::NativeTheme::GetInstanceForDarkUI());
-@@ -408,7 +439,8 @@ void BrowserFrame::SelectNativeTheme() {
+@@ -408,7 +441,8 @@ void BrowserFrame::SelectNativeTheme() {
    // display_override so the web contents can blend with the overlay by using
    // the developer-provided theme color for a better experience. Context:
    // https://crbug.com/1219073.
