@@ -258,7 +258,7 @@ index ff670d8099968..f39fd6972e304 100644
  
    // Calculate initial bounds.
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index d7260950ca1ba..67664a29e3510 100644
+index d7260950ca1ba..f18a52e61446c 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -181,8 +181,12 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
@@ -280,19 +280,32 @@ index d7260950ca1ba..67664a29e3510 100644
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
 -  // TODO(beng): inform the native_widget_delegate_.
-+  // See comments in CefBrowserHostImpl::PlatformSetFocus.
++  // See comments in CefBrowserPlatformDelegateNativeWin::SetFocus.
 +  if (has_external_parent_ && CanActivate())
 +    HandleActivationChanged(true);
  }
  
  void DesktopWindowTreeHostWin::HandleNativeBlur(HWND focused_window) {
 -  // TODO(beng): inform the native_widget_delegate_.
-+  // See comments in CefBrowserHostImpl::PlatformSetFocus.
++  // See comments in CefBrowserPlatformDelegateNativeWin::SetFocus.
 +  if (has_external_parent_ && CanActivate())
 +    HandleActivationChanged(false);
  }
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
+@@ -1001,6 +1009,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
+   if (ui::PlatformEventSource::ShouldIgnoreNativePlatformEvents())
+     return true;
+ 
++  // See comments in CefBrowserPlatformDelegateNativeWin::SetFocus.
++  if (has_external_parent_ && CanActivate() && event->IsAnyButton() &&
++      ::GetFocus() != GetHWND()) {
++    ::SetFocus(GetHWND());
++  }
++
+   SendEventToSink(event);
+   return event->handled();
+ }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 index 0aae49ec83b88..ab61925742ed7 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
