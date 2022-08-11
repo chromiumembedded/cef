@@ -190,7 +190,7 @@ class AutoResizeTestHandler : public RoutingTestHandler {
     } else if (!got_auto_resize2_) {
       got_auto_resize2_.yes();
       EXPECT_EQ(50, new_size.width);
-      EXPECT_EQ(36, new_size.height);
+      EXPECT_EQ(37, new_size.height);
 
       // Disable resize notifications.
       browser->GetHost()->SetAutoResizeEnabled(false, CefSize(), CefSize());
