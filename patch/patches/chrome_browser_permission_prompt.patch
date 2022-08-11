@@ -1,5 +1,5 @@
 diff --git chrome/browser/permissions/chrome_permissions_client.cc chrome/browser/permissions/chrome_permissions_client.cc
-index 37280287267b4..1ea055a4172c5 100644
+index 5b7804cfaab89..201d7651e8dab 100644
 --- chrome/browser/permissions/chrome_permissions_client.cc
 +++ chrome/browser/permissions/chrome_permissions_client.cc
 @@ -12,6 +12,7 @@

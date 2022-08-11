@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index 0dbc60e5bbd04..f8df1337b6c01 100644
+index 7db1991010ce7..97811eec264bb 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -305,6 +305,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
@@ -55,7 +55,7 @@ index 0dbc60e5bbd04..f8df1337b6c01 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -2981,6 +3006,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
+@@ -2979,6 +3004,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
    execute_plugin_action_callback_ = std::move(cb);
  }
  

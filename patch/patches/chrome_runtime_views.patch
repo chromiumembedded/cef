@@ -189,7 +189,7 @@ index 9bd586697dece..80ef1f08cb463 100644
    BrowserFrame(const BrowserFrame&) = delete;
    BrowserFrame& operator=(const BrowserFrame&) = delete;
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 4d7516e88120d..fe0d815b0764a 100644
+index 3467ee16afade..dad39710f892c 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -304,11 +304,10 @@ using content::NativeWebKeyboardEvent;

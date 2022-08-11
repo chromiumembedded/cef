@@ -133,10 +133,10 @@ index 855e5ff668236..2bf32cabf159b 100644
    if (host_ && set_focus_on_mouse_down_or_key_event_) {
      set_focus_on_mouse_down_or_key_event_ = false;
 diff --git content/public/browser/render_widget_host_view.h content/public/browser/render_widget_host_view.h
-index c7842775225c7..1ecb68d349bd1 100644
+index 5d291f223feba..1999fbc5bf67a 100644
 --- content/public/browser/render_widget_host_view.h
 +++ content/public/browser/render_widget_host_view.h
-@@ -256,6 +256,14 @@ class CONTENT_EXPORT RenderWidgetHostView {
+@@ -257,6 +257,14 @@ class CONTENT_EXPORT RenderWidgetHostView {
    // This must always return the same device scale factor as GetScreenInfo.
    virtual float GetDeviceScaleFactor() const = 0;
  
