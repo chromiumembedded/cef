@@ -246,9 +246,9 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
           base::NumberToString(settings_->uncaught_exception_stack_size));
     }
 
-#if BUILDFLAG(IS_WIN)
     std::vector<std::string> disable_features;
 
+#if BUILDFLAG(IS_WIN)
     if (features::kCalculateNativeWinOcclusion.default_state ==
         base::FEATURE_ENABLED_BY_DEFAULT) {
       // TODO: Add support for occlusion detection in combination with native
@@ -260,6 +260,15 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
         base::FEATURE_ENABLED_BY_DEFAULT) {
       // TODO: Add support for windows spellcheck service (see issue #3055).
       disable_features.push_back(spellcheck::kWinUseBrowserSpellChecker.name);
+    }
+#endif  // BUILDFLAG(IS_WIN)
+
+    if (features::kBackForwardCache.default_state ==
+        base::FEATURE_ENABLED_BY_DEFAULT) {
+      // Disable BackForwardCache globally so that
+      // blink::RuntimeEnabledFeatures::BackForwardCacheEnabled reports the
+      // correct value in the renderer process (see issue #3374).
+      disable_features.push_back(features::kBackForwardCache.name);
     }
 
     if (!disable_features.empty()) {
@@ -274,7 +283,6 @@ bool AlloyMainDelegate::BasicStartupComplete(int* exit_code) {
       command_line->AppendSwitchASCII(switches::kDisableFeatures,
                                       disable_features_str);
     }
-#endif  // BUILDFLAG(IS_WIN)
   }
 
   if (application_) {
