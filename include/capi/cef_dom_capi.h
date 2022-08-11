@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=c6de3fb4d64a2b2ad06a4b9c5e9d7625d40b5bb6$
+// $hash=ddff4ad975fc26d0abfe05799aedb597b8274ffd$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DOM_CAPI_H_
@@ -335,7 +335,8 @@ typedef struct _cef_domnode_t {
       struct _cef_domnode_t* self);
 
   ///
-  // Returns the bounds of the element.
+  // Returns the bounds of the element in device pixels. Use
+  // "window.devicePixelRatio" to convert to/from CSS pixels.
   ///
   cef_rect_t(CEF_CALLBACK* get_element_bounds)(struct _cef_domnode_t* self);
 } cef_domnode_t;
