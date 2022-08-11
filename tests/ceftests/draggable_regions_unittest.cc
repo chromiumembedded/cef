@@ -7,6 +7,9 @@
 #include "tests/ceftests/test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
+// Set to 1 to enable verbose debugging info logging.
+#define VERBOSE_DEBUGGING 0
+
 namespace {
 
 const char kTestHTMLWithRegions[] =
@@ -99,6 +102,19 @@ class DraggableRegionsTestHandler : public TestHandler,
     EXPECT_TRUE(frame->IsMain());
 
     draggable_regions_changed_ct_++;
+
+#if VERBOSE_DEBUGGING
+    LOG(INFO) << "step " << step_ << " regions.size " << regions.size()
+              << " url " << frame->GetURL().ToString();
+    if (regions.size() == 2) {
+      LOG(INFO) << "  region[0] x " << regions[0].bounds.x << " y "
+                << regions[0].bounds.y << " width " << regions[0].bounds.width
+                << " height " << regions[0].bounds.height;
+      LOG(INFO) << "  region[1] x " << regions[1].bounds.x << " y "
+                << regions[1].bounds.y << " width " << regions[1].bounds.width
+                << " height " << regions[1].bounds.height;
+    }
+#endif  // VERBOSE_DEBUGGING
 
     switch (step_) {
       case kStepWithRegions:
