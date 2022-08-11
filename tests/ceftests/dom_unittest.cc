@@ -59,7 +59,8 @@ class TestDOMVisitor : public CefDOMVisitor {
     EXPECT_FALSE(textNode->HasChildren());
   }
 
-  void TestBodyNodeStructure(CefRefPtr<CefDOMNode> bodyNode) {
+  void TestBodyNodeStructure(CefRefPtr<CefDOMNode> bodyNode,
+                             float devicePixelRatio) {
     EXPECT_TRUE(bodyNode.get());
     EXPECT_TRUE(bodyNode->IsElement());
     EXPECT_FALSE(bodyNode->IsText());
@@ -133,11 +134,14 @@ class TestDOMVisitor : public CefDOMVisitor {
     EXPECT_TRUE(divNode.get());
     EXPECT_TRUE(divNode->IsElement());
     EXPECT_FALSE(divNode->IsText());
+
+    // Returned bounds are in device pixels.
     CefRect divRect = divNode->GetElementBounds();
-    EXPECT_EQ(divRect.width, 50);
-    EXPECT_EQ(divRect.height, 25);
-    EXPECT_EQ(divRect.x, 150);
-    EXPECT_EQ(divRect.y, 100);
+    EXPECT_EQ(divRect.width, 50.0 * devicePixelRatio);
+    EXPECT_EQ(divRect.height, 25.0 * devicePixelRatio);
+    EXPECT_EQ(divRect.x, 150.0 * devicePixelRatio);
+    EXPECT_EQ(divRect.y, 100.0 * devicePixelRatio);
+
     EXPECT_FALSE(divNode->GetNextSibling().get());
   }
 
@@ -166,8 +170,10 @@ class TestDOMVisitor : public CefDOMVisitor {
     CefRefPtr<CefDOMNode> headNode = htmlNode->GetFirstChild();
     TestHeadNodeStructure(headNode);
 
+    const float devicePixelRatio = GetDevicePixelRatio();
+
     CefRefPtr<CefDOMNode> bodyNode = headNode->GetNextSibling();
-    TestBodyNodeStructure(bodyNode);
+    TestBodyNodeStructure(bodyNode, devicePixelRatio);
 
     // Retrieve the head node directly.
     headNode = document->GetHead();
@@ -175,7 +181,7 @@ class TestDOMVisitor : public CefDOMVisitor {
 
     // Retrieve the body node directly.
     bodyNode = document->GetBody();
-    TestBodyNodeStructure(bodyNode);
+    TestBodyNodeStructure(bodyNode, devicePixelRatio);
   }
 
   // Test document modification by changing the H1 tag.
@@ -226,6 +232,28 @@ class TestDOMVisitor : public CefDOMVisitor {
     browser_->GetMainFrame()->SendProcessMessage(PID_BROWSER, return_msg);
   }
 
+  // Used to convert between device pixels and CSS pixels.
+  float GetDevicePixelRatio() {
+    auto context = browser_->GetMainFrame()->GetV8Context();
+    EXPECT_TRUE(context);
+
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+    EXPECT_TRUE(context->Eval("window.devicePixelRatio", CefString(), 0, retval,
+                              exception));
+    if (exception) {
+      ADD_FAILURE() << exception->GetMessage().c_str();
+      return 1.0;
+    }
+
+    if (retval->IsValid() && retval->IsDouble()) {
+      return static_cast<float>(retval->GetDoubleValue());
+    }
+
+    ADD_FAILURE() << "Failed to retrieve devicePixelRatio";
+    return 1.0;
+  }
+
   CefRefPtr<CefBrowser> browser_;
   DOMTestType test_type_;
 
@@ -263,6 +291,7 @@ class TestDOMHandler : public TestHandler {
   explicit TestDOMHandler(DOMTestType test) : test_type_(test) {}
 
   void RunTest() override {
+    // Specified values are in CSS pixels.
     std::stringstream mainHtml;
     mainHtml << "<html>"
                 "<head><title>The Title</title></head>"

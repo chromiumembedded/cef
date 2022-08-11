@@ -323,7 +323,8 @@ class CefDOMNode : public virtual CefBaseRefCounted {
   virtual CefString GetElementInnerText() = 0;
 
   ///
-  // Returns the bounds of the element.
+  // Returns the bounds of the element in device pixels. Use
+  // "window.devicePixelRatio" to convert to/from CSS pixels.
   ///
   /*--cef()--*/
   virtual CefRect GetElementBounds() = 0;
