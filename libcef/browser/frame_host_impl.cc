@@ -439,8 +439,26 @@ content::RenderFrameHost* CefFrameHostImpl::GetRenderFrameHost() const {
   return render_frame_host_;
 }
 
-bool CefFrameHostImpl::Detach() {
+bool CefFrameHostImpl::Detach(DetachReason reason) {
   CEF_REQUIRE_UIT();
+
+  if (VLOG_IS_ON(1)) {
+    std::string reason_str;
+    switch (reason) {
+      case DetachReason::RENDER_FRAME_DELETED:
+        reason_str = "RENDER_FRAME_DELETED";
+        break;
+      case DetachReason::NEW_MAIN_FRAME:
+        reason_str = "NEW_MAIN_FRAME";
+        break;
+      case DetachReason::BROWSER_DESTROYED:
+        reason_str = "BROWSER_DESTROYED";
+        break;
+    };
+
+    VLOG(1) << GetDebugString() << " detached (reason=" << reason_str
+            << ", is_connected=" << render_frame_.is_bound() << ")";
+  }
 
   // May be called multiple times (e.g. from CefBrowserInfo SetMainFrame and
   // RemoveFrame).
@@ -539,9 +557,7 @@ void CefFrameHostImpl::SendToRenderFrame(const std::string& function_name,
     return;
   } else if (!render_frame_host_) {
     // We've been detached.
-    LOG(WARNING) << function_name << " sent to detached "
-                 << (is_main_frame_ ? "main" : "sub") << "frame "
-                 << frame_util::GetFrameDebugString(frame_id_)
+    LOG(WARNING) << function_name << " sent to detached " << GetDebugString()
                  << " will be ignored";
     return;
   }
@@ -603,11 +619,7 @@ void CefFrameHostImpl::FrameAttached(
     return;
   }
 
-  if (reattached) {
-    LOG(INFO) << (is_main_frame_ ? "main" : "sub") << "frame "
-              << frame_util::GetFrameDebugString(frame_id_)
-              << " has reconnected";
-  }
+  VLOG(1) << GetDebugString() << " " << (reattached ? "re" : "") << "connected";
 
   render_frame_.Bind(std::move(render_frame_remote));
   render_frame_.set_disconnect_handler(
@@ -660,6 +672,11 @@ void CefFrameHostImpl::UpdateDraggableRegions(
   // cross-origin navigation.
   browser_info_->MaybeNotifyDraggableRegionsChanged(
       browser, this, std::move(draggable_regions));
+}
+
+std::string CefFrameHostImpl::GetDebugString() const {
+  return "frame " + frame_util::GetFrameDebugString(frame_id_) +
+         (is_main_frame_ ? " (main)" : " (sub)");
 }
 
 void CefExecuteJavaScriptWithUserGestureForTests(CefRefPtr<CefFrame> frame,
