@@ -127,6 +127,7 @@ class CefFrameImpl
 
   enum class DisconnectReason {
     DETACHED,
+    BROWSER_FRAME_DETACHED,
     CONNECT_TIMEOUT,
     RENDER_FRAME_DISCONNECT,
     BROWSER_FRAME_DISCONNECT,
@@ -147,6 +148,7 @@ class CefFrameImpl
 
   // cef::mojom::RenderFrame methods:
   void FrameAttachedAck() override;
+  void FrameDetached() override;
   void SendMessage(const std::string& name, base::Value arguments) override;
   void SendSharedMemoryRegion(const std::string& name,
                               base::ReadOnlySharedMemoryRegion region) override;

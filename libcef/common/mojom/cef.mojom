@@ -52,6 +52,9 @@ interface RenderFrame {
   // Browser process has received the FrameAttached() message.
   FrameAttachedAck();
 
+  // Browser process has intentionally detached.
+  FrameDetached();
+
   // Send a message to the render process.
   SendMessage(string name, mojo_base.mojom.Value arguments);
 

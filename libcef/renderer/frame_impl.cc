@@ -531,11 +531,16 @@ void CefFrameImpl::ConnectBrowserFrame(ConnectReason reason) {
   auto& browser_frame = GetBrowserFrame(/*expect_acked=*/false);
   CHECK(browser_frame);
 
+  // True if this connection is a retry or if the frame just exited the
+  // BackForwardCache.
+  const bool reattached =
+      browser_connect_retry_ct_ > 0 || reason == ConnectReason::WAS_SHOWN;
+
   // If the channel is working we should get a call to FrameAttachedAck().
   // Otherwise, OnDisconnect() should be called to retry the
   // connection.
   browser_frame->FrameAttached(receiver_.BindNewPipeAndPassRemote(),
-                               browser_connect_retry_ct_ > 0);
+                               reattached);
   receiver_.set_disconnect_handler(
       base::BindOnce(&CefFrameImpl::OnDisconnect, this,
                      DisconnectReason::RENDER_FRAME_DISCONNECT));
@@ -580,6 +585,9 @@ void CefFrameImpl::OnDisconnect(DisconnectReason reason) {
       case DisconnectReason::DETACHED:
         reason_str = "DETACHED";
         break;
+      case DisconnectReason::BROWSER_FRAME_DETACHED:
+        reason_str = "BROWSER_FRAME_DETACHED";
+        break;
       case DisconnectReason::CONNECT_TIMEOUT:
         reason_str = "CONNECT_TIMEOUT";
         break;
@@ -619,8 +627,9 @@ void CefFrameImpl::OnDisconnect(DisconnectReason reason) {
   browser_connection_state_ = ConnectionState::DISCONNECTED;
   browser_connect_timer_.Stop();
 
-  // Only retry if the frame is still valid.
-  if (frame_) {
+  // Only retry if the frame is still valid and the browser process has not
+  // intentionally detached.
+  if (frame_ && reason != DisconnectReason::BROWSER_FRAME_DETACHED) {
     if (browser_connect_retry_ct_++ < kConnectionRetryMaxCt) {
       VLOG(1) << GetDebugString() << " connection retry scheduled";
 
@@ -706,6 +715,12 @@ void CefFrameImpl::FrameAttachedAck() {
     std::move(queued_browser_actions_.front().second).Run(browser_frame);
     queued_browser_actions_.pop();
   }
+}
+
+void CefFrameImpl::FrameDetached() {
+  // Sent from the browser process in response to CefFrameHostImpl::Detach().
+  CHECK_EQ(ConnectionState::CONNECTION_ACKED, browser_connection_state_);
+  OnDisconnect(DisconnectReason::BROWSER_FRAME_DETACHED);
 }
 
 void CefFrameImpl::SendMessage(const std::string& name, base::Value arguments) {

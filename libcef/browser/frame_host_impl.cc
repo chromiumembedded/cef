@@ -480,6 +480,10 @@ bool CefFrameHostImpl::Detach(DetachReason reason) {
     queued_renderer_actions_.pop();
   }
 
+  if (render_frame_.is_bound()) {
+    render_frame_->FrameDetached();
+  }
+
   render_frame_.reset();
   render_frame_host_ = nullptr;
 
