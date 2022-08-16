@@ -109,8 +109,14 @@ class CefFrameImpl
   void ExecuteOnLocalFrame(const std::string& function_name,
                            LocalFrameAction action);
 
+  enum class ConnectReason {
+    RENDER_FRAME_CREATED,
+    WAS_SHOWN,
+    RETRY,
+  };
+
   // Initiate the connection to the BrowserFrame channel.
-  void ConnectBrowserFrame();
+  void ConnectBrowserFrame(ConnectReason reason);
 
   // Returns the remote BrowserFrame object.
   using BrowserFrameType = mojo::Remote<cef::mojom::BrowserFrame>;
@@ -119,10 +125,17 @@ class CefFrameImpl
   // Called if the BrowserFrame connection attempt times out.
   void OnBrowserFrameTimeout();
 
-  // Called if/when the BrowserFrame channel is disconnected. This may occur due
-  // to frame navigation, destruction, or insertion into the bfcache (when the
-  // browser-side frame representation is destroyed and closes the connection).
-  void OnBrowserFrameDisconnect();
+  enum class DisconnectReason {
+    DETACHED,
+    CONNECT_TIMEOUT,
+    RENDER_FRAME_DISCONNECT,
+    BROWSER_FRAME_DISCONNECT,
+  };
+
+  // Called if/when a disconnect occurs. This may occur due to frame navigation,
+  // destruction, or insertion into the bfcache (when the browser-side frame
+  // representation is destroyed and closes the connection).
+  void OnDisconnect(DisconnectReason reason);
 
   // Send an action to the remote BrowserFrame. This will queue the action if
   // the remote frame is not yet attached.
@@ -151,6 +164,8 @@ class CefFrameImpl
   // blink_glue::CefExecutionContextLifecycleStateObserver methods:
   void ContextLifecycleStateChanged(
       blink::mojom::blink::FrameLifecycleState state) override;
+
+  std::string GetDebugString() const;
 
   CefBrowserImpl* browser_;
   blink::WebLocalFrame* frame_;

@@ -112,11 +112,17 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   // thread.
   content::RenderFrameHost* GetRenderFrameHost() const;
 
+  enum class DetachReason {
+    RENDER_FRAME_DELETED,
+    NEW_MAIN_FRAME,
+    BROWSER_DESTROYED,
+  };
+
   // Owned frame objects will be detached explicitly when the associated
   // RenderFrame is deleted. Temporary frame objects will be detached
   // implicitly via CefBrowserInfo::browser() returning nullptr. Returns true
   // if this was the first call to Detach() for the frame.
-  bool Detach();
+  bool Detach(DetachReason reason);
 
   // A frame has swapped to active status from prerendering or the back-forward
   // cache. We may need to re-attach if the RFH has changed. See
@@ -159,6 +165,8 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
                          RenderFrameAction action);
 
   void OnRenderFrameDisconnect();
+
+  std::string GetDebugString() const;
 
   const bool is_main_frame_;
 
