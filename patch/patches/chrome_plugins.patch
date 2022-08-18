@@ -125,7 +125,7 @@ index 8b72897491669..546919dd70afc 100644
    // that the X-Frame-Options protection mechanism is set to either DENY or
    // SAMEORIGIN.
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index bbfb9e5e65480..aa5e4ad3cb17d 100644
+index 0cc423db56e00..1db7d34422d7f 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
 @@ -946,6 +946,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
