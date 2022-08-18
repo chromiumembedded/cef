@@ -37,6 +37,7 @@
 #include "content/public/browser/web_contents_observer.h"
 #include "mojo/public/cpp/bindings/associated_remote.h"
 #include "printing/metafile_skia.h"
+#include "printing/units.h"
 #include "third_party/blink/public/common/associated_interfaces/associated_interface_provider.h"
 
 #if BUILDFLAG(IS_LINUX)
@@ -67,8 +68,8 @@ void FillInDictionaryFromPdfPrintSettings(
   print_settings.Set(kSettingDeviceName, "");
   print_settings.Set(kSettingRasterizePdf, false);
   print_settings.Set(kSettingPreviewModifiable, false);
-  print_settings.Set(kSettingDpiHorizontal, 0);
-  print_settings.Set(kSettingDpiVertical, 0);
+  print_settings.Set(kSettingDpiHorizontal, printing::kDefaultPdfDpi);
+  print_settings.Set(kSettingDpiVertical, printing::kDefaultPdfDpi);
   print_settings.Set(kSettingPagesPerSheet, 1);
 
   // User defined settings.
@@ -137,9 +138,7 @@ void StopWorker(int document_cookie) {
   std::unique_ptr<PrinterQuery> printer_query =
       queue->PopPrinterQuery(document_cookie);
   if (printer_query.get()) {
-    content::GetIOThreadTaskRunner({})->PostTask(
-        FROM_HERE,
-        base::BindOnce(&PrinterQuery::StopWorker, std::move(printer_query)));
+    printer_query->StopWorker();
   }
 }
 
