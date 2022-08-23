@@ -7,6 +7,7 @@
 #include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_server.h"
 #include "tests/ceftests/test_server_observer.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/common/string_util.h"
 
@@ -261,7 +262,11 @@ class HSTSRedirectTest : public TestHandler {
     https_url_ = url;
     EXPECT_TRUE(https_url_.find("https://localhost:") == 0);
 
-    CreateBrowser(http_url_);
+    // Create a new in-memory context so HSTS decisions aren't cached.
+    auto request_context = CreateTestRequestContext(
+        TEST_RC_MODE_CUSTOM, /*cache_path=*/std::string());
+
+    CreateBrowser(http_url_, request_context);
   }
 
   void StopHttpServer() {
