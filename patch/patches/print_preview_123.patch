@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index d2259c3e9c845..5d2819a2cada3 100644
+index 6bc746cdfbad1..66bb318e4e9ca 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -24,6 +24,7 @@
@@ -46,10 +46,10 @@ index 226de9e8e4546..cdedf67c94d01 100644
  #include "chrome/browser/printing/print_view_manager.h"
  #include "chrome/browser/task_manager/web_contents_tags.h"
 diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index 4bd871e5cadc6..835656ea87729 100644
+index 8f4cb7f50dd34..2bca86c637d46 100644
 --- chrome/browser/printing/print_view_manager_base.cc
 +++ chrome/browser/printing/print_view_manager_base.cc
-@@ -610,13 +610,14 @@ void PrintViewManagerBase::UpdatePrintSettings(
+@@ -600,13 +600,14 @@ void PrintViewManagerBase::UpdatePrintSettings(
        job_settings.Set(kSettingRasterizePdfDpi, value);
    }
  
@@ -66,10 +66,10 @@ index 4bd871e5cadc6..835656ea87729 100644
    auto* printer_query_ptr = printer_query.get();
    printer_query_ptr->SetSettings(
 diff --git chrome/browser/printing/print_view_manager_base.h chrome/browser/printing/print_view_manager_base.h
-index 746df417a23f7..dddf164ce6c4d 100644
+index 871e00c49028c..ac5a5329dd760 100644
 --- chrome/browser/printing/print_view_manager_base.h
 +++ chrome/browser/printing/print_view_manager_base.h
-@@ -194,9 +194,6 @@ class PrintViewManagerBase : public PrintManager, public PrintJob::Observer {
+@@ -204,9 +204,6 @@ class PrintViewManagerBase : public PrintManager, public PrintJob::Observer {
    // Manages the low-level talk to the printer.
    scoped_refptr<PrintJob> print_job_;
  
@@ -118,7 +118,7 @@ index 7a3fbc44629e6..578422e85320a 100644
  }
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index 8e55c46cdf29a..40957f570aba5 100644
+index 2a9cc4d97e4f1..ab37659bcb720 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -22,6 +22,7 @@
@@ -130,7 +130,7 @@ index 8e55c46cdf29a..40957f570aba5 100644
  #include "chrome/browser/pdf/pdf_extension_util.h"
  #include "chrome/browser/printing/background_printing_manager.h"
 @@ -96,6 +97,13 @@ const char16_t kBasicPrintShortcut[] = u"\u0028\u21e7\u2318\u0050\u0029";
- const char16_t kBasicPrintShortcut[] = u"(Ctrl+Alt+P)";
+ const char16_t kBasicPrintShortcut[] = u"(Ctrl+Shift+P)";
  #endif
  
 +const char16_t* GetBasicPrintShortcut() {

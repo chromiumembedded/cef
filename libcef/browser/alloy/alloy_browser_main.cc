@@ -282,10 +282,6 @@ int AlloyBrowserMainParts::PreMainMessageLoopRun() {
   // Create the global RequestContext.
   global_request_context_ =
       CefRequestContextImpl::CreateGlobalRequestContext(settings);
-  auto browser_context =
-      global_request_context_->GetBrowserContext()->AsBrowserContext();
-
-  CefDevToolsManagerDelegate::StartHttpHandler(browser_context);
 
 #if BUILDFLAG(IS_WIN)
   // Windows parental controls calls can be slow, so we do an early init here
@@ -324,6 +320,19 @@ int AlloyBrowserMainParts::PreMainMessageLoopRun() {
 #endif
 
   return content::RESULT_CODE_NORMAL_EXIT;
+}
+
+void AlloyBrowserMainParts::OnContextInitialized() {
+  CEF_REQUIRE_UIT();
+
+  // Initialize the global RequestContext. This needs to occur on the UI thread
+  // after the CEF context is initialized because it indirectly accesses the
+  // ProfileManager.
+  global_request_context_->InitializeGlobalContext();
+
+  auto browser_context =
+      global_request_context_->GetBrowserContext()->AsBrowserContext();
+  CefDevToolsManagerDelegate::StartHttpHandler(browser_context);
 }
 
 void AlloyBrowserMainParts::PostMainMessageLoopRun() {

@@ -1,8 +1,8 @@
 diff --git chrome/browser/printing/print_job_worker.cc chrome/browser/printing/print_job_worker.cc
-index d9ae000f13485..ba53cde62f3ac 100644
+index f0d4596f0e953..1d4d659b2d785 100644
 --- chrome/browser/printing/print_job_worker.cc
 +++ chrome/browser/printing/print_job_worker.cc
-@@ -131,6 +131,7 @@ PrintJobWorker::PrintJobWorker(content::GlobalRenderFrameHostId rfh_id)
+@@ -130,6 +130,7 @@ PrintJobWorker::PrintJobWorker(content::GlobalRenderFrameHostId rfh_id)
                                    ShouldPrintingContextSkipSystemCalls())),
        thread_("Printing_Worker") {
    DCHECK_CURRENTLY_ON(content::BrowserThread::UI);

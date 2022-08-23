@@ -81,6 +81,8 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
   content::BackgroundSyncController* GetBackgroundSyncController() override;
   content::BrowsingDataRemoverDelegate* GetBrowsingDataRemoverDelegate()
       override;
+  content::ReduceAcceptLanguageControllerDelegate*
+  GetReduceAcceptLanguageControllerDelegate() override;
   std::string GetMediaDeviceIDSalt() override;
 
   // Profile overrides.

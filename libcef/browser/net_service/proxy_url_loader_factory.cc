@@ -1021,7 +1021,7 @@ void InterceptedRequest::ContinueToResponseStarted(int error_code) {
     if (stream_loader_ && !is_redirect && request_.request_initiator &&
         network::cors::ShouldCheckCors(request_.url, request_.request_initiator,
                                        request_.mode)) {
-      const auto error_status = network::cors::CheckAccess(
+      const auto result = network::cors::CheckAccess(
           request_.url,
           GetHeaderString(
               headers.get(),
@@ -1030,11 +1030,11 @@ void InterceptedRequest::ContinueToResponseStarted(int error_code) {
               headers.get(),
               network::cors::header_names::kAccessControlAllowCredentials),
           request_.credentials_mode, *request_.request_initiator);
-      if (error_status &&
+      if (!result.has_value() &&
           !HasCrossOriginWhitelistEntry(*request_.request_initiator,
                                         url::Origin::Create(request_.url))) {
         SendErrorStatusAndCompleteImmediately(
-            network::URLLoaderCompletionStatus(*error_status));
+            network::URLLoaderCompletionStatus(result.error()));
         return;
       }
     }

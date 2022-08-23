@@ -117,7 +117,7 @@ void ChromeBrowserHostImpl::AddNewContents(
   browser->tab_strip_model()->AddWebContents(
       std::move(contents), /*index=*/TabStripModel::kNoTab,
       ui::PageTransition::PAGE_TRANSITION_AUTO_TOPLEVEL,
-      TabStripModel::ADD_ACTIVE);
+      AddTabTypes::ADD_ACTIVE);
 
   SetBrowser(browser);
 }
@@ -378,7 +378,7 @@ bool ChromeBrowserHostImpl::Navigate(const content::OpenURLParams& params) {
     nav_params.disposition = WindowOpenDisposition::CURRENT_TAB;
     nav_params.source_contents = GetWebContents();
 
-    nav_params.tabstrip_add_types = TabStripModel::ADD_NONE;
+    nav_params.tabstrip_add_types = AddTabTypes::ADD_NONE;
     if (params.user_gesture)
       nav_params.window_action = NavigateParams::SHOW_WINDOW;
     ::Navigate(&nav_params);
@@ -566,8 +566,8 @@ void ChromeBrowserHostImpl::DoCloseBrowser(bool force_close) {
       // TODO(chrome): Handle the case where this method returns false,
       // indicating that the contents were not closed immediately.
       browser_->tab_strip_model()->CloseWebContentsAt(
-          tab_index, TabStripModel::CLOSE_CREATE_HISTORICAL_TAB |
-                         TabStripModel::CLOSE_USER_GESTURE);
+          tab_index, TabCloseTypes::CLOSE_CREATE_HISTORICAL_TAB |
+                         TabCloseTypes::CLOSE_USER_GESTURE);
     }
   }
 }

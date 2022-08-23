@@ -161,7 +161,7 @@ index 35f6735afb66a..40401322681cf 100644
    // A pointer to the current or speculative main frame in `host_contents_`. We
    // can't access this frame through the `host_contents_` directly as it does
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index b060c134279ed..070258e8fbc08 100644
+index 50105246ef3ab..ae05ce09f0f8e 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
 @@ -31,6 +31,7 @@

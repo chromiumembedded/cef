@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
-index 53643797815c1..35adfd8a39668 100644
+index d803bc01655a5..e63babaf2e5c2 100644
 --- chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ chrome/browser/profiles/off_the_record_profile_impl.cc
-@@ -644,7 +644,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
+@@ -650,7 +650,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
  #endif
    if (!profile)
      profile = std::make_unique<OffTheRecordProfileImpl>(parent, otr_profile_id);
@@ -14,7 +14,7 @@ index 53643797815c1..35adfd8a39668 100644
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index 03dbc7190157c..655979345399f 100644
+index 8ab5d6c0417a5..08b93ac6b78d3 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
 @@ -83,6 +83,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
@@ -52,7 +52,7 @@ index 03dbc7190157c..655979345399f 100644
  Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
    return CreateUnique(kDevToolsOTRProfileIDPrefix);
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index ca2561e412621..febd52df6c971 100644
+index d6126b9fe1c1a..c11b74639d715 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
 @@ -98,6 +98,10 @@ class Profile : public content::BrowserContext {
@@ -66,7 +66,7 @@ index ca2561e412621..febd52df6c971 100644
      // Creates a unique OTR profile id to be used for DevTools browser contexts.
      static OTRProfileID CreateUniqueForDevTools();
  
-@@ -480,6 +484,8 @@ class Profile : public content::BrowserContext {
+@@ -482,6 +486,8 @@ class Profile : public content::BrowserContext {
  
    virtual void RecordPrimaryMainFrameNavigation() = 0;
  
@@ -75,7 +75,7 @@ index ca2561e412621..febd52df6c971 100644
   protected:
    // Creates an OffTheRecordProfile which points to this Profile.
    static std::unique_ptr<Profile> CreateOffTheRecordProfile(
-@@ -491,8 +497,6 @@ class Profile : public content::BrowserContext {
+@@ -493,8 +499,6 @@ class Profile : public content::BrowserContext {
    static PrefStore* CreateExtensionPrefStore(Profile*,
                                               bool incognito_pref_store);
  
@@ -85,10 +85,10 @@ index ca2561e412621..febd52df6c971 100644
    virtual bool IsSignedIn() = 0;
  
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index b1a3fc0249f3f..381d15ff852ef 100644
+index c0a48974dacea..f8ecfa11f8681 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
-@@ -1002,7 +1002,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -1006,7 +1006,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  
@@ -100,7 +100,7 @@ index b1a3fc0249f3f..381d15ff852ef 100644
    return raw_otr_profile;
  }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index ad4a05611f40c..51bd4e39c689a 100644
+index eb08e8d2ca4d3..1c0b2a299c92c 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
 @@ -528,7 +528,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)

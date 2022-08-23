@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 9fc667eaa2bcf..00b36b452ccfa 100644
+index 20e49fa40d823..9e18a2b2dc6c0 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -37,6 +37,7 @@ import("//build/nocompile.gni")
@@ -10,7 +10,7 @@ index 9fc667eaa2bcf..00b36b452ccfa 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1923,7 +1924,11 @@ mixed_component("base") {
+@@ -1957,7 +1958,11 @@ mixed_component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index 9fc667eaa2bcf..00b36b452ccfa 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -2076,6 +2081,12 @@ mixed_component("base") {
+@@ -2107,6 +2112,12 @@ mixed_component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -36,6 +36,27 @@ index 9fc667eaa2bcf..00b36b452ccfa 100644
      libs += [
        "cfgmgr32.lib",
        "powrprof.lib",
+diff --git base/allocator/dispatcher/dispatcher.cc base/allocator/dispatcher/dispatcher.cc
+index b6ecb1c5640ea..892c011336706 100644
+--- base/allocator/dispatcher/dispatcher.cc
++++ base/allocator/dispatcher/dispatcher.cc
+@@ -13,6 +13,7 @@
+ #include "base/dcheck_is_on.h"
+ #include "base/no_destructor.h"
+ #include "base/sampling_heap_profiler/poisson_allocation_sampler.h"
++#include "cef/libcef/features/features.h"
+ 
+ #if DCHECK_IS_ON()
+ #include <atomic>
+@@ -260,7 +261,7 @@ struct Dispatcher::Impl {
+   }
+ 
+   void Reset() {
+-#if DCHECK_IS_ON()
++#if DCHECK_IS_ON() && !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
+     DCHECK([&]() {
+       auto const was_set = is_initialized_check_flag_.test();
+       is_initialized_check_flag_.clear();
 diff --git base/hash/md5.h base/hash/md5.h
 index ea6bbd31e3fc8..9941050ac0113 100644
 --- base/hash/md5.h

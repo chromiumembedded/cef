@@ -9,6 +9,29 @@
 
 #include "base/memory/ptr_util.h"
 
+namespace {
+
+// Removes empty dictionaries from |dict|, potentially nested.
+// Does not modify empty lists.
+// From chrome/browser/chromeos/extensions/echo_private/echo_private_api.cc
+void RemoveEmptyValueDicts(base::Value::Dict& dict) {
+  auto it = dict.begin();
+  while (it != dict.end()) {
+    base::Value& value = it->second;
+    if (value.is_dict()) {
+      base::Value::Dict& sub_dict = value.GetDict();
+      RemoveEmptyValueDicts(sub_dict);
+      if (sub_dict.empty()) {
+        it = dict.erase(it);
+        continue;
+      }
+    }
+    it++;
+  }
+}
+
+}  // namespace
+
 // CefValueImpl implementation.
 
 // static
@@ -677,13 +700,9 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValueImpl::Copy(
     bool exclude_empty_children) {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
 
-  base::DictionaryValue* value;
+  base::DictionaryValue* value = const_value().CreateDeepCopy().release();
   if (exclude_empty_children) {
-    value = const_cast<base::DictionaryValue&>(const_value())
-                .DeepCopyWithoutEmptyChildren()
-                .release();
-  } else {
-    value = const_value().CreateDeepCopy().release();
+    RemoveEmptyValueDicts(value->GetDict());
   }
 
   return new CefDictionaryValueImpl(
@@ -1410,7 +1429,7 @@ base::Value* CefListValueImpl::SetInternal(size_t index, base::Value* value) {
   auto list = mutable_value()->GetListDeprecated();
   if (RemoveInternal(index)) {
     CHECK_LE(index, list.size());
-    mutable_value()->Insert(list.begin() + index, std::move(*value));
+    mutable_value()->GetList().Insert(list.begin() + index, std::move(*value));
   } else {
     if (index >= list.size()) {
       // Expand the list size.

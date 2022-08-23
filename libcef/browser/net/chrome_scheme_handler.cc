@@ -488,9 +488,7 @@ class CefURLDataSource : public content::URLDataSource {
     std::move(callback).Run(output_);
   }
 
-  std::string GetMimeType(const std::string& path) override {
-    return mime_type_;
-  }
+  std::string GetMimeType(const GURL& url) override { return mime_type_; }
 
   bool AllowCaching() override { return false; }
 

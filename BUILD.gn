@@ -124,7 +124,7 @@ if (is_linux) {
 if (is_mac) {
   import("//build/apple/tweak_info_plist.gni")
   import("//build/config/mac/rules.gni")
-  import("//build/util/version.gni")
+  import("//chrome/version.gni")
   import("//media/cdm/library_cdm/cdm_paths.gni")
 
   # Template to compile .xib and .storyboard files.

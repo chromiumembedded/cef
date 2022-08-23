@@ -24,8 +24,8 @@ bool CefPrefStore::GetValue(const std::string& key,
   return prefs_.GetValue(key, value);
 }
 
-std::unique_ptr<base::DictionaryValue> CefPrefStore::GetValues() const {
-  return prefs_.AsDictionaryValue();
+base::Value::Dict CefPrefStore::GetValues() const {
+  return prefs_.AsDict();
 }
 
 bool CefPrefStore::GetMutableValue(const std::string& key,

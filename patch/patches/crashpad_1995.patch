@@ -264,10 +264,10 @@ index 2532e99f00b39..c39256296c50d 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crashpad.cc components/crash/core/app/crashpad.cc
-index 34abee33b74b7..1a67519bb305b 100644
+index 8c0ae200194a2..22ceb55182640 100644
 --- components/crash/core/app/crashpad.cc
 +++ components/crash/core/app/crashpad.cc
-@@ -157,7 +157,8 @@ bool InitializeCrashpadImpl(bool initial_client,
+@@ -131,7 +131,8 @@ bool InitializeCrashpadImpl(bool initial_client,
    // fallback. Forwarding is turned off for debug-mode builds even for the
    // browser process, because the system's crash reporter can take a very long
    // time to chew on symbols.
@@ -278,7 +278,7 @@ index 34abee33b74b7..1a67519bb305b 100644
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/core/app/crashpad_linux.cc components/crash/core/app/crashpad_linux.cc
-index 7159bea91a257..090dfcfa0d45a 100644
+index a80a792f1cb2c..e9676d786a0f5 100644
 --- components/crash/core/app/crashpad_linux.cc
 +++ components/crash/core/app/crashpad_linux.cc
 @@ -23,6 +23,7 @@
@@ -454,7 +454,7 @@ index dc041c43371fd..1d060ae55c586 100644
            handler_path, *database_path, metrics_path, url,
            GetProcessSimpleAnnotations(), arguments, true, false);
 diff --git components/crash/core/app/crashpad_win.cc components/crash/core/app/crashpad_win.cc
-index ad401a7711cef..0b10f904549bb 100644
+index ae8801a7fc877..361817cbf506d 100644
 --- components/crash/core/app/crashpad_win.cc
 +++ components/crash/core/app/crashpad_win.cc
 @@ -36,8 +36,8 @@ void GetPlatformCrashpadAnnotations(

@@ -97,7 +97,6 @@
 #include "third_party/blink/public/web/web_script_controller.h"
 #include "third_party/blink/public/web/web_security_policy.h"
 #include "third_party/blink/public/web/web_view.h"
-#include "third_party/blink/renderer/platform/runtime_enabled_features.h"
 #include "ui/base/l10n/l10n_util.h"
 
 #if BUILDFLAG(IS_MAC)
@@ -171,7 +170,6 @@ void AlloyContentRendererClient::PostIOThreadCreated(
   // TODO(cef): Enable these once the implementation supports it.
   blink::WebRuntimeFeatures::EnableNotifications(false);
   blink::WebRuntimeFeatures::EnablePushMessaging(false);
-  blink::RuntimeEnabledFeatures::SetBadgingEnabled(false);
 }
 
 void AlloyContentRendererClient::RenderThreadStarted() {
@@ -273,10 +271,11 @@ void AlloyContentRendererClient::RenderFrameCreated(
     extensions_renderer_client_->RenderFrameCreated(
         render_frame, render_frame_observer->registry());
 
-    render_frame_observer->associated_interfaces()->AddInterface(
-        base::BindRepeating(
-            &extensions::MimeHandlerViewContainerManager::BindReceiver,
-            render_frame->GetRoutingID()));
+    render_frame_observer->associated_interfaces()
+        ->AddInterface<extensions::mojom::MimeHandlerViewContainerManager>(
+            base::BindRepeating(
+                &extensions::MimeHandlerViewContainerManager::BindReceiver,
+                render_frame->GetRoutingID()));
   }
 
   const base::CommandLine* command_line =

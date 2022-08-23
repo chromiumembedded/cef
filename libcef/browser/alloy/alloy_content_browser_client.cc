@@ -65,6 +65,7 @@
 #include "chrome/browser/plugins/plugin_info_host_impl.h"
 #include "chrome/browser/plugins/plugin_response_interceptor_url_loader_throttle.h"
 #include "chrome/browser/plugins/plugin_utils.h"
+#include "chrome/browser/predictors/network_hints_handler_impl.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/profiles/renderer_updater.h"
 #include "chrome/browser/profiles/renderer_updater_factory.h"
@@ -380,6 +381,12 @@ void BindMediaFoundationRendererNotifierHandler(
     content::RenderFrameHost* frame_host,
     mojo::PendingReceiver<media::mojom::MediaFoundationRendererNotifier>
         receiver) {}
+
+void BindNetworkHintsHandler(
+    content::RenderFrameHost* frame_host,
+    mojo::PendingReceiver<network_hints::mojom::NetworkHintsHandler> receiver) {
+  predictors::NetworkHintsHandlerImpl::Create(frame_host, std::move(receiver));
+}
 
 base::FilePath GetRootCachePath() {
   // The CefContext::ValidateCachePath method enforces the requirement that all
@@ -924,25 +931,27 @@ void AlloyContentBrowserClient::
     RegisterAssociatedInterfaceBindersForRenderFrameHost(
         content::RenderFrameHost& render_frame_host,
         blink::AssociatedInterfaceRegistry& associated_registry) {
-  associated_registry.AddInterface(base::BindRepeating(
-      [](content::RenderFrameHost* render_frame_host,
-         mojo::PendingAssociatedReceiver<extensions::mojom::LocalFrameHost>
-             receiver) {
-        extensions::ExtensionWebContentsObserver::BindLocalFrameHost(
-            std::move(receiver), render_frame_host);
-      },
-      &render_frame_host));
+  associated_registry.AddInterface<extensions::mojom::LocalFrameHost>(
+      base::BindRepeating(
+          [](content::RenderFrameHost* render_frame_host,
+             mojo::PendingAssociatedReceiver<extensions::mojom::LocalFrameHost>
+                 receiver) {
+            extensions::ExtensionWebContentsObserver::BindLocalFrameHost(
+                std::move(receiver), render_frame_host);
+          },
+          &render_frame_host));
 
-  associated_registry.AddInterface(base::BindRepeating(
-      [](content::RenderFrameHost* render_frame_host,
-         mojo::PendingAssociatedReceiver<printing::mojom::PrintManagerHost>
-             receiver) {
-        printing::CefPrintViewManager::BindPrintManagerHost(std::move(receiver),
-                                                            render_frame_host);
-      },
-      &render_frame_host));
+  associated_registry.AddInterface<printing::mojom::PrintManagerHost>(
+      base::BindRepeating(
+          [](content::RenderFrameHost* render_frame_host,
+             mojo::PendingAssociatedReceiver<printing::mojom::PrintManagerHost>
+                 receiver) {
+            printing::CefPrintViewManager::BindPrintManagerHost(
+                std::move(receiver), render_frame_host);
+          },
+          &render_frame_host));
 
-  associated_registry.AddInterface(base::BindRepeating(
+  associated_registry.AddInterface<pdf::mojom::PdfService>(base::BindRepeating(
       [](content::RenderFrameHost* render_frame_host,
          mojo::PendingAssociatedReceiver<pdf::mojom::PdfService> receiver) {
         pdf::PDFWebContentsHelper::BindPdfService(std::move(receiver),
@@ -1034,16 +1043,21 @@ void AlloyContentBrowserClient::ExposeInterfacesToRenderer(
     service_manager::BinderRegistry* registry,
     blink::AssociatedInterfaceRegistry* associated_registry,
     content::RenderProcessHost* host) {
-  associated_registry->AddInterface(
+  associated_registry->AddInterface<chrome::mojom::PluginInfoHost>(
       base::BindRepeating(&BindPluginInfoHost, host->GetID()));
 
   if (extensions::ExtensionsEnabled()) {
-    associated_registry->AddInterface(base::BindRepeating(
-        &extensions::EventRouter::BindForRenderer, host->GetID()));
-    associated_registry->AddInterface(base::BindRepeating(
-        &extensions::ExtensionsGuestView::CreateForComponents, host->GetID()));
-    associated_registry->AddInterface(base::BindRepeating(
-        &extensions::ExtensionsGuestView::CreateForExtensions, host->GetID()));
+    associated_registry->AddInterface<extensions::mojom::EventRouter>(
+        base::BindRepeating(&extensions::EventRouter::BindForRenderer,
+                            host->GetID()));
+    associated_registry->AddInterface<guest_view::mojom::GuestViewHost>(
+        base::BindRepeating(
+            &extensions::ExtensionsGuestView::CreateForComponents,
+            host->GetID()));
+    associated_registry->AddInterface<extensions::mojom::GuestView>(
+        base::BindRepeating(
+            &extensions::ExtensionsGuestView::CreateForExtensions,
+            host->GetID()));
   }
 
   CefBrowserManager::ExposeInterfacesToRenderer(registry, associated_registry,
@@ -1319,6 +1333,8 @@ void AlloyContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
 
   map->Add<media::mojom::MediaFoundationRendererNotifier>(
       base::BindRepeating(&BindMediaFoundationRendererNotifierHandler));
+  map->Add<network_hints::mojom::NetworkHintsHandler>(
+      base::BindRepeating(&BindNetworkHintsHandler));
 
   if (!extensions::ExtensionsEnabled())
     return;
@@ -1409,7 +1425,9 @@ bool AlloyContentBrowserClient::ArePersistentMediaDeviceIDsAllowed(
   // Persistent MediaDevice IDs are allowed if cookies are allowed.
   return CookieSettingsFactory::GetForProfile(
              Profile::FromBrowserContext(browser_context))
-      ->IsFullCookieAccessAllowed(url, site_for_cookies, top_frame_origin);
+      ->IsFullCookieAccessAllowed(
+          url, site_for_cookies, top_frame_origin,
+          content_settings::CookieSettings::QueryReason::kSiteStorage);
 }
 
 void AlloyContentBrowserClient::OnWebContentsCreated(
@@ -1429,6 +1447,10 @@ bool AlloyContentBrowserClient::IsFindInPageDisabledForOrigin(
   // For PDF viewing with the PPAPI-free PDF Viewer, find-in-page should only
   // display results from the PDF content, and not from the UI.
   return IsPdfExtensionOrigin(origin);
+}
+
+void AlloyContentBrowserClient::OnContextInitialized() {
+  browser_main_parts_->OnContextInitialized();
 }
 
 CefRefPtr<CefRequestContextImpl> AlloyContentBrowserClient::request_context()

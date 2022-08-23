@@ -37,9 +37,10 @@ AlloyRenderThreadObserver::GetDynamicParams() {
 
 void AlloyRenderThreadObserver::RegisterMojoInterfaces(
     blink::AssociatedInterfaceRegistry* associated_interfaces) {
-  associated_interfaces->AddInterface(base::BindRepeating(
-      &AlloyRenderThreadObserver::OnRendererConfigurationAssociatedRequest,
-      base::Unretained(this)));
+  associated_interfaces->AddInterface<chrome::mojom::RendererConfiguration>(
+      base::BindRepeating(
+          &AlloyRenderThreadObserver::OnRendererConfigurationAssociatedRequest,
+          base::Unretained(this)));
 }
 
 void AlloyRenderThreadObserver::UnregisterMojoInterfaces(

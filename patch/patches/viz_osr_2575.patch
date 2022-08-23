@@ -80,10 +80,10 @@ index 309422bcf8581..759549f3046f4 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 267af5f85d403..e7df56733515d 100644
+index e3056ad83f954..86fd5da510694 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -217,6 +217,8 @@ viz_component("service") {
+@@ -219,6 +219,8 @@ viz_component("service") {
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
      "viz_service_export.h",
@@ -93,7 +93,7 @@ index 267af5f85d403..e7df56733515d 100644
  
    defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index c019d729f2944..57670529f3d7e 100644
+index d6ffe3a759fbd..e1831e9b77a3a 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
 @@ -17,6 +17,7 @@
@@ -105,9 +105,9 @@ index c019d729f2944..57670529f3d7e 100644
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
  #include "components/viz/service/display/display_compositor_memory_and_task_controller.h"
 @@ -29,6 +30,7 @@
+ #include "gpu/command_buffer/service/scheduler_sequence.h"
  #include "gpu/config/gpu_finch_features.h"
  #include "gpu/ipc/common/surface_handle.h"
- #include "gpu/ipc/scheduler_sequence.h"
 +#include "mojo/public/cpp/bindings/sync_call_restrictions.h"
  #include "ui/base/ui_base_switches.h"
  
@@ -150,7 +150,7 @@ index 583e3e2525c75..e1836039ad8a5 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 0e3af0f9280ab..8a1e93995b316 100644
+index 4a9cf8ff4a94e..b8879ee146543 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
 @@ -381,8 +381,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(

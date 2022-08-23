@@ -20,11 +20,14 @@
 #include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/strings/string_util.h"
+#include "base/threading/thread_restrictions.h"
 #include "chrome/browser/font_family_cache.h"
 #include "chrome/browser/media/media_device_id_salt.h"
 #include "chrome/browser/permissions/permission_manager_factory.h"
 #include "chrome/browser/plugins/chrome_plugin_service_filter.h"
 #include "chrome/browser/profiles/profile_key.h"
+#include "chrome/browser/reduce_accept_language/reduce_accept_language_factory.h"
+#include "chrome/browser/transition_manager/full_browser_transition_manager.h"
 #include "chrome/browser/ui/zoom/chrome_zoom_level_prefs.h"
 #include "chrome/common/pref_names.h"
 #include "components/guest_view/browser/guest_view_manager.h"
@@ -138,11 +141,17 @@ void AlloyBrowserContext::Initialize() {
   pref_service_ = browser_prefs::CreatePrefService(
       this, cache_path_, !!settings_.persist_user_preferences);
 
-  // This must be called before creating any services to avoid hitting
-  // DependencyManager::AssertContextWasntDestroyed when creating/destroying
-  // multiple browser contexts (due to pointer address reuse).
-  BrowserContextDependencyManager::GetInstance()->CreateBrowserContextServices(
-      this);
+  FullBrowserTransitionManager::Get()->OnProfileCreated(this);
+
+  {
+    base::ScopedAllowBlockingForTesting allow_blocking;
+
+    // This must be called before creating any services to avoid hitting
+    // DependencyManager::AssertContextWasntDestroyed when creating/destroying
+    // multiple browser contexts (due to pointer address reuse).
+    BrowserContextDependencyManager::GetInstance()
+        ->CreateBrowserContextServices(this);
+  }
 
   const bool extensions_enabled = extensions::ExtensionsEnabled();
   if (extensions_enabled) {
@@ -185,6 +194,9 @@ void AlloyBrowserContext::Initialize() {
 
   ChromePluginServiceFilter::GetInstance()->RegisterProfile(this);
 
+  auto* db_provider = GetDefaultStoragePartition()->GetProtoDatabaseProvider();
+  key_->SetProtoDatabaseProvider(db_provider);
+
   media_device_id_salt_ = new MediaDeviceIDSalt(pref_service);
 }
 
@@ -195,6 +207,7 @@ void AlloyBrowserContext::Shutdown() {
   MaybeSendDestroyedNotification();
 
   ChromePluginServiceFilter::GetInstance()->UnregisterProfile(this);
+  FullBrowserTransitionManager::Get()->OnProfileDestroyed(this);
 
   // Remove any BrowserContextKeyedServiceFactory associations. This must be
   // called before the ProxyService owned by AlloyBrowserContext is destroyed.
@@ -398,6 +411,11 @@ AlloyBrowserContext::GetBackgroundSyncController() {
 content::BrowsingDataRemoverDelegate*
 AlloyBrowserContext::GetBrowsingDataRemoverDelegate() {
   return nullptr;
+}
+
+content::ReduceAcceptLanguageControllerDelegate*
+AlloyBrowserContext::GetReduceAcceptLanguageControllerDelegate() {
+  return ReduceAcceptLanguageFactory::GetForProfile(this);
 }
 
 std::string AlloyBrowserContext::GetMediaDeviceIDSalt() {

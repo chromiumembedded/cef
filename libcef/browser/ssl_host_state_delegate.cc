@@ -57,22 +57,23 @@ bool CefSSLHostStateDelegate::DidHostRunInsecureContent(
 
 void CefSSLHostStateDelegate::AllowHttpForHost(
     const std::string& host,
-    content::WebContents* web_content) {
+    content::StoragePartition* storage_partition) {
   // Intentional no-op.
 }
 
 bool CefSSLHostStateDelegate::IsHttpAllowedForHost(
     const std::string& host,
-    content::WebContents* web_content) {
+    content::StoragePartition* storage_partition) {
   // Intentional no-op. Return value does not matter as HTTPS-Only Mode is not
   // enabled.
   return false;
 }
 
-void CefSSLHostStateDelegate::AllowCert(const std::string& host,
-                                        const net::X509Certificate& cert,
-                                        int error,
-                                        content::WebContents* web_contents) {
+void CefSSLHostStateDelegate::AllowCert(
+    const std::string& host,
+    const net::X509Certificate& cert,
+    int error,
+    content::StoragePartition* storage_partition) {
   cert_policy_for_host_[host].Allow(cert, error);
 }
 
@@ -98,7 +99,7 @@ SSLHostStateDelegate::CertJudgment CefSSLHostStateDelegate::QueryPolicy(
     const std::string& host,
     const net::X509Certificate& cert,
     int error,
-    content::WebContents* web_contents) {
+    content::StoragePartition* storage_partition) {
   return cert_policy_for_host_[host].Check(cert, error)
              ? SSLHostStateDelegate::ALLOWED
              : SSLHostStateDelegate::DENIED;
@@ -111,7 +112,7 @@ void CefSSLHostStateDelegate::RevokeUserAllowExceptions(
 
 bool CefSSLHostStateDelegate::HasAllowException(
     const std::string& host,
-    content::WebContents* web_contents) {
+    content::StoragePartition* storage_partition) {
   auto policy_iterator = cert_policy_for_host_.find(host);
   return policy_iterator != cert_policy_for_host_.end() &&
          policy_iterator->second.HasAllowException();

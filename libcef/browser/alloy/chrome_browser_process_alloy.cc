@@ -17,6 +17,7 @@
 
 #include "base/command_line.h"
 #include "chrome/browser/component_updater/chrome_component_updater_configurator.h"
+#include "chrome/browser/metrics/chrome_metrics_services_manager_client.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/permissions/chrome_permissions_client.h"
 #include "chrome/browser/policy/chrome_browser_policy_connector.h"
@@ -26,9 +27,12 @@
 #include "chrome/browser/ui/prefs/pref_watcher.h"
 #include "components/component_updater/component_updater_service.h"
 #include "components/component_updater/timer_update_scheduler.h"
+#include "components/metrics_services_manager/metrics_services_manager.h"
+#include "components/metrics_services_manager/metrics_services_manager_client.h"
 #include "components/net_log/chrome_net_log.h"
 #include "components/prefs/pref_service.h"
 #include "content/browser/startup_helper.h"
+#include "content/public/browser/network_service_instance.h"
 #include "content/public/common/content_switches.h"
 #include "net/log/net_log_capture_mode.h"
 #include "services/network/public/cpp/network_switches.h"
@@ -100,6 +104,8 @@ void ChromeBrowserProcessAlloy::CleanupOnUIThread() {
   print_job_manager_.reset(nullptr);
   print_preview_dialog_controller_ = nullptr;
 
+  metrics_services_manager_.reset();
+
   profile_manager_.reset();
   event_router_forwarder_ = nullptr;
 
@@ -124,6 +130,7 @@ void ChromeBrowserProcessAlloy::CleanupOnUIThread() {
   }
 
   local_state_.reset();
+  network_quality_tracker_.reset();
   browser_policy_connector_.reset();
   background_printing_manager_.reset();
   field_trial_list_.reset();
@@ -143,13 +150,19 @@ void ChromeBrowserProcessAlloy::FlushLocalStateAndReply(
 
 metrics_services_manager::MetricsServicesManager*
 ChromeBrowserProcessAlloy::GetMetricsServicesManager() {
-  NOTREACHED();
-  return nullptr;
+  if (!metrics_services_manager_) {
+    auto client =
+        std::make_unique<ChromeMetricsServicesManagerClient>(local_state());
+    metrics_services_manager_client_ = client.get();
+    metrics_services_manager_ =
+        std::make_unique<metrics_services_manager::MetricsServicesManager>(
+            std::move(client));
+  }
+  return metrics_services_manager_.get();
 }
 
 metrics::MetricsService* ChromeBrowserProcessAlloy::metrics_service() {
-  NOTREACHED();
-  return nullptr;
+  return GetMetricsServicesManager()->GetMetricsService();
 }
 
 SystemNetworkContextManager*
@@ -160,8 +173,11 @@ ChromeBrowserProcessAlloy::system_network_context_manager() {
 
 network::NetworkQualityTracker*
 ChromeBrowserProcessAlloy::network_quality_tracker() {
-  NOTREACHED();
-  return nullptr;
+  if (!network_quality_tracker_) {
+    network_quality_tracker_ = std::make_unique<network::NetworkQualityTracker>(
+        base::BindRepeating(&content::GetNetworkService));
+  }
+  return network_quality_tracker_.get();
 }
 
 ProfileManager* ChromeBrowserProcessAlloy::profile_manager() {

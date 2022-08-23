@@ -30,6 +30,7 @@ SimpleFeature* CreateFeature() {
 
 CefExtensionsClient::CefExtensionsClient()
     : webstore_base_url_(extension_urls::kChromeWebstoreBaseURL),
+      new_webstore_base_url_(extension_urls::kNewChromeWebstoreBaseURL),
       webstore_update_url_(extension_urls::kChromeWebstoreUpdateURL) {
   AddAPIProvider(std::make_unique<CoreExtensionsAPIProvider>());
   AddAPIProvider(std::make_unique<CefExtensionsAPIProvider>());
@@ -82,6 +83,10 @@ bool CefExtensionsClient::IsScriptableURL(const GURL& url,
 
 const GURL& CefExtensionsClient::GetWebstoreBaseURL() const {
   return webstore_base_url_;
+}
+
+const GURL& CefExtensionsClient::GetNewWebstoreBaseURL() const {
+  return new_webstore_base_url_;
 }
 
 const GURL& CefExtensionsClient::GetWebstoreUpdateURL() const {

@@ -1,8 +1,8 @@
 diff --git content/app/content_main.cc content/app/content_main.cc
-index b54d534b4d408..3c3bd4a62a799 100644
+index 34cbeddf6cabd..b62ce8cf3dd9a 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
-@@ -227,11 +227,8 @@ ContentMainParams::~ContentMainParams() = default;
+@@ -252,11 +252,8 @@ ContentMainParams::~ContentMainParams() = default;
  ContentMainParams::ContentMainParams(ContentMainParams&&) = default;
  ContentMainParams& ContentMainParams::operator=(ContentMainParams&&) = default;
  
@@ -16,7 +16,7 @@ index b54d534b4d408..3c3bd4a62a799 100644
  #if BUILDFLAG(IS_CHROMEOS_LACROS)
    // Lacros is launched with inherited priority. Revert to normal priority
    // before spawning more processes.
-@@ -239,9 +236,6 @@ RunContentProcess(ContentMainParams params,
+@@ -264,9 +261,6 @@ RunContentProcess(ContentMainParams params,
  #endif
    int exit_code = -1;
    base::debug::GlobalActivityTracker* tracker = nullptr;
@@ -26,7 +26,7 @@ index b54d534b4d408..3c3bd4a62a799 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -325,12 +319,6 @@ RunContentProcess(ContentMainParams params,
+@@ -352,12 +346,6 @@ RunContentProcess(ContentMainParams params,
  #endif
  
  #if BUILDFLAG(IS_MAC)
@@ -39,7 +39,7 @@ index b54d534b4d408..3c3bd4a62a799 100644
      InitializeMac();
  #endif
  
-@@ -403,8 +391,18 @@ RunContentProcess(ContentMainParams params,
+@@ -430,8 +418,18 @@ RunContentProcess(ContentMainParams params,
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -59,7 +59,7 @@ index b54d534b4d408..3c3bd4a62a799 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -416,14 +414,41 @@ RunContentProcess(ContentMainParams params,
+@@ -443,14 +441,41 @@ RunContentProcess(ContentMainParams params,
      }
    }
  
@@ -105,7 +105,7 @@ index b54d534b4d408..3c3bd4a62a799 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index ed19f7f1a283d..9c2deb8d0ff66 100644
+index fb4af331fb38b..591768d2297c2 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -42,6 +42,7 @@
@@ -116,7 +116,7 @@ index ed19f7f1a283d..9c2deb8d0ff66 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1227,6 +1228,12 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1237,6 +1238,12 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  

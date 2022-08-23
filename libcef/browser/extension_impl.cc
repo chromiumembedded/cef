@@ -15,10 +15,10 @@ CefExtensionImpl::CefExtensionImpl(const extensions::Extension* extension,
                                    CefRefPtr<CefExtensionHandler> handler)
     : id_(extension->id()),
       path_(extension->path().value()),
-      manifest_(
-          new CefDictionaryValueImpl(extension->manifest()->value()->DeepCopy(),
-                                     true,
-                                     true)),
+      manifest_(new CefDictionaryValueImpl(
+          extension->manifest()->value()->CreateDeepCopy().release(),
+          true,
+          true)),
       loader_context_(loader_context),
       handler_(handler) {}
 

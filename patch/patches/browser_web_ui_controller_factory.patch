@@ -13,7 +13,7 @@ index eb068fb9bb42c..4e8e6a1a7abf4 100644
  };
  
 diff --git content/public/browser/webui_config_map.h content/public/browser/webui_config_map.h
-index af6c1a5845697..ac003cce0f40c 100644
+index 51eb1f14fd684..31ceb131d0290 100644
 --- content/public/browser/webui_config_map.h
 +++ content/public/browser/webui_config_map.h
 @@ -60,6 +60,10 @@ class CONTENT_EXPORT WebUIConfigMap {

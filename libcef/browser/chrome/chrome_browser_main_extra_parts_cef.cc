@@ -27,6 +27,7 @@ void ChromeBrowserMainExtraPartsCef::PostProfileInit(Profile* profile,
   // Create the global RequestContext.
   global_request_context_ =
       CefRequestContextImpl::CreateGlobalRequestContext(settings);
+  global_request_context_->InitializeGlobalContext();
 }
 
 void ChromeBrowserMainExtraPartsCef::PreMainMessageLoopRun() {

@@ -38,6 +38,7 @@ class CefExtensionsClient : public ExtensionsClient {
       const APIPermissionSet& api_permissions) const override;
   bool IsScriptableURL(const GURL& url, std::string* error) const override;
   const GURL& GetWebstoreBaseURL() const override;
+  const GURL& GetNewWebstoreBaseURL() const override;
   const GURL& GetWebstoreUpdateURL() const override;
   bool IsBlocklistUpdateURL(const GURL& url) const override;
 
@@ -48,6 +49,7 @@ class CefExtensionsClient : public ExtensionsClient {
 
   // Mutable to allow caching in a const method.
   const GURL webstore_base_url_;
+  const GURL new_webstore_base_url_;
   const GURL webstore_update_url_;
 };
 

@@ -1,10 +1,10 @@
 diff --git .gn .gn
-index 7d538f812d72e..9eec79395aeec 100644
+index 7b9768eb315ef..8c3ab141a18c6 100644
 --- .gn
 +++ .gn
 @@ -155,6 +155,8 @@ exec_script_whitelist =
- 
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
+       "//chrome/version.gni",
  
 +      "//cef/BUILD.gn",
 +
@@ -12,7 +12,7 @@ index 7d538f812d72e..9eec79395aeec 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 4efccb3390c72..dd3a250ac89e5 100644
+index 645819d78ca85..940c712bf2d99 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -17,6 +17,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -23,7 +23,7 @@ index 4efccb3390c72..dd3a250ac89e5 100644
  import("//chrome/browser/buildflags.gni")
  import("//components/nacl/features.gni")
  import("//device/vr/buildflags/buildflags.gni")
-@@ -110,6 +111,10 @@ group("gn_all") {
+@@ -108,6 +109,10 @@ group("gn_all") {
      deps += [ "//third_party/abseil-cpp:absl_tests" ]
    }
  
@@ -80,7 +80,7 @@ index 839144aa1e9bd..29c8ab32398a7 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 5691ef5e9c7e5..cb3ebcf03151c 100644
+index 2965af4b19f95..a3cf3e251b209 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
@@ -91,7 +91,7 @@ index 5691ef5e9c7e5..cb3ebcf03151c 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//extensions/buildflags/buildflags.gni")
-@@ -74,6 +75,10 @@ template("chrome_repack_percent") {
+@@ -72,6 +73,10 @@ template("chrome_repack_percent") {
          "//ui/chromeos/resources",
        ]
      }
@@ -126,7 +126,7 @@ index 936a5422f92fa..5743f4a03aa4f 100644
        source_patterns +=
            [ "${root_gen_dir}/extensions/strings/extensions_strings_" ]
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index d7ac881770b38..e25708701148a 100644
+index 7edb8b094375d..01dc67ab1c26f 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -6,6 +6,7 @@ import("//build/config/compiler/compiler.gni")
@@ -153,7 +153,7 @@ index d7ac881770b38..e25708701148a 100644
    outputs = [
      # See also chrome.packed.7z conditionally added below.
 diff --git tools/grit/grit_args.gni tools/grit/grit_args.gni
-index 92be15a41a034..c3efefc25c36d 100644
+index 18792c9891b19..6388cc57c578b 100644
 --- tools/grit/grit_args.gni
 +++ tools/grit/grit_args.gni
 @@ -5,6 +5,7 @@

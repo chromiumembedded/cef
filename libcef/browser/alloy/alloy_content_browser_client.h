@@ -248,6 +248,8 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
   void OnWebContentsCreated(content::WebContents* web_contents) override;
   bool IsFindInPageDisabledForOrigin(const url::Origin& origin) override;
 
+  void OnContextInitialized();
+
   CefRefPtr<CefRequestContextImpl> request_context() const;
   CefDevToolsDelegate* devtools_delegate() const;
 

@@ -5,8 +5,10 @@
 
 #include "libcef/common/alloy/alloy_main_runner_delegate.h"
 
+#include "libcef/browser/alloy/alloy_content_browser_client.h"
 #include "libcef/browser/alloy/chrome_browser_process_alloy.h"
 #include "libcef/common/alloy/alloy_main_delegate.h"
+#include "libcef/common/app_manager.h"
 #include "libcef/renderer/alloy/alloy_content_renderer_client.h"
 
 #include "content/public/browser/render_process_host.h"
@@ -38,6 +40,10 @@ void AlloyMainRunnerDelegate::BeforeMainThreadRun() {
 
 void AlloyMainRunnerDelegate::AfterUIThreadInitialize() {
   static_cast<ChromeBrowserProcessAlloy*>(g_browser_process)
+      ->OnContextInitialized();
+
+  static_cast<AlloyContentBrowserClient*>(
+      CefAppManager::Get()->GetContentClient()->browser())
       ->OnContextInitialized();
 }
 

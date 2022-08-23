@@ -1,5 +1,5 @@
 diff --git ui/base/resource/resource_bundle.cc ui/base/resource/resource_bundle.cc
-index 2222f4adfbe86..3d93ad0e45608 100644
+index 44d03908480cc..1bed9d91076d7 100644
 --- ui/base/resource/resource_bundle.cc
 +++ ui/base/resource/resource_bundle.cc
 @@ -908,6 +908,12 @@ ResourceBundle::ResourceBundle(Delegate* delegate)

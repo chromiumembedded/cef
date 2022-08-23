@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index 17f203b11ce39..0a5277b686d61 100644
+index c046e7f8ba347..e7b627c573e48 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
 @@ -25,7 +25,7 @@ struct DropData;
@@ -12,7 +12,7 @@ index 17f203b11ce39..0a5277b686d61 100644
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 55a78179723f1..2f5e3dbe810be 100644
+index 75a2534e3be71..4ae51c0f7d5cf 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 @@ -225,6 +225,8 @@ void MimeHandlerViewGuest::CreateWebContents(
@@ -35,8 +35,8 @@ index 55a78179723f1..2f5e3dbe810be 100644
    DCHECK(stream_->handler_url().SchemeIs(extensions::kExtensionScheme));
    web_contents()->GetController().LoadURL(
        stream_->handler_url(), content::Referrer(),
-@@ -265,6 +271,11 @@ bool MimeHandlerViewGuest::ShouldDestroyOnDetach() const {
-   return true;
+@@ -261,6 +267,11 @@ bool MimeHandlerViewGuest::ZoomPropagatesFromEmbedderToGuest() const {
+   return false;
  }
  
 +void MimeHandlerViewGuest::WillDestroy() {
@@ -48,18 +48,18 @@ index 55a78179723f1..2f5e3dbe810be 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index af1cf98c17916..7655fedab36ea 100644
+index 26dc86a7534d9..7fd27ebf28dd2 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-@@ -143,6 +143,7 @@ class MimeHandlerViewGuest
+@@ -142,6 +142,7 @@ class MimeHandlerViewGuest
+   void DidInitialize(const base::Value::Dict& create_params) final;
    void EmbedderFullscreenToggled(bool entered_fullscreen) final;
    bool ZoomPropagatesFromEmbedderToGuest() const final;
-   bool ShouldDestroyOnDetach() const final;
 +  void WillDestroy() override;
  
    // WebContentsDelegate implementation.
    content::WebContents* OpenURLFromTab(
-@@ -200,6 +201,7 @@ class MimeHandlerViewGuest
+@@ -199,6 +200,7 @@ class MimeHandlerViewGuest
        content::ChildProcessHost::kInvalidUniqueID, MSG_ROUTING_NONE};
    int embedder_widget_routing_id_ = MSG_ROUTING_NONE;
  

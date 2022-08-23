@@ -54,14 +54,14 @@ class CefSSLHostStateDelegate : public content::SSLHostStateDelegate {
   void AllowCert(const std::string& host,
                  const net::X509Certificate& cert,
                  int error,
-                 content::WebContents* web_contents) override;
+                 content::StoragePartition* storage_partition) override;
   void Clear(const base::RepeatingCallback<bool(const std::string&)>
                  host_filter) override;
   content::SSLHostStateDelegate::CertJudgment QueryPolicy(
       const std::string& host,
       const net::X509Certificate& cert,
       int error,
-      content::WebContents* web_contents) override;
+      content::StoragePartition* storage_partition) override;
   void HostRanInsecureContent(const std::string& host,
                               int child_id,
                               InsecureContentType content_type) override;
@@ -69,12 +69,13 @@ class CefSSLHostStateDelegate : public content::SSLHostStateDelegate {
                                  int child_id,
                                  InsecureContentType content_type) override;
   void AllowHttpForHost(const std::string& host,
-                        content::WebContents* web_content) override;
-  bool IsHttpAllowedForHost(const std::string& host,
-                            content::WebContents* web_content) override;
+                        content::StoragePartition* storage_partition) override;
+  bool IsHttpAllowedForHost(
+      const std::string& host,
+      content::StoragePartition* storage_partition) override;
   void RevokeUserAllowExceptions(const std::string& host) override;
   bool HasAllowException(const std::string& host,
-                         content::WebContents* web_contents) override;
+                         content::StoragePartition* storage_partition) override;
 
  private:
   // Certificate policies for each host.

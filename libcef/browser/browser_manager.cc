@@ -23,7 +23,7 @@ void CefBrowserManager::ExposeInterfacesToRenderer(
     service_manager::BinderRegistry* registry,
     blink::AssociatedInterfaceRegistry* associated_registry,
     content::RenderProcessHost* host) {
-  registry->AddInterface(base::BindRepeating(
+  registry->AddInterface<cef::mojom::BrowserManager>(base::BindRepeating(
       [](int render_process_id,
          mojo::PendingReceiver<cef::mojom::BrowserManager> receiver) {
         mojo::MakeSelfOwnedReceiver(

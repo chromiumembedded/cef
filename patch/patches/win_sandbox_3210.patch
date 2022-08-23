@@ -1,8 +1,8 @@
 diff --git sandbox/policy/win/sandbox_win.cc sandbox/policy/win/sandbox_win.cc
-index 7246e7e12247f..735876a13ce06 100644
+index 89653c1cef50e..a06a04fb4169b 100644
 --- sandbox/policy/win/sandbox_win.cc
 +++ sandbox/policy/win/sandbox_win.cc
-@@ -1127,6 +1127,13 @@ ResultCode SandboxWin::StartSandboxedProcess(
+@@ -1137,6 +1137,13 @@ ResultCode SandboxWin::StartSandboxedProcess(
      const base::HandlesToInheritVector& handles_to_inherit,
      SandboxDelegate* delegate,
      base::Process* process) {
@@ -14,5 +14,5 @@ index 7246e7e12247f..735876a13ce06 100644
 +  }
 +
    const base::ElapsedTimer timer;
-   auto policy = g_broker_services->CreatePolicy();
-   auto time_policy_created = timer.Elapsed();
+ 
+   // Avoid making a policy if we won't use it.
