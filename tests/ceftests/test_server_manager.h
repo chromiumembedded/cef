@@ -68,7 +68,7 @@ class Manager : public Runner::Delegate {
   void StopImpl(DoneCallback callback);
 
   void AddObserver(Observer* observer);
-  void RemoveObserver(Observer* observer);
+  void RemoveObserver(Observer* observer, DoneCallback callback);
 
   // Runner::Delegate methods:
   void OnServerCreated(const std::string& server_origin) override;

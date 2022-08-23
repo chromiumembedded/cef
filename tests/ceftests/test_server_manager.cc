@@ -29,8 +29,10 @@ class ObserverRegistration : public CefRegistration {
     CEF_REQUIRE_UI_THREAD();
 
     if (auto manager = Manager::GetInstance(https_server_)) {
-      manager->RemoveObserver(observer_);
-      observer_->OnUnregistered();
+      manager->RemoveObserver(
+          observer_,
+          base::BindOnce([](Observer* observer) { observer->OnUnregistered(); },
+                         base::Unretained(observer_)));
     }
   }
 
@@ -210,7 +212,7 @@ void Manager::AddObserver(Observer* observer) {
   observer_list_.push_back(observer);
 }
 
-void Manager::RemoveObserver(Observer* observer) {
+void Manager::RemoveObserver(Observer* observer, DoneCallback callback) {
   CEF_REQUIRE_UI_THREAD();
   bool found = false;
   ObserverList::iterator it = observer_list_.begin();
@@ -222,6 +224,15 @@ void Manager::RemoveObserver(Observer* observer) {
     }
   }
   EXPECT_TRUE(found);
+
+  if (observer_list_.empty() && https_server_ && !stopping_) {
+    // Stop the HTTPS server when the last Observer is removed. We can't
+    // currently reuse the HTTPS server between tests due to
+    // https://crrev.com/dd2a57d753 causing cert registration issues.
+    StopImpl(std::move(callback));
+  } else {
+    std::move(callback).Run();
+  }
 }
 
 void Manager::OnServerCreated(const std::string& server_origin) {
