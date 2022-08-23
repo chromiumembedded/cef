@@ -183,6 +183,7 @@ CefRequestContextImpl::CreateGlobalRequestContext(
   config.is_global = true;
   config.settings = settings;
   CefRefPtr<CefRequestContextImpl> impl = new CefRequestContextImpl(config);
+  impl->Initialize();
   return impl;
 }
 
@@ -199,11 +200,6 @@ CefRequestContextImpl::GetOrCreateForRequestContext(
   Config config;
   config.is_global = true;
   return CefRequestContextImpl::GetOrCreateRequestContext(config);
-}
-
-void CefRequestContextImpl::InitializeGlobalContext() {
-  DCHECK(IsGlobal());
-  Initialize();
 }
 
 bool CefRequestContextImpl::VerifyBrowserContext() const {

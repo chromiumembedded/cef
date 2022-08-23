@@ -29,8 +29,7 @@ class CefRequestContextImpl : public CefRequestContext {
 
   // Creates the singleton global RequestContext. Called from
   // AlloyBrowserMainParts::PreMainMessageLoopRun and
-  // ChromeBrowserMainExtraPartsCef::PostProfileInit. Must be followed by a call
-  // to InitializeGlobalContext on the UI thread.
+  // ChromeBrowserMainExtraPartsCef::PostProfileInit.
   static CefRefPtr<CefRequestContextImpl> CreateGlobalRequestContext(
       const CefRequestContextSettings& settings);
 
@@ -38,8 +37,6 @@ class CefRequestContextImpl : public CefRequestContext {
   // Will return the global context if |request_context| is NULL.
   static CefRefPtr<CefRequestContextImpl> GetOrCreateForRequestContext(
       CefRefPtr<CefRequestContext> request_context);
-
-  void InitializeGlobalContext();
 
   // Verify that the browser context can be directly accessed (e.g. on the UI
   // thread and initialized).

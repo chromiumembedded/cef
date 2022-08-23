@@ -16,14 +16,12 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/event_router_forwarder.h"
 #include "media/media_buildflags.h"
-#include "services/network/public/cpp/network_quality_tracker.h"
 
 namespace extensions {
 class ExtensionsBrowserClient;
 class ExtensionsClient;
 }  // namespace extensions
 
-class ChromeMetricsServicesManagerClient;
 class ChromeProfileManagerAlloy;
 
 class BackgroundModeManager {
@@ -130,16 +128,6 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
   std::unique_ptr<printing::BackgroundPrintingManager>
       background_printing_manager_;
   std::unique_ptr<PrefService> local_state_;
-
-  // |metrics_services_manager_| owns this.
-  raw_ptr<ChromeMetricsServicesManagerClient> metrics_services_manager_client_ =
-      nullptr;
-
-  // Must be destroyed before |local_state_| and |profile_manager_|.
-  std::unique_ptr<metrics_services_manager::MetricsServicesManager>
-      metrics_services_manager_;
-
-  std::unique_ptr<network::NetworkQualityTracker> network_quality_tracker_;
 
   // Must be destroyed after |local_state_|.
   std::unique_ptr<policy::ChromeBrowserPolicyConnector>

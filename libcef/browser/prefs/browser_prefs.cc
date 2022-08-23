@@ -23,7 +23,6 @@
 #include "chrome/browser/media/media_device_id_salt.h"
 #include "chrome/browser/media/router/media_router_feature.h"
 #include "chrome/browser/media/webrtc/permission_bubble_media_access_handler.h"
-#include "chrome/browser/metrics/chrome_metrics_service_client.h"
 #include "chrome/browser/net/profile_network_context_service.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/plugins/plugin_info_host_impl.h"
@@ -47,7 +46,6 @@
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "components/language/core/browser/language_prefs.h"
 #include "components/language/core/browser/pref_names.h"
-#include "components/optimization_guide/core/optimization_guide_prefs.h"
 #include "components/permissions/permission_actions_history.h"
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "components/prefs/json_pref_store.h"
@@ -60,7 +58,6 @@
 #include "components/spellcheck/browser/pref_names.h"
 #include "components/sync_preferences/pref_service_syncable.h"
 #include "components/sync_preferences/pref_service_syncable_factory.h"
-#include "components/unified_consent/unified_consent_service.h"
 #include "components/update_client/update_client.h"
 #include "content/public/browser/browser_thread.h"
 #include "extensions/browser/extension_prefs.h"
@@ -226,7 +223,6 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   // Default preferences.
   CefMediaCaptureDevicesDispatcher::RegisterPrefs(registry.get());
   certificate_transparency::prefs::RegisterPrefs(registry.get());
-  ChromeMetricsServiceClient::RegisterPrefs(registry.get());
   flags_ui::PrefServiceFlagsStorage::RegisterPrefs(registry.get());
   media_router::RegisterLocalStatePrefs(registry.get());
   PluginInfoHostImpl::RegisterUserPrefs(registry.get());
@@ -273,13 +269,11 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     language::LanguagePrefs::RegisterProfilePrefs(registry.get());
     media_router::RegisterProfilePrefs(registry.get());
     MediaDeviceIDSalt::RegisterProfilePrefs(registry.get());
-    optimization_guide::prefs::RegisterProfilePrefs(registry.get());
     PermissionBubbleMediaAccessHandler::RegisterProfilePrefs(registry.get());
     permissions::PermissionActionsHistory::RegisterProfilePrefs(registry.get());
     prefetch::RegisterPredictionOptionsProfilePrefs(registry.get());
     ProfileNetworkContextService::RegisterProfilePrefs(registry.get());
     safe_browsing::RegisterProfilePrefs(registry.get());
-    unified_consent::UnifiedConsentService::RegisterPrefs(registry.get());
     RegisterProfilePrefs(registry.get());
 
     const std::string& locale =

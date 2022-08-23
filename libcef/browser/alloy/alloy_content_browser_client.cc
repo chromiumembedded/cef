@@ -1449,10 +1449,6 @@ bool AlloyContentBrowserClient::IsFindInPageDisabledForOrigin(
   return IsPdfExtensionOrigin(origin);
 }
 
-void AlloyContentBrowserClient::OnContextInitialized() {
-  browser_main_parts_->OnContextInitialized();
-}
-
 CefRefPtr<CefRequestContextImpl> AlloyContentBrowserClient::request_context()
     const {
   return browser_main_parts_->request_context();
