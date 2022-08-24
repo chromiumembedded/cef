@@ -137,10 +137,10 @@ class TestDOMVisitor : public CefDOMVisitor {
 
     // Returned bounds are in device pixels.
     CefRect divRect = divNode->GetElementBounds();
-    EXPECT_EQ(divRect.width, 50.0 * devicePixelRatio);
-    EXPECT_EQ(divRect.height, 25.0 * devicePixelRatio);
-    EXPECT_EQ(divRect.x, 150.0 * devicePixelRatio);
-    EXPECT_EQ(divRect.y, 100.0 * devicePixelRatio);
+    EXPECT_NEAR(divRect.width, 50.0 * devicePixelRatio, 1);
+    EXPECT_NEAR(divRect.height, 25.0 * devicePixelRatio, 1);
+    EXPECT_NEAR(divRect.x, 150.0 * devicePixelRatio, 1);
+    EXPECT_NEAR(divRect.y, 100.0 * devicePixelRatio, 1);
 
     EXPECT_FALSE(divNode->GetNextSibling().get());
   }
