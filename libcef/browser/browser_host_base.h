@@ -247,9 +247,6 @@ class CefBrowserHostBase : public CefBrowserHost,
 
   // Methods called from CefFrameHostImpl.
   void LoadMainFrameURL(const content::OpenURLParams& params);
-  void OnDidFinishLoad(CefRefPtr<CefFrameHostImpl> frame,
-                       const GURL& validated_url,
-                       int http_status_code);
   virtual void OnSetFocus(cef_focus_source_t source) = 0;
   void ViewText(const std::string& text);
 

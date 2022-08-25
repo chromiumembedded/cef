@@ -136,8 +136,6 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
                               base::ReadOnlySharedMemoryRegion region) override;
   void FrameAttached(mojo::PendingRemote<cef::mojom::RenderFrame> render_frame,
                      bool reattached) override;
-  void DidFinishFrameLoad(const GURL& validated_url,
-                          int32_t http_status_code) override;
   void UpdateDraggableRegions(
       absl::optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions)
       override;
