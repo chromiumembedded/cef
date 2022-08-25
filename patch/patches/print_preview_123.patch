@@ -118,7 +118,7 @@ index 7a3fbc44629e6..578422e85320a 100644
  }
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index 8e55c46cdf29a..40957f570aba5 100644
+index 2a9cc4d97e4f1..ab37659bcb720 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -22,6 +22,7 @@
@@ -130,7 +130,7 @@ index 8e55c46cdf29a..40957f570aba5 100644
  #include "chrome/browser/pdf/pdf_extension_util.h"
  #include "chrome/browser/printing/background_printing_manager.h"
 @@ -96,6 +97,13 @@ const char16_t kBasicPrintShortcut[] = u"\u0028\u21e7\u2318\u0050\u0029";
- const char16_t kBasicPrintShortcut[] = u"(Ctrl+Alt+P)";
+ const char16_t kBasicPrintShortcut[] = u"(Ctrl+Shift+P)";
  #endif
  
 +const char16_t* GetBasicPrintShortcut() {
