@@ -134,6 +134,8 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   void DidFailLoad(content::RenderFrameHost* render_frame_host,
                    const GURL& validated_url,
                    int error_code) override;
+  void DidFinishLoad(content::RenderFrameHost* render_frame_host,
+                     const GURL& validated_url) override;
   void TitleWasSet(content::NavigationEntry* entry) override;
   void DidUpdateFaviconURL(
       content::RenderFrameHost* render_frame_host,
@@ -159,9 +161,6 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
 
   // Helpers for executing client callbacks.
   // TODO(cef): Make this private if/when possible.
-  void OnLoadEnd(CefRefPtr<CefFrame> frame,
-                 const GURL& url,
-                 int http_status_code);
   bool OnSetFocus(cef_focus_source_t source);
 
  private:
@@ -173,6 +172,9 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   void OnAddressChange(const GURL& url);
   void OnLoadStart(CefRefPtr<CefFrame> frame,
                    ui::PageTransition transition_type);
+  void OnLoadEnd(CefRefPtr<CefFrame> frame,
+                 const GURL& url,
+                 int http_status_code);
   void OnLoadError(CefRefPtr<CefFrame> frame, const GURL& url, int error_code);
   void OnTitleChange(const std::u16string& title);
   void OnFullscreenModeChange(bool fullscreen);

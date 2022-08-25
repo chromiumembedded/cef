@@ -848,14 +848,6 @@ bool CefBrowserHostBase::Navigate(const content::OpenURLParams& params) {
   return false;
 }
 
-void CefBrowserHostBase::OnDidFinishLoad(CefRefPtr<CefFrameHostImpl> frame,
-                                         const GURL& validated_url,
-                                         int http_status_code) {
-  frame->RefreshAttributes();
-
-  contents_delegate_->OnLoadEnd(frame, validated_url, http_status_code);
-}
-
 void CefBrowserHostBase::ViewText(const std::string& text) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,

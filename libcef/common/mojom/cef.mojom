@@ -93,9 +93,6 @@ interface BrowserFrame {
   FrameAttached(pending_remote<RenderFrame> render_frame,
                 bool reattached);
 
-  // The render frame has finished loading.
-  DidFinishFrameLoad(url.mojom.Url validated_url, int32 http_status_code);
-
   // Draggable regions have updated.
   UpdateDraggableRegions(array<DraggableRegionEntry>? regions);
 };

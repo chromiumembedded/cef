@@ -364,15 +364,6 @@ void CefFrameImpl::OnDidFinishLoad() {
   blink::WebDocumentLoader* dl = frame_->GetDocumentLoader();
   const int http_status_code = dl->GetWebResponse().HttpStatusCode();
 
-  SendToBrowserFrame(__FUNCTION__,
-                     base::BindOnce(
-                         [](const GURL& url, int http_status_code,
-                            const BrowserFrameType& browser_frame) {
-                           browser_frame->DidFinishFrameLoad(url,
-                                                             http_status_code);
-                         },
-                         dl->GetUrl(), http_status_code));
-
   CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
   if (app) {
     CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();

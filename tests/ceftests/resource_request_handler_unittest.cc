@@ -842,10 +842,15 @@ class BasicResponseTest : public TestHandler {
     EXPECT_EQ(browser_id_, browser->GetIdentifier());
     EXPECT_TRUE(frame->IsMain());
 
-    if (unhandled_)
-      EXPECT_EQ(httpStatusCode, 0);
-    else
+    if (unhandled_) {
+      if (IsRedirect()) {
+        EXPECT_EQ(httpStatusCode, 307);
+      } else {
+        EXPECT_EQ(httpStatusCode, 0);
+      }
+    } else {
       EXPECT_EQ(httpStatusCode, 200);
+    }
 
     on_load_end_ct_++;
 

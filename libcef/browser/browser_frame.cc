@@ -62,13 +62,6 @@ void CefBrowserFrame::FrameAttached(
   }
 }
 
-void CefBrowserFrame::DidFinishFrameLoad(const GURL& validated_url,
-                                         int http_status_code) {
-  if (auto host = GetFrameHost()) {
-    host->DidFinishFrameLoad(validated_url, http_status_code);
-  }
-}
-
 void CefBrowserFrame::UpdateDraggableRegions(
     absl::optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions) {
   if (auto host = GetFrameHost()) {

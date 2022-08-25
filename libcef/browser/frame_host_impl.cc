@@ -647,13 +647,6 @@ void CefFrameHostImpl::FrameAttached(
       CefRefPtr<CefFrameHostImpl>(this), reattached));
 }
 
-void CefFrameHostImpl::DidFinishFrameLoad(const GURL& validated_url,
-                                          int http_status_code) {
-  auto browser = GetBrowserHostBase();
-  if (browser)
-    browser->OnDidFinishLoad(this, validated_url, http_status_code);
-}
-
 void CefFrameHostImpl::UpdateDraggableRegions(
     absl::optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions) {
   auto browser = GetBrowserHostBase();

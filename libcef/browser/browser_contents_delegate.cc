@@ -515,6 +515,20 @@ void CefBrowserContentsDelegate::DidFailLoad(
   OnLoadEnd(frame, validated_url, error_code);
 }
 
+void CefBrowserContentsDelegate::DidFinishLoad(
+    content::RenderFrameHost* render_frame_host,
+    const GURL& validated_url) {
+  auto frame = browser_info_->GetFrameForHost(render_frame_host);
+  frame->RefreshAttributes();
+
+  int http_status_code = 0;
+  if (auto response_headers = render_frame_host->GetLastResponseHeaders()) {
+    http_status_code = response_headers->response_code();
+  }
+
+  OnLoadEnd(frame, validated_url, http_status_code);
+}
+
 void CefBrowserContentsDelegate::TitleWasSet(content::NavigationEntry* entry) {
   // |entry| may be NULL if a popup is created via window.open and never
   // navigated.
@@ -577,17 +591,6 @@ void CefBrowserContentsDelegate::Observe(
   }
 }
 
-void CefBrowserContentsDelegate::OnLoadEnd(CefRefPtr<CefFrame> frame,
-                                           const GURL& url,
-                                           int http_status_code) {
-  if (auto c = client()) {
-    if (auto handler = c->GetLoadHandler()) {
-      auto navigation_lock = browser_info_->CreateNavigationLock();
-      handler->OnLoadEnd(browser(), frame, http_status_code);
-    }
-  }
-}
-
 bool CefBrowserContentsDelegate::OnSetFocus(cef_focus_source_t source) {
   // SetFocus() might be called while inside the OnSetFocus() callback. If
   // so, don't re-enter the callback.
@@ -645,6 +648,17 @@ void CefBrowserContentsDelegate::OnLoadStart(
       // On the handler that loading has started.
       handler->OnLoadStart(browser(), frame,
                            static_cast<cef_transition_type_t>(transition_type));
+    }
+  }
+}
+
+void CefBrowserContentsDelegate::OnLoadEnd(CefRefPtr<CefFrame> frame,
+                                           const GURL& url,
+                                           int http_status_code) {
+  if (auto c = client()) {
+    if (auto handler = c->GetLoadHandler()) {
+      auto navigation_lock = browser_info_->CreateNavigationLock();
+      handler->OnLoadEnd(browser(), frame, http_status_code);
     }
   }
 }
