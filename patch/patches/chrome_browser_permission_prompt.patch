@@ -1,3 +1,25 @@
+diff --git chrome/browser/background_fetch/background_fetch_permission_context.cc chrome/browser/background_fetch/background_fetch_permission_context.cc
+index 85b7da7f35c84..311211abf1b82 100644
+--- chrome/browser/background_fetch/background_fetch_permission_context.cc
++++ chrome/browser/background_fetch/background_fetch_permission_context.cc
+@@ -4,6 +4,7 @@
+ 
+ #include "chrome/browser/background_fetch/background_fetch_permission_context.h"
+ 
++#include "cef/libcef/features/runtime.h"
+ #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
+ #include "chrome/browser/download/download_request_limiter.h"
+@@ -29,7 +30,8 @@ ContentSetting BackgroundFetchPermissionContext::GetPermissionStatusInternal(
+     const GURL& embedding_origin) const {
+   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+ 
+-  if (render_frame_host && !render_frame_host->GetParent()) {
++  if (!cef::IsAlloyRuntimeEnabled() &&
++      render_frame_host && !render_frame_host->GetParent()) {
+     DownloadRequestLimiter* limiter =
+         g_browser_process->download_request_limiter();
+     DCHECK(limiter);
 diff --git chrome/browser/permissions/chrome_permissions_client.cc chrome/browser/permissions/chrome_permissions_client.cc
 index 994b78d94de26..e51f6f6162f02 100644
 --- chrome/browser/permissions/chrome_permissions_client.cc
@@ -54,6 +76,29 @@ index 5efee36a48397..bb683b88c5bd6 100644
  #endif  // BUILDFLAG(IS_MAC)
    delegates.media_stream_device_enumerator =
        MediaCaptureDevicesDispatcher::GetInstance();
+diff --git chrome/browser/storage/durable_storage_permission_context.cc chrome/browser/storage/durable_storage_permission_context.cc
+index f732f6c467e9b..c5158bfe045a7 100644
+--- chrome/browser/storage/durable_storage_permission_context.cc
++++ chrome/browser/storage/durable_storage_permission_context.cc
+@@ -8,6 +8,7 @@
+ 
+ #include "base/check_op.h"
+ #include "base/containers/contains.h"
++#include "cef/libcef/features/runtime.h"
+ #include "chrome/browser/bookmarks/bookmark_model_factory.h"
+ #include "chrome/browser/content_settings/cookie_settings_factory.h"
+ #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
+@@ -52,7 +53,9 @@ void DurableStoragePermissionContext::DecidePermission(
+ 
+   // Durable is only allowed to be granted to the top-level origin. Embedding
+   // origin is the last committed navigation origin to the web contents.
+-  if (requesting_origin != embedding_origin) {
++  // Permission depends on PWA and site engagement subsystems which are not
++  // supported by the Alloy runtime (see issue #3379).
++  if (cef::IsAlloyRuntimeEnabled() || requesting_origin != embedding_origin) {
+     NotifyPermissionSet(id, requesting_origin, embedding_origin,
+                         std::move(callback), /*persist=*/false,
+                         CONTENT_SETTING_DEFAULT, /*is_one_time=*/false);
 diff --git chrome/browser/ui/permission_bubble/permission_prompt.h chrome/browser/ui/permission_bubble/permission_prompt.h
 index c2836d15eba30..0c03c2b4666a6 100644
 --- chrome/browser/ui/permission_bubble/permission_prompt.h
