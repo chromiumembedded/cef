@@ -13,7 +13,7 @@ index 3285e422f76c1..5f35b91897b75 100644
    return false;
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index c74b111116687..e71d33a11ebdc 100644
+index 17c1f3e28c73a..c1f6e9395e68a 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -9,6 +9,7 @@ import("//build/config/compiler/compiler.gni")
@@ -43,7 +43,7 @@ index c74b111116687..e71d33a11ebdc 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -5590,6 +5596,7 @@ static_library("ui") {
+@@ -5592,6 +5598,7 @@ static_library("ui") {
    if (enable_basic_printing) {
      deps += [
        "//components/printing/browser",
