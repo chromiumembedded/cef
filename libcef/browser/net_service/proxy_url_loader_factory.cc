@@ -562,10 +562,11 @@ void InterceptedRequest::OnReceiveResponse(
   current_response_ = std::move(head);
   current_body_ = std::move(body);
 
-  if (current_request_uses_header_client_) {
+  // |current_headers_| may be null for cached responses where OnHeadersReceived
+  // is not called.
+  if (current_request_uses_header_client_ && current_headers_) {
     // Use the headers we got from OnHeadersReceived as that'll contain
     // Set-Cookie if it existed.
-    DCHECK(current_headers_);
     current_response_->headers = current_headers_;
     current_headers_ = nullptr;
     ContinueToResponseStarted(net::OK);
@@ -588,13 +589,13 @@ void InterceptedRequest::OnReceiveRedirect(
   current_response_ = std::move(head);
   current_body_.reset();
 
-  if (current_request_uses_header_client_) {
+  // |current_headers_| may be null for synthetic redirects where
+  // OnHeadersReceived is not called.
+  if (current_request_uses_header_client_ && current_headers_) {
     // Use the headers we got from OnHeadersReceived as that'll contain
-    // Set-Cookie if it existed. May be null for synthetic redirects.
-    if (current_headers_) {
-      current_response_->headers = current_headers_;
-      current_headers_ = nullptr;
-    }
+    // Set-Cookie if it existed.
+    current_response_->headers = current_headers_;
+    current_headers_ = nullptr;
   }
 
   if (--redirect_limit_ == 0) {
