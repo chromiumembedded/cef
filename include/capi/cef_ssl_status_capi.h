@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=1bc8a73a196fbbb6cec3dd1738b817575b17706d$
+// $hash=b40ab326a1bf140859db9288b809a4038833f014$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_SSL_STATUS_CAPI_H_
@@ -49,40 +49,40 @@ extern "C" {
 #endif
 
 ///
-// Structure representing the SSL information for a navigation entry.
+/// Structure representing the SSL information for a navigation entry.
 ///
 typedef struct _cef_sslstatus_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Returns true (1) if the status is related to a secure SSL/TLS connection.
+  /// Returns true (1) if the status is related to a secure SSL/TLS connection.
   ///
   int(CEF_CALLBACK* is_secure_connection)(struct _cef_sslstatus_t* self);
 
   ///
-  // Returns a bitmask containing any and all problems verifying the server
-  // certificate.
+  /// Returns a bitmask containing any and all problems verifying the server
+  /// certificate.
   ///
   cef_cert_status_t(CEF_CALLBACK* get_cert_status)(
       struct _cef_sslstatus_t* self);
 
   ///
-  // Returns the SSL version used for the SSL connection.
+  /// Returns the SSL version used for the SSL connection.
   ///
   cef_ssl_version_t(CEF_CALLBACK* get_sslversion)(
       struct _cef_sslstatus_t* self);
 
   ///
-  // Returns a bitmask containing the page security content status.
+  /// Returns a bitmask containing the page security content status.
   ///
   cef_ssl_content_status_t(CEF_CALLBACK* get_content_status)(
       struct _cef_sslstatus_t* self);
 
   ///
-  // Returns the X.509 certificate.
+  /// Returns the X.509 certificate.
   ///
   struct _cef_x509certificate_t*(CEF_CALLBACK* get_x509certificate)(
       struct _cef_sslstatus_t* self);

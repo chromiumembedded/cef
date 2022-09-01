@@ -43,22 +43,23 @@
 #include "include/views/cef_menu_button_delegate.h"
 
 ///
-// MenuButton is a button with optional text, icon and/or menu marker that shows
-// a menu when clicked with the left mouse button. All size and position values
-// are in density independent pixels (DIP) unless otherwise indicated. Methods
-// must be called on the browser process UI thread unless otherwise indicated.
+/// MenuButton is a button with optional text, icon and/or menu marker that
+/// shows a menu when clicked with the left mouse button. All size and position
+/// values are in density independent pixels (DIP) unless otherwise indicated.
+/// Methods must be called on the browser process UI thread unless otherwise
+/// indicated.
 ///
 /*--cef(source=library)--*/
 class CefMenuButton : public CefLabelButton {
  public:
   ///
-  // Create a new MenuButton. A |delegate| must be provided to call ShowMenu()
-  // when the button is clicked. |text| will be shown on the MenuButton and used
-  // as the default accessible name. If |with_frame| is true the button will
-  // have a visible frame at all times, center alignment, additional padding and
-  // a default minimum size of 70x33 DIP. If |with_frame| is false the button
-  // will only have a visible frame on hover/press, left alignment, less padding
-  // and no default minimum size.
+  /// Create a new MenuButton. A |delegate| must be provided to call ShowMenu()
+  /// when the button is clicked. |text| will be shown on the MenuButton and
+  /// used as the default accessible name. If |with_frame| is true the button
+  /// will have a visible frame at all times, center alignment, additional
+  /// padding and a default minimum size of 70x33 DIP. If |with_frame| is false
+  /// the button will only have a visible frame on hover/press, left alignment,
+  /// less padding and no default minimum size.
   ///
   /*--cef(optional_param=text)--*/
   static CefRefPtr<CefMenuButton> CreateMenuButton(
@@ -66,10 +67,10 @@ class CefMenuButton : public CefLabelButton {
       const CefString& text);
 
   ///
-  // Show a menu with contents |menu_model|. |screen_point| specifies the menu
-  // position in screen coordinates. |anchor_position| specifies how the menu
-  // will be anchored relative to |screen_point|. This method should be called
-  // from CefMenuButtonDelegate::OnMenuButtonPressed().
+  /// Show a menu with contents |menu_model|. |screen_point| specifies the menu
+  /// position in screen coordinates. |anchor_position| specifies how the menu
+  /// will be anchored relative to |screen_point|. This method should be called
+  /// from CefMenuButtonDelegate::OnMenuButtonPressed().
   ///
   /*--cef()--*/
   virtual void ShowMenu(CefRefPtr<CefMenuModel> menu_model,
@@ -77,8 +78,8 @@ class CefMenuButton : public CefLabelButton {
                         cef_menu_anchor_position_t anchor_position) = 0;
 
   ///
-  // Show the menu for this button. Results in a call to
-  // CefMenuButtonDelegate::OnMenuButtonPressed().
+  /// Show the menu for this button. Results in a call to
+  /// CefMenuButtonDelegate::OnMenuButtonPressed().
   ///
   /*--cef()--*/
   virtual void TriggerMenu() = 0;

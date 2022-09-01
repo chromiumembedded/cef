@@ -41,9 +41,9 @@
 #include "include/views/cef_layout.h"
 
 ///
-// A simple Layout that causes the associated Panel's one child to be sized to
-// match the bounds of its parent. Methods must be called on the browser process
-// UI thread unless otherwise indicated.
+/// A simple Layout that causes the associated Panel's one child to be sized to
+/// match the bounds of its parent. Methods must be called on the browser
+/// process UI thread unless otherwise indicated.
 ///
 /*--cef(source=library)--*/
 class CefFillLayout : public CefLayout {};

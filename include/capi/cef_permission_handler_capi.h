@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=e902fe011f8667b64989e57ad9e72aec74b22015$
+// $hash=8f2ae563306d1e4ba5fa84a5f9a60712c6fc585f$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_PERMISSION_HANDLER_CAPI_H_
@@ -48,69 +48,71 @@ extern "C" {
 #endif
 
 ///
-// Callback structure used for asynchronous continuation of media access
-// permission requests.
+/// Callback structure used for asynchronous continuation of media access
+/// permission requests.
 ///
 typedef struct _cef_media_access_callback_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Call to allow or deny media access. If this callback was initiated in
-  // response to a getUserMedia (indicated by
-  // CEF_MEDIA_PERMISSION_DEVICE_AUDIO_CAPTURE and/or
-  // CEF_MEDIA_PERMISSION_DEVICE_VIDEO_CAPTURE being set) then
-  // |allowed_permissions| must match |required_permissions| passed to
-  // OnRequestMediaAccessPermission.
+  /// Call to allow or deny media access. If this callback was initiated in
+  /// response to a getUserMedia (indicated by
+  /// CEF_MEDIA_PERMISSION_DEVICE_AUDIO_CAPTURE and/or
+  /// CEF_MEDIA_PERMISSION_DEVICE_VIDEO_CAPTURE being set) then
+  /// |allowed_permissions| must match |required_permissions| passed to
+  /// OnRequestMediaAccessPermission.
   ///
   void(CEF_CALLBACK* cont)(struct _cef_media_access_callback_t* self,
                            uint32 allowed_permissions);
 
   ///
-  // Cancel the media access request.
+  /// Cancel the media access request.
   ///
   void(CEF_CALLBACK* cancel)(struct _cef_media_access_callback_t* self);
 } cef_media_access_callback_t;
 
 ///
-// Callback structure used for asynchronous continuation of permission prompts.
+/// Callback structure used for asynchronous continuation of permission prompts.
 ///
 typedef struct _cef_permission_prompt_callback_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Complete the permissions request with the specified |result|.
+  /// Complete the permissions request with the specified |result|.
   ///
   void(CEF_CALLBACK* cont)(struct _cef_permission_prompt_callback_t* self,
                            cef_permission_request_result_t result);
 } cef_permission_prompt_callback_t;
 
 ///
-// Implement this structure to handle events related to permission requests. The
-// functions of this structure will be called on the browser process UI thread.
+/// Implement this structure to handle events related to permission requests.
+/// The functions of this structure will be called on the browser process UI
+/// thread.
 ///
 typedef struct _cef_permission_handler_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Called when a page requests permission to access media. |requesting_origin|
-  // is the URL origin requesting permission. |requested_permissions| is a
-  // combination of values from cef_media_access_permission_types_t that
-  // represent the requested permissions. Return true (1) and call
-  // cef_media_access_callback_t functions either in this function or at a later
-  // time to continue or cancel the request. Return false (0) to proceed with
-  // default handling. With the Chrome runtime, default handling will display
-  // the permission request UI. With the Alloy runtime, default handling will
-  // deny the request. This function will not be called if the "--enable-media-
-  // stream" command-line switch is used to grant all permissions.
+  /// Called when a page requests permission to access media.
+  /// |requesting_origin| is the URL origin requesting permission.
+  /// |requested_permissions| is a combination of values from
+  /// cef_media_access_permission_types_t that represent the requested
+  /// permissions. Return true (1) and call cef_media_access_callback_t
+  /// functions either in this function or at a later time to continue or cancel
+  /// the request. Return false (0) to proceed with default handling. With the
+  /// Chrome runtime, default handling will display the permission request UI.
+  /// With the Alloy runtime, default handling will deny the request. This
+  /// function will not be called if the "--enable-media-stream" command-line
+  /// switch is used to grant all permissions.
   ///
   int(CEF_CALLBACK* on_request_media_access_permission)(
       struct _cef_permission_handler_t* self,
@@ -121,15 +123,15 @@ typedef struct _cef_permission_handler_t {
       struct _cef_media_access_callback_t* callback);
 
   ///
-  // Called when a page should show a permission prompt. |prompt_id| uniquely
-  // identifies the prompt. |requesting_origin| is the URL origin requesting
-  // permission. |requested_permissions| is a combination of values from
-  // cef_permission_request_types_t that represent the requested permissions.
-  // Return true (1) and call cef_permission_prompt_callback_t::Continue either
-  // in this function or at a later time to continue or cancel the request.
-  // Return false (0) to proceed with default handling. With the Chrome runtime,
-  // default handling will display the permission prompt UI. With the Alloy
-  // runtime, default handling is CEF_PERMISSION_RESULT_IGNORE.
+  /// Called when a page should show a permission prompt. |prompt_id| uniquely
+  /// identifies the prompt. |requesting_origin| is the URL origin requesting
+  /// permission. |requested_permissions| is a combination of values from
+  /// cef_permission_request_types_t that represent the requested permissions.
+  /// Return true (1) and call cef_permission_prompt_callback_t::Continue either
+  /// in this function or at a later time to continue or cancel the request.
+  /// Return false (0) to proceed with default handling. With the Chrome
+  /// runtime, default handling will display the permission prompt UI. With the
+  /// Alloy runtime, default handling is CEF_PERMISSION_RESULT_IGNORE.
   ///
   int(CEF_CALLBACK* on_show_permission_prompt)(
       struct _cef_permission_handler_t* self,
@@ -140,13 +142,13 @@ typedef struct _cef_permission_handler_t {
       struct _cef_permission_prompt_callback_t* callback);
 
   ///
-  // Called when a permission prompt handled via OnShowPermissionPrompt is
-  // dismissed. |prompt_id| will match the value that was passed to
-  // OnShowPermissionPrompt. |result| will be the value passed to
-  // cef_permission_prompt_callback_t::Continue or CEF_PERMISSION_RESULT_IGNORE
-  // if the dialog was dismissed for other reasons such as navigation, browser
-  // closure, etc. This function will not be called if OnShowPermissionPrompt
-  // returned false (0) for |prompt_id|.
+  /// Called when a permission prompt handled via OnShowPermissionPrompt is
+  /// dismissed. |prompt_id| will match the value that was passed to
+  /// OnShowPermissionPrompt. |result| will be the value passed to
+  /// cef_permission_prompt_callback_t::Continue or CEF_PERMISSION_RESULT_IGNORE
+  /// if the dialog was dismissed for other reasons such as navigation, browser
+  /// closure, etc. This function will not be called if OnShowPermissionPrompt
+  /// returned false (0) for |prompt_id|.
   ///
   void(CEF_CALLBACK* on_dismiss_permission_prompt)(
       struct _cef_permission_handler_t* self,

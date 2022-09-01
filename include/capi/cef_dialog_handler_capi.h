@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=dc579beb1f25f9bbdb72afb4b5b381e129f84e31$
+// $hash=3a1a3ac84690c6090d356ddec3ddb49b934fe28c$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DIALOG_HANDLER_CAPI_H_
@@ -48,51 +48,51 @@ extern "C" {
 #endif
 
 ///
-// Callback structure for asynchronous continuation of file dialog requests.
+/// Callback structure for asynchronous continuation of file dialog requests.
 ///
 typedef struct _cef_file_dialog_callback_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Continue the file selection. |file_paths| should be a single value or a
-  // list of values depending on the dialog mode. An NULL |file_paths| value is
-  // treated the same as calling cancel().
+  /// Continue the file selection. |file_paths| should be a single value or a
+  /// list of values depending on the dialog mode. An NULL |file_paths| value is
+  /// treated the same as calling cancel().
   ///
   void(CEF_CALLBACK* cont)(struct _cef_file_dialog_callback_t* self,
                            cef_string_list_t file_paths);
 
   ///
-  // Cancel the file selection.
+  /// Cancel the file selection.
   ///
   void(CEF_CALLBACK* cancel)(struct _cef_file_dialog_callback_t* self);
 } cef_file_dialog_callback_t;
 
 ///
-// Implement this structure to handle dialog events. The functions of this
-// structure will be called on the browser process UI thread.
+/// Implement this structure to handle dialog events. The functions of this
+/// structure will be called on the browser process UI thread.
 ///
 typedef struct _cef_dialog_handler_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Called to run a file chooser dialog. |mode| represents the type of dialog
-  // to display. |title| to the title to be used for the dialog and may be NULL
-  // to show the default title ("Open" or "Save" depending on the mode).
-  // |default_file_path| is the path with optional directory and/or file name
-  // component that should be initially selected in the dialog. |accept_filters|
-  // are used to restrict the selectable file types and may any combination of
-  // (a) valid lower-cased MIME types (e.g. "text/*" or "image/*"), (b)
-  // individual file extensions (e.g. ".txt" or ".png"), or (c) combined
-  // description and file extension delimited using "|" and ";" (e.g. "Image
-  // Types|.png;.gif;.jpg"). To display a custom dialog return true (1) and
-  // execute |callback| either inline or at a later time. To display the default
-  // dialog return false (0).
+  /// Called to run a file chooser dialog. |mode| represents the type of dialog
+  /// to display. |title| to the title to be used for the dialog and may be NULL
+  /// to show the default title ("Open" or "Save" depending on the mode).
+  /// |default_file_path| is the path with optional directory and/or file name
+  /// component that should be initially selected in the dialog.
+  /// |accept_filters| are used to restrict the selectable file types and may
+  /// any combination of (a) valid lower-cased MIME types (e.g. "text/*" or
+  /// "image/*"), (b) individual file extensions (e.g. ".txt" or ".png"), or (c)
+  /// combined description and file extension delimited using "|" and ";" (e.g.
+  /// "Image Types|.png;.gif;.jpg"). To display a custom dialog return true (1)
+  /// and execute |callback| either inline or at a later time. To display the
+  /// default dialog return false (0).
   ///
   int(CEF_CALLBACK* on_file_dialog)(
       struct _cef_dialog_handler_t* self,

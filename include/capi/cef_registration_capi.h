@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=d5efa37953d0f0097fef20bc18f4938621c6b168$
+// $hash=28371116427e9457ea366c9f0546cd5eefd8f08a$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REGISTRATION_CAPI_H_
@@ -47,11 +47,11 @@ extern "C" {
 #endif
 
 ///
-// Generic callback structure used for managing the lifespan of a registration.
+/// Generic callback structure used for managing the lifespan of a registration.
 ///
 typedef struct _cef_registration_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 } cef_registration_t;

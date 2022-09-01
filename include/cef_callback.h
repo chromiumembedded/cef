@@ -41,32 +41,32 @@
 #include "include/cef_base.h"
 
 ///
-// Generic callback interface used for asynchronous continuation.
+/// Generic callback interface used for asynchronous continuation.
 ///
 /*--cef(source=library)--*/
 class CefCallback : public virtual CefBaseRefCounted {
  public:
   ///
-  // Continue processing.
+  /// Continue processing.
   ///
   /*--cef(capi_name=cont)--*/
   virtual void Continue() = 0;
 
   ///
-  // Cancel processing.
+  /// Cancel processing.
   ///
   /*--cef()--*/
   virtual void Cancel() = 0;
 };
 
 ///
-// Generic callback interface used for asynchronous completion.
+/// Generic callback interface used for asynchronous completion.
 ///
 /*--cef(source=client)--*/
 class CefCompletionCallback : public virtual CefBaseRefCounted {
  public:
   ///
-  // Method that will be called once the task is complete.
+  /// Method that will be called once the task is complete.
   ///
   /*--cef()--*/
   virtual void OnComplete() = 0;

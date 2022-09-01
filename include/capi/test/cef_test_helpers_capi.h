@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=20fc4636e154ab38b79287c29f8f7f22e3cd8d37$
+// $hash=cdc9af1b664e49e339ab7bb50d04a7ea385e07e5$
 //
 
 #ifndef CEF_INCLUDE_CAPI_TEST_CEF_TEST_HELPERS_CAPI_H_
@@ -52,18 +52,18 @@ extern "C" {
 #endif
 
 ///
-// Execute JavaScript with a user gesture to trigger functionality like
-// onbeforeunload handlers that will otherwise be blocked.
+/// Execute JavaScript with a user gesture to trigger functionality like
+/// onbeforeunload handlers that will otherwise be blocked.
 ///
 CEF_EXPORT void cef_execute_java_script_with_user_gesture_for_tests(
     struct _cef_frame_t* frame,
     const cef_string_t* javascript);
 
 ///
-// Set the DIR_SRC_TEST_DATA_ROOT directory used to load test data. Must be
-// configured when running from a CEF binary distribution. Defaults to the
-// "chromium/src" directory when running from a local CEF/Chromium build. |dir|
-// must be an absolute path.
+/// Set the DIR_SRC_TEST_DATA_ROOT directory used to load test data. Must be
+/// configured when running from a CEF binary distribution. Defaults to the
+/// "chromium/src" directory when running from a local CEF/Chromium build. |dir|
+/// must be an absolute path.
 ///
 CEF_EXPORT void cef_set_data_directory_for_tests(const cef_string_t* dir);
 

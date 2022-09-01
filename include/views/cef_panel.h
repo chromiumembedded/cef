@@ -47,92 +47,92 @@ class CefLayout;
 class CefWindow;
 
 ///
-// A Panel is a container in the views hierarchy that can contain other Views
-// as children. Methods must be called on the browser process UI thread unless
-// otherwise indicated.
+/// A Panel is a container in the views hierarchy that can contain other Views
+/// as children. Methods must be called on the browser process UI thread unless
+/// otherwise indicated.
 ///
 /*--cef(source=library)--*/
 class CefPanel : public CefView {
  public:
   ///
-  // Create a new Panel.
+  /// Create a new Panel.
   ///
   /*--cef(optional_param=delegate)--*/
   static CefRefPtr<CefPanel> CreatePanel(CefRefPtr<CefPanelDelegate> delegate);
 
   ///
-  // Returns this Panel as a Window or NULL if this is not a Window.
+  /// Returns this Panel as a Window or NULL if this is not a Window.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefWindow> AsWindow() = 0;
 
   ///
-  // Set this Panel's Layout to FillLayout and return the FillLayout object.
+  /// Set this Panel's Layout to FillLayout and return the FillLayout object.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefFillLayout> SetToFillLayout() = 0;
 
   ///
-  // Set this Panel's Layout to BoxLayout and return the BoxLayout object.
+  /// Set this Panel's Layout to BoxLayout and return the BoxLayout object.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefBoxLayout> SetToBoxLayout(
       const CefBoxLayoutSettings& settings) = 0;
 
   ///
-  // Get the Layout.
+  /// Get the Layout.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefLayout> GetLayout() = 0;
 
   ///
-  // Lay out the child Views (set their bounds based on sizing heuristics
-  // specific to the current Layout).
+  /// Lay out the child Views (set their bounds based on sizing heuristics
+  /// specific to the current Layout).
   ///
   /*--cef()--*/
   virtual void Layout() = 0;
 
   ///
-  // Add a child View.
+  /// Add a child View.
   ///
   /*--cef()--*/
   virtual void AddChildView(CefRefPtr<CefView> view) = 0;
 
   ///
-  // Add a child View at the specified |index|. If |index| matches the result of
-  // GetChildCount() then the View will be added at the end.
+  /// Add a child View at the specified |index|. If |index| matches the result
+  /// of GetChildCount() then the View will be added at the end.
   ///
   /*--cef(index_param=index)--*/
   virtual void AddChildViewAt(CefRefPtr<CefView> view, int index) = 0;
 
   ///
-  // Move the child View to the specified |index|. A negative value for |index|
-  // will move the View to the end.
+  /// Move the child View to the specified |index|. A negative value for |index|
+  /// will move the View to the end.
   ///
   /*--cef()--*/
   virtual void ReorderChildView(CefRefPtr<CefView> view, int index) = 0;
 
   ///
-  // Remove a child View. The View can then be added to another Panel.
+  /// Remove a child View. The View can then be added to another Panel.
   ///
   /*--cef()--*/
   virtual void RemoveChildView(CefRefPtr<CefView> view) = 0;
 
   ///
-  // Remove all child Views. The removed Views will be deleted if the client
-  // holds no references to them.
+  /// Remove all child Views. The removed Views will be deleted if the client
+  /// holds no references to them.
   ///
   /*--cef()--*/
   virtual void RemoveAllChildViews() = 0;
 
   ///
-  // Returns the number of child Views.
+  /// Returns the number of child Views.
   ///
   /*--cef()--*/
   virtual size_t GetChildViewCount() = 0;
 
   ///
-  // Returns the child View at the specified |index|.
+  /// Returns the child View at the specified |index|.
   ///
   /*--cef(index_param=index)--*/
   virtual CefRefPtr<CefView> GetChildViewAt(int index) = 0;

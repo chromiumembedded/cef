@@ -42,15 +42,15 @@
 #include "include/cef_stream.h"
 
 ///
-// Thread safe implementation of the CefReadHandler class for reading an
-// in-memory array of bytes.
+/// Thread safe implementation of the CefReadHandler class for reading an
+/// in-memory array of bytes.
 ///
 class CefByteReadHandler : public CefReadHandler {
  public:
   ///
-  // Create a new object for reading an array of bytes. An optional |source|
-  // reference can be kept to keep the underlying data source from being
-  // released while the reader exists.
+  /// Create a new object for reading an array of bytes. An optional |source|
+  /// reference can be kept to keep the underlying data source from being
+  /// released while the reader exists.
   ///
   CefByteReadHandler(const unsigned char* bytes,
                      size_t size,

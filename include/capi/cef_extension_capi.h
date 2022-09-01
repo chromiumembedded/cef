@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=fcfe34c1517ebdb3f00c1f737b91361e771b820d$
+// $hash=b16b1c47d26e911d360159e5535743622a411c31$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_EXTENSION_CAPI_H_
@@ -51,74 +51,74 @@ struct _cef_extension_handler_t;
 struct _cef_request_context_t;
 
 ///
-// Object representing an extension. Methods may be called on any thread unless
-// otherwise indicated.
+/// Object representing an extension. Methods may be called on any thread unless
+/// otherwise indicated.
 ///
 typedef struct _cef_extension_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Returns the unique extension identifier. This is calculated based on the
-  // extension public key, if available, or on the extension path. See
-  // https://developer.chrome.com/extensions/manifest/key for details.
+  /// Returns the unique extension identifier. This is calculated based on the
+  /// extension public key, if available, or on the extension path. See
+  /// https://developer.chrome.com/extensions/manifest/key for details.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_identifier)(
       struct _cef_extension_t* self);
 
   ///
-  // Returns the absolute path to the extension directory on disk. This value
-  // will be prefixed with PK_DIR_RESOURCES if a relative path was passed to
-  // cef_request_context_t::LoadExtension.
+  /// Returns the absolute path to the extension directory on disk. This value
+  /// will be prefixed with PK_DIR_RESOURCES if a relative path was passed to
+  /// cef_request_context_t::LoadExtension.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_path)(struct _cef_extension_t* self);
 
   ///
-  // Returns the extension manifest contents as a cef_dictionary_value_t object.
-  // See https://developer.chrome.com/extensions/manifest for details.
+  /// Returns the extension manifest contents as a cef_dictionary_value_t
+  /// object. See https://developer.chrome.com/extensions/manifest for details.
   ///
   struct _cef_dictionary_value_t*(CEF_CALLBACK* get_manifest)(
       struct _cef_extension_t* self);
 
   ///
-  // Returns true (1) if this object is the same extension as |that| object.
-  // Extensions are considered the same if identifier, path and loader context
-  // match.
+  /// Returns true (1) if this object is the same extension as |that| object.
+  /// Extensions are considered the same if identifier, path and loader context
+  /// match.
   ///
   int(CEF_CALLBACK* is_same)(struct _cef_extension_t* self,
                              struct _cef_extension_t* that);
 
   ///
-  // Returns the handler for this extension. Will return NULL for internal
-  // extensions or if no handler was passed to
-  // cef_request_context_t::LoadExtension.
+  /// Returns the handler for this extension. Will return NULL for internal
+  /// extensions or if no handler was passed to
+  /// cef_request_context_t::LoadExtension.
   ///
   struct _cef_extension_handler_t*(CEF_CALLBACK* get_handler)(
       struct _cef_extension_t* self);
 
   ///
-  // Returns the request context that loaded this extension. Will return NULL
-  // for internal extensions or if the extension has been unloaded. See the
-  // cef_request_context_t::LoadExtension documentation for more information
-  // about loader contexts. Must be called on the browser process UI thread.
+  /// Returns the request context that loaded this extension. Will return NULL
+  /// for internal extensions or if the extension has been unloaded. See the
+  /// cef_request_context_t::LoadExtension documentation for more information
+  /// about loader contexts. Must be called on the browser process UI thread.
   ///
   struct _cef_request_context_t*(CEF_CALLBACK* get_loader_context)(
       struct _cef_extension_t* self);
 
   ///
-  // Returns true (1) if this extension is currently loaded. Must be called on
-  // the browser process UI thread.
+  /// Returns true (1) if this extension is currently loaded. Must be called on
+  /// the browser process UI thread.
   ///
   int(CEF_CALLBACK* is_loaded)(struct _cef_extension_t* self);
 
   ///
-  // Unload this extension if it is not an internal extension and is currently
-  // loaded. Will result in a call to
-  // cef_extension_handler_t::OnExtensionUnloaded on success.
+  /// Unload this extension if it is not an internal extension and is currently
+  /// loaded. Will result in a call to
+  /// cef_extension_handler_t::OnExtensionUnloaded on success.
   ///
   void(CEF_CALLBACK* unload)(struct _cef_extension_t* self);
 } cef_extension_t;

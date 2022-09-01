@@ -56,33 +56,33 @@ class CefTestServerConnection;
 class CefTestServerHandler;
 
 ///
-// Class representing an embedded test server that supports HTTP/HTTPS requests.
-// This is a basic server providing only an essential subset of the HTTP/1.1
-// protocol. Especially, it assumes that the request syntax is correct. It *does
-// not* support a Chunked Transfer Encoding. Server capacity is limited and is
-// intended to handle only a small number of simultaneous connections (e.g. for
-// communicating between applications on localhost). The methods of this class
-// are safe to call from any thread in the brower process unless otherwise
-// indicated.
+/// Class representing an embedded test server that supports HTTP/HTTPS
+/// requests. This is a basic server providing only an essential subset of the
+/// HTTP/1.1 protocol. Especially, it assumes that the request syntax is
+/// correct. It *does not* support a Chunked Transfer Encoding. Server capacity
+/// is limited and is intended to handle only a small number of simultaneous
+/// connections (e.g. for communicating between applications on localhost). The
+/// methods of this class are safe to call from any thread in the brower process
+/// unless otherwise indicated.
 ///
 /*--cef(source=library)--*/
 class CefTestServer : public CefBaseRefCounted {
  public:
   ///
-  // Create and start a new test server that binds to |port|. If |port| is 0 an
-  // available port number will be selected. If |https_server| is true the
-  // server will be HTTPS, otherwise it will be HTTP. When |https_server| is
-  // true the |https_cert_type| value is used to configure the certificate type.
-  // Returns the newly created server object on success, or nullptr if the
-  // server cannot be started.
-  //
-  // A new thread will be created for each CreateAndStart call (the "dedicated
-  // server thread"). It is therefore recommended to use a different
-  // CefTestServerHandler instance for each CreateAndStart call to avoid thread
-  // safety issues in the CefTestServerHandler implementation.
-  //
-  // On success, this method will block until the dedicated server thread has
-  // started. The server will continue running until Stop is called.
+  /// Create and start a new test server that binds to |port|. If |port| is 0 an
+  /// available port number will be selected. If |https_server| is true the
+  /// server will be HTTPS, otherwise it will be HTTP. When |https_server| is
+  /// true the |https_cert_type| value is used to configure the certificate
+  /// type. Returns the newly created server object on success, or nullptr if
+  /// the server cannot be started.
+  ///
+  /// A new thread will be created for each CreateAndStart call (the "dedicated
+  /// server thread"). It is therefore recommended to use a different
+  /// CefTestServerHandler instance for each CreateAndStart call to avoid thread
+  /// safety issues in the CefTestServerHandler implementation.
+  ///
+  /// On success, this method will block until the dedicated server thread has
+  /// started. The server will continue running until Stop is called.
   ///
   /*--cef()--*/
   static CefRefPtr<CefTestServer> CreateAndStart(
@@ -92,35 +92,35 @@ class CefTestServer : public CefBaseRefCounted {
       CefRefPtr<CefTestServerHandler> handler);
 
   ///
-  // Stop the server and shut down the dedicated server thread. This method must
-  // be called on the same thread as CreateAndStart. It will block until the
-  // dedicated server thread has shut down.
+  /// Stop the server and shut down the dedicated server thread. This method
+  /// must be called on the same thread as CreateAndStart. It will block until
+  /// the dedicated server thread has shut down.
   ///
   /*--cef()--*/
   virtual void Stop() = 0;
 
   ///
-  // Returns the server origin including the port number (e.g.
-  // "[http|https]://127.0.0.1:<port>".
+  /// Returns the server origin including the port number (e.g.
+  /// "[http|https]://127.0.0.1:<port>".
   ///
   /*--cef()--*/
   virtual CefString GetOrigin() = 0;
 };
 
 ///
-// Implement this interface to handle test server requests. A new thread will be
-// created for each CefTestServer::CreateAndStart call (the "dedicated server
-// thread"), and the methods of this class will be called on that thread. See
-// related documentation on CefTestServer::CreateAndStart.
+/// Implement this interface to handle test server requests. A new thread will
+/// be created for each CefTestServer::CreateAndStart call (the "dedicated
+/// server thread"), and the methods of this class will be called on that
+/// thread. See related documentation on CefTestServer::CreateAndStart.
 ///
 /*--cef(source=client)--*/
 class CefTestServerHandler : public virtual CefBaseRefCounted {
  public:
   ///
-  // Called when |server| receives a request. To handle the request return true
-  // and use |connection| to send the response either synchronously or
-  // asynchronously. Otherwise, return false if the request is unhandled. When
-  // returning false do not call any |connection| methods.
+  /// Called when |server| receives a request. To handle the request return true
+  /// and use |connection| to send the response either synchronously or
+  /// asynchronously. Otherwise, return false if the request is unhandled. When
+  /// returning false do not call any |connection| methods.
   ///
   /*--cef()--*/
   virtual bool OnTestServerRequest(
@@ -130,9 +130,9 @@ class CefTestServerHandler : public virtual CefBaseRefCounted {
 };
 
 ///
-// Class representing a test server connection. The methods of this class are
-// safe to call from any thread in the brower process unless otherwise
-// indicated.
+/// Class representing a test server connection. The methods of this class are
+/// safe to call from any thread in the brower process unless otherwise
+/// indicated.
 ///
 /*--cef(source=library)--*/
 class CefTestServerConnection : public CefBaseRefCounted {
@@ -140,10 +140,10 @@ class CefTestServerConnection : public CefBaseRefCounted {
   typedef std::multimap<CefString, CefString> HeaderMap;
 
   ///
-  // Send an HTTP 200 "OK" response. |content_type| is the response content type
-  // (e.g. "text/html"). |data| is the response content and |data_size| is the
-  // size of |data| in bytes. The contents of |data| will be copied. The
-  // connection will be closed automatically after the response is sent.
+  /// Send an HTTP 200 "OK" response. |content_type| is the response content
+  /// type (e.g. "text/html"). |data| is the response content and |data_size| is
+  /// the size of |data| in bytes. The contents of |data| will be copied. The
+  /// connection will be closed automatically after the response is sent.
   ///
   /*--cef()--*/
   virtual void SendHttp200Response(const CefString& content_type,
@@ -151,27 +151,27 @@ class CefTestServerConnection : public CefBaseRefCounted {
                                    size_t data_size) = 0;
 
   ///
-  // Send an HTTP 404 "Not Found" response. The connection will be closed
-  // automatically after the response is sent.
+  /// Send an HTTP 404 "Not Found" response. The connection will be closed
+  /// automatically after the response is sent.
   ///
   /*--cef()--*/
   virtual void SendHttp404Response() = 0;
 
   ///
-  // Send an HTTP 500 "Internal Server Error" response. |error_message| is the
-  // associated error message. The connection will be closed automatically after
-  // the response is sent.
+  /// Send an HTTP 500 "Internal Server Error" response. |error_message| is the
+  /// associated error message. The connection will be closed automatically
+  /// after the response is sent.
   ///
   /*--cef()--*/
   virtual void SendHttp500Response(const CefString& error_message) = 0;
 
   ///
-  // Send a custom HTTP response. |response_code| is the HTTP response code sent
-  // in the status line (e.g. 200). |content_type| is the response content type
-  // (e.g. "text/html"). |data| is the response content and |data_size| is the
-  // size of |data| in bytes. The contents of |data| will be copied.
-  // |extra_headers| is an optional map of additional header key/value pairs.
-  // The connection will be closed automatically after the response is sent.
+  /// Send a custom HTTP response. |response_code| is the HTTP response code
+  /// sent in the status line (e.g. 200). |content_type| is the response content
+  /// type (e.g. "text/html"). |data| is the response content and |data_size| is
+  /// the size of |data| in bytes. The contents of |data| will be copied.
+  /// |extra_headers| is an optional map of additional header key/value pairs.
+  /// The connection will be closed automatically after the response is sent.
   ///
   /*--cef(optional_param=extra_headers)--*/
   virtual void SendHttpResponse(int response_code,

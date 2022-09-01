@@ -41,59 +41,59 @@
 #include "include/views/cef_view.h"
 
 ///
-// A ScrollView will show horizontal and/or vertical scrollbars when necessary
-// based on the size of the attached content view. Methods must be called on the
-// browser process UI thread unless otherwise indicated.
+/// A ScrollView will show horizontal and/or vertical scrollbars when necessary
+/// based on the size of the attached content view. Methods must be called on
+/// the browser process UI thread unless otherwise indicated.
 ///
 /*--cef(source=library)--*/
 class CefScrollView : public CefView {
  public:
   ///
-  // Create a new ScrollView.
+  /// Create a new ScrollView.
   ///
   /*--cef(optional_param=delegate)--*/
   static CefRefPtr<CefScrollView> CreateScrollView(
       CefRefPtr<CefViewDelegate> delegate);
 
   ///
-  // Set the content View. The content View must have a specified size (e.g.
-  // via CefView::SetBounds or CefViewDelegate::GetPreferredSize).
+  /// Set the content View. The content View must have a specified size (e.g.
+  /// via CefView::SetBounds or CefViewDelegate::GetPreferredSize).
   ///
   /*--cef()--*/
   virtual void SetContentView(CefRefPtr<CefView> view) = 0;
 
   ///
-  // Returns the content View.
+  /// Returns the content View.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefView> GetContentView() = 0;
 
   ///
-  // Returns the visible region of the content View.
+  /// Returns the visible region of the content View.
   ///
   /*--cef()--*/
   virtual CefRect GetVisibleContentRect() = 0;
 
   ///
-  // Returns true if the horizontal scrollbar is currently showing.
+  /// Returns true if the horizontal scrollbar is currently showing.
   ///
   /*--cef()--*/
   virtual bool HasHorizontalScrollbar() = 0;
 
   ///
-  // Returns the height of the horizontal scrollbar.
+  /// Returns the height of the horizontal scrollbar.
   ///
   /*--cef()--*/
   virtual int GetHorizontalScrollbarHeight() = 0;
 
   ///
-  // Returns true if the vertical scrollbar is currently showing.
+  /// Returns true if the vertical scrollbar is currently showing.
   ///
   /*--cef()--*/
   virtual bool HasVerticalScrollbar() = 0;
 
   ///
-  // Returns the width of the vertical scrollbar.
+  /// Returns the width of the vertical scrollbar.
   ///
   /*--cef()--*/
   virtual int GetVerticalScrollbarWidth() = 0;

@@ -42,42 +42,42 @@
 #include "include/cef_values.h"
 
 ///
-// Container for a single image represented at different scale factors. All
-// image representations should be the same size in density independent pixel
-// (DIP) units. For example, if the image at scale factor 1.0 is 100x100 pixels
-// then the image at scale factor 2.0 should be 200x200 pixels -- both images
-// will display with a DIP size of 100x100 units. The methods of this class can
-// be called on any browser process thread.
+/// Container for a single image represented at different scale factors. All
+/// image representations should be the same size in density independent pixel
+/// (DIP) units. For example, if the image at scale factor 1.0 is 100x100 pixels
+/// then the image at scale factor 2.0 should be 200x200 pixels -- both images
+/// will display with a DIP size of 100x100 units. The methods of this class can
+/// be called on any browser process thread.
 ///
 /*--cef(source=library)--*/
 class CefImage : public virtual CefBaseRefCounted {
  public:
   ///
-  // Create a new CefImage. It will initially be empty. Use the Add*() methods
-  // to add representations at different scale factors.
+  /// Create a new CefImage. It will initially be empty. Use the Add*() methods
+  /// to add representations at different scale factors.
   ///
   /*--cef()--*/
   static CefRefPtr<CefImage> CreateImage();
 
   ///
-  // Returns true if this Image is empty.
+  /// Returns true if this Image is empty.
   ///
   /*--cef()--*/
   virtual bool IsEmpty() = 0;
 
   ///
-  // Returns true if this Image and |that| Image share the same underlying
-  // storage. Will also return true if both images are empty.
+  /// Returns true if this Image and |that| Image share the same underlying
+  /// storage. Will also return true if both images are empty.
   ///
   /*--cef()--*/
   virtual bool IsSame(CefRefPtr<CefImage> that) = 0;
 
   ///
-  // Add a bitmap image representation for |scale_factor|. Only 32-bit RGBA/BGRA
-  // formats are supported. |pixel_width| and |pixel_height| are the bitmap
-  // representation size in pixel coordinates. |pixel_data| is the array of
-  // pixel data and should be |pixel_width| x |pixel_height| x 4 bytes in size.
-  // |color_type| and |alpha_type| values specify the pixel format.
+  /// Add a bitmap image representation for |scale_factor|. Only 32-bit
+  /// RGBA/BGRA formats are supported. |pixel_width| and |pixel_height| are the
+  /// bitmap representation size in pixel coordinates. |pixel_data| is the array
+  /// of pixel data and should be |pixel_width| x |pixel_height| x 4 bytes in
+  /// size. |color_type| and |alpha_type| values specify the pixel format.
   ///
   /*--cef()--*/
   virtual bool AddBitmap(float scale_factor,
@@ -89,9 +89,9 @@ class CefImage : public virtual CefBaseRefCounted {
                          size_t pixel_data_size) = 0;
 
   ///
-  // Add a PNG image representation for |scale_factor|. |png_data| is the image
-  // data of size |png_data_size|. Any alpha transparency in the PNG data will
-  // be maintained.
+  /// Add a PNG image representation for |scale_factor|. |png_data| is the image
+  /// data of size |png_data_size|. Any alpha transparency in the PNG data will
+  /// be maintained.
   ///
   /*--cef()--*/
   virtual bool AddPNG(float scale_factor,
@@ -99,9 +99,9 @@ class CefImage : public virtual CefBaseRefCounted {
                       size_t png_data_size) = 0;
 
   ///
-  // Create a JPEG image representation for |scale_factor|. |jpeg_data| is the
-  // image data of size |jpeg_data_size|. The JPEG format does not support
-  // transparency so the alpha byte will be set to 0xFF for all pixels.
+  /// Create a JPEG image representation for |scale_factor|. |jpeg_data| is the
+  /// image data of size |jpeg_data_size|. The JPEG format does not support
+  /// transparency so the alpha byte will be set to 0xFF for all pixels.
   ///
   /*--cef()--*/
   virtual bool AddJPEG(float scale_factor,
@@ -109,34 +109,34 @@ class CefImage : public virtual CefBaseRefCounted {
                        size_t jpeg_data_size) = 0;
 
   ///
-  // Returns the image width in density independent pixel (DIP) units.
+  /// Returns the image width in density independent pixel (DIP) units.
   ///
   /*--cef()--*/
   virtual size_t GetWidth() = 0;
 
   ///
-  // Returns the image height in density independent pixel (DIP) units.
+  /// Returns the image height in density independent pixel (DIP) units.
   ///
   /*--cef()--*/
   virtual size_t GetHeight() = 0;
 
   ///
-  // Returns true if this image contains a representation for |scale_factor|.
+  /// Returns true if this image contains a representation for |scale_factor|.
   ///
   /*--cef()--*/
   virtual bool HasRepresentation(float scale_factor) = 0;
 
   ///
-  // Removes the representation for |scale_factor|. Returns true on success.
+  /// Removes the representation for |scale_factor|. Returns true on success.
   ///
   /*--cef()--*/
   virtual bool RemoveRepresentation(float scale_factor) = 0;
 
   ///
-  // Returns information for the representation that most closely matches
-  // |scale_factor|. |actual_scale_factor| is the actual scale factor for the
-  // representation. |pixel_width| and |pixel_height| are the representation
-  // size in pixel coordinates. Returns true on success.
+  /// Returns information for the representation that most closely matches
+  /// |scale_factor|. |actual_scale_factor| is the actual scale factor for the
+  /// representation. |pixel_width| and |pixel_height| are the representation
+  /// size in pixel coordinates. Returns true on success.
   ///
   /*--cef()--*/
   virtual bool GetRepresentationInfo(float scale_factor,
@@ -145,12 +145,12 @@ class CefImage : public virtual CefBaseRefCounted {
                                      int& pixel_height) = 0;
 
   ///
-  // Returns the bitmap representation that most closely matches |scale_factor|.
-  // Only 32-bit RGBA/BGRA formats are supported. |color_type| and |alpha_type|
-  // values specify the desired output pixel format. |pixel_width| and
-  // |pixel_height| are the output representation size in pixel coordinates.
-  // Returns a CefBinaryValue containing the pixel data on success or NULL on
-  // failure.
+  /// Returns the bitmap representation that most closely matches
+  /// |scale_factor|. Only 32-bit RGBA/BGRA formats are supported. |color_type|
+  /// and |alpha_type| values specify the desired output pixel format.
+  /// |pixel_width| and |pixel_height| are the output representation size in
+  /// pixel coordinates. Returns a CefBinaryValue containing the pixel data on
+  /// success or NULL on failure.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefBinaryValue> GetAsBitmap(float scale_factor,
@@ -160,11 +160,12 @@ class CefImage : public virtual CefBaseRefCounted {
                                                 int& pixel_height) = 0;
 
   ///
-  // Returns the PNG representation that most closely matches |scale_factor|. If
-  // |with_transparency| is true any alpha transparency in the image will be
-  // represented in the resulting PNG data. |pixel_width| and |pixel_height| are
-  // the output representation size in pixel coordinates. Returns a
-  // CefBinaryValue containing the PNG image data on success or NULL on failure.
+  /// Returns the PNG representation that most closely matches |scale_factor|.
+  /// If |with_transparency| is true any alpha transparency in the image will be
+  /// represented in the resulting PNG data. |pixel_width| and |pixel_height|
+  /// are the output representation size in pixel coordinates. Returns a
+  /// CefBinaryValue containing the PNG image data on success or NULL on
+  /// failure.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefBinaryValue> GetAsPNG(float scale_factor,
@@ -173,13 +174,13 @@ class CefImage : public virtual CefBaseRefCounted {
                                              int& pixel_height) = 0;
 
   ///
-  // Returns the JPEG representation that most closely matches |scale_factor|.
-  // |quality| determines the compression level with 0 == lowest and 100 ==
-  // highest. The JPEG format does not support alpha transparency and the alpha
-  // channel, if any, will be discarded. |pixel_width| and |pixel_height| are
-  // the output representation size in pixel coordinates. Returns a
-  // CefBinaryValue containing the JPEG image data on success or NULL on
-  // failure.
+  /// Returns the JPEG representation that most closely matches |scale_factor|.
+  /// |quality| determines the compression level with 0 == lowest and 100 ==
+  /// highest. The JPEG format does not support alpha transparency and the alpha
+  /// channel, if any, will be discarded. |pixel_width| and |pixel_height| are
+  /// the output representation size in pixel coordinates. Returns a
+  /// CefBinaryValue containing the JPEG image data on success or NULL on
+  /// failure.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefBinaryValue> GetAsJPEG(float scale_factor,

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=742a96590827016b10f21c7779282554b73dfe1a$
+// $hash=ea84b76b6965d1419e416581d87e82f74680bd07$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
@@ -49,32 +49,32 @@ extern "C" {
 struct _cef_window_t;
 
 ///
-// Implement this structure to handle window events. The functions of this
-// structure will be called on the browser process UI thread unless otherwise
-// indicated.
+/// Implement this structure to handle window events. The functions of this
+/// structure will be called on the browser process UI thread unless otherwise
+/// indicated.
 ///
 typedef struct _cef_window_delegate_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_panel_delegate_t base;
 
   ///
-  // Called when |window| is created.
+  /// Called when |window| is created.
   ///
   void(CEF_CALLBACK* on_window_created)(struct _cef_window_delegate_t* self,
                                         struct _cef_window_t* window);
 
   ///
-  // Called when |window| is destroyed. Release all references to |window| and
-  // do not attempt to execute any functions on |window| after this callback
-  // returns.
+  /// Called when |window| is destroyed. Release all references to |window| and
+  /// do not attempt to execute any functions on |window| after this callback
+  /// returns.
   ///
   void(CEF_CALLBACK* on_window_destroyed)(struct _cef_window_delegate_t* self,
                                           struct _cef_window_t* window);
 
   ///
-  // Called when |window| is activated or deactivated.
+  /// Called when |window| is activated or deactivated.
   ///
   void(CEF_CALLBACK* on_window_activation_changed)(
       struct _cef_window_delegate_t* self,
@@ -82,12 +82,12 @@ typedef struct _cef_window_delegate_t {
       int active);
 
   ///
-  // Return the parent for |window| or NULL if the |window| does not have a
-  // parent. Windows with parents will not get a taskbar button. Set |is_menu|
-  // to true (1) if |window| will be displayed as a menu, in which case it will
-  // not be clipped to the parent window bounds. Set |can_activate_menu| to
-  // false (0) if |is_menu| is true (1) and |window| should not be activated
-  // (given keyboard focus) when displayed.
+  /// Return the parent for |window| or NULL if the |window| does not have a
+  /// parent. Windows with parents will not get a taskbar button. Set |is_menu|
+  /// to true (1) if |window| will be displayed as a menu, in which case it will
+  /// not be clipped to the parent window bounds. Set |can_activate_menu| to
+  /// false (0) if |is_menu| is true (1) and |window| should not be activated
+  /// (given keyboard focus) when displayed.
   ///
   struct _cef_window_t*(CEF_CALLBACK* get_parent_window)(
       struct _cef_window_delegate_t* self,
@@ -96,70 +96,70 @@ typedef struct _cef_window_delegate_t {
       int* can_activate_menu);
 
   ///
-  // Return the initial bounds for |window| in density independent pixel (DIP)
-  // coordinates. If this function returns an NULL CefRect then
-  // get_preferred_size() will be called to retrieve the size, and the window
-  // will be placed on the screen with origin (0,0). This function can be used
-  // in combination with cef_view_t::get_bounds_in_screen() to restore the
-  // previous window bounds.
+  /// Return the initial bounds for |window| in density independent pixel (DIP)
+  /// coordinates. If this function returns an NULL CefRect then
+  /// get_preferred_size() will be called to retrieve the size, and the window
+  /// will be placed on the screen with origin (0,0). This function can be used
+  /// in combination with cef_view_t::get_bounds_in_screen() to restore the
+  /// previous window bounds.
   ///
   cef_rect_t(CEF_CALLBACK* get_initial_bounds)(
       struct _cef_window_delegate_t* self,
       struct _cef_window_t* window);
 
   ///
-  // Return the initial show state for |window|.
+  /// Return the initial show state for |window|.
   ///
   cef_show_state_t(CEF_CALLBACK* get_initial_show_state)(
       struct _cef_window_delegate_t* self,
       struct _cef_window_t* window);
 
   ///
-  // Return true (1) if |window| should be created without a frame or title bar.
-  // The window will be resizable if can_resize() returns true (1). Use
-  // cef_window_t::set_draggable_regions() to specify draggable regions.
+  /// Return true (1) if |window| should be created without a frame or title
+  /// bar. The window will be resizable if can_resize() returns true (1). Use
+  /// cef_window_t::set_draggable_regions() to specify draggable regions.
   ///
   int(CEF_CALLBACK* is_frameless)(struct _cef_window_delegate_t* self,
                                   struct _cef_window_t* window);
 
   ///
-  // Return true (1) if |window| can be resized.
+  /// Return true (1) if |window| can be resized.
   ///
   int(CEF_CALLBACK* can_resize)(struct _cef_window_delegate_t* self,
                                 struct _cef_window_t* window);
 
   ///
-  // Return true (1) if |window| can be maximized.
+  /// Return true (1) if |window| can be maximized.
   ///
   int(CEF_CALLBACK* can_maximize)(struct _cef_window_delegate_t* self,
                                   struct _cef_window_t* window);
 
   ///
-  // Return true (1) if |window| can be minimized.
+  /// Return true (1) if |window| can be minimized.
   ///
   int(CEF_CALLBACK* can_minimize)(struct _cef_window_delegate_t* self,
                                   struct _cef_window_t* window);
 
   ///
-  // Return true (1) if |window| can be closed. This will be called for user-
-  // initiated window close actions and when cef_window_t::close() is called.
+  /// Return true (1) if |window| can be closed. This will be called for user-
+  /// initiated window close actions and when cef_window_t::close() is called.
   ///
   int(CEF_CALLBACK* can_close)(struct _cef_window_delegate_t* self,
                                struct _cef_window_t* window);
 
   ///
-  // Called when a keyboard accelerator registered with
-  // cef_window_t::SetAccelerator is triggered. Return true (1) if the
-  // accelerator was handled or false (0) otherwise.
+  /// Called when a keyboard accelerator registered with
+  /// cef_window_t::SetAccelerator is triggered. Return true (1) if the
+  /// accelerator was handled or false (0) otherwise.
   ///
   int(CEF_CALLBACK* on_accelerator)(struct _cef_window_delegate_t* self,
                                     struct _cef_window_t* window,
                                     int command_id);
 
   ///
-  // Called after all other controls in the window have had a chance to handle
-  // the event. |event| contains information about the keyboard event. Return
-  // true (1) if the keyboard event was handled or false (0) otherwise.
+  /// Called after all other controls in the window have had a chance to handle
+  /// the event. |event| contains information about the keyboard event. Return
+  /// true (1) if the keyboard event was handled or false (0) otherwise.
   ///
   int(CEF_CALLBACK* on_key_event)(struct _cef_window_delegate_t* self,
                                   struct _cef_window_t* window,

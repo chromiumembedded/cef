@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=3d7b3d4702c8d35dc8780f9e87eb7560d6ce1dee$
+// $hash=5f8c2d1e11779072e83610190ed7215324028d07$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESOURCE_BUNDLE_HANDLER_CAPI_H_
@@ -47,21 +47,21 @@ extern "C" {
 #endif
 
 ///
-// Structure used to implement a custom resource bundle structure. See
-// CefSettings for additional options related to resource bundle loading. The
-// functions of this structure may be called on multiple threads.
+/// Structure used to implement a custom resource bundle structure. See
+/// CefSettings for additional options related to resource bundle loading. The
+/// functions of this structure may be called on multiple threads.
 ///
 typedef struct _cef_resource_bundle_handler_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Called to retrieve a localized translation for the specified |string_id|.
-  // To provide the translation set |string| to the translation string and
-  // return true (1). To use the default translation return false (0). Include
-  // cef_pack_strings.h for a listing of valid string ID values.
+  /// Called to retrieve a localized translation for the specified |string_id|.
+  /// To provide the translation set |string| to the translation string and
+  /// return true (1). To use the default translation return false (0). Include
+  /// cef_pack_strings.h for a listing of valid string ID values.
   ///
   int(CEF_CALLBACK* get_localized_string)(
       struct _cef_resource_bundle_handler_t* self,
@@ -69,12 +69,12 @@ typedef struct _cef_resource_bundle_handler_t {
       cef_string_t* string);
 
   ///
-  // Called to retrieve data for the specified scale independent |resource_id|.
-  // To provide the resource data set |data| and |data_size| to the data pointer
-  // and size respectively and return true (1). To use the default resource data
-  // return false (0). The resource data will not be copied and must remain
-  // resident in memory. Include cef_pack_resources.h for a listing of valid
-  // resource ID values.
+  /// Called to retrieve data for the specified scale independent |resource_id|.
+  /// To provide the resource data set |data| and |data_size| to the data
+  /// pointer and size respectively and return true (1). To use the default
+  /// resource data return false (0). The resource data will not be copied and
+  /// must remain resident in memory. Include cef_pack_resources.h for a listing
+  /// of valid resource ID values.
   ///
   int(CEF_CALLBACK* get_data_resource)(
       struct _cef_resource_bundle_handler_t* self,
@@ -83,12 +83,12 @@ typedef struct _cef_resource_bundle_handler_t {
       size_t* data_size);
 
   ///
-  // Called to retrieve data for the specified |resource_id| nearest the scale
-  // factor |scale_factor|. To provide the resource data set |data| and
-  // |data_size| to the data pointer and size respectively and return true (1).
-  // To use the default resource data return false (0). The resource data will
-  // not be copied and must remain resident in memory. Include
-  // cef_pack_resources.h for a listing of valid resource ID values.
+  /// Called to retrieve data for the specified |resource_id| nearest the scale
+  /// factor |scale_factor|. To provide the resource data set |data| and
+  /// |data_size| to the data pointer and size respectively and return true (1).
+  /// To use the default resource data return false (0). The resource data will
+  /// not be copied and must remain resident in memory. Include
+  /// cef_pack_resources.h for a listing of valid resource ID values.
   ///
   int(CEF_CALLBACK* get_data_resource_for_scale)(
       struct _cef_resource_bundle_handler_t* self,

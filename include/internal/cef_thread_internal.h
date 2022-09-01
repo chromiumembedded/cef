@@ -53,7 +53,7 @@ typedef pid_t cef_platform_thread_id_t;
 #endif
 
 ///
-// Returns the current platform thread ID.
+/// Returns the current platform thread ID.
 ///
 CEF_EXPORT cef_platform_thread_id_t cef_get_current_platform_thread_id(void);
 
@@ -66,7 +66,7 @@ typedef pthread_t cef_platform_thread_handle_t;
 #endif
 
 ///
-// Returns the current platform thread handle.
+/// Returns the current platform thread handle.
 ///
 CEF_EXPORT cef_platform_thread_handle_t
 cef_get_current_platform_thread_handle(void);

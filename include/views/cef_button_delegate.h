@@ -43,20 +43,20 @@
 class CefButton;
 
 ///
-// Implement this interface to handle Button events. The methods of this class
-// will be called on the browser process UI thread unless otherwise indicated.
+/// Implement this interface to handle Button events. The methods of this class
+/// will be called on the browser process UI thread unless otherwise indicated.
 ///
 /*--cef(source=client)--*/
 class CefButtonDelegate : public CefViewDelegate {
  public:
   ///
-  // Called when |button| is pressed.
+  /// Called when |button| is pressed.
   ///
   /*--cef()--*/
   virtual void OnButtonPressed(CefRefPtr<CefButton> button) = 0;
 
   ///
-  // Called when the state of |button| changes.
+  /// Called when the state of |button| changes.
   ///
   /*--cef()--*/
   virtual void OnButtonStateChanged(CefRefPtr<CefButton> button) {}

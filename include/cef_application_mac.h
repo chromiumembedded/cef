@@ -66,7 +66,7 @@
 @end
 
 // Copy of definition from base/mac/scoped_sending_event.h.
-@protocol CrAppControlProtocol<CrAppProtocol>
+@protocol CrAppControlProtocol <CrAppProtocol>
 - (void)setHandlingSendEvent:(BOOL)handlingSendEvent;
 @end
 
@@ -81,7 +81,7 @@
 
 // All CEF client applications must subclass NSApplication and implement this
 // protocol.
-@protocol CefAppProtocol<CrAppControlProtocol>
+@protocol CefAppProtocol <CrAppControlProtocol>
 @end
 
 #ifdef __cplusplus

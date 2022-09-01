@@ -43,15 +43,15 @@
 #include "include/cef_base.h"
 
 ///
-// Class used to create and/or parse command line arguments. Arguments with
-// '--', '-' and, on Windows, '/' prefixes are considered switches. Switches
-// will always precede any arguments without switch prefixes. Switches can
-// optionally have a value specified using the '=' delimiter (e.g.
-// "-switch=value"). An argument of "--" will terminate switch parsing with all
-// subsequent tokens, regardless of prefix, being interpreted as non-switch
-// arguments. Switch names should be lowercase ASCII and will be converted to
-// such if necessary. Switch values will retain the original case and UTF8
-// encoding. This class can be used before CefInitialize() is called.
+/// Class used to create and/or parse command line arguments. Arguments with
+/// "--", "-" and, on Windows, "/" prefixes are considered switches. Switches
+/// will always precede any arguments without switch prefixes. Switches can
+/// optionally have a value specified using the "=" delimiter (e.g.
+/// "-switch=value"). An argument of "--" will terminate switch parsing with all
+/// subsequent tokens, regardless of prefix, being interpreted as non-switch
+/// arguments. Switch names should be lowercase ASCII and will be converted to
+/// such if necessary. Switch values will retain the original case and UTF8
+/// encoding. This class can be used before CefInitialize() is called.
 ///
 /*--cef(source=library,no_debugct_check)--*/
 class CefCommandLine : public virtual CefBaseRefCounted {
@@ -60,147 +60,148 @@ class CefCommandLine : public virtual CefBaseRefCounted {
   typedef std::map<CefString, CefString> SwitchMap;
 
   ///
-  // Create a new CefCommandLine instance.
+  /// Create a new CefCommandLine instance.
   ///
   /*--cef(api_hash_check)--*/
   static CefRefPtr<CefCommandLine> CreateCommandLine();
 
   ///
-  // Returns the singleton global CefCommandLine object. The returned object
-  // will be read-only.
+  /// Returns the singleton global CefCommandLine object. The returned object
+  /// will be read-only.
   ///
   /*--cef(api_hash_check)--*/
   static CefRefPtr<CefCommandLine> GetGlobalCommandLine();
 
   ///
-  // Returns true if this object is valid. Do not call any other methods if this
-  // function returns false.
+  /// Returns true if this object is valid. Do not call any other methods if
+  /// this function returns false.
   ///
   /*--cef()--*/
   virtual bool IsValid() = 0;
 
   ///
-  // Returns true if the values of this object are read-only. Some APIs may
-  // expose read-only objects.
+  /// Returns true if the values of this object are read-only. Some APIs may
+  /// expose read-only objects.
   ///
   /*--cef()--*/
   virtual bool IsReadOnly() = 0;
 
   ///
-  // Returns a writable copy of this object.
+  /// Returns a writable copy of this object.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefCommandLine> Copy() = 0;
 
   ///
-  // Initialize the command line with the specified |argc| and |argv| values.
-  // The first argument must be the name of the program. This method is only
-  // supported on non-Windows platforms.
+  /// Initialize the command line with the specified |argc| and |argv| values.
+  /// The first argument must be the name of the program. This method is only
+  /// supported on non-Windows platforms.
   ///
   /*--cef()--*/
   virtual void InitFromArgv(int argc, const char* const* argv) = 0;
 
   ///
-  // Initialize the command line with the string returned by calling
-  // GetCommandLineW(). This method is only supported on Windows.
+  /// Initialize the command line with the string returned by calling
+  /// GetCommandLineW(). This method is only supported on Windows.
   ///
   /*--cef()--*/
   virtual void InitFromString(const CefString& command_line) = 0;
 
   ///
-  // Reset the command-line switches and arguments but leave the program
-  // component unchanged.
+  /// Reset the command-line switches and arguments but leave the program
+  /// component unchanged.
   ///
   /*--cef()--*/
   virtual void Reset() = 0;
 
   ///
-  // Retrieve the original command line string as a vector of strings.
-  // The argv array: { program, [(--|-|/)switch[=value]]*, [--], [argument]* }
+  /// Retrieve the original command line string as a vector of strings.
+  /// The argv array:
+  /// `{ program, [(--|-|/)switch[=value]]*, [--], [argument]* }`
   ///
   /*--cef()--*/
   virtual void GetArgv(std::vector<CefString>& argv) = 0;
 
   ///
-  // Constructs and returns the represented command line string. Use this method
-  // cautiously because quoting behavior is unclear.
+  /// Constructs and returns the represented command line string. Use this
+  /// method cautiously because quoting behavior is unclear.
   ///
   /*--cef()--*/
   virtual CefString GetCommandLineString() = 0;
 
   ///
-  // Get the program part of the command line string (the first item).
+  /// Get the program part of the command line string (the first item).
   ///
   /*--cef()--*/
   virtual CefString GetProgram() = 0;
 
   ///
-  // Set the program part of the command line string (the first item).
+  /// Set the program part of the command line string (the first item).
   ///
   /*--cef()--*/
   virtual void SetProgram(const CefString& program) = 0;
 
   ///
-  // Returns true if the command line has switches.
+  /// Returns true if the command line has switches.
   ///
   /*--cef()--*/
   virtual bool HasSwitches() = 0;
 
   ///
-  // Returns true if the command line contains the given switch.
+  /// Returns true if the command line contains the given switch.
   ///
   /*--cef()--*/
   virtual bool HasSwitch(const CefString& name) = 0;
 
   ///
-  // Returns the value associated with the given switch. If the switch has no
-  // value or isn't present this method returns the empty string.
+  /// Returns the value associated with the given switch. If the switch has no
+  /// value or isn't present this method returns the empty string.
   ///
   /*--cef()--*/
   virtual CefString GetSwitchValue(const CefString& name) = 0;
 
   ///
-  // Returns the map of switch names and values. If a switch has no value an
-  // empty string is returned.
+  /// Returns the map of switch names and values. If a switch has no value an
+  /// empty string is returned.
   ///
   /*--cef()--*/
   virtual void GetSwitches(SwitchMap& switches) = 0;
 
   ///
-  // Add a switch to the end of the command line. If the switch has no value
-  // pass an empty value string.
+  /// Add a switch to the end of the command line. If the switch has no value
+  /// pass an empty value string.
   ///
   /*--cef()--*/
   virtual void AppendSwitch(const CefString& name) = 0;
 
   ///
-  // Add a switch with the specified value to the end of the command line.
+  /// Add a switch with the specified value to the end of the command line.
   ///
   /*--cef()--*/
   virtual void AppendSwitchWithValue(const CefString& name,
                                      const CefString& value) = 0;
 
   ///
-  // True if there are remaining command line arguments.
+  /// True if there are remaining command line arguments.
   ///
   /*--cef()--*/
   virtual bool HasArguments() = 0;
 
   ///
-  // Get the remaining command line arguments.
+  /// Get the remaining command line arguments.
   ///
   /*--cef()--*/
   virtual void GetArguments(ArgumentList& arguments) = 0;
 
   ///
-  // Add an argument to the end of the command line.
+  /// Add an argument to the end of the command line.
   ///
   /*--cef()--*/
   virtual void AppendArgument(const CefString& argument) = 0;
 
   ///
-  // Insert a command before the current command.
-  // Common for debuggers, like "valgrind" or "gdb --args".
+  /// Insert a command before the current command.
+  /// Common for debuggers, like "valgrind" or "gdb --args".
   ///
   /*--cef()--*/
   virtual void PrependWrapper(const CefString& wrapper) = 0;

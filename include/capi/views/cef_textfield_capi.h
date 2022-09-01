@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=798f84672412f544765b800d03cf284b066f818c$
+// $hash=a38b506d8bc425f3de4809c02d0ec4bc558eb518$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_TEXTFIELD_CAPI_H_
@@ -48,166 +48,167 @@ extern "C" {
 #endif
 
 ///
-// A Textfield supports editing of text. This control is custom rendered with no
-// platform-specific code. Methods must be called on the browser process UI
-// thread unless otherwise indicated.
+/// A Textfield supports editing of text. This control is custom rendered with
+/// no platform-specific code. Methods must be called on the browser process UI
+/// thread unless otherwise indicated.
 ///
 typedef struct _cef_textfield_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_view_t base;
 
   ///
-  // Sets whether the text will be displayed as asterisks.
+  /// Sets whether the text will be displayed as asterisks.
   ///
   void(CEF_CALLBACK* set_password_input)(struct _cef_textfield_t* self,
                                          int password_input);
 
   ///
-  // Returns true (1) if the text will be displayed as asterisks.
+  /// Returns true (1) if the text will be displayed as asterisks.
   ///
   int(CEF_CALLBACK* is_password_input)(struct _cef_textfield_t* self);
 
   ///
-  // Sets whether the text will read-only.
+  /// Sets whether the text will read-only.
   ///
   void(CEF_CALLBACK* set_read_only)(struct _cef_textfield_t* self,
                                     int read_only);
 
   ///
-  // Returns true (1) if the text is read-only.
+  /// Returns true (1) if the text is read-only.
   ///
   int(CEF_CALLBACK* is_read_only)(struct _cef_textfield_t* self);
 
   ///
-  // Returns the currently displayed text.
+  /// Returns the currently displayed text.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_text)(struct _cef_textfield_t* self);
 
   ///
-  // Sets the contents to |text|. The cursor will be moved to end of the text if
-  // the current position is outside of the text range.
+  /// Sets the contents to |text|. The cursor will be moved to end of the text
+  /// if the current position is outside of the text range.
   ///
   void(CEF_CALLBACK* set_text)(struct _cef_textfield_t* self,
                                const cef_string_t* text);
 
   ///
-  // Appends |text| to the previously-existing text.
+  /// Appends |text| to the previously-existing text.
   ///
   void(CEF_CALLBACK* append_text)(struct _cef_textfield_t* self,
                                   const cef_string_t* text);
 
   ///
-  // Inserts |text| at the current cursor position replacing any selected text.
+  /// Inserts |text| at the current cursor position replacing any selected text.
   ///
   void(CEF_CALLBACK* insert_or_replace_text)(struct _cef_textfield_t* self,
                                              const cef_string_t* text);
 
   ///
-  // Returns true (1) if there is any selected text.
+  /// Returns true (1) if there is any selected text.
   ///
   int(CEF_CALLBACK* has_selection)(struct _cef_textfield_t* self);
 
   ///
-  // Returns the currently selected text.
+  /// Returns the currently selected text.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_selected_text)(
       struct _cef_textfield_t* self);
 
   ///
-  // Selects all text. If |reversed| is true (1) the range will end at the
-  // logical beginning of the text; this generally shows the leading portion of
-  // text that overflows its display area.
+  /// Selects all text. If |reversed| is true (1) the range will end at the
+  /// logical beginning of the text; this generally shows the leading portion of
+  /// text that overflows its display area.
   ///
   void(CEF_CALLBACK* select_all)(struct _cef_textfield_t* self, int reversed);
 
   ///
-  // Clears the text selection and sets the caret to the end.
+  /// Clears the text selection and sets the caret to the end.
   ///
   void(CEF_CALLBACK* clear_selection)(struct _cef_textfield_t* self);
 
   ///
-  // Returns the selected logical text range.
+  /// Returns the selected logical text range.
   ///
   cef_range_t(CEF_CALLBACK* get_selected_range)(struct _cef_textfield_t* self);
 
   ///
-  // Selects the specified logical text range.
+  /// Selects the specified logical text range.
   ///
   void(CEF_CALLBACK* select_range)(struct _cef_textfield_t* self,
                                    const cef_range_t* range);
 
   ///
-  // Returns the current cursor position.
+  /// Returns the current cursor position.
   ///
   size_t(CEF_CALLBACK* get_cursor_position)(struct _cef_textfield_t* self);
 
   ///
-  // Sets the text color.
+  /// Sets the text color.
   ///
   void(CEF_CALLBACK* set_text_color)(struct _cef_textfield_t* self,
                                      cef_color_t color);
 
   ///
-  // Returns the text color.
+  /// Returns the text color.
   ///
   cef_color_t(CEF_CALLBACK* get_text_color)(struct _cef_textfield_t* self);
 
   ///
-  // Sets the selection text color.
+  /// Sets the selection text color.
   ///
   void(CEF_CALLBACK* set_selection_text_color)(struct _cef_textfield_t* self,
                                                cef_color_t color);
 
   ///
-  // Returns the selection text color.
+  /// Returns the selection text color.
   ///
   cef_color_t(CEF_CALLBACK* get_selection_text_color)(
       struct _cef_textfield_t* self);
 
   ///
-  // Sets the selection background color.
+  /// Sets the selection background color.
   ///
   void(CEF_CALLBACK* set_selection_background_color)(
       struct _cef_textfield_t* self,
       cef_color_t color);
 
   ///
-  // Returns the selection background color.
+  /// Returns the selection background color.
   ///
   cef_color_t(CEF_CALLBACK* get_selection_background_color)(
       struct _cef_textfield_t* self);
 
   ///
-  // Sets the font list. The format is "<FONT_FAMILY_LIST>,[STYLES] <SIZE>",
-  // where: - FONT_FAMILY_LIST is a comma-separated list of font family names, -
-  // STYLES is an optional space-separated list of style names (case-sensitive
-  //   "Bold" and "Italic" are supported), and
-  // - SIZE is an integer font size in pixels with the suffix "px".
-  //
-  // Here are examples of valid font description strings: - "Arial, Helvetica,
-  // Bold Italic 14px" - "Arial, 14px"
+  /// Sets the font list. The format is "<FONT_FAMILY_LIST>,[STYLES] <SIZE>",
+  /// where: - FONT_FAMILY_LIST is a comma-separated list of font family names,
+  /// - STYLES is an optional space-separated list of style names (case-
+  /// sensitive
+  ///   "Bold" and "Italic" are supported), and
+  /// - SIZE is an integer font size in pixels with the suffix "px".
+  ///
+  /// Here are examples of valid font description strings: - "Arial, Helvetica,
+  /// Bold Italic 14px" - "Arial, 14px"
   ///
   void(CEF_CALLBACK* set_font_list)(struct _cef_textfield_t* self,
                                     const cef_string_t* font_list);
 
   ///
-  // Applies |color| to the specified |range| without changing the default
-  // color. If |range| is NULL the color will be set on the complete text
-  // contents.
+  /// Applies |color| to the specified |range| without changing the default
+  /// color. If |range| is NULL the color will be set on the complete text
+  /// contents.
   ///
   void(CEF_CALLBACK* apply_text_color)(struct _cef_textfield_t* self,
                                        cef_color_t color,
                                        const cef_range_t* range);
 
   ///
-  // Applies |style| to the specified |range| without changing the default
-  // style. If |add| is true (1) the style will be added, otherwise the style
-  // will be removed. If |range| is NULL the style will be set on the complete
-  // text contents.
+  /// Applies |style| to the specified |range| without changing the default
+  /// style. If |add| is true (1) the style will be added, otherwise the style
+  /// will be removed. If |range| is NULL the style will be set on the complete
+  /// text contents.
   ///
   void(CEF_CALLBACK* apply_text_style)(struct _cef_textfield_t* self,
                                        cef_text_style_t style,
@@ -215,53 +216,53 @@ typedef struct _cef_textfield_t {
                                        const cef_range_t* range);
 
   ///
-  // Returns true (1) if the action associated with the specified command id is
-  // enabled. See additional comments on execute_command().
+  /// Returns true (1) if the action associated with the specified command id is
+  /// enabled. See additional comments on execute_command().
   ///
   int(CEF_CALLBACK* is_command_enabled)(struct _cef_textfield_t* self,
                                         cef_text_field_commands_t command_id);
 
   ///
-  // Performs the action associated with the specified command id.
+  /// Performs the action associated with the specified command id.
   ///
   void(CEF_CALLBACK* execute_command)(struct _cef_textfield_t* self,
                                       cef_text_field_commands_t command_id);
 
   ///
-  // Clears Edit history.
+  /// Clears Edit history.
   ///
   void(CEF_CALLBACK* clear_edit_history)(struct _cef_textfield_t* self);
 
   ///
-  // Sets the placeholder text that will be displayed when the Textfield is
-  // NULL.
+  /// Sets the placeholder text that will be displayed when the Textfield is
+  /// NULL.
   ///
   void(CEF_CALLBACK* set_placeholder_text)(struct _cef_textfield_t* self,
                                            const cef_string_t* text);
 
   ///
-  // Returns the placeholder text that will be displayed when the Textfield is
-  // NULL.
+  /// Returns the placeholder text that will be displayed when the Textfield is
+  /// NULL.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_placeholder_text)(
       struct _cef_textfield_t* self);
 
   ///
-  // Sets the placeholder text color.
+  /// Sets the placeholder text color.
   ///
   void(CEF_CALLBACK* set_placeholder_text_color)(struct _cef_textfield_t* self,
                                                  cef_color_t color);
 
   ///
-  // Set the accessible name that will be exposed to assistive technology (AT).
+  /// Set the accessible name that will be exposed to assistive technology (AT).
   ///
   void(CEF_CALLBACK* set_accessible_name)(struct _cef_textfield_t* self,
                                           const cef_string_t* name);
 } cef_textfield_t;
 
 ///
-// Create a new Textfield.
+/// Create a new Textfield.
 ///
 CEF_EXPORT cef_textfield_t* cef_textfield_create(
     struct _cef_textfield_delegate_t* delegate);

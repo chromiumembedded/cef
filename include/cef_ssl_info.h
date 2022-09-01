@@ -44,27 +44,27 @@
 #include "include/cef_x509_certificate.h"
 
 ///
-// Class representing SSL information.
+/// Class representing SSL information.
 ///
 /*--cef(source=library)--*/
 class CefSSLInfo : public virtual CefBaseRefCounted {
  public:
   ///
-  // Returns a bitmask containing any and all problems verifying the server
-  // certificate.
+  /// Returns a bitmask containing any and all problems verifying the server
+  /// certificate.
   ///
   /*--cef(default_retval=CERT_STATUS_NONE)--*/
   virtual cef_cert_status_t GetCertStatus() = 0;
 
   ///
-  // Returns the X.509 certificate.
+  /// Returns the X.509 certificate.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefX509Certificate> GetX509Certificate() = 0;
 };
 
 ///
-// Returns true if the certificate status represents an error.
+/// Returns true if the certificate status represents an error.
 ///
 /*--cef()--*/
 bool CefIsCertStatusError(cef_cert_status_t status);

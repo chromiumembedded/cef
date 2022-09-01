@@ -43,18 +43,18 @@
 #include "include/views/cef_view.h"
 
 ///
-// A View hosting a CefBrowser instance. Methods must be called on the browser
-// process UI thread unless otherwise indicated.
+/// A View hosting a CefBrowser instance. Methods must be called on the browser
+/// process UI thread unless otherwise indicated.
 ///
 /*--cef(source=library)--*/
 class CefBrowserView : public CefView {
  public:
   ///
-  // Create a new BrowserView. The underlying CefBrowser will not be created
-  // until this view is added to the views hierarchy. The optional |extra_info|
-  // parameter provides an opportunity to specify extra information specific
-  // to the created browser that will be passed to
-  // CefRenderProcessHandler::OnBrowserCreated() in the render process.
+  /// Create a new BrowserView. The underlying CefBrowser will not be created
+  /// until this view is added to the views hierarchy. The optional |extra_info|
+  /// parameter provides an opportunity to specify extra information specific
+  /// to the created browser that will be passed to
+  /// CefRenderProcessHandler::OnBrowserCreated() in the render process.
   ///
   /*--cef(optional_param=client,optional_param=url,
           optional_param=request_context,optional_param=delegate,
@@ -68,37 +68,37 @@ class CefBrowserView : public CefView {
       CefRefPtr<CefBrowserViewDelegate> delegate);
 
   ///
-  // Returns the BrowserView associated with |browser|.
+  /// Returns the BrowserView associated with |browser|.
   ///
   /*--cef()--*/
   static CefRefPtr<CefBrowserView> GetForBrowser(CefRefPtr<CefBrowser> browser);
 
   ///
-  // Returns the CefBrowser hosted by this BrowserView. Will return NULL if the
-  // browser has not yet been created or has already been destroyed.
+  /// Returns the CefBrowser hosted by this BrowserView. Will return NULL if the
+  /// browser has not yet been created or has already been destroyed.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefBrowser> GetBrowser() = 0;
 
   ///
-  // Returns the Chrome toolbar associated with this BrowserView. Only supported
-  // when using the Chrome runtime. The CefBrowserViewDelegate::
-  // GetChromeToolbarType() method must return a value other than
-  // CEF_CTT_NONE and the toolbar will not be available until after this
-  // BrowserView is added to a CefWindow and CefViewDelegate::OnWindowChanged()
-  // has been called.
+  /// Returns the Chrome toolbar associated with this BrowserView. Only
+  /// supported when using the Chrome runtime. The CefBrowserViewDelegate::
+  /// GetChromeToolbarType() method must return a value other than
+  /// CEF_CTT_NONE and the toolbar will not be available until after this
+  /// BrowserView is added to a CefWindow and CefViewDelegate::OnWindowChanged()
+  /// has been called.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefView> GetChromeToolbar() = 0;
 
   ///
-  // Sets whether accelerators registered with CefWindow::SetAccelerator are
-  // triggered before or after the event is sent to the CefBrowser. If
-  // |prefer_accelerators| is true then the matching accelerator will be
-  // triggered immediately and the event will not be sent to the CefBrowser. If
-  // |prefer_accelerators| is false then the matching accelerator will only be
-  // triggered if the event is not handled by web content or by
-  // CefKeyboardHandler. The default value is false.
+  /// Sets whether accelerators registered with CefWindow::SetAccelerator are
+  /// triggered before or after the event is sent to the CefBrowser. If
+  /// |prefer_accelerators| is true then the matching accelerator will be
+  /// triggered immediately and the event will not be sent to the CefBrowser. If
+  /// |prefer_accelerators| is false then the matching accelerator will only be
+  /// triggered if the event is not handled by web content or by
+  /// CefKeyboardHandler. The default value is false.
   ///
   /*--cef()--*/
   virtual void SetPreferAccelerators(bool prefer_accelerators) = 0;

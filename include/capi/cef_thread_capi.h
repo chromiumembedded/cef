@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=d99ffc2270c1cf8b0f06dd08c1b6e9b27cee4bc8$
+// $hash=b5b17f2a66283495e19978a5bbc36b47d9b61507$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_THREAD_CAPI_H_
@@ -48,60 +48,60 @@ extern "C" {
 #endif
 
 ///
-// A simple thread abstraction that establishes a message loop on a new thread.
-// The consumer uses cef_task_runner_t to execute code on the thread's message
-// loop. The thread is terminated when the cef_thread_t object is destroyed or
-// stop() is called. All pending tasks queued on the thread's message loop will
-// run to completion before the thread is terminated. cef_thread_create() can be
-// called on any valid CEF thread in either the browser or render process. This
-// structure should only be used for tasks that require a dedicated thread. In
-// most cases you can post tasks to an existing CEF thread instead of creating a
-// new one; see cef_task.h for details.
+/// A simple thread abstraction that establishes a message loop on a new thread.
+/// The consumer uses cef_task_runner_t to execute code on the thread's message
+/// loop. The thread is terminated when the cef_thread_t object is destroyed or
+/// stop() is called. All pending tasks queued on the thread's message loop will
+/// run to completion before the thread is terminated. cef_thread_create() can
+/// be called on any valid CEF thread in either the browser or render process.
+/// This structure should only be used for tasks that require a dedicated
+/// thread. In most cases you can post tasks to an existing CEF thread instead
+/// of creating a new one; see cef_task.h for details.
 ///
 typedef struct _cef_thread_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Returns the cef_task_runner_t that will execute code on this thread's
-  // message loop. This function is safe to call from any thread.
+  /// Returns the cef_task_runner_t that will execute code on this thread's
+  /// message loop. This function is safe to call from any thread.
   ///
   struct _cef_task_runner_t*(CEF_CALLBACK* get_task_runner)(
       struct _cef_thread_t* self);
 
   ///
-  // Returns the platform thread ID. It will return the same value after stop()
-  // is called. This function is safe to call from any thread.
+  /// Returns the platform thread ID. It will return the same value after stop()
+  /// is called. This function is safe to call from any thread.
   ///
   cef_platform_thread_id_t(CEF_CALLBACK* get_platform_thread_id)(
       struct _cef_thread_t* self);
 
   ///
-  // Stop and join the thread. This function must be called from the same thread
-  // that called cef_thread_create(). Do not call this function if
-  // cef_thread_create() was called with a |stoppable| value of false (0).
+  /// Stop and join the thread. This function must be called from the same
+  /// thread that called cef_thread_create(). Do not call this function if
+  /// cef_thread_create() was called with a |stoppable| value of false (0).
   ///
   void(CEF_CALLBACK* stop)(struct _cef_thread_t* self);
 
   ///
-  // Returns true (1) if the thread is currently running. This function must be
-  // called from the same thread that called cef_thread_create().
+  /// Returns true (1) if the thread is currently running. This function must be
+  /// called from the same thread that called cef_thread_create().
   ///
   int(CEF_CALLBACK* is_running)(struct _cef_thread_t* self);
 } cef_thread_t;
 
 ///
-// Create and start a new thread. This function does not block waiting for the
-// thread to run initialization. |display_name| is the name that will be used to
-// identify the thread. |priority| is the thread execution priority.
-// |message_loop_type| indicates the set of asynchronous events that the thread
-// can process. If |stoppable| is true (1) the thread will stopped and joined on
-// destruction or when stop() is called; otherwise, the thread cannot be stopped
-// and will be leaked on shutdown. On Windows the |com_init_mode| value
-// specifies how COM will be initialized for the thread. If |com_init_mode| is
-// set to COM_INIT_MODE_STA then |message_loop_type| must be set to ML_TYPE_UI.
+/// Create and start a new thread. This function does not block waiting for the
+/// thread to run initialization. |display_name| is the name that will be used
+/// to identify the thread. |priority| is the thread execution priority.
+/// |message_loop_type| indicates the set of asynchronous events that the thread
+/// can process. If |stoppable| is true (1) the thread will stopped and joined
+/// on destruction or when stop() is called; otherwise, the thread cannot be
+/// stopped and will be leaked on shutdown. On Windows the |com_init_mode| value
+/// specifies how COM will be initialized for the thread. If |com_init_mode| is
+/// set to COM_INIT_MODE_STA then |message_loop_type| must be set to ML_TYPE_UI.
 ///
 CEF_EXPORT cef_thread_t* cef_thread_create(
     const cef_string_t* display_name,

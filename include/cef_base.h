@@ -48,29 +48,29 @@
 #endif
 
 ///
-// All ref-counted framework classes must extend this class.
+/// All ref-counted framework classes must extend this class.
 ///
 class CefBaseRefCounted {
  public:
   ///
-  // Called to increment the reference count for the object. Should be called
-  // for every new copy of a pointer to a given object.
+  /// Called to increment the reference count for the object. Should be called
+  /// for every new copy of a pointer to a given object.
   ///
   virtual void AddRef() const = 0;
 
   ///
-  // Called to decrement the reference count for the object. Returns true if
-  // the reference count is 0, in which case the object should self-delete.
+  /// Called to decrement the reference count for the object. Returns true if
+  /// the reference count is 0, in which case the object should self-delete.
   ///
   virtual bool Release() const = 0;
 
   ///
-  // Returns true if the reference count is 1.
+  /// Returns true if the reference count is 1.
   ///
   virtual bool HasOneRef() const = 0;
 
   ///
-  // Returns true if the reference count is at least 1.
+  /// Returns true if the reference count is at least 1.
   ///
   virtual bool HasAtLeastOneRef() const = 0;
 
@@ -79,7 +79,7 @@ class CefBaseRefCounted {
 };
 
 ///
-// All scoped framework classes must extend this class.
+/// All scoped framework classes must extend this class.
 ///
 class CefBaseScoped {
  public:
@@ -87,7 +87,7 @@ class CefBaseScoped {
 };
 
 ///
-// Class that implements atomic reference counting.
+/// Class that implements atomic reference counting.
 ///
 class CefRefCount {
  public:
@@ -97,22 +97,22 @@ class CefRefCount {
   CefRefCount& operator=(const CefRefCount&) = delete;
 
   ///
-  // Increment the reference count.
+  /// Increment the reference count.
   ///
   void AddRef() const { ref_count_.Increment(); }
 
   ///
-  // Decrement the reference count. Returns true if the reference count is 0.
+  /// Decrement the reference count. Returns true if the reference count is 0.
   ///
   bool Release() const { return !ref_count_.Decrement(); }
 
   ///
-  // Returns true if the reference count is 1.
+  /// Returns true if the reference count is 1.
   ///
   bool HasOneRef() const { return ref_count_.IsOne(); }
 
   ///
-  // Returns true if the reference count is at least 1.
+  /// Returns true if the reference count is at least 1.
   ///
   bool HasAtLeastOneRef() const { return !ref_count_.IsZero(); }
 
@@ -121,8 +121,8 @@ class CefRefCount {
 };
 
 ///
-// Macro that provides a reference counting implementation for classes extending
-// CefBase.
+/// Macro that provides a reference counting implementation for classes
+/// extending CefBase.
 ///
 #define IMPLEMENT_REFCOUNTING(ClassName)                             \
  public:                                                             \

@@ -43,16 +43,16 @@
 class CefMenuModel;
 
 ///
-// Implement this interface to handle menu model events. The methods of this
-// class will be called on the browser process UI thread unless otherwise
-// indicated.
+/// Implement this interface to handle menu model events. The methods of this
+/// class will be called on the browser process UI thread unless otherwise
+/// indicated.
 ///
 /*--cef(source=client)--*/
 class CefMenuModelDelegate : public virtual CefBaseRefCounted {
  public:
   ///
-  // Perform the action associated with the specified |command_id| and
-  // optional |event_flags|.
+  /// Perform the action associated with the specified |command_id| and
+  /// optional |event_flags|.
   ///
   /*--cef()--*/
   virtual void ExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
@@ -60,43 +60,43 @@ class CefMenuModelDelegate : public virtual CefBaseRefCounted {
                               cef_event_flags_t event_flags) = 0;
 
   ///
-  // Called when the user moves the mouse outside the menu and over the owning
-  // window.
+  /// Called when the user moves the mouse outside the menu and over the owning
+  /// window.
   ///
   /*--cef()--*/
   virtual void MouseOutsideMenu(CefRefPtr<CefMenuModel> menu_model,
                                 const CefPoint& screen_point) {}
 
   ///
-  // Called on unhandled open submenu keyboard commands. |is_rtl| will be true
-  // if the menu is displaying a right-to-left language.
+  /// Called on unhandled open submenu keyboard commands. |is_rtl| will be true
+  /// if the menu is displaying a right-to-left language.
   ///
   /*--cef()--*/
   virtual void UnhandledOpenSubmenu(CefRefPtr<CefMenuModel> menu_model,
                                     bool is_rtl) {}
 
   ///
-  // Called on unhandled close submenu keyboard commands. |is_rtl| will be true
-  // if the menu is displaying a right-to-left language.
+  /// Called on unhandled close submenu keyboard commands. |is_rtl| will be true
+  /// if the menu is displaying a right-to-left language.
   ///
   /*--cef()--*/
   virtual void UnhandledCloseSubmenu(CefRefPtr<CefMenuModel> menu_model,
                                      bool is_rtl) {}
 
   ///
-  // The menu is about to show.
+  /// The menu is about to show.
   ///
   /*--cef()--*/
   virtual void MenuWillShow(CefRefPtr<CefMenuModel> menu_model) {}
 
   ///
-  // The menu has closed.
+  /// The menu has closed.
   ///
   /*--cef()--*/
   virtual void MenuClosed(CefRefPtr<CefMenuModel> menu_model) {}
 
   ///
-  // Optionally modify a menu item label. Return true if |label| was modified.
+  /// Optionally modify a menu item label. Return true if |label| was modified.
   ///
   /*--cef()--*/
   virtual bool FormatLabel(CefRefPtr<CefMenuModel> menu_model,

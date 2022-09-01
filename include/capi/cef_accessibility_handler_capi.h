@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=306e44d49ab6198a0fa1bcea50e8a25ee18672be$
+// $hash=6bdc0ce413420b45510fcc7f415c6a6fb05f0112$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_ACCESSIBILITY_HANDLER_CAPI_H_
@@ -47,27 +47,27 @@ extern "C" {
 #endif
 
 ///
-// Implement this structure to receive accessibility notification when
-// accessibility events have been registered. The functions of this structure
-// will be called on the UI thread.
+/// Implement this structure to receive accessibility notification when
+/// accessibility events have been registered. The functions of this structure
+/// will be called on the UI thread.
 ///
 typedef struct _cef_accessibility_handler_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Called after renderer process sends accessibility tree changes to the
-  // browser process.
+  /// Called after renderer process sends accessibility tree changes to the
+  /// browser process.
   ///
   void(CEF_CALLBACK* on_accessibility_tree_change)(
       struct _cef_accessibility_handler_t* self,
       struct _cef_value_t* value);
 
   ///
-  // Called after renderer process sends accessibility location changes to the
-  // browser process.
+  /// Called after renderer process sends accessibility location changes to the
+  /// browser process.
   ///
   void(CEF_CALLBACK* on_accessibility_location_change)(
       struct _cef_accessibility_handler_t* self,

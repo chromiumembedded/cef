@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=212f13ac6baeeefb86f1648d1e18ccba95fd5f79$
+// $hash=5f69190b21f9fa17e6fb4c2284968f8ec5b147ed$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_SHARED_MEMORY_REGION_CAPI_H_
@@ -47,27 +47,27 @@ extern "C" {
 #endif
 
 ///
-// Structure that wraps platform-dependent share memory region mapping.
+/// Structure that wraps platform-dependent share memory region mapping.
 ///
 typedef struct _cef_shared_memory_region_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Returns true (1) if the mapping is valid.
+  /// Returns true (1) if the mapping is valid.
   ///
   int(CEF_CALLBACK* is_valid)(struct _cef_shared_memory_region_t* self);
 
   ///
-  // Returns the size of the mapping in bytes. Returns 0 for invalid instances.
+  /// Returns the size of the mapping in bytes. Returns 0 for invalid instances.
   ///
   size_t(CEF_CALLBACK* size)(struct _cef_shared_memory_region_t* self);
 
   ///
-  // Returns the pointer to the memory. Returns nullptr for invalid instances.
-  // The returned pointer is only valid for the life span of this object.
+  /// Returns the pointer to the memory. Returns nullptr for invalid instances.
+  /// The returned pointer is only valid for the life span of this object.
   ///
   const void*(CEF_CALLBACK* memory)(struct _cef_shared_memory_region_t* self);
 } cef_shared_memory_region_t;

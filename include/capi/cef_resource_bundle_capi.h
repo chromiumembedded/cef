@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=6d8a7e3c0ed66cad10e8a0c59fed51431ec82ce5$
+// $hash=4350dcf46e2fcd18bea2c45446e448e588795afb$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESOURCE_BUNDLE_CAPI_H_
@@ -48,22 +48,22 @@ extern "C" {
 #endif
 
 ///
-// Structure used for retrieving resources from the resource bundle (*.pak)
-// files loaded by CEF during startup or via the cef_resource_bundle_handler_t
-// returned from cef_app_t::GetResourceBundleHandler. See CefSettings for
-// additional options related to resource bundle loading. The functions of this
-// structure may be called on any thread unless otherwise indicated.
+/// Structure used for retrieving resources from the resource bundle (*.pak)
+/// files loaded by CEF during startup or via the cef_resource_bundle_handler_t
+/// returned from cef_app_t::GetResourceBundleHandler. See CefSettings for
+/// additional options related to resource bundle loading. The functions of this
+/// structure may be called on any thread unless otherwise indicated.
 ///
 typedef struct _cef_resource_bundle_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Returns the localized string for the specified |string_id| or an NULL
-  // string if the value is not found. Include cef_pack_strings.h for a listing
-  // of valid string ID values.
+  /// Returns the localized string for the specified |string_id| or an NULL
+  /// string if the value is not found. Include cef_pack_strings.h for a listing
+  /// of valid string ID values.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_localized_string)(
@@ -71,20 +71,20 @@ typedef struct _cef_resource_bundle_t {
       int string_id);
 
   ///
-  // Returns a cef_binary_value_t containing the decompressed contents of the
-  // specified scale independent |resource_id| or NULL if not found. Include
-  // cef_pack_resources.h for a listing of valid resource ID values.
+  /// Returns a cef_binary_value_t containing the decompressed contents of the
+  /// specified scale independent |resource_id| or NULL if not found. Include
+  /// cef_pack_resources.h for a listing of valid resource ID values.
   ///
   struct _cef_binary_value_t*(CEF_CALLBACK* get_data_resource)(
       struct _cef_resource_bundle_t* self,
       int resource_id);
 
   ///
-  // Returns a cef_binary_value_t containing the decompressed contents of the
-  // specified |resource_id| nearest the scale factor |scale_factor| or NULL if
-  // not found. Use a |scale_factor| value of SCALE_FACTOR_NONE for scale
-  // independent resources or call GetDataResource instead.Include
-  // cef_pack_resources.h for a listing of valid resource ID values.
+  /// Returns a cef_binary_value_t containing the decompressed contents of the
+  /// specified |resource_id| nearest the scale factor |scale_factor| or NULL if
+  /// not found. Use a |scale_factor| value of SCALE_FACTOR_NONE for scale
+  /// independent resources or call GetDataResource instead.Include
+  /// cef_pack_resources.h for a listing of valid resource ID values.
   ///
   struct _cef_binary_value_t*(CEF_CALLBACK* get_data_resource_for_scale)(
       struct _cef_resource_bundle_t* self,
@@ -93,7 +93,7 @@ typedef struct _cef_resource_bundle_t {
 } cef_resource_bundle_t;
 
 ///
-// Returns the global resource bundle instance.
+/// Returns the global resource bundle instance.
 ///
 CEF_EXPORT cef_resource_bundle_t* cef_resource_bundle_get_global(void);
 

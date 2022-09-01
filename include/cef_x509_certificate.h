@@ -44,70 +44,70 @@
 #include "include/cef_values.h"
 
 ///
-// Class representing the issuer or subject field of an X.509 certificate.
+/// Class representing the issuer or subject field of an X.509 certificate.
 ///
 /*--cef(source=library)--*/
 class CefX509CertPrincipal : public virtual CefBaseRefCounted {
  public:
   ///
-  // Returns a name that can be used to represent the issuer. It tries in this
-  // order: Common Name (CN), Organization Name (O) and Organizational Unit
-  // Name (OU) and returns the first non-empty one found.
+  /// Returns a name that can be used to represent the issuer. It tries in this
+  /// order: Common Name (CN), Organization Name (O) and Organizational Unit
+  /// Name (OU) and returns the first non-empty one found.
   ///
   /*--cef()--*/
   virtual CefString GetDisplayName() = 0;
 
   ///
-  // Returns the common name.
+  /// Returns the common name.
   ///
   /*--cef()--*/
   virtual CefString GetCommonName() = 0;
 
   ///
-  // Returns the locality name.
+  /// Returns the locality name.
   ///
   /*--cef()--*/
   virtual CefString GetLocalityName() = 0;
 
   ///
-  // Returns the state or province name.
+  /// Returns the state or province name.
   ///
   /*--cef()--*/
   virtual CefString GetStateOrProvinceName() = 0;
 
   ///
-  // Returns the country name.
+  /// Returns the country name.
   ///
   /*--cef()--*/
   virtual CefString GetCountryName() = 0;
 
   ///
-  // Retrieve the list of street addresses.
+  /// Retrieve the list of street addresses.
   ///
   /*--cef()--*/
   virtual void GetStreetAddresses(std::vector<CefString>& addresses) = 0;
 
   ///
-  // Retrieve the list of organization names.
+  /// Retrieve the list of organization names.
   ///
   /*--cef()--*/
   virtual void GetOrganizationNames(std::vector<CefString>& names) = 0;
 
   ///
-  // Retrieve the list of organization unit names.
+  /// Retrieve the list of organization unit names.
   ///
   /*--cef()--*/
   virtual void GetOrganizationUnitNames(std::vector<CefString>& names) = 0;
 
   ///
-  // Retrieve the list of domain components.
+  /// Retrieve the list of domain components.
   ///
   /*--cef()--*/
   virtual void GetDomainComponents(std::vector<CefString>& components) = 0;
 };
 
 ///
-// Class representing a X.509 certificate.
+/// Class representing a X.509 certificate.
 ///
 /*--cef(source=library)--*/
 class CefX509Certificate : public virtual CefBaseRefCounted {
@@ -115,71 +115,71 @@ class CefX509Certificate : public virtual CefBaseRefCounted {
   typedef std::vector<CefRefPtr<CefBinaryValue>> IssuerChainBinaryList;
 
   ///
-  // Returns the subject of the X.509 certificate. For HTTPS server
-  // certificates this represents the web server.  The common name of the
-  // subject should match the host name of the web server.
+  /// Returns the subject of the X.509 certificate. For HTTPS server
+  /// certificates this represents the web server.  The common name of the
+  /// subject should match the host name of the web server.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefX509CertPrincipal> GetSubject() = 0;
 
   ///
-  // Returns the issuer of the X.509 certificate.
+  /// Returns the issuer of the X.509 certificate.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefX509CertPrincipal> GetIssuer() = 0;
 
   ///
-  // Returns the DER encoded serial number for the X.509 certificate. The value
-  // possibly includes a leading 00 byte.
+  /// Returns the DER encoded serial number for the X.509 certificate. The value
+  /// possibly includes a leading 00 byte.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefBinaryValue> GetSerialNumber() = 0;
 
   ///
-  // Returns the date before which the X.509 certificate is invalid.
-  // CefBaseTime.GetTimeT() will return 0 if no date was specified.
+  /// Returns the date before which the X.509 certificate is invalid.
+  /// CefBaseTime.GetTimeT() will return 0 if no date was specified.
   ///
   /*--cef()--*/
   virtual CefBaseTime GetValidStart() = 0;
 
   ///
-  // Returns the date after which the X.509 certificate is invalid.
-  // CefBaseTime.GetTimeT() will return 0 if no date was specified.
+  /// Returns the date after which the X.509 certificate is invalid.
+  /// CefBaseTime.GetTimeT() will return 0 if no date was specified.
   ///
   /*--cef()--*/
   virtual CefBaseTime GetValidExpiry() = 0;
 
   ///
-  // Returns the DER encoded data for the X.509 certificate.
+  /// Returns the DER encoded data for the X.509 certificate.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefBinaryValue> GetDEREncoded() = 0;
 
   ///
-  // Returns the PEM encoded data for the X.509 certificate.
+  /// Returns the PEM encoded data for the X.509 certificate.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefBinaryValue> GetPEMEncoded() = 0;
 
   ///
-  // Returns the number of certificates in the issuer chain.
-  // If 0, the certificate is self-signed.
+  /// Returns the number of certificates in the issuer chain.
+  /// If 0, the certificate is self-signed.
   ///
   /*--cef()--*/
   virtual size_t GetIssuerChainSize() = 0;
 
   ///
-  // Returns the DER encoded data for the certificate issuer chain.
-  // If we failed to encode a certificate in the chain it is still
-  // present in the array but is an empty string.
+  /// Returns the DER encoded data for the certificate issuer chain.
+  /// If we failed to encode a certificate in the chain it is still
+  /// present in the array but is an empty string.
   ///
   /*--cef(count_func=chain:GetIssuerChainSize)--*/
   virtual void GetDEREncodedIssuerChain(IssuerChainBinaryList& chain) = 0;
 
   ///
-  // Returns the PEM encoded data for the certificate issuer chain.
-  // If we failed to encode a certificate in the chain it is still
-  // present in the array but is an empty string.
+  /// Returns the PEM encoded data for the certificate issuer chain.
+  /// If we failed to encode a certificate in the chain it is still
+  /// present in the array but is an empty string.
   ///
   /*--cef(count_func=chain:GetIssuerChainSize)--*/
   virtual void GetPEMEncodedIssuerChain(IssuerChainBinaryList& chain) = 0;

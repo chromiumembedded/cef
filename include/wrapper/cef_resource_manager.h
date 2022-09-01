@@ -48,29 +48,30 @@
 #include "include/wrapper/cef_helpers.h"
 
 ///
-// Class for managing multiple resource providers. For each resource request
-// providers will be called in order and have the option to (a) handle the
-// request by returning a CefResourceHandler, (b) pass the request to the next
-// provider in order, or (c) stop handling the request. See comments on the
-// Request object for additional usage information. The methods of this class
-// may be called on any browser process thread unless otherwise indicated.
+/// Class for managing multiple resource providers. For each resource request
+/// providers will be called in order and have the option to (a) handle the
+/// request by returning a CefResourceHandler, (b) pass the request to the next
+/// provider in order, or (c) stop handling the request. See comments on the
+/// Request object for additional usage information. The methods of this class
+/// may be called on any browser process thread unless otherwise indicated.
 ///
 class CefResourceManager
     : public base::RefCountedThreadSafe<CefResourceManager,
                                         CefDeleteOnIOThread> {
  public:
   ///
-  // Provides an opportunity to modify |url| before it is passed to a provider.
-  // For example, the implementation could rewrite |url| to include a default
-  // file extension. |url| will be fully qualified and may contain query or
-  // fragment components.
+  /// Provides an opportunity to modify |url| before it is passed to a provider.
+  /// For example, the implementation could rewrite |url| to include a default
+  /// file extension. |url| will be fully qualified and may contain query or
+  /// fragment components.
   ///
   using UrlFilter =
       base::RepeatingCallback<std::string(const std::string& /*url*/)>;
 
   ///
-  // Used to resolve mime types for URLs, usually based on the file extension.
-  // |url| will be fully qualified and may contain query or fragment components.
+  /// Used to resolve mime types for URLs, usually based on the file extension.
+  /// |url| will be fully qualified and may contain query or fragment
+  /// components.
   ///
   using MimeTypeResolver =
       base::RepeatingCallback<std::string(const std::string& /*url*/)>;
@@ -91,12 +92,12 @@ class CefResourceManager
 
  public:
   ///
-  // Object representing a request. Each request object is used for a single
-  // call to Provider::OnRequest and will become detached (meaning the callbacks
-  // will no longer trigger) after Request::Continue or Request::Stop is called.
-  // A request passed to Provider::OnRequestCanceled will already have been
-  // detached. The methods of this class may be called on any browser process
-  // thread.
+  /// Object representing a request. Each request object is used for a single
+  /// call to Provider::OnRequest and will become detached (meaning the
+  /// callbacks will no longer trigger) after Request::Continue or Request::Stop
+  /// is called. A request passed to Provider::OnRequestCanceled will already
+  /// have been detached. The methods of this class may be called on any browser
+  /// process thread.
   ///
   class Request : public base::RefCountedThreadSafe<Request> {
    public:
@@ -104,54 +105,54 @@ class CefResourceManager
     Request& operator=(const Request&) = delete;
 
     ///
-    // Returns the URL associated with this request. The returned value will be
-    // fully qualified but will not contain query or fragment components. It
-    // will already have been passed through the URL filter.
+    /// Returns the URL associated with this request. The returned value will be
+    /// fully qualified but will not contain query or fragment components. It
+    /// will already have been passed through the URL filter.
     ///
     std::string url() const { return params_.url_; }
 
     ///
-    // Returns the CefBrowser associated with this request.
+    /// Returns the CefBrowser associated with this request.
     ///
     CefRefPtr<CefBrowser> browser() const { return params_.browser_; }
 
     ///
-    // Returns the CefFrame associated with this request.
+    /// Returns the CefFrame associated with this request.
     ///
     CefRefPtr<CefFrame> frame() const { return params_.frame_; }
 
     ///
-    // Returns the CefRequest associated with this request.
+    /// Returns the CefRequest associated with this request.
     ///
     CefRefPtr<CefRequest> request() const { return params_.request_; }
 
     ///
-    // Returns the current URL filter.
+    /// Returns the current URL filter.
     ///
     const CefResourceManager::UrlFilter& url_filter() const {
       return params_.url_filter_;
     }
 
     ///
-    // Returns the current mime type resolver.
+    /// Returns the current mime type resolver.
     ///
     const CefResourceManager::MimeTypeResolver& mime_type_resolver() const {
       return params_.mime_type_resolver_;
     }
 
     ///
-    // Continue handling the request. If |handler| is non-NULL then no
-    // additional providers will be called and the |handler| value will be
-    // returned via CefResourceManager::GetResourceHandler. If |handler| is NULL
-    // then the next provider in order, if any, will be called. If there are no
-    // additional providers then NULL will be returned via CefResourceManager::
-    // GetResourceHandler.
+    /// Continue handling the request. If |handler| is non-NULL then no
+    /// additional providers will be called and the |handler| value will be
+    /// returned via CefResourceManager::GetResourceHandler. If |handler| is
+    /// NULL then the next provider in order, if any, will be called. If there
+    /// are no additional providers then NULL will be returned via
+    /// CefResourceManager:: GetResourceHandler.
     ///
     void Continue(CefRefPtr<CefResourceHandler> handler);
 
     ///
-    // Stop handling the request. No additional providers will be called and
-    // NULL will be returned via CefResourceManager::GetResourceHandler.
+    /// Stop handling the request. No additional providers will be called and
+    /// NULL will be returned via CefResourceManager::GetResourceHandler.
     ///
     void Stop();
 
@@ -183,25 +184,25 @@ class CefResourceManager
   using RequestList = std::list<scoped_refptr<Request>>;
 
   ///
-  // Interface implemented by resource providers. A provider may be created on
-  // any thread but the methods will be called on, and the object will be
-  // destroyed on, the browser process IO thread.
+  /// Interface implemented by resource providers. A provider may be created on
+  /// any thread but the methods will be called on, and the object will be
+  /// destroyed on, the browser process IO thread.
   ///
   class Provider {
    public:
     ///
-    // Called to handle a request. If the provider knows immediately that it
-    // will not handle the request return false. Otherwise, return true and call
-    // Request::Continue or Request::Stop either in this method or
-    // asynchronously to indicate completion. See comments on Request for
-    // additional usage information.
+    /// Called to handle a request. If the provider knows immediately that it
+    /// will not handle the request return false. Otherwise, return true and
+    /// call Request::Continue or Request::Stop either in this method or
+    /// asynchronously to indicate completion. See comments on Request for
+    /// additional usage information.
     ///
     virtual bool OnRequest(scoped_refptr<Request> request) = 0;
 
     ///
-    // Called when a request has been canceled. It is still safe to dereference
-    // |request| but any calls to Request::Continue or Request::Stop will be
-    // ignored.
+    /// Called when a request has been canceled. It is still safe to dereference
+    /// |request| but any calls to Request::Continue or Request::Stop will be
+    /// ignored.
     ///
     virtual void OnRequestCanceled(scoped_refptr<Request> request) {}
 
@@ -214,10 +215,10 @@ class CefResourceManager
   CefResourceManager& operator=(const CefResourceManager&) = delete;
 
   ///
-  // Add a provider that maps requests for |url| to |content|. |url| should be
-  // fully qualified but not include a query or fragment component. If
-  // |mime_type| is empty the MimeTypeResolver will be used. See comments on
-  // AddProvider for usage of the |order| and |identifier| parameters.
+  /// Add a provider that maps requests for |url| to |content|. |url| should be
+  /// fully qualified but not include a query or fragment component. If
+  /// |mime_type| is empty the MimeTypeResolver will be used. See comments on
+  /// AddProvider for usage of the |order| and |identifier| parameters.
   ///
   void AddContentProvider(const std::string& url,
                           const std::string& content,
@@ -226,11 +227,11 @@ class CefResourceManager
                           const std::string& identifier);
 
   ///
-  // Add a provider that maps requests that start with |url_path| to files under
-  // |directory_path|. |url_path| should include an origin and optional path
-  // component only. Files will be loaded when a matching URL is requested.
-  // See comments on AddProvider for usage of the |order| and |identifier|
-  // parameters.
+  /// Add a provider that maps requests that start with |url_path| to files
+  /// under |directory_path|. |url_path| should include an origin and optional
+  /// path component only. Files will be loaded when a matching URL is
+  /// requested. See comments on AddProvider for usage of the |order| and
+  /// |identifier| parameters.
   ///
   void AddDirectoryProvider(const std::string& url_path,
                             const std::string& directory_path,
@@ -238,11 +239,11 @@ class CefResourceManager
                             const std::string& identifier);
 
   ///
-  // Add a provider that maps requests that start with |url_path| to files
-  // stored in the archive file at |archive_path|. |url_path| should include an
-  // origin and optional path component only. The archive file will be loaded
-  // when a matching URL is requested for the first time. See comments on
-  // AddProvider for usage of the |order| and |identifier| parameters.
+  /// Add a provider that maps requests that start with |url_path| to files
+  /// stored in the archive file at |archive_path|. |url_path| should include an
+  /// origin and optional path component only. The archive file will be loaded
+  /// when a matching URL is requested for the first time. See comments on
+  /// AddProvider for usage of the |order| and |identifier| parameters.
   ///
   void AddArchiveProvider(const std::string& url_path,
                           const std::string& archive_path,
@@ -251,49 +252,49 @@ class CefResourceManager
                           const std::string& identifier);
 
   ///
-  // Add a provider. This object takes ownership of |provider|. Providers will
-  // be called in ascending order based on the |order| value. Multiple providers
-  // sharing the same |order| value will be called in the order that they were
-  // added. The |identifier| value, which does not need to be unique, can be
-  // used to remove the provider at a later time.
+  /// Add a provider. This object takes ownership of |provider|. Providers will
+  /// be called in ascending order based on the |order| value. Multiple
+  /// providers sharing the same |order| value will be called in the order that
+  /// they were added. The |identifier| value, which does not need to be unique,
+  /// can be used to remove the provider at a later time.
   ///
   void AddProvider(Provider* provider,
                    int order,
                    const std::string& identifier);
 
   ///
-  // Remove all providers with the specified |identifier| value. If any removed
-  // providers have pending requests the Provider::OnRequestCancel method will
-  // be called. The removed providers may be deleted immediately or at a later
-  // time.
+  /// Remove all providers with the specified |identifier| value. If any removed
+  /// providers have pending requests the Provider::OnRequestCancel method will
+  /// be called. The removed providers may be deleted immediately or at a later
+  /// time.
   ///
   void RemoveProviders(const std::string& identifier);
 
   ///
-  // Remove all providers. If any removed providers have pending requests the
-  // Provider::OnRequestCancel method will be called. The removed providers may
-  // be deleted immediately or at a later time.
+  /// Remove all providers. If any removed providers have pending requests the
+  /// Provider::OnRequestCancel method will be called. The removed providers may
+  /// be deleted immediately or at a later time.
   ///
   void RemoveAllProviders();
 
   ///
-  // Set the url filter. If not set the default no-op filter will be used.
-  // Changes to this value will not affect currently pending requests.
+  /// Set the url filter. If not set the default no-op filter will be used.
+  /// Changes to this value will not affect currently pending requests.
   ///
   void SetUrlFilter(const UrlFilter& filter);
 
   ///
-  // Set the mime type resolver. If not set the default resolver will be used.
-  // Changes to this value will not affect currently pending requests.
+  /// Set the mime type resolver. If not set the default resolver will be used.
+  /// Changes to this value will not affect currently pending requests.
   ///
   void SetMimeTypeResolver(const MimeTypeResolver& resolver);
 
-  // The below methods should be called from other CEF handlers. They must be
-  // called exactly as documented for the manager to function correctly.
+  /// The below methods should be called from other CEF handlers. They must be
+  /// called exactly as documented for the manager to function correctly.
 
   ///
-  // Called from CefRequestHandler::OnBeforeResourceLoad on the browser process
-  // IO thread.
+  /// Called from CefRequestHandler::OnBeforeResourceLoad on the browser process
+  /// IO thread.
   ///
   cef_return_value_t OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
                                           CefRefPtr<CefFrame> frame,
@@ -301,8 +302,8 @@ class CefResourceManager
                                           CefRefPtr<CefCallback> callback);
 
   ///
-  // Called from CefRequestHandler::GetResourceHandler on the browser process
-  // IO thread.
+  /// Called from CefRequestHandler::GetResourceHandler on the browser process
+  /// IO thread.
   ///
   CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,

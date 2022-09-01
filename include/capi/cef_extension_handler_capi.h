@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=768e2436e54cceb2675ddd03ebdc61b5c0785bdc$
+// $hash=ba961ade334c82e53213e7e8ac848adc2a7b533a$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_EXTENSION_HANDLER_CAPI_H_
@@ -52,75 +52,76 @@ extern "C" {
 struct _cef_client_t;
 
 ///
-// Callback structure used for asynchronous continuation of
-// cef_extension_handler_t::GetExtensionResource.
+/// Callback structure used for asynchronous continuation of
+/// cef_extension_handler_t::GetExtensionResource.
 ///
 typedef struct _cef_get_extension_resource_callback_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Continue the request. Read the resource contents from |stream|.
+  /// Continue the request. Read the resource contents from |stream|.
   ///
   void(CEF_CALLBACK* cont)(struct _cef_get_extension_resource_callback_t* self,
                            struct _cef_stream_reader_t* stream);
 
   ///
-  // Cancel the request.
+  /// Cancel the request.
   ///
   void(CEF_CALLBACK* cancel)(
       struct _cef_get_extension_resource_callback_t* self);
 } cef_get_extension_resource_callback_t;
 
 ///
-// Implement this structure to handle events related to browser extensions. The
-// functions of this structure will be called on the UI thread. See
-// cef_request_context_t::LoadExtension for information about extension loading.
+/// Implement this structure to handle events related to browser extensions. The
+/// functions of this structure will be called on the UI thread. See
+/// cef_request_context_t::LoadExtension for information about extension
+/// loading.
 ///
 typedef struct _cef_extension_handler_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Called if the cef_request_context_t::LoadExtension request fails. |result|
-  // will be the error code.
+  /// Called if the cef_request_context_t::LoadExtension request fails. |result|
+  /// will be the error code.
   ///
   void(CEF_CALLBACK* on_extension_load_failed)(
       struct _cef_extension_handler_t* self,
       cef_errorcode_t result);
 
   ///
-  // Called if the cef_request_context_t::LoadExtension request succeeds.
-  // |extension| is the loaded extension.
+  /// Called if the cef_request_context_t::LoadExtension request succeeds.
+  /// |extension| is the loaded extension.
   ///
   void(CEF_CALLBACK* on_extension_loaded)(struct _cef_extension_handler_t* self,
                                           struct _cef_extension_t* extension);
 
   ///
-  // Called after the cef_extension_t::Unload request has completed.
+  /// Called after the cef_extension_t::Unload request has completed.
   ///
   void(CEF_CALLBACK* on_extension_unloaded)(
       struct _cef_extension_handler_t* self,
       struct _cef_extension_t* extension);
 
   ///
-  // Called when an extension needs a browser to host a background script
-  // specified via the "background" manifest key. The browser will have no
-  // visible window and cannot be displayed. |extension| is the extension that
-  // is loading the background script. |url| is an internally generated
-  // reference to an HTML page that will be used to load the background script
-  // via a <script> src attribute. To allow creation of the browser optionally
-  // modify |client| and |settings| and return false (0). To cancel creation of
-  // the browser (and consequently cancel load of the background script) return
-  // true (1). Successful creation will be indicated by a call to
-  // cef_life_span_handler_t::OnAfterCreated, and
-  // cef_browser_host_t::IsBackgroundHost will return true (1) for the resulting
-  // browser. See https://developer.chrome.com/extensions/event_pages for more
-  // information about extension background script usage.
+  /// Called when an extension needs a browser to host a background script
+  /// specified via the "background" manifest key. The browser will have no
+  /// visible window and cannot be displayed. |extension| is the extension that
+  /// is loading the background script. |url| is an internally generated
+  /// reference to an HTML page that will be used to load the background script
+  /// via a "<script>" src attribute. To allow creation of the browser
+  /// optionally modify |client| and |settings| and return false (0). To cancel
+  /// creation of the browser (and consequently cancel load of the background
+  /// script) return true (1). Successful creation will be indicated by a call
+  /// to cef_life_span_handler_t::OnAfterCreated, and
+  /// cef_browser_host_t::IsBackgroundHost will return true (1) for the
+  /// resulting browser. See https://developer.chrome.com/extensions/event_pages
+  /// for more information about extension background script usage.
   ///
   int(CEF_CALLBACK* on_before_background_browser)(
       struct _cef_extension_handler_t* self,
@@ -130,19 +131,19 @@ typedef struct _cef_extension_handler_t {
       struct _cef_browser_settings_t* settings);
 
   ///
-  // Called when an extension API (e.g. chrome.tabs.create) requests creation of
-  // a new browser. |extension| and |browser| are the source of the API call.
-  // |active_browser| may optionally be specified via the windowId property or
-  // returned via the get_active_browser() callback and provides the default
-  // |client| and |settings| values for the new browser. |index| is the position
-  // value optionally specified via the index property. |url| is the URL that
-  // will be loaded in the browser. |active| is true (1) if the new browser
-  // should be active when opened.  To allow creation of the browser optionally
-  // modify |windowInfo|, |client| and |settings| and return false (0). To
-  // cancel creation of the browser return true (1). Successful creation will be
-  // indicated by a call to cef_life_span_handler_t::OnAfterCreated. Any
-  // modifications to |windowInfo| will be ignored if |active_browser| is
-  // wrapped in a cef_browser_view_t.
+  /// Called when an extension API (e.g. chrome.tabs.create) requests creation
+  /// of a new browser. |extension| and |browser| are the source of the API
+  /// call. |active_browser| may optionally be specified via the windowId
+  /// property or returned via the get_active_browser() callback and provides
+  /// the default |client| and |settings| values for the new browser. |index| is
+  /// the position value optionally specified via the index property. |url| is
+  /// the URL that will be loaded in the browser. |active| is true (1) if the
+  /// new browser should be active when opened.  To allow creation of the
+  /// browser optionally modify |windowInfo|, |client| and |settings| and return
+  /// false (0). To cancel creation of the browser return true (1). Successful
+  /// creation will be indicated by a call to
+  /// cef_life_span_handler_t::OnAfterCreated. Any modifications to |windowInfo|
+  /// will be ignored if |active_browser| is wrapped in a cef_browser_view_t.
   ///
   int(CEF_CALLBACK* on_before_browser)(
       struct _cef_extension_handler_t* self,
@@ -157,13 +158,13 @@ typedef struct _cef_extension_handler_t {
       struct _cef_browser_settings_t* settings);
 
   ///
-  // Called when no tabId is specified to an extension API call that accepts a
-  // tabId parameter (e.g. chrome.tabs.*). |extension| and |browser| are the
-  // source of the API call. Return the browser that will be acted on by the API
-  // call or return NULL to act on |browser|. The returned browser must share
-  // the same cef_request_context_t as |browser|. Incognito browsers should not
-  // be considered unless the source extension has incognito access enabled, in
-  // which case |include_incognito| will be true (1).
+  /// Called when no tabId is specified to an extension API call that accepts a
+  /// tabId parameter (e.g. chrome.tabs.*). |extension| and |browser| are the
+  /// source of the API call. Return the browser that will be acted on by the
+  /// API call or return NULL to act on |browser|. The returned browser must
+  /// share the same cef_request_context_t as |browser|. Incognito browsers
+  /// should not be considered unless the source extension has incognito access
+  /// enabled, in which case |include_incognito| will be true (1).
   ///
   struct _cef_browser_t*(CEF_CALLBACK* get_active_browser)(
       struct _cef_extension_handler_t* self,
@@ -172,12 +173,12 @@ typedef struct _cef_extension_handler_t {
       int include_incognito);
 
   ///
-  // Called when the tabId associated with |target_browser| is specified to an
-  // extension API call that accepts a tabId parameter (e.g. chrome.tabs.*).
-  // |extension| and |browser| are the source of the API call. Return true (1)
-  // to allow access of false (0) to deny access. Access to incognito browsers
-  // should not be allowed unless the source extension has incognito access
-  // enabled, in which case |include_incognito| will be true (1).
+  /// Called when the tabId associated with |target_browser| is specified to an
+  /// extension API call that accepts a tabId parameter (e.g. chrome.tabs.*).
+  /// |extension| and |browser| are the source of the API call. Return true (1)
+  /// to allow access of false (0) to deny access. Access to incognito browsers
+  /// should not be allowed unless the source extension has incognito access
+  /// enabled, in which case |include_incognito| will be true (1).
   ///
   int(CEF_CALLBACK* can_access_browser)(struct _cef_extension_handler_t* self,
                                         struct _cef_extension_t* extension,
@@ -186,14 +187,15 @@ typedef struct _cef_extension_handler_t {
                                         struct _cef_browser_t* target_browser);
 
   ///
-  // Called to retrieve an extension resource that would normally be loaded from
-  // disk (e.g. if a file parameter is specified to chrome.tabs.executeScript).
-  // |extension| and |browser| are the source of the resource request. |file| is
-  // the requested relative file path. To handle the resource request return
-  // true (1) and execute |callback| either synchronously or asynchronously. For
-  // the default behavior which reads the resource from the extension directory
-  // on disk return false (0). Localization substitutions will not be applied to
-  // resources handled via this function.
+  /// Called to retrieve an extension resource that would normally be loaded
+  /// from disk (e.g. if a file parameter is specified to
+  /// chrome.tabs.executeScript). |extension| and |browser| are the source of
+  /// the resource request. |file| is the requested relative file path. To
+  /// handle the resource request return true (1) and execute |callback| either
+  /// synchronously or asynchronously. For the default behavior which reads the
+  /// resource from the extension directory on disk return false (0).
+  /// Localization substitutions will not be applied to resources handled via
+  /// this function.
   ///
   int(CEF_CALLBACK* get_extension_resource)(
       struct _cef_extension_handler_t* self,

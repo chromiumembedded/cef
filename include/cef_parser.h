@@ -44,81 +44,81 @@
 #include "include/cef_values.h"
 
 ///
-// Parse the specified |url| into its component parts.
-// Returns false if the URL is empty or invalid.
+/// Parse the specified |url| into its component parts.
+/// Returns false if the URL is empty or invalid.
 ///
 /*--cef()--*/
 bool CefParseURL(const CefString& url, CefURLParts& parts);
 
 ///
-// Creates a URL from the specified |parts|, which must contain a non-empty
-// spec or a non-empty host and path (at a minimum), but not both.
-// Returns false if |parts| isn't initialized as described.
+/// Creates a URL from the specified |parts|, which must contain a non-empty
+/// spec or a non-empty host and path (at a minimum), but not both.
+/// Returns false if |parts| isn't initialized as described.
 ///
 /*--cef()--*/
 bool CefCreateURL(const CefURLParts& parts, CefString& url);
 
 ///
-// This is a convenience function for formatting a URL in a concise and human-
-// friendly way to help users make security-related decisions (or in other
-// circumstances when people need to distinguish sites, origins, or otherwise-
-// simplified URLs from each other). Internationalized domain names (IDN) may be
-// presented in Unicode if the conversion is considered safe. The returned value
-// will (a) omit the path for standard schemes, excepting file and filesystem,
-// and (b) omit the port if it is the default for the scheme. Do not use this
-// for URLs which will be parsed or sent to other applications.
+/// This is a convenience function for formatting a URL in a concise and human-
+/// friendly way to help users make security-related decisions (or in other
+/// circumstances when people need to distinguish sites, origins, or otherwise-
+/// simplified URLs from each other). Internationalized domain names (IDN) may
+/// be presented in Unicode if the conversion is considered safe. The returned
+/// value will (a) omit the path for standard schemes, excepting file and
+/// filesystem, and (b) omit the port if it is the default for the scheme. Do
+/// not use this for URLs which will be parsed or sent to other applications.
 ///
 /*--cef(optional_param=languages)--*/
 CefString CefFormatUrlForSecurityDisplay(const CefString& origin_url);
 
 ///
-// Returns the mime type for the specified file extension or an empty string if
-// unknown.
+/// Returns the mime type for the specified file extension or an empty string if
+/// unknown.
 ///
 /*--cef()--*/
 CefString CefGetMimeType(const CefString& extension);
 
 ///
-// Get the extensions associated with the given mime type. This should be passed
-// in lower case. There could be multiple extensions for a given mime type, like
-// "html,htm" for "text/html", or "txt,text,html,..." for "text/*". Any existing
-// elements in the provided vector will not be erased.
+/// Get the extensions associated with the given mime type. This should be
+/// passed in lower case. There could be multiple extensions for a given mime
+/// type, like "html,htm" for "text/html", or "txt,text,html,..." for "text/*".
+/// Any existing elements in the provided vector will not be erased.
 ///
 /*--cef()--*/
 void CefGetExtensionsForMimeType(const CefString& mime_type,
                                  std::vector<CefString>& extensions);
 
 ///
-// Encodes |data| as a base64 string.
+/// Encodes |data| as a base64 string.
 ///
 /*--cef()--*/
 CefString CefBase64Encode(const void* data, size_t data_size);
 
 ///
-// Decodes the base64 encoded string |data|. The returned value will be NULL if
-// the decoding fails.
+/// Decodes the base64 encoded string |data|. The returned value will be NULL if
+/// the decoding fails.
 ///
 /*--cef()--*/
 CefRefPtr<CefBinaryValue> CefBase64Decode(const CefString& data);
 
 ///
-// Escapes characters in |text| which are unsuitable for use as a query
-// parameter value. Everything except alphanumerics and -_.!~*'() will be
-// converted to "%XX". If |use_plus| is true spaces will change to "+". The
-// result is basically the same as encodeURIComponent in Javacript.
+/// Escapes characters in |text| which are unsuitable for use as a query
+/// parameter value. Everything except alphanumerics and -_.!~*'() will be
+/// converted to "%XX". If |use_plus| is true spaces will change to "+". The
+/// result is basically the same as encodeURIComponent in Javacript.
 ///
 /*--cef()--*/
 CefString CefURIEncode(const CefString& text, bool use_plus);
 
 ///
-// Unescapes |text| and returns the result. Unescaping consists of looking for
-// the exact pattern "%XX" where each X is a hex digit and converting to the
-// character with the numerical value of those digits (e.g. "i%20=%203%3b"
-// unescapes to "i = 3;"). If |convert_to_utf8| is true this function will
-// attempt to interpret the initial decoded result as UTF-8. If the result is
-// convertable into UTF-8 it will be returned as converted. Otherwise the
-// initial decoded result will be returned.  The |unescape_rule| parameter
-// supports further customization the decoding process.
+/// Unescapes |text| and returns the result. Unescaping consists of looking for
+/// the exact pattern "%XX" where each X is a hex digit and converting to the
+/// character with the numerical value of those digits (e.g. "i%20=%203%3b"
+/// unescapes to "i = 3;"). If |convert_to_utf8| is true this function will
+/// attempt to interpret the initial decoded result as UTF-8. If the result is
+/// convertable into UTF-8 it will be returned as converted. Otherwise the
+/// initial decoded result will be returned.  The |unescape_rule| parameter
+/// supports further customization the decoding process.
 ///
 /*--cef()--*/
 CefString CefURIDecode(const CefString& text,
@@ -126,17 +126,17 @@ CefString CefURIDecode(const CefString& text,
                        cef_uri_unescape_rule_t unescape_rule);
 
 ///
-// Parses the specified |json_string| and returns a dictionary or list
-// representation. If JSON parsing fails this method returns NULL.
+/// Parses the specified |json_string| and returns a dictionary or list
+/// representation. If JSON parsing fails this method returns NULL.
 ///
 /*--cef()--*/
 CefRefPtr<CefValue> CefParseJSON(const CefString& json_string,
                                  cef_json_parser_options_t options);
 
 ///
-// Parses the specified UTF8-encoded |json| buffer of size |json_size| and
-// returns a dictionary or list representation. If JSON parsing fails this
-// method returns NULL.
+/// Parses the specified UTF8-encoded |json| buffer of size |json_size| and
+/// returns a dictionary or list representation. If JSON parsing fails this
+/// method returns NULL.
 ///
 /*--cef(capi_name=cef_parse_json_buffer)--*/
 CefRefPtr<CefValue> CefParseJSON(const void* json,
@@ -144,9 +144,9 @@ CefRefPtr<CefValue> CefParseJSON(const void* json,
                                  cef_json_parser_options_t options);
 
 ///
-// Parses the specified |json_string| and returns a dictionary or list
-// representation. If JSON parsing fails this method returns NULL and populates
-// |error_msg_out| with a formatted error message.
+/// Parses the specified |json_string| and returns a dictionary or list
+/// representation. If JSON parsing fails this method returns NULL and populates
+/// |error_msg_out| with a formatted error message.
 ///
 /*--cef()--*/
 CefRefPtr<CefValue> CefParseJSONAndReturnError(
@@ -155,9 +155,9 @@ CefRefPtr<CefValue> CefParseJSONAndReturnError(
     CefString& error_msg_out);
 
 ///
-// Generates a JSON string from the specified root |node| which should be a
-// dictionary or list value. Returns an empty string on failure. This method
-// requires exclusive access to |node| including any underlying data.
+/// Generates a JSON string from the specified root |node| which should be a
+/// dictionary or list value. Returns an empty string on failure. This method
+/// requires exclusive access to |node| including any underlying data.
 ///
 /*--cef()--*/
 CefString CefWriteJSON(CefRefPtr<CefValue> node,

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=9f1752ee949e98662a718de764e83f26ce06ec26$
+// $hash=a5faae9e35df9935393dbf1db5df832f8b9a025c$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_BUTTON_DELEGATE_CAPI_H_
@@ -49,24 +49,24 @@ extern "C" {
 struct _cef_button_t;
 
 ///
-// Implement this structure to handle Button events. The functions of this
-// structure will be called on the browser process UI thread unless otherwise
-// indicated.
+/// Implement this structure to handle Button events. The functions of this
+/// structure will be called on the browser process UI thread unless otherwise
+/// indicated.
 ///
 typedef struct _cef_button_delegate_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_view_delegate_t base;
 
   ///
-  // Called when |button| is pressed.
+  /// Called when |button| is pressed.
   ///
   void(CEF_CALLBACK* on_button_pressed)(struct _cef_button_delegate_t* self,
                                         struct _cef_button_t* button);
 
   ///
-  // Called when the state of |button| changes.
+  /// Called when the state of |button| changes.
   ///
   void(CEF_CALLBACK* on_button_state_changed)(
       struct _cef_button_delegate_t* self,
