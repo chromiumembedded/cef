@@ -1004,15 +1004,21 @@ if platform == 'windows':
 
   if not options.nodocs:
     # generate doc files
-    os.popen('make_cppdocs.bat ' + cef_rev)
+    sys.stdout.write("Generating docs...\n")
+    result = exec_cmd(os.path.join('tools', 'make_cppdocs.bat'), cef_dir)
+    if (len(result['err']) > 0):
+      sys.stdout.write(result['err'])
+    sys.stdout.write(result['out'])
 
-    src_dir = os.path.join(cef_dir, 'docs')
+    src_dir = os.path.join(cef_dir, 'docs', 'html')
     if path_exists(src_dir):
       # create the docs output directory
       docs_output_dir = create_output_dir(output_dir_base + '_docs',
                                           options.outputdir)
       # transfer contents
       copy_dir(src_dir, docs_output_dir, options.quiet)
+    else:
+      sys.stdout.write("ERROR: No docs generated.\n")
 
 elif platform == 'mac':
   framework_name = 'Chromium Embedded Framework'
