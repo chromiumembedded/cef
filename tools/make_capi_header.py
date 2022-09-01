@@ -163,7 +163,7 @@ extern "C" {
     result += '\n' + format_comment(cls.get_comment(), '', translate_map)
     result += 'typedef struct _'+classname+' {\n'+\
               '  ///\n'+\
-              '  // Base structure.\n'+\
+              '  /// Base structure.\n'+\
               '  ///\n'+\
               '  '+cls.get_parent_capi_name()+' base;\n'
     funcs = cls.get_virtual_funcs()
