@@ -38,11 +38,11 @@
 #endif
 
 ///
-// Represents a wall clock time in UTC. Values are not guaranteed to be
-// monotonically non-decreasing and are subject to large amounts of skew.
-// Time is stored internally as microseconds since the Windows epoch (1601).
-//
-// This is equivalent of Chromium `base::Time` (see base/time/time.h).
+/// Represents a wall clock time in UTC. Values are not guaranteed to be
+/// monotonically non-decreasing and are subject to large amounts of skew.
+/// Time is stored internally as microseconds since the Windows epoch (1601).
+///
+/// This is equivalent of Chromium `base::Time` (see base/time/time.h).
 ///
 class CefBaseTime : public cef_basetime_t {
  public:
@@ -62,7 +62,7 @@ class CefBaseTime : public cef_basetime_t {
 };
 
 ///
-// Class representing a time.
+/// Class representing a time.
 ///
 class CefTime : public cef_time_t {
  public:
@@ -71,7 +71,9 @@ class CefTime : public cef_time_t {
   explicit CefTime(time_t r) { SetTimeT(r); }
   explicit CefTime(double r) { SetDoubleT(r); }
 
-  // Converts to/from time_t.
+  ///
+  /// Converts to/from time_t.
+  ///
   void SetTimeT(time_t r) { cef_time_from_timet(r, this); }
   time_t GetTimeT() const {
     time_t time = 0;
@@ -79,9 +81,11 @@ class CefTime : public cef_time_t {
     return time;
   }
 
-  // Converts to/from a double which is the number of seconds since epoch
-  // (Jan 1, 1970). Webkit uses this format to represent time. A value of 0
-  // means "not initialized".
+  ///
+  /// Converts to/from a double which is the number of seconds since epoch
+  /// (Jan 1, 1970). Webkit uses this format to represent time. A value of 0
+  /// means "not initialized".
+  ///
   void SetDoubleT(double r) { cef_time_from_doublet(r, this); }
   double GetDoubleT() const {
     double time = 0;
@@ -89,10 +93,14 @@ class CefTime : public cef_time_t {
     return time;
   }
 
-  // Set this object to now.
+  ///
+  /// Set this object to now.
+  ///
   void Now() { cef_time_now(this); }
 
-  // Return the delta between this object and |other| in milliseconds.
+  ///
+  /// Return the delta between this object and |other| in milliseconds.
+  ///
   long long Delta(const CefTime& other) {
     long long delta = 0;
     cef_time_delta(this, &other, &delta);

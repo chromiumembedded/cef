@@ -45,64 +45,65 @@
 #include "include/cef_callback.h"
 
 ///
-// Implement this interface to receive notification when tracing has completed.
-// The methods of this class will be called on the browser process UI thread.
+/// Implement this interface to receive notification when tracing has completed.
+/// The methods of this class will be called on the browser process UI thread.
 ///
 /*--cef(source=client)--*/
 class CefEndTracingCallback : public virtual CefBaseRefCounted {
  public:
   ///
-  // Called after all processes have sent their trace data. |tracing_file| is
-  // the path at which tracing data was written. The client is responsible for
-  // deleting |tracing_file|.
+  /// Called after all processes have sent their trace data. |tracing_file| is
+  /// the path at which tracing data was written. The client is responsible for
+  /// deleting |tracing_file|.
   ///
   /*--cef()--*/
   virtual void OnEndTracingComplete(const CefString& tracing_file) = 0;
 };
 
 ///
-// Start tracing events on all processes. Tracing is initialized asynchronously
-// and |callback| will be executed on the UI thread after initialization is
-// complete.
-//
-// If CefBeginTracing was called previously, or if a CefEndTracingAsync call is
-// pending, CefBeginTracing will fail and return false.
-//
-// |categories| is a comma-delimited list of category wildcards. A category can
-// have an optional '-' prefix to make it an excluded category. Having both
-// included and excluded categories in the same list is not supported.
-//
-// Example: "test_MyTest*"
-// Example: "test_MyTest*,test_OtherStuff"
-// Example: "-excluded_category1,-excluded_category2"
-//
-// This function must be called on the browser process UI thread.
+/// Start tracing events on all processes. Tracing is initialized asynchronously
+/// and |callback| will be executed on the UI thread after initialization is
+/// complete.
+///
+/// If CefBeginTracing was called previously, or if a CefEndTracingAsync call is
+/// pending, CefBeginTracing will fail and return false.
+///
+/// |categories| is a comma-delimited list of category wildcards. A category can
+/// have an optional '-' prefix to make it an excluded category. Having both
+/// included and excluded categories in the same list is not supported.
+///
+/// Examples:
+/// - "test_MyTest*"
+/// - "test_MyTest*,test_OtherStuff"
+/// - "-excluded_category1,-excluded_category2"
+///
+/// This function must be called on the browser process UI thread.
 ///
 /*--cef(optional_param=categories,optional_param=callback)--*/
 bool CefBeginTracing(const CefString& categories,
                      CefRefPtr<CefCompletionCallback> callback);
 
 ///
-// Stop tracing events on all processes.
-//
-// This function will fail and return false if a previous call to
-// CefEndTracingAsync is already pending or if CefBeginTracing was not called.
-//
-// |tracing_file| is the path at which tracing data will be written and
-// |callback| is the callback that will be executed once all processes have
-// sent their trace data. If |tracing_file| is empty a new temporary file path
-// will be used. If |callback| is empty no trace data will be written.
-//
-// This function must be called on the browser process UI thread.
+/// Stop tracing events on all processes.
+///
+/// This function will fail and return false if a previous call to
+/// CefEndTracingAsync is already pending or if CefBeginTracing was not called.
+///
+/// |tracing_file| is the path at which tracing data will be written and
+/// |callback| is the callback that will be executed once all processes have
+/// sent their trace data. If |tracing_file| is empty a new temporary file path
+/// will be used. If |callback| is empty no trace data will be written.
+///
+/// This function must be called on the browser process UI thread.
 ///
 /*--cef(optional_param=tracing_file,optional_param=callback)--*/
 bool CefEndTracing(const CefString& tracing_file,
                    CefRefPtr<CefEndTracingCallback> callback);
 
 ///
-// Returns the current system trace time or, if none is defined, the current
-// high-res time. Can be used by clients to synchronize with the time
-// information in trace events.
+/// Returns the current system trace time or, if none is defined, the current
+/// high-res time. Can be used by clients to synchronize with the time
+/// information in trace events.
 ///
 /*--cef()--*/
 int64 CefNowFromSystemTraceTime();

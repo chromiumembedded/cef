@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=f2e80b8637b07f19adea666e554269de4627e399$
+// $hash=30e86c9dd440616305f94747b313eb526c4323c7$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_FIND_HANDLER_CAPI_H_
@@ -48,23 +48,23 @@ extern "C" {
 #endif
 
 ///
-// Implement this structure to handle events related to find results. The
-// functions of this structure will be called on the UI thread.
+/// Implement this structure to handle events related to find results. The
+/// functions of this structure will be called on the UI thread.
 ///
 typedef struct _cef_find_handler_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Called to report find results returned by cef_browser_host_t::find().
-  // |identifer| is a unique incremental identifier for the currently active
-  // search, |count| is the number of matches currently identified,
-  // |selectionRect| is the location of where the match was found (in window
-  // coordinates), |activeMatchOrdinal| is the current position in the search
-  // results, and |finalUpdate| is true (1) if this is the last find
-  // notification.
+  /// Called to report find results returned by cef_browser_host_t::find().
+  /// |identifer| is a unique incremental identifier for the currently active
+  /// search, |count| is the number of matches currently identified,
+  /// |selectionRect| is the location of where the match was found (in window
+  /// coordinates), |activeMatchOrdinal| is the current position in the search
+  /// results, and |finalUpdate| is true (1) if this is the last find
+  /// notification.
   ///
   void(CEF_CALLBACK* on_find_result)(struct _cef_find_handler_t* self,
                                      struct _cef_browser_t* browser,

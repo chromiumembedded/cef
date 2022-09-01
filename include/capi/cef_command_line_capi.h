@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=3049c9960a95d32d61cc57ae998c0eba12820673$
+// $hash=f535e9560b9fde9b53fc4d8383905105ed029ea4$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_COMMAND_LINE_CAPI_H_
@@ -47,104 +47,104 @@ extern "C" {
 #endif
 
 ///
-// Structure used to create and/or parse command line arguments. Arguments with
-// '--', '-' and, on Windows, '/' prefixes are considered switches. Switches
-// will always precede any arguments without switch prefixes. Switches can
-// optionally have a value specified using the '=' delimiter (e.g.
-// "-switch=value"). An argument of "--" will terminate switch parsing with all
-// subsequent tokens, regardless of prefix, being interpreted as non-switch
-// arguments. Switch names should be lowercase ASCII and will be converted to
-// such if necessary. Switch values will retain the original case and UTF8
-// encoding. This structure can be used before cef_initialize() is called.
+/// Structure used to create and/or parse command line arguments. Arguments with
+/// "--", "-" and, on Windows, "/" prefixes are considered switches. Switches
+/// will always precede any arguments without switch prefixes. Switches can
+/// optionally have a value specified using the "=" delimiter (e.g.
+/// "-switch=value"). An argument of "--" will terminate switch parsing with all
+/// subsequent tokens, regardless of prefix, being interpreted as non-switch
+/// arguments. Switch names should be lowercase ASCII and will be converted to
+/// such if necessary. Switch values will retain the original case and UTF8
+/// encoding. This structure can be used before cef_initialize() is called.
 ///
 typedef struct _cef_command_line_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Returns true (1) if this object is valid. Do not call any other functions
-  // if this function returns false (0).
+  /// Returns true (1) if this object is valid. Do not call any other functions
+  /// if this function returns false (0).
   ///
   int(CEF_CALLBACK* is_valid)(struct _cef_command_line_t* self);
 
   ///
-  // Returns true (1) if the values of this object are read-only. Some APIs may
-  // expose read-only objects.
+  /// Returns true (1) if the values of this object are read-only. Some APIs may
+  /// expose read-only objects.
   ///
   int(CEF_CALLBACK* is_read_only)(struct _cef_command_line_t* self);
 
   ///
-  // Returns a writable copy of this object.
+  /// Returns a writable copy of this object.
   ///
   struct _cef_command_line_t*(CEF_CALLBACK* copy)(
       struct _cef_command_line_t* self);
 
   ///
-  // Initialize the command line with the specified |argc| and |argv| values.
-  // The first argument must be the name of the program. This function is only
-  // supported on non-Windows platforms.
+  /// Initialize the command line with the specified |argc| and |argv| values.
+  /// The first argument must be the name of the program. This function is only
+  /// supported on non-Windows platforms.
   ///
   void(CEF_CALLBACK* init_from_argv)(struct _cef_command_line_t* self,
                                      int argc,
                                      const char* const* argv);
 
   ///
-  // Initialize the command line with the string returned by calling
-  // GetCommandLineW(). This function is only supported on Windows.
+  /// Initialize the command line with the string returned by calling
+  /// GetCommandLineW(). This function is only supported on Windows.
   ///
   void(CEF_CALLBACK* init_from_string)(struct _cef_command_line_t* self,
                                        const cef_string_t* command_line);
 
   ///
-  // Reset the command-line switches and arguments but leave the program
-  // component unchanged.
+  /// Reset the command-line switches and arguments but leave the program
+  /// component unchanged.
   ///
   void(CEF_CALLBACK* reset)(struct _cef_command_line_t* self);
 
   ///
-  // Retrieve the original command line string as a vector of strings. The argv
-  // array: { program, [(--|-|/)switch[=value]]*, [--], [argument]* }
+  /// Retrieve the original command line string as a vector of strings. The argv
+  /// array: `{ program, [(--|-|/)switch[=value]]*, [--], [argument]* }`
   ///
   void(CEF_CALLBACK* get_argv)(struct _cef_command_line_t* self,
                                cef_string_list_t argv);
 
   ///
-  // Constructs and returns the represented command line string. Use this
-  // function cautiously because quoting behavior is unclear.
+  /// Constructs and returns the represented command line string. Use this
+  /// function cautiously because quoting behavior is unclear.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_command_line_string)(
       struct _cef_command_line_t* self);
 
   ///
-  // Get the program part of the command line string (the first item).
+  /// Get the program part of the command line string (the first item).
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_program)(
       struct _cef_command_line_t* self);
 
   ///
-  // Set the program part of the command line string (the first item).
+  /// Set the program part of the command line string (the first item).
   ///
   void(CEF_CALLBACK* set_program)(struct _cef_command_line_t* self,
                                   const cef_string_t* program);
 
   ///
-  // Returns true (1) if the command line has switches.
+  /// Returns true (1) if the command line has switches.
   ///
   int(CEF_CALLBACK* has_switches)(struct _cef_command_line_t* self);
 
   ///
-  // Returns true (1) if the command line contains the given switch.
+  /// Returns true (1) if the command line contains the given switch.
   ///
   int(CEF_CALLBACK* has_switch)(struct _cef_command_line_t* self,
                                 const cef_string_t* name);
 
   ///
-  // Returns the value associated with the given switch. If the switch has no
-  // value or isn't present this function returns the NULL string.
+  /// Returns the value associated with the given switch. If the switch has no
+  /// value or isn't present this function returns the NULL string.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_switch_value)(
@@ -152,59 +152,59 @@ typedef struct _cef_command_line_t {
       const cef_string_t* name);
 
   ///
-  // Returns the map of switch names and values. If a switch has no value an
-  // NULL string is returned.
+  /// Returns the map of switch names and values. If a switch has no value an
+  /// NULL string is returned.
   ///
   void(CEF_CALLBACK* get_switches)(struct _cef_command_line_t* self,
                                    cef_string_map_t switches);
 
   ///
-  // Add a switch to the end of the command line. If the switch has no value
-  // pass an NULL value string.
+  /// Add a switch to the end of the command line. If the switch has no value
+  /// pass an NULL value string.
   ///
   void(CEF_CALLBACK* append_switch)(struct _cef_command_line_t* self,
                                     const cef_string_t* name);
 
   ///
-  // Add a switch with the specified value to the end of the command line.
+  /// Add a switch with the specified value to the end of the command line.
   ///
   void(CEF_CALLBACK* append_switch_with_value)(struct _cef_command_line_t* self,
                                                const cef_string_t* name,
                                                const cef_string_t* value);
 
   ///
-  // True if there are remaining command line arguments.
+  /// True if there are remaining command line arguments.
   ///
   int(CEF_CALLBACK* has_arguments)(struct _cef_command_line_t* self);
 
   ///
-  // Get the remaining command line arguments.
+  /// Get the remaining command line arguments.
   ///
   void(CEF_CALLBACK* get_arguments)(struct _cef_command_line_t* self,
                                     cef_string_list_t arguments);
 
   ///
-  // Add an argument to the end of the command line.
+  /// Add an argument to the end of the command line.
   ///
   void(CEF_CALLBACK* append_argument)(struct _cef_command_line_t* self,
                                       const cef_string_t* argument);
 
   ///
-  // Insert a command before the current command. Common for debuggers, like
-  // "valgrind" or "gdb --args".
+  /// Insert a command before the current command. Common for debuggers, like
+  /// "valgrind" or "gdb --args".
   ///
   void(CEF_CALLBACK* prepend_wrapper)(struct _cef_command_line_t* self,
                                       const cef_string_t* wrapper);
 } cef_command_line_t;
 
 ///
-// Create a new cef_command_line_t instance.
+/// Create a new cef_command_line_t instance.
 ///
 CEF_EXPORT cef_command_line_t* cef_command_line_create(void);
 
 ///
-// Returns the singleton global cef_command_line_t object. The returned object
-// will be read-only.
+/// Returns the singleton global cef_command_line_t object. The returned object
+/// will be read-only.
 ///
 CEF_EXPORT cef_command_line_t* cef_command_line_get_global(void);
 

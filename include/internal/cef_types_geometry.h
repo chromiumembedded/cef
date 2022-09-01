@@ -36,7 +36,7 @@ extern "C" {
 #endif
 
 ///
-// Structure representing a point.
+/// Structure representing a point.
 ///
 typedef struct _cef_point_t {
   int x;
@@ -44,7 +44,7 @@ typedef struct _cef_point_t {
 } cef_point_t;
 
 ///
-// Structure representing a rectangle.
+/// Structure representing a rectangle.
 ///
 typedef struct _cef_rect_t {
   int x;
@@ -54,7 +54,7 @@ typedef struct _cef_rect_t {
 } cef_rect_t;
 
 ///
-// Structure representing a size.
+/// Structure representing a size.
 ///
 typedef struct _cef_size_t {
   int width;
@@ -62,7 +62,7 @@ typedef struct _cef_size_t {
 } cef_size_t;
 
 ///
-// Structure representing insets.
+/// Structure representing insets.
 ///
 typedef struct _cef_insets_t {
   int top;

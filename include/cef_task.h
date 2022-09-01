@@ -42,102 +42,103 @@
 typedef cef_thread_id_t CefThreadId;
 
 ///
-// Implement this interface for asynchronous task execution. If the task is
-// posted successfully and if the associated message loop is still running then
-// the Execute() method will be called on the target thread. If the task fails
-// to post then the task object may be destroyed on the source thread instead of
-// the target thread. For this reason be cautious when performing work in the
-// task object destructor.
+/// Implement this interface for asynchronous task execution. If the task is
+/// posted successfully and if the associated message loop is still running then
+/// the Execute() method will be called on the target thread. If the task fails
+/// to post then the task object may be destroyed on the source thread instead
+/// of the target thread. For this reason be cautious when performing work in
+/// the task object destructor.
 ///
 /*--cef(source=client,no_debugct_check)--*/
 class CefTask : public virtual CefBaseRefCounted {
  public:
   ///
-  // Method that will be executed on the target thread.
+  /// Method that will be executed on the target thread.
   ///
   /*--cef()--*/
   virtual void Execute() = 0;
 };
 
 ///
-// Class that asynchronously executes tasks on the associated thread. It is safe
-// to call the methods of this class on any thread.
-//
-// CEF maintains multiple internal threads that are used for handling different
-// types of tasks in different processes. The cef_thread_id_t definitions in
-// cef_types.h list the common CEF threads. Task runners are also available for
-// other CEF threads as appropriate (for example, V8 WebWorker threads).
+/// Class that asynchronously executes tasks on the associated thread. It is
+/// safe to call the methods of this class on any thread.
+///
+/// CEF maintains multiple internal threads that are used for handling different
+/// types of tasks in different processes. The cef_thread_id_t definitions in
+/// cef_types.h list the common CEF threads. Task runners are also available for
+/// other CEF threads as appropriate (for example, V8 WebWorker threads).
 ///
 /*--cef(source=library)--*/
 class CefTaskRunner : public virtual CefBaseRefCounted {
  public:
   ///
-  // Returns the task runner for the current thread. Only CEF threads will have
-  // task runners. An empty reference will be returned if this method is called
-  // on an invalid thread.
+  /// Returns the task runner for the current thread. Only CEF threads will have
+  /// task runners. An empty reference will be returned if this method is called
+  /// on an invalid thread.
   ///
   /*--cef()--*/
   static CefRefPtr<CefTaskRunner> GetForCurrentThread();
 
   ///
-  // Returns the task runner for the specified CEF thread.
+  /// Returns the task runner for the specified CEF thread.
   ///
   /*--cef()--*/
   static CefRefPtr<CefTaskRunner> GetForThread(CefThreadId threadId);
 
   ///
-  // Returns true if this object is pointing to the same task runner as |that|
-  // object.
+  /// Returns true if this object is pointing to the same task runner as |that|
+  /// object.
   ///
   /*--cef()--*/
   virtual bool IsSame(CefRefPtr<CefTaskRunner> that) = 0;
 
   ///
-  // Returns true if this task runner belongs to the current thread.
+  /// Returns true if this task runner belongs to the current thread.
   ///
   /*--cef()--*/
   virtual bool BelongsToCurrentThread() = 0;
 
   ///
-  // Returns true if this task runner is for the specified CEF thread.
+  /// Returns true if this task runner is for the specified CEF thread.
   ///
   /*--cef()--*/
   virtual bool BelongsToThread(CefThreadId threadId) = 0;
 
   ///
-  // Post a task for execution on the thread associated with this task runner.
-  // Execution will occur asynchronously.
+  /// Post a task for execution on the thread associated with this task runner.
+  /// Execution will occur asynchronously.
   ///
   /*--cef()--*/
   virtual bool PostTask(CefRefPtr<CefTask> task) = 0;
 
   ///
-  // Post a task for delayed execution on the thread associated with this task
-  // runner. Execution will occur asynchronously. Delayed tasks are not
-  // supported on V8 WebWorker threads and will be executed without the
-  // specified delay.
+  /// Post a task for delayed execution on the thread associated with this task
+  /// runner. Execution will occur asynchronously. Delayed tasks are not
+  /// supported on V8 WebWorker threads and will be executed without the
+  /// specified delay.
   ///
   /*--cef()--*/
   virtual bool PostDelayedTask(CefRefPtr<CefTask> task, int64 delay_ms) = 0;
 };
 
 ///
-// Returns true if called on the specified thread. Equivalent to using
-// CefTaskRunner::GetForThread(threadId)->BelongsToCurrentThread().
+/// Returns true if called on the specified thread. Equivalent to using
+/// CefTaskRunner::GetForThread(threadId)->BelongsToCurrentThread().
 ///
 /*--cef()--*/
 bool CefCurrentlyOn(CefThreadId threadId);
 
 ///
-// Post a task for execution on the specified thread. Equivalent to
-// using CefTaskRunner::GetForThread(threadId)->PostTask(task).
+/// Post a task for execution on the specified thread. Equivalent to
+/// using CefTaskRunner::GetForThread(threadId)->PostTask(task).
 ///
 /*--cef()--*/
 bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task);
 
 ///
-// Post a task for delayed execution on the specified thread. Equivalent to
-// using CefTaskRunner::GetForThread(threadId)->PostDelayedTask(task, delay_ms).
+/// Post a task for delayed execution on the specified thread. Equivalent to
+/// using CefTaskRunner::GetForThread(threadId)->PostDelayedTask(task,
+/// delay_ms).
 ///
 /*--cef()--*/
 bool CefPostDelayedTask(CefThreadId threadId,

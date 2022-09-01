@@ -42,19 +42,19 @@ extern "C" {
 // See include/base/cef_logging.h for macros and intended usage.
 
 ///
-// Gets the current log level.
+/// Gets the current log level.
 ///
 CEF_EXPORT int cef_get_min_log_level(void);
 
 ///
-// Gets the current vlog level for the given file (usually taken from
-// __FILE__). Note that |N| is the size *with* the null terminator.
+/// Gets the current vlog level for the given file (usually taken from
+/// __FILE__). Note that |N| is the size *with* the null terminator.
 ///
 CEF_EXPORT int cef_get_vlog_level(const char* file_start, size_t N);
 
 ///
-// Add a log message. See the LogSeverity defines for supported |severity|
-// values.
+/// Add a log message. See the LogSeverity defines for supported |severity|
+/// values.
 ///
 CEF_EXPORT void cef_log(const char* file,
                         int line,

@@ -39,7 +39,9 @@
 #define CefEventHandle cef_event_handle_t
 #define CefWindowHandle cef_window_handle_t
 
-// Class representing CefExecuteProcess arguments.
+///
+/// Class representing CefExecuteProcess arguments.
+///
 class CefMainArgs : public cef_main_args_t {
  public:
   CefMainArgs() : cef_main_args_t{} {}
@@ -72,7 +74,9 @@ struct CefWindowInfoTraits {
   }
 };
 
-// Class representing window information.
+///
+/// Class representing window information.
+///
 class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
  public:
   typedef CefStructBase<CefWindowInfoTraits> parent;
@@ -85,7 +89,7 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
   CefWindowInfo& operator=(CefWindowInfo&&) = default;
 
   ///
-  // Create the browser as a child view.
+  /// Create the browser as a child view.
   ///
   void SetAsChild(CefWindowHandle parent, const CefRect& bounds) {
     parent_view = parent;
@@ -94,16 +98,16 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
   }
 
   ///
-  // Create the browser using windowless (off-screen) rendering. No view
-  // will be created for the browser and all rendering will occur via the
-  // CefRenderHandler interface. The |parent| value will be used to identify
-  // monitor info and to act as the parent view for dialogs, context menus,
-  // etc. If |parent| is not provided then the main screen monitor will be used
-  // and some functionality that requires a parent view may not function
-  // correctly. In order to create windowless browsers the
-  // CefSettings.windowless_rendering_enabled value must be set to true.
-  // Transparent painting is enabled by default but can be disabled by setting
-  // CefBrowserSettings.background_color to an opaque value.
+  /// Create the browser using windowless (off-screen) rendering. No view
+  /// will be created for the browser and all rendering will occur via the
+  /// CefRenderHandler interface. The |parent| value will be used to identify
+  /// monitor info and to act as the parent view for dialogs, context menus,
+  /// etc. If |parent| is not provided then the main screen monitor will be used
+  /// and some functionality that requires a parent view may not function
+  /// correctly. In order to create windowless browsers the
+  /// CefSettings.windowless_rendering_enabled value must be set to true.
+  /// Transparent painting is enabled by default but can be disabled by setting
+  /// CefBrowserSettings.background_color to an opaque value.
   ///
   void SetAsWindowless(CefWindowHandle parent) {
     windowless_rendering_enabled = true;

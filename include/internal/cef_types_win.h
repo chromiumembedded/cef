@@ -53,14 +53,14 @@ extern "C" {
 #endif
 
 ///
-// Structure representing CefExecuteProcess arguments.
+/// Structure representing CefExecuteProcess arguments.
 ///
 typedef struct _cef_main_args_t {
   HINSTANCE instance;
 } cef_main_args_t;
 
 ///
-// Structure representing window information.
+/// Structure representing window information.
 ///
 typedef struct _cef_window_info_t {
   // Standard parameters required by CreateWindowEx()
@@ -72,34 +72,34 @@ typedef struct _cef_window_info_t {
   HMENU menu;
 
   ///
-  // Set to true (1) to create the browser using windowless (off-screen)
-  // rendering. No window will be created for the browser and all rendering will
-  // occur via the CefRenderHandler interface. The |parent_window| value will be
-  // used to identify monitor info and to act as the parent window for dialogs,
-  // context menus, etc. If |parent_window| is not provided then the main screen
-  // monitor will be used and some functionality that requires a parent window
-  // may not function correctly. In order to create windowless browsers the
-  // CefSettings.windowless_rendering_enabled value must be set to true.
-  // Transparent painting is enabled by default but can be disabled by setting
-  // CefBrowserSettings.background_color to an opaque value.
+  /// Set to true (1) to create the browser using windowless (off-screen)
+  /// rendering. No window will be created for the browser and all rendering
+  /// will occur via the CefRenderHandler interface. The |parent_window| value
+  /// will be used to identify monitor info and to act as the parent window for
+  /// dialogs, context menus, etc. If |parent_window| is not provided then the
+  /// main screen monitor will be used and some functionality that requires a
+  /// parent window may not function correctly. In order to create windowless
+  /// browsers the CefSettings.windowless_rendering_enabled value must be set to
+  /// true. Transparent painting is enabled by default but can be disabled by
+  /// setting CefBrowserSettings.background_color to an opaque value.
   ///
   int windowless_rendering_enabled;
 
   ///
-  // Set to true (1) to enable shared textures for windowless rendering. Only
-  // valid if windowless_rendering_enabled above is also set to true. Currently
-  // only supported on Windows (D3D11).
+  /// Set to true (1) to enable shared textures for windowless rendering. Only
+  /// valid if windowless_rendering_enabled above is also set to true. Currently
+  /// only supported on Windows (D3D11).
   ///
   int shared_texture_enabled;
 
   ///
-  // Set to true (1) to enable the ability to issue BeginFrame requests from the
-  // client application by calling CefBrowserHost::SendExternalBeginFrame.
+  /// Set to true (1) to enable the ability to issue BeginFrame requests from
+  /// the client application by calling CefBrowserHost::SendExternalBeginFrame.
   ///
   int external_begin_frame_enabled;
 
   ///
-  // Handle for the new browser window. Only used with windowed rendering.
+  /// Handle for the new browser window. Only used with windowed rendering.
   ///
   cef_window_handle_t window;
 } cef_window_info_t;

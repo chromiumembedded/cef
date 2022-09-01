@@ -39,29 +39,32 @@
 extern "C" {
 #endif
 
-// The sandbox is used to restrict sub-processes (renderer, GPU, etc) from
-// directly accessing system resources. This helps to protect the user from
-// untrusted and potentially malicious Web content. See
-// http://www.chromium.org/developers/design-documents/sandbox for complete
-// details.
-//
-// To enable the sandbox on Windows the following requirements must be met:
-// 1. Use the same executable for the browser process and all sub-processes.
-// 2. Link the executable with the cef_sandbox static library.
-// 3. Call the cef_sandbox_info_create() function from within the executable
-//    (not from a separate DLL) and pass the resulting pointer into both the
-//    CefExecuteProcess() and CefInitialize() functions via the
-//    |windows_sandbox_info| parameter.
+///
+/// \file
+/// The sandbox is used to restrict sub-processes (renderer, GPU, etc) from
+/// directly accessing system resources. This helps to protect the user from
+/// untrusted and potentially malicious Web content. See
+/// http://www.chromium.org/developers/design-documents/sandbox for complete
+/// details.
+///
+/// To enable the sandbox on Windows the following requirements must be met:
+/// 1. Use the same executable for the browser process and all sub-processes.
+/// 2. Link the executable with the cef_sandbox static library.
+/// 3. Call the cef_sandbox_info_create() function from within the executable
+///    (not from a separate DLL) and pass the resulting pointer into both the
+///    CefExecuteProcess() and CefInitialize() functions via the
+///    |windows_sandbox_info| parameter.
+///
 
 ///
-// Create the sandbox information object for this process. It is safe to create
-// multiple of this object and to destroy the object immediately after passing
-// into the CefExecuteProcess() and/or CefInitialize() functions.
+/// Create the sandbox information object for this process. It is safe to create
+/// multiple of this object and to destroy the object immediately after passing
+/// into the CefExecuteProcess() and/or CefInitialize() functions.
 ///
 void* cef_sandbox_info_create(void);
 
 ///
-// Destroy the specified sandbox information object.
+/// Destroy the specified sandbox information object.
 ///
 void cef_sandbox_info_destroy(void* sandbox_info);
 
@@ -69,7 +72,7 @@ void cef_sandbox_info_destroy(void* sandbox_info);
 }
 
 ///
-// Manages the life span of a sandbox information object.
+/// Manages the life span of a sandbox information object.
 ///
 class CefScopedSandboxInfo {
  public:

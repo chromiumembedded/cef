@@ -42,18 +42,18 @@
 #include "include/cef_browser.h"
 
 ///
-// Implement this interface to handle events related to keyboard input. The
-// methods of this class will be called on the UI thread.
+/// Implement this interface to handle events related to keyboard input. The
+/// methods of this class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
 class CefKeyboardHandler : public virtual CefBaseRefCounted {
  public:
   ///
-  // Called before a keyboard event is sent to the renderer. |event| contains
-  // information about the keyboard event. |os_event| is the operating system
-  // event message, if any. Return true if the event was handled or false
-  // otherwise. If the event will be handled in OnKeyEvent() as a keyboard
-  // shortcut set |is_keyboard_shortcut| to true and return false.
+  /// Called before a keyboard event is sent to the renderer. |event| contains
+  /// information about the keyboard event. |os_event| is the operating system
+  /// event message, if any. Return true if the event was handled or false
+  /// otherwise. If the event will be handled in OnKeyEvent() as a keyboard
+  /// shortcut set |is_keyboard_shortcut| to true and return false.
   ///
   /*--cef()--*/
   virtual bool OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
@@ -64,10 +64,10 @@ class CefKeyboardHandler : public virtual CefBaseRefCounted {
   }
 
   ///
-  // Called after the renderer and JavaScript in the page has had a chance to
-  // handle the event. |event| contains information about the keyboard event.
-  // |os_event| is the operating system event message, if any. Return true if
-  // the keyboard event was handled or false otherwise.
+  /// Called after the renderer and JavaScript in the page has had a chance to
+  /// handle the event. |event| contains information about the keyboard event.
+  /// |os_event| is the operating system event message, if any. Return true if
+  /// the keyboard event was handled or false otherwise.
   ///
   /*--cef()--*/
   virtual bool OnKeyEvent(CefRefPtr<CefBrowser> browser,

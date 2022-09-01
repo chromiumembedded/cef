@@ -43,7 +43,7 @@
 #include "include/cef_base.h"
 
 ///
-// Class representing print settings.
+/// Class representing print settings.
 ///
 /*--cef(source=library)--*/
 class CefPrintSettings : public virtual CefBaseRefCounted {
@@ -53,41 +53,41 @@ class CefPrintSettings : public virtual CefBaseRefCounted {
   typedef std::vector<CefRange> PageRangeList;
 
   ///
-  // Create a new CefPrintSettings object.
+  /// Create a new CefPrintSettings object.
   ///
   /*--cef()--*/
   static CefRefPtr<CefPrintSettings> Create();
 
   ///
-  // Returns true if this object is valid. Do not call any other methods if this
-  // function returns false.
+  /// Returns true if this object is valid. Do not call any other methods if
+  /// this function returns false.
   ///
   /*--cef()--*/
   virtual bool IsValid() = 0;
 
   ///
-  // Returns true if the values of this object are read-only. Some APIs may
-  // expose read-only objects.
+  /// Returns true if the values of this object are read-only. Some APIs may
+  /// expose read-only objects.
   ///
   /*--cef()--*/
   virtual bool IsReadOnly() = 0;
 
   ///
-  // Set the page orientation.
+  /// Set the page orientation.
   ///
   /*--cef()--*/
   virtual void SetOrientation(bool landscape) = 0;
 
   ///
-  // Returns true if the orientation is landscape.
+  /// Returns true if the orientation is landscape.
   ///
   /*--cef()--*/
   virtual bool IsLandscape() = 0;
 
   ///
-  // Set the printer printable area in device units.
-  // Some platforms already provide flipped area. Set |landscape_needs_flip|
-  // to false on those platforms to avoid double flipping.
+  /// Set the printer printable area in device units.
+  /// Some platforms already provide flipped area. Set |landscape_needs_flip|
+  /// to false on those platforms to avoid double flipping.
   ///
   /*--cef()--*/
   virtual void SetPrinterPrintableArea(
@@ -96,103 +96,103 @@ class CefPrintSettings : public virtual CefBaseRefCounted {
       bool landscape_needs_flip) = 0;
 
   ///
-  // Set the device name.
+  /// Set the device name.
   ///
   /*--cef(optional_param=name)--*/
   virtual void SetDeviceName(const CefString& name) = 0;
 
   ///
-  // Get the device name.
+  /// Get the device name.
   ///
   /*--cef()--*/
   virtual CefString GetDeviceName() = 0;
 
   ///
-  // Set the DPI (dots per inch).
+  /// Set the DPI (dots per inch).
   ///
   /*--cef()--*/
   virtual void SetDPI(int dpi) = 0;
 
   ///
-  // Get the DPI (dots per inch).
+  /// Get the DPI (dots per inch).
   ///
   /*--cef()--*/
   virtual int GetDPI() = 0;
 
   ///
-  // Set the page ranges.
+  /// Set the page ranges.
   ///
   /*--cef()--*/
   virtual void SetPageRanges(const PageRangeList& ranges) = 0;
 
   ///
-  // Returns the number of page ranges that currently exist.
+  /// Returns the number of page ranges that currently exist.
   ///
   /*--cef()--*/
   virtual size_t GetPageRangesCount() = 0;
 
   ///
-  // Retrieve the page ranges.
+  /// Retrieve the page ranges.
   ///
   /*--cef(count_func=ranges:GetPageRangesCount)--*/
   virtual void GetPageRanges(PageRangeList& ranges) = 0;
 
   ///
-  // Set whether only the selection will be printed.
+  /// Set whether only the selection will be printed.
   ///
   /*--cef()--*/
   virtual void SetSelectionOnly(bool selection_only) = 0;
 
   ///
-  // Returns true if only the selection will be printed.
+  /// Returns true if only the selection will be printed.
   ///
   /*--cef()--*/
   virtual bool IsSelectionOnly() = 0;
 
   ///
-  // Set whether pages will be collated.
+  /// Set whether pages will be collated.
   ///
   /*--cef()--*/
   virtual void SetCollate(bool collate) = 0;
 
   ///
-  // Returns true if pages will be collated.
+  /// Returns true if pages will be collated.
   ///
   /*--cef()--*/
   virtual bool WillCollate() = 0;
 
   ///
-  // Set the color model.
+  /// Set the color model.
   ///
   /*--cef()--*/
   virtual void SetColorModel(ColorModel model) = 0;
 
   ///
-  // Get the color model.
+  /// Get the color model.
   ///
   /*--cef(default_retval=COLOR_MODEL_UNKNOWN)--*/
   virtual ColorModel GetColorModel() = 0;
 
   ///
-  // Set the number of copies.
+  /// Set the number of copies.
   ///
   /*--cef()--*/
   virtual void SetCopies(int copies) = 0;
 
   ///
-  // Get the number of copies.
+  /// Get the number of copies.
   ///
   /*--cef()--*/
   virtual int GetCopies() = 0;
 
   ///
-  // Set the duplex mode.
+  /// Set the duplex mode.
   ///
   /*--cef()--*/
   virtual void SetDuplexMode(DuplexMode mode) = 0;
 
   ///
-  // Get the duplex mode.
+  /// Get the duplex mode.
   ///
   /*--cef(default_retval=DUPLEX_MODE_UNKNOWN)--*/
   virtual DuplexMode GetDuplexMode() = 0;

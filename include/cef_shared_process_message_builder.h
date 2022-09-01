@@ -41,44 +41,44 @@
 #include "include/cef_process_message.h"
 
 ///
-// Class that builds a CefProcessMessage containing a shared memory region.
-// This class is not thread-safe but may be used exclusively on a different
-// thread from the one which constructed it.
+/// Class that builds a CefProcessMessage containing a shared memory region.
+/// This class is not thread-safe but may be used exclusively on a different
+/// thread from the one which constructed it.
 ///
 /*--cef(source=library)--*/
 class CefSharedProcessMessageBuilder : public virtual CefBaseRefCounted {
  public:
   ///
-  // Creates a new CefSharedProcessMessageBuilder with the specified |name| and
-  // shared memory region of specified |byte_size|.
+  /// Creates a new CefSharedProcessMessageBuilder with the specified |name| and
+  /// shared memory region of specified |byte_size|.
   ///
   /*--cef()--*/
   static CefRefPtr<CefSharedProcessMessageBuilder> Create(const CefString& name,
                                                           size_t byte_size);
   ///
-  // Returns true if the builder is valid.
+  /// Returns true if the builder is valid.
   ///
   /*--cef()--*/
   virtual bool IsValid() = 0;
 
   ///
-  // Returns the size of the shared memory region in bytes. Returns 0 for
-  // invalid instances.
+  /// Returns the size of the shared memory region in bytes. Returns 0 for
+  /// invalid instances.
   ///
   /*--cef()--*/
   virtual size_t Size() = 0;
 
   ///
-  // Returns the pointer to the writable memory. Returns nullptr for invalid
-  // instances. The returned pointer is only valid for the life span of this
-  // object.
+  /// Returns the pointer to the writable memory. Returns nullptr for invalid
+  /// instances. The returned pointer is only valid for the life span of this
+  /// object.
   ///
   /*--cef()--*/
   virtual void* Memory() = 0;
 
   ///
-  // Creates a new CefProcessMessage from the data provided to the builder.
-  // Returns nullptr for invalid instances. Invalidates the builder instance.
+  /// Creates a new CefProcessMessage from the data provided to the builder.
+  /// Returns nullptr for invalid instances. Invalidates the builder instance.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefProcessMessage> Build() = 0;

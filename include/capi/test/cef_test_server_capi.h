@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=25eed585e3c8deea88f194fbfb8aca923c778892$
+// $hash=7dc00d6af4e26812b78e47ec707f8d271c043a8e$
 //
 
 #ifndef CEF_INCLUDE_CAPI_TEST_CEF_TEST_SERVER_CAPI_H_
@@ -56,31 +56,31 @@ struct _cef_test_server_connection_t;
 struct _cef_test_server_handler_t;
 
 ///
-// Structure representing an embedded test server that supports HTTP/HTTPS
-// requests. This is a basic server providing only an essential subset of the
-// HTTP/1.1 protocol. Especially, it assumes that the request syntax is correct.
-// It *does not* support a Chunked Transfer Encoding. Server capacity is limited
-// and is intended to handle only a small number of simultaneous connections
-// (e.g. for communicating between applications on localhost). The functions of
-// this structure are safe to call from any thread in the brower process unless
-// otherwise indicated.
+/// Structure representing an embedded test server that supports HTTP/HTTPS
+/// requests. This is a basic server providing only an essential subset of the
+/// HTTP/1.1 protocol. Especially, it assumes that the request syntax is
+/// correct. It *does not* support a Chunked Transfer Encoding. Server capacity
+/// is limited and is intended to handle only a small number of simultaneous
+/// connections (e.g. for communicating between applications on localhost). The
+/// functions of this structure are safe to call from any thread in the brower
+/// process unless otherwise indicated.
 ///
 typedef struct _cef_test_server_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Stop the server and shut down the dedicated server thread. This function
-  // must be called on the same thread as CreateAndStart. It will block until
-  // the dedicated server thread has shut down.
+  /// Stop the server and shut down the dedicated server thread. This function
+  /// must be called on the same thread as CreateAndStart. It will block until
+  /// the dedicated server thread has shut down.
   ///
   void(CEF_CALLBACK* stop)(struct _cef_test_server_t* self);
 
   ///
-  // Returns the server origin including the port number (e.g.
-  // "[http|https]://127.0.0.1:<port>".
+  /// Returns the server origin including the port number (e.g.
+  /// "[http|https]://127.0.0.1:<port>".
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_origin)(
@@ -88,20 +88,20 @@ typedef struct _cef_test_server_t {
 } cef_test_server_t;
 
 ///
-// Create and start a new test server that binds to |port|. If |port| is 0 an
-// available port number will be selected. If |https_server| is true (1) the
-// server will be HTTPS, otherwise it will be HTTP. When |https_server| is true
-// (1) the |https_cert_type| value is used to configure the certificate type.
-// Returns the newly created server object on success, or nullptr if the server
-// cannot be started.
-//
-// A new thread will be created for each CreateAndStart call (the "dedicated
-// server thread"). It is therefore recommended to use a different
-// cef_test_server_handler_t instance for each CreateAndStart call to avoid
-// thread safety issues in the cef_test_server_handler_t implementation.
-//
-// On success, this function will block until the dedicated server thread has
-// started. The server will continue running until Stop is called.
+/// Create and start a new test server that binds to |port|. If |port| is 0 an
+/// available port number will be selected. If |https_server| is true (1) the
+/// server will be HTTPS, otherwise it will be HTTP. When |https_server| is true
+/// (1) the |https_cert_type| value is used to configure the certificate type.
+/// Returns the newly created server object on success, or nullptr if the server
+/// cannot be started.
+///
+/// A new thread will be created for each CreateAndStart call (the "dedicated
+/// server thread"). It is therefore recommended to use a different
+/// cef_test_server_handler_t instance for each CreateAndStart call to avoid
+/// thread safety issues in the cef_test_server_handler_t implementation.
+///
+/// On success, this function will block until the dedicated server thread has
+/// started. The server will continue running until Stop is called.
 ///
 CEF_EXPORT cef_test_server_t* cef_test_server_create_and_start(
     uint16 port,
@@ -110,22 +110,22 @@ CEF_EXPORT cef_test_server_t* cef_test_server_create_and_start(
     struct _cef_test_server_handler_t* handler);
 
 ///
-// Implement this structure to handle test server requests. A new thread will be
-// created for each cef_test_server_t::CreateAndStart call (the "dedicated
-// server thread"), and the functions of this structure will be called on that
-// thread. See related documentation on cef_test_server_t::CreateAndStart.
+/// Implement this structure to handle test server requests. A new thread will
+/// be created for each cef_test_server_t::CreateAndStart call (the "dedicated
+/// server thread"), and the functions of this structure will be called on that
+/// thread. See related documentation on cef_test_server_t::CreateAndStart.
 ///
 typedef struct _cef_test_server_handler_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Called when |server| receives a request. To handle the request return true
-  // (1) and use |connection| to send the response either synchronously or
-  // asynchronously. Otherwise, return false (0) if the request is unhandled.
-  // When returning false (0) do not call any |connection| functions.
+  /// Called when |server| receives a request. To handle the request return true
+  /// (1) and use |connection| to send the response either synchronously or
+  /// asynchronously. Otherwise, return false (0) if the request is unhandled.
+  /// When returning false (0) do not call any |connection| functions.
   ///
   int(CEF_CALLBACK* on_test_server_request)(
       struct _cef_test_server_handler_t* self,
@@ -135,21 +135,21 @@ typedef struct _cef_test_server_handler_t {
 } cef_test_server_handler_t;
 
 ///
-// Structure representing a test server connection. The functions of this
-// structure are safe to call from any thread in the brower process unless
-// otherwise indicated.
+/// Structure representing a test server connection. The functions of this
+/// structure are safe to call from any thread in the brower process unless
+/// otherwise indicated.
 ///
 typedef struct _cef_test_server_connection_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Send an HTTP 200 "OK" response. |content_type| is the response content type
-  // (e.g. "text/html"). |data| is the response content and |data_size| is the
-  // size of |data| in bytes. The contents of |data| will be copied. The
-  // connection will be closed automatically after the response is sent.
+  /// Send an HTTP 200 "OK" response. |content_type| is the response content
+  /// type (e.g. "text/html"). |data| is the response content and |data_size| is
+  /// the size of |data| in bytes. The contents of |data| will be copied. The
+  /// connection will be closed automatically after the response is sent.
   ///
   void(CEF_CALLBACK* send_http200response)(
       struct _cef_test_server_connection_t* self,
@@ -158,28 +158,28 @@ typedef struct _cef_test_server_connection_t {
       size_t data_size);
 
   ///
-  // Send an HTTP 404 "Not Found" response. The connection will be closed
-  // automatically after the response is sent.
+  /// Send an HTTP 404 "Not Found" response. The connection will be closed
+  /// automatically after the response is sent.
   ///
   void(CEF_CALLBACK* send_http404response)(
       struct _cef_test_server_connection_t* self);
 
   ///
-  // Send an HTTP 500 "Internal Server Error" response. |error_message| is the
-  // associated error message. The connection will be closed automatically after
-  // the response is sent.
+  /// Send an HTTP 500 "Internal Server Error" response. |error_message| is the
+  /// associated error message. The connection will be closed automatically
+  /// after the response is sent.
   ///
   void(CEF_CALLBACK* send_http500response)(
       struct _cef_test_server_connection_t* self,
       const cef_string_t* error_message);
 
   ///
-  // Send a custom HTTP response. |response_code| is the HTTP response code sent
-  // in the status line (e.g. 200). |content_type| is the response content type
-  // (e.g. "text/html"). |data| is the response content and |data_size| is the
-  // size of |data| in bytes. The contents of |data| will be copied.
-  // |extra_headers| is an optional map of additional header key/value pairs.
-  // The connection will be closed automatically after the response is sent.
+  /// Send a custom HTTP response. |response_code| is the HTTP response code
+  /// sent in the status line (e.g. 200). |content_type| is the response content
+  /// type (e.g. "text/html"). |data| is the response content and |data_size| is
+  /// the size of |data| in bytes. The contents of |data| will be copied.
+  /// |extra_headers| is an optional map of additional header key/value pairs.
+  /// The connection will be closed automatically after the response is sent.
   ///
   void(CEF_CALLBACK* send_http_response)(
       struct _cef_test_server_connection_t* self,

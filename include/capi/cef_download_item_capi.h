@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=1c1dd82539e356f15be95b66d824740075c48e4f$
+// $hash=a218058d7ceb842c9ea0cf0c252f9787de6562e7$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DOWNLOAD_ITEM_CAPI_H_
@@ -47,109 +47,109 @@ extern "C" {
 #endif
 
 ///
-// Structure used to represent a download item.
+/// Structure used to represent a download item.
 ///
 typedef struct _cef_download_item_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Returns true (1) if this object is valid. Do not call any other functions
-  // if this function returns false (0).
+  /// Returns true (1) if this object is valid. Do not call any other functions
+  /// if this function returns false (0).
   ///
   int(CEF_CALLBACK* is_valid)(struct _cef_download_item_t* self);
 
   ///
-  // Returns true (1) if the download is in progress.
+  /// Returns true (1) if the download is in progress.
   ///
   int(CEF_CALLBACK* is_in_progress)(struct _cef_download_item_t* self);
 
   ///
-  // Returns true (1) if the download is complete.
+  /// Returns true (1) if the download is complete.
   ///
   int(CEF_CALLBACK* is_complete)(struct _cef_download_item_t* self);
 
   ///
-  // Returns true (1) if the download has been canceled or interrupted.
+  /// Returns true (1) if the download has been canceled or interrupted.
   ///
   int(CEF_CALLBACK* is_canceled)(struct _cef_download_item_t* self);
 
   ///
-  // Returns a simple speed estimate in bytes/s.
+  /// Returns a simple speed estimate in bytes/s.
   ///
   int64(CEF_CALLBACK* get_current_speed)(struct _cef_download_item_t* self);
 
   ///
-  // Returns the rough percent complete or -1 if the receive total size is
-  // unknown.
+  /// Returns the rough percent complete or -1 if the receive total size is
+  /// unknown.
   ///
   int(CEF_CALLBACK* get_percent_complete)(struct _cef_download_item_t* self);
 
   ///
-  // Returns the total number of bytes.
+  /// Returns the total number of bytes.
   ///
   int64(CEF_CALLBACK* get_total_bytes)(struct _cef_download_item_t* self);
 
   ///
-  // Returns the number of received bytes.
+  /// Returns the number of received bytes.
   ///
   int64(CEF_CALLBACK* get_received_bytes)(struct _cef_download_item_t* self);
 
   ///
-  // Returns the time that the download started.
+  /// Returns the time that the download started.
   ///
   cef_basetime_t(CEF_CALLBACK* get_start_time)(
       struct _cef_download_item_t* self);
 
   ///
-  // Returns the time that the download ended.
+  /// Returns the time that the download ended.
   ///
   cef_basetime_t(CEF_CALLBACK* get_end_time)(struct _cef_download_item_t* self);
 
   ///
-  // Returns the full path to the downloaded or downloading file.
+  /// Returns the full path to the downloaded or downloading file.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_full_path)(
       struct _cef_download_item_t* self);
 
   ///
-  // Returns the unique identifier for this download.
+  /// Returns the unique identifier for this download.
   ///
   uint32(CEF_CALLBACK* get_id)(struct _cef_download_item_t* self);
 
   ///
-  // Returns the URL.
+  /// Returns the URL.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_url)(
       struct _cef_download_item_t* self);
 
   ///
-  // Returns the original URL before any redirections.
+  /// Returns the original URL before any redirections.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_original_url)(
       struct _cef_download_item_t* self);
 
   ///
-  // Returns the suggested file name.
+  /// Returns the suggested file name.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_suggested_file_name)(
       struct _cef_download_item_t* self);
 
   ///
-  // Returns the content disposition.
+  /// Returns the content disposition.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_content_disposition)(
       struct _cef_download_item_t* self);
 
   ///
-  // Returns the mime type.
+  /// Returns the mime type.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_mime_type)(

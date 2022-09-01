@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=26fdd1f18f30d9e2a48aeeb5c69607d9d22d69ca$
+// $hash=a40860835e6e693ed2f85eab5fa7990b7f2c7bbe$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_ORIGIN_WHITELIST_CAPI_H_
@@ -47,40 +47,41 @@ extern "C" {
 #endif
 
 ///
-// Add an entry to the cross-origin access whitelist.
-//
-// The same-origin policy restricts how scripts hosted from different origins
-// (scheme + domain + port) can communicate. By default, scripts can only access
-// resources with the same origin. Scripts hosted on the HTTP and HTTPS schemes
-// (but no other schemes) can use the "Access-Control-Allow-Origin" header to
-// allow cross-origin requests. For example, https://source.example.com can make
-// XMLHttpRequest requests on http://target.example.com if the
-// http://target.example.com request returns an "Access-Control-Allow-Origin:
-// https://source.example.com" response header.
-//
-// Scripts in separate frames or iframes and hosted from the same protocol and
-// domain suffix can execute cross-origin JavaScript if both pages set the
-// document.domain value to the same domain suffix. For example,
-// scheme://foo.example.com and scheme://bar.example.com can communicate using
-// JavaScript if both domains set document.domain="example.com".
-//
-// This function is used to allow access to origins that would otherwise violate
-// the same-origin policy. Scripts hosted underneath the fully qualified
-// |source_origin| URL (like http://www.example.com) will be allowed access to
-// all resources hosted on the specified |target_protocol| and |target_domain|.
-// If |target_domain| is non-NULL and |allow_target_subdomains| if false (0)
-// only exact domain matches will be allowed. If |target_domain| contains a top-
-// level domain component (like "example.com") and |allow_target_subdomains| is
-// true (1) sub-domain matches will be allowed. If |target_domain| is NULL and
-// |allow_target_subdomains| if true (1) all domains and IP addresses will be
-// allowed.
-//
-// This function cannot be used to bypass the restrictions on local or display
-// isolated schemes. See the comments on CefRegisterCustomScheme for more
-// information.
-//
-// This function may be called on any thread. Returns false (0) if
-// |source_origin| is invalid or the whitelist cannot be accessed.
+/// Add an entry to the cross-origin access whitelist.
+///
+/// The same-origin policy restricts how scripts hosted from different origins
+/// (scheme + domain + port) can communicate. By default, scripts can only
+/// access resources with the same origin. Scripts hosted on the HTTP and HTTPS
+/// schemes (but no other schemes) can use the "Access-Control-Allow-Origin"
+/// header to allow cross-origin requests. For example,
+/// https://source.example.com can make XMLHttpRequest requests on
+/// http://target.example.com if the http://target.example.com request returns
+/// an "Access-Control-Allow-Origin: https://source.example.com" response
+/// header.
+///
+/// Scripts in separate frames or iframes and hosted from the same protocol and
+/// domain suffix can execute cross-origin JavaScript if both pages set the
+/// document.domain value to the same domain suffix. For example,
+/// scheme://foo.example.com and scheme://bar.example.com can communicate using
+/// JavaScript if both domains set document.domain="example.com".
+///
+/// This function is used to allow access to origins that would otherwise
+/// violate the same-origin policy. Scripts hosted underneath the fully
+/// qualified |source_origin| URL (like http://www.example.com) will be allowed
+/// access to all resources hosted on the specified |target_protocol| and
+/// |target_domain|. If |target_domain| is non-NULL and
+/// |allow_target_subdomains| if false (0) only exact domain matches will be
+/// allowed. If |target_domain| contains a top- level domain component (like
+/// "example.com") and |allow_target_subdomains| is true (1) sub-domain matches
+/// will be allowed. If |target_domain| is NULL and |allow_target_subdomains| if
+/// true (1) all domains and IP addresses will be allowed.
+///
+/// This function cannot be used to bypass the restrictions on local or display
+/// isolated schemes. See the comments on CefRegisterCustomScheme for more
+/// information.
+///
+/// This function may be called on any thread. Returns false (0) if
+/// |source_origin| is invalid or the whitelist cannot be accessed.
 ///
 CEF_EXPORT int cef_add_cross_origin_whitelist_entry(
     const cef_string_t* source_origin,
@@ -89,8 +90,8 @@ CEF_EXPORT int cef_add_cross_origin_whitelist_entry(
     int allow_target_subdomains);
 
 ///
-// Remove an entry from the cross-origin access whitelist. Returns false (0) if
-// |source_origin| is invalid or the whitelist cannot be accessed.
+/// Remove an entry from the cross-origin access whitelist. Returns false (0) if
+/// |source_origin| is invalid or the whitelist cannot be accessed.
 ///
 CEF_EXPORT int cef_remove_cross_origin_whitelist_entry(
     const cef_string_t* source_origin,
@@ -99,8 +100,8 @@ CEF_EXPORT int cef_remove_cross_origin_whitelist_entry(
     int allow_target_subdomains);
 
 ///
-// Remove all entries from the cross-origin access whitelist. Returns false (0)
-// if the whitelist cannot be accessed.
+/// Remove all entries from the cross-origin access whitelist. Returns false (0)
+/// if the whitelist cannot be accessed.
 ///
 CEF_EXPORT int cef_clear_cross_origin_whitelist(void);
 

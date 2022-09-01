@@ -41,7 +41,7 @@
 #include "include/cef_base.h"
 
 ///
-// Returns true if the application text direction is right-to-left.
+/// Returns true if the application text direction is right-to-left.
 ///
 /*--cef()--*/
 bool CefIsRTL();

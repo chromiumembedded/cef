@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=e76fa23e9682bf0865319d93e4009752ac8f854f$
+// $hash=3e2e068a2be0a3b12653eea65a4bbe1c9cdb8c7f$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_FILE_UTIL_CAPI_H_
@@ -47,40 +47,40 @@ extern "C" {
 #endif
 
 ///
-// Creates a directory and all parent directories if they don't already exist.
-// Returns true (1) on successful creation or if the directory already exists.
-// The directory is only readable by the current user. Calling this function on
-// the browser process UI or IO threads is not allowed.
+/// Creates a directory and all parent directories if they don't already exist.
+/// Returns true (1) on successful creation or if the directory already exists.
+/// The directory is only readable by the current user. Calling this function on
+/// the browser process UI or IO threads is not allowed.
 ///
 CEF_EXPORT int cef_create_directory(const cef_string_t* full_path);
 
 ///
-// Get the temporary directory provided by the system.
-//
-// WARNING: In general, you should use the temp directory variants below instead
-// of this function. Those variants will ensure that the proper permissions are
-// set so that other users on the system can't edit them while they're open
-// (which could lead to security issues).
+/// Get the temporary directory provided by the system.
+///
+/// WARNING: In general, you should use the temp directory variants below
+/// instead of this function. Those variants will ensure that the proper
+/// permissions are set so that other users on the system can't edit them while
+/// they're open (which could lead to security issues).
 ///
 CEF_EXPORT int cef_get_temp_directory(cef_string_t* temp_dir);
 
 ///
-// Creates a new directory. On Windows if |prefix| is provided the new directory
-// name is in the format of "prefixyyyy". Returns true (1) on success and sets
-// |new_temp_path| to the full path of the directory that was created. The
-// directory is only readable by the current user. Calling this function on the
-// browser process UI or IO threads is not allowed.
+/// Creates a new directory. On Windows if |prefix| is provided the new
+/// directory name is in the format of "prefixyyyy". Returns true (1) on success
+/// and sets |new_temp_path| to the full path of the directory that was created.
+/// The directory is only readable by the current user. Calling this function on
+/// the browser process UI or IO threads is not allowed.
 ///
 CEF_EXPORT int cef_create_new_temp_directory(const cef_string_t* prefix,
                                              cef_string_t* new_temp_path);
 
 ///
-// Creates a directory within another directory. Extra characters will be
-// appended to |prefix| to ensure that the new directory does not have the same
-// name as an existing directory. Returns true (1) on success and sets |new_dir|
-// to the full path of the directory that was created. The directory is only
-// readable by the current user. Calling this function on the browser process UI
-// or IO threads is not allowed.
+/// Creates a directory within another directory. Extra characters will be
+/// appended to |prefix| to ensure that the new directory does not have the same
+/// name as an existing directory. Returns true (1) on success and sets
+/// |new_dir| to the full path of the directory that was created. The directory
+/// is only readable by the current user. Calling this function on the browser
+/// process UI or IO threads is not allowed.
 ///
 CEF_EXPORT int cef_create_temp_directory_in_directory(
     const cef_string_t* base_dir,
@@ -88,39 +88,40 @@ CEF_EXPORT int cef_create_temp_directory_in_directory(
     cef_string_t* new_dir);
 
 ///
-// Returns true (1) if the given path exists and is a directory. Calling this
-// function on the browser process UI or IO threads is not allowed.
+/// Returns true (1) if the given path exists and is a directory. Calling this
+/// function on the browser process UI or IO threads is not allowed.
 ///
 CEF_EXPORT int cef_directory_exists(const cef_string_t* path);
 
 ///
-// Deletes the given path whether it's a file or a directory. If |path| is a
-// directory all contents will be deleted.  If |recursive| is true (1) any sub-
-// directories and their contents will also be deleted (equivalent to executing
-// "rm -rf", so use with caution). On POSIX environments if |path| is a symbolic
-// link then only the symlink will be deleted. Returns true (1) on successful
-// deletion or if |path| does not exist. Calling this function on the browser
-// process UI or IO threads is not allowed.
+/// Deletes the given path whether it's a file or a directory. If |path| is a
+/// directory all contents will be deleted.  If |recursive| is true (1) any sub-
+/// directories and their contents will also be deleted (equivalent to executing
+/// "rm -rf", so use with caution). On POSIX environments if |path| is a
+/// symbolic link then only the symlink will be deleted. Returns true (1) on
+/// successful deletion or if |path| does not exist. Calling this function on
+/// the browser process UI or IO threads is not allowed.
 ///
 CEF_EXPORT int cef_delete_file(const cef_string_t* path, int recursive);
 
 ///
-// Writes the contents of |src_dir| into a zip archive at |dest_file|. If
-// |include_hidden_files| is true (1) files starting with "." will be included.
-// Returns true (1) on success.  Calling this function on the browser process UI
-// or IO threads is not allowed.
+/// Writes the contents of |src_dir| into a zip archive at |dest_file|. If
+/// |include_hidden_files| is true (1) files starting with "." will be included.
+/// Returns true (1) on success.  Calling this function on the browser process
+/// UI or IO threads is not allowed.
 ///
 CEF_EXPORT int cef_zip_directory(const cef_string_t* src_dir,
                                  const cef_string_t* dest_file,
                                  int include_hidden_files);
 
 ///
-// Loads the existing "Certificate Revocation Lists" file that is managed by
-// Google Chrome. This file can generally be found in Chrome's User Data
-// directory (e.g. "C:\Users\[User]\AppData\Local\Google\Chrome\User Data\" on
-// Windows) and is updated periodically by Chrome's component updater service.
-// Must be called in the browser process after the context has been initialized.
-// See https://dev.chromium.org/Home/chromium-security/crlsets for background.
+/// Loads the existing "Certificate Revocation Lists" file that is managed by
+/// Google Chrome. This file can generally be found in Chrome's User Data
+/// directory (e.g. "C:\Users\[User]\AppData\Local\Google\Chrome\User Data\" on
+/// Windows) and is updated periodically by Chrome's component updater service.
+/// Must be called in the browser process after the context has been
+/// initialized. See https://dev.chromium.org/Home/chromium-security/crlsets for
+/// background.
 ///
 CEF_EXPORT void cef_load_crlsets_file(const cef_string_t* path);
 

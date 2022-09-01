@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=a75487288913e4646f67ee8aded4bc9ef328bb79$
+// $hash=41b9addf8d38cc522879ba1abd455325e7f98bc4$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_VIEW_DELEGATE_CAPI_H_
@@ -49,53 +49,53 @@ extern "C" {
 struct _cef_view_t;
 
 ///
-// Implement this structure to handle view events. All size and position values
-// are in density independent pixels (DIP) unless otherwise indicated. The
-// functions of this structure will be called on the browser process UI thread
-// unless otherwise indicated.
+/// Implement this structure to handle view events. All size and position values
+/// are in density independent pixels (DIP) unless otherwise indicated. The
+/// functions of this structure will be called on the browser process UI thread
+/// unless otherwise indicated.
 ///
 typedef struct _cef_view_delegate_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Return the preferred size for |view|. The Layout will use this information
-  // to determine the display size.
+  /// Return the preferred size for |view|. The Layout will use this information
+  /// to determine the display size.
   ///
   cef_size_t(CEF_CALLBACK* get_preferred_size)(
       struct _cef_view_delegate_t* self,
       struct _cef_view_t* view);
 
   ///
-  // Return the minimum size for |view|.
+  /// Return the minimum size for |view|.
   ///
   cef_size_t(CEF_CALLBACK* get_minimum_size)(struct _cef_view_delegate_t* self,
                                              struct _cef_view_t* view);
 
   ///
-  // Return the maximum size for |view|.
+  /// Return the maximum size for |view|.
   ///
   cef_size_t(CEF_CALLBACK* get_maximum_size)(struct _cef_view_delegate_t* self,
                                              struct _cef_view_t* view);
 
   ///
-  // Return the height necessary to display |view| with the provided |width|. If
-  // not specified the result of get_preferred_size().height will be used by
-  // default. Override if |view|'s preferred height depends upon the width (for
-  // example, with Labels).
+  /// Return the height necessary to display |view| with the provided |width|.
+  /// If not specified the result of get_preferred_size().height will be used by
+  /// default. Override if |view|'s preferred height depends upon the width (for
+  /// example, with Labels).
   ///
   int(CEF_CALLBACK* get_height_for_width)(struct _cef_view_delegate_t* self,
                                           struct _cef_view_t* view,
                                           int width);
 
   ///
-  // Called when the parent of |view| has changed. If |view| is being added to
-  // |parent| then |added| will be true (1). If |view| is being removed from
-  // |parent| then |added| will be false (0). If |view| is being reparented the
-  // remove notification will be sent before the add notification. Do not modify
-  // the view hierarchy in this callback.
+  /// Called when the parent of |view| has changed. If |view| is being added to
+  /// |parent| then |added| will be true (1). If |view| is being removed from
+  /// |parent| then |added| will be false (0). If |view| is being reparented the
+  /// remove notification will be sent before the add notification. Do not
+  /// modify the view hierarchy in this callback.
   ///
   void(CEF_CALLBACK* on_parent_view_changed)(struct _cef_view_delegate_t* self,
                                              struct _cef_view_t* view,
@@ -103,12 +103,12 @@ typedef struct _cef_view_delegate_t {
                                              struct _cef_view_t* parent);
 
   ///
-  // Called when a child of |view| has changed. If |child| is being added to
-  // |view| then |added| will be true (1). If |child| is being removed from
-  // |view| then |added| will be false (0). If |child| is being reparented the
-  // remove notification will be sent to the old parent before the add
-  // notification is sent to the new parent. Do not modify the view hierarchy in
-  // this callback.
+  /// Called when a child of |view| has changed. If |child| is being added to
+  /// |view| then |added| will be true (1). If |child| is being removed from
+  /// |view| then |added| will be false (0). If |child| is being reparented the
+  /// remove notification will be sent to the old parent before the add
+  /// notification is sent to the new parent. Do not modify the view hierarchy
+  /// in this callback.
   ///
   void(CEF_CALLBACK* on_child_view_changed)(struct _cef_view_delegate_t* self,
                                             struct _cef_view_t* view,
@@ -116,27 +116,27 @@ typedef struct _cef_view_delegate_t {
                                             struct _cef_view_t* child);
 
   ///
-  // Called when |view| is added or removed from the cef_window_t.
+  /// Called when |view| is added or removed from the cef_window_t.
   ///
   void(CEF_CALLBACK* on_window_changed)(struct _cef_view_delegate_t* self,
                                         struct _cef_view_t* view,
                                         int added);
 
   ///
-  // Called when the layout of |view| has changed.
+  /// Called when the layout of |view| has changed.
   ///
   void(CEF_CALLBACK* on_layout_changed)(struct _cef_view_delegate_t* self,
                                         struct _cef_view_t* view,
                                         const cef_rect_t* new_bounds);
 
   ///
-  // Called when |view| gains focus.
+  /// Called when |view| gains focus.
   ///
   void(CEF_CALLBACK* on_focus)(struct _cef_view_delegate_t* self,
                                struct _cef_view_t* view);
 
   ///
-  // Called when |view| loses focus.
+  /// Called when |view| loses focus.
   ///
   void(CEF_CALLBACK* on_blur)(struct _cef_view_delegate_t* self,
                               struct _cef_view_t* view);

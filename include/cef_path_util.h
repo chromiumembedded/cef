@@ -43,8 +43,8 @@
 typedef cef_path_key_t PathKey;
 
 ///
-// Retrieve the path associated with the specified |key|. Returns true on
-// success. Can be called on any thread in the browser process.
+/// Retrieve the path associated with the specified |key|. Returns true on
+/// success. Can be called on any thread in the browser process.
 ///
 /*--cef()--*/
 bool CefGetPath(PathKey key, CefString& path);

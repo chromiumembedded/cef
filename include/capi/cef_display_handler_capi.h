@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=adb78c1968bb0634d6255e1b5e49b56211da4fa8$
+// $hash=976a61df924efbcb0c53afeb75265e5e9e80c2de$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DISPLAY_HANDLER_CAPI_H_
@@ -49,17 +49,17 @@ extern "C" {
 #endif
 
 ///
-// Implement this structure to handle events related to browser display state.
-// The functions of this structure will be called on the UI thread.
+/// Implement this structure to handle events related to browser display state.
+/// The functions of this structure will be called on the UI thread.
 ///
 typedef struct _cef_display_handler_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Called when a frame's address has changed.
+  /// Called when a frame's address has changed.
   ///
   void(CEF_CALLBACK* on_address_change)(struct _cef_display_handler_t* self,
                                         struct _cef_browser_t* browser,
@@ -67,25 +67,25 @@ typedef struct _cef_display_handler_t {
                                         const cef_string_t* url);
 
   ///
-  // Called when the page title changes.
+  /// Called when the page title changes.
   ///
   void(CEF_CALLBACK* on_title_change)(struct _cef_display_handler_t* self,
                                       struct _cef_browser_t* browser,
                                       const cef_string_t* title);
 
   ///
-  // Called when the page icon changes.
+  /// Called when the page icon changes.
   ///
   void(CEF_CALLBACK* on_favicon_urlchange)(struct _cef_display_handler_t* self,
                                            struct _cef_browser_t* browser,
                                            cef_string_list_t icon_urls);
 
   ///
-  // Called when web content in the page has toggled fullscreen mode. If
-  // |fullscreen| is true (1) the content will automatically be sized to fill
-  // the browser content area. If |fullscreen| is false (0) the content will
-  // automatically return to its original size and position. The client is
-  // responsible for resizing the browser if desired.
+  /// Called when web content in the page has toggled fullscreen mode. If
+  /// |fullscreen| is true (1) the content will automatically be sized to fill
+  /// the browser content area. If |fullscreen| is false (0) the content will
+  /// automatically return to its original size and position. The client is
+  /// responsible for resizing the browser if desired.
   ///
   void(CEF_CALLBACK* on_fullscreen_mode_change)(
       struct _cef_display_handler_t* self,
@@ -93,28 +93,28 @@ typedef struct _cef_display_handler_t {
       int fullscreen);
 
   ///
-  // Called when the browser is about to display a tooltip. |text| contains the
-  // text that will be displayed in the tooltip. To handle the display of the
-  // tooltip yourself return true (1). Otherwise, you can optionally modify
-  // |text| and then return false (0) to allow the browser to display the
-  // tooltip. When window rendering is disabled the application is responsible
-  // for drawing tooltips and the return value is ignored.
+  /// Called when the browser is about to display a tooltip. |text| contains the
+  /// text that will be displayed in the tooltip. To handle the display of the
+  /// tooltip yourself return true (1). Otherwise, you can optionally modify
+  /// |text| and then return false (0) to allow the browser to display the
+  /// tooltip. When window rendering is disabled the application is responsible
+  /// for drawing tooltips and the return value is ignored.
   ///
   int(CEF_CALLBACK* on_tooltip)(struct _cef_display_handler_t* self,
                                 struct _cef_browser_t* browser,
                                 cef_string_t* text);
 
   ///
-  // Called when the browser receives a status message. |value| contains the
-  // text that will be displayed in the status message.
+  /// Called when the browser receives a status message. |value| contains the
+  /// text that will be displayed in the status message.
   ///
   void(CEF_CALLBACK* on_status_message)(struct _cef_display_handler_t* self,
                                         struct _cef_browser_t* browser,
                                         const cef_string_t* value);
 
   ///
-  // Called to display a console message. Return true (1) to stop the message
-  // from being output to the console.
+  /// Called to display a console message. Return true (1) to stop the message
+  /// from being output to the console.
   ///
   int(CEF_CALLBACK* on_console_message)(struct _cef_display_handler_t* self,
                                         struct _cef_browser_t* browser,
@@ -124,18 +124,18 @@ typedef struct _cef_display_handler_t {
                                         int line);
 
   ///
-  // Called when auto-resize is enabled via
-  // cef_browser_host_t::SetAutoResizeEnabled and the contents have auto-
-  // resized. |new_size| will be the desired size in view coordinates. Return
-  // true (1) if the resize was handled or false (0) for default handling.
+  /// Called when auto-resize is enabled via
+  /// cef_browser_host_t::SetAutoResizeEnabled and the contents have auto-
+  /// resized. |new_size| will be the desired size in view coordinates. Return
+  /// true (1) if the resize was handled or false (0) for default handling.
   ///
   int(CEF_CALLBACK* on_auto_resize)(struct _cef_display_handler_t* self,
                                     struct _cef_browser_t* browser,
                                     const cef_size_t* new_size);
 
   ///
-  // Called when the overall page loading progress has changed. |progress|
-  // ranges from 0.0 to 1.0.
+  /// Called when the overall page loading progress has changed. |progress|
+  /// ranges from 0.0 to 1.0.
   ///
   void(CEF_CALLBACK* on_loading_progress_change)(
       struct _cef_display_handler_t* self,
@@ -143,10 +143,10 @@ typedef struct _cef_display_handler_t {
       double progress);
 
   ///
-  // Called when the browser's cursor has changed. If |type| is CT_CUSTOM then
-  // |custom_cursor_info| will be populated with the custom cursor information.
-  // Return true (1) if the cursor change was handled or false (0) for default
-  // handling.
+  /// Called when the browser's cursor has changed. If |type| is CT_CUSTOM then
+  /// |custom_cursor_info| will be populated with the custom cursor information.
+  /// Return true (1) if the cursor change was handled or false (0) for default
+  /// handling.
   ///
   int(CEF_CALLBACK* on_cursor_change)(
       struct _cef_display_handler_t* self,
@@ -156,8 +156,8 @@ typedef struct _cef_display_handler_t {
       const cef_cursor_info_t* custom_cursor_info);
 
   ///
-  // Called when the browser's access to an audio and/or video source has
-  // changed.
+  /// Called when the browser's access to an audio and/or video source has
+  /// changed.
   ///
   void(CEF_CALLBACK* on_media_access_change)(
       struct _cef_display_handler_t* self,

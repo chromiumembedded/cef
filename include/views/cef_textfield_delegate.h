@@ -43,17 +43,17 @@
 class CefTextfield;
 
 ///
-// Implement this interface to handle Textfield events. The methods of this
-// class will be called on the browser process UI thread unless otherwise
-// indicated.
+/// Implement this interface to handle Textfield events. The methods of this
+/// class will be called on the browser process UI thread unless otherwise
+/// indicated.
 ///
 /*--cef(source=client)--*/
 class CefTextfieldDelegate : public CefViewDelegate {
  public:
   ///
-  // Called when |textfield| recieves a keyboard event. |event| contains
-  // information about the keyboard event. Return true if the keyboard event was
-  // handled or false otherwise for default handling.
+  /// Called when |textfield| recieves a keyboard event. |event| contains
+  /// information about the keyboard event. Return true if the keyboard event
+  /// was handled or false otherwise for default handling.
   ///
   /*--cef()--*/
   virtual bool OnKeyEvent(CefRefPtr<CefTextfield> textfield,
@@ -62,7 +62,7 @@ class CefTextfieldDelegate : public CefViewDelegate {
   }
 
   ///
-  // Called after performing a user action that may change |textfield|.
+  /// Called after performing a user action that may change |textfield|.
   ///
   /*--cef()--*/
   virtual void OnAfterUserAction(CefRefPtr<CefTextfield> textfield) {}

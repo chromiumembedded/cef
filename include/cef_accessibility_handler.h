@@ -41,23 +41,23 @@
 #include "include/cef_values.h"
 
 ///
-// Implement this interface to receive accessibility notification when
-// accessibility events have been registered. The methods of this class will
-// be called on the UI thread.
+/// Implement this interface to receive accessibility notification when
+/// accessibility events have been registered. The methods of this class will
+/// be called on the UI thread.
 ///
 /*--cef(source=client)--*/
 class CefAccessibilityHandler : public virtual CefBaseRefCounted {
  public:
   ///
-  // Called after renderer process sends accessibility tree changes to the
-  // browser process.
+  /// Called after renderer process sends accessibility tree changes to the
+  /// browser process.
   ///
   /*--cef()--*/
   virtual void OnAccessibilityTreeChange(CefRefPtr<CefValue> value) = 0;
 
   ///
-  // Called after renderer process sends accessibility location changes to the
-  // browser process.
+  /// Called after renderer process sends accessibility location changes to the
+  /// browser process.
   ///
   /*--cef()--*/
   virtual void OnAccessibilityLocationChange(CefRefPtr<CefValue> value) = 0;

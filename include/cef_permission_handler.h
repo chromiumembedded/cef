@@ -42,61 +42,62 @@
 #include "include/cef_browser.h"
 
 ///
-// Callback interface used for asynchronous continuation of media access
-// permission requests.
+/// Callback interface used for asynchronous continuation of media access
+/// permission requests.
 ///
 /*--cef(source=library)--*/
 class CefMediaAccessCallback : public virtual CefBaseRefCounted {
  public:
   ///
-  // Call to allow or deny media access. If this callback was initiated in
-  // response to a getUserMedia (indicated by
-  // CEF_MEDIA_PERMISSION_DEVICE_AUDIO_CAPTURE and/or
-  // CEF_MEDIA_PERMISSION_DEVICE_VIDEO_CAPTURE being set) then
-  // |allowed_permissions| must match |required_permissions| passed to
-  // OnRequestMediaAccessPermission.
+  /// Call to allow or deny media access. If this callback was initiated in
+  /// response to a getUserMedia (indicated by
+  /// CEF_MEDIA_PERMISSION_DEVICE_AUDIO_CAPTURE and/or
+  /// CEF_MEDIA_PERMISSION_DEVICE_VIDEO_CAPTURE being set) then
+  /// |allowed_permissions| must match |required_permissions| passed to
+  /// OnRequestMediaAccessPermission.
   ///
   /*--cef(capi_name=cont)--*/
   virtual void Continue(uint32 allowed_permissions) = 0;
 
   ///
-  // Cancel the media access request.
+  /// Cancel the media access request.
   ///
   /*--cef()--*/
   virtual void Cancel() = 0;
 };
 
 ///
-// Callback interface used for asynchronous continuation of permission prompts.
+/// Callback interface used for asynchronous continuation of permission prompts.
 ///
 /*--cef(source=library)--*/
 class CefPermissionPromptCallback : public virtual CefBaseRefCounted {
  public:
   ///
-  // Complete the permissions request with the specified |result|.
+  /// Complete the permissions request with the specified |result|.
   ///
   /*--cef(capi_name=cont)--*/
   virtual void Continue(cef_permission_request_result_t result) = 0;
 };
 
 ///
-// Implement this interface to handle events related to permission requests. The
-// methods of this class will be called on the browser process UI thread.
+/// Implement this interface to handle events related to permission requests.
+/// The methods of this class will be called on the browser process UI thread.
 ///
 /*--cef(source=client)--*/
 class CefPermissionHandler : public virtual CefBaseRefCounted {
  public:
   ///
-  // Called when a page requests permission to access media. |requesting_origin|
-  // is the URL origin requesting permission. |requested_permissions| is a
-  // combination of values from cef_media_access_permission_types_t that
-  // represent the requested permissions. Return true and call
-  // CefMediaAccessCallback methods either in this method or at a later time to
-  // continue or cancel the request. Return false to proceed with default
-  // handling. With the Chrome runtime, default handling will display the
-  // permission request UI. With the Alloy runtime, default handling will deny
-  // the request. This method will not be called if the "--enable-media-stream"
-  // command-line switch is used to grant all permissions.
+  /// Called when a page requests permission to access media.
+  /// |requesting_origin| is the URL origin requesting permission.
+  /// |requested_permissions| is a combination of values from
+  /// cef_media_access_permission_types_t that represent the requested
+  /// permissions. Return true and call CefMediaAccessCallback methods either in
+  /// this method or at a later time to continue or cancel the request. Return
+  /// false to proceed with default handling. With the Chrome runtime, default
+  /// handling will display the permission request UI. With the Alloy runtime,
+  /// default handling will deny the request. This method will not be called if
+  /// the "--enable-media-stream" command-line switch is used to grant all
+  /// permissions.
   ///
   /*--cef()--*/
   virtual bool OnRequestMediaAccessPermission(
@@ -109,15 +110,15 @@ class CefPermissionHandler : public virtual CefBaseRefCounted {
   }
 
   ///
-  // Called when a page should show a permission prompt. |prompt_id| uniquely
-  // identifies the prompt. |requesting_origin| is the URL origin requesting
-  // permission. |requested_permissions| is a combination of values from
-  // cef_permission_request_types_t that represent the requested permissions.
-  // Return true and call CefPermissionPromptCallback::Continue either in this
-  // method or at a later time to continue or cancel the request. Return false
-  // to proceed with default handling. With the Chrome runtime, default handling
-  // will display the permission prompt UI. With the Alloy runtime, default
-  // handling is CEF_PERMISSION_RESULT_IGNORE.
+  /// Called when a page should show a permission prompt. |prompt_id| uniquely
+  /// identifies the prompt. |requesting_origin| is the URL origin requesting
+  /// permission. |requested_permissions| is a combination of values from
+  /// cef_permission_request_types_t that represent the requested permissions.
+  /// Return true and call CefPermissionPromptCallback::Continue either in this
+  /// method or at a later time to continue or cancel the request. Return false
+  /// to proceed with default handling. With the Chrome runtime, default
+  /// handling will display the permission prompt UI. With the Alloy runtime,
+  /// default handling is CEF_PERMISSION_RESULT_IGNORE.
   ///
   /*--cef()--*/
   virtual bool OnShowPermissionPrompt(
@@ -130,13 +131,13 @@ class CefPermissionHandler : public virtual CefBaseRefCounted {
   }
 
   ///
-  // Called when a permission prompt handled via OnShowPermissionPrompt is
-  // dismissed. |prompt_id| will match the value that was passed to
-  // OnShowPermissionPrompt. |result| will be the value passed to
-  // CefPermissionPromptCallback::Continue or CEF_PERMISSION_RESULT_IGNORE if
-  // the dialog was dismissed for other reasons such as navigation, browser
-  // closure, etc. This method will not be called if OnShowPermissionPrompt
-  // returned false for |prompt_id|.
+  /// Called when a permission prompt handled via OnShowPermissionPrompt is
+  /// dismissed. |prompt_id| will match the value that was passed to
+  /// OnShowPermissionPrompt. |result| will be the value passed to
+  /// CefPermissionPromptCallback::Continue or CEF_PERMISSION_RESULT_IGNORE if
+  /// the dialog was dismissed for other reasons such as navigation, browser
+  /// closure, etc. This method will not be called if OnShowPermissionPrompt
+  /// returned false for |prompt_id|.
   ///
   /*--cef()--*/
   virtual void OnDismissPermissionPrompt(

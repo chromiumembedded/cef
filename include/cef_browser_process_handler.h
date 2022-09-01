@@ -44,52 +44,53 @@
 #include "include/cef_values.h"
 
 ///
-// Class used to implement browser process callbacks. The methods of this class
-// will be called on the browser process main thread unless otherwise indicated.
+/// Class used to implement browser process callbacks. The methods of this class
+/// will be called on the browser process main thread unless otherwise
+/// indicated.
 ///
 /*--cef(source=client,no_debugct_check)--*/
 class CefBrowserProcessHandler : public virtual CefBaseRefCounted {
  public:
   ///
-  // Called on the browser process UI thread immediately after the CEF context
-  // has been initialized.
+  /// Called on the browser process UI thread immediately after the CEF context
+  /// has been initialized.
   ///
   /*--cef()--*/
   virtual void OnContextInitialized() {}
 
   ///
-  // Called before a child process is launched. Will be called on the browser
-  // process UI thread when launching a render process and on the browser
-  // process IO thread when launching a GPU process. Provides an opportunity to
-  // modify the child process command line. Do not keep a reference to
-  // |command_line| outside of this method.
+  /// Called before a child process is launched. Will be called on the browser
+  /// process UI thread when launching a render process and on the browser
+  /// process IO thread when launching a GPU process. Provides an opportunity to
+  /// modify the child process command line. Do not keep a reference to
+  /// |command_line| outside of this method.
   ///
   /*--cef()--*/
   virtual void OnBeforeChildProcessLaunch(
       CefRefPtr<CefCommandLine> command_line) {}
 
   ///
-  // Called from any thread when work has been scheduled for the browser process
-  // main (UI) thread. This callback is used in combination with CefSettings.
-  // external_message_pump and CefDoMessageLoopWork() in cases where the CEF
-  // message loop must be integrated into an existing application message loop
-  // (see additional comments and warnings on CefDoMessageLoopWork). This
-  // callback should schedule a CefDoMessageLoopWork() call to happen on the
-  // main (UI) thread. |delay_ms| is the requested delay in milliseconds. If
-  // |delay_ms| is <= 0 then the call should happen reasonably soon. If
-  // |delay_ms| is > 0 then the call should be scheduled to happen after the
-  // specified delay and any currently pending scheduled call should be
-  // cancelled.
+  /// Called from any thread when work has been scheduled for the browser
+  /// process main (UI) thread. This callback is used in combination with
+  /// cef_settings_t.external_message_pump and CefDoMessageLoopWork() in cases
+  /// where the CEF message loop must be integrated into an existing application
+  /// message loop (see additional comments and warnings on
+  /// CefDoMessageLoopWork). This callback should schedule a
+  /// CefDoMessageLoopWork() call to happen on the main (UI) thread. |delay_ms|
+  /// is the requested delay in milliseconds. If |delay_ms| is <= 0 then the
+  /// call should happen reasonably soon. If |delay_ms| is > 0 then the call
+  /// should be scheduled to happen after the specified delay and any currently
+  /// pending scheduled call should be cancelled.
   ///
   /*--cef()--*/
   virtual void OnScheduleMessagePumpWork(int64 delay_ms) {}
 
   ///
-  // Return the default client for use with a newly created browser window. If
-  // null is returned the browser will be unmanaged (no callbacks will be
-  // executed for that browser) and application shutdown will be blocked until
-  // the browser window is closed manually. This method is currently only used
-  // with the chrome runtime.
+  /// Return the default client for use with a newly created browser window. If
+  /// null is returned the browser will be unmanaged (no callbacks will be
+  /// executed for that browser) and application shutdown will be blocked until
+  /// the browser window is closed manually. This method is currently only used
+  /// with the chrome runtime.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefClient> GetDefaultClient() { return nullptr; }

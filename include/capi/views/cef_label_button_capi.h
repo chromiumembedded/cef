@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=de3e738efca85a84422c92fa8504b24ed4efab8a$
+// $hash=88a2e2e9e1b0e7a692aca78be34ce1620c936336$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_LABEL_BUTTON_CAPI_H_
@@ -51,104 +51,105 @@ extern "C" {
 struct _cef_menu_button_t;
 
 ///
-// LabelButton is a button with optional text and/or icon. Methods must be
-// called on the browser process UI thread unless otherwise indicated.
+/// LabelButton is a button with optional text and/or icon. Methods must be
+/// called on the browser process UI thread unless otherwise indicated.
 ///
 typedef struct _cef_label_button_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_button_t base;
 
   ///
-  // Returns this LabelButton as a MenuButton or NULL if this is not a
-  // MenuButton.
+  /// Returns this LabelButton as a MenuButton or NULL if this is not a
+  /// MenuButton.
   ///
   struct _cef_menu_button_t*(CEF_CALLBACK* as_menu_button)(
       struct _cef_label_button_t* self);
 
   ///
-  // Sets the text shown on the LabelButton. By default |text| will also be used
-  // as the accessible name.
+  /// Sets the text shown on the LabelButton. By default |text| will also be
+  /// used as the accessible name.
   ///
   void(CEF_CALLBACK* set_text)(struct _cef_label_button_t* self,
                                const cef_string_t* text);
 
   ///
-  // Returns the text shown on the LabelButton.
+  /// Returns the text shown on the LabelButton.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_text)(
       struct _cef_label_button_t* self);
 
   ///
-  // Sets the image shown for |button_state|. When this Button is drawn if no
-  // image exists for the current state then the image for
-  // CEF_BUTTON_STATE_NORMAL, if any, will be shown.
+  /// Sets the image shown for |button_state|. When this Button is drawn if no
+  /// image exists for the current state then the image for
+  /// CEF_BUTTON_STATE_NORMAL, if any, will be shown.
   ///
   void(CEF_CALLBACK* set_image)(struct _cef_label_button_t* self,
                                 cef_button_state_t button_state,
                                 struct _cef_image_t* image);
 
   ///
-  // Returns the image shown for |button_state|. If no image exists for that
-  // state then the image for CEF_BUTTON_STATE_NORMAL will be returned.
+  /// Returns the image shown for |button_state|. If no image exists for that
+  /// state then the image for CEF_BUTTON_STATE_NORMAL will be returned.
   ///
   struct _cef_image_t*(CEF_CALLBACK* get_image)(
       struct _cef_label_button_t* self,
       cef_button_state_t button_state);
 
   ///
-  // Sets the text color shown for the specified button |for_state| to |color|.
+  /// Sets the text color shown for the specified button |for_state| to |color|.
   ///
   void(CEF_CALLBACK* set_text_color)(struct _cef_label_button_t* self,
                                      cef_button_state_t for_state,
                                      cef_color_t color);
 
   ///
-  // Sets the text colors shown for the non-disabled states to |color|.
+  /// Sets the text colors shown for the non-disabled states to |color|.
   ///
   void(CEF_CALLBACK* set_enabled_text_colors)(struct _cef_label_button_t* self,
                                               cef_color_t color);
 
   ///
-  // Sets the font list. The format is "<FONT_FAMILY_LIST>,[STYLES] <SIZE>",
-  // where: - FONT_FAMILY_LIST is a comma-separated list of font family names, -
-  // STYLES is an optional space-separated list of style names (case-sensitive
-  //   "Bold" and "Italic" are supported), and
-  // - SIZE is an integer font size in pixels with the suffix "px".
-  //
-  // Here are examples of valid font description strings: - "Arial, Helvetica,
-  // Bold Italic 14px" - "Arial, 14px"
+  /// Sets the font list. The format is "<FONT_FAMILY_LIST>,[STYLES] <SIZE>",
+  /// where: - FONT_FAMILY_LIST is a comma-separated list of font family names,
+  /// - STYLES is an optional space-separated list of style names (case-
+  /// sensitive
+  ///   "Bold" and "Italic" are supported), and
+  /// - SIZE is an integer font size in pixels with the suffix "px".
+  ///
+  /// Here are examples of valid font description strings: - "Arial, Helvetica,
+  /// Bold Italic 14px" - "Arial, 14px"
   ///
   void(CEF_CALLBACK* set_font_list)(struct _cef_label_button_t* self,
                                     const cef_string_t* font_list);
 
   ///
-  // Sets the horizontal alignment; reversed in RTL. Default is
-  // CEF_HORIZONTAL_ALIGNMENT_CENTER.
+  /// Sets the horizontal alignment; reversed in RTL. Default is
+  /// CEF_HORIZONTAL_ALIGNMENT_CENTER.
   ///
   void(CEF_CALLBACK* set_horizontal_alignment)(
       struct _cef_label_button_t* self,
       cef_horizontal_alignment_t alignment);
 
   ///
-  // Reset the minimum size of this LabelButton to |size|.
+  /// Reset the minimum size of this LabelButton to |size|.
   ///
   void(CEF_CALLBACK* set_minimum_size)(struct _cef_label_button_t* self,
                                        const cef_size_t* size);
 
   ///
-  // Reset the maximum size of this LabelButton to |size|.
+  /// Reset the maximum size of this LabelButton to |size|.
   ///
   void(CEF_CALLBACK* set_maximum_size)(struct _cef_label_button_t* self,
                                        const cef_size_t* size);
 } cef_label_button_t;
 
 ///
-// Create a new LabelButton. A |delegate| must be provided to handle the button
-// click. |text| will be shown on the LabelButton and used as the default
-// accessible name.
+/// Create a new LabelButton. A |delegate| must be provided to handle the button
+/// click. |text| will be shown on the LabelButton and used as the default
+/// accessible name.
 ///
 CEF_EXPORT cef_label_button_t* cef_label_button_create(
     struct _cef_button_delegate_t* delegate,

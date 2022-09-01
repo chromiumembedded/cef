@@ -48,18 +48,18 @@
 class CefSchemeHandlerFactory;
 
 ///
-// Register a scheme handler factory with the global request context. An empty
-// |domain_name| value for a standard scheme will cause the factory to match all
-// domain names. The |domain_name| value will be ignored for non-standard
-// schemes. If |scheme_name| is a built-in scheme and no handler is returned by
-// |factory| then the built-in scheme handler factory will be called. If
-// |scheme_name| is a custom scheme then you must also implement the
-// CefApp::OnRegisterCustomSchemes() method in all processes. This function may
-// be called multiple times to change or remove the factory that matches the
-// specified |scheme_name| and optional |domain_name|. Returns false if an error
-// occurs. This function may be called on any thread in the browser process.
-// Using this function is equivalent to calling
-// CefRequestContext::GetGlobalContext()->RegisterSchemeHandlerFactory().
+/// Register a scheme handler factory with the global request context. An empty
+/// |domain_name| value for a standard scheme will cause the factory to match
+/// all domain names. The |domain_name| value will be ignored for non-standard
+/// schemes. If |scheme_name| is a built-in scheme and no handler is returned by
+/// |factory| then the built-in scheme handler factory will be called. If
+/// |scheme_name| is a custom scheme then you must also implement the
+/// CefApp::OnRegisterCustomSchemes() method in all processes. This function may
+/// be called multiple times to change or remove the factory that matches the
+/// specified |scheme_name| and optional |domain_name|. Returns false if an
+/// error occurs. This function may be called on any thread in the browser
+/// process. Using this function is equivalent to calling
+/// CefRequestContext::GetGlobalContext()->RegisterSchemeHandlerFactory().
 ///
 /*--cef(optional_param=domain_name,optional_param=factory)--*/
 bool CefRegisterSchemeHandlerFactory(
@@ -68,48 +68,48 @@ bool CefRegisterSchemeHandlerFactory(
     CefRefPtr<CefSchemeHandlerFactory> factory);
 
 ///
-// Clear all scheme handler factories registered with the global request
-// context. Returns false on error. This function may be called on any thread in
-// the browser process. Using this function is equivalent to calling
-// CefRequestContext::GetGlobalContext()->ClearSchemeHandlerFactories().
+/// Clear all scheme handler factories registered with the global request
+/// context. Returns false on error. This function may be called on any thread
+/// in the browser process. Using this function is equivalent to calling
+/// CefRequestContext::GetGlobalContext()->ClearSchemeHandlerFactories().
 ///
 /*--cef()--*/
 bool CefClearSchemeHandlerFactories();
 
 ///
-// Class that manages custom scheme registrations.
+/// Class that manages custom scheme registrations.
 ///
 /*--cef(source=library)--*/
 class CefSchemeRegistrar : public CefBaseScoped {
  public:
   ///
-  // Register a custom scheme. This method should not be called for the built-in
-  // HTTP, HTTPS, FILE, FTP, ABOUT and DATA schemes.
-  //
-  // See cef_scheme_options_t for possible values for |options|.
-  //
-  // This function may be called on any thread. It should only be called once
-  // per unique |scheme_name| value. If |scheme_name| is already registered or
-  // if an error occurs this method will return false.
+  /// Register a custom scheme. This method should not be called for the
+  /// built-in HTTP, HTTPS, FILE, FTP, ABOUT and DATA schemes.
+  ///
+  /// See cef_scheme_options_t for possible values for |options|.
+  ///
+  /// This function may be called on any thread. It should only be called once
+  /// per unique |scheme_name| value. If |scheme_name| is already registered or
+  /// if an error occurs this method will return false.
   ///
   /*--cef()--*/
   virtual bool AddCustomScheme(const CefString& scheme_name, int options) = 0;
 };
 
 ///
-// Class that creates CefResourceHandler instances for handling scheme requests.
-// The methods of this class will always be called on the IO thread.
+/// Class that creates CefResourceHandler instances for handling scheme
+/// requests. The methods of this class will always be called on the IO thread.
 ///
 /*--cef(source=client,no_debugct_check)--*/
 class CefSchemeHandlerFactory : public virtual CefBaseRefCounted {
  public:
   ///
-  // Return a new resource handler instance to handle the request or an empty
-  // reference to allow default handling of the request. |browser| and |frame|
-  // will be the browser window and frame respectively that originated the
-  // request or NULL if the request did not originate from a browser window
-  // (for example, if the request came from CefURLRequest). The |request| object
-  // passed to this method cannot be modified.
+  /// Return a new resource handler instance to handle the request or an empty
+  /// reference to allow default handling of the request. |browser| and |frame|
+  /// will be the browser window and frame respectively that originated the
+  /// request or NULL if the request did not originate from a browser window
+  /// (for example, if the request came from CefURLRequest). The |request|
+  /// object passed to this method cannot be modified.
   ///
   /*--cef(optional_param=browser,optional_param=frame)--*/
   virtual CefRefPtr<CefResourceHandler> Create(

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=13972453cdca328c6ee81249aeb202d80da6d290$
+// $hash=dc1a43f52c873628c98a479ae69f6e24cbd58129$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_FILL_LAYOUT_CAPI_H_
@@ -47,13 +47,13 @@ extern "C" {
 #endif
 
 ///
-// A simple Layout that causes the associated Panel's one child to be sized to
-// match the bounds of its parent. Methods must be called on the browser process
-// UI thread unless otherwise indicated.
+/// A simple Layout that causes the associated Panel's one child to be sized to
+/// match the bounds of its parent. Methods must be called on the browser
+/// process UI thread unless otherwise indicated.
 ///
 typedef struct _cef_fill_layout_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_layout_t base;
 } cef_fill_layout_t;
