@@ -41,21 +41,21 @@
 #include "include/cef_base.h"
 
 ///
-// Callback interface used for asynchronous continuation of authentication
-// requests.
+/// Callback interface used for asynchronous continuation of authentication
+/// requests.
 ///
 /*--cef(source=library)--*/
 class CefAuthCallback : public virtual CefBaseRefCounted {
  public:
   ///
-  // Continue the authentication request.
+  /// Continue the authentication request.
   ///
   /*--cef(capi_name=cont,optional_param=username,optional_param=password)--*/
   virtual void Continue(const CefString& username,
                         const CefString& password) = 0;
 
   ///
-  // Cancel the authentication request.
+  /// Cancel the authentication request.
   ///
   /*--cef()--*/
   virtual void Cancel() = 0;

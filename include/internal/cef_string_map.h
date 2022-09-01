@@ -39,55 +39,55 @@ extern "C" {
 #endif
 
 ///
-// CEF string maps are a set of key/value string pairs.
+/// CEF string maps are a set of key/value string pairs.
 ///
 typedef void* cef_string_map_t;
 
 ///
-// Allocate a new string map.
+/// Allocate a new string map.
 ///
 CEF_EXPORT cef_string_map_t cef_string_map_alloc(void);
 
 ///
-// Return the number of elements in the string map.
+/// Return the number of elements in the string map.
 ///
 CEF_EXPORT size_t cef_string_map_size(cef_string_map_t map);
 
 ///
-// Return the value assigned to the specified key.
+/// Return the value assigned to the specified key.
 ///
 CEF_EXPORT int cef_string_map_find(cef_string_map_t map,
                                    const cef_string_t* key,
                                    cef_string_t* value);
 
 ///
-// Return the key at the specified zero-based string map index.
+/// Return the key at the specified zero-based string map index.
 ///
 CEF_EXPORT int cef_string_map_key(cef_string_map_t map,
                                   size_t index,
                                   cef_string_t* key);
 
 ///
-// Return the value at the specified zero-based string map index.
+/// Return the value at the specified zero-based string map index.
 ///
 CEF_EXPORT int cef_string_map_value(cef_string_map_t map,
                                     size_t index,
                                     cef_string_t* value);
 
 ///
-// Append a new key/value pair at the end of the string map.
+/// Append a new key/value pair at the end of the string map.
 ///
 CEF_EXPORT int cef_string_map_append(cef_string_map_t map,
                                      const cef_string_t* key,
                                      const cef_string_t* value);
 
 ///
-// Clear the string map.
+/// Clear the string map.
 ///
 CEF_EXPORT void cef_string_map_clear(cef_string_map_t map);
 
 ///
-// Free the string map.
+/// Free the string map.
 ///
 CEF_EXPORT void cef_string_map_free(cef_string_map_t map);
 

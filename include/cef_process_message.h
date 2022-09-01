@@ -45,54 +45,54 @@
 typedef cef_process_id_t CefProcessId;
 
 ///
-// Class representing a message. Can be used on any process and thread.
+/// Class representing a message. Can be used on any process and thread.
 ///
 /*--cef(source=library)--*/
 class CefProcessMessage : public virtual CefBaseRefCounted {
  public:
   ///
-  // Create a new CefProcessMessage object with the specified name.
+  /// Create a new CefProcessMessage object with the specified name.
   ///
   /*--cef()--*/
   static CefRefPtr<CefProcessMessage> Create(const CefString& name);
 
   ///
-  // Returns true if this object is valid. Do not call any other methods if this
-  // function returns false.
+  /// Returns true if this object is valid. Do not call any other methods if
+  /// this function returns false.
   ///
   /*--cef()--*/
   virtual bool IsValid() = 0;
 
   ///
-  // Returns true if the values of this object are read-only. Some APIs may
-  // expose read-only objects.
+  /// Returns true if the values of this object are read-only. Some APIs may
+  /// expose read-only objects.
   ///
   /*--cef()--*/
   virtual bool IsReadOnly() = 0;
 
   ///
-  // Returns a writable copy of this object.
-  // Returns nullptr when message contains a shared memory region.
+  /// Returns a writable copy of this object.
+  /// Returns nullptr when message contains a shared memory region.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefProcessMessage> Copy() = 0;
 
   ///
-  // Returns the message name.
+  /// Returns the message name.
   ///
   /*--cef()--*/
   virtual CefString GetName() = 0;
 
   ///
-  // Returns the list of arguments.
-  // Returns nullptr when message contains a shared memory region.
+  /// Returns the list of arguments.
+  /// Returns nullptr when message contains a shared memory region.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefListValue> GetArgumentList() = 0;
 
   ///
-  // Returns the shared memory region.
-  // Returns nullptr when message contains an argument list.
+  /// Returns the shared memory region.
+  /// Returns nullptr when message contains an argument list.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefSharedMemoryRegion> GetSharedMemoryRegion() = 0;

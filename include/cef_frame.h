@@ -51,106 +51,106 @@ class CefURLRequestClient;
 class CefV8Context;
 
 ///
-// Class used to represent a frame in the browser window. When used in the
-// browser process the methods of this class may be called on any thread unless
-// otherwise indicated in the comments. When used in the render process the
-// methods of this class may only be called on the main thread.
+/// Class used to represent a frame in the browser window. When used in the
+/// browser process the methods of this class may be called on any thread unless
+/// otherwise indicated in the comments. When used in the render process the
+/// methods of this class may only be called on the main thread.
 ///
 /*--cef(source=library)--*/
 class CefFrame : public virtual CefBaseRefCounted {
  public:
   ///
-  // True if this object is currently attached to a valid frame.
+  /// True if this object is currently attached to a valid frame.
   ///
   /*--cef()--*/
   virtual bool IsValid() = 0;
 
   ///
-  // Execute undo in this frame.
+  /// Execute undo in this frame.
   ///
   /*--cef()--*/
   virtual void Undo() = 0;
 
   ///
-  // Execute redo in this frame.
+  /// Execute redo in this frame.
   ///
   /*--cef()--*/
   virtual void Redo() = 0;
 
   ///
-  // Execute cut in this frame.
+  /// Execute cut in this frame.
   ///
   /*--cef()--*/
   virtual void Cut() = 0;
 
   ///
-  // Execute copy in this frame.
+  /// Execute copy in this frame.
   ///
   /*--cef()--*/
   virtual void Copy() = 0;
 
   ///
-  // Execute paste in this frame.
+  /// Execute paste in this frame.
   ///
   /*--cef()--*/
   virtual void Paste() = 0;
 
   ///
-  // Execute delete in this frame.
+  /// Execute delete in this frame.
   ///
   /*--cef(capi_name=del)--*/
   virtual void Delete() = 0;
 
   ///
-  // Execute select all in this frame.
+  /// Execute select all in this frame.
   ///
   /*--cef()--*/
   virtual void SelectAll() = 0;
 
   ///
-  // Save this frame's HTML source to a temporary file and open it in the
-  // default text viewing application. This method can only be called from the
-  // browser process.
+  /// Save this frame's HTML source to a temporary file and open it in the
+  /// default text viewing application. This method can only be called from the
+  /// browser process.
   ///
   /*--cef()--*/
   virtual void ViewSource() = 0;
 
   ///
-  // Retrieve this frame's HTML source as a string sent to the specified
-  // visitor.
+  /// Retrieve this frame's HTML source as a string sent to the specified
+  /// visitor.
   ///
   /*--cef()--*/
   virtual void GetSource(CefRefPtr<CefStringVisitor> visitor) = 0;
 
   ///
-  // Retrieve this frame's display text as a string sent to the specified
-  // visitor.
+  /// Retrieve this frame's display text as a string sent to the specified
+  /// visitor.
   ///
   /*--cef()--*/
   virtual void GetText(CefRefPtr<CefStringVisitor> visitor) = 0;
 
   ///
-  // Load the request represented by the |request| object.
-  //
-  // WARNING: This method will fail with "bad IPC message" reason
-  // INVALID_INITIATOR_ORIGIN (213) unless you first navigate to the
-  // request origin using some other mechanism (LoadURL, link click, etc).
+  /// Load the request represented by the |request| object.
+  ///
+  /// WARNING: This method will fail with "bad IPC message" reason
+  /// INVALID_INITIATOR_ORIGIN (213) unless you first navigate to the
+  /// request origin using some other mechanism (LoadURL, link click, etc).
   ///
   /*--cef()--*/
   virtual void LoadRequest(CefRefPtr<CefRequest> request) = 0;
 
   ///
-  // Load the specified |url|.
+  /// Load the specified |url|.
   ///
   /*--cef()--*/
   virtual void LoadURL(const CefString& url) = 0;
 
   ///
-  // Execute a string of JavaScript code in this frame. The |script_url|
-  // parameter is the URL where the script in question can be found, if any.
-  // The renderer may request this URL to show the developer the source of the
-  // error.  The |start_line| parameter is the base line number to use for error
-  // reporting.
+  /// Execute a string of JavaScript code in this frame. The |script_url|
+  /// parameter is the URL where the script in question can be found, if any.
+  /// The renderer may request this URL to show the developer the source of the
+  /// error.  The |start_line| parameter is the base line number to use for
+  /// error reporting.
   ///
   /*--cef(optional_param=script_url)--*/
   virtual void ExecuteJavaScript(const CefString& code,
@@ -158,87 +158,89 @@ class CefFrame : public virtual CefBaseRefCounted {
                                  int start_line) = 0;
 
   ///
-  // Returns true if this is the main (top-level) frame.
+  /// Returns true if this is the main (top-level) frame.
   ///
   /*--cef()--*/
   virtual bool IsMain() = 0;
 
   ///
-  // Returns true if this is the focused frame.
+  /// Returns true if this is the focused frame.
   ///
   /*--cef()--*/
   virtual bool IsFocused() = 0;
 
   ///
-  // Returns the name for this frame. If the frame has an assigned name (for
-  // example, set via the iframe "name" attribute) then that value will be
-  // returned. Otherwise a unique name will be constructed based on the frame
-  // parent hierarchy. The main (top-level) frame will always have an empty name
-  // value.
+  /// Returns the name for this frame. If the frame has an assigned name (for
+  /// example, set via the iframe "name" attribute) then that value will be
+  /// returned. Otherwise a unique name will be constructed based on the frame
+  /// parent hierarchy. The main (top-level) frame will always have an empty
+  /// name value.
   ///
   /*--cef()--*/
   virtual CefString GetName() = 0;
 
   ///
-  // Returns the globally unique identifier for this frame or < 0 if the
-  // underlying frame does not yet exist.
+  /// Returns the globally unique identifier for this frame or < 0 if the
+  /// underlying frame does not yet exist.
   ///
   /*--cef()--*/
   virtual int64 GetIdentifier() = 0;
 
   ///
-  // Returns the parent of this frame or NULL if this is the main (top-level)
-  // frame.
+  /// Returns the parent of this frame or NULL if this is the main (top-level)
+  /// frame.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefFrame> GetParent() = 0;
 
   ///
-  // Returns the URL currently loaded in this frame.
+  /// Returns the URL currently loaded in this frame.
   ///
   /*--cef()--*/
   virtual CefString GetURL() = 0;
 
   ///
-  // Returns the browser that this frame belongs to.
+  /// Returns the browser that this frame belongs to.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefBrowser> GetBrowser() = 0;
 
   ///
-  // Get the V8 context associated with the frame. This method can only be
-  // called from the render process.
+  /// Get the V8 context associated with the frame. This method can only be
+  /// called from the render process.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefV8Context> GetV8Context() = 0;
 
   ///
-  // Visit the DOM document. This method can only be called from the render
-  // process.
+  /// Visit the DOM document. This method can only be called from the render
+  /// process.
   ///
   /*--cef()--*/
   virtual void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) = 0;
 
   ///
-  // Create a new URL request that will be treated as originating from this
-  // frame and the associated browser. This request may be intercepted by the
-  // client via CefResourceRequestHandler or CefSchemeHandlerFactory. Use
-  // CefURLRequest::Create instead if you do not want the request to have this
-  // association, in which case it may be handled differently (see documentation
-  // on that method). Requests may originate from both the browser process and
-  // the render process.
-  //
-  // For requests originating from the browser process:
-  //   - POST data may only contain a single element of type PDE_TYPE_FILE or
-  //     PDE_TYPE_BYTES.
-  // For requests originating from the render process:
-  //   - POST data may only contain a single element of type PDE_TYPE_BYTES.
-  //   - If the response contains Content-Disposition or Mime-Type header values
-  //     that would not normally be rendered then the response may receive
-  //     special handling inside the browser (for example, via the file download
-  //     code path instead of the URL request code path).
-  //
-  // The |request| object will be marked as read-only after calling this method.
+  /// Create a new URL request that will be treated as originating from this
+  /// frame and the associated browser. This request may be intercepted by the
+  /// client via CefResourceRequestHandler or CefSchemeHandlerFactory. Use
+  /// CefURLRequest::Create instead if you do not want the request to have this
+  /// association, in which case it may be handled differently (see
+  /// documentation on that method). Requests may originate from both the
+  /// browser process and the render process.
+  ///
+  /// For requests originating from the browser process:
+  ///   - POST data may only contain a single element of type PDE_TYPE_FILE or
+  ///     PDE_TYPE_BYTES.
+  ///
+  /// For requests originating from the render process:
+  ///   - POST data may only contain a single element of type PDE_TYPE_BYTES.
+  ///   - If the response contains Content-Disposition or Mime-Type header
+  ///     values that would not normally be rendered then the response may
+  ///     receive special handling inside the browser (for example, via the
+  ///     file download code path instead of the URL request code path).
+  ///
+  /// The |request| object will be marked as read-only after calling this
+  /// method.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefURLRequest> CreateURLRequest(
@@ -246,12 +248,12 @@ class CefFrame : public virtual CefBaseRefCounted {
       CefRefPtr<CefURLRequestClient> client) = 0;
 
   ///
-  // Send a message to the specified |target_process|. Ownership of the message
-  // contents will be transferred and the |message| reference will be
-  // invalidated. Message delivery is not guaranteed in all cases (for example,
-  // if the browser is closing, navigating, or if the target process crashes).
-  // Send an ACK message back from the target process if confirmation is
-  // required.
+  /// Send a message to the specified |target_process|. Ownership of the message
+  /// contents will be transferred and the |message| reference will be
+  /// invalidated. Message delivery is not guaranteed in all cases (for example,
+  /// if the browser is closing, navigating, or if the target process crashes).
+  /// Send an ACK message back from the target process if confirmation is
+  /// required.
   ///
   /*--cef()--*/
   virtual void SendProcessMessage(CefProcessId target_process,

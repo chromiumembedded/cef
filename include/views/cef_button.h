@@ -43,46 +43,47 @@
 class CefLabelButton;
 
 ///
-// A View representing a button. Depending on the specific type, the button
-// could be implemented by a native control or custom rendered. Methods must be
-// called on the browser process UI thread unless otherwise indicated.
+/// A View representing a button. Depending on the specific type, the button
+/// could be implemented by a native control or custom rendered. Methods must be
+/// called on the browser process UI thread unless otherwise indicated.
 ///
 /*--cef(source=library)--*/
 class CefButton : public CefView {
  public:
   ///
-  // Returns this Button as a LabelButton or NULL if this is not a LabelButton.
+  /// Returns this Button as a LabelButton or NULL if this is not a LabelButton.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefLabelButton> AsLabelButton() = 0;
 
   ///
-  // Sets the current display state of the Button.
+  /// Sets the current display state of the Button.
   ///
   /*--cef()--*/
   virtual void SetState(cef_button_state_t state) = 0;
 
   ///
-  // Returns the current display state of the Button.
+  /// Returns the current display state of the Button.
   ///
   /*--cef(default_retval=CEF_BUTTON_STATE_NORMAL)--*/
   virtual cef_button_state_t GetState() = 0;
 
   ///
-  // Sets the Button will use an ink drop effect for displaying state changes.
+  /// Sets the Button will use an ink drop effect for displaying state changes.
   ///
   /*--cef()--*/
   virtual void SetInkDropEnabled(bool enabled) = 0;
 
   ///
-  // Sets the tooltip text that will be displayed when the user hovers the mouse
-  // cursor over the Button.
+  /// Sets the tooltip text that will be displayed when the user hovers the
+  /// mouse cursor over the Button.
   ///
   /*--cef()--*/
   virtual void SetTooltipText(const CefString& tooltip_text) = 0;
 
   ///
-  // Sets the accessible name that will be exposed to assistive technology (AT).
+  /// Sets the accessible name that will be exposed to assistive technology
+  /// (AT).
   ///
   /*--cef()--*/
   virtual void SetAccessibleName(const CefString& name) = 0;

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=ca7948602a0d20a5bd0271065d79e8679898eff6$
+// $hash=f52310d3f7e9a8be886161ae0e20e4b903a2e765$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_MENU_BUTTON_DELEGATE_CAPI_H_
@@ -49,31 +49,31 @@ extern "C" {
 struct _cef_menu_button_t;
 
 ///
-// MenuButton pressed lock is released when this object is destroyed.
+/// MenuButton pressed lock is released when this object is destroyed.
 ///
 typedef struct _cef_menu_button_pressed_lock_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 } cef_menu_button_pressed_lock_t;
 
 ///
-// Implement this structure to handle MenuButton events. The functions of this
-// structure will be called on the browser process UI thread unless otherwise
-// indicated.
+/// Implement this structure to handle MenuButton events. The functions of this
+/// structure will be called on the browser process UI thread unless otherwise
+/// indicated.
 ///
 typedef struct _cef_menu_button_delegate_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_button_delegate_t base;
 
   ///
-  // Called when |button| is pressed. Call cef_menu_button_t::show_menu() to
-  // show a popup menu at |screen_point|. When showing a custom popup such as a
-  // window keep a reference to |button_pressed_lock| until the popup is hidden
-  // to maintain the pressed button state.
+  /// Called when |button| is pressed. Call cef_menu_button_t::show_menu() to
+  /// show a popup menu at |screen_point|. When showing a custom popup such as a
+  /// window keep a reference to |button_pressed_lock| until the popup is hidden
+  /// to maintain the pressed button state.
   ///
   void(CEF_CALLBACK* on_menu_button_pressed)(
       struct _cef_menu_button_delegate_t* self,

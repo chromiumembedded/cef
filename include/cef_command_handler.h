@@ -42,20 +42,20 @@
 #include "include/cef_browser.h"
 
 ///
-// Implement this interface to handle events related to commands. The methods of
-// this class will be called on the UI thread.
+/// Implement this interface to handle events related to commands. The methods
+/// of this class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
 class CefCommandHandler : public virtual CefBaseRefCounted {
  public:
   ///
-  // Called to execute a Chrome command triggered via menu selection or keyboard
-  // shortcut. Values for |command_id| can be found in the cef_command_ids.h
-  // file. |disposition| provides information about the intended command target.
-  // Return true if the command was handled or false for the default
-  // implementation. For context menu commands this will be called after
-  // CefContextMenuHandler::OnContextMenuCommand. Only used with the Chrome
-  // runtime.
+  /// Called to execute a Chrome command triggered via menu selection or
+  /// keyboard shortcut. Values for |command_id| can be found in the
+  /// cef_command_ids.h file. |disposition| provides information about the
+  /// intended command target. Return true if the command was handled or false
+  /// for the default implementation. For context menu commands this will be
+  /// called after CefContextMenuHandler::OnContextMenuCommand. Only used with
+  /// the Chrome runtime.
   ///
   /*--cef()--*/
   virtual bool OnChromeCommand(CefRefPtr<CefBrowser> browser,

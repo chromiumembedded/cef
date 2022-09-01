@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=bf1d1dc95fa2053645a348d6f554688b9d06c83a$
+// $hash=fe404a2a9d429c6de2a00a8e27efe553e93e792d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_BOX_LAYOUT_CAPI_H_
@@ -49,33 +49,33 @@ extern "C" {
 struct _cef_view_t;
 
 ///
-// A Layout manager that arranges child views vertically or horizontally in a
-// side-by-side fashion with spacing around and between the child views. The
-// child views are always sized according to their preferred size. If the host's
-// bounds provide insufficient space, child views will be clamped. Excess space
-// will not be distributed. Methods must be called on the browser process UI
-// thread unless otherwise indicated.
+/// A Layout manager that arranges child views vertically or horizontally in a
+/// side-by-side fashion with spacing around and between the child views. The
+/// child views are always sized according to their preferred size. If the
+/// host's bounds provide insufficient space, child views will be clamped.
+/// Excess space will not be distributed. Methods must be called on the browser
+/// process UI thread unless otherwise indicated.
 ///
 typedef struct _cef_box_layout_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_layout_t base;
 
   ///
-  // Set the flex weight for the given |view|. Using the preferred size as the
-  // basis, free space along the main axis is distributed to views in the ratio
-  // of their flex weights. Similarly, if the views will overflow the parent,
-  // space is subtracted in these ratios. A flex of 0 means this view is not
-  // resized. Flex values must not be negative.
+  /// Set the flex weight for the given |view|. Using the preferred size as the
+  /// basis, free space along the main axis is distributed to views in the ratio
+  /// of their flex weights. Similarly, if the views will overflow the parent,
+  /// space is subtracted in these ratios. A flex of 0 means this view is not
+  /// resized. Flex values must not be negative.
   ///
   void(CEF_CALLBACK* set_flex_for_view)(struct _cef_box_layout_t* self,
                                         struct _cef_view_t* view,
                                         int flex);
 
   ///
-  // Clears the flex for the given |view|, causing it to use the default flex
-  // specified via cef_box_layout_tSettings.default_flex.
+  /// Clears the flex for the given |view|, causing it to use the default flex
+  /// specified via cef_box_layout_tSettings.default_flex.
   ///
   void(CEF_CALLBACK* clear_flex_for_view)(struct _cef_box_layout_t* self,
                                           struct _cef_view_t* view);

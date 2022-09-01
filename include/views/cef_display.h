@@ -43,34 +43,34 @@
 #include "include/cef_base.h"
 
 ///
-// This class typically, but not always, corresponds to a physical display
-// connected to the system. A fake Display may exist on a headless system, or a
-// Display may correspond to a remote, virtual display. All size and position
-// values are in density independent pixel (DIP) coordinates unless otherwise
-// indicated. Methods must be called on the browser process UI thread unless
-// otherwise indicated.
+/// This class typically, but not always, corresponds to a physical display
+/// connected to the system. A fake Display may exist on a headless system, or a
+/// Display may correspond to a remote, virtual display. All size and position
+/// values are in density independent pixel (DIP) coordinates unless otherwise
+/// indicated. Methods must be called on the browser process UI thread unless
+/// otherwise indicated.
 ///
 /*--cef(source=library)--*/
 class CefDisplay : public CefBaseRefCounted {
  public:
   ///
-  // Returns the primary Display.
+  /// Returns the primary Display.
   ///
   /*--cef()--*/
   static CefRefPtr<CefDisplay> GetPrimaryDisplay();
 
   ///
-  // Returns the Display nearest |point|. Set |input_pixel_coords| to true if
-  // |point| is in pixel screen coordinates instead of DIP screen coordinates.
+  /// Returns the Display nearest |point|. Set |input_pixel_coords| to true if
+  /// |point| is in pixel screen coordinates instead of DIP screen coordinates.
   ///
   /*--cef()--*/
   static CefRefPtr<CefDisplay> GetDisplayNearestPoint(const CefPoint& point,
                                                       bool input_pixel_coords);
 
   ///
-  // Returns the Display that most closely intersects |bounds|.  Set
-  // |input_pixel_coords| to true if |bounds| is in pixel screen coordinates
-  // instead of DIP screen coordinates.
+  /// Returns the Display that most closely intersects |bounds|.  Set
+  /// |input_pixel_coords| to true if |bounds| is in pixel screen coordinates
+  /// instead of DIP screen coordinates.
   ///
   /*--cef()--*/
   static CefRefPtr<CefDisplay> GetDisplayMatchingBounds(
@@ -78,64 +78,64 @@ class CefDisplay : public CefBaseRefCounted {
       bool input_pixel_coords);
 
   ///
-  // Returns the total number of Displays. Mirrored displays are excluded; this
-  // method is intended to return the number of distinct, usable displays.
+  /// Returns the total number of Displays. Mirrored displays are excluded; this
+  /// method is intended to return the number of distinct, usable displays.
   ///
   /*--cef()--*/
   static size_t GetDisplayCount();
 
   ///
-  // Returns all Displays. Mirrored displays are excluded; this method is
-  // intended to return distinct, usable displays.
+  /// Returns all Displays. Mirrored displays are excluded; this method is
+  /// intended to return distinct, usable displays.
   ///
   /*--cef(count_func=displays:GetDisplayCount)--*/
   static void GetAllDisplays(std::vector<CefRefPtr<CefDisplay>>& displays);
 
   ///
-  // Returns the unique identifier for this Display.
+  /// Returns the unique identifier for this Display.
   ///
   /*--cef()--*/
   virtual int64 GetID() = 0;
 
   ///
-  // Returns this Display's device pixel scale factor. This specifies how much
-  // the UI should be scaled when the actual output has more pixels than
-  // standard displays (which is around 100~120dpi). The potential return values
-  // differ by platform.
+  /// Returns this Display's device pixel scale factor. This specifies how much
+  /// the UI should be scaled when the actual output has more pixels than
+  /// standard displays (which is around 100~120dpi). The potential return
+  /// values differ by platform.
   ///
   /*--cef()--*/
   virtual float GetDeviceScaleFactor() = 0;
 
   ///
-  // Convert |point| from DIP coordinates to pixel coordinates using this
-  // Display's device scale factor.
+  /// Convert |point| from DIP coordinates to pixel coordinates using this
+  /// Display's device scale factor.
   ///
   /*--cef()--*/
   virtual void ConvertPointToPixels(CefPoint& point) = 0;
 
   ///
-  // Convert |point| from pixel coordinates to DIP coordinates using this
-  // Display's device scale factor.
+  /// Convert |point| from pixel coordinates to DIP coordinates using this
+  /// Display's device scale factor.
   ///
   /*--cef()--*/
   virtual void ConvertPointFromPixels(CefPoint& point) = 0;
 
   ///
-  // Returns this Display's bounds in DIP screen coordinates. This is the full
-  // size of the display.
+  /// Returns this Display's bounds in DIP screen coordinates. This is the full
+  /// size of the display.
   ///
   /*--cef()--*/
   virtual CefRect GetBounds() = 0;
 
   ///
-  // Returns this Display's work area in DIP screen coordinates. This excludes
-  // areas of the display that are occupied with window manager toolbars, etc.
+  /// Returns this Display's work area in DIP screen coordinates. This excludes
+  /// areas of the display that are occupied with window manager toolbars, etc.
   ///
   /*--cef()--*/
   virtual CefRect GetWorkArea() = 0;
 
   ///
-  // Returns this Display's rotation in degrees.
+  /// Returns this Display's rotation in degrees.
   ///
   /*--cef()--*/
   virtual int GetRotation() = 0;

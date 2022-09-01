@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=87f6cad177614ece33d9574f0f2964e5bb97d613$
+// $hash=9ccb4e6ea821c1b98adcc934429d2bf43cf9d8a2$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_STREAM_CAPI_H_
@@ -47,17 +47,17 @@ extern "C" {
 #endif
 
 ///
-// Structure the client can implement to provide a custom stream reader. The
-// functions of this structure may be called on any thread.
+/// Structure the client can implement to provide a custom stream reader. The
+/// functions of this structure may be called on any thread.
 ///
 typedef struct _cef_read_handler_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Read raw binary data.
+  /// Read raw binary data.
   ///
   size_t(CEF_CALLBACK* read)(struct _cef_read_handler_t* self,
                              void* ptr,
@@ -65,43 +65,44 @@ typedef struct _cef_read_handler_t {
                              size_t n);
 
   ///
-  // Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
-  // SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.
+  /// Seek to the specified offset position. |whence| may be any one of
+  /// SEEK_CUR, SEEK_END or SEEK_SET. Return zero on success and non-zero on
+  /// failure.
   ///
   int(CEF_CALLBACK* seek)(struct _cef_read_handler_t* self,
                           int64 offset,
                           int whence);
 
   ///
-  // Return the current offset position.
+  /// Return the current offset position.
   ///
   int64(CEF_CALLBACK* tell)(struct _cef_read_handler_t* self);
 
   ///
-  // Return non-zero if at end of file.
+  /// Return non-zero if at end of file.
   ///
   int(CEF_CALLBACK* eof)(struct _cef_read_handler_t* self);
 
   ///
-  // Return true (1) if this handler performs work like accessing the file
-  // system which may block. Used as a hint for determining the thread to access
-  // the handler from.
+  /// Return true (1) if this handler performs work like accessing the file
+  /// system which may block. Used as a hint for determining the thread to
+  /// access the handler from.
   ///
   int(CEF_CALLBACK* may_block)(struct _cef_read_handler_t* self);
 } cef_read_handler_t;
 
 ///
-// Structure used to read data from a stream. The functions of this structure
-// may be called on any thread.
+/// Structure used to read data from a stream. The functions of this structure
+/// may be called on any thread.
 ///
 typedef struct _cef_stream_reader_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Read raw binary data.
+  /// Read raw binary data.
   ///
   size_t(CEF_CALLBACK* read)(struct _cef_stream_reader_t* self,
                              void* ptr,
@@ -109,61 +110,62 @@ typedef struct _cef_stream_reader_t {
                              size_t n);
 
   ///
-  // Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
-  // SEEK_END or SEEK_SET. Returns zero on success and non-zero on failure.
+  /// Seek to the specified offset position. |whence| may be any one of
+  /// SEEK_CUR, SEEK_END or SEEK_SET. Returns zero on success and non-zero on
+  /// failure.
   ///
   int(CEF_CALLBACK* seek)(struct _cef_stream_reader_t* self,
                           int64 offset,
                           int whence);
 
   ///
-  // Return the current offset position.
+  /// Return the current offset position.
   ///
   int64(CEF_CALLBACK* tell)(struct _cef_stream_reader_t* self);
 
   ///
-  // Return non-zero if at end of file.
+  /// Return non-zero if at end of file.
   ///
   int(CEF_CALLBACK* eof)(struct _cef_stream_reader_t* self);
 
   ///
-  // Returns true (1) if this reader performs work like accessing the file
-  // system which may block. Used as a hint for determining the thread to access
-  // the reader from.
+  /// Returns true (1) if this reader performs work like accessing the file
+  /// system which may block. Used as a hint for determining the thread to
+  /// access the reader from.
   ///
   int(CEF_CALLBACK* may_block)(struct _cef_stream_reader_t* self);
 } cef_stream_reader_t;
 
 ///
-// Create a new cef_stream_reader_t object from a file.
+/// Create a new cef_stream_reader_t object from a file.
 ///
 CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_file(
     const cef_string_t* fileName);
 
 ///
-// Create a new cef_stream_reader_t object from data.
+/// Create a new cef_stream_reader_t object from data.
 ///
 CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_data(void* data,
                                                                   size_t size);
 
 ///
-// Create a new cef_stream_reader_t object from a custom handler.
+/// Create a new cef_stream_reader_t object from a custom handler.
 ///
 CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_handler(
     cef_read_handler_t* handler);
 
 ///
-// Structure the client can implement to provide a custom stream writer. The
-// functions of this structure may be called on any thread.
+/// Structure the client can implement to provide a custom stream writer. The
+/// functions of this structure may be called on any thread.
 ///
 typedef struct _cef_write_handler_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Write raw binary data.
+  /// Write raw binary data.
   ///
   size_t(CEF_CALLBACK* write)(struct _cef_write_handler_t* self,
                               const void* ptr,
@@ -171,43 +173,44 @@ typedef struct _cef_write_handler_t {
                               size_t n);
 
   ///
-  // Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
-  // SEEK_END or SEEK_SET. Return zero on success and non-zero on failure.
+  /// Seek to the specified offset position. |whence| may be any one of
+  /// SEEK_CUR, SEEK_END or SEEK_SET. Return zero on success and non-zero on
+  /// failure.
   ///
   int(CEF_CALLBACK* seek)(struct _cef_write_handler_t* self,
                           int64 offset,
                           int whence);
 
   ///
-  // Return the current offset position.
+  /// Return the current offset position.
   ///
   int64(CEF_CALLBACK* tell)(struct _cef_write_handler_t* self);
 
   ///
-  // Flush the stream.
+  /// Flush the stream.
   ///
   int(CEF_CALLBACK* flush)(struct _cef_write_handler_t* self);
 
   ///
-  // Return true (1) if this handler performs work like accessing the file
-  // system which may block. Used as a hint for determining the thread to access
-  // the handler from.
+  /// Return true (1) if this handler performs work like accessing the file
+  /// system which may block. Used as a hint for determining the thread to
+  /// access the handler from.
   ///
   int(CEF_CALLBACK* may_block)(struct _cef_write_handler_t* self);
 } cef_write_handler_t;
 
 ///
-// Structure used to write data to a stream. The functions of this structure may
-// be called on any thread.
+/// Structure used to write data to a stream. The functions of this structure
+/// may be called on any thread.
 ///
 typedef struct _cef_stream_writer_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Write raw binary data.
+  /// Write raw binary data.
   ///
   size_t(CEF_CALLBACK* write)(struct _cef_stream_writer_t* self,
                               const void* ptr,
@@ -215,39 +218,40 @@ typedef struct _cef_stream_writer_t {
                               size_t n);
 
   ///
-  // Seek to the specified offset position. |whence| may be any one of SEEK_CUR,
-  // SEEK_END or SEEK_SET. Returns zero on success and non-zero on failure.
+  /// Seek to the specified offset position. |whence| may be any one of
+  /// SEEK_CUR, SEEK_END or SEEK_SET. Returns zero on success and non-zero on
+  /// failure.
   ///
   int(CEF_CALLBACK* seek)(struct _cef_stream_writer_t* self,
                           int64 offset,
                           int whence);
 
   ///
-  // Return the current offset position.
+  /// Return the current offset position.
   ///
   int64(CEF_CALLBACK* tell)(struct _cef_stream_writer_t* self);
 
   ///
-  // Flush the stream.
+  /// Flush the stream.
   ///
   int(CEF_CALLBACK* flush)(struct _cef_stream_writer_t* self);
 
   ///
-  // Returns true (1) if this writer performs work like accessing the file
-  // system which may block. Used as a hint for determining the thread to access
-  // the writer from.
+  /// Returns true (1) if this writer performs work like accessing the file
+  /// system which may block. Used as a hint for determining the thread to
+  /// access the writer from.
   ///
   int(CEF_CALLBACK* may_block)(struct _cef_stream_writer_t* self);
 } cef_stream_writer_t;
 
 ///
-// Create a new cef_stream_writer_t object for a file.
+/// Create a new cef_stream_writer_t object for a file.
 ///
 CEF_EXPORT cef_stream_writer_t* cef_stream_writer_create_for_file(
     const cef_string_t* fileName);
 
 ///
-// Create a new cef_stream_writer_t object for a custom handler.
+/// Create a new cef_stream_writer_t object for a custom handler.
 ///
 CEF_EXPORT cef_stream_writer_t* cef_stream_writer_create_for_handler(
     cef_write_handler_t* handler);

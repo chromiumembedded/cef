@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=5b2051c42c1d4c41b85ca823d34b26bfa5de6777$
+// $hash=ec450acb2c3cc4d0e69b7da725387d5c1049773b$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DRAG_HANDLER_CAPI_H_
@@ -50,20 +50,20 @@ extern "C" {
 #endif
 
 ///
-// Implement this structure to handle events related to dragging. The functions
-// of this structure will be called on the UI thread.
+/// Implement this structure to handle events related to dragging. The functions
+/// of this structure will be called on the UI thread.
 ///
 typedef struct _cef_drag_handler_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Called when an external drag event enters the browser window. |dragData|
-  // contains the drag event data and |mask| represents the type of drag
-  // operation. Return false (0) for default drag handling behavior or true (1)
-  // to cancel the drag event.
+  /// Called when an external drag event enters the browser window. |dragData|
+  /// contains the drag event data and |mask| represents the type of drag
+  /// operation. Return false (0) for default drag handling behavior or true (1)
+  /// to cancel the drag event.
   ///
   int(CEF_CALLBACK* on_drag_enter)(struct _cef_drag_handler_t* self,
                                    struct _cef_browser_t* browser,
@@ -71,11 +71,11 @@ typedef struct _cef_drag_handler_t {
                                    cef_drag_operations_mask_t mask);
 
   ///
-  // Called whenever draggable regions for the browser window change. These can
-  // be specified using the '-webkit-app-region: drag/no-drag' CSS-property. If
-  // draggable regions are never defined in a document this function will also
-  // never be called. If the last draggable region is removed from a document
-  // this function will be called with an NULL vector.
+  /// Called whenever draggable regions for the browser window change. These can
+  /// be specified using the '-webkit-app-region: drag/no-drag' CSS-property. If
+  /// draggable regions are never defined in a document this function will also
+  /// never be called. If the last draggable region is removed from a document
+  /// this function will be called with an NULL vector.
   ///
   void(CEF_CALLBACK* on_draggable_regions_changed)(
       struct _cef_drag_handler_t* self,

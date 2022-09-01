@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=54332b79c057df9c8f3be56cc77f1daf877b3ac1$
+// $hash=ec05ae57537091e3543c4b31d72d2d84d44df876$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_COMMAND_HANDLER_CAPI_H_
@@ -48,23 +48,23 @@ extern "C" {
 #endif
 
 ///
-// Implement this structure to handle events related to commands. The functions
-// of this structure will be called on the UI thread.
+/// Implement this structure to handle events related to commands. The functions
+/// of this structure will be called on the UI thread.
 ///
 typedef struct _cef_command_handler_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Called to execute a Chrome command triggered via menu selection or keyboard
-  // shortcut. Values for |command_id| can be found in the cef_command_ids.h
-  // file. |disposition| provides information about the intended command target.
-  // Return true (1) if the command was handled or false (0) for the default
-  // implementation. For context menu commands this will be called after
-  // cef_context_menu_handler_t::OnContextMenuCommand. Only used with the Chrome
-  // runtime.
+  /// Called to execute a Chrome command triggered via menu selection or
+  /// keyboard shortcut. Values for |command_id| can be found in the
+  /// cef_command_ids.h file. |disposition| provides information about the
+  /// intended command target. Return true (1) if the command was handled or
+  /// false (0) for the default implementation. For context menu commands this
+  /// will be called after cef_context_menu_handler_t::OnContextMenuCommand.
+  /// Only used with the Chrome runtime.
   ///
   int(CEF_CALLBACK* on_chrome_command)(
       struct _cef_command_handler_t* self,

@@ -42,7 +42,7 @@
 #include "include/cef_ssl_status.h"
 
 ///
-// Class used to represent an entry in navigation history.
+/// Class used to represent an entry in navigation history.
 ///
 /*--cef(source=library)--*/
 class CefNavigationEntry : public virtual CefBaseRefCounted {
@@ -50,68 +50,69 @@ class CefNavigationEntry : public virtual CefBaseRefCounted {
   typedef cef_transition_type_t TransitionType;
 
   ///
-  // Returns true if this object is valid. Do not call any other methods if this
-  // function returns false.
+  /// Returns true if this object is valid. Do not call any other methods if
+  /// this function returns false.
   ///
   /*--cef()--*/
   virtual bool IsValid() = 0;
 
   ///
-  // Returns the actual URL of the page. For some pages this may be data: URL or
-  // similar. Use GetDisplayURL() to return a display-friendly version.
+  /// Returns the actual URL of the page. For some pages this may be data: URL
+  /// or similar. Use GetDisplayURL() to return a display-friendly version.
   ///
   /*--cef()--*/
   virtual CefString GetURL() = 0;
 
   ///
-  // Returns a display-friendly version of the URL.
+  /// Returns a display-friendly version of the URL.
   ///
   /*--cef()--*/
   virtual CefString GetDisplayURL() = 0;
 
   ///
-  // Returns the original URL that was entered by the user before any redirects.
+  /// Returns the original URL that was entered by the user before any
+  /// redirects.
   ///
   /*--cef()--*/
   virtual CefString GetOriginalURL() = 0;
 
   ///
-  // Returns the title set by the page. This value may be empty.
+  /// Returns the title set by the page. This value may be empty.
   ///
   /*--cef()--*/
   virtual CefString GetTitle() = 0;
 
   ///
-  // Returns the transition type which indicates what the user did to move to
-  // this page from the previous page.
+  /// Returns the transition type which indicates what the user did to move to
+  /// this page from the previous page.
   ///
   /*--cef(default_retval=TT_EXPLICIT)--*/
   virtual TransitionType GetTransitionType() = 0;
 
   ///
-  // Returns true if this navigation includes post data.
+  /// Returns true if this navigation includes post data.
   ///
   /*--cef()--*/
   virtual bool HasPostData() = 0;
 
   ///
-  // Returns the time for the last known successful navigation completion. A
-  // navigation may be completed more than once if the page is reloaded. May be
-  // 0 if the navigation has not yet completed.
+  /// Returns the time for the last known successful navigation completion. A
+  /// navigation may be completed more than once if the page is reloaded. May be
+  /// 0 if the navigation has not yet completed.
   ///
   /*--cef()--*/
   virtual CefBaseTime GetCompletionTime() = 0;
 
   ///
-  // Returns the HTTP status code for the last known successful navigation
-  // response. May be 0 if the response has not yet been received or if the
-  // navigation has not yet completed.
+  /// Returns the HTTP status code for the last known successful navigation
+  /// response. May be 0 if the response has not yet been received or if the
+  /// navigation has not yet completed.
   ///
   /*--cef()--*/
   virtual int GetHttpStatusCode() = 0;
 
   ///
-  // Returns the SSL information for this navigation entry.
+  /// Returns the SSL information for this navigation entry.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefSSLStatus> GetSSLStatus() = 0;

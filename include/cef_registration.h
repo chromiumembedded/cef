@@ -41,7 +41,7 @@
 #include "include/cef_base.h"
 
 ///
-// Generic callback interface used for managing the lifespan of a registration.
+/// Generic callback interface used for managing the lifespan of a registration.
 ///
 /*--cef(source=library)--*/
 class CefRegistration : public virtual CefBaseRefCounted {};

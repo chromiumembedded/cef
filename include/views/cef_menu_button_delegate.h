@@ -43,24 +43,24 @@
 class CefMenuButton;
 
 ///
-// MenuButton pressed lock is released when this object is destroyed.
+/// MenuButton pressed lock is released when this object is destroyed.
 ///
 /*--cef(source=library)--*/
 class CefMenuButtonPressedLock : public CefBaseRefCounted {};
 
 ///
-// Implement this interface to handle MenuButton events. The methods of this
-// class will be called on the browser process UI thread unless otherwise
-// indicated.
+/// Implement this interface to handle MenuButton events. The methods of this
+/// class will be called on the browser process UI thread unless otherwise
+/// indicated.
 ///
 /*--cef(source=client)--*/
 class CefMenuButtonDelegate : public CefButtonDelegate {
  public:
   ///
-  // Called when |button| is pressed. Call CefMenuButton::ShowMenu() to show a
-  // popup menu at |screen_point|. When showing a custom popup such as a window
-  // keep a reference to |button_pressed_lock| until the popup is hidden to
-  // maintain the pressed button state.
+  /// Called when |button| is pressed. Call CefMenuButton::ShowMenu() to show a
+  /// popup menu at |screen_point|. When showing a custom popup such as a window
+  /// keep a reference to |button_pressed_lock| until the popup is hidden to
+  /// maintain the pressed button state.
   ///
   /*--cef()--*/
   virtual void OnMenuButtonPressed(

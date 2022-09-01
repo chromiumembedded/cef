@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=01a33de48ac9780f78d606d8aee2429ddb0c81a2$
+// $hash=c0704c0a87e8b57b20887be75700a30e887fee4f$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_AUTH_CALLBACK_CAPI_H_
@@ -47,24 +47,24 @@ extern "C" {
 #endif
 
 ///
-// Callback structure used for asynchronous continuation of authentication
-// requests.
+/// Callback structure used for asynchronous continuation of authentication
+/// requests.
 ///
 typedef struct _cef_auth_callback_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Continue the authentication request.
+  /// Continue the authentication request.
   ///
   void(CEF_CALLBACK* cont)(struct _cef_auth_callback_t* self,
                            const cef_string_t* username,
                            const cef_string_t* password);
 
   ///
-  // Cancel the authentication request.
+  /// Cancel the authentication request.
   ///
   void(CEF_CALLBACK* cancel)(struct _cef_auth_callback_t* self);
 } cef_auth_callback_t;

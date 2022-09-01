@@ -41,26 +41,26 @@
 #include "include/cef_base.h"
 
 ///
-// Class that wraps platform-dependent share memory region mapping.
+/// Class that wraps platform-dependent share memory region mapping.
 ///
 /*--cef(source=library)--*/
 class CefSharedMemoryRegion : public virtual CefBaseRefCounted {
  public:
   ///
-  // Returns true if the mapping is valid.
+  /// Returns true if the mapping is valid.
   ///
   /*--cef()--*/
   virtual bool IsValid() = 0;
 
   ///
-  // Returns the size of the mapping in bytes. Returns 0 for invalid instances.
+  /// Returns the size of the mapping in bytes. Returns 0 for invalid instances.
   ///
   /*--cef()--*/
   virtual size_t Size() = 0;
 
   ///
-  // Returns the pointer to the memory. Returns nullptr for invalid instances.
-  // The returned pointer is only valid for the life span of this object.
+  /// Returns the pointer to the memory. Returns nullptr for invalid instances.
+  /// The returned pointer is only valid for the life span of this object.
   ///
   /*--cef()--*/
   virtual const void* Memory() = 0;

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=10ef5088ce2a5c6ffb38f8864d3aad6e5ac88b40$
+// $hash=1bb026d01d1d4bb38ceb4c54f6bcf70300bf5201$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_CALLBACK_CAPI_H_
@@ -47,36 +47,36 @@ extern "C" {
 #endif
 
 ///
-// Generic callback structure used for asynchronous continuation.
+/// Generic callback structure used for asynchronous continuation.
 ///
 typedef struct _cef_callback_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Continue processing.
+  /// Continue processing.
   ///
   void(CEF_CALLBACK* cont)(struct _cef_callback_t* self);
 
   ///
-  // Cancel processing.
+  /// Cancel processing.
   ///
   void(CEF_CALLBACK* cancel)(struct _cef_callback_t* self);
 } cef_callback_t;
 
 ///
-// Generic callback structure used for asynchronous completion.
+/// Generic callback structure used for asynchronous completion.
 ///
 typedef struct _cef_completion_callback_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Method that will be called once the task is complete.
+  /// Method that will be called once the task is complete.
   ///
   void(CEF_CALLBACK* on_complete)(struct _cef_completion_callback_t* self);
 } cef_completion_callback_t;

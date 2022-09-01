@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=520df1f3e00efbffc9d499149f2f797bf0f85c99$
+// $hash=0e7953aa553f6987fa0142a9c4848ca59d68fb69$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_BROWSER_VIEW_DELEGATE_CAPI_H_
@@ -51,21 +51,21 @@ struct _cef_browser_t;
 struct _cef_browser_view_t;
 
 ///
-// Implement this structure to handle BrowserView events. The functions of this
-// structure will be called on the browser process UI thread unless otherwise
-// indicated.
+/// Implement this structure to handle BrowserView events. The functions of this
+/// structure will be called on the browser process UI thread unless otherwise
+/// indicated.
 ///
 typedef struct _cef_browser_view_delegate_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_view_delegate_t base;
 
   ///
-  // Called when |browser| associated with |browser_view| is created. This
-  // function will be called after cef_life_span_handler_t::on_after_created()
-  // is called for |browser| and before on_popup_browser_view_created() is
-  // called for |browser|'s parent delegate if |browser| is a popup.
+  /// Called when |browser| associated with |browser_view| is created. This
+  /// function will be called after cef_life_span_handler_t::on_after_created()
+  /// is called for |browser| and before on_popup_browser_view_created() is
+  /// called for |browser|'s parent delegate if |browser| is a popup.
   ///
   void(CEF_CALLBACK* on_browser_created)(
       struct _cef_browser_view_delegate_t* self,
@@ -73,10 +73,10 @@ typedef struct _cef_browser_view_delegate_t {
       struct _cef_browser_t* browser);
 
   ///
-  // Called when |browser| associated with |browser_view| is destroyed. Release
-  // all references to |browser| and do not attempt to execute any functions on
-  // |browser| after this callback returns. This function will be called before
-  // cef_life_span_handler_t::on_before_close() is called for |browser|.
+  /// Called when |browser| associated with |browser_view| is destroyed. Release
+  /// all references to |browser| and do not attempt to execute any functions on
+  /// |browser| after this callback returns. This function will be called before
+  /// cef_life_span_handler_t::on_before_close() is called for |browser|.
   ///
   void(CEF_CALLBACK* on_browser_destroyed)(
       struct _cef_browser_view_delegate_t* self,
@@ -84,11 +84,11 @@ typedef struct _cef_browser_view_delegate_t {
       struct _cef_browser_t* browser);
 
   ///
-  // Called before a new popup BrowserView is created. The popup originated from
-  // |browser_view|. |settings| and |client| are the values returned from
-  // cef_life_span_handler_t::on_before_popup(). |is_devtools| will be true (1)
-  // if the popup will be a DevTools browser. Return the delegate that will be
-  // used for the new popup BrowserView.
+  /// Called before a new popup BrowserView is created. The popup originated
+  /// from |browser_view|. |settings| and |client| are the values returned from
+  /// cef_life_span_handler_t::on_before_popup(). |is_devtools| will be true (1)
+  /// if the popup will be a DevTools browser. Return the delegate that will be
+  /// used for the new popup BrowserView.
   ///
   struct _cef_browser_view_delegate_t*(
       CEF_CALLBACK* get_delegate_for_popup_browser_view)(
@@ -99,13 +99,13 @@ typedef struct _cef_browser_view_delegate_t {
       int is_devtools);
 
   ///
-  // Called after |popup_browser_view| is created. This function will be called
-  // after cef_life_span_handler_t::on_after_created() and on_browser_created()
-  // are called for the new popup browser. The popup originated from
-  // |browser_view|. |is_devtools| will be true (1) if the popup is a DevTools
-  // browser. Optionally add |popup_browser_view| to the views hierarchy
-  // yourself and return true (1). Otherwise return false (0) and a default
-  // cef_window_t will be created for the popup.
+  /// Called after |popup_browser_view| is created. This function will be called
+  /// after cef_life_span_handler_t::on_after_created() and on_browser_created()
+  /// are called for the new popup browser. The popup originated from
+  /// |browser_view|. |is_devtools| will be true (1) if the popup is a DevTools
+  /// browser. Optionally add |popup_browser_view| to the views hierarchy
+  /// yourself and return true (1). Otherwise return false (0) and a default
+  /// cef_window_t will be created for the popup.
   ///
   int(CEF_CALLBACK* on_popup_browser_view_created)(
       struct _cef_browser_view_delegate_t* self,
@@ -114,9 +114,9 @@ typedef struct _cef_browser_view_delegate_t {
       int is_devtools);
 
   ///
-  // Returns the Chrome toolbar type that will be available via
-  // cef_browser_view_t::get_chrome_toolbar(). See that function for related
-  // documentation.
+  /// Returns the Chrome toolbar type that will be available via
+  /// cef_browser_view_t::get_chrome_toolbar(). See that function for related
+  /// documentation.
   ///
   cef_chrome_toolbar_type_t(CEF_CALLBACK* get_chrome_toolbar_type)(
       struct _cef_browser_view_delegate_t* self);

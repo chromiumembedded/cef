@@ -39,29 +39,29 @@ extern "C" {
 #endif
 
 ///
-// CEF string multimaps are a set of key/value string pairs.
-// More than one value can be assigned to a single key.
+/// CEF string multimaps are a set of key/value string pairs.
+/// More than one value can be assigned to a single key.
 ///
 typedef void* cef_string_multimap_t;
 
 ///
-// Allocate a new string multimap.
+/// Allocate a new string multimap.
 ///
 CEF_EXPORT cef_string_multimap_t cef_string_multimap_alloc(void);
 
 ///
-// Return the number of elements in the string multimap.
+/// Return the number of elements in the string multimap.
 ///
 CEF_EXPORT size_t cef_string_multimap_size(cef_string_multimap_t map);
 
 ///
-// Return the number of values with the specified key.
+/// Return the number of values with the specified key.
 ///
 CEF_EXPORT size_t cef_string_multimap_find_count(cef_string_multimap_t map,
                                                  const cef_string_t* key);
 
 ///
-// Return the value_index-th value with the specified key.
+/// Return the value_index-th value with the specified key.
 ///
 CEF_EXPORT int cef_string_multimap_enumerate(cef_string_multimap_t map,
                                              const cef_string_t* key,
@@ -69,33 +69,33 @@ CEF_EXPORT int cef_string_multimap_enumerate(cef_string_multimap_t map,
                                              cef_string_t* value);
 
 ///
-// Return the key at the specified zero-based string multimap index.
+/// Return the key at the specified zero-based string multimap index.
 ///
 CEF_EXPORT int cef_string_multimap_key(cef_string_multimap_t map,
                                        size_t index,
                                        cef_string_t* key);
 
 ///
-// Return the value at the specified zero-based string multimap index.
+/// Return the value at the specified zero-based string multimap index.
 ///
 CEF_EXPORT int cef_string_multimap_value(cef_string_multimap_t map,
                                          size_t index,
                                          cef_string_t* value);
 
 ///
-// Append a new key/value pair at the end of the string multimap.
+/// Append a new key/value pair at the end of the string multimap.
 ///
 CEF_EXPORT int cef_string_multimap_append(cef_string_multimap_t map,
                                           const cef_string_t* key,
                                           const cef_string_t* value);
 
 ///
-// Clear the string multimap.
+/// Clear the string multimap.
 ///
 CEF_EXPORT void cef_string_multimap_clear(cef_string_multimap_t map);
 
 ///
-// Free the string multimap.
+/// Free the string multimap.
 ///
 CEF_EXPORT void cef_string_multimap_free(cef_string_multimap_t map);
 

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=0ed88d26dab045ebef0f4f4ae209e7f11206a242$
+// $hash=66198e92ec123e753bb427a0b92d73672610136e$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_SHARED_PROCESS_MESSAGE_BUILDER_CAPI_H_
@@ -47,48 +47,48 @@ extern "C" {
 #endif
 
 ///
-// Structure that builds a cef_process_message_t containing a shared memory
-// region. This structure is not thread-safe but may be used exclusively on a
-// different thread from the one which constructed it.
+/// Structure that builds a cef_process_message_t containing a shared memory
+/// region. This structure is not thread-safe but may be used exclusively on a
+/// different thread from the one which constructed it.
 ///
 typedef struct _cef_shared_process_message_builder_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Returns true (1) if the builder is valid.
+  /// Returns true (1) if the builder is valid.
   ///
   int(CEF_CALLBACK* is_valid)(
       struct _cef_shared_process_message_builder_t* self);
 
   ///
-  // Returns the size of the shared memory region in bytes. Returns 0 for
-  // invalid instances.
+  /// Returns the size of the shared memory region in bytes. Returns 0 for
+  /// invalid instances.
   ///
   size_t(CEF_CALLBACK* size)(
       struct _cef_shared_process_message_builder_t* self);
 
   ///
-  // Returns the pointer to the writable memory. Returns nullptr for invalid
-  // instances. The returned pointer is only valid for the life span of this
-  // object.
+  /// Returns the pointer to the writable memory. Returns nullptr for invalid
+  /// instances. The returned pointer is only valid for the life span of this
+  /// object.
   ///
   void*(CEF_CALLBACK* memory)(
       struct _cef_shared_process_message_builder_t* self);
 
   ///
-  // Creates a new cef_process_message_t from the data provided to the builder.
-  // Returns nullptr for invalid instances. Invalidates the builder instance.
+  /// Creates a new cef_process_message_t from the data provided to the builder.
+  /// Returns nullptr for invalid instances. Invalidates the builder instance.
   ///
   struct _cef_process_message_t*(CEF_CALLBACK* build)(
       struct _cef_shared_process_message_builder_t* self);
 } cef_shared_process_message_builder_t;
 
 ///
-// Creates a new cef_shared_process_message_builder_t with the specified |name|
-// and shared memory region of specified |byte_size|.
+/// Creates a new cef_shared_process_message_builder_t with the specified |name|
+/// and shared memory region of specified |byte_size|.
 ///
 CEF_EXPORT cef_shared_process_message_builder_t*
 cef_shared_process_message_builder_create(const cef_string_t* name,

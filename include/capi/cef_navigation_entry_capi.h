@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=6f617dd09dc2abc0c2c7534db2b045aebb595f09$
+// $hash=2822d96d72b7df816c0fefb4ce1cbba18add50ac$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_NAVIGATION_ENTRY_CAPI_H_
@@ -48,78 +48,79 @@ extern "C" {
 #endif
 
 ///
-// Structure used to represent an entry in navigation history.
+/// Structure used to represent an entry in navigation history.
 ///
 typedef struct _cef_navigation_entry_t {
   ///
-  // Base structure.
+  /// Base structure.
   ///
   cef_base_ref_counted_t base;
 
   ///
-  // Returns true (1) if this object is valid. Do not call any other functions
-  // if this function returns false (0).
+  /// Returns true (1) if this object is valid. Do not call any other functions
+  /// if this function returns false (0).
   ///
   int(CEF_CALLBACK* is_valid)(struct _cef_navigation_entry_t* self);
 
   ///
-  // Returns the actual URL of the page. For some pages this may be data: URL or
-  // similar. Use get_display_url() to return a display-friendly version.
+  /// Returns the actual URL of the page. For some pages this may be data: URL
+  /// or similar. Use get_display_url() to return a display-friendly version.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_url)(
       struct _cef_navigation_entry_t* self);
 
   ///
-  // Returns a display-friendly version of the URL.
+  /// Returns a display-friendly version of the URL.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_display_url)(
       struct _cef_navigation_entry_t* self);
 
   ///
-  // Returns the original URL that was entered by the user before any redirects.
+  /// Returns the original URL that was entered by the user before any
+  /// redirects.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_original_url)(
       struct _cef_navigation_entry_t* self);
 
   ///
-  // Returns the title set by the page. This value may be NULL.
+  /// Returns the title set by the page. This value may be NULL.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t(CEF_CALLBACK* get_title)(
       struct _cef_navigation_entry_t* self);
 
   ///
-  // Returns the transition type which indicates what the user did to move to
-  // this page from the previous page.
+  /// Returns the transition type which indicates what the user did to move to
+  /// this page from the previous page.
   ///
   cef_transition_type_t(CEF_CALLBACK* get_transition_type)(
       struct _cef_navigation_entry_t* self);
 
   ///
-  // Returns true (1) if this navigation includes post data.
+  /// Returns true (1) if this navigation includes post data.
   ///
   int(CEF_CALLBACK* has_post_data)(struct _cef_navigation_entry_t* self);
 
   ///
-  // Returns the time for the last known successful navigation completion. A
-  // navigation may be completed more than once if the page is reloaded. May be
-  // 0 if the navigation has not yet completed.
+  /// Returns the time for the last known successful navigation completion. A
+  /// navigation may be completed more than once if the page is reloaded. May be
+  /// 0 if the navigation has not yet completed.
   ///
   cef_basetime_t(CEF_CALLBACK* get_completion_time)(
       struct _cef_navigation_entry_t* self);
 
   ///
-  // Returns the HTTP status code for the last known successful navigation
-  // response. May be 0 if the response has not yet been received or if the
-  // navigation has not yet completed.
+  /// Returns the HTTP status code for the last known successful navigation
+  /// response. May be 0 if the response has not yet been received or if the
+  /// navigation has not yet completed.
   ///
   int(CEF_CALLBACK* get_http_status_code)(struct _cef_navigation_entry_t* self);
 
   ///
-  // Returns the SSL information for this navigation entry.
+  /// Returns the SSL information for this navigation entry.
   ///
   struct _cef_sslstatus_t*(CEF_CALLBACK* get_sslstatus)(
       struct _cef_navigation_entry_t* self);

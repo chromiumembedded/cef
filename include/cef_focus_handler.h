@@ -44,8 +44,8 @@
 #include "include/cef_frame.h"
 
 ///
-// Implement this interface to handle events related to focus. The methods of
-// this class will be called on the UI thread.
+/// Implement this interface to handle events related to focus. The methods of
+/// this class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
 class CefFocusHandler : public virtual CefBaseRefCounted {
@@ -53,18 +53,18 @@ class CefFocusHandler : public virtual CefBaseRefCounted {
   typedef cef_focus_source_t FocusSource;
 
   ///
-  // Called when the browser component is about to loose focus. For instance, if
-  // focus was on the last HTML element and the user pressed the TAB key. |next|
-  // will be true if the browser is giving focus to the next component and false
-  // if the browser is giving focus to the previous component.
+  /// Called when the browser component is about to loose focus. For instance,
+  /// if focus was on the last HTML element and the user pressed the TAB key.
+  /// |next| will be true if the browser is giving focus to the next component
+  /// and false if the browser is giving focus to the previous component.
   ///
   /*--cef()--*/
   virtual void OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) {}
 
   ///
-  // Called when the browser component is requesting focus. |source| indicates
-  // where the focus request is originating from. Return false to allow the
-  // focus to be set or true to cancel setting the focus.
+  /// Called when the browser component is requesting focus. |source| indicates
+  /// where the focus request is originating from. Return false to allow the
+  /// focus to be set or true to cancel setting the focus.
   ///
   /*--cef()--*/
   virtual bool OnSetFocus(CefRefPtr<CefBrowser> browser, FocusSource source) {
@@ -72,7 +72,7 @@ class CefFocusHandler : public virtual CefBaseRefCounted {
   }
 
   ///
-  // Called when the browser component has received focus.
+  /// Called when the browser component has received focus.
   ///
   /*--cef()--*/
   virtual void OnGotFocus(CefRefPtr<CefBrowser> browser) {}

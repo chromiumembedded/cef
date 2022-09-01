@@ -43,38 +43,38 @@
 #include "include/cef_x509_certificate.h"
 
 ///
-// Class representing the SSL information for a navigation entry.
+/// Class representing the SSL information for a navigation entry.
 ///
 /*--cef(source=library)--*/
 class CefSSLStatus : public virtual CefBaseRefCounted {
  public:
   ///
-  // Returns true if the status is related to a secure SSL/TLS connection.
+  /// Returns true if the status is related to a secure SSL/TLS connection.
   ///
   /*--cef()--*/
   virtual bool IsSecureConnection() = 0;
 
   ///
-  // Returns a bitmask containing any and all problems verifying the server
-  // certificate.
+  /// Returns a bitmask containing any and all problems verifying the server
+  /// certificate.
   ///
   /*--cef(default_retval=CERT_STATUS_NONE)--*/
   virtual cef_cert_status_t GetCertStatus() = 0;
 
   ///
-  // Returns the SSL version used for the SSL connection.
+  /// Returns the SSL version used for the SSL connection.
   ///
   /*--cef(default_retval=SSL_CONNECTION_VERSION_UNKNOWN)--*/
   virtual cef_ssl_version_t GetSSLVersion() = 0;
 
   ///
-  // Returns a bitmask containing the page security content status.
+  /// Returns a bitmask containing the page security content status.
   ///
   /*--cef(default_retval=SSL_CONTENT_NORMAL_CONTENT)--*/
   virtual cef_ssl_content_status_t GetContentStatus() = 0;
 
   ///
-  // Returns the X.509 certificate.
+  /// Returns the X.509 certificate.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefX509Certificate> GetX509Certificate() = 0;
