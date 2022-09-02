@@ -856,6 +856,26 @@ if mode == 'standard':
   # transfer Doxyfile
   transfer_doxyfile(output_dir, options.quiet)
 
+if not options.nodocs:
+  # generate doc files
+  sys.stdout.write("Generating docs...\n")
+  result = exec_cmd(
+      os.path.join('tools', 'make_cppdocs.%s' %
+                   ('bat' if platform == 'windows' else 'sh')), cef_dir)
+  if (len(result['err']) > 0):
+    sys.stdout.write(result['err'])
+  sys.stdout.write(result['out'])
+
+  src_dir = os.path.join(cef_dir, 'docs')
+  if path_exists(src_dir):
+    # create the docs output directory
+    docs_output_dir = create_output_dir(output_dir_base + '_docs',
+                                        options.outputdir)
+    # transfer contents
+    copy_dir(src_dir, docs_output_dir, options.quiet)
+  else:
+    sys.stdout.write("ERROR: No docs generated.\n")
+
 if platform == 'windows':
   libcef_dll = 'libcef.dll'
   libcef_dll_lib = '%s.lib' % libcef_dll
@@ -1015,24 +1035,6 @@ if platform == 'windows':
                         'tests/ceftests/', ceftests_dir, options.quiet)
     transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_resources_win'], \
                         'tests/ceftests/', ceftests_dir, options.quiet)
-
-  if not options.nodocs:
-    # generate doc files
-    sys.stdout.write("Generating docs...\n")
-    result = exec_cmd(os.path.join('tools', 'make_cppdocs.bat'), cef_dir)
-    if (len(result['err']) > 0):
-      sys.stdout.write(result['err'])
-    sys.stdout.write(result['out'])
-
-    src_dir = os.path.join(cef_dir, 'docs')
-    if path_exists(src_dir):
-      # create the docs output directory
-      docs_output_dir = create_output_dir(output_dir_base + '_docs',
-                                          options.outputdir)
-      # transfer contents
-      copy_dir(src_dir, docs_output_dir, options.quiet)
-    else:
-      sys.stdout.write("ERROR: No docs generated.\n")
 
 elif platform == 'mac':
   framework_name = 'Chromium Embedded Framework'
