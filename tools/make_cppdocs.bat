@@ -25,7 +25,11 @@ for /F %%i in ('python.bat %~dp0\cef_version.py current') do set PROJECT_NUMBER=
 set CURRENT_PATH="%CD%"
 cd "%~dp0\.."
 
+:: Generate documentation in the docs/html directory.
 %DOXYGEN_EXE% Doxyfile
+
+:: Write a docs/index.html file.
+echo|set /p="<html><head><meta http-equiv="refresh" content="0;URL='html/index.html'"/></head></html>" > docs/index.html
 
 cd "%CURRENT_PATH%"
 

@@ -211,6 +211,17 @@ def copy_gtest(tests_dir):
       os.path.join(target_gtest_dir, 'teamcity'), options.quiet)
 
 
+def transfer_doxyfile(dst_dir, quiet):
+  """ Transfer and post-process the Doxyfile. """
+  src_file = os.path.join(cef_dir, 'Doxyfile')
+  if os.path.isfile(src_file):
+    data = read_file(src_file)
+    data = data.replace("$(PROJECT_NUMBER)", cef_ver)
+    write_file(os.path.join(dst_dir, 'Doxyfile'), data)
+    if not quiet:
+      sys.stdout.write('Creating Doxyfile file.\n')
+
+
 def transfer_gypi_files(src_dir, gypi_paths, gypi_path_prefix, dst_dir, quiet):
   """ Transfer files from one location to another. """
   for path in gypi_paths:
@@ -842,6 +853,9 @@ if mode == 'standard':
   copy_file(os.path.join(cef_dir, 'cef_paths2.gypi'), \
             os.path.join(output_dir, 'cef_paths2.gypi'), options.quiet)
 
+  # transfer Doxyfile
+  transfer_doxyfile(output_dir, options.quiet)
+
 if platform == 'windows':
   libcef_dll = 'libcef.dll'
   libcef_dll_lib = '%s.lib' % libcef_dll
@@ -1010,7 +1024,7 @@ if platform == 'windows':
       sys.stdout.write(result['err'])
     sys.stdout.write(result['out'])
 
-    src_dir = os.path.join(cef_dir, 'docs', 'html')
+    src_dir = os.path.join(cef_dir, 'docs')
     if path_exists(src_dir):
       # create the docs output directory
       docs_output_dir = create_output_dir(output_dir_base + '_docs',
