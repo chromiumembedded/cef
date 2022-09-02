@@ -867,8 +867,7 @@ typedef enum {
 
   ///
   /// Path and filename of the module containing the CEF code (usually the
-  /// libcef
-  /// module).
+  /// libcef module).
   ///
   PK_FILE_MODULE,
 
@@ -1282,11 +1281,10 @@ typedef enum {
   /// tab-to-search) in the omnibox this qualifier is applied to the transition
   /// type of the generated url. TemplateURLModel then may generate an
   /// additional visit with a transition type of TT_KEYWORD_GENERATED against
-  /// the
-  /// url 'http://' + keyword. For example, if you do a tab-to-search against
-  /// wikipedia the generated url has a transition qualifer of TT_KEYWORD, and
-  /// TemplateURLModel generates a visit for 'wikipedia.org' with a transition
-  /// type of TT_KEYWORD_GENERATED. Chrome runtime only.
+  /// the url 'http://' + keyword. For example, if you do a tab-to-search
+  /// against wikipedia the generated url has a transition qualifer of
+  /// TT_KEYWORD, and TemplateURLModel generates a visit for 'wikipedia.org'
+  /// with a transition type of TT_KEYWORD_GENERATED. Chrome runtime only.
   ///
   TT_KEYWORD = 9,
 
@@ -1377,20 +1375,16 @@ typedef enum {
   /// If set the cache will be skipped when handling the request. Setting this
   /// value is equivalent to specifying the "Cache-Control: no-cache" request
   /// header. Setting this value in combination with UR_FLAG_ONLY_FROM_CACHE
-  /// will
-  /// cause the request to fail.
+  /// will cause the request to fail.
   ///
   UR_FLAG_SKIP_CACHE = 1 << 0,
 
   ///
   /// If set the request will fail if it cannot be served from the cache (or
-  /// some
-  /// equivalent local store). Setting this value is equivalent to specifying
-  /// the
-  /// "Cache-Control: only-if-cached" request header. Setting this value in
-  /// combination with UR_FLAG_SKIP_CACHE or UR_FLAG_DISABLE_CACHE will cause
-  /// the
-  /// request to fail.
+  /// some equivalent local store). Setting this value is equivalent to
+  /// specifying the "Cache-Control: only-if-cached" request header. Setting
+  /// this value in combination with UR_FLAG_SKIP_CACHE or UR_FLAG_DISABLE_CACHE
+  /// will cause the request to fail.
   ///
   UR_FLAG_ONLY_FROM_CACHE = 1 << 1,
 
@@ -1398,8 +1392,7 @@ typedef enum {
   /// If set the cache will not be used at all. Setting this value is equivalent
   /// to specifying the "Cache-Control: no-store" request header. Setting this
   /// value in combination with UR_FLAG_ONLY_FROM_CACHE will cause the request
-  /// to
-  /// fail.
+  /// to fail.
   ///
   UR_FLAG_DISABLE_CACHE = 1 << 2,
 
