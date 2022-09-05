@@ -48,9 +48,11 @@ class OnceCallback;
 template <typename Signature>
 class RepeatingCallback;
 
-// Syntactic sugar to make OnceClosure<void()> and RepeatingClosure<void()>
-// easier to declare since they will be used in a lot of APIs with delayed
-// execution.
+///
+/// Syntactic sugar to make OnceClosure<void()> and RepeatingClosure<void()>
+/// easier to declare since they will be used in a lot of APIs with delayed
+/// execution.
+///
 using OnceClosure = OnceCallback<void()>;
 using RepeatingClosure = RepeatingCallback<void()>;
 

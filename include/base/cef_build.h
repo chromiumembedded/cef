@@ -27,36 +27,40 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// This file adds defines about the platform we're currently building on.
-//
-//  Operating System:
-//    OS_AIX / OS_ANDROID / OS_ASMJS / OS_FREEBSD / OS_FUCHSIA / OS_IOS /
-//    OS_LINUX / OS_MAC / OS_NACL (SFI or NONSFI) / OS_NETBSD / OS_OPENBSD /
-//    OS_QNX / OS_SOLARIS / OS_WIN
-//  Operating System family:
-//    OS_APPLE: IOS or MAC
-//    OS_BSD: FREEBSD or NETBSD or OPENBSD
-//    OS_POSIX: AIX or ANDROID or ASMJS or CHROMEOS or FREEBSD or IOS or LINUX
-//              or MAC or NACL or NETBSD or OPENBSD or QNX or SOLARIS
-//
-//  /!\ Note: OS_CHROMEOS is set by the build system, not this file
-//
-//  Compiler:
-//    COMPILER_MSVC / COMPILER_GCC
-//
-//  Processor:
-//    ARCH_CPU_ARM64 / ARCH_CPU_ARMEL / ARCH_CPU_MIPS / ARCH_CPU_MIPS64 /
-//    ARCH_CPU_MIPS64EL / ARCH_CPU_MIPSEL / ARCH_CPU_PPC64 / ARCH_CPU_S390 /
-//    ARCH_CPU_S390X / ARCH_CPU_X86 / ARCH_CPU_X86_64
-//  Processor family:
-//    ARCH_CPU_ARM_FAMILY: ARMEL or ARM64
-//    ARCH_CPU_MIPS_FAMILY: MIPS64EL or MIPSEL or MIPS64 or MIPS
-//    ARCH_CPU_PPC64_FAMILY: PPC64
-//    ARCH_CPU_S390_FAMILY: S390 or S390X
-//    ARCH_CPU_X86_FAMILY: X86 or X86_64
-//  Processor features:
-//    ARCH_CPU_31_BITS / ARCH_CPU_32_BITS / ARCH_CPU_64_BITS
-//    ARCH_CPU_BIG_ENDIAN / ARCH_CPU_LITTLE_ENDIAN
+/// \file
+/// This file adds defines about the platform we're currently building on.
+///
+/// <pre>
+///  Operating System:
+///    OS_AIX / OS_ANDROID / OS_ASMJS / OS_FREEBSD / OS_FUCHSIA / OS_IOS /
+///    OS_LINUX / OS_MAC / OS_NACL (SFI or NONSFI) / OS_NETBSD / OS_OPENBSD /
+///    OS_QNX / OS_SOLARIS / OS_WIN
+///  Operating System family:
+///    OS_APPLE: IOS or MAC
+///    OS_BSD: FREEBSD or NETBSD or OPENBSD
+///    OS_POSIX: AIX or ANDROID or ASMJS or CHROMEOS or FREEBSD or IOS or LINUX
+///              or MAC or NACL or NETBSD or OPENBSD or QNX or SOLARIS
+///
+///  /!\ Note: OS_CHROMEOS is set by the build system, not this file
+///
+///  Compiler:
+///    COMPILER_MSVC / COMPILER_GCC
+///
+///  Processor:
+///    ARCH_CPU_ARM64 / ARCH_CPU_ARMEL / ARCH_CPU_MIPS / ARCH_CPU_MIPS64 /
+///    ARCH_CPU_MIPS64EL / ARCH_CPU_MIPSEL / ARCH_CPU_PPC64 / ARCH_CPU_S390 /
+///    ARCH_CPU_S390X / ARCH_CPU_X86 / ARCH_CPU_X86_64
+///  Processor family:
+///    ARCH_CPU_ARM_FAMILY: ARMEL or ARM64
+///    ARCH_CPU_MIPS_FAMILY: MIPS64EL or MIPSEL or MIPS64 or MIPS
+///    ARCH_CPU_PPC64_FAMILY: PPC64
+///    ARCH_CPU_S390_FAMILY: S390 or S390X
+///    ARCH_CPU_X86_FAMILY: X86 or X86_64
+///  Processor features:
+///    ARCH_CPU_31_BITS / ARCH_CPU_32_BITS / ARCH_CPU_64_BITS
+///    ARCH_CPU_BIG_ENDIAN / ARCH_CPU_LITTLE_ENDIAN
+/// </pre>
+///
 
 #ifndef CEF_INCLUDE_BASE_CEF_BUILD_H_
 #define CEF_INCLUDE_BASE_CEF_BUILD_H_

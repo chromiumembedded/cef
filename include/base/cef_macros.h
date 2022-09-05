@@ -38,8 +38,8 @@
 // updated to match.
 
 // ALL DISALLOW_xxx MACROS ARE DEPRECATED; DO NOT USE IN NEW CODE.
-// Use explicit deletions instead.  See the section on copyability/movability in
-// //styleguide/c++/c++-dos-and-donts.md for more information.
+// Use explicit deletions instead. For more information see
+// https://chromium.googlesource.com/chromium/src/+/lkgr/styleguide/c++/c++-dos-and-donts.md#explicitly-declare-class-copyability_movability
 
 // DEPRECATED: See above. Makes a class uncopyable.
 #define DISALLOW_COPY(TypeName) TypeName(const TypeName&) = delete

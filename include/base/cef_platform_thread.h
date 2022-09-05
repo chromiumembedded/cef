@@ -49,17 +49,21 @@
 
 namespace base {
 
-// Used for logging. Always an integer value.
+///
+/// Used for logging. Always an integer value.
+///
 typedef cef_platform_thread_id_t PlatformThreadId;
 
-// Used for thread checking and debugging.
-// Meant to be as fast as possible.
-// These are produced by PlatformThread::CurrentRef(), and used to later
-// check if we are on the same thread or not by using ==. These are safe
-// to copy between threads, but can't be copied to another process as they
-// have no meaning there. Also, the internal identifier can be re-used
-// after a thread dies, so a PlatformThreadRef cannot be reliably used
-// to distinguish a new thread from an old, dead thread.
+///
+/// Used for thread checking and debugging.
+/// Meant to be as fast as possible.
+/// These are produced by PlatformThread::CurrentRef(), and used to later
+/// check if we are on the same thread or not by using ==. These are safe
+/// to copy between threads, but can't be copied to another process as they
+/// have no meaning there. Also, the internal identifier can be re-used
+/// after a thread dies, so a PlatformThreadRef cannot be reliably used
+/// to distinguish a new thread from an old, dead thread.
+///
 class PlatformThreadRef {
  public:
   typedef cef_platform_thread_handle_t RefType;
@@ -76,18 +80,24 @@ class PlatformThreadRef {
   RefType id_;
 };
 
-// A namespace for low-level thread functions.
-// Chromium uses a class with static methods but CEF uses an actual namespace
-// to avoid linker problems with the sandbox libaries on Windows.
+///
+/// A namespace for low-level thread functions.
+/// Chromium uses a class with static methods but CEF uses an actual namespace
+/// to avoid linker problems with the sandbox libaries on Windows.
+///
 namespace PlatformThread {
 
-// Gets the current thread id, which may be useful for logging purposes.
+///
+/// Gets the current thread id, which may be useful for logging purposes.
+///
 inline PlatformThreadId CurrentId() {
   return cef_get_current_platform_thread_id();
 }
 
-// Gets the current thread reference, which can be used to check if
-// we're on the right thread quickly.
+///
+/// Gets the current thread reference, which can be used to check if
+/// we're on the right thread quickly.
+///
 inline PlatformThreadRef CurrentRef() {
   return PlatformThreadRef(cef_get_current_platform_thread_handle());
 }
