@@ -4,7 +4,6 @@
 
 #include <sstream>
 
-#include "include/base/cef_cxx17_backports.h"
 #include "include/cef_command_line.h"
 #include "include/cef_task.h"
 #include "include/cef_waitable_event.h"
@@ -193,7 +192,7 @@ void RunHelperMultiple(bool https_server) {
 
   TestState states[3];
   size_t count = 0;
-  const size_t size = base::size(states);
+  const size_t size = std::size(states);
 
   for (size_t i = 0; i < size; ++i) {
     std::stringstream ss;

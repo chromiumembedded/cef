@@ -17,7 +17,6 @@
       'include/base/cef_callback_list.h',
       'include/base/cef_cancelable_callback.h',
       'include/base/cef_compiler_specific.h',
-      'include/base/cef_cxx17_backports.h',
       'include/base/cef_lock.h',
       'include/base/cef_logging.h',
       'include/base/cef_macros.h',

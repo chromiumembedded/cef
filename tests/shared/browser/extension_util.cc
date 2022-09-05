@@ -8,7 +8,6 @@
 #include <memory>
 
 #include "include/base/cef_callback.h"
-#include "include/base/cef_cxx17_backports.h"
 #include "include/cef_parser.h"
 #include "include/cef_path_util.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -124,7 +123,7 @@ bool IsInternalExtension(const std::string& extension_path) {
   static const char* extensions[] = {"set_page_color"};
 
   const std::string& internal_path = GetInternalPath(extension_path);
-  for (size_t i = 0; i < base::size(extensions); ++i) {
+  for (size_t i = 0; i < std::size(extensions); ++i) {
     // Exact match or first directory component.
     const std::string& extension = extensions[i];
     if (internal_path == extension ||
