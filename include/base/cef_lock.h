@@ -47,9 +47,11 @@
 namespace base {
 namespace cef_internal {
 
-// A convenient wrapper for an OS specific critical section.  The only real
-// intelligence in this class is in debug mode for the support for the
-// AssertAcquired() method.
+///
+/// A convenient wrapper for an OS specific critical section.  The only real
+/// intelligence in this class is in debug mode for the support for the
+/// AssertAcquired() method.
+///
 class Lock {
  public:
 #if !DCHECK_IS_ON()  // Optimized wrapper implementation
@@ -62,10 +64,12 @@ class Lock {
   void Acquire() { lock_.Lock(); }
   void Release() { lock_.Unlock(); }
 
-  // If the lock is not held, take it and return true. If the lock is already
-  // held by another thread, immediately return false. This must not be called
-  // by a thread already holding the lock (what happens is undefined and an
-  // assertion may fail).
+  ///
+  /// If the lock is not held, take it and return true. If the lock is already
+  /// held by another thread, immediately return false. This must not be called
+  /// by a thread already holding the lock (what happens is undefined and an
+  /// assertion may fail).
+  ///
   bool Try() { return lock_.Try(); }
 
   // Null implementation if not debug.
@@ -116,7 +120,9 @@ class Lock {
   LockImpl lock_;
 };
 
-// A helper class that acquires the given Lock while the AutoLock is in scope.
+///
+/// A helper class that acquires the given Lock while the AutoLock is in scope.
+///
 class AutoLock {
  public:
   struct AlreadyAcquired {};
@@ -139,8 +145,10 @@ class AutoLock {
   Lock& lock_;
 };
 
-// AutoUnlock is a helper that will Release() the |lock| argument in the
-// constructor, and re-Acquire() it in the destructor.
+///
+/// AutoUnlock is a helper that will Release() the |lock| argument in the
+/// constructor, and re-Acquire() it in the destructor.
+///
 class AutoUnlock {
  public:
   explicit AutoUnlock(Lock& lock) : lock_(lock) {

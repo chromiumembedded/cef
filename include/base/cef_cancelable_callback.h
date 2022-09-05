@@ -28,44 +28,51 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// CancelableCallback is a wrapper around base::Callback that allows
-// cancellation of a callback. CancelableCallback takes a reference on the
-// wrapped callback until this object is destroyed or Reset()/Cancel() are
-// called.
-//
-// NOTE:
-//
-// Calling CancelableCallback::Cancel() brings the object back to its natural,
-// default-constructed state, i.e., CancelableCallback::callback() will return
-// a null callback.
-//
-// THREAD-SAFETY:
-//
-// CancelableCallback objects must be created on, posted to, cancelled on, and
-// destroyed on the same thread.
-//
-//
-// EXAMPLE USAGE:
-//
-// In the following example, the test is verifying that RunIntensiveTest()
-// Quit()s the message loop within 4 seconds. The cancelable callback is posted
-// to the message loop, the intensive test runs, the message loop is run,
-// then the callback is cancelled.
-//
-// RunLoop run_loop;
-//
-// void TimeoutCallback(const std::string& timeout_message) {
-//   FAIL() << timeout_message;
-//   run_loop.QuitWhenIdle();
-// }
-//
-// CancelableOnceClosure timeout(
-//     base::BindOnce(&TimeoutCallback, "Test timed out."));
-// ThreadTaskRunnerHandle::Get()->PostDelayedTask(FROM_HERE, timeout.callback(),
-//                                                TimeDelta::FromSeconds(4));
-// RunIntensiveTest();
-// run_loop.Run();
-// timeout.Cancel();  // Hopefully this is hit before the timeout callback runs.
+///
+/// \file
+/// CancelableCallback is a wrapper around base::Callback that allows
+/// cancellation of a callback. CancelableCallback takes a reference on the
+/// wrapped callback until this object is destroyed or Reset()/Cancel() are
+/// called.
+///
+/// NOTE:
+///
+/// Calling CancelableCallback::Cancel() brings the object back to its natural,
+/// default-constructed state, i.e., CancelableCallback::callback() will return
+/// a null callback.
+///
+/// THREAD-SAFETY:
+///
+/// CancelableCallback objects must be created on, posted to, cancelled on, and
+/// destroyed on the same thread.
+///
+///
+/// EXAMPLE USAGE:
+///
+/// In the following example, the test is verifying that RunIntensiveTest()
+/// Quit()s the message loop within 4 seconds. The cancelable callback is posted
+/// to the message loop, the intensive test runs, the message loop is run,
+/// then the callback is cancelled.
+///
+/// <pre>
+///   RunLoop run_loop;
+///
+///   void TimeoutCallback(const std::string& timeout_message) {
+///     FAIL() << timeout_message;
+///     run_loop.QuitWhenIdle();
+///   }
+///
+///   CancelableOnceClosure timeout(
+///       base::BindOnce(&TimeoutCallback, "Test timed out."));
+///   ThreadTaskRunnerHandle::Get()->PostDelayedTask(FROM_HERE,
+///                                                  timeout.callback(),
+///                                                  TimeDelta::FromSeconds(4));
+///   RunIntensiveTest();
+///   run_loop.Run();
+///   // Hopefully this is hit before the timeout callback runs.
+///   timeout.Cancel();
+/// </pre>
+///
 
 #ifndef CEF_INCLUDE_BASE_CEF_CANCELABLE_CALLBACK_H_
 #define CEF_INCLUDE_BASE_CEF_CANCELABLE_CALLBACK_H_
@@ -166,8 +173,10 @@ class CancelableCallbackImpl {
 
 }  // namespace internal
 
-// Consider using base::WeakPtr directly instead of base::CancelableCallback for
-// the task cancellation.
+///
+/// Consider using base::WeakPtr directly instead of base::CancelableCallback
+/// for the task cancellation.
+///
 template <typename Signature>
 using CancelableOnceCallback =
     internal::CancelableCallbackImpl<OnceCallback<Signature>>;
