@@ -856,6 +856,10 @@ if mode == 'standard':
   # transfer Doxyfile
   transfer_doxyfile(output_dir, options.quiet)
 
+  # transfer README.md
+  copy_file(os.path.join(cef_dir, 'README.md'), \
+            os.path.join(output_dir, 'README.md'), options.quiet)
+
 if not options.nodocs:
   # generate doc files
   sys.stdout.write("Generating docs...\n")
