@@ -18,7 +18,6 @@
 
 #include <algorithm>
 
-#include "include/base/cef_cxx17_backports.h"
 #include "include/base/cef_logging.h"
 #include "include/base/cef_macros.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -791,7 +790,7 @@ KeyboardCode GdkEventToWindowsKeyCode(const GdkEventKey* event) {
   if (windows_key_code)
     return windows_key_code;
 
-  if (event->hardware_keycode < base::size(kHardwareCodeToGDKKeyval)) {
+  if (event->hardware_keycode < std::size(kHardwareCodeToGDKKeyval)) {
     int keyval = kHardwareCodeToGDKKeyval[event->hardware_keycode];
     if (keyval)
       return KeyboardCodeFromXKeysym(keyval);

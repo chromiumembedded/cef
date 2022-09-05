@@ -15,7 +15,6 @@
 #include <string.h>
 #endif
 
-#include "include/base/cef_cxx17_backports.h"
 #include "include/internal/cef_string_types.h"
 
 namespace cef {
@@ -210,7 +209,7 @@ std::string SystemErrorCodeToString(SystemErrorCode error_code) {
   char msgbuf[error_message_buffer_size];
   DWORD flags = FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
   DWORD len = FormatMessageA(flags, NULL, error_code, 0, msgbuf,
-                             static_cast<DWORD>(base::size(msgbuf)), NULL);
+                             static_cast<DWORD>(std::size(msgbuf)), NULL);
   std::stringstream ss;
   if (len) {
     std::string s(msgbuf);

@@ -11,7 +11,6 @@
 #include <string>
 
 #include "include/base/cef_callback.h"
-#include "include/base/cef_cxx17_backports.h"
 #include "include/cef_browser.h"
 #include "include/cef_command_ids.h"
 #include "include/cef_frame.h"
@@ -1469,7 +1468,7 @@ bool ClientHandler::IsAllowedCommandId(int command_id) {
       IDC_CONTENT_CONTEXT_UNDO,
       IDC_CONTENT_CONTEXT_REDO,
   };
-  for (size_t i = 0; i < base::size(kAllowedCommandIds); ++i) {
+  for (size_t i = 0; i < std::size(kAllowedCommandIds); ++i) {
     if (command_id == kAllowedCommandIds[i])
       return true;
   }
