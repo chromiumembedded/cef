@@ -28,40 +28,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// ScopedTypeRef<> is patterned after std::unique_ptr<>, but maintains ownership
-// of a reference to any type that is maintained by Retain and Release methods.
-//
-// The Traits structure must provide the Retain and Release methods for type T.
-// A default ScopedTypeRefTraits is used but not defined, and should be defined
-// for each type to use this interface. For example, an appropriate definition
-// of ScopedTypeRefTraits for CGLContextObj would be:
-//
-//   template<>
-//   struct ScopedTypeRefTraits<CGLContextObj> {
-//     static CGLContextObj InvalidValue() { return nullptr; }
-//     static CGLContextObj Retain(CGLContextObj object) {
-//       CGLContextRetain(object);
-//       return object;
-//     }
-//     static void Release(CGLContextObj object) { CGLContextRelease(object); }
-//   };
-//
-// For the many types that have pass-by-pointer create functions, the function
-// InitializeInto() is provided to allow direct initialization and assumption
-// of ownership of the object. For example, continuing to use the above
-// CGLContextObj specialization:
-//
-//   base::ScopedTypeRef<CGLContextObj> context;
-//   CGLCreateContext(pixel_format, share_group, context.InitializeInto());
-//
-// For initialization with an existing object, the caller may specify whether
-// the ScopedTypeRef<> being initialized is assuming the caller's existing
-// ownership of the object (and should not call Retain in initialization) or if
-// it should not assume this ownership and must create its own (by calling
-// Retain in initialization). This behavior is based on the |policy| parameter,
-// with |ASSUME| for the former and |RETAIN| for the latter. The default policy
-// is to |ASSUME|.
-
 #ifndef CEF_INCLUDE_BASE_CEF_SCOPED_TYPEREF_MAC_H_
 #define CEF_INCLUDE_BASE_CEF_SCOPED_TYPEREF_MAC_H_
 #pragma once
@@ -82,6 +48,46 @@ namespace base {
 template <typename T>
 struct ScopedTypeRefTraits;
 
+///
+/// ScopedTypeRef<> is patterned after std::unique_ptr<>, but maintains
+/// ownership of a reference to any type that is maintained by Retain and
+/// Release methods.
+///
+/// The Traits structure must provide the Retain and Release methods for type T.
+/// A default ScopedTypeRefTraits is used but not defined, and should be defined
+/// for each type to use this interface. For example, an appropriate definition
+/// of ScopedTypeRefTraits for CGLContextObj would be:
+///
+/// <pre>
+///   template<>
+///   struct ScopedTypeRefTraits<CGLContextObj> {
+///     static CGLContextObj InvalidValue() { return nullptr; }
+///     static CGLContextObj Retain(CGLContextObj object) {
+///       CGLContextRetain(object);
+///       return object;
+///     }
+///     static void Release(CGLContextObj object) { CGLContextRelease(object); }
+///   };
+/// </pre>
+///
+/// For the many types that have pass-by-pointer create functions, the function
+/// InitializeInto() is provided to allow direct initialization and assumption
+/// of ownership of the object. For example, continuing to use the above
+/// CGLContextObj specialization:
+///
+/// <pre>
+///   base::ScopedTypeRef<CGLContextObj> context;
+///   CGLCreateContext(pixel_format, share_group, context.InitializeInto());
+/// </pre>
+///
+/// For initialization with an existing object, the caller may specify whether
+/// the ScopedTypeRef<> being initialized is assuming the caller's existing
+/// ownership of the object (and should not call Retain in initialization) or if
+/// it should not assume this ownership and must create its own (by calling
+/// Retain in initialization). This behavior is based on the |policy| parameter,
+/// with |ASSUME| for the former and |RETAIN| for the latter. The default policy
+/// is to |ASSUME|.
+///
 template <typename T, typename Traits = ScopedTypeRefTraits<T>>
 class ScopedTypeRef {
  public:

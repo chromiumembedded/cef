@@ -1038,8 +1038,7 @@ EXCLUDE_PATTERNS       = *_internal.h
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories use the pattern */test/*
 
-EXCLUDE_SYMBOLS        = base::cef_internal \
-                         base::cef_subtle \
+EXCLUDE_SYMBOLS        = base::cef_subtle \
                          base::internal \
                          cef_trace_event \
                          cef::logging

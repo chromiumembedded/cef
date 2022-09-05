@@ -28,25 +28,30 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Use std::tuple as tuple type. This file contains helper functions for
-// working with std::tuples.
-// The functions DispatchToMethod and DispatchToFunction take a function pointer
-// or instance and method pointer, and unpack a tuple into arguments to the
-// call.
-//
-// Example usage:
-//   // These two methods of creating a Tuple are identical.
-//   std::tuple<int, const char*> tuple_a(1, "wee");
-//   std::tuple<int, const char*> tuple_b = std::make_tuple(1, "wee");
-//
-//   void SomeFunc(int a, const char* b) { }
-//   DispatchToFunction(&SomeFunc, tuple_a);  // SomeFunc(1, "wee")
-//   DispatchToFunction(
-//       &SomeFunc, std::make_tuple(10, "foo"));    // SomeFunc(10, "foo")
-//
-//   struct { void SomeMeth(int a, int b, int c) { } } foo;
-//   DispatchToMethod(&foo, &Foo::SomeMeth, std::make_tuple(1, 2, 3));
-//   // foo->SomeMeth(1, 2, 3);
+///
+/// \file
+/// Use std::tuple as tuple type. This file contains helper functions for
+/// working with std::tuples.
+/// The functions DispatchToMethod and DispatchToFunction take a function
+/// pointer or instance and method pointer, and unpack a tuple into arguments to
+/// the call.
+///
+/// Example usage:
+/// <pre>
+///   // These two methods of creating a Tuple are identical.
+///   std::tuple<int, const char*> tuple_a(1, "wee");
+///   std::tuple<int, const char*> tuple_b = std::make_tuple(1, "wee");
+///
+///   void SomeFunc(int a, const char* b) { }
+///   DispatchToFunction(&SomeFunc, tuple_a);  // SomeFunc(1, "wee")
+///   DispatchToFunction(
+///       &SomeFunc, std::make_tuple(10, "foo"));    // SomeFunc(10, "foo")
+///
+///   struct { void SomeMeth(int a, int b, int c) { } } foo;
+///   DispatchToMethod(&foo, &Foo::SomeMeth, std::make_tuple(1, 2, 3));
+///   // foo->SomeMeth(1, 2, 3);
+/// </pre>
+///
 
 #ifndef CEF_INCLUDE_BASE_CEF_TUPLE_H_
 #define CEF_INCLUDE_BASE_CEF_TUPLE_H_
@@ -88,9 +93,7 @@ inline void DispatchToMethodImpl(const ObjT& obj,
 }
 
 template <typename ObjT, typename Method, typename Tuple>
-inline void DispatchToMethod(const ObjT& obj,
-                             Method method,
-                             Tuple&& args) {
+inline void DispatchToMethod(const ObjT& obj, Method method, Tuple&& args) {
   constexpr size_t size = std::tuple_size<std::decay_t<Tuple>>::value;
   DispatchToMethodImpl(obj, method, std::forward<Tuple>(args),
                        std::make_index_sequence<size>());
