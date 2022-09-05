@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=c0d4656f9f85a294084d0fb039e3ab0b77a19262$
+// $hash=98f6d1c93609958fa457c15d7f6fef56fac7e3f6$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_V8_CAPI_H_
@@ -789,7 +789,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_array(int length);
 /// provided |buffer| of size |length| bytes. The ArrayBuffer is externalized,
 /// meaning that it does not own |buffer|. The caller is responsible for freeing
 /// |buffer| when requested via a call to
-/// cef_v8array_buffer_release_callback_t:: ReleaseBuffer. This function should
+/// cef_v8array_buffer_release_callback_t::ReleaseBuffer. This function should
 /// only be called from within the scope of a cef_render_process_handler_t,
 /// cef_v8handler_t or cef_v8accessor_t callback, or in combination with calling
 /// enter() and exit() on a stored cef_v8context_t reference.
