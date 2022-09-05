@@ -9,8 +9,6 @@ The Chromium Embedded Framework (CEF) is a simple framework for embedding Chromi
 * Branches and Building - https://bitbucket.org/chromiumembedded/cef/wiki/BranchesAndBuilding
 * Announcements - https://groups.google.com/forum/#!forum/cef-announce
 * Support Forum - http://www.magpcss.org/ceforum/
-* CEF1 C++ API Docs - http://magpcss.org/ceforum/apidocs/
-* CEF3 C++ API Docs - http://magpcss.org/ceforum/apidocs3/
 * Downloads - https://cef-builds.spotifycdn.com/index.html
 * Donations - http://www.magpcss.org/ceforum/donate.php
 
