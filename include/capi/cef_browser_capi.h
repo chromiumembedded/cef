@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=82133f72b4df1d04fb9d980a0e9b6a1905944abb$
+// $hash=f8a604f73a04bec535d72ec7d05906da8c953b6b$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -687,8 +687,8 @@ typedef struct _cef_browser_host_t {
 
   ///
   /// Returns the maximum rate in frames per second (fps) that
-  /// cef_render_handler_t:: OnPaint will be called for a windowless browser.
-  /// The actual fps may be lower if the browser cannot generate frames at the
+  /// cef_render_handler_t::OnPaint will be called for a windowless browser. The
+  /// actual fps may be lower if the browser cannot generate frames at the
   /// requested rate. The minimum value is 1 and the maximum value is 60
   /// (default 30). This function can only be called on the UI thread.
   ///

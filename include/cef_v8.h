@@ -515,7 +515,7 @@ class CefV8Value : public virtual CefBaseRefCounted {
   /// provided |buffer| of size |length| bytes. The ArrayBuffer is externalized,
   /// meaning that it does not own |buffer|. The caller is responsible for
   /// freeing |buffer| when requested via a call to
-  /// CefV8ArrayBufferReleaseCallback:: ReleaseBuffer. This method should only
+  /// CefV8ArrayBufferReleaseCallback::ReleaseBuffer. This method should only
   /// be called from within the scope of a CefRenderProcessHandler, CefV8Handler
   /// or CefV8Accessor callback, or in combination with calling Enter() and
   /// Exit() on a stored CefV8Context reference.
