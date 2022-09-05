@@ -101,7 +101,7 @@ int RunMain(int argc, char* argv[]) {
     // Force the app to use OpenGL <= 3.1 when off-screen rendering is enabled.
     // TODO(cefclient): Rewrite OSRRenderer to use shaders instead of the
     // fixed-function pipeline which was removed in OpenGL 3.2 (back in 2009).
-    setenv("MESA_GL_VERSION_override", "3.1", /*overwrite=*/0);
+    setenv("MESA_GL_VERSION_OVERRIDE", "3.1", /*overwrite=*/0);
   }
 
   // Create the main message loop object.
