@@ -28,7 +28,7 @@ Numerous individuals and organizations contribute time and resources to support 
 
 # Getting Started
 
-Users new to CEF development should start by reading the [Tutorial](https://bitbucket.org/chromiumembedded/cef/wiki/Tutorial) Wiki page for an overview of CEF usage and then proceed to the [GeneralUsage](https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage) Wiki page for a more in-depth discussion or architectural and usage issues. Complete API documentation is available [here](http://magpcss.org/ceforum/apidocs3/). CEF support and related discussion is available on the [CEF Forum](http://www.magpcss.org/ceforum/).
+Users new to CEF development should start by reading the [Tutorial](https://bitbucket.org/chromiumembedded/cef/wiki/Tutorial) Wiki page for an overview of CEF usage and then proceed to the [GeneralUsage](https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage) Wiki page for a more in-depth discussion or architectural and usage issues. Complete API documentation is available [here](https://cef-builds.spotifycdn.com/docs/stable.html). CEF support and related discussion is available on the [CEF Forum](http://www.magpcss.org/ceforum/).
 
 # Binary Distributions
 
