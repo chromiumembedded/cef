@@ -1422,7 +1422,8 @@ void ClientHandler::SetOfflineState(CefRefPtr<CefBrowser> browser,
 
 void ClientHandler::FilterMenuModel(CefRefPtr<CefMenuModel> model) {
   // Evaluate from the bottom to the top because we'll be removing menu items.
-  for (size_t i = model->GetCount() - 1; i >= 0; --i) {
+  for (size_t x = model->GetCount(); x > 0; --x) {
+    const auto i = x - 1;
     const auto type = model->GetTypeAt(i);
     if (type == MENUITEMTYPE_SUBMENU) {
       // Filter sub-menu and remove if empty.
