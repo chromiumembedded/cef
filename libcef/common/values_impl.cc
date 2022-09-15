@@ -1424,6 +1424,7 @@ bool CefListValueImpl::RemoveInternal(size_t index) {
 }
 
 base::Value* CefListValueImpl::SetInternal(size_t index, base::Value* value) {
+  const std::unique_ptr<base::Value> valuePtr{value};
   DCHECK(value);
 
   auto list = mutable_value()->GetListDeprecated();
