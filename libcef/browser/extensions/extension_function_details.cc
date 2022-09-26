@@ -288,7 +288,7 @@ CefExtensionFunctionDetails::OpenTabParams::OpenTabParams() {}
 
 CefExtensionFunctionDetails::OpenTabParams::~OpenTabParams() {}
 
-base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
+std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::OpenTab(
     const OpenTabParams& params,
     bool user_gesture,
     std::string* error_message) const {
@@ -298,7 +298,7 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
 
   // windowId defaults to "current" window.
   int window_id = extension_misc::kCurrentWindowId;
-  if (params.window_id.get())
+  if (params.window_id.has_value())
     window_id = *params.window_id;
 
   // CEF doesn't have the concept of windows containing tab strips so we'll
@@ -310,7 +310,7 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
 
   // If an opener browser was specified then we expect it to exist.
   int opener_browser_id = -1;
-  if (params.opener_tab_id.get() && *params.opener_tab_id >= 0) {
+  if (params.opener_tab_id.has_value() && *params.opener_tab_id >= 0) {
     if (GetBrowserForTabIdAgain(*params.opener_tab_id, error_message)) {
       opener_browser_id = *params.opener_tab_id;
     } else {
@@ -319,7 +319,7 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
   }
 
   GURL url;
-  if (params.url.get()) {
+  if (params.url.has_value()) {
     std::string url_string = *params.url;
     if (!ExtensionTabUtil::PrepareURLForNavigation(
             url_string, function()->extension(), &url, error_message)) {
@@ -330,12 +330,12 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
   // Default to foreground for the new tab. The presence of 'active' property
   // will override this default.
   bool active = true;
-  if (params.active.get())
+  if (params.active.has_value())
     active = *params.active;
 
   // CEF doesn't use the index value but we let the client see/modify it.
   int index = 0;
-  if (params.index.get())
+  if (params.index.has_value())
     index = *params.index;
 
   auto cef_browser_context = CefBrowserContext::FromBrowserContext(
@@ -369,7 +369,7 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
   create_params.settings = active_browser->settings();
 
   CefRefPtr<CefExtensionHandler> handler = cef_extension->GetHandler();
-  if (handler.get() &&
+  if (handler &&
       handler->OnBeforeBrowser(cef_extension, sender_browser.get(),
                                active_browser.get(), index, create_params.url,
                                active, *create_params.window_info,
@@ -397,12 +397,12 @@ base::DictionaryValue* CefExtensionFunctionDetails::OpenTab(
   auto scrub_tab_behavior = ExtensionTabUtil::GetScrubTabBehavior(
       extension, extensions::Feature::Context::UNSPECIFIED_CONTEXT,
       web_contents);
-  ExtensionTabUtil::ScrubTabForExtension(extension, web_contents, result.get(),
+  ExtensionTabUtil::ScrubTabForExtension(extension, web_contents, &result,
                                          scrub_tab_behavior);
-  return result->ToValue().release();
+  return base::WrapUnique(new api::tabs::Tab(std::move(result)));
 }
 
-std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::CreateTabObject(
+api::tabs::Tab CefExtensionFunctionDetails::CreateTabObject(
     CefRefPtr<AlloyBrowserHostImpl> new_browser,
     int opener_browser_id,
     bool active,
@@ -410,47 +410,45 @@ std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::CreateTabObject(
   content::WebContents* contents = new_browser->web_contents();
 
   bool is_loading = contents->IsLoading();
-  auto tab_object = std::make_unique<api::tabs::Tab>();
-  tab_object->id = std::make_unique<int>(new_browser->GetIdentifier());
-  tab_object->index = index;
-  tab_object->window_id = *tab_object->id;
-  tab_object->status = is_loading ? api::tabs::TAB_STATUS_LOADING
-                                  : api::tabs::TAB_STATUS_COMPLETE;
-  tab_object->active = active;
-  tab_object->selected = true;
-  tab_object->highlighted = true;
-  tab_object->pinned = false;
+  api::tabs::Tab tab_object;
+  tab_object.id = new_browser->GetIdentifier();
+  tab_object.index = index;
+  tab_object.window_id = *tab_object.id;
+  tab_object.status = is_loading ? api::tabs::TAB_STATUS_LOADING
+                                 : api::tabs::TAB_STATUS_COMPLETE;
+  tab_object.active = active;
+  tab_object.selected = true;
+  tab_object.highlighted = true;
+  tab_object.pinned = false;
   // TODO(extensions): Use RecentlyAudibleHelper to populate |audible|.
-  tab_object->discarded = false;
-  tab_object->auto_discardable = false;
-  tab_object->muted_info = CreateMutedInfo(contents);
-  tab_object->incognito = false;
+  tab_object.discarded = false;
+  tab_object.auto_discardable = false;
+  tab_object.muted_info = CreateMutedInfo(contents);
+  tab_object.incognito = false;
   gfx::Size contents_size = contents->GetContainerBounds().size();
-  tab_object->width = std::make_unique<int>(contents_size.width());
-  tab_object->height = std::make_unique<int>(contents_size.height());
-  tab_object->url = std::make_unique<std::string>(contents->GetURL().spec());
-  tab_object->title =
-      std::make_unique<std::string>(base::UTF16ToUTF8(contents->GetTitle()));
+  tab_object.width = contents_size.width();
+  tab_object.height = contents_size.height();
+  tab_object.url = contents->GetURL().spec();
+  tab_object.title = base::UTF16ToUTF8(contents->GetTitle());
 
   content::NavigationEntry* entry = contents->GetController().GetVisibleEntry();
   if (entry && entry->GetFavicon().valid) {
-    tab_object->fav_icon_url =
-        std::make_unique<std::string>(entry->GetFavicon().url.spec());
+    tab_object.fav_icon_url = entry->GetFavicon().url.spec();
   }
 
   if (opener_browser_id >= 0)
-    tab_object->opener_tab_id = std::make_unique<int>(opener_browser_id);
+    tab_object.opener_tab_id = opener_browser_id;
 
   return tab_object;
 }
 
 // static
-std::unique_ptr<api::tabs::MutedInfo>
-CefExtensionFunctionDetails::CreateMutedInfo(content::WebContents* contents) {
+api::tabs::MutedInfo CefExtensionFunctionDetails::CreateMutedInfo(
+    content::WebContents* contents) {
   DCHECK(contents);
-  std::unique_ptr<api::tabs::MutedInfo> info(new api::tabs::MutedInfo);
-  info->muted = contents->IsAudioMuted();
-  // TODO(cef): Maybe populate |info->reason|.
+  api::tabs::MutedInfo info;
+  info.muted = contents->IsAudioMuted();
+  // TODO(cef): Maybe populate |info.reason|.
   return info;
 }
 

@@ -82,7 +82,8 @@ class AlloyContentRendererClient
   void RenderThreadConnected() override;
   void RenderFrameCreated(content::RenderFrame* render_frame) override;
   void WebViewCreated(blink::WebView* web_view,
-                      bool was_created_by_renderer) override;
+                      bool was_created_by_renderer,
+                      const url::Origin* outermost_origin) override;
   bool IsPluginHandledExternally(content::RenderFrame* render_frame,
                                  const blink::WebElement& plugin_element,
                                  const GURL& original_url,

@@ -1,5 +1,5 @@
 diff --git chrome/browser/content_settings/host_content_settings_map_factory.cc chrome/browser/content_settings/host_content_settings_map_factory.cc
-index 242f244a6d3b5..d037f2dfd9987 100644
+index 09e166d182eed..5e5d0d3554600 100644
 --- chrome/browser/content_settings/host_content_settings_map_factory.cc
 +++ chrome/browser/content_settings/host_content_settings_map_factory.cc
 @@ -9,6 +9,7 @@
@@ -10,7 +10,7 @@ index 242f244a6d3b5..d037f2dfd9987 100644
  #include "chrome/browser/content_settings/one_time_geolocation_permission_provider.h"
  #include "chrome/browser/permissions/last_tab_standing_tracker_factory.h"
  #include "chrome/browser/profiles/off_the_record_profile_impl.h"
-@@ -23,6 +24,10 @@
+@@ -22,6 +23,10 @@
  #include "extensions/buildflags/buildflags.h"
  #include "ui/webui/webui_allowlist_provider.h"
  
@@ -21,7 +21,7 @@ index 242f244a6d3b5..d037f2dfd9987 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "base/trace_event/trace_event.h"
  #include "extensions/browser/api/content_settings/content_settings_custom_extension_provider.h"
-@@ -55,7 +60,13 @@ HostContentSettingsMapFactory::HostContentSettingsMapFactory()
+@@ -54,7 +59,13 @@ HostContentSettingsMapFactory::HostContentSettingsMapFactory()
    DependsOn(SupervisedUserSettingsServiceFactory::GetInstance());
  #endif
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -35,7 +35,7 @@ index 242f244a6d3b5..d037f2dfd9987 100644
  #endif
    // Used by way of ShouldRestoreOldSessionCookies().
  #if BUILDFLAG(ENABLE_SESSION_SERVICE)
-@@ -119,6 +130,9 @@ scoped_refptr<RefcountedKeyedService>
+@@ -118,6 +129,9 @@ scoped_refptr<RefcountedKeyedService>
    }
  
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -45,7 +45,7 @@ index 242f244a6d3b5..d037f2dfd9987 100644
    // These must be registered before before the HostSettings are passed over to
    // the IOThread.  Simplest to do this on construction.
    settings_map->RegisterProvider(
-@@ -131,6 +145,9 @@ scoped_refptr<RefcountedKeyedService>
+@@ -130,6 +144,9 @@ scoped_refptr<RefcountedKeyedService>
            // the case where profile->IsOffTheRecord() is true? And what is the
            // interaction with profile->IsGuestSession()?
            false));
@@ -56,7 +56,7 @@ index 242f244a6d3b5..d037f2dfd9987 100644
  #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
    SupervisedUserSettingsService* supervised_service =
 diff --git components/content_settings/renderer/content_settings_agent_impl.cc components/content_settings/renderer/content_settings_agent_impl.cc
-index 701d6a5155f57..862a491c7db88 100644
+index 9b9f37709511a..acff569de15d9 100644
 --- components/content_settings/renderer/content_settings_agent_impl.cc
 +++ components/content_settings/renderer/content_settings_agent_impl.cc
 @@ -144,7 +144,7 @@ ContentSetting GetContentSettingFromRules(

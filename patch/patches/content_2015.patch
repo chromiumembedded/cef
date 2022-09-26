@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_http_handler.cc content/browser/devtools/devtools_http_handler.cc
-index f0961360fe885..1b5103cca7df6 100644
+index 286e99d804cd0..2f431dcab0283 100644
 --- content/browser/devtools/devtools_http_handler.cc
 +++ content/browser/devtools/devtools_http_handler.cc
 @@ -587,7 +587,7 @@ void DevToolsHttpHandler::OnJsonRequest(
@@ -12,10 +12,10 @@ index f0961360fe885..1b5103cca7df6 100644
                        GetContentClient()->browser()->GetUserAgent());
      version.SetString("V8-Version", V8_VERSION_STRING);
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index 4f8967e57bbc3..281af1ce0c1cd 100644
+index cbadbda605709..048c88486ce06 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
-@@ -718,6 +718,17 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest(
+@@ -716,6 +716,17 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest(
            resource_request_->has_user_gesture, initiating_origin,
            initiator_document_.AsRenderFrameHostIfValid(), &loader_factory);
  
@@ -34,10 +34,10 @@ index 4f8967e57bbc3..281af1ce0c1cd 100644
          factory = base::MakeRefCounted<network::WrapperSharedURLLoaderFactory>(
              std::move(loader_factory));
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index 1958ddbba66ae..d5ffabfedbdd9 100644
+index 804a179c88580..c889d833f97c6 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
-@@ -939,7 +939,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
+@@ -957,7 +957,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
  void ContentBrowserClient::OnNetworkServiceCreated(
      network::mojom::NetworkService* network_service) {}
  
@@ -46,7 +46,7 @@ index 1958ddbba66ae..d5ffabfedbdd9 100644
      BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -948,6 +948,7 @@ void ContentBrowserClient::ConfigureNetworkContextParams(
+@@ -966,6 +966,7 @@ void ContentBrowserClient::ConfigureNetworkContextParams(
          cert_verifier_creation_params) {
    network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
    network_context_params->accept_language = "en-us,en";
@@ -55,7 +55,7 @@ index 1958ddbba66ae..d5ffabfedbdd9 100644
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index cfb8d9af38d92..5be3ad23793f8 100644
+index 3f276c5394dde..4963c61ef73e6 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -34,6 +34,7 @@
@@ -66,7 +66,7 @@ index cfb8d9af38d92..5be3ad23793f8 100644
  #include "content/public/common/alternative_error_page_override_info.mojom-forward.h"
  #include "content/public/common/page_visibility_state.h"
  #include "content/public/common/window_container_type.mojom-forward.h"
-@@ -1727,7 +1728,7 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1751,7 +1752,7 @@ class CONTENT_EXPORT ContentBrowserClient {
    //
    // If |relative_partition_path| is the empty string, it means this needs to
    // create the default NetworkContext for the BrowserContext.
@@ -75,7 +75,7 @@ index cfb8d9af38d92..5be3ad23793f8 100644
        BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -1933,6 +1934,19 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1957,6 +1958,19 @@ class CONTENT_EXPORT ContentBrowserClient {
        RenderFrameHost* initiator_document,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
@@ -95,7 +95,7 @@ index cfb8d9af38d92..5be3ad23793f8 100644
    // Creates an OverlayWindow to be used for video or document
    // Picture-in-Picture respectively. This window will house the content shown
    // when in Picture-in-Picture mode. This will return a new OverlayWindow.
-@@ -1988,6 +2002,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2012,6 +2026,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  
@@ -107,7 +107,7 @@ index cfb8d9af38d92..5be3ad23793f8 100644
    // on blink::features::kUserAgentReduction. Content may cache this value.
    virtual std::string GetUserAgent();
 diff --git content/public/renderer/content_renderer_client.h content/public/renderer/content_renderer_client.h
-index a9146ec6c85b3..d90925089cac1 100644
+index 69e9da01fd708..32ed3641566c2 100644
 --- content/public/renderer/content_renderer_client.h
 +++ content/public/renderer/content_renderer_client.h
 @@ -92,6 +92,9 @@ class CONTENT_EXPORT ContentRendererClient {
@@ -120,7 +120,7 @@ index a9146ec6c85b3..d90925089cac1 100644
    // Notifies that a new RenderFrame has been created.
    virtual void RenderFrameCreated(RenderFrame* render_frame) {}
  
-@@ -307,6 +310,10 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -311,6 +314,10 @@ class CONTENT_EXPORT ContentRendererClient {
    // This method may invalidate the frame.
    virtual void RunScriptsAtDocumentIdle(RenderFrame* render_frame) {}
  
@@ -132,10 +132,10 @@ index a9146ec6c85b3..d90925089cac1 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index a15cfb291dea6..4fd0ef1abfabb 100644
+index b3b8ee2ac0c33..1e2a73265fd1f 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
-@@ -610,6 +610,8 @@ void RenderThreadImpl::Init() {
+@@ -594,6 +594,8 @@ void RenderThreadImpl::Init() {
        GetContentClient()->renderer()->CreateURLLoaderThrottleProvider(
            blink::URLLoaderThrottleProviderType::kFrame);
  
@@ -145,10 +145,10 @@ index a15cfb291dea6..4fd0ef1abfabb 100644
        base::BindRepeating(&RenderThreadImpl::OnRendererInterfaceReceiver,
                            base::Unretained(this)));
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index b822b43d0a239..3d0d9f23cbb57 100644
+index 90e08c610ccc0..96e8061b4c966 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -1004,6 +1004,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
+@@ -1009,6 +1009,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
  
  //------------------------------------------------------------------------------
  
@@ -165,7 +165,7 @@ index b822b43d0a239..3d0d9f23cbb57 100644
  RendererBlinkPlatformImpl::CreateWebV8ValueConverter() {
    return std::make_unique<V8ValueConverterImpl>();
 diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
-index 9718602c31f86..3f51ee01684e0 100644
+index e607746a2ef60..a2a8fdc7270c7 100644
 --- content/renderer/renderer_blink_platform_impl.h
 +++ content/renderer/renderer_blink_platform_impl.h
 @@ -225,6 +225,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {

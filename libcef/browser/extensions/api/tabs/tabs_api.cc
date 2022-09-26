@@ -60,14 +60,6 @@ void ZoomModeToZoomSettings(zoom::ZoomController::ZoomMode zoom_mode,
   }
 }
 
-template <typename T>
-void AssignOptionalValue(const std::unique_ptr<T>& source,
-                         std::unique_ptr<T>& destination) {
-  if (source.get()) {
-    destination.reset(new T(*source));
-  }
-}
-
 }  // namespace
 
 ExtensionFunction::ResponseAction TabsGetFunction::Run() {
@@ -82,27 +74,23 @@ ExtensionFunction::ResponseAction TabsCreateFunction::Run() {
   EXTENSION_FUNCTION_VALIDATE(params.get());
 
   CefExtensionFunctionDetails::OpenTabParams options;
-  AssignOptionalValue(params->create_properties.window_id, options.window_id);
-  AssignOptionalValue(params->create_properties.opener_tab_id,
-                      options.opener_tab_id);
-  AssignOptionalValue(params->create_properties.selected, options.active);
+  options.window_id = params->create_properties.window_id;
+  options.opener_tab_id = params->create_properties.opener_tab_id;
+  options.active = params->create_properties.selected;
   // The 'active' property has replaced the 'selected' property.
-  AssignOptionalValue(params->create_properties.active, options.active);
-  AssignOptionalValue(params->create_properties.pinned, options.pinned);
-  AssignOptionalValue(params->create_properties.index, options.index);
-  AssignOptionalValue(params->create_properties.url, options.url);
+  options.active = params->create_properties.active;
+  options.pinned = params->create_properties.pinned;
+  options.index = params->create_properties.index;
+  options.url = params->create_properties.url;
 
   std::string error;
-  std::unique_ptr<base::DictionaryValue> result(
-      cef_details_.OpenTab(options, user_gesture(), &error));
+  auto result = cef_details_.OpenTab(options, user_gesture(), &error);
   if (!result)
     return RespondNow(Error(error));
 
   // Return data about the newly created tab.
-  return RespondNow(
-      has_callback()
-          ? OneArgument(base::Value::FromUniquePtrValue(std::move(result)))
-          : NoArguments());
+  return RespondNow(has_callback() ? OneArgument(base::Value(result->ToValue()))
+                                   : NoArguments());
 }
 
 BaseAPIFunction::BaseAPIFunction() : cef_details_(this) {}
@@ -134,7 +122,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
   // -favIconUrl
 
   // Navigate the tab to a new location if the url is different.
-  if (params->update_properties.url.get()) {
+  if (params->update_properties.url.has_value()) {
     std::string updated_url = *params->update_properties.url;
     if (!UpdateURL(updated_url, tab_id_, &error_))
       return RespondNow(Error(std::move(error_)));
@@ -143,11 +131,11 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
   bool active = false;
   // TODO(rafaelw): Setting |active| from js doesn't make much sense.
   // Move tab selection management up to window.
-  if (params->update_properties.selected.get())
+  if (params->update_properties.selected.has_value())
     active = *params->update_properties.selected;
 
   // The 'active' property has replaced 'selected'.
-  if (params->update_properties.active.get())
+  if (params->update_properties.active.has_value())
     active = *params->update_properties.active;
 
   if (active) {
@@ -156,21 +144,21 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
     return RespondNow(Error(tabs_constants::kTabStripNotEditableError));
   }
 
-  if (params->update_properties.highlighted.get() &&
+  if (params->update_properties.highlighted.has_value() &&
       *params->update_properties.highlighted) {
     // TODO: Highlight the tab at |tab_id_|.
     NOTIMPLEMENTED();
     return RespondNow(Error(tabs_constants::kTabStripNotEditableError));
   }
 
-  if (params->update_properties.pinned.get() &&
+  if (params->update_properties.pinned.has_value() &&
       *params->update_properties.pinned) {
     // TODO: Pin the tab at |tab_id_|.
     NOTIMPLEMENTED();
     return RespondNow(Error(tabs_constants::kTabStripNotEditableError));
   }
 
-  if (params->update_properties.muted.get()) {
+  if (params->update_properties.muted.has_value()) {
     // TODO: Mute/unmute the tab at |tab_id_|.
     NOTIMPLEMENTED();
     return RespondNow(Error(ErrorUtils::FormatErrorMessage(
@@ -178,7 +166,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
         base::NumberToString(tab_id_))));
   }
 
-  if (params->update_properties.opener_tab_id.get()) {
+  if (params->update_properties.opener_tab_id.has_value()) {
     int opener_id = *params->update_properties.opener_tab_id;
     if (opener_id == tab_id_)
       return RespondNow(Error("Cannot set a tab's opener to itself."));
@@ -188,7 +176,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
     return RespondNow(Error(tabs_constants::kTabStripNotEditableError));
   }
 
-  if (params->update_properties.auto_discardable.get()) {
+  if (params->update_properties.auto_discardable.has_value()) {
     // TODO: Set auto-discardable state for the tab at |tab_id_|.
     NOTIMPLEMENTED();
   }
@@ -242,7 +230,7 @@ ExtensionFunction::ResponseValue TabsUpdateFunction::GetResult() {
   if (!has_callback())
     return NoArguments();
 
-  return ArgumentList(tabs::Get::Results::Create(*cef_details_.CreateTabObject(
+  return ArgumentList(tabs::Get::Results::Create(cef_details_.CreateTabObject(
       AlloyBrowserHostImpl::GetBrowserForContents(web_contents_),
       /*opener_browser_id=*/-1, /*active=*/true, tab_id_)));
 }
@@ -524,8 +512,8 @@ ExtensionFunction::ResponseAction TabsGetZoomSettingsFunction::Run() {
   ZoomController::ZoomMode zoom_mode = zoom_controller->zoom_mode();
   api::tabs::ZoomSettings zoom_settings;
   ZoomModeToZoomSettings(zoom_mode, &zoom_settings);
-  zoom_settings.default_zoom_factor = std::make_unique<double>(
-      blink::PageZoomLevelToZoomFactor(zoom_controller->GetDefaultZoomLevel()));
+  zoom_settings.default_zoom_factor =
+      blink::PageZoomLevelToZoomFactor(zoom_controller->GetDefaultZoomLevel());
 
   return RespondNow(
       ArgumentList(api::tabs::GetZoomSettings::Results::Create(zoom_settings)));

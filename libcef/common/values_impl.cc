@@ -732,9 +732,8 @@ bool CefDictionaryValueImpl::HasKey(const CefString& key) {
 bool CefDictionaryValueImpl::GetKeys(KeyList& keys) {
   CEF_VALUE_VERIFY_RETURN(false, 0);
 
-  for (base::DictionaryValue::Iterator i(const_value()); !i.IsAtEnd();
-       i.Advance()) {
-    keys.push_back(i.key());
+  for (const auto item : const_value().GetDict()) {
+    keys.push_back(item.first);
   }
 
   return true;
@@ -996,10 +995,22 @@ bool CefDictionaryValueImpl::RemoveInternal(const CefString& key) {
 base::Value* CefDictionaryValueImpl::SetInternal(const CefString& key,
                                                  base::Value* value) {
   DCHECK(value);
+  std::unique_ptr<base::Value> valueObj(value);
+
   RemoveInternal(key);
-  mutable_value()->SetWithoutPathExpansion(
-      base::StringPiece(key), base::WrapUnique<base::Value>(value));
-  return value;
+
+  // base::Value now uses move semantics which means that Set() will move the
+  // contents of the passed-in base::Value instead of keeping the same object.
+  // Set() then returns the actual Value pointer as it currently exists.
+  base::Value* actual_value =
+      mutable_value()->GetDict().Set(base::StringPiece(key), std::move(*value));
+  CHECK(actual_value);
+
+  // |value| will be deleted when this method returns. Update the controller to
+  // reference |actual_value| instead.
+  controller()->Swap(value, actual_value);
+
+  return actual_value;
 }
 
 CefDictionaryValueImpl::CefDictionaryValueImpl(base::DictionaryValue* value,
@@ -1128,7 +1139,7 @@ CefRefPtr<CefListValue> CefListValueImpl::Copy() {
 bool CefListValueImpl::SetSize(size_t size) {
   CEF_VALUE_VERIFY_RETURN(true, false);
 
-  size_t current_size = const_value().GetListDeprecated().size();
+  size_t current_size = const_value().GetList().size();
   if (size < current_size) {
     // Clean up any values above the requested size.
     for (size_t i = current_size - 1; i >= size; --i)
@@ -1137,7 +1148,7 @@ bool CefListValueImpl::SetSize(size_t size) {
     // Expand the list size.
     // TODO: This approach seems inefficient. See https://crbug.com/1187066#c17
     // for background.
-    auto list = mutable_value()->GetListDeprecated();
+    auto& list = mutable_value()->GetList();
     while (list.size() < size)
       mutable_value()->Append(base::Value());
   }
@@ -1146,7 +1157,7 @@ bool CefListValueImpl::SetSize(size_t size) {
 
 size_t CefListValueImpl::GetSize() {
   CEF_VALUE_VERIFY_RETURN(false, 0);
-  return const_value().GetListDeprecated().size();
+  return const_value().GetList().size();
 }
 
 bool CefListValueImpl::Clear() {
@@ -1167,7 +1178,7 @@ bool CefListValueImpl::Remove(size_t index) {
 CefValueType CefListValueImpl::GetType(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, VTYPE_INVALID);
 
-  const auto& list = const_value().GetListDeprecated();
+  const auto& list = const_value().GetList();
   if (index < list.size()) {
     const base::Value& value = list[index];
     switch (value.type()) {
@@ -1196,7 +1207,7 @@ CefValueType CefListValueImpl::GetType(size_t index) {
 CefRefPtr<CefValue> CefListValueImpl::GetValue(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
 
-  const auto& list = const_value().GetListDeprecated();
+  const auto& list = const_value().GetList();
   if (index < list.size()) {
     const base::Value& value = list[index];
     return CefValueImpl::GetOrCreateRefOrCopy(
@@ -1212,7 +1223,7 @@ bool CefListValueImpl::GetBool(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, false);
 
   bool ret_value = false;
-  const auto& list = const_value().GetListDeprecated();
+  const auto& list = const_value().GetList();
   if (index < list.size()) {
     const base::Value& value = list[index];
     if (value.is_bool()) {
@@ -1227,7 +1238,7 @@ int CefListValueImpl::GetInt(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, 0);
 
   int ret_value = 0;
-  const auto& list = const_value().GetListDeprecated();
+  const auto& list = const_value().GetList();
   if (index < list.size()) {
     const base::Value& value = list[index];
     if (value.is_int()) {
@@ -1242,7 +1253,7 @@ double CefListValueImpl::GetDouble(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, 0);
 
   double ret_value = 0;
-  const auto& list = const_value().GetListDeprecated();
+  const auto& list = const_value().GetList();
   if (index < list.size()) {
     const base::Value& value = list[index];
     if (value.is_double()) {
@@ -1257,7 +1268,7 @@ CefString CefListValueImpl::GetString(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, CefString());
 
   std::string ret_value;
-  const auto& list = const_value().GetListDeprecated();
+  const auto& list = const_value().GetList();
   if (index < list.size()) {
     const base::Value& value = list[index];
     if (value.is_string()) {
@@ -1271,7 +1282,7 @@ CefString CefListValueImpl::GetString(size_t index) {
 CefRefPtr<CefBinaryValue> CefListValueImpl::GetBinary(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
 
-  const auto& list = const_value().GetListDeprecated();
+  const auto& list = const_value().GetList();
   if (index < list.size()) {
     const base::Value& value = list[index];
     if (value.is_blob()) {
@@ -1288,7 +1299,7 @@ CefRefPtr<CefBinaryValue> CefListValueImpl::GetBinary(size_t index) {
 CefRefPtr<CefDictionaryValue> CefListValueImpl::GetDictionary(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
 
-  const auto& list = const_value().GetListDeprecated();
+  const auto& list = const_value().GetList();
   if (index < list.size()) {
     const base::Value& value = list[index];
     if (value.is_dict()) {
@@ -1306,7 +1317,7 @@ CefRefPtr<CefDictionaryValue> CefListValueImpl::GetDictionary(size_t index) {
 CefRefPtr<CefListValue> CefListValueImpl::GetList(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
 
-  const auto& list = const_value().GetListDeprecated();
+  const auto& list = const_value().GetList();
   if (index < list.size()) {
     const base::Value& value = list[index];
     if (value.is_list()) {
@@ -1397,7 +1408,7 @@ bool CefListValueImpl::SetList(size_t index, CefRefPtr<CefListValue> value) {
 }
 
 bool CefListValueImpl::RemoveInternal(size_t index) {
-  auto list = mutable_value()->GetListDeprecated();
+  auto& list = mutable_value()->GetList();
   if (index >= list.size())
     return false;
 
@@ -1410,7 +1421,7 @@ bool CefListValueImpl::RemoveInternal(size_t index) {
 
   // |actual_value| is no longer valid after this call.
   auto out_value = std::move(list[index]);
-  mutable_value()->EraseListIter(list.begin() + index);
+  list.erase(list.begin() + index);
 
   // Remove the value.
   controller()->Remove(const_cast<base::Value*>(&actual_value), true);
@@ -1425,11 +1436,12 @@ bool CefListValueImpl::RemoveInternal(size_t index) {
 
 base::Value* CefListValueImpl::SetInternal(size_t index, base::Value* value) {
   DCHECK(value);
+  std::unique_ptr<base::Value> valueObj(value);
 
-  auto list = mutable_value()->GetListDeprecated();
+  auto& list = mutable_value()->GetList();
   if (RemoveInternal(index)) {
     CHECK_LE(index, list.size());
-    mutable_value()->GetList().Insert(list.begin() + index, std::move(*value));
+    list.Insert(list.begin() + index, std::move(*value));
   } else {
     if (index >= list.size()) {
       // Expand the list size.
@@ -1447,7 +1459,7 @@ base::Value* CefListValueImpl::SetInternal(size_t index, base::Value* value) {
   // pointer as it exists in the std::vector.
   const base::Value& actual_value = list[index];
 
-  // |value| will have been deleted at this point. Update the controller to
+  // |value| will be deleted when this method returns. Update the controller to
   // reference |actual_value| instead.
   controller()->Swap(value, const_cast<base::Value*>(&actual_value));
 

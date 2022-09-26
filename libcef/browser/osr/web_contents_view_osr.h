@@ -72,7 +72,8 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   void StartDragging(const content::DropData& drop_data,
                      blink::DragOperationsMask allowed_ops,
                      const gfx::ImageSkia& image,
-                     const gfx::Vector2d& image_offset,
+                     const gfx::Vector2d& cursor_offset,
+                     const gfx::Rect& drag_obj_rect,
                      const blink::mojom::DragEventSourceInfo& event_info,
                      content::RenderWidgetHostImpl* source_rwh) override;
   void UpdateDragCursor(ui::mojom::DragOperation operation) override;
@@ -81,6 +82,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   virtual void LostFocus(
       content::RenderWidgetHostImpl* render_widget_host) override;
   virtual void TakeFocus(bool reverse) override;
+  virtual void FullscreenStateChanged(bool is_fullscreen) override;
 
  private:
   CefRenderWidgetHostViewOSR* GetView() const;

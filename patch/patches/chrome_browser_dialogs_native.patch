@@ -1,5 +1,5 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index f532c9e044b46..c55c424f6ffd5 100644
+index ab0022f97fd3a..0632f7b4d966d 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
 @@ -20,6 +20,7 @@
@@ -8,9 +8,9 @@ index f532c9e044b46..c55c424f6ffd5 100644
  #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/browser_process.h"
- #include "chrome/browser/enterprise/connectors/common.h"
- #include "chrome/browser/platform_util.h"
-@@ -254,6 +255,13 @@ void FileSelectHelper::OnListFile(
+ #include "chrome/browser/chromeos/policy/dlp/dlp_rules_manager.h"
+ #include "chrome/browser/chromeos/policy/dlp/dlp_rules_manager_factory.h"
+@@ -257,6 +258,13 @@ void FileSelectHelper::OnListFile(
  void FileSelectHelper::LaunchConfirmationDialog(
      const base::FilePath& path,
      std::vector<ui::SelectedFileInfo> selected_files) {
@@ -24,7 +24,7 @@ index f532c9e044b46..c55c424f6ffd5 100644
    ShowFolderUploadConfirmationDialog(
        path,
        base::BindOnce(&FileSelectHelper::ConvertToFileChooserFileInfoList, this),
-@@ -470,7 +478,8 @@ void FileSelectHelper::DontAbortOnMissingWebContentsForTesting() {
+@@ -480,7 +488,8 @@ void FileSelectHelper::DontAbortOnMissingWebContentsForTesting() {
  
  std::unique_ptr<ui::SelectFileDialog::FileTypeInfo>
  FileSelectHelper::GetFileTypesFromAcceptType(
@@ -34,7 +34,7 @@ index f532c9e044b46..c55c424f6ffd5 100644
    std::unique_ptr<ui::SelectFileDialog::FileTypeInfo> base_file_type(
        new ui::SelectFileDialog::FileTypeInfo());
    if (accept_types.empty())
-@@ -484,17 +493,24 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -494,17 +503,24 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    std::vector<base::FilePath::StringType>* extensions =
        &file_type->extensions.back();
  
@@ -60,7 +60,7 @@ index f532c9e044b46..c55c424f6ffd5 100644
      } else {
        if (!base::IsStringASCII(accept_type))
          continue;
-@@ -505,10 +521,18 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -515,10 +531,18 @@ FileSelectHelper::GetFileTypesFromAcceptType(
          description_id = IDS_AUDIO_FILES;
        else if (ascii_type == "video/*")
          description_id = IDS_VIDEO_FILES;
@@ -81,7 +81,7 @@ index f532c9e044b46..c55c424f6ffd5 100644
      if (extensions->size() > old_extension_size)
        valid_type_count++;
    }
-@@ -533,6 +557,15 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -543,6 +567,15 @@ FileSelectHelper::GetFileTypesFromAcceptType(
          l10n_util::GetStringUTF16(description_id));
    }
  
@@ -97,7 +97,7 @@ index f532c9e044b46..c55c424f6ffd5 100644
    return file_type;
  }
  
-@@ -540,7 +573,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -550,7 +583,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
  void FileSelectHelper::RunFileChooser(
      content::RenderFrameHost* render_frame_host,
      scoped_refptr<content::FileSelectListener> listener,
@@ -107,7 +107,7 @@ index f532c9e044b46..c55c424f6ffd5 100644
    Profile* profile = Profile::FromBrowserContext(
        render_frame_host->GetProcess()->GetBrowserContext());
  
-@@ -559,6 +593,7 @@ void FileSelectHelper::RunFileChooser(
+@@ -569,6 +603,7 @@ void FileSelectHelper::RunFileChooser(
    // message.
    scoped_refptr<FileSelectHelper> file_select_helper(
        new FileSelectHelper(profile));
@@ -115,7 +115,7 @@ index f532c9e044b46..c55c424f6ffd5 100644
    file_select_helper->RunFileChooser(render_frame_host, std::move(listener),
                                       params.Clone());
  }
-@@ -612,7 +647,8 @@ void FileSelectHelper::RunFileChooser(
+@@ -622,7 +657,8 @@ void FileSelectHelper::RunFileChooser(
  }
  
  void FileSelectHelper::GetFileTypesInThreadPool(FileChooserParamsPtr params) {
@@ -126,10 +126,10 @@ index f532c9e044b46..c55c424f6ffd5 100644
        params->need_local_path ? ui::SelectFileDialog::FileTypeInfo::NATIVE_PATH
                                : ui::SelectFileDialog::FileTypeInfo::ANY_PATH;
 diff --git chrome/browser/file_select_helper.h chrome/browser/file_select_helper.h
-index 8c86774e6d279..b634ed1056b4f 100644
+index a1fff2a47d227..033271beb8b4c 100644
 --- chrome/browser/file_select_helper.h
 +++ chrome/browser/file_select_helper.h
-@@ -65,7 +65,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
+@@ -64,7 +64,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
    static void RunFileChooser(
        content::RenderFrameHost* render_frame_host,
        scoped_refptr<content::FileSelectListener> listener,
@@ -139,7 +139,7 @@ index 8c86774e6d279..b634ed1056b4f 100644
  
    // Enumerates all the files in directory.
    static void EnumerateDirectory(
-@@ -266,7 +267,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
+@@ -267,7 +268,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
    // |accept_types| contains only valid lowercased MIME types or file extensions
    // beginning with a period (.).
    static std::unique_ptr<ui::SelectFileDialog::FileTypeInfo>
@@ -149,7 +149,7 @@ index 8c86774e6d279..b634ed1056b4f 100644
  
    // Check the accept type is valid. It is expected to be all lower case with
    // no whitespace.
-@@ -331,6 +333,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
+@@ -332,6 +334,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
    // Set to false in unit tests since there is no WebContents.
    bool abort_on_missing_web_contents_in_tests_ = true;
  
@@ -157,10 +157,10 @@ index 8c86774e6d279..b634ed1056b4f 100644
 +  bool run_from_cef_ = false;
 +
  #if BUILDFLAG(IS_CHROMEOS_ASH)
-   // DlpFilesController is responsible for checking whether any of the selected
-   // files is restricted according to the DataLeakPrevention policy.
+   base::WeakPtrFactory<FileSelectHelper> weak_ptr_factory_{this};
+ #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
 diff --git chrome/browser/ui/chrome_select_file_policy.h chrome/browser/ui/chrome_select_file_policy.h
-index 2cf473c35b67a..e3552bd0f17d4 100644
+index e4dc653c7be45..5aeeb0b970484 100644
 --- chrome/browser/ui/chrome_select_file_policy.h
 +++ chrome/browser/ui/chrome_select_file_policy.h
 @@ -30,6 +30,8 @@ class ChromeSelectFilePolicy : public ui::SelectFilePolicy {
@@ -173,7 +173,7 @@ index 2cf473c35b67a..e3552bd0f17d4 100644
    raw_ptr<content::WebContents> source_contents_;
  };
 diff --git ui/shell_dialogs/execute_select_file_win.cc ui/shell_dialogs/execute_select_file_win.cc
-index 024b691522a6d..22bc54db8e4aa 100644
+index 9243e4a7fb736..e56605fca4e2d 100644
 --- ui/shell_dialogs/execute_select_file_win.cc
 +++ ui/shell_dialogs/execute_select_file_win.cc
 @@ -286,9 +286,7 @@ bool ExecuteSelectSingleFile(HWND owner,
@@ -225,7 +225,7 @@ index 024b691522a6d..22bc54db8e4aa 100644
          paths.push_back(std::move(path));
        }
 diff --git ui/shell_dialogs/select_file_dialog.cc ui/shell_dialogs/select_file_dialog.cc
-index a622d465ab9e9..b5c11c3117738 100644
+index 9b466a0bbe8b5..4c2c336d6f397 100644
 --- ui/shell_dialogs/select_file_dialog.cc
 +++ ui/shell_dialogs/select_file_dialog.cc
 @@ -64,8 +64,10 @@ void SelectFileDialog::SetFactory(ui::SelectFileDialogFactory* factory) {
@@ -242,7 +242,7 @@ index a622d465ab9e9..b5c11c3117738 100644
    return CreateSelectFileDialog(listener, std::move(policy));
  }
 diff --git ui/shell_dialogs/select_file_dialog.h ui/shell_dialogs/select_file_dialog.h
-index 957ef752be4ba..061a415fd5c36 100644
+index 45989e4982d49..05675d1d96350 100644
 --- ui/shell_dialogs/select_file_dialog.h
 +++ ui/shell_dialogs/select_file_dialog.h
 @@ -111,7 +111,8 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
@@ -297,7 +297,7 @@ index 957ef752be4ba..061a415fd5c36 100644
  
  SelectFileDialog* CreateSelectFileDialog(
 diff --git ui/shell_dialogs/select_file_dialog_factory.h ui/shell_dialogs/select_file_dialog_factory.h
-index 567f50de40b04..1fbac69307bdc 100644
+index d861d1d86c957..6167e0a5b549f 100644
 --- ui/shell_dialogs/select_file_dialog_factory.h
 +++ ui/shell_dialogs/select_file_dialog_factory.h
 @@ -24,6 +24,8 @@ class SHELL_DIALOGS_EXPORT SelectFileDialogFactory {
@@ -310,7 +310,7 @@ index 567f50de40b04..1fbac69307bdc 100644
  
  }  // namespace ui
 diff --git ui/shell_dialogs/select_file_dialog_mac.mm ui/shell_dialogs/select_file_dialog_mac.mm
-index 605c2278407ce..26ca067d32720 100644
+index 14f26f55dad2f..db4b7d96243db 100644
 --- ui/shell_dialogs/select_file_dialog_mac.mm
 +++ ui/shell_dialogs/select_file_dialog_mac.mm
 @@ -100,6 +100,10 @@ void SelectFileDialogImpl::SelectFileImpl(
@@ -325,10 +325,10 @@ index 605c2278407ce..26ca067d32720 100644
          std::make_unique<remote_cocoa::SelectFileDialogBridge>(ns_window),
          std::move(receiver));
 diff --git ui/shell_dialogs/select_file_dialog_win.cc ui/shell_dialogs/select_file_dialog_win.cc
-index cf1fee6c8b770..287e9b3ace7cd 100644
+index a1b7af0abde64..4998abc1fb52f 100644
 --- ui/shell_dialogs/select_file_dialog_win.cc
 +++ ui/shell_dialogs/select_file_dialog_win.cc
-@@ -250,6 +250,8 @@ void SelectFileDialogImpl::SelectFileImpl(
+@@ -249,6 +249,8 @@ void SelectFileDialogImpl::SelectFileImpl(
    HWND owner = owning_window && owning_window->GetRootWindow()
                     ? owning_window->GetHost()->GetAcceleratedWidget()
                     : nullptr;

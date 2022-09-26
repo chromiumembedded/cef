@@ -1,5 +1,5 @@
 diff --git ui/shell_dialogs/base_shell_dialog_win.cc ui/shell_dialogs/base_shell_dialog_win.cc
-index b8ef380ab0059..fc90b5ce0e6d4 100644
+index aa20fab454512..f9f814b59ce65 100644
 --- ui/shell_dialogs/base_shell_dialog_win.cc
 +++ ui/shell_dialogs/base_shell_dialog_win.cc
 @@ -58,11 +58,15 @@ BaseShellDialogImpl::Owners& BaseShellDialogImpl::GetOwners() {

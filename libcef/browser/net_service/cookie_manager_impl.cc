@@ -130,8 +130,8 @@ void CefCookieManagerImpl::Initialize(
 
   initialized_ = true;
   if (!init_callbacks_.empty()) {
-    for (auto& callback : init_callbacks_) {
-      std::move(callback).Run();
+    for (auto& init_callback : init_callbacks_) {
+      std::move(init_callback).Run();
     }
     init_callbacks_.clear();
   }

@@ -18,7 +18,7 @@
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/ssl_host_state_delegate.h"
 #include "content/public/common/child_process_host.h"
-#include "mojo/public/cpp/bindings/pending_receiver.h"
+#include "mojo/public/cpp/bindings/receiver.h"
 #include "mojo/public/cpp/bindings/remote.h"
 #include "net/dns/host_resolver.h"
 #include "services/network/public/cpp/resolve_host_client_base.h"
@@ -66,23 +66,25 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
     CEF_REQUIRE_UIT();
 
     browser_context->GetNetworkContext()->CreateHostResolver(
-        absl::nullopt, host_resolver_.BindNewPipeAndPassReceiver());
+        net::DnsConfigOverrides(), host_resolver_.BindNewPipeAndPassReceiver());
 
     host_resolver_.set_disconnect_handler(base::BindOnce(
         &ResolveHostHelper::OnComplete, base::Unretained(this), net::ERR_FAILED,
-        net::ResolveErrorInfo(net::ERR_FAILED), absl::nullopt));
+        net::ResolveErrorInfo(net::ERR_FAILED), absl::nullopt, absl::nullopt));
 
     host_resolver_->ResolveHost(
-        net::HostPortPair::FromURL(GURL(origin.ToString())),
+        network::mojom::HostResolverHost::NewHostPortPair(
+            net::HostPortPair::FromURL(GURL(origin.ToString()))),
         net::NetworkIsolationKey::CreateTransient(), nullptr,
         receiver_.BindNewPipeAndPassRemote());
   }
 
  private:
-  void OnComplete(
-      int32_t result,
-      const ::net::ResolveErrorInfo& resolve_error_info,
-      const absl::optional<net::AddressList>& resolved_addresses) override {
+  void OnComplete(int result,
+                  const net::ResolveErrorInfo& resolve_error_info,
+                  const absl::optional<net::AddressList>& resolved_addresses,
+                  const absl::optional<net::HostResolverEndpointResults>&
+                      endpoint_results_with_metadat) override {
     CEF_REQUIRE_UIT();
 
     host_resolver_.reset();
@@ -90,9 +92,9 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
 
     std::vector<CefString> resolved_ips;
 
-    if (result == net::OK) {
-      DCHECK(resolved_addresses && !resolved_addresses->empty());
-      for (const auto& value : resolved_addresses.value()) {
+    if (result == net::OK && resolved_addresses.has_value()) {
+      DCHECK(!resolved_addresses->empty());
+      for (const auto& value : *resolved_addresses) {
         resolved_ips.push_back(value.ToStringWithoutPort());
       }
     }
@@ -105,7 +107,7 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
   CefRefPtr<CefResolveCallback> callback_;
 
   mojo::Remote<network::mojom::HostResolver> host_resolver_;
-  mojo::Receiver<network::mojom::ResolveHostClient> receiver_;
+  mojo::Receiver<network::mojom::ResolveHostClient> receiver_{this};
 };
 
 }  // namespace

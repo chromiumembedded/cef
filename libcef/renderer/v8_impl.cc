@@ -2003,8 +2003,8 @@ bool CefV8ValueImpl::SetValue(const CefString& key,
       return false;
     }
 
-    v8::Local<v8::Value> value = handle_->GetNewV8Handle(false);
-    v8::Local<v8::Object> obj = value->ToObject(context).ToLocalChecked();
+    v8::Local<v8::Value> v8value = handle_->GetNewV8Handle(false);
+    v8::Local<v8::Object> obj = v8value->ToObject(context).ToLocalChecked();
 
     v8::TryCatch try_catch(isolate);
     try_catch.SetVerbose(true);
@@ -2047,8 +2047,8 @@ bool CefV8ValueImpl::SetValue(int index, CefRefPtr<CefV8Value> value) {
       return false;
     }
 
-    v8::Local<v8::Value> value = handle_->GetNewV8Handle(false);
-    v8::Local<v8::Object> obj = value->ToObject(context).ToLocalChecked();
+    v8::Local<v8::Value> v8value = handle_->GetNewV8Handle(false);
+    v8::Local<v8::Object> obj = v8value->ToObject(context).ToLocalChecked();
 
     v8::TryCatch try_catch(isolate);
     try_catch.SetVerbose(true);
@@ -2121,10 +2121,10 @@ bool CefV8ValueImpl::GetKeys(std::vector<CefString>& keys) {
 
   uint32_t len = arr_keys->Length();
   for (uint32_t i = 0; i < len; ++i) {
-    v8::Local<v8::Value> value =
+    v8::Local<v8::Value> arr_value =
         arr_keys->Get(context, v8::Integer::New(isolate, i)).ToLocalChecked();
     CefString str;
-    GetCefString(isolate, value->ToString(context).ToLocalChecked(), str);
+    GetCefString(isolate, arr_value->ToString(context).ToLocalChecked(), str);
     keys.push_back(str);
   }
   return true;

@@ -32,13 +32,13 @@ const int64_t kNewBrowserInfoResponseTimeoutMs = 2000;
 
 void TranslatePopupFeatures(const blink::mojom::WindowFeatures& webKitFeatures,
                             CefPopupFeatures& features) {
-  features.x = static_cast<int>(webKitFeatures.x);
+  features.x = static_cast<int>(webKitFeatures.bounds.x());
   features.xSet = webKitFeatures.has_x;
-  features.y = static_cast<int>(webKitFeatures.y);
+  features.y = static_cast<int>(webKitFeatures.bounds.y());
   features.ySet = webKitFeatures.has_y;
-  features.width = static_cast<int>(webKitFeatures.width);
+  features.width = static_cast<int>(webKitFeatures.bounds.width());
   features.widthSet = webKitFeatures.has_width;
-  features.height = static_cast<int>(webKitFeatures.height);
+  features.height = static_cast<int>(webKitFeatures.bounds.height());
   features.heightSet = webKitFeatures.has_height;
 
   features.menuBarVisible = webKitFeatures.menu_bar_visible;

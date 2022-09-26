@@ -13,7 +13,7 @@
 
 namespace {
 
-media::ChannelLayout TranslateChannelLayout(
+media::ChannelLayoutConfig TranslateChannelLayout(
     cef_channel_layout_t channel_layout) {
   // Verify that our enum matches Chromium's values. The enum values match
   // between those enums and existing values don't ever change, so it's enough
@@ -22,7 +22,9 @@ media::ChannelLayout TranslateChannelLayout(
       static_cast<int>(CEF_CHANNEL_LAYOUT_MAX) ==
           static_cast<int>(media::CHANNEL_LAYOUT_MAX),
       "cef_channel_layout_t must match the ChannelLayout enum in Chromium");
-  return static_cast<media::ChannelLayout>(channel_layout);
+
+  const auto layout = static_cast<media::ChannelLayout>(channel_layout);
+  return {layout, media::ChannelLayoutToChannelCount(layout)};
 }
 
 void StreamCreatorHelper(

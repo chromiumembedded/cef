@@ -1,5 +1,5 @@
 diff --git printing/printing_context_linux.cc printing/printing_context_linux.cc
-index c8673eaee484b..d7026cd38df11 100644
+index 83211e80d8270..9ce9b37375762 100644
 --- printing/printing_context_linux.cc
 +++ printing/printing_context_linux.cc
 @@ -25,6 +25,12 @@
@@ -80,7 +80,7 @@ index c8673eaee484b..d7026cd38df11 100644
    return mojom::ResultCode::kSuccess;
  }
 diff --git printing/printing_context_linux.h printing/printing_context_linux.h
-index 0e2f451ac050f..3faa2a3dff79d 100644
+index 6fb35248ec459..3be9c29c7ebf9 100644
 --- printing/printing_context_linux.h
 +++ printing/printing_context_linux.h
 @@ -16,6 +16,20 @@ namespace printing {
@@ -105,7 +105,7 @@ index 0e2f451ac050f..3faa2a3dff79d 100644
  // PrintingContext with optional native UI for print dialog and pdf_paper_size.
  class COMPONENT_EXPORT(PRINTING) PrintingContextLinux : public PrintingContext {
 diff --git tools/v8_context_snapshot/BUILD.gn tools/v8_context_snapshot/BUILD.gn
-index a06eae4ab3217..43851307c531f 100644
+index 33a147bd79fd1..01f573e30395e 100644
 --- tools/v8_context_snapshot/BUILD.gn
 +++ tools/v8_context_snapshot/BUILD.gn
 @@ -106,6 +106,7 @@ if (use_v8_context_snapshot) {
@@ -117,25 +117,25 @@ index a06eae4ab3217..43851307c531f 100644
          "//third_party/blink/public:blink",
          "//v8",
 diff --git ui/linux/linux_ui.cc ui/linux/linux_ui.cc
-index ec285b1637e57..1f9a4556c4a03 100644
+index fc0ab170837bf..3d8c437ee4733 100644
 --- ui/linux/linux_ui.cc
 +++ ui/linux/linux_ui.cc
-@@ -28,6 +28,10 @@ namespace ui {
+@@ -23,6 +23,10 @@ LinuxUi* g_linux_ui = nullptr;
+ 
  // static
- std::unique_ptr<LinuxUi> LinuxUi::SetInstance(
-     std::unique_ptr<LinuxUi> instance) {
+ LinuxUi* LinuxUi::SetInstance(LinuxUi* instance) {
 +#if BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_PRINTING)
-+  printing::PrintingContextLinuxDelegate::SetInstance(instance.get());
++  printing::PrintingContextLinuxDelegate::SetInstance(instance);
 +#endif
 +
-   return std::exchange(GetLinuxUiInstance(), std::move(instance));
+   return std::exchange(g_linux_ui, instance);
  }
  
 diff --git ui/linux/linux_ui.h ui/linux/linux_ui.h
-index dee97740309e2..1e034b5e2e9ec 100644
+index 4c5e4e19fc94c..2bfcd7d11ea21 100644
 --- ui/linux/linux_ui.h
 +++ ui/linux/linux_ui.h
-@@ -18,6 +18,10 @@
+@@ -17,6 +17,10 @@
  #include "build/chromecast_buildflags.h"
  #include "printing/buildflags/buildflags.h"
  
@@ -146,7 +146,7 @@ index dee97740309e2..1e034b5e2e9ec 100644
  // The main entrypoint into Linux toolkit specific code. GTK/QT code should only
  // be executed behind this interface.
  
-@@ -59,7 +63,11 @@ class WindowFrameProvider;
+@@ -61,7 +65,11 @@ class WindowFrameProvider;
  
  // Adapter class with targets to render like different toolkits. Set by any
  // project that wants to do linux desktop native rendering.
@@ -157,9 +157,9 @@ index dee97740309e2..1e034b5e2e9ec 100644
 +#endif
 + {
   public:
-   using UseSystemThemeCallback =
-       base::RepeatingCallback<bool(aura::Window* window)>;
-@@ -180,14 +188,6 @@ class COMPONENT_EXPORT(LINUX_UI) LinuxUi {
+   LinuxUi(const LinuxUi&) = delete;
+   LinuxUi& operator=(const LinuxUi&) = delete;
+@@ -111,14 +119,6 @@ class COMPONENT_EXPORT(LINUX_UI) LinuxUi {
    // Returns a map of KeyboardEvent code to KeyboardEvent key values.
    virtual base::flat_map<std::string, std::string> GetKeyboardLayoutMap() = 0;
  

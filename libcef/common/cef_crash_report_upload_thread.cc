@@ -14,8 +14,9 @@ CefCrashReportUploadThread::CefCrashReportUploadThread(
     CrashReportDatabase* database,
     const std::string& url,
     const Options& options,
+    ProcessPendingReportsObservationCallback callback,
     int max_uploads)
-    : CrashReportUploadThread(database, url, options),
+    : CrashReportUploadThread(database, url, options, std::move(callback)),
       max_uploads_(max_uploads) {}
 
 CefCrashReportUploadThread::~CefCrashReportUploadThread() {}

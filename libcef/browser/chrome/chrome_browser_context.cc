@@ -58,15 +58,19 @@ void ChromeBrowserContext::InitializeAsync(base::OnceClosure initialized_cb) {
     if (cache_path_ == user_data_dir) {
       // Use the default disk-based profile.
       auto profile = profile_manager->GetPrimaryUserProfile();
-      ProfileCreated(profile, Profile::CreateStatus::CREATE_STATUS_INITIALIZED);
+      ProfileCreated(Profile::CreateStatus::CREATE_STATUS_INITIALIZED, profile);
       return;
     } else if (cache_path_.DirName() == user_data_dir) {
       // Create or load a specific disk-based profile. May continue
       // synchronously or asynchronously.
       profile_manager->CreateProfileAsync(
           cache_path_,
-          base::BindRepeating(&ChromeBrowserContext::ProfileCreated,
-                              weak_ptr_factory_.GetWeakPtr()));
+          base::BindOnce(&ChromeBrowserContext::ProfileCreated,
+                         weak_ptr_factory_.GetWeakPtr(),
+                         Profile::CreateStatus::CREATE_STATUS_INITIALIZED),
+          base::BindOnce(&ChromeBrowserContext::ProfileCreated,
+                         weak_ptr_factory_.GetWeakPtr(),
+                         Profile::CreateStatus::CREATE_STATUS_CREATED));
       return;
     } else {
       // All profile directories must be relative to |user_data_dir|.
@@ -76,7 +80,7 @@ void ChromeBrowserContext::InitializeAsync(base::OnceClosure initialized_cb) {
   }
 
   // Default to creating a new/unique OffTheRecord profile.
-  ProfileCreated(nullptr, Profile::CreateStatus::CREATE_STATUS_LOCAL_FAIL);
+  ProfileCreated(Profile::CreateStatus::CREATE_STATUS_LOCAL_FAIL, nullptr);
 }
 
 void ChromeBrowserContext::Shutdown() {
@@ -98,8 +102,8 @@ void ChromeBrowserContext::Shutdown() {
   }
 }
 
-void ChromeBrowserContext::ProfileCreated(Profile* profile,
-                                          Profile::CreateStatus status) {
+void ChromeBrowserContext::ProfileCreated(Profile::CreateStatus status,
+                                          Profile* profile) {
   Profile* parent_profile = nullptr;
   OffTheRecordProfileImpl* otr_profile = nullptr;
 

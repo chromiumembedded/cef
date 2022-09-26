@@ -28,6 +28,12 @@ class LayoutProvider;
 #endif
 }  // namespace views
 
+#if BUILDFLAG(IS_LINUX)
+namespace ui {
+class LinuxUiGetter;
+}
+#endif
+
 class CefDevToolsDelegate;
 
 class AlloyBrowserMainParts : public content::BrowserMainParts {
@@ -88,6 +94,10 @@ class AlloyBrowserMainParts : public content::BrowserMainParts {
 #if BUILDFLAG(IS_MAC)
   std::unique_ptr<display::ScopedNativeScreen> screen_;
   std::unique_ptr<views::LayoutProvider> layout_provider_;
+#endif
+
+#if BUILDFLAG(IS_LINUX)
+  std::unique_ptr<ui::LinuxUiGetter> linux_ui_getter_;
 #endif
 };
 

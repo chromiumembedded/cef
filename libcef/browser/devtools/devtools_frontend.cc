@@ -483,7 +483,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
   } else if (*method == "getPreferences") {
     SendMessageAck(
         request_id,
-        GetPrefs()->GetDictionary(prefs::kDevToolsPreferences)->Clone());
+        base::Value(GetPrefs()->GetDict(prefs::kDevToolsPreferences).Clone()));
     return;
   } else if (*method == "setPreference") {
     if (params.size() < 2)

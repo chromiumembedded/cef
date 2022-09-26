@@ -1,5 +1,5 @@
 diff --git chrome/utility/chrome_content_utility_client.cc chrome/utility/chrome_content_utility_client.cc
-index 0d7e6405b1a23..123ae4af7ec69 100644
+index c55bfb810c950..2137956d18b19 100644
 --- chrome/utility/chrome_content_utility_client.cc
 +++ chrome/utility/chrome_content_utility_client.cc
 @@ -13,6 +13,7 @@
@@ -19,4 +19,4 @@ index 0d7e6405b1a23..123ae4af7ec69 100644
 +      !cef::IsAlloyRuntimeEnabled()) {
      // The HeapProfilerController should have been created in
      // ChromeMainDelegate::PostEarlyInitialization.
-     DCHECK_NE(HeapProfilerController::GetProfilingEnabled(),
+     using HeapProfilerController = heap_profiling::HeapProfilerController;

@@ -1,5 +1,5 @@
 diff --git content/public/browser/web_ui_controller_factory.h content/public/browser/web_ui_controller_factory.h
-index eb068fb9bb42c..4e8e6a1a7abf4 100644
+index 9d9c17ffd6474..4eb79c65369af 100644
 --- content/public/browser/web_ui_controller_factory.h
 +++ content/public/browser/web_ui_controller_factory.h
 @@ -47,9 +47,6 @@ class CONTENT_EXPORT WebUIControllerFactory {
@@ -13,7 +13,7 @@ index eb068fb9bb42c..4e8e6a1a7abf4 100644
  };
  
 diff --git content/public/browser/webui_config_map.h content/public/browser/webui_config_map.h
-index 51eb1f14fd684..31ceb131d0290 100644
+index 19777632921fc..a22db4c49fd84 100644
 --- content/public/browser/webui_config_map.h
 +++ content/public/browser/webui_config_map.h
 @@ -60,6 +60,10 @@ class CONTENT_EXPORT WebUIConfigMap {

@@ -131,7 +131,7 @@ void CefBrowserPlatformDelegateAlloy::AddNewContents(
     std::unique_ptr<content::WebContents> new_contents,
     const GURL& target_url,
     WindowOpenDisposition disposition,
-    const gfx::Rect& initial_rect,
+    const blink::mojom::WindowFeatures& window_features,
     bool user_gesture,
     bool* was_blocked) {
   REQUIRE_ALLOY_RUNTIME();
@@ -149,7 +149,7 @@ void CefBrowserPlatformDelegateAlloy::AddNewContents(
 
   if (extension_host_) {
     extension_host_->AddNewContents(source, std::move(new_contents), target_url,
-                                    disposition, initial_rect, user_gesture,
+                                    disposition, window_features, user_gesture,
                                     was_blocked);
   }
 }

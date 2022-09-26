@@ -8,7 +8,6 @@
 #pragma once
 
 #include "content/public/common/content_client.h"
-#include "content/public/common/pepper_plugin_info.h"
 
 class AlloyContentClient : public content::ContentClient {
  public:
@@ -16,8 +15,7 @@ class AlloyContentClient : public content::ContentClient {
   ~AlloyContentClient() override;
 
   // content::ContentClient overrides.
-  void AddPepperPlugins(
-      std::vector<content::PepperPluginInfo>* plugins) override;
+  void AddPlugins(std::vector<content::ContentPluginInfo>* plugins) override;
   void AddContentDecryptionModules(
       std::vector<content::CdmInfo>* cdms,
       std::vector<media::CdmHostFilePath>* cdm_host_file_paths) override;
@@ -30,11 +28,6 @@ class AlloyContentClient : public content::ContentClient {
       ui::ResourceScaleFactor scale_factor) override;
   base::RefCountedMemory* GetDataResourceBytes(int resource_id) override;
   gfx::Image& GetNativeImageNamed(int resource_id) override;
-
-  static void SetPDFEntryFunctions(
-      content::PepperPluginInfo::GetInterfaceFunc get_interface,
-      content::PepperPluginInfo::PPP_InitializeModuleFunc initialize_module,
-      content::PepperPluginInfo::PPP_ShutdownModuleFunc shutdown_module);
 };
 
 #endif  // CEF_LIBCEF_COMMON_ALLOY_ALLOY_CONTENT_CLIENT_H_

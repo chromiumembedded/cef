@@ -545,9 +545,9 @@ void CefServerImpl::StartOnHandlerThread(const std::string& address,
   if (socket->ListenWithAddressAndPort(address, port, backlog) == net::OK) {
     server_.reset(new net::HttpServer(std::move(socket), this));
 
-    net::IPEndPoint address;
-    if (server_->GetLocalAddress(&address) == net::OK)
-      address_ = address.ToString();
+    net::IPEndPoint ip_address;
+    if (server_->GetLocalAddress(&ip_address) == net::OK)
+      address_ = ip_address.ToString();
   }
 
   handler_->OnServerCreated(this);

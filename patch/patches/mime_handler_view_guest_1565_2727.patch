@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index c046e7f8ba347..e7b627c573e48 100644
+index 031dd5eeaef8e..25c2f0e42e22b 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
 @@ -25,7 +25,7 @@ struct DropData;
@@ -12,7 +12,7 @@ index c046e7f8ba347..e7b627c573e48 100644
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 75a2534e3be71..4ae51c0f7d5cf 100644
+index 6e0cb46a6b913..2c10a5f9acfb4 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 @@ -225,6 +225,8 @@ void MimeHandlerViewGuest::CreateWebContents(
@@ -48,7 +48,7 @@ index 75a2534e3be71..4ae51c0f7d5cf 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index 26dc86a7534d9..7fd27ebf28dd2 100644
+index 33bb494fb68d1..9236cf3fd98bf 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 @@ -142,6 +142,7 @@ class MimeHandlerViewGuest
@@ -68,7 +68,7 @@ index 26dc86a7534d9..7fd27ebf28dd2 100644
    bool is_embedder_fullscreen_ = false;
    bool plugin_can_save_ = false;
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
-index 3aaeab0baf51e..4f818abde1c1a 100644
+index 7f59e7925084e..777b8a3cf103a 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 @@ -7,6 +7,8 @@

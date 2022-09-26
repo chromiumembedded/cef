@@ -1214,9 +1214,9 @@ class OSRTestHandler : public RoutingTestHandler,
       // test only that it falls within the rect boundaries.
       CefPoint hotspot = drag_data->GetImageHotspot();
       EXPECT_GT(hotspot.x, 0);
-      EXPECT_LT(hotspot.x, GetScaledInt(dragdiv.width));
+      EXPECT_LE(hotspot.x, GetScaledInt(dragdiv.width));
       EXPECT_GT(hotspot.y, 0);
-      EXPECT_LT(hotspot.y, GetScaledInt(dragdiv.height));
+      EXPECT_LE(hotspot.y, GetScaledInt(dragdiv.height));
 
       DestroySucceededTestSoon();
       return false;

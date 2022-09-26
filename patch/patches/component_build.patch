@@ -1,8 +1,8 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index ae9c0a5fe7c28..b50e36ee29ad2 100644
+index 596612c8e9757..af6b9f8e0b11f 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
-@@ -100,7 +100,7 @@ bool ApplyUserAgentMetadataOverrides(
+@@ -101,7 +101,7 @@ bool ApplyUserAgentMetadataOverrides(
      FrameTreeNode* frame_tree_node,
      absl::optional<blink::UserAgentMetadata>* override_out);
  
@@ -12,7 +12,7 @@ index ae9c0a5fe7c28..b50e36ee29ad2 100644
      bool is_navigation,
      bool is_download,
 diff --git content/browser/renderer_host/input/mouse_wheel_phase_handler.h content/browser/renderer_host/input/mouse_wheel_phase_handler.h
-index 3d8e22b048f58..4a41f15ce258c 100644
+index d69f9d4641613..e88aaf8617c52 100644
 --- content/browser/renderer_host/input/mouse_wheel_phase_handler.h
 +++ content/browser/renderer_host/input/mouse_wheel_phase_handler.h
 @@ -9,6 +9,7 @@
@@ -33,7 +33,7 @@ index 3d8e22b048f58..4a41f15ce258c 100644
    MouseWheelPhaseHandler(RenderWidgetHostViewBase* const host_view);
  
 diff --git content/browser/renderer_host/input/synthetic_gesture_target_base.h content/browser/renderer_host/input/synthetic_gesture_target_base.h
-index 3f0f719a192db..5fb3754cced7e 100644
+index c48c5c949621f..7b9194ba91514 100644
 --- content/browser/renderer_host/input/synthetic_gesture_target_base.h
 +++ content/browser/renderer_host/input/synthetic_gesture_target_base.h
 @@ -9,6 +9,7 @@
@@ -55,7 +55,7 @@ index 3f0f719a192db..5fb3754cced7e 100644
    explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
  
 diff --git content/common/content_switches_internal.h content/common/content_switches_internal.h
-index 47eb7528594fc..dbb486a323c1c 100644
+index 97c7dc7c25000..63c42610bfd9c 100644
 --- content/common/content_switches_internal.h
 +++ content/common/content_switches_internal.h
 @@ -17,7 +17,7 @@ namespace content {
@@ -68,7 +68,7 @@ index 47eb7528594fc..dbb486a323c1c 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 7a0d95725d295..99fac79e105aa 100644
+index 33b07692dee48..733f15342f321 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -32,6 +32,7 @@ component("controller") {
@@ -89,7 +89,7 @@ index 7a0d95725d295..99fac79e105aa 100644
  
    if (is_linux || is_chromeos) {
 diff --git ui/events/keycodes/BUILD.gn ui/events/keycodes/BUILD.gn
-index c7fe1117512e5..44af6b52db4b4 100644
+index 9cdd599f0d739..23d1ff5cc30fc 100644
 --- ui/events/keycodes/BUILD.gn
 +++ ui/events/keycodes/BUILD.gn
 @@ -19,6 +19,8 @@ source_set("xkb") {
@@ -102,7 +102,7 @@ index c7fe1117512e5..44af6b52db4b4 100644
      "//base",
      "//build:chromeos_buildflags",
 diff --git ui/events/keycodes/keyboard_code_conversion_xkb.h ui/events/keycodes/keyboard_code_conversion_xkb.h
-index e1fefa4cead9e..8213402ff263d 100644
+index 5693e3a1c4bc4..88c0cc6d59098 100644
 --- ui/events/keycodes/keyboard_code_conversion_xkb.h
 +++ ui/events/keycodes/keyboard_code_conversion_xkb.h
 @@ -9,6 +9,7 @@

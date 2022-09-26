@@ -38,7 +38,7 @@ class ChromeBrowserContext : public CefBrowserContext, public ProfileObserver {
  private:
   ~ChromeBrowserContext() override;
 
-  void ProfileCreated(Profile* profile, Profile::CreateStatus status);
+  void ProfileCreated(Profile::CreateStatus status, Profile* profile);
 
   base::OnceClosure initialized_cb_;
   Profile* profile_ = nullptr;

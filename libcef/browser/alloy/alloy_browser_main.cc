@@ -29,7 +29,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/media/router/chrome_media_router_factory.h"
 #include "chrome/browser/net/system_network_context_manager.h"
-#include "chrome/browser/plugins/plugin_finder.h"
 #include "chrome/browser/ui/javascript_dialogs/chrome_javascript_app_modal_dialog_view_factory.h"
 #include "chrome/browser/ui/ui_features.h"
 #include "chrome/common/chrome_switches.h"
@@ -91,6 +90,7 @@
 #include "ui/linux/linux_ui.h"
 #include "ui/linux/linux_ui_delegate.h"
 #include "ui/linux/linux_ui_factory.h"
+#include "ui/linux/linux_ui_getter.h"
 #include "ui/ozone/public/ozone_platform.h"
 #endif  // BUILDFLAG(IS_LINUX)
 
@@ -106,7 +106,20 @@ namespace {
 
 #if BUILDFLAG(IS_LINUX)
 
-std::unique_ptr<ui::LinuxUi> BuildLinuxUI() {
+class LinuxUiGetterImpl : public ui::LinuxUiGetter {
+ public:
+  LinuxUiGetterImpl() = default;
+  ~LinuxUiGetterImpl() override = default;
+  ui::LinuxUiTheme* GetForWindow(aura::Window* window) override {
+    return window ? GetForProfile(GetThemeProfileForWindow(window)) : nullptr;
+  }
+  ui::LinuxUiTheme* GetForProfile(Profile* profile) override {
+    return ui::GetLinuxUiTheme(
+        ThemeServiceAuraLinux::GetSystemThemeForProfile(profile));
+  }
+};
+
+ui::LinuxUi* GetLinuxUI() {
   // We can't use GtkUi in combination with multi-threaded-message-loop because
   // Chromium's GTK implementation doesn't use GDK threads.
   if (!!CefContext::Get()->settings().multi_threaded_message_loop)
@@ -117,31 +130,7 @@ std::unique_ptr<ui::LinuxUi> BuildLinuxUI() {
   if (!ui::LinuxUiDelegate::GetInstance())
     return nullptr;
 
-  return ui::CreateLinuxUi();
-}
-
-// Based on chrome_browser_main_extra_parts_views_linux.cc
-void ToolkitInitializedLinux() {
-  if (auto linux_ui = BuildLinuxUI()) {
-    linux_ui->SetUseSystemThemeCallback(
-        base::BindRepeating([](aura::Window* window) {
-          if (!window)
-            return true;
-          return ThemeServiceAuraLinux::ShouldUseSystemThemeForProfile(
-              GetThemeProfileForWindow(window));
-        }));
-
-    ui::LinuxUi::SetInstance(std::move(linux_ui));
-
-    // Cursor theme changes are tracked by LinuxUI (via a CursorThemeManager
-    // implementation). Start observing them once it's initialized.
-    ui::CursorFactory::GetInstance()->ObserveThemeChanges();
-  }
-
-  auto printing_delegate = new CefPrintingContextLinuxDelegate();
-  auto default_delegate =
-      printing::PrintingContextLinuxDelegate::SetInstance(printing_delegate);
-  printing_delegate->SetDefaultDelegate(default_delegate);
+  return ui::GetDefaultLinuxUi();
 }
 
 #endif  // BUILDFLAG(IS_LINUX)
@@ -170,8 +159,21 @@ void AlloyBrowserMainParts::ToolkitInitialized() {
 #endif
 
 #if BUILDFLAG(IS_LINUX)
-  ToolkitInitializedLinux();
-#endif
+  // Based on chrome_browser_main_extra_parts_views_linux.cc
+  if (auto linux_ui = GetLinuxUI()) {
+    linux_ui_getter_ = std::make_unique<LinuxUiGetterImpl>();
+    ui::LinuxUi::SetInstance(linux_ui);
+
+    // Cursor theme changes are tracked by LinuxUI (via a CursorThemeManager
+    // implementation). Start observing them once it's initialized.
+    ui::CursorFactory::GetInstance()->ObserveThemeChanges();
+  }
+
+  auto printing_delegate = new CefPrintingContextLinuxDelegate();
+  auto default_delegate =
+      printing::PrintingContextLinuxDelegate::SetInstance(printing_delegate);
+  printing_delegate->SetDefaultDelegate(default_delegate);
+#endif  // BUILDFLAG(IS_LINUX)
 
 #if BUILDFLAG(IS_MAC)
   if (base::FeatureList::IsEnabled(features::kViewsJSAppModalDialog))
@@ -298,9 +300,6 @@ int AlloyBrowserMainParts::PreMainMessageLoopRun() {
   base::IsManagedDevice();
   base::IsEnterpriseDevice();
 #endif  // BUILDFLAG(IS_WIN)
-
-  // Triggers initialization of the singleton instance on UI thread.
-  PluginFinder::GetInstance();
 
   scheme::RegisterWebUIControllerFactory();
   file_dialog_runner::RegisterFactory();

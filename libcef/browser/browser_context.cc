@@ -55,9 +55,11 @@ class ImplManager {
   void RemoveImpl(CefBrowserContext* impl, const base::FilePath& path) {
     CEF_REQUIRE_UIT();
 
-    Vector::iterator it = GetImplPos(impl);
-    DCHECK(it != all_.end());
-    all_.erase(it);
+    {
+      Vector::iterator it = GetImplPos(impl);
+      DCHECK(it != all_.end());
+      all_.erase(it);
+    }
 
     if (!path.empty()) {
       PathMap::iterator it = map_.find(path);

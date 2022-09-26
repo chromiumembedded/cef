@@ -98,35 +98,35 @@ class CefExtensionFunctionDetails {
     OpenTabParams();
     ~OpenTabParams();
 
-    std::unique_ptr<int> window_id;
-    std::unique_ptr<int> opener_tab_id;
-    std::unique_ptr<std::string> url;
-    std::unique_ptr<bool> active;
-    std::unique_ptr<bool> pinned;
-    std::unique_ptr<int> index;
+    bool create_browser_if_needed = false;
+    absl::optional<int> window_id;
+    absl::optional<int> opener_tab_id;
+    absl::optional<std::string> url;
+    absl::optional<bool> active;
+    absl::optional<bool> pinned;
+    absl::optional<int> index;
+    absl::optional<int> bookmark_id;
   };
 
   // Opens a new tab given creation parameters |params|. Returns a Tab object
   // if successful, or NULL and optionally sets |error_message| if an error
   // occurs.
-  base::DictionaryValue* OpenTab(const OpenTabParams& params,
-                                 bool user_gesture,
-                                 std::string* error_message) const;
+  std::unique_ptr<api::tabs::Tab> OpenTab(const OpenTabParams& params,
+                                          bool user_gesture,
+                                          std::string* error_message) const;
 
   // Creates a Tab object (see chrome/common/extensions/api/tabs.json) with
   // information about the state of a browser tab. Depending on the
   // permissions of the extension, the object may or may not include sensitive
   // data such as the tab's URL.
-  std::unique_ptr<api::tabs::Tab> CreateTabObject(
-      CefRefPtr<AlloyBrowserHostImpl> new_browser,
-      int opener_browser_id,
-      bool active,
-      int index) const;
+  api::tabs::Tab CreateTabObject(CefRefPtr<AlloyBrowserHostImpl> new_browser,
+                                 int opener_browser_id,
+                                 bool active,
+                                 int index) const;
 
   // Creates a tab MutedInfo object (see chrome/common/extensions/api/tabs.json)
   // with information about the mute state of a browser tab.
-  static std::unique_ptr<api::tabs::MutedInfo> CreateMutedInfo(
-      content::WebContents* contents);
+  static api::tabs::MutedInfo CreateMutedInfo(content::WebContents* contents);
 
   // Returns a pointer to the associated ExtensionFunction
   ExtensionFunction* function() { return function_; }

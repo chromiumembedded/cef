@@ -8,6 +8,7 @@
 #include "libcef/renderer/extensions/extensions_dispatcher_delegate.h"
 
 #include "base/stl_util.h"
+#include "base/types/optional_util.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/renderer/extensions/resource_request_policy.h"
 #include "content/public/common/content_constants.h"

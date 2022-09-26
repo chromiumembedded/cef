@@ -223,11 +223,11 @@ void CefBrowserInfo::RemoveFrame(content::RenderFrameHost* host) {
     auto it2 = frame_info_set_.find(frame_info);
 
     // Explicitly Detach everything but the current main frame.
-    const auto& frame_info = *it2;
-    if (frame_info->frame_ && !frame_info->IsCurrentMainFrame()) {
-      if (frame_info->frame_->Detach(
+    const auto& other_frame_info = *it2;
+    if (other_frame_info->frame_ && !other_frame_info->IsCurrentMainFrame()) {
+      if (other_frame_info->frame_->Detach(
               CefFrameHostImpl::DetachReason::RENDER_FRAME_DELETED)) {
-        MaybeNotifyFrameDetached(browser_, frame_info->frame_);
+        MaybeNotifyFrameDetached(browser_, other_frame_info->frame_);
       }
     }
 

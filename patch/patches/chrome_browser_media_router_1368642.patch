@@ -1,0 +1,22 @@
+diff --git chrome/browser/media/router/BUILD.gn chrome/browser/media/router/BUILD.gn
+index c782ea4601eaf..5f39557b6768a 100644
+--- chrome/browser/media/router/BUILD.gn
++++ chrome/browser/media/router/BUILD.gn
+@@ -113,8 +113,6 @@ static_library("router") {
+     public_deps += [ "//components/media_router/common/mojom:logger" ]
+ 
+     sources += [
+-      "logger_list.cc",
+-      "logger_list.h",
+       "mojo/media_router_desktop.cc",
+       "mojo/media_router_desktop.h",
+       "mojo/media_router_mojo_impl.cc",
+@@ -170,6 +168,8 @@ static_library("router") {
+       "providers/wired_display/wired_display_presentation_receiver_factory.h",
+     ]
+ 
++    deps += [ ":logger_list" ]
++
+     if (is_win) {
+       sources += [
+         "mojo/media_route_provider_util_win.cc",

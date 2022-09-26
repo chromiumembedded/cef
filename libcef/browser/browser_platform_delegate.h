@@ -30,6 +30,10 @@ class WebMouseEvent;
 class WebMouseWheelEvent;
 class WebInputEvent;
 class WebTouchEvent;
+
+namespace mojom {
+class WindowFeatures;
+}
 }  // namespace blink
 
 namespace content {
@@ -114,7 +118,7 @@ class CefBrowserPlatformDelegate {
       std::unique_ptr<content::WebContents> new_contents,
       const GURL& target_url,
       WindowOpenDisposition disposition,
-      const gfx::Rect& initial_rect,
+      const blink::mojom::WindowFeatures& window_features,
       bool user_gesture,
       bool* was_blocked);
 

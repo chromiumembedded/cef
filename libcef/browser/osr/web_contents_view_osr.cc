@@ -94,6 +94,8 @@ void CefWebContentsViewOSR::TakeFocus(bool reverse) {
     web_contents_->GetDelegate()->TakeFocus(web_contents_, reverse);
 }
 
+void CefWebContentsViewOSR::FullscreenStateChanged(bool is_fullscreen) {}
+
 content::DropData* CefWebContentsViewOSR::GetDropData() const {
   return nullptr;
 }
@@ -169,12 +171,13 @@ void CefWebContentsViewOSR::StartDragging(
     const content::DropData& drop_data,
     blink::DragOperationsMask allowed_ops,
     const gfx::ImageSkia& image,
-    const gfx::Vector2d& image_offset,
+    const gfx::Vector2d& cursor_offset,
+    const gfx::Rect& drag_obj_rect,
     const blink::mojom::DragEventSourceInfo& event_info,
     content::RenderWidgetHostImpl* source_rwh) {
   CefRefPtr<AlloyBrowserHostImpl> browser = GetBrowser();
   if (browser.get()) {
-    browser->StartDragging(drop_data, allowed_ops, image, image_offset,
+    browser->StartDragging(drop_data, allowed_ops, image, cursor_offset,
                            event_info, source_rwh);
   } else if (web_contents_) {
     static_cast<content::WebContentsImpl*>(web_contents_)

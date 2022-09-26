@@ -55,7 +55,7 @@ CefProcessMessageSMRImpl::GetSharedMemoryRegion() {
 
 base::ReadOnlySharedMemoryRegion CefProcessMessageSMRImpl::TakeRegion() {
   return std::move(region_);
-};
+}
 
 // static
 CefRefPtr<CefSharedProcessMessageBuilder>

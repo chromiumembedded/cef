@@ -227,14 +227,15 @@ class InterceptedRequest : public network::mojom::URLLoader,
 
   // mojom::URLLoaderClient methods:
   void OnReceiveEarlyHints(network::mojom::EarlyHintsPtr early_hints) override;
-  void OnReceiveResponse(network::mojom::URLResponseHeadPtr head,
-                         mojo::ScopedDataPipeConsumerHandle body) override;
+  void OnReceiveResponse(
+      network::mojom::URLResponseHeadPtr head,
+      mojo::ScopedDataPipeConsumerHandle body,
+      absl::optional<mojo_base::BigBuffer> cached_metadata) override;
   void OnReceiveRedirect(const net::RedirectInfo& redirect_info,
                          network::mojom::URLResponseHeadPtr head) override;
   void OnUploadProgress(int64_t current_position,
                         int64_t total_size,
                         OnUploadProgressCallback callback) override;
-  void OnReceiveCachedMetadata(mojo_base::BigBuffer data) override;
   void OnTransferSizeUpdated(int32_t transfer_size_diff) override;
   void OnComplete(const network::URLLoaderCompletionStatus& status) override;
 
@@ -334,6 +335,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
   network::ResourceRequest request_;
   network::mojom::URLResponseHeadPtr current_response_;
   mojo::ScopedDataPipeConsumerHandle current_body_;
+  absl::optional<mojo_base::BigBuffer> current_cached_metadata_;
   scoped_refptr<net::HttpResponseHeaders> current_headers_;
   scoped_refptr<net::HttpResponseHeaders> override_headers_;
   GURL original_url_;
@@ -558,9 +560,11 @@ void InterceptedRequest::OnReceiveEarlyHints(
 
 void InterceptedRequest::OnReceiveResponse(
     network::mojom::URLResponseHeadPtr head,
-    mojo::ScopedDataPipeConsumerHandle body) {
+    mojo::ScopedDataPipeConsumerHandle body,
+    absl::optional<mojo_base::BigBuffer> cached_metadata) {
   current_response_ = std::move(head);
   current_body_ = std::move(body);
+  current_cached_metadata_ = std::move(cached_metadata);
 
   // |current_headers_| may be null for cached responses where OnHeadersReceived
   // is not called.
@@ -588,6 +592,7 @@ void InterceptedRequest::OnReceiveRedirect(
 
   current_response_ = std::move(head);
   current_body_.reset();
+  current_cached_metadata_.reset();
 
   // |current_headers_| may be null for synthetic redirects where
   // OnHeadersReceived is not called.
@@ -650,10 +655,6 @@ void InterceptedRequest::OnUploadProgress(int64_t current_position,
   // to drop response callbacks which still correspond to an open interface
   // pipe."
   std::move(callback).Run();
-}
-
-void InterceptedRequest::OnReceiveCachedMetadata(mojo_base::BigBuffer data) {
-  target_client_->OnReceiveCachedMetadata(std::move(data));
 }
 
 void InterceptedRequest::OnTransferSizeUpdated(int32_t transfer_size_diff) {
@@ -743,6 +744,7 @@ void InterceptedRequest::InterceptResponseReceived(
     current_response_->request_start = base::TimeTicks::Now();
     current_response_->response_start = base::TimeTicks::Now();
     current_body_.reset();
+    current_cached_metadata_.reset();
 
     auto headers = MakeResponseHeaders(
         net::HTTP_TEMPORARY_REDIRECT, std::string(), std::string(),
@@ -813,6 +815,7 @@ void InterceptedRequest::ContinueAfterInterceptWithOverride(
   stream_loader_ = new StreamReaderURLLoader(
       id_, request_, proxied_client_receiver_.BindNewPipeAndPassRemote(),
       header_client_receiver_.BindNewPipeAndPassRemote(), traffic_annotation_,
+      std::move(current_cached_metadata_),
       std::make_unique<InterceptDelegate>(std::move(response),
                                           weak_factory_.GetWeakPtr()));
   stream_loader_->Start();
@@ -1048,7 +1051,8 @@ void InterceptedRequest::ContinueToResponseStarted(int error_code) {
     target_client_->OnReceiveResponse(
         std::move(current_response_),
         factory_->request_handler_->OnFilterResponseBody(
-            id_, request_, std::move(current_body_)));
+            id_, request_, std::move(current_body_)),
+        std::move(current_cached_metadata_));
   }
 }
 

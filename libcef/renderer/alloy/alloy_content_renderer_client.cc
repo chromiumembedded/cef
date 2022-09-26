@@ -300,8 +300,10 @@ void AlloyContentRendererClient::RenderFrameCreated(
   }
 }
 
-void AlloyContentRendererClient::WebViewCreated(blink::WebView* web_view,
-                                                bool was_created_by_renderer) {
+void AlloyContentRendererClient::WebViewCreated(
+    blink::WebView* web_view,
+    bool was_created_by_renderer,
+    const url::Origin* outermost_origin) {
   bool browser_created;
   absl::optional<bool> is_windowless;
   render_manager_->WebViewCreated(web_view, browser_created, is_windowless);

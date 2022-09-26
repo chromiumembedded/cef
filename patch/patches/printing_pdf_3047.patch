@@ -1,5 +1,5 @@
 diff --git chrome/browser/printing/print_view_manager_common.cc chrome/browser/printing/print_view_manager_common.cc
-index 3ab701aaad754..4bb32940701c5 100644
+index 06ebb78a547e1..8f470db9167f4 100644
 --- chrome/browser/printing/print_view_manager_common.cc
 +++ chrome/browser/printing/print_view_manager_common.cc
 @@ -44,6 +44,8 @@ bool StoreFullPagePlugin(content::WebContents** result,
@@ -21,7 +21,7 @@ index 3ab701aaad754..4bb32940701c5 100644
      content::WebContents* contents,
      mojo::PendingAssociatedRemote<mojom::PrintRenderer> print_renderer,
 diff --git chrome/browser/printing/print_view_manager_common.h chrome/browser/printing/print_view_manager_common.h
-index bf67ddba35b34..7f4dcc216bbb4 100644
+index c8ba345acce57..158baf9a5eda6 100644
 --- chrome/browser/printing/print_view_manager_common.h
 +++ chrome/browser/printing/print_view_manager_common.h
 @@ -36,6 +36,10 @@ content::RenderFrameHost* GetFrameToPrint(content::WebContents* contents);

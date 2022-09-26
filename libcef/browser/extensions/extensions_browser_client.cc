@@ -143,6 +143,29 @@ BrowserContext* CefExtensionsBrowserClient::GetOriginalContext(
   return nullptr;
 }
 
+content::BrowserContext*
+CefExtensionsBrowserClient::GetRedirectedContextInIncognito(
+    content::BrowserContext* context,
+    bool force_guest_profile,
+    bool force_system_profile) {
+  return context;
+}
+
+content::BrowserContext*
+CefExtensionsBrowserClient::GetContextForRegularAndIncognito(
+    content::BrowserContext* context,
+    bool force_guest_profile,
+    bool force_system_profile) {
+  return context;
+}
+
+content::BrowserContext* CefExtensionsBrowserClient::GetRegularProfile(
+    content::BrowserContext* context,
+    bool force_guest_profile,
+    bool force_system_profile) {
+  return context;
+}
+
 bool CefExtensionsBrowserClient::IsGuestSession(BrowserContext* context) const {
   return false;
 }

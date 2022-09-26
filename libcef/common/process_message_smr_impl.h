@@ -24,7 +24,7 @@ class CefProcessMessageSMRImpl final : public CefProcessMessage {
   bool IsReadOnly() override { return true; }
   CefRefPtr<CefProcessMessage> Copy() override { return nullptr; }
   CefString GetName() override;
-  CefRefPtr<CefListValue> GetArgumentList() override { return nullptr; };
+  CefRefPtr<CefListValue> GetArgumentList() override { return nullptr; }
   CefRefPtr<CefSharedMemoryRegion> GetSharedMemoryRegion() override;
   [[nodiscard]] base::ReadOnlySharedMemoryRegion TakeRegion();
 

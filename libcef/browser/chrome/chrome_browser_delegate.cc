@@ -160,7 +160,7 @@ void ChromeBrowserDelegate::AddNewContents(
     std::unique_ptr<content::WebContents> new_contents,
     const GURL& target_url,
     WindowOpenDisposition disposition,
-    const gfx::Rect& initial_rect,
+    const blink::mojom::WindowFeatures& window_features,
     bool user_gesture,
     bool* was_blocked) {
   auto new_browser =
@@ -173,7 +173,7 @@ void ChromeBrowserDelegate::AddNewContents(
 
   // Fall back to default behavior from Browser::AddNewContents.
   chrome::AddWebContents(browser_, source_contents, std::move(new_contents),
-                         target_url, disposition, initial_rect);
+                         target_url, disposition, window_features);
 }
 
 content::WebContents* ChromeBrowserDelegate::OpenURLFromTab(

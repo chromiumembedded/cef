@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index 16119afeb8d57..dcfde693b8327 100644
+index 18c138c21a853..554e22458da45 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
-@@ -1754,6 +1754,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForMaybeOpaqueOrigin(
+@@ -1755,6 +1755,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForMaybeOpaqueOrigin(
              // DeclarativeApiTest.PersistRules.
              if (actual_process_lock.matches_scheme(url::kDataScheme))
                return true;
@@ -20,10 +20,10 @@ index 16119afeb8d57..dcfde693b8327 100644
  
            // TODO(wjmaclean): We should update the ProcessLock comparison API
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 034915c79223e..1a6160b109583 100644
+index fe59047aca94b..a2b6583dba0b5 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -6518,6 +6518,14 @@ std::pair<url::Origin, std::string> NavigationRequest::
+@@ -6542,6 +6542,14 @@ std::pair<url::Origin, std::string> NavigationRequest::
      origin_and_debug_info.second += ", error";
    }
  
@@ -38,7 +38,7 @@ index 034915c79223e..1a6160b109583 100644
    if (use_opaque_origin) {
      origin_and_debug_info =
          std::make_pair(origin_and_debug_info.first.DeriveNewOpaqueOrigin(),
-@@ -6545,6 +6553,15 @@ std::pair<url::Origin, std::string> NavigationRequest::
+@@ -6569,6 +6577,15 @@ std::pair<url::Origin, std::string> NavigationRequest::
        GetOriginForURLLoaderFactoryWithoutFinalFrameHostWithDebugInfo(
            SandboxFlagsToCommit());
  

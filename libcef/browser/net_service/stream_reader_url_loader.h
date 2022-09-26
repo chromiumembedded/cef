@@ -117,6 +117,7 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
       mojo::PendingRemote<network::mojom::URLLoaderClient> client,
       mojo::PendingRemote<network::mojom::TrustedHeaderClient> header_client,
       const net::MutableNetworkTrafficAnnotationTag& traffic_annotation,
+      absl::optional<mojo_base::BigBuffer> cached_metadata,
       std::unique_ptr<Delegate> response_delegate);
 
   StreamReaderURLLoader(const StreamReaderURLLoader&) = delete;
@@ -172,6 +173,7 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
   mojo::Remote<network::mojom::URLLoaderClient> client_;
   mojo::Remote<network::mojom::TrustedHeaderClient> header_client_;
   const net::MutableNetworkTrafficAnnotationTag traffic_annotation_;
+  absl::optional<mojo_base::BigBuffer> cached_metadata_;
   std::unique_ptr<Delegate> response_delegate_;
   scoped_refptr<InputStreamReader> input_stream_reader_;
 

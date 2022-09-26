@@ -1,5 +1,5 @@
 diff --git base/command_line.cc base/command_line.cc
-index 9ea1c437056ea..5fcea78a3325a 100644
+index 124a9d59c3ea4..516003f762e60 100644
 --- base/command_line.cc
 +++ base/command_line.cc
 @@ -339,11 +339,10 @@ void CommandLine::AppendSwitchPath(StringPiece switch_string,

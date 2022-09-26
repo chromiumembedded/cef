@@ -1,5 +1,5 @@
 diff --git third_party/crashpad/crashpad/client/prune_crash_reports.cc third_party/crashpad/crashpad/client/prune_crash_reports.cc
-index 3e92f06c8b3b4..74b4bf290dd0c 100644
+index 077694f541d57..928a520485414 100644
 --- third_party/crashpad/crashpad/client/prune_crash_reports.cc
 +++ third_party/crashpad/crashpad/client/prune_crash_reports.cc
 @@ -75,13 +75,19 @@ size_t PruneCrashReportDatabase(CrashReportDatabase* database,
@@ -26,7 +26,7 @@ index 3e92f06c8b3b4..74b4bf290dd0c 100644
  
  static const time_t kSecondsInDay = 60 * 60 * 24;
 diff --git third_party/crashpad/crashpad/client/prune_crash_reports.h third_party/crashpad/crashpad/client/prune_crash_reports.h
-index f121a2b07cdbd..b2e9bedac39d3 100644
+index b362e0aadbadd..1588232a6e4d4 100644
 --- third_party/crashpad/crashpad/client/prune_crash_reports.h
 +++ third_party/crashpad/crashpad/client/prune_crash_reports.h
 @@ -58,7 +58,8 @@ class PruneCondition {
@@ -40,7 +40,7 @@ index f121a2b07cdbd..b2e9bedac39d3 100644
    virtual ~PruneCondition() {}
  
 diff --git third_party/crashpad/crashpad/client/settings.cc third_party/crashpad/crashpad/client/settings.cc
-index eef24f71495fd..d3a273d369097 100644
+index 68fae16afc4ec..e3004425e13cb 100644
 --- third_party/crashpad/crashpad/client/settings.cc
 +++ third_party/crashpad/crashpad/client/settings.cc
 @@ -116,7 +116,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
@@ -130,7 +130,7 @@ index eef24f71495fd..d3a273d369097 100644
  Settings::ScopedLockedFileHandle Settings::MakeScopedLockedFileHandle(
      FileHandle file,
 diff --git third_party/crashpad/crashpad/client/settings.h third_party/crashpad/crashpad/client/settings.h
-index e4a5cedc43854..56becc7d57530 100644
+index 2b27474a683e9..7b5a89cea7f74 100644
 --- third_party/crashpad/crashpad/client/settings.h
 +++ third_party/crashpad/crashpad/client/settings.h
 @@ -128,6 +128,11 @@ class Settings {
@@ -146,7 +146,7 @@ index e4a5cedc43854..56becc7d57530 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index e79f4719b3dd0..22a20aede8100 100644
+index e5d488e26c170..08d7c35b7cc5c 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -184,10 +184,10 @@ index e79f4719b3dd0..22a20aede8100 100644
  
    if (crashpad_is_win) {
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
-index 4d1548dbf88d8..59e41b79c5de9 100644
+index 5bd2889eda975..bf3ff4bfcf5c8 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
-@@ -269,6 +269,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
+@@ -297,6 +297,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
    if (minidump_process_snapshot.Initialize(reader)) {
      parameters =
          BreakpadHTTPFormParametersFromMinidump(&minidump_process_snapshot);
@@ -197,18 +197,18 @@ index 4d1548dbf88d8..59e41b79c5de9 100644
  
    if (!reader->SeekSet(start_offset)) {
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.h third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
-index 2af958d7da9e5..6a67185a668af 100644
+index 22bb26e31893b..87c80604e5f7a 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
-@@ -15,6 +15,7 @@
- #ifndef CRASHPAD_HANDLER_CRASH_REPORT_UPLOAD_THREAD_H_
+@@ -16,6 +16,7 @@
  #define CRASHPAD_HANDLER_CRASH_REPORT_UPLOAD_THREAD_H_
  
+ #include <functional>
 +#include <map>
  #include <memory>
  #include <string>
  #include <unordered_map>
-@@ -111,7 +112,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+@@ -128,7 +129,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
    //! \return `true` if the thread is running, `false` if it is not.
    bool is_running() const { return thread_.is_running(); }
  
@@ -217,7 +217,7 @@ index 2af958d7da9e5..6a67185a668af 100644
    //! \brief The result code from UploadReport().
    enum class UploadResult {
      //! \brief The crash report was uploaded successfully.
-@@ -139,7 +140,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+@@ -156,7 +157,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
    //! object was constructed with \a watch_pending_reports, it will also scan
    //! the crash report database for other pending reports, and process those as
    //! well.
@@ -226,7 +226,7 @@ index 2af958d7da9e5..6a67185a668af 100644
  
    //! \brief Processes a single pending report from the database.
    //!
-@@ -153,7 +154,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+@@ -170,7 +171,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
    //! remain in the “pending” state. If the upload fails and no more retries are
    //! desired, or report upload is disabled, it will be marked as “completed” in
    //! the database without ever having been uploaded.
@@ -235,7 +235,7 @@ index 2af958d7da9e5..6a67185a668af 100644
  
    //! \brief Attempts to upload a crash report.
    //!
-@@ -170,6 +171,11 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
+@@ -187,6 +188,11 @@ class CrashReportUploadThread : public WorkerThread::Delegate,
    UploadResult UploadReport(const CrashReportDatabase::UploadReport* report,
                              std::string* response_body);
  
@@ -248,7 +248,7 @@ index 2af958d7da9e5..6a67185a668af 100644
    //! \brief Calls ProcessPendingReports() in response to ReportPending() having
    //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index c6ef76933735f..5fa38c40e2e96 100644
+index b7ba6b14bb9b3..0567343c99325 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -39,6 +39,7 @@
@@ -328,22 +328,28 @@ index c6ef76933735f..5fa38c40e2e96 100644
  #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
        case kOptionUseCrosCrashReporter: {
          options.use_cros_crash_reporter = true;
-@@ -1028,8 +1063,14 @@ int HandlerMain(int argc,
+@@ -1028,11 +1063,20 @@ int HandlerMain(int argc,
      upload_thread_options.upload_gzip = options.upload_gzip;
      upload_thread_options.watch_pending_reports = options.periodic_tasks;
  
 +#if BUILDFLAG(ENABLE_CEF)
 +    upload_thread.Reset(new CefCrashReportUploadThread(
-+        database.get(), options.url, upload_thread_options,
++        database.get(),
++        options.url,
++        upload_thread_options,
++        CrashReportUploadThread::ProcessPendingReportsObservationCallback(),
 +        options.max_uploads));
 +#else
      upload_thread.Reset(new CrashReportUploadThread(
-         database.get(), options.url, upload_thread_options));
+         database.get(),
+         options.url,
+         upload_thread_options,
+         CrashReportUploadThread::ProcessPendingReportsObservationCallback()));
 +#endif
      upload_thread.Get()->Start();
    }
  
-@@ -1100,7 +1141,8 @@ int HandlerMain(int argc,
+@@ -1103,7 +1147,8 @@ int HandlerMain(int argc,
    ScopedStoppable prune_thread;
    if (options.periodic_tasks) {
      prune_thread.Reset(new PruneCrashReportThread(

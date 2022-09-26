@@ -466,12 +466,14 @@ StreamReaderURLLoader::StreamReaderURLLoader(
     mojo::PendingRemote<network::mojom::URLLoaderClient> client,
     mojo::PendingRemote<network::mojom::TrustedHeaderClient> header_client,
     const net::MutableNetworkTrafficAnnotationTag& traffic_annotation,
+    absl::optional<mojo_base::BigBuffer> cached_metadata,
     std::unique_ptr<Delegate> response_delegate)
     : request_id_(request_id),
       request_(request),
       client_(std::move(client)),
       header_client_(std::move(header_client)),
       traffic_annotation_(traffic_annotation),
+      cached_metadata_(std::move(cached_metadata)),
       response_delegate_(std::move(response_delegate)),
       writable_handle_watcher_(FROM_HERE,
                                mojo::SimpleWatcher::ArmingPolicy::MANUAL,
@@ -708,7 +710,8 @@ void StreamReaderURLLoader::ContinueWithResponseHeaders(
                             base::Unretained(this)));
 
     client_->OnReceiveResponse(std::move(pending_response),
-                               std::move(consumer_handle));
+                               std::move(consumer_handle),
+                               std::move(cached_metadata_));
     ReadMore();
   }
 }

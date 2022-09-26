@@ -1,16 +1,16 @@
 diff --git chrome/browser/plugins/plugin_info_host_impl.cc chrome/browser/plugins/plugin_info_host_impl.cc
-index 22e8a17b5e2cc..859cd6712debe 100644
+index 7ceb1d7b854d9..5efcb8c09058c 100644
 --- chrome/browser/plugins/plugin_info_host_impl.cc
 +++ chrome/browser/plugins/plugin_info_host_impl.cc
-@@ -17,6 +17,7 @@
- #include "base/task/task_runner_util.h"
+@@ -16,6 +16,7 @@
+ #include "base/strings/utf_string_conversions.h"
  #include "build/branding_buildflags.h"
  #include "build/build_config.h"
 +#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
  #include "chrome/browser/plugins/chrome_plugin_service_filter.h"
-@@ -51,6 +52,10 @@
+@@ -50,6 +51,10 @@
  #include "url/gurl.h"
  #include "url/origin.h"
  
@@ -21,7 +21,7 @@ index 22e8a17b5e2cc..859cd6712debe 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "components/guest_view/browser/guest_view_base.h"
  #include "extensions/browser/extension_registry.h"
-@@ -100,6 +105,9 @@ bool IsPluginLoadingAccessibleResourceInWebView(
+@@ -135,6 +140,9 @@ bool IsPluginLoadingAccessibleResourceInWebView(
      extensions::ExtensionRegistry* extension_registry,
      int process_id,
      const GURL& resource) {
@@ -31,7 +31,7 @@ index 22e8a17b5e2cc..859cd6712debe 100644
    extensions::WebViewRendererState* renderer_state =
        extensions::WebViewRendererState::GetInstance();
    std::string partition_id;
-@@ -128,14 +136,18 @@ bool IsPluginLoadingAccessibleResourceInWebView(
+@@ -163,14 +171,18 @@ bool IsPluginLoadingAccessibleResourceInWebView(
  
  PluginInfoHostImpl::Context::Context(int render_process_id, Profile* profile)
      : render_process_id_(render_process_id),
@@ -54,7 +54,7 @@ index 22e8a17b5e2cc..859cd6712debe 100644
  
  PluginInfoHostImpl::Context::~Context() {}
 diff --git chrome/browser/plugins/plugin_utils.cc chrome/browser/plugins/plugin_utils.cc
-index b594c68673c19..b0e3cd149f760 100644
+index d63750d32aa5f..170bf0826235d 100644
 --- chrome/browser/plugins/plugin_utils.cc
 +++ chrome/browser/plugins/plugin_utils.cc
 @@ -5,6 +5,7 @@
@@ -90,7 +90,7 @@ index b594c68673c19..b0e3cd149f760 100644
    Profile* profile = Profile::FromBrowserContext(browser_context);
    const std::vector<std::string>& allowlist =
 diff --git chrome/common/google_url_loader_throttle.cc chrome/common/google_url_loader_throttle.cc
-index 8b72897491669..546919dd70afc 100644
+index a29a2739af3c8..0feb1a87cef64 100644
 --- chrome/common/google_url_loader_throttle.cc
 +++ chrome/common/google_url_loader_throttle.cc
 @@ -7,6 +7,7 @@
@@ -125,10 +125,10 @@ index 8b72897491669..546919dd70afc 100644
    // that the X-Frame-Options protection mechanism is set to either DENY or
    // SAMEORIGIN.
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index a7ffa185b5df0..88f424c4f4a1b 100644
+index 0320c23e07862..6151e7744bdee 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
-@@ -961,6 +961,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -969,6 +969,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
  
      if ((status == chrome::mojom::PluginStatus::kUnauthorized ||
           status == chrome::mojom::PluginStatus::kBlocked) &&
@@ -136,7 +136,7 @@ index a7ffa185b5df0..88f424c4f4a1b 100644
          content_settings_agent_delegate->IsPluginTemporarilyAllowed(
              identifier)) {
        status = chrome::mojom::PluginStatus::kAllowed;
-@@ -1162,7 +1163,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1139,7 +1140,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
          render_frame->GetRemoteAssociatedInterfaces()->GetInterface(
              plugin_auth_host.BindNewEndpointAndPassReceiver());
          plugin_auth_host->BlockedUnauthorizedPlugin(group_name, identifier);
@@ -146,7 +146,7 @@ index a7ffa185b5df0..88f424c4f4a1b 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlocked: {
-@@ -1171,7 +1173,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1148,7 +1150,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, group_name));
          placeholder->AllowLoading();
          RenderThread::Get()->RecordAction(UserMetricsAction("Plugin_Blocked"));
@@ -156,7 +156,7 @@ index a7ffa185b5df0..88f424c4f4a1b 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedByPolicy: {
-@@ -1181,7 +1184,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1158,7 +1161,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
                                         group_name));
          RenderThread::Get()->RecordAction(
              UserMetricsAction("Plugin_BlockedByPolicy"));
@@ -165,19 +165,9 @@ index a7ffa185b5df0..88f424c4f4a1b 100644
 +          content_settings_agent->DidBlockContentType(content_type);
          break;
        }
-       case chrome::mojom::PluginStatus::kBlockedNoLoading: {
-@@ -1189,7 +1193,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
-             IDR_BLOCKED_PLUGIN_HTML,
-             l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED_NO_LOADING,
-                                        group_name));
--        content_settings_agent->DidBlockContentType(content_type);
-+        if (content_settings_agent)
-+          content_settings_agent->DidBlockContentType(content_type);
-         break;
-       }
      }
 diff --git content/browser/browser_plugin/browser_plugin_embedder.h content/browser/browser_plugin/browser_plugin_embedder.h
-index f2f7e4228f134..e724b36143238 100644
+index d06734015cf17..5794b6ab1c25a 100644
 --- content/browser/browser_plugin/browser_plugin_embedder.h
 +++ content/browser/browser_plugin/browser_plugin_embedder.h
 @@ -15,6 +15,7 @@
@@ -197,16 +187,38 @@ index f2f7e4228f134..e724b36143238 100644
   public:
    BrowserPluginEmbedder(const BrowserPluginEmbedder&) = delete;
    BrowserPluginEmbedder& operator=(const BrowserPluginEmbedder&) = delete;
+diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
+index 5c05c4c3bbde1..df728150ca821 100644
+--- content/browser/browser_plugin/browser_plugin_guest.cc
++++ content/browser/browser_plugin/browser_plugin_guest.cc
+@@ -84,6 +84,8 @@ void BrowserPluginGuest::InitInternal(WebContentsImpl* owner_web_contents) {
+       GetWebContents()->GetOrCreateWebPreferences();
+   prefs.navigate_on_drag_drop = false;
+   GetWebContents()->SetWebPreferences(prefs);
++
++  owner_web_contents_ = owner_web_contents;
+ }
+ 
+ BrowserPluginGuest::~BrowserPluginGuest() = default;
 diff --git content/browser/browser_plugin/browser_plugin_guest.h content/browser/browser_plugin/browser_plugin_guest.h
-index 066c66c1a2d1b..428cb1871a6af 100644
+index 091dcc8047bfa..4f6ff63f69ffa 100644
 --- content/browser/browser_plugin/browser_plugin_guest.h
 +++ content/browser/browser_plugin/browser_plugin_guest.h
-@@ -116,6 +116,8 @@ class BrowserPluginGuest : public GuestHost, public WebContentsObserver {
+@@ -82,6 +82,8 @@ class BrowserPluginGuest : public WebContentsObserver {
  
-   gfx::Point GetScreenCoordinates(const gfx::Point& relative_position) const;
+   WebContentsImpl* GetWebContents() const;
  
 +  WebContentsImpl* owner_web_contents() const { return owner_web_contents_; }
 +
-  protected:
+  private:
    // BrowserPluginGuest is a WebContentsObserver of |web_contents| and
    // |web_contents| has to stay valid for the lifetime of BrowserPluginGuest.
+@@ -91,6 +93,8 @@ class BrowserPluginGuest : public WebContentsObserver {
+   void InitInternal(WebContentsImpl* owner_web_contents);
+ 
+   const raw_ptr<BrowserPluginGuestDelegate> delegate_;
++
++  raw_ptr<WebContentsImpl> owner_web_contents_ = nullptr;
+ };
+ 
+ }  // namespace content

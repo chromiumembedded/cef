@@ -31,8 +31,8 @@
 #include "components/pdf/common/internal_plugin_helpers.h"
 #include "content/public/common/cdm_info.h"
 #include "content/public/common/content_constants.h"
+#include "content/public/common/content_plugin_info.h"
 #include "content/public/common/content_switches.h"
-#include "content/public/common/pepper_plugin_info.h"
 #include "ppapi/shared_impl/ppapi_permissions.h"
 #include "third_party/widevine/cdm/buildflags.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -52,18 +52,14 @@ const char kPDFPluginDescription[] = "Portable Document Format";
 const uint32_t kPDFPluginPermissions =
     ppapi::PERMISSION_PDF | ppapi::PERMISSION_DEV;
 
-content::PepperPluginInfo::GetInterfaceFunc g_pdf_get_interface;
-content::PepperPluginInfo::PPP_InitializeModuleFunc g_pdf_initialize_module;
-content::PepperPluginInfo::PPP_ShutdownModuleFunc g_pdf_shutdown_module;
-
 // Appends the known built-in plugins to the given vector. Some built-in
 // plugins are "internal" which means they are compiled into the Chrome binary,
 // and some are extra shared libraries distributed with the browser (these are
 // not marked internal, aside from being automatically registered, they're just
 // regular plugins).
-void ComputeBuiltInPlugins(std::vector<content::PepperPluginInfo>* plugins) {
+void ComputeBuiltInPlugins(std::vector<content::ContentPluginInfo>* plugins) {
   if (extensions::PdfExtensionEnabled()) {
-    content::PepperPluginInfo pdf_info;
+    content::ContentPluginInfo pdf_info;
     pdf_info.is_internal = true;
     pdf_info.is_out_of_process = true;
     pdf_info.name = ChromeContentClient::kPDFInternalPluginName;
@@ -73,9 +69,6 @@ void ComputeBuiltInPlugins(std::vector<content::PepperPluginInfo>* plugins) {
                                              kPDFPluginExtension,
                                              kPDFPluginDescription);
     pdf_info.mime_types.push_back(pdf_mime_type);
-    pdf_info.internal_entry_points.get_interface = g_pdf_get_interface;
-    pdf_info.internal_entry_points.initialize_module = g_pdf_initialize_module;
-    pdf_info.internal_entry_points.shutdown_module = g_pdf_shutdown_module;
     pdf_info.permissions = kPDFPluginPermissions;
     plugins->push_back(pdf_info);
   }
@@ -86,8 +79,8 @@ void ComputeBuiltInPlugins(std::vector<content::PepperPluginInfo>* plugins) {
 AlloyContentClient::AlloyContentClient() = default;
 AlloyContentClient::~AlloyContentClient() = default;
 
-void AlloyContentClient::AddPepperPlugins(
-    std::vector<content::PepperPluginInfo>* plugins) {
+void AlloyContentClient::AddPlugins(
+    std::vector<content::ContentPluginInfo>* plugins) {
   ComputeBuiltInPlugins(plugins);
 }
 
@@ -156,14 +149,4 @@ gfx::Image& AlloyContentClient::GetNativeImageNamed(int resource_id) {
     LOG(ERROR) << "No native image available for id " << resource_id;
 
   return value;
-}
-
-// static
-void AlloyContentClient::SetPDFEntryFunctions(
-    content::PepperPluginInfo::GetInterfaceFunc get_interface,
-    content::PepperPluginInfo::PPP_InitializeModuleFunc initialize_module,
-    content::PepperPluginInfo::PPP_ShutdownModuleFunc shutdown_module) {
-  g_pdf_get_interface = get_interface;
-  g_pdf_initialize_module = initialize_module;
-  g_pdf_shutdown_module = shutdown_module;
 }

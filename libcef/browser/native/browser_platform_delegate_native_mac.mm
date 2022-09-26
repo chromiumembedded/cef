@@ -320,9 +320,9 @@ void CefBrowserPlatformDelegateNativeMac::SetFocus(bool setFocus) {
 
     if (setFocus) {
       // Give keyboard focus to the native view.
-      NSView* view = web_contents_->GetContentNativeView().GetNativeNSView();
-      DCHECK([view canBecomeKeyView]);
-      [[view window] makeFirstResponder:view];
+      NSView* nsview = web_contents_->GetContentNativeView().GetNativeNSView();
+      DCHECK([nsview canBecomeKeyView]);
+      [[nsview window] makeFirstResponder:nsview];
     }
   }
 }

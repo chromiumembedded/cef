@@ -1,8 +1,8 @@
 diff --git content/app/content_main.cc content/app/content_main.cc
-index 34cbeddf6cabd..b62ce8cf3dd9a 100644
+index 58f891fd7af7a..3178a0aeab935 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
-@@ -252,11 +252,8 @@ ContentMainParams::~ContentMainParams() = default;
+@@ -194,11 +194,8 @@ ContentMainParams::~ContentMainParams() = default;
  ContentMainParams::ContentMainParams(ContentMainParams&&) = default;
  ContentMainParams& ContentMainParams::operator=(ContentMainParams&&) = default;
  
@@ -16,7 +16,7 @@ index 34cbeddf6cabd..b62ce8cf3dd9a 100644
  #if BUILDFLAG(IS_CHROMEOS_LACROS)
    // Lacros is launched with inherited priority. Revert to normal priority
    // before spawning more processes.
-@@ -264,9 +261,6 @@ RunContentProcess(ContentMainParams params,
+@@ -206,9 +203,6 @@ RunContentProcess(ContentMainParams params,
  #endif
    int exit_code = -1;
    base::debug::GlobalActivityTracker* tracker = nullptr;
@@ -26,7 +26,7 @@ index 34cbeddf6cabd..b62ce8cf3dd9a 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -352,12 +346,6 @@ RunContentProcess(ContentMainParams params,
+@@ -294,12 +288,6 @@ RunContentProcess(ContentMainParams params,
  #endif
  
  #if BUILDFLAG(IS_MAC)
@@ -39,7 +39,7 @@ index 34cbeddf6cabd..b62ce8cf3dd9a 100644
      InitializeMac();
  #endif
  
-@@ -430,8 +418,18 @@ RunContentProcess(ContentMainParams params,
+@@ -339,8 +327,18 @@ RunContentProcess(ContentMainParams params,
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -59,7 +59,7 @@ index 34cbeddf6cabd..b62ce8cf3dd9a 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -443,14 +441,41 @@ RunContentProcess(ContentMainParams params,
+@@ -352,14 +350,41 @@ RunContentProcess(ContentMainParams params,
      }
    }
  
@@ -105,10 +105,10 @@ index 34cbeddf6cabd..b62ce8cf3dd9a 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index fb4af331fb38b..591768d2297c2 100644
+index 8967bb5066eb6..4705bf64b2dc6 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -42,6 +42,7 @@
+@@ -43,6 +43,7 @@
  #include "base/task/thread_pool/thread_pool_instance.h"
  #include "base/threading/hang_watcher.h"
  #include "base/threading/platform_thread.h"
@@ -116,7 +116,7 @@ index fb4af331fb38b..591768d2297c2 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1237,6 +1238,12 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1262,6 +1263,12 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -130,7 +130,7 @@ index fb4af331fb38b..591768d2297c2 100644
  std::unique_ptr<ContentMainRunner> ContentMainRunner::Create() {
    return ContentMainRunnerImpl::Create();
 diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
-index 423ad00697648..cd1a9df97eba0 100644
+index 9dda5702a4c97..10a35923f5965 100644
 --- content/app/content_main_runner_impl.h
 +++ content/app/content_main_runner_impl.h
 @@ -29,7 +29,7 @@ class DiscardableSharedMemoryManager;
@@ -152,7 +152,7 @@ index 423ad00697648..cd1a9df97eba0 100644
    int RunBrowser(MainFunctionParams main_function_params,
                   bool start_minimal_browser);
 diff --git content/common/set_process_title.cc content/common/set_process_title.cc
-index 06cdab47c8cdf..1f0ea6c7215ca 100644
+index 04a08015aaff6..694f5c43a29e1 100644
 --- content/common/set_process_title.cc
 +++ content/common/set_process_title.cc
 @@ -54,7 +54,7 @@ void SetProcessTitleFromCommandLine(const char** main_argv) {
@@ -165,7 +165,7 @@ index 06cdab47c8cdf..1f0ea6c7215ca 100644
    if (main_argv)
      setproctitle_init(main_argv);
 diff --git content/public/app/content_main.h content/public/app/content_main.h
-index 268b201ab060a..b745f44139a3d 100644
+index b29fe2403753d..0ff8262ca68a5 100644
 --- content/public/app/content_main.h
 +++ content/public/app/content_main.h
 @@ -93,6 +93,13 @@ struct CONTENT_EXPORT ContentMainParams {
