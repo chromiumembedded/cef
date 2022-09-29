@@ -15,8 +15,10 @@
 #include "libcef/common/resource_util.h"
 #include "libcef/renderer/chrome/chrome_content_renderer_client_cef.h"
 
+#include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/lazy_instance.h"
+#include "base/threading/threading_features.h"
 #include "chrome/common/chrome_switches.h"
 #include "components/embedder_support/switches.h"
 #include "content/public/common/content_switches.h"
@@ -123,6 +125,29 @@ absl::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
       command_line->AppendSwitchASCII(
           switches::kUncaughtExceptionStackSize,
           base::NumberToString(settings_->uncaught_exception_stack_size));
+    }
+
+    std::vector<std::string> disable_features;
+
+    if (!!settings_->multi_threaded_message_loop &&
+        base::kEnableHangWatcher.default_state ==
+            base::FEATURE_ENABLED_BY_DEFAULT) {
+      // Disable EnableHangWatcher when running with multi-threaded-message-loop
+      // to avoid shutdown crashes (see issue #3403).
+      disable_features.push_back(base::kEnableHangWatcher.name);
+    }
+
+    if (!disable_features.empty()) {
+      DCHECK(!base::FeatureList::GetInstance());
+      std::string disable_features_str =
+          command_line->GetSwitchValueASCII(switches::kDisableFeatures);
+      for (auto feature_str : disable_features) {
+        if (!disable_features_str.empty())
+          disable_features_str += ",";
+        disable_features_str += feature_str;
+      }
+      command_line->AppendSwitchASCII(switches::kDisableFeatures,
+                                      disable_features_str);
     }
   }
 

@@ -74,6 +74,7 @@ void ChromeMainRunnerDelegate::AfterUIThreadShutdown() {
   static_cast<ChromeContentBrowserClient*>(
       CefAppManager::Get()->GetContentClient()->browser())
       ->CleanupOnUIThread();
+  main_delegate_->CleanupOnUIThread();
 }
 
 void ChromeMainRunnerDelegate::AfterMainThreadShutdown() {
