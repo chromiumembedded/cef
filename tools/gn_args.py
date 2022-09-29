@@ -255,13 +255,6 @@ def GetRecommendedDefaultArgs():
     # x86 or x64 build: $ gclient runhooks
     result['use_sysroot'] = False
 
-    # Don't add the `-Wl,--fatal-warnings` linker flag when building on Ubuntu
-    # 14 (Trusty) host systems. It results in errors like the following:
-    # ld.lld: error: found local symbol '__bss_start' in global part of symbol
-    # table in file /usr/lib/x86_64-linux-gnu/libGL.so
-    # TODO(cef): Remove this flag once we require a newer host system.
-    result['fatal_linker_warnings'] = False
-
     # Disable QT by default because we don't want to introduce the build
     # dependencies at this time. For background see
     # https://groups.google.com/a/chromium.org/g/chromium-packagers/c/-2VGexQAK6w/m/5K5ppK9WBAAJ
