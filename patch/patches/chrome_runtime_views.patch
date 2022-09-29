@@ -189,7 +189,7 @@ index 9bd586697dece..80ef1f08cb463 100644
    BrowserFrame(const BrowserFrame&) = delete;
    BrowserFrame& operator=(const BrowserFrame&) = delete;
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index f19af5dd5c46e..37827cab73cf8 100644
+index 167e7d5a1ce24..c77fbe1e82179 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -307,11 +307,10 @@ using content::NativeWebKeyboardEvent;
@@ -257,7 +257,7 @@ index f19af5dd5c46e..37827cab73cf8 100644
  
    contents_separator_ =
        top_container_->AddChildView(std::make_unique<ContentsSeparator>());
-@@ -1813,6 +1829,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
+@@ -1819,6 +1835,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
    if (immersive_mode_controller_->IsEnabled())
      return false;
  
@@ -266,7 +266,7 @@ index f19af5dd5c46e..37827cab73cf8 100644
    return frame_->GetFrameView()->ShouldHideTopUIForFullscreen();
  }
  
-@@ -3129,7 +3147,8 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
+@@ -3135,7 +3153,8 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
    if (top_container()->parent() == this)
      return;
  
@@ -276,7 +276,7 @@ index f19af5dd5c46e..37827cab73cf8 100644
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -3670,8 +3689,10 @@ void BrowserView::Layout() {
+@@ -3676,8 +3695,10 @@ void BrowserView::Layout() {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -289,7 +289,7 @@ index f19af5dd5c46e..37827cab73cf8 100644
  
    // Some of the situations when the BrowserView is laid out are:
    // - Enter/exit immersive fullscreen mode.
-@@ -3737,6 +3758,11 @@ void BrowserView::AddedToWidget() {
+@@ -3743,6 +3764,11 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->profile());
  #endif
  
@@ -301,7 +301,7 @@ index f19af5dd5c46e..37827cab73cf8 100644
    toolbar_->Init();
  
    // TODO(pbos): Manage this either inside SidePanel or the corresponding button
-@@ -3798,13 +3824,9 @@ void BrowserView::AddedToWidget() {
+@@ -3804,13 +3830,9 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -317,7 +317,7 @@ index f19af5dd5c46e..37827cab73cf8 100644
    using_native_frame_ = frame_->ShouldUseNativeFrame();
  
    MaybeInitializeWebUITabStrip();
-@@ -4221,7 +4243,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
+@@ -4228,7 +4250,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
    // Undo our anti-jankiness hacks and force a re-layout.
    in_process_fullscreen_ = false;
    ToolbarSizeChanged(false);
@@ -327,7 +327,7 @@ index f19af5dd5c46e..37827cab73cf8 100644
  }
  
  bool BrowserView::ShouldUseImmersiveFullscreenForUrl(const GURL& url) const {
-@@ -4549,6 +4572,8 @@ Profile* BrowserView::GetProfile() {
+@@ -4556,6 +4579,8 @@ Profile* BrowserView::GetProfile() {
  }
  
  void BrowserView::UpdateUIForTabFullscreen() {
@@ -336,7 +336,7 @@ index f19af5dd5c46e..37827cab73cf8 100644
    frame()->GetFrameView()->UpdateFullscreenTopUI();
  }
  
-@@ -4571,6 +4596,8 @@ void BrowserView::HideDownloadShelf() {
+@@ -4578,6 +4603,8 @@ void BrowserView::HideDownloadShelf() {
  }
  
  bool BrowserView::CanUserExitFullscreen() const {
@@ -346,7 +346,7 @@ index f19af5dd5c46e..37827cab73cf8 100644
  }
  
 diff --git chrome/browser/ui/views/frame/browser_view.h chrome/browser/ui/views/frame/browser_view.h
-index 2e054124298d4..8df50230cfaba 100644
+index 2d72b3a0eec68..202cad158b797 100644
 --- chrome/browser/ui/views/frame/browser_view.h
 +++ chrome/browser/ui/views/frame/browser_view.h
 @@ -126,11 +126,16 @@ class BrowserView : public BrowserWindow,
@@ -366,7 +366,7 @@ index 2e054124298d4..8df50230cfaba 100644
    void set_frame(BrowserFrame* frame) { frame_ = frame; }
    BrowserFrame* frame() const { return frame_; }
  
-@@ -762,6 +767,12 @@ class BrowserView : public BrowserWindow,
+@@ -763,6 +768,12 @@ class BrowserView : public BrowserWindow,
    // aligned side panels.
    void RightAlignedSidePanelWasClosed();
  

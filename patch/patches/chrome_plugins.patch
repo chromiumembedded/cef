@@ -1,5 +1,5 @@
 diff --git chrome/browser/plugins/plugin_info_host_impl.cc chrome/browser/plugins/plugin_info_host_impl.cc
-index 22e8a17b5e2cc..859cd6712debe 100644
+index 3ea8226ff2136..fb65544a82911 100644
 --- chrome/browser/plugins/plugin_info_host_impl.cc
 +++ chrome/browser/plugins/plugin_info_host_impl.cc
 @@ -17,6 +17,7 @@
@@ -10,7 +10,7 @@ index 22e8a17b5e2cc..859cd6712debe 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
  #include "chrome/browser/plugins/chrome_plugin_service_filter.h"
-@@ -51,6 +52,10 @@
+@@ -52,6 +53,10 @@
  #include "url/gurl.h"
  #include "url/origin.h"
  
@@ -21,7 +21,7 @@ index 22e8a17b5e2cc..859cd6712debe 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "components/guest_view/browser/guest_view_base.h"
  #include "extensions/browser/extension_registry.h"
-@@ -100,6 +105,9 @@ bool IsPluginLoadingAccessibleResourceInWebView(
+@@ -101,6 +106,9 @@ bool IsPluginLoadingAccessibleResourceInWebView(
      extensions::ExtensionRegistry* extension_registry,
      int process_id,
      const GURL& resource) {
@@ -31,7 +31,7 @@ index 22e8a17b5e2cc..859cd6712debe 100644
    extensions::WebViewRendererState* renderer_state =
        extensions::WebViewRendererState::GetInstance();
    std::string partition_id;
-@@ -128,14 +136,18 @@ bool IsPluginLoadingAccessibleResourceInWebView(
+@@ -129,14 +137,18 @@ bool IsPluginLoadingAccessibleResourceInWebView(
  
  PluginInfoHostImpl::Context::Context(int render_process_id, Profile* profile)
      : render_process_id_(render_process_id),
