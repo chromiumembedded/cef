@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index 377b2eb646b0a..9163f80176102 100644
+index 377b2eb646b0a..740f2e9c8a05e 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -39,6 +39,7 @@
@@ -19,7 +19,18 @@ index 377b2eb646b0a..9163f80176102 100644
  #if BUILDFLAG(IS_WIN)
    // Reach out to chrome_elf for the truth on the user data directory.
    // Note that in tests, this links to chrome_elf_test_stubs.
-@@ -867,7 +870,9 @@ void ChromeMainDelegate::CommonEarlyInitialization() {
+@@ -621,6 +624,10 @@ ChromeMainDelegate::ChromeMainDelegate(base::TimeTicks exe_entry_point_ticks) {
+ 
+ ChromeMainDelegate::~ChromeMainDelegate() = default;
+ 
++void ChromeMainDelegate::CleanupOnUIThread() {
++  heap_profiler_controller_.reset();
++}
++
+ absl::optional<int> ChromeMainDelegate::PostEarlyInitialization(
+     InvokedIn invoked_in) {
+   DCHECK(base::ThreadPoolInstance::Get());
+@@ -867,7 +874,9 @@ void ChromeMainDelegate::CommonEarlyInitialization() {
    }
  
  #if BUILDFLAG(IS_WIN)
@@ -29,7 +40,7 @@ index 377b2eb646b0a..9163f80176102 100644
    base::sequence_manager::internal::ThreadControllerPowerMonitor::
        InitializeOnMainThread();
    base::InitializePlatformThreadFeatures();
-@@ -1190,6 +1195,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1190,6 +1199,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    std::string process_type =
        command_line.GetSwitchValueASCII(switches::kProcessType);
  
@@ -37,7 +48,7 @@ index 377b2eb646b0a..9163f80176102 100644
    crash_reporter::InitializeCrashKeys();
  
  #if BUILDFLAG(IS_POSIX)
-@@ -1200,6 +1206,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1200,6 +1210,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    InitMacCrashReporter(command_line, process_type);
    SetUpInstallerPreferences(command_line);
  #endif
@@ -45,7 +56,7 @@ index 377b2eb646b0a..9163f80176102 100644
  
  #if BUILDFLAG(IS_WIN)
    child_process_logging::Init();
-@@ -1402,6 +1409,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1402,6 +1413,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
      CHECK(!loaded_locale.empty()) << "Locale could not be found for " << locale;
    }
  
@@ -53,7 +64,7 @@ index 377b2eb646b0a..9163f80176102 100644
  #if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
    // Zygote needs to call InitCrashReporter() in RunZygote().
    if (process_type != switches::kZygoteProcess) {
-@@ -1441,6 +1449,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1441,6 +1453,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    // After all the platform Breakpads have been initialized, store the command
    // line for crash reporting.
    crash_keys::SetCrashKeysFromCommandLine(command_line);
@@ -61,7 +72,7 @@ index 377b2eb646b0a..9163f80176102 100644
  
  #if BUILDFLAG(ENABLE_PDF)
    MaybePatchGdiGetFontData();
-@@ -1530,6 +1539,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1530,6 +1543,7 @@ void ChromeMainDelegate::ZygoteForked() {
      SetUpProfilingShutdownHandler();
    }
  
@@ -69,7 +80,7 @@ index 377b2eb646b0a..9163f80176102 100644
    // Needs to be called after we have chrome::DIR_USER_DATA.  BrowserMain sets
    // this up for the browser process in a different manner.
    const base::CommandLine* command_line =
-@@ -1546,6 +1556,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1546,6 +1560,7 @@ void ChromeMainDelegate::ZygoteForked() {
  
    // Reset the command line for the newly spawned process.
    crash_keys::SetCrashKeysFromCommandLine(*command_line);
@@ -77,6 +88,19 @@ index 377b2eb646b0a..9163f80176102 100644
  }
  
  #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+diff --git chrome/app/chrome_main_delegate.h chrome/app/chrome_main_delegate.h
+index de1b45f921123..077894e4a42c9 100644
+--- chrome/app/chrome_main_delegate.h
++++ chrome/app/chrome_main_delegate.h
+@@ -52,6 +52,8 @@ class ChromeMainDelegate : public content::ContentMainDelegate {
+ 
+   ~ChromeMainDelegate() override;
+ 
++  virtual void CleanupOnUIThread();
++
+  protected:
+   // content::ContentMainDelegate:
+   absl::optional<int> BasicStartupComplete() override;
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
 index d1ddad3b91515..9fd596595b0ff 100644
 --- chrome/browser/chrome_browser_main.cc
