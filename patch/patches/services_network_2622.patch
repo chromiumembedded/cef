@@ -42,7 +42,7 @@ index a41ab3c6e50f0..1dd98219869cf 100644
          ::network::mojom::NetworkContextFilePaths::New();
  
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index 4c79de32e5f01..9ff92cda4dc3c 100644
+index 48a6f90e18d4e..51fe448cd2289 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
 @@ -549,6 +549,25 @@ void CookieMonster::SetCookieableSchemes(
@@ -72,7 +72,7 @@ index 4c79de32e5f01..9ff92cda4dc3c 100644
  void CookieMonster::SetPersistSessionCookies(bool persist_session_cookies) {
    DCHECK(thread_checker_.CalledOnValidThread());
 diff --git net/cookies/cookie_monster.h net/cookies/cookie_monster.h
-index 0e48488a03aa5..412f09945878d 100644
+index 490072c987e95..19a43087e07fa 100644
 --- net/cookies/cookie_monster.h
 +++ net/cookies/cookie_monster.h
 @@ -209,6 +209,8 @@ class NET_EXPORT CookieMonster : public CookieStore {
