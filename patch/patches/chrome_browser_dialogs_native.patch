@@ -1,5 +1,5 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index f532c9e044b46..c55c424f6ffd5 100644
+index f532c9e044b46..cb878bc3af937 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
 @@ -20,6 +20,7 @@
@@ -24,7 +24,20 @@ index f532c9e044b46..c55c424f6ffd5 100644
    ShowFolderUploadConfirmationDialog(
        path,
        base::BindOnce(&FileSelectHelper::ConvertToFileChooserFileInfoList, this),
-@@ -470,7 +478,8 @@ void FileSelectHelper::DontAbortOnMissingWebContentsForTesting() {
+@@ -357,6 +365,12 @@ void FileSelectHelper::PerformContentAnalysisIfNeeded(
+   if (AbortIfWebContentsDestroyed())
+     return;
+ 
++  // Don't trigger creation of a AccountConsistencyModeManager (see issue #3401)
++  if (cef::IsAlloyRuntimeEnabled()) {
++    NotifyListenerAndEnd(std::move(list));
++    return;
++  }
++
+ #if BUILDFLAG(FULL_SAFE_BROWSING)
+   enterprise_connectors::ContentAnalysisDelegate::Data data;
+   if (enterprise_connectors::ContentAnalysisDelegate::IsEnabled(
+@@ -470,7 +484,8 @@ void FileSelectHelper::DontAbortOnMissingWebContentsForTesting() {
  
  std::unique_ptr<ui::SelectFileDialog::FileTypeInfo>
  FileSelectHelper::GetFileTypesFromAcceptType(
@@ -34,7 +47,7 @@ index f532c9e044b46..c55c424f6ffd5 100644
    std::unique_ptr<ui::SelectFileDialog::FileTypeInfo> base_file_type(
        new ui::SelectFileDialog::FileTypeInfo());
    if (accept_types.empty())
-@@ -484,17 +493,24 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -484,17 +499,24 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    std::vector<base::FilePath::StringType>* extensions =
        &file_type->extensions.back();
  
@@ -60,7 +73,7 @@ index f532c9e044b46..c55c424f6ffd5 100644
      } else {
        if (!base::IsStringASCII(accept_type))
          continue;
-@@ -505,10 +521,18 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -505,10 +527,18 @@ FileSelectHelper::GetFileTypesFromAcceptType(
          description_id = IDS_AUDIO_FILES;
        else if (ascii_type == "video/*")
          description_id = IDS_VIDEO_FILES;
@@ -81,7 +94,7 @@ index f532c9e044b46..c55c424f6ffd5 100644
      if (extensions->size() > old_extension_size)
        valid_type_count++;
    }
-@@ -533,6 +557,15 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -533,6 +563,15 @@ FileSelectHelper::GetFileTypesFromAcceptType(
          l10n_util::GetStringUTF16(description_id));
    }
  
@@ -97,7 +110,7 @@ index f532c9e044b46..c55c424f6ffd5 100644
    return file_type;
  }
  
-@@ -540,7 +573,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -540,7 +579,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
  void FileSelectHelper::RunFileChooser(
      content::RenderFrameHost* render_frame_host,
      scoped_refptr<content::FileSelectListener> listener,
@@ -107,7 +120,7 @@ index f532c9e044b46..c55c424f6ffd5 100644
    Profile* profile = Profile::FromBrowserContext(
        render_frame_host->GetProcess()->GetBrowserContext());
  
-@@ -559,6 +593,7 @@ void FileSelectHelper::RunFileChooser(
+@@ -559,6 +599,7 @@ void FileSelectHelper::RunFileChooser(
    // message.
    scoped_refptr<FileSelectHelper> file_select_helper(
        new FileSelectHelper(profile));
@@ -115,7 +128,7 @@ index f532c9e044b46..c55c424f6ffd5 100644
    file_select_helper->RunFileChooser(render_frame_host, std::move(listener),
                                       params.Clone());
  }
-@@ -612,7 +647,8 @@ void FileSelectHelper::RunFileChooser(
+@@ -612,7 +653,8 @@ void FileSelectHelper::RunFileChooser(
  }
  
  void FileSelectHelper::GetFileTypesInThreadPool(FileChooserParamsPtr params) {
