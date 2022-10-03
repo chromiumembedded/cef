@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=a6cb0abd77320cfd9ddfa3f16ca0a6ff3987521a$
+// $hash=f6dfdfa5b8c77931d8e083a66f5a9445a2fdbf45$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_PARSER_CAPI_H_
@@ -45,6 +45,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+///
+/// Combines specified |base_url| and |relative_url| into |resolved_url|.
+/// Returns false (0) if one of the URLs is NULL or invalid.
+///
+CEF_EXPORT int cef_resolve_url(const cef_string_t* base_url,
+                               const cef_string_t* relative_url,
+                               cef_string_t* resolved_url);
 
 ///
 /// Parse the specified |url| into its component parts. Returns false (0) if the

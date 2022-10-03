@@ -264,6 +264,18 @@ TEST(ParserTest, ParseURLNonStandard) {
   EXPECT_STREQ("ref", ref.ToString().c_str());
 }
 
+// Combine and parse an absolute and relative URL.
+TEST(ParserTest, ParseAbsoluteAndRelativeURL) {
+  CefString base_url;
+  base_url.FromASCII("https://www.example.com");
+  CefString relative_url;
+  relative_url.FromASCII("/example");
+  CefString resolved_url;
+  EXPECT_TRUE(CefResolveURL(base_url, relative_url, resolved_url));
+  EXPECT_STREQ("https://www.example.com/example",
+               resolved_url.ToString().c_str());
+}
+
 TEST(ParserTest, FormatUrlForSecurityDisplay) {
   CefString result;
 

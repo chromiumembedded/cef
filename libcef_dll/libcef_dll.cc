@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=70f3e95dc09c7676072c8f8ecae04a9c631523ee$
+// $hash=a3be9b3f96ebf8c8840856a6f454729d77459a22$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -395,6 +395,35 @@ CEF_EXPORT int cef_clear_cross_origin_whitelist() {
 
   // Execute
   bool _retval = CefClearCrossOriginWhitelist();
+
+  // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT int cef_resolve_url(const cef_string_t* base_url,
+                               const cef_string_t* relative_url,
+                               cef_string_t* resolved_url) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: base_url; type: string_byref_const
+  DCHECK(base_url);
+  if (!base_url)
+    return 0;
+  // Verify param: relative_url; type: string_byref_const
+  DCHECK(relative_url);
+  if (!relative_url)
+    return 0;
+  // Verify param: resolved_url; type: string_byref
+  DCHECK(resolved_url);
+  if (!resolved_url)
+    return 0;
+
+  // Translate param: resolved_url; type: string_byref
+  CefString resolved_urlStr(resolved_url);
+
+  // Execute
+  bool _retval = CefResolveURL(CefString(base_url), CefString(relative_url),
+                               resolved_urlStr);
 
   // Return type: bool
   return _retval;

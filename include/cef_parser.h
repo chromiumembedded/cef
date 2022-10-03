@@ -44,6 +44,15 @@
 #include "include/cef_values.h"
 
 ///
+/// Combines specified |base_url| and |relative_url| into |resolved_url|.
+/// Returns false if one of the URLs is empty or invalid.
+///
+/*--cef()--*/
+bool CefResolveURL(const CefString& base_url,
+                   const CefString& relative_url,
+                   CefString& resolved_url);
+
+///
 /// Parse the specified |url| into its component parts.
 /// Returns false if the URL is empty or invalid.
 ///

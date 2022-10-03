@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=52ee2d630fed6972270fa16ca2ad5c474f723da1$
+// $hash=f1ec7f73b35927e943a058141d73d449dd31e43c$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -376,6 +376,29 @@ NO_SANITIZE("cfi-icall") CEF_GLOBAL bool CefClearCrossOriginWhitelist() {
 
   // Execute
   int _retval = cef_clear_cross_origin_whitelist();
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+CEF_GLOBAL bool CefResolveURL(const CefString& base_url,
+                              const CefString& relative_url,
+                              CefString& resolved_url) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: base_url; type: string_byref_const
+  DCHECK(!base_url.empty());
+  if (base_url.empty())
+    return false;
+  // Verify param: relative_url; type: string_byref_const
+  DCHECK(!relative_url.empty());
+  if (relative_url.empty())
+    return false;
+
+  // Execute
+  int _retval = cef_resolve_url(base_url.GetStruct(), relative_url.GetStruct(),
+                                resolved_url.GetWritableStruct());
 
   // Return type: bool
   return _retval ? true : false;

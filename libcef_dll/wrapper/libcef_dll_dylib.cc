@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=93d56886080f7dc864034a17ce1f794198b14259$
+// $hash=6c8f094d04b36c879f379e87ebf45dc4698eb41e$
 //
 
 #include <dlfcn.h>
@@ -114,6 +114,7 @@ struct libcef_pointers {
   decltype(&cef_remove_cross_origin_whitelist_entry)
       cef_remove_cross_origin_whitelist_entry;
   decltype(&cef_clear_cross_origin_whitelist) cef_clear_cross_origin_whitelist;
+  decltype(&cef_resolve_url) cef_resolve_url;
   decltype(&cef_parse_url) cef_parse_url;
   decltype(&cef_create_url) cef_create_url;
   decltype(&cef_format_url_for_security_display)
@@ -346,6 +347,7 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_add_cross_origin_whitelist_entry);
   INIT_ENTRY(cef_remove_cross_origin_whitelist_entry);
   INIT_ENTRY(cef_clear_cross_origin_whitelist);
+  INIT_ENTRY(cef_resolve_url);
   INIT_ENTRY(cef_parse_url);
   INIT_ENTRY(cef_create_url);
   INIT_ENTRY(cef_format_url_for_security_display);
@@ -675,6 +677,14 @@ int cef_remove_cross_origin_whitelist_entry(const cef_string_t* source_origin,
 
 NO_SANITIZE("cfi-icall") int cef_clear_cross_origin_whitelist() {
   return g_libcef_pointers.cef_clear_cross_origin_whitelist();
+}
+
+NO_SANITIZE("cfi-icall")
+int cef_resolve_url(const cef_string_t* base_url,
+                    const cef_string_t* relative_url,
+                    cef_string_t* resolved_url) {
+  return g_libcef_pointers.cef_resolve_url(base_url, relative_url,
+                                           resolved_url);
 }
 
 NO_SANITIZE("cfi-icall")

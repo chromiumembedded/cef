@@ -13,6 +13,21 @@
 #include "net/base/mime_util.h"
 #include "url/gurl.h"
 
+bool CefResolveURL(const CefString& base_url,
+                   const CefString& relative_url,
+                   CefString& resolved_url) {
+  GURL base_gurl(base_url.ToString());
+  if (!base_gurl.is_valid())
+    return false;
+
+  GURL combined_gurl = base_gurl.Resolve(relative_url.ToString());
+  if (!combined_gurl.is_valid())
+    return false;
+
+  resolved_url = combined_gurl.spec();
+  return true;
+}
+
 bool CefParseURL(const CefString& url, CefURLParts& parts) {
   GURL gurl(url.ToString());
   if (!gurl.is_valid())
