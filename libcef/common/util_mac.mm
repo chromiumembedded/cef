@@ -8,7 +8,6 @@
 
 #include "base/base_paths.h"
 #include "base/command_line.h"
-#include "base/files/file_path.h"
 #include "base/logging.h"
 #include "base/mac/bundle_locations.h"
 #include "base/mac/foundation_util.h"
@@ -72,6 +71,10 @@ bool GetLocalLibraryDirectory(base::FilePath* result) {
   return base::mac::GetLocalDirectory(NSLibraryDirectory, result);
 }
 
+base::FilePath::StringType GetFrameworkName() {
+  return FILE_PATH_LITERAL("Chromium Embedded Framework");
+}
+
 base::FilePath GetFrameworkDirectory() {
   base::FilePath frameworks_path =
       base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
@@ -83,8 +86,8 @@ base::FilePath GetFrameworkDirectory() {
   if (frameworks_path.empty())
     return base::FilePath();
 
-  return frameworks_path.Append(
-      FILE_PATH_LITERAL("Chromium Embedded Framework.framework"));
+  return frameworks_path.Append(GetFrameworkName())
+      .AddExtension(FILE_PATH_LITERAL(".framework"));
 }
 
 base::FilePath GetFrameworkResourcesDirectory() {

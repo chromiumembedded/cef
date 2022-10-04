@@ -235,6 +235,11 @@ def GetRecommendedDefaultArgs():
       'v8_enable_sandbox': False,
   }
 
+  if platform == 'windows' or platform == 'mac':
+    # A browser specific value of at least 32 characters that will be used in
+    # the computation of the CDM storage ID.
+    result['alternate_cdm_storage_id_key'] = '968b476909da4373b08903c28e859454'
+
   if platform != 'windows':
     # Only allow non-component Debug builds on non-Windows platforms. These
     # builds will fail on Windows due to linker issues (running out of memory,
@@ -286,6 +291,14 @@ def GetRequiredArgs():
       # Don't use the chrome style plugin.
       'clang_use_chrome_plugins': False,
   }
+
+  if platform == 'windows' or platform == 'mac':
+    # Enable Widevine CDM host verification and storage ID.
+    result['enable_cdm_host_verification'] = True
+    result['enable_cdm_storage_id'] = True
+
+    # Enable use of the RLZ library as required by CDM storage ID.
+    result['enable_rlz'] = True
 
   if platform == 'linux':
     # Don't generate Chromium installer packages. This avoids GN dependency

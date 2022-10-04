@@ -106,6 +106,7 @@ import("//media/media_options.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
 import("//ppapi/buildflags/buildflags.gni")
 import("//printing/buildflags/buildflags.gni")
+import("//rlz/buildflags/buildflags.gni")
 import("//testing/test.gni")
 import("//third_party/icu/config.gni")
 import("//third_party/widevine/cdm/widevine.gni")
@@ -256,6 +257,14 @@ assert(enable_print_preview)
 
 # Enable support for Widevine CDM.
 assert(enable_widevine)
+
+if (is_mac || is_win) {
+  # Enable Widevine CDM host verification and storage ID.
+  assert(enable_cdm_host_verification)
+  assert(enable_cdm_storage_id)
+  assert(alternate_cdm_storage_id_key != "")
+  assert(enable_rlz)
+}
 
 # Enable Views UI framework.
 assert(toolkit_views)
@@ -1163,6 +1172,13 @@ source_set("libcef_static") {
       "//ui/aura",
       "//ui/wm",
       "//ui/wm/public",
+    ]
+  }
+
+  if (enable_cdm_host_verification) {
+    sources += [
+      "libcef/common/cdm_host_file_path.cc",
+      "libcef/common/cdm_host_file_path.h",
     ]
   }
 }

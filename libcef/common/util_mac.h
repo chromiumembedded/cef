@@ -8,14 +8,15 @@
 
 #include <string>
 
-namespace base {
-class FilePath;
-}
+#include "base/files/file_path.h"
 
 namespace util_mac {
 
 // Returns the path to the NSLibraryDirectory (e.g. "~/Library").
 bool GetLocalLibraryDirectory(base::FilePath* result);
+
+// Returns the framework name (e.g. "Chromium Embedded Framework").
+base::FilePath::StringType GetFrameworkName();
 
 // Returns the path to the CEF framework directory inside the top-level app
 // bundle (e.g. "myapp.app/Contents/Frameworks/Chromium Embedded

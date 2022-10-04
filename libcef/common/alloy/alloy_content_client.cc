@@ -39,7 +39,7 @@
 #include "ui/base/resource/resource_bundle.h"
 
 #if BUILDFLAG(ENABLE_CDM_HOST_VERIFICATION)
-#include "chrome/common/media/cdm_host_file_path.h"
+#include "libcef/common/cdm_host_file_path.h"
 #endif
 
 namespace {
@@ -92,7 +92,7 @@ void AlloyContentClient::AddContentDecryptionModules(
 
 #if BUILDFLAG(ENABLE_CDM_HOST_VERIFICATION)
   if (cdm_host_file_paths)
-    AddCdmHostFilePaths(cdm_host_file_paths);
+    cef::AddCdmHostFilePaths(cdm_host_file_paths);
 #endif
 }
 
