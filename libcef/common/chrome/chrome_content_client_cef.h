@@ -14,6 +14,9 @@ class ChromeContentClientCef : public ChromeContentClient {
   ~ChromeContentClientCef() override;
 
   // content::ContentClient overrides.
+  void AddContentDecryptionModules(
+      std::vector<content::CdmInfo>* cdms,
+      std::vector<media::CdmHostFilePath>* cdm_host_file_paths) override;
   void AddAdditionalSchemes(Schemes* schemes) override;
 };
 

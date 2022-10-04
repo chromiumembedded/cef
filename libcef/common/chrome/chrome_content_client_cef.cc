@@ -7,8 +7,26 @@
 
 #include "libcef/common/app_manager.h"
 
+#include "chrome/common/media/cdm_registration.h"
+
+#if BUILDFLAG(ENABLE_CDM_HOST_VERIFICATION)
+#include "libcef/common/cdm_host_file_path.h"
+#endif
+
 ChromeContentClientCef::ChromeContentClientCef() = default;
 ChromeContentClientCef::~ChromeContentClientCef() = default;
+
+void ChromeContentClientCef::AddContentDecryptionModules(
+    std::vector<content::CdmInfo>* cdms,
+    std::vector<media::CdmHostFilePath>* cdm_host_file_paths) {
+  if (cdms)
+    RegisterCdmInfo(cdms);
+
+#if BUILDFLAG(ENABLE_CDM_HOST_VERIFICATION)
+  if (cdm_host_file_paths)
+    cef::AddCdmHostFilePaths(cdm_host_file_paths);
+#endif
+}
 
 void ChromeContentClientCef::AddAdditionalSchemes(Schemes* schemes) {
   ChromeContentClient::AddAdditionalSchemes(schemes);
