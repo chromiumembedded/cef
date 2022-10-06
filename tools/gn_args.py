@@ -212,12 +212,6 @@ def GetRecommendedDefaultArgs():
       # distribution.
       'is_component_build': False,
 
-      # Specify the current PGO phase. Default is 0 (turned off) for normal
-      # builds and 2 (used during the optimization phase) for official Windows
-      # and macOS builds. Currently turned off for CEF because it requires
-      # additional setup and is not yet tested. See issue #2956.
-      'chrome_pgo_phase': 0,
-
       # Disable support for background apps, which don't make sense with CEF.
       # Default is enabled on desktop platforms. This feature was also causing
       # strange shutdown crashes when using the Chrome runtime with a Debug
