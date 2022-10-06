@@ -809,6 +809,12 @@ parser.add_option(
     dest='arm64build',
     default=False,
     help='Create an ARM64 build.')
+parser.add_option(
+    '--with-pgo-profiles',
+    action='store_true',
+    dest='withpgoprofiles',
+    default=False,
+    help='Download PGO profiles for the build.')
 
 # Test-related options.
 parser.add_option(
@@ -1261,6 +1267,9 @@ if not os.path.exists(gclient_file) or options.forceconfig:
         "'managed': False,"+\
         "'name': 'src', "+\
         "'url': '" + chromium_url + "', "+\
+        "'custom_vars': {"+\
+          "'checkout_pgo_profiles': " + ('True' if options.withpgoprofiles else 'False') + ", "+\
+        "}, "+\
         "'custom_deps': {"+\
           "'build': None, "+\
           "'build/scripts/command_wrapper/bin': None, "+\
