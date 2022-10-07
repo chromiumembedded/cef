@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index 6256a29956a8c..9a70f9d6b1036 100644
+index 8a745f6c29c0d..925acef4d38bb 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/compiler/pgo/pgo.gni")
@@ -29,7 +29,7 @@ index 6256a29956a8c..9a70f9d6b1036 100644
    if (is_android) {
      sources += [
        "after_startup_task_utils_android.cc",
-@@ -6353,8 +6359,6 @@ static_library("browser") {
+@@ -6352,8 +6358,6 @@ static_library("browser") {
      sources += [
        "enterprise/chrome_browser_main_extra_parts_enterprise.cc",
        "enterprise/chrome_browser_main_extra_parts_enterprise.h",
