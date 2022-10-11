@@ -237,6 +237,7 @@ class CefV8ValueImpl : public CefV8Value {
   bool IsArray() override;
   bool IsArrayBuffer() override;
   bool IsFunction() override;
+  bool IsPromise() override;
   bool IsSame(CefRefPtr<CefV8Value> value) override;
   bool GetBoolValue() override;
   int32 GetIntValue() override;
@@ -281,6 +282,9 @@ class CefV8ValueImpl : public CefV8Value {
       CefRefPtr<CefV8Context> context,
       CefRefPtr<CefV8Value> object,
       const CefV8ValueList& arguments) override;
+
+  bool ResolvePromise(CefRefPtr<CefV8Value> arg) override;
+  bool RejectPromise(const CefString& errorMsg) override;
 
  private:
   // Test for and record any exception.

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=46a80d60441e386e6a8999ecb5fd338f3f6b4319$
+// $hash=5dd413b62070b7d80292faf8396d3b795dd4035e$
 //
 
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
@@ -173,6 +173,16 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_function(
   // Execute
   CefRefPtr<CefV8Value> _retval = CefV8Value::CreateFunction(
       CefString(name), CefV8HandlerCToCpp::Wrap(handler));
+
+  // Return type: refptr_same
+  return CefV8ValueCppToC::Wrap(_retval);
+}
+
+CEF_EXPORT cef_v8value_t* cef_v8value_create_promise() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  CefRefPtr<CefV8Value> _retval = CefV8Value::CreatePromise();
 
   // Return type: refptr_same
   return CefV8ValueCppToC::Wrap(_retval);
@@ -359,6 +369,20 @@ int CEF_CALLBACK v8value_is_function(struct _cef_v8value_t* self) {
 
   // Execute
   bool _retval = CefV8ValueCppToC::Get(self)->IsFunction();
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK v8value_is_promise(struct _cef_v8value_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefV8ValueCppToC::Get(self)->IsPromise();
 
   // Return type: bool
   return _retval;
@@ -974,6 +998,43 @@ v8value_execute_function_with_context(struct _cef_v8value_t* self,
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
+int CEF_CALLBACK v8value_resolve_promise(struct _cef_v8value_t* self,
+                                         struct _cef_v8value_t* arg) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Unverified params: arg
+
+  // Execute
+  bool _retval = CefV8ValueCppToC::Get(self)->ResolvePromise(
+      CefV8ValueCppToC::Unwrap(arg));
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK v8value_reject_promise(struct _cef_v8value_t* self,
+                                        const cef_string_t* errorMsg) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: errorMsg; type: string_byref_const
+  DCHECK(errorMsg);
+  if (!errorMsg)
+    return 0;
+
+  // Execute
+  bool _retval =
+      CefV8ValueCppToC::Get(self)->RejectPromise(CefString(errorMsg));
+
+  // Return type: bool
+  return _retval;
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -992,6 +1053,7 @@ CefV8ValueCppToC::CefV8ValueCppToC() {
   GetStruct()->is_array = v8value_is_array;
   GetStruct()->is_array_buffer = v8value_is_array_buffer;
   GetStruct()->is_function = v8value_is_function;
+  GetStruct()->is_promise = v8value_is_promise;
   GetStruct()->is_same = v8value_is_same;
   GetStruct()->get_bool_value = v8value_get_bool_value;
   GetStruct()->get_int_value = v8value_get_int_value;
@@ -1030,6 +1092,8 @@ CefV8ValueCppToC::CefV8ValueCppToC() {
   GetStruct()->execute_function = v8value_execute_function;
   GetStruct()->execute_function_with_context =
       v8value_execute_function_with_context;
+  GetStruct()->resolve_promise = v8value_resolve_promise;
+  GetStruct()->reject_promise = v8value_reject_promise;
 }
 
 // DESTRUCTOR - Do not edit by hand.

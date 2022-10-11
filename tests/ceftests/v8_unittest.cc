@@ -84,6 +84,12 @@ enum V8TestMode {
   V8TEST_FUNCTION_HANDLER_NO_OBJECT,
   V8TEST_FUNCTION_HANDLER_WITH_CONTEXT,
   V8TEST_FUNCTION_HANDLER_EMPTY_STRING,
+  V8TEST_PROMISE_CREATE,
+  V8TEST_PROMISE_RESOLVE,
+  V8TEST_PROMISE_RESOLVE_NO_ARGUMENT,
+  V8TEST_PROMISE_RESOLVE_HANDLER,
+  V8TEST_PROMISE_REJECT,
+  V8TEST_PROMISE_REJECT_HANDLER,
   V8TEST_CONTEXT_EVAL,
   V8TEST_CONTEXT_EVAL_EXCEPTION,
   V8TEST_CONTEXT_EVAL_CSP_BYPASS_UNSAFE_EVAL,
@@ -214,6 +220,24 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       case V8TEST_FUNCTION_HANDLER_EMPTY_STRING:
         RunFunctionHandlerEmptyStringTest();
         break;
+      case V8TEST_PROMISE_CREATE:
+        RunPromiseCreateTest();
+        break;
+      case V8TEST_PROMISE_RESOLVE:
+        RunPromiseResolveTest();
+        break;
+      case V8TEST_PROMISE_RESOLVE_NO_ARGUMENT:
+        RunPromiseResolveNoArgumentTest();
+        break;
+      case V8TEST_PROMISE_RESOLVE_HANDLER:
+        RunPromiseResolveHandlerTest();
+        break;
+      case V8TEST_PROMISE_REJECT:
+        RunPromiseRejectTest();
+        break;
+      case V8TEST_PROMISE_REJECT_HANDLER:
+        RunPromiseRejectHandlerTest();
+        break;
       case V8TEST_CONTEXT_EVAL:
         RunContextEvalTest();
         break;
@@ -273,6 +297,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_FALSE(value->IsInt());
     EXPECT_FALSE(value->IsUInt());
     EXPECT_FALSE(value->IsObject());
+    EXPECT_FALSE(value->IsPromise());
     EXPECT_FALSE(value->IsString());
 
     DestroyTest();
@@ -293,6 +318,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_FALSE(value->IsUInt());
     EXPECT_FALSE(value->IsNull());
     EXPECT_FALSE(value->IsObject());
+    EXPECT_FALSE(value->IsPromise());
     EXPECT_FALSE(value->IsString());
 
     DestroyTest();
@@ -315,6 +341,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_FALSE(value->IsFunction());
     EXPECT_FALSE(value->IsNull());
     EXPECT_FALSE(value->IsObject());
+    EXPECT_FALSE(value->IsPromise());
     EXPECT_FALSE(value->IsString());
 
     DestroyTest();
@@ -337,6 +364,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_FALSE(value->IsFunction());
     EXPECT_FALSE(value->IsNull());
     EXPECT_FALSE(value->IsObject());
+    EXPECT_FALSE(value->IsPromise());
     EXPECT_FALSE(value->IsString());
 
     DestroyTest();
@@ -357,6 +385,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_FALSE(value->IsUInt());
     EXPECT_FALSE(value->IsNull());
     EXPECT_FALSE(value->IsObject());
+    EXPECT_FALSE(value->IsPromise());
     EXPECT_FALSE(value->IsString());
 
     DestroyTest();
@@ -396,6 +425,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_FALSE(value->IsUInt());
     EXPECT_FALSE(value->IsObject());
     EXPECT_FALSE(value->IsNull());
+    EXPECT_FALSE(value->IsPromise());
     EXPECT_FALSE(value->IsString());
 
     DestroyTest();
@@ -416,6 +446,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_FALSE(value->IsInt());
     EXPECT_FALSE(value->IsUInt());
     EXPECT_FALSE(value->IsNull());
+    EXPECT_FALSE(value->IsPromise());
     EXPECT_FALSE(value->IsObject());
 
     DestroyTest();
@@ -437,6 +468,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_FALSE(value->IsUInt());
     EXPECT_FALSE(value->IsNull());
     EXPECT_FALSE(value->IsObject());
+    EXPECT_FALSE(value->IsPromise());
 
     DestroyTest();
   }
@@ -466,6 +498,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_FALSE(value->IsInt());
     EXPECT_FALSE(value->IsUInt());
     EXPECT_FALSE(value->IsNull());
+    EXPECT_FALSE(value->IsPromise());
     EXPECT_FALSE(value->IsString());
 
     DestroyTest();
@@ -645,6 +678,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_FALSE(value->IsInt());
     EXPECT_FALSE(value->IsUInt());
     EXPECT_FALSE(value->IsNull());
+    EXPECT_FALSE(value->IsPromise());
     EXPECT_FALSE(value->IsString());
 
     // Exit the V8 context.
@@ -1900,6 +1934,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_FALSE(value->IsInt());
     EXPECT_FALSE(value->IsUInt());
     EXPECT_FALSE(value->IsNull());
+    EXPECT_FALSE(value->IsPromise());
     EXPECT_FALSE(value->IsString());
 
     DestroyTest();
@@ -2224,6 +2259,248 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     // Exit the V8 context.
     EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
+  void RunPromiseCreateTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Value> value = CefV8Value::CreatePromise();
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->IsPromise());
+    EXPECT_TRUE(value->IsObject());
+
+    EXPECT_FALSE(value->IsUndefined());
+    EXPECT_FALSE(value->IsArray());
+    EXPECT_FALSE(value->IsBool());
+    EXPECT_FALSE(value->IsDate());
+    EXPECT_FALSE(value->IsDouble());
+    EXPECT_FALSE(value->IsFunction());
+    EXPECT_FALSE(value->IsInt());
+    EXPECT_FALSE(value->IsUInt());
+    EXPECT_FALSE(value->IsNull());
+    EXPECT_FALSE(value->IsString());
+
+    DestroyTest();
+  }
+
+  void RunPromiseResolveTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Value> value = CefV8Value::CreatePromise();
+    CefRefPtr<CefV8Value> obj = CefV8Value::CreateObject(nullptr, nullptr);
+
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->ResolvePromise(obj));
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
+  void RunPromiseResolveNoArgumentTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Value> value = CefV8Value::CreatePromise();
+
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->ResolvePromise(nullptr));
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
+  void RunPromiseResolveHandlerTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    static const char* kPromiseName = "myprom";
+    static const char* kResolveName = "myresolve";
+    static const char* kRejectName = "myreject";
+    static const int kVal1 = 32;
+
+    class Handler : public CefV8Handler {
+     public:
+      Handler() {}
+      bool Execute(const CefString& name,
+                   CefRefPtr<CefV8Value> object,
+                   const CefV8ValueList& arguments,
+                   CefRefPtr<CefV8Value>& retval,
+                   CefString& exception) override {
+        EXPECT_STREQ(kResolveName, name.ToString().c_str());
+        EXPECT_EQ((size_t)1, arguments.size());
+        EXPECT_TRUE(arguments[0]->IsInt());
+        EXPECT_EQ(kVal1, arguments[0]->GetIntValue());
+
+        got_execute_.yes();
+
+        return false;
+      }
+
+      TrackCallback got_execute_;
+
+      IMPLEMENT_REFCOUNTING(Handler);
+    };
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    Handler* resolveHandler = new Handler;
+    Handler* rejectHandler = new Handler;
+
+    CefRefPtr<CefV8Handler> resolveHandlerPtr(resolveHandler);
+    CefRefPtr<CefV8Handler> rejectHandlerPtr(rejectHandler);
+
+    CefRefPtr<CefV8Value> resolveFunc =
+        CefV8Value::CreateFunction(kResolveName, resolveHandler);
+    EXPECT_TRUE(resolveFunc.get());
+    EXPECT_TRUE(context->GetGlobal()->SetValue(kResolveName, resolveFunc,
+                                               V8_PROPERTY_ATTRIBUTE_NONE));
+
+    CefRefPtr<CefV8Value> rejectFunc =
+        CefV8Value::CreateFunction(kRejectName, rejectHandler);
+    EXPECT_TRUE(rejectFunc.get());
+    EXPECT_TRUE(context->GetGlobal()->SetValue(kRejectName, rejectFunc,
+                                               V8_PROPERTY_ATTRIBUTE_NONE));
+
+    CefRefPtr<CefV8Value> value = CefV8Value::CreatePromise();
+
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(context->GetGlobal()->SetValue(kPromiseName, value,
+                                               V8_PROPERTY_ATTRIBUTE_NONE));
+
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    std::stringstream test;
+    test << "window." << kPromiseName << ".then(" << kResolveName << ").catch("
+         << kRejectName << ")";
+
+    EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
+    EXPECT_TRUE(retval.get());
+    EXPECT_TRUE(retval->IsPromise());
+    EXPECT_FALSE(exception.get());
+
+    CefRefPtr<CefV8Value> arg = CefV8Value::CreateInt(kVal1);
+    EXPECT_TRUE(value->ResolvePromise(arg));
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    EXPECT_TRUE(resolveHandler->got_execute_);
+    EXPECT_FALSE(rejectHandler->got_execute_);
+
+    DestroyTest();
+  }
+
+  void RunPromiseRejectTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    CefRefPtr<CefV8Value> value = CefV8Value::CreatePromise();
+
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->RejectPromise("Error: Unknown"));
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    DestroyTest();
+  }
+
+  void RunPromiseRejectHandlerTest() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    static const char* kPromiseName = "myprom";
+    static const char* kResolveName = "myresolve";
+    static const char* kRejectName = "myreject";
+
+    class Handler : public CefV8Handler {
+     public:
+      Handler() {}
+      bool Execute(const CefString& name,
+                   CefRefPtr<CefV8Value> object,
+                   const CefV8ValueList& arguments,
+                   CefRefPtr<CefV8Value>& retval,
+                   CefString& exception) override {
+        EXPECT_STREQ(kRejectName, name.ToString().c_str());
+        EXPECT_EQ((size_t)1, arguments.size());
+        EXPECT_TRUE(arguments[0]->IsObject());
+
+        got_execute_.yes();
+
+        return false;
+      }
+
+      TrackCallback got_execute_;
+
+      IMPLEMENT_REFCOUNTING(Handler);
+    };
+
+    // Enter the V8 context.
+    EXPECT_TRUE(context->Enter());
+
+    Handler* resolveHandler = new Handler;
+    Handler* rejectHandler = new Handler;
+
+    CefRefPtr<CefV8Handler> resolveHandlerPtr(resolveHandler);
+    CefRefPtr<CefV8Handler> rejectHandlerPtr(rejectHandler);
+
+    CefRefPtr<CefV8Value> resolveFunc =
+        CefV8Value::CreateFunction(kResolveName, resolveHandler);
+    EXPECT_TRUE(resolveFunc.get());
+    EXPECT_TRUE(context->GetGlobal()->SetValue(kResolveName, resolveFunc,
+                                               V8_PROPERTY_ATTRIBUTE_NONE));
+
+    CefRefPtr<CefV8Value> rejectFunc =
+        CefV8Value::CreateFunction(kRejectName, rejectHandler);
+    EXPECT_TRUE(rejectFunc.get());
+    EXPECT_TRUE(context->GetGlobal()->SetValue(kRejectName, rejectFunc,
+                                               V8_PROPERTY_ATTRIBUTE_NONE));
+
+    CefRefPtr<CefV8Value> value = CefV8Value::CreatePromise();
+
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(context->GetGlobal()->SetValue(kPromiseName, value,
+                                               V8_PROPERTY_ATTRIBUTE_NONE));
+
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    std::stringstream test;
+    test << "window." << kPromiseName << ".then(" << kResolveName << ").catch("
+         << kRejectName << ")";
+
+    EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
+    EXPECT_TRUE(retval.get());
+    EXPECT_TRUE(retval->IsPromise());
+    EXPECT_FALSE(exception.get());
+
+    EXPECT_TRUE(value->RejectPromise("Error: Unknown"));
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+
+    EXPECT_FALSE(resolveHandler->got_execute_);
+    EXPECT_TRUE(rejectHandler->got_execute_);
 
     DestroyTest();
   }
@@ -3055,6 +3332,12 @@ V8_TEST(FunctionHandlerFail, V8TEST_FUNCTION_HANDLER_FAIL)
 V8_TEST(FunctionHandlerNoObject, V8TEST_FUNCTION_HANDLER_NO_OBJECT)
 V8_TEST(FunctionHandlerWithContext, V8TEST_FUNCTION_HANDLER_WITH_CONTEXT)
 V8_TEST(FunctionHandlerEmptyString, V8TEST_FUNCTION_HANDLER_EMPTY_STRING)
+V8_TEST(PromiseCreate, V8TEST_PROMISE_CREATE)
+V8_TEST(PromiseResolve, V8TEST_PROMISE_RESOLVE)
+V8_TEST(PromiseResolveNoArgument, V8TEST_PROMISE_RESOLVE_NO_ARGUMENT)
+V8_TEST(PromiseResolveHandler, V8TEST_PROMISE_RESOLVE_HANDLER)
+V8_TEST(PromiseReject, V8TEST_PROMISE_REJECT)
+V8_TEST(PromiseRejectHandler, V8TEST_PROMISE_REJECT_HANDLER)
 V8_TEST(ContextEval, V8TEST_CONTEXT_EVAL)
 V8_TEST(ContextEvalException, V8TEST_CONTEXT_EVAL_EXCEPTION)
 V8_TEST_EX(ContextEvalCspBypassUnsafeEval,

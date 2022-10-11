@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6c8f094d04b36c879f379e87ebf45dc4698eb41e$
+// $hash=a753ff43760df4f3c1126d248b4128ca14a8cd68$
 //
 
 #include <dlfcn.h>
@@ -204,6 +204,7 @@ struct libcef_pointers {
   decltype(&cef_v8value_create_array) cef_v8value_create_array;
   decltype(&cef_v8value_create_array_buffer) cef_v8value_create_array_buffer;
   decltype(&cef_v8value_create_function) cef_v8value_create_function;
+  decltype(&cef_v8value_create_promise) cef_v8value_create_promise;
   decltype(&cef_v8stack_trace_get_current) cef_v8stack_trace_get_current;
   decltype(&cef_value_create) cef_value_create;
   decltype(&cef_binary_value_create) cef_binary_value_create;
@@ -420,6 +421,7 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_v8value_create_array);
   INIT_ENTRY(cef_v8value_create_array_buffer);
   INIT_ENTRY(cef_v8value_create_function);
+  INIT_ENTRY(cef_v8value_create_promise);
   INIT_ENTRY(cef_v8stack_trace_get_current);
   INIT_ENTRY(cef_value_create);
   INIT_ENTRY(cef_binary_value_create);
@@ -1112,6 +1114,10 @@ struct _cef_v8value_t* cef_v8value_create_function(
     const cef_string_t* name,
     struct _cef_v8handler_t* handler) {
   return g_libcef_pointers.cef_v8value_create_function(name, handler);
+}
+
+NO_SANITIZE("cfi-icall") struct _cef_v8value_t* cef_v8value_create_promise() {
+  return g_libcef_pointers.cef_v8value_create_promise();
 }
 
 NO_SANITIZE("cfi-icall")

@@ -1480,6 +1480,33 @@ CefRefPtr<CefV8Value> CefV8Value::CreateFunction(
   return impl.get();
 }
 
+// static
+CefRefPtr<CefV8Value> CefV8Value::CreatePromise() {
+  CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
+  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::HandleScope handle_scope(isolate);
+
+  v8::Local<v8::Context> context = isolate->GetCurrentContext();
+  if (context.IsEmpty()) {
+    NOTREACHED() << "not currently in a V8 context";
+    return nullptr;
+  }
+
+  v8::Local<v8::Promise::Resolver> promise_resolver =
+      v8::Promise::Resolver::New(context).ToLocalChecked();
+
+  // Create a tracker object that will cause the user data reference to be
+  // released when the V8 object is destroyed.
+  V8TrackObject* tracker = new V8TrackObject(isolate);
+
+  // Attach the tracker object.
+  tracker->AttachTo(context, promise_resolver);
+
+  CefRefPtr<CefV8ValueImpl> impl = new CefV8ValueImpl(isolate);
+  impl->InitObject(promise_resolver, tracker);
+  return impl.get();
+}
+
 // CefV8ValueImpl
 
 CefV8ValueImpl::CefV8ValueImpl(v8::Isolate* isolate)
@@ -1708,6 +1735,16 @@ bool CefV8ValueImpl::IsFunction() {
   if (type_ == TYPE_OBJECT) {
     v8::HandleScope handle_scope(handle_->isolate());
     return handle_->GetNewV8Handle(false)->IsFunction();
+  } else {
+    return false;
+  }
+}
+
+bool CefV8ValueImpl::IsPromise() {
+  CEF_V8_REQUIRE_MLT_RETURN(false);
+  if (type_ == TYPE_OBJECT) {
+    v8::HandleScope handle_scope(handle_->isolate());
+    return handle_->GetNewV8Handle(false)->IsPromise();
   } else {
     return false;
   }
@@ -2442,6 +2479,75 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::ExecuteFunctionWithContext(
     delete[] argv;
 
   return retval;
+}
+
+bool CefV8ValueImpl::ResolvePromise(CefRefPtr<CefV8Value> arg) {
+  CEF_V8_REQUIRE_OBJECT_RETURN(false);
+
+  v8::Isolate* isolate = handle_->isolate();
+  v8::HandleScope handle_scope(isolate);
+  v8::Local<v8::Value> value = handle_->GetNewV8Handle(false);
+  if (!value->IsPromise()) {
+    NOTREACHED() << "V8 value is not a Promise";
+    return false;
+  }
+
+  if (arg.get() && !arg->IsValid()) {
+    NOTREACHED() << "invalid V8 arg parameter";
+    return false;
+  }
+
+  v8::Local<v8::Context> context_local = isolate->GetCurrentContext();
+
+  v8::Context::Scope context_scope(context_local);
+
+  v8::Local<v8::Object> obj = value->ToObject(context_local).ToLocalChecked();
+  v8::Local<v8::Promise::Resolver> promise =
+      v8::Local<v8::Promise::Resolver>::Cast(obj);
+
+  v8::TryCatch try_catch(isolate);
+  try_catch.SetVerbose(true);
+
+  if (arg.get()) {
+    promise
+        ->Resolve(context_local,
+                  static_cast<CefV8ValueImpl*>(arg.get())->GetV8Value(true))
+        .ToChecked();
+  } else {
+    promise->Resolve(context_local, v8::Undefined(isolate)).ToChecked();
+  }
+
+  return !HasCaught(context_local, try_catch);
+}
+
+bool CefV8ValueImpl::RejectPromise(const CefString& errorMsg) {
+  CEF_V8_REQUIRE_OBJECT_RETURN(false);
+
+  v8::Isolate* isolate = handle_->isolate();
+  v8::HandleScope handle_scope(isolate);
+  v8::Local<v8::Value> value = handle_->GetNewV8Handle(false);
+  if (!value->IsPromise()) {
+    NOTREACHED() << "V8 value is not a Promise";
+    return false;
+  }
+
+  v8::Local<v8::Context> context_local = isolate->GetCurrentContext();
+
+  v8::Context::Scope context_scope(context_local);
+
+  v8::Local<v8::Object> obj = value->ToObject(context_local).ToLocalChecked();
+  v8::Local<v8::Promise::Resolver> promise =
+      v8::Local<v8::Promise::Resolver>::Cast(obj);
+
+  v8::TryCatch try_catch(isolate);
+  try_catch.SetVerbose(true);
+
+  promise
+      ->Reject(context_local,
+               v8::Exception::Error(GetV8String(isolate, errorMsg)))
+      .ToChecked();
+
+  return !HasCaught(context_local, try_catch);
 }
 
 bool CefV8ValueImpl::HasCaught(v8::Local<v8::Context> context,
