@@ -2480,7 +2480,7 @@ typedef enum {
 ///
 typedef enum {
   ///
-  /// Default margins.
+  /// Default margins of 1cm (~0.4 inches).
   ///
   PDF_PRINT_MARGIN_DEFAULT,
 
@@ -2490,54 +2490,47 @@ typedef enum {
   PDF_PRINT_MARGIN_NONE,
 
   ///
-  /// Minimum margins.
-  ///
-  PDF_PRINT_MARGIN_MINIMUM,
-
-  ///
   /// Custom margins using the |margin_*| values from cef_pdf_print_settings_t.
   ///
   PDF_PRINT_MARGIN_CUSTOM,
 } cef_pdf_print_margin_type_t;
 
 ///
-/// Structure representing PDF print settings.
+/// Structure representing PDF print settings. These values match the parameters
+/// supported by the DevTools Page.printToPDF function. See
+/// https://chromedevtools.github.io/devtools-protocol/tot/Page/#method-printToPDF
 ///
 typedef struct _cef_pdf_print_settings_t {
   ///
-  /// Page title to display in the header. Only used if |header_footer_enabled|
-  /// is set to true (1).
+  /// Set to true (1) for landscape mode or false (0) for portrait mode.
   ///
-  cef_string_t header_footer_title;
+  int landscape;
 
   ///
-  /// URL to display in the footer. Only used if |header_footer_enabled| is set
-  /// to true (1).
+  /// Set to true (1) to print background graphics.
   ///
-  cef_string_t header_footer_url;
+  int print_background;
 
   ///
-  /// Output page size in microns. If either of these values is less than or
-  /// equal to zero then the default paper size (A4) will be used.
-  ///
-  int page_width;
-  int page_height;
-
-  ///
-  /// The percentage to scale the PDF by before printing (e.g. 50 is 50%).
-  /// If this value is less than or equal to zero the default value of 100
+  /// The percentage to scale the PDF by before printing (e.g. .5 is 50%).
+  /// If this value is less than or equal to zero the default value of 1.0
   /// will be used.
   ///
-  int scale_factor;
+  double scale;
 
   ///
-  /// Margins in points. Only used if |margin_type| is set to
-  /// PDF_PRINT_MARGIN_CUSTOM.
+  /// Output paper size in inches. If either of these values is less than or
+  /// equal to zero then the default paper size (letter, 8.5 x 11 inches) will
+  /// be used.
   ///
-  int margin_top;
-  int margin_right;
-  int margin_bottom;
-  int margin_left;
+  double paper_width;
+  double paper_height;
+
+  ///
+  /// Set to true (1) to prefer page size as defined by css. Defaults to false
+  /// (0), in which case the content will be scaled to fit the paper size.
+  ///
+  int prefer_css_page_size;
 
   ///
   /// Margin type.
@@ -2545,27 +2538,53 @@ typedef struct _cef_pdf_print_settings_t {
   cef_pdf_print_margin_type_t margin_type;
 
   ///
-  /// Set to true (1) to print headers and footers or false (0) to not print
-  /// headers and footers.
+  /// Margins in inches. Only used if |margin_type| is set to
+  /// PDF_PRINT_MARGIN_CUSTOM.
   ///
-  int header_footer_enabled;
+  double margin_top;
+  double margin_right;
+  double margin_bottom;
+  double margin_left;
 
   ///
-  /// Set to true (1) to print the selection only or false (0) to print all.
+  /// Paper ranges to print, one based, e.g., '1-5, 8, 11-13'. Pages are printed
+  /// in the document order, not in the order specified, and no more than once.
+  /// Defaults to empty string, which implies the entire document is printed.
+  /// The page numbers are quietly capped to actual page count of the document,
+  /// and ranges beyond the end of the document are ignored. If this results in
+  /// no pages to print, an error is reported. It is an error to specify a range
+  /// with start greater than end.
   ///
-  int selection_only;
+  cef_string_t page_ranges;
 
   ///
-  /// Set to true (1) for landscape mode or false (0) for portrait mode.
+  /// Set to true (1) to display the header and/or footer. Modify
+  /// |header_template| and/or |footer_template| to customize the display.
   ///
-  int landscape;
+  int display_header_footer;
 
   ///
-  /// Set to true (1) to print background graphics or false (0) to not print
-  /// background graphics.
+  /// HTML template for the print header. Only displayed if
+  /// |display_header_footer| is true (1). Should be valid HTML markup with
+  /// the following classes used to inject printing values into them:
   ///
-  int backgrounds_enabled;
+  /// - date: formatted print date
+  /// - title: document title
+  /// - url: document location
+  /// - pageNumber: current page number
+  /// - totalPages: total pages in the document
+  ///
+  /// For example, "<span class=title></span>" would generate a span containing
+  /// the title.
+  ///
+  cef_string_t header_template;
 
+  ///
+  /// HTML template for the print footer. Only displayed if
+  /// |display_header_footer| is true (1). Uses the same format as
+  /// |header_template|.
+  ///
+  cef_string_t footer_template;
 } cef_pdf_print_settings_t;
 
 ///

@@ -52,9 +52,6 @@ class CefPrintDialogLinux : public printing::PrintDialogLinuxInterface,
   CefPrintDialogLinux(const CefPrintDialogLinux&) = delete;
   CefPrintDialogLinux& operator=(const CefPrintDialogLinux&) = delete;
 
-  // Notify the client when printing has started.
-  static void OnPrintStart(CefRefPtr<CefBrowserHostBase> browser);
-
   // PrintDialogLinuxInterface implementation.
   void UseDefaultSettings() override;
   void UpdateSettings(

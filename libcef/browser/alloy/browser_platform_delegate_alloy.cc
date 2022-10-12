@@ -11,14 +11,12 @@
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/extensions/extension_view_host.h"
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
-#include "libcef/browser/printing/print_view_manager.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/net/url_util.h"
 #include "libcef/features/runtime_checks.h"
 
 #include "base/logging.h"
 #include "chrome/browser/printing/print_view_manager.h"
-#include "chrome/browser/printing/print_view_manager_common.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "components/find_in_page/find_tab_helper.h"
 #include "components/find_in_page/find_types.h"
@@ -30,17 +28,7 @@
 #include "content/public/browser/render_view_host.h"
 #include "extensions/browser/process_manager.h"
 #include "pdf/pdf_features.h"
-#include "printing/mojom/print.mojom.h"
 #include "third_party/blink/public/mojom/frame/find_in_page.mojom.h"
-
-namespace {
-
-printing::CefPrintViewManager* GetPrintViewManager(
-    content::WebContents* web_contents) {
-  return printing::CefPrintViewManager::FromWebContents(web_contents);
-}
-
-}  // namespace
 
 CefBrowserPlatformDelegateAlloy::CefBrowserPlatformDelegateAlloy()
     : weak_ptr_factory_(this) {}
@@ -181,7 +169,7 @@ void CefBrowserPlatformDelegateAlloy::BrowserCreated(
 
   permissions::PermissionRequestManager::CreateForWebContents(web_contents_);
   PrefsTabHelper::CreateForWebContents(web_contents_);
-  printing::CefPrintViewManager::CreateForWebContents(web_contents_);
+  printing::PrintViewManager::CreateForWebContents(web_contents_);
 
   if (extensions::ExtensionsEnabled()) {
     // Used by the tabs extension API.
@@ -355,48 +343,6 @@ bool CefBrowserPlatformDelegateAlloy::IsPrintPreviewSupported() const {
   auto cef_browser_context =
       CefBrowserContext::FromBrowserContext(web_contents_->GetBrowserContext());
   return cef_browser_context->IsPrintPreviewSupported();
-}
-
-void CefBrowserPlatformDelegateAlloy::Print() {
-  REQUIRE_ALLOY_RUNTIME();
-
-  auto contents_to_use = printing::GetWebContentsToUse(web_contents_);
-  if (!contents_to_use)
-    return;
-
-  auto rfh_to_use = printing::GetRenderFrameHostToUse(contents_to_use);
-  if (!rfh_to_use)
-    return;
-
-  if (IsPrintPreviewSupported()) {
-    GetPrintViewManager(contents_to_use)->PrintPreviewNow(rfh_to_use, false);
-  } else {
-    GetPrintViewManager(contents_to_use)->PrintNow(rfh_to_use);
-  }
-}
-
-void CefBrowserPlatformDelegateAlloy::PrintToPDF(
-    const CefString& path,
-    const CefPdfPrintSettings& settings,
-    CefRefPtr<CefPdfPrintCallback> callback) {
-  REQUIRE_ALLOY_RUNTIME();
-
-  auto contents_to_use = printing::GetWebContentsToUse(web_contents_);
-  if (!contents_to_use)
-    return;
-
-  auto rfh_to_use = printing::GetRenderFrameHostToUse(contents_to_use);
-  if (!rfh_to_use)
-    return;
-
-  printing::CefPrintViewManager::PdfPrintCallback pdf_callback;
-  if (callback.get()) {
-    pdf_callback = base::BindOnce(&CefPdfPrintCallback::OnPdfPrintFinished,
-                                  callback.get(), path);
-  }
-  GetPrintViewManager(contents_to_use)
-      ->PrintToPDF(rfh_to_use, base::FilePath(path), settings,
-                   std::move(pdf_callback));
 }
 
 void CefBrowserPlatformDelegateAlloy::Find(const CefString& searchText,

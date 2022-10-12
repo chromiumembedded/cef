@@ -65,20 +65,6 @@ index cbb6c5925c2ae..f4faa42ca0b04 100644
    }
    auto* printer_query_ptr = printer_query.get();
    printer_query_ptr->SetSettings(
-diff --git chrome/browser/printing/print_view_manager_base.h chrome/browser/printing/print_view_manager_base.h
-index ffbdbe363d956..9c3a5b9a9814f 100644
---- chrome/browser/printing/print_view_manager_base.h
-+++ chrome/browser/printing/print_view_manager_base.h
-@@ -204,9 +204,6 @@ class PrintViewManagerBase : public PrintManager, public PrintJob::Observer {
-   // Manages the low-level talk to the printer.
-   scoped_refptr<PrintJob> print_job_;
- 
-- private:
--  friend class TestPrintViewManager;
--
-   // content::WebContentsObserver implementation.
-   void RenderFrameHostStateChanged(
-       content::RenderFrameHost* render_frame_host,
 diff --git chrome/browser/resources/print_preview/ui/destination_dialog.html chrome/browser/resources/print_preview/ui/destination_dialog.html
 index 5d1658999d5bb..d1b7b7288c946 100644
 --- chrome/browser/resources/print_preview/ui/destination_dialog.html

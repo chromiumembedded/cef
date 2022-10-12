@@ -390,17 +390,6 @@ bool CefBrowserPlatformDelegate::IsPrintPreviewSupported() const {
   return true;
 }
 
-void CefBrowserPlatformDelegate::Print() {
-  NOTIMPLEMENTED();
-}
-
-void CefBrowserPlatformDelegate::PrintToPDF(
-    const CefString& path,
-    const CefPdfPrintSettings& settings,
-    CefRefPtr<CefPdfPrintCallback> callback) {
-  NOTIMPLEMENTED();
-}
-
 void CefBrowserPlatformDelegate::Find(const CefString& searchText,
                                       bool forward,
                                       bool matchCase,

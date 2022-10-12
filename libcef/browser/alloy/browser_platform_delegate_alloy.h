@@ -56,10 +56,6 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
                             const CefSize& max_size) override;
   void SetAccessibilityState(cef_state_t accessibility_state) override;
   bool IsPrintPreviewSupported() const override;
-  void Print() override;
-  void PrintToPDF(const CefString& path,
-                  const CefPdfPrintSettings& settings,
-                  CefRefPtr<CefPdfPrintCallback> callback) override;
   void Find(const CefString& searchText,
             bool forward,
             bool matchCase,

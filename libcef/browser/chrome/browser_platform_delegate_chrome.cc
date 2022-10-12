@@ -6,9 +6,11 @@
 
 #include "libcef/browser/views/view_util.h"
 
+#include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/chrome_web_modal_dialog_manager_delegate.h"
+#include "chrome/common/pref_names.h"
 #include "ui/display/display.h"
 #include "ui/display/screen.h"
 #include "ui/gfx/geometry/point.h"
@@ -115,6 +117,11 @@ void CefBrowserPlatformDelegateChrome::ViewText(const std::string& text) {
 CefEventHandle CefBrowserPlatformDelegateChrome::GetEventHandle(
     const content::NativeWebKeyboardEvent& event) const {
   return native_delegate_->GetEventHandle(event);
+}
+
+bool CefBrowserPlatformDelegateChrome::IsPrintPreviewSupported() const {
+  return chrome_browser_ && !chrome_browser_->profile()->GetPrefs()->GetBoolean(
+                                prefs::kPrintPreviewDisabled);
 }
 
 CefWindowHandle CefBrowserPlatformDelegateChrome::GetParentWindowHandle()

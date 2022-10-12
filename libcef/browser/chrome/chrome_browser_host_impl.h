@@ -66,10 +66,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   CefWindowHandle GetOpenerWindowHandle() override;
   double GetZoomLevel() override;
   void SetZoomLevel(double zoomLevel) override;
-  void Print() override;
-  void PrintToPDF(const CefString& path,
-                  const CefPdfPrintSettings& settings,
-                  CefRefPtr<CefPdfPrintCallback> callback) override;
   void Find(const CefString& searchText,
             bool forward,
             bool matchCase,

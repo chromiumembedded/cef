@@ -32,7 +32,6 @@
 #include "libcef/browser/net_service/proxy_url_loader_factory.h"
 #include "libcef/browser/net_service/resource_request_handler_wrapper.h"
 #include "libcef/browser/prefs/renderer_prefs.h"
-#include "libcef/browser/printing/print_view_manager.h"
 #include "libcef/browser/speech_recognition_manager_delegate.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/x509_certificate_impl.h"
@@ -66,6 +65,7 @@
 #include "chrome/browser/plugins/plugin_response_interceptor_url_loader_throttle.h"
 #include "chrome/browser/plugins/plugin_utils.h"
 #include "chrome/browser/predictors/network_hints_handler_impl.h"
+#include "chrome/browser/printing/print_view_manager.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/profiles/renderer_updater.h"
 #include "chrome/browser/profiles/renderer_updater_factory.h"
@@ -946,7 +946,7 @@ void AlloyContentBrowserClient::
           [](content::RenderFrameHost* render_frame_host,
              mojo::PendingAssociatedReceiver<printing::mojom::PrintManagerHost>
                  receiver) {
-            printing::CefPrintViewManager::BindPrintManagerHost(
+            printing::PrintViewManager::BindPrintManagerHost(
                 std::move(receiver), render_frame_host);
           },
           &render_frame_host));

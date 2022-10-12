@@ -34,6 +34,10 @@ namespace {
 
 CefRefPtr<CefBrowserHostBase> GetBrowserForContext(
     printing::PrintingContextLinux* context) {
+  // The print preview dialog won't have a valid child ID.
+  if (!frame_util::IsValidChildId(context->render_process_id()))
+    return nullptr;
+
   return extensions::GetOwnerBrowserForGlobalId(
       frame_util::MakeGlobalId(context->render_process_id(),
                                context->render_frame_id()),
@@ -192,27 +196,19 @@ void CefPrintingContextLinuxDelegate::SetDefaultDelegate(
   default_delegate_ = delegate;
 }
 
-// static
-void CefPrintDialogLinux::OnPrintStart(CefRefPtr<CefBrowserHostBase> browser) {
-  CEF_REQUIRE_UIT();
-  DCHECK(browser);
-  if (browser && browser->GetClient()) {
-    if (auto handler = browser->GetClient()->GetPrintHandler()) {
-      handler->OnPrintStart(browser.get());
-    }
-  }
-}
-
 CefPrintDialogLinux::CefPrintDialogLinux(PrintingContextLinux* context,
                                          CefRefPtr<CefBrowserHostBase> browser,
                                          CefRefPtr<CefPrintHandler> handler)
     : context_(context), browser_(browser), handler_(handler) {
+  CEF_REQUIRE_UIT();
   DCHECK(context_);
   DCHECK(browser_);
   DCHECK(handler_);
 
   // Paired with the ReleaseDialog() call.
   AddRef();
+
+  handler->OnPrintStart(browser_.get());
 }
 
 CefPrintDialogLinux::~CefPrintDialogLinux() {

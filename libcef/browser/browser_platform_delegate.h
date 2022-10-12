@@ -363,10 +363,6 @@ class CefBrowserPlatformDelegate {
                                     const CefSize& max_size);
   virtual void SetAccessibilityState(cef_state_t accessibility_state);
   virtual bool IsPrintPreviewSupported() const;
-  virtual void Print();
-  virtual void PrintToPDF(const CefString& path,
-                          const CefPdfPrintSettings& settings,
-                          CefRefPtr<CefPdfPrintCallback> callback);
   virtual void Find(const CefString& searchText,
                     bool forward,
                     bool matchCase,

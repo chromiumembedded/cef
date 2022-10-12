@@ -644,34 +644,35 @@ struct CefPdfPrintSettingsTraits {
   static inline void init(struct_type* s) {}
 
   static inline void clear(struct_type* s) {
-    cef_string_clear(&s->header_footer_title);
-    cef_string_clear(&s->header_footer_url);
+    cef_string_clear(&s->page_ranges);
+    cef_string_clear(&s->header_template);
+    cef_string_clear(&s->footer_template);
   }
 
   static inline void set(const struct_type* src,
                          struct_type* target,
                          bool copy) {
-    cef_string_set(src->header_footer_title.str,
-                   src->header_footer_title.length,
-                   &target->header_footer_title, copy);
-    cef_string_set(src->header_footer_url.str, src->header_footer_url.length,
-                   &target->header_footer_url, copy);
+    target->landscape = src->landscape;
+    target->print_background = src->print_background;
+    target->scale = src->scale;
+    target->paper_width = src->paper_width;
+    target->paper_height = src->paper_height;
+    target->prefer_css_page_size = src->prefer_css_page_size;
 
-    target->page_width = src->page_width;
-    target->page_height = src->page_height;
-
-    target->scale_factor = src->scale_factor;
-
+    target->margin_type = src->margin_type;
     target->margin_top = src->margin_top;
     target->margin_right = src->margin_right;
     target->margin_bottom = src->margin_bottom;
     target->margin_left = src->margin_left;
-    target->margin_type = src->margin_type;
 
-    target->header_footer_enabled = src->header_footer_enabled;
-    target->selection_only = src->selection_only;
-    target->landscape = src->landscape;
-    target->backgrounds_enabled = src->backgrounds_enabled;
+    cef_string_set(src->page_ranges.str, src->page_ranges.length,
+                   &target->page_ranges, copy);
+
+    target->display_header_footer = src->display_header_footer;
+    cef_string_set(src->header_template.str, src->header_template.length,
+                   &target->header_template, copy);
+    cef_string_set(src->footer_template.str, src->footer_template.length,
+                   &target->footer_template, copy);
   }
 };
 

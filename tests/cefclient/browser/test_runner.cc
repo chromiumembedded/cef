@@ -358,10 +358,21 @@ void PrintToPDF(CefRefPtr<CefBrowser> browser) {
       if (!file_paths.empty()) {
         CefPdfPrintSettings settings;
 
-        // Show the URL in the footer.
-        settings.header_footer_enabled = true;
-        CefString(&settings.header_footer_url) =
-            browser_->GetMainFrame()->GetURL();
+        // Display a header and footer.
+        settings.display_header_footer = true;
+        CefString(&settings.header_template) =
+            "<div style=\"width: 100%; font-size: 9px; position: relative;\">"
+            "<div style=\"position: absolute; left: 5px;\">"
+            "<span class=\"title\"></span></div>"
+            "</div>";
+        CefString(&settings.footer_template) =
+            "<div style=\"width: 100%; font-size: 9px; position: relative;\">"
+            "<div style=\"position: absolute; left: 5px;\">"
+            "<span class=\"date\"></span></div>"
+            "<div style=\"position: absolute; right: 5px;\">"
+            "<span class=\"pageNumber\"></span>/"
+            "<span class=\"totalPages\"></span></div>"
+            "</div>";
 
         // Print to the selected PDF file.
         browser_->GetHost()->PrintToPDF(file_paths[0], settings, this);

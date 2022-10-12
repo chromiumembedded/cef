@@ -181,6 +181,10 @@ class CefBrowserHostBase : public CefBrowserHost,
                      uint32 max_image_size,
                      bool bypass_cache,
                      CefRefPtr<CefDownloadImageCallback> callback) override;
+  void Print() override;
+  void PrintToPDF(const CefString& path,
+                  const CefPdfPrintSettings& settings,
+                  CefRefPtr<CefPdfPrintCallback> callback) override;
   void ReplaceMisspelling(const CefString& word) override;
   void AddWordToDictionary(const CefString& word) override;
   void SendKeyEvent(const CefKeyEvent& event) override;

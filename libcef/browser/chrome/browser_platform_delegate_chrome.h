@@ -42,6 +42,7 @@ class CefBrowserPlatformDelegateChrome
   void ViewText(const std::string& text) override;
   CefEventHandle GetEventHandle(
       const content::NativeWebKeyboardEvent& event) const override;
+  bool IsPrintPreviewSupported() const override;
 
   // CefBrowserPlatformDelegateNative::WindowlessHandler methods:
   CefWindowHandle GetParentWindowHandle() const override;

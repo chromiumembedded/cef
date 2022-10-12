@@ -11,6 +11,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/image_impl.h"
 #include "libcef/browser/navigation_entry_impl.h"
+#include "libcef/browser/printing/print_util.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/frame_util.h"
 #include "libcef/common/net/url_util.h"
@@ -346,6 +347,37 @@ void CefBrowserHostBase::DownloadImage(
                 image_url.spec(), http_status_code, image_impl.get());
           },
           max_image_size, callback));
+}
+
+void CefBrowserHostBase::Print() {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostBase::Print, this));
+    return;
+  }
+
+  auto web_contents = GetWebContents();
+  if (!web_contents)
+    return;
+
+  const bool print_preview_disabled =
+      !platform_delegate_ || !platform_delegate_->IsPrintPreviewSupported();
+  print_util::Print(web_contents, print_preview_disabled);
+}
+
+void CefBrowserHostBase::PrintToPDF(const CefString& path,
+                                    const CefPdfPrintSettings& settings,
+                                    CefRefPtr<CefPdfPrintCallback> callback) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostBase::PrintToPDF, this,
+                                          path, settings, callback));
+    return;
+  }
+
+  auto web_contents = GetWebContents();
+  if (!web_contents)
+    return;
+
+  print_util::PrintToPDF(web_contents, path, settings, callback);
 }
 
 bool CefBrowserHostBase::SendDevToolsMessage(const void* message,

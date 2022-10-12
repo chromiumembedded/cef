@@ -349,30 +349,6 @@ void AlloyBrowserHostImpl::SetZoomLevel(double zoomLevel) {
   }
 }
 
-void AlloyBrowserHostImpl::Print() {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, base::BindOnce(&AlloyBrowserHostImpl::Print, this));
-    return;
-  }
-
-  if (platform_delegate_)
-    platform_delegate_->Print();
-}
-
-void AlloyBrowserHostImpl::PrintToPDF(const CefString& path,
-                                      const CefPdfPrintSettings& settings,
-                                      CefRefPtr<CefPdfPrintCallback> callback) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, base::BindOnce(&AlloyBrowserHostImpl::PrintToPDF,
-                                          this, path, settings, callback));
-    return;
-  }
-
-  if (platform_delegate_) {
-    platform_delegate_->PrintToPDF(path, settings, callback);
-  }
-}
-
 void AlloyBrowserHostImpl::Find(const CefString& searchText,
                                 bool forward,
                                 bool matchCase,

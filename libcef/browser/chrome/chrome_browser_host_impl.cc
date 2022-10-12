@@ -13,7 +13,6 @@
 
 #include "base/logging.h"
 #include "base/notreached.h"
-#include "chrome/browser/printing/print_view_manager_common.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_commands.h"
@@ -183,30 +182,6 @@ double ChromeBrowserHostImpl::GetZoomLevel() {
 
 void ChromeBrowserHostImpl::SetZoomLevel(double zoomLevel) {
   NOTIMPLEMENTED();
-}
-
-void ChromeBrowserHostImpl::Print() {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, base::BindOnce(&ChromeBrowserHostImpl::Print, this));
-    return;
-  }
-
-  if (browser_) {
-    // Like chrome::Print() but specifying the WebContents.
-    printing::StartPrint(GetWebContents(),
-                         /*print_renderer=*/mojo::NullAssociatedRemote(),
-                         browser_->profile()->GetPrefs()->GetBoolean(
-                             prefs::kPrintPreviewDisabled),
-                         /*has_selection=*/false);
-  }
-}
-
-void ChromeBrowserHostImpl::PrintToPDF(
-    const CefString& path,
-    const CefPdfPrintSettings& settings,
-    CefRefPtr<CefPdfPrintCallback> callback) {
-  NOTIMPLEMENTED();
-  callback->OnPdfPrintFinished(CefString(), false);
 }
 
 void ChromeBrowserHostImpl::Find(const CefString& searchText,

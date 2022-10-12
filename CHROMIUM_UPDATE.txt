@@ -33,8 +33,6 @@
     'chrome/browser/extensions/chrome_extension_web_contents_observer.*',
     'chrome/browser/extensions/component_loader.*',
     'chrome/browser/extensions/extension_service.*',
-    'chrome/browser/printing/print_view_manager*',
-    'chrome/browser/printing/printing_message_filter*',
     'chrome/browser/profiles/profile.h',
     'chrome/browser/renderer_host/chrome_resource_dispatcher_host_delegate.*',
     'chrome/common/extensions/api/*_features.json',
