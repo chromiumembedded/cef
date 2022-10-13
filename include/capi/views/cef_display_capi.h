@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=3ff71283b14972df89a3c4c7c698faf887cef6d0$
+// $hash=6eed21d200bad5e898dfbe2701ad327cc1e4cc5c$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_DISPLAY_CAPI_H_
@@ -139,6 +139,20 @@ CEF_EXPORT size_t cef_display_get_count(void);
 ///
 CEF_EXPORT void cef_display_get_alls(size_t* displaysCount,
                                      cef_display_t** displays);
+
+///
+/// Convert |point| from DIP screen coordinates to pixel screen coordinates.
+/// This function is only used on Windows.
+///
+CEF_EXPORT cef_point_t
+cef_display_convert_screen_point_to_pixels(const cef_point_t* point);
+
+///
+/// Convert |point| from pixel screen coordinates to DIP screen coordinates.
+/// This function is only used on Windows.
+///
+CEF_EXPORT cef_point_t
+cef_display_convert_screen_point_from_pixels(const cef_point_t* point);
 
 #ifdef __cplusplus
 }

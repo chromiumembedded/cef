@@ -200,6 +200,12 @@ void RunWindowLayoutAndCoords(CefRefPtr<CefWindow> window) {
   display->ConvertPointFromPixels(point);
   EXPECT_EQ(CefPoint(client_bounds_in_screen.x, client_bounds_in_screen.y),
             point);
+
+  // We don't know what the pixel values will be, but they should be reversable.
+  point = CefPoint(client_bounds_in_screen.x, client_bounds_in_screen.y);
+  const auto pixels = CefDisplay::ConvertScreenPointToPixels(point);
+  const auto dip = CefDisplay::ConvertScreenPointFromPixels(pixels);
+  EXPECT_EQ(point, dip);
 }
 
 void WindowLayoutAndCoordsImpl(CefRefPtr<CefWaitableEvent> event) {

@@ -227,6 +227,17 @@ void ConvertPointToPixels(gfx::Point* point, float device_scale_factor) {
       gfx::ScalePoint(gfx::PointF(*point), device_scale_factor));
 }
 
+#if BUILDFLAG(IS_WIN)
+gfx::Point ConvertPointFromPixels(const gfx::Point& point) {
+  return gfx::ToFlooredPoint(
+      display::win::ScreenWin::ScreenToDIPPoint(gfx::PointF(point)));
+}
+
+gfx::Point ConvertPointToPixels(const gfx::Point& point) {
+  return display::win::ScreenWin::DIPToScreenPoint(point);
+}
+#endif  // BUILDFLAG(IS_WIN)
+
 bool ConvertPointToScreen(views::View* view,
                           gfx::Point* point,
                           bool output_pixel_coords) {
