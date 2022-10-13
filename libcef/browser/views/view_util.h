@@ -91,6 +91,14 @@ void ConvertPointFromPixels(gfx::Point* point, float device_scale_factor);
 // using |device_scale_factor|.
 void ConvertPointToPixels(gfx::Point* point, float device_scale_factor);
 
+#if BUILDFLAG(IS_WIN)
+// Convert |point| from pixel screen coordinates to DIP screen coordinates.
+gfx::Point ConvertPointFromPixels(const gfx::Point& point);
+
+// Convert |point| from DIP screen coordinates to pixel screen coordinates.
+gfx::Point ConvertPointToPixels(const gfx::Point& point);
+#endif  // BUILDFLAG(IS_WIN)
+
 // Convert |point| from |view| to screen coordinates. If |output_pixel_coords|
 // is true then |point| will be output in pixel coordinates instead of density
 // independent pixels (DIP). Returns false if |view| does not currently belong

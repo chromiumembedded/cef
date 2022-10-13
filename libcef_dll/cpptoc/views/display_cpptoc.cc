@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=546b8f890852fb4df26a85aec6b83effe1bdc6e6$
+// $hash=5e68fdaae42fe008a95bcf2672debe3cf04fa2ff$
 //
 
 #include "libcef_dll/cpptoc/views/display_cpptoc.h"
@@ -119,6 +119,48 @@ CEF_EXPORT void cef_display_get_alls(size_t* displaysCount,
       }
     }
   }
+}
+
+CEF_EXPORT cef_point_t
+cef_display_convert_screen_point_to_pixels(const cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: point; type: simple_byref_const
+  DCHECK(point);
+  if (!point)
+    return CefPoint();
+
+  // Translate param: point; type: simple_byref_const
+  CefPoint pointVal = point ? *point : CefPoint();
+
+  // Execute
+  cef_point_t _retval = CefDisplay::ConvertScreenPointToPixels(pointVal);
+
+  // Return type: simple
+  return _retval;
+}
+
+CEF_EXPORT cef_point_t
+cef_display_convert_screen_point_from_pixels(const cef_point_t* point) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: point; type: simple_byref_const
+  DCHECK(point);
+  if (!point)
+    return CefPoint();
+
+  // Translate param: point; type: simple_byref_const
+  CefPoint pointVal = point ? *point : CefPoint();
+
+  // Execute
+  cef_point_t _retval = CefDisplay::ConvertScreenPointFromPixels(pointVal);
+
+  // Return type: simple
+  return _retval;
 }
 
 namespace {

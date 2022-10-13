@@ -92,6 +92,20 @@ class CefDisplay : public CefBaseRefCounted {
   static void GetAllDisplays(std::vector<CefRefPtr<CefDisplay>>& displays);
 
   ///
+  /// Convert |point| from DIP screen coordinates to pixel screen coordinates.
+  /// This method is only used on Windows.
+  ///
+  /*--cef()--*/
+  static CefPoint ConvertScreenPointToPixels(const CefPoint& point);
+
+  ///
+  /// Convert |point| from pixel screen coordinates to DIP screen coordinates.
+  /// This method is only used on Windows.
+  ///
+  /*--cef()--*/
+  static CefPoint ConvertScreenPointFromPixels(const CefPoint& point);
+
+  ///
   /// Returns the unique identifier for this Display.
   ///
   /*--cef()--*/
