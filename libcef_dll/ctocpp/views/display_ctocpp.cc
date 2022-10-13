@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ba41b36a0cdd335f2a964665576aaf50d8be9c55$
+// $hash=afef323719b977c74bb86d015ad1b0f5c253c3ba$
 //
 
 #include "libcef_dll/ctocpp/views/display_ctocpp.h"
@@ -108,6 +108,32 @@ void CefDisplay::GetAllDisplays(std::vector<CefRefPtr<CefDisplay>>& displays) {
     }
     delete[] displaysList;
   }
+}
+
+NO_SANITIZE("cfi-icall")
+CefPoint CefDisplay::ConvertScreenPointToPixels(const CefPoint& point) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_point_t _retval = cef_display_convert_screen_point_to_pixels(&point);
+
+  // Return type: simple
+  return _retval;
+}
+
+NO_SANITIZE("cfi-icall")
+CefPoint CefDisplay::ConvertScreenPointFromPixels(const CefPoint& point) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_point_t _retval = cef_display_convert_screen_point_from_pixels(&point);
+
+  // Return type: simple
+  return _retval;
 }
 
 // VIRTUAL METHODS - Body may be edited by hand.

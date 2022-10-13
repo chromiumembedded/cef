@@ -51,6 +51,30 @@ void CefDisplay::GetAllDisplays(std::vector<CefRefPtr<CefDisplay>>& displays) {
     displays.push_back(new CefDisplayImpl(vec[i]));
 }
 
+// static
+CefPoint CefDisplay::ConvertScreenPointToPixels(const CefPoint& point) {
+  CEF_REQUIRE_UIT_RETURN(CefPoint());
+#if BUILDFLAG(IS_WIN)
+  const gfx::Point pix_point =
+      view_util::ConvertPointToPixels(gfx::Point(point.x, point.y));
+  return CefPoint(pix_point.x(), pix_point.y());
+#else
+  return point;
+#endif
+}
+
+// static
+CefPoint CefDisplay::ConvertScreenPointFromPixels(const CefPoint& point) {
+  CEF_REQUIRE_UIT_RETURN(CefPoint());
+#if BUILDFLAG(IS_WIN)
+  const gfx::Point dip_point =
+      view_util::ConvertPointFromPixels(gfx::Point(point.x, point.y));
+  return CefPoint(dip_point.x(), dip_point.y());
+#else
+  return point;
+#endif
+}
+
 CefDisplayImpl::CefDisplayImpl(const display::Display& display)
     : display_(display) {
   CEF_REQUIRE_UIT();
