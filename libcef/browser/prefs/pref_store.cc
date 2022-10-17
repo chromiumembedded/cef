@@ -19,7 +19,7 @@ CefPrefStore::CefPrefStore()
       init_complete_(false),
       committed_(true) {}
 
-bool CefPrefStore::GetValue(const std::string& key,
+bool CefPrefStore::GetValue(base::StringPiece key,
                             const base::Value** value) const {
   return prefs_.GetValue(key, value);
 }
@@ -50,18 +50,18 @@ bool CefPrefStore::IsInitializationComplete() const {
 }
 
 void CefPrefStore::SetValue(const std::string& key,
-                            std::unique_ptr<base::Value> value,
+                            base::Value value,
                             uint32_t flags) {
-  if (prefs_.SetValue(key, base::Value::FromUniquePtrValue(std::move(value)))) {
+  if (prefs_.SetValue(key, std::move(value))) {
     committed_ = false;
     NotifyPrefValueChanged(key);
   }
 }
 
 void CefPrefStore::SetValueSilently(const std::string& key,
-                                    std::unique_ptr<base::Value> value,
+                                    base::Value value,
                                     uint32_t flags) {
-  if (prefs_.SetValue(key, base::Value::FromUniquePtrValue(std::move(value))))
+  if (prefs_.SetValue(key, std::move(value)))
     committed_ = false;
 }
 
@@ -139,15 +139,15 @@ void CefPrefStore::ReportValueChanged(const std::string& key, uint32_t flags) {
 }
 
 void CefPrefStore::SetString(const std::string& key, const std::string& value) {
-  SetValue(key, std::make_unique<base::Value>(value), DEFAULT_PREF_WRITE_FLAGS);
+  SetValue(key, base::Value(value), DEFAULT_PREF_WRITE_FLAGS);
 }
 
 void CefPrefStore::SetInteger(const std::string& key, int value) {
-  SetValue(key, std::make_unique<base::Value>(value), DEFAULT_PREF_WRITE_FLAGS);
+  SetValue(key, base::Value(value), DEFAULT_PREF_WRITE_FLAGS);
 }
 
 void CefPrefStore::SetBoolean(const std::string& key, bool value) {
-  SetValue(key, std::make_unique<base::Value>(value), DEFAULT_PREF_WRITE_FLAGS);
+  SetValue(key, base::Value(value), DEFAULT_PREF_WRITE_FLAGS);
 }
 
 bool CefPrefStore::GetString(const std::string& key, std::string* value) const {

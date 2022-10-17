@@ -68,7 +68,8 @@ class CefSelectFileDialog final : public ui::SelectFileDialog {
                       int file_type_index,
                       const base::FilePath::StringType& default_extension,
                       gfx::NativeWindow owning_window,
-                      void* params) override {
+                      void* params,
+                      const GURL* caller) override {
     // Try to determine the associated browser (with decreasing levels of
     // confidence).
     // 1. Browser associated with the SelectFilePolicy. This is the most

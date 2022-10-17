@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 536bbd4cf825c..87aa33a115b7e 100644
+index 04bd45199b0db..f55241b38fc7b 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -3082,6 +3082,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
@@ -49,7 +49,7 @@ index 536bbd4cf825c..87aa33a115b7e 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -7871,6 +7890,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -7879,6 +7898,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // frames).
      SetFocusedFrameTree(node->frame_tree());
    }
@@ -60,7 +60,7 @@ index 536bbd4cf825c..87aa33a115b7e 100644
  
  void WebContentsImpl::DidCallFocus() {
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index c5e2f70696e93..fd9000dd087d5 100644
+index aea5078136b95..3371a5ee23330 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -95,10 +95,12 @@ class BrowserContext;
@@ -88,7 +88,7 @@ index c5e2f70696e93..fd9000dd087d5 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 89c14ce2d9700..fdb71d8fe4b0e 100644
+index 7119f2fe8397a..12d493533075a 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -58,9 +58,11 @@ class EyeDropperListener;
@@ -119,10 +119,10 @@ index 89c14ce2d9700..fdb71d8fe4b0e 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index 01f8b94f08e99..c8cc74bad6411 100644
+index b6e021165de91..336cbe3a96ddf 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
-@@ -215,6 +215,9 @@ class CONTENT_EXPORT WebContentsObserver {
+@@ -219,6 +219,9 @@ class CONTENT_EXPORT WebContentsObserver {
    virtual void OnCaptureHandleConfigUpdate(
        const blink::mojom::CaptureHandleConfig& config) {}
  
@@ -132,7 +132,7 @@ index 01f8b94f08e99..c8cc74bad6411 100644
    // This method is invoked when the `blink::WebView` of the current
    // RenderViewHost is ready, e.g. because we recreated it after a crash.
    virtual void RenderViewReady() {}
-@@ -791,6 +794,10 @@ class CONTENT_EXPORT WebContentsObserver {
+@@ -802,6 +805,10 @@ class CONTENT_EXPORT WebContentsObserver {
    // WebContents has gained/lost focus.
    virtual void OnFocusChangedInPage(FocusedNodeDetails* details) {}
  

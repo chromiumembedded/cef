@@ -264,7 +264,7 @@ index 9f8f20dfa6506..5d42f6fc1b003 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crashpad.cc components/crash/core/app/crashpad.cc
-index afa205b987b5b..6a959deee9d4a 100644
+index d6a90f5185a43..7c8e2176d8432 100644
 --- components/crash/core/app/crashpad.cc
 +++ components/crash/core/app/crashpad.cc
 @@ -131,7 +131,8 @@ bool InitializeCrashpadImpl(bool initial_client,

@@ -1,8 +1,8 @@
 diff --git sandbox/policy/win/sandbox_win.cc sandbox/policy/win/sandbox_win.cc
-index 5f2860593bfbe..e5f1e5bf9e7a2 100644
+index 2191f51de17cf..4c46aeea4d8bb 100644
 --- sandbox/policy/win/sandbox_win.cc
 +++ sandbox/policy/win/sandbox_win.cc
-@@ -1136,6 +1136,13 @@ ResultCode SandboxWin::StartSandboxedProcess(
+@@ -1135,6 +1135,13 @@ ResultCode SandboxWin::StartSandboxedProcess(
      const base::HandlesToInheritVector& handles_to_inherit,
      SandboxDelegate* delegate,
      base::Process* process) {

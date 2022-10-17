@@ -1,8 +1,8 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index d1244c71932df..fab3cb730f084 100644
+index a4c41a8be6b23..0724b0e6e4ccf 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
-@@ -310,6 +310,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
+@@ -309,6 +309,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
    return callback.get();
  }
  
@@ -27,7 +27,7 @@ index d1244c71932df..fab3cb730f084 100644
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -743,6 +754,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -742,6 +753,14 @@ RenderViewContextMenu::RenderViewContextMenu(
                      ? GetBrowser()->app_controller()->system_app()
                      : nullptr;
  #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
@@ -55,7 +55,7 @@ index d1244c71932df..fab3cb730f084 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3015,6 +3040,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
+@@ -3031,6 +3056,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
    execute_plugin_action_callback_ = std::move(cb);
  }
  
@@ -69,12 +69,12 @@ index d1244c71932df..fab3cb730f084 100644
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    custom_handlers::ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index 0156137c2853a..ad27c7920e6e7 100644
+index a6df6ba30d454..9bbd84c9c8820 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
-@@ -127,6 +127,12 @@ class RenderViewContextMenu
-       base::OnceCallback<void(content::RenderFrameHost*,
-                               blink::mojom::PluginActionType)> cb);
+@@ -134,6 +134,12 @@ class RenderViewContextMenu
+   }
+ #endif
  
 +  // Registers a callback that will be called each time a context menu is
 +  // created.
@@ -85,7 +85,7 @@ index 0156137c2853a..ad27c7920e6e7 100644
   protected:
    Profile* GetProfile() const;
  
-@@ -356,6 +362,9 @@ class RenderViewContextMenu
+@@ -381,6 +387,9 @@ class RenderViewContextMenu
    //   built.
    bool is_protocol_submenu_valid_ = false;
  
@@ -132,7 +132,7 @@ index c174f3aff2780..d072711c15c4e 100644
    command_executed_ = true;
    RecordUsedItem(id);
 diff --git components/renderer_context_menu/render_view_context_menu_base.h components/renderer_context_menu/render_view_context_menu_base.h
-index 7a16d8bb602e5..b06b811a6fb33 100644
+index 1651d80a9547e..b06b811a6fb33 100644
 --- components/renderer_context_menu/render_view_context_menu_base.h
 +++ components/renderer_context_menu/render_view_context_menu_base.h
 @@ -86,6 +86,9 @@ class RenderViewContextMenuBase : public ui::SimpleMenuModel::Delegate,
@@ -155,26 +155,6 @@ index 7a16d8bb602e5..b06b811a6fb33 100644
    void ExecuteCommand(int command_id, int event_flags) override;
    void OnMenuWillShow(ui::SimpleMenuModel* source) override;
    void MenuClosed(ui::SimpleMenuModel* source) override;
-@@ -124,6 +130,9 @@ class RenderViewContextMenuBase : public ui::SimpleMenuModel::Delegate,
-   content::WebContents* GetWebContents() const override;
-   content::BrowserContext* GetBrowserContext() const override;
- 
-+  // May return nullptr if the frame was deleted while the menu was open.
-+  content::RenderFrameHost* GetRenderFrameHost() const;
-+
-  protected:
-   friend class RenderViewContextMenuTest;
-   friend class RenderViewContextMenuPrefsTest;
-@@ -162,9 +171,6 @@ class RenderViewContextMenuBase : public ui::SimpleMenuModel::Delegate,
-   virtual void AppendPlatformEditableItems() {}
-   virtual void ExecOpenInReadAnything() = 0;
- 
--  // May return nullptr if the frame was deleted while the menu was open.
--  content::RenderFrameHost* GetRenderFrameHost() const;
--
-   bool IsCustomItemChecked(int id) const;
-   bool IsCustomItemEnabled(int id) const;
- 
 diff --git components/renderer_context_menu/render_view_context_menu_observer.cc components/renderer_context_menu/render_view_context_menu_observer.cc
 index 9fdda1636003d..538bd05a41296 100644
 --- components/renderer_context_menu/render_view_context_menu_observer.cc

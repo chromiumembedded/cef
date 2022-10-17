@@ -135,9 +135,7 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
   std::vector<std::unique_ptr<content::URLLoaderRequestInterceptor>>
   WillCreateURLLoaderRequestInterceptors(
       content::NavigationUIData* navigation_ui_data,
-      int frame_tree_node_id,
-      const scoped_refptr<network::SharedURLLoaderFactory>&
-          network_loader_factory) override;
+      int frame_tree_node_id) override;
 
 #if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
   void GetAdditionalMappedFilesForChildProcess(

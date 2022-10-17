@@ -52,6 +52,7 @@
 #include "components/prefs/pref_filter.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
+#include "components/privacy_sandbox/privacy_sandbox_prefs.h"
 #include "components/proxy_config/pref_proxy_config_tracker_impl.h"
 #include "components/proxy_config/proxy_config_dictionary.h"
 #include "components/safe_browsing/core/common/safe_browsing_prefs.h"
@@ -272,6 +273,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     PermissionBubbleMediaAccessHandler::RegisterProfilePrefs(registry.get());
     permissions::PermissionActionsHistory::RegisterProfilePrefs(registry.get());
     prefetch::RegisterPredictionOptionsProfilePrefs(registry.get());
+    privacy_sandbox::RegisterProfilePrefs(registry.get());
     ProfileNetworkContextService::RegisterProfilePrefs(registry.get());
     safe_browsing::RegisterProfilePrefs(registry.get());
     RegisterProfilePrefs(registry.get());

@@ -3,7 +3,7 @@
 // governed by a BSD-style license that can be found in the LICENSE file.
 
 #include "base/notreached.h"
-#include "sandbox/win/src/process_mitigations.h"
+#include "sandbox/win/src/sandbox.h"
 #include "sandbox/win/src/sandbox_factory.h"
 
 #include "cef/libcef/features/features.h"
@@ -11,19 +11,19 @@
 
 namespace {
 
-// From content/app/startup_helper_win.cc:
+// From content/app/sandbox_helper_win.cc:
 void InitializeSandboxInfo(sandbox::SandboxInterfaceInfo* info) {
   info->broker_services = sandbox::SandboxFactory::GetBrokerServices();
-  if (!info->broker_services) {
-    info->target_services = sandbox::SandboxFactory::GetTargetServices();
-  } else {
+  if (info->broker_services) {
     // Ensure the proper mitigations are enforced for the browser process.
-    sandbox::ApplyProcessMitigationsToCurrentProcess(
+    info->broker_services->RatchetDownSecurityMitigations(
         sandbox::MITIGATION_DEP | sandbox::MITIGATION_DEP_NO_ATL_THUNK |
         sandbox::MITIGATION_HARDEN_TOKEN_IL_POLICY);
     // Note: these mitigations are "post-startup".  Some mitigations that need
     // to be enabled sooner (e.g. MITIGATION_EXTENSION_POINT_DISABLE) are done
     // so in Chrome_ELF.
+  } else {
+    info->target_services = sandbox::SandboxFactory::GetTargetServices();
   }
 }
 

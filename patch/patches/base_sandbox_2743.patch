@@ -1,8 +1,8 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 60fdc3b8e47ed..fee7412fb46ce 100644
+index a56c5fc803675..e5018871ad80a 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
-@@ -37,6 +37,7 @@ import("//build/nocompile.gni")
+@@ -38,6 +38,7 @@ import("//build/nocompile.gni")
  import("//build/rust/mixed_component.gni")
  import("//build/timestamp.gni")
  import("//build_overrides/build.gni")
@@ -10,7 +10,7 @@ index 60fdc3b8e47ed..fee7412fb46ce 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1971,7 +1972,11 @@ mixed_component("base") {
+@@ -1973,7 +1974,11 @@ mixed_component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index 60fdc3b8e47ed..fee7412fb46ce 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -2112,6 +2117,12 @@ mixed_component("base") {
+@@ -2114,6 +2119,12 @@ mixed_component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -87,8 +87,32 @@ index 29626e5853c6e..2fb1c61504c5d 100644
  #include "base/hash/sha1_nacl.h"
  #else
  #include "base/hash/sha1_boringssl.h"
+diff --git base/rand_util.h base/rand_util.h
+index 04024537ee698..59864cb084559 100644
+--- base/rand_util.h
++++ base/rand_util.h
+@@ -15,8 +15,9 @@
+ #include "base/compiler_specific.h"
+ #include "base/gtest_prod_util.h"
+ #include "build/build_config.h"
++#include "cef/libcef/features/features.h"
+ 
+-#if !BUILDFLAG(IS_NACL)
++#if !BUILDFLAG(IS_NACL) && !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
+ #include "third_party/boringssl/src/include/openssl/rand.h"
+ #endif
+ 
+@@ -93,7 +94,7 @@ class RandomBitGenerator {
+   ~RandomBitGenerator() = default;
+ };
+ 
+-#if !BUILDFLAG(IS_NACL)
++#if !BUILDFLAG(IS_NACL) && !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
+ class NonAllocatingRandomBitGenerator {
+  public:
+   using result_type = uint64_t;
 diff --git base/rand_util_win.cc base/rand_util_win.cc
-index 0a81ed63d1e3c..b08ff362d511e 100644
+index 099fe2912be23..758fa0c4296af 100644
 --- base/rand_util_win.cc
 +++ base/rand_util_win.cc
 @@ -20,14 +20,19 @@
@@ -111,7 +135,7 @@ index 0a81ed63d1e3c..b08ff362d511e 100644
  namespace {
  
  // The BoringSSl helpers are duplicated in rand_util_fuchsia.cc and
-@@ -48,9 +53,14 @@ bool UseBoringSSLForRandBytes() {
+@@ -49,11 +54,16 @@ bool UseBoringSSLForRandBytes() {
    return g_use_boringssl.load(std::memory_order_relaxed);
  }
  
@@ -121,12 +145,14 @@ index 0a81ed63d1e3c..b08ff362d511e 100644
 +
  }  // namespace internal
  
- void RandBytes(void* output, size_t output_length) {
+ namespace {
+ 
+ void RandBytes(void* output, size_t output_length, bool avoid_allocation) {
 +#if !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
-   if (internal::UseBoringSSLForRandBytes()) {
+   if (!avoid_allocation && internal::UseBoringSSLForRandBytes()) {
      // Ensure BoringSSL is initialized so it can use things like RDRAND.
      CRYPTO_library_init();
-@@ -58,6 +68,7 @@ void RandBytes(void* output, size_t output_length) {
+@@ -61,6 +71,7 @@ void RandBytes(void* output, size_t output_length, bool avoid_allocation) {
      (void)RAND_bytes(static_cast<uint8_t*>(output), output_length);
      return;
    }

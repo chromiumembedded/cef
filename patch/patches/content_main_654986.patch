@@ -105,7 +105,7 @@ index 58f891fd7af7a..3178a0aeab935 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 8967bb5066eb6..4705bf64b2dc6 100644
+index 6965f862853af..d674963c89a64 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -43,6 +43,7 @@
@@ -116,7 +116,7 @@ index 8967bb5066eb6..4705bf64b2dc6 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1262,6 +1263,12 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1269,6 +1270,12 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -130,7 +130,7 @@ index 8967bb5066eb6..4705bf64b2dc6 100644
  std::unique_ptr<ContentMainRunner> ContentMainRunner::Create() {
    return ContentMainRunnerImpl::Create();
 diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
-index 9dda5702a4c97..10a35923f5965 100644
+index c96e733faf281..77f5b458c3160 100644
 --- content/app/content_main_runner_impl.h
 +++ content/app/content_main_runner_impl.h
 @@ -29,7 +29,7 @@ class DiscardableSharedMemoryManager;

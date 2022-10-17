@@ -117,7 +117,7 @@ class PermissionPromptTestHandler : public TestHandler,
         "}"
         "function makeRequest() {";
 
-    if (request_ == CEF_PERMISSION_TYPE_WINDOW_PLACEMENT) {
+    if (request_ == CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT) {
       page +=
           "  window.getScreenDetails().then(function(details) {"
           "    onResult(`SUCCESS`, {got_data: details.screens.length > 0});"
@@ -301,13 +301,13 @@ class PermissionPromptTestHandler : public TestHandler,
 }  // namespace
 
 // Window placement permission requests.
-TEST(PermissionPromptTest, WindowPlacementReturningFalse) {
+TEST(PermissionPromptTest, WindowManagementReturningFalse) {
   TestSetup test_setup;
   test_setup.deny_implicitly = true;
 
   CefRefPtr<PermissionPromptTestHandler> handler =
       new PermissionPromptTestHandler(&test_setup,
-                                      CEF_PERMISSION_TYPE_WINDOW_PLACEMENT,
+                                      CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT,
                                       CEF_PERMISSION_RESULT_IGNORE);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -318,13 +318,13 @@ TEST(PermissionPromptTest, WindowPlacementReturningFalse) {
   EXPECT_FALSE(test_setup.got_dismiss);
 }
 
-TEST(PermissionPromptTest, WindowPlacementNoGesture) {
+TEST(PermissionPromptTest, WindowManagementNoGesture) {
   TestSetup test_setup;
   test_setup.deny_no_gesture = true;
 
   CefRefPtr<PermissionPromptTestHandler> handler =
       new PermissionPromptTestHandler(&test_setup,
-                                      CEF_PERMISSION_TYPE_WINDOW_PLACEMENT,
+                                      CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT,
                                       CEF_PERMISSION_RESULT_IGNORE);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -338,13 +338,13 @@ TEST(PermissionPromptTest, WindowPlacementNoGesture) {
   EXPECT_FALSE(test_setup.got_dismiss);
 }
 
-TEST(PermissionPromptTest, WindowPlacementNoContinue) {
+TEST(PermissionPromptTest, WindowManagementNoContinue) {
   TestSetup test_setup;
   test_setup.deny_with_navigation = true;
 
   CefRefPtr<PermissionPromptTestHandler> handler =
       new PermissionPromptTestHandler(&test_setup,
-                                      CEF_PERMISSION_TYPE_WINDOW_PLACEMENT,
+                                      CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT,
                                       CEF_PERMISSION_RESULT_IGNORE);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -354,12 +354,12 @@ TEST(PermissionPromptTest, WindowPlacementNoContinue) {
   EXPECT_TRUE(test_setup.got_dismiss);
 }
 
-TEST(PermissionPromptTest, WindowPlacementResultAccept) {
+TEST(PermissionPromptTest, WindowManagementResultAccept) {
   TestSetup test_setup;
 
   CefRefPtr<PermissionPromptTestHandler> handler =
       new PermissionPromptTestHandler(&test_setup,
-                                      CEF_PERMISSION_TYPE_WINDOW_PLACEMENT,
+                                      CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT,
                                       CEF_PERMISSION_RESULT_ACCEPT);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -370,13 +370,13 @@ TEST(PermissionPromptTest, WindowPlacementResultAccept) {
   EXPECT_TRUE(test_setup.got_dismiss);
 }
 
-TEST(PermissionPromptTest, WindowPlacementResultAcceptAsync) {
+TEST(PermissionPromptTest, WindowManagementResultAcceptAsync) {
   TestSetup test_setup;
   test_setup.continue_async = true;
 
   CefRefPtr<PermissionPromptTestHandler> handler =
       new PermissionPromptTestHandler(&test_setup,
-                                      CEF_PERMISSION_TYPE_WINDOW_PLACEMENT,
+                                      CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT,
                                       CEF_PERMISSION_RESULT_ACCEPT);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -387,12 +387,12 @@ TEST(PermissionPromptTest, WindowPlacementResultAcceptAsync) {
   EXPECT_TRUE(test_setup.got_dismiss);
 }
 
-TEST(PermissionPromptTest, WindowPlacementResultDeny) {
+TEST(PermissionPromptTest, WindowManagementResultDeny) {
   TestSetup test_setup;
 
   CefRefPtr<PermissionPromptTestHandler> handler =
       new PermissionPromptTestHandler(&test_setup,
-                                      CEF_PERMISSION_TYPE_WINDOW_PLACEMENT,
+                                      CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT,
                                       CEF_PERMISSION_RESULT_DENY);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -404,13 +404,13 @@ TEST(PermissionPromptTest, WindowPlacementResultDeny) {
   EXPECT_TRUE(test_setup.got_dismiss);
 }
 
-TEST(PermissionPromptTest, WindowPlacementResultDenyAsync) {
+TEST(PermissionPromptTest, WindowManagementResultDenyAsync) {
   TestSetup test_setup;
   test_setup.continue_async = true;
 
   CefRefPtr<PermissionPromptTestHandler> handler =
       new PermissionPromptTestHandler(&test_setup,
-                                      CEF_PERMISSION_TYPE_WINDOW_PLACEMENT,
+                                      CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT,
                                       CEF_PERMISSION_RESULT_DENY);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -422,12 +422,12 @@ TEST(PermissionPromptTest, WindowPlacementResultDenyAsync) {
   EXPECT_TRUE(test_setup.got_dismiss);
 }
 
-TEST(PermissionPromptTest, WindowPlacementResultDismiss) {
+TEST(PermissionPromptTest, WindowManagementResultDismiss) {
   TestSetup test_setup;
 
   CefRefPtr<PermissionPromptTestHandler> handler =
       new PermissionPromptTestHandler(&test_setup,
-                                      CEF_PERMISSION_TYPE_WINDOW_PLACEMENT,
+                                      CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT,
                                       CEF_PERMISSION_RESULT_DISMISS);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -439,13 +439,13 @@ TEST(PermissionPromptTest, WindowPlacementResultDismiss) {
   EXPECT_TRUE(test_setup.got_dismiss);
 }
 
-TEST(PermissionPromptTest, WindowPlacementResultDismissAsync) {
+TEST(PermissionPromptTest, WindowManagementResultDismissAsync) {
   TestSetup test_setup;
   test_setup.continue_async = true;
 
   CefRefPtr<PermissionPromptTestHandler> handler =
       new PermissionPromptTestHandler(&test_setup,
-                                      CEF_PERMISSION_TYPE_WINDOW_PLACEMENT,
+                                      CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT,
                                       CEF_PERMISSION_RESULT_DISMISS);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -457,12 +457,12 @@ TEST(PermissionPromptTest, WindowPlacementResultDismissAsync) {
   EXPECT_TRUE(test_setup.got_dismiss);
 }
 
-TEST(PermissionPromptTest, WindowPlacementResultIgnore) {
+TEST(PermissionPromptTest, WindowManagementResultIgnore) {
   TestSetup test_setup;
 
   CefRefPtr<PermissionPromptTestHandler> handler =
       new PermissionPromptTestHandler(&test_setup,
-                                      CEF_PERMISSION_TYPE_WINDOW_PLACEMENT,
+                                      CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT,
                                       CEF_PERMISSION_RESULT_IGNORE);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -474,13 +474,13 @@ TEST(PermissionPromptTest, WindowPlacementResultIgnore) {
   EXPECT_TRUE(test_setup.got_dismiss);
 }
 
-TEST(PermissionPromptTest, WindowPlacementResultIgnoreAsync) {
+TEST(PermissionPromptTest, WindowManagementResultIgnoreAsync) {
   TestSetup test_setup;
   test_setup.continue_async = true;
 
   CefRefPtr<PermissionPromptTestHandler> handler =
       new PermissionPromptTestHandler(&test_setup,
-                                      CEF_PERMISSION_TYPE_WINDOW_PLACEMENT,
+                                      CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT,
                                       CEF_PERMISSION_RESULT_IGNORE);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);

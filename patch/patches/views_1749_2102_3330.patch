@@ -150,7 +150,7 @@ index 4004c670ba7f6..5d7062efed7c2 100644
    ImageView* image() const { return image_; }
    Label* label() const { return label_; }
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index d7bbcd9496f13..f5a6ac2e40397 100644
+index 7869347fa1408..a5464bde376b7 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -52,12 +52,29 @@ enum LabelPropertyKey {
@@ -183,7 +183,7 @@ index d7bbcd9496f13..f5a6ac2e40397 100644
  }  // namespace
  
  namespace views {
-@@ -443,6 +460,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
+@@ -445,6 +462,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
    OnPropertyChanged(&elide_behavior_, kPropertyEffectsPreferredSizeChanged);
  }
  
@@ -199,7 +199,7 @@ index d7bbcd9496f13..f5a6ac2e40397 100644
  std::u16string Label::GetTooltipText() const {
    return tooltip_text_;
  }
-@@ -747,6 +773,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -749,6 +775,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
        render_text->SelectRange(stored_selection_range_);
    }
  
@@ -217,7 +217,7 @@ index d7bbcd9496f13..f5a6ac2e40397 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index b856a1cb83b4f..9551454399d8a 100644
+index 5d945cc819055..c11ebddb6bb49 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -236,6 +236,10 @@ class VIEWS_EXPORT Label : public View,
@@ -231,7 +231,7 @@ index b856a1cb83b4f..9551454399d8a 100644
    // Gets/Sets the tooltip text.  Default behavior for a label (single-line) is
    // to show the full text if it is wider than its bounds.  Calling this
    // overrides the default behavior and lets you set a custom tooltip.  To
-@@ -495,6 +499,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -496,6 +500,7 @@ class VIEWS_EXPORT Label : public View,
    int max_width_ = 0;
    // This is used in single-line mode.
    int max_width_single_line_ = 0;
@@ -240,10 +240,10 @@ index b856a1cb83b4f..9551454399d8a 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 9202c2a1fa6d1..956cb370882a7 100644
+index 59b96ef7a5730..9effa5344d98c 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -474,7 +474,8 @@ void MenuController::Run(Widget* parent,
+@@ -475,7 +475,8 @@ void MenuController::Run(Widget* parent,
                           MenuAnchorPosition position,
                           bool context_menu,
                           bool is_nested_drag,
@@ -253,7 +253,7 @@ index 9202c2a1fa6d1..956cb370882a7 100644
    exit_type_ = ExitType::kNone;
    possible_drag_ = false;
    drag_in_progress_ = false;
-@@ -521,6 +522,7 @@ void MenuController::Run(Widget* parent,
+@@ -522,6 +523,7 @@ void MenuController::Run(Widget* parent,
        owner_->AddObserver(this);
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -261,7 +261,7 @@ index 9202c2a1fa6d1..956cb370882a7 100644
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2198,6 +2200,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2203,6 +2205,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -269,7 +269,7 @@ index 9202c2a1fa6d1..956cb370882a7 100644
  
      if (item->GetParentMenuItem()) {
        params.context = state_.item->GetWidget();
-@@ -2884,8 +2887,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -2889,8 +2892,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -284,7 +284,7 @@ index 9202c2a1fa6d1..956cb370882a7 100644
    MenuItemView* to_select = nullptr;
    if (!item->GetSubmenu()->GetMenuItems().empty())
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2904,8 +2912,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2909,8 +2917,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -297,7 +297,7 @@ index 9202c2a1fa6d1..956cb370882a7 100644
      SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
    else if (item->GetParentMenuItem()->GetParentMenuItem())
 diff --git ui/views/controls/menu/menu_controller.h ui/views/controls/menu/menu_controller.h
-index da5848241cb5b..05a7f9f0e4932 100644
+index b39ff8c3ae2d4..402aa6d7237c1 100644
 --- ui/views/controls/menu/menu_controller.h
 +++ ui/views/controls/menu/menu_controller.h
 @@ -105,7 +105,9 @@ class VIEWS_EXPORT MenuController
@@ -311,7 +311,7 @@ index da5848241cb5b..05a7f9f0e4932 100644
  
    bool for_drop() const { return for_drop_; }
  
-@@ -711,6 +713,8 @@ class VIEWS_EXPORT MenuController
+@@ -717,6 +719,8 @@ class VIEWS_EXPORT MenuController
    // RunType::SEND_GESTURE_EVENTS_TO_OWNER is set.
    gfx::NativeView native_view_for_gestures_ = nullptr;
  
@@ -383,10 +383,10 @@ index 693ef7fa66575..c3a1e70e8ea72 100644
  
  #if BUILDFLAG(IS_WIN)
 diff --git ui/views/controls/menu/menu_host.h ui/views/controls/menu/menu_host.h
-index ff34179c3b7fe..3d257e06e3fbb 100644
+index a1c6d8f0aa889..06d445b478d3d 100644
 --- ui/views/controls/menu/menu_host.h
 +++ ui/views/controls/menu/menu_host.h
-@@ -54,6 +54,8 @@ class MenuHost : public Widget, public WidgetObserver {
+@@ -55,6 +55,8 @@ class MenuHost : public Widget, public WidgetObserver {
      // Additional information that helps to position anchored windows in such
      // backends as Wayland.
      ui::OwnedWindowAnchor owned_window_anchor;
@@ -693,10 +693,10 @@ index 5246bbf6f143b..d722e2a014ea2 100644
    // Hides and cancels the menu.
    virtual void Cancel() = 0;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 5f5da1f46e59b..38b0a525a8652 100644
+index fd2cf17bd9088..6a2979d8bccf9 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
-@@ -259,6 +259,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
+@@ -263,6 +263,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
    scroll_down_button_ = background_view_->AddChildView(
        std::make_unique<MenuScrollButton>(content_view, false));
  
@@ -709,10 +709,10 @@ index 5f5da1f46e59b..38b0a525a8652 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aura_ozone.cc ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
-index 3be783bf139be..ccbd77c2a2797 100644
+index 4a6cde118cc86..0e8dafff6103a 100644
 --- ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 +++ ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
-@@ -16,6 +16,7 @@
+@@ -17,6 +17,7 @@
  #include "base/threading/thread_task_runner_handle.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
@@ -720,7 +720,7 @@ index 3be783bf139be..ccbd77c2a2797 100644
  #include "ui/aura/client/screen_position_client.h"
  #include "ui/aura/env.h"
  #include "ui/aura/test/aura_test_utils.h"
-@@ -100,9 +101,11 @@ class UIControlsDesktopOzone : public UIControlsAura {
+@@ -101,9 +102,11 @@ class UIControlsDesktopOzone : public UIControlsAura {
          aura::test::QueryLatestMousePositionRequestInHost(host);
      host->ConvertPixelsToDIP(&root_current_location);
  
@@ -733,10 +733,10 @@ index 3be783bf139be..ccbd77c2a2797 100644
      bool moved_cursor = false;
  #if !BUILDFLAG(IS_CHROMEOS_LACROS)
 diff --git ui/views/view.h ui/views/view.h
-index 5546d26fc701c..2a9797943b9f2 100644
+index 32ee6dda68889..98d127b6847a1 100644
 --- ui/views/view.h
 +++ ui/views/view.h
-@@ -22,6 +22,7 @@
+@@ -21,6 +21,7 @@
  #include "base/memory/raw_ptr.h"
  #include "base/observer_list.h"
  #include "base/strings/string_piece.h"
@@ -744,7 +744,7 @@ index 5546d26fc701c..2a9797943b9f2 100644
  #include "build/build_config.h"
  #include "third_party/abseil-cpp/absl/types/optional.h"
  #include "third_party/skia/include/core/SkPath.h"
-@@ -272,7 +273,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -271,7 +272,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
                            public ui::EventTarget,
                            public ui::EventHandler,
                            public ui::PropertyHandler,

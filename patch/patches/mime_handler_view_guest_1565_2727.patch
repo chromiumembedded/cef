@@ -12,18 +12,18 @@ index 031dd5eeaef8e..25c2f0e42e22b 100644
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 6e0cb46a6b913..2c10a5f9acfb4 100644
+index 98bc3a82d40f8..f2049fb07eb0c 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -225,6 +225,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -227,6 +227,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
 +  if (delegate_)
 +    delegate_->OverrideWebContentsCreateParams(&params);
-   // TODO(erikchen): Fix ownership semantics for guest views.
-   // https://crbug.com/832879.
-   std::move(callback).Run(
+   std::move(callback).Run(std::move(owned_this),
+                           WebContents::CreateWithSessionStorage(
+                               params, owner_web_contents()
 @@ -235,6 +237,10 @@ void MimeHandlerViewGuest::CreateWebContents(
  }
  
@@ -33,32 +33,35 @@ index 6e0cb46a6b913..2c10a5f9acfb4 100644
 +    delegate_->OnGuestAttached();
 +
    DCHECK(stream_->handler_url().SchemeIs(extensions::kExtensionScheme));
-   web_contents()->GetController().LoadURL(
-       stream_->handler_url(), content::Referrer(),
-@@ -261,6 +267,11 @@ bool MimeHandlerViewGuest::ZoomPropagatesFromEmbedderToGuest() const {
-   return false;
+   GetController().LoadURL(stream_->handler_url(), content::Referrer(),
+                           ui::PAGE_TRANSITION_AUTO_TOPLEVEL, std::string());
+@@ -483,6 +489,14 @@ void MimeHandlerViewGuest::DidFinishNavigation(
+   }
  }
  
-+void MimeHandlerViewGuest::WillDestroy() {
++void MimeHandlerViewGuest::WebContentsDestroyed() {
 +  if (is_guest_attached_ && delegate_)
 +    delegate_->OnGuestDetached();
++
++  // May delete |this|.
++  GuestView<MimeHandlerViewGuest>::WebContentsDestroyed();
 +}
 +
- WebContents* MimeHandlerViewGuest::OpenURLFromTab(
-     WebContents* source,
-     const content::OpenURLParams& params) {
+ void MimeHandlerViewGuest::FuseBeforeUnloadControl(
+     mojo::PendingReceiver<mime_handler::BeforeUnloadControl> receiver) {
+   if (!pending_before_unload_control_)
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index 33bb494fb68d1..9236cf3fd98bf 100644
+index 06d3ed32b6570..eb85372754783 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-@@ -142,6 +142,7 @@ class MimeHandlerViewGuest
-   void DidInitialize(const base::Value::Dict& create_params) final;
-   void EmbedderFullscreenToggled(bool entered_fullscreen) final;
-   bool ZoomPropagatesFromEmbedderToGuest() const final;
-+  void WillDestroy() override;
+@@ -191,6 +191,7 @@ class MimeHandlerViewGuest
+   void ReadyToCommitNavigation(
+       content::NavigationHandle* navigation_handle) final;
+   void DidFinishNavigation(content::NavigationHandle* navigation_handle) final;
++  void WebContentsDestroyed() override;
  
-   // WebContentsDelegate implementation.
-   content::WebContents* OpenURLFromTab(
+   std::unique_ptr<MimeHandlerViewGuestDelegate> delegate_;
+   std::unique_ptr<StreamContainer> stream_;
 @@ -199,6 +200,7 @@ class MimeHandlerViewGuest
        content::ChildProcessHost::kInvalidUniqueID, MSG_ROUTING_NONE};
    int embedder_widget_routing_id_ = MSG_ROUTING_NONE;

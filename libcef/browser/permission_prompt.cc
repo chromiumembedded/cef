@@ -117,7 +117,7 @@ class CefPermissionPrompt : public permissions::PermissionPrompt {
   }
 
   // PermissionPrompt methods:
-  void UpdateAnchor() override { NOTIMPLEMENTED(); }
+  bool UpdateAnchor() override { return true; }
   TabSwitchingBehavior GetTabSwitchingBehavior() override {
     return TabSwitchingBehavior::kKeepPromptAlive;
   }
@@ -219,8 +219,8 @@ cef_permission_request_types_t GetCefRequestType(
       return CEF_PERMISSION_TYPE_U2F_API_REQUEST;
     case permissions::RequestType::kVrSession:
       return CEF_PERMISSION_TYPE_VR_SESSION;
-    case permissions::RequestType::kWindowPlacement:
-      return CEF_PERMISSION_TYPE_WINDOW_PLACEMENT;
+    case permissions::RequestType::kWindowManagement:
+      return CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT;
   }
 
   NOTREACHED();
