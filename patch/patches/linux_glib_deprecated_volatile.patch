@@ -1,0 +1,28 @@
+diff --git ui/accessibility/platform/BUILD.gn ui/accessibility/platform/BUILD.gn
+index 029fa1010dd78..8209782684ac4 100644
+--- ui/accessibility/platform/BUILD.gn
++++ ui/accessibility/platform/BUILD.gn
+@@ -257,6 +257,10 @@ source_set("platform") {
+       if (use_glib) {
+         configs += [ "//build/config/linux:glib" ]
+       }
++
++      if (is_clang) {
++        cflags = [ "-Wno-deprecated-volatile" ]
++      }
+     }
+   }
+ }
+diff --git ui/gtk/BUILD.gn ui/gtk/BUILD.gn
+index 02ad9947176ea..5aa3096658af2 100644
+--- ui/gtk/BUILD.gn
++++ ui/gtk/BUILD.gn
+@@ -176,4 +176,8 @@ component("gtk") {
+ 
+   # TODO: This should be removed.
+   deps += [ "//ui/ozone" ]
++
++  if (is_clang) {
++    cflags = [ "-Wno-deprecated-volatile" ]
++  }
+ }
