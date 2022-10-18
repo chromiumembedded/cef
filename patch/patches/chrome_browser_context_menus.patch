@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index bfee1b2e1b139..4dce02bde8165 100644
+index f4d0d93510f26..e1ccee6851a04 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -310,6 +310,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
@@ -42,7 +42,7 @@ index bfee1b2e1b139..4dce02bde8165 100644
  }
  
  RenderViewContextMenu::~RenderViewContextMenu() = default;
-@@ -1160,6 +1179,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1165,6 +1184,12 @@ void RenderViewContextMenu::InitMenu() {
    // menu, meaning that each menu item added/removed in this function will cause
    // it to visibly jump on the screen (see b/173569669).
    AppendQuickAnswersItems();
@@ -55,7 +55,7 @@ index bfee1b2e1b139..4dce02bde8165 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3015,6 +3040,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
+@@ -3020,6 +3045,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
    execute_plugin_action_callback_ = std::move(cb);
  }
  

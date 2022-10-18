@@ -10,7 +10,7 @@ index 38062cfb9329e..14429ff0ee7eb 100644
 +// This load will not send any cookies. For CEF usage.
 +LOAD_FLAG(DO_NOT_SEND_COOKIES, 1 << 17)
 diff --git net/url_request/url_request_http_job.cc net/url_request/url_request_http_job.cc
-index 696d21520e076..874954e24bc8c 100644
+index 0878808a8dc72..59efcead3b145 100644
 --- net/url_request/url_request_http_job.cc
 +++ net/url_request/url_request_http_job.cc
 @@ -1734,7 +1734,8 @@ bool URLRequestHttpJob::ShouldAddCookieHeader() const {

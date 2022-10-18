@@ -75,7 +75,7 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
     host_resolver_->ResolveHost(
         network::mojom::HostResolverHost::NewHostPortPair(
             net::HostPortPair::FromURL(GURL(origin.ToString()))),
-        net::NetworkIsolationKey::CreateTransient(), nullptr,
+        net::NetworkAnonymizationKey::CreateTransient(), nullptr,
         receiver_.BindNewPipeAndPassRemote());
   }
 

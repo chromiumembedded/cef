@@ -465,7 +465,7 @@ index 57d5e9f7b4e3c..da7b2d14bae49 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index 2ec4ad4c16cdf..6306a8de48d42 100644
+index afe27a1bdcc26..530238e430e29 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
 @@ -170,12 +170,13 @@ auto& GetViewCommandMap() {
