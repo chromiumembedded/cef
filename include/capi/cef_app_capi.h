@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=7c6894aae3e508aaa42a376532328316d9bd509c$
+// $hash=2f4bdc6adde5defdc86dbb5c998266d6372dd164$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_APP_CAPI_H_
@@ -182,19 +182,6 @@ CEF_EXPORT void cef_run_message_loop(void);
 /// application thread and only if cef_run_message_loop() was used.
 ///
 CEF_EXPORT void cef_quit_message_loop(void);
-
-///
-/// Set to true (1) before calling Windows APIs like TrackPopupMenu that enter a
-/// modal message loop. Set to false (0) after exiting the modal message loop.
-///
-CEF_EXPORT void cef_set_osmodal_loop(int osModalLoop);
-
-///
-/// Call during process startup to enable High-DPI support on Windows 7 or
-/// newer. Older versions of Windows should be left DPI-unaware because they do
-/// not support DirectWrite and GDI fonts are kerned very badly.
-///
-CEF_EXPORT void cef_enable_highdpi_support(void);
 
 #ifdef __cplusplus
 }

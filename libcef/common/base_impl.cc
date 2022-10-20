@@ -12,10 +12,6 @@
 #include "base/threading/platform_thread.h"
 #include "base/trace_event/trace_event.h"
 
-#if BUILDFLAG(IS_WIN)
-#include "base/win/win_util.h"
-#endif
-
 namespace {
 
 constexpr const char kCategory[] = "cef.client";
@@ -332,11 +328,5 @@ cef_get_current_platform_thread_handle() {
   return base::PlatformThread::CurrentId();
 #else
   return base::PlatformThread::CurrentHandle().platform_handle();
-#endif
-}
-
-void CefEnableHighDPISupport() {
-#if BUILDFLAG(IS_WIN)
-  base::win::EnableHighDPISupport();
 #endif
 }

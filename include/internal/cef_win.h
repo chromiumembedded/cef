@@ -31,6 +31,7 @@
 #define CEF_INCLUDE_INTERNAL_CEF_WIN_H_
 #pragma once
 
+#include "include/internal/cef_app_win.h"
 #include "include/internal/cef_types_win.h"
 #include "include/internal/cef_types_wrappers.h"
 
@@ -131,5 +132,53 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
     parent_window = parent;
   }
 };
+
+#if defined(ARCH_CPU_32_BITS)
+///
+/// Run the main thread on 32-bit Windows using a fiber with the preferred 4MiB
+/// stack size. This function must be called at the top of the executable entry
+/// point function (`main()` or `wWinMain()`). It is used in combination with
+/// the initial stack size of 0.5MiB configured via the `/STACK:0x80000` linker
+/// flag on executable targets. This saves significant memory on threads (like
+/// those in the Windows thread pool, and others) whose stack size can only be
+/// controlled via the linker flag.
+///
+/// CEF's main thread needs at least a 1.5 MiB stack size in order to avoid
+/// stack overflow crashes. However, if this is set in the PE file then other
+/// threads get this size as well, leading to address-space exhaustion in 32-bit
+/// CEF. This function uses fibers to switch the main thread to a 4 MiB stack
+/// (roughly the same effective size as the 64-bit build's 8 MiB stack) before
+/// running any other code.
+///
+/// Choose the function variant that matches the entry point function type used
+/// by the executable. Reusing the entry point minimizes confusion when
+/// examining call stacks in crash reports.
+///
+/// If this function is already running on the fiber it will return -1
+/// immediately, meaning that execution should proceed with the remainder of the
+/// entry point function. Otherwise, this function will block until the entry
+/// point function has completed execution on the fiber and then return a result
+/// >= 0, meaning that the entry point function should return the result
+/// immediately without proceeding with execution.
+///
+int CefRunWinMainWithPreferredStackSize(wWinMainPtr wWinMain,
+                                        HINSTANCE hInstance,
+                                        LPWSTR lpCmdLine,
+                                        int nCmdShow);
+int CefRunMainWithPreferredStackSize(mainPtr main, int argc, char* argv[]);
+#endif  // defined(ARCH_CPU_32_BITS)
+
+///
+/// Call during process startup to enable High-DPI support on Windows 7 or
+/// newer. Older versions of Windows should be left DPI-unaware because they do
+/// not support DirectWrite and GDI fonts are kerned very badly.
+///
+void CefEnableHighDPISupport();
+
+///
+/// Set to true before calling Windows APIs like TrackPopupMenu that enter a
+/// modal message loop. Set to false after exiting the modal message loop.
+///
+void CefSetOSModalLoop(bool osModalLoop);
 
 #endif  // CEF_INCLUDE_INTERNAL_CEF_WIN_H_
