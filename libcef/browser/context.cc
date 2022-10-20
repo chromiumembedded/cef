@@ -39,19 +39,6 @@ class CefShutdownChecker {
 #endif  // DCHECK_IS_ON()
 
 #if BUILDFLAG(IS_WIN)
-#if defined(ARCH_CPU_X86_64)
-// VS2013 only checks the existence of FMA3 instructions, not the enabled-ness
-// of them at the OS level (this is fixed in VS2015). We force off usage of
-// FMA3 instructions in the CRT to avoid using that path and hitting illegal
-// instructions when running on CPUs that support FMA3, but OSs that don't.
-void DisableFMA3() {
-  static bool disabled = false;
-  if (disabled)
-    return;
-  disabled = true;
-  _set_FMA3_enable(0);
-}
-#endif  // defined(ARCH_CPU_X86_64)
 
 // Transfer state from chrome_elf.dll to the libcef.dll. Accessed when
 // loading chrome://system.
@@ -72,6 +59,7 @@ void InitCrashReporter() {
   initialized = true;
   SignalInitializeCrashReporting();
 }
+
 #endif  // BUILDFLAG(IS_WIN)
 
 bool GetColor(const cef_color_t cef_in, bool is_windowless, SkColor* sk_out) {
@@ -176,9 +164,6 @@ int CefExecuteProcess(const CefMainArgs& args,
                       CefRefPtr<CefApp> application,
                       void* windows_sandbox_info) {
 #if BUILDFLAG(IS_WIN)
-#if defined(ARCH_CPU_X86_64)
-  DisableFMA3();
-#endif
   InitInstallDetails();
   InitCrashReporter();
 #endif
@@ -192,9 +177,6 @@ bool CefInitialize(const CefMainArgs& args,
                    CefRefPtr<CefApp> application,
                    void* windows_sandbox_info) {
 #if BUILDFLAG(IS_WIN)
-#if defined(ARCH_CPU_X86_64)
-  DisableFMA3();
-#endif
   InitInstallDetails();
   InitCrashReporter();
 #endif
