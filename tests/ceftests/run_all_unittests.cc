@@ -108,6 +108,25 @@ int XIOErrorHandlerImpl(Display* display) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
+#if !defined(OS_MAC)
+  int exit_code;
+#endif
+
+#if defined(OS_WIN) && defined(ARCH_CPU_32_BITS)
+  // Run the main thread on 32-bit Windows using a fiber with the preferred 4MiB
+  // stack size. This function must be called at the top of the executable entry
+  // point function (`main()` or `wWinMain()`). It is used in combination with
+  // the initial stack size of 0.5MiB configured via the `/STACK:0x80000` linker
+  // flag on executable targets. This saves significant memory on threads (like
+  // those in the Windows thread pool, and others) whose stack size can only be
+  // controlled via the linker flag.
+  exit_code = CefRunMainWithPreferredStackSize(main, argc, argv);
+  if (exit_code >= 0) {
+    // The fiber has completed so return here.
+    return exit_code;
+  }
+#endif
+
 #if defined(OS_MAC)
   // Load the CEF framework library at runtime instead of linking directly
   // as required by the macOS sandbox implementation.
@@ -153,7 +172,7 @@ int main(int argc, char* argv[]) {
   }
 
   // Execute the secondary process, if any.
-  int exit_code = CefExecuteProcess(main_args, app, windows_sandbox_info);
+  exit_code = CefExecuteProcess(main_args, app, windows_sandbox_info);
   if (exit_code >= 0)
     return exit_code;
 #else

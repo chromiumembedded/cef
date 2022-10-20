@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a3be9b3f96ebf8c8840856a6f454729d77459a22$
+// $hash=6bc0085b04e78068511eb7198a3f9bda103adc85$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -144,20 +144,6 @@ CEF_EXPORT void cef_quit_message_loop() {
 
   // Execute
   CefQuitMessageLoop();
-}
-
-CEF_EXPORT void cef_set_osmodal_loop(int osModalLoop) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  CefSetOSModalLoop(osModalLoop ? true : false);
-}
-
-CEF_EXPORT void cef_enable_highdpi_support() {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  CefEnableHighDPISupport();
 }
 
 CEF_EXPORT int cef_crash_reporting_enabled() {

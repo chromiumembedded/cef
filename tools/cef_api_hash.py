@@ -40,6 +40,7 @@ class cef_api_hash:
     self.platform_files = {
         # List of includes_win_capi from cef_paths2.gypi.
         "windows": [
+            "internal/cef_app_win.h",
             "internal/cef_types_win.h",
         ],
         # List of includes_mac_capi from cef_paths2.gypi.

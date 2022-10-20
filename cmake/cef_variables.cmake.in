@@ -448,6 +448,23 @@ if(OS_WINDOWS)
     NDEBUG _NDEBUG                    # Not a debug build
     )
 
+  if(PROJECT_ARCH STREQUAL "x86")
+    # Set the initial stack size to 0.5MiB, instead of the 1.5MiB minimum
+    # needed by CEF's main thread. This saves significant memory on threads
+    # (like those in the Windows thread pool, and others) whose stack size we
+    # can only control through this setting. The main thread (in 32-bit builds
+    # only) uses fibers to switch to a 4MiB stack at runtime via
+    # CefRunWinMainWithPreferredStackSize().
+    list(APPEND CEF_EXE_LINKER_FLAGS
+      /STACK:0x8000
+      )
+  else()
+    # Increase the initial stack size to 8MiB from the default 1MiB.
+    list(APPEND CEF_EXE_LINKER_FLAGS
+      /STACK:0x800000
+      )
+  endif()
+
   # Standard libraries.
   set(CEF_STANDARD_LIBS
     comctl32.lib

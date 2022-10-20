@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bb6f61b0d69253de7bcc5506fd04562e46fa797c$
+// $hash=b5dc1bb07ea5cbf057bf40491fdcdddeb58dfa57$
 //
 
 #include <dlfcn.h>
@@ -95,8 +95,6 @@ struct libcef_pointers {
   decltype(&cef_do_message_loop_work) cef_do_message_loop_work;
   decltype(&cef_run_message_loop) cef_run_message_loop;
   decltype(&cef_quit_message_loop) cef_quit_message_loop;
-  decltype(&cef_set_osmodal_loop) cef_set_osmodal_loop;
-  decltype(&cef_enable_highdpi_support) cef_enable_highdpi_support;
   decltype(&cef_crash_reporting_enabled) cef_crash_reporting_enabled;
   decltype(&cef_set_crash_key_value) cef_set_crash_key_value;
   decltype(&cef_create_directory) cef_create_directory;
@@ -336,8 +334,6 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_do_message_loop_work);
   INIT_ENTRY(cef_run_message_loop);
   INIT_ENTRY(cef_quit_message_loop);
-  INIT_ENTRY(cef_set_osmodal_loop);
-  INIT_ENTRY(cef_enable_highdpi_support);
   INIT_ENTRY(cef_crash_reporting_enabled);
   INIT_ENTRY(cef_set_crash_key_value);
   INIT_ENTRY(cef_create_directory);
@@ -597,14 +593,6 @@ NO_SANITIZE("cfi-icall") void cef_run_message_loop() {
 
 NO_SANITIZE("cfi-icall") void cef_quit_message_loop() {
   g_libcef_pointers.cef_quit_message_loop();
-}
-
-NO_SANITIZE("cfi-icall") void cef_set_osmodal_loop(int osModalLoop) {
-  g_libcef_pointers.cef_set_osmodal_loop(osModalLoop);
-}
-
-NO_SANITIZE("cfi-icall") void cef_enable_highdpi_support() {
-  g_libcef_pointers.cef_enable_highdpi_support();
 }
 
 NO_SANITIZE("cfi-icall") int cef_crash_reporting_enabled() {

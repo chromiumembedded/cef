@@ -4,8 +4,14 @@
 //
 
 #include <cstddef>
+
+#include "include/base/cef_build.h"
 #include "include/cef_api_hash.h"
 #include "include/cef_version.h"
+
+#if defined(OS_WIN)
+#include "include/internal/cef_win.h"
+#endif
 
 CEF_EXPORT int cef_version_info(int entry) {
   switch (entry) {
@@ -42,3 +48,31 @@ CEF_EXPORT const char* cef_api_hash(int entry) {
       return NULL;
   }
 }
+
+#if defined(OS_WIN)
+
+#if defined(ARCH_CPU_32_BITS)
+CEF_EXPORT int cef_run_winmain_with_preferred_stack_size(wWinMainPtr wWinMain,
+                                                         HINSTANCE hInstance,
+                                                         LPWSTR lpCmdLine,
+                                                         int nCmdShow) {
+  return CefRunWinMainWithPreferredStackSize(wWinMain, hInstance, lpCmdLine,
+                                             nCmdShow);
+}
+
+CEF_EXPORT int cef_run_main_with_preferred_stack_size(mainPtr main,
+                                                      int argc,
+                                                      char* argv[]) {
+  return CefRunMainWithPreferredStackSize(main, argc, argv);
+}
+#endif  // defined(ARCH_CPU_32_BITS)
+
+CEF_EXPORT void cef_enable_highdpi_support() {
+  CefEnableHighDPISupport();
+}
+
+CEF_EXPORT void cef_set_osmodal_loop(int osModalLoop) {
+  CefSetOSModalLoop(osModalLoop ? true : false);
+}
+
+#endif  // defined(OS_WIN)

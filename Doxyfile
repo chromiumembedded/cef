@@ -2375,7 +2375,8 @@ PREDEFINED             = USING_CEF_SHARED \
                          OS_WIN \
                          OS_LINUX \
                          CEF_X11 \
-                         OS_MAC
+                         OS_MAC \
+                         ARCH_CPU_32_BITS
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The

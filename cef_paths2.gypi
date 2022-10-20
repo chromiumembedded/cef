@@ -79,6 +79,7 @@
       'include/internal/cef_win.h',
     ],
     'includes_win_capi': [
+      'include/internal/cef_app_win.h',
       'include/internal/cef_types_win.h',
     ],
     'includes_mac': [

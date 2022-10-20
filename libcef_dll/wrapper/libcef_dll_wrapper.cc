@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f1ec7f73b35927e943a058141d73d449dd31e43c$
+// $hash=24d0396cbcb6e2af587c1126c899277d4ac0b4d2$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -136,20 +136,6 @@ NO_SANITIZE("cfi-icall") CEF_GLOBAL void CefQuitMessageLoop() {
 
   // Execute
   cef_quit_message_loop();
-}
-
-NO_SANITIZE("cfi-icall") CEF_GLOBAL void CefSetOSModalLoop(bool osModalLoop) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_set_osmodal_loop(osModalLoop);
-}
-
-NO_SANITIZE("cfi-icall") CEF_GLOBAL void CefEnableHighDPISupport() {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_enable_highdpi_support();
 }
 
 NO_SANITIZE("cfi-icall") CEF_GLOBAL bool CefCrashReportingEnabled() {
