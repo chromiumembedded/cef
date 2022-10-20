@@ -140,6 +140,7 @@
 #include "storage/browser/quota/quota_settings.h"
 #include "third_party/blink/public/common/associated_interfaces/associated_interface_registry.h"
 #include "third_party/blink/public/common/web_preferences/web_preferences.h"
+#include "third_party/blink/public/mojom/badging/badging.mojom.h"
 #include "third_party/blink/public/mojom/prerender/prerender.mojom.h"
 #include "third_party/blink/public/web/web_window_features.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -376,6 +377,14 @@ void BindPluginInfoHost(
       std::make_unique<PluginInfoHostImpl>(render_process_id, profile),
       std::move(receiver));
 }
+
+void BindBadgeService(
+    content::RenderFrameHost* frame_host,
+    mojo::PendingReceiver<blink::mojom::BadgeService> receiver) {}
+
+void BindBadgeServiceForServiceWorker(
+    const content::ServiceWorkerVersionBaseInfo& info,
+    mojo::PendingReceiver<blink::mojom::BadgeService> receiver) {}
 
 void BindMediaFoundationRendererNotifierHandler(
     content::RenderFrameHost* frame_host,
@@ -1329,6 +1338,7 @@ void AlloyContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
   CefBrowserFrame::RegisterBrowserInterfaceBindersForFrame(render_frame_host,
                                                            map);
 
+  map->Add<blink::mojom::BadgeService>(base::BindRepeating(&BindBadgeService));
   map->Add<media::mojom::MediaFoundationRendererNotifier>(
       base::BindRepeating(&BindMediaFoundationRendererNotifierHandler));
   map->Add<network_hints::mojom::NetworkHintsHandler>(
@@ -1356,6 +1366,15 @@ void AlloyContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
   extensions::ExtensionsBrowserClient::Get()
       ->RegisterBrowserInterfaceBindersForFrame(map, render_frame_host,
                                                 extension);
+}
+
+void AlloyContentBrowserClient::RegisterBrowserInterfaceBindersForServiceWorker(
+    content::BrowserContext* browser_context,
+    const content::ServiceWorkerVersionBaseInfo& service_worker_version_info,
+    mojo::BinderMapWithContext<const content::ServiceWorkerVersionBaseInfo&>*
+        map) {
+  map->Add<blink::mojom::BadgeService>(
+      base::BindRepeating(&BindBadgeServiceForServiceWorker));
 }
 
 base::FilePath

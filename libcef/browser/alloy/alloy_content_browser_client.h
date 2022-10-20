@@ -227,6 +227,11 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
   void RegisterBrowserInterfaceBindersForFrame(
       content::RenderFrameHost* render_frame_host,
       mojo::BinderMapWithContext<content::RenderFrameHost*>* map) override;
+  void RegisterBrowserInterfaceBindersForServiceWorker(
+      content::BrowserContext* browser_context,
+      const content::ServiceWorkerVersionBaseInfo& service_worker_version_info,
+      mojo::BinderMapWithContext<const content::ServiceWorkerVersionBaseInfo&>*
+          map) override;
   base::FilePath GetSandboxedStorageServiceDataDirectory() override;
   std::string GetProduct() override;
   std::string GetChromeProduct() override;
