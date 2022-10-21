@@ -198,7 +198,7 @@ index 791b74ef57995..20cd406ff81bb 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 52e08d175a0a3..5e2511dfd3e8e 100644
+index ed79018b99afb..7353238e1fb0f 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -31,6 +31,7 @@
@@ -293,7 +293,7 @@ index 52e08d175a0a3..5e2511dfd3e8e 100644
          base::BindOnce(&ChromeContentBrowserClient::OnKeepaliveTimerFired,
                         weak_factory_.GetWeakPtr(),
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index cb93058f317e4..27215441c206c 100644
+index df6896d3f444f..8ee9b740f7f41 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
 @@ -119,6 +119,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
