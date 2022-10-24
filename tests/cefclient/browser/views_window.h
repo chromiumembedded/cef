@@ -220,8 +220,6 @@ class ViewsWindow : public CefBrowserViewDelegate,
                               const ImageCache::ImageSet& images);
   void OnExtensionWindowClosed();
 
-  CefRect GetInitialBounds() const;
-
   Delegate* delegate_;  // Not owned by this object.
   CefRefPtr<CefBrowserView> browser_view_;
   bool frameless_;
