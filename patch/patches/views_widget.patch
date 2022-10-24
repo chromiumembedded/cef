@@ -258,10 +258,10 @@ index 774a2d23a87a6..88769ad800d22 100644
  
    // Calculate initial bounds.
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 0d5595767664e..dc9162d3c6eb3 100644
+index 0d5595767664e..d36964f634683 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-@@ -183,8 +183,12 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
+@@ -183,16 +183,28 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
                          native_widget_delegate_);
  
    HWND parent_hwnd = nullptr;
@@ -275,7 +275,26 @@ index 0d5595767664e..dc9162d3c6eb3 100644
  
    remove_standard_frame_ = params.remove_standard_frame;
    has_non_client_view_ = Widget::RequiresNonClientView(params.type);
-@@ -1033,11 +1037,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+   z_order_ = params.EffectiveZOrderLevel();
+ 
+-  // We don't have an HWND yet, so scale relative to the nearest screen.
+-  gfx::Rect pixel_bounds =
+-      display::win::ScreenWin::DIPToScreenRect(nullptr, params.bounds);
++  gfx::Rect pixel_bounds;
++  if (has_external_parent_) {
++    // Scale relative to the screen that contains the parent window.
++    // Child windows always have origin (0,0).
++    pixel_bounds.set_size(display::win::ScreenWin::DIPToScreenSize(
++        parent_hwnd, params.bounds.size()));
++  } else {
++    // We don't have an HWND yet, so scale relative to the nearest screen.
++    pixel_bounds =
++        display::win::ScreenWin::DIPToScreenRect(nullptr, params.bounds);
++  }
+   message_handler_->Init(parent_hwnd, pixel_bounds, params.headless_mode);
+   CreateCompositor(params.force_software_compositing);
+   OnAcceleratedWidgetAvailable();
+@@ -1033,11 +1045,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -293,7 +312,7 @@ index 0d5595767664e..dc9162d3c6eb3 100644
  }
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
-@@ -1045,6 +1053,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
+@@ -1045,6 +1061,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
    if (ui::PlatformEventSource::ShouldIgnoreNativePlatformEvents())
      return true;
  
@@ -306,6 +325,24 @@ index 0d5595767664e..dc9162d3c6eb3 100644
    SendEventToSink(event);
    return event->handled();
  }
+@@ -1224,8 +1246,16 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
+   // positions in variable-DPI situations. See https://crbug.com/1224715 for
+   // details.
+   aura::Window* root = nullptr;
+-  const gfx::Rect bounds_in_pixels =
++  if (has_external_parent_) {
++    // Scale relative to the screen that contains the parent window.
++    root = AsWindowTreeHost()->window();
++  }
++  gfx::Rect bounds_in_pixels =
+       display::Screen::GetScreen()->DIPToScreenRectInWindow(root, bounds);
++  if (has_external_parent_) {
++    // Child windows always have origin (0,0).
++    bounds_in_pixels.set_origin(gfx::Point(0, 0));
++  }
+   AsWindowTreeHost()->SetBoundsInPixels(bounds_in_pixels);
+ }
+ 
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 index cec35ceb25477..6eab66d5676b5 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h

@@ -28,6 +28,7 @@
 #include "ui/base/win/shell.h"
 #include "ui/display/display.h"
 #include "ui/display/screen.h"
+#include "ui/display/win/screen_win.h"
 #include "ui/events/keycodes/dom/dom_key.h"
 #include "ui/events/keycodes/dom/keycode_converter.h"
 #include "ui/events/keycodes/keyboard_code_conversion_win.h"
@@ -122,84 +123,65 @@ void ExecuteExternalProtocol(const GURL& url) {
   }
 }
 
-// DPI value for 1x scale factor.
-#define DPI_1X 96.0f
-
-float GetWindowScaleFactor(HWND hwnd) {
-  DCHECK(hwnd);
-
-  if (base::win::IsProcessPerMonitorDpiAware()) {
-    // Let Windows tell us the correct DPI.
-    static auto get_dpi_for_window_func = []() {
-      return reinterpret_cast<decltype(::GetDpiForWindow)*>(
-          GetProcAddress(GetModuleHandle(L"user32.dll"), "GetDpiForWindow"));
-    }();
-    if (get_dpi_for_window_func)
-      return static_cast<float>(get_dpi_for_window_func(hwnd)) / DPI_1X;
-  }
-
-  // Fallback to the monitor that contains the window center point.
-  RECT cr;
-  GetWindowRect(hwnd, &cr);
-  return display::Screen::GetScreen()
-      ->GetDisplayNearestPoint(
-          gfx::Point((cr.right - cr.left) / 2, (cr.bottom - cr.top) / 2))
-      .device_scale_factor();
-}
-
-struct ScreenInfo {
-  float scale_factor;
-  CefRect rect;
-};
-
-ScreenInfo GetScreenInfo(int x, int y) {
+gfx::Rect GetDisplayWorkAreaNearestPoint(gfx::Point dip_point) {
   const auto display =
-      display::Screen::GetScreen()->GetDisplayNearestPoint(gfx::Point(x, y));
-  const auto rect = display.work_area();
-
-  return ScreenInfo{display.device_scale_factor(),
-                    CefRect(rect.x(), rect.y(), rect.width(), rect.height())};
+      display::Screen::GetScreen()->GetDisplayNearestPoint(dip_point);
+  // Work area in DIP.
+  return display.work_area();
 }
 
-CefRect GetFrameRectFromLogicalContentRect(CefRect content,
-                                           DWORD style,
-                                           DWORD ex_style,
-                                           bool has_menu,
-                                           float scale) {
-  const auto scaled_rect = gfx::ScaleToRoundedRect(
-      gfx::Rect(content.x, content.y, content.width, content.height), scale);
+CefRect GetScreenFrameRectFromDIPContentRect(HWND window,
+                                             gfx::Rect dip_rect,
+                                             DWORD style,
+                                             DWORD ex_style,
+                                             bool has_menu) {
+  // Convert from DIP using a method that can handle multiple displays with
+  // different DPI. If |window| is nullptr the closest display will be used.
+  const auto screen_rect =
+      display::win::ScreenWin::DIPToScreenRect(window, dip_rect);
 
-  RECT rect = {0, 0, scaled_rect.width(), scaled_rect.height()};
+  RECT rect = {screen_rect.x(), screen_rect.y(),
+               screen_rect.x() + screen_rect.width(),
+               screen_rect.y() + screen_rect.height()};
 
   AdjustWindowRectEx(&rect, style, has_menu, ex_style);
 
-  return CefRect(scaled_rect.x(), scaled_rect.y(), rect.right - rect.left,
+  // Keep the original origin while potentially increasing the size to include
+  // the frame non-client area.
+  return CefRect(screen_rect.x(), screen_rect.y(), rect.right - rect.left,
                  rect.bottom - rect.top);
 }
 
-CefRect GetAdjustedWindowRect(CefRect content,
-                              DWORD style,
-                              DWORD ex_style,
-                              bool has_menu) {
-  // If height or width is not provided, let OS determine position and size,
-  // similarly to Chromium behavior
-  if (content.width == CW_USEDEFAULT || content.height == CW_USEDEFAULT) {
+CefRect GetAdjustedScreenFrameRect(CefRect screen_rect,
+                                   DWORD style,
+                                   DWORD ex_style,
+                                   bool has_menu) {
+  // If height or width is not provided let the OS determine the position and
+  // size similar to Chromium behavior. Note that |CW_USEDEFAULT| cannot be
+  // stored in a gfx::Rect due to clamping.
+  if (screen_rect.width == CW_USEDEFAULT ||
+      screen_rect.height == CW_USEDEFAULT) {
     return CefRect(CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT);
   }
 
-  if (content.x == CW_USEDEFAULT) {
-    content.x = 0;
+  if (screen_rect.x == CW_USEDEFAULT) {
+    screen_rect.x = 0;
   }
 
-  if (content.y == CW_USEDEFAULT) {
-    content.y = 0;
+  if (screen_rect.y == CW_USEDEFAULT) {
+    screen_rect.y = 0;
   }
 
-  const ScreenInfo screen = GetScreenInfo(content.x, content.y);
-  const CefRect rect = MakeVisibleOnScreenRect(content, screen.rect);
+  // Convert to DIP using a method that can handle multiple displays with
+  // different DPI.
+  const auto dip_rect = display::win::ScreenWin::ScreenToDIPRect(
+      nullptr, gfx::Rect(screen_rect.x, screen_rect.y, screen_rect.width,
+                         screen_rect.height));
+  const auto visible_dip_rect = MakeVisibleOnScreenRect(
+      dip_rect, GetDisplayWorkAreaNearestPoint(dip_rect.origin()));
 
-  return GetFrameRectFromLogicalContentRect(rect, style, ex_style, has_menu,
-                                            screen.scale_factor);
+  return GetScreenFrameRectFromDIPContentRect(
+      /*window=*/nullptr, visible_dip_rect, style, ex_style, has_menu);
 }
 
 }  // namespace
@@ -245,8 +227,8 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
   if (!window_info_.parent_window) {
     const bool has_menu =
         !(window_info_.style & WS_CHILD) && (window_info_.menu != NULL);
-    window_rect = GetAdjustedWindowRect(window_rect, window_info_.style,
-                                        window_info_.ex_style, has_menu);
+    window_rect = GetAdjustedScreenFrameRect(window_rect, window_info_.style,
+                                             window_info_.ex_style, has_menu);
   }
 
   // Create the new browser window.
@@ -283,13 +265,13 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
 
   DCHECK(!window_widget_);
 
-  // Convert from device coordinates to logical coordinates.
   RECT cr;
   GetClientRect(window_info_.window, &cr);
-  gfx::Point point = gfx::Point(cr.right, cr.bottom);
-  const float scale = GetWindowScaleFactor(window_info_.window);
-  point =
-      gfx::ToFlooredPoint(gfx::ScalePoint(gfx::PointF(point), 1.0f / scale));
+
+  // Convert to DIP using a method that can handle multiple displays with
+  // different DPI. Client coordinates always have origin (0,0).
+  const gfx::Rect dip_rect = display::win::ScreenWin::ScreenToDIPRect(
+      window_info_.window, gfx::Rect(0, 0, cr.right, cr.bottom));
 
   // Stay on top if top-most window hosting the web view is topmost.
   HWND top_level_window = GetAncestor(window_info_.window, GA_ROOT);
@@ -301,7 +283,7 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
   CefWindowDelegateView* delegate_view = new CefWindowDelegateView(
       GetBackgroundColor(), always_on_top, GetBoundsChangedCallback());
   delegate_view->Init(window_info_.window, web_contents_,
-                      gfx::Rect(0, 0, point.x(), point.y()));
+                      gfx::Rect(0, 0, dip_rect.width(), dip_rect.height()));
 
   window_widget_ = delegate_view->GetWidget();
 
@@ -440,11 +422,9 @@ void CefBrowserPlatformDelegateNativeWin::SizeTo(int width, int height) {
   const DWORD style = GetWindowLong(window, GWL_STYLE);
   const DWORD ex_style = GetWindowLong(window, GWL_EXSTYLE);
   const bool has_menu = !(style & WS_CHILD) && (GetMenu(window) != NULL);
-  const float scale = GetWindowScaleFactor(window);
 
-  const CefRect content_rect(0, 0, width, height);
-  const CefRect frame_rect = GetFrameRectFromLogicalContentRect(
-      content_rect, style, ex_style, has_menu, scale);
+  const auto frame_rect = GetScreenFrameRectFromDIPContentRect(
+      window, gfx::Rect(0, 0, width, height), style, ex_style, has_menu);
 
   // Size the window. The left/top values may be negative.
   SetWindowPos(window, NULL, 0, 0, frame_rect.width, frame_rect.height,

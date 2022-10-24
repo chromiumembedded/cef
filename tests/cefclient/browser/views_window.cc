@@ -30,6 +30,10 @@ namespace {
 
 const char kDefaultExtensionIcon[] = "window_icon";
 
+// Default window size.
+constexpr int kDefaultWidth = 800;
+constexpr int kDefaultHeight = 600;
+
 // Control IDs for Views in the top-level Window.
 enum ControlIds {
   ID_WINDOW = 1,
@@ -513,13 +517,10 @@ void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
 
   delegate_->OnViewsWindowCreated(this);
 
-  const CefRect bounds = GetInitialBounds();
-  if (bounds.x == 0 && bounds.y == 0) {
-    // Size the Window and center it.
-    window_->CenterWindow(CefSize(bounds.width, bounds.height));
-  } else {
-    // Set the Window bounds as specified.
-    window_->SetBounds(bounds);
+  const CefRect bounds = delegate_->GetWindowBounds();
+  if (bounds.IsEmpty()) {
+    // Size the Window and center it at the default size.
+    window_->CenterWindow(CefSize(kDefaultWidth, kDefaultHeight));
   }
 
   // Set the background color for regions that are not obscured by other Views.
@@ -609,14 +610,12 @@ CefRefPtr<CefWindow> ViewsWindow::GetParentWindow(CefRefPtr<CefWindow> window,
 
 CefRect ViewsWindow::GetInitialBounds(CefRefPtr<CefWindow> window) {
   CEF_REQUIRE_UI_THREAD();
-  if (frameless_) {
+  const CefRect bounds = delegate_->GetWindowBounds();
+  if (frameless_ && bounds.IsEmpty()) {
     // Need to provide a size for frameless windows that will be centered.
-    const CefRect bounds = GetInitialBounds();
-    if (bounds.x == 0 && bounds.y == 0) {
-      return bounds;
-    }
+    return CefRect(0, 0, kDefaultWidth, kDefaultHeight);
   }
-  return CefRect();
+  return bounds;
 }
 
 cef_show_state_t ViewsWindow::GetInitialShowState(CefRefPtr<CefWindow> window) {
@@ -1128,17 +1127,6 @@ void ViewsWindow::OnExtensionWindowClosed() {
 
   // Restore the button state.
   extension_button_pressed_lock_ = nullptr;
-}
-
-CefRect ViewsWindow::GetInitialBounds() const {
-  CEF_REQUIRE_UI_THREAD();
-  CefRect bounds = delegate_->GetWindowBounds();
-  if (bounds.IsEmpty()) {
-    // Use the default size.
-    bounds.width = 800;
-    bounds.height = 600;
-  }
-  return bounds;
 }
 
 }  // namespace client

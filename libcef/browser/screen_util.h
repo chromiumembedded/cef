@@ -6,12 +6,15 @@
 #define CEF_LIBCEF_BROWSER_SCREEN_UTIL_H_
 #pragma once
 
-#include "include/internal/cef_types_wrappers.h"
+namespace gfx {
+class Rect;
+}
 
 // Create a new rectangle from the input |rect| rectangle that is fully visible
 // on provided |screen_rect| screen. The width and height of the resulting
 // rectangle are clamped to the screen width and height respectively if they
 // would overflow.
-CefRect MakeVisibleOnScreenRect(const CefRect& rect, const CefRect& screen);
+gfx::Rect MakeVisibleOnScreenRect(const gfx::Rect& rect,
+                                  const gfx::Rect& screen);
 
 #endif  // CEF_LIBCEF_BROWSER_SCREEN_UTIL_H_
