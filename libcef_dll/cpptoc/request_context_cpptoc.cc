@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ab7b829bdc8e583b08496227e5e9bebc2b166025$
+// $hash=e4711889504d06c942d937a1e61fa48cee26b912$
 //
 
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
@@ -238,118 +238,6 @@ int CEF_CALLBACK request_context_clear_scheme_handler_factories(
   return _retval;
 }
 
-int CEF_CALLBACK
-request_context_has_preference(struct _cef_request_context_t* self,
-                               const cef_string_t* name) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return 0;
-  // Verify param: name; type: string_byref_const
-  DCHECK(name);
-  if (!name)
-    return 0;
-
-  // Execute
-  bool _retval =
-      CefRequestContextCppToC::Get(self)->HasPreference(CefString(name));
-
-  // Return type: bool
-  return _retval;
-}
-
-struct _cef_value_t* CEF_CALLBACK
-request_context_get_preference(struct _cef_request_context_t* self,
-                               const cef_string_t* name) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return NULL;
-  // Verify param: name; type: string_byref_const
-  DCHECK(name);
-  if (!name)
-    return NULL;
-
-  // Execute
-  CefRefPtr<CefValue> _retval =
-      CefRequestContextCppToC::Get(self)->GetPreference(CefString(name));
-
-  // Return type: refptr_same
-  return CefValueCppToC::Wrap(_retval);
-}
-
-struct _cef_dictionary_value_t* CEF_CALLBACK
-request_context_get_all_preferences(struct _cef_request_context_t* self,
-                                    int include_defaults) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return NULL;
-
-  // Execute
-  CefRefPtr<CefDictionaryValue> _retval =
-      CefRequestContextCppToC::Get(self)->GetAllPreferences(
-          include_defaults ? true : false);
-
-  // Return type: refptr_same
-  return CefDictionaryValueCppToC::Wrap(_retval);
-}
-
-int CEF_CALLBACK
-request_context_can_set_preference(struct _cef_request_context_t* self,
-                                   const cef_string_t* name) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return 0;
-  // Verify param: name; type: string_byref_const
-  DCHECK(name);
-  if (!name)
-    return 0;
-
-  // Execute
-  bool _retval =
-      CefRequestContextCppToC::Get(self)->CanSetPreference(CefString(name));
-
-  // Return type: bool
-  return _retval;
-}
-
-int CEF_CALLBACK
-request_context_set_preference(struct _cef_request_context_t* self,
-                               const cef_string_t* name,
-                               struct _cef_value_t* value,
-                               cef_string_t* error) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return 0;
-  // Verify param: name; type: string_byref_const
-  DCHECK(name);
-  if (!name)
-    return 0;
-  // Verify param: error; type: string_byref
-  DCHECK(error);
-  if (!error)
-    return 0;
-  // Unverified params: value
-
-  // Translate param: error; type: string_byref
-  CefString errorStr(error);
-
-  // Execute
-  bool _retval = CefRequestContextCppToC::Get(self)->SetPreference(
-      CefString(name), CefValueCppToC::Unwrap(value), errorStr);
-
-  // Return type: bool
-  return _retval;
-}
-
 void CEF_CALLBACK request_context_clear_certificate_exceptions(
     struct _cef_request_context_t* self,
     cef_completion_callback_t* callback) {
@@ -551,6 +439,125 @@ request_context_get_media_router(struct _cef_request_context_t* self,
   return CefMediaRouterCppToC::Wrap(_retval);
 }
 
+int CEF_CALLBACK
+request_context_has_preference(struct _cef_preference_manager_t* self,
+                               const cef_string_t* name) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: name; type: string_byref_const
+  DCHECK(name);
+  if (!name)
+    return 0;
+
+  // Execute
+  bool _retval = CefRequestContextCppToC::Get(
+                     reinterpret_cast<cef_request_context_t*>(self))
+                     ->HasPreference(CefString(name));
+
+  // Return type: bool
+  return _retval;
+}
+
+struct _cef_value_t* CEF_CALLBACK
+request_context_get_preference(struct _cef_preference_manager_t* self,
+                               const cef_string_t* name) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+  // Verify param: name; type: string_byref_const
+  DCHECK(name);
+  if (!name)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefValue> _retval =
+      CefRequestContextCppToC::Get(
+          reinterpret_cast<cef_request_context_t*>(self))
+          ->GetPreference(CefString(name));
+
+  // Return type: refptr_same
+  return CefValueCppToC::Wrap(_retval);
+}
+
+struct _cef_dictionary_value_t* CEF_CALLBACK
+request_context_get_all_preferences(struct _cef_preference_manager_t* self,
+                                    int include_defaults) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefDictionaryValue> _retval =
+      CefRequestContextCppToC::Get(
+          reinterpret_cast<cef_request_context_t*>(self))
+          ->GetAllPreferences(include_defaults ? true : false);
+
+  // Return type: refptr_same
+  return CefDictionaryValueCppToC::Wrap(_retval);
+}
+
+int CEF_CALLBACK
+request_context_can_set_preference(struct _cef_preference_manager_t* self,
+                                   const cef_string_t* name) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: name; type: string_byref_const
+  DCHECK(name);
+  if (!name)
+    return 0;
+
+  // Execute
+  bool _retval = CefRequestContextCppToC::Get(
+                     reinterpret_cast<cef_request_context_t*>(self))
+                     ->CanSetPreference(CefString(name));
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK
+request_context_set_preference(struct _cef_preference_manager_t* self,
+                               const cef_string_t* name,
+                               struct _cef_value_t* value,
+                               cef_string_t* error) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: name; type: string_byref_const
+  DCHECK(name);
+  if (!name)
+    return 0;
+  // Verify param: error; type: string_byref
+  DCHECK(error);
+  if (!error)
+    return 0;
+  // Unverified params: value
+
+  // Translate param: error; type: string_byref
+  CefString errorStr(error);
+
+  // Execute
+  bool _retval = CefRequestContextCppToC::Get(
+                     reinterpret_cast<cef_request_context_t*>(self))
+                     ->SetPreference(CefString(name),
+                                     CefValueCppToC::Unwrap(value), errorStr);
+
+  // Return type: bool
+  return _retval;
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -566,11 +573,6 @@ CefRequestContextCppToC::CefRequestContextCppToC() {
       request_context_register_scheme_handler_factory;
   GetStruct()->clear_scheme_handler_factories =
       request_context_clear_scheme_handler_factories;
-  GetStruct()->has_preference = request_context_has_preference;
-  GetStruct()->get_preference = request_context_get_preference;
-  GetStruct()->get_all_preferences = request_context_get_all_preferences;
-  GetStruct()->can_set_preference = request_context_can_set_preference;
-  GetStruct()->set_preference = request_context_set_preference;
   GetStruct()->clear_certificate_exceptions =
       request_context_clear_certificate_exceptions;
   GetStruct()->clear_http_auth_credentials =
@@ -583,6 +585,11 @@ CefRequestContextCppToC::CefRequestContextCppToC() {
   GetStruct()->get_extensions = request_context_get_extensions;
   GetStruct()->get_extension = request_context_get_extension;
   GetStruct()->get_media_router = request_context_get_media_router;
+  GetStruct()->base.has_preference = request_context_has_preference;
+  GetStruct()->base.get_preference = request_context_get_preference;
+  GetStruct()->base.get_all_preferences = request_context_get_all_preferences;
+  GetStruct()->base.can_set_preference = request_context_can_set_preference;
+  GetStruct()->base.set_preference = request_context_set_preference;
 }
 
 // DESTRUCTOR - Do not edit by hand.

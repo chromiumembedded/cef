@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b5dc1bb07ea5cbf057bf40491fdcdddeb58dfa57$
+// $hash=aa73ff15eb79f0e7f89338db9001e2876d2a3a6e$
 //
 
 #include <dlfcn.h>
@@ -30,6 +30,7 @@
 #include "include/capi/cef_origin_whitelist_capi.h"
 #include "include/capi/cef_parser_capi.h"
 #include "include/capi/cef_path_util_capi.h"
+#include "include/capi/cef_preference_capi.h"
 #include "include/capi/cef_print_settings_capi.h"
 #include "include/capi/cef_process_message_capi.h"
 #include "include/capi/cef_process_util_capi.h"
@@ -155,6 +156,8 @@ struct libcef_pointers {
   decltype(&cef_image_create) cef_image_create;
   decltype(&cef_media_router_get_global) cef_media_router_get_global;
   decltype(&cef_menu_model_create) cef_menu_model_create;
+  decltype(&cef_preference_manager_get_global)
+      cef_preference_manager_get_global;
   decltype(&cef_print_settings_create) cef_print_settings_create;
   decltype(&cef_process_message_create) cef_process_message_create;
   decltype(&cef_request_create) cef_request_create;
@@ -385,6 +388,7 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_image_create);
   INIT_ENTRY(cef_media_router_get_global);
   INIT_ENTRY(cef_menu_model_create);
+  INIT_ENTRY(cef_preference_manager_get_global);
   INIT_ENTRY(cef_print_settings_create);
   INIT_ENTRY(cef_process_message_create);
   INIT_ENTRY(cef_request_create);
@@ -898,6 +902,11 @@ NO_SANITIZE("cfi-icall")
 struct _cef_menu_model_t* cef_menu_model_create(
     struct _cef_menu_model_delegate_t* delegate) {
   return g_libcef_pointers.cef_menu_model_create(delegate);
+}
+
+NO_SANITIZE("cfi-icall")
+struct _cef_preference_manager_t* cef_preference_manager_get_global() {
+  return g_libcef_pointers.cef_preference_manager_get_global();
 }
 
 NO_SANITIZE("cfi-icall")

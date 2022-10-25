@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7a13d15a99d1c92a757b776bb00d932296012054$
+// $hash=dc8b4fabed723f33f4a5a7e668233a48913da2b4$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_PROCESS_HANDLER_CTOCPP_H_
@@ -35,6 +35,9 @@ class CefBrowserProcessHandlerCToCpp
   virtual ~CefBrowserProcessHandlerCToCpp();
 
   // CefBrowserProcessHandler methods.
+  void OnRegisterCustomPreferences(
+      cef_preferences_type_t type,
+      CefRawPtr<CefPreferenceRegistrar> registrar) override;
   void OnContextInitialized() override;
   void OnBeforeChildProcessLaunch(
       CefRefPtr<CefCommandLine> command_line) override;

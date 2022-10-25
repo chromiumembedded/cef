@@ -3431,6 +3431,19 @@ typedef enum {
   CEF_TEST_CERT_EXPIRED,
 } cef_test_cert_type_t;
 
+///
+/// Preferences type passed to
+/// CefBrowserProcessHandler::OnRegisterCustomPreferences.
+///
+typedef enum {
+  /// Global preferences registered a single time at application startup.
+  CEF_PREFERENCES_TYPE_GLOBAL,
+
+  /// Request context preferences registered each time a new CefRequestContext
+  /// is created.
+  CEF_PREFERENCES_TYPE_REQUEST_CONTEXT,
+} cef_preferences_type_t;
+
 #ifdef __cplusplus
 }
 #endif

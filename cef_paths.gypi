@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=ffc0502a0275b74228f1fd642566d3f020e538a0$
+# $hash=0373d7e3fc02d16a128a5891aac70af56fb9ddc1$
 #
 
 {
@@ -56,6 +56,7 @@
       'include/cef_parser.h',
       'include/cef_path_util.h',
       'include/cef_permission_handler.h',
+      'include/cef_preference.h',
       'include/cef_print_handler.h',
       'include/cef_print_settings.h',
       'include/cef_process_message.h',
@@ -159,6 +160,7 @@
       'include/capi/cef_parser_capi.h',
       'include/capi/cef_path_util_capi.h',
       'include/capi/cef_permission_handler_capi.h',
+      'include/capi/cef_preference_capi.h',
       'include/capi/cef_print_handler_capi.h',
       'include/capi/cef_print_settings_capi.h',
       'include/capi/cef_process_message_capi.h',
@@ -382,6 +384,10 @@
       'libcef_dll/cpptoc/post_data_cpptoc.h',
       'libcef_dll/cpptoc/post_data_element_cpptoc.cc',
       'libcef_dll/cpptoc/post_data_element_cpptoc.h',
+      'libcef_dll/cpptoc/preference_manager_cpptoc.cc',
+      'libcef_dll/cpptoc/preference_manager_cpptoc.h',
+      'libcef_dll/cpptoc/preference_registrar_cpptoc.cc',
+      'libcef_dll/cpptoc/preference_registrar_cpptoc.h',
       'libcef_dll/cpptoc/print_dialog_callback_cpptoc.cc',
       'libcef_dll/cpptoc/print_dialog_callback_cpptoc.h',
       'libcef_dll/ctocpp/print_handler_ctocpp.cc',
@@ -706,6 +712,10 @@
       'libcef_dll/ctocpp/post_data_ctocpp.h',
       'libcef_dll/ctocpp/post_data_element_ctocpp.cc',
       'libcef_dll/ctocpp/post_data_element_ctocpp.h',
+      'libcef_dll/ctocpp/preference_manager_ctocpp.cc',
+      'libcef_dll/ctocpp/preference_manager_ctocpp.h',
+      'libcef_dll/ctocpp/preference_registrar_ctocpp.cc',
+      'libcef_dll/ctocpp/preference_registrar_ctocpp.h',
       'libcef_dll/ctocpp/print_dialog_callback_ctocpp.cc',
       'libcef_dll/ctocpp/print_dialog_callback_ctocpp.h',
       'libcef_dll/cpptoc/print_handler_cpptoc.cc',

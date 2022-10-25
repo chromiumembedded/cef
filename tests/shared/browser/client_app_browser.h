@@ -24,6 +24,11 @@ class ClientAppBrowser : public ClientApp, public CefBrowserProcessHandler {
         CefRefPtr<ClientAppBrowser> app,
         CefRefPtr<CefCommandLine> command_line) {}
 
+    virtual void OnRegisterCustomPreferences(
+        CefRefPtr<ClientAppBrowser> app,
+        cef_preferences_type_t type,
+        CefRawPtr<CefPreferenceRegistrar> registrar) {}
+
     virtual void OnContextInitialized(CefRefPtr<ClientAppBrowser> app) {}
 
     virtual void OnBeforeChildProcessLaunch(
@@ -59,6 +64,9 @@ class ClientAppBrowser : public ClientApp, public CefBrowserProcessHandler {
   }
 
   // CefBrowserProcessHandler methods.
+  void OnRegisterCustomPreferences(
+      cef_preferences_type_t type,
+      CefRawPtr<CefPreferenceRegistrar> registrar) override;
   void OnContextInitialized() override;
   void OnBeforeChildProcessLaunch(
       CefRefPtr<CefCommandLine> command_line) override;

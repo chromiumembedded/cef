@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=693f5845874072abc324f643981531ed08d17b37$
+// $hash=92f03524a854cd701e24fadc9680585ef875a8c8$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_CTOCPP_H_
@@ -52,14 +52,6 @@ class CefRequestContextCToCpp
       const CefString& domain_name,
       CefRefPtr<CefSchemeHandlerFactory> factory) override;
   bool ClearSchemeHandlerFactories() override;
-  bool HasPreference(const CefString& name) override;
-  CefRefPtr<CefValue> GetPreference(const CefString& name) override;
-  CefRefPtr<CefDictionaryValue> GetAllPreferences(
-      bool include_defaults) override;
-  bool CanSetPreference(const CefString& name) override;
-  bool SetPreference(const CefString& name,
-                     CefRefPtr<CefValue> value,
-                     CefString& error) override;
   void ClearCertificateExceptions(
       CefRefPtr<CefCompletionCallback> callback) override;
   void ClearHttpAuthCredentials(
@@ -76,6 +68,16 @@ class CefRequestContextCToCpp
   CefRefPtr<CefExtension> GetExtension(const CefString& extension_id) override;
   CefRefPtr<CefMediaRouter> GetMediaRouter(
       CefRefPtr<CefCompletionCallback> callback) override;
+
+  // CefPreferenceManager methods.
+  bool HasPreference(const CefString& name) override;
+  CefRefPtr<CefValue> GetPreference(const CefString& name) override;
+  CefRefPtr<CefDictionaryValue> GetAllPreferences(
+      bool include_defaults) override;
+  bool CanSetPreference(const CefString& name) override;
+  bool SetPreference(const CefString& name,
+                     CefRefPtr<CefValue> value,
+                     CefString& error) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_CTOCPP_H_

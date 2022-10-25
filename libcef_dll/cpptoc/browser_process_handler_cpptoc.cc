@@ -9,16 +9,40 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=452f119327aff2ec0aaed162adf85bbd239b9033$
+// $hash=984f4b764ebd914b5f5e585479866bd7a36c0429$
 //
 
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/client_cpptoc.h"
 #include "libcef_dll/ctocpp/command_line_ctocpp.h"
+#include "libcef_dll/ctocpp/preference_registrar_ctocpp.h"
 
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
+
+void CEF_CALLBACK browser_process_handler_on_register_custom_preferences(
+    struct _cef_browser_process_handler_t* self,
+    cef_preferences_type_t type,
+    struct _cef_preference_registrar_t* registrar) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: registrar; type: rawptr_diff
+  DCHECK(registrar);
+  if (!registrar)
+    return;
+
+  // Translate param: registrar; type: rawptr_diff
+  CefOwnPtr<CefPreferenceRegistrar> registrarPtr(
+      CefPreferenceRegistrarCToCpp::Wrap(registrar));
+
+  // Execute
+  CefBrowserProcessHandlerCppToC::Get(self)->OnRegisterCustomPreferences(
+      type, registrarPtr.get());
+}
 
 void CEF_CALLBACK browser_process_handler_on_context_initialized(
     struct _cef_browser_process_handler_t* self) {
@@ -85,6 +109,8 @@ struct _cef_client_t* CEF_CALLBACK browser_process_handler_get_default_client(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefBrowserProcessHandlerCppToC::CefBrowserProcessHandlerCppToC() {
+  GetStruct()->on_register_custom_preferences =
+      browser_process_handler_on_register_custom_preferences;
   GetStruct()->on_context_initialized =
       browser_process_handler_on_context_initialized;
   GetStruct()->on_before_child_process_launch =

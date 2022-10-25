@@ -9,14 +9,39 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3302f28c60da03b9f5ba5fa110523b353765d1a3$
+// $hash=c6ad132e54265eb08e748bb22d2c90784ed098b0$
 //
 
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
+#include "libcef_dll/cpptoc/preference_registrar_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
+
+NO_SANITIZE("cfi-icall")
+void CefBrowserProcessHandlerCToCpp::OnRegisterCustomPreferences(
+    cef_preferences_type_t type,
+    CefRawPtr<CefPreferenceRegistrar> registrar) {
+  cef_browser_process_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_register_custom_preferences))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: registrar; type: rawptr_diff
+  DCHECK(registrar);
+  if (!registrar)
+    return;
+
+  // Translate param: registrar; type: rawptr_diff
+  CefOwnPtr<CefPreferenceRegistrarCppToC> registrarPtr(
+      CefPreferenceRegistrarCppToC::WrapRaw(registrar));
+
+  // Execute
+  _struct->on_register_custom_preferences(_struct, type,
+                                          registrarPtr->GetStruct());
+}
 
 NO_SANITIZE("cfi-icall")
 void CefBrowserProcessHandlerCToCpp::OnContextInitialized() {

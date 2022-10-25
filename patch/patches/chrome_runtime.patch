@@ -324,7 +324,7 @@ index 10b5cf030a944..49b773042ad24 100644
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 621b03d86a86a..9123aa34187d1 100644
+index 621b03d86a86a..c5a24d944f984 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -11,6 +11,7 @@
@@ -346,14 +346,26 @@ index 621b03d86a86a..9123aa34187d1 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -1321,6 +1326,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
-   SessionDataService::RegisterProfilePrefs(registry);
- #endif
+@@ -1228,6 +1233,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
+ 
+   // This is intentionally last.
+   RegisterLocalStatePrefsForMigration(registry);
++
++#if BUILDFLAG(ENABLE_CEF)
++  // Always call this last.
++  browser_prefs::RegisterLocalStatePrefs(registry);
++#endif
+ }
+ 
+ // Register prefs applicable to all profiles.
+@@ -1602,6 +1612,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+                               const std::string& locale) {
+   RegisterProfilePrefs(registry, locale);
  
 +#if BUILDFLAG(ENABLE_CEF)
 +  browser_prefs::RegisterProfilePrefs(registry);
 +#endif
 +
- #if BUILDFLAG(ENABLE_EXTENSIONS)
-   ExtensionWebUI::RegisterProfilePrefs(registry);
-   RegisterAnimationPolicyPrefs(registry);
+ #if BUILDFLAG(IS_ANDROID)
+   ::android::RegisterUserProfilePrefs(registry);
+ #endif

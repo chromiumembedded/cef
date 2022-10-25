@@ -87,6 +87,14 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
   }
 }
 
+void ClientAppBrowser::OnRegisterCustomPreferences(
+    cef_preferences_type_t type,
+    CefRawPtr<CefPreferenceRegistrar> registrar) {
+  DelegateSet::iterator it = delegates_.begin();
+  for (; it != delegates_.end(); ++it)
+    (*it)->OnRegisterCustomPreferences(this, type, registrar);
+}
+
 void ClientAppBrowser::OnContextInitialized() {
   DelegateSet::iterator it = delegates_.begin();
   for (; it != delegates_.end(); ++it)
