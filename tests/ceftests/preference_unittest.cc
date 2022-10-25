@@ -36,24 +36,67 @@ std::string* PendingAction() {
   return &str;
 }
 
+CefRefPtr<CefValue> CreateBoolValue(bool value) {
+  auto val = CefValue::Create();
+  val->SetBool(value);
+  return val;
+}
+
+CefRefPtr<CefValue> CreateIntValue(int value) {
+  auto val = CefValue::Create();
+  val->SetInt(value);
+  return val;
+}
+
+CefRefPtr<CefValue> CreateDoubleValue(double value) {
+  auto val = CefValue::Create();
+  val->SetDouble(value);
+  return val;
+}
+
+CefRefPtr<CefValue> CreateStringValue(const std::string& value) {
+  auto val = CefValue::Create();
+  val->SetString(value);
+  return val;
+}
+
+CefRefPtr<CefValue> CreateListValue(CefRefPtr<CefListValue> value) {
+  auto val = CefValue::Create();
+  val->SetList(value);
+  return val;
+}
+
+CefRefPtr<CefValue> CreateDictionaryValue(CefRefPtr<CefDictionaryValue> value) {
+  auto val = CefValue::Create();
+  val->SetDictionary(value);
+  return val;
+}
+
 // Browser-side app delegate.
 class PreferenceBrowserTest : public client::ClientAppBrowser::Delegate {
  public:
   PreferenceBrowserTest() {}
 
-  void OnBeforeCommandLineProcessing(
+  void OnRegisterCustomPreferences(
       CefRefPtr<client::ClientAppBrowser> app,
-      CefRefPtr<CefCommandLine> command_line) override {
-    // Enables testing of preferences.
-    // See CefBrowserPrefStore::CreateService.
-    command_line->AppendSwitch("enable-preference-testing");
+      cef_preferences_type_t type,
+      CefRawPtr<CefPreferenceRegistrar> registrar) override {
+    // Register test preferences.
+    registrar->AddPreference(kPrefTestBool, CreateBoolValue(true));
+    registrar->AddPreference(kPrefTestInt, CreateIntValue(2));
+    registrar->AddPreference(kPrefTestDouble, CreateDoubleValue(5.0));
+    registrar->AddPreference(kPrefTestString, CreateStringValue("default"));
+    registrar->AddPreference(kPrefTestList,
+                             CreateListValue(CefListValue::Create()));
+    registrar->AddPreference(
+        kPrefTestDict, CreateDictionaryValue(CefDictionaryValue::Create()));
   }
 
  private:
   IMPLEMENT_REFCOUNTING(PreferenceBrowserTest);
 };
 
-void ValidateReset(CefRefPtr<CefRequestContext> context, const char* name) {
+void ValidateReset(CefRefPtr<CefPreferenceManager> context, const char* name) {
   EXPECT_TRUE(context->HasPreference(name));
   EXPECT_TRUE(context->CanSetPreference(name));
 
@@ -62,117 +105,99 @@ void ValidateReset(CefRefPtr<CefRequestContext> context, const char* name) {
   EXPECT_TRUE(error.empty());
 }
 
-void ValidateBool(CefRefPtr<CefRequestContext> context,
+void ValidateBool(CefRefPtr<CefPreferenceManager> context,
                   bool set,
                   bool expected,
                   const char* name = kPrefTestBool) {
   EXPECT_TRUE(context->HasPreference(name));
   EXPECT_TRUE(context->CanSetPreference(name));
 
-  CefRefPtr<CefValue> value;
-
   if (set) {
-    value = CefValue::Create();
-    value->SetBool(expected);
     CefString error;
-    EXPECT_TRUE(context->SetPreference(name, value, error));
+    EXPECT_TRUE(context->SetPreference(name, CreateBoolValue(expected), error));
     EXPECT_TRUE(error.empty());
   }
 
-  value = context->GetPreference(name);
+  auto value = context->GetPreference(name);
   EXPECT_TRUE(value.get());
   EXPECT_EQ(VTYPE_BOOL, value->GetType());
   EXPECT_EQ(expected, value->GetBool()) << *PendingAction();
 }
 
-void ValidateInt(CefRefPtr<CefRequestContext> context,
+void ValidateInt(CefRefPtr<CefPreferenceManager> context,
                  bool set,
                  int expected,
                  const char* name = kPrefTestInt) {
   EXPECT_TRUE(context->HasPreference(name));
   EXPECT_TRUE(context->CanSetPreference(name));
 
-  CefRefPtr<CefValue> value;
-
   if (set) {
-    value = CefValue::Create();
-    value->SetInt(expected);
     CefString error;
-    EXPECT_TRUE(context->SetPreference(name, value, error));
+    EXPECT_TRUE(context->SetPreference(name, CreateIntValue(expected), error));
     EXPECT_TRUE(error.empty());
   }
 
-  value = context->GetPreference(name);
+  auto value = context->GetPreference(name);
   EXPECT_TRUE(value.get());
   EXPECT_EQ(VTYPE_INT, value->GetType());
   EXPECT_EQ(expected, value->GetInt()) << *PendingAction();
 }
 
-void ValidateDouble(CefRefPtr<CefRequestContext> context,
+void ValidateDouble(CefRefPtr<CefPreferenceManager> context,
                     bool set,
                     double expected,
                     const char* name = kPrefTestDouble) {
   EXPECT_TRUE(context->HasPreference(name));
   EXPECT_TRUE(context->CanSetPreference(name));
 
-  CefRefPtr<CefValue> value;
-
   if (set) {
-    value = CefValue::Create();
-    value->SetDouble(expected);
     CefString error;
-    EXPECT_TRUE(context->SetPreference(name, value, error));
+    EXPECT_TRUE(
+        context->SetPreference(name, CreateDoubleValue(expected), error));
     EXPECT_TRUE(error.empty());
   }
 
-  value = context->GetPreference(name);
+  auto value = context->GetPreference(name);
   EXPECT_TRUE(value.get());
   EXPECT_EQ(VTYPE_DOUBLE, value->GetType());
   EXPECT_EQ(expected, value->GetDouble()) << *PendingAction();
 }
 
-void ValidateString(CefRefPtr<CefRequestContext> context,
+void ValidateString(CefRefPtr<CefPreferenceManager> context,
                     bool set,
                     const std::string& expected,
                     const char* name = kPrefTestString) {
   EXPECT_TRUE(context->HasPreference(name));
   EXPECT_TRUE(context->CanSetPreference(name));
 
-  CefRefPtr<CefValue> value;
-
   if (set) {
-    value = CefValue::Create();
-    value->SetString(expected);
     CefString error;
-    EXPECT_TRUE(context->SetPreference(name, value, error));
+    EXPECT_TRUE(
+        context->SetPreference(name, CreateStringValue(expected), error));
     EXPECT_TRUE(error.empty());
   }
 
-  value = context->GetPreference(name);
+  auto value = context->GetPreference(name);
   EXPECT_TRUE(value.get());
   EXPECT_EQ(VTYPE_STRING, value->GetType());
   EXPECT_STREQ(expected.c_str(), value->GetString().ToString().c_str())
       << *PendingAction();
 }
 
-void ValidateList(CefRefPtr<CefRequestContext> context,
+void ValidateList(CefRefPtr<CefPreferenceManager> context,
                   bool set,
                   CefRefPtr<CefListValue> expected,
                   const char* name = kPrefTestList) {
   EXPECT_TRUE(context->HasPreference(name));
   EXPECT_TRUE(context->CanSetPreference(name));
 
-  CefRefPtr<CefValue> value;
-
   if (set) {
-    value = CefValue::Create();
-    value->SetList(expected);
     CefString error;
-    EXPECT_TRUE(context->SetPreference(name, value, error));
+    EXPECT_TRUE(context->SetPreference(name, CreateListValue(expected), error));
     EXPECT_TRUE(error.empty());
   }
 
-  value = context->GetPreference(name);
+  auto value = context->GetPreference(name);
   EXPECT_TRUE(value.get());
   EXPECT_EQ(VTYPE_LIST, value->GetType());
   CefRefPtr<CefListValue> list_val = value->GetList();
@@ -180,24 +205,21 @@ void ValidateList(CefRefPtr<CefRequestContext> context,
   TestListEqual(expected, list_val);
 }
 
-void ValidateDict(CefRefPtr<CefRequestContext> context,
+void ValidateDict(CefRefPtr<CefPreferenceManager> context,
                   bool set,
                   CefRefPtr<CefDictionaryValue> expected,
                   const char* name = kPrefTestDict) {
   EXPECT_TRUE(context->HasPreference(name));
   EXPECT_TRUE(context->CanSetPreference(name));
 
-  CefRefPtr<CefValue> value;
-
   if (set) {
-    value = CefValue::Create();
-    value->SetDictionary(expected);
     CefString error;
-    EXPECT_TRUE(context->SetPreference(name, value, error));
+    EXPECT_TRUE(
+        context->SetPreference(name, CreateDictionaryValue(expected), error));
     EXPECT_TRUE(error.empty());
   }
 
-  value = context->GetPreference(name);
+  auto value = context->GetPreference(name);
   EXPECT_TRUE(value.get());
   EXPECT_EQ(VTYPE_DICTIONARY, value->GetType());
   CefRefPtr<CefDictionaryValue> dict_val = value->GetDictionary();
@@ -205,28 +227,24 @@ void ValidateDict(CefRefPtr<CefRequestContext> context,
   TestDictionaryEqual(expected, dict_val);
 }
 
-void ValidateNoExist(CefRefPtr<CefRequestContext> context,
+void ValidateNoExist(CefRefPtr<CefPreferenceManager> context,
                      bool set,
                      const char* name = kPrefTestNoExist) {
   EXPECT_FALSE(context->HasPreference(name));
   EXPECT_FALSE(context->CanSetPreference(name));
 
-  CefRefPtr<CefValue> value;
-
   if (set) {
-    value = CefValue::Create();
-    value->SetBool(false);
     CefString error;
-    EXPECT_FALSE(context->SetPreference(name, value, error));
+    EXPECT_FALSE(context->SetPreference(name, CreateBoolValue(false), error));
     EXPECT_FALSE(error.empty());
   }
 
-  value = context->GetPreference(name);
+  auto value = context->GetPreference(name);
   EXPECT_FALSE(value.get()) << *PendingAction();
 }
 
 void PopulateRootDefaults(CefRefPtr<CefDictionaryValue> val) {
-  // Should match the values in CefBrowserPrefStore::CreateService.
+  // Should match the values in OnRegisterCustomPreferences.
   val->SetBool(kPrefBool, true);
   val->SetInt(kPrefInt, 2);
   val->SetDouble(kPrefDouble, 5.0);
@@ -246,7 +264,7 @@ void ValidateRoot(CefRefPtr<CefDictionaryValue> root,
 }
 
 // Validate getting default values.
-void ValidateDefaults(CefRefPtr<CefRequestContext> context,
+void ValidateDefaults(CefRefPtr<CefPreferenceManager> context,
                       bool reset,
                       CefRefPtr<CefWaitableEvent> event) {
   if (!CefCurrentlyOn(TID_UI)) {
@@ -322,7 +340,7 @@ void PopulateRootSet(CefRefPtr<CefDictionaryValue> val) {
 }
 
 // Validate getting and setting values.
-void ValidateSetGet(CefRefPtr<CefRequestContext> context,
+void ValidateSetGet(CefRefPtr<CefPreferenceManager> context,
                     CefRefPtr<CefWaitableEvent> event) {
   if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI, base::BindOnce(ValidateSetGet, context, event));
@@ -359,7 +377,7 @@ void ValidateSetGet(CefRefPtr<CefRequestContext> context,
 }
 
 // Validate getting values.
-void ValidateGet(CefRefPtr<CefRequestContext> context,
+void ValidateGet(CefRefPtr<CefPreferenceManager> context,
                  CefRefPtr<CefWaitableEvent> event) {
   if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI, base::BindOnce(ValidateGet, context, event));
@@ -418,8 +436,36 @@ class TestRequestContextHandler : public CefRequestContextHandler {
 
 }  // namespace
 
-// Verify default preference values on the global context.
+// Verify default preference values on the global state.
 TEST(PreferenceTest, GlobalDefaults) {
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
+
+  auto context = CefPreferenceManager::GetGlobalPreferenceManager();
+  EXPECT_TRUE(context.get());
+
+  ValidateDefaults(context, false, event);
+  event->Wait();
+}
+
+// Verify setting/getting preference values on the global state.
+TEST(PreferenceTest, GlobalSetGet) {
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
+
+  auto context = CefPreferenceManager::GetGlobalPreferenceManager();
+  EXPECT_TRUE(context.get());
+
+  ValidateSetGet(context, event);
+  event->Wait();
+
+  // Reset to the default values.
+  ValidateDefaults(context, true, event);
+  event->Wait();
+}
+
+// Verify default preference values on the global request context.
+TEST(PreferenceTest, RequestContextGlobalDefaults) {
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
 
@@ -430,8 +476,8 @@ TEST(PreferenceTest, GlobalDefaults) {
   event->Wait();
 }
 
-// Verify setting/getting preference values on the global context.
-TEST(PreferenceTest, GlobalSetGet) {
+// Verify setting/getting preference values on the global request context.
+TEST(PreferenceTest, RequestContextGlobalSetGet) {
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
 
@@ -446,8 +492,8 @@ TEST(PreferenceTest, GlobalSetGet) {
   event->Wait();
 }
 
-// Verify setting/getting preference values on shared global contexts.
-TEST(PreferenceTest, GlobalSetGetShared) {
+// Verify setting/getting preference values on shared global request contexts.
+TEST(PreferenceTest, RequestContextGlobalSetGetShared) {
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
 
@@ -505,8 +551,8 @@ TEST(PreferenceTest, GlobalSetGetShared) {
   event->Wait();
 }
 
-// Verify default preference values on a custom context.
-TEST(PreferenceTest, CustomDefaults) {
+// Verify default preference values on a custom request context.
+TEST(PreferenceTest, RequestContextCustomDefaults) {
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
 
@@ -521,8 +567,8 @@ TEST(PreferenceTest, CustomDefaults) {
   event->Wait();
 }
 
-// Verify setting/getting preference values on a custom context.
-TEST(PreferenceTest, CustomSetGet) {
+// Verify setting/getting preference values on a custom request context.
+TEST(PreferenceTest, RequestContextCustomSetGet) {
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
 
@@ -541,8 +587,8 @@ TEST(PreferenceTest, CustomSetGet) {
   event->Wait();
 }
 
-// Verify setting/getting preference values on shared custom contexts.
-TEST(PreferenceTest, CustomSetGetShared) {
+// Verify setting/getting preference values on shared custom request contexts.
+TEST(PreferenceTest, RequestContextCustomSetGetShared) {
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
 

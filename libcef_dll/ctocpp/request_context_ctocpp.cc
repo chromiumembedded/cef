@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=34a53ca8c93eb3dd0999d9e34d3f86307995e82d$
+// $hash=8abfb084742cdd3ed31754a33281f0eacfc5fceb$
 //
 
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
@@ -226,109 +226,6 @@ bool CefRequestContextCToCpp::ClearSchemeHandlerFactories() {
 }
 
 NO_SANITIZE("cfi-icall")
-bool CefRequestContextCToCpp::HasPreference(const CefString& name) {
-  cef_request_context_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, has_preference))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: name; type: string_byref_const
-  DCHECK(!name.empty());
-  if (name.empty())
-    return false;
-
-  // Execute
-  int _retval = _struct->has_preference(_struct, name.GetStruct());
-
-  // Return type: bool
-  return _retval ? true : false;
-}
-
-NO_SANITIZE("cfi-icall")
-CefRefPtr<CefValue> CefRequestContextCToCpp::GetPreference(
-    const CefString& name) {
-  cef_request_context_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_preference))
-    return nullptr;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: name; type: string_byref_const
-  DCHECK(!name.empty());
-  if (name.empty())
-    return nullptr;
-
-  // Execute
-  cef_value_t* _retval = _struct->get_preference(_struct, name.GetStruct());
-
-  // Return type: refptr_same
-  return CefValueCToCpp::Wrap(_retval);
-}
-
-NO_SANITIZE("cfi-icall")
-CefRefPtr<CefDictionaryValue> CefRequestContextCToCpp::GetAllPreferences(
-    bool include_defaults) {
-  cef_request_context_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_all_preferences))
-    return nullptr;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_dictionary_value_t* _retval =
-      _struct->get_all_preferences(_struct, include_defaults);
-
-  // Return type: refptr_same
-  return CefDictionaryValueCToCpp::Wrap(_retval);
-}
-
-NO_SANITIZE("cfi-icall")
-bool CefRequestContextCToCpp::CanSetPreference(const CefString& name) {
-  cef_request_context_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, can_set_preference))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: name; type: string_byref_const
-  DCHECK(!name.empty());
-  if (name.empty())
-    return false;
-
-  // Execute
-  int _retval = _struct->can_set_preference(_struct, name.GetStruct());
-
-  // Return type: bool
-  return _retval ? true : false;
-}
-
-NO_SANITIZE("cfi-icall")
-bool CefRequestContextCToCpp::SetPreference(const CefString& name,
-                                            CefRefPtr<CefValue> value,
-                                            CefString& error) {
-  cef_request_context_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_preference))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: name; type: string_byref_const
-  DCHECK(!name.empty());
-  if (name.empty())
-    return false;
-  // Unverified params: value
-
-  // Execute
-  int _retval = _struct->set_preference(_struct, name.GetStruct(),
-                                        CefValueCToCpp::Unwrap(value),
-                                        error.GetWritableStruct());
-
-  // Return type: bool
-  return _retval ? true : false;
-}
-
-NO_SANITIZE("cfi-icall")
 void CefRequestContextCToCpp::ClearCertificateExceptions(
     CefRefPtr<CefCompletionCallback> callback) {
   cef_request_context_t* _struct = GetStruct();
@@ -531,6 +428,114 @@ CefRefPtr<CefMediaRouter> CefRequestContextCToCpp::GetMediaRouter(
 
   // Return type: refptr_same
   return CefMediaRouterCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefRequestContextCToCpp::HasPreference(const CefString& name) {
+  cef_preference_manager_t* _struct =
+      reinterpret_cast<cef_preference_manager_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, has_preference))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: name; type: string_byref_const
+  DCHECK(!name.empty());
+  if (name.empty())
+    return false;
+
+  // Execute
+  int _retval = _struct->has_preference(_struct, name.GetStruct());
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefValue> CefRequestContextCToCpp::GetPreference(
+    const CefString& name) {
+  cef_preference_manager_t* _struct =
+      reinterpret_cast<cef_preference_manager_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, get_preference))
+    return nullptr;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: name; type: string_byref_const
+  DCHECK(!name.empty());
+  if (name.empty())
+    return nullptr;
+
+  // Execute
+  cef_value_t* _retval = _struct->get_preference(_struct, name.GetStruct());
+
+  // Return type: refptr_same
+  return CefValueCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefDictionaryValue> CefRequestContextCToCpp::GetAllPreferences(
+    bool include_defaults) {
+  cef_preference_manager_t* _struct =
+      reinterpret_cast<cef_preference_manager_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, get_all_preferences))
+    return nullptr;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_dictionary_value_t* _retval =
+      _struct->get_all_preferences(_struct, include_defaults);
+
+  // Return type: refptr_same
+  return CefDictionaryValueCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefRequestContextCToCpp::CanSetPreference(const CefString& name) {
+  cef_preference_manager_t* _struct =
+      reinterpret_cast<cef_preference_manager_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, can_set_preference))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: name; type: string_byref_const
+  DCHECK(!name.empty());
+  if (name.empty())
+    return false;
+
+  // Execute
+  int _retval = _struct->can_set_preference(_struct, name.GetStruct());
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefRequestContextCToCpp::SetPreference(const CefString& name,
+                                            CefRefPtr<CefValue> value,
+                                            CefString& error) {
+  cef_preference_manager_t* _struct =
+      reinterpret_cast<cef_preference_manager_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, set_preference))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: name; type: string_byref_const
+  DCHECK(!name.empty());
+  if (name.empty())
+    return false;
+  // Unverified params: value
+
+  // Execute
+  int _retval = _struct->set_preference(_struct, name.GetStruct(),
+                                        CefValueCToCpp::Unwrap(value),
+                                        error.GetWritableStruct());
+
+  // Return type: bool
+  return _retval ? true : false;
 }
 
 // CONSTRUCTOR - Do not edit by hand.

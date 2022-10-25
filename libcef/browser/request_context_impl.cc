@@ -5,10 +5,10 @@
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/context.h"
+#include "libcef/browser/prefs/pref_helper.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/app_manager.h"
 #include "libcef/common/task_runner_impl.h"
-#include "libcef/common/values_impl.h"
 
 #include "base/atomic_sequence_num.h"
 #include "base/logging.h"
@@ -29,30 +29,6 @@ using content::BrowserThread;
 namespace {
 
 base::AtomicSequenceNumber g_next_id;
-
-const char* GetTypeString(base::Value::Type type) {
-  switch (type) {
-    case base::Value::Type::NONE:
-      return "NULL";
-    case base::Value::Type::BOOLEAN:
-      return "BOOLEAN";
-    case base::Value::Type::INTEGER:
-      return "INTEGER";
-    case base::Value::Type::DOUBLE:
-      return "DOUBLE";
-    case base::Value::Type::STRING:
-      return "STRING";
-    case base::Value::Type::BINARY:
-      return "BINARY";
-    case base::Value::Type::DICTIONARY:
-      return "DICTIONARY";
-    case base::Value::Type::LIST:
-      return "LIST";
-  }
-
-  NOTREACHED();
-  return "UNKNOWN";
-}
 
 class ResolveHostHelper : public network::ResolveHostClientBase {
  public:
@@ -380,7 +356,7 @@ bool CefRequestContextImpl::HasPreference(const CefString& name) {
     return false;
 
   PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
-  return (pref_service->FindPreference(name) != nullptr);
+  return pref_helper::HasPreference(pref_service, name);
 }
 
 CefRefPtr<CefValue> CefRequestContextImpl::GetPreference(
@@ -389,10 +365,7 @@ CefRefPtr<CefValue> CefRequestContextImpl::GetPreference(
     return nullptr;
 
   PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
-  const PrefService::Preference* pref = pref_service->FindPreference(name);
-  if (!pref)
-    return nullptr;
-  return new CefValueImpl(pref->GetValue()->CreateDeepCopy().release());
+  return pref_helper::GetPreference(pref_service, name);
 }
 
 CefRefPtr<CefDictionaryValue> CefRequestContextImpl::GetAllPreferences(
@@ -401,17 +374,7 @@ CefRefPtr<CefDictionaryValue> CefRequestContextImpl::GetAllPreferences(
     return nullptr;
 
   PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
-
-  base::Value values = pref_service->GetPreferenceValues(
-      include_defaults ? PrefService::INCLUDE_DEFAULTS
-                       : PrefService::EXCLUDE_DEFAULTS);
-
-  // CefDictionaryValueImpl takes ownership of |values|.
-  return new CefDictionaryValueImpl(
-      base::DictionaryValue::From(
-          base::Value::ToUniquePtrValue(std::move(values)))
-          .release(),
-      true, false);
+  return pref_helper::GetAllPreferences(pref_service, include_defaults);
 }
 
 bool CefRequestContextImpl::CanSetPreference(const CefString& name) {
@@ -419,8 +382,7 @@ bool CefRequestContextImpl::CanSetPreference(const CefString& name) {
     return false;
 
   PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
-  const PrefService::Preference* pref = pref_service->FindPreference(name);
-  return (pref && pref->IsUserModifiable());
+  return pref_helper::CanSetPreference(pref_service, name);
 }
 
 bool CefRequestContextImpl::SetPreference(const CefString& name,
@@ -430,46 +392,7 @@ bool CefRequestContextImpl::SetPreference(const CefString& name,
     return false;
 
   PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
-
-  // The below validation logic should match PrefService::SetUserPrefValue.
-
-  const PrefService::Preference* pref = pref_service->FindPreference(name);
-  if (!pref) {
-    error = "Trying to modify an unregistered preference";
-    return false;
-  }
-
-  if (!pref->IsUserModifiable()) {
-    error = "Trying to modify a preference that is not user modifiable";
-    return false;
-  }
-
-  if (!value.get()) {
-    // Reset the preference to its default value.
-    pref_service->ClearPref(name);
-    return true;
-  }
-
-  if (!value->IsValid()) {
-    error = "A valid value is required";
-    return false;
-  }
-
-  CefValueImpl* impl = static_cast<CefValueImpl*>(value.get());
-
-  CefValueImpl::ScopedLockedValue scoped_locked_value(impl);
-  base::Value* impl_value = impl->GetValueUnsafe();
-
-  if (pref->GetType() != impl_value->type()) {
-    error = base::StringPrintf(
-        "Trying to set a preference of type %s to value of type %s",
-        GetTypeString(pref->GetType()), GetTypeString(impl_value->type()));
-    return false;
-  }
-
-  // PrefService will make a DeepCopy of |impl_value|.
-  pref_service->Set(name, *impl_value);
-  return true;
+  return pref_helper::SetPreference(pref_service, name, value, error);
 }
 
 void CefRequestContextImpl::ClearCertificateExceptions(

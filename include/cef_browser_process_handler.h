@@ -41,6 +41,7 @@
 #include "include/cef_base.h"
 #include "include/cef_client.h"
 #include "include/cef_command_line.h"
+#include "include/cef_preference.h"
 #include "include/cef_values.h"
 
 ///
@@ -51,6 +52,33 @@
 /*--cef(source=client,no_debugct_check)--*/
 class CefBrowserProcessHandler : public virtual CefBaseRefCounted {
  public:
+  ///
+  /// Provides an opportunity to register custom preferences prior to
+  /// global and request context initialization.
+  ///
+  /// If |type| is CEF_PREFERENCES_TYPE_GLOBAL the registered preferences can be
+  /// accessed via CefPreferenceManager::GetGlobalPreferences after
+  /// OnContextInitialized is called. Global preferences are registered a single
+  /// time at application startup. See related cef_settings_t.cache_path and
+  /// cef_settings_t.persist_user_preferences configuration.
+  ///
+  /// If |type| is CEF_PREFERENCES_TYPE_REQUEST_CONTEXT the preferences can be
+  /// accessed via the CefRequestContext after
+  /// CefRequestContextHandler::OnRequestContextInitialized is called. Request
+  /// context preferences are registered each time a new CefRequestContext is
+  /// created. It is intended but not required that all request contexts have
+  /// the same registered preferences. See related
+  /// cef_request_context_settings_t.cache_path and
+  /// cef_request_context_settings_t.persist_user_preferences configuration.
+  ///
+  /// Do not keep a reference to the |registrar| object. This method is called
+  /// on the browser process UI thread.
+  ///
+  /*--cef()--*/
+  virtual void OnRegisterCustomPreferences(
+      cef_preferences_type_t type,
+      CefRawPtr<CefPreferenceRegistrar> registrar) {}
+
   ///
   /// Called on the browser process UI thread immediately after the CEF context
   /// has been initialized.

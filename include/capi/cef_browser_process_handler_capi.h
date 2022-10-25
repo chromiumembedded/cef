@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=c4ed4278e513daa2a1ccf42e50e242d61dfbb86f$
+// $hash=a4d3026623111f1ba226d1579c6b03de3b924457$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_PROCESS_HANDLER_CAPI_H_
@@ -43,6 +43,7 @@
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_client_capi.h"
 #include "include/capi/cef_command_line_capi.h"
+#include "include/capi/cef_preference_capi.h"
 #include "include/capi/cef_values_capi.h"
 
 #ifdef __cplusplus
@@ -59,6 +60,33 @@ typedef struct _cef_browser_process_handler_t {
   /// Base structure.
   ///
   cef_base_ref_counted_t base;
+
+  ///
+  /// Provides an opportunity to register custom preferences prior to global and
+  /// request context initialization.
+  ///
+  /// If |type| is CEF_PREFERENCES_TYPE_GLOBAL the registered preferences can be
+  /// accessed via cef_preference_manager_t::GetGlobalPreferences after
+  /// OnContextInitialized is called. Global preferences are registered a single
+  /// time at application startup. See related cef_settings_t.cache_path and
+  /// cef_settings_t.persist_user_preferences configuration.
+  ///
+  /// If |type| is CEF_PREFERENCES_TYPE_REQUEST_CONTEXT the preferences can be
+  /// accessed via the cef_request_context_t after
+  /// cef_request_context_handler_t::OnRequestContextInitialized is called.
+  /// Request context preferences are registered each time a new
+  /// cef_request_context_t is created. It is intended but not required that all
+  /// request contexts have the same registered preferences. See related
+  /// cef_request_context_settings_t.cache_path and
+  /// cef_request_context_settings_t.persist_user_preferences configuration.
+  ///
+  /// Do not keep a reference to the |registrar| object. This function is called
+  /// on the browser process UI thread.
+  ///
+  void(CEF_CALLBACK* on_register_custom_preferences)(
+      struct _cef_browser_process_handler_t* self,
+      cef_preferences_type_t type,
+      struct _cef_preference_registrar_t* registrar);
 
   ///
   /// Called on the browser process UI thread immediately after the CEF context

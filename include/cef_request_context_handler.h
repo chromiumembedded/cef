@@ -41,6 +41,7 @@
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
+#include "include/cef_preference.h"
 #include "include/cef_request.h"
 #include "include/cef_resource_request_handler.h"
 

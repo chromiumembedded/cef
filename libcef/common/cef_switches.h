@@ -43,7 +43,6 @@ extern const char kEnableSpellingService[];
 extern const char kOverrideSpellCheckLang[];
 extern const char kDisableScrollBounce[];
 extern const char kDisablePdfExtension[];
-extern const char kEnablePreferenceTesting[];
 extern const char kEnablePrintPreview[];
 extern const char kDisableNewBrowserInfoTimeout[];
 extern const char kDevToolsProtocolLogFile[];

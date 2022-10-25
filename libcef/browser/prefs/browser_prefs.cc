@@ -8,6 +8,7 @@
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
+#include "libcef/browser/prefs/pref_registrar.h"
 #include "libcef/browser/prefs/pref_store.h"
 #include "libcef/browser/prefs/renderer_prefs.h"
 #include "libcef/common/cef_switches.h"
@@ -118,18 +119,13 @@ std::string GetAcceptLanguageListSetting(CefBrowserContext* browser_context,
 const char kUserPrefsFileName[] = "UserPrefs.json";
 const char kLocalPrefsFileName[] = "LocalPrefs.json";
 
+void RegisterLocalStatePrefs(PrefRegistrySimple* registry) {
+  pref_registrar::RegisterCustomPrefs(CEF_PREFERENCES_TYPE_GLOBAL, registry);
+}
+
 void RegisterProfilePrefs(PrefRegistrySimple* registry) {
-  const base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
-  if (command_line->HasSwitch(switches::kEnablePreferenceTesting)) {
-    // Preferences used with unit tests.
-    registry->RegisterBooleanPref("test.bool", true);
-    registry->RegisterIntegerPref("test.int", 2);
-    registry->RegisterDoublePref("test.double", 5.0);
-    registry->RegisterStringPref("test.string", "default");
-    registry->RegisterListPref("test.list");
-    registry->RegisterDictionaryPref("test.dict");
-  }
+  pref_registrar::RegisterCustomPrefs(CEF_PREFERENCES_TYPE_REQUEST_CONTEXT,
+                                      registry);
 }
 
 std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
@@ -276,7 +272,6 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     privacy_sandbox::RegisterProfilePrefs(registry.get());
     ProfileNetworkContextService::RegisterProfilePrefs(registry.get());
     safe_browsing::RegisterProfilePrefs(registry.get());
-    RegisterProfilePrefs(registry.get());
 
     const std::string& locale =
         command_line->GetSwitchValueASCII(switches::kLang);
@@ -339,6 +334,12 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
                                     base::Value(accept_language_list));
     }
     registry->RegisterListPref(prefs::kWebRtcLocalIpsAllowedUrls);
+
+    // Always do this after all other profile prefs.
+    RegisterProfilePrefs(registry.get());
+  } else {
+    // Always do this after all other local state prefs.
+    RegisterLocalStatePrefs(registry.get());
   }
 
   // Build the PrefService that manages the PrefRegistry and PrefStores.

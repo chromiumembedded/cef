@@ -91,9 +91,6 @@ const char kDisableScrollBounce[] = "disable-scroll-bounce";
 // Disable the PDF extension.
 const char kDisablePdfExtension[] = "disable-pdf-extension";
 
-// Expose preferences used only by unit tests.
-const char kEnablePreferenceTesting[] = "enable-preference-testing";
-
 // Enable print preview.
 const char kEnablePrintPreview[] = "enable-print-preview";
 

@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_REQUEST_CONTEXT_IMPL_H_
-#define CEF_LIBCEF_REQUEST_CONTEXT_IMPL_H_
+#ifndef CEF_LIBCEF_BROWSER_REQUEST_CONTEXT_IMPL_H_
+#define CEF_LIBCEF_BROWSER_REQUEST_CONTEXT_IMPL_H_
 #pragma once
 
 #include "include/cef_request_context.h"
@@ -176,4 +176,4 @@ class CefRequestContextImpl : public CefRequestContext {
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefRequestContextImpl);
 };
 
-#endif  // CEF_LIBCEF_REQUEST_CONTEXT_IMPL_H_
+#endif  // CEF_LIBCEF_BROWSER_REQUEST_CONTEXT_IMPL_H_

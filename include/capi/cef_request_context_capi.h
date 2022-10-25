@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=0c12192146d0ecf006c1f3f294a4c2fd4bec484b$
+// $hash=62f9dd603840149334ecd1f25222dbda0682b0e6$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
@@ -45,7 +45,7 @@
 #include "include/capi/cef_extension_capi.h"
 #include "include/capi/cef_extension_handler_capi.h"
 #include "include/capi/cef_media_router_capi.h"
-#include "include/capi/cef_values_capi.h"
+#include "include/capi/cef_preference_capi.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -93,7 +93,7 @@ typedef struct _cef_request_context_t {
   ///
   /// Base structure.
   ///
-  cef_base_ref_counted_t base;
+  cef_preference_manager_t base;
 
   ///
   /// Returns true (1) if this object is pointing to the same context as |that|
@@ -164,58 +164,6 @@ typedef struct _cef_request_context_t {
   ///
   int(CEF_CALLBACK* clear_scheme_handler_factories)(
       struct _cef_request_context_t* self);
-
-  ///
-  /// Returns true (1) if a preference with the specified |name| exists. This
-  /// function must be called on the browser process UI thread.
-  ///
-  int(CEF_CALLBACK* has_preference)(struct _cef_request_context_t* self,
-                                    const cef_string_t* name);
-
-  ///
-  /// Returns the value for the preference with the specified |name|. Returns
-  /// NULL if the preference does not exist. The returned object contains a copy
-  /// of the underlying preference value and modifications to the returned
-  /// object will not modify the underlying preference value. This function must
-  /// be called on the browser process UI thread.
-  ///
-  struct _cef_value_t*(CEF_CALLBACK* get_preference)(
-      struct _cef_request_context_t* self,
-      const cef_string_t* name);
-
-  ///
-  /// Returns all preferences as a dictionary. If |include_defaults| is true (1)
-  /// then preferences currently at their default value will be included. The
-  /// returned object contains a copy of the underlying preference values and
-  /// modifications to the returned object will not modify the underlying
-  /// preference values. This function must be called on the browser process UI
-  /// thread.
-  ///
-  struct _cef_dictionary_value_t*(CEF_CALLBACK* get_all_preferences)(
-      struct _cef_request_context_t* self,
-      int include_defaults);
-
-  ///
-  /// Returns true (1) if the preference with the specified |name| can be
-  /// modified using SetPreference. As one example preferences set via the
-  /// command-line usually cannot be modified. This function must be called on
-  /// the browser process UI thread.
-  ///
-  int(CEF_CALLBACK* can_set_preference)(struct _cef_request_context_t* self,
-                                        const cef_string_t* name);
-
-  ///
-  /// Set the |value| associated with preference |name|. Returns true (1) if the
-  /// value is set successfully and false (0) otherwise. If |value| is NULL the
-  /// preference will be restored to its default value. If setting the
-  /// preference fails then |error| will be populated with a detailed
-  /// description of the problem. This function must be called on the browser
-  /// process UI thread.
-  ///
-  int(CEF_CALLBACK* set_preference)(struct _cef_request_context_t* self,
-                                    const cef_string_t* name,
-                                    struct _cef_value_t* value,
-                                    cef_string_t* error);
 
   ///
   /// Clears all certificate exceptions that were added as part of handling
