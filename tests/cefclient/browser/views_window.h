@@ -6,6 +6,7 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_VIEWS_WINDOW_H_
 #pragma once
 
+#include <optional>
 #include <set>
 #include <string>
 #include <vector>
@@ -57,13 +58,19 @@ class ViewsWindow : public CefBrowserViewDelegate,
     virtual CefRefPtr<CefWindow> GetParentWindow() = 0;
 
     // Return the initial window bounds.
-    virtual CefRect GetWindowBounds() = 0;
+    virtual CefRect GetInitialBounds() = 0;
+
+    // Return the initial window show state.
+    virtual cef_show_state_t GetInitialShowState() = 0;
 
     // Returns the ImageCache.
     virtual scoped_refptr<ImageCache> GetImageCache() = 0;
 
     // Called when the ViewsWindow is created.
     virtual void OnViewsWindowCreated(CefRefPtr<ViewsWindow> window) = 0;
+
+    // Called when the ViewsWindow is closing.
+    virtual void OnViewsWindowClosing(CefRefPtr<ViewsWindow> window) = 0;
 
     // Called when the ViewsWindow is destroyed. All references to |window|
     // should be released in this callback.
@@ -121,6 +128,9 @@ class ViewsWindow : public CefBrowserViewDelegate,
   void OnBeforeContextMenu(CefRefPtr<CefMenuModel> model);
   void OnExtensionsChanged(const ExtensionSet& extensions);
 
+  bool GetWindowRestorePreferences(cef_show_state_t& show_state,
+                                   std::optional<CefRect>& dip_bounds);
+
   // CefBrowserViewDelegate methods:
   CefRefPtr<CefBrowserViewDelegate> GetDelegateForPopupBrowserView(
       CefRefPtr<CefBrowserView> browser_view,
@@ -152,9 +162,12 @@ class ViewsWindow : public CefBrowserViewDelegate,
 
   // CefWindowDelegate methods:
   void OnWindowCreated(CefRefPtr<CefWindow> window) override;
+  void OnWindowClosing(CefRefPtr<CefWindow> window) override;
   void OnWindowDestroyed(CefRefPtr<CefWindow> window) override;
   void OnWindowActivationChanged(CefRefPtr<CefWindow> window,
                                  bool active) override;
+  void OnWindowBoundsChanged(CefRefPtr<CefWindow> window,
+                             const CefRect& new_bounds) override;
   CefRefPtr<CefWindow> GetParentWindow(CefRefPtr<CefWindow> window,
                                        bool* is_menu,
                                        bool* can_activate_menu) override;
@@ -235,9 +248,9 @@ class ViewsWindow : public CefBrowserViewDelegate,
   CefRefPtr<CefView> location_bar_;
   bool menu_has_focus_;
   int last_focused_view_;
+  std::optional<CefRect> last_visible_bounds_;
 
   CefSize minimum_window_size_;
-  cef_show_state_t initial_show_state_ = CEF_SHOW_STATE_NORMAL;
 
   CefRefPtr<ViewsOverlayControls> overlay_controls_;
 

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=ea84b76b6965d1419e416581d87e82f74680bd07$
+// $hash=e1657ed68132b846ad638dc87bc5ee9b9c10f014$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
@@ -66,6 +66,12 @@ typedef struct _cef_window_delegate_t {
                                         struct _cef_window_t* window);
 
   ///
+  /// Called when |window| is closing.
+  ///
+  void(CEF_CALLBACK* on_window_closing)(struct _cef_window_delegate_t* self,
+                                        struct _cef_window_t* window);
+
+  ///
   /// Called when |window| is destroyed. Release all references to |window| and
   /// do not attempt to execute any functions on |window| after this callback
   /// returns.
@@ -80,6 +86,15 @@ typedef struct _cef_window_delegate_t {
       struct _cef_window_delegate_t* self,
       struct _cef_window_t* window,
       int active);
+
+  ///
+  /// Called when |window| bounds have changed. |new_bounds| will be in DIP
+  /// screen coordinates.
+  ///
+  void(CEF_CALLBACK* on_window_bounds_changed)(
+      struct _cef_window_delegate_t* self,
+      struct _cef_window_t* window,
+      const cef_rect_t* new_bounds);
 
   ///
   /// Return the parent for |window| or NULL if the |window| does not have a

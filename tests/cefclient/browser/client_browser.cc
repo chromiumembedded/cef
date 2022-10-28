@@ -8,6 +8,7 @@
 #include "include/cef_command_line.h"
 #include "include/cef_crash_util.h"
 #include "include/cef_file_util.h"
+#include "tests/cefclient/browser/client_prefs.h"
 #include "tests/shared/common/client_switches.h"
 
 namespace client {
@@ -18,6 +19,16 @@ namespace {
 class ClientBrowserDelegate : public ClientAppBrowser::Delegate {
  public:
   ClientBrowserDelegate() {}
+
+  void OnRegisterCustomPreferences(
+      CefRefPtr<client::ClientAppBrowser> app,
+      cef_preferences_type_t type,
+      CefRawPtr<CefPreferenceRegistrar> registrar) override {
+    if (type == CEF_PREFERENCES_TYPE_GLOBAL) {
+      // Register global preferences with default values.
+      prefs::RegisterGlobalPreferences(registrar);
+    }
+  }
 
   void OnContextInitialized(CefRefPtr<ClientAppBrowser> app) override {
     if (CefCrashReportingEnabled()) {

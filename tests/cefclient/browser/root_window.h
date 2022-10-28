@@ -25,19 +25,19 @@ struct RootWindowConfig {
   RootWindowConfig();
 
   // If true the window will always display above other windows.
-  bool always_on_top;
+  bool always_on_top = false;
 
   // If true the window will show controls.
-  bool with_controls;
+  bool with_controls = true;
 
   // If true the window will use off-screen rendering.
-  bool with_osr;
+  bool with_osr = false;
 
   // If true the window is hosting an extension app.
-  bool with_extension;
+  bool with_extension = false;
 
   // If true the window will be created initially hidden.
-  bool initially_hidden;
+  bool initially_hidden = false;
 
   // Requested window position. If |bounds| and |source_bounds| are empty the
   // default window size and location will be used.
@@ -48,6 +48,10 @@ struct RootWindowConfig {
   // relative to |source_bounds|. This is currently only implemented for Views-
   // based windows when |initially_hidden| is also true.
   CefRect source_bounds;
+
+  // Requested window show state. This is currently only implemented for Views-
+  // based windows when |bounds| is non-empty and |initially_hidden| is false.
+  cef_show_state_t show_state = CEF_SHOW_STATE_NORMAL;
 
   // Parent window. Only used for Views-based windows.
   CefRefPtr<CefWindow> parent_window;

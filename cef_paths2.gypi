@@ -234,6 +234,8 @@
       'tests/cefclient/browser/client_handler_osr.h',
       'tests/cefclient/browser/client_handler_std.cc',
       'tests/cefclient/browser/client_handler_std.h',
+      'tests/cefclient/browser/client_prefs.cc',
+      'tests/cefclient/browser/client_prefs.h',
       'tests/cefclient/browser/client_types.h',
       'tests/cefclient/browser/dialog_test.cc',
       'tests/cefclient/browser/dialog_test.h',

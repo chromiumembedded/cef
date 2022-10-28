@@ -54,9 +54,11 @@ class RootWindowViews : public RootWindow,
   bool WithExtension() override;
   bool InitiallyHidden() override;
   CefRefPtr<CefWindow> GetParentWindow() override;
-  CefRect GetWindowBounds() override;
+  CefRect GetInitialBounds() override;
+  cef_show_state_t GetInitialShowState() override;
   scoped_refptr<ImageCache> GetImageCache() override;
   void OnViewsWindowCreated(CefRefPtr<ViewsWindow> window) override;
+  void OnViewsWindowClosing(CefRefPtr<ViewsWindow> window) override;
   void OnViewsWindowDestroyed(CefRefPtr<ViewsWindow> window) override;
   void OnViewsWindowActivated(CefRefPtr<ViewsWindow> window) override;
   ViewsWindow::Delegate* GetDelegateForPopup(
@@ -90,10 +92,8 @@ class RootWindowViews : public RootWindow,
   void CreateClientHandler(const std::string& url);
 
   void InitOnUIThread(const CefBrowserSettings& settings,
-                      const std::string& startup_url,
                       CefRefPtr<CefRequestContext> request_context);
   void CreateViewsWindow(const CefBrowserSettings& settings,
-                         const std::string& startup_url,
                          CefRefPtr<CefRequestContext> request_context,
                          const ImageCache::ImageSet& images);
 
@@ -101,22 +101,20 @@ class RootWindowViews : public RootWindow,
   void NotifyViewsWindowActivated();
   void NotifyDestroyedIfDone();
 
-  // After initialization all members are only accessed on the main thread
-  // unless otherwise indicated.
-  // Members set during initialization.
+  // Members set during initialization. Safe to access from any thread.
   std::unique_ptr<RootWindowConfig> config_;
-  bool is_popup_ = false;
-  CefRect initial_bounds_;
-  bool position_on_resize_ = false;
   CefRefPtr<ClientHandler> client_handler_;
-
   bool initialized_ = false;
+
+  // Only accessed on the main thread.
+  CefRefPtr<CefBrowser> browser_;
   bool window_destroyed_ = false;
   bool browser_destroyed_ = false;
 
-  CefRefPtr<CefBrowser> browser_;
-
   // Only accessed on the browser process UI thread.
+  CefRect initial_bounds_;
+  cef_show_state_t initial_show_state_ = CEF_SHOW_STATE_NORMAL;
+  bool position_on_resize_ = false;
   CefRefPtr<ViewsWindow> window_;
   ExtensionSet pending_extensions_;
   scoped_refptr<ImageCache> image_cache_;

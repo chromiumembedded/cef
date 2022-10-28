@@ -56,6 +56,12 @@ class CefWindowDelegate : public CefPanelDelegate {
   virtual void OnWindowCreated(CefRefPtr<CefWindow> window) {}
 
   ///
+  /// Called when |window| is closing.
+  ///
+  /*--cef()--*/
+  virtual void OnWindowClosing(CefRefPtr<CefWindow> window) {}
+
+  ///
   /// Called when |window| is destroyed. Release all references to |window| and
   /// do not attempt to execute any methods on |window| after this callback
   /// returns.
@@ -69,6 +75,14 @@ class CefWindowDelegate : public CefPanelDelegate {
   /*--cef()--*/
   virtual void OnWindowActivationChanged(CefRefPtr<CefWindow> window,
                                          bool active) {}
+
+  ///
+  /// Called when |window| bounds have changed. |new_bounds| will be in DIP
+  /// screen coordinates.
+  ///
+  /*--cef()--*/
+  virtual void OnWindowBoundsChanged(CefRefPtr<CefWindow> window,
+                                     const CefRect& new_bounds) {}
 
   ///
   /// Return the parent for |window| or NULL if the |window| does not have a
