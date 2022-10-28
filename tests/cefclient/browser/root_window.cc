@@ -11,13 +11,7 @@
 
 namespace client {
 
-RootWindowConfig::RootWindowConfig()
-    : always_on_top(false),
-      with_controls(true),
-      with_osr(false),
-      with_extension(false),
-      initially_hidden(false),
-      url(MainContext::Get()->GetMainURL()) {}
+RootWindowConfig::RootWindowConfig() : url(MainContext::Get()->GetMainURL()) {}
 
 RootWindow::RootWindow() : delegate_(nullptr) {}
 

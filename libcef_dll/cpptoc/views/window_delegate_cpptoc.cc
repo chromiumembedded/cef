@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2ecdf3e890e54e962286430f350c5b49249a9a9e$
+// $hash=9657432e6ca2ba72aeeb1ced5c8cf5ee71cf7221$
 //
 
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
@@ -38,6 +38,26 @@ window_delegate_on_window_created(struct _cef_window_delegate_t* self,
 
   // Execute
   CefWindowDelegateCppToC::Get(self)->OnWindowCreated(
+      CefWindowCToCpp::Wrap(window));
+}
+
+void CEF_CALLBACK
+window_delegate_on_window_closing(struct _cef_window_delegate_t* self,
+                                  cef_window_t* window) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: window; type: refptr_diff
+  DCHECK(window);
+  if (!window)
+    return;
+
+  // Execute
+  CefWindowDelegateCppToC::Get(self)->OnWindowClosing(
       CefWindowCToCpp::Wrap(window));
 }
 
@@ -80,6 +100,34 @@ void CEF_CALLBACK window_delegate_on_window_activation_changed(
   // Execute
   CefWindowDelegateCppToC::Get(self)->OnWindowActivationChanged(
       CefWindowCToCpp::Wrap(window), active ? true : false);
+}
+
+void CEF_CALLBACK
+window_delegate_on_window_bounds_changed(struct _cef_window_delegate_t* self,
+                                         cef_window_t* window,
+                                         const cef_rect_t* new_bounds) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: window; type: refptr_diff
+  DCHECK(window);
+  if (!window)
+    return;
+  // Verify param: new_bounds; type: simple_byref_const
+  DCHECK(new_bounds);
+  if (!new_bounds)
+    return;
+
+  // Translate param: new_bounds; type: simple_byref_const
+  CefRect new_boundsVal = new_bounds ? *new_bounds : CefRect();
+
+  // Execute
+  CefWindowDelegateCppToC::Get(self)->OnWindowBoundsChanged(
+      CefWindowCToCpp::Wrap(window), new_boundsVal);
 }
 
 cef_window_t* CEF_CALLBACK
@@ -588,9 +636,12 @@ void CEF_CALLBACK window_delegate_on_blur(struct _cef_view_delegate_t* self,
 
 CefWindowDelegateCppToC::CefWindowDelegateCppToC() {
   GetStruct()->on_window_created = window_delegate_on_window_created;
+  GetStruct()->on_window_closing = window_delegate_on_window_closing;
   GetStruct()->on_window_destroyed = window_delegate_on_window_destroyed;
   GetStruct()->on_window_activation_changed =
       window_delegate_on_window_activation_changed;
+  GetStruct()->on_window_bounds_changed =
+      window_delegate_on_window_bounds_changed;
   GetStruct()->get_parent_window = window_delegate_get_parent_window;
   GetStruct()->get_initial_bounds = window_delegate_get_initial_bounds;
   GetStruct()->get_initial_show_state = window_delegate_get_initial_show_state;

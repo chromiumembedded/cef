@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=423d12cda6148d99e5afb0cc4aa11818e0740e1e$
+// $hash=07d3613588fb17a2d07d817a4b1390db3b6cffe7$
 //
 
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
@@ -36,6 +36,25 @@ void CefWindowDelegateCToCpp::OnWindowCreated(CefRefPtr<CefWindow> window) {
 
   // Execute
   _struct->on_window_created(_struct, CefWindowCppToC::Wrap(window));
+}
+
+NO_SANITIZE("cfi-icall")
+void CefWindowDelegateCToCpp::OnWindowClosing(CefRefPtr<CefWindow> window) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_window_closing))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: window; type: refptr_diff
+  DCHECK(window.get());
+  if (!window.get())
+    return;
+
+  // Execute
+  _struct->on_window_closing(_struct, CefWindowCppToC::Wrap(window));
 }
 
 NO_SANITIZE("cfi-icall")
@@ -77,6 +96,27 @@ void CefWindowDelegateCToCpp::OnWindowActivationChanged(
   // Execute
   _struct->on_window_activation_changed(_struct, CefWindowCppToC::Wrap(window),
                                         active);
+}
+
+NO_SANITIZE("cfi-icall")
+void CefWindowDelegateCToCpp::OnWindowBoundsChanged(CefRefPtr<CefWindow> window,
+                                                    const CefRect& new_bounds) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_window_bounds_changed))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: window; type: refptr_diff
+  DCHECK(window.get());
+  if (!window.get())
+    return;
+
+  // Execute
+  _struct->on_window_bounds_changed(_struct, CefWindowCppToC::Wrap(window),
+                                    &new_bounds);
 }
 
 NO_SANITIZE("cfi-icall")

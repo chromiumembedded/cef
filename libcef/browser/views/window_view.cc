@@ -535,6 +535,12 @@ void CefWindowView::OnWidgetActivationChanged(views::Widget* widget,
 void CefWindowView::OnWidgetBoundsChanged(views::Widget* widget,
                                           const gfx::Rect& new_bounds) {
   MoveOverlaysIfNecessary();
+
+  if (cef_delegate()) {
+    cef_delegate()->OnWindowBoundsChanged(
+        GetCefWindow(), {new_bounds.x(), new_bounds.y(), new_bounds.width(),
+                         new_bounds.height()});
+  }
 }
 
 display::Display CefWindowView::GetDisplay() const {

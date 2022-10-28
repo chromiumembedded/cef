@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4041b496f1e9ed673f99211be26b8fa98967fece$
+// $hash=a7d0db45a4032026a7235d653b3cfed9929ad519$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_WINDOW_DELEGATE_CTOCPP_H_
@@ -38,9 +38,12 @@ class CefWindowDelegateCToCpp
 
   // CefWindowDelegate methods.
   void OnWindowCreated(CefRefPtr<CefWindow> window) override;
+  void OnWindowClosing(CefRefPtr<CefWindow> window) override;
   void OnWindowDestroyed(CefRefPtr<CefWindow> window) override;
   void OnWindowActivationChanged(CefRefPtr<CefWindow> window,
                                  bool active) override;
+  void OnWindowBoundsChanged(CefRefPtr<CefWindow> window,
+                             const CefRect& new_bounds) override;
   CefRefPtr<CefWindow> GetParentWindow(CefRefPtr<CefWindow> window,
                                        bool* is_menu,
                                        bool* can_activate_menu) override;

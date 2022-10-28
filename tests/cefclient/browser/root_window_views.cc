@@ -11,6 +11,7 @@
 #include "include/cef_app.h"
 #include "include/wrapper/cef_helpers.h"
 #include "tests/cefclient/browser/client_handler_std.h"
+#include "tests/cefclient/browser/client_prefs.h"
 
 namespace client {
 
@@ -37,19 +38,11 @@ void RootWindowViews::Init(RootWindow::Delegate* delegate,
   delegate_ = delegate;
   config_ = std::move(config);
 
-  if (config_->initially_hidden && !config_->source_bounds.IsEmpty()) {
-    // The window will be sized and positioned in OnAutoResize().
-    initial_bounds_ = config_->source_bounds;
-    position_on_resize_ = true;
-  } else {
-    initial_bounds_ = config_->bounds;
-  }
-
   CreateClientHandler(config_->url);
   initialized_ = true;
 
   // Continue initialization on the UI thread.
-  InitOnUIThread(settings, config_->url, delegate_->GetRequestContext(this));
+  InitOnUIThread(settings, delegate_->GetRequestContext(this));
 }
 
 void RootWindowViews::InitAsPopup(RootWindow::Delegate* delegate,
@@ -68,7 +61,6 @@ void RootWindowViews::InitAsPopup(RootWindow::Delegate* delegate,
   delegate_ = delegate;
   config_ = std::make_unique<RootWindowConfig>();
   config_->with_controls = with_controls;
-  is_popup_ = true;
 
   if (popupFeatures.xSet)
     initial_bounds_.x = popupFeatures.x;
@@ -217,9 +209,14 @@ CefRefPtr<CefWindow> RootWindowViews::GetParentWindow() {
   return config_->parent_window;
 }
 
-CefRect RootWindowViews::GetWindowBounds() {
+CefRect RootWindowViews::GetInitialBounds() {
   CEF_REQUIRE_UI_THREAD();
   return initial_bounds_;
+}
+
+cef_show_state_t RootWindowViews::GetInitialShowState() {
+  CEF_REQUIRE_UI_THREAD();
+  return initial_show_state_;
 }
 
 scoped_refptr<ImageCache> RootWindowViews::GetImageCache() {
@@ -236,6 +233,17 @@ void RootWindowViews::OnViewsWindowCreated(CefRefPtr<ViewsWindow> window) {
   if (!pending_extensions_.empty()) {
     window_->OnExtensionsChanged(pending_extensions_);
     pending_extensions_.clear();
+  }
+}
+
+void RootWindowViews::OnViewsWindowClosing(CefRefPtr<ViewsWindow> window) {
+  CEF_REQUIRE_UI_THREAD();
+  DCHECK(window_);
+
+  cef_show_state_t show_state;
+  std::optional<CefRect> dip_bounds;
+  if (window_->GetWindowRestorePreferences(show_state, dip_bounds)) {
+    prefs::SaveWindowRestorePreferences(show_state, dip_bounds);
   }
 }
 
@@ -472,13 +480,30 @@ void RootWindowViews::CreateClientHandler(const std::string& url) {
 
 void RootWindowViews::InitOnUIThread(
     const CefBrowserSettings& settings,
-    const std::string& startup_url,
     CefRefPtr<CefRequestContext> request_context) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
     CefPostTask(TID_UI, base::BindOnce(&RootWindowViews::InitOnUIThread, this,
-                                       settings, startup_url, request_context));
+                                       settings, request_context));
     return;
+  }
+
+  if (config_->initially_hidden && !config_->source_bounds.IsEmpty()) {
+    // The window will be sized and positioned in OnAutoResize().
+    initial_bounds_ = config_->source_bounds;
+    position_on_resize_ = true;
+  } else if (!config_->bounds.IsEmpty()) {
+    // Initial state was specified via the config object.
+    initial_bounds_ = config_->bounds;
+    initial_show_state_ = config_->show_state;
+  } else {
+    // Initial state may be specified via the command-line or global
+    // preferences.
+    std::optional<CefRect> bounds;
+    if (prefs::LoadWindowRestorePreferences(initial_show_state_, bounds) &&
+        bounds) {
+      initial_bounds_ = *bounds;
+    }
   }
 
   image_cache_ = delegate_->GetImageCache();
@@ -490,12 +515,11 @@ void RootWindowViews::InitOnUIThread(
 
   image_cache_->LoadImages(
       image_set, base::BindOnce(&RootWindowViews::CreateViewsWindow, this,
-                                settings, startup_url, request_context));
+                                settings, request_context));
 }
 
 void RootWindowViews::CreateViewsWindow(
     const CefBrowserSettings& settings,
-    const std::string& startup_url,
     CefRefPtr<CefRequestContext> request_context,
     const ImageCache::ImageSet& images) {
   CEF_REQUIRE_UI_THREAD();
@@ -510,7 +534,7 @@ void RootWindowViews::CreateViewsWindow(
 #endif
 
   // Create the ViewsWindow. It will show itself after creation.
-  ViewsWindow::Create(this, client_handler_, startup_url, settings,
+  ViewsWindow::Create(this, client_handler_, config_->url, settings,
                       request_context);
 }
 

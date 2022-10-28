@@ -336,6 +336,32 @@ void ViewsWindow::OnExtensionsChanged(const ExtensionSet& extensions) {
       base::BindOnce(&ViewsWindow::OnExtensionIconsLoaded, this, extensions));
 }
 
+bool ViewsWindow::GetWindowRestorePreferences(
+    cef_show_state_t& show_state,
+    std::optional<CefRect>& dip_bounds) {
+  CEF_REQUIRE_UI_THREAD();
+  if (!window_)
+    return false;
+
+  show_state = CEF_SHOW_STATE_NORMAL;
+  if (window_->IsMinimized())
+    show_state = CEF_SHOW_STATE_MINIMIZED;
+  else if (window_->IsMaximized())
+    show_state = CEF_SHOW_STATE_MAXIMIZED;
+  else if (window_->IsFullscreen())
+    show_state = CEF_SHOW_STATE_FULLSCREEN;
+
+  if (show_state == CEF_SHOW_STATE_NORMAL) {
+    // Use the current visible bounds.
+    dip_bounds = window_->GetBoundsInScreen();
+  } else {
+    // Use the last known visible bounds.
+    dip_bounds = last_visible_bounds_;
+  }
+
+  return true;
+}
+
 CefRefPtr<CefBrowserViewDelegate> ViewsWindow::GetDelegateForPopupBrowserView(
     CefRefPtr<CefBrowserView> browser_view,
     const CefBrowserSettings& settings,
@@ -517,10 +543,14 @@ void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
 
   delegate_->OnViewsWindowCreated(this);
 
-  const CefRect bounds = delegate_->GetWindowBounds();
+  const CefRect bounds = delegate_->GetInitialBounds();
   if (bounds.IsEmpty()) {
     // Size the Window and center it at the default size.
     window_->CenterWindow(CefSize(kDefaultWidth, kDefaultHeight));
+  } else {
+    // Remember the bounds from the previous application run in case the user
+    // does not move or resize the window during this application run.
+    last_visible_bounds_ = bounds;
   }
 
   // Set the background color for regions that are not obscured by other Views.
@@ -539,7 +569,7 @@ void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
     AddAccelerators();
 
     // Hide the top controls while in full-screen mode.
-    if (initial_show_state_ == CEF_SHOW_STATE_FULLSCREEN) {
+    if (delegate_->GetInitialShowState() == CEF_SHOW_STATE_FULLSCREEN) {
       ShowTopControls(false);
     }
   } else {
@@ -556,6 +586,13 @@ void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
     // Show the Window.
     Show();
   }
+}
+
+void ViewsWindow::OnWindowClosing(CefRefPtr<CefWindow> window) {
+  CEF_REQUIRE_UI_THREAD();
+  DCHECK(window_);
+
+  delegate_->OnViewsWindowClosing(this);
 }
 
 void ViewsWindow::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
@@ -577,10 +614,20 @@ void ViewsWindow::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
 
 void ViewsWindow::OnWindowActivationChanged(CefRefPtr<CefWindow> window,
                                             bool active) {
-  if (!active)
+  if (!active) {
     return;
+  }
 
   delegate_->OnViewsWindowActivated(this);
+}
+
+void ViewsWindow::OnWindowBoundsChanged(CefRefPtr<CefWindow> window,
+                                        const CefRect& new_bounds) {
+  if (!window->IsMinimized() && !window->IsMaximized() &&
+      !window->IsFullscreen()) {
+    // Track the last visible bounds for window restore purposes.
+    last_visible_bounds_ = new_bounds;
+  }
 }
 
 bool ViewsWindow::CanClose(CefRefPtr<CefWindow> window) {
@@ -610,7 +657,7 @@ CefRefPtr<CefWindow> ViewsWindow::GetParentWindow(CefRefPtr<CefWindow> window,
 
 CefRect ViewsWindow::GetInitialBounds(CefRefPtr<CefWindow> window) {
   CEF_REQUIRE_UI_THREAD();
-  const CefRect bounds = delegate_->GetWindowBounds();
+  const CefRect bounds = delegate_->GetInitialBounds();
   if (frameless_ && bounds.IsEmpty()) {
     // Need to provide a size for frameless windows that will be centered.
     return CefRect(0, 0, kDefaultWidth, kDefaultHeight);
@@ -620,7 +667,7 @@ CefRect ViewsWindow::GetInitialBounds(CefRefPtr<CefWindow> window) {
 
 cef_show_state_t ViewsWindow::GetInitialShowState(CefRefPtr<CefWindow> window) {
   CEF_REQUIRE_UI_THREAD();
-  return initial_show_state_;
+  return delegate_->GetInitialShowState();
 }
 
 bool ViewsWindow::IsFrameless(CefRefPtr<CefWindow> window) {
@@ -805,16 +852,6 @@ ViewsWindow::ViewsWindow(Delegate* delegate,
     }
   } else {
     chrome_toolbar_type_ = CEF_CTT_NONE;
-  }
-
-  const std::string& show_state =
-      command_line->GetSwitchValue(switches::kInitialShowState);
-  if (show_state == "minimized") {
-    initial_show_state_ = CEF_SHOW_STATE_MINIMIZED;
-  } else if (show_state == "maximized") {
-    initial_show_state_ = CEF_SHOW_STATE_MAXIMIZED;
-  } else if (show_state == "fullscreen") {
-    initial_show_state_ = CEF_SHOW_STATE_FULLSCREEN;
   }
 
 #if !defined(OS_MAC)

@@ -391,6 +391,9 @@ void CefWindowImpl::OnWindowClosing() {
 #if defined(USE_AURA)
   unhandled_key_event_handler_.reset();
 #endif
+
+  if (delegate())
+    delegate()->OnWindowClosing(this);
 }
 
 void CefWindowImpl::OnWindowViewDeleted() {
