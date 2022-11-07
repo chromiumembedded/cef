@@ -49,8 +49,8 @@ struct RootWindowConfig {
   // based windows when |initially_hidden| is also true.
   CefRect source_bounds;
 
-  // Requested window show state. This is currently only implemented for Views-
-  // based windows when |bounds| is non-empty and |initially_hidden| is false.
+  // Requested window show state. Only used when |bounds| is non-empty and
+  // |initially_hidden| is false.
   cef_show_state_t show_state = CEF_SHOW_STATE_NORMAL;
 
   // Parent window. Only used for Views-based windows.

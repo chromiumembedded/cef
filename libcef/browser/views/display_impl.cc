@@ -75,6 +75,32 @@ CefPoint CefDisplay::ConvertScreenPointFromPixels(const CefPoint& point) {
 #endif
 }
 
+// static
+CefRect CefDisplay::ConvertScreenRectToPixels(const CefRect& rect) {
+  CEF_REQUIRE_UIT_RETURN(CefRect());
+#if BUILDFLAG(IS_WIN)
+  const gfx::Rect pix_rect = view_util::ConvertRectToPixels(
+      gfx::Rect(rect.x, rect.y, rect.width, rect.height));
+  return CefRect(pix_rect.x(), pix_rect.y(), pix_rect.width(),
+                 pix_rect.height());
+#else
+  return rect;
+#endif
+}
+
+// static
+CefRect CefDisplay::ConvertScreenRectFromPixels(const CefRect& rect) {
+  CEF_REQUIRE_UIT_RETURN(CefRect());
+#if BUILDFLAG(IS_WIN)
+  const gfx::Rect dip_rect = view_util::ConvertRectFromPixels(
+      gfx::Rect(rect.x, rect.y, rect.width, rect.height));
+  return CefRect(dip_rect.x(), dip_rect.y(), dip_rect.width(),
+                 dip_rect.height());
+#else
+  return rect;
+#endif
+}
+
 CefDisplayImpl::CefDisplayImpl(const display::Display& display)
     : display_(display) {
   CEF_REQUIRE_UIT();
