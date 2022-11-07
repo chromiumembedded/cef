@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5e68fdaae42fe008a95bcf2672debe3cf04fa2ff$
+// $hash=d2f3054a54f514ce650101e293bf085eeba48ee7$
 //
 
 #include "libcef_dll/cpptoc/views/display_cpptoc.h"
@@ -158,6 +158,48 @@ cef_display_convert_screen_point_from_pixels(const cef_point_t* point) {
 
   // Execute
   cef_point_t _retval = CefDisplay::ConvertScreenPointFromPixels(pointVal);
+
+  // Return type: simple
+  return _retval;
+}
+
+CEF_EXPORT cef_rect_t
+cef_display_convert_screen_rect_to_pixels(const cef_rect_t* rect) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: rect; type: simple_byref_const
+  DCHECK(rect);
+  if (!rect)
+    return CefRect();
+
+  // Translate param: rect; type: simple_byref_const
+  CefRect rectVal = rect ? *rect : CefRect();
+
+  // Execute
+  cef_rect_t _retval = CefDisplay::ConvertScreenRectToPixels(rectVal);
+
+  // Return type: simple
+  return _retval;
+}
+
+CEF_EXPORT cef_rect_t
+cef_display_convert_screen_rect_from_pixels(const cef_rect_t* rect) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: rect; type: simple_byref_const
+  DCHECK(rect);
+  if (!rect)
+    return CefRect();
+
+  // Translate param: rect; type: simple_byref_const
+  CefRect rectVal = rect ? *rect : CefRect();
+
+  // Execute
+  cef_rect_t _retval = CefDisplay::ConvertScreenRectFromPixels(rectVal);
 
   // Return type: simple
   return _retval;

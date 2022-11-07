@@ -236,6 +236,14 @@ gfx::Point ConvertPointFromPixels(const gfx::Point& point) {
 gfx::Point ConvertPointToPixels(const gfx::Point& point) {
   return display::win::ScreenWin::DIPToScreenPoint(point);
 }
+
+gfx::Rect ConvertRectFromPixels(const gfx::Rect& rect) {
+  return display::win::ScreenWin::ScreenToDIPRect(nullptr, rect);
+}
+
+gfx::Rect ConvertRectToPixels(const gfx::Rect& rect) {
+  return display::win::ScreenWin::DIPToScreenRect(nullptr, rect);
+}
 #endif  // BUILDFLAG(IS_WIN)
 
 bool ConvertPointToScreen(views::View* view,

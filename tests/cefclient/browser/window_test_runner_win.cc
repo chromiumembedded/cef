@@ -54,7 +54,8 @@ void SetPosImpl(CefRefPtr<CefBrowser> browser,
   CefRect window_rect(x, y, width, height);
   WindowTestRunner::ModifyBounds(display_rect, window_rect);
 
-  if (placement.showCmd == SW_MINIMIZE || placement.showCmd == SW_MAXIMIZE) {
+  if (placement.showCmd == SW_SHOWMINIMIZED ||
+      placement.showCmd == SW_SHOWMAXIMIZED) {
     // The window is currently minimized or maximized. Restore it to the desired
     // position.
     placement.rcNormalPosition.left = window_rect.x;

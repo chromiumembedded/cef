@@ -106,6 +106,20 @@ class CefDisplay : public CefBaseRefCounted {
   static CefPoint ConvertScreenPointFromPixels(const CefPoint& point);
 
   ///
+  /// Convert |rect| from DIP screen coordinates to pixel screen coordinates.
+  /// This method is only used on Windows.
+  ///
+  /*--cef()--*/
+  static CefRect ConvertScreenRectToPixels(const CefRect& rect);
+
+  ///
+  /// Convert |rect| from pixel screen coordinates to DIP screen coordinates.
+  /// This method is only used on Windows.
+  ///
+  /*--cef()--*/
+  static CefRect ConvertScreenRectFromPixels(const CefRect& rect);
+
+  ///
   /// Returns the unique identifier for this Display.
   ///
   /*--cef()--*/

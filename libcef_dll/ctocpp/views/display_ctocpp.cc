@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=afef323719b977c74bb86d015ad1b0f5c253c3ba$
+// $hash=d171aff72ef24ed2b85182e98b2b8d609ae25ddd$
 //
 
 #include "libcef_dll/ctocpp/views/display_ctocpp.h"
@@ -131,6 +131,32 @@ CefPoint CefDisplay::ConvertScreenPointFromPixels(const CefPoint& point) {
 
   // Execute
   cef_point_t _retval = cef_display_convert_screen_point_from_pixels(&point);
+
+  // Return type: simple
+  return _retval;
+}
+
+NO_SANITIZE("cfi-icall")
+CefRect CefDisplay::ConvertScreenRectToPixels(const CefRect& rect) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_rect_t _retval = cef_display_convert_screen_rect_to_pixels(&rect);
+
+  // Return type: simple
+  return _retval;
+}
+
+NO_SANITIZE("cfi-icall")
+CefRect CefDisplay::ConvertScreenRectFromPixels(const CefRect& rect) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_rect_t _retval = cef_display_convert_screen_rect_from_pixels(&rect);
 
   // Return type: simple
   return _retval;

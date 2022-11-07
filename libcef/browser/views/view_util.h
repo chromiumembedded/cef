@@ -97,6 +97,12 @@ gfx::Point ConvertPointFromPixels(const gfx::Point& point);
 
 // Convert |point| from DIP screen coordinates to pixel screen coordinates.
 gfx::Point ConvertPointToPixels(const gfx::Point& point);
+
+// Convert |rect| from pixel screen coordinates to DIP screen coordinates.
+gfx::Rect ConvertRectFromPixels(const gfx::Rect& rect);
+
+// Convert |rect| from DIP screen coordinates to pixel screen coordinates.
+gfx::Rect ConvertRectToPixels(const gfx::Rect& rect);
 #endif  // BUILDFLAG(IS_WIN)
 
 // Convert |point| from |view| to screen coordinates. If |output_pixel_coords|

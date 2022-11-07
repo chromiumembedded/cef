@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=aa73ff15eb79f0e7f89338db9001e2876d2a3a6e$
+// $hash=aa091bc741fcefee760906fce4c8f86937dd74ca$
 //
 
 #include <dlfcn.h>
@@ -239,6 +239,10 @@ struct libcef_pointers {
       cef_display_convert_screen_point_to_pixels;
   decltype(&cef_display_convert_screen_point_from_pixels)
       cef_display_convert_screen_point_from_pixels;
+  decltype(&cef_display_convert_screen_rect_to_pixels)
+      cef_display_convert_screen_rect_to_pixels;
+  decltype(&cef_display_convert_screen_rect_from_pixels)
+      cef_display_convert_screen_rect_from_pixels;
   decltype(&cef_label_button_create) cef_label_button_create;
   decltype(&cef_menu_button_create) cef_menu_button_create;
   decltype(&cef_panel_create) cef_panel_create;
@@ -451,6 +455,8 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_display_get_alls);
   INIT_ENTRY(cef_display_convert_screen_point_to_pixels);
   INIT_ENTRY(cef_display_convert_screen_point_from_pixels);
+  INIT_ENTRY(cef_display_convert_screen_rect_to_pixels);
+  INIT_ENTRY(cef_display_convert_screen_rect_from_pixels);
   INIT_ENTRY(cef_label_button_create);
   INIT_ENTRY(cef_menu_button_create);
   INIT_ENTRY(cef_panel_create);
@@ -1286,6 +1292,16 @@ NO_SANITIZE("cfi-icall")
 cef_point_t cef_display_convert_screen_point_from_pixels(
     const cef_point_t* point) {
   return g_libcef_pointers.cef_display_convert_screen_point_from_pixels(point);
+}
+
+NO_SANITIZE("cfi-icall")
+cef_rect_t cef_display_convert_screen_rect_to_pixels(const cef_rect_t* rect) {
+  return g_libcef_pointers.cef_display_convert_screen_rect_to_pixels(rect);
+}
+
+NO_SANITIZE("cfi-icall")
+cef_rect_t cef_display_convert_screen_rect_from_pixels(const cef_rect_t* rect) {
+  return g_libcef_pointers.cef_display_convert_screen_rect_from_pixels(rect);
 }
 
 NO_SANITIZE("cfi-icall")
