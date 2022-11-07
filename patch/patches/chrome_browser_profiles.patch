@@ -14,7 +14,7 @@ index 8f94c350756b4..a243dbaadbc2b 100644
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index bd0f46ee1edce..f8efd6222175d 100644
+index a82af67cd3afb..c9dbd798dbeda 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
 @@ -83,6 +83,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
@@ -52,7 +52,7 @@ index bd0f46ee1edce..f8efd6222175d 100644
  Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
    return CreateUnique(kDevToolsOTRProfileIDPrefix);
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index eb5172ba4789c..147c9d828708b 100644
+index bb7826c38d7ed..c99b96ee82fd5 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
 @@ -99,6 +99,10 @@ class Profile : public content::BrowserContext {

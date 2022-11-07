@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index b0c9044e9978f..13191e2d38387 100644
+index e5d57b6136722..1d34b6256823a 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -663,6 +663,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {

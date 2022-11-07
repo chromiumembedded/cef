@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index 87c1c47fc868a..42d7929172abc 100644
+index dcd6659915114..b83f110bfe921 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -40,6 +40,7 @@
@@ -40,7 +40,7 @@ index 87c1c47fc868a..42d7929172abc 100644
    base::sequence_manager::internal::ThreadControllerPowerMonitor::
        InitializeOnMainThread();
    base::InitializePlatformThreadFeatures();
-@@ -1221,6 +1230,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1225,6 +1234,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    std::string process_type =
        command_line.GetSwitchValueASCII(switches::kProcessType);
  
@@ -48,7 +48,7 @@ index 87c1c47fc868a..42d7929172abc 100644
    crash_reporter::InitializeCrashKeys();
  
  #if BUILDFLAG(IS_POSIX)
-@@ -1231,6 +1241,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1235,6 +1245,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    InitMacCrashReporter(command_line, process_type);
    SetUpInstallerPreferences(command_line);
  #endif
@@ -56,7 +56,7 @@ index 87c1c47fc868a..42d7929172abc 100644
  
  #if BUILDFLAG(IS_WIN)
    child_process_logging::Init();
-@@ -1433,6 +1444,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1437,6 +1448,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
      CHECK(!loaded_locale.empty()) << "Locale could not be found for " << locale;
    }
  
@@ -64,7 +64,7 @@ index 87c1c47fc868a..42d7929172abc 100644
  #if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
    // Zygote needs to call InitCrashReporter() in RunZygote().
    if (process_type != switches::kZygoteProcess) {
-@@ -1476,6 +1488,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1480,6 +1492,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    // After all the platform Breakpads have been initialized, store the command
    // line for crash reporting.
    crash_keys::SetCrashKeysFromCommandLine(command_line);
@@ -72,7 +72,7 @@ index 87c1c47fc868a..42d7929172abc 100644
  
  #if BUILDFLAG(ENABLE_PDF)
    MaybePatchGdiGetFontData();
-@@ -1574,6 +1587,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1578,6 +1591,7 @@ void ChromeMainDelegate::ZygoteForked() {
      SetUpProfilingShutdownHandler();
    }
  
@@ -80,7 +80,7 @@ index 87c1c47fc868a..42d7929172abc 100644
    // Needs to be called after we have chrome::DIR_USER_DATA.  BrowserMain sets
    // this up for the browser process in a different manner.
    const base::CommandLine* command_line =
-@@ -1596,6 +1610,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1600,6 +1614,7 @@ void ChromeMainDelegate::ZygoteForked() {
  
    // Reset the command line for the newly spawned process.
    crash_keys::SetCrashKeysFromCommandLine(*command_line);
@@ -324,7 +324,7 @@ index 10b5cf030a944..49b773042ad24 100644
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 621b03d86a86a..c5a24d944f984 100644
+index 3eff9bc639bb1..49840f0f44529 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -11,6 +11,7 @@
