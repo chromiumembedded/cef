@@ -25,6 +25,7 @@
 #include "third_party/blink/public/common/input/web_mouse_wheel_event.h"
 #import "ui/base/cocoa/cocoa_base_utils.h"
 #import "ui/base/cocoa/underlay_opengl_hosting_window.h"
+#include "ui/display/screen.h"
 #include "ui/events/base_event_utils.h"
 #include "ui/events/keycodes/keyboard_codes_posix.h"
 #include "ui/gfx/geometry/rect.h"
@@ -144,8 +145,90 @@ constexpr int kDefaultHeight = 750;
 constexpr int kDefaultWidth = 750;
 constexpr NSWindowStyleMask kDefaultStyleMask =
     NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
-    NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable |
-    NSWindowStyleMaskUnifiedTitleAndToolbar;
+    NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
+
+// Keep the frame bounds inside the display work area.
+NSRect ClampNSBoundsToWorkArea(const NSRect& frame_bounds,
+                               const gfx::Rect& display_bounds,
+                               const gfx::Rect& work_area) {
+  NSRect bounds = frame_bounds;
+
+  // Convert from DIP coordinates (top-left origin) to macOS coordinates
+  // (bottom-left origin).
+  const int work_area_y =
+      display_bounds.height() - work_area.height() - work_area.y();
+
+  if (bounds.size.width > work_area.width()) {
+    bounds.size.width = work_area.width();
+  }
+  if (bounds.size.height > work_area.height()) {
+    bounds.size.height = work_area.height();
+  }
+
+  if (bounds.origin.x < work_area.x()) {
+    bounds.origin.x = work_area.x();
+  } else if (bounds.origin.x + bounds.size.width >=
+             work_area.x() + work_area.width()) {
+    bounds.origin.x = work_area.x() + work_area.width() - bounds.size.width;
+  }
+
+  if (bounds.origin.y < work_area_y) {
+    bounds.origin.y = work_area_y;
+  } else if (bounds.origin.y + bounds.size.height >=
+             work_area_y + work_area.height()) {
+    bounds.origin.y = work_area_y + work_area.height() - bounds.size.height;
+  }
+
+  return bounds;
+}
+
+// Get frame and content area rects matching the input DIP screen bounds. The
+// resulting window frame will be kept inside the closest display work area. If
+// |input_content_bounds| is true the input size is used for the content area
+// and the input origin is used for the frame. Otherwise, both input size and
+// origin are used for the frame.
+void GetNSBoundsInDisplay(const gfx::Rect& dip_bounds,
+                          bool input_content_bounds,
+                          NSWindowStyleMask style_mask,
+                          NSRect& frame_rect,
+                          NSRect& content_rect) {
+  // Identify the closest display.
+  const auto display =
+      display::Screen::GetScreen()->GetDisplayMatching(dip_bounds);
+  const auto& display_bounds = display.bounds();
+  const auto& display_work_area = display.work_area();
+
+  // Convert from DIP coordinates (top-left origin) to macOS coordinates
+  // (bottom-left origin).
+  NSRect requested_rect = NSMakeRect(dip_bounds.x(), dip_bounds.y(),
+                                     dip_bounds.width(), dip_bounds.height());
+  requested_rect.origin.y = display_bounds.height() -
+                            requested_rect.size.height -
+                            requested_rect.origin.y;
+
+  // Calculate the equivalent frame and content bounds.
+  if (input_content_bounds) {
+    // Compute frame rect from content rect. Keep the requested origin.
+    content_rect = requested_rect;
+    frame_rect = [NSWindow frameRectForContentRect:frame_rect
+                                         styleMask:style_mask];
+    frame_rect.origin = requested_rect.origin;
+  } else {
+    // Compute content rect from frame rect.
+    frame_rect = requested_rect;
+    content_rect = [NSWindow contentRectForFrameRect:frame_rect
+                                           styleMask:style_mask];
+  }
+
+  // Keep the frame inside the display work area.
+  const NSRect new_frame_rect =
+      ClampNSBoundsToWorkArea(frame_rect, display_bounds, display_work_area);
+  if (!NSEqualRects(frame_rect, new_frame_rect)) {
+    frame_rect = new_frame_rect;
+    content_rect = [NSWindow contentRectForFrameRect:frame_rect
+                                           styleMask:style_mask];
+  }
+}
 
 }  // namespace
 
@@ -168,48 +251,52 @@ void CefBrowserPlatformDelegateNativeMac::BrowserDestroyed(
 bool CefBrowserPlatformDelegateNativeMac::CreateHostWindow() {
   base::mac::ScopedNSAutoreleasePool autorelease_pool;
 
-  NSWindow* newWnd = nil;
+  NSWindow* new_window = nil;
 
-  NSView* parentView =
+  NSView* parent_view =
       CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(window_info_.parent_view);
+  NSRect browser_view_rect =
+      NSMakeRect(window_info_.bounds.x, window_info_.bounds.y,
+                 window_info_.bounds.width, window_info_.bounds.height);
 
-  const CGFloat x = static_cast<CGFloat>(window_info_.bounds.x);
-  const CGFloat y = static_cast<CGFloat>(window_info_.bounds.y);
-  const CGFloat width = static_cast<CGFloat>(window_info_.bounds.width);
-  const CGFloat height = static_cast<CGFloat>(window_info_.bounds.height);
+  if (parent_view == nil) {
+    // TODO(port): If no x,y position is specified the window will always appear
+    // in the upper-left corner. Maybe there's a better default place to put it?
+    const gfx::Rect dip_bounds(
+        window_info_.bounds.x, window_info_.bounds.y,
+        window_info_.bounds.width <= 0 ? kDefaultWidth
+                                       : window_info_.bounds.width,
+        window_info_.bounds.height <= 0 ? kDefaultHeight
+                                        : window_info_.bounds.height);
 
-  NSRect content_rect = {{x, y}, {width, height}};
-  if (parentView == nil) {
+    // Calculate the equivalent frame and content area bounds.
+    NSRect frame_rect, content_rect;
+    GetNSBoundsInDisplay(dip_bounds, /*input_content_bounds=*/true,
+                         kDefaultStyleMask, frame_rect, content_rect);
+
     // Create a new window.
-    NSRect window_rect = {{x, y}, {width, height}};
-    if (window_rect.size.width == 0)
-      window_rect.size.width = kDefaultWidth;
-    if (window_rect.size.height == 0)
-      window_rect.size.height = kDefaultHeight;
-
-    content_rect = {{0, 0}, {window_rect.size.width, window_rect.size.height}};
-
-    newWnd = [[UnderlayOpenGLHostingWindow alloc]
-        initWithContentRect:window_rect
+    new_window = [[UnderlayOpenGLHostingWindow alloc]
+        initWithContentRect:content_rect
                   styleMask:kDefaultStyleMask
                     backing:NSBackingStoreBuffered
                       defer:NO];
 
     // Create the delegate for control and browser window events.
-    [[CefWindowDelegate alloc] initWithWindow:newWnd andBrowser:browser_];
+    [[CefWindowDelegate alloc] initWithWindow:new_window andBrowser:browser_];
 
-    parentView = [newWnd contentView];
-    window_info_.parent_view = parentView;
+    parent_view = [new_window contentView];
+    browser_view_rect = [parent_view bounds];
+
+    window_info_.parent_view = parent_view;
 
     // Make the content view for the window have a layer. This will make all
     // sub-views have layers. This is necessary to ensure correct layer
     // ordering of all child views and their layers.
-    [parentView setWantsLayer:YES];
+    [parent_view setWantsLayer:YES];
 
-    // Transform input Y coodinate into the MacOS coordinate.
-    NSRect primary_screen_rect = [[[NSScreen screens] firstObject] frame];
-    const CGFloat transformed_y = NSMaxY(primary_screen_rect) - y;
-    [newWnd setFrameTopLeftPoint:NSMakePoint(x, transformed_y)];
+    // Place the window at the target point. This is required for proper
+    // placement if the point is on a secondary display.
+    [new_window setFrameOrigin:frame_rect.origin];
   }
 
   host_window_created_ = true;
@@ -219,14 +306,14 @@ bool CefBrowserPlatformDelegateNativeMac::CreateHostWindow() {
 
   // Create the browser view.
   CefBrowserHostView* browser_view =
-      [[CefBrowserHostView alloc] initWithFrame:content_rect];
+      [[CefBrowserHostView alloc] initWithFrame:browser_view_rect];
   browser_view.browser = browser_;
-  [parentView addSubview:browser_view];
+  [parent_view addSubview:browser_view];
   [browser_view setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
   [browser_view setNeedsDisplay:YES];
   [browser_view release];
 
-  // Parent the TabContents to the browser view.
+  // Parent the WebContents to the browser view.
   const NSRect bounds = [browser_view bounds];
   NSView* native_view = web_contents_->GetNativeView().GetNativeNSView();
   [browser_view addSubview:native_view];
@@ -236,9 +323,9 @@ bool CefBrowserPlatformDelegateNativeMac::CreateHostWindow() {
 
   window_info_.view = browser_view;
 
-  if (newWnd != nil && !window_info_.hidden) {
+  if (new_window != nil && !window_info_.hidden) {
     // Show the window.
-    [newWnd makeKeyAndOrderFront:nil];
+    [new_window makeKeyAndOrderFront:nil];
   }
 
   return true;
