@@ -418,10 +418,21 @@ index d24c447bb8030..29215d6578169 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index db731ec8ab093..f63db294d8480 100644
+index db731ec8ab093..f590ff6d99e85 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -826,7 +826,11 @@ bool HWNDMessageHandler::IsVisible() const {
+@@ -625,7 +625,9 @@ void HWNDMessageHandler::SetDwmFrameExtension(DwmFrameState state) {
+   if (!delegate_->HasFrame() && ui::win::IsAeroGlassEnabled() &&
+       !is_translucent_) {
+     MARGINS m = {0, 0, 0, 0};
+-    if (state == DwmFrameState::kOn)
++    // Fix 1px gap with frameless windows on Win11 by not setting DWM margins
++    // when maximized. See CEF issue #3414.
++    if (state == DwmFrameState::kOn && !IsMaximized())
+       m = {0, 0, 1, 0};
+     DwmExtendFrameIntoClientArea(hwnd(), &m);
+   }
+@@ -826,7 +828,11 @@ bool HWNDMessageHandler::IsVisible() const {
  }
  
  bool HWNDMessageHandler::IsActive() const {
@@ -434,7 +445,7 @@ index db731ec8ab093..f63db294d8480 100644
  }
  
  bool HWNDMessageHandler::IsMinimized() const {
-@@ -3224,10 +3228,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -3224,10 +3230,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.
