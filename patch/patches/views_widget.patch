@@ -359,7 +359,7 @@ index cec35ceb25477..6eab66d5676b5 100644
    // a reference.
    raw_ptr<corewm::TooltipWin> tooltip_;
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 8e2d4979b8a31..d7cf97b77d267 100644
+index 2b7d0481541d9..63e814a1d74ac 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -344,7 +344,8 @@ void Widget::Init(InitParams params) {
@@ -395,7 +395,7 @@ index 8e2d4979b8a31..d7cf97b77d267 100644
    }
  
    if (base::FeatureList::IsEnabled(features::kWidgetLayering)) {
-@@ -1480,10 +1489,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
+@@ -1484,10 +1493,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
