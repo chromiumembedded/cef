@@ -80,7 +80,7 @@ index 83211e80d8270..9ce9b37375762 100644
    return mojom::ResultCode::kSuccess;
  }
 diff --git printing/printing_context_linux.h printing/printing_context_linux.h
-index 6fb35248ec459..3be9c29c7ebf9 100644
+index 6745bc07ecd21..4139ee5562b84 100644
 --- printing/printing_context_linux.h
 +++ printing/printing_context_linux.h
 @@ -16,6 +16,20 @@ namespace printing {
@@ -117,7 +117,7 @@ index 33a147bd79fd1..01f573e30395e 100644
          "//third_party/blink/public:blink",
          "//v8",
 diff --git ui/linux/linux_ui.cc ui/linux/linux_ui.cc
-index fc0ab170837bf..3d8c437ee4733 100644
+index 29db798e8b171..a541ef1bef264 100644
 --- ui/linux/linux_ui.cc
 +++ ui/linux/linux_ui.cc
 @@ -23,6 +23,10 @@ LinuxUi* g_linux_ui = nullptr;
@@ -132,10 +132,10 @@ index fc0ab170837bf..3d8c437ee4733 100644
  }
  
 diff --git ui/linux/linux_ui.h ui/linux/linux_ui.h
-index 4c5e4e19fc94c..2bfcd7d11ea21 100644
+index b5fd57741d2f4..9ebbd444ec3ac 100644
 --- ui/linux/linux_ui.h
 +++ ui/linux/linux_ui.h
-@@ -17,6 +17,10 @@
+@@ -18,6 +18,10 @@
  #include "build/chromecast_buildflags.h"
  #include "printing/buildflags/buildflags.h"
  
@@ -146,7 +146,7 @@ index 4c5e4e19fc94c..2bfcd7d11ea21 100644
  // The main entrypoint into Linux toolkit specific code. GTK/QT code should only
  // be executed behind this interface.
  
-@@ -61,7 +65,11 @@ class WindowFrameProvider;
+@@ -62,7 +66,11 @@ class WindowFrameProvider;
  
  // Adapter class with targets to render like different toolkits. Set by any
  // project that wants to do linux desktop native rendering.
@@ -157,9 +157,9 @@ index 4c5e4e19fc94c..2bfcd7d11ea21 100644
 +#endif
 + {
   public:
-   LinuxUi(const LinuxUi&) = delete;
-   LinuxUi& operator=(const LinuxUi&) = delete;
-@@ -111,14 +119,6 @@ class COMPONENT_EXPORT(LINUX_UI) LinuxUi {
+   // Describes the window management actions that could be taken in response to
+   // a middle click in the non client area.
+@@ -129,14 +137,6 @@ class COMPONENT_EXPORT(LINUX_UI) LinuxUi {
    // Returns a map of KeyboardEvent code to KeyboardEvent key values.
    virtual base::flat_map<std::string, std::string> GetKeyboardLayoutMap() = 0;
  

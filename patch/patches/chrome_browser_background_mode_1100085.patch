@@ -14,7 +14,7 @@ index f365449df16a8..91afb283a41f5 100644
        std::unique_ptr<BackgroundModeManager> manager) = 0;
  #endif
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index a7a2bfe6738c3..7dfc99596ef26 100644
+index d1962357f5e1a..9e7b9abcca851 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
 @@ -1007,18 +1007,14 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
@@ -52,10 +52,10 @@ index f8a1250d7ba07..0ce11cd182281 100644
        std::unique_ptr<BackgroundModeManager> manager) override;
  #endif
 diff --git chrome/browser/lifetime/browser_close_manager.cc chrome/browser/lifetime/browser_close_manager.cc
-index e7d45ec1efd0e..6454d2d126f90 100644
+index bfcd165aa529e..1c5eb471a561c 100644
 --- chrome/browser/lifetime/browser_close_manager.cc
 +++ chrome/browser/lifetime/browser_close_manager.cc
-@@ -156,12 +156,14 @@ void BrowserCloseManager::CloseBrowsers() {
+@@ -157,12 +157,14 @@ void BrowserCloseManager::CloseBrowsers() {
    // exit can restore all browsers open before exiting.
    ProfileManager::ShutdownSessionServices();
  #endif

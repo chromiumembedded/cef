@@ -109,10 +109,6 @@ void CefPrefStore::CommitPendingWrite(
 
 void CefPrefStore::SchedulePendingLossyWrites() {}
 
-void CefPrefStore::ClearMutableValues() {
-  NOTIMPLEMENTED();
-}
-
 void CefPrefStore::OnStoreDeletionFromDisk() {}
 
 void CefPrefStore::SetInitializationCompleted() {

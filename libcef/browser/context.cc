@@ -136,7 +136,7 @@ bool ValidateCachePath(const base::FilePath& cache_path,
     return false;
   }
 
-  base::ThreadRestrictions::ScopedAllowIO allow_io;
+  base::ScopedAllowBlockingForTesting allow_blocking;
   if (!base::DirectoryExists(cache_path) &&
       !base::CreateDirectory(cache_path)) {
     LOG(ERROR) << "The cache_path directory (" << cache_path.value()

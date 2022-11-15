@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 04bd45199b0db..f55241b38fc7b 100644
+index 7ca95e7ec0f37..3be6aa0635ed3 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -3082,6 +3082,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -3106,6 +3106,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
        site_instance.get(), params.renderer_initiated_creation,
        params.main_frame_name, GetOpener(), primary_main_frame_policy);
  
@@ -15,7 +15,7 @@ index 04bd45199b0db..f55241b38fc7b 100644
    std::unique_ptr<WebContentsViewDelegate> delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -3092,6 +3098,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -3116,6 +3122,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
      view_ = CreateWebContentsView(this, std::move(delegate),
                                    &render_view_host_delegate_view_);
    }
@@ -23,7 +23,7 @@ index 04bd45199b0db..f55241b38fc7b 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -3267,6 +3274,9 @@ void WebContentsImpl::RenderWidgetCreated(
+@@ -3291,6 +3298,9 @@ void WebContentsImpl::RenderWidgetCreated(
    OPTIONAL_TRACE_EVENT1("content", "WebContentsImpl::RenderWidgetCreated",
                          "render_widget_host", render_widget_host);
    created_widgets_.insert(render_widget_host);
@@ -33,7 +33,7 @@ index 04bd45199b0db..f55241b38fc7b 100644
  }
  
  void WebContentsImpl::RenderWidgetDeleted(
-@@ -3995,6 +4005,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+@@ -4029,6 +4039,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
          params.pip_options->lock_aspect_ratio;
    }
  
@@ -49,7 +49,7 @@ index 04bd45199b0db..f55241b38fc7b 100644
    std::unique_ptr<WebContentsImpl> new_contents;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -7879,6 +7898,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -7931,6 +7950,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // frames).
      SetFocusedFrameTree(node->frame_tree());
    }
@@ -60,7 +60,7 @@ index 04bd45199b0db..f55241b38fc7b 100644
  
  void WebContentsImpl::DidCallFocus() {
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index aea5078136b95..3371a5ee23330 100644
+index cc61bc1b43500..c5a387653d93a 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -95,10 +95,12 @@ class BrowserContext;
@@ -88,7 +88,7 @@ index aea5078136b95..3371a5ee23330 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 7119f2fe8397a..12d493533075a 100644
+index e2ce097fb78d8..d67675467c133 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -58,9 +58,11 @@ class EyeDropperListener;
@@ -119,7 +119,7 @@ index 7119f2fe8397a..12d493533075a 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index b6e021165de91..336cbe3a96ddf 100644
+index 0fe98cc87b443..a6999f996cf40 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
 @@ -219,6 +219,9 @@ class CONTENT_EXPORT WebContentsObserver {

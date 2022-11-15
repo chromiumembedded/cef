@@ -75,8 +75,6 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
   scoped_refptr<network::SharedURLLoaderFactory>
   GetSystemSharedURLLoaderFactory() override;
   network::mojom::NetworkContext* GetSystemNetworkContext() override;
-  scoped_refptr<content::QuotaPermissionContext> CreateQuotaPermissionContext()
-      override;
   content::MediaObserver* GetMediaObserver() override;
   content::SpeechRecognitionManagerDelegate*
   CreateSpeechRecognitionManagerDelegate() override;
@@ -221,9 +219,6 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
   std::unique_ptr<content::VideoOverlayWindow>
   CreateWindowForVideoPictureInPicture(
       content::VideoPictureInPictureWindowController* controller) override;
-  std::unique_ptr<content::DocumentOverlayWindow>
-  CreateWindowForDocumentPictureInPicture(
-      content::DocumentPictureInPictureWindowController* controller) override;
   void RegisterBrowserInterfaceBindersForFrame(
       content::RenderFrameHost* render_frame_host,
       mojo::BinderMapWithContext<content::RenderFrameHost*>* map) override;

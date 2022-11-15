@@ -1,5 +1,5 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index 5bcfac8fffa01..859b04b90551b 100644
+index 0b9bf62547e6e..e908456356ce4 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
 @@ -20,6 +20,7 @@
@@ -255,7 +255,7 @@ index 6260f90352141..99f1e0d7227ab 100644
    return CreateSelectFileDialog(listener, std::move(policy));
  }
 diff --git ui/shell_dialogs/select_file_dialog.h ui/shell_dialogs/select_file_dialog.h
-index cff3cfc241cd1..13626cc306f61 100644
+index ab71dd6c559ef..71899846eab4e 100644
 --- ui/shell_dialogs/select_file_dialog.h
 +++ ui/shell_dialogs/select_file_dialog.h
 @@ -113,7 +113,8 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
@@ -290,7 +290,7 @@ index cff3cfc241cd1..13626cc306f61 100644
  
 @@ -235,6 +249,11 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
    // The listener to be notified of selection completion.
-   raw_ptr<Listener> listener_;
+   raw_ptr<Listener, DanglingUntriaged> listener_;
  
 +  std::unique_ptr<SelectFilePolicy> select_file_policy_;
 +

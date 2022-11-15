@@ -20,13 +20,17 @@ index 18c138c21a853..554e22458da45 100644
  
            // TODO(wjmaclean): We should update the ProcessLock comparison API
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 14dfb45da60c0..7e3ebfa6fb431 100644
+index cd1650e1e1ad0..6768097b3a271 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -6669,6 +6669,14 @@ std::pair<url::Origin, std::string> NavigationRequest::
-     origin_and_debug_info.second += ", error";
-   }
- 
+@@ -6671,10 +6671,22 @@ NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(
+   bool use_opaque_origin =
+       (sandbox_flags & network::mojom::WebSandboxFlags::kOrigin) ==
+       network::mojom::WebSandboxFlags::kOrigin;
++  if (use_opaque_origin) {
++    origin_and_debug_info.second += ", sandbox_flags";
++  }
++
 +  if (!origin_and_debug_info.first.GetURL().IsStandard()) {
 +    // Always return an opaque origin for non-standard URLs. Otherwise, the
 +    // CanAccessDataForOrigin() check may fail for unregistered custom scheme
@@ -38,8 +42,13 @@ index 14dfb45da60c0..7e3ebfa6fb431 100644
    if (use_opaque_origin) {
      origin_and_debug_info =
          std::make_pair(origin_and_debug_info.first.DeriveNewOpaqueOrigin(),
-@@ -6696,6 +6704,15 @@ std::pair<url::Origin, std::string> NavigationRequest::
-       GetOriginForURLLoaderFactoryWithoutFinalFrameHostWithDebugInfo(
+-                       origin_and_debug_info.second + ", sandbox_flags");
++                       origin_and_debug_info.second);
+   }
+ 
+   return origin_and_debug_info;
+@@ -6704,6 +6716,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponseWithDebugInfo() {
+       GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(
            SandboxFlagsToCommit());
  
 +  if (origin_with_debug_info.first.opaque() &&

@@ -44,7 +44,7 @@ index 40d27e69a17ce..a7e18b475dd18 100644
        base::FeatureList::IsEnabled(
            features::kPeriodicSyncPermissionForDefaultSearchEngine) &&
 diff --git chrome/browser/permissions/chrome_permissions_client.cc chrome/browser/permissions/chrome_permissions_client.cc
-index 77faa54c6e8dc..d986538d36c2e 100644
+index d28d9f115dc18..6bc4b61617bf5 100644
 --- chrome/browser/permissions/chrome_permissions_client.cc
 +++ chrome/browser/permissions/chrome_permissions_client.cc
 @@ -13,6 +13,7 @@
@@ -55,7 +55,7 @@ index 77faa54c6e8dc..d986538d36c2e 100644
  #include "chrome/browser/bluetooth/bluetooth_chooser_context_factory.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -211,6 +212,9 @@ ChromePermissionsClient::GetPermissionDecisionAutoBlocker(
+@@ -219,6 +220,9 @@ ChromePermissionsClient::GetPermissionDecisionAutoBlocker(
  double ChromePermissionsClient::GetSiteEngagementScore(
      content::BrowserContext* browser_context,
      const GURL& origin) {
@@ -65,7 +65,7 @@ index 77faa54c6e8dc..d986538d36c2e 100644
    return site_engagement::SiteEngagementService::Get(
               Profile::FromBrowserContext(browser_context))
        ->GetScore(origin);
-@@ -295,8 +299,10 @@ ChromePermissionsClient::CreatePermissionUiSelectors(
+@@ -303,8 +307,10 @@ ChromePermissionsClient::CreatePermissionUiSelectors(
        std::make_unique<ContextualNotificationPermissionUiSelector>());
    selectors.emplace_back(std::make_unique<PrefNotificationPermissionUiSelector>(
        Profile::FromBrowserContext(browser_context)));

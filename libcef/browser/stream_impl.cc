@@ -15,7 +15,7 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForFile(
   DCHECK(!fileName.empty());
 
   // TODO(cef): Do not allow file IO on all threads (issue #1187).
-  base::ThreadRestrictions::ScopedAllowIO allow_io;
+  base::ScopedAllowBlockingForTesting allow_blocking;
 
   CefRefPtr<CefStreamReader> reader;
   FILE* file = base::OpenFile(base::FilePath(fileName), "rb");
@@ -48,7 +48,7 @@ CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForFile(
   DCHECK(!fileName.empty());
 
   // TODO(cef): Do not allow file IO on all threads (issue #1187).
-  base::ThreadRestrictions::ScopedAllowIO allow_io;
+  base::ScopedAllowBlockingForTesting allow_blocking;
 
   CefRefPtr<CefStreamWriter> writer;
   FILE* file = base::OpenFile(base::FilePath(fileName), "wb");

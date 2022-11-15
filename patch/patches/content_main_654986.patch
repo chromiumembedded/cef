@@ -105,7 +105,7 @@ index 58f891fd7af7a..3178a0aeab935 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 6965f862853af..d674963c89a64 100644
+index 6f50af74219a6..629d92c739ce7 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -43,6 +43,7 @@
@@ -116,7 +116,7 @@ index 6965f862853af..d674963c89a64 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1269,6 +1270,12 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1255,6 +1256,12 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -130,10 +130,10 @@ index 6965f862853af..d674963c89a64 100644
  std::unique_ptr<ContentMainRunner> ContentMainRunner::Create() {
    return ContentMainRunnerImpl::Create();
 diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
-index c96e733faf281..77f5b458c3160 100644
+index 7dc520f2fffc7..3900cce3ad42f 100644
 --- content/app/content_main_runner_impl.h
 +++ content/app/content_main_runner_impl.h
-@@ -29,7 +29,7 @@ class DiscardableSharedMemoryManager;
+@@ -27,7 +27,7 @@ class DiscardableSharedMemoryManager;
  namespace content {
  class MojoIpcSupport;
  
@@ -142,7 +142,7 @@ index c96e733faf281..77f5b458c3160 100644
   public:
    static std::unique_ptr<ContentMainRunnerImpl> Create();
  
-@@ -48,6 +48,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
+@@ -46,6 +46,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
    int Run() override;
    void Shutdown() override;
  
@@ -165,7 +165,7 @@ index 04a08015aaff6..694f5c43a29e1 100644
    if (main_argv)
      setproctitle_init(main_argv);
 diff --git content/public/app/content_main.h content/public/app/content_main.h
-index b29fe2403753d..0ff8262ca68a5 100644
+index 91646692bac96..316d3161a9e31 100644
 --- content/public/app/content_main.h
 +++ content/public/app/content_main.h
 @@ -93,6 +93,13 @@ struct CONTENT_EXPORT ContentMainParams {

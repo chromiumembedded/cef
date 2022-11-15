@@ -101,7 +101,7 @@ CefString CefFormatUrlForSecurityDisplay(const CefString& origin_url) {
 CefString CefGetMimeType(const CefString& extension) {
   // Requests should not block on the disk!  On POSIX this goes to disk.
   // http://code.google.com/p/chromium/issues/detail?id=59849
-  base::ThreadRestrictions::ScopedAllowIO allow_io;
+  base::ScopedAllowBlockingForTesting allow_blocking;
 
   std::string mime_type;
   net::GetMimeTypeFromExtension(extension, &mime_type);

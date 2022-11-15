@@ -46,10 +46,10 @@ index 37d7f35d314cc..7ddd2f44118bf 100644
  #include "chrome/browser/printing/print_view_manager.h"
  #include "chrome/browser/task_manager/web_contents_tags.h"
 diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index d252084bffded..dc49864291c94 100644
+index 780491e14449d..a676ab5c00493 100644
 --- chrome/browser/printing/print_view_manager_base.cc
 +++ chrome/browser/printing/print_view_manager_base.cc
-@@ -599,13 +599,14 @@ void PrintViewManagerBase::UpdatePrintSettings(
+@@ -606,13 +606,14 @@ void PrintViewManagerBase::UpdatePrintSettings(
        job_settings.Set(kSettingRasterizePdfDpi, value);
    }
  

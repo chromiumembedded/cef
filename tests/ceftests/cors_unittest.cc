@@ -806,6 +806,13 @@ void SetupIframeRequest(CookieTestSetup* setup,
                                origin +
                                "\" from accessing a cross-origin frame.");
     }
+
+    if (has_same_origin && main_handler == iframe_handler &&
+        IsStandardType(main_handler)) {
+      setup->AddConsoleMessage(
+          "An iframe which has both allow-scripts and allow-same-origin for "
+          "its sandbox attribute can remove its sandboxing.");
+    }
   } else {
     // Expect JavaScript execution to fail.
     setup->AddConsoleMessage("Blocked script execution in '" + iframe_url +

@@ -65,7 +65,7 @@ CefRefPtr<CefValue> CefValueImpl::GetOrCreateRefOrCopy(
         list_value, parent_value, read_only, controller));
   }
 
-  return new CefValueImpl(value->CreateDeepCopy().release());
+  return new CefValueImpl(new base::Value(value->Clone()));
 }
 
 CefValueImpl::CefValueImpl() {}
@@ -109,7 +109,7 @@ base::Value* CefValueImpl::CopyOrDetachValue(
         ->CopyOrDetachValue(new_controller);
   }
 
-  return value_->CreateDeepCopy().release();
+  return new base::Value(value_->Clone());
 }
 
 void CefValueImpl::SwapValue(base::Value* new_value,
@@ -226,7 +226,7 @@ CefRefPtr<CefValue> CefValueImpl::Copy() {
   if (list_value_)
     return new CefValueImpl(list_value_->Copy());
   if (value_)
-    return new CefValueImpl(value_->CreateDeepCopy().release());
+    return new CefValueImpl(new base::Value(value_->Clone()));
 
   return new CefValueImpl();
 }
@@ -483,7 +483,7 @@ CefBinaryValueImpl::CefBinaryValueImpl(char* data, size_t data_size)
 
 base::Value* CefBinaryValueImpl::CopyValue() {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
-  return const_value().CreateDeepCopy().release();
+  return new base::Value(const_value().Clone());
 }
 
 base::Value* CefBinaryValueImpl::CopyOrDetachValue(
@@ -551,9 +551,8 @@ bool CefBinaryValueImpl::IsEqual(CefRefPtr<CefBinaryValue> that) {
 
 CefRefPtr<CefBinaryValue> CefBinaryValueImpl::Copy() {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
-  return new CefBinaryValueImpl(const_value().CreateDeepCopy().release(),
-                                nullptr, CefBinaryValueImpl::kOwnerWillDelete,
-                                nullptr);
+  return new CefBinaryValueImpl(new base::Value(const_value().Clone()), nullptr,
+                                CefBinaryValueImpl::kOwnerWillDelete, nullptr);
 }
 
 size_t CefBinaryValueImpl::GetSize() {
@@ -626,7 +625,8 @@ CefDictionaryValueImpl::CefDictionaryValueImpl(base::DictionaryValue* value,
 
 base::DictionaryValue* CefDictionaryValueImpl::CopyValue() {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
-  return const_value().CreateDeepCopy().release();
+  return static_cast<base::DictionaryValue*>(
+      new base::Value(const_value().Clone()));
 }
 
 base::DictionaryValue* CefDictionaryValueImpl::CopyOrDetachValue(
@@ -700,7 +700,8 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValueImpl::Copy(
     bool exclude_empty_children) {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
 
-  base::DictionaryValue* value = const_value().CreateDeepCopy().release();
+  base::DictionaryValue* value = static_cast<base::DictionaryValue*>(
+      new base::Value(const_value().Clone()));
   if (exclude_empty_children) {
     RemoveEmptyValueDicts(value->GetDict());
   }
@@ -1057,8 +1058,7 @@ CefListValueImpl::CefListValueImpl(base::ListValue* value,
 
 base::ListValue* CefListValueImpl::CopyValue() {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
-  return static_cast<base::ListValue*>(
-      const_value().CreateDeepCopy().release());
+  return static_cast<base::ListValue*>(new base::Value(const_value().Clone()));
 }
 
 base::ListValue* CefListValueImpl::CopyOrDetachValue(
@@ -1132,7 +1132,7 @@ CefRefPtr<CefListValue> CefListValueImpl::Copy() {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
 
   return new CefListValueImpl(
-      static_cast<base::ListValue*>(const_value().CreateDeepCopy().release()),
+      static_cast<base::ListValue*>(new base::Value(const_value().Clone())),
       nullptr, CefListValueImpl::kOwnerWillDelete, false, nullptr);
 }
 

@@ -334,7 +334,7 @@ class CefBrowserURLRequest::Context
             if (!extension.empty()) {
               // Requests should not block on the disk! On POSIX this goes to
               // disk. http://code.google.com/p/chromium/issues/detail?id=59849
-              base::ThreadRestrictions::ScopedAllowIO allow_io;
+              base::ScopedAllowBlockingForTesting allow_blocking;
               // Also remove the leading period.
               net::GetMimeTypeFromExtension(extension.substr(1), &content_type);
             }

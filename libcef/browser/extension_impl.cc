@@ -16,7 +16,8 @@ CefExtensionImpl::CefExtensionImpl(const extensions::Extension* extension,
     : id_(extension->id()),
       path_(extension->path().value()),
       manifest_(new CefDictionaryValueImpl(
-          extension->manifest()->value()->CreateDeepCopy().release(),
+          static_cast<base::DictionaryValue*>(
+              new base::Value(extension->manifest()->value()->Clone())),
           true,
           true)),
       loader_context_(loader_context),

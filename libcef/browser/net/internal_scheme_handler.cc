@@ -32,7 +32,7 @@ base::FilePath FilePathFromASCII(const std::string& str) {
 std::string GetMimeType(const std::string& filename) {
   // Requests should not block on the disk!  On POSIX this goes to disk.
   // http://code.google.com/p/chromium/issues/detail?id=59849
-  base::ThreadRestrictions::ScopedAllowIO allow_io;
+  base::ScopedAllowBlockingForTesting allow_blocking;
 
   std::string mime_type;
   const base::FilePath& file_path = FilePathFromASCII(filename);
@@ -176,7 +176,8 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
                        << action.resource_id << " URL: " << url.spec().c_str();
           return nullptr;
         }
-        action.bytes = base::RefCountedString::TakeString(&str);
+        action.bytes =
+            base::MakeRefCounted<base::RefCountedString>(std::move(str));
       }
 
       if (action.bytes) {

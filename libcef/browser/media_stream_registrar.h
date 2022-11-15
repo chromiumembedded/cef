@@ -25,7 +25,7 @@ class CefMediaStreamRegistrar {
 
   std::unique_ptr<content::MediaStreamUI> MaybeCreateMediaStreamUI(
       bool has_video,
-      bool has_audio) const;
+      bool has_audio);
 
  private:
   friend class CefMediaStreamUI;

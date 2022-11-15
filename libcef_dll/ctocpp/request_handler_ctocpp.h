@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=196e93e7eb44712449c6cb3796fdf8805102eca5$
+// $hash=f503646b9e9ae178fc7bd2bd23da4d2cb0282261$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_HANDLER_CTOCPP_H_
@@ -61,10 +61,6 @@ class CefRequestHandlerCToCpp
                           const CefString& realm,
                           const CefString& scheme,
                           CefRefPtr<CefAuthCallback> callback) override;
-  bool OnQuotaRequest(CefRefPtr<CefBrowser> browser,
-                      const CefString& origin_url,
-                      int64 new_size,
-                      CefRefPtr<CefCallback> callback) override;
   bool OnCertificateError(CefRefPtr<CefBrowser> browser,
                           cef_errorcode_t cert_error,
                           const CefString& request_url,

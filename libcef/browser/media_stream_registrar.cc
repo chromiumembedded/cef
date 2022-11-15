@@ -56,7 +56,7 @@ CefMediaStreamRegistrar::CefMediaStreamRegistrar(CefBrowserHostBase* browser)
 
 std::unique_ptr<content::MediaStreamUI>
 CefMediaStreamRegistrar::MaybeCreateMediaStreamUI(bool has_video,
-                                                  bool has_audio) const {
+                                                  bool has_audio) {
   // Only create the object if the callback will be executed.
   if (auto client = browser_->GetClient()) {
     if (auto handler = client->GetDisplayHandler()) {

@@ -16,7 +16,6 @@
 
 #include "base/base_paths_win.h"
 #include "base/files/file_util.h"
-#include "base/memory/ref_counted_memory.h"
 #include "base/path_service.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/win/registry.h"
@@ -43,7 +42,7 @@
 
 namespace {
 
-void WriteTempFileAndView(scoped_refptr<base::RefCountedString> str) {
+void WriteTempFileAndView(const std::string& data) {
   CEF_REQUIRE_BLOCKING();
 
   base::FilePath tmp_file;
@@ -54,7 +53,6 @@ void WriteTempFileAndView(scoped_refptr<base::RefCountedString> str) {
   // program to open.
   tmp_file = tmp_file.AddExtension(L"txt");
 
-  const std::string& data = str->data();
   int write_ct = base::WriteFile(tmp_file, data.c_str(), data.size());
   DCHECK_EQ(static_cast<int>(data.size()), write_ct);
 
@@ -432,10 +430,7 @@ void CefBrowserPlatformDelegateNativeWin::SizeTo(int width, int height) {
 }
 
 void CefBrowserPlatformDelegateNativeWin::ViewText(const std::string& text) {
-  std::string str = text;
-  scoped_refptr<base::RefCountedString> str_ref =
-      base::RefCountedString::TakeString(&str);
-  CEF_POST_USER_VISIBLE_TASK(base::BindOnce(WriteTempFileAndView, str_ref));
+  CEF_POST_USER_VISIBLE_TASK(base::BindOnce(WriteTempFileAndView, text));
 }
 
 bool CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(

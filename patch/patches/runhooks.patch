@@ -26,7 +26,7 @@ index 112690a7f7ad3..6c65b68b171ab 100644
      if (cpu != 'x64'):
        # x64 is default target CPU thus any other CPU requires a target set
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 76ef5490c88f9..dd36de8edbf3c 100755
+index d426fcd842c16..cc85b09f19579 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -107,9 +107,16 @@ def SetEnvironmentAndGetRuntimeDllDirs():

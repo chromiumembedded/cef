@@ -100,7 +100,6 @@
 #include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/overlay_window.h"
 #include "content/public/browser/page_navigator.h"
-#include "content/public/browser/quota_permission_context.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
@@ -109,7 +108,6 @@
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_ui_url_loader_factory.h"
 #include "content/public/common/content_switches.h"
-#include "content/public/common/storage_quota_params.h"
 #include "content/public/common/url_constants.h"
 #include "content/public/common/user_agent.h"
 #include "crypto/crypto_buildflags.h"
@@ -137,7 +135,6 @@
 #include "services/network/public/cpp/network_switches.h"
 #include "services/proxy_resolver/public/mojom/proxy_resolver.mojom.h"
 #include "services/service_manager/public/mojom/connector.mojom.h"
-#include "storage/browser/quota/quota_settings.h"
 #include "third_party/blink/public/common/associated_interfaces/associated_interface_registry.h"
 #include "third_party/blink/public/common/web_preferences/web_preferences.h"
 #include "third_party/blink/public/mojom/badging/badging.mojom.h"
@@ -172,59 +169,6 @@
 #endif
 
 namespace {
-
-class CefQuotaCallbackImpl : public CefCallback {
- public:
-  using CallbackType = content::QuotaPermissionContext::PermissionCallback;
-
-  explicit CefQuotaCallbackImpl(CallbackType callback)
-      : callback_(std::move(callback)) {}
-
-  CefQuotaCallbackImpl(const CefQuotaCallbackImpl&) = delete;
-  CefQuotaCallbackImpl& operator=(const CefQuotaCallbackImpl&) = delete;
-
-  ~CefQuotaCallbackImpl() {
-    if (!callback_.is_null()) {
-      // The callback is still pending. Cancel it now.
-      if (CEF_CURRENTLY_ON_IOT()) {
-        RunNow(std::move(callback_), false);
-      } else {
-        CEF_POST_TASK(CEF_IOT, base::BindOnce(&CefQuotaCallbackImpl::RunNow,
-                                              std::move(callback_), false));
-      }
-    }
-  }
-
-  void Continue() override { ContinueNow(true); }
-
-  void Cancel() override { ContinueNow(false); }
-
-  [[nodiscard]] CallbackType Disconnect() { return std::move(callback_); }
-
- private:
-  void ContinueNow(bool allow) {
-    if (CEF_CURRENTLY_ON_IOT()) {
-      if (!callback_.is_null()) {
-        RunNow(std::move(callback_), allow);
-      }
-    } else {
-      CEF_POST_TASK(CEF_IOT, base::BindOnce(&CefQuotaCallbackImpl::ContinueNow,
-                                            this, allow));
-    }
-  }
-
-  static void RunNow(CallbackType callback, bool allow) {
-    CEF_REQUIRE_IOT();
-    std::move(callback).Run(
-        allow ? content::QuotaPermissionContext::QUOTA_PERMISSION_RESPONSE_ALLOW
-              : content::QuotaPermissionContext::
-                    QUOTA_PERMISSION_RESPONSE_DISALLOW);
-  }
-
-  CallbackType callback_;
-
-  IMPLEMENT_REFCOUNTING(CefQuotaCallbackImpl);
-};
 
 class CefSelectClientCertificateCallbackImpl
     : public CefSelectClientCertificateCallback {
@@ -298,57 +242,6 @@ class CefSelectClientCertificateCallbackImpl
   std::unique_ptr<content::ClientCertificateDelegate> delegate_;
 
   IMPLEMENT_REFCOUNTING(CefSelectClientCertificateCallbackImpl);
-};
-
-class CefQuotaPermissionContext : public content::QuotaPermissionContext {
- public:
-  CefQuotaPermissionContext() = default;
-
-  CefQuotaPermissionContext(const CefQuotaPermissionContext&) = delete;
-  CefQuotaPermissionContext& operator=(const CefQuotaPermissionContext&) =
-      delete;
-
-  // The callback will be dispatched on the IO thread.
-  void RequestQuotaPermission(const content::StorageQuotaParams& params,
-                              int render_process_id,
-                              PermissionCallback callback) override {
-    if (params.storage_type != blink::mojom::StorageType::kPersistent) {
-      // To match Chrome behavior we only support requesting quota with this
-      // interface for Persistent storage type.
-      std::move(callback).Run(QUOTA_PERMISSION_RESPONSE_DISALLOW);
-      return;
-    }
-
-    bool handled = false;
-
-    CefRefPtr<AlloyBrowserHostImpl> browser =
-        AlloyBrowserHostImpl::GetBrowserForGlobalId(frame_util::MakeGlobalId(
-            render_process_id, params.render_frame_id));
-    if (browser) {
-      if (auto client = browser->GetClient()) {
-        if (auto handler = client->GetRequestHandler()) {
-          CefRefPtr<CefQuotaCallbackImpl> callbackImpl(
-              new CefQuotaCallbackImpl(std::move(callback)));
-          handled = handler->OnQuotaRequest(
-              browser.get(), params.origin_url.spec(), params.requested_size,
-              callbackImpl.get());
-          if (!handled) {
-            // May return nullptr if the client has already executed the
-            // callback.
-            callback = callbackImpl->Disconnect();
-          }
-        }
-      }
-    }
-
-    if (!handled && !callback.is_null()) {
-      // Disallow the request by default.
-      std::move(callback).Run(QUOTA_PERMISSION_RESPONSE_DISALLOW);
-    }
-  }
-
- private:
-  ~CefQuotaPermissionContext() override = default;
 };
 
 #if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
@@ -785,11 +678,6 @@ AlloyContentBrowserClient::GetSystemNetworkContext() {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
   DCHECK(SystemNetworkContextManager::GetInstance());
   return SystemNetworkContextManager::GetInstance()->GetContext();
-}
-
-scoped_refptr<content::QuotaPermissionContext>
-AlloyContentBrowserClient::CreateQuotaPermissionContext() {
-  return new CefQuotaPermissionContext();
 }
 
 content::MediaObserver* AlloyContentBrowserClient::GetMediaObserver() {
@@ -1309,6 +1197,7 @@ bool AlloyContentBrowserClient::HandleExternalProtocol(
       web_contents_getter, std::move(receiver), std::move(request_handler));
   return true;
 }
+
 std::unique_ptr<content::VideoOverlayWindow>
 AlloyContentBrowserClient::CreateWindowForVideoPictureInPicture(
     content::VideoPictureInPictureWindowController* controller) {
@@ -1321,17 +1210,6 @@ AlloyContentBrowserClient::CreateWindowForVideoPictureInPicture(
   return content::VideoOverlayWindow::Create(controller);
 }
 
-std::unique_ptr<content::DocumentOverlayWindow>
-AlloyContentBrowserClient::CreateWindowForDocumentPictureInPicture(
-    content::DocumentPictureInPictureWindowController* controller) {
-  // Note: content::DocumentOverlayWindow::Create() is defined by
-  // platform-specific implementation in chrome/browser/ui/views. This layering
-  // hack, which goes through //content and ContentBrowserClient, allows us to
-  // work around the dependency constraints that disallow directly calling
-  // chrome/browser/ui/views code either from here or from other code in
-  // chrome/browser.
-  return content::DocumentOverlayWindow::Create(controller);
-}
 void AlloyContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
     content::RenderFrameHost* render_frame_host,
     mojo::BinderMapWithContext<content::RenderFrameHost*>* map) {

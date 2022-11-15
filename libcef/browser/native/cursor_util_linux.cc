@@ -8,7 +8,7 @@
 
 #if BUILDFLAG(OZONE_PLATFORM_X11)
 #include "ui/base/x/x11_cursor.h"
-#elif defined(USE_OZONE)
+#elif BUILDFLAG(IS_OZONE)
 #include "ui/ozone/common/bitmap_cursor.h"
 #endif
 
@@ -19,7 +19,7 @@ cef_cursor_handle_t ToCursorHandle(scoped_refptr<ui::PlatformCursor> cursor) {
   // See https://crbug.com/1029142 for background.
   return static_cast<cef_cursor_handle_t>(
       ui::X11Cursor::FromPlatformCursor(cursor)->xcursor());
-#elif defined(USE_OZONE)
+#elif BUILDFLAG(IS_OZONE)
   return static_cast<cef_cursor_handle_t>(
       ui::BitmapCursor::FromPlatformCursor(cursor)->platform_data());
 #else

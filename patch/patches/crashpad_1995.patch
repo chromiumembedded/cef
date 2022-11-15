@@ -81,7 +81,7 @@ index 27a803784eb9e..a8b033f475cb4 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 6771b4e2d9217..6e57adc08b986 100644
+index f748d2dd47946..98371cf551a75 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -6,6 +6,8 @@
@@ -93,7 +93,7 @@ index 6771b4e2d9217..6e57adc08b986 100644
  #include "base/base_switches.h"
  #include "base/command_line.h"
  #include "base/format_macros.h"
-@@ -94,8 +96,10 @@ void HandleEnableDisableFeatures(const base::CommandLine& command_line) {
+@@ -93,8 +95,10 @@ void HandleEnableDisableFeatures(const base::CommandLine& command_line) {
  }
  #endif
  
@@ -105,7 +105,7 @@ index 6771b4e2d9217..6e57adc08b986 100644
    static const char* const kIgnoreSwitches[] = {
      switches::kEnableLogging,
      switches::kFlagSwitchesBegin,
-@@ -155,13 +159,11 @@ bool IsBoringSwitch(const std::string& flag) {
+@@ -154,13 +158,11 @@ bool IsBoringSwitch(const std::string& flag) {
    return false;
  }
  
@@ -264,10 +264,10 @@ index 9f8f20dfa6506..5d42f6fc1b003 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crashpad.cc components/crash/core/app/crashpad.cc
-index d6a90f5185a43..7c8e2176d8432 100644
+index 55ae5145e81a4..81daed959d336 100644
 --- components/crash/core/app/crashpad.cc
 +++ components/crash/core/app/crashpad.cc
-@@ -131,7 +131,8 @@ bool InitializeCrashpadImpl(bool initial_client,
+@@ -130,7 +130,8 @@ bool InitializeCrashpadImpl(bool initial_client,
    // fallback. Forwarding is turned off for debug-mode builds even for the
    // browser process, because the system's crash reporter can take a very long
    // time to chew on symbols.

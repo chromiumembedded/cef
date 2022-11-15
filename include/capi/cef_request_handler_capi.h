@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=0524a218f8cb54cfde70f2ec475520b11923c2f7$
+// $hash=c213b335ccaf7ad2b95d0c66659807b2836548b0$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_HANDLER_CAPI_H_
@@ -175,21 +175,6 @@ typedef struct _cef_request_handler_t {
       const cef_string_t* realm,
       const cef_string_t* scheme,
       struct _cef_auth_callback_t* callback);
-
-  ///
-  /// Called on the IO thread when JavaScript requests a specific storage quota
-  /// size via the webkitStorageInfo.requestQuota function. |origin_url| is the
-  /// origin of the page making the request. |new_size| is the requested quota
-  /// size in bytes. Return true (1) to continue the request and call
-  /// cef_callback_t functions either in this function or at a later time to
-  /// grant or deny the request. Return false (0) to cancel the request
-  /// immediately.
-  ///
-  int(CEF_CALLBACK* on_quota_request)(struct _cef_request_handler_t* self,
-                                      struct _cef_browser_t* browser,
-                                      const cef_string_t* origin_url,
-                                      int64 new_size,
-                                      struct _cef_callback_t* callback);
 
   ///
   /// Called on the UI thread to handle requests for URLs with an invalid SSL

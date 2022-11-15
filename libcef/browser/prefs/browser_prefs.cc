@@ -304,6 +304,10 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     registry->RegisterBooleanPref(prefs::kSearchSuggestEnabled, false);
     registry->RegisterStringPref(prefs::kSessionExitType, std::string());
 
+    // Based on ChromeContentBrowserClient::RegisterProfilePrefs.
+    registry->RegisterBooleanPref(
+        prefs::kAccessControlAllowMethodsInCORSPreflightSpecConformant, true);
+
     // Spell checking preferences.
     // Modify defaults from SpellcheckServiceFactory::RegisterProfilePrefs.
     std::string spellcheck_lang =

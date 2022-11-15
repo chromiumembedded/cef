@@ -1,8 +1,8 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index a56c5fc803675..e5018871ad80a 100644
+index 304a8d1891a98..13be431518cc4 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
-@@ -38,6 +38,7 @@ import("//build/nocompile.gni")
+@@ -39,6 +39,7 @@ import("//build/nocompile.gni")
  import("//build/rust/mixed_component.gni")
  import("//build/timestamp.gni")
  import("//build_overrides/build.gni")
@@ -10,7 +10,7 @@ index a56c5fc803675..e5018871ad80a 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1973,7 +1974,11 @@ mixed_component("base") {
+@@ -1993,7 +1994,11 @@ mixed_component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index a56c5fc803675..e5018871ad80a 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -2114,6 +2119,12 @@ mixed_component("base") {
+@@ -2134,6 +2139,12 @@ mixed_component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -87,6 +87,36 @@ index 29626e5853c6e..2fb1c61504c5d 100644
  #include "base/hash/sha1_nacl.h"
  #else
  #include "base/hash/sha1_boringssl.h"
+diff --git base/memory/raw_ptr.h base/memory/raw_ptr.h
+index d3e96a9bcf0a2..e7f9003405743 100644
+--- base/memory/raw_ptr.h
++++ base/memory/raw_ptr.h
+@@ -22,6 +22,7 @@
+ #include "base/base_export.h"
+ #include "build/build_config.h"
+ #include "build/buildflag.h"
++#include "cef/libcef/features/features.h"
+ 
+ // A strange dance is done here to provide `CHECK` for `raw_ptr<T>`
+ // in the presence of NaCl. The constraints are:
+@@ -39,7 +40,7 @@
+ // macro isn't used _everywhere_ (e.g. not in the implementation of
+ // BRP) because we assert that NaCl always uses RawPtrNoOpImpl (see
+ // `static_assert` below).
+-#if BUILDFLAG(IS_NACL)
++#if BUILDFLAG(IS_NACL) || BUILDFLAG(IS_CEF_SANDBOX_BUILD)
+ #include "base/check.h"
+ #define PA_RAW_PTR_CHECK(condition) CHECK(condition)
+ #else
+@@ -993,7 +994,7 @@ class PA_TRIVIAL_ABI PA_GSL_POINTER raw_ptr {
+       raw_ptr<T, internal::RawPtrCountingImplWrapperForTest<RawPtrMayDangle>>,
+       raw_ptr<T, RawPtrMayDangle>>;
+ 
+-#if BUILDFLAG(IS_NACL)
++#if BUILDFLAG(IS_NACL) || BUILDFLAG(IS_CEF_SANDBOX_BUILD)
+   // See comment at top about `PA_RAW_PTR_CHECK()`.
+   static_assert(std::is_same_v<Impl, internal::RawPtrNoOpImpl>);
+ #endif  // BUILDFLAG(IS_NACL)
 diff --git base/rand_util.h base/rand_util.h
 index 04024537ee698..59864cb084559 100644
 --- base/rand_util.h

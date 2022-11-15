@@ -269,10 +269,6 @@ class ClientHandler : public CefClient,
                           const CefString& realm,
                           const CefString& scheme,
                           CefRefPtr<CefAuthCallback> callback) override;
-  bool OnQuotaRequest(CefRefPtr<CefBrowser> browser,
-                      const CefString& origin_url,
-                      int64 new_size,
-                      CefRefPtr<CefCallback> callback) override;
   bool OnCertificateError(CefRefPtr<CefBrowser> browser,
                           ErrorCode cert_error,
                           const CefString& request_url,

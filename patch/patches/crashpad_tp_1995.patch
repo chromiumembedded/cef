@@ -40,10 +40,10 @@ index b362e0aadbadd..1588232a6e4d4 100644
    virtual ~PruneCondition() {}
  
 diff --git third_party/crashpad/crashpad/client/settings.cc third_party/crashpad/crashpad/client/settings.cc
-index 68fae16afc4ec..e3004425e13cb 100644
+index 5e4119e2175c7..e66600089be04 100644
 --- third_party/crashpad/crashpad/client/settings.cc
 +++ third_party/crashpad/crashpad/client/settings.cc
-@@ -116,7 +116,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
+@@ -117,7 +117,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
  
  struct Settings::Data {
    static constexpr uint32_t kSettingsMagic = 'CPds';
@@ -52,7 +52,7 @@ index 68fae16afc4ec..e3004425e13cb 100644
  
    enum Options : uint32_t {
      kUploadsEnabled = 1 << 0,
-@@ -127,6 +127,9 @@ struct Settings::Data {
+@@ -128,6 +128,9 @@ struct Settings::Data {
             options(0),
             padding_0(0),
             last_upload_attempt_time(0),
@@ -62,7 +62,7 @@ index 68fae16afc4ec..e3004425e13cb 100644
             client_id() {}
  
    uint32_t magic;
-@@ -134,6 +137,9 @@ struct Settings::Data {
+@@ -135,6 +138,9 @@ struct Settings::Data {
    uint32_t options;
    uint32_t padding_0;
    int64_t last_upload_attempt_time;  // time_t
@@ -72,9 +72,9 @@ index 68fae16afc4ec..e3004425e13cb 100644
    UUID client_id;
  };
  
-@@ -217,6 +223,56 @@ bool Settings::SetLastUploadAttemptTime(time_t time) {
-   return WriteSettings(handle.get(), settings);
+@@ -234,6 +240,56 @@ bool Settings::IsLockExpired(const base::FilePath& file_path,
  }
+ #endif  // !CRASHPAD_FLOCK_ALWAYS_SUPPORTED
  
 +bool Settings::GetNextUploadAttemptTime(time_t* time) {
 +  DCHECK(initialized_.is_valid());
@@ -128,14 +128,14 @@ index 68fae16afc4ec..e3004425e13cb 100644
 +
  // static
  Settings::ScopedLockedFileHandle Settings::MakeScopedLockedFileHandle(
-     FileHandle file,
+     const internal::MakeScopedLockedFileHandleOptions& options,
 diff --git third_party/crashpad/crashpad/client/settings.h third_party/crashpad/crashpad/client/settings.h
-index 2b27474a683e9..7b5a89cea7f74 100644
+index 39b2de869d225..5a4e621c650ee 100644
 --- third_party/crashpad/crashpad/client/settings.h
 +++ third_party/crashpad/crashpad/client/settings.h
-@@ -128,6 +128,11 @@ class Settings {
-   //!     error logged.
-   bool SetLastUploadAttemptTime(time_t time);
+@@ -156,6 +156,11 @@ class Settings {
+                             time_t lockfile_ttl);
+ #endif  // !CRASHPAD_FLOCK_ALWAYS_SUPPORTED
  
 +  bool GetNextUploadAttemptTime(time_t* time);
 +  bool SetNextUploadAttemptTime(time_t time);

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8a0ae45a7340b21491e67f4b4bd5494fb6c14d8c$
+// $hash=5c6e905f3b4dbf7a2c8a098708e8e6524f847bb6$
 //
 
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
@@ -189,41 +189,6 @@ bool CefRequestHandlerCToCpp::GetAuthCredentials(
       _struct, CefBrowserCppToC::Wrap(browser), origin_url.GetStruct(), isProxy,
       host.GetStruct(), port, realm.GetStruct(), scheme.GetStruct(),
       CefAuthCallbackCppToC::Wrap(callback));
-
-  // Return type: bool
-  return _retval ? true : false;
-}
-
-NO_SANITIZE("cfi-icall")
-bool CefRequestHandlerCToCpp::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
-                                             const CefString& origin_url,
-                                             int64 new_size,
-                                             CefRefPtr<CefCallback> callback) {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_request_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_quota_request))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser.get());
-  if (!browser.get())
-    return false;
-  // Verify param: origin_url; type: string_byref_const
-  DCHECK(!origin_url.empty());
-  if (origin_url.empty())
-    return false;
-  // Verify param: callback; type: refptr_diff
-  DCHECK(callback.get());
-  if (!callback.get())
-    return false;
-
-  // Execute
-  int _retval = _struct->on_quota_request(
-      _struct, CefBrowserCppToC::Wrap(browser), origin_url.GetStruct(),
-      new_size, CefCallbackCppToC::Wrap(callback));
 
   // Return type: bool
   return _retval ? true : false;

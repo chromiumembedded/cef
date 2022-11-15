@@ -953,22 +953,6 @@ bool ClientHandler::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
   return false;
 }
 
-bool ClientHandler::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
-                                   const CefString& origin_url,
-                                   int64 new_size,
-                                   CefRefPtr<CefCallback> callback) {
-  CEF_REQUIRE_IO_THREAD();
-
-  static const int64 max_size = 1024 * 1024 * 20;  // 20mb.
-
-  // Grant the quota request if the size is reasonable.
-  if (new_size <= max_size)
-    callback->Continue();
-  else
-    callback->Cancel();
-  return true;
-}
-
 bool ClientHandler::OnCertificateError(CefRefPtr<CefBrowser> browser,
                                        ErrorCode cert_error,
                                        const CefString& request_url,

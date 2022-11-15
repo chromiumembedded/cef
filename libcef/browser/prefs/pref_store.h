@@ -51,7 +51,6 @@ class CefPrefStore : public PersistentPrefStore {
       base::OnceClosure done_callback,
       base::OnceClosure synchronous_done_callback) override;
   void SchedulePendingLossyWrites() override;
-  void ClearMutableValues() override;
   void OnStoreDeletionFromDisk() override;
 
   // Marks the store as having completed initialization.

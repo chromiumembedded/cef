@@ -1,10 +1,10 @@
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index bb82952036825..c828b70c4b889 100644
+index 892b1c4f29c82..e63eb20fe5f67 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -772,6 +772,11 @@ class BLINK_PLATFORM_EXPORT Platform {
-       const WebURL& url,
-       blink::WebVector<blink::WebContentSecurityPolicyHeader>* csp) {}
+@@ -784,6 +784,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+     return blink::mojom::AttributionOsSupport::kDisabled;
+   }
  
 +  // DevTools ------------------------------------------------------------
 +

@@ -111,7 +111,7 @@ class CefPermissionPrompt : public permissions::PermissionPrompt {
   }
 
   // Used to tie Delegate access to this object's lifespan.
-  DelegateCallback MakeDelegateCallback() const {
+  DelegateCallback MakeDelegateCallback() {
     return base::BindOnce(&CefPermissionPrompt::NotifyDelegate,
                           weak_ptr_factory_.GetWeakPtr());
   }

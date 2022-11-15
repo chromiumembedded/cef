@@ -50,7 +50,7 @@ CefRefPtr<CefValue> GetPreference(PrefService* pref_service,
   const PrefService::Preference* pref = pref_service->FindPreference(name);
   if (!pref)
     return nullptr;
-  return new CefValueImpl(pref->GetValue()->CreateDeepCopy().release());
+  return new CefValueImpl(new base::Value(pref->GetValue()->Clone()));
 }
 
 CefRefPtr<CefDictionaryValue> GetAllPreferences(PrefService* pref_service,
