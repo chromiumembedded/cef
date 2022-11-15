@@ -253,13 +253,16 @@ struct TestSetup {
     return GetResource(request->GetURL(), request->GetMethod());
   }
 
+  // Optional initialization after the test server is started.
+  virtual void Initialize() {}
+
   // Validate expected initial state.
   void Validate() const { DCHECK(!resources.empty()); }
 
   std::string GetMainURL() const { return resources.front()->GetPathURL(); }
 
   // Returns true if the server will be used.
-  bool NeedsServer() const {
+  virtual bool NeedsServer() const {
     ResourceList::const_iterator it = resources.begin();
     for (; it != resources.end(); ++it) {
       Resource* resource = *it;
@@ -346,9 +349,7 @@ class TestServerObserver : public test_server::ObserverHelper {
 
 class CorsTestHandler : public RoutingTestHandler {
  public:
-  explicit CorsTestHandler(TestSetup* setup) : setup_(setup) {
-    setup_->Validate();
-  }
+  explicit CorsTestHandler(TestSetup* setup) : setup_(setup) {}
 
   void RunTest() override {
     StartServer(base::BindOnce(&CorsTestHandler::TriggerCreateBrowser, this));
@@ -489,6 +490,9 @@ class CorsTestHandler : public RoutingTestHandler {
 
  protected:
   void TriggerCreateBrowser() {
+    setup_->Initialize();
+    setup_->Validate();
+
     main_url_ = setup_->GetMainURL();
     CreateBrowser(main_url_);
   }
@@ -817,21 +821,48 @@ void SetupIframeRequest(CookieTestSetup* setup,
   setup->AddResource(iframe_resource);
 }
 
+struct IframeTestSetup : CookieTestSetup {
+  IframeTestSetup(const std::string& test_name,
+                  HandlerType main_handler,
+                  HandlerType iframe_handler,
+                  const std::string& sandbox_attribs)
+      : test_name_(test_name),
+        main_handler_(main_handler),
+        iframe_handler_(iframe_handler),
+        sandbox_attribs_(sandbox_attribs) {}
+
+  bool NeedsServer() const override {
+    return main_handler_ == HandlerType::SERVER ||
+           iframe_handler_ == HandlerType::SERVER;
+  }
+
+  void Initialize() override {
+    SetupIframeRequest(this, test_name_, main_handler_, &resource_main_,
+                       iframe_handler_, &resource_iframe_, sandbox_attribs_);
+  }
+
+ private:
+  const std::string test_name_;
+  const HandlerType main_handler_;
+  const HandlerType iframe_handler_;
+  const std::string sandbox_attribs_;
+
+  CookieResource resource_main_;
+  CookieResource resource_iframe_;
+};
+
 }  // namespace
 
 // Test iframe sandbox attributes with different origin combinations.
-#define CORS_TEST_IFRAME(test_name, handler_main, handler_iframe,     \
-                         sandbox_attribs)                             \
-  TEST(CorsTest, Iframe##test_name) {                                 \
-    CookieTestSetup setup;                                            \
-    CookieResource resource_main, resource_iframe;                    \
-    SetupIframeRequest(&setup, "CorsTest.Iframe" #test_name,          \
-                       HandlerType::handler_main, &resource_main,     \
-                       HandlerType::handler_iframe, &resource_iframe, \
-                       sandbox_attribs);                              \
-    CefRefPtr<CorsTestHandler> handler = new CorsTestHandler(&setup); \
-    handler->ExecuteTest();                                           \
-    ReleaseAndWaitForDestructor(handler);                             \
+#define CORS_TEST_IFRAME(test_name, handler_main, handler_iframe,        \
+                         sandbox_attribs)                                \
+  TEST(CorsTest, Iframe##test_name) {                                    \
+    IframeTestSetup setup("CorsTest.Iframe" #test_name,                  \
+                          HandlerType::handler_main,                     \
+                          HandlerType::handler_iframe, sandbox_attribs); \
+    CefRefPtr<CorsTestHandler> handler = new CorsTestHandler(&setup);    \
+    handler->ExecuteTest();                                              \
+    ReleaseAndWaitForDestructor(handler);                                \
   }
 
 // Test all origin combinations (same and cross-origin).
