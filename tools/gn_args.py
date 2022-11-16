@@ -240,12 +240,6 @@ def GetRecommendedDefaultArgs():
     # etc). See https://bitbucket.org/chromiumembedded/cef/issues/2679.
     result['forbid_non_component_debug_builds'] = False
 
-  if platform == 'mac':
-    # Use the system allocator on Mac. Default is 'partition' (PartitionAlloc)
-    # with the allocator shim enabled. See issue #3061.
-    result['use_allocator'] = 'none'
-    result['use_allocator_shim'] = False
-
   if platform == 'linux':
     # Use a sysroot environment. Default is true. False is recommended for local
     # builds.
@@ -258,6 +252,15 @@ def GetRecommendedDefaultArgs():
     # dependencies at this time. For background see
     # https://groups.google.com/a/chromium.org/g/chromium-packagers/c/-2VGexQAK6w/m/5K5ppK9WBAAJ
     result['use_qt'] = False
+
+  if platform == 'mac':
+    # Disable the allocator shim. Default is True. See issue #3061.
+    result['use_allocator_shim'] = False
+
+  if platform == 'mac' or platform == 'linux':
+    # Use the system allocator instead of PartitionAlloc. Default is 'partition'
+    # with the allocator shim enabled. See issues #3061 and #3095.
+    result['use_allocator'] = 'none'
 
   return result
 
