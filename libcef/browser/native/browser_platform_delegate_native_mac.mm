@@ -210,7 +210,7 @@ void GetNSBoundsInDisplay(const gfx::Rect& dip_bounds,
   if (input_content_bounds) {
     // Compute frame rect from content rect. Keep the requested origin.
     content_rect = requested_rect;
-    frame_rect = [NSWindow frameRectForContentRect:frame_rect
+    frame_rect = [NSWindow frameRectForContentRect:content_rect
                                          styleMask:style_mask];
     frame_rect.origin = requested_rect.origin;
   } else {
