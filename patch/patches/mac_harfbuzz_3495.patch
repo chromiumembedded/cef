@@ -1,0 +1,26 @@
+diff --git src/OT/Layout/GSUB/Ligature.hh src/OT/Layout/GSUB/Ligature.hh
+index f373d921b..cdb35f525 100644
+--- src/OT/Layout/GSUB/Ligature.hh
++++ src/OT/Layout/GSUB/Ligature.hh
+@@ -118,7 +118,7 @@ struct Ligature
+ 	match_positions[i] += delta;
+ 	if (i)
+ 	  *p++ = ',';
+-	sprintf (p, "%u", match_positions[i]);
++	snprintf (p, sizeof(buf) - (p - buf), "%u", match_positions[i]);
+ 	p += strlen(p);
+       }
+ 
+diff --git src/OT/Layout/GSUB/Sequence.hh src/OT/Layout/GSUB/Sequence.hh
+index 3d84a5e6e..e2190078b 100644
+--- src/OT/Layout/GSUB/Sequence.hh
++++ src/OT/Layout/GSUB/Sequence.hh
+@@ -117,7 +117,7 @@ struct Sequence
+       {
+ 	if (buf < p)
+ 	  *p++ = ',';
+-	sprintf (p, "%u", i);
++	snprintf (p, sizeof(buf) - (p - buf), "%u", i);
+ 	p += strlen(p);
+       }
+ 
