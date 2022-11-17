@@ -170,7 +170,7 @@ index 4c5bf12286fbc..8067b12a373d4 100644
        compositor_data.display_client->GetBoundRemote(resize_task_runner_);
    mojo::AssociatedRemote<viz::mojom::ExternalBeginFrameController>
 diff --git mojo/public/cpp/bindings/sync_call_restrictions.h mojo/public/cpp/bindings/sync_call_restrictions.h
-index 46e283304761c..624f4030acc6a 100644
+index d63ec55ae38d6..ff86831efd68b 100644
 --- mojo/public/cpp/bindings/sync_call_restrictions.h
 +++ mojo/public/cpp/bindings/sync_call_restrictions.h
 @@ -42,6 +42,7 @@ class Compositor;
@@ -181,7 +181,7 @@ index 46e283304761c..624f4030acc6a 100644
  class GpuHostImpl;
  class HostFrameSinkManager;
  class HostGpuMemoryBufferManager;
-@@ -104,6 +105,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
+@@ -118,6 +119,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
    // For preventing frame swaps of wrong size during resize on Windows.
    // (https://crbug.com/811945)
    friend class ui::Compositor;
