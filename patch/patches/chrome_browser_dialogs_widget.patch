@@ -112,7 +112,7 @@ index 51ed6bcf6b540..9ae4737e0737e 100644
    virtual gfx::Point GetDialogPosition(const gfx::Size& size) = 0;
    // Returns whether a dialog currently about to be shown should be activated.
 diff --git ui/views/window/dialog_delegate.cc ui/views/window/dialog_delegate.cc
-index bc0a51138f2fd..1a8086c46e237 100644
+index 54cd17c85983d..c8c276169eaec 100644
 --- ui/views/window/dialog_delegate.cc
 +++ ui/views/window/dialog_delegate.cc
 @@ -60,10 +60,12 @@ DialogDelegate::DialogDelegate() {
@@ -187,7 +187,7 @@ index bc0a51138f2fd..1a8086c46e237 100644
    // Web-modal (ui::MODAL_TYPE_CHILD) dialogs with parents are marked as child
    // widgets to prevent top-level window behavior (independent movement, etc).
 diff --git ui/views/window/dialog_delegate.h ui/views/window/dialog_delegate.h
-index 84430f84e9bdc..c229bb1155c02 100644
+index 09f95e99a53f1..e799ecc96b246 100644
 --- ui/views/window/dialog_delegate.h
 +++ ui/views/window/dialog_delegate.h
 @@ -94,13 +94,18 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {
