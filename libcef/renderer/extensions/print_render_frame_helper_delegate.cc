@@ -48,6 +48,10 @@ bool CefPrintRenderFrameHelperDelegate::IsPrintPreviewEnabled() {
   return !is_windowless_ && PrintPreviewEnabled();
 }
 
+bool CefPrintRenderFrameHelperDelegate::ShouldGenerateTaggedPDF() {
+  return true;
+}
+
 bool CefPrintRenderFrameHelperDelegate::OverridePrint(
     blink::WebLocalFrame* frame) {
   auto* post_message_support =

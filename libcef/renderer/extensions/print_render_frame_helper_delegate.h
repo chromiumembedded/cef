@@ -17,6 +17,7 @@ class CefPrintRenderFrameHelperDelegate
 
   blink::WebElement GetPdfElement(blink::WebLocalFrame* frame) override;
   bool IsPrintPreviewEnabled() override;
+  bool ShouldGenerateTaggedPDF() override;
   bool OverridePrint(blink::WebLocalFrame* frame) override;
 
  private:
