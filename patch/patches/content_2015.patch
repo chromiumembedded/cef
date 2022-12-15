@@ -132,7 +132,7 @@ index 09846e00f1a75..18b396a631f45 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index 49688b3adc657..6a1f4b26ef757 100644
+index 15b082726ad01..d5df0013be221 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
 @@ -604,6 +604,8 @@ void RenderThreadImpl::Init() {
