@@ -1,8 +1,8 @@
 diff --git base/task/common/task_annotator.cc base/task/common/task_annotator.cc
-index 289d1d1f1bd88..b9ed6e32fdc44 100644
+index 27838482024e1..41d0ea21d9431 100644
 --- base/task/common/task_annotator.cc
 +++ base/task/common/task_annotator.cc
-@@ -292,6 +292,12 @@ TaskAnnotator::LongTaskTracker::~LongTaskTracker() {
+@@ -313,6 +313,12 @@ TaskAnnotator::LongTaskTracker::~LongTaskTracker() {
                      perfetto::Track::ThreadScoped(task_annotator_),
                      task_end_time);
    }
