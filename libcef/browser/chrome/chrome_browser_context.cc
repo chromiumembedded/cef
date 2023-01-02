@@ -14,6 +14,21 @@
 #include "chrome/browser/profiles/off_the_record_profile_impl.h"
 #include "chrome/common/pref_names.h"
 
+namespace {
+
+// Match the default logic from ProfileManager::GetPrimaryUserProfile which was
+// restricted in https://crbug.com/1264436.
+Profile* GetPrimaryUserProfile() {
+  ProfileManager* profile_manager = g_browser_process->profile_manager();
+
+  // From ProfileManager::GetActiveUserOrOffTheRecordProfile.
+  base::FilePath default_profile_dir = profile_manager->user_data_dir().Append(
+      profile_manager->GetInitialProfileDir());
+  return profile_manager->GetProfile(default_profile_dir);
+}
+
+}  // namespace
+
 ChromeBrowserContext::ChromeBrowserContext(
     const CefRequestContextSettings& settings)
     : CefBrowserContext(settings), weak_ptr_factory_(this) {}
@@ -57,7 +72,7 @@ void ChromeBrowserContext::InitializeAsync(base::OnceClosure initialized_cb) {
 
     if (cache_path_ == user_data_dir) {
       // Use the default disk-based profile.
-      auto profile = profile_manager->GetPrimaryUserProfile();
+      auto profile = GetPrimaryUserProfile();
       ProfileCreated(Profile::CreateStatus::CREATE_STATUS_INITIALIZED, profile);
       return;
     } else if (cache_path_.DirName() == user_data_dir) {
@@ -93,9 +108,7 @@ void ChromeBrowserContext::Shutdown() {
   // |g_browser_process| may be nullptr during shutdown.
   if (g_browser_process) {
     if (should_destroy_) {
-      g_browser_process->profile_manager()
-          ->GetPrimaryUserProfile()
-          ->DestroyOffTheRecordProfile(profile_);
+      GetPrimaryUserProfile()->DestroyOffTheRecordProfile(profile_);
     } else if (profile_) {
       OnProfileWillBeDestroyed(profile_);
     }
@@ -118,8 +131,7 @@ void ChromeBrowserContext::ProfileCreated(Profile::CreateStatus status,
     // Creation of a disk-based profile failed for some reason. Create a
     // new/unique OffTheRecord profile instead.
     const auto& profile_id = Profile::OTRProfileID::CreateUniqueForCEF();
-    parent_profile =
-        g_browser_process->profile_manager()->GetPrimaryUserProfile();
+    parent_profile = GetPrimaryUserProfile();
     profile_ = parent_profile->GetOffTheRecordProfile(
         profile_id, /*create_if_needed=*/true);
     otr_profile = static_cast<OffTheRecordProfileImpl*>(profile_);

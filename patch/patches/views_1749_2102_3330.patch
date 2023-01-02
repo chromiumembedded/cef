@@ -119,10 +119,10 @@ index c9be93481712c..cfda497e15f02 100644
    friend class test::InkDropHostTestApi;
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index c9c780e772b69..706e95fb47b47 100644
+index 5f48fe806d0ca..6253c7e880106 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -512,6 +512,12 @@ void LabelButton::OnThemeChanged() {
+@@ -538,6 +538,12 @@ void LabelButton::OnThemeChanged() {
    SchedulePaint();
  }
  
@@ -136,10 +136,10 @@ index c9c780e772b69..706e95fb47b47 100644
    Button::StateChanged(old_state);
    ResetLabelEnabledColor();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 4004c670ba7f6..5d7062efed7c2 100644
+index 7ee1bc5714d45..ebf3c21ba0d74 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
-@@ -133,6 +133,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
+@@ -141,6 +141,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
    ui::NativeTheme::State GetForegroundThemeState(
        ui::NativeTheme::ExtraParams* params) const override;
  
@@ -150,7 +150,7 @@ index 4004c670ba7f6..5d7062efed7c2 100644
    ImageView* image() const { return image_; }
    Label* label() const { return label_; }
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 7869347fa1408..a5464bde376b7 100644
+index 35ccc8f7ff743..07197b91effc0 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -52,12 +52,29 @@ enum LabelPropertyKey {
@@ -183,7 +183,7 @@ index 7869347fa1408..a5464bde376b7 100644
  }  // namespace
  
  namespace views {
-@@ -445,6 +462,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
+@@ -448,6 +465,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
    OnPropertyChanged(&elide_behavior_, kPropertyEffectsPreferredSizeChanged);
  }
  
@@ -199,7 +199,7 @@ index 7869347fa1408..a5464bde376b7 100644
  std::u16string Label::GetTooltipText() const {
    return tooltip_text_;
  }
-@@ -749,6 +775,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -752,6 +778,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
        render_text->SelectRange(stored_selection_range_);
    }
  
@@ -240,10 +240,10 @@ index c4206954d2858..ad7576db464b7 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index bbc0dc1683918..a6836096b55a7 100644
+index b26a30ea89425..9d50678339f7b 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -476,7 +476,8 @@ void MenuController::Run(Widget* parent,
+@@ -486,7 +486,8 @@ void MenuController::Run(Widget* parent,
                           MenuAnchorPosition position,
                           bool context_menu,
                           bool is_nested_drag,
@@ -253,7 +253,7 @@ index bbc0dc1683918..a6836096b55a7 100644
    exit_type_ = ExitType::kNone;
    possible_drag_ = false;
    drag_in_progress_ = false;
-@@ -523,6 +524,7 @@ void MenuController::Run(Widget* parent,
+@@ -533,6 +534,7 @@ void MenuController::Run(Widget* parent,
        owner_->AddObserver(this);
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -261,7 +261,7 @@ index bbc0dc1683918..a6836096b55a7 100644
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2204,6 +2206,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2214,6 +2216,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -269,7 +269,7 @@ index bbc0dc1683918..a6836096b55a7 100644
  
      if (item->GetParentMenuItem()) {
        params.context = state_.item->GetWidget();
-@@ -2888,8 +2891,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -2914,8 +2917,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -284,7 +284,7 @@ index bbc0dc1683918..a6836096b55a7 100644
    MenuItemView* to_select = nullptr;
    if (!item->GetSubmenu()->GetMenuItems().empty())
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2908,8 +2916,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2934,8 +2942,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -297,7 +297,7 @@ index bbc0dc1683918..a6836096b55a7 100644
      SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
    else if (item->GetParentMenuItem()->GetParentMenuItem())
 diff --git ui/views/controls/menu/menu_controller.h ui/views/controls/menu/menu_controller.h
-index aa811f23ceea2..99c54eed15ecc 100644
+index ddc2dc5a381bb..c27f38c5e785e 100644
 --- ui/views/controls/menu/menu_controller.h
 +++ ui/views/controls/menu/menu_controller.h
 @@ -113,7 +113,9 @@ class VIEWS_EXPORT MenuController
@@ -360,7 +360,7 @@ index b8fa1c116ebcd..015f15ed72385 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_host.cc ui/views/controls/menu/menu_host.cc
-index 3f72d4091f3cc..7f7253adf63d2 100644
+index 821826daa9e9a..626b8b540fd00 100644
 --- ui/views/controls/menu/menu_host.cc
 +++ ui/views/controls/menu/menu_host.cc
 @@ -143,6 +143,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
@@ -383,7 +383,7 @@ index 3f72d4091f3cc..7f7253adf63d2 100644
  
  #if BUILDFLAG(IS_WIN)
 diff --git ui/views/controls/menu/menu_host.h ui/views/controls/menu/menu_host.h
-index 0720b74d2f333..6b39bcc6c829d 100644
+index 67cdb883886f8..4ca7d632ad7f9 100644
 --- ui/views/controls/menu/menu_host.h
 +++ ui/views/controls/menu/menu_host.h
 @@ -55,6 +55,8 @@ class MenuHost : public Widget, public WidgetObserver {
@@ -396,7 +396,7 @@ index 0720b74d2f333..6b39bcc6c829d 100644
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index c2433154425be..af00acb2bd5b5 100644
+index e6a16f4d1ee6b..9950ddcdcb936 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
 @@ -1095,6 +1095,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
@@ -692,7 +692,7 @@ index 4185ef2d6dba1..78d1f87aeccce 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aura_ozone.cc ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
-index f8227c7f41bc9..23743f00d0498 100644
+index 1a183f37f945b..13cf77bbf4190 100644
 --- ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 +++ ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 @@ -17,6 +17,7 @@
@@ -703,7 +703,7 @@ index f8227c7f41bc9..23743f00d0498 100644
  #include "ui/aura/client/screen_position_client.h"
  #include "ui/aura/env.h"
  #include "ui/aura/test/aura_test_utils.h"
-@@ -100,9 +101,11 @@ class UIControlsDesktopOzone : public UIControlsAura {
+@@ -102,9 +103,11 @@ class UIControlsDesktopOzone : public UIControlsAura {
          aura::test::QueryLatestMousePositionRequestInHost(host);
      host->ConvertPixelsToDIP(&root_current_location);
  
@@ -716,7 +716,7 @@ index f8227c7f41bc9..23743f00d0498 100644
  #if !BUILDFLAG(IS_CHROMEOS_LACROS)
      if (root_location != root_current_location &&
 diff --git ui/views/view.h ui/views/view.h
-index 28167c8e367a9..a630aefbf5dbb 100644
+index 97d4c120169ad..2e8185ccf4ba0 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -21,6 +21,7 @@

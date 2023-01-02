@@ -56,7 +56,7 @@ index c8a0156b69cc3..6a6fac072143d 100644
  #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
    SupervisedUserSettingsService* supervised_service =
 diff --git components/content_settings/renderer/content_settings_agent_impl.cc components/content_settings/renderer/content_settings_agent_impl.cc
-index 41947c7d3ff0c..dbfbca256e0d1 100644
+index 7847420167a30..c18f0f023c72c 100644
 --- components/content_settings/renderer/content_settings_agent_impl.cc
 +++ components/content_settings/renderer/content_settings_agent_impl.cc
 @@ -144,7 +144,7 @@ ContentSetting GetContentSettingFromRules(

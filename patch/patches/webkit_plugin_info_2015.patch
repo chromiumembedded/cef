@@ -1,9 +1,9 @@
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index 892b1c4f29c82..e63eb20fe5f67 100644
+index a2a4996e3cbe3..debfe4b698283 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -784,6 +784,11 @@ class BLINK_PLATFORM_EXPORT Platform {
-     return blink::mojom::AttributionOsSupport::kDisabled;
+@@ -798,6 +798,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+     return attribution_reporting::mojom::OsSupport::kDisabled;
    }
  
 +  // DevTools ------------------------------------------------------------
@@ -15,7 +15,7 @@ index 892b1c4f29c82..e63eb20fe5f67 100644
    static void InitializeMainThreadCommon(
        Platform* platform,
 diff --git third_party/blink/renderer/core/inspector/devtools_session.cc third_party/blink/renderer/core/inspector/devtools_session.cc
-index d9274f6ccb882..548ed543b880e 100644
+index 0718aa7fbe1b1..7e393fa3ebbb6 100644
 --- third_party/blink/renderer/core/inspector/devtools_session.cc
 +++ third_party/blink/renderer/core/inspector/devtools_session.cc
 @@ -8,6 +8,7 @@
@@ -26,7 +26,7 @@ index d9274f6ccb882..548ed543b880e 100644
  #include "third_party/blink/renderer/bindings/core/v8/script_controller.h"
  #include "third_party/blink/renderer/core/frame/local_frame.h"
  #include "third_party/blink/renderer/core/inspector/devtools_agent.h"
-@@ -149,6 +150,7 @@ DevToolsSession::DevToolsSession(
+@@ -151,6 +152,7 @@ DevToolsSession::DevToolsSession(
      for (wtf_size_t i = 0; i < agents_.size(); i++)
        agents_[i]->Restore();
    }
@@ -34,7 +34,7 @@ index d9274f6ccb882..548ed543b880e 100644
  }
  
  DevToolsSession::~DevToolsSession() {
-@@ -191,6 +193,7 @@ void DevToolsSession::Detach() {
+@@ -196,6 +198,7 @@ void DevToolsSession::Detach() {
    agents_.clear();
    v8_session_.reset();
    agent_->client_->DebuggerTaskFinished();

@@ -9,7 +9,7 @@
 
 #include "components/media_router/browser/media_router_factory.h"
 #include "components/media_router/browser/media_routes_observer.h"
-#include "components/media_router/browser/route_message_observer.h"
+#include "components/media_router/browser/presentation_connection_message_observer.h"
 #include "components/media_router/browser/route_message_util.h"
 
 namespace {
@@ -39,17 +39,22 @@ class CefMediaRoutesObserver : public media_router::MediaRoutesObserver {
 };
 
 // Used to receive messages if PresentationConnection is not supported.
-class CefRouteMessageObserver : public media_router::RouteMessageObserver {
+class CefPresentationConnectionMessageObserver
+    : public media_router::PresentationConnectionMessageObserver {
  public:
-  CefRouteMessageObserver(CefMediaRouterManager* manager,
-                          const media_router::MediaRoute& route)
-      : media_router::RouteMessageObserver(manager->GetMediaRouter(),
-                                           route.media_route_id()),
+  CefPresentationConnectionMessageObserver(
+      CefMediaRouterManager* manager,
+      const media_router::MediaRoute& route)
+      : media_router::PresentationConnectionMessageObserver(
+            manager->GetMediaRouter(),
+            route.media_route_id()),
         manager_(manager),
         route_(route) {}
 
-  CefRouteMessageObserver(const CefRouteMessageObserver&) = delete;
-  CefRouteMessageObserver& operator=(const CefRouteMessageObserver&) = delete;
+  CefPresentationConnectionMessageObserver(
+      const CefPresentationConnectionMessageObserver&) = delete;
+  CefPresentationConnectionMessageObserver& operator=(
+      const CefPresentationConnectionMessageObserver&) = delete;
 
   void OnMessagesReceived(
       CefMediaRouterManager::MediaMessageVector messages) override {
@@ -269,7 +274,7 @@ void CefMediaRouterManager::CreateRouteState(
   } else {
     // Fallback if PresentationConnection is not supported.
     state->message_observer_ =
-        std::make_unique<CefRouteMessageObserver>(this, route);
+        std::make_unique<CefPresentationConnectionMessageObserver>(this, route);
     state->state_subscription_ =
         GetMediaRouter()->AddPresentationConnectionStateChangedCallback(
             route_id,

@@ -162,8 +162,8 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
       std::move(callback).Run(
           suggested_path, DownloadItem::TARGET_DISPOSITION_OVERWRITE,
           download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
-          download::DownloadItem::MixedContentStatus::UNKNOWN, suggested_path,
-          base::FilePath(), std::string() /*mime_type*/,
+          download::DownloadItem::InsecureDownloadStatus::UNKNOWN,
+          suggested_path, base::FilePath(), std::string() /*mime_type*/,
           download::DOWNLOAD_INTERRUPT_REASON_NONE);
     }
   }
@@ -179,11 +179,12 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
     }
 
     // The download will be cancelled if |path| is empty.
-    std::move(callback).Run(path, DownloadItem::TARGET_DISPOSITION_OVERWRITE,
-                            download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
-                            download::DownloadItem::MixedContentStatus::UNKNOWN,
-                            path, base::FilePath(), std::string() /*mime_type*/,
-                            download::DOWNLOAD_INTERRUPT_REASON_NONE);
+    std::move(callback).Run(
+        path, DownloadItem::TARGET_DISPOSITION_OVERWRITE,
+        download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
+        download::DownloadItem::InsecureDownloadStatus::UNKNOWN, path,
+        base::FilePath(), std::string() /*mime_type*/,
+        download::DOWNLOAD_INTERRUPT_REASON_NONE);
   }
 
   base::WeakPtr<DownloadManager> manager_;
@@ -379,7 +380,7 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
     std::move(*callback).Run(
         item->GetForcedFilePath(), DownloadItem::TARGET_DISPOSITION_OVERWRITE,
         download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
-        download::DownloadItem::MixedContentStatus::UNKNOWN,
+        download::DownloadItem::InsecureDownloadStatus::UNKNOWN,
         item->GetForcedFilePath(), base::FilePath(),
         std::string() /*mime_type*/, download::DOWNLOAD_INTERRUPT_REASON_NONE);
     return true;

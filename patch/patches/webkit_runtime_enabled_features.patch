@@ -1,5 +1,5 @@
 diff --git third_party/blink/renderer/build/scripts/templates/runtime_enabled_features.h.tmpl third_party/blink/renderer/build/scripts/templates/runtime_enabled_features.h.tmpl
-index d414c5db40cc4..29efc4024b67d 100644
+index 32ca8183f6501..fb38785835fa0 100644
 --- third_party/blink/renderer/build/scripts/templates/runtime_enabled_features.h.tmpl
 +++ third_party/blink/renderer/build/scripts/templates/runtime_enabled_features.h.tmpl
 @@ -13,6 +13,8 @@
@@ -11,7 +11,7 @@ index d414c5db40cc4..29efc4024b67d 100644
  #define ASSERT_ORIGIN_TRIAL(feature) \
    static_assert(std::is_same<decltype(::blink::RuntimeEnabledFeatures::     \
                                            feature##EnabledByRuntimeFlag()), \
-@@ -107,6 +109,7 @@ class PLATFORM_EXPORT RuntimeEnabledFeatures : public RuntimeEnabledFeaturesBase
+@@ -117,6 +119,7 @@ class PLATFORM_EXPORT RuntimeEnabledFeatures : public RuntimeEnabledFeaturesBase
    // protected section of RuntimeEnabledFeaturesBase. Normally, unit tests
    // should use the ScopedFeatureNameForTest classes defined in
    // platform/testing/runtime_enabled_features_test_helpers.h.

@@ -109,6 +109,7 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
   HidPolicyAllowedDevices* hid_policy_allowed_devices() override;
   breadcrumbs::BreadcrumbPersistentStorageManager*
   GetBreadcrumbPersistentStorageManager() override;
+  HidSystemTrayIcon* hid_system_tray_icon() override;
 
  private:
   bool initialized_;

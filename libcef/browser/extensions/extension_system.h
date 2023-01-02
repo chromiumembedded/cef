@@ -57,7 +57,7 @@ class CefExtensionSystem : public ExtensionSystem {
                      bool internal,
                      CefRefPtr<CefRequestContext> loader_context,
                      CefRefPtr<CefExtensionHandler> handler);
-  void LoadExtension(std::unique_ptr<base::DictionaryValue> manifest,
+  void LoadExtension(base::Value::Dict manifest,
                      const base::FilePath& root_directory,
                      bool internal,
                      CefRefPtr<CefRequestContext> loader_context,
@@ -125,12 +125,12 @@ class CefExtensionSystem : public ExtensionSystem {
 
   // Information about a registered component extension.
   struct ComponentExtensionInfo {
-    ComponentExtensionInfo(const base::DictionaryValue* manifest,
+    ComponentExtensionInfo(base::Value::Dict manifest,
                            const base::FilePath& root_directory,
                            bool internal);
 
     // The parsed contents of the extensions's manifest file.
-    const base::DictionaryValue* manifest;
+    base::Value::Dict manifest;
 
     // Directory where the extension is stored.
     base::FilePath root_directory;

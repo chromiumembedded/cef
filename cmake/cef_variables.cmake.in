@@ -350,6 +350,10 @@ if(OS_MAC)
       CEF_USE_SANDBOX   # Used by apps to test if the sandbox is enabled
       )
 
+    list(APPEND CEF_STANDARD_LIBS
+      -lsandbox
+      )
+
     # CEF sandbox library paths.
     set(CEF_SANDBOX_LIB_DEBUG "${CEF_BINARY_DIR_DEBUG}/cef_sandbox.a")
     set(CEF_SANDBOX_LIB_RELEASE "${CEF_BINARY_DIR_RELEASE}/cef_sandbox.a")
@@ -532,6 +536,7 @@ if(OS_WINDOWS)
       psapi.lib
       SetupAPI.lib
       Shell32.lib
+      Userenv.lib
       version.lib
       wbemuuid.lib
       winmm.lib

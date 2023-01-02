@@ -1,8 +1,8 @@
 diff --git net/test/embedded_test_server/embedded_test_server.cc net/test/embedded_test_server/embedded_test_server.cc
-index cbb2e334028e2..b469705cd0f84 100644
+index bd996a6794353..5ebbe30c27f9f 100644
 --- net/test/embedded_test_server/embedded_test_server.cc
 +++ net/test/embedded_test_server/embedded_test_server.cc
-@@ -983,7 +983,7 @@ bool EmbeddedTestServer::PostTaskToIOThreadAndWait(base::OnceClosure closure) {
+@@ -982,7 +982,7 @@ bool EmbeddedTestServer::PostTaskToIOThreadAndWait(base::OnceClosure closure) {
    if (!base::CurrentThread::Get())
      temporary_loop = std::make_unique<base::SingleThreadTaskExecutor>();
  
@@ -11,12 +11,12 @@ index cbb2e334028e2..b469705cd0f84 100644
    if (!io_thread_->task_runner()->PostTaskAndReply(
            FROM_HERE, std::move(closure), run_loop.QuitClosure())) {
      return false;
-@@ -1010,7 +1010,7 @@ bool EmbeddedTestServer::PostTaskToIOThreadAndWaitWithResult(
+@@ -1009,7 +1009,7 @@ bool EmbeddedTestServer::PostTaskToIOThreadAndWaitWithResult(
    if (!base::CurrentThread::Get())
      temporary_loop = std::make_unique<base::SingleThreadTaskExecutor>();
  
 -  base::RunLoop run_loop;
 +  base::RunLoop run_loop(base::RunLoop::Type::kNestableTasksAllowed);
    bool task_result = false;
-   if (!base::PostTaskAndReplyWithResult(
-           io_thread_->task_runner().get(), FROM_HERE, std::move(task),
+   if (!io_thread_->task_runner()->PostTaskAndReplyWithResult(
+           FROM_HERE, std::move(task),

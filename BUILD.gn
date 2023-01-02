@@ -1030,7 +1030,6 @@ source_set("libcef_static") {
     "//crypto",
     "//device/base",
     "//extensions/browser",
-    "//extensions/browser:core_api_provider",
     "//extensions/buildflags",
     "//extensions/common/api",
     "//extensions/common:core_api_provider",
@@ -2193,6 +2192,10 @@ if (is_mac) {
       if (cef_use_gtk) {
         configs += [
           ":gtk",
+        ]
+        cflags = [
+          # Don't warn about deprecated GDK/GTK functions.
+          "-Wno-deprecated-declarations",
         ]
       }
 

@@ -1,8 +1,8 @@
 diff --git content/app/content_main.cc content/app/content_main.cc
-index 58f891fd7af7a..3178a0aeab935 100644
+index 1ea066908cd96..d14269518c593 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
-@@ -194,11 +194,8 @@ ContentMainParams::~ContentMainParams() = default;
+@@ -195,11 +195,8 @@ ContentMainParams::~ContentMainParams() = default;
  ContentMainParams::ContentMainParams(ContentMainParams&&) = default;
  ContentMainParams& ContentMainParams::operator=(ContentMainParams&&) = default;
  
@@ -13,10 +13,10 @@ index 58f891fd7af7a..3178a0aeab935 100644
 -                  ContentMainRunner* content_main_runner) {
 +int ContentMainInitialize(ContentMainParams params,
 +                          ContentMainRunner* content_main_runner) {
+   base::FeatureList::FailOnFeatureAccessWithoutFeatureList();
  #if BUILDFLAG(IS_CHROMEOS_LACROS)
    // Lacros is launched with inherited priority. Revert to normal priority
-   // before spawning more processes.
-@@ -206,9 +203,6 @@ RunContentProcess(ContentMainParams params,
+@@ -208,9 +205,6 @@ RunContentProcess(ContentMainParams params,
  #endif
    int exit_code = -1;
    base::debug::GlobalActivityTracker* tracker = nullptr;
@@ -26,7 +26,7 @@ index 58f891fd7af7a..3178a0aeab935 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -294,12 +288,6 @@ RunContentProcess(ContentMainParams params,
+@@ -296,12 +290,6 @@ RunContentProcess(ContentMainParams params,
  #endif
  
  #if BUILDFLAG(IS_MAC)
@@ -39,7 +39,7 @@ index 58f891fd7af7a..3178a0aeab935 100644
      InitializeMac();
  #endif
  
-@@ -339,8 +327,18 @@ RunContentProcess(ContentMainParams params,
+@@ -341,8 +329,18 @@ RunContentProcess(ContentMainParams params,
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -59,7 +59,7 @@ index 58f891fd7af7a..3178a0aeab935 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -352,14 +350,41 @@ RunContentProcess(ContentMainParams params,
+@@ -354,14 +352,41 @@ RunContentProcess(ContentMainParams params,
      }
    }
  
@@ -105,10 +105,10 @@ index 58f891fd7af7a..3178a0aeab935 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 6f50af74219a6..629d92c739ce7 100644
+index 6b51120e7d889..57c37e79e68e9 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -43,6 +43,7 @@
+@@ -44,6 +44,7 @@
  #include "base/task/thread_pool/thread_pool_instance.h"
  #include "base/threading/hang_watcher.h"
  #include "base/threading/platform_thread.h"
@@ -116,7 +116,7 @@ index 6f50af74219a6..629d92c739ce7 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1255,6 +1256,12 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1269,6 +1270,12 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  

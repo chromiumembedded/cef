@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_launcher_helper_linux.cc content/browser/child_process_launcher_helper_linux.cc
-index dd5ccfc0bdc2e..b7e89eabbd05f 100644
+index 8c5cc2b157f6e..ef02db021353a 100644
 --- content/browser/child_process_launcher_helper_linux.cc
 +++ content/browser/child_process_launcher_helper_linux.cc
-@@ -172,7 +172,7 @@ void ChildProcessLauncherHelper::SetProcessPriorityOnLauncherThread(
+@@ -172,7 +172,7 @@ void ChildProcessLauncherHelper::SetProcessBackgroundedOnLauncherThread(
  base::File OpenFileToShare(const base::FilePath& path,
                             base::MemoryMappedFile::Region* region) {
    base::FilePath exe_dir;
@@ -12,10 +12,10 @@ index dd5ccfc0bdc2e..b7e89eabbd05f 100644
    base::File file(exe_dir.Append(path),
                    base::File::FLAG_OPEN | base::File::FLAG_READ);
 diff --git sandbox/linux/suid/client/setuid_sandbox_host.cc sandbox/linux/suid/client/setuid_sandbox_host.cc
-index 51af32dc6bc72..0ee340e96cb5b 100644
+index 84fd365da0283..88f3adf813eca 100644
 --- sandbox/linux/suid/client/setuid_sandbox_host.cc
 +++ sandbox/linux/suid/client/setuid_sandbox_host.cc
-@@ -119,7 +119,7 @@ bool SetuidSandboxHost::IsDisabledViaEnvironment() {
+@@ -120,7 +120,7 @@ bool SetuidSandboxHost::IsDisabledViaEnvironment() {
  base::FilePath SetuidSandboxHost::GetSandboxBinaryPath() {
    base::FilePath sandbox_binary;
    base::FilePath exe_dir;

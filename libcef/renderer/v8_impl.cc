@@ -973,7 +973,8 @@ bool CefV8Context::InContext() {
 
 CefV8ContextImpl::CefV8ContextImpl(v8::Isolate* isolate,
                                    v8::Local<v8::Context> context)
-    : handle_(new Handle(isolate, context, context)), enter_count_(0) {}
+    : handle_(new Handle(isolate, context, context)),
+      microtask_queue_(blink_glue::GetMicrotaskQueue(context)) {}
 
 CefV8ContextImpl::~CefV8ContextImpl() {
   DLOG_ASSERT(0 == enter_count_);
@@ -1041,8 +1042,8 @@ bool CefV8ContextImpl::Enter() {
 
   if (!microtasks_scope_) {
     // Increment the MicrotasksScope recursion level.
-    microtasks_scope_.reset(
-        new v8::MicrotasksScope(isolate, v8::MicrotasksScope::kRunMicrotasks));
+    microtasks_scope_.reset(new v8::MicrotasksScope(
+        isolate, microtask_queue_, v8::MicrotasksScope::kRunMicrotasks));
   }
 
   ++enter_count_;

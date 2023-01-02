@@ -523,7 +523,7 @@ void CefBrowserPlatformDelegateOsr::StartDragging(
     CefRefPtr<CefDragDataImpl> drag_data(
         new CefDragDataImpl(drop_data, cef_image, cef_image_pos));
     drag_data->SetReadOnly(true);
-    base::CurrentThread::ScopedNestableTaskAllower allow;
+    base::CurrentThread::ScopedAllowApplicationTasksInNativeNestedLoop allow;
     handled = handler->StartDragging(
         browser_, drag_data.get(),
         static_cast<CefRenderHandler::DragOperationsMask>(allowed_ops),

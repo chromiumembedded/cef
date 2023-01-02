@@ -59,19 +59,18 @@ namespace extensions {
 namespace {
 
 // Implementation based on ComponentLoader::ParseManifest.
-std::unique_ptr<base::DictionaryValue> ParseManifest(
-    const std::string& manifest_contents) {
+absl::optional<base::Value::Dict> ParseManifest(
+    base::StringPiece manifest_contents) {
   JSONStringValueDeserializer deserializer(manifest_contents);
-  std::unique_ptr<base::Value> manifest(
-      deserializer.Deserialize(nullptr, nullptr));
+  std::unique_ptr<base::Value> manifest =
+      deserializer.Deserialize(nullptr, nullptr);
 
   if (!manifest.get() || !manifest->is_dict()) {
     LOG(ERROR) << "Failed to parse extension manifest.";
-    return nullptr;
+    return absl::nullopt;
   }
-  // Transfer ownership to the caller.
-  return base::WrapUnique(
-      static_cast<base::DictionaryValue*>(manifest.release()));
+
+  return std::move(*manifest).TakeDict();
 }
 
 void ExecuteLoadFailure(CefRefPtr<CefExtensionHandler> handler,
@@ -89,7 +88,7 @@ void ExecuteLoadFailure(CefRefPtr<CefExtensionHandler> handler,
 }
 
 void LoadExtensionOnUIThread(base::WeakPtr<CefExtensionSystem> context,
-                             std::unique_ptr<base::DictionaryValue> manifest,
+                             base::Value::Dict manifest,
                              const base::FilePath& root_directory,
                              bool internal,
                              CefRefPtr<CefRequestContext> loader_context,
@@ -115,15 +114,14 @@ void LoadExtensionWithManifest(base::WeakPtr<CefExtensionSystem> context,
                                CefRefPtr<CefExtensionHandler> handler) {
   CEF_REQUIRE_BLOCKING();
 
-  std::unique_ptr<base::DictionaryValue> manifest =
-      ParseManifest(manifest_contents);
+  auto manifest = ParseManifest(manifest_contents);
   if (!manifest) {
     LOG(WARNING) << "Failed to parse extension manifest";
     ExecuteLoadFailure(handler, ERR_INVALID_ARGUMENT);
     return;
   }
 
-  LoadExtensionOnUIThread(context, std::move(manifest), root_directory,
+  LoadExtensionOnUIThread(context, std::move(*manifest), root_directory,
                           internal, loader_context, handler);
 }
 
@@ -263,9 +261,11 @@ void CefExtensionSystem::Init() {
   //    CefMimeHandlerViewGuestDelegate::OnGuestDetached which removes the
   //    routing ID association with the owner CefBrowser.
   if (PdfExtensionEnabled()) {
-    LoadExtension(ParseManifest(pdf_extension_util::GetManifest()),
-                  base::FilePath(FILE_PATH_LITERAL("pdf")), true /* internal */,
-                  nullptr, nullptr);
+    if (auto manifest = ParseManifest(pdf_extension_util::GetManifest())) {
+      LoadExtension(std::move(*manifest),
+                    base::FilePath(FILE_PATH_LITERAL("pdf")),
+                    true /* internal */, nullptr, nullptr);
+    }
   }
 
   initialized_ = true;
@@ -296,7 +296,7 @@ void CefExtensionSystem::LoadExtension(
 
 // Implementation based on ComponentLoader::Add.
 void CefExtensionSystem::LoadExtension(
-    std::unique_ptr<base::DictionaryValue> manifest,
+    base::Value::Dict manifest,
     const base::FilePath& root_directory,
     bool internal,
     CefRefPtr<CefRequestContext> loader_context,
@@ -312,7 +312,7 @@ void CefExtensionSystem::LoadExtension(
   }
 #endif
 
-  ComponentExtensionInfo info(manifest.get(), root_directory, internal);
+  ComponentExtensionInfo info(std::move(manifest), root_directory, internal);
   const Extension* extension = LoadExtension(info, loader_context, handler);
   if (!extension) {
     ExecuteLoadFailure(handler, ERR_FAILED);
@@ -518,10 +518,12 @@ bool CefExtensionSystem::FinishDelayedInstallationIfReady(
 }
 
 CefExtensionSystem::ComponentExtensionInfo::ComponentExtensionInfo(
-    const base::DictionaryValue* manifest,
+    base::Value::Dict manifest,
     const base::FilePath& directory,
     bool internal)
-    : manifest(manifest), root_directory(directory), internal(internal) {
+    : manifest(std::move(manifest)),
+      root_directory(directory),
+      internal(internal) {
   if (!root_directory.IsAbsolute()) {
     // This path structure is required by
     // url_request_util::MaybeCreateURLRequestResourceBundleJob.
@@ -564,7 +566,7 @@ scoped_refptr<const Extension> CefExtensionSystem::CreateExtension(
       // e.g.: alarms API has 1 minute minimum applied to Packed Extensions
       info.internal ? mojom::ManifestLocation::kComponent
                     : mojom::ManifestLocation::kCommandLine,
-      *info.manifest, flags, utf8_error);
+      info.manifest, flags, utf8_error);
 }
 
 // Implementation based on ComponentLoader::Load and

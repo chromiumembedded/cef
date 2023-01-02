@@ -80,10 +80,10 @@ index 8af69cac78b74..9f74e511c263d 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index af5a1b2c61c45..71d0fa3c36600 100644
+index fb793e98d5939..bf51d9aa376ea 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -218,6 +218,8 @@ viz_component("service") {
+@@ -220,6 +220,8 @@ viz_component("service") {
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
      "viz_service_export.h",
@@ -93,7 +93,7 @@ index af5a1b2c61c45..71d0fa3c36600 100644
  
    defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index bd9f162f5053f..20e4d6d437ce2 100644
+index d8f25c1435d4b..ee1eda5180e93 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
 @@ -17,6 +17,7 @@
@@ -134,10 +134,10 @@ index bd9f162f5053f..20e4d6d437ce2 100644
    return CreateSoftwareOutputDeviceWin(surface_handle, &output_device_backing_,
                                         display_client);
 diff --git components/viz/service/display_embedder/software_output_device_win.cc components/viz/service/display_embedder/software_output_device_win.cc
-index aedc4d24d3fb3..442d2e4204b93 100644
+index de5825e251f3b..841a626586f2b 100644
 --- components/viz/service/display_embedder/software_output_device_win.cc
 +++ components/viz/service/display_embedder/software_output_device_win.cc
-@@ -191,8 +191,9 @@ void SoftwareOutputDeviceWinProxy::EndPaintDelegated(
+@@ -192,8 +192,9 @@ void SoftwareOutputDeviceWinProxy::EndPaintDelegated(
    if (!canvas_)
      return;
  
@@ -222,7 +222,7 @@ index 2f462f0deb5fc..695869b83cefa 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index eb6bcc2e265a9..832d4ba916b7c 100644
+index 50cea82c6b477..0329d39416742 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -32,7 +32,9 @@
@@ -260,7 +260,7 @@ index eb6bcc2e265a9..832d4ba916b7c 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -496,6 +509,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -503,6 +516,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
  
    std::unique_ptr<PendingBeginFrameArgs> pending_begin_frame_args_;
  

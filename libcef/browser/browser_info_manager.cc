@@ -41,10 +41,7 @@ void TranslatePopupFeatures(const blink::mojom::WindowFeatures& webKitFeatures,
   features.height = static_cast<int>(webKitFeatures.bounds.height());
   features.heightSet = webKitFeatures.has_height;
 
-  features.menuBarVisible = webKitFeatures.menu_bar_visible;
-  features.statusBarVisible = webKitFeatures.status_bar_visible;
-  features.toolBarVisible = webKitFeatures.tool_bar_visible;
-  features.scrollbarsVisible = webKitFeatures.scrollbars_visible;
+  features.isPopup = webKitFeatures.is_popup;
 }
 
 CefBrowserInfoManager* g_info_manager = nullptr;

@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_pump_mac.mm base/message_loop/message_pump_mac.mm
-index 1beda5f800827..879f4948b6bcd 100644
+index 25ee65396cfb7..3c9b433cb31bb 100644
 --- base/message_loop/message_pump_mac.mm
 +++ base/message_loop/message_pump_mac.mm
 @@ -813,7 +813,8 @@ void MessagePumpUIApplication::Detach() {

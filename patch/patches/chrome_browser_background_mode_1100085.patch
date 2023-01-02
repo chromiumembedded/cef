@@ -1,8 +1,8 @@
 diff --git chrome/browser/browser_process.h chrome/browser/browser_process.h
-index f365449df16a8..91afb283a41f5 100644
+index a640eeb910307..c32d7827e9240 100644
 --- chrome/browser/browser_process.h
 +++ chrome/browser/browser_process.h
-@@ -198,9 +198,9 @@ class BrowserProcess {
+@@ -199,9 +199,9 @@ class BrowserProcess {
    virtual DownloadStatusUpdater* download_status_updater() = 0;
    virtual DownloadRequestLimiter* download_request_limiter() = 0;
  
@@ -14,10 +14,10 @@ index f365449df16a8..91afb283a41f5 100644
        std::unique_ptr<BackgroundModeManager> manager) = 0;
  #endif
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index d1962357f5e1a..9e7b9abcca851 100644
+index b924f221dcb3c..9e156b83787ca 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
-@@ -1007,18 +1007,14 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
+@@ -1030,18 +1030,14 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
    return download_request_limiter_.get();
  }
  
@@ -38,7 +38,7 @@ index d1962357f5e1a..9e7b9abcca851 100644
      std::unique_ptr<BackgroundModeManager> manager) {
    background_mode_manager_ = std::move(manager);
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index f8a1250d7ba07..0ce11cd182281 100644
+index ecae3d0e0ca71..83e7bbdbbe4ce 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
 @@ -174,8 +174,8 @@ class BrowserProcessImpl : public BrowserProcess,
@@ -52,10 +52,10 @@ index f8a1250d7ba07..0ce11cd182281 100644
        std::unique_ptr<BackgroundModeManager> manager) override;
  #endif
 diff --git chrome/browser/lifetime/browser_close_manager.cc chrome/browser/lifetime/browser_close_manager.cc
-index bfcd165aa529e..1c5eb471a561c 100644
+index 9210206d6fe6c..df950ed67ba38 100644
 --- chrome/browser/lifetime/browser_close_manager.cc
 +++ chrome/browser/lifetime/browser_close_manager.cc
-@@ -157,12 +157,14 @@ void BrowserCloseManager::CloseBrowsers() {
+@@ -158,12 +158,14 @@ void BrowserCloseManager::CloseBrowsers() {
    // exit can restore all browsers open before exiting.
    ProfileManager::ShutdownSessionServices();
  #endif

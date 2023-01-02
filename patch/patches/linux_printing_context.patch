@@ -1,5 +1,5 @@
 diff --git printing/printing_context_linux.cc printing/printing_context_linux.cc
-index 83211e80d8270..9ce9b37375762 100644
+index 5520e15c232c8..70742cba8056c 100644
 --- printing/printing_context_linux.cc
 +++ printing/printing_context_linux.cc
 @@ -25,6 +25,12 @@
@@ -16,7 +16,7 @@ index 83211e80d8270..9ce9b37375762 100644
  std::unique_ptr<PrintingContext> PrintingContext::CreateImpl(
      Delegate* delegate,
 @@ -47,6 +53,14 @@ PrintingContextLinux::~PrintingContextLinux() {
-     print_dialog_->ReleaseDialog();
+     print_dialog_.ExtractAsDangling()->ReleaseDialog();
  }
  
 +// static
@@ -80,7 +80,7 @@ index 83211e80d8270..9ce9b37375762 100644
    return mojom::ResultCode::kSuccess;
  }
 diff --git printing/printing_context_linux.h printing/printing_context_linux.h
-index 6745bc07ecd21..4139ee5562b84 100644
+index 6fb35248ec459..3be9c29c7ebf9 100644
 --- printing/printing_context_linux.h
 +++ printing/printing_context_linux.h
 @@ -16,6 +16,20 @@ namespace printing {
@@ -105,10 +105,10 @@ index 6745bc07ecd21..4139ee5562b84 100644
  // PrintingContext with optional native UI for print dialog and pdf_paper_size.
  class COMPONENT_EXPORT(PRINTING) PrintingContextLinux : public PrintingContext {
 diff --git tools/v8_context_snapshot/BUILD.gn tools/v8_context_snapshot/BUILD.gn
-index 33a147bd79fd1..01f573e30395e 100644
+index eed0eed705d7f..482037423bc01 100644
 --- tools/v8_context_snapshot/BUILD.gn
 +++ tools/v8_context_snapshot/BUILD.gn
-@@ -106,6 +106,7 @@ if (use_v8_context_snapshot) {
+@@ -105,6 +105,7 @@ if (use_v8_context_snapshot) {
        deps = [
          "//gin:gin",
          "//mojo/core/embedder",

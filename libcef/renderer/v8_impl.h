@@ -187,8 +187,9 @@ class CefV8ContextImpl : public CefV8Context {
  private:
   using Handle = CefV8Handle<v8::Context>;
   scoped_refptr<Handle> handle_;
+  v8::MicrotaskQueue* const microtask_queue_;
 
-  int enter_count_;
+  int enter_count_ = 0;
   std::unique_ptr<v8::MicrotasksScope> microtasks_scope_;
 
   IMPLEMENT_REFCOUNTING(CefV8ContextImpl);

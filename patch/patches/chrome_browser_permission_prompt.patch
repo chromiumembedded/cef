@@ -1,5 +1,5 @@
 diff --git chrome/browser/background_fetch/background_fetch_permission_context.cc chrome/browser/background_fetch/background_fetch_permission_context.cc
-index 82193be08677a..c7290039cbe96 100644
+index 0a5aef10879ac..1b122c8848c97 100644
 --- chrome/browser/background_fetch/background_fetch_permission_context.cc
 +++ chrome/browser/background_fetch/background_fetch_permission_context.cc
 @@ -4,6 +4,7 @@
@@ -21,7 +21,7 @@ index 82193be08677a..c7290039cbe96 100644
          g_browser_process->download_request_limiter();
      DCHECK(limiter);
 diff --git chrome/browser/background_sync/periodic_background_sync_permission_context.cc chrome/browser/background_sync/periodic_background_sync_permission_context.cc
-index 40d27e69a17ce..a7e18b475dd18 100644
+index 16107572d4d0d..409e9ea870482 100644
 --- chrome/browser/background_sync/periodic_background_sync_permission_context.cc
 +++ chrome/browser/background_sync/periodic_background_sync_permission_context.cc
 @@ -6,6 +6,7 @@
@@ -100,7 +100,7 @@ index 3649a61d07b7d..22fe4f512e93b 100644
    delegates.media_stream_device_enumerator =
        MediaCaptureDevicesDispatcher::GetInstance();
 diff --git chrome/browser/storage/durable_storage_permission_context.cc chrome/browser/storage/durable_storage_permission_context.cc
-index c515cd600c0a4..04adc37b4a24c 100644
+index 2a52f59d04ba6..c759dac784553 100644
 --- chrome/browser/storage/durable_storage_permission_context.cc
 +++ chrome/browser/storage/durable_storage_permission_context.cc
 @@ -8,6 +8,7 @@
@@ -121,7 +121,7 @@ index c515cd600c0a4..04adc37b4a24c 100644
 +  if (cef::IsAlloyRuntimeEnabled() || requesting_origin != embedding_origin) {
      NotifyPermissionSet(id, requesting_origin, embedding_origin,
                          std::move(callback), /*persist=*/false,
-                         CONTENT_SETTING_DEFAULT, /*is_one_time=*/false);
+                         CONTENT_SETTING_DEFAULT, /*is_one_time=*/false,
 diff --git chrome/browser/ui/permission_bubble/permission_prompt.h chrome/browser/ui/permission_bubble/permission_prompt.h
 index fbce13c16ad10..0512b2f09937e 100644
 --- chrome/browser/ui/permission_bubble/permission_prompt.h
@@ -141,10 +141,10 @@ index fbce13c16ad10..0512b2f09937e 100644
  std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPrompt(
      content::WebContents* web_contents,
 diff --git chrome/browser/ui/views/permissions/permission_prompt_factory.cc chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-index 18923a76ceea2..368b82a6c4151 100644
+index 82a50b7e22dfe..c4ba55ec6bd54 100644
 --- chrome/browser/ui/views/permissions/permission_prompt_factory.cc
 +++ chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-@@ -150,11 +150,28 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
+@@ -158,11 +158,28 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
    }
  }
  

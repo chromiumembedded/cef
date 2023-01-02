@@ -46,6 +46,19 @@
 
 namespace blink_glue {
 
+namespace {
+
+blink::ExecutionContext* GetExecutionContext(v8::Local<v8::Context> context) {
+  blink::LocalFrame* frame = blink::ToLocalFrameIfNotDetached(context);
+  if (frame &&
+      frame->DomWindow()->CanExecuteScripts(blink::kAboutToExecuteScript)) {
+    return frame->GetDocument()->GetExecutionContext();
+  }
+  return nullptr;
+}
+
+}  // namespace
+
 const int64_t kInvalidFrameId = -1;
 
 bool CanGoBack(blink::WebView* view) {
@@ -73,7 +86,7 @@ void GoBack(blink::WebView* view) {
       blink::Frame* core_frame = blink::WebFrame::ToCoreFrame(*main_frame);
       blink::To<blink::LocalFrame>(core_frame)
           ->GetLocalFrameHostRemote()
-          .GoToEntryAtOffset(-1, true /* has_user_gesture */);
+          .GoToEntryAtOffset(-1, /*has_user_gesture=*/true, absl::nullopt);
     }
   }
 }
@@ -89,7 +102,7 @@ void GoForward(blink::WebView* view) {
       blink::Frame* core_frame = blink::WebFrame::ToCoreFrame(*main_frame);
       blink::To<blink::LocalFrame>(core_frame)
           ->GetLocalFrameHostRemote()
-          .GoToEntryAtOffset(1, true /* has_user_gesture */);
+          .GoToEntryAtOffset(1, /*has_user_gesture=*/true, absl::nullopt);
     }
   }
 }
@@ -170,13 +183,9 @@ v8::MaybeLocal<v8::Value> CallV8Function(v8::Local<v8::Context> context,
 
   // Execute the function call using the V8ScriptRunner so that inspector
   // instrumentation works.
-  blink::LocalFrame* frame = blink::ToLocalFrameIfNotDetached(context);
-  DCHECK(frame);
-  if (frame &&
-      frame->DomWindow()->CanExecuteScripts(blink::kAboutToExecuteScript)) {
+  if (auto execution_context = GetExecutionContext(context)) {
     func_rv = blink::V8ScriptRunner::CallFunction(
-        function, frame->GetDocument()->GetExecutionContext(), receiver, argc,
-        args, isolate);
+        function, execution_context, receiver, argc, args, isolate);
   }
 
   return func_rv;
@@ -223,6 +232,13 @@ v8::Local<v8::Value> ExecuteV8ScriptAndReturnValue(
 
   DCHECK(tryCatch.HasCaught());
   return v8::Local<v8::Value>();
+}
+
+v8::MicrotaskQueue* GetMicrotaskQueue(v8::Local<v8::Context> context) {
+  if (auto execution_context = GetExecutionContext(context)) {
+    return execution_context->GetMicrotaskQueue();
+  }
+  return nullptr;
 }
 
 bool IsScriptForbidden() {

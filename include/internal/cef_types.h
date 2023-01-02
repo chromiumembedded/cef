@@ -2179,10 +2179,8 @@ typedef struct _cef_popup_features_t {
   int height;
   int heightSet;
 
-  int menuBarVisible;
-  int statusBarVisible;
-  int toolBarVisible;
-  int scrollbarsVisible;
+  /// True (1) if browser interface elements should be hidden.
+  int isPopup;
 } cef_popup_features_t;
 
 ///

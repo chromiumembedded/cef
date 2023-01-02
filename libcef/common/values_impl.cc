@@ -768,7 +768,7 @@ bool CefDictionaryValueImpl::Clear() {
   // Detach any dependent values.
   controller()->RemoveDependencies(mutable_value());
 
-  mutable_value()->DictClear();
+  mutable_value()->GetDict().clear();
   return true;
 }
 
@@ -1222,7 +1222,7 @@ bool CefListValueImpl::Clear() {
   // Detach any dependent values.
   controller()->RemoveDependencies(mutable_value());
 
-  mutable_value()->ClearList();
+  mutable_value()->GetList().clear();
   return true;
 }
 

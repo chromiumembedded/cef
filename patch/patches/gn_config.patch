@@ -12,7 +12,7 @@ index 53c9e4ec12aef..b303d299c49a9 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 15e67fe72dbd2..ac0c5478146e4 100644
+index 9075b6f33090b..21c669d061c44 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -18,6 +18,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -67,7 +67,7 @@ index d9024468296e7..11bfae65b7b02 100644
 +         "studio path")
  }
 diff --git chrome/app/framework.order chrome/app/framework.order
-index 1d6be612da8d4..c8ea70f2f256d 100644
+index 60f573a736ba5..90dd6d0b37314 100644
 --- chrome/app/framework.order
 +++ chrome/app/framework.order
 @@ -28,3 +28,8 @@ _ChromeMain
@@ -80,7 +80,7 @@ index 1d6be612da8d4..c8ea70f2f256d 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index c4178b381465f..f7e940470a375 100644
+index 6b478cb901c0d..ba18b48249857 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
@@ -126,7 +126,7 @@ index adc881122cb9c..cafa71386fad6 100644
        source_patterns +=
            [ "${root_gen_dir}/extensions/strings/extensions_strings_" ]
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index f72c545630922..986a2f7866504 100644
+index 7fe3f49dafecd..8f3015f399b61 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -6,6 +6,7 @@ import("//build/config/compiler/compiler.gni")
@@ -137,7 +137,7 @@ index f72c545630922..986a2f7866504 100644
  import("//chrome/process_version_rc_template.gni")
  import("//components/nacl/features.gni")
  import("//third_party/ffmpeg/ffmpeg_options.gni")
-@@ -121,11 +122,13 @@ action("mini_installer_archive") {
+@@ -124,11 +125,13 @@ action("mini_installer_archive") {
    inputs = [
      "$root_out_dir/chrome.dll",
      "$root_out_dir/chrome.exe",
@@ -153,7 +153,7 @@ index f72c545630922..986a2f7866504 100644
    outputs = [
      # See also chrome.packed.7z conditionally added below.
 diff --git tools/grit/grit_args.gni tools/grit/grit_args.gni
-index a60843bab981e..44b9e98f2eb89 100644
+index bd7d65bdfa518..e7a68d7796bc8 100644
 --- tools/grit/grit_args.gni
 +++ tools/grit/grit_args.gni
 @@ -5,6 +5,7 @@
@@ -164,7 +164,7 @@ index a60843bab981e..44b9e98f2eb89 100644
  import("//build/config/ui.gni")
  
  shared_intermediate_dir = rebase_path(root_gen_dir, root_build_dir)
-@@ -36,6 +37,8 @@ _grit_defines = [
+@@ -37,6 +38,8 @@ _grit_defines = [
  
    # Mac and iOS want Title Case strings.
    "use_titlecase=${is_apple}",

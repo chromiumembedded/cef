@@ -34,7 +34,7 @@ index 04d7b8ae25192..7da00aa535bea 100644
  }
  
 diff --git chrome/browser/printing/print_preview_dialog_controller.cc chrome/browser/printing/print_preview_dialog_controller.cc
-index 37d7f35d314cc..7ddd2f44118bf 100644
+index b848ee0d185ec..c3ddbc8932f66 100644
 --- chrome/browser/printing/print_preview_dialog_controller.cc
 +++ chrome/browser/printing/print_preview_dialog_controller.cc
 @@ -15,6 +15,7 @@
@@ -46,10 +46,10 @@ index 37d7f35d314cc..7ddd2f44118bf 100644
  #include "chrome/browser/printing/print_view_manager.h"
  #include "chrome/browser/task_manager/web_contents_tags.h"
 diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index 780491e14449d..a676ab5c00493 100644
+index 0cd52f9e25177..781bd953a9530 100644
 --- chrome/browser/printing/print_view_manager_base.cc
 +++ chrome/browser/printing/print_view_manager_base.cc
-@@ -606,13 +606,14 @@ void PrintViewManagerBase::UpdatePrintSettings(
+@@ -617,13 +617,14 @@ void PrintViewManagerBase::UpdatePrintSettings(
        job_settings.Set(kSettingRasterizePdfDpi, value);
    }
  
@@ -104,7 +104,7 @@ index ff180eb75c935..711b51ed039a5 100644
  }
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index 72ebe05ad7d83..3a780a36d21d1 100644
+index 94e58569d60fd..47451dbcf7976 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -23,6 +23,7 @@
@@ -114,8 +114,8 @@ index 72ebe05ad7d83..3a780a36d21d1 100644
 +#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/pdf/pdf_extension_util.h"
- #include "chrome/browser/printing/background_printing_manager.h"
-@@ -98,6 +99,13 @@ const char16_t kBasicPrintShortcut[] = u"\u0028\u21e7\u2318\u0050\u0029";
+ #include "chrome/browser/policy/management_utils.h"
+@@ -99,6 +100,13 @@ const char16_t kBasicPrintShortcut[] = u"\u0028\u21e7\u2318\u0050\u0029";
  const char16_t kBasicPrintShortcut[] = u"(Ctrl+Shift+P)";
  #endif
  
@@ -129,7 +129,7 @@ index 72ebe05ad7d83..3a780a36d21d1 100644
  constexpr char kInvalidArgsForDidStartPreview[] =
      "Invalid arguments for DidStartPreview";
  constexpr char kInvalidPageNumberForDidPreviewPage[] =
-@@ -328,7 +336,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
+@@ -329,7 +337,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
    source->AddLocalizedStrings(kLocalizedStrings);
  
  #if !BUILDFLAG(IS_CHROMEOS)

@@ -1,8 +1,8 @@
 diff --git ui/accessibility/platform/BUILD.gn ui/accessibility/platform/BUILD.gn
-index 4db17696494ad..c4a56a3237d58 100644
+index 9f1549e173f41..b8af55c0fb763 100644
 --- ui/accessibility/platform/BUILD.gn
 +++ ui/accessibility/platform/BUILD.gn
-@@ -272,6 +272,10 @@ source_set("platform") {
+@@ -278,6 +278,10 @@ component("platform") {
        if (use_glib) {
          configs += [ "//build/config/linux:glib" ]
        }

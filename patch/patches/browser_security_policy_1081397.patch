@@ -20,10 +20,10 @@ index 18c138c21a853..554e22458da45 100644
  
            // TODO(wjmaclean): We should update the ProcessLock comparison API
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index cd1650e1e1ad0..6768097b3a271 100644
+index 8dcc8499e45be..2116054a66828 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -6671,10 +6671,22 @@ NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(
+@@ -6780,10 +6780,22 @@ NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(
    bool use_opaque_origin =
        (sandbox_flags & network::mojom::WebSandboxFlags::kOrigin) ==
        network::mojom::WebSandboxFlags::kOrigin;
@@ -47,7 +47,7 @@ index cd1650e1e1ad0..6768097b3a271 100644
    }
  
    return origin_and_debug_info;
-@@ -6704,6 +6716,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponseWithDebugInfo() {
+@@ -6813,6 +6825,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponseWithDebugInfo() {
        GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(
            SandboxFlagsToCommit());
  

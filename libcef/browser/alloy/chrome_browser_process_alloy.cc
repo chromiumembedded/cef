@@ -421,3 +421,8 @@ ChromeBrowserProcessAlloy::GetBreadcrumbPersistentStorageManager() {
   NOTREACHED();
   return nullptr;
 }
+
+HidSystemTrayIcon* ChromeBrowserProcessAlloy::hid_system_tray_icon() {
+  NOTREACHED();
+  return nullptr;
+}

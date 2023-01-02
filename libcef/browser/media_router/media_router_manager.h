@@ -20,7 +20,7 @@ class BrowserContext;
 
 class CefMediaRoutesObserver;
 class CefPresentationConnection;
-class CefRouteMessageObserver;
+class CefPresentationConnectionMessageObserver;
 
 // Manages CEF usage of MediaRouter. Owned by CefBrowserContext and only
 // accessed on the UI thread.
@@ -80,7 +80,7 @@ class CefMediaRouterManager
  private:
   friend class CefMediaRoutesObserver;
   friend class CefPresentationConnection;
-  friend class CefRouteMessageObserver;
+  friend class CefPresentationConnectionMessageObserver;
 
   // Do not keep a reference to the object returned by this method.
   media_router::MediaRouter* GetMediaRouter() const;
@@ -99,7 +99,7 @@ class CefMediaRouterManager
     std::unique_ptr<CefPresentationConnection> presentation_connection_;
 
     // Used if there is no RoutePresentationConnectionPtr.
-    std::unique_ptr<CefRouteMessageObserver> message_observer_;
+    std::unique_ptr<CefPresentationConnectionMessageObserver> message_observer_;
     base::CallbackListSubscription state_subscription_;
   };
   void CreateRouteState(

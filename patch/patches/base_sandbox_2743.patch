@@ -1,16 +1,16 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 304a8d1891a98..13be431518cc4 100644
+index 904eaff4687de..3e5912b7910df 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
-@@ -39,6 +39,7 @@ import("//build/nocompile.gni")
- import("//build/rust/mixed_component.gni")
+@@ -38,6 +38,7 @@ import("//build/config/ui.gni")
+ import("//build/nocompile.gni")
  import("//build/timestamp.gni")
  import("//build_overrides/build.gni")
 +import("//cef/libcef/features/features.gni")
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1993,7 +1994,11 @@ mixed_component("base") {
+@@ -1966,7 +1967,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index 304a8d1891a98..13be431518cc4 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -2134,6 +2139,12 @@ mixed_component("base") {
+@@ -2107,6 +2112,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -37,10 +37,10 @@ index 304a8d1891a98..13be431518cc4 100644
        "cfgmgr32.lib",
        "powrprof.lib",
 diff --git base/allocator/dispatcher/dispatcher.cc base/allocator/dispatcher/dispatcher.cc
-index 4a1bf8191ba2c..1fed45b2ac0d9 100644
+index 8c5b7e7d71a56..195d8ae273e31 100644
 --- base/allocator/dispatcher/dispatcher.cc
 +++ base/allocator/dispatcher/dispatcher.cc
-@@ -13,6 +13,7 @@
+@@ -14,6 +14,7 @@
  #include "base/dcheck_is_on.h"
  #include "base/no_destructor.h"
  #include "base/sampling_heap_profiler/poisson_allocation_sampler.h"
@@ -48,7 +48,7 @@ index 4a1bf8191ba2c..1fed45b2ac0d9 100644
  
  #if DCHECK_IS_ON()
  #include <atomic>
-@@ -260,7 +261,7 @@ struct Dispatcher::Impl {
+@@ -276,7 +277,7 @@ struct Dispatcher::Impl {
    }
  
    void Reset() {
@@ -88,35 +88,17 @@ index 29626e5853c6e..2fb1c61504c5d 100644
  #else
  #include "base/hash/sha1_boringssl.h"
 diff --git base/memory/raw_ptr.h base/memory/raw_ptr.h
-index d3e96a9bcf0a2..e7f9003405743 100644
+index 4191f0e47f51e..0167438657063 100644
 --- base/memory/raw_ptr.h
 +++ base/memory/raw_ptr.h
-@@ -22,6 +22,7 @@
- #include "base/base_export.h"
+@@ -21,6 +21,7 @@
+ #include "base/allocator/partition_allocator/partition_alloc_config.h"
  #include "build/build_config.h"
  #include "build/buildflag.h"
 +#include "cef/libcef/features/features.h"
  
- // A strange dance is done here to provide `CHECK` for `raw_ptr<T>`
- // in the presence of NaCl. The constraints are:
-@@ -39,7 +40,7 @@
- // macro isn't used _everywhere_ (e.g. not in the implementation of
- // BRP) because we assert that NaCl always uses RawPtrNoOpImpl (see
- // `static_assert` below).
--#if BUILDFLAG(IS_NACL)
-+#if BUILDFLAG(IS_NACL) || BUILDFLAG(IS_CEF_SANDBOX_BUILD)
- #include "base/check.h"
- #define PA_RAW_PTR_CHECK(condition) CHECK(condition)
- #else
-@@ -993,7 +994,7 @@ class PA_TRIVIAL_ABI PA_GSL_POINTER raw_ptr {
-       raw_ptr<T, internal::RawPtrCountingImplWrapperForTest<RawPtrMayDangle>>,
-       raw_ptr<T, RawPtrMayDangle>>;
- 
--#if BUILDFLAG(IS_NACL)
-+#if BUILDFLAG(IS_NACL) || BUILDFLAG(IS_CEF_SANDBOX_BUILD)
-   // See comment at top about `PA_RAW_PTR_CHECK()`.
-   static_assert(std::is_same_v<Impl, internal::RawPtrNoOpImpl>);
- #endif  // BUILDFLAG(IS_NACL)
+ #if defined(PA_ENABLE_MTE_CHECKED_PTR_SUPPORT_WITH_64_BITS_POINTERS)
+ #include "base/allocator/partition_allocator/partition_tag.h"
 diff --git base/rand_util.h base/rand_util.h
 index 04024537ee698..59864cb084559 100644
 --- base/rand_util.h
@@ -142,10 +124,10 @@ index 04024537ee698..59864cb084559 100644
   public:
    using result_type = uint64_t;
 diff --git base/rand_util_win.cc base/rand_util_win.cc
-index 099fe2912be23..758fa0c4296af 100644
+index 2d9a1633b564f..d304c204c43ff 100644
 --- base/rand_util_win.cc
 +++ base/rand_util_win.cc
-@@ -20,14 +20,19 @@
+@@ -21,14 +21,19 @@
  #include <limits>
  
  #include "base/check.h"
@@ -165,7 +147,7 @@ index 099fe2912be23..758fa0c4296af 100644
  namespace {
  
  // The BoringSSl helpers are duplicated in rand_util_fuchsia.cc and
-@@ -49,11 +54,16 @@ bool UseBoringSSLForRandBytes() {
+@@ -50,11 +55,16 @@ bool UseBoringSSLForRandBytes() {
    return g_use_boringssl.load(std::memory_order_relaxed);
  }
  
@@ -182,7 +164,7 @@ index 099fe2912be23..758fa0c4296af 100644
    if (!avoid_allocation && internal::UseBoringSSLForRandBytes()) {
      // Ensure BoringSSL is initialized so it can use things like RDRAND.
      CRYPTO_library_init();
-@@ -61,6 +71,7 @@ void RandBytes(void* output, size_t output_length, bool avoid_allocation) {
+@@ -62,6 +72,7 @@ void RandBytes(void* output, size_t output_length, bool avoid_allocation) {
      (void)RAND_bytes(static_cast<uint8_t*>(output), output_length);
      return;
    }
@@ -191,10 +173,10 @@ index 099fe2912be23..758fa0c4296af 100644
    char* output_ptr = static_cast<char*>(output);
    while (output_length > 0) {
 diff --git base/unguessable_token.cc base/unguessable_token.cc
-index dcef8fbda4493..c8034ebc44b23 100644
+index ebb51d95575d3..fd9dc67dcf470 100644
 --- base/unguessable_token.cc
 +++ base/unguessable_token.cc
-@@ -9,8 +9,9 @@
+@@ -10,8 +10,9 @@
  #include "base/format_macros.h"
  #include "base/rand_util.h"
  #include "build/build_config.h"
@@ -205,7 +187,7 @@ index dcef8fbda4493..c8034ebc44b23 100644
  #include "third_party/boringssl/src/include/openssl/mem.h"
  #endif
  
-@@ -41,7 +42,7 @@ UnguessableToken UnguessableToken::Deserialize(uint64_t high, uint64_t low) {
+@@ -44,7 +45,7 @@ UnguessableToken UnguessableToken::Deserialize(uint64_t high, uint64_t low) {
  }
  
  bool UnguessableToken::operator==(const UnguessableToken& other) const {
@@ -214,3 +196,46 @@ index dcef8fbda4493..c8034ebc44b23 100644
    // BoringSSL is unavailable for NaCl builds so it remains timing dependent.
    return token_ == other.token_;
  #else
+diff --git base/win/sid.cc base/win/sid.cc
+index 50a120166f08a..dc7da1949b6b1 100644
+--- base/win/sid.cc
++++ base/win/sid.cc
+@@ -16,14 +16,19 @@
+ #include <utility>
+ 
+ #include "base/check.h"
++#include "base/notreached.h"
+ #include "base/no_destructor.h"
+ #include "base/rand_util.h"
+ #include "base/strings/string_util_win.h"
+ #include "base/win/scoped_handle.h"
+ #include "base/win/scoped_localalloc.h"
+ #include "base/win/windows_version.h"
++#include "cef/libcef/features/features.h"
++
++#if !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
+ #include "third_party/boringssl/src/include/openssl/crypto.h"
+ #include "third_party/boringssl/src/include/openssl/sha.h"
++#endif
+ 
+ namespace base::win {
+ 
+@@ -124,6 +129,7 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
+   if (known_cap != known_capabilities->end()) {
+     return FromKnownCapability(known_cap->second);
+   }
++#if !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
+   CRYPTO_library_init();
+   static_assert((SHA256_DIGEST_LENGTH / sizeof(DWORD)) ==
+                 SECURITY_APP_PACKAGE_RID_COUNT);
+@@ -136,6 +142,10 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
+          reinterpret_cast<uint8_t*>(&rids[2]));
+   return FromSubAuthorities(SECURITY_APP_PACKAGE_AUTHORITY, std::size(rids),
+                             rids);
++#else
++  NOTREACHED();
++  return Sid(WellKnownSid::kNull);
++#endif
+ }
+ 
+ Sid Sid::FromKnownSid(WellKnownSid type) {

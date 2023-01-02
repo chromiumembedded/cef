@@ -42,6 +42,7 @@
 #include "base/memory/ptr_util.h"
 #include "base/metrics/user_metrics_action.h"
 #include "base/path_service.h"
+#include "base/process/current_process.h"
 #include "base/stl_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "build/build_config.h"
@@ -196,8 +197,8 @@ void AlloyContentRendererClient::RenderThreadStarted() {
   if (is_extension) {
     // The process name was set to "Renderer" in RendererMain(). Update it to
     // "Extension Renderer" to highlight that it's hosting an extension.
-    base::trace_event::TraceLog::GetInstance()->set_process_name(
-        "Extension Renderer");
+    base::CurrentProcess::GetInstance().SetProcessType(
+        base::CurrentProcessType::PROCESS_RENDERER_EXTENSION);
   }
 
   thread->AddObserver(observer_.get());

@@ -71,6 +71,9 @@ BLINK_EXPORT v8::Local<v8::Value> ExecuteV8ScriptAndReturnValue(
     v8::Local<v8::Context> context,
     v8::TryCatch& tryCatch);
 
+BLINK_EXPORT v8::MicrotaskQueue* GetMicrotaskQueue(
+    v8::Local<v8::Context> context);
+
 BLINK_EXPORT bool IsScriptForbidden();
 
 class BLINK_EXPORT CefObserverRegistration {

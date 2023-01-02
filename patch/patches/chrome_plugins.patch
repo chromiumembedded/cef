@@ -54,7 +54,7 @@ index 7ceb1d7b854d9..5efcb8c09058c 100644
  
  PluginInfoHostImpl::Context::~Context() {}
 diff --git chrome/browser/plugins/plugin_utils.cc chrome/browser/plugins/plugin_utils.cc
-index d63750d32aa5f..170bf0826235d 100644
+index 8b3f569882aeb..ae0c4aa9a0514 100644
 --- chrome/browser/plugins/plugin_utils.cc
 +++ chrome/browser/plugins/plugin_utils.cc
 @@ -5,6 +5,7 @@
@@ -74,9 +74,9 @@ index d63750d32aa5f..170bf0826235d 100644
 +#endif
 +
  #if BUILDFLAG(ENABLE_EXTENSIONS)
+ #include "chrome/browser/extensions/chrome_content_browser_client_extensions_part.h"
  #include "chrome/common/pref_names.h"
- #include "components/prefs/pref_service.h"
-@@ -68,6 +73,12 @@ base::flat_map<std::string, std::string>
+@@ -69,6 +74,12 @@ base::flat_map<std::string, std::string>
  PluginUtils::GetMimeTypeToExtensionIdMap(
      content::BrowserContext* browser_context) {
    base::flat_map<std::string, std::string> mime_type_to_extension_id_map;
@@ -88,7 +88,7 @@ index d63750d32aa5f..170bf0826235d 100644
 +
  #if BUILDFLAG(ENABLE_EXTENSIONS)
    Profile* profile = Profile::FromBrowserContext(browser_context);
-   const std::vector<std::string>& allowlist =
+   if (extensions::ChromeContentBrowserClientExtensionsPart::
 diff --git chrome/common/google_url_loader_throttle.cc chrome/common/google_url_loader_throttle.cc
 index a29a2739af3c8..0feb1a87cef64 100644
 --- chrome/common/google_url_loader_throttle.cc
@@ -125,10 +125,10 @@ index a29a2739af3c8..0feb1a87cef64 100644
    // that the X-Frame-Options protection mechanism is set to either DENY or
    // SAMEORIGIN.
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index 3c3286f049ebc..5e8aae24754e3 100644
+index 3d08b706ec4a0..7f4a0398e51f9 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
-@@ -979,6 +979,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -978,6 +978,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
  
      if ((status == chrome::mojom::PluginStatus::kUnauthorized ||
           status == chrome::mojom::PluginStatus::kBlocked) &&
@@ -136,7 +136,7 @@ index 3c3286f049ebc..5e8aae24754e3 100644
          content_settings_agent_delegate->IsPluginTemporarilyAllowed(
              identifier)) {
        status = chrome::mojom::PluginStatus::kAllowed;
-@@ -1149,7 +1150,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1147,7 +1148,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
          render_frame->GetRemoteAssociatedInterfaces()->GetInterface(
              plugin_auth_host.BindNewEndpointAndPassReceiver());
          plugin_auth_host->BlockedUnauthorizedPlugin(group_name, identifier);
@@ -146,7 +146,7 @@ index 3c3286f049ebc..5e8aae24754e3 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlocked: {
-@@ -1158,7 +1160,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1156,7 +1158,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, group_name));
          placeholder->AllowLoading();
          RenderThread::Get()->RecordAction(UserMetricsAction("Plugin_Blocked"));
@@ -156,7 +156,7 @@ index 3c3286f049ebc..5e8aae24754e3 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedByPolicy: {
-@@ -1168,7 +1171,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1166,7 +1169,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
                                         group_name));
          RenderThread::Get()->RecordAction(
              UserMetricsAction("Plugin_BlockedByPolicy"));
@@ -167,7 +167,7 @@ index 3c3286f049ebc..5e8aae24754e3 100644
        }
      }
 diff --git content/browser/browser_plugin/browser_plugin_embedder.h content/browser/browser_plugin/browser_plugin_embedder.h
-index d06734015cf17..5794b6ab1c25a 100644
+index ad5f1925735fd..a871f4a7792a7 100644
 --- content/browser/browser_plugin/browser_plugin_embedder.h
 +++ content/browser/browser_plugin/browser_plugin_embedder.h
 @@ -15,6 +15,7 @@
@@ -188,10 +188,10 @@ index d06734015cf17..5794b6ab1c25a 100644
    BrowserPluginEmbedder(const BrowserPluginEmbedder&) = delete;
    BrowserPluginEmbedder& operator=(const BrowserPluginEmbedder&) = delete;
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index 5c05c4c3bbde1..df728150ca821 100644
+index a731c5ef5b714..99e313b92c242 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
-@@ -84,6 +84,8 @@ void BrowserPluginGuest::InitInternal(WebContentsImpl* owner_web_contents) {
+@@ -80,6 +80,8 @@ void BrowserPluginGuest::InitInternal(WebContentsImpl* owner_web_contents) {
        GetWebContents()->GetOrCreateWebPreferences();
    prefs.navigate_on_drag_drop = false;
    GetWebContents()->SetWebPreferences(prefs);
@@ -201,10 +201,10 @@ index 5c05c4c3bbde1..df728150ca821 100644
  
  BrowserPluginGuest::~BrowserPluginGuest() = default;
 diff --git content/browser/browser_plugin/browser_plugin_guest.h content/browser/browser_plugin/browser_plugin_guest.h
-index 4712cd8792fa4..60af76c988278 100644
+index aec6a0eb9cbd0..286e7de6887a7 100644
 --- content/browser/browser_plugin/browser_plugin_guest.h
 +++ content/browser/browser_plugin/browser_plugin_guest.h
-@@ -82,6 +82,8 @@ class BrowserPluginGuest : public WebContentsObserver {
+@@ -68,6 +68,8 @@ class BrowserPluginGuest : public WebContentsObserver {
  
    WebContentsImpl* GetWebContents() const;
  
@@ -213,7 +213,7 @@ index 4712cd8792fa4..60af76c988278 100644
   private:
    // BrowserPluginGuest is a WebContentsObserver of |web_contents| and
    // |web_contents| has to stay valid for the lifetime of BrowserPluginGuest.
-@@ -91,6 +93,8 @@ class BrowserPluginGuest : public WebContentsObserver {
+@@ -77,6 +79,8 @@ class BrowserPluginGuest : public WebContentsObserver {
    void InitInternal(WebContentsImpl* owner_web_contents);
  
    const raw_ptr<BrowserPluginGuestDelegate, DanglingUntriaged> delegate_;

@@ -18,7 +18,7 @@ index e5d57b6136722..1d34b6256823a 100644
    if (!GetMouseWheelPhaseHandler())
      return;
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 616aafcb98225..332ade4d33e94 100644
+index dba8778b5b238..d6fdbd89f4743 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -70,6 +70,7 @@ class CursorManager;
@@ -152,10 +152,10 @@ index 5342397d0a2e8..3b3878a714e56 100644
    // Set the view's active state (i.e., tint state of controls).
    virtual void SetActive(bool active) = 0;
 diff --git ui/ozone/platform/x11/x11_window.cc ui/ozone/platform/x11/x11_window.cc
-index 939345f9c662b..89ae87b666ad3 100644
+index cbf300db6ec3a..0e41c846397c7 100644
 --- ui/ozone/platform/x11/x11_window.cc
 +++ ui/ozone/platform/x11/x11_window.cc
-@@ -1795,7 +1795,8 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
+@@ -1796,7 +1796,8 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
    req.border_pixel = 0;
  
    bounds_in_pixels_ = SanitizeBounds(bounds);
@@ -243,10 +243,10 @@ index 01d4ffe408a84..fbe41fefbb2bd 100644
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  };
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-index 3fcef7e5552bf..f59f82c5f06e5 100644
+index a7d8b09e1d76e..e973baff291c0 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-@@ -273,8 +273,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
+@@ -275,8 +275,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
    if (properties.parent_widget) {
      window_parent_ = DesktopWindowTreeHostPlatform::GetHostForWidget(
          properties.parent_widget);
@@ -258,7 +258,7 @@ index 3fcef7e5552bf..f59f82c5f06e5 100644
  
    // Calculate initial bounds.
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 7fe6a03afbaf2..dc4585b4f398f 100644
+index ceee9102cf021..00e82621849ea 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -183,16 +183,28 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
@@ -294,7 +294,7 @@ index 7fe6a03afbaf2..dc4585b4f398f 100644
    message_handler_->Init(parent_hwnd, pixel_bounds, params.headless_mode);
    CreateCompositor(params.force_software_compositing);
    OnAcceleratedWidgetAvailable();
-@@ -1036,11 +1048,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -1040,11 +1052,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -312,7 +312,7 @@ index 7fe6a03afbaf2..dc4585b4f398f 100644
  }
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
-@@ -1048,6 +1064,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
+@@ -1052,6 +1068,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
    if (ui::PlatformEventSource::ShouldIgnoreNativePlatformEvents())
      return true;
  
@@ -325,7 +325,7 @@ index 7fe6a03afbaf2..dc4585b4f398f 100644
    SendEventToSink(event);
    return event->handled();
  }
-@@ -1227,8 +1249,16 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
+@@ -1231,8 +1253,16 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
    // positions in variable-DPI situations. See https://crbug.com/1224715 for
    // details.
    aura::Window* root = nullptr;
@@ -426,10 +426,10 @@ index c179c718d0255..967a87c07d026 100644
      // the NativeWidget may specify a default size. If the parent is specified,
      // |bounds| is in the parent's coordinate system. If the parent is not
 diff --git ui/views/widget/widget_delegate.h ui/views/widget/widget_delegate.h
-index a4a8a34009440..88d9721e0c71a 100644
+index 8b0f5f5c2867b..1c8afcfb9d905 100644
 --- ui/views/widget/widget_delegate.h
 +++ ui/views/widget/widget_delegate.h
-@@ -379,6 +379,10 @@ class VIEWS_EXPORT WidgetDelegate
+@@ -375,6 +375,10 @@ class VIEWS_EXPORT WidgetDelegate
    // Returns true if the title text should be centered.
    bool ShouldCenterWindowTitleText() const;
  
@@ -455,21 +455,10 @@ index d24c447bb8030..29215d6578169 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index ec39cb0d15c80..27c51bfb740f4 100644
+index f8a5b92ae541a..9186d9a56de3d 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -626,7 +626,9 @@ void HWNDMessageHandler::SetDwmFrameExtension(DwmFrameState state) {
-   if (!delegate_->HasFrame() && ui::win::IsAeroGlassEnabled() &&
-       !is_translucent_) {
-     MARGINS m = {0, 0, 0, 0};
--    if (state == DwmFrameState::kOn)
-+    // Fix 1px gap with frameless windows on Win11 by not setting DWM margins
-+    // when maximized. See CEF issue #3414.
-+    if (state == DwmFrameState::kOn && !IsMaximized())
-       m = {0, 0, 1, 0};
-     DwmExtendFrameIntoClientArea(hwnd(), &m);
-   }
-@@ -827,7 +829,11 @@ bool HWNDMessageHandler::IsVisible() const {
+@@ -838,7 +838,11 @@ bool HWNDMessageHandler::IsVisible() const {
  }
  
  bool HWNDMessageHandler::IsActive() const {
@@ -482,7 +471,7 @@ index ec39cb0d15c80..27c51bfb740f4 100644
  }
  
  bool HWNDMessageHandler::IsMinimized() const {
-@@ -3224,10 +3230,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -3249,10 +3253,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.
